@@ -41,6 +41,7 @@
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qstyle.h"
+#include "../kernel/qinternal_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -369,18 +370,17 @@ void QProgressBar::drawContents( QPainter *p )
 {
     const QRect bar = contentsRect();
 
-    QPixmap pm( bar.size() );
-    QPainter paint( &pm );
+    QSharedDoubleBuffer buffer( p, bar.x(), bar.y(), bar.width(), bar.height() );
 
     QPoint pn = backgroundOffset();
-    paint.setBrushOrigin( -pn.x(), -pn.y() );
+    buffer.painter()->setBrushOrigin( -pn.x(), -pn.y() );
 
     const QPixmap *bpm = paletteBackgroundPixmap();
     if ( bpm )
-	paint.fillRect( bar, QBrush( paletteBackgroundColor(), *bpm ) );
+	buffer.painter()->fillRect( bar, QBrush( paletteBackgroundColor(), *bpm ) );
     else
-	paint.fillRect( bar, paletteBackgroundColor() );
-    paint.setFont( p->font() );
+	buffer.painter()->fillRect( bar, paletteBackgroundColor() );
+    buffer.painter()->setFont( p->font() );
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -388,21 +388,18 @@ void QProgressBar::drawContents( QPainter *p )
     if (hasFocus())
 	flags |= QStyle::Style_HasFocus;
 
-    style().drawControl(QStyle::CE_ProgressBarGroove, &paint, this,
+    style().drawControl(QStyle::CE_ProgressBarGroove, buffer.painter(), this,
 			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, this), this ),
 			colorGroup(), flags);
 
-    style().drawControl(QStyle::CE_ProgressBarContents, &paint, this,
+    style().drawControl(QStyle::CE_ProgressBarContents, buffer.painter(), this,
 			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this ),
 			colorGroup(), flags);
 
     if (percentageVisible())
-	style().drawControl(QStyle::CE_ProgressBarLabel, &paint, this,
+	style().drawControl(QStyle::CE_ProgressBarLabel, buffer.painter(), this,
 			    QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this ),
 			    colorGroup(), flags);
-    paint.end();
-
-    p->drawPixmap( bar.x(), bar.y(), pm );
 }
 
 #endif

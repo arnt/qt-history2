@@ -111,6 +111,10 @@
     The default is two-state, i.e. tri-state is FALSE.
 */
 
+#if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
+#define SAVE_CHECKBOX_PIXMAPS
+#endif
+
 /*!
     Constructs a checkbox with no text.
 
@@ -121,6 +125,9 @@
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name, WRepaintNoErase | WResizeNoErase | WMouseNoMask )
 {
+#ifndef SAVE_CHECKBOX_PIXMAPS
+    setAutoMask(TRUE);
+#endif
     setToggleButton( TRUE );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
@@ -135,6 +142,9 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 	: QButton( parent, name, WRepaintNoErase | WResizeNoErase | WMouseNoMask )
 {
+#ifndef SAVE_CHECKBOX_PIXMAPS
+    setAutoMask(TRUE);
+#endif
     setText( text );
     setToggleButton( TRUE );
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
@@ -186,10 +196,6 @@ void QCheckBox::drawButton( QPainter *paint )
     QPainter *p = paint;
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
     const QColorGroup &cg = colorGroup();
-
-#ifndef QT_NO_TEXTSTREAM
-#define SAVE_CHECKBOX_PIXMAPS
-#endif
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
