@@ -240,15 +240,15 @@ QResourceFileEngine::fileFlags(uint type) const
     if(!d->resource && !(d->resource = qt_find_resource(d->file)))
         return ret;
     if(type & PermsMask)
-        ret |= (ReadOwner|ReadUser|ReadGroup|ReadOther);
-    if(type & TypeMask) {
+        ret |= (ReadOwnerPerm|ReadUserPerm|ReadGroupPerm|ReadOtherPerm);
+    if(type & TypesMask) {
         if(d->resource->isContainer())
-            ret |= Directory;
+            ret |= DirectoryType;
         else
-            ret |= File;
+            ret |= FileType;
     }
     if(type & FlagsMask)
-        ret |= Exists;
+        ret |= ExistsFlag;
     return ret;
 }
 
