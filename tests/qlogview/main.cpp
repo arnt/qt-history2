@@ -64,9 +64,9 @@ public slots:
 	    p.setColor( QColorGroup::HighlightedText, Qt::black );
 	    p.setColor( QColorGroup::Text, Qt::white );
 	    p.setColor( QColorGroup::Base, Qt::black );
-	    log3->setReadOnly( TRUE );
-	    log3->setWordWrap( QTextEdit::NoWrap );
-	    log3->setTextFormat( Qt::PlainText );
+// 	    log3->setReadOnly( TRUE );
+// 	    log3->setWordWrap( QTextEdit::NoWrap );
+	    log3->setTextFormat( Qt::LogText );
 	    log3->setPalette( p );
 	    log3->show();
 	}
