@@ -42,7 +42,7 @@ protected:
     void hideEvent(QHideEvent *) {
         timer.stop();
     }
-    void paintEvent(QEvent *e) {
+    void paintEvent(QEvent *) {
         QPainter p(this);
         Q4StyleOptionMenuItem menuOpt(0);
         menuOpt.palette = palette();

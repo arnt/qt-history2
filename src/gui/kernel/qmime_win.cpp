@@ -289,7 +289,7 @@ QByteArray QWindowsMimeText::convertToMime(QByteArray data, const char* /*mime*/
     if (cf == CF_TEXT) {
         const char* d = data.data();
         const int s = qstrlen(d);
-        QByteArray r(data.size()+1);
+        QByteArray r(data.size()+1, '\0');
         char* o = r.data();
         int j=0;
         for (int i=0; i<s; i++) {
@@ -309,7 +309,7 @@ QByteArray QWindowsMimeText::convertToMime(QByteArray data, const char* /*mime*/
     {
     }
 
-    QByteArray r(s+2);
+    QByteArray r(s+2, '\0');
     r[0]=uchar(0xff); // BOM
     r[1]=uchar(0xfe);
     memcpy(r.data()+2,data.constData(),s);
@@ -323,7 +323,7 @@ QByteArray QWindowsMimeText::convertFromMime(QByteArray data, const char* mime, 
     if (cf == CF_TEXT) {
         // Anticipate required space for CRLFs at 1/40
         int maxsize=data.size()+data.size()/40+3;
-        QByteArray r(maxsize);
+        QByteArray r(maxsize, '\0');
         char* o = r.data();
         const char* d = data.data();
         const int s = data.size();
@@ -376,7 +376,7 @@ QByteArray QWindowsMimeText::convertFromMime(QByteArray data, const char* mime, 
         }
         res.truncate(ri);
         const int byteLength = res.length()*2;
-        QByteArray r(byteLength + 2);
+        QByteArray r(byteLength + 2, '\0');
         memcpy(r.data(), res.unicode(), byteLength);
         r[byteLength] = 0;
         r[byteLength+1] = 0;
@@ -390,7 +390,7 @@ QByteArray QWindowsMimeText::convertFromMime(QByteArray data, const char* mime, 
     if ((uchar)data[0] == uchar(0xff) && (uchar)data[1] == uchar(0xfe))
     {
         // Right way - but skip header and add nul
-        QByteArray r(data.size());
+        QByteArray r(data.size(), '\0');
         memcpy(r.data(),data.constData()+2,data.size()-2);
         r[(int)data.size()-2] = 0;
         r[(int)data.size()-1] = 0;
@@ -407,7 +407,7 @@ QByteArray QWindowsMimeText::convertFromMime(QByteArray data, const char* mime, 
             i += 2;
             s -= 2;
         }
-        QByteArray r(s+2);
+        QByteArray r(s+2, '\0');
         char* o = r.data();
         while (s) {
             o[0] = i[1];
@@ -755,7 +755,7 @@ QByteArray QWindowsMimeUri::convertFromMime(QByteArray data, const char* mime, i
         });
     }
 
-    QByteArray result(size);
+    QByteArray result(size, '\0');
     DROPFILES* d = (DROPFILES*)result.data();
     d->pFiles = sizeof(DROPFILES);
     GetCursorPos(&d->pt); // try
