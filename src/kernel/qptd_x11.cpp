@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#80 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#80 $");
 
 
 /*!
@@ -439,13 +439,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	if ( mask->data->maskgc ) {
 	    gc = (GC)mask->data->maskgc;	// we have a premade mask GC
 	} else {
-	    if ( src_pm->optimization() == QPixmap::NormalOptim /* HAAVARD &&
-		 mask->width()*mask->height() < 16384*/ ) {
-		    // Compete for the global cache if the size of the source
-		    // pixmap (and mask) doesn't exceed about 128x128 pixels
-		    gc = cache_mask_gc( dpy, dst->handle(),
-					mask->data->ser_no,
-					mask->handle() );
+	    if ( src_pm->optimization() == QPixmap::NormalOptim ) {
+		// Compete for the global cache
+		gc = cache_mask_gc( dpy, dst->handle(),
+				    mask->data->ser_no,
+				    mask->handle() );
 	    } else {
 		// Create a new mask GC. If BestOptim, we store the mask GC
 		// with the mask (not at the pixmap). This way, many pixmaps
