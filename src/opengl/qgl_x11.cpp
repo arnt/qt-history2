@@ -103,7 +103,8 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     if ( !cmap_dict ) {
 	cmap_dict = new QIntDict<CMapEntry>;
 	const char *v = glXQueryServerString( dpy, vi->screen, GLX_VERSION );
-	mesa_gl = strstr(v,"Mesa") != 0;
+	if ( v )
+	    mesa_gl = strstr(v,"Mesa") != 0;
 	qAddPostRoutine( cleanup_cmaps );
     }
 
