@@ -1204,7 +1204,7 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
     mmPos = pos;
     mmLen = str.length();
     mmMinimal = minimal;
-    mmMatchedLen = -1;
+    mmMatchedLen = 0;
 
     bool matched = FALSE;
     if ( valid && mmPos >= 0 && mmPos <= mmLen ) {
