@@ -46,18 +46,21 @@ protected:
     void drawWireframe();
     void drawFilled();
     void drawSmoothShaded();
-
+    void drawAxis();
+    void drawCube();
+    
 private:
     enum Axis { XAxis, YAxis, ZAxis };
     enum RenderModes { Wireframe, Filled, SmoothShaded, Landscape };
-    enum Views { DefaultView, CurrentView };
+    enum Views { DefaultView, CurrentView, AxisView };
 
     void rotate( GLfloat deg, Axis axis );
     void calculateVertexNormals();
     void averageNormals();
     void createGrid( int size );
     void destroyGrid();
-
+    void initDisplayLists();
+    
     RenderModes mode;
 
     typedef struct grid_normals {
@@ -79,15 +82,17 @@ private:
     double      ** wt;        // Parameterized wave data
     gridNormals ** normals;
     avgNormals  ** vertexNormals;
-    viewMatrix     views[2];
-
+    viewMatrix     views[3];
+    
     QPoint  oldPos;
     GLfloat oldX, oldY, oldZ;
     bool initFractals;
     int  gridSize, gridHalf;
     bool animationRunning;
     bool mouseButtonDown;
-    int timerID;
+    int cubeTimer, animTimer;
+    GLfloat cubeRot;
+    GLint axisList, cubeList;
 };
 
 #endif
