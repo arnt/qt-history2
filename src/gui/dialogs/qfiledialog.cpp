@@ -998,9 +998,11 @@ void QFileDialogPrivate::selectionChanged(const QItemSelection &selection)
 
     QString text;
     QModelIndexList indexes = selections->selectedIndexes();
-    for (int i = 0; i < indexes.count(); ++i) {
-        text.append(model->data(indexes.at(i)).toString());
+    if (indexes.count())
+        text.append(model->data(indexes.at(0)).toString());
+    for (int i = 1; i < indexes.count(); ++i) {
         text.append(" ");
+        text.append(model->data(indexes.at(i)).toString());
     }
     fileName->setText(text);
 }
