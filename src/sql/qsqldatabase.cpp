@@ -1038,6 +1038,7 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     \i SQL_ATTR_PACKET_SIZE
     \i SQL_ATTR_TRACEFILE
     \i SQL_ATTR_TRACE
+    \i SQL_ATTR_CONNECTION_POOLING
     \endlist
 
     \i
