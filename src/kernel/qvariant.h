@@ -100,8 +100,11 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     inline QVariant(uint ui);
     inline QVariant(Q_LLONG ll);
     inline QVariant(Q_ULLONG ull);
-    inline QVariant(bool b);
     inline QVariant(double d);
+    inline QVariant(bool b);
+#ifndef QT_NO_COMPAT
+    inline QVariant(bool b, int);
+#endif
 
     inline QVariant(const char *str);
     inline QVariant(const QByteArray &bytearray);
@@ -191,8 +194,11 @@ inline QVariant::QVariant(int i) : QKernelVariant(i) {};
 inline QVariant::QVariant(uint ui) : QKernelVariant(ui) {};
 inline QVariant::QVariant(Q_LLONG ll) : QKernelVariant(ll) {};
 inline QVariant::QVariant(Q_ULLONG ull) : QKernelVariant(ull) {};
-inline QVariant::QVariant(bool b) : QKernelVariant(b) {};
 inline QVariant::QVariant(double d) : QKernelVariant(d) {};
+inline QVariant::QVariant(bool b) : QKernelVariant(b) {};
+#ifndef QT_NO_COMPAT
+inline QVariant::QVariant(bool b, int) : QKernelVariant(b) {};
+#endif
 
 inline QVariant::QVariant(const char *str) : QKernelVariant(str) {};
 inline QVariant::QVariant(const QByteArray &bytearray) : QKernelVariant(bytearray) {};
