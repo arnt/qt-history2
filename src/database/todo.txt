@@ -30,3 +30,4 @@ Sql tables
 
 - solve *.pro path problems for building drivers
 
+- allow insert/update NULL values
