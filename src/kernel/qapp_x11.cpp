@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#105 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#104 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#105 $")
 
 
 // --------------------------------------------------------------------------
@@ -185,10 +185,23 @@ void qt_init( int *argcptr, char **argv )
 	}
 	else if ( arg == "-iconic" )
 	    mwIconic = !mwIconic;
-	else if ( arg == "-style=windows" )
-	    QApplication::setStyle( WindowsStyle );
-	else if ( arg == "-style=motif" )
-	    QApplication::setStyle( MotifStyle );
+	else if ( strncmp(arg,"-style=",7) == 0 ) {
+	    QString s = &arg[7];
+	    s = s.lower();
+	    int style = -1;
+	    if ( s == "mac" || s == "macintosh" )
+		style = MacStyle;	    
+	    else if ( s == "windows" )
+		style = WindowsStyle;
+	    else if ( s == "win3" || s == "windows3" )
+		style = WindowsStyle;
+	    else if ( s == "pm" )
+		style = PMStyle;
+	    else if ( s == "motif" )
+		style = MotifStyle;
+	    if ( style != -1 )
+		QApplication::setStyle( (GUIStyle)style );
+	}
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
