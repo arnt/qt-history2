@@ -2054,7 +2054,7 @@ void Resource::loadConnections( const QDomElement &e )
 	    if ( slot.returnType.isEmpty() )
 		slot.returnType = "void";
 	    slot.function = n.firstChild().toText().data();
-	    if ( !MetaDataBase::hasSlot( formwindow, slot.function, TRUE ) ) // warning if there is already a func!
+	    if ( !MetaDataBase::hasFunction( formwindow, slot.function, TRUE ) ) 
 		MetaDataBase::addFunction( formwindow, slot.function, slot.specifier,
 				       slot.access, "slot", slot.language, slot.returnType );
 	    else

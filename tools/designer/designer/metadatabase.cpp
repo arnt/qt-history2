@@ -679,10 +679,6 @@ void MetaDataBase::setFunctionList( QObject *o, const QValueList<Function> &func
 		  o, o->name(), o->className() );
 	return;
     }
-
-    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it )
-	Function f = *it;
-
     r->functionList = functionList;
 }
 
