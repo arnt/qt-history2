@@ -1998,15 +1998,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    w = widget; // w is the widget the cursor is in.
 	    QSize s( qt_screen->width(), qt_screen->height() );
 	    QPoint dp = qt_screen->mapToDevice( p, s );
-	    bool inWmRegion = FALSE;
-	    
-#ifndef QT_NO_QWS_MANAGER
-	    inWmRegion = widget->d->topData()->decor_allocated_region.contains(dp);
-#endif
-	    if ( inWmRegion ) {
-		// The cursor is in our WM region.
-		gw = 0;
-	    } else if ( widget->alloc_region.contains(dp) ) {
+	    if ( widget->alloc_region.contains(dp) ) {
 		// Find the child widget that the cursor is in.
 		w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
 		w = w ? (QETWidget*)w : widget;
@@ -2035,6 +2027,9 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		}
 #endif
 		gw = w;
+	    } else {
+		// This event is not for any of our widgets
+		gw = 0;
 	    }
 	    if ( mouseButtonState && !btnstate ) {
 		// The server has grabbed the mouse for us.
@@ -2054,7 +2049,14 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     }
 
     if ( !widget ) {				// don't know this window
-	qt_last_cursor = 0xffffffff; // cursor can be changed by another application
+	if ( !QWidget::mouseGrabber()
+#ifndef QT_NO_QWS_MANAGER
+	    && !QWSManager::grabbedMouse() 
+#endif
+	    ) {
+	    qt_last_cursor = 0xffffffff; // cursor can be changed by another application
+	    qt_last_x = qt_last_y = -1;  // we no longer know the real cursor pos
+	}
 
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
