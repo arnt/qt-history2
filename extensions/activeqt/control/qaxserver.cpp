@@ -314,8 +314,8 @@ HRESULT UpdateRegistry(BOOL bRegister)
 // IDL generator
 /////////////////////////////////////////////////////////////////////////////
 
-static QStringList enums = 0;
-static QStringList subtypes = 0;
+static QStringList enums;
+static QStringList subtypes;
 
 static const char* const type_map[][2] =
 {
