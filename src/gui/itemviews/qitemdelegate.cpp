@@ -324,34 +324,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
     if (!pixmap.isNull() && !rect.isEmpty()) {
         if (option.state & QStyle::Style_Selected) {
             bool enabled = option.state & QStyle::Style_Enabled;
-            QColor col = option.palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
-                                              QPalette::Highlight);
-	    QString key;
-	    key.sprintf("%d-%d", pixmap.serialNumber(), enabled);
-	    QPixmap *pm = QPixmapCache::find(key);
-	    if (!pm) {
-		QImage img = pixmap.toImage();
-		if (img.depth() != 32)
-		    img = img.convertDepth(32);
-		img.setAlphaBuffer(true);
-		int i = 0;
-		uint rgb = col.rgb();
-		while (i < img.height()) {
-		    uint *p = (uint *) img.scanLine(i);
-		    uint *end = p + img.width();
-		    while (p < end) {
-			*p = (0xff000000 & *p)
- 			     | (0xff & (int)(qRed(*p)*0.70 + qRed(rgb)*0.30)) << 16
- 			     | (0xff & (int)(qGreen(*p)*0.70 + qGreen(rgb)*0.30)) << 8
- 			     | (0xff & (int)(qBlue(*p)*0.70 + qBlue(rgb)*0.30));
-			++p;
-		    }
-		    ++i;
-		}
-		pm = new QPixmap;
-		pm->fromImage(img);
-		QPixmapCache::insert(key, pm);
-	    }
+            QPixmap *pm = selected(pixmap, option.palette, enabled);
             painter->drawPixmap(rect.topLeft(), *pm);
         } else {
             painter->drawPixmap(rect.topLeft(), pixmap);
@@ -441,7 +414,6 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
 
 /*!
     \internal
-
 */
 
 void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const
@@ -520,16 +492,51 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
 }
 
 /*!
-  ### update this
-    If the \a object is the current editor: if the \a event is an Esc
-    key press the current edit is cancelled and ended, or if the \a
-    event is an Enter or Return key press the current edit is accepted
-    and ended. If editing is ended the event filter returns true to
-    signify that it has handled the event; in all other cases it does
-    nothing and returns false to signify that the event hasn't been
-    handled.
+  \internal
+*/
 
-    \sa endEdit()
+QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const
+{
+    QString key;
+    key.sprintf("%d-%d", pixmap.serialNumber(), enabled);
+    QPixmap *pm = QPixmapCache::find(key);
+    if (!pm) {
+        QImage img = pixmap.toImage();
+        if (img.depth() != 32)
+            img = img.convertDepth(32);
+        img.setAlphaBuffer(true);
+        QColor color = palette.color(enabled
+                                     ? QPalette::Normal
+                                     : QPalette::Disabled,
+                                     QPalette::Highlight);
+        uint rgb = color.rgb();
+        for (int i = 0; i < img.height(); ++i) {
+            uint *p = (uint *) img.scanLine(i);
+            uint *end = p + img.width();
+            for (; p < end; ++p) {
+                *p = (0xff000000 & *p)
+                     | (0xff & (int)(qRed(*p) * 0.70 + qRed(rgb) * 0.30)) << 16
+                     | (0xff & (int)(qGreen(*p) * 0.70 + qGreen(rgb) * 0.30)) << 8
+                     | (0xff & (int)(qBlue(*p) * 0.70 + qBlue(rgb) * 0.30));
+            }
+        }
+        pm = new QPixmap;
+        pm->fromImage(img);
+        QPixmapCache::insert(key, pm);
+    }
+    return pm;
+}
+
+/*!
+  If the \a object is the current editor: if the \a event is an Esc
+  key press the current edit is cancelled and ended, or if the \a
+  event is an Enter or Return key press the current edit is accepted
+  and ended. If editing is ended the event filter returns true to
+  signify that it has handled the event; in all other cases it does
+  nothing and returns false to signify that the event hasn't been
+  handled.
+
+  \sa endEdit()
 */
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
