@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#117 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1061,4 +1061,97 @@ void QWidget::setMask(const QRegion& region)
     GetClientRect( winId(), &cr );
     OffsetRgn(wr, crect.x()-frect.x(), crect.y()-frect.y());
     SetWindowRgn( winId(), wr, TRUE );
+}
+
+// A portable version of this function (returning QRegion) may appear
+// in the public API someday, but for now we need a fast Windows
+// implementation for setMask(QBitmap).
+static
+HRGN bitmapToRegion(QBitmap bitmap)
+{
+    HRGN region=0;
+    QImage image = bitmap.convertToImage();
+    const int maxrect=256;
+    struct RData {
+	RGNDATAHEADER header;
+	RECT rect[maxrect];
+    };
+    RData data;
+
+#define AddSpan \
+	    data.rect[n].top=y; \
+	    data.rect[n].bottom=y; \
+	    data.rect[n].left=prev1; \
+	    data.rect[n].right=x-1; \
+	    n++; \
+	    if ( n == maxrect ) { \
+		data.header.dwSize = sizeof(RGNDATAHEADER); \
+		data.header.iType = RDH_RECTANGLES; \
+		data.header.nCount = n; \
+		data.header.nRgnSize = 0; \
+		data.header.rcBound.bottom = y; \
+		HRGN r = ExtCreateRegion(0,sizeof(data),(RGNDATA*)&data); \
+		if ( region ) { \
+		    CombineRgn(region, region, r, RGN_OR); \
+		} else { \
+		    region = r; \
+		} \
+		data.header.rcBound.top = y; \
+		n=0; \
+	    }
+
+    data.header.rcBound.top = 0;
+    data.header.rcBound.left = 0;
+    data.header.rcBound.right = image.width()-1;
+    int n=0;
+    for (int y=0; y<image.height(); y++) {
+	uchar *line = image.scanLine(y);
+	int w = image.width();
+	uchar all=0;
+	int prev1 = -1;
+	for (int x=0; x<w; x++) {
+	    uchar byte = line[x/8];
+	    if ( x&7 || x>w-8 || byte!=all ) {
+		for ( int b=0; b<8; b++ ) {
+		    if ( !(byte&0x80) == !all ) {
+			// More of the same
+		    } else {
+			// A change.
+			if ( all ) {
+			    AddSpan
+			    prev1 = x-1;
+			}
+			all = ~all;
+		    }
+		}
+	    } else {
+		x+=8;
+	    }
+	    if ( all ) {
+		AddSpan
+	    }
+	}
+    }
+
+    if ( !region ) {
+	// Surely there is some better way.
+	region = CreateRectRgn(0,0,1,1);
+	CombineRgn(region, region, region, RGN_XOR);
+    }
+
+    return region;
+}
+
+void QWidget::setMask(QBitmap bitmap)
+{
+    HRGN wr = bitmapToRegion(bitmap);
+    RECT cr;
+    GetClientRect( winId(), &cr );
+    OffsetRgn(wr, crect.x()-frect.x(), crect.y()-frect.y());
+    SetWindowRgn( winId(), wr, TRUE );
+}
+
+void QWidget::clearMask()
+{
+    SetWindowRgn( winId(), 0, TRUE );
 }
