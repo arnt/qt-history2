@@ -444,22 +444,28 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-void QWidget::setFontSys()
+void QWidget::setFontSys( QFont *f )
 {
+    HFONT hf;
+    if ( f ) 
+	hf = f->handle();
+    else
+	hf = font().handle();
+
     HIMC imc = ImmGetContext( winId() ); // Can we store it?
     if ( qt_winver & WV_NT_based ) {
 	LOGFONT lf;
-	if ( GetObject( font().handle(), sizeof(lf), &lf ) )
+	if ( GetObject( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFont( imc, &lf );
     } else {
 	LOGFONTA lf;
-	if ( GetObjectA( font().handle(), sizeof(lf), &lf ) )
+	if ( GetObjectA( hf, sizeof(lf), &lf ) )
 	    ImmSetCompositionFontA( imc, &lf );
     }
     ImmReleaseContext( winId(), imc );
 }
 
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f)
 {
     CreateCaret( winId(), 0, width, height );
     HideCaret( winId() );
@@ -480,6 +486,10 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 	HIMC imc = ImmGetContext( winId() ); // Should we store it?
 	ImmSetCompositionWindow( imc, &cf );
 	ImmReleaseContext( winId(), imc );
+	if ( f ) {
+	    setFontSys( f );
+	}
+
     }
 
     if ( QRect( x, y, width, height ) != microFocusHint() )
