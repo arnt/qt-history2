@@ -216,8 +216,10 @@ QStringList QStyleFactory::styles()
 #ifndef QT_NO_STYLE_AQUA
     list << "Aqua";
 #endif
+#if 0
 #ifdef Q_WS_MAC
     list << "Macintosh";
+#endif
 #endif
 
     return list;
