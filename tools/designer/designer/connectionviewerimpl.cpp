@@ -56,6 +56,8 @@ void ConnectionViewer::editConnection()
 		sender = l->first();
 	    delete l;
 	}
+	if ( !sender )
+	    sender = formWindow->findAction( senderName );
     }
 
     if ( receiverName == "this" || qstrcmp( formWindow->name(), receiverName ) == 0 ) {
@@ -67,6 +69,8 @@ void ConnectionViewer::editConnection()
 		receiver = l->first();
 	    delete l;
 	}
+	if ( !receiver )
+	    receiver = formWindow->findAction( receiverName );
     }
 
     if ( sender && receiver ) {
@@ -96,15 +100,19 @@ void ConnectionViewer::readConnections()
 
     QValueList<MetaDataBase::Connection> connectionlist
 	= MetaDataBase::connections( formWindow );
-    for ( QValueList<MetaDataBase::Connection>::Iterator it = connectionlist.begin(); it != connectionlist.end(); ++it ) {
+    for ( QValueList<MetaDataBase::Connection>::Iterator it = connectionlist.begin();
+	  it != connectionlist.end(); ++it ) {
 	if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
 	     !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 	    continue;
 	
 	MetaDataBase::Connection conn = *it;
-	if(!noselection) {
-	    if (conn.sender->isWidgetType() && !selection.contains((QWidget*)(conn.sender))
-		&& conn.receiver->isWidgetType() && !selection.contains((QWidget*)(conn.receiver)))
+	if ( !noselection ) {
+	    if ( conn.sender->isWidgetType() && !selection.contains( (QWidget*)(conn.sender) )
+		 && conn.receiver->isWidgetType() && !selection.contains( (QWidget*)(conn.receiver) ) )
+		continue;
+	    if ( !conn.sender->isWidgetType() &&
+		 conn.receiver->isWidgetType() && !selection.contains( (QWidget*)(conn.receiver) ) )
 		continue;
 	}
 	QListViewItem *i = new QListViewItem( connectionListView );
