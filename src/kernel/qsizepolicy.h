@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#6 $
 **
 ** Definition of QSizePolicy class
 **
@@ -24,7 +24,9 @@
 #ifndef QSIZEPOLICY_H
 #define QSIZEPOLICY_H
 
-class QSizePolicy
+#include "qglobal.h"
+
+class Q_EXPORT QSizePolicy
 {
 private:
         enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
