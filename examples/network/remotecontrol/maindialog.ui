@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>204</width>
-            <height>276</height>
+            <width>273</width>
+            <height>263</height>
         </rect>
     </property>
     <property name="caption">
@@ -35,16 +35,19 @@
             <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
-                    <vsizetype>0</vsizetype>
+                    <vsizetype>5</vsizetype>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
+            <property name="frameShape">
+                <enum>MShape</enum>
+            </property>
             <property name="text">
-                <string>If you start another instance
-of this application, you can
-use that instance to control
-this one.</string>
+                <string>If you start another instance of this application, you can use that instance to control this one.</string>
+            </property>
+            <property name="alignment">
+                <set>WordBreak|AlignCenter</set>
             </property>
         </widget>
         <widget class="QLabel">
