@@ -492,7 +492,7 @@ void QGenericTableView::columnWidthChanged(int column, int /*oldSize*/, int /*ne
 {
     updateGeometries();
     int colp = columnViewportPosition(column);
-    d->viewport->update(QRect(colp, 0, d->viewport->height(), d->viewport->width() - colp));
+    d->viewport->update(QRect(colp, 0, d->viewport->width() - colp, d->viewport->height()));
     updateCurrentEditor();
 }
 
