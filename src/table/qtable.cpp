@@ -6627,12 +6627,11 @@ bool QTableHeader::doSelection( QMouseEvent *e )
     }
 
     if ( startPos == -1 ) {
-	int secAt = sectionAt( p );
- 	bool multi = ( ( e->state() & ControlButton ) == ControlButton ||
- 		       ( e->state() & ShiftButton ) == ShiftButton ||
- 		       table->selectionMode() == QTable::Multi ||
- 		       table->selectionMode() == QTable::MultiRow );
- 	if ( !multi ) {
+ 	int secAt = sectionAt( p );
+	if ( ( e->state() & ControlButton ) != ControlButton &&
+	     ( e->state() & ShiftButton ) != ShiftButton ||
+	     table->selectionMode() == QTable::Single ||
+	     table->selectionMode() == QTable::SingleRow ) {
 	    startPos = p;
 	    bool b = table->signalsBlocked();
 	    table->blockSignals( TRUE );
@@ -6640,9 +6639,11 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	    table->blockSignals( b );
 	}
 	saveStates();
+	
 	if ( table->selectionMode() != QTable::NoSelection ) {
 	    startPos = p;
 	    QTableSelection *oldSelection = table->currentSel;
+
 	    if ( orientation() == Vertical ) {
 		if ( !table->isRowSelected( secAt, TRUE ) ) {
 		    table->currentSel = new QTableSelection();
