@@ -646,12 +646,6 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 				   const QStyleOption& opt ) const
 {
     switch( pe ) {
-    case PE_PopupMenuScroller: {
-	const int w = 10, x = (r.width() / 2) - (w / 2), 
-		  h = 10, y = (r.height() / 2) - (h / 2);
-	drawPrimitive((flags & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p, 
-		      QRect(r.x() + x, r.y() + y, w, h), cg, flags, opt);
-	break; }
     case PE_PanelLineEdit:
 	//Top
 	p->setPen(QColor(120, 124, 120));
@@ -973,6 +967,12 @@ void QAquaStyle::drawControl( ControlElement element,
 	flags |= Style_Enabled;
 
     switch(element) {
+    case CE_PopupMenuScroller: {
+	const int w = 10, x = (r.width() / 2) - (w / 2), 
+		  h = 10, y = (r.height() / 2) - (h / 2);
+	drawPrimitive((how & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p, 
+		      QRect(r.x() + x, r.y() + y, w, h), cg, flags, opt);
+	break; }
     case CE_TabBarTab: {
 #ifndef QT_NO_TABBAR
 	if(!widget)

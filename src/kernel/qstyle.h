@@ -203,7 +203,6 @@ public:
 	PE_PanelTabWidget,
 
 	PE_WindowFrame,
-	PE_PopupMenuScroller,
 
 	PE_CheckListController,
 	PE_CheckListIndicator,
@@ -266,6 +265,7 @@ public:
 
 	CE_ToolButtonLabel,
 	CE_MenuBarBackground,
+	CE_PopupMenuScroller,
 
 	// do not add any values below/greater than this
 	CE_CustomBase =		0xf0000000

@@ -681,9 +681,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_ProgressBarChunk  section of a progress bar indicator; see
 	also QProgressBar.
 
-    \value PE_PopupMenuScroller scrolling areas in a popumenu when the
-	style supports scrolling.
-
     \value PE_ListViewController controller part of a listview item
     \value PE_ListViewIndicator checkbox part of a listview item
     \value PE_ListViewExclusiveIndicator radiobutton part of a listview item
@@ -849,7 +846,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value CE_PopupMenuItem  a menu item in a QPopupMenu.
-
+    \value CE_PopupMenuScroller scrolling areas in a popumenu when the
+	style supports scrolling.
 
     \value CE_MenuBarItem  a menu item in a QMenuBar.
 

@@ -1370,8 +1370,9 @@ void QPopupMenu::drawContents( QPainter* p )
 	if (isEnabled())
 	    flags |= QStyle::Style_Enabled;
 	int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-	style().drawPrimitive(QStyle::PE_PopupMenuScroller, p, QRect(x, y, contentsRect().width(), sh), 
-			      colorGroup(), flags, QStyleOption(maxPMWidth));
+	style().drawControl(QStyle::CE_PopupMenuScroller, p, this,
+			    QRect(x, y, contentsRect().width(), sh), 
+			    colorGroup(), flags, QStyleOption(maxPMWidth));
 	y += sh;
     }
 
@@ -1414,9 +1415,9 @@ void QPopupMenu::drawContents( QPainter* p )
 	if (isEnabled())
 	    flags |= QStyle::Style_Enabled;
 	int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-	style().drawPrimitive(QStyle::PE_PopupMenuScroller, p,
-			      QRect(x, contentsRect().height() - sh, contentsRect().width(), sh), 
-			      colorGroup(), flags, QStyleOption(maxPMWidth));
+	style().drawControl(QStyle::CE_PopupMenuScroller, p, this,
+			    QRect(x, contentsRect().height() - sh, contentsRect().width(), sh), 
+			    colorGroup(), flags, QStyleOption(maxPMWidth));
     } else if ( y < contentsRect().bottom() && count() ) {
 	flags = QStyle::Style_Default;
 	if ( isEnabled() )
