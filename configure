@@ -728,30 +728,6 @@ then
     esac
 fi
 
-# look for platforms without libdl
-case "$PLATFORM" in
-    macx-g++)
-	LIBDL=no
-	;;
-    freebsd-g++)
-	LIBDL=no
-	;;
-    openbsd-g++)
-	LIBDL=no
-	;;
-    netbsd-g++)
-	LIBDL=no
-	;;
-    osf1-g++)
-	LIBDL=no
-	;;
-    osf1-cxx)
-	LIBDL=no
-	;;
-    *)
-	;;
-esac
-
 if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
     CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
 fi
@@ -1561,13 +1537,21 @@ echo
 [ -x "$relpath/bin/syncqt" ] && $relpath/bin/syncqt
 if true #[ '!' -f "$outpath/bin/qmake" ]
 then
-    echo Creating qmake...
+    # look for platforms without libdl
+    case "$PLATFORM" in
+    macx-*|*bsd-*|osf1-*)
+	LIBDL=no
+	;;
+    *)
+	;;
+    esac
     case "$LIBDL" in
     auto) DYLIB_LINK="-ldl" ;;
     no)   DYLIB_LINK="" ;;
     *)    DYLIB_LINK="$LIBDL" ;;
     esac
 
+    echo Creating qmake...
     #fix makefiles
     for mkfile in GNUmakefile Makefile; do
 	in_mkfile=${mkfile}.in
