@@ -781,30 +781,6 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 # include "qtextengine_mac.cpp"
 #endif
 
-struct QTextLayoutDefaultWordSeparators
-{
-    QTextLayoutDefaultWordSeparators()
-    {
-        set.insert(QChar::fromLatin1('.'));
-        set.insert(QChar::fromLatin1(','));
-        set.insert(QChar::fromLatin1(':'));
-        set.insert(QChar::fromLatin1(';'));
-        set.insert(QChar::fromLatin1('-'));
-        set.insert(QChar::fromLatin1('<'));
-        set.insert(QChar::fromLatin1('>'));
-        set.insert(QChar::fromLatin1('['));
-        set.insert(QChar::fromLatin1(']'));
-        set.insert(QChar::fromLatin1('('));
-        set.insert(QChar::fromLatin1(')'));
-        set.insert(QChar::fromLatin1('{'));
-        set.insert(QChar::fromLatin1('}'));
-    }
-
-    QSet<QChar> set;
-};
-
-Q_GLOBAL_STATIC(QTextLayoutDefaultWordSeparators, defaultWordSeparators);
-
 static void init(QTextEngine *e)
 {
 #ifdef Q_WS_WIN
@@ -822,7 +798,6 @@ static void init(QTextEngine *e)
 
     e->underlinePositions = 0;
     e->specialData = 0;
-    e->wordSeparators = defaultWordSeparators()->set;
 }
 
 QTextEngine::QTextEngine()
@@ -1399,6 +1374,24 @@ void QTextEngine::addRequiredBoundaries() const
             position += frag->size;
         }
     }
+}
+
+bool QTextEngine::atWordSeparator(int position) const
+{
+    const QChar c = layoutData->string.at(position);;;;
+    return c == '.'
+        || c == ','
+        || c == ':'
+        || c == ';'
+        || c == '-'
+        || c == '<'
+        || c == '>'
+        || c == '['
+        || c == ']'
+        || c == '('
+        || c == ')'
+        || c == '{'
+        || c == '}';
 }
 
 void QTextEngine::setBoundary(int strPos) const
