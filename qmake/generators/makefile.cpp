@@ -1755,19 +1755,27 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 out = " -o " + subtarget->makefile;
             if(in.startsWith(subtarget->directory + Option::dir_sep))
                 in = in.mid(subtarget->directory.length() + 1);
-            t << mkfile << ": " << "\n\t"
-              << mkdir_p_asstring(subtarget->directory)
-              << cdin
-              << "$(QMAKE) " << in << buildArgs() << out
-              << cdout << endl;
+            t << mkfile << ": " << "\n\t";
+            if(have_dir) {
+                t << mkdir_p_asstring(subtarget->directory)
+                  << cdin
+                  << "$(QMAKE) " << in << buildArgs() << out
+                  << cdout << endl;
+            } else {
+                t << "$(QMAKE) " << in << buildArgs() << out << endl;
+            }
             t << subtarget->target << "-qmake_all: ";
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
-              t << "\n\t"
-                << mkdir_p_asstring(subtarget->directory)
-                << cdin
-                << "$(QMAKE) " << in << buildArgs() << out
-                << cdout << endl;
+            t << "\n\t";
+            if(have_dir) {
+                t << mkdir_p_asstring(subtarget->directory)
+                  << cdin
+                  << "$(QMAKE) " << in << buildArgs() << out
+                  << cdout << endl;
+            } else {
+                t << "$(QMAKE) " << in << buildArgs() << out << endl;
+            }
         }
 
         //don't need the makefile arg if it isn't changed
@@ -1864,6 +1872,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                  cmd = var((*qut_it) + ".commands"), deps;
         if(targ.isEmpty())
             targ = (*qut_it);
+        t << endl;
+
         QStringList &deplist = project->variables()[(*qut_it) + ".depends"];
         for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
             QString dep = var((*dep_it) + ".target");
@@ -1871,10 +1881,65 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 dep = (*dep_it);
             deps += " " + dep;
         }
+        if(project->variables()[(*qut_it) + ".CONFIG"].indexOf("recursive") != -1) {
+            for(int target = 0; target < targets.size(); ++target) {
+                SubTarget *subtarget = targets.at(target);
+                bool have_dir = !subtarget->directory.isEmpty();
+                QString mkfile = subtarget->makefile, cdin, cdout;
+                if(have_dir) {
+                    mkfile.prepend(targets.at(target)->directory + Option::dir_sep);
+                    if(project->isActiveConfig("cd_change_global")) {
+                        cdin = "\n\tcd " + subtarget->directory + "\n\t";
+                        
+                        QDir pwd(Option::output_dir);
+                        QStringList in = subtarget->directory.split(Option::dir_sep), out;
+                        for(int i = 0; i < in.size(); i++) {
+                            if(in.at(i) == "..")
+                                out.prepend(QFileInfo(pwd.path()).fileName());
+                            else if(in.at(i) != ".")
+                                out.prepend("..");
+                            pwd.cd(in.at(i));
+                        }
+                        cdout = "\n\t@cd " + out.join(Option::dir_sep);
+                    } else {
+                        cdin = "\n\tcd " + subtarget->directory + " && ";
+                    }
+                } else {
+                    cdin = "\n\t";
+                }
+
+                //don't need the makefile arg if it isn't changed
+                QString makefilein;
+                if(subtarget->makefile != "$(MAKEFILE)")
+                    makefilein = " -f " + subtarget->makefile;
+
+                //write the rule/depends
+                if(flags & SubTargetOrdered) {
+                    const QString dep = subtarget->target + "-" + (*qut_it) + "-ordered";
+                    t << dep << ": " << mkfile;
+                    if(target)
+                        t << " " << targets.at(target-1)->target << "-" << (*qut_it) << "-ordered ";
+                    deps += " " + dep;
+                } else {
+                    const QString dep = subtarget->target + "-" + (*qut_it);
+                    t << dep << ": " << mkfile;
+                    deps += " " + dep;
+                }
+
+                //write the commands
+                if(have_dir) {
+                    t << cdin
+                      << "$(MAKE)" << makefilein << " " << (*qut_it)
+                      << cdout << endl;
+                } else {
+                    t << "$(MAKE)" << makefilein << " " << (*qut_it) << endl;
+                }
+            }
+        }
         if(project->isEmpty("QMAKE_NOFORCE") &&
            project->variables()[(*qut_it) + ".CONFIG"].indexOf("phony") != -1)
             deps += " FORCE";
-        t << "\n\n" << targ << ":" << deps << "\n\t"
+        t << targ << ":" << deps << "\n\t"
           << cmd << endl;
     }
 
