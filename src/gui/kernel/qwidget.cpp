@@ -5266,8 +5266,10 @@ void QWidget::dragEnterEvent(QDragEnterEvent *)
 }
 
 /*!
-    This event handler is called when a drag is in progress and the
-    mouse enters this widget, and whenever it moves within the widget.
+    This event handler is called if a drag is in progress, and when
+    any of the following conditions occurs: the cursor enters this widget,
+    the cursor moves within this widget, or a modifier key is pressed on
+    the keyboard while this widget has the focus.
 
     See the \link dnd.html Drag-and-drop documentation\endlink for an
     overview of how to provide drag-and-drop in your application.
