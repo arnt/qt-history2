@@ -30,7 +30,7 @@ static void cleanup_empty_region()
 
 struct QRegionPrivate {
     int numRects;
-    QMemArray<QRect> rects;
+    QVector<QRect> rects;
     QRect extents;
 
     QRegionPrivate() { numRects = 0; }
@@ -372,9 +372,9 @@ QRect QRegion::boundingRect() const
 }
 
 
-QMemArray<QRect> QRegion::rects() const
+QVector<QRect> QRegion::rects() const
 {
-    QMemArray<QRect> a;
+    QVector<QRect> a;
     if ( data->rgn == 0 )
 	return a;
 
@@ -392,7 +392,7 @@ QMemArray<QRect> QRegion::rects() const
 	return a;
     }
 
-    a = QMemArray<QRect>( rd->rdh.nCount );
+    a = QVector<QRect>( rd->rdh.nCount );
     RECT *r = (RECT*)rd->Buffer;
     for ( int i=0; i<(int)a.size(); i++ ) {
 	a[i].setCoords( r->left, r->top, r->right-1, r->bottom-1);

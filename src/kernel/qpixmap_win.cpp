@@ -48,7 +48,7 @@ struct QMCPFreeNode {
     short size;
 };
 
-typedef QPtrList<QMCPFreeNode> QMCPFreeList;
+typedef QList<QMCPFreeNode*> QMCPFreeList;
 
 class QMultiCellPixmap {
 public:
@@ -1180,9 +1180,10 @@ QMultiCellPixmap::~QMultiCellPixmap()
 int QMultiCellPixmap::allocCell( int height )
 {
     QMCPFreeNode *n = free_list->first();
-    while ( n && n->size < height )		// find free space
-	n = free_list->next();
-    if ( !n )					// not enough space
+    for(int i = 0; (i < free_list->size()) && (n->size < height); ++i)
+	n = free_list->at(i);			// find free space
+    if ( (n == free_list->last()) 
+	 && (n->size < height))			// not enough space
 	return -1;
     int offset = n->offset;
     if ( n->size > height ) {			// alloc part of free space
@@ -1190,7 +1191,7 @@ int QMultiCellPixmap::allocCell( int height )
 	n->size -= height;
     } else {					// perfect fit, height == size
 	Q_ASSERT( n->size == height );
-	free_list->remove();			// remove the node
+	free_list->remove(n);			// remove the node
     }
     int pm_height = pixmap->height();
     while ( offset + height > pm_height )
@@ -1204,9 +1205,10 @@ void QMultiCellPixmap::freeCell( int offset, int size )
 {
     QMCPFreeNode *n = free_list->first();
     QMCPFreeNode *p = 0;
-    while ( n && n->offset < offset ) {
+    int i = 0;
+    for(; (i < free_list->size()) && (n->offset < offset); ++i) {
 	p = n;
-	n = free_list->next();
+	n = free_list->at(i);
     }
     if ( p && p->offset + p->size == offset ) {
 	// The previous free node is adjacent to the cell we are freeing up,
@@ -1215,7 +1217,7 @@ void QMultiCellPixmap::freeCell( int offset, int size )
 	if ( n && p->offset + p->size == n->offset ) {
 	    // If the next node comes after the prev node, collapse them.
 	    p->size += n->size;
-	    free_list->remove();	// removes the current node (i.e. n)
+	    free_list->remove(n);	// removes the current node (i.e. n)
 	}
     } else if ( n ) {
 	// We have found the first free node after the cell.
@@ -1226,8 +1228,7 @@ void QMultiCellPixmap::freeCell( int offset, int size )
 	    n->size   += size;
 	} else {
 	    // Insert a new free node before this one.
-	    free_list->insert( free_list->at(),
-			       new QMCPFreeNode(offset,size) );
+	    free_list->insert( i, new QMCPFreeNode(offset,size) );
 	}
     } else {
 	// n == 0, this means the free_list is empty or that the cell is
@@ -1244,7 +1245,7 @@ void QMultiCellPixmap::freeCell( int offset, int size )
   width 1..16, 17..32, 33..64 and 65..128.
 */
 
-typedef QPtrList<QMultiCellPixmap>  QMultiCellPixmapList;
+typedef QList<QMultiCellPixmap*>  QMultiCellPixmapList;
 typedef QMultiCellPixmapList   *pQMultiCellPixmapList;
 
 static const int mcp_num_lists  = 8;
@@ -1316,10 +1317,10 @@ int QPixmap::allocCell()
     QMultiCellPixmapList *list = mcp_lists[i];
     QMultiCellPixmap     *mcp  = list->first();
     int offset = -1;
-    while ( mcp && offset < 0 ) {
+    for(int i = 0; (i < list->size()) && (offset < 0); ++i) {
 	offset = mcp->allocCell( height() );
 	if ( offset < 0 )
-	    mcp = list->next();
+	    mcp = list->at(i);
     }
     if ( offset < 0 ) {				// could not alloc
 	mcp = new QMultiCellPixmap( s, depth(), 2048 );
@@ -1389,10 +1390,10 @@ void QMultiCellPixmap::debugger()
 	   pixmap->width(), max_height, pixmap->depth(), this );
     qDebug( "    Actual pixmap height = %d", pixmap->height() );
     qDebug( "    Free List" );
-    QMCPFreeNode *n = free_list->first();
-    while ( n  ) {
+    QMCPFreeNode *n = 0;
+    for(int i = 0; i < free_list->size(); ++i) {
+	n = free_list->at(i);
 	qDebug( "      Offset %4d, Size %3d", n->offset, n->size );
-	n = free_list->next();
     }
     qDebug( "      Num free nodes = %d", free_list->count() );
 }
@@ -1415,9 +1416,9 @@ Q_EXPORT void qt_mcp_debugger()
 	    qDebug( "Multi cell list %d, %s, size<=%d, number of lists = %d",
 		   i, info, s, mcp_lists[i]->count() );
 	    QMultiCellPixmap *mcp = mcp_lists[i]->first();
-	    while ( mcp ) {
+	    for(int j = 0; j < mcp_lists[i]->size(); ++j) {
+		mcp = mcp_lists[i]->at(j);
 		mcp->debugger();
-		mcp = mcp_lists[i]->next();
 	    }
 	}
     }

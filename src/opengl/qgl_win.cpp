@@ -14,8 +14,8 @@
 
 
 #include <qgl.h>
+#include <qlist.h>
 #include <qshared.h>
-#include <qmemarray.h>
 #include <qmap.h>
 #include <qpixmap.h>
 
@@ -28,9 +28,9 @@ public:
     enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
 
     int maxSize;
-    QMemArray<uint> colorArray;
-    QMemArray<Q_UINT8> allocArray;
-    QMemArray<Q_UINT8> contextArray;
+    QVector<uint> colorArray;
+    QVector<Q_UINT8> allocArray;
+    QVector<Q_UINT8> contextArray;
     QMap<uint,int> colorMap;
 };
 
@@ -155,9 +155,12 @@ void QGLCmap::detach()
 	d->deref();
 	QGLCmapPrivate* newd = new QGLCmapPrivate;
 	newd->maxSize = d->maxSize;
-	newd->colorArray = d->colorArray.copy();
-	newd->allocArray = d->allocArray.copy();
-	newd->contextArray = d->contextArray.copy();
+	newd->colorArray = d->colorArray;
+	newd->allocArray = d->allocArray;
+	newd->contextArray = d->contextArray;
+	newd->colorArray.detach();
+	newd->allocArray.detach();
+	newd->contextArray.detach();
 	newd->colorMap = d->colorMap;
 	d = newd;
     }
@@ -231,7 +234,7 @@ int QGLCmap::allocate( QRgb color, uint flags, Q_UINT8 context )
 	return idx;
 
     int mapSize = d->colorArray.size();
-    int newIdx = d->allocArray.find( QGLCmapPrivate::UnAllocated );
+    int newIdx = d->allocArray.indexOf( QGLCmapPrivate::UnAllocated );
 
     if ( newIdx < 0 ) {			// Must allocate more room
 	if ( mapSize < d->maxSize ) {

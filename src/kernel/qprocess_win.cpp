@@ -18,7 +18,7 @@
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
-#include "qptrqueue.h"
+#include "qlist.h"
 #include "qtimer.h"
 #include "qregexp.h"
 #include "private/qinternal_p.h"
@@ -60,7 +60,7 @@ public:
     void reset()
     {
 	while ( !stdinBuf.isEmpty() ) {
-	    delete stdinBuf.dequeue();
+	    delete (stdinBuf.isEmpty() ? 0 : stdinBuf.takeAt(0));
 	}
 	closeHandles();
 	stdinBufRead = 0;
@@ -111,7 +111,7 @@ public:
     QMembuf bufStdout;
     QMembuf bufStderr;
 
-    QPtrQueue<QByteArray> stdinBuf;
+    QList<QByteArray*> stdinBuf;
 
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];
@@ -450,7 +450,7 @@ bool QProcess::canReadLineStderr() const
 
 void QProcess::writeToStdin( const QByteArray& buf )
 {
-    d->stdinBuf.enqueue( new QByteArray(buf) );
+    d->stdinBuf.append( new QByteArray(buf) );
     socketWrite( 0 );
 }
 
@@ -512,16 +512,16 @@ void QProcess::socketWrite( int )
     DWORD written;
     while ( !d->stdinBuf.isEmpty() && isRunning() ) {
 	if ( !WriteFile( d->pipeStdin[1],
-		    d->stdinBuf.head()->data() + d->stdinBufRead,
-		    QMIN( (uint)8192, d->stdinBuf.head()->size() - d->stdinBufRead ),
+		    d->stdinBuf.first()->data() + d->stdinBufRead,
+		    QMIN( (uint)8192, d->stdinBuf.first()->size() - d->stdinBufRead ),
 		    &written, 0 ) ) {
 	    d->lookup->start( 100 );
 	    return;
 	}
 	d->stdinBufRead += written;
-	if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
+	if ( d->stdinBufRead == d->stdinBuf.first()->size() ) {
 	    d->stdinBufRead = 0;
-	    delete d->stdinBuf.dequeue();
+	    delete (d->stdinBuf.isEmpty() ? 0 : d->stdinBuf.takeAt(0));
 	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
 		emit wroteToStdin();
 	}
