@@ -242,7 +242,8 @@ private:
 	QPaintDevice*	paintDevice;
 	QColor		transpColor;
 #ifdef Q_WS_MAC
-	QRect oldR;
+	QRect           oldR;
+	QGContext      *shareCtx;
 #endif
     };
     Private* d;
