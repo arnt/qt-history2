@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#27 $
 **
 ** Definition of QPaintDevice class
 **
@@ -14,8 +14,6 @@
 #define QPAINTD_H
 
 #include "qwindefs.h"
-#include "qfontmet.h"
-#include "qfontinf.h"
 
 
 // Painter device types (is-A)
@@ -32,8 +30,6 @@
 
 #define PDF_EXTDEV	0x10
 #define PDF_PAINTACTIVE 0x20
-#define PDF_FONTMET	0x40
-#define PDF_FONTINF	0x80
 
 
 // Painter device command param (defined in qpaintdc.h)
@@ -50,9 +46,6 @@ public:
     bool     isExtDev()	      const { return devFlags & PDF_EXTDEV; }
     bool     paintingActive() const { return (devFlags & PDF_PAINTACTIVE) ==
 					     PDF_PAINTACTIVE; }
-
-    QFontMetrics fontMetrics()	const;
-    QFontInfo	 fontInfo()	const;
 
 #if defined(_WS_WIN_)
     HDC	     handle()  const { return hdc; }	// get device context
@@ -82,18 +75,9 @@ protected:
 
     friend class QPainter;
     friend class QPaintDeviceMetrics;
-    friend class QFontMetrics;
-    friend class QFontInfo;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp );
 };
-
-
-inline QFontMetrics QPaintDevice::fontMetrics() const
-{ return QFontMetrics(this); }
-
-inline QFontInfo QPaintDevice::fontInfo() const
-{ return QFontInfo(this); }
 
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
