@@ -165,6 +165,26 @@ void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
 }
 
 #ifndef QT_NO_STRINGLIST
+static bool parseIp4(const QString& address, Q_UINT32 *addr)
+{
+    QStringList ipv4 = QStringList::split(".", address, FALSE);
+    if (ipv4.count() == 4) {
+	int i = 0;
+	bool ok = TRUE;
+	while(ok && i < 4) {
+	    uint byteValue = ipv4[i].toUInt(&ok);
+	    if (byteValue > 255)
+		ok = FALSE;
+	    if (ok)
+		*addr = (*addr << 8) + byteValue;
+	    ++i;
+	}
+	if (ok)
+	    return TRUE;
+    }
+    return FALSE;
+}
+
 /*!
     \overload
 
@@ -173,81 +193,78 @@ void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
     sets the address if the address was successfully parsed; otherwise
     returns FALSE and leaves the address unchanged.
 */
-bool QHostAddress::setAddress( const QString& address )
+bool QHostAddress::setAddress(const QString& address)
 {
     QString a = address.simplifyWhiteSpace();
 
     // try ipv4
-    QStringList ipv4 = QStringList::split( ".", a, FALSE );
-    if ( ipv4.count() == 4 ) {
-	Q_UINT32 maybe = 0;
-	int i = 0;
-	bool ok = TRUE;
-	while( ok && i < 4 ) {
-	    uint byteValue = ipv4[i].toUInt( &ok );
-	    if ( byteValue > 255 )
-		ok = FALSE;
-	    if ( ok )
-		maybe = maybe * 256 + byteValue;
-	    i++;
-	}
-	if ( ok ) {
-	    setAddress( maybe );
-	    return TRUE;
-	}
+    Q_UINT32 maybeIp4 = 0;
+    if (parseIp4(address, &maybeIp4)) {
+	setAddress(maybeIp4);
+	return TRUE;
     }
 
-#if 0
-    // ### add ipv6 support???
     // try ipv6
-    QStringList ipv6 = QStringList::split( ":", a, TRUE );
+    QStringList ipv6 = QStringList::split(":", a, TRUE);
     int count = ipv6.count();
-    if ( count < 3 )
+    if (count < 3)
 	return FALSE; // there must be at least two ":"
-    if ( count > 8 )
+    if (count > 8)
 	return FALSE; // maximum of seven ":" exceeded
-    Q_UINT8 maybe[16];
+    Q_UINT8 maybeIp6[16];
     int mc = 16;
-    bool colcolFound = FALSE;
-    for ( int i=count-1; i>=0; i-- ) {
-	if ( ipv6[i].isEmpty() ) {
-	    if ( i==count-1 ) {
+    int fillCount = 9 - count;
+    for (int i=count-1; i>=0; --i) {
+	if ( mc <= 0 )
+	    return FALSE;
+
+	if (ipv6[i].isEmpty()) {
+	    if (i==count-1) {
 		// special case: ":" is last character
-		if ( !ipv6[i-1].isEmpty() )
+		if (!ipv6[i-1].isEmpty())
 		    return FALSE;
-	    } else if ( i==0 ) {
+		maybeIp6[--mc] = 0;
+		maybeIp6[--mc] = 0;
+	    } else if (i==0) {
 		// special case: ":" is first character
-		if ( !ipv6[i+1].isEmpty() )
+		if (!ipv6[i+1].isEmpty())
 		    return FALSE;
-		maybe[--mc] = 0;
-		maybe[--mc] = 0;
+		maybeIp6[--mc] = 0;
+		maybeIp6[--mc] = 0;
 	    } else {
-		// special case: found a "::" somewhere
-		if ( colcolFound )
-		    return FALSE; // more then one "::"
-		colcolFound = TRUE;
-		// ### add the right numbers of zeros
+		for (int j=0; j<fillCount; ++j) {
+		    if ( mc <= 0 )
+			return FALSE;
+		    maybeIp6[--mc] = 0;
+		    maybeIp6[--mc] = 0;
+		}
 	    }
 	} else {
 	    bool ok = FALSE;
-	    uint byteValue = ipv6[i].toUInt( &ok, 16 );
-	    if ( ok && byteValue < 0xffff ) {
-		maybe[--mc] = byteValue / 256;
-		maybe[--mc] = byteValue % 256;
+	    uint byteValue = ipv6[i].toUInt(&ok, 16);
+	    if (ok && byteValue <= 0xffff) {
+		maybeIp6[--mc] = byteValue & 0xff;
+		maybeIp6[--mc] = (byteValue >> 8) & 0xff;
 	    } else {
-		if ( i == count-1 ) {
-		    // ### parse the ipv4 part of a mixed type
+		if (i == count-1) {
+		    // parse the ipv4 part of a mixed type
+		    if (!parseIp4(ipv6[i], &maybeIp4))
+			return FALSE;
+		    maybeIp6[--mc] = maybeIp4 & 0xff;
+		    maybeIp6[--mc] = (maybeIp4 >> 8) & 0xff;
+		    maybeIp6[--mc] = (maybeIp4 >> 16) & 0xff;
+		    maybeIp6[--mc] = (maybeIp4 >> 24) & 0xff;
+		    --fillCount;
 		} else {
-		    break;
+		    return FALSE;
 		}
 	    }
 	}
     }
-    if ( mc == 0 ) {
-	setAddress( maybe );
+    if (mc == 0) {
+	setAddress(maybeIp6);
 	return TRUE;
     }
-#endif
 
     return FALSE;
 }
@@ -302,7 +319,7 @@ QString QHostAddress::toString() const
 		( (Q_UINT16)( d->a6[2*i+1] ) );
 	}
 	QString s;
-	s.sprintf( "%x:%x:%x:%x:%x:%x:%x:%x",
+	s.sprintf( "%X:%X:%X:%X:%X:%X:%X:%X",
 		ugle[0], ugle[1], ugle[2], ugle[3],
 		ugle[4], ugle[5], ugle[6], ugle[7] );
 	return s;
