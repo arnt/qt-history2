@@ -78,7 +78,7 @@ fi
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="free"
-    Licensee="Non-Commercial"
+    Licensee="Free"
     Products="qt-free"
 # Evaluation version.
 elif [ -f $relpath/LICENSE.EVAL ]; then
@@ -1356,7 +1356,7 @@ if [ "$CFG_CUPS" != "no" ]; then
 fi
 # auto-detect large file support
 # * MUST BE EXPLICITLY ENABLED FOR NOW - BREAKS BINARY COMPATIBILITY *
- 
+
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
@@ -1494,7 +1494,7 @@ Installation options:
 			  (default PREFIX/doc)
     -headerdir dir ..... Headers will be installed to dir
 			  (default PREFIX/include)
-    -plugindir dir ..... Plugins will be installed to dir 
+    -plugindir dir ..... Plugins will be installed to dir
                           (default PREFIX/plugins)
     -datadir dir ....... Data used by Qt programs will be installed to dir
                           (default PREFIX)
