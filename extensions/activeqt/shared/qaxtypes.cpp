@@ -157,11 +157,11 @@ QPixmap IPictureToQPixmap(IPicture *ipic)
     QSize sz(MAP_LOGHIM_TO_PIX(pWidth, pm.logicalDpiX()),
         MAP_LOGHIM_TO_PIX(pHeight, pm.logicalDpiY()));
     
-    pm.resize(sz);
-	HDC hdc = pm.getDC();
+    pm = QPixmap(sz);
+    HDC hdc = pm.getDC();
     ipic->Render(hdc, 0, 0, pm.width(), pm.height(), 0, pHeight, pWidth, -pHeight, 0);
-	pm.releaseDC(hdc);
-    
+    pm.releaseDC(hdc);
+
     return pm;
 }
 
