@@ -618,7 +618,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     }
     if (!obsoleteLink.isEmpty()) {
         DcfSection obsoleteSection;
-        obsoleteSection.title = "Obsolete obsolete";
+        obsoleteSection.title = "Obsolete members";
         obsoleteSection.ref = obsoleteLink;
         appendDcfSubSection(&classSection, obsoleteSection);
     }
