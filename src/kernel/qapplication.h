@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#111 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#112 $
 **
 ** Definition of QApplication class
 **
@@ -129,6 +129,9 @@ public:
     static void      setWinStyleHighlightColor( const QColor & );
     static const QColor&   winStyleHighlightColor();
 
+    static void	    setDesktopSettingsAware( bool );
+    static bool	    desktopSettingsAware();
+
     static void	    setDoubleClickInterval( int );
     static int      doubleClickInterval();
 
@@ -143,7 +146,6 @@ public:
 #elif defined(_WS_X11_)
     virtual bool     x11EventFilter( XEvent * );
     int              x11ProcessEvent( XEvent* );
-    static void useXResourceManager( bool );
 #endif
 
 #if defined(_WS_WIN_)
@@ -176,6 +178,7 @@ private:
     static QWidget  *main_widget;
     static QWidget  *focus_widget;
     static QWidget  *active_window;
+    static bool	     obey_desktop_settings;
     QList<QTranslator> * translators;
 
     static QDict<QPalette>* app_palettes;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#456 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#457 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -191,7 +191,6 @@ Atom		qt_selection_property;
 Atom		qt_wm_state;
 static Atom 	qt_desktop_properties;   	// Qt desktop properties
 static Atom 	qt_resource_manager;   	// X11 Resource manager
-static bool 	use_x11_resource_manager = TRUE;
 Atom 		qt_sizegrip;		// sizegrip
 Atom 		qt_wm_client_leader;
 
@@ -544,7 +543,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 
     QCString resFont, resFG, resBG;
 
-    if (use_x11_resource_manager) {
+    if ( QApplication::desktopSettingsAware() ) {
 	int format;
 	ulong  nitems, after = 1;
 	QCString res;
@@ -2003,7 +2002,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( event->type == PropertyNotify ) {	// some properties changed
 	if ( event->xproperty.window == appRootWin ) {
-	    if ( event->xproperty.atom == qt_resource_manager && use_x11_resource_manager )
+	    if ( event->xproperty.atom == qt_resource_manager && obey_desktop_settings )
 		qt_set_x11_resources();
 	    else if ( event->xproperty.atom == qt_desktop_properties )
 		qt_set_desktop_properties();
@@ -2356,19 +2355,6 @@ bool QApplication::x11EventFilter( XEvent * )
     return FALSE;
 }
 
-
-/*!
-  This function is only implemented under X11.
-
-  Per default, Qt observes the X11 resource settings for both the
-  background and foreground color. This behaviour can be switched off
-  with this function.
-*/
-void QApplication::useXResourceManager( bool arg)
-{
-    use_x11_resource_manager = arg;
-    set_local_font();
-}
 
 
 /*****************************************************************************

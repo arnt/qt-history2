@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#269 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#270 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -481,7 +481,8 @@ void qt_init( int *argcptr, char **argv )
     QPainter::initialize();
     qApp->setName( appName );
 
-    qt_set_windows_resources();
+    if ( qApp->desktopSettingsAware() )
+	qt_set_windows_resources();
 
 #if defined(USE_HEARTBEAT)
     /*
@@ -1388,7 +1389,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 	
 	case WM_SETTINGCHANGE:
-	    qt_set_windows_resources();
+	    if ( QApplication::desktopSettingsAware() )
+		qt_set_windows_resources();
 	    break;
 
 	case WM_CLOSE:				// close window

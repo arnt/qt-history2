@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#217 $
 **
 ** Implementation of QApplication class
 **
@@ -116,6 +116,7 @@ int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
+bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
@@ -1654,4 +1655,42 @@ QWidget *QApplication::desktop()
 	CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
+}
+
+
+
+/*!  
+  By default, Qt will try to get the current standard colors, fonts
+  etc. from the underlying window system's desktop settings (resources),
+  and use them for all relevant widgets. This behavior can be switched off
+  by calling this function with \a on set to FALSE.
+  
+  This static function must be called before creating the QApplication
+  object, like this:
+
+  \code
+  int main( int argc, char** argv ) {
+    QApplication::setDesktopSettingsAware( FALSE ); // I know better than the user
+    QApplication myApp( argc, argv );           // gimme default fonts & colors
+    ...
+  }
+  \endcode
+
+  \sa desktopSettingsAware()
+*/
+
+void QApplication::setDesktopSettingsAware( bool on )
+{
+    obey_desktop_settings = on;
+}
+
+/*!
+  Returns the value set by setDesktopSettingsAware(), by default TRUE.
+
+  \sa setDesktopSettingsAware()
+*/
+
+bool QApplication::desktopSettingsAware()
+{
+    return obey_desktop_settings;
 }
