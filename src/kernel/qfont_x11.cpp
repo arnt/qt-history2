@@ -87,7 +87,7 @@ Bool XftNameUnparse (XftPattern *, char *, int);
 // because of the way the font matcher works
 // these lists must have at least 2 entries
 static const char * const empty_encodings[] = { 0, 0 };
-static const char * const latin_encodings[] = { "iso8859-1", "adobe-fontspecific",
+static const char * const latin_encodings[] = { "iso8859-1", "ascii-0", "adobe-fontspecific",
 						"microsoft-symbol", 0 };
 static const char * const greek_encodings[] = { "iso8859-7", 0 };
 static const char * const cyrillic_encodings[] = { "koi8-ru", "koi8-u", "koi8-r",
