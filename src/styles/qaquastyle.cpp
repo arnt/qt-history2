@@ -248,6 +248,10 @@ void QAquaStyle::polish(QApplication* app)
 /*! \reimp */
 void QAquaStyle::polish(QWidget * w)
 {
+    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
+       w->palette().brush(QPalette::Active, QColorGroup::Background) == 
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background))
+	w->setBackgroundOrigin(QWidget::WindowOrigin);
     qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
 #ifdef Q_WS_MAC
@@ -274,10 +278,6 @@ void QAquaStyle::polish(QWidget * w)
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
     }
-
-    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
-       w->backgroundPixmap() && qApp->palette().isCopyOf(w->palette())) 
-            w->setBackgroundOrigin(QWidget::WindowOrigin);
 
     if(w->inherits("QTitleBar")) {
 	w->font().setPixelSize(10);

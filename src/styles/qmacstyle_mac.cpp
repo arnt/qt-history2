@@ -274,12 +274,12 @@ void QMacStyle::polish(QApplication* app)
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
+    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
+       w->palette().brush(QPalette::Active, QColorGroup::Background) == 
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background))
+	w->setBackgroundOrigin(QWidget::WindowOrigin);
     qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
-
-    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
-       w->backgroundPixmap() && qApp->palette().isCopyOf(w->palette())) 
-            w->setBackgroundOrigin(QWidget::WindowOrigin);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
     if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->ownPalette() && 
@@ -900,15 +900,23 @@ void QMacStyle::drawControl(ControlElement element,
 	}
 
 	d->addWidget(btn);
-	if(btn->isToggleButton() && btn->isOn())
-	    tds = kThemeStatePressed;
 	QString pmkey;
 	bool do_draw = FALSE;
 	QPixmap *buffer = NULL;
-	QTextOStream os(&pmkey);
-	int frame = ((how & Style_Down) ? 0 : d->buttonState.frame);
-	os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() << "_" << how << "_" << frame;
-	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget) && qAquaActive(cg)) {
+	bool darken = d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget);
+	int frame = d->buttonState.frame;
+	if(btn->isToggleButton() && btn->isOn()) {
+	    darken = TRUE;
+	    frame = 12;
+	    if((how & Style_Down))
+		frame += 8;
+	} else if(how & Style_Down) {
+	    darken = FALSE;
+	    frame = 0;
+	}
+	if(darken && qAquaActive(cg)) {
+	    QTextOStream os(&pmkey);
+	    os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() << "_" << how << "_" << frame;
 	    tds = kThemeStatePressed;
 	    if(frame && !(buffer = QPixmapCache::find(pmkey))) {
 		do_draw = TRUE;
