@@ -319,14 +319,15 @@ class QComboBoxPopupItem : public QCustomMenuItem
     QListBoxItem *li;
 public:
     QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i) {  }
+    virtual bool fullSpan() const { return TRUE; }
     virtual void paint( QPainter*, const QColorGroup&, bool, bool, int, int, int, int);
-    virtual QSize sizeHint() { return QSize(li->width(li->listBox()), li->height(li->listBox())); }
+    virtual QSize sizeHint() { return QSize(li->width(li->listBox()), QMAX(25, li->height(li->listBox()))); }
 };    
 void QComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
 				bool, int x, int y, int, int)
 {
     p->save();
-    p->translate(x, y);
+    p->translate(x, y + ((sizeHint().height() / 2) - (li->height(li->listBox()) / 2)));
     li->paint(p);
     p->restore();
 }
