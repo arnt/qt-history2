@@ -1707,7 +1707,7 @@ OpenGL headers and libraries are installed on your system, and if so, it
 will include the Qt OpenGL module in the Qt library. (If your OpenGL
 headers or libraries are placed in a non-standard directory, you may need
 to change the SYSCONF_CXXFLAGS_OPENGL and/or SYSCONF_LFLAGS_OPENGL in the
-config file for your system (qt/configs/*) ).
+config file for your system).
 
 When you install Qt for Windows, the Qt OpenGL module is always included.
 
@@ -1720,8 +1720,8 @@ name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
 "GLU". If you want to use a pre-3.1 version of Mesa, you must change
 the Makefiles to use these library names instead. The easiest way to
 do this edit the SYSCONF_LIBS_OPENGL line in the config file you are
-using (qt/configs/*), changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU";
-then run "configure" again.
+using, changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU"; then run "configure"
+again.
 
 <h2>The QGL Classes</h2>
 
