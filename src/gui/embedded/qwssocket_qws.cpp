@@ -131,7 +131,7 @@ void QWSServerSocket::init(const QString &file)
     // listen
     if (::listen(s, backlog) == 0) {
         if (!setSocketDescriptor(s))
-            qWarning( "QWSServerSocket could not set descriptor %d : %s", s, errorString());
+            qWarning( "QWSServerSocket could not set descriptor %d : %s", s, errorString().latin1());
     } else {
         qWarning("QWSServerSocket: could not listen to file %s", file.latin1());
         ::close(s);
