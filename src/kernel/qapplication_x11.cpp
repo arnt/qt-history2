@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#78 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#77 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#78 $";
 #endif
 
 
@@ -52,6 +52,7 @@ static char   **appArgv;			// argument vector
 static Display *appDpy;				// X11 application display
 static char    *appDpyName      = 0;		// X11 display name
 static bool	appSync         = FALSE;	// X11 synchronization
+static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
@@ -192,6 +193,8 @@ void qt_init( int *argcptr, char **argv )
 #if defined(DEBUG)
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
+	else if ( arg == "-nograb" )
+	    appNoGrab = !appNoGrab;
 	else if ( arg == "-memchk" )
 	    appMemChk = !appMemChk;
 	else if ( arg == "-membuf" ) {
@@ -430,6 +433,11 @@ int qt_xscreen()				// get current X screen
 Window qt_xrootwin()				// get X root window
 {
     return appRootWin;
+}
+
+bool qt_nograb()				// application no-grab option
+{
+    return appNoGrab;
 }
 
 GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
@@ -1012,7 +1020,7 @@ void qt_open_popup( QWidget *popup )		// add popup widget
 	CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
-    if ( popupWidgets->count() == 1 ) {		// grab mouse
+    if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
 	XGrabKeyboard( popup->display(), popup->id(), TRUE,
 		       GrabModeSync, GrabModeSync, CurrentTime );
 	XAllowEvents( popup->display(), SyncKeyboard, CurrentTime );
@@ -1035,12 +1043,15 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	XUngrabKeyboard( popup->display(), CurrentTime );
-	if ( mouseButtonState != 0 )		// mouse release event
-	    XAllowEvents( popup->display(), AsyncPointer, CurrentTime );
-	else {					// mouse press event
-	    mouseButtonPressTime -= 10000;	// avoid double click
-	    XAllowEvents( popup->display(), ReplayPointer, CurrentTime );
+	if ( !qt_nograb() ) {			// grabbing not disabled
+	    XUngrabKeyboard( popup->display(), CurrentTime );
+	    if ( mouseButtonState != 0 )	// mouse release event
+		XAllowEvents( popup->display(), AsyncPointer, CurrentTime );
+	    else {				// mouse press event
+		mouseButtonPressTime -= 10000;	// avoid double click
+		XAllowEvents( popup->display(), ReplayPointer, CurrentTime );
+	    }
+	    XFlush( popup->display() );
 	}
     }
 }

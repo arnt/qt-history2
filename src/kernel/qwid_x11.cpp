@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#72 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#71 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#72 $";
 #endif
 
 
@@ -422,102 +422,119 @@ void QWidget::setCursor( const QCursor &cursor )
 }
 
 
+extern bool qt_nograb();
+
 /*!
 Grabs the mouse input.
 
-The widget will continue to get mouse events until releaseMouse() is called.
+This widget will be the only one to receive mouse events until
+releaseMouse() is called.
 
-\warning This might lock your terminal.
+\warning Grabbing the mouse might lock the terminal.
 
 It is almost never necessary to grab the mouse when using Qt since Qt
 grabs and releases it sensibly.  In particular, Qt grabs the mouse
 when a button is pressed and keeps it until the last button is
 released.
 
-\sa releaseMouse(). */
+\sa releaseMouse(), grabKeyboard(), releaseKeyboard()
+*/
 
 void QWidget::grabMouse()
 {
     if ( !testFlag(WState_MGrab) ) {
 	setFlag( WState_MGrab );
-	XGrabPointer( dpy, ident, TRUE,
-		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
-		      EnterWindowMask | LeaveWindowMask,
-		      GrabModeAsync, GrabModeAsync,
-		      None, None, CurrentTime );
+	if ( !qt_nograb() )
+	    XGrabPointer( dpy, ident, TRUE,
+			  ButtonPressMask | ButtonReleaseMask |
+			  ButtonMotionMask | EnterWindowMask | LeaveWindowMask,
+			  GrabModeAsync, GrabModeAsync,
+			  None, None, CurrentTime );
     }
 }
 
-/*! Grabs the mouse intput and changes the cursor shape.
+/*!
+Grabs the mouse intput and changes the cursor shape.
 
-  The cursor will assume shape \e cursor (for as long as the mouse focus is
-  grabbed) and the widget will continue getting mouse events until
-  releaseMouse() is called().
+The cursor will assume shape \e cursor (for as long as the mouse focus is
+grabbed) and this widget will be the only one to receive mouse events
+until releaseMouse() is called().
 
-\sa releaseMouse(), setCursor(). */
+\warning Grabbing the mouse might lock the terminal.
+
+\sa releaseMouse(), grabKeyboard(), releaseKeyboard(), setCursor()
+*/
 
 void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( !testFlag(WState_MGrab) ) {
 	setFlag( WState_MGrab );
-	XGrabPointer( dpy, ident, TRUE,
-		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
-		      EnterWindowMask | LeaveWindowMask,
-		      GrabModeAsync, GrabModeAsync,
-		      None, cursor.handle(), CurrentTime );
+	if ( !qt_nograb() )
+	    XGrabPointer( dpy, ident, TRUE,
+			  ButtonPressMask | ButtonReleaseMask |
+			  ButtonMotionMask |
+			  EnterWindowMask | LeaveWindowMask,
+			  GrabModeAsync, GrabModeAsync,
+			  None, cursor.handle(), CurrentTime );
     }
 }
 
-/*! Releases the mouse from a grab.
+/*!
+Releases the mouse grab.
 
-  \internal
-
-  Debugging is a little easier if releaseMouse() calls syncX() - it's
-  possible to set breakpoints immediately after the releaseMouse().
-
-  \sa grabMouse(). */
+\sa grabMouse(), grabKeyboard(), releaseKeyboard()
+*/
 
 void QWidget::releaseMouse()
 {
     if ( testFlag(WState_MGrab) ) {
 	clearFlag( WState_MGrab );
-	XUngrabPointer( dpy, CurrentTime );
-	QApplication::syncX();
+	if ( !qt_nograb() ) {
+	    XUngrabPointer( dpy, CurrentTime );
+	    XFlush( dpy );
+	}
     }
 }
 
 /*!
-Grabs the keyboard input focus.
+Grabs all keyboard input.
 
-This widget will receive all keyboard
-events, no matter where the mouse cursor is.  \sa releaseKeyboard(),
-grabMouse(), releaseMouse().
+This widget will receive all keyboard events, independent of the active
+window.
+
+\warning Grabbing the keyboard might lock the terminal.
+
+\sa releaseKeyboard(), grabMouse(), releaseMouse()
 */
 
 void QWidget::grabKeyboard()
 {
     if ( !testFlag(WState_KGrab) ) {
 	setFlag( WState_KGrab );
-	XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
-		       CurrentTime );
+	if ( !qt_nograb() )
+	    XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
+			   CurrentTime );
     }
 }
 
-/*!  Releases the keyboard focus.  The keyboard events will follow
-  their natural inclination. \sa grabKeyboard(), grabMouse(),
-  releaseMouse(). */
+/*!  
+Releases the keyboard grab.
+
+\sa grabKeyboard(), grabMouse(), releaseMouse()
+*/
 
 void QWidget::releaseKeyboard()
 {
     if ( testFlag(WState_KGrab) ) {
 	clearFlag( WState_KGrab );
-	XUngrabKeyboard( dpy, CurrentTime );
+	if ( !qt_nograb() )
+	    XUngrabKeyboard( dpy, CurrentTime );
     }
 }
 
 
 /*!
-Gives this widget the keyboard input focus.
+Gives the keyboard input focus to the widget.
 */
 
 void QWidget::setFocus()			// set keyboard input focus
