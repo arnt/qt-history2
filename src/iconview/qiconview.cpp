@@ -520,7 +520,7 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     \c qt/examples/fileiconview/qfileiconview.h and
     \c qt/examples/fileiconview/qfileiconview.cpp.
 
-    \important QMimeSource::format()
+    \sa QMimeSource::format()
 */
 // ### consider using \dontinclude and friends there
 // ### Not here in the module overview instead...
