@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#48 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#48 $";
 #endif
 
 
@@ -1434,15 +1434,15 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	XGetWindowAttributes( display(), id(), &a );
 	QSize  newSize( a.width, a.height );
 	QPoint newPos( a.x, a.y );
-	QRect r = clientRect();
+	QRect r = geometry();
 	if ( newSize != size() ) {		// size changed
 	    r.setSize( newSize );
 	    setCRect( r );
 	    QResizeEvent e( newSize );
 	    QApplication::sendEvent( this, &e );
 	}
-	if ( newPos != frameRect().topLeft() ) {// position changed
-	    int x, y;
+	if ( newPos != frameGeometry().topLeft() ) {
+	    int x, y;				// position changed
 	    Window child;
 	    XTranslateCoordinates( display(), id(),
 				   DefaultRootWindow(display()),
@@ -1450,7 +1450,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    newPos = QPoint(x,y) - newPos;	// get position excl frame
 	    r.setTopLeft( newPos );
 	    setCRect( r );
-	    QMoveEvent e( frameRect().topLeft() );
+	    QMoveEvent e( frameGeometry().topLeft() );
 	    QApplication::sendEvent( this, &e );
 	}
     }

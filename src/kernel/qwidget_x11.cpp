@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#44 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#44 $";
 #endif
 
 
@@ -613,7 +613,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 	    object = it.current();
 	    if ( object->isWidgetType() ) {
 		QWidget *w = (QWidget *)object;
-		w->move( w->clientRect().topLeft()+pd );
+		w->move( w->geometry().topLeft()+pd );
 	    }
 	    ++it;
 	}
