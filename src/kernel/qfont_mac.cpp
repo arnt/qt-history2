@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "qstring.h"
 #include "qfont.h"
 #include "qfontdata_p.h"

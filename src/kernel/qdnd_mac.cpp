@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include <stdlib.h>
 #include "qapplication.h"
 
 #ifndef QT_NO_DRAGANDDROP

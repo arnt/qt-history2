@@ -3,6 +3,7 @@
 
 #ifdef QMAC_QMENUBAR_NATIVE
 
+#include <ctype.h>
 #include "qt_mac.h"
 
 #define INCLUDE_MENUITEM_DEF
@@ -185,7 +186,6 @@ bool QMenuBar::activate(long msg)
 #define	HiWrd(aLong)	(((aLong) >> 16) & 0xFFFF)
 #define	LoWrd(aLong)	((aLong) & 0xFFFF)
     short id = HiWrd( msg ),  index = LoWrd( msg );
-    qDebug("Activating %d %d %d", id, index, msg);
 
     //This is a bit hacky, it will probably work in most cases, but I doubt it'll work forever FIXME!?
     int cmd;
