@@ -236,7 +236,7 @@ MakefileGenerator::init()
 
     /* get deps and mocables */
     if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps || Option::mkfile::do_mocs) 
-       && !noIO()) {
+       && !noIO() && !project->isActiveConfig("no_fileio")) {
         depHeuristics.clear();
         if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) && doDepends()) {
             QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
@@ -374,7 +374,7 @@ MakefileGenerator::init()
     }
 
     //SOURCES (as objects) get built first!
-    v["OBJECTS"] = createObjectList("SOURCES") + v["OBJECTS"]; // init variables
+    v["OBJECTS"] = createObjectList(v["SOURCES"]) + v["OBJECTS"]; // init variables
 
     //lex files
     {
@@ -405,7 +405,7 @@ MakefileGenerator::init()
             }
         }
         if(!project->isActiveConfig("lex_included"))
-            v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
+            v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList(impls));
     }
     //yacc files
     {
@@ -449,7 +449,7 @@ MakefileGenerator::init()
             }
             yaccdeps.clear();
         }
-        v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList("YACCIMPLS"));
+        v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList(impls));
     }
 
     //Translation files
@@ -481,7 +481,7 @@ MakefileGenerator::init()
                 hdrmoc += moc;
         }
         if(Option::h_moc_ext == Option::cpp_ext.first())
-            v["OBJMOC"] = createObjectList("HDRMOC");
+            v["OBJMOC"] = createObjectList(hdrmoc);
         srcmoc = hdrmoc + srcmoc;
     }
 
@@ -893,7 +893,6 @@ void
 MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
-
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
         QString m = QMakeSourceFileInfo::mocFile(*it);
         if(!m.isEmpty()) {
@@ -1198,13 +1197,13 @@ MakefileGenerator::valList(const QStringList &varList)
 }
 
 QStringList
-MakefileGenerator::createObjectList(const QString &var)
+MakefileGenerator::createObjectList(const QStringList &sources)
 {
-    QStringList &l = project->variables()[var], ret;
+    QStringList ret;
     QString objdir, dir;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
         objdir = project->first("OBJECTS_DIR");
-    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+    for(QStringList::ConstIterator it = sources.begin(); it != sources.end(); ++it) {
         QFileInfo fi(Option::fixPathToLocalOS((*it)));
         if(objdir.isEmpty() && project->isActiveConfig("object_with_source")) {
             QString fName = Option::fixPathToTargetOS((*it), false);
@@ -1981,7 +1980,9 @@ QMakeLocalFileName
 MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
 {
     project->variables()["MOCABLES"].append(file.local());
-    return QMakeLocalFileName(createMocFileName(file.local()));
+    QMakeLocalFileName mocfile(createMocFileName(file.local()));
+    debug_msg(2, "findFileForMoc: %s considered mocable (%s)", file.local().latin1(), mocfile.local().latin1());
+    return mocfile;
 }
 
 QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &file)
