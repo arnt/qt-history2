@@ -140,20 +140,13 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
  *****************************************************************************/
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintDevice *pdev)
     : QPaintEngine(*(new QQuickDrawPaintEnginePrivate),
-		     GCCaps(CoordTransform
-			  | PenWidthTransform
-			  | PixmapTransform
-			  | UsesFontEngine))
+		   GCCaps(UsesFontEngine))
 {
     d->pdev = pdev;
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QPaintEngine(dptr,
-		   GCCaps(CoordTransform
-			  | PenWidthTransform
-			  | PixmapTransform
-			  | UsesFontEngine))
+    : QPaintEngine(dptr, GCCaps(UsesFontEngine))
 {
     d->pdev = pdev;
 }
