@@ -1784,9 +1784,10 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appvisual_arr[ screen ] = vis;
 	    }
 
-	    // work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
-	    // with depth 8
-	    if ( serverVendor.contains( "AT&T Laboratories Cambridge" ) &&
+	    // work around a bug in vnc where DisplayCells returns 8
+	    // when Xvnc or the HP X server is run with depth 8
+	    if ( ( serverVendor.contains( "AT&T Laboratories Cambridge" ) ||
+		   serverVendor.contains( "Hewlett-Packard" ) ) &&
 		 QPaintDevice::x_appcells_arr[ screen ] == 8 )
 		QPaintDevice::x_appcells_arr[ screen ] = 256;
 
