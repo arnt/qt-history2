@@ -129,8 +129,10 @@ static bool block_set_alignment = FALSE;
     text is treated as rich text. (Rich text uses HTML tags to set
     text formatting attributes. See QStyleSheet for information on the
     HTML tags that are supported.). If you don't call setTextFormat()
-    explicitly the text edit will guess from the text itself whether it
-    is rich text or plain text.
+    explicitly the text edit will guess from the text itself whether
+    it is rich text or plain text. This means that if the text looks
+    like HTML or XML it will probably be interpreted as rich text, so
+    you should call setTextFormat(Qt::PlainText) to preserve such text.
 
     The text edit documentation uses the following concepts:
     \list

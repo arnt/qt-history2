@@ -546,7 +546,10 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
 // ### Not here in the module overview instead...
 
 /*!
-  \reimp
+    Constructs a drag object called \a name, which is a child of \a
+    dragSource.
+
+    Note that the drag object will be deleted when \a dragSource is deleted.
 */
 
 QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
@@ -3430,7 +3433,7 @@ void QIconView::showEvent( QShowEvent * )
 	resizeContents( QMAX( contentsWidth(), viewport()->width() ),
 			QMAX( contentsHeight(), viewport()->height() ) );
 	if ( d->resortItemsWhenInsert )
-	    sort( d->sortDirection ); 
+	    sort( d->sortDirection );
 	if ( autoArrange() )
 	    arrangeItemsInGrid( FALSE );
     }

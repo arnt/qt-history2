@@ -693,7 +693,9 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QS
 
 void QListBoxPixmap::paint( QPainter *painter )
 {
-    painter->drawPixmap( 3, 0, *pixmap() );
+    // 2001/1/8 move this down 2 pixels to
+    // stop problems with selection in QComboBox
+    painter->drawPixmap( 3, 2, *pixmap() );
     if ( !text().isEmpty() ) {
 	QFontMetrics fm = painter->fontMetrics();
 	int yPos;			// vertical text position
