@@ -1108,20 +1108,19 @@ then
 	$x11tests/xkb.test $XQMAKESPEC $VERBOSE && XKB=no
     fi
     # Work around broken X11 headers when using GCC 2.95 and better
-    # 	Solaris 2.5.1 and 2.6 with Xsun:
+    # 	Xsun on Solaris 2.5.1 and 2.6:
     #   	Patches are available for Solaris 7 and Solaris 8 but
-    #   	not for earlier versions. Work around by adding flag
-    #   	-fpermissive if Solaris is 2.5 or 2.6 and gcc is 2.95.
+    #   	not for Solaris 2.5.1 or 2.6.
+    NOTYPE=no
     case $PLATFORM in
     solaris-g++)
-	UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
-	case "$UNAME_RELEASE" in
-	5.5*|5.6)
-	    QMAKE_VARS="$QMAKE_VARS QMAKE_CXXFLAGS+=-fpermissive"
-	    ;;
-	esac
+	$x11tests/notype.test $XQMAKESPEC $VERBOSE $relpath $outpath && NOTYPE=yes
 	;;
     esac
+    if [ "x$NOTYPE" = "xyes" ]
+    then
+	QMAKE_VARS="$QMAKE_VARS QMAKE_CXXFLAGS+=-fpermissive"
+    fi
 fi
 
 # Next, emit a usage message if something failed.

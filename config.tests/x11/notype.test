@@ -30,3 +30,24 @@ if [ "$VERBOSE" = "yes" ]; then
 else
   make >/dev/null 2>&1
 fi
+
+NOTYPE=yes
+[ -x notypetest ] && NOTYPE=no
+
+
+# done
+
+if [ "$NOTYPE" != "yes" ]
+then
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "Broken X11 headers detected."
+    fi
+    exit 1
+else
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "X11 headers look good."
+    fi
+    exit 0
+fi
