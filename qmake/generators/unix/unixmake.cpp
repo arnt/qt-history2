@@ -161,7 +161,7 @@ UnixMakefileGenerator::init()
             QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
             if(plist.isEmpty())
                 plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
-            if(QFile::exists(Option::fixPathToLocalOS(plist))) {
+            if(exists(Option::fixPathToLocalOS(plist))) {
                 if(project->isEmpty("QMAKE_INFO_PLIST"))
                     project->variables()["QMAKE_INFO_PLIST"].append(plist);
                 project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
@@ -179,7 +179,7 @@ UnixMakefileGenerator::init()
                                                                  "../" + project->first(bundle_data[i] + ".path"));
                         for(int file = 0; file < files.count(); file++)
                             project->variables()["ALL_DEPS"] += path + Option::dir_sep +
-                                                                QFileInfo(files[file]).fileName();
+                                                                fileInfo(files[file]).fileName();
                     }
                 }
             }
@@ -417,7 +417,7 @@ UnixMakefileGenerator::findLibraries()
                     if(dir.isNull()) {
                         QString lib_stub;
                         for(QList<QMakeLocalFileName>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
-                            if(QFile::exists((*dep_it).local() + Option::dir_sep + "lib" + stub +
+                            if(exists((*dep_it).local() + Option::dir_sep + "lib" + stub +
                                              "." + (*extit))) {
                                 lib_stub = stub;
                                 break;
@@ -429,7 +429,7 @@ UnixMakefileGenerator::findLibraries()
                             break;
                         }
                     } else {
-                        if(QFile::exists("lib" + stub + "." + (*extit))) {
+                        if(exists("lib" + stub + "." + (*extit))) {
                             (*it) = "lib" + stub + "." + (*extit);
                             found = true;
                             break;
@@ -438,7 +438,7 @@ UnixMakefileGenerator::findLibraries()
                 }
                 if(!found && project->isActiveConfig("compile_libtool")) {
                     for(QList<QMakeLocalFileName>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
-                        if(QFile::exists((*dep_it).local() + Option::dir_sep + "lib" + stub + Option::libtool_ext)) {
+                        if(exists((*dep_it).local() + Option::dir_sep + "lib" + stub + Option::libtool_ext)) {
                             (*it) = (*dep_it).real() + Option::dir_sep + "lib" + stub + Option::libtool_ext;
                             found = true;
                             break;
@@ -482,7 +482,7 @@ UnixMakefileGenerator::processPrlFiles()
                         for(QList<QMakeLocalFileName>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
                             if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
                                 QString la = (*dep_it).local() + Option::dir_sep + "lib" + lib + Option::libtool_ext;
-                                if(QFile::exists(la) && QFile::exists((*dep_it).local() + Option::dir_sep + ".libs")) {
+                                if(exists(la) && QFile::exists((*dep_it).local() + Option::dir_sep + ".libs")) {
                                     QString dot_libs = (*dep_it).real() + Option::dir_sep + ".libs";
                                     l_out.append("-L" + dot_libs);
                                     libdirs.append(QMakeLocalFileName(dot_libs));

@@ -441,7 +441,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
     for(int i = 0; i < subdirs.size(); ++i) {
         QString tmp = subdirs.at(i);
-        QFileInfo fi(Option::fixPathToLocalOS(tmp, true));
+        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
         if(fi.exists()) {
             if(fi.isDir()) {
                 QString profile = tmp;
@@ -480,7 +480,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
                         // If file doesn't exsist, then maybe the users configuration
                         // doesn't allow it to be created. Skip to next...
-                        if(!QFile::exists(qmake_getpwd() + Option::dir_sep + vcproj)) {
+                        if(!exists(qmake_getpwd() + Option::dir_sep + vcproj)) {
                             warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(qmake_getpwd() + Option::dir_sep + vcproj).toLatin1().constData());
                             goto nextfile; // # Dirty!
                         }
@@ -640,7 +640,7 @@ void VcprojGenerator::init()
     precompH = project->first("PRECOMPILED_HEADER");
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
-        precompHFilename = QFileInfo(precompH).fileName();
+        precompHFilename = fileInfo(precompH).fileName();
         // Created files
         QString origTarget = project->first("QMAKE_ORIG_TARGET");
         precompObj = origTarget + Option::obj_ext;
@@ -1088,7 +1088,7 @@ void VcprojGenerator::initResourceFiles()
     QString rcc_dep_cmd = project->variables()["rcc.depend_command"].join(" ");
     if(!rcc_dep_cmd.isEmpty()) {
         QString argv0 = Option::fixPathToLocalOS(rcc_dep_cmd.split(' ').first());
-        if(QFile::exists(argv0)) {
+        if(exists(argv0)) {
             QStringList qrc_files = project->variables()["RESOURCES"];
             QStringList deps;
             if(!qrc_files.isEmpty()) {
@@ -1365,7 +1365,7 @@ bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.fileName().isEmpty()) {
-        QFileInfo fi(file);
+        QFileInfo fi(fileInfo(file.fileName()));
         if(fi.isDir())
             outdir = file.fileName() + QDir::separator();
     }
@@ -1399,10 +1399,10 @@ QString VcprojGenerator::fixFilename(QString ofile) const
 QString VcprojGenerator::findTemplate(QString file)
 {
     QString ret;
-    if(!QFile::exists((ret = file)) &&
-       !QFile::exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
-       !QFile::exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
-       !QFile::exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
+    if(!exists((ret = file)) &&
+       !exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
+       !exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
+       !exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
         return "";
     debug_msg(1, "Generator: MSVC.NET: Found template \'%s\'", ret.toLatin1().constData());
     return ret;

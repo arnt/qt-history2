@@ -31,7 +31,7 @@ int
 Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
     QString bd = Option::fixPathToLocalOS(d, true);
-    if(!QFile::exists(bd))
+    if(!exists(bd))
         return -1;
 
     QString dllStem = stem + QTDLL_POSTFIX;
@@ -101,7 +101,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                         extension += QString::number(ver);
                     extension += ".lib";
                     if(QMakeMetaInfo::libExists((*it).local() + Option::dir_sep + lib) ||
-                       QFile::exists((*it).local() + Option::dir_sep + lib + extension)) {
+                       exists((*it).local() + Option::dir_sep + lib + extension)) {
                         out = (*it).real() + Option::dir_sep + lib + extension;
                         break;
                     }
@@ -111,7 +111,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                 out = lib + ".lib";
             modified_opt = true;
             (*it) = out;
-        } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
+        } else if(!exists(Option::fixPathToLocalOS(opt))) {
             QList<QMakeLocalFileName> lib_dirs;
             QString file = opt;
             int slsh = file.lastIndexOf(Option::dir_sep);
@@ -276,7 +276,7 @@ void Win32MakefileGenerator::processRcFileVar()
         project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
         QString resFile = project->variables()["RES_FILE"].first();
         resFile.replace(".rc", Option::res_ext);
-        project->variables()["RES_FILE"].first() = QFileInfo(resFile).fileName();
+        project->variables()["RES_FILE"].first() = fileInfo(resFile).fileName();
         if (!project->variables()["OBJECTS_DIR"].isEmpty())
             project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + "\\");
         project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
@@ -476,7 +476,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
         QStringList &forms = project->variables()["FORMS"];
         for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
             QString ui_h = fileFixify((*formit) + Option::h_ext.first());
-            if(QFile::exists(ui_h))
+            if(exists(ui_h))
                 dist_files << ui_h;
         }
     }

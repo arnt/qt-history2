@@ -138,7 +138,7 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
                 compilerName << compiler;
             QStringList compilerDepends = project->variables()[compiler + ".depends"];
             QStringList compilerConfig = project->variables()[compiler + ".CONFIG"];
-            
+
             if (!verifyExtraCompiler(compiler, file))
                 continue;
 
@@ -384,7 +384,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
         endGroups(t);
     }
 
-    writeFileGroup(t, project->variables()["GENERATED_SOURCES"] 
+    writeFileGroup(t, project->variables()["GENERATED_SOURCES"]
                       + swappedBuildSteps.keys(), "Generated", "");
 
     t << "# End Target" << endl;
@@ -637,7 +637,7 @@ DspMakefileGenerator::init()
 
     QStringList &list = project->variables()["FORMS"];
     for(QStringList::ConstIterator hit = list.begin(); hit != list.end(); ++hit) {
-        if(QFile::exists(*hit + ".h"))
+        if(exists(*hit + ".h"))
             project->variables()["SOURCES"].append(*hit + ".h");
     }
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
@@ -651,7 +651,7 @@ DspMakefileGenerator::init()
 
     // Setup PCH variables
     precompH = project->first("PRECOMPILED_HEADER");
-    namePCH = QFileInfo(precompH).fileName();
+    namePCH = fileInfo(precompH).fileName();
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
         // Created files
@@ -744,7 +744,7 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
     if(!file.fileName().isEmpty()) {
         if(QDir::isRelativePath(file.fileName()))
             file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
-        QFileInfo fi(file);
+        QFileInfo fi(fileInfo(file.fileName()));
         if(fi.isDir())
             outdir = file.fileName() + QDir::separator();
     }

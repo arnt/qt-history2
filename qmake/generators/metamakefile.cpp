@@ -237,7 +237,7 @@ SubdirsMetaMakefileGenerator::init()
             subs.append(sub);
 
             bool subPro = false;
-            QFileInfo subdir = QFileInfo(subdirs.at(i));
+            QFileInfo subdir(subdirs.at(i));
             if(subdir.isDir())
                 subdir = QFileInfo(subdirs.at(i) + "/" + subdir.fileName() + Option::pro_ext);
             else

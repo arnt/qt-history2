@@ -79,7 +79,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
     QString oldpwd = qmake_getpwd();
     QMap<QString, QStringList> groups;
     for(int subdir = 0; subdir < subdirs.count(); subdir++) {
-        QFileInfo fi(Option::fixPathToLocalOS(subdirs[subdir], true));
+        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(subdirs[subdir], true)));
         if(fi.exists()) {
             if(fi.isDir()) {
                 QString profile = subdirs[subdir];
@@ -108,7 +108,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                         subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
                     } else if(tmp_proj.first("TEMPLATE") == "app" || tmp_proj.first("TEMPLATE") == "lib") {
                         QString pbxproj = qmake_getpwd() + Option::dir_sep + tmp_proj.first("TARGET") + projectSuffix();
-                        if(!QFile::exists(pbxproj)) {
+                        if(!exists(pbxproj)) {
                             warn_msg(WarnLogic, "Ignored (not found) '%s'", pbxproj.toLatin1().constData());
                             goto nextfile; // # Dirty!
                         }
@@ -587,7 +587,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             if(!project->isEmpty("YACCSOURCES")) {
                 QStringList &yaccs = project->variables()["YACCSOURCES"];
                 for(QStringList::Iterator yit = yaccs.begin(); yit != yaccs.end(); ++yit) {
-                    QFileInfo fi((*yit));
+                    QFileInfo fi(fileInfo((*yit)));
                     mkt << " " << fi.path() << Option::dir_sep << fi.baseName()
                         << Option::yacc_mod << Option::cpp_ext.first();
                 }
@@ -595,7 +595,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             if(!project->isEmpty("LEXSOURCES")) {
                 QStringList &lexs = project->variables()["LEXSOURCES"];
                 for(QStringList::Iterator lit = lexs.begin(); lit != lexs.end(); ++lit) {
-                    QFileInfo fi((*lit));
+                    QFileInfo fi(fileInfo((*lit)));
                     mkt << " " << fi.path() << Option::dir_sep << fi.baseName()
                         << Option::lex_mod << Option::cpp_ext.first();
                 }
@@ -718,7 +718,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                             QString extns[] = { ".dylib", ".so", ".a", QString::null };
                             for(int n = 0; !remove && !extns[n].isNull(); n++) {
                                 QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
-                                if(QFile::exists(tmp)) {
+                                if(exists(tmp)) {
                                     library = tmp;
                                     debug_msg(1, "pbuilder: Found library (%s) via %s",
                                               opt.toLatin1().constData(), library.toLatin1().constData());
@@ -735,7 +735,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         fdirs << "/System/Library/Frameworks/" << "/Library/Frameworks/";
                     const QString framework = tmp[x+1];
                     for(int fdir = 0; fdir < fdirs.count(); fdir++) {
-                        if(QFile::exists(fdirs[fdir] + QDir::separator() + framework + ".framework")) {
+                        if(exists(fdirs[fdir] + QDir::separator() + framework + ".framework")) {
                             tmp.removeAt(x);
                             remove = true;
                             library = fdirs[fdir] + Option::dir_sep + framework + ".framework";
@@ -743,7 +743,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         }
                     }
                 } else if(opt.left(1) != "-") {
-                    if(QFile::exists(opt)) {
+                    if(exists(opt)) {
                         remove = true;
                         library = opt;
                     }
@@ -870,7 +870,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString destDir = Option::output_dir;
         if (!project->isEmpty("QMAKE_ORIG_DESTDIR"))
             destDir = project->first("QMAKE_ORIG_DESTDIR");
-        destDir = QFileInfo(destDir).absoluteFilePath();
+        destDir = fileInfo(destDir).absoluteFilePath();
         project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
         t << "\t\t" << phase_key << " = {\n"
           << "\t\t\tname = \"Project Copy\";\n"
@@ -1077,7 +1077,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
         if(plist.isEmpty())
             plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
-        if(QFile::exists(plist)) {
+        if(exists(plist)) {
             QFile plist_in_file(plist);
             if(plist_in_file.open(QIODevice::ReadOnly)) {
                 QTextStream plist_in(&plist_in_file);
@@ -1179,7 +1179,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n";
             t << "\t\t\t" << "productSettingsXML = \"";
             bool read_plist = false;
-            if(QFile::exists("Info.plist")) {
+            if(exists("Info.plist")) {
                 QFile plist("Info.plist");
                 if (plist.open(QIODevice::ReadOnly)) {
                     read_plist = true;
@@ -1367,7 +1367,7 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file, const QString &build) c
 {
     if(QDir::isRelativePath(file.fileName()))
         file.setFileName(Option::output_dir + file.fileName()); //pwd when qmake was run
-    QFileInfo fi(file);
+    QFileInfo fi(fileInfo(file.fileName()));
     if(fi.suffix() != "pbxproj" || file.fileName().isEmpty()) {
         QString output = file.fileName();
         if(fi.isDir())
@@ -1401,7 +1401,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
     if(project->isEmpty("QMAKE_PBUILDER_VERSION")) {
         QString version, version_plist = project->first("QMAKE_PBUILDER_VERSION_PLIST");
         if(version_plist.isEmpty()) {
-            if(ideType() == MAC_XCODE && QFile::exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
+            if(ideType() == MAC_XCODE && exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
                 version_plist = "/Developer/Applications/Xcode.app/Contents/version.plist";
             else
                 version_plist = "/Developer/Applications/Project Builder.app/Contents/version.plist";
@@ -1467,7 +1467,7 @@ ProjectBuilderMakefileGenerator::IDE_TYPE
 ProjectBuilderMakefileGenerator::ideType() const
 {
     if(!project->isActiveConfig("no_pbx_xcode") &&
-       (QFile::exists("/Developer/Applications/Xcode.app") || project->isActiveConfig("pbx_xcode")))
+       (exists("/Developer/Applications/Xcode.app") || project->isActiveConfig("pbx_xcode")))
         return ProjectBuilderMakefileGenerator::MAC_XCODE;
     return ProjectBuilderMakefileGenerator::MAC_PBUILDER;
 }
@@ -1483,9 +1483,9 @@ ProjectBuilderMakefileGenerator::projectSuffix() const
 QString
 ProjectBuilderMakefileGenerator::pbxbuild()
 {
-    if(QFile::exists("/usr/bin/pbbuild"))
+    if(exists("/usr/bin/pbbuild"))
         return "pbbuild";
-    if(QFile::exists("/usr/bin/xcodebuild"))
+    if(exists("/usr/bin/xcodebuild"))
        return "xcodebuild";
     return (ideType() == MAC_XCODE ? "xcodebuild" : "pbxbuild");
 }

@@ -262,11 +262,12 @@ void QMakeSourceFileInfo::addSourceFile(const QString &f, uchar seek,
         file->file = fn;
         files->addFile(file);
     } else {
-        if(file->type != type && file->type != TYPE_UNKNOWN)
+        if(file->type != type && file->type != TYPE_UNKNOWN && type != TYPE_UNKNOWN)
             warn_msg(WarnLogic, "%s is marked as %d, then %d!", f.toLatin1().constData(),
                      file->type, type);
     }
-    file->type = type;
+    if(type != TYPE_UNKNOWN)
+        file->type = type;
 
     if(seek & SEEK_MOCS && !file->moc_checked)
         findMocs(file);
@@ -293,6 +294,11 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
                                                        const QMakeLocalFileName &/*file*/)
 {
     return QMakeLocalFileName();
+}
+
+QFileInfo QMakeSourceFileInfo::findFileInfo(const QMakeLocalFileName &dep)
+{
+    return QFileInfo(dep.real());
 }
 
 bool QMakeSourceFileInfo::findDeps(SourceFile *file)
@@ -479,13 +485,13 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             QMakeLocalFileName lfn(inc);
             if(QDir::isRelativePath(lfn.real())) {
                 if(try_local) {
-                    QString dir = QFileInfo(file->file.local()).path();
+                    QString dir = findFileInfo(file->file).path();
                     if(QDir::isRelativePath(dir))
                         dir.prepend(qmake_getpwd() + "/");
                     if(!dir.endsWith("/"))
                         dir += "/";
                     QMakeLocalFileName f(dir + lfn.local());
-                    if(QFile::exists(f.real())) {
+                    if(findFileInfo(f).exists()) {
                         lfn = fixPathForFile(f);
                         exists = true;
                     }
@@ -493,7 +499,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 if(!exists) { //path lookup
                     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
                         QMakeLocalFileName f((*it).real() + Option::dir_sep + lfn.real());
-                        if(!stat(f.local().toLocal8Bit().constData(), &fst) && !S_ISDIR(fst.st_mode)) {
+                        QFileInfo fi(findFileInfo(f));
+                        if(fi.exists() && !fi.isDir()) {
                             lfn = fixPathForFile(f);
                             exists = true;
                         }

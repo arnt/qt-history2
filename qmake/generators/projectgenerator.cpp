@@ -69,8 +69,8 @@ ProjectGenerator::init()
         for(int i = 0; i < dirs.count(); ++i) {
             QString dir, regex, pd = dirs.at(i);
             bool add_depend = false;
-            if(QFile::exists(pd)) {
-                QFileInfo fi(pd);
+            if(exists(pd)) {
+                QFileInfo fi(fileInfo(pd));
                 if(fi.isDir()) {
                     dir = pd;
                     add_depend = true;
@@ -121,7 +121,7 @@ ProjectGenerator::init()
                 }
             }
             if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
-                QFileInfo fi(dir);
+                QFileInfo fi(fileInfo(dir));
                 if(fi.absoluteFilePath() != qmake_getpwd())
                     v["DEPENDPATH"] += fileFixify(dir);
             }
@@ -134,13 +134,13 @@ ProjectGenerator::init()
         const QString out_file = fileFixify(Option::output.fileName());
         for(int i = 0; i < knownDirs.count(); ++i) {
             QString pd = knownDirs.at(i);
-            if(QFile::exists(pd)) {
+            if(exists(pd)) {
                 QString newdir = pd;
-                QFileInfo fi(newdir);
+                QFileInfo fi(fileInfo(newdir));
                 if(fi.isDir()) {
                     newdir = fileFixify(newdir);
                     QStringList &subdirs = v["SUBDIRS"];
-                    if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
+                    if(exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
                        !subdirs.contains(newdir)) {
                         subdirs.append(newdir);
                     } else {
@@ -178,10 +178,10 @@ ProjectGenerator::init()
                 QStringList &subdirs = v["SUBDIRS"];
                 for(int i = 0; i < (int)files.count(); i++) {
                     QString newdir(dir + files[i]);
-                    QFileInfo fi(newdir);
+                    QFileInfo fi(fileInfo(newdir));
                     if(fi.fileName() != "." && fi.fileName() != "..") {
                         newdir = fileFixify(newdir);
-                        if(QFile::exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
+                        if(exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
                            !subdirs.contains(newdir)) {
                            subdirs.append(newdir);
                         } else {
@@ -250,7 +250,7 @@ ProjectGenerator::init()
                             cppit != Option::cpp_ext.end(); ++cppit) {
                             QString src((*dep_it).left((*dep_it).length() - h_ext.length()) +
                                         (*cppit));
-                            if(QFile::exists(src)) {
+                            if(exists(src)) {
                                 bool exists = false;
                                 QStringList &srcl = v["SOURCES"];
                                 for(QStringList::Iterator src_it = srcl.begin();
@@ -369,7 +369,7 @@ ProjectGenerator::addFile(QString file)
     QString where;
     for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
         if(file.endsWith((*cppit))) {
-            if(QFile::exists(file.left(file.length() - (*cppit).length()) + Option::ui_ext))
+            if(exists(file.left(file.length() - (*cppit).length()) + Option::ui_ext))
                 return false;
             else
                 where = "SOURCES";
@@ -446,7 +446,7 @@ ProjectGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.fileName().isEmpty()) {
-        QFileInfo fi(file);
+        QFileInfo fi(fileInfo(file.fileName()));
         if(fi.isDir())
             outdir = fi.path() + QDir::separator();
     }

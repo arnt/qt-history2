@@ -19,6 +19,7 @@
 #include <qtextstream.h>
 #include <qlist.h>
 #include <qhash.h>
+#include <qfileinfo.h>
 
 #ifdef Q_OS_WIN32
 #define QT_POPEN _popen
@@ -30,6 +31,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
 {
     QString spec;
     bool init_opath_already, init_already, no_io;
+    QHash<QString, bool> init_compiler_already;
     QStringList createObjectList(const QStringList &sources);
     QString build_args();
     void checkMultipleDefinition(const QString &, const QString &);
@@ -72,11 +74,24 @@ protected:
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
+    QFileInfo findFileInfo(const QMakeLocalFileName &);
     QMakeProject *project;
 
     //initialization
     virtual void init();
     void initOutPaths();
+    struct Compiler
+    {
+        QString variable_in;
+        enum CompilerFlags {
+            CompilerNoFlags       = 0x00,
+            CompilerBuiltin       = 0x01,
+            CompilerNoCheckDeps   = 0x02,
+            CompilerIgnoreNoExist = 0x04,
+        };
+        uint flags, type;
+    };
+    void initCompiler(const Compiler &comp);
 
     //subclasses can use these to query information about how the generator was "run"
     QString buildArgs();
@@ -126,6 +141,9 @@ public:
 
     void setNoIO(bool o);
     bool noIO() const;
+
+    inline bool exists(QString file) const { return fileInfo(file).exists(); }
+    QFileInfo fileInfo(QString file) const;
 
     static MakefileGenerator *create(QMakeProject *);
     virtual bool write();

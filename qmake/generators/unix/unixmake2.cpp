@@ -616,7 +616,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
                                                          "../" + project->first(bundle_data[i] + ".path"));
                 for(int file = 0; file < files.count(); file++) {
-                    QString dst = path + Option::dir_sep + QFileInfo(files[file]).fileName();
+                    QString dst = path + Option::dir_sep + fileInfo(files[file]).fileName();
                     t << dst << ": " << files[file] << "\n\t"
                       << mkdir_p_asstring(path) << "\n\t"
                       << "@$(DEL_FILE) " << dst << "\n\t"
@@ -659,7 +659,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!var("YACCSOURCES").isEmpty()) {
         QStringList clean, &l = project->variables()["YACCSOURCES"];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-            QFileInfo fi((*it));
+            QFileInfo fi(fileInfo((*it)));
             QString dir;
             if(fi.path() != ".")
                 dir = fi.path() + Option::dir_sep;
@@ -679,7 +679,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!var("LEXSOURCES").isEmpty()) {
         QStringList clean, &l = project->variables()["LEXSOURCES"];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-            QFileInfo fi((*it));
+            QFileInfo fi(fileInfo((*it)));
             QString dir;
             if(fi.path() != ".")
                 dir = fi.path() + Option::dir_sep;
@@ -970,7 +970,7 @@ void UnixMakefileGenerator::init2()
         if (!destdir.isEmpty() && !project->variables()["QMAKE_LFLAGS_RPATH"].isEmpty()) {
             QString rpath_destdir = destdir;
             if(QDir::isRelativePath(rpath_destdir)) {
-                QFileInfo fi(Option::fixPathToLocalOS(rpath_destdir));
+                QFileInfo fi(fileInfo(Option::fixPathToLocalOS(rpath_destdir)));
                 if(!fi.makeAbsolute())  //strange, shouldn't really happen
                     rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
                 else

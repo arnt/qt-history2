@@ -86,7 +86,7 @@ QString NmakeMakefileGenerator::var(const QString &value)
         if ((value == "QMAKE_RUN_CXX_IMP_BATCH"
             || value == "QMAKE_RUN_CXX_IMP"
             || value == "QMAKE_RUN_CXX")) {
-            QFileInfo precompHInfo(precompH);
+            QFileInfo precompHInfo(fileInfo(precompH));
             QString precompRule = QString("-c -FI%1 -Yu%2 -Fp%3")
                 .arg(precompHInfo.fileName())
                 .arg(precompHInfo.fileName())

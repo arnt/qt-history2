@@ -545,10 +545,10 @@ QString
 MetrowerksMakefileGenerator::findTemplate(const QString &file)
 {
     QString ret;
-    if(!QFile::exists(ret = file) &&
-       !QFile::exists((ret = Option::mkfile::qmakespec + QDir::separator() + file)) &&
-       !QFile::exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/mac-mwerks/" + file)) &&
-       !QFile::exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
+    if(!exists(ret = file) &&
+       !exists((ret = Option::mkfile::qmakespec + QDir::separator() + file)) &&
+       !exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/mac-mwerks/" + file)) &&
+       !exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
         return "";
     return ret;
 }
@@ -559,7 +559,7 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 #if !defined(QWS) && defined(Q_OS_MAC)
     FSRef fref;
     FSSpec fileSpec;
-    if(QFile::exists(f)) {
+    if(exists(f)) {
         mode_t perms = 0;
         {
             struct stat s;
@@ -632,7 +632,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool)
             volume = p.mid(1, eoc - 1);
             p = p.right(p.length() - eoc - 1);
         } else {
-            QFileInfo fi(p);
+            QFileInfo fi(fileInfo(p));
             if(fi.makeAbsolute()) //strange
                 return false;
             p = fi.filePath();
@@ -726,7 +726,7 @@ MetrowerksMakefileGenerator::processPrlVariable(const QString &var, const QStrin
                         }
                     }
                 }
-            } else if(QFile::exists((*it))) {
+            } else if(exists((*it))) {
                 append = out.indexOf((*it));
             }
             if(append)
@@ -743,7 +743,7 @@ MetrowerksMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.fileName().isEmpty()) {
-        QFileInfo fi(file);
+        QFileInfo fi(fileInfo(file.fileName()));
         if(fi.isDir())
             outdir = file.fileName() + QDir::separator();
     }

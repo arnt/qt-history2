@@ -15,6 +15,7 @@
 #define __MAKEFILEDEPS_H__
 
 #include "qstringlist.h"
+#include "qfileinfo.h"
 
 struct SourceFile;
 struct SourceDependChildren;
@@ -55,6 +56,7 @@ private:
 protected:
     virtual QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool forOpen=false);
     virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
+    virtual QFileInfo findFileInfo(const QMakeLocalFileName &);
 
 public:
     QMakeSourceFileInfo(const QString &cachefile="");
