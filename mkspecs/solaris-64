@@ -1,5 +1,5 @@
 #
-# $Id: //depot/qt/main/mkspecs/solaris-64#12 $
+# $Id: //depot/qt/main/mkspecs/solaris-64#13 $
 #
 # qmake configuration for solaris-64
 #
@@ -9,6 +9,15 @@
 # proprietary or draft interfaces not part of the specified OpenGroup
 # standard.
 # See standards(5) and <sys/feature_tests.h> for more details.
+#
+# From the standards(5) manual page:
+# 	The XNS4 specification is safe for use only in ILP32 (32-bit)
+# 	environments and should not be used for LP64 (64-bit)
+# 	application environments. Use XNS5, which has LP64-clean
+# 	interfaces that are portable across ILP32 and LP64 environments.
+# So it appears that _XOPEN_SOURCE=500 should be defined when building
+# 64-bit applications (on Solaris 7 and better) but we don't define it
+# right now. Will have to take a closer look at this someday...
 #
 
 MAKEFILE_GENERATOR	= UNIX
