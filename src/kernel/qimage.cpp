@@ -1136,6 +1136,10 @@ bool QImage::create( int width, int height, int depth, int numColors,
     if ( data->ncols != numColors )		// could not alloc color table
 	return FALSE;
 
+    if ( INT_MAX / depth < width) { // sanity check for potential overflow
+	setNumColors( 0 );
+	return FALSE;
+    }
 // Qt/Embedded doesn't waste memory on unnecessary padding.
 #ifdef Q_WS_QWS
     const int bpl = (width*depth+7)/8;		// bytes per scanline
@@ -1145,6 +1149,10 @@ bool QImage::create( int width, int height, int depth, int numColors,
     // #### WWA: shouldn't this be (width*depth+7)/8:
     const int pad = bpl - (width*depth)/8;	// pad with zeros
 #endif
+    if (INT_MAX / bpl < height) { // sanity check for potential overflow
+	setNumColors( 0 );
+	return FALSE;
+    }
     int nbytes = bpl*height;			// image size
     int ptbl   = height*sizeof(uchar*);		// pointer table size
     int size   = nbytes + ptbl;			// total size of data block

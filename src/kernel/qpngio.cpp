@@ -107,7 +107,8 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 	if ( bit_depth == 1 && info_ptr->channels == 1 ) {
 	    png_set_invert_mono( png_ptr );
 	    png_read_update_info( png_ptr, info_ptr );
-	    image.create( width, height, 1, 2, QImage::BigEndian );
+	    if (!image.create( width, height, 1, 2, QImage::BigEndian ))
+		return;
 	    image.setColor( 1, qRgb(0,0,0) );
 	    image.setColor( 0, qRgb(255,255,255) );
 	} else if (bit_depth == 16 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
@@ -115,7 +116,8 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 	    png_set_strip_16(png_ptr);
 	    png_set_gray_to_rgb(png_ptr);
 
-	    image.create(width, height, 32);
+	    if (!image.create(width, height, 32))
+		return;
 	    image.setAlphaBuffer(TRUE);
 
 	    if (QImage::systemByteOrder() == QImage::BigEndian)
@@ -129,7 +131,8 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 		png_set_packing(png_ptr);
 	    int ncols = bit_depth < 8 ? 1 << bit_depth : 256;
 	    png_read_update_info(png_ptr, info_ptr);
-	    image.create(width, height, 8, ncols);
+	    if (!image.create(width, height, 8, ncols))
+		return;
 	    for (int i=0; i<ncols; i++) {
 		int c = i*255/(ncols-1);
 		image.setColor( i, qRgba(c,c,c,0xff) );
@@ -161,8 +164,9 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 	png_read_update_info( png_ptr, info_ptr );
 	png_get_IHDR(png_ptr, info_ptr,
 	    &width, &height, &bit_depth, &color_type, 0, 0, 0);
-	image.create(width, height, bit_depth, info_ptr->num_palette,
-	    QImage::BigEndian);
+	if (!image.create(width, height, bit_depth, info_ptr->num_palette,
+	    QImage::BigEndian))
+	    return;
 	int i = 0;
 	if ( png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ) {
 	    image.setAlphaBuffer( TRUE );
@@ -197,7 +201,8 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 	if ( color_type == PNG_COLOR_TYPE_GRAY_ALPHA )
 	    png_set_gray_to_rgb(png_ptr);
 
-	image.create(width, height, 32);
+	if (!image.create(width, height, 32))
+	    return;
 
 	// Only add filler if no alpha, or we can get 5 channel data.
 	if (!(color_type & PNG_COLOR_MASK_ALPHA)
@@ -278,7 +283,11 @@ void read_png_image(QImageIO* iio)
 
     QImage image;
     setup_qt(image, png_ptr, info_ptr, iio->gamma());
-
+    if (image.isNull()) {
+	png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+	iio->setStatus(-5);
+	return;
+    }
 
     png_uint_32 width;
     png_uint_32 height;
