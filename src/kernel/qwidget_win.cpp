@@ -1403,8 +1403,6 @@ void QWidget::setMask( const QRegion &region )
     // we take a copy.
     HRGN wr = CreateRectRgn(0,0,1,1);
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
-    RECT cr;
-    GetClientRect( winId(), &cr );
 
     int fleft = 0, ftop = 0;
     if (isTopLevel()) {
@@ -1418,8 +1416,6 @@ void QWidget::setMask( const QRegion &region )
 void QWidget::setMask( const QBitmap &bitmap )
 {
     HRGN wr = qt_win_bitmapToRegion(bitmap);
-    RECT cr;
-    GetClientRect( winId(), &cr );
 
     int fleft = 0, ftop = 0;
     if (isTopLevel()) {
