@@ -1142,7 +1142,6 @@ void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
 		lastIndex++;
 	    }
 	}
-	lastIndex++;
 	QTextParag *p = c1.parag()->next();
 	while ( p && p != c2.parag() ) {
 	    for ( int i = 0; i < p->length(); ++i ) {
@@ -1151,7 +1150,7 @@ void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
 		    text.at( i + lastIndex ).setFormat( p->at( i )->format() );
 		}
 	    }
-	    lastIndex += p->length() + 1;
+	    lastIndex += p->length();
 	    p = p->next();
 	}
 	for ( i = 0; i < c2.index(); ++i ) {

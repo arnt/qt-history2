@@ -563,29 +563,37 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	QStringList::Iterator it = lst.begin();
 	int y = string->rect().y() + string->rect().height();
 	int lastIndex = 0;
-	for ( ; it != lst.end(); ++it ) {
+	QTextFormat *lastFormat = 0;
+	for ( ; it != lst.end(); ) {
 	    if ( it != lst.begin() ) {
 		splitAndInsertEmptyParag( FALSE, TRUE );
 		string->setEndState( -1 );
 		string->prev()->format( -1, FALSE );
+		if ( lastFormat && formatting && string->prev() ) {
+		    lastFormat->addRef();
+		    string->prev()->string()->setFormat( string->prev()->length() - 1, lastFormat, TRUE );
+		}
 	    }
+	    lastFormat = 0;
 	    QString s = *it;
-	    if ( s.isEmpty() )
-		continue;
-	    string->insert( idx, s );
+	    ++it;
+	    if ( !s.isEmpty() )
+		string->insert( idx, s );
+	
 	    if ( formatting ) {
 		int len = s.length();
-		if ( it != --lst.end() )
-		    len++;
 		for ( int i = 0; i < len; ++i ) {
 		    if ( formatting->at( i + lastIndex ).format() ) {
 			formatting->at( i + lastIndex ).format()->addRef();
 			string->string()->setFormat( i + idx, formatting->at( i + lastIndex ).format(), TRUE );
 		    }
 		}
+		if ( it != lst.end() )
+		    lastFormat = formatting->at( len + lastIndex ).format();
+		++len;
 		lastIndex += len;
 	    }
-
+	
 	    idx += s.length();
 	}
 	string->format( -1, FALSE );
@@ -2177,10 +2185,12 @@ QString QTextDocument::selectedText( int id ) const
 	return c1.parag()->string()->toString().mid( c1.index(), c2.index() - c1.index() );
 
     QString s;
-    s += c1.parag()->string()->toString().mid( c1.index() ) + "\n";
+    s += c1.parag()->string()->toString().mid( c1.index() );
+    s.remove( s.length() - 1, 1 );
+    s += "\n";
     QTextParag *p = c1.parag()->next();
     while ( p ) {
-	int end = p == c2.parag() ? c2.index() : p->length();
+	int end = p == c2.parag() ? c2.index() : p->length() - 1;
 	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
 	if ( !p->customItems() ) {
