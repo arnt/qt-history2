@@ -44,9 +44,9 @@ inline uint qHash(Q_LLONG key) { return qHash((Q_ULLONG)key); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
 
-template <class T> inline uint qHash(const T *key)
+template <class T> inline uint qHash(T *key)
 {
-    if (sizeof(const T *) > sizeof(uint))
+    if (sizeof(T *) > sizeof(uint))
 	return qHash(reinterpret_cast<Q_ULLONG>(key));
     else
 	return static_cast<uint>(reinterpret_cast<ulong>(key));
