@@ -76,7 +76,4 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval); }
 
-#define Q_HAVE_ATOMIC_INCDEC
-#define Q_HAVE_ATOMIC_SET
-
 #endif // WINDOWS_QATOMIC_H
