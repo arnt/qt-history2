@@ -78,9 +78,6 @@ public:
     QCoreGraphicsPaintEnginePrivate()
     {
 	hd = 0;
-	unclipped = 0;
-	offx = offy = 0;
-        antiAliasingEnabled = true;
     }
 
     struct {
@@ -94,7 +91,6 @@ public:
     } current;
 
     CGContextRef hd;
-    uint unclipped : 1;
     uint antiAliasingEnabled : 1;
 };
 
