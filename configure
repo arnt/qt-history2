@@ -132,9 +132,6 @@ else
     fi
 fi
 
-# Check licensed modules
-MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles"
-
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -a -f $relpath/LICENSE.GPL ]
 then
@@ -205,7 +202,6 @@ else
 		Desc=Enterprise
 		Edition=ent
 	    else
-		MODULE="$Products tools kernel widgets dialogs iconview workspace"
 		Desc=Professional
 		Edition=pro
 	    fi
@@ -277,6 +273,13 @@ else
 	echo
 	exit 0
     fi
+fi
+
+
+# Check licensed modules
+if [ -z "$MODULES" ]; then
+    MODULES="styles tools kernel widgets dialogs iconview workspace"
+    [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 fi
 
 # Remove the build options file
@@ -884,20 +887,6 @@ then
 	THN="*"
     fi
 
-    MODULES_HELP="iconview workspace network canvas table xml opengl"
-    if [ -f $HOME/.qt-license ]
-    then
-    . $HOME/.qt-license
-	    if echo $Products | grep >/dev/null 'qt-enterprise'
-	    then
-		MODULES_HELP="opengl table network canvas sql"
-	    else
-		MODULES_HELP=""
-	    fi
-    else
-	MODULES_HELP="opengl table network canvas sql"
-    fi
-
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] \\
 	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
@@ -987,9 +976,9 @@ Installation options:
 
 
     -enable-<module> .......... Enables a module where module is one of:
-                                $MODULES_HELP
+                                $MODULES
     -disable-<module> ......... Disables a module where module is one of:
-                                $MODULES_HELP
+                                $MODULES
 
     -with-<module setting> .... This will activate a setting as described below.
     -without-<module setting> . This will deactivate a setting for any enabled
