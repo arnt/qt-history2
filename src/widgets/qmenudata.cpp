@@ -246,7 +246,13 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
     } else {
-	mi->text_data = text?*text:QString::null;
+#ifndef Q_OS_TEMP
+	mi->text_data = text?*text:QString();
+#else
+	QString newText( *text );
+	newText.truncate( newText.findRev( '\t' ) );
+	mi->text_data = newText.isEmpty()?QString():newText;
+#endif
 #ifndef QT_NO_ACCEL
 	mi->accel_key = Qt::Key_unknown;
 #endif
