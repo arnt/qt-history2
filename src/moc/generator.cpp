@@ -374,8 +374,6 @@ void Generator::generateCode()
 //
 // Generate protectors for qt_cast
 //
-    fprintf(out, "\nQ_DECL_EXPORT void qt_cast_to_class_without_Q_OBJECT(const %s*) {}\n",
-            cdef->qualified.constData());
     fprintf(out, "\nQ_DECL_EXPORT void qt_cast_to_class_without_Q_OBJECT(%s*) {}\n",
             cdef->qualified.constData());
 
