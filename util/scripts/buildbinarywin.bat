@@ -17,7 +17,7 @@ cd %2
 if not %errorlevel%==0 goto error
 type LICENSE.TROLL > LICENSE.TROLL
 if not %errorlevel%==0 goto error
-configure.exe
+configure.exe -debug
 if not %errorlevel%==0 goto error
 nmake sub-src-all sub-tools
 if not %errorlevel%==0 goto error
