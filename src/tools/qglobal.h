@@ -245,11 +245,13 @@
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
+#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 /* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
 /* __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002 */
+#  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  if !defined(Q_CC_EDG)
 #    define Q_CC_EDG
 #  endif
