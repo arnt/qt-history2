@@ -569,6 +569,8 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
     int mse = -10;
     bool hasResizable = FALSE;
     for ( QDockWindow *dw = dockWindows->first(); dw; dw = dockWindows->next() ) {
+	if ( dw->isHidden() )
+	    continue;
 	if ( dw->isResizeEnabled() )
 	    hasResizable = TRUE;
 	if ( orientation() != Qt::Horizontal )
