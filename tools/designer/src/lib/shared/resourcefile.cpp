@@ -3,6 +3,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
+#include <QtGui/QMessageBox>
 
 #include "resourcefile.h"
 
@@ -27,6 +28,10 @@ static QString relativePath(const QString &dir, const QString &file)
 
     return result;
 }
+
+/******************************************************************************
+** ResourceFile
+*/
 
 ResourceFile::ResourceFile(const QString &file_name)
 {
@@ -290,5 +295,285 @@ QString ResourceFile::file(int prefix_idx, int file_idx) const
     QString path = list.at(file_idx);
     QString rel_path = relativePath(path);
     return rel_path;
+}
+
+/******************************************************************************
+** ResourceModel
+*/
+
+ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
+    : QAbstractItemModel(parent), m_resource_file(resource_file)
+{
+    m_dirty = false;
+}
+
+void ResourceModel::setDirty(bool b)
+{
+    if (b == m_dirty)
+        return;
+    m_dirty = b;
+    emit dirtyChanged(b);
+}
+
+QModelIndex ResourceModel::index(int row, int column,
+                                    const QModelIndex &parent) const
+{
+    QModelIndex result;
+
+    qint64 d = reinterpret_cast<qint64>(parent.data());
+    
+    if (!parent.isValid()) {
+        if (row < m_resource_file.prefixCount())
+            result = createIndex(row, 0, reinterpret_cast<void*>(-1));
+    } else if (column == 0
+                && d == -1
+                && parent.row() < m_resource_file.prefixCount()
+                && row < m_resource_file.fileCount(parent.row())) {
+        result = createIndex(row, 0, reinterpret_cast<void*>(parent.row()));
+    }
+
+//    qDebug() << "ResourceModel::index(" << row << column << parent << "):" << result;
+    
+    return result;
+}
+
+QModelIndex ResourceModel::parent(const QModelIndex &index) const
+{
+    QModelIndex result;
+
+    qint64 d = reinterpret_cast<qint64>(index.data());
+    
+    if (index.isValid() && d != -1)
+        result = createIndex(d, 0, reinterpret_cast<void*>(-1));
+
+//    qDebug() << "ResourceModel::parent(" << index << "):" << result;
+    
+    return result;
+}
+
+int ResourceModel::rowCount(const QModelIndex &parent) const
+{
+    int result = 0;
+    
+    qint64 d = reinterpret_cast<qint64>(parent.data());
+    
+    if (!parent.isValid())
+        result = m_resource_file.prefixCount();
+    else if (d == -1)
+        result = m_resource_file.fileCount(parent.row());
+
+//    qDebug() << "ResourceModel::rowCount(" << parent << "):" << result;
+    
+    return result;
+}
+
+int ResourceModel::columnCount(const QModelIndex &) const
+{
+    return 1;
+}
+
+bool ResourceModel::hasChildren(const QModelIndex &parent) const
+{
+    bool result = false;
+    
+    qint64 d = reinterpret_cast<qint64>(parent.data());
+    
+    if (!parent.isValid())
+        result = m_resource_file.prefixCount() > 0;
+    else if (d == -1)
+        result = m_resource_file.fileCount(parent.row()) > 0;
+
+//    qDebug() << "ResourceModel::hasChildren(" << parent << "):" << result;
+    
+    return result;
+}
+
+QVariant ResourceModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+
+    qint64 d = reinterpret_cast<qint64>(index.data());
+
+    QVariant result;
+
+    switch (role) {
+        case DisplayRole:
+            if (d == -1)
+                result = m_resource_file.prefix(index.row());
+            else
+                result = m_resource_file.file(d, index.row());
+            break;
+        default:
+            break;
+    };
+
+    return result;
+}
+
+void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &file) const
+{
+    prefix.clear();
+    file.clear();
+
+    if (!index.isValid())
+        return;
+
+    qint64 d = reinterpret_cast<qint64>(index.data());
+
+    if (d == -1) {
+        prefix = m_resource_file.prefix(index.row());
+    } else {
+        prefix = m_resource_file.prefix(d);
+        file = m_resource_file.file(d, index.row());
+    }
+}
+
+QModelIndex ResourceModel::getIndex(const QString &prefix, const QString &file)
+{
+    if (prefix.isEmpty())
+        return QModelIndex();
+
+    int pref_idx = m_resource_file.indexOfPrefix(prefix);
+    if (pref_idx == -1)
+        return QModelIndex();
+
+    QModelIndex pref_model_idx = index(pref_idx, 0, QModelIndex());
+    if (file.isEmpty())
+        return pref_model_idx;
+        
+    int file_idx = m_resource_file.indexOfFile(pref_idx, file);
+    if (file_idx == -1)
+        return QModelIndex();
+
+    return index(file_idx, 0, pref_model_idx);
+}
+
+QModelIndex ResourceModel::prefixIndex(const QModelIndex &sel_idx) const
+{
+    if (!sel_idx.isValid())
+        return QModelIndex();
+    QModelIndex parent = this->parent(sel_idx);
+    return parent.isValid() ? parent : sel_idx;
+}
+
+QModelIndex ResourceModel::addNewPrefix()
+{
+    int i = 1;
+    QString prefix;
+    do prefix = tr("/new/prefix%1").arg(i++);
+    while (m_resource_file.contains(prefix));
+
+    m_resource_file.addPrefix(prefix);
+    i = m_resource_file.indexOfPrefix(prefix);
+    emit rowsInserted(QModelIndex(), i, i);
+
+    setDirty(true);
+    
+    return index(i, 0, QModelIndex());
+}
+
+QModelIndex ResourceModel::addFiles(const QModelIndex &idx, const QStringList &file_list)
+{
+    if (!idx.isValid())
+        return QModelIndex();
+    QModelIndex prefix_idx = prefixIndex(idx);
+    QString prefix = m_resource_file.prefix(prefix_idx.row());
+    Q_ASSERT(!prefix.isEmpty());
+
+    int added = 0;
+    foreach (QString file, file_list) {
+        if (m_resource_file.contains(prefix, file))
+            continue;
+        m_resource_file.addFile(prefix, file);
+        ++added;
+    }
+
+    int cnt = m_resource_file.fileCount(prefix_idx.row());
+    if (added > 0) {
+        emit rowsInserted(prefix_idx, cnt - added, cnt - 1);
+        setDirty(true);
+    }
+    
+    return index(cnt - 1, 0, prefix_idx);
+}
+
+void ResourceModel::changePrefix(const QModelIndex &idx, const QString &prefix)
+{
+    if (!idx.isValid())
+        return;
+
+    QString fixed_prefix = ResourceFile::fixPrefix(prefix);
+    if (m_resource_file.contains(fixed_prefix))
+        return;
+
+    QModelIndex prefix_idx = prefixIndex(idx);
+
+    QString old_prefix = m_resource_file.prefix(prefix_idx.row());
+    Q_ASSERT(!old_prefix.isEmpty());
+
+    m_resource_file.changePrefix(old_prefix, fixed_prefix);
+    emit dataChanged(prefix_idx, prefix_idx);
+    setDirty(true);
+}
+
+QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
+{
+    if (!idx.isValid())
+        return QModelIndex();
+
+    QString prefix, file;
+    getItem(idx, prefix, file);
+    Q_ASSERT(!prefix.isEmpty());
+    int prefix_idx = m_resource_file.indexOfPrefix(prefix);
+    int file_idx = m_resource_file.indexOfFile(prefix_idx, file);
+
+    emit rowsAboutToBeRemoved(parent(idx), idx.row(), idx.row());
+
+    if (file.isEmpty()) {
+        m_resource_file.removePrefix(prefix);
+        if (prefix_idx == m_resource_file.prefixCount())
+            --prefix_idx;
+    } else {
+        m_resource_file.removeFile(prefix, file);
+        if (file_idx == m_resource_file.fileCount(prefix_idx))
+            --file_idx;
+    }
+    
+    setDirty(true);
+
+    if (prefix_idx == -1)
+        return QModelIndex();
+    QModelIndex prefix_model_idx = index(prefix_idx, 0, QModelIndex());
+    if (file_idx == -1)
+        return prefix_model_idx;
+    return index(file_idx, 0, prefix_model_idx);
+}
+
+void ResourceModel::reload()
+{
+    if (!m_resource_file.load()) {
+        QMessageBox::warning(0, tr("Error opening resource file"),
+                                tr("Failed to open \"%1\":\n%2")
+                                    .arg(m_resource_file.fileName())
+                                    .arg(m_resource_file.errorMessage()),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+    emit reset();
+    setDirty(false);
+}
+
+void ResourceModel::save()
+{
+    if (!m_resource_file.save()) {
+        QMessageBox::warning(0, tr("Error saving resource file"),
+                                tr("Failed to save \"%1\":\n%2")
+                                    .arg(m_resource_file.fileName())
+                                    .arg(m_resource_file.errorMessage()),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
+    setDirty(false);
 }
 

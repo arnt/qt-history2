@@ -4,13 +4,15 @@
 #include "propertyeditor_global.h"
 #include "ui_findicondialog.h"
 
+class AbstractFormWindow;
+
 class QT_PROPERTYEDITOR_EXPORT FindIconDialog : public QDialog,
                                                 public Ui::FindIconDialog
 {
     Q_OBJECT
     
 public:
-    FindIconDialog(QWidget *parent);
+    FindIconDialog(AbstractFormWindow *form, QWidget *parent);
     void setPaths(const QString &qrcPath, const QString &filePath);
     QString qrcPath() const;
     QString filePath() const;
@@ -28,6 +30,7 @@ private:
     InputBox activeBox() const;
 
     QString m_icon_file_name;
+    AbstractFormWindow *m_form;
 };
 
 #endif // FINDICONDIALOG_H

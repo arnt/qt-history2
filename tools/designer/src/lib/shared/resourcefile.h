@@ -4,6 +4,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
+#include <QtCore/QAbstractItemModel>
 
 #include "shared_global.h"
 
@@ -50,6 +51,49 @@ private:
     ResourceMap m_resource_map;
     QString m_file_name;
     QString m_error_message;
+};
+
+class QT_SHARED_EXPORT ResourceModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
+    
+    QModelIndex index(int row, int column,
+                        const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &index) const;
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    bool hasChildren(const QModelIndex &parent) const;
+
+    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
+
+    QString fileName() const { return m_resource_file.fileName(); }
+    void setFileName(const QString &file_name) { m_resource_file.setFileName(file_name); }
+    void getItem(const QModelIndex &index, QString &prefix, QString &file) const;
+
+    QModelIndex addNewPrefix();
+    QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
+    void changePrefix(const QModelIndex &idx, const QString &prefix);
+    QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
+    QModelIndex deleteItem(const QModelIndex &idx);
+    QModelIndex getIndex(const QString &prefix, const QString &file);
+
+    QString absolutePath(const QString &path) const { return m_resource_file.absolutePath(path); }
+
+    void reload();
+    void save();
+
+    bool dirty() const { return m_dirty; }
+    void setDirty(bool b);
+
+signals:
+    void dirtyChanged(bool b);
+    
+private:
+    ResourceFile m_resource_file;
+    bool m_dirty;
 };
 
 #endif // RESOURCEFILE_H

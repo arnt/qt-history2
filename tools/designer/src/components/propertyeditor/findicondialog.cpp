@@ -3,9 +3,11 @@
 #include <QtGui/QFileDialog>
 #include <QtCore/qdebug.h>
 
+#include <abstractformwindow.h>
+#include <resourcefile.h>
 #include "findicondialog.h"
 
-FindIconDialog::FindIconDialog(QWidget *parent)
+FindIconDialog::FindIconDialog(AbstractFormWindow *form, QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);
@@ -18,6 +20,14 @@ FindIconDialog::FindIconDialog(QWidget *parent)
     connect(m_file_dir_browse, SIGNAL(clicked()), this, SLOT(browseFileDir()));
     connect(m_specify_file_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
     connect(m_specify_resource_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
+    connect(m_resource_combo, SIGNAL(activated()), this, SLOT(updateBoxes()));
+
+    m_form = form;
+    QStringList res_list = m_form->resourceFiles();
+    QStringList rel_res_list;
+    foreach (QString res, res_list)
+        rel_res_list.append(m_form->relativePath(res));
+    m_resource_combo->addItems(rel_res_list);
 }
 
 void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
@@ -38,8 +48,11 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
         m_icon_file_name = fileName;
     } else {
         activateBox(ResourceBox);
-        m_resource_file_input->setText(qrcPath);
-        m_icon_file_name = filePath;
+        int idx = m_resource_combo->findText(m_form->relativePath(qrcPath));
+        if (idx != -1) {
+            m_resource_combo->setCurrentIndex(idx);
+            m_icon_file_name = filePath;
+        }
     }
 
     updateBoxes();
@@ -67,6 +80,18 @@ void FindIconDialog::updateBoxes()
             }
         }
     } else {
+        int idx = m_resource_combo->currentIndex();
+        if (idx == -1)
+            return;
+        QString qrc_file = m_form->absolutePath(m_resource_combo->itemText(idx));
+        qDebug() << "FindIconDialog::updateBoxes(): reading " << qrc_file;
+        ResourceFile rf(qrc_file);
+        if (!rf.load())
+            return;
+        QAbstractItemModel *model = m_resource_tree->model();
+        m_resource_tree->setModel(0);
+        m_resource_tree->setModel(new ResourceModel(rf));
+        delete model;
     }
 }
 
@@ -92,6 +117,8 @@ void FindIconDialog::activateBox(InputBox box)
     
     m_specify_resource_box->setEnabled(box == ResourceBox);
     m_specify_resource_input->setChecked(box == ResourceBox);
+
+    updateBoxes();
 }
 
 FindIconDialog::InputBox FindIconDialog::activeBox() const
@@ -105,7 +132,7 @@ QString FindIconDialog::qrcPath() const
 {
     if (activeBox() == FileBox)
         return QString();
-    return QDir::cleanPath(m_resource_file_input->text());
+    return m_form->absolutePath(m_resource_combo->currentText());
 }
 
 QString FindIconDialog::filePath() const

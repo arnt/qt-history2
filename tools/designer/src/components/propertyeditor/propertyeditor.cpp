@@ -111,7 +111,7 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
 
 void IconPropertyEditor::showDialog()
 {
-    FindIconDialog dialog(0);
+    FindIconDialog dialog(m_core->formWindowManager()->activeFormWindow(), 0);
     QString file_path;
     if (m_icon.isNull()) {
         QString ui_name = m_core->formWindowManager()->activeFormWindow()->fileName();
