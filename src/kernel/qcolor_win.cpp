@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#57 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -892,7 +892,7 @@ static uint get_rgb_val( const char * )
 #endif // NO_COLORNAMES
 
 
-void QColor::setSystemNamedColor( const char *name )
+void QColor::setSystemNamedColor( const QString& name )
 {
     if ( !color_init ) {
 #if defined(CHECK_STATE)
@@ -902,7 +902,7 @@ void QColor::setSystemNamedColor( const char *name )
 	alloc();				// makes the color black
 	return;
     }
-    rgbVal = get_rgb_val( name );
+    rgbVal = get_rgb_val( name.latin1() );
     if ( lazy_alloc ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;

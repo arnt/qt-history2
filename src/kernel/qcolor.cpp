@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#90 $
 **
 ** Implementation of QColor class
 **
@@ -254,7 +254,7 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
   \sa setNamedColor()
 */
 
-QColor::QColor( const char *name )
+QColor::QColor( const QString& name )
 {
     setNamedColor( name );
 }
@@ -273,13 +273,15 @@ QColor::QColor( const QColor &c )
 }
 
 
-inline static int hex2int( char hexchar )
+inline static int hex2int( QChar hexchar )
 {
     int v;
-    if ( isdigit(hexchar) )
-	v = hexchar - '0';
-    else if ( isalpha(hexchar) )
-	v = toupper(hexchar) - 'A' + 10;
+    if ( hexchar.isDigit() )
+	v = hexchar.digitValue();
+    else if ( hexchar >= 'A' && hexchar <= 'F' )
+	v = hexchar.cell() - 'A' + 10;
+    else if ( hexchar >= 'a' && hexchar <= 'f' )
+	v = hexchar.cell() - 'a' + 10;
     else
 	v = 0;
     return v;
@@ -299,13 +301,13 @@ inline static int hex2int( char hexchar )
   under Qt for Windows.
 */
 
-void QColor::setNamedColor( const char *name )
+void QColor::setNamedColor( const QString& name )
 {
-    if ( name == 0 || *name == '\0' ) {
+    if ( name.isEmpty() ) {
 	setRgb( 0 );
     } else if ( name[0] == '#' ) {
-	const char *p = &name[1];
-	int len = strlen(p);
+	const QChar *p = name.unicode()+1;
+	int len = name.length()-1;
 	int r, g, b;
 	if ( len == 12 ) {
 	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);

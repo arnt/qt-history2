@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#94 $
 **
 ** Implementation of QColor class for X11
 **
@@ -460,7 +460,7 @@ uint QColor::alloc()
 }
 
 
-void QColor::setSystemNamedColor( const char *name )
+void QColor::setSystemNamedColor( const QString& name )
 {
     if ( !color_init ) {
 #if defined(CHECK_STATE)
@@ -472,7 +472,8 @@ void QColor::setSystemNamedColor( const char *name )
     }
     XColor col, hw_col;
     if ( XLookupColor(QPaintDevice::x11AppDisplay(),
-		      QPaintDevice::x11AppColormap(), name, &col, &hw_col) ) {
+		      QPaintDevice::x11AppColormap(), name.latin1(),
+		      &col, &hw_col) ) {
 	setRgb( col.red>>8, col.green>>8, col.blue>>8 );
 	return;					// success
     }

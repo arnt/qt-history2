@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#56 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#57 $
 **
 ** Definition of QColor class
 **
@@ -71,14 +71,14 @@ public:
     QColor( int r, int g, int b );
     QColor( int x, int y, int z, Spec );
     QColor( QRgb rgb, uint pixel=0xffffffff);
-    QColor( const char *name );
+    QColor( const QString& name );
     QColor( const QColor & );
     QColor &operator=( const QColor & );
 
     bool   isValid() const;
     bool   isDirty() const;
 
-    void   setNamedColor( const char *name );
+    void   setNamedColor( const QString& name );
 
     void   rgb( int *r, int *g, int *b ) const;
     QRgb   rgb()    const;
@@ -121,7 +121,7 @@ public:
     static void cleanup();
 
 private:
-    void   setSystemNamedColor( const char *name );
+    void   setSystemNamedColor( const QString& name );
     static void initGlobalColors();
     static bool color_init;
     static bool globals_init;
