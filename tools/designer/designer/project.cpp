@@ -247,11 +247,12 @@ QString Project::makeRelative( const QString &f )
 void Project::save()
 {
     QFile f( filename );
-    if ( !f.exists() || !f.open( IO_ReadOnly ) )
-	return;
-    QTextStream ts( &f );
-    QString contents = ts.read();
-    f.close();
+    QString contents;
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	contents = ts.read();
+	f.close();
+    }
 
     int i = contents.find( "INTERFACES" );
     if ( i != -1 ) {
