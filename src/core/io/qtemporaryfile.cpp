@@ -50,7 +50,12 @@ bool QTemporaryFileEngine::open(int)
 #ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
 #else
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    int len = strnlen(filename, _MAX_FNAME) + 1;
+    if(_mktemp_s(filename, len) == 0) {
+#else
     if(mktemp(filename)) {
+#endif
         int oflags = QT_OPEN_RDWR | QT_OPEN_CREAT;
 #if defined(HAS_TEXT_FILEMODE)
         oflags |= QT_OPEN_BINARY;
