@@ -285,7 +285,6 @@ int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *ot
 int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
-    if (entry < 1) entry = 1; // tolerate wrong calls
     QObject *targetObject = 0;
 
     switch (relation) {
@@ -293,10 +292,12 @@ int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleIn
 	const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
 	return 0;
     case Child:
-	{
+	if (entry > 0 && entry <= childCount()) {
 	    const QWidgetList tlw(topLevelWidgets());
 	    if (tlw.count() >= entry)
 		targetObject = tlw.at(entry-1);
+	} else {
+	    return -1;
 	}
 	break;
     case FocusChild:
