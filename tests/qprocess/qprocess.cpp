@@ -19,6 +19,8 @@
 
 void QProcess::init()
 {
+    stdinBufRead = 0;
+
     notifierStdin = 0;
     notifierStdout = 0;
     notifierStderr = 0;
@@ -30,8 +32,18 @@ void QProcess::init()
     socketStdout[1] = 0;
     socketStderr[0] = 0;
     socketStderr[1] = 0;
+#else
+    overlappedStdin.Offset = 0;
+    overlappedStdin.OffsetHigh = 0;
+    overlappedStdin.hEvent = 0;
 
-    stdinBufRead = 0;
+    overlappedStdout.Offset = 0;
+    overlappedStdout.OffsetHigh = 0;
+    overlappedStdout.hEvent = 0;
+
+    overlappedStderr.Offset = 0;
+    overlappedStderr.OffsetHigh = 0;
+    overlappedStderr.hEvent = 0;
 #endif
 }
 
@@ -68,11 +80,9 @@ QProcess::QProcess( const QString& com, const QStringList& args )
 */
 QProcess::~QProcess()
 {
-#if defined(UNIX)
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
     }
-#endif
 }
 
 
@@ -202,32 +212,15 @@ bool QProcess::start()
     if ( !CreatePipe( &pipeStderr[0], &pipeStderr[1], &secAtt, 0 ) ) {
 	return FALSE;
     }
-#if 0
-    HANDLE hStdin  = GetStdHandle( STD_INPUT_HANDLE );
-    HANDLE hStdout = GetStdHandle( STD_OUTPUT_HANDLE );
-    HANDLE hStderr = GetStdHandle( STD_ERROR_HANDLE );
-    if ( !SetStdHandle( STD_INPUT_HANDLE, pipeStdin[0] ) ) {
-	return FALSE;
-    }
-    if ( !SetStdHandle( STD_OUTPUT_HANDLE, pipeStdout[0] ) ) {
-	return FALSE;
-    }
-    if ( !SetStdHandle( STD_ERROR_HANDLE, pipeStderr[0] ) ) {
-	return FALSE;
-    }
-//    close( pipeStdin[0] );
-//    close( pipeStdout[1] );
-//    close( pipeStderr[1] );
-#endif
 
-    // construct the arguments for spawn
+    // construct the arguments for CreateProcess()
     QString args;
     args = command.latin1();
     for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
 	args += (*it).latin1();
     }
 
-    // spawn
+    // CreateProcess()
     char *argsC = new char[args.length()+1];
     strcpy( argsC, args.latin1() );
     STARTUPINFO startupInfo = { sizeof (STARTUPINFO), 0, 0, 0,
@@ -237,45 +230,34 @@ bool QProcess::start()
 	0, 0, 0,
 	pipeStdin[0], pipeStdout[1], pipeStderr[1] };
 
-    if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, workingDir.absPath().latin1(), &startupInfo, &pid ) )
+    if  ( !CreateProcess( 0, argsC, 0, 0, TRUE, 0, 0, workingDir.absPath().latin1(), &startupInfo, &pid ) ) {
+        delete[] argsC;
         return FALSE;
+    }
     delete[] argsC;
+    CloseHandle( pipeStdin[0] );
+    CloseHandle( pipeStdout[1] );
+    CloseHandle( pipeStderr[1] );
 
 #if 0
-    // duplicate copy of original std??? back
-    if ( !SetStdHandle( STD_INPUT_HANDLE, hStdin ) ) {
-	return FALSE;
-    }
-    if ( !SetStdHandle( STD_OUTPUT_HANDLE, hStdout ) ) {
-	return FALSE;
-    }
-    if ( !SetStdHandle( STD_ERROR_HANDLE, hStderr ) ) {
-	return FALSE;
-    }
-//    close( hStdin );
-//    close( hStdout );
-//    close( hStderr );
+    // setup notifiers for the sockets
+    notifierStdin = new QSocketNotifier( pipeStdin[1],
+	    QSocketNotifier::Write, this );
+    notifierStdout = new QSocketNotifier( pipeStdout[0],
+	    QSocketNotifier::Read, this );
+    notifierStderr = new QSocketNotifier( pipeStderr[0],
+	    QSocketNotifier::Read, this );
+    connect( notifierStdin, SIGNAL(activated(int)),
+	    this, SLOT(socketWrite(int)) );
+    connect( notifierStdout, SIGNAL(activated(int)),
+	    this, SLOT(socketRead(int)) );
+    connect( notifierStderr, SIGNAL(activated(int)),
+	    this, SLOT(socketRead(int)) );
+    notifierStdin->setEnabled( TRUE );
+    notifierStdout->setEnabled( TRUE );
+    notifierStderr->setEnabled( TRUE );
 #endif
 
-    // setup notifiers for the sockets
-//    notifierStdin = new QSocketNotifier( pipeStdin[1],
-//	    QSocketNotifier::Write, this );
-//    notifierStdout = new QSocketNotifier( pipeStdout[0],
-//	    QSocketNotifier::Read, this );
-//    notifierStderr = new QSocketNotifier( pipeStderr[0],
-//	    QSocketNotifier::Read, this );
-//    connect( notifierStdin, SIGNAL(activated(int)),
-//	    this, SLOT(socketWrite(int)) );
-//    connect( notifierStdout, SIGNAL(activated(int)),
-//	    this, SLOT(socketRead(int)) );
-//    connect( notifierStderr, SIGNAL(activated(int)),
-//	    this, SLOT(socketRead(int)) );
-//    notifierStdin->setEnabled( TRUE );
-//    notifierStdout->setEnabled( TRUE );
-//    notifierStderr->setEnabled( TRUE );
-
-//char buf[1024];
-//int u = read( pipeStdout[0], buf, 1024 );
     // cleanup and return
     return TRUE;
 #endif
@@ -401,6 +383,8 @@ void QProcess::closeStdin( )
 	close( socketStdin[1] );
 	socketStdin[1] =0 ;
     }
+#else
+    CloseHandle( pipeStdin[1] );
 #endif
 }
 
@@ -494,7 +478,28 @@ void QProcess::socketWrite( int fd )
 	socketWrite( fd );
     }
 #else
-    // just for test purposes
+//    if ( fd != socketStdin[1] || socketStdin[1] == 0 )
+//	return;
+    if ( stdinBuf.isEmpty() ) {
+	if ( notifierStdin != 0 )
+	    notifierStdin->setEnabled( FALSE );
+	return;
+    }
+    DWORD written;
+    if ( !WriteFile( pipeStdin[1],
+	stdinBuf.head()->data() + stdinBufRead,
+	stdinBuf.head()->size() - stdinBufRead,
+	&written, 0 ) ) {
+	return;
+    }
+    stdinBufRead += written;
+    if ( stdinBufRead == stdinBuf.head()->size() ) {
+	stdinBufRead = 0;
+	delete stdinBuf.dequeue();
+	socketWrite( fd );
+    }
+
+    // ### try to read (just for test purposes)
     QByteArray buffer=readStdout();
     int sz = buffer.size();
     if ( sz == 0 )
@@ -511,19 +516,29 @@ void QProcess::socketWrite( int fd )
 // testing if non blocking pipes are working
 QByteArray QProcess::readStdout()
 {
+#if 0
     const int defsize = 1024;
     unsigned long r, i = 0;
-    OVERLAPPED ov;
-    ov.Offset = 0;
-    ov.OffsetHigh = 0;
     QByteArray readBuffer;
     do {
 	readBuffer.resize( (i+1) * defsize );
-//	ReadFile( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, &ov );
-	PeekNamedPipe( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, 0, 0 );
+	ReadFile( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, &overlapped );
+//	PeekNamedPipe( pipeStdout[0], readBuffer.data() + (i*defsize), defsize, &r, 0, 0 );
 	i++;
     } while ( r == defsize );
     readBuffer.resize( (i-1) * defsize + r );
     return readBuffer;
+#else
+    // get the number of bytes that are waiting to be read
+    char dummy;
+    unsigned long r, i;
+    PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+    // and read it!
+    QByteArray readBuffer( i );
+    if ( i > 0 ) {
+	ReadFile( pipeStdout[0], readBuffer.data(), i, &r, &overlappedStdout );
+    }
+    return readBuffer;
+#endif
 }
 #endif

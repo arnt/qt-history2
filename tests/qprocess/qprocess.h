@@ -85,6 +85,10 @@ private:
     HANDLE pipeStdout[2];
     HANDLE pipeStderr[2];
     PROCESS_INFORMATION pid;
+    uint stdinBufRead;
+    OVERLAPPED overlappedStdin;
+    OVERLAPPED overlappedStdout;
+    OVERLAPPED overlappedStderr;
 #endif
 
     void init();
