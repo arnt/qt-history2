@@ -22,7 +22,7 @@ QSETTINGS_DEFINE_GUI_PARSER_FUNCTIONS
     information is often stored in the system registry on Windows,
     and in XML preferences files on Mac OS X. On X11, in the absense
     of a standard, many applications (including the KDE applications)
-    use .ini text files.
+    use INI text files.
 
     QSettings is an abstraction around these technologies, enabling
     you to save and restore application settings in a portable
@@ -34,8 +34,8 @@ QSETTINGS_DEFINE_GUI_PARSER_FUNCTIONS
     QVariant instead of QCoreVariant, which allows you to save
     GUI-related types such as QRect, QSize, and QColor.
 
-    See the \l QSettings documentation for a detailed description of
-    how to use this class.
+    See the \l QCoreSettings documentation for a detailed description
+    of how to use this class.
 */
 
 /*!
@@ -45,7 +45,7 @@ QSETTINGS_DEFINE_GUI_PARSER_FUNCTIONS
 
     Example:
     \code
-        QSettings settings("www.technopro.co.uk", "Facturo-Pro");
+        QSettings settings("www.technopro.co.jp", "Facturo-Pro");
     \endcode
 
     The scope is Qt::UserScope and the format is Qt::NativeFormat.
@@ -96,7 +96,7 @@ QSettings::QSettings(Qt::SettingsScope scope, const QString &organization,
     access to system-wide settings.
 
     If \a format is Qt::NativeFormat, the native API is used for
-    storing settings. If \a format is Qt::IniFormat, the .ini format
+    storing settings. If \a format is Qt::IniFormat, the INI format
     is used.
 
     If no application name is given, the QSettings object will only
@@ -118,10 +118,10 @@ QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
 
     If \a format is Qt::NativeFormat, the meaning of \a fileName
     depends on the platform. On Unix/X11, \a fileName is the name of
-    an .ini file. On Mac OS X, \a fileName is the name of a .plist
+    an INI file. On Mac OS X, \a fileName is the name of a .plist
     file. On Windows, \a fileName is a path in the system registry.
 
-    If \a format is Qt::IniFormat, \a fileName is the name of an .ini
+    If \a format is Qt::IniFormat, \a fileName is the name of an INI
     file.
 */
 QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format, QObject *parent)
@@ -141,13 +141,13 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format, QObject
     The code
 
     \code
-        QSettings settings("www.technopro.co.uk", "Facturo-Pro");
+        QSettings settings("www.technopro.co.jp", "Facturo-Pro");
     \endcode
 
     is equivalent to
 
     \code
-        qApp->setProductInfo("www.technopro.co.uk", "Facturo-Pro");
+        qApp->setProductInfo("www.technopro.co.jp", "Facturo-Pro");
         QSettings settings;
     \endcode
 
