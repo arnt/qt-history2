@@ -192,6 +192,7 @@ QWidget *QDrag::target() const
 QDrag::DropAction QDrag::start(QDrag::DropActions request)
 {
     Q_D(QDrag);
+    Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
     QDragManager *manager = QDragManager::self();
     d->possible_actions = request;
     if (manager)
