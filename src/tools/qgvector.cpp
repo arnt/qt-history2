@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#2 $
 **
 ** Implementation of QGVector class
 **
@@ -15,15 +15,14 @@
 ** There are two flags you can set to customize memory management.
 **
 ** USE_MALLOC is defined by default. If you comment it, new and delete will
-** be used insted of malloc() and free(). There might be a problem when using
-** realloc() on memory that has been allocated with new. Problems on Mac have
-** been detected.
+** be used insted of malloc() and free(). The advantage of using malloc() and
+** free() is that realloc() will be used to resize arrays.
 **
-** DONT_USE_REALLOC can be defined to make manual array reallocations. It only
-** makes sense when USE_MALLOC is commented out.
+** DONT_USE_REALLOC can be defined to make manual array reallocations.  This
+** flag is defined when using new and delete (i.e. not USE_MALLOC).
 *****************************************************************************/
 
-#define QGVECTOR_C
+#define QGVECTOR_CPP
 #define NO_WARNINGS
 #include "qgvector.h"
 #include "qglist.h"
@@ -32,18 +31,16 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#1 $";
-#endif
-
-
-#if defined(NEW) || defined(DELETE)
-// #error Macro already defined
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#2 $";
 #endif
 
 
 #if !defined(TRACE_FS)
 #define USE_MALLOC				// comment to use new/delete
 #endif
+
+#undef NEW
+#undef DELETE
 
 #if defined(USE_MALLOC)
 #if !defined(_OS_MAC_) && !defined(VXWORKS)
@@ -54,11 +51,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#1 $";
 #else
 #define NEW(type,size)	(new type[size])
 #define DELETE(array)	(delete[] array)
-// #define DONT_USE_REALLOC			// uncomment to avoid realloc()
-#endif
-
-#if !defined(USE_MALLOC) || defined(_OS_MAC_)
-#define DONT_USE_REALLOC
+#define DONT_USE_REALLOC			// comment to use realloc()
 #endif
 
 
