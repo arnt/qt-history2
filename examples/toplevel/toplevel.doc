@@ -8,7 +8,7 @@
   toplevel widgets with customized window decorations.
 
   It provides a graphical user interface for selecting different
-  options for widget decoration and behavior, and passes the the
+  options for widget decoration and behavior, and passes the
   appropriate widget flags to the QWidget constructor.
   QWidget::reparent() is used to change the widget flags at runtime.
 
@@ -95,7 +95,7 @@
   flag.
 
   \printto !widget
-  A tool window will never have a task bar entry (even if it is
+  A tool window will never have a task bar entry (even if it
   has no parent widget), and often has a smaller window 
   decoration. Tool windows are frequently used instead of 
   modeless dialogs.
