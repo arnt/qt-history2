@@ -26,7 +26,7 @@ public:
 
     QDockWidget( Place p = InDock, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QDockWidget();
-    
+
     virtual void setWidget( QWidget *w );
     QWidget *widget() const;
 
@@ -110,6 +110,7 @@ private:
     QHBoxLayout *vbox;
     QBoxLayout *layout;
     void *dockWidgetData;
+    QPoint lastPos;
     
 };
 

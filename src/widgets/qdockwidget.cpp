@@ -202,7 +202,7 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
-    
+
 private:
     QDockWidget *dockWidget;
     QPoint offset;
@@ -400,7 +400,7 @@ void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
-      offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 )
+      offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ), lastPos( -1, -1 )
 {
     hbox = new QVBoxLayout( this );
     hbox->setMargin( 2 );
@@ -775,13 +775,19 @@ void QDockWidget::undock()
     if ( place() == OutsideDock )
 	return;
 
+    QPoint p( 50, 50 );
+    if ( topLevelWidget() )
+	p = topLevelWidget()->pos() + QPoint( 20, 20 );
     if ( dockArea ) {
 	delete (QDockArea::DockWidgetData*)dockWidgetData;
 	dockWidgetData = dockArea->dockWidgetData( this );
 	dockArea->removeDockWidget( this, TRUE, orientation() != Horizontal );
     }
     dockArea = 0;
-    move( 50, 50 );
+    if ( lastPos != QPoint( -1, -1 ) )
+	move( lastPos );
+    else
+	move( p );
     curPlace = OutsideDock;
     updateGui();
     emit orientationChanged( orientation() );
@@ -803,10 +809,11 @@ void QDockWidget::doUndock()
 
 void QDockWidget::doDock()
 {
-    if ( !(QDockArea::DockWidgetData*)dockWidgetData || 
+    if ( !(QDockArea::DockWidgetData*)dockWidgetData ||
 	 !( (QDockArea::DockWidgetData*)dockWidgetData )->area )
 	return;
     curPlace = InDock;
+    lastPos = pos();
     ( (QDockArea::DockWidgetData*)dockWidgetData )->
 	area->dockWidget( this, (QDockArea::DockWidgetData*)dockWidgetData );
 }
