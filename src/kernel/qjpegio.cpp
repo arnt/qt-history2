@@ -223,7 +223,19 @@ void read_jpeg_image(QImageIO* iio)
 	char sModeStr[1024] = "";
 	QImage::ScaleMode sMode; 
 
-	if ( params.contains( "Scale" ) ) {
+	if ( params.contains( "GetHeaderInformation" ) ) {
+
+	    // Create QImage's without allocating the data
+	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
+		image = QImage( NULL, cinfo.output_width, cinfo.output_height, 32, NULL, 0, QImage::IgnoreEndian );
+	    } else if ( cinfo.output_components == 1 ) {
+		image = QImage( NULL, cinfo.output_width, cinfo.output_height, 8, NULL, 0, QImage::IgnoreEndian );
+	    } else {
+		// Unsupported format
+	    }
+
+
+	} else if ( params.contains( "Scale" ) ) {
 	    sscanf( params.latin1(), "Scale( %i, %i, %s )", &sWidth, &sHeight, sModeStr );
 
 	    QString sModeQStr( sModeStr );

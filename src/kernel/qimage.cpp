@@ -478,12 +478,14 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		Endian bitOrder )
 {
     init();
-    if ( !yourdata || w <= 0 || h <= 0 || depth <= 0 || numColors < 0 )
+    if ( w <= 0 || h <= 0 || depth <= 0 || numColors < 0 )
 	return;					// invalid parameter(s)
     data->w = w;
     data->h = h;
     data->d = depth;
     data->ncols = numColors;
+    if ( !yourdata )
+	return;	    // Image header info can be saved without needing to allocate memory.
     int bpl = ((w*depth+31)/32)*4;	// bytes per scanline
     data->nbytes = bpl*h;
     if ( colortable || !numColors ) {
@@ -635,6 +637,10 @@ QImage QImage::copy() const
 	    *image.data->misc = misc();
 	}
 #endif
+    } else {
+	// Maintain the fields of invalid QImages when copied (this is required in some special cases).
+	QImage nullImageCopy( NULL, width(), height(), depth(), colorTable(), numColors(), bitOrder() );
+	return nullImageCopy;
     }
     return image;
 }
