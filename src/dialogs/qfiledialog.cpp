@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#601 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#602 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3092,13 +3092,11 @@ extern bool qt_resolve_symlinks; // defined in qapplication.cpp
     The dialog's caption is set to \a caption. If \a caption is not
     specified then a default caption will be used.
 
-  Note: under Windows, this static function will use the native Windows
+  Under Windows and Mac OS X, this static function will use the native
   file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than Windows style.  Under Mac OS X, this
-  static function will use the native Mac file dialog and not a
-  QFileDialog.
+  is set to something other than the native style.
 
-  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
   If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
@@ -3210,13 +3208,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     The dialog's caption is set to \a caption. If \a caption is not
     specified then a default caption will be used.
 
-  Note: under Windows, this static function will use the native Windows
+  Under Windows and Mac OS X, this static function will use the native
   file dialog and not a QFileDialog, unless the style of the application
-  is set to something other than Windows style.  Under Mac OS X, this
-  static function will use the native Mac file dialog and not a
-  QFileDialog.
+  is set to something other than the native style.
 
-  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
   If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
@@ -4084,7 +4080,7 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   If \a dirOnly is TRUE, then only directories will be shown in
   the file dialog; otherwise both directories and files will be shown.
 
-  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
   If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
@@ -5053,12 +5049,11 @@ void QFileDialog::modeButtonsDestroyed()
     The dialog's caption is set to \a caption. If \a caption is not
     specified then a default caption will be used.
 
-  Note: In the Windows version of Qt, this static function will use the native Windows file
-  dialog and not a QFileDialog, unless the style of the application is set to something other
-  than Windows style.  In the Mac OS X version of Qt, this static function will use the native Mac
-  file dialog and not a QFileDialog.
+  Under Windows and Mac OS X, this static function will use the native
+  file dialog and not a QFileDialog, unless the style of the application
+  is set to something other than the native style.
 
-  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
   If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
