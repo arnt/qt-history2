@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#70 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#71 $
 **
 ** Global type declarations and definitions
 **
@@ -31,6 +31,7 @@
 //   OSF	- OSF Unix
 //   BSDI	- BSDI Unix
 //   SCO     	- SCO of some sort
+//   AIX	- AIX Unix
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
