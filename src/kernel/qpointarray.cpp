@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#51 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#51 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -25,21 +25,21 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $");
   It is probably a bad idea to use it in any other context.
 */
 
-/*! \fn QPointVal::QPointVal (QPointData* ptr) 
+/*! \fn QPointVal::QPointVal (QPointData* ptr)
 
   Constructs a reference to an element in a QPointArray.  This is
   what QPointArray::operator[] contructs its return value with.
 */
 
-/*! \fn QPointVal& QPointVal::operator= (const QPoint& point) 
+/*! \fn QPointVal& QPointVal::operator= (const QPoint& point)
   Assigns a given point to the value referenced by this QPointVal.
 */
 
-/*! \fn QPointVal& QPointVal::operator+= (const QPoint& point) 
+/*! \fn QPointVal& QPointVal::operator+= (const QPoint& point)
   Vector-adds a given point to the value referenced by this QPointVal.
 */
 
-/*! \fn QPointVal& QPointVal::operator-= (const QPoint& point) 
+/*! \fn QPointVal& QPointVal::operator-= (const QPoint& point)
   Vector-subtracts a given point to the value referenced by this QPointVal.
 */
 
@@ -47,11 +47,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $");
   Returns the value of the point referenced by this QPointVal.
 */
 
-/*! \fn int QPointVal::x () const 
+/*! \fn int QPointVal::x () const
   Returns the X coordinate of the point referenced by this QPointVal.
 */
 
-/*! \fn int QPointVal::y () const 
+/*! \fn int QPointVal::y () const
   Returns the Y coordinate of the point referenced by this QPointVal.
 */
 
@@ -100,7 +100,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $");
 
 /*!
   \fn QPointArray::QPointArray( const QPointArray &a )
-  Constructs a 
+  Constructs a
   \link shclass.html shallow copy\endlink of the point array \e a.
 
   \sa copy()
@@ -149,7 +149,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 
 /*!
   \fn QPointArray &QPointArray::operator=( const QPointArray &a )
-  Assigns a 
+  Assigns a
   \link shclass.html shallow copy\endlink of \e a to this point array
   and returns a reference to this point array.
 
@@ -161,7 +161,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 /*!
   \fn QPointArray QPointArray::copy() const
 
-  Creates a 
+  Creates a
   \link shclass.html deep copy\endlink of the array.
 */
 
@@ -792,8 +792,8 @@ QPointArray QPointArray::quadBezier() const
 	    int y = int(p[j++]);
 	    pa[i] = QPoint(x,y);
 	}
-	delete p;
-	delete ctrl;
+	delete[] p;
+	delete[] ctrl;
 
 	return pa;
     }
