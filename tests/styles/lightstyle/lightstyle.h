@@ -76,6 +76,7 @@ public:
 
     int styleHint( StyleHint stylehint,
 		   const QWidget *widget = 0,
+		   const QStyleOption & = QStyleOption::Default,
 		   QStyleHintReturn* returnData = 0 ) const;
 };
 

@@ -1397,6 +1397,7 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 
 int LightStyle::styleHint( StyleHint stylehint,
 			   const QWidget *widget,
+			   const QStyleOption &option,
 			   QStyleHintReturn* returnData ) const
 {
     int ret;
@@ -1407,7 +1408,7 @@ int LightStyle::styleHint( StyleHint stylehint,
 	break;
 
     default:
-	ret = QWindowsStyle::styleHint(stylehint, widget, returnData);
+	ret = QWindowsStyle::styleHint(stylehint, widget, option, returnData);
 	break;
     }
 
