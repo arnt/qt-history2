@@ -135,6 +135,8 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
+    if (!member)
+	return QObject::disconnect( (QObject *)this, 0, receiver, member);
 #ifndef QT_NO_VARIANT
     if ( intSignature( member ) )
 #endif
