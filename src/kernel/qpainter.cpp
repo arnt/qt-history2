@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#142 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2306,10 +2306,10 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
 			      QString str, int len, char **internal )
 {
     QRect brect;
-    if ( str && *str )
-	drawText( x, y, w, h, tf | DontPrint, str, len, &brect, internal );
-    else
+    if ( str.isEmpty() )
 	brect.setRect( x,y, 0,0 );
+    else
+	drawText( x, y, w, h, tf | DontPrint, str, len, &brect, internal );
     return brect;
 }
 
