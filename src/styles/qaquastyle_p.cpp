@@ -547,7 +547,7 @@ static int qt_mac_aqua_get_metric(ThemeMetric met)
     return ret;
 }
 #endif
-static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg, QAquaWidgetSize sz)
+static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg, QSize szHint, QAquaWidgetSize sz)
 {
     QSize ret(-1, -1);
     if(sz != QAquaSizeSmall && sz != QAquaSizeLarge) {
@@ -637,26 +637,31 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 #endif
     } else if(ct == QStyle::CT_ToolButton && sz == QAquaSizeSmall) {
 	int width = 0, height = 0;
-	QToolButton *bt = (QToolButton*)widg;
-	if(!bt->iconSet().isNull()) {
-	    QIconSet::Size sz = QIconSet::Small;
-	    if ( bt->usesBigPixmap() ) 
-		sz = QIconSet::Large;
-	    QSize iconSize = QIconSet::iconSize(sz);
-	    QPixmap pm = bt->iconSet().pixmap(sz, QIconSet::Normal);
-	    width = QMAX(width, QMAX(iconSize.width(), pm.width()));
-	    height = QMAX(height, QMAX(iconSize.height(), pm.height()));
-	}
-	if (!bt->text().isNull() && bt->usesTextLabel()) {
-	    int text_width = bt->fontMetrics().width(bt->text()),
-	        text_height = bt->fontMetrics().height();
-	    if(bt->textPosition() == QToolButton::Under) {
-		width = QMAX(width, text_width);
-		height += text_height;
-	    } else {
-		width += text_width;
-		width = QMAX(height, text_height);
+	if(szHint == QSize(-1, -1)) { //just 'guess'..
+	    QToolButton *bt = (QToolButton*)widg;
+	    if(!bt->iconSet().isNull()) {
+		QIconSet::Size sz = QIconSet::Small;
+		if ( bt->usesBigPixmap() ) 
+		    sz = QIconSet::Large;
+		QSize iconSize = QIconSet::iconSize(sz);
+		QPixmap pm = bt->iconSet().pixmap(sz, QIconSet::Normal);
+		width = QMAX(width, QMAX(iconSize.width(), pm.width()));
+		height = QMAX(height, QMAX(iconSize.height(), pm.height()));
 	    }
+	    if (!bt->text().isNull() && bt->usesTextLabel()) {
+		int text_width = bt->fontMetrics().width(bt->text()),
+		   text_height = bt->fontMetrics().height();
+		if(bt->textPosition() == QToolButton::Under) {
+		    width = QMAX(width, text_width);
+		    height += text_height;
+		} else {
+		    width += text_width;
+		    width = QMAX(height, text_height);
+		}
+	    }
+	} else {
+	    width = szHint.width();
+	    height = szHint.height();
 	}
 	width =  QMAX(20, width +  5); //border
 	height = QMAX(20, height + 5); //border
@@ -739,7 +744,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     return ret;
 }
 #endif
-QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType ct, QSize *insz)
+QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType ct, 
+				       QSize szHint, QSize *insz)
 {
 #if defined( QMAC_QAQUASTYLE_SIZE_CONSTRAIN ) || defined(DEBUG_SIZE_CONSTRAINT)
     if(!widg) {
@@ -749,8 +755,8 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
 	    return QAquaSizeSmall;
 	return QAquaSizeUnknown;
     }
-    QSize large = qt_aqua_get_known_size(ct, widg, QAquaSizeLarge),
-	  small = qt_aqua_get_known_size(ct, widg, QAquaSizeSmall);
+    QSize large = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeLarge),
+	  small = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeSmall);
     QAquaWidgetSize ret = qt_aqua_guess_size(widg, large, small);
     QSize *sz = NULL;
     if(ret == QAquaSizeSmall)

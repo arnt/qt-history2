@@ -129,7 +129,8 @@ static inline bool qAquaActive( const QColorGroup & g )
 */
 enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeUnknown };
 QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, 
-				       QStyle::ContentsType ct=QStyle::CT_CustomBase, QSize *insz=NULL);
+				       QStyle::ContentsType ct=QStyle::CT_CustomBase, 
+				       QSize szHint=QSize(-1, -1), QSize *insz=NULL);
 
 /* 
   Setup the palette to comply with Aqua Style Guidelines

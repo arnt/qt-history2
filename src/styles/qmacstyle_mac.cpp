@@ -1677,7 +1677,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents,
     }
     {
 	QSize macsz;
-	if(qt_aqua_size_constrain(widget, contents, &macsz) != QAquaSizeUnknown) {
+	if(qt_aqua_size_constrain(widget, contents, sz, &macsz) != QAquaSizeUnknown) {
 	    if(macsz.width() != -1)
 		sz.setWidth(macsz.width());
 	    if(macsz.height() != -1)
