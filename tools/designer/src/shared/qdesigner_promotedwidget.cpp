@@ -62,7 +62,7 @@ bool PromotedWidgetPropertySheet::isVisible(int index) const
 
 void PromotedWidgetPropertySheet::setVisible(int index, bool b)
 {
-    return m_sheet->setVisible(index, b);
+    m_sheet->setVisible(index, b);
 }
 
 bool PromotedWidgetPropertySheet::isAttribute(int index) const
