@@ -2405,10 +2405,10 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 	    return;
     }
 
-    QTextEngine *engine = ti.engine;
-    QScriptItem *si = &engine->items[ti.item];
+    QTextEngine *engine = ti.engine();
+    QScriptItem *si = &engine->items[ti.item()];
 
-    engine->shape( ti.item );
+    engine->shape( ti.item() );
     QFontEngine *fe = si->fontEngine;
     Q_ASSERT( fe );
 
