@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#154 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -44,6 +44,7 @@
 #include <mywinsock.h>
 #endif
 #include <ole2.h>
+
 
 /*****************************************************************************
   Internal variables and functions
@@ -232,9 +233,6 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
 
-  // Initialize OLE
-    if (NOERROR != OleInitialize(NULL))
-       return 1;
     qt_init_windows_mime();
 
   // Call user main()
@@ -303,6 +301,12 @@ void qt_init( int *argcptr, char **argv )
 
   // Misc. initialization
 
+  // Initialize OLE
+    if ( OleInitialize(0) != S_OK ) {
+#if defined(CHECK_STATE)
+	warning( "Qt: Could not initialize OLE" );
+#endif
+    }
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -1492,7 +1496,7 @@ struct TimerInfo {				// internal timer info
 typedef Q_DECLARE(QVectorM,TimerInfo)  TimerVec; // vector of TimerInfo structs
 typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict;// fast dict of timers
 
-static TimerVec *timerVec   = 0;		// timer vector
+static TimerVec  *timerVec  = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
 
