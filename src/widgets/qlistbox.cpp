@@ -102,7 +102,7 @@ public:
 
     QListBoxItem *pressedItem;
     bool select;
-    
+
     QRect *rubber;
     QPtrDict<bool> selectable;
 };
@@ -250,6 +250,9 @@ const QPixmap *QListBoxItem::pixmap() const
     return 0;
 }
 
+/*!
+  Specifies if this item may be selected by the user or not.
+*/
 
 void QListBoxItem::setSelectable( bool b )
 {
@@ -261,6 +264,12 @@ void QListBoxItem::setSelectable( bool b )
     else
 	listBox()->d->selectable.replace( this, new bool( b ) );
 }
+
+/*!
+  Returns if this item is selectable or not.
+  
+  \sa setSelectable()
+*/
 
 bool QListBoxItem::isSelectable() const
 {
@@ -703,7 +712,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->select = FALSE;
     d->rubber = 0;
     d->selectable.setAutoDelete( TRUE );
-    
+
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -1641,8 +1650,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		clearSelection();
 	}
     }
-    
-    
+
+
     // for sanity, in case people are event-filtering or whatnot
     delete d->scrollTimer;
     d->scrollTimer = 0;
@@ -1769,7 +1778,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 	drawRubber();
 	return;
     }
-    
+
     if ( ( (e->state() & ( RightButton | LeftButton | MidButton ) ) == 0 ) ||
 	 d->ignoreMoves )
 	return;
@@ -3604,6 +3613,10 @@ QListBoxItem *QListBox::findItem( const QString &text ) const
     return 0;
 }
 
+/*!
+  \internal
+*/
+
 void QListBox::drawRubber()
 {
     if ( !d->rubber )
@@ -3615,6 +3628,10 @@ void QListBox::drawRubber()
     style().drawFocusRect( &p, d->rubber->normalize(), colorGroup() );
     p.end();
 }
+
+/*!
+  \internal
+*/
 
 void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 {
