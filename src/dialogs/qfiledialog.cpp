@@ -527,7 +527,8 @@ static void makeVariables() {
 	sortFilesBy = (int)QDir::Name;
 	detailViewMode = FALSE;
 #if defined(Q_WS_WIN)
-	fileIconProvider = new QWindowsIconProvider( qApp );
+	if ( !fileIconProvider )
+	    fileIconProvider = new QWindowsIconProvider( qApp );
 #endif
     }
 }
