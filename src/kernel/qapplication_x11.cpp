@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#503 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#504 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -490,8 +490,8 @@ static bool qt_set_desktop_properties()
     const char *data;
 
     if ( XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
-			     FALSE, AnyPropertyType, &type, &format,
-			     &nitems, &after,  (unsigned char**)&data ) != Success )
+			     FALSE, AnyPropertyType, &type, &format, &nitems,
+			     &after,  (unsigned char**)&data ) != Success )
 	return FALSE;
     if ( !nitems ) {
 	if ( data )
@@ -525,7 +525,8 @@ static bool qt_set_desktop_properties()
 
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
-static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0, const char* button = 0 )
+static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
+				  const char* bg = 0, const char* button = 0 )
 {
     QCString resFont, resFG, resBG;
 
@@ -540,7 +541,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	    char *data;
 	    XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
 				offset, 8192, FALSE, AnyPropertyType,
-				&type, &format, &nitems, &after, (unsigned char**) &data );
+				&type, &format, &nitems, &after,
+				(unsigned char**) &data );
 	    res += data;
 	    offset += 8192;
 	    XFree(data);
@@ -584,12 +586,12 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	resBG = bg;
 
     if ( !resFont.isEmpty() ) {				// set application font
- 	QFont font;
- 	font.setRawName( resFont );
- 	if ( font != QApplication::font() )
+	QFont font;
+	font.setRawName( resFont );
+	if ( font != QApplication::font() )
  	    QApplication::setFont( font, TRUE );
     }
-    if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
+    if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {// set app colors
 	QColor btn;
 	QColor bg;
 	QColor fg;
@@ -601,7 +603,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	    fg = QColor(QString(resFG));
 	else
 	    fg = QApplication::palette().normal().foreground();
-	if (button)
+	if ( button )
 	    btn = QColor( button );
 	else if ( !resBG.isEmpty() )
 	    btn = bg;
@@ -992,7 +994,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     QFont f( "Helvetica", 12 ); // default font
     f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
     QApplication::setFont( f );
-    
+
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 }
 
@@ -3973,8 +3975,11 @@ void QETWidget::embeddedWindowTabFocus( bool next )
 
 
 /*!
-  Sets the text cursor's flash time to \a msecs milliseconds. The flash time is the
-  time requried to display, invert and restore the caret display.
+  Sets the text cursor's flash time to \a msecs milliseconds.  The
+  flash time is the time requried to display, invert and restore the
+  caret display: A full flash cycle.  Usually, the text cursor is
+  displayed for \a msecs/2 millisecnds, then hidden for \a msecs/2
+  milliseconds.
 
   Under windows, calling this function sets the double click
   interval for all windows.
