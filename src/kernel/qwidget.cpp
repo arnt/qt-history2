@@ -5134,7 +5134,7 @@ void QWidget::reparent( QWidget *parent)
 */
 
 #ifdef Q_OS_TEMP
-# if UNDER_CE < 310
+# if defined(WIN32_PLATFORM_PSPC) && (WIN32_PLATFORM_PSPC < 310)
 #  include <aygshell.h>
 # else
 #  define SHFS_HIDETASKBAR            0x0002
