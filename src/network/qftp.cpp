@@ -595,7 +595,7 @@ void QFtpDTP::socketReadyRead()
             ba.resize(socket->bytesAvailable());
             Q_LONGLONG bytesRead = socket->read(ba.data(), ba.size());
             if (bytesRead < 0) {
-                // a read following a readyRead() singal will
+                // a read following a readyRead() signal will
                 // never fail.
                 return;
             }
@@ -669,7 +669,8 @@ void QFtpDTP::setupSocket()
 
 void QFtpDTP::readAllFromSocket()
 {
-    bytesFromSocket = socket->readAll();
+    if (socket->bytesAvailable() > 0)
+        bytesFromSocket = socket->readAll();
 }
 
 void QFtpDTP::clearData()

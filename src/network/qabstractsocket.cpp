@@ -1196,7 +1196,8 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::waitForReadyRead(%i) emitting readyRead()", msecs);
 #endif
-    emit readyRead();
+    if (!d->readSocketNotifierCalled)
+        emit readyRead();
     return true;
 }
 
