@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#3 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#3 $";
 #endif
 
 
@@ -27,6 +27,8 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#2 $";
   \class QPSPrinter qpsprn.h
   \brief Internal class used by QPrinter under X-Windows to generate
   PostScript (tm).
+
+  \internal
 */
 
 /*!
@@ -105,7 +107,7 @@ static void ps_setFont( QTextStream *s, const QFont *f )
 #define HEIGHT(h)	(float)(h)
 
 #define POINT(index)	XCOORD(p[index].point->x()) << ' ' <<		\
-		        YCOORD(p[index].point->y()) << ' '
+			YCOORD(p[index].point->y()) << ' '
 #define RECT(index)	XCOORD(p[index].rect->x())  << ' ' <<		\
 			YCOORD(p[index].rect->y())  << ' ' <<		\
 			WIDTH (p[index].rect->width())  << ' ' <<	\
@@ -225,6 +227,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    stream << XCOORD(pt.x()) << ' '
 			   << YCOORD(pt.y()) << " LT\n";
 		}
+		stream << "QtStroke\n";
 	    }
 	    break;
 	case PDC_DRAWPOLYLINE:
@@ -237,6 +240,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		    stream << XCOORD(pt.x()) << ' '
 			   << YCOORD(pt.y()) << " LT\n";
 		}
+		stream << "QtStroke\n";
 	    }
 	    break;
 	case PDC_DRAWPOLYGON:
