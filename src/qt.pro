@@ -15,7 +15,7 @@ unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
 
-win:DEPENDPATH	= $(QTDIR)/include
+win32:DEPENDPATH = $(QTDIR)/include
 unix:DEPENDPATH	= $(QTDIR)/src/$$DIALOGS_H:$(QTDIR)/src/$$KERNEL_H:$(QTDIR)/src/$$TOOLS_H:$(QTDIR)/src/$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qfiledialog.h \
@@ -123,7 +123,7 @@ HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
-		  $$WIDGETS_H/qmultilined.h \
+		  $$WIDGETS_H/qmultilinedit.h \
 		  $$WIDGETS_H/qpopupmenu.h \
 		  $$WIDGETS_H/qprogressbar.h \
 		  $$WIDGETS_H/qpushbutton.h \
@@ -223,7 +223,7 @@ SOURCES		= dialogs/qfiledialog.cpp \
 		  widgets/qmainwindow.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudata.cpp \
-		  widgets/qmultilined.cpp \
+		  widgets/qmultilinedit.cpp \
 		  widgets/qpopupmenu.cpp \
 		  widgets/qprogressbar.cpp \
 		  widgets/qpushbutton.cpp \
