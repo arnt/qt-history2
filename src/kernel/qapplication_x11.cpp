@@ -3252,7 +3252,7 @@ unrecognized widget.
 */
 int QApplication::x11ProcessEvent( XEvent* event )
 {
-    
+
     switch ( event->type ) {
     case ButtonPress:
     case ButtonRelease:
@@ -3276,7 +3276,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     default:
 	break;
     }
-    
+
     if ( qt_x11EventFilter(event) )		// send through app filter
 	return 1;
 
@@ -3717,7 +3717,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
   You can call this function occasionally when you program is busy doing a
   long operation (e.g. copying a file).
 
-  \sa processOneEvent(), exec(), QTimer
+  \sa exec(), QTimer
 */
 void QApplication::processEvents( int maxtime )
 {

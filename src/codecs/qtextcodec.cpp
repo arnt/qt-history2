@@ -699,7 +699,7 @@ static QTextCodec * localeMapper = 0;
   This might be needed for some applications, that want to use their
   own mechanism for setting the locale.
 
-  \sa codecForLocale
+  \sa codecForLocale()
 */
 void QTextCodec::setCodecForLocale(QTextCodec *c) { localeMapper = c;
 }
@@ -818,7 +818,7 @@ QTextCodec* QTextCodec::codecForLocale()
     }
     if ( localeMapper && localeMapper->mibEnum() == 11 )
 	localeMapper = codecForName( "ISO 8859-8-I" );
-       
+
     // If everything failed, we default to 8859-1
     // We could perhaps default to 8859-15.
     if ( !localeMapper )

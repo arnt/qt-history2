@@ -1002,7 +1002,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 
 // needed to get printer font metrics right, and because
 // XCharStruct is limited to shorts.
-struct QCharStruct 
+struct QCharStruct
 {
     QCharStruct() {
 	ascent = -1000000;
@@ -1016,7 +1016,7 @@ struct QCharStruct
     float lbearing;
     float rbearing;
     float width;
-};    
+};
 
 
 // return the text extents in overall, replaces XTextExtents
@@ -1226,7 +1226,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 			    chars[i].byte2 = cache->string[i].cell();
 			}
 		    }
-		
+
 		    if (bgmode != Qt::TransparentMode)
 			XDrawImageString16(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
 					   chars, cache->length );
@@ -1262,7 +1262,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 		delete [] rects;
 	    }
 	}
-	
+
 	cache = cache->next;
     }
 }
@@ -1404,7 +1404,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 	size_value = request.pixelSize;
 	sizeFormat = XFT_PIXEL_SIZE;
     }
-	
+
     mono_value = request.fixedPitch ? XFT_MONO : XFT_PROPORTIONAL;
 
     switch (request.styleHint) {
@@ -1494,7 +1494,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 	    requestAA = TRUE;
 	XftPatternAddBool( pattern, XFT_ANTIALIAS,requestAA );
     }
-    
+
     if (pattern) {
 	result = XftFontMatch(QPaintDevice::x11AppDisplay(),
 			      QPaintDevice::x11AppScreen(), pattern, &res);
@@ -2018,7 +2018,7 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	}
 	return;
     }
-    
+
     if (script != QFont::Unicode && script != defaultScript || !actual.dirty)
 	return;
 
@@ -2034,7 +2034,7 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	    actual.pointSize = (int)(pointSize( actual, paintdevice ) +.5);
 	else
 	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
-	
+
 	return;
     }
 
@@ -2893,7 +2893,7 @@ bool QFontMetrics::inFont(QChar ch) const
 
   See width(QChar) for a graphical description of this metric.
 
-  \sa rightBearing(QChar), minLeftBearing(), width()
+  \sa rightBearing(), minLeftBearing(), width()
 */
 int QFontMetrics::leftBearing(QChar ch) const
 {
@@ -2922,7 +2922,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 
   See width() for a graphical description of this metric.
 
-  \sa leftBearing(char), minRightBearing(), width()
+  \sa leftBearing(), minRightBearing(), width()
 */
 int QFontMetrics::rightBearing(QChar ch) const
 {
@@ -2948,7 +2948,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
   Note that this function can be very slow if the font is large.
 
-  \sa minRightBearing(), leftBearing(char)
+  \sa minRightBearing(), leftBearing()
 */
 int QFontMetrics::minLeftBearing() const
 {
@@ -2992,7 +2992,7 @@ int QFontMetrics::minLeftBearing() const
 
   Note that this function can be very slow if the font is large.
 
-  \sa minLeftBearing(), rightBearing(char)
+  \sa minLeftBearing(), rightBearing()
 */
 int QFontMetrics::minRightBearing() const
 {

@@ -2080,6 +2080,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 }
 
 /*!
+    \overload
   Draws the pixmap \a pm into the rectangle \a r. The pixmap is scaled to fit the rectangle, if
   image and rectangle size disagree.
 */
@@ -2113,7 +2114,7 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
     }
 
     QPixmap pixmap = pm;
-    
+
     if ( scale ) {
 	if ( smooth ) {
 	    QImage i = pm.convertToImage();
@@ -2263,7 +2264,8 @@ void QPainter::drawImage( const QPoint & p, const QImage & i,
 }
 
 
-/*!  
+/*!
+    \overload
   Draws the image \a i into the rectangle \a r. The image will be
   scaled to fit the rectangle if image and rectangle dimensions
   differ.
@@ -2293,14 +2295,14 @@ void QPainter::drawImage( const QRect &r, const QImage &i )
 #endif
     }
 
-    
+
     bool scale = ( rw != iw || rh != ih );
     float scaleX = (float)rw/(float)iw;
     float scaleY = (float)rh/(float)ih;
     bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
 
     QImage img = scale ? ( smooth ? i.smoothScale( rw, rh ) : i.scale( rw, rh ) ) : i;
-			   
+
     drawImage( r.x(), r.y(), img );
 }
 

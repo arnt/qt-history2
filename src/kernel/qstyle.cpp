@@ -1322,7 +1322,7 @@ are drawn.</td>
   corrdinates into screen coordinates when using drawPrimitive() and
   drawControl().
 
-  \sa drawComplexControl, ComplexControl
+  \sa drawComplexControl() ComplexControl
 */
 
 /*!

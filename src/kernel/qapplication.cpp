@@ -1304,7 +1304,7 @@ void QApplication::setColorSpec( int spec )
   }
   \endcode
 
-  \sa golbalStrut()
+  \sa globalStrut()
 */
 
 void QApplication::setGlobalStrut( const QSize& strut )
@@ -2104,7 +2104,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	if ( ( e->type() <= QEvent::MouseMove &&
 	       e->type() >= QEvent::MouseButtonPress ||
 	       e->type() == QEvent::Wheel ||
-	       e->type() == QEvent::ContextMenu || 
+	       e->type() == QEvent::ContextMenu ||
 	       e->type() >= QEvent::DragEnter &&
 	       e->type() <= QEvent::DragResponse ) &&
 	     !widget->isEnabled() ) {
@@ -2158,7 +2158,7 @@ bool QApplication::closingDown()
   You can call this function occasionally when your program is busy
   performing a long operation (e.g. copying a file).
 
-  \sa processOneEvent(), exec(), QTimer
+  \sa exec(), QTimer
 */
 
 void QApplication::processEvents()

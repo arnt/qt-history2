@@ -1246,6 +1246,8 @@ possible (e.g. the horizontal direction of a slider).
 widget can make use of extra space, so it should get as much space as
 possible (e.g. the horizontal direction of a slider).
 
+\value Ignored internal.
+
 In any case, QLayout never shrinks a widget below the
 QWidget::minimumSizeHint().
 */

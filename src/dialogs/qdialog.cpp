@@ -220,7 +220,7 @@ public:
 
   We recommend that you always pass a non-null parent.
 
-  \sa QWidget::setWFlags Qt::WidgetFlags
+  \sa QWidget::setWFlags() Qt::WidgetFlags
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )

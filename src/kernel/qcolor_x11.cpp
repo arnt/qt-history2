@@ -203,7 +203,7 @@ void QColor::initialize()
 	Q_CHECK_PTR( g_carr );
 	memset( g_carr, 0, g_cells*sizeof(XColor) );
 	g_carr_fetch = TRUE;		// run XQueryColors on demand
-	g_our_alloc = new bool[g_cells];	
+	g_our_alloc = new bool[g_cells];
 	Q_CHECK_PTR( g_our_alloc );
 	memset( g_our_alloc, FALSE, g_cells*sizeof(bool) );
 	XColor *xc = &g_carr[0];
@@ -336,7 +336,7 @@ void QColor::cleanup()
   The pixel() function calls alloc() if necessary, so in general you
   don't need to call this function.
 
-  \sa setLazyAlloc(), enterAllocContext()
+  \sa enterAllocContext()
 */
 
 uint QColor::alloc()

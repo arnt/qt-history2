@@ -1793,7 +1793,7 @@ bool QtTableView::colXPos( int col, int *xPos ) const
   the signs of \a xPixels and \a yPixels have the reverse semantics.
 
   \sa setXOffset(), setYOffset(), setOffset(), setTopCell(),
-  setLeftCell(), setTopLeftOffset()
+  setLeftCell()
 */
 
 void QtTableView::scroll( int xPixels, int yPixels )

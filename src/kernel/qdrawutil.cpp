@@ -42,12 +42,10 @@
 #include "qapplication.h"
 #include "qpainter.h"
 
-// REVISED: paul
-
 /*!
   \relates QPainter
 
-  <code>#include &lt;qdrawutil.h&gt;</code>
+  \{#include <qdrawutil.h>}
 
   Draws a horizontal (\a y1 == \a y2) or vertical (\a x1 == \a x2) shaded
   line using the painter \a p.
@@ -71,13 +69,13 @@
 
   If you want to use a QFrame widget instead, you can make it display a
   shaded line, for example
-  <code>QFrame::setFrameStyle( QFrame::HLine | QFrame::Sunken )</code>.
+  \c{QFrame::setFrameStyle( QFrame::HLine | QFrame::Sunken )}.
 
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
-  \sa qDrawShadeRect(), qDrawShadePanel(), QStyle::drawSeparator()
+  \sa qDrawShadeRect(), qDrawShadePanel(), QStyle::drawPrimitive()
 */
 
 void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
@@ -182,7 +180,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 /*!
   \relates QPainter
 
-  <code>#include &lt;qdrawutil.h&gt;</code>
+  \c{#include <qdrawutil.h>}
 
   Draws a shaded rectangle/box given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
@@ -206,14 +204,15 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 
   If you want to use a QFrame widget instead, you can make it display a
   shaded rectangle, for example
-  <code>QFrame::setFrameStyle( QFrame::Box | QFrame::Raised )</code>.
+  \c{QFrame::setFrameStyle( QFrame::Box | QFrame::Raised )}.
 
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
   \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect(),
-  QStyle::drawRect(), QStyle::drawRectStrong()
+  QStyle::drawItem(), QStyle::drawControl()
+  QStyle::drawComplexControl()
 */
 
 void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
@@ -307,7 +306,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 /*!
   \relates QPainter
 
-  <code>#include &lt;qdrawutil.h&gt;</code>
+  \c{#include <qdrawutil.h>}
 
   Draws a shaded panel given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
@@ -327,14 +326,15 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 
   If you want to use a QFrame widget instead, you can make it display a
   shaded panel, for example
-  <code>QFrame::setFrameStyle( QFrame::Panel | QFrame::Sunken )</code>.
+  \c{QFrame::setFrameStyle( QFrame::Panel | QFrame::Sunken )}.
 
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
 
-  \sa qDrawWinPanel(), qDrawShadeLine(), qDrawShadeRect(), QStyle::drawPanel()
+  \sa qDrawWinPanel(), qDrawShadeLine(), qDrawShadeRect(),
+  QStyle::drawPrimitive()
 */
 
 void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
@@ -502,7 +502,7 @@ static void qDrawWinShades( QPainter *p,
 /*!
   \relates QPainter
 
-  <code>#include &lt;qdrawutil.h&gt;</code>
+  \c{#include <qdrawutil.h>}
 
   Draws a Windows-style button given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
@@ -524,7 +524,7 @@ static void qDrawWinShades( QPainter *p,
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
-  \sa qDrawWinPanel(), QStyle::drawButton()
+  \sa qDrawWinPanel(), QStyle::drawControl()
 */
 
 void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
@@ -542,7 +542,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 /*!
   \relates QPainter
 
-  <code>#include &lt;qdrawutil.h&gt;</code>
+  \c{#include <qdrawutil.h>}
 
   Draws a Windows-style panel given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
@@ -559,13 +559,13 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 
   If you want to use a QFrame widget instead, you can make it display a
   shaded panel, for example
-  <code>QFrame::setFrameStyle( QFrame::WinPanel | QFrame::Raised )</code>.
+  \c{QFrame::setFrameStyle( QFrame::WinPanel | QFrame::Raised )}.
 
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
-  \sa qDrawShadePanel(), qDrawWinButton(), QStyle::drawPanel()
+  \sa qDrawShadePanel(), qDrawWinButton(), QStyle::drawPrimitive()
 */
 
 void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
@@ -584,7 +584,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 /*!
   \relates QPainter
 
-  <code>#include &lt;qdrawutil.h&gt;</code>
+  \c{#include <qdrawutil.h>}
 
   Draws a plain rectangle given by (\a x, \a y, \a w, \a h)
   using the painter \a p.
@@ -598,13 +598,13 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 
   If you want to use a QFrame widget instead, you can make it display a
   plain rectangle, for example
-  <code>QFrame::setFrameStyle( QFrame::Box | QFrame::Plain )</code>.
+  \c{QFrame::setFrameStyle( QFrame::Box | QFrame::Plain )}.
 
   \warning This function does not look at QWidget::style()
   or QApplication::style(). Use the drawing functions in QStyle to make
   widgets that follow the current GUI style.
 
-  \sa qDrawShadeRect(), QStyle::drawRect()
+  \sa qDrawShadeRect(), QStyle::drawPrimitive)
 */
 
 void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
@@ -695,7 +695,7 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 	    x += w/2 - pm.width()/2;
 	else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
 	    x += w - pm.width();
-	
+
 	if ( !enabled ) {
 	    if ( pm.mask() ) {			// pixmap with a mask
 		if ( !pm.selfMask() ) {		// mask is not pixmap itself

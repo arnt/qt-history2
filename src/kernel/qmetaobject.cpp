@@ -546,7 +546,6 @@ QStrList QMetaObject::propertyNames( bool super ) const
 
   If \a super is TRUE, inherited signals are included.
 
-  \sa signal()
  */
 QStrList QMetaObject::signalNames( bool super ) const
 {
@@ -769,7 +768,6 @@ QMetaProperty::~QMetaProperty()
 
   Returns whether the property is writable or not.
 
-  \sa isValid()
 */
 
 /*! \fn bool QMetaProperty::isValid() const

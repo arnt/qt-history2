@@ -1228,7 +1228,7 @@ bool QPainter::end()                            // end painting
 	delete pfont;
 	pfont = 0;
     }
-    
+
     flags = 0;
     pdev->painters--;
     pdev = 0;
@@ -1237,8 +1237,8 @@ bool QPainter::end()                            // end painting
 }
 
 /*!
-  Flushes any buffered drawing operations inside the region \a region 
-  using clipping mode \a cm. 
+  Flushes any buffered drawing operations inside the region \a region
+  using clipping mode \a cm.
 
   The flush may update the whole device if the platform does not support
   flushing to a specified region.
@@ -1253,6 +1253,7 @@ void QPainter::flush(const QRegion &, CoordinateMode)
 
 
 /*!
+    \overload
   Flushes any buffered drawing operations.
 */
 

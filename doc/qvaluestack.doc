@@ -161,7 +161,7 @@
 
   Removes the top item from the stack and returns it.
 
-  \sa top() and push()
+  \sa top() push()
 */
 
 

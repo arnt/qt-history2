@@ -969,7 +969,7 @@ void QIconViewItem::setText( const QString &text )
   Sets \a k as the sort key of the icon view item. By default the text
   itself is used for sorting.
 
-  \sa compareItems()
+  \sa compare()
 */
 
 void QIconViewItem::setKey( const QString &k )
@@ -1165,7 +1165,7 @@ QString QIconViewItem::text() const
   Returns the key of the icon view item or the text if no key has been
   explicitly set.
 
-  \sa setKey(), compareItems()
+  \sa setKey(), compare()
 */
 
 QString QIconViewItem::key() const
@@ -2040,7 +2040,7 @@ void QIconViewItem::dragLeft()
   provided for subclasses which reimplement calcRect(), so that they
   can set the calculated rectangle. \e{Other use is discouraged.}
 
-  \sa calcRect() itemRect() setTextRect() setPixmapRect()
+  \sa calcRect() textRect() setTextRect() pixmapRect() setPixmapRect()
 */
 
 void QIconViewItem::setItemRect( const QRect &r )
@@ -2431,7 +2431,7 @@ void QIconViewItem::checkRect()
   This signal is emitted when \a item has been renamed, usually by
   in-place renaming.
 
-  \sa setRenameEnabled() rename()
+  \sa QIconViewItem::setRenameEnabled() QIconViewItem::rename()
 */
 
 /*!
@@ -2440,7 +2440,7 @@ void QIconViewItem::checkRect()
   This signal is emitted when \a item has been renamed to \a name,
   usually by in-place renaming.
 
-  \sa setRenameEnabled() rename()
+  \sa QIconViewItem::setRenameEnabled() QIconViewItem::rename()
 */
 
 /*!
@@ -3680,7 +3680,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
   this function and nextItem() in a loop ending at findLastVisibleItem()
   and test QItem::rect() for each of these items.
 
-  \sa findLastItem() QIconViewItem::rect()
+  \sa findLastVisibleItem() QIconViewItem::rect()
 */
 
 QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const

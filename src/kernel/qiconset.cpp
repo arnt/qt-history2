@@ -185,8 +185,7 @@ public:
   the function, or when it is the currently selected item. If the widget
   can be toggled, the "On" mode might be used to draw a different icon.
 
-  \sa QPixmap QLabel QToolButton QPopupMenu
-      QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
+  \sa QPixmap QLabel QToolButton QPopupMenu QMainWindow::setUsesBigPixmaps()
       \link guibooks.html#fowler GUI Design Handbook: Iconic Label \endlink
       \link http://cgl.microsoft.com/clipgallerylive/cgl30/eula.asp?nInterface=0
 	    Microsoft Icon Gallery \endlink
@@ -212,7 +211,7 @@ public:
   preferred sizes for large/small generated icons can be set using
   setIconSize().
 
-  \sa setIconSize() iconSize() setPixmap() pixmap() QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
+  \sa setIconSize() iconSize() setPixmap() pixmap() QMainWindow::setUsesBigPixmaps()
 */
 
 /*!

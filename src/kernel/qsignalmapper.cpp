@@ -165,7 +165,7 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
   This signal is emitted when map() is signaled from an object that
   has an integer mapping set.
 
-  \sa setMapping(int)
+  \sa setMapping()
 */
 
 /*!
@@ -175,6 +175,6 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
   This signal is emitted when map() is signaled from an object that
   has a string mapping set.
 
-  \sa setMapping(QString)
+  \sa setMapping()
 */
 #endif //QT_NO_SIGNALMAPPER

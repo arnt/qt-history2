@@ -1000,7 +1000,7 @@ QDataStream &operator>>( QDataStream &s, QPalette &p )
   ie. one of them was created as a copy of the other and neither was
   subsequently modified.  This is much stricter than equality.
 
-  \sa operator=, operator==
+  \sa operator=() operator==()
 */
 
 bool QPalette::isCopyOf( const QPalette & p )
