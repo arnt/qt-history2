@@ -1832,7 +1832,7 @@ void QComboBox::clearValidator()
 
 
 /*!  Sets the combo box to use \a newListBox instead of the current
-  list box or popup.  As a site effect, clears the combo box of its
+  list box or popup.  As a side effect, clears the combo box of its
   current contents.
 
   \warning QComboBox assumes that newListBox->text(n) returns
