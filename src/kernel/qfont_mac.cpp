@@ -68,7 +68,7 @@ static inline int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev)
     return (int)(ret + .5);
 }
 
-/* Qt platform dependant functions */
+/* Qt platform dependent functions */
 int QFontMetrics::width(QChar c) const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );

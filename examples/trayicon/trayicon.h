@@ -50,7 +50,7 @@ private:
     QPixmap pm;
     QString tip;
 
-    // system-dependant part
+    // system-dependent part
     class TrayIconPrivate;
     TrayIconPrivate *d;
     void sysInstall();

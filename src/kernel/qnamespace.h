@@ -4,6 +4,7 @@
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
+
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
@@ -830,7 +831,7 @@ public:
     enum DateFormat {
 	TextDate,      // default Qt
 	ISODate,       // ISO 8601
-	LocalDate      // locale dependant
+	LocalDate      // locale dependent
     };
 
     // documented in qdatetime.cpp
@@ -849,6 +850,7 @@ public:
 	Saturday = 6,
 	Sunday = 7
     };
+
 
 #ifdef QT_COMPAT
     enum BackgroundMode {
