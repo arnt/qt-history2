@@ -26,7 +26,6 @@
 #include "qmutex.h"
 #include "qlibraryinfo.h"
 
-
 #ifndef QT_NO_QOBJECT
 #include "qcoreapplication.h"
 
@@ -37,6 +36,7 @@
 #endif // Q_OS_WIN
 #endif // QT_NO_QOBJECT
 
+#include <stdlib.h>
 
 #ifndef CSIDL_COMMON_APPDATA
 #define CSIDL_COMMON_APPDATA	0x0023  // All Users\Application Data
@@ -806,7 +806,7 @@ void QConfFileSettingsPrivate::init()
 static QString windowsConfigPath(int type)
 {
     QString result;
-    
+
 #ifndef QT_NO_QOBJECT
     // We can't use QLibrary if there is QT_NO_QOBJECT is defined
     // This only happens when bootstrapping qmake.
@@ -842,7 +842,7 @@ static QString windowsConfigPath(int type)
                 break;
         }
     }
-    
+
     return result;
 }
 #endif // Q_OS_WIN
@@ -850,7 +850,7 @@ static QString windowsConfigPath(int type)
 static QString systemIniPath()
 {
     QString result;
-    
+
 #ifdef Q_OS_WIN
     result = windowsConfigPath(CSIDL_COMMON_APPDATA);
 #else
@@ -858,14 +858,14 @@ static QString systemIniPath()
     if (result.isEmpty())
         result = QString::fromLatin1("/etc/xdg");
 #endif // Q_OS_WIN
-    
+
     return result + QDir::separator();
 }
 
 static QString userIniPath()
 {
     QString result;
-    
+
 #ifdef Q_OS_WIN
     result = windowsConfigPath(CSIDL_APPDATA);
 #else
@@ -2568,16 +2568,16 @@ QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultVal
 
 /*!
     Sets the directory where QSettings stores its \c SystemScope .ini files on Unix systems to \a dir.
-    The default directory is \c /etc/xdg in accordance with the FreeDesktop's XDG Base Directory 
+    The default directory is \c /etc/xdg in accordance with the FreeDesktop's XDG Base Directory
     Specification. This default can be changed when compiling Qt by passing the \c --global-settings-dir
     flag to \c configure.
-    
+
     A call to this function should precede any instantiations of QSettings objects.
-    
+
     This function does nothing on Windows.
-    
+
     \sa setUserConfigPath()
-*/  
+*/
 void QSettings::setSystemIniPath(const QString &dir)
 {
 #if defined(Q_OS_UNIX)
@@ -2588,15 +2588,15 @@ void QSettings::setSystemIniPath(const QString &dir)
 /*!
     Sets the directory where QSettings stores its \c UserScope .ini files on Unix systems to \a dir.
     The default directory is read from the \c $XDG_CONFIG_HOME environment variable. If this variable
-    is empty or unset, \c $HOME/.config is used, in accordance with the FreeDesktop's XDG Base Directory 
+    is empty or unset, \c $HOME/.config is used, in accordance with the FreeDesktop's XDG Base Directory
     Specification. Calling this function overrides the path specified in \c $XDG_CONFIG_HOME.
-    
+
     A call to this function should precede any instantiations of QSettings objects.
-    
+
     This function does nothing on Windows.
-    
+
     \sa setUserConfigPath()
-*/  
+*/
 
 void QSettings::setUserIniPath(const QString &dir)
 {
