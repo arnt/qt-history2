@@ -676,7 +676,7 @@ QSqlRecord QTDSDriver::record( const QString& tablename ) const
     QSqlQuery t = createQuery();
     t.setForwardOnly( TRUE );
     QString stmt ( "select name,type from syscolumns where id = (select id from sysobjects where name = '%1')" );
-    t.exec( stmt.arg( tablename.lower() ) );
+    t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
 	QVariant::Type ty = qDecodeTDSType( t.value(1).toInt() );
 	QSqlField f( t.value(0).toString().stripWhiteSpace(), ty );
@@ -711,7 +711,7 @@ QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
     t.setForwardOnly( TRUE );
     QString stmt ( "select name, type, length, prec from syscolumns "
 		   "where id = (select id from sysobjects where name = '%1')" );
-    t.exec( stmt.arg( tablename.lower() ) );
+    t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
 	info.append( QSqlFieldInfo( t.value(0).toString().stripWhiteSpace(),
 				    qDecodeTDSType( t.value(1).toInt() ),
