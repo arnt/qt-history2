@@ -618,6 +618,11 @@ void QRect::moveCenter(const QPoint &p)
     existing coordinates of the rectangle.
 */
 
+/*! \fn QRect QRect::adjusted(int xp1, int yp1, int xp2, int yp2) const
+
+    Returns a new rectangle with \a xp1, \a yp1, \a xp2 and \a yp2
+    added to the existing coordinates of this rectangle.
+*/
 
 /*!
     \fn QSize QRect::size() const

@@ -95,6 +95,8 @@ public:
     void addCoords(int x1, int y1, int x2, int y2);
     inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
+    QRect adjusted(int x1, int y1, int x2, int y2) const;
+
     QSize size() const;
     int width() const;
     int height() const;
@@ -375,6 +377,9 @@ inline void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
     x2 += xp2;
     y2 += yp2;
 }
+
+inline QRect QRect::adjusted(int xp1, int yp1, int xp2, int yp2) const
+{ return QRect(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2)); }
 
 inline void QRect::setWidth(int w)
 { x2 = (x1 + w - 1); }
