@@ -121,16 +121,16 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
   Returns TRUE if the interface is found and successfully registered,
   otherwise returns FALSE.
 */
-bool QComponentFactory::registerServer( const QString &filename )
+QRESULT QComponentFactory::registerServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
     QComponentServerInterface *iface = 0;
-    lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
-    if ( !iface )
-	return FALSE;
+    QRESULT res = lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
+    if ( res != QS_OK )
+	return res;
     bool ok = iface->registerComponents( filename );
     iface->release();
-    return ok;
+    return ok ? QS_OK : QS_FALSE;
 }
 
 /*!
@@ -142,22 +142,24 @@ bool QComponentFactory::registerServer( const QString &filename )
   Returns TRUE if the interface is found and successfully unregistered,
   otherwise returns FALSE.
 */
-bool QComponentFactory::unregisterServer( const QString &filename )
+QRESULT QComponentFactory::unregisterServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
     QComponentServerInterface *iface = 0;
-    lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
-    if ( !iface )
-	return FALSE;
+    QRESULT res = lib.queryInterface( IID_QComponentServer, (QUnknownInterface**)&iface );
+    if ( res != QS_OK )
+	return res;
     bool ok = iface->unregisterComponents();
     iface->release();
-    return ok;
+    return ok ? QS_OK : QS_FALSE;
 }
 
 /*!
-  Registers the component with id \a cid in the system component registry.
-  The component is registered with an optional \a description and is provided
-  by the server at \a filepath.
+  Registers the component with id \a cid in the system component registry and
+  returns TRUE if the component was registerd successfully, otherwise returns
+  FALSE. The component is registered with an optional \a description and is provided
+  by the server at \a filepath. This function does nothing if a component with
+  an identical \a cid is already registered on the system.
 
   Call this function for each component in an implementation of
   \link QComponentServerInterface::registerComponents() registerComponents \endlink.
@@ -171,7 +173,8 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
     bool ok;
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    ok = settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
+    QString old = settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
+    ok = !ok && settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
     if ( !!description )
 	ok = ok && settings.writeEntry( "/CLSID/" + cidStr + "/Default", description );
 
@@ -179,7 +182,8 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
 }
 
 /*!
-  Unregisters the component with id \a cid from the system component registry.
+  Unregisters the component with id \a cid from the system component registry and returns
+  TRUE if the component was unregistered successfully, otherwise returns FALSE.
 
   Call this function for each component in an implementation of
   \link QComponentServerInterface::unregisterComponents() unregisterComponents \endlink.
@@ -190,10 +194,11 @@ bool QComponentFactory::unregisterComponent( const QUuid &cid )
 {
     QString cidStr = cid.toString();
     QSettings settings;
-    bool ok;
+    bool ok = FALSE;
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    ok = settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
+    settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
+    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
     ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
 
     return ok;
