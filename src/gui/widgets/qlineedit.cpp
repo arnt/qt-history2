@@ -1949,10 +1949,10 @@ void QLineEditPrivate::drag()
     dndTimer.stop();
     QMimeData *data = new QMimeData;
     data->setText(q->selectedText());
-    QDrag drag(q);
-    drag.setMimeData(data);
-    QDrag::DropAction action = drag.start();
-    if (action == QDrag::MoveAction && !readOnly && drag.target() != q) {
+    QDrag *drag = new QDrag(q);
+    drag->setMimeData(data);
+    QDrag::DropAction action = drag->start();
+    if (action == QDrag::MoveAction && !readOnly && drag->target() != q) {
         int priorState = undoState;
         removeSelectedText();
         finishChange(priorState);

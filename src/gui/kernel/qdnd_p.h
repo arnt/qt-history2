@@ -31,7 +31,7 @@ public:
     QMimeData *data;
     QPixmap pixmap;
     QPoint hotspot;
-    QDrag::DropAction request_action;
+    QDrag::DropActions request_action;
     QDrag::DropAction executed_action;
 };
 
@@ -63,19 +63,20 @@ class Q_GUI_EXPORT QDragManager: public QObject {
     void timerEvent(QTimerEvent*);
 
 public:
-    QDrag::DropAction drag(QDragPrivate *, QDrag::DropAction request);
+    QDrag::DropAction drag(QDrag *);
 
     void cancel(bool deleteSource = true);
     void move(const QPoint &);
     void drop();
     void updatePixmap();
-    QWidget *source() { return object->source; }
+    QWidget *source() { return object->d_func()->source; }
 
+    QDragPrivate *dragPrivate(QDrag *drag) { return drag ? drag->d_func() : 0; }
     static QDragManager *self();
 private:
     Q_DISABLE_COPY(QDragManager)
 
-    QDragPrivate *object;
+    QDrag *object;
     void updateMode(Qt::KeyboardModifiers newstate);
     void updateCursor();
 

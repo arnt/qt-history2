@@ -26,23 +26,15 @@ QDrag::QDrag(QWidget *dragSource)
     d->target = 0;
     d->data = 0;
     d->hotspot = QPoint(-10, -10);
-    d->request_action = QDrag::AskAction;
-    d->executed_action = QDrag::NoAction;
+    d->request_action = QDrag::CopyAction;
+    d->executed_action = QDrag::IgnoreAction;
 }
 
 QDrag::~QDrag()
 {
-    Q_D(QDrag);
     QDragManager *manager = QDragManager::self();
-    if (manager && manager->object == d)
+    if (manager && manager->object == this)
         manager->cancel(false);
-#if 0
-    if (d->pm_cursor) {
-        for (int i = 0; i < manager->n_cursor; i++)
-            manager->pm_cursor[i] = d->pm_cursor[i];
-        delete [] d->pm_cursor;
-     }
-#endif
 }
 
 void QDrag::setMimeData(QMimeData *data)
@@ -92,12 +84,12 @@ QWidget *QDrag::target() const
     return 0; // ########### d->target;
 }
 
-QDrag::DropAction QDrag::start(QDrag::DropAction request)
+QDrag::DropAction QDrag::start(QDrag::DropActions request)
 {
     Q_D(QDrag);
     QDragManager *manager = QDragManager::self();
     d->request_action = request;
     if (manager)
-        d->executed_action = manager->drag(d, d->request_action);
+        d->executed_action = manager->drag(this);
     return d->executed_action;
 }

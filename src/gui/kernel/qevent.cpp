@@ -1446,8 +1446,8 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, c
     \warning Do not create a QDragMoveEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type type)
-    : QDropEvent(pos, data, type), rect(pos, QSize(1, 1))
+QDragMoveEvent::QDragMoveEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type)
+    : QDropEvent(pos, actions, data, type), rect(pos, QSize(1, 1))
 {}
 
 
@@ -1518,12 +1518,16 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type ty
     drop at the given \a point in a widget. The drag data is stored
     in \a data.
 */ // ### pos is in which coordinate system?
-QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type type)
-    : QEvent(type), p(pos), act(0), m_acceptact(0), resv(0), mdata(data)
+QDropEvent::QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type)
+    : QEvent(type), p(pos), act(actions),
+      // ###### fix default action
+      drop_action(QDrag::CopyAction), default_action(QDrag::CopyAction),
+      mdata(data)
 { ignore(); }
 
 
 /*!
+  \compat
     Returns a byte array containing the drag's data, in \a format.
 
     data() normally needs to get the data from the drag source, which
@@ -1543,6 +1547,7 @@ QByteArray QDropEvent::encodedData(const char *format) const
 }
 
 /*!
+  \compat
     Returns a string describing one of the available data types for
     this drag. Common examples are "text/plain" and "image/gif".
     If \a n is less than zero or greater than the number of available
@@ -1563,6 +1568,7 @@ const char* QDropEvent::format(int n) const
 }
 
 /*!
+  \compat
     Returns true if this event provides format \a mimeType; otherwise
     returns false.
 
@@ -1589,6 +1595,14 @@ QWidget* QDropEvent::source() const
 {
     QDragManager *manager = QDragManager::self();
     return manager ? manager->source() : 0;
+}
+
+
+void QDropEvent::setDropAction(QDrag::DropAction action)
+{
+    if (!(action & act))
+        action = QDrag::CopyAction;
+    drop_action = action;
 }
 
 /*!
@@ -1681,6 +1695,19 @@ QWidget* QDropEvent::source() const
     otherwise returns false.
 */
 
+QT_COMPAT QDropEvent::Action QDropEvent::action() const
+{
+    switch(drop_action) {
+    case QDrag::CopyAction:
+        return Copy;
+    case QDrag::MoveAction:
+        return Move;
+    case QDrag::LinkAction:
+        return Link;
+    default:
+        return Copy;
+    }
+}
 
 /*!
     \fn void QDropEvent::setPoint (const QPoint &point)
@@ -1713,8 +1740,8 @@ QWidget* QDropEvent::source() const
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragEnterEvent::QDragEnterEvent(const QPoint& point, const QMimeData *data)
-    : QDragMoveEvent(point, data, DragEnter)
+QDragEnterEvent::QDragEnterEvent(const QPoint& point, QDrag::DropActions actions, const QMimeData *data)
+    : QDragMoveEvent(point, actions, data, DragEnter)
 {}
 
 QDragResponseEvent::QDragResponseEvent(bool accepted)

@@ -455,12 +455,13 @@ void QTextEditPrivate::startDrag()
     mousePressed = false;
     QMimeData *data = createMimeData(cursor);
 
-    QDrag drag(q);
-    drag.setMimeData(data);
+    QDrag *drag = new QDrag(q);
+    drag->setMimeData(data);
 
-    QDrag::DropAction action = drag.start(readOnly ? QDrag::CopyAction : QDrag::DefaultAction);
+    QDrag::DropActions actions = d->readOnly ? QDrag::CopyAction : QDrag::MoveAction;
+    QDrag::DropAction action = drag->start(actions);
 
-    if (action == QDrag::MoveAction && drag.target() != q)
+    if (action == QDrag::MoveAction && drag->target() != q)
         cursor.removeSelectedText();
 }
 

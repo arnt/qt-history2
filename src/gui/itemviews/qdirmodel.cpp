@@ -669,7 +669,6 @@ bool QDirModel::setMimeData(const QMimeData *data,
     QList<QUrl>::const_iterator it = urls.begin();
 
     switch (action) {
-    case QDrag::DefaultAction:
     case QDrag::CopyAction:
         for (; it != urls.end(); ++it) {
             QString path = (*it).toLocalFile();

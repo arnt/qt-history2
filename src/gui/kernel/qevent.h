@@ -23,6 +23,7 @@
 #include "qkeysequence.h"
 #include "qcoreevent.h"
 #include "qmime.h"
+#include "qdrag.h"
 
 class QAction;
 
@@ -338,41 +339,46 @@ private:
 
 class QMimeData;
 
-// This class is rather closed at the moment.  If you need to create your
-// own DND event objects, write to qt-bugs@trolltech.com and we'll try to
-// find a way to extend it so it covers your needs.
-class Q_GUI_EXPORT QDropEvent : public QEvent, public QMimeSource
+class Q_GUI_EXPORT QDropEvent : public QEvent
+// QT_COMPAT
+                              , public QMimeSource
+// END QT_COMPAT
 {
 public:
-    QDropEvent(const QPoint& pos, const QMimeData *data, Type typ = Drop);
+    QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type typ = Drop);
     inline const QPoint &pos() const { return p; }
 
-    enum Action { Ask, Copy, Link, Move, Private, UserAction = Private };
-    inline bool isActionAccepted() const { return m_acceptact; }
-    inline void acceptAction(bool y = true)  { m_acceptact = y; if (y) accept(); }
+    inline QDrag::DropActions possibleActions() const { return act; }
+    inline QDrag::DropAction proposedAction() const { return default_action; }
 
-    inline void setAction(Action a) { act = uint(a); }
-    inline Action action() const { return Action(act); }
+    inline QDrag::DropAction dropAction() const { return drop_action; }
+    void setDropAction(QDrag::DropAction action);
 
     QWidget* source() const;
-    const QMimeData *mimeData() const { return mdata; }
+    inline const QMimeData *mimeData() const { return mdata; }
 
+// QT_COMPAT
     const char* format(int n = 0) const;
     QByteArray encodedData(const char*) const;
     bool provides(const char*) const;
+// END QT_COMPAT
 #ifdef QT_COMPAT
     inline void accept() { QEvent::accept(); }
     inline QT_COMPAT void accept(bool y) { setAccepted(y); }
     inline QT_COMPAT QByteArray data(const char* f) const { return encodedData(f); }
+
+    enum Action { Copy, Link, Move, Private, UserAction = Private };
+    QT_COMPAT Action action() const;
+    inline QT_COMPAT void acceptAction(bool y = true)  { if (y) { drop_action = default_action; accept(); } }
+    inline QT_COMPAT void setPoint(const QPoint& np) { p = np; }
 #endif
 
-    inline void setPoint(const QPoint& np) { p = np; }
 
 protected:
     QPoint p;
-    uint act : 8;
-    uint m_acceptact : 1;
-    uint resv : 5;
+    QDrag::DropActions act;
+    QDrag::DropAction drop_action;
+    QDrag::DropAction default_action;
     const QMimeData *mdata;
 };
 
@@ -380,7 +386,7 @@ protected:
 class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
-    QDragMoveEvent(const QPoint &pos, const QMimeData *data, Type typ = DragMove);
+    QDragMoveEvent(const QPoint &pos, QDrag::DropActions actions, const QMimeData *data, Type typ = DragMove);
     inline QRect answerRect() const { return rect; }
 
     inline void accept() { QDropEvent::accept(); }
@@ -401,7 +407,7 @@ protected:
 class Q_GUI_EXPORT QDragEnterEvent : public QDragMoveEvent
 {
 public:
-    QDragEnterEvent(const QPoint &pos, const QMimeData *data);
+    QDragEnterEvent(const QPoint &pos, QDrag::DropActions actions, const QMimeData *data);
 };
 
 
