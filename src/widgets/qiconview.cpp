@@ -2856,9 +2856,9 @@ QIconViewItem *QIconView::findItem( const QString &text ) const
     if ( !d->firstItem )
 	return 0;
 
-    QIconViewItem *item = d->firstItem;
+    QIconViewItem *item = d->currentItem;
     for ( ; item; item = item->next )
-	if ( item->text().left( text.length() ) == text )
+	if ( item->text().lower().left( text.length() ) == text )
 	    return item;
 
     return 0;
@@ -4431,7 +4431,7 @@ void QIconView::clearInputString()
   it the current one
 */
 
-void QIconView::findItemByName( const QString text )
+void QIconView::findItemByName( const QString &text )
 {
     if ( d->inputTimer->isActive() )
 	d->inputTimer->stop();

@@ -36,7 +36,7 @@
 class QListBoxPrivate
 {
 public:
-    QListBoxPrivate():
+    QListBoxPrivate( QListBox *lb ):
 	head( 0 ), current( 0 ),
 	layoutDirty( TRUE ),
 	mustPaintAll( TRUE ),
@@ -52,8 +52,10 @@ public:
 	scrollTimer( 0 ), updateTimer( 0 ), visibleTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 ),
-	ignoreMoves( FALSE )
+	ignoreMoves( FALSE ),
+	listBox( lb ), currInputString( QString::null )
     {}
+    void findItemByName( const QString &text );
     ~QListBoxPrivate();
 
     QListBoxItem * head;
@@ -92,6 +94,10 @@ public:
 
     bool ignoreMoves;
     bool clearing;
+
+    QListBox *listBox;
+    QString currInputString;
+    QTimer *inputTimer;
 };
 
 
@@ -648,14 +654,17 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     : QScrollView( parent, name, f )
 {
-    d = new QListBoxPrivate;
+    d = new QListBoxPrivate( this );
     d->updateTimer = new QTimer( this, "listbox update timer" );
     d->visibleTimer = new QTimer( this, "listbox visible timer" );
+    d->inputTimer = new QTimer( this, "listbox input timer" );
     d->clearing = FALSE;
     connect( d->updateTimer, SIGNAL(timeout()),
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
 	     this, SLOT(ensureCurrentVisible()) );
+    connect( d->inputTimer, SIGNAL( timeout() ),
+	     this, SLOT( clearInputString() ) );
     viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
@@ -1914,8 +1923,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		emitChangedSignal( TRUE );
 	    }
 	} break;
-    default:
-	e->ignore();
+    default: {
+	    if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
+		d->findItemByName( e->text() );
+	    }
+	}
 	return;
     }
     emitChangedSignal( FALSE );
@@ -3288,4 +3300,47 @@ void QListBox::takeItem( const QListBoxItem * item)
     }
 
     triggerUpdate( TRUE );
+}
+
+/*!
+  \internal
+  Finds the first item beginning with \a text and makes
+  it the current one
+*/
+
+void QListBoxPrivate::findItemByName( const QString &text )
+{
+    if ( inputTimer->isActive() )
+	inputTimer->stop();
+    inputTimer->start( 500, TRUE );
+    currInputString += text;
+    QListBoxItem *item = listBox->findItem( currInputString );
+    if ( item )
+	listBox->setCurrentItem( item );
+}
+
+/*!
+  \internal
+*/
+
+void QListBox::clearInputString()
+{
+    d->currInputString = QString::null;
+}
+
+/*!
+  Finds the first listbox item which starts with
+  \a text and returns it, or returns 0 of no
+  such item could be found.
+*/
+
+QListBoxItem *QListBox::findItem( const QString &text ) const
+{
+    QListBoxItem *item = d->current;
+    for ( ; item; item = item->n ) {
+	if ( item->text().lower().left( text.length() ) == text )
+	    return item;
+    }
+    
+    return 0;
 }

@@ -108,7 +108,8 @@ public:
 
     QListBoxItem *item( int index ) const;
     int index( const QListBoxItem * ) const;
-
+    QListBoxItem *findItem( const QString &text ) const;
+    
     void triggerUpdate( bool doLayout );
 
     bool itemVisible( int index );
@@ -228,6 +229,9 @@ protected:
     bool itemYPos( int index, int *yPos ) const;
     int findItem( int yPos ) const {return index(itemAt(QPoint(0,yPos)));}
 #endif
+
+protected slots:
+    void clearInputString();
 
 private slots:
     void refreshSlot();

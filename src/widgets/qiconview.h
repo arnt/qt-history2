@@ -266,7 +266,7 @@ class Q_EXPORT QIconView : public QScrollView
     friend struct QIconViewPrivate;
 
     Q_OBJECT
-    
+
 public:
     enum SelectionMode {
 	Single = 0,
@@ -316,7 +316,7 @@ public:
     void singleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 				   QFont *highlightedText, QColor *highlightedTextCol,
 				   QCursor *highlightedCursor, int &setCurrentInterval ) const;
-    
+
     virtual void setUseSingleClickMode( bool b );
     bool useSingleClickMode() const;
 
@@ -452,7 +452,7 @@ protected:
     QIconViewItem *makeRowLayout( QIconViewItem *begin, int &y );
 
 private:
-    void findItemByName( const QString text );
+    void findItemByName( const QString &text );
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
     void clearSingleClickConfig();
