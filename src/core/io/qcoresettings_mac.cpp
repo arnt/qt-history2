@@ -269,7 +269,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString 
         javaPackageName.prepend(QLatin1String("com."));
     suiteId = javaPackageName;
 
-    if (scope == Qt::GlobalScope)
+    if (scope == Qt::SystemScope)
         spec |= F_Global;
 
     if (application.isEmpty()) {
@@ -294,7 +294,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString 
         }
     }
 
-    hostName = (scope == Qt::GlobalScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
+    hostName = (scope == Qt::SystemScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
 }
 
 QMacSettingsPrivate::~QMacSettingsPrivate()
