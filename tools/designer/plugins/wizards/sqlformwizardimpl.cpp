@@ -60,13 +60,15 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
     } else if ( widget->inherits( "QDataBrowser" ) ) {
 	setCaption( "Data Browser Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
-	mode = Form;
+	mode = Browser;
     } else if ( widget->inherits( "QDataView" ) ) {
 	setCaption( "Data View Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	setAppropriate( navigPage, FALSE );
 	setAppropriate( sqlPage, FALSE);
-	mode = Form;
+	checkCreateFieldLayout->hide();
+	checkCreateButtonLayout->hide();
+	mode = View;
     }
 
     connect( checkBoxAutoPopulate, SIGNAL( toggled(bool) ), this, SLOT( autoPopulate(bool) ) );
@@ -355,7 +357,7 @@ void SqlFormWizard::accept()
     case None:
 	break;
     case View:
-    case Form: {
+    case Browser: {
 	formWindow->clearSelection();
 	bool createFieldLayout = checkCreateFieldLayout->isChecked();
 	bool createButtonLayout = checkCreateButtonLayout->isChecked();
@@ -428,81 +430,83 @@ void SqlFormWizard::accept()
 	    row += SPACING;
 	}
 
-	if ( checkBoxNavig->isChecked() ) {
-	    formWindow->clearSelection();
-	    currentCol = 0;
-	    if ( checkBoxFirst->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonFirst",
-						 "|< &First",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
-						 formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "firstRecord()" );
-		formWindow->addConnection( widget, "firstRecordAvailable( bool )",
-					   pb, "setEnabled( bool )" );
-		currentCol++;
-		formWindow->selectWidget( pb );
+	if ( mode == Browser ) {
+	    if ( checkBoxNavig->isChecked() ) {
+		formWindow->clearSelection();
+		currentCol = 0;
+		if ( checkBoxFirst->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonFirst",
+						     "|< &First",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
+						     formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "firstRecord()" );
+		    formWindow->addConnection( widget, "firstRecordAvailable( bool )",
+					       pb, "setEnabled( bool )" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( checkBoxPrev->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonPrev",
+						     "<< &Prev",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
+						     formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "prevRecord()" );
+		    formWindow->addConnection( widget, "prevRecordAvailable( bool )",
+					       pb, "setEnabled( bool )" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( checkBoxNext->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonNext",
+						     "&Next >>",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
+						     formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "nextRecord()" );
+		    formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb,
+					       "setEnabled( bool )" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( checkBoxLast->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING*3, SPACING ), formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "lastRecord()" );
+		    formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb,
+					       "setEnabled( bool )" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( createButtonLayout )
+		    formWindow->layoutH();
 	    }
-	    if ( checkBoxPrev->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonPrev",
-						 "<< &Prev",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
-						 formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "prevRecord()" );
-		formWindow->addConnection( widget, "prevRecordAvailable( bool )",
-					   pb, "setEnabled( bool )" );
-		currentCol++;
-		formWindow->selectWidget( pb );
+	    if ( checkBoxEdit->isChecked() ) {
+		formWindow->clearSelection();
+		row += SPACING;
+		currentCol = 0;
+		if ( checkBoxInsert->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "insertRecord()" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( checkBoxUpdate->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "updateRecord()" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( checkBoxDelete->isChecked() ) {
+		    QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete",
+						     QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
+		    formWindow->addConnection( pb, "clicked()", widget, "deleteRecord()" );
+		    currentCol++;
+		    formWindow->selectWidget( pb );
+		}
+		if ( createButtonLayout )
+		    formWindow->layoutH();
 	    }
-	    if ( checkBoxNext->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonNext",
-						 "&Next >>",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
-						 formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "nextRecord()" );
-		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb,
-					   "setEnabled( bool )" );
-		currentCol++;
-		formWindow->selectWidget( pb );
-	    }
-	    if ( checkBoxLast->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING*3, SPACING ), formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "lastRecord()" );
-		formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb,
-					   "setEnabled( bool )" );
-		currentCol++;
-		formWindow->selectWidget( pb );
-	    }
-	    if ( createButtonLayout )
-		formWindow->layoutH();
-	}
-	if ( checkBoxEdit->isChecked() ) {
-	    formWindow->clearSelection();
-	    row += SPACING;
-	    currentCol = 0;
-	    if ( checkBoxInsert->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "insertRecord()" );
-		currentCol++;
-		formWindow->selectWidget( pb );
-	    }
-	    if ( checkBoxUpdate->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "updateRecord()" );
-		currentCol++;
-		formWindow->selectWidget( pb );
-	    }
-	    if ( checkBoxDelete->isChecked() ) {
-		QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete",
-						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
-		formWindow->addConnection( pb, "clicked()", widget, "deleteRecord()" );
-		currentCol++;
-		formWindow->selectWidget( pb );
-	    }
-	    if ( createButtonLayout )
-		formWindow->layoutH();
 	}
 	if ( createLayouts )
 	    formWindow->layoutGContainer( widget );

@@ -62,7 +62,7 @@ private:
     enum Mode {
 	None,
 	View,
-	Form,
+	Browser,
 	Table
     };
     Mode mode;
