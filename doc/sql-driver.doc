@@ -116,7 +116,7 @@ modified servers.
 If you have a recent client library and connect to a
 transaction-enabled MySQL server, a call to the
 QSqlDriver::hasFeature( QSqlDriver::Transactions ) function returns
-TRUE and SQL transactions can be used.
+true and SQL transactions can be used.
 
 If the plugin is compiled against MySQL 4.x client libraries,
 transactions are enabled by default.
@@ -654,15 +654,15 @@ The following code can be used as a skeleton for a SQL driver:
 class QNullResult : public QSqlResult
 {
 public:
-    QNullResult( const QSqlDriver* d ): QSqlResult( d ) {}
+    QNullResult(const QSqlDriver *d): QSqlResult(d) {}
     ~QNullResult() {}
 protected:
-    QVariant    data( int ) { return QVariant(); }
-    bool        reset ( const QString& ) { return FALSE; }
-    bool        fetch( int ) { return FALSE; }
-    bool        fetchFirst() { return FALSE; }
-    bool        fetchLast() { return FALSE; }
-    bool        isNull( int ) { return FALSE; }
+    QVariant    data(int) { return QVariant(); }
+    bool        reset(const QString&) { return false; }
+    bool        fetch(int) { return false; }
+    bool        fetchFirst() { return false; }
+    bool        fetchLast() { return false; }
+    bool        isNull(int) { return false; }
     QSqlRecord  record() { return QSqlRecord(); }
     int         size()  { return 0; }
     int         numRowsAffected() { return 0; }
@@ -673,14 +673,14 @@ class QNullDriver : public QSqlDriver
 public:
     QNullDriver(): QSqlDriver() {}
     ~QNullDriver() {}
-    bool    hasFeature( DriverFeature ) const { return FALSE; }
-    bool    open( const QString&,
-                  const QString&,
-                  const QString&,
-                  const QString&,
-                  int ) { return FALSE; }
+    bool    hasFeature(DriverFeature) const { return false; }
+    bool    open(const QString&,
+                 const QString&,
+                 const QString&,
+                 const QString&,
+                 int) { return false; }
     void    close() {}
-    QSqlQuery createQuery() const { return QSqlQuery( new QNullResult( this ) ); }
+    QSqlQuery createQuery() const { return QSqlQuery(new QNullResult(this)); }
 };
 \endcode
 

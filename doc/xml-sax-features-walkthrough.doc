@@ -82,8 +82,8 @@ Now let's think about presenting the output: As described in the
 \link xml.html#sax2Features Qt SAX2 documentation \endlink
 there are three valid combinations of \e
 http://xml.org/sax/features/namespace-prefixes
-and \e http://xml.org/sax/features/namespaces: TRUE/TRUE, TRUE/FALSE and
-FALSE/TRUE. To show the relevant output side by side of each other 
+and \e http://xml.org/sax/features/namespaces: true/true, true/false and
+false/true. To show the relevant output side by side of each other 
 and mark them with three labels makes up for a grid layout consisting
 of three columns (and thus two lines).
 
@@ -92,9 +92,9 @@ of three columns (and thus two lines).
 The most natural way of presenting XML elements is in a tree. 
 Thus we use a listview. Its name \e nameSpace indicates that this
 one will be used to present the combination of  \e
-http://xml.org/sax/features/namespaces being TRUE and 
+http://xml.org/sax/features/namespaces being true and 
 \e http://xml.org/sax/features/namespace-prefixes
-being FALSE -- the default configuration of a \l QXmlSimpleReader.
+being false -- the default configuration of a \l QXmlSimpleReader.
 
 Being the first grid entry the \e nameSpace listview will
 appear in the upper left corner of the virtual grid. 
@@ -136,9 +136,9 @@ listview.
 \printline TRUE
 
 Now we modify the behaviour of the \e reader and change 
-\e http://xml.org/sax/features/namespace-prefixes from the default FALSE
-to TRUE. The \e http://xml.org/sax/features/namespaces feature has
-still its default setting TRUE.
+\e http://xml.org/sax/features/namespace-prefixes from the default false
+to true. The \e http://xml.org/sax/features/namespaces feature has
+still its default setting true.
 
 \printline reset
 
@@ -148,14 +148,14 @@ beginning of the document again.
 \printline parse
 
 Finally we parse the XML file a second time with the changed reader 
-settings (TRUE/TRUE).
+settings (true/true).
 
 \printline prefix
 \printuntil parse
 
 Next we prepare and use the upper right listview to show the reader results
 with the feature setting \e http://xml.org/sax/features/namespaces
-FALSE and \e http://xml.org/sax/features/namespace-prefixes TRUE.
+false and \e http://xml.org/sax/features/namespace-prefixes true.
 
 \printline namespace label
 \printuntil namespace prefix label
@@ -350,7 +350,7 @@ the current \e element.
 \printline }
 
 To prevent the reader from throwing an error we have to
-return TRUE when we successfully dealt with an
+return true when we successfully dealt with an
 element's start tag.
 
 \printline endElement

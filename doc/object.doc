@@ -242,8 +242,8 @@ function calls are equivalent:
 
 \code
     // QButton *b and QObject *o point to the same button
-    b->setDown( TRUE );
-    o->setProperty( "down", TRUE );
+    b->setDown(true);
+    o->setProperty("down", true);
 \endcode
 
 Equivalent, that is, except that the first is faster, and provides
@@ -343,19 +343,19 @@ state (which may have changed since initialization). The function
 must return void and take no arguments.
 
 \c DESIGNABLE declares whether this property is suitable for
-modification by a GUI design tool. The default is \c TRUE for
-writable properties; otherwise \c FALSE. Instead of \c TRUE or \c
-FALSE, you can specify a boolean member function.
+modification by a GUI design tool. The default is true for
+writable properties; otherwise false. Instead of true or
+false, you can specify a boolean member function.
 
 \c SCRIPTABLE declares whether this property is suited for access by a
-scripting engine. The default is \c TRUE. Instead of \c TRUE or \c FALSE,
+scripting engine. The default is true. Instead of true or false,
 you can specify a boolean member function.
 
 \c STORED declares whether the property's value must be remembered
 when storing an object's state. Stored makes only sense for writable
-properties. The default value is \c TRUE. Technically superfluous
+properties. The default value is true. Technically superfluous
 properties (like QPoint pos if QRect geometry is already a property)
-define this to be \c FALSE.
+define this to be false.
 
 
 Connected to the property system is an additional macro, "Q_CLASSINFO",

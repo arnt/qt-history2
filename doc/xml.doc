@@ -207,7 +207,7 @@ provide additional useful functionality:
 
 \target sax2Features
 \section2 Features
- 
+
 The behaviour of an XML reader depends on its support for certain
 optional features. For example, a reader may have the feature "report
 attributes used for \link xml.html#namespaces namespace\endlink
@@ -258,7 +258,7 @@ we can configure the behavior of the reader when it comes to namespace
 processing. This is done by setting and unsetting the 
 \e http://xml.org/sax/features/namespaces and
 \e http://xml.org/sax/features/namespace-prefixes features.
- 
+
 They influence the reporting behavior in the following way:
 \list 1
 \i Namespace prefixes and local parts of elements and attributes can
@@ -277,26 +277,26 @@ Consider the following element:
              fnord:title="Goddess" 
              name="Eris Kallisti"/>
 \endcode
-With \e http://xml.org/sax/features/namespace-prefixes set to TRUE 
+With \e http://xml.org/sax/features/namespace-prefixes set to true 
 the reader will report four attributes; but with the \e
-namespace-prefixes feature set to FALSE only three, with the \e
+namespace-prefixes feature set to false only three, with the \e
 xmlns:fnord attribute defining a namespace being "invisible" to the
 reader.
 
 The \e http://xml.org/sax/features/namespaces feature is responsible
 for reporting local names, namespace prefixes and URIs. With \e
-http://xml.org/sax/features/namespaces set to TRUE the parser will
+http://xml.org/sax/features/namespaces set to true the parser will
 report \e title as the local name of the \e fnord:title attribute, \e
 fnord being the namespace prefix and \e http://trolltech.com/fnord/ as
 the namespace URI. When \e http://xml.org/sax/features/namespaces is
-FALSE none of them are reported.
+false none of them are reported.
 
 In the current implementation the Qt XML classes follow the definition
 that the prefix \e xmlns itself isn't associated with any namespace at all
 (see \link http://www.w3.org/TR/1999/REC-xml-names-19990114/#ns-using 
 http://www.w3.org/TR/1999/REC-xml-names-19990114/#ns-using \endlink).
 Therefore even with \e http://xml.org/sax/features/namespaces and
-\e http://xml.org/sax/features/namespace-prefixes both set to TRUE
+\e http://xml.org/sax/features/namespace-prefixes both set to true
 the reader won't return either a local name, a namespace prefix or
 a namespace URI for \e xmlns:fnord.
 
@@ -306,11 +306,11 @@ to associate \e xmlns with the namespace \e http://www.w3.org/2000/xmlns.
 
 
 As the SAX2 standard suggests, \l QXmlSimpleReader defaults to having
-\e http://xml.org/sax/features/namespaces set to TRUE and
-\e http://xml.org/sax/features/namespace-prefixes set to FALSE.
+\e http://xml.org/sax/features/namespaces set to true and
+\e http://xml.org/sax/features/namespace-prefixes set to false.
 When changing this behavior using \l QXmlSimpleReader::setFeature() 
 note that the combination of both features set to
-FALSE is illegal.
+false is illegal.
 
 For a practical demonstration of how the two features affect the 
 output of the reader run the \link tagreader-with-features-example.html
@@ -327,10 +327,10 @@ tagreader with features example. \endlink
 	\i Qualified names
 	\i Prefix mapping
 	\i xmlns attributes
-\row \i (TRUE, FALSE) \i Yes \i Yes* \i Yes \i No
-\row \i (TRUE, TRUE) \i Yes \i Yes \i Yes \i Yes
-\row \i (FALSE, TRUE) \i No* \i Yes \i No* \i Yes
-\row \i (FALSE, FALSE) \i41 Illegal
+\row \i (true, false) \i Yes \i Yes* \i Yes \i No
+\row \i (true, true) \i Yes \i Yes \i Yes \i Yes
+\row \i (false, true) \i No* \i Yes \i No* \i Yes
+\row \i (false, false) \i41 Illegal
 \endtable
 
 <sup>*</sup> The behavior of these entries is not specified by SAX.
@@ -349,10 +349,10 @@ The URIs used for features and properties often look like URLs, e.g.
 \c http://xml.org/sax/features/namespace. This does not mean that the
 data required is at this address. It is simply a way of defining
 unique names.
- 
+
 Anyone can define and use new SAX2 properties for their readers.
 Property support is not mandatory.
- 
+
 To set or query properties the following functions are provided: \l
 QXmlReader::setProperty(), \l QXmlReader::property() and \l
 QXmlReader::hasProperty().                     

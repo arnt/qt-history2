@@ -46,7 +46,7 @@
 /*! \file sql/overview/subclass5/main.cpp */
 
 /*! \page sql.html
- 
+
 \title SQL Module
 
 \if defined(commercial)
@@ -234,7 +234,7 @@ to setDatbaseName(). When connecting to ODBC data sources the Data
 Source Name (DSN) should be used in the setDatabaseName() call.
 
 Third we call open() to open the database and give us access to the
-data. If this call fails it will return FALSE; error information can
+data. If this call fails it will return false; error information can
 be obtained from \l QSqlDatabase::lastError().
 
 \target Connecting_to_Multiple_Databases
@@ -322,7 +322,7 @@ section and use the \l QSqlCursor class covered in
 \section2 Transactions
 
 If the underlying database engine supports transactions
-QSqlDriver::hasFeature( QSqlDriver::Transactions ) will return TRUE.
+QSqlDriver::hasFeature( QSqlDriver::Transactions ) will return true.
 You can use QSqlDatabase::transaction() to initiate a transaction,
 followed by the SQL commands you want to execute within the context of
 the transaction, and then either QSqlDatabase::commit() or
@@ -365,7 +365,7 @@ section.
 \caption From \l sql/overview/basicbrowsing2/main.cpp
 
 The above code introduces a count of how many records are successfully
-inserted. Note that isActive() returns FALSE if the query, e.g. the
+inserted. Note that isActive() returns false if the query, e.g. the
 insertion, fails. numRowsAffected() returns -1 if the number of rows
 cannot be determined, e.g. if the query fails.
 
@@ -794,7 +794,7 @@ examples provides additional information.
 Data-Aware tables require the \c qdatatable.h and \c qsqlcursor.h header
 files. We create our application object, call createConnections() and
 create the cursor. We create the \l QDataTable passing it a pointer to
-the cursor, and set the autoPopulate flag to TRUE. Next we make our \l
+the cursor, and set the autoPopulate flag to true. Next we make our \l
 QDataTable the main widget and call refresh() to populate it with data
 and call show() to make it visible.
 
@@ -1215,7 +1215,7 @@ We have changed the InvoiceItemCursor constructor. We now create a new
 QSqlField called productname and append this to the
 InvoiceItemCursor's set of fields. We call setCalculated() on
 productname to identify it as a calculated field. The first argument
-to setCalculated() is the field name, the second a bool which if TRUE
+to setCalculated() is the field name, the second a bool which if true
 signifies that calculateField() must be called to get the field's
 value.
 
