@@ -24,10 +24,11 @@ QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNul
 
 struct SourceDependChildren;
 struct SourceFile {
-    SourceFile() : deps(0), mocable(0), traversed(0), exists(1),
+    SourceFile() : deps(0), uifile(0), mocable(0), traversed(0), exists(1),
 		   moc_checked(0), dep_checked(0) { }
     QMakeLocalFileName file, mocfile;
     SourceDependChildren *deps;
+    uint uifile : 1;
     uint mocable : 1, traversed : 1, exists : 1;
     uint moc_checked : 1,  dep_checked : 1;
 };
@@ -64,7 +65,7 @@ public:
 };
 SourceFiles::SourceFiles()
 {
-    nodes = (SourceFileNode**)malloc(sizeof(SourceFileNode*)*(num_nodes=1024));
+    nodes = (SourceFileNode**)malloc(sizeof(SourceFileNode*)*(num_nodes=3037));
     for(int n = 0; n < num_nodes; n++)
 	nodes[n] = 0;
 }
@@ -200,7 +201,7 @@ QMakeSourceFileInfo::~QMakeSourceFileInfo()
     }
 }
 
-void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek)
+void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, bool uifile)
 {
     if(!files)
 	files = new SourceFiles;
@@ -210,7 +211,12 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek)
 	if(!file) {
 	    file = new SourceFile;
 	    file->file = fn;
+	} else {
+	    if(file->uifile != uifile)
+		warn_msg(WarnLogic, "%s is marked as UI, then not!", (*it).latin1());
 	}
+	file->uifile = uifile;
+
 	/* Do moc before dependency checking since some includes can come from
 	   moc_*.cpp files */
 	if(seek & ADD_MOC) {
@@ -276,10 +282,9 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 	file->deps = new SourceDependChildren;
 
     int line_count = 0;
-    bool ui_file = false;
     for(int x = 0; x < buffer_len; x++) {
 	char *inc = 0;
-	if(ui_file) {
+	if(file->uifile) {
 	    // skip whitespaces
 	    while(x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
 		x++;

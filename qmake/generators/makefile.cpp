@@ -294,7 +294,7 @@ MakefileGenerator::init()
 		if(sources[x] != "OBJECTS")
 		    seek |= QMakeSourceFileInfo::SEEK_DEPS;
 		if(seek)
-		    addSourceFiles(v[sources[x]], seek);
+		    addSourceFiles(v[sources[x]], seek, sources[x] == "FORMS");
 	    }
 	}
     }

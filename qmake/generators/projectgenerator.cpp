@@ -221,10 +221,11 @@ ProjectGenerator::init()
 
     QStringList &h = v["HEADERS"];
     bool no_qt_files = TRUE;
-    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "INTERFACES", QString::null };
+    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "FORMS", QString::null };
     for(int i = 0; !srcs[i].isNull(); i++) {
 	QStringList &l = v[srcs[i]];
-	QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_MOCS|QMakeSourceFileInfo::SEEK_DEPS);
+	QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_MOCS|QMakeSourceFileInfo::SEEK_DEPS,
+					    srcs[i] == "FORMS");
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 	    QStringList tmp = QMakeSourceFileInfo::dependencies((*val_it));
 	    if(!tmp.isEmpty()) {
