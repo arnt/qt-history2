@@ -56,14 +56,7 @@ QGroupBox *Window::createSecondExclusiveGroup()
     QRadioButton *radio1 = new QRadioButton(tr("Rad&io button 1"), groupBox);
     QRadioButton *radio2 = new QRadioButton(tr("Radi&o button 2"), groupBox);
     QRadioButton *radio3 = new QRadioButton(tr("Radio &button 3"), groupBox);
-
-#if 1
-    QButtonGroup *exclusiveGroup = new QButtonGroup;
-    exclusiveGroup->addButton(radio1);
-    exclusiveGroup->addButton(radio2);
-    exclusiveGroup->addButton(radio3);
     radio1->setChecked(true);
-#endif
 
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);
     vbox->addWidget(radio1);
@@ -78,15 +71,16 @@ QGroupBox *Window::createNonExclusiveGroup()
 {
     QGroupBox *groupBox = new QGroupBox(tr("Non-Exclusive Checkboxes"), this);
 
-    QCheckBox *checkbox1 = new QCheckBox(tr("&Checkbox 1"), groupBox);
-    QCheckBox *checkbox2 = new QCheckBox(tr("C&heckbox 2"), groupBox);
+    QCheckBox *checkBox1 = new QCheckBox(tr("&Checkbox 1"), groupBox);
+    QCheckBox *checkBox2 = new QCheckBox(tr("C&heckbox 2"), groupBox);
+    checkBox2->setChecked(true);
     QCheckBox *tristateBox = new QCheckBox(tr("Tri-&state button"), groupBox);
     tristateBox->setTristate(true);
     tristateBox->setState(QCheckBox::NoChange);
     
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);
-    vbox->addWidget(checkbox1);
-    vbox->addWidget(checkbox2);
+    vbox->addWidget(checkBox1);
+    vbox->addWidget(checkBox2);
     vbox->addWidget(tristateBox);
     vbox->addStretch(1);
 
@@ -96,6 +90,8 @@ QGroupBox *Window::createNonExclusiveGroup()
 QGroupBox *Window::createPushButtonGroup()
 {
     QGroupBox *groupBox = new QGroupBox(tr("Push Buttons"), this);
+    groupBox->setCheckable(true);
+    groupBox->setChecked(true);
 
     QPushButton *pushButton = new QPushButton(tr("&Normal Button"), groupBox);
     QPushButton *flatButton = new QPushButton(tr("&Flat Button"), groupBox);
