@@ -332,6 +332,9 @@ public:
     virtual void drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
     virtual void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
 
+protected:
+    static QWidget *contextWidget();
+
 private:
     class Private;
     Private * d;

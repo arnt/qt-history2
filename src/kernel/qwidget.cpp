@@ -759,6 +759,10 @@ QWidget::~QWidget()
 	    qApp->quit();
     }
 
+    extern QWidget *qt_style_global_context;
+    if(qt_style_global_context == this)
+	qt_style_global_context = NULL;
+
     if ( focusWidget() == this )
 	clearFocus();
     if ( QApplication::focus_widget == this )
@@ -785,6 +789,7 @@ QWidget::~QWidget()
     QApplication::removePostedEvents( this );
     if ( extra )
 	deleteExtra();
+
     destroy();					// platform-dependent cleanup
 }
 
@@ -1092,6 +1097,9 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
+    extern QWidget *qt_style_global_context;
+    qt_style_global_context = this;
+
     if ( extra && extra->style )
 	return *extra->style;
     return qApp->style();

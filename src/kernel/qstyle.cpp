@@ -1030,4 +1030,17 @@ int QStyle::sliderThickness() const
     return 16;
 }
 
+
+QWidget *qt_style_global_context = NULL;
+/*!
+   Returns the global static widget currently requesting a QStyle operations.
+   This value will be modified whenever QApplication::style() or QWidget::style()
+   is callled, you may use this pointer to gain information about the widget
+   you may be drawing on.
+*/
+QWidget *QStyle::contextWidget()
+{
+    return qt_style_global_context;
+}
+
 #endif // QT_NO_STYLE

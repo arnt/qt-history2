@@ -948,6 +948,14 @@ QApplication::~QApplication()
   \sa style(), QStyle, setPalette(), desktopSettingsAware()
 */
 #ifndef QT_NO_STYLE
+
+QStyle& QApplication::style()
+{
+    extern QWidget *qt_style_global_context;
+    qt_style_global_context = NULL;
+    return *app_style;
+}
+
 void QApplication::setStyle( QStyle *style )
 {
     QStyle* old = app_style;
@@ -957,7 +965,6 @@ void QApplication::setStyle( QStyle *style )
 	delete old;
 	return;
     }
-
 
     // clean up the old style
     if (old) {

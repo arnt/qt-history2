@@ -377,12 +377,6 @@ inline char **QApplication::argv() const
 {
     return app_argv;
 }
-#ifndef QT_NO_STYLE
-inline QStyle& QApplication::style()
-{
-    return *app_style;
-}
-#endif
 #ifndef QT_NO_CURSOR
 inline QCursor *QApplication::overrideCursor()
 {
