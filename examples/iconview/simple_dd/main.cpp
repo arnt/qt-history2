@@ -76,7 +76,7 @@ const char* green_icon[]={
 
 // ListBox -- low level drag and drop
 
-DDListBox::DDListBox( QWidget * parent = 0, const char * name = 0, WFlags f = 0 ) :
+DDListBox::DDListBox( QWidget * parent, const char * name, WFlags f ) :
     QListBox( parent, name, f )
 {
     setAcceptDrops( TRUE );
