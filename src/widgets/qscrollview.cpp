@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#30 $
 **
 ** Implementation of QScrollView class
 **
@@ -532,9 +532,21 @@ void QScrollView::removeChild(QWidget* child)
 
 /*!
   Inserts \a child into the scrolled area positioned at (\a x, \a y).
+  If the child is already in the view, it is just moved.
 */
 void QScrollView::addChild(QWidget* child, int x, int y)
 {
+    if ( child->parentWidget() == &d->viewport ) {
+	// May already be there
+	ChildRec *r = d->rec(child);
+	if (r) {
+	    r->moveTo(this,x,y);
+	    if ( d->policy > Manual )
+		d->autoResize(this); // #### better to just deal with this one widget!
+	}
+	return;
+    }
+
     if ( d->children.isEmpty() && d->policy == Default ) {
 	setResizePolicy( AutoOne );
 	child->installEventFilter( this );
@@ -555,13 +567,11 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 
 /*!
   Repositions \a child to (\a x, \a y).
+  This functions the same as addChild().
 */
 void QScrollView::moveChild(QWidget* child, int x, int y)
 {
-    ChildRec* r = d->rec(child);
-    r->moveTo(this,x,y);
-    if ( d->policy > Manual )
-	d->autoResize(this); // #### better to just deal with this one widget!
+    addChild(child,x,y);
 }
 
 int QScrollView::childX(QWidget* child)
