@@ -10,8 +10,8 @@
 TestClient::TestClient()
 {
     m_client = new QHttpClient( this );
-    connect( m_client, SIGNAL(reply(const QHttpReplyHeader&,const QByteArray&)),
-	     this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
+    connect( m_client, SIGNAL(response(const QHttpResponseHeader&,const QByteArray&)),
+	     this, SLOT(reply(const QHttpResponseHeader&, const QByteArray&)) );
 }
 
 void TestClient::get( const QString& host, int port, const QString& path )
@@ -20,9 +20,9 @@ void TestClient::get( const QString& host, int port, const QString& path )
     m_client->request( host, port, r1, QByteArray() );
 }
 
-void TestClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
+void TestClient::reply( const QHttpResponseHeader& repl, const QByteArray& data )
 {
-    qDebug( "Reply=%s", repl.toString().latin1() );
+    qDebug( "Response=%s", repl.toString().latin1() );
 
     QByteArray tmp = data;
     tmp.detach();
@@ -45,21 +45,21 @@ int main( int argc, char** argv )
     qDebug( "Request1=%s", r1.toString().latin1() );
 
     QTextStream ts( stdout, IO_WriteOnly );
-    ts << r1;
-    
+    r1.write( ts );
+
     QHttpRequestHeader r2( r1.toString() );
     qDebug( "Request2=%s", r2.toString().latin1() );
 
-    QHttpReplyHeader a1( 200, "OK" );
+    QHttpResponseHeader a1( 200, "OK" );
     a1.setValue( "dummy", "myvalue" );
     a1.setContentType( "text/html" );
     a1.setContentLength( 167 );
 
-    qDebug( "Reply1=%s", a1.toString().latin1() );
-    ts << a1;
-    
-    QHttpReplyHeader a2( a1.toString() );
-    qDebug( "Reply2=%s", a2.toString().latin1() );
+    qDebug( "Response1=%s", a1.toString().latin1() );
+    a1.write( ts );
+
+    QHttpResponseHeader a2( a1.toString() );
+    qDebug( "Response2=%s", a2.toString().latin1() );
 
     TestClient* t = new TestClient;
     t->get( "127.0.0.1", 80, "/" );
