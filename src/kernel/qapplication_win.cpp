@@ -889,7 +889,11 @@ static void msgHandler( QtMsgType t, const char* str )
 #ifndef Q_OS_TEMP
     OutputDebugStringA( s.data() );
 #else
-    OutputDebugString( QString( s ).ucs2() );
+    QT_WA(
+	OutputDebugStringW( (TCHAR*)qt_winTchar(s,TRUE) );
+    ,
+	OutputDebugStringA( s.data() );
+    )
 #endif
     if ( t == QtFatalMsg )
 #ifndef Q_OS_TEMP
