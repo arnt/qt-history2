@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#7 $
 **
 ** Implementation of QScrollView class
 **
@@ -400,6 +400,33 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 {
     if ( obj == d->viewed ) {
 	switch ( e->type() ) {
+	  case Event_Move:
+	    {
+		QMoveEvent* mv = (QMoveEvent*)e;
+		if ( mv->pos() != mv->oldPos() ) {
+		    int cx = mv->pos().x();
+		    int cy = mv->pos().y();
+		    bool fix=FALSE;
+		    if (cx>0) {
+			fix=TRUE;
+			cx=0;
+		    }
+		    if (cy>0) {
+			fix=TRUE;
+			cy=0;
+		    }
+		    signal_choke=TRUE;
+		    moveView( cx, cy );
+		    d->vbar.setValue( -cy );
+		    d->hbar.setValue( -cx );
+		    updateScrollBars();
+		    signal_choke=FALSE;
+		    if (fix)
+			d->viewed->move(cx,cy);
+		}
+		return FALSE;
+		//break;
+	    }
 	  case Event_Resize:
 	  case Event_Show:
 	  case Event_Hide:
@@ -573,10 +600,7 @@ void QScrollView::moveView(int x, int y)
 	d->vx = x;
 	d->vy = y;
 
-	if (QABS(dx) > width() || QABS(dy) > height())
-	    d->viewport.update();
-	else
-	    d->viewport.scroll(dx,dy);
+	d->viewport.scroll(dx,dy);
     }
 
     emit viewMoved( x, y );
