@@ -242,6 +242,7 @@ public:
 
     QMenuItem  *findItem( int id )	const;
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
+    QMenuItem * findPopup( QPopupMenu *, int *index = 0 );
 
     virtual void activateItemAt( int index );
 
@@ -259,8 +260,6 @@ protected:
     virtual void   menuStateChanged();
     virtual void   menuInsPopup( QPopupMenu * );
     virtual void   menuDelPopup( QPopupMenu * );
-
-    QMenuItem * findPopup( QPopupMenu *, int *index = 0 );
 
 private:
     int		insertAny( const QString *, const QPixmap *, QPopupMenu *,
