@@ -262,7 +262,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			// If file doesn't exsist, then maybe the users configuration
 			// doesn't allow it to be created. Skip to next...
 			if(!QFile::exists(QDir::currentDirPath() + Option::dir_sep + vcproj)) {
-			    qDebug("Ignored (not found) '%s'",  QString(QDir::currentDirPath() + Option::dir_sep + vcproj).latin1());
+			    warn_msg(WarnLogic, "Ignored (not found) '%s'", QString(QDir::currentDirPath() + Option::dir_sep + vcproj).latin1() );
 			    goto nextfile; // # Dirty!
 			}
 

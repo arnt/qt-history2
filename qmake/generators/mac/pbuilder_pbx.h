@@ -21,6 +21,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
     QString pbx_dir;
     int pbuilderVersion() const;
+    bool writeSubdirs(QTextStream &, bool);
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
 
