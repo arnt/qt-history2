@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#61 $
 **
 ** Implementation of event classes
 **
@@ -314,6 +314,13 @@ void QEvent::peErrMsg()				// posted event error message
   The event handlers QWidget::wheelEvent() receive wheel events.
 
   \sa QMouseEvent, QWidget::grabMouse()
+*/
+
+/*!
+  \fn QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
+
+  Constructs a wheel event object.
+
 */
 
 /*!
