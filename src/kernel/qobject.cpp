@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#122 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#122 $");
 
 
 /*!
@@ -1119,6 +1119,23 @@ bool QObject::checkConnectArgs( const char    *signal,
     return FALSE;
 }
 
+/*!  
+  Internal function, called from initMetaObject(). Used to emit a warning
+  when a class containing the macro Q_OBJECT inherits from a class that
+  does not contain it.
+*/
+
+void QObject::noBaseMacroWarning( const char * className, 
+				  const char *superClassName )
+{
+    qWarning(
+    "%s::initMetaObject(): Warning:\n"
+    "    The class \"%s\" contains the Q_OBJECT macro, but inherits from the\n"
+    "    \"%s\" class, which does not contain the Q_OBJECT macro.\n"
+    "    Signal/slot behaviour is undefined.\n",
+    (const char*)className, (const char*)className,
+    (const char*)superClassName );
+}
 
 /*!
   \overload bool QObject::connect( const QObject *sender, const char *signal, const char *member ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#83 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#84 $
 **
 ** Global type declarations and definitions
 **
@@ -351,6 +351,24 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #else
 #define RCSTAG(string)
 #endif
+
+void qDebug( const char *, ... )	       	// print debug message
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+void qWarning( const char *, ... )		// print warning message
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+void qFatal( const char *, ... )	       	// print fatal message and exit
+#if defined(_CC_GNU_)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
 
 void debug( const char *, ... )			// print debug message
 #if defined(_CC_GNU_)
