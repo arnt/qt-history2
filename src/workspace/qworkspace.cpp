@@ -114,8 +114,6 @@
   to the workspace window's menu bar. It then inserts a window operations
   menu on the extreme left of the menu bar.
 
-  \warning User interface research indicates that most users have
-  problems with MDI applications.  Use this class cautiously.
 */
 
 static bool inCaptionChange = FALSE;
