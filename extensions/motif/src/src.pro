@@ -13,7 +13,7 @@ DESTDIR  = ../../../lib
 VERSION  = 4.0.0
 LIBS    += -lXm -lXt
 
-DESTINCDIR = ../../../include
+DESTINCDIR = ../../../include/Motif
 
 contains( QT_PRODUCT, qt-(enterprise|internal|eval) ) {
     HEADERS = qmotifdialog.h qmotifwidget.h qmotif.h qxtwidget.h

@@ -7,4 +7,4 @@ VERSION		= 0.3
 
 HEADERS		= qxt.h
 SOURCES		= qxt.cpp
-DESTINCDIR	= ../../../include
+DESTINCDIR	= ../../../include/QXT

@@ -8,7 +8,7 @@ VERSION	 = 0.4
 
 SOURCES		= qnp.cpp
 unix:HEADERS   += qnp.h
-win32:HEADERS	= ../../../include/qnp.h
+win32:HEADERS	= ../../../include/NsPlugin/qnp.h
 win32:LIBS     += -lqtmain
 MOC_DIR		= .
-DESTINCDIR	= ../../../include
+DESTINCDIR	= ../../../include/NsPlugin

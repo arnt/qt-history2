@@ -5,12 +5,13 @@ CONFIG	+= qt warn_on plugin
 DESTDIR	 = $$QT_BUILD_TREE/plugins/codecs
 
 QTDIR_build:REQUIRES	= "!contains(QT_CONFIG, bigcodecs)"
+REQUIRES   = shared
 
-HEADERS		= ../../../../include/qeucjpcodec.h \
-		  ../../../../include/qjiscodec.h \
-		  ../../../../include/qsjiscodec.h \
-		  ../../../../include/qjpunicode.h \
-		  ../../../../include/private/qfontcodecs_p.h
+HEADERS		= ../../../../include/QtCore/qjpunicode.h \
+                  ../../../../include/QtCore/private/qeucjpcodec_p.h \
+		  ../../../../include/QtCore/private/qjiscodec_p.h \
+		  ../../../../include/QtCore/private/qsjiscodec_p.h \
+		  ../../../../include/QtCore/private/qfontcodecs_p.h
 
 SOURCES		= ../../../core/codecs/qeucjpcodec.cpp \
 		  ../../../core/codecs/qjiscodec.cpp \
