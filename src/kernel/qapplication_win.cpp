@@ -3273,7 +3273,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
 {
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
-	QKeyEvent a( type, code, ascii, state, text, autor, QMAX(1, int(text.length()) );
+	QKeyEvent a( type, code, ascii, state, text, autor, QMAX(1, int(text.length())) );
 	if ( qt_tryAccelEvent( this, &a ) )
 	    return TRUE;
     }
