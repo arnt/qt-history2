@@ -615,7 +615,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
             drawW = pixmap.width() - xOff; // Cropping first column
             if(xPos + drawW > r.right())    // Cropping last column
                 drawW = r.right() - xPos;
-            drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH)
+            drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
                        Qt::AlphaBlend);
             xPos += drawW;
             xOff = 0;
@@ -650,7 +650,8 @@ QQuickDrawPaintEngine::drawArc(const QRect &r, int a, int alen)
 }
 
 void
-QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
+QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
+                                  Qt::BlendMode mode)
 {
     Q_ASSERT(isActive());
     if(pixmap.isNull())
@@ -700,7 +701,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
     Rect dstr;
     SetRect(&dstr, d->offx+r.x(), d->offy+r.y(), d->offx+r.x()+r.width()+1, d->offy+r.y()+r.height()+1);
-    if(!imask && srcmask) {
+    if(mode == Qt::AlphaBlend && srcmask) {
         const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
         if(copymode == srcCopy && srcmask->depth() > 1)
             copymode = ditherCopy;

@@ -71,7 +71,8 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         p.drawPixmap(dx, dy, sw, sh, pm);
     } else if(src->devType() == QInternal::Pixmap) {
         QPainter p(dst);
-        p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh), imask);
+        p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh),
+                     imask ? Qt::SourceCopy : Qt::AlphaBlend);
     } else {
         qWarning("bitBlt: Cannot bitBlt from/to device!");
     }

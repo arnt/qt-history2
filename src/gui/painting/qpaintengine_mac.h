@@ -123,7 +123,7 @@ public:
 #ifndef QT_NO_BEZIER
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, );
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
     virtual Qt::HANDLE handle() const;
