@@ -241,7 +241,7 @@ static QString qGetStringData(SQLHANDLE hStmt, int column, int colSize, bool uni
                         &lengthIndicator);
         if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) {
             if (lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL) {
-                fieldVal = QString::null;
+                fieldVal = QString();
                 break;
             }
             // if SQL_SUCCESS_WITH_INFO is returned, indicating that
@@ -264,7 +264,7 @@ static QString qGetStringData(SQLHANDLE hStmt, int column, int colSize, bool uni
             break;
         } else {
             qWarning("qGetStringData: Error while fetching data (%d)", r);
-            fieldVal = QString::null;
+            fieldVal = QString();
             break;
         }
     }
@@ -382,7 +382,7 @@ static QSqlField qMakeFieldInfo(const SQLHANDLE hStmt, const QODBCDriverPrivate*
 {
     QString fname = qGetStringData(hStmt, 3, -1, p->unicode);
     int type = qGetIntData(hStmt, 4).toInt(); // column type
-    QSqlField f(qGetStringData(hStmt, 3, -1, p->unicode), qDecodeODBCType(type, p));
+    QSqlField f(fname, qDecodeODBCType(type, p));
     int required = qGetIntData(hStmt, 10).toInt(); // nullable-flag
     // required can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
     if (required == SQL_NO_NULLS)
