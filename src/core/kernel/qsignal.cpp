@@ -220,9 +220,10 @@ bool qInvokeSlot(QObject *obj, const char *slotName,
         sig.truncate(sig.length() - 1);
     sig.append(')');
 
-    int idx = obj->metaObject()->indexOfSlot(sig.data());
+    int idx = obj->metaObject()->indexOfSlot(sig.constData());
     if (idx < 0)
-        idx = obj->metaObject()->indexOfSlot(QMetaObject::normalizedSignature(sig.data()).data());
+        idx = obj->metaObject()->indexOfSlot(
+                QMetaObject::normalizedSignature(sig.constData()).constData());
     if (idx < 0)
         return false;
 
