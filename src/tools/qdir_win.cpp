@@ -217,10 +217,11 @@ bool QDir::isRoot() const
   Returns TRUE if successful; otherwise returns FALSE.
 
   On most file systems, rename() fails only if \a oldName does not exist
-  or if \a newName and \a oldName are not on the same partition, but
+  or if \a newName and \a oldName are not on the same partition.
+  On Windows, rename() will fail if \a newName already exists.  However,
   there are also other reasons why rename() can fail.  For example, on
   at least one file system rename() fails if newName points to an open
-  file.  Rename() on Windows will fail if \a newName already exists.
+  file.
 */
 
 bool QDir::rename( const QString &oldName, const QString &newName,
