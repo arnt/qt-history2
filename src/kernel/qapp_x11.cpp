@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#96 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -35,7 +35,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#95 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#96 $";
 #endif
 
 
@@ -50,7 +50,7 @@ static char    *appFGCol	= 0;		// application fg color
 static char    *mwGeometry	= 0;		// main widget geometry
 static char    *mwTitle		= 0;		// main widget title
 static bool	mwIconic	= FALSE;	// main widget iconified
-static Display *appDpy;				// X11 application display
+static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
 static bool	appSync		= FALSE;	// X11 synchronization
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
@@ -195,6 +195,8 @@ void qt_init( int *argcptr, char **argv )
 	else if ( arg == "-memlog" ) {
 	    if ( ++i < argc ) mcLogFile = argv[i];
 	}
+	else if ( arg == "-testdpy" )
+	    appDpy = (Display *)1;
 #endif
 	else
 	    argv[j++] = argv[i];
@@ -211,6 +213,21 @@ void qt_init( int *argcptr, char **argv )
 #endif
 
   // Connect to X server
+
+#if defined(DEBUG)
+    if ( appDpy != 0 ) {
+	debug( "Start testing display, trying XOpenDisplay 1000 times" );
+	Display *d;
+	for ( int i=0; i<1000; i++ ) {
+	    d = XOpenDisplay(appDpyName);
+	    if ( d )
+		XCloseDisplay( d );
+	    else
+		debug( "  Error at run #%d", i );
+	}
+	debug( "Done testing display" );
+    }
+#endif
 
     if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 	fatal( "%s: cannot connect to X server %s", appName,
