@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#42 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -44,8 +44,9 @@ extern const char* qt_xdnd_atom_to_str( Atom );
 
 static QWidget * owner = 0;
 
-static void cleanup() {
-    // ### when qapp stops deleting no-parent widgets, we must delete owner
+static void cleanup()
+{
+    delete owner;
     owner = 0;
 }
 
@@ -72,19 +73,17 @@ public:
     void addTransferredPixmap(QPixmap pm)
 	{ /* TODO: queue them */
 	    transferred[tindex] = pm;
-	    (tindex=tindex+1)%2;
+	    tindex=(tindex+1)%2;
 	}
     void clearTransfers()
 	{
 	    transferred[0] = QPixmap();
 	    transferred[1] = QPixmap();
-	    debug("CLEAR");
 	}
 
     void clear();
 
 private:
-    // NEW
     QMimeSource* src;
 
     QPixmap transferred[2];
@@ -293,21 +292,6 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 
 
 /*!
-  Returns a pointer to the clipboard data, where \e format is the clipboard
-  format.
-
-  We recommend that you use text() or pixmap() instead.
-*/
-
-void *QClipboard::data( const char *format ) const
-{
-    // TODO: use new system in some trivial way (eg. "qt/void" mime type)
-    return (void*)format;
-}
-
-
-
-/*!
   \internal
   Internal cleanup for Windows.
 */
@@ -333,8 +317,6 @@ void QClipboard::connectNotify( const char * )
 
 bool QClipboard::event( QEvent *e )
 {
-    // #### Needs to deal with Unicode
-
     if ( e->type() != QEvent::Clipboard )
 	return QObject::event( e );
 
@@ -351,7 +333,6 @@ bool QClipboard::event( QEvent *e )
 
 	case SelectionNotify:
 	    clipboardData()->clear();
-	    clipboardData()->clearTransfers();
 	    break;
 
 	case SelectionRequest:
@@ -398,7 +379,6 @@ bool QClipboard::event( QEvent *e )
 		    target = req->target;
 		    property = req->property;
 		}
-debug("%d: %s to %s",imulti,qt_xdnd_atom_to_str(target),property ? qt_xdnd_atom_to_str(property) : "None");
 
 		if ( target == xa_targets ) {
 		    int n = 0;
@@ -508,7 +488,7 @@ QString QClipboard::text() const
 
 /*!
   Copies \e text into the clipboard.
-  \sa text()
+  \sa text(), setData()
 */
 
 void QClipboard::setText( const QString &text )
@@ -532,7 +512,13 @@ QImage QClipboard::image() const
 
 /*!
   Copies \e image into the clipboard.
-  \sa image()
+
+  This is just a shorthand for:
+  \code
+    setData(new QImageDrag(image))
+  \endcode
+
+  \sa image(), setData()
 */
 
 void QClipboard::setImage( const QImage &image )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#23 $
 **
 ** Implementation of QClipboard class
 **
@@ -36,19 +36,12 @@
   The clipboard offers a simple mechanism to copy and paste data between
   applications.
 
-  QClipboard supports these formats (a format is identified by a string):
-  <ul>
-  <li>"TEXT", zero-terminated char *.
-  <li>"PIXMAP" as provided by QPixmap.
-  </ul>
-
-  The "PIXMAP" format is not implemented in this version of Qt.
+  QClipboard supports the same formats that
+  \link QDragObject drag and drop\endlink supports, and uses much
+  of the same mechanisms.
 
   Only a single QClipboard object may exist in an application. This is
-  because QClipboard is a shared window system resource. It is not
-  possible to create a QClipboard object the standard C++ way (the
-  constructor and destructor are private member functions, but accessible
-  to QApplication since it is a friend class).	Call
+  because QClipboard is a shared window system resource.  Call
   QApplication::clipboard() to access the clipboard.
 
   Example:
@@ -123,17 +116,4 @@ QClipboard *QApplication::clipboard()
 	qAddPostRoutine( cleanupClipboard );
     }
     return (QClipboard *)qt_clipboard;
-}
-
-/*!
-  Copies text into the clipboard, where \e format is the clipboard format
-  string and \e data is the data to be copied.
-
-  We recommend that you use setText() or setPixmap() instead.
-*/
-void QClipboard::setData( const char* format, void * )
-{
-#if defined(CHECK_RANGE)
-    warning( "QClipboard::data: Unknown format: %s", format );
-#endif
 }

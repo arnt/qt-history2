@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#25 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -28,6 +28,7 @@
 #include "qpixmap.h"
 #include "qdatetime.h"
 #include "qt_windows.h"
+#include "qimage.h"
 
 
 /*****************************************************************************
@@ -77,15 +78,6 @@ void QClipboard::clear()
     OpenClipboard( clipboardOwner()->winId() );
     EmptyClipboard();
     CloseClipboard();
-}
-
-
-void *QClipboard::data( const char *format ) const
-{
-#if defined(CHECK_RANGE)
-    warning( "QClipboard::data: Unknown format: %s", format );
-#endif
-    return 0;
 }
 
 

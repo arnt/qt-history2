@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#22 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#23 $
 **
 ** Definition of QClipboard class
 **
@@ -51,10 +51,6 @@ public:
     QPixmap	pixmap() const;
     void	setImage( const QImage & );
     void	setPixmap( const QPixmap & );
-
-    // Qt 1.x
-    void *data( const char* format ) const;
-    void  setData( const char *format, void * );
 
 signals:
     void	dataChanged();
