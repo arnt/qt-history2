@@ -265,6 +265,7 @@
 /* GCC 2.95 knows "using" but does not support it correctly */
 #    if __GNUC__ == 2 && __GNUC_MINOR__ <= 95
 #      define Q_NO_USING_KEYWORD
+#      define QT_NO_STL_WCHAR
 #    endif
 /* GCC 3.1 and GCC 3.2 wrongly define _SB_CTYPE_MACROS on HP-UX */
 #    if defined(Q_OS_HPUX) && __GNUC__ == 3 && __GNUC_MINOR__ >= 1
