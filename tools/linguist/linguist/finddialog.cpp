@@ -16,7 +16,7 @@
 
 /*  TRANSLATOR FindDialog
 
-    Choose Edit|Find from the menu bar or press Alt+F to pop up the 
+    Choose Edit|Find from the menu bar or press Ctrl+F to pop up the 
     Find dialog
 */
 
