@@ -183,7 +183,9 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
         doc->setHtml(text);
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
         layout->adjustSize();
-        r.setRect(0, 0, layout->widthUsed(), layout->totalHeight());
+        r.setTop(0);
+        r.setLeft(0);
+        r.setSize(layout->rootFrameSize());
     }
     else
 #endif

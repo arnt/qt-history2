@@ -954,7 +954,7 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
     Q_UNUSED(oldLength);
 
-    const int oldWidthUsed = widthUsed();
+    const QSize oldSize = rootFrameSize();
 
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
@@ -963,9 +963,9 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
     d->layoutFrame(document()->rootFrame(), from, from + length);
 
-    const int w = widthUsed();
-    if (oldWidthUsed != w)
-        emit usedWidthChanged();
+    const QSize newSize = rootFrameSize();
+    if (newSize != oldSize)
+        emit rootFrameSizeChanged();
 
     emit update();
 }
@@ -1076,18 +1076,6 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
 }
 
 
-int QTextDocumentLayout::totalHeight() const
-{
-    int height = 0;
-    const QTextDocument *doc = document();
-    QTextBlock it = doc->begin();
-    QTextBlock end = doc->end();
-    for (; it != end; it = it.next())
-        height = qMax(height, it.layout()->rect().bottom());
-
-    return height;
-}
-
 int QTextDocumentLayout::numPages() const
 {
 #if 0
@@ -1109,9 +1097,9 @@ QSize QTextDocumentLayout::pageSize() const
     return d->pageSize;
 }
 
-int QTextDocumentLayout::widthUsed() const
+QSize QTextDocumentLayout::rootFrameSize() const
 {
-    return data(q->document()->rootFrame())->boundingRect.width();
+    return data(q->document()->rootFrame())->boundingRect.size();
 }
 
 // Pull this private function in from qglobal.cpp
@@ -1125,12 +1113,13 @@ void QTextDocumentLayout::adjustSize()
     int mw =  fm.width('x') * 80;
     int w = mw;
     setPageSize(QSize(w, INT_MAX));
-    if (widthUsed() != 0) {
-        w = qt_int_sqrt(5 * totalHeight() * widthUsed() / 3);
+    QSize size = rootFrameSize();
+    if (size.width() != 0) {
+        w = qt_int_sqrt(5 * size.height() * size.width() / 3);
         setPageSize(QSize(qMin(w, mw), INT_MAX));
 
-        if (w*3 < 5*totalHeight()) {
-            w = qt_int_sqrt(2 * totalHeight() * widthUsed());
+        if (w*3 < 5*size.height()) {
+            w = qt_int_sqrt(2 * size.height() * size.width());
             setPageSize(QSize(qMin(w, mw), INT_MAX));
         }
     }
