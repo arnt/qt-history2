@@ -81,7 +81,7 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
         setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
                     widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
         setPalette(widget->palette());
-        qDebug("placing at %d %d %d %d (%s)", x(), y(), width(), height(), parentWidget()->className());
+        qDebug("placing at %d %d %d %d (%s)", x(), y(), width(), height(), parentWidget()->metaObject()->className());
         setMask(QRegion(rect()) - focusRegion());
         raise();
         show();
@@ -490,6 +490,24 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
 #endif
     return QAquaSizeLarge;
 }
+
+ThemeDrawState QAquaAnimate::getDrawState(QStyle::SFlags flags, const QPalette &pal)
+{
+    ThemeDrawState tds = kThemeStateActive;
+    if (flags & QStyle::Style_Down) {
+        tds = kThemeStatePressed;
+    } else if (qAquaActive(pal)) {
+        if (!(flags & QStyle::Style_Enabled))
+            tds = kThemeStateUnavailable;
+    } else {
+        if (flags & QStyle::Style_Enabled)
+            tds = kThemeStateInactive;
+        else
+            tds = kThemeStateUnavailableInactive;
+    }
+    return tds;
+}
+
 static int qt_mac_aqua_get_metric(ThemeMetric met)
 {
     SInt32 ret;
@@ -761,19 +779,3 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
 #endif
 }
 
-ThemeDrawState qt_mac_getDrawState(QStyle::SFlags flags, const QPalette &pal)
-{
-    ThemeDrawState tds = kThemeStateActive;
-    if (flags & QStyle::Style_Down) {
-        tds = kThemeStatePressed;
-    } else if (qAquaActive(pal)) {
-        if (!(flags & QStyle::Style_Enabled))
-            tds = kThemeStateUnavailable;
-    } else {
-        if (flags & QStyle::Style_Enabled)
-            tds = kThemeStateInactive;
-        else
-            tds = kThemeStateUnavailableInactive;
-    }
-    return tds;
-}

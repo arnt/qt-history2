@@ -88,10 +88,10 @@ static inline const QRect qrectForHIRect(const HIRect &hirect)
 
 inline static bool qt_mac_is_metal(QWidget *w)
 {
-    for( ; w; w = w->parentWidget()) {
-        if(w->testAttribute(QWidget::WA_MacMetalStyle)) 
+    for (; w; w = w->parentWidget()) {
+        if (w->testAttribute(QWidget::WA_MacMetalStyle))
             return true;
-        if(w->isTopLevel())
+        if (w->isTopLevel())
             break;
     }
     return false;
@@ -372,7 +372,7 @@ void QMacStyleCG::polish(QApplication *app)
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
                                 const QPalette &pal, SFlags flags, const QStyleOption &opt) const
 {
-    ThemeDrawState tds = qt_mac_getDrawState(flags, pal);
+    ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (pe) {
     case PE_RubberBandMask:
         p->fillRect(r, color1);
@@ -629,7 +629,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                               const QRect &r, const QPalette &pal, SFlags how,
                               const QStyleOption &opt) const
 {
-    ThemeDrawState tds = qt_mac_getDrawState(how, pal);
+    ThemeDrawState tds = d->getDrawState(how, pal);
     switch(element) {
     case CE_PushButton: {
         if (!widget)
@@ -889,7 +889,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                      const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
                                      SCFlags subActive, const QStyleOption &opt) const
 {
-    ThemeDrawState tds = qt_mac_getDrawState(flags, pal);
+    ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
     case CC_Slider:
     case CC_ScrollBar: {
@@ -1656,7 +1656,7 @@ QPixmap QMacStyleCG::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
                            const QWidget *w) const
 {
-    ThemeDrawState tds = qt_mac_getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (pe) {
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -1671,16 +1671,30 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
             bool isRadioButton = (pe == PE_CheckListExclusiveIndicator
                                   || pe == PE_ExclusiveIndicatorMask
                                   || pe == PE_ExclusiveIndicator);
-            if (qt_aqua_size_constrain(w) == QAquaSizeSmall) {
-                if (isRadioButton)
-                    bdi.kind = kThemeSmallRadioButton;
-                else
-                    bdi.kind = kThemeSmallCheckBox;
-            } else {
+            switch (qt_aqua_size_constrain(w)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
                 if (isRadioButton)
                     bdi.kind = kThemeRadioButton;
                 else
                     bdi.kind = kThemeCheckBox;
+                break;
+            case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    if (isRadioButton)
+                        bdi.kind = kThemeMiniRadioButton;
+                    else
+                        bdi.kind = kThemeMiniCheckBox;
+                    break;
+                }
+#endif
+            case QAquaSizeSmall:
+                if (isRadioButton)
+                    bdi.kind = kThemeSmallRadioButton;
+                else
+                    bdi.kind = kThemeSmallCheckBox;
+                break;
             }
             if (btn->state & Style_NoChange)
                 bdi.value = kThemeButtonMixed;

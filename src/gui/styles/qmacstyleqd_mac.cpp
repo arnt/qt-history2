@@ -2770,15 +2770,78 @@ QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap,  const QWidget *widget
     return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
-void QMacStyleQD::drawPrimitive(PrimitiveElement , const Q4StyleOption *, QPainter *,
-                           const QWidget *) const
+void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
+                                const QWidget *w) const
 {
+    ThemeDrawState tds = QAquaAnimate::getDrawState(opt->state, opt->palette);
+    switch (pe) {
+    case PE_CheckListExclusiveIndicator:
+    case PE_ExclusiveIndicatorMask:
+    case PE_ExclusiveIndicator:
+    case PE_CheckListIndicator:
+    case PE_IndicatorMask:
+    case PE_Indicator:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            bool isRadioButton = (pe == PE_CheckListIndicator || pe == PE_ExclusiveIndicator
+                                  || pe == PE_ExclusiveIndicatorMask);
+            ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
+            if (btn->state & Style_HasFocus
+                    && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
+                info.adornment |= kThemeAdornmentFocus;
+            if (btn->state & Style_NoChange)
+                info.value = kThemeButtonMixed;
+            else if (btn->state & Style_On)
+                info.value = kThemeButtonOn;
+            ThemeButtonKind bkind;
+            switch (qt_mac_get_size_for_painter(p)) {
+                case QAquaSizeUnknown:
+                case QAquaSizeLarge:
+                    if (isRadioButton)
+                        bkind = kThemeRadioButton;
+                    else
+                        bkind = kThemeCheckBox;
+                    break;
+                case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        if (isRadioButton)
+                            bkind = kThemeMiniRadioButton;
+                        else
+                            bkind = kThemeMiniCheckBox;
+                        break;
+                    }
+#endif
+                case QAquaSizeSmall:
+                    if (isRadioButton)
+                        bkind = kThemeSmallRadioButton;
+                    else
+                        bkind = kThemeSmallCheckBox;
+                    break;
+            }
+            if (pe == PE_ExclusiveIndicatorMask || pe == PE_IndicatorMask) {
+                p->save();
+                RgnHandle rgn = qt_mac_get_rgn();
+                GetThemeButtonRegion(qt_glb_mac_rect(btn->rect, p, false), bkind, &info, rgn);
+                p->setClipRegion(qt_mac_convert_mac_region(rgn));
+                qt_mac_dispose_rgn(rgn);
+                p->fillRect(btn->rect, color1);
+                p->restore();
+            } else {
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                DrawThemeButton(qt_glb_mac_rect(btn->rect, p, false), bkind, &info, 0, 0, 0, 0);
+            }
+        }
+        break;
+    default:
+        QWindowsStyle::drawPrimitive(pe, opt, p, w);
+        break;
+    }
 }
 
 void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                               const QWidget *w) const
 {
-    ThemeDrawState tds = qt_mac_getDrawState(opt->state, opt->palette);
+    ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (ce) {
     case CE_PushButton:
         if (const Q4StyleOptionButton *btn = qt_cast<const Q4StyleOptionButton *>(opt)) {
@@ -2884,7 +2947,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
     }
 }
 
-QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *) const
+QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *widget) const
 {
     QRect r = QRect();
     switch (sr) {
@@ -2898,6 +2961,9 @@ QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
                       qMin(btn->rect.width() - 2 * macRect.left, macRect.right - macRect.left),
                       qMin(btn->rect.height() - 2 * macRect.top, macRect.bottom - macRect.top));
         }
+        break;
+    default:
+        r = QWindowsStyle::subRect(sr, opt, widget);
         break;
     }
     return r;
@@ -2927,7 +2993,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
     switch (ct) {
     case CT_PushButton:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
-        sz = QSize(sz.width() + 16, sz.height()); //##
+        sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
         break;
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);

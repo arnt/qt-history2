@@ -661,6 +661,36 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
                         opt->state & (Style_Sunken | Style_Down | Style_On), 1,
                         &opt->palette.brush(QPalette::Button));
         break;
+    case PE_Indicator:
+        if (opt->state & Style_NoChange) {
+            p->setPen(opt->palette.foreground());
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+            p->drawRect(opt->rect);
+            p->drawLine(opt->rect.topLeft(), opt->rect.bottomRight());
+        } else {
+            qDrawShadePanel(p, opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.height(),
+                            opt->palette, opt->state & (Style_Sunken | Style_On), 1,
+                            &opt->palette.brush(QPalette::Button));
+        }
+        break;
+    case PE_IndicatorMask:
+        p->fillRect(opt->rect, color1);
+        break;
+    case PE_ExclusiveIndicator: {
+        QRect ir = opt->rect;
+        p->setPen(opt->palette.dark());
+        p->drawArc(opt->rect, 0, 5760);
+        if (opt->state & (Style_Sunken | Style_On)) {
+            ir.addCoords(2, 2, -2, -2);
+            p->setBrush(opt->palette.foreground());
+            p->drawEllipse(ir);
+        }
+        break; }
+    case PE_ExclusiveIndicatorMask:
+        p->setPen(color1);
+        p->setBrush(color1);
+        p->drawEllipse(opt->rect);
+        break;
     default:
         qWarning("Primitive not handled %d", pe);
     }
@@ -1250,6 +1280,21 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                      &(btn->palette.buttonText().color()));
         }
         break;
+    case CE_CheckBox:
+        drawPrimitive(PE_Indicator, opt, p, w);
+        break;
+    case CE_CheckBoxLabel:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            uint alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+            if (styleHint(SH_UnderlineAccelerator, w, QStyleOption::Default, 0))
+                alignment |= NoAccel;
+            QPixmap pix;
+            if (btn->icon.isNull())
+                pix = btn->icon.pixmap(QIconSet::Small, QIconSet::Normal);
+            drawItem(p, btn->rect, alignment | AlignVCenter | ShowPrefix, btn->palette,
+                     btn->state & Style_Enabled, pix, btn->text);
+        }
+        break;
     default:
         qWarning("not currently handled %d", ce);
     }
@@ -1627,6 +1672,99 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
                       opt->rect.height() - dx2);
         }
         break;
+    case SR_PushButtonFocusRect:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            int dbw1 = 0, dbw2 = 0;
+            if (btn->state & Style_ButtonDefault) {
+                dbw1 = pixelMetric(PM_ButtonDefaultIndicator, w);
+                dbw2 = dbw1 * 2;
+            }
+
+            int dfw1 = pixelMetric(PM_DefaultFrameWidth, w) * 2,
+                dfw2 = dfw1 * 2;
+
+            r.setRect(btn->rect.x() + dfw1 + dbw1, btn->rect.y() + dfw1 + dbw1,
+                      btn->rect.width() - dfw2 - dbw2, btn->rect.height()- dfw2 - dbw2);
+        }
+        break;
+
+    case SR_CheckBoxIndicator:
+        {
+            int h = pixelMetric(PM_IndicatorHeight, w);
+            r.setRect(0, (opt->rect.height() - h) / 2,
+                      pixelMetric(PM_IndicatorWidth, w), h);
+        }
+        break;
+
+    case SR_CheckBoxContents:
+        {
+            QRect ir = subRect(SR_CheckBoxIndicator, opt, w);
+            r.setRect(ir.right() + 6, opt->rect.y(), opt->rect.width() - ir.width() - 6,
+                      opt->rect.height());
+        }
+        break;
+
+    case SR_CheckBoxFocusRect:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            if (btn->text.isEmpty()) {
+                r = subRect(SR_CheckBoxIndicator, opt, w);
+                r.addCoords(1, 1, -1, -1);
+                break;
+            }
+            QRect cr = subRect(SR_CheckBoxContents, opt, w);
+
+            if (!btn->icon.isNull()) {
+                r = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix,
+                             btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
+            } else {
+                QFontMetrics fm = w->fontMetrics();
+                r = itemRect(fm, cr, AlignLeft | AlignVCenter | ShowPrefix,
+                             btn->state & Style_Enabled, btn->text);
+            }
+            r.addCoords(-3, -2, 3, 2);
+            r = r.intersect(btn->rect);
+        }
+        break;
+
+    case SR_RadioButtonIndicator:
+        {
+            int h = pixelMetric(PM_ExclusiveIndicatorHeight, w);
+            r.setRect(0, (opt->rect.height() - h) / 2,
+                    pixelMetric(PM_ExclusiveIndicatorWidth, w), h);
+        }
+        break;
+
+    case SR_RadioButtonContents:
+        {
+            QRect ir = subRect(SR_RadioButtonIndicator, w);
+            r.setRect(ir.right() + 6, opt->rect.y(),
+                      opt->rect.width() - ir.width() - 6, opt->rect.height());
+            break;
+        }
+
+    case SR_RadioButtonFocusRect:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            if (!btn->icon.isNull() && btn->text.isEmpty()) {
+                r = subRect(SR_RadioButtonIndicator, opt, w);
+                r.addCoords(1, 1, -1, -1);
+                break;
+            }
+            QRect cr = subRect(SR_RadioButtonContents, w);
+
+            if(!btn->icon.isNull()) {
+                r = itemRect(cr, AlignLeft | AlignVCenter | ShowPrefix,
+                             btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
+            } else {
+                QFontMetrics fm = w->fontMetrics();
+                r = itemRect(fm, cr, AlignLeft | AlignVCenter | ShowPrefix,
+                             btn->state & Style_Enabled, btn->text);
+            }
+            r.addCoords(-3, -2, 3, 2);
+            r = r.intersect(btn->rect);
+        }
+        break;
+    default:
+        qWarning("QCommonStyle::SubRect case not handled %d", sr);
     }
     return r;
 }
@@ -2906,6 +3044,18 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
                 h += dbw;
             }
             sz = QSize(w, h);
+        }
+        break;
+    case CT_RadioButton:
+    case CT_CheckBox:
+        if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            bool isRadio = (ct == CT_RadioButton);
+            QRect irect = subRect(isRadio ? SR_RadioButtonIndicator : SR_CheckBoxIndicator,
+                                  btn, widget);
+            int h = pixelMetric(isRadio ? PM_ExclusiveIndicatorHeight : PM_IndicatorHeight, widget);
+            int margins = (!btn->icon.isNull() && btn->text.isEmpty()) ? 0 : 10;
+            sz += QSize(irect.right() + margins, 4);
+            sz.setHeight(qMax(sz.height(), h));
         }
         break;
     default:

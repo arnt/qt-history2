@@ -270,20 +270,20 @@ Q4StyleOptionButton QPushButtonPrivate::getStyleOption() const
     Q4StyleOptionButton opt(0);
     opt.init(q);
     opt.extras = Q4StyleOptionButton::None;
-    if (q->isFlat())
+    if (flat)
         opt.extras |= Q4StyleOptionButton::Flat;
-    if (q->menu())
+    if (menu)
         opt.extras |= Q4StyleOptionButton::HasMenu;
-    if (q->isDown())
+    if (down)
         opt.state |= QStyle::Style_Down;
-    if (q->isChecked())
+    if (checked)
         opt.state |= QStyle::Style_On;
-    if (!q->isFlat() && !q->isDown())
+    if (!flat && !down)
         opt.state |= QStyle::Style_Raised;
     if (defaultButton)
         opt.state |= QStyle::Style_ButtonDefault;
-    opt.text = q->text();
-    opt.icon = q->icon();
+    opt.text = text;
+    opt.icon = icon;
     return opt;
 }
 

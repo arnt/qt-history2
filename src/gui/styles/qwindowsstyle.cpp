@@ -2395,11 +2395,10 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
 }
 
 void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, QPainter *p,
-                           const QWidget *w) const
+                                  const QWidget *w) const
 {
     switch (pe) {
-    case PE_ButtonCommand:
-    {
+    case PE_ButtonCommand: {
         QBrush fill;
         SFlags flags = opt->state;
         QPalette pal = opt->palette;
@@ -2417,12 +2416,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On), &fill);
         else
             p->fillRect(r, fill);
-        break;
-    }
-
+        break; }
     case PE_ButtonBevel:
-    case PE_HeaderSection:
-    {
+    case PE_HeaderSection: {
         QBrush fill;
         if (! (opt->state & Style_Down) && (opt->state & Style_On))
             fill = QBrush(opt->palette.light(), Dense4Pattern);
@@ -2433,8 +2429,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On), &fill);
         else
             p->fillRect(opt->rect, fill);
-        break;
-    }
+        break; }
     case PE_ButtonDefault:
         p->setPen(opt->palette.shadow());
         p->drawRect(opt->rect);
@@ -2444,7 +2439,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     case PE_ArrowRight:
     case PE_ArrowLeft: {
         QPointArray a;
-
         switch (pe) {
             case PE_ArrowUp:
                 a.setPoints(7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2);
@@ -2465,15 +2459,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             default:
                 break;
         }
-
         if (a.isEmpty())
             return;
-
         p->save();
         if (opt->state & Style_Down)
             p->translate(pixelMetric(PM_ButtonShiftHorizontal),
                          pixelMetric(PM_ButtonShiftVertical));
-
         if (opt->state & Style_Enabled) {
             a.translate(opt->rect.x() + opt->rect.width() / 2,
                         opt->rect.y() + opt->rect.height() / 2);
@@ -2493,6 +2484,53 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         }
         p->restore();
         break; }
+    case PE_Indicator: {
+        QBrush fill;
+        if (opt->state & Style_NoChange)
+            fill = QBrush(opt->palette.base(), Dense4Pattern);
+        else if (opt->state & Style_Down)
+            fill = opt->palette.button();
+        else if (opt->state & Style_Enabled)
+            fill = opt->palette.base();
+        else
+            fill = opt->palette.background();
+        qDrawWinPanel(p, opt->rect, opt->palette, true, &fill);
+        if (opt->state & Style_NoChange)
+            p->setPen(opt->palette.dark());
+        else
+            p->setPen(opt->palette.text());
+        } // Fall through!
+    case PE_CheckListIndicator:
+        if (pe == PE_CheckListIndicator) {
+            if (opt->state & Style_Enabled)
+                p->setPen(QPen(opt->palette.text(), 1));
+            else
+                p->setPen(QPen(opt->palette.dark(), 1));
+            if (opt->state & Style_NoChange)
+                p->setBrush(opt->palette.brush(QPalette::Button));
+            p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, 11, 11);
+        }
+        if (!(opt->state & Style_Off)) {
+            QPointArray a(7 * 2);
+            int i, xx, yy;
+            xx = opt->rect.x() + 3;
+            yy = opt->rect.y() + 5;
+            for (i = 0; i < 3; ++i) {
+                a.setPoint(2 * i, xx, yy);
+                a.setPoint(2 * i + 1, xx, yy + 2);
+                ++xx;
+                ++yy;
+            }
+            yy -= 2;
+            for (i = 3; i < 7; ++i) {
+                a.setPoint(2 * i, xx, yy);
+                a.setPoint(2 * i + 1, xx, yy + 2);
+                ++xx;
+                --yy;
+            }
+            p->drawLineSegments(a);
+        }
+        break;
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
