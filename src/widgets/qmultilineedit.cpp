@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#76 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2951,7 +2951,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	    if ( tabDist<0 )
 		tabDist = tabStopDist(fm);
 	    linew = ( linew/tabDist + 1 ) * tabDist;
-	} else
+	} else if ( s[i] != '\n' )
 	    linew += fm.width( s[i] );
 	if ( WORD_WRAP &&
 	     ( BREAK_WITHIN_WORDS || lastSpace > a) && s[i] != '\n' ) {
@@ -2971,7 +2971,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	}
 	if ( s[i] == '\n' || doBreak ) {
 	    r->s = s.mid( a, i - a + (doBreak?1:0) );
-	    r->w = linew;
+	    r->w = linew - fm.minLeftBearing() + 2 * d->lr_marg;
 	    if ( r->w > w )
 		w = r->w;
 	    if ( cursorY > l )
