@@ -483,7 +483,9 @@ bool QSocket::open( int m )
 
 void QSocket::close()
 {
-    if ( !isOpen() || d->state != Idle )	// already closed
+    if ( !isOpen() || d->state == Idle )	// already closed
+	return;
+    if ( d->state == Closing )
 	return;
     if ( !d->rsn || !d->wsn )
 	return;
