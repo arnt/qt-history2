@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#15 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#16 $
 **
 ** Definition of QMenuData class
 **
@@ -138,7 +138,8 @@ protected:
     virtual void   menuDelPopup( QPopupMenu * );
 
 private:
-    void	insertAny( const char *, QPixmap *, QPopupMenu *, int, int );
+    void	insertAny( const char *, const QPixmap *, QPopupMenu *,
+			   int, int );
     void	removePopup( QPopupMenu * );
 };
 
