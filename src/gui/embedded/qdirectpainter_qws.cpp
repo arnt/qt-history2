@@ -109,7 +109,7 @@ public:
     Construct a direct painter on \a w. The display is locked and the
     mouse cursor is hidden if it is above \a w.
 */
-QDirectPainter::QDirectPainter( const QWidget* w ) :
+QDirectPainter::QDirectPainter( QWidget* w ) :
     QPainter(w,w)
 {
     d = new Private;

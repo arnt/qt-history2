@@ -24,7 +24,7 @@
 #ifndef QT_NO_DIRECTPAINTER
 class Q_GUI_EXPORT QDirectPainter : public QPainter {
 public:
-    QDirectPainter( const QWidget* );
+    QDirectPainter(QWidget* );
     ~QDirectPainter();
 
     uchar* frameBuffer();
