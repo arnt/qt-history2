@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#223 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#222 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#223 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -481,6 +481,8 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 
 /*!
   Translates the widget coordinate \e pos to global screen coordinates.
+  For example, \code mapToGlobal(QPoint(0,0))\endcode would give the
+  global coordinates of the top-left pixel of the widget.
   \sa mapFromGlobal()
 */
 
