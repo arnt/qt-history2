@@ -132,6 +132,9 @@ update:
 checkout: 
 	set -e ; for d in $(DIRS); do make -C $$d checkout ; done
 
+showdirs:
+	@echo $(DIRS)
+
 showfiles:
 	set -e ; for d in $(DIRS); do make -C $$d showfiles ; done
 
