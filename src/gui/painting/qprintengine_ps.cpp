@@ -852,7 +852,7 @@ public:
     virtual ~QPSPrintEngineFontPrivate();
     virtual QString postScriptFontName() { return psname; }
     virtual QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
-                             QPSPrintEnginePrivate *ptr);
+                             QPSPrintEnginePrivate *ptr, int pixelSize);
     virtual void download(QTextStream& s, bool global);
     virtual void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti);
     virtual unsigned short mapUnicode(unsigned short unicode);
@@ -1158,7 +1158,7 @@ void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePriv
 
 
 QString QPSPrintEngineFontPrivate::defineFont(QTextStream &stream, const QString &ps,
-                                              const QString &key, QPSPrintEnginePrivate *ptr)
+                                              const QString &key, QPSPrintEnginePrivate *ptr, int pixelSize)
 {
     QString fontName;
     fontName.sprintf("/%s-Uni", ps.latin1());
@@ -1166,13 +1166,13 @@ QString QPSPrintEngineFontPrivate::defineFont(QTextStream &stream, const QString
     if (ptr->buffer) {
         ++ptr->headerFontNumber;
         ptr->fontStream << "/F" << ptr->headerFontNumber << " "
-                      << fe->fontDef.pixelSize << fontName << " DF\n";
+                      << pixelSize << fontName << " DF\n";
         fontName.sprintf("F%d", ptr->headerFontNumber);
         ptr->headerFontNames.insert(key, fontName);
     } else {
         ++ptr->pageFontNumber;
         stream << "/F" << ptr->pageFontNumber << " "
-               << fe->fontDef.pixelSize << fontName << " DF\n";
+               << pixelSize << fontName << " DF\n";
         fontName.sprintf("F%d", ptr->pageFontNumber);
         ptr->pageFontNames.insert(key, fontName);
     }
@@ -4017,7 +4017,7 @@ public:
         : QPSPrintEngineFontPrivate(f), codec(0) {}
     void download(QTextStream& s, bool global);
     QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
-                        QPSPrintEnginePrivate *d);
+                        QPSPrintEnginePrivate *d, int pixelSize);
     void drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItem &ti);
 
     QString makePSFontName(const QFontEngine *f, int type) const;
@@ -4077,7 +4077,7 @@ QString QPSPrintEngineFontAsian::makePSFontName(const QFontEngine *f, int type) 
 
 
 QString QPSPrintEngineFontAsian::defineFont(QTextStream &stream, const QString &ps,
-                                         const QString &key, QPSPrintEnginePrivate *d)
+                                         const QString &key, QPSPrintEnginePrivate *d, int pixelSize)
 {
     QString fontName;
     QString fontName2;
@@ -4094,7 +4094,7 @@ QString QPSPrintEngineFontAsian::defineFont(QTextStream &stream, const QString &
         }
         fontName2.sprintf("F%d", ++d->headerFontNumber);
         d->fontStream << "/" << fontName2 << " "
-                      << fe->fontDef.pixelSize << "/" << fontName << " DF\n";
+                      << pixelSize << "/" << fontName << " DF\n";
         d->headerFontNames.insert(key, fontName2);
     } else {
         if (!tmp.isNull()) {
@@ -4106,7 +4106,7 @@ QString QPSPrintEngineFontAsian::defineFont(QTextStream &stream, const QString &
         }
         fontName2.sprintf("F%d", ++d->pageFontNumber);
         stream << "/" << fontName2 << " "
-               << fe->fontDef.pixelSize << "/" << fontName << " DF\n";
+               << pixelSize << "/" << fontName << " DF\n";
         d->pageFontNames.insert(key, fontName2);
     }
     return fontName2;
@@ -4614,8 +4614,8 @@ public:
     ~QPSPrintEngineFont();
     QString postScriptFontName()     { return p->postScriptFontName(); }
     QString defineFont(QTextStream &stream, const QString &ps, const QString &key,
-                        QPSPrintEnginePrivate *ptr)
-        { return p->defineFont(stream, ps, key, ptr); }
+                        QPSPrintEnginePrivate *ptr, int pixelSize)
+        { return p->defineFont(stream, ps, key, ptr, pixelSize); }
     void    download(QTextStream& s, bool global) { p->download(s, global); }
     QPSPrintEngineFontPrivate *handle() { return p; }
     QString xfontname;
@@ -4982,6 +4982,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     QString key = ff.xfontname;
 
     key += '/' + toString(fe->fontDef.pixelSize);
+    qDebug("pixelSize = %d", fe->fontDef.pixelSize);
     QString tmp;
     if (!buffer)
         tmp = pageFontNames.value(key, QString::null);
@@ -4993,7 +4994,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
         fontName = tmp;
 
     if (fontName.isEmpty())
-        fontName = ff.defineFont(pageStream, ps, key, this);
+        fontName = ff.defineFont(pageStream, ps, key, this, fe->fontDef.pixelSize);
 
     pageStream << fontName << " F\n";
 
