@@ -993,7 +993,7 @@ public:
     virtual int widthHint() const { return 0; }
 
     virtual QString richText() const { return QString::null; }
-    
+
     int xpos; // used for floating items
     int ypos; // used for floating items
     int width;
@@ -1153,7 +1153,8 @@ private:
     QBrush *background;
     int cached_width;
     int cached_sizehint;
-
+    QMap<QString, QString> attributes;
+    
 };
 
 class QTextTable: public QTextCustomItem
@@ -1183,6 +1184,8 @@ public:
     virtual void down( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
     virtual void up( QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy );
 
+    QString richText() const;
+
     int minimumWidth() const { return layout ? layout->minimumSize().width() : 0; }
     int widthHint() const { return ( layout ? layout->sizeHint().width() : 0 ) + 2 * outerborder; }
 
@@ -1204,7 +1207,8 @@ private:
     int innerborder;
     int us_ib, us_b, us_ob, us_cs;
     int lastX, lastY;
-
+    QMap<QString, QString> attributes;
+    
     int currCell;
 
     Placement place;

@@ -1294,35 +1294,36 @@ QString QTextDocument::plainText( QTextParag *p, bool formatted ) const
 
 QString QTextDocument::richText( QTextParag *p, bool formatted ) const
 {
+    Q_UNUSED( formatted );
     QString s;
     if ( !p ) {
 	p = fParag;
 	QVector<QStyleSheetItem> lastItems, items;
 	while ( p ) {
 	    items = p->styleSheetItems();
-	    if ( !items.size() ) {
-		p = p->next();
-		continue;
-	    }
-	    QStyleSheetItem *item = items[ items.size() - 1 ];
-	    items.resize( items.size() - 1 );
-	    if ( items.size() > lastItems.size() ) {
-		for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
-		    if ( items[ i ]->name().isEmpty() )
-			continue;
-		    s += "<" + items[ i ]->name() + ">";
+	    if ( items.size() ) {
+		QStyleSheetItem *item = items[ items.size() - 1 ];
+		items.resize( items.size() - 1 );
+		if ( items.size() > lastItems.size() ) {
+		    for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
+			if ( items[ i ]->name().isEmpty() )
+			    continue;
+			s += "<" + items[ i ]->name() + ">";
+		    }
+		} else {
+		    QString end;
+		    for ( int i = items.size(); i < (int)lastItems.size(); ++i ) {
+			if ( lastItems[ i ]->name().isEmpty() )
+			    continue;
+			end.prepend( "</" + lastItems[ i ]->name() + ">" );
+		    }
+		    s += end;
 		}
+		lastItems = items;
+		s += "<" + item->name() + ">" + p->richText() + "</" + item->name() + ">\n";
 	    } else {
-		QString end;
-		for ( int i = items.size(); i < (int)lastItems.size(); ++i ) {
-		    if ( lastItems[ i ]->name().isEmpty() )
-			continue;
-		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
-		}
-		s += end;
+		s += p->richText() + "\n";
 	    }
-	    lastItems = items;
-	    s += "<" + item->name() + ">" + p->richText() + "</" + item->name() + ">\n";
 	    p = p->next();
 	}
     } else {
@@ -4632,7 +4633,7 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 
     tmpwidth = width;
     tmpheight = height;
-    
+
     attributes = attr;
 }
 
@@ -5242,11 +5243,48 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
     else if ( attr["align"] == "right" )
 	place = PlaceRight;
     cachewidth = 0;
+    attributes = attr;
 }
 
 QTextTable::~QTextTable()
 {
     delete layout;
+}
+
+QString QTextTable::richText() const
+{
+    QString s;
+    s = "<table ";
+    QMap<QString, QString>::ConstIterator it = attributes.begin();
+    for ( ; it != attributes.end(); ++it )
+	s += it.key() + "=" + *it + " ";
+    s += ">\n";
+    
+    int lastRow = -1;
+    bool needEnd = FALSE;
+    QListIterator<QTextTableCell> it2( cells );
+    while ( it2.current() ) {
+	QTextTableCell *cell = it2.current();
+	++it2;
+	if ( lastRow != cell->row() ) {
+	    if ( lastRow != -1 )
+		s += "</tr>\n";
+	    s += "<tr>";
+	    lastRow = cell->row();
+	    needEnd = TRUE;
+	}
+	s += "<td ";
+	it = cell->attributes.begin();
+	for ( ; it != cell->attributes.end(); ++it )
+	    s += it.key() + "=" + *it + " ";
+	s += ">";
+	s += cell->richText()->richText();
+	s += "</td>";
+    }
+    if ( needEnd )
+	s += "</tr>\n";
+    s += "</table>\n";
+    return s;
 }
 
 void QTextTable::adjustToPainter( QPainter* p)
@@ -5614,6 +5652,8 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 	}
     }
 
+    attributes = attr;
+    
     parent->addCell( this );
 }
 
