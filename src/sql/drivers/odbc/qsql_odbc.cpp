@@ -1110,8 +1110,10 @@ bool QODBCResult::exec()
 #ifndef Q_ODBC_VERSION_2
             case QCoreVariant::String:
                 if (d->unicode) {
-                    QString str(val.toString());
+                    QString str = val.toString();
                     str.utf16();
+                    if (*ind != SQL_NULL_DATA)
+                        *ind = str.length() * sizeof(QChar);
                     if (bindValueType(i) & QSql::Out) {
                         QByteArray ba((char*)str.constData(), str.capacity() * sizeof(QChar));
                         r = SQLBindParameter(d->hStmt,
@@ -1124,6 +1126,7 @@ bool QODBCResult::exec()
                                             (void *)ba.constData(),
                                             ba.size(),
                                             ind);
+                        tmpStorage.append(ba);
                         break;
                     }
 
@@ -1142,7 +1145,9 @@ bool QODBCResult::exec()
 #endif
             // fall through
             default: {
-                QByteArray ba(val.toString().local8Bit());
+                QByteArray ba(val.toString().ascii());
+                if (*ind != SQL_NULL_DATA)
+                    *ind = ba.size();
                 r = SQLBindParameter(d->hStmt,
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
