@@ -36,10 +36,11 @@ static int menuBarHeightForWidth(QMenuBar *menubar, int w)
 
 /*!
     \class QLayoutItem
-    \ingroup appearance
-    \ingroup geomanagement
     \brief The QLayoutItem class provides an abstract item that a
     QLayout manipulates.
+
+    \ingroup appearance
+    \ingroup geomanagement
 
     This is used by custom layouts.
 
@@ -55,6 +56,13 @@ static int menuBarHeightForWidth(QMenuBar *menubar, int w)
     an iterator for the layout's children. If the concrete item is a
     QWidget, it can be retrieved using widget(). Similarly for
     layout() and spacerItem().
+
+    Some layouts have width and height interdependencies. These can be
+    expressed using hasHeightForWidth(), heightForWidth(), and
+    minimumHeightForWidth(). For more explanation see the \link
+    http://doc.trolltech.com/qq/ Qt Quarterly\endlink article, \link
+    http://doc.trolltech.com/qq/qq04-height-for-width.html Trading
+    Height for Width\endlink.
 
     \sa QLayout
 */

@@ -39,6 +39,11 @@ public:
     the \l currentIndex property, using setCurrentIndex(). The index
     of a given widget inside the stacked box is retrieved with
     indexOf(); widget() returns the widget at a given index position.
+
+    If you just want a stacked layout (i.e. no stack widget), use
+    QStackedLayout instead.
+
+    \sa QTabWidget
 */
 
 /*!

@@ -35,9 +35,11 @@
     in proportion to one another. (See \link layout.html
     Layouts\endlink for more information on stretch factors.)
 
+    If you just need a layout (not a widget) use QHBoxLayout instead.
+
     \img qhbox-m.png QHBox
 
-    \sa QHBoxLayout QVBox QGrid
+    \sa QVBox QGrid
 */
 
 

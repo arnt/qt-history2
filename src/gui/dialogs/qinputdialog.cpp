@@ -55,13 +55,15 @@ public:
     bool ok;
     QString text = QInputDialog::getText(
             "MyApp 3000", "Enter your name:", QLineEdit::Normal,
-            QString::null, &ok, this);
+            QString(), &ok, this);
     if (ok && !text.isEmpty()) {
         // user entered something and pressed OK
     } else {
         // user entered nothing or pressed Cancel
     }
     \endcode
+    The \c ok variable is set to true if the user clicked OK, or to
+    false if they cancelled.
 
     \img inputdialogs.png Input Dialogs
 */

@@ -49,7 +49,7 @@
     QFont font = QFontDialog::getFont(
                     &ok, QFont("Helvetica [Cronyx]", 10), this);
     if (ok) {
-        // font is set to the font the user selected
+        // the user clicked OK and font is set to the font the user selected
     } else {
         // the user canceled the dialog; font is set to the initial
         // value, in this case Helvetica [Cronyx], 10

@@ -26,11 +26,12 @@
     \ingroup organizers
 
     All its child widgets will be placed vertically and sized
-    according to their sizeHint()s.
+    according to their sizeHint()s. If you just need a layout (not a
+    widget) use QVBoxLayout instead.
 
     \img qvbox-m.png QVBox
 
-    \sa QHBox
+    \sa QHBox QGrid
 */
 
 

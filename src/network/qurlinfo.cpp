@@ -61,17 +61,20 @@ public:
     \ingroup io
     \ingroup misc
 
-    This class is just a container for storing information about URLs,
-    which is why all information must be passed in the constructor.
-
-    Unless you're reimplementing a network protocol you're unlikely to
-    create QUrlInfo objects yourself, but you may receive QUrlInfo
-    objects from functions, e.g. QUrlOperator::info().
-
-    The information that can be retrieved includes name(),
+    The information about a URL that can be retrieved includes name(),
     permissions(), owner(), group(), size(), lastModified(),
     lastRead(), isDir(), isFile(), isSymLink(), isWritable(),
     isReadable() and isExecutable().
+
+    You can create your own QUrlInfo objects passing in all the
+    relevant information in the constructor, and you can modify a
+    QUrlInfo; for each getter mentioned above there is an equivalent
+    setter. Note that setting values does not affect the underlying
+    resource that the QUrlInfo provides information about; for example
+    if you call setWritable(true) on a read-only resource the only
+    thing changed is the QUrlInfo object, not the resource.
+
+    \sa QUrl
 */
 
 /*!

@@ -62,11 +62,13 @@ Q4StyleOption QRubberBandPrivate::getStyleOption() const
 
     You can create a QRubberBand whenever you need to render a rubber
     band around a given area (or to represent a single line), then
-    call setGeometry() to move and size it; hiding (or destroying) the
-    widget will make the rubber band disappear.
+    call setGeometry(), move() or resize() to position and size it;
+    hiding (or destroying) the widget will make the rubber band
+    disappear. The rubber band can be a \c Rectangle or a \c Line,
+    depending on the shape() it was given when constructed.
 */
 
-//### How about some nice convenience constructors?
+// ### DOC: How about some nice convenience constructors?
 //QRubberBand::QRubberBand(QRubberBand::Type t, const QRect &rect, QWidget *p)
 //QRubberBand::QRubberBand(QRubberBand::Type t, int x, int y, int w, int h, QWidget *p)
 

@@ -118,11 +118,29 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
 
     \ingroup application
 
-    The QApplication class derives from QCoreApplication and adds many
-    features that are necessary for GUI programming.
+    This class is used by non-GUI applications to provide their event
+    loop. For GUI applications see QApplication.
 
-    The QCoreApplication object is available through the instance()
-    function.
+    The command line arguments which QCoreApplication's constructor
+    should be called with are accessible using argc() and argv(). The
+    event loop is started with a call to exec(). Long running
+    operations can call processEvents() to keep the application
+    responsive. An application has an applicationDirPath() and an
+    applicationFilePath(). Translators can be added or removed using
+    installTranslator() and removeTranslator().
+
+    The class provides one signal, aboutToQuit(), and one slot,
+    quit().
+
+    Several static convenience functions are also provided. The
+    QCoreApplication object is available from instance(), and the
+    event loop from eventLoop(). Events can be sent or posted using
+    sendEvent(), postEvent(), and sendPostedEvents(). Pending events
+    can be removed with removePostedEvents() or flushed with flush().
+    Library paths (see QLibrary) can be retrieved with libraryPaths()
+    and manipulated by setLibraryPaths(), addLibraryPath(), and
+    removeLibraryPath(). Application strings can be translated using
+    translate().
 */
 
 /*!
