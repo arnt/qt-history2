@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#136 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#137 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -124,8 +124,6 @@ Q_EXPORT HINSTANCE qWinAppInst();
 Q_EXPORT HINSTANCE qWinAppPrevInst();
 Q_EXPORT int	   qWinAppCmdShow();
 Q_EXPORT HDC	   qt_display_dc();
-
-enum WindowsVersion { WV_NT, WV_95, WV_98, WV_32s };
 
 #if defined(QT_DLL) || defined(QT_MAKEDLL)
 #define QT_BASEAPP

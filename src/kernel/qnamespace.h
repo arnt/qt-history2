@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#13 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#14 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -408,6 +408,13 @@ public:
 	FDiagPattern,
 	DiagCrossPattern,
 	CustomPattern=24
+    };
+
+    enum WindowsVersion {
+	WV_NT,
+	WV_95,
+	WV_98,
+	WV_32s
     };
 
 };
