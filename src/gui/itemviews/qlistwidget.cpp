@@ -177,7 +177,7 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
 
 bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
-    if (row < rowCount()) {
+    if (row >= 0 && row < rowCount()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
         QListWidgetItem *itm = 0;
         for (int r = 0; r < count; ++r) {

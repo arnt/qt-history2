@@ -424,19 +424,25 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
 
 bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
 {
-    Q_UNUSED(count);
-
+    emit rowsAboutToBeRemoved(parent, row, row + count - 1);
+    QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
         QTreeWidgetItem *p = item(parent);
-        if (p) {
-            emit rowsAboutToBeRemoved(parent, row, row);
-            p->children.removeAt(row);
-            return true;
+        Q_ASSERT(p);
+        for (int r = row; r < row + count; ++r) {
+             c = p->children.takeAt(r);
+             c->view = 0;
+             c->model = 0;
+             delete c;
         }
-        return false;
+    } else {
+        for (int r = row; r < row + count; ++r) {
+            c = tree.takeAt(r);
+            c->view = 0;
+            c->model = 0;
+            delete c;
+        }
     }
-    emit rowsAboutToBeRemoved(parent, row, row);
-    tree.removeAt(row);
     return true;
 }
 
