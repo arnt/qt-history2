@@ -1883,68 +1883,6 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     d->globalScope = scope == Global;
 }
 
-#if 0 //### static data brings threading trouble
-
-QString *QSettingsPrivate::defDomain = 0;
-QString *QSettingsPrivate::defProduct = 0;
-
-/*!
-  Sets the default domain to \a domain. The default is to use a null domain,
-  or to use "Qt", depending on the platform.
-
-  Only QSettings object created after setting the default domain are affected.
-
-  \sa setDefaultProduct(), setPath()
-*/
-void QSettings::setDefaultDomain( const QString &domain )
-{
-    if ( !QSettingsPrivate::defDomain )
-	QSettingsPrivate::defDomain = new QString( domain );
-    else
-	*QSettingsPrivate::defDomain = domain;
-}
-
-/*!
-  Returns the current default domain.
-
-  \sa setDefaultDomain()
-*/
-QString QSettings::defaultDomain()
-{
-    if ( QSettingsPrivate::defDomain )
-	return *QSettingsPrivate::defDomain;
-    return QString::null;
-}
-
-/*!
-  Sets the default product to \a product. The default is to use the application
-  name.
-
-  Only QSettings object created after setting the default product are affected.
-
-  \sa qAppName()
-*/
-void QSettings::setDefaultProduct( const QString &product )
-{
-    if ( !QSettingsPrivate::defProduct )
-	QSettingsPrivate::defProduct = new QString( product );
-    else
-	*QSettingsPrivate::defProduct = product;
-}
-
-/*!
-    Returns the current default product.
-
-    \sa setDefaultProduct()
-*/
-QString QSettings::defaultProduct()
-{
-    if ( QSettingsPrivate::defProduct )
-	return *QSettingsPrivate::defProduct;
-    return qAppName();
-}
-#endif
-
 /*!
     Appends \a group to the current key prefix.
 */

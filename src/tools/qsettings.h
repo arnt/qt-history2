@@ -130,13 +130,7 @@ public:
     void insertSearchPath( System, const QString & );
     void removeSearchPath( System, const QString & );
 
-    void setPath( const QString &domain, const QString &product, Scope = User );
-    /* ### static data brings threading trouble
-    static void setDefaultDomain( const QString &domain );
-    static QString defaultDomain();
-    static void setDefaultProduct( const QString &product );
-    static QString defaultProduct();
-    */
+    void setPath( const QString &domain, const QString &product, Scope = Global );
 
     void beginGroup( const QString &group );
     void endGroup();
