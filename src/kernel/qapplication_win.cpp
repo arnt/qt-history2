@@ -3596,13 +3596,13 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 		else {
 			ortNew = localPacketBuf[i].pkOrientation;
 			// convert from azimuth and altitude to x tilt and y tilt
-			double radAzim = ortNew.orAzimuth * ( PI / 180 );
-			double radAlt = ortNew.orAltitude * ( PI / 180 );
+			double radAzim = (ortNew.orAzimuth / 10) * ( PI / 180 );
+			double radAlt = abs(ortNew.orAltitude / 10) * ( PI / 180 );
 			double tmpX = cos(radAzim) * sin(radAlt);
 			double tmpY = cos(radAzim) * cos(radAlt);
 
-			double degX = atan( (tmpX) / sin(radAlt) );
-			double degY = asin( tmpY );
+			double degX = atan( tmpX / sin(radAlt) );
+			double degY = atan( tmpY / sin(radAlt) );
 			tiltX = degX * ( 180 / PI );
 			tiltY = degY * ( 180 / PI );
 		}

@@ -28,7 +28,8 @@ protected:
 protected:
 	QLabel *lblXTilt,
 		   *lblYTilt,
-		   *lblPressure;
+		   *lblPressure,
+		   *lblDev;
 };
 
 #endif
