@@ -263,6 +263,8 @@ void QListView::setMovement(Movement movement)
 {
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->movement = movement;
+    setDragEnabled(true);
+
     if (isVisible())
         doItemsLayout();
 }
@@ -482,6 +484,8 @@ void QListView::setViewMode(ViewMode mode)
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
     }
+
+    setDragEnabled(d->movement == Free);
 
     if (isVisible())
         doItemsLayout();
@@ -1142,7 +1146,6 @@ void QListViewPrivate::init()
     rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
     rubberBand->hide();
     viewport->setAcceptDrops(true);
-    q->setDragEnabled(true);
 }
 
 void QListViewPrivate::prepareItemsLayout()
