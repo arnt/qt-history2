@@ -77,7 +77,8 @@
 
   The function returns the QAccessibleInterface implementation of the object located at 
   the direction specified, or this QAccessibleInterface if the target object is a subelement
-  of this object. \a startEnd is then set to the ID of this subelement.
+  of this object. \a startEnd is then set to the ID of this subelement. If there is nothing
+  at the navigated \a direction, this function returns NULL.
 */
 
 /*!
