@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#164 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#165 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2134,7 +2134,9 @@ const char* QString::ascii() const
 QCString QString::utf8() const
 {
     static QTextCodec* codec = QTextCodec::codecForMib(106);
-    return codec->fromUnicode(*this);
+    return codec
+	    ? codec->fromUnicode(*this)
+	    : QCString(ascii());
 }
 
 /*!
@@ -2148,7 +2150,9 @@ QCString QString::utf8() const
 QString QString::fromUtf8(const char* utf8, int len)
 {
     static QTextCodec* codec = QTextCodec::codecForMib(106);
-    return codec->toUnicode(utf8, len < 0 ? strlen(utf8) : len);
+    return codec
+	    ? codec->toUnicode(utf8, len < 0 ? strlen(utf8) : len)
+	    : QString(utf8);
 }
 
 /*!

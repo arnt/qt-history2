@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#43 $
 **
 ** Implementation of QTextCodec class
 **
@@ -25,9 +25,11 @@
 
 #include "qlist.h"
 #include "qtextcodec.h"
+#ifndef QT_NO_CODECS
 #include "qutfcodec.h"
 #include "qeuccodec.h"
 #include "qkoi8codec.h"
+#endif
 
 #include "qfile.h"
 #include "qstrlist.h"
@@ -954,6 +956,8 @@ const char* QTextCodec::locale()
 
 
 
+#ifndef QT_NO_CODECS
+
 class QSimpleTextCodec: public QTextCodec
 {
 public:
@@ -1289,3 +1293,8 @@ static void setupBuiltinCodecs()
     (void)new QUtf16Codec;
 }
 
+#else
+static void setupBuiltinCodecs()
+{
+}
+#endif // QT_NO_CODECS
