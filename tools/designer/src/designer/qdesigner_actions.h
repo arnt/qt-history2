@@ -104,6 +104,7 @@ private slots:
     void saveForm();
     void saveFormAs();
     void saveFormAsTemplate();
+    void previewForm();
     void notImplementedYet();
     void editPreferences();
 

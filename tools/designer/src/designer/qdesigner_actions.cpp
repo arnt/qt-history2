@@ -23,7 +23,10 @@
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
+#include <qdesigner_formbuilder.h>
 #include <qtundo.h>
+
+#include <QtCore/QBuffer>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -197,7 +200,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_previewFormAction = new QAction(tr("&Preview"), this);
     m_previewFormAction->setShortcut(tr("CTRL+R"));
-    connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(notImplementedYet()));
+    connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(previewForm()));
     m_formActions->addAction(m_previewFormAction);
 
 //
@@ -554,6 +557,18 @@ void QDesignerActions::editPreferences()
     }
     m_preferenceDialog->show();
     m_preferenceDialog->raise();
+}
+
+void QDesignerActions::previewForm()
+{
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow()) {
+        QDesignerFormBuilder builder(core());
+        QByteArray bytes = fw->contents().toUtf8();
+        QBuffer buffer(&bytes);
+        QWidget *widget = builder.load(&buffer, 0);
+        Q_ASSERT(widget);
+        widget->show();
+    }
 }
 
 
