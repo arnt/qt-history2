@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QList>
 #include <QMainWindow>
 
 class QAction;
@@ -13,29 +14,25 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-
-protected:
-    void closeEvent(QCloseEvent *event);
+    ~MainWindow();
 
 private slots:
     void newFile();
     void open();
     void save();
     void saveAs();
+    void openRecentFile();
     void about();
 
 private:
     void createActions();
     void createMenus();
-    void readSettings();
-    void writeSettings();
     void loadFile(const QString &fileName);
     void saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
-    QString strippedName(const QString &fullFileName);
     void updateRecentFileActions();
+    QString strippedName(const QString &fullFileName);
 
-    QStringList recentFiles;
     QString curFile;
 
     QTextEdit *textEdit;
@@ -46,12 +43,16 @@ private:
     QAction *openAct;
     QAction *saveAct;
     QAction *saveAsAct;
+    QAction *closeAct;
     QAction *exitAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
+    QAction *separatorAct;
 
     enum { MaxRecentFiles = 5 };
     QAction *recentFileActs[MaxRecentFiles];
+
+    static QList<MainWindow *> windowList;
 };
 
 #endif

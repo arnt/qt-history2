@@ -1,6 +1,9 @@
+#include <QtCore> // ### for QSettings
 #include <QtGui>
 
 #include "mainwindow.h"
+
+QList<MainWindow *> MainWindow::windowList;
 
 MainWindow::MainWindow()
 {
@@ -12,20 +15,19 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
     (void)statusBar();
-
-    readSettings();
+    windowList.append(this);
 
     setWindowTitle(tr("Recent Files"));
 }
 
-void MainWindow::closeEvent(QCloseEvent *)
+MainWindow::~MainWindow()
 {
-    writeSettings();
+    windowList.removeAll(this);
 }
 
 void MainWindow::newFile()
 {
-    MainWindow *other = new MainWindow();
+    MainWindow *other = new MainWindow;
     other->show();
 }
 
@@ -64,6 +66,13 @@ void MainWindow::saveAs()
         saveFile(fileName);
 }
 
+void MainWindow::openRecentFile()
+{
+    QAction *action = qt_cast<QAction *>(sender());
+    if (action)
+        loadFile(action->iconText());
+}
+
 void MainWindow::about()
 {
    QMessageBox::about(this, tr("About Recent Files"),
@@ -95,12 +104,19 @@ void MainWindow::createActions()
     for (int i = 0; i < MaxRecentFiles; ++i) {
         recentFileActs[i] = new QAction(this);
         recentFileActs[i]->setVisible(false);
+        connect(recentFileActs[i], SIGNAL(activated()),
+                this, SLOT(openRecentFile()));
     }
+
+    exitAct = new QAction(tr("&Close"), this);
+    exitAct->setShortcut(tr("Ctrl+W"));
+    exitAct->setStatusTip(tr("Close this window"));
+    connect(exitAct, SIGNAL(activated()), this, SLOT(close()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(activated()), qApp, SLOT(quit()));
+    connect(exitAct, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
@@ -118,34 +134,18 @@ void MainWindow::createMenus()
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
-    fileMenu->addSeparator();
-
+    separatorAct = fileMenu->addSeparator();
+    for (int i = 0; i < MaxRecentFiles; ++i)
+        fileMenu->addAction(recentFileActs[i]);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
+    updateRecentFileActions();
 
     menuBar()->addSeparator();
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
-}
-
-void MainWindow::readSettings()
-{
-#if 0
-    // TODO: enable settings code when the new QSettings is available
-    QSettings settings("doc.trolltech.com", "Recent Files");
-    recentFiles = settings.value("recentFiles").toStringList();
-#endif
-}
-
-void MainWindow::writeSettings()
-{
-#if 0
-    // TODO: enable settings code when the new QSettings is available
-    QSettings settings("doc.trolltech.com", "Recent Files");
-    settings.setValue("recentFiles", recentFiles);
-#endif
 }
 
 void MainWindow::loadFile(const QString &fileName)
@@ -196,6 +196,55 @@ void MainWindow::setCurrentFile(const QString &fileName)
     else
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
                                     .arg(tr("Recent Files")));
+
+#if 0
+    QSettings settings("doc.trolltech.com", "Recent Files");
+    QStringList files = settings.value("recentFileList");
+#else
+    QSettings settings;
+    settings.setPath("doc.trolltech.com", "Recent Files");
+    settings.beginGroup("Recent Files");
+    QStringList files = settings.readListEntry("recentFileList");
+#endif
+    files.removeAll(fileName);
+    files.prepend(fileName);
+
+#if 0
+    settings.setValue("recentFileList", files);
+#else
+    settings.writeEntry("recentFileList", files);
+    settings.sync();
+#endif
+
+    foreach (MainWindow *win, windowList)
+        win->updateRecentFileActions();
+}
+
+void MainWindow::updateRecentFileActions()
+{
+#if 0
+    QSettings settings("doc.trolltech.com", "Recent Files");
+    QStringList files = settings.value("recentFileList");
+#else
+    QSettings settings;
+    settings.setPath("doc.trolltech.com", "Recent Files");
+    settings.sync();
+    settings.beginGroup("Recent Files");
+    QStringList files = settings.readListEntry("recentFileList");
+#endif
+
+    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        QString text = tr("&%1 %2").arg(i + 1).arg(strippedName(files[i]));
+        recentFileActs[i]->setText(text);
+        recentFileActs[i]->setIconText(files[i]);
+        recentFileActs[i]->setVisible(true);
+    }
+    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
+        recentFileActs[j]->setVisible(false);
+
+    separatorAct->setVisible(numRecentFiles > 0);
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
