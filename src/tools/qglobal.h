@@ -127,6 +127,12 @@
 #undef	_OS_UNIX_
 #elif !defined(_OS_UNIX_)
 #define _OS_UNIX_
+// QT_CLEAN_NAMESPACE is not defined by default; it would break too
+// much code.
+#if !defined(QT_CLEAN_NAMESPACE)
+// ### remove 3.0
+#define UNIX
+#endif
 #endif
 
 
