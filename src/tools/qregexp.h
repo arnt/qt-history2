@@ -77,7 +77,7 @@ public:
     static QString escape(const QString& str);
 
 #ifdef QT_COMPAT
-    QRegExp(const QString& pattern, bool caseSensitive, bool wildcard = false) QT_COMPAT;
+    QRegExp(const QString& pattern, bool caseSensitive, bool wildcard = false);
 #endif
 private:
     void prepareEngine() const;
