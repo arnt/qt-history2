@@ -1059,7 +1059,6 @@ void Glade2Ui::emitGtkComboChildWidgets(
 	const QValueList<QDomElement>& childWidgets, const QStringList& items )
 {
     QString text;
-    int initialChoice = 0;
 
     // there should be exactly one child, of type GtkEntry
     if ( childWidgets.count() == 1 ) {
@@ -1081,11 +1080,11 @@ void Glade2Ui::emitGtkComboChildWidgets(
     QStringList::ConstIterator s = items.begin();
     while ( s != items.end() ) {
 	if ( !text.isEmpty() && *s == text )
-	    initialChoice = n;
+	    emitProperty( QString("currentItem"), n );
 	n++;
 	++s;
     }
-    emitProperty( QString("currentItem"), initialChoice );
+
 }
 
 void Glade2Ui::emitGtkNotebookChildWidgets(
@@ -1847,8 +1846,6 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		emitProperty( QString("vScrollBarMode"),
 			      gtk2qtScrollBarMode(vscrollbarPolicy),
 			      QString("enum") );
-	    if ( initialChoice != 0 )
-		emitProperty( QString("currentItem"), initialChoice );
 	    if ( !justify.isEmpty() ||
 		 (wrap && gtkClass != QString("GtkSpinButton")) ) {
 		QStringList flags;
