@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#330 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#331 $
 **
 ** Implementation of QFileDialog class
 **
@@ -618,20 +618,17 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
 	    QUrl u( filedialog->url(), item->text() );
-	    // ###########
-	    // 	    if ( QFile::exists( source ) ) {
-		QUriDrag* drag = new QUriDrag( viewport() );
-		drag->setUnicodeUris( u.toString() );
+	    QUriDrag* drag = new QUriDrag( viewport() );
+	    drag->setUnicodeUris( u.toString() );
 
-		if ( lined->isVisible() )
-		    cancelRename();
+	    if ( lined->isVisible() )
+		cancelRename();
 
-		connect( drag, SIGNAL( destroyed() ),
-			 this, SLOT( dragObjDestroyed() ) );
-		drag->drag();
-
-		mousePressed = FALSE;
-// 	    }
+	    connect( drag, SIGNAL( destroyed() ),
+		     this, SLOT( dragObjDestroyed() ) );
+	    drag->drag();
+	    
+	    mousePressed = FALSE;
 	}
     }
 
@@ -1038,20 +1035,17 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 			      itemAt( e->pos() );
 	if ( item ) {
 	    QUrl u( filedialog->url(), item->text( 0 ) );
-	    // #############
-	    // 	    if ( QFile::exists( source ) ) {
-		QUriDrag* drag = new QUriDrag( viewport() );
-		drag->setUnicodeUris( u.toString() );
+	    QUriDrag* drag = new QUriDrag( viewport() );
+	    drag->setUnicodeUris( u.toString() );
 
-		if ( lined->isVisible() )
-		    cancelRename();
+	    if ( lined->isVisible() )
+		cancelRename();
 
-		connect( drag, SIGNAL( destroyed() ),
-			 this, SLOT( dragObjDestroyed() ) );
-		drag->drag();
+	    connect( drag, SIGNAL( destroyed() ),
+		     this, SLOT( dragObjDestroyed() ) );
+	    drag->drag();
 
-		mousePressed = FALSE;
-// 	    }
+	    mousePressed = FALSE;
 	}
     }
 
