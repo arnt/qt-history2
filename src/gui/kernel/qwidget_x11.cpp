@@ -1351,7 +1351,7 @@ void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
-        XSetInputFocus(d->xinfo.display(), tlw->winId(), XRevertToNone, X11->time);
+        XSetInputFocus(d->xinfo.display(), tlw->winId(), XRevertToParent, X11->time);
     }
 }
 
