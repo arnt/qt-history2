@@ -307,7 +307,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	InstallWindowContentPaintProc((WindowPtr)id, macSpecialErase, 0, this);
 //	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
-	SetThemeWindowBackground((WindowPtr)id, kThemeBrushModelessDialogBackgroundActive, false);
+
 	if(testWFlags( WType_Popup )) 
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	if(!mac_window_count++)
@@ -1095,7 +1095,6 @@ void QWidget::erase( int x, int y, int w, int h )
     erase( QRegion( x, y, w, h ) );
 }
 
-bool fuckery = FALSE;
 void QWidget::erase( const QRegion& reg )
 {
     if ( backgroundMode() == NoBackground )
