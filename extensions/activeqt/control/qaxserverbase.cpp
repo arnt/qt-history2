@@ -1251,13 +1251,10 @@ HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
 void QAxServerBase::createMenu( QMenuBar *menuBar )
 {
     hmenuShared = ::CreateMenu();
-    OLEMENUGROUPWIDTHS menuWidths;
-    memset( &menuWidths, 0, sizeof(OLEMENUGROUPWIDTHS) );
-    HRESULT hres = m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
-    if ( FAILED(hres) ) {
-	::DestroyMenu( hmenuShared );
-	return;	   
-    }
+
+    int edit = 0;
+    int object = 0;
+    int help = 0;
 
     for ( uint i = 0; i < menuBar->count(); ++i ) {
 	int qid = menuBar->idAt( i );
@@ -1273,6 +1270,13 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	else
 	    flags |= MF_STRING;
 
+	if ( qitem->text() == activeqt->tr("&Edit") )
+	    edit++;
+	else if ( qitem->text() == activeqt->tr("&Help") )
+	    help++;
+	else
+	    object++;
+
 	UINT itemId = qitem->popup() ? (UINT)createPopup( qitem->popup() ) : qid;
 	QT_WA( {
 	    AppendMenuW( hmenuShared, flags, itemId, (TCHAR*)qitem->text().ucs2() );
@@ -1280,7 +1284,14 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	    AppendMenuA( hmenuShared, flags, itemId, qitem->text().local8Bit() );
 	} );
     }
-    menuWidths.width[1] = menuBar->count()+1;
+
+    OLEMENUGROUPWIDTHS menuWidths = {0,edit,0,object,0,help};
+    HRESULT hres = m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
+    if ( FAILED(hres) ) {
+	::DestroyMenu( hmenuShared );
+	return;	   
+    }
+
     m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
 
     holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
