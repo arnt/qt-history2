@@ -212,7 +212,7 @@ VERSION=${VERSION}
 # the "proper" rules of library numbering.
 
 library: \$(OBJECTS) \$(METAOBJ)
-	-rm -f ../../lib/libqt.so.\${VERSION}
+	-rm -f ../../../lib/libqt.so.\${VERSION}
 	\$(CC) -shared -Wl,-soname,libqt.so.0 \\
 		-o ../../../lib/libqt.so.\${VERSION} \\
 		\$(OBJECTS) \$(METAOBJ) -lX11 -lgcc -lc
