@@ -2054,10 +2054,10 @@ void QTextEdit::doResize()
     doc->setWidth( visibleWidth() );
     wrapWidth = visibleWidth();
     doc->invalidate();
-    repaintContents( FALSE );
     lastFormatted = doc->firstParag();
     interval = 0;
     formatMore();
+    repaintContents( FALSE );
 }
 
 /*! \internal */
@@ -2807,9 +2807,6 @@ void QTextEdit::setText( const QString &text, const QString &context )
     if ( this->text() == text && this->context() == context )
 	return;
 
-    if ( qApp->font() != QScrollView::font() )
-	setFont( QScrollView::font() );
-
     emit undoAvailable( FALSE );
     emit redoAvailable( FALSE );
     undoRedoInfo.clear();
@@ -2818,12 +2815,20 @@ void QTextEdit::setText( const QString &text, const QString &context )
     lastFormatted = 0;
     cursor->restoreState();
     doc->setText( text, context );
-    doc->setMinimumWidth( -1, 0 );
-    resizeContents( 0, 0 );
+
+    if ( wrapMode == FixedPixelWidth ) {
+	resizeContents( wrapWidth, 0 );
+	doc->setWidth( wrapWidth );
+	doc->setMinimumWidth( wrapWidth, 0 );
+    } else {
+	doc->setMinimumWidth( -1, 0 );
+	resizeContents( 0, 0 );
+    }
+
     cursor->setDocument( doc );
+    lastFormatted = doc->firstParag();
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
-
     repaintContents( FALSE );
     emit textChanged();
     formatMore();
@@ -3869,7 +3874,7 @@ void QTextEdit::setWrapColumnOrWidth( int value )
 	doc->setMinimumWidth( -1, 0 );
     } else if (wrapMode == FixedPixelWidth ) {
 	document()->formatter()->setWrapAtColumn( -1 );
-	resizeContents( 0, 0 );
+	resizeContents( wrapWidth, 0 );
 	doc->setWidth( wrapWidth );
 	doc->setMinimumWidth( wrapWidth, 0 );
     } else {
