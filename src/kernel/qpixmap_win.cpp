@@ -932,6 +932,15 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 }
 
 
+QPixmap QPixmap::smoothScale( int w, int h ) const
+{
+    // ### can you optimize this?
+    QPixmap p;
+    p.convertFromImage( convertToImage().smoothScale( w, h ) );
+    return p;
+}
+
+
 HDC QPixmap::multiCellHandle() const
 {
     return data->mcp ? DATA_MCPI_MCP->handle() : 0;

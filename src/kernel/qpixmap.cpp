@@ -685,6 +685,39 @@ const char* QPixmap::imageFormat( const QString &fileName )
     return QImageIO::imageFormat(fileName);
 }
 
+#ifndef QT_NO_TRANSFORMATIONS
+/*!
+  Returns a pixmap that is a scaled version of this pixmap with width \w and
+  height \a h. This function uses a quite simple algorithm for doing this task;
+  if you need a better quality, use smoothScale() instead.
+
+  \sa smoothScale() xForm()
+*/
+QPixmap QPixmap::scale( int w, int h ) const
+{
+    QWMatrix wm;
+    wm.scale( (double)w/width(), (double)h/height() );
+    QPixmap p = xForm( wm );
+    if ( p.width() != w || p.height() != h )
+	p.resize( w, h );
+    return p;
+}
+
+/*! \overload
+*/
+QPixmap QPixmap::scale( const QSize& size ) const
+{
+    return scale( size.width(), size.height() );
+}
+#endif
+
+/*! \overload
+*/
+QPixmap QPixmap::smoothScale( const QSize& size ) const
+{
+    return smoothScale( size.width(), size.height() );
+}
+
 
 /*!
   Loads a pixmap from the file \e fileName at runtime.

@@ -105,6 +105,13 @@ public:
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 #endif
 
+#ifndef QT_NO_TRANSFORMATIONS
+    QPixmap scale( int w, int h ) const;
+    QPixmap scale( const QSize& size ) const;
+#endif
+    QPixmap smoothScale( int w, int h ) const;
+    QPixmap smoothScale( const QSize& size ) const;
+
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
     bool	convertFromImage( const QImage &, int conversion_flags );

@@ -739,6 +739,16 @@ QWMatrix QPixmap::trueMatrix(const QWMatrix & matrix,int w,int h)
     return mat;
 }
 
+
+QPixmap QPixmap::smoothScale( int w, int h ) const
+{
+    // ### can you optimize this?
+    QPixmap p;
+    p.convertFromImage( convertToImage().smoothScale( w, h ) );
+    return p;
+}
+
+
 void QPixmap::setOptimization( Optimization  )
 {
 }
