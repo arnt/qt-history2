@@ -190,7 +190,7 @@ UnixMakefileGenerator::init()
 
     if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
         project->variables()["DISTFILES"] += project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
-    project->variables()["DISTFILES"] += Option::mkfile::project_files;
+    project->variables()["DISTFILES"] += project->projectFile();
 
     init2();
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "QMAKE_LIBDIR_FLAGS" << "QMAKE_LIBS";

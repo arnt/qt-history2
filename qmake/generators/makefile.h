@@ -37,12 +37,11 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     QMap<QString, QStringList> depends;
 
 protected:
-    void writePrlFile();
+    //makefile style generator functions
     void writeObj(QTextStream &, const QString &obj, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
     void writeInstalls(QTextStream &t, const QString &installs);
-
     void writeHeader(QTextStream &t);
     void writeSubDirs(QTextStream &t);
     void writeMakeQmake(QTextStream &t);
@@ -50,9 +49,9 @@ protected:
     void writeExtraTargets(QTextStream &t);
     void writeExtraCompilerTargets(QTextStream &t);
     void writeExtraCompilerVariables(QTextStream &t);
+    virtual bool writeMakefile(QTextStream &);
 
-    bool verifyExtraCompiler(const QString &c, const QString &f);
-
+    //generating subtarget makefiles
     struct SubTarget
     {
         QString directory, profile, target, makefile;
@@ -64,23 +63,40 @@ protected:
     };
     void writeSubTargets(QTextStream &t, QList<SubTarget*> subtargets, int flags);
 
+    //extra compiler interface
+    bool verifyExtraCompiler(const QString &c, const QString &f);
+    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+
+    //compiler interface (just a sketch, not used yet)
+    struct Compiler
+    {
+        QStringList variable_in, variable_out;
+        QMakeSourceFileInfo::SourceFileType type;
+        enum CompilerFlags {
+            CompilerNoCheckDeps  = 0x01,
+            CompilerNoCheckExist = 0x02
+        };
+        uchar flags;
+    };
+
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
     QMakeProject *project;
 
+    //initialization
     virtual void init();
+    void initOutPaths();
+
+    //subclasses can use these to query information about how the generator was "run"
     QString buildArgs();
     QString specdir();
-
-    virtual QStringList &findDependencies(const QString &file);
 
     void setNoIO(bool o);
     bool noIO() const;
 
+    virtual QStringList &findDependencies(const QString &file);
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
-    virtual bool writeMakefile(QTextStream &);
-    void initOutPaths();
 
     //for cross-platform dependent directories
     virtual void usePlatformDir();
@@ -89,6 +105,7 @@ protected:
     virtual QString defaultInstall(const QString &);
 
     //for prl
+    void writePrlFile();
     bool processPrlFile(QString &);
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual void processPrlFiles();
@@ -97,6 +114,7 @@ protected:
     //make sure libraries are found
     virtual bool findLibraries();
 
+    //for retrieving values and lists of values
     virtual QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
@@ -104,10 +122,9 @@ protected:
     QString valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after);
     QString valList(const QStringList &varList);
 
-    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
-
     QString filePrefixRoot(const QString &, const QString &);
 
+    //file fixification to unify all file names into a single pattern
     friend struct FileFixifyCacheKey;
     friend uint qHash(const FileFixifyCacheKey &f);
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };

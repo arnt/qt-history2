@@ -377,7 +377,7 @@ MakefileGenerator::init()
             QList<QMakeLocalFileName> deplist;
             for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it)
                 deplist.append(QMakeLocalFileName((*it)));
-            setDependencyPaths(deplist);
+            QMakeSourceFileInfo::setDependencyPaths(deplist);
             debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").toLatin1().constData());
             //cache info
             if(project->isActiveConfig("qmake_cache")) {
@@ -391,7 +391,7 @@ MakefileGenerator::init()
                 }
                 if(cache_file.indexOf(QDir::separator()) == -1)
                     cache_file.prepend(Option::output_dir + QDir::separator());
-                setCacheFile(cache_file);
+                QMakeSourceFileInfo::setCacheFile(cache_file);
             }
         }
         {
@@ -1732,8 +1732,8 @@ QString MakefileGenerator::build_args()
         ret += " -o " + ofile;
 
     //inputs
-    QStringList files = fileFixify(Option::mkfile::project_files);
-    ret += " " + files.join(" ");
+    ret += " " + fileFixify(project->projectFile());
+
     return ret;
 }
 
@@ -2530,8 +2530,4 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
     }
     return false;
 }
-
-
-
-
 
