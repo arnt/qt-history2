@@ -9,15 +9,12 @@
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
-  init( 0, 0, 0, FALSE, NormalOptim );
-  if ( w <= 0 || h <= 0 )                     // create null pixmap
-    return;
+  init(w, h, 1, TRUE, DefaultOptim);
 
   data->uninit = FALSE;
   data->w = w;
   data->h = h;
   data->d = 1;
-  init(w, h, 1, TRUE, DefaultOptim);
 
   GWorldPtr savedworld;
   GDHandle savedhandle;
@@ -332,6 +329,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   data->bitmap=bitmap;
   data->ser_no=++serial;
   data->optim=optim;
+  data->d = d;
     
   hd=0;
   if(w>1024 || h > 1024) {
@@ -363,7 +361,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   e=NewGWorld((GWorldPtr *)&hd,d,&rect,0,0,someflags);
 
   if((e & gwFlagErr)!=0) {
-    // Something went wrong
+    qDebug( "QPixmap::init Something went wrong" );
+    ASSERT(0);
     hd=0;
   } else {
     data->w=w;
