@@ -2846,22 +2846,19 @@ QString QFileDialog::dirPath() const
     return d->url.dirPath();
 }
 
-// This regex allows (*.a *.b *.c) and (*.a;*.b;*.c) which are OK, but
-// also allows (*.a *.b;*.c) which is not (the filter likes to have
-// only one kind of separator). The fix would be long and tedious.
-// Also allows (*) as a special case.
+// A more liberal filter regex which accepts anything that has a star in
+// it.
 extern const char qt_file_dialog_filter_reg_exp[] =
-    "\\((?:(?:\\*\\.[^ ;]+[ ;])*(?:\\*\\.[^ ;]+)|\\*)\\)$";
+    "\\((?:[^ ;]*\\*[^ ;]*[ ;])*[^ ;]*\\*[^ ;]*\\)$";
 
 /*!
 
   Sets the filter used in the file dialog to \a newFilter.
 
-  If \a newFilter contains a pair of parentheses containing either a
-  single asterisk <b>*</b>, e.g. "All Unix files (*)", or one or more of
-  <em><b>*.something</b></em> separated by spaces or by semi-colons then
-  only the text contained in the parentheses is used as the filter. This
-  means that these calls are all equivalent:
+  If \a newFilter contains a pair of parentheses containing one or more
+  of <em><b>anything*something</b></em> separated by spaces or by
+  semi-colons then only the text contained in the parentheses is used as
+  the filter.  This means that these calls are all equivalent:
 
   \code
      fd->setFilter( "All C++ files (*.cpp *.cc *.C *.cxx *.c++)" );
