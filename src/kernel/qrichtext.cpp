@@ -580,7 +580,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 #endif
     if ( checkNewLine )
 	justInsert = s.find( '\n' ) == -1;
-    if ( justInsert ) {
+    if ( justInsert ) { // we ignore new lines and insert all in the current para at the current index
 	string->insert( idx, s.unicode(), s.length() );
 	if ( formatting ) {
 	    for ( int i = 0; i < (int)s.length(); ++i ) {
@@ -591,33 +591,23 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	    }
 	}
 	idx += s.length();
-    } else {
+    } else { // we split at new lines
 	int start = -1;
 	int end;
 	int y = string->rect().y() + string->rect().height();
 	int lastIndex = 0;
 	QTextFormat *lastFormat = 0;
 	do {
-	    end = s.find( '\n', start + 1 );
-	    if ( end == -1 )
+	    end = s.find( '\n', start + 1 ); // find line break
+	    if ( end == -1 ) // didn't find one, so end of line is end of string
 		end = s.length();
-	    if ( start > 0 ) {
-		splitAndInsertEmptyParag( FALSE, TRUE );
-		string->setEndState( -1 );
-		string->prev()->format( -1, FALSE );
-		if ( lastFormat && formatting && string->prev() ) {
-		    lastFormat->addRef();
-		    string->prev()->string()->setFormat( string->prev()->length() - 1, lastFormat, TRUE );
-		}
-	    }
-	    lastFormat = 0;
 	    int len = (start == -1 ? end : end - start - 1);
-	    if ( len > 0 )
+	    if ( len > 0 ) // insert the line
 		string->insert( idx, s.unicode() + start + 1, len );
 	    else
 		string->invalidate( 0 );
-	    start = end;
-	    if ( formatting ) {
+	    lastFormat = 0;
+	    if ( formatting ) { // set formats to the chars of the line
 		for ( int i = 0; i < len; ++i ) {
 		    if ( formatting->at( i + lastIndex ).format() ) {
 			formatting->at( i + lastIndex ).format()->addRef();
@@ -628,14 +618,24 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 		    lastFormat = formatting->at( len + lastIndex ).format();
 		lastIndex += len;
 	    }
+	    start = end; // next start is at the end of this line
+	    idx += len; // increase the index of the cursor to the end of the inserted text
+	    if ( s[end] == '\n' ) { // if at the end was a line break, break the line
+		splitAndInsertEmptyParag( FALSE, TRUE );
+		string->setEndState( -1 );
+		string->prev()->format( -1, FALSE );
+		if ( lastFormat && formatting && string->prev() ) {
+		    lastFormat->addRef();
+		    string->prev()->string()->setFormat( string->prev()->length() - 1, lastFormat, TRUE );
+		}
+	    }
 
-	    idx += len;
 	} while ( end < (int)s.length() );
 
 	string->format( -1, FALSE );
 	int dy = string->rect().y() + string->rect().height() - y;
 	QTextParag *p = string;
-	p->setParagId( p->prev()->paragId() + 1 );
+	p->setParagId( p->prev() ? p->prev()->paragId() + 1 : 0 );
 	p = p->next();
 	while ( p ) {
 	    p->setParagId( p->prev()->paragId() + 1 );
