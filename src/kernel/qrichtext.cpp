@@ -4171,9 +4171,15 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    lineStart->h = h;
 		}
 		lineStart = formatLine( string, lineStart, firstChar, c-1, align, w - x );
-		
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
+		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
+		    int nx = parag->nextTab( x );
+		    if ( nx < x )
+			ww = w - x;
+		    else
+			ww = nx - x + 1;
+		}
 		if ( x != left || w != dw )
 		    fullWidth = FALSE;
 		curLeft = x;
@@ -4196,6 +4202,13 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lineStart = formatLine( string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
+		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
+		    int nx = parag->nextTab( x );
+		    if ( nx < x )
+			ww = w - x;
+		    else
+			ww = nx - x + 1;
+		}
 		if ( x != left || w != dw )
 		    fullWidth = FALSE;
 		curLeft = x;

@@ -2291,7 +2291,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 	}
 	if ( expandtabs ) {
 	    parag->setTabArray( tabarray );
-	    parag->setTabStops( tabstops );
+	    if ( tabstops > 0 )
+		parag->setTabStops( tabstops );
 	}
 	f->removeRef();
 #if defined(FORMAT_TEXT_DEBUG)
