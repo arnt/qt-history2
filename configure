@@ -2502,7 +2502,7 @@ FORCE:
 EOF
 	else
 	    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $N $a"
-	    if [ "x$VERBOSE" = "xyes" ]
+	    if [ "x$OPT_VERBOSE" = "xyes" ]
 	    then
 		echo " (`basename $SPEC`)"
 		if echo '\c' | grep '\c' >/dev/null
@@ -2514,12 +2514,12 @@ EOF
 	    fi
 	    echo
 	
-	    if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
+	    if [ "x$OPT_CONCURRENT" = "x0" ] || [ "x$OPT_CONCURRENT" = "x1" ]
 	    then
 		EXEC=$PIPE
 	    else
 		EXEC="$EXEC ($PIPE & ) ;"
-		if [ "x$PROCS" != "x$CONCURRENT" ]
+		if [ "x$PROCS" != "x$OPT_CONCURRENT" ]
 		then
 		    PROCS=`expr $PROCS + 1`
 		else
