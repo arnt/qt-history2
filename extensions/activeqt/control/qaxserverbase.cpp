@@ -1741,7 +1741,7 @@ HRESULT WINAPI QAxServerBase::GetTypeInfoCount(UINT* pctinfo)
 /*
     Provides the ITypeInfo for this IDispatch implementation.
 */
-HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pptinfo)
+HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID /*lcid*/, ITypeInfo** pptinfo)
 {
     if ( !pptinfo )
 	return E_POINTER;
@@ -1766,7 +1766,7 @@ HRESULT WINAPI QAxServerBase::GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pp
     Provides the names of the methods implemented in this IDispatch implementation.
 */
 HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UINT cNames,
-				     LCID lcid, DISPID* rgdispid)
+				     LCID /*lcid*/, DISPID* rgdispid)
 {
     if ( !rgszNames || !rgdispid )
 	return E_POINTER;
@@ -1784,8 +1784,8 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
     Map the COM call to the Qt slot/property for \a dispidMember.
 */
 HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
-		  LCID lcid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pvarResult,
-		  EXCEPINFO* pexcepinfo, UINT* puArgErr )
+		  LCID /*lcid*/, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pvarResult,
+		  EXCEPINFO* /*pexcepinfo*/, UINT* puArgErr )
 {
     if ( riid != IID_NULL )
 	return DISP_E_UNKNOWNINTERFACE;
@@ -1825,34 +1825,42 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_BADPARAMCOUNT;
 
 	    // setup parameters
+	    bool ok = TRUE;
 	    QUObject *objects = 0;
 	    if ( pcount ) {
 		objects = new QUObject[pcount+1];
 		for ( int p = 0; p < pcount; ++p ) {
 		    // map the VARIANT to the QUObject, and try to get the required type
 		    objects[p+1].payload.ptr = 0;
-		    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p + retoff );
+		    if ( !VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p + retoff ) ) {
+			if ( puArgErr )
+			    *puArgErr = pcount-p-1;
+			ok = FALSE;
+		    }
 		}
 	    } else if ( retoff ) {
 		objects = new QUObject[1];
 	    }
 
-	    // call the slot
-	    activeqt->qt_invoke( index, objects );
+	    // call the slot if everthing went fine.
+	    if ( ok ) {
+		activeqt->qt_invoke( index, objects );
 
-	    // update reference parameters and value
-	    for ( int p = 0; p < pcount; ++p ) {
-		if ( params[p+ retoff ? 1 : 0].inOut & QUParameter::Out )
-		    QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], params+p+1 );
-		objects[p+1].type->clear( objects + p + 1 );
-	    }
-	    if ( retoff ) {
-		QUObjectToVARIANT( objects, *pvarResult, params );
-		objects->type->clear( objects );
+		// update reference parameters and value
+		for ( int p = 0; p < pcount; ++p ) {
+		    if ( params[p+ retoff ? 1 : 0].inOut & QUParameter::Out )
+			if ( !QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], params+p+1 ) )
+			    ok = FALSE;
+		    objects[p+1].type->clear( objects + p + 1 );
+		}
+		if ( retoff ) {
+		    QUObjectToVARIANT( objects, *pvarResult, params );
+		    objects->type->clear( objects );
+		}
 	    }
 
 	    delete [] objects;
-	    res = S_OK;
+	    res = ok ? S_OK : DISP_E_TYPEMISMATCH;
 	}
 	break;
     case DISPATCH_PROPERTYPUT:
@@ -1906,10 +1914,11 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    QVariant var = activeqt->property( property->name() );
 	    if ( !var.isValid() )
-		return DISP_E_MEMBERNOTFOUND;
-
-	    QVariantToVARIANT( var, *pvarResult, property->type() );
-	    res = S_OK;
+		res =  DISP_E_MEMBERNOTFOUND;
+	    else if ( !QVariantToVARIANT( var, *pvarResult, property->type() ) )
+		res = DISP_E_TYPEMISMATCH;
+	    else
+		res = S_OK;
 	}
 	break;
     default:
@@ -1929,9 +1938,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	}
     }
 
-    if ( res == S_OK )
-	return res;
-    return E_FAIL;
+    return res;
 }
 
 //**** IConnectionPointContainer
