@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#66 $
 **
 ** Implementation of QUrl class
 **
@@ -512,9 +512,9 @@ bool QUrl::parse( const QString& url )
 	    if ( at == -1 ) {
 		if ( url_.left( 4 ) == "file" )
 		    table[ 4 ][ 1 ] = Path;
-		else 
+		else
 		    table[ 4 ][ 1 ] = Host;
-		table[ 4 ][ 2 ] = table[ 4 ][ 1 ]; 
+		table[ 4 ][ 2 ] = table[ 4 ][ 1 ];
 	    }
 	}
     }
@@ -790,7 +790,9 @@ QString QUrl::path( bool correct ) const
 	return d->path;
 
     if ( d->cleanPathDirty ) {
-	if ( isLocalFile() ) {
+	if ( QDir::isRelativePath( d->path ) ) {
+	    d->cleanPath = d->path;
+	} else if ( isLocalFile() ) {
 	    QFileInfo fi( d->path );
 	    if ( !fi.exists() )
 		d->cleanPath = d->path;
