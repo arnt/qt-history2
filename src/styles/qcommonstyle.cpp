@@ -437,7 +437,7 @@ void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const 
  \reimp
  */
 void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH, 
-				    int &titleH, int &titleW) const
+				    int &titleW, int &titleH) const
 {
     titleH = 18;
     if(tb->window) {

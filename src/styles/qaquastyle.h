@@ -185,6 +185,13 @@ public:
     void drawRangeControlWidgetSymbol ( QPainter * p, int x, int y,
 	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
 		bool downbtn, bool enabled, bool down );
+
+    // title bar
+    virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const;
+    virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
+					uint controls, uint activeControl );
+    virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
+
 protected:
     bool eventFilter( QObject *, QEvent * );
     void timerEvent( QTimerEvent * );

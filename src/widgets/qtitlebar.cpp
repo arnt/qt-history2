@@ -30,7 +30,7 @@ public:
 		return;
 	    QTitleBar *t = (QTitleBar *)parentWidget();
 	    int controlWidth, controlHeight, titleHeight, titleWidth;
-	    t->style().titleBarMetrics(t, controlWidth, controlHeight, titleHeight, titleWidth);
+	    t->style().titleBarMetrics(t, controlWidth, controlHeight, titleWidth, titleHeight);
 
 	    QString tipstring;
 	    switch(t->style().titleBarPointOver( t, pos )) {
@@ -320,7 +320,7 @@ void QTitleBar::cutText()
     QFontMetrics fm( font() );
 
     int maxw, tmp;
-    style().titleBarMetrics(this, tmp, tmp, tmp, maxw);
+    style().titleBarMetrics(this, tmp, tmp, maxw, tmp);
     cuttext = text;
     if ( fm.width( text+"m" ) > maxw ) {
 	int i = text.length();
@@ -345,7 +345,7 @@ void QTitleBar::setText( const QString& title )
 void QTitleBar::setIcon( const QPixmap& icon )
 {
     int controlWidth, controlHeight, titleHeight, titleWidth;
-    style().titleBarMetrics(this, controlWidth, controlHeight, titleHeight, titleWidth);
+    style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
     if(icon.width() > controlWidth || icon.height() > controlHeight) 
 	pixmap.convertFromImage( icon.convertToImage().smoothScale( controlWidth, controlHeight ) );
     else
@@ -395,7 +395,7 @@ QSize QTitleBar::sizeHint() const
 {
     constPolish();
     int controlWidth, controlHeight, titleHeight, titleWidth;
-    style().titleBarMetrics(this, controlWidth, controlHeight, titleHeight, titleWidth);
+    style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
     return QSize( 128, QMAX( QMAX(controlHeight, titleHeight), fontMetrics().lineSpacing() ) );;
 }
 
