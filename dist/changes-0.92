@@ -40,3 +40,7 @@ QLineEdit/QLCDNumber:
 ---------------------
   signal textChanged( char * ) => textChanged( const char * );
   slot   display( char * )     => display( const char * )
+
+QCursor
+-------
+    hourGlassCursor => waitCursor
