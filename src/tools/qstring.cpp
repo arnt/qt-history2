@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#45 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#45 $";
 #endif
 
 
@@ -320,7 +320,7 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
 
 /*----------------------------------------------------------------------------
   \relates QByteArray
-  Writes a byte array to the stream.
+  Writes a byte array to a stream.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
@@ -330,7 +330,7 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 
 /*----------------------------------------------------------------------------
   \relates QByteArray
-  Reads a byte array from the stream.
+  Reads a byte array from a stream.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
@@ -355,10 +355,13 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*----------------------------------------------------------------------------
   \class QString qstring.h
-  \brief The QString class is a handle class that provides an
-  abstraction of the C style zero-terminated char array.  QString
-  inherits QByteArray, which is defined as QArray\<char\>.
+
+  \brief The QString class is provides an abstraction of the classic C
+  zero-terminated char array.
+
   \ingroup tools
+
+  QString inherits QByteArray, which is defined as QArray\<char\>.
 
   Note that for the QString methods that take a <var>const char *</var>
   parameter the results are undefined if the QString is not

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#6 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -13,7 +13,7 @@
 #include "qpdevmet.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#6 $";
 #endif
 
 
@@ -25,8 +25,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#5
   \ingroup paintdevice
 
   Sometimes it is necessary to obtain information about the
-  physical size of a paint device when drawing graphics, especially
-  for \link QPrinter printing\endlink.
+  physical size of a paint device when drawing graphics.
   
   Example:
   \code
@@ -41,15 +40,15 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 }
 
 
-/*!
-  \fn int QPaintDeviceMetrics::width() const
-  Returns the width of the paint device, in pixels.
-*/
+/*! \fn int QPaintDeviceMetrics::width() const
 
-/*!
-  \fn int QPaintDeviceMetrics::height() const
-  Returns the height of the paint device, in pixels.
-*/
+  Returns the width of the paint device, in default coordinate system
+  units (e.g. pixels for QPixmap and QWidget). */
+
+/*! \fn int QPaintDeviceMetrics::height() const
+
+  Returns the height of the paint device, in default coordinate system
+  units (e.g. pixels for QPixmap and QWidget). */
 
 /*!
   \fn int QPaintDeviceMetrics::widthMM() const
