@@ -283,6 +283,26 @@ QDragManager *QDragManager::self()
     return instance;
 }
 
+QPixmap QDragManager::dragCursor(QDrag::DropAction action) const
+{
+    QDragPrivate * d = dragPrivate();
+    if (d && d->customCursors.contains(action))
+        return d->customCursors[action];
+    else if (action == QDrag::MoveAction)
+        return pm_cursor[0];
+    else if (action == QDrag::CopyAction)
+        return pm_cursor[1];
+    else if (action == QDrag::LinkAction)
+        return pm_cursor[2];
+    return 0;
+}
+
+bool QDragManager::hasCustomDragCursors() const
+{
+    QDragPrivate * d = dragPrivate();
+    return d && !d->customCursors.isEmpty();
+}
+
 QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions) const
 {
     QDrag::DropAction defaultAction = QDrag::CopyAction;

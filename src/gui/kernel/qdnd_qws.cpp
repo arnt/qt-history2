@@ -117,17 +117,9 @@ void QDragManager::updateCursor()
 {
 #ifndef QT_NO_CURSOR
     if (willDrop) {
-        int cursorIndex;
-        if (global_accepted_action == QDrag::CopyAction) {
-            cursorIndex = 1; // copy_cursor
-        } else if (global_accepted_action == QDrag::LinkAction) {
-            cursorIndex = 2; // link_cursor
-        } else {
-               cursorIndex = 0; // move_cursor
-        }
         if (qt_qws_dnd_deco)
             qt_qws_dnd_deco->show();
-        QApplication::changeOverrideCursor(QCursor(pm_cursor[cursorIndex], 0, 0));
+        QApplication::changeOverrideCursor(QCursor(dragCursor(global_accepted_action), 0, 0));
     } else {
         QApplication::changeOverrideCursor(QCursor(Qt::ForbiddenCursor));
         if (qt_qws_dnd_deco)

@@ -815,12 +815,9 @@ void QDragManager::updateCursor()
 {
     if (!noDropCursor) {
         noDropCursor = new QCursor(Qt::ForbiddenCursor);
-        if (!pm_cursor[0].isNull())
-            moveCursor = new QCursor(pm_cursor[0], 0,0);
-        if (!pm_cursor[1].isNull())
-            copyCursor = new QCursor(pm_cursor[1], 0,0);
-        if (!pm_cursor[2].isNull())
-            linkCursor = new QCursor(pm_cursor[2], 0,0);
+        moveCursor = new QCursor(dragCursor(QDrag::MoveAction), 0,0);
+        copyCursor = new QCursor(dragCursor(QDrag::CopyAction), 0,0);
+        linkCursor = new QCursor(dragCursor(QDrag::LinkAction), 0,0);
     }
 
     QCursor *c;

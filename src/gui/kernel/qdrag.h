@@ -47,13 +47,15 @@ public:
     void setPixmap(const QPixmap &);
     QPixmap pixmap() const;
 
-    void setHotSpot(const QPoint& hotspot);
+    void setHotSpot(const QPoint &hotspot);
     QPoint hotSpot() const;
 
     QWidget *source() const;
     QWidget *target() const;
 
     DropAction start(DropActions supportedActions = CopyAction);
+
+    void setDragCursor(const QPixmap &cursor, DropAction action);
 
 signals:
     void actionChanged(DropAction action);

@@ -44,6 +44,7 @@ public:
     QPoint hotspot;
     QDrag::DropActions possible_actions;
     QDrag::DropAction executed_action;
+    QMap<QDrag::DropAction, QPixmap> customCursors;
 };
 
 class QDropData : public QMimeData
@@ -88,8 +89,8 @@ public:
     void move(const QPoint &);
     void drop();
     void updatePixmap();
-    QWidget *source() { return object ? object->d_func()->source : 0; }
-    QDragPrivate *dragPrivate() { return object ? object->d_func() : 0; }
+    QWidget *source() const { return object ? object->d_func()->source : 0; }
+    QDragPrivate *dragPrivate() const { return object ? object->d_func() : 0; }
 
     static QDragManager *self();
     QDrag::DropAction defaultAction(QDrag::DropActions possibleActions) const;
@@ -103,14 +104,18 @@ public:
     bool willDrop;
     QEventLoop *eventLoop;
 
-    QPixmap *pm_cursor;
-    int n_cursor;
+    QPixmap dragCursor(QDrag::DropAction action) const;
 
+    bool hasCustomDragCursors() const;
+    
     QDropData *dropData;
 
     void emitActionChanged(QDrag::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
     void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
 private:
+    QPixmap *pm_cursor;
+    int n_cursor;
+
     static QDragManager *instance;
     Q_DISABLE_COPY(QDragManager)
 };

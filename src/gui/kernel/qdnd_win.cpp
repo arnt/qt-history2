@@ -168,20 +168,28 @@ extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
 void QOleDropSource::createCursors()
 {
     QDragManager *manager = QDragManager::self();
-    if (manager && manager->object && !manager->object->pixmap().isNull()) {
-        numCursors = manager->n_cursor;
+    if (manager && manager->object 
+        && (!manager->object->pixmap().isNull()
+        || manager->hasCustomDragCursors())) {
         QPixmap pm = manager->object->pixmap();
-        cursor = new HCURSOR[numCursors];
+        QList<QDrag::DropAction> actions;
+        actions << QDrag::MoveAction << QDrag::CopyAction << QDrag::LinkAction;
+        cursor = new HCURSOR[actions.size()];
         QPoint hotSpot = manager->object->hotSpot();
-        for (int cnum=0; cnum<numCursors; cnum++) {
-            QPixmap cpm = manager->pm_cursor[cnum];
-            int x1 = qMin(-hotSpot.x(),0);
-            int x2 = qMax(pm.width()-hotSpot.x(),cpm.width());
-            int y1 = qMin(-hotSpot.y(),0);
-            int y2 = qMax(pm.height()-hotSpot.y(),cpm.height());
+        for (int cnum=0; cnum<actions.size(); cnum++) {
+            QPixmap cpm = manager->dragCursor(actions.at(cnum));
+            int w = cpm.width();
+            int h = cpm.height();
 
-            int w = x2-x1+1;
-            int h = y2-y1+1;
+            if (!pm.isNull()) {
+                int x1 = qMin(-hotSpot.x(),0);
+                int x2 = qMax(pm.width()-hotSpot.x(),cpm.width());
+                int y1 = qMin(-hotSpot.y(),0);
+                int y2 = qMax(pm.height()-hotSpot.y(),cpm.height());
+
+                w = x2-x1+1;
+                h = y2-y1+1;
+            }
 
 #ifndef Q_OS_TEMP
             if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
@@ -203,10 +211,14 @@ void QOleDropSource::createCursors()
 #endif
 
             QPixmap newCursor(w, h, -1);
-            newCursor.fill(QColor(0, 0, 0, 0));
-            QPainter p(&newCursor);
-            p.drawPixmap(qMax(0,-hotSpot.x()),qMax(0,-hotSpot.y()),pm);
-            p.drawPixmap(qMax(0,hotSpot.x()),qMax(0,hotSpot.y()),cpm);
+            if (!pm.isNull()) {
+                newCursor.fill(QColor(0, 0, 0, 0));
+                QPainter p(&newCursor);
+                p.drawPixmap(qMax(0,-hotSpot.x()),qMax(0,-hotSpot.y()),pm);
+                p.drawPixmap(qMax(0,hotSpot.x()),qMax(0,hotSpot.y()),cpm);
+            } else {
+                newCursor = cpm;
+            }
 
             QBitmap cursorMask;
             if (newCursor.mask()) {
@@ -219,8 +231,8 @@ void QOleDropSource::createCursors()
             HBITMAP im = qt_createIconMask(cursorMask);
             ICONINFO ii;
             ii.fIcon     = false;
-            ii.xHotspot  = qMax(0,hotSpot.x());
-            ii.yHotspot  = qMax(0,hotSpot.y());
+            ii.xHotspot  = pm.isNull() ? 0 : qMax(0,hotSpot.x());
+            ii.yHotspot  = pm.isNull() ? 0 : qMax(0,hotSpot.y());
             ii.hbmMask   = im;
             ii.hbmColor  = newCursor.hbm();
             cursor[cnum] = CreateIconIndirect(&ii);
@@ -683,10 +695,35 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
     QDropEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
     QApplication::sendEvent(widget, &e);
 
-    if (e.isAccepted())
-        choosenEffect = translateToWinDragEffects(e.dropAction());
-    else
+    if (e.isAccepted()) {
+        if (e.dropAction() == QDrag::MoveAction || e.dropAction() == QDrag::TargetMoveAction) {
+            if (e.dropAction() == QDrag::MoveAction)
+                choosenEffect = DROPEFFECT_MOVE;
+            else
+                choosenEffect = DROPEFFECT_COPY;
+            HGLOBAL hData = GlobalAlloc(0, sizeof(DWORD));
+            if (hData) {
+                DWORD *moveEffect = (DWORD *)GlobalLock(hData);;
+                *moveEffect = DROPEFFECT_MOVE;
+                GlobalUnlock(hData);
+                STGMEDIUM medium;
+                memset(&medium, 0, sizeof(STGMEDIUM));
+                medium.tymed = TYMED_HGLOBAL;
+                medium.hGlobal = hData;
+                FORMATETC format;
+                format.cfFormat = RegisterClipboardFormat(CFSTR_PERFORMEDDROPEFFECT);
+                format.tymed = TYMED_HGLOBAL;
+                format.ptd = 0;
+                format.dwAspect = 1;
+                format.lindex = -1;
+                manager->dropData->currentDataObject->SetData(&format, &medium, true);
+            }
+        } else {
+            choosenEffect = translateToWinDragEffects(e.dropAction());
+        }
+    } else {
         choosenEffect = DROPEFFECT_NONE;
+    }
     *pdwEffect = choosenEffect;
 
     manager->dropData->currentDataObject->Release();
@@ -794,13 +831,16 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
 
     QDrag::DropAction ret = QDrag::IgnoreAction;
     if (r == DRAGDROP_S_DROP) {
-        if (obj->reportedPerformedEffect() != DROPEFFECT_NONE)
-            resultEffect = obj->reportedPerformedEffect();
+        if (obj->reportedPerformedEffect() == DROPEFFECT_MOVE && resultEffect != DROPEFFECT_MOVE) {
+            ret = QDrag::TargetMoveAction;
+            resultEffect = DROPEFFECT_MOVE;
+        } else {
+            ret = translateToQDragDropAction(resultEffect);
+        }
         // Force it to be a copy if an unsuported operation occured.
         // This indicates a bug in the drop target.
         if (resultEffect != DROPEFFECT_NONE && !(resultEffect & allowedEffects))
-            resultEffect = DROPEFFECT_COPY;
-        ret = translateToQDragDropAction(resultEffect);
+            ret = QDrag::CopyAction;
     } else {
         dragPrivate()->target = 0;
     }

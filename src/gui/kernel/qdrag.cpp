@@ -199,3 +199,23 @@ QDrag::DropAction QDrag::start(QDrag::DropActions request)
         d->executed_action = manager->drag(this);
     return d->executed_action;
 }
+
+/*!
+    Sets the drag \a cursor for the \a action. This alows you
+    to overide the defualt native cursors. To revert to using the
+    native cursor for \a action pass in a null QPixmap as \a cusors.
+    
+    The \a action can only be CopyAction, MoveAction or LinkAction.
+    All other values of DropAction are ignored.
+*/
+void QDrag::setDragCursor(const QPixmap &cursor, DropAction action)
+{
+    Q_D(QDrag);
+    if (action != CopyAction || action != MoveAction || action != LinkAction)
+        return;
+    if (cursor.isNull())
+        d->customCursors.remove(action);
+    else
+        d->customCursors[action] = cursor;
+}
+
