@@ -77,8 +77,8 @@ class QMap
         QMapData::Node *e;
     };
 
-    static inline Node *concrete(const QMapData::Node *node) {
-	return (Node *)((char *)node - sizeof(Payload));
+    static inline Node *concrete(QMapData::Node *node) {
+	return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - sizeof(Payload));
     }
 
 public:
@@ -104,7 +104,7 @@ public:
 
 	inline operator QMapData::Node *() const { return i; }
 	inline Iterator() : i(0) { }
-	inline Iterator(QMapData::Node *node) : i((QMapData::Node *)node) { }
+	inline Iterator(QMapData::Node *node) : i(node) { }
 
 	inline const Key &key() const { return concrete(i)->key; }
 	inline T &value() const { return concrete(i)->value; }
@@ -150,8 +150,9 @@ public:
 
 	inline operator QMapData::Node *() const { return i; }
 	inline ConstIterator() : i(0) { }
-	inline ConstIterator(QMapData::Node *node) : i((QMapData::Node *)node) { }
-	inline ConstIterator(const Iterator &o) { i = ((ConstIterator &)o).i; }
+	inline ConstIterator(QMapData::Node *node) : i(node) { }
+	inline ConstIterator(const Iterator &o)
+        { i = reinterpret_cast<const ConstIterator &>(o).i; }
 
 	inline const Key &key() const { return concrete(i)->key; }
 	inline const T &value() const { return concrete(i)->value; }
@@ -434,7 +435,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *d)
 {
     if (QTypeInfo<Key>::isComplex || QTypeInfo<T>::isComplex) {
-        QMapData::Node *e = (QMapData::Node *)d;
+        QMapData::Node *e = reinterpret_cast<QMapData::Node *>(d);
         QMapData::Node *cur = e;
         QMapData::Node *next = cur->forward[0];
         while (next != e) {

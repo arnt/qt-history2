@@ -2,15 +2,16 @@
 
 QMapData QMapData::shared_null = {
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
-    (Node *)&shared_null,
+    reinterpret_cast<Node *>(&shared_null),
 #endif
-    { (Node *)&shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0, 0, 0, false
+    { reinterpret_cast<Node *>(&shared_null), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0,
+    0, 0, false
 };
 
 QMapData *QMapData::createData()
 {
     QMapData *d = new QMapData;
-    Node *e = (Node *)d;
+    Node *e = reinterpret_cast<Node *>(d);
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     d->backward = e;
 #endif
@@ -25,13 +26,13 @@ QMapData *QMapData::createData()
 
 void QMapData::continueFreeData(int offset)
 {
-    Node *e = (Node *)this;
+    Node *e = reinterpret_cast<Node *>(this);
     Node *cur = forward[0];
     Node *prev;
     while (cur != e) {
 	prev = cur;
 	cur = cur->forward[0];
-	qFree((char *)prev - offset);
+	qFree(reinterpret_cast<char *>(prev) - offset);
     }
     delete this;
 }
@@ -51,14 +52,14 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 	randomBits = qRand();
 
     if (level > topLevel) {
-	Node *e = (Node *)this;
+	Node *e = reinterpret_cast<Node *>(this);
 	level = ++topLevel;
 	e->forward[level] = e;
 	update[level] = e;
     }
 
     void *concreteNode = qMalloc(offset + sizeof(Node) + level * sizeof(Node *));
-    Node *abstractNode = (Node *)((char *)concreteNode + offset);
+    Node *abstractNode = reinterpret_cast<Node *>(reinterpret_cast<char *>(concreteNode) + offset);
 
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     abstractNode->backward = update[0];
@@ -86,7 +87,7 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
 	update[i]->forward[i] = node->forward[i];
     }
     --size;
-    qFree((char *)node - offset);
+    qFree(reinterpret_cast<char *>(node) - offset);
 }
 
 #ifndef QT_NO_DEBUG
@@ -95,7 +96,7 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
 
 uint QMapData::adjust_ptr(Node *node)
 {
-    if (node == (Node *)this) {
+    if (node == reinterpret_cast<Node *>(this)) {
 	return (uint)0xFFFFFFFF;
     } else {
 	return (uint)node;
@@ -108,10 +109,10 @@ void QMapData::dump()
 
     QString preOutput;
     QVector<QString> output(topLevel + 1);
-    Node *e = (Node *)this;
+    Node *e = reinterpret_cast<Node *>(this);
 
     QString str;
-    str.sprintf("    %.8x", adjust_ptr((Node *)this));
+    str.sprintf("    %.8x", adjust_ptr(reinterpret_cast<Node *>(this)));
     preOutput += str;
 
     Node *update[LastLevel + 1];
