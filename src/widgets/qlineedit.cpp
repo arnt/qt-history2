@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#230 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#231 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -64,8 +64,6 @@ struct QLineEditPrivate {
 
   \ingroup realwidgets
 
-  \define QLineEdit::EchoMode
-
   The default QLineEdit object has its own frame as specified by the
   Windows/Motif style guides, you can turn off the frame by calling
   setFrame( FALSE ).
@@ -75,13 +73,6 @@ struct QLineEditPrivate {
   \link QColorGroup::base() colorGroup().base(). \endlink  The cursor
   and frame use other colors from same color group, of course.
 
-  QLineEdit can display the content of itself in three ways, depending
-  on the current \link setEchoMode() echo mode. \endlink The echo
-  modes available are: <ul> <li> \c Normal - display characters as
-  they are entered.  This is the default. <li> \c NoEcho - do not
-  display anything. <li> \c Password - display asterisks instead of
-  the characters actually entered. </ul>
-
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
 
@@ -90,6 +81,25 @@ struct QLineEditPrivate {
   \sa QMultiLineEdit QLabel QComboBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Entry,</a>
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Required.</a>
+*/
+
+
+/*! \enum QLineEdit::EchoMode
+
+  This enum type describes the ways in which QLineEdit can display its
+  contents.  The currently defined values are: <ul>
+
+  <li> \c Normal - display characters as they are entered.  This is
+  the default.
+
+  <li> \c NoEcho - do not display anything.
+
+  <li> \c Password - display asterisks instead of the characters
+  actually entered.
+
+  </ul>
+
+  \sa setEchoMode() echoMode() QMultiLineEdit::EchoMode
 */
 
 
@@ -248,7 +258,7 @@ QString QLineEdit::text() const
 the same as text(), but can be e.g. "*****" if EchoMode is Password or
 "" if it is NoEcho.
 
-\sa setEchoMode() text()
+\sa setEchoMode() text() EchoMode
 */
 
 QString QLineEdit::displayText() const
@@ -570,7 +580,8 @@ void QLineEdit::paintEvent( QPaintEvent *e )
     QPainter p( this );
 
     if ( frame() ) {
-	style().drawPanel( &p, 0, 0, width(), height(), colorGroup(), TRUE, style().defaultFrameWidth() );
+	style().drawPanel( &p, 0, 0, width(), height(), colorGroup(),
+			   TRUE, style().defaultFrameWidth() );
 	p.drawPixmap( 2, 2, *d->pm );
     } else {
 	p.drawPixmap( 0, 0, *d->pm );
@@ -1018,7 +1029,7 @@ bool QLineEdit::frame() const
   It is always possible to cut and paste any marked text; only the
   widget's own display is affected.
 
-  \sa echoMode()
+  \sa echoMode() EchoMode displayText()
 */
 
 void QLineEdit::setEchoMode( EchoMode mode )
@@ -1035,7 +1046,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
 /*!
   Returns the current echo mode of the line edit.
 
-  \sa setEchoMode()
+  \sa setEchoMode() EchoMode
 */
 
 QLineEdit::EchoMode QLineEdit::echoMode() const

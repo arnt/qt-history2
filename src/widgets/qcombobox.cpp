@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#221 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#222 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -42,8 +42,6 @@
   \brief The QComboBox widget is a combined button and popup list.
 
   \ingroup realwidgets
-
-  \define QComboBox::Policy
 
   A combo box may be defined as a selection widget which displays the
   current selection, and which can pop up a list of possible
@@ -96,16 +94,9 @@
   argument and one with an \c int argument.  If the user highlights or
   activates a pixmap, only the \c int signals are emitted.
 
-  Read-write combo boxes offer four policies for dealing with typed
-  input: <ul> <li> \c NoInsertion means to simply emit the activated()
-  signal, <li> \c AtBottom means to insert the string at the bottom of
-  the combo box and emit activated(), <li> \c AtTop means to insert
-  the string at the top of the combo box and emit activated(), and
-  finally <li> \c AtCurrent means to replace the previously selected
-  item with the typed string, and emit activated(). </ul> If inserting
-  the typed string would cause the combo box to breach its content
-  size limit, the item at the other end of the list is deleted.  The
-  default insertion policy is \c AtBottom, you can change it using
+  When the user enters a new string in a read-write combo, the widget
+  may or may not insert it, and it can insert it in several locations.
+  The default policy is is \c AtBottom, you can change it using
   setInsertionPolicy().
 
   It is possible to constrain the input to an editable combo box using
@@ -125,6 +116,37 @@
 */
 
 
+/*! \enum QComboBox::Policy
+
+  This enum type specifies what QComboBox should do with a new string
+  entered by the user.  The following policies are defined: <ul>
+
+  <li> \c NoInsertion means not to insert the string in the combo.
+
+  <li> \c AtTop means to insert the string at the top of the combo box.
+
+  <li> \c AtCurrent means to replace the previously selected item with
+  the typed string.
+  
+  <li> \c AtBottom means to insert the string at the bottom of the
+  combo box.
+
+  <li> \c AfterCurrent means to to insert the string just after the
+  previously selected item.
+
+  <li> \c BeforeCurrent means to to insert the string just before the
+  previously selected item.
+
+  </ul>
+
+  activated() is always emitted, of course.
+
+  If inserting the new string would cause the combo box to breach
+  its content size limit, the item at the other end of the list is
+  deleted.  The definition of "other end" is implementation-dependent.
+*/
+
+
 /*! \fn void QComboBox::activated( int index )
 
   This signal is emitted when a new item has been activated (selected).
@@ -137,7 +159,7 @@
   (selected). \a string is the activated string.
 
   You can also use activated(int) signal, but be aware that its
-  argument meaningful only for selected strings, not for typed
+  argument is meaningful only for selected strings, not for typed
   strings.
 */
 

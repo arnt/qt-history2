@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#449 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#450 $
 **
 ** Implementation of QWidget class
 **
@@ -502,40 +502,57 @@ QFont default_font( QWidget *parent )
   any of these flags:
 
   <ul>
+
   <li> \c WStyle_NormalBorder gives the window a normal border. Cannot
-    be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
-  <li> \c WStyle_DialogBorder gives the window a thin dialog border.
-    Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
+  be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
+
+  <li> \c WStyle_DialogBorder gives the window a thin dialog
+  border. Cannot be combined with \c WStyle_NormalBorder or \c
+  WStyle_NoBorder.
+
   <li> \c WStyle_NoBorder gives a borderless window. Note that the
-    user cannot move or resize a borderless window via the window system.
-    Cannot be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder.
+  user cannot move or resize a borderless window via the window
+  system.  Cannot be combined with \c WStyle_NormalBorder or \c
+  WStyle_DialogBorder.
+
   <li> \c WStyle_Title gives the window a title bar.
+
   <li> \c WStyle_SysMenu adds a window system menu.
+
   <li> \c WStyle_Minimize adds a minimize button.
+
   <li> \c WStyle_Maximize adds a maximize button.
+
   <li> \c WStyle_MinMax is equal to <code>(WStyle_Minimize | WStyle_Maximize)
   </code>.
-  <li> \c WStyle_Tool makes the window a tool window.
-    A tool window is a small window that lives for a short time and it
-    is typically used for creating popup windows. It there is a
-    parent, the tool window will be kept on top of it.  If there isn't
-    a parent, you may consider passing WStyle_StaysOnTop as well.  If
-    the window system supports it, a tool window will be decorated
-    with a somewhat lighter frame. It can, however, be combined with
-    \c WStyle_NoBorder as well.
+
+  <li> \c WStyle_Tool makes the window a tool window.  A tool window
+  is a small window that lives for a short time and it is typically
+  used for creating popup windows.  It there is a parent, the tool
+  window will be kept on top of it.  If there isn't a parent, you may
+  consider passing WStyle_StaysOnTop as well.  If the window system
+  supports it, a tool window will be decorated with a somewhat lighter
+  frame.  It can, however, be combined with \c WStyle_NoBorder as
+  well.
+
   <li> \c WStyle_StaysOnTop informs the window system that the window
-  should stay on top of all windows.
-  <li> \c WStyle_Dialog indicates, that the window is a logical subwindow
-  of its parent, in other words: a dialog. The window will not get its own taskbar entry
-  and be kept on top of its parent by the window system. Usually, it will also be
-  minimized  when the parent is minized. If not customized, the  window is decorated slightly
-  less. WStyle_Dialog is implied by WType_Modal. It is implicitely defined when using the
-  class QDialog.
+  should stay on top of all other windows.
+
+  <li> \c WStyle_Dialog indicates that the window is a logical
+  subwindow of its parent, in other words: a dialog.  The window will
+  not get its own taskbar entry and be kept on top of its parent by
+  the window system.  Usually, it will also be minimized when the
+  parent is minized.  If not customized, the window is decorated
+  slightly less.  WStyle_Dialog is implied by WType_Modal.  It is
+  implicitely defined when using the class QDialog.
+
   </ul>
 
-  Note that X11 does not necessarily support all style flag combinations. X11
-  window managers live their own lives and can only take hints. Win32
-  supports all style flags.
+  Note that the X11 version of Qt may not be able to deliver all
+  combinations of style flags on all systems.  This is because on X11,
+  Qt can only ask the window manager, and the window manager can
+  override the application's settings.  On Windows, Qt can set
+  whatever flags you want.
 
   Example:
   \code
@@ -2119,7 +2136,9 @@ void QWidget::setFocusProxy( QWidget * w )
     }
 
     if ( w ) {
-	w->setFocusPolicy( focusPolicy() );
+	// ### the next line overwrites a "can take focus" with what's usually
+	// a "can't take focus" policy.  surely that's wrong?
+	// w->setFocusPolicy( focusPolicy() );
 	setFocusPolicy( NoFocus );
 	extra->focus_proxy = w;
 	connect( extra->focus_proxy, SIGNAL(destroyed()),
@@ -2210,19 +2229,15 @@ void QWidget::setFocus()
 	return;
 
     if ( isFocusEnabled() ) {
-	if ( ( focusPolicy() & TabFocus ) == TabFocus ) {
-	    // move the tab focus pointer only if this widget can be
-	    // tabbed to or from.
-	    f->it.toFirst();
-	    while ( f->it.current() != this && !f->it.atLast() )
-		++f->it;
-	    // at this point, the iterator should point to 'this'.  if it
-	    // does not, 'this' must not be in the list - an error, but
-	    // perhaps possible.  fix it.
-	    if ( f->it.current() != this ) {
-		f->focusWidgets.append( this );
-		f->it.toLast();
-	    }
+	f->it.toFirst();
+	while ( f->it.current() != this && !f->it.atLast() )
+	    ++f->it;
+	// at this point, the iterator should point to 'this'.  if it
+	// does not, 'this' must not be in the list - an error, but
+	// perhaps possible.  fix it.
+	if ( f->it.current() != this ) {
+	    f->focusWidgets.append( this );
+	    f->it.toLast();
 	}
     }
 
@@ -2230,7 +2245,6 @@ void QWidget::setFocus()
 	QWidget * prev = qApp->focus_widget;
 	qApp->focus_widget = this;
 	if ( prev && prev != this ) {
-	
 	    if ( !prev->isPopup() &&
 		 topLevelWidget()->isPopup() &&
 		 topLevelWidget() != prev->topLevelWidget()) {
@@ -2736,7 +2750,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 /*!
   Enables or disables the keyboard focus for the widget.
 
-  The keyboard focus is initially disabled (i.e. \e policy ==
+  The keyboard focus is initially disabled (i.e. \a policy ==
   \c QWidget::NoFocus).
 
   You must enable keyboard focus for a widget if it processes keyboard

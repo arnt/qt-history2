@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#114 $
 **
 ** Implementation of QScrollView class
 **
@@ -766,16 +766,27 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
     return d->vMode;
 }
 
+
+/*! \enum QScrollView::ScrollBarMode
+
+  This enum type describes the various modes of QScrollView's scroll
+  bars.  The defined modes are: <ul>
+
+   <li> \c Auto - QScrollView shows a scrollbar when the content is
+   too tall to fit and not else.  This is the default.
+
+   <li> \c AlwaysOff - QScrollView never shows a scrollbar.
+
+   <li> \c AlwaysOn - QScrollView always shows a scrollbar.
+
+   </ul>
+
+   (The modes for the horizontal and vertical scroll bars are independent.)
+*/
+
+
 /*!
   Sets the mode for the vertical scrollbar.
-
-  \define QScrollView::ScrollBarMode
-
-  <ul>
-   <li> \c Auto (the default) shows a scrollbar when the content is too tall to fit.
-   <li> \c AlwaysOff never shows a scrollbar.
-   <li> \c AlwaysOn always shows a scrollbar.
-  </ul>
 
   \sa vScrollBarMode(), setHScrollBarMode()
 */

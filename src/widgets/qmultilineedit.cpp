@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#62 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2633,10 +2633,11 @@ is never read by QMultiLineEdit, but is changed to TRUE whenever the user
 changes its contents.
 
 This is useful e.g. for things that need to provide a default value,
-but cannot find the default at once.  Just open the line edit without
-the best default and when the default is known, check the edited()
-return value and set the line edit's contents if the user has not
-started editing the line edit.
+but cannot find the default at once.  Just open the widget without the
+best default and when the default is known, check the edited() return
+value and set the line edit's contents if the user has not started
+editing the line edit.  Another example is to detect whether the
+contents need saving.
 
 \sa edited()
 */
@@ -2646,8 +2647,8 @@ void QMultiLineEdit::setEdited( bool e )
 }
 
 /*!  Returns the edited flag of the line edit.  If this returns FALSE,
-the contents has not been changed since the construction
-of the QMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
+the contents has not been changed since the construction of the
+QMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
 it returns true, the contents have been edited, or setEdited( TRUE )
 has been called.
 
@@ -2658,16 +2659,27 @@ bool QMultiLineEdit::edited() const
     return mlData->edited;
 }
 
-/*!
-  Sets the echo mode to \a em.  Values are:
+/*! \enum QMultiLineEdit::EchoMode
 
-  \define QMultiLineEdit::EchoMode
+  This enum type describes the ways in which QLineEdit can display its
+  contents.  The currently defined values are: <ul>
 
-  <ul>
-   <li>\c Normal - the text is displayed normally.
-   <li>\c Password - the text is replaced by a same-length sequence of *'s.
-   <li>\c NoEcho - the text is not displayed at all.
+  <li> \c Normal - display characters as they are entered.  This is
+  the default.
+
+  <li> \c NoEcho - do not display anything.
+
+  <li> \c Password - display asterisks instead of the characters
+  actually entered.
+
   </ul>
+
+  \sa setEchoMode() echoMode() QLineEdit::EchoMode
+*/
+
+
+/*!
+  Sets the echo mode to \a em.  The default is \c Normal.
 
   The display is updated according.
 
@@ -2692,10 +2704,12 @@ QMultiLineEdit::EchoMode QMultiLineEdit::echoMode() const
     return mlData->echomode;
 }
 
+
 /*!
   Returns the string shown at line \a row, including
-  processing of the \link setEchoMode() echo mode\endlink.
+  processing of the echoMode().
 */
+
 QString QMultiLineEdit::stringShown(int row) const
 {
     QString* s = getString(row);

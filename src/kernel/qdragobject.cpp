@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#97 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -349,7 +349,7 @@ QPoint QDragObject::pixmapHotSpot() const
   is expected to manipulate the referred-to content directly.
   On X11 the return value should always be correct anyway, but
   on Windows this is not necessarily the case (eg. the file manager
-  starts a background process to move files, so the source 
+  starts a background process to move files, so the source
   <em>must not</em> delete the files!)
 */
 bool QDragObject::drag()
@@ -380,6 +380,19 @@ void QDragObject::dragCopy()
 }
 
 
+/*! \enum QDragOBject::DragMode
+
+  This enum type decides which of several types of drag each
+  individual drag is.  The available types are: <ul>
+   <li>\c DragDefault - the mode is determined heuristically.
+   <li>\c DragCopy - the data is copied, never moved.
+   <li>\c DragMove - the data is moved, if dragged at all.
+   <li>\c DragCopyOrMove - the user chooses the mode
+	    by using control key to switch from the default.
+  </ul>
+*/
+
+
 /*!
   Starts a drag operation using the contents of this object.
 
@@ -393,18 +406,6 @@ void QDragObject::dragCopy()
   indicating that the caller should remove the original source
   of the data (the drag object must continue to have a copy).
 
-  \define DragMode
-
-  The \a mode is one of:
-
-  <ul>
-   <li>\c DragDefault - the mode is determined heuristically.
-   <li>\c DragCopy - the data is copied, never moved.
-   <li>\c DragMove - the data is moved, if dragged at all.
-   <li>\c DragCopyOrMove - the user chooses the mode
-	    by using control key to switch from the default.
-  </ul>
-
   Normally one of simpler drag(), dragMove(), or dragCopy() functions
   would be used instead.
 
@@ -413,8 +414,8 @@ void QDragObject::dragCopy()
 	    assist preemptive development - code both move and copy with
 	    Qt 1.x to be prepared.
 */
-bool QDragObject::drag(DragMode mode)
-{
+bool QDragObject::drag( DragMode mode )
+{ // ### In Qt 1.x?  huh?
     if ( manager )
 	return manager->drag( this, mode );
     else

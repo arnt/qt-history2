@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#9 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#10 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -50,7 +50,13 @@ public:
 
     enum AdditionalStyleValues { Undefined  = - 1};
 
-    enum DisplayMode {DisplayBlock, DisplayInline, DisplayListItem, DisplayNone};
+    enum DisplayMode {
+	DisplayBlock,
+	DisplayInline,
+	DisplayListItem,
+	DisplayNone
+    };
+
     DisplayMode displayMode() const;
     void setDisplayMode(DisplayMode m);
 
@@ -89,15 +95,31 @@ public:
     bool isAnchor() const;
     void setAnchor(bool anc);
 
-    enum WhiteSpaceMode {WhiteSpaceNormal, WhiteSpacePre };
+    enum WhiteSpaceMode { WhiteSpaceNormal, WhiteSpacePre };
     WhiteSpaceMode whiteSpaceMode() const;
     void setWhiteSpaceMode(WhiteSpaceMode m);
 
-    enum Margin { MarginLeft, MarginRight, MarginTop, MarginBottom, MarginAll, MarginVertical, MarginHorizontal };
+    enum Margin {
+	MarginLeft,
+	MarginRight,
+	MarginTop,
+	MarginBottom,
+	MarginAll,
+	MarginVertical,
+	MarginHorizontal
+    };
+
     int margin( Margin m) const;
     void setMargin( Margin, int);
 
-    enum ListStyle { ListDisc, ListCircle, ListSquare, ListDecimal, ListLowerAlpha, ListUpperAlpha };
+    enum ListStyle {
+	ListDisc,
+	ListCircle,
+	ListSquare,
+	ListDecimal,
+	ListLowerAlpha,
+	ListUpperAlpha
+    };
 
     ListStyle listStyle() const;
     void setListStyle( ListStyle );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#235 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#236 $
 **
 ** Definition of QWidget class
 **
@@ -50,17 +50,17 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_OBJECT
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
-   ~QWidget();
+    ~QWidget();
 
     WId		 winId() const;
     void	 setName( const char *name );
 
-  // GUI style setting
+    // GUI style setting
 
     QStyle     &style() const;
     void        setStyle( QStyle * );
 
-  // Widget types and states
+    // Widget types and states
 
     bool	 isTopLevel()	const;
     bool	 isModal()	const;
@@ -73,7 +73,7 @@ public:
 public slots:
     virtual void setEnabled( bool );
 
-  // Widget coordinates
+    // Widget coordinates
 
 public:
     QRect	 frameGeometry() const;
@@ -116,7 +116,7 @@ public:
     void	setFixedWidth( int w );
     void	setFixedHeight( int h );
 
-  // Widget coordinate mapping
+    // Widget coordinate mapping
 
     QPoint	 mapToGlobal( const QPoint & )	 const;
     QPoint	 mapFromGlobal( const QPoint & ) const;
@@ -125,7 +125,7 @@ public:
 
     QWidget	*topLevelWidget()   const;
 
-  // Widget attribute functions
+    // Widget attribute functions
 
     enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
 			  PaletteForeground, PaletteButton, PaletteLight,
@@ -189,8 +189,13 @@ public slots:
     void		clearFocus();
 
 public:
-    enum FocusPolicy
-    { NoFocus = 0, TabFocus = 0x1, ClickFocus = 0x2, StrongFocus = 0x3, WheelFocus = 0x7 };
+    enum FocusPolicy {
+	NoFocus = 0, 
+	TabFocus = 0x1,
+	ClickFocus = 0x2,
+	StrongFocus = 0x3,
+	WheelFocus = 0x7
+    };
 
     bool		isActiveWindow() const;
     virtual void	setActiveWindow();
@@ -202,7 +207,7 @@ public:
     virtual void	setFocusProxy( QWidget * );
     QWidget *		focusProxy() const;
 
-  // Grab functions
+    // Grab functions
 
     void		grabMouse();
     void		grabMouse( const QCursor & );
@@ -212,7 +217,7 @@ public:
     static QWidget *	mouseGrabber();
     static QWidget *	keyboardGrabber();
 
-  // Update/refresh functions
+    // Update/refresh functions
 
     bool	 	isUpdatesEnabled() const;
 
@@ -227,7 +232,7 @@ public slots:
     void		repaint( const QRect &, bool erase=TRUE );
     void		repaint( const QRegion &, bool erase=TRUE );
 
-  // Widget management functions
+    // Widget management functions
 
     virtual void	show();
     virtual void	hide();
@@ -269,8 +274,8 @@ public:
 				  bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
     void		recreate( QWidget *parent, WFlags f, const QPoint & p,
-				 bool showIt=FALSE )
-	{ reparent(parent,f,p,showIt); }
+				  bool showIt=FALSE )
+    { reparent(parent,f,p,showIt); }
 #endif
 
     void		erase();
@@ -283,11 +288,11 @@ public:
     void		drawText( int x, int y, const QString &);
     void		drawText( const QPoint &, const QString &);
 
-  // Misc. functions
+    // Misc. functions
 
     QWidget *		focusWidget() const;
 
-  // drag and drop
+    // drag and drop
 
     bool		acceptDrops() const;
     virtual void	setAcceptDrops( bool on );
@@ -306,7 +311,7 @@ public:
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
-  // Event handlers
+    // Event handlers
 
 protected:
     bool	 event( QEvent * );
@@ -345,7 +350,7 @@ protected:
 
     virtual void updateMask();
 
-  // Misc. protected functions
+    // Misc. protected functions
 
 protected:
     virtual void styleChange( QStyle& );
@@ -430,7 +435,7 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QETWidget;
-#if 1 //def TOTAL_LOSER_COMPILER
+#if 1 //was #ifdef TOTAL_LOSER_COMPILER but they all seem to be
     friend class QLayout;
 #else
     friend void QLayout::setWidgetLayout( QWidget *, QLayout * );

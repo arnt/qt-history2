@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#77 $
 **
 **  Splitter widget
 **
@@ -724,16 +724,24 @@ void QSplitter::recalc( bool update )
 	doResize();
 }
 
+/*! \enum QSplitter::ResizeMode
+
+  This enum type describes how QSplitter will resize each of its child widgets.  The currently defined values are: <ul>
+
+  <li> \c Stretch - the widget will be resized when the splitter
+  itself is resized.
+
+  <li> \c KeepSize - QSplitter will try to keep this widget's size
+  unchanged.
+
+  </ul>
+
+*/
 
 /*!
-  Sets resize mode of \a w to \a mode. \a mode can be one of:
+  Sets resize mode of \a w to \a mode. 
 
-  \define QSplitter::ResizeMode
-
-  <ul>
-    <li> \c Stretch (the default) - \a w will resize when the splitter resizes
-    <li> \c KeepSize - \a w will keep its size.
-  </ul>
+  \sa ResizeMode
 */
 
 void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )

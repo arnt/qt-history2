@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#18 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -22,6 +22,7 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
+
 #include "qstylesheet.h"
 #include "qrichtextintern.cpp"
 #include "qapplication.h"
@@ -162,25 +163,26 @@ QStyleSheetItem::DisplayMode QStyleSheetItem::displayMode() const
     return d->disp;
 }
 
-/*!
-  Sets the display mode of the style to \a m.
+/*! \enum QStyleSheetItem::DisplayMode
+  
+  This enum type defines the way adjacent elements are displayed.  The possible values are: <ul>
 
-  \define QStyleSheetItem::DisplayMode
-
-  The affect of the available values are:
-  <ul>
-   <li> \c DisplayBlock
-		- elements will be displayed as a rectangular block.
+  <li> \c DisplayBlock
+		- elements are displayed as a rectangular block.
 		    (eg. &lt;P&gt; ... &lt;/P&gt;)
    <li> \c DisplayInline
-		- elements will be displayed in a horizontally flowing sequence.
+		- elements are displayed in a horizontally flowing sequence.
 		    (eg. &lt;EM&gt; ... &lt;/EM&gt;)
    <li> \c DisplayListItem
-		- elements will be displayed vertically sequenced.
+		- elements are displayed in a vertically sequence.
 		    (eg. &lt;EM&gt; ... &lt;/EM&gt;)
    <li> \c DisplayNone
-		- elements which are not displayed at all.
+		- elements are not displayed at all.
   </ul>
+*/
+
+/*!
+  Sets the display mode of the style to \a m.
 
   \sa displayMode()
  */
@@ -546,31 +548,27 @@ QStyleSheetItem::ListStyle QStyleSheetItem::listStyle() const
     return d->list;
 }
 
-/*!
-  Sets the list style of the style
+/*! \enum QStyleSheetItem::ListStyle
 
-  This is used by nested elements which have a
-  \link QStyleSheetItem::DisplayMode display mode\endlink of DisplayListItem.
+  This enum type defines how the items in a list are prefixed when
+  displayed.  The currently defined values are: <ul>
 
-  \define QStyleSheetItem::ListStyle
-
-  The affect of the available values are:
-  <ul>
-   <li> \c ListDisc
-		- a filled circle
-   <li> \c ListCircle
-		- an unfilled circle
-   <li> \c ListSquare
-		- a filled circle
-   <li> \c ListDecimal
-		- an integer in base 10: \e 1, \e 2, \e 3, ...
-   <li> \c ListLowerAlpha
-		- a lowercase letter: \e a, \e b, \e c, ...
-   <li> \c ListUpperAlpha
-		- an uppercase letter: \e A, \e B, \e C, ...
+  <li> \c ListDisc - a filled circle
+  <li> \c ListCircle - an unfilled circle
+  <li> \c ListSquare - a filled circle
+  <li> \c ListDecimal - an integer in base 10: \e 1, \e 2, \e 3, ...
+  <li> \c ListLowerAlpha - a lowercase letter: \e a, \e b, \e c, ...
+  <li> \c ListUpperAlpha - an uppercase letter: \e A, \e B, \e C, ...
   </ul>
 
-  \sa listStyle()
+*/
+/*!
+  Sets the list style of the style.
+
+  This is used by nested elements which have a display mode of
+  DisplayListItem.
+
+  \sa listStyle() DisplayMode 
  */
 void QStyleSheetItem::setListStyle(ListStyle s)
 {
