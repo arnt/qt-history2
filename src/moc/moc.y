@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#53 $
+** $Id: //depot/qt/main/src/moc/moc.y#54 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#54 $";
 #endif
 
 
@@ -836,7 +836,7 @@ int main( int argc, char **argv )		// program starts here
 	}
     }
     if ( autoInclude ) {
-	int ppos = fileName.find('.');
+	int ppos = fileName.findRev('.');
 	if ( ppos != -1 && tolower( fileName[ppos + 1] ) == 'h' )
 	    noInclude = FALSE;
 	else
@@ -1118,7 +1118,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
-	fprintf( out, "#include \"qmetaobj.h\"\n" );
+	fprintf( out, "#include <qmetaobj.h>\n" );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)fileName );
 	fprintf( out, "\n\n" );
@@ -1211,7 +1211,7 @@ void generateClass()		      // generate C++ source code for a class
 	    predef_call = TRUE;
 	}
 	if ( !predef_call && !included_list_stuff ) {
-	    fprintf( out, "\n#include \"qlist.h\"\n" );
+	    fprintf( out, "\n#include <qlist.h>\n" );
 	    fprintf( out, "declare(QListM,QConnection);\n" );
 	    fprintf( out, "declare(QListIteratorM,QConnection);\n" );
 	    included_list_stuff = TRUE;
