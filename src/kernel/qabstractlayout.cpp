@@ -612,7 +612,7 @@ void QLayout::init()
     outsideBorder = 0;
     topLevel = FALSE;
     enabled = TRUE;
-//    autoNewChild = FALSE;
+    autoNewChild = FALSE;
     frozen = FALSE;
     activated = true;
     marginImpl = FALSE;
