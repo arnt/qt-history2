@@ -1833,7 +1833,7 @@ void QWidgetPrivate::show_sys()
             // restore the original normalGeometry
             top->normalGeometry = normalRect;
             // internalSetGeometry() clears the maximized flag... make sure we set it back
-            data.window_state |= Qt::WindowMaximized;
+            data.window_state = data.window_state | Qt::WindowMaximized;
 
             return;
         }
@@ -2192,7 +2192,7 @@ void QWidget::setMinimumSize(int minw, int minh)
         resize(qMax(minw,width()), qMax(minh,height()));
         setAttribute(Qt::WA_Resized, resized); //not a user resize
         if (maximized)
-            data->window_state |= Qt::WindowMaximized;
+            data->window_state = data->window_state | Qt::WindowMaximized;
     }
     if (testWFlags(Qt::WType_TopLevel))
         do_size_hints(this, d->extra);

@@ -3816,7 +3816,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
         if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
             && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))) {
             if (max && !isMaximized()) {
-                this->data->window_state |= Qt::WindowMaximized;
+                this->data->window_state = this->data->window_state | Qt::WindowMaximized;
                 send_event = true;
             } else if (!max && isMaximized()) {
                 this->data->window_state &= !Qt::WindowMaximized;
@@ -3826,7 +3826,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 
         if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
             if (full && !isFullScreen()) {
-                this->data->window_state |= Qt::WindowFullScreen;
+                this->data->window_state = this->data->window_state | Qt::WindowFullScreen;
                 send_event = true;
             } else if (!full && isFullScreen()) {
                 this->data->window_state &= ~Qt::WindowFullScreen;
@@ -3884,7 +3884,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 case IconicState:
                     if (!isMinimized()) {
                         // window was minimized
-                        this->data->window_state |= Qt::WindowMinimized;
+                        this->data->window_state = this->data->window_state | Qt::WindowMinimized;
                         QEvent e(QEvent::WindowStateChange);
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
