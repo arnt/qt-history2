@@ -48,7 +48,7 @@ class QActionGroupPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QActionGroup);
 public:
-    QActionGroupPrivate() : exclusive(1)  { }
+    QActionGroupPrivate() : exclusive(1), enabled(1), visible(1)  { }
     QList<QAction *> actions;
     QPointer<QAction> current;
     uint exclusive : 1;
