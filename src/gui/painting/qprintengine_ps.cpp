@@ -5808,12 +5808,11 @@ void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
 void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
                                 Qt::BlendMode mode)
 {
-    // ###### fix sr
     QImage img = pm;
     QImage mask;
     if (mode == Qt::AlphaBlend && pm.mask())
         mask = *pm.mask();
-    d->drawImage(r.x(), r.y(), r.width(), r.height(), img, mask);
+    d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr), mask.copy(sr));
 }
 
 void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
@@ -5827,7 +5826,27 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
 
 void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
-    // ### Implement me
+    // ### Optimise implementation!
+    int yPos = r.y();
+    int yOff = p.y();
+    while( yPos < r.y() + r.height() ) {
+        int drawH = pixmap.height() - yOff;    // Cropping first row
+        if ( yPos + drawH > r.y() + r.height() )        // Cropping last row
+            drawH = r.y() + r.height() - yPos;
+        int xPos = r.x();
+        int xOff = p.x();
+        while( xPos < r.x() + r.width() ) {
+            int drawW = pixmap.width() - xOff; // Cropping first column
+            if ( xPos + drawW > r.x() + r.width() )    // Cropping last column
+                drawW = r.x() + r.width() - xPos;
+            painter()->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
+            xPos += drawW;
+            xOff = 0;
+        }
+        yPos += drawH;
+        yOff = 0;
+    }
+
 }
 
 void QPSPrintEngine::drawPath(const QPainterPath &p)
