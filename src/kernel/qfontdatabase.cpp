@@ -882,7 +882,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 		load( family->name, script );
 
 	    QFont::Script override_script = script;
-	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) ) {
+	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) && script != QFont::Unicode) {
 		// family not supported in the script we want
 		if (family_name.isEmpty()) continue;
 
