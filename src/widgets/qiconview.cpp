@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#75 $
 **
 ** Definition of QIconView widget class
 **
@@ -122,7 +122,7 @@ struct QIconViewPrivate
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
-    bool drawDragShape;
+    bool drawDragShade;
     QMap< QString, QIconViewItem* > nameMap;
     QString currInputString;
     bool dirty, rearrangeEnabled;
@@ -1961,7 +1961,7 @@ void QIconView::clear()
     d->lastItem = 0;
     setCurrentItem( 0 );
     d->tmpCurrentItem = 0;
-    d->drawDragShape = FALSE;
+    d->drawDragShade = FALSE;
 
     viewport()->repaint( TRUE );
 
@@ -2043,7 +2043,7 @@ void QIconView::setItemTextPos( ItemTextPos pos )
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
 	item->calcRect();
-    
+
     orderItemsInGrid();
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
 }
@@ -2328,11 +2328,11 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
-    d->drawDragShape = TRUE;
+    d->drawDragShade = TRUE;
     d->tmpCurrentItem = 0;
     initDrag( e );
     d->oldDragPos = e->pos();
-    drawDragShape( e->pos() );
+    drawDragShade( e->pos() );
     d->dropped = FALSE;
 }
 
@@ -2342,7 +2342,7 @@ void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
-    drawDragShape( d->oldDragPos );
+    drawDragShade( d->oldDragPos );
 
     QIconViewItem *old = d->tmpCurrentItem;
     d->tmpCurrentItem = 0;
@@ -2380,7 +2380,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
     }
 
     d->oldDragPos = e->pos();
-    drawDragShape( e->pos() );
+    drawDragShade( e->pos() );
 }
 
 /*!
@@ -2390,7 +2390,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
     if ( !d->dropped )
-	drawDragShape( d->oldDragPos );
+	drawDragShade( d->oldDragPos );
 
     if ( d->tmpCurrentItem ) {
 	repaintItem( d->tmpCurrentItem );
@@ -2409,7 +2409,7 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 void QIconView::contentsDropEvent( QDropEvent *e )
 {
     d->dropped = TRUE;
-    drawDragShape( d->oldDragPos );
+    drawDragShade( d->oldDragPos );
 
     if ( d->tmpCurrentItem )
 	repaintItem( d->tmpCurrentItem );
@@ -3054,10 +3054,10 @@ void QIconView::emitNewSelectionNumber()
   contains are drawn, usnig \a pos as origin.
 */
 
-void QIconView::drawDragShape( const QPoint &pos )
+void QIconView::drawDragShade( const QPoint &pos )
 {
-    if ( !d->drawDragShape ) {
-	d->drawDragShape = TRUE;
+    if ( !d->drawDragShade ) {
+	d->drawDragShade = TRUE;
 	return;
     }
 

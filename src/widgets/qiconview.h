@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#32 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#33 $
 **
 ** Definition of QIconView widget class
 **
@@ -261,7 +261,7 @@ public:
 	Bottom = 0,
 	Right
     };
-    
+
     QIconView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QIconView();
 
@@ -358,7 +358,7 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag();
     virtual void insertInGrid( QIconViewItem *item );
-    virtual void drawDragShape( const QPoint &pnt );
+    virtual void drawDragShade( const QPoint &pnt );
     virtual void initDrag( QDropEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );
 
