@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#5 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#6 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -47,11 +47,11 @@ class QSVGDevicePrivate {
 
 /*!
   \class QSVGDevice qsvgdevice.h
-  
+
   \brief The QSVGDevice provides a paint device for SVG vector graphics.
-  
+
   \module XML
-  
+
   \sa QPaintDevice QPainter
 */
 
@@ -100,13 +100,13 @@ bool QSVGDevice::play( QPainter *painter )
 	qWarning( "QSVGDevice::play: No SVG data set." );
 	return FALSE;
     }
-				  
+
     QDomNode svg = doc.namedItem( "svg" );
     if ( svg.isNull() || !svg.isElement() ) {
 	qWarning( "QSVGDevice::play: Couldn't find any svg element." );
 	return FALSE;
     }
-    
+
     // 'play' all elements recursively starting with 'svg' as root
     return play( svg, painter );
 }
@@ -176,7 +176,7 @@ bool QSVGDevice::cmd ( int, QPainter*, QPDevCmdParam * )
   Evaluate \a node, drawing on \a p. Allows recursive calls.
 */
 
-bool QSVGDevice::play( const QDomNode &node, QPainter *p )
+bool QSVGDevice::play( const QDomNode & /*node*/, QPainter * /*p*/ )
 {
     return FALSE; //###
 }
