@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#12 $
 **
 ** Implementation of QRegExp class
 **
@@ -21,39 +21,42 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#12 $";
 #endif
 
 
 /*!
 \class QRegExp qregexp.h
 
-\brief The QRegExp class provide pattern matching using regular
+\brief The QRegExp class provides pattern matching using regular
 expressions and wildcards.
 
 QRegExp knows these regexp primitives:
-<ul>
-<li> c matches the character 'c'
-<li> . matches any character
-<li> ^ matches start of input (except [^x] matches NOT [x])
-<li> $  matches end of input
-<li> [] matches a set of characters, for example [a-z0-9_]
-<li> a* matches a sequence of zero or more a's
-<li> a+ matches a sequence of one or more a's
-<li> a? matches an optional a
-<li> \  escape code for matching special characters like \, [, *, +, . etc.
-<li> \b matches the BELL character (7)
-<li> \t matches the TAB character (9)
-<li> \n matches newline (10)
-<li> \r matches return (13)
-<li> \x12 matches the character hex 12.
-<li> \022 matches the character octal 22.
+<ul plain>
+<li><dfn>c</dfn> matches the character 'c'
+<li><dfn>.</dfn> matches any character
+<li><dfn>^</dfn> matches start of input (except [^x] matches NOT [x])
+<li><dfn>$</dfn>  matches end of input
+<li><dfn>[]</dfn> matches a set of characters, for example [a-z0-9_]
+<li><dfn>a*</dfn> matches a sequence of zero or more a's
+<li><dfn>a+</dfn> matches a sequence of one or more a's
+<li><dfn>a?</dfn> matches an optional a
+<li><dfn>\</dfn>  escape code for matching special characters like \, [, *, +, . etc.
+<li><dfn>\b</dfn> matches the BELL character (7)
+<li><dfn>\t</dfn> matches the TAB character (9)
+<li><dfn>\n</dfn> matches newline (10)
+<li><dfn>\r</dfn> matches return (13)
+<li><dfn>\x12</dfn> matches the character hex 12.
+<li><dfn>\022</dfn> matches the character octal 22.
 </ul>
 
-In wildcard mode, it only knows two primitives:
-<ul>
-<li> ? matches any character
-<li> * matches any sequence of characters
+In wildcard mode, it only knows three primitives:
+<ul plain>
+<li><dfn>?</dfn> matches any character
+<li><dfn>*</dfn> matches any sequence of characters
+<li><dfn>[]</dfn> matches a defines set of characters,
+e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
+and dot.
 </ul>
 
 \todo make \s match any white space for regexp mode
@@ -106,7 +109,7 @@ QRegExp::QRegExp()
 /*!
 Constructs a regular expression.
 \arg \e pattern is the regular expression pattern string.
-\arg \e caseSensitive specifies wether to use case sensitive matching.
+\arg \e caseSensitive specifies wether or not to use case sensitive matching.
 \arg \e wildcard specifies whether the pattern string is a regular
 expression or globbing expression (see setWildcard()).
 */
