@@ -203,6 +203,7 @@ static const uint locale_index[] = {
      0, // Yoruba
      0, // Zhuang
      0, // Zulu
+   125, // Nynorsk
      0  // trailing 0
 };
 
@@ -333,6 +334,7 @@ static const QLocalePrivate locale_data[] = {
     {    130,   163,    46,    44,    59,    37,  1776,    45,   101 }, // Urdu/Pakistan
     {    131,   228,    44,   160,    59,    37,    48,    45,   101 }, // Uzbek/Uzbekistan
     {    132,   232,    44,    46,    44,    37,    48,    45,   101 }, // Vietnamese/VietNam
+    {    141,   161,    44,   160,    59,    37,    48,    45,   101 }, // Nynorsk/Norway
     {      0,     0,     0,     0,     0,     0,     0,     0,     0 }  // trailing 0s
 };
 
@@ -477,7 +479,8 @@ static const char language_name_list[] =
 "Yiddish\0"
 "Yoruba\0"
 "Zhuang\0"
-"Zulu\0";
+"Zulu\0"
+"Nynorsk\0";
 
 static const uint language_name_index[] = {
      0, // Unused
@@ -620,7 +623,8 @@ static const uint language_name_index[] = {
   1110, // Yiddish
   1118, // Yoruba
   1125, // Zhuang
-  1132  // Zulu
+  1132, // Zulu
+  1137  // Nynorsk
 };
 
 static const char country_name_list[] =
@@ -1252,10 +1256,10 @@ static const unsigned char language_code_list[] =
 "yo" // Yoruba
 "za" // Zhuang
 "zu" // Zulu
-;
+"nn";// Nynorsk
 
 static const unsigned char country_code_list[] =
-"  " // AnyLanguage
+"  " // AnyCountry
 "AF" // Afghanistan
 "AL" // Albania
 "DZ" // Algeria
@@ -1495,8 +1499,7 @@ static const unsigned char country_code_list[] =
 "YE" // Yemen
 "YU" // Yugoslavia
 "ZM" // Zambia
-"ZW" // Zimbabwe
-;
+"ZW";// Zimbabwe
 
 static QLocale::Language codeToLanguage(const QString &code)
 {
@@ -1721,7 +1724,76 @@ static const char *winLangCodeToIsoName(int code)
     return 0;
 
 }
+
+static QString winIso639LangName()
+{
+    QString result;
+    
+    // Windows returns the wrong ISO639 for some languages, we need to detect them here using
+    // the language code
+    QString lang_code;
+    QT_WA({
+        TCHAR out[256];
+        if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_ILANGUAGE, out, 255))
+            lang_code = QString::fromUtf16((ushort*)out);
+    } , {
+        char out[256];
+        if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ILANGUAGE, out, 255))
+            lang_code = QString::fromLocal8Bit(out);
+    });
+    
+    if (!lang_code.isEmpty()) {
+        const char *endptr;
+        bool ok;
+        int i = qstrtoull(lang_code.latin1(), &endptr, 16, &ok);
+        if (ok && *endptr == '\0') {
+            switch (i) {
+                case 0x814:
+                    result = QLatin1String("nn"); // Nynorsk
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    
+    if (!result.isEmpty())
+        return result;
+    
+    // not one of the problematic languages - do the usual lookup
+    QT_WA({
+        TCHAR out[256];
+        if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255))
+            result = QString::fromUtf16((ushort*)out);
+    } , {
+        char out[256];
+        if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255))
+            result = QString::fromLocal8Bit(out);
+    });
+    
+    return result;
+}
+
+static QString winIso3116CtryName()
+{
+    QString result;
+
+    QT_WA({
+        TCHAR out[256];
+        if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
+            result = QString::fromUtf16((ushort*)out);
+    } , {
+        char out[256];
+        if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
+            result = QString::fromLocal8Bit(out);
+    });
+    
+    return result;
+}
+
 #endif // Q_OS_WIN
+
+
 
 const char* QLocalePrivate::systemLocaleName()
 {
@@ -1744,33 +1816,13 @@ const char* QLocalePrivate::systemLocaleName()
     if (QSysInfo::WindowsVersion == QSysInfo::WV_95) {
         lang = winLangCodeToIsoName(GetUserDefaultLangID());
     } else {
-        QT_WA({
-            TCHAR out[256];
-            QString language;
-            QString sublanguage;
-            if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255))
-                language = QString::fromUtf16((ushort*)out);
-            if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
-                sublanguage = QString::fromUtf16((ushort*)out).toLower();
-            lang = language.toLocal8Bit();
-            if (sublanguage != language && !sublanguage.isEmpty()) {
-                lang += '_';
-                lang += sublanguage.toLocal8Bit();
-            }
-        } , {
-            char out[256];
-            QString language;
-            QString sublanguage;
-            if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255))
-                language = QString::fromLocal8Bit(out);
-            if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
-                sublanguage = QString::fromLocal8Bit(out).toLower();
-            lang = language.toLocal8Bit();
-            if (sublanguage != language && !sublanguage.isEmpty()) {
-                lang += '_';
-                lang += sublanguage.toLocal8Bit();
-            }
-        });
+        QString language = winIso639LangName();
+        QString country = winIso3116CtryName();
+        lang += language.latin1();
+        if (!country.isEmpty()) {
+            lang += '_';
+            lang += country.latin1();
+        }
     }
 #endif
     if (lang.isEmpty())

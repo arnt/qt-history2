@@ -165,9 +165,10 @@ public:
         Yoruba = 138,
         Zhuang = 139,
         Zulu = 140,
-        LastLanguage = Zulu
+        Nynorsk = 141,
+        LastLanguage = Nynorsk
     };
-
+    
     enum Country {
         AnyCountry = 0,
         Afghanistan = 1,
