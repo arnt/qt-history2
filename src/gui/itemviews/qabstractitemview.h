@@ -50,6 +50,7 @@ public:
     int selectionBehavior() const;
     void setCurrentItem(const QModelIndex &data);
     QModelIndex currentItem() const;
+    QModelIndex root() const;
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
@@ -120,8 +121,6 @@ protected:
     virtual bool supportsDragAndDrop() const;
     virtual QDragObject *dragObject();
     virtual void startDrag();
-
-    QModelIndex root() const;
 
     // FIXME: find better solutions
     virtual void getViewOptions(QItemOptions *options) const;
