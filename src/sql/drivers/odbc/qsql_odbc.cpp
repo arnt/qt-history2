@@ -716,7 +716,8 @@ bool QODBCDriver::open( const QString & db,
 
     if ( !d->checkDriver() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality" );
+	qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality. "
+		   "Please look at the Qt SQL Module Driver documentation for more information." );
 #endif
 	setLastError( qMakeError( "Unable to connect - Driver doesn't support all needed functionality", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
