@@ -67,7 +67,6 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 void QAbstractItemViewPrivate::init()
 {
     q->setItemDelegate(new QItemDelegate(q));
-    q->setModel(0);
 
     q->verticalScrollBar()->setRange(0, 0);
     q->horizontalScrollBar()->setRange(0, 0);
@@ -511,13 +510,17 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 */
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
+    Q_ASSERT(delegate);
+
     if (d->delegate) {
         // view
         disconnect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
                    this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
         disconnect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
     }
+
     d->delegate = delegate;
+
     if (d->delegate) {
         // view
         connect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
