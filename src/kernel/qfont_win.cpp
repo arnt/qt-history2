@@ -651,10 +651,9 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 //		qDebug( "drawing '%s' at (%d/%d)",
 //			QConstString( (QChar *)cache->string, cache->length).string().latin1(),
 //			x + cache->xoff, y + cache->yoff);
-//	if ( cache->script != QFont::Hebrew )
+	if ( cache->script != QFont::Hebrew )
 	    TextOut( hdc, x + cache->xoff, y + cache->yoff, cache->mapped, cache->length );
-#if 0
-	    else 
+	else 
 	{
 	    // we need to print every character by itself to keep the bidi
 	    // algorithm of uniscribe from reordering things once again.
@@ -668,7 +667,6 @@ void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache
 		l++;
 	    }
 	}
-#endif
 	cache = cache->next;
     }
 
