@@ -476,6 +476,11 @@ void QSpinBox::setValue( int value )
 
 int QSpinBox::value() const
 {
+    QSpinBox * that = (QSpinBox *) this;
+    if ( edited ) {
+	that->edited = FALSE;  // avoid recursion
+	that->interpretText();
+    }
     return QRangeControl::value();
 }
 
