@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#125 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#124 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#125 $")
 
 
 // --------------------------------------------------------------------------
@@ -2284,7 +2284,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    mat1.map( fx,fy, &nfx,&nfy );
 	    float tfx=tx, tfy=ty, dx, dy;
 	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
-	    x = int(nfx-dx);  y = int(nfy-dy);
+	    x = d2i_round(nfx-dx);  y = d2i_round(nfy-dy);
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(5);
 		int m, n;
