@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#56 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -220,6 +220,10 @@ LPDATAOBJECT current_dropobj = 0;
 bool QDragManager::eventFilter( QObject *, QEvent *)
 {
     return FALSE;
+}
+
+void QDragManager::timerEvent( QTimerEvent* )
+{
 }
 
 void QDragManager::cancel()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#86 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -820,33 +820,39 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 
 
 /*!
-  \class QUrlDrag qdragobject.h
-  \brief Provides for drag-and-drop of a list of file references.
+  \class QUriDrag qdragobject.h
+  \brief Provides for drag-and-drop of a list of URI references.
 
-  URLs are a useful way to refer to files that may be distributed
-  across multiple machines.  Much of the time a URL will refer to
+  URIs are a useful way to refer to files that may be distributed
+  across multiple machines.  Much of the time a URI will refer to
   a file on a machine local to both the drag source and the
-  drop target, and so the URL will be equivalent to passing a
+  drop target, and so the URI will be equivalent to passing a
   filename, but more extensible.
+
+  While presenting URIs to the user, use them in Unicode form so
+  that the user can confortably edit and view them.  
+  For use in HTTP or other protocols, use the correctly escaped
+  ASCII form (see 
 */
 
 /*!
-  Creates an object to drag the list of urls in \a urls.
+  Creates an object to drag the list of URIs in \a uris.
   The \a dragSource and \a name arguments are passed on to
-  QStoredDrag.
+  QStoredDrag.  Note that URIs are always in escaped UTF8
+  encoding, as defined by the W3C.
 */
-QUrlDrag::QUrlDrag( QStrList urls,
+QUriDrag::QUriDrag( QStrList uris,
 	    QWidget * dragSource, const char * name ) :
     QStoredDrag( "text/uri-list", dragSource, name )
 {
-    setUrls(urls);
+    setUris(uris);
 }
 
 /*!
   Creates a object to drag.  You will need to call
-  setUrls() before you start the drag().
+  setUris() before you start the drag().
 */
-QUrlDrag::QUrlDrag( QWidget * dragSource, const char * name ) :
+QUriDrag::QUriDrag( QWidget * dragSource, const char * name ) :
     QStoredDrag( "text/uri-list", dragSource, name )
 {
 }
@@ -854,18 +860,18 @@ QUrlDrag::QUrlDrag( QWidget * dragSource, const char * name ) :
 /*!
   Destroys the object.
 */
-QUrlDrag::~QUrlDrag()
+QUriDrag::~QUriDrag()
 {
 }
 
 /*!
-  Changes the list of \a urls to be dragged.
+  Changes the list of \a uris to be dragged.
 */
-void QUrlDrag::setUrls( QStrList urls )
+void QUriDrag::setUris( QStrList uris )
 {
     QByteArray a;
     int c=0;
-    for ( const char* s = urls.first(); s; s = urls.next() ) {
+    for ( const char* s = uris.first(); s; s = uris.next() ) {
 	int l = strlen(s)+2;
 	a.resize(c+l);
 	memcpy(a.data()+c,s,l);
@@ -880,17 +886,17 @@ void QUrlDrag::setUrls( QStrList urls )
 /*!
   Returns TRUE if decode() would be able to decode \a e.
 */
-bool QUrlDrag::canDecode( const QMimeSource* e )
+bool QUriDrag::canDecode( const QMimeSource* e )
 {
     return e->provides( "text/uri-list" );
 }
 
 /*!
-  Decodes URLs from \a e, placing the result in \a l (which is first cleared).
+  Decodes URIs from \a e, placing the result in \a l (which is first cleared).
 
-  Returns TRUE if the event contained a valid list of URLs.
+  Returns TRUE if the event contained a valid list of URIs.
 */
-bool QUrlDrag::decode( const QMimeSource* e, QStrList& l )
+bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
 {
     QByteArray payload = e->encodedData( "text/uri-list" );
     if ( payload.size() ) {
@@ -898,17 +904,19 @@ bool QUrlDrag::decode( const QMimeSource* e, QStrList& l )
 	l.setAutoDelete(TRUE);
 	uint c=0;
 	char* d = payload.data();
-	while (c < payload.size()) {
+	while (c < payload.size() && d[c]) {
 	    uint f = c;
-	    while (c < payload.size() && d[c])
+	    // Find line end
+	    while (c < payload.size() && d[c] && d[c]!='\r'
+		    && d[c] != '\n')
 		c++;
-	    if ( c < payload.size() ) {
-		l.append( d+f );
-		c++;
-	    } else {
-		QCString s(d+f,c-f+1);
+	    QCString s(d+f,c-f+1);
+	    if ( s[0] != '#' ) // non-comment?
 		l.append( s );
-	    }
+	    // Skip junk
+	    while (c < payload.size() && d[c] &&
+		    (d[c]=='\n' || d[c]!='\r'))
+		c++;
 	}
 	return TRUE;
     }
@@ -916,57 +924,179 @@ bool QUrlDrag::decode( const QMimeSource* e, QStrList& l )
 }
 
 static
-int htod(int h)
+uint htod(int h)
 {
     if (isdigit(h)) return h-'0';
-    return tolower(h)-'a';
+    return tolower(h)-'a'+10;
 }
 
 /*!
-  Returns the name of a local file equivalent to \a url,
-  or a null string if \a url is not a local file.
+  Sets the URIs to be the local-file URIs equivalent to \a fnames.
+
+  \sa localFileToUri(), setUris()
 */
-QString QUrlDrag::urlToLocalFile(const char* url)
+void QUriDrag::setFilenames( QStringList fnames )
+{
+    QStrList uris;
+    for (QStringList::Iterator i = fnames.begin();
+	    i != fnames.end(); ++i )
+	uris.append(localFileToUri(*i));
+    setUris(uris);
+}
+
+/*!
+  Sets the URIs to be the 
+  Unicode URIs (only useful for
+  displaying to humans) \a uuris.
+
+  \sa localFileToUri(), setUris()
+*/
+void QUriDrag::setUnicodeUris( QStringList uuris )
+{
+    QStrList uris;
+    for (QStringList::Iterator i = uuris.begin();
+	    i != uuris.end(); ++i )
+	uris.append(unicodeUriToUri(*i));
+    setUris(uris);
+}
+
+/*!
+  Returns the URI equivalent to the Unicode URI (only useful for
+  displaying to humans).
+  \a uuri.  
+
+  \sa uriToLocalFile()
+*/
+QCString QUriDrag::unicodeUriToUri(const QString& uuri)
+{
+    QCString utf8 = uuri.utf8();
+    QCString escutf8;
+    int n = utf8.length();
+    for (int i=0; i<n; i++) {
+	if ( utf8[i] >= 'a' && utf8[i] <= 'z'
+	  || utf8[i] == '/'
+	  || utf8[i] >= '0' && utf8[i] <= '9'
+	  || utf8[i] >= 'A' && utf8[i] <= 'Z'
+
+	  || utf8[i] == '-' || utf8[i] == '_'
+	  || utf8[i] == '.' || utf8[i] == '!'
+	  || utf8[i] == '~' || utf8[i] == '*'
+	  || utf8[i] == '(' || utf8[i] == ')'
+	  || utf8[i] == '\''
+
+	  // Allow this through, so that all URI-references work.
+	  || utf8[i] == '#'
+
+	  || utf8[i] == ';'
+	  || utf8[i] == '?' || utf8[i] == ':'
+	  || utf8[i] == '@' || utf8[i] == '&'
+	  || utf8[i] == '=' || utf8[i] == '+'
+	  || utf8[i] == '$' || utf8[i] == ',' )
+	{
+	    escutf8 += utf8[i];
+	} else {
+	    // Everything else is escaped as %HH
+	    QCString s(4);
+	    s.sprintf("%%%02x",(uchar)utf8[i]);
+	    escutf8 += s;
+	}
+    }
+    return escutf8;
+}
+
+/*!
+  Returns the URI equivalent to the absolute
+  local file \a filename.  
+
+  \sa uriToLocalFile()
+*/
+QCString QUriDrag::localFileToUri(const QString& filename)
+{
+    QString r = filename;
+#ifdef _WS_WIN_
+    // Slosh -> Slash
+    int slosh;
+    while ( (slosh=r.find('\\')) >= 0 ) {
+	r[slosh] = '/';
+    }
+    // Drive
+    if ( r[0] != '/' ) {
+	int colon = r.find(':');
+	if ( colon >= 0 ) {
+	    r[colon] = '|';
+	    if ( r[colon+1] != '/' )
+		r.insert(colon+1,'/');
+	}
+	r.insert(0,'/');
+    }
+#endif
+    return unicodeUriToUri(QString("file://" + r));
+}
+
+/*!
+  Returns the Unicode URI (only useful for
+  displaying to humans) equivalent to \a uri.
+
+  \sa localFileToUri()
+*/
+QString QUriDrag::uriToUnicodeUri(const char* uri)
 {
     QCString utf8;
 
-    if ( url && 0==qstrnicmp(url,"file:/",6) ) {
-	url += 6;
-	if ( url[0] != '/' || url[1] == '/' ) {
-	    // It is local.
-	    while (*url) {
-		switch (*url) {
-		  case '|': utf8 += ':';
-		    break;
-		  case '+': utf8 += ' ';
-		    break;
-		  case '%': {
-			int ch = url[1];
-			if ( ch && url[2] ) {
-			    ch = htod(ch)*16 + htod(url[2]);
-			    utf8 += ch;
-			}
-		    }
-		    break;
-		  default:
-		    utf8 += *url;
+    while (*uri) {
+	switch (*uri) {
+	  case '%': {
+		uint ch = uri[1];
+		if ( ch && uri[2] ) {
+		    ch = htod(ch)*16 + htod(uri[2]);
+		    utf8 += char(ch);
+		    uri += 2;
 		}
-		++url;
 	    }
+	    break;
+	  default:
+	    utf8 += *uri;
 	}
+	++uri;
     }
 
     return QString::fromUtf8(utf8);
 }
 
 /*!
-  Decodes URLs from \a e, converts them to local files if they refer to
+  Returns the name of a local file equivalent to \a uri,
+  or a null string if \a uri is not a local file.
+
+  \sa localFileToUri()
+*/
+QString QUriDrag::uriToLocalFile(const char* uri)
+{
+    QString file;
+
+    if ( uri && 0==qstrnicmp(uri,"file:/",6) ) {
+	uri += 6;
+	if ( uri[0] != '/' || uri[1] == '/' ) {
+	    // It is local.
+	    file = uriToUnicodeUri(uri);
+	    if ( uri[1] == '/' ) {
+		file.remove(0,1);
+	    } else {
+		file.insert(0,'/');
+	    }
+	}
+    }
+
+    return file;
+}
+
+/*!
+  Decodes URIs from \a e, converts them to local files if they refer to
   local files, and places them in \a l (which is first cleared).
 
-  Returns TRUE if the event contained a valid list of URLs.
-  The list will be empty if no URLs were local files.
+  Returns TRUE if the event contained a valid list of URIs.
+  The list will be empty if no URIs were local files.
 */
-bool QUrlDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
+bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
 {
     QStrList u;
     if ( !decode( e, u ) )
@@ -974,10 +1104,30 @@ bool QUrlDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
 
     l.clear();
     for (const char* s=u.first(); s; s=u.next()) {
-	QString lf = urlToLocalFile(s);
+	QString lf = uriToLocalFile(s);
 	if ( !lf.isNull() )
 	    l.append( lf );
     }
+    return TRUE;
+}
+
+/*!
+  Decodes URIs from \a e, converts them to Unicode URIs (only useful for
+  displaying to humans),
+  placing them in \a l (which is first cleared).
+
+  Returns TRUE if the event contained a valid list of URIs.
+*/
+bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
+{
+    QStrList u;
+    if ( !decode( e, u ) )
+	return FALSE;
+
+    l.clear();
+    for (const char* s=u.first(); s; s=u.next())
+	l.append( uriToUnicodeUri(s) );
+
     return TRUE;
 }
 

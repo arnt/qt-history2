@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#86 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -47,6 +47,8 @@ const int XKeyRelease = KeyRelease;
 extern void qt_x11_intern_atom( const char *, Atom * );
 extern void qt_ignore_badwindow();
 extern bool qt_badwindow();
+extern void qt_enter_modal( QWidget *widget );
+extern void qt_leave_modal( QWidget *widget );
 
 extern Window qt_x11_findClientWindow( Window, Atom, bool );
 extern Atom qt_wm_state;
@@ -146,6 +148,8 @@ static Atom qt_xdnd_types[100];
 static QIntDict<QCString> * qt_xdnd_drag_types = 0;
 static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
+// timer used when target wants "continuous" move messages (eg. scroll)
+static int heartbeat = 0;
 // rectangle in which the answer will be the same
 static QRect qt_xdnd_source_sameanswer;
 //static QRect qt_xdnd_target_sameanswer;
@@ -641,14 +645,16 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe, bool /*passive*/ )
     QDragResponseEvent e( (int)(l[1] & 1) );
     QApplication::sendEvent( w, &e );
 
-    QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
-    QSize s( (l[3] & 0xffff0000) >> 16, l[3] & 0x0000ffff );
-    if ( (int)(l[1] & 2) == 0 &&
-	 s.width() < 4096 && s.height() < 4097 &&
-	 s.width() > 0 && s.height() > 0 )
+    if ( (int)(l[1] & 2) == 0 ) {
+	QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
+	QSize s( (l[3] & 0xffff0000) >> 16, l[3] & 0x0000ffff );
 	qt_xdnd_source_sameanswer = QRect( p, s );
-    else
+	if ( qt_xdnd_source_sameanswer.isNull() ) {
+	    // Application wants "coninutous" move events
+	}
+    } else {
 	qt_xdnd_source_sameanswer = QRect();
+    }
 }
 
 
@@ -778,23 +784,17 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe, bool passive )
 }
 
 
+void QDragManager::timerEvent( QTimerEvent* e )
+{
+    if ( e->timerId() == heartbeat && qt_xdnd_source_sameanswer.isNull() )
+	move( QCursor::pos() );
+}
 
 bool QDragManager::eventFilter( QObject * o, QEvent * e)
 {
-    if ( o != dragSource && o != qApp ) {
-	//debug( "unexpected event for object %p - %s/%s",
-	//       o, o->name( "unnamed" ), o->className() );
-	o->removeEventFilter( this );
-	qApp->removeEventFilter( this );
-	if ( !dragSource )
-	    qApp->exit_loop();
-	return FALSE;
-    }
-
     if ( beingCancelled ) {
 	if ( e->type() == QEvent::KeyRelease &&
 	     ((QKeyEvent*)e)->key() == Key_Escape ) {
-	    dragSource->removeEventFilter( this );
 	    qApp->removeEventFilter( this );
 	    object = 0;
 	    dragSource = 0;
@@ -814,12 +814,11 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	    updateMode(me->stateAfter());
 	    return TRUE;
 	} else if ( e->type() == QEvent::MouseButtonRelease ) {
+	    qApp->removeEventFilter( this );
 	    if ( willDrop )
 		drop();
 	    else
 		cancel();
-	    dragSource->removeEventFilter( this );
-	    qApp->removeEventFilter( this );
 	    object = 0;
 	    dragSource = 0;
 	    beingCancelled = FALSE;
@@ -846,7 +845,6 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	QKeyEvent *ke = ((QKeyEvent*)e);
 	if ( ke->key() == Key_Escape && e->type() == QEvent::KeyPress ) {
 	    cancel();
-	    dragSource->removeEventFilter( this );
 	    qApp->removeEventFilter( this );
 	    object = 0;
 	    dragSource = 0;
@@ -857,7 +855,25 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	return TRUE; // Eat all key events
     }
 
-    return FALSE;
+    // ### We bind modality to widgets, so we have to do this
+    // ###  "manually".
+    // DnD is modal - eat all other interactive events
+    if ( !o->isWidgetType() )
+	return FALSE;
+    switch ( e->type() ) {
+      case QEvent::MouseButtonPress:
+      case QEvent::MouseButtonRelease:
+      case QEvent::MouseButtonDblClick:
+      case QEvent::MouseMove:
+      case QEvent::KeyPress:
+      case QEvent::KeyRelease:
+      case QEvent::Wheel:
+      case QEvent::Accel:
+      case QEvent::AccelAvailable:
+	return TRUE;
+      default:
+	return FALSE;
+    }
 }
 
 
@@ -1020,7 +1036,7 @@ void QDragManager::move( const QPoint & globalPos )
     } else if ( target ) {
 	//me
 	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
- 	if ( qt_xdnd_deco && !target || target == qt_xdnd_deco->winId() ) {
+ 	if ( qt_xdnd_deco && (!target || target == qt_xdnd_deco->winId()) ) {
  	    target = findRealWindow(globalPos,qt_xrootwin(),6);
  	}
     }
@@ -1410,7 +1426,6 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     if ( object ) {
 	cancel();
-	dragSource->removeEventFilter( this );
 	qApp->removeEventFilter( this );
 	beingCancelled = FALSE;
     }
@@ -1425,7 +1440,6 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     dragSource = (QWidget *)(object->parent());
     qApp->installEventFilter( this ); // for keys
-    dragSource->installEventFilter( this );
     qt_xdnd_source_current_time = qt_x_clipboardtime;
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
@@ -1436,6 +1450,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     //updateMode(ButtonState(0));
     qt_xdnd_source_sameanswer = QRect();
     move(QCursor::pos());
+    heartbeat = startTimer(200);
 
     qApp->enter_loop(); // Do the DND.
 
@@ -1443,6 +1458,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
+    killTimer(heartbeat);
+    heartbeat = 0;
 
     return drag_mode_chosen == QDragObject::DragMove;
 

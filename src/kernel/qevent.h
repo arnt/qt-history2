@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#82 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#83 $
 **
 ** Definition of event classes
 **
@@ -309,6 +309,8 @@ public:
     bool provides( const char* ) const;
 
     QByteArray data(const char* f) const { return encodedData(f); }
+
+    void setPoint( const QPoint& np ) { p = np; }
 
 protected:
     QPoint p;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#38 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#39 $
 **
 ** Definition of QDragObject
 **
@@ -122,23 +122,32 @@ public:
 };
 
 
-class Q_EXPORT QUrlDrag: public QStoredDrag {
+class Q_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
-    QUrlDrag( QStrList urls,
+    QUriDrag( QStrList uris,
 		QWidget * dragSource = 0, const char * name = 0 );
-    QUrlDrag( QWidget * dragSource = 0, const char * name = 0 );
-    ~QUrlDrag();
+    QUriDrag( QWidget * dragSource = 0, const char * name = 0 );
+    ~QUriDrag();
 
-    virtual void setUrls( QStrList urls );
+    void setFilenames( QStringList fnames );
+    void setUnicodeUris( QStringList uuris );
+    virtual void setUris( QStrList uris );
 
-    static QString urlToLocalFile(const char*);
+    static QString uriToLocalFile(const char*);
+    static QCString localFileToUri(const QString&);
+    static QString uriToUnicodeUri(const char*);
+    static QCString unicodeUriToUri(const QString&);
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QStrList& i );
+    static bool decodeToUnicodeUris( const QMimeSource* e, QStringList& i );
     static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
 };
 
+#ifndef QT_NO_COMPAT
+typedef QUriDrag QUrlDrag;
+#endif
 
 // QDragManager is not part of the public API.  It is defined in a
 // header file simply so different .cpp files can implement different
@@ -157,6 +166,7 @@ private:
     friend class QDropEvent;
 
     bool eventFilter( QObject *, QEvent * );
+    void timerEvent( QTimerEvent* );
 
     bool drag( QDragObject *, QDragObject::DragMode );
 
