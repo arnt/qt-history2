@@ -205,7 +205,7 @@ layout properties.
 
 In the Settings section, you can change the name of the form by typing in the
 'Class Name' line edit. You can also enter text to the 'Comment' and
-'Author' line edits or choose to leave them blank, as they are not
+'Author' line edits or choose to leave them blank, since they are not
 required.
 
 \section3 Pixmaps
@@ -271,7 +271,7 @@ way to change the path is to click the \Button {ellipsis...} button
 located to the right of the line edit. This invokes the \Dialog{Find
 Directory Dialog}.
 
-The 'Grid' section has options for customizing the grid on a form. The
+The 'Grid' section has options for customizing the grid on the form. The
 'Show Grid' checkbox located above the 'Grid' section is checked by
 default. Developers using \QD almost always use Qt's layouts to design
 their forms and rarely make any use of the grid. The grid is provided
@@ -283,7 +283,6 @@ When it is checked, widgets are placed on a dot (snap to the grid)
 using the X|Y resolution. When it is unchecked, the 'Grid-X' and
 'Grid-Y' spin boxes are greyed out. Click the 'Grid X' and 'Grid Y'
 spinboxes to customize the grid settings for all forms.
-
 
 The 'Toolbars' section has a 'Show Text Labels' checkbox. Click the
 checkbox to display the textlabels for each icon shown in the \QD
@@ -302,12 +301,11 @@ corresponding checkbox. Click the \Button Color button to invoke the
 can view the changes in the 'Preview' line edit.
 
 The 'Options' section has the Wordwrap, Completion, and Parentheses
-Matching checkboxes are checked as a default. Click the checkboxes to
+Matching checkboxes checked by default. Click the checkboxes to
 deselect them.  
 
 Click \OK to accept changes to \Dialog Preferences dialog. Click
 \CANCEL to leave the dialog without making any changes. 
-
 
 \section1 The Project Dialogs
 
@@ -338,9 +336,9 @@ Click \Menu{Project|Image Collection} to invoke the \Dialog{Manage
 Image Collection Dialog}. Use this dialog to view images that
 currently exist, to add new images, or to delete images.  
 
-Click Add to invoke the \Dialog{Choose Images... Dialog}. To delete an
-image from from the listbox, click the image and then click the
-\Button Delete button.
+To add an image, click the \Button Add button to invoke the \Dialog{Choose
+Images... Dialog}. To delete an image from from the listbox, click the
+image and then click the \Button Delete button.
 
 Click the \Button Close button to leave the dialog without editing or
 adding images.
@@ -408,7 +406,7 @@ platform. Includepath specifies the #include directories that should
 be searched when compiling the project. Type the 'Includepath' values
 in the line edit.   
 
-Cick \OK to accept changes to the \Dialog{Project Settings}. Click
+Cick \OK to accept changes to the project settings. Click
 \CANCEL to exit the dialog without making any changes to the project
 settings. 
 
@@ -495,12 +493,11 @@ Dialog}. This dialog provides information about Qt.
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
 
-
-
 \target dialog-edit-connections
 \section1 Edit Connections Dialog
 
-Invoke the \Dialog {Edit Connections} dialog to modify connections between signals and slots. 
+Invoke the \Dialog {Edit Connections} dialog to modify connections
+between signals and slots. 
 
 The top left hand listbox displays the Signals that the widget can emit.
 The top right combobox lists the form and its widgets. Beneath the
@@ -517,8 +514,8 @@ existing connection, choose the connection from the 'Connections'
 listbox and click the \Button Disconnect button. Click \Button {Edit
 Slots} to invoke the \Dialog{Edit Slots Dialog}. 
 
-Click \OK to accept changes to the connections. Click
-\CANCEL to leave the dialog without making changes to the connections.   
+Click \OK to accept changes to the connections. Click \CANCEL to leave
+the dialog without making changes to the connections.   
 
 \target dialog-find-directory
 \section1 Find Directory Dialog
@@ -568,8 +565,8 @@ Click \Button Close to leave the Edit Custom Widgets dialog.
 
 \section2 The Definition Tab
 
-To create a custom widget, click \Button {New Widget}. Click the Definition tab
-if you are not already there. You should change the
+To create a custom widget, click \Button {New Widget}. Click the
+Definition tab if you are not already there. You should change the
 'Class' name from 'MyCustomWidget' to a unique name by typing in the
 line edit. Type in the 'Headerfile' line edit to change the name or
 type the name of a header file you want to use. To search for a saved
@@ -591,11 +588,11 @@ widgets (children).
 \section2 The Signals Tab
 
 Click the Signals tab to view a list of all the signals the selected
-widget can emit. To add a new signal, click the \Button
-{New Signal} button. Click the 'Signal' line edit and provide an
-argument for the signal and give the signal a unique name. To delete a
-signal from the listbox, click the signal to choose it and then click
-the \Button {Delete Signal} button.
+widget can emit. To add a new signal, click the \Button {New Signal}
+button. Click the 'Signal' line edit and provide an argument for the
+signal and give the signal a unique name. To delete a signal from the
+listbox, click the signal to choose it and then click the \Button
+{Delete Signal} button.
 
 \section2 The Slots Tab
 
@@ -625,7 +622,8 @@ Click \Button Close to leave the \Dialog {Edit Custom Widgets} dialog.
 \target dialog-choose-images
 \section1 Choose Images Dialog
 
-Invoke the \Dialog {Choose Images} dialog to choose images to use in a project.
+Invoke the \Dialog {Choose Images} dialog to choose images to use in a
+project.
 
 This dialog defaults the directory and file type. To choose a
 different directory, click the 'Look In' combobox. Choose a file and
@@ -645,7 +643,7 @@ without opening a file.
 \target dialog-choose-an-image
 \section1 Choose an Image Dialog
 
-Invoke the \Dialog{Choose an Image} choose images to use for a widget. 
+Invoke the \Dialog{Choose an Image} choose an image to use for a widget. 
 
 To choose an image from the listbox, click the image and then click
 \OK. To add an image, click the \Button Add button to invoke the
@@ -653,7 +651,6 @@ To choose an image from the listbox, click the image and then click
 image in the listbox and then click the \Button Delete button. 
 
 Click \CANCEL to leave the dialog without making any changes to images.
-
 
 \target dialog-select-color
 \section1 Select Color Dialog
