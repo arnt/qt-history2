@@ -635,10 +635,21 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     PixMapHandle pmh=((CGrafPtr)handle())->portPixMap;
     ((QWidget *)this)->fixport();
     mac_pre=0;
+    QWidget * wiggle=this;
     int x2=pos.x();
     int y2=pos.y();
+    qDebug("mapFromGlobal %d %d",x2,y2);
     x2=x2+(**pmh).bounds.left;
     y2=y2+(**pmh).bounds.top;
+    qDebug("Now %d %d",x2,y2);
+    while( wiggle ) {
+	if( wiggle->parentWidget() ) {
+	    x2-=wiggle->x();
+	    y2-=wiggle->y();
+	    qDebug("Correction to %d %d",x2,y2);
+	}
+	wiggle=wiggle->parentWidget();
+    }
     QPoint p2(x2,y2);
     return p2;
 }
