@@ -1,28 +1,27 @@
 #!/bin/sh
 
+#check for lib
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $1/qmake.conf`
 LIBDIRS="$XDIRS /usr/lib /lib"
-
-FOUND_LIB=
 F=
 for LIBDIR in $LIBDIRS
 do
-   FOUND_LIB=`ls $LIBDIR/libXinerama.* 2>/dev/null`
-   if [ ! -z "$FOUND_LIB" ] 
-      then
-      F=yes
-      break
-   fi
+    FOUND_LIB=`ls $LIBDIR/libXinerama.* 2>/dev/null`
+    if [ ! -z "$FOUND_LIB" ] 
+    then
+	F=yes
+	break
+    fi
 done
 [ -z "$F" ] && exit 0
     
+#check for headers
 INC="X11/extensions/Xinerama.h"
 XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
 INCDIRS="$XDIRS /usr/include /include"
 F=
 for INCDIR in $INCDIRS
 do
-  [ -f $INCDIR/$INC ] && exit 1
+    [ -f $INCDIR/$INC ] && exit 1
 done
-echo done
 exit 0

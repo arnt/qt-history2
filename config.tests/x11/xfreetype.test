@@ -1,30 +1,27 @@
 #!/bin/sh
 
+#check for lib
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $1/qmake.conf`
 LIBDIRS="$XDIRS /usr/lib /lib"
-
-FOUND_LIB=
 F=
 for LIBDIR in $LIBDIRS
 do
-  FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
-  if [ ! -z "$FOUND_LIB" ] 
-  then
-      F=yes
-      break
-  fi
+    FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
+    if [ ! -z "$FOUND_LIB" ] 
+    then
+	F=yes
+	break
+    fi
 done
 [ -z "$F" ] && exit 0
 
-INCS="X11/Xft/XftFreetype.h"
+#check for headers
+INC="X11/Xft/XftFreetype.h"
 XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
 INCDIRS="$XDIRS /usr/include /include"
-for I in $INCS
+F=
+for INCDIR in $INCDIRS
 do
-  F=
-  for INCDIR in $INCDIRS
-  do
-    [ -f $INCDIR/$I ] && exit 1
-  done
+    [ -f $INCDIR/$INC ] && exit 1
 done
 exit 0
