@@ -677,6 +677,78 @@ void QTextEngine::bidiReorder( int numItems, const Q_UINT8 *levels, int *visualO
 }
 
 
+// -----------------------------------------------------------------------------------------------------
+//
+// The line break algorithm. See http://www.unicode.org/reports/tr14/tr14-13.html
+//
+// -----------------------------------------------------------------------------------------------------
+
+enum break_action {
+    Dbk,
+    Ibk,
+    Pbk
+};
+
+// The folowing line break classes are not treated by the table:
+// SA, BK, CR, LF, SG, CB, SP
+static break_action breakTable[QUnicodeTables::CM+1][QUnicodeTables::CM+1] =
+{
+    //   OP,  CL,  QU,  GL, NS,  EX,  SY,  IS,  PR,  PO,  NU,  AL,  ID,  IN,  HY,  BA,  BB,  B2,  ZW,  CM
+    { Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk, Pbk }, // OP
+    { Dbk, Pbk, Ibk, Pbk, Pbk, Pbk, Pbk, Pbk, Dbk, Ibk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Pbk, Pbk, Pbk, Pbk }, // CL
+    { Pbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Pbk }, // QU
+    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Pbk }, // GL
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // NS
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // EX
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // SY
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // IS
+    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }, // PR
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // PO
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Ibk, Ibk, Ibk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }, // NU
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Ibk, Ibk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }, // AL
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // ID
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // IN
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // HY
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Dbk, Pbk, Ibk }, // BA
+    { Ibk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Ibk, Pbk, Ibk }, // BB
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Ibk, Ibk, Dbk, Pbk, Pbk, Ibk }, // B2
+    { Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Dbk, Pbk, Ibk }, // ZW
+    { Dbk, Pbk, Ibk, Pbk, Ibk, Pbk, Pbk, Pbk, Dbk, Ibk, Dbk, Dbk, Dbk, Ibk, Ibk, Ibk, Dbk, Dbk, Pbk, Pbk }  // CM
+};
+
+// set the soft break flag at every possible line breaking point. This needs correct clustering information.
+static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
+{
+    int len = str.length();
+    if (!len)
+	return;
+
+    const QChar *uc = str.unicode();
+    int cls = lineBreakClass(*uc);
+    if (cls == QUnicodeTables::CM)
+	cls = QUnicodeTables::ID;
+
+    charAttributes[0].softBreak = FALSE;
+
+    for (int i = 1; i < len; ++i) {
+	int ncls = lineBreakClass(uc[i]);
+
+	if (ncls == QUnicodeTables::SP) {
+	    charAttributes[i].softBreak = FALSE;
+	    continue;
+	}
+	if (ncls == QUnicodeTables::SA) {
+	    // ### handle complex case
+	    ncls = QUnicodeTables::ID;
+	}
+	int brk = charAttributes[i].charStop ? breakTable[cls][ncls] : Pbk;
+	if (brk == Ibk)
+	    charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::SP);
+	else
+	    charAttributes[i].softBreak = (brk == Dbk);
+    }
+}
+
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS )
 # include "qtextengine_unix.cpp"
 #elif defined( Q_WS_WIN )
@@ -779,18 +851,20 @@ const QCharAttributes *QTextEngine::attributes()
 	itemize();
 
 #ifdef Q_WS_WIN
-    if ( hasUsp10 )
-	return charAttributes;
+    if ( !hasUsp10 )
 #endif
-
-    for ( int i = 0; i < items.size(); i++ ) {
-	QScriptItem &si = items[i];
-	int from = si.position;
-	int len = length( i );
-	int script = si.analysis.script;
-	Q_ASSERT( script < QFont::NScripts );
-	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
+    {
+	for ( int i = 0; i < items.size(); i++ ) {
+	    QScriptItem &si = items[i];
+	    int from = si.position;
+	    int len = length( i );
+	    int script = si.analysis.script;
+	    Q_ASSERT( script < QFont::NScripts );
+	    scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
+	}
     }
+
+    calcLineBreaks(string, charAttributes);
     haveCharAttributes = TRUE;
     return charAttributes;
 }

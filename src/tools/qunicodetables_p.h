@@ -42,11 +42,13 @@ public:
     static const unsigned char scriptTable[];
     enum { SCRIPTS_INDIC = 0x7e };
 
+    // see http://www.unicode.org/reports/tr14/tr14-13.html
+    // we don't use the XX and AI properties and map them to AL instead.
     enum LineBreakClass {
-         BK, CR, LF, CM, SG, GL, CB, SP, ZW,
-         XX, OP, CL, QU, NS, EX, SY,
-         IS, PR, PO, NU, AL, ID, IN, HY,
-         BB, BA, SA, AI, B2
+	OP, CL, QU, GL, NS, EX, SY,
+	IS, PR, PO, NU, AL, ID, IN, HY,
+	BA, BB, B2, ZW, CM, SA,
+	BK, CR, LF, SG, CB, SP
     };
 };
 
@@ -177,7 +179,7 @@ inline bool isSpace( const QChar &ch )
 
 inline int lineBreakClass( const QChar &ch )
 {
-    register int pos = (int)QUnicodeTables::line_break_info[ch.row()] << 8 + ch.cell();
+    register int pos = ((int)QUnicodeTables::line_break_info[ch.row()] << 8) + ch.cell();
     return QUnicodeTables::line_break_info[pos];
 }
 
