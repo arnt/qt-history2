@@ -1395,7 +1395,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
         include_roots << Option::output_dir;
         if(parser.from_file) {
             QString pfilewd = QFileInfo(parser.file).path();
-            if(pfilewd.isEmpty())
+            if(!pfilewd.isEmpty())
                 include_roots << pfilewd;
         }
         if(Option::output_dir != qmake_getpwd())
