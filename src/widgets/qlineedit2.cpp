@@ -237,7 +237,7 @@ struct QLineEditPrivate {
     QString maskFields;
     QString mask;
     QString initString;
-    bool saveLiteral;
+//     bool saveLiteral;
     QChar blank;
     QValueList<MaskInputData> maskList;
 };
@@ -495,7 +495,7 @@ void QLineEdit::setText( const QString &text )
     } else
 	maskText = text;
     d->undoRedoInfo.clear();
-    QString oldText = this->text();
+    QString oldText = this->text( FALSE );
     d->parag->truncate( 0 );
     d->parag->append( maskText );
     d->parag->commands()->clear();
@@ -506,7 +506,7 @@ void QLineEdit::setText( const QString &text )
     update();
     setEdited( FALSE );
     if ( oldText != maskText ) {
-	emit textChanged( maskText );
+	emit textChanged( stripString( maskText ) );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
@@ -566,9 +566,11 @@ QString QLineEdit::text() const
     // calls to text() will get the same shared value.
     QString s = d->parag->string()->toString();
     s.remove( s.length() - 1, 1 ); // get rid of trailing space
-    if ( d->txtBuffer != s )
-	d->txtBuffer = s;
-    return d->txtBuffer;
+
+//     if ( d->txtBuffer != s )
+// 	d->txtBuffer = s;
+//     return d->txtBuffer;
+    return stripString( s );
 }
 
 
@@ -703,7 +705,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	e->ignore();
 #else
 	const QValidator * v = validator();
-	QString str = text();
+	QString str = text( FALSE );
 	if ( !v || v->validate( str, cursorPos ) == QValidator::Acceptable ) {
 	    if ( hasMask() ) {
 		if ( isValidInput() )
@@ -712,7 +714,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		emit returnPressed();
 	    e->ignore();
 	} else if ( v ) {
-	    QString old = text();
+	    QString old = text( FALSE );
 	    QString vstr = old;
 	    v->fixup( vstr );
 	    if ( old != vstr ) {
@@ -1970,7 +1972,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     t.truncate( maxLength() );
 
-    QString old = this->text();
+    QString old = this->text( FALSE );
 
 #ifndef QT_NO_VALIDATOR
     const QValidator * v = validator();
@@ -2002,7 +2004,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
-	emit textChanged( t );
+	emit textChanged( stripString( t ) );
     }
     return TRUE;
 }
@@ -2065,7 +2067,7 @@ void QLineEdit::insert( const QString &newText )
 
     blinkOn();
 
-    if ( t2 == this->text() )
+    if ( t2 == this->text( FALSE ) )
  	d->undoRedoInfo.text += t;
     update();
     d->selectionStart = d->cursor->index();
@@ -2331,11 +2333,11 @@ void QLineEdit::removeSelectedText()
 void QLineEdit::undo()
 {
     if ( hasMask() ) return;
-    QString oldText = text();
+    QString oldText = text( FALSE );
     d->undoRedoInfo.clear();
     d->parag->undo( d->cursor );
-    if ( oldText != text() )
-	emit textChanged( text() );
+    if ( oldText != text( FALSE ) )
+	emit textChanged( text( FALSE ) );
     update();
 }
 
@@ -2347,11 +2349,11 @@ void QLineEdit::undo()
 void QLineEdit::redo()
 {
     if ( hasMask() ) return;
-    QString oldText = text();
+    QString oldText = text( FALSE );
     d->undoRedoInfo.clear();
     d->parag->redo( d->cursor );
-    if ( oldText != text() )
-	emit textChanged( text() );
+    if ( oldText != text( FALSE ) )
+	emit textChanged( text( FALSE ) );
     update();
 }
 
@@ -2394,10 +2396,10 @@ QPopupMenu *QLineEdit::createPopupMenu()
 		       !QApplication::clipboard()->text( d->clipboard_mode ).isEmpty();
     popup->setItemEnabled( d->id[ IdPaste ], enablePaste );
 #endif
-    bool enableClear = !d->readonly && !text().isEmpty();
+    bool enableClear = !d->readonly && !text( FALSE ).isEmpty();
     popup->setItemEnabled( d->id[ IdClear ], enableClear );
-    bool allSelected = (d->parag->selectionStart( 0 ) == 0 && d->parag->selectionEnd( 0 ) == (int)text().length() );
-    popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() && !allSelected );
+    bool allSelected = (d->parag->selectionStart( 0 ) == 0 && d->parag->selectionEnd( 0 ) == (int)text( FALSE ).length() );
+    popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text( FALSE ).length() && !allSelected );
 
     return popup;
 #else
@@ -2555,12 +2557,12 @@ void QLineEdit::delOrBackspace( bool backspace )
 	    bool ok = TRUE;
 #ifndef QT_NO_VALIDATOR
 	    if ( d->validator ) {
-		newText = text();
+		newText = text( FALSE );
 		if ( hasMask() )
 		    newText.replace( newPos, 1, clearString( newPos, 1 ) );
 		else
 		    newText.remove( newPos, 1 );
-		QString oldText = text();
+		QString oldText = text( FALSE );
 		ok = ( ( d->validator->validate( oldText, oldPos ) == QValidator::Invalid ) ||
 		       ( d->validator->validate( newText, newPos ) != QValidator::Invalid ) );
 	    }
@@ -2591,7 +2593,7 @@ void QLineEdit::delOrBackspace( bool backspace )
 
 #ifndef QT_NO_VALIDATOR
 		if ( d->validator ) {
-		    if ( newText != text() )
+		    if ( newText != text( FALSE ) )
 			setText( newText );
 		    d->cursor->setIndex( newPos );
 		}
@@ -2616,14 +2618,16 @@ void QLineEdit::parseMaskFields( const QString &maskFields ) {
     if ( maskFields.isEmpty() ) {
 	d->maskFields = "";
 	d->mask = "";
-// 	maxLength(); *** todo
+	setMaxLength( 32767 );
+//	d->undoRedoInfo.clear( TRUE );
+	return;
     }
 
     d->maskFields = maskFields;
 
     d->mask =  d->maskFields.section( ';', 0, 0 );
-    d->saveLiteral =  (bool)d->maskFields.section( ';', 1, 1 ).toInt();
-    d->blank = d->maskFields.section( ';', 2, 2 ).at(0);
+//     d->saveLiteral =  (bool)d->maskFields.section( ';', 1, 1 ).toInt();
+    d->blank = d->maskFields.section( ';', 1, 1 ).at(0);
     if ( d->blank == 0 )
 	d->blank = ' ';
 
@@ -2829,12 +2833,12 @@ QString QLineEdit::clearString( uint pos, uint len ) {
 }
 
 /*
-  Strips blank parts of the input in a QLineEdit when the mask a mask is set,
+  Strips blank parts of the input in a QLineEdit when a mask is set,
   separators are still included. Typically "127.0__.0__.1__" becomes "127.0.0.1".
 */
 QString QLineEdit::stripString( const QString &str ) const
 {
-    qDebug( "striiiipping!" );
+    if ( !hasMask() ) return str;
     QString s;
     for (uint i=0; i<QMIN( d->maskList.count(), str.length() ); i++)
 	if ( d->maskList[i].separator )
@@ -2842,7 +2846,23 @@ QString QLineEdit::stripString( const QString &str ) const
 	else
 	    if ( str[i] != d->blank )
 		s += str[i];
+
     return s;
+}
+
+/*
+  If \a strip is TRUE it just calls the public text() function (which strips if a
+  mask is set) on FALSE it returns the string with no stripping. For internal QLineEdit usage
+  text( FALSE ); is probably the best.
+*/
+QString QLineEdit::text( bool strip ) const
+{
+    if ( strip ) return text();
+    else {
+	QString s = d->parag->string()->toString();
+	s.remove( s.length() - 1, 1 ); // get rid of trailing space
+	return s;
+    }
 }
 
 #endif

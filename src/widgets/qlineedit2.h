@@ -228,6 +228,7 @@ private:
     QString maskString( uint pos, const QString &str );
     QString clearString( uint pos, uint len );
     QString stripString( const QString &str ) const;
+    QString text( bool strip ) const;
 
     QLineEditPrivate * d;
 
