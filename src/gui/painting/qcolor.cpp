@@ -396,7 +396,7 @@ void QColor::getHsvF(qreal *h, qreal *s, qreal *v, qreal *a) const
         return;
     }
 
-    *h = ct.ahsv.hue == USHRT_MAX ? -1.0 : ct.ahsv.hue / 100.0;
+    *h = ct.ahsv.hue == USHRT_MAX ? -1.0 : ct.ahsv.hue / 36000.0;
     *s = ct.ahsv.saturation / qreal(USHRT_MAX);
     *v = ct.ahsv.value / qreal(USHRT_MAX);
 
@@ -439,12 +439,11 @@ void QColor::getHsv(int *h, int *s, int *v, int *a) const
 /*!
     \overload
 
-    The value of \a s, \a v, and \a a must all be in the range
-    0.0-1.0; the value of \a h must be in the range 0.0-360.0.
+    The value of \a h, \a s and \a v must all be in the range 0.0-1.0.
 */
 void QColor::setHsvF(qreal h, qreal s, qreal v, qreal a)
 {
-    if (((h < 0.0 || h >= 360.0) && h != -1.0)
+    if (((h < 0.0 || h > 1.0) && h != -1.0)
         || (s < 0.0 || s > 1.0)
         || (v < 0.0 || v > 1.0)
         || (a < 0.0 || a > 1.0)) {
@@ -454,7 +453,7 @@ void QColor::setHsvF(qreal h, qreal s, qreal v, qreal a)
 
     cspec = Hsv;
     ct.ahsv.alpha      = qRound(a * USHRT_MAX);
-    ct.ahsv.hue        = h == -1.0 ? USHRT_MAX : qRound(h * 100);
+    ct.ahsv.hue        = h == -1.0 ? USHRT_MAX : qRound(h * 36000);
     ct.ahsv.saturation = qRound(s * USHRT_MAX);
     ct.ahsv.value      = qRound(v * USHRT_MAX);
     ct.ahsv.pad        = 0;
@@ -881,7 +880,7 @@ qreal QColor::hueF() const
 {
     if (cspec != Invalid && cspec != Hsv)
         return toHsv().hueF();
-    return ct.ahsv.hue == USHRT_MAX ? -1.0 : ct.ahsv.hue / 100.0;
+    return ct.ahsv.hue == USHRT_MAX ? -1.0 : ct.ahsv.hue / 36000.0;
 }
 
 /*!
@@ -1332,14 +1331,13 @@ QColor QColor::fromHsv(int h, int s, int v, int a)
     the HSV color values, \a h (hue), \a s (saturation), \a v (value),
     and \a a (alpha-channel, i.e. transparency).
 
-    The value of \a s, \a v, and \a a must all be in the range
-    0.0-1.0; the value of \a h must be in the range 0.0-360.0.
+    The value of \a h, \a s and \a v must all be in the range 0.0-1.0.
 
     \sa toHsv() fromCmyk() fromRgb()
 */
 QColor QColor::fromHsvF(qreal h, qreal s, qreal v, qreal a)
 {
-    if (((h < 0.0 || h >= 360.0) && h != -1.0)
+    if (((h < 0.0 || h > 1.0) && h != -1.0)
         || (s < 0.0 || s > 1.0)
         || (v < 0.0 || v > 1.0)
         || (a < 0.0 || a > 1.0)) {
@@ -1350,7 +1348,7 @@ QColor QColor::fromHsvF(qreal h, qreal s, qreal v, qreal a)
     QColor color;
     color.cspec = Hsv;
     color.ct.ahsv.alpha      = qRound(a * USHRT_MAX);
-    color.ct.ahsv.hue        = h == -1.0 ? USHRT_MAX : qRound(h * 100);
+    color.ct.ahsv.hue        = h == -1.0 ? USHRT_MAX : qRound(h * 36000);
     color.ct.ahsv.saturation = qRound(s * USHRT_MAX);
     color.ct.ahsv.value      = qRound(v * USHRT_MAX);
     color.ct.ahsv.pad        = 0;
