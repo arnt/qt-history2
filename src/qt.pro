@@ -671,13 +671,14 @@ table:HEADERS += $$TABLE_H/qtable.h
 table:SOURCES += table/qtable.cpp
 
 database:HEADERS += $$DATABASE_H/qsql.h \
+		    $$DATABASE_H/qsqlpropertymanager.h \
 		    $$DATABASE_H/qsqlconnection.h \
 		    $$DATABASE_H/qsqldatabase.h \
 		    $$DATABASE_H/qsqlfield.h \
 		    $$DATABASE_H/qsqlrowset.h \
 		    $$DATABASE_H/qsqlview.h \
-		    $$DATABASE_H/qsqleditor.h \
 		    $$DATABASE_H/qsqleditorfactory.h \
+		    $$DATABASE_H/qsqleditor.h \
 		    $$DATABASE_H/qsqldriver.h \
 		    $$DATABASE_H/qsqldriverinterface.h \
 		    $$DATABASE_H/qsqldriverplugin.h \
@@ -685,13 +686,14 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqlresult.h \
 		    $$DATABASE_H/qsqlindex.h
 database:SOURCES += database/qsql.cpp \
+		    database/qsqlpropertymanager.cpp \
 		    database/qsqldatabase.cpp \
 		    database/qsqlconnection.cpp \
 		    database/qsqlfield.cpp \
 		    database/qsqlrowset.cpp \
 		    database/qsqlview.cpp \
-		    database/qsqleditor.cpp \
 		    database/qsqleditorfactory.cpp \
+		    database/qsqleditor.cpp \
 		    database/qsqldriver.cpp \
 		    database/qsqldriverplugin.cpp \
 		    database/qsqlerror.cpp \
