@@ -927,7 +927,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	msg.replace(QString("${QMAKE_DATE}"), QDateTime::currentDateTime().toString());
 	doVariableReplace(msg, place);
 	fixEnvVariables(msg);
-	printf("Project %s: %s\n", func.upper().latin1(), msg.latin1());
+	fprintf(stderr, "Project %s: %s\n", func.upper().latin1(), msg.latin1());
 	if(func == "message")
 	    return TRUE;
 	exit(2);
