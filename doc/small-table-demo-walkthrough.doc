@@ -1,0 +1,176 @@
+/****************************************************************************
+** $Id: xml-sax.doc,v 2.45 1999/10/05 12:12:08 arnt Exp $
+**
+** Documentation on the sax interface of the xml module
+**
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
+/*! \page small-table-demo-walkthrough.html
+
+\ingroup walkthroughs
+
+\title Walkthrough: A short demonstration of the Qt table module
+
+The following example shows how to populate the cells of a spreadsheet with
+pixmaps and text, combo boxes and check boxes.
+
+Our aim is a table that consists of 100 columns and 100 rows, 
+with the entire second column filled with check boxes and
+the sixth column filled with combo boxes where
+users might choose between four items.
+The third cell in the fourth row contains a pixmap and a string.
+
+<h3>A simple table with some special cell entries</h3>
+
+\walkthrough table/small-table-demo/main.cpp
+\skipto include
+\printuntil qwmatrix.h
+
+All we need to implement this are five classes: \l QApplication
+(overall it's a GUI program), \l QTable for the spreadsheet, \l QPixmap
+for the icon to show, \l QStringList to store the combo box items, and 
+\l QWMatrix to scale the pixmap so that it fits nicely into the cell.
+
+\skipto qtlogo.xpm
+\printline qtlogo.xpm
+
+\e qtlogo.xpm contains the \e qtlogo_xpm pixmap we're going to use.
+
+\skipto 100
+\printuntil numCols
+
+Next we define the table size: 100 columns and 100 rows.
+
+\skipto main
+\printuntil QApplication
+
+In the main program the first thing for us to do is to create 
+"the application" itself.
+
+\printline table
+
+Then we create a \e table widget of the defined size.
+
+\printline pix
+
+Next we use the pixmap array that \e qtlogo_xpm points to 
+and create the \l QPixmap object to be shown in the
+cell that is made up by the third column and the fourth row.
+
+\printline factor
+
+Our pixmap does not neccessarily fit right into a cell.
+The limiting \e factor is the height of the fourth row.
+Therefore we compute the ratio of the row height and the
+icon height. This is the scaling factor for the pixmap. 
+
+Note that both, \l QTable::rowHeight() and \l QPixmap::height()
+return integer values. To talk them into participating in a floating point 
+division we have to cast at least one of them. Furthermore it is
+important to keep in mind that row and column numbering in QTable
+starts with zero so that the fourth row is denoted by 3.
+
+\printline wm;
+
+2D transformations in Qt are stored in a so called \e{world matrix}.
+To record the transformation to be applied to the pixmap we use the 
+\l QWMatrix \e wm.
+
+\printline scale
+
+To let the pixmap fit into a fourth row cell we have to scale
+its height by \e factor. As we want to retain the proportions of the 
+(square) icon
+we scale its width, too. This transformation we store in the 
+\e wm world matrix.
+
+\printline xForm
+
+The \l QPixmap::xForm() function applies transformations stored
+in a world matrix to a copy of \e pix. As we don't need the
+untransformed icon any longer we overwrite \e pix with the transformed
+pixmap data.
+
+\printline table.setPixmap
+
+The scaled pixmap now becomes the content of the cell where fourth 
+row and third column meet.
+
+\printline table.setText  
+
+Then we add the text string \e{A Pixmap} 
+to the right of the pixmap.
+
+\printline QStringList
+
+We mentioned earlier that we intend to populate the entire sixth
+column with combo boxes. A combo box with no entries to choose from 
+is quite boring. 
+Thus we define a string list \e comboEntries to store them.
+
+\printline comboEntries
+
+The combo boxes will hold four entries, boringly named \e one to
+\e four.
+
+\printline < numRows
+
+Beginning with the first row, row after row, until we are done
+with the last row (i.e. no. \e{numRows-1}) ...
+
+\printuntil TRUE
+
+... we populate the sixth column with identical combo boxes that
+show the entries \e one, \e two, \e three and \e four. With
+the last parameter set to TRUE the user has the possibility to
+change the text of the combo box entries. \l QComboTableItem
+is a special class to fill table cells with combo boxes.
+
+\printline for
+\printline QCheckTableItem
+
+The same way the entire second column is filled with unchecked
+check boxes of the title \e{Check me}. 
+
+\printline app
+
+So we are done with creating the table. We make it the main window of
+the Qt application,
+
+\printline show
+
+show it,
+
+\printuntil }
+
+and start the event loop of the GUI.
+
+*/
