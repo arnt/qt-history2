@@ -199,7 +199,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
 void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
 {
     if ( !pHnd )
-	return FALSE;
+	return NULL;
 
     void* address = GetProcAddress( pHnd, f );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
@@ -246,7 +246,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
 void* QLibrary::QLibraryPrivate::resolveSymbol( const char* symbol )
 {
     if ( !pHnd )
-	return FALSE;
+	return NULL;
 
     void* address;
     if ( shl_findsym( (shl_t*)pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
@@ -334,7 +334,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
 void* QLibrary::QLibraryPrivate::resolveSymbol( const char *symbol )
 {
     if ( !pHnd )
-	return FALSE;
+	return NULL;
 
 #ifdef DO_MAC_LIBRARY
     QCString symn2;
@@ -439,7 +439,7 @@ void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
   Creates a QLibrary object for the shared library \a filename.
   The library get's loaded if \a pol is Immediately.
 
-  \sa setPolicy(), load()
+  \sa setPolicy(), unload()
 */
 QLibrary::QLibrary( const QString& filename, Policy pol )
     : libfile( filename ), libPol( pol ), entry( 0 )
@@ -458,8 +458,10 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 QLibrary::~QLibrary()
 {
     if ( libPol == Manual || !unload() ) {
-	entry->release();
-	entry = 0;
+	if ( entry ) {
+	    entry->release();
+	    entry = 0;
+	}
     }
     delete d;
 }
@@ -550,7 +552,7 @@ QUnknownInterface* QLibrary::createInstance()
       return 5 + 8;
   \endcode
 
-  \sa load
+  \sa createInstance, queryInterface
 */
 void *QLibrary::resolve( const char* symb )
 {
@@ -568,7 +570,7 @@ void *QLibrary::resolve( const char* symb )
 /*!
   Returns TRUE if the library is loaded.
 
-  \sa load
+  \sa unload
 */
 bool QLibrary::isLoaded() const
 {
@@ -590,7 +592,7 @@ bool QLibrary::isLoaded() const
   which is in most cases a segmentation fault, so you should know what 
   you're doing!
 
-  \sa load
+  \sa createInstance, queryInterface, resolve
 */
 bool QLibrary::unload( bool force )
 {
@@ -655,7 +657,7 @@ void QLibrary::setPolicy( Policy pol )
 {
     libPol = pol;
 
-    if ( libPol == Immediately && !d->pHnd)
+    if ( libPol == Immediately && !d->pHnd )
 	d->loadLibrary();
 }
 
