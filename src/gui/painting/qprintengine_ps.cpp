@@ -1937,7 +1937,7 @@ void QPSPrintEngineFontTTF::download(QTextStream& s,bool global)
         s << "%!PS-Adobe-3.0 Resource-Font\n";
     }     /* See RBIIp 641 */
 
-    if(Copyright != (char*)NULL) {
+    if(!Copyright.isEmpty()) {
         s << wrapDSC("%%Copyright: " + Copyright);
     }
 
@@ -4530,7 +4530,9 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 #ifndef QT_NO_TEXTCODEC
       currentFontCodec(0),
 #endif
-      fm(QFont()), textY(0), collate(false), copies(1)
+      fm(QFont()), textY(0), collate(false), copies(1), outputToFile(false), orientation(QPrinter::Portrait),
+      pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::GrayScale),
+      printerState(QPrinter::Idle)
 {
     // #####################
     firstPage = true;
