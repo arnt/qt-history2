@@ -61,6 +61,8 @@
 */
 QBitArray::QBitArray(int size, bool val)
 {
+    if (!size)
+	return;
     d.resize(1 + (size+7)/8);
     uchar* c = (uchar*)d.data();
     memset(c, val ? 0xff : 0, d.size());
