@@ -213,10 +213,10 @@ inline QVariant::QVariant(const QDate &date) : QCoreVariant(date) {};
 inline QVariant::QVariant(const QTime &time) : QCoreVariant(time) {};
 inline QVariant::QVariant(const QDateTime &datetime) : QCoreVariant(datetime) {};
 #ifndef QT_NO_TEMPLATE_VARIANT
-inline QVariant::QVariant(const QList<QVariant> &list) 
+inline QVariant::QVariant(const QList<QVariant> &list)
     : QCoreVariant(*reinterpret_cast<const QList<QCoreVariant>*>(&list)) {};
 inline QVariant::QVariant(const QList<QCoreVariant> &list) : QCoreVariant(list) {};
-inline QVariant::QVariant(const QMap<QString, QVariant> &map) 
+inline QVariant::QVariant(const QMap<QString, QVariant> &map)
     : QCoreVariant(*reinterpret_cast<const QMap<QString, QCoreVariant>*>(&map)) {};
 inline QVariant::QVariant(const QMap<QString, QCoreVariant> &map) : QCoreVariant(map) {};
 #endif
@@ -481,12 +481,12 @@ template<> QMap<QString,QVariant> qt_cast<QMap<QString,QVariant> >(const QVarian
 
 template<> inline QFont qt_cast<QFont>(const QVariant &v, const QFont*) { return v.toFont(); }
 template<> inline QPixmap qt_cast<QPixmap>(const QVariant &v, const QPixmap*) { return v.toPixmap(); }
-template<> inline QImage qt_cast<const QImage>(const QVariant &v, const QImage*) { return v.toImage(); }
+template<> inline QImage qt_cast<QImage>(const QVariant &v, const QImage*) { return v.toImage(); }
 template<> inline QBrush qt_cast<QBrush>(const QVariant &v, const QBrush*) { return v.toBrush(); }
 template<> inline QColor qt_cast<QColor>(const QVariant &v, const QColor*) { return v.toColor(); }
 template<> inline QPalette qt_cast<QPalette>(const QVariant &v, const QPalette*) { return v.toPalette(); }
 template<> inline QIconSet qt_cast<QIconSet>(const QVariant &v, const QIconSet*) { return v.toIconSet(); }
-template<> inline QPointArray qt_cast<const QPointArray>(const QVariant &v, const QPointArray*)
+template<> inline QPointArray qt_cast<QPointArray>(const QVariant &v, const QPointArray*)
 { return v.toPointArray(); }
 template<> inline QBitmap qt_cast<QBitmap>(const QVariant &v, const QBitmap*) { return v.toBitmap(); }
 template<> inline QRegion qt_cast<QRegion>(const QVariant &v, const QRegion*) { return v.toRegion(); }
