@@ -182,6 +182,7 @@ The only thing left to implement is the \e setFontColor slot
 that is responsible for changing the font color to red
 or black depending on which action was toggled on.
 
+<A NAME="setFontColor()"></A>
 \printline coloraction
 \printline {
 

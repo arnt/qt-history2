@@ -1602,8 +1602,7 @@ void QActionGroup::childEvent( QChildEvent *e )
   Its argument denotes to the action whose state changed to on.
 
   To call a user program depending on which action was switched on connect
-  this signal to a slot that takes care of the action argument
-  (c.f. the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>):
+  this signal to a slot that takes care of the action argument:
 
   \dontinclude action/actiongroup/editor.cpp
   \skipto QActionGroup
@@ -1611,8 +1610,9 @@ void QActionGroup::childEvent( QChildEvent *e )
   \skipto QObject::connect
   \printuntil SLOT
 
-  \skipto setFontColor
-  \printuntil }
+  (This code including the implementation of the 
+  <A HREF="actiongroup.html#setFontColor()">setFontColor()</A>
+  slot can be found in the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>.)
 
   \sa setExclusive(), isOn()
 */
