@@ -109,6 +109,7 @@ public:
     QRadioButton * printAllButton;
     QRadioButton * printRangeButton;
     QRadioButton * printSelectionButton;
+    QRadioButton * printToFileButton;
     QComboBox *orientationCombo, *sizeCombo;
 
     QPrinter::PageSize pageSize;
@@ -1129,9 +1130,9 @@ QGroupBox * QPrintDialog::setupDestination()
     tll->addSpacing( 6 );
 
     // file radio button, edit/browse
-    rb = new QRadioButton( tr( "Print to file:" ), g, "file" );
-    tll->addWidget( rb );
-    d->printerOrFile->insert( rb, 1 );
+    d->printToFileButton = new QRadioButton( tr( "Print to file:" ), g, "file" );
+    tll->addWidget( d->printToFileButton );
+    d->printerOrFile->insert( d->printToFileButton, 1 );
 
     horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
@@ -1544,6 +1545,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	// print command does not exist any more
 
 	// file name
+	d->printToFileButton->setEnabled( d->printer->outputToFileEnabled() );
 	d->fileName->setText( p->outputFileName() );
 
 	// orientation

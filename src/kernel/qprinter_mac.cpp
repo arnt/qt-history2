@@ -60,6 +60,7 @@
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
     d = new QPrinterPrivate;
+    d->outputToFileEnabled = TRUE;
     if(PMCreateSession(&psession) != noErr)
 	psession = NULL;
 
