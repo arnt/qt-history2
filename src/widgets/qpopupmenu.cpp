@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#262 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#263 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1569,6 +1569,19 @@ bool QPopupMenu::focusNextPrevChild( bool next )
 	    setActiveItem( i );
     }
     return TRUE;
+}
+
+
+/*!\reimp
+ */
+void QPopupMenu::focusInEvent( QFocusEvent * )
+{
+}
+
+/*!\reimp
+ */
+void QPopupMenu::focusOutEvent( QFocusEvent * )
+{
 }
 
 #ifdef QT_BUILDER
