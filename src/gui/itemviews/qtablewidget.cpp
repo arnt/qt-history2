@@ -390,7 +390,7 @@ QList<QTableWidgetItem*> QTableModel::find(const QRegExp &rx) const
     QList<QTableWidgetItem*> result;
     QVector<QTableWidgetItem*>::const_iterator it = table.begin();
     for (; it != table.end(); ++it) {
-        if (rx.exactMatch((*it)->text()))
+        if (*it && rx.exactMatch((*it)->text()))
             result << (*it);
     }
     return result;
