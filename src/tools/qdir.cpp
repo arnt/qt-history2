@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#62 $
 **
 ** Implementation of QDir class
 **
@@ -722,6 +722,9 @@ const QStrList *QDir::entryList( const QString &nameFilter,
   \e filterSpec and \e sortSpec arguments.
 
   Returns 0 if the directory is unreadable or does not exist.
+
+  Note that ownership of the returned list remains with the QDir, and
+  only exists for as long as the QDir exists.
 
   \sa entryList(), setNameFilter(), setSorting(), setFilter()
 */
