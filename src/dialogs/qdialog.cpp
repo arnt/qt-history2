@@ -544,8 +544,8 @@ void QDialog::show()
     }
     QWidget::show();
 #ifndef QT_NO_PUSHBUTTON
+    QWidget *fw = focusWidget();
     if ( !d->mainDef ) {
-	QWidget *fw = focusWidget();
 	if ( !fw ) {
 	    focusNextPrevChild( TRUE );
 	    fw = focusWidget();
@@ -576,6 +576,13 @@ void QDialog::show()
 	}
 	delete pbs;
     }
+    if ( fw ) {
+	QFocusEvent e( QEvent::FocusIn );
+	QFocusEvent::setReason( QFocusEvent::Tab );
+	QApplication::sendEvent( fw, &e );
+	QFocusEvent::resetReason();
+    }
+    
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );

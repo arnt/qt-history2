@@ -713,7 +713,7 @@ const QValidator * QSpinBox::validator() const
 void QSpinBox::updateDisplay()
 {
     vi->setText( currentValueText() );
-    if ( d->selreq )
+    if ( d->selreq && isVisible() )
 	selectAll();
     vi->repaint( FALSE ); // we want an immediate repaint, might be that a widget connected to the value changed does some longer stuff which would result in a bad feedback of the spinbox
     edited = FALSE;
