@@ -63,8 +63,8 @@
 
 /*!
   \fn bool QSize::isEmpty() const
-  Returns TRUE if the width is <= 0 or the height is <= 0,
-  otherwise FALSE.
+  Returns TRUE if the width is less than or equal to 0, or the height is
+  less than or equal to 0; otherwise returns FALSE.
 */
 
 /*!
