@@ -401,7 +401,7 @@ public:
 	if ( size() != l.size() )
 	    return FALSE;
 	const_iterator it2 = begin();
-	std::list<T>::iterator it = l.begin();
+	std::list<T>::const_iterator it = l.begin();
 	for ( ; it2 != end(); ++it2, ++it )
 	if ( !((*it2) == (*it)) )
 	    return FALSE;
