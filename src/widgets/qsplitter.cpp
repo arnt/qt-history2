@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#4 $
 **
 **  Splitter widget
 **
@@ -238,7 +238,7 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
     	if ( orient == Horizontal ) {
 	    QCOORD xPos = x + w/2;
 	    QCOORD kPos = motifOffset;
-	    QCOORD kSize = bord*2 - 1;
+	    QCOORD kSize = bord*2 - 2;
 
 	    qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
 			    xPos, h, colorGroup() );
@@ -248,7 +248,7 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 	} else {
 	    QCOORD yPos = y + h/2;
 	    QCOORD kPos = w - motifOffset - 2*bord;
-	    QCOORD kSize = bord*2 - 1;
+	    QCOORD kSize = bord*2 - 2;
 
 	    qDrawShadeLine( p, 0, yPos, kPos, yPos, colorGroup() );
 	    qDrawShadePanel( p, kPos, yPos-bord+1,
