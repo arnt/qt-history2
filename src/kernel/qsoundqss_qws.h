@@ -22,6 +22,8 @@
 
 #ifndef QT_NO_SOUND
 
+#ifndef Q_OS_MAC
+
 class QWSSoundServerPrivate;
 
 class QWSSoundServer : public QObject {
@@ -70,6 +72,7 @@ signals:
 };
 #endif
 
+#endif // Q_OS_MAC
 #endif // QT_NO_SOUND
 
 #endif // QSOUNDQSS_QWS_H
