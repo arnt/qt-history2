@@ -1,5 +1,7 @@
 #include "qitemselectionmodel.h"
 
+#include "private/qobject_p.h"
+
 QModelIndexList QItemSelectionRange::items(const QGenericItemModel *model) const
 {
     QModelIndex item = model->index(top(), left(), parent());
@@ -70,11 +72,12 @@ bool QItemSelection::operator==(const QItemSelection &other) const
     return (it == ranges.end() && it2 == other.ranges.end());
 }
 
-class QItemSelectionModelPrivate
+class QItemSelectionModelPrivate: public QObjectPrivate
 {
+    Q_DECLARE_PUBLIC(QItemSelectionModel);
 public:
-    QItemSelectionModelPrivate(QItemSelectionModel *owner, QGenericItemModel *model)
-	: q(owner), model(model), selectionMode(QItemSelectionModel::Multi), toggleState(false) {}
+    QItemSelectionModelPrivate()
+	: selectionMode(QItemSelectionModel::Multi), toggleState(false) {}
 
     inline void remove(QList<QItemSelectionRange> &r)
     {
@@ -117,17 +120,16 @@ public:
 	return rows;
     }
 
-
-
-    QItemSelectionModel *q;
     QGenericItemModel *model;
     QItemSelectionModel::SelectionMode selectionMode;
     QItemSelectionPointer currentSelection;
     QModelIndex currentItem;
     QList<QItemSelectionRange> ranges;
     bool toggleState;
-
 };
+
+#define d d_func()
+#define q q_func()
 
 /*!
   \class QItemSelectionModel
@@ -136,13 +138,13 @@ public:
 */
 
 QItemSelectionModel::QItemSelectionModel(QGenericItemModel *model)
+    : QObject(*new QItemSelectionModelPrivate, 0)
 {
-    d = new QItemSelectionModelPrivate(this, model);
+    d->model = model;
 }
 
 QItemSelectionModel::~QItemSelectionModel()
 {
-    delete d;
 }
 
 void QItemSelectionModel::select(const QModelIndex &item,

@@ -6,15 +6,16 @@
 #include <qgenericitemmodel.h>
 #include <qitemdelegate.h>
 #include <qevent.h>
+#include <private/qabstractitemview_p.h>
 
-class QGenericHeaderPrivate
+class QGenericHeaderPrivate: public QAbstractItemViewPrivate
 {
+    Q_DECLARE_PUBLIC(QGenericHeader);
+
 public:
-    QGenericHeaderPrivate(QGenericHeader *owner, Qt::Orientation orientation)
-	: q(owner),
-	  state(NoState),
+    QGenericHeaderPrivate()
+	: state(NoState),
 	  offset(0),
-	  orientation(orientation),
 	  sortIndicatorOrder(Qt::Ascending),
 	  sortIndicatorSection(-1),
 	  movableSections(false),
@@ -27,7 +28,6 @@ public:
     void updateSectionIndictaor();
     QRect sectionHandleRect(int section);
 
-    QGenericHeader *q;
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
     int offset;
 
@@ -53,6 +53,9 @@ public:
     QWidget *sectionIndicator;//, *sectionIndicator2;
 };
 
+#define d d_func()
+#define q q_func()
+
 static const int border = 4;
 static const int minimum = 15;
 static const int default_width = 100;
@@ -66,8 +69,9 @@ static const int default_height = 30;
 */
 
 QGenericHeader::QGenericHeader(QGenericItemModel *model, Orientation o, QWidget *parent)
-    : QAbstractItemView(model, parent), d(new QGenericHeaderPrivate(this, o))
+    : QAbstractItemView(*new QGenericHeaderPrivate, model, parent)
 {
+    d->orientation = o;
     setHScrollBarMode(AlwaysOff);
     setVScrollBarMode(AlwaysOff);
     setFrameStyle(NoFrame);
@@ -84,7 +88,6 @@ QGenericHeader::QGenericHeader(QGenericItemModel *model, Orientation o, QWidget 
 
 QGenericHeader::~QGenericHeader()
 {
-    delete d;
 }
 
 Qt::Orientation QGenericHeader::orientation() const

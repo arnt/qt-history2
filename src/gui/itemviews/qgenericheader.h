@@ -10,6 +10,7 @@ class QGenericHeaderPrivate;
 class Q_GUI_EXPORT QGenericHeader : public QAbstractItemView
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGenericHeader);
 
 public:
 
@@ -97,9 +98,6 @@ protected:
     QModelIndex item(int section) const;
     void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) {}
     QRect selectionRect(const QItemSelection *selection) const;
-
-private:
-    QGenericHeaderPrivate *d;
 };
 
 #endif

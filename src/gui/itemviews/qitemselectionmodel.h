@@ -98,6 +98,7 @@ class QItemSelectionModelPrivate;
 class Q_GUI_EXPORT QItemSelectionModel : public QObject, public QSharedObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QItemSelectionModel);
 
 public:
     enum SelectionMode {
@@ -157,9 +158,6 @@ protected:
 		  bool alterRanges = true);
     void toggle(const QItemSelectionPointer &selection, bool emitSelectionChanged = true);
     void mergeCurrentSelection();
-
-private:
-    QItemSelectionModelPrivate *d;
 };
 
 typedef QExplicitlySharedDataPointer<QItemSelectionModel> QItemSelectionModelPointer;
