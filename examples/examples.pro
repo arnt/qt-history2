@@ -14,7 +14,6 @@ SUBDIRS     =	aclock \
 		drawlines \
 		fonts \
 		forever \
-		guithreads \
 		hello \
 		helpviewer \
 		i18n \
@@ -39,7 +38,6 @@ SUBDIRS     =	aclock \
 		rangecontrols \
 		richtext \
 		rot13 \
-		semaphores \
 		scribble \
 		scrollview \
 		showimg \
@@ -57,23 +55,32 @@ SUBDIRS     =	aclock \
 		xform
 !contains(QT_PRODUCT,qt-professional): SUBDIRS += demo
 
+thread:SUBDIRS +=   thread/guithreads \
+		    thread/semaphores
+
 canvas:SUBDIRS +=   canvas
+
 opengl:SUBDIRS +=   opengl/box \
 		    opengl/gear \
 		    opengl/glpixmap \
 		    opengl/overlay \
 		    opengl/sharedbox \
 		    opengl/texture
+
 nas:SUBDIRS += 	    sound
+
 iconview:SUBDIRS += fileiconview \
 		    iconview
+
 network:SUBDIRS +=  network/clientserver/client \
 		    network/clientserver/server \
 		    network/ftpclient \
 		    network/httpd \
 		    network/mail \
 		    network/networkprotocol
+
 workspace:SUBDIRS+= mdi
+
 table:SUBDIRS +=    table/statistics \
 		    table/small-table-demo \
 		    table/bigtable
