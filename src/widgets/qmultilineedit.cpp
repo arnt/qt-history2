@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#65 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1210,13 +1210,14 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 	s.prepend('\n');
     if ( s.length() && s[ s.length()-1].isSpace() )
 	s.truncate( s.length() - 1 );
-    if ( line < 0 )
-	line = contents->count() - 1;
-    if ( line < int(contents->count() - 1))
+    if ( line > 0 && line < int(contents->count() - 1))
 	s.append('\n');
     int oldXPos = cursorX;
     int oldYPos = cursorY;
-    insertAt( s, line, 0 );
+    if ( line < 0)
+	insertAt( s, numLines()-1, textLine( numLines()-1).length() );
+    else
+	insertAt( s, line, 0 );
     cursorX = oldXPos;
     cursorY = oldYPos;
 }
