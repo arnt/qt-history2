@@ -76,13 +76,12 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    Q_UNUSED(orientation);
     static QIcon service(QPixmap("services.png"));
     if (role == DisplayRole)
         return QString::number(section);
     if (role == DecorationRole)
         return service;
-    return QVariant();
+    return QAbstractItemModel::headerData(section, orientation, role);
 }
 
 bool Model::hasChildren(const QModelIndex &parent) const
