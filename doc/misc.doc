@@ -604,7 +604,7 @@ QUrlOperator	- provides an easy way to work with URLs.
 <li>QGridLayout/QBoxLayout 
  setMargin() now also works on child layouts. As a result of this
  change, the geometry() of a layout now includes margin(). This may
- effect programs that use QLayout::geometry().
+ affect programs that use QLayout::geometry().
 
 <li>QToolButton
  The now adjustable auto-raise behaviour defaults to TRUE only when
