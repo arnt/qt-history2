@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#77 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#77 $");
 
 
 /*!
@@ -614,41 +614,53 @@ QMenuBar::Separator QMenuBar::separator() const
 
 void QMenuBar::drawContents( QPainter *p )
 {
-    QColorGroup	 g  = colorGroup();
+    QColorGroup g;
     QFontMetrics fm = fontMetrics();
-    int		 fw = frameWidth();
-    int		 gs = style();
+    int fw = frameWidth();
+    GUIStyle gs = style();
+    bool e;
 
     p->setClipRect( fw, fw, width() - 2*fw, height() - 2*fw );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
-	QRect r = irects[i];
-	if ( gs == WindowsStyle ) {
-	    p->fillRect( r, i == actItem ? darkBlue : g.background() );
-	} else {	// MotifStyle
-	    if ( i == actItem )				// active item frame
-		qDrawShadePanel( p, r, g, FALSE, motifItemFrame );
-	    else					// incognito frame
-		qDrawPlainRect( p, r, g.background(), motifItemFrame );
-	}
-	if ( mi->pixmap() ) {
-	    p->drawPixmap( r.left() + motifItemFrame,
-			   r.top() + motifItemFrame,
-			   *mi->pixmap() );
-	} else if ( mi->text() ) {
-	    if ( !mi->isEnabled() && mi->popup() == 0 )
-		p->setPen( palette().disabled().text() );
-	    else {
-		if ( i == actItem && gs == WindowsStyle )
-		    p->setPen( g.light() );
-		else
-		    p->setPen( g.text() );
+	if ( mi->text() || mi->pixmap() ) {
+	    QRect r = irects[i];
+	    e = mi->isEnabled();
+	    if ( e )
+		g = palette().normal();
+	    else
+		g = palette().disabled();
+		     
+	    if ( gs == WindowsStyle && i == actItem ) {
+		// ### here be uglehacks.
+		if ( e ) {
+		    g = QColorGroup ( g.foreground(), g.background(),
+				      g.light(), g.dark(), g.mid(),
+				      white, g.base() );
+		} else {
+		    g = QColorGroup ( g.foreground(), g.background(),
+				      g.light(), g.dark(), g.mid(),
+				      palette().disabled().text(), g.base() );
+		    e = TRUE;
+		}
 	    }
-	    p->drawText( r, AlignCenter | ShowPrefix | DontClip,
-			 mi->text() );
-	} else {
-	    // separator or whatever
+
+	    if ( gs == WindowsStyle && i == actItem )
+		p->fillRect( r, darkBlue );
+	    else if ( gs == WindowsStyle )
+		p->fillRect( r, palette().normal().background() );
+	    else if ( i == actItem ) // motif, active item
+		qDrawShadePanel( p, r, palette().normal(), FALSE,
+				 motifItemFrame );
+	    else // motif, other item
+		qDrawPlainRect( p, r, palette().normal().background(),
+				motifItemFrame );
+
+	    qDrawItem( p, gs, r.left(), r.top(), r.width(), r.height(),
+		       AlignCenter|ShowPrefix|DontClip|SingleLine,
+		       g, e, mi->pixmap(), mi->text() );
+
 	}
     }
     if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
@@ -681,8 +693,9 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	repaint( FALSE );
 	emit highlighted( mi->id() );
     }
+
     QPopupMenu *popup = mi->popup();
-    if ( popup ) {
+    if ( popup && mi->isEnabled() ) {
 	if ( popup->isVisible() ) {	// sub menu already open
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
@@ -706,6 +719,13 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
+    if ( item >= 0 && !mitems->at(item)->isEnabled() ||
+	 actItem >= 0 && !mitems->at(actItem)->isEnabled() ) {
+	actItem = -1;
+	hidePopups();
+	repaint();
+	return;
+    }
     if ( actItem == -1 || item != actItem )	// ignore mouse release
 	return;
     actItem = item;
@@ -747,7 +767,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	repaint( FALSE );
 	hidePopups();
 	emit highlighted( mi->id() );
-	if ( mi->popup() )
+	if ( mi->popup() && mi->isEnabled() )
 	    openActPopup();
     }
 }
@@ -759,7 +779,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 
 void QMenuBar::keyPressEvent( QKeyEvent *e )
 {
-    if ( actItem < 0 || mouseBtDn )		// cannot handle key event
+    if ( actItem < 0 )
 	return;
 
     QMenuItem  *mi = 0;
@@ -781,13 +801,6 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    actItem = -1;
 	    repaint( FALSE );
 	    break;
-
-	case Key_Return:
-	case Key_Enter:
-	    mi = mitems->at( actItem );
-//	    popup = mi->popup();
-	    // ... what to do
-	    break;
     }
 
     if ( d ) {					// highlight next/prev
@@ -801,7 +814,10 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( mi->isEnabled() && !mi->isSeparator() )
+	    // ### fix windows-style traversal - currently broken due to 
+	    // QMenuBar's reliance on QPopupMenu
+	    if ( /* (style() == WindowsStyle || */ mi->isEnabled() /* / */
+		 && !mi->isSeparator() )
 		break;
 	}
 	if ( i != actItem ) {
@@ -809,7 +825,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    repaint( FALSE );
 	    hidePopups();
 	    popup = mi->popup();
-	    if ( popup ) {
+	    if ( popup && mi->isEnabled() ) {
 		popup->setFirstItemActive();
 		openActPopup();
 	    } else {
