@@ -98,7 +98,7 @@ public:
     QGdiplusPaintEngine(QPaintDevice *pdev);
     ~QGdiplusPaintEngine();
 
-    bool begin(QPaintDevice *pdev, bool unclipped = false);
+    bool begin(QPaintDevice *pdev);
     bool end();
 
     void updatePen(const QPen &pen);

@@ -1598,7 +1598,7 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
     if (!d->gdiplusEngine)
         d->gdiplusEngine = new QGdiplusPaintEngine(pdev);
-    d->gdiplusEngine->begin(pdev, q->state);
+    d->gdiplusEngine->begin(pdev);
     d->gdiplusInUse = true;
     q->setDirty(QPaintEngine::AllDirty);
     q->updateState(q->state);
@@ -1893,7 +1893,7 @@ QGdiplusPaintEngine::~QGdiplusPaintEngine()
 
 /* Start painting for this device.
  */
-bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, bool)
+bool QGdiplusPaintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
     // Verify the presence of an HDC
