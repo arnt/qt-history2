@@ -61,16 +61,16 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	    QMessageBox *mb = (QMessageBox*)o;
 	    switch ( mb->icon() ) {
 	    case QMessageBox::Warning:
-		soundName = "SystemHand";
-		break;
-	    case QMessageBox::Critical:
 		soundName = "SystemExclamation";
 		break;
+	    case QMessageBox::Critical:
+		soundName = "SystemHand";
+		break;
 	    case QMessageBox::Information:
-		soundName = ".Default";
+		soundName = "SystemAsterisk";
 		break;
 	    default:
-		soundName = "SystemAsterisk";
+		soundName = ".Default";
 		break;
 	    }
 	} else {
