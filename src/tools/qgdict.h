@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#36 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#37 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -36,7 +36,7 @@ class QGDItList;
 
 
 class QBaseBucket				// internal dict node
-{    
+{
 public:
     QCollection::Item	 getData()			{ return data; }
     QCollection::Item	 setData( QCollection::Item d ) { return data = d; }
@@ -94,10 +94,11 @@ class Q_EXPORT QGDict : public QCollection	// generic dictionary class
 public:
     uint	count() const	{ return numItems; }
     uint	size()	const	{ return vlen; }
-    Item	look_string( const QString& key, Item, int );
-    Item	look_ascii( const char *key, Item, int );
-    Item	look_int( long key, Item, int );
-    Item	look_ptr( void *key, Item, int );
+    QCollection::Item look_string( const QString& key, QCollection::Item,
+				   int );
+    QCollection::Item look_ascii( const char *key, QCollection::Item, int );
+    QCollection::Item look_int( long key, QCollection::Item, int );
+    QCollection::Item look_ptr( void *key, QCollection::Item, int );
 
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
@@ -111,14 +112,14 @@ protected:
 
     QGDict     &operator=( const QGDict & );
 
-    bool	remove_string( const QString &key, Item item=0 );
-    bool	remove_ascii( const char *key, Item item=0 );
-    bool	remove_int( long key, Item item=0 );
-    bool	remove_ptr( void *key, Item item=0 );
-    Item	take_string( const QString &key );
-    Item	take_ascii( const char *key );
-    Item	take_int( long key );
-    Item	take_ptr( void *key );
+    bool	remove_string( const QString &key, QCollection::Item item=0 );
+    bool	remove_ascii( const char *key, QCollection::Item item=0 );
+    bool	remove_int( long key, QCollection::Item item=0 );
+    bool	remove_ptr( void *key, QCollection::Item item=0 );
+    QCollection::Item take_string( const QString &key );
+    QCollection::Item take_ascii( const char *key );
+    QCollection::Item take_int( long key );
+    QCollection::Item take_ptr( void *key );
 
     void	clear();
     void	resize( uint );
@@ -128,8 +129,8 @@ protected:
 
     void	statistics() const;
 
-    virtual QDataStream &read( QDataStream &, Item & );
-    virtual QDataStream &write( QDataStream &, Item ) const;
+    virtual QDataStream &read( QDataStream &, QCollection::Item & );
+    virtual QDataStream &write( QDataStream &, QCollection::Item ) const;
 
 private:
     QBaseBucket **vec;
@@ -140,10 +141,11 @@ private:
     uint	copyk	: 1;
     QGDItList  *iterators;
     void	   unlink_common( int, QBaseBucket *, QBaseBucket * );
-    QStringBucket *unlink_string( const QString &, Item item = 0 );
-    QAsciiBucket  *unlink_ascii( const char *, Item item = 0 );
-    QIntBucket    *unlink_int( long, Item item = 0 );
-    QPtrBucket    *unlink_ptr( void *, Item item = 0 );
+    QStringBucket *unlink_string( const QString &,
+				  QCollection::Item item = 0 );
+    QAsciiBucket  *unlink_ascii( const char *, QCollection::Item item = 0 );
+    QIntBucket    *unlink_int( long, QCollection::Item item = 0 );
+    QPtrBucket    *unlink_ptr( void *, QCollection::Item item = 0 );
     void	init( uint, KeyType, bool, bool );
     friend class QGDictIterator;
 };
