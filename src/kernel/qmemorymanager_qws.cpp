@@ -99,6 +99,7 @@ public:
 		tmp2 = new QGlyph( tmp.metrics, new uchar [img.numBytes()] );
 		memcpy( tmp2->data, img.bits(), img.numBytes() );
 		tmp2->metrics->linestep = img.bytesPerLine();
+		delete [] tmp.data;
 	    }
 	    glyph[i] = *tmp2;
 	}
@@ -598,6 +599,13 @@ static QString fontKey(const QFontDef& font)
     key += "_";
     key += QString::number(font.weight);
     key += font.italic ? "i" : "";
+    if ( qt_screen->isTransformed() ) {
+	key += "_t";
+	QPoint a = qt_screen->mapToDevice(QPoint(0,0),QSize(2,2));
+	QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
+	key += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
+    }
+qDebug("font: %s",key.latin1());
 
     return key;
 }
@@ -620,8 +628,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	mmf->def = font;
 	mmf->tree = 0;
 	QString filename = fontFilename(font);
-	// ### disable pre-rendered fonts in transformed mode for now.
-	if ( !QFile::exists(filename) || qt_screen->isTransformed() ) {
+	if ( !QFile::exists(filename) ) {
 	    mmf->renderer = qt_fontmanager->get(font);
 	    if ( !mmf->renderer ) {
 		QFontDef d = font;
@@ -637,8 +644,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 		}
 	    }
 	}
-	// ### disable pre-rendered fonts in transformed mode for now.
-	if ( QFile::exists(filename) && !qt_screen->isTransformed() ) {
+	if ( QFile::exists(filename) ) {
 	    mmf->renderer = 0;
 #if defined(QT_USE_MMAP)
 	    int f = ::open( QFile::encodeName(filename), O_RDONLY );
