@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#188 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -381,6 +381,15 @@ void QFont::cacheStatistics()
 #endif
 }
 
+/* Clears the internal cache of mappings from QFont instances to X11
+    (XLFD) font names. Called from QPaintDevice::x11App
+*/
+void qX11ClearFontNameCache()
+{
+    if ( fontNameDict )
+	fontNameDict->clear();
+}
+
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->fin is a valid pointer:
 
@@ -738,7 +747,6 @@ void QFont::load() const
 		name = lastResortFont();
 	} else {
 	    name = PRIV->findFont( &match );
-	    //qWarning( "LOAD %s", (const char*) name );
 	}
 	fn = new QXFontName( name.ascii(), match );
 	CHECK_PTR( fn );
@@ -979,50 +987,37 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	    exactMatch = FALSE;
     }
 
-    int pSize;
-    if ( *scalable )
-	pSize = deciPointSize();	// scalable font
-    else
-	pSize = atoi( tokens[PointSize] );
-
-    if ( strcmp(tokens[ResolutionX], "0") == 0 &&
-	 strcmp(tokens[ResolutionY], "0") == 0 ) {
-	// smoothly scalable font, we can ask for any resolution
-	score |= ResolutionScore;
+    float diff;
+    if ( *scalable ) {
+	diff = 9.0;	// choose scalable font over >= 0.9 point difference
+	score |= SizeScore;
+	exactMatch = FALSE;
     } else {
-	int rx = atoi(tokens[ResolutionX]);
-	int ry = atoi(tokens[ResolutionY]);
-	if ( rx == QPaintDevice::x11AppDpiX()
-	  && ry == QPaintDevice::x11AppDpiY() )
-	{
-	    score |= ResolutionScore;
+	int pSize;
+	float percentDiff;
+	pSize = ( 2*atoi( tokens[PointSize] )*atoi(tokens[ResolutionY]) +
+		  QPaintDevice::x11AppDpiY())
+		/ (QPaintDevice::x11AppDpiY() * 2); // adjust actual pointsize
+
+	if ( deciPointSize() != 0 ) {
+	    diff = (float)QABS(pSize - deciPointSize());
+	    percentDiff = diff/deciPointSize()*100.0F;
+	} else {
+	    diff = (float)pSize;
+	    percentDiff = 100;
+	}
+
+	if ( percentDiff < 20 ) {
+	    score |= SizeScore;
+	    if ( pSize != deciPointSize() ) {
+		exactMatch = FALSE;
+	    }
 	} else {
 	    exactMatch = FALSE;
-	    if ( !*scalable ) {
-		pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + QPaintDevice::x11AppDpiY())
-			/ (QPaintDevice::x11AppDpiY() * 2);	// adjust actual pointsize
-	    }
 	}
-    }
-
-    float diff;
-    if ( deciPointSize() != 0 )
-	diff = ((float)QABS(pSize - deciPointSize())/deciPointSize())*100.0F;
-    else
-	diff = (float)pSize;
-
-    if ( diff < 20 ) {
-	score |= SizeScore;
-	if ( pSize != deciPointSize() ) {
-	    exactMatch = FALSE;
-	    score -= ResolutionScore - WidthScore;
-	}
-    } else {
-	exactMatch = FALSE;
     }
     if ( pointSizeDiff )
 	*pointSizeDiff = diff;
-
     int weightVal = qFontGetWeight( tokens[Weight_], TRUE );
 
     if ( weightVal == weight() )
@@ -1079,13 +1074,9 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     xFontNames = getXFontNames( pattern, &count );
 
     for( i = 0; i < count; i++ ) {
-	// qWarning( "Trying %s", xFontNames[i] );
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
 			     &scalable, &smoothScalable );
-
-	// qWarning( "Score = %i", sc );
-
 	if ( scalable ) {
 	    if ( sc > bestScalable.score ||
 		 sc == bestScalable.score &&
@@ -1115,16 +1106,27 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     char *tokens[fontFields];
 
     if ( bestScalable.score > best.score ||
-	   bestScalable.score == best.score &&
-	   ( best.pointDiff != 0 ||
-	     bestScalable.weightDiff < best.weightDiff ) ) {
+	 bestScalable.score == best.score &&
+	 bestScalable.pointDiff < best.pointDiff ||
+	 bestScalable.score == best.score &&
+	 bestScalable.pointDiff == best.pointDiff &&
+	 bestScalable.weightDiff < best.weightDiff ) {
 	strcpy( matchBuffer.data(), bestScalable.name );
 	if ( qParseXFontName( matchBuffer, tokens ) ) {
-	    // X will scale the font accordingly
-	    int resx = QPaintDevice::x11AppDpiX();
-	    int resy = QPaintDevice::x11AppDpiY();
-
-	    int pSize = deciPointSize();
+	    int resx;
+	    int resy;
+	    int pSize;
+	    if ( bestScalable.smooth ) { 
+		// X will scale the font accordingly
+		resx  = QPaintDevice::x11AppDpiX();
+		resy  = QPaintDevice::x11AppDpiY();
+		pSize = deciPointSize();
+	    } else {
+		resx = atoi(tokens[ResolutionX]);
+		resy = atoi(tokens[ResolutionY]);
+		pSize = ( 2*deciPointSize()*QPaintDevice::x11AppDpiY() + resy )
+			/ (resy * 2);
+	    }    
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
 			      tokens[Family],
@@ -1153,7 +1155,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 QCString QFont_Private::bestFamilyMember( const char *foundry,
 					  const char *family, int *score )
 {
-    const int prettyGoodScore = CharsetEncoding | SizeScore |
+    const int prettyGoodScore = CharSetScore | SizeScore |
 				WeightScore | SlantScore | WidthScore;
 
     char pattern[256];
@@ -1163,31 +1165,10 @@ QCString QFont_Private::bestFamilyMember( const char *foundry,
     QCString result;
 
     if ( foundry && foundry[0] ) {
-	sprintf( pattern, "-%s-%s-*-*-*-*-*-%d-%d-%d-*-*-*-*", foundry, family,
-	    deciPointSize(), QPaintDevice::x11AppDpiX(), QPaintDevice::x11AppDpiY() );
+	sprintf( pattern, "-%s-%s-*-*-*-*-*-*-*-*-*-*-*-*", foundry, family );
 	result = bestMatch( pattern, &bestScore );
     }
 
-    if ( bestScore < prettyGoodScore ) {
-	sprintf( pattern, "-*-%s-*-*-*-*-*-%d-%d-%d-*-*-*-*", family,
-	    deciPointSize(), QPaintDevice::x11AppDpiX(), QPaintDevice::x11AppDpiY() );
-	testResult = bestMatch( pattern, &testScore );
-	if ( testScore > bestScore ) {
-	    bestScore = testScore;
-	    result = testResult;
-	}
-    }
-
-    // These branches will only be exercised on old X servers...
-    if ( bestScore < prettyGoodScore ) {
-	sprintf( pattern, "-*-%s-*-*-*-*-*-*-%d-%d-*-*-*-*", family,
-	    QPaintDevice::x11AppDpiX(), QPaintDevice::x11AppDpiY() );
-	testResult = bestMatch( pattern, &testScore );
-	if ( testScore > bestScore ) {
-	    bestScore = testScore;
-	    result = testResult;
-	}
-    }
     if ( bestScore < prettyGoodScore ) {
 	sprintf( pattern, "-*-%s-*-*-*-*-*-*-*-*-*-*-*-*", family );
 	testResult = bestMatch( pattern, &testScore );
@@ -1196,7 +1177,6 @@ QCString QFont_Private::bestFamilyMember( const char *foundry,
 	    result = testResult;
 	}
     }
-
 
     if ( score )
 	*score = bestScore;
