@@ -62,15 +62,17 @@ You can contact Troll Tech at
 
 Here is the license intended for free software:
 
-
                      TROLL TECH NON-COMMERCIAL LICENSE
 
 Copyright (C) 1992-1996 Troll Tech AS.  All rights reserved.
 
+This is the license for Qt version 0.97 and covers private use and
+development of free software for the free software community.
+
 
                         COPYRIGHT AND RESTRICTIONS
 
-The Qt toolkit is a product of Troll Tech AS.  This license is limited to
+The Qt toolkit is a product of Troll Tech AS. This license is limited to
 use on computers running the X Window System.
 
 You may copy this beta version of the Qt toolkit provided that the entire
@@ -113,3 +115,4 @@ even if Troll Tech has been advised of the possibility of such damages.
 
 QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY
 OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
