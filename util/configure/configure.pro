@@ -62,8 +62,8 @@ SOURCES	 = main.cpp configureapp.cpp \
 
 SOURCES += $$QT_SOURCE_TREE/util/install/keygen/keyinfo.cpp
 
-INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore \
-               $$QT_SOURCE_TREE/src/core/arch/generic \
+INCLUDEPATH += $$QT_SOURCE_TREE/src/core/arch/generic \
+	       $$QT_SOURCE_TREE/include/QtCore \
 	       $$QT_SOURCE_TREE/util/install/keygen
 
 INTERFACES=
