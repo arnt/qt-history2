@@ -401,9 +401,9 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 #endif
     widget_flags = f;
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    create();
     if ( isTopLevel() || (!parent || parent->isVisible() ) )
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
-    create();
     /*
     if ( bgp )
 	XSetWindowBackgroundPixmap( dpy, winid, bgp->handle() );

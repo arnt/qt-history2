@@ -904,8 +904,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt)
 {
-    if(isVisible() && !isTopLevel()) 
-	qt_dirty_wndw_rgn("reparent1", parentWidget() ? parentWidget() : this, 
+    if(isVisible() && !isTopLevel())
+	qt_dirty_wndw_rgn("reparent1", parentWidget() ? parentWidget() : this,
 			  mac_rect(posInWindow(this), geometry().size()));
     dirtyClippedRegion(TRUE);
 
@@ -938,13 +938,13 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     QString capt= caption();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_ForceHide);
+    create();
     if(isTopLevel() || (!parent || parent->isVisible()))
 	setWState(WState_ForceHide);	// new widgets do not show up in already visible parents
     if(dropable)
 	setAcceptDrops(FALSE);
 
     //get new hd, now move
-    create();
     no_move_blt = TRUE;
     setGeometry(p.x(), p.y(), s.width(), s.height());
     no_move_blt = FALSE;
@@ -1415,7 +1415,7 @@ bool QWidget::isMaximized() const
 void QWidget::showMinimized()
 {
     show();
-    if(isTopLevel() && !IsWindowCollapsed((WindowRef)hd)) 
+    if(isTopLevel() && !IsWindowCollapsed((WindowRef)hd))
 	CollapseWindow((WindowPtr)hd, TRUE);
 
     QEvent e(QEvent::ShowMinimized);
