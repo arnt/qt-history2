@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#34 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#34 $");
 
 
 /*!
@@ -343,6 +343,7 @@ void QTabDialog::showTab( int i )
 	for ( int t = 0; t< (int)d->children.size(); t++ )
 	    if ( i != t )
 		d->children[t]->hide();
+	emit selected( d->tabs->tab( i )->label );
     }
 }
 

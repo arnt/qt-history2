@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#19 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#20 $
 **
 ** Definition of QTabDialog class
 **
@@ -57,6 +57,8 @@ signals:
     void applyButtonPressed();
     void cancelButtonPressed();
     void defaultButtonPressed();
+
+    void selected( const char * );
 
 private slots:
     void showTab( int i );
