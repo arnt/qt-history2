@@ -2046,6 +2046,24 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
+	} else if(etype == QEvent::KeyPress) {
+	    HICommand hic;
+	    if(IsMenuKeyEvent(NULL, event, kNilOptions, 
+			      &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
+		hic.attributes = kHICommandFromMenu;
+		if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex, 
+					&hic.commandID))
+		    qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
+#if !defined(QMAC_QMENUBAR_NO_NATIVE) 
+		if(QMenuBar::activateCommand(hic.commandID) ||
+		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex));
+		    else
+#endif
+			if(!ProcessHICommand(&hic)) 
+			    handled_event = FALSE;
+	    } else {
+		handled_event = FALSE;
+	    }
 	} else {
 	    handled_event = FALSE;
 	}
