@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#85 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -168,24 +168,10 @@ static const char *ps_header[] = {
 "",
 "/defM D0",
 "",
-"/QLS {", // set up landscape
-"  PageW 0 TR 90 rotate\n",
-"  /defM matrix CM d\n",
-"  PageW PageH/PageW d/PageH d\n",
-"} D",
+"/C D0",
 "",
 "/QI {",
-"    /savedContext save d",
-"    clippath pathbbox",
-"    3 index /PageX ED",
-"    0 index /PageY ED",
-"    3 2 roll",
-"    exch",
-"    sub neg /PageH ED",
-"    sub neg /PageW ED",
-"",
-"    PageX PageY TR",
-"    1 -1 scale",
+"    /C save d",
 "    /defM matrix CM d",		// default transformation matrix
 "    /Cx  0 d",				// reset current x position
 "    /Cy  0 d",				// reset current y position
@@ -193,10 +179,12 @@ static const char *ps_header[] = {
 "    /OMo false d",
 "    1 0 0 0 0 PE",
 "    0 0 0 0 B",
+"    GS",
 "} D",
 "",
 "/QP {",				// show page
-"    savedContext restore",
+"    GR",
+"    C restore",
 "    showpage",
 "} D",
 "",
@@ -2279,8 +2267,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	
 	stream << "%%Page: " << pageCount << ' ' << pageCount << endl
 	       << "QI\n";
-	orientationSetup();
-	stream << "GS\n";
 	return TRUE;
     }
 
@@ -2288,8 +2274,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	bool pageCountAtEnd = (d->buffer == 0);
 	if ( !pageCountAtEnd )
 	    emitHeader( TRUE );
-	stream << "GR\n"
-	       << "QP\n"
+	stream << "QP\n"
 	       << "%%Trailer\n";
 	if ( pageCountAtEnd )
 	    stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: "
@@ -2499,7 +2484,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_PRT_NEWPAGE:
 	    pageCount++;
-	    stream << "GR\nQP\n%%Page: "
+	    stream << "QP\n%%Page: "
 		   << pageCount << ' ' << pageCount
 		   << "\nQI\n";
 	    dirtyNewPage       = TRUE;
@@ -2507,8 +2492,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    d->firstClipOnPage = TRUE;
 	    delete d->savedImage;
 	    d->savedImage = 0;
-	    orientationSetup();
-	    stream << "GS\n";
 	    break;
 	case PDC_PRT_ABORT:
 	    break;
@@ -2593,7 +2576,7 @@ static QString stripHeader( const QString & header, const char * data,
     // first pass: find and mark all identifiers
     QDict<void> ids( 257 );
     ids.setAutoDelete( FALSE );
-    
+
     int i=0;
     int size = header.length();
     int * used = new int[size];
@@ -2650,7 +2633,7 @@ static QString stripHeader( const QString & header, const char * data,
 			l--;
 		    j++;
 		} while( j < size && l );
-	    } else if ( header[j] == 'D' && header[j+1] == '0' && 
+	    } else if ( header[j] == 'D' && header[j+1] == '0' &&
 			!isalnum( header[j+2] ) ) {
 		ids.insert( id, (void*)(i-1) );
 		used[i-1] = 0x20000000;
@@ -2818,14 +2801,28 @@ void QPSPrinter::emitHeader( bool finished )
     if ( !fixed_ps_header )
 	makeFixedStrings();
 
+    QString header2;
+    if ( printer->orientation() == QPrinter::Portrait ) {
+	QPaintDeviceMetrics m( printer );
+	header2.sprintf( "\n%% %d*%d mm (portrait)\n"
+			 "0 %d translate 1 -1 scale\n",
+			 m.widthMM(), m.heightMM(),
+			 m.height() );
+    } else {
+	QPaintDeviceMetrics m( printer );
+	header2.sprintf( "\n%% %d*%d mm (landscape)\n"
+			 "90 rotate 1 -1 scale\n",
+			 m.heightMM(), m.widthMM() );
+    }
+			 
     if ( finished ) {
 	QString r( stripHeader( *fixed_ps_header,
 				d->buffer->buffer().data(),
 				d->buffer->buffer().size(),
 				d->fontBuffer->buffer().size() > 0 ) );
-	stream << "% Optimized Qt prolog\n" << r << "\n";
+	stream << "% Optimized Qt prolog\n" << r << header2;
     } else {
-	stream << "% Standard Qt prolog\n" << *fixed_ps_header << "\n";
+	stream << "% Standard Qt prolog\n" << *fixed_ps_header << header2;
     }
 
     if ( d->fontBuffer->buffer().size() ) {
