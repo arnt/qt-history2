@@ -70,19 +70,19 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         if (ent.h_addrtype == AF_INET) {
             for (char **p = ent.h_addr_list; *p != 0; p++) {
                 QHostAddress addr(ntohl(*((long *)*p)));
-                if (!results.d->addresses.contains(addr))
-                    results.d->addresses.prepend(addr);
+                if (!results.d->addrs.contains(addr))
+                    results.d->addrs.prepend(addr);
             }
         } else {
-            results.d->error = QDnsHostInfo::UnknownError;
-            results.d->errorString = tr("Unknown address type");
+            results.d->err = QDnsHostInfo::UnknownError;
+            results.d->errorStr = tr("Unknown address type");
         }
     } else if (h_errno == HOST_NOT_FOUND) {
-        results.d->error = QDnsHostInfo::HostNotFound;
-        results.d->errorString = tr("Host not found");
+        results.d->err = QDnsHostInfo::HostNotFound;
+        results.d->errorStr = tr("Host not found");
     } else if (h_errno != NO_DATA) {
-        results.d->error = QDnsHostInfo::UnknownError;
-        results.d->errorString = QString::fromLocal8Bit(hstrerror(h_errno));
+        results.d->err = QDnsHostInfo::UnknownError;
+        results.d->errorStr = QString::fromLocal8Bit(hstrerror(h_errno));
     }
 #endif //  !defined (QT_NO_GETADDRINFO)
 
