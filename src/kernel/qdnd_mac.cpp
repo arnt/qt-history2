@@ -485,19 +485,18 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     Point mouse;
     GetDragMouse(theDrag, &mouse, 0L);
 
-    const QCursor def(Qt::ArrowCursor);
-    const QCursor *cursor = &def;
+    QCursor cursor(Qt::ArrowCursor);
     if(qApp && qApp->overrideCursor()) {
-	cursor = qApp->overrideCursor();
+	cursor = *qApp->overrideCursor();
     } else if(QWidget *widget = QApplication::widgetAt(mouse.h, mouse.v, TRUE)) {
 	for(QWidget *p = widget; p; p = p->parentWidget()) {
 	    if(p->ownCursor()) {
-		cursor = &(p->cursor());
+		cursor = p->cursor();
 		break;
 	    }
 	}
     }
-    qt_mac_set_cursor(cursor, &mouse);
+    qt_mac_set_cursor(&cursor, &mouse);
 
     if(!current_drag_widget)
 	return dragNotAcceptedErr;
@@ -615,35 +614,35 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
     }
 
     //set the cursor
-    const QCursor *cursor = NULL;
+    const QCursor *dnd_cursor = NULL;
     if(current_drag_widget && macDndExtra->acceptfmt) {
 #ifndef QMAC_NO_FAKECURSOR
 	if(current_drag_action == QDropEvent::Move)
-	    cursor = moveCursor;
+	    dnd_cursor = moveCursor;
 	else if(current_drag_action == QDropEvent::Copy)
-	    cursor = copyCursor;
+	    dnd_cursor = copyCursor;
 	else if(current_drag_action == QDropEvent::Link)
-	    cursor = linkCursor;
+	    dnd_cursor = linkCursor;
 #endif
     } else {
-	cursor = noDropCursor;
+	dnd_cursor = noDropCursor;
     }
-    if(!cursor) {
+    QCursor cursor(Qt::ArrowCursor);
+    if(!dnd_cursor) {
 	if(qApp && qApp->overrideCursor()) {
-	    cursor = qApp->overrideCursor();
+	    cursor = *qApp->overrideCursor();
 	} else if(widget) {
 	    for(QWidget *p = widget; p; p = p->parentWidget()) {
 		if(p->ownCursor()) {
-		    cursor = &(p->cursor());
+		    cursor = p->cursor();
 		    break;
 		}
 	    }
 	}
+    } else {
+	cursor = *dnd_cursor;
     }
-    const QCursor def(Qt::ArrowCursor);
-    if(!cursor) //fallback..
-	cursor = &def;
-    qt_mac_set_cursor(cursor, &mouse);
+    qt_mac_set_cursor(&cursor, &mouse);
 
     //idle things
     if(qGlobalPostedEventsCount()) {
