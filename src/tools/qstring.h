@@ -542,7 +542,7 @@ public:
     const char* ascii() const { return latin1(); }
     const char* latin1() const;
     static QString fromLatin1(const char*, int len=-1);
-#ifndef QT_NO_TEXTCODEC
+#ifndef QT_NO_CODECS
     QCString utf8() const;
     static QString fromUtf8(const char*, int len=-1);
 #endif

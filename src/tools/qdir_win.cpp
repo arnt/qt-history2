@@ -407,9 +407,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[ 1 ] == ':' )
 	    return TRUE;
+#ifndef QT_NO_CODECS
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
 		  dPath.utf8().data() );
+#endif
 #endif
 	return FALSE;
     }

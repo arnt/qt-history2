@@ -362,7 +362,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     QTextCodec* result;
     for ( ; (result=i); ++i ) {
         if ( result->mibEnum()==mib )
-            break;
+            return result;
     }
 
 #ifndef QT_NO_COMPONENT

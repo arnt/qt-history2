@@ -44,7 +44,9 @@
 #include "qstring.h"
 #include "qregexp.h"
 #include "qdatastream.h"
+#ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
+#endif
 #include "qstack.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -12994,7 +12996,7 @@ QString &QString::sprintf( const char* cformat, ... )
             }
 
             if ( format[pos + len] == 's' ) {
-#ifndef QT_NO_TEXTCODEC
+#ifndef QT_NO_CODECS
                 QString s = QString::fromUtf8( va_arg(ap, char*) );
 #else
                 QString s = fromLatin1( va_arg(ap, char*) );
@@ -14614,7 +14616,7 @@ const char* QString::latin1() const
   This functions simply calls latin1() and returns the result.
 */
 
-#ifndef QT_NO_TEXTCODEC
+#ifndef QT_NO_CODECS
 /*!
   Returns the string encoded in UTF8 format.
 
@@ -14644,7 +14646,7 @@ QString QString::fromUtf8( const char* utf8, int len )
     if ( len < 0 ) len = qstrlen( utf8 );
     return codec ? codec->toUnicode( utf8, len ) : fromLatin1( utf8, len );
 }
-#endif // QT_NO_TEXTCODEC
+#endif // QT_NO_CODECS
 /*!
   Creates a QString from Latin1 text.  This is the same as the
   QString(const char*) constructor, but you can make that constructor
@@ -14684,7 +14686,7 @@ QString QString::fromLatin1( const char* chars, int len )
 
 QCString QString::local8Bit() const
 {
-#ifdef QT_NO_TEXTCODEC
+#ifdef QT_NO_CODECS
     return latin1();
 #else
 #ifdef Q_WS_X11
@@ -14722,7 +14724,7 @@ QCString QString::local8Bit() const
 */
 QString QString::fromLocal8Bit(const char* local8Bit, int len)
 {
-#ifdef QT_NO_TEXTCODEC
+#ifdef QT_NO_CODECS
     return fromLatin1( local8Bit, len );
 #else
 
@@ -14753,7 +14755,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 #ifdef Q_WS_QWS
     return fromUtf8(local8Bit,len);
 #endif
-#endif // QT_NO_TEXTCODEC
+#endif // QT_NO_CODECS
 }
 
 /*!
@@ -15661,11 +15663,15 @@ QCString qt_winQString2MB( const QString& s, int uclen )
                                 0, 0, 0, &used_def));
                 // and try again...
         } else {
+#ifndef QT_NO_CODECS
+#ifndef QT_NO_DEBUG
             // Fail.
             qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
                 r, s.utf8().data());
-            break;
-        }
+#endif
+#endif
+	    break;
+	}
     }
     mb[len]='\0';
     return mb;
