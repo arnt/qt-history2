@@ -145,6 +145,9 @@ sub parseclassfile {
     s/\s*<p>\s*/\n\n.PP\n/gs;
     s/\s*<hr>\s*//gs;
 
+    # removing the <span> thing ###
+    s-</?span[^>]*>--gs;
+
     # links, headers, widow/orphan hack
     s-.PP\n.*?<a href="#details">More...</a>--s;
     s-<a href=.*?members.html.>List of all member functions.</a>--;
