@@ -749,11 +749,11 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         QT_WA({
             WNDCLASS wcinfo;
             classExists = GetClassInfo((HINSTANCE)qWinAppInst(), (TCHAR*)cname.utf16(), &wcinfo);
-            classExists &= wcinfo.lpfnWndProc != QtWndProc;
+            classExists &= classExists ? wcinfo.lpfnWndProc != QtWndProc : 0;
         }, {
             WNDCLASSA wcinfo;
             classExists = GetClassInfoA((HINSTANCE)qWinAppInst(), cname.latin1(), &wcinfo);
-            classExists &= wcinfo.lpfnWndProc != QtWndProc;
+            classExists &= classExists ? wcinfo.lpfnWndProc != QtWndProc : 0;
         });
     }
 
@@ -1316,8 +1316,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
         case WM_IME_KEYDOWN:
         case WM_CHAR: {
             MSG msg1;
-            winPeekMessage(&msg1, msg.hwnd, 0, 0, PM_NOREMOVE);
-            if (msg1.message == WM_DEADCHAR) {
+            bool anyMsg = winPeekMessage(&msg1, msg.hwnd, 0, 0, PM_NOREMOVE);
+            if (anyMsg && msg1.message == WM_DEADCHAR) {
                 result = true; // consume event since there is a dead char next
                 break;
             }
