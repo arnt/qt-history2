@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#213 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#214 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1715,7 +1715,7 @@ sub printclass {
 
     $m{'Important Inherited'} = $importants{$url};
 
-    foreach $mode ('Public', 'Public Slots', 'Signals', 'Properties',
+    foreach $mode ('Public', 'Public Slots', 'Signals',
 		   'Static Public', 'Important Inherited', 'Protected',
 		   'Protected Slots', 'Static Protected',
 		   'Private', 'Private Slots', 'Static Private') {
@@ -1850,6 +1850,21 @@ sub printclass {
     if ($family =~ /\S/s) {
 	print O $family;
     }
+
+    if ($properties{$url}) {
+	# Just a quick hack to show the properties. No links.
+	print O "<h2>Properties</h2>\n";
+	my $p;
+	print O "<table border=1 cellpadding=3 cellspacing=0>\n";
+	print O "<tr><th>Type<th>Name<th>Get<th>Set\n";
+	for $p ( split "\n", $properties{$url} ) {
+	    my ($rtype, $name, $get, $set) =
+		$p =~ m/^(\w*),"(.*)",(\w*),([^,]*)$/;
+	    print O "<tr><td>$rtype<td>$name<td>$get<td>$set\n";
+	}
+	print O "</table>\n";
+    }
+
 
     if ($brief{$url} =~ /\S/s) {
 	print O "<hr><h2><a name=\"details\"></a>Detailed Description</h2>\n";
