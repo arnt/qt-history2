@@ -87,7 +87,7 @@ static uint hash( const char * name )
 	k = (const uchar*)name;
 	while ( *k ) {
 	    h = (h<<4) + *k++;
-	    if ( (g = h & 0xf0000000) )
+	    if ( (g = (h & 0xf0000000)) != 0 )
 		h ^= g >> 24;
 	    h &= ~g;
 	}
