@@ -361,6 +361,11 @@ inline int qt_variant_metatype_id(QTextFormat *) { return QCoreVariant::TextForm
 template<>
 inline int qt_variant_metatype_id(QLocale*) { return QCoreVariant::Locale; }
 
+template <typename T>
+QCoreVariant qVariant(const T &t)
+{
+    return QCoreVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
+}
 
 template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t)
