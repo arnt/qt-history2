@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#3 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -55,7 +55,6 @@ public:
     virtual void isFile();
 
     virtual QNetworkProtocol *copy() const;
-    virtual QString toString() const;
 
 protected:
     enum Command {
@@ -71,7 +70,7 @@ protected:
     Command command;
     bool connectionReady;
     QString tmp;
-    
+
 protected slots:
     void hostFound();
     void connected();

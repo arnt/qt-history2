@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#6 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#7 $
 **
 ** Implementation of Network Extension Library
 **
@@ -152,17 +152,6 @@ void QFtp::isFile()
     // #### todo
 }
 
-QString QFtp::toString() const
-{
-    if ( !url->user().isEmpty() )
-	return url->protocol() + "://" + url->user() + ":" + url->pass() + "@" + url->host() +
-	    QDir::cleanDirPath( url->path() ).stripWhiteSpace(); // #### todo
-    else
-	return url->protocol() + "://" + url->host() + QDir::cleanDirPath( url->path() ).stripWhiteSpace(); // #### todo
-
-    return QString::null;
-}
-
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
     QStringList lst = QStringList::split( " ", buffer );
@@ -238,7 +227,7 @@ void QFtp::readyRead()
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 
     emit data( QString::fromLatin1( s ) );
-    
+
     if ( !url )
 	return;
 
