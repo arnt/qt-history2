@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#145 $
 **
 ** Definition of QIconView widget class
 **
@@ -25,22 +25,22 @@
 
 #include "qiconview.h"
 
-#include <qpixmap.h>
-#include <qfontmetrics.h>
-#include <qpainter.h>
-#include <qevent.h>
-#include <qpalette.h>
-#include <qmime.h>
-#include <qimage.h>
-#include <qpen.h>
-#include <qbrush.h>
-#include <qtimer.h>
-#include <qcursor.h>
-#include <qkeycode.h>
-#include <qapplication.h>
-#include <qmultilineedit.h>
-#include <qmap.h>
-#include <qarray.h>
+#include "qpixmap.h"
+#include "qfontmetrics.h"
+#include "qpainter.h"
+#include "qevent.h"
+#include "qpalette.h"
+#include "qmime.h"
+#include "qimage.h"
+#include "qpen.h"
+#include "qbrush.h"
+#include "qtimer.h"
+#include "qcursor.h"
+#include "qkeycode.h"
+#include "qapplication.h"
+#include "qmultilineedit.h"
+#include "qmap.h"
+#include "qarray.h"
 
 #include <stdlib.h>
 #include <math.h>
