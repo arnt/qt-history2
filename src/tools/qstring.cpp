@@ -13282,7 +13282,7 @@ QString::QString( const char *str )
     If the string does not share its data with another QString
     instance, nothing happens; otherwise the function creates a new,
     unique copy of this string. This function is called whenever the
-    string is modified. 
+    string is modified.
 */
 
 void QString::real_detach()
@@ -14083,28 +14083,28 @@ int QString::find( const QString& str, int index, bool cs ) const
 	return bm_find( *this, index, str, skiptable, cs );
     }
     const QChar* needle = str.unicode();
-    const QChar* haystick = unicode() + index;
+    const QChar* haystack = unicode() + index;
     const QChar* end = unicode() + (l-sl);
-    uint hashNeedle, hashHaystick,i;
-    for ( hashNeedle = hashHaystick = i = 0; i < sl; ++i ) {
+    uint hashNeedle, hashHaystack,i;
+    for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
 	hashNeedle = ((hashNeedle<<1) + needle[i].unicode() );
-	hashHaystick = ((hashHaystick<<1) + haystick[i].unicode() );
+	hashHaystack = ((hashHaystack<<1) + haystack[i].unicode() );
     }
     const uint sl_minus_1 = sl-1;
 #define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
     if ( cs ) {
-	while ( haystick <= end ) {
- 	    if ( hashHaystick == hashNeedle  && ucstrncmp( needle, haystick, sl ) == 0 )
-		return haystick-unicode();
-	    hashHaystick = REHASH( haystick->unicode(), (haystick+sl)->unicode(), hashHaystick );
-	    ++haystick;
+	while ( haystack <= end ) {
+ 	    if ( hashHaystack == hashNeedle  && ucstrncmp( needle, haystack, sl ) == 0 )
+		return haystack-unicode();
+	    hashHaystack = REHASH( haystack->unicode(), (haystack+sl)->unicode(), hashHaystack );
+	    ++haystack;
 	}
     } else {
-	while ( haystick <= end ) {
-	    if ( hashHaystick == hashNeedle && ucstrnicmp( needle, haystick, sl ) == 0 )
-		return haystick-unicode();
-	    hashHaystick = REHASH( ::lower( *haystick ).unicode(), ::lower(*(haystick+sl)).unicode(), hashHaystick );
-	    ++haystick;
+	while ( haystack <= end ) {
+	    if ( hashHaystack == hashNeedle && ucstrnicmp( needle, haystack, sl ) == 0 )
+		return haystack-unicode();
+	    hashHaystack = REHASH( ::lower( *haystack ).unicode(), ::lower(*(haystack+sl)).unicode(), hashHaystack );
+	    ++haystack;
 	}
     }
     return -1;
@@ -14169,51 +14169,41 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     /*
       See QString::find() for explanations.
     */
-    int lthis = length();
+    const uint l = length();
     if ( index < 0 )
-	index += lthis;
-
-    int lstr = str.length();
-    int delta = lthis - lstr;
-    if ( index < 0 || index > lthis || delta < 0 )
+	index += l;
+    const uint sl = str.length();
+    int delta = l-sl;
+    if ( index < 0 || index > (int)l || delta < 0 )
 	return -1;
     if ( index > delta )
 	index = delta;
 
-    const QChar *uthis = unicode();
-    const QChar *ustr = str.unicode();
-    uint hthis = 0;
-    uint hstr = 0;
-    int i;
+    const QChar* needle = str.unicode();
+    const QChar* haystack = unicode() + index;
+    const QChar* end = unicode();
+    uint hashNeedle, hashHaystack,i;
+    const QChar* n = needle+sl-1;
+    const QChar* h = haystack+sl-1;
+    for ( hashNeedle = hashHaystack = i = 0; i < sl; ++i ) {
+	hashNeedle = ((hashNeedle<<1) + (n-i)->unicode() );
+	hashHaystack = ((hashHaystack<<1) + (h-i)->unicode() );
+    }
+    const uint sl_minus_1 = sl-1;
+#define  REHASH( a, b, h ) ((((h)-(a<<(sl_minus_1)))<<1)+(b))
     if ( cs ) {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += uthis[index + i].unicode();
-	    hstr += ustr[i].unicode();
-	}
-	i = index;
-	for (;;) {
-	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
-		return i;
-	    if ( i == 0 )
-		break;
-	    i--;
-	    hthis -= uthis[i + lstr].unicode();
-	    hthis += uthis[i].unicode();
+	while ( haystack >= end ) {
+ 	    if ( hashHaystack == hashNeedle  && ucstrncmp( needle, haystack, sl ) == 0 )
+		return haystack-unicode();
+	    --haystack;
+	    hashHaystack = REHASH( (haystack+sl)->unicode(), haystack->unicode(), hashHaystack );
 	}
     } else {
-	for ( i = 0; i < lstr; i++ ) {
-	    hthis += ::lower( uthis[index + i] ).unicode();
-	    hstr += ::lower( ustr[i] ).unicode();
-	}
-	i = index;
-	for (;;) {
-	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
-		return i;
-	    if ( i == 0 )
-		break;
-	    i--;
-	    hthis -= ::lower( uthis[i + lstr] ).unicode();
-	    hthis += ::lower( uthis[i] ).unicode();
+	while ( haystack >= end ) {
+	    if ( hashHaystack == hashNeedle && ucstrnicmp( needle, haystack, sl ) == 0 )
+		return haystack-unicode();
+	    --haystack;
+	    hashHaystack = REHASH( ::lower( *(haystack+sl) ).unicode(), ::lower(*haystack).unicode(), hashHaystack );
 	}
     }
     return -1;
