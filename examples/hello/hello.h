@@ -29,6 +29,7 @@ protected:
 private slots:
     void animate();
 private:
+    QRect textRect();
     QString t;
     int     b;
 };

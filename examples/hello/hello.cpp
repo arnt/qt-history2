@@ -33,6 +33,19 @@ Hello::Hello( const char *text, QWidget *parent, const char *name )
     resize( 260, 130 );
 }
 
+/*
+  Returns the rectangle covered by the text
+*/
+
+QRect Hello::textRect()
+{
+    QFontMetrics fm = fontMetrics();
+    int w = fm.width(t) + 20;
+    int h = fm.height() * 2;
+    int pmx = width()/2 - w/2;
+    int pmy = height()/2 - h/2;
+    return QRect(pmx, pmy, w, h);
+}
 
 /*
   This private slot is called each time the timer fires.
@@ -41,7 +54,7 @@ Hello::Hello( const char *text, QWidget *parent, const char *name )
 void Hello::animate()
 {
     b = (b + 1) & 15;
-    repaint( FALSE );
+    update(textRect());
 }
 
 
@@ -75,11 +88,11 @@ void Hello::paintEvent( QPaintEvent * )
         return;
 
     // 1: Compute some sizes, positions etc.
-    QFontMetrics fm = fontMetrics();
-    int w = fm.width(t) + 20;
-    int h = fm.height() * 2;
-    int pmx = width()/2 - w/2;
-    int pmy = height()/2 - h/2;
+    QRect r = textRect();
+    int w = r.width();
+    int h = r.height();
+    int pmx = r.x();
+    int pmy = r.y();
 
     // 2: Create the pixmap and fill it with the widget's background
     QPixmap pm( w, h );
@@ -87,6 +100,7 @@ void Hello::paintEvent( QPaintEvent * )
 
     // 3: Paint the pixmap. Cool wave effect
     QPainter p;
+    QFontMetrics fm = fontMetrics();
     int x = 10;
     int y = h/2 + fm.descent();
     int i = 0;
@@ -95,7 +109,7 @@ void Hello::paintEvent( QPaintEvent * )
     while ( !t[i].isNull() ) {
         int i16 = (b+i) & 15;
         p.setPen( QColor((15-i16)*16,255,255,QColor::Hsv) );
-        p.drawText( x, y-sin_tbl[i16]*h/800, t.mid(i,1), 1 );
+        p.drawText(x, y-sin_tbl[i16]*h/800, t.mid(i,1));
         x += fm.width( t[i] );
         i++;
     }

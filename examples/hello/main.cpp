@@ -36,7 +36,7 @@ int main( int argc, char **argv )
 #endif
     QObject::connect( &h, SIGNAL(clicked()), &a, SLOT(quit()) );
     h.setFont( QFont("times",32,QFont::Bold) );		// default font
-    h.setBackgroundColor( Qt::white );			// default bg color
+    h.setBackgroundRole(QPalette::Base);		//  text bg color
     a.setMainWidget( &h );
     h.show();
     return a.exec();
