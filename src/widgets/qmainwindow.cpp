@@ -79,7 +79,7 @@
 
   The QMainWindow allows by default toolbars in all docking areas.
   You can use setDockEnabled() to enable and disable docking areas
-  for toolbar. Currently, only \c Top, \c Left, \c Right and \c Bottom 
+  for toolbar. Currently, only \c Top, \c Left, \c Right and \c Bottom
   are meaningful.
 
   Several functions let you change the appearance of a QMainWindow
@@ -90,7 +90,7 @@
   about that).
 
   Toolbars can be dragged by the user into each enabled docking area.
-  
+
   For multidocument interfaces (MDI), use a QWorkspace as central
   widget.
 
@@ -187,7 +187,7 @@ public:
     QRect oldPosRect;
     QRect origPosRect;
     bool oldPosRectValid;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -383,7 +383,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d->rectPainter = 0;
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(setUpLayout()) );
-    
+
     d->dockable[ (int)Left ] = TRUE;
     d->dockable[ (int)Right ] = TRUE;
     d->dockable[ (int)Top ] = TRUE;
@@ -732,9 +732,14 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 	return;
     if ( !toolBar )
 	return;
-    if ( toolBar->mw )
+    bool nl = FALSE;
+    if ( toolBar->mw ) {
+	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar );
+	if ( tb )
+	    nl = tb->nl;
 	toolBar->mw->removeToolBar( toolBar );
-
+    }
+    
     QMainWindowPrivate::ToolBar * ct;
     ct = takeToolBarFromDock( toolBar, d->top );
     if ( !ct )
@@ -780,7 +785,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 
 	dl->append( ct );
     } else {
-	addToolBar( toolBar, edge );
+	addToolBar( toolBar, edge, nl );
     }
 
     triggerLayout();
@@ -1194,10 +1199,10 @@ void QMainWindow::triggerLayout()
   inside the QMainWindow. \a rect is set to the docking area into which the toolbar should
   be moved if the position of the mouse is \a pos. This method returns the identifier of
   the docking area, which is described by \a rect.
-  
+
   If the mouse is not in any docking area, Unmanaged is returned as docking area.
 */
-  
+
 QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb )
 {
     // calculate some values for docking areas
