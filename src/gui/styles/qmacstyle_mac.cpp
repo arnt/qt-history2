@@ -535,7 +535,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ct = QStyle::CT_CheckBox;
         else if (qt_cast<const QComboBox *>(widg))
             ct = QStyle::CT_ComboBox;
-        else if (qt_cast<const QComboBox *>(widg))
+        else if (qt_cast<const QToolButton *>(widg))
             ct = QStyle::CT_ToolButton;
         else if (qt_cast<const QSlider *>(widg))
             ct = QStyle::CT_Slider;
@@ -615,9 +615,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     } else if (ct == QStyle::CT_ComboBox) {
         if (sz == QAquaSizeLarge ||
             (sz != QAquaSizeLarge && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)) {
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight) + 1);
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight));
         } else if (sz == QAquaSizeSmall) {
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight) + 1);
+            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight));
         }
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         else if (sz == QAquaSizeMini)
@@ -2496,9 +2496,10 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.adornment = kThemeAdornmentArrowLeftArrow;
-            if (opt->state & QStyle::State_HasFocus)
+	    bool hasFocus = combo->state & QStyle::State_HasFocus;
+            if (hasFocus)
                 bdi.adornment = kThemeAdornmentFocus;
-            bdi.state = opt->activeSubControls & QStyle::SC_ComboBoxArrow
+            bdi.state = combo->activeSubControls & QStyle::SC_ComboBoxArrow
                                 ? ThemeDrawState(kThemeStatePressed) : tds;
 
             QAquaWidgetSize aSize = qt_aqua_size_constrain(widget);
@@ -2527,10 +2528,11 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             QRect off_rct;
             HIRect outRect;
             HIThemeGetButtonBackgroundBounds(&hirect, &bdi, &outRect);
+	    int offSet = (hasFocus && !combo->editable) ? -1 : 0;
             off_rct.setRect(int(hirect.origin.x - outRect.origin.x),
-                            int(hirect.origin.y - outRect.origin.y),
+                            int(hirect.origin.y - outRect.origin.y + offSet),
                             int(outRect.size.width - hirect.size.width),
-                            int(outRect.size.height - hirect.size.height));
+                            int(outRect.size.height - hirect.size.height + offSet));
             hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
             HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
         }
@@ -2778,13 +2780,6 @@ QStyle::SubControl QMacStylePrivate::HIThemeHitTestComplexControl(QStyle::Comple
                         sc = QStyle::SC_ScrollBarSlider;
                 }
             }
-        }
-        break;
-    case QStyle::CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            sc = q->QWindowsStyle::hitTestComplexControl(cc, cmb, pt, widget);
-            if (!cmb->editable && sc != QStyle::SC_None)
-                sc = QStyle::SC_ComboBoxArrow;  // A bit of a lie, but what we want
         }
         break;
 /*
@@ -3039,7 +3034,6 @@ void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &s
     bdi.kind = bkind;
     bdi.value = kThemeButtonOff;
     bdi.adornment = kThemeAdornmentNone;
-    bdi.adornment |= kThemeAdornmentFocus;
     HIRect macRect, myRect;
     myRect = CGRectMake(0, 0, sz.width(), sz.height());
     HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
@@ -4120,7 +4114,8 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
     case QStyle::CC_ComboBox:
         if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-            if (combo->state & QStyle::State_HasFocus)
+	    bool hasFocus = combo->state & QStyle::State_HasFocus;
+            if (hasFocus)
                 info.adornment |= kThemeAdornmentFocus;
             if (combo->activeSubControls & QStyle::SC_ComboBoxArrow)
                 info.state = kThemeStatePressed;
@@ -4157,9 +4152,11 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 SetRect(&myRect, combo->rect.x(), combo->rect.y(), combo->rect.width(),
                         combo->rect.height());
                 GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-                off_rct.setRect(myRect.left - macRect.left, myRect.top - macRect.top,
+		int offset = hasFocus && !combo->editable ? -1 : 0;
+                off_rct.setRect(myRect.left - macRect.left, (myRect.top - macRect.top) + offset,
                                 (myRect.left - macRect.left) + (macRect.right - myRect.right),
-                                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+                                (myRect.top - macRect.top)
+				 + (macRect.bottom - myRect.bottom) + offset);
             }
             qt_mac_set_port(p);
             DrawThemeButton(qt_glb_mac_rect(combo->rect, p, true, off_rct), bkind, &info,
@@ -4554,13 +4551,16 @@ void QMacStylePrivate::AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz
     ThemeButtonKind bkind = kThemePushButton;
     if (ct == QStyle::CT_ToolButton)
         bkind = kThemeBevelButton;
-    else if (ct == QStyle::CT_ComboBox)
+    else if (ct == QStyle::CT_ComboBox) {
+	if (!useHITheme)
+	    sz.rheight() += 1;
         bkind = kThemePopupButton;
+    }
     if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
         if (bkind == kThemeBevelButton)
             bkind = kThemeSmallBevelButton;
     }
-    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentFocus };
+    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
     Rect macRect, myRect;
     SetRect(&myRect, 0, 0, sz.width(), sz.height());
     GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
