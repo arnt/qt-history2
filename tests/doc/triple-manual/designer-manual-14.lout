@@ -29,7 +29,9 @@ window with actions, menu options and toolbars.
     @Title { Choose Available Menus and Toolbars }
     @Tag{choose.available.menus.and.toolbars}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-mainwinwzd.eps.gz" }
+@Figure
+    @Caption { The Main Window wizard }
+    0.45 @Scale @IncludeGraphic { "images/qd-mainwinwzd.eps.gz" }
 @LP
 The 'Choose available menus and toolbars' wizard page appears
 first. It presents three categories of default actions, File
@@ -48,7 +50,9 @@ Click @Option{Next} to move on to the next wizard page.
     @Title { Setup Toolbar }
     @Tag{setup.toolbar}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-mainwinwzdpage2.eps.gz" }
+@Figure
+    @Caption { The Main Window wizard's Setup Toolbar tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-mainwinwzdpage2.eps.gz" }
 @LP
 The 'Setup Toolbar [p.~@PageOf{setup.toolbar}]' wizard page is used to populate a toolbar
 with actions from each of the default action categories. Click
@@ -86,7 +90,6 @@ is used to create tabular views of database data.
     @Title { Choose the Database and Table }
     @Tag{choose.the.database.and.table}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-datatablewzd.eps.gz" }
 @LP
 The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
 The available databases are displayed in the 'Database Connection'
@@ -97,6 +100,9 @@ shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
 
+@Figure
+    @Caption { The Data Table wizard }
+    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzd.eps.gz" }
 @LP
 Click @Option{Next} to move on to the next wizard page.
 
@@ -105,7 +111,9 @@ Click @Option{Next} to move on to the next wizard page.
     @Title { Displayed Fields }
     @Tag{displayed.fields}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage2.eps.gz" }
+@Figure
+    @Caption { The Data Table wizard's Displayed Fields tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage2.eps.gz" }
 @LP
 The 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page is
 used to select fields that will be displayed in the table. By default,
@@ -129,7 +137,9 @@ wizard page.
     @Title { Table Properties }
     @Tag{table.properties}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage3.eps.gz" }
+@Figure
+    @Caption { The Data Table wizard's Table Properties tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage3.eps.gz" }
 @LP
 The 'Table Properties [p.~@PageOf{table.properties}]' wizard page is used to set the Data Table's
 initial editing options. Check the 'Read-Only' checkbox to prevent
@@ -148,13 +158,15 @@ if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]'
     @Title { SQL }
     @Tag{sql}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage4.eps.gz" }
 @LP
 The 'SQL' wizard page is used to apply filters and sorts to the
 data in the table. Click the 'Filter' line edit and enter a valid
 SQL @Code{WHERE} clause without the WHERE keyword. The
 filter applies to the data shown in the table.
 
+@Figure
+    @Caption { The Data Table wizard's SQL tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage4.eps.gz" }
 @LP
 To sort the available fields in the table, click the blue left
 and right arrow buttons to move fields from the 'Available Fields'
@@ -173,7 +185,9 @@ if you want to return to the 'Table Properties [p.~@PageOf{table.properties}]' w
     @Title { Finish }
     @Tag{finish}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage5.eps.gz" }
+@Figure
+    @Caption { The Data Table wizard's Finish tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage5.eps.gz" }
 @LP
 The 'Finish' wizard page is used to select auto-editing and to
 leave the wizard. If you want user edits, e.g. inserts and updates,
@@ -205,7 +219,9 @@ widget is used to create a form view of database data.
     @Title { Choose the Database and Table }
     @Tag{choose.the.database.and.tablex}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzd.eps.gz" }
+@Figure
+    @Caption { The Data Browser wizard }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzd.eps.gz" }
 @LP
 The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
 The available databases are displayed in the 'Database Connection'
@@ -224,7 +240,9 @@ Click @Option{Next} to move on to the next wizard page.
     @Title { Displayed Fields }
     @Tag{displayed.fieldsx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage2.eps.gz" }
+@Figure
+    @Caption { The Data Browser wizard's Displayed Fields tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage2.eps.gz" }
 @LP
 The 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page is used to select fields that
 will be displayed in the table. Click the blue left and right
@@ -243,7 +261,6 @@ wizard page.
     @Title { Navigation and Editing }
     @Tag{navigation.and.editing}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage3.eps.gz" }
 @LP
 The 'Navigation and Editing [p.~@PageOf{navigation.and.editing}]' wizard page is used to create navigation
 and editing buttons.
@@ -268,6 +285,9 @@ to create an 'Insert' button for adding new records. Check the
 records. Check the 'Delete' checkbox to create a 'Delete' button
 for deleting records.
 
+@Figure
+    @Caption { The Data Browser wizard's Navigation and Editing tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage3.eps.gz" }
 @LP
 The navigation buttons, and 'Update' and 'Delete' buttons will
 work without requiring any code. Since most database designs
@@ -285,7 +305,6 @@ if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]'
     @Title { SQL }
     @Tag{sqlx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage4.eps.gz" }
 @LP
 The 'SQL' wizard page is used to apply filters and sorts to the
 data in the table. Click the 'Filter' line edit and type a valid
@@ -306,12 +325,17 @@ Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Navigation and Editing [p.~@PageOf{navigation.and.editing}]' wizard
 page.
 
+@Figure
+    @Caption { The Data Browser wizard's SQL tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage4.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Layout }
     @Tag{layout}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage5.eps.gz" }
+@Figure
+    @Caption { The Data Browser wizard's Layout tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage5.eps.gz" }
 @LP
 The 'Layout' wizard page is used to design the layout of the
 database browser. To choose the number of columns the form will
@@ -340,7 +364,9 @@ if you want to return to the 'SQL' wizard page.
     @Title { Finish }
     @Tag{finishx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage6.eps.gz" }
+@Figure
+    @Caption { The Data Browser wizard's Finish tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage6.eps.gz" }
 @LP
 The 'Finish' wizard page is used to select auto-editing and to
 leave the wizard. If you want user edits, e.g. inserts and updates,
@@ -374,7 +400,9 @@ is used to create a read-only form view of database data.
     @Title { Choose the Database and Table }
     @Tag{choose.the.database.and.tablexx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzd.eps.gz" }
+@Figure
+    @Caption { The Data View wizard }
+    0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzd.eps.gz" }
 @LP
 The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
 The available databases are displayed in the 'Database Connection'
@@ -393,7 +421,6 @@ Click @Option{Next} to move on to the next wizard page.
     @Title { Displayed Fields }
     @Tag{displayed.fieldsxx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage2.eps.gz" }
 @LP
 The 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page is used to select fields that
 will be displayed in the table. Click the blue left and right
@@ -407,12 +434,17 @@ Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
 wizard page.
 
+@Figure
+    @Caption { The Data View wizard's Displayed Fields tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage2.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Layout }
     @Tag{layoutx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage3.eps.gz" }
+@Figure
+    @Caption { The Data View wizard's Layout tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage3.eps.gz" }
 @LP
 The 'Layout' wizard page is used to design the layout of the
 data view. To choose the number of columns the form will use,
@@ -430,7 +462,9 @@ if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]'
     @Title { Finish }
     @Tag{finishxx}
 @Begin
-@Figure 0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage4.eps.gz" }
+@Figure
+    @Caption { The Data View wizard's Finish tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage4.eps.gz" }
 @LP
 The 'Finish' wizard page is used to create the wizard once you
 have selected all the option you want on the previous wizard

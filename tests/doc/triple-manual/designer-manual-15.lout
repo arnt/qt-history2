@@ -19,7 +19,7 @@ This chapter explains each window in detail.
     @Tag { project.overview.window }
 @Begin
 @Figure
-    @Caption { @I{Project Overview Window} }
+    @Caption { The Project Overview window }
  0.45 @Scale @IncludeGraphic { "images/win-projoverview.eps.gz" }
 @LP
 This window lists all the files associated with the project.
@@ -45,24 +45,24 @@ Members tab.
 
 @BeginSubSections
 @SubSection
-    @Title { Objects Tab }
+    @Title { Objects tab }
     @Tag{objects.tab}
 @Begin
-@Figure
-    @Caption { @I{Objects Tab} }
- 0.45 @Scale @IncludeGraphic { "images/win-objexplor1.eps.gz" }
 @LP
 Click the Widgets tab to view all the widgets for the current
 form. The widgets are listed by name and class. Click a widget
 in the list to highlight it in the corresponding form.
 
+@Figure
+    @Caption { Object Explorer's Objects Tab }
+ 0.45 @Scale @IncludeGraphic { "images/win-objexplor1.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Members Tab }
     @Tag{members.tab}
 @Begin
 @Figure
-    @Caption { @I{Members Tab} }
+    @Caption { Object Explorer's Members tab }
  0.45 @Scale @IncludeGraphic { "images/win-objexplor2.eps.gz" }
 @LP
 Click the Members tab to view the current form's slots, forward
@@ -116,9 +116,6 @@ has a 'Properties' tab and a 'Signal Handlers' tab.
     @Title { The Properties Tab }
     @Tag{the.properties.tabx}
 @Begin
-@Figure
-    @Caption { @I{Properties Tab} }
- 0.45 @Scale @IncludeGraphic { "images/win-propedit1.eps.gz" }
 @LP
 Click the 'Properties' tab to change the appearance and behaviour
 of the selected widget. (For menus, click the menu bar to show
@@ -158,10 +155,13 @@ are shown in bold. If you've changed a property but want to revert
 it to its default value click the property's value and then click
 the red 'X' button to the right of the value. Some properties
 have an initial value, e.g. 'TextEdit1', but no default value;
-if you revert a property that has an initial value but no default
-value (by clicking the red 'X') the value will become empty unless
-the property, e.g. name, is not allowed to be empty.
+if you revert such a property (by clicking the red 'X') the value will
+become empty unless the property, e.g. name, is not allowed to be
+empty.
 
+@Figure
+    @Caption { The Properties Editor's Properties tab }
+ 0.45 @Scale @IncludeGraphic { "images/win-propedit1.eps.gz" }
 @LP
 The property editor fully supports Undo and Redo (Ctrl+Z and
 Ctrl+Y, also available from the Edit menu).
@@ -172,7 +172,7 @@ Ctrl+Y, also available from the Edit menu).
     @Tag{the.signal.handlers.tab}
 @Begin
 @Figure
-    @Caption { @I{Signal Handlers Tab} }
+    @Caption { The Properties Editor's Signal Handlers tab }
  0.45 @Scale @IncludeGraphic { "images/win-propedit2.eps.gz" }
 @LP
 Click the 'Signal Handlers' tab to view or create the connections

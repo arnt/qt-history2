@@ -10,6 +10,7 @@
 //
 # TODO Make sure all figures have @Captions
 # TODO Make sure every 'see xxx' in the text has a proper xref
+# TODO Check every @PageOf{} & eliminate those to the page itself
 #@Include { assistant-1.lout }
 #@Include { assistant-2.lout }
 #@Include { assistant-3.lout }
@@ -29,9 +30,9 @@
 #@Include { designer-manual-11.lout }
 #@Include { designer-manual-12.lout }
 #@Include { designer-manual-13.lout }
-@Include { designer-manual-14.lout }
+#@Include { designer-manual-14.lout }
 #@Include { designer-manual-15.lout }
-#@Include { designer-manual-16.lout }
+@Include { designer-manual-16.lout }
 #@Include { linguist-manual-1.lout }
 #@Include { linguist-manual-2.lout }
 #@Include { linguist-manual-3.lout }
