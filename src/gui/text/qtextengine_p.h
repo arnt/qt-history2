@@ -199,7 +199,7 @@ struct QScriptItem
     float width;
     int glyph_data_offset;
     int format;
-    float height() const { return ascent + descent + 1.; }
+    float height() const { return ascent + descent; }
 };
 
 
