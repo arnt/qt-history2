@@ -346,6 +346,8 @@ void QTextEditPrivate::ensureCursorVisible()
     QPoint layoutPos = layout->position();
     const int relativePos = cursor.position() - block.position();
     QTextLine line = layout->findLine(relativePos);
+    if (!line.isValid())
+        return;
 
     int x = layoutPos.x() + line.cursorToX(relativePos);
     int y = layoutPos.y() + line.y();

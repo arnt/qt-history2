@@ -122,6 +122,7 @@ public slots:
 
 signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
+    void copyAvailable(bool b);
 
 protected:
     virtual void timerEvent(QTimerEvent *ev);
