@@ -4137,9 +4137,12 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		    setEditMode( ( !itm || itm && itm->isReplaceable()
 				   ? Replacing : Editing ), tmpRow, tmpCol );
 		    QApplication::sendEvent( w, e );
+		    return;
 		}
 	    }
 	}
+	e->ignore();
+	return;
     }
 
     if ( navigationKey ) {
