@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#19 $
 **
 ** Implementation of movie classes
 **
@@ -91,7 +91,7 @@ public: // for QMovie
 
     // This as QDataSink
     int readyToReceive();
-    void receive(const uchar* b, int count);
+    void receive(const uchar* b, int bytecount);
     void eof();
     void pause();
 
@@ -362,23 +362,23 @@ int QMoviePrivate::readyToReceive()
 	? 0 : buf_size;
 }
 
-void QMoviePrivate::receive(const uchar* b, int count)
+void QMoviePrivate::receive(const uchar* b, int bytecount)
 {
-    if ( count ) empty = FALSE;
+    if ( bytecount ) empty = FALSE;
 
-    while (count && !waitingForFrameTick && stepping != 0) {
-	int used = decoder->decode(b, count);
+    while (bytecount && !waitingForFrameTick && stepping != 0) {
+	int used = decoder->decode(b, bytecount);
 	if (used<=0) {
 	    error = 1;
 	    emit dataStatus(QMovie::UnrecognizedFormat);
 	    break;
 	}
 	b+=used;
-	count-=used;
+	bytecount-=used;
     }
 
     // Append unused to buffer
-    while (count--) {
+    while (bytecount--) {
 	buffer[buf_w] = *b++;
 	buf_w = (buf_w+1)%buf_size;
 	buf_usage++;
@@ -805,7 +805,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.18 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.19 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
