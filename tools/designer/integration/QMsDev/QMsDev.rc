@@ -121,27 +121,23 @@ BEGIN
     BUTTON      ID_BUTTON32786
     BUTTON      ID_BUTTON32785
     BUTTON      ID_BUTTON32791
-    SEPARATOR
     BUTTON      ID_BUTTON32777
-    SEPARATOR
     BUTTON      ID_BUTTON32778
+    SEPARATOR
     BUTTON      ID_BUTTON32779
     BUTTON      ID_BUTTON32780
-    BUTTON      ID_BUTTON32793
 END
 
 IDR_TOOLBAR_LARGE TOOLBAR DISCARDABLE  32, 32
 BEGIN
     BUTTON      ID_BUTTON32789
+    BUTTON      ID_BUTTON32781
+    BUTTON      ID_BUTTON32782
     BUTTON      ID_BUTTON32788
     BUTTON      ID_BUTTON32792
     SEPARATOR
-    BUTTON      ID_BUTTON32781
-    SEPARATOR
-    BUTTON      ID_BUTTON32782
     BUTTON      ID_BUTTON32783
     BUTTON      ID_BUTTON32784
-    BUTTON      ID_BUTTON32794
 END
 
 
@@ -207,72 +203,17 @@ STRINGTABLE DISCARDABLE
 BEGIN
     IDS_QMSDEV_LONGNAME     "QMsDev Developer Studio-Add-In"
     IDS_QMSDEV_DESCRIPTION  "Adds commands to Developer Studio to integrate the Qt Toolkit and Qt GUI Designer"
-    IDS_OPENDESIGNER_STRING "\nOpen Qt GUI Designer\nOpen the active file in the Qt GUI Designer\nQt GUI Designer"
-    IDS_USEQT_STRING        "\nUse Qt in project\nUse Qt as shared or static library\nUse Qt"
-    IDS_ADDMOCSTEP_STRING   "\nAdd MOC step\nAdd the MOC preprocessor to the active file\nAdd MOC"
-    IDS_ADDUICSTEP_STRING   "\nAdd UIC step\nAdd the UIC preprocessor to the active file\nAdd UIC"
+    IDS_OPENDESIGNER_STRING "\nOpen Qt Designer\nOpen the active file in the Qt Designer\nQt Designer"
+    IDS_USEQT_STRING        "\nAdd Qt library to the current project\nUse Qt as shared or static library in the current project\nUse Qt in current project"
+    IDS_ADDMOCSTEP_STRING   "\nAdd MOC step\nAdd the MOC pre-processor to the current file\nAdd MOC"
     IDS_GENERATEQTPROJECT_STRING 
-                            "\nGenerate Qt Project\nGenerate a Developer Studio Project out of a Qt Project file\nGenerate Qt Project"
+                            "\nWrite Qt Project\nWrite the current project to a Qt Project file\nWrite Qt Project"
     IDS_NEWQTPROJECT_STRING "\nNew Qt Project\nCreate a new Qt Project\nNew Qt Project"
     IDS_NEWQTDIALOG_STRING  "\nNew Qt Dialog\nAdd a new Qt Dialog\nNew Qt Dialog"
-    IDS_GENERATEDSP_STRING  "\nGenerate DSP\nGenerate DSP file from Qt project\nGenerate DSP"
+    IDS_GENERATEDSP_STRING  "\nOpen Qt Project\nOpen a Qt Project in Developer Studio\nOpen Qt Project"
 END
 
 #endif    // German (Germany) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Norwegian (Nynorsk) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NON)
-#ifdef _WIN32
-LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_NYNORSK
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_CREATEDSPDLG DIALOG DISCARDABLE  0, 0, 345, 82
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Create Visual Studio Project from Qt Project file"
-FONT 8, "MS Sans Serif"
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,114,61,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,180,61,50,14
-    LTEXT           "Qt Project file",IDC_STATIC,7,10,43,8
-    EDITTEXT        IDC_QTPROJECT,86,7,221,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Select",IDC_QTPROJECTBUTTON,308,7,30,14
-    LTEXT           "Extra options to QMake",IDC_STATIC,7,26,75,8
-    EDITTEXT        IDC_QMAKEOPTS,86,23,252,14,ES_AUTOHSCROLL
-    CONTROL         "Regenerate all projects in the workspace",
-                    IDC_PROCESSALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,86,
-                    43,145,10
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_CREATEDSPDLG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 338
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 75
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Norwegian (Nynorsk) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

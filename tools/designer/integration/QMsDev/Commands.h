@@ -110,13 +110,13 @@ protected:
 public:
 // ICommands methods
 	STDMETHOD(QMsDevNewQtProject)();
-	STDMETHOD(QMsDevGenerateQtProject)();
-	STDMETHOD(QMsDevAddUICStep)();
-	STDMETHOD(QMsDevAddMOCStep)();
-	STDMETHOD(QMsDevUseQt)();
-	STDMETHOD(QMsDevStartDesigner)(THIS);
 	STDMETHOD(QMsDevNewQtDialog)();
+	STDMETHOD(QMsDevStartDesigner)(THIS);
 	STDMETHOD(QMsDevCreateDSP)();
+	STDMETHOD(QMsDevGenerateQtProject)();
+	STDMETHOD(QMsDevUseQt)();
+	STDMETHOD(QMsDevAddMOCStep)();
+	STDMETHOD(QMsDevAddUICStep)();
 };
 
 typedef CComObject<CCommands> CCommandsObj;

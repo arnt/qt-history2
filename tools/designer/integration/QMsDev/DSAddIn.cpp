@@ -51,28 +51,36 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 	LPCTSTR szNewQtProject = _T("New Qt Project");
 	strCmdString.LoadString(IDS_NEWQTPROJECT_STRING);
 	VERIFY_OK(pApplication->AddCommand(CComBSTR(szNewQtProject + strCmdString), CComBSTR(_T("QMsDevNewQtProject")), 0, m_dwCookie, &bRet));
-#if 1
-	LPCTSTR szGenerateQtProject = _T("Generate Qt Project");
-	strCmdString.LoadString(IDS_GENERATEQTPROJECT_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szGenerateQtProject + strCmdString), CComBSTR(_T("QMsDevGenerateQtProject")), 1, m_dwCookie, &bRet));
-#endif
+
 	LPCTSTR szNewQtDialog = _T("New Qt Dialog");
 	strCmdString.LoadString(IDS_NEWQTDIALOG_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szNewQtDialog + strCmdString), CComBSTR(_T("QMsDevNewQtDialog")), 2, m_dwCookie, &bRet));
+	VERIFY_OK(pApplication->AddCommand(CComBSTR(szNewQtDialog + strCmdString), CComBSTR(_T("QMsDevNewQtDialog")), 1, m_dwCookie, &bRet));
 
-	LPCTSTR szOpenDesigner = _T("Open Qt GUI Designer");
+	LPCTSTR szOpenDesigner = _T("Open Qt Designer");
 	strCmdString.LoadString(IDS_OPENDESIGNER_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szOpenDesigner + strCmdString), CComBSTR(_T("QMsDevStartDesigner")), 3, m_dwCookie, &bRet));
+	VERIFY_OK(pApplication->AddCommand(CComBSTR(szOpenDesigner + strCmdString), CComBSTR(_T("QMsDevStartDesigner")), 2, m_dwCookie, &bRet));
+	if ( bFirstTime == VARIANT_TRUE )
+	{
+	    CComBSTR bszKeystroke("CTRL+SHIFT+D");
+	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szOpenDesigner), CComBSTR("Text") ));
+	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szOpenDesigner), CComBSTR("Main") ));
+	}
 
-#ifndef QT_NON_COMMERCIAL
-	LPCTSTR szUseQt = _T("Use Qt");
+	LPCTSTR szCreateDSP = _T( "Open Qt Project" );
+	strCmdString.LoadString( IDS_GENERATEDSP_STRING );
+	VERIFY_OK( pApplication->AddCommand( CComBSTR( szCreateDSP + strCmdString ), CComBSTR( _T( "QMsDevCreateDSP" ) ), 3, m_dwCookie, &bRet ) );
+
+	LPCTSTR szGenerateQtProject = _T("Write Qt Project");
+	strCmdString.LoadString(IDS_GENERATEQTPROJECT_STRING);
+	VERIFY_OK(pApplication->AddCommand(CComBSTR(szGenerateQtProject + strCmdString), CComBSTR(_T("QMsDevGenerateQtProject")), 4, m_dwCookie, &bRet));
+
+	LPCTSTR szUseQt = _T("Add Qt to Project");
   	strCmdString.LoadString(IDS_USEQT_STRING);
-  	VERIFY_OK(pApplication->AddCommand(CComBSTR(szUseQt + strCmdString), CComBSTR(_T("QMsDevUseQt")), 4, m_dwCookie, &bRet));
-#endif
+  	VERIFY_OK(pApplication->AddCommand(CComBSTR(szUseQt + strCmdString), CComBSTR(_T("QMsDevUseQt")), 5, m_dwCookie, &bRet));
 
 	LPCTSTR szAddMOCStep = _T("Add MOC step");
 	strCmdString.LoadString(IDS_ADDMOCSTEP_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddMOCStep + strCmdString), CComBSTR(_T("QMsDevAddMOCStep")), 5 , m_dwCookie, &bRet));
+	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddMOCStep + strCmdString), CComBSTR(_T("QMsDevAddMOCStep")), 6 , m_dwCookie, &bRet));
 
 	if ( bFirstTime == VARIANT_TRUE )
 	{
@@ -80,20 +88,6 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddMOCStep), CComBSTR("Text") ));
 	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddMOCStep), CComBSTR("Main") ));
 	}
-	LPCTSTR szAddUICStep = _T("Add UIC step");
-	strCmdString.LoadString(IDS_ADDUICSTEP_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddUICStep + strCmdString), CComBSTR(_T("QMsDevAddUICStep")), 6, m_dwCookie, &bRet));
-
-	if ( bFirstTime == VARIANT_TRUE )
-	{
-	    CComBSTR bszKeystroke("CTRL+SHIFT+U");
-	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddUICStep), CComBSTR("Text") ));
-	    VERIFY_OK(pApplication->AddKeyBinding(bszKeystroke, CComBSTR(szAddUICStep), CComBSTR("Main") ));
-	}
-
-	LPCTSTR szCreateDSP = _T( "Generate DSP file" );
-	strCmdString.LoadString( IDS_GENERATEDSP_STRING );
-	VERIFY_OK( pApplication->AddCommand( CComBSTR( szCreateDSP + strCmdString ), CComBSTR( _T( "QMsDevCreateDSP" ) ), 7, m_dwCookie, &bRet ) );
 
 	if (bRet == VARIANT_FALSE)
 	{
@@ -105,24 +99,18 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 	{
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szNewQtProject), m_dwCookie));
-#if 1
-		VERIFY_OK(pApplication->
-			AddCommandBarButton(dsGlyph, CComBSTR(szGenerateQtProject), m_dwCookie));
-#endif
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szNewQtDialog), m_dwCookie));
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szOpenDesigner), m_dwCookie));
-#ifndef QT_NON_COMMERCIAL
+		VERIFY_OK( pApplication->
+			AddCommandBarButton( dsGlyph, CComBSTR(szCreateDSP), m_dwCookie ) );
+		VERIFY_OK(pApplication->
+			AddCommandBarButton(dsGlyph, CComBSTR(szGenerateQtProject), m_dwCookie));
 		VERIFY_OK(pApplication->
   			AddCommandBarButton(dsGlyph, CComBSTR(szUseQt), m_dwCookie));
-#endif
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szAddMOCStep), m_dwCookie));
-		VERIFY_OK(pApplication->
-			AddCommandBarButton(dsGlyph, CComBSTR(szAddUICStep), m_dwCookie));
-		VERIFY_OK( pApplication->
-			AddCommandBarButton( dsGlyph, CComBSTR( szCreateDSP ), m_dwCookie ) );
 	}
 
 	*OnConnection = VARIANT_TRUE;

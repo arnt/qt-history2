@@ -3,11 +3,11 @@
 
 #include "stdafx.h"
 #include <afxdlgs.h>
+#include <afxtempl.h>
 #include "QMsDev.h"
 #include "Commands.h"
 #include "newqtprojectdialog.h"
 #include "qmsdevtemplates.h"
-#include "createdspdlg.h"
 #include <direct.h>
 #include <process.h>
 #include <windows.h>
@@ -268,10 +268,8 @@ int CCommands::getActiveProject(CComQIPtr<IBuildProject, &IID_IBuildProject>& pr
     CComPtr<IDispatch> pDispProject;
     m_pApplication->get_ActiveProject(&pDispProject);
     project = CComQIPtr<IBuildProject, &IID_IBuildProject>(pDispProject);
-    if ( !project ) {
-	m_pApplication->PrintToOutputWindow( CComBSTR("NO ACTIVE PROJECT FOUND") );
+    if ( !project )
 	return S_FALSE;
-    }
 
     return S_OK;
 }
@@ -614,8 +612,15 @@ STDMETHODIMP CCommands::QMsDevUseQt()
     m_pApplication->PrintToOutputWindow( CComBSTR("Adding Qt support to project") );
     // Check for active Project
     CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
-    if ( getActiveProject( pProject ) != S_OK )
+    if ( getActiveProject( pProject ) != S_OK ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
+	if ( ::MessageBox( NULL, "There is no active project.\nDo you want to create a new Qt Project?", 
+	    "Use Qt in project", MB_YESNOCANCEL | MB_ICONQUESTION ) == IDYES )
+	    QMsDevNewQtProject();
+
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
 	return S_FALSE;
+    }
 
     CString libname;
     bool shared;
@@ -656,8 +661,15 @@ STDMETHODIMP CCommands::QMsDevAddMOCStep()
 
     // Check for active Project
     CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
-    if ( getActiveProject( pProject ) != S_OK )
+    if ( getActiveProject( pProject ) != S_OK ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
+	if ( ::MessageBox( NULL, "There is no active project.\nDo you want to create a new Qt Project?", 
+	    "Add MOC to file", MB_YESNOCANCEL | MB_ICONQUESTION ) == IDYES )
+	    QMsDevNewQtProject();
+
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
 	return S_FALSE;
+    }
 
     CString file;
     CString fileext;
@@ -692,63 +704,29 @@ STDMETHODIMP CCommands::QMsDevAddMOCStep()
     return S_OK;
 }
 
-STDMETHODIMP CCommands::QMsDevAddUICStep()
-{
-    AFX_MANAGE_STATE(AfxGetStaticModuleState());
-
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
-
-    CString file;
-    CString fileext;
-    CString filename;
-    CString filepath;
-
-    // Check for active Project
-    CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
-    if ( getActiveProject( pProject ) != S_OK ) {
-	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
-	::MessageBox(NULL, "Can't find active project!", "QMsDev", MB_OK | MB_ICONINFORMATION );
-	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-	return S_FALSE;
-    }
-
-    file = getActiveFileName();
-    splitFileName( file, filepath, filename, fileext );
-
-    if ( file.IsEmpty() || fileext != "ui" ) {
-	CFileDialog fd( TRUE, NULL, NULL, OFN_HIDEREADONLY, 
-	    "User Interface File (*.ui)|*.ui|"
-	    "All Files (*.*)|*.*||", NULL);
-	int result = fd.DoModal();
-	if ( result == IDCANCEL ) {
-	    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-	    return S_OK;
-	}
-
-	file = fd.GetPathName();
-	splitFileName( file, filepath, filename, fileext );
-    }
-
-    m_pApplication->PrintToOutputWindow( CComBSTR("Add UIC buildstep for "+file+"...") );
-    m_pApplication->PrintToOutputWindow( CComBSTR("Add buildstep for "+file+"...") );
-    addUIC( pProject, filepath + file );
-    m_pApplication->PrintToOutputWindow( CComBSTR("Finished!\n") );
-    
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-    return S_OK;
-}
-
 STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
     VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
 
-    CString file;
-    CString filepath;
-    CString filename;
-    CString fileext;
+    CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
+    if ( getActiveProject( pProject ) != S_OK ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
+	if ( ::MessageBox( NULL, "There is no active project.\nDo you want to create a new Qt Project?", 
+	    "Write Qt Project", MB_YESNOCANCEL | MB_ICONQUESTION ) == IDYES )
+	    QMsDevNewQtProject();
 
-    CFileDialog fd( TRUE, NULL, NULL, OFN_HIDEREADONLY, 
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	return S_FALSE;
+    }
+
+    CComBSTR fp;
+    pProject->get_FullName( &fp );
+    CString dspfile( fp );
+    CString dspfilepath, dspfilename, dspfileext;
+    splitFileName( dspfile, dspfilepath, dspfilename, dspfileext );
+
+    CFileDialog fd( FALSE, "*.pro", dspfilepath + dspfilename + ".pro", OFN_HIDEREADONLY, 
 	"Qt Project (*.pro)|*.pro|"
 	"All Files (*.*)|*.*||", NULL);
     int result = fd.DoModal();
@@ -757,29 +735,57 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 	return S_OK;
     }
 
-    file = fd.GetPathName();
-    splitFileName( file, filepath, filename, fileext );
+    CString profile = fd.GetPathName();
+    CString profilepath, profilename, profileext;
+    splitFileName( profile, profilepath, profilename, profileext );
 
-    chdir( filepath );
-    CString contents;
-    CString tFile = "vcapp.t";
+    CMapStringToString filelists;
+    CString group;
+    CString file;
+    CString filepath, filename, fileext;
     try {
-	CStdioFile file( filepath + file, CFile::modeRead );
-	CString line;
-	BOOL eof;
-	do {
-	    eof = !file.ReadString( line );
-	    if ( eof )
-		break;
-	    if ( line.Find( "TEMPLATE" ) != -1 ) {
-		if ( ( line.Find( "lib" ) != -1 ) || 
-		    ( line.Find( "vclib" ) != -1 ) )
-		    tFile = "vclib.t";
-		break;
+	CStdioFile dsp( dspfilepath + dspfilename + "." + dspfileext , CFile::modeRead );
+	CString string;
+	while ( dsp.ReadString( string ) )
+	{
+	    if ( group.IsEmpty() && string.Find( "# Begin Group" ) == 0 ) {
+		group = string.Mid( 15, string.GetLength() - 16 );
+		group.MakeUpper();
+		if ( group == "GENERATED" )
+		    group.Empty();
+	    } else if ( !group.IsEmpty() && string.Find( "SOURCE=" ) == 0 ) {
+		bool ignore = FALSE;
+		file = string.Right( string.GetLength() - 7 );
+		splitFileName( file, filepath, filename, fileext );
+		if ( filepath.Left( 2 ) == ".\\" )
+		    filepath = filepath.Right( filepath.GetLength() - 2 );
+		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc";
+
+		if ( !ignore ) {
+		    if ( fileext == "ui" )
+			group = "FORMS";
+		    else if ( fileext == "h" || fileext == "hxx" || fileext == "hpp" )
+			group = "HEADERS";
+		    else if ( fileext == "cpp" || fileext == "cxx" || fileext == "c" )
+			group = "SOURCES";
+		    else if ( fileext == "y" )
+			group = "YACCSOURCES";
+		    else if ( fileext == "l" )
+			group = "LEXSOURCES";
+
+		    CString temp;
+		    filelists.Lookup( group, temp );
+		    filepath.Replace( "\\", "/" );
+		    temp += " \\\n\t\t" + filepath + filename + "." + fileext;
+		    filelists.SetAt( group, temp );
+		}
+	    } else if ( !group.IsEmpty() && string.Find( "# End Group" ) == 0 ) {
+		group.Empty();
 	    }
-	} while ( !eof );
+	}
     }
-    catch ( CFileException* e ) {
+    catch ( CFileException* e )
+    {
 	char err[256];
 	e->GetErrorMessage( (char*)&err, 255, NULL );
 	::MessageBox( NULL, err, "Error", MB_OK );
@@ -787,16 +793,58 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 	return S_FALSE;
     }
 
-    m_pApplication->PrintToOutputWindow( CComBSTR("Running qmake...") );
-    if ( system( "qmake "+file+" -t "+tFile ) )
-	m_pApplication->PrintToOutputWindow( CComBSTR("FAILED TO RUN QMAKE!") );
-    else
-	::MessageBox(NULL, "Created Developer Studio Project for Qt Project "+file+"\n"
-			   "Add the new project file to your current workspace,\n"
-			   "or open it in an empty workspace.", 
-			   "Open Qt Project", MB_OK | MB_ICONINFORMATION );
+    chdir( profilepath );
 
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+    CStdioFile pro;
+    try {
+	CString string, tstring;
+	CString newstring;
+	if ( pro.Open( profilepath + profilename + "." + profileext, CFile::modeReadWrite ) ) {
+	    while ( pro.ReadString( string ) ) {
+		if ( !string.IsEmpty() ) {
+		    tstring += string;
+		    tstring.TrimRight();
+		}
+		if ( tstring.Right( 1 ) != "\\" ) {
+		    // if tstring == "SOURCES+=" etc. replace with map contents
+		    int firstSep = tstring.FindOneOf( "+=" );
+		    if ( firstSep != -1 ) {
+			CString group = tstring.Left( firstSep );
+			group.TrimRight();
+			if ( filelists.Lookup( group, file ) ) {
+			    tstring = group + " = " + file;
+			    filelists.RemoveKey( group );
+			}
+		    }
+		    newstring += tstring + "\n";
+		    tstring.Empty();
+		} else {
+		    if ( string.IsEmpty() )		    // bad pro-file
+			break;
+		    tstring += "\n\t";
+		}
+	    }
+	    pro.Close();
+	    m_pApplication->PrintToOutputWindow( CComBSTR("Finished with old stuff" ) );
+	}
+	POSITION pos = filelists.GetStartPosition();
+	while ( pos ) {
+	    filelists.GetNextAssoc( pos, group, file );
+	    newstring += group + " = " + file + "\n\n";
+	}
+
+	if ( !newstring.IsEmpty() && pro.Open( profilepath + profilename + "." + profileext, CFile::modeCreate | CFile::modeReadWrite | CFile::typeText ) )
+	    pro.WriteString( newstring );
+    }
+    catch ( CFileException* e )
+    {
+	char err[256];
+	e->GetErrorMessage( (char*)&err, 255, NULL );
+	::MessageBox( NULL, err, "Error", MB_OK );
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	return S_FALSE;
+    }
+
     return S_OK;
 }
 
@@ -1055,7 +1103,7 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     splitFileName( file, filepath, filename, fileext );
 
     // TODO: ask for classname
-    CFileDialog fd( FALSE, "ui", "NewDialog.ui", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST, 
+    CFileDialog fd( TRUE, "ui", "NewDialog.ui", OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, 
 	"User Interface File (*.ui)|*.ui|"
 	"All Files (*.*)|*.*||", NULL);
     fd.m_ofn.lpstrInitialDir = filepath;
@@ -1063,11 +1111,19 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     if ( result == IDCANCEL ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
 	return S_OK;
-    }    
+    }
 
     file = fd.GetPathName();
-
     splitFileName( file, filepath, filename, fileext );
+    if ( CFileFind().FindFile( file ) ) {
+	m_pApplication->PrintToOutputWindow( CComBSTR("Add UIC buildstep for "+file+"...") );
+	m_pApplication->PrintToOutputWindow( CComBSTR("Add buildstep for "+file+"...") );
+	addUIC( pProject, filepath + file );
+	m_pApplication->PrintToOutputWindow( CComBSTR("Finished!\n") );
+    
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	return S_OK;
+    }
 
     classname = filename;
     filename.MakeLower();
@@ -1140,78 +1196,65 @@ bool projectIsLibrary( CString projectPath )
 STDMETHODIMP CCommands::QMsDevCreateDSP()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
+    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_FALSE));
 
-    CString projectAnsi;
-    // Check for active Project
-    CComQIPtr<IBuildProject, &IID_IBuildProject> pProject;
-    if ( getActiveProject( pProject ) == S_OK ) {
-	CComBSTR projectName;
-	pProject->get_FullName( &projectName );
-	projectAnsi = projectName;
-	projectAnsi = projectAnsi.Left( projectAnsi.GetLength() - 4 ) + ".pro";
+    CString file;
+    CString filepath;
+    CString filename;
+    CString fileext;
+
+    CFileDialog fd( TRUE, NULL, NULL, OFN_HIDEREADONLY, 
+	"Qt Project (*.pro)|*.pro|"
+	"All Files (*.*)|*.*||", NULL);
+    int result = fd.DoModal();
+    if ( result == IDCANCEL ) {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	return S_OK;
     }
-    
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-    CCreateDSPDlg dialog;
-    dialog.m_qtProject = projectAnsi;
-    if ( dialog.DoModal() == IDCANCEL ) {
+
+    file = fd.GetPathName();
+    splitFileName( file, filepath, filename, fileext );
+
+    chdir( filepath );
+    CString tFile = "vcapp.t";
+    try {
+	CStdioFile file( filepath + file, CFile::modeRead );
+	CString line;
+	BOOL eof;
+	do {
+	    eof = !file.ReadString( line );
+	    if ( eof )
+		break;
+	    if ( line.Find( "TEMPLATE" ) != -1 ) {
+		if ( ( line.Find( "lib" ) != -1 ) || 
+		    ( line.Find( "vclib" ) != -1 ) )
+		    tFile = "vclib.t";
+		break;
+	    }
+	} while ( !eof );
+    }
+    catch ( CFileException* e ) {
+	char err[256];
+	e->GetErrorMessage( (char*)&err, 255, NULL );
+	::MessageBox( NULL, err, "Error", MB_OK );
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
 	return S_FALSE;
-    } else {
-	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
-	if( dialog.m_processAll ) {
-	    CComPtr<IDispatch> pProjectsDisp;
-	    if( SUCCEEDED( m_pApplication->get_Projects( &pProjectsDisp ) ) ) {
-		CComQIPtr<IProjects, &IID_IProjects> pProjects = pProjectsDisp;
-		long numProjects;
-		if( SUCCEEDED( pProjects->get_Count( &numProjects ) ) ) {
-		    CComQIPtr<IGenericProject, &IID_IGenericProject> pItem;
-		    for( int i = 0; i < numProjects; i++ ) {
-			VARIANT varItem;
-
-			varItem.lVal = i;
-			varItem.vt = VT_UI4;
-			if( SUCCEEDED( pProjects->Item( varItem, &pItem ) ) ) {
-			    CComBSTR projectName;
-			    pItem->get_FullName( &projectName );
-			    CString projectAnsi = projectName;
-			    projectAnsi = projectAnsi.Left( projectAnsi.GetLength() - 4 ) + ".pro";
-			    CString projectPath = projectAnsi.Left( projectAnsi.ReverseFind( '\\' ) );
-			    CString projectBase = projectAnsi.Mid( projectAnsi.ReverseFind( '\\' ) );
-			    CString qtDir( getenv( "QTDIR" ) );
-			    CString command( qtDir + "\\bin\\qmake.exe " + projectAnsi + " -o " + projectPath + projectBase + ".dsp -t " );
-			    if( projectIsLibrary( dialog.m_qtProject ) )
-				command += "vclib";
-			    else
-				command += "vcapp";
-			    command += dialog.m_qmakeOpts;
-			    if( system( command ) )
-				AfxMessageBox( "An error occurred while processing \"" + projectAnsi + "\"" );
-			}
-		    }
-		}
-	    }
-
-	}
-	else {
-	    CString projectPath;
-	    CString projectBase;
-	    CString qtDir( getenv( "QTDIR" ) );
-
-	    projectPath = dialog.m_qtProject.Left( dialog.m_qtProject.ReverseFind( '\\' ) );
-	    projectBase = dialog.m_qtProject.Right( dialog.m_qtProject.GetLength() - projectPath.GetLength() );
-	    projectBase = projectBase.Left( projectBase.GetLength() - 4 );
-
-	    CString command( qtDir + "\\bin\\qmake.exe " + dialog.m_qtProject + " -o " + projectPath + projectBase + ".dsp" + " -t " );
-	    if( projectIsLibrary( dialog.m_qtProject ) )
-		command += "vclib " + dialog.m_qmakeOpts;
-	    else
-		command += "vcapp " + dialog.m_qmakeOpts;
-
-	    if( system( command ) )
-		AfxMessageBox( "An error occurred while processing the project file" );
-	}
     }
-    
+
+    m_pApplication->PrintToOutputWindow( CComBSTR("Running qmake...") );
+    if ( system( "qmake "+file+" -t "+tFile ) )
+	m_pApplication->PrintToOutputWindow( CComBSTR("FAILED TO RUN QMAKE!") );
+    else
+	::MessageBox(NULL, "Created Developer Studio Project for Qt Project "+file+"\n"
+			   "Add the new project file to your current workspace,\n"
+			   "or open it in an empty workspace.", 
+			   "Open Qt Project", MB_OK | MB_ICONINFORMATION );
+
+    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+    return S_OK;
+}
+
+STDMETHODIMP CCommands::QMsDevAddUICStep()
+{
     return S_OK;
 }
