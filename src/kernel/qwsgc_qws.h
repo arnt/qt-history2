@@ -28,7 +28,7 @@ public:
     QWSGC(const QPaintDevice *);
     ~QWSGC();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
+    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -72,6 +72,8 @@ public:
     QGfx *gfx();
     
 protected:
+    void drawPolyInternal(const QPointArray &a, bool close=TRUE);
+
     void copyQWSData(const QWSGC *);
     void cloneQWSData(const QWSGC *);
     //virtual void setQWSData(const QWSGCData *);

@@ -6,10 +6,6 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 
-
-
-
-
 /* paintevent magic to provide Windows semantics on Qt/E
  */
 static QRegion* paintEventClipRegion = 0;
@@ -33,7 +29,6 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 		r.x(), r.y(), r.width(), r.height() );
     }
 #endif
-
 }
 
 void qt_clear_paintevent_clipping()
@@ -44,7 +39,6 @@ void qt_clear_paintevent_clipping()
 //    paintEventSaveRegion = 0;
     paintEventDevice = 0;
 }
-
 
 static QList<QPainter*> *widgetPainterList = 0;
 
@@ -65,7 +59,7 @@ void qwsUpdateActivePainters()
 }
 
 
-void qt_draw_background( QPainter *pp, int x, int y, int w,  int h )
+void qt_draw_background( QPainter *pp, int/* x*/, int /*y*/, int /*w*/,  int /*h*/ )
 {
     QPaintDevice *pd = pp->device();
     QWSGC *p = static_cast<QWSGC *>(pd->gc());
@@ -111,7 +105,7 @@ QGfx *QWSGC::gfx()
 }
 
 
-bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool begin)
+bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if ( isActive() ) {                         // already active painting
          qWarning( "QWSC::begin: Painter is already active."
@@ -236,12 +230,13 @@ void QWSGC::updateFont(QPainterState *ps){
     qDebug("QWSGC::updateFont");
 }
 void QWSGC::updateRasterOp(QPainterState *ps){
-    qDebug("QWSGC::updateRasterOp");
+//    qDebug("QWSGC::updateRasterOp");
+        d->gfx->setRop(ps->rasterOp);
 }
 void QWSGC::updateBackground(QPainterState *ps){
     qDebug("QWSGC::updateBackground");
 }
-void QWSGC::updateXForm(QPainterState *ps)
+void QWSGC::updateXForm(QPainterState */*ps*/)
 {
 //    qDebug("QWSGC::updateXForm");
 }
@@ -296,14 +291,15 @@ void QWSGC::updateClipRegion(QPainterState *ps)
 }
 
 void QWSGC::setRasterOp(RasterOp r){
-    qDebug("QWSGC::setRasterOp");
+    d->gfx->setRop( r );
+//    qDebug("QWSGC::setRasterOp");
 }
 
 void QWSGC::drawLine(int x1, int y1, int x2, int y2)
 {
     if ( !isActive() )
 	return;
-//####    if ( cpen.style() != NoPen )
+    if ( state->pen.style() != NoPen )
 	d->gfx->drawLine( x1, y1, x2, y2 );
 }
 void QWSGC::drawRect(int x1, int y1, int w, int h)
@@ -318,15 +314,12 @@ void QWSGC::drawRect(int x1, int y1, int w, int h)
 
     //############ gfx->setBrushOffset( x-bro.x(), y-bro.y() );
 
-    if ( 1 /* cpen.style() != NoPen */ ) {
-    /*###########
-	if ( cpen.width() > 1 ) {
+    if (state->pen.style() != NoPen) {
+	if ( state->pen.width() > 1 ) {
 	    QPointArray a( QRect(x1,y1,w,h), TRUE );
 	    drawPolyInternal( a );
 	    return;
-	} else
-    */
-	{
+	} else	{
 	    int x2 = x1 + (w-1);
 	    int y2 = y1 + (h-1);
 	    d->gfx->drawLine(x1, y1, x2, y1);
@@ -350,22 +343,154 @@ void QWSGC::drawPoint(int x, int y)
 }
 
 void QWSGC::drawPoints(const QPointArray &pa, int index, int npoints){
-    qDebug("QWSGC::drawPoints");
+//    qDebug("QWSGC::drawPoints");
+    if ( npoints < 0 )
+	npoints = pa.size() - index;
+    if ( index + npoints > pa.size() )
+	npoints = pa.size() - index;
+    if ( !isActive() || npoints < 1 || index < 0 || state->pen.style() == NoPen )
+	return;
+
+    d->gfx->drawPoints( pa, index, npoints );
+
 }
-void QWSGC::drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &penColor){
-    qDebug("QWSGC::drawWinFocusRect");
+void QWSGC::drawWinFocusRect(int x, int y, int w, int h, bool /*xorPaint*/, const QColor &/*bgColor*/)
+{
+//    qDebug("QWSGC::drawWinFocusRect");
+    if ( !isActive() )
+        return;
+
+    if ( w <= 0 || h <= 0 ) {
+        if ( w == 0 || h == 0 )
+            return;
+        fix_neg_rect( &x, &y, &w, &h );
+    }
+
+    static char winfocus_line[] = { 1, 1 };
+
+//    d->gfx->setBrush(QBrush());
+/*#########
+    if ( xorPaint ) {
+        if ( QColor::numBitPlanes() <= 8 )
+	    d->gfx->setPen(QPen(color1));
+	else
+	    d->gfx->setPen(QPen(white));
+	d->gfx->setRop(XorROP);
+    } else {
+	if ( qGray( bgColor.rgb() ) < 128 )
+	    setPen(QPen(white));
+	else
+	    setPen(QPen(black));
+    }
+*/
+    d->gfx->setDashes(winfocus_line, 2);
+    d->gfx->setDashedLines(TRUE);
+    if ( state->pen.style() != NoPen ) {
+	d->gfx->drawLine(x,y,x+(w-1),y);
+	d->gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
+	d->gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
+	d->gfx->drawLine(x,y,x,y+(h-1));
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+//###?????    gfx->fillRect(x,y,w,h);
+
+    d->gfx->setDashedLines(FALSE);
+
+//     setRasterOp( old_rop );
+//     setPen( old_pen );
+//     setBrush( old_brush );
 }
 void QWSGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd){
     qDebug("QWSGC::drawRoundRect");
 }
-void QWSGC::drawEllipse(int x, int y, int w, int h){
-    qDebug("QWSGC::drawEllipse");
+
+
+void QWSGC::drawPolyInternal( const QPointArray &a, bool close )
+{
+    if ( a.size() < 2 || !d->gfx )
+	return;
+
+    int x1, y1, x2, y2;				// connect last to first point
+    a.point( a.size()-1, &x1, &y1 );
+    a.point( 0, &x2, &y2 );
+    bool do_close = close && !(x1 == x2 && y1 == y2);
+
+    if ( close && state->brush.style() != NoBrush ) {	// draw filled polygon
+	d->gfx->drawPolygon(a,FALSE,0,a.size());
+	if ( state->pen.style() == NoPen ) {		// draw fake outline
+	    d->gfx->drawPolyline(a,0,a.size());
+	    if ( do_close )
+		d->gfx->drawLine(x1,y1,x2,y2);
+	}
+    }
+    if ( state->pen.style() != NoPen ) {		// draw outline
+	d->gfx->drawPolyline(a,0,a.size());
+	if ( do_close )
+	    d->gfx->drawLine(x1,y1,x2,y2);
+    }
+}
+
+
+
+
+void QWSGC::drawEllipse(int x, int y, int w, int h)
+{
+//    qDebug("QWSGC::drawEllipse");
+
+    if ( !isActive() )
+	return;
+    QPointArray a;
+// #ifndef QT_NO_TRANSFORMATIONS
+//     a.makeArc( x, y, w, h, 0, 360*16, xmat );
+//     a.translate(-redirection_offset);
+// #else
+//     map( x, y, &x, &y );
+    a.makeEllipse(x, y, w, h);
+//#endif
+/*###########
+    QPen oldpen=pen();
+    QPen tmppen=oldpen;
+    tmppen.setJoinStyle(BevelJoin);
+    setPen(tmppen);
+*/
+    drawPolyInternal( a );
 }
 void QWSGC::drawArc(int x, int y, int w, int h, int a, int alen){
     qDebug("QWSGC::drawArc");
 }
 void QWSGC::drawPie(int x, int y, int w, int h, int a, int alen){
-    qDebug("QWSGC::drawPie");
+    //qDebug("QWSGC::drawPie");
+    if ( !isActive() )
+	return;
+    if ( a > (360*16) ) {
+	a = a % (360*16);
+    } else if ( a < 0 ) {
+	a = a % (360*16);
+	if ( a < 0 ) a += (360*16);
+    }
+    QPointArray pa;
+// #ifndef QT_NO_TRANSFORMATIONS
+//     pa.makeArc( x, y, w, h, a, alen, xmat );	// arc polyline
+// #else
+//     map( x, y, &x, &y );
+    pa.makeArc( x, y, w, h, a, alen );		// arc polyline
+//#endif
+    int n = pa.size();
+    int cx, cy;
+// #ifndef QT_NO_TRANSFORMATIONS
+//     xmat.map(x+w/2, y+h/2, &cx, &cy);
+//#else
+    cx = x+w/2;
+    cy = y+h/2;
+//#endif
+    pa.resize( n+2 );
+    pa.setPoint( n, cx, cy );			// add legs
+    pa.setPoint( n+1, pa.at(0) );
+    drawPolyInternal( pa );
+
 }
 void QWSGC::drawChord(int x, int y, int w, int h, int a, int alen){
     qDebug("QWSGC::drawChord");
@@ -383,7 +508,7 @@ void QWSGC::drawLineSegments(const QPointArray &a, int index, int nlines)
 	int x1,y1,x2,y2;
 	a.point( index++, &x1, &y1 );
 	a.point( index++, &x2, &y2 );
-	//#### if ( cpen.style() != NoPen )
+	if ( state->pen.style() != NoPen )
 	    d->gfx->drawLine( x1, y1, x2, y2 );
     }
 }
@@ -397,11 +522,35 @@ void QWSGC::drawPolyline(const QPointArray &pa, int index, int npoints)
 	npoints = pa.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    //####### if ( cpen.style() != NoPen )
+    if ( state->pen.style() != NoPen )
 	d->gfx->drawPolyline( pa, index, npoints );
 }
 void QWSGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints){
-    qDebug("QWSGC::drawPolygon");
+    //   qDebug("QWSGC::drawPolygon");
+    if ( npoints < 0 )
+	npoints = pa.size() - index;
+    if ( index + npoints > (int)pa.size() )
+	npoints = pa.size() - index;
+    if ( !isActive() || npoints < 2 || index < 0 )
+	return;
+#if 0
+#ifndef QT_NO_TRANSFORMATIONS
+	bool tx = (txop != TxNone);
+#else
+	bool tx = xlatex || xlatey;
+#endif
+	if ( tx ) {
+	    pa = xForm( a, index, npoints );
+	    if ( pa.size() != a.size() ) {
+		index   = 0;
+		npoints = pa.size();
+	    }
+	    pa.translate(-redirection_offset);
+	}
+    }
+#endif
+    d->gfx->drawPolygon( pa, winding, index, npoints );
+
 }
 void QWSGC::drawConvexPolygon(const QPointArray &pa, int index, int npoints){
     qDebug("QWSGC::drawConvexPolygon");
