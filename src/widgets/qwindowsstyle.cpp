@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#15 $
 **
 ** Implementation of Windows-like style class
 **
@@ -735,7 +735,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
  */
 int QWindowsStyle::sliderLength() const
 {
-    return 9;
+    return 11;
 }
 
 /*!\reimp
@@ -745,14 +745,14 @@ void QWindowsStyle::drawSlider( QPainter *p,
 			     const QColorGroup &g,
 			     Orientation orient, bool tickAbove, bool tickBelow )
 {
-    // 3333330
-    // 3444410
-    // 3422210
-    // 3422210
-    // 3422210
-    // 3422210
-    // *34210*
-    // **340**
+    // 4444440
+    // 4333310
+    // 4322210
+    // 4322210
+    // 4322210
+    // 4322210
+    // *43210*
+    // **410**
     // ***0***
 
 
@@ -775,12 +775,6 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	return;
     }
 
-    QBrush oldBrush = p->brush();
-    p->setBrush( g.brush( QColorGroup::Button ) );
-    p->setPen( NoPen );
-    p->drawRect( x,y,w,h );
-    p->setBrush( oldBrush );
-
 
     enum  { SlUp, SlDown, SlLeft, SlRight } dir;
 
@@ -795,21 +789,42 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	else
 	    dir = SlRight;
 
+    QPointArray a;
+
+    int d;
     switch ( dir ) {
     case SlUp:
 	y1 = y1 + w/2;
+	d =  (w + 1) / 2 - 1;
+	a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d );
 	break;
     case SlDown:
 	y2 = y2 - w/2;
+	d =  (w + 1) / 2 - 1;
+	a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1 );
 	break;
     case SlLeft:
+	d =  (h + 1) / 2 - 1;
 	x1 = x1 + h/2;
+	a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
 	break;
     case SlRight:
+	d =  (h + 1) / 2 - 1;
 	x2 = x2 - h/2;
+	a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1 );
 	break;
     }
 
+    
+    QBrush oldBrush = p->brush();
+    p->setBrush( g.brush( QColorGroup::Button ) );
+    p->setPen( NoPen );
+    //p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+    p->drawPolygon( a );
+    p->setBrush( oldBrush );
+
+
+    
     if ( dir != SlUp ) {
 	p->setPen( c4 );
 	p->drawLine( x1, y1, x2, y1 );
@@ -835,50 +850,53 @@ void QWindowsStyle::drawSlider( QPainter *p,
 	p->drawLine( x1+1, y2-1, x2-1, y2-1 );
     }
 
-    int d;
     switch ( dir ) {
 	case SlUp:
 	    p->setPen( c4 );
-	    d =  (w + 1) / 2 - 1;
 	    p->drawLine( x1, y1, x1+d, y1-d);
 	    p->setPen( c0 );
 	    d = w - d - 1;
 	    p->drawLine( x2, y1, x2-d, y1-d);
-	    p->setPen( c1 );
 	    d--;
+	    p->setPen( c3 );
+	    p->drawLine( x1+1, y1, x1+1+d, y1-d );
+	    p->setPen( c1 );
 	    p->drawLine( x2-1, y1, x2-1-d, y1-d);
 	    break;
 	case SlDown:
 	    p->setPen( c4 );
-	    d =  (w + 1) / 2 - 1;
 	    p->drawLine( x1, y2, x1+d, y2+d);
 	    p->setPen( c0 );
 	    d = w - d - 1;
 	    p->drawLine( x2, y2, x2-d, y2+d);
-	    p->setPen( c1 );
 	    d--;
+	    p->setPen( c3 );
+	    p->drawLine( x1+1, y2, x1+1+d, y2+d );
+	    p->setPen( c1 );
 	    p->drawLine( x2-1, y2, x2-1-d, y2+d);
 	    break;
 	case SlLeft:
 	    p->setPen( c4 );
-	    d =  (h + 1) / 2 - 1;
 	    p->drawLine( x1, y1, x1-d, y1+d);
 	    p->setPen( c0 );
 	    d = h - d - 1;
 	    p->drawLine( x1, y2, x1-d, y2-d);
-	    p->setPen( c1 );
 	    d--;
+	    p->setPen( c3 );
+	    p->drawLine( x1, y1+1, x1-d, y1+1+d );
+	    p->setPen( c1 );
 	    p->drawLine( x1, y2-1, x1-d, y2-1-d);
 	    break;
 	case SlRight:
 	    p->setPen( c4 );
-	    d =  (h + 1) / 2 - 1;
 	    p->drawLine( x2, y1, x2+d, y1+d);
 	    p->setPen( c0 );
 	    d = h - d - 1;
 	    p->drawLine( x2, y2, x2+d, y2-d);
-	    p->setPen( c1 );
 	    d--;
+	    p->setPen( c3 );
+	    p->drawLine(  x2, y1+1, x2+d, y1+1+d );
+	    p->setPen( c1 );
 	    p->drawLine( x2, y2-1, x2+d, y2-1-d);
 	    break;
     }
