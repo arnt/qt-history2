@@ -1431,7 +1431,7 @@ for a in `cat .sorted.projects`; do
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
-    PIPE="$outpath/bin/qmake $QMAKE_ALL_ARGS $QMAKE_EXTRA_ARGS -o $N -qmakepath $CONF $a"
+    PIPE="$outpath/bin/qmake $QMAKE_ALL_ARGS $QMAKE_EXTRA_ARGS -o $N -path $CONF $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE
