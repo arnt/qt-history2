@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#30 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#31 $
 #
 # this is a massive hack, written very quickly
 #
@@ -618,7 +618,7 @@ sub printout {
 		}
 		$tail .= "</ul>\n";
 	    }
-	    $tail .= "<address>\n<a href=mailto:agulbra\@troll.no>Arnt Gulbrandsen</a>, <a href=mailto:all\@troll.no>Troll Tech AS</a>\n</address>\n</body></html>";
+	    $tail .= "<address>\nGenerated at " . $date . " by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>";
 
 	    print O "<html><head>\n<title>Qt toolkit - ", 
 	    $name{$url}, 
@@ -745,7 +745,8 @@ sub printout {
 	    $_ = $def{$url};
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
-	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+#	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+	    s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
 	    print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
 	}
     }
@@ -773,7 +774,7 @@ EOHEAD
     print O <<EOTAIL
 </ul>
 <address>
-<a href=mailto:agulbra\@troll.no>Arnt Gulbrandsen</a>, <a href=mailto:all\@troll.no>Troll Tech AS</a>
+Generated at $date by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>
 </address>
 </body></html>
 EOTAIL
@@ -789,6 +790,9 @@ $internal = 1;
 foreach $arg ( 0..$#ARGV ) {
     &readc($ARGV[$arg]);
 }
+
+($j, $min, $hour, $mday, $mon, $year) = localtime(time);
+$date = sprintf("%02d:%02d, %d/%d/%d", $hour, $min, $mday, 1+$mon, 1900+$year);
 
 &makenames();
 &makearglinks();
