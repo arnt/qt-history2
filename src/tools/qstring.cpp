@@ -3667,6 +3667,8 @@ QString &QString::sprintf( const char* cformat, ... )
 		    subst.setUnicodeCodes(buff, ch - buff);
 		} else
 	    	    subst = va_arg(ap, const char*);
+		if (precision != -1)
+		    subst.truncate(precision);
 		++c;
 		break;
 	    }
