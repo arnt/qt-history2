@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#150 $
 **
 ** Implementation of QListView widget class
 **
@@ -29,7 +29,7 @@
 #include "qlist.h"
 #include "qstrlist.h"
 #include "qapplication.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qkeycode.h"
 #include "qdatetime.h"
 #include "qptrdict.h"
@@ -40,6 +40,16 @@
 
 const int Unsorted = 16383;
 
+static QBitmap * verticalLine = 0;
+static QBitmap * horizontalLine = 0;
+
+static void cleanupBitmapLines()
+{
+    delete verticalLine;
+    delete horizontalLine;
+    verticalLine = 0;
+    horizontalLine = 0;
+}
 
 struct QListViewPrivate
 {
@@ -706,7 +716,6 @@ void QListViewItem::setOpen( bool o )
     if ( !open )
 	return;
     enforceSortOrder();
-
 }
 
 
@@ -1119,38 +1128,37 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     while ( child && y < h ) {
 	linebot = y + child->height()/2;
 	if ( child->expandable || child->childCount() ) {
+	    // needs a box
+	    p->setPen( cg.dark() );
+	    p->drawRect( bx-4, linebot-4, 9, 9 );
+	    p->setPen( cg.foreground() ); // ### windows uses black
 	    if ( s == WindowsStyle ) {
-		// needs a box
-		p->setPen( cg.dark() );
-		p->drawRect( bx-4, linebot-4, 9, 9 );
 		// plus or minus
-		p->setPen( cg.foreground() ); // ### windows uses black
 		p->drawLine( bx - 2, linebot, bx + 2, linebot );
 		if ( !child->isOpen() )
 		    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
-		// dotlinery
-		dotlines[c++] = QPoint( bx, linetop );
-		dotlines[c++] = QPoint( bx, linebot - 5 );
-		dotlines[c++] = QPoint( bx + 6, linebot );
-		dotlines[c++] = QPoint( w, linebot );
-		linebot += 6;
-		linetop = linebot;
 	    } else {
-		int x = bx - 4;
-		int y = linebot - 4;
-		int d = 9;
 		QPointArray a;
-		if ( child->isOpen() ) {
-		    // DownArrow
-		    a.setPoints( 3, x, y, x+d, y, x+d/2, y+d );
-		} else {
-		    //RightArrow
-		    a.setPoints( 3, x, y, x, y+d, x+d, y+d/2 );
-		}
-		p->setPen( cg.foreground() );
+		if ( child->isOpen() )
+		    a.setPoints( 3, bx-2, linebot-2,
+				 bx, linebot+2,
+				 bx+2, linebot-2 ); //RightArrow
+		else
+		    a.setPoints( 3, bx-2, linebot-2,
+				 bx+2, linebot,
+				 bx-2, linebot+2 ); //DownArrow
+		p->setBrush( cg.foreground() );
 		p->drawPolygon( a );
+		p->setBrush( NoBrush );
 	    }
-	} else if ( s == WindowsStyle ) {
+	    // dotlinery
+	    dotlines[c++] = QPoint( bx, linetop );
+	    dotlines[c++] = QPoint( bx, linebot - 5 );
+	    dotlines[c++] = QPoint( bx + 6, linebot );
+	    dotlines[c++] = QPoint( w, linebot );
+	    linebot += 6;
+	    linetop = linebot;
+	} else {
 	    // just dotlinery
 	    dotlines[c++] = QPoint( bx + 2, linebot ); // ### +2? +1?
 	    dotlines[c++] = QPoint( w, linebot );
@@ -1168,20 +1176,35 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	dotlines[c++] = QPoint( bx, linebot );
     }
 
+    p->setPen( cg.dark() );
     if ( s == WindowsStyle ) {
-	// this could be done much faster on X11, but not on Windows.
-	// oh well.  do it the hard way.
-
-	// thought: keep around a 64*1 and a 1*64 bitmap such that
-	// drawPixmap'ing them is equivalent to drawing a horizontal
-	// or vertical line with the appropriate pen.
-	
-	QPointArray dots( (h+4)/2 + (childCount()*w+3)/4 );
-	// at most one dot for every second y coordinate, plus the
-	// spillover at the top.  at most dot for every second x
-	// coordinate for half of the width for every child.  both
-	// divisions must be rounded up to the nearest integer.
-	int i = 0; // index into dots
+	if ( !verticalLine ) {
+	    // make 128*1 and 1*128 bitmaps that can be used for
+	    // drawing the right sort of lines.
+	    verticalLine = new QBitmap( 1, 128, TRUE );
+	    horizontalLine = new QBitmap( 128, 1, TRUE );
+	    QPointArray a( 64 );
+	    QPainter p;
+	    p.begin( verticalLine );
+	    int i;
+	    for( i=0; i<64; i++ )
+		a.setPoint( i, 0, i*2 );
+	    p.setPen( color1 );
+	    p.drawPoints( a );
+	    p.end();
+	    QApplication::flushX();
+	    verticalLine->setMask( *verticalLine );
+	    p.begin( horizontalLine );
+	    for( i=0; i<64; i++ )
+		a.setPoint( i, i*2, 0 );
+	    p.setPen( color1 );
+	    p.drawPoints( a );
+	    p.end();
+	    QApplication::flushX();
+	    horizontalLine->setMask( *horizontalLine );
+	    qAddPostRoutine( cleanupBitmapLines );
+	}
+	int i = 0; // misc
 	int line; // index into dotlines
 	int point; // relevant coordinate of current point
 	int end; // same coordinate of the end of the current line
@@ -1195,10 +1218,13 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		point = dotlines[line].x();
 		other = dotlines[line].y();
 		while( point < end ) {
-		    dots[i++] = QPoint( point, other );
-		    if ( (uint)i == dots.size() )
-			fatal( "fatal a %d %d %d %d", i, end, point, other );
-		    point += 2;
+		    i = (point | 127)+1;
+		    if ( i > end )
+			i = end;
+		    i -= point;
+		    p->drawPixmap( point, other, *horizontalLine,
+				   point%128, 0, i, 1 );
+		    point += i;
 		}
 	    } else {
 		end = dotlines[line+1].y();
@@ -1207,15 +1233,22 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		    point++;
 		other = dotlines[line].x();
 		while( point < end ) {
-		    dots[i++] = QPoint( other, point );
-		    if ( (uint)i == dots.size() )
-			fatal( "fatal b %d %d %d %d", i, end, point, other );
-		    point += 2;
+		    i = (point | 127)+1;
+		    if ( i > end )
+			i = end;
+		    i -= point;
+		    p->drawPixmap( other, point, *verticalLine,
+				   0, point%128, 1, i );
+		    point += i;
 		}
 	    }
 	}
-	p->setPen( cg.dark() );
-	p->drawPoints( dots, 0, i );
+    } else {
+	int line; // index into dotlines
+	for( line = 0; line < c; line += 2 ) {
+	    p->drawLine( dotlines[line].x(), dotlines[line].y(),
+			 dotlines[line+1].x(), dotlines[line+1].y() );
+	}
     }
 }
 
@@ -2937,7 +2970,7 @@ int QListView::itemMargin() const
 /*!  Reimplemented to let the list view items update themselves.  \a s
   is the new GUI style. */
 
-void QListView::setStyle( GUIStyle s )
+void QListView::setStyle( GUIStyle /* s */ )
 {
 //#####    d->h->setStyle( s );
 //#####    QScrollView::setStyle( s );
