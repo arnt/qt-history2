@@ -2379,14 +2379,14 @@ Qt::HANDLE QWidgetPrivate::macCGHandle(bool do_children)
 	Rect port_rect;
         CGrafPtr cgraf = GetWindowPort(static_cast<WindowPtr>(q->handle()));
 	GetPortBounds(cgraf, &port_rect);
-	CreateCGContextForPort(cgraf, const_cast<CGContextRef *>(reinterpret_cast<const CGContextRef *>(&q->cg_hd)));
+	CreateCGContextForPort(cgraf, reinterpret_cast<CGContextRef *>(&q->cg_hd));
         CGContextRef cgr = static_cast<CGContextRef>(q->cg_hd);
 	SyncCGContextOriginWithPort(cgr, cgraf);
 	CGContextTranslateCTM(cgr, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM(cgr, 1, -1);
     }
     qt_mac_clip_cg_handle(static_cast<CGContextRef>(q->cg_hd),
-                          const_cast<QWidgetPrivate *>(this)->clippedRegion(do_children),
+                          clippedRegion(do_children),
                           QPoint(0, 0), false);
     return q->cg_hd;
 }
