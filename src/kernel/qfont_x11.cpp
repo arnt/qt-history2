@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#38 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#38 $";
 #endif
 
 
@@ -309,14 +309,14 @@ void QFont::cacheStatistics()
 	debug("   [%s]",tmp->name.data());
 	++iter;
     }
-    debug("}");
+    debug( "}" );
 #endif
 }
 
 
 /*!
   \internal
-  Creates the default font.
+  Constructs a font object that refers to the default font.
 */
 
 QFont::QFont( bool )				// create default font
@@ -326,52 +326,14 @@ QFont::QFont( bool )				// create default font
     d->req.rawMode = TRUE;
 }
 
-/*!
-  Creates a font object that refers to the default font.
-*/
-
-QFont::QFont()
-{
-    d = defFont->d;
-    d->ref();
-}
-
-QFont::QFont( const char *family, int pointSize, int weight, bool italic )
-{
-    init();
-    d->req.family    = family;
-    d->req.pointSize = pointSize * 10;
-    d->req.weight    = weight;
-    d->req.italic    = italic;
-    d->xfd	     = 0;
-}
-
-QFont::QFont( QFontData *data )			// copies a font
-{
-    d  = new QFontData;
-    CHECK_PTR( d );
-    *d = *data;
-#if defined (DEBUG_FONT)
-    debug( "Copying font 1" );
-#endif
-    d->count = 1;		// reset the ref count that was copied above
-}
-
-QFont QFont::copy() const
-{
-#if defined (DEBUG_FONT)
-    debug( "Copying font in copy()" );
-#endif
-    return QFont( d );
-}
 
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->xfd is a valid pointer:
 
-#define DIRTY_FONT ( d->req.dirty || d->xfd->dirty() )
-#define DIRTY_METRICS ( f.d->req.dirty || f.d->xfd->dirty() )
+#define DIRTY_FONT	( d->req.dirty   || d->xfd->dirty() )
+#define DIRTY_METRICS	( f.d->req.dirty || f.d->xfd->dirty() )
 
-Font QFont::handle() const
+HANDLE QFont::handle() const
 {
     static Font last = 0;
     if ( DIRTY_FONT )
