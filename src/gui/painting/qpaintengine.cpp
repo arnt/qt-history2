@@ -475,7 +475,9 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (s->painter != state->painter) {
         setDirty(AllDirty);
     } else if (s != state) {
-        dirtyFlag = state->changeFlags;
+        // Update all changes since last save, even if not propagated to the painter yet.
+        // This will ensure that the painter state is always correct. ('=' is not enough!)
+        dirtyFlag |= state->changeFlags;
     } else {
         state->changeFlags |= dirtyFlag;
     }
