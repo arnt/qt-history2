@@ -217,13 +217,13 @@ void TabbedBrowser::init()
     closeTabButton->setEnabled(false);
 }
 
-void TabbedBrowser::setMimePath(QStringList lst)
+void TabbedBrowser::setMimePath(QStringList)
 {
     // ### FIXME
     //mimeSourceFactory->setFilePath(lst);
 }
 
-void TabbedBrowser::setMimeExtension(const QString &ext)
+void TabbedBrowser::setMimeExtension(const QString &)
 {
     /*
     mimeSourceFactory->setExtensionType(QLatin1String("html"), ext);
@@ -290,7 +290,7 @@ void TabbedBrowser::setLinkUnderline(bool uline)
     if(uline==tabLinkUnderline)
         return;
     tabLinkUnderline = uline;
-    int cnt = ui.tab->count();
+    //int cnt = ui.tab->count();
     /* ### FIXME
     for(int i=0; i<cnt; i++)
         ((QTextBrowser*) ui.tab->widget(i))->setLinkUnderline(tabLinkUnderline);
