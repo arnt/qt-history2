@@ -128,44 +128,251 @@ const QString::Null QString::null = QString::Null();
     \class QString
     \reentrant
 
-    \brief The QString class provides an abstraction of Unicode text
-    and the classic C '\\0'-terminated char array.
+    \brief The QString class provides a Unicode character string.
 
     \ingroup tools
     \ingroup shared
     \ingroup text
     \mainclass
+    \reentrant
 
-    ### Null
+    QString stores a string of 16-bit \l{QChar}s, where each QChar
+    stores one Unicode character. \l{Unicode} is an international
+    standard that supports most of the writing systems in use today.
+    It is a superset of ASCII and Latin-1 (ISO 8859-1), and all the
+    ASCII/Latin-1 characters are available at the same code
+    positions.
 
-        QT_NO_CAST_TO_ASCII
-        QT_NO_CAST_FROM_ASCII
+    Behind the scenes, QString uses \l{implicit sharing}
+    (copy-on-write) to reduce memory usage and avoid needless copying
+    of data. This also helps reducing the inherent overhead of
+    storing 16-bit characters instead of 8-bit characters.
 
+    In addition to QString, Qt also provides the QByteArray to store
+    raw bytes and traditional 8-bit '\\0'-terminated strings. For
+    most purposes, QString is the class you want to use. It is used
+    throughout the Qt API, and the Unicode support ensures that your
+    applications will be easy to translated if you at some point want
+    to expand your market. The two main cases where QByteArray is
+    appropriate are when you need to store raw binary data, and when
+    memory conservation is critical (e.g. with Qt/Embedded).
 
-    QString uses \link shclass.html implicit sharing\endlink, which
-    makes it very efficient and easy to use.
+    One way to initialize a QString is simply to pass a \c{const char
+    *} to its constructor. For example, the following code creates a
+    QString of size 5 containing the data "Hello":
+
+    \code
+        QString str = "Hello";
+    \endcode
+
+    QString converts the \c{const char *} data into Unicode using
+    fromAscii(). By default, fromAscii() treats character above 128
+    as Latin-1 characters, but this can be changed by calling
+    QTextCodec::setCodecForCStrings().
 
     In all of the QString methods that take \c {const char *}
     parameters, the \c {const char *} is interpreted as a classic
-    C-style '\\0'-terminated ASCII string. It is legal for the \c
-    {const char *} parameter to be 0. If the \c {const char *} is not
-    '\\0'-terminated, the results are undefined. If you need to pass a
-    QString to a function that requires a C '\\0'-terminated string use
-    ascii().
+    C-style '\\0'-terminated string. It is legal for the \c {const
+    char *} parameter to be 0.
+
+    You can also provide string data as an array of \l{QChar}s:
+
+    \code
+        static const QChar data[4] = { 0x0055, 0x006e, 0x10e3, 0x03a3 };
+        QString str(data, 4);
+    \endcode
+
+    QString makes a deep copy of the QChar data, so you can modify it
+    later without experiencing side effects. (If for performance
+    reasons you don't want to take a deep copy of the character data,
+    use QConstString instead.)
+
+    Another approach is to set the size of the string using resize()
+    and to initialize the data character per character. QString uses
+    0-based indexes, just like C++ arrays. To access the character at
+    a particular index position, you can use operator[](). On
+    non-const strings, operator[]() returns a reference to a
+    character that can be used on the left side of an assignment. For
+    example:
+
+    \code
+        QString str;
+        str.resize(4);
+        str[0] = QChar('U');
+        str[1] = QChar('n');
+        str[2] = QChar(0x10e3);
+        str[3] = QChar(0x03a3);
+    \endcode
+
+    For read-only access, an alternative syntax is to use at():
+
+    \code
+        for (int i = 0; i < str.size(); ++i) {
+            if (str.at(i) >= QChar('a') && str.at(i) <= QChar('f'))
+                cout << "Found character in range [a-f]" << endl;
+        }
+    \endcode
+
+    at() can be faster than operator[](), because it never causes a
+    \l{deep copy} to occur.
+
+    To extract many characters at a time, use left(), right(), or
+    mid().
+
+    A QString can embed '\\0' characters (QChar::null). The size()
+    function always returns the size of the whole string, including
+    embedded '\\0' bytes.
+
+    After a call to resize(), newly allocated characters have
+    undefined values. To set all the characters in the string to a
+    particular value, call fill().
+
+    QString provides dozens of overloads designed to make your life
+    easy. For example, if you want to compare a QString with a string
+    literal, you can write code like this and it will just work:
+
+    \code
+        if (str == "auto" || str == "extern"
+                || str == "static" || str == "register") {
+            ...
+        }
+    \endcode
+
+    You can also pass string literals to function that take a QString
+    an the QString(const char *) constructor will be invoked.
+    Likewise, you can pass a QString to a function that takes a
+    \c{const char *} and \l{operator const char *()} will be invoked.
+
+    QString provides the following basic functions for modifying the
+    character data: append(), prepend(), insert(), replace(), and
+    remove(). For example:
+
+    \code
+        QString str = "and";
+        str.prepend("rock ");           // str == "rock and"
+        str.append(" roll");            // str == "rock and roll"
+        str.replace(5, 3, "&");         // str == "rock & roll"
+    \endcode
+
+    The replace() and remove() functions' first two arguments are the
+    position from which to start erasing and the number of characters
+    that should be erased.
+
+    If you are building a QString gradually and know in advance
+    approximately how many bytes the QString will contain, you can
+    call reserve(), asking QString to preallocate a certain amount of
+    memory. You can also call capacity() to find out how much memory
+    QString actually allocated.
+
+    A frequent requirement is to remove whitespace characters from a
+    byte array ('\\n', '\\t', ' ', etc.). If you want to remove
+    whitespace from both ends of a QString, use trimmed(). If you
+    want to remove whitespace from both ends and replace multiple
+    consecutive whitespaces with a single space character within the
+    string, use simplified().
+
+    If you want to find all occurrences of a particular character or
+    substring in a QString, use indexOf() or lastIndexOf(). The
+    former searches forward starting from a given index position, the
+    latter searches backward. Both return the index position of the
+    character or substring if they find it; otherwise, they return -1.
+    For example, here's a typical loop that finds all occurrences of a
+    particular substring:
+
+    \code
+        QString str = "We must be <b>bold</b>, very <b>bold</b>";
+        int j = 0;
+        while ((j = str.indexOf("<b>", j)) != -1) {
+            cout << "Found <b> tag at index position " << j << endl;
+            ++j;
+        }
+    \endcode
+
+    If you simply want to check whether a QString contains a
+    particular character or substring, use contains(). If you want to
+    find out how many times a particular character or substring
+    occurs in the byte array, use count(). If you want to replace all
+    occurrences of a particular value with another, use one of the
+    two-parameter replace() overloads.
+
+    To obtain a pointer to the actual character data, call data() or
+    constData(). These functions return a pointer to the beginning of
+    the QChar data. The pointer is guaranteed to remain valid until a
+    non-const function is called on the QString.
 
     Lists of strings are handled by the QStringList class. You can
-    split a string into a list of strings using split(),
-    and join a list of strings into a single string with an optional
-    separator using QStringList::join(). You can obtain a list of
-    strings from a string list that contain a particular substring or
-    that match a particular \link qregexp.html regex\endlink using
-    QStringList::grep().
+    split a string into a list of strings using split(), and join a
+    list of strings into a single string with an optional separator
+    using QStringList::join(). You can obtain a list of strings from
+    a string list that contain a particular substring or that match a
+    particular QRegExp using QStringList::find().
+
+    \section1 Convertions between 8-bit strings and Unicode strings
+
+    QString provides the following four functions that return a
+    \c{const char *} version of the string: ascii(), latin1(),
+    utf8(), and local8Bit().
+
+    \list
+    \i ascii() returns an ASCII encoded 8-bit string.
+    \i latin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
+    \i utf8() returns a UTF-8 encoded 8-bit string. UTF-8 is a
+       superset of ASCII that supports the entire Unicode character
+       set through multibyte sequences.
+    \i local8Bit() returns an 8-bit string using the system's local
+       encoding.
+    \endlist
+
+    To convert from one of these encodings, QString provides
+    fromAscii(), fromLatin1(), fromUtf8(), and fromLocal8Bit(). Other
+    encodings are supported through QTextCodec.
+
+    As mentioned above, QString provides a lot of functions and
+    operators that make it easy to interoperate with \c{const char *}
+    strings. This functionaly is a two-edged sword: It makes QString
+    more convenient to use if all strings are ASCII or Latin-1, but
+    there is always the risk that an implicit conversion from or to
+    \c{const char *} is done using the wrong 8-bit encoding. To
+    minimize these risks, you can turn off these implicit conversions
+    by defining these two preprocessor symbols:
+
+    \list
+    \i \c QT_NO_CAST_FROM_ASCII disables automatic conversions from
+       ASCII to Unicode.
+    \i \c QT_NO_CAST_TO_ASCII disables automatic conversion from QString
+       to ASCII.
+    \endlist
+    
+    One way to define these prepocessor symbols globally for your
+    application is to add the following entry to your \l qmake .pro
+    file:
+
+    \code
+        DEFINES += QT_NO_CAST_FROM_ASCII \
+                   QT_NO_CAST_TO_ASCII
+    \endcode
+
+    You then need to explicitly call fromAscii(), fromLatin1(),
+    fromUtf8(), or fromLocal8Bit() to construct a QString from an
+    8-bit string, for example:
+
+    \code
+        QString url = QString::fromLatin1("http://www.unicode.org/");
+    \endcode
+
+    Similarly, you must call ascii(), latin1(), utf8(), or
+    local8Bit() explicitly to convert the QString to an 8-bit string.
+    (Other encodings are supported through QTextCodec.)
+
+    For string comparisons, a light-weight alternative is to
+    construct a QLatin1String. See the \l QLatin1String documentation
+    for details.
 
     \section1 Note for C programmers
 
-    Due to C++'s type system and the fact that QString is implicitly
-    shared, QStrings may be treated like ints or other simple base
-    types. For example:
+    Due to C++'s type system and the fact that QString is
+    \l{implicitly shared}, QStrings may be treated like \c{int}s or
+    other basic types. For example:
 
     \code
     QString boolToString(bool b)
@@ -179,30 +386,39 @@ const QString::Null QString::null = QString::Null();
     }
     \endcode
 
-    The variable, result, is an auto variable allocated on the stack.
-    When return is called, because we're returning by value, The copy
-    constructor is called and a copy of the string is returned. (No
-    actual copying takes place thanks to the implicit sharing, see
-    below.)
+    The variable, result, is a normal variable allocated on the
+    stack. When return is called, because we're returning by value,
+    The copy constructor is called and a copy of the string is
+    returned. (No actual copying takes place thanks to the implicit
+    sharing.)
 
-    Throughout Qt's source code you will encounter QString usages like
-    this:
+    \section1 Distinction between null and empty strings
+
+    For historical reasons, QString distinguishes between a null
+    string and an empty string. A \e null string is a string that is
+    initialized using QString's default constructor or by passing
+    (const char *)0 to the constructor. An \e empty string is any
+    string with size 0. A null string is always empty, but an empty
+    string isn't necessarily null:
+
     \code
-    QString func(const QString& input)
-    {
-        QString output = input;
-        // process output
-        return output;
-    }
+        QString().isNull();             // returns true
+        QString().isEmpty();            // returns true
+
+        QString("").isNull();           // returns false
+        QString("").isEmpty();          // returns true
+
+        QString("abc").isNull();        // returns false
+        QString("abc").isEmpty();       // returns false
     \endcode
 
-    The 'copying' of input to output is almost as fast as copying a
-    pointer because behind the scenes copying is achieved by
-    incrementing a reference count. QString (like all Qt's implicitly
-    shared classes) operates on a copy-on-write basis, only copying if
-    an instance is actually changed.
+    All functions except isNull() treat null strings the same as
+    empty strings. For example, ascii() returns a pointer to a '\\0'
+    character for a null string (\e not a null pointer), and
+    QString() compares equal to QString(""). We recommend that you
+    always use isEmpty() and avoid isNull().
 
-    \sa QChar QByteArray
+    \sa QConstString, QChar, QLatin1String, QByteArray
 */
 
 /*! \enum QString::CaseSensitivity
@@ -213,6 +429,8 @@ const QString::Null QString::null = QString::Null();
 
     \value CaseInsensitive The upper-case and lower-case versions of the same letter compare equal.
     \value CaseSensitive The upper-case and lower-case versions of the same letter are treated as different characters.
+
+    \sa QChar::toLower(), QChar::toUpper()
 */
 
 QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
@@ -461,10 +679,39 @@ void QString::free(Data *d)
 
     If \a size is greater than the current size, the string is
     extended to make it \a size characters long with the extra
-    characters added to the end. The new characters are unitialized.
+    characters added to the end. The new characters are uninitialized.
 
     If \a size is less than the current size, characters are removed
     from the end.
+
+    Example:
+    \code
+        QString str = "Hello world";
+        str.resize(5);
+        // str == "Hello"
+
+        str.resize(8);
+        // str == "Hello???" (where ? stands for any character)
+    \endcode
+
+    If you want to append a certain number of identical characters to
+    the string, use operator+=() as follows rather than resize():
+
+    \code
+        QString str = "Hello";
+        str += QString(10, 'X');
+        // str == "HelloXXXXXXXXXX"
+    \endcode
+
+    If you want to expand the string so that it reaches a certain
+    width and fill the new positions with a particular character, use
+    leftJustified():
+
+    \code
+        QString str = "Hello";
+        str = str.leftJustified(10, ' ');
+        // str == "Hello     "
+    \endcode
 
     \sa truncate(), reserve()
 */
