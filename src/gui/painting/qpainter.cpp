@@ -2734,7 +2734,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     else
         sy = sy % sh;
 
-    if ((d->state->VxF || d->state->WxF) && d->state->txop > TxScale
+    if ((d->state->VxF || d->state->WxF) && d->state->txop > TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
 	QImage img(w, h, 32);
 	img.setAlphaBuffer(true);
