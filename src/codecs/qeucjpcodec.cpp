@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qeucjpcodec.cpp#11 $
+** $Id: //depot/qt/main/src/codecs/qeucjpcodec.cpp#12 $
 **
 ** Implementation of QEucJpCodec class
 **
@@ -43,33 +43,35 @@
 
   \brief The QEucJpCodec class provides conversion to and from EUC-JP character sets.
 
-  The QEucJpCodec class subclasses QTextCodec to provide support for
-  EUC-JP, the main legacy encoding for UNIX machines in Japan.
+  More precisely, the QEucJpCodec class subclasses QTextCodec to
+  provide support for EUC-JP, the main legacy encoding for Unix
+  machines in Japan.
 
-  The environment variable \c UNICODEMAP_JP can be used to fine-tune how
-  QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
-  The QJpUnicodeConv documentation describes how to use this variable.
+  The environment variable UNICODEMAP_JP can be used to fine-tune
+  QJisCodec, QSjisCodec and QEucJpCodec. The \l QJisCodec
+  documentation describes how to use this variable.
 
-  It was largely written by Serika Kurusugawa, a.k.a. Junji Takagi, and
-  is included in Qt with the author's permission, and the grateful
-  thanks of the Trolltech team. Here is the copyright statement for
-  that code:
+  Most of the code here was written by Serika Kurusugawa,
+  a.k.a. Junji Takagi, and is included in Qt with the author's
+  permission and the grateful thanks of the Trolltech team. Here is
+  the copyright statement for that code:
 
   \legalese
 
-  Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
+  Copyright (c) 1999 Serika Kurusugawa. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
-  are met: <ol>
-  <li> Redistributions of source code must retain the above copyright
+  are met:
+  \list 1
+  \i Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
-  <li> Redistributions in binary form must reproduce the above copyright
+  \i Redistributions in binary form must reproduce the above copyright
      notice, this list of conditions and the following disclaimer in the
      documentation and/or other materials provided with the distribution.
-  </ol>
+  \endlist
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS".
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
   ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qjpunicode.cpp#9 $
+** $Id: //depot/qt/main/src/codecs/qjpunicode.cpp#10 $
 **
 ** Implementation of QJpUnicodeConv class
 **
@@ -40,83 +40,7 @@
   \brief The QJpUnicodeConv class provides implementation support for
   QJisCodec, QSjisCodec, and QEucJpCodec.
 
-  You should not need to use this class directly; the codecs mentioned
-  above provide much more useful APIs.
-
-  The environment variable \c UNICODEMAP_JP can be used to fine-tune the
-  way QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
-  The mapping names are as for the Japanese XML working group's <a
-  href="http://www.y-adagio.com/public/standards/tr_xml_jpf/toc.htm"> XML
-  Japanese Profile</a>, because it names and explains all the widely used
-  mappings. Here are brief descriptions, written by Serika Kurusugawa:
-  <ul>
-
-  <li> "unicode-0.9" or "unicode-0201" for Unicode style. This assumes
-  JISX0201 for 0x00-0x7f. (0.9 is a table version of jisx02xx mapping
-  used for Uniocde spec version 1.1.)
-
-  <li> "unicode-ascii" This assumes US-ASCII for 0x00-0x7f; some
-  chars (JISX0208 0x2140 and JISX0212 0x2237) are different from
-  Unicode 1.1 to avoid conflict.
-
-  <li> "open-19970715-0201" ("open-0201" for convenience) or
-  "jisx0221-1995" for JISX0221-JISX0201 style. JIS X 0221 is JIS
-  version of Unicode, but a few chars (0x5c, 0x7e, 0x2140, 0x216f,
-  0x2131) are different from Unicode 1.1. This is used when 0x5c is
-  treated as YEN SIGN.
-
-  <li> "open-19970715-ascii" ("open-ascii" for convenience) for
-  JISX0221-ASCII style. This is used when 0x5c is treated as REVERSE
-  SOLIDUS.
-
-  <li> "open-19970715-ms" ("open-ms" for convenience) or "cp932" for
-  Microsoft Windows style. Windows Code Page 932. Some chars (0x2140,
-  0x2141, 0x2142, 0x215d, 0x2171, 0x2172) are different from Unicode
-  1.1.
-
-  <li> "jdk1.1.7" for Sun's JDK style. Same as Unicode 1.1, except that
-  JIS 0x2140 is mapped to UFF3C. Either ASCII or JISX0201 can be used
-  for 0x00-0x7f.
-
-  </ul> In addition, QJpUnicodeConv supports some extensions:
-  "nec-vdc", "ibm-vdc" or "udc".
-
-  For example, if you want to use Unicode style conversion but with
-  NEC's extension, set \c UNICODEMAP_JP to
-  <nobr><code>unicode-0.9, nec-vdc</code>.</nobr> (You will probably
-  need to quote that in the shell command.)
-
-  Most of the code here was originally written by Serika Kurusugawa,
-  a.k.a. Junji Takagi, and is included in Qt with the author's
-  permission and the grateful thanks of the Trolltech team. Here is
-  the copyright statement for that code:
-
-  \legalese
-
-  Copyright (c) 1999 Serika Kurusugawa. All rights reserved.
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met: <ol>
-  <li> Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-  <li> Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-  </ol>
-
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS".
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-  ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-  SUCH DAMAGE.
-
+  \internal
 */
 
 #include "qcstring.h"
