@@ -2257,19 +2257,22 @@ QPixmap QMacStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
     case PT_Disabled: {
 	QImage img;
 	img = pixmap;
-	int h, s, v;
-	QColor hsvColor;
+	QRgb pixel;
 	for(int y = 0; y < img.height(); y++) {
 	    for(int x = 0; x < img.width(); x++) {
-		QColor(img.pixel(x, y)).getHsv(&h, &s, &v);
+		pixel = img.pixel(x, y);
 		if(pixmaptype == PT_Pressed) {
+		    QColor hsvColor(pixel);
+		    int h, s, v;
+		    hsvColor.getHsv(&h, &s, &v);
 		    s = (s / 2);
 		    v = (v / 2) + 117; //a little less than half 128 (ie 0xFF/2)
+		    hsvColor.setHsv(h, s, v);
+		    pixel = hsvColor.rgb();
 		} else if(pixmaptype == PT_Disabled) {
-		    s = (s / 2);
+		    pixel = qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), qAlpha(pixel)/2);
 		}
-		hsvColor.setHsv(h, s, v);
-		img.setPixel(x, y, hsvColor.rgb());
+		img.setPixel(x, y, pixel);
 	    }
 	}
 	QPixmap ret(img);
