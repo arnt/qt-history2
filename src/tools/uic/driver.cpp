@@ -162,7 +162,7 @@ bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)
     if (out) {
         m_output = out;
     } else {
-        m_output = new QTextStream(stdout, IO_WriteOnly);
+        m_output = new QTextStream(stdout, QIODevice::WriteOnly);
         deleteOutput = true;
     }
 
@@ -181,10 +181,10 @@ bool Driver::uic(const QString &fileName, QTextStream *out)
 {
     QFile f;
     if (fileName.isEmpty())
-        f.open(IO_ReadOnly, stdin);
+        f.open(QIODevice::ReadOnly, stdin);
     else {
         f.setFileName(fileName);
-        if (!f.open(IO_ReadOnly))
+        if (!f.open(QIODevice::ReadOnly))
             return false;
     }
 
@@ -196,7 +196,7 @@ bool Driver::uic(const QString &fileName, QTextStream *out)
     if (out) {
         m_output = out;
     } else {
-        m_output = new QTextStream(stdout, IO_WriteOnly);
+        m_output = new QTextStream(stdout, QIODevice::WriteOnly);
         deleteOutput = true;
     }
 

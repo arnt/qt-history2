@@ -41,7 +41,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
 
     //read the resource
     QFile in(resource);
-    if(!in.open(IO_ReadOnly)) {
+    if(!in.open(QIODevice::ReadOnly)) {
         fprintf(stderr, "Unable to open %s", resource.latin1());
         return false;
     }
@@ -105,7 +105,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
             for(int file = 0; file < files.count(); file++) {
                 //process this resource
                 QFile inputQFile(files[file].fileinfo.filePath());
-                if (!inputQFile.open(IO_ReadOnly)) {
+                if (!inputQFile.open(QIODevice::ReadOnly)) {
                     qWarning("Could not open file '%s'", inputQFile.fileName().latin1());
                     continue;
                 }

@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     QFile f;
     if (driver.option().outputFile.size()) {
         f.setFileName(driver.option().outputFile);
-        if (!f.open(IO_WriteOnly)) {
+        if (!f.open(QIODevice::WriteOnly)) {
             fprintf(stderr, "Could not create output file\n");
             return 1;
         }
