@@ -58,7 +58,7 @@ static QString buddyString(const QWidget *widget)
     return QString();
 }
 
-static QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
+QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
 {
     if (text.isEmpty())
         return text;
@@ -80,7 +80,7 @@ static QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
     return str;
 }
 
-static QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
+QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
 {
     if (text.isEmpty())
         return text;
