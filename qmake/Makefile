@@ -10,9 +10,10 @@ QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring
 CFLAGS=/W3 /Zi /nologo /I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 	/DQT_NO_CODECS /DQT_NODLL /DUSE_GROSS_BIG_BUFFER_THING
 LFLAGS=/DEBUG
+LIBS=ole32.lib
 
 qmake: $(OBJS) $(QTOBJS)
-	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) 
+	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 	-copy qmake.exe $(QTDIR)\bin\qmake.exe
 
 clean::
