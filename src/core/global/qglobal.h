@@ -1308,6 +1308,12 @@ public:
     { return b ? static_cast<const void *>(this) : static_cast<const void *>(0); }
 };
 
+inline bool operator==(QBool b1, bool b2) { return !b1 == !b2; }
+inline bool operator==(bool b1, QBool b2) { return !b1 == !b2; }
+inline bool operator==(QBool b1, QBool b2) { return !b1 == !b2; }
+inline bool operator!=(QBool b1, bool b2) { return !b1 != !b2; }
+inline bool operator!=(bool b1, QBool b2) { return !b1 != !b2; }
+inline bool operator!=(QBool b1, QBool b2) { return !b1 != !b2; }
 
 /*
  compilers which follow outdated template instantiation rules
