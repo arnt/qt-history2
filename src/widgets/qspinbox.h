@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#30 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#31 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -57,7 +57,8 @@ public:
     virtual void 	setWrapping( bool on );
     bool 		wrapping() const;
 
-    virtual void	setValidator( QValidator* v );
+    virtual void	setValidator( const QValidator* v );
+    const QValidator * validator() const;
 
     QSize 		sizeHint() const;
     QSizePolicy 	sizePolicy() const;
@@ -104,7 +105,7 @@ private:
     QPushButton* up;
     QPushButton* down;
     QLineEdit* vi;
-    QValidator* validator;
+    QValidator* validate;
     QString pfix;
     QString sfix;
     QString specText;

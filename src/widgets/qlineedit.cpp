@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#176 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#177 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -47,7 +47,7 @@ struct QLineEditPrivate {
 
     bool frame;
     QLineEdit::EchoMode mode;
-    QValidator * validator;
+    const QValidator * validator;
     QPixmap * pm;
     bool pmDirty;
     QTimer blinkTimer;
@@ -369,7 +369,7 @@ void QLineEdit::setMaxLength( int m )
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
-	QValidator * v = validator();
+	const QValidator * v = validator();
 	if ( !v || v->validate( tbuf, cursorPos ) == QValidator::Acceptable ) {
 	    emit returnPressed();
 	} else if ( v ) {
@@ -1310,7 +1310,7 @@ QSizePolicy QLineEdit::sizePolicy() const
 */
 
 
-void QLineEdit::setValidator( QValidator * v )
+void QLineEdit::setValidator( const QValidator * v )
 {
     if ( v == d->validator )
 	return;
@@ -1324,7 +1324,7 @@ void QLineEdit::setValidator( QValidator * v )
   validator has been set.
 */
 
-QValidator * QLineEdit::validator() const
+const QValidator * QLineEdit::validator() const
 {
     return d ? d->validator : 0;
 }
@@ -1418,7 +1418,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     if ( t.length() > (uint)maxLength() )
 	t.truncate( maxLength() );
 
-    QValidator * v = validator();
+    const QValidator * v = validator();
 
     if ( v && v->validate( t, newPos ) == QValidator::Invalid &&
 	 v->validate( tbuf, cursorPos ) != QValidator::Invalid ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#60 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -137,12 +137,12 @@ void QSpinBox::initSpinBox()
     down->setFocusPolicy( QWidget::NoFocus );
     down->setAutoRepeat( TRUE );
 
-    validator = new QIntValidator( minValue(), maxValue(), this, "validator" );
+    validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
     vi = new QLineEdit( this, "line editor" );
     vi->setFrame( FALSE );
     setFocusProxy( vi );
     setFocusPolicy( StrongFocus );
-    vi->setValidator( validator );
+    vi->setValidator( validate );
     vi->installEventFilter( this );
 
     if ( style() == WindowsStyle )
@@ -623,8 +623,8 @@ void QSpinBox::valueChange()
 
 void QSpinBox::rangeChange()
 {
-    if ( validator->inherits( "QIntValidator" ) )
-	((QIntValidator*)validator)->setRange( minValue(), maxValue() );
+    if ( validate->inherits( "QIntValidator" ) )
+	((QIntValidator*)validate)->setRange( minValue(), maxValue() );
     updateDisplay();
 }
 
@@ -638,12 +638,23 @@ void QSpinBox::rangeChange()
   still be clamped to the range of the spinbox).
 */
 
-void QSpinBox::setValidator( QValidator* v )
+void QSpinBox::setValidator( const QValidator* v )
 {
     if ( vi )
 	vi->setValidator( v );
 }
 
+
+/*!  Returns the validator which constrains editing for this spin
+  box if there is any, or else 0.
+
+  \sa setValidator() QValidator
+*/
+
+const QValidator * QSpinBox::validator() const
+{
+    return vi ? vi->validator() : 0;
+}
 
 /*!
   Updates the contents of the embedded QLineEdit to reflect current

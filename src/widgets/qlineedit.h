@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#67 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#68 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -56,8 +56,8 @@ public:
     virtual void setEchoMode( EchoMode );
     EchoMode 	echoMode() const;
 
-    virtual void setValidator( QValidator * );
-    QValidator * validator() const;
+    virtual void setValidator( const QValidator * );
+    const QValidator * validator() const;
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;

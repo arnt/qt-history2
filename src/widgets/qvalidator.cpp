@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#27 $
 **
 ** Implementation of validator classes.
 **
@@ -60,7 +60,7 @@
   <li>For a line edit that accepts integers from 0 to 999 inclusive,
   42 and 666 are \c Acceptable, the empty string and 1114 are \c Valid
   and asdf is \c Invalid.
-  
+
   <li>For an editable combo box that accepts URLs, any well-formed URL
   is \c Acceptable, "http://www.troll.no/," is \c Valid (it can be a
   cut-and-paste job that accidentally took in a comma at the end), the
@@ -78,7 +78,7 @@
   currently valid, in case fixup() can do magic.  This allows some \c
   Invalid strings to be made \c Acceptable, too, spoiling the muddy
   definition above even more.
-  
+
   QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
 */
 
@@ -140,7 +140,7 @@ QValidator::~QValidator()
   is not in the list of known last names.
 */
 
-void QValidator::fixup( QString & input )
+void QValidator::fixup( QString & input ) const
 {
     // just be a little clever to the compiler won't complain
     if ( input.length() )
@@ -207,7 +207,7 @@ QIntValidator::~QIntValidator()
   Invalid if \a input is not an integer.
 */
 
-QValidator::State QIntValidator::validate( QString & input, int & )
+QValidator::State QIntValidator::validate( QString & input, int & ) const
 {
     QRegExp empty( "^ *-? *$" );
     if ( empty.match( input ) >= 0 )
@@ -320,7 +320,7 @@ QDoubleValidator::~QDoubleValidator()
   Invalid if \a input is not a number.
 */
 
-QValidator::State QDoubleValidator::validate( QString & input, int & )
+QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
     QRegExp empty( "^ *-? *$" );
     if ( empty.match( input ) >= 0 )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#63 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#64 $
 **
 ** Definition of QComboBox class
 **
@@ -71,7 +71,7 @@ public:
     virtual void	setAutoResize( bool );
     QSize	sizeHint() const;
     virtual QSizePolicy sizePolicy() const;
-    
+
     virtual void	setBackgroundColor( const QColor & );
     virtual void	setPalette( const QPalette & );
     virtual void	setFont( const QFont & );
@@ -91,8 +91,8 @@ public:
 
     virtual void	setStyle( GUIStyle );
 
-    virtual void	setValidator( QValidator * );
-    QValidator * validator() const;
+    virtual void	setValidator( const QValidator * );
+    const QValidator * validator() const;
 
     virtual void	setListBox( QListBox * );
     QListBox * 	listBox() const;

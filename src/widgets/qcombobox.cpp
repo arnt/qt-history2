@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#177 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#178 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1666,7 +1666,7 @@ void QComboBox::setEnabled( bool enable )
   \sa validator() clearValidator() QValidator
 */
 
-void QComboBox::setValidator( QValidator * v )
+void QComboBox::setValidator( const QValidator * v )
 {
     if ( d && d->ed )
 	d->ed->setValidator( v );
@@ -1679,7 +1679,7 @@ void QComboBox::setValidator( QValidator * v )
   \sa setValidator() clearValidator() QValidator
 */
 
-QValidator * QComboBox::validator() const
+const QValidator * QComboBox::validator() const
 {
     return d && d->ed ? d->ed->validator() : 0;
 }
