@@ -44,7 +44,7 @@
 #define QWS_TOUCHPANEL
 #endif
 
-#define QWS_ERICTOUCHPANEL
+//#define QWS_ERICTOUCHPANEL
 
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
                      Microsoft = 2, QVFBMouse = 3, TPanel = 4 };
