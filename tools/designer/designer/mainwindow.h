@@ -152,6 +152,7 @@ public slots:
     void updateProperties( QObject *w );
     void showDialogHelp();
     void showDebugStep( QObject *o, int line );
+    void finishedRun( QObject *o, int errorLine, const QString &errorMessage );
 
 signals:
     void currentToolChanged();

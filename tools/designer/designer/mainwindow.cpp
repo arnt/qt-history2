@@ -2247,8 +2247,10 @@ QObjectList *MainWindow::previewProject()
     if ( interpreterPluginManager ) {
 	QString lang = currentProject->language();
 	iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
-	if ( iiface )
+	if ( iiface ) {
 	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
+	    iiface->onFinish( this, SLOT( finishedRun( QObject *, int, const QString & ) ) );
+	}
     }
 
     QObjectList *l = new QObjectList;
@@ -4641,6 +4643,18 @@ void MainWindow::updateFunctionList()
 void MainWindow::showDebugStep( QObject *o, int line )
 {
     showSourceLine( o, line, FALSE );
+}
+
+void MainWindow::finishedRun( QObject *o, int errorLine, const QString &errorMessage )
+{
+    if ( o && errorLine != -1 ) {
+	QValueList<int> l;
+	l << errorLine;
+	QStringList l2;
+	l2 << errorMessage;
+	oWindow->setErrorMessages( l2, l, TRUE );
+	showSourceLine( o, errorLine, TRUE );
+    }
 }
 
 void MainWindow::showSourceLine( QObject *o, int line, bool error )
