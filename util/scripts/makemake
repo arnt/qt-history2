@@ -7,7 +7,8 @@ VERBOSE=
 LIST=
 SUBARGS=
 SYMLINKS=
-while [ -n "$1" ]
+UTILS="mergetr msg2qm"
+while [ -n "$2" ]
 do
     case "$1" in
        -v) VERBOSE=1
@@ -17,6 +18,12 @@ do
     esac
     shift
 done
+
+PLATFORM=$1
+if [ "$PLATFORM" = qws ]
+then
+    UTILS="$UTILS qvfb"
+fi
 
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
@@ -48,7 +55,7 @@ moc: .buildopts FORCE
 	-rm -f bin/moc
 	cp src/moc/moc bin/moc
 
-util: mergetr msg2qm
+util: $UTILS
 
 mergetr: src FORCE
 	cd src/util/mergetr; \$(MAKE)
@@ -57,6 +64,10 @@ mergetr: src FORCE
 msg2qm: src FORCE
 	cd src/util/msg2qm; \$(MAKE)
 	cp src/util/msg2qm/msg2qm bin/msg2qm
+
+qvfb: src FORCE
+	cd src/util/qvfb; \$(MAKE)
+	cp src/util/qvfb/qvfb bin/qvfb
 
 symlinks:
 	@cd include; rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
