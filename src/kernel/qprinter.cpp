@@ -652,6 +652,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 /*!
   \fn bool QPrinter::collateCopiesEnabled() const
 
+  \internal
+
   Returns TRUE if the application should provide the user with the
   option of choosing a collated printout; otherwise returns FALSE.
 
@@ -667,6 +669,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
 /*!
   \fn void QPrinter::setCollateCopiesEnabled(bool enable)
+
+  \internal
 
     If \a enable is TRUE (the default) the user is given the choice of
     whether to print out multiple copies collated in the print dialog.
@@ -685,6 +689,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 /*!
   \fn bool QPrinter::collateCopies() const
 
+  \internal
+
   Returns TRUE if collation is turned on when multiple copies is selected.
   Returns FALSE if it is turned off when multiple copies is selected.
 
@@ -692,6 +698,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 */
 
 /*!
+  \internal
+
   Sets the default value for collation checkbox when the print dialog appears.
   If \a on is TRUE, it will enable setCollateCopiesEnabled().
   The default value is FALSE.  This value will be changed by what the
