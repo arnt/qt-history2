@@ -25,7 +25,7 @@ QStringList AquaStyleInterface::featureList() const
 
 QStyle* AquaStyleInterface::create( const QString& style )
 {
-    if ( style == "aqua" )
+    if ( style == "Aqua" )
         return new QAquaStyle();
     return 0;
 }
