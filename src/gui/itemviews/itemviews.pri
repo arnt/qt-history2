@@ -2,6 +2,7 @@
 
 HEADERS += \
 	itemviews/qabstractitemview.h \
+        itemviews/qabstractitemview_p.h \
 	itemviews/qgenericheader.h \
 	itemviews/qgenericitemmodel.h \
 	itemviews/qgenericlistview.h \

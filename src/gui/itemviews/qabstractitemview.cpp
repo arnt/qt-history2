@@ -59,53 +59,27 @@ bool QItemViewDragObject::decode(QMimeSource *src) const
     return d->model->decode(src);
 }
 
-class QAbstractItemViewPrivate
+#include <private/qabstractitemview_p.h>
+#define d d_func()
+#define q q_func()
+
+QAbstractItemViewPrivate::QAbstractItemViewPrivate()
+    :   model(0),
+        delegate(0),
+//        sortColumn(-1),
+        layoutLock(false),
+        state(QAbstractItemView::NoState),
+        startEditActions(QItemDelegate::DoubleClicked|
+                        QItemDelegate::EditKeyPressed|
+                        QItemDelegate::AnyKeyPressed|
+                        QItemDelegate::CurrentChanged)
 {
-public:
-    QAbstractItemViewPrivate(QAbstractItemView *owner)
-	: q(owner),
-	  model(0),
-	  delegate(0),
-//	  sortColumn(-1),
-	  layoutLock(false),
-	  state(QAbstractItemView::NoState),
-	  startEditActions(QItemDelegate::DoubleClicked|
-			   QItemDelegate::EditKeyPressed|
-			   QItemDelegate::AnyKeyPressed|
-			   QItemDelegate::CurrentChanged) {}
+}
 
-    ~QAbstractItemViewPrivate() {}
+QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
+{
+}
 
-    inline bool shouldEdit(const QModelIndex &item, QItemDelegate::StartEditAction action)
-	{ return q->model()->isEditable(item) && (action & startEditActions); }
-
-    bool createEditor(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
-//     bool sendItemEvent(const QModelIndex &data, QEvent *event);
-//     QWidget *findPersistentEditor( const QModelIndexPtr &item ) const;
-//     void insertPersistentEditor( const QModelIndexPtr &item, QWidget *editor );
-
-    QAbstractItemView *q;
-    QGenericItemModel *model;
-    QGuardedPtr<QWidget> currentEditor;
-    QModelIndex editItem;
-    QItemDelegate *delegate;
-    QItemSelectionModelPointer selectionModel;
- //    QVector<int> sorting;
-//     int sortColumn;
-
-    // #### this datastructur is far to inefficient. We need a faster
-    // #### way to associate data with an item and look it up.
-    // use QHash<QGenericModelItenPtr, QWidget*>
-    //QList<QPair<QModelIndex, QWidget*> > persistentEditors;
-
-    bool layoutLock; // FIXME: this is because the layout will trigger resize events
-    QRect dragRect;
-    QAbstractItemView::State state;
-    QPoint cursorIndex;
-    int startEditActions;
-
-    QModelIndex root;
-};
 
 /*!
   \class QViewItem qgenericitemview.h
@@ -155,8 +129,7 @@ public:
 */
 
 QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QScrollView(parent, name),
-      d(new QAbstractItemViewPrivate(this))
+    : QScrollView(*new QAbstractItemViewPrivate, parent, name)
 {
     Q_ASSERT(model)
     setAttribute(WA_NoBackground);
@@ -187,7 +160,6 @@ QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent, 
 
 QAbstractItemView::~QAbstractItemView()
 {
-    delete d;
 }
 
 QGenericItemModel *QAbstractItemView::model() const
@@ -545,9 +517,9 @@ bool QAbstractItemView::eventFilter(QObject *o, QEvent *e)
     return QScrollView::eventFilter(o, e);
 }
 
-bool QAbstractItemView::event(QEvent *event)
+bool QAbstractItemView::event(QEvent *e)
 {
-    return false;
+    return QScrollView::event(e);
 }
 
 void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -624,7 +596,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
-    return d->selectionModel;
+    return const_cast<QItemSelectionModel *>(d->selectionModel.data());
 }
 
 void QAbstractItemView::selectionChanged(const QItemSelectionPointer &deselected,

@@ -13,9 +13,8 @@ class QAbstractItemViewPrivate;
 
 class Q_GUI_EXPORT QAbstractItemView : public QScrollView
 {
-    friend class QAbstractItemViewPrivate;
-
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QAbstractItemView);
 
 public:
 
@@ -136,9 +135,6 @@ protected:
 
 private slots:
     void fetchMore();
-
-private:
-    QAbstractItemViewPrivate *d;
 };
 
 class QItemViewDragObjectPrivate;
