@@ -14,6 +14,8 @@
 #ifndef QTOOLS_P_H
 #define QTOOLS_P_H
 
+#include <qglobal.h>
+
 //
 //  W A R N I N G
 //  -------------
