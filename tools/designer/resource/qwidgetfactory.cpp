@@ -83,7 +83,7 @@ QWidgetFactory::QWidgetFactory()
   This function also performs signal and slot connections, tab
   ordering, etc. as described in the ui file. Custom slots which are
   defined in the ui file are ignored.
-  
+
   If something fails, 0 is returned.
 
   The ownership of the returned widget is passed to the caller.
@@ -123,6 +123,10 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const c
 	widgetFactory->loadImageCollection( imageCollection );
 
     QWidget *w = widgetFactory->createWidgetInternal( firstWidget, parent, 0 );
+    if ( !w ) {
+	delete widgetFactory;
+	return 0;
+    }
     if ( w && name && qstrlen( name ) > 0 )
 	w->setName( name );
 
@@ -167,11 +171,11 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
   your custom widget, if \a className equals the name of your widget,
   otherwise return 0. Then at the beginning of your program where you
   want to use the widget factory to create widgets do a
-  
+
   \code
-  QWidgetFactory::addWidgetFactory( new MyWidgetFactory ); 
+  QWidgetFactory::addWidgetFactory( new MyWidgetFactory );
   \endcode
-  
+
   (where MyWidgetFactory is your QWidgetFactory subclass)
 
   </ul>
