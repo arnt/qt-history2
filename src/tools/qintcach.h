@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcach.h#4 $
+** $Id: //depot/qt/main/src/tools/qintcach.h#5 $
 **
 ** Definition of QIntCache template/macro class
 **
@@ -49,13 +49,15 @@ public:									      \
     bool  isEmpty()   const	      { return QGCache::count() == 0; }	      \
     bool  insert( long k, const type *d, long c=1, int p=0 )		      \
 			{ return QGCache::insert((const char*)k,(GCI)d,c,p); }\
-    bool  remove( long k )   { return QGCache::remove((const char*)k); }      \
-    type *take( long k )     { return (type *)QGCache::take((const char*)k); }\
+    bool  remove( long k )   { return QGCache::remove((const char *)k); }     \
+    type *take( long k )     { return (type *)QGCache::take((const char *)k);}\
     void  clear()		      { QGCache::clear(); }		      \
-    type *find( long k ) const{ return (type *)QGCache::find((const char*)k);}\
-    void  reference( const type *d ) const { QGCache::reference((GCI)d); }    \
+    type *reference( long k )						      \
+			{ return (type *)QGCache::reference((const char *)k);}\
+    type *find( long k ) const						      \
+			{ return (type *)QGCache::find( (const char *)k); }   \
     type *operator[]( long k ) const					      \
-			     { return (type *)QGCache::find((const char*)k);} \
+			{ return (type *)QGCache::find( (const char *)k); }   \
     void  statistics() const	      { QGCache::statistics(); }	      \
 private:								      \
     void  deleteItem( GCI d )	      { if ( del_item ) delete (type *)d; }   \
@@ -120,15 +122,16 @@ public:
     uint  size()      const  { return QGCache::size(); }
     bool  isEmpty()   const  { return QGCache::count() == 0; }
     bool  insert( long k, const type *d, long c=1, int p=0 )
-			 { return QGCache::insert((const char *)k,(GCI)d,c,p);}
+			{ return QGCache::insert((const char*)k,(GCI)d,c,p); }
     bool  remove( long k )   { return QGCache::remove((const char *)k); }
-    type *take( long k )     { return (type *)QGCache::take((const char *)k); }
-    void  clear()	     { QGCache::clear(); }
+    type *take( long k )     { return (type *)QGCache::take((const char *)k);}
+    void  clear()		      { QGCache::clear(); }
+    type *reference( long k )
+			{ return (type *)QGCache::reference((const char *)k);}
     type *find( long k ) const
-			     { return (type *)QGCache::find((const char *)k);}
-    void  reference( const type *d ) const { QGCache::reference((GCI)d); }
+			{ return (type *)QGCache::find( (const char *)k); }
     type *operator[]( long k ) const
-			     { return (type *)QGCache::find((const char *)k);}
+			{ return (type *)QGCache::find( (const char *)k); }
     void  statistics() const { QGCache::statistics(); }
 private:
     void  deleteItem( GCI d ){ if ( del_item ) delete (type *)d; }

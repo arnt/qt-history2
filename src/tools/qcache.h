@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#4 $
+** $Id: //depot/qt/main/src/tools/qcache.h#5 $
 **
 ** Definition of QCache template/macro class
 **
@@ -52,8 +52,8 @@ public:									      \
     bool  remove( const char *k )     { return QGCache::remove(k); }	      \
     type *take( const char *k )	      { return (type *)QGCache::take(k); }    \
     void  clear()		      { QGCache::clear(); }		      \
+    type *reference( const char *k )  { return (type *)QGCache::reference(k);}\
     type *find( const char *k ) const { return (type *)QGCache::find(k); }    \
-    void  reference( const type *d )  const { QGCache::reference((GCI)d); }   \
     type *operator[]( const char *k ) const				      \
 				      { return (type *)QGCache::find(k); }    \
     void  statistics() const	      { QGCache::statistics(); }	      \
@@ -125,8 +125,8 @@ public:
     bool  remove( const char *k )     { return QGCache::remove(k); }
     type *take( const char *k )	      { return (type *)QGCache::take(k); }
     void  clear()		      { QGCache::clear(); }
-    type *find( const char *k ) const { return (type *)QGCache::find(k);}
-    void  reference( const type *d ) const { QGCache::reference((GCI)d); }
+    type *reference( const char *k )  { return (type *)QGCache::reference(k);}
+    type *find( const char *k ) const { return (type *)QGCache::find(k); }
     type *operator[]( const char *k ) const
 				      { return (type *)QGCache::find(k);}
     void  statistics() const	      { QGCache::statistics(); }
