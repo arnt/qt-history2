@@ -1,4 +1,15 @@
-// Prototype preference dialog
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include <QtCore/QSettings>
 #include <QtGui/QHBoxLayout>
@@ -20,8 +31,12 @@ PreferenceDialog::PreferenceDialog(QWidget *parent)
     setWindowTitle(tr("Qt Designer Preferences"));
     PreferenceInterface *iface = new DesignerPreferences(this);
     m_preferences.append(iface);
+
+#if 0 // ### enable after beta 1
     iface = new PluginPreferences(this);
     m_preferences.append(iface);
+#endif
+
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QSplitter *splitter = new QSplitter(this);
     mainLayout->addWidget(splitter);
