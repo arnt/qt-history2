@@ -173,7 +173,7 @@ void QTextCursorPrivate::adjustCursor(int dir)
 	    int t_anchor_end = t_anchor->end().key();
 	    if (t_anchor_start >= t_position_start && t_anchor_end <= t_position_end) {
 		anchor_in_table = true;
-		if (t_position->cellStart(anchor).key() == t_position->cellStart(position).key())
+		if (t_position->cellStart(anchor) == t_position->cellStart(position))
 		    anchor_in_cell = true;
 	    }
 	}
@@ -199,7 +199,7 @@ void QTextCursorPrivate::adjustCursor(int dir)
 	    int t_position_end = t_position->end().key();
 	    if (t_position_start >= t_anchor_start && t_position_end <= t_anchor_end) {
 		position_in_table = true;
-		if (t_anchor->cellStart(anchor).key() == t_anchor->cellStart(position).key())
+		if (t_anchor->cellStart(anchor) == t_anchor->cellStart(position))
 		    position_in_cell = true;
 	    }
 	}
