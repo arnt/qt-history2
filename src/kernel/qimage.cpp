@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#80 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#80 $");
 
 
 /*!
@@ -924,6 +924,8 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   convert to big-endianness using convertBitOrder()) and it assumes
   that the pixel in the upper left corner is the background color (it
   would be better to have the four corner pixels vote).
+
+  This function disregards the alpha channel.
 */
 
 QImage QImage::maskGuess() const
@@ -933,6 +935,7 @@ QImage QImage::maskGuess() const
 	return convertDepth( 32 ).maskGuess();
 
     QImage m( width(), height(), 1, 0, QImage::LittleEndian );
+    // note - need to mask out alpha channel here
     QRgb background = *(QRgb *)scanLine(0);
     int x,y;
 
@@ -959,13 +962,10 @@ QImage QImage::maskGuess() const
 		       !(*(ypp + (x     >> 3)) & (1 << (x     & 7))) ||
 		       !(*(ypn + (x     >> 3)) & (1 << (x     & 7))) ) &&
 		     (	(*(ypc + (x     >> 3)) & (1 << (x     & 7))) ) &&
+		     // alpha channel here too
 		     ( (*((QRgb *)scanLine(y) + x)) == background ) ) {
 		    done = FALSE;
 		    *(ypc + (x >> 3)) &= ~(1 << (x & 7));
-		    debug( "masked %d, %d", x, y );
-		} else {
-		    debug( "%d,%d: %d (%d)", x, y,
-			   (*((QRgb *)scanLine(y) + x)), background );
 		}
 	    }
 	}
