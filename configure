@@ -1557,6 +1557,11 @@ then
 	echo "########################################################################" >>$mkfile
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX", >>$mkfile
+	grep "QMAKE_CFLAGS_QMAKE[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
+	if [  $DEBUG = "yes" ] 
+	then
+	    grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
+	fi
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
