@@ -727,12 +727,11 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 
     switch( metric ) {
     case PM_ButtonDefaultIndicator:
+	ret = 3;
+	break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
-#define Q_NICE_MOTIF_DEFAULT_BUTTON
-#ifdef Q_NICE_MOTIF_DEFAULT_BUTTON	
-	ret = 3;
-#endif	
+	ret = 0;
 	break;
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
@@ -783,6 +782,8 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 //     case
     default:
 	ret =  QCommonStyle::pixelMetric( metric, widget );
+	if ( metric == PM_DefaultFrameWidth )
+	    qDebug( "ret is %d", ret );
 	break;
     }
     return ret;
