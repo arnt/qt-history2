@@ -41,19 +41,17 @@ DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
 {
 }
 
-QUnknownInterface *DesignerInterfaceImpl::queryInterface( const QUuid &uuid )
+QRESULT DesignerInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QComponentInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_DesignerInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long DesignerInterfaceImpl::addRef()

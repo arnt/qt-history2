@@ -28,7 +28,7 @@ public:
     CommonInterface();
     virtual ~CommonInterface();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
     unsigned long release();
 
@@ -63,23 +63,21 @@ CommonInterface::~CommonInterface()
     prefIface->release();
 }
 
-QUnknownInterface *CommonInterface::queryInterface( const QUuid &uuid )
+QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     if ( uuid == IID_QComponentInterface )
-	iface = (QComponentInterface*)this;
+	*iface = (QComponentInterface*)this;
     else if ( uuid == IID_EditorInterface )
-	iface = editorIface;
+	*iface = editorIface;
     else if ( uuid == IID_LanguageInterface )
-	iface = langIface;
+	*iface = langIface;
     else if ( uuid == IID_PreferenceInterface )
-	iface = prefIface;
+	*iface = prefIface;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long CommonInterface::addRef()

@@ -46,7 +46,7 @@ public:
     void onProjectChange( QObject *receiver, const char *slot );
     void onFormChange( QObject *receiver, const char *slot );
 
-    QUnknownInterface *queryInterface( const QUuid &uuid );
+    QRESULT queryInterface( const QUuid &uuid, QUnknownInterface** iface );
     ulong addRef();
     ulong release();
 

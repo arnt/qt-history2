@@ -146,7 +146,8 @@ QStyle *QStyleFactory::create( const QString& s )
     if ( !instance )
 	instance = new QStyleFactoryPrivate;
 
-    QStyleInterface *iface = QStyleFactoryPrivate::manager->queryInterface( style );
+    QStyleInterface *iface = 0;
+    QStyleFactoryPrivate::manager->queryInterface( style, (QUnknownInterface**) &iface );
 
     if ( iface ) {
 	QStyle *st = iface->create( style );

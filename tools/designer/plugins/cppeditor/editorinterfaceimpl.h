@@ -36,7 +36,7 @@ public:
     EditorInterfaceImpl();
     virtual ~EditorInterfaceImpl();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
     unsigned long release();
 

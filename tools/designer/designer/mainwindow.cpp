@@ -1508,7 +1508,8 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 		    }
 		}
 
-		ImportFilterInterface* iface = manager.queryInterface( filter );
+		ImportFilterInterface* iface = 0;
+		manager.queryInterface( filter, (QUnknownInterface**)&iface );
 		if ( !iface ) {
 		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
 		    return;
@@ -1949,7 +1950,8 @@ void MainWindow::editSource( bool /*resetSame*/ )
 	}
     }
     if ( !editor ) {
-	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+	EditorInterface *eIface = 0;
+	editorPluginManager->queryInterface( lang, (QUnknownInterface**)&eIface );
 	if ( !eIface )
 	    return;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
@@ -1984,7 +1986,8 @@ void MainWindow::editSource( SourceFile *f )
 	}
     }
     if ( !editor ) {
-	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+	EditorInterface *eIface = 0;
+	editorPluginManager->queryInterface( lang, (QUnknownInterface**)&eIface );
 	if ( !eIface )
 	    return;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
@@ -2272,7 +2275,8 @@ QObjectList *MainWindow::runProject()
 	    w->hide();
 	    if ( programPluginManager ) {
 		QString lang = currentProject->language();
-		ProgramInterface *piface = (ProgramInterface*)programPluginManager->queryInterface( lang );
+		ProgramInterface *piface = 0;
+		programPluginManager->queryInterface( lang, (QUnknownInterface**)&piface);
 		if ( piface ) {
 		    QStringList error;
 		    QValueList<int> line;
@@ -2318,7 +2322,8 @@ QObjectList *MainWindow::runProject()
     InterpreterInterface *iiface = 0;
     if ( interpreterPluginManager ) {
 	QString lang = currentProject->language();
-	iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
+	iiface = 0;
+	interpreterPluginManager->queryInterface( lang, (QUnknownInterface**)&iiface );
 	if ( iiface ) {
 	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
 	    iiface->onShowError( this, SLOT( showErrorMessage( QObject *, int, const QString & ) ) );
@@ -4279,7 +4284,8 @@ void MainWindow::setupActionManager()
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator ait = lst.begin(); ait != lst.end(); ++ait ) {
-	ActionInterface *iface = actionPluginManager->queryInterface( *ait );
+	ActionInterface *iface = 0;
+	actionPluginManager->queryInterface( *ait, (QUnknownInterface**)&iface );
 	if ( !iface )
 	    continue;
 
@@ -4333,7 +4339,8 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
 	}
     }
     if ( !editor ) {
-	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+	EditorInterface *eIface = 0;
+	editorPluginManager->queryInterface( lang, (QUnknownInterface**)&eIface );
 	if ( !eIface )
 	    return;
 	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
@@ -4413,7 +4420,9 @@ void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
 
 TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& className )
 {
-    return templateWizardPluginManager->queryInterface( className );
+    TemplateWizardInterface* iface = 0;
+    templateWizardPluginManager->queryInterface( className, (QUnknownInterface**)& iface );
+    return iface;
 }
 
 void MainWindow::setupPluginManagers()
@@ -4466,7 +4475,8 @@ void MainWindow::setupPluginManagers()
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
 	for ( it = lst.begin(); it != lst.end(); ++it ) {
-	    PreferenceInterface *i = preferencePluginManager->queryInterface( *it );
+	    PreferenceInterface *i = 0;
+	    preferencePluginManager->queryInterface( *it, (QUnknownInterface**)&i );
 	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
@@ -4481,7 +4491,8 @@ void MainWindow::setupPluginManagers()
     if ( projectSettingsPluginManager ) {
 	QStringList lst = projectSettingsPluginManager->featureList();
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	    ProjectSettingsInterface *i = projectSettingsPluginManager->queryInterface( *it );
+	    ProjectSettingsInterface *i = 0;
+	    projectSettingsPluginManager->queryInterface( *it, (QUnknownInterface**)&i );
 	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
@@ -4615,7 +4626,8 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 {
     bool found = FALSE;
     QString lang = currentProject->language();
-    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+    EditorInterface *eiface = 0;
+    editorPluginManager->queryInterface( lang, (QUnknownInterface**)& eiface );
     QWidgetList windows = workspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
@@ -4717,7 +4729,8 @@ void MainWindow::breakPointsChanged()
     InterpreterInterface *iiface = 0;
     if ( interpreterPluginManager ) {
 	QString lang = currentProject->language();
-	iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
+	iiface = 0;
+	interpreterPluginManager->queryInterface( lang, (QUnknownInterface**)&iiface );
 	if ( !iiface )
 	    return;
     }

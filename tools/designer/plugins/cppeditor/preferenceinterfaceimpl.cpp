@@ -32,17 +32,15 @@ PreferenceInterfaceImpl::~PreferenceInterfaceImpl()
     delete cppEditorSyntax;
 }
 
-QUnknownInterface *PreferenceInterfaceImpl::queryInterface( const QUuid &uuid )
+QRESULT PreferenceInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_PreferenceInterface )
-	iface = (PreferenceInterface*)this;
+	*iface = (PreferenceInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long PreferenceInterfaceImpl::addRef()

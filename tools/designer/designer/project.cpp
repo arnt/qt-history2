@@ -933,12 +933,25 @@ void Project::updateCustomSettings()
 {
     if ( !projectSettingsPluginManager )
 	return;
-    ProjectSettingsInterface *iface = (ProjectSettingsInterface*)projectSettingsPluginManager->queryInterface( lang );
+    
+/*
+    ProjectSettingsInterface *iface = 0;
+    projectSettingsPluginManager->queryInterface( lang, (QUnknownInterface**)&iface );
     if ( !iface )
 	return;
     csList = iface->projectSettings();
-    customSettings.clear();
     iface->release();
+*/  
+    
+    QInterfacePtr<ProjectSettingsInterface> iface;
+    projectSettingsPluginManager->queryInterface( lang, &iface );
+    if ( !iface )
+	return;
+    csList = iface->projectSettings();
+    
+    
+    customSettings.clear();
+
 }
 
 void Project::saveImages()

@@ -15,18 +15,18 @@ struct MyInterfaceImpl : public MyInterface
 {
     MyInterfaceImpl():ref(0){}
     int ref;
-    
-    UUnknownInterface* queryInterface( const UUid& u )  { 
+
+    URESULT queryInterface( const UUid& u, UUnknownInterface** iface )  {
 	if ( u == IID_UUnknown || u == IID_UDispach ) {
 	    addRef();
-	    return this;
+	    iface = this;
 	}
-	return 0; 
+	iface = 0;
     }
-    
+
     unsigned long addRef() { return ++ref; }
     unsigned long release() { if ( --ref == 0 ) {delete this; return 0;} return ref; }
-    
+
     const UInterfaceDescription* interfaceDescription() const {
 	static const UParameter ParamGetXY[] = {
 	    { "x", pUType_int, 0, UParameter::InOut },
@@ -41,11 +41,11 @@ struct MyInterfaceImpl : public MyInterface
 	};
 	static const UMethod methods[] = {
 	    {"getXY", 2,  ParamGetXY},
-	    {"stringLength", 2,  ParamStringLength}, 
-	    {"increment", 1,  ParamIncrement} 
+	    {"stringLength", 2,  ParamStringLength},
+	    {"increment", 1,  ParamIncrement}
 	};
 	static const UInterfaceDescription interface = {
-	    3, methods, 
+	    3, methods,
 	    0, 0
 	};
 	return &interface;
@@ -57,14 +57,14 @@ struct MyInterfaceImpl : public MyInterface
 
     URESULT invoke( int id, UObject* o ) {
 	switch ( id ) {
-	case 0: 
-	    getXY( pUType_int->get(o+1), pUType_int->get(o+2) ); 
+	case 0:
+	    getXY( pUType_int->get(o+1), pUType_int->get(o+2) );
 	    break;
-	case 1: 
-	    pUType_int->set( o, stringLength(pUType_charstar->get(o+1)) ); 
+	case 1:
+	    pUType_int->set( o, stringLength(pUType_charstar->get(o+1)) );
 	    break;
-	case 2: 
-	    increment( pUType_int->get(o+1) ); 
+	case 2:
+	    increment( pUType_int->get(o+1) );
 	    break;
 	default:
 	    return URESULT_INVALID_ID;
@@ -73,21 +73,21 @@ struct MyInterfaceImpl : public MyInterface
     }
 
     void installListener( UDispatchInterface* listener ) {}
-    
+
     void removeListener( UDispatchInterface* listener ) {}
-    
+
     void getXY( int& x, int& y ) {
 	x = 42;
 	y = 21;
     }
-    
+
     int stringLength( const char* s ) {
 	int l = 0;
 	while ( *s++ )
 	    l++;
 	return l;
     }
-    
+
     void increment( int& i ) {
 	i++;
     }
@@ -98,17 +98,17 @@ static const UUid CID_ExampleComponent = // ### bogus fake number
 
 UComponentServerDescription* ucom_describe()
 {
-    
+
     static UUid Interfaces_ExampleComponent[] = {
 	IID_UUnknown,
 	IID_UDispach
     };
-    
+
     static UComponentDescription components[] = {
-	{ "Example Component", "Trolltech AS", "1.0", "An example component", 
+	{ "Example Component", "Trolltech AS", "1.0", "An example component",
 	  CID_ExampleComponent, 1, Interfaces_ExampleComponent }
     };
-    
+
     static UComponentServerDescription server = {
 	"Example Component Server",
 	"Trolltech AS",
@@ -117,11 +117,11 @@ UComponentServerDescription* ucom_describe()
 	1,
 	components,
     };
-    
+
     return &server;
 }
 
-UUnknownInterface* ucom_instantiate( const UUid& cid, const UUid& iid, UUnknownInterface* /*outerUnknown*/ ) 
+UUnknownInterface* ucom_instantiate( const UUid& cid, const UUid& iid, UUnknownInterface* /*outerUnknown*/ )
 {
     if ( cid == CID_ExampleComponent ) {
 	MyInterfaceImpl* impl = new MyInterfaceImpl;
@@ -136,17 +136,17 @@ int main( int /*argc*/, char** /*argv*/ )
 {
     MyInterfaceImpl impl;
     MyInterface* iface = &impl;
-    { 
+    {
 	UObject o[3];
 	iface->invoke( 0, o );
-	printf( "Invoke %s returns types %s/%s with value %d/%d\n", 
+	printf( "Invoke %s returns types %s/%s with value %d/%d\n",
 		iface->interfaceDescription()->methods[0].name,
 		iface->interfaceDescription()->methods[0].parameters[0].type->desc(),
 		iface->interfaceDescription()->methods[0].parameters[1].type->desc(),
 		pUType_int->get( o+1 ),
 		pUType_int->get( o+2 ) );
     }
-    
+
     const char* string = "13 characters";
     {
 	UObject o[2];
@@ -155,8 +155,8 @@ int main( int /*argc*/, char** /*argv*/ )
 	printf("The string '%s' has %d characters\n", string, pUType_int->get(o) );
 	
     }
-    
-    { 
+
+    {
 	UObject o[2];
 	pUType_int->set( o+1, 41 );
 	iface->invoke( 2, o );
@@ -165,7 +165,7 @@ int main( int /*argc*/, char** /*argv*/ )
 		pUType_int->get( o+1 ) );
     }
 
-    { 
+    {
 	UObject o[2];
 	pUType_double->set( o+1, 41.1 );
 	UType::check( o+1, iface->interfaceDescription()->methods[2].parameters[0].type );

@@ -427,7 +427,8 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 	    d->plugIns->addLibraryPath(*it + "/sqldrivers");
 	    it++;
 	}
-	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+	QSqlDriverInterface *iface = 0;
+	d->plugIns->queryInterface( type, (QUnknownInterface**)&iface );
 	if( iface ){
 	    d->driver = iface->create( type );
 	    iface->release();

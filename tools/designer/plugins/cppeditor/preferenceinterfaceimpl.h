@@ -30,7 +30,7 @@ public:
     PreferenceInterfaceImpl();
     virtual ~PreferenceInterfaceImpl();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
     unsigned long release();
 

@@ -28,7 +28,7 @@ class LanguageInterfaceImpl : public LanguageInterface
 public:
     LanguageInterfaceImpl();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
     unsigned long release();
 

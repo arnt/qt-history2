@@ -39,13 +39,11 @@
 #define QLIBRARY_H
 
 #ifndef QT_H
-#include "qstring.h"
+#include <qstring.h>
+#include <qcom.h>
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT
-
-struct QUnknownInterface;
-struct QUuid;
 
 class Q_EXPORT QLibrary
 {
@@ -59,8 +57,7 @@ public:
 
     QLibrary( const QString& filename, Policy = Delayed );
     ~QLibrary();
-
-    QUnknownInterface* createInstance();
+    
     void *resolve( const char* );
 
     bool unload( bool force = FALSE );
@@ -71,7 +68,7 @@ public:
 
     QString library() const;
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
 
 private:
     class Private;
@@ -79,6 +76,7 @@ private:
 
     QString libfile;
     Policy libPol;
+    void createInstanceInternal();
     QUnknownInterface *entry;
 
 private:	// Disabled copy constructor and operator=

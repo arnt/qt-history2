@@ -24,43 +24,42 @@
 */
 
 /*!
-  \fn QUnknownInterface* QUnknownInterface::queryInterface( const QUuid &request )
+  \fn QRESULT  QUnknownInterface::queryInterface( const QUuid &request, QUnknownInterface** iface )
 
-  Returns a pointer to an interface specified with \a request, or NULL if this interface 
+  Returns a pointer to an interface specified with \a request, or NULL if this interface
   can't provide the requested interface. An implementation of this function must call
   addRef() on the pointer it returns.
 
   Example:
   \code
-  QUnknownInterface *MyComponent::queryInterface( const QUuid &request )
+  QRESULT MyComponent::queryInterface( const QUuid &request, QUnknownInterface** iface )
   {
-      QUnknownInterface *iface = 0;
       if ( request == IID_QUnknownInterface )
-          return (QUnknownInterface*)this;
+          *iface = this;
       else if ( request == IID_... )
-	  return (...*)this;
+          *iface = (...*)this;
       ...
 
       if ( iface )
-          iface->addRef();
-      return iface;
+          *iface->addRef();
+     return #####;
   }
   \endcode
 
   There are five requirements for implementations of queryInterface:
   <ul>
   <li>Always the same QUnknownInterface
-  For any component, a query for the QUnknownInterface must always return the same pointer value to 
+  For any component, a query for the QUnknownInterface must always return the same pointer value to
   allow a client to determine whether two interfaces point to the same component.
   <li>Static set of interfaces
   The number of interfaces for which queryInterface returns a valid pointer must not change.
   <li>Reflexive
   If a client holding a pointer to one interface and queries for that interface, the call must succeed.
   <li>Symmetric
-  If a client holding a pointer to one interface and queries for another, a query through the obtained 
+  If a client holding a pointer to one interface and queries for another, a query through the obtained
   interface for the first interface must succeed.
   <li>Transitive
-  If a client holding a pointer to one interface queries successfully for a second, and queries that 
+  If a client holding a pointer to one interface queries successfully for a second, and queries that
   successfully for a third interface, a query for that third interface on the first interface must succeed.
   </ul>
 
@@ -81,8 +80,8 @@
   }
   \endcode
 
-  This function must be called when this interface is returned as a result of a 
-  queryInterface() call. It should be called for every new copy of a pointer to 
+  This function must be called when this interface is returned as a result of a
+  queryInterface() call. It should be called for every new copy of a pointer to
   this interface.
 
   \sa queryInterface(), release()
@@ -209,7 +208,7 @@
 /*!
   \fn bool QComponentServerInterface::registerComponents( const QString &filepath ) const
 
-  Registers the components in this server in the system registry and returns 
+  Registers the components in this server in the system registry and returns
   TRUE when successfull, otherwise returns FALSE. \a filepath is the absolut path
   to the shared library file.
 
@@ -220,7 +219,7 @@
   register.insertSearchPath( QSettings::Windows, "/Classes" );
   ok = register.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default", "Test Component" );
   ok = register.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default", filepath ) && ok;
-  
+
   return ok;
   \endcode
 */
@@ -228,7 +227,7 @@
 /*!
   \fn bool QComponentServerInterface::unregisterComponents() const
 
-  Removes the component in this server from the system registry and returns 
+  Removes the component in this server from the system registry and returns
   TRUE if successfull, otherwise returns FALSE.
 
   \code
@@ -238,7 +237,7 @@
   settings.insertSearchPath( QSettings::Windows, "/Classes" );
   ok = settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default" );
   ok = settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default" ) && ok;
-  
+
   return ok;
   \endcode
 */
@@ -258,8 +257,8 @@ QCleanupHandler< QLibrary > qt_component_server_cleanup;
 /*!
   Looks up the component identifier \a cid in the system registry, loads the corresponding
   component server and queries for the interface \a iid. The parameter \a outer is a pointer
-  to the outer interface used for containment and aggregation and is propagated to the 
-  \link QComponentFactoryInterface::createInstance createInstance \endlink implementation of 
+  to the outer interface used for containment and aggregation and is propagated to the
+  \link QComponentFactoryInterface::createInstance createInstance \endlink implementation of
   the QComponentFactoryInterface provided by the component server if provided.
   Returns the retrieved interface pointer, or NULL if there was an error.
 
@@ -273,10 +272,8 @@ QCleanupHandler< QLibrary > qt_component_server_cleanup;
   \endcode
 */
 
-QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer )
+QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer )
 {
-    QUnknownInterface *iface = 0;
-
     QSettings settings;
     bool ok;
 
@@ -288,20 +285,19 @@ QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QU
 	file = file.left( dot );
 
     if ( !ok )
-	return 0;
+	return;
 
     QLibrary *library = new QLibrary( file );
     qt_component_server_cleanup.add( library );
 
-    QComponentFactoryInterface *cfIface = (QComponentFactoryInterface *)library->queryInterface( IID_QComponentFactoryInterface );
+    QComponentFactoryInterface *cfIface =0;
+    library->queryInterface( IID_QComponentFactoryInterface, (QUnknownInterface**)&cfIface );
     if ( cfIface ) {
-	iface = cfIface->createInstance( iid, cid, outer );
+	cfIface->createInstance( iid, cid, instance, outer );
 	cfIface->release();
     } else {
-	iface = library->queryInterface( iid );
+	library->queryInterface( iid, instance );
     }
-
-    return iface;
 }
 
 /*!
@@ -312,7 +308,8 @@ QUnknownInterface *QComponentFactory::createInstance( const QUuid &cid, const QU
 bool QComponentFactory::registerServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
-    QComponentServerInterface *iface = (QComponentServerInterface*)lib.queryInterface( IID_QComponentServerInterface );
+    QComponentServerInterface *iface = 0;
+    lib.queryInterface( IID_QComponentServerInterface, (QUnknownInterface**)&iface );
     if ( !iface )
 	return FALSE;
     bool ok = iface->registerComponents( filename );
@@ -328,7 +325,8 @@ bool QComponentFactory::registerServer( const QString &filename )
 bool QComponentFactory::unregisterServer( const QString &filename )
 {
     QLibrary lib( filename, QLibrary::Immediately );
-    QComponentServerInterface *iface = (QComponentServerInterface*)lib.queryInterface( IID_QComponentServerInterface );
+    QComponentServerInterface *iface = 0;
+    lib.queryInterface( IID_QComponentServerInterface, (QUnknownInterface**)&iface );
     if ( !iface )
 	return FALSE;
     bool ok = iface->unregisterComponents();

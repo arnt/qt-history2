@@ -33,7 +33,7 @@ class StandardTemplateWizardInterface : public TemplateWizardInterface
 public:
     StandardTemplateWizardInterface();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
     unsigned long release();
 
@@ -84,21 +84,17 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
     }
 }
 
-QUnknownInterface *StandardTemplateWizardInterface::queryInterface( const QUuid& uuid )
+QRESULT StandardTemplateWizardInterface::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
-    QUnknownInterface *iface = 0;
-
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_TemplateWizardInterface )
-	iface = (TemplateWizardInterface*)this;
+	*iface = (TemplateWizardInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long StandardTemplateWizardInterface::addRef()

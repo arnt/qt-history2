@@ -103,17 +103,18 @@ public:
 
 	bool useful = FALSE;
 
-	Type* iFace = (Type*)plugin->queryInterface( interfaceId );
+	Type* iFace = 0;
+	plugin->queryInterface( interfaceId, (QUnknownInterface**) &iFace );
 	if ( iFace ) {
 	    QFeatureListInterface *fliFace = 0;
 	    QComponentInterface *cpiFace = 0;
-	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureListInterface );
+	    iFace->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace )
-		fliFace = (QFeatureListInterface*)plugin->queryInterface( IID_QFeatureListInterface );
+		plugin->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace ) {
-		cpiFace = (QComponentInterface*)iFace->queryInterface( IID_QComponentInterface );
+		iFace->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
 		if ( !cpiFace )
-		    cpiFace = (QComponentInterface*)plugin->queryInterface( IID_QComponentInterface );
+		    plugin->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
 	    }
 	    QStringList fl;
 	    if ( fliFace )
@@ -170,17 +171,18 @@ public:
 	    return FALSE;
 
 	// Unregister all features of this plugin
-	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
+	Type *iFace = 0;
+	plugin->queryInterface( interfaceId, (QUnknownInterface**)&iFace );
 	if ( iFace ) {
 	    QFeatureListInterface *fliFace = 0;
 	    QComponentInterface *cpiFace = 0;
-	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureListInterface );
+	    fliFace = (QFeatureListInterface*)iFace->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&iFace );
 	    if ( !fliFace )
-		fliFace = (QFeatureListInterface*)plugin->queryInterface( IID_QFeatureListInterface );
+		plugin->queryInterface( IID_QFeatureListInterface, (QUnknownInterface**)&fliFace );
 	    if ( !fliFace ) {
-		cpiFace = (QComponentInterface*)iFace->queryInterface( IID_QComponentInterface );
+		iFace->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
 		if ( !cpiFace )
-		    cpiFace = (QComponentInterface*)plugin->queryInterface( IID_QComponentInterface );
+		    plugin->queryInterface( IID_QComponentInterface, (QUnknownInterface**)&cpiFace );
 	    }
 	    QStringList fl;
 	    if ( fliFace )
@@ -258,11 +260,13 @@ public:
 	return 0;
     }
 
-    Type *queryInterface(const QString& feature) const
+    QRESULT queryInterface(const QString& feature, QUnknownInterface** iface) const
     {
-	QLibrary* plugin = library( feature );
+	QLibrary* plugin = 0;
+	plugin = library( feature );
 
-	return plugin ? (Type*)plugin->queryInterface( interfaceId ) : 0;
+	if ( plugin )
+	    plugin->queryInterface( interfaceId, iface );
     }
 
     QStringList featureList() const

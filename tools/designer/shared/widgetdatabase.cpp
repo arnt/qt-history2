@@ -505,7 +505,8 @@ void WidgetDatabase::setupDataBase()
 	if ( hasWidget( *it ) )
 	    continue;
 	r = new WidgetDatabaseRecord;
-	WidgetInterface *iface = widgetManager()->queryInterface( *it );
+	WidgetInterface *iface = 0;
+	widgetManager()->queryInterface( *it, (QUnknownInterface**) &iface );
 	if ( !iface )
 	    continue;
 

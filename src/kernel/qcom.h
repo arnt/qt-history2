@@ -11,6 +11,8 @@
 class QLibrary;
 class QObject;
 
+#define QRESULT void
+
 // {1D8518CD-E8F5-4366-99E8-879FD7E482DE}
 #ifndef IID_QUnknownInterface
 #define IID_QUnknownInterface QUuid(0x1d8518cd, 0xe8f5, 0x4366, 0x99, 0xe8, 0x87, 0x9f, 0xd7, 0xe4, 0x82, 0xde)
@@ -18,10 +20,70 @@ class QObject;
 
 struct Q_EXPORT QUnknownInterface
 {
-    virtual QUnknownInterface* queryInterface( const QUuid& ) = 0;
+    virtual QRESULT queryInterface( const QUuid&, QUnknownInterface** ) = 0;
     virtual ulong   addRef() = 0;
     virtual ulong   release() = 0;
 };
+
+template <class T> class Q_EXPORT QInterfacePtr
+{
+public:
+    QInterfacePtr():iface(0){}
+    
+    QInterfacePtr( T* i) {
+	if ( (iface = i) )
+	    iface->addRef();
+    }
+
+    QInterfacePtr(const QInterfacePtr<T> &p) {
+	if ( (iface = p.iface) )
+	    iface->addRef();
+    }
+
+    ~QInterfacePtr() {
+	if ( iface )
+	    iface->release();
+    }
+
+    QInterfacePtr<T> &operator=(const QInterfacePtr<T> &p) {
+	if ( iface != p.iface ) {
+	    if ( iface )
+		iface->release();
+	    if ( (iface = p.iface) )
+		iface->addRef();
+	}
+	return *this;
+    }
+
+    QInterfacePtr<T> &operator=(T* i) {
+	if (iface != i ) {
+	    if ( iface )
+		iface->release();
+	    if ( (iface = i) )
+		iface->addRef();
+	}
+	return *this;
+    }
+
+    bool operator==( const QInterfacePtr<T> &p ) const { return iface == p.iface; }
+
+    bool operator!= ( const QInterfacePtr<T>& p ) const {  return !( *this == p ); }
+
+    bool isNull() const { return !iface; } 
+
+    T* operator->() const { return (T*) iface; }
+
+    T& operator*() const { return *iface; }
+
+    operator T*() const { return iface; }
+
+    QUnknownInterface** operator &() const { return (QUnknownInterface**)&iface; }
+
+private:
+    T* iface;
+};
+
+
 
 
 //####### WARNING: uuid is fake right now
@@ -55,7 +117,7 @@ struct Q_EXPORT QComponentInterface : public QUnknownInterface
 
 struct Q_EXPORT QComponentFactoryInterface : public QUnknownInterface
 {
-    virtual QUnknownInterface	*createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer ) = 0;
+    virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer ) = 0;
 };
 
 // {D16111D4-E1E7-4C47-8599-24483DAE2E07}
@@ -104,15 +166,17 @@ struct Q_EXPORT QInterfaceListInterface
 class Q_EXPORT QComponentFactory
 {
 public:
-    static QUnknownInterface *createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface *outer );
+    static QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer );
     static bool registerServer( const QString &filename );
     static bool unregisterServer( const QString &filename );
 };
 
 #ifndef Q_CREATE_INSTANCE
     #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	IMPLEMENTATION *i = new IMPLEMENTATION;		\
-	return i->queryInterface( IID_QUnknownInterface );
+	IMPLEMENTATION *i = new IMPLEMENTATION;	\
+	QUnknownInterface* iface = 0; 			\
+	i->queryInterface( IID_QUnknownInterface, &iface );	\
+	return iface;
 #endif
 
 #ifndef Q_EXTERN_C

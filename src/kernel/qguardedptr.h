@@ -60,26 +60,20 @@ private:
 template <class T> class Q_EXPORT QGuardedPtr
 {
 public:
-    QGuardedPtr()
-    {
-	priv = new QGuardedPtrPrivate( 0 );
-    }
-    QGuardedPtr( T* o)
-    {
+    QGuardedPtr() : priv( new QGuardedPtrPrivate( 0 ) ) {}
+
+    QGuardedPtr( T* o) {
 	priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
     }
-    QGuardedPtr(const QGuardedPtr<T> &p)
-    {
+
+    QGuardedPtr(const QGuardedPtr<T> &p) {
 	priv = p.priv;
 	ref();
     }
-    ~QGuardedPtr()
-    {
-	deref();
-    }
 
-    QGuardedPtr<T> &operator=(const QGuardedPtr<T> &p)
-    {
+    ~QGuardedPtr() { deref(); }
+
+    QGuardedPtr<T> &operator=(const QGuardedPtr<T> &p) {
 	if ( priv != p.priv ) {
 	    deref();
 	    priv = p.priv;
@@ -88,54 +82,37 @@ public:
 	return *this;
     }
 
-    QGuardedPtr<T> &operator=(T* o)
-    {
+    QGuardedPtr<T> &operator=(T* o) {
 	deref();
 	priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
 	return *this;
     }
 
-    bool operator==( const QGuardedPtr<T> &p ) const
-    {
+    bool operator==( const QGuardedPtr<T> &p ) const {
 	return priv->object() == p.priv->object();
     }
 
-    bool operator!= ( const QGuardedPtr<T>& p ) const
-    {
+    bool operator!= ( const QGuardedPtr<T>& p ) const {
 	return !( *this == p );
     }
 
-    bool isNull() const
-    {
-	return !priv->object();
-    }
+    bool isNull() const { return !priv->object(); }
 
-    T* operator->() const
-    {
-	return (T*) priv->object();
-    }
+    T* operator->() const { return (T*) priv->object(); }
 
-    T& operator*() const
-    {
-	return *( (T*)priv->object() );
-    }
+    T& operator*() const { return *( (T*)priv->object() ); }
 
-    operator T*() const
-    {
-	return (T*) priv->object();
-    }
-
+    operator T*() const { return (T*) priv->object(); }
 
 private:
-    void ref()
-    {
-	priv->ref();
-    }
-    void deref()
-    {
+
+    void ref() { priv->ref(); }
+
+    void deref() {
 	if ( priv->deref() )
 	    delete priv;
     }
+
     QGuardedPtrPrivate* priv;
 };
 

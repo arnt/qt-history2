@@ -43,17 +43,15 @@ EditorInterfaceImpl::~EditorInterfaceImpl()
 	dIface->release();
 }
 
-QUnknownInterface *EditorInterfaceImpl::queryInterface( const QUuid &uuid )
+QRESULT EditorInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_EditorInterface )
-	iface = (EditorInterface*)this;
+	*iface = (EditorInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long EditorInterfaceImpl::addRef()
@@ -77,7 +75,7 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
 	CppEditor *e = new CppEditor( QString::null, viewManager, "editor" );
 	e->installEventFilter( this );
 	if ( iface )
-	    dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
+	    iface->queryInterface( IID_DesignerInterface, (QUnknownInterface**) &dIface );
 	connect( e, SIGNAL( intervalChanged() ), this, SLOT( intervalChanged() ) );
 	QApplication::sendPostedEvents( viewManager, QEvent::ChildInserted );
     }

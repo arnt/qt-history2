@@ -44,7 +44,7 @@ struct UCOM_EXPORT UUid
 // the mandatory unknown interface
 struct UCOM_EXPORT UUnknownInterface
 {
-    virtual UUnknownInterface* queryInterface( const UUid& ) = 0;
+    virtual URESULT queryInterface( const UUid&, UUnknownInterface** ) = 0;
     virtual unsigned long addRef() = 0;
     virtual unsigned long release() = 0;
 };

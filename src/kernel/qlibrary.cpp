@@ -470,24 +470,7 @@ QLibrary::~QLibrary()
     delete d;
 }
 
-/*!
-  Loads the shared library and initializes the connection to the component server.
-  Returns a pointer to the QUnknownInterface provided by the component server if the
-  library was loaded successfully, otherwise unloades the library again and returns
-  null.
-  If the component implements the QLibraryInterface, the init() function will
-  be called and the loading canceled if this function returns FALSE.
-  If the policy is not Manual, the system will call the canUnload() function of
-  this interface and try to unload the library in regular intervalls.
-
-  \warning
-  This function gets called automatically by queryInterface, you should never need
-  to call this function. The returned interface is not referenced explicitely, and
-  you must not call \link QUnknownInterface::release release \endlink it.
-
-  \sa setPolicy(), unload(), resolve
-*/
-QUnknownInterface* QLibrary::createInstance()
+void QLibrary::createInstanceInternal()
 {
     if ( libfile.isEmpty() )
 	return 0;
@@ -506,7 +489,8 @@ QUnknownInterface* QLibrary::createInstance()
 	ucmProc = (UCMProc) resolve( "ucm_instantiate" );
 	entry = ucmProc ? ucmProc() : 0;
 	if ( entry ) {
-	    if ( ( d->libIface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface ) ) ) {
+	    entry->queryInterface( IID_QLibraryInterface , (QUnknownInterface**)&d->libIface);
+	    if ( d->libIface ) {
 		if ( !d->libIface->init() ) {
 #if defined(QT_DEBUG_COMPONENT)
 		    qDebug( "%s: QLibraryInterface::init() failed.", libfile.latin1() );
@@ -527,7 +511,6 @@ QUnknownInterface* QLibrary::createInstance()
 	}
     }
 
-    return entry;
 }
 
 /*!
@@ -677,16 +660,13 @@ QString QLibrary::library() const
 
   \sa QUnknownInterface::queryInterface
 */
-QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
+QRESULT QLibrary::queryInterface( const QUuid& request, QUnknownInterface** iface )
 {
     if ( !entry )
-	createInstance();
+	createInstanceInternal();
 
-    QUnknownInterface * iface = 0;
     if( entry )
-	iface = entry->queryInterface( request );
-
-    return iface;
+	return entry->queryInterface( request, iface );
 }
 
 #endif // QT_NO_COMPONENT
