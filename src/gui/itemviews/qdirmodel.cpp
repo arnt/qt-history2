@@ -108,7 +108,7 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
 #ifdef Q_OS_WIN
     {
         uint type = DRIVE_UNKNOWN;
-	QT_WA({ type = GetDriveTypeW(info.absoluteFilePath().utf16()); },
+	QT_WA({ type = GetDriveTypeW((wchar_t *)info.absoluteFilePath().utf16()); },
         { type = GetDriveTypeA(info.absoluteFilePath().toLocal8Bit()); });
 	switch (type) {
 	case DRIVE_REMOVABLE:
