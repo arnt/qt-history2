@@ -62,9 +62,9 @@ QIODevicePrivate::~QIODevicePrivate()
     \i  close() closes the device and tidies up (e.g. flushes buffered
     data).
 
-    \i  readBlock() reads a block of data from the device.
+    \i  read() reads a block of data from the device.
 
-    \i  writeBlock() writes a block of data to the device.
+    \i  write() writes a block of data to the device.
 
     \i  readLine() reads a line (of text, usually) from the device.
 
@@ -548,7 +548,7 @@ void QIODevice::setMode(int m)
 
     This virtual function must be reimplemented by all subclasses.
 
-    \sa writeBlock() isOpen() isReadable()
+    \sa write() isOpen() isReadable()
 
 */
 
