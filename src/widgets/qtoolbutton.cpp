@@ -866,7 +866,10 @@ void QToolButton::openPopup()
 
     d->instantPopup = TRUE;
     repaint( FALSE );
+    QGuardedPtr<QToolButton> that = this;
     popupTimerDone();
+    if ( !that )
+	return;
     d->instantPopup = FALSE;
     repaint( FALSE );
 }
@@ -925,7 +928,11 @@ void QToolButton::popupTimerDone()
 	    }
 	}
     }
+    QGuardedPtr<QToolButton> that = this;
     d->popup->exec( p, -1 );
+    if ( !that )
+	return;
+
     setDown( FALSE );
     if ( d->repeat )
 	setAutoRepeat( TRUE );
