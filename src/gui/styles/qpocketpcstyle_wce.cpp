@@ -35,7 +35,6 @@
 #include "qbitmap.h"
 #include "qtoolbutton.h"
 #include "qheader.h"
-#include "qslider.h"
 #include "q3menubar.h"
 #include "qstatusbar.h"
 #include "qtable.h"

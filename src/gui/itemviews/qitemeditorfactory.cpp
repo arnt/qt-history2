@@ -18,7 +18,6 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qspinbox.h>
-#include <qdatetimeedit.h>
 #include <limits.h>
 
 QWidget *QItemEditorFactory::createEditor(QVariant::Type type, QWidget *parent) const

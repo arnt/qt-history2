@@ -28,7 +28,6 @@
 #include "qtimer.h"
 #include "qapplication.h"
 #include "q3listbox.h"
-#include "qapplication.h"
 #include "qclipboard.h"
 #include "qcolordialog.h"
 #include "q3stylesheet.h"

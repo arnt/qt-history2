@@ -79,7 +79,6 @@
 
 #define QMAC_SPEAK_TO_ME
 #ifdef QMAC_SPEAK_TO_ME
-#include "qvariant.h"
 #include "qregexp.h"
 #endif
 

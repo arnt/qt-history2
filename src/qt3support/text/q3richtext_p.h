@@ -34,7 +34,6 @@
 #include "qmap.h"
 #include "qvector.h"
 #include "qobject.h"
-#include "qobject.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qlist.h"

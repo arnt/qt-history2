@@ -35,7 +35,6 @@
 #include "qpen.h"
 #include "qcolor.h"
 #include "qcolormap.h"
-#include "qfont.h"
 
 #include "qmath_p.h"
 

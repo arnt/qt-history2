@@ -25,7 +25,6 @@
 #include <qlayout.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
-#include <qmap.h>
 
 struct QDialogButtonsPrivate
 {

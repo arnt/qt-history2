@@ -47,8 +47,6 @@ static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
 #include "qnc_win.h"
 #endif
 
-#include "qwidget_p.h"
-
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080
 #endif

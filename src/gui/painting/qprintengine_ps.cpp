@@ -61,7 +61,6 @@
 #endif
 
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
-#include <private/qfontengine_p.h>
 #include <qtextlayout.h>
 #endif
 

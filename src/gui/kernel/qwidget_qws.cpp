@@ -21,7 +21,6 @@
 #include "qstack.h"
 #include "qlayout.h"
 #include "qtextcodec.h"
-#include "qcursor.h"
 #include "qinputcontext.h"
 #include "qdesktopwidget.h"
 #include "qcleanuphandler.h"

@@ -20,13 +20,11 @@
 #include <qprinter.h>
 #include <qstack.h>
 #include <qtextcodec.h>
-#include <qtextcodec.h>
 #include <qwidget.h>
 #include <qvarlengtharray.h>
 
 #include <private/qfont_p.h>
 #include <private/qfontengine_p.h>
-#include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
 #include <private/qpainterpath_p.h>
 #include <private/qpixmap_p.h>

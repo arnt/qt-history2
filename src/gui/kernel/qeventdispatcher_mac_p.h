@@ -58,8 +58,6 @@ private:
     friend class QApplicationPrivate;
 };
 
-#include <private/qeventdispatcher_unix_p.h>
-
 struct MacTimerInfo {
     int id;
     int interval;

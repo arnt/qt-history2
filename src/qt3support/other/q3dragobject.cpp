@@ -30,12 +30,12 @@
 #include "qregexp.h"
 #include "qdir.h"
 #include "qdrag.h"
-#include <ctype.h>
-#include "qdrag.h"
 #include "q3strlist.h"
 #include "q3cstring.h"
 
 #include <private/qobject_p.h>
+
+#include <ctype.h>
 
 static QWidget *last_target = 0;
 

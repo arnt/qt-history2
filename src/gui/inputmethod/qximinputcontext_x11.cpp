@@ -39,14 +39,13 @@
 #include "qlist.h"
 #include "qtextcodec.h"
 #include "qevent.h"
-#include "qlist.h"
 #include "qtextformat.h"
-
-#include <stdlib.h>
-#include <limits.h>
 
 #include "qx11info_x11.h"
 #include <qdebug.h>
+
+#include <stdlib.h>
+#include <limits.h>
 
 // #define QT_XIM_DEBUG
 #ifdef QT_XIM_DEBUG

@@ -18,7 +18,6 @@
 #include <qapplication.h>
 #include <qeventloop.h>
 #include <qlayout.h>
-#include <qlayout.h>
 #include <qlist.h>
 #include <qpainter.h>
 #include <qscrollarea.h>

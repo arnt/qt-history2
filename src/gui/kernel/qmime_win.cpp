@@ -29,7 +29,6 @@
 #include <shlobj.h>
 #include "qurl.h"
 #include "qvariant.h"
-#include "qregexp.h"
 #include "qtextdocument.h"
 #include "qdir.h"
 

@@ -934,8 +934,6 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
 #include "qregexp.h"
 #include "qapplication.h"
 #include "qpictureformatplugin.h"
-#include "private/qfactoryloader_p.h"
-#include "qfile.h"
 
 /*!
     Returns a string that specifies the picture format of the file \a
@@ -1724,4 +1722,3 @@ bool QPictureIO::write()
 */
 
 #endif // QT_NO_PICTURE
-

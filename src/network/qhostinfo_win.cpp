@@ -20,7 +20,6 @@
 #include <qsignal.h>
 #include <qtimer.h>
 #include <qmutex.h>
-#include <qsignal.h>
 
 //#define QHOSTINFO_DEBUG
 

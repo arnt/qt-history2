@@ -1,6 +1,3 @@
-#include "qwininputcontext_p.h"
-
-
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.

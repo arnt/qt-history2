@@ -21,9 +21,6 @@
 #include "qpainter.h"
 #include "qtimer.h"
 #include "qhash.h"
-#ifdef QT3_SUPPORT
-#include "qtoolbutton.h"
-#endif
 #include "qaction.h"
 #include "qcursor.h"
 #include "qbitmap.h"

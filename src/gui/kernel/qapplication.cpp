@@ -23,7 +23,6 @@
 #include "qfile.h"
 #include "qfileinfo.h"
 #include "qhash.h"
-#include "qhash.h"
 #include "qlayout.h"
 #include "qmessagebox.h"
 #include "qsessionmanager.h"
@@ -33,7 +32,6 @@
 #include "qtranslator.h"
 #include "qvariant.h"
 #include "qwidget.h"
-#include "qapplication_p.h"
 #include "qdnd_p.h"
 #include "qcolormap.h"
 #include "qdebug.h"
@@ -52,7 +50,6 @@
 #include <stdlib.h>
 
 extern void qt_call_post_routines();
-
 
 
 #include "qapplication_p.h"

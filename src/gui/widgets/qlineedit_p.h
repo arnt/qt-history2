@@ -30,7 +30,6 @@
 #include <qtextlayout.h>
 #include <qbasictimer.h>
 #include <qstyleoption.h>
-#include <qtextlayout.h>
 
 class QLineEditPrivate : public QWidgetPrivate
 {

@@ -15,11 +15,10 @@
 
 #include <qstring.h>
 
-#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stdlib.h>
 #include <errno.h>
 
 #if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)

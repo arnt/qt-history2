@@ -10,8 +10,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qwsmanager_qws.h"
-#include "qcursor.h"
 
 #ifndef QT_NO_QWS_MANAGER
 
@@ -27,7 +27,6 @@
 #include "qcursor.h"
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
-#include "qevent.h"
 #include "qdesktopwidget.h"
 
 #include <private/qwidget_p.h>

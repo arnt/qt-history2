@@ -95,7 +95,6 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qstack.h>
-#include <qstringlist.h>
 #include <qvarlengtharray.h>
 #include <qdebug.h>
 #include "qurl.h"

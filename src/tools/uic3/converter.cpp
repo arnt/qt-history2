@@ -25,7 +25,6 @@
 #include <qhash.h>
 #include <qstringlist.h>
 #include <qdatetime.h>
-#include <globaldefs.h>
 #include <qregexp.h>
 
 #include <stdio.h>

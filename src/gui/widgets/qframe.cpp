@@ -15,7 +15,6 @@
 #include "qbitmap.h"
 #include "qdrawutil.h"
 #include "qevent.h"
-#include "qframe.h"
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"

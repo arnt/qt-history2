@@ -21,7 +21,6 @@
 #include "q3rangecontrol.h"
 #include "qapplication.h"
 #include "qpixmap.h"
-#include "qapplication.h"
 #include "qlist.h"
 #include "qstring.h"
 #include "qstyle.h"

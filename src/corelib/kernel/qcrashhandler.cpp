@@ -62,8 +62,6 @@ static void init_backtrace(char **, int)
 }
 #else /* Don't use the GLIBC callback */
 /* Code sourced from: */
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
