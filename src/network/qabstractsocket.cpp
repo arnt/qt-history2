@@ -424,7 +424,8 @@ void QAbstractSocketPrivate::canReadNotification(int)
     // If there is still space in the buffer, reenable the read socket
     // notifier.
     if (!readBufferMaxSize || d->readBuffer.size() < d->readBufferMaxSize)
-        d->readSocketNotifier->setEnabled(true);
+        if (d->readSocketNotifier)
+            d->readSocketNotifier->setEnabled(true);
 
     readSocketNotifierCalled = false;
 }
@@ -742,9 +743,10 @@ bool QAbstractSocketPrivate::readFromSocket()
             socketErrorString = socketLayer.errorString();
             emit q->error(socketError);
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::readFromSocket() read failed: %s",
-               socketErrorString.latin1());
+            qDebug("QAbstractSocketPrivate::readFromSocket() read failed: %s",
+                   socketErrorString.latin1());
 #endif
+            d->resetSocketLayer();
             return false;
         }
 
