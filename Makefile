@@ -10,7 +10,7 @@ CONTINUEONERROR=/K
 !ELSE
 QMFILE=Makefile.borland
 FORCEDEP=
-CONTINUEONERROR= ###Something for Rainer to do
+CONTINUEONERROR=-i
 !ENDIF
 
 all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
