@@ -6,46 +6,41 @@
 #include <memory.h>
 #endif // QT_H
 
-#ifndef Q_EXTERN_C
-#ifdef __cplusplus
-#define Q_EXTERN_C    extern "C"
-#else
-#define Q_EXTERN_C    extern
-#endif
-#endif
-
 struct Q_EXPORT QUuid
 {
-    unsigned int   data1;
-    unsigned short data2;
-    unsigned short data3;
-    unsigned char  data4[ 8 ];
+    QUuid()
+	: data1( 0 ), data2( 0 ), data3( 0 )
+    {
+	memset( &data4, 0, sizeof(data4) );
+    }
+    QUuid( uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8 )
+	: data1( l ), data2( w1 ), data3( w2 )
+    {
+	data4[0] = b1;
+	data4[1] = b2;
+	data4[2] = b3;
+	data4[3] = b4;
+	data4[4] = b5;
+	data4[5] = b6;
+	data4[6] = b7;
+	data4[7] = b8;
+    }
+    QUuid( const QUuid &orig )
+    {
+	memcpy( this, &orig, sizeof(QUuid) );
+    }
+    QUuid operator=(const QUuid &orig )
+    {
+	QUuid uuid;
+	memcpy( &uuid, &orig, sizeof(QUuid) );
+	return uuid;
+    }
+
+    uint   data1;
+    ushort data2;
+    ushort data3;
+    uchar  data4[ 8 ];
 };
-
-#endif //QUUID_DEFINED
-
-#ifndef QDECLSPEC_SELECTANY
-#if (_MSC_VER >= 1100)
-#define QDECLSPEC_SELECTANY  __declspec(selectany)
-#else
-#define QDECLSPEC_SELECTANY
-#endif
-#endif
-
-#ifdef Q_UUID
-#undef Q_UUID
-#endif
-
-#if defined(Q_UUIDIMPL)
-#define Q_UUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8 ) \
-        Q_EXTERN_C const QUuid QDECLSPEC_SELECTANY name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
-#else
-#define Q_UUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8 ) \
-        Q_EXTERN_C const QUuid name;
-#endif
-
-#ifndef QUUIDDEF_H
-#define QUUIDDEF_H
 
 inline bool operator==( const QUuid &uuid1, const QUuid &uuid2 )
 {
