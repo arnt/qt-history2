@@ -302,7 +302,7 @@ static bool operator<(const QTextHtmlEntity &entity, const QString &entityStr)
 static QChar resolveEntity(const QString &entity)
 {
     const QTextHtmlEntity *start = &entities[0];
-    const QTextHtmlEntity *end = &entities[MAX_ENTITY];
+    const QTextHtmlEntity *end = &entities[MAX_ENTITY-1];
     const QTextHtmlEntity *e = qBinaryFind(start, end, entity);
     if (!e->name)
         return QChar();
