@@ -1831,7 +1831,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    long fixed_length;
 		    GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, NULL,
 				      sizeof(fixed_length), NULL, &fixed_length);
-		    if(fixed_length == -1 || fixed_length == unilen) {
+		    if(fixed_length == -1 || fixed_length == (long)unilen) {
 			doc->toggleActive();
 			QIMEvent imend(QEvent::IMEnd, text, text.length());
 			QApplication::sendSpontaneousEvent(widget, &imend);
