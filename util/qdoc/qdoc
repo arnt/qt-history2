@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#207 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#208 $
 #
 # this is a massive hack, written very quickly
 #
@@ -448,6 +448,7 @@ sub processdocs {
 	    $doc =~ s/\\internal\s.*//s;
 	}
 	if ( $doc =~ s/(^|\s)\\obsolete\b//gs ) {
+	    # uglehack.  look for this text elsewhere...
 	    $doc = "<b>This function is obsolete.</b> It is provided to keep "
 	      . "old programs working.  We strongly advise against using it "
 		. "in new code.<p>" . $doc;
@@ -1764,12 +1765,13 @@ sub printclass {
 		    my $yuck = $importantyuck{$name{$url} . "::" . $f};
 		    $u = &manglefn($t, $yuck, $f, $a, $c);
 		} else {
-		    $u = &manglefn($t, $name{$url}, $f, $a, $c);
+		    $u = &manglefn($t, $class, $f, $a, $c);
+		    $u = $url if ( !( $u =~ /^$url\#/ ) ); # any non-function
 		}
 		$t =~ s/^(?:virtual\s*)?/virtual /
 		    if ( defined($virtual{$u}) );
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
-		if ($type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
+		if ( $type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
 		    # only for templates: promote the .cpp variable names
 		    if ( defined( $templatecookie{$url} ) ) {
 			$a = $def{$u};
@@ -1961,6 +1963,8 @@ sub importants {
 		foreach $fn ( sort { $def{$a} cmp $def{$b} } keys %doc ) {
 		    next unless ( $type{$fn} eq "fn"  && 
 				  $def{$fn} =~ /\b$p\b/ );
+		    # uglest hack in qdoc.  possibly.
+		    next if ($doc{$fn} =~ /^<b>This function is obsolete./si );
 		    my $f;
 		    $f = $def{$fn};
 		    $f =~ s/<[^>]*>//g;
