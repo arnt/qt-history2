@@ -1293,6 +1293,10 @@ fi
 
 # Create the .qmake.cache file
 [ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
+cat >>$outpath/.qmake.cache <<EOF
+CONFIG += $QMAKE_CONFIG
+MKSPEC = $XPLATFORM
+EOF
 quoted=no
 tmp=""
 for i in $QMAKE_VARS; do
@@ -1313,10 +1317,6 @@ for i in $QMAKE_VARS; do
   fi
 #    echo $a
 done
-cat >>$outpath/.qmake.cache <<EOF
-CONFIG = $QMAKE_CONFIG
-MKSPEC = $XPLATFORM
-EOF
 
 # Give feedback...
 echo
