@@ -45,7 +45,6 @@
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"

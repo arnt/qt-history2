@@ -48,7 +48,6 @@
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qbitarray.h"
