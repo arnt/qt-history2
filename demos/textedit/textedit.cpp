@@ -252,7 +252,7 @@ void TextEdit::setupTextActions()
     comboFont->addItems(db.families());
     connect(comboFont, SIGNAL(activated(const QString &)),
             this, SLOT(textFamily(const QString &)));
-    comboFont->setEditText(QApplication::font().family());
+    comboFont->setCurrentIndex(comboFont->findText(QApplication::font().family()));
 
     comboSize = new QComboBox(tb);
     comboSize->setObjectName("comboSize");
@@ -498,8 +498,8 @@ void TextEdit::clipboardDataChanged()
 
 void TextEdit::fontChanged(const QFont &f)
 {
-    comboFont->setEditText(f.family());
-    comboSize->setEditText(QString::number(f.pointSize()));
+    comboFont->setCurrentIndex(comboFont->findText(f.family()));
+    comboSize->setCurrentIndex(comboSize->findText(QString::number(f.pointSize())));
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());
     actionTextUnderline->setChecked(f.underline());
