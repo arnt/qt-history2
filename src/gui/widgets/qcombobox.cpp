@@ -1022,7 +1022,7 @@ void QComboBox::insertItem(const QString &text, int row)
     if (row < 0)
         row = d->model->rowCount(root());
     QModelIndex item;
-    if (model()->insertRows(row, root())) {
+    if (model()->insertRows(row, root(), 1)) {
         item = model()->index(row, 0, root());
         model()->setData(item, QAbstractItemModel::EditRole, text);
 
@@ -1047,7 +1047,7 @@ void QComboBox::insertItem(const QIcon &icon, int row)
     if (row < 0)
         row = d->model->rowCount(root());
     QModelIndex item;
-    if (model()->insertRows(row, root())) {
+    if (model()->insertRows(row, root(), 1)) {
         item = model()->index(row, 0, root());
         model()->setData(item, QAbstractItemModel::DecorationRole, icon);
     }
@@ -1066,7 +1066,7 @@ void QComboBox::insertItem(const QIcon &icon, const QString &text, int row)
     if (row < 0)
         row = d->model->rowCount(root());
     QModelIndex item;
-    if (model()->insertRows(row, root())) {
+    if (model()->insertRows(row, root(), 1)) {
         item = model()->index(row, 0, root());
         QMap<int, QVariant> values;
         values.insert(QAbstractItemModel::EditRole, text);
