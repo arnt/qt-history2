@@ -3748,8 +3748,8 @@ void QPSPrintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     d->pageStream << "NP\n";
     for (int i = 0; i < lineCount; ++i) {
-        d->pageStream << POINT(lines[i].start()) << "MT "
-                      << POINT(lines[i].end()) << "LT\n";
+        d->pageStream << POINT(lines[i].p1()) << "MT "
+                      << POINT(lines[i].p2()) << "LT\n";
     }
     d->pageStream << "QS\n";
 }
