@@ -80,6 +80,8 @@ struct LinearGradientData : public GradientData
     qreal xincr;
     qreal yincr;
     BlendLinearGradient blendFunc;
+
+    QPainter::CompositionMode compositionMode;
 };
 
 struct RadialGradientData : public GradientData

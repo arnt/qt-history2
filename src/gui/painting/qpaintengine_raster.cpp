@@ -94,6 +94,7 @@ struct SolidFillData
     QRasterBuffer *rasterBuffer;
     uint color;
     BlendColor blendColor;
+    QPainter::CompositionMode compositionMode;
 };
 
 struct TextureFillData
@@ -106,6 +107,8 @@ struct TextureFillData
 
     Blend blend;
     BlendTransformed blendFunc;
+
+    QPainter::CompositionMode compositionMode;
 
     void init(QRasterBuffer *rasterBuffer, QImage *image, const QMatrix &matrix,
               Blend b, BlendTransformed func);
@@ -499,14 +502,16 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->drawHelper = qDrawHelper + layout;
 
-    updateMatrix(QMatrix());
+    d->matrix = QMatrix();
+    d->txop = QPainterPrivate::TxNone;
+    d->brushMatrix = QMatrix();
 
     if (device->depth() == 1) {
-        updatePen(QPen(Qt::color1));
-        updateBrush(QBrush(Qt::color0), QPointF());
+        d->pen = QPen(Qt::color1);
+        d->brush = QBrush(Qt::color0);
     } else {
-        updatePen(QPen(Qt::black));
-        updateBrush(QBrush(Qt::NoBrush), QPointF());
+        d->pen = QPen(Qt::black);
+        d->brush = QBrush(Qt::NoBrush);
     }
 
     updateClipPath(QPainterPath(), Qt::NoClip);
@@ -616,60 +621,61 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
 
 void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 {
+    Q_D(QRasterPaintEngine);
+
     QPaintEngine::DirtyFlags flags = state.state();
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
-    if (flags & DirtyFont) updateFont(state.font());
-    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
-    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
-    if (flags & DirtyHints) updateRenderHints(state.renderHints());
-// ### if (flags & DirtyCompositionMode) updateCompositionMode(state.clipRegion(), state.clipOperation());p
-}
 
+    if (flags & DirtyTransform) {
+        d->matrix = state.matrix();
+        if (d->matrix.m12() != 0 || d->matrix.m21() != 0)
+            d->txop = QPainterPrivate::TxRotShear;
+        else if (d->matrix.m11() != 1 || d->matrix.m22() != 1)
+            d->txop = QPainterPrivate::TxScale;
+        else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
+            d->txop = QPainterPrivate::TxTranslate;
+        else
+            d->txop = QPainterPrivate::TxNone;
+        d->outlineMapper->setMatrix(d->matrix, d->txop);
+    }
 
-void QRasterPaintEngine::updatePen(const QPen &pen)
-{
-#ifdef QT_DEBUG_DRAW
-    qDebug(" - QRasterPaintEngine::updatePen(), style=%d, color=%08x",
-           pen.style(), pen.color().rgba());
-#endif
-    Q_D(QRasterPaintEngine);
-    d->pen = pen;
-    d->penMatrix = d->matrix;
-}
+    if (flags & DirtyPen) {
+        d->pen = state.pen();
+        d->penMatrix = d->matrix;
+    }
 
+    if (flags & DirtyBrush) {
+        QBrush brush = state.brush();
+        QPointF offset = state.brushOrigin();
+        Q_D(QRasterPaintEngine);
+        d->brush = brush;
+        d->brushMatrix = d->matrix;
+        d->brushOffset = offset;
 
-void QRasterPaintEngine::updateFont(const QFont &)
-{
-}
+        // Offset the brush matrix with offset.
+        d->brushMatrix.translate(offset.x(), offset.y());
+    }
 
+    if (flags & DirtyBackground) {
+        d->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
+        d->bgBrush = state.backgroundBrush();
+    }
 
-void QRasterPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
-{
-    Q_D(QRasterPaintEngine);
+    if (flags & DirtyClipPath) {
+        updateClipPath(state.clipPath(), state.clipOperation());
+    }
 
-    d->opaqueBackground = (bgMode == Qt::OpaqueMode);
-    d->bgBrush = bgBrush;
-}
+    if (flags & DirtyClipRegion) {
+        updateClipRegion(state.clipRegion(), state.clipOperation());
+    }
 
+    if (flags & DirtyHints) {
+        d->antialiased = bool(state.renderHints() & QPainter::Antialiasing);
+        d->bilinear = bool(state.renderHints() & QPainter::SmoothPixmapTransform);
+    }
 
-void QRasterPaintEngine::updateMatrix(const QMatrix &m)
-{
-    Q_D(QRasterPaintEngine);
-
-    d->matrix = m;
-    if (d->matrix.m12() != 0 || d->matrix.m21() != 0)
-        d->txop = QPainterPrivate::TxRotShear;
-    else if (d->matrix.m11() != 1 || d->matrix.m22() != 1)
-        d->txop = QPainterPrivate::TxScale;
-    else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
-        d->txop = QPainterPrivate::TxTranslate;
-    else
-        d->txop = QPainterPrivate::TxNone;
-
-    d->outlineMapper->setMatrix(d->matrix, d->txop);
+    if (flags & DirtyCompositionMode) {
+        d->compositionMode = state.compositionMode();
+    }
 }
 
 
@@ -681,14 +687,6 @@ void QRasterPaintEngine::updateClipRegion(const QRegion &r, Qt::ClipOperation op
     QPainterPath p;
     p.addRegion(r);
     updateClipPath(p, op);
-}
-
-
-void QRasterPaintEngine::updateRenderHints(QPainter::RenderHints hints)
-{
-    Q_D(QRasterPaintEngine);
-    d->antialiased = bool(hints & QPainter::Antialiasing);
-    d->bilinear = bool(hints & QPainter::SmoothPixmapTransform);
 }
 
 
@@ -717,22 +715,6 @@ void QRasterPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperat
         }
     }
 }
-
-
-void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
-{
-#ifdef QT_DEBUG_DRAW
-    qDebug() << " - QRasterPaintEngine::updateBrush()" << brush.style() << brush.color();
-#endif
-    Q_D(QRasterPaintEngine);
-    d->brush = brush;
-    d->brushMatrix = d->matrix;
-    d->brushOffset = offset;
-
-    // Offset the brush matrix with offset.
-    d->brushMatrix.translate(offset.x(), offset.y());
-}
-
 
 // ### Use a decent cache for this..
 QImage *qt_image_for_pixmap(const QPixmap &pixmap)
@@ -815,18 +797,20 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 {
     Q_D(QRasterPaintEngine);
     QBrush oldBrush = d->brush;
-    QPointF oldOffset = d->brushOffset;
+    QMatrix oldMatrix = d->brushMatrix;
     QPainterPath path(points[0]);
     for (int i=1; i<pointCount; ++i)
         path.lineTo(points[i]);
     if (mode == PolylineMode) {
-        updateBrush(QBrush(), QPointF(0, 0));
+        d->brush = QBrush();
+        d->brushMatrix = d->matrix;
     } else {
         path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
         path.closeSubpath();
     }
     drawPath(path);
-    updateBrush(oldBrush, oldOffset);
+    d->brush = oldBrush;
+    d->brushMatrix = oldMatrix;
 }
 
 
@@ -1458,7 +1442,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     Q_D(QRasterPaintEngine);
     if (!d->antialiased && d->pen.style() == Qt::NoPen && d->txop <= QPainterPrivate::TxTranslate) {
         QPen oldPen = d->pen;
-        updatePen(QPen(d->brush, 0));
+        d->pen = QPen(d->brush, 0);
         QPaintEngine::drawEllipse(rect.adjusted(0, 0, -1, -1));
         d->pen = oldPen;
     } else {
@@ -1505,6 +1489,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         solidFillData->color = PREMUL(brush.color().rgba());
         solidFillData->rasterBuffer = fillData->rasterBuffer;
         solidFillData->blendColor = drawHelper->blendColor;
+        solidFillData->compositionMode = compositionMode;
         break;
 
     case Qt::TexturePattern:
@@ -1514,6 +1499,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
+            textureFillData->compositionMode = compositionMode;
             textureFillData->init(rasterBuffer, image, brushMatrix,
                                   drawHelper->blendTiled,
                                   bilinear
@@ -1536,6 +1522,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         linearGradientData->init();
         linearGradientData->initColorTable();
         linearGradientData->blendFunc = drawHelper->blendLinearGradient;
+        linearGradientData->compositionMode = compositionMode;
         fillData->callback = qt_span_linear_gradient;
         fillData->data = linearGradientData;
         break;
@@ -1562,6 +1549,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
+            textureFillData->compositionMode = compositionMode;
             textureFillData->init(rasterBuffer, &tempImage, matrix,
                                   drawHelper->blendTiled,
                                   drawHelper->blendTransformedBilinearTiled);
@@ -1588,6 +1576,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
+            textureFillData->compositionMode = compositionMode;
             textureFillData->init(rasterBuffer, &tempImage, matrix,
                                   drawHelper->blendTiled,
                                   drawHelper->blendTransformedBilinearTiled);
@@ -1620,6 +1609,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
+            textureFillData->compositionMode = compositionMode;
             textureFillData->init(rasterBuffer, image, brushMatrix,
                                   drawHelper->blendTiled,
                                   bilinear
@@ -1976,7 +1966,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
         Q_ASSERT(spans->len > 0);
         Q_ASSERT(spans->x + spans->len <= rb->width());
         uint *target = rasterBuffer + (int) spans->x;
-        data->blendColor(target, (const QSpan *)spans, color, QPainter::CompositionMode_SourceOver);
+        data->blendColor(target, (const QSpan *)spans, color, data->compositionMode);
         ++spans;
     }
 }
@@ -1998,7 +1988,7 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
 
     const uint *scanline = (const uint *)data->imageData + ((y+yoff) % image_height) * image_width;
     uint *baseTarget = rb->scanLine(y);
-    bool opaque = !data->hasAlpha;
+    bool opaque = !data->hasAlpha || data->compositionMode == QPainter::CompositionMode_Source;
     while (count--) {
         uint *target = baseTarget + spans->x;
         if (opaque && spans->coverage == 255) {
@@ -2017,7 +2007,8 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
             }
         } else {
             data->blend(target, (const QSpan *)spans, (xoff + spans->x)%image_width,
-                        ((y + yoff) % image_height), data->imageData, image_width, image_height, QPainter::CompositionMode_SourceOver);
+                        ((y + yoff) % image_height), data->imageData, image_width, image_height,
+                        data->compositionMode);
         }
         ++spans;
     }
@@ -2040,7 +2031,8 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
     while (count--) {
         data->blendFunc(baseTarget + spans->x, (const QSpan *)spans,
                         ix, iy, dx, dy,
-                        data->imageData, image_width, image_height, QPainter::CompositionMode_SourceOver);
+                        data->imageData, image_width, image_height,
+                        data->compositionMode);
         ++spans;
     }
 }
@@ -2073,7 +2065,8 @@ void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData
 
     while (count--) {
         uint *target = baseTarget + spans->x;
-        data->blendFunc(target, (const QSpan *)spans, data, ybase, QPainter::CompositionMode_SourceOver);
+        data->blendFunc(target, (const QSpan *)spans, data, ybase,
+                        data->compositionMode);
         ++spans;
     }
 }

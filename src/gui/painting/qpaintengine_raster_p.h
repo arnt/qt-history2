@@ -57,13 +57,7 @@ public:
 
     void updateState(const QPaintEngineState &state);
 
-    void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPointF &origin);
-    void updateFont(const QFont &font);
-    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
-    void updateRenderHints(QPainter::RenderHints hints);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
 
     void drawPath(const QPainterPath &path);
@@ -122,6 +116,7 @@ public:
     QMatrix matrix;
     QMatrix brushMatrix;
     QMatrix penMatrix;
+    QPainter::CompositionMode compositionMode;
 
     QPaintDevice *device;
     QFTOutlineMapper *outlineMapper;
