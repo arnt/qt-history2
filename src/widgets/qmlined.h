@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#4 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#5 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -97,6 +97,8 @@ private:
     void	updateCellWidth();
     bool 	partiallyInvisible( int row );
     void	makeVisible();
+    
+    void setBottomCell( int row );
 
 private:	// Disabled copy constructor and operator=
     QMultiLineEdit( const QMultiLineEdit & ) {}

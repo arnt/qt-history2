@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#6 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -15,9 +15,6 @@
 #include "qscrbar.h"
 #include "qkeycode.h"
 
-
-
-
 /*!
   \class QMultiLineEdit qmlined.h
 
@@ -32,11 +29,8 @@
 
  */
 
-
-
 static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 100;		// mark text scroll time
-
 
 static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
 			    int xPos, int width )
@@ -57,7 +51,6 @@ static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
 	tmp--;
     return tmp - s;
 }
-
 
 /*!
   Creates a new, empty, QMultiLineEdit.
@@ -100,7 +93,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     ((QScrollBar*)horizontalScrollBar())->setCursor( sizeHorCursor );
 }
 
-
 /*!
   \fn bool QMultiLineEdit::inputEnabled()
 
@@ -109,7 +101,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
   \sa enableInput() QWidget::isEnabled()
  */
-
 
 /*!
   If \a enable is TRUE, this multi line edit will accept text input.
@@ -131,9 +122,6 @@ void QMultiLineEdit::enableInput( bool enable )
     }
 }
 
-
-
-
 /*!
 
 */
@@ -142,8 +130,6 @@ QMultiLineEdit::~QMultiLineEdit()
 {
     
 }
-
-
 
 /*!
 
@@ -177,9 +163,6 @@ void QMultiLineEdit::paintCell( QPainter *p, int row, int )
     }
 }
 
-
-
-
 /*!
 
 */
@@ -205,8 +188,6 @@ int QMultiLineEdit::textWidth( int row )
     return textWidth( s );
 }
 
-
-
 /*!
 
 */
@@ -220,7 +201,6 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
     updateCell( cursorY, 0 );
 }
 
-
 /*!
 
 */
@@ -229,7 +209,6 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
     killTimers();
 }
-
 
 /*!
   Cursor blinking
@@ -251,8 +230,6 @@ void QMultiLineEdit::timerEvent( QTimerEvent * )
     }
 }
 
-
-
 /*!
 
 */
@@ -261,7 +238,6 @@ bool QMultiLineEdit::hasMarkedText() const
 {
     return FALSE;
 }
-
 
 /*!
 
@@ -272,7 +248,6 @@ void QMultiLineEdit::clipboardChanged()
     
 }
 
-
 /*!
 
 */
@@ -281,7 +256,6 @@ const char * QMultiLineEdit::text() const
 {
     return 0;
 }
-
 
 /*!
 
@@ -292,7 +266,6 @@ void QMultiLineEdit::selectAll()
     
 }
 
-
 /*!
 
 */
@@ -301,7 +274,6 @@ void QMultiLineEdit::setText( const char * )
 {
     
 }
-
 
 /*!
   The key press event handler converts a key press to some line editor
@@ -539,7 +511,6 @@ void QMultiLineEdit::pageUp()
     updateCell( oldY, 0 );
 }
 
-
 /*!
   Inserts a new line containing \a s at line number \a row. If \a
   row is less than zero, or larger than the number of rows, the new line
@@ -561,7 +532,6 @@ void QMultiLineEdit::insert( QString s, int row )
     if ( updt )
 	repaint();
 }
-
 
 /*!
   Deletes the line at line number \a row. If \a
@@ -632,8 +602,6 @@ void QMultiLineEdit::newLine()
     makeVisible();
 }
 
-
-
 /*!
   Deletes text from the current cursor position to the end of the line.
  */
@@ -654,7 +622,6 @@ void QMultiLineEdit::killLine()
     curXPos = 0;
     makeVisible();
 }
-
 
 /*!
   Moves the cursor leftwards one or more characters.
@@ -735,8 +702,6 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
     startTimer( blinkTime );
 }
 
-
-
 /*!
   Moves the cursor upwards one or more characters.
   \sa cursorDown() cursorLeft() cursorRight()
@@ -770,7 +735,6 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
     makeVisible();
 }
 
-
 /*!
   Moves the cursor downwards one or more characters.
   \sa cursorDown() cursorLeft() cursorRight()
@@ -803,7 +767,6 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
     }
     makeVisible();
 }
-
 
 /*!
   Deletes the character on the left side of the text cursor and moves the
@@ -963,7 +926,6 @@ void QMultiLineEdit::markWord( int pos )
 }
 #endif
 
-
 /*!
 
 */
@@ -995,7 +957,7 @@ bool QMultiLineEdit::partiallyInvisible( int row )
     if ( y < 0 ) {
 	//debug( "row %d occluded at top", row );
 	return TRUE;
-    } else if ( y + cellHeight() - 1 > viewHeight() ) {
+    } else if ( y + cellHeight() - 2 > viewHeight() ) {
 	//debug( "row %d occluded at bottom", row );
 	return TRUE;
     }
@@ -1010,8 +972,7 @@ void QMultiLineEdit::makeVisible()
 {
     if ( partiallyInvisible( cursorY ) ) {
 	if ( cursorY >= lastRowVisible() )
-	    // ### one too many...
-	    setTopCell( topCell() + cursorY - lastRowVisible() + 1 ); 
+	    setBottomCell( cursorY );
 	else
 	    setTopCell( cursorY );
     }
@@ -1035,12 +996,13 @@ void QMultiLineEdit::makeVisible()
 int QMultiLineEdit::mapFromView( int xPos, int row )
 {
     QString *s = getString( row );
+    if ( !s )
+	return 0;
     int index = xPosToCursorPos( *s, fontMetrics(),
 				 xPos - BORDER,
 				 cellWidth() - 2 * BORDER );
     return index;
 }
-
 
 /*!
 
@@ -1054,7 +1016,6 @@ int QMultiLineEdit::mapToView( int xIndex, int row )
 		    fontMetrics().width( *s, xIndex ) - 1;
     return curXPos;
 }
-
 
 /*!
   Traverses the list and finds an item with the maximum width, and
@@ -1074,4 +1035,17 @@ void QMultiLineEdit::updateCellWidth()
 	s = contents->next();
     }
     setCellWidth( maxW );
+}
+
+
+/*!
+
+*/
+
+void QMultiLineEdit::setBottomCell( int row )
+{
+    //debug( "setBottomCell %d", row );
+    int rowY = cellHeight() * row;
+    int newYPos = rowY +  cellHeight() - viewHeight();
+    setYOffset( QMAX( newYPos, 0 ) );
 }
