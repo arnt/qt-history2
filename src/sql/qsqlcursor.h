@@ -139,6 +139,7 @@ protected:
 private:
     void		sync();
     int			apply( const QString& q, bool invalidate );
+    int			applyPrepared( const QString& q, bool invalidate );
     QSqlRecord&		operator=( const QSqlRecord & list );
     void 		append( const QSqlField& field );
     void 		insert( int pos, const QSqlField& field );

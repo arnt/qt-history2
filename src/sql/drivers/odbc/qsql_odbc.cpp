@@ -1076,6 +1076,8 @@ bool QODBCDriver::hasFeature( DriverFeature f ) const
 	return d->unicode;
     case PreparedQueries:
 	return TRUE;
+    case ODBCBindingStyle:
+	return TRUE;
     default:
 	return FALSE;
     }

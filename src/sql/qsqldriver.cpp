@@ -152,6 +152,10 @@ bool QSqlDriver::isOpenError() const
     \value Unicode  whether the driver supports Unicode strings if the
     database server does
     \value PreparedQueries  whether the driver supports prepared query execution
+    \value OracleBindingStyle  whether the driver supports the Oracle specific
+    binding style
+    \value ODBCBBindingStyle  whether the driver supports the ODBC specific
+    binding style
 
     More information about supported features can be found in the 
     \link sql-driver.html Qt SQL driver\endlink documentation.

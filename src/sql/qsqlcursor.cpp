@@ -965,31 +965,54 @@ int QSqlCursor::insert( bool invalidate )
     int k = d->editBuffer.count();
     if ( k == 0 )
 	return 0;
-
+    
     QString fList;
     QString vList;
     bool comma = FALSE;
-
-    for( int j = 0; j < k; ++j ) {
-	QSqlField* f = d->editBuffer.field( j );
-	if ( d->editBuffer.isGenerated( j ) ) {
-	    if ( comma ) {
-		fList += ",";
-		vList += ",";
+    // use a prepared query if the driver supports it
+    if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
+	int cnt = 0;
+	bool oraStyle = driver()->hasFeature( QSqlDriver::OracleBindingStyle );
+	for( int j = 0; j < k; ++j ) {
+	    QSqlField* f = d->editBuffer.field( j );
+	    if ( d->editBuffer.isGenerated( j ) ) {
+		if ( comma ) {
+		    fList += ",";
+		    vList += ",";
+		}
+		fList += f->name();
+		vList += (oraStyle == TRUE) ? ":f" + QString::number(cnt) : QString("?");
+		cnt++;
+		comma = TRUE;
 	    }
-	    fList += f->name();
-	    vList += driver()->formatValue( f );
-	    comma = TRUE;
 	}
-    }
+	if ( !comma ) {
+	    return 0;
+	}
+	QString str = QString("insert into %1 (%2) values (%3)" ).arg( name() ).arg( fList ).arg( vList );
+	return applyPrepared( str, invalidate );
+    } else {
+	for( int j = 0; j < k; ++j ) {
+	    QSqlField* f = d->editBuffer.field( j );
+	    if ( d->editBuffer.isGenerated( j ) ) {
+		if ( comma ) {
+		    fList += ",";
+		    vList += ",";
+		}
+		fList += f->name();
+		vList += driver()->formatValue( f );
+		comma = TRUE;
+	    }
+	}
 
-    if ( !comma ) {
-	// no valid fields found
-	return 0;
-    }
+	if ( !comma ) {
+	    // no valid fields found
+	    return 0;
+	}
 
-    QString str = QString( "insert into %1 (%2) values (%3)" ).arg( name() ).arg( fList ).arg( vList );
-    return apply( str, invalidate );
+	QString str = QString( "insert into %1 (%2) values (%3)" ).arg( name() ).arg( fList ).arg( vList );
+	return apply( str, invalidate );
+    }
 }
 
 /*!
@@ -1130,15 +1153,47 @@ int QSqlCursor::update( bool invalidate )
 
 int QSqlCursor::update( const QString & filter, bool invalidate )
 {
-    if ( ( d->md & Update ) != Update )
+    if ( ( d->md & Update ) != Update ) {
 	return FALSE;
+    }
     int k = count();
-    if( k == 0 ) return 0;
-    QString str = "update " + name();
-    str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
-    if ( filter.length() )
-	str+= " where " + filter;
-    return apply( str, invalidate );
+    if ( k == 0 ) {
+	return 0;
+    }
+
+    // use a prepared query if the driver supports it
+    if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
+	QString fList;
+	bool comma = FALSE;
+	int cnt = 0;
+	bool oraStyle = driver()->hasFeature( QSqlDriver::OracleBindingStyle );
+	for( int j = 0; j < k; ++j ) {
+	    QSqlField* f = d->editBuffer.field( j );
+	    if ( d->editBuffer.isGenerated( j ) ) {
+		if ( comma ) {
+		    fList += ",";
+		}
+		fList += f->name() + " = " + (oraStyle == TRUE ? ":f" + QString::number(cnt) : QString("?"));
+		cnt++;
+		comma = TRUE;
+	    }
+	}
+	if ( !comma ) {
+	    return 0;
+	}
+	QString str = "update " + name() + " set " + fList;
+	if ( filter.length() ) {
+	    str+= " where " + filter;
+	}
+	return applyPrepared( str, invalidate );
+    } else {
+	QString str = "update " + name();
+	str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
+	if ( filter.length() ) {
+	    str+= " where " + filter;
+	}
+	return apply( str, invalidate );
+    }
 }
 
 /*!
@@ -1220,6 +1275,54 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 	QSqlQuery sql( driver()->createQuery() );
 	if ( sql.exec( q ) )
 	    ar = sql.numRowsAffected();
+    }
+    return ar;
+}
+
+/*
+  \internal
+*/
+
+int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
+{
+    int ar = 0;
+    QSqlQuery * sql = 0;
+    
+    if ( invalidate ) {
+	d->lastAt = QSql::BeforeFirst;
+	if ( !prepare( q ) ) {
+	    return 0;
+	}
+    } else if ( driver() ) {
+	sql = new QSqlQuery( driver()->createQuery() );
+	if ( !sql->prepare( q ) ) {
+	    delete sql;
+	    return 0;
+	}
+    } else {
+	return 0;
+    }
+    int cnt = 0;
+    for ( int j = 0; j < (int) count(); ++j ) {
+	QSqlField* f = d->editBuffer.field( j );
+	if ( d->editBuffer.isGenerated( j ) ) {
+	    if ( invalidate ) {
+		bindValue( cnt, f->value() );
+	    } else {
+		sql->bindValue( cnt, f->value() );
+	    }
+	    cnt++;
+	}
+    }
+    if ( invalidate ) {
+	if ( QSqlQuery::exec() ) {
+	    ar = numRowsAffected();
+	}
+    } else {
+	if ( sql->exec() ) {
+	    ar = sql->numRowsAffected();
+	}
+	delete sql;
     }
     return ar;
 }

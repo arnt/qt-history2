@@ -1729,7 +1729,9 @@ bool QOCIDriver::hasFeature( DriverFeature f ) const
     case Unicode:
 	return d->serverVersion >= 9;
     case PreparedQueries:
-	return TRUE;	    
+	return TRUE;
+    case OracleBindingStyle:
+	return TRUE;
     default:
 	return FALSE;
     }
