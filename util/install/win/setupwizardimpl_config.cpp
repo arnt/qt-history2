@@ -496,11 +496,13 @@ void SetupWizardImpl::prepareEnvironment()
 	    }
 
 	    // Finding
-	    QString vsInstallDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "EnvironmentDirectory", QEnvironment::LocalMachine );
-	    QString vcInstallDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
-	    QString MSVCDir         = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
-	    QString VS7CommonDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "VS7CommonDir", QEnvironment::LocalMachine );
-	    QString VS7CommonBinDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "VS7CommonBinDir", QEnvironment::LocalMachine );
+	    QString check71         = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
+	    QString version         = (check71.length() ? "7.1" : "7.0");
+	    QString vsInstallDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\"+version+"\\Setup\\VS", "EnvironmentDirectory", QEnvironment::LocalMachine );
+	    QString vcInstallDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\"+version+"\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine );
+	    QString MSVCDir         = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\"+version+"\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
+	    QString VS7CommonDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\"+version+"\\Setup\\VS", "VS7CommonDir", QEnvironment::LocalMachine );
+	    QString VS7CommonBinDir = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\"+version+"\\Setup\\VS", "VS7CommonBinDir", QEnvironment::LocalMachine );
 	    QString FrameworkDir    = QEnvironment::getRegistryString( "Software\\Microsoft\\.NETFramework", "InstallRoot", QEnvironment::LocalMachine );
 	    QString FrameworkSDKDir = QEnvironment::getRegistryString( "Software\\Microsoft\\.NETFramework", "sdkInstallRoot", QEnvironment::LocalMachine );
 	    QString devEnvDir       = vsInstallDir;
