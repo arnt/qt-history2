@@ -402,6 +402,8 @@ static QWidget *sn_win	  = 0;			// win msg via this window
 
 static void sn_cleanup()
 {
+    delete sn_win;
+    sn_win = 0;
     for ( int i=0; i<3; i++ ) {
 	delete *sn_vec[i];
 	*sn_vec[i] = 0;
@@ -418,11 +420,8 @@ static void sn_init()
 #else
     sn_msg = RegisterWindowMessageA( "QtSNEvent" );
 #endif
-    sn_win = qApp->mainWidget();		// use main widget, if any
-    if ( !sn_win ) {				// create internal widget
-	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
-	Q_CHECK_PTR( sn_win );
-    }
+    sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
+    Q_CHECK_PTR( sn_win );
     for ( int i=0; i<3; i++ ) {
 	*sn_vec[i] = new QSNDict;
 	Q_CHECK_PTR( *sn_vec[i] );
