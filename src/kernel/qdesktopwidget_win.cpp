@@ -220,7 +220,7 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 
 /*!
   Returns the index of the screen that contains the biggest
-  part of \a widget.
+  part of \a widget, or -1 if the widget not on a screen.
 
   \sa primaryScreen()
 */
@@ -234,7 +234,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 	    frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
 
 	int maxSize = -1;
-	int maxScreen = d->primaryScreen;
+	int maxScreen = -1;
 
 	for ( int i = 0; i < d->screenCount; ++i ) {
 	    QRect sect = d->rects[i].intersect( frame );
@@ -251,7 +251,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 }
 
 /*!
-  Returns the index of the screen that contains \a point.
+  Returns the index of the screen that contains \a point, or -1 if no screen contains the point.
 
   \sa primaryScreen()
 */
@@ -263,5 +263,5 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 		return i;
 	}
     }
-    return d->primaryScreen;
+    return -1;
 }
