@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#51 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,9 +17,8 @@
 #include "qkeycode.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#51 $");
 
-// ### clean up for 2.0
 #if QT_VERSION == 200
 #error "Remove QLabel dict!"
 #endif
@@ -39,6 +38,7 @@ static void cleanupLabel()
     delete qlabel_extraStuff;
     qlabel_extraStuff = 0;
 }
+
 
 /*!
   \class QLabel qlabel.h
@@ -128,34 +128,32 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
 }
 
 
-/*!  Constructs a label with an accelerator key.
+/*!
+  Constructs a label with an accelerator key.
 
   The \a parent, \a name and \a f arguments are passed to the QFrame
-  constructor.  Note that the \a parent argument does \e not default
+  constructor. Note that the \a parent argument does \e not default
   to 0.
 
-  In a dialog, you might create three data entry widgets and a label
+  In a dialog, you might create two data entry widgets and a label
   for each, and set up the geometry so each label is just to the left
   of its data entry widget (its "buddy"), somewhat like this:
 
   \code
-    QLineEdit * name( this, "customer name" );
-    QLabel * alName( name, "&Name:", this );
-    QLineEdit * phone( this, "customer telephone number" );
-    QLabel * alPhone( phone, "&Phone:", this );
-    QMultiLineEdit * address( this, "customer address:" );
-    QLabel * alAddress( address, "&Address", this );
+    QLineEdit *name    = new QLineEdit( this );
+    QLabel    *name_l  = new QLabel( name, "&Name:", this );
+    QLineEdit *phone   = new QLineEdit( this );
+    QLabel    *phone_l = new QLabel( phone, "&Phone:", this );
     // geometry management setup not shown
   \\endcode
 
-  With the code above, the focus jumps to the Address field when the
-  user presses Alt-A, to the Name field when the user presses Alt-N,
-  and to the Phone field when the user presses Alt-P.
+  With the code above, the focus jumps to the Name field when the user
+  presses Alt-N, and to the Phone field when the user presses Alt-P.
 
-  \sa setText() setBuddy()
+  \sa setText(), setBuddy()
 */
 
-QLabel::QLabel( QWidget * buddy, const char * text,
+QLabel::QLabel( QWidget *buddy,  const char *text,
 		QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f ), ltext("")
 {
@@ -164,7 +162,6 @@ QLabel::QLabel( QWidget * buddy, const char * text,
     align      = ShowPrefix | AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
-
     setBuddy( buddy );
     setText( text );
 }
@@ -191,7 +188,8 @@ QLabel::~QLabel()
   \sa setText()
 */
 
-/*!  Sets the label contents to \e text, updates the optional
+/*!
+  Sets the label contents to \e text, updates the optional
   accelerator and redraws the contents.
 
   The label resizes itself if auto-resizing is enabled.	 Nothing
@@ -209,10 +207,10 @@ void QLabel::setText( const char *text )
 	delete lpixmap;
 	lpixmap = 0;
     }
-    QLabel_Private * d;
+    QLabel_Private *d;
     if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
 	d->accel->clear();
-	const char * p = strchr( ltext, '&' );
+	const char *p = strchr( ltext, '&' );
 	while( p && *p && p[1] == '&' )
 	    p = strchr( p+2, '&' );
 	if ( p && *p && isalpha(p[1]) ) {
@@ -270,7 +268,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     else
 	updateLabel();
-    QLabel_Private * d;
+    QLabel_Private *d;
     if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) )
 	d->accel->clear();
 }
@@ -512,7 +510,6 @@ void QLabel::updateLabel()
 }
 
 
-
 /*!
   Internal slot, used to set focus for accelerator labels.
 */
@@ -543,8 +540,7 @@ void QLabel::buddyDied()
 {
     if ( !qlabel_extraStuff )
 	return;
-
-    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
+    QLabel_Private *that = qlabel_extraStuff->find( (long)this );
     if ( that )
 	that->buddy = 0;
 }
@@ -556,10 +552,10 @@ void QLabel::buddyDied()
   When the user presses the accelerator key indicated by this label,
   the keyboard focus is transferred to the label's buddy.
 
-  \sa label() setText()
+  \sa label(), setText()
 */
 
-void QLabel::setBuddy( QWidget * buddy )
+void QLabel::setBuddy( QWidget *buddy )
 {
     setAlignment( alignment() | ShowPrefix );
 
