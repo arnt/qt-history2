@@ -34,6 +34,8 @@ ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     QStringList fil = db->tables();
     tableList->insertStringList( fil );
     connect( execButton,SIGNAL(clicked()), this, SLOT(slotExec()));
+    connect( dataGrid, SIGNAL( currentChanged(const QSqlFieldList*)),
+	     SLOT( newSelection(const QSqlFieldList*)));
     browseType->setButton( 0 );
     //    grid->addWidget( new MyDataGrid( this ), 5, 5 );
 }
@@ -53,12 +55,23 @@ void ResultWindow::slotExec()
 		dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
 		break;
 	    case 1: // Rowset
-		dataGrid->setRowset( tableList->currentText() );				
+		dataGrid->setRowset( tableList->currentText() );
 		break;
 	    case 2: // View
-		dataGrid->setView( tableList->currentText() );				
+		dataGrid->setView( tableList->currentText() );
 		break;
 	    }
 	}
     }
+}
+
+
+void ResultWindow::newSelection( const QSqlFieldList* fields )
+{
+    QString cap ("Selection ");
+    for ( uint i = 0; i < fields->count(); ++i ) {
+	QSqlField f = fields->field(i);	
+	cap += " - " + f.value().toString();
+    }
+    setCaption( cap );
 }

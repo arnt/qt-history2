@@ -45,6 +45,9 @@ public:
     QVariant     value ( int row, int col ) const;
     void         installEditorFactory( QSqlEditorFactory * f );
 
+signals:
+    void         currentChanged( const QSqlFieldList* fields );
+    
 public slots:
     void 	 findString( const QString & str, bool caseSensitive,
 			     bool backwards );
@@ -69,6 +72,7 @@ protected:
 private slots:
     void         loadNextPage();
     void         loadLine( int l );
+    void         setCurrentSelection( int row, int col );
 
 private:
     void         setNumCols ( int r );

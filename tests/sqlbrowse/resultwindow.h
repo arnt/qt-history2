@@ -4,6 +4,7 @@
 #include <qtable.h>
 #include <qstring.h>
 #include <qsql.h>
+#include <qsqlfield.h>
 #include <qsqldatabase.h>
 #include <qsqlview.h>
 #include <qdialog.h>
@@ -25,6 +26,7 @@ public:
     ~ResultWindow();
 public slots:
     void slotExec();
+    void newSelection( const QSqlFieldList* fields );
 private:
     QSqlDatabase* db;
 };

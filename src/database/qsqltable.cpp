@@ -105,6 +105,8 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
     editorFactory = QSqlEditorFactory::instance();
+    connect( this, SIGNAL( currentChanged( int, int ) ),
+			   SLOT( setCurrentSelection( int, int )));
 }
 
 /*!
@@ -721,6 +723,17 @@ void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
 {
     if( f )
 	editorFactory = f;
+}
+
+void QSqlTable::setCurrentSelection( int row, int )
+{
+    QSql* sql = d->sql();
+    if ( !sql )
+	return;
+    if ( sql->seek( row ) ) {
+	QSqlFieldList fil = sql->fields();
+	emit currentChanged( &fil );
+    }
 }
 
 #endif
