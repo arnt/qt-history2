@@ -510,7 +510,7 @@ void QFrame::paintEvent( QPaintEvent *event )
 
     if ( !contentsRect().contains( event->rect() ) ) {
         paint.save();
-        paint.setClipRegion( event->region().intersect(frameRect()) );
+	paint.setClipRegion( event->region().intersect(frameRect()) );
         drawFrame( &paint );
         paint.restore();
     }
@@ -630,19 +630,19 @@ void QFrame::drawFrame( QPainter *p )
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
-    case PopupPanel: 
+    case PopupPanel:
 #ifndef QT_NO_STYLE
     {
-	int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this), 
+	int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this),
 	    hextra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
 	if(vextra > 0 || hextra > 0) {
 	    QRect fr = frameRect();
 	    int   fw = frameWidth();
 	    if(vextra > 0) {
-		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this, 
+		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
 				    g, flags, opt);
-		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this, 
+		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
 				    g, flags, opt);
 	    }

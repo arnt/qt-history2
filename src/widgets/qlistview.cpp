@@ -4199,7 +4199,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		style().querySubControl( QStyle::CC_ListView,
 					 this, QPoint(x1, e->pos().y()),
 					 QStyleOption(i) );
-	    if( ctrl == QStyle::SC_ListViewExpand && 
+	    if( ctrl == QStyle::SC_ListViewExpand &&
 		e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
 		d->buttonDown = FALSE;
 		if ( e->button() == LeftButton ) {
@@ -4302,7 +4302,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
  emit_signals:
 
-    if ( i && !d->buttonDown && 
+    if ( i && !d->buttonDown &&
 	 vp.x() + contentsX() < itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize() )
 	i = 0;
     d->pressedItem = i;
@@ -4396,14 +4396,14 @@ void QListView::contentsMouseReleaseEventEx( QMouseEvent * e )
     if ( i && !i->isEnabled() )
 	return;
 
-    if ( i && i == d->pressedItem && (i->isExpandable() || i->childCount()) && 
-	 !d->h->mapToLogical( d->h->cellAt( vp.x() ) ) && e->button() == LeftButton && 
+    if ( i && i == d->pressedItem && (i->isExpandable() || i->childCount()) &&
+	 !d->h->mapToLogical( d->h->cellAt( vp.x() ) ) && e->button() == LeftButton &&
 	 e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, this)) {
 	QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 	while( it.current() && it.current()->i != i )
 	    ++it;
 	if ( it.current() ) {
-	    int x1 = vp.x() + d->h->offset() - d->h->cellPos( d->h->mapToActual( 0 ) ) - 
+	    int x1 = vp.x() + d->h->offset() - d->h->cellPos( d->h->mapToActual( 0 ) ) -
 		     (treeStepSize() * (it.current()->l - 1));
 	    QStyle::SubControl ctrl = style().querySubControl( QStyle::CC_ListView,
 							       this, QPoint(x1, e->pos().y()),
@@ -6860,7 +6860,7 @@ void QListView::ensureItemVisible( const QListViewItem * i )
     view's back.
 
     You may safely call QHeader::setClickEnabled(),
-    QHeader::setResizeEnabled(), QHeader::setMovingEnabled(), 
+    QHeader::setResizeEnabled(), QHeader::setMovingEnabled(),
     QHeader::hide() and all the const QHeader functions.
 */
 
