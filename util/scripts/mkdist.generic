@@ -285,7 +285,7 @@ if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt
   rm -f bin/*.bat
   rm -rf src/tmp
-  rm src/qtmain.pro src/Makefile.win32-dll
+  rm -f src/qtmain.pro src/Makefile.win32-dll
   find . -name 'qtwin.*' | xargs rm -vf
   rm -rf ${DISTDIR}/qt/lib
   mkdir ${DISTDIR}/qt/lib
