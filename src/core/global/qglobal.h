@@ -900,11 +900,14 @@ class QDataStream;
 #  ifdef Q_OS_WIN
 #    define Q_DECL_EXPORT __declspec(dllexport)
 #  else
-#if __GNUC__ >= 4
-#define Q_DECL_EXPORT __attribute__((visibility("default")))
-#else
-#define Q_DECL_EXPORT
-#endif
+#    if defined(__GNUC__)
+#       if __GNUC__ >= 4
+#         define Q_DECL_EXPORT __attribute__((visibility("default")))
+#       endif
+#    endif
+#  endif
+#  ifndef Q_DEC_EXPORT
+#    define Q_DECL_EXPORT
 #  endif
 #endif
 #ifndef Q_DECL_IMPORT
