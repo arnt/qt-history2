@@ -18,7 +18,7 @@ CC		= gcc
 
 HEADERS		= qapp.h	qbitmap.h	qbrush.h	qcolor.h      \
 		  qconnect.h	qcursor.h	qevent.h	qfont.h	      \
-		  qfontdta.h	qfontinf.h	qfontmet.		      \
+		  qfontdta.h	qfontinf.h	qfontmet.h		      \
 		  qkeycode.h	qmetaobj.h	qobjcoll.h	qobjdefs.h    \
 		  qobject.h	qpaintd.h	qpaintdc.h	qpainter.h    \
 		  qpdevmet.h	qpen.h		qpicture.h	qpixmap.h     \
