@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#126 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#126 $");
 
 
 /*!
@@ -193,10 +193,10 @@ bool  qKillTimer( QObject *obj );
 void  qRemovePostedEvents( QObject * );
 
 
-Q_DECLARE(QListM,QConnection);			// dictionary of connections
-Q_DECLARE(QListIteratorM,QConnection);		// dictionary iterator
-Q_DECLARE(QDictM,QListM(QConnection));
-Q_DECLARE(QDictIteratorM,QListM(QConnection));
+Q_DECLARE(QListM,QConnection);			// list of connections
+Q_DECLARE(QListIteratorM,QConnection);		// connection list iterator
+Q_DECLARE(QDictM,QListM_QConnection);		// dict for multiple signals
+Q_DECLARE(QDictIteratorM,QListM_QConnection);	// dict iterator
 
 QMetaObject *QObject::metaObj = 0;
 
@@ -1129,7 +1129,7 @@ bool QObject::checkConnectArgs( const char    *signal,
   does not contain it.
 */
 
-void QObject::badSuperclassWarning( const char *className, 
+void QObject::badSuperclassWarning( const char *className,
 				    const char *superclassName )
 {
 #if defined(CHECK_NULL)
