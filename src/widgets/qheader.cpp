@@ -53,7 +53,6 @@ struct QHeaderData
 	s2i.resize(n);
 	clicks.resize(n);
 	resize.resize(n);
-	was_in_show = FALSE;
 	int p =0;
 	for ( int i = 0; i < n ; i ++ ) {
 	    sizes[i] = 88;
@@ -86,7 +85,6 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
-    uint was_in_show : 1;
     bool sortDirection;
     int sortColumn;
     int count;
@@ -196,7 +194,6 @@ QHeader::~QHeader()
 
 void QHeader::showEvent( QShowEvent *e )
 {
-    d->was_in_show = TRUE;
     d->calculatePositions();
     QWidget::showEvent( e );
 }
@@ -1298,8 +1295,6 @@ void QHeader::setSortIndicator( int section, bool increasing )
 
 void QHeader::resizeSection( int section, int s )
 {
-    if ( !d->was_in_show )
-	d->calculatePositions();
     if ( section < 0 || section >= count() )
 	return;
     d->sizes[ section ] = s;
