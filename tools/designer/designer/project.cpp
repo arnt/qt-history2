@@ -1236,7 +1236,7 @@ void Project::writePlatformSettings( QString &contents, const QString &setting,
 {
     const QString platforms[] = { "", "win32", "unix", "mac", QString::null };
     int i;
-    if (setting == "SOURCES") // The (all) part will be saved later on
+    if (setting == "SOURCES" || setting == "HEADERS") // The (all) part will be saved later on
 	i = 1;
     else
 	i = 0;
