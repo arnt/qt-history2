@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#29 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#29 $";
 #endif
 
 
@@ -336,7 +336,7 @@ void QMenuData::removeItemAt( int index )
 {
     if ( index < 0 || index >= (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
-	warning( "QMenuData::removeItem: Index %d out of range" );
+	warning( "QMenuData::removeItem: Index %d out of range", index );
 #endif
 	return;
     }
