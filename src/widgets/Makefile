@@ -34,7 +34,7 @@ SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
 		mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablew.cpp
-SRCMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
+OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mframe.o	mgrpbox.o	mlabel.o	mlcdnum.o     \
 		mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
 		mpushbt.o	mradiobt.o	mscrbar.o	mtablew.o
