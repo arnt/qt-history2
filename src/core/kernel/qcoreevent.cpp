@@ -104,9 +104,9 @@
     \value HelpRequest  Internal event used by Qt on some platforms.
     \value Hide  Widget was hidden, \l{QHideEvent}.
     \value HideToParent  A child widget has been hidden.
-    \value IMCompose  Input method composition is taking place.
-    \value IMEnd  The end of input method composition.
-    \value IMStart  The start of input method composition.
+    \value IMCompose  Input method composition is taking place, \l{QIMEvent}.
+    \value IMEnd  The end of input method composition, \l{QIMEvent}.
+    \value IMStart  The start of input method composition, \l{QIMEvent}.
     \value IconDrag     Internal event used by Qt on some platforms when proxy icon is dragged.
     \value IconTextChange Widget's icon text has been changed
     \value InvokeSlot
