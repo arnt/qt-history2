@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#211 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#210 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#211 $");
 
 
 /*****************************************************************************
@@ -1052,12 +1052,14 @@ void QPainter::setBackgroundColor( const QColor &c )
   <li> \c OpaqueMode
   </ul>
 
-  Transparent mode draws stippled lines, text and bitmaps without setting
-  the background pixels. Opaque mode fills these space with the current
+  Transparent mode draws stippled lines and text without setting the
+  background pixels. Opaque mode fills these space with the current
   background color.
 
-  \sa backgroundMode(), setBackgroundColor()
-*/
+  In order to draw a bitmap or pixmap transparently, you must use
+  QPixmap::setMask().
+
+  \sa backgroundMode(), setBackgroundColor() */
 
 void QPainter::setBackgroundMode( BGMode m )
 {
