@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#43 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#44 $
 **
 ** Global type declarations and definitions
 **
@@ -49,7 +49,7 @@
 #define _OS_ULTRIX_
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #define _OS_LINUX_
-#elif defined(sgi) || defined(__sgi) || defined(__sgi__)
+#elif defined(sgi) || defined(__sgi)
 #define _OS_IRIX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
