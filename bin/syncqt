@@ -95,6 +95,27 @@ sub checkUnix {
 }
 
 ######################################################################
+# Syntax:  shouldMasterInclude(iheader)
+# Params:  iheader, string, filename to verify inclusion
+#
+# Purpose: Determines if header should be in the master include file
+######################################################################
+sub shouldMasterInclude {
+    my ($iheader) = @_;
+    return 0 if($iheader =~ /_/);
+    if(open(F, "<$iheader")) {
+        while(<F>) {
+	    chomp;
+	    return 0 if(/^\#pragma qt_no_master_include$/);
+	}
+	close(F);
+    } else {
+	return 0;
+    }
+    return 1;
+}
+
+######################################################################
 # Syntax:  classNames(iheader)
 # Params:  iheader, string, filename to parse for classname "symlinks"
 #
@@ -556,7 +577,7 @@ foreach (@modules_to_sync) {
 
 			if($public_header) {
 			    #put it into the master file
-			    $master_contents .= "#include \"$public_header\"\n" unless($header =~ /_/);
+			    $master_contents .= "#include \"$public_header\"\n" if(shouldMasterInclude($iheader));
 
 			    #deal with the install file
 			    if($public_header) {
