@@ -96,12 +96,13 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     }
 
     //calculate size
-    const QFontMetrics fm = q->fontMetrics();
+    QFontMetrics qfm = q->fontMetrics();
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
         if(!action->isVisible())
             continue;
 
+        QFontMetrics fm(action->font().resolve(q->font()));
         QSize sz;
 
         //calc what I think the size is..
@@ -112,7 +113,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             int t = s.indexOf('\t');
             if(t != -1) {
                 const_cast<QMenuPrivate *>(this)->tabWidth =
-                    qMax((int)tabWidth, fm.width(s.mid(t+1)));
+                    qMax((int)tabWidth, qfm.width(s.mid(t+1)));
                 s = s.left(t);
             } else {
                 QKeySequence seq = action->shortcut();
@@ -124,7 +125,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             w -= s.count('&') * fm.width('&');
             w += s.count("&&") * fm.width('&');
             sz.setWidth(w);
-            sz.setHeight(fm.height());
+            sz.setHeight(qMax(fm.height(), qfm.height()));
 
             QIconSet is = action->icon();
             if(!is.isNull()) {
@@ -510,6 +511,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.state |= QStyle::Style_Enabled;
     else
         opt.palette.setCurrentColorGroup(QPalette::Disabled);
+
+    opt.font = action->font();
 
     if (defaultAction == action)
         opt.state |= QStyle::Style_ButtonDefault; //probably should be something else

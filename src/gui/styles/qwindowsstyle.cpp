@@ -1336,6 +1336,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
+                p->save();
                 int t = s.indexOf('\t');
                 int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, widget))
@@ -1359,6 +1360,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                                 text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
+                p->setFont(menuitem->font);
                 if (dis && !act) {
                     p->setPen(menuitem->palette.light());
                     p->drawText(xvis + 1, y + windowsItemVMargin + 1, w - xm - tab + 1,
@@ -1367,6 +1369,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 }
                 p->drawText(xvis, y + windowsItemVMargin, w - xm - tab + 1,
                             h - 2 * windowsItemVMargin, text_flags, s, t);
+                p->restore();
             }
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
                 int dim = (h - 2 * windowsItemFrame) / 2;

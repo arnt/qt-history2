@@ -25,6 +25,7 @@ public:
     QString whatsthis;
     QKeySequence shortcut;
     int shortcutId;
+    QFont font;
     QPointer<QMenu> menu;
     uint enabled : 1, forceDisabled : 1;
     uint visible : 1, forceInvisible : 1;

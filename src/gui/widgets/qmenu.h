@@ -195,34 +195,52 @@ public:
             act->setText(text);
         }
     }
-    inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
+    inline QT_COMPAT bool isItemActive(int id) const {
+        return findActionForId(id) == activeAction();
+    }
     inline QT_COMPAT bool isItemEnabled(int id) const {
         if(QAction *act = findActionForId(id))
             return act->isEnabled();
         return false; }
     inline QT_COMPAT void setItemEnabled(int id, bool enable) {
         if(QAction *act = findActionForId(id))
-            act->setEnabled(enable); }
+            act->setEnabled(enable);
+    }
     inline QT_COMPAT bool isItemChecked(int id) const {
         if(QAction *act = findActionForId(id))
             return act->isChecked();
-        return false; }
+        return false;
+    }
     inline QT_COMPAT void setItemChecked(int id, bool check) {
         if(QAction *act = findActionForId(id))
-            act->setChecked(check); }
+            act->setChecked(check);
+    }
     inline QT_COMPAT bool isItemVisible(int id) const {
         if(QAction *act = findActionForId(id))
             return act->isVisible();
-        return false; }
+        return false;
+    }
     inline QT_COMPAT void setItemVisible(int id, bool visible) {
         if(QAction *act = findActionForId(id))
-            act->setVisible(visible); }
+            act->setVisible(visible);
+    }
     inline QT_COMPAT QRect itemGeometry(int index) {
         if(QAction *act = actions().value(index))
             return actionGeometry(act);
         return QRect();
     }
-    inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
+    inline QT_COMPAT QFont itemFont(int id) const {
+        if(QAction *act = findActionForId(id))
+            return act->font();
+        return QFont();
+    }
+    inline QT_COMPAT void setItemFont(int id, const QFont &font) {
+        if(QAction *act = findActionForId(id))
+            act->setFont(font);
+    }
+    inline QT_COMPAT int indexOf(int id) const {
+        return actions().indexOf(findActionForId(id));
+    }
     inline QT_COMPAT int idAt(int index) const {
         return findIdForAction(actions().value(index));
     }

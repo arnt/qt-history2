@@ -128,6 +128,7 @@ struct QStyleOptionMenuItem : public QStyleOption {
     int tabWidth;
     QSize q3CustomItemSizeHint;
     bool q3CustomItemFullSpan;
+    QFont font;
     QStyleOptionMenuItem(int version) : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
     checkState(NotCheckable), maxIconWidth(0), tabWidth(0), q3CustomItemFullSpan(false) {}
     QDOC_PROPERTY(MenuItemType menuItemType);
@@ -139,6 +140,7 @@ struct QStyleOptionMenuItem : public QStyleOption {
     QDOC_PROPERTY(int tabWidth);
     QDOC_PROPERTY(QSize q3CustomItemSizeHint);
     QDOC_PROPERTY(bool q3CustomItemFullSpan);
+    QDOC_PROPERTY(QFont font);
 };
 
 struct QStyleOptionComplex : public QStyleOption

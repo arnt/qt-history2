@@ -44,6 +44,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
+    Q_PROPERTY(QFont font READ font WRITE setFont)
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
@@ -94,6 +95,9 @@ public:
 
     void setShortcut(const QKeySequence &shortcut);
     QKeySequence shortcut() const;
+
+    void setFont(const QFont &font);
+    QFont font() const;
 
     void setCheckable(bool);
     bool isCheckable() const;

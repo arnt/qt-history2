@@ -82,7 +82,8 @@ void QActionPrivate::sendDataChanged()
     "What's This?" text, and a tool tip. Most of these can be set in
     the constructor. They can also be set independently with
     setIconSet(), setText(), setMenuText(), setShortcut(),
-    setStatusTip(), setWhatsThis(), and setToolTip().
+    setStatusTip(), setWhatsThis(), and setToolTip(). For menu items,
+    it is possible to set an individual font with setFont().
 
     Actions are added to widgets using QWidget::addAction().
 
@@ -220,6 +221,24 @@ void QAction::setShortcut(const QKeySequence &shortcut)
 QKeySequence QAction::shortcut() const
 {
     return d->shortcut;
+}
+
+
+/*!
+    \property QAction::font
+    \brief the action's font
+
+    The font property is used to draw menu items.
+*/
+void QAction::setFont(const QFont &font)
+{
+    d->font = font;
+    d->sendDataChanged();
+}
+
+QFont QAction::font() const
+{
+    return d->font;
 }
 
 #ifdef QT_COMPAT
