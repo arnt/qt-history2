@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#22 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#23 $
 **
 ** Definition of the abstract layout base class
 **
@@ -191,6 +191,7 @@ public:
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );
+    void deleteAllItems();
 private:
     void setWidgetLayout( QWidget *, QLayout * );
     int insideSpacing;

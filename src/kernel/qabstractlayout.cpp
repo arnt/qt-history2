@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#52 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -621,6 +621,10 @@ QLayout::QLayout( int space, const char *name )
 /*! \fn void QLayout::addItem (QLayoutItem *item )
     Implemented in subclasses to add \a item. How it is
     added is specific to each subclass.
+    
+    Note that the ownership of \a item is transferred to
+    the layout, and it is the layout's responsibility to
+    delete it.
 */
 
 /*! \fn QLayoutIterator iterator();
@@ -796,6 +800,7 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
     while ( (child = it.current() ) ) {
 	if ( child->widget() == w ) {
 	    it.removeCurrent();
+	    delete child;
 	    lay->invalidate();
 	    return TRUE;
 	} else if ( removeWidget( child, w ) ) {
@@ -956,6 +961,15 @@ QLayout::~QLayout()
 	setWidgetLayout( (QWidget*)parent(), 0 );
 }
 
+void QLayout::deleteAllItems()
+{
+    QLayoutIterator it = iterator();
+    QLayoutItem *l;
+    while ( (l=it.current()) ) {
+	it.removeCurrent();
+	delete l;
+    }
+}
 
 /*!
   This function is called from addLayout functions in subclasses,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#99 $
 **
 ** Implementation of layout classes
 **
@@ -176,6 +176,7 @@ void QLayoutArray::init()
     hfwData = 0;
     things.setAutoDelete( TRUE );
     hReversed = vReversed = FALSE;
+    things.setAutoDelete(TRUE);
 }
 
 bool QLayoutArray::hasHeightForWidth()
@@ -372,12 +373,20 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
 void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 			int col1, int col2  )
 {
+#ifdef CHECK_RANGE
+    if ( row2 >= 0 && row2 < row1 )
+	qWarning( "QGridLayout: multicell fromRow greater than toRow" );
+    if ( col2 >= 0 && col2 < col1 )
+	qWarning( "QGridLayout: multicell fromCol greater than toCol" );
+#endif
     expand( row2+1, col2+1 );
     box->row = row1;
     box->col = col1;
     QMultiBox *mbox = new QMultiBox( box, row2, col2 );
-    if ( !multi )
+    if ( !multi ) {
 	multi = new QList<QMultiBox>;
+	multi->setAutoDelete(TRUE);
+    }
     multi->append( mbox );
     setDirty();
     if ( col2 < 0 )
@@ -1086,7 +1095,7 @@ static bool checkWidget( QLayout *l, QWidget *w )
 {
     if ( !w ) {
 #if defined(CHECK_STATE)
-	qWarning( "cannot add null widget to %s/%s", l->className(), 
+	qWarning( "cannot add null widget to %s/%s", l->className(),
 		 l->name() );
 #endif
 	return FALSE;

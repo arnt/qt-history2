@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#62 $
 **
 ** Implementation of QMainWindow class
 **
@@ -168,15 +168,13 @@ class QToolLayout : public QLayout
 public:
     QToolLayout( QWidget *parent, int border=0, int space=-1,
 		const char *name=0 )
-	: QLayout( parent, border, space, name ),
-	 array(0),dir(QBoxLayout::Down),fill(FALSE),cached_width(0) {}
+	: QLayout( parent, border, space, name ) { init(); }
     QToolLayout( QLayout* parent, int space=-1, const char *name=0 )
-	: QLayout( parent, space, name ),
-	 array(0),dir(QBoxLayout::Down),fill(FALSE),cached_width(0) {}
+	: QLayout( parent, space, name )  { init(); }
     QToolLayout( int space=-1, const char *name=0 )
-	: QLayout( space, name ),
-	 array(0),dir(QBoxLayout::Down),fill(FALSE),cached_width(0) {}
-
+	: QLayout( space, name )  { init(); }
+    ~QToolLayout();
+    
     void addItem( QLayoutItem *item);
     bool hasHeightForWidth() const { return TRUE; }
     int heightForWidth( int ) const;
@@ -193,6 +191,7 @@ public:
 protected:
     void setGeometry( const QRect& );
 private:
+    void init();
     int layout( const QRect&, bool testonly = FALSE );
     QList<QLayoutItem> list;
     QArray<QLayoutStruct> *array;
@@ -201,6 +200,21 @@ private:
     int cached_width;
     int cached_hfw;
 };
+
+
+void QToolLayout::init()
+{
+    list.setAutoDelete( TRUE );
+    array = 0;
+    dir = QBoxLayout::Down;
+    fill = FALSE;
+    cached_width = 0;
+}
+
+QToolLayout::~QToolLayout()
+{
+    delete array;
+}
 
 QSize QToolLayout::minimumSize() const
 {
@@ -297,7 +311,7 @@ int QToolLayout::heightForWidth( int w ) const
     return cached_hfw;
 }
 
-void QToolLayout::addItem( QLayoutItem *item)
+void QToolLayout::addItem( QLayoutItem *item )
 {
     list.append( item );
 }
@@ -326,12 +340,6 @@ void QToolLayout::setGeometry( const QRect &r )
     QLayout::setGeometry( r );
     layout( r );
 }
-
-
-
-
-
-
 
 /*!  Constructs an empty main window. */
 
@@ -788,8 +796,6 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    layout->add(t->t);
 	    t = dock->next();
 	}
-
-
     } else {
 	QBoxLayout * toolBarRowLayout = 0;
 	QMainWindowPrivate::ToolBar * t = dock->first();
@@ -942,7 +948,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 		o && ( d->moving || o->inherits( "QToolBar" ) ) ) {
 	moveToolBar( d->moving ? d->moving : (QToolBar *)o, (QMouseEvent *)e );
 	return TRUE;
-    } 
+    }
     return QWidget::eventFilter( o, e );
 }
 
