@@ -770,6 +770,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 
         const QPostEvent &pe = postedEvents->at(i);
         if (pe.receiver == receiver) {
+            pe.event->posted = false;
             delete pe.event;
         } else {
             if (i != j)
