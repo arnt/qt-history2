@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#348 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#349 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1709,8 +1709,6 @@ void QFileDialog::init()
 	     this, SLOT( listBoxSelectionChanged() ) );
     connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
 	     this, SLOT(updateFileNameEdit(QListBoxItem *)) );
-    connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
-	     this, SLOT(updateFileNameEdit(QListBoxItem *)) );
     connect( d->moreFiles, SIGNAL( rightButtonPressed( QListBoxItem *, const QPoint & ) ),
 	     this, SLOT( popupContextMenu( QListBoxItem *, const QPoint & ) ) );
 
@@ -2447,7 +2445,7 @@ void QFileDialog::okClicked()
 {
     QString fn( nameEdit->text() );
     if ( fn.contains( "*") ) {
-	setFilters( fn );
+	addFilter( fn );
 	nameEdit->blockSignals( TRUE );
 	nameEdit->setText( QString::fromLatin1("") );
 	nameEdit->blockSignals( FALSE );
@@ -2496,12 +2494,12 @@ void QFileDialog::okClicked()
 	else
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
-	    setUrl( QUrlOperator( d->url, nameEdit->text() + "/" ) );
+	    setUrl( QUrlOperator( d->url, f.name() + "/" ) );
 	    d->checkForFilter = TRUE;
 	    trySetSelection( TRUE, d->url, TRUE );
 	    d->checkForFilter = FALSE;
 	} else {
-	    setFilters( nameEdit->text() );
+	    addFilter( nameEdit->text() );
 	    nameEdit->setText( "" );
 	}
     }
@@ -2546,7 +2544,7 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
     if ( u.fileName().contains( "*") && d->checkForFilter ) {
 	QString fn( u.fileName() );
 	if ( fn.contains( "*" ) ) {
-	    setFilters( fn );
+	    addFilter( fn );
 	    d->currentFileName = QString::null;
 	    d->url.setFileName( QString::null );
 	    nameEdit->setText( QString::fromLatin1("") );
@@ -2573,16 +2571,16 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
     }
     if ( updatelined && !d->currentFileName.isEmpty() ) {
 	// If the selection is valid, or if its a directory, allow OK.
-	if ( !d->currentFileName.isNull() || isDir )
+	if ( !d->currentFileName.isNull() || isDir ) {
 	    nameEdit->setText( u.fileName() );
-	else
+	} else
 	    nameEdit->setText( QString::fromLatin1("") );
     }
 
     if ( !d->currentFileName.isNull() || isDir ) {
 	okB->setEnabled( TRUE );
 	if ( d->currentFileName.isNull() && isDir )
-	    okB->setText(tr("Open"));
+	    okB->setText( tr("Open") );
 	else {
 	    QString okt = mode() == AnyFile ? tr("Save") : tr("OK");
 	    okB->setText( okt );
@@ -3634,11 +3632,27 @@ void QFileDialog::setFilters( const QStringList & types )
     setFilter( d->types->text( 0 ) );
 }
 
+/*!
+  \overload void QFileDialog::setFilters( const QString & )
+*/
 
 void QFileDialog::setFilters( const QString &filters )
 {
     QStringList lst = makeFiltersList( filters );
     setFilters( lst );
+}
+
+/*!
+  Adds \a filter to the filter list and makes it the current one.
+*/
+
+void QFileDialog::addFilter( const QString &filter )
+{
+    if ( filter.isEmpty() )
+	return;
+    d->types->insertItem( filter );
+    d->types->setCurrentItem( d->types->count() - 1 );
+    setFilter( d->types->text( d->types->count() - 1 ) );
 }
 
 /*!

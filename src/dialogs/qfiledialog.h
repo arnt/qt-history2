@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#83 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#84 $
 **
 ** Definition of QFileDialog class
 **
@@ -305,9 +305,9 @@ protected:
     void keyPressEvent( QKeyEvent * );
 
     void addWidgets( QLabel *, QWidget *, QPushButton * );
-
     void drawDragShapes( const QPoint &pnt, bool multRow, int num );
-
+    void addFilter( const QString &filter );
+    
 private slots:
     void updateGeometries();
     void modeButtonsDestroyed();
