@@ -18,6 +18,7 @@
 
 class QUrl;
 class QString;
+class QByteArray;
 class QColor;
 class QPixmap;
 class QByteArray;
@@ -81,19 +82,19 @@ public:
     static void initialize();
 
     static QList<QWindowsMime*> all();
-    static QWindowsMime* convertor(const char* mime, int cf);
-    static const char* cfToMime(int cf);
+    static QWindowsMime* convertor(const QString &mime, int cf);
+    static QString cfToMime(int cf);
 
-    static int registerMimeType(const char *mime);
+    static int registerMimeType(const QString &mime);
 
-    virtual const char* convertorName()=0;
+    virtual QString convertorName()=0;
     virtual int countCf()=0;
     virtual int cf(int index)=0;
-    virtual bool canConvert(const char* mime, int cf)=0;
-    virtual const char* mimeFor(int cf)=0;
-    virtual int cfFor(const char*)=0;
-    virtual QByteArray convertToMime(QByteArray data, const char* mime, int cf)=0;
-    virtual QByteArray convertFromMime(QByteArray data, const char* mime, int cf)=0;
+    virtual bool canConvert(const QString &mime, int cf)=0;
+    virtual QString mimeFor(int cf)=0;
+    virtual int cfFor(const QString &mime)=0;
+    virtual QByteArray convertToMime(const QByteArray &data, const QString &mime, int cf)=0;
+    virtual QByteArray convertFromMime(const QByteArray &data, const QString &mime, int cf)=0;
 };
 
 #endif

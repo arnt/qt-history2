@@ -19,7 +19,6 @@
 #include "qevent.h"
 #include "qpainter.h"
 #include "qwidget.h"
-#include "qdragobject.h"
 #include "qimage.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
@@ -29,9 +28,10 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
+#include "qdnd_p.h"
 
 static HCURSOR *cursor = 0;
-static QDragObject *global_src = 0;
+static QDragPrivate *global_src = 0;
 static bool acceptact = false;
 
 /* OleStdGetDropEffect
@@ -93,7 +93,7 @@ LPFORMATETC allFormats(int& n)
 // Returns a LPFORMATETC enumerating the CF's that ms can be produced
 // from type \a mime.
 static
-LPFORMATETC someFormats(const char* mime, int& n)
+LPFORMATETC someFormats(const QString &mime, int& n)
 {
     n = 0;
     QWindowsMime* wm;
@@ -129,7 +129,7 @@ LPFORMATETC someFormats(const char* mime, int& n)
 // Returns a LPFORMATETC enumerating the CF's that ms can produce
 // (after being converted).
 static
-LPFORMATETC someFormats(const QMimeSource* ms, int& n)
+LPFORMATETC someFormats(const QMimeData* ms, int& n)
 {
     n = 0;
     QWindowsMime* wm;
@@ -146,7 +146,7 @@ LPFORMATETC someFormats(const QMimeSource* ms, int& n)
         wm = mimes[pos];
         int t = wm->countCf();
         for (int j=0; j<t; j++) {
-            if (ms->provides(wm->mimeFor(wm->cf(j)))) {
+            if (ms->hasFormat(wm->mimeFor(wm->cf(j)).latin1())) {
                 fmtetc[i].cfFormat = wm->cf(j);
                 fmtetc[i].dwAspect = DVASPECT_CONTENT;
                 fmtetc[i].tymed = TYMED_HGLOBAL;
@@ -190,7 +190,7 @@ private:
 class QOleDataObject : public IDataObject
 {
 public:
-    QOleDataObject(QDragObject*);
+    QOleDataObject(QDragPrivate *);
 
     /* IUnknown methods */
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
@@ -212,7 +212,7 @@ public:
 
 private:
     ULONG m_refs;
-    QDragObject* object;
+    QDragPrivate *object;
 };
 
 class QOleDropTarget : public IDropTarget
@@ -294,8 +294,30 @@ void QDragManager::drop()
     // not used in windows implementation
 }
 
+static
+QString dnd_format(int fn)
+{
+    if (!current_dropobj) // Sanity
+        return 0;
 
-bool QDropEvent::provides(const char* mimeType) const
+    QString fmt;
+
+    int n;
+    LPFORMATETC fmtetc = allFormats(n);
+    int i;
+    for (i=0; i<n && fn >= 0; i++) {
+        // Does the drag source provide this format that we accept?
+        if (NOERROR == current_dropobj->QueryGetData(fmtetc+i))
+            fn--;
+    }
+    if (fn==-1)
+        fmt = QWindowsMime::cfToMime(fmtetc[i-1].cfFormat);
+    delete [] fmtetc;
+
+    return fmt;
+}
+
+bool QDropData::hasFormat(const QString &mimeType) const
 {
     if (!current_dropobj) // Sanity
         return false;
@@ -313,35 +335,26 @@ bool QDropEvent::provides(const char* mimeType) const
     return does;
 }
 
-static
-const char* dnd_format(int fn)
-{
-    if (!current_dropobj) // Sanity
-        return 0;
 
-    static QByteArray fmt("");
+QStringList QDropData::formats() const
+{
+    QStringList fmts;
+    if (!current_dropobj) // Sanity
+        return fmts;
 
     int n;
     LPFORMATETC fmtetc = allFormats(n);
-    int i;
-    for (i=0; i<n && fn >= 0; i++) {
+    for (int i=0; i<n; i++) {
         // Does the drag source provide this format that we accept?
         if (NOERROR == current_dropobj->QueryGetData(fmtetc+i))
-            fn--;
+            fmts.append(QWindowsMime::cfToMime(fmtetc[i].cfFormat));
     }
-    if (fn==-1)
-        fmt = QWindowsMime::cfToMime(fmtetc[i-1].cfFormat);
     delete [] fmtetc;
 
-    return fmt.isEmpty() ? 0 : (const char*)fmt;
+    return fmts;
 }
 
-const char* QDropEvent::format(int fn) const
-{
-    return dnd_format(fn);
-}
-
-QByteArray qt_olednd_obtain_data(const char *format)
+QByteArray qt_olednd_obtain_data(const QString &format)
 {
     QByteArray result;
 
@@ -408,59 +421,55 @@ QByteArray qt_olednd_obtain_data(const char *format)
     return result;
 }
 
-QByteArray QDropEvent::encodedData(const char* format) const
+QByteArray QDropData::data(const QString &format) const
 {
     return qt_olednd_obtain_data(format);
 }
 
+static QDrag::DragOperations current_mode = QDrag::DefaultDrag;
 
-static QDragObject::DragMode current_mode = QDragObject::DragDefault;
-
-bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
+QDrag::DragOperation QDragManager::drag(QDragPrivate *o, QDrag::DragOperations mode)
 {
-    if (object == o) {
-        return false;
-    }
+    if (object == o || !o->source)
+        return QDrag::NoDrag;
 
     if (object) {
+        o->source->removeEventFilter(this);
         cancel();
-        if (dragSource)
-            dragSource->removeEventFilter(this);
         beingCancelled = false;
     }
 
     object = o;
-    dragSource = (QWidget *)(object->parent());
     global_src = o;
-    global_src->setTarget(0);
+    o->target = 0;
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
 
-    const char* fmt;
-    for (int i=0; (fmt=object->format(i)); i++)
-        QWindowsMime::registerMimeType(fmt);
+    QStringList fmts = o->data->formats();
+    for(int i = 0; i < fmts.size(); ++i)
+        QWindowsMime::registerMimeType(fmts.at(i).latin1());
 
     DWORD result_effect;
-    QOleDropSource *src = new QOleDropSource(dragSource);
+    QOleDropSource *src = new QOleDropSource(o->source);
     QOleDataObject *obj = new QOleDataObject(o);
     DWORD allowed_effects = 0;
     current_mode = mode;
     switch (mode) {
-      case QDragObject::DragDefault:
+      case QDrag::DefaultDrag:
         allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
         break;
-      case QDragObject::DragMove:
+      case QDrag::MoveDrag:
         allowed_effects = DROPEFFECT_MOVE;
         break;
-      case QDragObject::DragCopy:
+      case QDrag::CopyDrag:
         allowed_effects = DROPEFFECT_COPY;
         break;
-      case QDragObject::DragCopyOrMove:
+      case QDrag::CopyOrMoveDrag:
         allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
         break;
-      case QDragObject::DragLink:
+      case QDrag::LinkDrag:
         allowed_effects = 0;
         break;
     }
@@ -473,26 +482,27 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
 #else
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
 #endif
-    if (dragSource) {
+    if (object->source) {
         QDragResponseEvent e(r == DRAGDROP_S_DROP);
-        QApplication::sendEvent(dragSource, &e);
+        QApplication::sendEvent(o->source, &e);
     }
     obj->Release();        // Will delete obj if refcount becomes 0
     src->Release();        // Will delete src if refcount becomes 0
-    if (!global_src->target())
-        acceptact=false;
+    if (!global_src->target)
+        acceptact = false;
 
     current_dropobj = 0;
-    dragSource = 0;
-    delete global_src;
     global_src = 0;
     object = 0;
-    current_mode = QDragObject::DragDefault;
+    current_mode = QDrag::DefaultDrag;
 
     updatePixmap();
 
-    return r == DRAGDROP_S_DROP
-        && (result_effect & DROPEFFECT_MOVE);
+    // ###### wrong return values!
+    if(r == DRAGDROP_S_DROP
+        && (result_effect & DROPEFFECT_MOVE))
+        return QDrag::MoveDrag;
+    return QDrag::CopyDrag;
         //&& !acceptact;
 }
 
@@ -612,7 +622,7 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 //                    QOleDataObject Constructor
 //---------------------------------------------------------------------
 
-QOleDataObject::QOleDataObject(QDragObject* o) :
+QOleDataObject::QOleDataObject(QDragPrivate* o) :
     object(o)
 {
     m_refs = 1;
@@ -669,7 +679,7 @@ QOleDataObject::Release(void)
 //                     (NOTE: must set pformatetcOut->ptd = NULL)
 //---------------------------------------------------------------------
 
-extern bool qt_CF_HDROP_valid(const char *mime, int cf, QMimeSource * src);
+extern bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData *src);
 
 STDMETHODIMP
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
@@ -683,23 +693,21 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 
     QWindowsMime *wm;
 
-    const char* fmt;
-    for (int i=0; (fmt=object->format(i)); i++) {
-        if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
+    QStringList fmts = object->data->formats();
+    for (int i=0; i < fmts.size(); i++) {
+        QString fmt = fmts.at(i);
+        if ((wm=QWindowsMime::convertor(fmt.latin1(),pformatetc->cfFormat))
             && (pformatetc->dwAspect & DVASPECT_CONTENT) &&
                (pformatetc->tymed & TYMED_HGLOBAL) &&
-               qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
-        {
-            QByteArray data =
-                wm->convertFromMime(object->encodedData(fmt),
-                            fmt, pformatetc->cfFormat);
+               qt_CF_HDROP_valid(fmt.latin1(), pformatetc->cfFormat, object->data)) {
+            QByteArray data = wm->convertFromMime(object->data->data(fmt), fmt.latin1(), pformatetc->cfFormat);
             if (data.size()) {
                 HGLOBAL hData = GlobalAlloc(0, data.size());
-                if (!hData) {
+                if (!hData)
                     return ResultFromScode(E_OUTOFMEMORY);
-                }
+
                 void* out = GlobalLock(hData);
-                memcpy(out,data.data(),data.size());
+                memcpy(out, data.data(), data.size());
                 GlobalUnlock(hData);
                 pmedium->tymed = TYMED_HGLOBAL;
                 pmedium->hGlobal = hData;
@@ -723,15 +731,13 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
     // This method is called by the drop target to check whether the source
     // provides data in a format that the target accepts.
 
-    const char* fmt;
-    for (int i=0; (fmt=object->format(i)); i++) {
-        if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
+    QStringList fmts = object->data->formats();
+    for (int i=0; i < fmts.size(); i++) {
+        if (QWindowsMime::convertor(fmts.at(i), pformatetc->cfFormat) &&
            (pformatetc->dwAspect & DVASPECT_CONTENT) &&
            (pformatetc->tymed & TYMED_HGLOBAL) &&
-           qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
-        {
+           qt_CF_HDROP_valid(fmts.at(i), pformatetc->cfFormat, object->data))
             return ResultFromScode(S_OK);
-        }
     }
     return ResultFromScode(S_FALSE);
 }
@@ -762,7 +768,7 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
 
     SCODE sc = S_OK;
     int n;
-    LPFORMATETC fmtetc = someFormats(object,n);
+    LPFORMATETC fmtetc = someFormats(object->data, n);
 
     if (dwDirection == DATADIR_GET){
         *ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
@@ -870,7 +876,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     }
 
     current_dropobj = pDataObj;
-    QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
+    QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDragManager::self()->dropData);
 
     acceptfmt = true; // set this true to get the correct initial action
     QueryDrop(grfKeyState, pdwEffect);
@@ -923,7 +929,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     last_effect = *pdwEffect;
     last_keystate = grfKeyState;
 
-    QDragMoveEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
+    QDragMoveEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDragManager::self()->dropData);
     if (*pdwEffect & DROPEFFECT_MOVE)
         de.setAction(QDropEvent::Move);
     else if (*pdwEffect & DROPEFFECT_LINK)
@@ -973,8 +979,8 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
         current_dropobj = pDataObj;
 
         if (global_src)
-            global_src->setTarget(widget);
-        QDropEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
+            global_src->target = widget;
+        QDropEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)), QDragManager::self()->dropData);
         if (*pdwEffect & DROPEFFECT_MOVE)
             de.setAction(QDropEvent::Move);
         else if (*pdwEffect & DROPEFFECT_LINK)
@@ -1064,12 +1070,12 @@ void QDragManager::updatePixmap()
             cursor = 0;
         }
 
-        QPixmap pm = object->pixmap();
+        QPixmap pm = object->pixmap;
         if (pm.isNull()) {
             // None.
         } else {
             cursor = new HCURSOR[n_cursor];
-            QPoint pm_hot = object->pixmapHotSpot();
+            QPoint pm_hot = object->hotspot;
             for (int cnum=0; cnum<n_cursor; cnum++) {
                 QPixmap cpm = pm_cursor[cnum];
 

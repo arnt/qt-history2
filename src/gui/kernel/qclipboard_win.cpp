@@ -126,9 +126,9 @@ public:
     // it a higher priority than single-byte characters.  To do this, we
     // treat CF_TEXT as a special case and postpone its processing until
     // we're sure we do not have CF_UNICODETEXT
-    const char* format(int n) const
+    const char *format(int n) const
     {
-        const char* mime = 0;
+        static QString mime;
         bool sawSBText(false);
 
         if (n >= 0) {
@@ -139,11 +139,11 @@ public:
                         sawSBText = true;
                     } else {
                         mime = QWindowsMime::cfToMime(cf);
-                        if (mime) {
+                        if (!mime.isEmpty()) {
                             if (!n)
                                 break; // COME FROM HERE
                             n--;
-                            mime = 0;
+                            mime = QString();
                         }
                     }
                 }
@@ -151,14 +151,14 @@ public:
 
                 // If we did not find a suitable mime type, yet skipped
                 // CF_TEXT due to the priorities above, give it a shot
-                if (!mime && sawSBText && !n) {
+                if (mime.isEmpty() && sawSBText && !n) {
                     mime = QWindowsMime::cfToMime(CF_TEXT);
                 }
                 CloseClipboard();
             }
         }
         if (!n)
-            return mime;
+            return mime.latin1();
         return 0;
     }
 
@@ -204,20 +204,15 @@ public:
     {
         delete src;
         src = s;
-        if (src)
-            src->clearCache();
     }
     QMimeSource* source()
     {
-        if (src)
-            src->clearCache();
         return src;
     }
     QMimeSource* provider()
     {
         if (!prov)
             prov = new QClipboardWatcher();
-        prov->clearCache();
         return prov;
     }
 
@@ -418,7 +413,7 @@ QMimeSource* QClipboard::data(Mode mode) const
     return d->provider();
 }
 
-extern bool qt_CF_HDROP_valid(const char *mime, int cf, QMimeSource * src);
+extern bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData * src);
 
 void QClipboard::setData(QMimeSource* src, Mode mode)
 {
@@ -446,8 +441,7 @@ void QClipboard::setData(QMimeSource* src, Mode mode)
             if (c->cfFor(mime)) {
                 for (int j = 0; j < c->countCf(); j++) {
                     UINT cf = c->cf(j);
-                    if (c->canConvert(mime,cf) &&
-                        qt_CF_HDROP_valid(mime, cf, src)) {
+                    if (c->canConvert(mime,cf) /*&& qt_CF_HDROP_valid(mime, cf, src) ####### */) {
 #ifndef Q_OS_TEMP
                         if (qApp && qApp->eventLoop()->loopLevel())
                             SetClipboardData(cf, 0); // 0 == ask me later
