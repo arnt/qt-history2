@@ -33,7 +33,6 @@
 #include <qvalidator.h>
 #include <qpopupmenu.h>
 #include <qdict.h>
-#include <qmime.h>
 #include <qpopupmenu.h>
 
 class QProgressBar;
@@ -85,7 +84,6 @@ public:
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
-    QMimeSourceFactory* getContentFactory() const { return contentFactory; }
     QString docHomePage( const QString &doc );
 
 protected slots:
@@ -147,7 +145,6 @@ private:
     bool initDoneMsgShown;
     void getAllContents();
     QDict<ContentList> contentList;
-    QMimeSourceFactory *contentFactory;
     QPopupMenu *itemPopup;
 };
 

@@ -299,6 +299,19 @@ bool Config::setCurrentProfile( const QString &name )
     return TRUE;
 }
 
+QStringList Config::mimePaths()
+{
+    QStringList lst;
+    QValueListConstIterator<QString> it = profil->docs.begin();
+    for ( ; it != profil->docs.end(); ++it ) {
+	QFileInfo fi( *it );
+	lst << fi.dirPath( TRUE );
+	QDir dir( fi.dirPath( TRUE ) + "/" + profil->imageDirs[*it] );
+	lst << dir.path();
+    }
+    return lst;
+}
+
 QStringList Config::profiles() const
 {
     return profileNames;

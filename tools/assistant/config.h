@@ -47,6 +47,7 @@ public:
     bool validProfileName() const;
     void hideSideBar( bool b );
     bool sideBarHidden() const;
+    QStringList mimePaths();
 
     // From profile, read only
     QStringList profiles() const;

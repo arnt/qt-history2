@@ -43,7 +43,6 @@
 #include <qaccel.h>
 #include <qregexp.h>
 #include <qpixmap.h>
-#include <qmime.h>
 #include <qptrstack.h>
 #include <qptrlist.h>
 #include <qcursor.h>
@@ -194,13 +193,6 @@ void HelpDialog::initialize()
     connect( resultBox, SIGNAL( contextMenuRequested( QListBoxItem*, const QPoint& ) ),
 	     this, SLOT( showItemMenu( QListBoxItem*, const QPoint& ) ) );
 
-    contentFactory = new QMimeSourceFactory();
-    contentFactory->setExtensionType( "html", "text/html;charset=UTF-8" );
-
-    contentFactory->addFilePath( Config::configuration()->basePath() );
-    if( Config::configuration()->isDefaultProfile() )
-	contentFactory->addFilePath( Config::configuration()->basePath() + "/../gif/" );
-
     editIndex->installEventFilter( this );
     listBookmarks->header()->hide();
     listBookmarks->header()->setStretchEnabled( TRUE );
@@ -249,7 +241,7 @@ void HelpDialog::showProfile()
 	delete fullTextIndex;
 	fullTextIndex = 0;
     }
-    help->browsers()->setupMimeSource();
+    help->browsers()->setMimePath( Config::configuration()->mimePaths() );
     setupTitleMap();
 
     if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) ) {
@@ -764,11 +756,6 @@ void HelpDialog::insertContents()
     for ( ; lstIt.current(); ++lstIt ) {
 	QFileInfo fi( lstIt.currentKey() );
 	QString dir = fi.dirPath() + "/";
-	contentFactory->addFilePath( fi.dirPath( TRUE ) );
-	contentFactory->setExtensionType("html","text/html;charset=UTF-8");
-	contentFactory->setExtensionType("png", "image/png" );
-	contentFactory->setExtensionType("jpg", "image/jpeg" );
-	contentFactory->setExtensionType("jpeg", "image/jpeg" );
 
 	HelpNavigationContentsItem *newEntry;
 	newEntry = new HelpNavigationContentsItem( listContents, 0 );

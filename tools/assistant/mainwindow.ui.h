@@ -137,6 +137,7 @@ void MainWindow::setup()
     setupBookmarkMenu();
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
     helpDock->tabWidget->setCurrentPage( config->sideBarPage() );
+    tabs->setMimePath( config->mimePaths() );
 
     setObjectsEnabled( TRUE );
 }
@@ -378,20 +379,21 @@ void MainWindow::showLink( const QString &link )
 
     int find = link.find( '#' );
     QString name = find >= 0 ? link.left( find ) : link;
-    QMimeSourceFactory *factory = tabs->mimeSourceFactory();
-    const QMimeSource *mime = factory->data( name );
-    if( mime ) {
+
+    QFileInfo fi( link );
+    if( fi.exists() ) {
 	tabs->setSource( link );
+    /*
     } else if ( link=="assistant_about_text" ) {
 	// No default startup text yet!!
 	QString docfile = Config::configuration()->docFiles()[0];
 	tabs->setSource( helpDock->docHomePage( docfile ) );
+    */
     } else {
 	// ### Default 404 site!
 	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );
 	tabs->currentBrowser()->setText( tr( "The page could not be found!<br>"
-					     "'%1'").arg( link )
-					 );
+					     "'%1'").arg( link ) );
     }
 }
 

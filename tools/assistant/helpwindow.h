@@ -25,6 +25,7 @@
 
 class QMouseEvent;
 class MainWindow;
+class QMime;
 
 class HelpWindow : public QTextBrowser
 {
@@ -36,6 +37,7 @@ public:
     void blockScrolling( bool b );
     void openLinkInNewWindow( const QString &link );
     void openLinkInNewPage( const QString &link );
+    void addMimePath( const QString &path );
 
 signals:
     void chooseWebBrowser();
@@ -57,6 +59,7 @@ private:
     bool shiftPressed;
     QString lastAnchor;
     bool blockScroll;
+    QMimeSourceFactory *mimeSourceFactory;
 
 };
 

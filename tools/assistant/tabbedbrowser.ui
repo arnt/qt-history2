@@ -73,7 +73,7 @@
 <variables>
     <variable access="private">QStyleSheet *tabStyleSheet;</variable>
     <variable access="private">bool tabLinkUnderline;</variable>
-    <variable access="private">QMimeSourceFactory *tabMimeFactory;</variable>
+    <variable access="private">QMimeSourceFactory *mimeSourceFactory;</variable>
     <variable access="private">QWidget *lastCurrentTab;</variable>
 </variables>
 <slots>
@@ -106,8 +106,8 @@
     <function specifier="non virtual" returnType="QStyleSheet *">styleSheet()</function>
     <function specifier="non virtual" returnType="bool">linkUnderline()</function>
     <function specifier="non virtual" returnType="QStringList">sources()</function>
-    <function specifier="non virtual" returnType="QMimeSourceFactory*">mimeSourceFactory()</function>
-    <function specifier="non virtual">setupMimeSource()</function>
+    <function specifier="non virtual">setMimePath( QStringList lst )</function>
+    <function specifier="non virtual">setMimeExtension( const QString &amp; ext )</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

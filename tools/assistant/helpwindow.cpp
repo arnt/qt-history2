@@ -256,5 +256,5 @@ void HelpWindow::setCharacterEncoding( const QString &name )
     else
 	encoding = QString( codec->name() );
     QString extension = QString( "text/html; charset=%1" ).arg( encoding );
-    mw->helpDialog()->getContentFactory()->setExtensionType( "html", extension );
+    mw->browsers()->setMimeExtension( extension );
 }

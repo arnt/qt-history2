@@ -81,7 +81,7 @@ void TabbedBrowser::newTab( const QString &lnk )
     win->setPalette( palette() );
     win->setLinkUnderline( tabLinkUnderline );
     win->setStyleSheet( tabStyleSheet );
-    win->setMimeSourceFactory( tabMimeFactory );
+    win->setMimeSourceFactory( mimeSourceFactory );
 
     tab->addTab( win, "..." );
     tab->showPage( win );
@@ -107,13 +107,30 @@ void TabbedBrowser::init()
 {
     tabLinkUnderline = FALSE;
     tabStyleSheet = new QStyleSheet( QStyleSheet::defaultSheet() );
-    tabMimeFactory = new QMimeSourceFactory();
     lastCurrentTab = 0;
     while( tab->count() )
 	tab->removePage( tab->page(0) );
-    //    newTab( QString::null );
+
+    mimeSourceFactory = new QMimeSourceFactory();
+    mimeSourceFactory->setExtensionType("html","text/html;charset=UTF-8");
+    mimeSourceFactory->setExtensionType("htm","text/html;charset=UTF-8");
+    mimeSourceFactory->setExtensionType("png", "image/png" );
+    mimeSourceFactory->setExtensionType("jpg", "image/jpeg" );
+    mimeSourceFactory->setExtensionType("jpeg", "image/jpeg" );
+
     connect( tab, SIGNAL( currentChanged( QWidget* ) ),
 	     this, SLOT( transferFocus() ) );
+}
+
+void TabbedBrowser::setMimePath( QStringList lst )
+{
+    mimeSourceFactory->setFilePath( lst );
+}
+
+void TabbedBrowser::setMimeExtension( const QString &ext )
+{
+    mimeSourceFactory->setExtensionType( "html", ext );
+    mimeSourceFactory->setExtensionType( "htm", ext );
 }
 
 void TabbedBrowser::updateTitle( const QString &title )
@@ -146,8 +163,6 @@ void TabbedBrowser::setup()
 {
     Config *config = Config::configuration();
 
-    //QString base( qInstallPathDocs() );
-
     QFont fnt( font() );
     QFontInfo fntInfo( fnt );
     fnt.setFamily( config->fontFamily() );
@@ -168,8 +183,6 @@ void TabbedBrowser::setup()
     tabStyleSheet->item( "code" )->setFontFamily( family );
     tabStyleSheet->item( "tt" )->setFontFamily( family );
 
-    //tabMimeFactory->addFilePath( base + "/html" );
-    setupMimeSource();
     newTab( QString::null );
 }
 
@@ -235,25 +248,6 @@ QStringList TabbedBrowser::sources()
 	lst.append( ( (QTextBrowser*) tab->page(i) )->source() );
     }
     return lst;
-}
-
-QMimeSourceFactory *TabbedBrowser::mimeSourceFactory()
-{
-    return tabMimeFactory;
-}
-
-void TabbedBrowser::setupMimeSource()
-{
-    Config *config = Config::configuration();
-    QStringList docList = config->docFiles();
-    QValueListConstIterator<QString> it = docList.begin();
-    for ( ; it != docList.end(); ++it )
-    {
-	QFileInfo fi( *it );
-	tabMimeFactory->addFilePath( fi.dirPath( TRUE ) );
-	if ( !config->docImageDir( *it ).isEmpty() )
-	    tabMimeFactory->addFilePath( config->docImageDir( *it ) );
-    }
 }
 
 void TabbedBrowser::displayEntireLabel( QWidget *w )
