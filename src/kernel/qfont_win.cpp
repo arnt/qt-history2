@@ -136,7 +136,7 @@ void QFont::cleanup()
 
 void QFontPrivate::load( QFont::Script script )
 {
-    qDebug("trying to load font for script %d", script );
+//     qDebug("trying to load font for script %d", script );
 #ifdef QT_CHECK_STATE
     // sanity checks
     Q_ASSERT( QFontCache::instance != 0);
@@ -469,12 +469,14 @@ static int get_min_right_bearing( const QFontMetrics *f )
 
 int QFontMetrics::minLeftBearing() const
 {
-    (void) d->engineForScript( (QFont::Script) fscript );
+    // ### Lars will fix this
+//     (void) d->engineForScript( (QFont::Script) fscript );
 
-    if ( d->engineData->lbearing == SHRT_MIN )
-	minRightBearing(); // calculates both
+//     if ( d->engineData->lbearing == SHRT_MIN )
+// 	minRightBearing(); // calculates both
 
-    return d->engineData->lbearing;
+//     return d->engineData->lbearing;
+    return 0;
 }
 
 int QFontMetrics::minRightBearing() const
