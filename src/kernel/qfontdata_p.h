@@ -68,7 +68,21 @@ struct QFontDef
     uint fixedPitchComputed : 1; // for Mac OS X only
     uint reserved   : 14; // for future extensions
 
-    bool operator==( const QFontDef &other ) const;
+    bool exactMatch(const QFontDef &other) const;
+    bool operator==( const QFontDef &other ) const
+    {
+	return pixelSize == other.pixelSize
+			  && weight == other.weight
+			  && italic == other.italic
+			  && stretch == other.stretch
+			  && styleHint == other.styleHint
+			  && styleStrategy == other.styleStrategy
+			  && family == other.family
+#ifdef Q_WS_X11
+			  && addStyle == other.addStyle
+#endif
+			  ;
+    }
     inline bool operator<( const QFontDef &other ) const
     {
 	if ( pixelSize != other.pixelSize ) return pixelSize < other.pixelSize;

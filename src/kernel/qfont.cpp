@@ -53,7 +53,7 @@ extern void qt_format_text( const QFont& font, const QRect &_r,
                             QPainter* painter );
 
 
-bool QFontDef::operator==( const QFontDef &other ) const
+bool QFontDef::exactMatch( const QFontDef &other ) const
 {
     /*
       QFontDef comparison is more complicated than just simple
@@ -1204,7 +1204,7 @@ bool QFont::exactMatch() const
     Q_ASSERT( engine != 0 );
 
     return d->rawMode ? engine->type() != QFontEngine::Box
-			     : d->request == engine->fontDef;
+					  : d->request.exactMatch(engine->fontDef);
 }
 
 /*!
@@ -1484,7 +1484,7 @@ void QFont::removeSubstitution( const QString &familyName )
   // ### removeSubstitutionList()
     initFontSubst();
 
-    fontSubst.erase(familyName);
+    fontSubst.remove(familyName);
 }
 
 
@@ -2822,7 +2822,7 @@ bool QFontInfo::exactMatch() const
     Q_ASSERT( engine != 0 );
 
     return d->rawMode ? engine->type() != QFontEngine::Box
-			     : d->request == engine->fontDef;
+					  : d->request.exactMatch(engine->fontDef);
 }
 
 
