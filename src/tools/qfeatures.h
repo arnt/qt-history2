@@ -687,6 +687,11 @@
 #define QT_NO_COMPLEXTEXT
 #endif
 
+// QDateTimeEdit
+#if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_RICHTEXT))
+#define QT_NO_DATETIMEEDIT
+#endif
+
 // Document Object Model
 #if !defined(QT_NO_DOM) && (defined(QT_NO_XML) || defined(QT_NO_MIME))
 #define QT_NO_DOM
@@ -873,7 +878,7 @@
 #endif
 
 // SQL classes
-#if !defined(QT_NO_SQL) && (defined(QT_NO_PROPERTIES) || defined(QT_NO_TABLE) || defined(QT_NO_SPINBOX) || defined(QT_NO_MESSAGEBOX))
+#if !defined(QT_NO_SQL) && (defined(QT_NO_PROPERTIES) || defined(QT_NO_TABLE) || defined(QT_NO_SPINBOX) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_DATETIMEEDIT))
 #define QT_NO_SQL
 #endif
 

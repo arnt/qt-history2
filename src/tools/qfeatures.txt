@@ -42,7 +42,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Database
-Requires: PROPERTIES TABLE SPINBOX MESSAGEBOX
+Requires: PROPERTIES TABLE SPINBOX MESSAGEBOX DATETIMEEDIT
 Name: SQL classes
 SeeAlso: ???
 
@@ -1190,5 +1190,11 @@ Feature: SESSIONMANAGER
 Section: Kernel
 Requires: STRINGLIST
 Name: Session management
+SeeAlso: ???
+
+Feature: DATETIMEEDIT
+Section: Widgets
+Requires: RICHTEXT
+Name: QDateTimeEdit
 SeeAlso: ???
 
