@@ -174,7 +174,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 			    // discard all other client messages
 			    if ( event.xclient.format != 32 ||
 				 event.xclient.message_type != qt_wm_protocols ||
-				 event.xclient.data.l[0] != qt_wm_take_focus )
+				 (Atom) event.xclient.data.l[0] != qt_wm_take_focus )
 				continue;
 			}
 
