@@ -2701,6 +2701,7 @@ void MainWindow::readConfig()
     if ( !QFile::exists( fn ) )
 	return;
     Config config( fn );
+    config.setGroup( "General" );
     restoreConfig = config.readBoolEntry( "RestoreWorkspace", TRUE );
     docPath = config.readEntry( "DocPath", docPath );
     config.setGroup( "Import" );
