@@ -305,8 +305,7 @@ class QETWidget : public QWidget                // event translator widget
 public:
     void        setWFlags(Qt::WFlags f)        { QWidget::setWFlags(f); }
     void        clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
-    void        setAttribute(Qt::WState f)        { QWidget::setAttribute(f); }
-    void        setAttribute(Qt::WState f, false) { QWidget::setAttribute(f, false); }
+    void        setAttribute(Qt::WidgetAttribute f, bool on = true) { QWidget::setAttribute(f, on); }
     QWExtra    *xtra()                        { return d->extraData(); }
     QTLWExtra  *topData()                     { return d->topData(); }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
@@ -1626,13 +1625,13 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #endif
             case SC_MAXIMIZE:
                 window_state_change = true;
-                widget->data->window_state &= ~Qt::WindowMinimized;
-                widget->data->window_state |= Qt::WindowMaximized;
+                widget->setWindowState(widget->windowState() &= ~Qt::WindowMinimized);
+                widget->setWindowState(widget->windowState() |= Qt::WindowMaximized);
                 result = false;
                 break;
             case SC_MINIMIZE:
                 window_state_change = true;
-                widget->data->window_state |= Qt::WindowMinimized;
+                widget->setWindowState(widget->windowState() |= Qt::WindowMinimized);
                 if (widget->isVisible()) {
                     QHideEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
@@ -1643,12 +1642,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             case SC_RESTORE:
                 window_state_change = true;
                 if (widget->isMinimized()) {
-                    widget->data->window_state &= ~Qt::WindowMinimized;
+                    widget->setWindowState(widget->windowState() &= ~Qt::WindowMinimized);
                     widget->showChildren(true);
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
                 } else {
-                    widget->data->window_state &= ~Qt::WindowMaximized;
+                    widget->setWindowState(widget->windowState() &= ~Qt::WindowMaximized);
                 }
                 result = false;
                 break;
@@ -1684,10 +1683,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 bool window_state_changed = false;
                 if (widget->isMaximized()) {
                     window_state_changed = true;
-                    widget->setAttribute(Qt::WA_WState_Maximized, false);
-                } else if (widget->testWFlags(Qt::WStyle_Maximize)){
+                    widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
+                } else if (widget->isMaximized()){
                     window_state_changed = true;
-                    widget->setAttribute(Qt::WA_WState_Maximized);
+                    widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
                 }
 
                 if (window_state_changed) {
@@ -1764,7 +1763,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             case WM_SHOWWINDOW:
 #ifndef Q_OS_TEMP
                 if (lParam == SW_PARENTOPENING) {
-                    if (widget->testAttribute(Qt::WA_WState_ForceHide))
+                    if (widget->testAttribute(Qt::WA_WState_Hidden))
                         RETURN(0);
                 }
 #endif
@@ -3339,7 +3338,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             d->createTLExtra();
             // Capture SIZE_MINIMIZED without preceding WM_SYSCOMMAND
             // (like Windows+M)
-            if (msg.wParam == SIZE_MINIMIZED && !isMinimized())) {
+            if (msg.wParam == SIZE_MINIMIZED && !isMinimized()) {
             data->window_state |= Qt::WindowMinimized;
             if (isVisible()) {
                 QHideEvent e;

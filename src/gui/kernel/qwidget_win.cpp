@@ -1153,7 +1153,7 @@ void QWidgetPrivate::show_sys()
     if (q->isTopLevel()) {
         if (q->isMinimized())
             sm = SW_SHOWMINIMIZED;
-        else if (isMinimized())
+        else if (q->isMinimized())
             sm = SW_SHOWMAXIMIZED;
     }
     if (q->testWFlags(Qt::WStyle_Tool) || q->isPopup())
@@ -1314,7 +1314,7 @@ void QWidget::showNormal()
 
 void QWidgetPrivate::raise_sys()
 {
-    uint f = (q->isPopup() || testWFlags(Qt::WStyle_Tool)) ? SWP_NOACTIVATE : 0;
+    uint f = (q->isPopup() || q->testWFlags(Qt::WStyle_Tool)) ? SWP_NOACTIVATE : 0;
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE);
 }
 
@@ -1483,8 +1483,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
 
     if (isResize)
-        q->setAttribute(Qt::WA_WState_Maximized, false);
-    q->setAttribute(Qt::WA_WState_FullScreen, false);
+        data.window_state &= ~Qt::WindowMaximized;
+    data.window_state &= ~Qt::WindowFullScreen;
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
