@@ -552,9 +552,7 @@ QFileInfo::makeAbsolute()
     if(!d->data->fileEngine || !d->data->fileEngine->isRelativePath())
         return false;
     QString absFileName = d->getFileName(QFileEngine::AbsoluteName);
-    d->detach();
-    d->data->fileName = absFileName;
-    d->data->fileEngine->setFileName(absFileName);
+    d->initFileEngine(absFileName);
     return true;
 }
 
