@@ -12,29 +12,29 @@
 **
 ****************************************************************************/
 
-#ifndef QKERNELAPPLICATION_H
-#define QKERNELAPPLICATION_H
+#ifndef QCOREAPPLICATION_H
+#define QCOREAPPLICATION_H
 
 #ifndef QT_H
 #include <qobject.h>
 #include <qstringlist.h>
 #endif // QT_H
 
-class QKernelApplicationPrivate;
+class QCoreApplicationPrivate;
 class QTextCodec;
 class QTranslator;
 class QEventLoop;
 
-class Q_KERNEL_EXPORT QKernelApplication : public QObject
+class Q_CORE_EXPORT QCoreApplication : public QObject
 {
     Q_OBJECT
-    Q_DECL_PRIVATE(QKernelApplication);
+    Q_DECL_PRIVATE(QCoreApplication);
 public:
-    QKernelApplication(int &argc, char **argv);
-    QKernelApplication(QKernelApplicationPrivate &, QEventLoop *);
-    ~QKernelApplication();
+    QCoreApplication(int &argc, char **argv);
+    QCoreApplication(QCoreApplicationPrivate &, QEventLoop *);
+    ~QCoreApplication();
 
-    static QKernelApplication *instance() { return self; }
+    static QCoreApplication *instance() { return self; }
     static QEventLoop *eventLoop();
 
     virtual int      exec();
@@ -111,7 +111,7 @@ private:
     static bool is_app_running;
     static bool is_app_closing;
 
-    static QKernelApplication *self;
+    static QCoreApplication *self;
 
     friend class QEvent;
     friend class QEventLoop;
@@ -126,19 +126,19 @@ private:
 #endif
 };
 
-inline bool QKernelApplication::sendEvent( QObject *receiver, QEvent *event )
+inline bool QCoreApplication::sendEvent( QObject *receiver, QEvent *event )
 {  if ( event ) event->spont = FALSE; return self ? self->notify( receiver, event ) : FALSE; }
 
-inline bool QKernelApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event )
+inline bool QCoreApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event )
 { if ( event ) event->spont = TRUE; return self ? self->notify( receiver, event ) : FALSE; }
 
-inline void QKernelApplication::sendPostedEvents() { sendPostedEvents( 0, 0 ); }
+inline void QCoreApplication::sendPostedEvents() { sendPostedEvents( 0, 0 ); }
 
-inline void QKernelApplication::processEvents() { processEvents( 3000 ); }
+inline void QCoreApplication::processEvents() { processEvents( 3000 ); }
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions
-inline QString QKernelApplication::translate( const char *, const char *sourceText,
+inline QString QCoreApplication::translate( const char *, const char *sourceText,
 					const char *, Encoding encoding ) const
 {
 #ifndef QT_NO_TEXTCODEC
@@ -150,9 +150,9 @@ inline QString QKernelApplication::translate( const char *, const char *sourceTe
 }
 #endif
 
-Q_KERNEL_EXPORT void qAddPostRoutine( QtCleanUpFunction );
-Q_KERNEL_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
-Q_KERNEL_EXPORT const char *qAppName();		// get application name
+Q_CORE_EXPORT void qAddPostRoutine( QtCleanUpFunction );
+Q_CORE_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
+Q_CORE_EXPORT const char *qAppName();		// get application name
 
 
 #endif

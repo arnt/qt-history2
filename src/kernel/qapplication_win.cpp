@@ -99,9 +99,9 @@ static UINT prsAdjust(PACKET p, HCTX hTab);
 static void initWinTabFunctions();	// resolve the WINTAB api functions
 #endif
 
-Q_KERNEL_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_CORE_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 			    UINT wMsgFilterMax, UINT wRemoveMsg );
-Q_KERNEL_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+Q_CORE_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
@@ -250,12 +250,12 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
-extern Q_KERNEL_EXPORT bool qt_winEventFilter(MSG* msg);
-extern Q_KERNEL_EXPORT char      appName[];
-extern Q_KERNEL_EXPORT char      appFileName[];
-extern Q_KERNEL_EXPORT HINSTANCE appInst;			// handle to app instance
-extern Q_KERNEL_EXPORT HINSTANCE appPrevInst;			// handle to prev app instance
-extern Q_KERNEL_EXPORT int appCmdShow;				// main window show command
+extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg);
+extern Q_CORE_EXPORT char      appName[];
+extern Q_CORE_EXPORT char      appFileName[];
+extern Q_CORE_EXPORT HINSTANCE appInst;			// handle to app instance
+extern Q_CORE_EXPORT HINSTANCE appPrevInst;			// handle to prev app instance
+extern Q_CORE_EXPORT int appCmdShow;				// main window show command
 static HWND	 curWin		= 0;		// current window
 static HDC	 displayDC	= 0;		// display device context
 #ifdef Q_OS_TEMP
@@ -1105,7 +1105,7 @@ static int inputcharset = CP_ACP;
 
 bool qt_sendSpontaneousEvent( QObject *receiver, QEvent *event )
 {
-    return QKernelApplication::sendSpontaneousEvent( receiver, event );
+    return QCoreApplication::sendSpontaneousEvent( receiver, event );
 }
 
 extern "C"

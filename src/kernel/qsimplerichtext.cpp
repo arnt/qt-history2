@@ -29,7 +29,7 @@ public:
 };
 
 // Pull this private function in from qglobal.cpp
-Q_KERNEL_EXPORT unsigned int qt_int_sqrt( unsigned int n );
+Q_CORE_EXPORT unsigned int qt_int_sqrt( unsigned int n );
 
 void QSimpleRichTextData::adjustSize() {
     QFontMetrics fm( font );

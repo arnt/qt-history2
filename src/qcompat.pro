@@ -1,8 +1,8 @@
 REQUIRES = !qt_one_lib
 TARGET		= q3compat
 include(qbase.pri)
+QCONFIG = core gui network
 
 DEFINES += QT_BUILD_COMPAT_LIB
 
-QCONFIG = kernel gui
 include($$COMPAT_CPP/qt_compat.pri)

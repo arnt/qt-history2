@@ -22,7 +22,7 @@
 class  QSignalMapperPrivate;
 
 
-class Q_KERNEL_EXPORT QSignalMapper : public QObject {
+class Q_CORE_EXPORT QSignalMapper : public QObject {
     Q_OBJECT
     Q_DECL_PRIVATE(QSignalMapper);
 public:

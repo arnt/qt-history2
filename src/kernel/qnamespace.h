@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_KERNEL_EXPORT Qt {
+class Q_CORE_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
     Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat )
@@ -935,7 +935,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparison);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 
-class Q_KERNEL_EXPORT QInternal {
+class Q_CORE_EXPORT QInternal {
 public:
     enum PaintDeviceFlags {
 	UndefinedDevice = 0x00,

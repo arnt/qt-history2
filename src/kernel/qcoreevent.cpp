@@ -1,8 +1,8 @@
-#include "qkernelevent.h"
-#include "qkernelapplication.h"
+#include "qcoreevent.h"
+#include "qcoreapplication.h"
 
 /*!
-    \class QEvent qkernelevent.h
+    \class QEvent qcoreevent.h
     \brief The QEvent class is the base class of all
     event classes. Event objects contain event parameters.
 
@@ -168,8 +168,8 @@
 
 QEvent::~QEvent()
 {
-    if ( posted && QKernelApplication::self )
-	QKernelApplication::removePostedEvent( this );
+    if ( posted && QCoreApplication::self )
+	QCoreApplication::removePostedEvent( this );
 }
 
 /*!
@@ -187,7 +187,7 @@ QEvent::~QEvent()
 
 
 /*!
-    \class QTimerEvent qkernelevent.h
+    \class QTimerEvent qcoreevent.h
     \brief The QTimerEvent class contains parameters that describe a
     timer event.
 
@@ -221,7 +221,7 @@ QEvent::~QEvent()
 */
 
 /*!
-    \class QChildEvent qkernelevent.h
+    \class QChildEvent qcoreevent.h
     \brief The QChildEvent class contains event parameters for child object
     events.
 
@@ -264,7 +264,7 @@ QEvent::~QEvent()
 */
 
 /*!
-    \class QCustomEvent qkernelevent.h
+    \class QCustomEvent qcoreevent.h
     \brief The QCustomEvent class provides support for custom events.
 
     \ingroup events

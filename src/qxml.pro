@@ -1,6 +1,6 @@
 REQUIRES = !qt_one_lib
 TARGET		= qxml
-QCONFIG = kernel gui
+QCONFIG = core gui
 
 DEFINES += QT_BUILD_XML_LIB
 

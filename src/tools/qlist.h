@@ -8,7 +8,7 @@
 
 #include <new>
 
-struct Q_KERNEL_EXPORT QListData {
+struct Q_CORE_EXPORT QListData {
     struct DataHeader {
 	QAtomic ref;
 	int alloc, begin, end;

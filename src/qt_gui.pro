@@ -1,7 +1,7 @@
 TARGET		= qt
 include(qbase.pri)
 
-QCONFIG = kernel 
+QCONFIG = core 
 !win32:!embedded:!mac:CONFIG	   += x11 x11inc
 
 !cups:DEFINES += QT_NO_CUPS

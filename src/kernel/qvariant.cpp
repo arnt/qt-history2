@@ -34,7 +34,7 @@
 #include "qsizepolicy.h"
 
 extern const QVariant::Handler qt_gui_variant_handler;
-Q_KERNEL_EXPORT const QVariant::Handler *qKernelVariantHandler();
+Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 
 static void construct(QVariant::Private *x, const void *v)
 {
@@ -103,7 +103,7 @@ static void construct(QVariant::Private *x, const void *v)
 	    x->value.ptr = new QCursor(*static_cast<const QCursor *>(v));
 	    break;
 	default:
-	    qKernelVariantHandler()->construct(x, v);
+	    qcoreVariantHandler()->construct(x, v);
 	}
 	x->is_null = false;
     } else {
@@ -176,7 +176,7 @@ static void construct(QVariant::Private *x, const void *v)
 	    break;
 #endif
 	default:
-	    qKernelVariantHandler()->construct(x, v);
+	    qcoreVariantHandler()->construct(x, v);
 	}
 
     }
@@ -250,7 +250,7 @@ static void clear(QVariant::Private *p)
 	delete static_cast<QPen *>(p->value.ptr);
 	break;
     default:
-	qKernelVariantHandler()->clear(p);
+	qcoreVariantHandler()->clear(p);
 	break;
     }
 
@@ -302,7 +302,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Pen:
 	break;
     default:
-	return qKernelVariantHandler()->isNull(d);
+	return qcoreVariantHandler()->isNull(d);
     }
     return d->is_null;
 }
@@ -387,7 +387,7 @@ static void load(QVariant::Private *d, QDataStream &s)
 	s >> *static_cast<QPen *>(d->value.ptr);
 	break;
     default:
-	qKernelVariantHandler()->load(d, s);
+	qcoreVariantHandler()->load(d, s);
 	return;
     }
 }
@@ -470,7 +470,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 	s << *static_cast<QPen *>(d->value.ptr);
 	break;
     default:
-	qKernelVariantHandler()->save(d, s);
+	qcoreVariantHandler()->save(d, s);
     }
 }
 #endif
@@ -547,7 +547,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     default:
 	break;
     }
-    return qKernelVariantHandler()->compare(a, b);
+    return qcoreVariantHandler()->compare(a, b);
 }
 
 
@@ -619,7 +619,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 	break;
     }
     if (!converted)
-	qKernelVariantHandler()->cast(d, t, result, ok);
+	qcoreVariantHandler()->cast(d, t, result, ok);
 }
 
 static bool canCast(QVariant::Private *d, QVariant::Type t)
@@ -645,7 +645,7 @@ static bool canCast(QVariant::Private *d, QVariant::Type t)
     default:
 	break;
     }
-    return qKernelVariantHandler()->canCast(d, t);
+    return qcoreVariantHandler()->canCast(d, t);
 }
 
 

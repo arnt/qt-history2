@@ -25,7 +25,7 @@
 // The object dictionary is a collection of QMetaObjects
 //
 
-class Q_KERNEL_EXPORT QObjectDictionary : public QAsciiDict<QMetaObject>
+class Q_COMPAT_EXPORT QObjectDictionary : public QAsciiDict<QMetaObject>
 {
 public:
     QObjectDictionary(int size=17,bool cs=TRUE,bool ck=TRUE)

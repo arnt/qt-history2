@@ -132,7 +132,7 @@ public:
 };
 
 
-class Q_KERNEL_EXPORT QEventLoopPrivate : public QObjectPrivate
+class Q_CORE_EXPORT QEventLoopPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QEventLoop);
 public:
@@ -157,7 +157,7 @@ public:
 #endif // Q_WS_X11
 
     // true if QEventLoop has been constructed and initialized,
-    // otherwise false.  used in qkernelapplication.cpp
+    // otherwise false.  used in qcoreapplication.cpp
     bool initialized;
 
     // list of posted events
@@ -185,7 +185,7 @@ public:
     void timerRepair(const timeval &);
 #endif
 
-    friend class QKernelApplication;
+    friend class QCoreApplication;
 };
 
 #endif // QEVENTLOOP_P_H

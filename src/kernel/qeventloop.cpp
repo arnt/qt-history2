@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qeventloop.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qdatetime.h"
 #include "qmap.h"
 #include "qthreadstorage.h"
@@ -300,11 +300,11 @@ int QEventLoop::enterLoop()
 	d->quitnow  = FALSE;
 	d->exitloop = FALSE;
 	d->shortcut = FALSE;
-	if (this == QKernelApplication::eventLoop())
-	    emit QKernelApplication::instance()->aboutToQuit();
+	if (this == QCoreApplication::eventLoop())
+	    emit QCoreApplication::instance()->aboutToQuit();
 
 	// send deferred deletes
-	QKernelApplication::sendPostedEvents( 0, QEvent::DeferredDelete );
+	QCoreApplication::sendPostedEvents( 0, QEvent::DeferredDelete );
     }
 
     return d->looplevel;

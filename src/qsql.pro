@@ -1,6 +1,6 @@
 REQUIRES = !qt_one_lib
-TARGET		= qsqlkernel
-QCONFIG = kernel gui
+TARGET		= qsql
+QCONFIG = core gui
 
 DEFINES += QT_BUILD_SQL_LIB
 

@@ -21,7 +21,7 @@
 #endif // QT_H
 
 
-class Q_KERNEL_EXPORT QBuffer : public QIODevice
+class Q_CORE_EXPORT QBuffer : public QIODevice
 {
 public:
     QBuffer();

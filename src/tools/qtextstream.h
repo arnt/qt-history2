@@ -28,7 +28,7 @@ class QTextDecoder;
 
 class QTextStreamPrivate;
 
-class Q_KERNEL_EXPORT QTextStream				// text stream class
+class Q_CORE_EXPORT QTextStream				// text stream class
 {
 public:
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
@@ -161,7 +161,7 @@ private:	// Disabled copy constructor and operator=
 
 typedef QTextStream QTS;
 
-class Q_KERNEL_EXPORT QTextIStream : public QTextStream {
+class Q_CORE_EXPORT QTextIStream : public QTextStream {
 public:
     QTextIStream( const QString* s ) :
 	QTextStream((QString*)s,IO_ReadOnly) { }
@@ -177,7 +177,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-class Q_KERNEL_EXPORT QTextOStream : public QTextStream {
+class Q_CORE_EXPORT QTextOStream : public QTextStream {
 public:
     QTextOStream( QString* s ) :
 	QTextStream(s,IO_WriteOnly) { }
@@ -249,7 +249,7 @@ inline QChar QTextStream::ts_getc()
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
 typedef int (QTextStream::*QTSMFI)(int);	// manipulator w/int argument
 
-class Q_KERNEL_EXPORT QTSManip {			// text stream manipulator
+class Q_CORE_EXPORT QTSManip {			// text stream manipulator
 public:
     QTSManip( QTSMFI m, int a ) { mf=m; arg=a; }
     void exec( QTextStream &s ) { (s.*mf)(arg); }
@@ -267,14 +267,14 @@ inline QTextStream &operator<<( QTextStream &s, QTSFUNC f )
 inline QTextStream &operator<<( QTextStream &s, QTSManip m )
 { m.exec(s); return s; }
 
-Q_KERNEL_EXPORT QTextStream &bin( QTextStream &s );	// set bin notation
-Q_KERNEL_EXPORT QTextStream &oct( QTextStream &s );	// set oct notation
-Q_KERNEL_EXPORT QTextStream &dec( QTextStream &s );	// set dec notation
-Q_KERNEL_EXPORT QTextStream &hex( QTextStream &s );	// set hex notation
-Q_KERNEL_EXPORT QTextStream &endl( QTextStream &s );	// insert EOL ('\n')
-Q_KERNEL_EXPORT QTextStream &flush( QTextStream &s );	// flush output
-Q_KERNEL_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
-Q_KERNEL_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
+Q_CORE_EXPORT QTextStream &bin( QTextStream &s );	// set bin notation
+Q_CORE_EXPORT QTextStream &oct( QTextStream &s );	// set oct notation
+Q_CORE_EXPORT QTextStream &dec( QTextStream &s );	// set dec notation
+Q_CORE_EXPORT QTextStream &hex( QTextStream &s );	// set hex notation
+Q_CORE_EXPORT QTextStream &endl( QTextStream &s );	// insert EOL ('\n')
+Q_CORE_EXPORT QTextStream &flush( QTextStream &s );	// flush output
+Q_CORE_EXPORT QTextStream &ws( QTextStream &s );	// eat whitespace on input
+Q_CORE_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
 
 inline QTSManip qSetW( int w )
 {

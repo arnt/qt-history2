@@ -832,7 +832,7 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
     Deliberately not exported as part of the Qt API, but used in both
     qsimplerichtext.cpp and qgfxraster_qws.cpp
 */
-Q_KERNEL_EXPORT unsigned int qt_int_sqrt( unsigned int n )
+Q_CORE_EXPORT unsigned int qt_int_sqrt( unsigned int n )
 {
     // n must be in the range 0...UINT_MAX/2-1
     if ( n >= ( UINT_MAX>>2 ) ) {

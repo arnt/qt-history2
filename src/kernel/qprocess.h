@@ -27,7 +27,7 @@ class QProcessPrivate;
 class QMembuf;
 
 
-class Q_KERNEL_EXPORT QProcess : public QObject
+class Q_CORE_EXPORT QProcess : public QObject
 {
     Q_OBJECT
 public:

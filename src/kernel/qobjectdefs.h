@@ -123,7 +123,7 @@ class QMetaEnum;
 class QMetaProperty;
 class QMetaClassInfo;
 
-struct Q_KERNEL_EXPORT QMetaObject
+struct Q_CORE_EXPORT QMetaObject
 {
     const char *className() const;
     const QMetaObject *superClass() const;

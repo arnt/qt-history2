@@ -26,7 +26,7 @@
 
 class QRegExp;
 
-class Q_KERNEL_EXPORT QStringList : public QList<QString>
+class Q_CORE_EXPORT QStringList : public QList<QString>
 {
 public:
     inline QStringList() { }
@@ -62,10 +62,10 @@ public:
 
 #ifndef QT_NO_DATASTREAM
 template <class T>
-Q_KERNEL_EXPORT QDataStream& operator>>( QDataStream& s, QStringList& l );
+Q_CORE_EXPORT QDataStream& operator>>( QDataStream& s, QStringList& l );
 
 template <class T>
-Q_KERNEL_EXPORT QDataStream& operator<<( QDataStream& s, const QStringList& l );
+Q_CORE_EXPORT QDataStream& operator<<( QDataStream& s, const QStringList& l );
 #endif // QT_NO_DATASTREAM
 
 #endif // QSTRINGLIST_H

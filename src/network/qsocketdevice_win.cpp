@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qsocketdevice.h"
 #include "qdatetime.h"
 

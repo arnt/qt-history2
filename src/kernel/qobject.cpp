@@ -12,10 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qkernelvariant.h"
+#include "qcorevariant.h"
 #include "qeventloop.h"
-#include "qkernelapplication.h"
-#include "qkernelevent.h"
+#include "qcoreapplication.h"
+#include "qcoreevent.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
 
@@ -273,8 +273,8 @@ QObject::QObject(QObject *parent)
     d_ptr->q_ptr = this;
     setParent(parent);
     QEvent e( QEvent::Create );
-    QKernelApplication::sendEvent( this, &e );
-    QKernelApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    QCoreApplication::sendEvent( this, &e );
+    QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 
@@ -295,8 +295,8 @@ QObject::QObject( QObject *parent, const char *name )
 	setObjectName(name);
     setParent(parent);
     QEvent e( QEvent::Create );
-    QKernelApplication::sendEvent( this, &e );
-    QKernelApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    QCoreApplication::sendEvent( this, &e );
+    QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 #endif
@@ -316,8 +316,8 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     d_ptr->q_ptr = this;
     setParent(parent);
     QEvent e( QEvent::Create );
-    QKernelApplication::sendEvent( this, &e );
-    QKernelApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    QCoreApplication::sendEvent( this, &e );
+    QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 /*!\internal*/
@@ -371,7 +371,7 @@ QObject::~QObject()
     wasDeleted = 1;
 
     QEvent e( QEvent::Destroy );
-    QKernelApplication::sendEvent( this, &e );
+    QCoreApplication::sendEvent( this, &e );
 
     blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed( this );
@@ -427,7 +427,7 @@ QObject::~QObject()
 	d->children.setAutoDelete(TRUE);
 	d->children.clear();
     }
-    QKernelApplication::removePostedEvents( this );
+    QCoreApplication::removePostedEvents( this );
 
     if (d->objectName && d->ownObjectName) {
 	delete [] (char*)d->objectName;
@@ -746,10 +746,10 @@ void QObject::ensurePolished() const
     d->polished = m;
 
     QEvent e(QEvent::Polish);
-    QKernelApplication::sendEvent((QObject*)this, &e);
+    QCoreApplication::sendEvent((QObject*)this, &e);
     if (parentObj) {
 	QChildEvent e(QEvent::ChildPolished, (QObject*)this);
-	QKernelApplication::sendEvent((QObject*)parentObj, &e);
+	QCoreApplication::sendEvent((QObject*)parentObj, &e);
     }
 
 }
@@ -1126,7 +1126,7 @@ void QObject::setParent_helper(QObject *parent)
 	return;
     if (parentObj && parentObj->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
-	QKernelApplication::sendEvent( parentObj, &e);
+	QCoreApplication::sendEvent( parentObj, &e);
     }
     parentObj = parent;
     if (parentObj) {
@@ -1137,13 +1137,13 @@ void QObject::setParent_helper(QObject *parent)
 	parentObj->d->children.append(this);
 	const QMetaObject *polished = d->polished;
 	QChildEvent e(QEvent::ChildAdded, this);
-	QKernelApplication::sendEvent(parentObj, &e);
+	QCoreApplication::sendEvent(parentObj, &e);
 	if (polished) {
 	    QChildEvent e(QEvent::ChildPolished, this);
-	    QKernelApplication::sendEvent(parentObj, &e);
+	    QCoreApplication::sendEvent(parentObj, &e);
 	}
 #ifndef QT_NO_COMPAT
-	QKernelApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
+	QCoreApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
 #endif
     }
 }
@@ -1260,7 +1260,7 @@ void QObject::removeEventFilter( const QObject *obj )
 */
 void QObject::deleteLater()
 {
-    QKernelApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
+    QCoreApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
 }
 
 /*!
@@ -2088,7 +2088,7 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 	    args[0] = 0; // return value
 	    for (int n = 1; n < nargs; ++n)
 		args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
-	    QKernelApplication::postEvent(c->receiver,
+	    QCoreApplication::postEvent(c->receiver,
 					  new QMetaCallEvent((c->member & 1)
 							     ? QEvent::EmitSignal
 							     : QEvent::InvokeSlot,
@@ -2130,7 +2130,7 @@ void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_
 
     \sa property(), metaObject()
 */
-bool QObject::setProperty(const char *name, const QKernelVariant &value)
+bool QObject::setProperty(const char *name, const QCoreVariant &value)
 {
     const QMetaObject* meta = metaObject();
     if (!value.isValid() || !meta)
@@ -2154,13 +2154,13 @@ bool QObject::setProperty(const char *name, const QKernelVariant &value)
     Information about all available properties is provided through the
     metaObject().
 
-    \sa setProperty(), QKernelVariant::isValid(), metaObject()
+    \sa setProperty(), QCoreVariant::isValid(), metaObject()
 */
-QKernelVariant QObject::property(const char *name) const
+QCoreVariant QObject::property(const char *name) const
 {
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
-	return QKernelVariant();
+	return QCoreVariant();
 
     int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);

@@ -19,13 +19,13 @@
 #endif // QT_H
 
 class QApplication;
-class QKernelApplication;
+class QCoreApplication;
 class QSocketNotifier;
 class QTimer;
 
 class QEventLoopPrivate;
 
-class Q_KERNEL_EXPORT QEventLoop : public QObject
+class Q_CORE_EXPORT QEventLoop : public QObject
 {
     Q_OBJECT
 
@@ -86,7 +86,7 @@ private:
 
     Q_DECL_PRIVATE(QEventLoop);
     friend class QApplication;
-    friend class QKernelApplication;
+    friend class QCoreApplication;
 };
 
 #endif // QEVENTLOOP_H

@@ -1,29 +1,29 @@
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qt_windows.h"
 #include "qvector.h"
 #include "qmutex.h"
 
 
 // ############### DONT EXPORT HERE!!!
-Q_KERNEL_EXPORT char	 appFileName[256];		// application file name
-Q_KERNEL_EXPORT char	 appName[256];			// application name
-Q_KERNEL_EXPORT HINSTANCE appInst	= 0;		// handle to app instance
-Q_KERNEL_EXPORT HINSTANCE appPrevInst	= 0;		// handle to prev app instance
-Q_KERNEL_EXPORT int appCmdShow = 0;
+Q_CORE_EXPORT char	 appFileName[256];		// application file name
+Q_CORE_EXPORT char	 appName[256];			// application name
+Q_CORE_EXPORT HINSTANCE appInst	= 0;		// handle to app instance
+Q_CORE_EXPORT HINSTANCE appPrevInst	= 0;		// handle to prev app instance
+Q_CORE_EXPORT int appCmdShow = 0;
 
-Q_KERNEL_EXPORT HINSTANCE qWinAppInst()		// get Windows app handle
+Q_CORE_EXPORT HINSTANCE qWinAppInst()		// get Windows app handle
 {
     return appInst;
 }
 
-Q_KERNEL_EXPORT HINSTANCE qWinAppPrevInst()		// get Windows prev app handle
+Q_CORE_EXPORT HINSTANCE qWinAppPrevInst()		// get Windows prev app handle
 {
     return appPrevInst;
 }
 
-Q_KERNEL_EXPORT bool qt_winEventFilter(MSG* msg)
+Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg)
 {
-    return QKernelApplication::instance()->winEventFilter( msg );
+    return QCoreApplication::instance()->winEventFilter( msg );
 }
 
 static void	msgHandler( QtMsgType, const char* );
@@ -40,7 +40,6 @@ void set_winapp_name()
 	afm.setLength( 256 );
 	afm.setLength( GetModuleFileName( 0, (unsigned short*)afm.unicode(), 255 ) );
 	strncpy( appFileName, afm.latin1(), afm.length() );
-	appUniqueID = RegisterWindowMessage( afm.lower().remove('\\').ucs2() );
 #endif
 	const char *p = strrchr( appFileName, '\\' );	// skip path
 	if ( p )
@@ -51,12 +50,12 @@ void set_winapp_name()
     }
 }
 
-Q_KERNEL_EXPORT const char *qAppFileName()		// get application file name
+Q_CORE_EXPORT const char *qAppFileName()		// get application file name
 {
     return appFileName;
 }
 
-Q_KERNEL_EXPORT const char *qAppName()			// get application name
+Q_CORE_EXPORT const char *qAppName()			// get application name
 {
     if ( !appName[0] )
 	set_winapp_name();
@@ -111,10 +110,10 @@ static void msgHandler( QtMsgType t, const char* str )
  *****************************************************************************/
 
 #if defined( Q_OS_TEMP )
-Q_KERNEL_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
+Q_CORE_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	       int cmdShow, int &argc, QVector<pchar> &argv )
 #else
-Q_KERNEL_EXPORT
+Q_CORE_EXPORT
 void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	       int cmdShow, int &argc, QVector<pchar> &argv )
 #endif
@@ -194,6 +193,14 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     appInst = instance;
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
+
+#ifdef Q_OS_TEMP
+    TCHAR uniqueAppID[256];
+    GetModuleFileName( 0, uniqueAppID, 255 );
+    appUniqueID = RegisterWindowMessage(
+		  QString::fromUcs2(uniqueAppID)
+		  .lower().remove('\\').ucs2() );
+#endif
 }
 
 /*!
@@ -203,7 +210,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     the event to be processed by Qt, then return TRUE; otherwise
     return FALSE.
 */
-bool QKernelApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
+bool QCoreApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
 {
     return FALSE;
 }

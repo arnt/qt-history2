@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qsocketnotifier.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qeventloop.h"
 
 #if defined(Q_OS_UNIX)

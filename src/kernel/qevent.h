@@ -23,7 +23,7 @@
 #include "qmime.h"
 #include "qpair.h"
 #include "qstring.h"
-#include "qkernelevent.h"
+#include "qcoreevent.h"
 #endif // QT_H
 
 
@@ -195,13 +195,11 @@ public:
     QPaintEvent( const QRect &paintRect )
 	: QEvent(Paint),
 	  rec(paintRect),
-	  reg(paintRect),
-	  erase(erased){}
-    QPaintEvent( const QRegion &paintRegion, const QRect &paintRect, bool erased = TRUE )
+	  reg(paintRect){}
+    QPaintEvent( const QRegion &paintRegion, const QRect &paintRect)
 	: QEvent(Paint),
 	  rec(paintRect),
-	  reg(paintRegion),
-	  erase(erased){}
+	  reg(paintRegion){}
 
     const QRect &rect() const	  { return rec; }
     const QRegion &region() const { return reg; }
@@ -211,7 +209,7 @@ public:
 #endif
 protected:
     friend class QApplication;
-    friend class QKernelApplication;
+    friend class QCoreApplication;
     QRect rec;
     QRegion reg;
 };
@@ -239,7 +237,7 @@ public:
 protected:
     QPoint p, oldp;
     friend class QApplication;
-    friend class QKernelApplication;
+    friend class QCoreApplication;
 };
 
 
@@ -253,7 +251,7 @@ public:
 protected:
     QSize s, olds;
     friend class QApplication;
-    friend class QKernelApplication;
+    friend class QCoreApplication;
 };
 
 

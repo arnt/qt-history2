@@ -19,7 +19,7 @@
 #include "qlist.h"
 #include "qtl.h"
 #include "qgif.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include <stdlib.h>
 
 extern void qt_init_image_handlers();

@@ -2,11 +2,11 @@
 #define QKERNELAPPLICATION_P_H
 
 #include "qobject_p.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qtranslator.h"
 #include "qmetaobject.h"
 
-class Q_KERNEL_EXPORT QTranslatorList : private QList<QTranslator*>
+class Q_CORE_EXPORT QTranslatorList : private QList<QTranslator*>
 {
 public:
     using QList<QTranslator*>::prepend;
@@ -16,12 +16,12 @@ public:
     using QList<QTranslator*>::constEnd;
 };
 
-class Q_KERNEL_EXPORT QKernelApplicationPrivate : public QObjectPrivate
+class Q_CORE_EXPORT QCoreApplicationPrivate : public QObjectPrivate
 {
-    Q_DECL_PUBLIC(QKernelApplication);
+    Q_DECL_PUBLIC(QCoreApplication);
 public:
-    QKernelApplicationPrivate(int &aargc,  char **aargv);
-    ~QKernelApplicationPrivate() {}
+    QCoreApplicationPrivate(int &aargc,  char **aargv);
+    ~QCoreApplicationPrivate() {}
 
     int &argc;
     char **argv;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QKernelVariant class.
+** Definition of QCoreVariant class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QKERNELVARIANT_H
-#define QKERNELVARIANT_H
+#ifndef QCOREVARIANT_H
+#define QCOREVARIANT_H
 
 #ifndef QT_H
 #include "qatomic.h"
@@ -25,7 +25,7 @@ class QBitArray;
 class QDataStream;
 class QDate;
 class QDateTime;
-class QKernelVariant;
+class QCoreVariant;
 class QString;
 class QStringList;
 class QStringList;
@@ -34,7 +34,7 @@ class QTime;
 template <class Type> class QList;
 template <class Key, class Type> class QMap;
 
-class Q_KERNEL_EXPORT QKernelVariant
+class Q_CORE_EXPORT QCoreVariant
 {
  public:
     enum Type {
@@ -79,41 +79,41 @@ class Q_KERNEL_EXPORT QKernelVariant
 	ULongLong = 34
     };
 
-    inline QKernelVariant();
-    inline ~QKernelVariant();
-    inline QKernelVariant(Type type, void *v = 0);
-    inline QKernelVariant(const QKernelVariant &other);
+    inline QCoreVariant();
+    inline ~QCoreVariant();
+    inline QCoreVariant(Type type, void *v = 0);
+    inline QCoreVariant(const QCoreVariant &other);
 
 #ifndef QT_NO_DATASTREAM
-    inline QKernelVariant(QDataStream &s);
+    inline QCoreVariant(QDataStream &s);
 #endif
 
-    inline QKernelVariant(int i);
-    inline QKernelVariant(uint ui);
-    inline QKernelVariant(Q_LLONG ll);
-    inline QKernelVariant(Q_ULLONG ull);
-    inline QKernelVariant(bool b);
-    inline QKernelVariant(double d);
+    inline QCoreVariant(int i);
+    inline QCoreVariant(uint ui);
+    inline QCoreVariant(Q_LLONG ll);
+    inline QCoreVariant(Q_ULLONG ull);
+    inline QCoreVariant(bool b);
+    inline QCoreVariant(double d);
 
-    inline QKernelVariant(const char *str);
-    inline QKernelVariant(const QByteArray &bytearray);
-    inline QKernelVariant(const QBitArray &bitarray);
-    inline QKernelVariant(const QString &string);
+    inline QCoreVariant(const char *str);
+    inline QCoreVariant(const QByteArray &bytearray);
+    inline QCoreVariant(const QBitArray &bitarray);
+    inline QCoreVariant(const QString &string);
 #ifndef QT_NO_STRINGLIST
-    inline QKernelVariant(const QStringList &stringlist);
+    inline QCoreVariant(const QStringList &stringlist);
 #endif
 
-    inline QKernelVariant(const QDate &date);
-    inline QKernelVariant(const QTime &time);
-    inline QKernelVariant(const QDateTime &datetime);
+    inline QCoreVariant(const QDate &date);
+    inline QCoreVariant(const QTime &time);
+    inline QCoreVariant(const QDateTime &datetime);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QKernelVariant(const QList<QKernelVariant> &list);
-    inline QKernelVariant(const QMap<QString,QKernelVariant> &map);
+    inline QCoreVariant(const QList<QCoreVariant> &list);
+    inline QCoreVariant(const QMap<QString,QCoreVariant> &map);
 #endif
 
-    QKernelVariant& operator=(const QKernelVariant &other);
-    bool operator==(const QKernelVariant &other) const;
-    inline bool operator!=(const QKernelVariant &other) const
+    QCoreVariant& operator=(const QCoreVariant &other);
+    bool operator==(const QCoreVariant &other) const;
+    inline bool operator!=(const QCoreVariant &other) const
     { return !(other == *this); }
 
     inline Type type() const;
@@ -143,8 +143,8 @@ class Q_KERNEL_EXPORT QKernelVariant
     QTime toTime() const;
     QDateTime toDateTime() const;
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QList<QKernelVariant> toList() const;
-    QMap<QString,QKernelVariant> toMap() const;
+    QList<QCoreVariant> toList() const;
+    QMap<QString,QCoreVariant> toMap() const;
 #endif
 
     inline int &asInt();
@@ -163,8 +163,8 @@ class Q_KERNEL_EXPORT QKernelVariant
     inline QTime &asTime();
     inline QDateTime &asDateTime();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QList<QKernelVariant> &asList();
-    inline QMap<QString,QKernelVariant> &asMap();
+    inline QList<QCoreVariant> &asList();
+    inline QMap<QString,QCoreVariant> &asMap();
 #endif
 
 #ifndef QT_NO_DATASTREAM
@@ -177,7 +177,7 @@ class Q_KERNEL_EXPORT QKernelVariant
 #ifndef QT_NO_COMPAT
     inline const QByteArray toCString() const { return toByteArray(); }
     inline QByteArray &asCString() { return asByteArray(); }
-    inline QKernelVariant(bool b, int) { d = create(Bool, &b); }
+    inline QCoreVariant(bool b, int) { d = create(Bool, &b); }
 #endif
 
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
@@ -212,8 +212,8 @@ class Q_KERNEL_EXPORT QKernelVariant
     typedef void (*f_save)(const Private *, QDataStream &);
 #endif
     typedef bool (*f_compare)(const Private *, const Private *);
-    typedef void (*f_cast)(QKernelVariant::Private *d, Type t, void *, bool *);
-    typedef bool (*f_canCast)(QKernelVariant::Private *d, Type t);
+    typedef void (*f_cast)(QCoreVariant::Private *d, Type t, void *, bool *);
+    typedef bool (*f_canCast)(QCoreVariant::Private *d, Type t);
     struct Handler {
 	f_construct construct;
 	f_clear clear;
@@ -240,100 +240,100 @@ protected:
 };
 
 
-inline QKernelVariant::QKernelVariant() :d(&shared_invalid)
+inline QCoreVariant::QCoreVariant() :d(&shared_invalid)
 { ++d->ref; }
-inline QKernelVariant::~QKernelVariant()
+inline QCoreVariant::~QCoreVariant()
 { if (!--d->ref) cleanUp(d); }
-inline QKernelVariant::QKernelVariant(Type type, void *v)
+inline QCoreVariant::QCoreVariant(Type type, void *v)
 { d = create(type, v); }
-inline QKernelVariant::QKernelVariant(const QKernelVariant &p) : d(p.d)
+inline QCoreVariant::QCoreVariant(const QCoreVariant &p) : d(p.d)
 { ++d->ref; }
 
-inline QKernelVariant::QKernelVariant(int val)
+inline QCoreVariant::QCoreVariant(int val)
 { d = create(Int, &val); }
-inline QKernelVariant::QKernelVariant(uint val)
+inline QCoreVariant::QCoreVariant(uint val)
 { d = create(UInt, &val); }
-inline QKernelVariant::QKernelVariant(Q_LLONG val)
+inline QCoreVariant::QCoreVariant(Q_LLONG val)
 { d = create(LongLong, &val); }
-inline QKernelVariant::QKernelVariant(Q_ULLONG val)
+inline QCoreVariant::QCoreVariant(Q_ULLONG val)
 { d = create(ULongLong, &val); }
-inline QKernelVariant::QKernelVariant(bool val)
+inline QCoreVariant::QCoreVariant(bool val)
 { d = create(Bool, &val); }
-inline QKernelVariant::QKernelVariant(double val)
+inline QCoreVariant::QCoreVariant(double val)
 { d = create(Double, &val); }
 
-inline QKernelVariant::QKernelVariant(const char *val)
+inline QCoreVariant::QCoreVariant(const char *val)
 { QByteArray ba(val); d = create(ByteArray, &ba); }
-inline QKernelVariant::QKernelVariant(const QByteArray &val)
+inline QCoreVariant::QCoreVariant(const QByteArray &val)
 { d = create(ByteArray, &val); }
-inline QKernelVariant::QKernelVariant(const QBitArray &val)
+inline QCoreVariant::QCoreVariant(const QBitArray &val)
 { d = create(BitArray, &val); }
-inline QKernelVariant::QKernelVariant(const QString &val)
+inline QCoreVariant::QCoreVariant(const QString &val)
 { d = create(String, &val); }
 #ifndef QT_NO_STRINGLIST
-inline QKernelVariant::QKernelVariant(const QStringList &val)
+inline QCoreVariant::QCoreVariant(const QStringList &val)
 { d = create(StringList, &val); }
 #endif
 
-inline QKernelVariant::QKernelVariant(const QDate &val)
+inline QCoreVariant::QCoreVariant(const QDate &val)
 { d = create(Date, &val); }
-inline QKernelVariant::QKernelVariant(const QTime &val)
+inline QCoreVariant::QCoreVariant(const QTime &val)
 { d = create(Time, &val); }
-inline QKernelVariant::QKernelVariant(const QDateTime &val)
+inline QCoreVariant::QCoreVariant(const QDateTime &val)
 { d = create(DateTime, &val); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-inline QKernelVariant::QKernelVariant(const QList<QKernelVariant> &val)
+inline QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
 { d = create(List, &val); }
-inline QKernelVariant::QKernelVariant(const QMap<QString,QKernelVariant> &val)
+inline QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
 { d = create(Map, &val); }
 #endif
 
-inline QKernelVariant::Type QKernelVariant::type() const
+inline QCoreVariant::Type QCoreVariant::type() const
 { return d->type; }
-inline bool QKernelVariant::isValid() const
+inline bool QCoreVariant::isValid() const
 { return d->type != Invalid; }
 
-inline int &QKernelVariant::asInt()
+inline int &QCoreVariant::asInt()
 { return *static_cast<int *>(castOrDetach(Int)); }
-inline uint &QKernelVariant::asUInt()
+inline uint &QCoreVariant::asUInt()
 { return *static_cast<uint *>(castOrDetach(UInt)); }
-inline Q_LLONG &QKernelVariant::asLongLong()
+inline Q_LLONG &QCoreVariant::asLongLong()
 { return *static_cast<Q_LLONG *>(castOrDetach(LongLong)); }
-inline Q_ULLONG &QKernelVariant::asULongLong()
+inline Q_ULLONG &QCoreVariant::asULongLong()
 { return *static_cast<Q_ULLONG *>(castOrDetach(ULongLong)); }
-inline bool &QKernelVariant::asBool()
+inline bool &QCoreVariant::asBool()
 { return *static_cast<bool *>(castOrDetach(Bool)); }
-inline double &QKernelVariant::asDouble()
+inline double &QCoreVariant::asDouble()
 { return *static_cast<double *>(castOrDetach(Double)); }
-inline QByteArray& QKernelVariant::asByteArray()
+inline QByteArray& QCoreVariant::asByteArray()
 { return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
-inline QBitArray& QKernelVariant::asBitArray()
+inline QBitArray& QCoreVariant::asBitArray()
 { return *static_cast<QBitArray *>(castOrDetach(BitArray)); }
-inline QString& QKernelVariant::asString()
+inline QString& QCoreVariant::asString()
 { return *static_cast<QString *>(castOrDetach(String)); }
 #ifndef QT_NO_STRINGLIST
-inline QStringList& QKernelVariant::asStringList()
+inline QStringList& QCoreVariant::asStringList()
 { return *static_cast<QStringList *>(castOrDetach(StringList)); }
 #endif
-inline QDate& QKernelVariant::asDate()
+inline QDate& QCoreVariant::asDate()
 { return *static_cast<QDate *>(castOrDetach(Date)); }
-inline QTime& QKernelVariant::asTime()
+inline QTime& QCoreVariant::asTime()
 { return *static_cast<QTime *>(castOrDetach(Time)); }
-inline QDateTime& QKernelVariant::asDateTime()
+inline QDateTime& QCoreVariant::asDateTime()
 { return *static_cast<QDateTime *>(castOrDetach(DateTime)); }
 #ifndef QT_NO_TEMPLATE_VARIANT
-inline QList<QKernelVariant>& QKernelVariant::asList()
-{ return *static_cast<QList<QKernelVariant> *>(castOrDetach(List)); }
-inline QMap<QString, QKernelVariant>& QKernelVariant::asMap()
-{ return *static_cast<QMap<QString, QKernelVariant> *>(castOrDetach(Map)); }
+inline QList<QCoreVariant>& QCoreVariant::asList()
+{ return *static_cast<QList<QCoreVariant> *>(castOrDetach(List)); }
+inline QMap<QString, QCoreVariant>& QCoreVariant::asMap()
+{ return *static_cast<QMap<QString, QCoreVariant> *>(castOrDetach(Map)); }
 #endif
 
 #ifndef QT_NO_DATASTREAM
-Q_KERNEL_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant& p );
-Q_KERNEL_EXPORT QDataStream& operator<< ( QDataStream& s, const QKernelVariant& p );
-Q_KERNEL_EXPORT QDataStream& operator>> ( QDataStream& s, QKernelVariant::Type& p );
-Q_KERNEL_EXPORT QDataStream& operator<< ( QDataStream& s, const QKernelVariant::Type p );
+Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant& p );
+Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant& p );
+Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant::Type& p );
+Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant::Type p );
 #endif
 
 #endif //QT_NO_VARIANT
-#endif // QKERNELVARIANT_H
+#endif // QCOREVARIANT_H

@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_KERNEL_EXPORT QTimer : public QObject
+class Q_CORE_EXPORT QTimer : public QObject
 {
     Q_OBJECT
 public:

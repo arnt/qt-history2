@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qguieventloop_p.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qeventloop_p.h"
 #include "qmutex.h"
 #include "qwidget.h"
@@ -23,12 +23,12 @@
 #define q q_func()
 
 extern bool qt_winEventFilter(MSG* msg);
-Q_KERNEL_EXPORT bool activateTimer( uint id );		// activate timer
-Q_KERNEL_EXPORT void activateZeroTimers();
-Q_KERNEL_EXPORT bool winPeekMessage( MSG*, HWND, UINT, UINT, UINT);
-Q_KERNEL_EXPORT bool winGetMessage( MSG*, HWND, UINT, UINT);
+Q_CORE_EXPORT bool activateTimer( uint id );		// activate timer
+Q_CORE_EXPORT void activateZeroTimers();
+Q_CORE_EXPORT bool winPeekMessage( MSG*, HWND, UINT, UINT, UINT);
+Q_CORE_EXPORT bool winGetMessage( MSG*, HWND, UINT, UINT);
 
-Q_KERNEL_EXPORT int numZeroTimers;
+Q_CORE_EXPORT int numZeroTimers;
 
 void QGuiEventLoop::init()
 {
@@ -40,7 +40,7 @@ void QGuiEventLoop::cleanup()
 
 }
 
-extern Q_KERNEL_EXPORT bool qt_dispatch_timer( uint timerId, MSG *msg );
+extern Q_CORE_EXPORT bool qt_dispatch_timer( uint timerId, MSG *msg );
 
 /*****************************************************************************
   Safe configuration (move,resize,setGeometry) mechanism to avoid
@@ -101,7 +101,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 
     emit awake();
 
-    QKernelApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents();
 
     if ( flags & ExcludeUserInput ) {
 	while ( winPeekMessage(&msg,0,0,0,PM_NOREMOVE) ) {
@@ -167,7 +167,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 
     if ( configRequests )			// any pending configs?
  	qWinProcessConfigRequests();
-    QKernelApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents();
 
     return TRUE;
 }

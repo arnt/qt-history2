@@ -24,7 +24,7 @@
 #include "qjpegio.h"
 #include "qmap.h"
 #include "qcolor_p.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include <private/qpluginmanager_p.h>
 #include "qimageformatinterface_p.h"
 #include "qwmatrix.h"
@@ -3762,7 +3762,7 @@ void qt_init_image_plugins()
     if ( plugin_manager )
 	return;
 
-    plugin_manager = new QPluginManager<QImageFormatInterface>( IID_QImageFormat, QKernelApplication::libraryPaths(), "/imageformats" );
+    plugin_manager = new QPluginManager<QImageFormatInterface>( IID_QImageFormat, QCoreApplication::libraryPaths(), "/imageformats" );
 
     QStringList features = plugin_manager->featureList();
     QStringList::Iterator it = features.begin();

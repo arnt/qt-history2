@@ -220,15 +220,15 @@ bool isVariantType(const char* type);
 int qvariant_nameToType(const char* name);
 
 /*
-  Attention!  This table is copied from qkernalvariant.cpp. If you
+  Attention!  This table is copied from qcorevariant.cpp. If you
   change one, change both.
 */
 static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
-    "QMap<QString,QKernelVariant>",
-    "QList<QKernelVariant>",
+    "QMap<QString,QCoreVariant>",
+    "QList<QCoreVariant>",
     "QString",
     "QStringList",
     "QFont",

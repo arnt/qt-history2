@@ -21,7 +21,7 @@
 
 class QSemaphorePrivate;
 
-class Q_KERNEL_EXPORT QSemaphore
+class Q_CORE_EXPORT QSemaphore
 {
 public:
     QSemaphore( int );

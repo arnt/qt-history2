@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_TEXTCODEC
 
-class Q_KERNEL_EXPORT QUtf8Codec : public QTextCodec {
+class Q_CORE_EXPORT QUtf8Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;
@@ -37,7 +37,7 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 };
 
-class Q_KERNEL_EXPORT QUtf16Codec : public QTextCodec {
+class Q_CORE_EXPORT QUtf16Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;

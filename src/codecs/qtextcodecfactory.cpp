@@ -17,7 +17,7 @@
 #ifndef QT_NO_TEXTCODEC
 
 #ifndef QT_NO_COMPONENT
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qcleanuphandler.h"
 #include <private/qpluginmanager_p.h>
 #include "qtextcodecinterface_p.h"
@@ -51,7 +51,7 @@ static void create_manager()
 
     manager =
 	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
-						       QKernelApplication::libraryPaths(), "/codecs",
+						       QCoreApplication::libraryPaths(), "/codecs",
 						       FALSE);
     cleanup_manager.set( &manager );
 }

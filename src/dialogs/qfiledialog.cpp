@@ -3294,7 +3294,7 @@ void QFileDialog::rereadDir()
   \sa selectedFilter()
 */
 
-extern Q_KERNEL_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
+extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
 bool qt_use_native_dialogs = TRUE;
 
 /*!
@@ -5608,7 +5608,7 @@ static bool isRoot( const QUrl &u )
 }
 
 #if defined(Q_WS_WIN)
-extern Q_KERNEL_EXPORT int qt_ntfs_permission_lookup;
+extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
 void QFileDialog::urlStart( QNetworkOperation *op )

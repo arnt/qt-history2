@@ -21,7 +21,7 @@
 #endif // QT_H
 
 
-class Q_KERNEL_EXPORT QObjectCleanupHandler : public QObject
+class Q_CORE_EXPORT QObjectCleanupHandler : public QObject
 {
     Q_OBJECT
 

@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_KERNEL_EXPORT QSocketNotifier : public QObject
+class Q_CORE_EXPORT QSocketNotifier : public QObject
 {
     Q_OBJECT
 public:

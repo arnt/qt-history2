@@ -5,7 +5,7 @@
 
 struct QLocalePrivate;
 
-class Q_KERNEL_EXPORT QLocale
+class Q_CORE_EXPORT QLocale
 {
     friend class QString;
 

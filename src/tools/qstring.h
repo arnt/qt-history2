@@ -39,7 +39,7 @@
 class QCharRef;
 class QRegExp;
 
-class Q_KERNEL_EXPORT QString
+class Q_CORE_EXPORT QString
 {
 public:
     QString();
@@ -498,7 +498,7 @@ inline QString QString::section(const char *in_sep, int start, int end, int flag
 #endif
 
 
-class Q_KERNEL_EXPORT QCharRef {
+class Q_CORE_EXPORT QCharRef {
     QString &s;
     int i;
     inline QCharRef(QString &str, int idx)
@@ -582,25 +582,25 @@ inline QBool QString::contains(const QString &s, CaseSensitivity cs) const
 inline QBool QString::contains(QChar c, CaseSensitivity cs) const
 { return QBool(indexOf(c, 0, cs) != -1); }
 
-Q_KERNEL_EXPORT bool operator!=(const QString &s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator<(const QString &s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator<=(const QString &s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator==(const QString &s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator>(const QString &s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator>=(const QString &s1, const QString &s2);
+Q_CORE_EXPORT bool operator!=(const QString &s1, const QString &s2);
+Q_CORE_EXPORT bool operator<(const QString &s1, const QString &s2);
+Q_CORE_EXPORT bool operator<=(const QString &s1, const QString &s2);
+Q_CORE_EXPORT bool operator==(const QString &s1, const QString &s2);
+Q_CORE_EXPORT bool operator>(const QString &s1, const QString &s2);
+Q_CORE_EXPORT bool operator>=(const QString &s1, const QString &s2);
 #ifndef QT_NO_CAST_FROM_ASCII
-Q_KERNEL_EXPORT bool operator==(const QString &s1, const char *s2);
+Q_CORE_EXPORT bool operator==(const QString &s1, const char *s2);
 inline bool operator==(const char *s1, const QString &s2) { return (s2 == s1); }
 inline bool operator!=(const QString &s1, const char *s2) { return !(s1==s2); }
 inline bool operator!=(const char *s1, const QString &s2) { return !(s2==s1); }
-Q_KERNEL_EXPORT bool operator<(const QString &s1, const char *s2);
-Q_KERNEL_EXPORT bool operator<=(const QString &s1, const char *s2);
-Q_KERNEL_EXPORT bool operator>(const QString &s1, const char *s2);
-Q_KERNEL_EXPORT bool operator>=(const QString &s1, const char *s2);
-Q_KERNEL_EXPORT bool operator<(const char *s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator<=(const char *s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator>(const char *s1, const QString &s2);
-Q_KERNEL_EXPORT bool operator>=(const char *s1, const QString &s2);
+Q_CORE_EXPORT bool operator<(const QString &s1, const char *s2);
+Q_CORE_EXPORT bool operator<=(const QString &s1, const char *s2);
+Q_CORE_EXPORT bool operator>(const QString &s1, const char *s2);
+Q_CORE_EXPORT bool operator>=(const QString &s1, const char *s2);
+Q_CORE_EXPORT bool operator<(const char *s1, const QString &s2);
+Q_CORE_EXPORT bool operator<=(const char *s1, const QString &s2);
+Q_CORE_EXPORT bool operator>(const char *s1, const QString &s2);
+Q_CORE_EXPORT bool operator>=(const char *s1, const QString &s2);
 #endif
 
 inline const QString operator+(const QString &s1, const QString &s2)
@@ -636,11 +636,11 @@ inline QChar &QString::ref(uint i)
 #endif
 
 #ifndef QT_NO_DATASTREAM
-Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QString & );
-Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QString & );
+Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QString & );
+Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QString & );
 #endif
 
-class Q_KERNEL_EXPORT QConstString : public QString
+class Q_CORE_EXPORT QConstString : public QString
 {
 public:
     QConstString(const QChar *unicode, int length);
@@ -651,8 +651,8 @@ Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QString);
 
 #if defined(Q_OS_WIN32)
-extern Q_KERNEL_EXPORT QByteArray qt_winQString2MB( const QString& s, int len=-1 );
-extern Q_KERNEL_EXPORT QString qt_winMB2QString( const char* mb, int len=-1 );
+extern Q_CORE_EXPORT QByteArray qt_winQString2MB( const QString& s, int len=-1 );
+extern Q_CORE_EXPORT QString qt_winMB2QString( const char* mb, int len=-1 );
 #endif
 
 #endif

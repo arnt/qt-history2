@@ -29,7 +29,7 @@
 #include "qmutex.h"
 #endif // QT_H
 #ifdef QT_THREAD_SUPPORT
-class Q_KERNEL_EXPORT QMutexPool
+class Q_CORE_EXPORT QMutexPool
 {
 public:
     QMutexPool( bool recursive = false, int size = 128 );
@@ -44,7 +44,7 @@ private:
     bool recurs;
 };
 
-Q_KERNEL_EXPORT QMutexPool *qt_global_mutexpool_func();
+Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func();
 #define qt_global_mutexpool qt_global_mutexpool_func()
 
 

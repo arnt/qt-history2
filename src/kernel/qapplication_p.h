@@ -34,7 +34,7 @@
 #include "qmutex.h"
 #include "qtranslator.h"
 
-#include "qkernelapplication_p.h"
+#include "qcoreapplication_p.h"
 #include "qapplication.h"
 
 class QWidget;
@@ -72,7 +72,7 @@ extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
 extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
 
-class QApplicationPrivate : public QKernelApplicationPrivate
+class QApplicationPrivate : public QCoreApplicationPrivate
 {
     Q_DECL_PUBLIC(QApplication);
 public:

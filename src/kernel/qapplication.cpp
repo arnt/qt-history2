@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #include <qvariant.h>
-extern const QKernelVariant::Handler qt_gui_variant_handler;
+extern const QCoreVariant::Handler qt_gui_variant_handler;
 
 #include "qapplication_p.h"
 #include "qwidget_p.h"
@@ -53,7 +53,7 @@ extern const QKernelVariant::Handler qt_gui_variant_handler;
 
 
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
-    : QKernelApplicationPrivate(argc, argv)
+    : QCoreApplicationPrivate(argc, argv)
 {
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
@@ -613,7 +613,7 @@ void QApplication::process_cmdline()
 */
 
 QApplication::QApplication( int &argc, char **argv )
-    : QKernelApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
+    : QCoreApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
 {
     construct(GuiClient);
 }
@@ -659,7 +659,7 @@ QApplication::QApplication( int &argc, char **argv )
 */
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
-    : QKernelApplication(*new QApplicationPrivate(argc, argv),
+    : QCoreApplication(*new QApplicationPrivate(argc, argv),
 			 (GUIenabled ? new QGuiEventLoop() : new QEventLoop()))
 {
     construct(GUIenabled ? GuiClient : Tty);
@@ -674,7 +674,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
   -qws option).
 */
 QApplication::QApplication( int &argc, char **argv, Type type )
-    : QKernelApplication(*new QApplicationPrivate(argc, argv),
+    : QCoreApplication(*new QApplicationPrivate(argc, argv),
 			 (type != Tty ? new QGuiEventLoop() : new QEventLoop()))
 
 {
@@ -712,7 +712,7 @@ static char *aargv[] = { (char*)"unknown", 0 };
   This is available only on X11.
 */
 QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
-    : QKernelApplication(*new QApplicationPrivate(aargc, aargv),
+    : QCoreApplication(*new QApplicationPrivate(aargc, aargv),
 			 new QGuiEventLoop())
 
 {
@@ -747,7 +747,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
-    : QKernelApplication(*new QApplicationPrivate(argc, argv),
+    : QCoreApplication(*new QApplicationPrivate(argc, argv),
 			 new QGuiEventLoop())
 {
     qt_appType = GuiClient;
@@ -1941,7 +1941,7 @@ bool QApplication::event( QEvent *e )
 	    return TRUE;
 	}
     }
-    return QKernelApplication::event(e);
+    return QCoreApplication::event(e);
 }
 #if !defined(Q_WS_X11)
 
@@ -2580,7 +2580,7 @@ int QApplication::exec()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::setRootObject(this);
 #endif
-    return QKernelApplication::exec();
+    return QCoreApplication::exec();
 }
 
 #ifndef QT_NO_ACCEL
@@ -2591,7 +2591,7 @@ extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
  */
 bool QApplication::notify(QObject *receiver, QEvent *e)
 {
-    bool res = QKernelApplication::notify(receiver, e);
+    bool res = QCoreApplication::notify(receiver, e);
 
     if (res)
 	return res;
@@ -2824,7 +2824,7 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 
     }
 
-    consumed = QKernelApplication::notify_helper(receiver, e);
+    consumed = QCoreApplication::notify_helper(receiver, e);
 
  handled:
     e->spont = false;

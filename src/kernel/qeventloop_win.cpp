@@ -13,7 +13,7 @@
 ****************************************************************************/
 #include "qeventloop_p.h"
 #include "qeventloop.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qhash.h"
 #include <private/qinputcontext_p.h>
 #define d d_func()
@@ -32,23 +32,23 @@ static DWORD qt_gui_thread = 0;
 // Simpler timers are needed when Qt does not have the event loop,
 // such as for plugins.
 #ifndef Q_OS_TEMP
-extern Q_KERNEL_EXPORT bool	qt_win_use_simple_timers = TRUE;
+extern Q_CORE_EXPORT bool	qt_win_use_simple_timers = TRUE;
 #else
-extern Q_KERNEL_EXPORT bool	qt_win_use_simple_timers = FALSE;
+extern Q_CORE_EXPORT bool	qt_win_use_simple_timers = FALSE;
 #endif
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
-extern Q_KERNEL_EXPORT bool qt_winEventFilter(MSG* msg);
+extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg);
 
 static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
 
-Q_KERNEL_EXPORT bool    qt_dispatch_timer( uint, MSG * );
-Q_KERNEL_EXPORT bool	activateTimer( uint );
-Q_KERNEL_EXPORT void	activateZeroTimers();
+Q_CORE_EXPORT bool    qt_dispatch_timer( uint, MSG * );
+Q_CORE_EXPORT bool	activateTimer( uint );
+Q_CORE_EXPORT void	activateZeroTimers();
 
-extern Q_KERNEL_EXPORT int	 numZeroTimers	= 0;		// number of full-speed timers
+extern Q_CORE_EXPORT int	 numZeroTimers	= 0;		// number of full-speed timers
 
-Q_KERNEL_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_CORE_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
     QT_WA( {
@@ -58,7 +58,7 @@ Q_KERNEL_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
     } );
 }
 
-Q_KERNEL_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
+Q_CORE_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
     QT_WA( {
 	return PostMessage( hWnd, msg, wParam, lParam );
@@ -67,7 +67,7 @@ Q_KERNEL_EXPORT bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     } );
 }
 
-Q_KERNEL_EXPORT bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_CORE_EXPORT bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
     QT_WA( {
@@ -92,7 +92,7 @@ void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 
 bool qt_dispatch_timer( uint timerId, MSG *msg )
 {
-    if ( !msg || !QKernelApplication::instance() || !qt_winEventFilter(msg))
+    if ( !msg || !QCoreApplication::instance() || !qt_winEventFilter(msg))
 	return activateTimer(timerId);
     return TRUE;
 }
@@ -110,7 +110,7 @@ bool activateTimer( uint id )		// activate timer
     if ( !t )					// no such timer id
 	return FALSE;
     QTimerEvent e( t->ind + 1 );
-    QKernelApplication::sendEvent( t->obj, &e );	// send event
+    QCoreApplication::sendEvent( t->obj, &e );	// send event
     return TRUE;				// timer event was processed
 }
 
@@ -130,7 +130,7 @@ void activateZeroTimers()		// activate full-speed timers
 		return;
 	}
 	QTimerEvent e( t->ind + 1 );
-	QKernelApplication::sendEvent( t->obj, &e );
+	QCoreApplication::sendEvent( t->obj, &e );
     }
 }
 
@@ -306,7 +306,7 @@ void qt_sn_activate_fd( int sockfd, int type )
     QSNDict  *dict = *sn_vec[type];
     QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
     if ( sn ) {
-	QKernelApplication::eventLoop()->setSocketNotifierPending( sn->obj );
+	QCoreApplication::eventLoop()->setSocketNotifierPending( sn->obj );
     }
 }
 
@@ -356,7 +356,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 
     QSNDict  *dict = *sn_vec[type];
 
-    if ( !dict && QKernelApplication::closingDown() )
+    if ( !dict && QCoreApplication::closingDown() )
 	return; // after sn_cleanup, don't reinitialize.
 
     QSockNot *sn;
@@ -414,7 +414,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 
     QSNDict  *dict = *sn_vec[type];
 
-    if ( !dict && QKernelApplication::closingDown() )
+    if ( !dict && QCoreApplication::closingDown() )
 	return; // after sn_cleanup, don't reinitialize.
 
     if ( dict == 0 )
@@ -485,7 +485,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     emit awake();
 
-    QKernelApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents();
 
     if ( flags & ExcludeUserInput ) {
 	while ( winPeekMessage(&msg,0,0,0,PM_NOREMOVE) ) {
@@ -545,7 +545,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     if ( !(flags & ExcludeSocketNotifiers ) )
 	activateSocketNotifiers();
 
-    QKernelApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents();
 
     return TRUE;
 }
@@ -579,7 +579,7 @@ int QEventLoop::activateSocketNotifiers()
     QEvent event( QEvent::SockAct );
     while (!d->sn_pending_list.isEmpty()) {
 	QSockNot *sn = d->sn_pending_list.takeAt(0);
-	QKernelApplication::sendEvent( sn->obj, &event );
+	QCoreApplication::sendEvent( sn->obj, &event );
 	n_act++;
     }
 

@@ -25,7 +25,7 @@ class QTextCodecPluginPrivate;
 class QStringList;
 template <typename T> class QList;
 
-class Q_KERNEL_EXPORT QTextCodecPlugin : public QGPlugin
+class Q_CORE_EXPORT QTextCodecPlugin : public QGPlugin
 {
     Q_OBJECT
 public:

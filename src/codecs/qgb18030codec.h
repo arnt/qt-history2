@@ -27,7 +27,7 @@
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_CODECS_CN
 #else
-#define Q_EXPORT_CODECS_CN Q_KERNEL_EXPORT
+#define Q_EXPORT_CODECS_CN Q_CORE_EXPORT
 #endif
 
 class Q_EXPORT_CODECS_CN QGb18030Codec : public QTextCodec {

@@ -25,7 +25,7 @@
 class QSettingsPrivate;
 
 
-class Q_KERNEL_EXPORT QSettings
+class Q_CORE_EXPORT QSettings
 {
 public:
     enum Format {

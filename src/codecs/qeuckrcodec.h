@@ -49,7 +49,7 @@
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_CODECS_KR
 #else
-#define Q_EXPORT_CODECS_KR Q_KERNEL_EXPORT
+#define Q_EXPORT_CODECS_KR Q_CORE_EXPORT
 #endif
 
 class Q_EXPORT_CODECS_KR QEucKrCodec : public QTextCodec {

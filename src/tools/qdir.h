@@ -28,7 +28,7 @@ typedef QList<QFileInfo> QFileInfoList;
 class QStringList;
 
 
-class Q_KERNEL_EXPORT QDir
+class Q_CORE_EXPORT QDir
 {
 public:
     enum FilterSpec { Dirs	    = 0x001,

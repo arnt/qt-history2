@@ -21,7 +21,7 @@
 #include "qnamespace.h"
 #include "qstring.h"
 #include "qbytearray.h"
-#include "qkernelevent.h"
+#include "qcoreevent.h"
 #include "qlist.h"
 #endif // QT_H
 
@@ -29,7 +29,7 @@
 #define QT_TRANSLATE_NOOP(scope,x) (x)
 
 struct QMetaObject;
-class QKernelVariant;
+class QCoreVariant;
 class QObjectPrivate;
 class QWidgetPrivate;
 #ifndef QT_NO_USERDATA
@@ -39,7 +39,7 @@ template<typename T>class QList;
 
 typedef QList<QObject*> QObjectList;
 
-class Q_KERNEL_EXPORT QObject: public Qt
+class Q_CORE_EXPORT QObject: public Qt
 {
     Q_OBJECT
     Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
@@ -113,8 +113,8 @@ public:
     void dumpObjectInfo();
 
 #ifndef QT_NO_PROPERTIES
-    bool setProperty(const char *name, const QKernelVariant &value);
-    QKernelVariant property(const char *name) const;
+    bool setProperty(const char *name, const QCoreVariant &value);
+    QCoreVariant property(const char *name) const;
 #endif // QT_NO_PROPERTIES
 
 #ifndef QT_NO_USERDATA
@@ -202,7 +202,7 @@ protected:
 
     friend struct QMetaObject;
     friend class QApplication;
-    friend class QKernelApplication;
+    friend class QCoreApplication;
     friend class QWidget;
 
 private: // Disabled copy constructor and operator=
@@ -224,7 +224,7 @@ inline bool QObject::isAncestorOf(const QObject *child) const
 
 
 #ifndef QT_NO_USERDATA
-class Q_KERNEL_EXPORT QObjectUserData {
+class Q_CORE_EXPORT QObjectUserData {
 public:
     virtual ~QObjectUserData();
 };

@@ -124,7 +124,7 @@ bool Q3Signal::connect( const QObject *receiver, const char *member )
 #endif
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
 #ifndef QT_NO_VARIANT
-    return QObject::connect( (QObject *)this, SIGNAL(signal(const QKernelVariant&)),
+    return QObject::connect( (QObject *)this, SIGNAL(signal(const QCoreVariant&)),
 			     receiver, member );
 #endif
 }
@@ -144,7 +144,7 @@ bool Q3Signal::disconnect( const QObject *receiver, const char *member )
 #endif
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
 #ifndef QT_NO_VARIANT
-    return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QKernelVariant&)),
+    return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QCoreVariant&)),
 				receiver, member );
 #endif
 }
@@ -192,7 +192,7 @@ void  Q3Signal::activate()
 /*!
     Sets the signal's parameter to \a value
 */
-void Q3Signal::setValue( const QKernelVariant &value )
+void Q3Signal::setValue( const QCoreVariant &value )
 {
     val = value;
 }
@@ -200,11 +200,11 @@ void Q3Signal::setValue( const QKernelVariant &value )
 /*!
     Returns the signal's parameter
 */
-QKernelVariant Q3Signal::value() const
+QCoreVariant Q3Signal::value() const
 {
     return val;
 }
-/*! \fn void Q3Signal::signal( const QKernelVariant & )
+/*! \fn void Q3Signal::signal( const QCoreVariant & )
     \internal
 */
 /*! \fn void Q3Signal::intSignal( int )

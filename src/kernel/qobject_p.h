@@ -46,7 +46,7 @@ private: \
     friend class Class
 
 
-class Q_KERNEL_EXPORT QObjectPrivate : public Qt
+class Q_CORE_EXPORT QObjectPrivate : public Qt
 {
     Q_DECL_PUBLIC( QObject );
 protected:

@@ -24,7 +24,7 @@
 class QDir;
 class QFilePrivate;
 
-class Q_KERNEL_EXPORT QFile : public QIODevice			// file I/O device class
+class Q_CORE_EXPORT QFile : public QIODevice			// file I/O device class
 {
 public:
     QFile();

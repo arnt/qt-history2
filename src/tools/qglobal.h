@@ -844,10 +844,10 @@ class QDataStream;
 #    if defined(QT_DLL)
 #      undef QT_DLL
 #    endif
-#    if defined(QT_BUILD_KERNEL_LIB)
-#      define Q_KERNEL_EXPORT __declspec(dllexport)
+#    if defined(QT_BUILD_CORE_LIB)
+#      define Q_CORE_EXPORT __declspec(dllexport)
 #    else
-#      define Q_KERNEL_EXPORT __declspec(dllimport)
+#      define Q_CORE_EXPORT __declspec(dllimport)
 #    endif
 #    if defined(QT_BUILD_GUI_LIB)
 #      define Q_GUI_EXPORT __declspec(dllexport)
@@ -882,7 +882,7 @@ class QDataStream;
 #    define Q_TEMPLATEDLL
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
-#    define Q_KERNEL_EXPORT __declspec(dllimport)
+#    define Q_CORE_EXPORT __declspec(dllimport)
 #    define Q_GUI_EXPORT __declspec(dllimport)
 #    define Q_SQL_EXPORT __declspec(dllimport)
 #    define Q_NETWORK_EXPORT __declspec(dllimport)
@@ -905,8 +905,8 @@ class QDataStream;
 #  undef QT_DLL
 #endif
 
-#ifndef Q_KERNEL_EXPORT
-#  define Q_KERNEL_EXPORT
+#ifndef Q_CORE_EXPORT
+#  define Q_CORE_EXPORT
 #endif
 
 #ifndef Q_GUI_EXPORT
@@ -939,7 +939,7 @@ class QDataStream;
 
 #if defined(Q_WS_WIN)
 extern bool qt_winunicode;
-Q_KERNEL_EXPORT bool qt_winUnicode();
+Q_CORE_EXPORT bool qt_winUnicode();
 #endif
 
 
@@ -948,13 +948,13 @@ Q_KERNEL_EXPORT bool qt_winUnicode();
 // System information
 //
 
-Q_KERNEL_EXPORT const char *qVersion();
-Q_KERNEL_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
-Q_KERNEL_EXPORT bool qSharedBuild();
+Q_CORE_EXPORT const char *qVersion();
+Q_CORE_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
+Q_CORE_EXPORT bool qSharedBuild();
 #if defined(Q_OS_MAC)
 int qMacVersion();
 #elif defined(Q_WS_WIN)
-Q_KERNEL_EXPORT int qWinVersion();
+Q_CORE_EXPORT int qWinVersion();
 #if defined(UNICODE)
 #define QT_WA( uni, ansi ) if ( qt_winUnicode() ) { uni } else { ansi }
 #define QT_WA_INLINE( uni, ansi ) ( qt_winUnicode() ? uni : ansi )
@@ -998,13 +998,13 @@ Q_KERNEL_EXPORT int qWinVersion();
 #  define QT_DEBUG
 #endif
 
-Q_KERNEL_EXPORT void qDebug( const char *, ... )	// print debug message
+Q_CORE_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_KERNEL_EXPORT void qWarning( const char *, ... )	// print warning message
+Q_CORE_EXPORT void qWarning( const char *, ... )	// print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -1015,13 +1015,13 @@ Q_KERNEL_EXPORT void qWarning( const char *, ... )	// print warning message
 #  define qWarning qt_noop(),1?(void)0:qWarning
 #endif
 
-Q_KERNEL_EXPORT void qSystemWarning( const char *, ... )	// print system message
+Q_CORE_EXPORT void qSystemWarning( const char *, ... )	// print system message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_KERNEL_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
+Q_CORE_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 #if defined(Q_CC_GNU)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -1029,7 +1029,7 @@ Q_KERNEL_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 
 inline void qt_noop() {}
 
-Q_KERNEL_EXPORT void qt_assert(const char *assertion, const char *file, int line);
+Q_CORE_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
 #  ifndef QT_NO_DEBUG
@@ -1039,7 +1039,7 @@ Q_KERNEL_EXPORT void qt_assert(const char *assertion, const char *file, int line
 #  endif
 #endif
 
-Q_KERNEL_EXPORT void qt_assert_x(const char *where, const char *what, const char *file, int line);
+Q_CORE_EXPORT void qt_assert_x(const char *where, const char *what, const char *file, int line);
 
 #if !defined(Q_ASSERT_X)
 #  ifndef QT_NO_DEBUG
@@ -1049,7 +1049,7 @@ Q_KERNEL_EXPORT void qt_assert_x(const char *where, const char *what, const char
 #  endif
 #endif
 
-Q_KERNEL_EXPORT void qt_check_pointer(const char *, int);
+Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 
 #ifndef QT_NO_DEBUG
 #  define Q_CHECK_PTR(p) {if(!(p))qt_check_pointer(__FILE__,__LINE__);}
@@ -1060,28 +1060,28 @@ Q_KERNEL_EXPORT void qt_check_pointer(const char *, int);
 enum QtMsgType { QtDebugMsg, QtSystemMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
-Q_KERNEL_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
+Q_CORE_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-Q_KERNEL_EXPORT void qSuppressObsoleteWarnings( bool = true );
+Q_CORE_EXPORT void qSuppressObsoleteWarnings( bool = true );
 
-Q_KERNEL_EXPORT void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
-Q_KERNEL_EXPORT void qObsolete( const char *obj, const char *oldfunc );
-Q_KERNEL_EXPORT void qObsolete( const char *message );
+Q_CORE_EXPORT void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
+Q_CORE_EXPORT void qObsolete( const char *obj, const char *oldfunc );
+Q_CORE_EXPORT void qObsolete( const char *message );
 
 
 //
 // Install paths from configure
 //
 
-Q_KERNEL_EXPORT const char *qInstallPath();
-Q_KERNEL_EXPORT const char *qInstallPathDocs();
-Q_KERNEL_EXPORT const char *qInstallPathHeaders();
-Q_KERNEL_EXPORT const char *qInstallPathLibs();
-Q_KERNEL_EXPORT const char *qInstallPathBins();
-Q_KERNEL_EXPORT const char *qInstallPathPlugins();
-Q_KERNEL_EXPORT const char *qInstallPathData();
-Q_KERNEL_EXPORT const char *qInstallPathTranslations();
-Q_KERNEL_EXPORT const char *qInstallPathSysconf();
+Q_CORE_EXPORT const char *qInstallPath();
+Q_CORE_EXPORT const char *qInstallPathDocs();
+Q_CORE_EXPORT const char *qInstallPathHeaders();
+Q_CORE_EXPORT const char *qInstallPathLibs();
+Q_CORE_EXPORT const char *qInstallPathBins();
+Q_CORE_EXPORT const char *qInstallPathPlugins();
+Q_CORE_EXPORT const char *qInstallPathData();
+Q_CORE_EXPORT const char *qInstallPathTranslations();
+Q_CORE_EXPORT const char *qInstallPathSysconf();
 
 
 class QBool
@@ -1269,12 +1269,12 @@ template <> inline void qDelete(QFunctionPointerWithArgs &) { }
 #endif
 
 
-Q_KERNEL_EXPORT void *qMalloc(size_t size);
-Q_KERNEL_EXPORT void qFree(void *ptr);
-Q_KERNEL_EXPORT void *qRealloc(void *ptr, size_t size);
-Q_KERNEL_EXPORT int qRand(void);
-Q_KERNEL_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
-Q_KERNEL_EXPORT void *qMemSet(void *dest, int c, size_t n);
+Q_CORE_EXPORT void *qMalloc(size_t size);
+Q_CORE_EXPORT void qFree(void *ptr);
+Q_CORE_EXPORT void *qRealloc(void *ptr, size_t size);
+Q_CORE_EXPORT int qRand(void);
+Q_CORE_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
+Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 
 
 //
@@ -1312,7 +1312,7 @@ Q_KERNEL_EXPORT void *qMemSet(void *dest, int c, size_t n);
 #  endif
 #endif
 
-class Q_KERNEL_EXPORT QFlag
+class Q_CORE_EXPORT QFlag
 {
     int i;
 public:

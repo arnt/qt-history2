@@ -30,7 +30,7 @@
 
 #include <qiterator.h>
 
-struct Q_KERNEL_EXPORT QMapData
+struct Q_CORE_EXPORT QMapData
 {
     enum Color { Red, Black };
     struct Node {

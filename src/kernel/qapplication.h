@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qpalette.h"
 #include "qstringlist.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qpoint.h"
 #include "qsize.h"
 #ifdef QT_INCLUDE_COMPAT
@@ -41,9 +41,9 @@ class QWSDecoration;
 
 class QApplication;
 class QApplicationPrivate;
-#define qApp (static_cast<QApplication *>(QKernelApplication::instance()))
+#define qApp (static_cast<QApplication *>(QCoreApplication::instance()))
 
-class Q_GUI_EXPORT QApplication : public QKernelApplication
+class Q_GUI_EXPORT QApplication : public QCoreApplication
 {
     Q_OBJECT
 public:

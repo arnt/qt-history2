@@ -26,15 +26,15 @@
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
-Q_KERNEL_EXPORT void *qmemmove( void *dst, const void *src, uint len );
+Q_CORE_EXPORT void *qmemmove( void *dst, const void *src, uint len );
 
-Q_KERNEL_EXPORT char *qstrdup( const char * );
+Q_CORE_EXPORT char *qstrdup( const char * );
 
 inline uint qstrlen( const char *str )
 { return str ? (uint)strlen(str) : 0; }
 inline char *qstrcpy( char *dst, const char *src )
 { return src ? strcpy(dst, src) : 0; }
-Q_KERNEL_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
+Q_CORE_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
 
 inline int qstrcmp(const char *str1, const char *str2)
 {
@@ -46,8 +46,8 @@ inline int qstrncmp( const char *str1, const char *str2, uint len )
     return ( str1 && str2 ) ? strncmp( str1, str2, len )
 	: ( str1 ? 1 : ( str2 ? -1 : 0 ) );
 }
-Q_KERNEL_EXPORT int qstricmp( const char *, const char * );
-Q_KERNEL_EXPORT int qstrnicmp( const char *, const char *, uint len );
+Q_CORE_EXPORT int qstricmp( const char *, const char * );
+Q_CORE_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
 #ifndef QT_CLEAN_NAMESPACE
 inline uint cstrlen( const char *str )
@@ -62,13 +62,13 @@ inline int cstrncmp( const char *str1, const char *str2, uint len )
 
 // qChecksum: Internet checksum
 
-Q_KERNEL_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
+Q_CORE_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
 
 class QByteRef;
 class QString;
 class QDataStream;
 
-class Q_KERNEL_EXPORT QByteArray
+class Q_CORE_EXPORT QByteArray
 {
 public:
     QByteArray();
@@ -220,7 +220,7 @@ private:
     friend class QConstByteArray;
 };
 
-class Q_KERNEL_EXPORT QConstByteArray : public QByteArray
+class Q_CORE_EXPORT QConstByteArray : public QByteArray
 {
 public:
     QConstByteArray(const char *chars, int length);
@@ -259,7 +259,7 @@ inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 inline int QByteArray::capacity() const
 { return d->alloc; }
 
-class Q_KERNEL_EXPORT QByteRef {
+class Q_CORE_EXPORT QByteRef {
     QByteArray &a;
     int i;
     inline QByteRef(QByteArray &array, int idx)
@@ -395,13 +395,13 @@ inline QByteArray &QByteArray::replace(const char *before, const char *after)
 
 
 #ifndef QT_NO_DATASTREAM
-Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
-Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
+Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
+Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 #endif
 
 #ifndef QT_NO_COMPRESS
-Q_KERNEL_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
-Q_KERNEL_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
+Q_CORE_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
+Q_CORE_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
 inline QByteArray qCompress( const QByteArray& data)
 { return qCompress( (const uchar*)data.constData(), data.size() ); }
 inline QByteArray qUncompress( const QByteArray& data )

@@ -26,7 +26,7 @@ struct QFileInfoCache;
 template <class T> class QDeepCopy;
 
 
-class Q_KERNEL_EXPORT QFileInfo
+class Q_CORE_EXPORT QFileInfo
 {
 public:
     enum PermissionSpec {

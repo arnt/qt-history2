@@ -44,7 +44,7 @@ class QTextCodec;
 #endif
 
 
-struct Q_KERNEL_EXPORT QTextCodecFactoryInterface : public QFeatureListInterface
+struct Q_CORE_EXPORT QTextCodecFactoryInterface : public QFeatureListInterface
 {
     virtual QTextCodec *createForMib( int mib ) = 0;
     virtual QTextCodec *createForName( const QString &name ) = 0;

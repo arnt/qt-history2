@@ -67,7 +67,7 @@
 #include "qptrlist.h"
 #include <qdrawutil.h>
 #include <qdropsite.h>
-#include "qkernelvariant.h"
+#include "qcorevariant.h"
 #include "qframe.h"
 #include "qjpunicode.h"
 #include <qeuckrcodec.h>
@@ -225,7 +225,7 @@
 #include <qstackarray.h>
 #include <qstatusbar.h>
 #include "qbasictimer.h"
-#include <qkernelapplication.h>
+#include <qcoreapplication.h>
 #include <qapplication.h>
 #include "qurl.h"
 #include <qstrvec.h>

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qt_mac.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 
 static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
 QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, &qrp };
@@ -107,7 +107,7 @@ RgnHandle QRegion::handle(bool require_rgn) const
 	    RgnHandle tmp_rgn = qt_mac_get_rgn();
 	    for(int i = 0; i < d->qt_rgn->numRects; ++i) {
 		QRect qt_r = d->qt_rgn->rects[i];
-		SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()), 
+		SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()),
 			   qMin(SHRT_MAX, qt_r.right() + 1), qMin(SHRT_MAX, qt_r.bottom() + 1));
 		UnionRgn(d->rgn, tmp_rgn, d->rgn);
 	    }

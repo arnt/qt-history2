@@ -811,7 +811,7 @@ void qt_release_app_proc_handler()
 
 bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 {
-    return QKernelApplication::sendSpontaneousEvent(obj, event);
+    return QCoreApplication::sendSpontaneousEvent(obj, event);
 }
 
 /* platform specific implementations */

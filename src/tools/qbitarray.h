@@ -6,10 +6,10 @@
 #endif // QT_H
 
 class QBitRef;
-class Q_KERNEL_EXPORT QBitArray
+class Q_CORE_EXPORT QBitArray
 {
-    friend Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
-    friend Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
+    friend Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
+    friend Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
     QByteArray d;
 public:
     inline QBitArray(){};
@@ -82,7 +82,7 @@ inline bool QBitArray::operator[](int i) const { return testBit(i); }
 inline bool QBitArray::operator[](uint i) const { return testBit(i); }
 inline bool QBitArray::at(int i) const { return testBit(i); }
 
-class Q_KERNEL_EXPORT QBitRef
+class Q_CORE_EXPORT QBitRef
 {
 private:
     QBitArray& a;
@@ -102,8 +102,8 @@ inline QBitRef QBitArray::operator[](uint i)
 
 
 #ifndef QT_NO_DATASTREAM
-Q_KERNEL_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
-Q_KERNEL_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
+Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
+Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
 #endif
 
 Q_DECLARE_TYPEINFO(QBitArray, Q_MOVABLE_TYPE);

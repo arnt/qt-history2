@@ -14,9 +14,9 @@
 
 #include "qmetaobject.h"
 #include "qobject.h"
-#include <qkernelapplication.h>
+#include <qcoreapplication.h>
 #include <qstringlist.h>
-#include <qkernelvariant.h>
+#include <qcorevariant.h>
 #include <qhash.h>
 #include <ctype.h>
 
@@ -158,8 +158,8 @@ QObject *QMetaObject::cast(const QObject *obj) const
 */
 QString QMetaObject::tr(const char *s, const char *c) const
 {
-    if (QKernelApplication::instance())
-	return QKernelApplication::instance()->translate(d.stringdata, s, c, QKernelApplication::DefaultCodec);
+    if (QCoreApplication::instance())
+	return QCoreApplication::instance()->translate(d.stringdata, s, c, QCoreApplication::DefaultCodec);
     else
 	return QString::fromLatin1(s);
 }
@@ -169,8 +169,8 @@ QString QMetaObject::tr(const char *s, const char *c) const
 */
 QString QMetaObject::trUtf8(const char *s, const char *c) const
 {
-    if (QKernelApplication::instance())
-	return QKernelApplication::instance()->translate(d.stringdata, s, c, QKernelApplication::UnicodeUTF8);
+    if (QCoreApplication::instance())
+	return QCoreApplication::instance()->translate(d.stringdata, s, c, QCoreApplication::UnicodeUTF8);
     else
 	return QString::fromUtf8(s);
 }
@@ -1139,29 +1139,29 @@ QMetaEnum QMetaProperty::enumerator() const
     Tries to read the property's value from object \a obj.  On
     success, returns the value; otherwise returns an invalid variant.
 */
-QKernelVariant QMetaProperty::read(const QObject *obj) const
+QCoreVariant QMetaProperty::read(const QObject *obj) const
 {
     if (!obj || !mobj[QMetaObject::ReadProperty])
-	return QKernelVariant();
+	return QCoreVariant();
 
-    QKernelVariant::Type t = QKernelVariant::Int;
+    QCoreVariant::Type t = QCoreVariant::Int;
     if (!isEnumType()) {
 	int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
 	int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-	t = (QKernelVariant::Type)(flags >> 24);
-	if ( t == QKernelVariant::Invalid )
-	    t = QKernelVariant::nameToType( mobj[QMetaObject::ReadProperty]->d.stringdata
+	t = (QCoreVariant::Type)(flags >> 24);
+	if ( t == QCoreVariant::Invalid )
+	    t = QCoreVariant::nameToType( mobj[QMetaObject::ReadProperty]->d.stringdata
 				      + mobj[QMetaObject::ReadProperty]->d.data[handle + 1] );
-	if (t == QKernelVariant::Invalid)
-	    return QKernelVariant();
+	if (t == QCoreVariant::Invalid)
+	    return QCoreVariant();
     }
-    QKernelVariant value(t);
+    QCoreVariant value(t);
     void *argv[] = { value.data() };
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
 		     idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
 		     argv);
     if (argv[0] != value.data())
-	return QKernelVariant(t, argv[0]);
+	return QCoreVariant(t, argv[0]);
     return value;
 }
 
@@ -1169,30 +1169,30 @@ QKernelVariant QMetaProperty::read(const QObject *obj) const
     Tries to write \a value as the property's value on object \a
     obj. On success, returns true; otherwise returns false.
 */
-bool QMetaProperty::write(QObject *obj, const QKernelVariant &value) const
+bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
 {
     if (!obj || !isWritable())
 	return false;
 
-    QKernelVariant v = value;
+    QCoreVariant v = value;
     if (isEnumType()) {
-	if (v.type() == QKernelVariant::String || v.type() == QKernelVariant::CString) {
+	if (v.type() == QCoreVariant::String || v.type() == QCoreVariant::CString) {
 	    if ( isFlagType() )
-		v = QKernelVariant(menum.keysToValue(value.toCString()));
+		v = QCoreVariant(menum.keysToValue(value.toCString()));
 	    else
-		v = QKernelVariant(menum.keyToValue(value.toCString()));
-	} else if (v.type() != QKernelVariant::Int && v.type() != QKernelVariant::UInt) {
+		v = QCoreVariant(menum.keyToValue(value.toCString()));
+	} else if (v.type() != QCoreVariant::Int && v.type() != QCoreVariant::UInt) {
 	    return false;
 	}
-	v.cast(QKernelVariant::Int);
+	v.cast(QCoreVariant::Int);
     } else {
 	int handle = priv(mobj[QMetaObject::WriteProperty]->d.data)->propertyData + 3*idx[QMetaObject::WriteProperty];
 	int flags = mobj[QMetaObject::WriteProperty]->d.data[handle + 2];
-	QKernelVariant::Type t = (QKernelVariant::Type)(flags >> 24);
-	if ( t == QKernelVariant::Invalid )
-	    t = QKernelVariant::nameToType( mobj[QMetaObject::WriteProperty]->d.stringdata
+	QCoreVariant::Type t = (QCoreVariant::Type)(flags >> 24);
+	if ( t == QCoreVariant::Invalid )
+	    t = QCoreVariant::nameToType( mobj[QMetaObject::WriteProperty]->d.stringdata
 				      + mobj[QMetaObject::WriteProperty]->d.data[handle + 1] );
-	if (t != QKernelVariant::Invalid && !v.cast(t))
+	if (t != QCoreVariant::Invalid && !v.cast(t))
 	    return false;
     }
 

@@ -23,9 +23,9 @@
 #define Q_MOC_OUTPUT_REVISION 45
 #endif
 
-class QKernelVariant;
+class QCoreVariant;
 
-class Q_KERNEL_EXPORT QMetaMember
+class Q_CORE_EXPORT QMetaMember
 {
 public:
     inline QMetaMember():mobj(0),handle(0){}
@@ -43,7 +43,7 @@ private:
     friend struct QMetaObject;
 };
 
-class Q_KERNEL_EXPORT QMetaEnum
+class Q_CORE_EXPORT QMetaEnum
 {
 public:
     inline QMetaEnum():mobj(0),handle(0){}
@@ -67,7 +67,7 @@ private:
     friend struct QMetaObject;
 };
 
-class Q_KERNEL_EXPORT QMetaProperty
+class Q_CORE_EXPORT QMetaProperty
 {
 public:
     QMetaProperty();
@@ -86,8 +86,8 @@ public:
     bool isEnumType() const;
     QMetaEnum enumerator() const;
 
-    QKernelVariant read(const QObject *obj) const;
-    bool write(QObject *obj, const QKernelVariant &value) const;
+    QCoreVariant read(const QObject *obj) const;
+    bool write(QObject *obj, const QCoreVariant &value) const;
     bool reset(QObject *obj) const;
 
     bool hasStdCppSet() const;
@@ -100,7 +100,7 @@ private:
     friend struct QMetaObject;
 };
 
-class Q_KERNEL_EXPORT QMetaClassInfo
+class Q_CORE_EXPORT QMetaClassInfo
 {
 public:
     inline QMetaClassInfo():mobj(0),handle(0){}
@@ -112,7 +112,7 @@ private:
     friend struct QMetaObject;
 };
 
-class Q_KERNEL_EXPORT QMetaType {
+class Q_CORE_EXPORT QMetaType {
 public:
     enum {
 	Void, VoidStar, Long, Int, Short,

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qbasictimer.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qeventloop.h"
 
 /*!
@@ -78,7 +78,7 @@ void QBasicTimer::start(int msec, QObject *obj)
 void QBasicTimer::stop()
 {
     if (id)
-	QKernelApplication::eventLoop()->unregisterTimer(id);
+	QCoreApplication::eventLoop()->unregisterTimer(id);
     id = 0;
 }
 

@@ -23,7 +23,7 @@
 
 class QUrlPrivate;
 
-class Q_KERNEL_EXPORT QUrl
+class Q_CORE_EXPORT QUrl
 {
 public:
     QUrl();

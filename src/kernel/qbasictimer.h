@@ -19,7 +19,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-class Q_KERNEL_EXPORT QBasicTimer
+class Q_CORE_EXPORT QBasicTimer
 {
     int id;
 public:

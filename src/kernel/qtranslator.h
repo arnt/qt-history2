@@ -26,7 +26,7 @@
 class QTranslatorPrivate;
 template <typename T> class QList;
 
-class Q_KERNEL_EXPORT QTranslatorMessage
+class Q_CORE_EXPORT QTranslatorMessage
 {
 public:
     QTranslatorMessage();
@@ -77,7 +77,7 @@ private:
 };
 
 
-class Q_KERNEL_EXPORT QTranslator : public QObject
+class Q_CORE_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
     Q_DECL_PRIVATE(QTranslator);

@@ -8,9 +8,9 @@ kernel {
 		  $$KERNEL_H/qgplugin.h \
 		  $$KERNEL_H/qpointer.h \
 		  $$KERNEL_H/qguardedptr.h \
-		  $$KERNEL_H/qkernelapplication.h \
-		  $$KERNEL_H/qkernelevent.h \
-		  $$KERNEL_H/qkernelvariant.h \
+		  $$KERNEL_H/qcoreapplication.h \
+		  $$KERNEL_H/qcoreevent.h \
+		  $$KERNEL_H/qcorevariant.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qobject.h \
@@ -24,14 +24,14 @@ kernel {
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_P/qeventloop_p.h \
 		  $$KERNEL_P/qinternal_p.h \
-		  $$KERNEL_P/qkernelapplication_p.h \
+		  $$KERNEL_P/qcoreapplication_p.h \
  		  $$KERNEL_H/qobjectcleanuphandler.h
 
 
 		  
         win32:SOURCES += $$KERNEL_CPP/qprocess_win.cpp \
 			 $$KERNEL_CPP/qeventloop_win.cpp \
-			 $$KERNEL_CPP/qkernelapplication_win.cpp
+			 $$KERNEL_CPP/qcoreapplication_win.cpp
 
 	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp \
 			$$KERNEL_CPP/qeventloop_unix.cpp
@@ -41,9 +41,9 @@ kernel {
 		  $$KERNEL_CPP/qeventloop.cpp \
 		  $$KERNEL_CPP/qgplugin.cpp \
 		  $$KERNEL_CPP/qinternal.cpp \
-		  $$KERNEL_CPP/qkernelapplication.cpp \
-		  $$KERNEL_CPP/qkernelevent.cpp \
-		  $$KERNEL_CPP/qkernelvariant.cpp \
+		  $$KERNEL_CPP/qcoreapplication.cpp \
+		  $$KERNEL_CPP/qcoreevent.cpp \
+		  $$KERNEL_CPP/qcorevariant.cpp \
 		  $$KERNEL_CPP/qmetaobject.cpp \
 		  $$KERNEL_CPP/qobject.cpp \
 		  $$KERNEL_CPP/qobjectcleanuphandler.cpp \

@@ -1,7 +1,7 @@
 REQUIRES = !qt_one_lib
 TARGET		= qopengl
 include(qbase.pri)
-QCONFIG = kernel gui
+QCONFIG = core gui
 !win32:!embedded:!mac:CONFIG	   += x11 x11inc
 
 DEFINES += QT_BUILD_OPENGL_LIB

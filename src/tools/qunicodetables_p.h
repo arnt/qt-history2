@@ -21,7 +21,7 @@
 # include <ctype.h>
 #endif
 
-class Q_KERNEL_EXPORT QUnicodeTables {
+class Q_CORE_EXPORT QUnicodeTables {
 public:
     static const Q_UINT8 unicode_info[];
 #ifndef QT_NO_UNICODETABLES

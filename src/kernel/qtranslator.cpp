@@ -30,7 +30,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 #include "qfileinfo.h"
 #include "qstring.h"
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qfile.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
@@ -338,8 +338,8 @@ QTranslator::QTranslator( QObject * parent, const char * name )
 
 QTranslator::~QTranslator()
 {
-    if ( QKernelApplication::instance() )
-	QKernelApplication::instance()->removeTranslator( this );
+    if ( QCoreApplication::instance() )
+	QCoreApplication::instance()->removeTranslator( this );
     clear();
 }
 
@@ -554,7 +554,7 @@ bool QTranslator::do_load( const uchar *data, int len )
 
 #if 0
     QEvent ev(QEvent::LanguageChange);
-    QKernelApplication::sendEvent(QKernelApplication::instance(), &ev);
+    QCoreApplication::sendEvent(QCoreApplication::instance(), &ev);
 #endif
     return ok;
 }
@@ -648,7 +648,7 @@ void QTranslator::clear()
 #endif
 
     QEvent ev(QEvent::LanguageChange);
-    QKernelApplication::sendEvent(QKernelApplication::instance(), &ev);
+    QCoreApplication::sendEvent(QCoreApplication::instance(), &ev);
 }
 
 #ifndef QT_NO_TRANSLATION_BUILDER
@@ -1021,7 +1021,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 bool QTranslator::isEmpty() const
 {
     return !( d->unmapPointer || d->unmapLength || d->messageArray ||
-	      d->offsetArray || d->contextArray || 
+	      d->offsetArray || d->contextArray ||
 	      (d->messages && d->messages->count())
 	    );
 }

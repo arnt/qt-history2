@@ -218,7 +218,7 @@ else
 fi
 
 # licensed modules depend on type of commercial license
-MODULES="styles tools kernel widgets dialogs iconview workspace compat"
+MODULES="styles tools core widgets dialogs iconview workspace compat"
 [ "$PLATFORM_QWS" = "yes" ] && [ "$Products" = "qt-professional" ] && MODULES="$MODULES network"
 [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 CFG_MODULES_AVAILABLE=$MODULES
@@ -3037,7 +3037,7 @@ esac
 #     minimal-config small-config medium-config large-config full-config
 #
 #   Modules:
-#     styles tools kernel widgets dialogs iconview workspace
+#     styles tools core widgets dialogs iconview workspace
 #
 #   Enterprise/Free edition modules:
 #     network canvas table xml opengl sql
@@ -3068,7 +3068,7 @@ esac
 #     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
 #     Embedded: embedded ft
 #
-ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl ipv6"
+ALL_OPTIONS="styles tools core widgets dialogs iconview workspace network canvas table xml opengl sql stl ipv6"
 BUILD_CONFIG=
 BUILD_OPTIONS=
 
@@ -3082,7 +3082,7 @@ for config_option in $QMAKE_CONFIG; do
 	BUILD_CONFIG="$config_option"
 	;;
 
-    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl|ipv6)
+    styles|tools|core|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl|ipv6)
 	# these config options affect the Qt API/ABI. they should influence
 	# the generation of the buildkey, so we don't skip them
    	SKIP="no"

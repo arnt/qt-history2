@@ -100,7 +100,7 @@
 
 struct QUnknownInterface;
 
-class Q_KERNEL_EXPORT QGPlugin : public QObject
+class Q_CORE_EXPORT QGPlugin : public QObject
 {
     Q_OBJECT
 public:

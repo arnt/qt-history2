@@ -4,5 +4,5 @@ TARGET		= qnetwork
 DEFINES += QT_BUILD_NETWORK_LIB
 
 include(qbase.pri)
-QCONFIG = kernel
+QCONFIG = core
 include($$NETWORK_CPP/qt_network.pri)

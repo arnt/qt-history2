@@ -63,7 +63,7 @@
 class QByteArray;
 
 
-class Q_KERNEL_EXPORT QIODevice
+class Q_CORE_EXPORT QIODevice
 {
 public:
     typedef Q_LLONG Offset;

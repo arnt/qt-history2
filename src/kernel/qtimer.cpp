@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qeventloop.h"
 #include "qtimer.h"
 #include "qsignal.h"

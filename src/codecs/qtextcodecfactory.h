@@ -23,7 +23,7 @@
 
 class QTextCodec;
 
-class Q_KERNEL_EXPORT QTextCodecFactory
+class Q_CORE_EXPORT QTextCodecFactory
 {
 public:
     static QTextCodec *createForName( const QString & );

@@ -18,7 +18,7 @@
 
 #ifndef QT_NO_IMAGEIO_MNG
 
-#include "qkernelapplication.h"
+#include "qcoreapplication.h"
 #include "qdatetime.h"
 #include "qimage.h"
 #include "qasyncimageio.h"

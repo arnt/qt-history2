@@ -53,7 +53,7 @@
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_CODECS_JP
 #else
-#define Q_EXPORT_CODECS_JP Q_KERNEL_EXPORT
+#define Q_EXPORT_CODECS_JP Q_CORE_EXPORT
 #endif
 
 class Q_EXPORT_CODECS_JP QJpUnicodeConv {

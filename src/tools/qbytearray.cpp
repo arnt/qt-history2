@@ -445,7 +445,7 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 
 
 static char null_char = '\0';
-Q_KERNEL_EXPORT QByteArray::Data QByteArray::shared_null = { Q_ATOMIC_INIT(1), 0, 0, &null_char, {0} };
+Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = { Q_ATOMIC_INIT(1), 0, 0, &null_char, {0} };
 QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, &null_char, {0} };
 
 QByteArray::QByteArray() : d(&shared_null)

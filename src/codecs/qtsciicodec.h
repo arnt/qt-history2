@@ -50,7 +50,7 @@
 
 #ifndef QT_NO_CODECS
 
-class Q_KERNEL_EXPORT QTsciiCodec : public QTextCodec {
+class Q_CORE_EXPORT QTsciiCodec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;

@@ -10,8 +10,8 @@ for(QCONF, QCONFIG) {
    else:isEqual(QCONF, network):qlib = qnetwork
    else:isEqual(QCONF, xml):qlib = qxml
    else:isEqual(QCONF, opengl):qlib = qopengl
-   else:isEqual(QCONF, sql):qlib = qsqlkernel
-   else:isEqual(QCONF, kernel):qlib = qtkernel
+   else:isEqual(QCONF, sql):qlib = qsql
+   else:isEqual(QCONF, core):qlib = qcore
    else:message("Unknown QCONFIG: $$qlib):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {

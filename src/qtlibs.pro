@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 #must be built absolutely first!
-!qt_one_lib:SUBDIRS += qtkernel.pro 
+!qt_one_lib:SUBDIRS += qcore.pro 
 
 #must be built second!
 SUBDIRS += qt_gui.pro
@@ -11,7 +11,7 @@ SUBDIRS += qt_gui.pro
 win32:SUBDIRS += qtmain.pro 
 !qt_one_lib {
    !win32:SUBDIRS += qnetwork.pro
-   SUBDIRS += qsqlkernel.pro qopengl.pro qxml.pro
+   SUBDIRS += qsql.pro qopengl.pro qxml.pro
 }
 embedded:SUBDIRS -= qopengl.pro
 SUBDIRS += qcompat.pro 

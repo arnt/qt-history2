@@ -17,7 +17,7 @@
 
 #ifndef QT_NO_VARIANT
 
-#include "qkernelvariant.h"
+#include "qcorevariant.h"
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qfont.h"
@@ -60,7 +60,7 @@ class QPoint;
 class QRect;
 class QSize;
 
-class Q_GUI_EXPORT QVariant : public QKernelVariant
+class Q_GUI_EXPORT QVariant : public QCoreVariant
 {
  public:
     inline QVariant();
@@ -91,9 +91,9 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     inline QVariant(const QPen &pen);
     inline QVariant(const QSizePolicy &sp);
 
-    // Copied from qkernelvariant.h
+    // Copied from qcorevariant.h
     inline QVariant(Type type, void *v = 0);
-    inline QVariant(const QKernelVariant &other);
+    inline QVariant(const QCoreVariant &other);
     inline QVariant(const QVariant &other);
 
     inline QVariant(int i);
@@ -118,8 +118,8 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     inline QVariant(const QTime &time);
     inline QVariant(const QDateTime &datetime);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QVariant(const QList<QKernelVariant> &list);
-    inline QVariant(const QMap<QString,QKernelVariant> &map);
+    inline QVariant(const QList<QCoreVariant> &list);
+    inline QVariant(const QMap<QString,QCoreVariant> &map);
 #endif
 
     inline QVariant(const QSize &size);
@@ -185,35 +185,35 @@ private:
     friend class QApplicationPrivate;
 };
 
-// Copied from qkernelvariant.h
-inline QVariant::QVariant(Type type, void *v) : QKernelVariant(type, v) { }
-inline QVariant::QVariant(const QVariant &other) : QKernelVariant(other) { }
-inline QVariant::QVariant(const QKernelVariant &other) : QKernelVariant(other) { }
+// Copied from qcorevariant.h
+inline QVariant::QVariant(Type type, void *v) : QCoreVariant(type, v) { }
+inline QVariant::QVariant(const QVariant &other) : QCoreVariant(other) { }
+inline QVariant::QVariant(const QCoreVariant &other) : QCoreVariant(other) { }
 
-inline QVariant::QVariant(int i) : QKernelVariant(i) {};
-inline QVariant::QVariant(uint ui) : QKernelVariant(ui) {};
-inline QVariant::QVariant(Q_LLONG ll) : QKernelVariant(ll) {};
-inline QVariant::QVariant(Q_ULLONG ull) : QKernelVariant(ull) {};
-inline QVariant::QVariant(double d) : QKernelVariant(d) {};
-inline QVariant::QVariant(bool b) : QKernelVariant(b) {};
+inline QVariant::QVariant(int i) : QCoreVariant(i) {};
+inline QVariant::QVariant(uint ui) : QCoreVariant(ui) {};
+inline QVariant::QVariant(Q_LLONG ll) : QCoreVariant(ll) {};
+inline QVariant::QVariant(Q_ULLONG ull) : QCoreVariant(ull) {};
+inline QVariant::QVariant(bool b) : QCoreVariant(b) {};
+inline QVariant::QVariant(double d) : QCoreVariant(d) {};
 #ifndef QT_NO_COMPAT
-inline QVariant::QVariant(bool b, int) : QKernelVariant(b) {};
+inline QVariant::QVariant(bool b, int) : QCoreVariant(b) {};
 #endif
 
-inline QVariant::QVariant(const char *str) : QKernelVariant(str) {};
-inline QVariant::QVariant(const QByteArray &bytearray) : QKernelVariant(bytearray) {};
-inline QVariant::QVariant(const QBitArray &bitarray) : QKernelVariant(bitarray) {};
-inline QVariant::QVariant(const QString &string) : QKernelVariant(string) {};
+inline QVariant::QVariant(const char *str) : QCoreVariant(str) {};
+inline QVariant::QVariant(const QByteArray &bytearray) : QCoreVariant(bytearray) {};
+inline QVariant::QVariant(const QBitArray &bitarray) : QCoreVariant(bitarray) {};
+inline QVariant::QVariant(const QString &string) : QCoreVariant(string) {};
 #ifndef QT_NO_STRINGLIST
-inline QVariant::QVariant(const QStringList &stringlist) : QKernelVariant(stringlist) {};
+inline QVariant::QVariant(const QStringList &stringlist) : QCoreVariant(stringlist) {};
 #endif
 
-inline QVariant::QVariant(const QDate &date) : QKernelVariant(date) {};
-inline QVariant::QVariant(const QTime &time) : QKernelVariant(time) {};
-inline QVariant::QVariant(const QDateTime &datetime) : QKernelVariant(datetime) {};
+inline QVariant::QVariant(const QDate &date) : QCoreVariant(date) {};
+inline QVariant::QVariant(const QTime &time) : QCoreVariant(time) {};
+inline QVariant::QVariant(const QDateTime &datetime) : QCoreVariant(datetime) {};
 #ifndef QT_NO_TEMPLATE_VARIANT
-inline QVariant::QVariant(const QList<QKernelVariant> &list) : QKernelVariant(list) {};
-inline QVariant::QVariant(const QMap<QString,QKernelVariant> &map) : QKernelVariant(map) {};
+inline QVariant::QVariant(const QList<QCoreVariant> &list) : QCoreVariant(list) {};
+inline QVariant::QVariant(const QMap<QString,QCoreVariant> &map) : QCoreVariant(map) {};
 #endif
 inline QVariant::QVariant(const QPoint &pt)
 { d = create(Point, &pt); }
@@ -223,7 +223,7 @@ inline QVariant::QVariant(const QSize &s)
 { d = create(Size, &s); }
 
 inline QVariant::QVariant()
-    : QKernelVariant()
+    : QCoreVariant()
 { }
 inline QVariant::QVariant(const QFont &val)
 { d = create(Font, &val); }
