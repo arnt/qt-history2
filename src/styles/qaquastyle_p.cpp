@@ -448,7 +448,6 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    return ret;
     }
 
-    const int shadow_height = 3;
     if(ct == QStyle::CT_PushButton) {
 	QPushButton *psh = (QPushButton*)widg;
 	int minw = -1;
@@ -457,14 +456,14 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    minw = 69;
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight) + shadow_height);
+	    ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight));
 	else
-	    ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight) + shadow_height);
+	    ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight));
 #else
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(minw, 20 + shadow_height);
+	    ret = QSize(minw, 20);
 	else
-	    ret = QSize(minw, 17 + shadow_height);
+	    ret = QSize(minw, 17);
 #endif
 #if 0 //Not sure we are applying the rules correctly for RadioButtons/CheckBoxes --Sam
     } else if(ct == QStyle::CT_RadioButton) {
@@ -474,26 +473,26 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    return QSize(-1, -1);
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight) + shadow_height);
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight));
 	else 
-	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallRadioButtonHeight) + shadow_height);
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallRadioButtonHeight));
 #else
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(-1, 18 + shadow_height);
+	    ret = QSize(-1, 18);
 	else 
-	    ret = QSize(-1, 15 + shadow_height);
+	    ret = QSize(-1, 15);
 #endif
     } else if(ct == QStyle::CT_CheckBox) {
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricCheckBoxHeight) + shadow_height);
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricCheckBoxHeight));
 	else 
-	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallCheckBoxHeight) + shadow_height);
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallCheckBoxHeight));
 #else
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(-1, 18 + shadow_height);
+	    ret = QSize(-1, 18);
 	else 
-	    ret = QSize(-1, 16 + shadow_height);
+	    ret = QSize(-1, 16);
 #endif
 #endif
     } else if(ct == QStyle::CT_ComboBox) {
