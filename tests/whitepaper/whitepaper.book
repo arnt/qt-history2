@@ -1,14 +1,22 @@
 \title Qt Whitepaper
 
-\input widgets.leaf
+\granularity chapter
 
-\omit
-\input databases.leaf
+\input introduction.leaf
+\input widgets.leaf
 \input signals-and-slots.leaf
-\input styles-and-themes.leaf
-\input events.leaf
 \input gui-applications.leaf
-\input layouts.leaf
+\input qt-designer.leaf
+\input 2d-and-3d-graphics.leaf
+\input databases.leaf
 \input internationalization.leaf
+\input qt-linguist.leaf
+\input xml.leaf
+\input styles-and-themes.leaf
+\input layouts.leaf
+\input events.leaf
+\input io-and-networking.leaf
 \input collection-classes.leaf
 \input component-model.leaf
+
+\tableofcontents

@@ -1,9 +1,12 @@
 \chapter Internationalization
 
-Qt fully supports Unicode. Programmers can freely mix Arabic, English,
-Hebrew, Japanese, and every other language supported by Unicode, in
-their applications. Qt also includes tools to support application
-translation to help companies reach international markets.
+\quote
+Qt fully supports Unicode, the international standard character
+encoding scheme. Programmers can freely mix Arabic, English,
+Hebrew, Japanese, Russian, and every other language supported by
+Unicode, in their applications. Qt also includes tools to support
+application translation to help companies reach international markets.
+\endquote
 
   \index i18n
   \index internationalization
@@ -11,19 +14,18 @@ translation to help companies reach international markets.
   \index localization
   \index multi-language
 
-\omit ### Mark, I'll need your help here ### \endomit
-
-Applications are translated using the graphical tool \e {Qt
-Linguist}. It is easy to use by non-technical people.
-
-Enabling translation requires minimal programmer effort.
-
-All in all, Qt allows you to quickly and easily translate
-applications into foreign languages to open up new markets.
+Qt includes tools to facilitate the translation process. Programmers
+can easily mark user-visible text that needs translation and a tool is
+provided which extracts this text from the source code. \l{Qt
+Linguist} is an easy-to-use GUI application for translators that reads
+the extracted source text and provides the text with context
+information for the translator to translate. When the translation is
+complete \l{Qt Linguist} outputs the translations ready for use by
+application programs. \l{Qt Linguist}'s documentation provides the
+relevant information for release managers, translators and
+programmers.
 
 \section1 Unicode
-
-\omit ### Mark, I edited the following paragraph \endomit
 
   \index QChar
   \index QRegExp
@@ -33,20 +35,20 @@ applications into foreign languages to open up new markets.
   \index implicit sharing
   \index strings
 
-Qt provides the \Class QString class to store Unicode strings, and
-uses it throughout in the API and internally. \Class QString replaces
-the crude \c {const char *} and the 16-bit \Class QChar class
-replaces \c char. Constructors and operators are provided to
-automatically convert to and from 8-bit strings. And you can
-confidently copy \Class {QString}s by value, as they are \l
-{implicitly shared}.
+Qt uses the \Class QString class to store Unicode strings, and
+uses it throughout the API and internally. \Class QString replaces the
+crude \c {const char *} and the 16-bit \Class QChar class replaces \c
+char. Constructors and operators are provided to automatically convert
+to and from 8-bit strings. Programmers can copy \Class {QString}s by
+value, since they are \l {implicitly shared} (copy on write), which
+makes them fast and memory efficient.
 
   \index regular expressions
 
 \Class QString is more than a 16-bit character string. Functions such
 as \Func QChar::lower() and \Func QChar::isPunct() replace \Func
 tolower() and \Func ispunct() and work over the whole Unicode range.
-Qt's regular expression engine, provided by class \Class QRegExp,
+Qt's regular expression engine, provided by the \Class QRegExp class,
 uses Unicode strings both for the regular expression pattern and the
 string to match.
 

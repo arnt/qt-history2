@@ -1,8 +1,10 @@
 \chapter Databases
 
+\quote
 The Qt SQL module simplifies the creation of GUI database
 applications. Programmers can easily execute SQL statements, use
 database-specific widgets, and make any widget data-aware.
+\endquote
 
   \index Microsoft SQL Server
   \index MySQL

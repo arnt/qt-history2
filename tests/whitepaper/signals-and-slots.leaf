@@ -1,8 +1,10 @@
 \chapter Signals and Slots
 
+\quote
 Signals and slots provide inter-object communication. They are easy to
 understand and use, simple to hand code, and are fully supported by \l{Qt
 Designer}.
+\endquote
 
 GUI applications respond to user actions. For example, when a user
 clicks a menu item or toolbar button, the program executes some code.
@@ -25,8 +27,8 @@ function to the button. When the button is clicked, the function would
 then be called. There is no way of ensuring that arguments of the
 right type are given to the function when it is called, which makes
 crashes more likely. The other problem with the callback approach is
-that it tightly binds the GUI element (the button), to the
-functionality, making it difficult to develop classes independently.
+that it tightly binds the GUI element to the functionality, making it
+difficult to develop classes independently.
 
 Qt's signals and slots mechanism is different. Qt widgets emit signals
 when events occur. For example, a button will emit a 'clicked' signal

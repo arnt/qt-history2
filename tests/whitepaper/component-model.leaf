@@ -1,5 +1,14 @@
 \chapter Component Model
 
+\quote
+The Qt Component Model provides a cross-platform framework similar to
+COM on Windows. Using components makes it easier to upgrade or
+enhance functionality without having to replace an entire
+application. Components can also be used to share functionality among
+a group of applications. Qt components can be products in their own
+right, like COM components.
+\endquote
+
 \section1 Concepts
 
   \index COM
@@ -7,13 +16,6 @@
   \index Qt Component Model
   \index UCM
   \index component model
-
-The Qt Component Model provides a cross-platform framework similar to
-COM on Windows. Using components makes it easier to upgrade or
-enhance functionality without having to replace an entire
-application. Components can also be used to share functionality among
-a group of applications. Qt components can be products in their own
-right, like COM components.
 
   \index components
   \index interfaces

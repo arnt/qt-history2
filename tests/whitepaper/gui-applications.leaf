@@ -2,9 +2,11 @@
 
 \chapter GUI Applications
 
+\quote
 Building modern GUI applications with Qt is fast and simple and can be
 achieved by hand coding or by using \l{Qt Designer}, Qt's visual
 design tool.
+\endquote
 
 Qt provides all the classes and functions necessary to create modern
 GUI applications. Qt can be used to create both 'main window' style
@@ -458,6 +460,3 @@ recently used files by the application Zooper\TRADEMARK by Software
 Inc. Booleans, numbers, Unicode strings and list of Unicode strings
 can be stored.
 
-\section1 A Complete Example
-
-	* SCREEN SHOT

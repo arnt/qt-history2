@@ -1,16 +1,19 @@
 \chapter Widgets
 
-Qt has a rich set of widgets that cater for most needs. Qt's widgets
-are flexible and easy to subclass for special requirements.
+\quote
+Qt has a rich set of widgets (e.g. buttons, scrollbars, etc.), that
+cater for most situations. Qt's widgets are flexible and easy to
+subclass for special requirements.
+\endquote
 
 Qt provides a full set of widgets ('controls' and 'containers' in
 Windows terminology). Widgets are visual elements that are combined to
-create user interfaces. Buttons, menus, scroll bars, message boxes and
-application windows are all widgets. Qt's widgets are not arbitrarily
-divided between 'controls' and 'containers'; all widgets can be used
-both as controls and as containers. Custom widgets can easily be
-created by subclassing existing Qt widgets, or even created from
-scratch in rare cases. 
+create user interfaces. Buttons, menus, scroll bars, message boxes,
+application windows, etc., are all examples of widgets. Qt's widgets
+are not arbitrarily divided between 'controls' and 'containers'; all
+widgets can be used both as controls and as containers. Custom widgets
+can easily be created by subclassing existing Qt widgets, or even
+created from scratch on the rare occasions when this is necessary. 
 
   \index controls
   \index widgets

@@ -1,8 +1,11 @@
 \chapter Collection Classes
 
-Qt provides a set of collection classes that are compatible with the
-Standard Template Library (STL), regardless of whether the compiler
-supports STL or not. 
+\quote
+Collection classes are used to store groups of items in memory. Qt
+provides a set of classes, that are compatible with the Standard
+Template Library (STL), and which work regardless of whether the
+compiler supports STL or not. 
+\endquote
 
 Applications often need to manage items in memory, for example, groups
 of images, widgets or custom objects. Many C++ compilers support the

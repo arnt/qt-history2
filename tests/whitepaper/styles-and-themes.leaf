@@ -1,8 +1,12 @@
 \chapter Styles and Themes
 
-Qt supports a variety of styles, and defaults to the native 'look and
-feel' on target platforms. Qt's powerful style engine can be used by
-programmers to modify existing styles or to create new styles.
+\quote
+Qt supports a variety of styles, automatically using native 'look and
+feel'. Qt applications respect user preferences for colors, fonts,
+sounds, etc. Qt programmers are free to use any of the supplied styles
+and can override any preferences. Programmers can modify existing
+styles or implement their own styles using Qt's powerful style engine.
+\endquote
 
   \index colors
   \index fonts
@@ -15,17 +19,6 @@ programmers to modify existing styles or to create new styles.
   \index themes
   \index user preferences
 
-Qt applications automatically have a native 'look and feel' and
-respect user preferences for colors, fonts, sounds, etc. Qt
-programmers are also free to use any of the supplied styles and can
-override any preferences. Programmers can implement their own
-variations using Qt's powerful style engine.
-
-\section1 Built-in Styles
-
-  \img combobox-style.png
-  \caption Combobox in Window and Motif styles
-
   \index drawing
   \index emulation
   \index interface emulation
@@ -35,6 +28,8 @@ particular platform. A style is a \Class QStyle subclass that
 implements basic drawing functions such as "draw a frame", "draw a
 button", etc. Qt performs all the widget drawing itself for maximum
 speed and flexibility.
+
+\section1 Built-in Styles
 
   \index Aqua
   \index Macintosh
@@ -49,6 +44,9 @@ MotifPlus, SGI and Aqua (on the Macintosh). By default, Qt uses the
 appropriate style for the user's platform and desktop environment.
 The style can also be chosen programmatically, or with the \c -style
 command-line option on Unix.
+
+  \img combobox-style.png
+  \caption Combobox in Window and Motif styles
 
   \index fade effect
   \index menus
