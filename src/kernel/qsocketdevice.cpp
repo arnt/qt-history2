@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#8 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -48,15 +48,25 @@
   QSocketAddress implementation
  *****************************************************************************/
 
-void QSocketAddress::setData( void *data, int size )
-{
-    if ( ptr )
-	delete [] ptr;
-    ptr = new char[size];
-    len = size;
-    memcpy( ptr, data, len );
-}
+/*!
+  \class QSocketAddress qsocketdevice.h
+  \brief QSocketAddress provides a port number and an IP address.
 
+  \ingroup kernel
+
+  This class contains a port number and an IP address in a
+  platform-independent manner.  QSocketAddress is normally used with the
+  classes QSocketDevice and QSocket to set up a server or to connect to a
+  host.
+
+  \sa QSocket, QSocketDevice
+*/
+
+
+/*!
+  Creates a socket address object with the port number 0 and IP address
+  0.0.0.0.
+*/
 
 QSocketAddress::QSocketAddress()
     : ptr(0), len(0)
@@ -67,6 +77,11 @@ QSocketAddress::QSocketAddress()
     setData( &a, sizeof(a) );
 }
 
+
+/*!
+  Creates a socket address object with a specified port number and IP
+  address.
+*/
 
 QSocketAddress::QSocketAddress( int port, uint ip4Addr )
     : ptr(0)
@@ -80,12 +95,20 @@ QSocketAddress::QSocketAddress( int port, uint ip4Addr )
 }
 
 
+/*!
+  Creates a copy of another socket address.
+*/
+
 QSocketAddress::QSocketAddress( const QSocketAddress &a )
     : ptr(0)
 {
     setData( a.ptr, a.len );
 }
 
+
+/*!
+  Destroys the socket address object.
+*/
 
 QSocketAddress::~QSocketAddress()
 {
@@ -94,12 +117,31 @@ QSocketAddress::~QSocketAddress()
 }
 
 
+void QSocketAddress::setData( void *data, int size )
+{
+    if ( ptr )
+	delete [] ptr;
+    ptr = new char[size];
+    len = size;
+    memcpy( ptr, data, len );
+}
+
+
+/*!
+  Assigns another socket address object \a a to this object and
+  returns a referense to this object.
+*/
+
 QSocketAddress & QSocketAddress::operator=( const QSocketAddress &a )
 {
     setData( a.ptr, a.len );
     return *this;
 }
 
+
+/*!
+  Returns the port number.
+*/
 
 int QSocketAddress::port() const
 {
@@ -141,6 +183,11 @@ QString QSocketAddress::ip4AddrString() const
 }
 
 
+/*!
+  Returns TRUE if this socket address is identical to \a a, or FALSE
+  if they are different.
+*/
+
 bool QSocketAddress::operator==( const QSocketAddress &a )
 {
     if ( a.len != len )
@@ -161,9 +208,20 @@ static void cleanupWinSock()
 
 
 /*****************************************************************************
-  QSocket implementation
+  QSocketDevice implementation
  *****************************************************************************/
 
+
+/*!
+  \class QSocketDevice qsocketdevice.h
+  \brief QSocketDevice provides a platform-independent low-level socket API.
+
+  \ingroup kernel
+
+  Not completely documented at the moment.
+
+  \sa QSocket, QSocketNotifier, QSocketAddress
+*/
 
 static bool initWinSock()
 {
@@ -332,8 +390,8 @@ void QSocketDevice::setSocket( int socket, Type type )
 
 /*!
   Opens the socket using the specified QIODevice file mode.  This function
-  is called from the QSocketDevice constructors and from the setSocket() function
-  and you should not call it yourself.
+  is called from the QSocketDevice constructors and from the setSocket()
+  function.  You should not call it yourself.
 
   \sa close().
 */
@@ -350,7 +408,6 @@ bool QSocketDevice::open( int mode )
 
 /*!
   Closes the socket and sets the socket identifier to -1 (invalid).
-
   \sa open()
 */
 
