@@ -34,46 +34,58 @@
 #include "qsizegrip.h"
 
 // BEGIN REVISED: warwick
-/*! \class QStatusBar qstatusbar.h
+/*!
+ \class QStatusBar qstatusbar.h
 
   \brief The QStatusBar class provides a horizontal bar suitable for
-  presenting status messages.
+  presenting status information.
 
   \ingroup realwidgets
   \ingroup application
   \ingroup helpsystem
 
-  Each status message falls into one of three classes: <ul>
+  Each status indicator falls into one of three categories:
 
-  <li> \c Temporary - occupies most of the status bar briefly.  Used
-  e.g. for explaining tool tip texts or menu entries.
-
-  <li> \c Normal - occupies part of the status bar and may be hidden
-  by temporary messages.  Used e.g. for displaying the page and line
-  number in a word processor.
-
-  <li> \c Permanent - is never hidden.  Used for important mode
-  indications.  Some applications put a Caps Lock indicator here.
-
+  <ul>
+  <li> \e Temporary - occupies most of the status bar briefly.  Used
+    e.g. for explaining tool tip texts or menu entries.
+  <li> \e Normal - occupies part of the status bar and may be hidden
+    by temporary messages.  Used e.g. for displaying the page and line
+    number in a word processor.
+  <li> \e Permanent - is never hidden.  Used for important mode
+    indications.  Some applications put a Caps Lock indicator in the
+    status bar.
   </ul>
 
-  QStatusBar lets you display all three sorts of messages.
+  QStatusBar lets you display all three types of indicator.
 
-  To display a temporary message, you can call message(), or connect a
-  suitable signal to it.  To remove a temporary message, you can call
-  clear(), or connect a signal to it.
-
+  To display a \e temporary message, call message(), perhaps by
+  connecting a suitable signal to it.  To remove a temporary message,
+  call clear().
   There are two variants of message(), one which displays the message
-  until the next clear() or mesage(), and one which also has a time limit.
+  until the next clear() or mesage(), and one which also has a time limit:
 
-  Normal and permanent messages are displayed by creating a widget
-  (typically a QLabel) and using addWidget() to add this widget to the
-  status bar.
+  \code
+     connect( loader, SIGNAL(progressMessage(const QString&)), 
+              statusBar(), SLOT(message(const QString&)) );
 
-  Finally, in Windows style QStatusBar also provides a Windows
-  standard resize handle.  In the X11 version of Qt this resize handle
-  generally works differently than the one provided by the system; we
-  are working to reduce this difference.
+     statusBar()->message("Loading...");  // Initial message
+     loader.loadStuff();                  // Emits progress messages
+     statusBar()->message("Done.", 2000); // Final message for 2 seconds
+  \endcode
+
+  \e Normal and \e permanent messages are displayed by creating a small
+  widget then adding it to the status bar with
+  addWidget().  Widgets like QLabel, QProgressBar, or even QToolButton
+  are useful for adding to status bars.  removeWidget() it used
+  to remove widgets.
+
+  \code
+     statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
+  \endcode
+
+  By default, QStatusBar provides a resize handle in the lower-right corner.
+  You can disable this with setSizeGripEnabled(FALSE);
 
   <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
@@ -114,9 +126,10 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     d = new QStatusBarPrivate;
     d->items.setAutoDelete( TRUE );
     d->box = 0;
-    d->resizer = new QSizeGrip( this, "QStatusBar::resizer" );
+    d->resizer = 0;
     d->timer = 0;
-    reformat();
+
+    setSizeGripEnabled(TRUE); // causes reformat()
 }
 
 
@@ -202,6 +215,19 @@ void QStatusBar::removeWidget( QWidget* widget )
 #endif
 }
 
+void QStatusBar::setSizeGripEnabled(bool enabled)
+{
+    if ( !enabled != !d->resizer ) {
+	if ( enabled ) {
+	    d->resizer = new QSizeGrip( this, "QStatusBar::resizer" );
+	} else {
+	    delete d->resizer;
+	    d->resizer = 0;
+	}
+	reformat();
+    }
+}
+
 
 /*!  Changes the status bar's appearance to account for item
   changes. */
@@ -238,11 +264,14 @@ void QStatusBar::reformat()
 	item = d->items.next();
     }
 
-    maxH = QMAX( maxH, d->resizer->sizeHint().height() );
+    if ( d->resizer ) {
+	maxH = QMAX( maxH, d->resizer->sizeHint().height() );
+	l->addSpacing( 2 );
+	l->addWidget( d->resizer, 0, AlignBottom );
+	l->addSpacing( 2 );
+    }
+
     l->addStrut( maxH );
-    l->addSpacing( 2 );
-    l->addWidget( d->resizer, 0, AlignBottom );
-    l->addSpacing( 2 );
     d->box->addSpacing( 2 );
     d->box->activate();
     update();

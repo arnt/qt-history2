@@ -41,8 +41,11 @@ public:
     QStatusBar( QWidget * parent = 0, const char *name = 0 );
     ~QStatusBar();
 
-    void addWidget( QWidget *, int, bool = FALSE );
+    void addWidget( QWidget *, int stretch = 0, bool = FALSE );
     void removeWidget( QWidget * );
+
+    void setSizeGripEnabled(bool);
+    bool sizeGripEnabled() const;
 
 public slots:
     void message( const QString &);
