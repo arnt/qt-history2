@@ -1309,7 +1309,8 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 
     WindowPtr window = qt_mac_window_for(widget);
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
-       windowPart == inZoomIn || windowPart == inZoomOut) {
+       windowPart == inZoomIn || windowPart == inZoomOut
+       || windowPart == inToolbarButton) {
         QMacBlockingFunction block;
         if(!TrackBox(window, *pt, windowPart))
             return false;
