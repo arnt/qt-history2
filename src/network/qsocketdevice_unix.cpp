@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#31 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#32 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -153,7 +153,7 @@
 #  define SOCKLEN_T int
 #elif defined(BSD4_4)
 // freebsd
-#define SOCKLEN_T socklen_t
+#  define SOCKLEN_T socklen_t
 #elif defined(Q_OS_UNIXWARE7)
 #  define SOCKLEN_T size_t
 #elif defined(Q_OS_AIX)
@@ -182,34 +182,33 @@
 // 1) In case XPG5/SUSv2 is specified use socklen_t.
 // 2) In case XPG4v2/XNS4/SUS is specified use size_t unless
 //    POSIX.1g Draft 6.6 is specified (platform-dependant).
+// ### 3.0 I'm not checking for POSIX.1g Draft 6.6 yet
 // 3) Else fall back to int.
 // 4) I case of broken/exotic/non-conformant platforms test
 //    against the OS release.  As usual BSDs are tested
 //    separately because they don't follow X/Open rules.
-// ### Check that we detect XPG5/XPG4v2 the correct way. I'm
-// ### not really convinced by what I have done here... Should
-// ### better test _XOPEN_VERSION, _XOPEN_XPG4, _XOPEN_UNIX.
 
 #include <unistd.h>
 #if defined(Q_OS_MACX)
 #  define QT_SOCKSARG_INT
 #elif defined(BSD4_4)
-// BSD 4.4 - FreeBSD at least
+// int       - FreeBSD 1.0 through 3.5.1
+//             OpenBSD 2.1 through 2.4
+//             NetBSD  1.0 through 1.3.3
+// socklen_t - FreeBSD 4.0 through 4.2
+//             OpenBSD 2.5 through 2.8
+//             NetBSD  1.4 through 1.5
+// ### Brad, is there some way to distinguish BSDs which use int
+// ### and BSDs which use socklen_t? Or maybe this is not an issue
+// ### because those that use size_t are way too old?
 #  define QT_SOCKSARG_SOCKLEN_T
-#elif defined(_XOPEN_SOURCE)
-// XPG3 is supported
-#  if _XOPEN_SOURCE >= 500
+#elif defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
 // XPG5 is supported
-#    define QT_SOCKSARG_SOCKLEN_T
-#  elif _XOPEN_SOURCE >= 420
-// XPG4v2 is supported
-#    define QT_SOCKSARG_SIZE_T
-#  else
-// XPG3/XPG4 are supported
-#    define QT_SOCKSARG_INT
-#  endif
+#  define QT_SOCKSARG_SOCKLEN_T
+#elif defined(_XOPEN_XPG4)
+#  define QT_SOCKSARG_SIZE_T
 #else
-// fall through
+// fall through for POSIX, XPG3, XPG4
 #  define QT_SOCKSARG_INT
 #endif
 
