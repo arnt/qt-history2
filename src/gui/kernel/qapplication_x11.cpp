@@ -1307,6 +1307,7 @@ static void qt_check_focus_model()
         X11->focus_model = QX11Data::FM_Other;
 }
 
+#ifdef QT_TABLET_SUPPORT
 static bool isXInputSupported(Display *dpy, int *event_base)
 {
     Bool exists;
@@ -1322,6 +1323,7 @@ static bool isXInputSupported(Display *dpy, int *event_base)
     XFree(version);
     return true;
 }
+#endif
 
 /*****************************************************************************
   qt_init() - initializes Qt for X11
