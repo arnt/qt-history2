@@ -240,8 +240,8 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
 {
     struct stat fst;
     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
-	QMakeLocalFileName file((*it).real() + Option::dir_sep + file.real());
-	if(!stat(file.local(), &fst) && !S_ISDIR(fst.st_mode))
+	QMakeLocalFileName f((*it).real() + Option::dir_sep + file.real());
+	if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode))
 	    return file;
     }
     return QMakeLocalFileName();
