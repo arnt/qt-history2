@@ -6,7 +6,7 @@
 #include <qtoolbar.h>
 #include <qcombobox.h>
 #include <qvalidator.h>
-#include <qtl.h>
+#include <qalgorithms.h>
 
 QToggleAction::QToggleAction( const QString& text, int accel, QObject* parent, const char* name )
     : QAction( text, accel, parent, name )

@@ -4,7 +4,7 @@
 
 #include <qregexp.h>
 #include <qstring.h>
-#include <qtl.h>
+#include <qalgorithms.h>
 #include <qvaluestack.h>
 
 #include "config.h"

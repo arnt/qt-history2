@@ -1,6 +1,7 @@
 # Qt tools module
 
 HEADERS +=  \
+	tools/qalgorithms.h \
 	tools/qbitarray.h \
 	tools/qbytearray.h \
 	tools/qcache.h \
@@ -19,7 +20,6 @@ HEADERS +=  \
 	tools/qstack.h \
 	tools/qstring.h \
 	tools/qstringlist.h \
-	tools/qtl.h \
 	tools/qunicodetables_p.h \
 	tools/qvarlengtharray.h \
 	tools/qvector.h

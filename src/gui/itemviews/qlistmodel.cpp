@@ -1,5 +1,5 @@
 #include "qlistmodel.h"
-#include <qtl.h>
+#include <qalgorithms.h>
 
 QListModelItem::QListModelItem(QListModel *model)
     : edit(true), select(true)

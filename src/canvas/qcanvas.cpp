@@ -23,7 +23,7 @@
 #include "qpainter.h"
 #include "qpolygonscanner.h"
 #include "qtimer.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 
 #include <stdlib.h>
 

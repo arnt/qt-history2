@@ -21,7 +21,7 @@
 #include "qlist.h"
 #include "qvector.h"
 #include "qstring.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 
 #include "qthreadstorage.h"
 #include "qthread.h"

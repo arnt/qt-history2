@@ -35,7 +35,7 @@
 #include "qstack.h"
 #include "qstyle.h"
 #include "qtimer.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 #include "qtooltip.h"
 #include "qvbox.h"
 #include <private/qinternal_p.h>

@@ -35,7 +35,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qbuffer.h"
 #include "qdatastream.h"
 #include "qmap.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 #include "qhash.h"
 
 #if defined(Q_OS_UNIX)

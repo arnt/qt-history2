@@ -16,7 +16,7 @@
 #define QVALUELIST_H
 
 #ifndef QT_H
-#include "qtl.h"
+#include "qalgorithms.h"
 #include "qdatastream.h"
 #include "qlinkedlist.h"
 #include "qlist.h"

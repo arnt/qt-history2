@@ -18,7 +18,7 @@
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qhash.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 
 #include <stdlib.h>
 #include <stdio.h>

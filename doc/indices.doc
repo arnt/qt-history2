@@ -289,8 +289,8 @@ images.html Image Processing\endlink)
 \i Ready-made dialogs for file, font, color selection and more.
 
 \row
-\i \link qtl.html Template Library\endlink
-\i Qt's template library container classes.
+\i \link containers.html Generic Containers\endlink
+\i Qt's template-based container classes.
 
 \row
 \i \link text.html Text Related Classes\endlink 
@@ -731,8 +731,8 @@ These classes provide support for graphics, sound, animation etc.
 \title Qt Template Library Classes
 
 The Qt Template Library (QTL) is a set of templates that provide
-object containers. See the \link qt-template-lib.html Qt Template
-Library\endlink.
+object containers. See \link containers.html Generic Containers
+\endlink.
 
 */
 

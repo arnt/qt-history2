@@ -1,7 +1,7 @@
 #include <qapplication.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qtl.h>
+#include <qalgorithms.h>
 
 class QString_LocalSort : public QString { };
 

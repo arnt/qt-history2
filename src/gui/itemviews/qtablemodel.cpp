@@ -1,5 +1,5 @@
 #include "qtablemodel.h"
-#include <qtl.h>
+#include <qalgorithms.h>
 
 QTableModel::QTableModel(int rows, int columns, QObject *parent, const char *name)
     : QGenericItemModel(parent, name), r(rows), c(columns),

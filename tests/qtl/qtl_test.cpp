@@ -1,5 +1,5 @@
 #include "qtl_test.h"
-#include <qtl.h>
+#include <qalgorithms.h>
 #include <qmap.h>
 #include <qvaluelist.h>
 #include <qstringlist.h>

@@ -268,7 +268,7 @@ void Layout::breakLayout()
 	formWindow->selectWidget( formWindow );
 }
 
-#include <qtl.h>
+#include <qalgorithms.h>
 
 class HorizontalLayoutList : public QWidgetList
 {

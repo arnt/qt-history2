@@ -15,7 +15,7 @@
 #include "qstringlist.h"
 
 #include "qregexp.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 
 /*!
     \class QStringList qstringlist.h

@@ -54,7 +54,7 @@
 #include "qfontmetrics.h"
 #include "qdatetime.h"
 #include "qtextstream.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 #include "qvector.h"
 #include "qbrush.h"
 #include "qpalette.h"

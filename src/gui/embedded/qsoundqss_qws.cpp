@@ -22,7 +22,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 #include <qevent.h>
-#include <qtl.h>
+#include <qalgorithms.h>
 
 #include <unistd.h>
 #include <fcntl.h>

@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_FONTDATABASE
 
-#include <qtl.h>
+#include <qalgorithms.h>
 #include <qapplication.h>
 
 #include <private/qunicodetables_p.h>

@@ -17,7 +17,7 @@
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
 #include "qlist.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 #include "qgif.h"
 #include "qcoreapplication.h"
 #include <stdlib.h>

@@ -24,7 +24,7 @@
 #include "qapplication_p.h"
 #include "qtextcodec.h"
 #include "qregexp.h"
-#include "qtl.h"
+#include "qalgorithms.h"
 #include <shlobj.h>
 
 #ifndef QT_NO_IMAGEIO_BMP

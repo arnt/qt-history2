@@ -19,7 +19,7 @@
 #include <qcstring.h>
 #include <ctype.h>
 #include <qtextstream.h>
-#include <qtl.h>
+#include <qalgorithms.h>
 
 struct Term {
     Term() : frequency(-1) {}
