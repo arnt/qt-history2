@@ -1048,25 +1048,22 @@ bool QAction::addTo( QWidget* w )
     } else
 #endif
     if ( qt_cast<QPopupMenu*>(w) ) {
-	if ( !qstrcmp( objectName(), "qt_separator_action" ) ) {
-	    ((QPopupMenu*)w)->insertSeparator();
-	} else {
-	    QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
-	    mi->popup = (QPopupMenu*) w;
-	    QIconSet* diconset = d->iconset;
-	    if ( diconset )
-		mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
-	    else
-		mi->id = mi->popup->insertItem( QString::fromLatin1("") );
-	    addedTo( mi->popup->indexOf( mi->id ), mi->popup );
-	    mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
-	    d->menuitems.append( mi );
-	    d->update( QActionPrivate::State | QActionPrivate::Visibility | QActionPrivate::EverythingElse ) ;
-	    w->topLevelWidget()->className();
-	    connect( mi->popup, SIGNAL(highlighted(int)), this, SLOT(menuStatusText(int)) );
-	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
-	    connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
-	}
+	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
+	mi->popup = (QPopupMenu*) w;
+	QIconSet* diconset = d->iconset;
+	if ( !qstrcmp( name(), "qt_separator_action" ) )
+	    mi->id = ((QPopupMenu*)w)->insertSeparator();
+	else if ( diconset )
+	    mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
+	else
+	    mi->id = mi->popup->insertItem( QString::fromLatin1("") );
+	addedTo( mi->popup->indexOf( mi->id ), mi->popup );
+	mi->popup->connectItem( mi->id, this, SLOT(internalActivation()) );
+	d->menuitems.append( mi );
+	d->update( QActionPrivate::State | QActionPrivate::Visibility | QActionPrivate::EverythingElse );
+	connect( mi->popup, SIGNAL(highlighted(int)), this, SLOT(menuStatusText(int)) );
+	connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
+	connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
     // Makes only sense when called by QActionGroup::addTo
     } else if ( qt_cast<QComboBox*>(w) ) {
 	QActionPrivate::ComboItem *ci = new QActionPrivate::ComboItem;
