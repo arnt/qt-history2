@@ -2498,7 +2498,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         break;
     case CT_MenuBarItem:
         if (!sz.isEmpty())
-            sz = QSize(sz.width() + windowsItemHMargin * 5 + 1, sz.height() + windowsItemVMargin * 2);
+            sz += QSize(windowsItemHMargin * 5 + 1, windowsItemVMargin * 2);
         break;
     default:
         sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);

@@ -2534,7 +2534,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
     case PM_MenuBarVMargin:
     case PM_MenuBarHMargin:
-        ret = 2;
+        ret = 0;
         break;
     case PM_DialogButtonsSeparator:
         ret = 5;
