@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#16 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#16 $";
 #endif
 
 
@@ -41,13 +41,13 @@ void QPixmap::detach()				// detach shared pixmap
 
 /*!
 Returns a deep copy of the pixmap.  All pixels are copied using bitBlt().
-
 \sa operator=().
 */
 
-QPixmap QPixmap::copy() const			// deep copy
+QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
+    tmp.data->bitmap = data->bitmap;
     bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
     return tmp;
 }
@@ -70,13 +70,17 @@ void QPixmap::resize( int w, int h )
 {
     if ( !data->uninit && !isNull() ) {		// has existing pixmap
 	QPixmap pm( w, h, depth() );
+	pm.data->bitmap = data->bitmap;
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h) );
 	*this = pm;
     }
-    else					// create new pixmap
-	*this = QPixmap( w, h, data->bitmap ? 1 : -1 );
+    else {					// create new pixmap
+	QPixmap pm( w, h, data->bitmap ? 1 : -1 );
+	pm.data->bitmap = data->bitmap;
+	*this = pm;
+    }
 }
 
 
