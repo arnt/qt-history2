@@ -643,6 +643,18 @@ void QDialog::show()
 #endif
 }
 
+/*!\reimp */
+void QDialog::showEvent(QShowEvent *event)
+{
+    if (!event->spontaneous() && !testAttribute(Qt::WA_Moved)) {
+	uint state = windowState();
+        adjustPosition(parentWidget());
+        setAttribute(Qt::WA_Moved, false); // not really an explicit position
+	if (state != windowState())
+	    setWindowState(state);
+    }
+}
+
 /*! \internal */
 void QDialog::adjustPosition(QWidget* w)
 {

@@ -79,6 +79,7 @@ protected:
 
     void keyPressEvent(QKeyEvent *);
     void closeEvent(QCloseEvent *);
+    void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *);
     void contextMenuEvent(QContextMenuEvent *);
     bool eventFilter(QObject *, QEvent *);
