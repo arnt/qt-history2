@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#80 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#81 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#80 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#81 $")
 
 
 /*****************************************************************************
@@ -394,8 +394,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*----------------------------------------------------------------------------
   Constructs a string with room for \e size characters, including the
-  '\0'-terminator.
-  Makes a null string if \e size == 0.
+  '\0'-terminator.  Makes a null string if \e size == 0.
 
   If \e size \> 0, then the first and last characters in the string are
   initialized to '\0'.  All other characters are uninitialized.
