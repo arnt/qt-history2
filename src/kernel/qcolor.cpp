@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#58 $
 **
 ** Implementation of QColor class
 **
@@ -12,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#58 $");
 
 
 /*!
@@ -56,7 +56,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#57 $");
   color and save it in the internal table.
   </ol>
 
-  \sa QPalette, QColorGroup, QApplication::setColorMode()
+  \sa QPalette, QColorGroup, QApplication::setColorSpec()
 */
 
 /*****************************************************************************
@@ -64,8 +64,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#57 $");
  *****************************************************************************/
 
 #if defined(_WS_WIN_)
-#define COLOR0_PIX 0
-#define COLOR1_PIX 0x00ffffff
+#define COLOR0_PIX 0x00ffffff
+#define COLOR1_PIX 0
 #else
 #define COLOR0_PIX 0
 #define COLOR1_PIX 1
