@@ -2738,7 +2738,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	grep "QMAKE_CFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
 	grep "QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
 	grep "QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-	[ "$Products" = "qt-free" ] && echo "QMAKE_OPENSOURCE_EDITION = yes" >>$mkfile
+	[ "$Products" = "qt-free" ] && echo "include Makefile.opensource" >>$mkfile
 	EXTRA_CFLAGS="\$(QMAKE_CFLAGS)"
 	EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
 	EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
