@@ -16,7 +16,7 @@
 
 #include <qglobal.h>
 
-#if defined(Q_CC_GNU) || (defined(Q_OS_UNIX) && defined(Q_CC_INTEL))
+#if defined(Q_CC_GNU) || defined(Q_CC_INTEL)
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
