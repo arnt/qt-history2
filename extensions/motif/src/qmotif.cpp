@@ -60,7 +60,7 @@ public:
     QIntDict<QSocketNotifier> socknotDict;
     uint pending_socknots;
     bool activate_timers;
-    int timerid;
+    XtIntervalId timerid;
 
     // arguments for Xt display initialization
     const char* applicationClass;
@@ -100,7 +100,7 @@ XEvent* QMotif::lastEvent()
 
 QMotifPrivate::QMotifPrivate()
     : appContext(NULL), ownContext(NULL),
-      pending_socknots(0), activate_timers(FALSE), timerid(-1)
+      pending_socknots(0), activate_timers(FALSE), timerid(~0u)
 {
 }
 
@@ -417,9 +417,9 @@ void QMotif::appStartingUp()
 
 void QMotif::appClosingDown()
 {
-    if ( d->timerid != -1 )
+    if ( d->timerid != ~0u )
 	XtRemoveTimeOut( d->timerid );
-    d->timerid = -1;
+    d->timerid = ~0u;
 
     d->unhook();
 }
@@ -523,9 +523,9 @@ void QMotif::unregisterSocketNotifier( QSocketNotifier *notifier )
 static void qmotif_keep_alive() {
     // make sure we fire off Qt's timers
     int ttw = QApplication::eventLoop()->timeToWait();
-    if ( static_d->timerid != -1 )
+    if ( static_d->timerid != ~0u )
 	XtRemoveTimeOut( static_d->timerid );
-    static_d->timerid = -1;
+    static_d->timerid = ~0u;
     if ( ttw != -1 ) {
 	static_d->timerid =
 	    XtAppAddTimeOut( static_d->appContext, ttw, qmotif_timeout_handler, 0 );
@@ -536,7 +536,7 @@ static void qmotif_keep_alive() {
  */
 void qmotif_timeout_handler( XtPointer, XtIntervalId * )
 {
-    static_d->timerid = -1;
+    static_d->timerid = ~0u;
 
     if ( ! QApplication::eventLoop()->loopLevel() ) {
 	/*
