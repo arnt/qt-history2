@@ -1280,7 +1280,11 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	d->discardNextMousePress = FALSE;
 	return;
     }
-    if ( count() ) {
+    QRect arrowRect = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+						      QStyle::SC_ComboBoxArrow);
+    arrowRect = QStyle::visualRect(arrowRect, this);
+
+    if ( count() && ( !editable() || arrowRect.contains( e->pos() ) ) ) {
 	d->arrowPressed = FALSE;
 
 	if ( d->usingListBox() ) {
@@ -1288,9 +1292,6 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	    qApp->sendEvent( listBox(), e ); // trigger the listbox's autoscroll
 	    listBox()->blockSignals( FALSE );
 	    popup();
-	    QRect arrowRect = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
-							      QStyle::SC_ComboBoxArrow);
-	    arrowRect = QStyle::visualRect(arrowRect, this);
 	    if ( arrowRect.contains( e->pos() ) ) {
 		d->arrowPressed = TRUE;
 		d->arrowDown    = TRUE;
