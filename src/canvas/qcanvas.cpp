@@ -2595,10 +2595,6 @@ QRect QCanvasItem::boundingRectAdvanced() const
     return r;
 }
 
-// warwick - some parts of the text seems to imply that the offset is
-// used for positioning; move( 42, 69 ) moves the _offset_ there, not
-// the top-left corner.
-
 /*!
   \class QCanvasPixmap qcanvas.h
   \brief The QCanvasPixmap class provides a pixmap in a QCanvas.
@@ -2616,7 +2612,9 @@ QRect QCanvasItem::boundingRectAdvanced() const
   QCanvasPixmap from a PNG file or from a QImage that has a
   QImage::offset(), the offset() is initialized appropriately, otherwise
   the constructor leaves it at (0,0). You can set it later using
-  setOffset().
+  setOffset(). When the QCanvasPixmap is used in a QCanvasSprite, the
+  offset position is the point at QCanvasItem::x() and QCanvasItem::y(),
+  not the top-left corner of the pixmap.
 
   Note that for QCanvasPixmap objects created by a QCanvasSprite, the
   position of each QCanvasPixmap object is set so that the hot spot
@@ -2629,6 +2627,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
   \sa QCanvasPixmapArray QCanvasItem QCanvasSprite
 */
 
+#ifndef QT_NO_IMAGEIO
 
 /*!
   Constructs a QCanvasPixmap from an image file at the location
@@ -2639,6 +2638,9 @@ QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
     QImage image(datafilename);
     init(image);
 }
+
+#endif
+
 /*!
   Constructs a QCanvasPixmap from the image \a image.
 */
@@ -2743,6 +2745,7 @@ QCanvasPixmapArray::QCanvasPixmapArray()
     img = 0;
 }
 
+#ifndef QT_NO_IMAGEIO
 /*!
   Constructs a QCanvasPixmapArray from files.
 
@@ -2769,7 +2772,7 @@ QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
     img = 0;
     readPixmaps(datafilenamepattern,fc);
 }
-
+#endif
 
 /*!
   \obsolete
@@ -2841,6 +2844,7 @@ void QCanvasPixmapArray::reset()
     img = 0;
 }
 
+#ifndef QT_NO_IMAGEIO
 /*!
     Reads one or more pixmaps into the pixmap array.
 
@@ -2923,13 +2927,7 @@ bool QCanvasPixmapArray::readPixmaps( const QString& datafilenamepattern,
     }
     return ok;
 }
-
-
-// ### Warwick: I do not think such advanced C++ is good Qt style. We
-// never use operator!() for similar purposes elsehwere, so this
-// probably should be renamed to isValid().
-//
-// done. Lars
+#endif
 
 /*!
   \obsolete
@@ -3847,6 +3845,7 @@ QCanvasPolygon::~QCanvasPolygon()
 void QCanvasPolygon::drawShape(QPainter & p)
 {
     // ### why can't we draw outlines? We could use drawPolyline for it. Lars
+    // ### see other message. Warwick
 
     p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     p.drawPolygon(poly);
@@ -3934,6 +3933,7 @@ QCanvasSpline::~QCanvasSpline()
 }
 
 // ### shouldn't we handle errors more gracefully than with an assert? Lars
+// ### no, since it's a programming error. Warwick
 /*!
   Set the spline control points to \a ctrl.
 
@@ -4415,6 +4415,8 @@ QCanvasEllipse::QCanvasEllipse(int width, int height, QCanvas* canvas) :
 }
 
 // ### add a constructor taking degrees in float. 1/16 degrees is stupid. Lars
+// ### it's how QPainter does it, so QCanvas does too for consistency. If it's
+// ###  a good idea, it should be added to QPainter, not just to QCanvas. Warwick
 /*!
   Constructs a \a width by \a height pixel ellipse, centered at (0,0) on
   \a canvas. Only a segment of the ellipse is drawn, starting at angle
@@ -4521,6 +4523,7 @@ QPointArray QCanvasEllipse::areaPoints() const
 }
 
 // ### support outlines! Lars
+// ### QRegion doesn't, so we cannot (try it). Warwick
 /*!
   Draws the ellipse, centered at x(), y() using the painter \a p.
 
@@ -4606,15 +4609,9 @@ QCanvasText::~QCanvasText()
 */
 QRect QCanvasText::boundingRect() const { return brect; }
 
-// ### I think this can be done without constructing a painter (using font metrics). Lars
 void QCanvasText::setRect()
 {
-    static QWidget *w=0;
-    if (!w) w = new QWidget(0, "qt_canvastext" );
-    QPainter p(w);
-    p.setFont(fnt);
-    brect = p.boundingRect(QRect(int(x()),int(y()),0,0), flags, txt);
-    brect.moveTopLeft(QPoint((int)myx, (int)myy));
+    brect = QFontMetrics(fnt).boundingRect(int(x()), int(y()), 0, 0, flags, txt);
 }
 
 /*!
@@ -4722,7 +4719,7 @@ void QCanvasText::moveBy(double dx, double dy)
     myx+=dx;
     myy+=dy;
     if ( idx || idy ) {
-	brect.moveTopLeft(QPoint((int)myx, (int)myy));
+	brect.moveBy(idx,idy);
 	addToChunks();
     }
 }
