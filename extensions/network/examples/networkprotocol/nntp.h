@@ -30,14 +30,13 @@ protected:
     QSocket *commandSocket;
     bool connectionReady;
     bool readGroups;
-    bool readHead;
-    bool readBody;
+    bool readArticle;
 
 private:
     bool checkConnection( QNetworkOperation *op );
     void close();
     void parseGroups();
-    void readArticle();
+    void parseArticle();
 
 protected slots:
     void hostFound();

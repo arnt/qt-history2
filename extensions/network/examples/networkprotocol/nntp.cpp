@@ -17,7 +17,7 @@
 
 Nntp::Nntp()
     : QNetworkProtocol(), connectionReady( FALSE ),
-      readGroups( FALSE ), readHead( FALSE ), readBody( FALSE )
+      readGroups( FALSE ), readArticle( FALSE )
 {
     // create the command socket and connect to its signals
     commandSocket = new QSocket( this );
@@ -82,9 +82,9 @@ void Nntp::operationGet( QNetworkOperation *op )
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 
     // read the head of the article
-    cmd = "head " + file + "\r\n";
+    cmd = "article " + file + "\r\n";
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-    readHead = TRUE;
+    readArticle = TRUE;
 }
 
 bool Nntp::checkConnection( QNetworkOperation * )
@@ -154,8 +154,8 @@ void Nntp::readyRead()
     }
 
     // of we should read an article, let's do so
-    if ( readHead || readBody ) {
-	readArticle();
+    if ( readArticle ) {
+	parseArticle();
 	return;
     }
 
@@ -219,7 +219,7 @@ void Nntp::parseGroups()
 	
 }
 
-void Nntp::readArticle()
+void Nntp::parseArticle()
 {
     if ( !commandSocket->canReadLine() )
 	return;
@@ -230,20 +230,9 @@ void Nntp::readArticle()
 
 	// if the  line starts with a dot, we finished reading something
 	if ( s[ 0 ] == '.' ) {
-	    // if we read the head, now let the server know, that we want to read
-	    // the body of the article
-	    if ( readHead ) {
-		readHead = FALSE;
-		readBody =TRUE;
-		QString cmd = "body " + QUrl( operationInProgress()->arg1() ).fileName() + "\r\n";
-		commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	    } else {
-		// we read the body, so we finised processing this operation
-		// let others know about that
-		readBody = FALSE;
-		operationInProgress()->setState( StDone );
-		emit finished( operationInProgress() );
-	    }
+	    readArticle = FALSE;
+	    operationInProgress()->setState( StDone );
+	    emit finished( operationInProgress() );
 	    return;
 	}
 
