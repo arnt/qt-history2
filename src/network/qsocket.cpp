@@ -346,8 +346,6 @@ void QSocket::tryConnecting()
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		if ( d->wsn )
 		    d->wsn->setEnabled( TRUE );
-		// write notifier will not fire in all cases (at least under Windows), so:
-		//QTimer::singleShot( 100, this, SLOT(tryConnecting()) ); ### this does not really work
 		return; // not serious, try again later
 	    }
 	    d->state = Idle;
