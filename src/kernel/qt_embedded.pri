@@ -19,7 +19,7 @@ embedded {
 	SUBLIBS += freetype png mng z
 	jpeg:SUBLIBS += jpeg
 
-	HEADERS += $$WIDGETS_H/qcompactstyle.h \
+	HEADERS += $$STYLES_H/qcompactstyle.h \
 		  $$KERNEL_H/qfontmanager_qws.h \
 		  $$KERNEL_H/qfontfactorybdf_qws.h \
 		  $$KERNEL_H/qfontfactoryttf_qws.h \
@@ -37,7 +37,7 @@ embedded {
 		  $$KERNEL_H/qwsdisplay_qws.h \
 		  $$KERNEL_H/qwssocket_qws.h 
 
-         SOURCES +=  $$WIDGETS_H/qcompactstyle.cpp \
+         SOURCES +=  $$STYLES_H/qcompactstyle.cpp \
 	          $$KERNEL_CPP/qapplication_qws.cpp \
 		  $$KERNEL_CPP/qclipboard_qws.cpp \
 		  $$KERNEL_CPP/qcolor_qws.cpp \
