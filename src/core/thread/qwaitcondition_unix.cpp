@@ -171,49 +171,6 @@ void QWaitCondition::wakeAll()
 }
 
 /*!
-    Wait on the thread event object. The thread calling this will
-    block until either of these conditions is met:
-    \list
-    \i Another thread signals it using wakeOne() or wakeAll(). This
-       function will return true in this case.
-    \i \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
-       default), then the wait will never timeout (the event must be
-       signalled). This function will return false if the wait timed
-       out.
-    \endlist
-
-    \sa wakeOne(), wakeAll()
-*/
-bool QWaitCondition::wait(unsigned long time)
-{
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_lock(&mutex);
-
-    int ret;
-    if (time != ULONG_MAX) {
-        struct timeval tv;
-        gettimeofday(&tv, 0);
-
-        timespec ti;
-        ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
-        ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
-        ti.tv_nsec %= 1000000000;
-
-        ret = pthread_cond_timedwait(&d->cond, &mutex, &ti);
-    } else
-        ret = pthread_cond_wait(&d->cond, &mutex);
-
-    if (ret && ret != ETIMEDOUT)
-        qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
-
-    pthread_mutex_unlock(&mutex);
-
-    return (ret == 0);
-}
-
-/*!
-    \overload
-
     Release the locked \a mutex and wait on the thread event object.
     The \a mutex must be initially locked by the calling thread. If \a
     mutex is not in a locked state, this function returns immediately.

@@ -71,7 +71,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     queue.insert(index, wce);
     mtx.unlock();
 
-    if (mutex) mutex->unlock();
+    mutex->unlock();
 
     // wait for the event
     switch (WaitForSingleObject(wce->event, time)) {
@@ -82,7 +82,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
         break;
     }
 
-    if (mutex) mutex->lock();
+    mutex->lock();
 
     mtx.lock();
     // remove 'wce' from the queue
@@ -110,11 +110,6 @@ QWaitCondition::~QWaitCondition()
     for(EventQueue::Iterator it = d->freeQueue.begin(); it != d->freeQueue.end(); ++it)
         delete (*it);
     delete d;
-}
-
-bool QWaitCondition::wait(unsigned long time)
-{
-    return d->wait(0, time);
 }
 
 bool QWaitCondition::wait(QMutex *mutex, unsigned long time)

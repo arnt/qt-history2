@@ -25,10 +25,8 @@ class Q_CORE_EXPORT QWaitCondition
 {
 public:
     QWaitCondition();
-    virtual ~QWaitCondition();
+    ~QWaitCondition();
 
-    // default argument causes thread to block indefinately
-    bool wait(unsigned long time = ULONG_MAX);
     bool wait(QMutex *mutex, unsigned long time = ULONG_MAX);
 
     void wakeOne();
