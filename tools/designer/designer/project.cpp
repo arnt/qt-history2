@@ -23,6 +23,7 @@
 
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qurl.h>
 
 Project::Project( const QString &fn, const QString &pName )
     : proName( pName )
@@ -171,4 +172,10 @@ void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
     uifiles << f;
     formWindows.remove( fw );
     formWindows.insert( fw, f );
+}
+
+QString Project::makeAbsolute( const QString &f )
+{
+    QUrl u( QFileInfo( filename ).dirPath( TRUE ), f );
+    return u.path();
 }

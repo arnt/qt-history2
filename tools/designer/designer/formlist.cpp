@@ -245,7 +245,7 @@ void FormList::itemClicked( QListViewItem *i )
 	( (FormListItem*)i )->formWindow()->setFocus();
     } else {
 	blockNewForms = TRUE;
-	mainWindow->openFile( ( (FormListItem*)i )->text( 2 ) ); // ##### make filename absolute
+	mainWindow->openFile( project->makeAbsolute( ( (FormListItem*)i )->text( 2 ) ) );
 	blockNewForms = FALSE;
     }
 }
