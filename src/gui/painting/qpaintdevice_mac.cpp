@@ -115,9 +115,8 @@ CGContextRef qt_macCGHandle(const QPaintDevice *pd)
 {
     if (pd->devType() == QInternal::Widget)
         return static_cast<CGContextRef>(static_cast<const QWidget *>(pd)->macCGHandle());
-    else if (pd->devType() == QInternal::Pixmap);
+    else if (pd->devType() == QInternal::Pixmap)
         return static_cast<CGContextRef>(static_cast<const QPixmap *>(pd)->macCGHandle());
-    Q_ASSERT(false);
     return 0;
 }
 
@@ -132,10 +131,9 @@ CGContextRef qt_macCGHandle(const QPaintDevice *pd)
 GrafPtr qt_macQDHandle(const QPaintDevice *pd)
 {
     if (pd->devType() == QInternal::Widget)
-        return (GrafPtr)static_cast<const QWidget *>(pd)->handle();
+        return static_cast<GrafPtr>(static_cast<const QWidget *>(pd)->handle());
     else if (pd->devType() == QInternal::Pixmap)
-        return (GrafPtr)static_cast<const QPixmap *>(pd)->handle();
-    Q_ASSERT(false);
+        return static_cast<GrafPtr>(static_cast<const QPixmap *>(pd)->handle());
     return 0;
 }
 
