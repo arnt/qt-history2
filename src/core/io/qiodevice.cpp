@@ -526,7 +526,7 @@ QIODevice::Offset QIODevice::at() const
 /*!
     Virtual function that sets the I/O device position to \a pos.
     Returns TRUE if the position was successfully set, i.e. \a pos is
-    within range; otherwise returns FALSE.
+    within range and the seek was successful; otherwise returns FALSE.
 
     \sa size()
 */
