@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#24 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#24 $";
 #endif
 
 /*!
@@ -232,10 +232,8 @@ a single reference.
 
 void QImage::detach()
 {
-    if ( data->count == 1 )
-	return;
-    data->deref();
-    *this = copy();
+    if ( data->count != 1 )
+	*this = copy();
 }
 
 /*!
