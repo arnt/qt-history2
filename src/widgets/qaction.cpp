@@ -44,6 +44,7 @@
 #include "qpopupmenu.h"
 #include "qaccel.h"
 #include "qtoolbutton.h"
+#include "qcombobox.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qstatusbar.h"
@@ -853,6 +854,7 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     d->exclusive = exclusive;
     d->selected = 0;
     d->separatorAction = 0;
+    tbmode = ButtonList;
 }
 
 /*! Destroys the object and frees any allocated resources. */
@@ -921,6 +923,48 @@ void QActionGroup::insertSeparator()
  */
 bool QActionGroup::addTo( QWidget* w )
 {
+    if ( w->inherits( "QToolBar" ) ) {
+	switch ( tbmode ) {
+	case MenuButton:
+	    {
+		QListIterator<QAction> it( d->actions);
+		if ( !it.current() )
+		    return TRUE;
+
+		QToolButton* btn = new QToolButton( (QToolBar*) w );
+		if ( !!text() )
+		    btn->setText( it.current()->text() );
+		if ( !iconSet().isNull() )
+		    btn->setIconSet( it.current()->iconSet() );
+
+		connect( btn, SIGNAL( clicked() ), it.current(), SIGNAL( activated() ) );
+		connect( btn, SIGNAL( toggled(bool) ), it.current(), SLOT( toolButtonToggled(bool) ) );
+		connect( btn, SIGNAL( destroyed() ), it.current(), SLOT( objectDestroyed() ) );
+
+		QPopupMenu *menu = new QPopupMenu( btn );
+		btn->setPopupDelay( 0 );
+		btn->setPopup( menu );
+
+		while( it.current() ) {
+		    it.current()->addTo( menu );
+		    ++it;
+		}
+	    }
+	    return TRUE;
+	case ComboBox:
+	    {
+		QComboBox *box = new QComboBox( w );
+		for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+		    box->insertItem( it.current()->iconSet().pixmap(), it.current()->text() );
+		}
+		connect( box, SIGNAL(activated(int)), this, SLOT( internalComboBoxActivated(int)) );
+	    }
+	    return TRUE;
+	default:
+	    break;
+	}
+    }
+
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
 	it.current()->addTo( w );
     }
@@ -931,6 +975,19 @@ bool QActionGroup::addTo( QWidget* w )
  */
 bool QActionGroup::removeFrom( QWidget* w )
 {
+    if ( w->inherits( "QToolBar" ) ) {
+	switch ( tbmode ) {
+	case MenuButton:
+	    return TRUE;
+	    break;
+	case ComboBox:
+	    return TRUE;
+	    break;
+	default:
+	    break;
+	}
+    }
+
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
 	it.current()->removeFrom( w );
     }
@@ -986,5 +1043,27 @@ void QActionGroup::setEnabled( bool enable )
 
  \sa setExclusive()
 */
+
+/*! Sets the representation of this actiongroup in toolbars
+ */
+
+void QActionGroup::setToolBarMode( ToolBarMode mode )
+{
+    tbmode = mode;
+}
+
+/*! Returns the current representation of this actiongroup in toolbars
+*/
+QActionGroup::ToolBarMode QActionGroup::toolBarMode() const
+{
+    return tbmode;
+}
+
+void QActionGroup::internalComboBoxActivated( int index )
+{
+    QAction *a = d->actions.at( index );
+    if ( a )
+	emit ((QActionGroup*)a)->activated();
+}
 
 #endif
