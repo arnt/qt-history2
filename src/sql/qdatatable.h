@@ -198,6 +198,7 @@ protected:
 			     bool selected, const QColorGroup &cg );
     virtual void paintField( QPainter * p, const QSqlField* field, const QRect & cr,
 			     bool selected );
+    void	 drawContents( QPainter * p, int cx, int cy, int cw, int ch );
     virtual int  fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
     void         resizeData ( int len );

@@ -1010,6 +1010,7 @@ QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
     d->dat.setMode( QSql::Update );
     if ( sqlCursor()->seek( row ) ) {
 	d->editBuffer = sqlCursor()->primeUpdate();
+	sqlCursor()->seek( currentRow() );
 	emit primeUpdate( d->editBuffer );
 	return QTable::beginEdit( row, col, replace );
     }
@@ -1571,9 +1572,12 @@ QString QDataTable::text ( int row, int col ) const
 {
     if ( !sqlCursor() )
 	return QString::null;
+
+    QString s;
     if ( sqlCursor()->seek( row ) )
-	return sqlCursor()->value( indexOf( col ) ).toString();
-    return QString::null;
+	s = sqlCursor()->value( indexOf( col ) ).toString();
+    sqlCursor()->seek( currentRow() );
+    return s;
 }
 
 /*!
@@ -1585,9 +1589,12 @@ QVariant QDataTable::value ( int row, int col ) const
 {
     if ( !sqlCursor() )
 	return QVariant();
+
+    QVariant v;
     if ( sqlCursor()->seek( row ) )
-	return sqlCursor()->value( indexOf( col ) );
-    return QVariant();
+	v = sqlCursor()->value( indexOf( col ) );
+    sqlCursor()->seek( currentRow() );
+    return v;
 }
 
 /*!  \internal
@@ -1622,6 +1629,7 @@ void QDataTable::loadNextPage()
     clearSelection();
     setSelectionMode( NoSelection );
     setNumRows( endIdx + 1 );
+    sqlCursor()->seek( currentRow() );
     setSelectionMode( m );
 }
 
@@ -1756,8 +1764,6 @@ void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 void QDataTable::paintField( QPainter * p, const QSqlField* field,
 			    const QRect & cr, bool )
 {
-    // ###
-
     if ( !field )
 	return;
     p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), fieldToString( field ) );
@@ -2150,6 +2156,17 @@ void QDataTable::swapColumns( int col1, int col2, bool )
     int colIndex = d->colIndex[ col1 ];
     d->colIndex[ col1 ] = d->colIndex[ col2 ];
     d->colIndex[ col2 ] = colIndex;
+}
+
+/*!
+    \reimp
+*/
+
+void QDataTable::drawContents( QPainter * p, int cx, int cy, int cw, int ch )
+{
+    QTable::drawContents( p, cx, cy, cw, ch );
+    if ( sqlCursor() )
+	sqlCursor()->seek( currentRow() );
 }
 
 /*!
