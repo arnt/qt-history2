@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#133 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#132 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#133 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -66,15 +66,21 @@ bool QWidget::create()
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top level widget
 
+    static int sw = -1, sh = -1;		// screen size
+
     int	   scr	    = qt_xscreen();
-    int	   sw	    = DisplayWidth(dpy,scr);
-    int	   sh	    = DisplayHeight(dpy,scr);
     bool   topLevel = testWFlags(WType_TopLevel);
     bool   popup    = testWFlags(WType_Popup);
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
+    Window root_win = RootWindow(dpy,scr);
     Window parentw;
     WId	   id;
+
+    if ( sw < 0 ) {				// get the screen size
+	sw = DisplayWidth(dpy,scr);
+	sh = DisplayHeight(dpy,scr);
+    }
 
     bg_col = pal.normal().background();		// default background color
 
@@ -88,12 +94,12 @@ bool QWidget::create()
 	modal = popup = FALSE;			// force these flags off
     }
     else if ( topLevel )			// calc pos/size from screen
-	frect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
+	frect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
     else					// child widget
-	frect.setRect( 10, 10, 100, 30 );
+	frect.setRect( 0, 0, 100, 30 );
     crect = frect;				// default client rect
 
-    parentw = topLevel ? RootWindow(dpy,scr) : parentWidget()->winId();
+    parentw = topLevel ? root_win : parentWidget()->winId();
 
     if ( desktop ) {				// desktop widget
 	id = parentw;				// id = root window
@@ -105,8 +111,7 @@ bool QWidget::create()
 	}
 	else
 	    setWinId( id );
-    }
-    else {
+    } else {
 	id = XCreateSimpleWindow( dpy, parentw,
 				  frect.left(), frect.top(),
 				  frect.width(), frect.height(),
@@ -116,15 +121,39 @@ bool QWidget::create()
 	setWinId( id );				// set widget id/handle + hd
     }
 
-    if ( popup ) {				// popup widget
-	XSetTransientForHint( dpy, parentw, id );
-	XSetWindowAttributes v;
-	v.override_redirect = TRUE;
-	v.save_under = TRUE;
-	XChangeWindowAttributes( dpy, id,
-				 CWOverrideRedirect | CWSaveUnder, &v );
+    XSetWindowAttributes wattr;
+
+    if ( topLevel && !(desktop || popup || modal) ) {
+	if ( testWFlags(WStyle_Customize) ) {	// customize top level widget
+	    ulong wattr_mask = 0;
+	    if ( testWFlags(WStyle_NormalBorder) ) {
+		;				// ok, we already have it
+	    } else {
+		if ( testWFlags(WStyle_DialogBorder) ) {
+		    XSetTransientForHint( dpy, id, root_win );
+		} else {			// no border
+		    wattr.override_redirect = TRUE;
+		    wattr_mask |= CWOverrideRedirect;
+		}
+	    }
+	    if ( testWFlags(WStyle_Tool) ) {
+		wattr.save_under = TRUE;
+		wattr_mask |= CWSaveUnder;
+	    }
+	    if ( wattr_mask )
+		XChangeWindowAttributes( dpy, id, wattr_mask, &wattr );
+	} else {				// normal top level widget
+	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
+		       WStyle_MinMax );	    
+	}
     }
-    else if ( topLevel && !desktop ) {		// top level widget
+    if ( popup ) {				// popup widget
+	XSetTransientForHint( dpy, id, parentw );
+	wattr.override_redirect = TRUE;
+	wattr.save_under = TRUE;
+	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
+				 &wattr );
+    } else if ( topLevel && !desktop ) {	// top level widget
 	if ( modal ) {
 	    QWidget *p = parentWidget();	// real parent
 	    QWidget *pp = p ? p->parentWidget() : 0;
@@ -135,7 +164,7 @@ bool QWidget::create()
 	    if ( p )				// modal to one widget
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
-		XSetTransientForHint( dpy, id, qt_xrootwin() );
+		XSetTransientForHint( dpy, id, root_win );
 	}
 	XSizeHints size_hints;
 	size_hints.flags = PPosition | PSize | PWinGravity;
@@ -159,19 +188,12 @@ bool QWidget::create()
 	Atom protocols[1];
 	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
-#if 0
-	Atom drag[2];
-	drag[0] = XInternAtom( dpy, "XmDRAG_DROP_ONLY", FALSE );
-	drag[1] = XInternAtom( dpy, "XmDRAG_PREREGISTER", FALSE );
-	XSetWMProtocols( dpy, id, drag, 2 );
-#endif
     }
     if ( testWFlags(WResizeNoErase) ) {
-	XSetWindowAttributes v;
-	v.bit_gravity = NorthWestGravity;	// don't erase when resizing
-	XChangeWindowAttributes( dpy, id, CWBitGravity, &v );
+	wattr.bit_gravity = NorthWestGravity;	// don't erase when resizing
+	XChangeWindowAttributes( dpy, id, CWBitGravity, &wattr );
     }
-    setWFlags( WMouseTracking );
+    setWFlags( WState_TrackMouse );
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
 	setWFlags( WState_Visible );
@@ -445,15 +467,15 @@ void QWidget::setIconText( const char *iconText )
 
 void QWidget::setMouseTracking( bool enable )
 {
-    if ( enable == testWFlags(WMouseTracking) )
+    if ( enable == testWFlags(WState_TrackMouse) )
 	return;
     uint m;
     if ( enable ) {
 	m = PointerMotionMask;
-	setWFlags( WMouseTracking );
+	setWFlags( WState_TrackMouse );
     } else {
 	m = 0;
-	clearWFlags( WMouseTracking );
+	clearWFlags( WState_TrackMouse );
     }
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
@@ -728,7 +750,7 @@ bool QWidget::focusPrevChild()
 
 void QWidget::update()
 {
-    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible )
+    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
 	XClearArea( dpy, winid, 0, 0, 0, 0, TRUE );
 }
 
@@ -748,7 +770,7 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible ) {
+    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -798,7 +820,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible ) {
+    if ( (flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -833,14 +855,14 @@ void QWidget::show()
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->testWFlags(WExplicitHide) )
+		if ( !widget->testWFlags(WState_DoHide) )
 		    widget->show();
 	    }
 	}
     }
     XMapWindow( dpy, winid );
     setWFlags( WState_Visible );
-    clearWFlags( WExplicitHide );
+    clearWFlags( WState_DoHide );
     if ( testWFlags(WType_Modal) )
 	qt_enter_modal( this );
     else if ( testWFlags(WType_Popup) )
@@ -854,7 +876,7 @@ void QWidget::show()
 
 void QWidget::hide()
 {
-    setWFlags( WExplicitHide );
+    setWFlags( WState_DoHide );
     if ( !testWFlags(WState_Visible) )
 	return;
     if ( qApp->focus_widget == this )

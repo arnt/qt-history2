@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#122 $
 **
 ** Implementation of QWidget class
 **
@@ -9,7 +9,7 @@
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
-** IMPORTANT NOTE: Widget identifier should only be set with the set_id()
+** IMPORTANT NOTE: Widget identifier should only be set with the setWinId()
 ** function, otherwise widget mapping will not work.
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#121 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#122 $")
 
 
 /*----------------------------------------------------------------------------
@@ -124,13 +124,46 @@ inline bool QWidgetMapper::remove( WId id )
   Constructs a widget which is a child of \e parent, with the name \e name and
   widget flags set to \e f.
 
-  If \e parent is 0, the new widget becomes a top level window. If \e
-  parent is another widget, the new widget becomes a child window inside \e
-  parent.
+  If \e parent is 0, the new widget becomes a \link isTopLevel() top level
+  window\endlink. If \e parent is another widget, this widget becomes a child
+  window inside \e parent.
 
   The \e name is sent to the QObject constructor.
 
-  The widget flags are strictly internal. You are strongly advised to use 0.
+  The widget flags argument \e f is normally 0, but it can be set to
+  customize the window frame of a top level widget (i.e. \e parent must be
+  zero). To customize the frame, set the \c WStyle_Customize flag OR'ed with
+  any of these flags:
+
+  <ul>
+  <li> \c WStyle_NormalBorder gives the window a normal border.
+  <li> \c WStyle_DialogBorder gives the window a thin dialog border.
+  <li> \c WStyle_NoBorder gives a borderless window. Remember that the
+  user cannot move or resize a borderless window via the window system.
+  <li> \c WStyle_Title gives the window a title bar.
+  <li> \c WStyle_SysMenu adds a window system menu.
+  <li> \c WStyle_Minimize adds a minimize button.
+  <li> \c WStyle_Maximize adds a maximize button.
+  <li> \c WStyle_MinMax is equal to <code>(WStyle_Minimize | WStyle_Maximize)
+  </code>.
+  <li> \c WStyle_Tool makes the window a tool window. This is usually
+  combined with \c WStyle_NoBorder. A tool window is a small window that
+  lives for a short time.
+  </ul>
+
+  Note that X11 does not necessarily support all style flag combinations. X11
+  window managers live their own lives and can only take hints. Win32
+  supports all style flags.
+
+  Example:
+  \code
+    QLabel *toolTip = new QLabel( 0, "myToolTip",
+    				  WStyle_Customize | WStyle_NoBorder |
+				  WStyle_Tool );
+  \endcode
+
+  The widget flags are defined in qwindefs.h (which is included by
+  qwidget.h).
  ----------------------------------------------------------------------------*/
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
@@ -947,9 +980,9 @@ const char *QWidget::iconText() const
 void QWidget::setMouseTracking( bool enable )
 {
     if ( enable )
-	setWFlags( WMouseTracking );
+	setWFlags( WState_TrackMouse );
     else
-	clearWFlags( WMouseTracking );
+	clearWFlags( WState_TrackMouse );
     return;
 }
 #endif // _WS_X11_
@@ -1074,9 +1107,9 @@ void QWidget::setAcceptFocus( bool enable )
 void QWidget::setUpdatesEnabled( bool enable )
 {
     if ( enable )
-	clearWFlags( WState_DisUpdates );
+	clearWFlags( WState_BlockUpdates );
     else
-	setWFlags( WState_DisUpdates );
+	setWFlags( WState_BlockUpdates );
 }
 
 
@@ -1101,10 +1134,10 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 bool QWidget::close( bool forceKill )
 {
-    WId  id	= winId();
+    WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
     QCloseEvent e;
-    bool accept = QApplication::sendEvent( this, &e );    
+    bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
 	if ( isMain )
 	    qApp->quit();
@@ -1165,39 +1198,53 @@ void QWidget::adjustSize()
 
   \internal
 
-  Here are the flags and what they mean:<dl compact>
-  <dt>WState_Created<dd> Means that the widget has a valid id().
-  <dt>WState_Disabled<dd> Mouse and keyboard events are disabled.
-  <dt>WState_Visible<dd> Visible (may be hidden by other windows).
-  <dt>WState_DisUpdates<dd> Repaints and updates are disabled.
-  <dt>WState_PaintEvent<dd> Currently processing a paint event.
-  <dt>WState_ActiveFocus<dd> The widget has active keyboard focus.
+  Widget state flags:
+  <dl compact>
+  <dt>WState_Created<dd> The widget has a valid winId().
+  <dt>WState_Disabled<dd> Disables mouse and keyboard events.
+  <dt>WState_Visible<dd> show() has been called.
+  <dt>WState_DoHide<dd> hide() has been called before first show().
   <dt>WState_AcceptFocus<dd> The widget can take keyboard focus.
+  <dt>WState_TrackMouse<dd> Mouse tracking is enabled.
+  <dt>WState_BlockUpdates<dd> Repaints and updates are disabled.
+  <dt>WState_PaintEvent<dd> Currently processing a paint event.
+  </dl>
+
+  Widget type flags:
+  <dl compact>
   <dt>WType_TopLevel<dd> Top level widget (not a child).
   <dt>WType_Modal<dd> Modal widget, implies \c WType_TopLevel.
   <dt>WType_Popup<dd> Popup widget, implies \c WType_TopLevel.
   <dt>WType_Desktop<dd> Desktop widget (root window), implies
 	\c WType_TopLevel.
-  <dt>WStyle_Title<dd> NOT USED!
-  <dt>WStyle_Border<dd> NOT USED!
-  <dt>WStyle_Close<dd> NOT USED!
-  <dt>WStyle_Resize<dd> NOT USED!
-  <dt>WStyle_Minimize<dd> NOT USED!
-  <dt>WStyle_Maximize<dd> NOT USED!
-  <dt>WStyle_MinMax<dd> NOT USED!
-  <dt>WStyle_All<dd> All style flags set.
-  <dt>WExportFontMetrics<dd> References to the font's metrics.
-  <dt>WExportFontInfo<dd> References to the font's info.
+  </dl>
+
+  Window style flags (for top level widgets):
+  <dl compact>
+  <dt>WStyle_Customize<dd> Custom window style (for top level widgets).
+  <dt>WStyle_NormalBorder<dd> Normal window border.
+  <dt>WStyle_DialogBorder<dd> Thin dialog border.
+  <dt>WStyle_NoBorder<dd> No window border.
+  <dt>WStyle_Title<dd> The window has a title.
+  <dt>WStyle_SysMenu<dd> The window has a system menu
+  <dt>WStyle_Minimize<dd> The window has a minimize box.
+  <dt>WStyle_Maximize<dd> The window has a maximize box.
+  <dt>WStyle_MinMax<dd> Equals (\c WStyle_Minimize | \c WStyle_Maximize).
+  <dt>WStyle_Tool<dd> The window is a tool window.
+  </dl>
+
+  Misc. flags:
+  <dl compact>
   <dt>WCursorSet<dd> Flags that a cursor has been set.
-  <dt>WExplicitHide<dd> Flags that hide() has been called before first show().
   <dt>WDestructiveClose<dd> The widget is deleted when its closed.
-  <dt>WMouseTracking<dd> The widget receives mouse move events.
-  <dt>WPaintDesktop<dd> Widget wants desktop paint events.
+  <dt>WPaintDesktop<dd> The widget wants desktop paint events.
   <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
-  <dt>WPaintClever<dd> Widget wants every update rectangle.
+  <dt>WPaintClever<dd> The widget wants every update rectangle.
   <dt>WConfigPending<dd> Config (resize,move) event pending.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
   <dt>WRecreated<dd> The widet has been recreated.
+  <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
+  <dt>WExportFontInfo<dd> Somebody refers the font's info.
   </dl>
  ----------------------------------------------------------------------------*/
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#84 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#85 $
 **
 ** Definition of QWidget class
 **
@@ -345,10 +345,10 @@ inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(this); }
 
 inline bool QWidget::hasMouseTracking() const
-{ return testWFlags(WMouseTracking); }
+{ return testWFlags(WState_TrackMouse); }
 
 inline bool QWidget::isUpdatesEnabled() const
-{ return !testWFlags(WState_DisUpdates); }
+{ return !testWFlags(WState_BlockUpdates); }
 
 inline void QWidget::repaint( bool erase )
 { repaint( 0, 0, crect.width(), crect.height(), erase ); }

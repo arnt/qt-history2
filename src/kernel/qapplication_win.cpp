@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#47 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#47 $")
 
 
 /*****************************************************************************
@@ -878,11 +878,11 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		QRect	   f  = widget->frameGeometry();
 		QSize	   s  = widget->size();
 		if ( x->minw > 0 )
-		    mmi->ptMinTrackSize.x = x->minw + f.width()  - s.width();
+		    mmi->ptMinTrackSize.x = x->minw + f.width()	 - s.width();
 		if ( x->minh > 0 )
 		    mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
 		if ( x->maxw < QCOORD_MAX )
-		    mmi->ptMaxTrackSize.x = x->maxw + f.width()  - s.width();
+		    mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
 		if ( x->maxh < QCOORD_MAX )
 		    mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
 		return 0;
@@ -1301,7 +1301,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
-	if ( (state == 0 || !capture) && !testWFlags(WMouseTracking) )
+	if ( (state == 0 || !capture) && !testWFlags(WState_TrackMouse) )
 	    return TRUE;			// no button
 	POINT curPos;
 	GetCursorPos( &curPos );		// compress mouse move
@@ -1521,10 +1521,10 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 bool QETWidget::translateCloseEvent( const MSG & )
 {
-    WId  id	= winId();
+    WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
     QCloseEvent e;
-    bool accept = QApplication::sendEvent( this, &e );    
+    bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
 	if ( isMain )
 	    qApp->quit();
@@ -1536,6 +1536,7 @@ bool QETWidget::translateCloseEvent( const MSG & )
 	    qApp->quit();
 	else if ( testWFlags(WDestructiveClose) )
 	    return TRUE;
+	}
     }
     return FALSE;
 }
