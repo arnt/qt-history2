@@ -934,7 +934,7 @@ bool Q3FtpPI::processReply()
 }
 
 #ifndef QT_NO_TEXTCODEC
-Q_CORE_EXPORT QTextCodec *qt_ftp_filename_codec = 0;
+Q_COMPAT_EXPORT QTextCodec *qt_ftp_filename_codec = 0;
 #endif
 
 /*
