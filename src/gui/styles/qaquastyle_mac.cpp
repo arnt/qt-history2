@@ -55,7 +55,7 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
     if(noerase)
         setAttribute(WA_NoSystemBackground, true);
 }
-#if 0
+#if 1
 /* It's a real bummer I cannot use this, but you'll notice that sometimes
    the widget will scroll "offscreen" and the focus widget will remain visible
    (which looks quite bad). --Sam */
@@ -82,6 +82,7 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
         setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
                     widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
         setPalette(widget->palette());
+        qDebug("placing at %d %d %d %d (%s)", x(), y(), width(), height(), parentWidget()->className());
         setMask(QRegion(rect()) - focusRegion());
         raise();
         show();
@@ -122,6 +123,7 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
             QPoint p(d->mapTo(newp, QPoint(0, 0)));
             newp->installEventFilter(this);
             setParent(newp);
+            show();
             move(p);
             raise();
             break; }

@@ -845,7 +845,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
         } else if(ekind == kEventHIObjectDestruct) {
             free(data);
         } else if(ekind == kEventHIObjectPrintDebugInfo) {
-            qDebug("%s::%s", wrap->object->className(), wrap->object->objectName());
+            qDebug("%s::%s", wrap->object->className(), wrap->object->objectName().local8Bit());
         } else {
             handled_event = false;
         }

@@ -23,6 +23,8 @@
 #include <qstyleoption.h>
 #include <qt_mac.h>
 #include <qtabbar.h>
+#include <qaquastyle_mac.h>
+#include <qbitmap.h>
 
 #include <private/qtitlebar_p.h>
 
@@ -187,8 +189,68 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
     return qt_aqua_size_constrain(0);
 }
 
+class QMacStyleCGFocusWidget : public QAquaFocusWidget
+{
+public:
+    QMacStyleCGFocusWidget(QWidget *w) : QAquaFocusWidget(false, w) { }
+
+protected:
+    void drawFocusRect(QPainter *p) const;
+
+    virtual QRegion focusRegion() const;
+    virtual void paintEvent(QPaintEvent *);
+    virtual int focusOutset() const;
+};
+QRegion QMacStyleCGFocusWidget::focusRegion() const
+{
+    const QRgb fillColor = qRgb(192, 191, 190);
+    QImage img;
+    {
+        QPixmap pix(size(), 32);
+        pix.fill(fillColor);
+        QPainter p(&pix);
+        drawFocusRect(&p);
+        img = pix;
+    }
+    QImage mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
+    for(int y = 0; y < img.height(); y++) {
+        for(int x = 0; x < img.width(); x++) {
+            QRgb clr = img.pixel(x, y);
+            int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
+                        ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
+                        ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
+            mask.setPixel(x, y, diff < 100);
+        }
+    }
+    QBitmap qmask;
+    qmask = mask;
+    return QRegion(qmask);
+}
+void QMacStyleCGFocusWidget::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    drawFocusRect(&p);
+}
+void QMacStyleCGFocusWidget::drawFocusRect(QPainter *p) const
+{
+#if 1
+    p->fillRect(0, 0, width(), height(), QColor(192, 191, 190));
+#else
+    HIRect rect = CGRectMake(0, 0, width(), height());
+    HIThemeDrawFocusRect(&rect, true, static_cast<CGContextRef>(p->handle()), 
+                         kHIThemeOrientationNormal);
+#endif
+}
+int QMacStyleCGFocusWidget::focusOutset() const
+{
+    SInt32 ret = 0;
+    GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
+    return ret;
+}
+
 class QMacStyleCGPrivate : public QAquaAnimate
 {
+    QPointer<QMacStyleCGFocusWidget> focusWidget;
 public:
     UInt8 progressFrame;
     CFAbsoluteTime defaultButtonStart;
@@ -202,8 +264,11 @@ protected:
             ++progressFrame;
         return true;
     }
-    virtual void doFocus(QWidget *) {
-        //not implemented yet
+    virtual void doFocus(QWidget *w) {
+        qDebug("setting focus..");
+        if(!focusWidget)
+            focusWidget = new QMacStyleCGFocusWidget(w);
+        focusWidget->setFocusWidget(w);
     }
 };
 
@@ -397,9 +462,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         }
         break; }
     case PE_FocusRect:
-//        HIThemeDrawFocusRect(qt_glb_mac_rect(r, p), true, static_cast<CGContextRef>(p->handle()),
-//                             kHIThemeOrientationNormal);
-        break;
+        break;     //This is not used because of the QAquaFocusWidget thingie..
     case PE_Splitter: {
         HIThemeSplitterDrawInfo sdi;
         sdi.version = qt_mac_hitheme_version;

@@ -1390,7 +1390,7 @@ bool qt_modal_state()
 void qt_enter_modal(QWidget *widget)
 {
 #ifdef DEBUG_MODAL_EVENTS
-    qDebug("Entering modal state with %s::%s::%p (%d)", widget->className(), widget->objectName(),
+    qDebug("Entering modal state with %s::%s::%p (%d)", widget->className(), widget->objectName().local8Bit(),
            widget, qt_modal_stack ? (int)qt_modal_stack->count() : -1);
 #endif
     if(!qt_modal_stack) {                        // create modal stack
@@ -1412,7 +1412,7 @@ void qt_leave_modal(QWidget *widget)
 {
     if(qt_modal_stack && qt_modal_stack->removeAll(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
-        qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->objectName(),
+        qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->objectName().local8Bit(),
                widget, qt_modal_stack->count());
 #endif
         if(qt_modal_stack->isEmpty()) {
@@ -1421,7 +1421,7 @@ void qt_leave_modal(QWidget *widget)
         }
     }
 #ifdef DEBUG_MODAL_EVENTS
-    else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->objectName(), widget, qt_modal_stack);
+    else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->objectName().local8Bit(), widget, qt_modal_stack);
 #endif
     app_do_modal = (qt_modal_stack != 0);
     if(!app_do_modal)
@@ -1549,7 +1549,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 bool just_show = false;
                 if(!qt_mac_is_macsheet(widget)
                    || ShowSheetWindow(window, qt_mac_window_for((HIViewRef)widget->parentWidget()->winId())) != noErr) {
-                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->className(), widget->objectName());
+                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->className(), widget->objectName().local8Bit());
                     just_show = true;
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)
@@ -1843,9 +1843,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             if((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
                 qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
-                       widget ? widget->className() : "none", widget ? widget->objectName() : "",
+                       widget ? widget->className() : "none", widget ? widget->objectName().local8Bit() : "",
                        qt_mouseover ? qt_mouseover->className() : "none",
-                       qt_mouseover ? qt_mouseover->objectName() : "");
+                       qt_mouseover ? qt_mouseover->objectName().local8Bit() : "");
 #endif
                 qt_dispatchEnterLeave(widget, qt_mouseover);
                 qt_mouseover = widget;
@@ -1923,7 +1923,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             if(etype == QEvent::MouseButtonDblClick)
                 event_desc = "Double Click";
             qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
-                   plocal.x(), plocal.y(), event_desc, (QWidget*)widget, widget ? widget->objectName() : "*Unknown*",
+                   plocal.x(), plocal.y(), event_desc, (QWidget*)widget, widget ? widget->objectName().local8Bit() : "*Unknown*",
                    widget ? widget->className() : "*Unknown*", button, state|keys, wheel_delta);
 #endif
         } else {
@@ -2092,7 +2092,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_KEY_MAPS
                 qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - %d",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
-                       widget ? widget->className() : "none", widget ? widget->objectName() : "",
+                       widget ? widget->className() : "none", widget ? widget->objectName().local8Bit() : "",
                        key, modifiers);
 #endif
                 QKeyEvent ke(etype, key, modifiers, "", false);
@@ -2188,7 +2188,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 if(qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
                     qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
-                           widget ? widget->className() : "none", widget ? widget->objectName() : "",
+                           widget ? widget->className() : "none", widget ? widget->objectName().local8Bit() : "",
                            mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
 #endif
                     key_event = false;
@@ -2196,7 +2196,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     if(accel_ev.isAccepted()) {
 #ifdef DEBUG_KEY_MAPS
                         qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
-                               widget ? widget->className() : "none", widget ? widget->objectName() : "",
+                               widget ? widget->className() : "none", widget ? widget->objectName().local8Bit() : "",
                                mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
 #endif
                     }
@@ -2213,7 +2213,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_KEY_MAPS
                 qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
-                       widget ? widget->className() : "none", widget ? widget->objectName() : "",
+                       widget ? widget->className() : "none", widget ? widget->objectName().local8Bit() : "",
                        mychar, chr, mystr.latin1(), modifiers,
                        ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif

@@ -357,7 +357,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                     widget->hd = GetWindowFromPort(qdref);
 
 #if 0
-                qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->className(), widget->objectName(),
+                qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->className(), widget->objectName().local8Bit(),
                        (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1), widget->hd, widget->cg_hd);
 #endif
                 if((widget->data->widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {  //process the actual paint event.
@@ -747,7 +747,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             wclass = kMovableModalWindowClass;
         else if(qt_mac_is_macdrawer(this))
             wclass = kDrawerWindowClass;
-        else if(testWFlags(WStyle_Tool) && qstrcmp(objectName(), "toolTipTip") == 0) // Tool tips
+        else if(testWFlags(WStyle_Tool) && objectName() == QLatin1String("toolTipTip")) // Tool tips
             wclass = kHelpWindowClass;
         else if(testWFlags(WStyle_Tool)
                 || (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
@@ -838,7 +838,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             { 0, 0 }
         };
 #undef ADD_DEBUG_WINDOW_NAME
-        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", this, className(), objectName());
+        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", this, className(), objectName().local8Bit());
         bool found_class = false;
         for(int i = 0; known_classes[i].name; i++) {
             if(wclass == known_classes[i].tag) {
@@ -1817,7 +1817,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if(maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
         qWarning("Qt: QWidget::setMaximumSize: (%s/%s) "
                 "The largest allowed size is (%d,%d)",
-                 objectName("unnamed"), className(), QWIDGETSIZE_MAX,
+                 objectName().local8Bit(), className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
         maxw = qMin(maxw, QWIDGETSIZE_MAX);
         maxh = qMin(maxh, QWIDGETSIZE_MAX);
@@ -1825,7 +1825,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if(maxw < 0 || maxh < 0) {
         qWarning("Qt: QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                 objectName("unnamed"), className(), maxw, maxh);
+                 objectName().local8Bit(), className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
     }
