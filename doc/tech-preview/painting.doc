@@ -69,6 +69,12 @@
     and providing default implementations for unsupported ones has
     become much simpler.
 
+    \section2 Enabling use of GDI+ on Windows
+
+    GDI+ is installed by default on Windows XP, and is available as a
+    downloadable redistributable binary for 98/ME/NT/2000. In order for
+    Qt to take advantage of the features in GDI+ the gdiplus.dll
+    library must be in the PATH.
 
     \section1 New Features in the Qt 4 Paint Subsystem
 
@@ -115,8 +121,9 @@
 
     \img alphafill.png
 
-    Alpha-blended drawing is supported on Windows, Mac OS X, and on
-    X11 systems that have the X Render extension installed.
+    Alpha-blended drawing is supported on Windows (GDI+ or 32 bit
+    depth only), Mac OS X, and on X11 systems that have the X Render
+    extension installed.
 
 
     \section2 QPainter and QGLWidget
@@ -240,10 +247,15 @@
 
     \list
     \i Gradients cannot have alpha color on X11.
-    \i Anti-aliasing of lines on X11, (though this might not be present at all).
+    \i Anti-aliasing of lines on X11.
     \i Clipping regions on OpenGL.
     \i Transformation of pen widths.
     \i Transformation of fill patterns.
+    \i Support for querying for supported features (such as if
+       antialiasing is available)
+    \i Not all primitive types are supported with gradient filling or
+       alpha filling at the moment. These will be made more consistent
+       in the time to come.
     \endlist
 
 */
