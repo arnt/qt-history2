@@ -86,7 +86,7 @@ QStringList Option::mkfile::project_files;
 
 bool usage(const char *a0)
 {
-    fprintf(stderr, "Usage: %s [options] project-files\n"
+    fprintf(stderr, "Usage: %s [options] [project-files]\n"
 	   "Options:\n"
 	   "\t-nocache       Don't use a cache file\n"
 	   "\t-nodepend      Don't generate dependency information\n"
@@ -102,9 +102,6 @@ bool usage(const char *a0)
 bool
 Option::parseCommandLine(int argc, char **argv)
 {
-    if(argc == 1)
-	return usage(argv[0]);
-
     for(int x = 1; x < argc; x++) {
 	if(*argv[x] == '-') { /* options */
 	    QString opt = argv[x] + 1;
@@ -173,13 +170,28 @@ Option::parseCommandLine(int argc, char **argv)
 	}
     }
     
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
+	Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE; 
+
     //last chance for defaults
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
 	if(Option::mkfile::cachefile.isNull() || Option::mkfile::cachefile.isEmpty())
 	    Option::mkfile::cachefile = ".qmake.cache";
+
+	//try REALLY hard to do it for them, lazy..
+	if(!Option::mkfile::project_files.count()) {
+	    QString proj = QDir::currentDirPath();
+	    proj = proj.right(proj.length() - (proj.findRev(QDir::separator()) + 1)) + ".pro";
+	    if(QFile::exists(proj)) {
+		Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;		
+		Option::mkfile::project_files.append(proj);
+	    } else {
+		return usage(argv[0]);
+	    }
+	}
     } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
 	if(Option::projfile::project_dirs.isEmpty())
-	    Option::projfile::project_dirs.append("*.cpp; *.ui; *.c");
+	    Option::projfile::project_dirs.append("*.cpp; *.ui; *.c; *.y; *.l");
     }
 
     //defaults for globals
