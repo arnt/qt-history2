@@ -28,7 +28,7 @@ class QAction;
 class QDialog;
 class QLabel;
 class QMenu;
-class QList;
+template <typename T> class QList;
 class QIcon;
 
 class QTreeView;
