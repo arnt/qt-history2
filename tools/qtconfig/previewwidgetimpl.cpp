@@ -35,6 +35,13 @@ PreviewWidget::PreviewWidget( QWidget *parent, const char *name )
     }
 }
 
+
+void PreviewWidget::closeEvent(QCloseEvent *e)
+{
+    e->ignore();
+}
+
+
 bool PreviewWidget::eventFilter(QObject *, QEvent *e)
 {
     switch ( e->type() ) {

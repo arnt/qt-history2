@@ -28,8 +28,9 @@ class PreviewWidget : public PreviewWidgetBase
     Q_OBJECT
 
 public:
-    PreviewWidget( QWidget *parent = 0, const char *name = 0 );	
+    PreviewWidget( QWidget *parent = 0, const char *name = 0 );
 
+    void closeEvent(QCloseEvent *);
     bool eventFilter(QObject *, QEvent *);
 };
 
