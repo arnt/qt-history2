@@ -713,8 +713,10 @@ QSize QMainWindowLayout::minimumSize() const
 	h = QMAX( h, right->minimumSize().height() );
     }
     if ( central ) {
-	w += central->minimumSize().width();
-	h = QMAX( h, QMAX( central->minimumSize().height(), central->minimumSizeHint().height() ) );
+	QSize min = central->minimumSize().isNull() ? 
+		    central->minimumSizeHint() : central->minimumSize();
+	w += min.width();
+	h = QMAX( h, min.height() );
     }
 
     return QSize( w, h );
