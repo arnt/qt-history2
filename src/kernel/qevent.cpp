@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#27 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#27 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -89,7 +89,8 @@ void QEvent::peErrMsg()				// posted event error message
 }
 
 
-/*----------------------------------------------------------------------------   \class QEvent qevent.h
+/*----------------------------------------------------------------------------
+  \class QEvent qevent.h
   \brief The QEvent class is base class of all
   event classes. Event objects contain event parameters.
 
@@ -226,9 +227,12 @@ void QEvent::peErrMsg()				// posted event error message
   Possible return values are \c LeftButton, \c RightButton, \c MidButton and
   \c NoButton.
 
-  \warning The button value is always \c NoButton (0) when a mouse
-  move event is received.
-  ----------------------------------------------------------------------------*/
+  Note that the returned value is always \c NoButton (0) when a mouse move
+  event is received.
+
+  \sa state()
+ ----------------------------------------------------------------------------*/
+  
 
 /*----------------------------------------------------------------------------
   \fn int QMouseEvent::state() const
@@ -237,6 +241,8 @@ void QEvent::peErrMsg()				// posted event error message
 
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
+
+  \sa button()
  ----------------------------------------------------------------------------*/
 
 
