@@ -21,6 +21,7 @@
 #include "qpainter.h"
 #include "private/qpainter_p.h"
 #include "qpaintengine_mac.h"
+#include "qgroupbox.h"
 #include "qmap.h"
 #include "qt_mac.h"
 #include "qrubberband.h"
