@@ -712,6 +712,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
 	    if ( entry == "Threaded" )
 		args += "-thread";
+	    else
+		args += "-no-thread";
 
 	    entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
 	    for( it = entries.begin(); it != entries.end(); ++it ) {
