@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#272 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#273 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10588,14 +10588,21 @@ QString::QString( const QByteArray& ba )
   Constructs a string that is a deep copy of the
   first \a length QChar in the array \a unicode.
 
-  \sa QString::make()
+  If \a unicode is 0, a null string is created.
+
+  \sa isNull()
 */
 
 QString::QString( const QChar* unicode, uint length )
 {
-    QChar* uc = QT_ALLOC_QCHAR_VEC( length );
-    memcpy(uc, unicode, length*sizeof(QChar));
-    d = new QStringData(uc,length,length);
+    if ( !unicode ) {
+	d = shared_null ? shared_null : makeSharedNull();
+    }
+    else {
+	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
+	memcpy(uc, unicode, length*sizeof(QChar));
+	d = new QStringData(uc,length,length);
+    }
 }
 
 /*!
