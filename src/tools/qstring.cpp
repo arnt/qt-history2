@@ -12903,7 +12903,9 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   0-terminated, the results are undefined.  Functions that
   copy classic C strings into a QString will not copy the terminating
   0 character. The QChar array of the QString (as returned by
-  unicode()) is generally not terminated by a null.
+  unicode()) is generally not terminated by a null. If you need to
+  pass a QString to a function that requires a C null-terminated
+  string use latin1().
 
   \keyword QString::null
   A QString that has not been assigned to anything is \e null, i.e. both
@@ -15303,7 +15305,9 @@ long QString::toLong( bool *ok, int base ) const
 	goto bye;
     while ( l && p->isSpace() )                 // skip leading space
 	l--,p++;
-    if ( l && *p == '-' ) {
+    if ( !l )
+	goto bye;
+    if ( *p == '-' ) {
 	l--;
 	p++;
 	neg = 1;
@@ -15366,6 +15370,8 @@ ulong QString::toULong( bool *ok, int base ) const
 	goto bye;
     while ( l && p->isSpace() )                 // skip leading space
 	l--,p++;
+    if ( !l )
+	goto bye;
     if ( *p == '+' )
 	l--,p++;
 

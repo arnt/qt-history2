@@ -505,8 +505,12 @@ QIODevice::Offset QIODevice::at() const
 
 /*!
     \overload
-  Virtual function that sets the I/O device position to \a pos.
-  \sa size()
+
+    Virtual function that sets the I/O device position to \a pos.
+    Returns TRUE if the position was successfully set, i.e. \a pos is
+    within range; otherwise returns FALSE.
+
+    \sa size()
 */
 
 bool QIODevice::at( Offset pos )
@@ -555,6 +559,8 @@ bool QIODevice::atEnd() const
   Reads at most \a maxlen bytes from the I/O device into \a data and
   returns the number of bytes actually read.
 
+  This function should return -1 if a fatal error occurs.
+
   This virtual function must be reimplemented by all subclasses.
 
   \sa writeBlock()
@@ -579,10 +585,10 @@ QByteArray QIODevice::readAll()
 	    n -= r;
 	    c += r;
 	    totalRead += r;
-	    // If we have a translated file, then it is possible that 
+	    // If we have a translated file, then it is possible that
 	    // we read less bytes than size() reports
 	    if ( atEnd() ) {
-		ba.resize( totalRead );  
+		ba.resize( totalRead );
 		break;
 	    }
 	}
@@ -608,6 +614,8 @@ QByteArray QIODevice::readAll()
   \fn int QIODevice::writeBlock( const char *data, Q_ULONG len )
   Writes \a len bytes from \a data to the I/O device and returns the
   number of bytes actually written.
+
+  This function should return -1 if a fatal error occurs.
 
   This virtual function must be reimplemented by all subclasses.
 

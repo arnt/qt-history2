@@ -569,17 +569,21 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 */
 
 /*!
+    \obsolete
+
     \fn const QColorGroup &QPalette::normal() const
 
-    Returns the active color group.
+    Returns the active color group. Use active() instead.
 
     \sa setActive() active()
 */
 
 /*!
+    \obsolete
+
     \fn void QPalette::setNormal( const QColorGroup & cg )
 
-    Sets the active color group to \a cg.
+    Sets the active color group to \a cg. Use setActive() instead.
 
     \sa setActive() active()
 */
