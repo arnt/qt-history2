@@ -1876,6 +1876,18 @@ const char* QDropEvent::format(int n) const
 }
 
 /*!
+    Returns true if this event provides format \a mimeType; otherwise
+    returns false.
+
+    \sa data()
+*/
+
+bool QDropEvent::provides(const char *mimeType) const
+{
+    return data()->formats().contains(QLatin1String(mimeType));
+}
+
+/*!
     If the source of the drag operation is a widget in this
     application, this function returns that source; otherwise it
     returns 0. The source of the operation is the first parameter to

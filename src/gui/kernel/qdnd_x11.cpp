@@ -1241,30 +1241,6 @@ bool qt_xdnd_handle_badwindow()
     QDropEvent.
 */
 
-
-/*!
-    Returns true if this event provides format \a mimeType; otherwise
-    returns false.
-
-    \sa data()
-*/
-
-bool QDropEvent::provides(const char *mimeType) const
-{
-    if (qt_motifdnd_active && qstrnicmp(mimeType, "text/", 5) == 0)
-        return true;
-
-    int n=0;
-    const char* f;
-    do {
-        f = format(n);
-        if (!f)
-            return false;
-        n++;
-    } while(qstricmp(mimeType, f));
-    return true;
-}
-
 void qt_xdnd_handle_selection_request(const XSelectionRequestEvent * req)
 {
     if (!req)
