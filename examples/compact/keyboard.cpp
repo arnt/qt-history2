@@ -13,7 +13,7 @@
 Keyboard::Keyboard(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f),  shift(FALSE), lock(FALSE), ctrl(FALSE), alt(FALSE)
 {
-    setBackgroundMode( PaletteBase ); 
+    setPalette(QPalette(QColor(240,240,230))); // Beige!
     //    setFont( QFont( "Helvetica", 8 ) );
 }
 
@@ -34,12 +34,20 @@ Keyboard::Keyboard(QWidget* parent, const char* name, int f) :
   
  */
 static const uchar * const keyboard[5] = { 
-    "\002\051\030\002\003\200", // ~ + 123...+ BACKSPACE
-    "\003\201\030\20\002\053", //TAB + qwerty..  + backslash
-    "\004\202\026\036\003\203", //CAPS + asdf.. + RETURN 
-    "\005\204\024\054", //\002\210", //SHIFT + zxcv... //+ UP
-    "\003\205\003\206\021\207" //\002\211\002\212\002\213" 
-    // 			CTRL + ALT + SPACE //+ LEFT + DOWN + RIGHT
+    (const uchar *const)"\002\051\030\002\003\200",//\002\214\002\215\002\216",
+    //~ + 123...+ BACKSPACE //+ INSERT + HOME + PGUP
+
+    (const uchar *const)"\003\201\030\20\002\053",//\002\217\002\220\002\221",
+    //TAB + qwerty..  + backslash //+ DEL + END + PGDN
+
+    (const uchar *const)"\004\202\026\036\003\203",
+    //CAPS + asdf.. + RETURN 
+
+    (const uchar *const)"\005\204\024\054",//\002\210",
+    //SHIFT + zxcv... //+ UP
+
+    (const uchar *const)"\003\205\003\206\021\207",//\002\211\002\212\002\213" 
+    //CTRL + ALT + SPACE //+ LEFT + DOWN + RIGHT
     
 };
 
@@ -63,10 +71,18 @@ static const SpecialMap specialM[] = {
     {	Qt::Key_Control,	0,	"Ctrl"  },
     {	Qt::Key_Alt,		0,	"Alt"  },
     {	Qt::Key_Space,		' ',	""  },
-    {	Qt::Key_Up,		0,	0 },
-    {	Qt::Key_Left,		0,	0 },
-    {	Qt::Key_Down,		0,	0 },
-    {	Qt::Key_Right,		0,	0 }
+
+    // Need images?
+    {	Qt::Key_Up,		0,	"^" },
+    {	Qt::Key_Left,		0,	"<" },
+    {	Qt::Key_Down,		0,	"v" },
+    {	Qt::Key_Right,		0,	">" },
+    {	Qt::Key_Insert,		0,	"I" },
+    {	Qt::Key_Home,		0,	"H" },
+    {	Qt::Key_PageUp,		0,	"U" },
+    {	Qt::Key_End,		0,	"E" },
+    {	Qt::Key_Delete,		0,	"X" },
+    {	Qt::Key_PageDown,	0,	"D" }
 };
 
 
@@ -143,6 +159,14 @@ void Keyboard::paintEvent(QPaintEvent* e)
     //    int h = d*5;
     //int wid = 240;
 
+    const bool threeD = TRUE;
+    const QColorGroup& cg = colorGroup();
+    QColor keycolor = cg.background();
+    QColor keycolor_pressed = cg.mid();
+    QColor keycolor_lo = cg.dark();
+    QColor keycolor_hi = cg.light();
+    QColor textcolor = cg.text();
+
     for ( int j = 0; j < 5; j++ ) {
 	int y = j*d;
 	int x = 0;
@@ -151,38 +175,56 @@ void Keyboard::paintEvent(QPaintEvent* e)
 	while ( k ) {
 	    int ww = kw*d/2;
 	    QString s;
-	    bool reverse = FALSE;
+	    bool pressed = FALSE;
 	    if ( k >= 0x80 ) {
 		s = specialM[k - 0x80].label;
 		    
 		if ( k == ShiftCode ) {
-		    reverse = shift;
+		    pressed = shift;
 		} else if ( k == CapsCode ) {
-		    reverse = lock;
+		    pressed = lock;
 		} else if ( k == CtrlCode ) {
-		    reverse = ctrl;
+		    pressed = ctrl;
 		} else if ( k == AltCode ) {
-		    reverse = alt;
+		    pressed = alt;
 		} 
 	    } else {
 		s = QChar( shift^lock ? QWSServer::keyMap()[k].shift_unicode : 
 			   QWSServer::keyMap()[k].unicode);
 	    }
-	    if ( reverse )
-		p.setPen( white );
-	    p.fillRect( x+1, y+1, ww-1, d-1, reverse ? black : white );
-	    p.drawText( x, y, ww, d, AlignCenter, s ); 
-	    if ( reverse )
-		p.setPen( black );
+	    if ( pressed )
+		p.fillRect( x+1, y+1, ww-1, d-1, keycolor_pressed );
+	    else
+		p.fillRect( x+1, y+1, ww-1, d-1, keycolor );
 
-	    p.drawLine( x, y, x, y+d );
+	    if ( threeD ) {
+		p.setPen(pressed ? keycolor_lo : keycolor_hi);
+		p.drawLine( x, y, x, y+d-1 );
+		p.drawLine( x+1, y+1, x+1, y+d-3 );
+		p.drawLine( x+1, y+1, x+1+ww-2, y+1 );
+	    }
+
+	    p.setPen(pressed ? keycolor_hi : keycolor_lo);
+	    p.drawLine( x+ww-1, y, x+ww-1, y+d-1 );
+
+	    if ( threeD ) {
+		p.setPen(keycolor_lo.light());
+		p.drawLine( x+ww-2, y+d-2, x+ww-2, y+1 );
+		p.drawLine( x+ww-2, y+d-2, x+1, y+d-2 );
+	    }
+
+	    p.setPen(textcolor);
+	    p.drawText( x, y, ww, d-2, AlignCenter, s ); 
+
 	    x += ww;
 	    k = getKey( kw );
 	}
-	p.drawLine( x, y, x, y+d );
-	if ( j == 0 )
-	    p.drawLine( 0, y, x, y );
-	p.drawLine( 0, y+d, x, y+d );
+	if ( threeD ) {
+	    p.setPen(keycolor_hi);
+	    p.drawLine( 0, y, x-1, y );
+	}
+	p.setPen(keycolor_lo);
+	p.drawLine( 0, y+d-1, x-1, y+d-1 );
     }
 }
 
@@ -251,7 +293,7 @@ QSize Keyboard::sizeHint() const
 {
     QFontMetrics fm=fontMetrics();
     int d = fm.lineSpacing() - 1;
-    return QSize( 15*d, 5*d );
+    return QSize( 1000, 5*d );
 }
 
 #endif // _WS_QWS_
