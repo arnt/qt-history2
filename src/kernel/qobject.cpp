@@ -285,13 +285,18 @@ static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
     if ( !sigData )
 	return;
     QCString s;
-    s.sprintf( "%s_%s", mo->className(), sigData->name );
-    int slot = qt_preliminary_signal_interceptor->metaObject()->findSlot( s, TRUE );
-    if ( slot >= 0 ) {
-	QObject* old_sender = qt_intercept_signal_sender;
-	qt_intercept_signal_sender = sender;
-	qt_preliminary_signal_interceptor->qt_invoke( slot, o );
-	qt_intercept_signal_sender = old_sender;
+    mo = sender->metaObject();
+    while ( mo ) {
+	s.sprintf( "%s_%s", mo->className(), sigData->name );
+	int slot = qt_preliminary_signal_interceptor->metaObject()->findSlot( s, TRUE );
+	if ( slot >= 0 ) {
+	    QObject* old_sender = qt_intercept_signal_sender;
+	    qt_intercept_signal_sender = sender;
+	    qt_preliminary_signal_interceptor->qt_invoke( slot, o );
+	    qt_intercept_signal_sender = old_sender;
+	    break;
+	}
+	mo = mo->superClass();
     }
 }
 
