@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#43 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#43 $");
 
 
 /*!
@@ -329,8 +329,9 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
     while ( *d ) {
 	if ( *d & CHR ) {			// match char
 	    if ( cs ) {				// case sensitive
-		if ( *p++ != (char)*d )
+		if ( *p != (char)*d )
 		    return 0;
+		p++;
 	    } else {				// case insensitive
 		if ( tolower(*p) != (char)*d )
 		    return 0;
@@ -343,7 +344,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		    return 0;
 		break;
 	    case CCL:				// match char class
-		if ( (d[*p >> 4] & (1 << (*p & 0xf))) == 0 )
+		if ( (d[(uchar)*p >> 4] & (1 << ((uchar)*p & 0xf))) == 0 )
 		    return 0;
 		p++;
 		d += 16;
@@ -383,7 +384,8 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 			break;
 		    case CCL:
 			d++;
-			while ( *p && d[*p >> 4] & (1 << (*p & 0xf)) )
+			while ( *p && d[(uchar)*p >> 4] &
+				(1 << ((uchar)*p & 0xf)) )
 			    p++;
 			d += 15;
 			break;
@@ -419,7 +421,8 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 			break;
 		    case CCL:
 			d++;
-			if ( *p && d[*p >> 4] & (1 << (*p & 0xf)) )
+			if ( *p &&
+			     d[(uchar)*p >> 4] & (1 << ((uchar)*p & 0xf)) )
 			    p++;
 			d += 15;
 			break;
@@ -534,9 +537,9 @@ static int char_val( char **str )		// get char value
 		}
 	    }
 	}
+    } else {
+	v = (uchar)*p;
     }
-    else
-	v = *p;
     *str += len;
     return v;
 }
@@ -668,14 +671,14 @@ void QRegExp::compile()
 		    neg = 0;
 		}
 		if ( *p == ']' )		// bracket, not end
-		    cc[(unsigned char)(*p++)] = 1;
+		    cc[(uchar)(*p++)] = 1;
 		int prev_c = -1;
 		while ( *p && *p != ']' ) {	// scan the char set
 		    if ( *p == '-' && *(p+1) && *(p+1) != ']' ) {
 			p++;			// range!
-			if ( prev_c == -1 )	// no previous char
-			    cc[(unsigned char)'-'] = 1;
-			else {
+			if ( prev_c == -1 ) {	// no previous char
+			    cc[(uchar)'-'] = 1;
+			} else {
 			    int start = prev_c;
 			    int stop = char_val( &p );
 			    if ( start > stop ) { // swap start and stop
