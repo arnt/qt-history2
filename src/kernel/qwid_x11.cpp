@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#102 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#101 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#102 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -352,6 +352,11 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    pm = QPixmap( pixmap.size() );
 	    bitBlt( &pm, 0, 0, &pixmap, 0, 0, pm.width(), pm.height() );
 	}
+	if ( extra && extra->bg_pix )
+	    delete extra->bg_pix;
+	else
+	    createExtra();
+	extra->bg_pix = new QPixmap( pm );
 	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();

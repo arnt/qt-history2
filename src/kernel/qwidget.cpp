@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#85 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#84 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#85 $")
 
 
 /*----------------------------------------------------------------------------
@@ -626,7 +626,7 @@ const QColor &QWidget::foregroundColor() const
 
 const QPixmap *QWidget::backgroundPixmap() const
 {
-    return extra && extra->bg_pix ? extra->bg_pix : 0;
+    return (extra && extra->bg_pix) ? extra->bg_pix : 0;
 }
 
 
