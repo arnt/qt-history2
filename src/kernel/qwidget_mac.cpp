@@ -2094,9 +2094,9 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     if(qApp->closingDown())
 	return;
     if(!isTopLevel()) { //short circuit, there is nothing to dirty here..
-	int ox = x(), oy = y();
+	int ox = x(), oy = y(), ow = width(), oh = height();
 	for(QWidget *par=this; (par = par->parentWidget(TRUE)); ) { 
-	    if(ox > par->width() || oy > par->height()) 
+	    if(ox + ow < 0 || oy + oh < 0 || ox > par->width() || oy > par->height()) 
 		return;
 	    ox += par->x();
 	    oy += par->y();
@@ -2138,7 +2138,14 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	    for(QObjectListIt it(*chldn); it.current() && it.current() != last; ++it) {
 		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 		    w = (QWidget *)(*it);
-		    if(!w->isTopLevel() && w->isVisible()) {
+		    if(!w->isTopLevel() && w->isVisible() && 
+#if 0
+		       w->x() + w->width() > 0 && w->x() < widg->width() &&
+		       w->y() + w->height() > 0 && w->y() < w->height()
+#else
+		       1
+#endif
+			) {
 			QPoint wp(px + w->x(), py + w->y());
 			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
 			    w->setRegionDirty(TRUE);
