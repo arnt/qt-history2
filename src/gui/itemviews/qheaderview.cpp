@@ -776,7 +776,7 @@ void QHeaderView::resizeSections()
         stretchSize -= secSize;
     }
     int position = 0;
-    int minimum = style().pixelMetric(QStyle::PM_HeaderMarkSize);
+    int minimum = style().pixelMetric(QStyle::PM_HeaderMargin) * 4;
     int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
     for (int i = 0; i < count; ++i) {
         secs[i].position = position;
@@ -834,7 +834,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         case QHeaderViewPrivate::ResizeSection: {
             int delta = d->reverse() ? d->lastPos - pos : pos - d->lastPos;
             int size = sectionSize(d->section) + delta;
-            int minimum = style().pixelMetric(QStyle::PM_HeaderMarkSize);
+            int minimum = style().pixelMetric(QStyle::PM_HeaderMargin) * 4;
             if (size > minimum) {
                 resizeSection(d->section, size);
                 d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
