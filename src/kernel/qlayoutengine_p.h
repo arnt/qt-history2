@@ -80,7 +80,7 @@ struct QLayoutStruct
 };
 
 
-void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
+Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		      int space, int spacer );
 
 

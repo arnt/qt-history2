@@ -60,7 +60,7 @@ static inline int fRound( int i ) {
   count is the count of items in the chain,
   pos and space give the interval (relative to parentWidget topLeft).
 */
-void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
+Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		int space, int spacer )
 {
     typedef int fixed;
