@@ -79,9 +79,9 @@ static bool qt_resolved_gdiplus = false;
 
 static void qt_resolve_gdiplus();
 static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features();
-static void qDrawTransparentPixmap(HDC hdc_dest, int dx, int dy,
-				   HDC hdc_src, int src_width, int src_height,
-				   HDC hdc_mask, int sx, int sy, int sw, int sh);
+static void qMaskedBlt(HDC hdcDest, int x, int y, int w, int h,
+                       HDC hdcSrc, int sx, int sy,
+                       HDC hdcMask);
 
 #define COLOR_VALUE(c) RGB(c.red(),c.green(),c.blue())
 
@@ -676,10 +676,10 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
                                    Qt::PixmapDrawingMode mode)
 {
 #if defined QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
+    printf(" - QWin32PaintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], depth=%d, "
            "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
            rf.x(), rf.y(), rf.width(), rf.height(),
-           sourcePm.width(), sourcePm.height(),
+           sourcePm.width(), sourcePm.height(), sourcePm.depth(),
            srf.x(), srf.y(), srf.width(), srf.height(),
            mode);
 #endif
@@ -718,19 +718,30 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
         }
     }
 
-    if (d->pen.color().alpha() != 255 && pixmap->isQBitmap()) {
+    bool alphaPen = d->pen.color().alpha() != 255;
+    bool win9x = QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based;
+
+    if (pixmap->depth() == 1 && (alphaPen || win9x)) {
         QRegion region(*static_cast<const QBitmap*>(pixmap));
         region.translate(qRound(r.x()), qRound(r.y()));
         updateClipRegion(region, Qt::IntersectClip);
-        d->fillAlpha(r, d->pen.color());
+        if (alphaPen) {
+            d->fillAlpha(r, d->pen.color());
+        } else {
+            // Since qMaskedBlt doesn't handle bitmaps too well.
+            updateBrush(d->pen.color(), QPointF());
+            updatePen(Qt::NoPen);
+            drawRect(r);
+            setDirty(DirtyPen);
+            setDirty(DirtyBrush);
+        }
         setDirty(DirtyClip);
-
         return;
     }
 
     QPixmap *pm = (QPixmap*)pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
-    if (!mask && pixmap->isQBitmap() && d->bgMode == Qt::TransparentMode)
+    if (!mask && pixmap->depth() == 1 && d->bgMode == Qt::TransparentMode)
         mask = (QBitmap*) pm;
 
     HDC pm_dc = pm->getDC();
@@ -784,11 +795,11 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
                     qErrnoWarning("QWin32PaintEngine::drawPixmap: MaskBlt failed");
             }, {
                 HDC maskdc = mask->getDC();
-                qDrawTransparentPixmap(d->hdc, r.x(), r.y(),
-                                       pm_dc, pm->width(), pm->height(),
-                                       maskdc, sr.x(), sr.y(), sr.width(), sr.height());
+                qMaskedBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+                           pm_dc, sr.x(), sr.y(),
+                           maskdc);
                 mask->releaseDC(maskdc);
-            });
+            } );
         }
     } else {
         if (stretch) {
@@ -2645,32 +2656,17 @@ QtGpPath *QGdiplusPaintEnginePrivate::composeGdiplusPath(const QPainterPath &p)
 
 
 
-static void qDrawTransparentPixmap(HDC hdcDest, int dx, int dy,
-                                   HDC hdcSrc, int src_width, int src_height,
-                                   HDC hdcMask, int sx, int sy, int sw, int sh)
+static void qMaskedBlt(HDC hdcDest, int x, int y, int w, int h,
+                       HDC hdcSrc, int sx, int sy,
+                       HDC hdcMask)
 {
-    Q_UNUSED(sx);
-    Q_UNUSED(sy);
-    Q_UNUSED(sw);
-    Q_UNUSED(sh);
-#if 0
-    SetTextColor(hdcDest, RGB(255, 255, 255));
-    SetBkColor(hdcDest, RGB(0, 0, 0));
-#else
-    SetBkColor(hdcDest, RGB(255, 255, 255));
-    SetTextColor(hdcDest, RGB(0, 0, 0));
-#endif
+    COLORREF oldBgColor = SetBkColor(hdcDest, RGB(255, 255, 255));
+    COLORREF oldFgColor = SetTextColor(hdcDest, RGB(0, 0, 0));
 
-//     SetBkColor(hdcSrc, RGB(0, 0, 0));
-//     SetTextColor(hdcSrc, RGB(255, 255, 255));
+    BitBlt(hdcDest, x, y, w, h, hdcSrc, sx, sx, SRCINVERT);
+    BitBlt(hdcDest, x, y, w, h, hdcMask, sx, sy, SRCAND);
+    BitBlt(hdcDest, x, y, w, h, hdcSrc, sx, sy, SRCINVERT);
 
-//     BitBlt(hdcSrc, dx, dy, src_width, src_height, hdcMask, 0, 0, SRCAND);
-
-//     BitBlt(hdcDest, dx, dy, src_width, src_height, hdcMask, 0, 0, SRCAND);
-//     BitBlt(hdcDest, dx, dy, src_width, src_height, hdcSrc, 0, 0, SRCPAINT);
-
-    BitBlt(hdcDest, dx, dy, src_width, src_height, hdcSrc, 0, 0, SRCINVERT);
-    BitBlt(hdcDest, dx, dy, src_width, src_height, hdcMask, 0, 0, SRCAND);
-    BitBlt(hdcDest, dx, dy, src_width, src_height, hdcSrc, 0, 0, SRCINVERT);
-
+    SetBkColor(hdcDest, oldBgColor);
+    SetTextColor(hdcDest, oldFgColor);
 }
