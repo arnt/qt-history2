@@ -5654,7 +5654,31 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 	break;
 #ifndef QT_NO_IMAGE_TRUECOLOR
     case 32:
-	{
+	if ( src->hasAlphaBuffer() ) {
+	    QRgb* d = (QRgb*)dst->scanLine(dy) + dx;
+	    QRgb* s = (QRgb*)src->scanLine(sy) + sx;
+	    const int dd = dst->width() - sw;
+	    const int ds = src->width() - sw;
+	    while ( sh-- ) {
+		for ( int t=sw; t--; ) {
+		    unsigned char a = qAlpha(*s);
+		    if ( a == 255 )
+			*d++ = *s++;
+		    else if ( a == 0 )
+			++d,++s; // nothing
+		    else {
+			unsigned char r = ((qRed(*s)-qRed(*d)) * a) / 256 + qRed(*d);
+			unsigned char g = ((qGreen(*s)-qGreen(*d)) * a) / 256 + qGreen(*d);
+			unsigned char b = ((qBlue(*s)-qBlue(*d)) * a) / 256 + qBlue(*d);
+			a = QMAX(qAlpha(*d),a); // alternatives...
+			*d++ = qRgba(r,g,b,a);
+			++s;
+		    }
+		}
+		d += dd;
+		s += ds;
+	    }
+	} else {
 	    QRgb* d = (QRgb*)dst->scanLine(dy) + dx;
 	    QRgb* s = (QRgb*)src->scanLine(sy) + sx;
 	    if ( sw < 64 ) {
