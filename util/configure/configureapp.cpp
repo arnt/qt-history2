@@ -1480,21 +1480,29 @@ void Configure::generateMakefiles()
 
 	int i = 0;
 #if !defined(EVAL)
-	QString qtProject("src");
-	makeList[0].append(new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src",
-					qtProject + ".pro", "Makefile", Lib ) );
-	if( dictionary[ "DSPFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src",
-					     qtProject + ".pro", qtProject + ".dsp", Lib ) );
-	}
-	if( dictionary[ "VCPFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src",
-					     qtProject + ".pro", qtProject + ".vcp", Lib ) );
-	}
-	if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-	    makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src",
-					     qtProject + ".pro", qtProject + ".vcproj", Lib ) );
-	}
+	QStringList qtProjects;
+	qtProjects << "src" << "winmain" << "moc" << "core" << "gui" << "canvas" << "network" 
+		   << "opengl" << "sql" << "xml";
+	for (i=0;i<qtProjects.size();++i) {
+	    QString qtProject = qtProjects.at(i);
+	    QString dir;
+	    if (qtProject != "src")
+		dir = "/" + qtProject;
+	    makeList[0].append(new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+		qtProject + ".pro", "Makefile", Lib ) );
+	    if( dictionary[ "DSPFILES" ] == "yes" ) {
+		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+		    qtProject + ".pro", qtProject + ".dsp", Lib ) );
+	    }
+	    if( dictionary[ "VCPFILES" ] == "yes" ) {
+		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+		    qtProject + ".pro", qtProject + ".vcp", Lib ) );
+	    }
+	    if( dictionary[ "VCPROJFILES" ] == "yes" ) {
+		makeList[0].append( new MakeItem(dictionary[ "QT_SOURCE_TREE" ] + "/src" + dir,
+		    qtProject + ".pro", qtProject + ".vcproj", Lib ) );
+	    }
+	}	
 #endif
 	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
@@ -1660,3 +1668,4 @@ bool Configure::isOk()
 {
     return( dictionary[ "DONE" ] != "error" );
 }
+
