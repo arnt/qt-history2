@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#56 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#57 $
 **
 ** Definition of QFileDialog class
 **
@@ -84,10 +84,16 @@ private:
     void startRename( bool check = TRUE );
     void setSelected( QListBoxItem *i, bool s );
     void setSelected( int i, bool s );
-
-private:
     void viewportMousePressEvent( QMouseEvent *e );
+    void viewportMouseReleaseEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
+    void viewportMouseMoveEvent( QMouseEvent *e );
+    void viewportDragEnterEvent( QDragEnterEvent *e );
+    void viewportDragMoveEvent( QDragMoveEvent *e );
+    void viewportDragLeaveEvent( QDragLeaveEvent *e );
+    void viewportDropEvent( QDropEvent *e );
+    bool acceptDrop( const QPoint &pnt, QWidget *source );
+    void setCurrentDropItem( const QPoint &pnt );
     void keyPressEvent( QKeyEvent *e );
 
 private slots:
@@ -96,6 +102,7 @@ private slots:
 
 private slots:
     void doubleClickTimeout();
+    void changeDirDuringDrag();
 
 private:
     QRenameEdit *lined;
@@ -103,6 +110,12 @@ private:
     bool renaming;
     QTimer* renameTimer;
     QListBoxItem *renameItem;
+    QPoint pressPos, oldDragPos;
+    bool mousePressed, eraseDragShape;
+    int urls;
+    QString startDragDir;
+    QListBoxItem *currDropItem;
+    QTimer changeDirTimer;
 
 };
 
@@ -123,6 +136,14 @@ private:
     void viewportMousePressEvent( QMouseEvent *e );
     void viewportMouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
+    void viewportMouseReleaseEvent( QMouseEvent *e );
+    void viewportMouseMoveEvent( QMouseEvent *e );
+    void viewportDragEnterEvent( QDragEnterEvent *e );
+    void viewportDragMoveEvent( QDragMoveEvent *e );
+    void viewportDragLeaveEvent( QDragLeaveEvent *e );
+    void viewportDropEvent( QDropEvent *e );
+    bool acceptDrop( const QPoint &pnt, QWidget *source );
+    void setCurrentDropItem( const QPoint &pnt );
 
 private slots:
     void rename();
@@ -130,6 +151,7 @@ private slots:
 
 private slots:
     void doubleClickTimeout();
+    void changeDirDuringDrag();
 
 private:
     QRenameEdit *lined;
@@ -137,6 +159,12 @@ private:
     bool renaming;
     QTimer* renameTimer;
     QListViewItem *renameItem;
+    QPoint pressPos, oldDragPos;
+    bool mousePressed, eraseDragShape;
+    int urls;
+    QString startDragDir;
+    QListViewItem *currDropItem;
+    QTimer changeDirTimer;
 
 };
 
@@ -144,6 +172,7 @@ private:
 class Q_EXPORT QFileDialog : public QDialog
 {
     friend class QFileListBox;
+    friend class QFileListView;
 
     Q_OBJECT
 public:
@@ -231,17 +260,7 @@ protected:
 
     void addWidgets( QLabel *, QWidget *, QPushButton * );
 
-    void listBoxMouseMoveEvent( QMouseEvent *e );
-    void listBoxDragEnterEvent( QDragEnterEvent *e );
-    void listBoxDragMoveEvent( QDragMoveEvent *e );
-    void listBoxDragLeaveEvent( QDragLeaveEvent *e );
-    void listBoxDropEvent( QDropEvent *e );
-    bool listBoxAcceptDrop( const QPoint &pnt, QWidget *source );
     void drawDragShapes( const QPoint &pnt, bool multRow, int num );
-    void setCurrentDropItem( const QPoint &pnt );
-
-protected slots:
-    void changeDirDuringDrag();
 
 private slots:
     void updateGeometries();
