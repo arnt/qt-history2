@@ -206,7 +206,7 @@ protected:
 #endif
 
 protected:
-    QObject(QObjectPrivate &d, QObject *parent);
+    explicit QObject(QObjectPrivate &d, QObject *parent);
 
 protected:
     QObjectData *d_ptr;

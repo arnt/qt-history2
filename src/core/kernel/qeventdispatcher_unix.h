@@ -44,14 +44,16 @@ public:
     void flush();
 
 protected:
-    QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &, QObject *parent);
+    explicit QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &,
+                                  QObject *parent);
 
     void setSocketNotifierPending(QSocketNotifier *notifier);
 
     int activateTimers();
     int activateSocketNotifiers();
 
-    virtual int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+    virtual int select(int nfds,
+                       fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
                        timeval *timeout);
 };
 

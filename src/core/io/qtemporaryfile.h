@@ -31,10 +31,10 @@ class Q_CORE_EXPORT QTemporaryFile : public QFile
 
 public:
     QTemporaryFile();
-    QTemporaryFile(const QString &templateName);
+    explicit QTemporaryFile(const QString &templateName);
 #ifndef QT_NO_QOBJECT
     explicit QTemporaryFile(QObject *parent);
-    QTemporaryFile(const QString &templateName, QObject *parent);
+    explicit QTemporaryFile(const QString &templateName, QObject *parent);
 #endif
     ~QTemporaryFile();
 

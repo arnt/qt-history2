@@ -57,7 +57,8 @@ signals:
     void awake();
 
 protected:
-    QAbstractEventDispatcher(QAbstractEventDispatcherPrivate &, QObject *parent);
+    explicit QAbstractEventDispatcher(QAbstractEventDispatcherPrivate &,
+                                      QObject *parent);
 };
 
 #endif // QABSTRACTEVENTDISPATCHER_H

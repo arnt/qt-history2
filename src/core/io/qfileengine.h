@@ -115,7 +115,7 @@ public:
 
 protected:
     QFileEngine();
-    QFileEngine(QFileEnginePrivate &);
+    explicit QFileEngine(QFileEnginePrivate &);
 
     QFileEnginePrivate *d_ptr;
 private:
