@@ -320,7 +320,7 @@ void QClipboard::setData( QMimeSource *src )
 
 	//encode it..
 	ar = d->source()->encodedData(fmt);
-	mactype = ('Q' << 24) | ('T' << 16) | ((i / 8) << 8) | (i % 8);
+	mactype = ('Q' << 24) | ('T' << 16) | (i & 0xFFFF);
 	UInt32 mimelen = strlen(fmt);
 	char *buffer = (char *)malloc(ar.size() + mimelen + sizeof(mimelen));
 	memcpy(buffer, &mimelen, sizeof(mimelen));
