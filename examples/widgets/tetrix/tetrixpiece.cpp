@@ -1,6 +1,6 @@
 #include <QtCore>
 
-#include <cstdlib>
+#include <stdlib.h>
 
 #include "tetrixpiece.h"
 
