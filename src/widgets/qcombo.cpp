@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#111 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#111 $");
 
 
 /*!
@@ -1008,7 +1008,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( str ) {
 	    p.setPen(
 		has_focus
-		? g.base()
+		? white
 		: g.text()
 	    );
 	    p.drawText( textR, AlignLeft | AlignVCenter | SingleLine, str);

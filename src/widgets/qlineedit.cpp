@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#104 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#104 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -823,7 +823,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool )
 			 xpos2 - xpos1, fm.height(),
 			 style() == WindowsStyle ?
 			 QApplication::winStyleHighlightColor() : g.text() );
-	    p->setPen( g.base() );
+	    p->setPen(  style() == WindowsStyle ? white : g.base() );
 	    p->drawText( xpos1, ypos, marked );
 	}
 	p->setPen( g.text() );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#122 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#122 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1240,8 +1240,8 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	    p->fillRect( 0, 0, cellWidth(col), cellHeight(row), fc );
 	    //	else
 	    //	    p->fillRect( 1, 1, cellWidth(col) - 2, cellHeight(row) - 2, fc );
-	p->setPen( g.base() );
-	p->setBackgroundColor( g.text() );
+	p->setPen( style() == WindowsStyle ? white : g.base() );
+	p->setBackgroundColor( fc );
     } else {
 	p->setBackgroundColor( g.base() );
 	p->setPen( g.text() );
