@@ -145,10 +145,12 @@ FontDisplayer::FontDisplayer( QWidget* parent, const char* ) :
 {
     FontRowTable* table = new FontRowTable(this);
     QToolBar* controls = new QToolBar(this);
-    (void) new QLabel(tr("Row:"), controls);
+    controls->addWidget(new QLabel(tr("Row:"), controls));
     QSpinBox *row = new QSpinBox(0,255,1,controls);
+    controls->addWidget(row);
     controls->addSeparator();
     QPushButton *fontbutton = new QPushButton(tr("Font..."), controls);
+    controls->addWidget(fontbutton);
 
     connect(row,SIGNAL(valueChanged(int)),table,SLOT(setRow(int)));
     connect(fontbutton, SIGNAL(clicked()), table, SLOT(chooseFont()));
