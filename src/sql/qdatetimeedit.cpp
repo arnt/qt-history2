@@ -737,14 +737,16 @@ QDateEdit::~QDateEdit()
     delete d;
 }
 
-/*! \fn void QDateEdit::setMinValue( const QDate& d )
+/*! \property QDateEdit::minValue
 
-  Sets the minimum date value to \a d.  Equivalent to calling
-  QDateEdit::setRange( d, maxValue() );
+  \brief the minimum editor value
+
+  Setting the minimum date value is equivalent to calling
+  QDateEdit::setRange( d, maxValue() ), where \a d is the minimum
+  date.
 */
 
-/*! Returns the minimum date value for the editor.
-
+/*!
 */
 
 QDate QDateEdit::minValue() const
@@ -752,14 +754,16 @@ QDate QDateEdit::minValue() const
     return d->min;
 }
 
-/*! \fn void QDateEdit::setMaxValue( const QDate& d )
+/*! \property QDateEdit::maxValue
 
-  Sets the maximum date value to \a d.  Equivalent to calling
-  QDateEdit::setRange( minValue(), d );
+  \brief the maximum editor value
+
+  Setting the maximum date value for the editor is equivalent to
+  calling QDateEdit::setRange( minValue(), d ), where \a d is the
+  maximum date.
 */
 
-/*! Returns the maximum date value for the editor.
-
+/*!
 */
 
 QDate QDateEdit::maxValue() const
@@ -911,8 +915,9 @@ int QDateEdit::sectionOffsetEnd( int sec )
 }
 
 
-/*! Sets the display order of the numbered section of the date editor
-    to \a order.
+/*! \property QDateEdit::order
+
+  \brief the order in which the year, month and day appear
 
     \fn  void QDateEdit::setOrder( Order order )
 
@@ -950,11 +955,7 @@ void QDateEdit::setOrder( QDateEdit::Order order )
 }
 
 
-/*!  Returns the current order of the numbered section in the date
-  editor.  The default is QDateEdit::YMD.
-
-  \sa setOrder()
-
+/*!
 */
 
 QDateEdit::Order QDateEdit::order() const
@@ -1094,13 +1095,17 @@ void QDateEdit::setDay( int day )
 }
 
 
-/*! Sets the date to \a date, if possible.
+/*! \property QDateEdit::date
 
-  If \a date is not valid, the editor displays all zeroes and
-  QDateEdit::date() will return an invalid date.
+  \brief the date value of the editor
 
-  If \a date is less than minDate(), or \a date is greater than
-  maxDate() nothing happens.
+  If the date property is not valid, the editor displays all zeroes
+  and QDateEdit::date() will return an invalid date.  It is strongly
+  recommended that the editor be given a default date value.  That
+  way, attempts to set the date property to an invalid date will fail.
+
+  When changing the date property, if the date is less than minValue(),
+  or is greater than maxValue(), nothing happens.
 
 */
 
@@ -1122,11 +1127,7 @@ void QDateEdit::setDate( const QDate& date )
     repaint( rect(), FALSE );
 }
 
-/*!  Returns the current date in the editor, or an invalid date if the
-  editor does not contain a valid date.
-
-  \sa setDate()
-
+/*!
 */
 
 QDate QDateEdit::date() const
@@ -1373,11 +1374,13 @@ void QDateEdit::removeLastNumber( int sec )
     repaint( rect(), FALSE );
 }
 
-/*! Sets the auto advance property of the editor to \a advance.  If
-  set to TRUE, the editor will automatically advance focus to the next
-  date section if a user has completed a section.
+/*! \property QDateEdit::autoAdvance
 
-  \sa autoAdvance()
+  \brief whether the editor automatically advances to the next entry field
+
+  If autoAdvance is TRUE, the editor will automatically advance focus
+  to the next date section if a user has completed a section.
+
 */
 
 void QDateEdit::setAutoAdvance( bool advance )
@@ -1386,10 +1389,7 @@ void QDateEdit::setAutoAdvance( bool advance )
 }
 
 
-/*! Returns TRUE if auto-advance is enabled, otherwise returns FALSE.
-
-  \sa setAutoAdvance()
-
+/*!
 */
 
 bool QDateEdit::autoAdvance() const
@@ -1523,16 +1523,16 @@ QTimeEdit::~QTimeEdit()
     delete d;
 }
 
-/*! \fn void QTimeEdit::setMinValue( const QTime& d )
+/*! \property QTimeEdit::minValue
 
-  Sets the minimum time value to \a d.  Equivalent to calling
-  QTimeEdit::setRange( d, maxValue() );
+  \brief the minimum time value
+
+  Setting the minimum time value is equivalent to calling
+  QTimeEdit::setRange( t, maxValue() ), where \a t is the minimum
+  time.
 */
 
-/*! Returns the minimum time value for the editor.
-
-  \sa setMinValue()
-
+/*!
 */
 
 QTime QTimeEdit::minValue() const
@@ -1540,16 +1540,17 @@ QTime QTimeEdit::minValue() const
     return d->min;
 }
 
-/*! \fn void QTimeEdit::setMaxValue( const QTime& d )
+/*! \property QTimeEdit::maxValue
 
-  Sets the maximum time value to \a d.  Equivalent to calling
-  QTimeEdit::setRange( minValue(), d );
+  \brief the maximum time value
+
+  Setting the maximum time value is equivalent to calling
+  QTimeEdit::setRange( minValue(), t ), where \a t is the maximum
+  time.
 */
 
-/*! Returns the maximum time value for the editor.
-
-    \sa setMaxValue()
-*/
+/*!
+ */
 
 QTime QTimeEdit::maxValue() const
 {
@@ -1573,9 +1574,12 @@ void QTimeEdit::setRange( const QTime& min, const QTime& max )
 
 
 
-/*!  Sets the time to \a time.  If \a time is not valid, the editor
-  displays all zeroes, however QTimeEdit::time() will still return a
-  valid time.
+/*! \property QTimeEdit::time
+
+  \brief the time value of the editor
+
+  When changing the time property, if the time is less than minValue(),
+  or is greater than maxValue(), nothing happens.
 
 */
 
@@ -1598,9 +1602,7 @@ void QTimeEdit::setTime( const QTime& time )
 }
 
 
-/*!  Returns the current time in the editor, or an invalid time if the
-  editor does not contain a valid time.
-
+/*!
 */
 
 QTime QTimeEdit::time() const
@@ -1610,11 +1612,16 @@ QTime QTimeEdit::time() const
     return QTime();
 }
 
-/*! Sets the auto advance property of the editor to \a advance.  If
-  set to TRUE, the editor will automatically advance focus to the next
-  time section if a user has completed a section.
+/*! \property QTimeEdit::autoAdvance
 
-  \sa autoAdvance()
+  \brief whether the editor automatically advances to the next entry field
+
+  If autoAdvance is TRUE, the editor will automatically advance focus
+  to the next time section if a user has completed a section.
+
+*/
+
+/*!
 */
 
 void QTimeEdit::setAutoAdvance( bool advance )
@@ -2163,9 +2170,9 @@ QSize QDateTimeEdit::sizeHint() const
 		  QMAX( dsh.height(), tsh.height() ) );
 }
 
-/*!  Sets the datetime to \a dt.  If \a dt is not valid, the editor
-  displays all zeroes and QDateTimeEdit::dateTime() will return an invalid
-  datetime.
+/*! \property QDateTimeEdit::dateTime
+
+  \brief the datetime value of the editor
 
 */
 

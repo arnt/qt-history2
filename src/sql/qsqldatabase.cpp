@@ -585,7 +585,9 @@ bool QSqlDatabase::rollback()
     return d->driver->rollbackTransaction();
 }
 
-/*! Sets the name of the database connection to \a name.
+/*! \property QSqlDatabase::databaseName
+
+  \brief the name of the database
 
 */
 
@@ -594,7 +596,9 @@ void QSqlDatabase::setDatabaseName( const QString& name )
     d->dbname = name;
 }
 
-/*! Sets the name of the database user to \a name.
+/*! \property QSqlDatabase::userName
+
+  \brief the user name connected to the database
 
 */
 
@@ -603,7 +607,9 @@ void QSqlDatabase::setUserName( const QString& name )
     d->uname = name;
 }
 
-/*! Sets the password of the database user to \a password.
+/*! \property QSqlDatabase::password
+
+  \brief the password used to connect to the database
 
 */
 
@@ -612,7 +618,9 @@ void QSqlDatabase::setPassword( const QString& password )
     d->pword = password;
 }
 
-/*! Sets the host name of the database to \a host.
+/*! \property QSqlDatabase::hostName
+
+  \brief the host name where the database resides
 
 */
 
@@ -621,7 +629,9 @@ void QSqlDatabase::setHostName( const QString& host )
     d->hname = host;
 }
 
-/*! Sets the port used by the connection to \a p.
+/*! \property QSqlDatabase::port
+
+  \brief the port used to connect to the database
 
 */
 
@@ -630,9 +640,7 @@ void QSqlDatabase::setPort( int p )
     d->port = p;
 }
 
-/*! Returns the name of the database connection, or QString::null if a
- name has not been set.
-
+/*!
 */
 
 QString QSqlDatabase::databaseName() const
@@ -640,8 +648,7 @@ QString QSqlDatabase::databaseName() const
     return d->dbname;
 }
 
-/*! Returns the database user name, or QString::null if a name has not been set.
-
+/*!
 */
 
 QString QSqlDatabase::userName() const
@@ -649,9 +656,7 @@ QString QSqlDatabase::userName() const
     return d->uname;
 }
 
-/*! Returns the database user password, or QString::null if a password
-   has not been set.
-
+/*!
 */
 
 QString QSqlDatabase::password() const
@@ -659,9 +664,7 @@ QString QSqlDatabase::password() const
     return d->pword;
 }
 
-/*! Returns the database host name, or QString::null if a host name has
-   not been set.
-
+/*!
 */
 
 QString QSqlDatabase::hostName() const

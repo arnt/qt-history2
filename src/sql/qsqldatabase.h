@@ -60,7 +60,7 @@ class Q_EXPORT QSqlDatabase : public QObject
     Q_PROPERTY( QString userName  READ userName WRITE setUserName )
     Q_PROPERTY( QString password  READ password WRITE setPassword )
     Q_PROPERTY( QString hostName  READ hostName WRITE setHostName )
-    Q_PROPERTY( int port  READ port WRITE setPort )
+    Q_PROPERTY( int port READ port WRITE setPort )
 
 public:
     ~QSqlDatabase();
