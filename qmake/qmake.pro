@@ -11,6 +11,14 @@ OBJECTS_DIR = .
 MOC_DIR = .
 
 #guts
+VPATH += $$QT_SOURCE_TREE/src/core/global \
+         $$QT_SOURCE_TREE/src/core/tools \
+         $$QT_SOURCE_TREE/src/core/kernel \
+         $$QT_SOURCE_TREE/src/core/plugin \
+	 $$QT_SOURCE_TREE/src/core/io 
+INCPATH += generators generators/unix generators/win32 generators/mac \
+           $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore \
+           $$QT_SOURCE_TREE/qmake
 include(qmake.pri)
 
 #installation

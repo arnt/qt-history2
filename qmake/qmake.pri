@@ -1,25 +1,28 @@
+CONFIG += depend_includepath
+
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
-DEPENDPATH += generators generators/unix generators/win32 \
-              generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore $$QT_SOURCE_TREE/qmake
-INCLUDEPATH += $$DEPENDPATH .
 DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICODETABLES QT_NODLL QT_BUILD_QMAKE QT_NO_THREAD
 
 #qmake code
-SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
-         unixmake2.cpp unixmake.cpp meta.cpp \
-         borland_bmake.cpp msvc_nmake.cpp \
-	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
-	 projectgenerator.cpp metrowerks_xml.cpp mingw_make.cpp \
-         pbuilder_pbx.cpp msvc_objectmodel.cpp qtmd5.cpp makefiledeps.cpp \
-         metamakefile.cpp xmloutput.cpp
-HEADERS+=project.h property.h makefile.h \
-         unixmake.h meta.h \
-         borland_bmake.h msvc_nmake.h \
-	 msvc_dsp.h msvc_vcproj.h option.h winmakefile.h \
-	 projectgenerator.h metrowerks_xml.h mingw_make.h \
-         pbuilder_pbx.h msvc_objectmodel.h qtmd5.h makefiledeps.h \
-         metamakefile.h xmloutput.h
+SOURCES+= project.cpp property.cpp main.cpp generators/makefile.cpp \
+          generators/unix/unixmake2.cpp generators/unix/unixmake.cpp meta.cpp \
+          generators/win32/borland_bmake.cpp generators/win32/msvc_nmake.cpp \
+	  generators/win32/msvc_dsp.cpp generators/win32/msvc_vcproj.cpp \
+          option.cpp generators/win32/winmakefile.cpp generators/win32/mingw_make.cpp \
+	  generators/projectgenerator.cpp generators/mac/metrowerks_xml.cpp \
+          generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp \
+	  generators/makefiledeps.cpp generators/metamakefile.cpp \
+	  qtmd5.cpp generators/xmloutput.cpp
+HEADERS+= project.h property.h generators/makefile.h \
+          generators/unix/unixmake.h meta.h \
+          generators/win32/borland_bmake.h generators/win32/msvc_nmake.h \
+	  generators/win32/msvc_dsp.h generators/win32/msvc_vcproj.h option.h \
+	  generators/win32/winmakefile.h generators/projectgenerator.h \
+	  generators/mac/metrowerks_xml.h generators/win32/mingw_make.h \
+	  generators/mac/pbuilder_pbx.h generators/win32/msvc_objectmodel.h \
+	  qtmd5.h generators/makefiledeps.h generators/metamakefile.h \
+	  generators/xmloutput.h
 
 #Qt code
 SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
@@ -43,13 +46,6 @@ exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
     SOURCES += $$QT_BUILD_TREE/src/core/global/qconfig.cpp
 }
-
-#where to find the Qt code, and platform dependant SOURCES
-VPATH += $$QT_SOURCE_TREE/src/core/global \
-         $$QT_SOURCE_TREE/src/core/tools \
-         $$QT_SOURCE_TREE/src/core/kernel \
-         $$QT_SOURCE_TREE/src/core/plugin \
-	 $$QT_SOURCE_TREE/src/core/io 
 
 unix {
    SOURCES += qfileengine_unix.cpp
