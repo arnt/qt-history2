@@ -348,7 +348,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
 	;;
     #Qt Builtin/System style options
-    -qt-*|-system-*|-no-*)
+    -no-*|-system-*|-qt-*)
 	VAR=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
 	VAL=`echo $1 | sed "s,^-\([^-]*\)-.*,\1,"`
 	;;
@@ -512,6 +512,7 @@ while [ "$#" -gt 0 ]; do
 	;;
     platform)
 	PLATFORM="$VAL"
+	# keep compatibility with old platform names
 	case $PLATFORM in
 	aix-64)
 	    PLATFORM=aix-xlc-64
@@ -805,42 +806,60 @@ while [ "$#" -gt 0 ]; do
 	fi
 	;;
     imgfmt-*|style-*|sql-*|gfx-*|kbd-*|mouse-*)
+	# if Qt style options were used, $VAL can be "no", "qt", or "plugin"
+	# if autoconf style options were used, $VAL can be "yes" or "no"
 	[ "$VAL" = "yes" ] && VAL=qt
+	# now $VAL shopuld be "no", "qt", or "plugin"... double-check
 	if [ "$VAL" != "no" ] && [ "$VAL" != "qt" ] && [ "$VAL" != "plugin" ]; then
 	    UNKNOWN_OPT=yes
 	fi
+	# now $VAL is "no", "qt", or "plugin"
 	OPT="$VAL"
 	VAL=`echo $VAR | sed "s,^[^-]*-\([^-]*\).*,\1,"`
 	VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
 	ERROR=no
+	# now $OPT is "no", "qt", or "plugin"
 	if [ "$VAR" = "imgfmt" ]; then
 	    [ "$OPT" = "qt" ] && OPT=yes
-	    if [ "$OPT" = "no" ] || [ "$OPT" = "yes" ] || [ "$OPT" = "plugin" ]; then
-	        case "$VAL" in
-	        jpeg) CFG_JPEG=$OPT ;;
-	        mng) CFG_MNG=$OPT ;;
-	        png) CFG_PNG=$OPT ;;
-	        *) ERROR=yes ;;
-	        esac
-            else
-	        ERROR=yes
+	    # now $OPT is "no", "yes", or "plugin"
+	    case "$VAL" in
+	    jpeg) CFG_JPEG=$OPT ;;
+	    mng) CFG_MNG=$OPT ;;
+	    png) CFG_PNG=$OPT ;;
+	    *) ERROR=yes ;;
+	    esac
+	else
+	    if [ "$VAR" = "style" ]; then
+		case "$VAL" in
+		mac|aqua|cde|motifplus|interlace|platinum|windowsxp|sgi|compact|windows|motif) ;;
+		*) ERROR=yes ;;
+		esac
+	    elif [ "$VAR" = "sql" ]; then
+		case "$VAL" in
+		psql|mysql|odbc|oci|tds|db2) ;;
+		*) ERROR=yes ;;
+		esac
 	    fi
-	elif [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
-	   if [ "$OPT" = "plugin" ]; then
-	      [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
-	      VAR="${VAR}-${OPT}"
-	   elif [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
-	      VAR="${VAR}-driver"
-	   fi
-	   QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
-	elif [ "$OPT" = "no" ]; then
-	   PLUG_VAR="${VAR}-plugin"
-	   IN_VAR="${VAR}"
-	   if [ "$IN_VAR" = "sql" ] || [ "$IN_VAR" = "gfx" ] || [ "$VAR" = "kbd" ]|| [ "$VAR" = "mouse" ]; then
-	      IN_VAR="${IN_VAR}-driver"
-	   fi
-	   QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
-        fi
+	    if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
+		if [ "$OPT" = "plugin" ]; then
+		    [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
+		    VAR="${VAR}-${OPT}"
+		else
+		    if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
+			VAR="${VAR}-driver"
+		    fi
+		fi
+		QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
+	    elif [ "$OPT" = "no" ]; then
+		PLUG_VAR="${VAR}-plugin"
+		if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
+		    IN_VAR="${VAR}-driver"
+		else
+		    IN_VAR="${VAR}"
+		fi
+		QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
+	    fi
+	fi
         if [ "$ERROR" = "yes" ]; then
 	   echo "$CURRENT_OPT: unknown argument"
 	   OPT_HELP=yes;
