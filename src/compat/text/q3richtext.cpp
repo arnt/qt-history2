@@ -8026,7 +8026,7 @@ bool Q3TextTable::up(Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&pa
 Q3TextTableCell::Q3TextTableCell(Q3TextTable* table,
                                 int row, int column,
                                 const QMap<QString, QString> &attr,
-                                const Q3StyleSheetItem* /*style*/, // ### use them
+                                const Q3StyleSheetItem* style,
                                 const Q3TextFormat& fmt, const QString& context,
                                 Q3MimeSourceFactory &factory, Q3StyleSheet *sheet,
                                 const QString& doc)
@@ -8047,6 +8047,9 @@ Q3TextTableCell::Q3TextTableCell(Q3TextTable* table,
     richtext->setTableCell(this);
 
     QMap<QString,QString>::ConstIterator it, end = attr.end();
+    int align = style->alignment();
+    if (align != Q3StyleSheetItem::Undefined)
+        richtext->setAlignment(align);
     it = attr.find("align");
     if (it != end && ! (*it).isEmpty()) {
         QString a = (*it).toLower();
