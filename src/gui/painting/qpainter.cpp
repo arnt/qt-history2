@@ -155,12 +155,8 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, S
 #ifdef QT_DEBUG_DRAW
     printf(" -> fill_pattern()\n");
 #endif
-    QPixmap pattern = qt_pixmapForBrush(state->brush.style(), true);
-    if (state->bgMode == Qt::TransparentMode)
-        pattern.setMask(*static_cast<QBitmap *>(&pattern));
-
     q->save();
-    q->setPen(state->brush.color());
+    q->setPen(QPen(state->brush.color(), 1));
 
     QRect bounds;
     if (type != RectangleShape) {
@@ -170,7 +166,28 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, S
         bounds = reinterpret_cast<const QRectF *>(data)->toRect();
     }
 
-    q->drawTiledPixmap(bounds, pattern);
+    switch (state->brush.style()) {
+    case Qt::HorPattern:
+        for (int y=bounds.top(); y<bounds.bottom(); y+=8)
+            q->drawLine(bounds.left(), y, bounds.right(), y);
+        break;
+    case Qt::VerPattern:
+        for (int x=bounds.left(); x<bounds.right(); x+=8)
+            q->drawLine(x, bounds.top(), x, bounds.bottom());
+        break;
+    case Qt::CrossPattern:
+        for (int x=bounds.left(); x<bounds.right(); x+=8)
+            q->drawLine(x, bounds.top(), x, bounds.bottom());
+        for (int y=bounds.top(); y<bounds.bottom(); y+=8)
+            q->drawLine(bounds.left(), y, bounds.right(), y);
+        break;
+    default: {
+        QPixmap pattern = qt_pixmapForBrush(state->brush.style(), true);
+        if (state->bgMode == Qt::TransparentMode)
+            pattern.setMask(*static_cast<QBitmap *>(&pattern));
+        q->drawTiledPixmap(bounds, pattern);
+    }
+    }
 
     q->restore();
 }
