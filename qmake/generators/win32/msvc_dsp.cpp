@@ -597,7 +597,9 @@ DspMakefileGenerator::init()
 	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
-		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), thread ? "qt-mt" : "qt" );
+		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
+		if ( hver == -1 )
+		    hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt-mt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%s" QTDLL_POSTFIX "%d.lib", (thread ? "-mt" : ""), hver);
