@@ -454,7 +454,7 @@ const char* QMimeDataWrapper::format(int n) const
     }
     if (n < 0 || n >= formats.size())
         return 0;
-    return formats.at(i).data();
+    return formats.at(n).data();
 }
 
 QByteArray QMimeDataWrapper::encodedData(const char *format) const
