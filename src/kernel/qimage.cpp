@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#237 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#238 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4309,7 +4309,7 @@ static void write_xpm_image( QImageIO * iio )
     // write header
     QTextStream s( iio->ioDevice() );
     s << "/* XPM */" << endl
-      << "static char*" << fbname(iio->fileName()) << "[]={" << endl
+      << "static char *" << fbname(iio->fileName()) << "[]={" << endl
       << "\"" << w << " " << h << " " << colors << " " << cpp << "\"";
 
     // write palette
