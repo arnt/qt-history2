@@ -107,12 +107,15 @@ QUnknownInterface* QUnknownInterface::parent() const
 */
 bool QUnknownInterface::ref()
 {
-    if ( parent() )
-	parent()->ref();
-
     if ( !refcount && !initialize( appInterface ) )
 	return FALSE;
 
+    if ( parent() )
+	parent()->ref();
+
+/*
+    if ( objname )
+	qDebug( "Referencing %s (%d ->%d)", objname, refcount, refcount+1 );*/
     ++refcount;
 
     return TRUE;
@@ -128,8 +131,16 @@ bool QUnknownInterface::ref()
 
 bool QUnknownInterface::release()
 {
-    if ( !refcount )
+    if ( !refcount ) {
+#if defined(CHECK_RANGE)
+	if ( objname )
+	    qWarning( "%s: Interface refcount out of sync!", objname );
+#endif
 	return TRUE;
+    }
+/*    
+    if ( objname )
+	qDebug( "Dereferencing %s (%d ->%d)", objname, refcount, refcount-1 );*/
 
     if ( parent() )
 	parent()->release();
