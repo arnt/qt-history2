@@ -2731,19 +2731,17 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		}
 	    }
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
-		// ### WWA: not sure on this, but the previous
-		// ###      was totally non-Unicode.
 		int fx = x;
 		int fy = y - fm.ascent();
 		int fw = fm.width(str,len);
 		int fh = fm.ascent() + fm.descent();
 		int m, n;
 		QPointArray a(5);
-		mat2.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
+		mat1.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
 						   a.setPoint( 4, m, n );
-		mat2.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
-		mat2.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-		mat2.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
+		mat1.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
+		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+		mat1.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
