@@ -47,6 +47,7 @@ public:
     QTextDocument *doc;
     QFont font;
     int cachedWidth;
+    bool cachedWidthWithPainter;
     int widthUsed;
 };
 
@@ -108,6 +109,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 {
     d = new QSimpleRichTextData;
     d->cachedWidth = -1;
+    d->cachedWidthWithPainter = FALSE;
     d->widthUsed = -1;
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
@@ -151,6 +153,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 {
     d = new QSimpleRichTextData;
     d->cachedWidth = -1;
+    d->cachedWidthWithPainter = FALSE;
     d->widthUsed = -1;
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
@@ -183,9 +186,10 @@ QSimpleRichText::~QSimpleRichText()
 
 void QSimpleRichText::setWidth( int w )
 {
-    if ( w == d->cachedWidth )
+    if ( w == d->cachedWidth && !d->cachedWidthWithPainter )
 	return;
     d->cachedWidth = w;
+    d->cachedWidthWithPainter = FALSE;
     d->widthUsed = -1;
     d->doc->doLayout( 0, w );
 }
@@ -202,9 +206,10 @@ void QSimpleRichText::setWidth( int w )
 
 void QSimpleRichText::setWidth( QPainter *p, int w )
 {
-    if ( w == d->cachedWidth )
+    if ( w == d->cachedWidth  && d->cachedWidthWithPainter )
 	return;
     d->cachedWidth = w;
+    d->cachedWidthWithPainter = TRUE;
     d->widthUsed = -1;
     d->doc->doLayout( p, w );
 }
@@ -288,6 +293,9 @@ void QSimpleRichText::adjustSize()
 	    d->doc->doLayout( 0,QMIN(w, mw ) );
 	}
     }
+    d->cachedWidth = d->doc-width();
+    d->cachedWidthWithPainter = FALSE;
+    d->widthUsed = -1;
 }
 
 /*!
