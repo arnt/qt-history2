@@ -293,7 +293,7 @@ void QSimpleRichText::adjustSize()
 	    d->doc->doLayout( 0,QMIN(w, mw ) );
 	}
     }
-    d->cachedWidth = d->doc-width();
+    d->cachedWidth = d->doc->width();
     d->cachedWidthWithPainter = FALSE;
     d->widthUsed = -1;
 }
