@@ -186,8 +186,10 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
-    d->left = qMax(d->header->sectionAt(d->header->offset() + area.left()), 0);
-    d->right = d->header->sectionAt(d->header->offset() + area.right());
+    int leftSection = qMax(d->header->sectionAt(d->header->offset() + area.left()), 0);
+    int rightSection = d->header->sectionAt(d->header->offset() + area.right());
+    d->left = d->header->index(leftSection);
+    d->right = d->header->index(rightSection);
     if (d->right < 0)
         d->right = d->header->count() - 1;
 
@@ -227,45 +229,37 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 
 void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
 {
-    int pos;
-    int column = d->left;
+    int y = options->itemRect.y();
     int width, height = options->itemRect.height();
     QColor base = options->palette.base();
-
-    int x = d->indentation(d->current);
-    int y = options->itemRect.y();
+    
     QModelIndex parent = model()->parent(index);
     QGenericHeader *header = d->header;
-
     QModelIndex current = selectionModel()->currentItem();
     bool focus = hasFocus() && current.isValid();
 
-    // FIXME: should we follow header index ?
-    if (column == 0 && !header->isSectionHidden(column)) {
-        pos = header->sectionPosition(column);
-        width = header->sectionSize(column);
-        options->selected = selectionModel()->isSelected(index);
-        options->itemRect.moveLeft(x + pos);
-        options->itemRect.setWidth(width - x);
-        options->focus = (focus && current == index);
-        painter->fillRect(pos, y, width - pos, height, base);
-        drawBranches(painter, QRect(pos, y, x, options->itemRect.height()), index);
-        itemDelegate()->paint(painter, *options, index);
-        ++column;
-    }
-
-    QModelIndex i = index;
-    for (; column <= d->right; ++column) {
-        if (header->isSectionHidden(column))
+    int position;
+    int headerSection;
+    QModelIndex modelIndex;
+    for (int headerIndex = d->left; headerIndex <= d->right; ++headerIndex) {
+        headerSection = d->header->section(headerIndex);
+        if (header->isSectionHidden(headerSection))
             continue;
-        pos = header->sectionPosition(column);
-        i = model()->index(i.row(), column, parent);
-        width = header->sectionSize(column);
-        options->itemRect.setRect(pos, y, width, height);
-        options->focus = (focus && current == i);
-        options->selected = selectionModel()->isSelected(i);
-        painter->fillRect(pos, y, width, height, base);
-        itemDelegate()->paint(painter, *options, i);
+        position = header->sectionPosition(headerSection);
+        width = header->sectionSize(headerSection);
+        modelIndex = model()->index(index.row(), headerSection, parent);
+        options->focus = (focus && current == modelIndex);
+        options->selected = selectionModel()->isSelected(modelIndex);
+        if (headerSection == 0) {
+            int i = d->indentation(d->current);
+            options->itemRect.setRect(i + position, y, width - i, height);
+            painter->fillRect(position, y, width - position, height, base);
+            drawBranches(painter, QRect(position, y, i, options->itemRect.height()), index);
+        } else {
+            options->itemRect.setRect(position, y, width, height);
+            painter->fillRect(position, y, width, height, base);
+        }
+        itemDelegate()->paint(painter, *options, modelIndex);
     }
 }
 
@@ -446,7 +440,6 @@ QItemSelectionModel::SelectionBehavior QGenericTreeView::selectionBehavior() con
 
 void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
 {
-    // FIXME: select rows
     QModelIndex tl = itemAt(rect.left(), rect.top());
     QModelIndex br = itemAt(rect.right(), rect.bottom());
     if (!tl.isValid() || !br.isValid())
@@ -456,20 +449,14 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
-    int index =  d->header->count() - 1;
-    int section = d->header->section(index);
-    int leftPos = d->header->sectionPosition(section);
-    int rightPos = 0;
     int topPos = 0xFFFFFFFF; // FIXME: use Q_MAX_INT or something
     int bottomPos = 0;
     for (int i = 0; i < selection.count(); ++i) {
         QItemSelectionRange r = selection.at(i);
-        leftPos = qMin(columnViewportPosition(r.left()), leftPos);
-        rightPos = qMax(columnViewportPosition(r.right()) + columnWidth(r.right()), rightPos);
         topPos = qMin(itemViewportRect(model()->index(r.top(), r.left(), r.parent())).top(), topPos);
         bottomPos = qMax(itemViewportRect(model()->index(r.bottom(), r.left(), r.parent())).bottom() + 1, bottomPos);
     }
-    return QRect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
+    return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
 }
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)

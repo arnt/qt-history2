@@ -24,7 +24,7 @@ public:
 
     int sectionHandleAt(int pos);
     void setupSectionIndicator();
-    void updateSectionIndictaor();
+    void updateSectionIndicator();
     QRect sectionHandleRect(int section);
 
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
@@ -279,7 +279,7 @@ int QGenericHeader::sectionAt(int position) const
 
 int QGenericHeader::sectionSize(int section) const
 {
-    if (section < 0 || section >= d->sections.count() || isSectionHidden(section))
+    if (section < 0 || section >= d->sections.count() - 1 || isSectionHidden(section))
         return 0;
     int idx = index(section);
     return d->sections.at(idx + 1).position - d->sections.at(idx).position;
@@ -481,7 +481,7 @@ void QGenericHeader::mousePressEvent(QMouseEvent *e)
             return;
         d->state = QGenericHeaderPrivate::MoveSection;
         d->setupSectionIndicator();
-        d->updateSectionIndictaor();
+        d->updateSectionIndicator();
         updateSection(d->section);
     } else {
         int handle = d->sectionHandleAt(pos + d->offset);
@@ -513,12 +513,12 @@ void QGenericHeader::mouseMoveEvent(QMouseEvent *e)
         }
         case QGenericHeaderPrivate::MoveSection: {
             int sec = sectionAt(pos + d->offset);
-            if (sec > d->section)
-                sec++;
+            int loc = (pos + d->offset) - sectionPosition(sec);
+            if (loc > sectionSize(sec) / 2)
+                ++sec;
             if (sec > -1) {
                 d->target = sec;
-                d->updateSectionIndictaor();
-                updateSection(sec);
+                d->updateSectionIndicator();
             }
             return;
         }
@@ -547,7 +547,7 @@ void QGenericHeader::mouseReleaseEvent(QMouseEvent *e)
         d->target = sectionAt(pos + d->offset);
         moveSection(index(d->section), index(d->target));
         d->section = d->target = -1;
-        d->updateSectionIndictaor();
+        d->updateSectionIndicator();
         break;
     case QGenericHeaderPrivate::NoState:
         break;
@@ -878,9 +878,9 @@ void QGenericHeaderPrivate::setupSectionIndicator()
     }
 }
 
-void QGenericHeaderPrivate::updateSectionIndictaor()
+void QGenericHeaderPrivate::updateSectionIndicator()
 {
-    if (section == -1 || section == target) {
+    if (section == -1 /*|| section == target*/) {
         sectionIndicator->hide();
         return;
     }
