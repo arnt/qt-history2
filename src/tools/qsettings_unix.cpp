@@ -46,15 +46,11 @@
 #include "qcleanuphandler.h"
 #include "qregexp.h"
 
-
 // for now
 #define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"
 
-
-
-
 /*!
-  \class QSettings qsettings.h
+  \class QSettings
   \brief The QSettings class provides persistent platform-independent application settings.
 
   \ingroup io
@@ -140,7 +136,7 @@
     \i A subkey may not exceed 255 characters.
     \i An entry's value may not exceed 16,300 characters.
     \i All the values of a key (for example, all the 'recent files'
-    subkeys values), may not exceed 64,535 characters.
+    subkeys values), may not exceed 65,535 characters.
     \endlist
 
     These limitations are not enforced on Unix.
@@ -190,10 +186,8 @@
     \value Windows Windows execution environments
 */
 
-
 static QStringList *searchPaths = 0;
 QCleanupHandler<QStringList> qsettings_path_cleanup;
-
 
 static void initSearchPaths()
 {
