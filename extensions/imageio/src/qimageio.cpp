@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qimageio.cpp#1 $
+** $Id: //depot/qt/main/extensions/imageio/src/qimageio.cpp#2 $
 **
 ** Implementation of QImage IO Library API
 **
@@ -12,7 +12,7 @@
 #include "qjpegio.h"
 #include "qpngio.h"
 
-void qInitExtensionIO()
+void qInitImageIO()
 {
     qInitJpegIO();
     qInitPngIO();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qimageio.h#1 $
+** $Id: //depot/qt/main/extensions/imageio/src/qimageio.h#2 $
 **
 ** Definition of QImage IO Library API
 **
@@ -12,6 +12,6 @@
 #ifndef QLIMGIO_H
 #define QLIMGIO_H
 
-void qInitExtensionIO();
+void qInitImageIO();
 
 #endif

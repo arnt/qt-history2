@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#1 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#2 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -13,9 +13,9 @@
 #include <setjmp.h>
 
 extern "C" {
+#define XMD_H // Shut JPEGlib up.
 #include <jpeglib.h>
 }
-#define QT_CLEAN_NAMESPACE 1
 #include <qimage.h>
 #include <qiodev.h>
 
