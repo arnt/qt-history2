@@ -124,6 +124,8 @@ QPicture::QPicture( int formatVersion )
     else {
 	d->resetFormat();
     }
+
+    d->dx = d->dy = 0;
 }
 
 /*!
@@ -243,6 +245,10 @@ bool QPicture::play( QPainter *painter )
 
     if ( !d->formatOk && !d->checkFormat() )
 	return FALSE;
+
+    QWMatrix wm = painter->worldMatrix();	// if the picture is supposed
+    d->dx = int(wm.dx());			// to be translated recorded
+    d->dy = int(wm.dy());			// clip regions have to follow
 
     d->pictb.open( IO_ReadOnly );		// open buffer device
     QDataStream s;
@@ -505,6 +511,8 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcSetClipRegion:
 		s >> rgn;
+		if ( d->dx || d->dy )
+		    rgn.translate( d->dx, d->dy );
 		painter->setClipRegion( rgn );
 		break;
 	    default:

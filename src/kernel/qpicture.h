@@ -90,6 +90,7 @@ private:
 	int	formatMajor;
 	int	formatMinor;
 	QRect	brect;
+	int	dx, dy;			// drawing offsets
     } *d;
 };
 
