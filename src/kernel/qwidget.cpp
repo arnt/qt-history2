@@ -4829,10 +4829,10 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
-    The default implementation updates the widget if it accepts focus
-    (see focusPolicy()). It also calls setMicroFocusHint(), hinting
-    any system-specific input tools about the focus of the user's
-    attention.
+    The default implementation updates the widget (except for toplevel
+    widgets that do not specify a focusPolicy() ). It also calls
+    setMicroFocusHint(), hinting any system-specific input tools about
+    the focus of the user's attention.
 
     \sa focusOutEvent(), setFocusPolicy(), keyPressEvent(),
     keyReleaseEvent(), event(), QFocusEvent
@@ -4857,11 +4857,10 @@ void QWidget::focusInEvent( QFocusEvent * )
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
-    The default implementation calls repaint() since the widget's
-    colorGroup() changes from active to normal, so the widget probably
-    needs repainting. It also calls setMicroFocusHint(), hinting any
-    system-specific input tools about the focus of the user's
-    attention.
+    The default implementation updates the widget (except for toplevel
+    widgets that do not specify a focusPolicy() ). It also calls
+    setMicroFocusHint(), hinting any system-specific input tools about
+    the focus of the user's attention.
 
     \sa focusInEvent(), setFocusPolicy(), keyPressEvent(),
     keyReleaseEvent(), event(), QFocusEvent
