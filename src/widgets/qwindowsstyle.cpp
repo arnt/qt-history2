@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#10 $
 **
 ** Implementation of Windows-like style class
 **
@@ -724,7 +724,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 }
 
 /*!\reimp
- */ 
+ */
 int QWindowsStyle::sliderLength() const
 {
     return 9;
@@ -1000,7 +1000,7 @@ static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
 static const int motifItemVMargin	= 2;	// menu item ver text margin
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
-static const int motifArrowVMargin	= 2;	// arrow vertical margin
+//static const int motifArrowVMargin	= 2;	// arrow vertical margin
 static const int motifTabSpacing	= 12;	// space between text and tab
 static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 static const int windowsRightBorder	= 12;       // right border on windows
