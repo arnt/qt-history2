@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#64 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#65 $
 **
 ** Implementation of QDir class
 **
@@ -42,11 +42,6 @@ extern Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 #endif
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
-
-#if defined(_OS_WIN32_)
-extern QString qt_winQString(TCHAR*);
-extern TCHAR* qt_winTchar(const QString& str, bool addnul);
-#endif
 
 
 static void slashify( QString& n )
@@ -1401,7 +1396,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #define IS_ARCH	    FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
-#define FF_GETFIRST(f,i) FindFirstFile(qt_winTchar(f,TRUE),i)
+#define FF_GETFIRST(f,i) FindFirstFile((TCHAR*)qt_winTchar(f,TRUE),i)
 #define FF_GETNEXT  FindNextFile
 #define FF_ERROR    INVALID_HANDLE_VALUE
 #else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#191 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -118,77 +118,6 @@ static bool	qt_try_modal( QWidget *, MSG * );
 static int	translateKeyCode( int );
 
 void		qt_init_windows_mime();		// qdnd_win.cpp
-
-
-/*!
-  Returns a static Windows TCHAR* from a QString, possibly adding NUL.
-*/
-const TCHAR* qt_winTchar(const QString& str, bool addnul)
-{
-#ifdef UNICODE
-    static uint buflen = 256;
-    static WCHAR *buf = new WCHAR[buflen];
-
-    const QChar* uc = str.unicode();
-
-#define EXTEND if (str.length() > buflen) { delete buf; buf = new WCHAR[buflen=str.length()+1]; }
-    if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
-	// Same endianness of WCHAR
-	if ( addnul ) {
-	    EXTEND
-	    memcpy(buf,uc,sizeof(WCHAR)*str.length());
-	    buf[str.length()] = 0;
-	} else {
-	    return (WCHAR*)uc;
-	}
-    } else {
-	EXTEND
-	for ( int i=str.length(); i--; )
-	    buf[i] = uc[i].row << 8 | uc[i].cell;
-	if ( addnul )
-	    buf[str.length()] = 0;
-    }
-    return buf;
-#undef EXTEND
-#else
-    return str.ascii();
-#endif
-}
-
-/*!
-  Makes a new null terminated Windows TCHAR* from a QString.
-*/
-TCHAR* qt_winTchar_new(const QString& str)
-{
-    TCHAR* result = new TCHAR[str.length()+1];
-    memcpy(result, qt_winTchar(str,FALSE), sizeof(TCHAR)*str.length());
-    result[str.length()] = 0;
-    return result;
-}
-
-/*!
-  Makes a QString from a Windows TCHAR*.
-*/
-QString qt_winQString(TCHAR* tc)
-{
-#ifdef UNICODE
-    int len=0;
-    while ( tc[len] )
-	len++;
-    if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
-	// Same endianness of WCHAR
-	return QString((QChar*)tc,len);
-    } else {
-	QString r;
-	for ( int i=0; i<len; i++ )
-	    r += QChar(tc[i]&0xff,tc[i]>>8);
-	return r;
-    }
-#undef EXTEND
-#else
-    return tc;
-#endif
-}
 
 
 #if defined(_WS_WIN32_)
@@ -533,7 +462,7 @@ const char* qt_reg_winclass( int type )		// register window class
 #endif
 	className = "";
     }
-    const TCHAR* tcn = className ? qt_winTchar(className,TRUE) : 0;
+    const TCHAR* tcn = className ? (const TCHAR*)qt_winTchar(className,TRUE) : 0;
     if ( style != 0 ) {
 	WNDCLASS wc;
 	wc.style	 = style;
@@ -555,11 +484,11 @@ static void unregWinClasses()
 {
     if ( widget_class_registered ) {
 	widget_class_registered = FALSE;
-	UnregisterClass( qt_winTchar("QWidget",TRUE), qWinAppInst() );
+	UnregisterClass( (TCHAR*)qt_winTchar("QWidget",TRUE), qWinAppInst() );
     }
     if ( popup_class_registered ) {
 	popup_class_registered = FALSE;
-	UnregisterClass( qt_winTchar("QPopup",TRUE), qWinAppInst() );
+	UnregisterClass( (TCHAR*)qt_winTchar("QPopup",TRUE), qWinAppInst() );
     }
 }
 
@@ -2469,9 +2398,9 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		setWFlags( WState_Visible );
 #endif
 	    if ( IsIconic(winId()) && iconText() )
-		SetWindowText( winId(), qt_winTchar(iconText(),TRUE) );
+		SetWindowText( winId(), (TCHAR*)qt_winTchar(iconText(),TRUE) );
 	    else if ( !caption().isNull() )
-		SetWindowText( winId(), qt_winTchar(caption(),TRUE) );
+		SetWindowText( winId(), (TCHAR*)qt_winTchar(caption(),TRUE) );
 	}
 	if ( isVisible() ) {
 	    cancelResize();

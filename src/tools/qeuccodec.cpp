@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#4 $
 **
 ** Implementation of QEucCodec class
 **
@@ -16454,7 +16454,7 @@ int QEucCodec::mib() const
 char* QEucCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
-    uchar* result = new char[l*2+1];
+    uchar* result = new uchar[l*2+1];
     uchar* cursor = result;
 //debug("len %d",l);
     for (int i=0; i<l; i++) {
@@ -16476,7 +16476,7 @@ char* QEucCodec::fromUnicode(const QString& uc, int& len_in_out) const
     }
     len_in_out = cursor - result;
 //debug(" -> len %d",len_in_out);
-    return result;
+    return (char*)result;
 }
 
 QString QEucCodec::toUnicode(const char* chars, int len) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#33 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -36,8 +36,6 @@
 #else
 #include <windows.h>
 #endif
-
-extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 // QPrinter states
 
@@ -181,7 +179,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	DOCINFO di;
 	memset( &di, 0, sizeof(DOCINFO) );
 	di.cbSize = sizeof(DOCINFO);
-	di.lpszDocName = qt_winTchar(doc_name,TRUE);
+	di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
 	if ( ok && StartDoc(hdc, &di) == SP_ERROR )
 	    ok = FALSE;
 	if ( ok && StartPage(hdc) == SP_ERROR )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#141 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#142 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -3866,3 +3866,83 @@ QConstString::~QConstString()
   Returns a constant string referencing the data passed during
   construction.
 */
+
+
+#if defined(_WS_WIN_)
+
+#include <tchar.h>
+
+/*!
+  Returns a static Windows TCHAR* from a QString, possibly adding NUL.
+*/
+const void* qt_winTchar(const QString& str, bool addnul)
+{
+#ifdef UNICODE
+    static uint buflen = 256;
+    static WCHAR *buf = new WCHAR[buflen];
+
+    const QChar* uc = str.unicode();
+
+#define EXTEND if (str.length() > buflen) { delete buf; buf = new WCHAR[buflen=str.length()+1]; }
+
+#if defined(_WS_WIN_BYTESWAP_)
+    EXTEND
+    for ( int i=str.length(); i--; )
+	buf[i] = uc[i].row << 8 | uc[i].cell;
+    if ( addnul )
+	buf[str.length()] = 0;
+#else
+    // Same endianness of WCHAR
+    if ( addnul ) {
+	EXTEND
+	memcpy(buf,uc,sizeof(WCHAR)*str.length());
+	buf[str.length()] = 0;
+    } else {
+	return uc;
+    }
+#endif
+    return buf;
+#undef EXTEND
+
+#else
+    return str.ascii();
+#endif
+}
+
+/*!
+  Makes a new null terminated Windows TCHAR* from a QString.
+*/
+void* qt_winTchar_new(const QString& str)
+{
+    TCHAR* result = new TCHAR[str.length()+1];
+    memcpy(result, qt_winTchar(str,FALSE), sizeof(TCHAR)*str.length());
+    result[str.length()] = 0;
+    return result;
+}
+
+/*!
+  Makes a QString from a Windows TCHAR*.
+*/
+QString qt_winQString(void* tc)
+{
+#ifdef UNICODE
+    
+    int len=0;
+    while ( ((TCHAR*)tc)[len] )
+	len++;
+#if defined(_WS_WIN_BYTESWAP_)
+    QString r;
+    for ( int i=0; i<len; i++ )
+	r += QChar(((TCHAR*)tc)[i]&0xff,((TCHAR*)tc)[i]>>8);
+    return r;
+#else
+    // Same endianness of WCHAR
+    return QString((QChar*)tc,len);
+#endif
+#undef EXTEND
+#else
+    return (TCHAR*)tc;
+#endif
+}
+
+#endif // _WS_WIN_

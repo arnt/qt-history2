@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#142 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -32,6 +32,7 @@
 #include "qaccel.h"
 #include "qimage.h"
 #include "qfocusdata.h"
+#include "qlayout.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -54,8 +55,6 @@ QOleDropTarget* qt_olednd_register( QWidget* widget );
 
 
 extern bool qt_nograb();
-extern TCHAR* qt_winTchar_new(const QString& str);
-extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 static QWidget *mouseGrb    = 0;
 static QCursor *mouseGrbCur = 0;
@@ -117,8 +116,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( desktop ) {				// desktop widget
 	modal = popup = FALSE;			// force this flags off
-	frect.setRect( 0, 0, sw, sh );
-	crect = frect;
+	fpos = QPoint(0, 0);
+	crect = QRect( fpos, QSize(sw, sh) );
     }
 
     parentw = topLevel ? 0 : parentWidget()->winId();
@@ -241,8 +240,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
-	frect = QRect( QPoint(fr.left,	fr.top),
-		       QPoint(fr.right, fr.bottom) );
+	if ( fr.top == cr.top &&
+	     fr.left == cr.left &&
+	     fr.bottom == cr.bottom &&
+	     fr.right == cr.right ) {
+	    fpos = QPoint(fr.left,fr.top);
+	} else {
+	    createTLExtra();
+	    setFRect( QRect( QPoint(fr.left,fr.top),
+		      QPoint(fr.right,fr.bottom) ) );
+	}
 	pt.x = 0;
 	pt.y = 0;
 	ClientToScreen( id, &pt );
@@ -343,7 +350,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     if ( !capt.isNull() ) {
-	extra->caption = QString::null;
+	extra->topextra->caption = QString::null;
 	setCaption( capt );
     }
     if ( showIt )
@@ -443,19 +450,21 @@ extern void qt_set_cursor( QWidget *, QCursor * ); // qapplication_win.cpp
 void QWidget::setCursor( const QCursor &cursor )
 {
     ((QCursor*)&cursor)->handle();
-    curs = cursor;
-    qt_set_cursor( this, &curs );
+    if ( !extra && cursor.handle() == arrowCursor.handle() )
+        return;
+    createExtra();
+    extra->curs = new QCursor(cursor);
+    qt_set_cursor( this, extra->curs );
 }
 
 
 void QWidget::setCaption( const QString &caption )
 {
-    if ( caption && extra && extra->caption &&
-	 extra->caption != caption )
+    if ( extra && extra->topextra && extra->topextra->caption == caption )
 	return; // for less flicker
     createExtra();
-    extra->caption = caption;
-    SetWindowText( winId(), qt_winTchar(extra->caption,TRUE) );
+    extra->topextra->caption = caption;
+    SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
 }
 
 
@@ -480,15 +489,15 @@ static HANDLE createIconMask( const QBitmap &bitmap )
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
-    if ( extra ) {
-	delete extra->icon;
-	extra->icon = 0;
+    if ( extra && extra->topextra ) {
+	delete extra->topextra->icon;
+	extra->topextra->icon = 0;
 	if ( extra->winIcon ) {
 	    DestroyIcon( extra->winIcon );
 	    extra->winIcon = 0;
 	}
     } else {
-	createExtra();
+	createTLExtra();
     }
     if ( !pixmap.isNull() ) {			// valid icon
 	QPixmap pm;
@@ -508,7 +517,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	ii.fIcon    = TRUE;
 	ii.hbmMask  = im;
 	ii.hbmColor = pm.hbm();
-	extra->icon = new QPixmap( pixmap );
+	extra->topextra->icon = new QPixmap( pixmap );
 	extra->winIcon = CreateIconIndirect( &ii );
 	DeleteObject( im );
     }
@@ -521,8 +530,8 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    createExtra();
-    extra->iconText = iconText;
+    createTLExtra();
+    extra->topextra->iconText = iconText;
 }
 
 
@@ -672,7 +681,7 @@ void QWidget::showWindow()
 {
     if ( testWFlags(WStyle_Tool) )
 	SetWindowPos( winId(), 0,
-		      frect.x(), frect.y(), crect.width(), crect.height(),
+		      fpos.x(), fpos.y(), crect.width(), crect.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     else
 	ShowWindow( winId(), SW_SHOW );
@@ -739,7 +748,7 @@ void QWidget::move( int x, int y )
     if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
     } else {
-	setFRect( QRect(x,y,frect.width(),frect.height()) );
+	setFRect( QRect(QPoint(x,y),frameSize()) );
 	if ( !isVisible() ) {
 	    deferMove( oldp );
 	} else {
@@ -753,7 +762,8 @@ void QWidget::move( int x, int y )
 void QWidget::internalMove( int x, int y )
 {
     setWFlags( WConfigPending );
-    MoveWindow( winId(), x, y, frect.width(), frect.height(), TRUE );
+    QSize fs = frameSize();
+    MoveWindow( winId(), x, y, fs.width(), fs.height(), TRUE );
     clearWFlags( WConfigPending );
 }
 
@@ -782,10 +792,14 @@ void QWidget::resize( int w, int h )
 	qWinRequestConfig( winId(), 1, 0, 0, w, h );
     } else {
 	QSize olds( size() );
-	int x = frect.x();
-	int y = frect.y();
-	w += frect.width()  - crect.width();
-	h += frect.height() - crect.height();
+	int x = fpos.x();
+	int y = fpos.y();
+	if ( extra && extra->topextra ) {
+	    // They might be different
+	    QSize fs = frameSize();
+	    w += fs.width()  - crect.width();
+	    h += fs.height() - crect.height();
+	}
 	setFRect( QRect(x,y,w,h) );
 	if ( !isVisible() ) {
 	    deferResize( olds );
@@ -800,9 +814,13 @@ void QWidget::resize( int w, int h )
 void QWidget::internalResize( int w, int h )
 {
     setWFlags( WConfigPending );
-    w += frect.width()  - crect.width();
-    h += frect.height() - crect.height();
-    MoveWindow( winId(), frect.x(), frect.y(), w, h, TRUE );
+    if ( extra && extra->topextra ) {
+	// They might be different
+	QSize fs = frameSize();
+	w += fs.width()  - crect.width();
+	h += fs.height() - crect.height();
+    }
+    MoveWindow( winId(), fpos.x(), fpos.y(), w, h, TRUE );
     clearWFlags( WConfigPending );
 }
 
@@ -826,8 +844,12 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
-	w += frect.width()  - crect.width();
-	h += frect.height() - crect.height();
+	if ( extra && extra->topextra ) {
+	    // They might be different
+	    QSize fs = frameSize();
+	    w += fs.width()  - crect.width();
+	    h += fs.height() - crect.height();
+	}
 	setFRect( QRect(x,y,w,h) );
 	if ( !isVisible() ) {
 	    deferMove( oldp );
@@ -846,8 +868,12 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 void QWidget::internalSetGeometry( int x, int y, int w, int h )
 {
     setWFlags( WConfigPending );
-    w += frect.width()  - crect.width();
-    h += frect.height() - crect.height();
+    if ( extra && extra->topextra ) {
+	// They might be different
+	QSize fs = frameSize();
+	w += fs.width()  - crect.width();
+	h += fs.height() - crect.height();
+    }
     MoveWindow( winId(), x, y, w, h, TRUE );
     clearWFlags( WConfigPending );
 }
@@ -895,9 +921,9 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    createExtra();
-    extra->incw = w;
-    extra->inch = h;
+    createTLExtra();
+    extra->topextra->incw = w;
+    extra->topextra->inch = h;
 }
 
 
@@ -1048,7 +1074,7 @@ void QWidget::setMask(const QRegion& region)
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
     RECT cr;
     GetClientRect( winId(), &cr );
-    OffsetRgn(wr, crect.x()-frect.x(), crect.y()-frect.y());
+    OffsetRgn(wr, crect.x()-fpos.x(), crect.y()-fpos.y());
     SetWindowRgn( winId(), wr, TRUE );
 }
 
@@ -1156,7 +1182,7 @@ void QWidget::setMask(QBitmap bitmap)
     HRGN wr = bitmapToRegion(bitmap);
     RECT cr;
     GetClientRect( winId(), &cr );
-    OffsetRgn(wr, crect.x()-frect.x(), crect.y()-frect.y());
+    OffsetRgn(wr, crect.x()-fpos.x(), crect.y()-fpos.y());
     SetWindowRgn( winId(), wr, TRUE );
 }
 
