@@ -11,12 +11,14 @@ class UndoRedoAction : public QAction
 {
     Q_OBJECT
 
-    public:
-        UndoRedoAction(QWidget *parent) : QAction(parent) {}
+public:
+    UndoRedoAction(QObject *parent)
+        : QAction(parent) {}
 
-    public slots:
-            // It's a pity QAction::setText() is not a slot...
-            void setTextSlot(const QString &text) { setText(text); }
+public slots:
+    // It's a pity QAction::setText() is not a slot...
+    void setTextSlot(const QString &text)
+    { setText(text); }
 };
 
 /*!
@@ -589,12 +591,12 @@ void QtUndoStack::push(QtCommand *command)
     }
 
     m_current_iter = size() - 1;
-    
+
     if (command->type() != QtCommand::MacroBegin && m_macro_nest == 0) {
         ++m_num_commands;
         emit commandExecuted();
     }
-    
+
     afterChange(state);
 }
 
@@ -921,7 +923,7 @@ QStringList QtUndoStack::redoList() const
     \sa undo() undoDescription() createRedoAction()
 */
 
-QAction *QtUndoStack::createUndoAction(QWidget *parent) const
+QAction *QtUndoStack::createUndoAction(QObject *parent) const
 {
     UndoRedoAction *undo_action = new UndoRedoAction(parent);
     connect(undo_action, SIGNAL(activated()), this, SLOT(undo()));
@@ -956,7 +958,7 @@ QAction *QtUndoStack::createUndoAction(QWidget *parent) const
     \sa redo() redoDescription() createUndoAction()
 */
 
-QAction *QtUndoStack::createRedoAction(QWidget *parent) const
+QAction *QtUndoStack::createRedoAction(QObject *parent) const
 {
     UndoRedoAction *redo_action = new UndoRedoAction(parent);
     connect(redo_action, SIGNAL(activated()), this, SLOT(redo()));
@@ -1131,7 +1133,7 @@ QtUndoManager::QtUndoManager()
     \sa undo() undoDescription() createRedoAction()
 */
 
-QAction *QtUndoManager::createUndoAction(QWidget *parent) const
+QAction *QtUndoManager::createUndoAction(QObject *parent) const
 {
     UndoRedoAction *undo_action = new UndoRedoAction(parent);
     connect(undo_action, SIGNAL(activated()), this, SLOT(undo()));
@@ -1162,7 +1164,7 @@ QAction *QtUndoManager::createUndoAction(QWidget *parent) const
     \sa redo() redoDescription() createUndoAction()
 */
 
-QAction *QtUndoManager::createRedoAction(QWidget *parent) const
+QAction *QtUndoManager::createRedoAction(QObject *parent) const
 {
     UndoRedoAction *redo_action = new UndoRedoAction(parent);
     connect(redo_action, SIGNAL(activated()), this, SLOT(redo()));

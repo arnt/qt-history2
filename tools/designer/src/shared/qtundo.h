@@ -78,11 +78,11 @@ class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
         QStringList redoList() const;
         bool isClean() const;
 
-        QAction *createUndoAction(QWidget *parent) const;
-        QAction *createRedoAction(QWidget *parent) const;
+        QAction *createUndoAction(QObject *parent) const;
+        QAction *createRedoAction(QObject *parent) const;
 
         inline int currentIndex() const { return m_current_iter; }
-    
+
     public slots:
         void undo(int count = 1);
         void redo(int count = 1);
@@ -117,7 +117,7 @@ class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
 
         bool m_have_clean_command;
         const QtCommand *m_clean_command;
-        
+
         QtCommand *commandAt(CommandIter it) const;
 };
 
@@ -127,9 +127,9 @@ class QT_SHARED_EXPORT QtUndoManager : public QObject
 
     public:
         QtUndoManager();
-        
-        QAction *createUndoAction(QWidget *parent) const;
-        QAction *createRedoAction(QWidget *parent) const;
+
+        QAction *createUndoAction(QObject *parent) const;
+        QAction *createRedoAction(QObject *parent) const;
 
         void associateView(QObject *obj, QtUndoStack *stack);
         void disassociateView(QObject *obj);
