@@ -6,20 +6,24 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qiconset.h>
+#include <qfile.h>
+#include <qtextstream.h>
+#include <qstylesheet.h>
 
 LHelp::LHelp( const QString& home_, const QString& path, QWidget* parent = 0, const char *name=0 )
     : QMainWindow( parent, name )
 {
 
-    browser = new QMLBrowser( this );
+    browser = new QTextBrowser( this );
     browser->provider()->setPath( path );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    connect( browser, SIGNAL( contentsChanged() ),
-	     this, SLOT( contentsChanged() ) );
+    connect( browser, SIGNAL( textChanged() ),
+	     this, SLOT( textChanged() ) );
 
     setCentralWidget( browser );
 
-    browser->setDocument( home_ );
+    if ( !home_.isEmpty() )
+	browser->setDocument( home_ );
 
     connect( browser, SIGNAL( highlighted( const QString&) ),
 	     statusBar(), SLOT( message( const QString&)) );
@@ -72,7 +76,7 @@ void LHelp::setForwardAvailable( bool b)
 }
 
 
-void LHelp::contentsChanged()
+void LHelp::textChanged()
 {
     if ( browser->documentTitle().isNull() )
 	setCaption( tr("QBrowser") );
@@ -82,4 +86,44 @@ void LHelp::contentsChanged()
 
 LHelp::~LHelp()
 {
+}
+
+
+void LHelp::setupSlideshow( const QString& file)
+{
+    QColorGroup g = browser->paperColorGroup();
+    g.setColor( QColorGroup::Text, white );
+    g.setColor( QColorGroup::Foreground, white );
+    g.setColor( QColorGroup::Base, darkBlue );
+    browser->setPaperColorGroup( g );
+    //browser->setPaper( QBrush( darkBlue, QPixmap("bg.gif") ));
+
+    QStyleSheet::defaultSheet()->item("qml")->setFontSize( 24 );
+    QStyleSheet::defaultSheet()->item("h1")->setFontSize( 32 );
+    QStyleSheet::defaultSheet()->item("h2")->setFontSize( 24 );
+    QStyleSheet::defaultSheet()->item("qml")->setMargin( QStyleSheetItem::MarginHorizontal, 50 );
+    QStyleSheet::defaultSheet()->item("li")->setMargin( QStyleSheetItem::MarginVertical, 4 );
+    QStyleSheetItem* style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "heading" );
+    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+    style->setFontItalic( TRUE );
+    style->setFontSize( 14 );
+    style->setAlignment( QStyleSheetItem::AlignRight );
+    resize(800-8,600-28);
+
+    QFile f (file );
+    if ( f.open( IO_ReadOnly) ) {
+	int n = 0;
+	QTextStream t(&f);
+	while ( !t.atEnd() ) {
+	    QString line = t.readLine();
+	    if ( !line.isEmpty() && line[0] != '#') {
+		browser->setDocument( line );
+		n++;
+	    }
+	}
+	f.close();
+	while ( n-- > 1) {
+	    browser->backward();
+	}
+    }
 }

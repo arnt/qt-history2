@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qbrowser/lhelp.h#1 $
+** $Id: //depot/qt/main/tests/qbrowser/lhelp.h#2 $
 **
 ** Definition of something or other
 **
@@ -11,7 +11,7 @@
 
 #ifndef LHELP_H
 #define LHELP_H
-#include <qml.h>
+#include <qtextbrowser.h>
 #include <qmainwindow.h>
 
 class LHelp : public QMainWindow
@@ -22,14 +22,16 @@ public:
     ~LHelp();
 
 
+    void setupSlideshow( const QString& file);
+
  private slots:
     void setBackwardAvailable( bool );
     void setForwardAvailable( bool );
 
-    void contentsChanged();
+    void textChanged();
 
 private:
-    QMLBrowser* browser;
+    QTextBrowser* browser;
     int backwardId, forwardId;
 
 };
