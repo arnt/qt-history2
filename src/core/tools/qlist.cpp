@@ -215,9 +215,9 @@ void **QListData::erase(void **xi)
     \i For most purposes, QList is the right class to use. Its
        index-based API is more convenient than QLinkedList's
        iterator-based API, and it is usually faster than
-       QVector, because of the way it stores its items in
+       QVector because of the way it stores its items in
        memory.
-    \i If you need a real linked list, with guarantees \l{constant
+    \i If you need a real linked list, with guarantees of \l{constant
        time} insertions in the middle of the list and iterators to
        items rather than indexes, use QLinkedList.
     \i If you want the items to occupy adjacent memory positions,
@@ -233,10 +233,12 @@ void **QListData::erase(void **xi)
 
     Qt includes a QStringList class that inherits QList\<QString\>
     and adds a few convenience functions, such as QStringList::join()
-    and QStringList::find().
+    and QStringList::find(). (QString::split() creates QStringLists
+    from strings.)
 
     QList stores a list of items. The default constructor creates an
-    empty list. To fill the list, you can use operator<<():
+    empty list. To insert items into the list, you can use
+    operator<<():
 
     \code
 	QList<QString> list;
@@ -245,14 +247,14 @@ void **QListData::erase(void **xi)
     \endcode
 
     QList provides these basic functions to add, move, and remove
-    items: insert(), replace(), removeAt(), move(), swap(). In
+    items: insert(), replace(), removeAt(), move(), and swap(). In
     addition, it provides the following convenience functions:
     append(), prepend(), removeFirst(), and removeLast().
 
     QList uses 0-based indexes, just like C++ arrays. To access the
-    item at a certain index, you can use operator[](). On non-const
-    lists, operator[]() returns a reference to the item and can be
-    used on the left side of an assignment:
+    item at a particular index position, you can use operator[](). On
+    non-const lists, operator[]() returns a reference to the item and
+    can be used on the left side of an assignment:
 
     \code
 	if (list[0] == "Bob")
@@ -264,7 +266,7 @@ void **QListData::erase(void **xi)
     \code
 	for (int i = 0; i < list.size(); ++i) {
 	    if (list.at(i) == "Jane")
-		cout << "Found Jane at index " << i << endl;
+		cout << "Found Jane at position " << i << endl;
         }
     \endcode
 
@@ -283,38 +285,38 @@ void **QListData::erase(void **xi)
 	    delete list.takeFirst();
     \endcode
 
-    If you want to find all occurrences of a certain value in a list,
-    you can use indexOf() or lastIndexOf(). The former searches
-    forward starting from a certain index, the latter searches
+    If you want to find all occurrences of a particular value in a
+    list, use indexOf() or lastIndexOf(). The former searches forward
+    starting from a given index position, the latter searches
     backward. Both return the index of a matching item if they find
     it; otherwise, they return -1. For example:
 
     \code
 	int i = list.indexOf("Jane");
         if (i != -1)
-	    cout << "First occurrence of Jane at index " << i << endl;
+	    cout << "First occurrence of Jane is at position " << i << endl;
     \endcode
 
-    If you simply want to check whether a list contains a certain
+    If you simply want to check whether a list contains a particular
     value, use contains(). If you want to find out how many times a
-    certain value occurs in the list, use count(). If you want to
-    replace all occurrences of a certain value with another, use
+    particular value occurs in the list, use count(). If you want to
+    replace all occurrences of a particular value with another, use
     replace().
 
     QList's value type must be an \l{assignable data type}. This
-    covers most data types you are likely to encounter, but the
-    compiler won't let you, for example, store a QWidget as a value;
-    instead, store a QWidget *. Some individual functions have
-    additional requirements; for example, indexOf() and lastIndexOf()
-    expect the value type to support \c operator==(). These
-    requirements are documented on a per-function basis.
+    covers most data types that are commonly used, but the compiler
+    won't let you, for example, store a QWidget as a value; instead,
+    store a QWidget *. A few functions have additional requirements;
+    for example, indexOf() and lastIndexOf() expect the value type to
+    support \c operator==(). These requirements are documented on a
+    per-function basis.
 
     Like the other container classes, QList provides \l{Java-style
     iterators} (QListIterator and QListMutableIterator) and
     \l{STL-style iterators} (QList::const_iterator and
     QList::iterator). In practice, these are rarely used, because
     you can use indexes into the QList. QList is implemented in such
-    a way that direct index-based access is as fast as using
+    a way that direct index-based access is just as fast as using
     iterators.
 
     \sa QListIterator, QListMutableIterator, QLinkedList, QVector

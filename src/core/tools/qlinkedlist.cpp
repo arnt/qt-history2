@@ -438,10 +438,9 @@ QLinkedListData QLinkedListData::shared_null = {
 
     The default QLinkedList::iterator constructor creates an
     uninitialized iterator. You must initialize it using a
-    QLinkedList function like QLinkedList::begin(),
-    QLinkedList::end(), or QLinkedList::insert() before you can start
-    iterating. Here's a typical loop that prints all the items stored
-    in a list:
+    function like QLinkedList::begin(), QLinkedList::end(), or
+    QLinkedList::insert() before you can start iterating. Here's a
+    typical loop that prints all the items stored in a list:
 
     \code
 	QLinkedList<QString> list;
@@ -514,7 +513,7 @@ QLinkedListData QLinkedListData::shared_null = {
 	// WRONG
         while (i != list.end()) {
 	    if ((*i).startsWith("_"))
-		map.erase(i);
+		list.erase(i);
 	    ++i;
         }
     \endcode
