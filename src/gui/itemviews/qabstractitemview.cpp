@@ -585,7 +585,8 @@ QAbstractItemView::SelectionBehavior QAbstractItemView::selectionBehavior() cons
 */
 void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 {
-    selectionModel()->setCurrentIndex(index, selectionCommand(index, 0));
+    if (selectionModel())
+        selectionModel()->setCurrentIndex(index, selectionCommand(index, 0));
 }
 
 /*!
@@ -595,7 +596,7 @@ void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 */
 QModelIndex QAbstractItemView::currentIndex() const
 {
-    return selectionModel()->currentIndex();
+    return selectionModel() ? selectionModel()->currentIndex() : QModelIndex();
 }
 
 
@@ -911,7 +912,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
 
-    if (d->state == EditingState && d->editors.contains(index))
+    if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
         return;
 
     bool itemWasSelected = selectionModel()->isSelected(index);
@@ -921,13 +922,13 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
-
+    
     if (index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-
+    
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
-
+    
     emit pressed(index, e->button(), e->modifiers());
     if (e->button() == Qt::LeftButton && itemWasSelected && selectionModel()->isSelected(index))
         edit(index, SelectedClicked, e);
@@ -959,7 +960,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         topLeft = bottomRight;
 
     QModelIndex index = itemAt(bottomRight);
-    QModelIndex buddy = model()->buddy(d->pressedItem);
+    QModelIndex buddy = model() ? model()->buddy(d->pressedItem) : QModelIndex();
     if (state() == EditingState && d->editors.contains(buddy))
         return;
 
@@ -985,7 +986,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         }
     }
     setState(DragSelectingState);
-    selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+    if (selectionModel())
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     setSelection(QRect(topLeft, bottomRight).normalize(), selectionCommand(index, e));
 }
 
@@ -1006,7 +1008,9 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     setState(NoState);
-    selectionModel()->select(index, selectionCommand(index, e));
+
+    if (selectionModel())
+        selectionModel()->select(index, selectionCommand(index, e));
 
     if (index == d->pressedItem)
         emit clicked(index, e->button(), e->modifiers());

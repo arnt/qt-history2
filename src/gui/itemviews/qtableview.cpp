@@ -580,6 +580,8 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
+    if (!selectionModel())
+        return;
     QModelIndex tl = itemAt((isRightToLeft()
                              ? rect.right() : rect.left()), rect.top());
     QModelIndex br = itemAt((isRightToLeft()

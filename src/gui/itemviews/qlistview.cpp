@@ -998,6 +998,8 @@ QRect QListView::itemRect(const QModelIndex &index) const
 */
 void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
+    if (!selectionModel())
+        return;
     QRect crect(rect.left() + horizontalOffset(),
                 rect.top() + verticalOffset(),
                 rect.width(), rect.height());

@@ -844,6 +844,8 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
+    if (!selectionModel())
+        return;
     int start = d->viewIndex(itemAt(isRightToLeft()
                                     ? rect.right() : rect.left(), rect.top()));
     int stop = d->viewIndex(itemAt(isRightToLeft()
