@@ -104,6 +104,7 @@ static struct {
     EventTime last_time;
     bool active, use_qt_time_limit;
 } qt_mac_dblclick = { 0, 0, -2, 0, 0 };
+static int tablet_button_state = 0;
 static int mouse_button_state = 0;
 static int keyboard_modifiers_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
@@ -1724,31 +1725,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    else
 		widget = QApplication::widgetAt(where.h, where.v, true);
 	}
-#if defined(QT_TABLET_SUPPORT)
-	UInt32 tabletEventType;
-	GetEventParameter(event, kEventParamTabletEventType, typeUInt32, NULL,
-			  sizeof(tabletEventType), NULL, &tabletEventType);
-	if (tabletEventType == kEventTabletPoint && widget) {
-	    QEvent::Type t = QEvent::TabletMove; //default
-	    if (ekind == kEventMouseDown)
-		t = QEvent::TabletPress;
-	    else if (ekind == kEventMouseUp)
-		t = QEvent::TabletRelease;
-
-	    TabletPointRec tabletPointRec;
-	    GetEventParameter(event, kEventParamTabletPointRec, typeTabletPointRec, NULL,
-			      sizeof(tabletPointRec), NULL, &tabletPointRec);
-	    int dev = QTabletEvent::Stylus;
-	    int tiltX = ((int)tabletPointRec.tiltX)/(32767/60); // 32K -> 60
-	    int tiltY = ((int)tabletPointRec.tiltY)/(32767/60); // 32K -> 60
-	    int pressure = (int)tabletPointRec.pressure >> 8; // 32K -> 255
-	    QPair<int,int> uId( (int)tabletPointRec.deviceID, (int)tabletPointRec.vendor1 );
-	    QPoint p(where.h, where.v);
-	    QPoint plocal(widget->mapFromGlobal(p));
-	    QTabletEvent e( t, plocal, p, dev, pressure, tiltX, tiltY, uId );
-	    QApplication::sendSpontaneousEvent(widget, &e);
-	}
-#endif
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    const QCursor *n = NULL;
 	    if(widget) { //only over the app, do we set a cursor..
@@ -1783,6 +1759,38 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	    break;
 	}
+
+#if defined(QT_TABLET_SUPPORT)
+	UInt32 tabletEventType;
+	GetEventParameter(event, kEventParamTabletEventType, typeUInt32, NULL,
+			  sizeof(tabletEventType), NULL, &tabletEventType);
+	if (tabletEventType == kEventTabletPoint) {
+	    TabletPointRec tabletPointRec;
+	    GetEventParameter(event, kEventParamTabletPointRec, typeTabletPointRec, NULL,
+			      sizeof(tabletPointRec), NULL, &tabletPointRec);
+	    QEvent::Type t = QEvent::TabletMove; //default
+	    int new_tablet_button_state = tabletPointRec.buttons ? 1 : 0;
+            if (new_tablet_button_state != tablet_button_state)
+		if (new_tablet_button_state)
+		    t = QEvent::TabletPress;
+		else
+		    t = QEvent::TabletRelease;
+	    tablet_button_state = new_tablet_button_state;
+	    if (widget) {
+		int dev = QTabletEvent::Stylus;
+		int tiltX = ((int)tabletPointRec.tiltX)/(32767/60); // 32K -> 60
+		int tiltY = ((int)tabletPointRec.tiltY)/(32767/60); // 32K -> 60
+		int pressure = (int)tabletPointRec.pressure >> 8; // 32K -> 255
+		QPair<int,int> uId( (int)tabletPointRec.deviceID, (int)tabletPointRec.vendor1 );
+		QPoint p(where.h, where.v);
+		QPoint plocal(widget->mapFromGlobal(p));
+		QTabletEvent e( t, plocal, p, dev, pressure, tiltX, tiltY, uId );
+		QApplication::sendSpontaneousEvent(widget, &e);
+		if (e.isAccepted())
+		    break;
+	    }
+	}
+#endif
 
 	if(ekind == kEventMouseDown) {
 	    bool mouse_down_unhandled;
