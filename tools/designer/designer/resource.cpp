@@ -311,7 +311,7 @@ bool Resource::load( FormFile *ff, Project *defProject )
     mainContainerSet = FALSE;
 
     QFile f( ff->absFileName() );
-    f.open( IO_ReadOnly );
+    f.open( IO_ReadOnly | IO_Translate );
 
     bool b = load( ff, &f, defProject );
     f.close();
