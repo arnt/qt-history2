@@ -1410,17 +1410,16 @@ QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
 
-    // I need to test how close this is to other platforms, I only rolled this without testing --Sam
     CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path, 0, r.x(), r.y()+yRnd);                                                                   //start
-    CGPathAddQuadCurveToPoint(path, 0, r.x(), r.y(), r.x()+xRnd, r.y());                                             //top left
-    CGPathAddLineToPoint(path, 0, r.x()+(r.width()-xRnd), r.y());                                                    //top
-    CGPathAddQuadCurveToPoint(path, 0, r.x()+r.width(), r.y(), r.x()+r.width(), r.y()+yRnd);                         //top right
-    CGPathAddLineToPoint(path, 0, r.x()+r.width(), r.y()+(r.height()-yRnd));                                         //right
-    CGPathAddQuadCurveToPoint(path, 0, r.x()+r.width(), r.y()+r.height(), r.x()+(r.width()-xRnd), r.x()+r.height()); //bottom right
-    CGPathAddLineToPoint(path, 0, r.x()+xRnd, r.y()+r.height());                                                     //bottom
-    CGPathAddQuadCurveToPoint(path, 0, r.x(), r.y()+r.height(), r.x(), r.y()+(r.height()-yRnd));                     //bottom left
-    CGPathAddLineToPoint(path, 0, r.x(), r.y()+yRnd);                                                                //left
+    const float ow = r.width()*xRnd/100, oh = r.height()*yRnd/100;
+    CGAffineTransform transform = CGAffineTransformMake(ow, 0, 0, oh, r.left(), r.top());
+    float fw = r.width() / ow, fh = r.height() / oh;
+    CGPathMoveToPoint(path, &transform, fw, fh/2);
+    CGPathAddArcToPoint(path, &transform, fw, fh, fw/2, fh, 1);
+    CGPathAddArcToPoint(path, &transform, 0, fh, 0, fh/2, 1);
+    CGPathAddArcToPoint(path, &transform, 0, 0, fw/2, 0, 1);
+    CGPathAddArcToPoint(path, &transform, fw, 0, fw, fh/2, 1);
+    CGPathCloseSubpath(path);
     CGContextBeginPath((CGContextRef)d->hd);
     CGContextAddPath((CGContextRef)d->hd, path);
     if(d->current.brush.style() != NoBrush)
