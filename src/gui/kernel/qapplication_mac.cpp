@@ -21,8 +21,6 @@
 #include "qdesktopwidget.h"
 #include "qdockwindow.h"
 #include "qevent.h"
-#include "qeventdispatcher_mac.h"
-#include "qeventdispatcher_unix.h"
 #include "qhash.h"
 #include "qmenubar.h"
 #include "qmessagebox.h"

@@ -13,7 +13,7 @@
 ****************************************************************************/
 #include "qplatformdefs.h"
 #include <private/qt_mac_p.h>
-#include "qeventdispatcher_mac.h"
+#include "qeventdispatcher_mac_p.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include <qhash.h>
@@ -27,7 +27,6 @@
 
 #define QMAC_EVENT_NOWAIT kEventDurationNoWait
 
-#include "qeventdispatcher_mac_p.h"
 #define d d_func()
 #define q q_func()
 
