@@ -7,12 +7,15 @@ class ReadDir : public QObject
     Q_OBJECT
     
 public:
-    ReadDir() {}
+    ReadDir( const QUrl &u ) : url( u ) {}
     
 public slots:
     add( const QUrlInfo &i ) {
-	qDebug( "add: %s", i.name().latin1() );
+	qDebug( "add: %s %s", i.name().latin1() , i.makeUrl( url ).latin1()  );
     }
+    
+protected:
+    QUrl url;
     
 };
 
@@ -53,7 +56,7 @@ int main( int argc, char* argv[]  )
 	    u.path().latin1(),
 	    u.ref().latin1() );
 
-    ReadDir rd;
+    ReadDir rd( u );
     QObject::connect( &u, SIGNAL( entry( const QUrlInfo & ) ),
  		      &rd, SLOT( add( const QUrlInfo & ) ) );
     

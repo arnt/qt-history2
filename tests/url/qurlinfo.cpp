@@ -135,7 +135,9 @@ QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal )
 	    url += "://";
 	}
 	url += path.path();
+	url += "/" + d->name;
     } else
 	;// ### todo
 
+    return url;
 }
