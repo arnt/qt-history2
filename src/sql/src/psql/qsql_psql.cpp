@@ -509,6 +509,12 @@ QSqlQuery QPSQLDriver::createQuery() const
 
 bool QPSQLDriver::beginTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QPSQLDriver::beginTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     PGresult* res = PQexec( d->connection, "BEGIN" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
 	PQclear( res );
@@ -521,6 +527,12 @@ bool QPSQLDriver::beginTransaction()
 
 bool QPSQLDriver::commitTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QPSQLDriver::commitTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     PGresult* res = PQexec( d->connection, "COMMIT" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
 	PQclear( res );
@@ -533,6 +545,12 @@ bool QPSQLDriver::commitTransaction()
 
 bool QPSQLDriver::rollbackTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QPSQLDriver::rollbackTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     PGresult* res = PQexec( d->connection, "ROLLBACK" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
 	setLastError( qMakeError( "Could not rollback transaction", QSqlError::Transaction, d ) );
@@ -545,6 +563,9 @@ bool QPSQLDriver::rollbackTransaction()
 
 QStringList QPSQLDriver::tables( const QString& user ) const
 {
+    QStringList tl;
+    if ( !isOpen() )
+	return tl;
     QSqlQuery t = createQuery();
     QString stmt;
     switch( pro ) {
@@ -558,7 +579,6 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 	break;
     }
     t.exec( stmt.arg( user ) );
-    QStringList tl;
     while ( t.isActive() && t.next() )
 	tl.append( t.value(0).toString() );
     return tl;
@@ -567,6 +587,8 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx( tablename );
+    if ( !isOpen() )
+	return idx;
     QSqlQuery i = createQuery();
     QString stmt;
     switch( pro ) {
@@ -590,6 +612,8 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
@@ -615,6 +639,8 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 QSqlRecord QPSQLDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     if ( query.isActive() && query.driver() == this ) {
 	QPSQLResult* result = (QPSQLResult*)query.result();
 	int count = PQnfields ( result->d->result );
