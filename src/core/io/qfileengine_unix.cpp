@@ -221,8 +221,8 @@ QString
 QFSFileEngine::currentPath(const QString &)
 {
     QString result;
-    struct stat st;
-    if(::stat(".", &st) == 0) {
+    QT_STATBUF st;
+    if(QT_STAT(".", &st) == 0) {
         char currentName[PATH_MAX+1];
         if(::getcwd(currentName, PATH_MAX))
             result = QFile::decodeName(QByteArray(currentName));
@@ -281,7 +281,7 @@ QFSFileEnginePrivate::doStat() const
             that->could_stat = !QT_FSTAT(d->fd, &st);
         } else {
             const QByteArray file = QFile::encodeName(d->file);
-            if(::lstat(file, &st) == 0)
+            if(QT_LSTAT(file, &st) == 0)
                 that->could_stat = true;
             else
                 that->could_stat = !QT_STAT(file, &st);
@@ -402,8 +402,8 @@ QFSFileEngine::fileName(FileName file) const
             // always make sure we go back to the current dir
             ::chdir(cur);
             //check it
-            struct stat st;
-            if(::stat(QFile::encodeName(ret), &st) != 0)
+            QT_STATBUF st;
+            if(QT_STAT(QFile::encodeName(ret), &st) != 0)
                 ret = QString();
             return ret;
         }
@@ -520,7 +520,7 @@ bool
 QFSFileEngine::setSize(Q_LONGLONG size)
 {
     if(d->fd != -1)
-        return !ftruncate(d->fd, size);
+        return !QT_FTRUNCATE(d->fd, size);
     const QByteArray file = QFile::encodeName(d->file);
     return !QT_TRUNCATE(file.data(), size);
 }

@@ -1093,7 +1093,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
     fcntl(fd, F_SETLKW, &fl);
 
     if (flags == WriteFlags)
-        ftruncate(fd, 0);
+        QT_FTRUNCATE(fd, 0);
 
     return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
                      : QIODevice::OpenMode(QIODevice::ReadOnly),
@@ -1133,7 +1133,7 @@ static void closeFile(QFile &file, QConfFile &confFile)
     Q_UNUSED(confFile);
     int fd = file.handle();
     file.close();
-    close(fd);
+    QT_CLOSE(fd);
 #else
     int increment;
     if (file.openMode() & QIODevice::ReadOnly)
