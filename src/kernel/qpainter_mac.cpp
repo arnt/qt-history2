@@ -1455,14 +1455,6 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 }
 
 
-/*!
-  Draws a cubic Bezier curve defined by the control points in \a a,
-  starting at \a a[index].  (\a index defaults to 0.)
-
-  Control points after \a a[index+3] are ignored.  Nothing happens if
-  there aren't enough control points.
-*/
-
 // FIXME: Implement this
 void QPainter::drawCubicBezier( const QPointArray &, int )
 {

@@ -378,10 +378,10 @@ bool QAccel::isItemEnabled( int id ) const
 
 
 /*!
-  Enables the accelerator key \a item if \a enable is TRUE, and
-  disables \a item if \a enable is FALSE.
+  Enables the accelerator item with the identifier \a id if \a enable is
+  TRUE, and disables \a id if \a enable is FALSE.
 
-  To work, a key must be an enabled item in an enabled QAccel.
+  To work, an item must be enabled and be in an enabled QAccel.
 
   \sa isItemEnabled(), isEnabled()
 */

@@ -149,9 +149,6 @@
   \value Create  reserved
   \value Destroy  reserved
   \value Reparent  reserved
-  \value Configure  reserved
-  \value ConfigureLayout  reserved
-
   \value User  user defined event
 */
 /*!
@@ -1518,7 +1515,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragLeaveEvent qevent.h
-  \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop leaves the widget.
+  \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop leaves the widget
 
   This event is always preceded by a QDragEnterEvent and a series
   of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.
@@ -1528,9 +1525,8 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \fn QDragLeaveEvent::QDragLeaveEvent()
-  Constructs a QDragLeaveEvent.
-  Note that QDragLeaveEvent constructed outside of the Qt internals
-  will not work - they currently rely on internal state.
+  Constructs a QDragLeaveEvent. You must not create QDragLeaveEvents
+  yourself, as they rely on Qt's internal state.
 */
 
 /*!

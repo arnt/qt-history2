@@ -90,7 +90,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
 	int ox = w->x();
 	int oy = w->y();
 	if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QPoint p = w->mapTo( w->topLevelWidget(), QPoint(0,0) );
+	    QPoint p = w->mapTo( w->topLevelWidget(), QPoint(0, 0) );
 	    ox = p.x();
 	    oy = p.y();
 	}
@@ -210,8 +210,8 @@ double qsincos( double a, bool calcCos=FALSE )
     return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
 }
 
-inline double qsin( double a ) { return qsincos(a,FALSE); }
-inline double qcos( double a ) { return qsincos(a,TRUE); }
+inline double qsin( double a ) { return qsincos(a, FALSE); }
+inline double qcos( double a ) { return qsincos(a, TRUE); }
 
 #endif
 
@@ -1321,9 +1321,9 @@ void QPainter::setRasterOp( RasterOp r )
 // ### matthias - true?
 
 /*!
-  Sets the brush origin to \a (x,y).
+  Sets the brush origin to \a (x, y).
 
-  The brush origin specifies the (0,0) coordinate of the painter's
+  The brush origin specifies the (0, 0) coordinate of the painter's
   brush.  This setting only applies to pattern brushes and pixmap
   brushes.
 
@@ -1338,7 +1338,7 @@ void QPainter::setBrushOrigin( int x, int y )
 #endif
 	return;
     }
-    bro = QPoint(x,y);
+    bro = QPoint(x, y);
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].point = &bro;
@@ -1493,7 +1493,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 
 
 /*!
-  Draws/plots a single point at \a (x,y) using the current pen.
+  Draws/plots a single point at \a (x, y) using the current pen.
 
   \sa QPen
 */
@@ -1562,7 +1562,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 
 
 /*!
-  Sets the current pen position to \a (x,y)
+  Sets the current pen position to \a (x, y)
   \sa lineTo(), pos()
 */
 
@@ -1584,8 +1584,8 @@ void QPainter::moveTo( int x, int y )
 }
 
 /*!
-  Draws a line from the current pen position to \a (x,y) and sets \a
-  (x,y) to be the new current pen position.
+  Draws a line from the current pen position to \a (x, y) and sets \a
+  (x, y) to be the new current pen position.
 
   \sa QPen moveTo(), drawLine(), pos()
 */
@@ -1610,7 +1610,7 @@ void QPainter::lineTo( int x, int y )
 }
 
 /*!
-  Draws a line from \a (x1,y2) to \a (x2,y2) and sets \a (x2,y2) to be
+  Draws a line from \a (x1, y2) to \a (x2, y2) and sets \a (x2, y2) to be
   the new current pen position.
 
   \sa QPen
@@ -1640,7 +1640,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 
 
 /*!
-  Draws a rectangle with upper left corner at \a (x,y) and with
+  Draws a rectangle with upper left corner at \a (x, y) and with
   width \a w and height \a h.
 
   \sa QPen, drawRoundRect()
@@ -1659,7 +1659,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
-	    QPointArray a( QRect(x,y,w,h), TRUE );
+	    QPointArray a( QRect(x, y, w, h), TRUE );
 	    drawPolyInternal( xForm(a) );
 	    return;
 	}
@@ -1683,7 +1683,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 }
 
 /*!
-  Draws a Windows focus rectangle with upper left corner at \a (x,y) and with
+  Draws a Windows focus rectangle with upper left corner at \a (x, y) and with
   width \a w and height \a h.
 
   This function draws a stippled XOR rectangle that is used to indicate
@@ -1701,7 +1701,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 }
 
 /*!
-  Draws a Windows focus rectangle with upper left corner at \a (x,y) and with
+  Draws a Windows focus rectangle with upper left corner at \a (x, y) and with
   width \a w and height \a h using a pen color that contrasts with \a bgColor.
 
   This function draws a stippled rectangle (XOR is not used) that is
@@ -1780,7 +1780,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
 
 /*!
-  Draws a rectangle with round corners at \a (x,y), with width \a w
+  Draws a rectangle with round corners at \a (x, y), with width \a w
   and height \a h.
 
   The \a xRnd and \a yRnd arguments specify how rounded the corners
@@ -1869,7 +1869,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    dp = 1;
 	    ds = 0;
 	}
-#define SET_ARC(px,py,w,h,a1,a2) \
+#define SET_ARC(px, py, w, h, a1, a2) \
     a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
 	XArc arcs[4];
 	XArc *a = arcs;
@@ -1879,7 +1879,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	SET_ARC( x+w-rx2, y+h-ry2, rx2, ry2, 270*64, 90*64 );
 	XFillArcs( dpy, hd, gc_brush, arcs, 4 );
 #undef SET_ARC
-#define SET_RCT(px,py,w,h) \
+#define SET_RCT(px, py, w, h) \
     r->x=px; r->y=py; r->width=w; r->height=h; r++
 	XRectangle rects[3];
 	XRectangle *r = rects;
@@ -1890,7 +1890,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 #undef SET_RCT
     }
     if ( cpen.style() != NoPen ) {		// draw outline
-#define SET_ARC(px,py,w,h,a1,a2) \
+#define SET_ARC(px, py, w, h, a1, a2) \
     a->x=px; a->y=py; a->width=w; a->height=h; a->angle1=a1; a->angle2=a2; a++
 	XArc arcs[4];
 	XArc *a = arcs;
@@ -1900,7 +1900,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	SET_ARC( x+w-rx2, y+h-ry2, rx2, ry2, 270*64, 90*64 );
 	XDrawArcs( dpy, hd, gc, arcs, 4 );
 #undef SET_ARC
-#define SET_SEG(xp1,yp1,xp2,yp2) \
+#define SET_SEG(xp1, yp1, xp2, yp2) \
     s->x1=xp1; s->y1=yp1; s->x2=xp2; s->y2=yp2; s++
 	XSegment segs[4];
 	XSegment *s = segs;
@@ -1914,7 +1914,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 }
 
 /*!
-  Draws an ellipse with center at \a (x+w/2,y+h/2) and size \a (w,h).
+  Draws an ellipse with center at \a (x + w/2, y + h/2) and size \a (w, h).
 */
 
 void QPainter::drawEllipse( int x, int y, int w, int h )
@@ -1958,7 +1958,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 
 
 /*!
-  Draws an arc defined by the rectangle \a (x,y,w,h), the start
+  Draws an arc defined by the rectangle \a (x, y, w, h), the start
   angle \a a and the arc length \a alen.
 
   The angles \a a and \a alen are 1/16th of a degree, i.e. a full
@@ -2011,7 +2011,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 
 
 /*!
-  Draws a pie defined by the rectangle \a (x,y,w,h), the start
+  Draws a pie defined by the rectangle \a (x, y, w, h), the start
   angle \a a and the arc length \a alen.
 
   The pie is filled with the current brush().
@@ -2084,7 +2084,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	double h2 = 0.5*h;
 	double xc = (double)x+w2;
 	double yc = (double)y+h2;
-	double ra1 = Q_PI/2880.0*a;		// convert a,alen to radians
+	double ra1 = Q_PI/2880.0*a;		// convert a, alen to radians
 	double ra2 = ra1 + Q_PI/2880.0*alen;
 	int xic = qRound(xc);
 	int yic = qRound(yc);
@@ -2098,7 +2098,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 
 
 /*!
-  Draws a chord defined by the rectangle \a (x,y,w,h), the start
+  Draws a chord defined by the rectangle \a (x, y, w, h), the start
   angle \a a and the arc length \a alen.
 
   The chord is filled with the current brush().
@@ -2122,7 +2122,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawChord,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawChord, this, param) || !hd )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
@@ -2160,7 +2160,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	double h2 = 0.5*h;
 	double xc = (double)x+w2;
 	double yc = (double)y+h2;
-	double ra1 = Q_PI/2880.0*a;		// convert a,alen to radians
+	double ra1 = Q_PI/2880.0*a;		// convert a, alen to radians
 	double ra2 = ra1 + Q_PI/2880.0*alen;
 	XDrawLine( dpy, hd, g,
 		   qRound(xc + qcos(ra1)*w2), qRound(yc - qsin(ra1)*h2),
@@ -2202,7 +2202,8 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments, this, param) ||
+		 !hd )
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -2215,7 +2216,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     }
     if ( cpen.style() != NoPen )
 	XDrawSegments( dpy, hd, gc,
-		       (XSegment*)(pa.shortPoints( index, nlines*2 )),nlines );
+		       (XSegment*)(pa.shortPoints( index, nlines*2 )), nlines );
 }
 
 
@@ -2248,7 +2249,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline, this, param) || !hd )
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -2312,7 +2313,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    QPDevCmdParam param[2];
 	    param[0].ptarr = (QPointArray*)&pa;
 	    param[1].ival = winding;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolygon,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolygon, this, param) || !hd )
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -2347,18 +2348,18 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 }
 
 /*!
-  Draws the convex polygon defined by the \a npoints points in \a a starting at
-  \a a[index].  (\a index defaults to 0.)
+  Draws the convex polygon defined by the \a npoints points in \a pa starting at
+  \a pa[index] (\a index defaults to 0).
 
-  If the supplied polygon is \e not convex, the results are undefined.
+  If the supplied polygon is not convex, the results are undefined.
 
-  On some platforms (eg. X11), this is faster than drawPolygon().
+  On some platforms (e.g., X Window), this is faster than drawPolygon().
 */
 void QPainter::drawConvexPolygon( const QPointArray &pa,
-			     int index, int npoints )
+				  int index, int npoints )
 {
     global_polygon_shape = Convex;
-    drawPolygon(pa,FALSE,index,npoints);
+    drawPolygon(pa, FALSE, index, npoints);
     global_polygon_shape = Complex;
 }
 
@@ -2366,9 +2367,9 @@ void QPainter::drawConvexPolygon( const QPointArray &pa,
 
 /*!
   Draws a cubic Bezier curve defined by the control points in \a a,
-  starting at \a a[index].  (\a index defaults to 0.)
+  starting at \a a[index] (\a index defaults to 0).
 
-  Control points after \a a[index+3] are ignored.  Nothing happens if
+  Control points after \a a[index + 3] are ignored.  Nothing happens if
   there aren't enough control points.
 */
 
@@ -2379,7 +2380,7 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
     if ( a.size() - index < 4 ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
-		 "points" );
+		  "points" );
 #endif
 	return;
     }
@@ -2393,7 +2394,8 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawCubicBezier,this,param) || !hd )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawCubicBezier, this, param) ||
+		 !hd )
 		return;
 	}
 	if ( txop != TxNone )
@@ -2402,20 +2404,22 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
     if ( cpen.style() != NoPen ) {
 	pa = pa.cubicBezier();
 	XDrawLines( dpy, hd, gc, (XPoint*)pa.shortPoints(), pa.size(),
-		    CoordModeOrigin);
+		    CoordModeOrigin );
     }
 }
 
 
 /*!
-  Draws a pixmap at \a (x,y) by copying a part of \a pixmap into the
+  Draws a pixmap at \a (x, y) by copying a part of \a pixmap into the
   paint device.
 
-  \a (x,y) specify the top-left point in the paint device that is to
-  be drawn onto.  \a (sx,sy) specify the top-left point in \a pixmap
-  that is to be drawn (the default is (0,0).  \a (sw,sh) specify the
-  size of the pixmap that is to be drawn (the default, (-1,-1), means
-  all the way to the right/bottom of the pixmap).
+  \a (x, y) specify the top-left point in the paint device that is to
+  be drawn onto.  \a (sx, sy) specify the top-left point in \a pixmap
+  that is to be drawn. The default is (0, 0).
+
+  \a (sw, sh) specify the size of the pixmap that is to be drawn. The
+  default, (-1, -1), means all the way to the bottom right of the
+  pixmap.
 
   \sa bitBlt(), QPixmap::setMask()
 */
@@ -2475,10 +2479,11 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    }
 	    if ( testf(ExtDev) ) {
 		QPDevCmdParam param[2];
-		QPoint p(x,y);
+		QPoint p(x, y);
 		param[0].point	= &p;
 		param[1].pixmap = &pixmap;
-		if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param) || !hd )
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap, this, param) ||
+		     !hd )
 		    return;
 	    }
 	    if ( txop == TxScale || txop == TxRotShear ) {
@@ -2653,9 +2658,9 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
 /*!
   Draws a tiled \a pixmap in the specified rectangle.
 
-  \a (x,y) specify the top-left point in the paint device that is to
-  be drawn onto.  \a (sx,sy) specify the top-left point in \a pixmap
-  that is to be drawn (the default is (0,0).
+  \a (x, y) specify the top-left point in the paint device that is to
+  be drawn onto.  \a (sx, sy) specify the top-left point in \a pixmap
+  that is to be drawn. The default is (0, 0).
 
   Calling drawTiledPixmap() is similar to calling drawPixmap() several
   times to fill (tile) an area with a pixmap, but is potentially
@@ -2769,15 +2774,15 @@ static QBitmap *get_text_bitmap( const QString &key )
 
 static void ins_text_bitmap( const QString &key, QBitmap *bm )
 {
-    if ( !QPixmapCache::insert(key,bm) )	// cannot insert pixmap
+    if ( !QPixmapCache::insert(key, bm) )	// cannot insert pixmap
 	delete bm;
 }
 
 
 /*!
-  Draws at most \a len characters of the string \a str to position \a (x,y).
+  Draws at most \a len characters of the string \a str to position \a (x, y).
 
-  \a (x,y) is the base line position.  Note that the meaning of \a y
+  \a (x, y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
 void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection dir )
@@ -2792,9 +2797,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 
 /*!
   Draws at most \a len characters starting at position \a pos from the string \a str to
-  position \a (x,y).
+  position \a (x, y).
 
-  \a (x,y) is the base line position.  Note that the meaning of \a y
+  \a (x, y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
 void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPainter::TextDirection dir )
@@ -2827,7 +2832,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		param[0].point = &p;
 		param[1].str = &s;
 		param[2].ival = cache->script;
-		retval = pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
+		retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
 		cache = cache->next;
 	    }
 	    delete cache;
@@ -2885,7 +2890,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		int fx = x;
 		int fy = y - fm.ascent();
-		int fw = fm.width(str,len);
+		int fw = fm.width(str, len);
 		int fh = fm.ascent() + fm.descent();
 		int m, n;
 		QPointArray a(5);

@@ -84,17 +84,17 @@
 
   Returns:
   <ul>
-  <li> 0 if \a item1 == \a item2
-  <li> non-zero if \a item1 != \a item2
+  <li> 0 if \a d1 == \a d2
+  <li> non-zero if \a d1 != \a d2
   </ul>
 
   This function returns \e int rather than \e bool so that
   reimplementations can return one of three values and use it to sort
   by:
   <ul>
-  <li> 0 if \e item1 == \e item2
-  <li> \> 0 (positive integer) if \a item1 \> \a item2
-  <li> \< 0 (negative integer) if \a item1 \< \a item2
+  <li> 0 if \a d1 == \a d2
+  <li> \> 0 (positive integer) if \a d1 \> \a d2
+  <li> \< 0 (negative integer) if \a d1 \< \a d2
   </ul>
 
   The QVector::sort() and QVector::bsearch() functions require that
@@ -114,7 +114,7 @@ int QGVector::compareItems( Item d1, Item d2 )
   Reads a collection/vector item from the stream \a s and returns a reference
   to the stream.
 
-  The default implementation sets \e item to 0.
+  The default implementation sets \a d to 0.
 
   \sa write()
 */

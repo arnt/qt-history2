@@ -197,9 +197,10 @@ void QPicture::setData( const char* data, uint size )
   Loads a picture from the file specified by \e fileName and returns TRUE
   if successful, otherwise FALSE.
 
-  By default, \a file will be interpreted as being of the native QPicture
-  format. Specifying the \a format string is optional and is only needed
-  for importing picture data stored in a different format.
+  By default, the file will be interpreted as being of the native
+  QPicture format. Specifying the \a format string is optional and is
+  only needed for importing picture data stored in a different
+  format.
 
   Currently, the only external format supported is the
   \link http://www.w3.org/Graphics/SVG/ W3C SVG \endlink format which requires

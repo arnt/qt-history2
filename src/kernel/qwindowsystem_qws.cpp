@@ -1751,11 +1751,8 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
   clients, and waits for all required acknowledgements.
 
   If \a changingw is 0, the server's reserved region is changed.
-  If \a onlyAllocate is TRUE, the requested region is not changed, only
-  the allocated region. Be careful using this option, it is only really
-  useful if the windows list changes.
 */
-void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r )
+void QWSServer::setWindowRegion( QWSWindow* changingw, QRegion r )
 {
 #ifdef QWS_REGION_DEBUG
     qDebug("setWindowRegion %d", changingw ? changingw->winId() : -1 );
@@ -1800,8 +1797,8 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r )
     }
 
     if ( changingw && !changingw->requested_region.isEmpty() )
-	changingw->addAllocation( rgnMan, extra_allocation & screenRegion);
-    else if (!disablePainting)
+	changingw->addAllocation( rgnMan, extra_allocation & screenRegion );
+    else if ( !disablePainting )
 	paintServerRegion();
 
     exposeRegion( exposed, windex+1 );

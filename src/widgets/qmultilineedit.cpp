@@ -135,8 +135,8 @@ bool QMultiLineEdit::atBeginning() const
     return textCursor()->parag() == document()->firstParag() && textCursor()->atParagStart();
 }
 
-/*!  Returns the number of characters at paragraph number \a line. If
-  \a line is out of range, -1 is returned.
+/*!  Returns the number of characters at paragraph number \a row. If
+  \a row is out of range, -1 is returned.
 */
 
 int QMultiLineEdit::lineLength( int row ) const
@@ -426,7 +426,7 @@ int QMultiLineEdit::alignment() const
 }
 
 
-/*!  Sets the edited flag of this line edit to \a on.  The edited flag
+/*!  Sets the edited flag of this line edit to \a e.  The edited flag
   is never read by QMultiLineEdit, but is changed to TRUE whenever the
   user changes its contents.
 
@@ -478,8 +478,8 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
     moveCursor( MoveLeft, mark, TRUE );
 }
 
-/*!  Inserts \a txt at paragraph number \a line, after character
-  number \a col in the paragraph.  If \a txt contains newline
+/*!  Inserts \a s at paragraph number \a line, after character
+  number \a col in the paragraph.  If \a s contains newline
   characters, new lines are inserted.
 
   The cursor position is adjusted.

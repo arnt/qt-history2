@@ -512,7 +512,7 @@ void QPrinter::setPageOrder( PageOrder newPageOrder )
 
 /*!  Returns the current page order.
 
-  The default page order is \a FirstPageFirst.
+  The default page order is FirstPageFirst.
 */
 
 QPrinter::PageOrder QPrinter::pageOrder() const

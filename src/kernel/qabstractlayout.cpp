@@ -313,7 +313,7 @@ QLayoutIterator QLayoutItem::iterator()
   exponential time.  \sa hasHeightForWidth()
 */
 
-int QLayoutItem::heightForWidth( int ) const
+int QLayoutItem::heightForWidth( int /* w */ ) const
 {
     return -1;
 }

@@ -1263,10 +1263,12 @@ void QPrintDialog::setLastPage( int lp )
 }
 
 
-/*!  Sets this dialog to configure \a p, or no printer if \a p is
-  FALSE.  If \a pickUpSettings is TRUE, the dialog reads most of its
-  settings from \a printer.  If \a pickUpSettings is FALSE (the
-  default) the dialog keeps its old settings. */
+/*!
+  Sets this dialog to configure printer \a p, or no printer if \a p
+  is null. If \a pickUpSettings is TRUE, the dialog reads most of
+  its settings from \a p. If \a pickUpSettings is FALSE (the
+  default) the dialog keeps its old settings.
+*/
 
 void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 {

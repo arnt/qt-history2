@@ -459,7 +459,7 @@ int QMetaObject::numProperties( bool super ) const	// number of signals
 }
 
 /*!
-  Returns the property meta data for the property with name \a name
+  Returns the property meta data for the property at index \a index
   or 0 if no such property exists.
 
   If \a super is TRUE, inherited properties are included.

@@ -671,7 +671,8 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
 }
 
 /*!
-  Sets the color of the brush in \a gr used for color role \a r to \a c.
+  Sets the brush color used for color role \a r to \a c in all three color
+  groups.
 
   \sa color() setBrush() QColorGroup::ColorRole
 */

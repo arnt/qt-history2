@@ -1035,8 +1035,8 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 }
 
 /*!
-  Returns TRUE if the \e fileName matches the wildcard \e filter.
-  \a Filter may also contain multiple wildcards separated by spaces or
+  Returns TRUE if the \a fileName matches the wildcard \a filter.
+  The \a filter may also contain multiple wildcards separated by spaces or
   semicolons.
 
   \sa QRegExp::match()

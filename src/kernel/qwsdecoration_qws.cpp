@@ -150,7 +150,7 @@ public:
 
   The default behaviour is to ignore this action.
 */
-void QWSDecoration::minimize( QWidget * )
+void QWSDecoration::minimize( QWidget * /* widget */ )
 {
 //      new MinimisedWindow( w );
     

@@ -398,7 +398,7 @@ bool QUrlInfo::isExecutable() const
 }
 
 /*!
-  Returns TRUE if \a u1 is greater than \a u2, otherwise FALSE. The objects
+  Returns TRUE if \a i1 is greater than \a i2, otherwise FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
   to be one of QDir::Name, QDir::Time or QDir::Size.
 */
@@ -419,7 +419,7 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  Returns TRUE if \a u1 is less than \a u2, otherwise FALSE. The objects
+  Returns TRUE if \a i1 is less than \a i2, otherwise FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
   to be one of QDir::Name, QDir::Time or QDir::Size.
 */
@@ -431,7 +431,7 @@ bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  Returns TRUE if \a u1 equals to \a u2, otherwise FALSE. The objects
+  Returns TRUE if \a i1 equals to \a i2, otherwise FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
   to be one of QDir::Name, QDir::Time or QDir::Size.
 */

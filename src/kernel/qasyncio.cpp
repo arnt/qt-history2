@@ -190,9 +190,9 @@ bool QDataSource::rewindable() const
   data is discarded, returning FALSE in rewindable() if that first buffer
   is discarded.
 */
-void QDataSource::enableRewind(bool)
+void QDataSource::enableRewind( bool /* on */ )
 {
-    qFatal("Attempted to make unrewindable QDataSource rewindable");
+    qFatal( "Attempted to make unrewindable QDataSource rewindable" );
 }
 
 /*!

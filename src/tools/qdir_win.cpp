@@ -213,23 +213,23 @@ bool QDir::isRoot() const
 
   Returns TRUE if successful, otherwise FALSE.
 
-  On most file systems, rename() fails only if oldName does not exist
+  On most file systems, rename() fails only if \a oldName does not exist
   or if \a newName and \a oldName are not on the same partition, but
   there are also other reasons why rename() can fail.  For example, on
   at least one file system rename() fails if newName points to an open
   file
 */
 
-bool QDir::rename( const QString &name, const QString &newName,
+bool QDir::rename( const QString &oldName, const QString &newName,
 		   bool acceptAbsPaths	)
 {
-    if ( name.isEmpty() || newName.isEmpty() ) {
+    if ( oldName.isEmpty() || newName.isEmpty() ) {
 #if defined(QT_CHECK_NULL)
-	qWarning( "QDir::rename: Empty or null file name(s)" );
+	qWarning( "QDir::rename: Empty or null file name" );
 #endif
 	return FALSE;
     }
-    QString fn1 = filePath( name, acceptAbsPaths );
+    QString fn1 = filePath( oldName, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
     if ( qt_winunicode ) {
 	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn2);

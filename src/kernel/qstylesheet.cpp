@@ -710,7 +710,8 @@ int QStyleSheetItem::lineSpacing() const
 
 /*!
   \class QStyleSheet qstylesheet.h
-  \brief A collection of styles for rich text rendering and a generator of tags.
+  \brief The QStyleSheet class is a collection of styles for rich text
+  rendering and a generator of tags.
 
   \ingroup drawing
   \ingroup helpsystem
@@ -720,9 +721,9 @@ int QStyleSheetItem::lineSpacing() const
   internal rich text rendering system to parse and display text
   documents to which the style sheet applies. Rich text is normally
   visualized in a QTextView or a QTextBrowser. However, QLabel,
-  QWhatsThis and QMessageBox also support it, and other classes are likely to
-  follow. With QSimpleRichText it is possible to use the rich text
-  renderer for custom widgets as well.
+  QWhatsThis and QMessageBox also support it, and other classes are
+  likely to follow. With QSimpleRichText it is possible to use the
+  rich text renderer for custom widgets as well.
 
   The default QStyleSheet object has the following style bindings,
   sorted by structuring bindings, anchors, character style bindings

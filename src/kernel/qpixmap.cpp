@@ -967,7 +967,7 @@ static QPixmap grabChildWidgets( QWidget * w )
 
   If \a widget is 0, or if the rectangle defined by \a x, \a y, the
   modified \a w and the modified \a h does not overlap the \a
-  widget->rect(), this function will return a null QPixmap.
+  {widget}->rect(), this function will return a null QPixmap.
 
   This function actually asks \a widget to paint itself (and its
   children to paint themselves).  QPixmap::grabWindow() grabs pixels

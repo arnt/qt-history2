@@ -780,11 +780,11 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
   Adds a tool tip to an entire \a widget and to tool tip group \a
   group.
 
-  \e text is the text shown in the tool tip and \a longText is the
+  \e text is the text shown in the tool tip and \a groupText is the
   text emitted from \a group.  QToolTip makes deep copies of both
   strings.
 
-  Normally, \a longText is shown in a status bar or similar.
+  Normally, \a groupText is shown in a status bar or similar.
 */
 
 void QToolTip::add( QWidget *widget, const QRect &rect,

@@ -59,7 +59,7 @@
 /*!
   Constructs a QDropSite to handle events for the widget \a self.
 
-  Pass <tt>this</tt> as the \a parent parameter.
+  Pass \c this as the \a self parameter.
   This enables dropping by calling QWidget::setAcceptDrops(TRUE).
 */
 QDropSite::QDropSite( QWidget* self )

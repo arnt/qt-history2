@@ -382,14 +382,13 @@ QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
 
 QDoubleValidator::~QDoubleValidator()
 {
-    // nothing
 }
 
 
-/*!  Returns \a Acceptable if \a input contains a number in the legal
-  range and format, \a Intermediate if it contains another number, a
+/*!  Returns Acceptable if \a input contains a number in the legal
+  range and format, Intermediate if it contains another number, a
   number with too many digits after the decimal point or is empty and
-  \a Invalid if \a input is not a number.
+  Invalid if \a input is not a number.
 */
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const

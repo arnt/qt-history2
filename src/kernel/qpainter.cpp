@@ -1710,7 +1710,7 @@ QPointArray QPainter::xForm( const QPointArray &av, int index,
 }
 
 /*!
-  Returns the point \a pv transformed from device coordinates to model
+  Returns the point \a pd transformed from device coordinates to model
   coordinates.
   \sa xForm(), QWMatrix::map()
 */
@@ -1731,7 +1731,7 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
 }
 
 /*!
-  Returns the rectangle \a rv transformed from device coordinates to model
+  Returns the rectangle \a rd transformed from device coordinates to model
   coordinates.
 
   If world transformation is enabled and rotation or shearing is used,
@@ -1763,7 +1763,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
     return QRect( x, y, w, h );
 }
 
-/*! Returns the point array \a av transformed from device coordinates
+/*! Returns the point array \a ad transformed from device coordinates
   to model coordinates.
 
   \sa xForm(), QWMatrix::map()
@@ -1794,7 +1794,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
   Returns the point array \a ad transformed from device coordinates to model
   coordinates.  The \a index is the first point in the array and \a npoints
   denotes the number of points to be transformed.  If \a npoints is negative,
-  all points from \a av[index] until the last point in the array are
+  all points from \a ad[index] until the last point in the array are
   transformed.
 
   The returned point array consists of the number of points that were
@@ -2166,9 +2166,9 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
 //
 
 /*!
-  Draws at most \a len characters from \a str in the rectangle \a (x,y,w,h).
+  Draws at most \a len characters from \a str in the rectangle \a r.
 
-  Note that the meaning of \a y is not the same for the two drawText()
+  Note that the meaning of \a {r}.y() is not the same for the two drawText()
   varieties.
 
   This function draws formatted text.  The \a tf text formatting is
@@ -2177,7 +2177,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   Horizontal alignment defaults to AlignAuto and vertical alignment
   defaults to AlignTop.
 
-  \a brect (if non-null) is set to the actual bounding rectangle of
+  \a brect (if nonnull) is set to the actual bounding rectangle of
   the output.  \a internal is, yes, internal.
 
   \sa boundingRect()
@@ -2431,7 +2431,7 @@ void qt_format_text( const QFont& font, const QRect &r,
   Returns the bounding rectangle of the aligned text that would be
   printed with the corresponding drawText() function (the first \a len
   characters from \a str).  The drawing, and hence the bounding
-  rectangle, is constrained to the rectangle \a (x,y,w,h).
+  rectangle, is constrained to the rectangle \a r.
 
   If \a len is negative (default value), the whole string is used.
 
@@ -2626,12 +2626,12 @@ void QPen::detach()
 
 
 /*!
-  Assigns \a c to this pen and returns a reference to this pen.
+  Assigns \a p to this pen and returns a reference to this pen.
 */
 
 QPen &QPen::operator=( const QPen &p )
 {
-    p.data->ref();				// beware of p = p
+    p.data->ref();
     if ( data->deref() )
 	delete data;
     data = p.data;

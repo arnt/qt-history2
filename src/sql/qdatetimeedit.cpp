@@ -739,8 +739,8 @@ QDateEdit::~QDateEdit()
   \brief the minimum editor value
 
   Setting the minimum date value is equivalent to calling
-  QDateEdit::setRange( d, maxValue() ), where \e d is the minimum
-  date.
+  QDateEdit::setRange( \e d, maxValue() ), where \e d is the
+  minimum date.
 */
 
 /*!
@@ -756,7 +756,7 @@ QDate QDateEdit::minValue() const
   \brief the maximum editor value
 
   Setting the maximum date value for the editor is equivalent to
-  calling QDateEdit::setRange( minValue(), d ), where \e d is the
+  calling QDateEdit::setRange( minValue(), \e d ), where \e d is the
   maximum date.
 */
 
@@ -1522,8 +1522,8 @@ QTimeEdit::~QTimeEdit()
   \brief the minimum time value
 
   Setting the minimum time value is equivalent to calling
-  QTimeEdit::setRange( t, maxValue() ), where \e t is the minimum
-  time.
+  QTimeEdit::setRange( \e t, maxValue() ), where \e t is the
+  minimum time.
 */
 
 /*!
@@ -1539,8 +1539,8 @@ QTime QTimeEdit::minValue() const
   \brief the maximum time value
 
   Setting the maximum time value is equivalent to calling
-  QTimeEdit::setRange( minValue(), t ), where \e t is the maximum
-  time.
+  QTimeEdit::setRange( minValue(), \e t ), where \e t is the
+  maximum time.
 */
 
 /*!

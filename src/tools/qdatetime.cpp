@@ -824,7 +824,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 
 /*!
   Returns a QTime object containing a time \a nsecs seconds later than
-  the time of this object (or earlier if \a ms is negative).
+  the time of this object (or earlier if \a nsecs is negative).
 
   Note that the time will wrap if it passes midnight.
 
@@ -843,7 +843,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 
 QTime QTime::addSecs( int nsecs ) const
 {
-    return addMSecs(nsecs*1000);
+    return addMSecs( nsecs * 1000 );
 }
 
 /*!

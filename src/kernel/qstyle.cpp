@@ -941,7 +941,7 @@ int QStyle::toolBarHandleExtent() const
 /*!
   Draws the handle for the tool bar using the painter \a p with the handle
   coordinates \a r. \a orientation gives the orientation of the tool bar;
-  the handle is drawn \a highlighted if \a highlight is TRUE, otherwise
+  the handle is drawn highlighted if \a highlight is TRUE, otherwise
   not. \a cg is the QColorGroup of the tool bar; and if \a drawBorder is
   TRUE a border around the handle may be drawn.
 */
