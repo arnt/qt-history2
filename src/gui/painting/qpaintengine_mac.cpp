@@ -28,6 +28,7 @@
 #include <private/qpaintengine_mac_p.h>
 #include <qprintengine_mac.h>
 #include <private/qpainter_p.h>
+#include <private/qpixmap_p.h>
 #include <private/qwidget_p.h>
 
 #include <qpainterpath.h>

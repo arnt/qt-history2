@@ -14,7 +14,7 @@
 #ifndef QPAINTENGINE_MAC_P_H
 #define QPAINTENGINE_MAC_P_H
 
-#include "qpaintengine_p.h"
+#include <private/qpaintengine_p.h>
 
 /*****************************************************************************
   QuickDraw Private data

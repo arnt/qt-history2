@@ -761,8 +761,8 @@ QString QAccessibleWidget::text(Text t, int child) const
     case Name:
         if (!d->name.isEmpty())
             str = d->name;
-        else if (!widget->accessibleName().isEmpty())
-            str = widget->accessibleName();
+        else if (!widget()->accessibleName().isEmpty())
+            str = widget()->accessibleName();
         else if (!child && widget()->isTopLevel())
             str = widget()->windowTitle();
         else
@@ -771,8 +771,8 @@ QString QAccessibleWidget::text(Text t, int child) const
     case Description:
         if (!d->description.isEmpty())
             str = d->description;
-        else if (!widget->accessibleDescription().isEmpty())
-            str = widget->accessibleDescription();
+        else if (!widget()->accessibleDescription().isEmpty())
+            str = widget()->accessibleDescription();
         else
             str = widget()->toolTip();
         break;
