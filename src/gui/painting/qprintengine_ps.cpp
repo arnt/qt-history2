@@ -3330,13 +3330,10 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
                    << pageCount << "\n";
         for (QHash<QString, QPSPrintEngineFont *>::Iterator it = fonts.begin(); it != fonts.end(); ++it)
             (*it)->download(outStream, true); // true means its global
-        outStream.writeRawBytes(fontBuffer->buffer(),
-                              fontBuffer->buffer().size());
+        outStream << fontBuffer->buffer();
     }
     outStream << "%%EndSetup\n";
-
-    outStream.writeRawBytes(buffer->buffer(),
-                          buffer->buffer().size());
+    outStream << buffer->buffer();
 
     delete buffer;
     buffer = 0;
@@ -3383,8 +3380,7 @@ void QPSPrintEnginePrivate::flushPage(bool last)
     }
     outStream  << "%%EndPageSetup\n";
     if (pageBuffer)
-        outStream.writeRawBytes(pageBuffer->buffer(),
-                                 pageBuffer->buffer().size());
+        outStream << pageBuffer->buffer();
     outStream << "\nQP\n";
     pageCount++;
 }
