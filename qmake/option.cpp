@@ -37,6 +37,7 @@ QString Option::cpp_moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
 QString Option::sysenv_mod;
+char Option::field_sep;
 
 //mode
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
@@ -300,6 +301,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
     Option::sysenv_mod = "QMAKE_ENV_";
+    Option::field_sep = ' ';
 
     if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
 	Option::qmake_mode = default_mode(argv[0]);
