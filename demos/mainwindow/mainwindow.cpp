@@ -126,6 +126,8 @@ void MainWindow::setupDockWindows()
         swatch->setFeatures(QDockWindow::DockWindowFeatures(sets[i].features));
         swatch->setArea(sets[i].area);
 
+        // addDockWindow(sets[i].area, swatch);
+
         dockWindowMenu->addMenu(swatch->menu);
     }
 }

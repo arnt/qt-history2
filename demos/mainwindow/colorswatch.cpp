@@ -16,6 +16,7 @@
 #include <qaction.h>
 #include <qevent.h>
 #include <qframe.h>
+#include <qmainwindow.h>
 #include <qmenu.h>
 
 ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFlags flags)
@@ -108,11 +109,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
     connect(movableAction, SIGNAL(checked(bool)), floatableAction, SLOT(setEnabled(bool)));
 
     menu = new QMenu(colorName, this);
-
-    QAction *toggleViewAction = this->toggleViewAction();
-    toggleViewAction->setText(tr("Visible"));
-    menu->addAction(toggleViewAction);
-
+    menu->addAction(toggleViewAction());
     menu->addSeparator();
     menu->addAction(closableAction);
     menu->addAction(movableAction);
@@ -126,7 +123,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
     if(colorName == "Black") {
         leftAction->setShortcut(Qt::CTRL|Qt::Key_W);
         rightAction->setShortcut(Qt::CTRL|Qt::Key_E);
-        toggleViewAction->setShortcut(Qt::CTRL|Qt::Key_R);
+        toggleViewAction()->setShortcut(Qt::CTRL|Qt::Key_R);
     }
 }
 
@@ -138,6 +135,7 @@ void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
 
 void ColorSwatch::polishEvent(QEvent *)
 {
+    // const Qt::DockWindowArea area = mainWindow()->dockWindowArea(this);
     const Qt::DockWindowArea area = this->area();
     const Qt::DockWindowAreas areas = allowedAreas();
 
@@ -197,6 +195,7 @@ void ColorSwatch::place(Qt::DockWindowArea area, bool p)
     if (!p) return;
 
     setArea(area);
+    // mainWindow()->addDockWindow(area, this);
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::DockWindowAreaLeft);
