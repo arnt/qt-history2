@@ -820,6 +820,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 void QTextEngine::init(const QString &str)
 {
     pal = 0;
+    textFlags = 0;
     string = str;
     direction = QChar::DirON;
     haveCharAttributes = false;
