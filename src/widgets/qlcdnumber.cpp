@@ -527,6 +527,10 @@ void QLCDNumber::display( double num )
 void QLCDNumber::display( const QString &s )
 {
     val = 0;
+    bool ok = FALSE;
+    double v = s.toDouble( &ok );
+    if ( ok )
+	val = v;
     internalSetString( s );
 }
 
