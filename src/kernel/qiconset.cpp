@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#74 $
 **
 ** Implementation of QIconSet class
 **
@@ -145,9 +145,9 @@ public:
   is to supply both large and small sizes of pixmaps.
   
   You can use the static function setIconSize() to set the preferred
-  size of the generated large/small icons. The default small size is 
-  16x16, while the default large size is 32x32. Please note that these
-  sizes only affect generated icons.
+  size of the generated large/small icons. The default small size is
+  22x22 (compatible with the 2.x system), while the default large size
+  is 32x32. Please note that these sizes only affect generated icons.
 
   QIconSet provides a function, isGenerated(), that indicates whether
   an icon was set by the application programmer or computed by
@@ -1014,7 +1014,7 @@ void QIconSet::setIconSize( Size s, const QSize & size )
 		  "been instantiated." );
     
     if ( !QIconSetPrivate::small_size ) {
-	QIconSetPrivate::small_size = new QSize( 16, 16 ); // default small size
+	QIconSetPrivate::small_size = new QSize( 22, 22 ); // default small size
 	QIconSetPrivate::large_size = new QSize( 32, 32 ); // default large size
 	qt_iconset_sizes_cleanup.add( QIconSetPrivate::small_size );
 	qt_iconset_sizes_cleanup.add( QIconSetPrivate::large_size );
@@ -1033,7 +1033,7 @@ void QIconSet::setIconSize( Size s, const QSize & size )
 const QSize & QIconSet::iconSize( Size s )
 {
     if ( !QIconSetPrivate::small_size ) {
-	QIconSetPrivate::small_size = new QSize( 16, 16 );
+	QIconSetPrivate::small_size = new QSize( 22, 22 );
 	QIconSetPrivate::large_size = new QSize( 32, 32 );
 	qt_iconset_sizes_cleanup.add( QIconSetPrivate::small_size );
 	qt_iconset_sizes_cleanup.add( QIconSetPrivate::large_size );
