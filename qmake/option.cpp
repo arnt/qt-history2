@@ -563,7 +563,7 @@ struct FixStringCacheKey
     }
     uint hashCode() const {
         if(!hash)
-            hash = qHash(string) | qHash(flags) | qHash(pwd);
+            hash = qHash(string) | qHash(flags) /*| qHash(pwd)*/;
         return hash;
     }
 };

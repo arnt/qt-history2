@@ -1404,14 +1404,15 @@ struct ReplaceExtraCompilerCacheKey
     }
     bool operator==(const ReplaceExtraCompilerCacheKey &f) const
     {
-        return (f.var == var &&
+        return (hashCode() == f.hashCode() &&
                 f.in == in &&
                 f.out == out &&
+                f.var == var &&
                 f.pwd == pwd);
     }
     inline uint hashCode() const {
         if(!hash)
-            hash = qHash(var) | qHash(in) | qHash(out) | qHash(pwd);
+            hash = qHash(var) | qHash(in) | qHash(out) /*| qHash(pwd)*/;
         return hash;
     }
 };
@@ -1707,6 +1708,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 char buff[256];
                 QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
                 dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                QStringList dep_cmd_deps;
                 if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                     QString indeps;
                     while(!feof(proc)) {
@@ -1717,13 +1719,19 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     }
                     fclose(proc);
                     if(!indeps.isEmpty())
-                        deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                        dep_cmd_deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                 }
+#if 1
+                for(int i = 0; i < dep_cmd_deps.size(); ++i) {
+                    if(out != dep_cmd_deps.at(i))
+                        deps += replaceExtraCompilerVariables(dep_cmd_deps.at(i), (*input), out);
+                }
+#endif
             }
             t << out << ": " << in;
             for(int i = 0; i < deps.size(); ++i) {
-                  if(out != deps.at(i))
-                      t<< " " <<  replaceExtraCompilerVariables(deps.at(i), (*input), out);
+                if(out != deps.at(i))
+                    t<< " " <<  deps.at(i);
             }
             t << "\n\t"
               << cmd << endl << endl;
@@ -2260,7 +2268,7 @@ struct FileInfoCacheKey
     }
     inline uint hashCode() const {
         if(!hash)
-            hash = qHash(file) | qHash(pwd);
+            hash = qHash(file) /*| qHash(pwd)*/;
         return hash;
     }
 };
@@ -2334,12 +2342,8 @@ struct FileFixifyCacheKey
     }
     inline uint hashCode() const {
         if(!hash)
-            hash = uint(canonicalize) |
-                   uint(fixType) |
-                   qHash(file) |
-                   qHash(pwd) |
-                   qHash(in_d) |
-                   qHash(out_d);
+            hash = uint(canonicalize) | uint(fixType) |
+                   qHash(file) | qHash(in_d) | qHash(out_d) /*|qHash(pwd)*/;
         return hash;
     }
 };

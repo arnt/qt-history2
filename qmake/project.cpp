@@ -1371,13 +1371,16 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 			feature_roots->join("::").toLatin1().constData());
             int start_root = 0;
             if(parser.from_file) {
-                QFileInfo currFile(QFileInfo(parser.file).canonicalFilePath());
-                for(int root = 0; root < feature_roots->size(); ++root) {
-                    QString prf(feature_roots->at(root) + QDir::separator() + file);
-                    QFileInfo prfFile(QFileInfo(prf).canonicalFilePath());
-                    if(prfFile == currFile) {
-                        start_root = root+1;
-                        break;
+                QFileInfo currFile(parser.file), prfFile(file);
+                if(currFile.fileName() == prfFile.fileName()) {
+                    currFile = QFileInfo(currFile.canonicalFilePath());
+                    for(int root = 0; root < feature_roots->size(); ++root) {
+                        prfFile = QFileInfo(feature_roots->at(root) +
+                                            QDir::separator() + file).canonicalFilePath();
+                        if(prfFile == currFile) {
+                            start_root = root+1;
+                            break;
+                        }
                     }
                 }
             }
