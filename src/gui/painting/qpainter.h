@@ -114,6 +114,7 @@ public:
 #ifndef QT_NO_TRANSFORMATIONS
     void setMatrix(const QMatrix &matrix, bool combine = false);
     const QMatrix &matrix() const;
+    const QMatrix &deviceMatrix() const;
     void resetMatrix();
 
     void setMatrixEnabled(bool enabled);

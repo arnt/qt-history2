@@ -1588,6 +1588,23 @@ const QMatrix &QPainter::matrix() const
     return d->state->worldMatrix;
 }
 
+
+/*!
+    Returns the matrix that transforms from logical coordinates to
+    device coordinates of the platform dependent paintdevice.
+
+    This function is ONLY needed when using platform painting commands
+    on the platform dependent handle, and the platform does not do
+    transformations nativly.
+
+    \sa matrix(), QPaintEngine::hasFeature()
+*/
+const QMatrix &QPainter::deviceMatrix() const
+{
+    Q_D(const QPainter);
+    return d->state->matrix;
+}
+
 /*!
     Resets any transformations that were made using translate(), scale(),
     shear(), rotate(), setMatrix(), setViewport() and
