@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#29 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#29 $")
 
 
 // --------------------------------------------------------------------------
@@ -633,7 +633,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( w->testWFlags(WState_Paint) )	// during paint event
 	    hdc = w->hdc;
 	else
-	    hdc = GetDC( w->id() );
+	    w->hdc = hdc = GetDC( w->id() );
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    // !!!hanord todo
 	}
@@ -735,8 +735,11 @@ bool QPainter::end()
 	pdev->cmd( PDC_END, this, 0 );
 
     if ( pdev->devType() == PDT_WIDGET ) {
-	if ( !((QWidget*)pdev)->testWFlags(WState_Paint) )
-	    ReleaseDC( ((QWidget*)pdev)->id(), hdc );
+	if ( !((QWidget*)pdev)->testWFlags(WState_Paint) ) {
+	    QWidget *w = (QWidget*)pdev;
+	    ReleaseDC( w->id(), hdc );
+	    w->hdc = 0;
+	}
     }
     else if ( pdev->devType() == PDT_PIXMAP ) {
 	QPixmap *pm = (QPixmap*)pdev;
@@ -1700,9 +1703,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( !isActive() || pixmap.isNull() )
 	return;
     if ( sw < 0 )
-	sw = pixmap.width();
+	sw = pixmap.width() - sx;
     if ( sh < 0 )
-	sh = pixmap.height();
+	sh = pixmap.height() - sy;
     if ( testf(ExtDev) ) {
 	if ( !hdc && (sx != 0 || sy != 0 ||
 	     sw != pixmap.width() || sh != pixmap.height()) ) {
