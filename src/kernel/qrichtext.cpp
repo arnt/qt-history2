@@ -1566,6 +1566,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    break;
 		if ( !hadNonSpace && space && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
 		    continue;
+		if ( c == '\r' )
+		    continue;
 		s += c;
 	    }
 	    if ( !s.isEmpty() && curtag.style->displayMode() != QStyleSheetItem::DisplayNone ) {
