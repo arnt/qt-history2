@@ -33,7 +33,7 @@ static DWORD qt_current_data_tls_index = TLS_OUT_OF_INDEXES;
 static DWORD qt_current_thread_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
 {
-    if (qt_current_thread_tls_index != TLS_OUT_OF_INDEXES) 
+    if (qt_current_thread_tls_index != TLS_OUT_OF_INDEXES)
         return;
     static QMutex mutex;
     QMutexLocker locker(&mutex);
@@ -74,9 +74,9 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
     QThread::setTerminationEnabled(false);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData *data = &thr->d_func()->data;   
+    QThreadData *data = &thr->d_func()->data;
     TlsSetValue(qt_current_data_tls_index, data);
-    
+
     (void) new QEventDispatcherWin32;
     Q_ASSERT(data->eventDispatcher != 0);
     data->eventDispatcher->startingUp();
@@ -278,6 +278,12 @@ bool QThread::wait(unsigned long time)
 
     locker.mutex()->lock();
     --d->waiters;
+
+    if (ret && !d->finished) {
+        // thread was terminated by someone else
+        d->terminated = true;
+        QThreadPrivate::finish(this, false);
+    }
 
     if (d->finished && !d->waiters) {
         CloseHandle(d->handle);
