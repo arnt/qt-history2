@@ -146,7 +146,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
                                  || fw->editMode() == AbstractFormWindow::View3DEditMode
 #endif
     ;
-                                             
+
     switch (e->type()) {
         case QEvent::Close: {
             if (o != fw)
@@ -847,7 +847,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
         if (parent == 0)
             parent = form->mainContainer();
 
-        form->mainContainer()->setActiveWindow();
+        form->mainContainer()->activateWindow();
         form->clearSelection(false);
 
         form->highlightWidget(m_last_widget_under_mouse,
