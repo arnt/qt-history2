@@ -3082,7 +3082,8 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 
     QTableItem *itm = item( pressedRow, pressedCol );
     if ( itm && !itm->isEnabled() ) {
-	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	if ( !context_menu )
+	    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 	if ( e->button() == RightButton && context_menu )
 	    emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );
 	return;
@@ -3158,7 +3159,8 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	}
     }
 
-    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+    if ( !context_menu )
+	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
 
     if ( e->button() == RightButton && context_menu )
 	emit contextMenuRequested( tmpRow, tmpCol, e->globalPos() );

@@ -4284,9 +4284,11 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
  emit_signals:
     if ( !d->rubber ) {
-	emit mouseButtonPressed( e->button(), item, e->globalPos() );
-	emit pressed( item );
-	emit pressed( item, e->globalPos() );
+	if ( !d->context_menu ) {
+	    emit mouseButtonPressed( e->button(), item, e->globalPos() );
+	    emit pressed( item );
+	    emit pressed( item, e->globalPos() );
+	}
 
 	if ( e->button() == RightButton ) {
 	    if ( !d->context_menu )

@@ -2038,14 +2038,17 @@ void QListBox::mousePressEventEx( QMouseEvent *e )
     d->ignoreMoves = FALSE;
 
     d->pressedItem = i;
-    emit pressed( i );
-    emit pressed( i, e->globalPos() );
-    emit mouseButtonPressed( e->button(), i, e->globalPos() );
 
-    if ( d->context_menu )
-	emit contextMenuRequested( i, e->globalPos() );
-    else
-	emit rightButtonPressed( i, e->globalPos() );
+    if ( !d->context_menu ) {
+	emit pressed( i );
+	emit pressed( i, e->globalPos() );
+	emit mouseButtonPressed( e->button(), i, e->globalPos() );
+	if ( e->button() == RightButton )
+	    emit rightButtonPressed( i, e->globalPos() );
+    } else {
+	if ( e->button() == RightButton )
+	    emit contextMenuRequested( i, e->globalPos() );
+    }
 }
 
 
