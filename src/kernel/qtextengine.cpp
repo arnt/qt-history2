@@ -46,20 +46,19 @@ QScriptItem &QScriptItem::operator=(const QScriptItem &o)
     x = o.x; y = o.y;
     num_glyphs = o.num_glyphs;
     glyph_data_offset = o.glyph_data_offset;
-    o.fontEngine->ref();
     custom = o.custom;
 
-    if (fontEngine && fontEngine->deref())
-	delete fontEngine;
+    if (o.fontEngine) o.fontEngine->ref();
+    if (fontEngine) fontEngine->deref();
     fontEngine = o.fontEngine;
 
     return *this;
 }
 
-QScriptItem::~QScriptItem() { if (fontEngine && fontEngine->deref()) delete fontEngine; }
+QScriptItem::~QScriptItem() { if (fontEngine) fontEngine->deref(); }
 void QScriptItem::setFont(QFontEngine *e) {
     if (e) e->ref();
-    if (fontEngine && fontEngine->deref()) delete fontEngine;
+    if (fontEngine) fontEngine->deref();
     fontEngine = e;
 }
 
