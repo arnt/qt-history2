@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#3 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#4 $
 **
 ** Definition of QTextCodec class
 **
@@ -45,7 +45,7 @@ class QTextCodec {
 public:
     virtual ~QTextCodec();
 
-    static QTextCodec* loadCodec(QIODevice*);
+    static QTextCodec* loadCharmap(QIODevice*);
 
     static QTextCodec* codecForMib(int mib);
     static QTextCodec* codecForName(const char* hint);
