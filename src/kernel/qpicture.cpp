@@ -601,6 +601,7 @@ bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 
 bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
+    bool retVal = TRUE;
     QDataStream s;
     s.setDevice( &pictb );
     s.setVersion( formatMajor );
@@ -730,6 +731,9 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    break;
 	case PdcSave:
 	case PdcRestore:
+	    // we don't have our own stack but we'll use the one
+	    // from the paint device we'll painting on later with play().
+	    retVal = FALSE;
 	    break;
 	case PdcSetBkColor:
 	    s << *p[0].color;
@@ -813,7 +817,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    brect |= br;		     	// merge with existing rect
     }
 
-    return TRUE;
+    return retVal;
 }
 
 

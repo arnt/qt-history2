@@ -663,7 +663,8 @@ void QPainter::save()
 	    updatePen();
 	if ( testf(DirtyBrush) )
 	    updateBrush();
-	pdev->cmd( QPaintDevice::PdcSave, this, 0 );
+	if ( !pdev->cmd( QPaintDevice::PdcSave, this, 0 ) )
+	    return;
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
@@ -712,7 +713,8 @@ void QPainter::save()
 void QPainter::restore()
 {
     if ( testf(ExtDev) ) {
-	pdev->cmd( QPaintDevice::PdcRestore, this, 0 );
+	if ( !pdev->cmd( QPaintDevice::PdcRestore, this, 0 ) )
+	    return;
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
