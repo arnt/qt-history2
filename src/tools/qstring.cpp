@@ -15000,6 +15000,7 @@ QString &QString::setNum( double n, char f, int prec )
 #endif
     char format[20];
     char *fs = format; // generate format string: %.<prec>l<f>
+    *fs++ = '%';
     if ( prec >= 0 ) {
 	if ( prec > 99 ) // rather than crash in sprintf()
 	    prec = 99;
