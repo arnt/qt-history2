@@ -54,7 +54,7 @@ void
 Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
     t << "MAKEFILE=	" << var("MAKEFILE") << endl;
-    t << "TMAKE =	" << var("TMAKE") << endl;
+    t << "QMAKE =	" << var("QMAKE") << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
     t << "all: $(SUBDIRS)" << endl << endl;
@@ -64,7 +64,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << (*sdirit) << ":";
-	if(project->variables()["TMAKE_NOFORCE"].isEmpty())
+	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
@@ -82,7 +82,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
-	  << "$(TMAKE) " << (*sdirit) << ".pro -o $(MAKEFILE)" << "\n\t"
+	  << "$(QMAKE) " << (*sdirit) << ".pro -o $(MAKEFILE)" << "\n\t"
 	  << "@cd ..";
     }
     t << endl << endl;
@@ -96,7 +96,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     }
     t << endl << endl;
 
-    if(!project->variables()["TMAKE_NOFORCE"].isEmpty())
+    if(!project->variables()["QMAKE_NOFORCE"].isEmpty())
 	t << "FORCE:" << endl << endl;
 
 }

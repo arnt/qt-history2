@@ -157,7 +157,9 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     }
 #undef SKIP_WS
 
-    QStringList &varlist = place[var = var.stripWhiteSpace()]; /* varlist is the list in the symbol table */
+    var = var.stripWhiteSpace().replace(QRegExp("^TMAKE"), "QMAKE"); //backwards compatability
+
+    QStringList &varlist = place[var]; /* varlist is the list in the symbol table */
     QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
     if(Option::debug_level)
 	printf("Project Parser: %s:%d :%s: :%s: (%s)\n", file.latin1(), line_count,
@@ -373,7 +375,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps)
 	if(invert_test)
 	    test = !test;
 	if(!test) {
-	    vars["TMAKE_FAILED_REQUIREMENTS"].append(dep);
+	    vars["QMAKE_FAILED_REQUIREMENTS"].append(dep);
 	    return;
 	}
     }

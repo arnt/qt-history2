@@ -50,10 +50,10 @@ DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : Win32MakefileGener
 bool
 DspMakefileGenerator::writeMakefile(QTextStream &t)
 {
-    if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	/* for now just dump, I need to generated an empty dsp or something.. */
 	fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
-		var("TMAKE_FAILED_REQUIREMENTS").latin1());
+		var("QMAKE_FAILED_REQUIREMENTS").latin1());
 	return TRUE;
     }
 
@@ -167,7 +167,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["INTERFACES"].isEmpty())
 		    continue;
 
-		QString uicpath = var("TMAKE_UIC");
+		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
 		QStringList &list = project->variables()["INTERFACES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -198,7 +198,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["LEXSOURCES"].isEmpty())
 		    continue;
 
-		QString lexpath = var("TMAKE_LEX") + varGlue("TMAKE_LEXFLAGS", " ", " ", "") + " ";
+		QString lexpath = var("QMAKE_LEX") + varGlue("QMAKE_LEXFLAGS", " ", " ", "") + " ";
 
 		QStringList &l = project->variables()["LEXSOURCES"];
 		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -224,7 +224,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["YACCSOURCES"].isEmpty())
 		    continue;
 
-		QString yaccpath = var("TMAKE_YACC") + varGlue("TMAKE_YACCFLAGS", " ", " ", "") + " ";
+		QString yaccpath = var("QMAKE_YACC") + varGlue("QMAKE_YACCFLAGS", " ", " ", "") + " ";
 
 		QStringList &l = project->variables()["YACCSOURCES"];
 		for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -271,9 +271,9 @@ DspMakefileGenerator::init()
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->variables()["TEMPLATE"].first() == "vcapp")
-	project->variables()["TMAKE_APP_FLAG"].append("1");
+	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->variables()["TEMPLATE"].first() == "vclib")
-	project->variables()["TMAKE_LIB_FLAG"].append("1");
+	project->variables()["QMAKE_LIB_FLAG"].append("1");
 
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
@@ -283,16 +283,16 @@ DspMakefileGenerator::init()
 	     ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
-	    project->variables()["TMAKE_QT_DLL"].append("1");
+	    project->variables()["QMAKE_QT_DLL"].append("1");
 	    if ( (project->variables()["TARGET"].first() == "qt" ||
 		  (project->variables()["TARGET"].first() == "qt-mt") &&
-		  !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ))
+		  !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ))
 		project->variables()["CONFIG"].append("dll");
 	}
     }
-    if ( project->isActiveConfig("dll") || !project->variables()["TMAKE_APP_FLAG"].isEmpty() ) {
+    if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["CONFIG"].remove("staticlib");
-	project->variables()["TMAKE_APP_OR_DLL"].append("1");
+	project->variables()["QMAKE_APP_OR_DLL"].append("1");
     } else {
 	project->variables()["CONFIG"].append("staticlib");
     }
@@ -304,39 +304,39 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["DEFINES"].append("UNICODE");
-	project->variables()["INCLUDEPATH"] +=	project->variables()["TMAKE_INCDIR_QT"];
-	project->variables()["TMAKE_LIBS"] += QStringList::split(' ', "imm32.lib wsock32.lib winmm.lib");
+	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
+	project->variables()["QMAKE_LIBS"] += QStringList::split(' ', "imm32.lib wsock32.lib winmm.lib");
 	if ( project->isActiveConfig("opengl") ) {
-	    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT_OPENGL"];
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_OPENGL"];
 	}
 
 	if ( (project->variables()["TARGET"].first() == "qt" ||
 	      project->variables()["TARGET"].first() == "qt-mt") &&
-	     !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
-	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty() ) {
+	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
 		project->variables()["MSVCDSP_DLLBASE"].append("/base:\"0x39D00000\"");
 	    }
 	} else {
-	    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT"];
-	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty() ) {
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(QString(getenv("QTDIR")) + "/lib", "qt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
-		    QStringList &libs = project->variables()["TMAKE_LIBS"];
+		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
 		 if ( !project->isActiveConfig("dll") ) {
-		    project->variables()["TMAKE_LIBS"] +=project->variables()["TMAKE_LIBS_QT_DLL"];
+		    project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 		}
 	    }
 	}
 
     }
     if ( project->isActiveConfig("opengl") ) {
-	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_OPENGL"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
     if ( project->isActiveConfig("thread") ) {
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
@@ -355,7 +355,7 @@ DspMakefileGenerator::init()
 	}
     }
     if ( project->isActiveConfig("dll") ) {
-	if ( !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
+	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    QString ver_xyz(project->variables()["VERSION"].first());
 	    ver_xyz.replace(QRegExp("\\."), "");
 	    project->variables()["TARGET_EXT"].append(ver_xyz + ".dll");
@@ -363,7 +363,7 @@ DspMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
     } else {
-	if ( !project->variables()["TMAKE_APP_FLAG"].isEmpty() ) {
+	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	    project->variables()["TARGET_EXT"].append(".exe");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".lib");
@@ -373,10 +373,10 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
     }
-    project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
-    project->variables()["TMAKE_FILETAGS"] += QStringList::split(' ',
-	"HEADERS SOURCES DEF_FILE RC_FILE TARGET TMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
-    QStringList &l = project->variables()["TMAKE_FILETAGS"];
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
+	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
+    QStringList &l = project->variables()["QMAKE_FILETAGS"];
     for(it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
@@ -403,7 +403,7 @@ DspMakefileGenerator::init()
     for(it = proj.begin(); it != proj.end(); ++it)
 		(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
-    if ( !project->variables()["TMAKE_APP_FLAG"].isEmpty() ) {
+    if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["MSVCDSP_TEMPLATE"].append("win32app.dsp");
 	if ( project->isActiveConfig("console") ) {
 	    project->variables()["MSVCDSP_CONSOLE"].append("Console");
@@ -423,7 +423,7 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
 	}
     }
-    project->variables()["MSVCDSP_LIBS"] = project->variables()["TMAKE_LIBS"];
+    project->variables()["MSVCDSP_LIBS"] = project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I "," /I ",""));
     if ( project->isActiveConfig("qt") ) {

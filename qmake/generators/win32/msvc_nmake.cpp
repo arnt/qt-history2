@@ -51,10 +51,10 @@ bool
 NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
-    if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	t << "all clean:" << "\n\t"
 	  << "@echo \"Some of the required modules ("
-	  << var("TMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
+	  << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
 	  << "@echo \"Skipped.\"" << endl << endl;
 	return TRUE;
     }
@@ -75,26 +75,26 @@ void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC	=	" << var("TMAKE_CC") << endl;
-    t << "CXX	=	" << var("TMAKE_CXX") << endl;
-    t << "LEX     = " << var("TMAKE_LEX") << endl;
-    t << "YACC    = " << var("TMAKE_YACC") << endl;
-    t << "CFLAGS	=	" << var("TMAKE_CFLAGS") << " " <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS=	" << var("TMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "LEXFLAGS=" << var("TMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS=" << var("TMAKE_YACCFLAGS") << endl;
+    t << "CC	=	" << var("QMAKE_CC") << endl;
+    t << "CXX	=	" << var("QMAKE_CXX") << endl;
+    t << "LEX     = " << var("QMAKE_LEX") << endl;
+    t << "YACC    = " << var("QMAKE_YACC") << endl;
+    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " " <<  varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CXXFLAGS=	" << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH	=	" << varGlue("INCLUDEPATH","-I\"","\" -I\"","\"") << endl;
-    if(!project->variables()["TMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "LINK	=	" << var("TMAKE_LINK") << endl;
-	t << "LFLAGS	=	" << var("TMAKE_LFLAGS") << endl;
-	t << "LIBS	=	" << var("TMAKE_LIBS") << endl;
+    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
+	t << "LINK	=	" << var("QMAKE_LINK") << endl;
+	t << "LFLAGS	=	" << var("QMAKE_LFLAGS") << endl;
+	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
     }
     else {
-	t << "LIB	=	" << var("TMAKE_LIB") << endl;
+	t << "LIB	=	" << var("QMAKE_LIB") << endl;
     }
-    t << "MOC	=	" << var("TMAKE_MOC") << endl;
-    t << "UIC	=	" << var("TMAKE_UIC") << endl;
-    t << "ZIP	=	" << var("TMAKE_ZIP") << endl;
+    t << "MOC	=	" << var("QMAKE_MOC") << endl;
+    t << "UIC	=	" << var("QMAKE_UIC") << endl;
+    t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
     t << endl;
 
     t << "####### Files" << endl << endl;
@@ -114,15 +114,15 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "####### Implicit rules" << endl << endl;
     t << ".SUFFIXES: .cpp .cxx .cc .c" << endl << endl;
-    t << ".cpp.obj:\n\t" << var("TMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cxx.obj:\n\t" << var("TMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cc.obj:\n\t" << var("TMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".c.obj:\n\t" << var("TMAKE_RUN_CC_IMP") << endl << endl;
+    t << ".cpp.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".cxx.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".cc.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
     t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
-    if(!project->variables()["TMAKE_APP_OR_DLL"].isEmpty()) {
+    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
     } else {
@@ -137,7 +137,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
 	t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
-	  << var("TMAKE_RC") << " " << var("RC_FILE") << endl << endl;
+	  << var("QMAKE_RC") << " " << var("RC_FILE") << endl << endl;
     }
 
     t << "moc: $(SRCMOC)" << endl << endl;
@@ -157,7 +157,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("SRCMOC" ,"-del ","\n\t-del ","") << "\n\t"
       << varGlue("OBJMOC" ,"-del ","\n\t-del ","") << "\n\t"
       << "-del $(TARGET)" << "\n\t"
-      << varGlue("TMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
+      << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
       << varGlue("CLEAN_FILES","-del ","\n\t-del ","") << endl << endl;
 }
 
@@ -171,9 +171,9 @@ NmakeMakefileGenerator::init()
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->variables()["TEMPLATE"].first() == "app")
-	project->variables()["TMAKE_APP_FLAG"].append("1");
+	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->variables()["TEMPLATE"].first() == "lib")
-	project->variables()["TMAKE_LIB_FLAG"].append("1");
+	project->variables()["QMAKE_LIB_FLAG"].append("1");
 
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
@@ -183,24 +183,24 @@ NmakeMakefileGenerator::init()
          ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
            project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
           (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
-	    project->variables()["TMAKE_QT_DLL"].append("1");
+	    project->variables()["QMAKE_QT_DLL"].append("1");
 	    if ( (project->variables()["TARGET"].first() == "qt") &&
-		 !project->variables()["TMAKE_LIB_FLAG"].isEmpty() )
+		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
     }
-    if ( project->isActiveConfig("dll") || !project->variables()["TMAKE_APP_FLAG"].isEmpty() ) {
+    if ( project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["CONFIG"].remove("staticlib");
-	project->variables()["TMAKE_APP_OR_DLL"].append("1");
+	project->variables()["QMAKE_APP_OR_DLL"].append("1");
     } else {
 	project->variables()["CONFIG"].append("staticlib");
     }
     if ( project->isActiveConfig("warn_off") ) {
-	project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_WARN_OFF"];
-	project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_WARN_OFF"];
+	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_OFF"];
+	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_OFF"];
     } else if ( project->isActiveConfig("warn_on") ) {
-	project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_WARN_ON"];
-	project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_WARN_ON"];
+	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_ON"];
+	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_ON"];
     }
     if ( project->isActiveConfig("thread") ) {
         project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
@@ -208,85 +208,85 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("debug") ) {
         if ( project->isActiveConfig("thread") ) {
 	    if ( project->isActiveConfig("dll") ) {
-	        project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_MT_DLLDBG"];
-	        project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_MT_DLLDBG"];
+	        project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLLDBG"];
+	        project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
  	    } else {
-		project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_MT_DBG"];
-		project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_MT_DBG"];
+		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DBG"];
+		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
 	    }
         } else {
-	    project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_DEBUG"];
-	    project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_DEBUG"];
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_DEBUG"];
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_DEBUG"];
 	}
-	project->variables()["TMAKE_LFLAGS"] += project->variables()["TMAKE_LFLAGS_DEBUG"];
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_DEBUG"];
     } else if ( project->isActiveConfig("release") ) {
 	if ( project->isActiveConfig("thread") ) {
 	    if ( project->isActiveConfig("dll") ) {
-		project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_MT_DLL"];
-		project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_MT_DLL"];
+		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT_DLL"];
+		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
 	    } else {
-		project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_MT"];
-		project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_MT"];
+		project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_MT"];
+		project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_MT"];
 	    }
 	}
-	project->variables()["TMAKE_CFLAGS"] += project->variables()["TMAKE_CFLAGS_RELEASE"];
-	project->variables()["TMAKE_CXXFLAGS"] += project->variables()["TMAKE_CXXFLAGS_RELEASE"];
-	project->variables()["TMAKE_LFLAGS"] += project->variables()["TMAKE_LFLAGS_RELEASE"];
+	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RELEASE"];
+	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
     }
 
-    if ( !project->variables()["TMAKE_INCDIR"].isEmpty()) {
-	project->variables()["INCLUDEPATH"] += project->variables()["TMAKE_INCDIR"];
+    if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) {
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     }
     if ( project->isActiveConfig("qt") || project->isActiveConfig("opengl") ) {
 	project->variables()["CONFIG"].append("windows");
     }
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
-	project->variables()["INCLUDEPATH"] +=	project->variables()["TMAKE_INCDIR_QT"];
+	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("NO_DEBUG");
 	}
 	const char *foo = project->variables()["TARGET"].first().latin1();
 	if ( (project->variables()["TARGET"].first() == "qt") &&
-	     !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
-	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty()) {
+	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
-		project->variables()["TMAKE_LFLAGS"] += project->variables()["TMAKE_LFLAGS_QT_DLL"];
+		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
 	    }
 	} else {
-	    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT"];
-	    if ( !project->variables()["TMAKE_QT_DLL"].isEmpty() ) {
+	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(QString(getenv("QTDIR")) + "/lib", "qt");
 		if(hver != -1) {
 		    QString ver;
 		    ver.sprintf("qt%d.lib", hver);
 
-		    QStringList &libs = project->variables()["TMAKE_LIBS"];
+		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
 		if ( !project->isActiveConfig("dll") ) {
-		    project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_QT_DLL"];
+		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_DLL"];
 		}
 	    }
 	}
     }
     if ( project->isActiveConfig("opengl") ) {
-	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_OPENGL"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
     if ( project->isActiveConfig("dll") ) {
-	project->variables()["TMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["TMAKE_LFLAGS_CONSOLE_DLL"];
-	project->variables()["TMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["TMAKE_LFLAGS_WINDOWS_DLL"];
-	if ( !project->variables()["TMAKE_LIB_FLAG"].isEmpty()) {
+	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE_DLL"];
+	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS_DLL"];
+	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(
 		QStringList::split('.',project->variables()["VERSION"].first()).join("") + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
     } else {
-	project->variables()["TMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["TMAKE_LFLAGS_CONSOLE"];
-	project->variables()["TMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["TMAKE_LFLAGS_WINDOWS"];
-	if ( !project->variables()["TMAKE_APP_FLAG"].isEmpty()) {
+	project->variables()["QMAKE_LFLAGS_CONSOLE_ANY"] = project->variables()["QMAKE_LFLAGS_CONSOLE"];
+	project->variables()["QMAKE_LFLAGS_WINDOWS_ANY"] = project->variables()["QMAKE_LFLAGS_WINDOWS"];
+	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	    project->variables()["TARGET_EXT"].append(".exe");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".lib");
@@ -295,10 +295,10 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
     }
-    project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
-    project->variables()["TMAKE_FILETAGS"] += QStringList::split(' ',
-	"HEADERS SOURCES DEF_FILE RC_FILE TARGET TMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
-    QStringList &l = project->variables()["TMAKE_FILETAGS"];
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
+	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
+    QStringList &l = project->variables()["QMAKE_FILETAGS"];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
@@ -306,7 +306,7 @@ NmakeMakefileGenerator::init()
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {
-	project->variables()["TMAKE_LFLAGS"].append(QString("/DEF:") + project->variables()["DEF_FILE"].first());
+	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->variables()["DEF_FILE"].first());
     }
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
@@ -319,7 +319,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["TARGETDEPS"] += project->variables()["RES_FILE"];
     }
     if ( !project->variables()["RES_FILE"].isEmpty()) {
-	project->variables()["TMAKE_LIBS"] += project->variables()["RES_FILE"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
     }
     MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {
@@ -328,13 +328,13 @@ NmakeMakefileGenerator::init()
 	project->variables()["VER_MIN"].append(l[1]);
     }
     if(project->isActiveConfig("dll")) {
-	project->variables()["TMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".lib");
-	project->variables()["TMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".exp");
+	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".lib");
+	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".exp");
     }
     if(project->isActiveConfig("debug")) {
-	project->variables()["TMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".pdb");
-	project->variables()["TMAKE_CLEAN"].append("vc*.pdb");
-	project->variables()["TMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".ilk");
+	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".pdb");
+	project->variables()["QMAKE_CLEAN"].append("vc*.pdb");
+	project->variables()["QMAKE_CLEAN"].append(project->variables()["TARGET"].first() + ".ilk");
     }
 
 }

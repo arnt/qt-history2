@@ -320,11 +320,11 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 
 	QString comp, cimp;
 	if((*sit).right(strlen(Option::cpp_ext)) == Option::cpp_ext) {
-	    comp = "TMAKE_RUN_CXX";
-	    cimp = "TMAKE_RUN_CXX_IMP";
+	    comp = "QMAKE_RUN_CXX";
+	    cimp = "QMAKE_RUN_CXX_IMP";
 	} else {
-	    comp = "TMAKE_RUN_CC";
-	    cimp = "TMAKE_RUN_CC_IMP";
+	    comp = "QMAKE_RUN_CC";
+	    cimp = "QMAKE_RUN_CC_IMP";
 	}
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() || project->variables()[cimp].isEmpty()) {
 	    QString p = var(comp);
@@ -378,8 +378,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	  << depends[hdr].join(" \\\n\t\t");
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["MOC_DIR"].isEmpty() ||
-	     project->variables()["TMAKE_RUN_CXX_IMP"].isEmpty()) {
-	    QString p = var("TMAKE_RUN_CXX");
+	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
+	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace(QRegExp("\\$src"), (*sit));
 	    p.replace(QRegExp("\\$obj"), (*oit));
 	    t << "\n\t" << p;
