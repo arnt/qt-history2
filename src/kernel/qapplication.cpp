@@ -235,7 +235,7 @@
   qapplication_xyz.cpp file.
 */
 
-void qt_init( int *, char **, int );
+void qt_init( int *, char **, QApplication::Type );
 void qt_cleanup();
 #if defined(_WS_X11_)
 void qt_init( Display* dpy );
@@ -475,17 +475,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 //######### BINARY COMPATIBILITY constructor
 QApplication::QApplication( int &argc, char **argv )
 {
-    qt_is_gui_used = TRUE;
-    init_precmdline();
-    static char *empty = (char*)"";
-    if ( argc == 0 || argv == 0 ) {
-	argc = 0;
-	argv = &empty;
-    }
-    qt_init( &argc, argv, 0 );   // Must be called before initialize()
-    process_cmdline( &argc, argv );
-
-    initialize( argc, argv );
+    construct( argc, argv, GuiClient );
 }
 
 
@@ -531,14 +521,24 @@ QApplication::QApplication( int &argc, char **argv )
 
 QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 {
-    qt_is_gui_used = GUIenabled;
+    construct( argc, argv, GUIenabled ? GuiClient : GuiServer );
+}
+
+QApplication::QApplication( int &argc, char **argv, Type type )
+{
+    construct( argc, argv, type );
+}
+
+void QApplication::construct( int &argc, char **argv, Type type )
+{
+    qt_is_gui_used = type != Tty;
     init_precmdline();
     static char *empty = (char*)"";
     if ( argc == 0 || argv == 0 ) {
 	argc = 0;
 	argv = &empty;
     }
-    qt_init( &argc, argv, GUIenabled );   // Must be called before initialize()
+    qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
     initialize( argc, argv );
 }

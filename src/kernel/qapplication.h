@@ -59,6 +59,8 @@ class Q_EXPORT QApplication : public QObject
 public:
     QApplication( int &argc, char **argv);
     QApplication( int &argc, char **argv, bool GUIenabled );
+    enum Type { Tty, GuiClient, GuiServer };
+    QApplication( int &argc, char **argv, Type );
 #if defined(_WS_X11_)
     QApplication( Display* dpy );
 #endif
@@ -209,6 +211,7 @@ public slots:
     void	     closeAllWindows();
 
 private:
+    void	     construct( int &argc, char **argv, Type );
     bool	     processNextEvent( bool );
     void	     initialize( int, char ** );
     void	     init_precmdline();

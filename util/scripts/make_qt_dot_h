@@ -1,9 +1,7 @@
 #!/usr/bin/perl -w
 
 
-$network_extension = 1;
-
-@BOGUS = qw {
+@IGNORE = qw {
     qxt.h
     qgl.h
     qnp.h
@@ -28,6 +26,9 @@ $network_extension = 1;
     qpaintdevicedefs.h
     qwindow.h
     qtranslatordialog.h
+};
+
+@QWS_HEADERS = qw {
     qgfx.h
     qgfxmach64_defs.h
     qgfxraster.h
@@ -45,11 +46,19 @@ $network_extension = 1;
     qwsutils.h
 };
 
-if ( !$network_extension ) {
-    @BOGUS = ( @BOGUS, "qhttp.h", "qftp.h", "qdns.h", "qhostaddress.h", "qserversocket.h", "qsocket.h", "qsocketdevice.h" );
-}
+@NETWORK_HEADERS = qw {
+    qhttp.h
+    qftp.h
+    qdns.h
+    qhostaddress.h
+    qserversocket.h
+    qsocket.h
+    qsocketdevice.h
+};
 
-$BOGUS=join "|", map { "\Q$_" } @BOGUS;
+@IGNORE = ( @IGNORE, @QWS_HEADERS, @NETWORK_HEADERS );
+
+$IGNORE=join "|", map { "\Q$_" } @IGNORE;
 
 $verbose = 0;
 
@@ -66,10 +75,10 @@ if ( defined($ARGV[0]) && $ARGV[0] eq "--fix" ) {
 
 opendir(INC, $DIR)
     || die "can't opendir $DIR: $!";
-@HEADERS =
+@QT_HEADERS =
     grep {
 	m/\.h$/ &&
-	!m/^$BOGUS$/ &&
+	!m/^$IGNORE$/ &&
 	! -f "$ENV{QTDIR}/src/compat/$_"
     } readdir INC;
 
@@ -110,78 +119,93 @@ print QT_H
 
 $include = '#include\s*(["<])([^\n]*)[">]';
 
-H: for $h ( @HEADERS ) {
-    open HEADER, "$DIR/$h";
-    $content = "" if $fix;
-    while (<HEADER>) {
-	$content .= $_ if $fix;
-	if ( /$STARTMARK/ ) {
-	    $incscan=1;
-	} elsif ( /$ENDMARK/ ) {
-	    $incscan=0;
-	    next H;
-	} elsif ( /$include/ ) {
-	    if ($incscan) {
-		$inc=$2;
-		$DEP{"$h $inc"}=1;
-		$LOCAL{$inc}=($1 eq '"');
-		$FILE{$h}++;
-		$FILE{$inc}++;
+sub do_headers
+{
+    my @HEADERS = @_;
+    my %FILE;
+    my %LOCAL;
+    my %DEP;
+    H: for $h ( @HEADERS ) {
+	open HEADER, "$DIR/$h";
+	$content = "" if $fix;
+	while (<HEADER>) {
+	    $content .= $_ if $fix;
+	    if ( /$STARTMARK/ ) {
+		$incscan=1;
+	    } elsif ( /$ENDMARK/ ) {
+		$incscan=0;
+		next H;
+	    } elsif ( /$include/ ) {
+		if ($incscan) {
+		    $inc=$2;
+		    $DEP{"$h $inc"}=1;
+		    $LOCAL{$inc}=($1 eq '"');
+		    $FILE{$h}++;
+		    $FILE{$inc}++;
+		}
+	    }
+	}
+	if ( $fix ) {
+	    #$include = '#include\s*["<][^\n]*[">]';
+	    $content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/gs;
+	    open OUT, ">$DIR/$h";
+	    print OUT $content;
+	} else {
+	    die "No QT_H segment in $h - rerun with --fix to fix ALL headers\n";
+	}
+    }
+    @FILE=sort keys %FILE;
+
+    $N=$#FILE;
+    $done=0;
+
+    # Bubble sort by dependency... (qsort can't do this)
+    while (!$done) {
+	$done=1;
+	for $i (1..$N) {
+	    for $j (0..$i) {
+		if ($DEP{"$FILE[$j] $FILE[$i]"}) {
+		    # j depends on i, swap
+		    $t=$FILE[$i];
+		    $FILE[$i]=$FILE[$j];
+		    $FILE[$j]=$t;
+		    $done=0;
+		}
 	    }
 	}
     }
-    if ( $fix ) {
-	#$include = '#include\s*["<][^\n]*[">]';
-	$content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/gs;
-	open OUT, ">$DIR/$h";
-	print OUT $content;
-    } else {
-	die "No QT_H segment in $h - rerun with --fix to fix ALL headers\n";
+
+    # Check for circularities
+    for $f ( 0..$#FILE ) {
+	for $o ( ($f+1)..$#FILE ) {
+	    print STDERR "Circularity in $FILE[$f] .. $FILE[$o]\n" if ( $DEP{"$FILE[$f] $FILE[$o]"} )
+	}
     }
-}
 
-@FILE=sort keys %FILE;
 
-$N=$#FILE;
-$done=0;
-
-# Bubble sort by dependency... (qsort can't do this)
-while (!$done) {
-    $done=1;
-    for $i (1..$N) {
-	for $j (0..$i) {
-	    if ($DEP{"$FILE[$j] $FILE[$i]"}) {
-		# j depends on i, swap
-		$t=$FILE[$i];
-		$FILE[$i]=$FILE[$j];
-		$FILE[$j]=$t;
-		$done=0;
+    for $h ( @FILE ) {
+	if (!$DONE{$h}) {
+	    if ($LOCAL{$h}) {
+		print QT_H qq{#include "$h"};
+	    } else {
+		print QT_H qq{#include <$h>};
 	    }
+	    if ( $verbose ) {
+		@deps = grep { $DEP{"$h $_"} } @FILE;
+		if ( @deps ) {
+		    print QT_H " // Depends on ",join ", ",@deps;
+		}
+	    }
+	    print QT_H "\n";
+	    $DONE{$h}++;
 	}
     }
 }
 
-# Check for circularities
-for $f ( 0..$#FILE ) {
-    for $o ( ($f+1)..$#FILE ) {
-	print STDERR "Circularity in $FILE[$f] .. $FILE[$o]\n" if ( $DEP{"$FILE[$f] $FILE[$o]"} )
-    }
-}
-
-
-for $h ( @FILE ) {
-    if ($LOCAL{$h}) {
-	print QT_H qq{#include "$h"};
-    } else {
-	print QT_H qq{#include <$h>};
-    }
-    if ( $verbose ) {
-	@deps = grep { $DEP{"$h $_"} } @FILE;
-	if ( @deps ) {
-	    print QT_H " // Depends on ",join ", ",@deps;
-	}
-    }
-    print QT_H "\n";
-}
+do_headers @QT_HEADERS;
+print QT_H "\n#ifdef _WS_QWS_\n";
+do_headers @NETWORK_HEADERS;
+do_headers @QWS_HEADERS;
+print QT_H "#endif // _WS_QWS_\n\n";
 
 print QT_H "$TAIL";

@@ -1,0 +1,182 @@
+#!/bin/sh
+
+# Special features
+#DEMO_ARGS="-im hiragana.im" # Input Method for Hiragana
+DEMO_ARGS=""
+
+# Sanity checking
+if [ ! -f ./start_demo ]
+then
+    echo "Please run start_demo from the directory containing it."
+    exit 1
+fi
+if [ "$TERM" == xterm ]
+then
+    echo "Please run start_demo from the Linux Console, not from within X11."
+    exit 1
+fi
+if [ "$TERM" != linux ]
+then
+    echo "Please run start_demo from the Linux Console."
+    exit 1
+fi
+if [ ! -w /dev/fb0 ]
+then
+    echo "/dev/fb0 is not writeable."
+    exit 1
+fi
+if [ -f /tmp/.QtEmbedded -a ! -w /tmp/.QtEmbedded ]
+then
+    echo "Please remove /tmp/.QtEmbedded"
+    exit 1
+fi
+
+# Information
+cat <<EOF
+------------------------------------------------------------------------------
+
+                       Qt/Embedded Demonstration Package
+                      -----------------------------------
+
+  This demonstration package has been provided to you purely for the purpose
+  of privately demonstrating the Qt/Embedded system.
+
+  This is an ALPHA QUALITY release. Expect strange crashes, odd memory and
+  peformance characteristics.
+
+  For Qt/Embedded pricing and other information, see the file "FAQ".
+
+
+------------------------------------------------------------------------------
+
+EOF
+
+# Set the mouse protocol
+cat << EOF
+
+Which mouse protocol?
+
+  1. MouseMan:/dev/mouse
+  2. IntelliMouse:/dev/mouse
+  3. Microsoft:/dev/mouse
+
+(Note: ALT-CTRL-BACKSPACE will kill the demo at any time if the mouse fails)
+
+EOF
+read QWS_MOUSE_PROTO
+case $QWS_MOUSE_PROTO in
+   1) QWS_MOUSE_PROTO=MouseMan:/dev/mouse
+;; 2) QWS_MOUSE_PROTO=IntelliMouse:/dev/mouse
+;; 3) QWS_MOUSE_PROTO=Microsoft:/dev/mouse
+;; MouseMan:/*) true
+;; IntelliMouse:/*) true
+;; Microsoft:/*) true
+;; "") QWS_MOUSE_PROTO=IntelliMouse:/dev/mouse
+;; *) echo "Sorry, \"$QWS_MOUSE_PROTO\" is not supported"; exit 1
+esac
+
+
+# Which demo?
+cat << EOF
+
+The following demonstrations are available:
+
+    compact   - a PDA-sized example
+    large     - a large-screen example
+
+EOF
+echo "Run which demo? [large]"
+read DEMO
+if [ "$DEMO" = c ]
+then
+    DEMO=compact
+fi
+if [ "$DEMO" != compact -a "$DEMO" != launcher ]
+then
+    DEMO=launcher
+fi
+case "$DEMO" in
+ compact)
+    # Set a smaller size to emulate a smaller device...
+    export QWS_SIZE=240x320
+    MODE=640x480-100
+;; *) 
+    unset QWS_SIZE
+    MODE=1024x768-75
+esac
+
+FB0=$(grep '^0 ' /proc/fb)
+
+FUSER=$(which fuser)
+if [ ! -f "$FUSER" ]
+then
+    FUSER=/usr/sbin/fuser
+fi
+
+if [ -z "$FB0" ]
+then
+    echo "WARNING: /proc/fb indicates that no framebuffer device exists"
+fi
+
+if [ "$FB0" != "0 VESA VGA" ]
+then
+    # Can probably set the mode.
+
+    FBSET=$(which fbset)
+    if [ ! -f "$FBSET" ]
+    then
+	FBSET=/usr/sbin/fbset
+    fi
+    if [ ! -f "$FBSET" ]
+    then
+	echo "WARNING: the fbset command is not on your \$PATH"
+    else
+	echo "Change to display mode $MODE? [yes]"
+	read y
+	if [ "$y" != n -a "$y" != no ]
+	then
+	    if $FBSET -depth 16 $MODE
+	    then
+		true
+	    else
+		echo "WARNING: $FBSET -depth 16 $MODE failed"
+	    fi
+	fi
+    fi
+fi
+
+# Turn off stuff that is annoying in a demo
+setterm -clear -powersave off -blank 0 -cursor off
+
+# Kill gpm if it is running
+gpm -k
+/usr/sbin/gpm -k
+
+# Reset the terminal upon exit
+#trap "( kbd_mode -a; setterm -reset; reset; )" EXIT
+trap "( kbd_mode -a; stty sane; setterm -cursor on )" EXIT
+
+# Set up execution environment
+QTDIR=`pwd`
+if [ ! -f launcher ]
+then
+    QWSDIR=`pwd`
+fi
+LD_LIBRARY_PATH=$QWSDIR/lib:$LD_LIBRARY_PATH
+export QWS_MOUSE_PROTO QTDIR QWSDIR LD_LIBRARY_PATH
+
+# Start the demo, throwing away debug messages
+cd examples/$DEMO
+
+# Run the demo...
+E=3
+while [ "$E" = 3 ]
+do
+    # Kill any existing fb0 applications
+    $FUSER -kv /dev/fb0
+    ./$DEMO $DEMO_ARGS
+    E=$?
+done
+
+# Kill any remaining clients
+$FUSER -kv /dev/fb0
