@@ -65,6 +65,7 @@ public:
 protected:
     void resizeEvent(QResizeEvent *e);
     void styleChange(QStyle &);
+    void actionEvent(QActionEvent *);
 
 private slots:
     void createPopup();

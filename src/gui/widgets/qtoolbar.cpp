@@ -677,6 +677,32 @@ void QToolBar::resizeEvent(QResizeEvent *e)
     checkForExtension(e->size());
 }
 
+void QToolBar::actionEvent(QActionEvent *e)
+{
+    // ################ temporary hack to see something in the toolbars
+    if (e->type() != QEvent::ActionAdded)
+        return;
+    QAction *a = e->action();
+    if (a->isSeparator()) {
+        addSeparator();
+    } else {
+        QToolButton* btn = new QToolButton(this);
+        btn->setToggleButton(a->isCheckable());
+        QIconSet icon = a->icon();
+        if (!icon.isNull())
+            btn->setIconSet(icon);
+        connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
+        connect(btn, SIGNAL(clicked()), a, SIGNAL(activated()));
+//         connect(btn, SIGNAL(toggled(bool)), a, SLOT(toolButtonToggled(bool)));
+// #ifndef QT_NO_TOOLTIP
+//         connect(&(d->tipGroup), SIGNAL(showTip(QString)), this, SLOT(showStatusText(QString)));
+//         connect(&(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()));
+// #endif
+    }
+
+}
+
+
 void QToolBar::checkForExtension(const QSize &sz)
 {
     if (!isVisible())
