@@ -39,6 +39,7 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^tmake"),
 		       new RegExp("^util"),
 		       new RegExp("^examples"),
+		       new RegExp("^tutorial"),
 
 		       new RegExp("^LICENSE.TROLL"),
 		       new RegExp("^tools/designer/manual"),
