@@ -376,21 +376,23 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_RubberBand: {
 	p->save();
         if (pe == PE_RubberBandMask) {
-            p->setPen(QPen(Qt::color1, 7));
-	    if (opt->state & Style_Rectangle)
-		p->setBrush(Qt::NoBrush);
-	    else
+            p->setBrush(Qt::color1);
+            p->setPen(Qt::NoPen);
+            p->drawRect(opt->rect);
+	    if (opt->state & Style_Rectangle) {
+                p->setBrush(Qt::color0);
+                p->drawRect(opt->rect.x() + 4, opt->rect.y() + 4,
+                            opt->rect.width() - 8, opt->rect.height() - 8);
+            } else {
 		p->setBrush(QBrush(Qt::color1));
-	    p->drawRect(opt->rect);
+            }
 	} else {
 	    QRect r = opt->rect;
-	    p->setPen(Qt::NoPen);
-	    p->setBrush(Qt::Dense4Pattern);
+ 	    p->setBrush(Qt::Dense4Pattern);
 	    p->setBackground(QBrush(opt->palette.base()));
 	    p->setBackgroundMode(Qt::OpaqueMode);
-	    p->drawRect(r);
-	    p->setPen(QPen(opt->palette.foreground()));
-	    p->setBrush(Qt::NoBrush);
+            p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
+            QColor c = opt->palette.color(QPalette::Active, QPalette::Foreground);
 	    p->drawRect(r);
 	    if (opt->state & Style_Rectangle) {
 		r.addCoords(3,3, -3,-3);

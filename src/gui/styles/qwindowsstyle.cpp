@@ -26,6 +26,7 @@
 #include "qmenu.h"
 #include "qpainter.h"
 #include "qpushbutton.h"
+#include "qrubberband.h"
 #include "qscrollbar.h"
 #include "qslider.h"
 #include "qstyleoption.h"
@@ -178,12 +179,20 @@ void QWindowsStyle::polish(QWidget *widget)
     QCommonStyle::polish(widget);
     if(QMenu *menu = qt_cast<QMenu*>(widget))
         menu->setCheckable(true);
+    if (qt_cast<QRubberBand*>(widget)) {
+        widget->setWindowOpacity(0.7);
+        widget->setAttribute(Qt::WA_PaintOnScreen);
+    }
 }
 
 /*! \reimp */
 void QWindowsStyle::unPolish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
+    if (qt_cast<QRubberBand*>(widget)) {
+        widget->setWindowOpacity(1.0);
+        widget->setAttribute(Qt::WA_PaintOnScreen, false);
+    }
 }
 
 /*! \reimp */
