@@ -476,6 +476,11 @@ QString QDirModel::path(const QModelIndex &index) const
     return fileInfo(index).absFilePath();
 }
 
+QString QDirModel::name(const QModelIndex &index) const
+{
+    return fileInfo(index).fileName();
+}
+
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 {
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());

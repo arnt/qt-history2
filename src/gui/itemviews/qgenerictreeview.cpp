@@ -529,6 +529,7 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
+    qDebug("contentsInserted");
     if (topLeft.isValid() && bottomRight.isValid())
         d->relayout(model()->parent(topLeft));
 }
@@ -788,7 +789,8 @@ void QGenericTreeViewPrivate::layout(int i)
     }
 
     int k = i;
-    while (parent.isValid()) {
+    QModelIndex root = q->root();
+    while (parent != root) {
         items[k].total += count;
         parent = q->model()->parent(parent);
         k = viewIndex(parent);
@@ -920,7 +922,7 @@ int QGenericTreeViewPrivate::viewIndex(const QModelIndex &index) const
 QModelIndex QGenericTreeViewPrivate::modelIndex(int i) const
 {
     if (i < 0 || i >= items.count())
-        return QModelIndex();
+        return q->root();
     QModelIndex index = items.at(i).index;
     if (index.column() != editColumn)
         return index = q->model()->sibling(index.row(), editColumn, index);

@@ -63,6 +63,7 @@ public:
 
     QModelIndex index(const QString &path) const;
     QString path(const QModelIndex &index) const;
+    QString name(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
     
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);

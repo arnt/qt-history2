@@ -164,6 +164,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right());
+//    qDebug("%d %d : %d", colfirst, collast, d->topHeader->offset());
     if (colfirst > collast) {
         int tmp = colfirst;
         colfirst = collast;

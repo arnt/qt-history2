@@ -234,9 +234,10 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
         int x = options->itemRect.x();
         int y = options->itemRect.y();
         if (orientation() == Qt::Horizontal)
-            arrowRect.setRect(x + sectionSize(section) - border, y + 5, height / 2, height - border);
+            arrowRect.setRect(x + sectionSize(section) - border * 2 - (height / 2), y + 5,
+                              height / 2, height - border * 2);
         else
-            arrowRect.setRect(x + 5, y + sectionSize(section) - border, height / 2, height - border);
+            arrowRect.setRect(x + 5, y + sectionSize(section) - height, height / 2, height - border * 2);
         arrowFlags |= (sortIndicatorOrder() == Qt::Ascending ? QStyle::Style_Down : QStyle::Style_Up);
         style().drawPrimitive(QStyle::PE_HeaderArrow, painter, arrowRect, palette(), arrowFlags);
     }

@@ -236,13 +236,11 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
 {
-    d->prepareItemsLayout(); // initialize structures
 }
 
 QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
-    d->prepareItemsLayout(); // initialize structures
 }
 
 QGenericListView::~QGenericListView()
@@ -252,7 +250,6 @@ QGenericListView::~QGenericListView()
 void QGenericListView::setMovement(Movement movement)
 {
     d->movement = movement;
-    d->prepareItemsLayout();
     if (isVisible())
         startItemsLayout();
 }
@@ -265,7 +262,6 @@ QGenericListView::Movement QGenericListView::movement() const
 void QGenericListView::setFlow(Flow flow)
 {
     d->flow = flow;
-    d->prepareItemsLayout();
     if (isVisible())
         startItemsLayout();
 }
@@ -278,7 +274,6 @@ QGenericListView::Flow QGenericListView::flow() const
 void QGenericListView::setWrapping(bool enable)
 {
     d->wrap = enable;
-    d->prepareItemsLayout();
     if (isVisible())
         startItemsLayout();
 }
@@ -747,6 +742,8 @@ void QGenericListView::startItemsLayout()
     d->layoutBounds.setHeight(d->layoutBounds.height() - sbx);
     d->contentsSize = QSize(0, 0);
 
+    d->prepareItemsLayout();
+
     if (d->layoutMode == Instant)
         doItemsLayout(model()->rowCount(root()));
     else
@@ -1031,10 +1028,10 @@ void QGenericListViewPrivate::prepareItemsLayout()
     if (movement == QGenericListView::Static) {
         tree.destroy();
         if (flow == QGenericListView::LeftToRight) {
-            xposVector.resize(qMax(rowCount/* - 1*/, 0));
+            xposVector.resize(qMax(rowCount, 0));
             yposVector.clear();
         } else { // TopToBottom
-            yposVector.resize(qMax(rowCount/* - 1*/, 0));
+            yposVector.resize(qMax(rowCount, 0));
             xposVector.clear();
         }
         wrapVector.clear();

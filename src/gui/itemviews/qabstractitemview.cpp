@@ -237,6 +237,24 @@ QModelIndex QAbstractItemView::currentItem() const
     return d->selectionModel->currentItem();
 }
 
+void QAbstractItemView::setRoot(const QModelIndex &index)
+{
+    d->root = index;
+//    if (isVisible())
+    startItemsLayout();
+    update();
+}
+
+QModelIndex QAbstractItemView::root() const
+{
+    return d->root;
+}
+
+void QAbstractItemView::edit(const QModelIndex &index)
+{
+    startEdit(index, QAbstractItemDelegate::NoAction, 0);
+}
+
 void QAbstractItemView::setStartEditActions(int actions)
 {
     d->startEditActions = actions;
@@ -711,19 +729,6 @@ void QAbstractItemView::startDrag()
 //     if (obj->drag() && obj->target() != viewport())
 //         emit moved();
     obj->drag();
-}
-
-void QAbstractItemView::setRoot(const QModelIndex &index)
-{
-    d->root = index;
-    if (isVisible())
-        startItemsLayout();
-    update();
-}
-
-QModelIndex QAbstractItemView::root() const
-{
-    return d->root;
 }
 
 // FIXME: find another way of getting this info

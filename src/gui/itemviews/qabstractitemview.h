@@ -55,10 +55,14 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
 
-    virtual void setStartEditActions(int actions);
+    void setStartEditActions(int actions);
     int startEditActions() const;
 
     bool eventFilter(QObject *object, QEvent *event);
+
+public slots:
+    void setRoot(const QModelIndex &index);
+    void edit(const QModelIndex &index);
 
 protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -74,9 +78,6 @@ protected slots:
 
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
-
-    void setRoot(const QModelIndex &index);
-//    void edit(const QModelIndex &index);
 
 signals:
     void needMore();
