@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#29 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -44,6 +44,12 @@
   create the real collections cast the \c Item to the required type.
 
   \sa \link collection.html Collection Classes\endlink
+*/
+
+
+/*! \enum QCollection::Item
+
+  This type is the generic "item" in a QCollection.
 */
 
 
