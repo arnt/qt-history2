@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#10 $
+** $Id: //depot/qt/main/src/network/qsocket.h#11 $
 **
 ** Definition of QSocket class.
 **
@@ -67,11 +67,11 @@ public:
 		 Connection=Connected };
     State	 state() const;
 
-    int		socket() const;
+    int		 socket() const;
     virtual void setSocket( int );
 
     QSocketDevice *socketDevice();
-	virtual void setSocketDevice( QSocketDevice * );
+    virtual void setSocketDevice( QSocketDevice * );
 
 #ifndef QT_NO_DNS
     virtual void connectToHost( const QString &host, Q_UINT16 port );

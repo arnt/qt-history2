@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#35 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#36 $
 **
 ** Implementation of QSocket class.
 **
@@ -944,14 +944,34 @@ int QSocket::putch( int ch )
 
 
 /*!
-  This implementation of the virtual function QIODevice::ungetch() always
-  returns -1 (error) because a QSocket is a sequential device and does not
-  allow any ungetch operation.
+  This implementation of the virtual function QIODevice::ungetch() prepends the
+  character \a ch to the read buffer so that the next read returns this
+  character as the first character of the output.
 */
 
-int QSocket::ungetch( int )
+int QSocket::ungetch( int ch )
 {
-    return -1;
+#if defined(QT_CHECK_STATE)
+    if ( !isOpen() ) {
+	qWarning( "QSocket::ungetch: Socket not open" );
+	return -1;
+    }
+#endif
+
+    if ( d->rba.isEmpty() || d->rindex==0 ) {
+	// we need a new QByteArray
+	QByteArray *ba = new QByteArray( 1 );
+	d->rba.insert( 0, ba );
+	d->rsize++;
+	ba->at( 0 ) = ch;
+    } else {
+	// we can reuse a place in the buffer
+	QByteArray *ba = d->rba.first();
+	d->rindex--;
+	d->rsize++;
+	ba->at( d->rindex ) = ch;
+    }
+    return ch;
 }
 
 
