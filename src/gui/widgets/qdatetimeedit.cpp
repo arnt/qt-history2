@@ -1643,10 +1643,14 @@ inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidat
             } else {
 		if (s == HoursSection && display & AMPMSection) {
 		    bool pm = (sectionText(*text, AMPMSection).toLower() == "pm");
-		    if (pm && num < 12)
+		    if (pm && num < 12) {
 			num += 12;
-		    else if (!pm && num == 12)
+		    } else if (!pm && num == 12) {
 			num = 0;
+		    } else if (num > 12) {
+			state = QValidator::Invalid;
+			break;
+		    }
 		}
                 if (num < absoluteMin(s) || num > absoluteMax(s)) {
                     state = done ? QValidator::Invalid : QValidator::Intermediate;
