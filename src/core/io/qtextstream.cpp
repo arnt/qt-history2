@@ -134,6 +134,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     f = d->getReal(&tmp) ? (type)tmp : (type)0; \
     return *this; } while (0)
 
+#ifndef QT_NO_QOBJECT
 class DeviceClosedNotifier : public QObject
 {
     Q_OBJECT
@@ -153,6 +154,7 @@ public slots:
 private:
     QTextStream *stream;
 };
+#endif
 
 //-------------------------------------------------------------------
 class QTextStreamPrivate
@@ -165,7 +167,9 @@ public:
 
     // device
     QIODevice *device;
+#ifndef QT_NO_QOBJECT
     DeviceClosedNotifier deviceClosedNotifier;
+#endif
     bool deleteDevice;
 
     // string
@@ -609,7 +613,9 @@ QTextStream::QTextStream(QIODevice *device)
 #endif
     Q_D(QTextStream);
     d->device = device;
+#ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
+#endif
 }
 
 /*!
@@ -699,7 +705,9 @@ QTextStream::QTextStream(QByteArray *array, QIODevice::OpenMode openMode)
     d->device = new QBuffer(array);
     d->device->open(openMode);
     d->deleteDevice = true;
+#ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
+#endif
 }
 
 /*!
@@ -728,7 +736,9 @@ QTextStream::QTextStream(const QByteArray &array, QIODevice::OpenMode openMode)
     Q_D(QTextStream);
     d->device = buffer;
     d->deleteDevice = true;
+#ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
+#endif
 }
 
 /*!
@@ -757,7 +767,9 @@ QTextStream::QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode)
     Q_D(QTextStream);
     d->device = file;
     d->deleteDevice = true;
+#ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
+#endif
 }
 
 /*!
@@ -827,12 +839,16 @@ void QTextStream::setDevice(QIODevice *device)
     Q_D(QTextStream);
     flush();
     if (d->deleteDevice) {
+#ifndef QT_NO_QOBJECT
         d->deviceClosedNotifier.disconnect();
+#endif
         delete d->device;
         d->deleteDevice = false;
     }
     d->device = device;
+#ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
+#endif
 }
 
 QString *QTextStream::string() const

@@ -416,7 +416,9 @@ void QIODevice::close()
     if (d->openMode == NotOpen)
         return;
 
+#ifndef QT_NO_QOBJECT
     emit aboutToClose();
+#endif
     d->openMode = NotOpen;
 #ifdef QT_NO_QOBJECT
     d->errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
