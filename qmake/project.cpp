@@ -947,6 +947,16 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    fprintf(stderr, "#switching file %s(%s) - %s:%d\n", func.latin1(), file.latin1(),
 		    parser.file.latin1(), parser.line_no);
 	debug_msg(1, "Project Parser: %s'ing file %s.", func.latin1(), file.latin1());
+	int di = file.findRev(Option::dir_sep);
+	QDir sunworkshop42workaround = QDir::current();
+	QString oldpwd = sunworkshop42workaround.currentDirPath();
+	if(di != -1) {
+	    if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) {
+		fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
+		return FALSE;
+	    }
+	    file = file.right(file.length() - di - 1);
+	}
 	parser_info pi = parser;
 	int sb = scope_block;
 	int sf = scope_flag;
@@ -968,6 +978,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	test_status = sc;
 	scope_flag = sf;
 	scope_block = sb;
+	QDir::setCurrent(oldpwd);
 	return r;
     } else if(func == "error" || func == "message") {
 	if(args.count() != 1) {
@@ -1128,6 +1139,8 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = "";
 	    else if(val == "LITERAL_WHITESPACE")
 		replacement = "\t";
+	    else if(val == "PWD") 
+		replacement = QDir::currentDirPath();
 	    else
 		replacement = place[varMap(val)].join(" ");
 	} else {
@@ -1185,6 +1198,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    }
 			}
 		    }
+		    int di = file.findRev(Option::dir_sep);
+		    QDir sunworkshop42workaround = QDir::current();
+		    QString oldpwd = sunworkshop42workaround.currentDirPath();
+		    if(di != -1 && QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) 
+			file = file.right(file.length() - di - 1);
 		    parser_info pi = parser;
 		    int sb = scope_block;
 		    int sf = scope_flag;
@@ -1202,6 +1220,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    test_status = sc;
 		    scope_flag = sf;
 		    scope_block = sb;
+		    QDir::setCurrent(oldpwd);
 		}
 	    } else if(val.lower() == "list") {
 		static int x = 0;
