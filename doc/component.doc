@@ -217,7 +217,7 @@ An implementation of \e queryInterface usually looks like this:
 \code
 QRESULT NumberComponent::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
+    *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = this;
     else if ( uuid == IID_Integer )
@@ -374,7 +374,7 @@ the standard procedures for dynamically loaded libraries, or using the
 QLibrary class. An implementation of this function might look like this:
 
 \code
-Q_EXPORT_INTERFACE
+Q_EXPORT_INTERFACE()
 {
     NumberComponent *comp = new NumberComponent;
     QUnknownInterface *iface;
