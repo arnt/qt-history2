@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#63 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#64 $
 **
 ** Implementation of QTabDialog class
 **
@@ -800,8 +800,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
     if ( !d->tabs )
 	return;
 
-    QPainter p;
-    p.begin( this );
+    QPainter p( this );
 
     QRect s( d->stack->geometry() );
 
@@ -820,8 +819,6 @@ void QTabDialog::paintEvent( QPaintEvent * )
     p.setPen( colorGroup().dark() );
     p.drawLine( l+1, b-1, r-1, b-1 );
     p.drawLine( r-1, b-2, r-1, t+1 );
-
-    p.end();
 }
 
 
