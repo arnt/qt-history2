@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#387 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#388 $
 **
 ** Implementation of QWidget class
 **
@@ -3076,7 +3076,7 @@ QSize QWidget::sizeHint() const
 
 /*!
   Returns a recommended minimum size for the widget, or an invalid
-  size if no minimum size is recommended. 
+  size if no minimum size is recommended.
 
   The default implementation returns an invalid size if there is no layout
   for this widget, the layout's preferred size otherwise.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#25 $
 **
 ** Implementation of Windows-like style class
 **
@@ -457,7 +457,7 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 #define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL	!HORIZONTAL
 #define MOTIF_BORDER	2
-#define SLIDER_MIN	9 // ### motif says 6 but that's too small
+#define SLIDER_MIN	9 // ### wtf does this have to do with motif?
 
 /*!\reimp
  */
