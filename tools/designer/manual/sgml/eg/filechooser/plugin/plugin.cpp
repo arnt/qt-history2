@@ -69,21 +69,17 @@ bool CustomWidgetInterface::isContainer( const QString& ) const
     return FALSE;
 }
 
-QUnknownInterface *CustomWidgetInterface::queryInterface( const QUuid& uuid )
+QRESULT CustomWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
-
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_WidgetInterface )
-	iface = (WidgetInterface*)this;
+	*iface = (WidgetInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long CustomWidgetInterface::addRef()

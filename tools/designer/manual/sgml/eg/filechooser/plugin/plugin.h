@@ -8,7 +8,7 @@ public:
     virtual ~CustomWidgetInterface() {}
 
     // From QUnknownInterface
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface **iface );
     ulong addRef();
     ulong release();
 
