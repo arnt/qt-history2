@@ -21,5 +21,5 @@ include(shared/shared.pri)
 
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
-
+include(../components/component.pri)
 include(../sharedcomponents.pri)
