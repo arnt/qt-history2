@@ -1426,6 +1426,7 @@ public:
     void updateStyles();
     void updateFontSizes( int base );
     void updateFontAttributes( const QFont &f, const QFont &old );
+    QDict<QTextFormat> dict() const { return cKey; }
 
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
