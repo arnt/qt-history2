@@ -198,14 +198,7 @@ QCOORD QSplitterLayoutStruct::getSizer( Qt::Orientation orient )
 	    s = wid->size();
 	sizer = ( orient == Qt::Horizontal ) ? s.width() : s.height();
     }
-
-    bool isCollapsed = FALSE;
-    if ( wid->x() < 0 )
-	isCollapsed = -wid->x() >= wid->width();
-    if ( wid->y() < 0 )	
-	isCollapsed |= -wid->y() >= wid->height();
-    
-    return isCollapsed ? 0 : sizer;
+    return sizer;
 }
 
 class QSplitterPrivate
