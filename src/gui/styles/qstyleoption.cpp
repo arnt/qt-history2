@@ -1100,7 +1100,8 @@ QStyleOptionDockWindow::QStyleOptionDockWindow()
     \internal
 */
 QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
-    : QStyleOption(version, SO_DockWindow), moveable(false)
+    : QStyleOption(version, SO_DockWindow), closable(false),
+      moveable(false), floatable(false)
 {
 }
 
@@ -1110,8 +1111,18 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 */
 
 /*!
+    \property QStyleOptionDockWindow::closable
+    \brief Indicates that the dock window is closable.
+*/
+
+/*!
     \property QStyleOptionDockWindow::moveable
     \brief Indicates that the dock window is moveable.
+*/
+
+/*!
+    \property QStyleOptionDockWindow::floatable
+    \brief Indicates that the dock window is floatable.
 */
 
 /*!

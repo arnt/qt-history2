@@ -388,7 +388,9 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
             opt.state |= QStyle::Style_MouseOver;
     }
     opt.title = dockwindow->windowTitle();
+    opt.closable = dockwindow->hasFeature(QDockWindow::DockWindowClosable);
     opt.moveable = dockwindow->hasFeature(QDockWindow::DockWindowMovable);
+    opt.floatable = dockwindow->hasFeature(QDockWindow::DockWindowFloatable);
     style()->drawPrimitive(QStyle::PE_DockWindowTitle, &opt, &p, this);
 }
 

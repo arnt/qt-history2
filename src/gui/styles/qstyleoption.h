@@ -292,12 +292,16 @@ public:
     enum { Version = 1 };
 
     QString title;
+    bool closable;
     bool moveable;
+    bool floatable;
 
     QStyleOptionDockWindow();
 
     QDOC_PROPERTY(QString title)
+    QDOC_PROPERTY(bool closable)
     QDOC_PROPERTY(bool moveable)
+    QDOC_PROPERTY(bool floatable)
 
 protected:
     QStyleOptionDockWindow(int version);
