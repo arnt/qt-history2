@@ -10,7 +10,7 @@
 ####### Compiler, tools and options
 
 CC	=	cl
-CFLAGS	=	-nologo -O2
+CFLAGS	=	-nologo -O2 -DQT_NODLL
 INCPATH	=	-I"." -I"..\..\include"
 LINK	=	link
 LFLAGS	=	/NOLOGO /SUBSYSTEM:console

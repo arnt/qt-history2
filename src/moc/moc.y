@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#97 $
+** $Id: //depot/qt/main/src/moc/moc.y#98 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#97 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#98 $");
 
 static Q1String rmWS( const char * );
 
@@ -763,12 +763,13 @@ opt_identifier:		  /* empty */
 %%
 
 #if defined(_OS_WIN32_)
-#if defined(_CC_MSVC_)
-extern "C" int _isatty( int );
-#define isatty _isatty
-#elif defined(_CC_SYM_)
 #include <io.h>
-#endif
+#undef isatty
+extern "C" int hack_isatty( int )
+{
+    return 0;
+}
+#define isatty hack_isatty
 #endif
 
 #include "lex.yy.c"
@@ -1260,7 +1261,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.31 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.32 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1413,23 +1414,16 @@ void generateClass()		      // generate C++ source code for a class
 	    predef_call = TRUE;
 	}
 	if ( !predef_call && !included_list_stuff ) {
-	    fprintf( out, "\n#include <%sqglobal.h>\n", (const char*)qtPath );
-	    fprintf( out, "#if QT_VERSION >= 200\n" );
-	    fprintf( out, "/" "/ the 2.x way of doing things\n" );
+	    fprintf( out, "\n#if QT_VERSION >= 141\n" );
+	    fprintf( out, "/" "/ newer implementation\n" );
 	    fprintf( out, "#include <%sqsignalslotimp.h>\n", (const char*)qtPath );
 	    fprintf( out, "#else\n" );
 	    fprintf( out, "/" "/ for late-model 1.x header files\n" );
 	    fprintf( out, "#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
 	    fprintf( out, "#define Q_MOC_CONNECTIONLIST_DECLARED\n" );
 	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
-	    fprintf( out, "#if defined(Q_DECLARE)\n" );
 	    fprintf( out, "Q_DECLARE(QListM,QConnection);\n" );
 	    fprintf( out, "Q_DECLARE(QListIteratorM,QConnection);\n" );
-	    fprintf( out, "#else\n" );
-	    fprintf( out, "/" "/ for really old header files\n" );
-	    fprintf( out, "declare(QListM,QConnection);\n" );
-	    fprintf( out, "declare(QListIteratorM,QConnection);\n" );
-	    fprintf( out, "#endif\n" );
 	    fprintf( out, "#endif\n" );
 	    fprintf( out, "#endif\n" );
 	    included_list_stuff = TRUE;
