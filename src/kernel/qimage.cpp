@@ -3521,7 +3521,10 @@ bool QImage::doImageIO( QImageIO* io, int quality ) const
 /*!
     \relates QImage
 
-    Writes the image \a image to the stream \a s as a PNG image.
+    Writes the image \a image to the stream \a s as a PNG image, or as a
+    BMP image if the stream's version is 1.
+
+    Note that writing the stream to a file will not produce a valid image file.
 
     \sa QImage::save()
     \link datastreamformat.html Format of the QDataStream operators \endlink
