@@ -54,7 +54,7 @@
     link the application against the QAxContainer module by adding
 
     \code
-    LIBS += qaxcontainer.lib
+    CONFIG += qaxcontainer
     \endcode
 
     to the application's \c .pro file.

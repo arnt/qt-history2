@@ -41,14 +41,14 @@
     \section1 Using the library
 
     To turn a standard Qt application into an COM server using the
-    QAxServer library you must add \c activeqt as a CONFIG setting
+    QAxServer library you must add \c qaxserver as a CONFIG setting
     in your \c .pro file.
 
     An out-of-process executable server is generated from a \c .pro
     file like this:
     \code
     TEMPLATE = app
-    CONFIG  += qt activeqt
+    CONFIG  += qt qaxserver
 
     RC_FILE  = qaxserver.rc
     ...
@@ -57,7 +57,7 @@
     To build an in-process server, use a \c .pro file like this:
     \code
     TEMPLATE = lib
-    CONFIG  += qt activeqt dll
+    CONFIG  += qt qaxserver dll
 
     DEF_FILE = qaxserver.def
     RC_FILE  = qaxserver.rc
@@ -71,7 +71,7 @@
     type library entry, ie. you can add version information or use a
     different toolbox icon.
 
-    The \c activeqt configuration will cause the \c qmake tool to add the 
+    The \c qaxserver configuration will cause the \c qmake tool to add the 
     required build steps to the build system:
     \list
     \i link the binary against \c qaxserver.lib
@@ -118,7 +118,7 @@
 
     To be able to build COM objects and ActiveX controls with Qt, the 
     build system must be extended to include some additional build steps 
-    that are used when the \c .pro file includes \c activeqt in the 
+    that are used when the \c .pro file includes \c qaxserver in the 
     \c CONFIG settings. The resulting makefile will:
 
     \list
