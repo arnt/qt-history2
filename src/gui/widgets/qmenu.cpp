@@ -198,7 +198,7 @@ QRect QMenuPrivate::actionRect(QMenuAction *act) const
     if(tearoff)
         ret.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, q));
     const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q);
-    ret.moveBy(fw, fw);
+    ret.moveBy(fw+leftmargin, fw+topmargin);
     return ret;
 }
 
@@ -833,7 +833,7 @@ QRect QMenu::actionGeometry(QAction *act) const
     const_cast<QMenuPrivate*>(d)->updateActions();
     for(QList<QMenuAction*>::ConstIterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
         if((*it)->action == act)
-            return (*it)->rect;
+            return d->actionRect((*it));
     }
     return QRect();
 }
@@ -846,8 +846,6 @@ QSize QMenu::sizeHint() const
     ensurePolished();
     QSize s(0, 0);
     QList<QMenuAction*> actions = d->calcActionRects();
-    if(!actions.isEmpty())
-        s.setWidth(s.width()+actions[0]->rect.width()); //just take the first
     for(int i = 0; i < actions.count(); ++i) {
         QRect actionRect(actions[i]->rect);
         if(actionRect.right() > s.width())
@@ -861,6 +859,8 @@ QSize QMenu::sizeHint() const
         s.setWidth(s.width()+(fw*2));
         s.setHeight(s.height()+(fw*2));
     }
+    s.setWidth(s.width()+d->leftmargin+d->rightmargin);
+    s.setHeight(s.height()+d->topmargin+d->bottommargin);
     s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuHMargin, q));
     s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuVMargin, q));
     return style().sizeFromContents(QStyle::CT_Menu, this, s.expandedTo(QApplication::globalStrut()));

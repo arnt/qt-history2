@@ -214,22 +214,53 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     setFocusPolicy( QWidget::ClickFocus );
 }
 
+class MyFancyMenu : public QMenu
+{
+    const int margin;
+    QFont myFont() {
+        QFont ret = font();
+        ret.setPixelSize(30);
+        ret.setBold(true);
+        return ret;
+    }
+public:
+    MyFancyMenu(QWidget *widget) : QMenu(widget),margin(80) { setContentsMargins(margin, 0, 0, 0); }
+
+    QSize sizeHint() const {
+        QSize ret = QMenu::sizeHint();
+        int length = QFontMetrics(myFont()).width("Context!");
+        if(ret.height() < length)
+            ret.setHeight(length);
+        return ret;
+    }
+protected:
+
+    void paintEvent(QPaintEvent *e) {
+        QMenu::paintEvent(e);
+
+        QPainter p(this);
+        p.setClipRect(QRect(0, 0, margin, height()));
+        p.setBrush(QBrush(QPoint(margin/2, 0), black, QPoint(margin/2, height()), red));
+        p.drawRect(0, 0, margin, height());
+        p.setPen(white);
+        p.setFont(myFont());
+        p.rotate(90);
+        p.drawText((margin/2)-(p.fontMetrics().height()/2), height(), "Context!");
+    }
+};
 
 void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
-    QPopupMenu*	contextMenu = new QPopupMenu( this );
-    Q_CHECK_PTR( contextMenu );
-    contextMenu->insertItem( "&New",  this, SLOT(news()), CTRL+Key_N );
-    contextMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
-    contextMenu->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
-    QPopupMenu *submenu = new QPopupMenu( this );
-    Q_CHECK_PTR( submenu );
-    submenu->insertItem( "&Print to printer", this, SLOT(printer()) );
-    submenu->insertItem( "Print to &file", this, SLOT(file()) );
-    submenu->insertItem( "Print to fa&x", this, SLOT(fax()) );
-    contextMenu->insertItem( "&Print", submenu );
-    contextMenu->exec( QCursor::pos() );
-    delete contextMenu;
+    MyFancyMenu contextMenu(this);
+    contextMenu.addAction("&New",  this, SLOT(news()), CTRL+Key_N);
+    contextMenu.addAction("&Open...", this, SLOT(open()), CTRL+Key_O);
+    contextMenu.addAction("&Save", this, SLOT(save()), CTRL+Key_S);
+    QPopupMenu *submenu = new QMenu(this);
+    submenu->addAction("&Print to printer", this, SLOT(printer()));
+    submenu->addAction("Print to &file", this, SLOT(file()));
+    submenu->addAction("Print to fa&x", this, SLOT(fax()));
+    contextMenu.addMenu("&Print", submenu);
+    contextMenu.exec(QCursor::pos());
 }
 
 
