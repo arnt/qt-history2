@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#22 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -71,6 +71,36 @@ public:
   display properties.  When used in a \link QStyleSheet style
   sheet\endlink, items define the name of a rich text tag, and the
   display property changes associated with it.
+*/
+
+
+/*! \enum QStyleSheetItem::WhiteSpaceMode
+
+  This enum defines the ways in which QStyleSheet can treat white
+  space.  There are two values at present: <ul>
+
+  <li> \c WhiteSpaceNormal - any sequence of white space is equivalent
+  to a single space, and is a line-break position.
+  
+  <li> \c WhiteSpacePre - white space must be output exactly as given
+  in the input.
+
+</ul>
+
+*/
+
+#warning "Matthias: Please fill in the Margin doc"
+
+/*! \enum QStyleSheetItem::Margin
+
+  <ul>
+  <li> \c MarginLeft - 
+  <li> \c MarginRight - 
+  <li> \c MarginTop - 
+  <li> \c MarginBottom - 
+  <li> \c MarginAll - 
+  <li> \c MarginVertical - 
+  <li> \c MarginHorizontal - 
 */
 
 /*!
