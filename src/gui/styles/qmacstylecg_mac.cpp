@@ -1095,7 +1095,7 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
 QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *widget,
 				    const QSize &contentsSize, const QStyleOption &opt) const
 {
-    QSize sz;
+    QSize sz = contentsSize;
     switch (contents) {
     case CT_SpinBox:
         sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
