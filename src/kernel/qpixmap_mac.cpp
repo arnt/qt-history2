@@ -249,6 +249,11 @@ QImage QPixmap::convertToImage() const
 	for(loopc2=0;loopc2<h;loopc2++) {
 	    GetCPixel(loopc,loopc2,&r);
 	    q=qRgba(r.red/256,r.green/256,r.blue/256, 0); //FIXME, should I be doing that to the alpha?
+
+	    //UGH, fixme!!
+	    if(q && d == 1)
+		q = qRgba(255,255,255,0);
+
 	    if(ncols) {
 		image->setPixel(loopc,loopc2,get_index(image,q));
 	    } else {
