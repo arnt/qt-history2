@@ -14,6 +14,11 @@ DESTDIR	= ../../../bin
 win32:RC_FILE = designer.rc
 mac:RC_FILE = designer.icns
 
+aix-g++ {
+	QMAKE_CFLAGS += -mminimal-toc
+	QMAKE_CXXFLAGS += -mminimal-toc
+}
+
 sql {
 	SOURCES  += database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp
 	HEADERS += database.h dbconnectionimpl.h dbconnectionsimpl.h

@@ -222,7 +222,7 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
     switch (pe) {
     case PE_HeaderSection:
 	// don't draw any headers sunken
-	//	flags = ((flags | Style_Sunken) ^ Style_Sunken) | Style_Raised;
+	flags = ((flags | Style_Sunken) ^ Style_Sunken) | Style_Raised;
 
 	p->setPen( cg.background() );
 	// hard border at the bottom/right of the header
@@ -237,13 +237,21 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	// draw the header ( just an etching )
 	if ( ! br.isValid() )
 	    break;
-	drawLightEtch( p, br, cg.button(), false );
+	drawLightEtch( p, br, ( ( flags & Style_Down ) ?
+				cg.midlight() : cg.button() ),
+		       ( flags & Style_Down ) );
 	br.addCoords( 1, 1, -1, -1 );
 
 	// fill the header
 	if ( ! br.isValid() )
 	    break;
-	p->fillRect( br, cg.brush( QColorGroup::Button ) );
+	p->fillRect( br, cg.brush( ( flags & Style_Down ) ?
+				   QColorGroup::Midlight : QColorGroup::Button ) );
+
+	// the taskbuttons in kicker seem to allow the style to set the pencolor
+	// here, which will be used to draw the text for focused window buttons...
+	// how utterly silly
+	p->setPen( cg.buttonText() );
 	break;
 
     case PE_ButtonCommand:
@@ -376,10 +384,10 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
     case PE_ExclusiveIndicator:
 	{
 	    QRect br = r, // bevel rect
-		  or = r, // outline rect
+		  lr = r, // outline rect
 		  cr = r, // contents rect
 		  ir = r; // indicator rect
-	    or.addCoords( 1, 1, -1, -1 );
+	    lr.addCoords( 1, 1, -1, -1 );
 	    cr.addCoords( 2, 2, -2, -2 );
 	    ir.addCoords( 3, 3, -3, -3 );
 
@@ -389,7 +397,7 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 		       ( flags & Style_Enabled ? cg.base() : cg.background() ) );
 	    p->setBrush( flags & Style_Down ? cg.mid() :
 			 ( flags & Style_Enabled ? cg.base() : cg.background() ) );
-	    p->drawEllipse( or );
+	    p->drawEllipse( lr );
 
 	    p->setPen( cg.background().dark( 115 ) );
 	    p->drawArc( br, 45*16, 180*16 );
@@ -397,7 +405,7 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	    p->drawArc( br, 235*16, 180*16 );
 
 	    p->setPen( cg.dark() );
-	    p->drawArc( or, 0, 16*360 );
+	    p->drawArc( lr, 0, 16*360 );
 
 	    if ( flags & Style_On ) {
 		p->setPen( flags & Style_Down ? cg.mid() :

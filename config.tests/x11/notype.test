@@ -13,9 +13,12 @@ OUTDIR=$4
 #   Xsun on Solaris 2.5.1:
 #   	Patches are available for Solaris 2.6, 7 and 8 but
 #   	not for Solaris 2.5.1.
+#   HP-UX 10.20 and HP-UX 11.0:
+#   	Problems have been reported for HP-UX 11.0.
+#   	Patches should be available but we don't have more info.
 NOTYPE=no
 
-if [ $XPLATFORM = "solaris-g++" ]
+if [ $XPLATFORM = "solaris-g++" -o $XPLATFORM = "hpux-g++" ]
 then
     NOTYPE=yes
 

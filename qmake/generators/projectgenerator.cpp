@@ -395,8 +395,10 @@ ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
 	    spaces += " ";
 	join = vals.join(" \\\n" + spaces);
     } 
-    if(fixPath)
-	join = join.replace(QRegExp("\\\\"), "/");
+    // ### Commented out for now so that project generation works.
+    // Sam: can you look at why this was needed?
+    /*    if(fixPath)
+	join = join.replace(QRegExp("\\\\"), "/");*/
     return ret + join + "\n";
 }
 
