@@ -28,6 +28,7 @@
 #    include <OpenGL/gl.h>
 #endif
 
+#include <CoreServices/CoreServices.h>
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qgl_p.h>
@@ -391,53 +392,35 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     aglUseFont((AGLContext) cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 
-static CFBundleRef GetOpenGLBundle(void)
+static CFBundleRef qt_getOpenGLBundle()
 {
     SInt16 frameworksVRefNum;
     SInt32 frameworksDirID;
     CFBundleRef bundle = 0;
 
-    if (FindFolder(kSystemDomain, kFrameworksFolderType, kDontCreateFolder,
-		   &frameworksVRefNum, &frameworksDirID) == noErr)
-    {
+    OSStatus err = FindFolder(kSystemDomain, kFrameworksFolderType, kDontCreateFolder,
+		              &frameworksVRefNum, &frameworksDirID);
+    if (err == noErr) {
 	FSSpec spec;
 	FSRef ref;
 
-	if (FSMakeFSSpec(frameworksVRefNum, frameworksDirID,
-			 "\pOpenGL.framework" , &spec) == noErr) {
+        err = FSMakeFSSpec(frameworksVRefNum, frameworksDirID, "\pOpenGL.framework", &spec);
+	if (err == noErr) {
 	    FSpMakeFSRef(&spec, &ref);
-	    CFURLRef url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
-	    if (url) {
-		CFBundleRef bundle = CFBundleCreate(kCFAllocatorDefault, url);
-		CFRelease(url);
-	    }
+	    QCFType<CFURLRef> url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
+	    if (url)
+		bundle = CFBundleCreate(kCFAllocatorDefault, url);
 	}
     }
     return bundle;
 }
 
-static void *GetBundleProcAddress(CFBundleRef bundle, const char *name)
-{
-    CFStringRef string = CFStringCreateWithCString(kCFAllocatorDefault, name,
-						   kCFStringEncodingMacRoman);
-    void *address = CFBundleGetFunctionPointerForName(bundle, string);
-    CFRelease(string);
-    return address;
-}
-
-static void ReleaseBundle(CFBundleRef bundle)
-{
-    if (bundle)
-	CFRelease(bundle);
-}
-
 void *QGLContext::getProcAddress(const QString &proc) const
 {
-    CFBundleRef bundle = GetOpenGLBundle();
-    void *proc = GetBundleProcAddress(bundle, proc.latin1());
-    ReleaseBundle(bundle);
-
-    return proc;
+    QCFType<CFBundleRef> bundle = qt_getOpenGLBundle();
+    return CFBundleGetFunctionPointerForName(bundle,
+                        CFStringCreateWithCStringNoCopy(0, proc.latin1(),
+                                                        CFStringGetSystemEncoding(), 0));
 }
 
 /*****************************************************************************
@@ -484,7 +467,7 @@ protected:
     void windowChanged() { context->d->updatePaintDevice(); }
 };
 
-OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
+OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *)
 {
 #if 0 //not really needed right now, but just so I remember
     QMacGLWindowChangeEvent *change = static_cast<QMacGLWindowChangeEvent*>(data);
