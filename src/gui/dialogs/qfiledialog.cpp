@@ -346,7 +346,7 @@ void QFileDialog::selectFile(const QString &filename)
 QStringList QFileDialog::selectedFiles() const
 {
     QModelIndexList items = d->selectedItems();
-    qDebug("selected items list count %d", items.count());
+    //qDebug("selected items list count %d", items.count());
     QStringList files;
     for (int i = 0; i < items.count(); ++i)
         files.append(d->model->fileInfo(items.at(i)).filePath());
@@ -517,6 +517,7 @@ void QFileDialog::showList()
     d->listMode->setDown(true);
     d->detailMode->setDown(false);
     d->lview->show();
+    d->lview->doItemsLayout();
     d->tview->hide();
 }
 
@@ -525,6 +526,7 @@ void QFileDialog::showDetail()
     d->listMode->setDown(false);
     d->detailMode->setDown(true);
     d->tview->show();
+    d->tview->doItemsLayout();
     d->lview->hide();
 }
 
@@ -666,7 +668,6 @@ void QFileDialog::headerClicked(int section)
     case 2:
         qDebug("sorting on type is not implemented yet");
         return;
-        break;
     case 3:
         spec = QDir::Time;
         break;
