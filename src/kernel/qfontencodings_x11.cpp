@@ -834,116 +834,118 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x066e, 0 }, // 0x66e
     { 0x066f, 0 }, // 0x66f
 
+	// ### some glyphs do not have shaped mappings in the presentation forms A. 
+	// these have the shaping set to 0 for the moment. Will have to find out better mappings for them.
     { 0x0670, 0 }, // 0x670
-    { 0x0671, 0 }, // 0x671 R
-    { 0x0672, 0 }, // 0x672 R
-    { 0x0673, 0 }, // 0x673 R
-    { 0x0674, 0 }, // 0x674 U
-    { 0x0675, 0 }, // 0x675 R
-    { 0x0676, 0 }, // 0x676 R
-    { 0x0677, 0 }, // 0x677 R
-    { 0x0678, 0 }, // 0x678 D
-    { 0x0679, 0 }, // 0x679 D
-    { 0x067a, 0 }, // 0x67a D
-    { 0x067b, 0 }, // 0x67b D
-    { 0x067c, 0 }, // 0x67cD
-    { 0x067d, 0 }, // 0x67d D
-    { 0x067e, 0 }, // 0x67e D
-    { 0x067f, 0 }, // 0x67f D
+    { 0xfb50, 1 }, // 0x671 R 	Alef Wasla
+    { 0x0672, 0 }, // 0x672 R	 Alef with wavy Hamza above
+    { 0x0673, 0 }, // 0x673 R 	Alef with wavy Hamza below
+    { 0x0674, 0 }, // 0x674 U 	High Hamza
+    { 0x0675, 0 }, // 0x675 R 	High Hamza Alef
+    { 0x0676, 0 }, // 0x676 R 	High Hamza Wav
+    { 0xfbdd, 0 }, // 0x677 R 	U with hamza above // ### only isolated form found...
+    { 0x0678, 0 }, // 0x678 D 	High hamza yeh
+    { 0xfb66, 3 }, // 0x679 D  	ttheh
+    { 0xfb5e, 3 }, // 0x67a D 	theheh
+    { 0xfb52, 3 }, // 0x67b D 	beeh
+    { 0x067c, 0 }, // 0x67cD 	teh with ring
+    { 0x067d, 0 }, // 0x67d D 	teh with three dots above downwards
+    { 0xfb56, 3 }, // 0x67e D 	peh
+    { 0xfb62, 3 }, // 0x67f D 	teheh
 
-    { 0x0680, 0 }, // 0x680 D
-    { 0x0681, 0 }, // 0x681 D
-    { 0x0682, 0 }, // 0x682 D
-    { 0x0683, 0 }, // 0x683 D
-    { 0x0684, 0 }, // 0x684 D
-    { 0x0685, 0 }, // 0x685 D
-    { 0x0686, 0 }, // 0x686 D
-    { 0x0687, 0 }, // 0x687 D
-    { 0x0688, 0 }, // 0x688 R
-    { 0x0689, 0 }, // 0x689 R
-    { 0x068a, 0 }, // 0x68a R
-    { 0x068b, 0 }, // 0x68b R
-    { 0x068c, 0 }, // 0x68cR
-    { 0x068d, 0 }, // 0x68d R
-    { 0x068e, 0 }, // 0x68e R
-    { 0x068f, 0 }, // 0x68f R
+    { 0xfb5a, 3 }, // 0x680 D 	beheh
+    { 0x0681, 0 }, // 0x681 D 	hah with hamza above
+    { 0x0682, 0 }, // 0x682 D 	hah with two dots vertical above
+    { 0xfb76, 3 }, // 0x683 D 	nyeh
+    { 0xfb72, 3 }, // 0x684 D 	dyeh
+    { 0x0685, 0 }, // 0x685 D 	hah with three dots above
+    { 0xfb7a, 3 }, // 0x686 D 	tcheh
+    { 0xfb7e, 3 }, // 0x687 D 	tcheheh
+    { 0xfb88, 1 }, // 0x688 R 	ddal
+    { 0x0689, 0 }, // 0x689 R 	dal with ring
+    { 0x068a, 0 }, // 0x68a R 	dal with dot
+    { 0x068b, 0 }, // 0x68b R 	dal with dot below and small tah
+    { 0xfb84, 1 }, // 0x68cR 	dahal
+    { 0xfb82, 1 }, // 0x68d R 	ddahal
+    { 0xfb86, 1 }, // 0x68e R 	dul
+    { 0x068f, 0 }, // 0x68f R 	dal with three dots above downwards
 
-    { 0x0690, 0 }, // 0x690 R
-    { 0x0691, 0 }, // 0x691 R
-    { 0x0692, 0 }, // 0x692 R
-    { 0x0693, 0 }, // 0x693 R
-    { 0x0694, 0 }, // 0x694 R
-    { 0x0695, 0 }, // 0x695 R
-    { 0x0696, 0 }, // 0x696 R
-    { 0x0697, 0 }, // 0x697 R
-    { 0x0698, 0 }, // 0x698 R
-    { 0x0699, 0 }, // 0x699 R
-    { 0x069a, 0 }, // 0x69a D
-    { 0x069b, 0 }, // 0x69b D
-    { 0x069c, 0 }, // 0x69cD
-    { 0x069d, 0 }, // 0x69d D
-    { 0x069e, 0 }, // 0x69e D
-    { 0x069f, 0 }, // 0x69f D
+    { 0x0690, 0 }, // 0x690 R 	dal with four dots above
+    { 0xfb8c, 1 }, // 0x691 R 	rreh
+    { 0x0692, 0 }, // 0x692 R 	reh with small v
+    { 0x0693, 0 }, // 0x693 R 	reh with ring
+    { 0x0694, 0 }, // 0x694 R 	reh with dot below
+    { 0x0695, 0 }, // 0x695 R 	reh with small v below
+    { 0x0696, 0 }, // 0x696 R 	reh with dot below and dot above
+    { 0x0697, 0 }, // 0x697 R 	reh with two dots above
+    { 0xfb8a, 1 }, // 0x698 R 	jeh
+    { 0x0699, 0 }, // 0x699 R 	reh with four dots above
+    { 0x069a, 0 }, // 0x69a D 	seen with dot below and dot above
+    { 0x069b, 0 }, // 0x69b D 	seen with three dots below
+    { 0x069c, 0 }, // 0x69cD 	seen with three dots below and three dots above
+    { 0x069d, 0 }, // 0x69d D 	sad with two dots below
+    { 0x069e, 0 }, // 0x69e D 	sad with three dots above
+    { 0x069f, 0 }, // 0x69f D 	tah with three dots above
 
-    { 0x06a0, 0 }, // 0x6a0 D
-    { 0x06a1, 0 }, // 0x6a1 D
-    { 0x06a2, 0 }, // 0x6a2 D
-    { 0x06a3, 0 }, // 0x6a3 D
-    { 0x06a4, 0 }, // 0x6a4 D
-    { 0x06a5, 0 }, // 0x6a5 D
-    { 0x06a6, 0 }, // 0x6a6 D
-    { 0x06a7, 0 }, // 0x6a7 D
-    { 0x06a8, 0 }, // 0x6a8 D
-    { 0x06a9, 0 }, // 0x6a9 D
-    { 0x06aa, 0 }, // 0x6aa D
-    { 0x06ab, 0 }, // 0x6ab D
-    { 0x06ac, 0 }, // 0x6acD
-    { 0x06ad, 0 }, // 0x6ad D
-    { 0x06ae, 0 }, // 0x6ae D
-    { 0x06af, 0 }, // 0x6af D
+    { 0x06a0, 0 }, // 0x6a0 D 	ain with three dots above
+    { 0x06a1, 0 }, // 0x6a1 D 	dotless feh
+    { 0x06a2, 0 }, // 0x6a2 D 	feh with dot moved below
+    { 0x06a3, 0 }, // 0x6a3 D 	feh with dot below
+    { 0xfb6a, 3 }, // 0x6a4 D 	veh
+    { 0x06a5, 0 }, // 0x6a5 D 	feh with three dots below
+    { 0xfb6e, 3 }, // 0x6a6 D 	peheh
+    { 0x06a7, 0 }, // 0x6a7 D 	qaf with dot above
+    { 0x06a8, 0 }, // 0x6a8 D 	qaf woith three dots above
+    { 0xfb8e, 3 }, // 0x6a9 D 	keheh
+    { 0x06aa, 0 }, // 0x6aa D 	swash kaf
+    { 0x06ab, 0 }, // 0x6ab D 	kaf with ring
+    { 0x06ac, 0 }, // 0x6acD 	kaf with dot above
+    { 0xfbd3, 3 }, // 0x6ad D 	ng
+    { 0x06ae, 0 }, // 0x6ae D 	kaf with three dots below
+    { 0xfb92, 3 }, // 0x6af D 	gaf
 
-    { 0x06b0, 0 }, // 0x6b0 D
-    { 0x06b1, 0 }, // 0x6b1 D
-    { 0x06b2, 0 }, // 0x6b2 D
-    { 0x06b3, 0 }, // 0x6b3 D
-    { 0x06b4, 0 }, // 0x6b4 D
-    { 0x06b5, 0 }, // 0x6b5 D
-    { 0x06b6, 0 }, // 0x6b6 D
-    { 0x06b7, 0 }, // 0x6b7 D
-    { 0x06b8, 0 }, // 0x6b8 D
-    { 0x06b9, 0 }, // 0x6b9 D
-    { 0x06ba, 0 }, // 0x6ba D
-    { 0x06bb, 0 }, // 0x6bb D
-    { 0x06bc, 0 }, // 0x6bcD
-    { 0x06bd, 0 }, // 0x6bd D
-    { 0x06be, 0 }, // 0x6be D
-    { 0x06bf, 0 }, // 0x6bf D
+    { 0x06b0, 0 }, // 0x6b0 D 	gaf with ring
+    { 0xfb9a, 3 }, // 0x6b1 D 	ngoeh
+    { 0x06b2, 0 }, // 0x6b2 D 	gaf with two dots below
+    { 0xfb96, 3 }, // 0x6b3 D 	gueh
+    { 0x06b4, 0 }, // 0x6b4 D 	gaf with three dots above
+    { 0x06b5, 0 }, // 0x6b5 D 	lam with small v
+    { 0x06b6, 0 }, // 0x6b6 D 	lam with dot above
+    { 0x06b7, 0 }, // 0x6b7 D 	lam with three dots above
+    { 0x06b8, 0 }, // 0x6b8 D 	lam with three dots below
+    { 0x06b9, 0 }, // 0x6b9 D 	noon with dot below
+    { 0xfb9e, 1 }, // 0x6ba R 	noon ghunna 
+    { 0xfba0, 3 }, // 0x6bb D 	rnoon
+    { 0x06bc, 0 }, // 0x6bcD 	noon with ring
+    { 0x06bd, 0 }, // 0x6bd D 	noon with three dots above
+    { 0xfbaa, 3 }, // 0x6be D 	heh doachashmee
+    { 0x06bf, 0 }, // 0x6bf D 	tcheh with dot above
 
-    { 0x06c0, 0 }, // 0x6c0 R
-    { 0x06c1, 0 }, // 0x6c1 D
-    { 0x06c2, 0 }, // 0x6c2 R
-    { 0x06c3, 0 }, // 0x6c3 R
-    { 0x06c4, 0 }, // 0x6c4 R
-    { 0x06c5, 0 }, // 0x6c5 R
-    { 0x06c6, 0 }, // 0x6c6 R
-    { 0x06c7, 0 }, // 0x6c7 R
-    { 0x06c8, 0 }, // 0x6c8 R
-    { 0x06c9, 0 }, // 0x6c9 R
-    { 0x06ca, 0 }, // 0x6ca R
-    { 0x06cb, 0 }, // 0x6cb R
-    { 0x06cc, 0 }, // 0x6cc D
-    { 0x06cd, 0 }, // 0x6cd R
-    { 0x06ce, 0 }, // 0x6ce D
-    { 0x06cf, 0 }, // 0x6cf R
+    { 0xfba4, 1 }, // 0x6c0 R 	heh with yeh above = ligature hamza on hah (06d5 + 0654)
+    { 0xfba6, 3 }, // 0x6c1 D 	heh goal
+    { 0x06c2, 0 }, // 0x6c2 R 	heh goal with hamza above (06c1 + 0654)
+    { 0x06c3, 0 }, // 0x6c3 R 	teh marbuta goal
+    { 0x06c4, 0 }, // 0x6c4 R 	waw with ring
+    { 0xfbe0, 1 }, // 0x6c5 R 	kirghiz oe
+    { 0xfbd9, 1 }, // 0x6c6 R 	oe
+    { 0xfbd7, 1 }, // 0x6c7 R 	u
+    { 0xfbdb, 1 }, // 0x6c8 R 	yu
+    { 0xfbe2, 1 }, // 0x6c9 R 	kirghiz yu
+    { 0x06ca, 0 }, // 0x6ca R 	waw with teo dots above
+    { 0xfbde, 1 }, // 0x6cb R 	ve
+    { 0x06cc, 0 }, // 0x6cc D 	farsi yeh
+    { 0x06cd, 0 }, // 0x6cd R 	yeh with tail
+    { 0x06ce, 0 }, // 0x6ce D 	yeh with small v
+    { 0x06cf, 0 }, // 0x6cf R 	waw with dot above
 
-    { 0x06d0, 0 }, // 0x6d0 D
-    { 0x06d1, 0 }, // 0x6d1 D
-    { 0x06d2, 0 }, // 0x6d2 R
-    { 0x06d3, 0 }, // 0x6d3 R
-    { 0x06d4, 0 }, // 0x6d4 U
-    { 0x06d5, 0 }, // 0x6d5 D
-    { 0x06d6, 0 }, // 0x6d6
-    { 0x06d7, 0 }, // 0x6d7
+    { 0xfbe4, 3 }, // 0x6d0 D 	e
+    { 0x06d1, 0 }, // 0x6d1 D 	yeh with three dots below
+    { 0xfbae, 1 }, // 0x6d2 R 	yeh barree
+    { 0xfbb0, 1 }, // 0x6d3 R 	yeh barree with hamza above
+    { 0x06d4, 0 }, // 0x6d4 U 	full stop
+    { 0x06d5, 0 }, // 0x6d5 D 	ae
+    { 0x06d6, 0 }, // 0x6d6 	koreanic annotaion signs
+    { 0x06d7, 0 }, // 0x6d7 	...
     { 0x06d8, 0 }, // 0x6d8
     { 0x06d9, 0 }, // 0x6d9
     { 0x06da, 0 }, // 0x6da
@@ -970,7 +972,7 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x06ee, 0 }, // 0x6ee
     { 0x06ef, 0 }, // 0x6ef
 
-    { 0x06f0, 0 }, // 0x6f0
+    { 0x06f0, 0 }, // 0x6f0 	Arabic indic digit 0
     { 0x06f1, 0 }, // 0x6f1
     { 0x06f2, 0 }, // 0x6f2
     { 0x06f3, 0 }, // 0x6f3
@@ -979,12 +981,12 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x06f6, 0 }, // 0x6f6
     { 0x06f7, 0 }, // 0x6f7
     { 0x06f8, 0 }, // 0x6f8
-    { 0x06f9, 0 }, // 0x6f9
-    { 0x06fa, 0 }, // 0x6fa D
-    { 0x06fb, 0 }, // 0x6fb D
-    { 0x06fc, 0 }, // 0x6fc D
-    { 0x06fd, 0 }, // 0x6fd
-    { 0x06fe, 0 }, // 0x6fe
+    { 0x06f9, 0 }, // 0x6f9 	Arabic indic digit 9
+    { 0x06fa, 0 }, // 0x6fa D 	Sheen with dot below
+    { 0x06fb, 0 }, // 0x6fb D 	dad with dot below
+    { 0x06fc, 0 }, // 0x6fc D 	ghain with dot below
+    { 0x06fd, 0 }, // 0x6fd 	Sindhi ampersand
+    { 0x06fe, 0 }, // 0x6fe 	sindhi postposition
     { 0x06ff, 0 }, // 0x6ff
 
 };
@@ -993,12 +995,12 @@ static const ushort arabicUnicodeMapping[256][4] = {
 // of the lam can be either initial of medial. So initial maps to the isolated form of the ligature,
 // medial to the final form
 static const ushort arabicUnicodeLamAlefMapping[6][4] = {
-    { 0xfffd, 0xfef5, 0xfffd, 0xfef6 }, // 0x622 	R 	Alef with Madda above
-    { 0xfffd, 0xfef7, 0xfffd, 0xfef8 }, // 0x623 	R	Alef with Hamza above
+    { 0xfffd, 0xfffd, 0xfef5, 0xfef6 }, // 0x622 	R 	Alef with Madda above
+    { 0xfffd, 0xfffd, 0xfef7, 0xfef8 }, // 0x623 	R	Alef with Hamza above
     { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x624 	R	Waw with Hamza above
-    { 0xfffd, 0xfef9, 0xfffd, 0xfefa }, // 0x625 	R	Alef with Hamza below
+    { 0xfffd, 0xfffd, 0xfef9, 0xfefa }, // 0x625 	R	Alef with Hamza below
     { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x626 	D	Yeh with Hamza above
-    { 0xfffd, 0xfefb, 0xfffd, 0xfefc } // 0x627 	R	Alef
+    { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627 	R	Alef
 };
 
 int QFontArabicUnicodeCodec::heuristicContentMatch(const char *, int) const
