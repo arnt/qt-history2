@@ -186,6 +186,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     Q_UNUSED(script);
     Q_UNUSED(family);
     Q_UNUSED(foundry);
+    Q_UNUSED(style);
     QPaintDevice *paintdevice = fp->paintdevice;
 
     Q_ASSERT(size);

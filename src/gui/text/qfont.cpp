@@ -2883,7 +2883,7 @@ void QFontCache::clear()
             }
         } else {
             FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-                     it.value().data, it.value().data->ref);
+                     it.value().data, it.value().data->ref.atomic);
         }
         ++it;
     }
