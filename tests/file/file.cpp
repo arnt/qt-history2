@@ -111,4 +111,17 @@ int main()
           tFile.close();
           printf("%d\n", tStream.eof());
     }
+
+    printf("Testing unsetDevice()...\n");
+    {
+          QFile tFile("file.txt");
+          tFile.open( IO_ReadOnly);
+          QDataStream tStream(&tFile);
+ 
+          printf("%d\n", tStream.eof());
+          tStream.unsetDevice();
+          printf("%d\n", tStream.eof());
+          tFile.close();
+          printf("%d\n", tStream.eof());
+    }
 }
