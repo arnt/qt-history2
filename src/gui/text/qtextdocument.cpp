@@ -733,6 +733,7 @@ void QTextDocument::print(QPrinter *printer) const
         QAbstractTextDocumentLayout::PaintContext ctx;
 // ######        ctx.palette = palette();
         p.setClipRect(view);
+        ctx.rect = view;
         layout->draw(&p, ctx);
 
         p.setClipping(false);
