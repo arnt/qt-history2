@@ -32,8 +32,8 @@
 #include "qgfx_qws.h"
 
 #include <stdio.h>
-#ifndef Q_OS_MACX
-# include <dlfcn.h>
+#ifdef QT_LOADABLE_MODULES
+#include <dlfcn.h>
 #endif
 #include <sys/types.h>
 #include <dirent.h>

@@ -2776,8 +2776,10 @@ QFileDialog::~QFileDialog()
     d->moreFiles->clear();
     d->moreFiles->blockSignals( FALSE );
     files->blockSignals( FALSE );
+#ifndef QT_NO_CURSOR
     if ( QApplication::overrideCursor() )
 	QApplication::restoreOverrideCursor();
+#endif
     delete d;
     d = 0;
 }
@@ -3169,8 +3171,10 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
+#ifndef QT_NO_CURSOR
     if ( !QApplication::overrideCursor() )
 	QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
+#endif
     d->pendingItems.clear();
     if ( d->mimeTypeTimer->isActive() )
 	d->mimeTypeTimer->stop();
@@ -5604,10 +5608,12 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     if ( !op )
 	return;
 
+#ifndef QT_NO_CURSOR
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( QApplication::overrideCursor() )
 	    QApplication::restoreOverrideCursor();
     }
+#endif
     if ( op->state() == QNetworkProtocol::StFailed ) {
 	if ( d->paths->hasFocus() )
 	    d->ignoreNextKeyPress = TRUE;

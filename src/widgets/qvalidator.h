@@ -97,6 +97,7 @@ private:
     int b, t;
 };
 
+#ifndef QT_NO_REGEXP
 
 class Q_EXPORT QDoubleValidator : public QValidator
 {
@@ -157,6 +158,7 @@ private:
 
     QRegExp r;
 };
+#endif // QT_NO_REGEXP
 
 
 #endif // QT_NO_VALIDATOR

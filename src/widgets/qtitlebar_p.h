@@ -87,6 +87,11 @@ public:
 
     QSize sizeHint() const;
 
+#ifdef QT_NO_WIDGET_TOPEXTRA
+    // We provide one, since titlebar is useless otherwise.
+    QString caption() const;
+#endif
+
 public slots:
     void setActive( bool );
     void setCaption( const QString& title );

@@ -103,10 +103,10 @@ public:
 		    QGlyph* g = glyph+glyph_index;
 		    uchar* t;
 		    int linestep = g->metrics->linestep;
-		    int h = g->metrics->height;
+		    int h = g->metrics->height, j;
 		    int croptop=0,cropbot=0;
 		    t = g->data;
-		    for (int j=0; j<h; j++) {
+		    for (j=0; j<h; j++) {
 			int i;
 			for (i=0; i<linestep; i++)
 			    if ( *t++ )
@@ -116,7 +116,7 @@ public:
 		    }
 		    donetop:
 		    t = g->data+h*linestep;
-		    for (int j=h-1; j>croptop; j--) {
+		    for (j=h-1; j>croptop; j--) {
 			int i;
 			for (i=0; i<linestep; i++)
 			    if ( *--t )
@@ -242,7 +242,7 @@ public:
 
     bool inFont(QChar ch) const
     {
-	return glyph[ch.unicode()].data;
+	return glyph[ch.unicode()].data ? TRUE : FALSE;
     }
 
     QGlyph render(QChar ch)

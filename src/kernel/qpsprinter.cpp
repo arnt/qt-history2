@@ -1366,7 +1366,9 @@ public:
     bool dirtyBkColor;
     Qt::BGMode bkMode;
     bool dirtyBkMode;
+#ifndef QT_NO_TEXTCODEC
     QTextCodec * currentFontCodec;
+#endif
     QString currentFont;
     QFontMetrics fm;
     int textY;
@@ -4003,6 +4005,7 @@ void QPSPrinterFontNotFound::download(QTextStream& s, bool)
   QPSPrinterFontPrivate::download(s, TRUE);
 }
 
+#ifndef QT_NO_TEXTCODEC
 // =================== A font file for asian ============
 
 class QPSPrinterFontAsian
@@ -4138,10 +4141,10 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
             if ( !ch.row() ) {
 		; // ignore, we should never get here anyway
             } else {
-                if ( !codec )
-                    ch = QChar( 0x2222 ); // box
-                else
+                if ( codec )
                     ch = codec->characterFromUnicode( text, i );
+                else
+                    ch = QChar( 0x2222 ); // box
                 char chj = ch.row();
                 if ( chj == '(' || chj == ')' || chj == '\\' )
                     out += "\\";
@@ -4156,8 +4159,6 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
     int w = d->fm.width( text );
     stream << "(" << out << ")" << w << " " << x << mdf << " T\n";
 }
-
-#ifndef QT_NO_TEXTCODEC
 
 // ----------- Japanese --------------
 
@@ -4684,6 +4685,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	}
     }
 #endif // Q_WS_X11
+#ifndef QT_NO_TEXTCODEC
     // map some scripts to something more useful
     if ( script == QFont::Han ) {
 	QTextCodec *lc = QTextCodec::codecForLocale();
@@ -4711,6 +4713,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	script = QFont::Hiragana;
     else if ( script == QFont::Bopomofo )
 	script = QFont::Han;
+#endif
 
     QString searchname = xfontname;
 #ifdef Q_WS_X11    
@@ -4858,7 +4861,10 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     : buffer( 0 ), outDevice( 0 ), fd( filedes ), pageBuffer( 0 ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
       dirtypen( FALSE ), dirtybrush( FALSE ), dirtyBkColor( FALSE ), bkMode( Qt::TransparentMode ), dirtyBkMode( FALSE ),
-      currentFontCodec( 0 ), fm( QFont() ), textY( 0 )
+#ifndef QT_NO_TEXTCODEC
+      currentFontCodec( 0 ),
+#endif
+	fm( QFont() ), textY( 0 )
 {
     printer = prt;
     headerFontNames.setAutoDelete( TRUE );
@@ -4987,6 +4993,7 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
     if ( !fontsUsed.contains( ps ) )
         fontsUsed += ps;
 
+#ifndef QT_NO_TEXTCODEC
     QTextCodec * codec = 0;
 // ###
 // #ifndef QT_NO_TEXTCODEC
@@ -4996,8 +5003,9 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
 //          codec = QTextCodec::codecForMib( unicodevalues[i++].mib );
 //     } while( codec == 0 && unicodevalues[i++].cs != unicodevalues_LAST );
 // #endif
-    currentFont = fontName;
     currentFontCodec = codec;
+#endif
+    currentFont = fontName;
     currentFontFile = ff.handle();
     scriptUsed = script;
 }

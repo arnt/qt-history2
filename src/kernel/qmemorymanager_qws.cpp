@@ -37,7 +37,7 @@
 #include "qfile.h"
 #include "qdir.h"
 
-#if !defined(Q_OS_QNX6)
+#if !defined(Q_OS_QNX6) && !defined(Q_OS_QNX4)
 #define QT_USE_MMAP
 #endif
 
@@ -841,12 +841,15 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
 	    uchar* data = (uchar*)mmap( 0, // any address
 		    st.st_size, // whole file
                     PROT_READ, // read-only memory
-#if !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX4)
                     MAP_FILE | MAP_PRIVATE, // swap-backed map from file
 #else
                     MAP_PRIVATE,
 #endif
                     f, 0 ); // from offset 0 of f
+#if defined(Q_OS_QNX4) && !defined(MAP_FAILED)
+#define MAP_FAILED ((void *)-1)
+#endif
 	    if ( !data || data == (uchar*)MAP_FAILED )
 		qFatal("Failed to mmap %s",QFile::encodeName(filename).data());
 	    ::close(f);

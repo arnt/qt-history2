@@ -29,51 +29,43 @@
 **********************************************************************/
 
 #include "qwindowsystem_qws.h"
+
+#ifdef Q_OS_QNX4
+
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsutils_qws.h"
+#include "qwsmouse_qws.h"
 
 #include <qapplication.h>
 #include <qpointarray.h>
-
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
-
 #include <qgfx_qws.h>
 
-#ifdef Q_OS_QNX4
 
 #ifndef QQNX4MOUSEHANDLERPRIVATEIMPL
 #define QQNX4MOUSEHANDLERPRIVATEIMPL
 
-class QQnxMouseHandlerPrivate : public QWSMouseHandler {
+struct mouse_event;
+class QQnx4MouseHandlerPrivate : public QWSMouseHandler {
     Q_OBJECT
 
     public:
-	QQnxMouseHandlerPrivate(MouseProtocol &, QString);
-	~QQnxMouseHandlerPrivate();
+        QQnx4MouseHandlerPrivate(MouseProtocol &, QString);
+        ~QQnx4MouseHandlerPrivate();
 
 	void clearCalibration();
 	void calibrate();
 	void getCalibration( QWSPointerCalibrationData * );
 
     private:
-	int mouseFD;
-	int index;
 	QSocketNotifier *mouseNotifier;
-	void *buffer;
-	void getData();
+	int mouseFD, read_in;
+        mouse_event *mpack;
 
     private slots:
         void readMouseData(int);
 };
 
 #endif
-
 #endif
+

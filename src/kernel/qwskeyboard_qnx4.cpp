@@ -31,13 +31,18 @@
 
 #include "qwskeyboard_qnx4.h"
  
-#if defined(Q_OS_QNX6)
+#if defined(Q_OS_QNX4)
 
 #include <qkeyboard_qws.h>
-
-// This is Qnx6 code at the moment
+#include <qsocketnotifier.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/keyboard.h>
 
 QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
+    gState = GuidantNone;
     shift = 0;
     alt   = 0;
     ctrl  = 0;
@@ -45,30 +50,39 @@ QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
     prevuni = 0;
     prevkey = 0;
 
-    /*
-    kbdFD = open("/dev/devi/keyboard0", O_RDONLY);
-
-    if (kbdFD == -1) {
+    kbdFD = open("/dev/kbd", O_RDONLY);
+    if (kbdFD == -1) 
 	qFatal("Cannot access keyboard device\n");
-    }
-
-    QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this );
+    QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD, 
+					       QSocketNotifier::Read, this );
     connect(kbdNotifier, SIGNAL(activated(int)),this, SLOT(readKbdData(int)));
     notifiers.append( kbdNotifier ); 
-    */
 }
 
 void QWSQnx4KeyboardHandler::readKbdData(int fd) {
-    /*
-    _keyboard_packet *packet = (_keyboard_packet *)malloc(sizeof(_keyboard_packet));
-    read(fd, (void *)packet, sizeof(_keyboard_packet));
-    doKey(packet->data.key_scan);
-    free((void *)packet);
-    */
+	char inChar;
+	int ret = read(kbdFD, &inChar, 1);
+	switch (gState) {
+		case GuidantNone:
+			if ( inChar == 85 || inChar == 86 )
+				gState = inChar == 85 ? GuidantPressed : GuidantReleased;
+			else
+				doKey(inChar);
+			break;
+		case GuidantDropped:
+			gState = GuidantNone;
+			break;
+		case GuidantReleased:
+			inChar |= 0x80;
+		case GuidantPressed:
+			gState = GuidantDropped;
+			doKey(inChar);
+			break;
+	};
 }
 
 QWSQnx4KeyboardHandler::~QWSQnx4KeyboardHandler() {
-//    close(kbdFD);
+    close(kbdFD);
 }
 
 #endif

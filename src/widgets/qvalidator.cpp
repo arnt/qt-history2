@@ -334,6 +334,7 @@ void QIntValidator::setTop( int top )
 }
 
 
+#ifndef QT_NO_REGEXP
 
 /*!
   \class QDoubleValidator
@@ -647,5 +648,7 @@ void QRegExpValidator::setRegExp( const QRegExp& rx )
 
   \sa setRegExp()
 */
+
+#endif
 
 #endif

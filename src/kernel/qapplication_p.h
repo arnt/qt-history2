@@ -67,7 +67,9 @@ extern Q_EXPORT void qt_enter_modal( QWidget* );
 extern Q_EXPORT void qt_leave_modal( QWidget* );
 
 extern bool qt_is_gui_used;
+#ifndef QT_NO_CLIPBOARD
 extern QClipboard *qt_clipboard;
+#endif
 
 #if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
 extern Qt::WindowsVersion qt_winver;

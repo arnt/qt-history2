@@ -53,8 +53,8 @@
 #ifndef QWSQNX4KB_H
 #define QWSQNX4KB_H
 
-#include <sys/dcmd_input.h> 
 #include <qkeyboard_qws.h>
+
 
 class QWSQnx4KeyboardHandler : public QWSKeyboardHandler
 {
@@ -69,6 +69,9 @@ public:
         void readKbdData(int);
 
 private:
+    enum GuidantState {
+	GuidantNone, GuidantPressed, GuidantReleased, GuidantDropped
+    } gState;
     int shift;
     int alt;
     int ctrl;

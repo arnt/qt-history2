@@ -2724,9 +2724,13 @@ void qt_format_text( const QFont& font, const QRect &_r,
 {
     // we need to copy r here to protect against the case (&r == brect).
     QRect r( _r );
+#ifndef QT_NO_RICHTEXT
     QTextParagraph** internal = (QTextParagraph**) internalrag;
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
+#else
+    const bool decode = FALSE;
+#endif
 
     bool dontclip  = (tf & Qt::DontClip)  == Qt::DontClip;
     bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;

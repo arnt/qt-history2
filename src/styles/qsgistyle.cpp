@@ -53,19 +53,23 @@
 #include "qslider.h"
 #include <limits.h>
 
+#ifndef QT_NO_SLIDER
 struct SliderLastPosition
 {
     SliderLastPosition() : rect(0,-1,0,-1), slider(0) {}
     QRect rect;
     const QSlider* slider;
 };
+#endif
 
+#ifndef QT_NO_SCROLLBAR
 struct ScrollbarLastPosition
 {
     ScrollbarLastPosition() : rect( 0,-1, 0,-1 ), scrollbar(0) {}
     QRect rect;
     const QScrollBar *scrollbar;
 };
+#endif
 
 class QSGIStylePrivate
 {
@@ -77,8 +81,12 @@ public:
 
     const QWidget *hotWidget;
     QPoint mousePos;
+#ifndef QT_NO_SCROLLBAR
     ScrollbarLastPosition lastScrollbarRect;
+#endif
+#ifndef QT_NO_SLIDER
     SliderLastPosition lastSliderRect;
+#endif
 };
 
 /*!
@@ -221,8 +229,10 @@ QSGIStyle::polish( QWidget* w )
         w->setMouseTracking( TRUE );
         if ( w->inherits("QToolButton") )
             w->setBackgroundMode( QWidget::PaletteBackground );
+#ifndef QT_NO_SCROLLBAR
         if ( w->inherits("QScrollBar") )
             w->setBackgroundMode( QWidget::NoBackground );
+#endif
     } else if ( w->inherits( "QComboBox" ) ) {
 	QFont f = QApplication::font();
 	f.setBold( TRUE );
@@ -302,14 +312,19 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 
     case QEvent::MouseButtonRelease:
         {
-	    if ( widget->inherits( "QScrollBar" ) ) {
+	    if ( 0 ) {
+#ifndef QT_NO_SCROLLBAR
+	    } else if ( widget->inherits( "QScrollBar" ) ) {
 		QRect oldRect = d->lastScrollbarRect.rect;
 		d->lastScrollbarRect.rect = QRect( 0, -1, 0, -1 );
 		widget->repaint( oldRect, FALSE );
+#endif
+#ifndef QT_NO_SLIDER
 	    } else if ( widget->inherits("QSlider") ) {
 		QRect oldRect = d->lastSliderRect.rect;
 		d->lastSliderRect.rect = QRect( 0, -1, 0, -1 );
 		widget->repaint( oldRect, FALSE );
+#endif
             }
         }
         break;

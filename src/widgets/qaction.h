@@ -65,14 +65,18 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
     Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
     Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
+#ifndef QT_NO_ACCEL
     Q_PROPERTY( QKeySequence accel READ accel WRITE setAccel )
+#endif
 
 public:
     QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
+#ifndef QT_NO_ACCEL
     QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel,
 	     QObject* parent, const char* name = 0, bool toggle = FALSE );
     QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent,
 	     const char* name = 0, bool toggle = FALSE );
+#endif
     ~QAction();
 
     virtual void setIconSet( const QIconSet& );
@@ -87,8 +91,10 @@ public:
     QString statusTip() const;
     virtual void setWhatsThis( const QString& );
     QString whatsThis() const;
+#ifndef QT_NO_ACCEL
     virtual void setAccel( const QKeySequence& key );
     QKeySequence accel() const;
+#endif
     virtual void setToggleAction( bool );
 
     bool isToggleAction() const;

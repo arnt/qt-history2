@@ -146,6 +146,9 @@ public:
     bool pressed            :1;
     bool autoraise          :1;
     QString cuttext;
+#ifdef QT_NO_WIDGET_TOPEXTRA
+    QString cap;
+#endif
 };
 
 QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
@@ -493,9 +496,16 @@ void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
     }
 }
 
+#ifdef QT_NO_WIDGET_TOPEXTRA
+// We provide one, since titlebar is useless otherwise.
+QString QTitleBar::caption() const
+{
+    return d->cap;
+}
+#endif
+
 void QTitleBar::cutText()
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
     QFontMetrics fm( font() );
 
     int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
@@ -512,19 +522,20 @@ void QTitleBar::cutText()
 	if(i != (int)txt.length())
 	    d->cuttext = txt.left( i ) + "...";
     }
-#endif
 }
 
 void QTitleBar::setCaption( const QString& title )
 {
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if( caption() == title)
 	return;
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QWidget::setCaption( title );
+#else
+    d->cap = title;
+#endif
     cutText();
 
     update();
-#endif
 }
 
 

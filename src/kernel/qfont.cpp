@@ -1506,8 +1506,13 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 
     if ( s.version() <= 3 ) {
 	Q_INT16 pointSize = (Q_INT16) font.d->request.pointSize;
-	if ( pointSize == -1 )
+	if ( pointSize == -1 ) {
+#ifdef Q_WS_X11
+	    pointSize = (Q_INT16)(font.d->request.pixelSize*720/QPaintDevice::x11AppDpiY());
+#else
 	    pointSize = (Q_INT16)QFontInfo( font ).pointSize() * 10;
+#endif
+	}
 	s << pointSize;
     } else {
 	s << (Q_INT16) font.d->request.pointSize;

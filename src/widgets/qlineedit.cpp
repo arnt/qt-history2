@@ -1171,9 +1171,9 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && dragEnabled()
 #ifndef QT_NO_WHATSTHIS
-	     && !QWhatsThis::inWhatsThisMode()
+	    && !QWhatsThis::inWhatsThisMode()
 #endif
-	     ) {
+	) {
 	    if ( hasSelectedText() &&
 		 inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) )
 		setCursor( arrowCursor );
@@ -2342,11 +2342,13 @@ void QLineEdit::delOrBackspace( bool backspace )
 	    newPos--;
 	if ( newPos >= 0 ) {
 	    bool ok = TRUE;
+#ifndef QT_NO_VALIDATOR
 	    if ( d->validator ) {
 		newText = text();
 		newText.remove( newPos, 1 );
 		ok = ( d->validator->validate(newText, newPos) != QValidator::Invalid );
 	    }
+#endif
 
 	    if ( ok ) {
 		d->checkUndoRedoInfo( backspace ? UndoRedoInfo::Backspace :
@@ -2363,11 +2365,13 @@ void QLineEdit::delOrBackspace( bool backspace )
 		}
 		d->cursor->remove();
 
+#ifndef QT_NO_VALIDATOR
 		if ( d->validator ) {
 		    if ( newText != text() )
 			setText( newText );
 		    d->cursor->setIndex( newPos );
 		}
+#endif
 		d->selectionStart = d->cursor->index();
 		d->ed = TRUE;
 		update();

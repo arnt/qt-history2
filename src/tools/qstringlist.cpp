@@ -241,6 +241,7 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     return lst;
 }
 
+#ifndef QT_NO_REGEXP
 /*!
     Splits the string \a str into strings wherever the regular
     expression \a sep occurs, and returns the list of those strings.
@@ -290,6 +291,7 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str,
 
     return lst;
 }
+#endif
 
 /*!
     Returns a list of all strings containing the substring \a str.
@@ -308,6 +310,7 @@ QStringList QStringList::grep( const QString &str, bool cs ) const
     return res;
 }
 
+#ifndef QT_NO_REGEXP
 /*!
     \overload
 
@@ -324,6 +327,7 @@ QStringList QStringList::grep( const QRegExp &expr ) const
 
     return res;
 }
+#endif
 
 /*!
     Joins the string list into a single string with each element

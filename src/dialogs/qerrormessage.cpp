@@ -212,8 +212,10 @@ QErrorMessage * QErrorMessage::qtHandler()
 {
     if ( !qtMessageHandler ) {
 	qtMessageHandler = new QErrorMessage( 0, "automatic message handler" );
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( qApp->mainWidget() )
 	    qtMessageHandler->setCaption( qApp->mainWidget()->caption() );
+#endif
 	qInstallMsgHandler( jump );
     }
     return qtMessageHandler;

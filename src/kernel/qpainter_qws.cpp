@@ -1436,6 +1436,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param) || !gfx )
 		    return;
 	    }
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 	    if ( txop == TxScale || txop == TxRotShear ) {
 		QWMatrix mat( m11(), m12(),
 			      m21(), m22(),
@@ -1456,6 +1457,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		flags = save_flags;
 		return;
 	    }
+#endif
 	}
 	map( x, y, &x, &y );
     }
@@ -1642,10 +1644,12 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 		double rx = mat1.m11() * cfont.pointSizeFloat() / newSize;
 		double ry = mat1.m22() * cfont.pointSizeFloat() / newSize;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 	    } else {
 		mat2 = QPixmap::trueMatrix( mat1, w, h );
 		aw = w;
 		ah = h;
+#endif
 	    }
 	    bool empty = aw == 0 || ah == 0;
 	    QPixmap *tpm = 0;
@@ -1673,7 +1677,11 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 			p++;
 		    }
 		}
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 		tpm = new QPixmap( pm.xForm( mat2 ) );
+#else
+		tpm = new QPixmap( pm );
+#endif
 		if ( tpm->isNull() ) {
 		    delete tpm;
 		    return;
@@ -1690,7 +1698,11 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 		    paint.setFont( dfont );
 		    paint.drawText( tx, ty, shaped, len );
 		    paint.end();
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+#else
+		    wx_bm = new QBitmap( bm );
+#endif
 		    if ( wx_bm->isNull() ) {
 			delete wx_bm;		// nothing to draw
 			return;

@@ -65,11 +65,15 @@ public:
 
     static QStringList split( const QString &sep, const QString &str, bool allowEmptyEntries = FALSE );
     static QStringList split( const QChar &sep, const QString &str, bool allowEmptyEntries = FALSE );
+#ifndef QT_NO_REGEXP
     static QStringList split( const QRegExp &sep, const QString &str, bool allowEmptyEntries = FALSE );
+#endif
     QString join( const QString &sep ) const;
 
     QStringList grep( const QString &str, bool cs = TRUE ) const;
+#ifndef QT_NO_REGEXP
     QStringList grep( const QRegExp &expr ) const;
+#endif
 };
 
 #ifndef QT_NO_DATASTREAM
