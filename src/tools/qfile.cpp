@@ -49,6 +49,10 @@
 
 extern bool qt_file_access( const QString& fn, int t );
 
+#if defined(RMS_BUFFERING)
+const int QFile::readBufferIdealSize = 1024;
+#endif
+
 // NOT REVISED
 /*!
   \class QFile qfile.h
@@ -130,6 +134,10 @@ void QFile::init()
     length = 0;
     ioIndex = 0;
     ext_f  = FALSE;				// not an external file handle
+#if defined(RMS_BUFFERING)
+    readBufferSize = 0;
+    readBufferPos = 0;
+#endif
 }
 
 
@@ -284,6 +292,13 @@ int QFile::readLine( char *p, uint maxlen )
     if ( isRaw() ) {				// raw file
 	nread = QIODevice::readLine( p, maxlen );
     } else {					// buffered file
+#if defined(RMS_BUFFERING)
+	nread = buf_getline( p, maxlen );
+	if ( nread == -1 ) 
+	    ioIndex += nread;
+	else
+	    setStatus(IO_ReadError);
+#else
 	p = fgets( p, maxlen, fh );
 	if ( p ) {
 	    nread = qstrlen( p );
@@ -292,6 +307,7 @@ int QFile::readLine( char *p, uint maxlen )
 	    nread = -1;
 	    setStatus(IO_ReadError);
 	}
+#endif
     }
     return nread;
 }
