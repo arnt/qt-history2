@@ -183,10 +183,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     for(int yy=0;yy<h;yy++) {
  	drow = (long *)((char *)dptr + (yy * dbpr));
 	srow = sptr + (yy * sbpr);
-	for(int xx=0;xx<w;xx++) {
-	    switch(sdpt) {
-	    case 1:
-	    {
+	switch(sdpt) {
+	case 1:
+	{
+	    for(int xx=0;xx<w;xx++) {
 		char one_bit = *(srow + (xx / 8));
 		if(sord==QImage::BigEndian)
 		    one_bit = one_bit >> (7 - (xx % 8));
@@ -195,22 +195,31 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		q = 0;
 		if(!(one_bit & 0x01))
 		    q = (255 << 16) | (255 << 8) | 255;
-		break;
+		*(drow + xx) = q;
 	    }
-	    case 8:
+	    break;
+	}
+	case 8:
+	    for(int xx=0;xx<w;xx++) {
 		q = image.color(*(srow + xx));
-		break;
-	    case 16:
-		q = qt_conv16ToRgb(*(((ushort *)srow) + xx));
-		break;
-	    case 32:
-		q = *(((QRgb *)srow) + xx);
-		break;
-	    default:
-		qDebug("Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
-		break;
+		*(drow + xx) = q;
 	    }
-	    *(drow + xx) = q;
+	    break;
+	case 16:
+	    for(int xx=0;xx<w;xx++) {
+		q = qt_conv16ToRgb(*(((ushort *)srow) + xx));
+		*(drow + xx) = q;
+	    }
+	    break;
+	case 32:
+	    for(int xx=0;xx<w;xx++) {
+		q = *(((QRgb *)srow) + xx);
+		*(drow + xx) = q;
+	    }
+	    break;
+	default:
+	    qDebug("Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
+	    break;
 	}
     }
     SwapMMUMode(&mode);
