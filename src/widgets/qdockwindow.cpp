@@ -1551,8 +1551,8 @@ void QDockWindow::undock( QWidget *w )
 	show();
     } else {
 	reparent( w, 0, QPoint( 0, 0 ), FALSE );
-	resize( 1, 1 );
 	move( -width() - 5, -height() - 5 );
+	resize( 1, 1 );
 	show();
     }
     emit placeChanged( place() );
