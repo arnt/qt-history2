@@ -441,6 +441,10 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 {
     Q_ASSERT(numLines() != 0);
 
+    d->cursorPos = cursorPos;
+    d->selections = selections;
+    d->nSelections = nSelections;
+
     int clipy = INT_MIN;
     int clipe = INT_MAX;
     if (cr.isValid()) {
@@ -482,6 +486,9 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 	}
     }
 
+    d->cursorPos = -1;
+    d->selections = 0;
+    d->nSelections = 0;
 }
 
 
@@ -536,7 +543,7 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions ) const
+void QTextLine::draw( QPainter *p, int x, int y ) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -614,7 +621,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions ) const
 	gf.glyphs = glyphs + gs;
 	gf.font = fe;
 
-	int *ul = underlinePositions;
+	int *ul = eng->underlinePositions;
 	if (ul)
 	    while (*ul != -1 && *ul < start)
 		++ul;

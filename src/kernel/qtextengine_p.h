@@ -17,6 +17,7 @@
 #include "qglobal.h"
 #include "qstring.h"
 #include "qnamespace.h"
+#include "private/qtextlayout_p.h"
 #include <private/qfontdata_p.h>
 #include <qvector.h>
 #endif // QT_H
@@ -254,10 +255,12 @@ class QPalette;
 class QTextEngine {
 public:
     QTextEngine()
-	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0)
+	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0), 
+	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
 	{}
     QTextEngine(const QString &str, QFontPrivate *f )
-	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0)
+	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0),
+    	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
 	{ setText(str); fnt->ref(); }
     ~QTextEngine();
 
@@ -340,6 +343,11 @@ public:
     void **memory;
     int num_glyphs;
     int used;
+
+    int cursorPos;
+    const QTextLayout::Selection *selections;
+    int nSelections;
+    int *underlinePositions;
 private:
     void shapeText( int item ) const;
 };

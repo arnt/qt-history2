@@ -1683,6 +1683,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int width = 0;
 
     QTextLayout textLayout( text, fnt );
+    textLayout.engine()->underlinePositions = underlinePositions;
 
     if ( text.isEmpty() ) {
 	height = fm.height();
@@ -1761,7 +1762,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
  		qt_draw_background(painter, r.x() + line.x() + xoff, r.y() + yoff + line.y(),
 				   line.width(), line.ascent() + line.descent() + 1);
 #endif
-	    line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff, underlinePositions);
+	    line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff);
 	}
 
 	if ( restoreClipping ) {
