@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#205 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#204 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#205 $");
 
 
 /*****************************************************************************
@@ -1574,7 +1574,7 @@ void QPainter::moveTo( int x, int y )
 
 /*!
   Draws a line from the current point to \e (x,y) and sets this to the new
-  current point.
+  current point. Both endpoints are are drawn.
   \sa moveTo(), drawLine()
 */
 
@@ -1598,7 +1598,7 @@ void QPainter::lineTo( int x, int y )
 }
 
 /*!
-  Draws a line from \e (x1,y2) to \e (x2,y2).
+  Draws a line from \e (x1,y2) to \e (x2,y2). Both endpoints are drawn.
   \sa moveTo(), lineTo()
 */
 
