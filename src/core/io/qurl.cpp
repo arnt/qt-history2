@@ -129,6 +129,9 @@ public:
 
     bool isParsed;
     bool isValidated;
+
+    QByteArray encodedNormilized;
+    const QByteArray & normilized();
 };
 
 class UrlParser {
@@ -1040,6 +1043,7 @@ QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
 void QUrlPrivate::validate() const
 {
     QUrlPrivate *that = (QUrlPrivate *)this;
+    that->encodedNormilized.clear(); // reset this so it will be regenerated
     that->encodedOriginal = that->toEncoded(); // may detach
     parse(ParseOnly);
 }
@@ -1211,6 +1215,24 @@ QByteArray QUrlPrivate::toEncoded() const
 
     return url;
 }
+
+
+const QByteArray & QUrlPrivate::normilized()
+{
+    if (!isValidated) validate();
+    if (encodedNormilized.isEmpty()) {
+	QUrlPrivate tmp = *this;
+	tmp.scheme = tmp.scheme.toLower();
+	tmp.host = tmp.host.toLower();
+	if (!tmp.scheme.isEmpty()) // relative test
+	    tmp.path = QUrlPrivate::removeDotsFromPath(tmp.path);
+	tmp.query = QUrl::toPercentEncoding(QUrl::fromPercentEncoding(tmp.query));
+	encodedNormilized = tmp.toEncoded();
+    }
+
+    return encodedNormilized;
+}
+
 
 /*!
     Constructs a URL by parsing \a url. \a url is assumed to be in
@@ -2272,14 +2294,7 @@ bool QUrl::operator ==(const QUrl &url) const
 {
     if (!d->isParsed) d->parse();
     if (!url.d->isParsed) url.d->parse();
-    return d->port == url.d->port
-          && d->userName == url.d->userName
-          && d->password == url.d->password
-          && d->fragment == url.d->fragment
-          && d->scheme.toLower() == url.d->scheme.toLower()
-          && d->host.toLower() == url.d->host.toLower()
-          && QUrl::fromPercentEncoding(d->query) == QUrl::fromPercentEncoding(url.d->query)
-          && QUrlPrivate::removeDotsFromPath(d->path) == QUrlPrivate::removeDotsFromPath(url.d->path);
+    return d->normilized() == url.d->normilized();
 }
 
 /*!
