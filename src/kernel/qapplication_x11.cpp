@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#63 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#62 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#63 $";
 #endif
 
 
@@ -235,6 +235,7 @@ void qt_init( int *argcptr, char **argv )
 
   // Misc. initialization
 
+    app_loop_level = 0;
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -642,7 +643,6 @@ int QApplication::exec( QWidget *mainWidget )	// enter main event loop
 	    main_widget->setGeometry( x, y, w, h );
 	}
     }
-    app_loop_level = 0;
     enter_loop();
     return quit_code;
 }
@@ -789,7 +789,7 @@ int QApplication::enter_loop()			// local event loop
 	    }
 	}
 
-	if ( quit_now )				// break immediatly
+	if ( quit_now || app_exit_loop )	// break immediatly
 	    break;
 
 	FD_ZERO( &app_fdset );
