@@ -686,18 +686,6 @@ void Q4Menu::paintEvent(QPaintEvent *e)
     QRegion emptyArea = QRegion(rect());
     const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
 
-    //draw border
-    if(fw) {
- 	QRegion borderReg;
- 	borderReg += QRect(0, 0, fw, height()); //left
- 	borderReg += QRect(width()-fw, 0, fw, height()); //right
- 	borderReg += QRect(0, 0, width(), fw); //top
- 	borderReg += QRect(0, height()-fw, width(), fw); //bottom
- 	p.setClipRegion(borderReg);
-	emptyArea -= borderReg;
- 	style().drawPrimitive(QStyle::PE_MenuFrame, &p, rect(), palette(), QStyle::Style_Default);
-    }
-
     //draw the items that need updating..
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
@@ -757,6 +745,17 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	if(d->tearoffHighlighted)
 	    flags |= QStyle::Style_Active;
 	style().drawControl(QStyle::CE_MenuTearoff, &p, this, tearRect, palette(), flags);
+    }
+    //draw border
+    if(fw) {
+ 	QRegion borderReg;
+ 	borderReg += QRect(0, 0, fw, height()); //left
+ 	borderReg += QRect(width()-fw, 0, fw, height()); //right
+ 	borderReg += QRect(0, 0, width(), fw); //top
+ 	borderReg += QRect(0, height()-fw, width(), fw); //bottom
+ 	p.setClipRegion(borderReg);
+	emptyArea -= borderReg;
+ 	style().drawPrimitive(QStyle::PE_MenuFrame, &p, rect(), palette(), QStyle::Style_Default);
     }
 
     //finally the rest of the space
@@ -1405,18 +1404,6 @@ void Q4MenuBar::paintEvent(QPaintEvent *e)
     QPainter p(this);
     QRegion emptyArea(rect());
 
-     //draw border
-    if(int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)) {
- 	QRegion borderReg;
- 	borderReg += QRect(0, 0, fw, height()); //left
- 	borderReg += QRect(width()-fw, 0, fw, height()); //right
- 	borderReg += QRect(0, 0, width(), fw); //top
- 	borderReg += QRect(0, height()-fw, width(), fw); //bottom
-	p.setClipRegion(borderReg);
- 	emptyArea -= borderReg;
- 	style().drawPrimitive(QStyle::PE_MenuBarFrame, &p, rect(), palette(), QStyle::Style_Default);
-    }
-
     //draw the items
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
@@ -1441,6 +1428,17 @@ void Q4MenuBar::paintEvent(QPaintEvent *e)
 	p.setClipRect(adjustedActionRect);
 	style().drawControl(QStyle::CE_MenuBarItem, &p, this,
 			    adjustedActionRect, pal, flags, QStyleOption(action->action));
+    }
+     //draw border
+    if(int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)) {
+ 	QRegion borderReg;
+ 	borderReg += QRect(0, 0, fw, height()); //left
+ 	borderReg += QRect(width()-fw, 0, fw, height()); //right
+ 	borderReg += QRect(0, 0, width(), fw); //top
+ 	borderReg += QRect(0, height()-fw, width(), fw); //bottom
+	p.setClipRegion(borderReg);
+ 	emptyArea -= borderReg;
+ 	style().drawPrimitive(QStyle::PE_MenuBarFrame, &p, rect(), palette(), QStyle::Style_Default);
     }
     p.setClipRegion(emptyArea);
     style().drawControl(QStyle::CE_MenuBarEmptyArea, &p, this, rect(), palette());
