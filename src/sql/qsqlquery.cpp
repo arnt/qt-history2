@@ -135,6 +135,53 @@ void QSqlResultShared::slotResultDestroyed()
     for a more flexible interface for selecting data from a table or
     view in the database).
 
+    QSqlQuery supports prepared query execution and binding of
+    parameter values. Note that only input values may be bound. Be
+    aware that not all databases supports prepared queries and value
+    binding. Currently only the Oracle driver and the ODBC driver have
+    proper prepared query support. However, all drivers supports this
+    by emulating the missing features, which of course will not be as
+    effective. It is also important to know that different databases
+    uses different placeholder marks for value binding. Oracle uses a
+    \c : character followed by a placeholder name, while ODBC only
+    uses a \c ? character. Also note that ODBC only supports
+    positional binding - i.e you can't name the different
+    placeholders. You can't mix the different bind styles, e.g by
+    binding some values using named placeholders and some using
+    positional placeholders.
+    Example:
+
+    \code
+    // Binding values using named placeholders (e.g. in Oracle)
+    QSqlQuery q;
+    q.prepare( "insert into mytable (id, name, lastname) values (:id, :name, :lname)" );
+    q.bindValue( ":id", 0 );
+    q.bindValue( ":name", "Testname" );
+    q.bindValue( ":lname", "Lastname" );
+    q.exec();
+
+    // Binding values using positional placeholders (e.g. in ODBC)
+    QSqlQuery q;
+    q.prepare( "insert into mytable (id, name, lastname) values (?, ?, ?)" );
+    q.bindValue( 0, 0 );
+    q.bindValue( 1, "Testname" );
+    q.bindValue( 2, "Lastname" );
+    q.exec();
+    
+    // or alternatively
+    q.prepare( "insert into mytable (id, name, lastname) values (?, ?, ?)" );
+    q.addBindValue( 0 );
+    q.addBindValue( "Testname" );
+    q.addBindValue( "Lastname" );
+    q.exec();
+    
+    // and then for repeated runs:
+    q.bindValue( 0, 1 );
+    q.bindValue( 1, "John" );
+    q.bindValue( 2, "Doe" );    
+    q.exec();
+    \endcode
+    
     \sa QSqlDatabase QSqlCursor QVariant
 */
 
@@ -764,13 +811,14 @@ void QSqlQuery::afterSeek()
 }
 
 // XXX: Hack to keep BCI - remove in 4.0. QSqlExtension should be
-// removed, and the prepare(), exec() and setValue() fu's should be
+// removed, and the prepare(), exec() etc. fu's should be
 // made virtual members of QSqlResult
 
 /*! Prepares a SQL statement for execution. The statement
-  may contain place holders for binding variables. Placeholders
-  are usually specified using a \c : character, but may
-  be database dependent.
+  may contain placeholders for binding values. Placeholder
+  markers may be database dependent.
+  
+  \sa exec(), bindValue(), addBindValue()
 */
 bool QSqlQuery::prepare( const QString& query )
 {
@@ -815,6 +863,8 @@ bool QSqlQuery::prepare( const QString& query )
   
  If the statement is executed successfully TRUE is returned, otherwise
  FALSE is returned.
+ 
+ \sa prepare(), bindValue(), addBindValue()
 */
 bool QSqlQuery::exec()
 {
@@ -834,17 +884,47 @@ bool QSqlQuery::exec()
     }
 }
 
-/*! Set the place holder \c place to be bound to value \c val in a
-  prepared statement. Note that the place holder escape character (e.g
+/*! Set the placeholder \c place to be bound to value \c val in a
+  prepared statement. Note that the placeholder mark (e.g
   \c :) should be included when specifying the name.
   
-  The place holder values are cleared when prepare() is called.
+  Note: The placeholder values are cleared when prepare() is called.
+  
+  \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::setValue( const QString& placeholder, const QVariant& val )
+void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
 {
     if ( !d->sqlResult || !d->sqlResult->extension() )
 	return;
-    d->sqlResult->extension()->setValue( placeholder, val );
+    d->sqlResult->extension()->bindValue( placeholder, val );
 }
 
+/*! Set the placeholder in position \c pos to be bound to value \c val
+  in a prepared statement. Field numbering starts at 0.
+  
+  Note: The placeholder values are cleared when prepare() is called.
+
+  \sa addBindValue(), prepare(), exec()
+*/
+void QSqlQuery::bindValue( int pos, const QVariant& val )
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return;
+    d->sqlResult->extension()->bindValue( pos, val );
+}
+
+/*! Adds \c val to a list of values when using positional value
+  binding. The order in which addBindValue() is called is the order
+  the values will be bound to the placeholders in the prepared query.
+  
+  Note: The placeholder values are cleared when prepare() is called.
+  
+  \sa bindValue(), prepare(), exec()
+*/
+void QSqlQuery::addBindValue( const QVariant& val )
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return;
+    d->sqlResult->extension()->addBindValue( val );
+}
 #endif // QT_NO_SQL

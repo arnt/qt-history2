@@ -708,6 +708,7 @@ int QODBCResult::numRowsAffected()
 
 bool QODBCResult::prepare( const QString& query )
 {
+    extension()->clearValues(); // clear any placeholder values
     setActive( FALSE );
     setAt( QSql::BeforeFirst );
     SQLRETURN r;
@@ -775,17 +776,19 @@ bool QODBCResult::exec()
     QPtrList<void> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
     
-    // bind parameters
-    if ( extension()->values.count() > 0 ) {
-	QMap<QString, QVariant>::Iterator it;
+    // bind parameters - only positional binding allowed
+    if ( extension()->index.count() > 0 ) {
+	QMap<int, QString>::Iterator it;
 	int para = 1;
 	SQLINTEGER indicator;
-	for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
-	    switch( it.data().type() ) {
+	QVariant val;
+	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
+	    val = extension()->values[ it.data() ];
+	    switch ( val.type() ) {
 		case QVariant::Date: {
 		    DATE_STRUCT * dt = new DATE_STRUCT;
 		    tmpStorage.append( dt );
-		    QDate qdt = it.data().toDate();
+		    QDate qdt = val.asDate();
  		    dt->year = qdt.year();
  		    dt->month = qdt.month();
  		    dt->day = qdt.day();
@@ -803,7 +806,7 @@ bool QODBCResult::exec()
 		case QVariant::Time: {
 		    TIME_STRUCT * dt = new TIME_STRUCT;
 		    tmpStorage.append( dt );
-		    QTime qdt = it.data().toTime();
+		    QTime qdt = val.asTime();
  		    dt->hour = qdt.hour();
  		    dt->minute = qdt.minute();
  		    dt->second = qdt.second();
@@ -821,7 +824,7 @@ bool QODBCResult::exec()
 		case QVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
 		    tmpStorage.append( dt );
-		    QDateTime qdt = it.data().toDateTime();
+		    QDateTime qdt = val.asDateTime();
  		    dt->year = qdt.date().year();
  		    dt->month = qdt.date().month();
  		    dt->day = qdt.date().day();
@@ -847,7 +850,7 @@ bool QODBCResult::exec()
 					  SQL_INTEGER,
 					  0,
 					  0,
-					  (void *) &it.data().asInt(),
+					  (void *) &val.asInt(),
 					  0,
 					  NULL );
 		    break;
@@ -859,7 +862,7 @@ bool QODBCResult::exec()
 					  SQL_DOUBLE,
 					  0,
 					  0,
-					  (void *) &it.data().asDouble(),
+					  (void *) &val.asDouble(),
 					  0,
 					  NULL );
 		    break;
@@ -870,10 +873,10 @@ bool QODBCResult::exec()
 					  SQL_PARAM_INPUT,
 					  SQL_C_CHAR,
 					  SQL_VARCHAR,
-					  it.data().asString().length() + 1,
+					  val.asString().length() + 1,
 					  0,
-					  (void *) it.data().asString().latin1(), // ### why not local8Bit()?!
-					  it.data().asString().length() + 1,
+					  (void *) val.asString().latin1(), // ### why not local8Bit()?!
+					  val.asString().length() + 1,
 					  &indicator );
 		    break;
 	    }

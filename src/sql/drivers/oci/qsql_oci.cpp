@@ -990,7 +990,7 @@ bool QOCIResult::prepare( const QString& query )
 {
     int r(0);
     
-    extension()->values.clear(); // clear any placeholder values
+    extension()->clearValues(); // clear any placeholder values
     if ( cols ) {
 	delete cols;
 	cols = 0;
@@ -1045,15 +1045,17 @@ bool QOCIResult::exec()
 {
     int r = 0;
     ub2 stmtType;
+    QPtrList<void> tmpStorage;
+    tmpStorage.setAutoDelete( TRUE );
     
-    // bind placeholders
+    // bind placeholders - ### add support for pos. binding
     if ( extension()->values.count() > 0 ) {
 	QMap<QString, QVariant>::Iterator it;
 	for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
 	    OCIBind * hbnd = 0; // XXX dealloc?
 	    switch ( it.data().type() ) {
 		case QVariant::ByteArray: {
-		    // what about the CLOB and LONG types that needs an SQLT_LNG binding?
+		    // this is for RAW, LONG RAW and BLOB fields..
 		    r = OCIBindByName( d->sql, &hbnd, d->err,
 				       (text *) it.key().local8Bit().data(),
 				       it.key().length(),
@@ -1063,7 +1065,7 @@ bool QOCIResult::exec()
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break; }
 		case QVariant::CString: {
-		    // what about the CLOB and LONG types that needs an SQLT_LNG binding?
+		    // ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
 		    r = OCIBindByName( d->sql, &hbnd, d->err,
 				       (text *) it.key().local8Bit().data(),
 				       it.key().length(),
@@ -1075,16 +1077,14 @@ bool QOCIResult::exec()
 		case QVariant::Time:
 		case QVariant::Date:
 		case QVariant::DateTime: {
-		    QByteArray ba = qMakeOraDate( it.data().toDateTime() );
-		    // small hack - keep a ref. to the array until
-		    // prepare() is called again - this way we don't
-		    // have to worry about deleting it ourselves.
-		    extension()->setValue( it.key(), ba );
+		    QByteArray * ba = new QByteArray;
+		    *ba = qMakeOraDate( it.data().toDateTime() );
+		    tmpStorage.append( ba );
 		    r = OCIBindByName( d->sql, &hbnd, d->err,
 				       (text *) it.key().local8Bit().data(),
 				       it.key().length(),
-				       (ub1 *) ba.data(),
-				       ba.size(),
+				       (ub1 *) ba->data(),
+				       ba->size(),
 				       SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break; }

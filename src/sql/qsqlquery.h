@@ -99,7 +99,9 @@ public:
     // prepared query support
     bool 		exec();
     bool 		prepare( const QString& query );
-    void 		setValue( const QString& placeholder, const QVariant& val );
+    void 		bindValue( const QString& placeholder, const QVariant& val );
+    void 		bindValue( int pos, const QVariant& val );
+    void 		addBindValue( const QVariant& val );
     
 protected:
     virtual void        beforeSeek();

@@ -36,8 +36,15 @@ public:
     virtual ~QSqlExtension();
     virtual bool prepare( const QString& query );
     virtual bool exec();
-    virtual void setValue( const QString& holder, const QVariant& value );
+    virtual void bindValue( const QString& holder, const QVariant& value );
+    virtual void bindValue( int pos, const QVariant& value );
+    virtual void addBindValue( const QVariant& value );
+    virtual void clearValues();
     
+    QVariant value( const QString& holder );
+    QVariant value( int i );
+    
+    QMap<int, QString> index;
     QMap<QString, QVariant> values;
 };
 
