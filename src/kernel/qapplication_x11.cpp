@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#171 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#170 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#171 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -453,8 +453,7 @@ GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
 	    XFreePixmap( appDpy, pm );
 	}
 	gc = app_gc_ro_m;
-    }
-    else {					// create standard GC
+    } else {					// create standard GC
 	if ( !app_gc_ro )
 	    app_gc_ro = XCreateGC( appDpy, appRootWin, 0, 0 );
 	gc = app_gc_ro;
@@ -472,8 +471,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
 	    XFreePixmap( appDpy, pm );
 	}
 	gc = app_gc_tmp_m;
-    }
-    else {					// create standard GC
+    } else {					// create standard GC
 	if ( !app_gc_tmp )
 	    app_gc_tmp = XCreateGC( appDpy, appRootWin, 0, 0 );
 	gc = app_gc_tmp;
@@ -535,14 +533,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	}
     }
 }
-
-
-/*----------------------------------------------------------------------------
-  \fn QWidget *QApplication::focusWidget() const
-  Returns the application widget that has the keyboard input focus, or null
-  if no application widget has the focus.
-  \sa QWidget::setFocus(), QWidget::hasFocus()
- ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------

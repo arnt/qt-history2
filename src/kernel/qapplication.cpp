@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#76 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#76 $");
 
 
 /*----------------------------------------------------------------------------
@@ -350,6 +350,14 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 	}
     }
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn QWidget *QApplication::focusWidget() const
+  Returns the application widget that has the keyboard input focus, or null
+  if no application widget has the focus.
+  \sa QWidget::setFocus(), QWidget::hasFocus()
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
