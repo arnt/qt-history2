@@ -84,6 +84,14 @@ if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     Edition="free"
     Licensee="Free"
     Products="qt-free"
+# Preview Edition
+# Qt/X11, Qt/Embedded, Qt/Mac
+elif [ -f $relpath/LICENSE.PREVIEW ]; then
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    Edition="preview"
+    Licensee="Preview"
+    Products="qt-preview"
 # Evaluation version.
 # Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.EVAL ]; then
@@ -2380,6 +2388,61 @@ if [ "$Edition" = "free" ]; then
 	    fi
 	fi
     done
+elif [ "$Edition" = "preview" ]; then
+    if [ "$PLATFORM_QNX" = "yes" ]; then
+	Platform="Qt/QNX"
+    elif [ "$PLATFORM_QWS" = "yes" ]; then
+	Platform="Qt/Embedded"
+    elif [ "$PLATFORM_MAC" = "yes" ]; then
+	Platform="Qt/Mac"
+    elif [ "$PLATFORM_X11" = "yes" ]; then
+	Platform="Qt/X11"
+    else
+	echo
+	echo "Internal error: unknown platform."
+	echo
+	exit 2
+    fi
+    FIRST_LOOP=yes
+    while true; do
+	echo
+	echo "This is the Trolltech preview version of $Platform."
+	echo
+
+	if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+	    acceptance=yes
+        else
+	    if [ "$FIRST_LOOP" = "yes" ]; then
+		more $relpath/LICENSE.PREVIEW
+		FIRST_LOOP=no
+		echo
+            fi
+	    echo "You are licensed to use this software under the terms of"
+	    echo "the Qt PREVIEW VERSION LICENSE AGREEMENT"
+	    echo
+	    echo "Type '?' to re-read the Preview License."
+	    echo "Type 'yes' to accept this license offer."
+	    echo "Type 'no' to decline this license offer."
+	    echo
+	    if echo '\c' | grep '\c' >/dev/null; then
+		echo -n "Do you accept the terms of the license? "
+	    else
+		echo "Do you accept the terms of the license? \c"
+	    fi
+	    read acceptance
+	fi
+	echo
+	if [ "$acceptance" = "yes" ]; then
+	    break
+	elif [ "$acceptance" = "no" ] ;then
+	    echo "You are not licensed to use this software."
+	    echo
+	    exit 0
+	elif [ "$acceptance" = "?" ]; then
+	    more $relpath/LICENSE.PREVIEW
+	fi
+    done
+
 elif [ "$Edition" = "eval" ]; then
     while true; do
 	if [ "$PLATFORM_QWS" = "yes" ]; then
