@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#7 $
 **
 ** Definition of QPaintDevice constants and flags
 **
 ** Author  : Haavard Nord
 ** Created : 940721
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -37,7 +37,7 @@
 #define PDC_DRAWPOLYLINE	12		// ptarr
 #define PDC_DRAWPOLYGON		13		// ptarr,ival
 #define PDC_DRAWTEXT		14		// point,str
-#define PDC_DRAWTEXTFRMT	15		// rect,str,ival
+#define PDC_DRAWTEXTFRMT	15		// rect,ival,str
 #define PDC_DRAWPIXMAP		16		// point,pixmap
 #define PDC_DRAW_STOP		16
 #define PDC_BEGIN		30		//  <void>
@@ -51,6 +51,8 @@
 #define PDC_SETFONT		45		// font
 #define PDC_SETPEN		46		// pen
 #define PDC_SETBRUSH		47		// brush
+#define PDC_SETTABSTOPS		48		// ival
+#define PDC_SETTABARRAY		49		// ival,ivec
 #define PDC_SETUNIT		50		// ival
 #define PDC_SETVXFORM		51		// ival
 #define PDC_SETSOURCEVIEW	52		// rect
