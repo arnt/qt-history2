@@ -420,7 +420,7 @@ void QLineEdit::init()
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-    setBackgroundMode( NoBackground );
+    setBackgroundMode( PaletteBase );
     setKeyCompression( TRUE );
     setMouseTracking( TRUE );
     setFrame( TRUE );
@@ -949,8 +949,9 @@ void QLineEdit::drawContents( QPainter *painter )
     QSharedDoubleBuffer buffer( painter, 0, linetop, width(), lineheight,
 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
     buffer.painter()->setPen( colorGroup().text() );
-    const QBrush &bg = g.brush((isEnabled() && !isReadOnly()) ? QColorGroup::Base :
-			       QColorGroup::Background);
+    const QBrush &bg = isEnabled() && !isReadOnly() ?
+		       QBrush( paletteBackgroundColor() ) :
+	       g.brush( QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
 	painter->fillRect( 0, 0, width(), linetop, bg );
