@@ -1361,7 +1361,8 @@ void PropertyListItem::setValue( const QVariant &v )
 	combo()->insertStringList( v.toStringList() );
 	combo()->blockSignals( FALSE );
     }
-    setText( 1, v.toStringList().first() );
+    QString s = (v.toStringList().isEmpty() ? QString("") : v.toStringList().first());
+    setText( 1, s );
     PropertyItem::setValue( v );
 }
 
