@@ -1710,6 +1710,8 @@ void Project::emitRuntimeError( QObject *o, int l, const QString &msg )
 
 void Project::formOpened( FormWindow *fw )
 {
+    if ( fw->isFake() )
+	return;
     emit newFormOpened( fw );
 }
 
