@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#442 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#443 $
 **
 ** Implementation of QWidget class
 **
@@ -2919,12 +2919,8 @@ void QWidget::show()
 	    QApplication::activePopupWidget()->hide();
     }
 
-    if ( !testWState(WState_Polished) ) {
+    if ( !testWState(WState_Polished) )
 	polish();
-	setWState(WState_Polished);
-	setBackgroundFromMode();
-    }
-
 
     bool sendLayoutHint = testWState( WState_ForceHide ) && !isTopLevel();
 
@@ -2997,17 +2993,20 @@ void QWidget::hide()
   guarantee since the initialization of the subclasses might not be
   finished.
 
-  The default implementation calls QApplication::polish() and some
-   internal stuff Warwick is currently hacking on.
+  The default implementation sets the \c WState_Polished widget state
+  and calls QApplication::polish().
 
   \sa QApplication::polish()
 */
 
 void QWidget::polish()
 {
-    if ( !parentObj )
-	qApp->noteTopLevel(this);
-    qApp->polish( this );
+    if ( !testWState(WState_Polished) ) {
+	setWState(WState_Polished);
+	if ( !parentObj )
+	    qApp->noteTopLevel(this);
+	qApp->polish( this );
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#156 $
 **
 ** Implementation of QMenuBar class
 **
@@ -486,11 +486,9 @@ void QMenuBar::openActPopup()
 
     QRect  r = itemRect( actItem );
     QPoint pos = r.bottomLeft() + QPoint(0,1);
-    if ( popup->badSize )
-	popup->updateSize();
+    int ph = popup->sizeHint().height();
     pos = mapToGlobal(pos);
     int sh = QApplication::desktop()->height();
-    int ph = popup->height();
     if ( pos.y() + ph > sh ) {
 	pos = mapToGlobal( r.topLeft() );
 	pos.ry() -= (QCOORD)ph;

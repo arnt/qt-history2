@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#12 $
 **
 ** Implementation of Motif-like style class
 **
@@ -869,7 +869,7 @@ void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 
 int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /* fm */)
 {
-    int w = 2*motifItemHMargin; // a little bit of border can never harm
+    int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
 
     if ( mi->isSeparator() )
 	return 10; // arbitrary
@@ -891,7 +891,7 @@ int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*
     }
 
     if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
-	w += motifItemFrame; // add space to separate the columns
+	w += motifCheckMarkHMargin; // add space to separate the columns
 
     return w;
 }
@@ -925,7 +925,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
     QColorGroup itemg = dis ? pal.disabled()
 			: act ? pal.active()
 			: pal.normal();
-
+    
     if ( checkable )
 	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     int checkcol	  =     maxpmw;
@@ -953,15 +953,13 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
 
 
-    int cm = checkcol ? 2 : 0; // checkable margin
-
     if ( mi->isChecked() ) {
 	if ( mi->iconSet() ) {
-	    qDrawShadePanel( p, x+cm, y+cm, checkcol-2*cm, h-2*cm,
+	    qDrawShadePanel( p, x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
 			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
 	}
     } else if ( !act ) {
-	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm,
+	p->fillRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
 		    g.brush( QColorGroup::Button ));
     }		
 
@@ -972,30 +970,18 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
 	int pixw = pixmap.width();
 	int pixh = pixmap.height();
-	if ( act && !dis ) {			// active item frame
-	    if (defaultFrameWidth() > 1)
-		qDrawShadePanel( p, x, y, w, h, g, FALSE,
-				 motifItemFrame,
-				 &g.brush( QColorGroup::Button ) );
-	    else
-		qDrawShadePanel( p, x+1, y+1, w-2, h-2, g, TRUE, 1,
-				 &g.brush( QColorGroup::Button ) );
-	}
-	else				// incognito frame
-	    p->fillRect(x,y,w, h, g.brush( QColorGroup::Button ));
-	
-	QRect cr( x+cm, y+cm, checkcol-2*cm, h-2*cm );
+	QRect cr( x + motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame );
 	QRect pmr( 0, 0, pixw, pixh );
 	pmr.moveCenter( cr.center() );
 	p->setPen( itemg.text() );
 	p->drawPixmap( pmr.topLeft(), pixmap );
 	
     } else  if ( checkable ) {	// just "checking"...
-	int mw = checkcol - ( 2*motifCheckMarkHMargin );
+	int mw = checkcol;
 	int mh = h - 2*motifItemFrame;
 	if ( mi->isChecked() ) {
-	    drawCheckMark( p, x+motifItemFrame + motifCheckMarkHMargin,
-				   y+motifItemFrame, mw, mh, itemg, act, dis );
+	    drawCheckMark( p, x+motifItemFrame,
+			   y+motifItemFrame, mw, mh, itemg, act, dis );
 	}
     }
 
@@ -1008,7 +994,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	p->setPen( discol );
     }
 
-    int xm = checkcol + motifItemHMargin;
+    int xm = motifItemFrame + checkcol + motifItemHMargin;
 
     QString s = mi->text();
     if ( !s.isNull() ) {			// draw text
@@ -1016,7 +1002,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t >= 0 ) {				// draw tab text
-	    p->drawText( x+w-tab-motifItemHMargin,
+	    p->drawText( x+w-tab-motifItemHMargin-motifItemFrame,
 			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
 	}
 	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
@@ -1033,13 +1019,13 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	if ( act ) {
 	    drawArrow( p, RightArrow,
 		       mi->isEnabled(),
-		       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
+		       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
 		       dim, dim, g,
 		       mi->isEnabled() );
 	} else {
 	    drawArrow( p, RightArrow,
 		       FALSE,
-		       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
+		       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
 		       dim, dim, g, mi->isEnabled() );
 	}
     }

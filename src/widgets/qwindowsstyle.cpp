@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#13 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1070,7 +1070,7 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 */
 int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /*fm*/ )
 {
-    int w = 2*motifItemHMargin; // a little bit of border can never harm
+    int w = 2*motifItemHMargin + 2*motifItemFrame; // a little bit of border can never harm
 
     if ( mi->isSeparator() )
 	return 10; // arbitrary
@@ -1092,7 +1092,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuIte
     }
 
     if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
-	w += motifItemFrame; // add space to separate the columns
+	w += motifCheckMarkHMargin; // add space to separate the columns
 
     w += windowsRightBorder; // windows has a strange wide border on the right side
 
@@ -1147,24 +1147,19 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 
     QBrush fill = act? g.brush( QColorGroup::Highlight ) :
 			    g.brush( QColorGroup::Button );
-    if ( mi->isChecked() )
-	p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
-    else
-	p->fillRect( x, y, w, h, fill);
+    p->fillRect( x, y, w, h, fill);
 
-
-    int cm = 0;  // checkable margin
 
     if ( mi->isChecked() ) {
 	if ( act && !dis ) {
-	    qDrawShadePanel( p, x+cm, y+cm, checkcol-2*cm, h-2*cm,
+	    qDrawShadePanel( p, x, y, checkcol, h,
 			     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
 	} else {
-	    qDrawShadePanel( p, x+cm, y+cm, checkcol-2*cm, h-2*cm,
+	    qDrawShadePanel( p, x, y, checkcol, h,
 			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
 	}
     } else if ( !act ) {
-	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm,
+	p->fillRect(x, y, checkcol , h,
 		    g.brush( QColorGroup::Button ));
     }		
 
@@ -1179,7 +1174,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	    if ( !mi->isChecked() )
 		qDrawShadePanel( p, x, y, checkcol, h, g, FALSE,  1, &g.brush( QColorGroup::Button ) );
 	}
-	QRect cr( x+cm, y+cm, checkcol-2*cm, h-2*cm );
+	QRect cr( x, y, checkcol, h );
 	QRect pmr( 0, 0, pixw, pixh );
 	pmr.moveCenter( cr.center() );
 	p->setPen( itemg.text() );
@@ -1189,11 +1184,11 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 			      g.brush( QColorGroup::Button );
 	p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);
     } else  if ( checkable ) {	// just "checking"...
-	int mw = checkcol - ( 2*motifCheckMarkHMargin + motifItemFrame );
+	int mw = checkcol + motifItemFrame;
 	int mh = h - 2*motifItemFrame;
 	if ( mi->isChecked() ) {
-	    drawCheckMark( p, x+motifItemFrame + motifCheckMarkHMargin,
-				   y+motifItemFrame, mw, mh, itemg, act, dis );
+	    drawCheckMark( p, x + motifItemFrame,
+			   y+motifItemFrame, mw, mh, itemg, act, dis );
 	}
     }
 
@@ -1205,7 +1200,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	p->setPen( discol );
     }
 
-    int xm = checkcol + motifItemHMargin;
+    int xm = motifItemFrame + checkcol + motifItemHMargin;
 
     QString s = mi->text();
     if ( !s.isNull() ) {			// draw text
@@ -1215,11 +1210,11 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	if ( t >= 0 ) {				// draw tab text
 	    if ( dis && !act ) {
 		p->setPen( g.light() );
-		p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin+1,
+		p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame+1,
 			     y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
 		p->setPen( discol );
 	    }
-	    p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin,
+	    p->drawText( x+w-tab-windowsRightBorder-motifItemHMargin-motifItemFrame,
 			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
 	}
 	if ( dis && !act ) {
@@ -1246,12 +1241,12 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 			    dis ? discol : white,
 			    discol, white );
 	    drawArrow( p, RightArrow, FALSE,
-			       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
+			       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
 			       dim, dim, g2, TRUE );
 	} else {
 	    drawArrow( p, RightArrow,
 			       FALSE,
-			       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
+			       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
 			       dim, dim, g, mi->isEnabled() );
 	}
     }

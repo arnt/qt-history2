@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#237 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#238 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -584,6 +584,11 @@ void QPopupMenu::updateSize()
 	if ( w > max_width )
 	    max_width = w;
     }
+
+    if ( tab )
+	tab -= fontMetrics().minRightBearing();
+    else
+	max_width -= fontMetrics().minRightBearing();
 
     resize( max_width + tab + 2*frameWidth(), height+2*frameWidth() );
     badSize = FALSE;
@@ -1170,23 +1175,22 @@ void QPopupMenu::subMenuTimer() {
     for ( int i=0; i<actItem; i++ )
 	p.setY( p.y() + (QCOORD)itemHeight( i ) );
     p = mapToGlobal( p );
-    if ( popup->badSize )
-	popup->updateSize();
-    if (p.y() + popup->height() > QApplication::desktop()->height()
-	&& p.y() - popup->height()
+    QSize ps = popup->sizeHint();
+    if (p.y() + ps.height() > QApplication::desktop()->height()
+	&& p.y() - ps.height()
 	+ (QCOORD)(popup->itemHeight( popup->count()-1)) >= 0)
-	p.setY( p.y() - popup->height()
+	p.setY( p.y() - ps.height()
 		+ (QCOORD)(popup->itemHeight( popup->count()-1)));
     popupActive = actItem;
     bool left = FALSE;
     if ( ( parentMenu && parentMenu->isPopupMenu &&
 	   ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
-	 p.x() + popup->width() > QApplication::desktop()->width() )
+	 p.x() + ps.width() > QApplication::desktop()->width() )
 	left = TRUE;
-    if ( left && popup->width() > mapToGlobal( QPoint(0,0) ).x() )
+    if ( left && ps.width() > mapToGlobal( QPoint(0,0) ).x() )
 	left = FALSE;
     if ( left )
-	p.setX( mapToGlobal(QPoint(0,0)).x() - popup->width() + frameWidth() );
+	p.setX( mapToGlobal(QPoint(0,0)).x() - ps.width() + frameWidth() );
     popup->popup( p );
 }
 
@@ -1353,6 +1357,11 @@ void QPopupMenu::setActiveItem( int i )
  */
 QSize QPopupMenu::sizeHint() const
 {
+    if ( !testWState(WState_Polished) ) {
+	QPopupMenu* that = (QPopupMenu*) this;
+	that->polish();
+    }
+
     if ( badSize ) {
 	QPopupMenu* that = (QPopupMenu*) this;
 	that->updateSize();
