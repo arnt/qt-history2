@@ -25,7 +25,6 @@
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
 
-QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 
 void QFont::initialize()
 {
@@ -46,7 +45,7 @@ void QFont::cleanup()
 
 Qt::HANDLE QFont::handle() const
 {
-    QFontEngine *engine = d->engineForScript(QFontPrivate::defaultScript);
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
 
     if (engine->type() == QFontEngine::Freetype)
@@ -91,10 +90,10 @@ QString QFont::lastResortFont() const
     return QString::null;
 }
 
-void QFontPrivate::load(QFont::Script)
+void QFontPrivate::load(int)
 {
     QFontDef req = request;
-    QFont::Script script = QFont::NoScript;
+    int script = QUnicodeTables::Common;
 
     // 75 dpi on embedded
     if (req.pixelSize == -1)
@@ -172,44 +171,3 @@ void QFontPrivate::load(QFont::Script)
     ++engine->ref;
     engineData->engine = engine;
 }
-
-
-/*****************************************************************************
-  QFontMetrics member functions
- *****************************************************************************/
-
-int QFontMetrics::charWidth(const QString &str, int pos) const
-{
-    if (pos < 0 || pos > (int)str.length())
-        return 0;
-
-    const QChar &ch = str.unicode()[pos];
-
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
-    qreal width;
-
-    if (script >= QFont::Arabic && script <= QFont::Khmer) {
-        // complex script shaping. Have to do some hard work
-        int from = qMax(0,  pos - 8);
-        int to = qMin((int)str.length(), pos + 8);
-        QString cstr = QString::fromRawData(str.unicode()+from, to-from);
-        QTextEngine layout(cstr, d);
-        layout.setMode(QTextEngine::WidthOnly);
-        layout.itemize();
-        width = layout.width(pos-from, 1);
-    } else if (::category(ch) == QChar::Mark_NonSpacing) {
-        width = 0;
-    } else {
-        QFontEngine *engine = d->engineForScript(script);
-        Q_ASSERT(engine != 0);
-
-        QGlyphLayout glyphs[8];
-        int nglyphs = 7;
-        engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-        width = glyphs[0].advance.x();
-    }
-    return qRound(width);
-}
-
