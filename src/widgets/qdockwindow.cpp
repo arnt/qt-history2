@@ -15,6 +15,7 @@
 #include "qdockwindow.h"
 
 #ifndef QT_NO_MAINWINDOW
+#include "qdesktopwidget.h"
 #include "qdockarea.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
@@ -1360,7 +1361,15 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 		startOrientation != Horizontal && qt_cast<QToolBar*>(this) );
 	}
 	dockArea = 0;
-	move( currRect.topLeft() );
+	QPoint topLeft = currRect.topLeft();
+	QRect screen = qApp->desktop()->availableGeometry( topLeft );
+	if ( !screen.contains( topLeft ) ) {
+	    topLeft.setY(QMAX(topLeft.y(), screen.top()));
+	    topLeft.setY(QMIN(topLeft.y(), screen.bottom()-height()));
+	    topLeft.setX(QMAX(topLeft.x(), screen.left()));
+	    topLeft.setX(QMIN(topLeft.x(), screen.right()-width()));
+	}
+	move( topLeft );
     }
 
     if ( curPlace == InDock && state == OutsideDock && !qt_cast<QToolBar*>(this) ) {
