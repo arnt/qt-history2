@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#220 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#221 $
 #
 # this is a massive hack, written very quickly
 #
@@ -388,14 +388,14 @@ sub handlecodeincludes {
 sub codeincludes {
     local ($doc) = @_;
 
-    $doc =~ s/\\((?:
+    $doc =~ s/\s+\\((?:
 		  (?:include)|
 		  (?:dontinclude)|
 		  (?:line)|
 		  (?:skipline)|
 		  (?:skip)|
 		  (?:until)))\b\s*(\S+)/
-		      &handlecodeincludes($1,$2)
+		      " " . &handlecodeincludes($1,$2)
     /esgx;
     $doc =~ s-</pre>\s*<pre>\n--gs;
     $doc;
@@ -708,6 +708,7 @@ sub writepages {
 	
 	    $doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
 	
+	    print $file, "\n";
 	    $doc = &codeincludes($doc);
 	
 	    $doc =~ s!\\classhierarchy!&classhierarchy()!es;
