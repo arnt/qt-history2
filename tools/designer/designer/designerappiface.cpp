@@ -29,6 +29,7 @@
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qtextedit.h>
+#include <qstatusbar.h>
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
     : ref( 0 ), mainWindow( mw )
