@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#64 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#65 $
 **
 ** Definition of QListBox widget class
 **
@@ -145,6 +145,7 @@ public:
     void	centerCurrentItem();
     int		topItem()	const;
     virtual void	setTopItem( int index );
+    void setBottomItem( int index ); // make this virtual for 2.x
 
     bool	dragSelect()		const;
     virtual void	setDragSelect( bool );
@@ -232,9 +233,9 @@ private:
 
     int		maxWidth;
     QListBoxPrivate * d;
-    
+
     static QListBox * changedListBox;
-    
+
 private:	// Disabled copy constructor and operator=
     QListBox( const QListBox & );
     QListBox &operator=( const QListBox & );

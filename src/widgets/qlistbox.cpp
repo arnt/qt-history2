@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#156 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#157 $
 **
 ** Implementation of QListBox widget class
 **
@@ -950,6 +950,21 @@ void QListBox::setTopItem( int index )
     setTopCell( index );
 }
 
+/*!
+  Scrolls the list box so the item at position \e index in the list
+  becomes the bottom row of the list box.
+  \sa setTopItem()
+*/
+
+void QListBox::setBottomItem( int index )
+{
+    int i = index+1;
+    int y = 0;
+    while (i) y += cellHeight(--i);
+    y -= viewHeight();
+    setYOffset( y );
+}
+
 
 /*!
   Returns TRUE if drag-selection is enabled, otherwise FALSE.
@@ -1374,7 +1389,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     if ( currentItem() < 0 )
 	setCurrentItem( topItem() );
 
-    int pageSize, delta;
+    int oldcurrent;
 
     switch ( e->key() ) {
     case Key_Up:
@@ -1394,30 +1409,58 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	e->accept();
 	break;
     case Key_Next:
-	if ( style() == MotifStyle ) {
-	    delta = currentItem() - topItem();
-	    pageSize = QMAX( 1, lastRowVisible() - 1 - topItem() );
-	    setTopItem( QMIN( topItem() + pageSize, (int)count() - 1 ) );
-	    setCurrentItem( QMIN( topItem() + delta, (int)count() - 1 ) );
-	} else {
-	    pageSize = QMAX( 1, lastRowVisible() - 1 - topItem() );
-	    setTopItem( QMIN(currentItem(),(int)count()-pageSize+1) );
-	    setCurrentItem( QMIN(lastRowVisible(), (int)count()-1) );
-	}
 	e->accept();
+	if (lastRowVisible() == (int) count() - 1){
+	    ensureCurrentVisible(lastRowVisible());
+	    break;
+	}
+	if ( style() == MotifStyle) {
+	    if (currentItem() != topItem() ){
+		setTopItem( currentItem() );
+		break;
+	    }
+	}
+	else {
+	    if (currentItem() != lastRowVisible()) {
+		ensureCurrentVisible(lastRowVisible());
+		break;
+	    }
+	}
+	oldcurrent = currentItem();
+	setYOffset(yOffset() + viewHeight() );
+	if ( style() == MotifStyle) 
+	    ensureCurrentVisible( topItem() );
+	else 
+	    ensureCurrentVisible(lastRowVisible());
+	if (oldcurrent == currentItem() && currentItem() + 1 <  (int) count() )
+	    ensureCurrentVisible( currentItem() + 1 );
 	break;
     case Key_Prior:
-	if ( style() == MotifStyle ) {
-	    delta = currentItem() - topItem();
-	    pageSize = QMAX( 1, lastRowVisible() - 1 - topItem() );
-	    setTopItem( QMAX( topItem() - pageSize, 0 ) );
-	    setCurrentItem( QMAX( topItem() + delta, 0 ) );
-	} else {
-	    pageSize = QMAX( 1, lastRowVisible() - topItem() );
-	    setTopItem( QMAX(0,currentItem()-pageSize+1) );
-	    setCurrentItem( topItem() );
-	}
 	e->accept();
+	if (topItem() == 0){
+	    ensureCurrentVisible ( topItem() );
+	    break;
+	}
+	if ( style() != MotifStyle) {
+	    if (currentItem() != topItem() ){
+		ensureCurrentVisible(topItem());
+		break;
+	    }
+	}
+	else {
+	    if (currentItem() != lastRowVisible()) {
+		setBottomItem( currentItem() );
+		break;
+	    }
+	}
+	oldcurrent = currentItem();
+	setYOffset(yOffset() - viewHeight() );
+	if ( style() == MotifStyle) 
+	    ensureCurrentVisible( lastRowVisible() );
+	else 
+	    ensureCurrentVisible( topItem() );
+	if (oldcurrent == currentItem() && currentItem() > 0)
+	    ensureCurrentVisible( currentItem() -1);
 	break;
 
     case Key_Space:
@@ -1859,22 +1902,12 @@ void QListBox::ensureCurrentVisible( int newCurrent )
 {
     if ( newCurrent < 0 )
 	newCurrent = currentItem();
-    if ( newCurrent < topItem() ) {
-	setTopItem( newCurrent );
-    } else if ( newCurrent >= lastRowVisible() ) {
-	int h = viewHeight();
-	int i = newCurrent;
-	while( i > 0 && h > 0 ) {
-	    h -= cellHeight( i );
-	    if ( h >= 0 )
-		i--;
-	}
-	if ( h <= 0 && i < newCurrent ) // make sure ALL of y is visible
-	    i++;
-	setTopItem( i );
-    }
     if ( newCurrent != currentItem() )
 	setCurrentItem( newCurrent );
+    if ( newCurrent <= topItem() && newCurrent < lastRowVisible() ) 
+	 setTopItem( newCurrent );
+    else if ( newCurrent >= lastRowVisible() ) 
+	setBottomItem( newCurrent ); 
 }
 
 /*!
