@@ -820,8 +820,10 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
 
 void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    int start = d->viewIndex(itemAt(rect.left(), rect.top()));
-    int stop = d->viewIndex(itemAt(rect.right(), rect.bottom()));
+    int start = d->viewIndex(itemAt(QApplication::reverseLayout() ? rect.right() : rect.left(),
+                                    rect.top()));
+    int stop = d->viewIndex(itemAt(QApplication::reverseLayout() ? rect.left() : rect.right(),
+                                   rect.bottom()));
     d->select(start, stop, command);
 }
 
