@@ -34,9 +34,7 @@ IntroScreen::IntroScreen(QWidget *widget)
     // Initialize text...
     textDocument = new QTextDocument(this);
     textDocument->setHtml(text);
-
-    textLayout = textDocument->documentLayout();
-    textLayout->setPageSize(QSize(400, 400));
+    textDocument->setPageSize(QSize(400, 400));
 }
 
 void IntroScreen::paintEvent(QPaintEvent *)
@@ -56,7 +54,7 @@ void IntroScreen::paintEvent(QPaintEvent *)
     p.drawRect(textRect.x() - 20, textRect.y(), textRect.width() + 40, textRect.height());
 
     p.setPen(Qt::NoPen);
-    int blockHeight = textLayout->sizeUsed().height();
+    int blockHeight = (int)textDocument->documentLayout()->documentSize().height();
     int ypos = (-animationStep % blockHeight);
 
     p.setClipRegion(textRect);
@@ -69,7 +67,7 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     for ( ; ypos < h; ypos += blockHeight) {
         ctx.rect = QRect(0, -ypos, w-200, h);
-        textLayout->draw(&p, ctx);
+        textDocument->documentLayout()->draw(&p, ctx);
         p.translate(0, blockHeight);
     }
 
@@ -97,5 +95,5 @@ void IntroScreen::mouseMoveEvent(QMouseEvent *e)
 void IntroScreen::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-    textLayout->setPageSize(QSize(e->size().width() - 200, e->size().height()));
+    textDocument->setPageSize(QSize(e->size().width() - 200, e->size().height()));
 }

@@ -36,7 +36,6 @@ private:
     QString text;
     QPoint oldMousePoint;
     QTextDocument *textDocument;
-    QAbstractTextDocumentLayout *textLayout;
     bool mouseDown;
 };
 
