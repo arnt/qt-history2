@@ -8,7 +8,8 @@
 **
 *****************************************************************************/
 #include <stdlib.h>
-
+#include <qsocket.h>
+#include <qregexp.h>
 #include <qserversocket.h>
 #include <qapplication.h>
 #include <qmainwindow.h>

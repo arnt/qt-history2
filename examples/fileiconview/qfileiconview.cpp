@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 #include "qfileiconview.h"
-
+#include <qpainter.h>
 #include <qstringlist.h>
 #include <qpixmap.h>
 #include <qmime.h>

@@ -12,6 +12,7 @@
 #define RICHTEXT_H
 
 #include <qvbox.h>
+#include <qstringlist.h>
 
 class QTextView;
 class QPushButton;
