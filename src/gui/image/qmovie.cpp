@@ -240,10 +240,10 @@ void QMoviePrivate::init(bool fully)
     stepping = -1;
     framenumber = 0;
     frameperiod = -1;
-    if (fully)
+    if (fully) {
         polltimer->start(0, true);
-    if (fully)
         frametimer->stop();
+    }
     lasttimerinterval = -1;
     changed_area.setRect(0, 0, -1, -1);
     valid_area = changed_area;
@@ -286,7 +286,7 @@ void QMoviePrivate::flushBuffer()
         }
     }
 
-    if (error)
+    if (error) 
         frametimer->stop();
     pollForData();
 }
@@ -396,8 +396,8 @@ void QMoviePrivate::showChanges()
 // Private as QImageConsumer
 void QMoviePrivate::changed(const QRect& rect)
 {
-    if (!frametimer->isActive())
-        frametimer->start(0);
+    if (!frametimer->isActive()) 
+        frametimer->start(lasttimerinterval);
     changed_area = changed_area.unite(rect);
 }
 
