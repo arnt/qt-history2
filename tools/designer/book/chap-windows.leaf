@@ -27,6 +27,7 @@ The Object Explorer window lists the current form's widgets and slots.
 The window contains two tabs, the Widgets tab and the Source tab. 
 
 \img qd-objexpwindowwidgettab.png
+\caption Widget Tab
 
 \section2 Widget Tab
 
@@ -35,6 +36,7 @@ The widgets are listed by name and class. Click a widget in the list
 to highlight it in the corresponding form.
 
 \img qd-objexpwinsourcetab.png
+\caption Source Tab
 
 \section2 Source Tab
 
@@ -74,6 +76,7 @@ the properties of forms and widgets. This window has a 'Properties'
 tab and a 'Signal Handlers' tab. 
 
 \img qd-propedwinproptab.png
+\caption Properties Tab
 
 \section2 The Properties Tab
 
@@ -118,10 +121,28 @@ The property editor fully supports Undo and Redo (Ctrl+Z and Ctrl+Y,
 also available from the Edit menu). 
 
 \img qd-propedwinsigtab.png
+\caption Signal Handlers Tab
 
 \section2 The Signal Handlers Tab
 
 Click the 'Signal Handlers' tab to view or create the connections
-between signals of widgets and slots of the form.  
+between signals of widgets and slots of the form.
+
+\omit
+
+\img qd-outputwindow.png
+\caption Output Window
+
+\section1 Output Window
+
+The Output Window displays debugging output messages for errors found in the
+source code. 
+
+\endomit 
+
+
+
+
+
 
 

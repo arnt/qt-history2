@@ -447,8 +447,12 @@ files and forms side by side so that each window is visible.
 open file and forms, one on top of the other, but with an overlap so
 that each window's title is visible. 
 
+\omit
+
 \i \Menu{Window|Views|Output Window}\BR Click this menu option to invoke
-the \l{Output Window}, which displays output and debugging messages. 
+the \l{Output Window}, which displays debugging messages. 
+
+\endomit
 
 \i \Menu{Window|Views|File Overview}\BR Click this menu option to make
 the \l{File Overview Window} visible, or to hide it if it is already
