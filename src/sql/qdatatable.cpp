@@ -252,8 +252,8 @@ void QDataTable::init()
     d->falseTxt = tr( "False" );
     d->datefmt = Qt::LocalDate;
     reset();
-    connect( this, SIGNAL( currentChanged( int, int ) ),
-	     SLOT( setCurrentSelection( int, int )));
+    connect( this, SIGNAL( selectionChanged() ),
+	     SLOT( updateCurrentSelection()));
 }
 
 /*!
@@ -1950,6 +1950,11 @@ void QDataTable::setCurrentSelection( int row, int )
 	return;
     d->lastAt = row;
     emit currentChanged( sqlCursor() );
+}
+
+void QDataTable::updateCurrentSelection()
+{
+    setCurrentSelection( currentRow(), -1 );
 }
 
 /*!

@@ -192,6 +192,7 @@ protected:
 private slots:
     void         loadNextPage();
     void         setCurrentSelection( int row, int col );
+    void         updateCurrentSelection();
     void 	 sliderPressed();
     void 	 sliderReleased();
     void	 doInsertCurrent();
