@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qapplication.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #include "qt_windows.h"
 
 /*
@@ -27,9 +27,9 @@
 */
 
 #if defined( Q_OS_TEMP )
-extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 #else
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 #endif
 
 #if defined(NEEDS_QMAIN)
@@ -67,7 +67,7 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 	cmdp = new char[ qstrlen( cmdParam ) + 1 ];
 	qstrcpy( cmdp, cmdParam );
     }
-    QMemArray<pchar> argv( 8 );
+    QVector<pchar> argv( 8 );
     qWinMain( instance, prevInstance, cmdp, cmdShow, argc, argv );
 
 #ifdef Q_OS_TEMP
