@@ -63,9 +63,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         layoutLock(false),
         state(QAbstractItemView::NoState),
         startEditActions(QAbstractItemDelegate::DoubleClicked|
-                         QAbstractItemDelegate::EditKeyPressed|
-                         QAbstractItemDelegate::AnyKeyPressed|
-                         QAbstractItemDelegate::CurrentChanged)
+                         QAbstractItemDelegate::EditKeyPressed),
+        inputInterval(400)
 {
 }
 
@@ -479,9 +478,14 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             return;
         break;
     default:
-        if (!e->text().isEmpty() &&
-            startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
-            return;
+        if (!e->text().isEmpty()) {
+            if (startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e)) {
+                return;
+            } else {
+                keyboardSearch(e->text());
+                return;
+            }
+        }
         break;
     }
 }
@@ -592,6 +596,71 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
     }
     return false;
 }
+/*!
+  Moves to and selects the item best matching the string \a search. If no item is found nothing happens.
+*/
+void QAbstractItemView::keyboardSearch(const QString &search) {
+    QModelIndex start = currentItem().isValid() ? currentItem() : model()->index(0, 0);
+    QTime now(QTime::currentTime());
+    bool skipRow = false;
+    if (d->keyboardInputTime.msecsTo(now) > keyboardInputInterval()) {
+        d->keyboardInput = search;
+        skipRow = true;
+    } else {
+        d->keyboardInput += search;
+    }
+    d->keyboardInputTime = now;
+
+    // special case for searches with same key like 'aaaaa'
+    bool sameKey = false;
+    if (d->keyboardInput.length() > 1) {
+        sameKey = d->keyboardInput.count(d->keyboardInput.at(d->keyboardInput.length() - 1)) ==
+                  d->keyboardInput.length();
+        if (sameKey)
+            skipRow = true;
+    }
+
+    // skip if we are searching for the same key or a new search started
+    if (skipRow) {
+        int newRow = (start.row() < model()->rowCount(model()->parent(start)) - 1) ?
+                     start.row() + 1 : 0;
+        start = model()->index(newRow,
+                               start.column(),
+                               model()->parent(start),
+                               start.type());
+    }
+
+    // search from start, if that fails search from row 0
+    QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
+    QModelIndexList match;
+    match = model()->match(start, QAbstractItemModel::Display, searchString, 1);
+    if (start.row() > 0 && (match.isEmpty() || !match.at(0).isValid()))
+        match = model()->match(model()->index(0,
+                                              start.column(),
+                                              model()->parent(start),
+                                              start.type()),
+                          QAbstractItemModel::Display, searchString, 1);
+
+    if (!match.isEmpty() && match.at(0).isValid()) {
+        setCurrentItem(match.at(0));
+    }
+}
+
+/*!
+    \property QAbstractItemView::keyboardInputInterval
+    \brief the interval threshold for doing keyboard searches.
+*/
+void QAbstractItemView::setKeyboardInputInterval(int msec)
+{
+    if (msec >= 0)
+        d->inputInterval = msec;
+}
+
+int QAbstractItemView::keyboardInputInterval() const
+{
+    return d->inputInterval;
+}
+
 
 void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {

@@ -49,6 +49,10 @@ public:
     QModelIndex root;
     int horizontalFactor;
     int verticalFactor;
+
+    QString keyboardInput;
+    QTime keyboardInputTime;
+    int inputInterval;
 };
 
 #include <private/qdragobject_p.h>

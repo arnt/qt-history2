@@ -23,6 +23,7 @@
 QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
 {
+    setStartEditActions(startEditActions()|QAbstractItemDelegate::AnyKeyPressed);
     setLeftHeader(new QGenericHeader(model, Vertical, this));
     d->leftHeader->setClickable(true);
     setTopHeader(new QGenericHeader(model, Horizontal, this));
@@ -32,6 +33,7 @@ QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
 QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
+    setStartEditActions(startEditActions()|QAbstractItemDelegate::AnyKeyPressed);
     setLeftHeader(new QGenericHeader(model, Vertical, this));
     d->leftHeader->setClickable(true);
     setTopHeader(new QGenericHeader(model, Horizontal, this));
@@ -358,12 +360,12 @@ QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) 
     int topRow = d->leftHeader->section(top);
     int rightCol = d->topHeader->section(right);
     int bottomRow = d->leftHeader->section(bottom);
-    
+
     int leftPos = columnViewportPosition(leftCol);
     int topPos = rowViewportPosition(topRow);
     int rightPos = columnViewportPosition(rightCol) + columnWidth(rightCol);
     int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
-    
+
     return QRect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
 }
 

@@ -8,6 +8,7 @@
 #include <qabstractitemdelegate.h>
 #include <qdragobject.h>
 #include <qevent.h>
+#include <qdatetime.h>
 #endif
 
 class QAbstractItemViewPrivate;
@@ -16,6 +17,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractItemView)
+    Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
 
 public:
 
@@ -60,6 +62,10 @@ public:
 
     bool eventFilter(QObject *object, QEvent *event);
 
+    virtual void keyboardSearch(const QString &search);
+    void setKeyboardInputInterval(int msec);
+    int keyboardInputInterval() const;
+    
 public slots:
     void setRoot(const QModelIndex &index);
     void edit(const QModelIndex &index);
