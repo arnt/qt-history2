@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#22 $
+** $Id: //depot/qt/main/src/tools/qmap.h#23 $
 **
 ** Definition of QMap class
 **
@@ -104,7 +104,7 @@ class Q_EXPORT QMapIterator
     const T& data() const { return node->data; }
 
 private:
-    void inc() {
+    int inc() {
 	QMapNodeBase* tmp = node;
 	if ( tmp->right ) {
 	    tmp = tmp->right;
@@ -120,9 +120,10 @@ private:
 		tmp = y;
 	}
 	node = (NodePtr)tmp;
+	return 0;
     }
 
-    void dec() {
+    int dec() {
 	QMapNodeBase* tmp = node;
 	if (tmp->color == QMapNodeBase::Red &&
 	    tmp->parent->parent == tmp ) {
@@ -141,6 +142,7 @@ private:
 	    tmp = y;
 	}
 	node = (NodePtr)tmp;
+	return 0;
     }
 
 public:
@@ -200,7 +202,7 @@ class Q_EXPORT QMapConstIterator
     const T& data() const { return node->data; }
 
 private:
-    void inc() {
+    int inc() {
         QMapNodeBase* tmp = node;
 	if ( tmp->right ) {
 	    tmp = tmp->right;
@@ -216,9 +218,10 @@ private:
 		tmp = y;
 	}
 	node = (NodePtr)tmp;
+	return 0;
     }
 
-    void dec() {
+    int dec() {
 	QMapNodeBase* tmp = node;
 	if (tmp->color == QMapNodeBase::Red &&
 	    tmp->parent->parent == tmp ) {
@@ -237,6 +240,7 @@ private:
 	    tmp = y;
 	}
 	node = (NodePtr)tmp;
+	return 0;
     }
 
 public:
