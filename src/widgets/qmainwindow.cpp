@@ -559,7 +559,7 @@ int QToolLayout::heightForWidth( int w ) const
     return cached_hfw;
 }
 
-void QToolLayout::addItem( QLayoutItem */*item*/ )
+void QToolLayout::addItem( QLayoutItem * /*item*/ )
 {
     //evil
     //    list.append( item );

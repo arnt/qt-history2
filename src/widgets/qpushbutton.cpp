@@ -276,7 +276,7 @@ void QPushButton::toggle()
 
 void QPushButton::setAutoDefault( bool enable )
 {
-    if ( autoDefButton == enable )
+    if ( (bool)autoDefButton == enable )
 	return;
     autoDefButton = enable;
     if ( isVisible() ) {
