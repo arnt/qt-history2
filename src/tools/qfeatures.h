@@ -81,6 +81,9 @@
 #ifndef QT_MODULE_XML
 # define QT_NO_XML
 #endif
+#ifndef QT_MODULE_OPENGL
+# define QT_NO_OPENGL
+#endif
 #if !defined(QT_MODULE_SQL) || defined(QT_NO_PROPERTIES)
 # define QT_NO_SQL
 #endif
