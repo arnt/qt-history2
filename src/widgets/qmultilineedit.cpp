@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#85 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -225,7 +225,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     horizontalScrollBar()->setCursor( arrowCursor );
     readOnly 	   = FALSE;
     cursorOn	   = FALSE;
-    dummy          = TRUE;
     markIsOn	   = FALSE;
     dragScrolling  = FALSE;
     dragMarking    = FALSE;
@@ -241,8 +240,9 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     d->scrollTime = 0;
 
     dummy = TRUE;
-    int w = textWidth("");
-    contents->append(  new QMultiLineEditRow("", w) );
+    
+    int w  = textWidth( QString::fromLatin1("") );
+    contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
     setNumRows( 1 );
     setWidth( w );
     setAcceptDrops(TRUE);
@@ -1251,7 +1251,9 @@ void QMultiLineEdit::removeLine( int line )
     bool recalc = r->w == maxLineWidth();
     contents->remove( line );
     if ( contents->count() == 0 ) {
-	contents->append(  new QMultiLineEditRow("", 0) );
+	int w  = textWidth( QString::fromLatin1("") );
+	contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
+	setWidth( w );
 	dummy = TRUE;
     }
     setNumRows( contents->count() );
@@ -2162,10 +2164,11 @@ void QMultiLineEdit::clear()
 {
     contents->clear();
     cursorX = cursorY = 0;
-    contents->append(  new QMultiLineEditRow("", 0) );
+    int w  = textWidth( QString::fromLatin1("") );
+    contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
+    setWidth( w );
     dummy = TRUE;
     markIsOn = FALSE;
-    setWidth( 1 );
     if ( autoUpdate() )
 	repaintDelayed();
     if ( !d->isHandlingEvent ) //# && not already empty
@@ -2597,7 +2600,8 @@ void QMultiLineEdit::resizeEvent( QResizeEvent *e )
  */
 void  QMultiLineEdit::repaintDelayed( bool erase)
 {
-    QApplication::postEvent( this, new QPaintEvent( viewRect(), erase ) );
+    if ( isVisible() )
+	QApplication::postEvent( this, new QPaintEvent( viewRect(), erase ) );
 
 }
 
@@ -3144,9 +3148,9 @@ void QMultiLineEdit::rebreakAll()
      wrapColumnOrWidth() should typically be set to 80.
   </ul>
 
-  Per default, wrapping keeps words intact. To allow breaking
-  within words, the \c BreakWithinWords can be or'ed to one of the
-  wrap modes.
+  Per default, wrapping keeps words intact. To allow breaking within
+  words, the flag \c BreakWithinWords can be or'ed to one of the wrap
+  modes.
 
   The default wrap mode is \c NoWrap.
 
@@ -3154,7 +3158,10 @@ void QMultiLineEdit::rebreakAll()
  */
 void QMultiLineEdit::setWordWrap( int mode )
 {
+    if ( mode == d->wrapmode )
+	return;
     d->wrapmode = mode;
+    setText( text() );
 }
 
 /*!
@@ -3174,7 +3181,11 @@ int QMultiLineEdit::wordWrap() const
  */
 void QMultiLineEdit::setWrapColumnOrWidth( int value )
 {
+    if ( value == d->wrapcol )
+	return;
     d->wrapcol = value;
+    if ( wordWrap() != NoWrap )
+	setText( text() );
 }
 
 /*!
