@@ -1090,6 +1090,9 @@ void HtmlSynthetizer::processFootnoteEnd()
 void HtmlSynthetizer::processImg( const QString& fileName, const QString& alt,
 				  bool inParagraph )
 {
+    int width;
+    int height;
+
     if ( !inParagraph )
 	w.top()->putsMeta( "<p align=\"center\">" );
     w.top()->putsMeta( "<img align=\"middle\" src=\"" );
@@ -1100,11 +1103,13 @@ void HtmlSynthetizer::processImg( const QString& fileName, const QString& alt,
 	w.top()->putsMeta( alt.latin1() );
 	w.top()->putsMeta( "\"" );
     }
+
+    if ( config->needImage(location(), fileName, &width, &height) )
+	w.top()->printfMeta( " width=\"%d\" height=\"%d\"", width, height );
+
     w.top()->putsMeta( ">\n" );
     if ( !inParagraph )
 	w.top()->putsMeta( "</p>\n" );
-
-    config->needImage( location(), fileName );
 }
 
 void HtmlSynthetizer::processIndex( const QString& text )

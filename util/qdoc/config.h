@@ -6,6 +6,7 @@
 #define CONFIG_H
 
 #include <qmap.h>
+#include <qpair.h>
 #include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -55,7 +56,8 @@ public:
     bool lint() const { return lin; }
     bool friendly() const { return frend; }
 
-    void needImage( const Location& loc, const QString& fileName );
+    bool needImage( const Location& loc, const QString& fileName,
+		    int *width = 0, int *height = 0 );
     QString unalias( const Location& loc, const QString& alias,
 		     const QString& format, const QStringList& args ) const;
 
@@ -102,7 +104,7 @@ private:
     bool lin;
     bool frend;
 
-    StringSet imagesCopied;
+    QMap<QString, QPair<int, int> > imagesCopied;
     QMap<QString, QString> aliasMap;
 
     QString dotHtml;

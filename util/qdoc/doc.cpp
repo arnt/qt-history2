@@ -261,6 +261,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool metNL = FALSE; // never met N.L.
     int begin;
     int end;
+    int width;
+    int height;
     int k;
 
     QValueStack<OpenedList> openedLists;
@@ -558,9 +560,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		x = getWord( yyIn, yyPos );
 		alt = fixBackslashes( getRestOfLine(yyIn, yyPos) );
 		yyOut += QString( "<center><img src=\"%1\"" ).arg( x );
-		config->needImage( location(), x );
 		if ( !alt.isEmpty() )
 		    yyOut += QString( " alt=\"%1\"" ).arg( alt );
+		if ( config->needImage(location(), x, &width, &height) )
+		    yyOut += QString( " width=\"%1\" height=\"%2\"" )
+			     .arg( width ).arg( height );
 		yyOut += QString( "></center> " );
 		break;
 	    case HASH( 'i', 5 ):

@@ -10,6 +10,7 @@
 #include <qtextstream.h>
 
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "config.h"
@@ -126,6 +127,48 @@ static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 	rx->setPattern( rx->pattern() + QChar('|') + t );
     else
 	rx->setPattern( t );
+}
+
+static int getBigEndianInt( const char *t )
+{
+    uint n = 0;
+    for ( int i = 0; i < 4; i++ )
+	n = (long) ( (n << 8) | (uchar) t[i] );
+    return (int) n;
+}
+
+static bool getImageSize( const char *fileName, int *width, int *height )
+{
+    char magic[8];
+    char chunkHeader[8];
+    char ihdr[13];
+
+    FILE *in = fopen( fileName, "rb" );
+    if ( in == 0 )
+	return FALSE;
+
+    if ( fread(magic, 1, 8, in) != 8 ||
+	 memcmp(magic, "\211PNG\r\n\032\n", 8) != 0 )
+	return FALSE;
+
+    for ( ;; ) {
+	if ( fread(chunkHeader, 1, 8, in) != 8 )
+	    return FALSE;
+
+	if ( memcmp(chunkHeader + 4, "IHDR", 4) == 0 ) {
+	    if ( fread(ihdr, 1, 13, in) != 13 )
+		return FALSE;
+	    *width = getBigEndianInt( ihdr );
+	    *height = getBigEndianInt( ihdr + 4 );
+	    return TRUE;
+	} else {
+	    int len = getBigEndianInt( chunkHeader );
+	    if ( fseek(in, (long) (len + 4), SEEK_CUR) != 0 )
+		return FALSE;
+	}
+    }
+    fclose( in );
+    return FALSE;
 }
 
 Config::Config( int argc, char **argv )
@@ -425,21 +468,26 @@ bool Config::generateFile( const QString& fileName ) const
     return onlyfn.exactMatch( fileName );
 }
 
-void Config::needImage( const Location& loc, const QString& fileName )
+bool Config::needImage( const Location& loc, const QString& fileName,
+			int *width, int *height )
 {
-    uint n = imagesCopied.count();
-    imagesCopied.insert( fileName );
-    if ( n != imagesCopied.count() ) {
+    QPair<int, int> size( 0, 0 );
+
+    if ( imagesCopied.contains(fileName) ) {
+	size = imagesCopied[fileName];
+    } else {
 	QString inFilePath = findDepth( fileName, imageDirList() );
+	getImageSize( inFilePath, &size.first, &size.second );
+	imagesCopied.insert( fileName, size );
 	if ( inFilePath.isEmpty() ) {
 	    warning( 1, loc, "Cannot find image file '%s'", fileName.latin1() );
-	    return;
+	    return FALSE;
 	}
 
 	QFile fin( inFilePath );
 	if ( !fin.open(IO_ReadOnly) ) {
 	    message( 1, "Cannot open image file '%s'", inFilePath.latin1() );
-	    return;
+	    return FALSE;
 	}
 
 	QByteArray img = fin.readAll();
@@ -449,11 +497,17 @@ void Config::needImage( const Location& loc, const QString& fileName )
 	QFile fout( outFilePath );
 	if ( !fout.open(IO_WriteOnly) ) {
 	    message( 1, "Cannot open image file '%s'", outFilePath.latin1() );
-	    return;
+	    return FALSE;
 	}
 	fout.writeBlock( img );
 	fout.close();
     }
+
+    if ( width != 0 )
+	*width = size.first;
+    if ( height != 0 )
+	*height = size.second;
+    return TRUE;
 }
 
 QString Config::unalias( const Location& loc, const QString& alias,
