@@ -2324,6 +2324,8 @@ void QTimeEdit::addNumber( int sec, int num )
 	    QString::number( d->h - 12 ) : QString::number( d->h );
 
 	if ( d->overwrite || txt.length() == 2 ) {
+	    if ( d->display & AMPM && num == 0 )
+		break; // Don't process 0 in 12 hour clock mode
 	    if ( d->display & AMPM && d->h > 11 )
 		num += 12;
 	    if ( !outOfRange( num, d->m, d->s ) ) {
