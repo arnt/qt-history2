@@ -213,14 +213,16 @@ bool QSqlTable::isReadOnly() const
 
 QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
 {
-    //qDebug("QSqlTable::createEditor( int , int col, bool initFromCell ) const");
+    qDebug("QSqlTable::createEditor( int , int col, bool initFromCell ) const");
     if ( !d->insertMode && !d->updateMode )
 	return 0;
     QWidget * w = 0;
     if( initFromCell ){
 	w = d->editorFactory->createEditor( viewport(), d->editBuffer.value( indexOf( col ) ) );
-	//qDebug("editor factory returned:" + QString::number((int)w));
+	qDebug("editor factory returned:" + QString::number((int)w));
 	d->propertyMap->setProperty( w, d->editBuffer.value( indexOf( col ) ) );
+    } else {
+	qDebug("not init from cell");
     }
     return w;
 }
@@ -287,8 +289,15 @@ void QSqlTable::mousePressEvent( QMouseEvent *e )
 	if ( r == id[ IdInsert ] )
 	    beginInsert();
 	else if ( r == id[ IdUpdate ] ) {
-	    if ( beginUpdate( currentRow(), currentColumn(), TRUE ) )
-		 setEditMode( Editing, currentRow(), currentColumn() );
+	    qDebug("updating");
+	    //	    viewport()->setFocus();
+	    if ( beginEdit( currentRow(), currentColumn(), FALSE ) ) {
+		qDebug("setting edit mode");
+		setEditMode( Editing, currentRow(), currentColumn() );
+	    } else {
+		qDebug("could not begin edit");
+		endUpdate();
+	    }
 	}
 	else if ( r == id[ IdDelete ] )
 	    deleteCurrent();
@@ -305,13 +314,13 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 {
     if ( !d->view )
 	return 0;
-    //qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
-    //qDebug("continuousEdit:" + QString::number(d->continuousEdit));
+    qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
+    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
     if ( d->continuousEdit )
 	return QTable::beginEdit( row, col, replace );
     if ( !d->insertMode && !d->updateMode )
 	return beginUpdate( row, col, replace );
-    //qDebug("NO EDIT, returning 0");
+    qDebug("NO EDIT, returning 0");
     return 0;
 }
 
@@ -355,7 +364,7 @@ bool QSqlTable::beginInsert()
 	return FALSE;
     ensureCellVisible( row, 0 );
     setCurrentCell( row, 0 );
-    qt_debug_buffer("beginInsert: before creating edit buffer, VIEW", d->view);    
+    qt_debug_buffer("beginInsert: before creating edit buffer, VIEW", d->view);
     d->editBuffer.clear();
     d->editBuffer = *vw;
     d->editBuffer.detach();
@@ -390,6 +399,7 @@ bool QSqlTable::beginInsert()
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
+    qDebug("QSqlTable::beginUpdate");
     ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->updateMode = TRUE;
@@ -434,7 +444,9 @@ bool QSqlTable::insertCurrent()
 #endif
 	return FALSE;
     }
+    QApplication::setOverrideCursor( Qt::waitCursor );    
     bool b = d->editBuffer.insert();
+    QApplication::restoreOverrideCursor();
     endInsert();
     refresh( d->view );
     setCurrentSelection( currentRow(), currentColumn() );
@@ -499,7 +511,9 @@ bool QSqlTable::updateCurrent()
     if ( !primeUpdate( &d->editBuffer ) )
 	return FALSE;
     qt_debug_buffer("updateCurrent: edit buffer (before update)", &d->editBuffer);
+    QApplication::setOverrideCursor( Qt::waitCursor );
     bool b = d->editBuffer.update( d->editBuffer.primaryIndex() );
+    QApplication::restoreOverrideCursor();    
     refresh( d->view );
     setCurrentSelection( currentRow(), currentColumn() );
     return b;
@@ -546,7 +560,9 @@ bool QSqlTable::deleteCurrent()
 	return FALSE;
     if ( !primeDelete( vw ) )
 	return FALSE;
+    QApplication::setOverrideCursor( Qt::waitCursor );    
     bool b = vw->del( vw->primaryIndex() );
+    QApplication::restoreOverrideCursor();
     refresh( vw );
     setCurrentSelection( currentRow(), currentColumn() );
     updateRow( currentRow() );
@@ -565,7 +581,9 @@ void QSqlTable::refresh( QSqlView* view, bool seekPrimary )
     QSqlIndex pi;
     if ( seekPrimary )
 	pi = view->primaryIndex( TRUE );
+    QApplication::setOverrideCursor( Qt::waitCursor );
     view->select( view->filter(), view->sort() );
+    QApplication::restoreOverrideCursor();
     setSize( view );
     //    viewport()->repaint();
 }
@@ -664,6 +682,11 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
 
 void QSqlTable::reset()
 {
+    clearCellWidget( currentRow(), currentColumn() );    
+    if ( d->insertMode )
+	endInsert();
+    if ( d->updateMode )
+	endUpdate();
     ensureVisible( 0, 0 );
     verticalScrollBar()->setValue(0);
     setNumRows(0);
@@ -892,7 +915,9 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 	newSort.append( rset->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
+	QApplication::setOverrideCursor( Qt::waitCursor );
 	rset->select( rset->filter(), newSort );
+	QApplication::restoreOverrideCursor();
 	viewport()->repaint( FALSE );
     }
 }
