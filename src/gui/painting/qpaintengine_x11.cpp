@@ -1685,9 +1685,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
-#if 0
-    // ################# PIXMAP
-    if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate) {
+    if (pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate && pixmap.hasAlphaChannel()) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         if (d->picture && pixmap.xftPictureHandle()) {
             // this is essentially drawTile() from above, inlined for
@@ -1727,7 +1725,6 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     } else {
 	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy, mode);
     }
-#endif
 }
 
 static void drawLines(QPaintEngine *p, const QTextItemInt &ti, int baseline, int x1, int w)
