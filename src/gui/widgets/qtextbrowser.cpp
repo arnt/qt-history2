@@ -607,12 +607,18 @@ bool QTextBrowser::focusNextPrevChild(bool next)
         QTextBlock::Iterator blockStart = block.begin();
         QTextBlock::Iterator it = block.end();
 
-        do {
-            if (it == blockStart)
-                it = QTextBlock::Iterator();
-            else
-                --it;
-        } while (!it.atEnd() && it.fragment().position() + it.fragment().length() - 1 > startPos);
+        if (startPos == block.position()) {
+            it = block.begin();
+        } else {
+            do {
+                if (it == blockStart) {
+                    it = QTextBlock::Iterator();
+                    block = QTextBlock();
+                } else {
+                    --it;
+                }
+            } while (!it.atEnd() && it.fragment().position() + it.fragment().length() - 1 > startPos);
+        }
 
         while (block.isValid()) {
             anchorStart = -1;
@@ -659,7 +665,9 @@ bool QTextBrowser::focusNextPrevChild(bool next)
             }
 
             block = block.previous();
-            it = block.end(); --it;
+            it = block.end();
+            if (it != block.begin())
+                --it;
             blockStart = block.begin();
         }
 
