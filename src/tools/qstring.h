@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#38 $
+** $Id: //depot/qt/main/src/tools/qstring.h#39 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -203,27 +203,6 @@ public:
 		operator const char *() const;
     QString    &operator+=( const char *str );
     QString    &operator+=( char c );
-
-    friend bool operator==( const QString &, const QString & );
-    friend bool operator==( const QString &, const char * );
-    friend bool operator==( const char *, const QString & );
-    friend bool operator!=( const QString &, const QString & );
-    friend bool operator!=( const QString &, const char * );
-    friend bool operator!=( const char *, const QString & );
-    friend bool operator<( const QString &, const char * );
-    friend bool operator<( const char *, const QString & );
-    friend bool operator<=( const QString &, const char * );
-    friend bool operator<=( const char *, const QString & );
-    friend bool operator>( const QString &, const char * );
-    friend bool operator>( const char *, const QString & );
-    friend bool operator>=( const QString &, const char * );
-    friend bool operator>=( const char *, const QString & );
-
-    friend QString operator+( const QString &, const QString & );
-    friend QString operator+( const QString &, const char * );
-    friend QString operator+( const char *, const QString & );
-    friend QString operator+( const QString &, char );
-    friend QString operator+( char, const QString & );
 };
 
 
