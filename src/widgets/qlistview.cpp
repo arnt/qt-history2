@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#131 $
 **
 ** Implementation of QListView widget class
 **
@@ -1297,6 +1297,7 @@ QListView::~QListView()
     d->focusItem = 0;
     d->currentSelected = 0;
     delete d->dirtyItems;
+    delete d->drawables;
     delete d->r;
     delete d;
 }
