@@ -22,6 +22,8 @@
 class QMenuItemEmitter;
 #endif
 
+class QShortcutMap;
+
 class QActionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAction)
