@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#23 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#23 $")
 
 
 /*----------------------------------------------------------------------------
@@ -152,18 +152,20 @@ QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 
 QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 {
-    if ( pixmap.depth() == 1 ) {		// 1-bit pixmap
+    if ( pixmap.isNull() ) {			// a null pixmap
+	QBitmap bm;
+	bm.data->optim = data->optim;
+	QBitmap::operator=(bm);
+    } else if ( pixmap.depth() == 1 ) {		// 1-bit pixmap
 	if ( pixmap.isQBitmap() ) {		// another QBitmap
 	    QPixmap::operator=(pixmap);		// shallow assignment
-	}
-	else {					// not a QBitmap, but 1-bit
+	} else {				// not a QBitmap, but 1-bit
 	    QBitmap bm( pixmap.size() );
-	    bitBlt( &bm, 0,0, &pixmap, 0,0,-1,-1 );
+	    bitBlt( &bm, 0,0, &pixmap, 0,0,pixmap.width(),pixmap.height() );
 	    bm.data->optim = data->optim;
 	    QBitmap::operator=(bm);
 	}
-    }
-    else {					// n-bit depth pixmap
+    } else {					// n-bit depth pixmap
 	QImage image;
 	image = pixmap;				// convert pixmap to image
 	*this = image;				// will dither image
