@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#287 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#288 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2879,7 +2879,7 @@ void QFileDialog::error( int ecode, const QString &msg )
     if ( ecode == QUrl::ErrReadDir || ecode == QUrl::ErrParse ||
 	 ecode == QUrl::ErrUnknownProtocol || ecode == QUrl::ErrLoginIncorrect ) {
 	// #### todo
-	d->url = "/";
+	d->url = QDir::currentDirPath();
 	rereadDir();
     }
 }
@@ -3558,8 +3558,8 @@ QUrl QFileDialog::url() const
 void QFileDialog::urlStart( int action )
 {
     if ( action == QUrl::ActListDirectory ) {
-	files->clear();
 	d->moreFiles->clear();
+	files->clear();
 	files->setSorting( -1 );
 
 	QString cp( d->url );
