@@ -28,10 +28,37 @@ projects moving to the new Motif extension.
 \list
 
 \i \link motif-examples.html Examples\endlink
-
 \i \link motif-walkthrough.html Migration Walkthrough\endlink - A
 complete migration of a Motif based program to the Qt toolkit.
 
 \endlist
+
+\section1 Common Problems
+
+\list
+
+\i The X11 headers define some constants that conflict with the Qt
+headers.  The solution is to include all Qt headers first, followed by
+headers from this extension, and all Xt/Motif and X11 headers last.
+For example:
+
+\code
+    // Qt headers first
+    #include <qapplication.h>
+    #include <qpushbutton.h>
+    #include <qsocket.h>
+    ...
+
+    // QMotif* headers next
+    #include <qmotif.h>
+    #include <qmotifdialog.h>
+    #include <qmotifwidget.h>
+
+    // Xt/Motif and X11 headers last
+    #include <X11/Xlib.h>
+    #include <Xt/Intrinsic.h>
+    #include <Xm/Xm.h>
+    ...
+\endcode
 
 */
