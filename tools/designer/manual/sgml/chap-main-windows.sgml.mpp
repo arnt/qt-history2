@@ -1,0 +1,223 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+
+<chapter id="main-windows">
+<title>Creating Main Windows with Actions, Toolbars &amp; Menus</>
+
+\p
+In this chapter we will explain how to create an application's main
+window and how to add \i[actions], menus and toolbars. We will also
+demonstrate how some common actions, like cut and paste in a
+\class[QTextEdit], can be performed automatically simply by making the
+appropriate signals to slots connections. We will demonstrate how to
+create a main window by building the \i[richedit] application.
+<figure><title>The richedit Application</title>
+\img[richedit-main]
+</figure>
+\P
+
+<sidebar>\title[Actions and Action Groups]
+\p
+An \i[action] is some operation that the user initiates through the user
+interface, for example, saving a file or changing some text's font to bold.
+\P
+
+\p
+We often want the user to be able to perform an action using a variety
+of means. For example to save a file we might want the user to be able
+to press <keycap>Ctrl+S</>, or to click the \button[Save] toolbar button
+or to click the \menu[File|Save] menu option. Although the means of
+invoking the action are all different the underlying operation is the
+same and we don't want to duplicate the code that performs the
+operation. In Qt we can create an action (a \class[QAction] object)
+which will call the appropriate function when the action is invoked. We
+can assign an accelerator, (e.g. <keycap>Ctrl+S</>), to an action and we
+can also associate the action with a menu item and with a toolbar
+button.
+\P
+
+\p
+If the action has an on/off state, e.g. bold is on or off, when the user
+changes the state, for example by clicking a toolbar button, the state
+of everything associated with the action, e.g. menu items and toolbar
+buttons, are updated. 
+\P
+
+\p
+Some actions should operate together like radio buttons. For example, if
+we have left align, center align and right align actions, only one
+should be on at any one time. An \i[action group] (a
+\class[QActionGroup] object) is used to group a set of actions together.
+If the action group's \c[exclusive] property is TRUE then only one of
+the actions in the group can be on at any one time. If the user changes
+the state of an action in an action group where \c[exclusive] is TRUE,
+everything associated with the actions in the action group, e.g. menu
+items and toolbar buttons, are updated.
+\P
+
+\p
+\qd can create actions and action groups visually, can assign
+accelerators to them, and can associate them with menu items and toolbar
+buttons. 
+\P
+</sidebar>
+
+    <sect1><title>Designing the Main Window</title>
+    \p
+    We will use the main window wizard to build a main window. The
+    wizard allows us to create actions and a menu bar and toolbar
+    through which the user can invoke the actions. We will also create
+    our own actions, menus and toolbar. We will add some widgets to the
+    toolbar and add a main widget to the main window. Finally we will
+    connect signals to slots to take advantage of default functionality
+    and minimize our coding.
+    \P
+    
+	<sect2><title>Creating the Main Window</title>
+	\p
+	Start \qd or if it is already running close any existing
+	project or files. Click \menu[File|New] to invoke the New Form
+	dialog, click Mainwindow, then click \ok. A new
+	\class[QMainWindow] form will be created and the Mainwindow
+	Wizard will pop up.
+
+	\list[1]
+
+	\item\p
+	The \i[Choose available menus and toolbars] wizard page appears
+	first. It presents three categories of default actions, File
+	Actions, Edit Actions and Help Actions. For each category you
+	can choose to have \qd create menu items, toolbar buttons and
+	signal/slots connections for the relevant actions. You can
+	always add or delete actions, menu items, toolbar buttons and
+	connections later.
+	\P
+
+	\p
+	We will accept the defaults for File Actions, i.e. have menu
+	items, toolbar buttons and the relevant connections created. But
+	for the Edit Actions we don't want any connections created since
+	we'll be able to connect the actions directly to the
+	\class[QTextEdit] we create later, so uncheck the Edit Action's
+	Create Slots and Connections checkbox. We won't have any Help
+	Actions on the toolbar so uncheck the Help Action's Toolbar
+	checkbox. Click \button[Next] to move on to the next wizard
+	page.
+	\P\Item
+
+	\item\p
+	The \i[Setup Toolbars] wizard page is used to populate a toolbar
+	with actions from each of the default action categories. The
+	Category combobox is used to select which set of actions you
+	wish to work on. The Actions list box lists the actions
+	available for the current category. The Toolbar listbox lists
+	the toolbar buttons you want to create. The blue left and right
+	arrow buttons are used to move actions into or out of the
+	Toolbar list box. The blue up and down arrow buttons are used to
+	move actions up and down within the Toolbar list box. Note that
+	the '&lt;Separator&gt;' item in the Actions list box may be moved to
+	the Toolbar list box as often as required and will cause a
+	separator to appear in the finished toolbar.
+	\P
+
+	\p
+	Copy the New, Open and Save Actions to the
+	Toolbar list box. Copy a &lt;Separator&gt; to the Toolbar list
+	box. Change the Category to Edit and copy the Undo, Redo, Cut
+	Copy and Paste actions to the Toolbar list box. Click
+	\button[Next] and then click \button[Finish].
+	\P\Item
+
+	\List1
+	\P
+	
+	</sect2>
+
+	<sect2><title>Creating Actions</title>
+	\p
+	\P
+
+	<sidebar><title>Using the Action Editor</title>
+	\p
+	\P
+	</sidebar>
+	
+	</sect2>
+
+	<sect2><title>Creating an Action Group and its Actions</title>
+	\p
+	\P
+	
+	</sect2>
+
+	<sect2><title>Creating a Toolbar</title>
+	\p
+	\P
+
+	<sidebar><title>Adding &amp; Deleting Toolbar Items &amp;
+	Separators</title>
+	\p
+	\P
+	</sidebar>
+		
+	</sect2>
+
+	<sect2><title>Creating Menus</title>
+	\p
+	\P
+
+	<sidebar><title>Adding &amp; Deleting Menu Items &amp;
+	Separators</title>
+	\p
+	\P
+	</sidebar>
+		
+	</sect2>
+
+	<sect2><title>Adding Widgets to the Toolbar</title>
+	\p
+	\P
+	
+	</sect2>
+
+	<sect2><title>Adding the Main Widget</title>
+	\p
+	\P
+	
+	</sect2>
+
+	<sect2><title>Connecting up the Application</title>
+	\p
+	\P
+	
+	</sect2>
+
+    </sect1>
+
+    <sect1><title>Turning the Design into an Application</title>
+    \p
+    We've built the user interface through \qd and connected those slots
+    that provided sufficient default functionality. The last steps are to
+    code those slots that require customization and then to create the
+    project file and \f[main.cpp] so that we can compile and build our
+    application.
+    \P
+   	<sect2><title>Implementing the Main Window's Functionality</title>
+	\p
+	\P
+	
+	</sect2>
+
+	<sect2><title>Making the Application Run</title>
+	\p
+	project file + main.cpp
+	\P
+	
+	</sect2>
+
+ 
+    </sect1>
+
+
+
+</chapter>
+

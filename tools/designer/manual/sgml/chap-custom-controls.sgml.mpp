@@ -21,9 +21,9 @@ linkend="old-custom-widgets"> "Custom Widgets".)
     widget or a combination of widgets working together or a blend of
     both these approaches. If you simply want a collection of widgets
     in a particular configuration it is easiest to create them, select
-    them as a group, and copy and paste them as required. Custom widgets
-    are generally created when you need to add new functionality to
-    existing widgets or groups of widgets. 
+    them as a group, and copy and paste them as required within \qd.
+    Custom widgets are generally created when you need to add new
+    functionality to existing widgets or groups of widgets. 
     \P
     
     \p
