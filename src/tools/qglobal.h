@@ -226,6 +226,7 @@
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
+#  define Q_INLINE_TEMPLATES inline
 /* Visual C++.Net issues for _MSC_VER >= 1300 */
 #  if _MSC_VER >= 1300
 #    define Q_CC_MSVC_NET
@@ -775,17 +776,15 @@ Q_EXPORT int qWinVersion();
 #endif
 
 
+#ifndef Q_INLINE_TEMPLATES
+#  define Q_INLINE_TEMPLATES 
+#endif
+
 //
 // Use to avoid "unused parameter" warnings
 //
 
 #define Q_UNUSED(x) (void)x;
-
-#ifndef SOME_BROKEN_COMPILER
-#define Q_INLINE_TEMPLATES 
-#else
-#define Q_INLINE_TEMPLATES inline
-#endif
 
 //
 // Debugging and error handling
