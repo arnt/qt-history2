@@ -271,7 +271,7 @@ void QTabBarPrivate::layoutTabs()
     QSize size = q->size();
     if (tabList.count() && tabList.last().rect.right() > size.width()) {
         int extra = extraWidth();
-        QRect arrows = QStyle::visualRect(QRect(size.width() - extra, 0, extra, size.height()), q);
+        QRect arrows = QStyle::visualRect(q->layoutDirection(), q->rect(),  QRect(size.width() - extra, 0, extra, size.height()));
         d->leftB->setGeometry(arrows.left(), arrows.top(), extra/2, arrows.height());
         d->rightB->setGeometry(arrows.right() - extra/2 + 1, arrows.top(), extra/2, arrows.height());
         d->leftB->setEnabled(scrollOffset > 0);
@@ -556,7 +556,7 @@ QRect QTabBar::tabRect(int index) const
             const_cast<QTabBarPrivate*>(d)->layoutTabs();
         QRect r = tab->rect;
         r.translate(-d->scrollOffset, 0);
-        return QStyle::visualRect(r, this);
+        return QStyle::visualRect(layoutDirection(), rect(), r);
     }
     return QRect();
 }

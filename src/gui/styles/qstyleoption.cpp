@@ -118,7 +118,7 @@
 */
 
 QStyleOption::QStyleOption(int version, int type)
-    : version(version), type(type), state(QStyle::Style_None)
+    : version(version), type(type), state(QStyle::Style_None), direction(Qt::LeftToRight)
 {
 }
 
@@ -147,9 +147,11 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::Style_HasFocus;
     if (widget->topLevelWidget()->isActiveWindow())
         state |= QStyle::Style_Active;
+
     rect = widget->rect();
     palette = widget->palette();
 }
+
 
 /*!
     \property QStyleOption::palette

@@ -4336,7 +4336,7 @@ void Q3Table::showEvent(QShowEvent *e)
 
 void Q3Table::paintEvent(QPaintEvent *e)
 {
-    QRect topLeftCorner = QStyle::visualRect(QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin()), this, rect());
+    QRect topLeftCorner = QStyle::visualRect(layoutDirection(), rect(), QRect(frameWidth(), frameWidth(), VERTICALMARGIN, topMargin()));
     erase(topLeftCorner); // erase instead of widget on top
     Q3ScrollView::paintEvent(e);
 
@@ -4592,10 +4592,10 @@ void Q3Table::updateGeometries()
 	 ts.height() < leftHeader->offset() + leftHeader->height())
 	verticalScrollBar()->setValue(ts.height() - leftHeader->height());
 
-    leftHeader->setGeometry(QStyle::visualRect(QRect(frameWidth(), topMargin() + frameWidth(),
-			     VERTICALMARGIN, visibleHeight()), this, rect()));
-    topHeader->setGeometry(QStyle::visualRect(QRect(VERTICALMARGIN + frameWidth(), frameWidth(),
-						      visibleWidth(), topMargin()), this, rect()));
+    leftHeader->setGeometry(QStyle::visualRect(layoutDirection(), rect(), QRect(frameWidth(), topMargin() + frameWidth(),
+			     VERTICALMARGIN, visibleHeight())));
+    topHeader->setGeometry(QStyle::visualRect(layoutDirection(), rect(), QRect(VERTICALMARGIN + frameWidth(), frameWidth(),
+						      visibleWidth(), topMargin())));
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     topHeader->updateStretches();

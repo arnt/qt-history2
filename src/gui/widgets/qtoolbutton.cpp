@@ -447,8 +447,8 @@ void QToolButton::drawBevel(QPainter *p)
 void QToolButton::drawLabel(QPainter *p)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ToolButtonContents, &opt,
-                                                  fontMetrics(), this), this);
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ToolButtonContents, &opt,
+                                                  fontMetrics(), this));
     style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
 }
 
@@ -523,8 +523,8 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
     QRect popupr =
-        QStyle::visualRect(style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
-                                                          QStyle::SC_ToolButtonMenu, this), this);
+        QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
+                                                          QStyle::SC_ToolButtonMenu, this));
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
     if (d->discardNextMouseEvent) {

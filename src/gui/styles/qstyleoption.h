@@ -46,6 +46,7 @@ public:
     int version;
     int type;
     QStyle::StyleFlags state;
+    Qt::LayoutDirection direction;
     QRect rect;
     QPalette palette;
 

@@ -259,19 +259,16 @@ void QProgressBar::paintEvent(QPaintEvent *)
 
     QStyleOptionProgressBar opt = d->getStyleOption();
     const QFontMetrics &fm = fontMetrics();
-    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ProgressBarGroove, &opt, fm, this),
-                                  this);
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ProgressBarGroove, &opt, fm, this));
 
     paint.drawControl(QStyle::CE_ProgressBarGroove, opt);
     opt.rect = rect();
-    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ProgressBarContents, &opt, fm, this),
-                                  this);
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ProgressBarContents, &opt, fm, this));
     paint.drawControl(QStyle::CE_ProgressBarContents, opt);
 
     if (d->textVisible) {
         opt.rect = rect();
-        opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ProgressBarLabel, &opt, fm, this),
-                                      this);
+        opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ProgressBarLabel, &opt, fm, this));
         paint.drawControl(QStyle::CE_ProgressBarLabel, opt);
     }
 }

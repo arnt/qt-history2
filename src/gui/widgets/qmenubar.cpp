@@ -98,7 +98,7 @@ QRect QMenuBarPrivate::actionRect(QAction *act) const
     QRect ret = actionRects.value(act);
     const int fw = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
     ret.translate(fw, fw);
-    return QStyle::visualRect(ret, q);
+    return QStyle::visualRect(q->layoutDirection(), q->rect(), ret);
 }
 
 void QMenuBarPrivate::setKeyboardMode(bool b)

@@ -213,9 +213,9 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
             opt.init(comboBox);
             opt.subControls = QStyle::SC_All;
             opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-            ignoreRect = QStyle::visualRect(style()->querySubControlMetrics(
+            ignoreRect = QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(
                                                 QStyle::CC_ComboBox, &opt,
-                                                QStyle::SC_ComboBoxArrow, comboBox), comboBox);
+                                                QStyle::SC_ComboBoxArrow, comboBox));
         }
         ignoreRect = QRect(comboBox->mapToGlobal(ignoreRect.topLeft()),
                            comboBox->mapToGlobal(ignoreRect.bottomRight()));
@@ -494,9 +494,9 @@ void QComboBoxPrivate::updateLineEditGeometry()
         return;
 
     QStyleOptionComboBox opt = d->getStyleOption();
-    QRect editorRect = QStyle::visualRect(q->style()->querySubControlMetrics(
+    QRect editorRect = QStyle::visualRect(opt.direction, opt.rect, q->style()->querySubControlMetrics(
                                               QStyle::CC_ComboBox, &opt,
-                                              QStyle::SC_ComboBoxEditField, q), q);
+                                              QStyle::SC_ComboBoxEditField, q));
     const QPixmap &pix = q->pixmap(q->currentItem());
     if (!pix.isNull())
         editorRect.setLeft(editorRect.left() + pix.width() + 4);
@@ -1399,9 +1399,9 @@ void QComboBox::paintEvent(QPaintEvent *)
     if (d->currentIndex.isValid()) {
         QString txt = model()->data(d->currentIndex, QAbstractItemModel::DisplayRole).toString();
         const QPixmap &pix = pixmap(currentItem());
-        QRect editField = QStyle::visualRect(q->style()->querySubControlMetrics(
+        QRect editField = QStyle::visualRect(opt.direction, opt.rect, q->style()->querySubControlMetrics(
                                                  QStyle::CC_ComboBox, &opt,
-                                                 QStyle::SC_ComboBoxEditField, this), q);
+                                                 QStyle::SC_ComboBoxEditField, this));
         QRect textRect(editField);
 
         if (!pix.isNull()) {
@@ -1445,8 +1445,8 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
     Q_UNUSED(e);
     d->arrowDown = false;
     QStyleOptionComboBox opt = d->getStyleOption();
-    update(QStyle::visualRect(style()->querySubControlMetrics(
-                                  QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow), this));
+    update(QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(
+                                  QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow)));
 }
 
 /*!

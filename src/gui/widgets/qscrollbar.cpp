@@ -400,7 +400,7 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
 
     QRect sr = style()->querySubControlMetrics(QStyle::CC_ScrollBar, &opt,
                                               QStyle::SC_ScrollBarSlider, this);
-    QPoint click = QStyle::visualPos(e->pos(), this);
+    QPoint click = QStyle::visualPos(opt.direction, opt.rect, e->pos());
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {
         d->clickOffset = (QCOORD)((HORIZONTAL ? (click.x()-sr.x()) : (click.y()-sr.y())));
         d->snapBackPosition = d->position;
@@ -439,8 +439,8 @@ void QScrollBar::mouseReleaseEvent(QMouseEvent *e)
     if (tmp == QStyle::SC_ScrollBarSlider)
         setSliderDown(false);
     QStyleOptionSlider opt = d->getStyleOption();
-    repaint(QStyle::visualRect(style()->querySubControlMetrics(QStyle::CC_ScrollBar, &opt, tmp,
-                                                              this), this));
+    repaint(QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ScrollBar, &opt, tmp,
+                                                              this)));
 }
 
 
@@ -459,7 +459,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
         return;
 
     if (d->pressedControl == QStyle::SC_ScrollBarSlider) {
-        QPoint click = QStyle::visualPos(e->pos(), this);
+        QPoint click = QStyle::visualPos(opt.direction, opt.rect, e->pos());
         int newPosition = d->pixelPosToRangeValue((HORIZONTAL ? click.x() : click.y()) -d->clickOffset);
         int m = style()->pixelMetric(QStyle::PM_MaximumDragDistance, &opt, this);
         if (m >= 0) {
@@ -473,10 +473,10 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
         // stop scrolling when the mouse pointer leaves a control
         // similar to push buttons
         opt.subControls = d->pressedControl;
-        QRect pr = QStyle::visualRect(style()->querySubControlMetrics(QStyle::CC_ScrollBar,
+        QRect pr = QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ScrollBar,
                                                                      &opt,
                                                                      d->pressedControl,
-                                                                     this), this);
+                                                                     this));
         if (pr.contains(e->pos()) == d->pointerLeftControl) {
             if ((d->pointerLeftControl = !d->pointerLeftControl)) {
                 setRepeatAction(SliderNoAction);

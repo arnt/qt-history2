@@ -258,7 +258,7 @@ void QHeaderView::setOffset(int o)
     int ndelta = d->offset - o;
     d->offset = o;
     if (d->orientation == Qt::Horizontal)
-        d->viewport->scroll(QApplication::isRightToLeft() ? -ndelta : ndelta, 0);
+        d->viewport->scroll(isRightToLeft() ? -ndelta : ndelta, 0);
     else
         d->viewport->scroll(0, ndelta);
 }
@@ -497,7 +497,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
     int pos = sectionViewportPosition(logicalIndex);
     QRect r;
     if (orientation() == Qt::Horizontal)
-        if (QApplication::isRightToLeft())
+        if (isRightToLeft())
             r.setRect(0, 0, pos + size, h);
         else
             r.setRect(pos, 0, w - pos, h);

@@ -732,8 +732,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
-                fropt.rect = visualRect(subRect(SR_PushButtonFocusRect, btn, p->fontMetrics(),
-                                                widget), widget);
+                fropt.rect = visualRect(opt->direction, opt->rect, subRect(SR_PushButtonFocusRect, btn, p->fontMetrics(),
+                                                widget));
                 drawPrimitive(PE_FocusRect, &fropt, p, widget);
             }
         }
@@ -791,11 +791,10 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QStyleOptionFocusRect fropt;
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
-                fropt.rect = visualRect(subRect(isRadio ? SR_RadioButtonFocusRect
-                                                        : SR_CheckBoxFocusRect, btn,
-                                                        p->fontMetrics(),
-                                                        widget),
-                                                widget);
+                fropt.rect = visualRect(opt->direction, opt->rect, subRect(isRadio ? SR_RadioButtonFocusRect
+                                                : SR_CheckBoxFocusRect, btn,
+                                                p->fontMetrics(),
+                                                widget));
                 drawPrimitive(PE_FocusRect, &fropt, p, widget);
             }
         }
@@ -1483,9 +1482,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if (scrollbar->subControls & SC_ScrollBarSubLine) {
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarSubLine, widget),
-                                                                      widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarSubLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarSubLine)
                         newScrollbar.state |= Style_Down;
@@ -1495,9 +1493,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarAddLine) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarAddLine, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarAddLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarAddLine)
                         newScrollbar.state |= Style_Down;
@@ -1507,9 +1504,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarSubPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarSubPage, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarSubPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarSubPage)
                         newScrollbar.state |= Style_Down;
@@ -1519,9 +1515,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarAddPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarAddPage, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarAddPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarAddPage)
                         newScrollbar.state |= Style_Down;
@@ -1531,9 +1526,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarFirst) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarFirst, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarFirst, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarFirst)
                         newScrollbar.state |= Style_Down;
@@ -1543,9 +1537,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarLast) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarLast, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarLast, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarLast)
                         newScrollbar.state |= Style_Down;
@@ -1555,9 +1548,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarSlider) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
-                                                                      SC_ScrollBarSlider, widget),
-                                               widget);
+                newScrollbar.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, &newScrollbar,
+                                                                      SC_ScrollBarSlider, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (scrollbar->activeSubControls & SC_ScrollBarSlider)
                         newScrollbar.state |= Style_Down;
@@ -1606,7 +1598,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxPlus : PE_SpinBoxUp);
 
-                copy.rect = visualRect(querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp, widget), widget);
+                copy.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxUp, widget));
                 drawPrimitive(PE_ButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1629,7 +1621,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxMinus : PE_SpinBoxDown);
 
                 copy.rect = sb->rect;
-                copy.rect = visualRect(querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown, widget), widget);
+                copy.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxDown, widget));
                 drawPrimitive(PE_ButtonBevel, &copy, p, widget);
                 drawPrimitive(pe, &copy, p, widget);
             }
@@ -1639,7 +1631,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 pe = PE_SpinBoxSlider;
                 copy.subControls = SC_SpinBoxSlider;
                 copy.rect = sb->rect;
-                copy.rect = visualRect(querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxSlider, widget), widget);
+                copy.rect = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxSlider, widget));
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -1649,10 +1641,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionToolButton *toolbutton
                 = qt_cast<const QStyleOptionToolButton *>(opt)) {
             QRect button, menuarea;
-            button = visualRect(querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget),
-                                widget);
-            menuarea = visualRect(querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu, widget),
-                                  widget);
+            button = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget));
+            menuarea = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, toolbutton, SC_ToolButtonMenu, widget));
 
             StyleFlags bflags = toolbutton->state,
                        mflags = toolbutton->state;
@@ -1705,8 +1695,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 p->fillRect(opt->rect, fillBrush);
 
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
-                                                       widget), widget, opt->rect);
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
+                                                       widget));
 
                 p->setPen(tb->palette.highlightedText().color());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
@@ -1719,8 +1709,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             QStyleOption tool(0);
             tool.palette = tb->palette;
             if (tb->subControls & SC_TitleBarCloseButton) {
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarCloseButton,
-                                                       widget), widget);
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarCloseButton,
+                                                       widget));
                 down = tb->activeSubControls & SC_TitleBarCloseButton;
                 if (tb->titleBarFlags & Qt::WStyle_Tool
 #ifndef QT_NO_MAINWINDOW
@@ -1743,8 +1733,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarMaxButton) {
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMaxButton,
-                                                       widget), widget);
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMaxButton,
+                                                       widget));
 
                 down = tb->activeSubControls & SC_TitleBarMaxButton;
                 pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
@@ -1761,8 +1751,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarNormalButton || tb->subControls & SC_TitleBarMinButton) {
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMinButton,
-                                                       widget), widget);
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMinButton,
+                                                       widget));
                 QStyle::SubControl ctrl = (tb->subControls & SC_TitleBarNormalButton ?
                                            SC_TitleBarNormalButton :
                                            SC_TitleBarMinButton);
@@ -1784,8 +1774,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarShadeButton) {
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarShadeButton,
-                                                       widget), widget);
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarShadeButton,
+                                                       widget));
 
                 down = tb->activeSubControls & SC_TitleBarShadeButton;
                 pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
@@ -1801,8 +1791,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (tb->subControls & SC_TitleBarUnshadeButton) {
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarUnshadeButton,
-                                                       widget), widget);
+                ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarUnshadeButton,
+                                                       widget));
 
                 down = tb->activeSubControls & SC_TitleBarUnshadeButton;
                 pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
@@ -1819,8 +1809,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 #ifndef QT_NO_WIDGET_TOPEXTRA
             if (tb->subControls & SC_TitleBarSysMenu) {
                 if (!tb->icon.isNull()) {
-                    ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu,
-                                                           widget), widget);
+                    ir = visualRect(opt->direction, opt->rect, querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu,
+                                                           widget));
                     drawItem(p, ir, Qt::AlignCenter, tb->palette, true, tb->icon);
                 }
             }
@@ -1856,12 +1846,11 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
     switch (cc) {
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            QRect r = visualRect(querySubControlMetrics(cc, slider, SC_SliderHandle, widget),
-                                 widget);
+            QRect r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, slider, SC_SliderHandle, widget));
             if (r.isValid() && r.contains(pt)) {
                 sc = SC_SliderHandle;
             } else {
-                r = visualRect(querySubControlMetrics(cc, slider, SC_SliderGroove ,widget), widget);
+                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, slider, SC_SliderGroove ,widget));
                 if (r.isValid() && r.contains(pt))
                     sc = SC_SliderGroove;
             }
@@ -1872,8 +1861,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             QRect r;
             uint ctrl = SC_ScrollBarAddLine;
             while (ctrl <= SC_ScrollBarGroove) {
-                r = visualRect(querySubControlMetrics(cc, scrollbar, QStyle::SubControl(ctrl),
-                                                      widget), widget);
+                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, scrollbar, QStyle::SubControl(ctrl),
+                                                      widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -1893,7 +1882,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             QRect r;
             uint ctrl = SC_SpinBoxUp;
             while (ctrl <= SC_SpinBoxSlider) {
-                r = visualRect(querySubControlMetrics(cc, spinbox, QStyle::SubControl(ctrl), widget), widget);
+                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, spinbox, QStyle::SubControl(ctrl), widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -1910,8 +1899,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
 
             while (ctrl <= SC_TitleBarUnshadeButton) {
-                r = visualRect(querySubControlMetrics(cc, tb, QStyle::SubControl(ctrl), widget),
-                                                      widget);
+                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, tb, QStyle::SubControl(ctrl), widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -1935,8 +1923,7 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             QRect r;
             uint ctrl = SC_ComboBoxArrow;  // Start here and go down.
             while (ctrl > 0) {
-                r = visualRect(querySubControlMetrics(cc, cmb, QStyle::SubControl(ctrl), widget),
-                                                      widget);
+                r = visualRect(opt->direction, opt->rect, querySubControlMetrics(cc, cmb, QStyle::SubControl(ctrl), widget));
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;

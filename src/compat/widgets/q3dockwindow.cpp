@@ -392,8 +392,8 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     opt.rect = rect();
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
-    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_DockWindowHandleRect, &opt,
-                                                  fontMetrics(), this), this);
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_DockWindowHandleRect, &opt,
+                                                  fontMetrics(), this));
     style()->drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
     QWidget::paintEvent(e);
 }

@@ -722,13 +722,11 @@ public:
     virtual QPixmap generatedIconPixmap(IconMode iconMode, const QPixmap &pixmap,
                                         const QStyleOption *opt) const = 0;
 
-    static QRect visualRect(const QRect &logical, const QWidget *w);
-    static QRect visualRect(const QRect &logical, const QWidget *w, const QRect &bounding);
-    static QPoint visualPos(const QPoint &logical, const QWidget *w);
-    static QPoint visualPos(const QPoint &logical, const QWidget *w, const QRect &bounding);
+    static QRect visualRect(Qt::LayoutDirection direction, const QRect &boundingRect, const QRect &logicalRect);
+    static QPoint visualPos(Qt::LayoutDirection direction, const QRect &boundingRect, const QPoint &logicalPos);
     static int positionFromValue(int min, int max, int val, int space, bool upsideDown = false);
     static int valueFromPosition(int min, int max, int pos, int space, bool upsideDown = false);
-    static Qt::Alignment horizontalAlignment(Qt::Alignment align, const QWidget *w);
+    static Qt::Alignment horizontalAlignment(Qt::LayoutDirection direction, Qt::Alignment align);
 
 private:
     Q_DISABLE_COPY(QStyle)

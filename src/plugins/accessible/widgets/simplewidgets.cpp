@@ -241,12 +241,13 @@ QRect QAccessibleToolButton::rect(int child) const
     if (!child)
         return QAccessibleButton::rect(child);
 
-    QStyleOptionToolButton option;
+    QStyleOptionToolButton opt;
+    opt.init(widget());
     QRect logical = widget()->style()->querySubControlMetrics(QStyle::CC_ToolButton,
-                                                             &option,
+                                                             &opt,
                                                              QStyle::SC_ToolButtonMenu,
                                                              toolButton());
-    QRect subrect = QStyle::visualRect(logical, toolButton());
+    QRect subrect = QStyle::visualRect(opt.direction, opt.rect, logical);
 
     if (child == ButtonExecute)
         subrect = QRect(0, 0, subrect.x(), widget()->height());

@@ -342,7 +342,7 @@ void QWidgetItem::setGeometry(const QRect &r)
                 s.setHeight(qMin(s.height(), pref.height()));
         }
     }
-    Qt::Alignment alignHoriz = QStyle::horizontalAlignment(align, wid);
+    Qt::Alignment alignHoriz = QStyle::horizontalAlignment(wid->layoutDirection(),  align);
     if (alignHoriz & Qt::AlignRight)
         x = x + (r.width() - s.width());
     else if (!(alignHoriz & Qt::AlignLeft))
@@ -1767,7 +1767,7 @@ QRect QLayout::alignmentRect(const QRect &r) const
     else if (!(a & Qt::AlignTop))
         y += (r.height() - s.height()) / 2;
 
-    a = QStyle::horizontalAlignment(a,parentWidget());
+    a = QStyle::horizontalAlignment(parentWidget()->layoutDirection(), a);
     if (a & Qt::AlignRight)
         x += (r.width() - s.width());
     else if (!(a & Qt::AlignLeft))

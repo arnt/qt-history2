@@ -321,7 +321,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
         int section = d->horizontalHeader->logicalIndex(value / horizontalFactor());
         int left = (value % horizontalFactor()) * d->horizontalHeader->sectionSize(section);
         int offset = (left / horizontalFactor()) + d->horizontalHeader->sectionPosition(section);
-        if (QApplication::isRightToLeft())
+        if (isRightToLeft())
             dx = offset - d->horizontalHeader->offset();
         else
             dx = d->horizontalHeader->offset() - offset;
@@ -362,7 +362,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     int left = d->horizontalHeader->visualIndexAt(area.left());
     int right = d->horizontalHeader->visualIndexAt(area.right());
 
-    if (QApplication::isRightToLeft()) {
+    if (isRightToLeft()) {
         left = (left == -1 ? model()->columnCount(root()) - 1 : left);
         right = (right == -1 ? 0 : right);
     } else {
@@ -459,7 +459,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     QRect b(0, y, w, h - y);
     if (y < h && area.intersects(b))
         painter.fillRect(b, base);
-    if (QApplication::isRightToLeft()) {
+    if (isRightToLeft()) {
         QRect r(0, 0, w - x, h);
         if (x > 0 && area.intersects(r))
             painter.fillRect(r, base);
@@ -535,12 +535,12 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         break;
     case MovePrevious:
     case MoveLeft:
-        horizontalStep = QApplication::isRightToLeft() ? 1 : -1;
+        horizontalStep = isRightToLeft() ? 1 : -1;
         visualColumn += horizontalStep;
         break;
     case MoveNext:
     case MoveRight:
-        horizontalStep = QApplication::isRightToLeft() ? -1 : 1;
+        horizontalStep = isRightToLeft() ? -1 : 1;
         visualColumn += horizontalStep;
         break;
     case MoveHome:
@@ -587,9 +587,9 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    QModelIndex tl = itemAt((QApplication::isRightToLeft()
+    QModelIndex tl = itemAt((isRightToLeft()
                              ? rect.right() : rect.left()), rect.top());
-    QModelIndex br = itemAt((QApplication::isRightToLeft()
+    QModelIndex br = itemAt((isRightToLeft()
                              ? rect.left() : rect.right()), rect.bottom());
     selectionModel()->select(QItemSelection(tl, br), command);
 }
@@ -632,10 +632,10 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
     int rightCol = d->horizontalHeader->logicalIndex(right);
     int bottomRow = d->verticalHeader->logicalIndex(bottom);
 
-    int leftWidth = QApplication::isRightToLeft() ? columnWidth(leftCol) : 0;
+    int leftWidth = isRightToLeft() ? columnWidth(leftCol) : 0;
     int leftPos = columnViewportPosition(leftCol) + leftWidth;
     int topPos = rowViewportPosition(topRow);
-    int rightWidth = QApplication::isRightToLeft() ? 0 : columnWidth(rightCol);
+    int rightWidth = isRightToLeft() ? 0 : columnWidth(rightCol);
     int rightPos = columnViewportPosition(rightCol) + rightWidth;
     int bottomPos = rowViewportPosition(bottomRow) + rowHeight(bottomRow);
 
@@ -689,7 +689,7 @@ void QTableView::updateGeometries()
 {
     int width = d->verticalHeader->isVisible() ? d->verticalHeader->sizeHint().width() : 0;
     int height = d->verticalHeader->isVisible() ? d->horizontalHeader->sizeHint().height() : 0;
-    bool reverse = QApplication::isRightToLeft();
+    bool reverse = isRightToLeft();
     setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 
     QRect vg = d->viewport->geometry();
@@ -926,10 +926,10 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
     }
 
     // horizontal
-    bool leftOf = QApplication::isRightToLeft()
+    bool leftOf = isRightToLeft()
                   ? rect.right() > area.right()
                   : rect.left() < area.left();
-    bool rightOf = QApplication::isRightToLeft()
+    bool rightOf = isRightToLeft()
                    ? rect.left() < area.left()
                    : rect.right() > area.right();
     if (leftOf) {
@@ -972,7 +972,7 @@ void QTableView::columnResized(int column, int, int)
 {
     int x = columnViewportPosition(column);
     QRect rect;
-    if (QApplication::isRightToLeft())
+    if (isRightToLeft())
         rect.setRect(0, 0, x + columnWidth(column), d->viewport->height());
     else
         rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());

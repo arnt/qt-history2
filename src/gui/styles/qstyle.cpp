@@ -1580,32 +1580,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     may aid in drawing the control.
 */
 
-/*!
-    \fn QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w);
-
-    Returns the rectangle \a logicalRect expressed in screen
-    coordinates. The bounding rectangle for \a w is used to
-    perform the translation.
-
-    This function is provided to aid style implementors in supporting
-    right-to-left desktops.
-
-    \sa QWidget::layoutDirection
-*/
-QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w)
-{
-    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
-        return logicalRect;
-    QRect boundingRect = w->rect();
-    QRect rect = logicalRect;
-    rect.translate(2 * (boundingRect.right() - logicalRect.right()) +
-                   logicalRect.width() - boundingRect.width(), 0);
-    return rect;
-}
 
 /*!
-    \overload
-
     Returns the rectangle \a logicalRect converted to screen
     coordinates. The \a boundingRect rectangle is used to perform the
     translation.
@@ -1615,9 +1591,9 @@ QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w)
 
     \sa QWidget::layoutDirection
 */
-QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w, const QRect &boundingRect)
+QRect QStyle::visualRect(Qt::LayoutDirection direction, const QRect &boundingRect, const QRect &logicalRect)
 {
-    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
+    if (direction == Qt::LeftToRight)
         return logicalRect;
     QRect rect = logicalRect;
     rect.translate(2 * (boundingRect.right() - logicalRect.right()) +
@@ -1626,24 +1602,6 @@ QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *w, const QRect
 }
 
 /*!
-    Returns the point \a logicalPos converted to screen coordinates.
-    The bounding rectangle for \a w is used to perform the
-    translation.
-
-    This function is provided to aid style implementors in supporting
-    right-to-left desktops.
-
-    \sa QWidget::layoutDirection
-*/
-QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *w)
-{
-    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
-        return logicalPos;
-    return QPoint(w->rect().right() - logicalPos.x(), logicalPos.y());
-}
-
-/*!
-    \overload
 
     Returns the point \a logicalPos converted to screen coordinates.
     The \a boundingRect rectangle is used to perform the translation.
@@ -1653,9 +1611,9 @@ QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *w)
 
     \sa QWidget::layoutDirection
 */
-QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *w, const QRect &boundingRect)
+QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRect, const QPoint &logicalPos)
 {
-    if (w ? w->isLeftToRight() : QApplication::isLeftToRight())
+    if (direction == Qt::LeftToRight)
         return logicalPos;
     return QPoint(boundingRect.right() - logicalPos.x(), logicalPos.y());
 }
@@ -1663,23 +1621,23 @@ QPoint QStyle::visualPos(const QPoint &logicalPos, const QWidget *w, const QRect
 
 /*!
 
-  Strips out vertical alignment flags and transforms an alignment \a
-  align of Qt::AlignAuto into Qt::AlignLeft or Qt::AlignRight
-  according to the layout direction used by \a w. The other horizontal
-  alignment flags are left untouched.
+  Strips out vertical alignment flags and transforms an \a alignment
+  of Qt::AlignAuto into Qt::AlignLeft or Qt::AlignRight according to
+  the layout \a direction. The other horizontal alignment flags are
+  left untouched.
 
   QWidget::layoutDirection
 */
-Qt::Alignment QStyle::horizontalAlignment(Qt::Alignment align, const QWidget *w)
+Qt::Alignment QStyle::horizontalAlignment(Qt::LayoutDirection direction,  Qt::Alignment alignment)
 {
-    align &= Qt::AlignHorizontal_Mask;
-    if (align == Qt::AlignAuto) {
-        if (w ? w->isRightToLeft() : QApplication::isRightToLeft())
-            align = Qt::AlignRight;
+    alignment &= Qt::AlignHorizontal_Mask;
+    if (alignment == Qt::AlignAuto) {
+        if (direction == Qt::RightToLeft)
+            alignment = Qt::AlignRight;
         else
-            align = Qt::AlignLeft;
+            alignment = Qt::AlignLeft;
     }
-    return align;
+    return alignment;
 }
 
 /*!

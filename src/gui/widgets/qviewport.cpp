@@ -155,26 +155,26 @@ void QViewportPrivate::layoutChildren()
         QRect fr = vr;
         if (needh) {
             fr.setBottom(fr.bottom() - hsbExt);
-            hbar->setGeometry(QStyle::visualRect(QRect(0, fr.bottom() + 1, fr.width() - (needv?vsbExt:0), hsbExt), q));
+            hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(0, fr.bottom() + 1, fr.width() - (needv?vsbExt:0), hsbExt)));
         }
         if (needv) {
             fr.setRight(fr.right() - vsbExt);
-            vbar->setGeometry(QStyle::visualRect(QRect(fr.right() + 1, 0, vsbExt, fr.height()), q));
+            vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(fr.right() + 1, 0, vsbExt, fr.height())));
         }
-        q->setFrameRect(QStyle::visualRect(fr, q));
+        q->setFrameRect(QStyle::visualRect(opt.direction, opt.rect, fr));
         vr = q->contentsRect();
     } else {
         q->setFrameRect(vr);
         vr = q->contentsRect();
         if (needh) {
             vr.setBottom(vr.bottom() - hsbExt);
-            hbar->setGeometry(QStyle::visualRect(QRect(vr.left(), vr.bottom() + 1, vr.width() - (needv?vsbExt:0), hsbExt), q));
+            hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,  QRect(vr.left(), vr.bottom() + 1, vr.width() - (needv?vsbExt:0), hsbExt)));
         }
         if (needv) {
             vr.setRight(vr.right() - vsbExt);
-            vbar->setGeometry(QStyle::visualRect(QRect(vr.right() + 1, vr.top(), vsbExt, vr.height()), q));
+            vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(vr.right() + 1, vr.top(), vsbExt, vr.height())));
         }
-        vr = QStyle::visualRect(vr, q);
+        vr = QStyle::visualRect(opt.direction, opt.rect, vr);
     }
     hbar->setShown(needh);
     vbar->setShown(needv);

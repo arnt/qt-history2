@@ -387,7 +387,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             display.setRect(x, y, w, h);
             break;}
         case QStyleOptionViewItem::Left: {
-            if (QApplication::isRightToLeft()) {
+            if (option.direction == Qt::RightToLeft){
                 decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
                 w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x, y, w, h);
@@ -398,7 +398,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             display.setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
-            if (QApplication::isRightToLeft()) {
+            if (option.direction == Qt::RightToLeft){
                 decoration.setRect(x, y, pixmapRect->width(), h);
                 w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x + pixmapRect->width(), y, w, h);
@@ -417,7 +417,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
         *pixmapRect = decoration;
         *textRect = display;
         if (!hint) // we only need to do the internal layout if we are going to paint
-            doAlignment(decoration, option.decorationAlignment, pixmapRect);
+            doAlignment(option.direction, decoration, option.decorationAlignment, pixmapRect);
     }
 }
 
@@ -425,7 +425,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
     \internal
 */
 
-void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const
+void QItemDelegate::doAlignment(Qt::LayoutDirection direction, const QRect &boundingRect, int alignment, QRect *rect) const
 {
     if (alignment == Qt::AlignCenter) {
         rect->moveCenter(boundingRect.center());
@@ -440,7 +440,7 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
         rect->moveRight(boundingRect.right());
         break;
     case Qt::AlignAuto:
-        if (QApplication::isRightToLeft())
+        if (direction == Qt::RightToLeft)
             rect->moveRight(boundingRect.right());
         else
             rect->moveLeft(boundingRect.left());
