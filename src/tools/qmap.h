@@ -579,7 +579,11 @@ public:
     QMap( const std::map<Key,T>& m )
     {
 	sh = new QMapPrivate<Key,T>;
+#if defined(Q_OS_WIN32)
+	std::map<Key,T>::const_iterator it = m.begin();
+#else
 	QMapConstIterator<Key,T> it = m.begin();
+#endif
 	for ( ; it != m.end(); ++it ) {
 	    value_type p( (*it).first, (*it).second );
 	    insert( p );
@@ -603,7 +607,11 @@ public:
     QMap<Key,T>& operator= ( const std::map<Key,T>& m )
     {
 	clear();
+#if defined(Q_OS_WIN32)
+	std::map<Key,T>::const_iterator it = m.begin();
+#else
 	QMapConstIterator<Key,T> it = m.begin();
+#endif
 	for ( ; it != m.end(); ++it ) {
 	    value_type p( (*it).first, (*it).second );
 	    insert( p );
