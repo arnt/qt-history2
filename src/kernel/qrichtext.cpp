@@ -1034,13 +1034,13 @@ bool QRichTextIterator::right( bool doFormat )
 	dirty = TRUE;
     else if ( dirty )
 	update();
-    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+    QRichTextFormatter* f = stack.getLast()?&stack.getLast()->fc: &fc;
 
-    QTextCustomItem* c = f.format()->customItem();
+    QTextCustomItem* c = f->format()->customItem();
     if ( c && c->isTable() && c->placeInline() ) {
 	QTextTable* table = (QTextTable*) c;
 	if ( !table->cells.isEmpty() ) {
-	    Item* item = new Item( f, table->cells );
+	    Item* item = new Item( *f, table->cells );
 	    stack.append( item );
 	    QTextTableCell* cell = item->it.current();
 	    item->fc = QRichTextFormatter( *cell->richText() );
@@ -1048,24 +1048,21 @@ bool QRichTextIterator::right( bool doFormat )
 	    return TRUE;
 	}
     }
-
-    bool ok = doFormat?f.rightOneItem():f.lazyRightOneItem();
-    if ( !ok ) {
-	if ( stack.getLast() ) {
-	    while ( stack.getLast() && stack.getLast()->it.atLast() )
-		stack.removeLast();
-	    Item* item = stack.getLast();
-	    if ( item ) {
-		++item->it;
-		QTextTableCell* cell = item->it.current();
-		item->fc = QRichTextFormatter( *cell->richText() );
-		item->fc.gotoParagraph( 0, cell->richText() );
-		ok = TRUE;
-	    } else
-		ok = doFormat?fc.rightOneItem():fc.lazyRightOneItem();
+    bool ok = doFormat?f->rightOneItem():f->lazyRightOneItem();
+    while ( !ok && !stack.isEmpty() ) {
+	Item* item = stack.getLast();
+	++item->it;
+	if ( item->it.current() ) {
+	    QTextTableCell* cell = item->it.current();
+	    item->fc = QRichTextFormatter( *cell->richText() );
+	    item->fc.gotoParagraph( 0, cell->richText() );
+	    ok = TRUE;
+	    break;
 	}
+	stack.removeLast();
+	f = stack.getLast()?&stack.getLast()->fc: &fc;
+	ok = doFormat?f->rightOneItem():f->lazyRightOneItem();
     }
-
     return ok;
 }
 
@@ -1111,19 +1108,22 @@ bool QRichTextIterator::goTo( const QPoint& pos )
 {
     dirty = FALSE;
     stack.clear();
-    bool within = fc.goTo( 0, pos.x(), pos.y() );
-    QTextCustomItem* c = fc.format()->customItem();
-    if ( c && c->isTable() && c->placeInline() ) {
+    int x = pos.x();
+    int y = pos.y();
+    bool within = fc.goTo( 0, x, y );
+    QRichTextFormatter* f = &fc;
+    QTextCustomItem* c = f->format()->customItem();
+    while ( c && c->isTable() && c->placeInline() ) {
 	QTextTable* table = (QTextTable*) c;
 	if ( table->cells.isEmpty() )
 	    return FALSE;
-	QRect geom( fc.lineGeometry() );
-	int nx = pos.x() - geom.x() - fc.currentx;
-	int ny = pos.y() - geom.y() - fc.base + table->height;
-	Item* item = new Item( fc, table->cells );
+	QRect geom( f->lineGeometry() );
+	x -= geom.x() + f->currentx;
+	y -= geom.y() + f->base - table->height;
+	Item* item = new Item( *f, table->cells );
 	stack.append( item );
 	while ( !item->it.atLast() ) {
-	    QPoint p(nx - table->outerborder, ny - table->outerborder );
+	    QPoint p( x - table->outerborder, y - table->outerborder );
 	    QRect r( item->it.current()->geometry() );
 	    if ( r.contains( p ) || ( p.x() <= r.right() && p.y() <= r.bottom() ) )
 		break;
@@ -1131,8 +1131,11 @@ bool QRichTextIterator::goTo( const QPoint& pos )
 	}
 	QTextTableCell* cell = item->it.current();
 	item->fc = QRichTextFormatter( *cell->richText() );
-	within = item->fc.goTo( 0, nx - table->outerborder - cell->geometry().x(),
-				ny - table->outerborder - cell->geometry().y() );
+	x -= table->outerborder + cell->geometry().x();
+	y -= table->outerborder + cell->geometry().y();
+	within = item->fc.goTo( 0, x, y );
+	f = &item->fc;
+	c = f->format()->customItem();
     }
     return within;
 }
@@ -1142,7 +1145,7 @@ void QRichTextIterator::goTo( const QtTriple& pos )
     QtTriple rawpos = pos; rawpos.c = 0;
     stack.clear();
     fc.gotoParagraph( 0, &doc );
-    while ( position() < rawpos && right( FALSE ) )
+    while ( position() < rawpos && right( FALSE ) ) 
 	;
     QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
     f.currentoffset = pos.c;
@@ -1572,10 +1575,10 @@ bool QRichTextFormatter::gotoNextLine( QPainter* p )
 	QTextParagraph* nid = paragraph->nextInDocument();
 	if ( nid ) {
 	    m -= nid->topMargin();
-	}
-	if ( m > 0 ) {
-	    flow->adjustFlow( y_, widthUsed, m ) ;
-	    y_ += m;
+	    if ( m > 0 ) {
+		flow->adjustFlow( y_, widthUsed, m ) ;
+		y_ += m;
+	    }
 	}
 	width = flow->width;
 	lmargin = flow->adjustLMargin( y_, static_lmargin );
@@ -2110,6 +2113,11 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     height = QMAX(rh, rasc+rdesc+1);
     base = rasc;
+    
+    if ( first == last ) { // empty line
+	height = 0;
+	base = 0;
+    }
 
     fill = 0;
     switch ( paragraph->alignment() ) {
@@ -2206,8 +2214,7 @@ void QTextFlow::initialize( int w)
 
 int QTextFlow::adjustLMargin( int yp, int margin )
 {
-    QTextCustomItem* item = 0;
-    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+    for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
 	if ( yp >= item->y && yp < item->y + item->height )
 	    margin = QMAX( margin, item->x + item->width + 4 );
     }
@@ -2216,8 +2223,7 @@ int QTextFlow::adjustLMargin( int yp, int margin )
 
 int QTextFlow::adjustRMargin( int yp, int margin )
 {
-    QTextCustomItem* item = 0;
-    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+    for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
 	if ( yp >= item->y && yp < item->y + item->height )
 	    margin = QMAX( margin, width - item->x - 4 );
     }
@@ -2259,12 +2265,11 @@ void QTextFlow::drawFloatingItems(QPainter* p,
 				   int ox, int oy, int cx, int cy, int cw, int ch,
 				   QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
-    QTextCustomItem* item = 0;
-    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+    for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
 	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
 
-    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+    for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
 	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
 }
@@ -2518,7 +2523,7 @@ void QTextTableCell::realize()
 	return;
 
     richtext->doLayout(painter(), QWIDGETSIZE_MAX );
-    maxw = richtext->flow()->widthUsed + 6;
+    maxw = richtext->flow()->widthUsed;
     richtext->doLayout(painter(), 0 );
     minw = richtext->flow()->widthUsed;
 }

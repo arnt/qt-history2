@@ -596,7 +596,6 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
     d->cursor = e->pos() + QPoint( contentsX(), contentsY() );
     QRichTextIterator it( richText() );
     bool within = it.goTo( d->cursor );
-    it.goTo( it.position() );
     bool sel = d->selection && it.position() >= d->selstart && it.position() < d->selend;
     if ( !sel || !within ) {
 	clearSelection();
@@ -721,7 +720,6 @@ void QTextView::selectAll()
 */
 void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 {
-
     if (e->state() & LeftButton ) {
 	if (d->dragSelection ) {
 	    doSelection( e->pos() );
