@@ -722,7 +722,7 @@ void Configure::generateConfigfiles()
     QFile::remove( outName );
     QFile outFile( outName );
 
-    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+    if( outFile.open( IO_WriteOnly ) ) {
 	QTextStream outStream( &outFile );
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
@@ -735,7 +735,7 @@ void Configure::generateConfigfiles()
 	    outStream << "// Copied from " << configName << endl;
 	    
 	    QFile inFile( qtDir + "/src/tools/" + configName );
-	    if( inFile.open( IO_ReadOnly | IO_Translate ) ) {
+	    if( inFile.open( IO_ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.writeBlock( buffer.data(), buffer.size() );
 		inFile.close();
