@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#26 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,7 +13,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#26 $")
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
@@ -25,6 +25,11 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#25 $")
 
   \ingroup tools
   \ingroup shared
+
+  QString inherits QByteArray, which is defined as QArray\<char\>.
+
+  Since QBitArray is a QArray, it uses explicit
+  \link shclass.html sharing\endlink with a reference count.
 
   A QBitArray is a special byte array that can access individual bits and
   perform bit-operations (AND, OR, XOR and NOT) on entire arrays or bits.
@@ -92,7 +97,7 @@ QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QBitArray::QBitArray &operator=( const QBitArray &a )
+  \fn QBitArray &QBitArray::QBitArray &operator=( const QBitArray &a )
   Assigns a shallow copy of \e a to this bit array and returns a reference
   to this array.
  ----------------------------------------------------------------------------*/

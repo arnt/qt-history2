@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#29 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#28 $")
   \brief The QGList class is an internal class for implementing Qt collection classes.
 
   QGList is a strictly internal class that acts as a base class for several
-  \link collectionclasses.html collection classes\endlink; QList, QQueue and
+  \link collection.html collection classes\endlink; QList, QQueue and
   QStack.
 
   QGList has some virtual functions that can be reimplemented to customize
