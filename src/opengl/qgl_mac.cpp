@@ -39,6 +39,20 @@
 #include <qapplication.h>
 
 /*****************************************************************************
+  QOpenGL debug facilities
+ *****************************************************************************/
+//#define DEBUG_WINDOW_UPDATE
+
+/*****************************************************************************
+  Externals
+ *****************************************************************************/
+extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+extern QPoint posInWindow(QWidget *); //qwidget_mac.cpp
+extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+extern void qt_mac_dispose_rgn(RgnHandle); //qregion_mac.cpp
+extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
+
+/*****************************************************************************
   QGLFormat UNIX/AGL-specific code
  *****************************************************************************/
 bool QGLFormat::hasOpenGL()
@@ -51,6 +65,7 @@ bool QGLFormat::hasOpenGLOverlays()
 {
     return true;
 }
+
 
 /*****************************************************************************
   QGLContext AGL-specific code
@@ -221,19 +236,34 @@ void QGLContext::makeCurrent()
 void QGLContext::updatePaintDevice()
 {
     if(d->paintDevice->devType() == QInternal::Widget) {
+        //get control information
         QWidget *w = (QWidget *)d->paintDevice;
-        aglSetDrawable((AGLContext)cx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
-        qDebug("setting on %s %p", w->className(), (WindowPtr)d->paintDevice->handle());
+        HIViewRef hiview = (HIViewRef)w->winId();
+        WindowPtr window = qt_mac_window_for(hiview);
+#ifdef DEBUG_WINDOW_UPDATE
+        qDebug("setting on %s %p/%p [%s]", w->metaObject()->className(), hiview, window, w->handle() ? "Inside" : "Outside");
+#endif
+
+        //update drawable
+        aglSetDrawable((AGLContext)cx, GetWindowPort(window));
 
         if(!w->isTopLevel()) {
-            if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
-                aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
-
-            QRegion clp = w->d_func()->clippedRegion();
+            //get drawable area
+            RgnHandle widgetRgn = qt_mac_get_rgn();
+            GetControlRegion(hiview, kControlStructureMetaPart, widgetRgn);
+            QRegion clp = qt_mac_convert_mac_region(widgetRgn);
+            QPoint p = posInWindow(w);
+            clp.translate(p.x(), p.y());
+            qt_mac_dispose_rgn(widgetRgn);
+#ifdef DEBUG_WINDOW_UPDATE
             QVector<QRect> rs = clp.rects();
             for(int i = 0; i < rs.count(); i++)
                 qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+#endif
 
+            //update the clip
+            if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
+                aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
             if(clp.isEmpty()) {
                 GLint offs[4] = { 0, 0, 0, 0 };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
@@ -241,9 +271,7 @@ void QGLContext::updatePaintDevice()
                     aglDisable((AGLContext)cx, AGL_CLIP_REGION);
             } else {
                 QPoint mp(posInWindow(w));
-                int window_height = w->topLevelWidget()->height();
-                window_height -= window_height - w->topLevelWidget()->d_func()->clippedRegion(false).boundingRect().height(); //mask?
-                GLint offs[4] = { mp.x(), window_height - (mp.y() + w->height()), w->width(), w->height() };
+                const GLint offs[4] = { mp.x(), w->topLevelWidget()->height() - (mp.y() + w->height()), w->width(), w->height() };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
                 aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
                 if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
@@ -464,7 +492,6 @@ void QGLWidget::cleanupColormaps()
 
 void QGLWidgetPrivate::updatePaintDevice()
 {
-    return;
     glcx->updatePaintDevice();
     if(olcx)
         olcx->updatePaintDevice();

@@ -43,9 +43,6 @@
 #define XCOORD_MAX 32767
 #define WRECT_MAX 8191
 
-extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
-extern QRegion qt_mac_convert_mac_region(HIShapeRef shape);
-
 /*****************************************************************************
   QWidget debug facilities
  *****************************************************************************/
@@ -85,6 +82,7 @@ extern bool qt_nograb();
 CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
+extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
 /*****************************************************************************
   QWidget utility functions
