@@ -776,6 +776,11 @@ struct DDSFormat {
 #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT  0x83F3
 #endif
 
+#ifndef GL_GENERATE_MIPMAP_SGIS
+#define GL_GENERATE_MIPMAP_SGIS       0x8191
+#define GL_GENERATE_MIPMAP_HINT_SGIS  0x8192
+#endif
+
 /*!
     \class QGLContext qgl.h
     \brief The QGLContext class encapsulates an OpenGL rendering context.
@@ -925,8 +930,11 @@ GLuint QGLContext::bindTexture(const QString &fname) const
 
     int key = scramble(fname);
     QGLTexture *texture = qt_txCache->find(key);
-    if (texture && texture->context == this)
- 	return texture->id;
+
+    if (texture && texture->context == this) {
+	glBindTexture(GL_TEXTURE_2D, texture->id);
+	return texture->id;
+    }
 
     QFile f(fname);
     f.open(QIODevice::ReadOnly | QIODevice::Raw);
@@ -1021,12 +1029,23 @@ GLuint QGLContext::bindTexture(const QString &fname) const
 */
 GLuint QGLContext::bindTexture(const QPixmap &pm) const
 {
+    static bool init_mipmaps = true;
+    static bool generate_mipmaps = false;
+    
+    if (init_mipmaps) {
+	QString ext((const char *) glGetString(GL_EXTENSIONS));
+	generate_mipmaps = ext.contains("GL_SGIS_generate_mipmap");
+	init_mipmaps = false;
+    }
+    
     if (!qt_txCache)
 	qt_txCache = new QGLTextureCache(QGL_TX_CACHE_MAX);
 
     QGLTexture *texture = qt_txCache->find(pm.serialNumber());
-    if (texture && texture->context == this)
+    if (texture && texture->context == this) {
+	glBindTexture(GL_TEXTURE_2D, texture->id);
 	return texture->id;
+    }
 
     // Scale the pixmap if needed. GL textures needs to have the
     // dimensions 2^n+2(border) x 2^m+2(border).
@@ -1042,8 +1061,12 @@ GLuint QGLContext::bindTexture(const QPixmap &pm) const
     GLuint tx_id;
     glGenTextures(1, &tx_id);
     glBindTexture(GL_TEXTURE_2D, tx_id);
-    glTexImage2D(GL_TEXTURE_2D, 0,
-		 GL_RGBA8,
+    if (generate_mipmaps) {
+	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
 		 tx.width(), tx.height(), 0, GL_RGBA,
 		 GL_UNSIGNED_BYTE, tx.bits());
 

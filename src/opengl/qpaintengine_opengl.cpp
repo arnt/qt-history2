@@ -682,7 +682,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
     dgl->context()->bindTexture(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushAttrib(GL_CURRENT_BIT);
