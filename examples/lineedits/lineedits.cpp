@@ -29,7 +29,7 @@
 LineEdits::LineEdits( QWidget *parent, const char *name )
     : QGroupBox( 0, Horizontal, "Line edits", parent, name )
 {
-    setMargin( 10 );
+    setInsideMargin( 10 );
 
     QVBoxLayout* box = new QVBoxLayout( layout() );
     
