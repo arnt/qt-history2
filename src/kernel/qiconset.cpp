@@ -64,8 +64,8 @@ struct QIconSetPrivate: public QShared
 	QPixmap * pm;
 	bool generated;
     };
-    Variant small;
-    Variant large;
+    Variant vsmall;
+    Variant vlarge;
     Variant smallActive;
     Variant largeActive;
     Variant smallDisabled;
@@ -333,8 +333,8 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
 {
     detach();
     if ( d ) {
-	d->small.clearGenerate();
-	d->large.clearGenerate();
+	d->vsmall.clearGenerate();
+	d->vlarge.clearGenerate();
 	d->smallDisabled.clearGenerate();
 	d->largeDisabled.clearGenerate();
 	d->smallActive.clearGenerate();
@@ -356,9 +356,9 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
 	    break;
 	case Normal:
 	default:
-	    if ( !d->large.pm )
-		d->large.pm = new QPixmap();
-	    *d->large.pm = pm;
+	    if ( !d->vlarge.pm )
+		d->vlarge.pm = new QPixmap();
+	    *d->vlarge.pm = pm;
 	    break;
 	}
     } else if ( size == Small  || (size == Automatic && pm.width() <= 22)) {
@@ -375,9 +375,9 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
 	    break;
 	case Normal:
 	default:
-	    if ( !d->small.pm )
-		d->small.pm = new QPixmap();
-	    *d->small.pm = pm;
+	    if ( !d->vsmall.pm )
+		d->vsmall.pm = new QPixmap();
+	    *d->vsmall.pm = pm;
 	    break;
 	}
 #if defined(CHECK_RANGE)
@@ -424,21 +424,21 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
     if ( s == Large ) {
 	switch( m ) {
 	case Normal:
-	    if ( !p->large.pm ) {
-		ASSERT( p->small.pm );
-		i = p->small.pm->convertToImage();
+	    if ( !p->vlarge.pm ) {
+		ASSERT( p->vsmall.pm );
+		i = p->vsmall.pm->convertToImage();
 		i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
-		p->large.pm = new QPixmap;
-		p->large.generated = TRUE;
-		p->large.pm->convertFromImage( i );
-		if ( !p->large.pm->mask() ) {
+		p->vlarge.pm = new QPixmap;
+		p->vlarge.generated = TRUE;
+		p->vlarge.pm->convertFromImage( i );
+		if ( !p->vlarge.pm->mask() ) {
 		    i = i.createHeuristicMask();
 		    QBitmap tmp;
 		    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
-		    p->large.pm->setMask( tmp );
+		    p->vlarge.pm->setMask( tmp );
 		}
 	    }
-	    pm = p->large.pm;
+	    pm = p->vlarge.pm;
 	    break;
 	case Active:
 	    if ( !p->largeActive.pm ) {
@@ -450,7 +450,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	case Disabled:
 	    if ( !p->largeDisabled.pm ) {
 		QBitmap tmp;
-		if ( p->large.generated && !p->smallDisabled.generated &&
+		if ( p->vlarge.generated && !p->smallDisabled.generated &&
 		     p->smallDisabled.pm && !p->smallDisabled.pm->isNull() ) {
 		    // if there's a hand-drawn disabled small image,
 		    // but the normal big one is generated, use the
@@ -472,8 +472,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    }
 		    p->largeDisabled.pm
-			= new QPixmap( p->large.pm->width()+1,
-				       p->large.pm->height()+1);
+			= new QPixmap( p->vlarge.pm->width()+1,
+				       p->vlarge.pm->height()+1);
 		    QColorGroup dis( QApplication::palette().disabled() );
 		    p->largeDisabled.pm->fill( dis.background() );
 		    QPainter painter( p->largeDisabled.pm );
@@ -501,21 +501,21 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
     } else {
 	switch( m ) {
 	case Normal:
-	    if ( !p->small.pm ) {
-		ASSERT( p->large.pm );
-		i = p->large.pm->convertToImage();
+	    if ( !p->vsmall.pm ) {
+		ASSERT( p->vlarge.pm );
+		i = p->vlarge.pm->convertToImage();
 		i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
-		p->small.pm = new QPixmap;
-		p->small.generated = TRUE;
-		p->small.pm->convertFromImage( i );
-		if ( !p->small.pm->mask() ) {
+		p->vsmall.pm = new QPixmap;
+		p->vsmall.generated = TRUE;
+		p->vsmall.pm->convertFromImage( i );
+		if ( !p->vsmall.pm->mask() ) {
 		    i = i.createHeuristicMask();
 		    QBitmap tmp;
 		    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
-		    p->small.pm->setMask( tmp );
+		    p->vsmall.pm->setMask( tmp );
 		}
 	    }
-	    pm = p->small.pm;
+	    pm = p->vsmall.pm;
 	    break;
 	case Active:
 	    if ( !p->smallActive.pm ) {
@@ -527,7 +527,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	case Disabled:
 	    if ( !p->smallDisabled.pm ) {
 		QBitmap tmp;
-		if ( p->small.generated && !p->largeDisabled.generated &&
+		if ( p->vsmall.generated && !p->largeDisabled.generated &&
 		     p->largeDisabled.pm && !p->largeDisabled.pm->isNull() ) {
 		    // if there's a hand-drawn disabled large image,
 		    // but the normal small one is generated, use the
@@ -549,8 +549,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    }
 		    p->smallDisabled.pm
-			= new QPixmap( p->small.pm->width()+1,
-				       p->small.pm->height()+1);
+			= new QPixmap( p->vsmall.pm->width()+1,
+				       p->vsmall.pm->height()+1);
 		    QColorGroup dis( QApplication::palette().disabled() );
 		    p->smallDisabled.pm->fill( dis.background() );
 		    QPainter painter( p->smallDisabled.pm );
@@ -608,14 +608,14 @@ bool QIconSet::isGenerated( Size s, Mode m ) const
 	else if ( m == Active )
 	    return d->largeActive.generated || !d->largeActive.pm;
 	else
-	    return d->large.generated || !d->large.pm;
+	    return d->vlarge.generated || !d->vlarge.pm;
     } else if ( s == Small ) {
 	if ( m == Disabled )
 	    return d->smallDisabled.generated || !d->smallDisabled.pm;
 	else if ( m == Active )
 	    return d->smallActive.generated || !d->smallActive.pm;
 	else
-	    return d->small.generated || !d->small.pm;
+	    return d->vsmall.generated || !d->vsmall.pm;
     }
     return FALSE;
 }
@@ -655,14 +655,14 @@ void QIconSet::detach()
 	return;
 
     QIconSetPrivate * p = new QIconSetPrivate;
-    p->small.pm = d->small.pm;
-    p->small.generated = d->small.generated;
+    p->vsmall.pm = d->vsmall.pm;
+    p->vsmall.generated = d->vsmall.generated;
     p->smallActive.pm = d->smallActive.pm;
     p->smallActive.generated = d->smallActive.generated;
     p->smallDisabled.pm = d->smallDisabled.pm;
     p->smallDisabled.generated = d->smallDisabled.generated;
-    p->large.pm = d->large.pm;
-    p->large.generated = d->large.generated;
+    p->vlarge.pm = d->vlarge.pm;
+    p->vlarge.generated = d->vlarge.generated;
     p->largeActive.pm = d->largeActive.pm;
     p->largeActive.generated = d->largeActive.generated;
     p->largeDisabled.pm = d->largeDisabled.pm;

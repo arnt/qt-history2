@@ -40,6 +40,9 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+#ifdef _WS_WIN_
+#include <windows.h>
+#endif
 #endif // QT_H
 
 
