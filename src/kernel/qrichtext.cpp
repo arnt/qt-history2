@@ -2800,6 +2800,14 @@ void QTextDocument::updateFontSizes( int base )
     fCollection->updateFontSizes( base );
 }
 
+void QTextDocument::updateFontAttributes( const QFont &f, const QFont &old )
+{
+    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
+	d->updateFontAttributes( f, old );
+    invalidate();
+    fCollection->updateFontAttributes( f, old );
+}
+
 void QTextStringChar::setFormat( QTextFormat *f )
 {
     if ( type == Regular ) {
@@ -4877,6 +4885,41 @@ void QTextFormatCollection::updateFontSizes( int base )
 	f->fn.setPointSize( f->stdPointSize );
 	styleSheet()->scaleFont( f->fn, f->logicalFontSize );
 	f->update();
+    }
+    f = defFormat;
+    f->stdPointSize = base;
+    f->fn.setPointSize( f->stdPointSize );
+    styleSheet()->scaleFont( f->fn, f->logicalFontSize );
+    f->update();
+}
+
+void QTextFormatCollection::updateFontAttributes( const QFont &f, const QFont &old )
+{
+    QDictIterator<QTextFormat> it( cKey );
+    QTextFormat *fm;
+    while ( ( fm = it.current() ) ) {
+	++it;
+	if ( fm->fn.family() == old.family() &&
+	     fm->fn.weight() == old.weight() &&
+	     fm->fn.italic() == old.italic() &&
+	     fm->fn.underline() == old.underline() ) {
+	    fm->fn.setFamily( f.family() );
+	    fm->fn.setWeight( f.weight() );
+	    fm->fn.setItalic( f.italic() );
+	    fm->fn.setUnderline( f.underline() );
+	    fm->update();
+	}
+    }
+    fm = defFormat;
+    if ( fm->fn.family() == old.family() &&
+	 fm->fn.weight() == old.weight() &&
+	 fm->fn.italic() == old.italic() &&
+	 fm->fn.underline() == old.underline() ) {
+	fm->fn.setFamily( f.family() );
+	fm->fn.setWeight( f.weight() );
+	fm->fn.setItalic( f.italic() );
+	fm->fn.setUnderline( f.underline() );
+	fm->update();
     }
 }
 

@@ -750,6 +750,7 @@ public:
     void setStyleSheet( QStyleSheet *s );
     void updateStyles();
     void updateFontSizes( int base );
+    void updateFontAttributes( const QFont &f, const QFont &old );
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
@@ -1422,6 +1423,7 @@ public:
     void setStyleSheet( QStyleSheet *s ) { sheet = s; }
     void updateStyles();
     void updateFontSizes( int base );
+    void updateFontAttributes( const QFont &f, const QFont &old );
 
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;

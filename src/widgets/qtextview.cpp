@@ -452,8 +452,8 @@ bool QTextView::event( QEvent *e )
     return QWidget::event( e );
 }
 
-/*! 
-    Processes the keyboard event, \a e. 
+/*!
+    Processes the keyboard event, \a e.
     By default key events are used to provide keyboard navigation.
  */
 
@@ -2024,9 +2024,9 @@ QString QTextView::text( int para ) const
     return doc->text( para );
 }
 
-/*!  
+/*!
     \overload
-    
+
     Changes the text of the view to the string \a text and the
   context to \a context. Any previous text is removed.
 
@@ -2697,7 +2697,7 @@ void QTextView::makeParagVisible( QTextParag *p )
 
 /*! Scrolls the text view to make the anchor called \a name visible, if
  it can be found in the document. If the anchor isn't found no scrolling
- will occur. An anchor is defined using the HTML anchor tag, e.g. 
+ will occur. An anchor is defined using the HTML anchor tag, e.g.
  \c{<a name="target">}.
 */
 
@@ -2864,7 +2864,7 @@ QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   standard VT100 terminal, where you might set wrapColumnOrWidth() to
   80.
 
- \sa setWordWrap() wordwrap() 
+ \sa setWordWrap() wordwrap()
 */
 
 /*!  Sets the word wrap mode.
@@ -3127,6 +3127,7 @@ QPopupMenu *QTextView::createPopupMenu()
 
 void QTextView::setFont( const QFont &f )
 {
+    QFont old( QScrollView::font() );
     QScrollView::setFont( f );
     doc->setMinimumWidth( -1, 0 );
 
@@ -3136,6 +3137,7 @@ void QTextView::setFont( const QFont &f )
     doc->setWidth( visibleWidth() + diff );
 
     doc->updateFontSizes( f.pointSize() );
+    doc->updateFontAttributes( f, old );
     lastFormatted = doc->firstParag();
     formatMore();
     repaintChanged();
@@ -3194,7 +3196,7 @@ void QTextView::zoomOut( int range )
     setFont( f );
 }
 
-/*! 
+/*!
     \internal
 
     As the engine of QTextView is optimized for large amounts text, it

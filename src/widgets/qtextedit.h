@@ -100,6 +100,7 @@ public slots:
     virtual void resetFormat();
     virtual void setUndoDepth( int d );
     virtual void removeSelectedText();
+    virtual void setCurrentFont( const QFont &f );
 
 signals:
     void undoAvailable( bool yes );
@@ -300,7 +301,7 @@ inline void QTextEdit::setColor( const QColor &c )
 
 inline void QTextEdit::setFont( const QFont &f )
 {
-    QTextView::setFontInternal( f );
+    QScrollView::setFont( f );
 }
 
 inline void QTextEdit::setAlignment( int a )
@@ -386,6 +387,11 @@ inline QTextCursor *QTextEdit::textCursor() const
 inline bool QTextEdit::getFormat( int parag, int index, QFont &font, QColor &color )
 {
     return QTextView::getFormat( parag, index, font, color );
+}
+
+inline void QTextEdit::setCurrentFont( const QFont &f )
+{
+    QTextView::setFontInternal( f );
 }
 
 #endif // QT_NO_TEXTEDIT

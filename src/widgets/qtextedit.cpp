@@ -349,7 +349,7 @@
   is any) to \a c.
 */
 
-/*! \fn void QTextEdit::setFont( const QFont &f )
+/*! \fn void QTextEdit::setCurrentFont( const QFont &f )
 
   Sets the font of the current format and the selected text (if there
   is any) to \a f.
