@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#3 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qsignal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#3 $";
 #endif
 
 
@@ -95,6 +95,7 @@ Destroys the accelerator object.
 
 QAccel::~QAccel()
 {
+    emit destroyed();
     delete aitems;
 }
 

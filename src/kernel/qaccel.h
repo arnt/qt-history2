@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#2 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#3 $
 **
 ** Definition of QAccel class
 **
@@ -50,6 +50,7 @@ public:
 
 signals:
     void	activated( int id );		// key activated
+    void	destroyed();			// accelerator destroyed
 
 protected:
     bool	event( QEvent * );
