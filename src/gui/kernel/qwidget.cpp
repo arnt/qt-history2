@@ -4681,10 +4681,8 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::LayoutDirectionChange:
-        if (layout()) {
-            layout()->activate();
-            d->layout->activate();
-        }
+        if (d->layout)
+            d->layout->invalidate();
         update();
         break;
 
