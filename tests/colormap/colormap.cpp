@@ -130,21 +130,6 @@ MyGl::MyGl( QWidget * parent, const char * name )
 void MyGl::initializeGL()
 {
     init_3d();
-
-    // Install a custom colormap
-    QColormap * p = new QColormap( this );
-    p->setRgb( 0, qRgb( 255, 255, 255 ) );
-    for ( int x = 1; x < p->size(); x++ )
-	p->setRgb( x, qRgb( 0, x, x ) );
-
-    QRgb c;
-    for ( int x = 0; x < p->size(); x++ ) {
-	c = p->rgb( x );
-	qDebug( "Index %d = R: %d, G: %d, B: %d", x, qRed(c), qBlue(c),
-	        qGreen(c) );
-
-    }
-    
 }
 
 void MyGl::resizeGL( int width, int height )
@@ -182,6 +167,13 @@ int main( int argc, char ** argv )
     QGLFormat::setDefaultFormat( f );
     MyGl gl( 0, "mygl" );
     app.setMainWidget( &gl );
+
+    // Install a custom colormap
+    QColormap * p = new QColormap( &gl );
+    p->setRgb( 0, qRgb( 255, 255, 255 ) );
+    for ( int x = 1; x < p->size(); x++ )
+	p->setRgb( x, qRgb( 0, x, x ) );
+
     gl.show();
     return app.exec();
 }
