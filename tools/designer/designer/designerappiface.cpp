@@ -35,6 +35,7 @@
 #include <qstatusbar.h>
 #include "pixmapcollection.h"
 #include "hierarchyview.h"
+#include <stdlib.h>
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
     : mainWindow( mw )
@@ -270,6 +271,17 @@ void DesignerProjectImpl::setCustomSetting( const QString &key, const QString &v
 
 QString DesignerProjectImpl::customSetting( const QString &key ) const
 {
+    if ( key == "QTSCRIPT_PACKAGES" ) {
+	QString s = getenv( "QTSCRIPT_PACKAGES" );
+#if defined(Q_OS_WIN32)
+	s.replace( QRegExp( ";", ":" ) );
+#endif
+	QString s2 = project->customSetting( "QUICK_PACKAGES" );
+	if ( !s.isEmpty() && !s2.isEmpty() )
+	    s += ":";
+	s += s2;
+	return s;
+    }
     return project->customSetting( key );
 }
 

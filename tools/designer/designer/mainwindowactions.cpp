@@ -1485,7 +1485,6 @@ void MainWindow::fileExport( QObject *o )
 	if ( !ff->saveAs( TRUE ) )
 	    return;
 	QString fn = ff->fileName();
-	QString dir = getenv( "QTSCRIPT_PACKAGES" );
 	currentProject->setModified( TRUE );
 	ff->setPackage( TRUE );
     }
@@ -2078,6 +2077,6 @@ void MainWindow::showStartDialog()
     }
     StartDialog *sd = new StartDialog( this, projectNames(), currentProject->projectName(), templatePath() );
     sd->setRecentlyFiles( recentlyFiles );
-    sd->setRecentlyProjects( recentlyProjects );        
+    sd->setRecentlyProjects( recentlyProjects );
     sd->exec();
 }

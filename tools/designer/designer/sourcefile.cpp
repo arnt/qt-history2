@@ -106,7 +106,7 @@ bool SourceFile::saveAs( bool ignoreModified )
     QString old = filename;
     QString initFn = pro->makeAbsolute( filename );
     if ( ignoreModified ) {
-	QString dir = getenv( "QTSCRIPT_PACKAGES" );
+	QString dir = QStringList::split( ':', project()->iFace()->customSetting( "QTSCRIPT_PACKAGES" ) ).first();
 	initFn = QFileInfo( initFn ).fileName();
 	initFn.prepend( dir + "/" );
     }

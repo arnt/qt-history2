@@ -35,6 +35,7 @@
 #include "propertyeditor.h"
 #include <qworkspace.h>
 #include <stdlib.h>
+#include "designerappiface.h"
 
 static QString make_func_pretty( const QString &s )
 {
@@ -256,7 +257,7 @@ bool FormFile::saveAs( bool ignoreModified )
 	f = pro->makeAbsolute( QString( formWindow()->name() ).lower() + ".ui" );
     bool saved = FALSE;
     if ( ignoreModified ) {
-	QString dir = getenv( "QTSCRIPT_PACKAGES" );
+	QString dir = QStringList::split( ':', pro->iFace()->customSetting( "QTSCRIPT_PACKAGES" ) ).first();
 	f = QFileInfo( f ).fileName();
 	f.prepend( dir + "/" );
     }
