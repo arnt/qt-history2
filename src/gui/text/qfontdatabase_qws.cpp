@@ -156,7 +156,7 @@ static void initializeDb()
 		else if ( style->bitmapScalable )
 		    FD_DEBUG("\t\t\t\tbitmap scalable" );
 		if ( style->pixelSizes ) {
-		    qDebug("\t\t\t\t%d pixel sizes",  style->count );
+		    FD_DEBUG("\t\t\t\t%d pixel sizes",  style->count );
 		    for ( int z = 0; z < style->count; ++z ) {
 			QtFontSize *size = style->pixelSizes + z;
 			FD_DEBUG( "\t\t\t\t  size %5d",
@@ -204,7 +204,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
     if (!pixelSize)
 	pixelSize = request.pixelSize;
     FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
-    qDebug("setting pixel size to %d", pixelSize);
+    FD_DEBUG("setting pixel size to %d", pixelSize);
 
     QFontEngine *fe = new QFontEngineFT( request, paintdevice, face );
     return fe;
