@@ -15,10 +15,11 @@
 #include <qpaintdevice.h>
 #include <qpaintdevicemetrics.h>
 #include <qpaintengine_mac.h>
+#include <qpainterpath.h>
 #include <qpixmapcache.h>
+#include <qprintengine_mac.h>
 #include <qprinter.h>
 #include <qstack.h>
-#include <private/qt_mac_p.h>
 #include <qtextcodec.h>
 #include <qtextcodec.h>
 #include <qwidget.h>
@@ -26,13 +27,11 @@
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_mac_p.h>
-#include <qprintengine_mac.h>
 #include <private/qpainter_p.h>
-#include <private/qpixmap_p.h>
-#include <private/qwidget_p.h>
-
-#include <qpainterpath.h>
 #include <private/qpainterpath_p.h>
+#include <private/qpixmap_p.h>
+#include <private/qt_mac_p.h>
+#include <private/qwidget_p.h>
 
 #include <string.h>
 
