@@ -1,4 +1,3 @@
-REQUIRES        = sql
 TEMPLATE	= lib
 CONFIG+= qt warn_on release plugin
 
@@ -8,11 +7,20 @@ SOURCES		= main.cpp \
 		  qsql_odbc.cpp
 
 unix:OBJECTS_DIR	= .obj
-win32:OBJECTS_DIR	= obj
-win32:LIBS	+= odbc32.lib
-isEmpty(LIBS) {
-	message( "No ODBC libraries specified for linking.  See the Qt SQL Module documentation for information on building SQL driver plugins." )
+
+win32 {
+	OBJECTS_DIR	= obj
+	LIBS	+= odbc32.lib
 }
+
+!isEmpty(LIBS) {
+	CONFIG += odbc_libs_and_headers
+}
+!isEmpty(INCLUDEPATH) {
+	CONFIG += odbc_libs_and_headers
+}
+
+REQUIRES	= sql odbc_libs_and_headers
 
 TARGET		= qsqlodbc
 DESTDIR		= ../../../../plugins/sqldrivers

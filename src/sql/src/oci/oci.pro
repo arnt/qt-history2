@@ -1,16 +1,23 @@
-REQUIRES	= sql
 TEMPLATE	= lib
 CONFIG+= qt warn_on release plugin
 HEADERS		= qsql_oci.h
 SOURCES		= main.cpp \
 		  qsql_oci.cpp 
 
-win32:OBJECTS_DIR	= obj
-unix:OBJECTS_DIR	= .obj
-win32:LIBS	+= oci.lib
-isEmpty(LIBS) {
-	message( "No OCI libraries specified for linking.  See the Qt SQL Module documentation for information on building SQL driver plugins." )
+win32 {
+	OBJECTS_DIR	= obj
+	LIBS	+= oci.lib
 }
+unix:OBJECTS_DIR	= .obj
+
+!isEmpty(LIBS) {
+	CONFIG += oci_libs_and_headers
+}
+!isEmpty(INCLUDEPATH) {
+	CONFIG += oci_libs_and_headers
+}
+
+REQUIRES	= sql oci_libs_and_headers
 
 DESTDIR		= ../../../../plugins/sqldrivers
 TARGET		= qsqloci
