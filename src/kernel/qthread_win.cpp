@@ -32,7 +32,7 @@
 #include "qt_windows.h"
 
 #include "qthread.h"
-#include "qthread_p.h"
+#include <private/qthreadinstance_p.h>
 #include <private/qmutexpool_p.h>
 #include "qthreadstorage.h"
 
@@ -71,23 +71,12 @@ static void create_tls()
 QThreadInstance *QThreadInstance::current()
 {
     QThreadInstance *ret = (QThreadInstance *) TlsGetValue( qt_tls_index );
-    if ( ret ) return ret;
-
-    qWarning( "QThread: WARNING:\n"
-	      "         Creating QThreadInstance for unknown thread %lx\n"
-	      "         The QThreadInstance and local data stored with\n"
-	      "         QThreadStorage might be leaked",
-	      QThread::currentThread() );
-
-    ret = new QThreadInstance;
-    ret->args[1] = ret;
-    ret->running = TRUE;
-    ret->orphan = TRUE;
-    ret->handle = GetCurrentThread();
-    ret->id = GetCurrentThreadId();
-
-    TlsSetValue( qt_tls_index, ret );
-
+    if ( ! ret ) {
+	qFatal( "QThread: ERROR: unknown thread %lx\n"
+		"QThreadStorage can only be used with QThreads.",
+		QThread::currentThread() );
+	// not reached
+    }
     return ret;
 }
 
