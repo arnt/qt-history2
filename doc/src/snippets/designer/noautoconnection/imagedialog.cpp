@@ -8,9 +8,7 @@ ImageDialog::ImageDialog(QWidget *parent)
     setupUi(this);
     okButton->setAutoDefault(false);
     cancelButton->setAutoDefault(false);
-/*
-    ...
-*/
+
     colorDepthCombo->insertItem(tr("2 colors (1 bit per pixel)"));
     colorDepthCombo->insertItem(tr("4 colors (2 bits per pixel)"));
     colorDepthCombo->insertItem(tr("16 colors (4 bits per pixel)"));
