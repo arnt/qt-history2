@@ -439,6 +439,7 @@ public:
 private:
     int y_;
     QTextCharFormat* formatinuse;
+    int alignment;
 
 };
 

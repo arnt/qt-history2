@@ -558,6 +558,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     to.selstart = QtTriple();
     to.selstart = to.selend;
     richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
+    
     p->setClipRegion(r);
 
     if ( paper().pixmap() )
@@ -567,6 +568,18 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	p->fillRect(0, 0, visibleWidth(), visibleHeight(), paper() );
 
     p->setClipping( FALSE );
+
+#if 0
+    int pagesize = richText().flow()->pagesize;
+    if ( pagesize > 0 ) {
+	p->setPen( DotLine );
+	for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
+	    p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
+			 pagesize - oy );
+	}
+    }
+#endif    
+    
 }
 
 /*!

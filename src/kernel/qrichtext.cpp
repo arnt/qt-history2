@@ -45,6 +45,7 @@ public:
     QTextTable(const QMap<QString, QString> &attr);
     ~QTextTable();
     void realize( QPainter* );
+    void verticalBreak( int  y, QTextFlow* flow );
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
@@ -227,7 +228,7 @@ QRichText::QRichText( const QString &doc, const QFont& font,
 
     //set up base style
 
-    base->setDisplayMode(QStyleSheetItem::DisplayInline);
+    base->setDisplayMode(QStyleSheetItem::DisplayBlock);
     base->setFontFamily( font.family() );
     base->setFontItalic( font.italic() );
     base->setFontUnderline( font.underline() );
@@ -259,6 +260,7 @@ QRichText::QRichText( const QMap<QString, QString> &attr, const QString &doc, in
     // for access during parsing only
     sheet_ = sheet? sheet : (QStyleSheet*)QStyleSheet::defaultSheet();
 
+    base->setDisplayMode(QStyleSheetItem::DisplayBlock);
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
     keep_going = FALSE;
@@ -926,6 +928,7 @@ QString QRichText::anchorAt( const QPoint& pos ) const
     return it.format()->anchorHref();
 }
 
+
 /*
   Returns the paragraph right before \a y. Fast through caching.
  */
@@ -1461,7 +1464,9 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     static_lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft );
     static_rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight );
     static_labelmargin = paragraph->totalLabelMargin();
-
+    
+    alignment = paragraph->alignment();
+    
     width = flow->width;
     lmargin = flow->adjustLMargin( y_, static_lmargin );
     lmargin += static_labelmargin;
@@ -1968,6 +1973,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     QList<QTextCustomItem> floatingItems;
 
+    bool isTableRow = FALSE;
     while ( !pastEnd() ) {
 
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
@@ -1981,17 +1987,20 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 		leading = fm.leading();
 	}
 
-	QTextRichString::Item* item = &paragraph->text.items[current];
-
 	QChar lastc;
-
+	QTextRichString::Item* item = &paragraph->text.items[current];
 	QTextCustomItem* custom = item->format->customItem();
-	if ( !custom && !item->c.isEmpty() ) {
+	
+	if ( custom ) {
+	    if (!custom->placeInline() ) 
+		floatingItems.append( custom );
+	    else if ( current == first && custom->isTable() ) {
+		isTableRow = TRUE;
+		( (QTextTable*)custom)->verticalBreak( y_, flow );
+		currentasc = custom->height;
+	    }
+	} else if ( !item->c.isEmpty() ) {
 	    lastc = item->c[ (int) item->c.length()-1];
-	}
-
-	if ( custom && !custom->placeInline() ) {
-	    floatingItems.append( custom );
 	}
 
 	bool custombreak = custom && custom->ownLine() && custom->placeInline();
@@ -2046,7 +2055,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     base = rasc;
 
     fill = 0;
-    switch ( paragraph->alignment() ) {
+    switch ( alignment ) {
     case Qt::AlignLeft:
 	fill = 0;
 	break;
@@ -2065,13 +2074,15 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     if ( widthUsed > width )
 	fill = 0; // fall back to left alignment if there isn't sufficient space
 
-    flow->adjustFlow( y_, widthUsed, height ) ;
+    flow->adjustFlow( y_, widthUsed, height, !isTableRow ) ;
 
     int fl = lmargin;
     int fr = width - rmargin;
     for ( QTextCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
 	item->y = y_ + height + 1;
-	flow->adjustFlow( item->y, item->width, item->height );
+	if ( item->isTable() )
+	    ( (QTextTable*)item)->verticalBreak( item->y, flow );
+	flow->adjustFlow( item->y, item->width, item->height, !item->isTable() );
 	if ( item->placement() == QTextCustomItem::PlaceRight ) {
 	    fr -= item->width;
 	    item->x = fr;
@@ -2262,13 +2273,36 @@ void QTextTable::realize( QPainter* p)
     width = 0;
 }
 
+void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
+{
+    if ( flow->pagesize <= 0 )
+	return;
+    int shift = 0;
+    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	QRect r = cell->geometry();
+ 	r.moveBy(0, shift );
+	cell->setGeometry( r );
+	if ( cell->column() == 0 ) {
+	    int y = yt + outerborder + cell->geometry().y();
+	    int oldy = y;
+	    flow->adjustFlow( y, width, cell->geometry().height() + 2*cellspacing );
+	    shift += y - oldy;
+	    r = cell->geometry();
+ 	    r.moveBy(0, y - oldy );
+	    cell->setGeometry( r );
+	}
+    }
+    height += shift;
+}
+
 void QTextTable::draw(QPainter* p, int x, int y,
 		       int ox, int oy, int cx, int cy, int cw, int ch,
 		       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
     painter = p;
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	if ( y + cell->geometry().top() < cy+ch && y + 2*outerborder + cell->geometry().bottom() > cy ) {
+	if ( y + outerborder + cell->geometry().top() - cellspacing < cy+ch 
+	     && y + outerborder + 2*cellspacing + cell->geometry().bottom() >= cy ) {
 	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
 	    if ( border ) {
 		const int w = 1;
