@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qglobal.h>
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 #include <qobject.h>
 #include "qtextcursor.h"
 #include "qtextformat.h"

@@ -1583,7 +1583,10 @@ QString& QString::replace(QChar before, QChar after, CaseSensitivity cs)
     Returns true if string \a other is equal to this string;
     otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 bool QString::operator==(const QString &other) const
 {
@@ -1636,7 +1639,10 @@ bool QString::operator==(const QLatin1String &other) const
     Returns true if this string is lexically less than string \a
     other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 bool QString::operator<(const QString &other) const
 {
@@ -1689,7 +1695,10 @@ bool QString::operator<(const QLatin1String &other) const
     Returns true if this string is lexically less than or equal to
     string \a other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QString::operator<=(const QLatin1String &other) const
@@ -1726,7 +1735,10 @@ bool QString::operator<(const QLatin1String &other) const
     Returns true if this string is lexically greater than string \a
     other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*!
@@ -1775,7 +1787,10 @@ bool QString::operator>(const QLatin1String &other) const
     Returns true if this string is lexically greater than or equal to
     string \a other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QString::operator>=(const QLatin1String &other) const
@@ -1812,7 +1827,10 @@ bool QString::operator>(const QLatin1String &other) const
     Returns true if this string is not equal to string \a other;
     otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QString::operator!=(const QLatin1String &other) const
@@ -3685,7 +3703,11 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns true if \a s1 is lexically less than \a s2; otherwise returns false.
-    The comparison is case sensitive.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    QString::localeAwareCompare().
 
     For \a s1 != 0, equivalent to compare(\a s1, \a s2) \< 0.
 */
@@ -3698,7 +3720,11 @@ QString& QString::fill(QChar ch, int size)
 
     Returns true if \a s1 is lexically less than or equal to \a s2;
     otherwise returns false.
-    The comparison is case sensitive.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    QString::localeAwareCompare().
 
     For \a s1 != 0, this is equivalent to compare(\a s1, \a s2) \<= 0.
 */
@@ -3711,7 +3737,11 @@ QString& QString::fill(QChar ch, int size)
 
     Returns true if \a s1 is lexically greater than \a s2; otherwise
     returns false.
-    The comparison is case sensitive.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    QString::localeAwareCompare().
 
     Equivalent to compare(\a s1, \a s2) \> 0.
 */
@@ -3724,7 +3754,11 @@ QString& QString::fill(QChar ch, int size)
 
     Returns true if \a s1 is lexically greater than or equal to \a s2;
     otherwise returns false.
-    The comparison is case sensitive.
+
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    QString::localeAwareCompare().
 
     For \a s1 != 0, this is equivalent to compare(\a s1, \a s2) \>= 0.
 */
@@ -3798,7 +3832,7 @@ QString& QString::fill(QChar ch, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-visible strings with
-    QString::localeAwareCompare().
+    localeAwareCompare().
 
     \code
         int x = QString::compare("auto", "auto");   // x == 0
@@ -3806,7 +3840,7 @@ QString& QString::fill(QChar ch, int size)
         int z = QString::compare("car", "auto");    // z > 0
     \endcode
 
-    \sa operator==(), operator<(), operator>()
+    \sa localeAwareCompare(), operator==(), operator<(), operator>()
 */
 
 /*!
@@ -3831,7 +3865,7 @@ int QString::compare(const QString &other) const
     platform-dependent manner. Use this function to present sorted
     lists of strings to the user.
 
-    \sa QString::compare() QTextCodec::locale()
+    \sa compare(), QTextCodec::locale()
 */
 
 /*!
@@ -5968,7 +6002,10 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns true if this string is equal to string \a other;
     otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator!=(const QString &other) const
@@ -5976,7 +6013,10 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns true if this string is not equal to string \a other;
     otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator>(const QString &other) const
@@ -5984,7 +6024,10 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns true if this string is lexically greater than string \a
     other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator<(const QString &other) const
@@ -5992,7 +6035,10 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns true if this string is lexically less than string \a
     other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator>=(const QString &other) const
@@ -6000,7 +6046,10 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns true if this string is lexically greater than or equal
     to string \a other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator<=(const QString &other) const
@@ -6008,7 +6057,10 @@ QConstString::QConstString(const QChar *unicode, int length)
     Returns true if this string is lexically less than or equal
     to string \a other; otherwise returns false.
 
-    The comparison is case sensitive.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. Consider sorting user-interface strings with
+    localeAwareCompare().
 */
 
 #ifndef QT_NO_DATASTREAM

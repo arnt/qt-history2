@@ -1,5 +1,5 @@
-#ifndef QSHAREDDATAPOINTER_H
-#define QSHAREDDATAPOINTER_H
+#ifndef QSHAREDDATA_H
+#define QSHAREDDATA_H
 
 #ifndef QT_H
 #include <qatomic.h>
@@ -8,17 +8,17 @@
 
 template <class T> class QSharedDataPointer;
 
-class Q_CORE_EXPORT QSharedObject
+class Q_CORE_EXPORT QSharedData
 {
 public:
     QAtomic ref;
 
-    QSharedObject() { ref = 0; }
-    QSharedObject(const QSharedObject &) { ref = 0; }
+    QSharedData() { ref = 0; }
+    QSharedData(const QSharedData &) { ref = 0; }
 
 private:
     // using the assignment operator would lead to corruption in the refcounting
-    QSharedObject &operator=(const QSharedObject &);
+    QSharedData &operator=(const QSharedData &);
 };
 
 template <class T> class QExplicitlySharedDataPointer

@@ -2,7 +2,7 @@
 #define QTEXTDOCUMENT_P_H
 
 #include <private/qobject_p.h>
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 
 typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
 

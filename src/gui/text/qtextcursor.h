@@ -4,7 +4,7 @@
 #include <qstring.h>
 
 #include <qtextlayout.h>
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 #include "qtextlist.h"
 
 class QTextDocument;

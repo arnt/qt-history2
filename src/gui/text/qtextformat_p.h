@@ -50,7 +50,7 @@ private:
 };
 
 
-class QTextFormatPrivate : public QSharedObject
+class QTextFormatPrivate : public QSharedData
 {
 public:
     typedef QMap<int, QTextFormatProperty> PropertyMap;

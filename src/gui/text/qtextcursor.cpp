@@ -28,7 +28,7 @@ QTextCursorPrivate::QTextCursorPrivate(const QTextPieceTable *table)
 }
 
 QTextCursorPrivate::QTextCursorPrivate(const QTextCursorPrivate &rhs)
-    : QSharedObject(rhs)
+    : QSharedData(rhs)
 {
     position = rhs.position;
     anchor = rhs.anchor;

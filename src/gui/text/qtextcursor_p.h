@@ -8,10 +8,10 @@
 #include <private/qtextformat_p.h>
 #endif // QT_H
 
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
 
-class QTextCursorPrivate : public QSharedObject
+class QTextCursorPrivate : public QSharedData
 {
 public:
     QTextCursorPrivate(const QTextPieceTable *table);

@@ -1,4 +1,4 @@
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 
 /*! \class QSharedObject
     \brief

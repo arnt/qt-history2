@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qcolor.h>
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 #include <qobject.h>
 #endif // QT_H
 
