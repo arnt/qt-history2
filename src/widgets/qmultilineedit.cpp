@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#32 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -429,16 +429,20 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	int cursorPos = QMIN( (int)s.length(), cursorX );
 	int cXPos   = textWidthWithTabs( fm, s, cursorPos, mlData->align );
 	cXPos += mlData->lr_marg;
-	if ( cXPos ) cXPos--;
+	//if ( cXPos ) cXPos--;
 	int cYPos   = 0;
 	if ( hasFocus() || mlData->dnd_forcecursor ) {
 	    p.setPen( g.text() );
+/* styled?
 	    p.drawLine( cXPos - 2, cYPos,
 			cXPos + 2, cYPos );
+*/
 	    p.drawLine( cXPos    , cYPos,
 			cXPos    , cYPos + fm.height() - 2);
+/* styled?
 	    p.drawLine( cXPos - 2, cYPos + fm.height() - 2,
 			cXPos + 2, cYPos + fm.height() - 2);
+*/
 
 	    // TODO: set it other times, eg. when scrollbar moves view
 	    QWMatrix wm = painter->worldMatrix();
