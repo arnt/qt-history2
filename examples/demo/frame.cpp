@@ -31,10 +31,8 @@ static QTranslator *qt_translator = 0;
 
 class CategoryItem : public QListBoxItem {
 public:
-    CategoryItem( QListBox *parent, QWidget *widget,
-		  const QPixmap &p, const QString &name, int id );
-    CategoryItem(QListBox *parent, QWidget *widget,
-		  const QPixmap &p1, const QPixmap &p2, const QString &name, int id );
+    CategoryItem( QListBox *parent, QWidget *widget, const QPixmap &p1,
+		  const QPixmap &p2, const QString &name, int id );
     virtual QString key( int, bool ) const;
     virtual int height( const QListBox * ) const;
     virtual int width( const QListBox * )  const;
@@ -51,29 +49,14 @@ private:
     QPixmap pm_Sel;
 };
 
-CategoryItem::CategoryItem( QListBox *parent, QWidget *widget,
-			    const QPixmap &p, const QString &name, int id )
-    : QListBoxItem( parent ),
-      _id( id ),
-      _widget( widget ),
-      pm_Unsel( p ),
-      pm_Sel( p )
-{
-    setText( name );
-}
-
-CategoryItem::CategoryItem( QListBox * parent, QWidget *widget, const QPixmap &p1, const QPixmap &p2,
+CategoryItem::CategoryItem( QListBox * parent, QWidget *widget,
+			    const QPixmap &p1, const QPixmap &p2,
 			    const QString &name, int id )
-    : QListBoxItem( parent ),
-      _id( id),
-      _widget( widget ),
-      pm_Unsel( p1 ),
+    : QListBoxItem( parent ), _id( id ), _widget( widget ), pm_Unsel( p1 ),
       pm_Sel( p2 )
 {
     setText( name );
 }
-
-
 
 QString CategoryItem::key( int, bool ) const
 {
@@ -149,11 +132,12 @@ Frame::Frame( QWidget *parent, const char *name )
     mainMenu->insertItem( tr( "St&yle" ), styleMenu );
 
     // category chooser
-    QSplitter *splitter = new QSplitter( this );
+    splitter = new QSplitter( this );
     categories = new QListBox( splitter );
     QFont f = categories->font();
     f.setWeight( QFont::Bold );
     categories->setFont( f );
+    splitter->setResizeMode( categories, QSplitter::KeepSize );
 
     connect( categories, SIGNAL( clicked( QListBoxItem *) ),
                    	     SLOT( clickedCategory( QListBoxItem *) ) );
@@ -164,23 +148,10 @@ Frame::Frame( QWidget *parent, const char *name )
     setCentralWidget( splitter );
 }
 
-void Frame::addCategory( QWidget *w, const QPixmap &p, const QString &n )
-{
-    int i = categories->count();
-    stack->addWidget( w, i );
-    CategoryItem *item = new CategoryItem( categories, w, p, n, i );
-    if ( !stack->visibleWidget() ) {
-	categories->setCurrentItem( item );
-	clickedCategory( item );
-    }
-    if ( i < 3 && categories->height() < 3 * item->height( categories ) )
-	categories->setMinimumHeight( 3 * item->height( categories ) );
-}
-
 void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n )
 {
     int i = categories->count();
-    if(w)
+    if ( w )
 	stack->addWidget( w, i );
     CategoryItem *item = new CategoryItem( categories, w, p1, p2, n, i );
     if ( !stack->visibleWidget() ) {
@@ -189,6 +160,10 @@ void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const
     }
     if ( i < 3 && categories->height() < 3 * item->height( categories ) )
 	categories->setMinimumHeight( 3 * item->height( categories ) );
+
+    QValueList<int> sizes;
+    sizes << ( categories->contentsWidth() + 2 * categories->frameWidth() );
+    splitter->setSizes( sizes );
 }
 
 void Frame::setStyle( const QString& style )
@@ -230,8 +205,7 @@ void Frame::updateTranslators()
     translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
 }
 
-void
-Frame::setCurrentCategory( QWidget *w )
+void Frame::setCurrentCategory( QWidget *w )
 {
     for(int i = 0; i < (int)categories->count(); i++) {
 	QListBoxItem *item = categories->item(i);
@@ -243,9 +217,7 @@ Frame::setCurrentCategory( QWidget *w )
     }
 }
 
-
-void
-Frame::setCurrentCategory( const QString &s )
+void Frame::setCurrentCategory( const QString &s )
 {
     if(QListBoxItem *i = categories->findItem(s)) {
 	categories->setCurrentItem( i );

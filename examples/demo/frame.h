@@ -10,9 +10,10 @@
 
 #include <qmainwindow.h>
 
-class QStyle;
 class QListBox;
 class QListBoxItem;
+class QSplitter;
+class QStyle;
 class QWidgetStack;
 
 class Frame : public QMainWindow {
@@ -20,7 +21,6 @@ class Frame : public QMainWindow {
 public:
     Frame( QWidget *parent=0, const char *name=0 );
 
-    void addCategory( QWidget *w, const QPixmap &p, const QString &n );
     void addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n );
     void setCurrentCategory( QWidget * );
     void setCurrentCategory( const QString & );
@@ -39,6 +39,7 @@ private:
     QWidget *createCategory( const QString& );
 
     QString title;
+    QSplitter *splitter;
     QListBox *categories;
     QWidgetStack *stack;
 };
