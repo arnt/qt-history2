@@ -5692,7 +5692,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		// we can not  (yet) do tabs
 		ww = c->format()->width(' ' );
 	    } else {
-		int tabx = lastWasHardBreak ? 0 : x;
+		int tabx = lastWasHardBreak ? (left + ( doc ? parag->firstLineMargin() : 0 )) : x;
 		int nx = parag->nextTab( i, tabx - left ) + left;
 		if ( nx < tabx ) // strrrange...
 		    ww = 0;
