@@ -848,7 +848,7 @@ bool QAxBase::setControl( const QString &c )
     }
     d->tryCache = TRUE;
     if ( !initialize( &d->ptr ) )
-    d->initialized = TRUE;
+	d->initialized = TRUE;
     if ( isNull() ) {
 #ifndef QT_NO_DEBUG
 	qWarning( "QAxBase::setControl: requested control %s could not be instantiated.", c.latin1() );
@@ -1121,7 +1121,7 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
     authInfo.dwAuthzSvc = RPC_C_AUTHZ_NONE;
     authInfo.pwszServerPrincName = 0;
     authInfo.dwAuthnLevel = RPC_C_AUTHN_LEVEL_DEFAULT;
-    authInfo.dwImpersonationLevel = RPC_C_IMP_LEVEL_IDENTIFY;
+    authInfo.dwImpersonationLevel = RPC_C_IMP_LEVEL_IMPERSONATE;
     authInfo.pAuthIdentityData = &authIdentity;
     authInfo.dwCapabilities = 0;
 
@@ -1137,7 +1137,7 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
 	if (!key.isEmpty())
 	    initializeLicensedHelper(factory, key, ptr);
 	else
-	    factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
+	    res = factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
 	factory->Release();
     }
 #ifndef QT_NO_DEBUG
