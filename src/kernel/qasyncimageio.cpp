@@ -876,6 +876,13 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		int width=LM(hold[5], hold[6]);
 		int height=LM(hold[7], hold[8]);
 
+		// disbelieve ridiculous logical screen sizes,
+		// unless the image frames are also large.
+		if ( swidth/10 > QMAX(width,200) )
+		    swidth = -1;
+		if ( sheight/10 > QMAX(height,200) )
+		    sheight = -1;
+
 		if ( swidth <= 0 )
 		    swidth = newleft + width;
 		if ( sheight <= 0 )
