@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/imageio/src/Makefile#10 $
+# $Id: //depot/qt/main/extensions/imageio/src/Makefile#11 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = imageio
+PROJECT = qimageio
 
 !INCLUDE $(QTDIR)\Makefile.inc
