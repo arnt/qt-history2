@@ -17,6 +17,7 @@
 #include <olectl.h>
 
 #include "types.h"
+#include <qcursor.h>
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
