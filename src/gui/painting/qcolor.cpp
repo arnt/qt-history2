@@ -137,13 +137,6 @@
     \link http://www.inforamp.net/~poynton/Poynton-color.html Color FAQ\endlink
 */
 
-#if defined(Q_WS_WIN)
-#define COLOR0_PIX 0x00ffffff
-#define COLOR1_PIX 0
-#else
-#define COLOR0_PIX 0
-#define COLOR1_PIX 1
-#endif
 
 /*****************************************************************************
   QColor member functions
@@ -193,7 +186,7 @@ QColor::QColor(Qt::GlobalColor color)
 
     static const QRgb global_colors[] = {
 #if defined(Q_WS_QWS)
-        QRGBA( 0,   0,   0, 0),  // Qt::color0
+        QRGBA(  0,   0,   0, 255), // Qt::color0
         QRGBA(255, 255, 255, 255), // Qt::color1
 #elif defined( Q_WS_X11 )
         // HACK: we need a way to recognize Qt::color0 and Qt::color1 uniquely, so
