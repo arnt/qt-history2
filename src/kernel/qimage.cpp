@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#188 $
 **
 ** Implementation of QImage and QImageIO classes
 **
