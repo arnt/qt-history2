@@ -3371,7 +3371,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
                 --l;
                 if (!l)
                     break;
-                if (*cin != '&')
+                if (*cin != '&' && !hidemnmemonic)
                     underlinePositions[numUnderlines++] = cout - text.unicode();
             }
             *cout = *cin;
