@@ -205,10 +205,9 @@
 
     There are two categories that are specific to Qt:
 
-    \value NoCategory  used when Qt is dazed and confused and cannot
-    make sense of anything.
+    \value NoCategory  Qt cannot find an appropriate category for the character.
 
-    \value Punctuation_Dask  old typo alias for Punctuation_Dash
+    \value Punctuation_Dask  An alias for Punctuation_Dash
 
 */
 
