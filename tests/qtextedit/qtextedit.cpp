@@ -89,6 +89,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     db = bufferPixmap( s );
     painter.begin( db );
     while ( parag ) {
+	lastFormatted = parag;
 	if ( !parag->isValid() )
 	    parag->format();
 	
@@ -613,6 +614,8 @@ void QTextEdit::ensureCursorVisible()
 
 void QTextEdit::drawCursor( bool visible )
 {
+    if ( !cursor->parag()->isValid() )
+	return;
     QPainter p, painter;
     p.begin( viewport() );
     p.translate( -contentsX(), -contentsY() );
@@ -1115,6 +1118,7 @@ void QTextEdit::setParagType( int t )
 	    start = start->next();
 	}
 	repaintChanged();
+	formatMore();
     }
     drawCursor( TRUE );
 }
