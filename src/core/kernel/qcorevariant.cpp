@@ -1358,7 +1358,7 @@ static const char* const type_map[ntypes] =
 */
 const char *QCoreVariant::typeToName(Type typ)
 {
-    if (typ >= ntypes)
+    if ((int)typ >= ntypes)
         return 0;
     return type_map[typ];
 }
