@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#25 $
 **
 ** Localization database support.
 **
@@ -118,7 +118,7 @@ public:
 
     struct Offset {
 	Offset() { h=0; o=0; }
-	Offset( QTranslatorPrivate::Message * m, int offset )
+	Offset( Message * m, int offset )
 	{ h = m->hash(); o = offset; } // ### qChecksum
 
 	bool operator<(const Offset&k) const { return ( h != k.h )
