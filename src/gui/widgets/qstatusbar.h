@@ -21,17 +21,17 @@
 
 #ifndef QT_NO_STATUSBAR
 
-
 class QStatusBarPrivate;
-
 
 class Q_GUI_EXPORT QStatusBar: public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QStatusBar);
     Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
 
 public:
-    QStatusBar(QWidget* parent=0, const char* name=0);
+    QStatusBar(QWidget* parent, const char* name);
+    QStatusBar(QWidget* parent=0);
     virtual ~QStatusBar();
 
     virtual void addWidget(QWidget *, int stretch = 0, bool = false);
@@ -57,8 +57,6 @@ protected:
     bool event(QEvent *);
 
 private:
-    QStatusBarPrivate * d;
-private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QStatusBar(const QStatusBar &);
     QStatusBar& operator=(const QStatusBar &);

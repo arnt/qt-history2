@@ -24,6 +24,38 @@
 #include "qstyle.h"
 #include "qsizegrip.h"
 
+#include <private/qwidget_p.h>
+
+class QStatusBarPrivate : public QWidgetPrivate
+{
+    Q_DECLARE_PUBLIC(QStatusBar);
+public:
+    QStatusBarPrivate() {}
+
+    struct SBItem {
+        SBItem(QWidget* widget, int stretch, bool permanent)
+            : s(stretch), w(widget), p(permanent) {}
+        int s;
+        QWidget * w;
+        bool p;
+    };
+
+    QList<SBItem *> items;
+    QString tempItem;
+
+    QBoxLayout * box;
+    QTimer * timer;
+
+#ifndef QT_NO_SIZEGRIP
+    QSizeGrip * resizer;
+#endif
+
+    int savedStrut;
+};
+
+#define d d_func()
+#define q q_func()
+
 /*!
     \class QStatusBar qstatusbar.h
     \brief The QStatusBar class provides a horizontal bar suitable for
@@ -82,34 +114,6 @@
     \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
 */
 
-
-class QStatusBarPrivate
-{
-public:
-    QStatusBarPrivate() {}
-
-    struct SBItem {
-        SBItem(QWidget* widget, int stretch, bool permanent)
-            : s(stretch), w(widget), p(permanent) {}
-        int s;
-        QWidget * w;
-        bool p;
-    };
-
-    QList<SBItem *> items;
-    QString tempItem;
-
-    QBoxLayout * box;
-    QTimer * timer;
-
-#ifndef QT_NO_SIZEGRIP
-    QSizeGrip * resizer;
-#endif
-
-    int savedStrut;
-};
-
-
 /*!
     Constructs a status bar called \a name with parent \a parent and
     with a size grip.
@@ -117,9 +121,9 @@ public:
     \sa setSizeGripEnabled()
 */
 QStatusBar::QStatusBar(QWidget * parent, const char *name)
-    : QWidget(parent, name)
+    : QWidget(*new QStatusBarPrivate, parent, 0)
 {
-    d = new QStatusBarPrivate;
+    setObjectName(name);
     d->box = 0;
     d->timer = 0;
 
@@ -133,6 +137,26 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
 
 
 /*!
+    Constructs a status bar called \a name with parent \a parent and
+    with a size grip.
+
+    \sa setSizeGripEnabled()
+*/
+QStatusBar::QStatusBar(QWidget * parent)
+    : QWidget(*new QStatusBarPrivate, parent, 0)
+{
+    d->box = 0;
+    d->timer = 0;
+
+#ifndef QT_NO_SIZEGRIP
+    d->resizer = 0;
+    setSizeGripEnabled(true); // causes reformat()
+#else
+    reformat();
+#endif
+}
+
+/*!
     Destroys the status bar and frees any allocated resources and
     child widgets.
 */
@@ -140,7 +164,6 @@ QStatusBar::~QStatusBar()
 {
     while (!d->items.isEmpty())
         delete d->items.takeFirst();
-    delete d;
 }
 
 
