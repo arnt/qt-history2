@@ -108,11 +108,6 @@ void QFontLaoCodec::fromUnicode(const QChar *in, unsigned short *out, int length
     }
 }
 
-int QFontLaoCodec::heuristicContentMatch(const char *, int) const
-{
-    return -1;
-}
-
 bool QFontLaoCodec::canEncode(QChar ch) const
 {
     return (ch.unicode() < 0x80 ||

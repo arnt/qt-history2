@@ -55,9 +55,6 @@ public:
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-    int heuristicContentMatch(const char *, int) const;
-    int heuristicNameMatch(const char* hint) const;
-
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
@@ -91,9 +88,6 @@ public:
     void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
-
-    int heuristicContentMatch(const char *, int) const;
-    int heuristicNameMatch(const char* hint) const;
 
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
@@ -133,7 +127,6 @@ public:
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-    int heuristicContentMatch(const char *, int) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
@@ -168,8 +161,6 @@ public:
     void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
-
-    int heuristicContentMatch(const char *, int) const;
 
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
@@ -206,9 +197,6 @@ public:
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-    int heuristicContentMatch(const char *, int) const;
-    int heuristicNameMatch(const char* hint) const;
-
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
@@ -244,7 +232,6 @@ public:
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-    int heuristicContentMatch(const char *, int) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
@@ -280,11 +267,9 @@ public:
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-    int heuristicContentMatch(const char *, int) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    int heuristicNameMatch(const char* hint) const;
     bool canEncode(QChar) const;
 };
 
@@ -316,8 +301,6 @@ public:
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-    int heuristicContentMatch(const char *, int) const;
-    int heuristicNameMatch(const char* hint) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
@@ -341,8 +324,6 @@ public:
     void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
-
-    int heuristicContentMatch(const char *, int) const;
 
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;

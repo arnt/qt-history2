@@ -34,9 +34,6 @@ public:
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
 };
 
 class QBig5hkscsCodec : public QTextCodec {
@@ -51,9 +48,6 @@ public:
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
 };
 
 #endif

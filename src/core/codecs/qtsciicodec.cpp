@@ -149,44 +149,6 @@ const char* QTsciiCodec::name() const
     return "TSCII";
 }
 
-/*! \reimp */
-int QTsciiCodec::heuristicNameMatch(const char* hint) const
-{
-    const char *p = strchr(hint, '.');
-    if (p)
-        p++;
-    else
-        p = hint;
-    if (qstricmp(p, "TSCII") == 0)
-        return 4;
-    return QTextCodec::heuristicNameMatch(hint);
-}
-
-/*! \reimp */
-int QTsciiCodec::heuristicContentMatch(const char* chars, int len) const
-{
-    int score = 0;
-    for (int i=0; i<len; i++) {
-        uchar ch = chars[i];
-        // No nulls allowed.
-        if (!ch)
-            return -1;
-        if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
-            // Suspicious
-            if (score)
-                score--;
-        } else if (ch < 0x80) {
-            // Inconclusive
-        } else if (IsTSCIIChar(ch)) {
-            score++;
-        } else {
-            // Invalid
-            return -1;
-        }
-    }
-    return score;
-}
-
 static const int UnToTsLast = 124; // 125 items -- so the last will be 124
 static const ushort UnToTs [][4] = {
     // *Sorted* list of TSCII maping for unicode chars

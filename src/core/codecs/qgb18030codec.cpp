@@ -242,77 +242,6 @@ QString QGb18030Codec::toUnicode(const char* chars, int len) const
     return result;
 }
 
-/*! \reimp */
-int QGb18030Codec::heuristicNameMatch(const char* hint) const
-{
-    int score = 0;
-    bool zh = false;
-    //qDebug("QGb18030Codec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    if (qstrnicmp(hint, "zh_CN", 5) == 0){
-        score += 10;
-        zh = true;
-    }
-    const char *p;
-    if (zh) {
-        p = strchr(hint, '.');
-        if (p == 0)
-            return score;
-        p++;
-    } else {
-        p = hint;
-    }
-    if (p) {
-        if (qstricmp(p, "GB18030") == 0)
-            return score + 14;
-    }
-    return QTextCodec::heuristicNameMatch(hint);
-}
-
-/*! \reimp */
-int QGb18030Codec::heuristicContentMatch(const char* chars, int len) const
-{
-    int score = 0;
-    //qDebug("QGb18030Codec::heuristicContentMatch(const char* chars, int len = %d)", len);
-    for (int i=0; i<len; i++) {
-        uchar ch = chars[i];
-        // No nulls allowed.
-        if (!ch)
-            return -1;
-
-        if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
-            // Suspicious
-            if (score)
-                score--;
-        } else if (ch < 0x80) {
-            // Inconclusive
-            score++;
-        } else if (Is1stByte(ch)) {
-            if (i < len-1) {
-                uchar ch2 = chars[++i];
-                if (Is2ndByteIn4Bytes(ch2) && i < len-2) {
-                    uchar ch3 = chars[++i];
-                    if (Is3rdByte(ch3) && i < len-1) {
-                        uchar ch4 = chars[++i];
-                        if (!Is4thByte(ch4))
-                            return -1;
-                        score += 2;
-                    } else {
-                        return -1;
-                    }
-                } else if (!Is2ndByteIn2Bytes(ch2)) {
-                    return -1;
-                } else {
-                    score += 2;
-                }
-            }
-            score++;
-        } else {
-            // Invalid
-            return -1;
-        }
-    }
-    return score;
-}
 
 class QGb18030Decoder : public QTextDecoder {
     uchar buf[4];
@@ -441,45 +370,6 @@ const char* QGbkCodec::name() const
     return "GBK";
 }
 
-/*! \reimp */
-int QGbkCodec::heuristicNameMatch(const char* hint) const
-{
-#if 0
-    // these are needed so that the X11 fonts behave correctly.
-    if (qstricmp (hint, "gbk-0") == 0 ||
-        qstricmp (hint, "gb18030.2000-0") == 0)
-        return 13;
-#endif
-
-    int score = 0;
-    bool zh = false;
-    //qDebug("QGbkCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    if (qstrnicmp(hint, "zh_CN", 5) == 0){
-        score += 10;
-        zh = true;
-    }
-    const char *p;
-    if (zh) {
-        p = strchr(hint, '.');
-        if (p == 0)
-            return score;
-        p++;
-    } else {
-        p = hint;
-    }
-    if (p) {
-        if (qstricmp(p, "GBK") == 0)
-            return score + 6;
-    }
-    return QTextCodec::heuristicNameMatch(hint);
-}
-
-/*! \reimp */
-int QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
-{
-    //qDebug("QGbkCodec::heuristicContentMatch(const char* /*chars*/, int /*len*/)");
-    return 0;
-}
 
 class QGbkDecoder : public QTextDecoder {
     uchar buf[2];
@@ -645,44 +535,6 @@ const char* QGb2312Codec::name() const
     return "GB2312";
 }
 
-/*! \reimp */
-int QGb2312Codec::heuristicNameMatch(const char* hint) const
-{
-    int score = 0;
-    bool zh = false;
-    //qDebug("QGb2312Codec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    if (qstrnicmp(hint, "zh_CN", 5) == 0){
-        score += 10;
-        zh = true;
-    }
-    const char *p;
-    if (zh) {
-        p = strchr(hint, '.');
-        if (p == 0)
-            return score;
-        p++;
-    } else {
-        p = hint;
-    }
-    if (p) {
-        if (qstricmp(p, "GB2312") == 0 ||
-            qstricmp(p, "hp15cn") == 0)
-            return score + 7;
-        else if (qstricmp(p, "eucCN") == 0)
-            return score + 4;
-        // there exists ja_JP.EUC, ko_KR.EUC, zh_CN.EUC and zh_TW.EUC
-        else if (qstricmp(p, "euc") == 0 && zh)
-            return score + 4;
-    }
-    return QTextCodec::heuristicNameMatch(hint);
-}
-
-/*! \reimp */
-int QGb2312Codec::heuristicContentMatch(const char* /*chars*/, int /*len*/) const
-{
-    //qDebug("QGb2312Codec::heuristicContentMatch(const char* /*chars*/, int /*len*/)");
-    return 0;
-}
 
 class QGb2312Decoder : public QTextDecoder {
     uchar buf[2];

@@ -60,25 +60,6 @@ const char* QIsciiCodec::mimeName() const
 }
 
 
-int QIsciiCodec::heuristicNameMatch(const char* hint) const
-{
-    const char *p = strchr(hint, '.');
-    if (p)
-        p++;
-    else
-        p = hint;
-
-    if (QString::fromLatin1(p).toLower() == QString::fromLatin1(codecs[idx].name).toLower())
-        return 4;
-    else
-        return QTextCodec::heuristicNameMatch(hint);
-}
-
-int QIsciiCodec::heuristicContentMatch(const char*, int) const
-{
-    return 0;
-}
-
 #define INV 0xff
 
 /* iscii range from 0xa0 - 0xff */

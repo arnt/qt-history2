@@ -60,9 +60,6 @@
 
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
 */
 
 #include "qeuckrcodec_p.h"
@@ -176,80 +173,6 @@ const char* QEucKrCodec::name() const
 const char* QEucKrCodec::mimeName() const
 {
   return "EUC-KR";
-}
-
-/*!
-  \reimp
-*/
-
-int QEucKrCodec::heuristicNameMatch(const char* hint) const
-{
-  int score = 0;
-  bool ko = false;
-  if (qstrnicmp(hint, "ko_KR", 5) == 0 ||
-      qstrnicmp(hint, "korean", 5) == 0) {
-    score += 3;
-    ko = true;
-  } else if (qstrnicmp(hint, "ko", 2) == 0) {
-    score += 2;
-    ko = true;
-  }
-  const char *p;
-  if (ko) {
-    p = strchr(hint, '.');
-    if (p == 0) {
-      return score;
-    }
-    p++;
-  } else {
-    p = hint;
-  }
-  if (p) {
-    if (qstricmp(p, "eucKR") == 0) {
-      return score + 4;
-    }
-    else if (qstricmp(p, "euc") == 0 && ko) {
-      return score + 4;
-    }
-  }
-  score = QTextCodec::simpleHeuristicNameMatch("ks_c_5601-1987", hint);
-  if (score) return score;
-  return QTextCodec::heuristicNameMatch(hint);
-}
-
-/*!
-  \reimp
-*/
-
-int QEucKrCodec::heuristicContentMatch(const char* chars, int len) const
-{
-  int score = 0;
-  for (int i=0; i<len; i++) {
-    uchar ch = chars[i];
-    // No nulls allowed.
-    if (!ch)
-      return -1;
-    if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
-      // Suspicious
-      if (score)
-        score--;
-    } else if (ch < 0x80) {
-      // Inconclusive
-    } else if (IsEucChar(ch)) {
-      // KSC 5601
-      if (i < len-1) {
-        uchar c2 = chars[++i];
-        if (!IsEucChar(c2))
-          return -1;
-        score++;
-      }
-      score++;
-    } else {
-      // Invalid
-      return -1;
-    }
-  }
-  return score;
 }
 
 class QEucKrDecoder : public QTextDecoder {

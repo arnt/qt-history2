@@ -42,8 +42,6 @@ public:
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
 };
 
 class Q_EXPORT_CODECS_CN QGbkCodec : public QGb18030Codec {
@@ -61,8 +59,6 @@ public:
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
 };
 
 class Q_EXPORT_CODECS_CN QGb2312Codec : public QGb18030Codec {
@@ -80,8 +76,6 @@ public:
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
-    int heuristicContentMatch(const char* chars, int len) const;
-    int heuristicNameMatch(const char* hint) const;
 };
 
 #endif

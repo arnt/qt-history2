@@ -10,36 +10,43 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
-#ifndef QUTFCODEC_P_H
-#define QUTFCODEC_P_H
+#ifndef QSIMPLECODECS_P_H
+#define QSIMPLECODECS_P_H
 
 #include "qtextcodec.h"
 
-#ifndef QT_NO_TEXTCODEC
-
-class Q_CORE_EXPORT QUtf8Codec : public QTextCodec {
+class QSimpleTextCodec: public QTextCodec
+{
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
+    enum { numSimpleCodecs = 29 };
+    QSimpleTextCodec(int);
+    ~QSimpleTextCodec();
 
-    QTextDecoder* makeDecoder() const;
-
+    QString toUnicode(const char* chars, int len) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
     QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars, int len) const;
-};
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
-class Q_CORE_EXPORT QUtf16Codec : public QTextCodec {
-public:
-    virtual int mibEnum() const;
     const char* name() const;
+    const char* mimeName() const;
+    int mibEnum() const;
 
-    QTextDecoder* makeDecoder() const;
-    QTextEncoder* makeEncoder() const;
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::canEncode;
+#endif
+    bool canEncode(QChar ch) const;
+
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
+
+private:
+    void buildReverseMap();
+
+    int forwardIndex;
+#ifndef Q_WS_QWS
+    mutable QByteArray reverseMap;
+#endif
 };
 
-#endif
 #endif

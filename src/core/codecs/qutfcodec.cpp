@@ -87,48 +87,6 @@ const char* QUtf8Codec::name() const
     return "UTF-8";
 }
 
-int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
-{
-    int score = 0;
-    for (int i=0; i<len; i++) {
-        uchar ch = chars[i];
-        // No nulls allowed.
-        if (!ch)
-            return -1;
-        if (ch < 128) {
-            // Inconclusive
-            score++;
-        } else if ((ch&0xe0) == 0xc0) {
-            if (i < len-1) {
-                uchar c2 = chars[++i];
-                if ((c2&0xc0) != 0x80)
-                    return -1;
-                score+=3;
-            }
-        } else if ((ch&0xf0) == 0xe0) {
-            if (i < len-1) {
-                uchar c2 = chars[++i];
-                if ((c2&0xc0) != 0x80) {
-                    return -1;
-#if 0
-                    if (i < len-1) {
-                        uchar c3 = chars[++i];
-                        if ((c3&0xc0) != 0x80)
-                            return -1;
-                        score+=3;
-                    }
-#endif
-                }
-                score+=2;
-            }
-        }
-    }
-    return score;
-}
-
-
-
-
 class QUtf8Decoder : public QTextDecoder {
     uint uc;
     int need;
@@ -196,11 +154,6 @@ QTextDecoder* QUtf8Codec::makeDecoder() const
     return new QUtf8Decoder;
 }
 
-
-
-
-
-
 int QUtf16Codec::mibEnum() const
 {
     return 1000;
@@ -210,19 +163,6 @@ const char* QUtf16Codec::name() const
 {
     return "ISO-10646-UCS-2";
 }
-
-int QUtf16Codec::heuristicContentMatch(const char* chars, int len) const
-{
-    uchar* uchars = (uchar*)chars;
-    if (len >= 2 && (uchars[0] == 0xff && uchars[1] == 0xfe ||
-                      uchars[1] == 0xff && uchars[0] == 0xfe))
-        return len;
-    else
-        return 0;
-}
-
-
-
 
 class QUtf16Encoder : public QTextEncoder {
     bool headerdone;

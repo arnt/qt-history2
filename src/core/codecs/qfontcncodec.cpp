@@ -20,12 +20,6 @@
 extern int qt_UnicodeToGbk(uint unicode, uchar *gbchar);
 
 
-int QFontGb2312Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-
 QFontGb2312Codec::QFontGb2312Codec()
 {
     //qDebug("QFontGb2312Codec::QFontGb2312Codec()");
@@ -118,21 +112,6 @@ bool QFontGb2312Codec::canEncode(QChar ch) const
 //==========================================================================
 
 
-int QFontGbkCodec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-
-int QFontGbkCodec::heuristicNameMatch(const char* hint) const
-{
-    //qDebug("QFontGbkCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    return (qstricmp(hint, "gbk-0") == 0 ||
-             qstricmp(hint, "gb18030.2000-0") == 0)
-        ? 13 : 0;
-}
-
-
 QFontGbkCodec::QFontGbkCodec()
 {
     //qDebug("QFontGbkCodec::QFontGbkCodec()");
@@ -216,11 +195,6 @@ bool QFontGbkCodec::canEncode(QChar ch) const
 }
 
 //==========================================================================
-
-int QFontGb18030_0Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
 
 
 QFontGb18030_0Codec::QFontGb18030_0Codec()

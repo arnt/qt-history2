@@ -81,40 +81,13 @@ void QFontJis0201Codec::fromUnicode(const QChar *in, unsigned short *out, int le
     }
 }
 
-int QFontJis0201Codec::heuristicNameMatch(const char* hint) const
-{
-    if (qstrncmp(hint, "jisx0201", 8) == 0)
-        return 20;
-    return -1;
-
-}
-
 bool QFontJis0201Codec::canEncode(QChar ch) const
 {
     return (ch.unicode() < 0x80 || (ch.unicode() >= 0xff61 &&
                                       ch.unicode() <= 0xff9f));
 }
 
-int QFontJis0201Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-
 // JIS X 0208
-
-int QFontJis0208Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-
-int QFontJis0208Codec::heuristicNameMatch(const char *hint) const
-{
-    if (qstrncmp(hint, "jisx0208", 8) == 0)
-        return 20;
-    return -1;
-}
 
 QFontJis0208Codec::QFontJis0208Codec()
 {

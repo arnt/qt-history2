@@ -8,7 +8,9 @@ HEADERS += \
 	codecs/qgb18030codec_p.h \
 	codecs/qjiscodec_p.h \
 	codecs/qjpunicode.h \
+	codecs/qlatincodec_p.h \
 	codecs/qsjiscodec_p.h \
+	codecs/qsimplecodec_p.h \
 	codecs/qtextcodec.h \
 	codecs/qtsciicodec_p.h \
 	codecs/qutfcodec_p.h \
@@ -23,7 +25,9 @@ SOURCES += \
 	codecs/qgb18030codec.cpp \
 	codecs/qjiscodec.cpp \
 	codecs/qjpunicode.cpp \
+	codecs/qlatincodec.cpp \
 	codecs/qsjiscodec.cpp \
+	codecs/qsimplecodec.cpp \
 	codecs/qtextcodec.cpp \
 	codecs/qtsciicodec.cpp \
 	codecs/qutfcodec.cpp \

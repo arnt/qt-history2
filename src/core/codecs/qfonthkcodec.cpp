@@ -19,21 +19,6 @@
 extern int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 
 
-int QFontBig5hkscsCodec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-
-int QFontBig5hkscsCodec::heuristicNameMatch(const char* hint) const
-{
-    //qDebug("QFontBig5hkscsCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    return (qstricmp(hint, "big5hkscs-0") == 0 ||
-             qstricmp(hint, "hkscs-1") == 0)
-        ? 13 : 0;
-}
-
-
 QFontBig5hkscsCodec::QFontBig5hkscsCodec()
 {
     //qDebug("QFontBig5hkscsCodec::QFontBig5hkscsCodec()");

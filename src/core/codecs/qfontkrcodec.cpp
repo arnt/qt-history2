@@ -19,12 +19,6 @@
 extern unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
 
 
-int QFontKsc5601Codec::heuristicContentMatch(const char *, int) const
-{
-    return 0;
-}
-
-
 QFontKsc5601Codec::QFontKsc5601Codec()
 {
 }
