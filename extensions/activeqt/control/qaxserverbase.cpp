@@ -1392,7 +1392,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	break;
 
     case WM_SIZE:
-	if (that->qt.widget)
+        if (that->qt.widget)
 	    that->qt.widget->resize(LOWORD(lParam), HIWORD(lParam));
 	break;
 
@@ -2918,10 +2918,12 @@ HRESULT WINAPI QAxServerBase::Draw(DWORD dwAspect, LONG lindex, void *pvAspect, 
     if (!bMetaFile)
         ::LPtoDP(hicTargetDev, (LPPOINT)&rc, 2);
 
-    qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
+
+    if (!qt.widget->isVisible())
+        qt.widget->resize(rc.right - rc.left, rc.bottom - rc.top);
     QPixmap pm = QPixmap::grabWidget(qt.widget);
     HDC hdc = pm.getDC();
-    ::BitBlt(hdcDraw, rc.left, rc.top, pm.width(), pm.height(), hdc, 0, 0, SRCCOPY);
+    ::StretchBlt(hdcDraw, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, hdc, 0, 0,pm.width(), pm.height(), SRCCOPY);
     pm.releaseDC(hdc);
 
     if (bDeleteDC)
