@@ -1147,15 +1147,17 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    parser.file.latin1(), parser.line_no);
 		} else {
 		    const QStringList &var = place[varMap(arg_list.first())];
-		    uint start = 0;
+		    int start = 0;
 		    if(arg_list.count() >= 2)
 			start = arg_list[1].toInt();
+		    if(start < 0)
+			start += var.count() - 1;
 		    int end = start;
 		    if(arg_list.count() == 3)
 			end = arg_list[2].toInt();
 		    if(end < 0)
 			end += var.count() - 1;
-		    if(end < (int)start)
+		    if(end < start)
 			end = start;
 		    for(int i = start; i <= end && (int)var.count() >= i; i++) {
 			if(!replacement.isEmpty())
