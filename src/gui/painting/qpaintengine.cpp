@@ -244,11 +244,11 @@ void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
     }
 }
 
-void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
-                  const QPixmap &pixmap, int xOffset, int yOffset,
+void qt_draw_tile(QPaintEngine *gc, float x, float y, float w, float h,
+                  const QPixmap &pixmap, float xOffset, float yOffset,
 		  Qt::PixmapDrawingMode mode)
 {
-    int yPos, xPos, drawH, drawW, yOff, xOff;
+    float yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
     yOff = yOffset;
     while(yPos < y + h) {
@@ -261,7 +261,7 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
             drawW = pixmap.width() - xOff; // Cropping first column
             if (xPos + drawW > x + w)           // Cropping last column
                 drawW = x + w - xPos;
-            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), mode);
+            gc->drawPixmap(QRectF(xPos, yPos, drawW, drawH), pixmap, QRectF(xOff, yOff, drawW, drawH), mode);
             xPos += drawW;
             xOff = 0;
         }
