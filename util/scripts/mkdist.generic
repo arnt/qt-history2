@@ -101,9 +101,10 @@ else
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
     ${DISTDIR}/qt/util/qdoc/man
-    mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
+    mv ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
     mv ${DISTDIR}/qt/src/moc/moc.1 ${DISTDIR}/qt/man/man1
   fi
+  mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt
   cd ${DISTDIR}
   mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
 fi
