@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#28 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#29 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#29 $");
 
 
 /*!
@@ -677,4 +677,23 @@ QRect QTabDialog::childRect() const
 {
     return QRect( 6, d->tabs->height() + 5, width() - 12,
 		  height() - d->bh - d->tabs->height() - 18 );
+}
+
+
+/*!
+  Set the OK button's text to \a text (which defaults to "OK").
+
+  The OK button should apply the current settings in the dialog box to
+  the application and then close the dialog.
+
+  When Apply is clicked, the applyButtonPressed() signal is emitted.
+
+  \sa setCancelButton() setDefaultButton() applyButtonPressed()
+*/
+
+void QTabDialog::setOKButton( const char * text )
+{
+    d->ok->setText( text );
+    setSizes();
+    d->ok->show();
 }
