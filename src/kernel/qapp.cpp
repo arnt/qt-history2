@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#82 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#82 $");
 
 
 /*!
@@ -148,7 +148,7 @@ static void destroy_palettes()
   <li> \c -fg or \c -foreground \e color, sets the default foreground color.
   <li> \c -name \e name, sets the application name.
   <li> \c -title \e title, sets the application title (caption).
-  <li> \c -style \e style, sets the application GUI style. Possible values
+  <li> \c -style= \e style, sets the application GUI style. Possible values
        are \c motif and \c windows 
   </ul>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#7 $
 **
 ** Implementation of QClipboard class
 **
@@ -12,7 +12,7 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#7 $");
 
 
 /*!
@@ -84,9 +84,9 @@ QClipboard::~QClipboard()
 
 
 /*!
-  \fn     void	QClipboard::dataChanged()
+  \fn void QClipboard::dataChanged()
   This signal is emitted when the clipboard data is changed.
-  */
+*/
 
 
 /*!

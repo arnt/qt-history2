@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#90 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#90 $");
 
 
 /*****************************************************************************
@@ -280,13 +280,14 @@ QPixmap::QPixmap( const QPixmap &pixmap )
     }
 }
 
-/*!  
+/*!
   Constructs a pixmap from the file \e fileName. If the file does not
   exist, or is of an unknown format, the pixmap becomes a null pixmap.
 
   The parameters are passed on to load().
 
-  \sa isNull(), load(), loadFromData(), save(), imageFormat() */
+  \sa isNull(), load(), loadFromData(), save(), imageFormat()
+*/
 
 QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
     : QPaintDevice( PDT_PIXMAP )
@@ -428,7 +429,8 @@ bool QPixmap::isGloballyOptimized()
 
   The default value is TRUE.
 
-  \sa isGloballyOptimized(), optimize(), isOptimized() */
+  \sa isGloballyOptimized(), optimize(), isOptimized()
+*/
 
 void QPixmap::optimizeGlobally( bool enable )
 {

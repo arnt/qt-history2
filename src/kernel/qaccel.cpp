@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#31 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#31 $");
 
 
 /*!
@@ -127,7 +127,7 @@ QAccel::~QAccel()
   \fn void QAccel::activated( int id )
   This signal is emitted when an accelerator key is pressed. \e id is
   a number that identifies this particular accelerator item.
-  */
+*/
 
 /*!
   \fn bool QAccel::isEnabled() const
