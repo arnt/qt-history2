@@ -269,7 +269,6 @@ IRIX MIPSpro o32 mode.
 
 - QStyle
 	Add a new primitive element: PE_RubberBand.
-	Added new pixel metric: PM_MenuBarItemSpacing.
 
 - QTextDrag
 	decode() now autodetects the encoding of text/html content.

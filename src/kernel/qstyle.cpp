@@ -1436,7 +1436,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_DockWindowFrameWidth  frame width of a dock window.
 
     \value PM_MenuBarFrameWidth  frame width of a menubar.
-    \value PM_MenuBarItemSpacing  spacing between text items in a menubar.
 
     \value PM_TabBarTabOverlap number of pixels the tabs should overlap.
     \value PM_TabBarTabHSpace extra space added to the tab width.
