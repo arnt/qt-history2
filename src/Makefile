@@ -28,7 +28,7 @@ ELFTARGETPRE	= libqt.so.0
 #
 # most are also make targets
 
-DIRS		= tools moc kernel widgets dialogs
+DIRS		= tools kernel widgets dialogs
 
 #######	Build rules
 
@@ -85,26 +85,22 @@ aoutdbg:
 elf:
 	make lib 'CFLAGS=$(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
 	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
-		-o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
 
 elf26:
 	make lib 'CFLAGS=$(CFLAGS) -V 2.6.3 $(ELFCFLAGS)' 'OBJDIR=obj/elf26'
 	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
-		-o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(ELFTARGET) obj/elf26/*/*.o -lX11 -lgcc -lc
 
 elfdbg:
 	make lib 'CFLAGS=$(CDBGFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elfdbg'
 	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
-		-o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
 
 dist: clean include depend
 	make lib 'CFLAGS=-DLINUX_RESTRICTED $(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
 	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
-		-o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
+	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lgcc -lc
 	make lib 'CFLAGS=-DLINUX_RESTRICTED $(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
 	/bin/rm -f $(AOUTTARGET)
 	ar q $(AOUTTARGET) obj/aout/*/*.o
