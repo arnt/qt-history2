@@ -77,13 +77,14 @@ public:
     void stopAnimate(Animates, QListViewItem *);
 
     //focus things
-    static bool focusable(QWidget *);
+    bool focusable(QWidget *);
     QWidget *focusWidget() const;
 
 protected:
     //finally do the animate..
     virtual bool doAnimate(Animates) = 0;
     //finally set the focus
+    virtual bool overrideFocusable(const QWidget *) const { return false; }
     void setFocusWidget(QWidget *);
     virtual void doFocus(QWidget *w) = 0;
 

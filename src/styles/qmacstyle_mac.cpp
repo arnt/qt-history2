@@ -171,6 +171,7 @@ public:
     };
     QMacStylePrivate();
     ~QMacStylePrivate();
+    bool overrideFocusable(const QWidget *widget) const;
 protected:
     bool doAnimate(QAquaAnimate::Animates);
     void doFocus(QWidget *);
@@ -253,6 +254,14 @@ void QMacStylePrivate::doFocus(QWidget *w)
 	focusWidget = new QMacStyleFocusWidget(w);
     else
 	focusWidget->setFocusWidget(w);
+}
+
+bool QMacStylePrivate::overrideFocusable(const QWidget *widget) const
+{
+    if (PolicyState::focusMap.contains((QWidget*)widget))
+	if (PolicyState::focusMap[(QWidget*)widget] == QMacStyle::FocusDisabled);
+            return true;
+    return false;
 }
 
 #define private public //ugh, what I'll do, guess we have to wait until 4.0
@@ -646,7 +655,11 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	break;
     case PE_HeaderSection: {
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
-	if(flags & Style_HasFocus)
+        QWidget *w = 0;
+        if (p->device()->devType() == QInternal::Widget)
+            w = (QWidget*)p->device();
+        
+	if(flags & Style_HasFocus && !d->overrideFocusable(w))
 	    info.adornment |= kThemeAdornmentFocus;
 	if(qAquaActive(pal)) {
 	    if(!(flags & Style_Enabled))
@@ -677,7 +690,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ExclusiveIndicatorMask:
     case PE_ExclusiveIndicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
-	if(flags & Style_HasFocus)
+        QWidget *w = 0;
+        if (p->device()->devType() == QInternal::Widget)
+            w = (QWidget *)p->device();
+	if(flags & Style_HasFocus && !d->overrideFocusable(w))
 	    info.adornment |= kThemeAdornmentFocus;
 	if(flags & Style_On)
 	    info.value = kThemeButtonOn;
@@ -700,7 +716,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_IndicatorMask:
     case PE_Indicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
-	if(flags & Style_HasFocus)
+        QWidget *w = 0;
+        if (p->device()->devType() == QInternal::Widget)
+            w = (QWidget*)p->device();
+        if(flags & Style_HasFocus && !d->overrideFocusable(w))
 	    info.adornment |= kThemeAdornmentFocus;
 	if(flags & Style_NoChange)
 	    info.value = kThemeButtonMixed;
@@ -1051,7 +1070,7 @@ void QMacStyle::drawControl(ControlElement element,
 
 	ThemeButtonKind bkind = kThemePushButton;
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	if(how & Style_HasFocus)
+        if(how & Style_HasFocus && !d->overrideFocusable(widget))
 	    info.adornment |= kThemeAdornmentFocus;
 
 	QRect off_rct(0, 0, 0, 0);
@@ -1158,7 +1177,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(sub & SC_ToolButton) {
 	    if(bflags & (Style_Down | Style_On | Style_Raised)) {
 		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-		if(flags & Style_HasFocus)
+		if(flags & Style_HasFocus && !d->overrideFocusable(widget))
 		    info.adornment |= kThemeAdornmentFocus;
 		if(toolbutton->isOn() || toolbutton->isDown())
 		    info.value |= kThemeStatePressed;
@@ -1193,7 +1212,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 	if(sub & SC_ToolButtonMenu) {
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	    if(flags & Style_HasFocus)
+	    if(flags & Style_HasFocus && !d->overrideFocusable(widget))
 		info.adornment |= kThemeAdornmentFocus;
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
@@ -1228,8 +1247,6 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		if(y + child->height() > 0) {
 		    if(child->isExpandable() || child->childCount()) {
 			ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentDrawIndicatorOnly };
-			if(flags & Style_HasFocus)
-			    info.adornment |= kThemeAdornmentFocus;
 
 			int rot = 0, border = 2;
 			QPainter *curPaint = p;
@@ -1284,7 +1301,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    else if(subActive == SC_SpinWidgetUp)
 		tds = kThemeStatePressedUp;
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	    if(flags & Style_HasFocus)
+	    if(flags & Style_HasFocus && !d->overrideFocusable(widget))
 		info.adornment |= kThemeAdornmentFocus;
 	    QRect updown = sw->upRect() | sw->downRect();
 	    if(sw->backgroundPixmap())
