@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#265 $
+** $Id: //depot/qt/main/src/moc/moc.y#266 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2684,7 +2684,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#265 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#266 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2942,8 +2942,8 @@ void generateClass()		      // generate C++ source code for a class
 		    fprintf( out, "    QConnectionList *clist%d = receivers( staticMetaObject()->signalOffset() + %d );\n",
 			     i, sigindex-overloads+i );
 		fprintf( out, "    if ( !clist0 " );
-		for ( int i = 1; i <= overloads; i++ )
-		    fprintf( out, "&& !clist%d ", i );
+		for ( int j = 1; j <= overloads; j++ )
+		    fprintf( out, "&& !clist%d ", j );
 		fprintf( out, ") \n\treturn;\n" );
 	    } else {
 		fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
