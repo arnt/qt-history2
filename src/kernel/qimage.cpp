@@ -360,10 +360,10 @@ QImage::QImage( const QImage &image )
 
 /*!
   Constructs an image that uses an existing memory buffer.
-  The buffer must remain valid for the life of the QImage.  The image
-  will not delete the buffer at destruction.
+  The buffer must remain valid throughout the life of the QImage. The image
+  does not delete the buffer at destruction.
 
-  If colortable is 0, a color table sufficient for \a numColors will be
+  If \a colortable is 0, a color table sufficient for \a numColors will be
   allocated (and destructed later).
 */
 QImage::QImage( uchar* yourdata, int w, int h, int depth,
@@ -481,7 +481,8 @@ QImage &QImage::operator=( const QImage &image )
     return *this;
 }
 
-/*!
+/*! \overload
+
   Sets the image bits to the \a pixmap contents and returns a reference to
   the image.
 
@@ -538,12 +539,13 @@ QImage QImage::copy() const
     return image;
 }
 
-/*!
+/*! \overload
+
   Returns a
   \link shclass.html deep copy\endlink of a sub-area of the image.
 
-  The returned image is always \a w by \a h pixels in size. If the
-  area is beyond this image, the pixels are filled with pixel 0.
+  The returned image is always \a w by \a h pixels in size. 
+  In areas beyond this image pixels are filled with pixel 0.
 
   \sa bitBlt()
 */
@@ -566,8 +568,15 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
     return image;
 }
 
-/*!
-  \overload QImage QImage::copy(const QRect& r) const
+/*! \fn QImage QImage::copy(const QRect& r) const
+
+  \overload 
+
+  Returns a
+  \link shclass.html deep copy\endlink of a sub-area of the image.
+ 
+  The returned image has always the size of the rectangle \a r.
+  In areas beyond this image pixels are filled with pixel 0.
 */
 
 /*!
@@ -681,10 +690,9 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   \sa color()
 */
 
-/*!
-  \fn uchar *QImage::scanLine( int i ) const
+/*! \fn uchar *QImage::scanLine( int i ) const
 
-  Returns a pointer to the pixel data at the \a i'th scanline.
+  Returns a pointer to the pixel data at the \a{i}th scanline.
 
   The scanline data is aligned on a 32-bit boundary.
 
@@ -950,7 +958,8 @@ void QImage::setAlphaBuffer( bool enable )
 
 
 /*!
-  Sets the image width, height, depth, number of colors, and bit order.
+  Sets the image \a width, \a height, \a depth, its number of colors
+  (in \a numColors), and bit order.
   Returns TRUE if successful, or FALSE if the parameters are incorrect or
   if memory cannot be allocated.
 
@@ -1909,7 +1918,7 @@ bool QImage::valid( int x, int y ) const
 /*!
   Returns the pixel index at the given coordinates.
 
-  If (x,y) is not \link valid() valid\endlink, or if
+  If (\a x, \a y) is not \link valid() valid\endlink, or if
   the image is not a paletted image (depth() \> 8), the results
   are undefined.
 */
@@ -1950,7 +1959,7 @@ int QImage::pixelIndex( int x, int y ) const
 /*!
   Returns the actual color of the pixel at the given coordinates.
 
-  If (x,y) is not \link valid() on the image\endlink, the results
+  If (\a x, \a y) is not \link valid() on the image\endlink, the results
   are undefined.
 
   \sa setPixel(), qRed(), qGreen(), qBlue()
@@ -1990,7 +1999,7 @@ QRgb QImage::pixel( int x, int y ) const
 /*!
   Sets the pixel index or color at the given coordinates.
 
-  If (x,y) is not \link valid() valid\endlink, or if
+  If (\a x, \a y) is not \link valid() valid\endlink, or if
   the image is a paletted image (depth() \<= 8) and \a index_or_rgb
   \>= numColors(), the results are undefined.
 
@@ -2561,12 +2570,19 @@ QImage QImage::scaleWidth( int w ) const
     return xForm( wm );
 }
 
-/*!
-  Returns scaled a copy of the image. The returned image has a height
+/*! Returns a scaled copy of the image. The returned image has a height
   of \a h pixels. This function automatically calculates the width of the
   image so that the ratio of the image is preserved.
 
   If the height \a h is 0 or negative, this function returns a null image.
+
+  \walkthrough table/small-table-demo/main.cpp
+  \skipto QImage
+  \printline QImage
+  \printline scaleHeight(
+
+  (Code taken from the \link small-table-demo-example.html
+   table/small-table-demo/main.cpp \endlink example.)
 
   \sa scale() scaleWidth() smoothScale() xForm()
 */
@@ -2974,8 +2990,11 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
   under the terms of the QPL, Version 1.0
 */
 
-/*!
-  Returns the image mirrored in the horizontal and/or vertical direction.
+/*! \overload
+
+  Returns the image mirrored in horizontal and/or vertical direction
+  depending on whether \a horizontal and \a vertical are set to
+  TRUE or FALSE.
 
   \sa smoothScale()
 */
@@ -3298,7 +3317,7 @@ QDataStream &operator<<( QDataStream &s, const QImage &image )
 
 /*!
   \relates QImage
-  Reads an image from the stream \a s and stores it in image.
+  Reads an image from the stream \a s and stores it in \a image.
   \sa QImage::load()
   \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -3448,7 +3467,7 @@ QImageIO::QImageIO()
 }
 
 /*!
-  Constructs a QImageIO object with an I/O device and a format tag.
+  Constructs a QImageIO object with the I/O device \a ioDevice and a \a format tag.
 */
 
 QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
@@ -3459,7 +3478,7 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
 }
 
 /*!
-  Constructs a QImageIO object with a file name and a format tag.
+  Constructs a QImageIO object with the file name \a fileName and a \a format tag.
 */
 
 QImageIO::QImageIO( const QString &fileName, const char* format )
@@ -3693,7 +3712,7 @@ void QImageIO::defineIOHandler( const char *format,
 
 
 /*!
-  Sets the image.
+  Sets the image to \a image.
   \sa image()
 */
 
@@ -3703,7 +3722,7 @@ void QImageIO::setImage( const QImage &image )
 }
 
 /*!
-  Sets the image IO status.  A non-zero value indicates an error, whereas 0 means
+  Sets the image IO status to \a status.  A non-zero value indicates an error, whereas 0 means
   that the IO operation was successful.
   \sa status()
 */
@@ -3714,7 +3733,7 @@ void QImageIO::setStatus( int status )
 }
 
 /*!
-  Sets the image format name of the image about to be read or written.
+  Sets the image format \a format to the image to be read or written.
 
   It is necessary to specify a format before writing an image.
 
@@ -3749,7 +3768,7 @@ void QImageIO::setIODevice( QIODevice *ioDevice )
 }
 
 /*!
-  Sets the name of the file to read or write an image.
+  Sets the name of the file to read or write an image from to \a fileName.
 
   \sa setIODevice()
 */
@@ -3771,7 +3790,7 @@ int QImageIO::quality() const
 }
 
 /*!
-  Sets the quality of the written image, related to the compression ratio.
+  Sets the quality of the written image to \a q, related to the compression ratio.
 
   \sa quality() QImage::save()
 */
@@ -3793,7 +3812,7 @@ const char *QImageIO::parameters() const
 }
 
 /*!
-  Sets the image parameters string for image handlers that require
+  Sets the image parameter string \a parameters for image handlers that require
   special parameters.
 
   Although all image formats supported by Qt ignore the parameters string,
@@ -3811,7 +3830,7 @@ void QImageIO::setParameters( const char *parameters )
 
 /*!
   Sets the image description string for image handlers that support image
-  descriptions.
+  descriptions to \a description.
 
   Currently, no image format supported by Qt uses the description string.
 */
@@ -3837,7 +3856,8 @@ const char* QImageIO::imageFormat( const QString &fileName )
     return format;
 }
 
-/*!
+/*! \overload
+
   Returns a string that specifies the image format of the image read from
   \a d, or null if the file cannot be read or if the format is not recognized.
 */
