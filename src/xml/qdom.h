@@ -134,17 +134,17 @@ public:
     void normalize();
     bool isSupported(const QString& feature, const QString& version) const;
 
-    // DOM read only attributes
+    // DOM read-only attributes
     QString nodeName() const;
-    QDomNode::NodeType nodeType() const;
-    QDomNode         parentNode() const;
-    QDomNodeList     childNodes() const;
-    QDomNode         firstChild() const;
-    QDomNode         lastChild() const;
-    QDomNode         previousSibling() const;
-    QDomNode         nextSibling() const;
+    NodeType nodeType() const;
+    QDomNode parentNode() const;
+    QDomNodeList childNodes() const;
+    QDomNode firstChild() const;
+    QDomNode lastChild() const;
+    QDomNode previousSibling() const;
+    QDomNode nextSibling() const;
     QDomNamedNodeMap attributes() const;
-    QDomDocument     ownerDocument() const;
+    QDomDocument ownerDocument() const;
     QString namespaceURI() const;
     QString localName() const;
     bool hasAttributes() const;
@@ -247,10 +247,8 @@ public:
     QString systemId() const;
     QString internalSubset() const;
 
-    // Reimplemented from QDomNode
-    inline QDomNode::NodeType nodeType() const
-        { return DocumentTypeNode; }
-    inline bool isDocumentType() const { return true; }
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return DocumentTypeNode; }
 
 private:
     QDomDocumentType(QDomDocumentTypePrivate*);
@@ -291,6 +289,9 @@ public:
     QDomImplementation implementation() const;
     QDomElement documentElement() const;
 
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return DocumentNode; }
+
     // Qt extensions
     bool setContent(const QByteArray& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
     bool setContent(const QString& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
@@ -298,12 +299,7 @@ public:
     bool setContent(const QByteArray& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
     bool setContent(const QString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
     bool setContent(QIODevice* dev, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
-
     bool setContent(QXmlInputSource *source, QXmlReader *reader, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
-
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isDocument() const;
 
     // Qt extensions
     QString toString(int = 1) const;
@@ -357,9 +353,8 @@ public:
     QDomDocumentFragment(const QDomDocumentFragment& x);
     QDomDocumentFragment& operator= (const QDomDocumentFragment&);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isDocumentFragment() const;
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return DocumentFragmentNode; }
 
 private:
     QDomDocumentFragment(QDomDocumentFragmentPrivate*);
@@ -389,9 +384,8 @@ public:
     QString data() const;
     void setData(const QString&);
 
-    // Reimplemented from QDomNode
+    // Overridden from QDomNode
     QDomNode::NodeType nodeType() const;
-    bool isCharacterData() const;
 
 private:
     QDomCharacterData(QDomCharacterDataPrivate*);
@@ -418,9 +412,8 @@ public:
     QString value() const;
     void setValue(const QString&);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isAttr() const;
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return AttributeNode; }
 
 private:
     QDomAttr(QDomAttrPrivate*);
@@ -469,10 +462,9 @@ public:
     QString tagName() const;
     void setTagName(const QString& name); // Qt extension
 
-    // Reimplemented from QDomNode
+    // Overridden from QDomNode
     QDomNamedNodeMap attributes() const;
-    QDomNode::NodeType nodeType() const;
-    bool isElement() const;
+    inline QDomNode::NodeType nodeType() const { return ElementNode; }
 
     QString text() const;
 
@@ -494,9 +486,8 @@ public:
     // DOM functions
     QDomText splitText(int offset);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isText() const;
+    // Overridden from QDomCharacterData
+    inline QDomNode::NodeType nodeType() const { return TextNode; }
 
 private:
     QDomText(QDomTextPrivate*);
@@ -513,9 +504,8 @@ public:
     QDomComment(const QDomComment& x);
     QDomComment& operator= (const QDomComment&);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isComment() const;
+    // Overridden from QDomCharacterData
+    inline QDomNode::NodeType nodeType() const { return CommentNode; }
 
 private:
     QDomComment(QDomCommentPrivate*);
@@ -531,9 +521,8 @@ public:
     QDomCDATASection(const QDomCDATASection& x);
     QDomCDATASection& operator= (const QDomCDATASection&);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isCDATASection() const;
+    // Overridden from QDomText
+    inline QDomNode::NodeType nodeType() const { return CDATASectionNode; }
 
 private:
     QDomCDATASection(QDomCDATASectionPrivate*);
@@ -553,9 +542,8 @@ public:
     QString publicId() const;
     QString systemId() const;
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isNotation() const;
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return NotationNode; }
 
 private:
     QDomNotation(QDomNotationPrivate*);
@@ -576,9 +564,8 @@ public:
     QString systemId() const;
     QString notationName() const;
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isEntity() const;
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return EntityNode; }
 
 private:
     QDomEntity(QDomEntityPrivate*);
@@ -593,9 +580,8 @@ public:
     QDomEntityReference(const QDomEntityReference& x);
     QDomEntityReference& operator= (const QDomEntityReference&);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isEntityReference() const;
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return EntityReferenceNode; }
 
 private:
     QDomEntityReference(QDomEntityReferencePrivate*);
@@ -618,9 +604,8 @@ public:
     QString data() const;
     void setData(const QString& d);
 
-    // Reimplemented from QDomNode
-    QDomNode::NodeType nodeType() const;
-    bool isProcessingInstruction() const;
+    // Overridden from QDomNode
+    inline QDomNode::NodeType nodeType() const { return ProcessingInstructionNode; }
 
 private:
     QDomProcessingInstruction(QDomProcessingInstructionPrivate*);

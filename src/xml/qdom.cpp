@@ -74,7 +74,7 @@ static void qt_split_namespace(QString& prefix, QString& name, const QString& qN
         if (hasURI)
             prefix = "";
         else
-            prefix = QString::null;
+            prefix.clear();
         name = qName;
     } else {
         prefix = qName.left(i);
@@ -722,8 +722,8 @@ QDomDocumentType QDomImplementation::createDocumentType(const QString& qName, co
     QDomDocumentTypePrivate *dt = new QDomDocumentTypePrivate(0);
     dt->name = qName;
     if (systemId.isNull()) {
-        dt->publicId = QString::null;
-        dt->systemId = QString::null;
+        dt->publicId.clear();
+        dt->systemId.clear();
     } else {
         dt->publicId = publicId;
         dt->systemId = systemId;
@@ -1958,7 +1958,7 @@ bool QDomNode::isSupported(const QString& feature, const QString& version) const
 QString QDomNode::namespaceURI() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->namespaceURI;
 }
 
@@ -1986,7 +1986,7 @@ QString QDomNode::namespaceURI() const
 QString QDomNode::prefix() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->prefix;
 }
 
@@ -2026,7 +2026,7 @@ void QDomNode::setPrefix(const QString& pre)
 QString QDomNode::localName() const
 {
     if (!impl || IMPL->createdWithDom1Interface)
-        return QString::null;
+        return QString();
     return IMPL->name;
 }
 
@@ -2419,7 +2419,7 @@ bool QDomNode::isProcessingInstruction() const
 */
 bool QDomNode::isCharacterData() const
 {
-    if(impl)
+    if (impl)
         return impl->isCharacterData();
     return false;
 }
@@ -2434,7 +2434,7 @@ bool QDomNode::isCharacterData() const
 */
 bool QDomNode::isComment() const
 {
-     if(impl)
+    if (impl)
         return impl->isComment();
     return false;
 }
@@ -2887,9 +2887,9 @@ void QDomDocumentTypePrivate::init()
 {
     entities = new QDomNamedNodeMapPrivate(this);
     notations = new QDomNamedNodeMapPrivate(this);
-    publicId = QString::null;
-    systemId = QString::null;
-    internalSubset = QString::null;
+    publicId.clear();
+    systemId.clear();
+    internalSubset.clear();
 
     entities->setAppendToParent(true);
     notations->setAppendToParent(true);
@@ -3074,8 +3074,7 @@ QDomDocumentType& QDomDocumentType::operator= (const QDomDocumentType& n)
 QString QDomDocumentType::name() const
 {
     if (!impl)
-        return QString::null;
-
+        return QString();
     return IMPL->nodeName();
 }
 
@@ -3108,7 +3107,7 @@ QDomNamedNodeMap QDomDocumentType::notations() const
 QString QDomDocumentType::publicId() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->publicId;
 }
 
@@ -3121,7 +3120,7 @@ QString QDomDocumentType::publicId() const
 QString QDomDocumentType::systemId() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->systemId;
 }
 
@@ -3134,18 +3133,18 @@ QString QDomDocumentType::systemId() const
 QString QDomDocumentType::internalSubset() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->internalSubset;
 }
 
-// ##### 2 issues:
-//  are these needed at all? The only difference when removing these two methods in all
-// subclasses is that we'd get a different type for null nodes.
-//
-// if we don't remove them, we can probably inline most of them in the header file.
+/*
+    Are these needed at all? The only difference when removing these
+    two methods in all subclasses is that we'd get a different type
+    for null nodes.
+*/
 
 /*!
-  \fn QDomNode::NodeType QDomDocumentType::nodeType() const
+    \fn QDomNode::NodeType QDomDocumentType::nodeType() const
 
     Returns \c DocumentTypeNode.
 
@@ -3153,7 +3152,7 @@ QString QDomDocumentType::internalSubset() const
 */
 
 /*!
-  \fn bool QDomDocumentType::isDocumentType() const
+    \fn bool QDomDocumentType::isDocumentType() const
 
     This function overloads QDomNode::isDocumentType().
 
@@ -3260,24 +3259,12 @@ QDomDocumentFragment& QDomDocumentFragment::operator= (const QDomDocumentFragmen
 }
 
 /*!
+    \fn QDomNode::NodeType QDomDocumentFragment::nodeType() const
+
     Returns \c DocumentFragment.
 
     \sa isDocumentFragment() QDomNode::toDocumentFragment()
 */
-QDomNode::NodeType QDomDocumentFragment::nodeType() const
-{
-    return QDomNode::DocumentFragmentNode;
-}
-
-/*!
-    This function reimplements QDomNode::isDocumentFragment().
-
-    \sa nodeType() QDomNode::toDocumentFragment()
-*/
-bool QDomDocumentFragment::isDocumentFragment() const
-{
-    return true;
-}
 
 #undef IMPL
 
@@ -3419,7 +3406,7 @@ QDomCharacterData& QDomCharacterData::operator= (const QDomCharacterData& x)
 QString QDomCharacterData::data() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return impl->nodeValue();
 }
 
@@ -3448,7 +3435,7 @@ uint QDomCharacterData::length() const
 QString QDomCharacterData::substringData(unsigned long offset, unsigned long count)
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->substringData(offset, count);
 }
 
@@ -3492,22 +3479,13 @@ void QDomCharacterData::replaceData(unsigned long offset, unsigned long count, c
 /*!
     Returns the type of node this object refers to (i.e. \c TextNode,
     \c CDATASectionNode, \c CommentNode or \c CharacterDataNode). For
-    a \link isNull() null node\endlink \c CharacterDataNode is
-    returned.
+    a \link isNull() null node\endlink, returns \c CharacterDataNode.
 */
 QDomNode::NodeType QDomCharacterData::nodeType() const
 {
-    if(!impl)
+    if (!impl)
         return CharacterDataNode;
     return QDomNode::nodeType();
-}
-
-/*!
-    Returns true.
-*/
-bool QDomCharacterData::isCharacterData() const
-{
-    return true;
 }
 
 #undef IMPL
@@ -3708,7 +3686,7 @@ QDomAttr& QDomAttr::operator= (const QDomAttr& x)
 QString QDomAttr::name() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return impl->nodeName();
 }
 
@@ -3747,7 +3725,7 @@ QDomElement QDomAttr::ownerElement() const
 QString QDomAttr::value() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return impl->nodeValue();
 }
 
@@ -3765,20 +3743,10 @@ void QDomAttr::setValue(const QString& v)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomAttr::nodeType() const
+
     Returns \link QDomNode::NodeType AttributeNode\endlink.
 */
-QDomNode::NodeType QDomAttr::nodeType() const
-{
-    return AttributeNode;
-}
-
-/*!
-    Returns true.
-*/
-bool QDomAttr::isAttr() const
-{
-    return true;
-}
 
 #undef IMPL
 
@@ -4108,12 +4076,10 @@ QDomElement& QDomElement::operator= (const QDomElement& x)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomElement::nodeType() const
+
     Returns \c ElementNode.
 */
-QDomNode::NodeType QDomElement::nodeType() const
-{
-    return ElementNode;
-}
 
 /*!
     Sets this element's tag name to \a name.
@@ -4140,7 +4106,7 @@ void QDomElement::setTagName(const QString& name)
 QString QDomElement::tagName() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return impl->nodeName();
 }
 
@@ -4304,14 +4270,6 @@ QDomAttr QDomElement::removeAttributeNode(const QDomAttr& oldAttr)
 QDomNodeList QDomElement::elementsByTagName(const QString& tagname) const
 {
     return QDomNodeList(new QDomNodeListPrivate(impl, tagname));
-}
-
-/*!
-    Returns true.
-*/
-bool QDomElement::isElement() const
-{
-    return true;
 }
 
 /*!
@@ -4502,7 +4460,7 @@ bool QDomElement::hasAttributeNS(const QString& nsURI, const QString& localName)
 QString QDomElement::text() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->text();
 }
 
@@ -4622,12 +4580,10 @@ QDomText& QDomText::operator= (const QDomText& x)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomText::nodeType() const
+
     Returns \c TextNode.
 */
-QDomNode::NodeType QDomText::nodeType() const
-{
-    return TextNode;
-}
 
 /*!
     Splits this DOM text object into two QDomText objects. This object
@@ -4644,14 +4600,6 @@ QDomText QDomText::splitText(int offset)
     if (!impl)
         return QDomText();
     return QDomText(IMPL->splitText(offset));
-}
-
-/*!
-    Returns true.
-*/
-bool QDomText::isText() const
-{
-    return true;
 }
 
 #undef IMPL
@@ -4758,17 +4706,15 @@ QDomComment& QDomComment::operator= (const QDomComment& x)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomComment::nodeType() const
+
     Returns \c CommentNode.
 */
-QDomNode::NodeType QDomComment::nodeType() const
-{
-    return CommentNode;
-}
 
 /*!
     \fn bool QDomComment::isComment() const
 
-    \reimp
+    Returns true.
 */
 
 #undef IMPL
@@ -4881,20 +4827,10 @@ QDomCDATASection& QDomCDATASection::operator= (const QDomCDATASection& x)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomCDATASection::nodeType() const
+
     Returns \c CDATASection.
 */
-QDomNode::NodeType QDomCDATASection::nodeType() const
-{
-    return CDATASectionNode;
-}
-
-/*!
-    Returns true.
-*/
-bool QDomCDATASection::isCDATASection() const
-{
-    return true;
-}
 
 #undef IMPL
 
@@ -5020,12 +4956,10 @@ QDomNotation& QDomNotation::operator= (const QDomNotation& x)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomNotation::nodeType() const
+
     Returns \c NotationNode.
 */
-QDomNode::NodeType QDomNotation::nodeType() const
-{
-    return NotationNode;
-}
 
 /*!
     Returns the public identifier of this notation.
@@ -5033,7 +4967,7 @@ QDomNode::NodeType QDomNotation::nodeType() const
 QString QDomNotation::publicId() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->m_pub;
 }
 
@@ -5043,16 +4977,8 @@ QString QDomNotation::publicId() const
 QString QDomNotation::systemId() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->m_sys;
-}
-
-/*!
-    Returns true.
-*/
-bool QDomNotation::isNotation() const
-{
-    return true;
 }
 
 #undef IMPL
@@ -5226,12 +5152,10 @@ QDomEntity& QDomEntity::operator= (const QDomEntity& x)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomEntity::nodeType() const
+
     Returns \c EntityNode.
 */
-QDomNode::NodeType QDomEntity::nodeType() const
-{
-    return EntityNode;
-}
 
 /*!
     Returns the public identifier associated with this entity. If the
@@ -5240,7 +5164,7 @@ QDomNode::NodeType QDomEntity::nodeType() const
 QString QDomEntity::publicId() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->m_pub;
 }
 
@@ -5251,7 +5175,7 @@ QString QDomEntity::publicId() const
 QString QDomEntity::systemId() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->m_sys;
 }
 
@@ -5263,16 +5187,8 @@ QString QDomEntity::systemId() const
 QString QDomEntity::notationName() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return IMPL->m_notationName;
-}
-
-/*!
-    Returns true.
-*/
-bool QDomEntity::isEntity() const
-{
-    return true;
 }
 
 #undef IMPL
@@ -5393,20 +5309,10 @@ QDomEntityReference& QDomEntityReference::operator= (const QDomEntityReference& 
 }
 
 /*!
+    \fn QDomNode::NodeType QDomEntityReference::nodeType() const
+
     Returns \c EntityReference.
 */
-QDomNode::NodeType QDomEntityReference::nodeType() const
-{
-    return EntityReferenceNode;
-}
-
-/*!
-    Returns true.
-*/
-bool QDomEntityReference::isEntityReference() const
-{
-    return true;
-}
 
 #undef IMPL
 
@@ -5517,12 +5423,10 @@ QDomProcessingInstruction& QDomProcessingInstruction::operator= (const QDomProce
 }
 
 /*!
+    \fn QDomNode::NodeType QDomProcessingInstruction::nodeType() const
+
     Returns \c ProcessingInstructionNode.
 */
-QDomNode::NodeType QDomProcessingInstruction::nodeType() const
-{
-    return ProcessingInstructionNode;
-}
 
 /*!
     Returns the target of this processing instruction.
@@ -5532,7 +5436,7 @@ QDomNode::NodeType QDomProcessingInstruction::nodeType() const
 QString QDomProcessingInstruction::target() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return impl->nodeName();
 }
 
@@ -5544,7 +5448,7 @@ QString QDomProcessingInstruction::target() const
 QString QDomProcessingInstruction::data() const
 {
     if (!impl)
-        return QString::null;
+        return QString();
     return impl->nodeValue();
 }
 
@@ -5558,14 +5462,6 @@ void QDomProcessingInstruction::setData(const QString& d)
     if (!impl)
         return;
     impl->setNodeValue(d);
-}
-
-/*!
-    Returns true.
-*/
-bool QDomProcessingInstruction::isProcessingInstruction() const
-{
-    return true;
 }
 
 #undef IMPL
@@ -6472,21 +6368,10 @@ QDomElement QDomDocument::elementById(const QString& /*elementId*/)
 }
 
 /*!
+    \fn QDomNode::NodeType QDomDocument::nodeType() const
+
     Returns \c DocumentNode.
 */
-QDomNode::NodeType QDomDocument::nodeType() const
-{
-    return DocumentNode;
-}
-
-/*!
-    Returns true.
-*/
-bool QDomDocument::isDocument() const
-{
-    return true;
-}
-
 
 #undef IMPL
 
@@ -6806,7 +6691,7 @@ bool QDomHandler::startEntity(const QString &name)
 
 bool QDomHandler::endEntity(const QString &)
 {
-    entityName = QString::null;
+    entityName.clear();
     return true;
 }
 
