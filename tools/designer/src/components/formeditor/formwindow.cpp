@@ -13,6 +13,7 @@
 
 #include "formwindow.h"
 #include "formwindow_dnditem.h"
+#include "formwindow_widgetstack.h"
 #include "formwindowcursor.h"
 #include "formwindowmanager.h"
 #include "tool_widgeteditor.h"
@@ -198,7 +199,7 @@ void FormWindow::init()
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
 
-    m_widgetStack = new QStackedWidget(this);
+    m_widgetStack = new FormWindowWidgetStack(this);
     layout->addWidget(m_widgetStack);
 
     m_currentTool = -1;

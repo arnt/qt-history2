@@ -16,6 +16,7 @@
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPixmap>
 #include <QtGui/QMatrix>
+#include <QtGui/qevent.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/qdebug.h>
@@ -729,6 +730,11 @@ void ConnectionEdit::clear()
 
 void ConnectionEdit::setBackground(QWidget *background)
 {
+    if (background == m_bg_widget) {
+        // nothing to do
+        return;
+    }
+
     m_bg_widget = background;
     updateBackground();
 }

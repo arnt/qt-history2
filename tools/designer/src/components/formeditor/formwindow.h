@@ -36,7 +36,6 @@ class Connection;
 class QLabel;
 class QTimer;
 class QAction;
-class QStackedWidget;
 class QMenu;
 class QtUndoStack;
 class QRubberBand;
@@ -46,6 +45,7 @@ class FormWindowManager;
 class OrderIndicator;
 class FormEditor;
 class FormWindowDnDItem;
+class FormWindowWidgetStack;
 
 // ### fake - remove when actions are implemented
 class QT_FORMEDITOR_EXPORT WidgetToActionMap
@@ -334,7 +334,7 @@ private:
     QString m_comment;
     QString m_author;
 
-    QStackedWidget *m_widgetStack;
+    FormWindowWidgetStack *m_widgetStack;
 
 private:
 //    friend class FormWindowManager;

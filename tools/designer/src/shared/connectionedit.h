@@ -14,13 +14,13 @@
 #ifndef CONNECTIONEDIT_H
 #define CONNECTIONEDIT_H
 
-#include <QWidget>
-#include <QMap>
-#include <QMultiMap>
-#include <QList>
-#include <QPixmap>
-#include <QPointer>
-#include <QPolygonF>
+#include <QtCore/QMultiMap>
+#include <QtCore/QList>
+#include <QtCore/QPointer>
+
+#include <QtGui/QWidget>
+#include <QtGui/QPixmap>
+#include <QtGui/QPolygonF>
 
 #include "shared_global.h"
 
