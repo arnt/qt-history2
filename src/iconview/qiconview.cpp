@@ -2734,17 +2734,17 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->arrangement = LeftToRight;
     d->resizeMode = Fixed;
     d->dropped = FALSE;
-    d->adjustTimer = new QTimer( this );
+    d->adjustTimer = new QTimer( this, "iconview adjust timer" );
     d->isIconDrag = FALSE;
 #ifndef QT_NO_DRAGANDDROP
     d->iconDragData.clear();
 #endif
     d->numDragItems = 0;
-    d->updateTimer = new QTimer( this );
+    d->updateTimer = new QTimer( this, "iconview update timer" );
     d->cachedW = d->cachedH = 0;
     d->maxItemWidth = 100;
     d->maxItemTextLength = 255;
-    d->inputTimer = new QTimer( this );
+    d->inputTimer = new QTimer( this, "iconview input timer" );
     d->currInputString = QString::null;
     d->dirty = FALSE;
     d->rearrangeEnabled = TRUE;
@@ -2758,7 +2758,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->wordWrapIconText = TRUE;
     d->cachedContentsX = d->cachedContentsY = -1;
     d->clearing = FALSE;
-    d->fullRedrawTimer = new QTimer( this );
+    d->fullRedrawTimer = new QTimer( this, "iconview full redraw timer" );
     d->itemTextBrush = NoBrush;
     d->drawAllBack = TRUE;
     d->fm = new QFontMetrics( font() );

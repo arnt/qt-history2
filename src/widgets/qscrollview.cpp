@@ -125,8 +125,10 @@ public:
         flags( vpwflags ),
         vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
 #ifndef QT_NO_DRAGANDDROP
-        autoscroll_timer( parent ), drag_autoscroll( TRUE ),
+        autoscroll_timer( parent, "scrollview autoscroll timer" ),
+	drag_autoscroll( TRUE ),
 #endif
+	scrollbar_timer( parent, "scrollview scrollbar timer" ),
         inresize( FALSE ), use_cached_size_hint( TRUE )
     {
 	l_marg = r_marg = t_marg = b_marg = 0;
