@@ -53,6 +53,7 @@ void XmlWriter::readFragment(const QTextBlock &currentBlock,
             fragmentElement.appendChild(fragmentText);
             /* Include some text here for easy quoting:
             processFragment(currentBlock);
+            ...
             */
         }
     }
