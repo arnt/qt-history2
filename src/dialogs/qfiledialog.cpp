@@ -3578,7 +3578,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
     if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) )
-	return macGetSaveFileName( initialSelection, filter, workingDirectory,
+	return macGetSaveFileName( initialSelection.isNull() ? startWith : initialSelection, filter, workingDirectory,
 				   parent, name, caption );
 #endif
 
