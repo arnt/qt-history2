@@ -3375,25 +3375,32 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 /*!
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
+
+  If \a cs is FALSE (the default) then the search is case-insensitive.  If 
+  \a cs is TRUE, then the search is case-sensitive.
 */
 
-QIconViewItem *QIconView::findItem( const QString &text ) const
+QIconViewItem *QIconView::findItem( const QString &text, bool cs ) const
 {
     if ( !d->firstItem )
-	return 0;
-
+        return 0;
+    
     QIconViewItem *item = d->currentItem;
     for ( ; item; item = item->next ) {
-	if ( item->text().lower().left( text.length() ) == text.lower() )
-	    return item;
+        if ( cs && item->text().left( text.length() ) == text )
+            return item;
+        else if ( !cs && item->text().lower().left( text.length() ) == text.lower() )
+            return item;
     }
-
+    
     item = d->firstItem;
     for ( ; item && item != d->currentItem; item = item->next ) {
-	if ( item->text().lower().left( text.length() ) == text.lower() )
-	    return item;
+        if ( cs && item->text().left( text.length() ) == text )
+            return item;
+        else if ( !cs && item->text().lower().left( text.length() ) == text.lower() )
+            return item;
     }
-
+    
     return 0;
 }
 

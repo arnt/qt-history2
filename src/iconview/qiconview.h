@@ -318,7 +318,7 @@ public:
     SelectionMode selectionMode() const;
 
     QIconViewItem *findItem( const QPoint &pos ) const;
-    QIconViewItem *findItem( const QString &text ) const;
+    QIconViewItem *findItem( const QString &text, bool cs = FALSE ) const;
     virtual void selectAll( bool select );
     virtual void clearSelection();
     virtual void invertSelection();
