@@ -1900,12 +1900,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	    RgnHandle r = qt_mac_get_rgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 	    if(!EmptyRgn(r)) {
-		QRegion dirty; //the dirty region
-		CopyRgn(r, dirty.handle(TRUE));
+		QRegion dirty = qt_mac_convert_mac_region(r); //the dirty region
 		dirty.translate(-topLevelWidget()->geometry().x(),
 				-topLevelWidget()->geometry().y());
 		bltd -= dirty;
-		debug_wndw_rgn("this is the dirty area", this, dirty);
 	    }
 	    qt_mac_dispose_rgn(r);
 	}
