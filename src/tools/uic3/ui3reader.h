@@ -29,7 +29,7 @@ class DomProperty;
 class DomLayout;
 class DomLayoutItem;
 class DomActionGroup;
-class Color;
+struct Color;
 
 typedef QList<QPair<int, Color> > ColorGroup;
 
