@@ -26,12 +26,12 @@ class QSimpleAX : public QWidget, public QAxBindable
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int value READ value WRITE setValue )
 public:
-    QSimpleAX( QWidget *parent = 0, const char *name = 0 )
-    : QWidget( parent, name )
+    QSimpleAX(QWidget *parent = 0)
+    : QWidget(parent)
     {
 	QVBoxLayout *vbox = new QVBoxLayout( this );
 
-	slider = new QSlider( QSlider::Horizontal, this );
+        slider = new QSlider( Qt::Horizontal, this );
 	LCD = new QLCDNumber( 3, this );
 	edit = new QLineEdit( this );
 
