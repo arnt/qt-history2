@@ -117,7 +117,7 @@ unix {
 	!embedded:!mac:CONFIG	   += x11 x11inc
 }
 
-aix-g++ {
+aix-g++* {
 	QMAKE_CFLAGS   += -mminimal-toc
 	QMAKE_CXXFLAGS += -mminimal-toc
 }
