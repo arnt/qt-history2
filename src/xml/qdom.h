@@ -186,6 +186,11 @@ public:
 
     void save(QTextStream&, int) const;
 
+    QDomElement firstChildElement(const QString &tagName = QString()) const;
+    QDomElement lastChildElement(const QString &tagName = QString()) const;
+    QDomElement previousSiblingElement(const QString &tagName = QString()) const;
+    QDomElement nextSiblingElement(const QString &taName = QString()) const;
+
 protected:
     QDomNodePrivate* impl;
     QDomNode(QDomNodePrivate*);

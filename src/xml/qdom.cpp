@@ -2445,6 +2445,87 @@ bool QDomNode::isComment() const
 
 #undef IMPL
 
+/*!
+    Returns the first child element with tag name \a tagName if tagName is non-empty;
+    otherwise returns the last child element.  Returns a null element if no
+    such child exists.
+
+    \sa lastChildElement() previousChildElement() nextChildElement()
+*/
+
+QDomElement QDomNode::firstChildElement(const QString &tagName) const
+{
+    for (QDomNode child = firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isElement()) {
+            QDomElement elt = child.toElement();
+            if (tagName.isEmpty() || elt.tagName() == tagName)
+                return elt;
+        }
+    }
+    return QDomElement();
+}
+
+/*!
+    Returns the last child element with tag name \a tagName if tagName is non-empty;
+    otherwise returns the first child element. Returns a null element if no
+    such child exists.
+
+    \sa firstChildElement() previousChildElement() nextChildElement()
+*/
+
+QDomElement QDomNode::lastChildElement(const QString &tagName) const
+{
+    for (QDomNode child = lastChild(); !child.isNull(); child = child.previousSibling()) {
+        if (child.isElement()) {
+            QDomElement elt = child.toElement();
+            if (tagName.isEmpty() || elt.tagName() == tagName)
+                return elt;
+        }
+    }
+    return QDomElement();
+}
+
+/*!
+    Returns the next sibilng element with tag name \a tagName if \a tagName
+    is non-empty; otherwise returns any next sibling element.
+    Returns a null element if no such sibling exists.
+
+    \sa firstChildElement() previousChildElement() lastChildElement()
+*/
+
+QDomElement QDomNode::nextSiblingElement(const QString &tagName) const
+{
+    for (QDomNode sib = nextSibling(); !sib.isNull(); sib = sib.nextSibling()) {
+        if (sib.isElement()) {
+            QDomElement elt = sib.toElement();
+            if (tagName.isEmpty() || elt.tagName() == tagName)
+                return elt;
+        }
+    }
+    return QDomElement();
+}
+
+/*!
+    Returns the previous sibilng element with tag name \a tagName if \a tagName
+    is non-empty; otherwise returns any previous sibling element.
+    Returns a null element if no such sibling exists.
+    
+    \sa firstChildElement() nextChildElement() lastChildElement()
+*/
+
+QDomElement QDomNode::previousSiblingElement(const QString &tagName) const
+{
+    for (QDomNode sib = previousSibling(); !sib.isNull(); sib = sib.previousSibling()) {
+        if (sib.isElement()) {
+            QDomElement elt = sib.toElement();
+            if (tagName.isEmpty() || elt.tagName() == tagName)
+                return elt;
+        }
+    }
+    return QDomElement();
+}
+
+
 /**************************************************************
  *
  * QDomNamedNodeMapPrivate
@@ -4032,6 +4113,18 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
     a specified tag name with elementsByTagName() or
     elementsByTagNameNS().
 
+    To browse the elements of a dom document use firstChildElement(), lastChildElement(),
+    nextSiblingElement() and previousSiblingElement(). For example, to iterate over all
+    child elements called "entry" in a root element called "database", you can use:
+    \code
+    QDomDocument doc = // ...
+    QDomElement root = doc.firstChildElement("database");
+    QDomElement elt = root.firstChildElement("entry");
+    for (; !elt.isNull(); elt = elt.nextSiblingElelement("entry")) {
+        // ...
+    }
+    \endcode
+    
     For further information about the Document Object Model see
     \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
     \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
