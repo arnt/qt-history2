@@ -13,6 +13,8 @@ LIBDIR	=	$(BASEDIR)/lib
 CFLAGS	=	-O2
 CC	=	gcc
 
+# $Source: /tmp/cvs/qt/src/moc/Makefile,v $
+
 ####### Lex and yacc
 
 LEX	=	flex
