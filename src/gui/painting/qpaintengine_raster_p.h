@@ -179,6 +179,7 @@ public:
     CGImageRef m_data;
 #endif
 #endif
+    ~QRasterBuffer();
 
     void init();
 

@@ -1354,6 +1354,22 @@ QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image)
     return &tempImage;
 }
 
+QRasterBuffer::~QRasterBuffer()
+{
+    if (m_clipSpanCount || m_clipSpanCapacity || m_clipSpans) {
+        Q_ASSERT(m_clipSpanCount);
+        qFree(m_clipSpanCount);
+
+        Q_ASSERT(m_clipSpanCapacity);
+        qFree(m_clipSpanCapacity);
+
+        Q_ASSERT(m_clipSpans);
+        for (int y=0; y<m_height; ++y)
+            qFree((QT_FT_Span *)m_clipSpans[y]);
+        qFree(m_clipSpans);
+    }
+}
+
 void QRasterBuffer::init()
 {
     m_clipSpanCount = 0;

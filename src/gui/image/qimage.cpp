@@ -141,6 +141,7 @@ QImageData::QImageData()
 
 QImageData::~QImageData()
 {
+    delete paintEngine;
     if (bits)
         free(bits);
     if (ctbl)
