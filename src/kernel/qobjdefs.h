@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#2 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#3 $
 **
 ** Macros and definitions related to QObject
 **
 ** Author  : Haavard Nord
 ** Created : 930419
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains ugly macros and definitions that are necessary to make
@@ -30,7 +30,7 @@
 #define Q_OBJECT							      \
 public:									      \
     QMetaObject *metaObject() const { return metaObj; }			      \
-    char *className() const;						      \
+    const char *className()   const;					      \
 protected:								      \
     void  initMetaObject();						      \
 private:								      \
