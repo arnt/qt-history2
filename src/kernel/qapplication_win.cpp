@@ -664,7 +664,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
+#if defined(QT_THREAD_SUPPORT)
     QThread::initialize();
+#endif
     qApp->setName( appName );
 
     // default font
@@ -804,7 +806,9 @@ void qt_cleanup()
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
+#if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();
+#endif
     if ( displayDC ) {
 	ReleaseDC( 0, displayDC );
 	displayDC = 0;
