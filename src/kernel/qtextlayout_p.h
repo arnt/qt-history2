@@ -64,9 +64,12 @@ class Q_EXPORT QTextLayout
 {
 public:
     // does itemization
-    QTextLayout( const QString &string, QPainter * = 0 );
-    QTextLayout( const QString &string, const QFont &f );
+    QTextLayout();
+    QTextLayout( const QString& string, QPainter * = 0 );
+    QTextLayout( const QString& string, const QFont& fnt );
     virtual ~QTextLayout();
+
+    void setText( const QString& string, const QFont& fnt );
 
     enum LineBreakStrategy {
 	AtWordBoundaries,
@@ -76,11 +79,9 @@ public:
     /* add an additional item boundary eg. for style change */
     void setBoundary( int strPos );
 
-    bool validCursorPosition( int strPos );
-
     int numItems() const;
-    QTextItem itemAt( int i );
-    QTextItem findItem( int strPos );
+    QTextItem itemAt( int i ) const;
+    QTextItem findItem( int strPos ) const;
 
     void beginLayout();
     void beginLine( int width );
@@ -110,9 +111,9 @@ public:
 	SkipCharacters,
 	SkipWords
     };
+    bool validCursorPosition( int pos ) const;
     int nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
-    bool validCursorPosition( int pos ) const;
 
 private:
     /* disable copy and assignment */

@@ -181,23 +181,29 @@ bool QTextItem::isObject() const
     return (engine->string.at(engine->items[item].position).unicode() == 0xfffc);
 }
 
+QTextLayout::QTextLayout()
+    :d(0) {}
 
-
-
-QTextLayout::QTextLayout( const QString &string, QPainter *p )
+QTextLayout::QTextLayout( const QString& string, QPainter* p )
 {
     QFontPrivate *f = p ? ( p->pfont ? p->pfont->d : p->cfont.d ) : QApplication::font().d;
-    d = new QTextEngine( string, f );
+    d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), f );
 }
 
-QTextLayout::QTextLayout( const QString &string, const QFont &fnt )
+QTextLayout::QTextLayout( const QString& string, const QFont& fnt )
 {
-    d = new QTextEngine( string, fnt.d );
+    d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), fnt.d );
 }
 
 QTextLayout::~QTextLayout()
 {
     delete d;
+}
+
+void QTextLayout::setText( const QString& string, const QFont& fnt )
+{
+    delete d;
+    d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), fnt.d );
 }
 
 /* add an additional item boundary eg. for style change */
@@ -218,24 +224,18 @@ void QTextLayout::setBoundary( int strPos )
 }
 
 
-bool QTextLayout::validCursorPosition( int strPos )
-{
-    return d->attributes()[strPos].charStop;
-}
-
-
 int QTextLayout::numItems() const
 {
     return d->items.size();
 }
 
-QTextItem QTextLayout::itemAt( int i )
+QTextItem QTextLayout::itemAt( int i ) const
 {
     return QTextItem( i, d );
 }
 
 
-QTextItem QTextLayout::findItem( int strPos )
+QTextItem QTextLayout::findItem( int strPos ) const
 {
     if ( strPos == 0 && d->items.size() )
 	return QTextItem( 0, d );
