@@ -1,30 +1,30 @@
-#include "qtrayicon.h"
+#include "trayicon.h"
 #include "qpopupmenu.h"
 
 /*!
-  \class QTrayIcon qtrayicon.h
-  \brief The QTrayIcon class implements an entry in the system tray.
+  \class TrayIcon qtrayicon.h
+  \brief The TrayIcon class implements an entry in the system tray.
 */
 
 /*!
-  Creates a QTrayIcon object. \a parent and \a name are propagated
+  Creates a TrayIcon object. \a parent and \a name are propagated
   to the QObject constructor. The icon is initially invisible.
 
   \sa show
 */
-QTrayIcon::QTrayIcon( QObject *parent, const char *name )
+TrayIcon::TrayIcon( QObject *parent, const char *name )
 : QObject(parent, name), pop(0), d(0)
 {
 }
 
 /*!
-  Creates a QTrayIcon object displaying \a icon and \a tooltip, and opening
+  Creates a TrayIcon object displaying \a icon and \a tooltip, and opening
   \a popup when clicked with the right mousebutton. \a parent and \a name are
   propagated to the QObject constructor. The icon is initially invisible.
 
   \sa show
 */
-QTrayIcon::QTrayIcon( const QPixmap &icon, const QString &tooltip, QPopupMenu *popup, QObject *parent, const char *name )
+TrayIcon::TrayIcon( const QPixmap &icon, const QString &tooltip, QPopupMenu *popup, QObject *parent, const char *name )
 : QObject(parent, name), pop(popup), pm(icon), tip(tooltip), d(0)
 {
 }
@@ -32,7 +32,7 @@ QTrayIcon::QTrayIcon( const QPixmap &icon, const QString &tooltip, QPopupMenu *p
 /*!
   Removes the icon from the system tray and frees all allocated resources.
 */
-QTrayIcon::~QTrayIcon()
+TrayIcon::~TrayIcon()
 {
     sysRemove();
 }
@@ -41,7 +41,7 @@ QTrayIcon::~QTrayIcon()
   Sets the context menu to \a popup. The context menu will pop up when the
   user clicks the system tray entry with the right mouse button.
 */
-void QTrayIcon::setPopup( QPopupMenu* popup )
+void TrayIcon::setPopup( QPopupMenu* popup )
 {
     pop = popup;
 }
@@ -51,39 +51,39 @@ void QTrayIcon::setPopup( QPopupMenu* popup )
 
   \sa setPopup
 */
-QPopupMenu* QTrayIcon::popup() const
+QPopupMenu* TrayIcon::popup() const
 {
     return pop;
 }
 
 /*!
-  \property QTrayIcon::icon
+  \property TrayIcon::icon
   \brief the system tray icon.
 */
-void QTrayIcon::setIcon( const QPixmap &icon )
+void TrayIcon::setIcon( const QPixmap &icon )
 {
     pm = icon;
     sysUpdateIcon();
 }
 
-QPixmap QTrayIcon::icon() const
+QPixmap TrayIcon::icon() const
 {
     return pm;
 }
 
 /*!
-  \property QTrayIcon::toolTip
+  \property TrayIcon::toolTip
   \brief the tooltip for the system tray entry
   
   On some systems, the tooltip's length is limited and will be truncated as necessary.
 */
-void QTrayIcon::setToolTip( const QString &tooltip )
+void TrayIcon::setToolTip( const QString &tooltip )
 {
     tip = tooltip;
     sysUpdateToolTip();
 }
 
-QString QTrayIcon::toolTip() const
+QString TrayIcon::toolTip() const
 {
     return tip;
 }
@@ -93,7 +93,7 @@ QString QTrayIcon::toolTip() const
 
   \sa hide
 */
-void QTrayIcon::show()
+void TrayIcon::show()
 {
     sysInstall();
 }
@@ -101,7 +101,7 @@ void QTrayIcon::show()
 /*!
   Hides the system tray entry.
 */
-void QTrayIcon::hide()
+void TrayIcon::hide()
 {
     sysRemove();
 }
@@ -109,7 +109,7 @@ void QTrayIcon::hide()
 /*!
   \reimp
 */
-bool QTrayIcon::event( QEvent *e )
+bool TrayIcon::event( QEvent *e )
 {
     switch ( e->type() ) {
     case QEvent::MouseMove:
@@ -140,7 +140,7 @@ bool QTrayIcon::event( QEvent *e )
 
   \sa mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),  QMouseEvent
 */
-void QTrayIcon::mouseMoveEvent( QMouseEvent *e )
+void TrayIcon::mouseMoveEvent( QMouseEvent *e )
 {
     e->ignore();
 }
@@ -152,7 +152,7 @@ void QTrayIcon::mouseMoveEvent( QMouseEvent *e )
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), QMouseEvent
 */
-void QTrayIcon::mousePressEvent( QMouseEvent *e )
+void TrayIcon::mousePressEvent( QMouseEvent *e )
 {
     e->ignore();
 }
@@ -167,7 +167,7 @@ void QTrayIcon::mousePressEvent( QMouseEvent *e )
   \sa setPopup(), mousePressEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), QMouseEvent
 */
-void QTrayIcon::mouseReleaseEvent( QMouseEvent *e )
+void TrayIcon::mouseReleaseEvent( QMouseEvent *e )
 {
     switch ( e->button() ) {
     case RightButton:
@@ -201,7 +201,7 @@ void QTrayIcon::mouseReleaseEvent( QMouseEvent *e )
   \sa mousePressEvent(), mouseReleaseEvent(),
   mouseMoveEvent(), QMouseEvent
 */
-void QTrayIcon::mouseDoubleClickEvent( QMouseEvent *e )
+void TrayIcon::mouseDoubleClickEvent( QMouseEvent *e )
 {
     if ( e->button() == LeftButton )
 	emit doubleClicked( e->globalPos() );
@@ -209,7 +209,7 @@ void QTrayIcon::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 /*!
-  \fn void QTrayIcon::clicked( const QPoint &p )
+  \fn void TrayIcon::clicked( const QPoint &p )
 
   This signal is emitted when the user clicks the system tray icon
   with the left mouse button, with \a p being the global mouse position
@@ -217,7 +217,7 @@ void QTrayIcon::mouseDoubleClickEvent( QMouseEvent *e )
 */
 
 /*!
-  \fn void QTrayIcon::doubleClicked( const QPoint &p )
+  \fn void TrayIcon::doubleClicked( const QPoint &p )
 
   This signal is emitted when the user double clicks the system tray
   icon with the left mouse button, with \a p being the global mouse position

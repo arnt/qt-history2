@@ -77,5 +77,7 @@ embedded:SUBDIRS += winmanager \
 
 embedded:SUBDIRS -= showimg
 
+win32:SUBDIRS += trayicon
+
 X11DIRS	    =   biff \
 		desktop

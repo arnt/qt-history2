@@ -1,21 +1,21 @@
-#include "qtrayicon.h"
-#include "qwsdisplay_qws.h"
+#include "trayicon.h"
+#include <qwsdisplay_qws.h>
 #include <unistd.h>
 
 #if 0 // needs stuff from Qt 2.3.0 to be integrated in
 
 static int nextid=0;
 
-class QTrayIcon::QTrayIconPrivate : public QCopChannel {
+class TrayIcon::TrayIconPrivate : public QCopChannel {
     Q_OBJECT
 public:
-    QTrayIconPrivate(QObject* parent) :
+    TrayIconPrivate(QObject* parent) :
 	QCopChannel("Qt/Tray",parent)
     {
 	id = (getpid()<<16)+nextid++;
     }
 
-    ~QTrayIconPrivate()
+    ~TrayIconPrivate()
     {
 	QByteArray data;
 	QDataStream stream( data, IO_WriteOnly );
@@ -68,25 +68,25 @@ signals:
     void doubleClicked(const QPoint&);
 };
 
-void QTrayIcon::sysInstall()
+void TrayIcon::sysInstall()
 {
-    d = new QTrayIconPrivate(this);
+    d = new TrayIconPrivate(this);
     connect(d, SIGNAL(popup(const QPoint&)), this, SLOT(doPopup(const QPoint&)));
     connect(d, SIGNAL(clicked(const QPoint&)), this, SIGNAL(clicked(const QPoint&)));
     connect(d, SIGNAL(doubleClicked(const QPoint&)), this, SIGNAL(doubleClicked(const QPoint&)));
 }
 
-void QTrayIcon::sysRemove()
+void TrayIcon::sysRemove()
 {
     delete d;
 }
 
-void QTrayIcon::sysUpdateIcon()
+void TrayIcon::sysUpdateIcon()
 {
     d->setIcon(pm);
 }
 
-void QTrayIcon::sysUpdateToolTip()
+void TrayIcon::sysUpdateToolTip()
 {
     d->setToolTip(tip);
 }
@@ -95,19 +95,19 @@ void QTrayIcon::sysUpdateToolTip()
 
 #else
 
-void QTrayIcon::sysInstall()
+void TrayIcon::sysInstall()
 {
 }
 
-void QTrayIcon::sysRemove()
+void TrayIcon::sysRemove()
 {
 }
 
-void QTrayIcon::sysUpdateIcon()
+void TrayIcon::sysUpdateIcon()
 {
 }
 
-void QTrayIcon::sysUpdateToolTip()
+void TrayIcon::sysUpdateToolTip()
 {
 }
 

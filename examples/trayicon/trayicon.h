@@ -1,5 +1,5 @@
-#ifndef QTRAYICON_H
-#define QTRAYICON_H
+#ifndef TRAYICON_H
+#define TRAYICON_H
 
 #ifndef QT_H
 #include <qobject.h>
@@ -8,7 +8,7 @@
 
 class QPopupMenu;
 
-class Q_EXPORT QTrayIcon : public QObject
+class TrayIcon : public QObject
 {
     Q_OBJECT
 
@@ -16,9 +16,9 @@ class Q_EXPORT QTrayIcon : public QObject
     Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
 
 public:
-    QTrayIcon( QObject *parent = 0, const char *name = 0 );
-    QTrayIcon( const QPixmap &, const QString &, QPopupMenu *popup = 0, QObject *parent = 0, const char *name = 0 );
-    ~QTrayIcon();
+    TrayIcon( QObject *parent = 0, const char *name = 0 );
+    TrayIcon( const QPixmap &, const QString &, QPopupMenu *popup = 0, QObject *parent = 0, const char *name = 0 );
+    ~TrayIcon();
 
 			// Set a popup menu to handle RMB
     void		setPopup( QPopupMenu * );
@@ -51,12 +51,12 @@ private:
     QString tip;
 
     // system-dependant part
-    class QTrayIconPrivate;
-    QTrayIconPrivate *d;
+    class TrayIconPrivate;
+    TrayIconPrivate *d;
     void sysInstall();
     void sysRemove();
     void sysUpdateIcon();
     void sysUpdateToolTip();
 };
 
-#endif //QTRAYICON_H
+#endif //TRAYICON_H

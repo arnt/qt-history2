@@ -1,22 +1,21 @@
-#include "qtrayicon.h"
-#include "qwidget.h"
-#include "qapplication.h"
-#include "qimage.h"
-#include "qcursor.h"
+#include "trayicon.h"
 
-#include "qt_windows.h"
+#include <qwidget.h>
+#include <qapplication.h>
+#include <qimage.h>
+#include <qcursor.h>
+
+#include <qt_windows.h>
 
 static uint MYWM_TASKBARCREATED = 0;
 #define MYWM_NOTIFYICON	(WM_APP+101)
 
 extern Qt::WindowsVersion qt_winver;
 
-class QTrayIcon::QTrayIconPrivate : public QWidget
+class TrayIcon::TrayIconPrivate : public QWidget
 {
-    Q_OBJECT
-
 public:
-    QTrayIconPrivate( QTrayIcon *object ) 
+    TrayIconPrivate( TrayIcon *object ) 
 	: QWidget( 0 ), hIcon( 0 ), iconObject( object )
     {
 	if ( !MYWM_TASKBARCREATED ) {
@@ -29,7 +28,7 @@ public:
 	}
     }
 
-    ~QTrayIconPrivate()
+    ~TrayIconPrivate()
     {
 	if ( hIcon )
 	    DestroyIcon( hIcon );
@@ -60,7 +59,7 @@ public:
 
 	return res;
     }
-
+#if defined(UNICODE)
     bool trayMessageW( DWORD msg ) 
     {
 	bool res;
@@ -85,7 +84,7 @@ public:
 
 	return res;
     }
-
+#endif
     bool iconDrawItem(LPDRAWITEMSTRUCT lpdi)
     {
 	if (!hIcon)
@@ -167,17 +166,15 @@ public:
     }
 
     HICON		hIcon;
-    QTrayIcon		*iconObject;
+    TrayIcon		*iconObject;
 };
 
-#include "qtrayicon_win.moc"
-
-void QTrayIcon::sysInstall()
+void TrayIcon::sysInstall()
 {
     if ( d )
 	return;
 
-    d = new QTrayIconPrivate( this );
+    d = new TrayIconPrivate( this );
     QImage img = pm.convertToImage();
     d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
 
@@ -189,7 +186,7 @@ void QTrayIcon::sysInstall()
 	d->trayMessageA( NIM_ADD );
 }
 
-void QTrayIcon::sysRemove()
+void TrayIcon::sysRemove()
 {
     if ( !d )
 	return;
@@ -205,7 +202,7 @@ void QTrayIcon::sysRemove()
     d = 0;
 }
 
-void QTrayIcon::sysUpdateIcon()
+void TrayIcon::sysUpdateIcon()
 {
     if ( !d )
 	return;
@@ -224,7 +221,7 @@ void QTrayIcon::sysUpdateIcon()
 	d->trayMessageA( NIM_MODIFY );
 }
 
-void QTrayIcon::sysUpdateToolTip()
+void TrayIcon::sysUpdateToolTip()
 {
     if ( !d )
 	return;
