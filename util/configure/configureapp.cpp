@@ -76,6 +76,11 @@ void ConfigureApp::buildModulesList()
     if( ( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
+    if( dictionary[ "QMAKESPEC" ] == "wince-msvc" ) {
+	disabledModules += "opengl";
+	disabledModules += "sql";
+	disabledModules += "table";
+    }
     while( ( fi = listIter.current() ) ) {
 	if( licensedModules.findIndex( fi->fileName() ) != -1 )
 	    modules += fi->fileName();
@@ -225,20 +230,23 @@ void ConfigureApp::parseCmdLine()
 
     }
 
+    if( dictionary[ "QMAKESPEC" ] == "wince-msvc" )
+	dictionary[ "QMAKE_INTERNAL" ] = "no";
+
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	qmakeConfig += modules;
 	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
 	    qmakeConfig += "internal";
     }
     else {
-	qmakeConfig += modules;
 	for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
-	    qmakeConfig.remove( (*dis) );
+	    modules.remove( (*dis) );
 	}
 	for( QStringList::Iterator ena = enabledModules.begin(); ena != enabledModules.end(); ++ena ) {
-	    if( qmakeConfig.findIndex( (*ena) ) == -1 )
-		qmakeConfig += (*ena);
+	    if( modules.findIndex( (*ena) ) == -1 )
+		modules += (*ena);
 	}
+	qmakeConfig += modules;
     }
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
@@ -543,7 +551,7 @@ void ConfigureApp::displayConfig()
 
 void ConfigureApp::buildQmake()
 {
-    if( dictionary[ "QMAKESPEC" ] == QString( "win32-msvc" ) ) {
+    if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
