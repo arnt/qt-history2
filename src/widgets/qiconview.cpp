@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#68 $
 **
 ** Definition of QIconView widget class
 **
@@ -2384,7 +2384,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 void QIconView::resizeEvent( QResizeEvent* e )
 {
     if ( d->resizeMode == Adjust )
-	d->oldSize = viewport()->size();
+	d->oldSize = e->oldSize();
     QScrollView::resizeEvent( e );
     if ( d->resizeMode == Adjust ) {
 	if ( d->adjustTimer->isActive() )
@@ -2402,10 +2402,10 @@ void QIconView::adjustItems()
     d->adjustTimer->stop();
     if ( d->resizeMode == Adjust ) {
 	if ( size() != d->oldSize ) {
-	    if ( d->firstAdjust ) {
-		d->firstAdjust = FALSE;
-		return;
-	    }
+ 	    if ( d->firstAdjust ) {
+ 		d->firstAdjust = FALSE;
+ 		return;
+ 	    }
 	    orderItemsInGrid();
 	    viewport()->repaint( FALSE );
 	}
