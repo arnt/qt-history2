@@ -41,6 +41,85 @@
 #define DEBUG_XBASE
 // #define VERBOSE_DEBUG_XBASE
 
+class XbaseSys
+{
+public:
+    XbaseSys( const QString& path )
+	: dbPath( path )
+    {
+	checkSystemDir();
+    }
+    bool setNullInfo( const QString& tablename, const QValueList<uint>& cols )
+    {
+	if ( !cols.count() )
+	    return TRUE;
+	xbShort rc = XB_NO_ERROR;
+	xbDbf notnullfile( &x );
+	QString nnFileName = sysDirPath() + "/" + tablename + "nn.dbf";
+	if ( !QFile::exists( nnFileName ) ) {
+	    xbSchema notnullrec[] =
+	    {
+		{ "FIELDNUM", XB_NUMERIC_FLD,     9, 0 },
+		{ "",0,0,0 }
+	    };
+	    notnullfile.SetVersion( 4 );   /* dbase IV files */
+	    rc = notnullfile.CreateDatabase( nnFileName, notnullrec, XB_OVERLAY );
+	    if ( rc != XB_NO_ERROR )
+		return FALSE;
+	    notnullfile.CloseDatabase();
+	}
+	rc = notnullfile.OpenDatabase( nnFileName );
+	if ( rc != XB_NO_ERROR )
+	    return FALSE;
+	for ( uint i = 0; i < cols.count(); ++i ) {
+	    notnullfile.BlankRecord();
+	    notnullfile.PutField( (short)0, QString::number(cols[i]).latin1() );
+	    rc = notnullfile.AppendRecord();
+	    if ( rc != XB_NO_ERROR ) {
+		notnullfile.CloseDatabase();
+		return FALSE;
+	    }
+	}
+	notnullfile.CloseDatabase();
+	return TRUE;
+    }
+    bool nullInfo( const QString& tablename, QValueList<uint>& cols )
+    {
+	if ( QFile::exists( sysDirPath() + "/" + tablename + "nn.dbf" ) ) {
+	    xbDbf notnullfile( &x );
+	    xbShort rc = notnullfile.OpenDatabase( sysDirPath() + "/" + tablename + "nn.dbf" );
+	    if ( rc != XB_NO_ERROR )
+		return FALSE;
+	    char buf[10];
+	    rc = notnullfile.GetFirstRecord();
+	    while( rc == XB_NO_ERROR ) {
+		notnullfile.GetField( 1, buf );
+		cols.append( QString(buf).toInt() );
+		rc = notnullfile.GetNextRecord();
+	    }
+	    notnullfile.CloseDatabase();
+	}
+	return TRUE;
+    }
+
+private:
+    QString sysDirPath()
+    {
+	return dbPath + "/sys";
+    }
+    void checkSystemDir()
+    {
+	QDir dir( dbPath );
+	QDir sysdir( sysDirPath() );
+	if ( !sysdir.exists() ) {
+	    if ( !dir.mkdir( "sys" ) )
+		qWarning( "Unable to create database system dir" );
+	}
+    }
+    QString dbPath;
+    xbXBase x;
+};
+
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
    switch ( t1 ) {
@@ -353,50 +432,14 @@ bool FileDriver::create( const List& data )
     d->file.CloseDatabase();   /* Close database and associated indexes */
     /* not null specification */
     if ( d->notnulls.count() ) {
-	if ( !appendNotNullInfo( d->notnulls ) ) {
-	    ERROR_RETURN( "Unable to store NOT NULL information: " + QString( xbStrError( rc ) ) );
+	XbaseSys sys( env->path() );
+	if ( !sys.setNullInfo( name(), d->notnulls ) ) {
+	    ERROR_RETURN( "Unable to store NOT NULL information" );
 	}
     }
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
-    return TRUE;
-}
-
-bool FileDriver::appendNotNullInfo( const QValueList<uint>& cols )
-{
-    if ( !cols.count() )
-	return TRUE;
-    xbShort rc = XB_NO_ERROR;
-    QFileInfo fi( env->path() + "/" + name() );
-    QString basename = fi.baseName();
-    xbDbf notnullfile( &d->x );
-    if ( !QFile::exists( env->path() + "/" + name().latin1() + "nn.dbf" ) ) {
-	xbSchema notnullrec[] =
-	{
-	    { "FIELDNUM", XB_NUMERIC_FLD,     9, 0 },
-	    { "",0,0,0 }
-	};
-	notnullfile.SetVersion( 4 );   /* dbase IV files */
-	rc = notnullfile.CreateDatabase( env->path() + "/" + name().latin1() + "nn.dbf",
-					 notnullrec, XB_OVERLAY );
-	if ( rc != XB_NO_ERROR )
-	    return FALSE;
-	notnullfile.CloseDatabase();
-    }
-    rc = notnullfile.OpenDatabase( env->path() + "/" + basename + "nn.dbf" );
-    if ( rc != XB_NO_ERROR )
-	return FALSE;
-    for ( uint i = 0; i < cols.count(); ++i ) {
-	notnullfile.BlankRecord();
-	notnullfile.PutField( (short)0, QString::number(cols[i]).latin1() );
-	rc = notnullfile.AppendRecord();
-	if ( rc != XB_NO_ERROR ) {
-	    notnullfile.CloseDatabase();
-	    return FALSE;
-	}
-    }
-    notnullfile.CloseDatabase();
     return TRUE;
 }
 
@@ -438,20 +481,9 @@ bool FileDriver::open()
     }
     /* determine NOT NULL columns */
     d->notnulls.clear();
-    if ( QFile::exists( env->path() + "/" + basename + "nn.dbf" ) ) {
-	xbDbf notnullfile( &d->x );
-	rc = notnullfile.OpenDatabase( env->path() + "/" + basename + "nn.dbf" );
-	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to open nn table [" + QString ( xbStrError( rc ) ) + "]" );
-	}
-	char buf[10];
-	rc = notnullfile.GetFirstRecord();
-	while( rc == XB_NO_ERROR ) {
-	    notnullfile.GetField( 1, buf );
-	    d->notnulls.append( QString(buf).toInt() );
-	    rc = notnullfile.GetNextRecord();
-	}
-	notnullfile.CloseDatabase();
+    XbaseSys sys( env->path() );
+    if ( !sys.nullInfo( name(), d->notnulls ) ) {
+	ERROR_RETURN( "Unable to load null info: " + QString ( xbStrError( rc ) ) );
     }
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
@@ -1228,7 +1260,8 @@ bool FileDriver::createIndex( const List& data, bool unique, bool notnull )
 	}
 	/* save not null info */
 	if ( notnulls.count() ) {
-	    if ( !appendNotNullInfo( notnulls ) ) {
+	    XbaseSys sys( env->path() );
+	    if ( !sys.setNullInfo( name(), notnulls ) ) {
 		ERROR_RETURN( "Unable to store NOT NULL information creating index: " +
 			      QString( xbStrError( rc ) ) );
 	    }

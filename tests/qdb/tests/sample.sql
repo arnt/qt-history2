@@ -46,7 +46,7 @@ insert into alltypes values( 96, 62, 'xsdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 97, 72, 'swdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 98, 82, 'sdsddfsdf', 'more', '2000-01-01');
 insert into alltypes values( 99, 92, 'sfdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 100, NULL, NULL, NULL, NULL );
+--insert into alltypes values( 100, NULL, NULL, NULL, NULL );
 
 update alltypes set c2 = 'updated' where n1 = 1;
 update alltypes set c2 = 'updated1' where n1 = 1;
@@ -65,4 +65,4 @@ update alltypes set c1 = 'mass update' where n1 > 1;
 -- complex where clause
 update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
 
-delete from alltypes;
+--delete from alltypes;

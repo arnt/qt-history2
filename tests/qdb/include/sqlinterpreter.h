@@ -92,7 +92,6 @@ protected:
 
     bool rangeAction( const List* data, const List* cols, LocalSQLResultSet* result );
     bool saveResult( const List* cols, LocalSQLResultSet* result );
-    bool appendNotNullInfo( const QValueList<uint>& cols );
 
 private:
     QString nm;
