@@ -1177,6 +1177,13 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
      SunOS:4*)
 	PLATFORM=sunos-g++
 	;;
+     ReliantUNIX-*|SINIX-*)
+	PLATFORM=reliant-cds
+	#PLATFORM=reliant-cds64
+	PLATFORM_NOTES="
+	    - Also available for Reliant UNIX: reliant-cds64
+	"
+	;;
      OpenUNIX:*)
 	#PLATFORM=openunix-g++
         PLATFORM=openunix-cc
