@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#96 $
 **
 ** Implementation of QColor class
 **
@@ -579,7 +579,11 @@ void QColor::setRgb( QRgb rgb )
 QString QColor::name() const
 {
   QString c("#%1%2%3");
-  return c.arg( red(), 2, 16 ).arg( green(), 2, 16 ).arg( blue(), 2, 16 );
+  c = c.arg( red(), 2, 16 ).arg( green(), 2, 16 ).arg( blue(), 2, 16 );
+  for( uint i = 0; i < c.length(); ++i )
+    if ( c[i].isSpace() )
+      c[i] = '0';
+  return c;
 }
 
 /*!
