@@ -89,6 +89,7 @@ public:
     QIconSet icons(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
+    bool isRoot(const QModelIndex &index) const;
     bool isDir(const QModelIndex &index) const;
     QModelIndex mkdir(const QModelIndex &parent, const QString &name);
     bool rmdir(const QModelIndex &index);

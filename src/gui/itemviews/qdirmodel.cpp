@@ -1074,14 +1074,29 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 }
 
 /*!
+  Returns true if the model item \a index represents the root directory,
+  otherwise returns false.
+*/
+
+bool QDirModel::isRoot(const QModelIndex &index) const4
+{
+    QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
+    if (!node) {
+        qWarning("isRoot: the node does not exist");
+        return false;
+    }
+    if (!node->info.isDir())
+        return false;
+    return node->info.dir().isRoot();
+}
+
+/*!
   Returns true if the model item \a index represents a directory;
   otherwise returns false.
 */
 
 bool QDirModel::isDir(const QModelIndex &index) const
 {
-    if (!index.isValid()) // FIXME_ROOT
-        return true;
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("isDir: the node does not exist");
