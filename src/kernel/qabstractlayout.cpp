@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#29 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -553,8 +553,8 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
 /*! \fn QLayoutIterator iterator();
   Implemented in subclasses to return an iterator that iterates over
-  the children of this layout. 
-  
+  the children of this layout.
+
   Layout implementors must subclass QGLayoutIterator.
 */
 
@@ -1151,7 +1151,7 @@ Sets the hasHeightForWidth() flag to \a b.
   original will also be modified.
 */
 
-/*! \fn ~QLayoutIterator()
+/*! \fn QLayoutIterator::~QLayoutIterator()
   Destroys the iterator.
 */
 
@@ -1168,19 +1168,19 @@ Sets the hasHeightForWidth() flag to \a b.
   Returns TRUE if the layout item has no children.
 */
 
-/*! \fn void toFirst()
+/*! \fn void QLayoutIterator::toFirst()
    Moves the iterator to the first child item.
 */
 
-/*! \fn void next()
+/*! \fn void QLayoutIterator::next()
   Moves the iterator to the next child item.
 */
 
-/*! \fn QLayoutItem *current()
+/*! \fn QLayoutItem *QLayoutIterator::current()
   Returns the current item, or 0 if there is no current item.
 */
 
-/*! \fn void removeCurrent()
+/*! \fn void QLayoutIterator::removeCurrent()
   Removes the current child item from the layout and moves the
   iterator to the next item. This iterator will still be valid, but any
   other iterator over the same layout may become invalid.
