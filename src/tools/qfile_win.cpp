@@ -31,6 +31,7 @@
 
 #include "qfile.h"
 #include "qfiledefs_p.h"
+#include <limits.h>
 
 QCString qt_win95Name(const QString s)
 {
