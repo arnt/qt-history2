@@ -834,7 +834,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     out << "\t]" << endl;
     out << "\tcoclass " << className << endl;
     out << "\t{" << endl;
-    out << "\t\t[default] interface I" << className << ";" << endl;
+    out << "\t\t[default] dispinterface I" << className << ";" << endl;
     out << "\t\t[default, source] dispinterface I" << className << "Events;" << endl;
     out << "\t};" << endl;
 
