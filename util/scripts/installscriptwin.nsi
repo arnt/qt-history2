@@ -56,6 +56,10 @@ Page custom SetEnvPage SetEnvVariables
 
 ; Language files
 !insertmacro MUI_LANGUAGE "English"
+LangString LicenseTitle ${LANG_ENGLISH} "Qt License"
+LangString LicenseTitleDescription ${LANG_ENGLISH} "Enter your Qt License key."
+LangString EnvTitle ${LANG_ENGLISH} "Set Environment Variables"
+LangString EnvTitleDescription ${LANG_ENGLISH} "Set the environment variables for Qt."
 
 ReserveFile "checkqtlicense.ini"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
@@ -118,15 +122,11 @@ Function .onInit
 FunctionEnd
 
 Function CheckQtLicense
-  LangString LicenseTitle ${LANG_ENGLISH} "Qt License"
-  LangString LicenseTitleDescription ${LANG_ENGLISH} "Enter your Qt License key."
   !insertmacro MUI_HEADER_TEXT "$(LicenseTitle)" "$(LicenseTitleDescription)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "checkqtlicense.ini"
 FunctionEnd
 
 Function SetEnvPage
-  LangString EnvTitle ${LANG_ENGLISH} "Set Environment Variables"
-  LangString EnvTitleDescription ${LANG_ENGLISH} "Set the environment variables for Qt."
   !insertmacro MUI_HEADER_TEXT "$(EnvTitle)" "$(EnvTitleDescription)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "setenvpage.ini"
 FunctionEnd
