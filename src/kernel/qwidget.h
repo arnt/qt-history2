@@ -427,6 +427,9 @@ public:
 #endif
 #if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
+#ifdef QMAC_NO_QUARTZ
+    void macCGClippedContext(bool do_children=TRUE);
+#endif
     bool macDropEnabled;
 #endif
 
@@ -908,7 +911,10 @@ struct Q_EXPORT QWExtra {
     bool clip_dirty, child_dirty;
     QRegion clip_saved, clip_sibs, clip_children;
 
-    bool has_dirty_area;
+#ifndef QMAC_NO_QUARTZ
+    uint ctx_children_clipped:1;
+#endif
+    uint has_dirty_area:1;
     QRegion dirty_area;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)

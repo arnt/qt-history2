@@ -191,8 +191,9 @@ QBitmap::QBitmap( const QBitmap &bitmap )
   Constructs a pixmap from the file \a fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
 
-  The parameters are passed on to QPixmap::load(). Dithering will be
-  performed if the file format uses more than 1 bit per pixel.
+  The parameters \a fileName and \a format are passed on to
+  QPixmap::load(). Dithering will be performed if the file format uses
+  more than 1 bit per pixel.
 
   \sa QPixmap::isNull(), QPixmap::load(), QPixmap::loadFromData(),
   QPixmap::save(), QPixmap::imageFormat()

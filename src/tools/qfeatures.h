@@ -96,9 +96,14 @@
 #  ifndef QMAC_QMENUBAR_NO_MERGE
 #    define QMAC_QMENUBAR_NO_MERGE
 #  endif
-//Doesn't really work - but at least an effort
-#  ifndef QMAC_VIRTUAL_PIXMAP_SUPPORT
-#    define QMAC_VIRTUAL_PIXMAP_SUPPORT
+//Mac9 does not use quartz
+#  ifndef QMAC_NO_QUARTZ
+#    define QMAC_NO_QUARTZ
+#  endif
+#endif
+#ifdef Q_WS_MACX //for no nobody uses quartz, just putting in first level hooks
+#  ifndef QMAC_NO_QUARTZ
+#    define QMAC_NO_QUARTZ
 #  endif
 #endif
 

@@ -205,52 +205,59 @@ class QIconViewPrivate
 public:
     QIconViewItem *firstItem, *lastItem;
     uint count;
-    bool mousePressed;
     QIconView::SelectionMode selectionMode;
     QIconViewItem *currentItem, *tmpCurrentItem, *highlightedItem, *startDragItem, *pressedItem, *selectAnchor;
     QRect *rubber;
     QTimer *scrollTimer, *adjustTimer, *updateTimer, *inputTimer,
 	*fullRedrawTimer;
     int rastX, rastY, spacing;
-    bool cleared, dropped, clearing;
     int dragItems;
     QPoint oldDragPos;
-    bool oldDragAcceptAction;
     QIconView::Arrangement arrangement;
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
 #ifndef QT_NO_DRAGANDDROP
     QValueList<QIconDragDataItem> iconDragData;
 #endif
-    bool isIconDrag;
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
-    bool drawDragShapes;
     QString currInputString;
-    bool dirty, rearrangeEnabled;
     QIconView::ItemTextPos itemTextPos;
-    bool reorderItemsWhenInsert;
 #ifndef QT_NO_CURSOR
     QCursor oldCursor;
 #endif
-    bool resortItemsWhenInsert, sortDirection;
-    bool wordWrapIconText;
     int cachedContentsX, cachedContentsY;
     QBrush itemTextBrush;
-    bool drawAllBack;
     QRegion clipRegion;
     QPoint dragStartPos;
     QFontMetrics *fm;
     int minLeftBearing, minRightBearing;
-    bool containerUpdateLocked;
-    bool firstSizeHint;
+
+    uint mousePressed		:1;
+    uint cleared		:1;
+    uint dropped		:1;
+    uint clearing		:1;
+    uint oldDragAcceptAction	:1;
+    uint isIconDrag		:1;
+    uint drawDragShapes		:1;
+    uint dirty			:1;
+    uint rearrangeEnabled	:1;
+    uint reorderItemsWhenInsert	:1;
+    uint drawAllBack		:1;
+    uint resortItemsWhenInsert	:1;
+    uint sortDirection		:1;
+    uint wordWrapIconText	:1;
+    uint containerUpdateLocked	:1;
+    uint firstSizeHint		:1;
+    uint showTips		:1;
+    uint pressedSelected	:1;
+    uint dragging		:1;
+    uint context_menu		:1;
+    uint drawActiveSelection	:1;
+
     QIconViewToolTip *toolTip;
-    bool showTips;
     QPixmapCache maskCache;
-    bool pressedSelected;
-    bool dragging;
-    bool context_menu;
     QPtrDict<QIconViewItem> selectedItems;
 
     struct ItemContainer {
@@ -270,8 +277,6 @@ public:
     struct SortableItem {
 	QIconViewItem *item;
     };
-
-    bool drawActiveSelection;
 
     //    friend int cmpIconViewItems( const void *n1, const void *n2 );
 };
@@ -1871,7 +1876,6 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 		p2.end();
 		QRect cr = pix->rect();
 		p->drawPixmap( x() + ( width() - w ) / 2, y(), *buffer, 0, 0, cr.width(), cr.height() );
-
 	    }
 	} else {
 	    p->drawPixmap( x() + ( width() - w ) / 2, y(), *( pixmap() ? pixmap() : unknown_icon ) );
@@ -3211,17 +3215,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 	    QColorGroup cg;
 #if defined(Q_WS_WIN)
-	    d->drawActiveSelection = hasFocus() || style() != WindowsStyle;
-	    if ( !d->drawActiveSelection ) {
-		QWidget *fw = qApp->focusWidget();
-		while ( fw ) {
-		    fw = fw->parentWidget();
-		    if ( fw == this ) {
-			d->drawActiveSelection = TRUE;
-			break;
-		    }
-		}
-	    }
+	    bool drawActiveSelection = hasFocus() || style() != WindowsStyle || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
 	    if ( !d->drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
 		cg = palette().inactive();
 	    else
@@ -4058,7 +4052,7 @@ bool QIconView::sortDirection() const
 
 void QIconView::setWordWrapIconText( bool b )
 {
-    if ( d->wordWrapIconText == b )
+    if ( d->wordWrapIconText == (uint)b )
 	return;
 
     d->wordWrapIconText = b;

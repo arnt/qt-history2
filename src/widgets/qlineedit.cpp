@@ -84,7 +84,8 @@ struct UndoRedoInfo {
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
 	readonly( FALSE ),
-	cursorOn( FALSE ), inDoubleClick( FALSE ),
+	cursorOn( FALSE ), 
+	inDoubleClick( FALSE ),
 	mousePressed( FALSE ),
 	dnd_primed( FALSE ), ed( FALSE ),
 	mode(QLineEdit::Normal),
@@ -1626,10 +1627,11 @@ void QLineEdit::dropEvent( QDropEvent *e )
 
 void QLineEdit::blinkSlot()
 {
-    if ( hasFocus() || d->cursorOn ) {
-	d->cursorOn = !d->cursorOn;
-	update();
-    }
+	if ( hasFocus() || d->cursorOn ) {
+		d->cursorOn = !d->cursorOn;
+		update();
+	}
+
     if ( hasFocus() )
 	d->blinkTimer.start( QApplication::cursorFlashTime()/2, TRUE );
     else

@@ -304,7 +304,7 @@ void QCursor::setPos( int x, int y)
     CGPoint p;
     p.x = x;
     p.y = y;
-    CGPostMouseEvent(p, true, 0, false);
+    CGWarpMouseCursorPosition( p );
 #else
 // some kruft I found on the web.. it doesn't work, but I want to test more FIXME
 #   define MTemp 0x828

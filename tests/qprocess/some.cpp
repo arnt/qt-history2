@@ -1,4 +1,3 @@
-//depot/qt/main/tests/qprocess/test/some.cpp#35 - edit change 32827 (text)
 #include <qapplication.h>
 #include <qvbox.h>
 #include <qlineedit.h>
@@ -18,7 +17,7 @@ QFile Some::logFile( "outputLog" );
 /*
  * Some
 */
-Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int com )
+Some::Some( QObject *p, bool start, bool uOwnEnvironment, bool cStdout, bool cStderr, bool cExit, int com )
     : QObject( p ), stdoutConnected( FALSE ), stderrConnected( FALSE ), exitConnected( FALSE )
 {
     proc = new QProcess( this );
@@ -95,10 +94,17 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
     protocolReadStderr = 0;
     protocol.show();
 
-    procInit( start, com );
+    if ( uOwnEnvironment ) {
+	QStringList env;
+	env << "SNAFU=FNORD";
+//	env << "LD_LIBRARY_PATH=FNORD";
+	procInit( start, com, &env );
+    } else {
+	procInit( start, com, 0 );
+    }
 }
 
-void Some::procInit( bool start, int com )
+void Some::procInit( bool start, int com, QStringList *env )
 {
     proc->setArguments( QStringList() );
     switch ( com ) {
@@ -134,13 +140,13 @@ void Some::procInit( bool start, int com )
 	break;
     }
     if ( start ) {
-	if ( !proc->start() ) {
+	if ( !proc->start( env ) ) {
 	    qWarning( "Could not start process" );
 	    return;
 	}
     } else {
 	hideAfterExit = FALSE;
-	if ( !proc->launch( "Foo Bla Fnord Test Hmpfl" ) ) {
+	if ( !proc->launch( "Foo Bla Fnord Test Hmpfl", env ) ) {
 	    qWarning( "Could not start process" );
 	    return;
 	}
@@ -196,7 +202,7 @@ void Some::procExited()
 
 void Some::startCat()
 {
-    procInit( TRUE, 0 );
+    procInit( TRUE, 0, 0 );
 }
 
 void Some::wroteToStdin()
@@ -297,37 +303,37 @@ void Some::logMessage( const QString& )
 
 void SomeFactory::startProcess0()
 {
-    new Some( parent, TRUE, cStdout, cStderr, cExit, 0 );
+    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 0 );
 }
 
 void SomeFactory::startProcess1()
 {
-    new Some( parent, TRUE, cStdout, cStderr, cExit, 1 );
+    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 1 );
 }
 
 void SomeFactory::startProcess2()
 {
-    new Some( parent, TRUE, cStdout, cStderr, cExit, 2 );
+    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 2 );
 }
 
 void SomeFactory::startProcess3()
 {
-    new Some( parent, TRUE, cStdout, cStderr, cExit, 3 );
+    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 3 );
 }
 
 void SomeFactory::launchProcess0()
 {
-    new Some( parent, FALSE, cStdout, cStderr, cExit, 0 );
+    new Some( parent, FALSE, uOwnEnvironment, cStdout, cStderr, cExit, 0 );
 }
 
 void SomeFactory::launchProcess1()
 {
-    new Some( parent, FALSE, cStdout, cStderr, cExit, 1 );
+    new Some( parent, FALSE, uOwnEnvironment, cStdout, cStderr, cExit, 1 );
 }
 
 void SomeFactory::launchProcess2()
 {
-    new Some( parent, FALSE, cStdout, cStderr, cExit, 2 );
+    new Some( parent, FALSE, uOwnEnvironment, cStdout, cStderr, cExit, 2 );
 }
 
 void SomeFactory::quit()
@@ -335,6 +341,11 @@ void SomeFactory::quit()
     delete parent;
     parent = 0;
     emit quitted();
+}
+
+void SomeFactory::useOwnEnvironment( bool enable )
+{
+    uOwnEnvironment = enable;
 }
 
 void SomeFactory::connectStdout( bool enable )

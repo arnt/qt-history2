@@ -412,12 +412,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 
 //	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
-#if 0
-	CGContextRef ctx = NULL;
-	CreateCGContextForPort(GetWindowPort((WindowPtr)id), &ctx);
-	CGContextSetAlpha(ctx, 0.7);
-#endif
-
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
@@ -659,14 +653,17 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
     }
 
     if(isTopLevel()) {
+#ifdef QMAC_NO_QUARTZ
 	QMacSavedPortInfo savedInfo(this);
 	RGBColor f;
 	f.red = bg_col.red() * 256;
 	f.green = bg_col.green() * 256;;
 	f.blue = bg_col.blue() * 256;
 	RGBBackColor(&f);
+#else //!QMAC_NO_QUARTZ
+	//FIXME
+#endif
     }
-
 }
 
 static int allow_null_pixmaps = 0;
@@ -1217,6 +1214,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    QPoint tp(posInWindow(parent));
 		    int px = tp.x(), py = tp.y();
 
+#ifdef QMAC_NO_QUARTZ
 		    //save the window state, and do the grunt work
 		    int ow = olds.width(), oh = olds.height();
 		    QMacSavedPortInfo saveportstate(this);
@@ -1239,6 +1237,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(wport);
 		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, NULL);
 		    UnlockPortBits(wport);
+#else //!QMAC_NO_QUARTZ
+		    //FIXME
+#endif
 		}
 	    }
 	    //Do these last, as they may cause an event which paints, and messes up
@@ -1438,7 +1439,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
-#ifdef Q_WS_MACX
+#if defined( Q_WS_MACX ) && !defined(QMAC_NO_QUARTZ)
     if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
 	QRegion clean(copied);
 	clean.translate(p.x(), p.y());
@@ -1599,7 +1600,9 @@ void QWidget::setName( const char *name )
 
 void QWidget::propagateUpdates()
 {
+#ifdef QMAC_NO_QUARTZ
     QMacSavedPortInfo savedInfo(this);
+#endif
     QRegion rgn(false);
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)rgn.handle());
     if(!rgn.isEmpty()) {
@@ -1609,7 +1612,6 @@ void QWidget::propagateUpdates()
 	BeginUpdate((WindowPtr)hd);
 	qt_paint_children( this, rgn );
 	EndUpdate((WindowPtr)hd);
-//	QMacSavedPortInfo::flush(this, rgn, TRUE);
     }
 }
 
@@ -1681,13 +1683,31 @@ bool QWidget::isClippedRegionDirty()
     return FALSE;
 }
 
+#ifndef QMAC_NO_QUARTZ
+CGContextRef QWidget::macCGClippedContext(bool do_children) const
+{
+    CGContextRef ctx = QPaintDevice::macCGContext();
+    if(!extra)
+	createExtra();
+    if(extra->clip_dirty || (do_children && extra->child_dirty) || 
+       (do_children && !extra->ctx_children_clipped)) {
+	extra->ctx_children_clipped = do_children;
+	QRegion reg = clippedRegion(do_children);
+	Rect r;
+	ValidWindowRect((WindowPtr)hd, &r);
+	ClipCGContextToRegion(ctx, &r, reg.handle(TRUE));
+    }
+    return ctx;
+}
+#endif
+
 QRegion QWidget::clippedRegion(bool do_children)
 {
     //the desktop doesn't participate in our clipping games
     if(isDesktop()) {
 	createExtra();
 	if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
-	    if(!do_children)
+	    if(!do_children) 
 		return extra->clip_sibs;
 	    return extra->clip_saved;
 	}

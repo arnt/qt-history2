@@ -430,7 +430,8 @@ QImageFormatType* QImageDecoder::format( const char* name )
 
 /*!
   Call this function to find the name of the format of the given header.
-  The returned string is statically allocated.
+  The returned string is statically allocated. The function will look
+  at the first \a length characters in the \a buffer.
 
   Returns 0 if the format is not recognized.
 */

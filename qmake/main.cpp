@@ -138,8 +138,23 @@ int main(int argc, char **argv)
 			Option::output.open(IO_WriteOnly | IO_Translate, stdout);
 			using_stdout = TRUE;
 		    } else {
-			if(QDir::isRelativePath(Option::output.name()))
-			    Option::output.setName(Option::fixPathToLocalOS(oldpwd + Option::dir_sep + Option::output.name()));
+			if(QDir::isRelativePath(Option::output.name())) {
+			    QString ofile;
+			    ofile = Option::output.name();
+			    if(proj.first("TEMPLATE").find(QRegExp("^vc.*")) != -1) {
+				int slashfind = ofile.findRev( '\\' );
+				if ( slashfind == -1 )
+				    ofile = ofile.replace( QRegExp("-"), "_" );
+				else { 
+				    int hypenfind = ofile.find( '-', slashfind );
+				    while ( hypenfind != -1 && slashfind < hypenfind ) {
+					ofile = ofile.replace( hypenfind, 1, "_" );
+					hypenfind = ofile.find( '-', hypenfind + 1 );
+				    }
+				}
+			    }
+			    Option::output.setName(Option::fixPathToLocalOS(oldpwd + Option::dir_sep + ofile ));
+			}
 
 			QFileInfo fi(Option::output);
 			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
@@ -183,8 +198,22 @@ int main(int argc, char **argv)
 		Option::output.open(IO_WriteOnly | IO_Translate, stdout);
 		using_stdout = TRUE;
 	    } else {
-		if(QDir::isRelativePath(Option::output.name()))
-		    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
+		QString ofile;
+		if(QDir::isRelativePath(Option::output.name())) {
+		    ofile = Option::output.name();
+		    int slashfind = ofile.findRev( '\\' );
+		    if ( slashfind == -1 )
+			ofile = ofile.replace( QRegExp("-"), "_" );
+		    else { 
+			int hypenfind = ofile.find( '-', slashfind );
+			while ( hypenfind != -1 && slashfind < hypenfind ) {
+			    ofile = ofile.replace( hypenfind, 1, "_" );
+			    hypenfind = ofile.find( '-', hypenfind + 1 );
+			}
+		    }
+		}
+		
+		Option::output.setName(oldpwd + Option::dir_sep + ofile );
 
 		QFileInfo fi(Option::output);
 		Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());

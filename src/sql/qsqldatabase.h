@@ -60,6 +60,19 @@ class QSqlIndex;
 class QSqlRecord;
 class QSqlDatabasePrivate;
 
+class QM_EXPORT_SQL QSqlDriverCreatorBase
+{
+public:
+    virtual QSqlDriver* createObject() = 0;
+};
+
+template <class type>
+class QM_EXPORT_SQL QSqlDriverCreator: public QSqlDriverCreatorBase
+{
+public:
+    QSqlDriver* createObject() { return new type; }
+};
+
 class QM_EXPORT_SQL QSqlDatabase : public QObject
 {
     Q_OBJECT
@@ -81,7 +94,7 @@ public:
     QSqlIndex    primaryIndex( const QString& tablename ) const;
     QSqlRecord   record( const QString& tablename ) const;
     QSqlRecord   record( const QSqlQuery& query ) const;
-    QSqlQuery	 exec( const QString& query = QString::null ) const;
+    QSqlQuery    exec( const QString& query = QString::null ) const;
     QSqlError    lastError() const;
 
     bool	 transaction();
@@ -97,7 +110,7 @@ public:
     QString	 userName() const;
     QString	 password() const;
     QString	 hostName() const;
-    QString      driverName() const;
+    QString	 driverName() const;
     int          port() const;
 
     QSqlDriver*  driver() const;
@@ -111,6 +124,7 @@ public:
     static void          removeDatabase( const QString& connectionName );
     static bool          contains( const QString& connectionName = defaultConnection );
     static QStringList   drivers();
+    static void          registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* dcb );
 
 protected:
     QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 );

@@ -2154,6 +2154,8 @@ QString QTextDocument::selectedText( int id ) const
     QTextParag *p = c1.parag()->next();
     while ( p ) {
 	int end = p == c2.parag() ? c2.index() : p->length() - 1;
+	if ( end == 0 )
+	    break;
 	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
 	if ( !p->customItems() ) {

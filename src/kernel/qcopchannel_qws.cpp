@@ -73,7 +73,8 @@ public:
   In order to \e listen to the traffic on a channel, you should either
   subclass QCopChannel and reimplement receive(), or connect() to the
   received() signal.
- */
+
+*/
 
 /*!
   Constructs a QCop channel and registers it with the server using the name
@@ -151,6 +152,31 @@ QCString QCopChannel::channel() const
 
   Note that the format of \a data has to be well defined in order to
   extract the information it contains.
+
+    Example:
+    \code
+    void MyClass::receive( const QCString &msg, const QByteArray &data )
+    {
+	QDataStream stream( data, IO_ReadOnly );
+	if ( msg == "execute(QString,QString)" ) {
+	    QString cmd, arg;
+	    stream >> cmd >> arg;
+	    ...
+	} else if ( msg == "delete(QString)" ) {
+	    QString filenname;
+	    stream >> filename;
+	    ...
+	} else ...
+    }
+    \endcode
+    This example assumes that the \a msg is a DCOP-style function
+    signature and the \a data contains the function's arguments. (See
+    send().)
+
+    Using the DCOP convention is a recommendation, but not a
+    requirement. Whatever convention you use the sender and receiver
+    \e must agree on the argument types.
+  
   \sa send()
  */
 void QCopChannel::receive( const QCString &msg, const QByteArray &data )
@@ -161,8 +187,8 @@ void QCopChannel::receive( const QCString &msg, const QByteArray &data )
 /*!
   \fn void QCopChannel::received( const QCString &msg, const QByteArray &data )
 
-  This signal is emitted whenever the receive() function gets incoming
-  data.
+  This signal is emitted with the \a msg and \a data whenever the
+  receive() function gets incoming data.
 */
 
 /*!
@@ -186,6 +212,7 @@ bool QCopChannel::isRegistered( const QCString& channel )
 }
 
 /*!
+    \overload
   Send the message \a msg on channel \a channel. The message will be
   distributed to all clients subscribed to the channel.
 
@@ -199,12 +226,33 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
 }
 
 /*!
-    \overload
-  Same as above function except the additional \a data parameter.
+  Send the message \a msg on channel \a channel with data \a data. The
+  message will be distributed to all clients subscribed to the
+  channel.
 
   Note that QDataStream provides a convenient way to fill the byte array
   with auxiliary data.
- */
+
+  Example:
+  \code
+    QByteArray ba;
+    QDataStream stream( ba, IO_WriteOnly );
+    ba << QString("cat") << QString("file.txt");
+    QCopChannel::send( "System/Shell", "execute(QString,QString)", ba );
+  \endcode
+  Here the channel is "System/Shell". The \a msg is an arbitrary
+  string, but in the example we've used the DCOP convention of passing
+  a function signature. Such a signature is formatted as
+  functionname(types) where types is a list of zero or more
+  comma-separated type names, with no whitespace, no consts and no
+  pointer or reference marks, i.e. no "*" or "&".
+
+    Using the DCOP convention is a recommendation, but not a
+    requirement. Whatever convention you use the sender and receiver
+    \e must agree on the argument types.
+  
+  \sa receive()
+*/
 
 bool QCopChannel::send(const QCString &channel, const QCString &msg,
 		       const QByteArray &data )

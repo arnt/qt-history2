@@ -2457,17 +2457,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    QColorGroup cg;
 #if defined(Q_WS_WIN)
-	    bool drawActiveSelection = hasFocus() || style() != WindowsStyle;
-	    if ( !drawActiveSelection ) {
-		QWidget *fw = qApp->focusWidget();
-		while ( fw ) {
-		    fw = fw->parentWidget();
-		    if ( fw == this ) {
-			drawActiveSelection = TRUE;
-			break;
-		    }
-		}
-	    }
+	    bool drawActiveSelection = hasFocus() || style() != WindowsStyle || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
 	    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
 		cg = palette().inactive();
 	    else

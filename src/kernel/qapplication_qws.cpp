@@ -819,6 +819,11 @@ void QWSDisplay::Data::waitForQCopResponse()
 }
 #endif
 
+/*!
+    \class QWSDisplay qwsdisplay_qws.h
+    \brief The QWSDisplay class provides a display for QWS; it is an internal class.
+    \internal
+*/
 
 QWSDisplay::QWSDisplay()
 {
@@ -909,9 +914,8 @@ void QWSDisplay::removeProperty( int winId, int property )
     d->sendCommand( cmd );
 }
 
-/*!
-  It is the caller's responsibility to delete[] \a data.
-
+/*
+    It is the caller's responsibility to delete[] \a data.
  */
 bool QWSDisplay::getProperty( int winId, int property, char *&data, int &len )
 {

@@ -147,11 +147,14 @@ public:
 
   This signal is emitted if a new child has been read. QNetworkProtocol
   automatically connects it to a slot which creates a list of QUrlInfo objects
-  (with just the one QUrlInfo \a i) and emits the newChildren() signal with this
+  (with just one QUrlInfo \a i) and emits the newChildren() signal with this
   created list.
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 
-  This is just a convenience signal when implementing your own network protocol. In all
-  other cases worry only about the newChildren() signal with the list of QUrlInfo objects.
+  This is just a convenience signal when implementing your own network
+  protocol. In all other cases connect to the newChildren()
+  signal with its list of QUrlInfo objects.
 */
 
 /*!
@@ -159,8 +162,8 @@ public:
 
   This signal is emitted when an operation of some sort finishes.
   This signal is always emitted, whether success or failure.
-  \a op is the pointer to the operation object which contains all infos
-  of the operation that has finished, including the state, etc.
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
   Check the state and error code of the operation object to determine whether or not the operation was successful.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
@@ -541,7 +544,10 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
 
   QNetworkProtocol::registerNetworkProtocol( "nntp", new QNetworkProtocolFactory<Nntp> );
 
-  This implementation is thereafter registered for nntp operations.
+  after which your implementation is registered for future nntp operations.
+
+  The name of the protocol is given in \a protocol and a pointer to
+  the protocol factory is given in \a protocolFactory.
 */
 
 void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
@@ -662,10 +668,13 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
   When you reimplement this method it's very important that
   you emit the correct signals at the correct time (especially the
   finished() signal after processing an operation). Take
-  a look at the <a href="network.html">Qt Network Documentation</a>.
-  It describes in detail how to reimplement this method.
-  You may also look at the example implementation of
-  qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+  a look at the <a href="network.html">Qt Network Documentation</a>
+  which describes in detail how to reimplement this method.
+  You may also want to look at the example implementation in
+  examples/network/networkprotocol/nntp.cpp.
+
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 */
 
 void QNetworkProtocol::operationListChildren( QNetworkOperation * )
@@ -680,10 +689,13 @@ void QNetworkProtocol::operationListChildren( QNetworkOperation * )
   When you reimplement this method it's very important that
   you emit the correct signals at the correct time (especially the
   finished() signal after processing an operation). Take
-  a look at the <a href="network.html">Qt Network Documentation</a>.
-  It describes in detail how to reimplement this method.
-  You may also look at the example implementation of
-  qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+  a look at the <a href="network.html">Qt Network Documentation</a>
+  which describes in detail how to reimplement this method.
+  You may also want to look at the example implementation in
+  examples/network/networkprotocol/nntp.cpp.
+
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 */
 
 void QNetworkProtocol::operationMkDir( QNetworkOperation * )
@@ -697,10 +709,13 @@ void QNetworkProtocol::operationMkDir( QNetworkOperation * )
   When you reimplement this method it's very important that
   you emit the correct signals at the correct time (especially the
   finished() signal after processing an operation). Take
-  a look at the <a href="network.html">Qt Network Documentation</a>.
-  It is describes in detail how to reimplement this method.
-  You may also look at the example implementation of
-  qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+  a look at the <a href="network.html">Qt Network Documentation</a>
+  which is describes in detail how to reimplement this method.
+  You may also want to look at the example implementation in
+  examples/network/networkprotocol/nntp.cpp.
+
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 */
 
 void QNetworkProtocol::operationRemove( QNetworkOperation * )
@@ -714,10 +729,13 @@ void QNetworkProtocol::operationRemove( QNetworkOperation * )
   When you reimplement this method it's very important that
   you emit the correct signals at the correct time (especially the
   finished() signal after processing an operation). Take
-  a look at the <a href="network.html">Qt Network Documentation</a>.
-  It describes in detail how to reimplement this method.
-  You may also look at the example implementation of
-  qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+  a look at the <a href="network.html">Qt Network Documentation</a>
+  which describes in detail how to reimplement this method.
+  You may also want to look at the example implementation in
+  examples/network/networkprotocol/nntp.cpp.
+
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 */
 
 void QNetworkProtocol::operationRename( QNetworkOperation * )
@@ -732,10 +750,13 @@ void QNetworkProtocol::operationRename( QNetworkOperation * )
   When you reimplement this method it's very important that
   you emit the correct signals at the correct time (especially the
   finished() signal after processing an operation). Take
-  a look at the <a href="network.html">Qt Network Documentation</a>.
-  It describes in detail how to reimplement this method.
-  You may also look at the example implementation of
-  qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+  a look at the <a href="network.html">Qt Network Documentation</a>
+  which describes in detail how to reimplement this method.
+  You may also want to look at the example implementation in
+  examples/network/networkprotocol/nntp.cpp.
+
+  \a op is the pointer to the operation object which contains all
+  information on the operation that has finished, including the state, etc.
 */
 
 void QNetworkProtocol::operationGet( QNetworkOperation * )
@@ -749,10 +770,10 @@ void QNetworkProtocol::operationGet( QNetworkOperation * )
   When you reimplement this method it's very important that
   you emit the correct signals at the correct time (especially the
   finished() signal after processing an operation). Take
-  a look at the <a href="network.html">Qt Network Documentation</a>.
-  It describes in detail how to reimplement this method.
-  You may also look at the example implementation of
-  qt/extenstions/network/examples/networkprotocol/nntp.cpp.
+  a look at the <a href="network.html">Qt Network Documentation</a>
+  which describes in detail how to reimplement this method.
+  You may also want to look at the example implementation in
+  examples/network/networkprotocol/nntp.cpp.
 */
 
 void QNetworkProtocol::operationPut( QNetworkOperation * )

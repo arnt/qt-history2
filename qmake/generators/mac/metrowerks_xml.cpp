@@ -164,10 +164,14 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 
 		    QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
 		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+			QString p = (*val_it);
+			if(!fixifyToMacPath(p))
+			    continue;
+
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
-			  << "<VALUE>" << (*val_it) << "</VALUE></SETTING>" << endl
+			  << "<VALUE>" << p << "</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>" << endl
 			  << "\t\t\t\t\t\t</SETTING>" << endl
@@ -187,69 +191,29 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			    list.append((*val_it));
 		    }
 		}
-		if(!list.isEmpty()) {
-		    QString volume = var("QMAKE_VOLUMENAME");
-#ifdef Q_OS_MAC
-		    if(volume.isEmpty()) {
-			uchar foo[512];
-			HVolumeParam pb;
-			memset(&pb, '\0', sizeof(pb));
-			pb.ioVRefNum = 0;
-			pb.ioNamePtr = foo;
-			if(PBHGetVInfoSync((HParmBlkPtr)&pb) == noErr) {
-			    int len = foo[0];
-			    memcpy(foo,foo+1, len);
-			    foo[len] = '\0';
-			    volume = (char *)foo;
-			}
-		    }
-#endif
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    QString p = (*it);
+		    if(!fixifyToMacPath(p))
+			continue;
 
-		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-			QString p = (*it);
-			fixEnvVariables(p);
-			if(p.isEmpty())
-			    continue;
-			if(p.right(1) != "/")
-			    p += "/";
-			if(QDir::isRelativePath(p)) {
-			    if(project->isEmpty("QMAKE_MACPATH"))
-				p.prepend(QDir::current().currentDirPath() + '/');
-			    else
-				p.prepend(var("QMAKE_MACPATH") + '/');
-			} else {
-			    if(!project->isEmpty("QMAKE_MACPATH"))
-				qDebug("Can't fix ::%s::", p.latin1());
-			}
-			p = QDir::cleanDirPath(p);
-			if(!QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
-			    continue;
-
-			if(!volume.isEmpty())
-			    p.prepend(volume); 
-			p.replace(QRegExp("/"), ":");
-			if(p.right(1) != ":")
-			    p += ':';
-
-			QString recursive = "false";
+		    QString recursive = "false";
 #if 0
-			if(p.right(11) == ".framework:")
-			    recursive = "true";
+		    if(p.right(11) == ".framework:")
+			recursive = "true";
 #endif
-			t << "\t\t\t\t\t<SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
-			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
-			  << "<VALUE>" << p << "</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t</SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
-			  << "\t\t\t\t\t</SETTING>" << endl;
-		    }
+		    t << "\t\t\t\t\t<SETTING>" << endl
+		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
+		      << "<VALUE>" << p << "</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>Absolute</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t</SETTING>" << endl
+		      << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t</SETTING>" << endl;
 		}
 	    } else if(variable == "CODEWARRIOR_WARNING") {
-		t << (int)project->isActiveConfig("warn_on");
+		t << (int)(!project->isActiveConfig("warn_off") && project->isActiveConfig("warn_on"));
 	    } else {
 		t << var(variable);
 	    }
@@ -451,5 +415,55 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
 	    chmod(f.latin1(), perms);
     }
 #endif
+    return TRUE;
+}
+
+bool
+MetrowerksMakefileGenerator::fixifyToMacPath(QString &p)
+{
+    if(p.find(':') != -1) //guess its macish already
+	return TRUE;
+
+    static QString volume;
+    if(volume.isEmpty()) {
+	volume = var("QMAKE_VOLUMENAME");
+#ifdef Q_OS_MAC
+	if(volume.isEmpty()) {
+	    uchar foo[512];
+	    HVolumeParam pb;
+	    memset(&pb, '\0', sizeof(pb));
+	    pb.ioVRefNum = 0;
+	    pb.ioNamePtr = foo;
+	    if(PBHGetVInfoSync((HParmBlkPtr)&pb) == noErr) {
+		int len = foo[0];
+		memcpy(foo,foo+1, len);
+		foo[len] = '\0';
+		volume = (char *)foo;
+	    }
+	}
+#endif
+    }
+    fixEnvVariables(p);
+    if(p.isEmpty())
+	return FALSE;
+    if(p.right(1) != "/")
+	p += "/";
+    if(QDir::isRelativePath(p)) {
+	if(project->isEmpty("QMAKE_MACPATH"))
+	    p.prepend(QDir::current().currentDirPath() + '/');
+	else
+	    p.prepend(var("QMAKE_MACPATH") + '/');
+    } else {
+	if(!project->isEmpty("QMAKE_MACPATH"))
+	    qDebug("Can't fix ::%s::", p.latin1());
+    }
+    p = QDir::cleanDirPath(p);
+    if(!QFile::exists(p) && project->isEmpty("QMAKE_MACPATH")) 
+	return FALSE;
+    if(!volume.isEmpty())
+	p.prepend(volume); 
+    p.replace(QRegExp("/"), ":");
+    if(p.right(1) != ":")
+	p += ':';
     return TRUE;
 }

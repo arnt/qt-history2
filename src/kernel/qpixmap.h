@@ -164,8 +164,6 @@ public:
 #elif defined(Q_WS_X11)
     static int x11SetDefaultScreen( int screen );
     void x11SetScreen( int screen );
-#elif defined(Q_WS_MAC) && defined(QMAC_VIRTUAL_PIXMAP_SUPPORT)
-    Qt::HANDLE      handle() const;
 #endif
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
@@ -208,13 +206,6 @@ protected:
 	QPixmap *alphapm;
 #elif defined(Q_WS_MAC)
 	ColorTable *clut;
-#if defined(QMAC_VIRTUAL_PIXMAP_SUPPORT)
-	struct {
-	    int key;
-	    QImage *img;
-	    Qt::HANDLE gworld;
-	} cache;
-#endif
 #elif defined(Q_WS_QWS)
 	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;
@@ -225,7 +216,6 @@ protected:
 #endif
 	Optimization optim;
     } *data;
-
 private:
     QPixmap( int w, int h, int depth, bool, Optimization );
     void	init( int, int, int, bool, Optimization );
@@ -241,9 +231,6 @@ private:
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
-#if defined(Q_WS_MAC) && defined(QMAC_VIRTUAL_PIXMAP_SUPPORT)
-    friend class QMacInternalPixmapCache;
-#endif
 };
 
 

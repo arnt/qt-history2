@@ -2833,16 +2833,11 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    qt_button_down = 0;
 	}
 
+	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
+	QApplication::sendSpontaneousEvent( widget, &e );
 	if ( type == QEvent::MouseButtonRelease && button == RightButton ) {
-	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendSpontaneousEvent( widget, &e );
-	    if ( !e.isAccepted() ) { // Only send mouse event when context event has not been processed
-		QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state );
-		QApplication::sendSpontaneousEvent( widget, &e2 );
-	    }
-	} else {
-	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    QApplication::sendSpontaneousEvent( widget, &e );
+	    QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state );
+	    QApplication::sendSpontaneousEvent( widget, &e2 );
 	}
 
 	if ( type != QEvent::MouseMove )

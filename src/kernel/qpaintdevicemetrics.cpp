@@ -68,7 +68,7 @@
 */
 
 /*!
-  Constructs a metric for the paint device \e pd.
+  Constructs a metric for the paint device \a pd.
 */
 QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 {

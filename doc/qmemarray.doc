@@ -359,8 +359,8 @@
   \fn void QMemArray::resetRawData( const type *data, uint size )
   Resets raw data that was set using setRawData().
 
-  The arguments must be the data and length that were passed to
-  setRawData().	 This is for consistency checking.
+  The arguments must be the \a data and length, \a size, that were
+  passed to setRawData(). This is for consistency checking.
 
   \sa setRawData()
 */

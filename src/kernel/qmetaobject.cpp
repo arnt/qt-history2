@@ -836,7 +836,7 @@ bool QMetaProperty::stored( QObject* o ) const
 
 
 /*!
-  Tries to reset the property for object \o with a reset method. On
+  Tries to reset the property for object \a o with a reset method. On
   success, returns TRUE; otherwise returns FALSE.
 
   Reset methods are optional, usually only a few properties support

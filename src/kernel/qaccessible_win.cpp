@@ -497,7 +497,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispP
     return S_FALSE;
 }
 
-/*!
+/*
   Properties and methods
 */
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction( VARIANT varID )

@@ -727,12 +727,13 @@ QPrintDialog::~QPrintDialog()
 }
 
 /*!
-  This method allows you to specify a global printdialog that will be used 
-  instead of the default one provided by Qt.
+  This method allows you to specify a global printdialog, given in \a
+  pd, that will be used instead of the default one provided by Qt.
   
-  This is useful, as there are many different printing systems on Unix, and
-  we can not possibly support all of them. Calling this method before using a printer
-  the first time allows you to set up your own printdialog to use.
+  This is useful, as there are many different printing systems on
+  Unix, and we can not possibly support all of them. Calling this
+  method before using a printer for the first time allows you to set
+  up your own printdialog to use.
   
   \sa setupPrinters()
 */
@@ -747,14 +748,18 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
 }
 
 /*!
-  This function is used to be able to specify custom printers in the print dialog.
-  On Unix many different printing systems exist, and we can not possibly cover all
-  of them. In case you have a custom printing system that Qt does not cover (ie. autodetection
-  of available printers fails), you can use this method to specify your own printers.
-  
-  this virtual method should return false if you couldn't setup the printers. In this case Qt will try
-  it's own mechanisms to scan for printers. Returning TRUE means you have set up the list of 
-  printers correctly and Qt does not need to scan for additional printers in the system.
+  This function is used to specify custom printers in the
+  print dialog. On Unix many different printing systems exist, and we
+  cannot support all of them. If you have a custom
+  printing system that Qt does not support (i.e. the autodetection of
+  available printers fails), you can use this method to specify your
+  own printers. 
+
+  This virtual method should return FALSE if you couldn't set up the
+  printers in the \a printers list. In this case Qt will try its own
+  mechanisms to scan for printers. Returning TRUE means you have set
+  up the list of printers correctly and Qt does not need to scan for
+  additional printers in the system.
 
   \sa setGlobalPrintDialog
 */

@@ -205,7 +205,8 @@ static QColor qt_mix_colors( QColor a, QColor b)
 
 /*!
 Constructs a color group. You can pass either brushes, pixmaps or
-plain colors for each parameter.
+plain colors for \a foreground, \a button, \a light, \a dark,
+\a mid, \a text, \a bright_text, \a base and \a background.
 
 This constructor can be very handy sometimes, but don't overuse it:
 such long lists of arguments are rather error-prone.
@@ -432,14 +433,14 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 /*!
   \fn bool QColorGroup::operator!=( const QColorGroup &g ) const
-  Returns TRUE if this color group is different from \e g, or FALSE if
-  it is equal to \e g.
+  Returns TRUE if this color group is different from \a g, or FALSE if
+  it is equal to \a g.
   \sa operator!=()
 */
 
 /*!
-  Returns TRUE if this color group is equal to \e g, or FALSE if
-  it is different from \e g.
+  Returns TRUE if this color group is equal to \a g, or FALSE if
+  it is different from \a g.
   \sa operator==()
 */
 
@@ -515,7 +516,7 @@ QPalette::QPalette()
 }
 
 /*!\obsolete
-  Constructs a palette from the \e button color. The other colors are
+  Constructs a palette from the \a button color. The other colors are
   automatically calculated, based on this color. Background will be
   the button color as well.
 */
@@ -545,7 +546,7 @@ QPalette::QPalette( const QColor &button )
 }
 
 /*!
-  Constructs a palette from a \e button color and a background. The other colors are
+  Constructs a palette from a \a button color and a background. The other colors are
   automatically calculated, based on these colors.
 */
 
@@ -575,7 +576,7 @@ QPalette::QPalette( const QColor &button, const QColor &background )
 
 /*!
   Constructs a palette that consists of the three color groups \e
-  active, \e disabled and \e inactive.  See QPalette for definitions
+  active, \a disabled and \a inactive.  See QPalette for definitions
   of the color groups and QColorGroup::ColorRole for definitions of
   each color role in the three groups.
 
@@ -616,7 +617,7 @@ QPalette::~QPalette()
 }
 
 /*!
-  Assigns \e p to this palette and returns a reference to this
+  Assigns \a p to this palette and returns a reference to this
   palette.
 
   This is fast (it uses copy-on-write).
@@ -739,7 +740,7 @@ void QPalette::detach()
 */
 
 /*!
-  Sets the \c Disabled color group to \e g.
+  Sets the \c Disabled color group to \a g.
   \sa disabled() setActive() setInactive()
 */
 
@@ -757,7 +758,7 @@ void QPalette::setDisabled( const QColorGroup &g )
 */
 
 /*!
-  Sets the \c Active color group to \e g.
+  Sets the \c Active color group to \a g.
   \sa active() setDisabled() setInactive() QColorGroup
 */
 
@@ -775,7 +776,7 @@ void QPalette::setActive( const QColorGroup &g )
 */
 
 /*!
-  Sets the \c Inactive color group to \e g.
+  Sets the \c Inactive color group to \a g.
   \sa active() setDisabled() setActive() QColorGroup
 */
 
@@ -790,11 +791,11 @@ void QPalette::setInactive( const QColorGroup &g )
 /*!
   \fn bool QPalette::operator!=( const QPalette &p ) const
 
-  Returns TRUE (slowly) if this palette is different from \e p, or
+  Returns TRUE (slowly) if this palette is different from \a p, or
   FALSE (usually quickly) if they are equal.
 */
 
-/*!  Returns TRUE (usually quickly) if this palette is equal to \e p,
+/*!  Returns TRUE (usually quickly) if this palette is equal to \a p,
 or FALSE (slowly) if they are different.
 */
 

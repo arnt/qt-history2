@@ -443,6 +443,7 @@ void QDragObject::dragLink()
   indicating that the caller should remove the original source
   of the data (the drag object must continue to have a copy).
 
+    The \a mode specifies the drag mode (see \l{QDragObject::DragMode}.)
   Normally one of the simpler drag(), dragMove(), or dragCopy() functions
   would be used instead.
 
@@ -1432,7 +1433,7 @@ QWidget* QDropEvent::source() const
 
 /*!
   Constructs a color drag object with the color \a col.
-    Passes \a dragSource and \a name to the QStoredDrag constructor.
+    Passes \a dragsource and \a name to the QStoredDrag constructor.
 */
 
 QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name )
@@ -1443,7 +1444,7 @@ QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name
 
 /*!
   Constructs a color drag object with a white color
-    Passes \a dragSource and \a name to the QStoredDrag constructor.
+    Passes \a dragsource and \a name to the QStoredDrag constructor.
 */
 
 QColorDrag::QColorDrag( QWidget *dragsource, const char *name )

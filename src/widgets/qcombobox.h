@@ -136,6 +136,8 @@ class Q_EXPORT QComboBox : public QWidget
     bool	editable() const;
     void	setEditable( bool );
 
+    virtual void popup();
+
 public slots:
     void	clearValidator();
     void	clearEdit();
@@ -165,7 +167,6 @@ protected:
     void	focusInEvent( QFocusEvent *e );
     void	styleChange( QStyle& );
 
-    virtual void popup();
     void	updateMask();
 
 private:

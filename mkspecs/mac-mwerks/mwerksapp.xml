@@ -57,7 +57,7 @@
                 <SETTING><NAME>UserSourceTrees</NAME><VALUE></VALUE></SETTING>
 
                 <!-- Settings for "Access Paths" panel -->
-                <SETTING><NAME>AlwaysSearchUserPaths</NAME><VALUE>true</VALUE></SETTING>
+                <SETTING><NAME>AlwaysSearchUserPaths</NAME><VALUE>false</VALUE></SETTING>
                 <SETTING><NAME>InterpretDOSAndUnixPaths</NAME><VALUE>true</VALUE></SETTING>
 
                 <SETTING><NAME>UserSearchPaths</NAME>
@@ -70,10 +70,10 @@
                         <SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>
                         <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
                     </SETTING>
-                    $$CODEWARRIOR_DEPENDPATH
                 </SETTING>
                 <SETTING><NAME>SystemSearchPaths</NAME>
                     $$CODEWARRIOR_INCLUDEPATH
+                    $$CODEWARRIOR_DEPENDPATH
                 </SETTING>
 
                 <!-- Settings for "Debugger Runtime" panel -->
@@ -827,12 +827,12 @@
 
     <GROUPLIST>
         $$CODEWARRIOR_MOCS_GROUP
-        <GROUP><NAME>Libraries</NAME>
-            $$CODEWARRIOR_LIBRARIES_GROUP
-        </GROUP>
         <GROUP><NAME>Sources</NAME>
             $$CODEWARRIOR_HEADERS_GROUP
             $$CODEWARRIOR_SOURCES_GROUP
+        </GROUP>
+        <GROUP><NAME>Libraries</NAME>
+            $$CODEWARRIOR_LIBRARIES_GROUP
         </GROUP>
     </GROUPLIST>
 </PROJECT>

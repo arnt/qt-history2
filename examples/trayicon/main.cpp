@@ -50,6 +50,8 @@ static const char * const normalize_xpm[] = {
 "............",
 "............"};
 
+
+
 #include "trayicon.h"
 
 #include <qapplication.h>
@@ -64,19 +66,19 @@ int main( int argc, char **argv )
     QMainWindow mw;
     app.setMainWidget( &mw );
 
-    QPopupMenu menu2;
-    menu2.insertItem( "Test 2" );
-    TrayIcon tray2( QImage( (const char**)minimize_xpm ), "Minimize MainWindow", &menu2 );
-    QObject::connect(&tray2,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showMinimized()));
-
     QPopupMenu menu;
-    menu.insertItem( "Test 1" );
+    menu.insertItem( "Show Normal", &mw, SLOT(showNormal()) );
     menu.insertSeparator();
     menu.insertItem( "&Quit", &app, SLOT(quit()) );
-    TrayIcon tray( QImage( (const char**)normalize_xpm ), "Show MainWindow", &menu );
+    TrayIcon tray( QPixmap( (const char**)normalize_xpm ), "Show window", &menu );
     QObject::connect(&tray,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showNormal()));
+    
+    QPopupMenu menu2;
+    menu2.insertItem( "Minimize window", &mw, SLOT(showMinimized()) );
+    TrayIcon tray2( QPixmap( (const char**)minimize_xpm ), "Minimize window", &menu2 );
+    QObject::connect(&tray2,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showMinimized()));
 
-    TrayIcon tray3( QImage( (const char**)maximize_xpm ), "Maximize MainWindow" );
+    TrayIcon tray3( QPixmap( (const char**)maximize_xpm ), "Maximize window" );
     QObject::connect(&tray3,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showMaximized()));
 
     mw.show();

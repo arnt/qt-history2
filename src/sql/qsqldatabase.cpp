@@ -98,6 +98,8 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
+typedef QDict<QSqlDriverCreatorBase> QDriverDict;
+
 class QSqlDatabaseManager : public QObject
 {
 public:
@@ -107,10 +109,12 @@ public:
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
     static void          removeDatabase( const QString& name );
     static bool          contains( const QString& name );
+    static QDriverDict*  driverDict();
 
 protected:
     static QSqlDatabaseManager* instance();
     QDict< QSqlDatabase > dbDict;
+    QDriverDict* drDict;
 };
 
 /*!  Constructs an SQL database manager.
@@ -118,7 +122,7 @@ protected:
 */
 
 QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
-    : QObject( parent, name ), dbDict( 1 )
+    : QObject( parent, name ), dbDict( 1 ), drDict( 0 )
 {
 }
 
@@ -136,7 +140,22 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
 	delete it.current();
 	++it;
     }
+    delete drDict;
 }
+
+/*!
+  \internal
+*/
+QDriverDict* QSqlDatabaseManager::driverDict()
+{
+    QSqlDatabaseManager* sqlConnection = instance();
+    if ( !sqlConnection->drDict ) {
+	sqlConnection->drDict = new QDriverDict();
+	sqlConnection->drDict->setAutoDelete( TRUE );
+    }
+    return sqlConnection->drDict;
+}
+
 
 /*!
   \internal
@@ -319,6 +338,7 @@ void QSqlDatabase::removeDatabase( const QString& connectionName )
 QStringList QSqlDatabase::drivers()
 {
     QStringList l;
+
 #ifdef QT_SQL_POSTGRES
     l << "QPSQL6" << "QPSQL7";
 #endif
@@ -331,6 +351,7 @@ QStringList QSqlDatabase::drivers()
 #ifdef QT_SQL_OCI
     l << "QOCI8";
 #endif
+
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
     plugIns = new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory );
@@ -344,7 +365,26 @@ QStringList QSqlDatabase::drivers()
     l += plugIns->featureList();
     delete plugIns;
 #endif
+
+    QDictIterator<QSqlDriverCreatorBase> itd( *QSqlDatabaseManager::driverDict() );
+    while ( itd.current() ) {
+	if ( !l.contains( itd.currentKey() ) )
+	    l << itd.currentKey();
+	++itd;
+    }
+
     return l;
+}
+
+/*!
+  \internal
+*/
+void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* dcb )
+{   
+    QSqlDatabaseManager::driverDict()->remove( name );
+    if ( dcb ) {
+	QSqlDatabaseManager::driverDict()->insert( name, dcb );
+    }
 }
 
 /*! Returns TRUE if the list of database connections contains \a
@@ -419,6 +459,16 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 	    d->driver = new QOCIDriver();
 #endif
 
+    }
+
+    if ( !d->driver ) {
+	QDictIterator<QSqlDriverCreatorBase> it( *QSqlDatabaseManager::driverDict() );
+	while ( it.current() && !d->driver ) {
+	    if ( type == it.currentKey() ) {
+		d->driver = it.current()->createObject();
+	    }
+	    ++it;
+	}
     }
 
 #ifndef QT_NO_COMPONENT

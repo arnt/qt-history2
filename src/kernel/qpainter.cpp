@@ -69,12 +69,12 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
   The typical use of a painter is:
 
-  <ol>
-  <li> Construct a painter.
-  <li> Set a pen, a brush etc.
-  <li> Draw.
-  <li> Destroy the painter.
-  </ol>
+  \list
+  \i Construct a painter.
+  \i Set a pen, a brush etc.
+  \i Draw.
+  \i Destroy the painter.
+  \endlist
 
   Mostly, all this is done inside a paint event.  (In fact, 99% of all
   QPainter use is in a reimplementation of QWidget::paintEvent(), and
@@ -90,44 +90,44 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     }
   \endcode
 
-  Simple. However, there are many settings you may use: <ul>
+  Simple. However, there are many settings you may use: \list
 
-  <li> font() is the currently set font.  If you set a font that isn't
+  \i font() is the currently set font.  If you set a font that isn't
   available, Qt finds a close match.  In that case font() returns what
   you set using setFont() and fontInfo() returns the font actually
   being used.
 
-  <li> brush() is the currently set brush; the color or pattern
+  \i brush() is the currently set brush; the color or pattern
   that's used for filling e.g. circles.
 
-  <li> pen() is the currently set pen; the color or stipple that's
+  \i pen() is the currently set pen; the color or stipple that's
   used for drawing lines or boundaries.
 
-  <li> backgroundMode() is \c Opaque or \c Transparent, ie. whether
+  \i backgroundMode() is \c Opaque or \c Transparent, ie. whether
   backgroundColor() is used or not.
 
-  <li> backgroundColor() only applies when backgroundMode() is Opaque
+  \i backgroundColor() only applies when backgroundMode() is Opaque
   and pen() is a stipple.  In that case, it describes the color of the
   background pixels in the stipple.
 
-  <li> rasterOp() is how pixels drawn interact with the data already
+  \i rasterOp() is how pixels drawn interact with the data already
   there.
 
-  <li> brushOrigin() is the origin of the tiled brushes, normally the
+  \i brushOrigin() is the origin of the tiled brushes, normally the
   origin of the window.
 
-  <li> viewport(), window(), worldMatrix() and many more make up the
+  \i viewport(), window(), worldMatrix() and many more make up the
   painter's coordinate transformation system.  See \link coordsys.html
   The Coordinate System \endlink for an explanation of this, or a
   paragraph below for a quick overview of the functions.
 
-  <li> clipping() is whether the painter clips at all. (The paint
+  \i clipping() is whether the painter clips at all. (The paint
   device clips, too.)  If the painter clips, it clips to clipRegion().
 
-  <li> pos() is the current position, set by moveTo() and used by
+  \i pos() is the current position, set by moveTo() and used by
   lineTo().
 
-  </ul>
+  \endlist
 
   Note that some of these settings mirror settings in some paint
   devices, e.g. QWidget::font(). QPainter::begin() (or the QPainter
@@ -282,6 +282,11 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
   \value AlignCenter Centers in both dimensions.
 
+  Masks:
+
+  \value AlignHorizontal_Mask
+  \value AlignVertical_Mask
+
   This counts both as a horizontal and a vertical flag; it cannot be
   combined with any other horizontal or vertical flags.
 
@@ -305,6 +310,9 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \value ShowPrefix Displays the string "\&P" as an underlined P
     (see QButton for an example).  For an ampersand, use "\&\&".
   \value WordBreak Breaks lines at appropriate points.
+  \value BreakAnywhere Breaks lines anywhere.
+  \value NoAccel Synonym for ShowPrefix.
+  \value DontPrint Internal.
 
   You can use as many modifier flags as you want, except that \c
   SingleLine and \c WordBreak cannot be combined.
@@ -332,11 +340,12 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \value DashDotLine  alternate dots and dashes.
 
   \value DashDotDotLine  one dash, two dots, one dash, two dots...
+  \value MPenStyle mask of the pen styles.
 */
 
 /*! \enum Qt::PenCapStyle
 
-  This enum type defines the pen cap styles supported by Qt, i.e., the
+  This enum type defines the pen cap styles supported by Qt, i.e. the
   line end caps that can be drawn using QPainter. The
   available styles are:
 
@@ -347,6 +356,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   extends beyond it with half the line width.
 
   \value RoundCap  a rounded line end.
+  \value MPenCapStyle mask of the pen cap styles.
 */
 
 /*! \enum Qt::PenJoinStyle
@@ -361,6 +371,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \value BevelJoin  The triangular notch between the two lines is filled.
 
   \value RoundJoin  A circular arc between the two lines is filled.
+  \value MPenJoinStyle mask of the pen join styles.
 */
 
 /*!
@@ -752,7 +763,7 @@ QFontInfo QPainter::fontInfo() const
 /*!
   Sets a new painter pen.
 
-  The pen defines how to draw lines and outlines, and it also defines
+  The \a pen defines how to draw lines and outlines, and it also defines
   the text color.
 
   \sa pen()
@@ -769,7 +780,8 @@ void QPainter::setPen( const QPen &pen )
 }
 
 /*!
-  Sets a new painter pen with style \c style, width 0 and black color.
+    \overload
+  Sets a new painter pen with style \a style, width 0 and black color.
   \sa pen(), QPen
 */
 
@@ -792,6 +804,7 @@ void QPainter::setPen( PenStyle style )
 }
 
 /*!
+    \overload
   Sets a new painter pen with style \c SolidLine, width 0 and the specified
   \a color.
   \sa pen(), QPen
@@ -822,9 +835,10 @@ void QPainter::setPen( const QColor &color )
 */
 
 /*!
+    \overload
   Sets a new painter brush.
 
-  The brush defines how to fill shapes.
+  The \a brush defines how to fill shapes.
 
   \sa brush()
 */
@@ -865,6 +879,7 @@ void QPainter::setBrush( BrushStyle style )
 }
 
 /*!
+    \overload
   Sets a new painter brush with the style \c SolidPattern and the specified
   \a color.
   \sa brush(), QBrush
@@ -1046,10 +1061,11 @@ QRect QPainter::window() const
 
 /*!
   Sets the window rectangle view transformation for the painter and
-  enables view transformation.
+  enables view transformation. 
 
   The window rectangle is part of the view transformation.  The window
-  specifies the logical coordinate system.  Its sister, the
+  specifies the logical coordinate system and is specified by the \a
+  x, \a y, \a w width and \a h height parameters.  Its sister, the
   viewport(), specifies the device coordinate system.
 
   The default window rectangle is the same as the device's rectangle.
@@ -1097,8 +1113,9 @@ QRect QPainter::viewport() const		// get viewport
   enables view transformation.
 
   The viewport rectangle is part of the view transformation.  The
-  viewport specifies the device coordinate system.  Its sister, the
-  window(), specifies the logical coordinate system.
+  viewport specifies the device coordinate system and is specified by
+  the \a x, \a y, \a w width and \a h height parameters.  Its sister,
+  the window(), specifies the logical coordinate system.
 
   The default viewport rectangle is the same as the device's rectangle.
   See the \link coordsys.html Coordinate System Overview \endlink for
@@ -1189,12 +1206,12 @@ const QWMatrix &QPainter::worldMatrix() const
 
   The following functions can transform the coordinate system without using
   a QWMatrix:
-  <ul>
-  <li>translate()
-  <li>scale()
-  <li>shear()
-  <li>rotate()
-  </ul>
+  \list
+  \i translate()
+  \i scale()
+  \i shear()
+  \i rotate()
+  \endlist
 
   They operate on the painter's worldMatrix() and are implemented like this:
 
@@ -1714,6 +1731,7 @@ QPointArray QPainter::xForm( const QPointArray &av, int index,
 }
 
 /*!
+    \overload
   Returns the point \a pd transformed from device coordinates to model
   coordinates.
   \sa xForm(), QWMatrix::map()
@@ -1767,7 +1785,9 @@ QRect QPainter::xFormDev( const QRect &rd ) const
     return QRect( x, y, w, h );
 }
 
-/*! Returns the point array \a ad transformed from device coordinates
+/*! 
+    \overload
+    Returns the point array \a ad transformed from device coordinates
   to model coordinates.
 
   \sa xForm(), QWMatrix::map()
@@ -1853,21 +1873,24 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 
 /*!
   \overload void QPainter::setBrushOrigin( const QPoint &p )
+  Sets the brush origin to point \a p.
 */
 
 /*!
   \overload void QPainter::setWindow( const QRect &r )
+  Sets the painter's window to rectangle \a r.
 */
 
 
 /*!
   \overload void QPainter::setViewport( const QRect &r )
+  Sets the painter's viewport to rectangle \a r.
 */
 
 
 /*!
   \fn bool QPainter::hasClipping() const
-  Returns TRUE if clipping has been set, otherwise FALSE.
+  Returns TRUE if clipping has been set; otherwise returns FALSE.
   \sa setClipping()
 */
 
@@ -1895,9 +1918,10 @@ QRegion QPainter::clipRegion( ClipMode m ) const
 }
 
 /*!
-  \fn void QPainter::setClipRect( int x, int y, int w, int h )
+  \fn void QPainter::setClipRect( int x, int y, int w, int h, ClipMode m)
 
-  Sets the clip region to the rectangle \a (x,y,w,h) and enables clipping.
+  Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
+  enables clipping. The clip mode is set to \a m.
 
   Note that the clip region is given in physical device coordinates
   and \e not subject to any \link coordsys.html coordinate
@@ -1910,31 +1934,39 @@ QRegion QPainter::clipRegion( ClipMode m ) const
 
 /*!
   \overload void QPainter::drawPoint( const QPoint &p )
+  Draws the point \a p.
 */
 
 
 /*!
   \overload void QPainter::moveTo( const QPoint &p )
+  Moves to the point \a p.
 */
 
 /*!
   \overload void QPainter::lineTo( const QPoint &p )
+  Draws a line to the point \a p.
 */
 
 /*!
   \overload void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
+  Draws a line from point \a p1 to point \a p2.
 */
 
 /*!
   \overload void QPainter::drawRect( const QRect &r )
+  Draws a rectange \a r.
 */
 
 /*!
   \overload void QPainter::drawWinFocusRect( const QRect &r )
+  Draws rectange \a r as a window focus rectangle.
 */
 
 /*!
   \overload void QPainter::drawWinFocusRect( const QRect &r, const QColor &bgColor )
+  Draws rectange \a r as a window focus rectangle using background
+  color \a bgColor.
 */
 
 
@@ -1950,32 +1982,41 @@ void QPainter::drawWinFocusRect( int, int, int, int,
 
 /*!
   \overload void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
+  Draws a rounded rectange \a r, rounding to the x position \a xRnd
+  and the y position \a yRnd on each corner.
 */
 
 /*!
   \overload void QPainter::drawEllipse( const QRect &r )
+  Draws the ellipse that fits inside rectangle \a r.
 */
 
 /*!
   \overload void QPainter::drawArc( const QRect &r, int a, int alen )
+  Draws the arc that fits inside the rectangle \a r with start angle \a a and
+  arc length \a alen.
 */
 
 /*!
   \overload void QPainter::drawPie( const QRect &r, int a, int alen )
+  Draws a pie segment that fits inside the rectangle \a r with start
+  angle \a a and arc length \a alen.
 */
 
 /*!
   \overload void QPainter::drawChord( const QRect &r, int a, int alen )
+  Draws a chord that fits inside the rectangle \a r with start
+  angle \a a and arc length \a alen.
 */
 
 /*!
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
+  Draws the rectangle \a sr of pixmap \a pm with its origin at point \a p.
 */
 
 /*!
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
-
-  This version of the call draws the entire pixmap.
+  Draws the pixmap \a pm with its origin at point \a p.
 */
 
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
@@ -2088,7 +2129,8 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 }
 
 /*!
-  \overload void QPainter::drawImage( const QPoint &, const QImage &, int conversion_flags )
+  \overload void QPainter::drawImage( const QPoint &p, const QImage &i, int conversion_flags )
+  Draws the image \a i at point \a p.
 */
 void QPainter::drawImage( const QPoint & p, const QImage & i,
 			  int conversion_flags )
@@ -2116,35 +2158,50 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 /*!
   \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
+  Draws a tiled pixmap, \a pm, inside rectange \a r with its origin at
+  point \a sp. 
 */
 
 /*!
   \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm )
+  Draws a tiled pixmap, \a pm, inside rectange \a r.
 */
 
 /*!
   \overload void QPainter::fillRect( const QRect &r, const QBrush &brush )
+  Fills the rectangle \a r using brush \a brush.
 */
 
 /*!
   \fn void QPainter::eraseRect( int x, int y, int w, int h )
 
-  Erases the area inside \a (x,y,w,h).
-  Equivalent to <code>fillRect( x, y, w, h, backgroundColor() )</code>.
+  Erases the area inside \a x, \a y, \a w, \a h.
+  Equivalent to \c{fillRect( x, y, w, h, backgroundColor() )}.
 */
 
 /*!
   \overload void QPainter::eraseRect( const QRect &r )
+  Erases the area inside the rectangle \a r.
 */
 
 /*!
   \overload QPainter::drawText( int x, int y, const QString &, int len = -1, TextDirection dir = Auto )
+  Draws the given text at position \a x, \a y. If \a len is -1 (the
+  default) all the text is drawn, otherwise the first \a len
+  characters are drawn. The text's direction is given by \a dir.
 */
 
 /*!
   \overload void QPainter::drawText( int x, int y, int w, int h, int flags,
 			  const QString&, int len = -1, QRect *br=0,
-			  QTextParag **intern=0 )
+			  QTextParag **internal=0 )
+  Draws the given text within the rectangle starting at \a x, \a y,
+  with width \a w and height \a h. If \a len is -1 (the default) all
+  the text is drawn, otherwise the first \a len characters are drawn.
+  The text's alignment is given in the \a flags parameter (see
+  \l{Qt::AlignmentFlags}). \a br (if not null) is set to the actual
+  bounding rectangle of the output. The \a internal parameter is for
+  internal use only.
 */
 
 static inline void fix_neg_rect( int *x, int *y, int *w, int *h )
@@ -2499,20 +2556,20 @@ void qt_format_text( const QFont& font, const QRect &r,
   If \a len is negative (default value), the whole string is used.
 
   The \a tf argument is
-  the bitwise OR of the following flags:  <ul>
-  <li> \c AlignAuto aligns according to the language, usually left.
-  <li> \c AlignLeft aligns to the left border.
-  <li> \c AlignRight aligns to the right border.
-  <li> \c AlignHCenter aligns horizontally centered.
-  <li> \c AlignTop aligns to the top border.
-  <li> \c AlignBottom aligns to the bottom border.
-  <li> \c AlignVCenter aligns vertically centered
-  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
-  <li> \c SingleLine ignores newline characters in the text.
-  <li> \c ExpandTabs expands tabulators.
-  <li> \c ShowPrefix interprets "&x" as "x" underlined.
-  <li> \c WordBreak breaks the text to fit the rectangle.
-  </ul>
+  the bitwise OR of the following flags:  \list
+  \i AlignAuto aligns according to the language, usually left.
+  \i AlignLeft aligns to the left border.
+  \i AlignRight aligns to the right border.
+  \i AlignHCenter aligns horizontally centered.
+  \i AlignTop aligns to the top border.
+  \i AlignBottom aligns to the bottom border.
+  \i AlignVCenter aligns vertically centered
+  \i AlignCenter (= \c AlignHCenter | AlignVCenter)
+  \i SingleLine ignores newline characters in the text.
+  \i ExpandTabs expands tabulators.
+  \i ShowPrefix interprets "&x" as "x" underlined.
+  \i WordBreak breaks the text to fit the rectangle.
+  \endlist
 
   Horizontal alignment defaults to AlignLeft and vertical alignment
   defaults to AlignTop.
@@ -2521,6 +2578,8 @@ void qt_format_text( const QFont& font, const QRect &r,
   are set, the resulting alignment is undefined.
 
   These flags are defined in qnamespace.h.
+
+  The \a internal parameter should not be used.
 
   \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::AlignmentFlags
 */
@@ -2621,7 +2680,7 @@ QPen::QPen()
 }
 
 /*!
-  Constructs a	pen black with 0 width and a specified style.
+  Constructs a black pen with 0 width and style \a style.
   \sa setStyle()
 */
 
@@ -2631,7 +2690,7 @@ QPen::QPen( PenStyle style )
 }
 
 /*!
-  Constructs a pen with a specified color, width and style.
+  Constructs a pen with the specified \a color, \a width and \a style.
   \sa setWidth(), setStyle(), setColor()
 */
 
@@ -2641,7 +2700,10 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
 }
 
 /*!
-  Constructs a pen with a specified color, width and styles.
+  Constructs a pen with the specified color \a cl and width \a w. The pen
+  style is set to \a s, the pen cap style to \a c and the pen join
+  style to \a j. 
+  
   \sa setWidth(), setStyle(), setColor()
 */
 
@@ -2868,7 +2930,7 @@ bool QPen::operator==( const QPen &p ) const
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QPen
-  Writes a pen to the stream and returns a reference to the stream.
+  Writes the pen \a p to the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -2884,7 +2946,8 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 
 /*!
   \relates QPen
-  Reads a pen from the stream and returns a reference to the stream.
+  Reads a pen from the stream \a s into \a p and returns a reference
+  to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -3089,24 +3152,24 @@ QBrush QBrush::copy() const
   Sets the brush style to \a s.
 
   The brush styles are:
-  <ul>
-  <li> \c NoBrush  will not fill shapes (default).
-  <li> \c SolidPattern  solid (100%) fill pattern.
-  <li> \c Dense1Pattern  94% fill pattern.
-  <li> \c Dense2Pattern  88% fill pattern.
-  <li> \c Dense3Pattern  63% fill pattern.
-  <li> \c Dense4Pattern  50% fill pattern.
-  <li> \c Dense5Pattern  37% fill pattern.
-  <li> \c Dense6Pattern  12% fill pattern.
-  <li> \c Dense7Pattern  6% fill pattern.
-  <li> \c HorPattern  horizontal lines pattern.
-  <li> \c VerPattern  vertical lines pattern.
-  <li> \c CrossPattern  crossing lines pattern.
-  <li> \c BDiagPattern  diagonal lines (directed / ) pattern.
-  <li> \c FDiagPattern  diagonal lines (directed \ ) pattern.
-  <li> \c DiagCrossPattern  diagonal crossing lines pattern.
-  <li> \c CustomPattern  set when a pixmap pattern is being used.
-  </ul>
+  \list
+  \i NoBrush  will not fill shapes (default).
+  \i SolidPattern  solid (100%) fill pattern.
+  \i Dense1Pattern  94% fill pattern.
+  \i Dense2Pattern  88% fill pattern.
+  \i Dense3Pattern  63% fill pattern.
+  \i Dense4Pattern  50% fill pattern.
+  \i Dense5Pattern  37% fill pattern.
+  \i Dense6Pattern  12% fill pattern.
+  \i Dense7Pattern  6% fill pattern.
+  \i HorPattern  horizontal lines pattern.
+  \i VerPattern  vertical lines pattern.
+  \i CrossPattern  crossing lines pattern.
+  \i BDiagPattern  diagonal lines (directed / ) pattern.
+  \i FDiagPattern  diagonal lines (directed \ ) pattern.
+  \i DiagCrossPattern  diagonal crossing lines pattern.
+  \i CustomPattern  set when a pixmap pattern is being used.
+  \endlist
 
   \sa style()
 */

@@ -888,7 +888,7 @@ QCString QTextCodec::fromUnicode(const QString& uc) const
 /*!
   \overload
   \a a contains the source characters; \a len contains the number of
-  characters in \a to use.
+  characters in \a a to use.
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
@@ -910,7 +910,7 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 /*!
   \overload
   \a a contains the source characters; \a len contains the number of
-  characters in \a to use.
+  characters in \a a to use.
 */
 QString QTextCodec::toUnicode(const QCString& a, int len) const
 {

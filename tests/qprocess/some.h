@@ -1,4 +1,3 @@
-//depot/qt/main/tests/qprocess/test/some.h#16 - edit change 30856 (text)
 #include <qobject.h>
 #include <qvbox.h>
 #include <qcheckbox.h>
@@ -13,7 +12,7 @@ class Some : public QObject
     Q_OBJECT
 
 public:
-    Some( QObject *, bool start, bool cStdout, bool cStderr, bool cExitp, int com );
+    Some( QObject *, bool start, bool uOwnEnvironment, bool cStdout, bool cStderr, bool cExitp, int com );
     ~Some() { };
 
 public slots:
@@ -36,7 +35,7 @@ public slots:
 signals:
 
 private:
-    void procInit( bool start, int com );
+    void procInit( bool start, int com, QStringList *env );
 
     QVBox main;
     QVBox info;
@@ -64,7 +63,7 @@ class SomeFactory : public QObject
     Q_OBJECT
 
 public:
-    SomeFactory() : cStdout(FALSE), cStderr(FALSE), cExit(FALSE)
+    SomeFactory() : uOwnEnvironment(FALSE), cStdout(FALSE), cStderr(FALSE), cExit(FALSE)
     { parent = new QObject; };
     ~SomeFactory()
     { delete parent; };
@@ -79,6 +78,7 @@ public slots:
     void launchProcess2();
     void quit();
 
+    void useOwnEnvironment( bool enable );
     void connectStdout( bool enable );
     void connectStderr( bool enable );
     void connectExit( bool enable );
@@ -88,6 +88,7 @@ signals:
 
 private:
     QObject *parent;
+    bool uOwnEnvironment;
     bool cStdout;
     bool cStderr;
     bool cExit;

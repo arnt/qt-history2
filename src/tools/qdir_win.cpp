@@ -70,13 +70,16 @@ static void QDir::slashify( QString& n)
 QString QDir::homeDirPath()
 {
     QString d;
-    if ( qWinVersion() & Qt::WV_NT_based )
-	d = QString(getenv("HOMEDRIVE")) + getenv("HOMEPATH");
-    else
-	d = getenv("HOME");
-    slashify( d );
+    d = QString::fromLatin1( getenv("HOME") );
+    if ( d.isEmpty() )
+	d = QString::fromLatin1( getenv("USERPROFILE") );
+    if ( d.isEmpty() )
+	d = QString::fromLatin1( getenv("HOMEDRIVE") ) + QString::fromLatin1( getenv("HOMEPATH") );
+
     if ( d.isEmpty() )
 	d = rootDirPath();
+
+    slashify( d );
     return d;
 }
 
@@ -298,7 +301,10 @@ QString QDir::currentDirPath()
 QString QDir::rootDirPath()
 {
 #if defined(Q_FS_FAT)
-    QString d = QString::fromLatin1( "c:/" );
+    QString d = QString::fromLatin1( getenv("SystemDrive") );
+    if ( d.isEmpty() )
+	d = "c:";
+    d = d + "/";
 #elif defined(Q_OS_OS2EMX)
     char dir[4];
     _abspath( dir, "/", _MAX_PATH );

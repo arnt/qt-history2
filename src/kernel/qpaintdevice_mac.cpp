@@ -48,6 +48,9 @@ QPaintDevice::QPaintDevice( uint devflags )
     devFlags = devflags;
     painters = 0;
     hd=0;
+#ifndef QMAC_NO_QUARTZ
+    ctx = 0;
+#endif
 }
 
 QPaintDevice::~QPaintDevice()
@@ -81,6 +84,7 @@ int QPaintDevice::fontInf( QFont *, int ) const
 
 QPoint posInWindow(QWidget *w);
 
+#ifdef QMAC_NO_QUARTZ
 void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
@@ -278,6 +282,14 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 #endif 
 }
 
+#else //!QMAC_NO_QUARTZ
+void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+	     Qt::RasterOp rop, bool imask)
+{
+}
+#endif
+
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		      Qt::RasterOp rop, bool imask)
@@ -289,6 +301,7 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		   Qt::RasterOp rop, bool imask)
 {
+#ifdef QMAC_NO_QUARTZ
   //at the end of this function this will go out of scope and the destructor will restore the state
   QMacSavedPortInfo saveportstate(dst); 
     
@@ -298,6 +311,7 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
       QPixmap *pm = (QPixmap *)dst;
       QMacSavedPortInfo::setClipRegion(QRect(0, 0, pm->width(), pm->height()));
   }
+#endif
   unclippedScaledBitBlt(dst, dx, dy, dw, dh, src, sx, sy, sw, sh, rop, imask);
 }
 
@@ -323,3 +337,17 @@ int QPaintDevice::resolution() const
 {
     return metric( QPaintDeviceMetrics::PdmDpiY );
 }
+
+#ifndef QMAC_NO_QUARTZ
+CGContextRef QPaintDevice::macCGContext() const
+{
+    QPaintDevice *that = (QPaintDevice *)this;
+    if(!that->ctx) {
+	if(devType() == QInternal::Widget)
+	    CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), &that->ctx);
+	else if(devType() == QInternal::QPixmap || devType() == QInternal::Printer))
+	    CreateCGContextForPort((GWorldPtr)handle(), &that->ctx);
+    }
+    return that->ctx;
+}
+#endif

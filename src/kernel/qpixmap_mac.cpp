@@ -5,148 +5,21 @@
 #include "qbitmap.h"
 #include "qwmatrix.h"
 #include "qt_mac.h"
-
-static QImage convertPixmapToImage(QPixmap::QPixmapData *, GWorldPtr);
-
-static inline void safely_dispose_gworld(GWorldPtr gw)
-{
-#ifdef Q_WS_MAC9
-   GWorldPtr w;
-   GDHandle h;
-   GetGWorld(&w, &h);
-   if(w == gw)
-       QMacSavedPortInfo::setPaintDevice(qt_mac_safe_pdev);        
-   QMacSavedPortInfo::removingGWorld(gw);
-#endif
-   DisposeGWorld(gw);    
-}
-
-#ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
-#define CALC_COST(pm_d) (pm_d->w * pm_d->h * pm_d->d / 4)
-#include <qintcache.h>
-
-class QMacInternalPixmapCache : public QIntCache<QPixmap::QPixmapData>
-{
-    int pixmap_key, cache_used;
-public:
-    QMacInternalPixmapCache() : 
-	QIntCache<QPixmap::QPixmapData>(640*480*4, 149), //640x480 32bit
-	pixmap_key(0), cache_used(0) { } 
-    ~QMacInternalPixmapCache() { }
-    Qt::HANDLE getGWorld(const QPixmap *);
-protected:
-    virtual void deleteItem(Item);
-};
-
-void QMacInternalPixmapCache::deleteItem(Item d)
-{
-    QPixmap::QPixmapData *data = (QPixmap::QPixmapData *)d;
-    cache_used -= CALC_COST(data);
-    if(data->cache.gworld) {
-	data->cache.img = new QImage(convertPixmapToImage(data, (GWorldPtr)data->cache.gworld));
-#ifdef ONE_PIXEL_LOCK
-	UnlockPixels(GetGWorldPixMap((GWorldPtr)data->cache.gworld));
-#endif
-        safely_dispose_gworld((GWorldPtr)data->cache.gworld);
-	data->cache.key = -1;
-    }
-}
-Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
-{
-    QPixmap *pm = (QPixmap *)p; //mutable
-    if(pm->data->cache.gworld) {
-        if(!pm->isQBitmap())
-	        find(pm->data->cache.key); //most recently used now baby!
-	return pm->data->cache.gworld;
-    }
-
-    //not in the cache already..
-    int w = pm->width(), h = pm->height();
-    if(w<1 || h<1) 
-	return NULL;
-    Rect rect;
-    SetRect(&rect,0,0,w,h);
-    int cost = CALC_COST(pm->data); //some cost
-    for(int tries = 1; tries <= 5; tries++) { 
-	QDErr e = 0;
-	const int params = alignPix | stretchPix | newDepth;
-#if 0    
-	if(w <= 300 && h <= 100) //try to get it into distant memory
-	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, 
-			  pm->data->clut ? &pm->data->clut : NULL, 0, useDistantHdwrMem | params);
-	if(e != noErr) //oh well I tried
-#endif  
-	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, 
-			  pm->data->clut ? &pm->data->clut : NULL, 0, params);
-
-	/* error? */
-	if(e != noErr) {
-	    pm->data->cache.gworld=0; //just to be sure
-	    if(int mc = maxCost()) {
-		setMaxCost(mc > (cost * tries) ? mc - (cost*tries) : 0); //throw away some things
-	    } else {
-		qDebug( "QPixmap::init Something went wrong");
-		Q_ASSERT(0);
-		break;
-	    }
-	} else {
-#ifdef ONE_PIXEL_LOCK
-	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->data->cache.gworld)));
-#endif
-
-	    cache_used += cost;
-	    if(cache_used > maxCost())
-		setMaxCost(cache_used);
-            if(!pm->isQBitmap()) { //bitmaps are not part of the virtual support
-	        pm->data->cache.key = pixmap_key++;
-	        //try to resize the cache 5 times to fit the new pixmap
-	        for(int i = 0; i < 5; i++) {
-	                setMaxCost(maxCost() + cost);
-	                if(insert(pm->data->cache.key, p->data, cost))
-	                break;
-	        }
-	        if(pm->data->cache.img) { 	    //back like it was before
-		        pm->convertFromImage(*pm->data->cache.img);
-		        delete pm->data->cache.img;
-		        pm->data->cache.img = NULL;
-	        }
-	    }
-	    break;
-	}
-    }
-    return pm->data->cache.gworld;
-}
-static QMacInternalPixmapCache g_pixmap_cache;
-
-/*! \internal
-  This is conditionally implemented to support virtual pixmaps.
-*/
-Qt::HANDLE QPixmap::handle() const
-{
-    //Optimization: don't need the cache hit when working with one pixmap
-    static const QPixmap *last_pix = NULL; 
-    if(last_pix == this && data->cache.gworld)
-	return data->cache.gworld;
-    last_pix = this;
-    return g_pixmap_cache.getGWorld(this);
-}
-#endif
-
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
     init(w, h, 1, TRUE, DefaultOptim);
-    GWorldPtr hd = (GWorldPtr)handle();
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
+#ifdef QMAC_NO_QUARTZ
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
-    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow, q;
-    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
+    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow, q;
+    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
     char mode = true32b;
     SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
@@ -166,7 +39,10 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
     SwapMMUMode(&mode);
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap(hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+#endif
+#else //!QMAC_NO_QUARTZ
+    //FIXME
 #endif
 }
 
@@ -260,15 +136,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	*this = pm;
     }
 
-    GWorldPtr hd = (GWorldPtr)handle();
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
+#ifdef QMAC_NO_QUARTZ
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
-    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow;
-    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
+    long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
+    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
 
     QRgb q;
     int sdpt = image.depth();
@@ -313,8 +189,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
     SwapMMUMode(&mode);
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap(hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
+#else //!QMAC_NO_QUARTZ
+    //FIXME
+#endif
+
     data->uninit = FALSE;
 
     if ( img.hasAlphaBuffer() ) {
@@ -338,11 +218,6 @@ int get_index(QImage * qi,QRgb mycol)
 }
 
 QImage QPixmap::convertToImage() const
-{
-    return convertPixmapToImage(data, (GWorldPtr)handle());
-}
-
-static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd) 
 {
     if ( data->w == 0 ) {
 #if defined(QT_CHECK_NULL)
@@ -389,12 +264,13 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd)
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
+#ifdef QMAC_NO_QUARTZ
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
     QRgb q;
-    long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *srow, r;
-    unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(hd));
+    long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *srow, r;
+    unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
 
     char mode = true32b;
     SwapMMUMode(&mode);
@@ -417,7 +293,11 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd)
     SwapMMUMode(&mode);
 
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap(hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+#endif
+
+#else //!QMAC_NO_QUARTZ
+    //FIXME
 #endif
 
     //how do I handle a mask?
@@ -478,25 +358,25 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd)
     }
 
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap(hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
     return *image;
 }
 
 void QPixmap::fill( const QColor &fillColor )
 {
-    GWorldPtr hd = (GWorldPtr)handle();
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 	
     Rect r;
     RGBColor rc;
-
-    //at the end of this function this will go out of scope and the destructor will restore the state
     detach();					// detach other references
+
+#ifdef QMAC_NO_QUARTZ
+    //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this); 
 #ifndef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
+    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
 
     rc.red=fillColor.red()*256;
@@ -507,7 +387,10 @@ void QPixmap::fill( const QColor &fillColor )
     PaintRect(&r);
 
 #ifndef ONE_PIXEL_LOCK
-    UnlockPixels(GetGWorldPixMap(hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+#endif
+#else //!QMAC_NO_QUARTZ
+    //FIXME
 #endif
 }
 
@@ -561,22 +444,16 @@ void QPixmap::deref()
             data->mask = 0;
         }
 
-	GWorldPtr gw = NULL;
-#ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
-	g_pixmap_cache.take(data->cache.key);
-	gw = (GWorldPtr)data->cache.gworld;
-	data->cache.gworld = NULL;
-	delete data->cache.img;
-	data->cache.img = NULL;
-#else
-	gw = (GWorldPtr)hd;
-	hd = NULL;
-#endif
-        if ( gw && qApp ) {
+        if ( hd && qApp ) {
+#ifdef QMAC_NO_QUARTZ
 #ifdef ONE_PIXEL_LOCK
-	    UnlockPixels(GetGWorldPixMap(gw));
+	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
-            safely_dispose_gworld(gw);
+	    DisposeGWorld((GWorldPtr)hd);    
+
+#else //!QMAC_NO_QUARTZ
+	    //FIXME
+#endif
         }
         delete data;
 	data = NULL;
@@ -811,9 +688,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data = new QPixmapData;
     Q_CHECK_PTR( data );
     memset( data, 0, sizeof(QPixmapData) );
-#ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
-    data->cache.key = -1;
-#endif
     data->count=1;
     data->uninit=TRUE;
     data->bitmap=bitmap;
@@ -841,7 +715,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->w=w;
     data->h=h;
 
-#ifndef QMAC_VIRTUAL_PIXMAP_SUPPORT
+#ifdef QMAC_NO_QUARTZ
     Rect rect;
     SetRect(&rect,0,0,w,h);
     QDErr e = 0;
@@ -868,6 +742,9 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->w=w;
 	data->h=h;
     }
+
+#else //!QMAC_NO_QUARTZ
+    //FIXME
 #endif
 }
 

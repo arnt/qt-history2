@@ -626,9 +626,14 @@ QMovie::QMovie()
 }
 
 /*!
-  Constructs a QMovie with an external data source.
+  Constructs a QMovie with an external data source. 
   You should later call pushData() to send incoming animation data to
-  the movie.
+  the movie. 
+
+  The \a bufsize argument sets the maximum amount of data the movie
+  will transfer from the data source per event loop.  The lower this
+  value, the better interleaved the movie playback will be with other
+  event processing, but the slower the overall processing will be.
 
   \sa pushData()
 */
@@ -666,10 +671,10 @@ void QMovie::setDisplayWidget(QWidget * w)
 
 /*!
   Constructs a QMovie that reads an image sequence from the given
-  QDataSource.  The source must be allocated dynamically,
-  because it becomes owned by the QMovie and will be destroyed
-  when the movie is destroyed.
-  The movie starts playing as soon as event processing continues.
+  data source, \a src.  The source must be allocated dynamically,
+  because it becomes QMovie will take ownership of it and will destroy
+  it when the movie is destroyed. The movie starts playing as soon as
+  event processing continues.
 
   The \a bufsize argument sets the maximum amount of data the movie
   will transfer from the data source per event loop.  The lower this
@@ -682,7 +687,13 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 }
 
 /*!
-  Constructs a QMovie that reads an image sequence from the named file.
+  Constructs a QMovie that reads an image sequence from the file, \a
+  fileName.
+
+  The \a bufsize argument sets the maximum amount of data the movie
+  will transfer from the data source per event loop.  The lower this
+  value, the better interleaved the movie playback will be with other
+  event processing, but the slower the overall processing will be.
 */
 QMovie::QMovie(const QString &fileName, int bufsize)
 {
@@ -692,7 +703,13 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 }
 
 /*!
-  Constructs a QMovie that reads an image sequence from given data.
+  Constructs a QMovie that reads an image sequence from the byte
+  array, \a data.
+
+  The \a bufsize argument sets the maximum amount of data the movie
+  will transfer from the data source per event loop.  The lower this
+  value, the better interleaved the movie playback will be with other
+  event processing, but the slower the overall processing will be.
 */
 QMovie::QMovie(QByteArray data, int bufsize)
 {
@@ -702,7 +719,7 @@ QMovie::QMovie(QByteArray data, int bufsize)
 }
 
 /*!
-  Constructs a movie that uses the same data as another movie.
+  Constructs a movie that uses the same data as movie \a movie.
   QMovies use explicit sharing, so operations on the copy will
   affect both.
 */
@@ -730,7 +747,7 @@ bool QMovie::isNull() const
 }
 
 /*!
-  Makes this movie use the same data as another movie.
+  Makes this movie use the same data as movie \a movie.
   QMovies use explicit sharing.
 */
 QMovie& QMovie::operator=(const QMovie& movie)
@@ -743,9 +760,9 @@ QMovie& QMovie::operator=(const QMovie& movie)
 
 
 /*!
-  Sets the background color of the pixmap.  If the background color
-  isValid(), the pixmap will never have a mask because the background
-  color will be used in transparent regions of the image.
+  Sets the background color of the pixmap to \a c.  If the background
+  color isValid(), the pixmap will never have a mask because the
+  background color will be used in transparent regions of the image.
 
   \sa backgroundColor()
 */
@@ -938,7 +955,7 @@ void QMovie::setSpeed(int percent)
 }
 
 /*!
-  Connects the given member of type \code void member(const QSize&) \endcode
+  Connects the \a{receiver}'s \a member of type \c{void member(const QSize&)}
   so it is signalled when the movie changes size.
 
   Note that due to the explicit sharing of QMovie objects, these connections
@@ -951,8 +968,8 @@ void QMovie::connectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the given member (or all members if member is zero)
-  that were previously connected by connectResize().
+  Disconnects the \a{receiver}'s \a member (or all members if member
+  is zero) that were previously connected by connectResize().
 */
 void QMovie::disconnectResize(QObject* receiver, const char *member)
 {
@@ -960,7 +977,7 @@ void QMovie::disconnectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Connects the given member of type \code void member(const QRect&) \endcode
+  Connects the \a{receiver}'s \a member of type \c{void member(const QRect&)}
   so it is signalled when an area of the framePixmap() has
   changed since the previous frame.
 
@@ -974,7 +991,7 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the given member (or all members if member is zero)
+  Disconnects the \a{receiver}'s \a member (or all members if member is zero)
   that were previously connected by connectUpdate().
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)
@@ -983,22 +1000,22 @@ void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Connects the given member of type \code void member(int) \endcode
-  so it is signalled when the movie changes status.  The status
-  code are negative for errors and positive for information, and they
-  are currently:
+  Connects the \a{receiver}'s \a member, of type \c{void member(int)}
+  so it is signalled when the movie changes status.  The
+  status code are negative for errors and positive for information,
+  and they are currently:
 
-  <ul>
-   <li> \c QMovie::SourceEmpty - signalled if the input cannot be read.
-   <li> \c QMovie::UnrecognizedFormat - signalled if the input data is unrecognized.
-   <li> \c QMovie::Paused - signalled when the movie is paused by a call to paused()
+  \list
+   \i QMovie::SourceEmpty signalled if the input cannot be read.
+   \i QMovie::UnrecognizedFormat signalled if the input data is unrecognized.
+   \i QMovie::Paused signalled when the movie is paused by a call to paused()
 			or by after \link step() stepping \endlink pauses.
-   <li> \c QMovie::EndOfFrame - signalled at end-of-frame after any update and Paused signals.
-   <li> \c QMovie::EndOfLoop - signalled at end-of-loop, after any update signals,
+   \i QMovie::EndOfFrame signalled at end-of-frame after any update and Paused signals.
+   \i QMovie::EndOfLoop signalled at end-of-loop, after any update signals,
 				EndOfFrame - but before EndOfMovie.
-   <li> \c QMovie::EndOfMovie - signalled when the movie completes and is not about
+   \i QMovie::EndOfMovie signalled when the movie completes and is not about
 				 to loop.
-  </ul>
+  \endlist
 
   More status messages may be added in the future, so a general test for
   errors would test for negative.
@@ -1013,8 +1030,8 @@ void QMovie::connectStatus(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the given member (or all members if member is zero)
-  that were previously connected by connectStatus().
+  Disconnects the \a{receiver}'s \a member (or all members if \a
+  member is zero) that were previously connected by connectStatus().
 */
 void QMovie::disconnectStatus(QObject* receiver, const char *member)
 {

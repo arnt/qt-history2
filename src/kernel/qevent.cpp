@@ -80,22 +80,19 @@
 
   \value NoButton  used when the button state does not refer to any
   button (see QMouseEvent::button()).
-
   \value LeftButton  set if the left button is pressed, or this
   event refers to the left button.  Note that the left button may be
   the right button on left-handed mice.
-
   \value RightButton  the right button.
-
   \value MidButton  the middle button
-
-  \value ShiftButton  a shift key on the keyboard is also pressed.
-
-  \value ControlButton  a control key on the keyboard is also pressed.
-
-  \value AltButton  an alt (or meta) key on the keyboard is also pressed.
-
+  \value ShiftButton  a Shift key on the keyboard is also pressed.
+  \value ControlButton  a Ctrl key on the keyboard is also pressed.
+  \value AltButton  an Alt (or Meta) key on the keyboard is also pressed.
+  \value MetaButton a Meta key on the keyboard is also pressed.
   \value Keypad  a keypad button is pressed.
+  \value KeyButtonMask is a mask for ShiftButton, ControlButton and
+  AltButton.
+  \value MouseButtonMask is a mask for LeftButton, RightButton and MidButton.
 */
 
 /*! \enum QEvent::Type
@@ -104,6 +101,7 @@
   defined event types and the specialized classes for each type are:
 
   \value None  Not an event.
+  \value Accessibility Accessibility information is requested
   \value Timer  Regular timer events, \l{QTimerEvent}.
   \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
   \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
@@ -111,6 +109,9 @@
   \value MouseMove  Mouse move, \l{QMouseEvent}.
   \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
   \value KeyRelease  Key release, \l{QKeyEvent}.
+  \value IMStart The start of input method composition.
+  \value IMCompose Input method composition is taking place.
+  \value IMEnd The end of input method composition.
   \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
   \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
   \value Enter  Mouse enters widget's boundaries.
@@ -120,9 +121,18 @@
   \value Resize  Widget's size changed, \l{QResizeEvent}.
   \value Show  Widget was shown on screen, \l{QShowEvent}.
   \value Hide  Widget was hidden, \l{QHideEvent}.
+  \value ShowToParent A child widget has been shown.
+  \value HideToParent A child widget has been hidden.
   \value Close  Widget was closed (permanently), \l{QCloseEvent}.
+  \value ShowNormal Widget should be shown normally.
+  \value ShowMaximized Widget should be shown maximized.
+  \value ShowMinimized Widget should be shown minimized.
+  \value ShowWindowRequest Widget's window should be mapped.
+  \value DeferredDelete The object will be deleted after it has
+  cleaned up. 
   \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
   \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
+  \value ContextMenu context popup menu, \l{QContextMenuEvent}
   \value AccelAvailable  Internal event used by Qt on some platforms.
   \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
   \value WindowActivate  Window was activated.
@@ -131,6 +141,7 @@
   \value IconChange  Widget's icon changed.
   \value ParentFontChange  Font of the parent widget changed.
   \value ApplicationFontChange  Default application font changed.
+  \value PaletteChange  Palette of the widget changed.
   \value ParentPaletteChange  Palette of the parent widget changed.
   \value ApplicationPaletteChange  Default application palette changed.
   \value Clipboard  Clipboard contents have changed.
@@ -149,7 +160,12 @@
   \value Create  Reserved.
   \value Destroy  Reserved.
   \value Reparent  Reserved.
+  \value Speech Reserved for speech input.
+  \value Tablet Wacom Tablet event.
   \value User  User defined event.
+  \value MaxUser  Last user event id.
+
+  User events should have values between User and MaxUser inclusive.
 */
 /*!
   \fn QEvent::QEvent( Type type )
@@ -433,9 +449,11 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
   Constructs a wheel event object.
 
-  The globalPos() is initialized to QCursor::pos(), which is usually 
-  (but not always) right. Use the other constructor if you need to
-  specify the global position explicitly.
+  The globalPos() is initialized to QCursor::pos(), i.e. \a pos, which
+  is usually (but not always) right. Use the other constructor if you
+  need to specify the global position explicitly. \a delta contains
+  the rotation distance, \a state holds the keyboard modifier
+  flags at the time of the event and \a orient holds the wheel's orientation. 
 
   \sa pos(), delta(), state()
 */
@@ -450,7 +468,10 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 /*!
   \fn QWheelEvent::QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
 
-  Constructs a wheel event object.
+  Constructs a wheel event object. The position when the event
+  occurred is given in \a pos and \a globalPos. \a delta contains the
+  rotation distance, \a state holds the keyboard modifier flags at the
+  time of the event and \a orient holds the wheel's orientation.
 
   \sa pos(), globalPos(), delta(), state()
 */
@@ -568,6 +589,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   \value SHIFT the shift keys provided on all normal keyboards
   \value CTRL the control keys
   \value ALT the normal alt keys, but not e.g. AltGr.
+  \value MODIFIER_MASK is a mask of SHIFT, CTRL and ALT. 
   \value UNICODE_ACCEL the accelerator is specified as a Unicode code
   point, not a Qt Key
 */
@@ -600,16 +622,12 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   Constructs a key event object.
 
   The \a type parameter must be \c QEvent::KeyPress or \c QEvent::KeyRelease.
-
   If \a key is 0 the event is not a result of a known key (e.g. it
   may be the result of a compose sequence or keyboard macro).
-
   \a ascii is the ASCII code of the key that was pressed or released.
-
+  \a state holds the keyboard modifiers.
   \a text is the Unicode text that the key generated.
-
   If \a autorep is TRUE, isAutoRepeat() will be TRUE.
-
   \a count is the number of single keys.
 
   The accept flag is set to TRUE.
@@ -849,12 +867,16 @@ void QFocusEvent::resetReason()
   \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion, bool erased=TRUE )
 
   Constructs a paint event object with the region that should be updated.
+  The region is given by \a paintRegion. If \a erased is TRUE the
+  region will be cleared before repainting.
 */
 
 /*!
   \fn QPaintEvent::QPaintEvent( const QRect &paintRect, bool erased=TRUE )
 
   Constructs a paint event object with the rectangle that should be updated.
+  The region is given by \a paintRect. If \a erased is TRUE the
+  region will be cleared before repainting.
 */
 
 /*!
@@ -894,7 +916,8 @@ void QFocusEvent::resetReason()
 
 /*!
   \fn QMoveEvent::QMoveEvent( const QPoint &pos, const QPoint &oldPos )
-  Constructs a move event with the new and old widget positions.
+  Constructs a move event with the new and old widget positions, \a
+  pos and \a oldPos respectively.
 */
 
 /*!
@@ -922,7 +945,8 @@ void QFocusEvent::resetReason()
 
 /*!
   \fn QResizeEvent::QResizeEvent( const QSize &size, const QSize &oldSize )
-  Constructs a resize event with the new and old widget sizes.
+  Constructs a resize event with the new and old widget sizes, \a
+  size and \a oldSize respectively.
 */
 
 /*!
@@ -1202,7 +1226,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \class QIMEvent qevent.h
-  \brief This class contains parameters for input method events.
+  \brief The QIMEvent class provides parameters for input method events.
 
   Input method events are send to widgets, when an input method is
   used to enter text into a widget. Input methods are widely used to
@@ -1255,7 +1279,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn  QIMEvent::QIMEvent( Type type, const QString &text, int cursorPosition )
 
-  Constructs a new QIMEvent with accept flag set to FALSE. \a Type can
+  Constructs a new QIMEvent with accept flag set to FALSE. \a type can
   be one of QEvent::IMStartEvent, QEvent::IMComposeEvents and
   QEvent::IMEndEvent. \a text contains the current compostion string
   and \a cursorPosition the current position of the cursor inside \a
@@ -1521,9 +1545,10 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void QDropEvent::acceptAction(bool y=TRUE)
 
-  Call this to indicate that the action described by action() is accepted,
-  not merely the default copy action.  If you call acceptAction(TRUE),
-  there is no need to also call accept(TRUE).
+  Call this to indicate that the action described by action() is
+  accepted (i.e. if \a y is TRUE which is the default), not merely the
+  default copy action.  If you call acceptAction(TRUE), there is no
+  need to also call accept(TRUE).
 */
 
 /*!
@@ -1565,7 +1590,7 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void QDropEvent::setAction( Action a )
 
-  Sets the action to \a.  This is used internally, you should not need to
+  Sets the action to \a a.  This is used internally, you should not need to
   call this in your code - the \e source decides the action, not the
   target.
 */
@@ -1615,7 +1640,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \fn QDragEnterEvent::QDragEnterEvent (const QPoint & pos)
-  Constructs a QDragEnterEvent entering at the given point.
+  Constructs a QDragEnterEvent entering at the given point, \a pos.
 
   Do not create a QDragEnterEvent yourself since these objects rely on Qt's
   internal state.

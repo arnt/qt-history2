@@ -349,14 +349,17 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    target = "$(TARGETA)";
 	}
     }
-    if(!destdir.isEmpty())
-	target = Option::fixPathToTargetOS(destdir + target, FALSE);
-
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
+    QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
 
-    ret = QString("$(COPY) ") + target + " " + targetdir;
+    QString src_targ = target;
+    if(!destdir.isEmpty())
+	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
+
+
+    ret = QString("$(COPY) ") + src_targ + " " + dst_targ;
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
@@ -365,7 +368,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		ret += "\n\tln -sf " + target + " " + Option::fixPathToTargetOS(targetdir + link, FALSE);
+		ret += "\n\tln -sf " + dst_targ + " " + Option::fixPathToTargetOS(targetdir + link, FALSE);
 	    }
 	}
     }

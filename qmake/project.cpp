@@ -419,19 +419,28 @@ QMakeProject::read(QString project, QString pwd)
 bool
 QMakeProject::isActiveConfig(const QString &x)
 {
-    if(x.isEmpty())
+    if(x.isEmpty()) 
 	return TRUE;
 
-    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
+    QRegExp re(x, FALSE, TRUE);
+    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) && 
+       x == "unix") 
 	return TRUE;
-    else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) && x == "mac")
+    else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) && 
+	    x == "mac") 
 	return TRUE;
-    else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32")
+    else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32") 
 	return TRUE;
-    else if(Option::mkfile::qmakespec.right(x.length()) == x)
+    else if(re.exactMatch(Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() - 
+						     (Option::mkfile::qmakespec.findRev(QDir::separator())+1)))) 
 	return TRUE;
 
-    return ( vars["CONFIG"].findIndex(x) != -1 );
+    QStringList &configs = vars["CONFIG"];
+    for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
+	if(re.exactMatch((*it))) 
+	   return TRUE;
+    }
+    return FALSE;
 }
 
 bool

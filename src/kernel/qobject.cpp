@@ -539,6 +539,9 @@ const char * QObject::name() const
     return objname ? objname : "unnamed";
 }
 
+/*!
+    Sets the object's name to \a name.
+*/
 void QObject::setName( const char *name )
 {
     if ( objname )
@@ -1358,12 +1361,12 @@ void QObject::disconnectNotify( const char * )
 /*!
   \fn bool QObject::checkConnectArgs( const char *signal, const QObject *receiver, const char *member )
 
-  Returns TRUE if the \a signal and the \a member arguments are compatible,
-  otherwise FALSE.
+  Returns TRUE if the \a signal and the \a member arguments are compatible;
+  otherwise returns FALSE. (The \a receiver argument is currently ignored.)
 
   \warning
-  We recommend that you do not reimplement this function but use the default
-  implementation.
+  We recommend that you use the default implementation and do not
+  reimplement this function.
 
   \omit
   TRUE:	 "signal(<anything>)",	"member()"

@@ -42,6 +42,7 @@
 class MetrowerksMakefileGenerator : public MakefileGenerator
 {
     bool createFork(const QString &f);
+    bool fixifyToMacPath(QString &c);
 
     bool init_flag;
 

@@ -3,6 +3,8 @@
 #include <qwidget.h>
 #include <qapplication.h>
 #include <qimage.h>
+#include <qpixmap.h>
+#include <qbitmap.h>
 #include <qcursor.h>
 
 #include <qt_windows.h>
@@ -167,13 +169,48 @@ public:
     TrayIcon		*iconObject;
 };
 
+static HBITMAP createIconMask( const QPixmap &qp )
+{
+    QImage bm = qp.convertToImage();
+    int w = bm.width();
+    int h = bm.height();
+    int bpl = ((w+15)/16)*2;			// bpl, 16 bit alignment
+    uchar *bits = new uchar[bpl*h];
+    bm.invertPixels();
+    for ( int y=0; y<h; y++ )
+	memcpy( bits+y*bpl, bm.scanLine(y), bpl );
+    HBITMAP hbm = CreateBitmap( w, h, 1, 1, bits );
+    delete [] bits;
+    return hbm;
+}
+
+static HICON createIcon( const QPixmap &pm )
+{
+    QPixmap maskpm( pm.size(), pm.depth(), QPixmap::NormalOptim );
+    QBitmap mask( pm.size(), FALSE, QPixmap::NormalOptim );
+    if ( pm.mask() ) {
+        maskpm.fill( Qt::black );			// make masked area black
+        bitBlt( &mask, 0, 0, pm.mask() );
+    } else {
+        maskpm.fill( Qt::color1 );
+    }
+    
+    bitBlt( &maskpm, 0, 0, &pm);
+    ICONINFO iconInfo;
+    iconInfo.fIcon    = TRUE;
+    iconInfo.hbmMask  = createIconMask(mask);;
+    iconInfo.hbmColor = pm.hbm();
+
+    return CreateIconIndirect( &iconInfo );
+}
+
 void TrayIcon::sysInstall()
 {
     if ( d )
 	return;
 
     d = new TrayIconPrivate( this );
-    d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
+    d->hIcon = createIcon( pm );
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
@@ -207,7 +244,7 @@ void TrayIcon::sysUpdateIcon()
     if ( d->hIcon )
 	DestroyIcon( d->hIcon );
 
-    d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
+    d->hIcon = createIcon( pm );
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )

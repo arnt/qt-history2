@@ -471,7 +471,7 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
 */
 bool QProcess::launch( const QByteArray& buf, QStringList *env )
 {
-    if ( start() ) {
+    if ( start( env ) ) {
 	if ( !buf.isEmpty() ) {
 	    connect( this, SIGNAL(wroteToStdin()),
 		    this, SLOT(closeStdinLaunch()) );
@@ -494,7 +494,7 @@ bool QProcess::launch( const QByteArray& buf, QStringList *env )
 */
 bool QProcess::launch( const QString& buf, QStringList *env )
 {
-    if ( start() ) {
+    if ( start( env ) ) {
 	if ( !buf.isEmpty() ) {
 	    connect( this, SIGNAL(wroteToStdin()),
 		    this, SLOT(closeStdinLaunch()) );

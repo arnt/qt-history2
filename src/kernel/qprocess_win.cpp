@@ -43,6 +43,7 @@
 #include "qapplication.h"
 #include "qqueue.h"
 #include "qtimer.h"
+#include "qregexp.h"
 #include "qt_windows.h"
 
 
@@ -264,9 +265,9 @@ bool QProcess::start( QStringList *env )
     bool success;
     d->newPid();
 #if defined(UNICODE)
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     if ( qWinVersion() & WV_NT_based ) {
-#endif
+#  endif
 	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
@@ -275,14 +276,42 @@ bool QProcess::start( QStringList *env )
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
 	};
 	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
+	QByteArray envlist;
+	if ( env != 0 ) {
+	    int pos = 0;
+	    // add PATH if necessary (for DLL loading)
+	    char *path = getenv( "PATH" );
+	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
+		QString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) );
+		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
+		envlist.resize( envlist.size() + tmpSize );
+		memcpy( envlist.data()+pos, qt_winTchar(tmp,TRUE), tmpSize );
+		pos += tmpSize;
+	    }
+	    // add the user environment
+	    for ( QStringList::Iterator it = env->begin(); it != env->end(); it++ ) {
+		QString tmp = *it;
+		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
+		envlist.resize( envlist.size() + tmpSize );
+		memcpy( envlist.data()+pos, qt_winTchar(tmp,TRUE), tmpSize );
+		pos += tmpSize;
+	    }
+	    // add the 2 terminating 0 (actually 4, just to be on the safe side)
+	    envlist.resize( envlist.size()+4 );
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+	}
 	success = CreateProcess( 0, commandLine,
-		0, 0, TRUE, CREATE_NO_WINDOW, 0,
+		0, 0, TRUE, CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+		env==0 ? 0 : envlist.data(),
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, d->pid );
 	delete[] commandLine;
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     } else
-#endif
+#  endif
 #endif
 #ifndef Q_OS_TEMP
     {
@@ -293,8 +322,34 @@ bool QProcess::start( QStringList *env )
 	    0, 0, 0,
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
 	};
+	QByteArray envlist;
+	if ( env != 0 ) {
+	    int pos = 0;
+	    // add PATH if necessary (for DLL loading)
+	    char *path = getenv( "PATH" );
+	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
+		QCString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) ).local8Bit();
+		uint tmpSize = tmp.length() + 1;
+		envlist.resize( envlist.size() + tmpSize );
+		memcpy( envlist.data()+pos, tmp.data(), tmpSize );
+		pos += tmpSize;
+	    }
+	    // add the user environment
+	    for ( QStringList::Iterator it = env->begin(); it != env->end(); it++ ) {
+		QCString tmp = (*it).local8Bit();
+		uint tmpSize = tmp.length() + 1;
+		envlist.resize( envlist.size() + tmpSize );
+		memcpy( envlist.data()+pos, tmp.data(), tmpSize );
+		pos += tmpSize;
+	    }
+	    // add the terminating 0 (actually 2, just to be on the safe side)
+	    envlist.resize( envlist.size()+2 );
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+	}
 	success = CreateProcessA( 0, args.local8Bit().data(),
-		0, 0, TRUE, DETACHED_PROCESS, 0,
+		0, 0, TRUE, DETACHED_PROCESS,
+		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
     }

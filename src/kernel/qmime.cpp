@@ -152,7 +152,7 @@ bool QMimeSource::provides(const char* mimeType) const
 /*!
   \fn const char * QMimeSource::format(int i) const
 
-  Returns the \e ith supported MIME format, or NULL.
+  Returns the \a{i}-th supported MIME format, or NULL.
 */
 
 
@@ -386,8 +386,8 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 }
 
 /*!
-  Sets a list of directories that will be searched when named data
-  is requested.
+  Sets the list of directories that will be searched when named data
+  is requested to the those given in the string list \a path.
 
   \sa filePath()
 */
@@ -405,7 +405,7 @@ QStringList QMimeSourceFactory::filePath() const
 }
 
 /*!
-  Adds another search path.
+  Adds another search path, \a p to the existing search paths.
 
   \sa setFilePath()
 */
@@ -415,8 +415,9 @@ void QMimeSourceFactory::addFilePath( const QString& p )
 }
 
 /*!
-  Sets the mime-type to be associated with a file name extension.  This
-  determines the mime-type for files found via a path set by setFilePath().
+  Sets the mime-type to be associated with the file name extension, \a
+  ext to \a mimetype.  This determines the mime-type for files found
+  via the paths set by setFilePath().
 */
 void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimetype )
 {
@@ -445,7 +446,10 @@ QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const Q
 }
 
 /*!
+    \overload
   A convenience function. See data(const QString& abs_name).
+  The file name is given in \a abs_or_rel_name and the path is in \a
+  context.
 */
 const QMimeSource* QMimeSourceFactory::data(const QString& abs_or_rel_name, const QString& context) const
 {
@@ -534,7 +538,7 @@ void QMimeSourceFactory::setDefaultFactory( QMimeSourceFactory* factory)
     defaultfactory = factory;
 }
 
-/* Sets the defaultFactory() to 0 and returns the previous one */
+/*! Sets the defaultFactory() to 0 and returns the previous one. */
 
 QMimeSourceFactory* QMimeSourceFactory::takeDefaultFactory()
 {
@@ -543,7 +547,7 @@ QMimeSourceFactory* QMimeSourceFactory::takeDefaultFactory()
     return f;
 }
 
-/* Adds the QMimeSourceFactory \a f to the list of available
+/*! Adds the QMimeSourceFactory \a f to the list of available
    mimesource factories. If the defaultFactory() can't resolve a
    data() it iterates over the list of installed mimesource factories
    until the data could be resolved.

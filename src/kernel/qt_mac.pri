@@ -9,7 +9,8 @@ mac {
 	LIBS += -framework Carbon -framework QuickTime
   }
   mac-mwerks {
-     QMAKE_LIBS_PATH    = ":MacOS Support:" ":MSL:"
-     LIBS       += "MSL C++.PPC.Lib" "MSL SIOUX.Carbon.Lib" "CarbonLib" "MSL RuntimePPC.Lib" "MSL C.Carbon.Lib" 
+     LIBS       += "MSL C++.PPC.Lib" "MSL SIOUX.Carbon.Lib" "CarbonLib" \
+                   "MSL RuntimePPC.Lib" "MSL C.Carbon.Lib" 
+     INCLUDEPATH += compat
   }
 }

@@ -2,6 +2,23 @@
 #include "qregexp.h"
 #include "qt_windows.h"
 
+static bool settingsTryUser = TRUE;
+static QString *settingsBasePath = 0;
+
+void Q_EXPORT qt_setSettingsTryUser( bool tryUser )
+{
+    settingsTryUser = tryUser;
+}
+
+void Q_EXPORT qt_setSettingsBasePath( const QString &base )
+{
+    if ( settingsBasePath ) {
+	qWarning( "qt_setSettingsBasePath has to be called without any settings object being instantiated!" );
+	return;
+    }
+    settingsBasePath = new QString( base );
+}
+
 class QSettingsPrivate
 {
 public:
@@ -22,13 +39,16 @@ public:
     HKEY openKey( const QString &key, bool create );
 
     QStringList paths;
-    QString	basePath;
 };
 
 QSettingsPrivate::QSettingsPrivate()
 {
     paths.append( "" );
-    basePath = "Software";
+    if ( !settingsBasePath ) {
+	settingsBasePath = new QString("Software");
+    }
+    local = 0;
+    user  = 0 ;
 
     long res;
 #ifdef Q_OS_TEMP
@@ -58,6 +78,10 @@ QSettingsPrivate::QSettingsPrivate()
 	    local = NULL;
 	}
     }
+
+    if ( !settingsTryUser )
+	return;
+
 #ifdef Q_OS_TEMP
 	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
 #else
@@ -68,7 +92,7 @@ QSettingsPrivate::QSettingsPrivate()
 #endif
 	res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
 #endif
-	
+
     if ( res != ERROR_SUCCESS ) {
 #ifdef Q_OS_TEMP
 	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
@@ -107,6 +131,8 @@ QSettingsPrivate::~QSettingsPrivate()
 	    qSystemWarning( "Error closing current user!", res );
 #endif
     }
+    delete settingsBasePath;
+    settingsBasePath = 0;
 }
 
 inline QString QSettingsPrivate::validateKey( const QString &key )
@@ -128,7 +154,8 @@ inline QString QSettingsPrivate::validateKey( const QString &key )
 inline QString QSettingsPrivate::folder( const QString &key )
 {
     QString k = validateKey( key );
-    return basePath + k.left( k.findRev( "\\" ) );
+    Q_ASSERT(settingsBasePath);
+    return *settingsBasePath + k.left( k.findRev( "\\" ) );
 }
 
 inline QString QSettingsPrivate::entry( const QString &key )

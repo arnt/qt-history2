@@ -259,7 +259,8 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam * )
             return FALSE;
         if( PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
             return FALSE;
-        if( PMSessionGetGraphicsContext(psession, NULL, &hd) != noErr ) //get the gworld
+        if( PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw, 
+					&hd) != noErr ) //get the gworld
             return FALSE;
         state = PST_ACTIVE;
     } else if ( c == PdcEnd ) {

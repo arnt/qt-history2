@@ -491,8 +491,7 @@
 */
 
 /*! \obsolete
-    \overload
-  \fn void QMap::remove( const Key& k )
+    \overload void QMap::remove( const Key& k )
 
   Use erase() instead.
 

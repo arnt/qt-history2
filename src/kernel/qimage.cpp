@@ -2913,6 +2913,9 @@ QImage QImage::createAlphaMask( int conversion_flags ) const
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
 
+    If \a clipTight is TRUE the mask is just large enough to cover the
+    pixels; otherwise, the mask is larger than the data pixels.
+
   This function disregards the \link hasAlphaBuffer() alpha buffer. \endlink
 */
 
@@ -5580,6 +5583,11 @@ static void write_xpm_image( QImageIO * iio )
   change in future implementations.
 
   Currently inefficient for non-32-bit images.
+
+  Returns an image with depth \a d, using the \a palette_count colors
+  pointed to by \a palette. If \a d is 1 or 8, the returned image will
+  have its color table ordered the same as \a palette. 
+
 */
 #ifndef QT_NO_IMAGE_TRUECOLOR
 QImage QImage::convertDepthWithPalette( int d, QRgb* palette, int palette_count, int conversion_flags ) const

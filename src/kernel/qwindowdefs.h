@@ -93,6 +93,10 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
+#ifndef QMAC_NO_QUARTZ
+typedef struct CGContext *CGContextRef;
+#endif
+typedef struct OpaqueGrafPtr *CGrafPtr;
 typedef struct OpaqueMenuHandle *MenuRef;
 typedef struct OpaquePMPrintSession *PMPrintSession;
 typedef struct OpaquePMPrintSettings *PMPrintSettings;

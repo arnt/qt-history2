@@ -278,12 +278,11 @@
   \fn bool QValueList::operator== ( const QValueList<T>& l ) const
   Compares both lists.
 
-  Returns TRUE if both lists are equal otherwise returns FALSE.
+  Returns TRUE if this list and \a l are equal; otherwise returns FALSE.
 */
 
-/*! \fn bool QValueList::operator== ( const std::list<T>& l ) const
-    \overload
-  Returns TRUE if both lists are equal otherwise returns FALSE.
+/*! \overload bool QValueList::operator== ( const std::list<T>& l ) const
+  Returns TRUE if this list and \a l are equal; otherwise returns FALSE.
 */
 
 /*!
@@ -295,8 +294,7 @@
   shared.
 */
 
-/*! \fn QValueList<T>& QValueList::operator= ( const std::list<T>& l )
-    \overload
+/*! \overload QValueList<T>& QValueList::operator= ( const std::list<T>& l )
   Assigns the contents of \a l to the list.
 
   All iterators of the current list become invalidated by this operation.
@@ -306,7 +304,7 @@
   \fn bool QValueList::operator!= ( const QValueList<T>& l ) const
   Compares both lists.
 
-  Returns TRUE if both lists are unequal.
+  Returns TRUE if this list and \a l are unequal; otherwise returns FALSE.
 */
 
 /*!
@@ -335,8 +333,7 @@
 */
 
 /*!
-  \fn iterator QValueList::begin()
-    \overload
+  \overload iterator QValueList::begin()
   Returns an iterator pointing to the first element in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
@@ -358,8 +355,7 @@
 */
 
 /*!
-  \fn const_iterator QValueList::end() const
-    \overload
+    \overload const_iterator QValueList::end() const
   Returns an iterator pointing behind the last element in the list. This
   iterator equals begin() if the list is empty.
 
@@ -369,15 +365,15 @@
 /*!
   \fn QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
   \relates QValueList
-  Reads a list from the stream. The type \a T stored in the list must implement
-  the streaming operator, too.
+  Reads a list, \a l, from the stream \a s. The type T stored in the
+  list must implement the streaming operator, too.
 */
 
 /*!
-  \fn QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
+  \overload QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
   \relates QValueList
-  Writes a list to the stream. The type \a T stored in the list must implement
-  the streaming operator, too.
+  Writes a list, \a l, to the stream \a s. The type T stored in the
+  list must implement the streaming operator, too.
 */
 
 /*! \fn size_type QValueList::size() const
@@ -403,8 +399,7 @@
   element after \a pos, or end() if there is no such element.
 */
 
-/*! \fn iterator QValueList::erase( iterator first, iterator last ) 
-    \overload
+/*! \overload iterator QValueList::erase( iterator first, iterator last ) 
   Deletes all elements from \a first to \a last (not including \a
   last).  No iterators are invalidated, except those pointing to the
   removed elements themselves.  Returns \a last.
@@ -416,8 +411,7 @@
   undefined.
 */
 
-/*! \fn const_reference QValueList::front() const
-    \overload
+/*! \overload const_reference QValueList::front() const
   Returns a reference to the first element.  If the list contains no
   first element (i.e. empty() returns TRUE), the return value is
   undefined.
@@ -429,8 +423,7 @@
   undefined.
 */
 
-/*! \fn const_reference QValueList::back() const
-    \overload
+/*! \overload const_reference QValueList::back() const
   Returns a reference to the last element.  If the list contains no
   last element (i.e. empty() returns TRUE), the return value is
   undefined.
@@ -446,7 +439,7 @@
   operation is undefined.
 */
 
-/*! \fn void QValueList::insert( iterator pos, size_type n, const T& x )
+/*! \overload void QValueList::insert( iterator pos, size_type n, const T& x )
   Inserts \a n copies of \a x before \a pos.
 */
 
@@ -481,8 +474,7 @@
 */
 
 /*!
-  \fn T& QValueList::operator[] ( size_type i )
-    \overload
+  \overload T& QValueList::operator[] ( size_type i )
 
   \warning This function is a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
@@ -498,9 +490,7 @@
 */
 
 /*!
-  \fn iterator QValueList::at( size_type i )
-    \overload
-
+  \overload iterator QValueList::at( size_type i )
 
   Returns an iterator pointing to the item at position \a i in the list, or
   end() if the index is out of range.
@@ -519,9 +509,8 @@
 */
 
 /*!
-  \fn iterator QValueList::fromLast()
-
-    \overload
+  \overload iterator QValueList::fromLast()
+    
   Returns an iterator to the last element in the list, or end() if
   there is no last element.
 
@@ -558,8 +547,8 @@
 */
 
 // *****************************************************
-// Note : The following documentation is for historical reasons. 
-// These functions should be avoided in new code.
+// Note : The following documentation is provided for historical
+// reasons. These functions should be avoided in new code.
 // *****************************************************
 
 /*!
@@ -587,15 +576,14 @@
   std::copy( l2.begin(), l2.end(), std::back_inserter( l1 ) );
   \endcode
 
-  Adds \a list to this list.
+  Adds \a l to this list.
 
   Returns a reference to this list.
 */
 
 /*!
   \obsolete
-    \overload
-  \fn QValueList<T>& QValueList::operator+= ( const T& x )
+    \overload QValueList<T>& QValueList::operator+= ( const T& x )
 
   The push_back() function should be used instead.  For example:
 
@@ -672,9 +660,8 @@
 */
 
 /*!
-  \obsolete
-    \overload
-  \fn const_iterator QValueList::find( const T& x ) const
+  \obsolete 
+  \overload const_iterator QValueList::find( const T& x ) const
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -682,8 +669,7 @@
 
 /*!
   \obsolete
-    \overload
-  \fn iterator QValueList::find( iterator it, const T& x )
+    \overload iterator QValueList::find( iterator it, const T& x )
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -691,7 +677,7 @@
 
 /*!
   \obsolete
-  \fn const_iterator QValueList::find( const_iterator it, const T& x ) const
+  \overload const_iterator QValueList::find( const_iterator it, const T& x ) const
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -723,8 +709,7 @@
 
 /*!
   \obsolete
-    \overload
-  \fn const T& QValueList::first() const
+    \overload const T& QValueList::first() const
 
   Use the front() function instead.
 
@@ -740,8 +725,7 @@
 
 /*!
   \obsolete
-    \overload
-  \fn const T& QValueList::last() const
+    \overload const T& QValueList::last() const
 
   Use the back() function instead.
 
@@ -813,16 +797,16 @@
   Creates un uninitialized iterator.
 */
 
-/*!
+/*
     \internal
-  \fn QValueListIterator::QValueListIterator( NodePtr p )
-    \overload
+  \overload QValueListIterator::QValueListIterator( NodePtr p )
+
   Internal function.
 */
 
 /*!
-  \fn QValueListIterator::QValueListIterator( const QValueListIterator<T>& it )
-    \overload
+  \overload QValueListIterator::QValueListIterator( const QValueListIterator<T>& it )
+
   Constructs a copy of the iterator \a it.
 */
 
@@ -846,8 +830,8 @@
 */
 
 /*!
-  \fn const T& QValueListIterator::operator*() const
-    \overload
+  \overload const T& QValueListIterator::operator*() const
+
   Asterisk operator. Returns a reference to the current iterator item.
 */
 
@@ -876,7 +860,7 @@
 */
 
 /*!
-  \fn QValueListIterator<T> QValueListIterator::operator--(int)
+  \overload QValueListIterator<T> QValueListIterator::operator--(int)
   Postfix -- makes the previous item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the beginning of the list. Decrementing
@@ -885,12 +869,14 @@
 
 /*!
   \fn bool QValueListIterator::operator==( const QValueListIterator<T>& it ) const
-  Compares both iterators and returns TRUE if they point to the same item.
+  Compares this iterator and \a it and returns TRUE if they point to
+  the same item; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QValueListIterator::operator!=( const QValueListIterator<T>& it ) const
-  Compares both iterators and returns TRUE if they point to different items.
+  Compares this iterator and \a it and returns TRUE if they point to
+  different items; otherwise returns FALSE.
 */
 
 /*****************************************************************************
@@ -924,21 +910,21 @@
 /*! \enum  QValueListConstIterator::reference
 	Reference to value_type. */
 
-/*!
+/*
   \fn QValueListConstIterator::QValueListConstIterator()
   Creates un uninitialized iterator.
 */
 
 /*!
     \internal
-  \fn QValueListConstIterator::QValueListConstIterator( NodePtr p )
-    \overload
+  \overload QValueListConstIterator::QValueListConstIterator( NodePtr p )
+
   Internal function.
 */
 
 /*!
-  \fn QValueListConstIterator::QValueListConstIterator( const QValueListConstIterator<T>& it )
-    \overload
+  \overload QValueListConstIterator::QValueListConstIterator( const QValueListConstIterator<T>& it )
+
   Constructs a copy of the iterator \a it.
 */
 
@@ -975,37 +961,43 @@
 */
 
 /*!
-  \fn QValueListConstIterator<T> QValueListConstIterator::operator++(int)
-  Postfix ++ makes the succeeding item current and returns
-  an iterator pointing to the new current item.
-  The iterator cannot check whether it reached the end of the list. Incrementing
-  the iterator as returned by end() causes undefined results.
+  \overload QValueListConstIterator<T> QValueListConstIterator::operator++(int)
+  Postfix ++ makes the succeeding item current and returns an iterator
+  pointing to the new current item. The iterator cannot check whether
+  it reached the end of the list. Incrementing the iterator as
+  returned by end() causes undefined results.
 */
 
 /*!
-  \fn QValueListConstIterator<T>& QValueListConstIterator::operator--()
-  Prefix -- makes the previous item current and returns
-  an iterator pointing to the new current item.
-  The iterator cannot check whether it reached the beginning of the list. Decrementing
-  the iterator as returned by begin() causes undefined results.
+  \fn QValueListConstIterator<T>&
+  QValueListConstIterator::operator--() Prefix -- makes the previous
+  item current and returns an iterator pointing to the new current
+  item. The iterator cannot check whether it reached the beginning of
+  the list. Decrementing the iterator as returned by begin() causes
+  undefined results.
 */
 
 /*!
-  \fn QValueListConstIterator<T> QValueListConstIterator::operator--(int)
-  Postfix -- makes the previous item current and returns
-  an iterator pointing to the new current item.
-  The iterator cannot check whether it reached the beginning of the list. Decrementing
-  the iterator as returned by begin() causes undefined results.
+  \fn QValueListConstIterator<T>
+  QValueListConstIterator::operator--(int) Postfix -- makes the
+  previous item current and returns an iterator pointing to the new
+  current item. The iterator cannot check whether it reached the
+  beginning of the list. Decrementing the iterator as returned by
+  begin() causes undefined results.
 */
 
 /*!
-  \fn bool QValueListConstIterator::operator==( const QValueListConstIterator<T>& it ) const
-  Compares both iterators and returns TRUE if they point to the same item.
+  \fn bool QValueListConstIterator::operator==( const
+  QValueListConstIterator<T>& it ) const Compares this iterator with
+  \a it and returns TRUE if they point to the same item; otherwise
+  returns FALSE.
 */
 
 /*!
-  \fn bool QValueListConstIterator::operator!=( const QValueListConstIterator<T>& it ) const
-  Compares both iterators and returns TRUE if they point to different items.
+  \fn bool QValueListConstIterator::operator!=( const
+  QValueListConstIterator<T>& it ) const Compares this iterator with
+  \a it and returns TRUE if they point to different items; otherwise
+  returns FALSE.
 */
 
 

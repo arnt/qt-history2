@@ -91,7 +91,6 @@ public:
     QSize minimumSizeHint() const;
 
     int cursorPosition() const;
-
     bool validateAndSet( const QString &, int, int, int );
 
     int alignment() const;

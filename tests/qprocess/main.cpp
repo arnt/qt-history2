@@ -100,6 +100,10 @@ int main( int argc, char **argv )
 		&a, SLOT(quit()) );
 
 	QCheckBox *cb;
+	cb = new QCheckBox( "Use own environment", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(useOwnEnvironment(bool)) );
+	cb->setChecked( FALSE );
 	cb = new QCheckBox( "Stdout", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectStdout(bool)) );

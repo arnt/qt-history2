@@ -595,7 +595,7 @@ void QPainter::init()
 */
 
 /*!
-  Sets a new painter font.
+  Sets a new painter font to \a font.
 
   This font is used by subsequent drawText() functions.  The text
   color is the same as the pen color.
@@ -1468,7 +1468,9 @@ void QPainter::setClipping( bool enable )
 
 
 /*!
-  \overload void QPainter::setClipRect( const QRect &r )
+  \overload 
+    Sets the clip region to the rectangle \a r and
+  enables clipping. The clip mode is set to \a m.
 */
 
 void QPainter::setClipRect( const QRect &r, ClipMode m )
@@ -1479,6 +1481,7 @@ void QPainter::setClipRect( const QRect &r, ClipMode m )
 
 /*!
   Sets the clip region to \a rgn and enables clipping.
+  The clip mode is set to \a m.
 
   Note that the clip region is given in physical device coordinates and
   \e not subject to any \link coordsys.html coordinate
@@ -1569,7 +1572,7 @@ void QPainter::drawPoint( int x, int y )
 
 
 /*!
-  Draws/plots an array of points using the current pen.
+  Draws/plots an array of points, \a a, using the current pen.
 
   If \a index is non-zero (the default is zero) only points from \a
   index are drawn.  If \a npoints is negative (the default) the rest
@@ -1660,8 +1663,8 @@ void QPainter::lineTo( int x, int y )
 }
 
 /*!
-  Draws a line from \a (x1, y2) to \a (x2, y2) and sets \a (x2, y2) to be
-  the new current pen position.
+  Draws a line from (\a x1, \a y1) to (\a x2, \a y2) and sets (\a x2,
+  \a y2) to be the new current pen position.
 
   \sa QPen
 */
@@ -1733,7 +1736,8 @@ void QPainter::drawRect( int x, int y, int w, int h )
 }
 
 /*!
-  Draws a Windows focus rectangle with upper left corner at \a (x, y) and with
+    \overload
+  Draws a Windows focus rectangle with upper left corner at (\a x, \a y) and with
   width \a w and height \a h.
 
   This function draws a stippled XOR rectangle that is used to indicate
@@ -1751,8 +1755,9 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 }
 
 /*!
-  Draws a Windows focus rectangle with upper left corner at \a (x, y) and with
-  width \a w and height \a h using a pen color that contrasts with \a bgColor.
+  Draws a Windows focus rectangle with upper left corner at (\a x, \a
+  y) and with width \a w and height \a h using a pen color that
+  contrasts with \a bgColor.
 
   This function draws a stippled rectangle (XOR is not used) that is
   used to indicate keyboard focus (when the QApplication::style() is
@@ -2720,9 +2725,10 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
 /*!
   Draws a tiled \a pixmap in the specified rectangle.
 
-  \a (x, y) specify the top-left point in the paint device that is to
-  be drawn onto.  \a (sx, sy) specify the top-left point in \a pixmap
-  that is to be drawn. The default is (0, 0).
+  \a (x, y) specifies the top-left point in the paint device that is to
+  be drawn onto; with the width and height given by \a w and \a h.  \a
+  (sx, sy) specify the top-left point in \a pixmap that is to be
+  drawn. The default is (0, 0).
 
   Calling drawTiledPixmap() is similar to calling drawPixmap() several
   times to fill (tile) an area with a pixmap, but is potentially

@@ -49,6 +49,7 @@
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
+#include "qregexp.h"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -536,9 +537,10 @@ QProcess::~QProcess()
   the starting process. If \a env is non-null, then the values in the
   stringlist are interpreted as environment setttings of the form \c
   {key=value} and the process is started in these environment settings. For
-  convenience, there is a small exception to this rule under Unix: if \a env
+  convenience, there is a small exception to this rule: under Unix, if \a env
   does not contain any settings for the environment variable \c
-  LD_LIBRARY_PATH, then this variable is inherited from the starting process.
+  LD_LIBRARY_PATH, then this variable is inherited from the starting process;
+  under Windows the same applies for the enverionment varialbe \c PATH.
 
   Returns TRUE if the process could be started, otherwise FALSE.
 
@@ -619,30 +621,49 @@ bool QProcess::start( QStringList *env )
 	    ::close( fd[0] );
 	if ( fd[1] )
 	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows sucess
-#if 1
-	::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
-#else
-	const char *envlist[3] = { "SNAFU=blubber", 0, 0 };
 
-	QCString ldLibrary = QString( "LD_LIBRARY_PATH=%1" ).arg( getenv( "LD_LIBRARY_PATH" ) ).local8Bit();
-	envlist[1] = ldLibrary;
+	if ( env == 0 ) { // inherit environment and start process
+	    ::execvp( arglist[0], (char*const*)arglist ); // ### cast not nice
+	} else { // start process with environment settins as specified in env
+	    // construct the environment for exec
+	    int numEntries = env->count();
+	    bool setLibraryPath =
+		env->grep( QRegExp( "^LD_LIBRARY_PATH=" ) ).empty() &&
+		getenv( "LD_LIBRARY_PATH" ) != 0;
+	    if ( setLibraryPath )
+		numEntries++;
+	    QCString *envlistQ = new QCString[ numEntries + 1 ];
+	    const char** envlist = new const char*[ numEntries + 1 ];
+	    int i = 0;
+	    if ( setLibraryPath ) {
+		envlistQ[i] = QString( "LD_LIBRARY_PATH=%1" ).arg( getenv( "LD_LIBRARY_PATH" ) ).local8Bit();
+		envlist[i] = envlistQ[i];
+		i++;
+	    }
+	    for ( QStringList::Iterator it = env->begin(); it != env->end(); ++it ) {
+		envlistQ[i] = (*it).local8Bit();
+		envlist[i] = envlistQ[i];
+		i++;
+	    }
+	    envlist[i] = 0;
 
-	if ( _arguments.count() > 0 ) {
-	    QString command = _arguments[0];
-	    if ( !command.contains( '/' ) ) {
-		QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
-		for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
-		    QFileInfo fileInfo( *it, command );
-		    if ( fileInfo.isExecutable() ) {
-			arglistQ[0] = fileInfo.filePath().local8Bit();
-			arglist[0] = arglistQ[0];
-			break;
+	    // look for the executable in the search path
+	    if ( _arguments.count()>0 && getenv("PATH")!=0 ) {
+		QString command = _arguments[0];
+		if ( !command.contains( '/' ) ) {
+		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
+		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
+			QFileInfo fileInfo( *it, command );
+			if ( fileInfo.isExecutable() ) {
+			    arglistQ[0] = fileInfo.filePath().local8Bit();
+			    arglist[0] = arglistQ[0];
+			    break;
+			}
 		    }
 		}
 	    }
+	    ::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
 	}
-	::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
-#endif
 	if ( fd[1] ) {
 	    char buf = 0;
 	    ::write( fd[1], &buf, 1 );

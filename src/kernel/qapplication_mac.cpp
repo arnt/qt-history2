@@ -2248,11 +2248,24 @@ void QApplication::flush()
 }
 
 #if 0
+#if 1
 #include <stdlib.h>
+#else
+#define free(x) 
+void *malloc(int x) {
+    static char *foo = NULL;
+    static int off = 0;
+    if(!foo)
+	foo = (char *)malloc(1000000);
+    char *ret = foo + off;
+    off += x;
+    return (void *)ret;
+}
+#endif
 void* operator new[](size_t size) { return malloc(size); }
 void* operator new(size_t size) { return malloc(size); }
 void operator delete[](void *p) { free(p); }
 void operator delete[](void *p, size_t) { free(p); }
 void operator delete(void *p) { free(p); }
-pvoid operator delete(void *p, size_t) { free(p); }
+void operator delete(void *p, size_t) { free(p); }
 #endif

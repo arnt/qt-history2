@@ -117,6 +117,7 @@ struct QWindowsRegisteredMimeType {
 static QPtrList<QWindowsRegisteredMimeType> mimetypes;
 
 /*!
+    \internal
   This is an internal function.
 */
 int QWindowsMime::registerMimeType(const char *mime)

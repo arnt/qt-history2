@@ -1,8 +1,8 @@
 #include <Carbon.h>
 #include <stdlib.h>				// defines rand() function
 #define ITERATIONS 10000
-#define RECT_WIDTH 1 //(rand() % (r.right - r.left))
-#define RECT_HEIGHT 1 //(rand() % (r.bottom - r.top))
+#define RECT_WIDTH 20 //(rand() % (r.right - r.left))
+#define RECT_HEIGHT 20 //(rand() % (r.bottom - r.top))
 
 //#define DO_CLIP
 #define DO_LINES_TEST
@@ -56,6 +56,7 @@ main(int argc, char **argv)
 
     } else {  //faster?!
 	CreateCGContextForPort(GetWindowPort(window), &ctx);
+//	CGContextSetShouldAntialias(ctx, 0 );
 #ifdef DO_CLIP		
 	ClipCGContextToRegion( ctx, &r, rgn );
 #endif	
@@ -66,11 +67,12 @@ main(int argc, char **argv)
 	    y = rand() % (r.bottom - r.top);
 #ifdef DO_RECT_TEST	    
 	    r2 = CGRectMake(x, y, (RECT_WIDTH), (RECT_HEIGHT));
-	    CGContextFillRect(ctx, r2);
+	    CGContextBeginPath(ctx);
+	    CGContextAddRect( ctx, r2 );
+	    CGContextFillPath( ctx );
 #elif defined(DO_LINES_TEST)
 	    w = rand() % (r.right - r.left);
 	    h = rand() % (r.bottom - r.top);
-
 	    CGContextBeginPath(ctx);
 	    CGContextMoveToPoint(ctx, x, y);
 	    CGContextAddLineToPoint(ctx, w, h);

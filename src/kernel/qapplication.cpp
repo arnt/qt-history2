@@ -565,14 +565,19 @@ QApplication::QApplication( int &argc, char **argv )
   On X11, the window system is initialized if \a GUIenabled is TRUE.
   If \a GUIenabled is FALSE, the application does not connect to the
   X-server.
-
   On Windows, currently the window system is always initialized,
   regardless of the value of GUIenabled. This may change in future
   versions of Qt.
 
+  For threaded configurations (i.e. when Qt has been built as a threaded
+  library), the application global mutex will be locked in the constructor
+  and unlocked when entering the event loop with exec(). You have to unlock
+  the mutex explicitely if you don't call this function, otherwise you might
+  get warnings on application exit.
+
   The following example shows how to create an application that
   uses a graphical interface when available.
-\code
+  \code
   int main( int argc, char **argv )
   {
 #ifdef Q_WS_X11

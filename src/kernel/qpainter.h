@@ -384,7 +384,6 @@ protected:
     QMacSavedPortInfo *saved;
 
     void initPaintDevice(bool force=FALSE);
-    void updateClipRegion();
 
     int offx, offy;
     void * hd;
