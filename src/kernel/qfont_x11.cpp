@@ -517,6 +517,8 @@ static inline int runWidth( QFontPrivate *d, QFontStruct *qfs, const QString &st
 {
     XFontStruct *fs = 0;
     register int width = 0;
+    const QChar *ch = str.unicode() + pos;
+
     if (qfs && qfs != (QFontStruct *) -1) {
 	fs = (XFontStruct *) qfs->handle;
     }
@@ -541,7 +543,6 @@ static inline int runWidth( QFontPrivate *d, QFontStruct *qfs, const QString &st
 	}
 	goto end;
     }
-    const QChar *ch = str.unicode() + pos;
     if ( fs->max_byte1 || !qfs->codec ) {
 	XChar2b *chars;
 	if ( qfs->codec )
