@@ -39,25 +39,25 @@ public:
     QVariant data(const QModelIndex &index, int role) const {
         if ((role == DisplayRole)
             && index.type() == QModelIndex::View  && index.isValid()
-            && index.row() < rowCount(parent(index))
-            && index.column() < columnCount(parent(index))) {
+            && index.row() < rowCount()
+            && index.column() < columnCount()) {
             if (role == DisplayRole)
                 return list.at(index.row());
         }
         return QVariant::Invalid;
     }
 
-    int columnCount(const QModelIndex &) const {
+    int columnCount() const {
         return 1;
     }
 
-    int rowCount(const  QModelIndex &) const {
-        return list.count();
+    int rowCount() const {
+        return list.size();
     }
 
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
         if (role == DisplayRole) {
-            list[index.row()] = value.toString();
+	    list[index.row()] = value.toString();
             emit dataChanged(index, index);
             return true;
         }
@@ -69,7 +69,7 @@ public:
     }
 
     bool insertRows(int row, const QModelIndex &parent, int count) {
-        if (parent.isValid() || count < 1 || row < 0 || row > rowCount(QModelIndex()))
+        if (parent.isValid() || count < 1 || row < 0 || row > rowCount())
             return false;
         while (count--)
             list.insert(row, QString());
@@ -182,6 +182,7 @@ void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget)
 {
     QAbstractItemModel *model = listView->model();
     model->insertRows(model->rowCount(), QModelIndex(), 1);
+
     model->setData(model->index(model->rowCount()-1, 0), QAbstractItemModel::DisplayRole, name);
 
     widget->setParent(widgets);
