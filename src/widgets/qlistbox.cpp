@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#11 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#11 $";
 #endif
 
 #include "qstring.h"
@@ -105,6 +105,8 @@ QListBox::~QListBox()
 void QListBox::setStrList( const QStrList *l )
 {
     clearList();
+    bool wasAuto = autoUpdate();
+    setAutoUpdate( FALSE );
     if ( !l ) {
 #if defined(CHECK_NULL)
 	CHECK_PTR( l );
@@ -119,12 +121,18 @@ void QListBox::setStrList( const QStrList *l )
 	++iter;
     }
     updateNumRows();
-    setTopCell( 0 );  // Will update the widget if autoUpdate() is TRUE
+    setTopCell( 0 );
+    if ( wasAuto ) {
+        setAutoUpdate( TRUE );
+        update();
+    }
 }
 
 void QListBox::setStrList( const char **strs,int numStrings )
 {
-//    clearList();
+    clearList();
+    bool wasAuto = autoUpdate();
+    setAutoUpdate( FALSE );
     if ( !strs ) {
 #if defined ( CHECK_NULL )
 	CHECK_PTR( strs );
@@ -136,7 +144,11 @@ void QListBox::setStrList( const char **strs,int numStrings )
 	itemList->append( newAny( strs[i], 0 ) );
 
     updateNumRows();
-    setTopCell( 0 );  // Will update the widget if autoUpdate() is TRUE
+    setTopCell( 0 );
+    if ( wasAuto ) {
+        setAutoUpdate( TRUE );
+        update();
+    }
 }
 
 void QListBox::insertStrList( const QStrList *l, int index )
