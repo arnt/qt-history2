@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#11 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#12 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -125,6 +125,7 @@ void QWSServer::doClient()
     // read next command
     if ( command_type == -1 ) {
 	command = 0;
+#warning "What if <4 bytes available?"
 	command_type = qws_read_uint( client );
     }
 

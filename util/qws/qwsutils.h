@@ -73,6 +73,7 @@ static int qws_read_uint( QSocket *socket )
     if ( !socket )
 	return -1;
 
+#warning "readBlock() may not read 8 bytes"
     char i[ 8 ];
     socket->readBlock( i, 8 );
 
