@@ -1,59 +1,103 @@
 #!/usr/bin/perl
 
-$k{"jbrumfit\@astro.estec.esa.nl"} = "uw";
-$k{"gcarapel\@mbox.vol.it"} = "uw";
-$k{"val\@stellacore.com"} = "uw";
-$k{"ur\@daveg.com"} = "uw";
-$k{"affiniti\@aol.com"} = "uw";
-$k{"arield\@vdo.net"} = "u";
-$k{"jfc\@sauterne.cs.berkeley.edu"} = "uw"
+use FileHandle;
 
-# $k{"wells\@rsn.hp.com"} = "u";
+open( C,'< /etc/zmailer.conf' );
+while( <C> ) {
+    $zmconf{$1} = $2 if ( /^([a-zA-Z]+)\s*=\s*(.*)/ );
+}
+close C;
 
-open( SSH, "| ssh zen.linpro.no" );
-print SSH "cd www/ftp/.private\n";
+open( K, "< /home/agulbra/troll/kunder.txt" ) || die "1";
+open( S, "| ssh zen.linpro.no" ) || die "2";
+S->autoflush(1);
+print S "umask 002\n";
 
-foreach $a ( keys %k ) {
-    open( I, "mcookie |" );
-    $i = <I>;
-    $i =~ s/^(........).*/$1/s;
-    close I;
+foreach $line ( <K> ) {
+    $exp = "";
+    chomp $line;
+    ($name, $addr, $platform, $exp, $org) = split( / *\t+ */, $line );
+    die "$line\ninvalid line, stopped" unless ( $exp =~ m-^\d+/\d+/\d+$- );
 
-    open( MAIL, "| /usr/sbin/sendmail -t" );
-    print MAIL "To: ",$a,"\nSubject: Qt 1.1 released\nCc: sales\@troll.no\n";
+    next unless ( $platform =~ /w/ );
 
-    print MAIL "
-Qt 1.1 for Microsoft Windows and X11 is now ready to be downloaded
-from the directory /.private/",$i," at ftp.troll.no.
+    $name = "\"$name\"" unless ( $name =~ /^[a-zA-Z ]*$/ );
+
+    $key = lc $org;
+    $key =~ s/[^a-z0-9].*//;
+    $_ = `mcookie`;
+    $_ =~ s/(........).*/\1/s;
+    $key = "$key-$_";
+
+    $submit = $zmconf{'POSTOFFICE'} . "/public/kunder.$key";
+
+    if ( open( O, "> $submit" ) ) {
+	print O 
+"from paul\@troll.no
+envid $key
+notaryret FULL
+todsn NOTIFY=FAILURE
+to $addr
+todsn NOTIFY=FAILURE
+to support\@troll.no
+env-end
+Organization: Troll Tech AS; fax +47 22646949; http://www.troll.no
+To: $name <$addr>
+Cc: support\@troll.no
+Reply-To: support\@troll.no
+From: Paul Olav Tvete <paul\@troll.no>
+Subject: Qt 1.3 beta for Windows
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+
 ";
 
-    print SSH "mkdir ", $i, "\n";
+	print O
+"Dear Qt customer,
 
-    if ( $k{$a} =~ /w/ ) {
-	print SSH "ln ~/qt/windows/qtwin11.zip ", $i, "\n";
-	print MAIL "
-Here is a URL for the Windows version:
+Qt 1.3 is now entering the final beta-testing stage, and we are
+inviting you to take part in beta-testing it.
 
-	ftp://ftp.troll.no/.private/", $i, "/qtwin11.zip
+All known Windows-specific bugs have been corrected.  If you can find
+any more bugs, we would appreciate hearing from you.  (If you can't,
+we're very happy :)
+
+Of course, we cannot guarantee that this beta version is suitable for
+production work.
+
 ";
+
+	print S "mkdir www/ftp/.beta/$key\nchgrp troll www/ftp/.beta/$key\n";
+	if ( $platform =~ /w/ ) {
+	    print S "ln /home/paul/qtwin13beta3.zip www/ftp/.beta/$key\n";
+	    print O "The complete URL for your Windows archive is:\n    ftp://ftp.troll.no/.beta/$key/qtwin13beta3.zip\n\nThis file will be deleted in ten days.\n\n";
+	} else {
+	    print O "\n\n";
+	}
+	if ( $platform =~ /x/ ) {
+	    print O 
+"As announced on the qt-beta mailing list, the current X beta is located at
+
+    ftp://ftp.troll.no/.beta/gettingbetta/qt-1.3beta3.tar.gz
+
+";
+#	    print S "ln qt/unix/qt-1.21-commercial.tar.gz www/ftp/.private/$key\n";
+#	    print O "The complete URL for your X11 archive is:\n    ftp://ftp.troll.no/.private/$key/qt-1.21-commercial.tar.gz\n\n";
+	}
+	print O "As always, feel free to send any questions to support\@troll.no.\n\n- Paul\n";
+	close O;
+	$send{$submit}++;
+    } else {
+	die "canot open $submit, stopped";
     }
-
-    if ( $k{$a} =~ /u/ ) {
-	print SSH "ln ~/qt/unix/qt-1.1.tar.gz ", $i, "\n";
-	print MAIL "
-Here is a URL for the X11 version:
-
-	ftp://ftp.troll.no/.private/", $i, "/qt-1.1.tar.gz
-";
-    }
-
-    print MAIL "
-Please send me mail when I can delete the files, and feel free to send
-any questions to support\@troll.no.
-
---Arnt
-";
-    close MAIL;
 }
 
-close SSH;
+close K;
+close S;
+
+foreach ( keys %send ) {
+    $inode = (stat($_))[1];
+    if ( defined( $inode ) ) {
+	rename( $_, "$zmconf{'POSTOFFICE'}/router/$inode" );
+    }
+}
