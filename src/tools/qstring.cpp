@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#26 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#26 $";
 #endif
 
 
@@ -325,9 +325,9 @@ bool QString::resize( uint len )		// resize incl. \0 terminator
   manual).
 
   Many vsprintf() implementations have some sort of arbitrary and
-  undocumented limit (32k is common), some crash your program when you
-  exceed it.  If your string is shorter than 256 characters, Qt
-  sprintf() calls resize(256) to decrease the chance of crashing. */
+  undocumented limit, some crash your program when you exceed it.  If
+  your string is shorter than 256 characters, Qt sprintf() calls
+  resize(256) to decrease the chance of crashing. */
 
 QString &QString::sprintf( const char *format, ... )
 {						// make formatted string
@@ -853,8 +853,8 @@ QString &QString::replace( uint index, uint len, const char *s )
 /*! Returns the string converted to a <code>long</code> value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all, or if
-  there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all, or if
+  it has trailing garbage. */
 
 long QString::toLong( bool *ok ) const		// convert string to long
 {
@@ -873,8 +873,8 @@ long QString::toLong( bool *ok ) const		// convert string to long
   value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all,
-  or if there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all,
+  or if it has trailing garbage. */
 
 ulong QString::toULong( bool *ok ) const	// convert string to ulong
 {
@@ -893,36 +893,36 @@ ulong QString::toULong( bool *ok ) const	// convert string to ulong
   Returns the string converted to a <code>short</code> value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all, or if
-  there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all, or if
+  it has trailing garbage. */
 
 /*! \fn ushort QString::toUShort( bool *ok ) const
   Returns the string converted to an <code>unsigned short</code>
   value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all, or if
-  there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all, or if
+  it has trailing garbage. */
 
 /*! \fn int QString::toInt( bool *ok ) const
   Returns the string converted to a <code>int</code> value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all,
-  or if there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all,
+  or if it has trailing garbage. */
 
 /*! \fn uint QString::toUInt( bool *ok ) const
   Returns the string converted to an <code>unsigned int</code> value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all,
-  or if there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all,
+  or if it has trailing garbage. */
 
 /*! Returns the string converted to a <code>double</code> value.
 
 If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-conceivable errors, and FALSE if the string isn't a number at all, or
-if there's trailing garbage. */
+conceivable errors, and FALSE if the string is not a number at all, or
+if it has trailing garbage. */
 
 double QString::toDouble( bool *ok ) const	// convert string to double
 {
@@ -941,8 +941,8 @@ double QString::toDouble( bool *ok ) const	// convert string to double
   Returns the string converted to a <code>float</code> value.
 
   If \e ok is non-NULL, \e *ok will be set to TRUE if there are no
-  conceivable errors, and FALSE if the string isn't a number at all,
-  or if there's trailing garbage. */
+  conceivable errors, and FALSE if the string is not a number at all,
+  or if it has trailing garbage. */
 
 
 /*! Makes a deep copy of \e str without dereferencing the current
