@@ -904,6 +904,80 @@ QByteArray QWindowsMimeImage::convertFromMime(const QByteArray &data, const QStr
 #endif
 
 
+class QBuiltInMimes : public QWindowsMime
+{
+public:
+    QBuiltInMimes();
+
+    // for converting from Qt
+    bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
+    bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
+    QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const;
+    
+    // for converting to Qt
+    bool canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const;
+    QVariant convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const;
+    QString mimeForFormat(const FORMATETC &formatetc) const;
+
+private:
+    QMap<int, QString> formats;
+};
+
+QBuiltInMimes::QBuiltInMimes()
+    : QWindowsMime()
+{
+    formats.insert(QWindowsMime::registerMimeType("text/uri-list"), "text/uri-list");
+    formats.insert(QWindowsMime::registerMimeType("text/plain"), "text/plain");
+    formats.insert(QWindowsMime::registerMimeType("text/html"), "text/html");
+    formats.insert(QWindowsMime::registerMimeType("image/ppm"), "image/ppm");
+    formats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
+}
+
+bool QBuiltInMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
+{
+    // really check
+    return formatetc.tymed & TYMED_HGLOBAL 
+           && formats.contains(formatetc.cfFormat)
+           && mimeData->formats().contains(formats.value(formatetc.cfFormat));
+}
+
+bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
+{
+    return canConvertFromMime(formatetc, mimeData)
+           && setData(mimeData->data(formats.value(getCf(formatetc))), pmedium);
+}
+
+QVector<FORMATETC> QBuiltInMimes::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
+{
+    QVector<FORMATETC> formatetcs;
+    if (!formats.keys(mimeType).isEmpty() && mimeData->formats().contains(mimeType))
+        formatetcs += setCf(formats.key(mimeType));
+    return formatetcs;
+}
+
+bool QBuiltInMimes::canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const
+{
+    return (!formats.keys(mimeType).isEmpty())
+           && canGetData(formats.key(mimeType), pDataObj);
+}
+
+QVariant QBuiltInMimes::convertToMime(const QString &mimeType, QVariant::Type preferredType, struct IDataObject *pDataObj) const
+{
+    QVariant val;
+    if (canConverToMime(mimeType, pDataObj)) {
+        QByteArray data = getData(formats.key(mimeType), pDataObj);
+        if (!data.isEmpty())
+            val = data; // it should be enough to return the data and let QMimeData do the rest.
+    }
+    return val;
+}
+
+QString QBuiltInMimes::mimeForFormat(const FORMATETC &formatetc) const
+{
+    return formats.value(getCf(formatetc));
+}
+
+
 static
 void cleanup_mimes()
 {
@@ -918,7 +992,7 @@ void QWindowsMime::initialize()
 {
     if (mimes.isEmpty()) {
         new WindowsAnyMime;
-        
+        new QBuiltInMimes;
         qAddPostRoutine(cleanup_mimes);
     }
 }

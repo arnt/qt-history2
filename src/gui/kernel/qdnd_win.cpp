@@ -593,18 +593,25 @@ QStringList QDropData::formats() const
     return fmts;
 }
 
-QVariant QDropData::retrieveData(const QString &format, QVariant::Type type) const
+QVariant QDropData::retrieveData(const QString &mimeType, QVariant::Type type) const
 {
     QVariant result;
 
     if (!currentDataObject) // Sanity
         return result;
 
+    QWindowsMime *converter = QWindowsMime::converterToMime(mimeType, currentDataObject);
 
-    QWindowsMime *converter = QWindowsMime::converterToMime(format, currentDataObject);
-
-    if (converter)
-        result = converter->convertToMime(format, type, currentDataObject);
+    if (converter) {
+        result = converter->convertToMime(mimeType, type, currentDataObject);
+        // if we just got a bytearray but we wanted more then try to decode
+        if (result.type() == QVariant::ByteArray && type != QVariant::ByteArray) {
+            QDropData *that = const_cast<QDropData *>(this);
+            that->setData(mimeType, result.toByteArray());
+            result = QMimeData::retrieveData(mimeType, type);
+            that->clear();
+        }
+    }
     
     return result;
 }
