@@ -1402,7 +1402,7 @@ bool qt_wstate_iconified( WId winid )
 
   Note that for an application- or module-wide cleanup,
   qAddPostRoutine() is often not suitable.  People have a tendency to
-  make such modules dynamically loaaded, and then unload those modules
+  make such modules dynamically loaded, and then unload those modules
   long before the QApplication destructor is called, for example.
 
   For modules and libraries, using a reference-counted initialization
