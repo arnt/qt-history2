@@ -5081,10 +5081,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		 !( (QTextTable*)c->customItem() )->isStretching() &&
 		 ( (QTextTable*)c->customItem() )->geometry().width() < w ) {
 		if ( align & Qt::AlignHCenter )
-		    x = c->x = ( w - ( (QTextTable*)c->customItem() )->geometry().width() ) / 2;
+		    x = ( w - ( (QTextTable*)c->customItem() )->geometry().width() ) / 2;
 		else if ( align & Qt::AlignRight )
-		    x = c->x = w - ( (QTextTable*)c->customItem() )->geometry().width();
+		    x = w - ( (QTextTable*)c->customItem() )->geometry().width();
 	    }
+	    c->x = x;
 	    curLeft = x;
 	    if ( i == 0 || !isBreakable( string, i - 1 ) || string->at( i - 1 ).lineStart == 0 ) {
 		y += QMAX( h, tmph );
