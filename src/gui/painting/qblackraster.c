@@ -2364,8 +2364,8 @@ static int
 qt_ft_black_new( void*      memory,
               QT_FT_Raster  *araster )
 {
-    QT_FT_UNUSED( memory );
     static TRaster_Instance the_raster;
+    QT_FT_UNUSED( memory );
 
     *araster = (QT_FT_Raster) &the_raster;
     QT_FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
