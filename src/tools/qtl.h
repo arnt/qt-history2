@@ -186,6 +186,7 @@ inline void qBubbleSort( Container &c )
 template <class Value>
 inline void qHeapSortPushDown( Value* heap, int first, int last )
 {
+#ifndef Q_WS_WIN
     int r = first;
     while( r <= last/2 ) {
 	// Node r has only one child ?
@@ -211,12 +212,14 @@ inline void qHeapSortPushDown( Value* heap, int first, int last )
 	    }
 	}
     }
+#endif
 }
 
 
 template <class InputIterator, class Value>
 inline void qHeapSortHelper( InputIterator b, InputIterator e, Value, uint n )
 {
+#ifndef Q_WS_WIN
     // Create the heap
     InputIterator insert = b;
     Value* realheap = new Value[ n ];
@@ -242,12 +245,14 @@ inline void qHeapSortHelper( InputIterator b, InputIterator e, Value, uint n )
     }
 
     delete[] realheap;
+#endif
 }
 
 
 template <class InputIterator>
 inline void qHeapSort( InputIterator b, InputIterator e )
 {
+#ifndef Q_WS_WIN
     // Empty ?
     if ( b == e )
 	return;
@@ -263,18 +268,21 @@ inline void qHeapSort( InputIterator b, InputIterator e )
     // The second last parameter is a hack to retrieve the value type
     // Do the real sorting here
     qHeapSortHelper( b, e, *b, n );
+#endif
 }
 
 
 template <class Container>
 inline void qHeapSort( Container &c )
 {
+#ifndef Q_WS_WIN
     if ( c.isEmpty() )
 	return;
 
     // The second last parameter is a hack to retrieve the value type
     // Do the real sorting here
     qHeapSortHelper( c.begin(), c.end(), *(c.begin()), c.count() );
+#endif
 }
 
 #endif
