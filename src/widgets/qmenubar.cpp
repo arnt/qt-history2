@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#4 $
 **
 ** Implementation of QMenuBar class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#4 $";
 #endif
 
 
@@ -108,8 +108,7 @@ void QMenuBar::menuDelPopup( QPopupMenu *popup )
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
-    ASSERT( object == parent() );
-    if ( event->type() == Event_Resize ) {
+    if ( object == parent() && event->type() == Event_Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	resize( e->size().width(), clientSize().height() );
 	repaint( TRUE );
@@ -132,8 +131,15 @@ void QMenuBar::subSelected( int id )
 bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
 {
     QPoint pos = mapFromGlobal( popup->mapToGlobal( e->pos() ) );
-    if ( !clientRect().contains( pos ) )
+    if ( !clientRect().contains( pos ) )	// outside
 	return FALSE;
+    int item = itemAtPos( pos );
+    if ( item == -1 && (e->type() == Event_MouseButtonPress ||
+			e->type() == Event_MouseButtonRelease) ) {
+	hidePopups();
+	goodbye();
+	return FALSE;
+    }
     QMouseEvent ee( e->type(), pos, e->button(), e->state() );
     event( &ee );
     return TRUE;
@@ -306,7 +312,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	actItem = FALSE;
+	actItem = -1;
 	repaint( FALSE );
 	return;
     }
@@ -336,7 +342,10 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    actItem = itemAtPos( e->pos() );
+    int item = itemAtPos( e->pos() );
+    if ( actItem == -1 && item != -1 )		// ignore mouse release
+	return;
+    actItem = item;
     repaint( FALSE );
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
