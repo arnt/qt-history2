@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#25 $
 **
 ** Definition of QIconView widget class
 **
@@ -136,6 +136,7 @@ struct QIconViewPrivate
     QIconView::AlignMode alignMode;
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
+    bool justShown;
 };
 
 /*****************************************************************************
@@ -1086,10 +1087,11 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->resizeMode = Fixed;
     d->dropped = FALSE;
     d->adjustTimer = new QTimer( this );
+    d->justShown = TRUE;
     
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
-    
+
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -1419,9 +1421,10 @@ void QIconView::orderItemsInGrid()
 
 void QIconView::show()
 {
-    QScrollView::show();
     resizeContents( viewport()->width(), viewport()->height() );
     orderItemsInGrid();
+    QScrollView::show();
+    d->justShown = FALSE;
 }
 
 /*!
@@ -1911,11 +1914,16 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 
 void QIconView::resizeEvent( QResizeEvent* e )
 {
+    if ( d->justShown ) {
+	QScrollView::resizeEvent( e );
+	return;
+    }
+    
     if ( d->resizeMode == Adjust )
 	d->oldSize = viewport()->size();
     QScrollView::resizeEvent( e );
     if ( d->resizeMode == Adjust ) {
-	if ( d->adjustTimer->isActive() ) 
+	if ( d->adjustTimer->isActive() )
 	    d->adjustTimer->stop();
 	d->adjustTimer->start( 400, TRUE );
     }
@@ -1925,10 +1933,10 @@ void QIconView::adjustItems()
 {
     d->adjustTimer->stop();
     if ( d->resizeMode == Adjust ) {
-	if ( size() != d->oldSize ) 
+	if ( size() != d->oldSize )
 	    orderItemsInGrid();
 	    viewport()->repaint( FALSE );
-    } 
+    }
 }
 
 /*!
