@@ -126,9 +126,12 @@ int main( int argc, char ** argv )
     if ( argc > 1 ) {
 	QString arg( argv[1] );
 	arg = arg.lower();
-	if ( arg == "-addcontentfile" ||
-	     arg == "-removecontentfile" ||
-	     arg == "-help" )
+	if ( arg == "-addcontentfile" 
+	    || arg == "-removecontentfile"
+#ifndef Q_WS_WIN
+	    || arg == "-help"
+#endif
+	    )
 	    withGUI = FALSE;
     }
     QApplication a(argc, argv, withGUI);
