@@ -142,7 +142,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( desktop ) {				// desktop widget
 	popup = FALSE;				// force this flags off
-	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 || qt_winver == Qt::WV_XP )
+	if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 )
 	    crect.setRect( GetSystemMetrics( 76 ), GetSystemMetrics( 77 ), GetSystemMetrics( 78 ), GetSystemMetrics( 79 ) );
 	else
 	    crect.setRect( 0, 0, GetSystemMetrics( SM_CXSCREEN ), GetSystemMetrics( SM_CYSCREEN ) );

@@ -201,7 +201,7 @@ void QTitleBar::readColors()
 #ifndef COLOR_GRADIENTINACTIVECAPTION
 #define COLOR_GRADIENTINACTIVECAPTION 28
 #endif
-    if ( qt_winver == Qt::WV_98 || qt_winver == WV_2000 || qt_winver == WV_XP ) {
+    if ( qt_winver != Qt::WV_95 && qt_winver != WV_NT ) {
 	if ( QApplication::desktopSettingsAware() ) {
 	    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) );
 	    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );

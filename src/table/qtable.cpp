@@ -2358,8 +2358,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 	return;
     QColorGroup cg;
 #if defined(Q_WS_WIN)
-    if ( !drawActiveSelection &&
-	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+    if ( !drawActiveSelection && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
 	cg = palette().inactive();
     else
 #endif

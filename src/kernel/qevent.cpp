@@ -2030,9 +2030,11 @@ QCustomEvent::QCustomEvent( int type )
 
 
   Call this function to indicate whether the event provided data which
-  your widget processed.  To get the data, use encodedData(), or
-  preferably, the decode() methods of existing QDragObject subclasses,
-  such as QTextDrag::decode(), or your own subclasses.
+  your widget processed. Set \a y to TRUE (the default) if your widget 
+  could process the data, otherwise set \a y to FALSE. To get the data, 
+  use encodedData(), or preferably, the decode() methods of existing 
+  QDragObject subclasses, such as QTextDrag::decode(), or your own 
+  subclasses.
 
   \warning To accept or reject the drop, don't call this function,
   call acceptAction() instead. This function indicates whether you

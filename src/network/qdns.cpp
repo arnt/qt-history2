@@ -2217,9 +2217,8 @@ static void doResInit()
 
     bool gotNetworkParams = FALSE;
 #ifndef Q_OS_TEMP
-    if ( QApplication::winVersion() == Qt::WV_98 ||
-	 QApplication::winVersion() == Qt::WV_2000 ||
-	 QApplication::winVersion() == Qt::WV_XP )
+    if ( QApplication::winVersion() != Qt::WV_95 &&
+	 QApplication::winVersion() != Qt::WV_NT )
 #endif
 	{
 	// for 98 and 2000 try the API call GetNetworkParams()

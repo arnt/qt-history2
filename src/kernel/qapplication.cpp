@@ -2385,6 +2385,7 @@ QTextCodec* QApplication::defaultCodec() const
   \a comment is a disambiguating comment, for when the same \a
   sourceText is used in different roles within one context. By
   default, it is null.
+  \a encoding indicates the 8-bit encoding of character stings
 
   See the \l QTranslator documentation for more information about
   contexts and comments.

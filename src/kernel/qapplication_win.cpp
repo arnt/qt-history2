@@ -537,9 +537,8 @@ static void qt_set_windows_resources()
     cg.setColor( QColorGroup::Link, Qt::blue );
     cg.setColor( QColorGroup::LinkVisited, Qt::magenta );
 
-    if ( qt_winver == Qt::WV_2000 ||
-	 qt_winver == Qt::WV_98 ||
-	 qt_winver == Qt::WV_XP ) {
+    if ( qt_winver != Qt::WV_NT &&
+	 qt_winver != Qt::WV_95 ) {
 	if ( cg.midlight() == cg.button() )
 	    cg.setColor( QColorGroup::Midlight, cg.button().light(110) );
     }
@@ -555,9 +554,8 @@ static void qt_set_windows_resources()
 		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
     QColorGroup icg = cg;
-    if ( qt_winver == Qt::WV_2000 ||
-	 qt_winver == Qt::WV_98 ||
-	 qt_winver == Qt::WV_XP ) {
+    if ( qt_winver != Qt::WV_NT &&
+	 qt_winver != Qt::WV_95 ) {
 	if ( icg.background() != icg.base() ) {
 	    icg.setColor( QColorGroup::Highlight, icg.background() );
 	    icg.setColor( QColorGroup::HighlightedText, icg.text() );
@@ -587,9 +585,8 @@ static void qt_set_windows_resources()
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 	icg = cg;
-	if ( qt_winver == Qt::WV_2000 ||
-	     qt_winver == Qt::WV_98 ||
-	     qt_winver == Qt::WV_XP ) {
+    if ( qt_winver != Qt::WV_NT &&
+	 qt_winver != Qt::WV_95 ) {
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
 	}
 	QPalette menu(cg, dcg, icg);
@@ -3993,7 +3990,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
     }
 
-    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 || qt_winver == Qt::WV_XP ) ) {
+    if ( desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
 	// we know that they can be used when we are here
 	UINT api;
 	switch (effect) {
@@ -4036,7 +4033,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
-    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 || qt_winver == Qt::WV_XP ) ) {
+    if ( desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
 	if ( QColor::numBitPlanes() < 16 )
 	    return FALSE;
 	// we know that they can be used when we are here

@@ -96,9 +96,8 @@ enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 QWindowsStyle::QWindowsStyle() : QCommonStyle()
 {
 #if defined(Q_OS_WIN32)
-    if (qWinVersion() == Qt::WV_2000 ||
-	qWinVersion() == Qt::WV_98 ||
-	qWinVersion() == Qt::WV_XP)
+    if ( qWinVersion() != Qt::WV_NT &&
+	 qWinVersion() != Qt::WV_95 )
 	use2000style = TRUE;
     else
 	use2000style = FALSE;
@@ -1724,7 +1723,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 
     case SH_ItemView_ChangeHighlightOnFocus:
 #if defined(Q_WS_WIN)
-	if ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP )
+	if ( qWinVersion() != WV_95 && qWinVersion() != WV_NT )
 	    ret = 1;
 	else
 #endif
