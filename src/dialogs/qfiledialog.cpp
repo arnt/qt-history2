@@ -4243,6 +4243,11 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
         return winGetExistingDirectory( initialDir, parent, name, caption );
 #endif
+#if defined(Q_WS_MAC)
+    if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
+	return macGetOpenFileNames("", 0,
+				   parent, name, caption, FALSE, TRUE).first();
+#endif
 
     QFileDialog *dialog = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
 #ifndef QT_NO_WIDGET_TOPEXTRA

@@ -142,7 +142,8 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 
 QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 					      QWidget *parent, const char* /*name*/,
-					      const QString& caption, bool multi )
+					      const QString& caption, bool multi,
+					      bool directory )
 {
     OSErr err;
     QString tmpstr;
@@ -174,13 +175,21 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 
     QPtrList<QRegExp> filts = makeFiltersList(filter);
     NavDialogRef dlg;
-    if(NavCreateGetFileDialog(&options, NULL, NULL, NULL, make_navUPP(), 
-			      (void *) (filts.isEmpty() ? NULL : &filts), &dlg)) {
-	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
-	return retstrl;
+    if (directory) {
+	if(NavCreateChooseFolderDialog(&options, NULL, NULL, NULL, &dlg)) {
+	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	    return retstrl;
+	}
+    } else {
+	if(NavCreateGetFileDialog(&options, NULL, NULL, NULL, make_navUPP(), 
+				  (void *) (filts.isEmpty() ? NULL : &filts), &dlg)) {
+	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	    return retstrl;
+	}
     }
     NavDialogRun(dlg);
-    if(NavDialogGetUserAction(dlg) != kNavUserActionOpen) {
+    if (!(NavDialogGetUserAction(dlg) & 
+	  (kNavUserActionOpen | kNavUserActionChoose | kNavUserActionNewFolder))) {
 	NavDialogDispose(dlg);
 	return retstrl;
     }

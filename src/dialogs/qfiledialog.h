@@ -322,7 +322,8 @@ private:
 				       const QString& );
     static QStringList macGetOpenFileNames( const QString &, QString*,
 					    QWidget *, const char *,
-					    const QString&, bool = TRUE);
+					    const QString&, bool = TRUE,
+					    bool = FALSE );
 #endif
 
 
