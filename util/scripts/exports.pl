@@ -35,7 +35,7 @@ if(!$EXPORT_SYMBOL) {
 #symbol lookup
 my %CLASSES=();
 my %GLOBALS=();
-sub find_classnames {
+sub find_exports {
     my $ret = 0;
     my ($file) = @_;
 
@@ -154,7 +154,7 @@ sub find_files {
 	    if(-d "$p") {
 		find_files("$p");
 	    } elsif($p =~ /\.(h|cpp)$/) {
-		find_classnames("$p");
+		find_exports("$p");
 	    }
 	}
 	closedir(D);
@@ -164,7 +164,7 @@ foreach (@EXPORT_INPUTS) {
     if(-d "$_") {
 	find_files("$_");
     } else {
-	find_classnames("$_");
+	find_exports("$_");
     }
 }
 
