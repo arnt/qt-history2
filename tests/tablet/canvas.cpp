@@ -18,8 +18,10 @@
 const bool no_writing = FALSE;
 
 Canvas::Canvas( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, WNorthWestGravity | fl ), pen( Qt::red, 3 ), polyline(3),
-      mousePressed( FALSE ), buffer( width(), height() ), oldPressure( 0 ), saveColor( red )
+    : QWidget( parent, name, WNorthWestGravity | fl ), 
+      pen( Qt::red, 3 ), polyline(3),
+      mousePressed( FALSE ), oldPressure( 0 ), saveColor( red ),
+      buffer( width(), height() ) 
 {
 
     if ((qApp->argc() > 0) && !buffer.load(qApp->argv()[1]))

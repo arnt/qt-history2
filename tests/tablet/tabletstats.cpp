@@ -53,8 +53,8 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
 	hypot = realWidth / 2;
 
     // create a shadow...
-    shaX = hypot * sin( tiltX * (PI / 180) );
-    shaY = hypot * sin( tiltY * (PI / 180 ) );
+    shaX = int(hypot * sin( tiltX * (PI / 180) ));
+    shaY = int(hypot * sin( tiltY * (PI / 180) ));
 
     p.translate( realWidth / 2, realHeight / 2 );
     p.setPen( backgroundColor() );
