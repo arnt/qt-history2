@@ -13,7 +13,26 @@
 
 #include "widgetinfo.h"
 
-#include <QtGui/QtGui>
+#include <QtCore/QMetaEnum>
+#include <QtGui/QTextBrowser>
+#include <QtGui/QToolBar>
+#include <QtGui/QPushButton>
+#include <QtGui/QLineEdit>
+#include <QtGui/QComboBox>
+#include <QtGui/QDial>
+#include <QtGui/QSlider>
+#include <QtGui/QLCDNumber>
+#include <QtGui/QProgressBar>
+#include <QtGui/QLabel>
+#include <QtGui/QToolBox>
+#include <QtGui/QMainWindow>
+#include <QtGui/QToolButton>
+#include <QtGui/QCheckBox>
+#include <QtGui/QRadioButton>
+#include <QtGui/QSpinBox>
+#include <QtGui/QActionGroup>
+#include <QtGui/QSplitter>
+#include <QtGui/QTabWidget>
 #include <Qt3Support/Q3DateEdit>
 #include <Qt3Support/Q3TimeEdit>
 #include <Qt3Support/Q3DateTimeEdit>
