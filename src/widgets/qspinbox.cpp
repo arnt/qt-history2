@@ -349,19 +349,7 @@ QString QSpinBox::prefix() const
   \brief the suffix of the spin box
 
   The suffix is appended to the end of the displayed value.  Typical use is to
-  indicate the unit of measurement to the user. For example:
-
-  \walkthrough table/wineorder2/productlist.cpp
-  \skipto suffix
-  \printline suffix
-  \walkthrough table/wineorder2/spinboxitem.cpp
-  \skipto setSuffix
-  \printline setSuffix
-
-  (Code taken from \link wineorder2-example.html
-  table/wineorder2/spinboxitem.cpp and
-  table/wineorder2/productlist.cpp \endlink )
-
+  indicate the unit of measurement to the user. 
   To turn off the suffix display, set this property to  an empty
   string. The default is no suffix.
 
@@ -954,13 +942,6 @@ void QSpinBox::setMinValue( int i )
   \property QSpinBox::maxValue
 
   \brief the maximum value of the spin box
-
-  \walkthrough table/wineorder2/spinboxitem.cpp
-  \skipto setMaxValue
-  \printline MaxValue
-
-  (Code taken from \link wineorder2-example.html
-  table/wineorder2/spinboxitem.cpp \endlink )
 
   \sa setRange()
 */
