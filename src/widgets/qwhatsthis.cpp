@@ -964,5 +964,9 @@ void Q4WhatsThis::add( QWidget *w, const QString &s)
     w->setWhatsThis(s);
 }
 
+// Dummy implementations to compile on windows..
+void Q4WhatsThis::showText(int, int, const QString &) { }
+void Q4WhatsThis::showText(int, int, const QString &, const QObject *, const char *) { }
+
 #include "qwhatsthis.moc"
 #endif
