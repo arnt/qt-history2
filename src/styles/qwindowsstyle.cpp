@@ -42,7 +42,6 @@
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #include "qapplication.h"
-#include "../kernel/qapplication_p.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now
 #include "qpixmap.h" // for now
@@ -1326,7 +1325,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 
     if ( checkable ) {
 #if defined(Q_WS_WIN32)
-	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 )
+	if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 )
 	    maxpmw = QMAX( maxpmw, 16);
 #endif
 	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
