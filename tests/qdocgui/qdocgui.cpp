@@ -35,7 +35,7 @@ void QDocMainWindow::init()
 
 void QDocMainWindow::populateListView()
 {
-    waitText = new QLabel( "Currently qdocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
+    waitText = new QLabel( "Currently qdocing", this, "wait", WStyle_Customize | WStyle_NormalBorder );
     waitText->setCaption( "qdoc GUI - Waiting" );
     waitText->setFont( QFont("times", 36) );
     waitText->setAlignment( AlignCenter );
