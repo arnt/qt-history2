@@ -1237,15 +1237,20 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN)
             {
-                // Force update the HDC before we use it.
-                HDC hdc = p->device()->getDC();
-                RECT rect = { opt->rect.left(), opt->rect.top(),
-                              opt->rect.right() + 1, opt->rect.bottom() + 1 };
-                p->paintEngine()->syncState();
-                DrawFocusRect(hdc, &rect);
-                p->device()->releaseDC(hdc);
+                QMatrix wm = p->deviceMatrix();
+                // We cannot use the native function if we have xforms
+                if (wm.m11() == 1 && wm.m22() == 1 && wm.m12() == 0 && wm.m21() == 0) {
+                    RECT rect = { opt->rect.left() + wm.dx(), opt->rect.top() + wm.dy(),
+                                  opt->rect.right() + 1 + wm.dx(), opt->rect.bottom() + 1 + wm.dy() };
+                    // Force update the HDC before we use it.
+                    p->paintEngine()->syncState();
+                    HDC hdc = p->device()->getDC();
+                    DrawFocusRect(hdc, &rect);
+                    p->device()->releaseDC(hdc);
+                    break;
+                }
             }
-#else
+#endif
             QRect r = opt->rect;
             p->save();
             p->setBackgroundMode(Qt::TransparentMode);
@@ -1264,7 +1269,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->drawRect(r.left(), r.top(), 1, r.height());   // Left
             p->drawRect(r.right(), r.top(), 1, r.height());  // Right
             p->restore();
-#endif
         }
         break;
     case PE_IndicatorRadioButton:
