@@ -21,7 +21,7 @@ struct ArgumentDef
 
 struct FunctionDef
 {
-    FunctionDef():access(Private), isConst(false), inlineCode(false), wasCloned(false){}
+    FunctionDef():access(Private), isConst(false), inlineCode(false), wasCloned(false), inPrivateClass(false){}
     QByteArray type, normalizedType;
     QByteArray tag;
     QByteArray name;
@@ -33,6 +33,8 @@ struct FunctionDef
     bool isConst;
     bool inlineCode;
     bool wasCloned;
+
+    bool inPrivateClass;
 
 };
 
@@ -60,12 +62,12 @@ struct ClassInfoDef
 
 struct ClassDef {
     ClassDef():
-	hasQObject(0){}
+	hasQObject(false){}
     QByteArray classname;
     QByteArray qualified;
     QList<QByteArray> superclassList;
 
-    uint hasQObject : 1;
+    bool hasQObject;
 
     QList<FunctionDef> signalList, slotList, candidateList;
     QList<PropertyDef> propertyList;
@@ -124,7 +126,7 @@ public:
 
     bool parseEnum(EnumDef *def);
 
-    void parseFunction(FunctionDef *def);
+    void parseFunction(FunctionDef *def, bool inMacro = false);
     bool parsePropertyCandidate(FunctionDef *def);
 
     void parseSlots(FunctionDef::Access access,	 ClassDef *def);

@@ -331,7 +331,7 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     }
 }
 
-void Moc::parseFunction(FunctionDef *def)
+void Moc::parseFunction(FunctionDef *def, bool inMacro)
 {
     test(VIRTUAL);
     test(INLINE);
@@ -366,14 +366,18 @@ void Moc::parseFunction(FunctionDef *def)
 	next(RPAREN);
     }
     def->isConst = test(CONST);
-    if (test(SEMIC))
-	;
-    else if ((def->inlineCode = test(LBRACE)))
-	until(RBRACE);
-    else if (test(EQ))
-	until(SEMIC);
-    else
-	error();
+    if (inMacro) {
+	next(RPAREN);
+    } else {
+	if (test(SEMIC))
+	    ;
+	else if ((def->inlineCode = test(LBRACE)))
+	    until(RBRACE);
+	else if (test(EQ))
+	    until(SEMIC);
+	else
+	    error();
+    }
     setErrorMessage(0);
 }
 
@@ -535,10 +539,10 @@ void Moc::moc(FILE *out)
     fprintf(out, "** WARNING! All changes made in this file will be lost!\n"
 	    "*****************************************************************************/\n\n");
 
+
     if (!noInclude) {
 	if (includePath.size() && includePath.right(1) != "/")
 	    includePath += "/";
-
 	for (int i = 0; i < includeFiles.size(); ++i) {
 	    QByteArray inc = includeFiles.at(i);
 	    if (inc[0] != '<' && inc[0] != '"') {
@@ -546,7 +550,7 @@ void Moc::moc(FILE *out)
 		    inc.prepend(includePath);
 		inc = "\"" + inc + "\"";
 	    }
-	    fprintf(out, "#include %s\n", inc.data());
+	    fprintf(out, "#include %s\n", inc.constData());
 	}
     }
     if (classList.size() && classList.first().classname == "Qt")
@@ -572,6 +576,7 @@ void Moc::parseSlots(FunctionDef::Access access, ClassDef *def)
 {
     next(COLON);
     while (inClass(def) && hasNext()) {
+	bool inPrivateClass = false;
 	switch (next()) {
 	case PUBLIC:
 	case PROTECTED:
@@ -580,14 +585,20 @@ void Moc::parseSlots(FunctionDef::Access access, ClassDef *def)
 	case SLOTS:
 	    prev();
 	    return;
+	case Q_PRIVATE_SLOT_TOKEN:
+	    next(LPAREN);
+	    inPrivateClass = true;
+	    break;
 	case SEMIC:
 	    continue;
 	default:
 	    prev();
 	}
+
 	FunctionDef funcDef;
-	funcDef.access = access;
-	parseFunction(&funcDef);
+	funcDef.access = inPrivateClass ? FunctionDef::Private : access;
+	funcDef.inPrivateClass = inPrivateClass;
+	parseFunction(&funcDef, inPrivateClass);
 	def->slotList += funcDef;
 	while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
 	    funcDef.wasCloned = true;

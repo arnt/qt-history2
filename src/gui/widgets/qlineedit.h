@@ -115,6 +115,7 @@ public:
 
 public slots:
      void setText( const QString &);
+    Q_PRIVATE_SLOT(void clipboardChanged())
 
 public:
     void clear();
@@ -161,9 +162,6 @@ protected:
 #ifdef QT_COMPAT
     QT_COMPAT void repaintArea( int, int ) { update(); }
 #endif
-
-private slots:
-    void clipboardChanged();
 
 public:
 #ifdef QT_COMPAT

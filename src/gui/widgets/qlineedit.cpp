@@ -393,7 +393,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
     d->updateTextLayout();
     update();
 #ifdef Q_WS_MAC
-    if(hasFocus()) 
+    if(hasFocus())
 	qt_mac_secure_keyboard(d->echoMode == Password || d->echoMode == NoEcho);
 #endif
 }
@@ -1930,7 +1930,7 @@ QChar QLineEdit::passwordChar() const
     return ( d->passwordChar.isNull() ? QChar( style().styleHint( QStyle::SH_LineEdit_PasswordCharacter, this ) ) : d->passwordChar );
 }
 
-void QLineEdit::clipboardChanged()
+void QLineEditPrivate::clipboardChanged()
 {
 }
 
@@ -2567,5 +2567,5 @@ void QLineEditPrivate::redo() {
     emitCursorPositionChanged();
 }
 
-
+#include "moc_qlineedit.cpp"
 #endif // QT_NO_LINEEDIT

@@ -192,6 +192,7 @@ static const Keyword keywords[] = {
     { "Q_CLASSINFO", "Q_CLASSINFO_TOKEN" },
     { "signals", "SIGNALS" },
     { "slots", "SLOTS" },
+    { "Q_PRIVATE_SLOT", "Q_PRIVATE_SLOT_TOKEN" },
 
     { "\n", "NEWLINE" },
     { "\"", "QUOTE" },

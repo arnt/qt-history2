@@ -141,6 +141,8 @@ public:
     QBasicTimer dndTimer;
     void drag();
 #endif
+
+    void clipboardChanged();
 };
 
 
