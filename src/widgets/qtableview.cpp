@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#119 $
 **
 ** Implementation of QTableView class
 **
@@ -1406,16 +1406,10 @@ void QTableView::paintEvent( QPaintEvent *e )
 
 void QTableView::resizeEvent( QResizeEvent * )
 {
-    bool update = autoUpdate();
-    setAutoUpdate( FALSE );
-    int maxX = maxXOffset();			// ### can be slow
-    int maxY = maxYOffset();
-    if ( xOffs > maxX )
-	setXOffset( maxX );
-    if ( yOffs > maxY )
-	setYOffset( maxY );
-    setAutoUpdate( update );
-    updateScrollBars( horSteps | horGeometry | horRange |
+    int maxX = QMIN( xOffs, maxXOffset() );			// ### can be slow
+    int maxY = QMIN( yOffs, maxYOffset() );
+    setOffset( maxX, maxY, FALSE );
+    updateScrollBars( horValue | verValue | horSteps | horGeometry | horRange |
 		      verSteps | verGeometry | verRange );
     showOrHideScrollBars();
     updateFrameSize();
