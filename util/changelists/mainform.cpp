@@ -267,8 +267,10 @@ void MainForm::processExited()
 			if(changeWhoTo && (*changeWhoTo).contains(*itTo)) {
 			    QString who = (*changeWhoTo)[*itTo].section('@', 0, 0);
 			    QListViewItem *root = roots[who];
-			    if(!root)
+			    if(!root) {
 				roots.insert(who, root = new QListViewItem(changes, who));
+				root->setOpen(TRUE);
+			    }
 			    if(root) {
 				added = TRUE;
 				(void)new ChangeItem( root, *itTo, (*changeDateTo)[*itTo] );
