@@ -3,6 +3,7 @@
 #include "qsqlfield.h"
 #include "qsqlform.h"
 #include "qsqlview.h"
+#include "qsqlresult.h"
 
 #ifndef QT_NO_SQL
 
@@ -55,14 +56,23 @@ void QSqlPropertyMap::setProperty( QObject * object, const QVariant & value )
 
 /*!
   
-  Add a new classname/property pair, which is used for custom SQL
+  Insert a new classname/property pair, which is used for custom SQL
   field editors. Remember to add a Q_PROPERTY clause in the \a classname
   class declaration.
 */
-void QSqlPropertyMap::addClass( const QString & classname, 
-				const QString & property )
+void QSqlPropertyMap::insert( const QString & classname, 
+			      const QString & property )
 {
     propertyMap[ classname ] = property;
+}
+
+/*!
+  
+  Removes a classname/property pair from the map.
+*/
+void QSqlPropertyMap::remove( const QString & classname )
+{
+    propertyMap.remove( classname );
 }
 
 
@@ -98,15 +108,18 @@ QSqlFormMap::~QSqlFormMap()
 
 /*!
   
-  Installs a custom QSqlPropertyMap.
+  Installs a custom QSqlPropertyMap. This is useful if you plan to
+  create your own custom editor widgets. NB! QSqlFormMap takes
+  possession of the \a map, and \a map is deleted when the object goes
+  out of scope.
 */
-void QSqlFormMap::installPropertyMap( QSqlPropertyMap * map )
+void QSqlFormMap::installPropertyMap( QSqlPropertyMap * pmap )
 {
     if( m )
 	delete m;
     
-    if( map )
-	m = map;
+    if( pmap )
+	m = pmap;
     else
 	m = new QSqlPropertyMap;
 }
@@ -114,13 +127,23 @@ void QSqlFormMap::installPropertyMap( QSqlPropertyMap * map )
 
 /*!
 
-  Add a widget/field pair to the current map.
+  Insert a widget/field pair into the map.
 */
-void QSqlFormMap::add( QWidget * widget, QSqlField * field )
+void QSqlFormMap::insert( QWidget * widget, QSqlField * field )
 {
     map[widget] = field;
 }
     
+/*!
+
+  Remove a widget/field pair from the map.
+*/
+void QSqlFormMap::remove( QWidget * widget )
+{
+    map.remove( widget );
+}
+
+
 /*!
 
   Returns the field number widget \a widget is mapped to.
@@ -216,7 +239,7 @@ QSqlForm::~QSqlForm()
 */
 void QSqlForm::associate( QWidget * widget, QSqlField * field )
 {
-    map->add( widget, field );
+    map->insert( widget, field );
 }
 
 /*!
@@ -281,14 +304,23 @@ void QSqlForm::last()
 
 void QSqlForm::next()
 {
-    if( v && v->next() ){
+    
+    if( v ){
+	v->next();
+	if( v->at() == QSqlResult::AfterLast ){
+	    v->last();
+	}
 	syncWidgets();
     }
 }
 
 void QSqlForm::previous()
 {
-    if( v && v->previous() ){
+    if( v ){
+        v->previous();
+	if( v->at() == QSqlResult::BeforeFirst ){
+	    v->first();
+	}
 	syncWidgets();
     }
 }
@@ -298,9 +330,6 @@ bool QSqlForm::insert()
     if( v ){
 	syncFields();
 	v->insert();
-	v->select( v->filter(), v->sort() );
-	v->last();
-	syncWidgets();
 	return TRUE;
     }
     return FALSE;
@@ -310,21 +339,15 @@ bool QSqlForm::update()
 {
     if( v ){
 	syncFields();
-	int at = v->at();
-	if( v->update( v->primaryIndex() ) && 
-	    v->select( v->filter(), v->sort() ) &&
-	    v->seek( at ) )
+	if( v->update( v->primaryIndex() ) )
 	    return TRUE;
     }
-    
     return FALSE;
 }
 
 bool QSqlForm::del()
 {
     if( v && v->del( v->primaryIndex() ) ){
-	v->select( v->filter(), v->sort() );
-	v->first();
 	syncWidgets();
 	return TRUE;
     }
@@ -333,7 +356,7 @@ bool QSqlForm::del()
 
 void QSqlForm::seek( int i )
 {
-    if( v && v->seek(i) ){
+    if( v && v->seek( i ) ){
 	syncWidgets();
     }
 }

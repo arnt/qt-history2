@@ -18,7 +18,8 @@ public:
     
     QVariant property( QObject * object );
     void     setProperty( QObject * object, const QVariant & value );   
-    void     addClass( const QString & classname, const QString & property );
+    void     insert( const QString & classname, const QString & property );
+    void     remove( const QString & classname );
     
 private:
     QMap< QString, QString > propertyMap;
@@ -30,12 +31,13 @@ public:
     QSqlFormMap();
     ~QSqlFormMap();
     
-    void        add( QWidget * widget, QSqlField * field );
+    void        insert( QWidget * widget, QSqlField * field );
+    void        remove( QWidget * widget );
     QSqlField * whichField( QWidget * widget ) const;
     QWidget *   whichWidget( QSqlField * field ) const;
     void        syncWidgets();
     void        syncFields();
-    void        installPropertyMap( QSqlPropertyMap * map );
+    void        installPropertyMap( QSqlPropertyMap * pmap );
     
 private:
     QMap< QWidget *, QSqlField * > map;
@@ -56,6 +58,7 @@ public:
 public slots:
     virtual void syncWidgets();
     virtual void syncFields();
+    
     virtual void first();    
     virtual void previous();
     virtual void next();
