@@ -5238,7 +5238,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (westSide)
                     p->restore();
             } else {
-                QCommonStyle::drawControl(ce, &myTab, p, w);
+                QCommonStyle::drawControl(ce, tab, p, w);
             }
         }
         break;
