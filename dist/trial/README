@@ -14,7 +14,7 @@ pre-compiled.
 
 * The library is pre-built as a dynamic, multi-threaded library without
 debugging information. In the full versions, you may choose to build it as
-a static or dynamic library with single-threaded mode turned on or
+a static or dynamic library with multi-threaded mode turned on or
 off. You may also build it with or without debugging information
 included as an assistance during application development.
 
@@ -27,7 +27,8 @@ Updating Visual Studio
 ----------------------
 
 If you use MS Visual Studio for development, you may want to install the
-provided Qt add-in for Visual Studio. Proceed as follows:
+provided Qt add-in for Visual Studio. This can be done by following the steps 
+below:
 
 1. Start Visual Studio if it isn't already running.
 2. Click Tools|Customize to launch the Customize dialog. 
