@@ -133,8 +133,9 @@ static int qt_thread_pipe[2];
 #include <bstring.h>
 #endif
 
-#if defined(Q_OS_AIX) || defined(Q_OS_UNIXWARE7)
+#if defined(Q_OS_AIX) || defined(Q_OS_UNIXWARE7) || defined (Q_OS_HPUX)
 // Please add comments! Which version of AIX? Why?
+// needed for strcasecmp() on HP-UX 10.xx
 #include <strings.h>
 #endif
 
