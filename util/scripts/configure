@@ -49,6 +49,7 @@ I_FLAGS=
 L_FLAGS=
 l_FLAGS=
 XPLATFORM=
+QT_CXX=""
 
 # Parse the arguments, setting things to "yes" or "no".
 
@@ -113,6 +114,11 @@ while [ -n "$1" ]; do
 	;;
    -system-nas-sound)
        NAS_SOUND=yes
+	;;
+   -no-*)
+       QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
+	   
+    buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
 	;;
    -h | -help | --help)
        HELP=yes
@@ -436,7 +442,6 @@ fi
 
 # Build up the variables for output
 
-QT_CXX=""
 [ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
 [ "x$GIF" = "xno" ] && QT_CXX="${QT_CXX} -DQT_NO_BUILTIN_GIF_READER"
 [ "x$JPEG" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_JPEG_SUPPORT"
