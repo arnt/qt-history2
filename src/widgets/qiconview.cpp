@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#86 $
 **
 ** Definition of QIconView widget class
 **
@@ -1877,19 +1877,23 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 void QIconView::orderItemsInGrid()
 {
-    int w = 0, y = d->spacing;
+    if ( !d->firstItem || !d->lastItem )
+	return;
+    
+    int w = 0, h = 0, y = d->spacing;
 
     QIconViewItem *item = d->firstItem;
     while ( item ) {
 	item = makeRowLayout( item, y );
 	w = QMAX( w, item->x() + item->width() );
+	h = QMAX( h, item->y() + item->height() );
 
 	if ( !item || !item->next )
 	    break;
 
 	item = item->next;
     }
-    resizeContents( w, d->lastItem->y() + d->lastItem->height() );
+    resizeContents( w, h );
     d->dirty = FALSE;
 }
 
@@ -2160,18 +2164,18 @@ void QIconView::setAlignMode( AlignMode am )
     if ( d->alignMode == am )
 	return;
 
-    if ( d->resizeMode != Adjust ) {
-	setHScrollBarMode( Auto );
-	setVScrollBarMode( Auto );
-    } else {
-	if ( d->alignMode == East ) {
-	    setHScrollBarMode( AlwaysOff );
-	    setVScrollBarMode( Auto );
-	} else {
-	    setVScrollBarMode( AlwaysOff );
-	    setHScrollBarMode( Auto );
-	}		
-    }
+//     if ( d->resizeMode != Adjust ) {
+// 	setHScrollBarMode( Auto );
+// 	setVScrollBarMode( Auto );
+//     } else {
+// 	if ( d->alignMode == East ) {
+// 	    setHScrollBarMode( AlwaysOff );
+// 	    setVScrollBarMode( Auto );
+// 	} else {
+// 	    setVScrollBarMode( AlwaysOff );
+// 	    setHScrollBarMode( Auto );
+// 	}		
+//     }
 
     d->alignMode = am;
     resizeContents( viewport()->width(), viewport()->height() );
@@ -2201,18 +2205,18 @@ void QIconView::setResizeMode( ResizeMode rm )
 
     d->resizeMode = rm;
 
-    if ( d->resizeMode != Adjust ) {
-	setHScrollBarMode( Auto );
-	setVScrollBarMode( Auto );
-    } else {
-	if ( d->alignMode == East ) {
-	    setHScrollBarMode( AlwaysOff );
-	    setVScrollBarMode( Auto );
-	} else {
-	    setVScrollBarMode( AlwaysOff );
-	    setHScrollBarMode( Auto );
-	}		
-    }
+//     if ( d->resizeMode != Adjust ) {
+// 	setHScrollBarMode( Auto );
+// 	setVScrollBarMode( Auto );
+//     } else {
+// 	if ( d->alignMode == East ) {
+// 	    setHScrollBarMode( AlwaysOff );
+// 	    setVScrollBarMode( Auto );
+// 	} else {
+// 	    setVScrollBarMode( AlwaysOff );
+// 	    setHScrollBarMode( Auto );
+// 	}		
+//     }
 }
 
 /*!
@@ -3353,7 +3357,52 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    }
 	    y += h + d->spacing;
 	}
-    }
+
+       
+    } else { // -------------------------------- SOUTH ------------------------------
+	
+	int x = y;
+	
+	{
+	    int w = 0;
+	    int y = 0;
+	    QIconViewItem *item = begin;
+	    while ( TRUE ) {
+		y += d->spacing + item->height();
+		if ( y > visibleHeight() && item != begin ) {
+		    item = item->prev;
+		    break;
+		}
+		w = QMAX( w, item->width() );
+		QIconViewItem *old = item;
+		item = item->next;
+		if ( !item ) {
+		    item = old;
+		    break;
+		}
+	    }
+	    end = item;
+	
+	    if ( d->rastX != -1 )
+		w = QMAX( w, d->rastX );
+	
+	    // now move the items
+	    item = begin;
+	    while ( TRUE ) {
+		if ( item == begin )
+		    item->move( x + ( w - item->width() ) / 2, d->spacing );
+		else
+		    item->move( x + ( w - item->width() ) / 2,
+				item->prev->y() + item->prev->height() + d->spacing );
+		if ( item == end )
+		    break;
+		item = item->next;
+	    }
+	    x += w + d->spacing; 
+	}
+    
+	y = x;
+    }	
 
     return end;
 }
