@@ -343,6 +343,15 @@ QTime/QDate et al
    A customer (Uni-X) asked us to make the date and time values be stored platform and timezone 
    independently when streaming.  See support/arc-20/40239 for more.
 
+   Make QTimeEdit/QDateEdit handle locale dates/time formats better (e.g
+   it seems that only Windows currently supports the AM/PM field).
+  
+   Look into adding support for the Qt::LocalDate in the
+   QTime/QDate::toString( const QString &fmt) fu. In this particular
+   case the customer wanted the ability to eg. remove seconds from
+   the current locale format (support/arc-19/39851), without having to
+   parse the format himself.
+
 QKeyEvent::state()
    Allow to distinguish between left and right modifiers (leftshift, rightshift etc.)
 
