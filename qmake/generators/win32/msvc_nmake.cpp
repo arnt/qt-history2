@@ -173,7 +173,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    source_directories.insert(project->first("UI_SOURCES_DIR"), (void*)1);
 	else if(!project->isEmpty("UI_DIR"))
 	    source_directories.insert(project->first("UI_DIR"), (void*)1);
-	QString srcs[] = { QString("SOURCES"), QString("UICIMPLS"), QString::null };
+	QString srcs[] = { QString("SOURCES"), QString("UICIMPLS"), QString("SRCMOC"), QString::null };
 	for(int x = 0; !srcs[x].isNull(); x++) {
 	    QStringList &l = project->variables()[srcs[x]];
 	    for(QStringList::Iterator sit = l.begin(); sit != l.end(); ++sit) {
