@@ -5048,7 +5048,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     do not want to do if the user clicked onto the root decoration of
     an item).
 
-    \sa itemPos() itemRect()
+    \sa itemPos() itemRect() viewportToContents()
 */
 
 QListViewItem * QListView::itemAt( const QPoint & viewPos ) const
