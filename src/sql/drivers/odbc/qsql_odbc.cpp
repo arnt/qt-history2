@@ -978,7 +978,7 @@ bool QODBCResult::exec()
     QVector<QVariant>& values = boundValues();
     int i;
     for ( i = 0; i < values.count(); ++i ) {
-	QVariant val = values[i];
+	QVariant val(values[i]);
 	SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
 	tmpStorage.append( qAutoDeleter(ind) );
 	if ( val.isNull() )
