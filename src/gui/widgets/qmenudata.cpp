@@ -14,17 +14,34 @@
 
 #ifdef QT_COMPAT
 #include <qaction.h>
+#include <qsignal.h>
 #include <private/qaction_p.h>
 #define d d_func()
+
+class QMenuItemEmitter : public QObject
+{
+    Q_OBJECT
+    QMenuItem *menuitem;
+    QSignalEmitter *sig;
+public:
+    inline QMenuItemEmitter(QMenuItem *mi) : QObject(mi), menuitem(mi) {
+        sig = new QSignalEmitter("int");
+        QObject::connect(mi, SIGNAL(triggered()), this, SLOT(doSignalEmit()));
+    }
+    inline ~QMenuItemEmitter() { delete sig; }
+    inline QSignalEmitter *signal() const { return sig; }
+ private slots:
+    void doSignalEmit() {
+        int value = menuitem->signalValue();
+        sig->activate(&value);
+    }
+};
+#include "qmenudata.moc"
 
 QMenuItem::QMenuItem() : QAction((QWidget*)0)
 {
 }
  
-QMenuItem::~QMenuItem()
-{
-}
-
 void QMenuItem::setId(int id)
 {
     d->param = d->id = id;
@@ -33,6 +50,15 @@ void QMenuItem::setId(int id)
 int QMenuItem::id() const
 {
     return d->id;
+}
+
+QSignalEmitter *QMenuItem::signal() const
+{
+    if(!d->act_signal) {
+        QMenuItem *that = const_cast<QMenuItem*>(this);
+        that->d->act_signal = new QMenuItemEmitter(that);
+    }
+    return d->act_signal->signal();
 }
 
 void QMenuItem::setSignalValue(int param)

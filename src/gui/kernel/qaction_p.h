@@ -6,12 +6,23 @@
 #include "qaccel.h"
 #include "qmenu.h"
 
+#ifdef QT_COMPAT
+class QMenuItemEmitter;
+#endif
+
 class QActionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAction);
 public:
     QActionPrivate() : group(0), icons(0), accel(-1), enabled(1), forceDisabled(0),
-                       visible(1), forceInvisible(0), checkable(0), checked(0), separator(0) {}
+                       visible(1), forceInvisible(0), checkable(0), checked(0), separator(0) 
+    {
+#ifdef QT_COMPAT
+        static int qt_static_action_id = -1;
+        param = id = --qt_static_action_id;
+        act_signal = 0;
+#endif
+    }
     ~QActionPrivate() {
         delete icons;
         if(menu)
@@ -42,8 +53,9 @@ public:
     uint checked : 1;
     uint separator : 1;
 
-#ifdef QT_COMPAT
-    int id, param; //for menubar/menu compat
+#ifdef QT_COMPAT //for menubar/menu compat
+    QMenuItemEmitter *act_signal;
+    int id, param; 
 #endif
     void sendDataChanged();
 };
