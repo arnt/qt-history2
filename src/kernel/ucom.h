@@ -53,7 +53,7 @@ struct UCOM_EXPORT UUnknownInterface
 // {DE56511E-4E9F-4b76-A3C2-D1E2EF42F1AC} //### number is fake
 extern UCOM_EXPORT const UUid IID_UUnknown;
 // {DE56512E-4E9F-4b76-A3C2-D1E2EF42F1AC}//### number is fake
-extern UCOM_EXPORT const UUid IID_UDispach;
+extern UCOM_EXPORT const UUid IID_UDispatch;
 
 
 // the dispatch interface that inherits the unknown interface.. It is

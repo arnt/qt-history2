@@ -25,7 +25,7 @@ struct Q_EXPORT QUnknownInterface
 
 
 //####### WARNING: uuid is fake right now
-// {721F033C-D7D0-4462-BD67-1E8C8FA1C741} 
+// {721F033C-D7D0-4462-BD67-1E8C8FA1C741}
 #ifndef IID_QObjectInterface
 #define IID_QObjectInterface QUuid( 0x721f033c, 0xd7d0, 0x4462, 0xbd, 0x67, 0x1e, 0x8c, 0x8f, 0xa1, 0xc7, 0x41)
 #endif
@@ -122,6 +122,8 @@ public:
 #define Q_EXTERN_C    extern
 #endif
 #endif
+
+#define Q_REFCOUNT  ulong addRef() {return ++ref;}ulong release() {if(--ref){delete this;return 0;}return ref;}
 
 #ifndef Q_EXPORT_INTERFACE
     #ifdef Q_WS_WIN

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#248 $
+** $Id: //depot/qt/main/src/moc/moc.y#249 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -153,7 +153,7 @@ QCString uTypeExtra( QCString ctype )
 	if ( raw == "char" )
 	    ;
 	else
-	    typeExtra.sprintf( "\"%s\"", raw.data() );
+	    typeExtra.sprintf( "\"%s\"", raw.stripWhiteSpace().data() );
 	
     } else if ( isEnumType( ctype ) ) {
 	int idx = enumIndex( ctype );
@@ -2636,7 +2636,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#248 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#249 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
