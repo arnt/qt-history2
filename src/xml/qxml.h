@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#28 $
+** $Id: //depot/qt/main/src/xml/qxml.h#29 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -158,14 +158,20 @@ public:
     virtual ~QXmlInputSource();
 
     virtual QString data() const;
-    virtual QString data( const QString& encoding ) const;
     virtual void setData( const QString& d );
 
 private:
     void init();
+    void getData() const;
+    QString inputToString() const;
+
+    QIODevice *inputDevice;
+    QTextStream *inputStream;
 
     QString *stringData;
     QByteArray *rawData;
+    QBuffer *encBuffer;
+    QTextStream *encStream;
 
     QXmlInputSourcePrivate *d;
 };

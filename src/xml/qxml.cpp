@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#55 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#56 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -848,9 +848,27 @@ QString QXmlAttributes::value( const QString& uri, const QString& localName ) co
 
   \module XML
 
-  All subclasses of QXmlReader read the input from this class.
+  All subclasses of QXmlReader read the input XML document from this class.
 
-  \sa QXmlReader
+  On construction, this class reads all data that is available on the source.
+  The first call of data() returns this data. Any other calls of data() try
+  to read more data from the source and returns only the new data.
+
+  You can also add data with setData(). Then the next call of data() returns
+  this data. Any other calls try to read more data from the source. So
+  setData() has a higher priority than the polling behavior.
+
+  Usually you either construct a QXmlInputSource that works on a QIODevice* or
+  you construct an empty QXmlInputSource and set the data with setData(). There
+  are only rare occasions where you want to mix both methods.
+
+  This class recognizes the encoding of the data: it tries to read the encoding
+  declaration of the XML file and if it finds it, it reads the data in the
+  corresponding encoding. If it does not find an encoding declaration, then it
+  assumes that the data is either in UTF-8 or UTF-16, depending if it can find
+  a byte-order mark.
+
+  \sa QXmlReader QXmlSimpleReader
 */
 
 /*!
@@ -858,8 +876,12 @@ QString QXmlAttributes::value( const QString& uri, const QString& localName ) co
 */
 void QXmlInputSource::init()
 {
+    inputDevice = 0;
+    inputStream = 0;
+
     stringData = 0;
     rawData = 0;
+    encStream = 0;
 }
 
 /*!
@@ -882,9 +904,8 @@ QXmlInputSource::QXmlInputSource()
 QXmlInputSource::QXmlInputSource( QIODevice *dev )
 {
     init();
-    rawData = new QByteArray;
-    if ( dev && ( dev->isOpen() || dev->open( IO_ReadOnly ) ) )
-	*rawData = dev->readAll();
+    inputDevice = dev;
+    getData();
 }
 
 /*! \obsolete
@@ -893,18 +914,8 @@ QXmlInputSource::QXmlInputSource( QIODevice *dev )
 QXmlInputSource::QXmlInputSource( QTextStream& stream )
 {
     init();
-    rawData = new QByteArray;
-    if ( stream.device()->isDirectAccess() ) {
-	*rawData = stream.device()->readAll();
-    } else {
-	int nread = 0;
-	const int bufsize = 512;
-	while ( !stream.device()->atEnd() ) {
-	    rawData->resize( nread + bufsize );
-	    nread += stream.device()->readBlock( rawData->data()+nread, bufsize );
-	}
-	rawData->resize( nread );
-    }
+    inputStream = &stream;
+    getData();
 }
 
 /*! \obsolete
@@ -914,12 +925,8 @@ QXmlInputSource::QXmlInputSource( QTextStream& stream )
 QXmlInputSource::QXmlInputSource( QFile& file )
 {
     init();
-    if ( !file.open(IO_ReadOnly) ) {
-	return;
-    }
-    rawData = new QByteArray;
-    *rawData = file.readAll();
-    file.close();
+    inputDevice = &file;
+    getData();
 }
 
 /*!
@@ -929,54 +936,41 @@ QXmlInputSource::~QXmlInputSource()
 {
     delete stringData;
     delete rawData;
+    delete encBuffer;
+    delete encStream;
 }
 
 /*!
-  Returns all the data the input source contains or QString::null if the input
+  Returns the data the input source contains or QString::null if the input
   source does not contain any data.
 
-  If the data of the input source comes from a QString, this function simply
-  returns that string. Otherwise, it tries to find a byte-order mark. If this
-  is successful, it returns the string that comes from UTF-16, otherwise it
-  returns the sring that comes from UTF-8.
+  On construction, this class reads all data that is available on the source.
+  You can also set data with setData().
+
+  If the class was able to read data on construction, the first call of this
+  function returns it. Otherwise the first call of this function returns the
+  data that was set with setData() or QString::null, if no data is set.
+
+  Any other calls of data() return either the data that was set with setData()
+  or try to read more data from the source and return it. This function never
+  returns data that was returned by a previous call.
+
+  This class tries to find out the correct encoding for the raw data.
 
   \sa setData() QXmlInputSource()
 */
 QString QXmlInputSource::data() const
 {
-    if ( rawData != 0 ) {
-	QBuffer buf( *rawData );
-	buf.open( IO_ReadOnly );
-	QTextStream ts( &buf );
-	ts.setEncoding( QTextStream::UnicodeUTF8 );
-	return ts.read();
-    } else if ( stringData != 0 ) {
-	return *stringData;
-    }
-    return QString::null;
-}
-
-/*! \overload
-
-  If the data of the input source comes from a QString, this function simply
-  returns that string. Otherwise, it looks up the best codec for the name \a
-  encoding and returns the string that comes from this codec.
-
-  The string \a encoding is usally the encoding declaration in the XML as the
-  parser reads it.
-
-  \sa QTextCodec::codecForName()
-*/
-QString QXmlInputSource::data( const QString& encoding ) const
-{
-    if ( rawData != 0 ) {
-	QBuffer buf( *rawData );
-	buf.open( IO_ReadOnly );
-	QTextStream ts( &buf );
-	ts.setCodec( QTextCodec::codecForName( encoding ) );
-	return ts.read();
-    } else if ( stringData != 0 ) {
-	return *stringData;
+    if ( rawData!=0  && encStream==0 ) {
+	return inputToString();
+    } else {
+	if ( stringData!=0 ) {
+	    return *stringData;
+	} else {
+	    getData();
+	    if ( rawData->size() > 0 )
+		return inputToString();
+	}
     }
     return QString::null;
 }
@@ -984,17 +978,109 @@ QString QXmlInputSource::data( const QString& encoding ) const
 /*!
   Sets the data of the input source to \a dat.
 
-  If the input source already contains data (e.g. from a previous call of
-  setData() or through one of the constructors), this function deletes that
-  data first.
+  If the input source already contains data from a previous call of setData()
+  this function deletes that data first.
 
   \sa data()
 */
 void QXmlInputSource::setData( const QString& dat )
 {
     delete stringData;
-    delete rawData;
     stringData = new QString( dat );
+}
+
+/*!
+  This private function reads the data from inputDevice (if it is not 0) or
+  from inputStream (if it is not 0) and stores it in rawData. If rawData is 0,
+  it allocates a new QByteArray, otherwise it replaces the new data.
+*/
+void QXmlInputSource::getData() const
+{
+    if ( rawData == 0 ) {
+	QXmlInputSource *that = (QXmlInputSource*)this;
+	that->rawData = new QByteArray;
+    }
+
+    if ( inputDevice != 0 ) {
+	if ( inputDevice->isOpen() || inputDevice->open( IO_ReadOnly )  )
+	    *rawData = inputDevice->readAll();
+    } else if ( inputStream != 0 ) {
+	if ( inputStream->device()->isDirectAccess() ) {
+	    *rawData = inputStream->device()->readAll();
+	} else {
+	    int nread = 0;
+	    const int bufsize = 512;
+	    while ( !inputStream->device()->atEnd() ) {
+		rawData->resize( nread + bufsize );
+		nread += inputStream->device()->readBlock( rawData->data()+nread, bufsize );
+	    }
+	    rawData->resize( nread );
+	}
+    }
+}
+
+/*!
+  This private function reads the XML file from rawData and tries to
+  recoginize the encoding.
+*/
+QString QXmlInputSource::inputToString() const
+{
+    if ( encStream == 0 ) {
+	QString input;
+	QChar tmp;
+
+	QXmlInputSource *that = (QXmlInputSource*)this;
+	that->encBuffer = new QBuffer( *rawData );
+	that->encBuffer->open( IO_ReadOnly );
+	that->encStream = new QTextStream( encBuffer );
+	// assume UTF8 or UTF16 at first
+	encStream->setEncoding( QTextStream::UnicodeUTF8 );
+	// read the first 5 characters
+	for ( int i=0; i<5; i++ ) {
+	    *encStream >> tmp;
+	    input += tmp;
+	    // ### unexpected EOF?
+	}
+	// starts the document with an XML declaration?
+	if ( input == "<?xml" ) {
+	    // read the whole XML declaration
+	    do {
+		*encStream >> tmp;
+		input += tmp;
+		// ### unexpected EOF?
+	    } while( tmp != '>' );
+	    // and try to find out if there is an encoding
+	    int pos = input.find( "encoding" );
+	    if ( pos != -1 ) {
+		QString encoding;
+		do {
+		    pos++;
+		    if ( pos > (int)input.length() ) {
+			input += encStream->read();
+			return input;
+		    }
+		} while( input[pos] != '"' && input[pos] != '\'' );
+		pos++;
+		while( input[pos] != '"' && input[pos] != '\'' ) {
+		    encoding += input[pos];
+		    pos++;
+		    if ( pos > (int)input.length() ) {
+			input += encStream->read();
+			return input;
+		    }
+		}
+
+		delete encStream;
+		that->encStream = new QTextStream( encBuffer );
+		encStream->setCodec( QTextCodec::codecForName( encoding ) );
+		encBuffer->reset();
+		return encStream->read();
+	    }
+	}
+	input += encStream->read();
+	return input;
+    }
+    return encStream->read();
 }
 
 
@@ -3493,7 +3579,6 @@ bool QXmlSimpleReader::parsePI()
 		    }
 		} else if ( name() == "encoding" ) {
 		    d->encoding = string();
-		    xml = inputSource->data( d->encoding );
 		    xmlLength = xml.length();
 		} else {
 		    reportParseError( XMLERR_EDECLORSDDECLEXPECTED );
@@ -6309,10 +6394,7 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
 void QXmlSimpleReader::initData( const QXmlInputSource& i )
 {
     inputSource = &i;
-    if ( d->encoding.isEmpty() )
-	xml = i.data();
-    else
-	xml = i.data( d->encoding );
+    xml = i.data();
     xmlLength = xml.length();
     xmlRef = "";
 

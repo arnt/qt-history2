@@ -75,6 +75,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 
     QXmlSimpleReader parser;
     QXmlInputSource source( &file );
+    QString sourceData = source.data();
 
     parser.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
     parser.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
@@ -87,6 +88,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	QTime t;
 	t.start();
 	for ( int i=0; i<10; i++ ) {
+	    source.setData( sourceData );
 	    parser.parse( source );
 	}
 	double ms = ((double)t.elapsed()) / 10;
@@ -98,7 +100,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 
     QTextView* src = new QTextView();
     src->setTextFormat( PlainText );
-    src->setText( source.data() );
+    src->setText( sourceData );
     src->setCaption( "Source for " + filename );
 
     QListView* protocol = new QListView;
@@ -135,6 +137,7 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 
     QString errorStatus;
     if ( incrementalSteps.isNull() ) {
+	source.setData( sourceData );
 	if ( parser.parse( source ) ) {
 	    errorStatus = "Ok";
 	} else {
