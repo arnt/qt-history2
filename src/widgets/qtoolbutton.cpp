@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#139 $
 **
 ** Implementation of QToolButton class
 **
@@ -265,49 +265,41 @@ QSize QToolButton::sizeHint() const
 {
     constPolish();
 
-    int w = 0;
-    int h = 0;
+    int w = 0, h = 0;
 
-    // see also QToolButton::drawButtonLabel()
     if ( iconSet().isNull() && !text().isNull() && !usesTextLabel() ) {
-	w = fontMetrics().width( text() );
-	h = fontMetrics().height(); // boundingRect()?
+     	w = fontMetrics().width( text() );
+     	h = fontMetrics().height(); // boundingRect()?
     } else if ( usesBigPixmap() ) {
-	QPixmap pm = iconSet().pixmap( QIconSet::Large, QIconSet::Normal );
-	w = pm.width();
-	h = pm.height();
-	if ( w < 32 )
-	    w = 32;
-	if ( h < 32 )
-	    h = 32;
+     	QPixmap pm = iconSet().pixmap( QIconSet::Large, QIconSet::Normal );
+     	w = pm.width();
+     	h = pm.height();
+     	if ( w < 32 )
+     	    w = 32;
+     	if ( h < 32 )
+     	    h = 32;
     } else {
-	w = h = 16;
-	QPixmap pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
-	w = pm.width();
-	h = pm.height();
-#ifndef Q_WS_QWS // shouldn't be on any platform...
+     	QPixmap pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
+     	w = pm.width();
+     	h = pm.height();
 	if ( w < 16 )
 	    w = 16;
 	if ( h < 16 )
 	    h = 16;
-#endif
     }
 
     if ( usesTextLabel() ) {
-	h += 4 + fontMetrics().height();
-	int tw = fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
-	if ( tw > w )
-	    w = tw;
+     	h += 4 + fontMetrics().height();
+     	int tw = fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
+     	if ( tw > w )
+     	    w = tw;
     }
 
-    if ( d->popup && !d->delay )
-	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+    if ( popup() && ! popupDelay() )
+     	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 
-#ifdef Q_WS_QWS // ###### should be style option
-    return QSize( w + 4, h + 2 ).expandedTo( QApplication::globalStrut() );
-#else
-    return QSize( w + 7, h + 6 ).expandedTo( QApplication::globalStrut() );
-#endif
+    return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 /*!
@@ -395,110 +387,29 @@ void QToolButton::toggle()
  */
 void QToolButton::drawButton( QPainter * p )
 {
-    int x = 0;
-    int y = 0;
-    int w = width();
-    int h = height();
-    int miw = style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
-    if ( d->popup && !d->delay )
-	w -= miw;
+    QStyle::SCFlags controls = QStyle::SC_ToolButton;
+    QStyle::SCFlags active = QStyle::SC_None;
 
-    const QColorGroup &g = colorGroup();
+    bool drawraised = (uses3D() || isOnAndNoOnPixmap());
+    bool drawarrow = hasArrow;
+    void *data[3];
+    data[0] = (void *) &drawraised;
+    data[1] = (void *) &drawarrow;
+    data[2] = (void *) &d->arrow;
 
-    if ( uses3D() || isDown() || isOnAndNoOnPixmap() ) {
-        style().drawToolButton( p, x, y, w, h, g, isOn(), isDown(), isEnabled(),
-				autoRaise() );
-    } else if ( parentWidget() && parentWidget()->backgroundPixmap() &&
-              !parentWidget()->backgroundPixmap()->isNull() ) {
-        p->drawTiledPixmap( 0, 0, width(), height(),
-                            *parentWidget()->backgroundPixmap(),
-                            this->x(), this->y() );
-    }
-    drawButtonLabel( p );
+    if (isDown() || isOn())
+	active |= QStyle::SC_ToolButton;
 
-    if ( d->popup && !d->delay ) {
-	if ( uses3D() )
-	    style().drawDropDownButton( p, w, y, miw, h, g,
-					d->instantPopup || isDown() || isOn(),
-					isEnabled(), autoRaise() );
-	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(),
-			   w + 2, y + 4, miw - 4, h - 8, g, isEnabled() );
+    if (d->popup && !d->delay) {
+	controls |= QStyle::SC_ToolButtonMenu;
+	if (d->instantPopup || isDown() || isOn())
+	    active |= QStyle::SC_ToolButtonMenu;
     }
 
-    if ( hasFocus() && !focusProxy() ) {
-	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( 3, 3, width() - 6, height() - 6,
-				 colorGroup().background() );
-	} else {
-	    p->setPen( black );
-	    p->drawRect( 3, 3, width()-6, height()-6 );
-	}
-    }
-}
-
-
-/*!\reimp
- */
-void QToolButton::drawButtonLabel( QPainter * p )
-{
-    int sx = 0;
-    int sy = 0;
-    int x, y, w, h;
-    if ( d->popup && !d->delay )
-	style().
-	    toolButtonRect( 0, 0, width() -
-			    style().pixelMetric(QStyle::PM_MenuButtonIndicator, this),
-			    height() )
-	    .rect( &x, &y, &w, &h );
-    else
-	style().toolButtonRect( 0, 0, width(), height() )
-	    .rect( &x, &y, &w, &h );
-    if ( isDown() || isOnAndNoOnPixmap() ) {
-	x += style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
-	y += style().pixelMetric(QStyle::PM_ButtonShiftVertical, this);
-    }
-    if ( hasArrow ) {
-	style().drawArrow( p, d->arrow, isDown(), x, y, w, h, colorGroup(),
-			   isEnabled() );
-	return;
-    }
-
-    QColor btnText = colorGroup().buttonText();
-
-    // see also QToolButton::sizeHint()
-    if ( iconSet().isNull() && !text().isNull() && !usesTextLabel() ) {
-	style().drawItem( p, x, y, w, h,
-			  AlignCenter + ShowPrefix,
-			  colorGroup(), isEnabled(),
-			  0, text(), text().length(), &btnText );
-    } else {
-	QPixmap pm;
-	QIconSet::Size size = usesBigPixmap() ? QIconSet::Large
-			      : QIconSet::Small;
-	QIconSet::State state = isOn() ? QIconSet::On : QIconSet::Off;
-	QIconSet::Mode mode;
-	if ( !isEnabled() )
-	    mode = QIconSet::Disabled;
-	else if ( uses3D() )
-	    mode = QIconSet::Active;
-	else
-	    mode = QIconSet::Normal;
-	pm = iconSet().pixmap( size, mode, state );
-
-	if ( usesTextLabel() ) {
-	    int fh = fontMetrics().height();
-	    style().drawItem( p, x, y, w, h - fh,
-			      AlignCenter, colorGroup(), TRUE, &pm, QString::null );
-	    p->setFont( font() );
-	    style().drawItem( p, x, h - fh, w, fh,
-			      AlignCenter + ShowPrefix,
-			      colorGroup(), isEnabled(),
-			      0, textLabel(), textLabel().length(), &btnText );
- 	} else {
-	    style().drawItem( p, x, y, w, h,
-			      AlignCenter, colorGroup(), TRUE, &pm, QString::null );
-	}
-    }
+    style().drawComplexControl(QStyle::CC_ToolButton,
+			       p, this, rect(), colorGroup(),
+			       QStyle::CStyle_Default,
+			       controls, active, data);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#53 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#54 $
 **
 ** Definition of QToolButton class
 **
@@ -115,7 +115,6 @@ public slots:
 protected:
     void mousePressEvent( QMouseEvent * );
     void drawButton( QPainter * );
-    void drawButtonLabel( QPainter * );
 
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );

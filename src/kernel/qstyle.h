@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#105 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#106 $
 **
 ** Definition of QStyle class
 **
@@ -100,6 +100,7 @@ public:
 	PO_ButtonCommand,
 	PO_ButtonBevel,
 	PO_ButtonTool,
+	PO_ButtonDropDown,
 
 	PO_FocusRect,
 
@@ -117,7 +118,7 @@ public:
 	PO_IndicatorMask,
 	PO_ExclusiveIndicator,
 	PO_ExclusiveIndicatorMask
-       
+
 	/*
 	  PO_Panel,
 	  PO_PanelPopup,
@@ -168,10 +169,10 @@ public:
 	CE_RadioButton,
 	CE_RadioButtonLabel,
 	CE_RadioButtonMask,
-	
+
 	CE_ToolBarSeparator,
 	CE_ToolBarHandle,
-	CE_ToolBarPanel
+	CE_ToolBarPanel,
 
 	/*
 	  CE_Tab,
@@ -210,19 +211,15 @@ public:
 	SR_RadioButtonFocusRect,
 
 	SR_ComboBoxFocusRect,
-	
+
 	SR_SliderFocusRect,
-	
-	SR_ToolBarHandleRect
-	
+
+	SR_ToolBarHandleRect,
+
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
 	  SR_MenuFrameContents,
-
-	  SR_ButtonContents,
-	  SR_BevelButtonContents
-	  SR_ToolButtonContents,
 	*/
     };
 
@@ -233,7 +230,8 @@ public:
 	CC_SpinWidget,
 	CC_ComboBox,
 	CC_ScrollBar,
-	CC_Slider
+	CC_Slider,
+	CC_ToolButton
 
 	/*
 	  CC_MenuItem,
@@ -258,12 +256,16 @@ public:
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
-	SC_ComboBoxEditField =		0x00000020,
-	SC_ComboBoxArrow =		0x00000021,
+	SC_ComboBoxEditField =		0x00000021,
+	SC_ComboBoxArrow =		0x00000022,
 
-	SC_SliderGroove =		0x00000030,
-	SC_SliderHandle = 		0x00000031,
-	SC_SliderTickmarks = 		0x00000032
+	SC_SliderGroove =		0x00000031,
+	SC_SliderHandle = 		0x00000032,
+	SC_SliderTickmarks = 		0x00000034,
+
+	SC_ToolButton =			0x00000001,
+	SC_ToolButtonMenu =		0x00000002
+
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -313,10 +315,10 @@ public:
 	PM_SliderLength,
 	PM_SliderMaximumDragDistance,
 	PM_SliderTickmarkOffset,
-	
+
 	PM_ToolBarSeparatorExtent,
 	PM_ToolBarHandleExtent
-	
+
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
@@ -348,7 +350,8 @@ public:
     enum ContentsType {
 	CT_PushButton,
 	CT_CheckBox,
-	CT_RadioButton
+	CT_RadioButton,
+	CT_ToolButton
     };
 
     virtual QSize sizeFromContents( ContentsType contents,

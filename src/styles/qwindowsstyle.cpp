@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#60 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#61 $
 **
 ** Implementation of Windows-like style class
 **
@@ -310,7 +310,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 
 	    p->save();
 	    if ( flags & PStyle_Sunken )
-		p->translate( pixelMetric( PM_ButtonShiftHorizontal, 0 ),
+		p->translate( pixelMetric( PM_ButtonShiftHorizontal ),
 			      pixelMetric( PM_ButtonShiftVertical ) );
 
 	    if ( flags & PStyle_Enabled ) {
@@ -355,7 +355,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	PFlags flags = PStyle_Default;
 	if (button->isEnabled())
 	    flags |= PStyle_Enabled;
-	if (button->isDown())
+	if (button->isDown() || button->isOn())
 	    flags |= PStyle_Sunken;
 
 	if (button->isDefault() || button->autoDefault()) {
@@ -432,7 +432,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    thick += (space * 2) / (n + 2);
 	ret = thick;
 	break; }
-    
+
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -1753,10 +1753,10 @@ QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
 /*
   I really need this and I don't want to expose it in QRangeControl..
 */
-static int qPositionFromValue( QRangeControl * rc, int logical_val, 
+static int qPositionFromValue( QRangeControl * rc, int logical_val,
 			       int span )
 {
-    if ( span <= 0 || logical_val < rc->minValue() || 
+    if ( span <= 0 || logical_val < rc->minValue() ||
 	 rc->maxValue() <= rc->minValue() )
 	return 0;
     if ( logical_val > rc->maxValue() )
@@ -1779,7 +1779,7 @@ static int qPositionFromValue( QRangeControl * rc, int logical_val,
     }
     //equiv. to (p*span)/range + 0.5
     // no overflow because of this implicit assumption:
-    // span <= 4096   
+    // span <= 4096
 }
 
 void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
@@ -1803,7 +1803,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
 	addline = querySubControlMetrics(ctrl, w, SC_ScrollBarAddLine, data);
 	subpage = querySubControlMetrics(ctrl, w, SC_ScrollBarSubPage, data);
 	addpage = querySubControlMetrics(ctrl, w, SC_ScrollBarAddPage, data);
-	slider  = querySubControlMetrics(ctrl, w, SC_ScrollBarSlider, data);
+	slider  = querySubControlMetrics(ctrl, w, SC_ScrollBarSlider,  data);
 
 	if (sub & SC_ScrollBarSubLine) {
 	    drawPrimitive(PO_ButtonBevel, p, subline, cg,
@@ -2018,7 +2018,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 
     case SC_SliderGroove: {
 	QSlider * sl = (QSlider *) w;
-	
+
 	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	int thickness = pixelMetric( PM_SliderControlThickness, sl );
 	int mid   = thickness / 2;
@@ -2037,12 +2037,12 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    wi = thickness;
 	    he = sl->height();
 	}
-	
+
 	if ( ticks & QSlider::Above )
 	    mid += len / 8;
 	if ( ticks & QSlider::Below )
 	    mid -= len / 8;
-	
+
 	p->setPen( cg.shadow() );
 	if ( sl->orientation() == Horizontal ) {
 	    qDrawWinPanel( p, x, y + mid - 2,  wi, 4, cg, TRUE );
@@ -2262,7 +2262,7 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	}
 
 	break; }
-    
+
     case SC_SliderTickmarks: {
 	QSlider * sl = (QSlider *) w;
 	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
@@ -2271,19 +2271,19 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	int len = pixelMetric( PM_SliderLength, sl );
 	int available;
 	int interval = sl->tickInterval();
-	
+
 	if ( sl->orientation() == Horizontal )
 	    available = sl->width() - len;
 	else
 	    available = sl->height() - len;
-	
+
 	if ( interval <= 0 ) {
 	    interval = sl->lineStep();
-	    if ( qPositionFromValue( sl, interval, available ) - 
+	    if ( qPositionFromValue( sl, interval, available ) -
 		 qPositionFromValue( sl, 0, available ) < 3 )
 		interval = sl->pageStep();
 	}
-	
+
 	int fudge = len / 2 + 1;
 	int pos;
 
@@ -2299,9 +2299,9 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		else
 		    p->drawLine( 0, pos, tickOffset-2, pos );
 		v += interval;
-	    }  
+	    }
 	}
-	
+
 	if ( ticks & QSlider::Below ) {
 	    int avail = (sl->orientation() == Horizontal) ? sl->height() :
 		        sl->width();
@@ -2313,18 +2313,18 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    while ( v <= sl->maxValue() + 1 ) {
 		pos = qPositionFromValue( sl, v, available ) + fudge;
 		if ( sl->orientation() == Horizontal )
-		    p->drawLine( pos, tickOffset+thickness+1, pos, 
+		    p->drawLine( pos, tickOffset+thickness+1, pos,
 				 tickOffset+thickness+1 + available-2 );
 		else
-		    p->drawLine( tickOffset+thickness+1, pos, 
+		    p->drawLine( tickOffset+thickness+1, pos,
 				 tickOffset+thickness+1 + available-2, pos );
 		v += interval;
-	    }  
-	    
+	    }
+
 	}
-	
+
 	break; }
-        
+
     default:
 	break;
     }
