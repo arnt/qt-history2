@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#155 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1297,7 +1297,9 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !mouseBtDn && !parentMenu && actItem < 0 )
+    const int marg=3; // allow for jerky click
+    if ( !mouseBtDn && !parentMenu && actItem < 0
+      && QRect(-marg,-marg,width()+2*marg,height()+2*marg).contains( e->pos() ) )
 	return;
 
     mouseBtDn = FALSE;
