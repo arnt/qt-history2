@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#26 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#25 $")
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Compares two collection/list items.
+  Compares two list items.
 
   Returns:
   <ul>
@@ -85,6 +85,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#25 $")
         return item1 != item2;			// compare pointers
     }
   \endcode
+
+ This function should not modify the list because some const functions
+ call compareItems().
  ----------------------------------------------------------------------------*/
 
 int QGList::compareItems( GCI item1, GCI item2 )
@@ -702,8 +705,9 @@ uint QGList::contains( GCI d ) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
+    QGList  *that = (QGList*)this;		// mutable for compareItems()
     while ( n ) {				// for all nodes...
-	if ( !compareItems(n->getData(),d) )	// count # equal matches
+	if ( !that->compareItems(n->getData(),d) ) // count # equal matches
 	    count++;
 	n = n->next;
     }
