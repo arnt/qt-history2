@@ -1347,8 +1347,13 @@ QStringList QCoreApplication::libraryPaths()
 	return QStringList();
     if ( !self->d->app_libpaths ) {
 	QStringList *app_libpaths = self->d->app_libpaths = new QStringList;
-	if ( QFile::exists( qInstallPathPlugins() ) )
-	    app_libpaths->append( qInstallPathPlugins() );
+	QString installPathPlugins = QString::fromLocal8Bit(qInstallPathPlugins());
+	if ( QFile::exists(installPathPlugins) ) {
+#ifdef Q_WS_WIN
+	    installPathPlugins.replace('\\', '/');
+#endif
+	    app_libpaths->append(installPathPlugins);
+	}
 
 	QString app_location = self ? self->applicationDirPath()
 #ifdef Q_WS_WIN
