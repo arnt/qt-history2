@@ -1821,10 +1821,12 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Bottom 
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
-                    p->drawLine(x1 + 2, y2, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2);
-                    p->drawPoint(x1 + 1, y2 - 1);
+                    p->drawLine(x1 + 3, y2, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2);
+                    p->drawPoint(x1 + 2, y2 - 1);
                     p->setPen(dark);
-                    p->drawLine(x1 + 2, y2 - 1, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
+                    p->drawLine(x1 + 3, y2 - 1, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
+                    p->drawPoint(x1 + 1, y2 - 1);
+                    p->drawPoint(x1 + 2, y2);
                 }
                 break; }
             case QTabBar::RoundedEast: {
@@ -1845,7 +1847,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->drawLine(x2 - 2, y1, x1 + (firstTab && selected && leftAligned ? 0 : borderThinkness), y1);
                     p->drawPoint(x2 - 1, y1 + 1);
                     p->setPen(midlight);
-                    p->drawLine(x2 - 2, y1 + 1, x1 + (firstTab && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                    p->drawLine(x2 - 3, y1 + 1, x1 + (firstTab && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                    p->drawPoint(x2 - 1, y1);
                 }
                 // Right
                 {
