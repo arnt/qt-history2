@@ -5,7 +5,7 @@
 class QActionPrivate;
 class QActionGroupPrivate;
 
-class QAction : public QObject
+class Q_EXPORT QAction : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( bool toggleAction READ isToggleAction WRITE setToggleAction)
@@ -65,7 +65,7 @@ private:
 
 };
 
-class QActionGroup : public QAction
+class Q_EXPORT QActionGroup : public QAction
 {
     Q_OBJECT
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
