@@ -183,7 +183,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator Node *() const { return reinterpret_cast<Node *>(i); }
+	inline operator Node *() const { return concrete(i); }
         inline Iterator() : i(0) { }
 	explicit inline Iterator(void *node) : i(reinterpret_cast<QHashData::Node *>(node)) { }
 
@@ -229,7 +229,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator Node *() const { return reinterpret_cast<Node*>(i); }
+	inline operator Node *() const { return concrete(i); }
         inline ConstIterator() : i(0) { }
 	explicit inline ConstIterator(void *node)
 	    : i(reinterpret_cast<QHashData::Node *>(node)) { }
@@ -414,6 +414,30 @@ Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key, const T &defaultV
     } else {
 	return node->value;
     }
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QList<Key> QHash<Key, T>::keys() const
+{
+    QList<Key> res;
+    ConstIterator i = begin();
+    while (i != end()) {
+	res.append(i.key());
+        ++i;
+    }
+    return res;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QList<T> QHash<Key, T>::values() const
+{
+    QList<T> res;
+    ConstIterator i = begin();
+    while (i != end()) {
+	res.append(i.value());
+        ++i;
+    }
+    return res;
 }
 
 template <class Key, class T>
