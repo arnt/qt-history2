@@ -24,6 +24,7 @@
 #include <qtoolbutton.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qtooltip.h>
 
 #include "../dirview/dirview.h"
 #include "qdir.h"
@@ -197,7 +198,8 @@ CustomFileDialog::CustomFileDialog()
 
     QPushButton *p = new QPushButton( this );
     p->setPixmap( QPixmap( bookmarks ) );
-
+    QToolTip::add( p, tr( "Bookmarks" ) );
+    
     bookmarkMenu = new QPopupMenu( this );
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
 	     this, SLOT( bookmarkChosen( int ) ) );
@@ -226,6 +228,7 @@ CustomFileDialog::CustomFileDialog()
 	     dirView, SLOT( setDir( const QString & ) ) );
 
     QToolButton *b = new QToolButton( this );
+    QToolTip::add( b, tr( "Go Home!" ) );
     b->setPixmap( QPixmap( home ) );
     connect( b, SIGNAL( clicked() ),
 	     this, SLOT( goHome() ) );
