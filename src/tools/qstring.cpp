@@ -3273,23 +3273,21 @@ QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
 QString QString::lower() const
 {
     int l = length();
-    if ( l ) {
-	register QChar *p = d->unicode;
-	while ( l ) {
-	    if ( *p != ::lower(*p) ) {
-		QString s( *this );
-		s.real_detach();
-		p = s.d->unicode + ( p - d->unicode );
-		while ( l ) {
-		    *p = ::lower( *p );
-		    l--;
-		    p++;
-		}
-		return s;
+    register QChar *p = d->unicode;
+    while ( l ) {
+	if ( *p != ::lower(*p) ) {
+	    QString s( *this );
+	    s.real_detach();
+	    p = s.d->unicode + ( p - d->unicode );
+	    while ( l ) {
+		*p = ::lower( *p );
+		l--;
+		p++;
 	    }
-	    l--;
-	    p++;
+	    return s;
 	}
+	l--;
+	p++;
     }
     return *this;
 }
@@ -3308,23 +3306,21 @@ QString QString::lower() const
 QString QString::upper() const
 {
     int l = length();
-    if ( l ) {
-	register QChar *p = d->unicode;
-	while ( l ) {
-	    if ( *p != ::upper(*p) ) {
-		QString s( *this );
-		s.real_detach();
-		p = s.d->unicode + ( p - d->unicode );
-		while ( l ) {
-		    *p = ::upper( *p );
-		    l--;
-		    p++;
-		}
-		return s;
+    register QChar *p = d->unicode;
+    while ( l ) {
+	if ( *p != ::upper(*p) ) {
+	    QString s( *this );
+	    s.real_detach();
+	    p = s.d->unicode + ( p - d->unicode );
+	    while ( l ) {
+		*p = ::upper( *p );
+		l--;
+		p++;
 	    }
-	    l--;
-	    p++;
+	    return s;
 	}
+	l--;
+	p++;
     }
     return *this;
 }
