@@ -1965,8 +1965,9 @@ void QTextEdit::setReadOnly(bool ro)
 
 /*!
     If the editor has a selection then the properties of \a modifier are
-    applied to the selection. In addition they are merged into the current
-    char format.
+    applied to the selection. Without a selection the properties are applied
+    to the word under the cursor. In addition they are always merged into 
+    the current char format.
 
     \sa QTextCursor::mergeCharFormat
  */
@@ -1975,8 +1976,13 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
     if (d->readOnly)
         return;
 
-    if (d->cursor.hasSelection())
+    if (d->cursor.hasSelection()) {
 	d->cursor.mergeCharFormat(modifier);
+    } else {
+        QTextCursor word = d->cursor;
+        word.select(QTextCursor::WordUnderCursor);
+        word.mergeCharFormat(modifier);
+    }
 
     d->currentCharFormat.merge(modifier);
 }
