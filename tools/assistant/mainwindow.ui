@@ -41,7 +41,7 @@
             <x>0</x>
             <y>0</y>
             <width>764</width>
-            <height>627</height>
+            <height>625</height>
         </rect>
     </property>
     <property name="caption">
@@ -81,8 +81,6 @@
     <item text="&amp;Help" name="helpMenu">
         <action name="actionAbout"/>
         <action name="actionAboutQt"/>
-    </item>
-    <item text="Menu" name="PopupMenu_2">
     </item>
 </menubar>
 <toolbars>
