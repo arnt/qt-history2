@@ -848,18 +848,19 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 
 //qDebug("Find %d,%d...%s",x,y,known_to_be_outside?" (outside)":"");
     bool search=FALSE;
+    const QRect *cursorRect = &cliprect[clipcursor];
 
 //search=TRUE;
     if ( !known_to_be_outside ) {
-	if ( cliprect[clipcursor].contains(x,y) ) {
+	if ( cursorRect->contains(x,y) ) {
 	    if ( cr )
-		*cr = cliprect[clipcursor];
+		*cr = *cursorRect;
 
 //  qDebug("found %d,%d at +0 in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
 	    return TRUE;
 	}
 	if ( clipcursor > 0 ) {
-	    if ( cliprect[clipcursor-1].contains(x,y) ) {
+	    if ( (cursorRect-1)->contains(x,y) ) {
 		if ( cr )
 		    *cr = cliprect[--clipcursor];
 
@@ -867,7 +868,7 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 		return TRUE;
 	    }
 	} else if ( clipcursor < (int)ncliprect-1 ) {
-	    if ( cliprect[clipcursor+1].contains(x,y) ) {
+	    if ( (cursorRect+1)->contains(x,y) ) {
 		if ( cr )
 		    *cr = cliprect[++clipcursor];
 
@@ -881,28 +882,29 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
     // Optimize case where (x,y) is in the same band as the clipcursor,
     // and to its right.  eg. left-to-right, same-scanline cases.
     //
-    if ( cliprect[clipcursor].right() < x
-	&& cliprect[clipcursor].top() <= y
-	&& cliprect[clipcursor].bottom() >= y )
+    if ( cursorRect->right() < x
+	&& cursorRect->top() <= y
+	&& cursorRect->bottom() >= y )
     {
 	// Move clipcursor right until it is after (x,y)
 	while ( 1 ) {
 	    if ( clipcursor+1 < ncliprect &&
-		 cliprect[clipcursor+1].top()==cliprect[clipcursor].top() ) {
+		 (cursorRect+1)->top()==cursorRect->top() ) {
 		// next clip rect is in this band too - move ahead
 		clipcursor++;
-		if ( cliprect[clipcursor].left() > x ) {
+		cursorRect++;
+		if ( cursorRect->left() > x ) {
 		    // (x,y) is between clipcursor-1 and clipcursor
 		    if ( cr )
-			cr->setCoords(cliprect[clipcursor-1].right()+1,
-				cliprect[clipcursor].top(),
-				cliprect[clipcursor].left()-1,
-				cliprect[clipcursor].bottom());
+			cr->setCoords((cursorRect-1)->right()+1,
+				cursorRect->top(),
+				cursorRect->left()-1,
+				cursorRect->bottom());
 		    return FALSE;
-		} else if ( cliprect[clipcursor].right() >= x ) {
+		} else if ( cursorRect->right() >= x ) {
 		    // (x,y) is in clipcursor
 		    if ( cr )
-			*cr = cliprect[clipcursor];
+			*cr = *cursorRect;
 
 // qDebug("found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
 		    return TRUE;
@@ -910,9 +912,9 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 	    } else {
 		// (x,y) is after last rectangle on band
 		if ( cr )
-		    cr->setCoords(cliprect[clipcursor].right()+1,
-			    cliprect[clipcursor].top(),y+4000,
-			    cliprect[clipcursor].bottom());
+		    cr->setCoords(cursorRect->right()+1,
+			    cursorRect->top(),y+4000,
+			    cursorRect->bottom());
 		return FALSE;
 	    }
 	}
@@ -969,11 +971,12 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 	// Rectangle "a" is the rectangle containing (x,y), or the
 	// closest rectangle to the right of (x,y).
 	clipcursor = a;
-	if ( cliprect[clipcursor].contains(x,y) ) {
+	cursorRect = &cliprect[clipcursor];
+	if ( cursorRect->contains(x,y) ) {
 	    // PLACE 0
 //qDebug("found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
 	    if ( cr )
-		*cr = cliprect[clipcursor];
+		*cr = *cursorRect;
 // qDebug("Found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
 	    return TRUE;
 	}
@@ -984,7 +987,7 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
     // the rectangle to the right/below of (x,y), or the last rectangle.
 
     if ( cr ) {
-	QRect tcr=cliprect[clipcursor];
+	const QRect &tcr = *cursorRect;
 	if ( y < tcr.top() && clipcursor == 0) {
 	    // PLACE 1
 //qDebug("PLACE 1");
@@ -1002,7 +1005,7 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 //qDebug("PLACE 2");
 	    cr->setCoords( x-4000,y-4000,tcr.left()-1,tcr.bottom() );
 	} else {
-	    QRect prev_tcr=cliprect[clipcursor-1];
+	    const QRect &prev_tcr = *(cursorRect-1);
 	    if ( prev_tcr.bottom() < y && tcr.left() > x) {
 		// PLACE 3
 //qDebug("PLACE 3");
