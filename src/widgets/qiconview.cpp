@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#78 $
 **
 ** Definition of QIconView widget class
 **
@@ -214,7 +214,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
  */
 
 QIconDragItem::QIconDragItem()
-    : rect_()
+    : iconRect_(), textRect_()
 {
     makeKey();
 }
@@ -222,8 +222,8 @@ QIconDragItem::QIconDragItem()
 /*!
  */
 
-QIconDragItem::QIconDragItem( const QRect &r )
-    : rect_( r )
+QIconDragItem::QIconDragItem( const QRect &ir, const QRect &tr )
+    : iconRect_( ir ), textRect_( tr )
 {
     makeKey();
 }
@@ -256,17 +256,26 @@ bool QIconDragItem::operator==( const QIconDragItem &icon ) const
 
 void QIconDragItem::makeKey()
 {
-    QString k( "%1 %2 %3 %4" );
-    k = k.arg( rect_.x() ).arg( rect_.y() ).arg( rect_.width() ).arg( rect_.height() );
-    key_ = k;
-};
+    QString k( "%1 %2 %3 %4 %5 %6 %7 %8" );
+    k = k.arg( iconRect().x() ).arg( iconRect().y() ).arg( iconRect().width() ).
+	arg( iconRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
+	arg( textRect().width() ).arg( textRect().height() );
+}
 
 /*!
  */
 
-QRect QIconDragItem::rect() const
+QRect QIconDragItem::textRect() const
 {
-    return rect_;
+    return textRect_;
+}
+
+/*!
+ */
+
+QRect QIconDragItem::iconRect() const
+{
+    return iconRect_;
 }
 
 /*!
@@ -280,9 +289,17 @@ QString QIconDragItem::key() const
 /*!
  */
 
-void QIconDragItem::setRect( const QRect &r )
+void QIconDragItem::setIconRect( const QRect &r )
 {
-    rect_ = r;
+    iconRect_ = r;
+}
+
+/*!
+ */
+
+void QIconDragItem::setTextRect( const QRect &r )
+{
+    textRect_ = r;
 }
 
 /*****************************************************************************
@@ -367,8 +384,10 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 	int c = 0;
 	QIconList::ConstIterator it = icons.begin();
 	for ( ; it != icons.end(); ++it ) {
-	    QString k( "%1 %2 %3 %4" );
-	    k = k.arg( (*it).rect().x() ).arg( (*it).rect().y() ).arg( (*it).rect().width() ).arg( (*it).rect().height() );
+	    QString k( "%1 %2 %3 %4 %5 %6 %7 %8" );
+	    k = k.arg( (*it).iconRect().x() ).arg( (*it).iconRect().y() ).arg( (*it).iconRect().width() ).
+		arg( (*it).iconRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
+		arg( (*it).textRect().width() ).arg( (*it).textRect().height() );
 	    int l = k.length();
 	    a.resize( c + l + 1 );
 	    memcpy( a.data() + c , k.latin1(), l );
@@ -417,22 +436,41 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 	    }
 
 	    QIconDragItem icon;
-	    QRect r;
+	    QRect ir, tr;
 	
-	    r.setX( atoi( s.latin1() ) );
+	    ir.setX( atoi( s.latin1() ) );
 	    int pos = s.find( ' ' );
 	    if ( pos == -1 )
 		return FALSE;
-	    r.setY( atoi( s.latin1() + pos + 1 ) );
+	    ir.setY( atoi( s.latin1() + pos + 1 ) );
 	    pos = s.find( ' ', pos + 1 );
 	    if ( pos == -1 )
 		return FALSE;
-	    r.setWidth( atoi( s.latin1() + pos + 1 ) );
+	    ir.setWidth( atoi( s.latin1() + pos + 1 ) );
 	    pos = s.find( ' ', pos + 1 );
 	    if ( pos == -1 )
 		return FALSE;
-	    r.setHeight( atoi( s.latin1() + pos + 1 ) );
-	    icon.setRect( r );
+	    ir.setHeight( atoi( s.latin1() + pos + 1 ) );
+
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setX( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setY( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setWidth( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setHeight( atoi( s.latin1() + pos + 1 ) );
+	    
+	    icon.setIconRect( ir );
+	    icon.setTextRect( tr );
 	    list_.append( icon );
 	}
 	return TRUE;
@@ -2893,7 +2931,12 @@ QDragObject *QIconView::dragObject()
  		     QPoint( d->currentItem->iconRect().width() / 2, d->currentItem->iconRect().height() / 2 ) );
     for ( QIconViewItem *item = d->firstItem; item; item = item->next )
 	if ( item->isSelected() )
-	    drag->append( QIconDragItem( QRect( item->pos() - orig, QSize( item->width(), item->height() ) ) ) );
+	    drag->append( QIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
+						item->iconRect( FALSE ).y() - orig.y(), 
+						item->iconRect().width(), item->iconRect().height() ),
+					 QRect( item->textRect( FALSE ).x() - orig.x(),
+						item->textRect( FALSE ).y() - orig.y(), 	
+						item->textRect().width(), item->textRect().height() ) ) );
 
     return drag;
 }
@@ -3103,12 +3146,12 @@ void QIconView::drawDragShade( const QPoint &pos )
 
 	QValueList<QIconDragItem>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
-	    QRect r = (*it).rect();
-	    r.moveBy( pos.x(), pos.y() );
-	    style().drawFocusRect( &p, QRect( r.x() + 5, r.y(),
-					      r.width() - 10, r.height() - 20 ), colorGroup() );
-	    style().drawFocusRect( &p, QRect( r.x(), r.y() + r.height() - 16,
-					      r.width(), 16 ), colorGroup() );
+	    QRect ir = (*it).iconRect();
+	    QRect tr = (*it).textRect();
+	    tr.moveBy( pos.x(), pos.y() );
+	    ir.moveBy( pos.x(), pos.y() );
+	    style().drawFocusRect( &p, ir, colorGroup() );
+	    style().drawFocusRect( &p, tr, colorGroup() );
 	}
 	
 	p.end();

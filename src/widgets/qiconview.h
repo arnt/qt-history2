@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#33 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#34 $
 **
 ** Definition of QIconView widget class
 **
@@ -64,21 +64,23 @@ class Q_EXPORT QIconDragItem
 {
 public:
     QIconDragItem();
-    QIconDragItem( const QRect &r );
+    QIconDragItem( const QRect &ir, const QRect &tr );
     virtual ~QIconDragItem();
 
     virtual bool operator<( const QIconDragItem &icon )  const;
     virtual bool operator==( const QIconDragItem &icon ) const;
 	
-    virtual QRect rect() const;
+    virtual QRect iconRect() const;
+    virtual QRect textRect() const;
     virtual QString key() const;
 
-    virtual void setRect( const QRect &r );
+    virtual void setIconRect( const QRect &r );
+    virtual void setTextRect( const QRect &r );
 
 protected:
     virtual void makeKey();
 
-    QRect rect_;
+    QRect iconRect_, textRect_;
     QString key_;
 	
 };
