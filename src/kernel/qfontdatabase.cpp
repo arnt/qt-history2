@@ -1570,8 +1570,14 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 
     sty = getStyle( d, family, style);
     if ( !sty ) {
+	const char *f = family, *s = style;
+	if (! f)
+	    f = "none";
+	if (! s)
+	    s = "none";
+
         qWarning( "QFontDatabase::font: Style not found for %s, %s, %d",
-		  family.latin1(), style.latin1(), pointSize);
+		  f, s, pointSize);
         return QFont();
     }
 
