@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#64 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#64 $");
 
 
 #if QT_VERSION == 200
@@ -459,13 +459,17 @@ QSize QLabel::sizeHint() const
     QRect br;
     QPixmap *pix = pixmap();
     QMovie *mov = movie();
-    if ( pix )
+    if ( pix ) {
 	br = QRect( 0, 0, pix->width(), pix->height() );
-    else if ( mov )
+    } else if ( mov ) {
 	br = QRect( 0, 0, mov->framePixmap().width(),
 		mov->framePixmap().height() );
-    else
+    } else {
 	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
+	// adjust so "Yes" and "yes" will have the same height
+	int h = fontMetrics().lineSpacing();
+	br.setHeight( ((br.height() + h-1) / h)*h - fontMetrics().leading() );
+    }
     int m  = 2*margin();
     int fw = frameWidth();
     if ( m < 0 ) {
