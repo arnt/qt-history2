@@ -422,11 +422,11 @@ void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operati
                           op, X->format, X->stringPosition, key, { X->size } };
 
         if (key+1 != blocks.position(b)) {
-//  	    qDebug("remove_string from %d length %d", key, X->size);
+//	    qDebug("remove_string from %d length %d", key, X->size);
             Q_ASSERT(noBlockInString(text.mid(X->stringPosition, X->size)));
             w = remove_string(key, X->size, op);
         } else {
-//  	    qDebug("remove_block at %d", key);
+//	    qDebug("remove_block at %d", key);
             Q_ASSERT(X->size == 1 && isValidBlockSeparator(text.at(X->stringPosition)));
             b = blocks.previous(b);
             c.command = blocks.size(b) == 1 ? QTextUndoCommand::BlockDeleted : QTextUndoCommand::BlockRemoved;
@@ -933,7 +933,8 @@ static QTextFrame *findChildFrame(QTextFrame *f, int pos)
     QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        if (pos >= c->firstPosition() && pos <= c->lastPosition()) {
+        const int firstPos = qMax(c->firstPosition() - 1, 0);
+        if (pos >= firstPos && pos <= c->lastPosition()) {
             return c;
         }
     }
