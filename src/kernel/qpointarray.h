@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#8 $
 **
 ** Definition of QPointArray class
 **
@@ -99,9 +99,11 @@ public:
     QPointVal operator[]( int i )		// get/set point
 		{ return QPointVal( (QPointArray*)this, i ); }
 
+    QRect   boundingRect() const;
+
     void    makeArc( int x, int y, int w, int h, int a1, int a2 );
     void    makeEllipse( int x, int y, int w, int h );
-    QPointArray bezier();
+    QPointArray bezier() const;
 };
 
 
