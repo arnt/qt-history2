@@ -1287,6 +1287,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
 			    out << indent << indent << indent << "cursor = new QSqlCursor( \"" << tab << "\", TRUE, " << conn << "Connection );" << endl;
+			out << indent << indent << indent << "if ( " << c << "->isReadOnly() ) " << endl;
+			out << indent << indent << indent << indent << "cursor->setMode( QSqlCursor::ReadOnly );" << endl;
 			out << indent << indent << indent << c << "->setSqlCursor( cursor, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
 			out << indent << indent << "if ( !cursor->isActive() )" << endl;
