@@ -1047,54 +1047,6 @@ QTextCodec* QCoreApplication::defaultCodec() const
 #endif //QT_NO_TEXTCODEC
 #endif //QT_NO_TRANSLATE
 
-
-#ifndef QT_NO_DIR
-#ifndef Q_WS_WIN
-static QString resolveSymlinks(const QString& path, int depth = 0)
-{
-    bool foundLink = false;
-    QString linkTarget;
-    QString part = path;
-    int slashPos = path.length();
-
-    // too deep; we give up
-    if (depth == 128)
-        return QString::null;
-
-    do {
-        part = part.left(slashPos);
-        QFileInfo fileInfo(part);
-        if (fileInfo.isSymLink()) {
-            foundLink = true;
-            linkTarget = fileInfo.readLink();
-            break;
-        }
-    } while ((slashPos = part.lastIndexOf(QLatin1Char('/'))) != -1);
-
-    if (foundLink) {
-        QString path2;
-        if (linkTarget.at(0) == QLatin1Char('/')) {
-            path2 = linkTarget;
-            if (slashPos < (int) path.length())
-                path2 += QLatin1Char('/') + path.right(path.length() - slashPos - 1);
-        } else {
-            QString relPath;
-            relPath = part.left(part.lastIndexOf(QLatin1Char('/')) + 1) + linkTarget;
-            if (slashPos < (int) path.length()) {
-                if (!linkTarget.endsWith(QLatin1String("/")))
-                    relPath += QLatin1Char('/');
-                relPath += path.right(path.length() - slashPos - 1);
-            }
-            path2 = QDir::current().absoluteFilePath(relPath);
-        }
-        path2 = QDir::cleanPath(path2);
-        return resolveSymlinks(path2, depth + 1);
-    } else {
-        return path;
-    }
-}
-#endif // Q_WS_WIN
-
 /*!
     Returns the directory that contains the application executable.
 
@@ -1117,6 +1069,7 @@ QString QCoreApplication::applicationDirPath()
     return QFileInfo(applicationFilePath()).path();
 }
 
+#ifndef QT_NO_DIR
 /*!
     Returns the file path of the application executable.
 
@@ -1170,11 +1123,9 @@ QString QCoreApplication::applicationFilePath()
     }
 
     absPath = QDir::cleanPath(absPath);
-    if (QFile::exists(absPath)) {
-        return resolveSymlinks(absPath);
-    } else {
-        return QString::null;
-    }
+
+    QFileInfo fi(absPath);
+    return fi.exists() ? fi.canonicalPath() : QString::null;
 #endif
 }
 #endif // QT_NO_DIR
