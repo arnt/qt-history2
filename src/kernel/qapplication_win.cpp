@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#256 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#257 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -430,9 +430,9 @@ void qt_init( int *argcptr, char **argv )
 #define VER_PLATFORM_WIN32_NT	    2
 #endif
 
-    OSVERSIONINFO osver;
+    OSVERSIONINFOA osver;
     osver.dwOSVersionInfoSize = sizeof(osver);
-    GetVersionEx( &osver );
+    GetVersionExA( &osver );
     switch ( osver.dwPlatformId ) {
 	case VER_PLATFORM_WIN32s:
 	    qt_winver = Qt::WV_32s;
