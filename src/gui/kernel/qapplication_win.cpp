@@ -1158,9 +1158,10 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
 }
 
 struct KeyRec {
-    KeyRec(int c, int a, int s, const QString& t) : code(c), ascii(a), state(s), text(t) { }
+    KeyRec(int c, uchar a, int s, const QString& t) : code(c), state(s), ascii(a), text(t) { }
     KeyRec() { }
-    int code, ascii, state;
+    int code, state;
+    uchar ascii;
     QString text;
 };
 
@@ -1191,7 +1192,7 @@ static KeyRec* find_key_rec(int code, bool remove)
     return result;
 }
 
-static void store_key_rec(int code, int ascii, int state, const QString& text)
+static void store_key_rec(int code, uchar ascii, int state, const QString &text)
 {
     if (nrecs == maxrecs) {
         qWarning("Qt: Internal keyboard buffer overflow");
@@ -2699,10 +2700,26 @@ static int asciiToKeycode(char a, int state)
         a = toupper(a);
     if ((state & Qt::ControlModifier) != 0) {
         if ( a >= 0 && a <= 31 )      // Ctrl+@..Ctrl+A..CTRL+Z..Ctrl+_
-        a += '@';                     // to @..A..Z.._
+            a += '@';                 // to @..A..Z.._
     }
 
     return a & 0xff;
+}
+
+static char actualAsciiKey(char a, int state)
+{
+    bool waslower = false;
+    if (a >= 'a' && a <= 'z') {
+        a = toupper(a);
+        waslower = true;
+    }
+    if ((state & Qt::ControlModifier) != 0) {
+        if ( a >= 0 && a <= 31 )      // Ctrl+@..Ctrl+A..CTRL+Z..Ctrl+_
+            a += '@';                 // to @..A..Z.._
+    }
+    if (waslower)
+        a = tolower(a);
+    return a;
 }
 
 static
@@ -2883,16 +2900,9 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
 
         int t = msg.message;
         if (t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN) {
+            QString text;
             // KEYDOWN
-            KeyRec* rec = find_key_rec(msg.wParam, false);
-            // If rec's state doesn't match the current state, something
-            // has changed without us knowning about it. (Consumed by
-            // modal widget is one posibility) So, remove rec from list.
-            if ( rec && rec->state != state ) {
-                find_key_rec( msg.wParam, TRUE );
-                rec = 0;
-            }
-
+            bool isRepeat = msg.lParam & (1<<30);
             // Find uch
             QChar uch;
             MSG wm_char;
@@ -2910,6 +2920,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 }
                 if (!code && !uch.row())
                     code = asciiToKeycode(uch.cell(), state);
+                text = actualAsciiKey(uch.cell(), state);
             }
             if (uch.isNull()) {
                 // No XXX_CHAR; deduce uch from XXX_KEYDOWN params
@@ -2958,40 +2969,53 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
             // and will handle it
             if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
                 code = Qt::Key_Backtab;
+            if (text.isEmpty())
+                text += actualAsciiKey(uch.cell(), state);
 
-            if (rec) {
+            char a = uch.row() ? 0 : uch.cell();
+            if (isRepeat) {
+                KeyRec* rec = find_key_rec(msg.wParam, false);
+                if (rec && !(state == rec->state) || !rec) { // Now we may have different text
+                    if (rec)
+                        find_key_rec(msg.wParam, true);
+                    store_key_rec(msg.wParam, rec ? rec->ascii : a, state, text);
+                }
                 // it is already down (so it is auto-repeating)
                 if (code < Qt::Key_Shift || code > Qt::Key_ScrollLock) {
-                    k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text, true);
-                    k1 = sendKeyEvent(QEvent::KeyPress, code, state, grab, rec->text, true);
+                    k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, text, true);
+                    k1 = sendKeyEvent(QEvent::KeyPress, code, state, grab, text, true);
                 }
             } else {
-                QString text;
-                if (!uch.isNull())
-                    text += uch;
-                char a = uch.row() ? 0 : uch.cell();
                 store_key_rec(msg.wParam, a, state, text);
                 k0 = sendKeyEvent(QEvent::KeyPress, code, state, grab, text);
             }
 
         } else {
+            QString text;
             // Must be KEYUP
             KeyRec* rec = find_key_rec(msg.wParam, true);
-            if (!rec) {
-                // Someone ate the key down event
+            if (rec) {
+                if (state == 0 && rec->state != 0) {
+                    // We have changed the state while the key is being held down
+                    // so get the real text value
+                    text = actualAsciiKey(rec->ascii, rec->state);
+                } else {
+                    text = rec->text;
+                }
             } else {
-                if (!code)
-                    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
-                                state);
-
-                // see comment above
-                if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
-                    code = Qt::Key_Backtab;
-
-                k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
-                if (code == Qt::Key_Alt)
-                    k0 = true; // don't let window see the meta key
+                // The press was done elsewhere
+                text = actualAsciiKey(msg.wParam, state);
             }
+            if (!code)
+                code = asciiToKeycode(msg.wParam, state);
+
+            // see comment above
+            if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
+                code = Qt::Key_Backtab;
+            
+            k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, text);
+            if (code == Qt::Key_Alt)
+                k0 = true; // don't let window see the meta key
         }
     }
 
