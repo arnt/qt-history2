@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#101 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#101 $");
 
 
 /*!
@@ -390,7 +390,6 @@ int QApplication::colorSpec()
     </ul>
   </ul>
 
-  
   Example:
   \code
   int main( int argc, char **argv )
@@ -408,6 +407,9 @@ int QApplication::colorSpec()
   To see what mode you end up with, you can call QColor::numBitPlanes()
   once the QApplication object exists.  A value greater than 8 (typically
   16, 24 or 32) means true color.
+
+  The color cube used by Qt are all those colors with red, green, and blue
+  components of either 0x00, 0x33, 0x66, 0x99, 0xCC, or 0xFF.
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext()
 */
