@@ -665,11 +665,12 @@ do
 	VAL=`echo $1 | sed "s,^-[^-]*-[^-]*-\([^-]*\).*,\1,"`
 	if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
 	   if [ "$OPT" = "plugin" ]; then
+	      [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
 	      VAR="${VAR}-${OPT}"
 	   elif [ "$VAR" = "sql" ]; then
 	      VAR="${VAR}-driver"
 	   fi
-	   QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\" \"styles -= $VAL\""
+	   QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
 	elif [ "$OPT" = "no" ]; then
 	   PLUG_VAR="${VAR}-plugin"
 	   IN_VAR="${VAR}"
