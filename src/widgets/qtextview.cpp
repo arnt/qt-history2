@@ -904,9 +904,15 @@ void QTextView::drawCursor( bool visible )
 	cg.setBrush( QColorGroup::Base, *doc->paper() );
     p.setBrushOrigin( -contentsX(), -contentsY() );
     cursor->parag()->document()->nextDoubleBuffered = TRUE;
-    doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
-		    r.y() - cursor->totalOffsetY(), r.width(), r.height(),
-		    pix, cg, visible, cursor );
+    if ( !cursor->nestedDepth() ) {
+	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
+	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX() + cursor->x(),
+			r.y() - cursor->totalOffsetY() + cursor->y(), 2, h, pix, cg, visible, cursor );
+    } else {
+	doc->drawParag( &p, cursor->parag(), r.x() - cursor->totalOffsetX(),
+			r.y() - cursor->totalOffsetY(), r.width(), r.height(),
+			pix, cg, visible, cursor );
+    }
     cursorVisible = visible;
 }
 
