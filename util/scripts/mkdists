@@ -1,23 +1,42 @@
 #!/bin/bash
 
+#version info
 REL_VERSION=0.0.0
 BRANCH=
+#paths
 OUT_TREE=`pwd`
 LOCAL_TREE=
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
-DO_DOC=yes
+TMP_FILE=/tmp/qt-tmpf-$$
+MANIFEST_FILE=${TMP_FILE}-manifest
+#editions
+DO_PROFESSIONAL=yes
+DO_ENTERPRISE=yes
+DO_FREE=yes
+#platforms
 DO_WIN=yes
 DO_X11=yes
 DO_MAC=no
 DO_QWS=yes
-DO_FREE=yes
+#other
+DO_ID=yes
 DO_GZIP=yes
-TMP_FILE=/tmp/tmpf-$$
+DO_DOC=yes
+CREATED_MANIFEST=no
 
 die()
 {
     echo $1
     exit 666
+}
+
+STATUS_DEPTH=0
+status() {
+    [ "$#" = 2 ] && [ "$2" = "-1" ] && STATUS_DEPTH=$((STATUS_DEPTH-5))
+    blah=0
+    while [ "$blah" -lt "$STATUS_DEPTH" ]; do echo -n " "; blah=$((blah+1)); done
+    [ "$#" = 2 ] && [ "$2" = "1" ] && STATUS_DEPTH=$((STATUS_DEPTH+5))
+    echo "$1"
 }
 
 #parse commandline
@@ -27,20 +46,29 @@ showhelp()
     echo "$0 [options]"
     echo
     echo "Options:"
+    echo "-manifest <file>"
     echo "-local <directory>"
     echo "-outdir <directory>"
     echo "-qdoc <executable>"
-    echo "-nodoc"
-    echo "-nowin"
-    echo "-nox11"
-    echo "-noqws"
-    echo "-nofree"
-    echo "-nogzip"
+    echo "-no-professional"
+    echo "-no-enterprise"
+    echo "-no-id"
+    echo "-no-doc"
+    echo "-no-win"
+    echo "-no-x11"
+    echo "-no-qws"
+    echo "-no-free"
+    echo "-no-gzip"
     exit 666
 }
 
 while [ -n "$1" ]; do
    case $1 in
+   -manifest)
+	shift
+	VAR=manifest
+	VAL=$1
+	;;
    -version)
        shift
        VAR=version
@@ -83,26 +111,36 @@ while [ -n "$1" ]; do
    shift
 
    case $VAR in
-   doc) DO_DOC=$VAL ;;
+   #editions
+   professional) DO_PROFESSIONAL=$VAL ;;
+   enterprise) DO_ENTERPRISE=$VAL ;;
+   free)DO_FREE=$VAL;;
+   #platforms
    win) DO_WIN=$VAL ;;
    x11) DO_X11=$VAL ;;
    mac) DO_MAC=$VAL ;;
    qws) DO_QWS=$VAL ;;
-   free)DO_FREE=$VAL;;
-   gzip)DO_GZIP=$VAL;;
+   #paths
    qdoc_path) QDOC_PATH=$VAL;;
    outdir) OUT_TREE=$VAL;;
+   manifest) MANIFEST_FILE=$VAL;;
+   local)
+       [ -d "$VAL" ] || die "Unknown directory: $VAL"
+       BRANCH="0.0.0"
+       LOCAL_TREE=$VAL
+       ;;
+   #versioning
    version)
        expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
        REL_VERSION=$VAL
        BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
        LABEL="qt/$VAL" 
        ;;
-   local)
-       [ -d "$VAL" ] || die "Unknown directory: $VAL"
-       BRANCH="0.0.0"
-       LOCAL_TREE=$VAL
-       ;;
+   #other
+   doc) DO_DOC=$VAL ;;
+   gzip)DO_GZIP=$VAL;;
+   id) DO_ID=$VAL   ;;
+   *) echo "Unknown flag: --${VAR}=$VAL" ;;
    esac
 done
 #make sure everything is in order before bothering..
@@ -128,7 +166,7 @@ if [ -z $LOCAL_TREE ]; then
     if p4 label -o $LABEL | grep '^Options:.*locked' >/dev/null 2>&1; then
 	checkoutlabel="@${LABEL}"
     fi
-    echo "Exporting the entire Qt depot $checkoutlabel..";
+    status "Exporting the entire Qt depot $checkoutlabel..";
 
     tmpclient="qt-release-tmp-$MYNAME";
     p4 client -t qt-release-3x -o $tmpclient >/tmp/tmp_file
@@ -138,7 +176,7 @@ if [ -z $LOCAL_TREE ]; then
 
     p4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
 else
-    echo "Copying Qt depot.."
+    status "Copying Qt depot.."
     [ ! -d $DISTDIR/qt ] && mkdir -p $DISTDIR/qt
     cp -ar $LOCAL_TREE $DISTDIR/qt
 fi
@@ -151,7 +189,7 @@ for fullname in $includefiles; do
     ln -sf "../$fullname" "$DISTDIR/qt/include/`basename $fullname`"
 done
 
-#Generate documentation
+#cleanup documentation directories
 mkdir -p "$DISTDIR/qt/doc"
 mkdir -p "$DISTDIR/qt/doc/html"
 mkdir -p "$DISTDIR/qt/doc/man"
@@ -162,19 +200,12 @@ mkdir -p "$DISTDIR/qt/doc/man/man3"
 # and do the moc.1 hack here
 mkdir -p "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/src/moc/moc.1" "$DISTDIR/qt/doc/man/man1"
-if [ "x$DO_DOC" = "xyes" ]; then
-    cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
-    cp $DISTDIR/qt/tools/designer/manual/figures/*.png $DISTDIR/qt/doc/html/designer/figures
-    cp $DISTDIR/qt/tools/designer/manual/arrows/*.png $DISTDIR/qt/doc/html/designer/arrows
-    rm -rf $DISTDIR/qt/tools/designer/manual
-    rm -rf $DISTDIR/qt/tools/designer/doc
+cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
+cp $DISTDIR/qt/tools/designer/manual/figures/*.png $DISTDIR/qt/doc/html/designer/figures
+cp $DISTDIR/qt/tools/designer/manual/arrows/*.png $DISTDIR/qt/doc/html/designer/arrows
+rm -rf $DISTDIR/qt/tools/designer/manual
+rm -rf $DISTDIR/qt/tools/designer/doc
 
-    echo "Running qdoc..";
-    $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
-    $DISTDIR/qt/util/qdoc/man  $DISTDIR/qt >/dev/null 2>&1 || die "could not run man, stopped"
-
-    find $DISTDIR/qt/gif -exec mv {} $DISTDIR/qt/doc/html/ \; >/dev/null 2>&1
-fi
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
 for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`; do
@@ -195,7 +226,7 @@ if [ -e  "$qgif" ]; then
 fi
 
 # changes files
-[ ! -f "$DISTDIR/qt/dist/changes-$BRANCH" ] && echo "Warning: qt/dist/changes-$BRANCH does not exist"
+[ ! -f "$DISTDIR/qt/dist/changes-$BRANCH" ] && status "Warning: qt/dist/changes-$BRANCH does not exist"
 for a in `find $DISTDIR/qt/dist/ -name 'changes-$(echo $BRANCH | sed "s,^\([0-9\.]\)*,\1,")*'`; do
     mv $a $DISTDIR/qt/`basename $a`
 done
@@ -211,20 +242,22 @@ if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
 fi
 
 #fix $Id
-echo "Marking \$ID\$..."
-for a in `find $DISTDIR/qt/`; do
-    if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
-	execut=444
-	[ -x $a ] && execut=555
+if [ "x$DO_ID" = "xyes" ]; then
+    status "Marking \$ID\$..."
+    for a in `find $DISTDIR/qt/`; do
+	if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
+	    execut=444
+	    [ -x $a ] && execut=555
 
-	mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
-	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${type}   edited $mtime"
-	sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
-	rm -f $a
-	mv ${TMP_FILE} $a
-	chmod $execut $a
-    fi
-done
+	    mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
+	    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${type}   edited $mtime"
+	    sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
+	    rm -f $a
+	    mv ${TMP_FILE} $a
+	    chmod $execut $a
+	fi
+    done
+fi
 
 myexpr () {
     echo "$1" | egrep "$3" >/dev/null 2>&1
@@ -246,12 +279,6 @@ public_file () {
 
 	 # no make.help
 	 [ "$file_BASE" = "make.help" ] ||
-
-	 # Everything under dist
-	 myexpr "$file" : '^dist\/' ||
-
-	 # no tests
-	 myexpr "$file" : '^tests\/.*' ||
 
 	 # utils, except scripts
 	 { myexpr "$file" : '^util\/' && ! myexpr "$file" : '^util\/scripts\/' ; } ||
@@ -281,7 +308,13 @@ public_file () {
 	 # some bins
 	 myexpr "$file_BASE" : 'bin\/.*_make_.*$' ||
 	 myexpr "$file" : 'bin\/syncqt.*$' ||
-	 myexpr "$file" : 'bin\/qmake$'
+	 myexpr "$file" : 'bin\/qmake$' ||
+
+	 # Everything under dist
+	 myexpr "$file" : '^dist\/' ||
+
+	 # no tests
+	 myexpr "$file" : '^tests\/.*' 
      then
 	    KEEP=no
      elif
@@ -385,16 +418,53 @@ public_file () {
 	 echo -n "I've no idea what to do with $file, keep it? (yes or no): "
 	 read KEEP
      fi
-      [ "$KEEP" = "yes" ] && return 0
+     [ "$KEEP" = "yes" ] && return 0
      return 1
+}
+
+copy_platform_files() {
+    dir="$DISTDIR/qt/dist/$1"
+    platform=$2
+    o_dir=$3
+    [ ! -d $dir ] && return 1
+    for a in `find $dir`; do
+	a_file=`echo $a | sed "s,$dir,,"`
+	o_file=$a_file
+	[ -z $a_file ] && continue
+
+	if [ "$platform" = "qws" ]; then
+	    case `basename $a` in
+	    LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
+	    README.qws) o_file="README" ;;
+	    esac
+	elif [ "$platform" = "x11" ]; then
+	    [ `basename $a` = "README.qws" ] && continue
+	elif [ "$platform" = "win" ]; then
+	    [ `basename $a` = "qmake.cache" ] && o_file=".qmake.cache"
+	fi
+	#do copy
+	final_dir=`dirname $o_dir/$o_file`
+	[ ! -d $final_dir ] && mkdir -p $final_dir
+	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
+	if [ -f $dir/$a_file ] && [ ! -e $o_dir/$o_file ]; then
+	    sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${type}/g" \
+		-e "s/$VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
+	    if [ "$type" = "-snapshot" ]; then
+		sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$o_dir/$o_file
+	    else
+		sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" ${TMP_FILE} >$o_dir/$o_file
+	    fi
+	else
+	    cp -ar $dir/$a_file $o_dir/$o_file
+	fi
+    done
+    return 0
 }
 
 for plat in mac win x11 qws; do
     #handle commandline options
-    PLATNAME=qt-${plat}-enterprise-${REL_VERSION}${type}
-    PLATDIR=$DISTDIR/$PLATNAME
-    free=no
-    plat2=
+    platformname=$plat
+    plat2=$plat
     case $plat in
     mac)
 	[ "x$DO_MAC" = "xyes" ] || continue
@@ -402,222 +472,190 @@ for plat in mac win x11 qws; do
 	;;
     qws)
 	[ "x$DO_QWS" = "xyes" ] || continue
+	platformname="embedded"
 	plat2=unix
-	free=$DO_FREE
 	;;
     x11)
 	[ "x$DO_X11" = "xyes" ] || continue
 	plat2=unix
-	free=$DO_FREE
 	;;
     win)
 	[ "x$DO_WIN" = "xyes" ] || continue
 	;;
     *) die "Will probably need more info to package: $plat!" ;;
     esac
-    echo "****** Packing for platform: $plat ****"
+    status "****** Packing for platform: $plat ****" "1"
 
-    echo "Removing unnecesary stuff.."
-    for a in `find $DISTDIR/qt`; do
-	[ -d $a ] && continue
+    PLAT_RM_FILE=${TMP_FILE}-plat-${plat}
+    for edition in enterprise professional free; do
+	case $edition in
+	enterprise)
+	    [ "x$DO_ENTERPRISE" = "xyes" ] || continue 
+	    ;;
+	professional)
+	    [ "x$DO_PROFESSIONAL" = "xyes" ] || continue 
+	    ;;
+	free)
+	    { [ "$plat" != "qws" ] && [ "$plat" != "x11" ]; } || [ "x$DO_FREE" != "xyes" ] && continue
+	    ;;
+	esac
 
-	#Remove the platform dependent files
-	if myexpr "$a" : '*_[a-z1]*.cpp' || myexpr "$a" : '*_[a-z1]*.h' || myexpr "$a" : '*_[a-z1]*.c'; then
-	    match=`basename $a | sed "s,.*_,," | cut -d'.' -f1`
-	    case $match in
-	    mac|x11|unix|win|qws) [ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && continue ;;
-	    *) ;;
-            esac
-	fi
-
-	#Remove non-dist files (tests-dir, util-dir, ... )
-	if public_file $a; then
-	    d=${PLATDIR}/`dirname "$a" | sed "s,^${DISTDIR}/qt,,"`
-	    [ ! -d $d ] && mkdir -p $d
-	    cp -a "$a" "$d/`basename $a`"
-        fi
-    done
-
-    #cleanup some static things..
-    rm -rf "$PLATDIR/examples/kiosk"
-    rm -rf "$PLATDIR/src/3rdparty/libmng"
-    rm -f "$PLATDIR/etc/fonts/unifont.bdf"
-    rm -rf "$PLATDIR/tmake"
-    rm -rf "$PLATDIR/util"
-    mkdir -p $PLATDIR/lib
-    echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
-    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
-	if [ "$plat" = "x11" ]; then
-	    rm -rf "$PLATDIR/examples/biff"
-	    rm -rf "$PLATDIR/examples/desktop"
-	    rm -rf "$PLATDIR/examples/overlay_x11"
-	    rm -rf "$PLATDIR/extensions/xt"
-	elif [ "$plat" = "qws" ]; then
-	    rm -rf "$PLATDIR/examples/winmanager"
-	    rm -rf "$PLATDIR/examples/compact"
-	    rm -rf "$PLATDIR/examples/notepad"
-	    rm -rf "$PLATDIR/examples/launcher"
-	    rm -rf "$PLATDIR/extensions/imageio"
-	    rm -rf "$PLATDIR/src/3rdparty/freetype2"
-	    rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
-	    rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
-	fi
-    elif [ "$plat" = "win" ]; then
-	rm -rf "$PLATDIR/doc/man"
-	#since there is no man pages, move all docs to doc/
-	mv $PLATDIR/doc/html/* $PLATDIR/doc
-	rm -rf $PLATDIR/doc/html
-	# delete the xt estension
-	rm -rf "$PLATDIR/extensions/xt"
-	rm -f "$PLATDIR/configure"
-
-	# move the files into include
-	[ ! -d "$PLATDIR/include" ] && mkdir -p "$PLATDIR/include"
-	cp "$PLATDIR/src/tools/qconfig-dist.h" "$PLATDIR/xxx"
-	for a in $includefiles; do
-	    FILE=$PLATDIR/include/`basename $a`
-	    rm -f $FILE
-	    mv $PLATDIR/$a $FILE >/dev/null 2>&1
-	done
-	mv "$PLATDIR/xxx" "$PLATDIR/src/tools/qconfig-dist.h"
-    fi
-
-    #don't need empty directories
-    find $PLATDIR/ -type d -exec rmdir {} \; >/dev/null 2>&1
-
-    platformname=$plat
-    [ "$plat" = "qws" ] && platformname="embedded"
-    for d in "$DISTDIR/qt/dist/commercial" "$DISTDIR/qt/dist/$platformname"; do
-	[ ! -d $d ] && continue
-	for a in `find $d`; do
-	    a_file=`echo $a | sed "s,$d,,"`
-	    o_file=$a_file
-	    [ -z $a_file ] && continue
-
-	    if [ "$plat" = "qws" ]; then
-		case `basename $a` in
-		LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
-		README.qws) o_file="README" ;;
-		esac
-	    elif [ "$plat" = "x11" ]; then
-		[ `basename $a` = "README.qws" ] && continue
-	    elif [ "$plat" = "win" ]; then
-		[ `basename $a` = "qmake.cache" ] && o_file=".qmake.cache"
-	    fi
-	    #do copy
-	    o_dir=`dirname $PLATDIR/$o_file`
-	    [ ! -d $o_dir ] && mkdir -p $o_dir
-	    [ -f $PLATDIR/$o_file ] && rm -f $PLATDIR/$o_file
-	    if [ -f $d/$a_file ] && [ ! -e $PLATDIR/$o_file ]; then
-		sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${type}/g" \
-		    -e "s/$VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >${TMP_FILE}
-		if [ "$type" = "-snapshot" ]; then
-		    sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$PLATDIR/$o_file
-		else
-		    sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" ${TMP_FILE} >$PLATDIR/$o_file
+	#generate the manifest file
+	if [ ! -e "$MANIFEST_FILE" ]; then
+	    CREATED_MANIFEST=yes
+	    status "Creating manifest file.."
+	    for a in `find $DISTDIR/qt`; do
+		[ -d $a ] && continue
+		if public_file $a; then
+		    echo $a | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>/dev/null || \
+			    die "Could not write to manifest file"; 
 		fi
-	    else
-		cp -ar $d/$a_file $PLATDIR/$o_file
-	    fi
-	done
-    done
-
-    echo "Packing enterprise..."
-    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
-	cd "$DISTDIR"
-	tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
-	[ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
-    elif [ "$plat" = "win" ]; then
-	cd "$DISTDIR"
-	find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
-    fi
-
-    #Remove modules..
-    for mod in sql; do 
-	P="$PLATDIR/src/$mod"
-	if [ -d "$P" ]; then
-	    rm -rf "$P" && mkdir -p "$P"
-	    echo "DEFINES    += QT_NO_`echo $mod | tr '[a-z]' '[A-Z]'`" > $P/qt_${mod}.pri
+	    done
 	fi
-    done
 
-    #do professional
-    echo "Packing professional..."
-    cd "$DISTDIR"
-    OLDPLATDIR=$PLATDIR
-    PLATNAME=`echo $PLATNAME | sed "s,enterprise,professional,"`
-    PLATDIR=$DISTDIR/$PLATNAME
-    mv "$OLDPLATDIR" "$PLATDIR"
-    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
-	cd "$DISTDIR"
-	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
-	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/${PLATNAME}.tar >$OUT_TREE/${PLATNAME}.tar.gz
-    else
-	cd "$DISTDIR"
-	find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
-    fi
-
-    if [ "x$free" = "xyes" ]; then
-	echo "**** Doing free.. ****"
-
-	cd "$DISTDIR"
-	OLDPLATDIR=$PLATDIR
-	PLATNAME=`echo $PLATNAME | sed "s,professional,free,"`
+	status "*** Packing $edition... *****" "1"
+	PLATNAME=qt-${plat}-${edition}-${REL_VERSION}${type}
 	PLATDIR=$DISTDIR/$PLATNAME
-	mv "$OLDPLATDIR" "$PLATDIR"
 
-	#remove commercial licenses
-	for a in `find $DISTDIR/qt/dist/commercial`; do
-	    FILE=`echo $a | sed "s,$DISTDIR/qt/dist/commercial,,"`
-	    [ -z $FILE ] && continue
-	    rm -f $PLATDIR/$FILE
+	#copy the tree
+	status "Copying the tree.."
+	for a in `cat ${MANIFEST_FILE}`; do
+	    d=${PLATDIR}/`dirname "$a"`
+	    [ ! -d $d ] && mkdir -p $d
+	    cp -a "$DISTDIR/qt/$a" "$d/`basename $a`"
 	done
+	#clean the tree a little
+	status "First cleanup.."
+	case $edition in
+	free)
+	    #Remove sql
+	    for sql in src/sql examples/pingpong examples/sqltable; do
+		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
+	    done
+	    ;;
+	professional)
+	    #Remove sql
+	    for sql in src/sql examples/pingpong examples/sqltable; do
+		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
+	    done
+	    #move xml stuff into designer directory TBD
+	    #remove table
+	    [ -d "$PLATDIR/src/table" ] && rm -rf "$PLATDIR/src/table"
+	    ;;
+	esac
+	rm -rf "$PLATDIR/examples/kiosk"
+	rm -rf "$PLATDIR/src/3rdparty/libmng"
+	rm -f "$PLATDIR/etc/fonts/unifont.bdf"
+	rm -rf "$PLATDIR/tmake"
+	rm -rf "$PLATDIR/util"
+	rm -rf "$PLATDIR/tests"
+	mkdir -p $PLATDIR/lib
+	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
+	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	    if [ "$plat" = "x11" ]; then
+		rm -rf "$PLATDIR/examples/biff"
+		rm -rf "$PLATDIR/examples/desktop"
+		rm -rf "$PLATDIR/examples/overlay_x11"
+		rm -rf "$PLATDIR/extensions/xt"
+	    elif [ "$plat" = "qws" ]; then
+		rm -rf "$PLATDIR/examples/winmanager"
+		rm -rf "$PLATDIR/examples/compact"
+		rm -rf "$PLATDIR/examples/notepad"
+		rm -rf "$PLATDIR/examples/launcher"
+		rm -rf "$PLATDIR/extensions/imageio"
+		rm -rf "$PLATDIR/src/3rdparty/freetype2"
+		rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
+		rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
+	    fi
+	elif [ "$plat" = "win" ]; then
+	    # delete the xt estension
+	    rm -rf "$PLATDIR/extensions/xt"
+	    rm -f "$PLATDIR/configure"
 
-	#copy free licenses
-	for a in `find $DISTDIR/qt/dist/free`; do
-	    a_file=`echo $a | sed "s,$DISTDIR/qt/dist/free,,"`
-	    o_file=$a_file
-	    [ -z $a_file ] && continue
+	    # move the files into include
+	    status "Moving header files.."
+	    [ ! -d "$PLATDIR/include" ] && mkdir -p "$PLATDIR/include"
+	    cp "$PLATDIR/src/tools/qconfig-dist.h" "$PLATDIR/xxx"
+	    for a in $includefiles; do
+		FILE=$PLATDIR/include/`basename $a`
+		rm -f $FILE
+		mv $PLATDIR/$a $FILE >/dev/null 2>&1
+	    done
+	    mv "$PLATDIR/xxx" "$PLATDIR/src/tools/qconfig-dist.h"
+	fi
+	#don't need empty directories
+	status "Pruning empty directories.."
+	find $PLATDIR/ -type d -exec rmdir {} \; >/dev/null 2>&1
 
-	    if [ "$plat" = "qws" ]; then
-		case `basename $a` in
-		LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
-		README.qws) o_file="README" ;;
+	#do the documentation
+	if [ "x$DO_DOC" = "xyes" ]; then
+	    status "Running qdoc.."
+	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
+	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
+	    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+		$DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
+            fi
+	fi
+	if [ "$plat" = "win" ]; then
+	    rm -rf "$PLATDIR/doc/man"
+	    #since there is no man pages, move all docs to doc/
+	    mv $PLATDIR/doc/html/* $PLATDIR/doc
+	    rm -rf $PLATDIR/doc/html
+	fi
+
+	#copy the platform dist stuff
+	copy_platform_files "$platformname" $plat $PLATDIR
+	ddir="commercial"
+	[ "$edition" = "free" ] && ddir="free"
+	copy_platform_files "$ddir" $plat $PLATDIR
+
+	#remove platform specific files that don't belong
+	status "Final cleanup.."
+	if [ ! -e "$PLAT_RM_FILE" ]; then
+	    for file in `find $PLATDIR -name '*_[a-z][a-z1][a-z1].cpp' -o \
+				       -name '*_[a-z][a-z1][a-z1].h' -o \
+				       -name '*_[a-z][a-z1][a-z1].c'`
+	    do
+		[ -d $file ] && continue
+		match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
+		case $match in
+		unix|win|mac|x11|qws) 
+		    if [ "$match" != "$plat" ] && [ "$match" != "$plat2" ]; then
+			rm -f $file
+			echo $file | sed "s,^${PLATDIR},,g" >>$PLAT_RM_FILE 
+		    fi
+		    ;;
+		*) ;;
 		esac
-	    elif [ "$plat" = "x11" ]; then
-		[ `basename $a` = "README.qws" ] && continue
-	    elif [ "$plat" = "win" ]; then
-		[ `basename $a` = "qmake.cache" ] && o_file=".qmake.cache"
-	    fi
-	    #do copy
-	    o_dir=`dirname $PLATDIR/$o_file`
-	    [ ! -d $o_dir ] && mkdir -p $o_dir
-	    [ -f $PLATDIR/$o_file ] && rm -f $PLATDIR/$o_file
-	    if [ -f $d/$a_file ] && [ ! -e $PLATDIR/$o_file ]; then
-		sed -e "s/%YEAR%/2000/g" -e "s/%VERSION%/${BRANCH}$type/g" \
-		    -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >${TMP_FILE}
-		if [ "$type" = "-snapshot" ]; then
-		    sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$PLATDIR/$o_file
-		else
-		    sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" ${TMP_FILE} >$PLATDIR/$o_file
-		fi
-	    else
-		cp -ar $DISTDIR/qt/dist/free/$a_file $PLATDIR/$o_file
-	    fi
-	done
+	    done
+        else
+	    for f in `cat $PLAT_RM_FILE`; do
+		rm -f $PLATDIR/$f
+	    done
+        fi
 
-	#tar free editions
-	echo "Packing..."
-	cd "$DISTDIR"
-	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
-	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/${PLATNAME}.tar >$OUT_TREE/${PLATNAME}.tar.gz
-	echo "** Done with free.. **"
-    fi
-    echo "(cleaning up after package..)"
-    rm -rf $PLATDIR
-    echo "******** Done Packaging $plat *********"
+	#actually package
+	status "Packaging.."
+	(cd "$DISTDIR" 
+	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
+	    [ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
+	elif [ "$plat" = "win" ]; then
+	    find "${PLATNAME}" | zip $OUT_TREE/${PLATNAME}.zip -@ >/dev/null 2>&1
+	fi
+	)
+
+	#cleanup
+	status "($edition cleanup)"
+	rm -rf $PLATDIR
+	status "** Done Packing $edition.. **" "-1"
+    done
+    [ -e "$PLAT_RM_FILE" ] && rm -f $PLAT_RM_FILE
+    status "******** Done Packaging $plat *********" "-1"
 done
-echo "(mkdists cleanup..)"
+status "(mkdists cleanup..)"
 rm -rf $DISTDIR
 rm -f ${TMP_FILE}
-echo "mkdists done"
+cp -a $MANIFEST_FILE $OUT_TREE/manifest >/dev/null 2>&1
+[ "x$CREATED_MANIFEST" = "xyes" ] && rm -f ${MANIFEST_FILE}
+status "mkdists done"
