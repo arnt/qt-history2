@@ -232,11 +232,11 @@ void qDebug( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[65556];
+	char buf[512];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
-	    vsprintf( buf, msg, ap );
+	    vsnprintf( buf, 512, msg, ap );
 	    va_end( ap );
 	    (*handler)( QtDebugMsg, buf );
 	} else {
@@ -260,7 +260,7 @@ void debug( const char *msg, ... )
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
-	    vsprintf( buf, msg, ap );
+	    vsnprintf( buf, 512, msg, ap );
 	    va_end( ap );
 	    (*handler)( QtDebugMsg, buf );
 	} else {
@@ -281,7 +281,7 @@ void qWarning( const char *msg, ... )
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
-	    vsprintf( buf, msg, ap );
+	    vsnprintf( buf, 512, msg, ap );
 	    va_end( ap );
 	    (*handler)( QtDebugMsg, buf );
 	} else {
@@ -303,7 +303,7 @@ void warning( const char *msg, ... )
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
-	    vsprintf( buf, msg, ap );
+	    vsnprintf( buf, 512, msg, ap );
 	    va_end( ap );
 	    (*handler)( QtDebugMsg, buf );
 	} else {
@@ -324,7 +324,7 @@ void qFatal( const char *msg, ... )
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
-	    vsprintf( buf, msg, ap );
+	    vsnprintf( buf, 512, msg, ap );
 	    va_end( ap );
 	    (*handler)( QtDebugMsg, buf );
 	} else {
@@ -347,7 +347,7 @@ void fatal( const char *msg, ... )
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
-	    vsprintf( buf, msg, ap );
+	    vsnprintf( buf, 512, msg, ap );
 	    va_end( ap );
 	    (*handler)( QtDebugMsg, buf );
 	} else {
@@ -365,11 +365,11 @@ void fatal( const char *msg, ... )
 
 void qDebug( const char *msg, ... )
 {
-    char buf[65556];
+    char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );
+	vsnprintf( buf, 512, msg, ap );
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
@@ -386,7 +386,7 @@ void debug( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );
+	vsnprintf( buf, 512, msg, ap );
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
@@ -402,7 +402,7 @@ void qWarning( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );
+	vsnprintf( buf, 512, msg, ap );
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
@@ -420,7 +420,7 @@ void warning( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );
+	vsnprintf( buf, 512, msg, ap );
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
@@ -436,7 +436,7 @@ void qFatal( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );
+	vsnprintf( buf, 512, msg, ap );
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
@@ -458,7 +458,7 @@ void fatal( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );
+	vsnprintf( buf, 512, msg, ap );
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
