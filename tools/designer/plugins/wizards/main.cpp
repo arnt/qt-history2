@@ -32,7 +32,7 @@ class StandardTemplateWizardInterface : public TemplateWizardInterface, public Q
 {
 public:
     StandardTemplateWizardInterface();
-    ~StandardTemplateWizardInterface();
+    virtual ~StandardTemplateWizardInterface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
