@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#225 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#226 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1238,8 +1238,10 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
 	repaintArea( minP, maxP );
     }
-    if ( tc )
+    if ( tc ) {
+	ed = TRUE;
 	emit textChanged( tbuf );
+    }
     return TRUE;
 }
 
