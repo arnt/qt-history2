@@ -65,7 +65,7 @@ public:
 	image.reset();
     }
 
-    bool newStream(QNPStream*, StreamMode& smode)
+    bool newStreamCreated(QNPStream*, StreamMode& smode)
     {
 	smode = AsFileOnly;
 	return TRUE;
@@ -74,6 +74,7 @@ public:
     void streamAsFile(QNPStream*, const char* fname)
     {
 	qInitPngIO();
+
 	image = QImage(fname);
 	if ( image.isNull() )
 	    fprintf(stderr, "Could not convert file: %s\n", fname);
@@ -106,12 +107,12 @@ public:
 	       "image/xpm:xpm:XPM Image";
     }
 
-    const char * getPluginNameString()
+    const char * getPluginNameString() const
     {
 	return "Qt-based Image Plugin";
     }
 
-    const char * getPluginDescriptionString()
+    const char * getPluginDescriptionString() const
     {
 	return "Supports all image formats supported by Qt";
     }

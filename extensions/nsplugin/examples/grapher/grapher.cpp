@@ -486,12 +486,12 @@ public:
 	return "graphable/1n::Graphable ASCII numeric data";
     }
 
-    const char * getPluginNameString()
+    const char * getPluginNameString() const
     {
 	return "Qt-based Graph Plugin";
     }
 
-    const char * getPluginDescriptionString()
+    const char * getPluginDescriptionString() const
     {
 	return "A Qt-based LiveConnected plug-in that graphs numeric data";
     }

@@ -54,7 +54,7 @@ extern "C" {
 
 #include "npapi.h"
 //
-// Stuff for the NPP_SetWindow method:
+// Stuff for the NPP_SetWindow function:
 //
 #ifdef _WS_X11_
 #include <X11/Xlib.h>
@@ -118,7 +118,7 @@ static int instance_count=0;
 // The single global application
 static class PluginSDK_QApplication *piApp=0;
 
-// Temporary parameter passed `around the side' of calls to user methods
+// Temporary parameter passed `around the side' of calls to user functions
 static _NPInstance* next_pi=0;
 
 // To avoid looping when browser OR plugin can delete streams
@@ -668,15 +668,15 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 	    delete This->widget;
 	}
 
-	instance_count--;
-	if (!instance_count) early_shutdown(This->instance);
-
 	delete This->instance;
 	delete [] This->argn;
 	delete [] This->argv;
 
         delete This;
         instance->pdata = NULL;
+
+	instance_count--;
+	if (!instance_count) early_shutdown(This->instance);
     }
 
     return NPERR_NO_ERROR;
@@ -799,7 +799,7 @@ NPP_NewStream(NPP instance,
 	QNPStream* qnps = new QNPStream(This->instance,type,stream,seekable);
 	stream->pdata = qnps;
 	QNPInstance::StreamMode sm = (QNPInstance::StreamMode)*stype;
-	if (!This->instance->newStream(qnps, sm)) {
+	if (!This->instance->newStreamCreated(qnps, sm)) {
 	    return NPERR_GENERIC_ERROR;
 	}
 	*stype = sm;
@@ -969,45 +969,7 @@ NPP_URLNotify(NPP /*instance*/,
 
 
 
-
-
-
-
-
-
-
-/*******************************************************************************
- * The QNPWidget widget - a QWidget that is a Netscape plugin window
- ******************************************************************************/
-
-
-
-QNPWidget::QNPWidget() :
-    pi(next_pi)
-{
-    if (!next_pi) {
-	fatal("QNPWidget must only be created within call to newWindow");
-    }
-    next_pi->widget = this;
-    next_pi = 0;
-
-    setWindow();
-
-    piApp->addQNPWidget(this);
-}
-
-QNPWidget::~QNPWidget()
-{
-    piApp->removeQNPWidget(this);
-}
-
-void QNPWidget::enterInstance()
-{
-}
-
-void QNPWidget::leaveInstance()
-{
-}
+// Hackery for X11:  make Qt's toplevels widgets be Xt widgets too.
 
 #ifdef _WS_X11_
 
@@ -1048,315 +1010,6 @@ void leave_event_handler(Widget, XtPointer, XEvent*, Boolean* cont)
     }
     *cont = FALSE;
 }
-
-#endif
-
-class QFixableWidget : public QWidget {
-public:
-    void fix()
-    {
-	QRect g = geometry();
-	QColor bg = backgroundColor();
-	bool mt = hasMouseTracking();
-	bool hascurs = testWFlags( WCursorSet );
-	QCursor curs = cursor();
-	clearWFlags( WState_Created );
-	clearWFlags( WState_Visible );
-	create( 0, TRUE, FALSE );
-	setGeometry(g);
-	setBackgroundColor( bg );
-	setMouseTracking( mt );
-	if ( hascurs ) {
-	    setCursor( curs );
-	}
-    }
-};
-
-static
-void createNewWindowsForAllChildren(QWidget* parent, int indent=0)
-{
-    QObjectList* list = parent->queryList("QWidget", 0, FALSE, FALSE);
-
-    if ( list ) {
-	QObjectListIt it( *list );
-	QFixableWidget* c;
-	while ( (c = (QFixableWidget*)it.current()) ) {
-	    bool vis = c->isVisible();
-	    c->fix();
-	    createNewWindowsForAllChildren(c,indent+1);
-	    if ( vis ) c->show(); // Now that all children are valid.
-	    ++it;
-	}
-	delete list;
-    }
-}
-
-void QNPWidget::setWindow()
-{
-    saveWId = winId(); // ### Don't need this anymore
-
-    create((WId)pi->window, FALSE, FALSE);
-
-#ifdef _WS_X11_
-    // It's open.  Believe me.
-    setWFlags( WState_Visible );
-
-    Widget w = XtWindowToWidget (qt_xdisplay(), pi->window);
-    XtAddEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
-    XtAddEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
-    Pixmap bgpm=0;
-    XColor col;
-    XtVaGetValues(w,
-	XtNbackground, &col.pixel,
-	XtNbackgroundPixmap, &bgpm,
-	0, 0);
-    XQueryColor(qt_xdisplay(), x11Colormap(), &col);
-    setBackgroundColor(QColor(col.red >> 8, col.green >> 8, col.blue >> 8));
-    if (bgpm) {
-	// ### Need an under-the-hood function here, or we have to
-	// ### rewrite lots of code from QPixmap::convertToImage().
-	// ### Doesn't matter yet, because Netscape doesn't ever set
-	// ### the background image of the window it gives us.
-    }
-#endif
-#ifdef _WS_WIN_
-    if ( !pi->fDefaultWindowProc )
-	pi->fDefaultWindowProc = (WNDPROC)SetWindowLong( pi->window, GWL_WNDPROC,
-	   (LONG)WndProc );
-    SetWindowLong( pi->window, GWL_STYLE,
-	   GetWindowLong( pi->window, GWL_STYLE ) | WS_CLIPCHILDREN );
-#endif
-
-    createNewWindowsForAllChildren(this);
-}
-
-void QNPWidget::unsetWindow()
-{
-#ifdef _WS_X11_
-    WId wi = winId();
-    Widget w = XtWindowToWidget (qt_xdisplay(), wi);
-    if ( w ) {
-	XtRemoveEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
-	XtRemoveEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
-    }
-#endif
-#ifdef _WS_WIN_
-    // Nothing special
-#endif
-
-    destroy( FALSE );
-}
-
-
-
-
-
-
-
-/*******************************************************************************
- * The QNPInstance class - a QObject that is a Netscape plugin
- * Plugins don't necessary have a window (a QNPWidget).
- ******************************************************************************/
-
-
-QNPInstance::QNPInstance() :
-    pi(next_pi)
-{
-    if (!next_pi) {
-	fatal("QNPInstance must only be created within call to newInstance");
-    }
-    next_pi->instance = this;
-    next_pi = 0;
-}
-
-QNPInstance::~QNPInstance()
-{
-}
-
-
-QNPWidget* QNPInstance::newWindow()
-{
-    // No window by default
-    next_pi = 0;
-    return 0;
-}
-
-QNPWidget* QNPInstance::widget()
-{
-    return pi->widget;
-}
-
-bool QNPInstance::newStream(QNPStream*, StreamMode&)
-{
-    return FALSE;
-}
-
-void QNPInstance::streamAsFile(QNPStream*, const char*)
-{
-}
-
-void QNPInstance::streamDestroyed(QNPStream*)
-{
-}
-
-int QNPInstance::writeReady(QNPStream*)
-{
-    // Yes, we can handle any amount of data at once.
-    return 0X0FFFFFFF;
-}
-
-int QNPInstance::write(QNPStream*, int, int len, void*)
-{
-    // Yes, we processed it all... into the bit bucket.
-    return len;
-}
-
-void QNPInstance::getURL(const char* url, const char* window)
-{
-    NPN_GetURL( pi->npp, url, window );
-}
-
-void QNPInstance::postURL(const char* url, const char* window,
-	     uint len, const char* buf, bool file)
-{
-    NPN_PostURL( pi->npp, url, window, len, buf, file );
-}
-
-int QNPInstance::argc() const
-{
-    return pi->argc;
-}
-
-const char* QNPInstance::argn(int i) const
-{
-    return pi->argn[i];
-}
-
-const char* QNPInstance::argv(int i) const
-{
-    return pi->argv[i];
-}
-
-const char* QNPInstance::arg(const char* name) const
-{
-    for (int i=0; i<pi->argc; i++) {
-	// SGML: names are case insensitive
-	if ( stricmp( name, pi->argn[i] ) == 0 )
-	    return pi->argv[i];
-    }
-    return 0;
-}
-
-const char* QNPInstance::userAgent() const
-{
-    return NPN_UserAgent(pi->npp);
-}
-
-QNPStream* QNPInstance::newStream(const char* mimetype, const char* window,
-    bool as_file)
-{
-    NPStream* s=0;
-    NPN_NewStream(pi->npp, (char*)mimetype, window, &s);
-    return s ? new QNPStream(this, mimetype, s, as_file) : 0;
-}
-
-void QNPInstance::status(const char* msg)
-{
-    NPN_Status(pi->npp, msg);
-}
-
-
-
-/*******************************************************************************
- * Streams from the net.
- * ### Perhaps we should let the plugin create a derived class?
- ******************************************************************************/
-
-
-QNPStream::QNPStream(QNPInstance* in,const char* mt, NPStream* st, bool se) :
-    inst(in),
-    stream(st),
-    mtype(mt),
-    seek(se)
-{
-}
-
-QNPStream::~QNPStream()
-{
-    if (!qnps_no_call_back) {
-	qnps_no_call_back++;
-	NPN_DestroyStream(inst->pi->npp, stream, 0);
-	qnps_no_call_back--;
-    }
-}
-
-
-const char* QNPStream::url() const
-{
-    return stream->url;
-}
-
-uint QNPStream::end() const
-{
-    return stream->end;
-}
-
-uint QNPStream::lastModified() const
-{
-    return stream->lastmodified;
-}
-
-
-const char* QNPStream::type() const
-{
-    return mtype;
-}
-
-bool QNPStream::seekable() const
-{
-    return seek;
-}
-
-void QNPStream::requestRead(int offset, uint length)
-{
-    NPByteRange range;
-    range.offset = offset;
-    range.length = length;
-    range.next = 0; // ### Only one support at this time
-    NPN_RequestRead(stream, &range);
-}
-
-int QNPStream::write( int len, void* buffer )
-{
-    return NPN_Write(inst->pi->npp, stream, len, buffer);
-}
-
-
-
-
-
-/*******************************************************************************
- * The plugin itself - only one ever exists, created by QNPlugin::actual()
- ******************************************************************************/
-
-
-QNPlugin::QNPlugin()
-{
-}
-
-QNPlugin::~QNPlugin()
-{
-}
-
-void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
-	     int& browser_major, int& browser_minor)
-{
-    NPN_Version(&plugin_major, &plugin_minor, &browser_major, &browser_minor);
-}
-
-// Hackery for X11:  make Qt's toplevels widgets be Xt widgets too.
-
-#ifdef _WS_X11_
 
 // Relacement for Qt function - add Xt stuff for top-level widgets
 Window qt_XCreateWindow( const QWidget* qw, Display *display, Window parent,
@@ -1456,3 +1109,595 @@ int main(int argc, char** argv)
 #endif
 
 
+
+
+
+
+
+
+
+
+
+/*!
+  \class QNPWidget qnp.h
+  \brief A QWidget that is a Netscape plugin window
+
+  Deriving from QNPWidget is creates a widget that can be used as a 
+  Netscape plugin window, or create one and add child widgets.
+  Instances of QNPWidget may only be created
+  in a call to QNPInstance::newWindow().
+
+  The default implementation is an empty window.
+*/
+
+/*!
+  Creates a QNPWidget.
+*/
+QNPWidget::QNPWidget() :
+    pi(next_pi)
+{
+    if (!next_pi) {
+	fatal("QNPWidget must only be created within call to newWindow");
+    }
+    next_pi->widget = this;
+    next_pi = 0;
+
+    setWindow();
+
+    piApp->addQNPWidget(this);
+}
+
+/*!
+  Destroys the window.  This will be called by the plugin binding code
+  when the window is no longer required.  Netscape will delete windows
+  when they leave the page.  The bindings will change the QWidget::winId()
+  of the window when the window is resized, but this should not affect
+  normal widget behaviour.
+*/
+QNPWidget::~QNPWidget()
+{
+    piApp->removeQNPWidget(this);
+}
+
+/*!
+  Called when the mouse enters the plugin window.  Default does nothing.
+*/
+void QNPWidget::enterInstance()
+{
+}
+
+/*!
+  Called when the mouse leaves the plugin window.  Default does nothing.
+*/
+void QNPWidget::leaveInstance()
+{
+}
+
+class QFixableWidget : public QWidget {
+public:
+    void fix()
+    {
+	QRect g = geometry();
+	QColor bg = backgroundColor();
+	bool mt = hasMouseTracking();
+	bool hascurs = testWFlags( WCursorSet );
+	QCursor curs = cursor();
+	clearWFlags( WState_Created );
+	clearWFlags( WState_Visible );
+	create( 0, TRUE, FALSE );
+	setGeometry(g);
+	setBackgroundColor( bg );
+	setMouseTracking( mt );
+	if ( hascurs ) {
+	    setCursor( curs );
+	}
+    }
+};
+
+static
+void createNewWindowsForAllChildren(QWidget* parent, int indent=0)
+{
+    QObjectList* list = parent->queryList("QWidget", 0, FALSE, FALSE);
+
+    if ( list ) {
+	QObjectListIt it( *list );
+	QFixableWidget* c;
+	while ( (c = (QFixableWidget*)it.current()) ) {
+	    bool vis = c->isVisible();
+	    c->fix();
+	    createNewWindowsForAllChildren(c,indent+1);
+	    if ( vis ) c->show(); // Now that all children are valid.
+	    ++it;
+	}
+	delete list;
+    }
+}
+
+/*!
+  For internal use only.
+*/
+void QNPWidget::setWindow()
+{
+    saveWId = winId(); // ### Don't need this anymore
+
+    create((WId)pi->window, FALSE, FALSE);
+
+#ifdef _WS_X11_
+    // It's open.  Believe me.
+    setWFlags( WState_Visible );
+
+    Widget w = XtWindowToWidget (qt_xdisplay(), pi->window);
+    XtAddEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
+    XtAddEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
+    Pixmap bgpm=0;
+    XColor col;
+    XtVaGetValues(w,
+	XtNbackground, &col.pixel,
+	XtNbackgroundPixmap, &bgpm,
+	0, 0);
+    XQueryColor(qt_xdisplay(), x11Colormap(), &col);
+    setBackgroundColor(QColor(col.red >> 8, col.green >> 8, col.blue >> 8));
+    if (bgpm) {
+	// ### Need an under-the-hood function here, or we have to
+	// ### rewrite lots of code from QPixmap::convertToImage().
+	// ### Doesn't matter yet, because Netscape doesn't ever set
+	// ### the background image of the window it gives us.
+    }
+#endif
+#ifdef _WS_WIN_
+    if ( !pi->fDefaultWindowProc )
+	pi->fDefaultWindowProc = (WNDPROC)SetWindowLong( pi->window, GWL_WNDPROC,
+	   (LONG)WndProc );
+    SetWindowLong( pi->window, GWL_STYLE,
+	   GetWindowLong( pi->window, GWL_STYLE ) | WS_CLIPCHILDREN );
+#endif
+
+    createNewWindowsForAllChildren(this);
+}
+
+/*!
+  For internal use only.
+*/
+void QNPWidget::unsetWindow()
+{
+#ifdef _WS_X11_
+    WId wi = winId();
+    Widget w = XtWindowToWidget (qt_xdisplay(), wi);
+    if ( w ) {
+	XtRemoveEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
+	XtRemoveEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
+    }
+#endif
+#ifdef _WS_WIN_
+    // Nothing special
+#endif
+
+    destroy( FALSE );
+}
+
+
+
+
+
+
+
+/*!
+  \class QNPInstance qnp.h
+  \brief a QObject that is a Netscape plugin
+
+  Deriving from QNPInstance is creates an object that represents a single
+  &lt;EMBED&gt; tag in an HTML document.
+
+  The QNPInstance is responsible for creating an appropriate window if
+  required (not all plugins have windows), and for interacting with the
+  input/output facilities intrinsic to plugins.
+
+  Note that there is <em>absolutely no garrantee</em> as to the order in
+  which functions are called.  Sometimes the browser will call setWindow()
+  first, at other times, newStreamCreated() will be called first (assuming the
+  &lt;EMBED&gt; tag has a SRC parameter).
+
+  <em>No GUI functionality</em> of Qt may be used until the first call
+  to setWindow().  This includes any use of QPaintDevice (ie. QPixmap,
+  QWidget, and all subclasses), QApplication, anything related to
+  QPainter (QBrush, etc.), fonts, QMovie, QToolTip, etc.  Classes which
+  specifically <em>can</em> be used are QImage, QFile, and QBuffer.
+  Since the task of a QNPInstance is to gather data, while the task of
+  the QNPWidget is to provide a graphical interface to that data, this
+  restriction should be benign.
+*/
+
+/*!
+  Creates a QNPInstance.
+  Can only be called from within a derived class created
+  within QNPlugin::newInstance().
+*/
+QNPInstance::QNPInstance() :
+    pi(next_pi)
+{
+    if (!next_pi) {
+	fatal("QNPInstance must only be created within call to newInstance");
+    }
+    next_pi->instance = this;
+    next_pi = 0;
+}
+
+/*!
+  Called when the plugin instance is about to disappear.
+*/
+QNPInstance::~QNPInstance()
+{
+}
+
+/*!
+  Called at most once, at some time after the QNPInstance is created.
+  If the plugin requires a window, this function should return a derived
+  class of QNPWidget that provides the required interface.
+*/
+QNPWidget* QNPInstance::newWindow()
+{
+    // No window by default
+    next_pi = 0;
+    return 0;
+}
+
+/*!
+  Returns the plugin window created at newWindow(), if any.
+*/
+QNPWidget* QNPInstance::widget()
+{
+    return pi->widget;
+}
+
+/*!
+  \fn bool QNPInstance::newStreamCreated(QNPStream*, StreamMode& smode)
+
+  This function is called when a new stream has been created.
+  The instance should return TRUE if it accepts the processing
+  of the stream.  If the instance requires the stream as a file,
+  it should set \a smode to AsFileOnly, in which case the data
+  will be delivered some time later to the streamAsFile() function.
+  Otherwise, the data will be delivered in chunks to the write()
+  function which must consume at least as much data as was returned
+  by the most recent call to writeReady().
+*/
+bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
+{
+    return FALSE;
+}
+
+/*!
+  Called when a stream is delivered as a single file rather than
+  as chunks.  This may be simpler for a plugin to deal with, but
+  precludes any incremental behaviour.
+  \sa newStreamCreated(), newStream()
+*/
+void QNPInstance::streamAsFile(QNPStream*, const char*)
+{
+}
+
+/*!
+  Called when a stream is destroyed.
+*/
+void QNPInstance::streamDestroyed(QNPStream*)
+{
+}
+
+/*!
+  Called to inquire the minimum amount of data the instance is
+  willing to receive from the given stream.
+
+  The default returns a very large value.
+*/
+int QNPInstance::writeReady(QNPStream*)
+{
+    // Yes, we can handle any amount of data at once.
+    return 0X0FFFFFFF;
+}
+
+/*!
+  \fn int QNPInstance::write(QNPStream*, int offset, int len, void* buffer)
+
+  Called when incoming data is available for processing by the instance.
+  The instance \e must consume at least the amount that it returned in
+  the most recent call to writeReady(), but it may consume up to the
+  amount given by \a len.  \a buffer is the data available for consumption.
+  The \a offset argument is merely an informational
+  value indicating the total amount of data that has been consumed
+  in prior calls.
+
+  This function should return the amount of data actually consumed.
+*/
+int QNPInstance::write(QNPStream*, int, int len, void*)
+{
+    // Yes, we processed it all... into the bit bucket.
+    return len;
+}
+
+/*!
+  Requests that the given URL be retrieved and sent to the named
+  window.  See Netscape's JavaScript documentation for an explanation
+  of window names.
+*/
+void QNPInstance::getURL(const char* url, const char* window)
+{
+    NPN_GetURL( pi->npp, url, window );
+}
+
+/*!
+  This function is not tested.  It is an interface to the NPN_PostURL
+  function of the Netscape Plugin API.
+*/
+void QNPInstance::postURL(const char* url, const char* window,
+	     uint len, const char* buf, bool file)
+{
+    NPN_PostURL( pi->npp, url, window, len, buf, file );
+}
+
+/*!
+  Returns the number of arguments to the instance.  Note that you should
+  not normally rely on the ordering of arguments, and also note that
+  the SGML specification does not permit multiple arguments with the same
+  name.
+
+  \sa arg()
+*/
+int QNPInstance::argc() const
+{
+    return pi->argc;
+}
+
+/*!
+  Returns the name of the <em>i</em>th argument.  See notes of argc().
+*/
+const char* QNPInstance::argn(int i) const
+{
+    return pi->argn[i];
+}
+
+/*!
+  Returns the value of the <em>i</em>th argument.  See notes of argc().
+*/
+const char* QNPInstance::argv(int i) const
+{
+    return pi->argv[i];
+}
+
+/*!
+  Returns the value of the named arguments, or 0 if no argument
+  with that name appears in the &ltEMBED&gt; tag of this instance.
+*/
+const char* QNPInstance::arg(const char* name) const
+{
+    for (int i=0; i<pi->argc; i++) {
+	// SGML: names are case insensitive
+	if ( stricmp( name, pi->argn[i] ) == 0 )
+	    return pi->argv[i];
+    }
+    return 0;
+}
+
+/*!
+  Returns the user agent (browser name) containing this instance.
+*/
+const char* QNPInstance::userAgent() const
+{
+    return NPN_UserAgent(pi->npp);
+}
+
+/*!
+  This function is not tested.  It is an interface to the NPN_NewStream
+  function of the Netscape Plugin API.
+*/
+QNPStream* QNPInstance::newStream(const char* mimetype, const char* window,
+    bool as_file)
+{
+    NPStream* s=0;
+    NPN_NewStream(pi->npp, (char*)mimetype, window, &s);
+    return s ? new QNPStream(this, mimetype, s, as_file) : 0;
+}
+
+/*!
+  Sets the status message in the browser containing this instance.
+*/
+void QNPInstance::status(const char* msg)
+{
+    NPN_Status(pi->npp, msg);
+}
+
+
+
+/*!
+  \class QNPStream qnp.h
+  \brief A stream of data provided to a QNPInstance by the browser.
+
+  \sa QNPInstance::write(), QNPInstance::newStreamCreated()
+*/
+
+/*!
+  Creates a stream.  Plugins should not call this, but rather
+  QNPInstance::newStream() if a stream is required.
+*/
+QNPStream::QNPStream(QNPInstance* in,const char* mt, _NPStream* st, bool se) :
+    inst(in),
+    stream(st),
+    mtype(mt),
+    seek(se)
+{
+}
+
+/*!
+  Destroys the stream.
+*/
+QNPStream::~QNPStream()
+{
+    if (!qnps_no_call_back) {
+	qnps_no_call_back++;
+	NPN_DestroyStream(inst->pi->npp, stream, 0);
+	qnps_no_call_back--;
+    }
+}
+
+/*!
+  \fn QNPInstance* QNPStream::instance()
+
+  Returns the QNPInstance for which this stream was created.
+*/
+
+/*!
+  Returns the URL from which the stream was created.
+*/
+const char* QNPStream::url() const
+{
+    return stream->url;
+}
+
+/*!
+  Returns the length of the stream (???).
+*/
+uint QNPStream::end() const
+{
+    return stream->end;
+}
+
+/*!
+  Returns the time when the source of the stream was last modified.
+*/
+uint QNPStream::lastModified() const
+{
+    return stream->lastmodified;
+}
+
+/*!
+  Returns the MIME type of the stream.
+*/
+const char* QNPStream::type() const
+{
+    return mtype;
+}
+
+/*!
+  Returns TRUE if the stream is seekable.
+*/
+bool QNPStream::seekable() const
+{
+    return seek;
+}
+
+/*!
+  Requests the given section of the stream be sent to the
+  QNPInstance::write() function of the instance() of this stream.
+*/
+void QNPStream::requestRead(int offset, uint length)
+{
+    NPByteRange range;
+    range.offset = offset;
+    range.length = length;
+    range.next = 0; // ### Only one support at this time
+    NPN_RequestRead(stream, &range);
+}
+
+/*!
+  Writes data \e to the stream.
+*/
+int QNPStream::write( int len, void* buffer )
+{
+    return NPN_Write(inst->pi->npp, stream, len, buffer);
+}
+
+
+
+
+
+/*******************************************************************************
+ * The plugin itself - only one ever exists, created by QNPlugin::actual()
+ ******************************************************************************/
+
+
+/*!
+  \class QNPlugin qnp.h
+  \brief The plugin central factory.
+
+  This class is the heart of the plugin.  One instance of this object is
+  created when the plugin is \e first needed, by calling
+  QNPlugin::actual(), which must be implemented in your plugin code to
+  return some derived class of QNPlugin.  The one QNPlugin object creates
+  all instances for a single running Netscape process.
+*/
+
+/*!
+  \fn QNPlugin* QNPlugin::actual()
+
+  This must be implemented by your plugin code.  It should return a derived
+  class of QNPlugin.
+*/
+
+/*!
+  Creates a QNPlugin.  This may only be used by the constructor 
+  derived class
+  returned by plugin's implementation of the QNPlugin::actual() function.
+*/
+QNPlugin::QNPlugin()
+{
+}
+
+/*!
+  Destroys the QNPlugin.  This is called by the plugin binding code
+  just before the plugin is about to be unloaded from memory.  If newWindow()
+  has been called, a QApplication will still exist at this time, but will
+  be deleted shortly after before the plugin is deleted.
+*/
+QNPlugin::~QNPlugin()
+{
+}
+
+/*!
+  Returns the version information - the version of the plugin API, and
+  the version of the browser.
+*/
+void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
+	     int& browser_major, int& browser_minor)
+{
+    NPN_Version(&plugin_major, &plugin_minor, &browser_major, &browser_minor);
+}
+
+/*!
+    \fn QNPInstance* QNPlugin::newInstance()
+
+  Override this to return an appropriate derived class of QNPInstance.
+*/
+
+/*!
+    \fn const char* QNPlugin::getMIMEDescription() const
+
+  Override this to return the MIME description of the data formats
+  supported by your plugin.  The format of this string is described
+  by the following example:
+
+\code
+    const char* getMIMEDescription() const
+    {
+        return "image/x-png:png:PNG Image;"
+               "image/png:png:PNG Image;"
+               "image/x-portable-bitmap:pbm:PBM Image;"
+               "image/x-portable-graymap:pgm:PGM Image;"
+               "image/x-portable-pixmap:ppm:PPM Image;"
+               "image/bmp:bmp:BMP Image;"
+               "image/x-ms-bmp:bmp:BMP Image;"
+               "image/x-xpixmap:xpm:XPM Image;"
+               "image/xpm:xpm:XPM Image";
+    }
+\endcode
+*/
+
+/*!
+    \fn const char* QNPlugin::getPluginNameString() const
+
+  Returns the plain-text name of the plugin.
+*/
+
+/*!
+    \fn const char* QNPlugin::getPluginDescriptionString() const
+
+  Returns a plain-text description of the plugin.
+*/

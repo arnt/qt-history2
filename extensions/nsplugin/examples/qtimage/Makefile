@@ -12,14 +12,14 @@ CFLAGS	=	-DPNG_SUPPORT -Wall -W -O2 -fno-strength-reduce -fPIC
 INCPATH	=	-I$(QTDIR)/include
 LINK	=	gcc
 LFLAGS	=	-shared -Wl,-soname,$(TARGETD)
-LIBS	=	-L$(QTDIR)/lib -L/usr/X11/lib -lqnp -lpng -lz -lqt -lXt -lX11 -lm
+LIBS	=	-L$(QTDIR)/lib -L/usr/X11/lib -lqnp -lqimgio -lqt -lXt -lX11 -lm
 MOC	=	moc
 
 ####### Files
 
-HEADERS =	qpngio.h
-SOURCES =	qtimage.cpp qpngio.cpp
-OBJECTS =	qtimage.o qpngio.o
+HEADERS =	
+SOURCES =	qtimage.cpp 
+OBJECTS =	qtimage.o
 SRCMOC	=	
 OBJMOC	=	
 TARGETD	=	qtimage.so

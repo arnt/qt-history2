@@ -52,7 +52,6 @@ private:
 class QNPInstance : public QObject {
     Q_OBJECT
 public:
-    QNPInstance();
     ~QNPInstance();
 
     // Arguments passed to EMBED
@@ -71,7 +70,7 @@ public:
     // Incoming streams (SRC=... tag).
     // Defaults ignore data.
     enum StreamMode { Normal=1, Seek=2, AsFile=3, AsFileOnly=4 };
-    virtual bool newStream(QNPStream*, StreamMode& smode);
+    virtual bool newStreamCreated(QNPStream*, StreamMode& smode);
     virtual int writeReady(QNPStream*);
     virtual int write(QNPStream*, int offset, int len, void* buffer);
     virtual void streamDestroyed(QNPStream*);
@@ -86,6 +85,9 @@ public:
 	bool as_file);
     virtual void streamAsFile(QNPStream*, const char* fname);
 
+protected:
+    QNPInstance();
+
 private:
     friend QNPStream;
     _NPInstance* pi;
@@ -97,7 +99,6 @@ public:
     // Write this to return your QNPlugin derived class.
     static QNPlugin* actual();
 
-    QNPlugin();
     virtual ~QNPlugin();
 
     void getVersionInfo(int& plugin_major, int& plugin_minor,
@@ -105,8 +106,11 @@ public:
 
     virtual QNPInstance* newInstance()=0;
     virtual const char* getMIMEDescription() const=0;
-    virtual const char* getPluginNameString()=0;
-    virtual const char* getPluginDescriptionString()=0;
+    virtual const char* getPluginNameString() const=0;
+    virtual const char* getPluginDescriptionString() const=0;
+
+protected:
+    QNPlugin();
 };
 
 
