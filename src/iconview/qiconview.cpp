@@ -4886,7 +4886,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    for ( ; item; item = item->next ) {
 		if ( item->y() > d->currentItem->y() && r.intersects( item->rect() ) ) {
 		    QRect ir = r.intersect( item->rect() );
-		    if ( item->next && r.intersects( item->next->rect() ) ) {
+		    if ( item->next && r.intersects( item->next->rect() ) && item->next->y() < item->rect().bottom() ) {
 			QRect irn = r.intersect( item->next->rect() );
 			if ( irn.width() > ir.width() )
 			    item = item->next;
@@ -4919,7 +4919,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	    for ( ; item; item = item->prev ) {
 		if ( item->y() < d->currentItem->y() && r.intersects( item->rect() ) ) {
 		    QRect ir = r.intersect( item->rect() );
-		    if ( item->prev && r.intersects( item->prev->rect() ) ) {
+		    if ( item->prev && r.intersects( item->prev->rect() ) && item->prev->rect().bottom() > item->y()) {
 			QRect irn = r.intersect( item->prev->rect() );
 			if ( irn.width() > ir.width() )
 			    item = item->prev;
