@@ -28,7 +28,6 @@ HEADERS += atom.h\
            plaincodemarker.h\
            quickcodeparser.h\
            quoter.h\
-           sectioniterator.h\
            separator.h\
            sgmlgenerator.h\
            stringset.h\
@@ -56,7 +55,6 @@ SOURCES += atom.cpp\
            plaincodemarker.cpp\
            quickcodeparser.cpp\
            quoter.cpp\
-           sectioniterator.cpp\
            separator.cpp\
            stringset.cpp\
            tokenizer.cpp\
