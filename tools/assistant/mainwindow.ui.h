@@ -449,8 +449,7 @@ void MainWindow::showSettingsDialog()
     actionGoLinguist->removeFrom( goMenu );
     actionGoLinguist->removeFrom( Toolbar );
     goMenu->removeItemAt( goMenu->count() - 1 );
-    QObjectList *lst;
-    (const QObjectList*)lst = Toolbar->children();
+    QObjectList *lst = Toolbar->children();
     QObject *obj;
     for ( obj = lst->last(); obj; obj = lst->prev() ) {
 	if ( obj->isA( "QToolBarSeparator" ) ) {
