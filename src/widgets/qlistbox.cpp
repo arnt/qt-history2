@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#41 $
 **
 ** Implementation of QListBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#41 $";
 #endif
 
 
@@ -140,6 +140,7 @@ QListBox::~QListBox()
 {
     goingDown = TRUE;
     clearList();
+    delete itemList;
 }
 
 
