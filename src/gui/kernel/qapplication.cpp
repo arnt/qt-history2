@@ -40,6 +40,10 @@
 #ifndef Q_WS_MAC
 #include "qinputcontext.h"
 #endif
+#ifdef Q_WS_X11
+#include <private/qt_x11_p.h>
+#include "qinputcontextfactory.h"
+#endif
 
 #include <qthread.h>
 #include <private/qthread_p.h>
