@@ -1684,7 +1684,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 		w += motifTabSpacing;
 	    else if (mi->popup())
 		// submenu indicator needs some room if we don't have a tab column
-		w += motifArrowHMargin;
+		w += motifArrowHMargin + 2*motifItemFrame;
 
 	    if ( checkable && maxpmw <= 0)
 		// if we are checkable and have no iconsets, add space for a checkmark
