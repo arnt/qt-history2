@@ -1981,6 +1981,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		UniChar *unicode = (UniChar*)NewPtr(unilen);
 		GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, unilen, NULL, unicode);
 		mystr = QString((QChar*)unicode, unilen / sizeof(UniChar));
+		DisposePtr((char *)unicode);
 	    } else if(chr) {
 		static QTextCodec *c = NULL;
 		if(!c)
