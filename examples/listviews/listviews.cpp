@@ -87,18 +87,18 @@ MessageListItem::MessageListItem( QListView *parent, Message *m )
     setText( 2, myMessage->header().datetime().toString() );
 }
 
-void MessageListItem::paintCell( QPainter *p, const QColorGroup &cg,
+void MessageListItem::paintCell( QPainter *p, const QPalette &pal,
 				 int column, int width, int alignment )
 {
-    QColorGroup _cg( cg );
-    QColor c = _cg.text();
+    QPalette _pal( pal );
+    QColor c = _pal.text();
 
     if ( myMessage->state() == Message::Unread )
-	_cg.setColor( QColorGroup::Text, Qt::red );
+	_pal.setColor( QPalette::Text, Qt::red );
 
-    QListViewItem::paintCell( p, _cg, column, width, alignment );
+    QListViewItem::paintCell( p, _pal, column, width, alignment );
 
-    _cg.setColor( QColorGroup::Text, c );
+    _pal.setColor( QPalette::Text, c );
 }
 
 // -----------------------------------------------------------------
@@ -136,7 +136,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
 
     message = new QLabel( vsplitter );
     message->setAlignment( Qt::AlignTop );
-    message->setBackgroundMode( PaletteBase );
+    message->setBackgroundRole( QPalette::Base );
 
     connect( folders, SIGNAL( selectionChanged( QListViewItem* ) ),
 	     this, SLOT( slotFolderChanged( QListViewItem* ) ) );

@@ -126,7 +126,7 @@ class MessageListItem : public QListViewItem
 public:
     MessageListItem( QListView *parent, Message *m );
 
-    virtual void paintCell( QPainter *p, const QColorGroup &cg,
+    virtual void paintCell( QPainter *p, const QPalette &pal,
 			    int column, int width, int alignment );
 
     Message *message() { return myMessage; }

@@ -19,7 +19,7 @@ int main( int argc, char **argv )
 
     ListViews listViews;
     listViews.resize( 640, 480 );
-    listViews.setCaption( "Qt Example - Listview" );
+    listViews.setWindowTitle( "Qt Example - Listview" );
     a.setMainWidget( &listViews );
     listViews.show();
 
