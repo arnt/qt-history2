@@ -69,17 +69,19 @@ bool QWindowsXPStyle::resolveSymbols()
 	lib.setAutoUnload( FALSE );
 
 	pIsAppThemed = (PtrIsAppThemed)lib.resolve( "IsAppThemed" );
-	pIsThemeActive = (PtrIsThemeActive)lib.resolve( "IsThemeActive" );
-	pGetThemePartSize = (PtrGetThemePartSize)lib.resolve( "GetThemePartSize" );
-	pOpenThemeData = (PtrOpenThemeData)lib.resolve( "OpenThemeData" );
-	pCloseThemeData = (PtrCloseThemeData)lib.resolve( "CloseThemeData" );
-	pDrawThemeBackground = (PtrDrawThemeBackground)lib.resolve( "DrawThemeBackground" );
-	pGetThemeColor = (PtrGetThemeColor)lib.resolve( "GetThemeColor" );
-	pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)lib.resolve( "GetThemeBackgroundRegion" );
-	pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)lib.resolve( "IsThemeBackgroundPartiallyTransparent" );
+	if ( pIsAppThemed ) {
+	    pIsThemeActive = (PtrIsThemeActive)lib.resolve( "IsThemeActive" );
+	    pGetThemePartSize = (PtrGetThemePartSize)lib.resolve( "GetThemePartSize" );
+	    pOpenThemeData = (PtrOpenThemeData)lib.resolve( "OpenThemeData" );
+	    pCloseThemeData = (PtrCloseThemeData)lib.resolve( "CloseThemeData" );
+	    pDrawThemeBackground = (PtrDrawThemeBackground)lib.resolve( "DrawThemeBackground" );
+	    pGetThemeColor = (PtrGetThemeColor)lib.resolve( "GetThemeColor" );
+	    pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)lib.resolve( "GetThemeBackgroundRegion" );
+	    pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)lib.resolve( "IsThemeBackgroundPartiallyTransparent" );
+	}
     }
     
-    return pGetThemePartSize != 0;
+    return pIsAppThemed != 0;
 }
 
 class QWindowsXPStylePrivate
@@ -97,11 +99,6 @@ public:
 
     void init()
     {
-	if ( qWinVersion() != Qt::WV_XP ) {
-	    use_xp = FALSE;
-	    init_xp = TRUE;
-	}
-
         if ( !init_xp ) {
 	    init_xp = TRUE;
 	    use_xp = QWindowsXPStyle::resolveSymbols() && pIsThemeActive() && pIsAppThemed();
