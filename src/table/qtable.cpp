@@ -168,9 +168,13 @@ static bool isRowSelection( QTable::SelectionMode selMode )
     the rectangle's cells is called the anchor cell; this is the cell
     that was selected first.
 
-    The simplest way to create a selection is to use the constructor
-    that takes a start row and column (this becomes the anchor cell)
-    and an end row and column. Alternatively, use the no-argument
+    The easiest way to create a selection is to use
+    QTable::selectCells() or QTable::selectRow() or
+    QTable::selectColumn(). If you want to create a selection that you
+    can resize later, then use this class instead. The simplest way to
+    create a selection with this class is to use the constructor that
+    takes a start row and column (this becomes the anchor cell) and an
+    end row and column. Alternatively, use the no-argument
     constructor, then call init() to set the anchor cell and then call
     expandTo() to set the end row and column.
 
@@ -729,8 +733,9 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
 
     If the function returns 0, the cell is read-only.
 
-    The returned widget should preferably be invisible, ideally with
-    QTable::viewport() as parent.
+    The returned widget should preferably be invisible (e.g. there's
+    no need to call show() on it), ideally with QTable::viewport() as
+    parent.
 
     If you reimplement this function you'll almost certainly need to
     reimplement setContentFromEditor(), and may need to reimplement
@@ -753,7 +758,7 @@ QWidget *QTableItem::createEditor() const
 
 /*!
     Whenever the content of a cell has been edited by the editor \a w,
-    QTable calls this virtual function to copy the new values into the
+    QTable calls this virtual function to copy the new value into the
     QTableItem.
 
     If you reimplement createEditor() and return something that is not
@@ -897,8 +902,7 @@ bool QTableItem::isReplaceable() const
 
 /*!
     This virtual function returns the key that should be used for
-    sorting. The default implementation returns the text() of the
-    relevant item.
+    sorting. The default implementation returns the item's text().
 
     \sa QTable::setSorting()
 */
@@ -910,7 +914,7 @@ QString QTableItem::key() const
 
 /*!
     This virtual function returns the size a cell needs to show its
-    entire content.
+    entire contents.
 
     If you subclass QTableItem you will often need to reimplement this
     function.
@@ -949,9 +953,9 @@ QSize QTableItem::sizeHint() const
 
     \warning This function only works if the item has already been
     inserted into the table using e.g. QTable::setItem(). This
-    function also checks to make sure if \a rs and \a cs are within
-    the bounds of the table and returns without changing the span if
-    they are not. In addition swapping, inserting or removing rows and
+    function also checks to see if \a rs and \a cs are within the
+    bounds of the table and returns without changing the span if they
+    are not. Note that swapping, inserting or removing rows and
     columns that cross QTableItems spanning more than one cell is not
     supported.
 
@@ -1007,7 +1011,7 @@ void QTableItem::setSpan( int rs, int cs )
 }
 
 /*!
-    Returns the row span of the table item, usually 1.
+    Returns the row span of the table item; usually 1.
 
     \sa setSpan() colSpan()
 */
@@ -1018,7 +1022,7 @@ int QTableItem::rowSpan() const
 }
 
 /*!
-    Returns the column span of the table item, usually 1.
+    Returns the column span of the table item; usually 1.
 
     \sa setSpan() rowSpan()
 */
@@ -1044,7 +1048,7 @@ void QTableItem::setRow( int r )
 }
 
 /*!
-    Sets column \a c as the table item's column. Usually you will not
+    Sets column \a c as the table item's column. Usually you do not
     need to call this function.
 
     If the cell spans multiple columns, this function sets the
@@ -1126,8 +1130,7 @@ bool QTableItem::isEnabled() const
     real comboboxes in \l{QTable}s. When the cell has the focus it
     displays a real combobox which the user can interact with. When
     the cell does not have the focus the cell \e looks like a
-    combobox. Only text items (i.e. no pixmaps) may be used in
-    QComboTableItems.
+    combobox. Pixmaps may not be used in QComboTableItems.
 
     QComboTableItem items have the edit type \c WhenCurrent (see
     \l{EditType}). The QComboTableItem's list of items is provided by
@@ -1147,7 +1150,7 @@ bool QTableItem::isEnabled() const
     To populate a table cell with a QComboTableItem use
     QTable::setItem().
 
-    QComboTableItems may be deleted with QTable::clearCell().
+    QComboTableItems can be deleted with QTable::clearCell().
 
     QComboTableItems can be distinguished from \l{QTableItem}s and
     \l{QCheckTableItem}s using their Run Time Type Identification
@@ -1168,7 +1171,7 @@ QWidget *fakeComboWidget = 0;
     the user may only select from the list of items provided.
 
     By default QComboTableItems cannot be replaced by other table
-    items since isReplaceable() returns FALSE by default.
+    items since isReplaceable() returns FALSE.
 
     \sa QTable::clearCell() EditType
 */
@@ -1187,7 +1190,7 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 }
 
 /*!
-    Sets the list items of this QComboTableItem to the strings in the
+    Sets the QComboTableItem's list of items to the strings in the
     string list \a l.
 */
 
@@ -1257,7 +1260,7 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 }
 
 /*!
-    Sets the list item \a i to be the combo table item's current list
+    Sets list item \a i to be the combo table item's current list
     item.
 
     \sa currentItem()
@@ -1354,8 +1357,8 @@ QString QComboTableItem::text( int i ) const
 
 /*!
     If \a b is TRUE the combo table item can be edited, i.e. the user
-    may enter a new text item themselves. If \a b is FALSE the user may
-    may only choose one of the existing items.
+    can enter a new text item themselves. If \a b is FALSE the user
+    can only choose one of the existing items.
 
     \sa isEditable()
 */
@@ -1386,8 +1389,8 @@ int QComboTableItem::RTTI = 1;
 
     Make your derived classes return their own values for rtti()to
     distinguish between different table item subclasses. You should
-    use values greater than 1000, preferably a large random number, to
-    allow for extensions to this class.
+    use values greater than 1000, to allow for extensions to this
+    class.
 
 
     \sa QTableItem::rtti()
@@ -1570,8 +1573,8 @@ int QCheckTableItem::RTTI = 2;
 
     Make your derived classes return their own values for rtti()to
     distinguish between different table item subclasses. You should
-    use values greater than 1000, preferably a large random number, to
-    allow for extensions to this class.
+    use values greater than 1000, to allow for extensions to this
+    class.
 
     \sa QTableItem::rtti()
 */
@@ -1633,7 +1636,7 @@ QSize QCheckTableItem::sizeHint() const
     the table showing column numbers. (The numbers displayed start at
     1, although row and column numbers within QTable begin at 0.)
 
-    If you want to use mouse tracking call setMouseTracking( TRUE ) on
+    If you want to use mouse tracking call setMouseTracking(TRUE) on
     the \e viewport; (see \link qscrollview.html#allviews
     QScrollView\endlink).
 
@@ -1645,14 +1648,14 @@ QSize QCheckTableItem::sizeHint() const
     QTable supports a header column, e.g. to display row numbers, and
     a header row, e.g to display column titles. To set row or column
     labels use QHeader::setLabel() on the pointers returned by
-    verticalHeader() and horizontalHeader() respectively. The vertical
-    header is displayed within the table's left margin whose width is
-    set with setLeftMargin(). The horizontal header is displayed
-    within the table's top margin whose height is set with
-    setTopMargin(). The table's grid can be switched off with
-    setShowGrid(). If you want to hide a horizontal header call
-    hide(), and call setTopMargin( 0 ) so that the area the header
-    would have occupied is reduced to zero size.
+    verticalHeader() and horizontalHeader(). The vertical header is
+    displayed within the table's left margin whose width is set with
+    setLeftMargin(). The horizontal header is displayed within the
+    table's top margin whose height is set with setTopMargin(). The
+    table's grid can be switched off with setShowGrid(). If you want
+    to hide a horizontal header call hide(), and call setTopMargin(0)
+    so that the area the header would have occupied is reduced to zero
+    size.
 
     Header labels are indexed via their section numbers. Note that the
     default behavior of QHeader regarding section numbers is overriden
@@ -1705,8 +1708,8 @@ QSize QCheckTableItem::sizeHint() const
     currentRow() and currentColumn() respectively.
 
     Although many QTable functions operate in terms of rows and
-    columns the indexOf() function returns a single integer
-    identifying a particular cell.
+    columns the indexOf() function returns a single integer that
+    identifies a particular cell.
 
     \target cells
     \section1 Cells
@@ -1715,20 +1718,20 @@ QSize QCheckTableItem::sizeHint() const
 
     There are two approaches to populating the table's cells. The
     first and simplest approach is to use QTableItems or QTableItem
-    subclasses. The second approach doesn't use QTableItems at all
-    which is useful for very large sparse tables but requires you to
+    subclasses. The second approach doesn't use QTableItems at all,
+    and is useful for very large sparse tables but requires you to
     reimplement a number of functions. We'll look at each approach in
     turn.
 
     To put a string in a cell use setText(). This function will create
     a new QTableItem for the cell if one doesn't already exist, and
-    displays the text in it. By default the table item's widget will
-    be a QLineEdit. A pixmap may be put in a cell with setPixmap(),
-    which also creates a table item if required. A cell may contain \e
-    both a pixmap and text; the pixmap is displayed to the left of the
-    text. Another approach is to construct a QTableItem or QTableItem
-    subclass, set its properties, then insert it into a cell with
-    setItem().
+    displays the text in it. By default the table item's editing
+    widget is a QLineEdit. A pixmap may be put in a cell with
+    setPixmap(), which also creates a table item if one isn't there
+    already. A cell may contain \e both a pixmap and text; the pixmap
+    is displayed to the left of the text. Another approach is to
+    construct a QTableItem or QTableItem subclass, set its properties,
+    then insert it into a cell with setItem().
 
     If you want cells which contain comboboxes use the QComboTableItem
     class. Similarly if you require cells containing checkboxes use

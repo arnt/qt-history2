@@ -666,7 +666,8 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
     Returns the max-page setting. A user can't choose a higher page
     number than maxPage() when they select a print range. The default
-    value is 0 which signifies 'any page'.
+    value is 0 which signifies the last page (up to a maximum of
+    9999).
 
     \sa minPage(), setMinMax() setFromTo()
 */
