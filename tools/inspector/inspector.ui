@@ -4,7 +4,7 @@
 <include location="local" impldecl="in implementation">cppparser.h</include>
 <include location="local" impldecl="in implementation">qfiledialog.h</include>
 <include location="local" impldecl="in implementation">qlibrary.h</include>
-<include location="local" impldecl="in implementation">qcom.h</include>
+<include location="local" impldecl="in implementation">private/qcom_p.h</include>
 <include location="local" impldecl="in implementation">qregexp.h</include>
 <variable>QStringList headerFiles</variable>
 <widget class="QMainWindow">
