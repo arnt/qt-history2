@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#51 $
 **
 ** Implementation of QMainWindow class
 **
@@ -731,8 +731,7 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-    //debug( "pe %d, %d", x(), y() );
-  if ( style() == WindowsStyle && d->mb) { //######## Arnt, what was this meant to be?
+    if ( style() == WindowsStyle && d->mb) { //######## Arnt, what was this meant to be?
 	QPainter p( this );
 	int y = d->mb->height();
 	p.setPen( colorGroup().dark() );
@@ -775,6 +774,7 @@ void QMainWindow::childEvent( QChildEvent* e)
 {
     if ( e->type() == QEvent::ChildRemoved ) {
 	if ( e->child() == 0 ||
+	     !e->child()->isWidgetType() ||
 	     ((QWidget*)e->child())->testWFlags( WType_TopLevel ) ) {
 	    // nothing
 	} else if ( e->child() == d->sb ) {
@@ -1091,7 +1091,7 @@ void QMainWindow::moveToolBar( QToolBar * t , QMouseEvent * e )
     QPopupMenu * help = new QPopupMenu( this );
     help->insertItem( "What's &This", this , SLOT(whatsThis()), SHIFT+Key_F1);
   \endcode
-  
+
   \sa QWhatsThis::enterWhatsThisMode()
 
  */
