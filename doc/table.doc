@@ -50,7 +50,7 @@ spreadsheet data to the user or let the user edit such data.
        each of them contains the content for one cell. 
 <li> The \l QComboTableItem class provides a convenient way to
   put combobox items in a QTable. 
-<li> \l QTableCheckoBoxItem implements a convenient class to
+<li> \l QCheckTableItem implements a convenient class to
   integrate checkbox items into a QTable. 
 <li> \l QTableSelection provides access to selected areas in a
   QTable.  
