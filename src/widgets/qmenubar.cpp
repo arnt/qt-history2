@@ -332,7 +332,8 @@ void QMenuBar::frameChanged()
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
-    if ( object == parent() && event->type() == QEvent::Resize ) {
+    if ( object == parent() && object && !object->inherits( "QToolBar" ) && 
+	 event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	int w = e->size().width();
 	setGeometry( 0, y(), w, heightForWidth(w) );
