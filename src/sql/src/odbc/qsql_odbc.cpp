@@ -222,7 +222,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 		    fieldVal += QString( (char*)buf );
 		    break;
 		} else {
-		    if( fieldVal.length() >= lengthIndicator ) // ### HACK - remove asap
+		    if( (int)fieldVal.length() >= lengthIndicator ) // ### HACK - remove asap
 			break;
 		    fieldVal += QString( (char*)buf );
 		}
