@@ -94,7 +94,7 @@ void QAbstractItemViewPrivate::init()
     // FIXME: this is only true when we have a view that is layed out TopToBottom
     QObject::connect(q->verticalScrollBar(), SIGNAL(sliderReleased()), q, SLOT(fetchMore()));
     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)), q, SLOT(fetchMore()));
-    
+
     QObject::connect(q->verticalScrollBar(), SIGNAL(actionTriggered(int)), q, SLOT(verticalScrollbarAction(int)));
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)), q, SLOT(horizontalScrollbarAction(int)));
 
@@ -215,13 +215,13 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     d->pressedState = e->state();
     d->pressedPosition = pos;
     d->pressedPosition += QPoint(contentsX(), contentsY());
-    
+
     if (item.isValid())
 	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
 
     QRect rect = d->rubberBand->geometry();
     rect.moveTopLeft(d->viewport->mapFromGlobal(rect.topLeft()));
-    
+
     if (e->state() & ShiftButton)
 	rect.setBottomRight(pos); // do not normalize
     else
@@ -244,7 +244,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     QPoint topLeft = d->pressedPosition;
     topLeft -= QPoint(contentsX(), contentsY());
     QRect rect = QRect(topLeft, bottomRight).normalize();
-    
+
     d->rubberBand->setGeometry(QRect(d->viewport->mapToGlobal(topLeft),
 				     d->viewport->mapToGlobal(bottomRight)).normalize());
 
@@ -671,6 +671,8 @@ void QAbstractItemView::fetchMore()
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
 {
+    if (!isVisible())
+	return;
     QRect rect = itemViewportRect(item);
     if (rect.isValid())
     	d->viewport->update(itemViewportRect(item));

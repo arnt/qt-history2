@@ -19,7 +19,7 @@ int bsearch(const QVector<T> &vec, const T &item, int first, int last)
     int mid;
     while (true) {
 	mid = first + ((last - first) >> 1);
-	val = vec[mid];
+	val = vec.at(mid);
 	if (val == item || (last - first) < 2)
 	    return mid;
 	if (val > item)

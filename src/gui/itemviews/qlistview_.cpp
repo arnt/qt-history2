@@ -6,19 +6,11 @@ class QListModel : public QAbstractItemModel
 public:
     QListModel(QObject *parent = 0);
 
-    virtual void setText(int row, const QString &text);
-    virtual void setIconSet(int row, const QIconSet &iconSet);
-    QString text(int row) const;
-    QIconSet iconSet(int row) const;
-
     QListView_Item item(int row) const;
     void setItem(int row, const QListView_Item &item);
     void append(const QListView_Item &item);
 
 private:
-    QModelIndex index(int row, int column, const QModelIndex &parent = 0,
-                      QModelIndex::Type type = QModelIndex::View) const;
-
     int rowCount(const QModelIndex &parent = 0) const;
     int columnCount(const QModelIndex &parent = 0) const;
 
@@ -39,32 +31,6 @@ QListModel::QListModel(QObject *parent)
 {
 }
 
-void QListModel::setText(int row, const QString &text)
-{
-    if (row >= 0 && row < (int)lst.count())
-	lst[row].setText(text);
-}
-
-void QListModel::setIconSet(int row, const QIconSet &iconSet)
-{
-    if (row >= 0 && row < (int)lst.count())
-	lst[row].setIconSet(iconSet);
-}
-
-QString QListModel::text(int row) const
-{
-    if (row >= 0 && row < (int)lst.count())
-	return lst[row].text();
-    return QString();
-}
-
-QIconSet QListModel::iconSet(int row) const
-{
-    if (row >= 0 && row < (int)lst.count())
-	return lst[row].iconSet();
-    return QIconSet();
-}
-
 QListView_Item QListModel::item(int row) const
 {
     if (row >= 0 && row < (int)lst.count())
@@ -77,13 +43,6 @@ void QListModel::setItem(int row, const QListView_Item &item)
 {
     if (row >= 0 && row < (int)lst.count())
 	lst[row] = item;
-}
-
-QModelIndex QListModel::index(int row, int, const QModelIndex &, QModelIndex::Type type) const
-{
-    if (row >= 0 && row < (int)lst.count())
-	return QModelIndex(row, 0, 0, type);
-    return QModelIndex();
 }
 
 int QListModel::rowCount(const QModelIndex &) const
@@ -204,22 +163,24 @@ QListView_::~QListView_()
 
 void QListView_::setText(int row, const QString &text)
 {
-    d->model()->setText(row, text);
+    model()->setData(model()->index(row,0), QAbstractItemModel::Display, text);
 }
 
 void QListView_::setIconSet(int row, const QIconSet &iconSet)
 {
-    d->model()->setIconSet(row, iconSet);
+    model()->setData(model()->index(row,0), QAbstractItemModel::Decoration, iconSet);
 }
 
 QString QListView_::text(int row) const
 {
-    return d->model()->text(row);
+    return model()->data(model()->index(row,0),
+			 QAbstractItemModel::Display).toString();
 }
 
 QIconSet QListView_::iconSet(int row) const
 {
-    return d->model()->iconSet(row);
+    return model()->data(model()->index(row,0),
+			 QAbstractItemModel::Decoration).toIconSet();
 }
 
 QListView_Item QListView_::item(int row) const

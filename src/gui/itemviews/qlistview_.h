@@ -63,13 +63,8 @@ public:
 
     void setText(int row, const QString &text);
     void setIconSet(int row, const QIconSet &iconSet);
-//     void setEditable(bool editable);
-//     void setSelectable(bool selectable);
-
     QString text(int row) const;
     QIconSet iconSet(int row) const;
-//     bool isEditable(int row) const;
-//     bool isSelectable(int row) const;
 
     QListView_Item item(int row) const;
     void setItem(int row, const QListView_Item &item);
