@@ -102,12 +102,14 @@ public:
     HDC getDC() const;
     void releaseDC(HDC) const;
 
+private:
     // These functions are internal and used by Windows 9x only
-    bool isMultiCellPixmap() const;
-    HBITMAP multiCellBitmap() const;
-    int multiCellOffset() const;
-    int allocCell();
-    void freeCell(bool = false);
+   // bool isMultiCellPixmap() const;
+   // HBITMAP multiCellBitmap() const;
+   // int multiCellOffset() const;
+   // int allocCell();
+   // void freeCell(bool = false);
+public:
 #endif
 
     int serialNumber() const;
@@ -164,6 +166,7 @@ private:
     void convertToAlphaPixmap(bool initAlpha=true);
 #endif
     static Optimization defOptim;
+    friend struct QPixmapData;
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;

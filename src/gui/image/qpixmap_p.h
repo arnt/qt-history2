@@ -83,6 +83,9 @@ struct QPixmapData { // internal pixmap data
     };
     MemDC mem_dc;
 #endif
+
+    static int allocCell(const QPixmap *p);
+    static void freeCell(const QPixmap *p, bool terminate = false);
 };
 
 

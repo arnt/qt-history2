@@ -91,7 +91,7 @@ inline HBITMAP QPixmapData::bm() const { return mcp ? mcpi->mcp->hbm() : hbm; }
 void QPixmap::initAlphaPixmap(uchar *bytes, int length, BITMAPINFO *bmi)
 {
     if (data->mcp)
-        freeCell(true);
+        data->freeCell(this, true);
     DeleteObject(data->bm());
 
     HDC hdc = GetDC(0);
@@ -137,7 +137,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->w = w;
     data->h = h;
     if (data->optim == MemoryOptim && (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-        if (allocCell() >= 0)                        // successful
+        if (data->allocCell(this) >= 0)                        // successful
             return;
     }
 
@@ -226,7 +226,7 @@ void QPixmap::deref()
                 DATA_MCPI = 0;
                 data->hbm = 0;
             } else {
-                freeCell(true);
+                data->freeCell(this, true);
             }
         }
         if (data->mask)
@@ -360,10 +360,10 @@ void QPixmap::setOptimization(Optimization optimization)
             data->maskpm = 0;
         }
         if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
-            allocCell();
+            data->allocCell(this);
     } else {
         if (data->mcp)
-            freeCell();
+            data->freeCell(this);
     }
 }
 
@@ -534,7 +534,7 @@ QImage QPixmap::convertToImage() const
 #ifndef Q_OS_TEMP
     bool mcp = data->mcp;
     if (mcp)                                        // disable multi cell
-        ((QPixmap*)this)->freeCell();
+        data->freeCell(this);
 
     GetDIBits(qt_display_dc(), data->bm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS);
 
@@ -555,7 +555,7 @@ QImage QPixmap::convertToImage() const
     }
 
     if (mcp)
-        ((QPixmap*)this)->allocCell();
+        data->allocCell(this);
 #else
     memcpy(image.bits(), data->ppvBits, image.numBytes());
     qt_GetDIBColorTable(data->hd, &ds, 0, ncols, (RGBQUAD*)coltbl);
@@ -800,8 +800,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         r->rgbReserved = 0;
     }
 
-    HDC dc = getDC();
-
 #ifndef Q_OS_TEMP
     if (hasRealAlpha) {
         initAlphaPixmap(image.bits(), image.numBytes(), bmi);
@@ -837,7 +835,9 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 
     if (data->realAlphaBits == 0) {
 #ifndef Q_OS_TEMP
+        HDC dc = getDC();
         StretchDIBits(dc, 0, 0, w, h, 0, 0, w, h, image.bits(), bmi, DIB_RGB_COLORS, SRCCOPY);
+        releaseDC(dc);
 #else
         DeleteObject(DATA_HBM);
         HDC hdcSrc = handle();
@@ -855,8 +855,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         m = img.createAlphaMask(conversion_flags);
         setMask(m);
     }
-
-    releaseDC(dc);
 
     delete [] bmi_data;
     data->uninit = false;
@@ -994,7 +992,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 
     bool mcp = data->mcp;
     if (mcp)
-        ((QPixmap*)this)->freeCell();
+        data->freeCell(this);
     int result;
 #ifndef Q_OS_TEMP
     if (data->realAlphaBits) {
@@ -1015,7 +1013,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 #endif
 
     if (mcp)
-        ((QPixmap*)this)->allocCell();
+        data->allocCell(this);
 
     if (!result) {                                // error, return null pixmap
         return QPixmap(0, 0, 0, data->bitmap, NormalOptim);
@@ -1095,31 +1093,6 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 HBITMAP QPixmap::hbm() const
 {
     return data->mcp ? 0 : data->hbm;
-}
-
-/*!
-  \fn bool QPixmap::isMultiCellPixmap() const
-  \internal
-*/
-bool QPixmap::isMultiCellPixmap() const
-{
-    return data->mcp;
-}
-
-/*!
-  \internal
-*/
-HBITMAP QPixmap::multiCellBitmap() const
-{
-    return data->mcp ? DATA_MCPI_MCP->hbm() : 0;
-}
-
-/*!
-  \internal
-*/
-int QPixmap::multiCellOffset() const
-{
-    return data->mcp ? DATA_MCPI_OFFSET : 0;
 }
 
 
@@ -1212,11 +1185,10 @@ void QMultiCellPixmap::freeCell(int offset, int size)
 */
 
 typedef QList<QMultiCellPixmap*>  QMultiCellPixmapList;
-typedef QMultiCellPixmapList   *pQMultiCellPixmapList;
 
 static const int mcp_num_lists  = 8;
 static bool         mcp_lists_init = false;
-static pQMultiCellPixmapList mcp_lists[mcp_num_lists];
+static QMultiCellPixmapList *mcp_lists[mcp_num_lists];
 
 static void cleanup_mcp()
 {
@@ -1265,32 +1237,34 @@ static int index_of_mcp_list(int width, bool mono, int *size=0)
 /*!
   \internal
 */
-int QPixmap::allocCell()
+int QPixmapData::allocCell(const QPixmap *p)
 {
     if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)                // only for NT based systems
         return -1;
     if (!mcp_lists_init)
         init_mcp();
+    QPixmapData *data = p->data;
     if (data->mcp)                                // cell already alloc'd
-        freeCell();
+        freeCell(p);
     int s;
-    int i = index_of_mcp_list(width(), depth() == 1, &s);
+    int i = index_of_mcp_list(data->w, (data->d == 1), &s);
     if (i < 0)                                // too large width
         return -1;
     if (!mcp_lists[i])
         mcp_lists[i] = new QMultiCellPixmapList;
 
     QMultiCellPixmapList *list = mcp_lists[i];
-    QMultiCellPixmap     *mcp  = list->first();
+    QMultiCellPixmap     *mcp  = 0;
     int offset = -1;
-    for(int i = 0; (i < list->size()) && (offset < 0); ++i) {
-        offset = mcp->allocCell(height());
-        if (offset < 0)
-            mcp = list->at(i);
+    for(int i = 0; i < list->size(); ++i) {
+        mcp = list->at(i);
+        offset = mcp->allocCell(data->h);
+        if (offset >= 0)
+            break;
     }
     if (offset < 0) {                                // could not alloc
-        mcp = new QMultiCellPixmap(s, depth(), 2048);
-        offset = mcp->allocCell(height());
+        mcp = new QMultiCellPixmap(s, data->d, 2048);
+        offset = mcp->allocCell(data->h);
         if (offset < 0) {                        // height() > total height
             delete mcp;
             return offset;
@@ -1298,7 +1272,7 @@ int QPixmap::allocCell()
         list->append(mcp);
     }
 
-    HDC dc = getDC();
+    HDC dc = p->getDC();
 
     HDC mcp_dc = mcp->mem_dc.hdc;
     HGDIOBJ old_mcp_bm;
@@ -1309,9 +1283,9 @@ int QPixmap::allocCell()
         SetViewportOrgEx(mcp_dc, 0, 0, NULL);
     }
     // copy into multi cell pixmap
-    BitBlt(mcp_dc, 0, offset, width(), height(), dc, 0, 0, SRCCOPY);
+    BitBlt(mcp_dc, 0, offset, data->w, data->h, dc, 0, 0, SRCCOPY);
 
-    releaseDC(dc);
+    p->releaseDC(dc);
     if(!mcp->mem_dc.hdc) {
         SelectObject(mcp_dc, old_mcp_bm);
         DeleteDC(mcp_dc);
@@ -1331,8 +1305,9 @@ int QPixmap::allocCell()
 /*!
   \internal
 */
-void QPixmap::freeCell(bool terminate)
+void QPixmapData::freeCell(const QPixmap *p, bool terminate)
 {
+    QPixmapData *data = p->data;
     if (!mcp_lists_init || !data->mcp)
         return;
     QMultiCellPixmap *mcp = DATA_MCPI_MCP;
@@ -1343,11 +1318,11 @@ void QPixmap::freeCell(bool terminate)
     if (terminate) {                                // pixmap is being destroyed
         data->hbm = 0;
     } else {
-        if (data->d == defaultDepth())
+        if (data->d == p->defaultDepth())
             data->hbm = CreateCompatibleBitmap(qt_display_dc(), data->w, data->h);
         else
             data->hbm = CreateBitmap(data->w, data->h, 1, 1, 0);
-        HDC hdc = getDC();
+        HDC hdc = p->getDC();
         HDC mcp_dc = mcp->mem_dc.hdc;
         HGDIOBJ old_mcp_bm;
         if (!mcp->mem_dc.hdc) {
@@ -1357,7 +1332,7 @@ void QPixmap::freeCell(bool terminate)
             SetViewportOrgEx(mcp_dc, 0, 0, NULL);
         }
         BitBlt(hdc, 0, 0, data->w, data->h, mcp_dc, 0, offset, SRCCOPY);
-        releaseDC(hdc);
+        p->releaseDC(hdc);
         if(!mcp->mem_dc.hdc) {
             SelectObject(mcp_dc, old_mcp_bm);
             DeleteDC(mcp_dc);
@@ -1365,7 +1340,7 @@ void QPixmap::freeCell(bool terminate)
     }
     mcp->freeCell(offset, data->h);
     if (mcp->isEmpty()) {                        // no more cells left
-        int i = index_of_mcp_list(width(),depth()==1,0);
+        int i = index_of_mcp_list(data->w, (data->d == 1), 0);
         Q_ASSERT(i >= 0 && mcp_lists[i]);
         if (mcp_lists[i]->count() > 1) {        // don't remove the last one
             mcp_lists[i]->removeAll(mcp);
