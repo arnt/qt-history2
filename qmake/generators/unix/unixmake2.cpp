@@ -271,6 +271,23 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "tmp/lib" << (*it) << ".a ";
 	t << endl << endl;
     }
+    if(project->isActiveConfig("depend_prl") && !project->isEmpty("QMAKE_PRL_INTERNAL_FILES")) {
+	QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QMakeProject proj;
+	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_DIRECTORY")) {
+		QString dir;
+		int slsh = (*it).findRev(Option::dir_sep);
+		if(slsh != -1)
+		    dir = (*it).left(slsh + 1);
+		QString targ = dir + proj.first("QMAKE_PRL_TARGET");
+		deps += " " + targ;
+		t << targ << ":" << "\n\t" 
+		  << "@echo \"Creating '" << targ << "'\"" << "\n\t"
+		  << "(cd " << proj.first("QMAKE_PRL_DIRECTORY") << "; $(MAKE) )" << endl;
+	    }
+	}
+    }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 

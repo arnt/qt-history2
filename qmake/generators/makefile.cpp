@@ -708,7 +708,7 @@ void
 MakefileGenerator::processPrlFiles()
 {
     for(bool ret = FALSE; TRUE; ret = FALSE) {
-	//read in any prl fiels included..
+	//read in any prl files included..
 	QStringList l_out;
 	QStringList &l = project->variables()["QMAKE_LIBS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -753,6 +753,11 @@ MakefileGenerator::write()
 	    int slsh = target.findRev(Option::dir_sep);
 	    if(slsh != -1)
 		target = target.right(target.length() - slsh - 1);
+	    t << "QMAKE_PRL_DIRECTORY = ";
+	    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
+		t << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
+	    else
+		t << QDir::currentDirPath() << endl;
 	    t << "QMAKE_PRL_TARGET = " << target << endl;
 	    if(!project->isEmpty("PRL_EXPORT_DEFINES")) 
 		t << "QMAKE_PRL_DEFINES = " 
