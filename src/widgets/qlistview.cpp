@@ -5717,6 +5717,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = marg;
 
     bool winStyle = lv->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle;
+    QFontMetrics fm( lv->fontMetrics() );
 
     if ( myType == Controller ) {
 	if ( !pixmap( 0 ) )
@@ -5732,11 +5733,9 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	int x = 0;
 	if ( !parentControl )
 	    x += 3;
-	if ( align == AlignCenter ) {
-	    QFontMetrics fm( lv->font() );
+	if ( align == AlignCenter )
 	    x = (width - BoxSize - fm.width(text()))/2;
-	}
-	int y = (height() - BoxSize) / 2;
+	int y = (fm.height() + 2 + lv->itemMargin() - BoxSize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 	if ( myType == CheckBox ) {
 	    if ( isEnabled() )
@@ -5830,7 +5829,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		    p->setPen( QPen( listView()->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
 		QPointArray a;
 		int cx = BoxSize/2 - 1;
-		int cy = height()/2;
+		int cy = ( fm.height() + 2 + lv->itemMargin() )/2;
 		int e = BoxSize/2 - 1;
 		for ( int i = 0; i < 3; i++ ) { //penWidth 2 doesn't quite work
 		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
