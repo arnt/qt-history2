@@ -1,16 +1,21 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#8 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#9 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
+** It reads a binary file and generates a C array with the binary data.
+** The C code is written to standard output.
 **
 ** Author  : Haavard Nord
 ** Created : 951017
 **
 ** Copyright (C) 1995-1998 by Troll Tech AS.  All rights reserved.
 **
-** --------------------------------------------------------------------------
-** This utility reads a binary file and generates a C array with the binary
-** data.  The C code is written to standard output.
+** Permission to use, copy, modify, and distribute this software and its
+** documentation for any purpose and without fee is hereby granted, provided
+** that this copyright notice appears in all copies.
+** No representations are made about the suitability of this software for any
+** purpose. It is provided "as is" without express or implied warranty.
+**
 *****************************************************************************/
 
 #include <qstring.h>
