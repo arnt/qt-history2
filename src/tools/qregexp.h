@@ -73,8 +73,9 @@ public:
     int searchRev( const QString& str, int start = -1 ) const;
     int matchedLength();
 #ifndef QT_NO_REGEXP_CAPTURE
-    QString capturedText( int subexpression = 0 );
     QStringList capturedTexts();
+    QString cap( int nth = 0 );
+    int pos( int nth = 0 );
 #endif
 
 private:

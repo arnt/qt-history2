@@ -52,7 +52,7 @@
   \ingroup shared
 
   Regular expressions are found in such tools as grep, lex, awk and perl.  They
-  help users and programmers accomplish simple tasks:
+  help users and programmers accomplish simple tasks such as these:
 
   <ul plain>
   <li> Validate input:  Check whether or not the user entered a valid email
@@ -65,20 +65,20 @@
   Regular expressions are a generalization of character strings (\l QString).
   Indeed, the most basic regular expressions are just plain strings that avoid
   certain special characters.  Thus, the regular expressions <b>begin</b> means
-  precisely <tt>begin</tt>.  (We will put regular expressions in bold to
-  distinguish them from strings.)
+  precisely <tt>begin</tt>.  (We will use bold to distinguish regular
+  expressions from ordinary strings.)
 
   But regular expressions are much more general; they can specify a whole family
   of strings.  For example, <b>Bill|William</b> (read "Bill or William") denotes
   the family consisting of <tt>Bill</tt> and <tt>William</tt>, and
-  <b>\w+tion</b> denotes the (infinite) family of all the words ending in
+  <b>\w+tion</b> denotes the infinite family of all the words ending in
   <tt>tion</tt> (such as <tt>information</tt> and <tt>xyzzyzwtion</tt>).
   Idiomatically, we can say that <b>Bill|William</b> matches <tt>Bill</tt>.  It
   also matches <tt>William</tt>, but it doesn't match <tt>Frank</tt>.
 
   QRegExp's regular expression flavor combines Perl's power and Unicode support.
   QRegExp also supports the weaker wildcard notation (as in <b>*.cpp</b> and
-  <b>chapter[1-5].tex</b>) found in most command interpreters.  More on this
+  <b>chapter[1-5].tex</b>) found in many command interpreters.  More on this
   later.
 
   Now to the nitty-gritty of regular expression syntax:  You can use any of
@@ -86,8 +86,10 @@
 
   <ul plain>
   <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
-  <li> <b>\\e c </b> matches the special character <tt><em>c</em></tt>, one
-       of<tt> $ ( ) * + - . ? [ \ ] ^ { | }</tt>
+  <li> <b>\\e c </b> matches the special character <tt><em>c</em></tt>, usually
+       one of <tt>$</tt> <tt>(</tt> <tt>)</tt> <tt>*</tt> <tt>+</tt> <tt>-</tt>
+       <tt>.</tt> <tt>?</tt> <tt>[</tt> <tt>\</tt> <tt>]</tt> <tt>^</tt>
+       <tt>{</tt> <tt>|</tt> <tt>}</tt>
   <li> <b>\a</b> matches the ASCII bell character (BEL, 0x07)
   <li> <b>\f</b> matches the ASCII form feed character (FF, 0x0C)
   <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known as
@@ -213,14 +215,14 @@
   <ul plain>
   <li> <b>(<em>E</em>)</b> matches the subexpression <b><em>E</em></b> and
       captures the matched text, making it available via back-references and
-      capturedText()
+      capturedTexts() (or cap())
   <li> <b>(?:<em>E</em>)</b> matches the subexpression <b><em>E</em></b>
       without capturing anything.
   </ul>
 
   To match between 3 and 5 occurrences of <tt>ha</tt>, you can write
   <b>(ha){3,5}</b> or <b>(?:ha){3,5}</b>.  The former is slower, because it
-  forces QRegExp to do some book-keeping for capturedText().
+  forces QRegExp to do some book-keeping for capturedTexts().
 
   Back-references are expressions of the form <b>&#92;<em>X</em></b> that stand
   for the <em>X</em>th substring matched by the <em>X</em>th parenthesized
@@ -2979,7 +2981,7 @@ bool QRegExp::match( const QString& str )
 
 /*! \overload
 
-  This version does not set matchedLength(), capturedText() and friends.
+  This version does not set matchedLength(), capturedTexts() and friends.
 */
 bool QRegExp::match( const QString& str ) const
 {
@@ -3046,7 +3048,7 @@ int QRegExp::match( const QString& str, int index, int *len,
     int len = r.matchedLength();        // len == 4
   \endcode
 
-  \sa searchRev() match() matchedLength() capturedText()
+  \sa searchRev() match() matchedLength() capturedTexts()
 */
 int QRegExp::search( const QString& str, int start )
 {
@@ -3062,7 +3064,7 @@ int QRegExp::search( const QString& str, int start )
 
 /*! \overload
 
-  This version does not set matchedLength(), capturedText() and friends.
+  This version does not set matchedLength(), capturedTexts() and friends.
 */
 int QRegExp::search( const QString& str, int start ) const
 {
@@ -3080,7 +3082,7 @@ int QRegExp::search( const QString& str, int start ) const
 
   You might prefer to use QString::findRev().
 
-  \sa search() matchedLength() capturedText()
+  \sa search() matchedLength() capturedTexts()
 */
 int QRegExp::searchRev( const QString& str, int start )
 {
@@ -3134,45 +3136,9 @@ int QRegExp::matchedLength()
 
 #ifndef QT_NO_REGEXP_CAPTURE
 /*!
-  Returns the text captured by the \a nth parenthesized subexpression in the
-  regular expression.  Subexpressions are numbered in the order of occurrence of
-  their left parenthesis, starting at 1.  The whole regular expression is given
-  number 0, making it possible to retrieve the full matched text easily.
-
-  Example 1:
-  \code
-    QRegExp rx( "([a-z])+" );           // match a lower-case word
-    int pos = rx.search( "X pizza Y" ); // pos == 2
-    QString t0 = rx.capturedText( 0 );  // pizza
-    QString t1 = rx.capturedText( 1 );  // a
-  \endcode
-
-  Example 2:
-  \code
-    QRegExp rx( "1*((2*)3*)(4*)" );
-    int pos = rx.search( "1223334" );   // pos == 0
-    QString t0 = rx.capturedText( 0 );  // 1223334
-    QString t1 = rx.capturedText( 1 );  // 22333
-    QString t2 = rx.capturedText( 2 );  // 22
-    QString t3 = rx.capturedText( 3 );  // 4
-  \endcode
-
-  Notice the behavior of subexpressions governed by a quantifier (<b>+</b>).
-
-  \sa capturedTexts() setMinimal()
-*/
-QString QRegExp::capturedText( int nth )
-{
-    if ( nth < 0 || nth >= (int) priv->captured.size() / 2 )
-	return QString::null;
-    else
-	return capturedTexts()[nth];
-}
-
-/*!
   Returns a list of the captured text strings.
 
-  \sa capturedText() setMinimal()
+  You might prefer to use cap() or pos().
 */
 QStringList QRegExp::capturedTexts()
 {
@@ -3189,6 +3155,67 @@ QStringList QRegExp::capturedTexts()
 	priv->t = QString::null;
     }
     return priv->capturedCache;
+}
+
+/*!
+  Returns the text captured by the \a nth parenthesized subexpression in the
+  regular expression.  Subexpressions are numbered in the order of occurrence of
+  their left parenthesis, starting at 1.  The whole regular expression is given
+  number 0 (the default), making it possible to retrieve the full matched text
+  easily.
+
+  Example 1:
+  \code
+    QRegExp rx( "([a-z])+" );           // match a lower-case word
+    int pos = rx.search( "X pizza Y" ); // pos == 2
+    QString t0 = rx.cap( 0 );           // pizza
+    QString t1 = rx.cap( 1 );           // a
+  \endcode
+
+  Example 2:
+  \code
+    QRegExp rx( "1*((2*)3*)(4*)" );
+    int pos = rx.search( "1223334" );   // pos == 0
+    QString t0 = rx.cap( 0 );           // 1223334
+    QString t1 = rx.cap( 1 );           // 22333
+    QString t2 = rx.cap( 2 );           // 22
+    QString t3 = rx.cap( 3 );           // 4
+  \endcode
+
+  Notice the behavior of subexpressions governed by a quantifier (here,
+  <b>*</b>).
+
+  \sa pos()
+*/
+QString QRegExp::cap( int nth )
+{
+    if ( nth < 0 || nth >= (int) priv->captured.size() / 2 )
+	return QString::null;
+    else
+	return capturedTexts()[nth];
+}
+
+/*!
+  Returns the position of the \a nth captured text in the searched string.  If
+  \a nth is 0 (the default), returns the position of the whole match.
+
+  Example:
+  \code
+    QRegExp rx( "/([a-z]+)/([a-z]+)" );
+    rx.search( "to /dev/null maybe?" ); // 3 (position of /dev/null)
+    rx.pos( 0 );		        // 3 (position of /dev/null)
+    rx.pos( 1 );		        // 4 (position of dev)
+    rx.pos( 2 );		        // 8 (position of null)
+  \endcode
+
+  \sa capturedTexts() cap()
+*/
+int QRegExp::pos( int nth )
+{
+    if ( nth < 0 || nth >= (int) priv->captured.size() / 2 )
+	return -1;
+    else
+	return priv->captured[2 * nth];
 }
 #endif
 
