@@ -909,8 +909,8 @@ bool QApplication::processNextEvent( bool canWait )
 		    return FALSE;
 
 #ifdef WEIRD_MOUSE_EMULATE
-	    if(!GetNextEvent(everyEvent, &event) && 
-	       (qt_button_down || mac_mouse_grabber ) || inPopupMode() ) {
+		if(!GetNextEvent(everyEvent, &event) && 
+		   (qt_button_down || mac_mouse_grabber ) || inPopupMode() ) {
 
 		    Point point;
 		    GetGlobalMouse(&point);
@@ -932,9 +932,20 @@ bool QApplication::processNextEvent( bool canWait )
 #else
 		GetNextEvent(everyEvent, &event);
 #endif
+		//handle deactive events so only activates go through, unless its the last window
+		if(event.what == activateEvt && !(event.modifiers & 0x01)) {
+		    EventRecord activ;
+		    while(GetNextEvent(activMask, &activ)) {
+			if(activ.modifiers & 0x01) {
+			    memcpy(&event, &activ, sizeof(event));
+			    break;
+			}
+		    }
+		}
+
 		//process it
-	    if(event.what)
-		nevents++;
+		if(event.what)
+		    nevents++;
 		if(macProcessEvent( (MSG *)(&event) ) == 1)
 		    return TRUE;
 
@@ -1319,15 +1330,18 @@ int QApplication::macProcessEvent(MSG * m)
 	}
     } else if(er->what == activateEvt) {
 	widget = QWidget::find( (WId)er->message );	
-	if(widget && !widget->isPopup() && (er->modifiers & 0x01)) {
-	    widget->raise();
-	    setActiveWindow(widget);
-	    if (widget->focusWidget())
-		widget->focusWidget()->setFocus();
-	    else
-		widget->setFocus();
+	if(er->modifiers & 0x01) {
+	    if(widget) {
+		widget->raise();
+		if(widget->isTopLevel() && !widget->isPopup() && !widget->isDialog()) 
+		    setActiveWindow(widget);
+		if (widget->focusWidget())
+		    widget->focusWidget()->setFocus();
+		else
+		    widget->setFocus();
+	    }
 	} else {
-	    if(!inPopupMode() && widget == active_window) 
+	    if(active_window && widget == active_window) 
 		setActiveWindow(NULL);
 	    while(inPopupMode())
 		activePopupWidget()->close();
@@ -1432,7 +1446,8 @@ int QApplication::macProcessEvent(MSG * m)
 		    }
 		    if(QWidget *tlw = widget->topLevelWidget()) {
 			tlw->raise();
-			setActiveWindow(tlw);
+			if(tlw->isTopLevel() && !tlw->isPopup() && !tlw->isDialog())
+			    setActiveWindow(tlw);
 		    }
 		}
 
