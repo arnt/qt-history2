@@ -3,8 +3,8 @@
   * "WidgetName", "Comment", "PixmapFileName", "InspectorClass",
   *   "returntype", "name", "qualifier",
   *     "arg1", "arg2", ..., ")"
-  *   "enum", "name", "enum1", "enum2", ..., ";"
-  * "}"
+  *   "enum", "name", "enum1", "enum2", ..., "}"
+  * 
   *
   */
 static const char* TorbensHack[] = {
@@ -44,7 +44,17 @@ static const char* TorbensHack[] = {
   "+", "QGroupBox", "", "", "",
   "+", "QMultiLineEdit", "", "", "",
   "+", "QPopupMenu", "", "", "",
+
   "+", "QSlider", "", "", "",
+  "enum", "TickSetting",
+          "NoMarks", "Above", "Left", "Below", "Right", "Both", "}",
+  "enum", "Orientation",
+          "Horizontal", "Vertical", "}",
+  "void", "setTickmarks", "", "TickSetting", ")",
+  "TickSetting", "tickmarks", "const", ")",
+  "void", "setOrientation", "", "Orientation", ")",
+  "Orientation", "orientation", "const", ")",
+
   "+", "QLCDNumber", "", "", "",
 
   "+", "QFrame", "", "", "",
