@@ -80,7 +80,7 @@ DesignerFormWindow *DesignerInterfaceImpl::currentForm() const
 
 QList<DesignerProject> DesignerInterfaceImpl::projectList() const
 {
-    return QList<DesignerProject>();
+    return mainWindow->projectList();
 }
 
 void DesignerInterfaceImpl::showStatusMessage( const QString &text, int ms ) const
@@ -134,8 +134,24 @@ DesignerProjectImpl::DesignerProjectImpl( Project *pr )
 
 QList<DesignerFormWindow> DesignerProjectImpl::formList() const
 {
+    QList<DesignerFormWindow> list;
+    QObjectList *forms = project->formList();
+    if ( !forms )
+	return list;
 
-    return QList<DesignerFormWindow>();
+    QListIterator<QObject> it( *forms );
+    while ( it.current() ) {
+	QObject *obj = it.current();
+	QWidget *par = 0;
+	++it;
+	if ( !obj->isWidgetType() || !( par = ((QWidget*)obj)->parentWidget() ) || !par->inherits( "FormWindow" ) )
+	    continue;
+
+	list.append( ((FormWindow*)par)->iFace() );
+    }
+
+    delete forms;
+    return list;
 }
 
 QStringList DesignerProjectImpl::formNames() const

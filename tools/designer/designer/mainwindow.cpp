@@ -4205,6 +4205,20 @@ void MainWindow::setupRecentlyProjectsMenu()
     }
 }
 
+QList<DesignerProject> MainWindow::projectList() const
+{
+    QList<DesignerProject> list;
+    QMapConstIterator<QAction*, Project*> it = projects.begin();
+
+    while( it != projects.end() ) {
+	Project *p = it.data();
+	++it;
+	list.append( p->iFace() );
+    }
+
+    return list;
+}
+
 void MainWindow::recentlyFilesMenuActivated( int id )
 {
     if ( id != -1 )

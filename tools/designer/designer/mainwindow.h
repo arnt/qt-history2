@@ -59,6 +59,7 @@ class Project;
 class OutputWindow;
 class QTimer;
 class FindDialog;
+struct DesignerProject;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -131,6 +132,7 @@ public:
 
     TemplateWizardInterface* templateWizardInterface( const QString& className );
     QUnknownInterface* designerInterface() const { return desInterface; }
+    QList<DesignerProject> projectList() const;
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
