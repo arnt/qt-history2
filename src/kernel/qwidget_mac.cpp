@@ -88,18 +88,19 @@ QPoint posInWindow(QWidget *w)
     return QPoint(x, y);
 }
 
-static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
+static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE, bool force_erase=TRUE)
 {
     if(!p || r.isEmpty())
 	return;
 
-    bool erase = TRUE, painted = FALSE;//!p->testWFlags(QWidget::WRepaintNoErase);
+    bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
     if(now) {
 	/* this is stupid, probably should just post, I need to ask mathias! FIXME */
 	if(!p->testWState(QWidget::WState_BlockUpdates)) {
 	    painted = TRUE;
 	    p->repaint(r, erase);
 	} else if(erase) {
+	    erase = FALSE;
 	    p->erase(r);
 	}
     }
@@ -114,7 +115,7 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
 		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
 			wr.translate( -w->x(), -w->y() );
-			paint_children(w, wr, now);
+			paint_children(w, wr, now, force_erase);
 		    }
 		}
 	    }
@@ -999,7 +1000,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    //finally issue "expose" events if necesary
 	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
 	    upd.translate(-px, -py); //translate them from window to the parent
-	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE );
+	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE, !isResize && isMove );
 	} else {
 	    if ( isMove )
 		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
