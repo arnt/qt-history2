@@ -57,7 +57,7 @@
        object is an instance of a class that inherits a specified class
        within the QObject inheritance tree.
     \i \l{QObject::tr()}{tr()} and \l{QObject::trUtf8()}{trUtf8()}
-       translates strings for \l{i18n.html}{internationalization}.
+       translates strings for \l{Internationalization with Qt}{internationalization}.
     \i \l{QObject::setProperty()}{setProperty()} and
        \l{QObject::property()}{property()} dynamically set and get
        \l{properties.html}{object properties} by name.
