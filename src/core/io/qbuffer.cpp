@@ -75,7 +75,7 @@ void QBufferEngine::setData(QByteArray *data)
 
 bool QBufferEngine::open(int flags)
 {
-    if (flags & QIODevice::Truncate)
+    if (flags & QIODevice::Truncate) 
         d->buf->resize(0);
     if (flags & QIODevice::Append)                       // append to end of buffer
         d->ioIndex = d->buf->size();
@@ -118,7 +118,7 @@ bool QBufferEngine::seek(QIODevice::Offset pos)
     return true;
 }
 
-Q_LONG QBufferEngine::readBlock(char *p, Q_LONG len)
+Q_LONG QBufferEngine::readBlock(char *ptr, Q_LONG len)
 {
     if (d->ioIndex + len > d->buf->size()) {   // overflow
         if ((int)d->ioIndex >= d->buf->size()) {
@@ -127,7 +127,7 @@ Q_LONG QBufferEngine::readBlock(char *p, Q_LONG len)
             len = d->buf->size() - d->ioIndex;
         }
     }
-    memcpy(p, d->buf->constData() + d->ioIndex, len);
+    memcpy(ptr, d->buf->constData() + d->ioIndex, len);
     d->ioIndex += len;
     return len;
 }
@@ -141,7 +141,7 @@ Q_LONG QBufferEngine::writeBlock(const char *ptr, Q_LONG len)
             return -1;
         }
     }
-    memcpy(d->buf->data() + d->ioIndex, ptr, len);
+    memcpy(d->buf->data() + d->ioIndex, (uchar *)ptr, len);
     d->ioIndex += len;
     return len;
 }
@@ -172,7 +172,7 @@ int QBufferEngine::getch()
 {
     if (d->ioIndex >= d->buf->size()) // overflow
         return -1;
-    return char(d->buf->constData()[d->ioIndex++]);
+    return (uchar)d->buf->constData()[d->ioIndex++];
 }
 
 int QBufferEngine::putch(int ch)
@@ -183,7 +183,7 @@ int QBufferEngine::putch(int ch)
         if (writeBlock(&tinyBuf, 1) != 1)
             return -1;                          // write error
     } else {
-        d->buf->data()[d->ioIndex++] = (char)ch;
+        d->buf->data()[d->ioIndex++] = (uchar)ch;
     }
     return ch;
 }
@@ -191,8 +191,8 @@ int QBufferEngine::putch(int ch)
 int QBufferEngine::ungetch(int ch)
 {
     if (ch != -1) {
-        if (d->ioIndex)
-            d->ioIndex--;
+        if (d->ioIndex) 
+            d->buf->data()[--d->ioIndex] = (char)ch;
         else
             ch = -1;
     }
