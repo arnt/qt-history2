@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#40 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#40 $");
 
 
 const int Unsorted = 32767;
@@ -103,10 +103,30 @@ struct QListViewPrivate
 
 /*!
   \class QListViewItem qlistview.h
-  \brief The QListViewItem class implements a listview item.
+  \brief The QListViewItem class implements a list view item.
 
-  This class is not finished.
- */
+  A list viev item is a multi-column object capable of displaying
+  itself.  Its design has the following main goals: <ul> <li> Work
+  quickly and well for \e large sets of data. <li> Have a low usage
+  threshold for simple use. </ul>
+
+  The simplest way to use QListViewItem is to construct one with a few
+  constant strings.  This creates an item which is a child of \e
+  parent, with two fixed-content strings, and discards the pointer to
+  it:
+  
+  \code
+     (void) new QListViewItem( parent, "first column", "second column", 0 );
+  \endcode
+  
+  This object will be deleted when \e parent is deleted, as for \link
+  QObject QObjects. \endlink
+
+  If you keep the pointer, you can set or change the texts using
+  setText(), add pixmaps using setPixmap().
+  
+  More to come.
+*/
 
 
 
@@ -236,7 +256,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
     invalidateHeight();
-    
+
     QListView * lv = listView();
 
     if ( lv && lv->d->currentSelected ) {
@@ -246,7 +266,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 	if ( c == tbg )
 	    lv->d->currentSelected = 0;
     }
-    
+
     if ( lv && lv->d->focusItem ) {
 	QListViewItem * c = lv->d->focusItem;
 	while( c && c != tbg )
