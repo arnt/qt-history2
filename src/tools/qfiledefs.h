@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#19 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#20 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -48,13 +48,16 @@
 #undef STAT_DIR
 #undef STAT_LNK
 #undef STAT_MASK
+#undef FILENO
 #undef OPEN
 #undef CLOSE
 #undef LSEEK
+#undef TELL
 #undef READ
 #undef WRITE
 #undef ACCESS
 #undef GETCWD
+#undef CHDIR
 #undef MKDIR
 #undef RMDIR
 #undef OPEN_RDONLY
@@ -63,6 +66,7 @@
 #undef OPEN_TRUNC
 #undef OPEN_APPEND
 #undef OPEN_TEXT
+#undef OPEN_BINARY
 
 
 #if defined(_CC_MSVC_) || defined(_CC_SYM_)
@@ -80,6 +84,7 @@
 # define OPEN		::_open
 # define CLOSE		::_close
 # define LSEEK		::_lseek
+# define TELL		::_tell
 # define READ		::_read
 # define WRITE		::_write
 # define ACCESS		::_access
@@ -95,6 +100,7 @@
 # define OPEN_APPEND	_O_APPEND
 # if defined(O_TEXT)
 #  define OPEN_TEXT	_O_TEXT
+#  define OPEN_BINARY	_O_BINARY
 # endif
 
 #else						// all other systems
@@ -112,6 +118,7 @@
 # define OPEN		::open
 # define CLOSE		::close
 # define LSEEK		::lseek
+# define TELL		::tell
 # define READ		::read
 # define WRITE		::write
 # define ACCESS		::access
@@ -132,6 +139,7 @@
 # define OPEN_APPEND	O_APPEND
 # if defined(O_TEXT)
 #  define OPEN_TEXT	O_TEXT
+#  define OPEN_BINARY	O_BINARY
 # endif
 #endif
 
