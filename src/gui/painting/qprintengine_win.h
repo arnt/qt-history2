@@ -35,7 +35,7 @@ public:
     bool end();
     void updateClipRegion(const QRegion &clip, bool clipEnabled);
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
 
     // Printer functions...
     void setPrinterName(const QString &);

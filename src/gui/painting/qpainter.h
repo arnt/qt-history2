@@ -165,12 +165,14 @@ public:
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-                    const QRect &sourceRect = QRect(), bool imask=false);
+                    const QRect &sourceRect = QRect(), Qt::BlendMode mode = Qt::AlphaBlend);
     void drawPixmap(int x, int y, int w, int h, const QPixmap &,
-                    int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
-    void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
-    void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr, bool imask=false);
-    void drawPixmap(const QPoint &p, const QPixmap &pm, bool imask=false);
+                    int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::BlendMode mode = Qt::AlphaBlend);
+    void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1,
+                    Qt::BlendMode mode = Qt::AlphaBlend);
+    void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr,
+                    Qt::BlendMode mode = Qt::AlphaBlend);
+    void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode = Qt::AlphaBlend);
 
     void drawImage(int x, int y, const QImage &,
                    int sx = 0, int sy = 0, int sw = -1, int sh = -1,
@@ -281,22 +283,20 @@ private:
     double idy() const;
 
     QPainterPrivate *d;
-#if defined(Q_WS_X11)
+
     friend class QFontEngineBox;
-    friend class QFontEngineXLFD;
-    friend class QFontEngineXft;
-#elif defined(Q_WS_WIN)
-    friend class QFontEngineWin;
-    friend class QWin32PaintEngine;
-    friend class QWin32PaintEnginePrivate;
-#elif defined(Q_WS_QWS)
-    friend class QWSManager;
     friend class QFontEngineBox;
     friend class QFontEngineFT;
-#elif defined(Q_WS_MAC)
     friend class QFontEngineMac;
+    friend class QFontEngineWin;
+    friend class QFontEngineXLFD;
+    friend class QFontEngineXft;
     friend class QMacStyleQDPainter;
-#endif
+    friend class QWSManager;
+    friend class QX11PaintEngine;
+    friend class QX11PaintEnginePrivate;
+    friend class QWin32PaintEngine;
+    friend class QWin32PaintEnginePrivate;
 };
 
 //
@@ -359,26 +359,28 @@ inline void QPainter::setViewport(const QRect &r)
 }
 
 inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                 int sx, int sy, int sw, int sh, bool imask)
+                                 int sx, int sy, int sw, int sh, Qt::BlendMode mode)
 {
-    drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), imask);
+    drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
 }
 
-inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh, bool imask)
+inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh,
+                                 Qt::BlendMode mode)
 {
-    drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh), imask);
+    drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh), mode);
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr, bool imask)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
+                                 Qt::BlendMode mode)
 {
-    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr, imask);
+    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr, mode);
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, bool imask)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode)
 {
     drawPixmap(QRect(p.x(), p.y(), -1, -1),
                pm,
-               QRect(0, 0, pm.width(), pm.height()), imask);
+               QRect(0, 0, pm.width(), pm.height()), mode);
 }
 
 inline void QPainter::eraseRect(const QRect &r)

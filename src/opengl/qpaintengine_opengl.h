@@ -54,8 +54,8 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
 #ifdef Q_WS_WIN
     HDC handle() const;

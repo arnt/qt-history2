@@ -729,7 +729,8 @@ static void bind_texture_from_cache(const QPixmap &pm)
     }
 }
 
-void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool)
+void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                                    Qt::BlendMode mode)
 {
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);
@@ -763,7 +764,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
     glColor4f(c[0], c[1], c[2], c[3]);
 }
 
-void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &, bool)
+void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &)
 {
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);

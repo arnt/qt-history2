@@ -1293,7 +1293,8 @@ void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
-void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
+void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr
+                                 Qt::BlendMode mode)
 {
     int x = r.x();
     int y = r.y();
@@ -1312,7 +1313,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     QPixmap::x11SetDefaultScreen(pixmap.x11Info()->screen());
 
     QBitmap *mask = 0;
-    if(!imask)
+    if(mode == Qt::AlphaBlend)
         mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
@@ -1427,8 +1428,16 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
         updateBrush(d->cbrush, d->bg_origin);                        // update brush setting
 }
 
-void QX11PaintEngine::updateXForm(const QWMatrix &)
+void QX11PaintEngine::updateXForm(const QWMatrix &mtx)
 {
+    if (mtx.m12() != 0 || mtx.m21() != 0)
+        d->txop = QPainter::TxRotShear;
+    else if (mtx.m11() != 1 || mtx.m22() != 1)
+        d->txop = QPainter::TxScale;
+    else if (mtx.dx() != 0 || mtx.dy() != 0)
+        d->txop = QPainter::TxTranslate;
+    else
+        d->txop = QPainter::TxNone;
 }
 
 void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
@@ -1472,7 +1481,7 @@ Qt::HANDLE QX11PaintEngine::handle() const
 
 extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
 
-void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
+void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
     int x = r.x();
     int y = r.y();
@@ -1481,7 +1490,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
     int sx = p.x();
     int sy = p.y();
 
-    if (optim) {
+    if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= TxTranslate) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;

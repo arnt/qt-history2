@@ -111,9 +111,10 @@ public:
     virtual void drawCubicBezier(const QPointArray &, int index = 0) = 0;
 #endif
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask) = 0;
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                            Qt::BlendMode mode = Qt::AlphaBlend) = 0;
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim) = 0;
+    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s) = 0;
 
 #if defined Q_WS_WIN // ### not liking this!!
     virtual HDC handle() const = 0;
@@ -247,9 +248,10 @@ public:
     virtual void drawCubicBezier(const QPointArray &, int index);
 #endif
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                            Qt::BlendMode mode = Qt::AlphaBlend);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
+    virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
 #if defined Q_WS_WIN // ### not liking this!!
     virtual HDC handle() const { return wrap->handle(); }

@@ -229,10 +229,11 @@ void QWrapperPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 { wrap->drawCubicBezier(a, index); }
 #endif
 
-void QWrapperPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
-{ wrap->drawPixmap(r, pm, sr, imask); }
+void QWrapperPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                                     Qt::BlendMode mode)
+{ wrap->drawPixmap(r, pm, sr, mode); }
 void QWrapperPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 { wrap->drawTextItem(p, ti, textflags); }
-void QWrapperPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
-{ wrap->drawTiledPixmap(r, pixmap, s, optim); }
+void QWrapperPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s)
+{ wrap->drawTiledPixmap(r, pixmap, s); }
 

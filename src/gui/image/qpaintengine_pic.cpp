@@ -330,7 +330,8 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int /* index */)
 }
 
 // ### Stream out sr
-void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */, bool /* imask */)
+void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */,
+                                     Qt::BlendMode mode)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPixmap);
@@ -338,7 +339,7 @@ void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool)
+void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawTiledPixmap);

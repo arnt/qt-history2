@@ -60,9 +60,9 @@ public:
     void drawCubicBezier(const QPointArray &, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
     void drawPath(const QPainterPath &path);
 
     HDC handle() const; // ### Still not liking this...
@@ -122,8 +122,8 @@ public:
     void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
     void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
     HDC handle() const;
     Type type() const { return Gdiplus; }

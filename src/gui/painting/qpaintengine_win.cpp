@@ -1047,14 +1047,15 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
         SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool)
+void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
+                                   Qt::BlendMode mode)
 {
     Q_ASSERT(isActive());
 
     bool stretch = r.width() != sr.width() || r.height() != sr.height();
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPixmap(r, pixmap, sr, false);
+        d->gdiplusEngine->drawPixmap(r, pixmap, sr, mode);
         return;
     } else if (!d->forceGdi
                && (pixmap.hasAlpha() && d->txop > QPainter::TxScale)) {
@@ -1064,7 +1065,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         d->beginGdiplus();
         d->forceGdiplus = false;
         if (d->usesGdiplus()) {
-            d->gdiplusEngine->drawPixmap(r, pixmap, sr, false);
+            d->gdiplusEngine->drawPixmap(r, pixmap, sr, mode);
             return;
         }
     }
@@ -1537,7 +1538,7 @@ void QWin32PaintEngine::updateFont(const QFont &font)
 extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
 extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int);
 
-void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
+void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
 
@@ -2285,9 +2286,10 @@ void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, in
 
 
 
-void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                                     Qt::BlendMode mode)
 {
-    Q_UNUSED(imask);
+    Q_UNUSED(mode);
     QImage backupPixels;
     QtGpBitmap *bitmap = qt_convert_to_gdipbitmap(&pm, &backupPixels);
     GdipDrawImageRectRectI(d->graphics, bitmap,
@@ -2299,7 +2301,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 }
 
 void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
-                                          const QPoint &, bool)
+                                          const QPoint &)
 {
     Q_UNUSED(r);
     Q_UNUSED(pm);

@@ -1012,6 +1012,11 @@ public:
         ShortcutOnApplication
     };
 
+    enum BlendMode {
+        AlphaBlend,
+        SourceCopy
+    };
+
     // "handle" type for system objects. Documented as \internal in
     // qapplication.cpp
 #if defined(Q_WS_MAC)

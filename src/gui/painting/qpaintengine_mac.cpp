@@ -298,7 +298,7 @@ QQuickDrawPaintEngine::drawRect(const QRect &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, true);
+                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -413,7 +413,7 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
 
                 //draw the brush
                 QRect r(pa.boundingRect());
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, true);
+                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -469,7 +469,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, true);
+                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -602,7 +602,7 @@ QQuickDrawPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
+QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
     int yPos=r.y(), xPos, drawH, drawW, yOff=p.y(), xOff;
     while(yPos < r.bottom()) {
@@ -615,7 +615,8 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
             drawW = pixmap.width() - xOff; // Cropping first column
             if(xPos + drawW > r.right())    // Cropping last column
                 drawW = r.right() - xPos;
-            drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), false);
+            drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH)
+                       Qt::AlphaBlend);
             xPos += drawW;
             xOff = 0;
         }
@@ -1453,7 +1454,8 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                                     Qt::BlendMode mode)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
@@ -1464,7 +1466,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 
     CGContextSaveGState(d->hd);
     QRegion rgn(r); qt_mac_clip_cg(d->hd, rgn, 0);
-    CGImageRef image = qt_mac_create_cgimage(pm, imask);
+    CGImageRef image = qt_mac_create_cgimage(pm, mode);
     HIViewDrawCGImage(d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
     CGContextRestoreGState(d->hd);
     CGImageRelease(image);
@@ -1507,7 +1509,7 @@ void QCoreGraphicsPaintEngine::setupCGClip(const QRegion *rgn)
 
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
     Q_ASSERT(isActive());
 

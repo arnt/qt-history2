@@ -2053,17 +2053,18 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
 /*!
     \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                  int sx, int sy, int sw, int sh, bool imask)
+                                  int sx, int sy, int sw, int sh, Qt::BlendMode mode)
 
     \overload
 
     Draws the rectangular portion with the origin \a(sx, sy), width \a sw
     and height \a sh, of the pixmap \a pm, at the point \a(x, y), with a
-    width of \a w and a height of \a h. If \a imask is true \a pm will not
+    width of \a w and a height of \a h. If \a mode is QPainter::SourceCopy \a pm will not
     be masked to QPixmap::mask()
 */
 
-/*! \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh, bool imask)
+/*! \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh,
+                                  Qt::BlendMode mode)
 
     \overload
 
@@ -2086,7 +2087,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr, bool imask)
+    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
+                                  Qt::BlendMode mode)
     \overload
 
     Draws the rectangle \a sr of pixmap \a pm with its origin at point \a
@@ -2094,7 +2096,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 */
 
 /*!
-    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, bool imask)
+    \fn void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode)
     \overload
 
     Draws the pixmap \a pm with its origin at point \a p. If \a imask is
@@ -2106,7 +2108,7 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
     \a r in the paint device. If \a imask is true \a pm will not be masked
     to QPixmap::mask().
 */
-void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode)
 {
     if (!isActive() || pm.isNull())
         return;
@@ -2153,7 +2155,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
         QPixmap source(sw, sh);
         {
             QPainter p(&source);
-            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), imask);
+            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), mode);
         }
 
         QWMatrix mat(d->state->matrix);
@@ -2169,12 +2171,12 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
             QPainter p;
             pmx = QPixmap(sw, sh);                // xform subpixmap
             p.begin(&pmx);
-            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), imask);
+            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), mode);
             p.end();
-            if (!imask && pm.mask()) {
+            if (mode == Qt::AlphaBlend && pm.mask()) {
                 QBitmap mask(sw, sh);
                 p.begin(&mask);
-                p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), QRect(sx, sy, sw, sh), true);
+                p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), QRect(sx, sy, sw, sh), mode);
                 p.end();
                 pmx.setMask(mask);
             }
@@ -2191,11 +2193,11 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bo
         int dx, dy;
         mat.map(0, 0, &dx, &dy);
         d->engine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
-                        QRect(0, 0, pmx.width(), pmx.height()), imask);
+                        QRect(0, 0, pmx.width(), pmx.height()), mode);
         return;
     }
 
-    d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), imask);
+    d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh));
     return;
 }
 
@@ -2464,7 +2466,8 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
             drawW = pixmap.width() - xOff; // Cropping first column
             if (xPos + drawW > x + w)           // Cropping last column
                 drawW = x + w - xPos;
-            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), true);
+            gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
+                           Qt::AlphaBlend);
             xPos += drawW;
             xOff = 0;
         }
@@ -2534,8 +2537,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
         return;
     }
 
-    bool optim = (pixmap.mask() && pixmap.depth() > 1 && d->state->txop <= TxTranslate);
-    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), optim);
+    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy));
 }
 
 /*!

@@ -5843,12 +5843,13 @@ void QPSPrintEngine::drawCubicBezier(const QPointArray &a, int index)
 }
 #endif
 
-void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+                                Qt::BlendMode mode)
 {
     // ###### fix sr
     QImage img = pm;
     QImage mask;
-    if (!imask && pm.mask())
+    if (mode == Qt::AlphaBlend && pm.mask())
         mask = *pm.mask();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img, mask);
 }
@@ -5864,7 +5865,7 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
         d->currentFontFile->drawText(d->pageStream, d, p, ti, textflags);
 }
 
-void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
+void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
     // ####################
 #if 0

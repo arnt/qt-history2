@@ -545,7 +545,8 @@ void QWSPaintEngine::drawCubicBezier(const QPointArray &pa, int index){
 }
 #endif
 
-void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
+void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
+                                Qt::BlendMode mode)
     //(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
     int x,y,w,h,sx,sy,sw,sh;
@@ -556,7 +557,7 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
         qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
 
     d->gfx->setSource(&pixmap);
-    if(!imask && pixmap.mask()) {
+    if(mode == Qt::AlphaBlend && pixmap.mask()) {
         QBitmap * mymask=((QBitmap *)pixmap.mask());
         unsigned char * thebits=mymask->scanLine(0);
         int ls=mymask->bytesPerLine();
@@ -573,7 +574,7 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
         d->gfx->stretchBlt(x,y,w,h,sw,sh);
 }
 
-void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
+void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s)
 {
     qDebug("QWSPaintEngine::drawTiledPixmap");
 }

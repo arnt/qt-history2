@@ -47,6 +47,7 @@ public:
         //             pfont = 0;
         //             block_ext = false;
         xinfo = 0;
+        txop = QPainter::TxNone;
     }
     Display *dpy;
     int scrn;
@@ -72,6 +73,7 @@ public:
     uint clip_serial;
     QX11Info *xinfo;
     QPoint bg_origin;
+    QPainter::TransformationCodes txop;
 };
 
 #endif // QX11PAINTENGINE_P_H
