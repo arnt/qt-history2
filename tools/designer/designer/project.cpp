@@ -1311,7 +1311,7 @@ void Project::addAndEditFunction( const QString &function )
 	
 	    if ( !found ) {
 		QString code = f->text();
-		code += "\n" + iface->createFunctionStart( "", func, "", "" ) + "\n{\n}\n";
+		code += "\n\n" + iface->createFunctionStart( "", func, "", "" ) + "\n{\n\n}\n";
 		f->setText( code );
 		if ( f->editor() )
 		    f->editor()->refresh( FALSE );
