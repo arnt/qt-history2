@@ -78,9 +78,6 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
              || state->brush.style() == Qt::RadialGradientPattern
              || state->brush.style() == Qt::ConicalGradientPattern);
 
-    q->save();
-    q->setClipPath(path, Qt::IntersectClip);
-
     bool xform = state->txop > TxTranslate;
 
     QRectF pathBounds = path.boundingRect();
@@ -99,6 +96,9 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
         || (state->brush.style() == Qt::ConicalGradientPattern
             && !imageEngine->hasFeature(QPaintEngine::ConicalGradientFill)))
         return;
+
+    q->save();
+    q->setClipPath(path, Qt::IntersectClip);
 
     if (xform) {
         // The xformed case. We draw the gradient into the image non transformed
