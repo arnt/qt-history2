@@ -255,7 +255,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>right.png</pixmap>
+                            <pixmap>designer_right.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move field to list of displayed fields</string>
@@ -272,7 +272,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>left.png</pixmap>
+                            <pixmap>designer_left.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>remove field from list of displayed fields</string>
@@ -306,7 +306,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>up.png</pixmap>
+                            <pixmap>designer_up.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move Field up</string>
@@ -348,7 +348,7 @@
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>down.png</pixmap>
+                            <pixmap>designer_down.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move field down</string>
@@ -1076,7 +1076,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>right.png</pixmap>
+                            <pixmap>designer_right.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Move field to the right list</string>
@@ -1093,7 +1093,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>left.png</pixmap>
+                            <pixmap>designer_left.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>remove field from the right list</string>
@@ -1127,7 +1127,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>up.png</pixmap>
+                            <pixmap>designer_up.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>move field up</string>
@@ -1144,7 +1144,7 @@ name like "qt%"
                             <string></string>
                         </property>
                         <property name="pixmap">
-                            <pixmap>down.png</pixmap>
+                            <pixmap>designer_down.png</pixmap>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>move field down</string>

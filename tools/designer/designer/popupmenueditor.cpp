@@ -133,7 +133,6 @@ PopupMenuEditorItem::PopupMenuEditorItem( QWidget * widget, PopupMenuEditor * me
       autodelete( FALSE )
 {
     init();
-    QObject::connect( w, SIGNAL( destroyed() ), this, SLOT( selfDestruct() ) );
 }
 
 PopupMenuEditorItem::PopupMenuEditorItem( PopupMenuEditorItem * item, PopupMenuEditor * menu )
@@ -175,6 +174,18 @@ void PopupMenuEditorItem::init()
 {
     if ( m ) {
 	s = new PopupMenuEditor( m->formWindow(), m );
+    }
+       
+    QObject * o = 0;
+    if ( a ) {
+	o = a;
+    } else if ( g ) {
+	o = g;
+    } else if ( w ) {
+	o = w;
+    }
+    if ( o ) {
+	QObject::connect( o, SIGNAL( destroyed() ), this, SLOT( selfDestruct() ) );
     }
 }
 
@@ -449,6 +460,9 @@ void PopupMenuEditor::init()
     dropLine->hide();
 
     hide();
+
+    QObject::connect( formWnd->mainWindow()->actioneditor(), SIGNAL( removing( QAction * ) ),
+		      this, SLOT( remove( QAction * ) ) );
 }
 
 void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
@@ -460,7 +474,6 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, int index )
 	itemList.insert( index, item );
 	//currentIndex = index;
     }
-    emit actionAdded( item->anyAction() ); //FIXME: support w
     resizeToContents();
     if ( isVisible() && parentMenu )
 	parentMenu->update(); // draw arrow in parent menu
@@ -479,20 +492,6 @@ void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
 void PopupMenuEditor::insert( QWidget * widget, int index )
 {
     insert( new PopupMenuEditorItem( widget, this ), index );
-}
-
-void PopupMenuEditor::remove( int index )
-{
-    if ( index != -1 && itemList.at( index )->isRemovable() ) {
-	PopupMenuEditorItem * i = itemList.at( index );
-	emit actionRemoved( i->anyAction() ); // emit before or after actual emission
-	itemList.remove( index );
-	resizeToContents();
-	uint n = itemList.count() + 1;
-	if ( currentIndex >= n ) {
-	    currentIndex = itemList.count() + 1;
-	}
-    }
 }
 
 int PopupMenuEditor::find( QAction * action )
@@ -706,9 +705,22 @@ void PopupMenuEditor::focusCurrentItemMenu()
     }
 }
 
-FormWindow * PopupMenuEditor::formWindow()
+void PopupMenuEditor::remove( int index )
 {
-    return formWnd;
+    if ( index != -1 && itemList.at( index )->isRemovable() ) {
+	itemList.remove( index );
+	resizeToContents();
+	uint n = itemList.count() + 1;
+	if ( currentIndex >= n ) {
+	    currentIndex = itemList.count() + 1;
+	}
+    }
+}
+
+void PopupMenuEditor::remove( QAction * a )
+{
+    int idx = find( a );
+    remove( idx );
 }
 
 PopupMenuEditorItem * PopupMenuEditor::createItem( QAction * a )
@@ -1209,7 +1221,9 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 {
     QWidget * w = qApp->focusWidget();
-    if ( !w || !( w->inherits( "PopupMenuEditor" ) || w->inherits( "MenuBarEditor" ) ) ) {
+    if ( !w || ( !( w->inherits( "PopupMenuEditor" ) ||
+		    w->inherits( "MenuBarEditor" ) ) &&
+		 w != lineEdit ) ) {
 	hideCurrentItemMenu();
 	hide();
     }

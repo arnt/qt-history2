@@ -286,6 +286,8 @@ void ActionEditor::connectionsClicked()
 
 void ActionEditor::removeAction( QAction *a )
 {
+    emit removing( a );
+	
     formWindow->actionList().removeRef( a );
     
     QValueList<MetaDataBase::Connection> conns =

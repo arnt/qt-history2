@@ -57,6 +57,7 @@ protected slots:
 
 signals:
     void hidden();
+    void removing( QAction * );
 
 private:
     void insertChildActions( ActionItem *i );

@@ -100,7 +100,6 @@ public:
     void insert( QAction * action, int index = -1 );
     void insert( QActionGroup * actionGroup, int index = -1 );
     void insert( QWidget * widget, int index = -1 );
-    void remove( int index );
     int find( QAction * action );
     int count();
     PopupMenuEditorItem * at( int index );
@@ -122,13 +121,12 @@ public:
     void hideCurrentItemMenu();
     void focusCurrentItemMenu();
 
-    FormWindow * formWindow();
-    
+    FormWindow * formWindow() { return formWnd; }
     bool isCreatingAccelerator() { return ( currentField == 2 ); }
 
-signals:
-    void actionAdded( QAction * );
-    void actionRemoved( QAction * );
+public slots:
+    void remove( int index );
+    void remove( QAction * );
 
 protected:
     PopupMenuEditorItem * createItem( QAction * a = 0 );
