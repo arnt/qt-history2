@@ -1056,12 +1056,12 @@ public:
 		newStr += QChar( '%' );
 		ushort c = inCh / 16;
 		c += c > 9 ? 'A' - 10 : '0';
-		newStr += c;
+		newStr += (char)c;
 		c = inCh % 16;
 		c += c > 9 ? 'A' - 10 : '0';
-		newStr += c;
+		newStr += (char)c;
 	    } else {
-		newStr += inCh;
+		newStr += (char)inCh;
 	    }
 	}
 	return newStr;
@@ -3242,6 +3242,7 @@ void QFileDialog::setDir( const QDir &dir )
 
 void QFileDialog::setUrl( const QUrlOperator &url )
 {
+    d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
 
     QString operatorPath = url.toString( FALSE, FALSE );
