@@ -11146,7 +11146,7 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( w->inherits("QLineEdit") && w->parentWidget() && !w->topLevelWidget()->inherits("QPopupMenu") )
+    if( w->inherits("QFrame") && w->parentWidget() && !w->topLevelWidget()->inherits("QPopupMenu") )
 	w->installEventFilter( this );
 }
 
@@ -11261,6 +11261,7 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 		out->setFrameShape(d->oldFrameShape);
 		out->setFrameShadow(d->oldFrameShadow);
 		out->setLineWidth(d->oldFrameWidth);
+		out->repaint();
 	    }
 	    d->focusWidget = NULL;
 	} 
@@ -11273,10 +11274,8 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    //set it
 	    frm->setFrameShape(QFrame::Panel);
 	    frm->setFrameShadow(QFrame::Plain);
-	    if(o->inherits("QScrollView"))
-		frm->setLineWidth(3);
-	    else
-		frm->setLineWidth(2);
+	    frm->setLineWidth(2);
+	    frm->repaint();
 	}
     }
     return FALSE;
