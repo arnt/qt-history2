@@ -96,14 +96,6 @@ static bool verify( const QString& library, uint version, uint flags,
 	    qWarning( "Conflict in %s:\n"
 		      "  Plugin cannot be queried successfully!",
 		      (const char*) QFile::encodeName(library) );
-    } else if ( key != QT_BUILD_KEY ) {
-	if ( warn )
-	    qWarning( "Conflict in %s:\n"
-		      "  Plugin uses incompatible Qt library.\n"
-		      "  expected build key \"%s\", got \"%s\".",
-		      (const char*) QFile::encodeName(library),
-		      QT_BUILD_KEY,
-		      key.isEmpty() ? "<null>" : (const char *) key );
     } else if ( (version >  QT_VERSION)  ||
 		( ( QT_VERSION & 0xff0000 ) > ( version & 0xff0000 ) ) ) {
 	if ( warn )
@@ -117,6 +109,14 @@ static bool verify( const QString& library, uint version, uint flags,
 		      "  Plugin uses %s Qt library!",
 		      (const char*) QFile::encodeName(library),
 		      (flags & 2) ? "multi threaded" : "single threaded" );
+    } else if ( key != QT_BUILD_KEY ) {
+	if ( warn )
+	    qWarning( "Conflict in %s:\n"
+		      "  Plugin uses incompatible Qt library.\n"
+		      "  expected build key \"%s\", got \"%s\".",
+		      (const char*) QFile::encodeName(library),
+		      QT_BUILD_KEY,
+		      key.isEmpty() ? "<null>" : (const char *) key );
     } else {
 	return TRUE;
     }
