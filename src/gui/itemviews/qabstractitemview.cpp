@@ -547,6 +547,7 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
     QModelIndex old = d->root;
     d->root = QPersistentModelIndex(index, d->model);
     emit rootChanged(old, index);
+    reset();
     if (isVisible())
         doItemsLayout();
 }
@@ -648,7 +649,8 @@ bool QAbstractItemView::event(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         if (!he)
             break;
-        QModelIndex index = itemAt(he->pos());
+        QPoint margins = d->viewport->geometry().topLeft();
+        QModelIndex index = itemAt(he->pos() - margins);
         if (!index.isValid())
             break;
         QString tooltip = model()->data(index, QAbstractItemModel::ToolTipRole).toString();
@@ -656,7 +658,8 @@ bool QAbstractItemView::event(QEvent *e)
         return true; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
-        QModelIndex index = itemAt(he->pos());
+        QPoint margins = d->viewport->geometry().topLeft();
+        QModelIndex index = itemAt(he->pos() - margins);
         if (!index.isValid())
             break;
         QString whatsthis = model()->data(index, QAbstractItemModel::WhatsThisRole).toString();
@@ -664,7 +667,8 @@ bool QAbstractItemView::event(QEvent *e)
         return true; }
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
-        QModelIndex index = itemAt(he->pos());
+        QPoint margins = d->viewport->geometry().topLeft();
+        QModelIndex index = itemAt(he->pos() - margins);
         if (!index.isValid())
             break;
         QString statustip = model()->data(index, QAbstractItemModel::StatusTipRole).toString();
@@ -1366,8 +1370,21 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
             d->viewport->update(itemViewportRect(topLeft));
         return;
     }
-    if (isVisible())
-        doItemsLayout();
+    // single row changed
+    if (topLeft.row() == bottomRight.row() && topLeft.isValid()) {
+        QModelIndex current = currentItem();
+        if (d->currentEditor.second && topLeft.row() == current.row()) {
+            itemDelegate()->setEditorData(d->currentEditor.second, d->model, current);
+        } else {
+            QRect tl = itemViewportRect(topLeft);
+            QRect br = itemViewportRect(bottomRight);
+            d->viewport->update(tl.unite(br));
+        }
+    }
+    // more changed
+//     if (isVisible())
+//         doItemsLayout();
+    update();
 }
 
 /*!
