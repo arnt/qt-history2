@@ -10,7 +10,7 @@ INCLUDEPATH     = $$QT_SOURCE_TREE/include .
 DEPENDPATH      = $$QT_SOURCE_TREE/include .
 
 SOURCES         = main.cpp \
-                    $$QT_SOURCE_TREE/src/core/base/qglobal.cpp      \
+                    $$QT_SOURCE_TREE/src/core/global/qglobal.cpp      \
                     $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
                     $$QT_SOURCE_TREE/src/core/io/qfile_win.cpp \
                     $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp    \
