@@ -67,8 +67,8 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
             this, SLOT(updateScrollers()));
     connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
             this, SLOT(updateScrollers()));
-    connect(list, SIGNAL(itemEntered(QModelIndex,QMouseEvent*)),
-            this, SLOT(setCurrentIndex(QModelIndex,QMouseEvent*)));
+    connect(list, SIGNAL(itemEntered(QModelIndex,const QMouseEvent*)),
+            this, SLOT(setCurrentIndex(QModelIndex,const QMouseEvent*)));
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
