@@ -10,7 +10,6 @@
 
 enum { UndefinedIndex = -1 };
 
-// ### use a placement new for bytearray/string
 class QTextFormatProperty
 {
 public:
@@ -50,7 +49,7 @@ public:
     } data;
 
     QString stringValue() const
-    { return *static_cast<QString *>(data.ptr); }
+    { return *reinterpret_cast<QString *>(&const_cast<void *>(data.ptr)); }
 
 private:
     void free();
@@ -71,8 +70,6 @@ QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 }
 #endif
 
-typedef QMap<int, QTextFormatProperty> QTextFormatPropertyMap;
-
 class QTextFormatPrivate : public QSharedObject
 {
 public:
@@ -88,13 +85,15 @@ public:
     QList<int> propertyIds() const { return properties.keys(); }
 
 private:
-    QTextFormatPropertyMap properties;
+    typedef QMap<int, QTextFormatProperty> PropertyMap;
+
+    PropertyMap properties;
 };
 
 QTextFormatProperty::QTextFormatProperty(const QString &value)
 {
     type = QTextFormat::String;
-    data.ptr = new QString(value);
+    new (&data.ptr) QString(value);
 }
 
 QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &rhs)
@@ -107,7 +106,7 @@ QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &r
     type = rhs.type;
 
     if (type == QTextFormat::String)
-	data.ptr = new QString(rhs.stringValue());
+	new (&data.ptr) QString(rhs.stringValue());
     else
 	data = rhs.data;
 
@@ -116,10 +115,8 @@ QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &r
 
 void QTextFormatProperty::free()
 {
-    switch (type) {
-	case QTextFormat::String: delete static_cast<QString *>(data.ptr); break;
-	default: break;
-    }
+    if (type == QTextFormat::String)
+	reinterpret_cast<QString *>(&data.ptr)->~QString();
 }
 
 bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
@@ -152,8 +149,8 @@ bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
     if (properties.size() != rhs.properties.size())
 	return false;
 
-    QTextFormatPropertyMap::ConstIterator lhsIt = properties.begin();
-    QTextFormatPropertyMap::ConstIterator rhsIt = rhs.properties.begin();
+    PropertyMap::ConstIterator lhsIt = properties.begin();
+    PropertyMap::ConstIterator rhsIt = rhs.properties.begin();
     for (; lhsIt != properties.end(); ++lhsIt, ++rhsIt)
 	if ((lhsIt.key() != rhsIt.key()) ||
 	    (lhsIt.value() != rhsIt.value()))
