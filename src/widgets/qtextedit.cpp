@@ -4083,7 +4083,9 @@ void QTextEdit::scrollToAnchor( const QString& name )
     } while( cursor.parag() != last || !cursor.atParagEnd()  );
 }
 
-#if QT_VERSION <= 400
+#if (QT_VERSION-0 >= 400)
+#error "function anchorAt(const QPoint& pos) should be merged into function anchorAt(const QPoint& pos, AnchorAttribute attr)"
+#endif
 
 /*! \overload
   If there is an anchor at position \a pos (in contents
@@ -4094,9 +4096,6 @@ QString QTextEdit::anchorAt( const QPoint& pos )
 {
     anchorAt(pos, AnchorHref);
 }
-#else
-#error "funciton anchorAt(const QPoint& pos) should be merged into function anchorAt(const QPoint& pos, AnchorAttribute attr) for Qt 4.x"
-#endif
 
 /*! If there is an anchor at position \a pos (in contents coordinates), 
   the text for attribute \a attr is returned, otherwise an empty string is
