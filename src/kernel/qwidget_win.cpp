@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#156 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#157 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -116,7 +116,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	crect = QRect( fpos, QSize(sw, sh) );
     }
 
-    parentw = topLevel ? 0 : parentWidget()->winId();
+    parentw = parentWidget() ? parentWidget()->winId() : 0;
 
     const char* title = 0;
     int	 style = WS_CHILD;

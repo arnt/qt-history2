@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#401 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#402 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -181,6 +181,7 @@ Atom		qt_selection_property;
 Atom		qt_wm_state;
 static Atom 	qt_resource_manager;   	// X11 Resource manager
 Atom 		qt_sizegrip;		// sizegrip
+Atom 		qt_wm_client_leader;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -797,6 +798,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
     qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
     qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
+    qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 
     qt_x11_intern_atom( "QT_EMBEDDED_WINDOW", &qt_embedded_window );
     qt_x11_intern_atom( "QT_UNICODE_KEY_PRESS", &qt_unicode_key_press );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#296 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#297 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -58,6 +58,7 @@ static QWidget *keyboardGrb = 0;
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
+extern Atom qt_wm_client_leader;		// defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -242,18 +243,35 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
 				 &wsa );
     } else if ( topLevel && !desktop ) {	// top-level widget
+	QWidget *p = parentWidget();	// real parent
+	if (p)
+	    p = p->topLevelWidget();
 	if ( modal ) {
-	    QWidget *p = parentWidget();	// real parent
 	    QWidget *pp = p ? p->parentWidget() : 0;
-	    while ( pp && !pp->testWFlags(WType_Modal) ) {
-		p = pp;				// find real parent
+	    while ( pp && !pp->topLevelWidget()->testWFlags(WType_Modal) ) {
+		p = pp->topLevelWidget();	// find real parent
 		pp = pp->parentWidget();
 	    }
-	    if ( p && p->isVisible() )		// modal to one widget
+	    // #### (me thinks that's wrong) if ( p && p->isVisible() // modal to one widget
+	    if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, root_win );
 	}
+
+	// find the real client leader, i.e. a toplevel without parent
+	while ( p && p->parentWidget()) {
+	    p = p->parentWidget()->topLevelWidget();
+	}
+	
+ 	if (p) {
+	    Window pwid = p->winId();
+ 	    XChangeProperty(qt_xdisplay(), id,
+ 			    qt_wm_client_leader, XA_WINDOW, 32, PropModeReplace,
+ 			    (unsigned char*) (&pwid) ,
+ 			    1);
+ 	}
+	
 	XSizeHints size_hints;
 	size_hints.flags = USSize | PSize | PWinGravity;
 	size_hints.x = crect.left();
@@ -493,7 +511,7 @@ void QWidget::setSizeGrip( bool sizegrip )
     WId id = winId();
     if ( (bool)extra->sizegrip != sizegrip ) {
 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			qt_sizegrip, qt_sizegrip, 32, PropModeReplace,
+			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
 			sizegrip?((unsigned char *)&id):(unsigned char*) None,
 			1);
     }

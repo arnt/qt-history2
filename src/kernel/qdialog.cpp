@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#65 $
 **
 ** Implementation of QDialog class
 **
@@ -101,13 +101,15 @@
   A dialog is always a top level widget. The optional parent, however,
   will know about this child and also delete it on
   destruction. Furthermore, the window system will be able to tell
-  that both the dialog and the parent belong together. Some X11 window
-  managers will for instance provide a common taskbar entry in that
-  case.
+  that both the dialog and the parent belong together. This works for
+  Windows and also some X11 window managers, that will for instance
+  provide a common taskbar entry in that case.
+  
+  It is reommended to pass a parent.
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name, modal ? (f | WType_Modal) : f )
+    : QWidget( parent, name, (modal ? (f | WType_Modal) : f) | WType_TopLevel )
 {
     rescode = 0;
     did_move = did_resize = FALSE;
