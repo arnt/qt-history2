@@ -55,8 +55,9 @@ class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
 public:
-    QGLContextPrivate() {}
+    QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
+    GLuint bindTexture(const QImage &image, GLint format, int key);
 
 #if defined(Q_WS_WIN)
     HGLRC rc;

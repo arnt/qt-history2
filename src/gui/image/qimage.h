@@ -157,6 +157,8 @@ public:
     bool save(QIODevice * device, const char* format, int quality=-1) const;
 #endif //QT_NO_IMAGEIO
 
+    int serialNumber() const;
+
     bool valid(int x, int y) const;
     int pixelIndex(int x, int y) const;
     QRgb pixel(int x, int y) const;

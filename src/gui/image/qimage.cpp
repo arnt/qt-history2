@@ -63,6 +63,7 @@ struct QImageData {        // internal image data
     uchar **bits;             // image data
     bool alpha;               // alpha buffer
     int bitordr;              // bit order (1 bit depth)
+    int ser_no;               // serial number
 
     int  dpmx;                // dots per meter X (or 0)
     int  dpmy;                // dots per meter Y (or 0)
@@ -100,6 +101,9 @@ struct QImageData {        // internal image data
 
 QImageData::QImageData()
 {
+    static int serial = 0;
+
+    ser_no = ++serial;
     ref = 0;
 
     w = h = d = ncols = 0;
@@ -4259,3 +4263,16 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     Transforms the image using the given \a matrix and returns the result
     as a new image.
 */
+
+/*!
+    Returns a number that uniquely identifies the contents of this
+    QImage object. This means that multiple QImage objects can have
+    the same serial number as long as they refer to the same contents.
+
+    An example of where this is useful is for caching QImages.
+*/
+
+int QImage::serialNumber() const
+{
+    return data->ser_no;
+}

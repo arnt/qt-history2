@@ -980,7 +980,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
 	format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 	break;
     default:
-	qWarning("QGLContext::bintTexture() DDS image format not supported.");
+	qWarning("QGLContext::bindTexture() DDS image format not supported.");
 	return 0;
     }
 
@@ -1026,25 +1026,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     return tx_id;
 }
 
-/*!
-    Generates and binds a 2D GL texture to the current context, based
-    on the pixmap \a pixmap that is passed in. The generated texture id is
-    returned and can be used in later glBindTexture() calls.
-
-    The \a format parameter sets the internal format for the
-    texture. The default format is \c GL_RGBA8.
-
-    If the GL implementation supports the \c GL_SGIS_generate_mipmap
-    extension, mipmaps will be automatically generated for the
-    texture.
-
-    The texture that is generated is cached, so multiple calls to
-    bindTexture() with the same QPixmap will return the same texture
-    id.
-
-    \sa deleteTexture()
-*/
-GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
+GLuint QGLContextPrivate::bindTexture(const QImage &image, GLint format, int key)
 {
     static bool init_extensions = true;
     static bool generate_mipmaps = false;
@@ -1058,22 +1040,15 @@ GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
     if (!qt_tex_cache)
 	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
-    QGLTexture *texture = qt_tex_cache->object(pixmap.serialNumber());
-    if (texture && texture->context == this) {
-	glBindTexture(GL_TEXTURE_2D, texture->id);
-	return texture->id;
-    }
-
     // Scale the pixmap if needed. GL textures needs to have the
     // dimensions 2^n+2(border) x 2^m+2(border).
     QImage tx;
-    int tx_w = nearest_gl_texture_size(pixmap.width());
-    int tx_h = nearest_gl_texture_size(pixmap.height());
-    QImage im = pixmap.toImage();
-    if (tx_w != pixmap.width() || tx_h != pixmap.height())
-	tx = QGLWidget::convertToGLFormat(im.scale(tx_w, tx_h));
+    int tx_w = nearest_gl_texture_size(image.width());
+    int tx_h = nearest_gl_texture_size(image.height());
+    if (tx_w != image.width() || tx_h != image.height())
+	tx = QGLWidget::convertToGLFormat(image.scale(tx_w, tx_h));
     else
-	tx = QGLWidget::convertToGLFormat(im);
+	tx = QGLWidget::convertToGLFormat(image);
 
     GLuint tx_id;
     glGenTextures(1, &tx_id);
@@ -1088,8 +1063,52 @@ GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
 
     // this assumes the size of a texture is always smaller than the max cache size
     int cost = tx.width()*tx.height()*4/1024;
-    qt_tex_cache->insert(pixmap.serialNumber(), new QGLTexture(this, tx_id), cost);
+    qt_tex_cache->insert(key, new QGLTexture(q, tx_id), cost);
     return tx_id;
+}
+
+/*!
+    Generates and binds a 2D GL texture to the current context, based
+    on the image \a image that is passed in. The generated texture id is
+    returned and can be used in later glBindTexture() calls.
+
+    The \a format parameter sets the internal format for the
+    texture. The default format is \c GL_RGBA8.
+
+    If the GL implementation supports the \c GL_SGIS_generate_mipmap
+    extension, mipmaps will be automatically generated for the
+    texture.
+
+    The texture that is generated is cached, so multiple calls to
+    bindTexture() with the same QImage will return the same texture
+    id.
+
+    \sa deleteTexture()
+*/
+GLuint QGLContext::bindTexture(const QImage &image, GLint format)
+{
+    if (qt_tex_cache) {
+        QGLTexture *texture = qt_tex_cache->object(image.serialNumber());
+        if (texture && texture->context == this) {
+            glBindTexture(GL_TEXTURE_2D, texture->id);
+            return texture->id;
+        }
+    }
+    return d->bindTexture(image, format, image.serialNumber());
+}
+
+/*! \overload
+*/
+GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
+{
+    if (qt_tex_cache) {
+        QGLTexture *texture = qt_tex_cache->object(pixmap.serialNumber());
+        if (texture && texture->context == this) {
+            glBindTexture(GL_TEXTURE_2D, texture->id);
+            return texture->id;
+        }
+    }
+    return d->bindTexture(pixmap.toImage(), format, pixmap.serialNumber());
 }
 
 /*!
@@ -1200,7 +1219,7 @@ void QGLContext::setDevice(QPaintDevice *pDev)
 
 void QGLContext::init(QPaintDevice *dev, const QGLFormat &format)
 {
-    d_ptr = new QGLContextPrivate;
+    d_ptr = new QGLContextPrivate(this);
     d->glFormat = d->reqFormat = format;
     d->valid = false;
     setDevice(dev);
@@ -2648,6 +2667,17 @@ void QGLWidget::setAutoBufferSwap(bool on)
 bool QGLWidget::autoBufferSwap() const
 {
     return d->autoSwap;
+}
+
+/*!
+    Calls QGLContext:::bindTexture(\a image, \a format) on the currently
+    set context.
+
+    \sa deleteTexture()
+*/
+GLuint QGLWidget::bindTexture(const QImage &image, GLint format)
+{
+    return d->glcx->bindTexture(image, format);
 }
 
 /*!
