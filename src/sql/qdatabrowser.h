@@ -59,6 +59,11 @@ class Q_EXPORT QDataBrowser : public QWidget
     Q_PROPERTY( bool boundaryChecking READ boundaryChecking WRITE setBoundaryChecking )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
+    Q_PROPERTY( bool confirmEdits READ confirmEdits WRITE setConfirmEdits )
+    Q_PROPERTY( bool confirmInsert READ confirmInsert WRITE setConfirmInsert )
+    Q_PROPERTY( bool confirmUpdate READ confirmUpdate WRITE setConfirmUpdate )
+    Q_PROPERTY( bool confirmDelete READ confirmDelete WRITE setConfirmDelete )
+    Q_PROPERTY( bool confirmCancels READ confirmCancels WRITE setConfirmCancels )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool autoEdit READ autoEdit WRITE setAutoEdit )
 
@@ -89,6 +94,18 @@ public:
     QSqlCursor* sqlCursor() const;
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
+
+
+    virtual void setConfirmEdits( bool confirm );
+    virtual void setConfirmInsert( bool confirm );
+    virtual void setConfirmUpdate( bool confirm );
+    virtual void setConfirmDelete( bool confirm );
+    virtual void setConfirmCancels( bool confirm );
+    bool confirmEdits() const;
+    bool confirmInsert() const;
+    bool confirmUpdate() const;
+    bool confirmDelete() const;
+    bool confirmCancels() const;
 
     virtual void setReadOnly( bool active );
     bool isReadOnly() const;
@@ -128,6 +145,9 @@ protected:
     virtual bool updateCurrent();
     virtual bool deleteCurrent();
     virtual bool currentEdited();
+
+    virtual QSql::Confirm confirmEdit( QSql::Op m );
+    virtual QSql::Confirm confirmCancel( QSql::Op m );
 
     virtual void handleError( const QSqlError& error );
 

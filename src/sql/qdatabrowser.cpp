@@ -274,7 +274,7 @@ QSqlCursor* QDataBrowser::sqlCursor() const
 }
 
 
-/*!  ###
+/*!  Sets the default form used by the browser to \a form.
 
 */
 
@@ -284,7 +284,8 @@ void QDataBrowser::setForm( QSqlForm* form )
 }
 
 
-/*! ###
+/*! Returns the default form used by the browser, or 0 if there is
+  none.
 
 */
 
@@ -312,6 +313,102 @@ bool QDataBrowser::isReadOnly() const
     return d->readOnly;
 }
 
+/*! If \a confirm is TRUE, all edit operations (inserts, updates and
+  deletes) will be confirmed by the user.  If \a confirm is FALSE (the
+  default), all edits are posted to the database immediately.
+
+*/
+void QDataBrowser::setConfirmEdits( bool confirm )
+{
+    d->dat.setConfirmEdits( confirm );
+}
+
+/*! If \a confirm is TRUE, all inserts will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QDataBrowser::setConfirmInsert( bool confirm )
+{
+    d->dat.setConfirmInsert( confirm );
+}
+
+/*! If \a confirm is TRUE, all updates will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QDataBrowser::setConfirmUpdate( bool confirm )
+{
+    d->dat.setConfirmUpdate( confirm );
+}
+
+/*! If \a confirm is TRUE, all deletes will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QDataBrowser::setConfirmDelete( bool confirm )
+{
+    d->dat.setConfirmDelete( confirm );
+}
+
+/*! Returns TRUE if the browser confirms all edit operations (inserts,
+  updates and deletes), otherwise returns FALSE.
+*/
+
+bool QDataBrowser::confirmEdits() const
+{
+    return ( d->dat.confirmEdits() );
+}
+
+/*! Returns TRUE if the browser confirms inserts, otherwise returns
+  FALSE.
+*/
+
+bool QDataBrowser::confirmInsert() const
+{
+    return ( d->dat.confirmInsert() );
+}
+
+/*! Returns TRUE if the browser confirms updates, otherwise returns
+  FALSE.
+*/
+
+bool QDataBrowser::confirmUpdate() const
+{
+    return ( d->dat.confirmUpdate() );
+}
+
+/*! Returns TRUE if the browser confirms deletes, otherwise returns
+  FALSE.
+*/
+
+bool QDataBrowser::confirmDelete() const
+{
+    return ( d->dat.confirmDelete() );
+}
+
+/*! If \a confirm is TRUE, all cancels will be confirmed by the user
+  through a message box.  If \a confirm is FALSE (the default), all
+  cancels occur immediately.
+*/
+
+void QDataBrowser::setConfirmCancels( bool confirm )
+{
+    d->dat.setConfirmCancels( confirm );
+}
+
+/*! Returns TRUE if the browser confirms cancels, otherwise returns FALSE.
+*/
+
+bool QDataBrowser::confirmCancels() const
+{
+    return d->dat.confirmCancels();
+}
 
 /*!  Sets the auto-edit property of the browser to \a auto. The
   default is TRUE. ### more info
@@ -467,15 +564,38 @@ void QDataBrowser::insert()
     if ( !buf || !cur )
 	return;
     bool doIns = TRUE;
+    QSql::Confirm conf = QSql::Yes;
     switch ( d->dat.mode() ) {
     case QSql::Insert:
-	if ( autoEdit() && !insertCurrent() )
-	    doIns = FALSE;
+	if ( autoEdit() ) {
+	    if ( confirmInsert() )
+		conf = confirmEdit( QSql::Insert );
+	    switch ( conf ) {
+	    case QSql::Yes:
+		insertCurrent();
+		break;
+	    case QSql::No:
+		break;
+	    case QSql::Cancel:
+		doIns = FALSE;
+		break;
+	    }
+	}
 	break;
     default:
 	if ( autoEdit() && currentEdited() ) {
-	    if ( !updateCurrent() )
+	    if ( confirmUpdate() )
+		conf = confirmEdit( QSql::Update );
+	    switch ( conf ) {
+	    case QSql::Yes:
+		updateCurrent();
+		break;
+	    case QSql::No:
+		break;
+	    case QSql::Cancel:
 		doIns = FALSE;
+		break;
+	    }
 	}
 	break;
     }
@@ -506,18 +626,41 @@ void QDataBrowser::update()
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
 	return;
-    bool doUpd = TRUE;
+    QSql::Confirm conf = QSql::Yes;
     switch ( d->dat.mode() ){
     case QSql::Insert:
-	if ( autoEdit() && !insertCurrent() )
-	    doUpd = FALSE;
+	if ( autoEdit() ) {
+	    if ( confirmInsert() )
+		conf = confirmEdit( QSql::Insert );
+	    switch ( conf ) {
+	    case QSql::Yes:
+		if ( insertCurrent() )
+		    d->dat.setMode( QSql::Update );
+		break;
+	    case QSql::No:
+		d->dat.setMode( QSql::Update );
+		cur->aseditBuffer( TRUE );
+		readFields();
+		break;
+	    case QSql::Cancel:
+		break;
+	    }
+	} else
+	    readFields();
 	break;
     default:
-	break;
-    }
-    if ( doUpd ) {
 	d->dat.setMode( QSql::Update );
-	updateCurrent();
+	if ( confirmUpdate() )
+	    conf = confirmEdit( QSql::Update );
+	switch ( conf ) {
+	case QSql::Yes:
+	    updateCurrent();
+	    break;
+	case QSql::No:
+	case QSql::Cancel:
+	    break;
+	}
+	break;
     }
 }
 
@@ -540,16 +683,32 @@ void QDataBrowser::del()
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
 	return;
+    QSql::Confirm conf = QSql::Yes;
     switch ( d->dat.mode() ){
     case QSql::Insert:
-	cur->editBuffer( TRUE ); /* restore from cursor */
-	readFields();
+	if ( confirmCancels() )
+	    conf = confirmCancel( QSql::Insert );
+	if ( conf == QSql::Yes ) {
+	    cur->editBuffer( TRUE ); /* restore from cursor */
+	    readFields();
+	    d->dat.setMode( QSql::Update );
+	} else
+	    d->dat.setMode( QSql::Insert );
 	break;
     default:
-	deleteCurrent();
+	if ( confirmDelete() )
+	    conf = confirmEdit( QSql::Delete );
+	switch ( conf ) {
+	case QSql::Yes:
+	    deleteCurrent();
+	    break;
+	case QSql::No:
+	case QSql::Cancel:
+	    break;
+	}
+	d->dat.setMode( QSql::Update );
 	break;
     }
-    d->dat.setMode( QSql::Update );
 }
 
 
@@ -662,9 +821,11 @@ bool QDataBrowser::insertCurrent()
 	return FALSE;
     writeFields();
     int ar = cur->insert();
-    if ( !ar || !cur->isActive() )
+    if ( !ar || !cur->isActive() ) {
 	handleError( cur->lastError() );
-    else {
+	refresh();
+	updateBoundary();
+    } else {
 	refresh();
 	d->cur.findBuffer( cur->primaryIndex() );
 	updateBoundary();
@@ -697,9 +858,11 @@ bool QDataBrowser::updateCurrent()
 	return FALSE;
     writeFields();
     int ar = cur->update();
-    if ( !ar || !cur->isActive() )
+    if ( !ar || !cur->isActive() ) {
 	handleError( cur->lastError() );
-    else {
+	refresh();
+	updateBoundary();
+    } else {
 	refresh();
 	d->cur.findBuffer( cur->primaryIndex() );
 	updateBoundary();
@@ -743,8 +906,11 @@ bool QDataBrowser::deleteCurrent()
 	readFields();
 	return TRUE;
     } else {
-	if ( !cur->isActive() )
+	if ( !cur->isActive() ) {
 	    handleError( cur->lastError() );
+	    refresh();
+	    updateBoundary();
+	}
     }
     return FALSE;
 }
@@ -784,19 +950,42 @@ void QDataBrowser::nav( Nav nav )
 	return;
 
     if ( !isReadOnly() && autoEdit() && currentEdited() ) {
-	int ok = FALSE;
-	switch ( d->dat.mode() ) {
+	bool ok = TRUE;
+	QSql::Confirm conf = QSql::Yes;
+	switch ( d->dat.mode() ){
 	case QSql::Insert:
-	    ok = insertCurrent();
+	    if ( confirmInsert() )
+		conf = confirmEdit( QSql::Insert );
+	    switch ( conf ) {
+	    case QSql::Yes:
+		ok = insertCurrent();
+		d->dat.setMode( QSql::Update );
+		break;
+	    case QSql::No:
+		d->dat.setMode( QSql::Update );
+		break;
+	    case QSql::Cancel:
+		return;
+		break;
+	    }
 	    break;
 	default:
-	    ok = updateCurrent();
-	    break;
+	    if ( confirmUpdate() )
+		conf = confirmEdit( QSql::Update );
+	    switch ( conf ) {
+	    case QSql::Yes:
+		ok = updateCurrent();
+		break;
+	    case QSql::No:
+		break;
+	    case QSql::Cancel:
+		return;
+		break;
+	    }
 	}
 	if ( !ok )
 	    return;
     }
-
     int b = FALSE;
     switch( nav ) {
     case First:
@@ -874,7 +1063,34 @@ void QDataBrowser::updateBoundary()
 
 void QDataBrowser::handleError( const QSqlError& error )
 {
-    d->dat.handleError( error );
+    d->dat.handleError( this, error );
 }
+
+/*!  Protected virtual function which returns a confirmation for an
+  edit of mode \a m.  Derived classes can reimplement this function
+  and provide their own confirmation dialog.  The default
+  implementation uses a message box which prompts the user to confirm
+  the edit action.
+
+*/
+
+QSql::Confirm QDataBrowser::confirmEdit( QSql::Op m )
+{
+    return d->dat.confirmEdit( this, m );
+}
+
+/*!  Protected virtual function which returns a confirmation for
+   cancelling an edit mode \a m.  Derived classes can reimplement this
+   function and provide their own confirmation dialog.  The default
+   implementation uses a message box which prompts the user to confirm
+   the edit action.
+
+*/
+
+QSql::Confirm  QDataBrowser::confirmCancel( QSql::Op m )
+{
+    return d->dat.confirmCancel( this, m );
+}
+
 
 #endif

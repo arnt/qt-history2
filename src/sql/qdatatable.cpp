@@ -46,7 +46,6 @@
 #include "qpainter.h"
 #include "qpopupmenu.h"
 #include "qvaluelist.h"
-#include "qmessagebox.h"
 #include "qsqlmanager_p.h"
 
 //#define QT_DEBUG_DATATABLE
@@ -851,16 +850,17 @@ QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
 
 */
 
-void QDataTable::insertCurrent()
+bool QDataTable::insertCurrent()
 {
     if ( d->dat.mode() != QSql::Insert || ! numCols() )
-	return;
+	return FALSE;
     if ( !sqlCursor()->canInsert() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QDataTable::insertCurrent: insert not allowed for " + sqlCursor()->name() );
+	qWarning("QDataTable::insertCurrent: insert not allowed for " +
+		 sqlCursor()->name() );
 #endif
 	endInsert();
-	return;
+	return FALSE;
     }
     int b = 0;
     int conf = QSql::Yes;
@@ -897,7 +897,7 @@ void QDataTable::insertCurrent()
 	    setEditMode( Editing, currentRow(), currentColumn() );
 	break;
     }
-    return;
+    return ( b > 0 );
 }
 
 /*! \internal
@@ -921,23 +921,25 @@ void QDataTable::updateRow( int row )
 
 */
 
-void QDataTable::updateCurrent()
+bool QDataTable::updateCurrent()
 {
     if ( d->dat.mode() != QSql::Update )
-	return;
+	return FALSE;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QDataTable::updateCurrent: no primary index for " + sqlCursor()->name() );
+	qWarning("QDataTable::updateCurrent: no primary index for " +
+		 sqlCursor()->name() );
 #endif
 	endUpdate();
-	return;
+	return FALSE;
     }
     if ( !sqlCursor()->canUpdate() ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QDataTable::updateCurrent: updates not allowed for " + sqlCursor()->name() );
+	qWarning("QDataTable::updateCurrent: updates not allowed for " +
+		 sqlCursor()->name() );
 #endif
 	endUpdate();
-	return;
+	return FALSE;
     }
     int b = 0;
     int conf = QSql::Yes;
@@ -974,7 +976,7 @@ void QDataTable::updateCurrent()
 	    setEditMode( Editing, d->editRow, d->editCol );
 	break;
     }
-    return;
+    return ( b > 0 );
 }
 
 /*!  For an editable table, issues a delete on the current cursor's
@@ -990,18 +992,19 @@ void QDataTable::updateCurrent()
 
 */
 
-void QDataTable::deleteCurrent()
+bool QDataTable::deleteCurrent()
 {
     if ( !sqlCursor() || isReadOnly() )
-	return;
+	return FALSE;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QDataTable::deleteCurrent: no primary index " + sqlCursor()->name() );
+	qWarning("QDataTable::deleteCurrent: no primary index " +
+		 sqlCursor()->name() );
 #endif
-	return;
+	return FALSE;
     }
     if ( !sqlCursor()->canDelete() )
-	return;
+	return FALSE;
 
     int b = 0;
     int conf = QSql::Yes;
@@ -1012,28 +1015,28 @@ void QDataTable::deleteCurrent()
     // dialog that causes a repaint which the cursor to the
     // record it has to repaint.
     if ( !sqlCursor()->seek( currentRow() ) )
-	return;
+	return FALSE;
     switch ( conf ) {
 	case QSql::Yes:{
-	QApplication::setOverrideCursor( Qt::waitCursor );
-	sqlCursor()->primeDelete();
-	emit primeDelete( sqlCursor()->editBuffer() );
-	emit beforeDelete( sqlCursor()->editBuffer() );
-	b = sqlCursor()->del();
-	QApplication::restoreOverrideCursor();
-	if ( !b )
-	    handleError( sqlCursor()->lastError() );
-	refresh();
-	emit cursorChanged( QSql::Delete );
-	setCurrentCell( currentRow(), currentColumn() );
-	updateRow( currentRow() );
+	    QApplication::setOverrideCursor( Qt::waitCursor );
+	    sqlCursor()->primeDelete();
+	    emit primeDelete( sqlCursor()->editBuffer() );
+	    emit beforeDelete( sqlCursor()->editBuffer() );
+	    b = sqlCursor()->del();
+	    QApplication::restoreOverrideCursor();
+	    if ( !b )
+		handleError( sqlCursor()->lastError() );
+	    refresh();
+	    emit cursorChanged( QSql::Delete );
+	    setCurrentCell( currentRow(), currentColumn() );
+	    updateRow( currentRow() );
 	}
 	break;
     case QSql::No:
 	setEditMode( NotEditing, -1, -1 );
 	break;
     }
-    return;
+    return ( b > 0 );
 }
 
 /*!  Protected virtual function which returns a confirmation for an
@@ -1550,10 +1553,6 @@ int QDataTable::fieldAlignment( const QSqlField* /*field*/ )
 
 void QDataTable::setSize( QSqlCursor* sql )
 {
-    // ##is this required anymore?
-//     if ( !sql->isActive() ) {
-//	sql->select( sql->filter(), sql->sort() );
-//     }
     // ### what are the connect/disconnect calls doing here!? move to refresh()
     if ( sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
@@ -1613,7 +1612,7 @@ void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDele
 */
 void QDataTable::handleError( const QSqlError& e )
 {
-    QMessageBox::warning ( this, "Warning", e.driverText() + "\n" + e.databaseText(), 0, 0 );
+    d->dat.handleError( this, e );
 }
 
 /*!  \reimp

@@ -155,12 +155,10 @@ public slots:
     virtual void sortDescending( int col );
     virtual void refresh();
 
-protected slots:
-    virtual void insertCurrent();
-    virtual void updateCurrent();
-    virtual void deleteCurrent();
-
 protected:
+    virtual bool insertCurrent();
+    virtual bool updateCurrent();
+    virtual bool deleteCurrent();
 
     virtual QSql::Confirm confirmEdit( QSql::Op m );
     virtual QSql::Confirm confirmCancel( QSql::Op m );

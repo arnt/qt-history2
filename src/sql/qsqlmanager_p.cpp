@@ -648,9 +648,9 @@ QDataManager::~QDataManager()
   information about the error.
 
 */
-void QDataManager::handleError( const QSqlError& e )
+void QDataManager::handleError( QWidget* parent, const QSqlError& e )
 {
-    QMessageBox::warning ( 0, "Warning", e.driverText() + "\n" + e.databaseText(),
+    QMessageBox::warning ( parent, "Warning", e.driverText() + "\n" + e.databaseText(),
 			   0, 0 );
 }
 
@@ -868,9 +868,11 @@ QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
     case 1:
 	conf = QSql::No;
 	break;
-    case -1:
+    case 2:
 	conf = QSql::Cancel;
 	break;
+    default:
+	qWarning("QDataManager::confirmEdit: unknown response");
     }
     return conf;
 }

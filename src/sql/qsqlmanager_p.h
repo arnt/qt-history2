@@ -119,12 +119,12 @@ public:
     QDataManager();
     virtual ~QDataManager();
 
-    virtual void handleError( const QSqlError& error );
     virtual void setMode( QSql::Op m );
     QSql::Op mode() const;
     virtual void setAutoEdit( bool autoEdit );
     bool autoEdit() const;
 
+    virtual void handleError( QWidget* parent, const QSqlError& error );
     virtual QSql::Confirm confirmEdit( QWidget* parent, QSql::Op m );
     virtual QSql::Confirm confirmCancel( QWidget* parent, QSql::Op m );
 
