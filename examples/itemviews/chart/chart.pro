@@ -3,3 +3,4 @@ HEADERS     = mainwindow.h \
 SOURCES     = main.cpp \
               mainwindow.cpp \
               pieview.cpp
+unix:!mac:LIBS+= -lm
