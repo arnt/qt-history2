@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#6 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#6 $";
 #endif
 
 
@@ -971,8 +971,8 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     int	  m12 = d2i_round((double)mat.m12()*65536.0);
     int	  m21 = d2i_round((double)mat.m21()*65536.0);
     int	  m22 = d2i_round((double)mat.m22()*65536.0);
-    int	  dx  = d2i_round((double)mat.dx() *65536.0);
-    int	  dy  = d2i_round((double)mat.dy() *65536.0);
+    int	  dx  = d2i_round((double)mat.dx() *65536.0 + 32768.0);
+    int	  dy  = d2i_round((double)mat.dy() *65536.0 + 32768.0);
     int	  m21ydx = dx + (xi->xoffset<<16), m22ydy = dy;
     ulong trigx, trigy;
     ulong maxws = ws<<16, maxhs=hs<<16;
@@ -997,16 +997,18 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 	cntx = maxx;
 	int x;
 	if ( !depth1 ) {
-	    if ( bpp == 8 ) {
-		while ( cntx-- ) {		// 8 bpp transform
+	    switch ( bpp ) {
+		case 8:				// 8 bpp transform
+		while ( cntx-- ) {
 		    if ( trigx < maxws && trigy < maxhs )
 			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
 		    trigx += m11;
 		    trigy += m12;
 		    p++;
 		}
-	    }
-	    else if ( bpp == 16 ) {		// 16 bpp transform
+		break;
+
+		case 16:			// 16 bpp transform
 		while ( cntx-- ) {
 		    if ( trigx < maxws && trigy < maxhs )
 			*((ushort*)p) = *((ushort *)(sptr+sbpl*(trigy>>16) +
@@ -1016,8 +1018,9 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 		    p++;
 		    p++;
 		}
-	    }
-	    else if ( bpp == 24 ) {		// 24 bpp transform
+		break;
+
+		case 24: {			// 24 bpp transform
 		uchar *p2;
 		while ( cntx-- ) {
 		    if ( trigx < maxws && trigy < maxhs ) {
@@ -1030,8 +1033,10 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 		    trigy += m12;
 		    p += 3;
 		}
-	    }
-	    else if ( bpp == 32 ) {		// 32 bpp transform
+		}
+		break;
+
+		case 32:			// 32 bpp transform
 		while ( cntx-- ) {
 		    if ( trigx < maxws && trigy < maxhs )
 			*((ulong*)p) = *((ulong *)(sptr+sbpl*(trigy>>16) +
@@ -1040,11 +1045,15 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 		    trigy += m12;
 		    p += 4;
 		}
-	    }
-	    else {
+		break;
+
+		default: {
 #if defined(CHECK_RANGE)
 		warning( "QPixmap::xForm: DISPLAY NOT SUPPORTED (BPP=%d)",bpp);
 #endif
+		QPixmap pm;
+		return pm;
+		}
 	    }
 	}
 	else if ( msbfirst ) {
@@ -1132,13 +1141,13 @@ This function returns the modified matrix, which maps points correctly
 from the original pixmap into the new pixmap.
 */
 
-Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int ws, int hs )
+Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
 {						// get true wxform matrix
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    matrix.map( 0.0, 0.0, &x1, &y1 );
-    matrix.map( (float)ws-1.0, 0.0, &x2, &y2 );
-    matrix.map( (float)ws-1.0, (float)hs-1.0, &x3, &y3 );
-    matrix.map( 0.0, (float)hs-1.0, &x4, &y4 );
+    matrix.map( 0.0,	  0.0,	    &x1, &y1 );
+    matrix.map( (float)w, 0.0,	    &x2, &y2 );
+    matrix.map( (float)w, (float)h, &x3, &y3 );
+    matrix.map( 0.0,	  (float)h, &x4, &y4 );
 
     float ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
