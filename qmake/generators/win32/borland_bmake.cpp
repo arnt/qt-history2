@@ -208,7 +208,7 @@ BorlandMakefileGenerator::init()
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
 	    if ( (project->first("TARGET") == "qt" || 
-		  project->first("TARGET") == "qt-mt") &&
+		  project->first("TARGET") == "qtmt") &&
 		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
@@ -278,7 +278,7 @@ BorlandMakefileGenerator::init()
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
 	if ( (project->first("TARGET") == "qt" ||
-	      project->first("TARGET") == "qt-mt") &&
+	      project->first("TARGET") == "qtmt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
@@ -293,10 +293,10 @@ BorlandMakefileGenerator::init()
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%s%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
+		    ver.sprintf("qt%s%d.lib", (project->isActiveConfig("thread") ? "mt" : ""), hver);
 		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
+			(*libit).replace(QRegExp("qt(mt)?\\.lib"), ver);
 		}
 		if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_DLL"];
