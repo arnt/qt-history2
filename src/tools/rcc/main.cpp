@@ -36,32 +36,36 @@ struct RCCFileInfo {
     QFileInfo fileinfo;
 };
 struct RCCResource {
+    inline RCCResource() : lang(QLocale::C) {}
     QLocale lang;
     QString prefix;
     QList<RCCFileInfo> files;
 };
 QList<RCCResource> 
-listResourceFile(const QString &resource)
+listResourceFile(const QString &file)
 {
     QList<RCCResource> ret;
-    //read the resource
-    QFile in(resource);
+    QFile in(file);
     if(!in.open(QIODevice::ReadOnly)) {
-        fprintf(stderr, "Unable to open %s", resource.latin1());
+        fprintf(stderr, "Unable to open %s", file.latin1());
         return ret;
     }
     QDomDocument document;
     document.setContent(&in);
     QDomElement root = document.firstChild().toElement();
     if(root.tagName() != QLatin1String("RCC")) {
-        qWarning("%s is not a valid resource file.", resource.latin1());
+        RCCResource resource;
+        RCCFileInfo resource_file;
+        resource_file.fileinfo = QFileInfo(file);
+        resource_file.name = resource_file.fileinfo.filePath();
+        resource.files.append(resource_file);
+        ret << resource;
         return ret;
     }
     for(QDomElement child = root.firstChild().toElement(); !child.isNull();
         child = child.nextSibling().toElement()) {
         if(child.tagName() == QLatin1String("qresource")) {
             RCCResource resource;
-            resource.lang = QLocale(QLocale::C);
             if(child.hasAttribute("lang"))
                 resource.lang = QLocale(child.attribute("lang"));
             resource.prefix = child.attribute("prefix");
@@ -121,7 +125,6 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
     for(int resource = 0; resource < resources.size(); ++resource) {
         const RCCResource &r = resources.at(resource);
         for(int file = 0; file < r.files.count(); file++) {
-            //process this resource
             QFile inputQFile(r.files[file].fileinfo.filePath());
             if (!inputQFile.open(QIODevice::ReadOnly)) {
                 qWarning("Could not open file '%s'", inputQFile.fileName().latin1());
@@ -255,9 +258,9 @@ showHelp(const char *argv0, const QString &error)
 int
 main(int argc, char **argv)
 {
-    QString init_name, output_file, display;
+    QString init_name, output_file;
     bool show_help = false;
-    QStringList files;
+    QStringList files, display;
 
     //parse options
     QString error_msg;
@@ -275,7 +278,7 @@ main(int argc, char **argv)
                     error_msg = QLatin1String("Missing list description");
                     break;
                 }
-                display = argv[++i];
+                display = QString(argv[++i]).simplified().split(',');
             } else if(opt == "name") {
                 if (!(i < argc-1)) {
                     error_msg = QLatin1String("Missing target name");
@@ -354,17 +357,28 @@ main(int argc, char **argv)
             QList<RCCResource> resources = listResourceFile(files[file]);
             for(int resource = 0; resource < resources.size(); ++resource) {
                 const RCCResource &r = resources.at(resource);
-                if(display == "files") {
-                    for(int i = 0; i < r.files.size(); ++i) 
-                        out << r.files.at(i).fileinfo.filePath() << endl;
-                } else if(display == "langs") {
-                    out << r.lang.name() << endl;
-                } else if(display == "names") {
-                    for(int i = 0; i < r.files.size(); ++i)
-                        out << r.files.at(i).name << endl;
+                if(display.indexOf("files") != -1 || display.indexOf("names") != -1) {
+                    for(int f = 0; f < files.size(); ++f) {
+                        for(int d = 0; d < display.size(); ++d) {
+                            if(d)
+                                out << ",";
+                            if(display.at(d) == "files")
+                                out << r.files.at(f).fileinfo.filePath();
+                            else if(display.at(d) == "names")
+                                out << r.files.at(f).name;
+                            else if(display.at(d) == "langs")
+                                out << r.lang.name();
+                        }
+                        out << endl;
+                    }
                 } else {
-                    const QString unknownArgument("Unknown list type: " + display);
-                    return showHelp(argv[0], unknownArgument);
+                    for(int d = 0; d < display.size(); ++d) {
+                        if(d)
+                            out << ",";
+                        if(display.at(d) == "langs")
+                            out << r.lang.name();
+                    }
+                    out << endl;
                 }
             }
         }
