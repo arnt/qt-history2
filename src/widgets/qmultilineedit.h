@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#23 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#24 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -113,7 +113,7 @@ public:
     bool isUndoEnabled() const;
     void setUndoDepth( int );
     int undoDepth() const;
-    
+
     bool isReadOnly() const;
     bool isOverwriteMode() const;
     QString text() const;
@@ -276,12 +276,10 @@ private:	// Disabled copy constructor and operator=
     QMultiLineEdit( const QMultiLineEdit & );
     QMultiLineEdit &operator=( const QMultiLineEdit & );
 #endif
-    
-    friend class QDelTextCmd;
-    friend class QInsTextCmd;
-    
-    void addUndoCmd(QMultiLineEditCommand*);
-    void addRedoCmd(QMultiLineEditCommand*);
+
+    void addUndoCmd( QMultiLineEditCommand* );
+    void addRedoCmd( QMultiLineEditCommand* );
+    void processCmd( QMultiLineEditCommand*, bool );
 };
 
 inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#98 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -70,8 +70,6 @@ public:
     enum Commands { Invalid, Begin, End, Insert, Delete };
     virtual ~QMultiLineEditCommand() {};
     virtual Commands type() { return Invalid; };
-    virtual void redo() {};
-    virtual void undo() {};
     virtual int terminator() { return 0; }
 
     virtual bool merge( QMultiLineEditCommand* ) { return FALSE;}
@@ -149,7 +147,7 @@ struct QMultiLineData
     bool undo;
     int undodepth;
     short chartable[256];
-    void clearChartable() 
+    void clearChartable()
     {
 	int i = 256;
 	while ( i )
@@ -3161,7 +3159,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	    char c = s[i].latin1();
 	    if ( c > 0 ) {
 		if ( !d->chartable[c] )
-		    d->chartable[c] = fm.width( s[i] ); 
+		    d->chartable[c] = fm.width( s[i] );
 		linew += d->chartable[c];
 	    } else {
 		linew += fm.width( s[i] );
@@ -3438,48 +3436,20 @@ void QMultiLineEdit::offsetToPositionInternal( int position,
 }
 
 
-///////////////////////////////////////////////////////////////////////
 // QMultiLineEditUndoRedo methods
 class QDelTextCmd : public QMultiLineEditCommand
 {
 public:
-    QMultiLineEdit *mEdit;
     int mOffset;
     QString mStr;
 
     // have to handle deletion of current selection
-    QDelTextCmd( QMultiLineEdit *edit,
-		     int offset,
-		     const QString &str )
-	: mEdit( edit ),
-	  mOffset( offset ),
+    QDelTextCmd(int offset, const QString &str )
+	: mOffset( offset ),
 	  mStr ( str )
     {
     }
     Commands type() { return Delete; };
-
-    void redo() {
-	int row, col, rowEnd, colEnd;
-	mEdit->offsetToPositionInternal( mOffset, &row, &col );
-	mEdit->offsetToPositionInternal( mOffset + mStr.length(), &rowEnd, &colEnd );
-	mEdit->markAnchorY    = row;
-	mEdit->markAnchorX    = col;
-	mEdit->setCursorPosition( rowEnd, colEnd, FALSE );
-	mEdit->markDragY    = rowEnd;
-	mEdit->markDragX    = colEnd;
-	mEdit->markIsOn = TRUE;
-	mEdit->del();  // delete the selection, protected method
-    }
-
-    void undo()
-    {
-	int row, col;
-	mEdit->offsetToPositionInternal( mOffset, &row, &col );
-	mEdit->setCursorPosition( row, col, FALSE );
-	mEdit->insertAt( mStr, row, col, FALSE );
-	mEdit->offsetToPositionInternal( mOffset+mStr.length(), &row, &col );
-	mEdit->setCursorPosition( row, col, FALSE );
-    };
 
     bool merge( QMultiLineEditCommand* other)
     {
@@ -3501,22 +3471,12 @@ class QInsTextCmd : public QDelTextCmd
 {
 
 public:
-    QInsTextCmd( QMultiLineEdit *edit,
-		     int offset,
-		     const QString &str )
-	: QDelTextCmd( edit, offset, str )
+    QInsTextCmd(int offset,const QString &str )
+	: QDelTextCmd( offset, str )
     {
     }
 
     Commands type() { return Insert; };
-
-    void redo() {
-	QDelTextCmd::undo();
-    }
-
-    void undo() {
-	QDelTextCmd::redo();
-    }
 
     bool merge( QMultiLineEditCommand* other)
     {
@@ -3530,6 +3490,42 @@ public:
 	return FALSE;
     }
 };
+
+
+/*!
+  Processes an undo/redo command \a cmd, depending on \a undo
+ */
+void QMultiLineEdit::processCmd( QMultiLineEditCommand* cmd, bool undo)
+{
+    QDelTextCmd* delcmd = (QDelTextCmd*) cmd;
+    bool ins = TRUE;
+    if (cmd->type() == QMultiLineEditCommand::Delete )
+	ins = undo;
+    else if (cmd->type() == QMultiLineEditCommand::Insert )
+	ins = !undo;
+    else
+	return;
+	
+    if ( ins ) {
+	int row, col;
+	offsetToPositionInternal( delcmd->mOffset, &row, &col );
+	setCursorPosition( row, col, FALSE );
+	insertAt( delcmd->mStr, row, col, FALSE );
+	offsetToPositionInternal( delcmd->mOffset+delcmd->mStr.length(), &row, &col );
+	setCursorPosition( row, col, FALSE );
+    } else { // del
+	int row, col, rowEnd, colEnd;
+	offsetToPositionInternal( delcmd->mOffset, &row, &col );
+	offsetToPositionInternal( delcmd->mOffset + delcmd->mStr.length(), &rowEnd, &colEnd );
+	markAnchorY    = row;
+	markAnchorX    = col;
+	setCursorPosition( rowEnd, colEnd, FALSE );
+	markDragY    = rowEnd;
+	markDragX    = colEnd;
+	markIsOn = TRUE;
+	del();
+    }
+}
 
 /*!
   Undos the last text operation
@@ -3545,7 +3541,7 @@ void QMultiLineEdit::undo()
 	QMultiLineEditCommand *command = d->undoList.take();
 	if ( !command )
 	    break;
-	command->undo();
+	processCmd( command, TRUE );
 	macroLevel += command->terminator();
 	if ( d->undoList.isEmpty() )
 	    emit undoAvailable( FALSE );
@@ -3568,7 +3564,7 @@ void QMultiLineEdit::redo()
 	QMultiLineEditCommand *command = d->redoList.take();
 	if ( !command )
 	    break;
-	command->redo();
+	processCmd( command, FALSE );
 	macroLevel += command->terminator();
 	if ( d->redoList.isEmpty() )
 	    emit redoAvailable( FALSE );
@@ -3597,7 +3593,7 @@ void QMultiLineEdit::insertAt( const QString &s, int line, int col, bool mark )
 	int offset = positionToOffsetInternal( line, col );
 	if ( d->maxlen >= 0 && length() + int(s.length()) > d->maxlen )
 	    itxt.truncate( d->maxlen - length() );
-	addUndoCmd( new QInsTextCmd( this, offset, itxt ) );
+	addUndoCmd( new QInsTextCmd( offset, itxt ) );
 	insertAtAux( s, line, col, mark ); // may perform del op
 	d->undo = TRUE;
     }
@@ -3613,7 +3609,7 @@ void QMultiLineEdit::deleteNextChar( int offset, int row, int col )
     setCursorPosition( row2, col2, TRUE );
 
     QString str = markedText();
-    addUndoCmd( new QDelTextCmd( this, offset, str ) );
+    addUndoCmd( new QDelTextCmd( offset, str ) );
 
     setCursorPosition( row, col, FALSE );
 }
@@ -3639,7 +3635,7 @@ void QMultiLineEdit::killLine()
 	}
 	else {
 	    QString str = r->s.mid( cursorX, r->s.length() );
-	    addUndoCmd( new QDelTextCmd( this, offset, str ) );
+	    addUndoCmd( new QDelTextCmd( offset, str ) );
 	}
 	
 	addUndoCmd( new QEndCommand );
@@ -3670,7 +3666,7 @@ void QMultiLineEdit::del()
 	    addUndoCmd( new QBeginCommand );
 	    int offset = positionToOffsetInternal( markBeginY, markBeginX );
 	    QString str = markedText();
-	    d->undoList.append( new QDelTextCmd( this, offset, str ) );
+	    d->undoList.append( new QDelTextCmd( offset, str ) );
 	    addUndoCmd( new QEndCommand );
 	}
 	else if ( ! atEnd() ) {
