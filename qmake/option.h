@@ -25,7 +25,8 @@
 const char *qmake_version();
 
 void fixEnvVariables(QString &x);
-void debug_msg(int level, const char *fmt, ...);
+#define debug_msg if(Option::debug_level) debug_msg_internal
+void debug_msg_internal(int level, const char *fmt, ...); //don't call directly, use debug_msg
 enum QMakeWarn {
     WarnNone    = 0x00,
     WarnParser  = 0x01,

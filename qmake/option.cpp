@@ -545,7 +545,7 @@ const char *qmake_version()
     return ret;
 }
 
-void debug_msg(int level, const char *fmt, ...)
+void debug_msg_internal(int level, const char *fmt, ...)
 {
     if(Option::debug_level < level)
         return;
