@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#85 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#85 $");
 
 
 /*!
@@ -311,6 +311,12 @@ QApplication::ColorMode QApplication::colorMode()
 
 void QApplication::setColorMode( QApplication::ColorMode mode )
 {
+#if defined(CHECK_STATE)
+    if ( qApp ) {
+	warning( "QApplication::setColorMode: This function must be "
+		 "called before the QApplication object is created" );
+    }
+#endif
     app_cmode = mode;
 }
 
