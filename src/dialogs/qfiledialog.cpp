@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#215 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#216 $
 **
 ** Implementation of QFileDialog class
 **
@@ -241,7 +241,8 @@ static void makeVariables() {
 }
 
 // Internal
-class QCopyFileDialog : public QDialog {
+class QCopyFileDialog : public QDialog 
+{
 public:
 	QCopyFileDialog( QWidget *parent = 0, const char *name = 0 );
 
@@ -2083,7 +2084,7 @@ void QFileDialog::deleteFile( const QString &filename )
                                tr( "Delete %1" ).arg( t ),
                                tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
                                .arg( t ).arg(filename),
-                               tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 )
+                               tr( "&Yes" ), tr( "&No" ), QString::null, 1 ) == 0 )
     {
         if ( !cwd.remove( filename ) ) {
             QMessageBox::critical( d->moreFiles,
@@ -2127,12 +2128,12 @@ void QFileDialog::cdUpClicked()
 }
 
 // Internal
-class QtNewFolderDialog : public QDialog {
+class QNewFolderDialog : public QDialog 
+{
 public:
-	QtNewFolderDialog(QWidget *parent = 0, const char *name = 0);
-	~QtNewFolderDialog();
+	QNewFolderDialog( QWidget *parent = 0, const char *name = 0 );
 
-	const QString dirname() { return nameEdit->text(); }
+	QString dirname() { return nameEdit->text(); }
 
 protected:
     void resizeEvent( QResizeEvent *e ) {
@@ -2148,10 +2149,10 @@ private:
 };
 
 
-QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
-	: QDialog(parent, name, TRUE)
+QNewFolderDialog::QNewFolderDialog( QWidget *parent, const char *name )
+	: QDialog( parent, name, TRUE )
 {
-    setCaption(QFileDialog::tr("New Folder"));
+    setCaption( QFileDialog::tr( "New Folder" ) );
 
     back = new QVBox( this );
     back->setMargin( 10 );
@@ -2159,56 +2160,52 @@ QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 
     QHBox *row1 = new QHBox( back );
     row1->setSpacing( 5 );
-    QLabel *label = new QLabel( QFileDialog::tr("&Folder name:"), row1);
+    QLabel *label = new QLabel( QFileDialog::tr( "&Folder name:" ), row1 );
 	nameEdit = new QLineEdit( row1 );
     label->setBuddy( nameEdit );
-    label->setAutoResize(TRUE);
+    label->setAutoResize( TRUE );
 
     QHBox *row2 = new QHBox( back );
     row2->setSpacing( 5 );
     (void)new QWidget( row2 );
 
-    QPushButton *okButton = new QPushButton(QFileDialog::tr("OK"), row2);
-    okButton->setDefault(TRUE);
-    connect(okButton, SIGNAL(clicked()), SLOT(accept()));
+    QPushButton *okButton = new QPushButton(QFileDialog::tr( "&OK" ), row2 );
+    okButton->setDefault( TRUE );
+    connect( okButton, SIGNAL( clicked() ), SLOT( accept() ) );
 
-    QPushButton *cancelButton = new QPushButton(QFileDialog::tr("Cancel"), row2);
-    connect(cancelButton, SIGNAL(clicked()), SLOT(reject()));
+    QPushButton *cancelButton = new QPushButton( QFileDialog::tr( "&Cancel" ), row2 );
+    connect( cancelButton, SIGNAL( clicked() ), SLOT( reject() ) );
 
     nameEdit->setFocus();
 
     resize( 300, 100 );
 }
 
-QtNewFolderDialog::~QtNewFolderDialog()
-{
-}
-
 void QFileDialog::newFolderClicked()
 {
-    QtNewFolderDialog *dialog = new QtNewFolderDialog(this, "new folder dialog");
+    QNewFolderDialog *dialog = new QNewFolderDialog( this, "new folder dialog" );
     if ( dialog->exec() == QDialog::Accepted ) {
         QString dirname = dialog->dirname();
         delete dialog;
-        if (dirname.length() < 1) {
-	        QMessageBox::warning( this, tr("New Folder"),
-                                  QString( tr("Invalid directory name") ));
+        if ( dirname.isEmpty() ) {
+	        QMessageBox::warning( this, tr( "New Folder" ),
+                                  QString( tr( "Invalid directory name" ) ) );
             return;
         }
-        if (!cwd.mkdir(dirname))
-            if (cwd.exists(dirname))
-                QMessageBox::warning( this, tr("New Folder"),
-                                      tr("<qt>Unable to create directory \"%1\". "
-                                         "A file/directory with that name already exists.</qt>"
-                                          ).arg(cwd.absPath() + "/" + dirname) );
+        if ( !cwd.mkdir(dirname) )
+            if ( cwd.exists(dirname) )
+                QMessageBox::warning( this, tr( "New Folder" ),
+                                      tr( "<qt>Unable to create directory \"%1\". "
+                                          "A file/directory with that name already exists.</qt>"
+                                          ).arg( cwd.absPath() + "/" + dirname ) );
             else
-                QMessageBox::warning( this, tr("New Folder"),
-                                      tr("<qt>Unable to create directory \"%1\". "
-                                         "Please make sure that the current directory "
-                                         "is writable.</qt>"
-                                          ).arg(cwd.absPath() + "/" + dirname) );
+                QMessageBox::warning( this, tr( "New Folder" ),
+                                      tr( "<qt>Unable to create directory \"%1\". "
+                                          "Please make sure that the current directory "
+                                          "is writable.</qt>"
+                                          ).arg( cwd.absPath() + "/" + dirname ) );
         else
-            rereadDir(); // This seem not to work!?
+            rereadDir();
     }
 }
 
@@ -2588,7 +2585,7 @@ void QFileDialog::listBoxMouseMoveEvent( QMouseEvent *e )
                     files->cancelRename();
                 if ( d->moreFiles->lined->isVisible() )
                     d->moreFiles->cancelRename();
-                
+
                 if ( e->state() & ControlButton )
                     drag->dragCopy();
                 else
