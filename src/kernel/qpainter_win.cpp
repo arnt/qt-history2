@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#46 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,10 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#46 $")
+
+
+#define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
 
 
 /*****************************************************************************
@@ -347,13 +350,14 @@ void QPainter::setFont( const QFont &font )
 #endif
     if ( cfont.d != font.d ) {
 	cfont = font;
-	updateFont();
+	setf(DirtyFont);
     }
 }
 
 
 void QPainter::updateFont()
 {
+    clearf(DirtyFont);
     if ( tm ) {					// delete old text metrics
 	delete tm;
 	tm = 0;
@@ -379,7 +383,7 @@ void QPainter::updatePen()
     }
 
     int	   ps	   = cpen.style();
-    uint   pix	   = cpen.color().pixel();
+    uint   pix	   = COLOR_VALUE(cpen.data->color);
     bool   cacheIt = ps == NoPen || (ps == SolidLine && cpen.width() == 0);
     HANDLE hpen_old;
 
@@ -463,7 +467,7 @@ void QPainter::updateBrush()
     }
 
     int	   bs	   = cbrush.style();
-    QColor c	   = cbrush.color();
+    uint   pix	   = COLOR_VALUE(cbrush.data->color);
     bool   cacheIt = bs == NoBrush || bs == SolidPattern;
     HANDLE hbrush_old;
 
@@ -489,7 +493,7 @@ void QPainter::updateBrush()
 	    }
 	    return;
 	}
-	if ( obtain_brush(&brushRef, &hbrush, c.pixel()) ) {
+	if ( obtain_brush(&brushRef, &hbrush, pix) ) {
 	    SelectObject( hdc, hbrush );
 	    if ( hbrush_old ) {
 		DeleteObject( hbrush_old );
@@ -509,7 +513,7 @@ void QPainter::updateBrush()
     hbrushbm = 0;
 
     if ( bs == SolidPattern )			// create solid brush
-	hbrush = CreateSolidBrush( c.pixel() );
+	hbrush = CreateSolidBrush( pix );
     else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
 	      (bs == CustomPattern) ) {
 	if ( bs == CustomPattern ) {
@@ -523,8 +527,7 @@ void QPainter::updateBrush()
 	    nocolBrush = TRUE;
 	}
 	hbrush = CreatePatternBrush( hbrushbm );
-    }
-    else {					// one of the hatch brushes
+    } else {					// one of the hatch brushes
 	int s;
 	switch ( bs ) {
 	    case HorPattern:
@@ -548,7 +551,7 @@ void QPainter::updateBrush()
 	    default:
 		s = HS_HORIZONTAL;
 	}
-	hbrush = CreateHatchBrush( s, c.pixel() );
+	hbrush = CreateHatchBrush( s, pix );
     }
 
     SelectObject( hdc, hbrush );
@@ -682,6 +685,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	if ( pdev->handle() ) {
 	    hdc = pdev->handle();
 	}
+	flags |= (NoCache | RGBColor);
     }
     if ( testf(ExtDev) ) {
 	ww = vw = pdev->metric( PDM_WIDTH );
@@ -696,11 +700,11 @@ bool QPainter::begin( const QPaintDevice *pd )
 	setRasterOp( CopyROP );			// default raster operation
     }
     if ( hdc ) {				// initialize hdc
-	SetBkColor( hdc, bg_col.pixel() );	// set background color
-	SetBkMode( hdc, TRANSPARENT );		// set background mode
-	SetROP2( hdc, R2_COPYPEN );		// set raster operation
-	SetTextAlign( hdc, TA_BASELINE );	// baseline-aligned text
-	SetStretchBltMode( hdc, COLORONCOLOR ); // pixmap stretch mode
+	SetBkColor( hdc, COLOR_VALUE(bg_col) );
+	SetBkMode( hdc, TRANSPARENT );
+	SetROP2( hdc, R2_COPYPEN );
+	SetTextAlign( hdc, TA_BASELINE );
+	SetStretchBltMode( hdc, COLORONCOLOR );
 	if ( QColor::hPal() && dt != PDT_PRINTER ) {
 	    SelectPalette( hdc, QColor::hPal(), FALSE );
 	    RealizePalette( hdc );
@@ -708,6 +712,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     updatePen();
     updateBrush();
+    setf(DirtyFont);
     updateFont();
     return TRUE;
 }
@@ -795,7 +800,7 @@ void QPainter::setBackgroundColor( const QColor &c )
 	if ( !pdev->cmd(PDC_SETBKCOLOR,this,param) || !hdc )
 	    return;
     }
-    SetBkColor( hdc, c.pixel() );
+    SetBkColor( hdc, COLOR_VALUE(c) );
 }
 
 void QPainter::setBackgroundMode( BGMode m )
@@ -884,6 +889,41 @@ void QPainter::setBrushOrigin( int x, int y )
     }
 */
 
+void QPainter::nativeXForm( bool enable )
+{
+    XFORM m;
+    if ( enable ) {
+	XFORM m;
+	QWMatrix mtx;
+	if ( testf(VxF) ) {
+	    mtx.translate( vx, vy );
+	    mtx.scale( 1.0*vw/ww, 1.0*vh/wh );
+	    mtx.translate( -wx, -wy );
+	    mtx = wxmat * mtx;
+	} else {
+	    mtx = wxmat;
+	}
+	m.eM11 = mtx.m11();
+	m.eM12 = mtx.m12();
+	m.eM21 = mtx.m21();
+	m.eM22 = mtx.m22();
+	m.eDx  = mtx.dx();
+	m.eDy  = mtx.dy();
+	SetGraphicsMode( hdc, GM_ADVANCED );
+	SetWorldTransform( hdc, &m );
+    } else {
+	m.eM11 = (FLOAT)1.0;
+	m.eM12 = (FLOAT)0.0;
+	m.eM21 = (FLOAT)0.0;
+	m.eM22 = (FLOAT)1.0;
+	m.eDx  = (FLOAT)0.0;
+	m.eDy  = (FLOAT)0.0;
+	SetWorldTransform( hdc, &m );
+	SetGraphicsMode( hdc, GM_COMPATIBLE );
+    }
+}
+
+
 void QPainter::updateXForm()
 {
     QWMatrix m;
@@ -907,16 +947,18 @@ void QPainter::updateXForm()
 
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
-    if ( wm12 == 0 && wm21 == 0 ) {
+    if ( wm12 == 0 && wm21 == 0 && wm11 >= 0 && wm22 >= 0 ) {
 	if ( wm11 == 65536 && wm22 == 65536 ) {
 	    if ( wdx != 0 || wdy != 0 )
 		txop = TxTranslate;
-	}
-	else
+	} else {
 	    txop = TxScale;
-    }
-    else
+	    setf(DirtyFont);
+	}
+    } else {
 	txop = TxRotShear;
+	setf(DirtyFont);
+    }
 }
 
 
@@ -1174,10 +1216,10 @@ void QPainter::setClipRegion( const QRegion &rgn )
 void QPainter::drawPolyInternal( const QPointArray &a )
 {
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Polygon( hdc, (POINT*)a.data(), a.size() );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1195,7 +1237,7 @@ void QPainter::drawPoint( int x, int y )
 	}
 	map( x, y, &x, &y );
     }
-    SetPixelV( hdc, x, y, cpen.color().pixel() );
+    SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1236,7 +1278,7 @@ void QPainter::lineTo( int x, int y )
 	map( x, y, &x, &y );
     }
     LineTo( hdc, x, y );
-    SetPixelV( hdc, x, y, cpen.color().pixel() );
+    SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1263,8 +1305,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	    y2++;
 	else
 	    y2--;
-    }
-    else if ( y1 == y2 ) {			// horizontal
+    } else if ( y1 == y2 ) {			// horizontal
 	if ( x1 < x2 )
 	    x2++;
 	else
@@ -1276,7 +1317,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     pts[1].x = x2;  pts[1].y = y2;
     Polyline( hdc, pts, 2 );
     if ( final_pixel )
-	SetPixelV( hdc, x2, y2, cpen.color().pixel() );
+	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1322,10 +1363,10 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	h++;
     }
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Rectangle( hdc, x, y, x+w, y+h );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1397,10 +1438,10 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	h++;
     }
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     RoundRect( hdc, x, y, x+w, y+h, w*xRnd/100, h*yRnd/100 );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 
 }
 
@@ -1431,10 +1472,10 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	fix_neg_rect( &x, &y, &w, &h );
     }
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Ellipse( hdc, x, y, x+w, y+h );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1520,14 +1561,14 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     double h2 = 0.5*h;
     float r = (float)(w2+h2);
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Pie( hdc, x, y, x+w, y+h,
 	 qRound(w2 + (cos(ra1)*r) + x),
 	 qRound(h2 - (sin(ra1)*r) + y),
 	 qRound(w2 + (cos(ra2)*r) + x),
 	 qRound(h2 - (sin(ra2)*r) + y) );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1567,14 +1608,14 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     double h2 = 0.5*h;
     float r = (float)(w2+h2);
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Chord( hdc, x, y, x+w, y+h,
 	   qRound(w2 + (cos(ra1)*r) + x),
 	   qRound(h2 - (sin(ra1)*r) + y),
 	   qRound(w2 + (cos(ra2)*r) + x),
 	   qRound(h2 - (sin(ra2)*r) + y) );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }
 
 
@@ -1607,7 +1648,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     int	 x1, y1, x2, y2;
     uint i = index;
     bool solid = cpen.style() == SolidLine;
-    uint pixel = cpen.color().pixel();
+    uint pixel = COLOR_VALUE(cpen.data->color);
 
     while ( nlines-- ) {
 	pa.point( i++, &x1, &y1 );
@@ -1663,7 +1704,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     if ( cpen.style() == SolidLine ) {
 	int x, y;
 	pa.point( index+npoints-1, &x, &y );	// plot last point
-	SetPixelV( hdc, x, y, cpen.color().pixel() );
+	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
     }
 }
 
@@ -1697,10 +1738,10 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
     if ( winding )				// set to winding fill mode
 	SetPolyFillMode( hdc, WINDING );
     if ( nocolBrush )
-	SetTextColor( hdc, cbrush.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
     Polygon( hdc, (POINT*)(pa.data()+index), npoints );
     if ( nocolBrush )
-	SetTextColor( hdc, cpen.color().pixel() );
+	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
     if ( winding )				// set to normal fill mode
 	SetPolyFillMode( hdc, ALTERNATE );
 }
@@ -1743,6 +1784,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 {
     if ( !isActive() || pixmap.isNull() )
 	return;
+    bool nat_xf = qt_winver == WV_NT && txop == TxRotShear;
     if ( sw < 0 )
 	sw = pixmap.width() - sx;
     if ( sh < 0 )
@@ -1763,7 +1805,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hdc )
 		return;
 	}
-	if ( txop == TxTranslate )
+	if ( nat_xf )
+	    nativeXForm( TRUE );
+	else if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
     }
 
@@ -1773,13 +1817,14 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( tmp_dc )
 	pm->allocMemDC();
+
     if ( mask ) {
 	if ( qt_winver == WV_NT ) {
 	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
 		     sx, sy, 0xaacc0020 );
 	} else {
 	    if ( pm->depth() == 1 && pm->handle() == mask->handle() ) {
-		HBRUSH b = CreateSolidBrush( cpen.color().pixel() );
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		b = SelectObject( hdc, b );
 		BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, 0x00b8074a );
 		DeleteObject( SelectObject(hdc, b) );
@@ -1793,16 +1838,21 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    }
 	}
     } else {
-	if ( txop == TxScale ) {
+	if ( txop == TxNone || txop == TxTranslate || nat_xf ) {
+	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+	} else if ( txop == TxScale ) {
 	    int w, h;
 	    map( x, y, sw, sh, &x, &y, &w, &h );
 	    StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
-	} else {
+	} else {				// rotate/shear, Win95
 	    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
 	}
     }
+
     if ( tmp_dc )
 	pm->freeMemDC();
+    if ( nat_xf )
+	nativeXForm( FALSE );
 }
 
 
@@ -1810,12 +1860,15 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 {
     if ( !isActive() )
 	return;
+    bool nat_xf = qt_winver == WV_NT && txop == TxRotShear;
     if ( len < 0 )
 	len = strlen( str );
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
@@ -1826,10 +1879,15 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hdc )
 		return;
 	}
-	map( x, y, &x, &y );
+	if ( nat_xf )
+	    nativeXForm( TRUE );
+	else if ( txop == TxTranslate )
+	    map( x, y, &x, &y );
     }
 
     TextOut( hdc, x, y, str, len );
+    if ( nat_xf )
+	nativeXForm( FALSE );
 }
 
 
@@ -1884,40 +1942,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		}
 	    }
 	}
-    }
-
-    if ( !wordbreak && !expandtabs && !containsnl && 0 ) {
-	RECT r;
-	r.left = x;
-	r.top  = y;
-	r.right	 = x + w - 1;
-	r.bottom = y + h - 1;
-	uint f = DT_SINGLELINE;
-	if ( !showprefix )
-	    f |= DT_NOPREFIX;
-	if ( (tf & AlignVCenter) != 0 )		// vertically centered text
-	    f |= DT_VCENTER;
-	else if ( (tf & AlignBottom) != 0 )	// bottom aligned
-	    f |= DT_BOTTOM;
-	else					// top aligned
-	    f |= DT_TOP;
-	if ( (tf & AlignRight) != 0 )		// right aligned
-	    f |= DT_RIGHT;
-	else if ( (tf & AlignHCenter) != 0 )	// horizontally centered text
-	    f |= DT_CENTER;
-	else
-	    f |= DT_LEFT;			// left aligned
-	if ( (tf & DontClip) != 0 )
-	    f |= DT_NOCLIP;
-	if ( (tf & DontPrint) == 0 )
-	    DrawText( hdc, str, len, &r, f );
-	else {
-	    DrawText( hdc, str, len, &r, f | DT_CALCRECT );
-	    if ( brect )
-		*brect = QRect( QPoint(r.left,r.top),
-				QPoint(r.right,r.bottom) );
-	}
-	return;
     }
 
     struct text_info {				// internal text info
