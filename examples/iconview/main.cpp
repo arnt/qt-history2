@@ -34,8 +34,8 @@ public slots:
         const char *str = mime->format( i );
         printf( "    %s\n", str );
         while ( str ) {
-            str = mime->format( ++i );
             printf( "    %s\n", str );
+            str = mime->format( ++i );
         }
     };
     void moved() {
