@@ -1947,7 +1947,7 @@ void QLineEdit::drawContents( QPainter *p )
     // draw cursor
     if ( d->cursorVisible && !supressCursor ) {
 	QPoint from( topLeft.x() + cix, lineRect.top() );
-	QPoint to = from + QPoint( 0, lineRect.height() );
+	QPoint to(from.x(), QMIN(lineRect.bottom(), contentsRect().bottom()));
 	p->drawLine( from, to );
 	if ( hasRightToLeft ) {
 	    to = from + QPoint( (ci.isRightToLeft()?-2:2), 2 );
