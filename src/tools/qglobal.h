@@ -415,8 +415,13 @@ typedef short		Q_INT16;		// 16 bit signed
 typedef unsigned short	Q_UINT16;		// 16 bit unsigned
 typedef int		Q_INT32;		// 32 bit signed
 typedef unsigned int	Q_UINT32;		// 32 bit unsigned
+#if defined(Q_OS_WIN64)
+typedef	__int64		Q_INT64;
+typedef unsigned __int64 Q_UINT64;
+#else
 typedef long		Q_INT64;		// up to 64 bit signed
 typedef unsigned long	Q_UINT64;		// up to 64 bit unsigned
+#endif
 
 
 //
@@ -443,7 +448,7 @@ extern bool qt_winunicode;
 // Create Qt DLL if QT_DLL is defined (Windows only)
 //
 
-#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN32) || (Q_OS_WIN64)
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
 #    undef QT_DLL
