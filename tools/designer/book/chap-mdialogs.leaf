@@ -1,4 +1,4 @@
-\chapter Dialogs
+\chapter Reference: Dialogs
 
 \section1 Introduction
 
@@ -394,12 +394,21 @@ Dialog}.
 
 \section3 C++ Tab
 
-Click the C++ Tab #### Go to Template and
-select app or lib from the list box. For Config, Libs, Defines, and
-Includepath, the default is set to 'all'. Click the list box to select
-unix, win32 or mac.
+Click the C++ Tab ### Refer to the QMake documentation for details on
+how to use these options. Click the 'Template' combobox and choose
+application or library to create makefiles for building applications
+or libraries. Click the 'Config' combobox to select the project
+configuration and compiler options for all platforms, or specific
+platforms. Type the Config value in the line edit. Click the 'Libs'
+combobox to select a platform. Type the library values in the line
+edit. Click the 'Defines' combobox and select a platform. 'Defines'
+values are added as compiler C preprocessor macros. Type the 'Defines'
+values in the line edit. Click the 'Includepath' combobox to select a
+platform. Includepath specifies the #include directories that should
+be searched when compiling the project. Type the 'Includepath' values
+in the line edit.   
 
-Click \OK to accept changes to the \Dialog{Project Settings}. Click
+Cick \OK to accept changes to the \Dialog{Project Settings}. Click
 \CANCEL to exit the dialog without making any changes to the project
 settings. 
 
@@ -511,6 +520,25 @@ Slots} to invoke the \Dialog{Edit Slots Dialog}.
 Click \OK to accept changes to the connections. Click
 \CANCEL to leave the dialog without making changes to the connections.   
 
+\target dialog-find-directory
+\section1 Find Directory Dialog
+
+Invoke this dialog to locate a directory. 
+
+The \Dialog {Find Directory} dialog defaults the directory and file type. To
+choose a different directory, click the 'Look In' combobox. Choose a
+file and the name will appear in the 'File Name' combobox. To choose a
+different file type, click the 'File Type'combobox. Click the 'Create
+New Folder' toolbar button to create a new directory. Click the 'List
+View' toolbar button to view folders and files in a list with only the
+names showing. Click the 'Details' toolbar button to view the folders
+and file names along with their size, type, date, and attributes.
+Click the Size, Type, Date, or Attributes column headers to sort the
+folders or files.
+
+Click \OK to accept the directory. Click \CANCEL to leave the dialog
+without choosing a directory.
+
 \target dialog-edit-custom-widgets
 \section1 Edit Custom Widgets Dialog
 
@@ -617,7 +645,7 @@ without opening a file.
 \target dialog-choose-an-image
 \section1 Choose an Image Dialog
 
-Invoke the \Dialog{Choose and Image} choose images to use for a widget. 
+Invoke the \Dialog{Choose an Image} choose images to use for a widget. 
 
 To choose an image from the listbox, click the image and then click
 \OK. To add an image, click the \Button Add button to invoke the
@@ -654,10 +682,10 @@ custom colors.
 \target dialog-edit-palette
 \section1 Edit Palette Dialog
 
-Use this dialog to change the palette of the current widget or form.
-You can use a generated palette, or select colors for each color group
-and each color role. The palette can be tested with different widget
-layouts in the preview section.
+Invoke the \Dialog {Edit Palette} dialog to change the palette of the
+current widget or form. You can use a generated palette, or select
+colors for each color group and each color role. The palette can be
+tested with different widget layouts in the preview section.
 
 The 'Build Palette' section contains three buttons to help you build
 the palette. Click the \Button 3-D Effects button to invoke the
@@ -673,22 +701,29 @@ the dialog without making changes to the palette.
 \target dialog-tune-palette
 \section1 Tune Palette Dialog
 
-Invoke the \Dialog {Tune Palette} dialog to ####
+Invoke the \Dialog {Tune Palette} dialog to choose options for a
+widget's palette.
 
-To select a type of palette, click the 'Select Palette' combobox and
-choose a palette. The 'Auto' section ####. Click the 'Central color
-roles' combobox to select a color role. Click the \Button 'Choose
-Pixmap' button to invoke the \Dialog {Choose a Pixmap Dialog}. Click
-the \Button {Select Color} button to invoke the \Dialog {Select Color
-Dialog}. Check the 'Build from button color' checkbox in the '3-D
-shadow effects' section to let the 3-D effects colors be calculated
-from the button-color. Uncheck the checkbox to enable the 'Choose 3-D
-effect color role' combobox. Click the combobox to select a color role
-for the 3-D effects. Click the \Button {Select Color} button to invoke
-the \Dialog {Select Color Dialog}. 
+Click the 'Select Palette' combobox to choose options for active,
+inactive, or disabled palettes. If you choose 'Active Palette', the
+dialog provides the auto, central color roles, and 3-D shadow effects
+categories for designing the palette. If you choose 'Inactive Palette'
+or 'Disabled Palette', the dialog greys out all categories except
+'Auto'. Click the 'Auto' section checkboxes to build the inactive or
+disabled palettes from the active palette. For active palette, click
+the 'Central color roles' combobox to select a color role for the
+palette. Click the \Button 'Choose Pixmap' button to invoke the
+\Dialog {Choose a Pixmap Dialog}. Click the \Button {Select Color}
+button to invoke the \Dialog {Select Color Dialog}. Check the 'Build
+from button color' checkbox in the '3-D shadow effects' section to
+allow 3-D effects colors to be calculated from the button-color.
+Uncheck the checkbox to enable the 'Choose 3-D effect color role'
+combobox. Click the combobox to select a color role for the 3-D
+effects. Click the \Button {Select Color} button to invoke the \Dialog
+{Select Color Dialog}. 
 
-Click \OK to accept changes to the \Dialog{Tune Palette} dialog. Click
-\CANCEL to leave the dialog without making changes to the palette.
+Click \OK to accept changes to the palette. Click \CANCEL to leave the
+dialog without making changes to the palette.
 
 \target dialog-select-font
 \section1 Select Font Dialog
@@ -715,7 +750,7 @@ dialog without making any changes to the font.
 \target dialog-text
 \section1 Text Dialog
 
-Invoke the \Dialog Text dialog to type text. ###Type the text you want in
+Invoke the \Dialog Text dialog to type text. Type any text in
 the line edit. 
 
 Click \OK to accept the text. Click \CANCEL to leave the dialog
@@ -734,8 +769,8 @@ to leave the dialog without making changes to the title.
 \target dialog-dialog-page-title
 \section1 Page Title Dialog
 
-Right-click the Tab widget to invoke the \Dialog {Page Title} dialog.
-Use this dialog to change the name of each tab in a Tab widget.
+Right-click a tab widget on the form to invoke the \Dialog {Page Title} dialog.
+Use this dialog to change the name of each tab in the Tab widget.
 
 Click \OK to accept new page titles. Click \CANCEL to
 leave the dialog without making any changes.  
@@ -743,9 +778,9 @@ leave the dialog without making any changes.
 \target dialog-edit-listbox
 \section1 Edit Listbox Dialog
 
-Right-click a Listbox on the form and select 'Edit' to invoke this
-dialog. Use this dialog to add items to the list box and to change the
-item's properties.
+Right-click a Listbox on the form and select 'Edit' to invoke the
+\Dialog {Edit Listbox} dialog. Use this dialog to add items to the
+list box and to change the item's properties.
 
 To add an item to the listbox, click the \Button {New Item}. If you
 want to change the default name of the item, click the 'Text' line
@@ -756,20 +791,23 @@ item. Click the \Button {Select a Pixmap} to invoke the \Dialog
 delete an item from the listbox, click the item and then click the
 \Button Delete button. To move an item up or down in the listbox,
 click the \Button {Move Up} or \Button {Move Down} buttons. Click
-\Button Apply to accept the changes. Click \OK to leave the dialog
-once the changes have been accepted. Click \CANCEL to leave the dialog
-without saving any changes.  
+\Button Apply to accept the changes. 
+
+Click \Button Apply to accept changes to the listbox widget. Click \OK
+to leave the dialog once the changes have been accepted. Click \CANCEL
+to leave the dialog without saving any changes.  
 
 \target dialog-edit-listview
 \section1 Edit Listview
 
-Right-click a Listview on the form and select 'Edit' to invoke this
-dialog. Use the dialog to add items to the listview. The \Dialog Edit
-Listview dialog has two tabs, one for items and one for columns.
+Right-click a listview widget on the form and select 'Edit' to invoke
+the \Dialog {Edit Listview} dialog. Use this dialog to add items to
+the listview. The \Dialog Edit Listview dialog has two tabs, one for
+items and one for columns.
 
 \section2 The Items Tab 
 
-The dialog opens with the default on the Items tab. Use this tab to
+The dialog defaults to the Items tab. Use this tab to
 add, change, or remove items in the listview. To add a new item, click
 the \Button {New Item} button. The new item is shown at the top of the
 listbox. To add sub-items to an existing item, click the item and then
@@ -800,10 +838,9 @@ listbox and then click the \Button {Delete Column} button. To move a
 column up or down in the listbox, click the \Button {Move Up} or the
 \Button {Move Down} buttons.  
 
-When you have finished making changes to either of the tabs, click
-\Button Apply to accept the changes. Click \OK to leave the dialog
-once the changes have been accepted. Click \CANCEL to leave the dialog
-without saving any changes.  
+Click \Button Apply to accept changes to the listview widget. Click \OK
+to leave the dialog once the changes have been accepted. Click \CANCEL
+to leave the dialog without saving any changes.  
 
 \target dialog-edit-iconview
 \section1 Edit Iconview
@@ -818,16 +855,16 @@ pixmap, click the \Button {Delete Pixmap} button. To delete an item
 from the listbox, click the item and then click the \Button {Delete
 Item} button.
 
-Click \Button Apply to accept the changes. Click \OK to
+Click \Button Apply to accept changes to the iconview widget. Click \OK to
 leave the dialog once the changes have been accepted. Click \CANCEL to
 leave the dialog without saving any changes. 
 
 \target dialog-edit-table
 \section1 Edit Table
 
-Right-click a table widget on the form and select 'Edit' to invoek
-this dialog. Use the dialog to add, change, or remove columns or rows from the
-table. 
+Right-click a table widget on the form and select 'Edit' to invoke
+this dialog. Use the dialog to add, change, or remove columns or rows
+from the table. 
 
 \section2 The Column Tab
 
@@ -854,10 +891,9 @@ pixmap, click the \Button {Delete Pixmap} button.To move a row in
 the listbox, click the \Button {Move Up} or \Button {Move Down}
 buttons. Click 
 
-When you have finished making changes to either of the tabs, click
-\Button Apply to accept the changes. Click \OK to leave the dialog
-once the changes have been accepted. Click \CANCEL to leave the dialog
-without saving any changes.
+Click \Button Apply to accept changes to the table widget. Click \OK
+to leave the dialog once the changes have been accepted. Click \CANCEL
+to leave the dialog without saving any changes.
 
 
 

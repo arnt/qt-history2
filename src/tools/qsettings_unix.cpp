@@ -1013,7 +1013,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 /*!
   Removes the entry specified by \a key.
 
-  Returns TRUE if the entry is removed or doesn't exist, otherwise returns FALSE.
+    Returns TRUE if the entry existed and was removed; otherwise returns FALSE.
 
   \sa readEntry(), writeEntry()
 */

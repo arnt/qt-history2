@@ -1022,8 +1022,8 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
 
 /*! Returns a QFont object that has family \a family, style \a style
-  and point size \a pointSize. If no matching font could be created, an
-  empty QFont object is returned.
+  and point size \a pointSize. If no matching font could be created, a
+  QFont object that uses the application's default font is returned.
 */
 QFont QFontDatabase::font( const QString &family, const QString &style,
                            int pointSize)

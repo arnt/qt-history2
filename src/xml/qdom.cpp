@@ -5873,14 +5873,14 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   To create a document using DOM use code like this:
   \code
     QDomDocument doc( "MyML" );
-    QDomElement root = doc.createElement( "MyML" )
-    doc.append( root );
+    QDomElement root = doc.createElement( "MyML" );
+    doc.appendChild( root );
 
     QDomElement tag = doc.createElement( "Greeting" );
-    root.append( tag );
+    root.appendChild( tag );
 
     QDomText t = doc.createTextNode( "Hello World" );
-    tag.append( t );
+    tag.appendChild( t );
 
     QString xml = doc.toString();
     \endcode
