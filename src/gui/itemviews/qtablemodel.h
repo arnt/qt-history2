@@ -8,7 +8,7 @@
 #include <qstring.h>
 #endif
 
-class QTableModelItem
+class Q_GUI_EXPORT QTableModelItem
 {
 public:
     QTableModelItem() : edit(true), select(true) {}
@@ -31,7 +31,7 @@ private:
     uint select : 1;
 };
 
-class QTableModel : public QGenericItemModel
+class Q_GUI_EXPORT QTableModel : public QGenericItemModel
 {
     Q_OBJECT
 

@@ -6,7 +6,7 @@
 #include <qlistmodel.h>
 #endif
 
-class QListView_ : public QGenericListView
+class Q_GUI_EXPORT QListView_ : public QGenericListView
 {
     Q_OBJECT
 

@@ -11,7 +11,7 @@
 
 class QAbstractItemViewPrivate;
 
-class QAbstractItemView : public QScrollView
+class Q_GUI_EXPORT QAbstractItemView : public QScrollView
 {
     friend class QAbstractItemViewPrivate;
 

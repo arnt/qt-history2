@@ -8,7 +8,7 @@
 class QGenericTreeViewPrivate;
 class QGenericHeader;
 
-class QGenericTreeView : public QAbstractItemView
+class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
 {
     Q_OBJECT
 

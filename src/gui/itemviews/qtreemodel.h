@@ -12,7 +12,7 @@
 
 class QTreeModel;
 
-class QTreeModelItem : public QSharedObject
+class Q_GUI_EXPORT QTreeModelItem : public QSharedObject
 {
     friend class QTreeModel;
 
@@ -52,7 +52,7 @@ private:
     uint select : 1;
 };
 
-class QTreeModel : public QGenericItemModel
+class Q_GUI_EXPORT QTreeModel : public QGenericItemModel
 {
     friend class QTreeModelItem;
 

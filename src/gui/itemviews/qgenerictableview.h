@@ -8,7 +8,7 @@
 class QGenericHeader;
 class QGenericTableViewPrivate;
 
-class QGenericTableView : public QAbstractItemView
+class Q_GUI_EXPORT QGenericTableView : public QAbstractItemView
 {
     Q_OBJECT
 

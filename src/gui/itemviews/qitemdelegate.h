@@ -9,7 +9,7 @@
 class QPainter;
 class QAbstractItemView;
 
-class QItemOptions
+class Q_GUI_EXPORT QItemOptions
 {
 public:
     QItemOptions()
@@ -30,7 +30,7 @@ public:
     int textAlignment;
 };
 
-class QItemDelegate
+class Q_GUI_EXPORT QItemDelegate
 {
 public:
     QItemDelegate(QGenericItemModel *model);

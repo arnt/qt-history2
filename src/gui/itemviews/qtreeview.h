@@ -6,7 +6,7 @@
 #include <qtreemodel.h>
 #endif
 
-class QTreeView : public QGenericTreeView
+class Q_GUI_EXPORT QTreeView : public QGenericTreeView
 {
     Q_OBJECT
 

@@ -10,7 +10,7 @@
 
 class QListModel;
 
-class QListModelItem
+class Q_GUI_EXPORT QListModelItem
 {
 public:
     QListModelItem(QListModel *model);
@@ -37,7 +37,7 @@ private:
     uint select : 1;
 };
 
-class QListModel : public QGenericItemModel
+class Q_GUI_EXPORT QListModel : public QGenericItemModel
 {
     friend class QListModelItem;
 

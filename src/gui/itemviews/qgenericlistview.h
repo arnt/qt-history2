@@ -8,7 +8,7 @@
 class QGenericListViewItem;
 class QGenericListViewPrivate;
 
-class QGenericListView : public QAbstractItemView
+class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
 {
     friend class QGenericListViewPrivate;
 

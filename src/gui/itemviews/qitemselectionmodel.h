@@ -95,7 +95,7 @@ public:
 typedef QExplicitSharedPointer<QItemSelection> QItemSelectionPointer;
 class QItemSelectionModelPrivate;
 
-class QItemSelectionModel : public QObject, public QSharedObject
+class Q_GUI_EXPORT QItemSelectionModel : public QObject, public QSharedObject
 {
     Q_OBJECT
 

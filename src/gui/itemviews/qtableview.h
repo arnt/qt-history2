@@ -6,7 +6,7 @@
 #include <qtablemodel.h>
 #endif
 
-class QTableView : public QGenericTableView
+class Q_GUI_EXPORT QTableView : public QGenericTableView
 {
     Q_OBJECT
 

@@ -10,7 +10,7 @@
 
 class QGenericItemModel;
 
-class QModelIndex
+class Q_GUI_EXPORT QModelIndex
 {
 public:
     enum Type { View, HorizontalHeader, VerticalHeader };
@@ -39,7 +39,7 @@ typedef QList<QCoreVariant> QCoreVariantList;
 class QItemModel;
 class QModelItem;
 
-class QGenericItemModel : public QObject
+class Q_GUI_EXPORT QGenericItemModel : public QObject
 {
     Q_OBJECT
 
@@ -79,7 +79,7 @@ public:
     virtual bool isEditable(const QModelIndex &index) const;
     virtual bool isDragEnabled(const QModelIndex &index) const;
     virtual bool isDropEnabled(const QModelIndex &index) const;
-    
+
     virtual bool isSortable() const;
     virtual void sort(int column, SortOrder order);
 

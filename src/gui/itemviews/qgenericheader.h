@@ -7,7 +7,7 @@
 
 class QGenericHeaderPrivate;
 
-class QGenericHeader : public QAbstractItemView
+class Q_GUI_EXPORT QGenericHeader : public QAbstractItemView
 {
     Q_OBJECT
 
