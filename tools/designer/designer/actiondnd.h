@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -47,6 +47,9 @@ public:
     int index() const { return idx; }
 
 protected:
+#if defined(Q_USING)
+    using QActionGroup::addedTo;
+#endif
     void addedTo( QWidget *w, QWidget * ) {
 	wid = w;
     }
