@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#240 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#241 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -786,7 +786,7 @@ void QWidget::showWindow()
     }
     UpdateWindow( winId() );
 }
-
+ 
 
 /*
   \internal
@@ -795,11 +795,11 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
-    if ( isTopLevel() && parentWidget()&& isActiveWindow()  ) {
-	SetActiveWindow( parentWidget()->winId() );
-    }
+    bool activateParent = isTopLevel() && parentWidget()&& isActiveWindow();
     deactivateWidgetCleanup();
     ShowWindow( winId(), SW_HIDE );
+    if ( activateParent )
+         SetActiveWindow( parentWidget()->topLevelWidget()->winId() );
 }
 
 
