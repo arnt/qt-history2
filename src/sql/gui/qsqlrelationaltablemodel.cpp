@@ -54,17 +54,43 @@ void QSqlRelationalTableModelPrivate::clearChanges()
         relations[i].displayValues.clear();
 }
 
+/*!
+  \class QSqlRelationalTableModel
+  \brief The QSqlRelationalTableModel class provides an editable data model
+  for a single database table. In addition, columns can be set as foreign
+  keys into another table.
+
+  \ingroup database
+  \module sql
+
+  QSqlRelationalTableModel acts like QSqlTableModel, but allows columns to
+  be set as foreign keys into other database tables.
+ */
+
+
+/*!
+  Creates an empty QSqlRelationalTableModel and sets the parent to \a parent
+  and the database connection to \a db. If \a db is not valid, the
+  default database connection will be used.
+ */
 QSqlRelationalTableModel::QSqlRelationalTableModel(QObject *parent, QSqlDatabase db)
     : QSqlTableModel(parent, db)
 {
     d = new QSqlRelationalTableModelPrivate;
 }
 
+/*!
+  Destroys the object and frees any allocated resources.
+ */
 QSqlRelationalTableModel::~QSqlRelationalTableModel()
 {
     delete d;
 }
 
+/*!
+  Returns the data for the item at position \a idx for the role \a role.
+  Returns an invalid variant if \a idx is out of bounds.
+ */
 QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
 {
     if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
