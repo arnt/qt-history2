@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#72 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#71 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#72 $")
 
 
 /*----------------------------------------------------------------------------
@@ -243,7 +243,7 @@ QApplication::~QApplication()
   \endcode
 
   If you run <tt>showargs -display unix:0 -font 9x15bold hello
-  world</tt> under X-Windows, the list box containss the three strings
+  world</tt> under X-Windows, the list box contains the three strings
   "showargs", "hello" and "world".
 
   \sa argc(), QApplication::QApplication()
@@ -278,25 +278,29 @@ void QApplication::setStyle( GUIStyle style )
 }
 
 
-/*!  Returns a pointer to the default application palette.  There is
+/*----------------------------------------------------------------------------
+  Returns a pointer to the default application palette.  There is
   always an application palette, i.e. the returned pointer is
-  guaranteed to be non-null. \sa setPalette() QWidget::palette */
+  guaranteed to be non-null.
+  \sa setPalette(), QWidget::palette()
+ ----------------------------------------------------------------------------*/
 
 QPalette *QApplication::palette()
 {
     return app_pal;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Changes the default application palette to \e palette.
 
   If \e updateAllWidgets is TRUE, then the palette of all existing
   widgets is set to \e palette.
 
   Widgets created after this call get \e palette as their \link
-  QWidget::palette() palette. \endlink
+  QWidget::palette() palette\endlink.
 
-  \sa QWidget::setPalette() palette() QPalette */
+  \sa QWidget::setPalette(), palette()
+ ----------------------------------------------------------------------------*/
 
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 {
@@ -319,7 +323,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   \fn QFont *QApplication::font()
   Returns the default application font.	 There is always an application
   font, i.e. the returned pointer is guaranteed to be non-null.
-  \sa setFont(), fontMetrics() QWidget::font()
+  \sa setFont(), fontMetrics(), QWidget::font()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -329,9 +333,9 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   widgets is set to \e font.
 
   Widgets created after this call get \e font as their \link
-  QWidget::font() font. \endlink
+  QWidget::font() font\endlink.
 
-  \sa font() fontMetrics() QWidget::setFont()
+  \sa font(), fontMetrics(), QWidget::setFont()
  ----------------------------------------------------------------------------*/
 
 void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
@@ -353,10 +357,10 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 }
 
 
-/*!  Returns display (screen) font metrics for the application font.
-  These metrics may or may not apply to e.g. QPrinter devices.
-
-  \sa font(), setFont() */
+/*----------------------------------------------------------------------------
+  Returns display (screen) font metrics for the application font.
+  \sa font(), setFont(), QWidget::fontMetrics(), QPainter::fontMetrics()
+ ----------------------------------------------------------------------------*/
 
 QFontMetrics QApplication::fontMetrics()
 {
