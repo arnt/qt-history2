@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#181 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#180 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#181 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -472,13 +472,17 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 /*!
   Tells the window system what color to clear this widget to when
-  sending a paint event.
+  sending a paint event.  (See setPalette() for a more powerful and
+  general way of setting colors.)
 
-  To minimize flicker, this should be the most common color in the
-  widget.  For most widgets the default (colorGroup().background(),
-  normally gray) suffices, but some need to use colorGroup().base()
-  (the background color for text output, normally white) and a few
-  need other colors.
+  In other words, this color is the color of the widget when
+  paintEvent() is called.  To minimize flicker, this should be the
+  most common color in the widget.
+
+  For most widgets the default (colorGroup().background(), normally
+  gray) suffices, but some need to use colorGroup().base() (the
+  background color for text output, normally white) and a few need
+  other colors.
 
   QListBox, which is "sunken" and uses the base color to contrast with
   its envirment, does this:
@@ -499,12 +503,13 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   You can also use QApplication::setPalette() if you want to change
   the color scheme of your entire application, or of all new widgets.
   
-  The background color is semi-independent of the widget palette.
-  Setting a new palette overwrites the background color, but setting
-  the background color does not change the palette in any way.
+  The background color is semi-independent of the \link palette()
+  widget palette. \endlink Setting a new palette overwrites the
+  background color, but setting the background color does not change
+  the palette in any way.
 
-  \sa backgroundColor(), backgroundColorChange(), setPalette(),
-  setBackgroundPixmap(), QApplication::setPalette()
+  \sa setPalette(), QApplication::setPalette(), backgroundColor(),
+  backgroundColorChange(), setBackgroundPixmap()
 */
 
 void QWidget::setBackgroundColor( const QColor &color )
