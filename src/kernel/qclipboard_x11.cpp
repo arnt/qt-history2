@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#38 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -477,7 +477,7 @@ QString QClipboard::text() const
 	return d->text();
 
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None )
-	return 0;
+	return QString::null;
 
     XConvertSelection( dpy, XA_PRIMARY, XA_STRING, qt_selection_property, win,
 		       CurrentTime );
@@ -485,7 +485,7 @@ QString QClipboard::text() const
 
     XEvent xevent;
     if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
-	return 0;
+	return QString::null;
 
     Atom   type;
 

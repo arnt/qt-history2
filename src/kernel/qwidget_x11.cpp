@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#299 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#300 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -215,9 +215,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    if ( testWFlags(WStyle_NormalBorder) ) {
 		;				// ok, we already have it
 	    } else {
-		if ( testWFlags(WStyle_DialogBorder) && initializeWindow ) {
-		    XSetTransientForHint( dpy, id, root_win );
-		} else {			// no border
+		if ( !testWFlags(WStyle_DialogBorder) ) {
 		    wsa.override_redirect = TRUE;
 		    wsa_mask |= CWOverrideRedirect;
 		}
@@ -246,13 +244,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QWidget *p = parentWidget();	// real parent
 	if (p)
 	    p = p->topLevelWidget();
-	if ( modal ) {
-	    QWidget *pp = p ? p->parentWidget() : 0;
-	    while ( pp && !pp->topLevelWidget()->testWFlags(WType_Modal) ) {
-		p = pp->topLevelWidget();	// find real parent
-		pp = pp->parentWidget();
-	    }
-	    // #### (me thinks that's wrong) if ( p && p->isVisible() // modal to one widget
+	if ( testWFlags(WStyle_DialogBorder) ) {
 	    if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
@@ -263,14 +255,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	while ( p && p->parentWidget()) {
 	    p = p->parentWidget()->topLevelWidget();
 	}
-	
- 	if (p) {
-	    Window pwid = p->winId();
- 	    XChangeProperty(qt_xdisplay(), id,
- 			    qt_wm_client_leader, XA_WINDOW, 32, PropModeReplace,
- 			    (unsigned char*) (&pwid) ,
- 			    1);
- 	}
 	
 	XSizeHints size_hints;
 	size_hints.flags = USSize | PSize | PWinGravity;
@@ -284,6 +268,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	wm_hints.input = True;
 	wm_hints.initial_state = NormalState;
 	wm_hints.flags = InputHint | StateHint;
+	
+	if (p) { // the real client leader
+	    wm_hints.window_group = p->winId();
+	    wm_hints.flags = wm_hints.flags | WindowGroupHint;
+	}
+	
 	XClassHint class_hint;
 	class_hint.res_name = title;		// app name and widget name
 	class_hint.res_class = name() ? (char *)name() : title;
