@@ -37,13 +37,17 @@ public:
     double xfunc(double t);
     double yfunc(double t);
 
+    inline Attributes *attribs() { return attributes; }
+
 protected:
     int timeoutRate;
     int animationStep;
-
     Attributes *attributes;
 
     double a, b, c, d;
+
+    void showEvent(QShowEvent *);
+    void hideEvent(QShowEvent *);
 
 private:
     QBasicTimer animationTimer;

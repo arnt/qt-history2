@@ -56,7 +56,8 @@ DemoWidget::DemoWidget(QWidget *parent)
 
 void DemoWidget::startAnimation()
 {
-    animationTimer.start(timeoutRate, this);
+    if (!animationTimer.isActive())
+	animationTimer.start(timeoutRate, this);
 }
 
 void DemoWidget::stopAnimation()
@@ -72,6 +73,16 @@ void DemoWidget::timerEvent(QTimerEvent * e)
         if ((animationStep % 10) == 0 )
             QApplication::syncX();
     }
+}
+
+void DemoWidget::showEvent(QShowEvent *)
+{
+    startAnimation();
+}
+
+void DemoWidget::hideEvent(QShowEvent *)
+{
+    stopAnimation();
 }
 
 QSize DemoWidget::sizeHint() const

@@ -11,18 +11,26 @@
 **
 ****************************************************************************/
 
-#ifndef ALPHASHADE_H
-#define ALPHASHADE_H
+#ifndef GLPAINTER_H
+#define GLPAINTER_H
 
+#include <qbasictimer.h>
 #include "demowidget.h"
 
-#include <qpixmap.h>
+class GLWidget;
 
-class AlphaShade : public DemoWidget
+class GLPainter : public DemoWidget
 {
 public:
-    AlphaShade(QWidget *parent=0);
-    void paintEvent(QPaintEvent *e);
+    GLPainter(QWidget *parent = 0);
+
+    void startAnimation();
+    void stopAnimation();
+
+private:
+    GLWidget *glwidget;
+    int id;
+    QBasicTimer animTimer;
 };
 
-#endif // ALPHASHADE_H
+#endif // GLPAINTER_H

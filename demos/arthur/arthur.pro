@@ -25,4 +25,9 @@ HEADERS = \
 	rotatinggradient.h \
 	warpix.h
 
+contains(QT_CONFIG, opengl) {
+	HEADERS += glpainter.h
+	SOURCES += glpainter.cpp
+}
+
 TARGET = arthur

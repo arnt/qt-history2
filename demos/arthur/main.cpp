@@ -18,6 +18,9 @@
 #include "paths.h"
 #include "rotatinggradient.h"
 #include "warpix.h"
+#ifndef QT_NO_OPENGL
+#include "glpainter.h"
+#endif
 
 #include <qapplication.h>
 
@@ -32,6 +35,9 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("Clip Regions", new Clipping);
     viewer.addDemoWidget("Paths", new Paths);
     viewer.addDemoWidget("Stretched Pixmap", new Warpix);
+#ifndef QT_NO_OPENGL
+    viewer.addDemoWidget("OpenGL Painter", new GLPainter);
+#endif
     viewer.show();
 
     QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
