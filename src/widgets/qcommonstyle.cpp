@@ -298,7 +298,7 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled )
 {
-    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine, 
+    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
 }
 
@@ -357,10 +357,10 @@ void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    bool enabled )
 {
     if ( inherits("QSGIStyle" ) ) {
-	QSGIStyle* sgi = (QSGIStyle*) this;
-	sgi->drawMenuBarItem( p, x, y, w, h, mi, g, enabled );
+	QSGIStyle* sg = (QSGIStyle*) this;
+	sg->drawMenuBarItem( p, x, y, w, h, mi, g, enabled );
     } else {
-        drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine, 
+        drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
 	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
     }
 }
