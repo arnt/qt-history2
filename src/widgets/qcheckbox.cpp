@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#40 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -259,9 +259,9 @@ void QCheckBox::drawButton( QPainter *paint )
 	}
     }
     else if ( gs == MotifStyle ) {		// Motif check box
-	bool up = (isUp() && !isOn()) || (isDown() && isOn());
-	QBrush fill( up ? g.background() : g.mid() );
-	qDrawShadePanel( p, x, y, w, h, g, !up, 2, &fill );
+	bool showUp = isDown() ^ isOn();
+	QBrush fill( showUp ? g.background() : g.mid() );
+	qDrawShadePanel( p, x, y, w, h, g, !showUp, 2, &fill );
     }
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
