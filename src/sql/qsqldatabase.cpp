@@ -291,10 +291,38 @@ void QSqlDatabase::removeDatabase( const QString& name )
      <li>QMYSQL - MySQL Driver
      </ul>
 */
+
 QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
 : QObject(parent, objname)
 {
     init( type, name );
+}
+
+/*! Returns a list of all available database drivers.
+*/
+
+QStringList QSqlDatabase::drivers()
+{
+    QStringList l;
+#ifdef QT_SQL_POSTGRES
+    l << "QPSQL6" << "QPSQL7";
+#endif
+#ifdef QT_SQL_MYSQL
+    l << "QMYSQL";
+#endif
+#ifdef QT_SQL_ODBC
+    l << "QODBC";
+#endif
+#ifdef QT_SQL_OCI
+    l << "QOCI";
+#endif
+#ifndef QT_NO_PLUGIN
+    QInterfaceManager<QSqlDriverInterface> *plugIns;    
+    plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); //###
+    l += plugIns->featureList();
+    delete plugIns;
+#endif
+    return l;
 }
 
 /*!
@@ -330,7 +358,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #endif
 
     }
-    
+
 #ifndef QT_NO_PLUGIN
     if ( !d->driver ) {
 	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
