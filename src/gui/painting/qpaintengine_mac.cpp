@@ -1031,8 +1031,10 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
   QCoreGraphicsPaintEngine utility functions
  *****************************************************************************/
 
+//colour conversion
 inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 / 255) / 1000; }
 
+//pattern handling (tiling)
 struct QMacPattern {
     bool as_mask;
     union {
@@ -1064,7 +1066,6 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     CGRect rect = CGRectMake(0, 0, w, h);
     HIViewDrawCGImage(c, &rect, pat->image); //HIViews render the way we want anyway, so just use the convenience..
 }
-
 static void qt_mac_dispose_pattern(void *info)
 {
     QMacPattern *pat = (QMacPattern*)info;
@@ -1073,19 +1074,31 @@ static void qt_mac_dispose_pattern(void *info)
     delete pat;
 }
 
+static void qt_mac_color_gradient_function(void *info, const float *in, float *out)
+{
+    QBrush *brush = (QBrush*)info;
+    const float red = qt_mac_convert_color_to_cg(brush->color().red());
+    out[0] = red + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().red())-red);
+    const float green = qt_mac_convert_color_to_cg(brush->color().green());
+    out[1] = green + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().green())-green);
+    const float blue = qt_mac_convert_color_to_cg(brush->color().blue());
+    out[2] = blue + in[0] * (qt_mac_convert_color_to_cg(brush->gradientColor().blue())-blue);
+    out[3] = 1; //100%
+}
+
 /*****************************************************************************
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev, 
-			    GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale))
+			    GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale|LinearGradientSupport))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale))
+    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale|LinearGradientSupport))
 {
     d->pdev = pdev;
 }
@@ -1105,6 +1118,10 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
 
     d->pdev = pdev;
     d->hd = static_cast<CGContextRef>(d->pdev->macCGHandle());
+    if(d->shading) {
+        CGShadingRelease(d->shading);
+        d->shading = 0;
+    }
     d->antiAliasingEnabled = 1;
 
     setupCGClip(0); //get handle to drawable
@@ -1157,6 +1174,10 @@ QCoreGraphicsPaintEngine::end()
     }
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
 	HideWindow(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
+    if(d->shading) {
+        CGShadingRelease(d->shading);
+        d->shading = 0;
+    }
     d->pdev = 0;
     return true;
 }
@@ -1220,6 +1241,11 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     Q_ASSERT(isActive());
     d->current.brush = ps->brush;
 
+    if(d->shading) {
+        CGShadingRelease(d->shading);
+        d->shading = 0;
+    }
+
     //pattern
     int bs = ps->brush.style();
     if(bs != CustomPattern && bs != NoBrush) {
@@ -1227,7 +1253,16 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 	CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
 				 qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
     }
-    if(bs != SolidPattern && bs != NoBrush) {
+
+    if(bs == LinearGradientPattern) {
+        CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
+        CGFunctionRef fill_func = CGFunctionCreate(&ps->brush, 1, 0, 4, 0, &callbacks);
+        CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
+        d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(ps->brush.gradientStart().x(), ps->brush.gradientStart().y()),
+                                          CGPointMake(ps->brush.gradientStop().x(), ps->brush.gradientStop().y()), fill_func, true, true);
+        CGFunctionRelease(fill_func);
+        CGColorSpaceRelease(grad_colorspace);
+    } else if(bs != SolidPattern && bs != NoBrush) {
 	int width = 0, height = 0;
 	QMacPattern *qpattern = new QMacPattern;
 	qpattern->image = 0;
@@ -1379,7 +1414,7 @@ QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
     CGContextMoveToPoint(d->hd, p1.x(), p1.y());
     CGContextAddLineToPoint(d->hd, p2.x(), p2.y());
-    CGContextStrokePath(d->hd);
+    d->strokePath();
 }
 
 void
@@ -1390,10 +1425,8 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
     CGContextBeginPath(d->hd);
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextAddRect(d->hd, mac_rect);
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath(d->hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->fillPath();
+    d->strokePath();
 }
 
 void
@@ -1403,7 +1436,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 
     CGContextMoveToPoint(d->hd, p.x(), p.y());
     CGContextAddLineToPoint(d->hd, p.x(), p.y()+1);
-    CGContextStrokePath(d->hd);
+    d->strokePath();
 }
 
 void
@@ -1415,7 +1448,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
 	float x = pa[index+i].x(), y = pa[index+i].y();
 	CGContextMoveToPoint(d->hd, x, y);
 	CGContextAddLineToPoint(d->hd, x, y+1);
-	CGContextStrokePath(d->hd);
+        d->strokePath();
     }
 }
 
@@ -1466,10 +1499,8 @@ QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     CGPathCloseSubpath(path);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath(d->hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->fillPath();
+    d->strokePath();
     CGPathRelease(path);
 }
 
@@ -1487,10 +1518,8 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRect &r)
 		 r.y() + (r.height()/2), r.height()/2, 0, 360, false);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath(d->hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->fillPath();
+    d->strokePath();
     CGPathRelease(path);
 }
 
@@ -1509,8 +1538,7 @@ QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
 		 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->strokePath();
     CGPathRelease(path);
 }
 
@@ -1531,10 +1559,8 @@ QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
     CGPathAddLineToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath(d->hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->fillPath();
+    d->strokePath();
     CGPathRelease(path);
 }
 
@@ -1548,10 +1574,8 @@ QCoreGraphicsPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 	CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());
     if(close) 
 	CGContextAddLineToPoint(d->hd, a[0].x(), a[0].y());
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath(d->hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->fillPath();
+    d->strokePath();
 }
 
 void
@@ -1571,10 +1595,8 @@ QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
 		     r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    if(d->current.brush.style() != NoBrush)
-	CGContextFillPath(d->hd);
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->fillPath();
+    d->strokePath();
     CGPathRelease(path);
 }
 
@@ -1590,7 +1612,7 @@ QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa, int index, int
 	CGContextMoveToPoint(d->hd, x, y);
 	pa.point(i++, &x, &y);
 	CGContextAddLineToPoint(d->hd, x, y);
-	CGContextStrokePath(d->hd);
+        d->strokePath();
     }
 }
 
@@ -1602,8 +1624,7 @@ QCoreGraphicsPaintEngine::drawPolyline(const QPointArray &pa, int index, int npo
     CGContextMoveToPoint(d->hd, pa[index].x(), pa[index].y());
     for(int x = index+1; x < index+npoints; x++) 
 	CGContextAddLineToPoint(d->hd, pa[x].x(), pa[x].y());
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->strokePath();
 }
 
 void
@@ -1639,8 +1660,7 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
     CGContextMoveToPoint(d->hd, pa[index].x(), pa[index].y());
     CGContextAddCurveToPoint(d->hd, pa[index+1].x(), pa[index+1].y(), 
 			     pa[index+2].x(), pa[index+2].y(), pa[index+3].x(), pa[index+3].y());
-    if(d->current.pen.style() != NoPen)
-	CGContextStrokePath(d->hd);
+    d->strokePath();
 }
 #endif
 

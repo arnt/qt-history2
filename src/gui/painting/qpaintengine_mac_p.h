@@ -78,8 +78,10 @@ public:
     QCoreGraphicsPaintEnginePrivate()
     {
 	hd = 0;
+        shading = 0;
     }
 
+    //state info
     struct {
 	QPen pen;
 	QBrush brush;
@@ -90,8 +92,28 @@ public:
 	} bg;
     } current;
 
+    //cg strucutres
     CGContextRef hd;
+    CGShadingRef shading;
+
+    //flags
     uint antiAliasingEnabled : 1;
+
+    //internal functions
+    inline void strokePath() {
+        if(current.pen.style() != Qt::NoPen)
+            CGContextStrokePath(hd);
+    }
+    inline void fillPath() { 
+        if(current.brush.style() == Qt::LinearGradientPattern) {
+            CGContextSaveGState(hd);
+            CGContextClip(hd);
+            CGContextDrawShading(hd, shading);
+            CGContextRestoreGState(hd);
+        } else if(current.brush.style() != Qt::NoBrush) {
+            CGContextFillPath(hd);
+        }
+    }
 };
 
 #endif /* __QPAINTENGINE_MAC_P_H__ */
