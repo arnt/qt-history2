@@ -248,8 +248,6 @@ definition and you are sure you do not want to use
 properties. Otherwise, use MOC_SKIP_BEGIN ... MOC_SKIP_END to work
 around the parsing problem (see below).
 <dt> -ldbg <dd> Write a flood of lex debug information on stdout.
-<dt> -dbg <dd> Treat all non-signal members as slots, for internal
-debugging purposes.  This is not useful for programming Qt clients.
 <dt> -p <var>path</var> <dd> Makes the moc prepend <var>path</var>/ to
 the file name in the generated #include statement (if one is
 generated).
@@ -525,7 +523,7 @@ the parameter types, like this:
 
 This will work as expected.
 
-<h4>Properties needs to be declared before the public section that
+<h4>Properties need to be declared before the public section that
 contains the respective set and get functions</h4>
 
 Declaring the first property within or after the public section that
