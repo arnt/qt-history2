@@ -1724,7 +1724,7 @@ void QString::setLength( uint newLen )
     other languages because sentence structure and word order often
     differ between languages.
 
-    If there is no place marker (\c %1 or \c %2, etc.), a warning
+    If there is no place marker (\c %1, \c %2, etc.), a warning
     message (qWarning()) is output and the result is undefined.
 */
 QString QString::arg( const QString& a, int fieldWidth ) const
@@ -1779,7 +1779,11 @@ QString QString::arg( const QString& a, int fieldWidth ) const
 		if ( digit == firstDigit ) {
 		    result += paddedArg;
 		    i += 2;
-		    if ( --numOccurrences == 0 ) {
+#if QT_VERSION >= 0x040000
+		    // ### remove preprocessor in Qt 4.0
+		    if ( --numOccurrences == 0 )
+#endif
+		    {
 			result += mid( i );
 			return result;
 		    }
