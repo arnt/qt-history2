@@ -40,6 +40,8 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qvaluelist.h"
+#include "qvector.h"
 #include "qdict.h"
 #include "qobject.h"
 #endif // QT_H
@@ -156,6 +158,10 @@ private:
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class Q_EXPORT QDict<QStyleSheetItem>;
+template class Q_EXPORT QValueList< QVector<QStyleSheetItem> >;
+template class Q_EXPORT QVector<QStyleSheetItem>;
+template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
+template class Q_EXPORT QArray<int>;
 // MOC_SKIP_END
 #endif
 

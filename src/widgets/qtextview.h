@@ -64,15 +64,6 @@ class QTextBrowser;
 class QTextString;
 struct QUndoRedoInfoPrivate;
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QVector<QStyleSheetItem>;
-template class Q_EXPORT QValueList< QVector<QStyleSheetItem> >;
-template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
-template class Q_EXPORT QArray<int>;
-// MOC_SKIP_END
-#endif
-
 class Q_EXPORT QTextView : public QScrollView
 {
     friend class QTextEdit;
