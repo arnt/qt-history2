@@ -13,8 +13,9 @@ is presented to the user. The separation of functionality this
 architecture introduces gives developers greater flexibility and
 access to more features than was previously possible. 
 In this document, we give a brief introduction to the Model/View paradigm,
-outline the concepts involved, describe the architecture of the item view
-system, and show some example uses.
+outline the concepts involved, and describe the architecture of the item
+view. Each of the components in the architecture is explained, and
+examples are given that show how to use the classes provided.
 
 \section1 The Model/View architecture
 
@@ -58,11 +59,11 @@ and table models because they provide default implementations for common
 functions. Each of these classes could be subclassed to provide models
 that support specialized kinds of lists and tables.
 
-\e Generic, complete implementations are provided for different kinds of
-view widgets based on the \l QAbstractItemView class. \l QGenericListView
+Complete implementations are provided for different kinds of
+view widgets based on the \l QAbstractItemView class. \l QListView
 provides a complete implementation of a simple list widget,
-\l QGenericTableView displays items from a model in a tabular form, and
-\l QGenericTreeView shows model items as a hierarchical list. Although
+\l QTableView displays items from a model in a tabular form, and
+\l QTreeView shows model items as a hierarchical list. Although
 these classes are ready-to-use implementations, they can also be
 subclassed to provide customized views.
 
@@ -76,35 +77,16 @@ classes; these offer compatibility with the \c QListView and \c QTable
 classes from Qt 3.
 
 
-\section1 Concepts
-
-In the Model/View architecture, the model's purpose is to manage data,
-and to provide a representation of that data to the other components
-in the framework. To ensure that representation of the data in the model
-is kept separate from the way it is accessed, the concept of a
-\e{model index} is introduced. Each item of data stored in the model can
-be accessed by providing the model with the corresponding model index.
-As a result, only the model needs to know how items are stored, and the
-type of data managed by the model can be defined fairly generally.
-
-Model indices are created by the model when another component needs
-to refer to an item stored within. They provide a \e temporary reference
-to an item, and can be used to retrieve or modify its value. Since models
-may reorganize their internal structure from time to time, model indices
-may become invalid, and should not be stored. If a long-term reference to
-a model item is required, a \e{persistent model index} must be used. This
-provides a reference to the item that the model keeps up-to-date.
-
-
-\section1 The Model/View classes
+\section1 The Model/View components
 
 The following sections describe the way in which the Model/View pattern
-is used in Qt.
+is used in Qt. Each section provides an example of use, and is followed
+by a section showing how you can create new components.
 
 \list
-\i \l{model-view-model.html}{The Model Classes}
-\i \l{model-view-view.html}{The View Classes}
-\i \l{model-view-delegate.html}{The Delegate Classes}
+\i \l{model-view-model.html}{Model Classes}
+\i \l{model-view-view.html}{View Classes}
+\i \l{model-view-delegate.html}{Delegate Classes}
 \endlist
 
 
@@ -269,222 +251,341 @@ several new features.
 /*!
 \page model-view-model.html
 
-\title The Model Classes
+\title Model Classes
 
 \tableofcontents
 
-\section1 Introduction
+\section1 Basic concepts
 
-In Qt, the standard interface for accessing data within
-a model is provided by the \l QAbstractItemModel class.
-Whenever the model is updated, this class notifies any attached views
-through the signals and slots mechanism.
+In the Model/View architecture, the model's purpose is to manage data,
+and to provide a standard representation of that data to the other
+components in the framework. In Qt, the standard interface to item models
+is defined by the \l QAbstractItemModel class. This class presents the
+model to other components in the form of a table, regardless of how the
+data is actually stored. It also notifies any attached views of changes
+to the model through the signals and slots mechanism.
 
-When implementing a model it is important to remember that the
-\l QAbstractItemModel class does not store any data itself, it merely
-presents an interface that the views use to access the data.
-The interface supports models that arrange their data in hierarchical
-structures, allowing for the possibility that data will be inserted,
-removed, changed, or sorted in some way. It also provides functions for
-drag and drop support.
+This section describes some basic concepts that
+are central to the way models are accessed by other components. More
+advanced concepts are discussed later.
 
-\section1 A read-only example model
+\section2 Model indices
 
-For a minimal read-only model it is only necessary to implement a few
-functions as there are default implementations for most of the
-interface.
+To ensure that representation of the data in the model
+is kept separate from the way it is accessed, the concept of a
+\e{model index} is introduced. Each item of data is represented by a
+model index that is provided by the model when required.
+As a result, only the model needs to know how items are stored, and the
+type of data managed by the model can be defined fairly generally.
 
-\quotefile stringlistmodel/model.h
+Model indices provide \e temporary references to items, and can be used
+to retrieve or modify their data. Since models may reorganize their
+internal structures from time to time, model indices may become invalid,
+and should not be stored. If a long-term reference to a model item is
+required, a \e{persistent model index} must be created. This provides a
+reference to the item that the model keeps up-to-date.
 
-The model implemented here is a simple, non-hierarchical, read-only data
-model. It has a \l QStringList as its internal data source, and implements
-only what is needed for a functional model.
+To obtain a model index for a given item in a model, four properties must
+be specified: a row number, a column number, the index of a parent item,
+and an item type. The following subsections describe and explain these
+properties in detail.
 
-\skipto class
-\printto isEditable
-\skipto private
+\section2 Rows and columns
+
+In its most basic form, an item model can be accessed as a simple table
+in which items are located by their row and column numbers. 
+We can retrieve information about any given item by specifying its row
+and column numbers to the model, and we will receive an index that
+represents the item. We can ask the model for the item's data by passing
+it the model index corresponding to the item.
+
+\img modelindex-no-parent.png
+
+The diagram above shows a representation of a basic model in which each
+item is located by a pair of row and column numbers. 
+The highlighted item is represented by a model index that was obtained by
+specifying the relevant row and column numbers to the model. 
+
+\section2 Parents of items
+
+A simple tabular model would be ideal for representing items in a table,
+or as a list of items. However, structures such as tree views require a
+more flexible interface to the items in the model. As a result, each item
+can also be used as the parent of another table of items, in much the same
+way that a top-level item in a tree view can contain another list of
+items.
+
+When requesting an index for a model item, we must provide some
+information about the item's parent. Outside the model, the only way to
+refer to an item is through a model index, so a parent model index must
+be given. However, in the diagram shown above, the highlighted item did
+not have a parent model index to refer to. This is also the case for
+top-level items in any model. To ensure the model knows that we are
+referring to a top-level item, we specify a default (and invalid)
+model index; this is a convention used by the Model/View classes.
+
+\img modelindex-parent.png
+
+The diagram above shows the row numbers, column numbers, and parent
+indices for two items in the model: a top-level model item (marked with
+an 'I'), and one of its children. The parent of the highlighted child
+item is represented by the 'X' symbol because it is referred to by its
+model index ('X').
+
+\section2 Item types and roles
+
+Model indices are available in three different types: some indices refer
+to items shown in a view, some refer to items used as horizontal headers,
+and the rest refer to items used as vertical headers.
+By specifying different types, we only retrieve the kind of information
+that we need.
+Usually, we want to refer to the data that will be displayed in a view,
+so we specify the \l{QModelIndex::Type}{View} type when obtaining the
+index.
+If we specify the \l{QModelIndex::Type}{HorizontalHeader} or
+\l{QModelIndex::Type}{VerticalHeader} types, the model can return an
+index corresponding to a horizontal or vertical header.
+
+\img modelindex-types.png
+
+When we obtain a model index, we specify to the model the type of item
+we are interested in. The above diagram shows how different types of
+model indices correspond to items in the model.
+Note that, for most models, the horizontal header will be the
+same for all items in a column, and the vertical header will be the same
+for all items in a row. The Model/View architecture is flexible
+enough to allow individual headers for each combination of row, column,
+and parent supplied. However, many views will not automatically take
+advantage of this capability.
+
+Items in a model can perform various \e roles for other components,
+allowing different kinds of data to be supplied for different situations.
+For example, the \l{QAbstractItemModel::Role}{DisplayRole} role is used
+to access a string that can be displayed as text in a view.
+Typically, items contain data for a number of different roles. The role
+indicates to the model which kind of data is being referred to.
+We will examine roles in more detail when we
+\l{model-view-subclassing-model.html}{create an example model}.
+
+\omit
+For example, a model designed for a simple spreadsheet might
+return an index that refers to the column header, regardless of the
+vertical position (the row) of the item within the model.
+
+Each item of data stored in the model can
+be accessed by providing the model with the corresponding model index.
+
+ * Describe the above structure better.
+ * Talk about types and roles.
+\endomit
+
+\section2 Summary of concepts
+
+Model indices contain information about the location of items within a
+model; they are constructed by models at the request of other components.
+Each model index refers to an item at a given row and column, and
+is assigned a particular type indicating what the item's data is used
+for. If a valid parent index is specified when an index is constructed,
+the index refers to a child of the corresponding parent item; otherwise
+the index refers to a top-level item in the model.
+
+Where the item type distinguishes between items in a view and the
+headers, the role distinguishes between the different types of data
+associated with an item.
+
+
+\section1 Using an existing model
+
+One of the models provided by Qt is the QDirModel, a model that maintains
+information about the contents of a directory. This provides a
+ready-to-use model to experiment with, and can be easily set up with
+existing data. Using this model, we can show how to set up a model for
+use with ready-made views, and explore how to manipulate data using
+model indices.
+
+\section2 Using views with a model
+
+The QListView and QTreeView classes are the most suitable view to use with
+QDirModel. The example presented below displays the contents of a
+directory in a tree view next to the same information in a list view.
+The views share the user's selection so that the selected items are
+highlighted in both views.
+
+\img shareddirmodel.png
+
+We will first set up a QDirModel so that it is ready for use then create
+some views to display the contents of a directory. This shows the simplest
+pattern of use of a model. The construction and use of the model is
+performed from within a single \c main() function:
+
+\quotefile shareddirmodel/main.cpp
+\skipto int main
+\printuntil QDirModel
+
+The model is set up to use data from a default directory, and is given
+an arbitrary widget as its parent object. The parent can be any subclass
+of QObject. We create two views so that we can examine the items held in
+the model:
+
+\printto QItemSelectionModel
+
+The views are constructed in the same way as other widgets. Setting up
+a view to display the items in the model is simply a matter of calling its
+\l{QAbstractItemView::setModel()}{setModel()} function with the directory
+model as the argument.
+
+The rest of the function just displays the views within a splitter
+widget, and runs the application's event loop:
+
+\skipto splitter
 \printuntil }
 
-Apart from the constructor of the model, we need to implement only two
-functions: \c rowCount() returns the number of rows in the model, and
-\c data() returns data corresponding to model item indices.
+In the above example, we neglected to mention how to handle selections of
+items. This subject is covered in more detail in the
+\l{model-view-selection.html}{Handling Selections} section of this
+document.
 
-Note that this is a non-hierarchical model, so we don't have to worry
-about the parent-child relationships. If our model was hierarchical, we
-would also have to implement the \c index() and \c parent() functions.
+\section2 Using model indices
 
-\section2 Dimensions of the model
+To demonstrate how data can be retrieved from a model, using model
+indices, we will set up a QDirModel without a view and print out the
+names of files and directories to a terminal. We will use the
+\c qDebug() function for this purpose.
+Although this does not show a normal way of using a model, it demonstrates
+the conventions used by models when dealing with QModelIndex instances.
 
-We want the number of rows in the model to be the same as the number of
-strings in the string list. We implement the \c rowCount() function with
-this in mind:
+We construct a directory model in the same way as before:
 
-\quotefile stringlistmodel/model.cpp
-\skipto int StringListModel
+\quotefile simplemodel-use/main.cpp
+\skipto QDirModel *model
+\printuntil int numRows
+
+In this case, we ensure that all files and directories are reported by
+the model, and we count the number of rows in the model using the
+\l{QDirModel::rowCount()}{rowCount()} function.
+
+For simplicity, we are only interested in the items in the first column
+of the model. We examine each row in turn, obtaining a model index for
+the first item in each row, and reading the data stored for that item
+in the model.
+
+\skipto for (
+\printuntil QModelIndex index
+
+To obtain a model index, we specify the row number, column number (zero
+for the first column), the appropriate parent model index for top-level
+model items (the default invalid model index), and the type of
+information required. The type of index we want is the \c View type
+because we need the information that would be displayed in a view,
+rather than the information used in a header.
+
+The text stored in each item is retrieved using the model's
+\l{QDirModel::data()}{data()} function. We specify the model index and
+the \l{QAbstractItemModel::Role}{DisplayRole} to obtain data for the
+item in the form of a string.
+
+\skipto QString text
+\printuntil qDebug
+\skipto }
 \printuntil }
 
-Since the model is non-hierarchical, we can safely ignore the model index
-corresponding to the parent item. By default, models derived from
-\l QAbstractListModel only contain one column, so we do not need to
-reimplement the \c columnCount() function.
+The above example demonstrates the basic principles used to retrieve
+data from a model:
 
-\section2 Model data
+\list
+\i The dimensions of a model can be found using the
+   \l{QAbstractItemModel::rowCount()}{rowCount()} and
+   \l{QAbstractItemModel::columnCount()}{columnCount()} functions.
+\i Model indices are used to access items in the model. The row, column,
+   parent model index, and item type are needed to specify the item.
+\i To access top-level items in a model, specify an invalid model index
+   as the parent index.
+\i Items contain data for different roles. To obtain the data for a
+   particular role, both the model index and the role must be supplied
+   to the model.
+\endlist
 
-The \c data() function is responsible for returning the data that
-corresponds to the index argument. There are three types of indices:
-\c View, \c HorizontalHeader, and \c VerticalHeader. If our model is
-displayed in a view with headers, we want the headers to show the row and
-column numbers. For \c View items, we want to return the strings in our
-string list.
 
-\skipto QVariant
-\printuntil }
+\section1 Further reading
 
-An item can have several roles, giving out different data depending on the
-role specified. The items in our model only have one role, \c DisplayRole,
-so we will return the data for items irrespective of the role specified.
-
-\section1 An editable model
-
-The read-only model showed how simple choices could be presented to the
-user but, for many applications, an editable list model is much more
-useful. We can modify the read-only model to make the items editable
-by implementing two extra functions: \c isEditable() and \c setData().
-These are declared in the header file:
-
-\quotefile stringlistmodel/model.h
-\skipto bool isEditable
-\printuntil setData
-
-A delegate will check whether an item is editable before creating an
-editor. The model has to let the delegate know that its items are
-editable:
-
-\quotefile stringlistmodel/model.cpp
-\skipto bool StringListModel::isEditable
-\printuntil }
-
-Note that we do not have to know how the delegate will perform the actual
-editing process. We only have to provide a way for the delegate to set the
-data in the model. This is achieved through the \c setData() function:
-
-\quotefile stringlistmodel/model.cpp
-\skipto bool StringListModel::setData
-\printuntil }
-
-In this model, the item in the string list that corresponds to the model
-index specified is replaced by the data provided by the delegate.
-However, before we actally set the data in the model, we make sure that
-the index is valid, the item is of the correct type, and that the role is
-supported. We insist that the role must be the \c EditRole since this
-indicates to us that the item is being modified by an editing operation.
-
-When the data has been set, the model has to let the views know that the
-data in the model has changed. This is done by emitting the
-\c dataChanged() signal. Since only one item has changed, the range of
-items specified in the signal is limited to just one item.
-
-\section2 Inserting and removing rows
-
-\quotefile stringlistmodel/model.h
-\skipto bool insertRows
-\printto removeRows
-
-It is possible to change the number of rows or columns in a model. To enable inserting and removing of rows, the following functions have to be reimplemented:
-
-\section3 Inserting Rows
-
-\skipto bool StringListModel::insertRows
-\printuntil }
-
-When inserting rows in the StringListModel, we are inserting empty strings in the string list. We are not inserting data, just changing one of the dimensions.
-The model emits the rowsInserted signal to inform the views that the number of rows has changed.
-Note that the signal is always emitted after the rows are inserted. This is because listeners to the signal may want to access the data in the new rows.
-
-\section3 Removing Rows
-\skipto bool StringListModel::removeRows
-\printuntil }
-
-The rowsRemoved signal is always emitted before the rows are removed. Again, this is because listeners to the signal may want to access the data that is going to be removed.
-
-\section2 The QObject Tree Model
-\quotefile model04.cpp
-
-We are going to implement a model we can use to visualize the hierarchy of QObjects. The model will have two columns: "Object Name" and "Class Name".
-
-\section3 The Class Declaration
-
-\skipto class
-\printuntil };
-
-Note that all we store in the model is a pointer to the root of the QObject tree.
-
-\section3 The Hierarchy
-
-Because the internal data structure is a tree we have to handle parent child relationships in our model. This means we have to implement the following functions:
-
-\quotefile model04.cpp
-\skipto QModelIndex
-\printto int rowCount
-
-The hierarchy also means that it is no longer sufficient to only use the row and column to access the data. We need some other way to connect the model index to the data. To solve these two problems, we store a QObject pointer in the model index data element.
-
-\quotefile model04.cpp
-\skipto ObjectModel::parent
-\printuntil }
-
-We use the QObject pointer stored in the model index to get the parent QObject.
-To create a QModelIndex for the parent, we need to know the row (we already know that the column is 0).
-We get the list of children from the grandparent (the parent of the parent), and get the position of the parent in this list.
-
-\quotefile model04.cpp
-\skipto ObjectModel::index
-\printuntil }
-
-These two functions are the only ones that can create valid model indexes. It is therefor safe to assume that a valid model index contains a valid pointer. To keep things simple, we ignore the posibility of objects being deleted outside the model.
-
-\section3 The Model Dimensions
-\quotefile model04.cpp
-
-As we said above, we want two columns: "Object Name" and "Class Name". The number of rows on each level depends on the number of objects in that branch of the tree.
-
-\skipto ObjectModel::rowCount
-\printuntil }
-
-\skipto ObjectModel::columnCount
-\printuntil }
-
-\section3 The Data
-
-In this model return data for horizontal header items and view items, otherwise we return an invalid QVariant.
-
-\skipto ObjectModel::data
-\printuntil }
-
-Note that the pointer in the index gives us direct access to the QObject without expensive lookup operations. This is important because the data function is called when the view is drawing, and any inefficiency will cause the application to feel slower.
-In some cases it makes sense to cache data in the model, if your data source is too slow.
-
-\section2 Final Words
-
-We have seen how to implement both non-hierarchical and hierarchical models. It is important to remember that QAbstractItemModel is just an interface to your internal data structure. The views use this interface to access the data and to get the dimensions of the data model.
-It is guarantied that all valid indexes are created by the model, either by the index() function or by the parent() function. This puts a responsibility on the implementor of the model to return the correct data for a model index, and to manage the hierarchy of model indexes correctly.
+New models can be created by implementing the standard interface provided
+by QAbstractItemModel. This is demonstrated in the
+\l{model-view-subclassing-model.html}{following section}.
 
 */
 
 /*!
 \page model-view-view.html
 
-\title Viewing A Model
+\title Views
 
-\section1 The generic views
+\tableofcontents
 
+\section1 Concepts
 
+In the Model/View architecture, the view presents data from the model to
+the user. The way in which the data is presented can be completely
+different from the model's own representation of the data. This
+separation of content and presentation is achieved by the use of a
+\l{QAbstractItemModel}{standard interface} for the model classes,
+an interface provided by the \l QAbstractItemView class, and
+the use of model indices that represent model items in a general way.
 
-\section2 The view
+A view may be constructed without a model to use, but it must be set up
+with a model before it can display useful information. Once it is ready
+to use, it may provide default editing facilities for items, or it may
+work with a \l{model-view-delegate.html}{delegate} to provide a custom
+editor. Views keep track of the items that the user has selected
+through the use of \l{model-view-selection.html}{selections} which can
+be maintained for a single view, or shared between many views.
+
+\omit
+Views depend on models for the data that they present to the user, but
+models themselves can be used as standalone components in an
+application. One result of this is that we must specify the model to
+the view, and not the view to 
+\endomit
+
+\section2 Using an existing view
+
+Qt provides three ready-to-use view classes that present data from
+models in ways that are familiar to most users.
+\l QListView displays items from a model in the form of a simple list;
+these may be text labels or icons. \l QTreeView displays items from a
+model as a hierarchy of lists, allowing deeply nested structures to be
+represented in a compact way. \l QTableView presents items from a model
+in the form of a table, much like the layout of a spreadsheet
+application. These are presented in the following image.
+
+\img standard-views.png
+
+\section3 Using a model 
+
+We will take the \l{model-view-subclassing-model.html}{string list model}
+that we created as an example model, set it up with some data, and
+construct a view to display the contents of the model. This can all
+be performed within a single function:
+
+\quotefile stringlistmodel/main.cpp
+\skipto int main
+\printuntil QAbstractItemModel
+
+The list view provided by \l QListView is sufficient for presenting
+the items in the string list model. We construct the view, and set
+the model using the 
+
+\skipto QAbstractItemView
+\printuntil QAbstractItemView
+\skipto view->setModel
+\printuntil view->setModel
 
 The view renders the contents of a model, accessing data via the model's
 interfaces, and sends user gestures to the controller. This is handled in Qt by QAbstractItemView and its
 generic (list, tree, or table) subclasses.
+
+
+\img stringlistmodel.png
+
 
 The views in the Model-View architecture is responsible for presenting
 the data in the model. It handles item layout, navigation and some
@@ -529,15 +630,17 @@ can be very useful when the views are operating on the same model.
 /*!
 \page model-view-delegate.html
 
-\title Rendering and Editing Items
+\title Delegates
 
-\section1 The Delegate
+\section1 Concepts
 
 The controller translates interactions with the view into actions to be
 performed by the model. This is handled in Qt mostly by
 QAbstractItemDelegate, but some user interaction (like item navigation
 and selections) is handled by the view and supporting classes.
 
+
+\section1 Rendering and editing items
 
 \quotefile delegate01.cpp
 
@@ -790,4 +893,194 @@ Both the selection modes and the selection behaviors are completely
 expressed by their implementation in the selectionCommand(...) 
 function and the resulting SelectionFlags they return.
 
+*/
+
+/*!
+    \page model-view-subclassing-model.html
+
+    \title Creating New Models
+
+    \tableofcontents
+
+    \section1 Introduction
+
+    The separation of functionality between the components in the Model/View
+    architecture enables new models to be written that can take advantage
+    of existing views. This approach lets us manage data from a variety of
+    sources, and present it using a standard graphical user interface.
+    The interface provided by the \l QAbstractItemModel class supports
+    models that arrange their data in hierarchical structures, allowing for
+    the possibility that data will be inserted, removed, changed, or sorted
+    in some way. It also provides support for drag and drop operations.
+
+    In this section, we will create a simple read-only model to explore
+    the basic principles of the Model/View architecture. This model will
+    later be adapted so that items can be modified with an editor.
+
+
+    \section1 A read-only example model
+
+    When implementing a model it is important to remember that the
+    \l QAbstractItemModel class does not store any data itself, it merely
+    presents an interface that the views use to access the data.
+    For a minimal read-only model it is only necessary to implement a few
+    functions as there are default implementations for most of the
+    interface.
+
+    \quotefile stringlistmodel/model.h
+
+    The model implemented here is a simple, non-hierarchical, read-only data
+    model. It has a \l QStringList as its internal data source, and implements
+    only what is needed for a functional model.
+
+    \skipto class
+    \printto isEditable
+    \skipto private
+    \printuntil }
+
+    Apart from the constructor of the model, we need to implement only two
+    functions: \c rowCount() returns the number of rows in the model, and
+    \c data() returns data corresponding to model item indices.
+
+    Note that this is a non-hierarchical model, so we don't have to worry
+    about the parent-child relationships. If our model was hierarchical, we
+    would also have to implement the \c index() and \c parent() functions.
+
+    \section2 Dimensions of the model
+
+    We want the number of rows in the model to be the same as the number of
+    strings in the string list. We implement the \c rowCount() function with
+    this in mind:
+
+    \quotefile stringlistmodel/model.cpp
+    \skipto int StringListModel
+    \printuntil }
+
+    Since the model is non-hierarchical, we can safely ignore the model index
+    corresponding to the parent item. By default, models derived from
+    \l QAbstractListModel only contain one column, so we do not need to
+    reimplement the \c columnCount() function.
+
+    \section2 Model data
+
+    The \c data() function is responsible for returning the data that
+    corresponds to the index argument. There are three types of indices:
+    \c View, \c HorizontalHeader, and \c VerticalHeader. If our model is
+    displayed in a view with headers, we want the headers to show the row and
+    column numbers. For \c View items, we want to return the strings in our
+    string list.
+
+    \skipto QVariant
+    \printuntil }
+
+    An item can have several roles, giving out different data depending on the
+    role specified. The items in our model only have one role, \c DisplayRole,
+    so we will return the data for items irrespective of the role specified.
+
+    \section1 An editable model
+
+    The read-only model showed how simple choices could be presented to the
+    user but, for many applications, an editable list model is much more
+    useful. We can modify the read-only model to make the items editable
+    by implementing two extra functions: \c isEditable() and \c setData().
+    These are declared in the header file:
+
+    \quotefile stringlistmodel/model.h
+    \skipto bool isEditable
+    \printuntil setData
+
+    \section2 Making the model editable
+
+    A delegate will check whether an item is editable before creating an
+    editor. The model has to let the delegate know that its items are
+    editable:
+
+    \quotefile stringlistmodel/model.cpp
+    \skipto bool StringListModel::isEditable
+    \printuntil }
+
+    Note that we do not have to know how the delegate will perform the actual
+    editing process. We only have to provide a way for the delegate to set the
+    data in the model. This is achieved through the \c setData() function:
+
+    \quotefile stringlistmodel/model.cpp
+    \skipto bool StringListModel::setData
+    \printuntil }
+
+    In this model, the item in the string list that corresponds to the model
+    index specified is replaced by the data provided by the delegate.
+    However, before we actally set the data in the model, we make sure that
+    the index is valid, the item is of the correct type, and that the role is
+    supported. We insist that the role must be the \c EditRole since this
+    indicates to us that the item is being modified by an editing operation.
+
+    When the data has been set, the model has to let the views know that the
+    data in the model has changed. This is done by emitting the
+    \c dataChanged() signal. Since only one item has changed, the range of
+    items specified in the signal is limited to just one item.
+
+    \section2 Inserting and removing rows
+
+    It is possible to change the number of rows and columns in a model. In the
+    string list model it only makes sense to change the number of rows, so we
+    will reimplement the functions for inserting and removing rows. These are
+    declared in the class definition:
+
+    \quotefile stringlistmodel/model.h
+    \skipto bool insertRows
+    \printto removeRows
+
+    We implement a function to allow rows to be inserted into the model:
+
+    \quotefile stringlistmodel/model.cpp
+    \skipto bool StringListModel::insertRows
+    \printuntil return true
+    \printuntil }
+
+    Since rows in this model correspond to strings in a list, this function
+    inserts a number of empty strings into the list before the given position.
+    The number of strings is equivalent to the number of rows specified.
+    The parent index is normally used to determine which table of items in
+    the model is being referred to. In this case, we only have a single
+    top-level list of string, so we just insert empty strings into that list.
+    We could check the parent index to see whether it corresponds to an item
+    in the list, and return false to indicate failure.
+
+    The model emits the \l{QAbstractItemModel::rowsInserted()}{rowsInserted()}
+    signal to inform other components that the number of rows has changed.
+    Note that the signal is always emitted after the rows are inserted,
+    allowing other components to immediately access the new rows.
+
+    The function to remove rows from the model is also simple to write:
+
+    \quotefile stringlistmodel/model.cpp
+    \skipto bool StringListModel::removeRows
+    \printuntil return true
+    \printuntil }
+
+    The rows to be removed from the model are specified by the position and
+    the number of rows given. 
+    We ignore the parent index to simplify our implementation, and just
+    remove the corresponding items from the string list.
+    The \l{QAbstractItemModel::rowsRemoved()}{rowsRemoved()} signal is
+    always emitted before the rows are removed. This is to allow other
+    components to access the data before it is removed.
+
+    \section1 Next steps
+
+    We can display the contents of this model using the \l QListView class
+    to present the model's items in the form of a vertical list. For the
+    string list model, this view also provides a default editor so that
+    the items can be manipulated. We examine the possibilities made
+    available by the standard view classes in the introduction to the
+    view classes.
+
+*/
+
+/*!
+    \page model-view-subclassing-view.html
+*/
+
+/*!
+    \page model-view-subclassing-delegate.html
 */
