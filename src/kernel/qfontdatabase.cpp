@@ -136,6 +136,11 @@ struct QtFontStyle
 	bool operator!=( const Key &other ) {
 	    return !operator==(other);
 	}
+	bool operator <( const Key &o ) {
+	    int x = (italic << 13) + (oblique << 12) + (weight << 14) + stretch;
+	    int y = (o.italic << 13) + (o.oblique << 12) + (o.weight << 14) + o.stretch;
+	    return ( x < y );
+	}
     };
 
     QtFontStyle( const Key &k )
@@ -221,19 +226,34 @@ struct QtFontFoundry
 
 QtFontStyle *QtFontFoundry::style( const QtFontStyle::Key &key, bool create )
 {
-    for ( int i = 0; i < count; i++ ) {
-	if ( styles[i]->key == key )
-	    return styles[i];
+    int pos = 0;
+    if ( count ) {
+	int low = 0;
+	int high = count;
+	pos = count / 2;
+	while ( high > low ) {
+	    if ( styles[pos]->key == key )
+		return styles[pos];
+	    if ( styles[pos]->key < key )
+		low = pos + 1;
+	    else
+		high = pos;
+	    pos = (high + low) / 2;
+	};
+	pos = low;
     }
     if ( !create )
 	return 0;
 
+//     qDebug("adding key (weight=%d, italic=%d, oblique=%d stretch=%d) at %d",  key.weight, key.italic, key.oblique, key.stretch, pos );
     if ( !(count % 8) )
 	styles = (QtFontStyle **)
 		 realloc( styles, (((count+8) >> 3 ) << 3) * sizeof( QtFontStyle * ) );
 
-    styles[count] = new QtFontStyle( key );
-    return styles[count++];
+    memmove( styles + pos + 1, styles + pos, (count-pos)*sizeof(QtFontStyle *) );
+    styles[pos] = new QtFontStyle( key );
+    count++;
+    return styles[pos];
 }
 
 
@@ -1247,8 +1267,11 @@ QStringList QFontDatabase::styles( const QString &family ) const
     for ( int j = 0; j < f->count; j++ ) {
 	QtFontFoundry *foundry = f->foundries[j];
 	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
-	    for ( int k = 0; k < foundry->count; k++ )
-		allStyles.style( foundry->styles[k]->key,  TRUE );
+	    for ( int k = 0; k < foundry->count; k++ ) {
+		QtFontStyle::Key k( foundry->styles[k]->key );
+		k.stretch = 0;
+		allStyles.style( k,  TRUE );
+	    }
 	}
     }
 
