@@ -34,7 +34,7 @@
 **********************************************************************/
 
 #include "qsql_result.h"
-#include <qmap.h>
+#include <qptrvector.h>
 #include <qdatetime.h>
 
 QSqlClientData::~QSqlClientData()
@@ -104,7 +104,7 @@ QSqlClientNullData* QSqlClientNullData::clone()
 class QSqlClientResultBuffer::Private
 {
 public:
-    Private( int ) // remove this constructor in 4.0
+    Private( int )
     {
 	frm = new QSqlClientData();
     }
@@ -116,8 +116,9 @@ public:
     void clear()
     {
 	for ( uint i=0; i < buf.count(); ++i ) {
-	    delete [] buf[i].data;
-	    delete buf[i].nullBinder;
+	    delete [] buf[i]->data;
+	    delete buf[i]->nullBinder;
+	    delete buf[i];
 	}
 	buf.clear();
     }
@@ -126,31 +127,33 @@ public:
 	if ( this == &other )
 		return;
 	for ( uint i=0; i < other.buf.count(); ++i ) {
-	    char* c = (char*)append( other.buf[i].size, other.buf[i].type, other.buf[i].nullBinder->clone() );
-	    memcpy ( c, other.buf[i].data, other.buf[i].size );
+	    char* c = (char*)append( other.buf[i]->size, other.buf[i]->type, other.buf[i]->nullBinder->clone() );
+	    memcpy ( c, other.buf[i]->data, other.buf[i]->size );
 	}
 	frm = other.format()->clone();
     }
     void* append( int size, QVariant::Type type, QSqlClientNullData* nd )
     {
-	Buf b;
-	b.size = size;
-	b.type = type;
-	b.data = new char[ b.size ];
+	Buf * b = new Buf;
+	b->size = size;
+	b->type = type;
+	b->data = new char[ size ];
 	if ( !nd )
-	    b.nullBinder = new QSqlClientNullData();
+	    b->nullBinder = new QSqlClientNullData();
 	else {	
-	    b.nullBinder = nd->clone();
+	    b->nullBinder = nd->clone();
 	    delete nd;
 	}
-	buf[ buf.count() ] = b;
-	return (void*)b.data;
+ 	if ( buf.count() + 1 > buf.size() )
+	    buf.resize( buf.size() + 10 );
+	buf.insert( buf.count(), b );
+	return (void*)b->data;
     }
 
     QSqlClientNullData* nullData( int fieldNumber ) const
     {
 	if ( fieldNumber < (int)buf.count() )
-	    return buf[ fieldNumber ].nullBinder;
+	    return buf[ fieldNumber ]->nullBinder;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
 #endif
@@ -159,7 +162,7 @@ public:
     void* data( int fieldNumber )
     {
 	if ( fieldNumber < (int)buf.count() )
-	    return (void*)buf[ fieldNumber ].data;
+	    return (void*)buf[ fieldNumber ]->data;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
 #endif
@@ -168,7 +171,7 @@ public:
     int size( int fieldNumber )
     {
 	if ( fieldNumber < (int)buf.count() )
-	    return buf[ fieldNumber ].size;
+	    return buf[ fieldNumber ]->size;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
 #endif
@@ -177,7 +180,7 @@ public:
     QVariant::Type type( int fieldNumber )
     {
 	if ( fieldNumber < (int)buf.count() )
-	    return buf[ fieldNumber ].type;
+	    return buf[ fieldNumber ]->type;
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
 #endif
@@ -187,7 +190,7 @@ public:
     bool isNull( int fieldNumber ) const
     {
 	if ( fieldNumber < (int)buf.count() )
-	    return buf[ fieldNumber ].nullBinder->isNull();
+	    return buf[ fieldNumber ]->nullBinder->isNull();
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlClientResultBuffer::Private:no such field: " + QString::number( fieldNumber ) );
 #endif
@@ -217,7 +220,7 @@ private:
 	QVariant::Type type;
 	QSqlClientNullData* nullBinder;
     };
-    QMap<int,Buf> buf;
+    QPtrVector<Buf> buf;
     QSqlClientData* frm;
 };
 
@@ -310,29 +313,31 @@ int QSqlClientResultBuffer::count() const
 class QSqlClientResultSet::Private
 {
 public:
-    Private() : atPos( -1 ) {}
+    Private() : atPos( -1 ) { set.setAutoDelete( TRUE ); }
     ~Private() {}
 
     void append( const QSqlClientResultBuffer& buf )
     {
-	set[ set.size() ] = buf;
+ 	if ( set.count() + 1 > set.size() )
+	    set.resize( set.size() + 1000 );
+	set.insert( set.count(), new QSqlClientResultBuffer( buf ) );
     }
     bool seek( int row )
     {
-	if ( row < 0 || row > (int)set.size()-1 )
+	if ( row < 0 || row > (int)set.count()-1 )
 	    return FALSE;
 	atPos = row;
 	return TRUE;
     }
     const QSqlClientResultBuffer* buffer() const
     {
-	if ( atPos < 0 || atPos > (int)set.size() )
+	if ( atPos < 0 || atPos > (int)set.count() )
 	    return 0;
-	return &set[ atPos ];
+	return set[ atPos ];
     }
     int size() const
     {
-	return set.size();
+	return set.count();
     }
     int at() const
     {
@@ -341,7 +346,7 @@ public:
 
 
 private:
-    QMap<int,QSqlClientResultBuffer> set;
+    QPtrVector<QSqlClientResultBuffer> set;
     int atPos;
 };
 
