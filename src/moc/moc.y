@@ -1763,18 +1763,26 @@ int generateProps()
     pdict.clear();
     for ( f=props.first(); f; f=props.next() ) {
 	
+	bool setCandidate = FALSE;
 	QCString name = f->name.copy();
-	if ( name.left(5) == "setIs" && isupper( name[5] ) )
+	if ( name.left(5) == "setIs" && isupper( name[5] ) ) {
 	    name = name.mid( 5, name.length() - 5 );
-	else if ( name.left(3) == "set" )
+	    setCandidate = TRUE;
+	}
+	else if ( name.left(3) == "set" ) {
 	    name = name.mid( 3, name.length() - 3 );
+	    setCandidate = TRUE;
+	}
 	else if ( name.left(2) == "is" )
 	    name = name.mid( 2, name.length() - 2 );
 	else if ( name.left(3) == "has" )
 	    name = name.mid( 3, name.length() - 3 );
 	name[0] = tolower( name[0] );
+	
 	Property* p = pdict.find( name.data() );
 	if ( !p ) {
+	    if ( f->type == "void" && !setCandidate )
+		continue;
 	    p = new Property;
 	    pdict.insert( name.data(), p );
 	}
@@ -1809,7 +1817,7 @@ int generateProps()
 	    }
 	}
 	
-	else { // set function
+	else if ( setCandidate )  { // set function
 	
 	    if ( p->setfunc ) {
 		if ( propertyWarnings )
@@ -1835,7 +1843,7 @@ int generateProps()
 		p->type = tmp;
 		p->setfunc = f;
 	    }
-      }	
+	}	
     }
 
     //

@@ -74,6 +74,8 @@ public:
     bool	 isEnabled()	const;
     bool	 isEnabledTo(QWidget*) const;
     bool	 isEnabledToTLW() const;
+    
+public slots:
     virtual void setEnabled( bool );
 
     // Widget coordinates
@@ -180,6 +182,7 @@ public:
     virtual void	setMask( const QRegion & );
     void		clearMask();
 
+public slots:
     virtual void	setCaption( const QString &);
     virtual void	setIcon( const QPixmap & );
     virtual void	setIconText( const QString &);
@@ -190,6 +193,7 @@ public:
     virtual void	setFocus();
     void		clearFocus();
 
+public:
     enum FocusPolicy {
 	NoFocus = 0,
 	TabFocus = 0x1,
@@ -256,6 +260,7 @@ public slots:
     virtual void	setGeometry( int x, int y, int w, int h );
     virtual void	setGeometry( const QRect & );
 
+public:
     virtual bool	close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
