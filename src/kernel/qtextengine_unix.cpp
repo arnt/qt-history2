@@ -39,6 +39,9 @@ void QScriptItemArray::resize( int s )
     d->alloc = alloc;
 }
 
+#ifndef FT_KERNING_DEFAULT
+#  define FT_KERNING_DEFAULT ft_kerning_default
+#endif
 void QTextEngine::shape( int item ) const
 {
     assert( item < items.size() );
