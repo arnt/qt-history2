@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#24 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -274,6 +274,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     switch( state ) {
     case FinalPress:
 	if( e->type() == QEvent::MouseButtonRelease ) {
+	    if ( whatsThat )
+		whatsThat->hide();
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	    if ( whatsThat )
@@ -291,8 +293,6 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    } else {
 		state = FinalPress;
 	    }
-	    if ( whatsThat )
-		whatsThat->hide();
 	    return TRUE;
 	} else if ( e->type() == QEvent::MouseButtonRelease ||
 		    e->type() == QEvent::MouseMove ) {
@@ -726,14 +726,14 @@ QWhatsThis::~QWhatsThis()
 
 
 /*! \fn QString QWhatsThis::text( const QPoint & ) const
-  
+
   Not yet.
 
 */
 
 
 /*!  Enters What's This? question mode and returns immediately.
-  
+
   What's This will install a special cursor and take over mouse input
   until the user click somewhere, then show any help available and
   switch out of What's This mode.  Finally, What's This removes its
