@@ -1513,7 +1513,7 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     // Get command line params
 
-    j = 1;
+    j = argc ? 1 : 0;
     for (int i=1; i<argc; i++) {
         if (argv[i] && *argv[i] != '-') {
             argv[j++] = argv[i];
