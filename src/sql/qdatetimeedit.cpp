@@ -113,12 +113,13 @@ void QDateTimeEditBase::init()
     ed[1] = new QNumEditPrivate( this, "Ed_2" );
     ed[2] = new QNumEditPrivate( this, "Ed_3" );
 
-    connect( ed[0], SIGNAL( textChanged( const QString & ) ),
-	     this, SIGNAL( valueChanged() ) );
-    connect( ed[1], SIGNAL( textChanged( const QString & ) ),
-	     this, SIGNAL( valueChanged() ) );
-    connect( ed[2], SIGNAL( textChanged( const QString & ) ),
-	     this, SIGNAL( valueChanged() ) );
+    //### necessary?
+//     connect( ed[0], SIGNAL( textChanged( const QString & ) ),
+//	     this, SIGNAL( valueChanged() ) );
+//     connect( ed[1], SIGNAL( textChanged( const QString & ) ),
+//	     this, SIGNAL( valueChanged() ) );
+//     connect( ed[2], SIGNAL( textChanged( const QString & ) ),
+//	     this, SIGNAL( valueChanged() ) );
 
     sep[0] = new QDateTimeEditLabelPrivate( this );
     sep[1] = new QDateTimeEditLabelPrivate( this );
