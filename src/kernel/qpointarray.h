@@ -81,9 +81,9 @@ Q_EXPORT QDataStream &operator>>(QDataStream &stream, QPointArray &array);
   Misc. QPointArray functions
  *****************************************************************************/
 
-inline void QPointArray::setPoint(int index, const QPoint &p)
+inline void QPointArray::setPoint(int index, const QPoint &pt)
 {
-    (*this)[index] = p;
+    (*this)[index] = pt;
 }
 
 inline void QPointArray::setPoint(int index, int x, int y)
