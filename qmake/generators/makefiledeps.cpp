@@ -628,8 +628,9 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 #define Q_OBJECT_LEN 8 //strlen("Q_OBJECT")
     for(int x = 0; x < (buffer_len-Q_OBJECT_LEN); x++) {
         while(x < buffer_len) {
-            if(*(buffer + x) == '/') {
-                x++;
+            tmp = *(buffer + x);
+            if(tmp == '/') {
+                tmp = *(buffer + (++x));
                 if(buffer_len >= x) {
                     tmp = *(buffer + x);
                     if(tmp == '/') { //c++ style comment
@@ -663,9 +664,9 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                     }
                 }
             } else {
-                if(buffer_len > x+1 && *(buffer+x+1) == 'Q' &&
-                    ((tmp >= 'a' && tmp <= 'z') || (tmp >= 'A' && tmp <= 'Z') ||
-                     (tmp >= '0' && tmp <= '9') || tmp == '_')) {
+                if(buffer_len > x+2 && *(buffer+x+1) == 'Q' && *(buffer+x+2) == '_' &&
+                   (tmp < 'a' || tmp > 'z') && (tmp < 'A' || tmp > 'Z') &&
+                   (tmp < '0' || tmp > '9') && tmp != '_') {
                     tmp = *(buffer+(++x));
                     break;
                 }
