@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#80 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -642,6 +642,7 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
 	    qWarning( "QLayout \"%s\" added to %s \"%s\","
 		     " which already had a layout.", QObject::name(),
 		     parent->className(), parent->name() );
+	    parent->removeChild( this );
 	} else {
 	    topLevel = TRUE;
 	    if ( parent->isTopLevel() )
