@@ -1,0 +1,31 @@
+#!/bin/sh
+
+GETADDRINFO=0
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Testing for getaddrinfo..."
+
+# build a test program
+test -d $OUTDIR/config.tests/unix/getaddrinfo || mkdir -p $OUTDIR/config.tests/unix/getaddrinfo
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/getaddrinfo/getaddrinfo.pro -o $OUTDIR/config.tests/unix/getaddrinfo/Makefile >/dev/null 2>&1
+cd $OUTDIR/config.tests/unix/getaddrinfo
+
+if [ "$VERBOSE" = "yes" ]; then
+  (make && ./getaddrinfo)
+else
+  (make && ./getaddrinfo) >/dev/null 2>&1
+fi
+GETADDRINFO=$?
+
+# done
+if [ "$GETADDRINFO" -ne 0 ]; then
+    [ "$VERBOSE" = "yes" ] && echo "getaddrinfo disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "getaddrinfo enabled."
+    exit 1
+fi
