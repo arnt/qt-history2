@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#102 $
+** $Id: //depot/qt/main/src/tools/qstring.h#103 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -37,7 +37,7 @@
  *****************************************************************************/
 
 class QRegExp;
-
+class QString;
 
 class Q_EXPORT QChar {
 public:
@@ -69,7 +69,46 @@ public:
     QT_STATIC_CONST QChar byteOrderMark;     // FEFF
     QT_STATIC_CONST QChar byteOrderSwapped;     // FFFE
 
+    // Unicode information
+    enum Category
+    {
+      none, Mn, Mc, Nd, No, Zs, Zl, Zp, Cc, Co, Cn, Lu,
+      Ll, Lt, Lm, Lo, Pd, Ps, Pe, Po, Sm, Sc, So
+    };
+
+    enum Direction
+    {
+      L, R, EN, ES, ET, AN, CS, B, S, WS, ON
+    };
+
+    enum Decomposition
+    {
+        single, canonical, font, noBreak, initial, medial,
+        final, isolated, circle, super, sub, vertical,
+        wide, narrow, small, square, compat, fraction
+    };
+
+    enum Joining
+    {
+      other, Dual, Right, Center, Unknown
+    };                                                                         
+
     bool isSpace() const;
+    bool isMark() const;
+    bool isLetter() const;
+    bool isNumber() const;
+    bool isDigit() const;
+
+    int digitValue() const;
+    void toLower();
+    void toUpper();
+
+    Category category() const;
+    Direction direction() const;
+    Joining joining() const;
+    bool mirrored() const;
+    QString decomposition() const;
+    Decomposition decompositionTag() const;                                    
 
     operator char() const { return row?0:cell; }
 
@@ -308,6 +347,11 @@ public:
 	{ return s1.compare(s2); }
 
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
+
+    // new functions for BiDi
+    void compose();
+    QChar::Direction basicDirection();
+    QString &visual(int index = 0, int len = -1);                              
 
 #ifndef QT_NO_COMPAT
     const char* data() const { return ascii(); }
