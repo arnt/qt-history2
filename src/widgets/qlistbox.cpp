@@ -1621,7 +1621,8 @@ const QPixmap *QListBox::pixmap( int index ) const
 
 void QListBox::changeItem( const QString &text, int index )
 {
-    changeItem( new QListBoxText(text), index );
+    if( index >= 0 && index < (int)count() )
+	changeItem( new QListBoxText(text), index );
 }
 
 /*!
@@ -1637,7 +1638,8 @@ void QListBox::changeItem( const QString &text, int index )
 
 void QListBox::changeItem( const QPixmap &pixmap, int index )
 {
-    changeItem( new QListBoxPixmap(pixmap), index );
+    if( index >= 0 && index < (int)count() )
+	changeItem( new QListBoxPixmap(pixmap), index );
 }
 
 /*!
@@ -1653,7 +1655,8 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 
 void QListBox::changeItem( const QPixmap &pixmap, const QString &text, int index )
 {
-    changeItem( new QListBoxPixmap(pixmap, text), index );
+    if( index >= 0 && index < (int)count() )
+	changeItem( new QListBoxPixmap(pixmap, text), index );
 }
 
 
