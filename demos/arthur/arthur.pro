@@ -25,6 +25,4 @@ HEADERS = \
 	rotatinggradient.h \
 	warpix.h
 
-CONFIG += console
-
 TARGET = arthur
