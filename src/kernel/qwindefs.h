@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#98 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#99 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -246,9 +246,13 @@ struct QWExtra {
     char    *caption;				// widget caption
     char    *iconText;				// widget icon text
     QPixmap *icon;				// widget icon
+#if defined(_WS_WIN_)
+    HANDLE   winIconSmall;			// Windows icon (small)
+    HANDLE   winIconBig;			// Windows icon (big)
+#endif
     QPixmap *bg_pix;				// background pixmap
-    QFocusData *focusData;			// focus data (for TLW)
     char     bg_mode;				// background mode
+    QFocusData *focusData;			// focus data (for TLW)
 };
 
 
@@ -301,5 +305,6 @@ const int DitherMode_Mask        = 0x000000c0;
 const int AutoDither             = 0x00000000;
 const int AlwaysDither           = 0x00000040;
 const int DemandDither           = 0x00000080;
+
 
 #endif // QWINDEFS_H
