@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#77 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#77 $");
 
 
 /*
@@ -496,13 +496,13 @@ void QPainter::updatePen()
 
 void QPainter::updateBrush()
 {
-    static short d1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
-    static short d2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
-    static short d3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static short d1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static short d2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+    static short d3_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
     static short d4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
-    static short d5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
-    static short d6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
-    static short d7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static short d5_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static short d6_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+    static short d7_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static short *dense_patterns[]
 	= { d1_pat, d2_pat, d3_pat, d4_pat, d5_pat, d6_pat, d7_pat };
 
@@ -561,7 +561,7 @@ void QPainter::updateBrush()
     if ( bs == SolidPattern ) {			// create solid brush
 	hbrush = CreateSolidBrush( pix );
     } else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
-	      (bs == CustomPattern) ) {
+		(bs == CustomPattern) ) {
 	if ( bs == CustomPattern ) {
 	    hbrushbm = cbrush.pixmap()->hbm();
 	    pixmapBrush = TRUE;
@@ -719,7 +719,6 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    end();
 	    return FALSE;
 	}
-
 	pm->freeMemDC();
 	pm->allocMemDC();
 	hdc = pm->handle();

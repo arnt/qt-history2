@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#102 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -18,8 +18,9 @@
 #include "qbitmap.h"
 #include "qstack.h"
 #include "qdstream.h"
+#include "qwidget.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#102 $");
 
 
 /*!
@@ -99,6 +100,60 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#101 $");
 
   \sa QPaintDevice, QWidget, QPixmap
 */
+
+
+/*!
+  \overload bool QPainter::begin( QPaintDevice *pd, const QWidget *copyAttributes )
+
+  This version opens the painter on a paint device \a pd and sets the initial
+  pen, background color and font from \a copyAttributes.  This is equivalent
+  with:
+  \code
+    QPainter p;
+    p.begin( pd );
+    p.setPen( copyAttributes->foregroundColor() );
+    p.setBackgroundColor( copyAttributes->backgroundColor() );
+    p.setFont( copyAttributes->font() );
+  \endcode
+
+  This begin function is convenient for double buffering.  When you
+  draw in a pixmap instead of directly in a widget (to later bitBlt
+  the pixmap into the widget) you will need to set the widgets's
+  font etc.  This function does exactly that.
+
+  Example:
+  \code
+    void MyWidget::paintEvent( QPaintEvent * )
+    {
+	QPixmap pm(rect());
+	QPainter p;
+	p.begin(&pm, this);
+	// ... potential flickering paint operation ...
+	p.end();
+	bitBlt(this, 0, 0, &pm);
+    }
+  \endcode
+
+  \sa end()
+*/
+
+bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
+{
+    if ( pd == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "QPainter::begin: The widget to copy attributes from cannot "
+		 "be null" );
+#endif
+	return FALSE;
+    }
+    if ( begin(pd) ) {
+	setPen( copyAttributes->foregroundColor() );
+	setBackgroundColor( copyAttributes->backgroundColor() );
+	setFont( copyAttributes->font() );
+	return TRUE;
+    }
+    return FALSE;
+}
 
 
 /*!
@@ -696,7 +751,8 @@ QRect QPainter::viewport() const		// get viewport
   World transformations are applied after the view transformations.
 
   \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
-  setWorldXForm(), xForm() */
+  setWorldXForm(), xForm()
+*/
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {
@@ -1028,6 +1084,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 
   This version of the call draws the entire pixmap.
 */
+
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 {
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
@@ -1513,8 +1570,7 @@ QBrush QBrush::copy() const
     if ( data->style == CustomPattern ) {     // brush has pixmap
 	QBrush b( data->color, *data->pixmap );
 	return b;
-    }
-    else {				      // brush has std pattern
+    } else {				      // brush has std pattern
 	QBrush b( data->color, data->style );
 	return b;
     }

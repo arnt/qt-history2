@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#93 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#94 $
 **
 ** Definition of QPainter class
 **
@@ -45,6 +45,7 @@ public:
    ~QPainter();
 
     bool	begin( const QPaintDevice * );
+    bool	begin( const QPaintDevice *, const QWidget * );
     bool	end();
     QPaintDevice *device() const;
 
