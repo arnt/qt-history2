@@ -67,8 +67,9 @@ class MultiLineEditor : public MultiLineEditorBase
 public:
     MultiLineEditor( bool call_static, bool richtextMode, QWidget *parent, QWidget *editWidget,
 		     FormWindow *fw, const QString &text = QString::null );
-    static QString getText( QWidget *parent, const QString &text, bool richtextMode );
-    QString getStaticText();
+    bool useWrapping() const;
+    void setUseWrapping( bool );
+    static QString getText( QWidget *parent, const QString &text, bool richtextMode, bool *useWrap );
     int exec();
 
 protected slots:
@@ -78,18 +79,25 @@ protected slots:
     void insertTags( const QString& );
     void insertBR();
     void showFontDialog();
+    void changeWrapMode( bool );
 
     void closeEvent( QCloseEvent *e );
 
 private:
+    QString getStaticText();
     TextEdit *textEdit;
     QTextEdit *mlined;
     FormWindow *formwindow;
     QToolBar *basicToolBar;
     QToolBar *fontToolBar;
+    QToolBar *optionsToolBar;
+    QAction *wrapAction;
     int res;
     QString staticText;
     bool callStatic;
+    bool oldDoWrap, doWrap;
+    QVariant oldWrapMode;
+    QString oldWrapString;
 };
 
 #endif

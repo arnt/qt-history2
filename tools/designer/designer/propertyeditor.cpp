@@ -735,7 +735,8 @@ void PropertyTextItem::getText()
 {
     bool richText = !listview->propertyEditor()->widget()->inherits( "QButton" ) ||
 		    ( text( 0 ) == "whatsThis" );
-    QString txt = MultiLineEditor::getText( listview, value().toString(), richText );
+    bool doWrap = FALSE;
+    QString txt = MultiLineEditor::getText( listview, value().toString(), richText, &doWrap );
     if ( !txt.isEmpty() ) {
 	setText( 1, txt );
 	PropertyItem::setValue( txt );

@@ -1654,16 +1654,34 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 {
     if ( id == props[ "text" ] ) {
 	bool ok = FALSE;
+	bool oldDoWrap = FALSE;
+	if ( w->inherits( "QLabel" ) ) {
+	    int align = w->property( "alignment" ).toInt();
+	    if ( align & WordBreak )
+		oldDoWrap = TRUE;
+	}
+	bool doWrap = oldDoWrap;
+
 	QString text;
 	if ( w->inherits( "QTextView" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
-	    text = MultiLineEditor::getText( this, w->property("text").toString(), !w->inherits( "QButton" ) );
+	    text = MultiLineEditor::getText( this, w->property( "text" ).toString(), !w->inherits( "QButton" ), &doWrap );
 	    ok = !text.isNull();
 	} else {
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ),
 				  QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
 	if ( ok ) {
-	    QString pn( tr( "Set the 'text' of '%2'" ).arg( w->name() ) );
+	    if ( oldDoWrap != doWrap ) {
+		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
+		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
+								  "wordwrap", QVariant( oldDoWrap ),
+								  QVariant( doWrap ), QString::null, QString::null );
+		cmd->execute();
+		formWindow()->commandHistory()->addCommand( cmd );
+		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
+	    }
+
+	    QString pn( tr( "Set the 'text' of '%1'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "text", w->property( "text" ),
 							      text, QString::null, QString::null );
@@ -2514,15 +2532,34 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
     const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
     if ( text && text->designable(w) ) {
 	bool ok = FALSE;
+	bool oldDoWrap = FALSE;
+	if ( w->inherits( "QLabel" ) ) {
+	    int align = w->property( "alignment" ).toInt();
+	    if ( align & WordBreak )
+		oldDoWrap = TRUE;
+	}
+	bool doWrap = oldDoWrap;
+
 	QString text;
 	if ( w->inherits( "QTextEdit" ) || w->inherits( "QLabel" ) || w->inherits( "QButton" ) ) {
-	    text = MultiLineEditor::getText( this, w->property("text").toString(), !w->inherits( "QButton" ) );
+	    text = MultiLineEditor::getText( this, w->property( "text" ).toString(), !w->inherits( "QButton" ), &doWrap );
 	    ok = !text.isNull();
 	} else {
-	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
+	    text = QInputDialog::getText( tr("Text"), tr( "New text" ),
+				  QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
 	if ( ok ) {
-	    QString pn( tr( "Set the 'text' of '%2'" ).arg( w->name() ) );
+	    if ( oldDoWrap != doWrap ) {
+		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
+		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
+								  "wordwrap", QVariant( oldDoWrap ),
+								  QVariant( doWrap ), QString::null, QString::null );
+		cmd->execute();
+		formWindow()->commandHistory()->addCommand( cmd );
+		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
+	    }
+
+	    QString pn( tr( "Set the 'text' of '%1'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "text", w->property( "text" ),
 							      text, QString::null, QString::null );
