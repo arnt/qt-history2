@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwscommand_qws.h#15 $
+** $Id: //depot/qt/main/src/kernel/qwscommand_qws.h#16 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -110,7 +110,8 @@ struct QWSCommand : QWSProtocolItem
 	GrabMouse,
 	PlaySound,
 	QCopRegisterChannel,
-	QCopSend
+	QCopSend,
+	RegionName
     };
     static QWSCommand *factory( int type );
 };
@@ -126,6 +127,41 @@ struct QWSCreateCommand : public QWSCommand
     QWSCreateCommand() :
 	QWSCommand( QWSCommand::Create, 0, 0 ) {}
 
+};
+
+struct QWSRegionNameCommand : public QWSCommand
+{
+    QWSRegionNameCommand() :
+	QWSCommand( QWSCommand::RegionName,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem ) {
+	QWSCommand::setData( d, len, allocateMem );
+	name = QString((QChar*)d, simpleData.nameLen/2);
+	d += simpleData.nameLen;
+	caption = QString((QChar*)d, simpleData.captionLen/2);
+    }
+
+    void setName( const QString& n, const QString &c )
+    {
+	name = n;
+	caption = c;
+	int l = simpleData.nameLen = name.length()*2;
+	l += simpleData.captionLen = caption.length()*2;
+	QByteArray ba(l);
+	char *d = ba.data();
+	memcpy( d, name.unicode(), simpleData.nameLen );
+	memcpy( d+simpleData.nameLen, caption.unicode(), simpleData.captionLen );
+	setData( d, l, TRUE );
+    }
+
+    struct SimpleData {
+	int windowid;
+	int nameLen;
+	int captionLen;
+    } simpleData;
+    QString name;
+    QString caption;
 };
 
 struct QWSRegionCommand : public QWSCommand
@@ -361,7 +397,7 @@ struct QWSQCopRegisterChannelCommand : public QWSCommand
 
     void setChannel( const QCString& n )
     {
-	setData( (char*)n.data(), n.length()*2, TRUE );
+	setData( (char*)n.data(), n.length()+1, TRUE );
     }
 
     struct SimpleData {
