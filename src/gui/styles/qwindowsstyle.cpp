@@ -1145,7 +1145,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break; }
     case PE_PanelButtonCommand:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            bool panel = pe == PE_PanelButtonBevel;
             QBrush fill;
             StyleFlags flags = opt->state;
             QPalette pal = opt->palette;
@@ -1161,12 +1160,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->drawRect(r);
             } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken)) {
                 qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On),
-                               panel ? &fill : 0);
+                               &fill);
             } else {
-                if (panel)
-                    p->fillRect(r, fill);
-                else
-                    p->drawRect(r);
+                p->fillRect(r, fill);
             }
         }
         break;
