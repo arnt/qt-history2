@@ -5,7 +5,6 @@
 #include "qiterator.h"
 #include "qatomic.h"
 #include "qtl.h"
-#include <new>
 #endif // QT_H
 
 struct Q_CORE_EXPORT QVectorData

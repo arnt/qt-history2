@@ -6,8 +6,6 @@
 #include "qatomic.h"
 #endif // QT_H
 
-#include <new>
-
 struct Q_CORE_EXPORT QListData {
     struct DataHeader {
 	QAtomic ref;

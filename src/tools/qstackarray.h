@@ -5,8 +5,6 @@
 #include <qglobal.h>
 #endif // QT_H
 
-#include <new>
-
 template<class T, int prealloc = 256>
 class QStackArray
 {

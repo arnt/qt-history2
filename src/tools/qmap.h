@@ -608,6 +608,7 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key,T>::keys() const {
 
 template<class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key,T>::values() const {
+    cerr << "called values" << endl;
     QList<T> r;
     for (ConstIterator i=begin(); i!=end(); ++i)
 	r.append(*i);

@@ -13,6 +13,7 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 #include <stddef.h>
+#include <new>
 
 #define QT_VERSION_STR   "4.0.0-snapshot"
 /*
@@ -1456,6 +1457,68 @@ typedef uint Flags
 #define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags)
 
 #endif // Q_NO_TYPESAFE_FLAGS
+
+
+
+#if defined(Q_CC_GNU)
+// make use of typof-extension
+template <typename T>
+class QForeachContainer {
+public:
+    QForeachContainer(const T& t): c(t), i(c.begin()), e(c.end()){};
+    const T c;
+    typename T::const_iterator i, e;
+};
+
+#define Q_FOREACH(variable, container) \
+for (QForeachContainer<typeof(container)> _container_(container); _container_.i != _container_.e; \
+    ++_container_.i) \
+    for (variable = *_container_.i;;({break;}))
+
+#else
+
+template <typename T>
+class QForeachContainer  {
+public:
+    inline QForeachContainer(const T& t): c(t), i(c.begin()), e(c.end()){};
+    const T c;
+    typename T::const_iterator i, e;
+    inline bool condition() const { if (i != e) return true; this->~QForeachContainer(); return false; }
+};
+
+template <int size>
+struct QForeachMemory {
+    inline QForeachMemory(void *):done(0){}
+    int done;
+    char padding[size];
+};
+
+template<typename T>
+QForeachContainer<T> qForeachSizeofContainerHelper(const T &);
+
+template <typename T>
+inline QForeachContainer<T> *qForeachContainer(const T &, QForeachMemory<sizeof(QForeachContainer<T>)> &memory)
+{ return reinterpret_cast<QForeachContainer<T>*>(memory.padding); }
+
+template <typename T>
+inline void *qForeachContainerNew(const T& t, QForeachMemory<sizeof(QForeachContainer<T>)> &memory)
+{ return new (memory.padding) QForeachContainer<T>(t); }
+
+#define Q_FOREACH(variable, container) \
+for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container_ = qForeachContainerNew(container, _container_); qForeachContainer(container, _container_)->condition();\
+    ++qForeachContainer(container, _container_)->i) \
+    for (variable = *qForeachContainer(container, _container_)->i; --_container_.done; _container_.done = 1)
+
+#endif
+
+#ifdef QT_KEYWORDS
+#  ifndef foreach
+#    define foreach Q_FOREACH
+#  endif
+#  ifndef forever
+#    define forever for(;;)
+#  endif
+#endif
 
 #endif // __cplusplus
 
