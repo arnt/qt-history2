@@ -23,8 +23,8 @@ class Q_GUI_EXPORT QModelIndex
 {
     friend class QAbstractItemModel;
 public:
-    enum Type { Null };
-    inline QModelIndex(Type = Null) : r(-1), c(-1), d(0) {}
+    enum SpecialValue { Null };
+    inline QModelIndex(SpecialValue = Null) : r(-1), c(-1), d(0) {}
     inline QModelIndex(const QModelIndex &other)
         : r(other.row()), c(other.column()), d(other.data()) {}
     inline ~QModelIndex() { d = 0; }

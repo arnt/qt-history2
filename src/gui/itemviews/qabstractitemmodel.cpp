@@ -418,7 +418,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn QModelIndex::QModelIndex(Type type = Null)
+    \fn QModelIndex::QModelIndex(SpecialValue type = Null)
 
     Creates a new empty model index of the given \a type. By default, a
     \c Null model index is created. This type of model index is used as the
