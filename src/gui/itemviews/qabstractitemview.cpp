@@ -643,7 +643,7 @@ void QAbstractItemView::reset()
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
     QModelIndex old = d->root;
-    d->root = QPersistentModelIndex(index);
+    d->root = index;
     emit rootChanged(old, index);
     if (isVisible())
         doItemsLayout();
@@ -881,13 +881,12 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
 
-    QPersistentModelIndex persistent(index);
-    if (d->state == EditingState && d->editors.contains(persistent))
+    if (d->state == EditingState && d->editors.contains(index))
         return;
 
     bool itemWasSelected = selectionModel()->isSelected(index);
     QPoint offset(horizontalOffset(), verticalOffset());
-    d->pressedItem = QPersistentModelIndex(index);
+    d->pressedItem = index;
     d->pressedModifiers = e->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
     if ((command & QItemSelectionModel::Current) == 0)
@@ -928,8 +927,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     }
 
     QModelIndex index = itemAt(bottomRight);
-    QPersistentModelIndex persistent(index);
-    if (state() == EditingState && d->editors.contains(persistent))
+    if (state() == EditingState && d->editors.contains(index))
         return;
 
     if (d->enteredItem != index) {
@@ -937,7 +935,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
             emit itemEntered(index, e->button(), e->modifiers());
         else
             emit viewportEntered(e->button(), e->modifiers());
-        d->enteredItem = persistent;
+        d->enteredItem = index;
     } else if (state() == SelectingState) {
         return; // we haven't moved over another item yet
     }
@@ -975,8 +973,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
 
-    QPersistentModelIndex persistent(index);
-    if (state() == EditingState && d->editors.contains(persistent))
+    if (state() == EditingState && d->editors.contains(index))
         return;
 
     selectionModel()->select(index, selectionCommand(index, e));
@@ -1591,13 +1588,12 @@ void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 */
 void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 {
-    QPersistentModelIndex persistent(index);
-    QWidget *editor = d->editors.value(persistent);
+    QWidget *editor = d->editors.value(index);
     if (editor) {
         d->persistent.removeAll(editor);
         itemDelegate()->releaseEditor(editor);
     }
-    d->editors.remove(persistent);
+    d->editors.remove(index);
 }
 
 /*!
@@ -1625,9 +1621,8 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 {
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
-        QPersistentModelIndex persistent(topLeft);
-        if (d->editors.contains(persistent))
-            itemDelegate()->setEditorData(d->editors.value(persistent), d->model, topLeft);
+        if (d->editors.contains(topLeft))
+            itemDelegate()->setEditorData(d->editors.value(topLeft), d->model, topLeft);
         else
             d->viewport->update(itemViewportRect(topLeft));
         return;
@@ -1709,8 +1704,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         d->viewport->repaint(rect); // painting in the next paint event is too late (because of scrolling)
         // if we are editing, commit the data and close the editor
         if (state() == EditingState) {
-            QPersistentModelIndex persistent(previous);
-            QWidget *editor = d->editors.value(persistent);
+            QWidget *editor = d->editors.value(previous);
             if (editor) {
                 commitData(editor);
                 closeEditor(editor, QAbstractItemDelegate::NoHint);
@@ -2019,7 +2013,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction act
         return true;
     if (action & beginEditActions)
         return true;
-    return d->editors.contains(QPersistentModelIndex(index)); // persistent editor
+    return d->editors.contains(index); // persistent editor
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
@@ -2045,15 +2039,14 @@ void QAbstractItemViewPrivate::doDelayedItemsLayout()
 QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
                                           const QStyleOptionViewItem &options)
 {
-    QPersistentModelIndex persistent = QPersistentModelIndex(index);
-    QWidget *w = editors.value(persistent);
+    QWidget *w = editors.value(index);
     if (!w) {
         w = q->itemDelegate()->editor(viewport, options, q->model(), index);
         if (w) {
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));
             q->itemDelegate()->setEditorData(w, q->model(), index);
             q->itemDelegate()->updateEditorGeometry(w, options, q->model(), index);
-            editors.insert(persistent, w);
+            editors.insert(index, w);
         }
     }
     return w;
