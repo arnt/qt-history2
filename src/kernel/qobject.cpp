@@ -1580,8 +1580,7 @@ int QObject::receivers(const char *signal) const
 	    return false;
 	}
 	int i = 0;
-	QObjectPrivate::Connections::Connection *c;
-	while((c = d->findConnection(signal_index, i)))
+	while (d->findConnection(signal_index, i))
 	    ++receivers;
     }
     return receivers;
