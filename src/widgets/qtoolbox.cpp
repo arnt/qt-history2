@@ -57,6 +57,8 @@
 
 class QToolBoxButton : public QToolButton
 {
+    Q_OBJECT
+
 public:
     QToolBoxButton( QWidget *parent, const char *name ) :
 	QToolButton( parent, name ), selected( FALSE )
@@ -719,3 +721,5 @@ QString QToolBox::pageToolTip( QWidget *page ) const
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->toolTip : QString::null;
 }
+
+#include "qtoolbox.moc"
