@@ -178,16 +178,16 @@ static const char *const ps_header =
 "dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
 "definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
 "D/ty 0 d/Y{/ty ED}D/Tl{gsave SW PCol SC NP 1 i exch MT 1 i 0 RL S grestore}D\n"
-"/XYT{PCol SC ty MT/languagelevel where{pop languagelevel 2 ge}{false}ie{pop\n"
-"xyshow}{exch pop 1 i dup length 2 div exch stringwidth pop 3 -1 roll exch\n"
-"sub exch div exch 0 exch ashow}ie}D/AT{PCol SC ty MT 1 i dup length 2 div\n"
-"exch stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}D/QI{/C\n"
-"save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore showpage}D/SPD{\n"
-"/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop pop}ie}D/SV{BSt\n"
-"LWi PSt Cx Cy WFi OMo BCol PCol BkCol/nS nS 1 add d gsave}D/RS{nS 0 gt{\n"
-"grestore/BkCol ED/PCol ED/BCol ED/OMo ED/WFi ED/Cy ED/Cx ED/PSt ED/LWi ED\n"
-"/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp matrix CM d defM SM NP}D/CLEND{\n"
-"clip NP clipTmp SM}D/CLO{grestore gsave defM SM}D\n";
+"/XYT{PCol SC ty MT/xyshow where{pop pop xyshow}{exch pop 1 i dup length 2\n"
+"div exch stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}ie}D\n"
+"/AT{PCol SC ty MT 1 i dup length 2 div exch stringwidth pop 3 -1 roll exch\n"
+"sub exch div exch 0 exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo\n"
+"false d}D/QP{C restore showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d\n"
+"end setpagedevice}{pop pop}ie}D/SV{BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol\n"
+"/nS nS 1 add d gsave}D/RS{nS 0 gt{grestore/BkCol ED/PCol ED/BCol ED/OMo ED\n"
+"/WFi ED/Cy ED/Cx ED/PSt ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp\n"
+"matrix CM d defM SM NP}D/CLEND{clip NP clipTmp SM}D/CLO{grestore gsave defM\n"
+"SM}D\n";
 
 // the next table is derived from a list provided by Adobe on its web
 // server: http://partners.adobe.com/asn/developer/typeforum/glyphlist.txt
@@ -2377,7 +2377,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     }
     stream << ">";
 
-    stream << "[" << xyarray << "]";
+    stream << "[" << xyarray << "0 0]";
     stream << si.width << " " << x;
 
     if ( paint->font().underline() )

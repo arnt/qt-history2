@@ -708,14 +708,10 @@
   PCol SC % really need to kill these SCs
   ty MT % pops x
 
-  /languagelevel where {
-    pop
-    languagelevel 2 ge 
-  } { false } ifelse % args (languagelevel >= 2)
-  { % level 2 code, use xyshow
-    pop
+  /xyshow where { % interpreter has xyshow
+    pop pop
     xyshow
-  } { % level 1 code use ashow
+  } { % use ashow
     exch pop % string cwidth
     1 index % string cwidth string
     dup length 2 div exch % string cwidth length string     !have to divide by 2 since we use unicode!
