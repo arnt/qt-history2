@@ -1025,7 +1025,7 @@ void QGLWidget::setContext( QGLContext *context,
 	// window since Windows does not permit setting a new OpenGL
 	// context for a window that already has one set.
 	doShow = isVisible();
-	QWidget::reparent( parentWidget(), 0, geometry().topLeft(), FALSE );
+        QWidget::reparent( parentWidget(), getWFlags(), geometry().topLeft(), FALSE );
     }
 
     if ( !glcx->isValid() )
