@@ -70,6 +70,10 @@ extern "C" {
 	qic->lastcompose = qic->text = QString::null;
 	qic->focusWidget = 0;
 
+	if ( qic->selectedChars.size() < 128 )
+	    qic->selectedChars.resize( 128 );
+	qic->selectedChars.fill( 0 );
+
 	// qDebug("compose start");
 	return 0;
     }
@@ -107,6 +111,7 @@ extern "C" {
 	XIMPreeditDrawCallbackStruct *drawstruct =
 	    (XIMPreeditDrawCallbackStruct *) call_data;
 	XIMText *text = (XIMText *) drawstruct->text;
+	int cursor = drawstruct->caret, sellen = 0;
 
 	if (text) {
 	    char *str = 0;
@@ -132,6 +137,37 @@ extern "C" {
 		qic->text.replace(drawstruct->chg_first, UINT_MAX, s);
 	    else
 		qic->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
+
+	    if ( qic->selectedChars.size() < qic->text.length() ) {
+		// expand the selectedChars array if the compose string is longer
+		uint from = qic->selectedChars.size();
+		qic->selectedChars.resize( qic->text.length() );
+		for ( uint x = from; from < qic->selectedChars.size(); ++x )
+		    qic->selectedChars[x] = 0;
+	    }
+
+	    uint x;
+	    bool *p = qic->selectedChars.data() + drawstruct->chg_first;
+	    // determine if the changed chars are selected based on text->feedback
+	    for ( x = 0; x < s.length(); ++x )
+		*p++ = ( text->feedback ? ( text->feedback[x] & XIMReverse ) : 0 );
+
+	    // figure out where the selection starts, and how long it is
+	    p = qic->selectedChars.data();
+	    bool started = FALSE;
+	    for ( x = 0; x < qic->selectedChars.size(); ++x ) {
+		if ( started ) {
+		    if ( *p ) ++sellen;
+		    else break;
+		} else {
+		    if ( *p ) {
+			cursor = x;
+			started = TRUE;
+			sellen = 1;
+		    }
+		}
+		++p;
+	    }
 	} else {
 	    if (drawstruct->chg_length == 0)
 		drawstruct->chg_length = -1;
@@ -160,7 +196,7 @@ extern "C" {
 
 	qic->lastcompose = qic->text;
 
-	QIMEvent event(QEvent::IMCompose, qic->text, drawstruct->caret);
+	QIMComposeEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
 	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
     }
@@ -185,25 +221,6 @@ extern "C" {
 	qic->composing = FALSE;
 	qic->focusWidget = 0;
 
-	return 0;
-    }
-
-    static int xic_caret_callback(XIC, XPointer client_data, XPointer call_data) {
-	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic || ! qic->composing || ! qic->focusWidget)
-	    return 0;
-
-	XIMPreeditCaretCallbackStruct *caretstruct =
-	    (XIMPreeditCaretCallbackStruct *) call_data;
-
-	if (! caretstruct)
-	    return 0;
-
-	// qDebug("compose position: %d", caretstruct->position);
-
-	// this is probably wrong
-	QIMEvent event(QEvent::IMCompose, qic->text, caretstruct->position);
-	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
     }
 
@@ -232,7 +249,7 @@ QInputContext::QInputContext(QWidget *widget)
     XPoint spot;
     XRectangle rect;
     XVaNestedList preedit_attr = 0;
-    XIMCallback startcallback, drawcallback, donecallback, caretcallback;
+    XIMCallback startcallback, drawcallback, donecallback;
 
     int missCount;
     char** missList;
@@ -268,14 +285,11 @@ QInputContext::QInputContext(QWidget *widget)
 	drawcallback.callback = (XIMProc)xic_draw_callback;
 	donecallback.client_data = (XPointer) this;
 	donecallback.callback = (XIMProc) xic_done_callback;
-	caretcallback.client_data = (XPointer) this;
-	caretcallback.callback = (XIMProc) xic_caret_callback;
 
 	preedit_attr = XVaCreateNestedList(0,
 					   XNPreeditStartCallback, &startcallback,
 					   XNPreeditDrawCallback, &drawcallback,
 					   XNPreeditDoneCallback, &donecallback,
-					   XNPreeditCaretCallback, &caretcallback,
 					   (char *) 0);
     }
 

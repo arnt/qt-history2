@@ -8,6 +8,7 @@ class QWidget;
 class QFont;
 
 #ifdef Q_WS_X11
+#include "qarray.h"
 #include "qwindowdefs.h"
 #include "qt_x11.h"
 #endif
@@ -37,6 +38,7 @@ public:
     bool composing;
     QFont font;
     XFontSet fontset;
+    QMemArray<bool> selectedChars;
 #endif // Q_WS_X11
 
 #ifdef Q_WS_WIN
