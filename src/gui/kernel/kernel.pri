@@ -99,12 +99,16 @@ unix:x11 {
 }
 
 embedded {
+	HEADERS += \
+		kernel/qeventdispatcher_qws.h
+
 	SOURCES += \
 		kernel/qapplication_qws.cpp \
 		kernel/qclipboard_qws.cpp \
 		kernel/qcursor_qws.cpp \
 		kernel/qdesktopwidget_qws.cpp \
 		kernel/qdnd_qws.cpp \
+		kernel/qeventdispatcher_qws.cpp \
 		kernel/qinputcontext_qws.cpp \
 		kernel/qsound_qws.cpp \
 		kernel/qwidget_qws.cpp

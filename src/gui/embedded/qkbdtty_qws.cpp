@@ -54,6 +54,10 @@ static int  kbdFD = -1;
 
 #ifndef QT_NO_QWS_KBD_TTY
 
+#warning "Implement QEventDispatcherSomething::watchUnixSignal()"
+#define WATCH_UNIX_SIGNAL_IS_BROKEN
+
+
 class QWSTtyKbPrivate : public QObject
 {
     Q_OBJECT
@@ -85,7 +89,7 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
                                             Qt::KeyboardModifiers modifiers, bool isPress,
                                             bool autoRepeat)
 {
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) && !defined(WATCH_UNIX_SIGNAL_IS_BROKEN)
     // Virtual console switching
     int term = 0;
     bool ctrl = modifiers & Qt::ControlButton;
@@ -141,7 +145,7 @@ QWSTtyKbPrivate::QWSTtyKbPrivate(QWSPC101KeyboardHandler *h, const QString &devi
         cfsetospeed(&termdata, 9600);
         tcsetattr(kbdFD, TCSANOW, &termdata);
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) && !defined(WATCH_UNIX_SIGNAL_IS_BROKEN)
 
         connect(QEventLoop::instance(), SIGNAL(unixSignal(int)), this, SLOT(handleTtySwitch(int)));
         QEventLoop::instance()->watchUnixSignal(VTACQSIG, true);

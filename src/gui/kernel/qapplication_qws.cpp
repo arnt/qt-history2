@@ -76,6 +76,7 @@
 #endif
 
 #include "qpaintengine_qws.h"
+#include "qeventdispatcher_qws.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -270,6 +271,14 @@ public:
         return !isMaximized() && !isFullScreen();
     }
 };
+
+void QApplicationPrivate::createEventDispatcher()
+{
+    eventDispatcher = (q->type() != QApplication::Tty
+                       ? new QEventDispatcherQWS(q)
+                       : new QEventDispatcherUNIX(q));
+}
+
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 
