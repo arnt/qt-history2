@@ -1377,8 +1377,6 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &brush);
-
 void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
     QPolygon pa = a;
@@ -1400,6 +1398,7 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
             ::Picture src = 0;
             ::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
             int x_offset = 0;
+#if 0
             if (d->cbrush.style() == Qt::LinearGradientPattern) {
                 // hmm.. for some reason Xrender uses the first pt (x
                 // coord only) that is scanline coverted in a polygon
@@ -1423,7 +1422,9 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
                 QPainter p(&gpix);
                 qt_fill_linear_gradient(QRect(0,0,r.width(), r.height()), &p, br);
                 src = gpix.xftPictureHandle();
-            } else {
+            } else
+#endif
+            {
                 XftColor xfc;
                 QColor qc = d->cbrush.color();
 
