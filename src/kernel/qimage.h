@@ -97,6 +97,8 @@ public:
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
     QImage	copy(const QRect&)	const;
 
+    static QImage fromMimeSource( const QString& abs_name );
+
     bool	isNull()	const	{ return data->bits == 0; }
 
     int		width()		const	{ return data->w; }

@@ -57,31 +57,31 @@ void TextEdit::setupFileActions()
     menuBar()->insertItem( tr( "&File" ), menu );
 
     QAction *a;
-    a = new QAction( tr( "New" ), QPixmap( "filenew.xpm" ), tr( "&New..." ), CTRL + Key_N, this, "fileNew" );
+    a = new QAction( tr( "New" ), QPixmap::fromMimeSource( "filenew.xpm" ), tr( "&New..." ), CTRL + Key_N, this, "fileNew" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Open" ), QPixmap( "fileopen.xpm" ), tr( "&Open..." ), CTRL + Key_O, this, "fileOpen" );
+    a = new QAction( tr( "Open" ), QPixmap::fromMimeSource( "fileopen.xpm" ), tr( "&Open..." ), CTRL + Key_O, this, "fileOpen" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Save" ), QPixmap( "filesave.xpm" ), tr( "&Save..." ), CTRL + Key_S, this, "fileSave" );
+    a = new QAction( tr( "Save" ), QPixmap::fromMimeSource( "filesave.xpm" ), tr( "&Save..." ), CTRL + Key_S, this, "fileSave" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSave() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Save As" ), QPixmap(), tr( "Save &As..." ), 0, this, "fileSaveAs" );
+    a = new QAction( tr( "Save As" ), tr( "Save &As..." ), 0, this, "fileSaveAs" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Print" ), QPixmap( "fileprint.xpm" ), tr( "&Print..." ), CTRL + Key_P, this, "filePrint" );
+    a = new QAction( tr( "Print" ), QPixmap::fromMimeSource( "fileprint.xpm" ), tr( "&Print..." ), CTRL + Key_P, this, "filePrint" );
     connect( a, SIGNAL( activated() ), this, SLOT( filePrint() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Close" ), QPixmap(), tr( "&Close" ), 0, this, "fileClose" );
+    a = new QAction( tr( "Close" ), tr( "&Close" ), 0, this, "fileClose" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileClose() ) );
     a->addTo( menu );
-    a = new QAction( tr( "Exit" ), QPixmap(), tr( "E&xit" ), 0, this, "fileExit" );
+    a = new QAction( tr( "Exit" ), tr( "E&xit" ), 0, this, "fileExit" );
     connect( a, SIGNAL( activated() ), this, SLOT( fileExit() ) );
     a->addTo( menu );
 }
@@ -94,24 +94,24 @@ void TextEdit::setupEditActions()
     menuBar()->insertItem( tr( "&Edit" ), menu );
 
     QAction *a;
-    a = new QAction( tr( "Undo" ), QPixmap( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this, "editUndo" );
+    a = new QAction( tr( "Undo" ), QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this, "editUndo" );
     connect( a, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Redo" ), QPixmap( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this, "editRedo" );
+    a = new QAction( tr( "Redo" ), QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this, "editRedo" );
     connect( a, SIGNAL( activated() ), this, SLOT( editRedo() ) );
     a->addTo( tb );
     a->addTo( menu );
     menu->insertSeparator();
-    a = new QAction( tr( "Copy" ), QPixmap( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this, "editCopy" );
+    a = new QAction( tr( "Copy" ), QPixmap::fromMimeSource( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this, "editCopy" );
     connect( a, SIGNAL( activated() ), this, SLOT( editCopy() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Cut" ), QPixmap( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this, "editCut" );
+    a = new QAction( tr( "Cut" ), QPixmap::fromMimeSource( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this, "editCut" );
     connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Paste" ), QPixmap( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
+    a = new QAction( tr( "Paste" ), QPixmap::fromMimeSource( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this, "editPaste" );
     connect( a, SIGNAL( activated() ), this, SLOT( editPaste() ) );
     a->addTo( tb );
     a->addTo( menu );
@@ -151,17 +151,17 @@ void TextEdit::setupTextActions()
 	     this, SLOT( textSize( const QString & ) ) );
     comboSize->lineEdit()->setText( QString::number( QApplication::font().pointSize() ) );
 
-    actionTextBold = new QAction( tr( "Bold" ), QPixmap( "textbold.xpm" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
+    actionTextBold = new QAction( tr( "Bold" ), QPixmap::fromMimeSource( "textbold.xpm" ), tr( "&Bold" ), CTRL + Key_B, this, "textBold" );
     connect( actionTextBold, SIGNAL( activated() ), this, SLOT( textBold() ) );
     actionTextBold->addTo( tb );
     actionTextBold->addTo( menu );
     actionTextBold->setToggleAction( TRUE );
-    actionTextItalic = new QAction( tr( "Italic" ), QPixmap( "textitalic.xpm" ), tr( "&Italic" ), CTRL + Key_I, this, "textItalic" );
+    actionTextItalic = new QAction( tr( "Italic" ), QPixmap::fromMimeSource( "textitalic.xpm" ), tr( "&Italic" ), CTRL + Key_I, this, "textItalic" );
     connect( actionTextItalic, SIGNAL( activated() ), this, SLOT( textItalic() ) );
     actionTextItalic->addTo( tb );
     actionTextItalic->addTo( menu );
     actionTextItalic->setToggleAction( TRUE );
-    actionTextUnderline = new QAction( tr( "Underline" ), QPixmap( "textunder.xpm" ), tr( "&Underline" ), CTRL + Key_U, this, "textUnderline" );
+    actionTextUnderline = new QAction( tr( "Underline" ), QPixmap::fromMimeSource( "textunder.xpm" ), tr( "&Underline" ), CTRL + Key_U, this, "textUnderline" );
     connect( actionTextUnderline, SIGNAL( activated() ), this, SLOT( textUnderline() ) );
     actionTextUnderline->addTo( tb );
     actionTextUnderline->addTo( menu );
@@ -172,19 +172,19 @@ void TextEdit::setupTextActions()
     grp->setExclusive( TRUE );
     connect( grp, SIGNAL( selected( QAction* ) ), this, SLOT( textAlign( QAction* ) ) );
 
-    actionAlignLeft = new QAction( tr( "Left" ), QPixmap( "textleft.xpm" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
+    actionAlignLeft = new QAction( tr( "Left" ), QPixmap::fromMimeSource( "textleft.xpm" ), tr( "&Left" ), CTRL + Key_L, grp, "textLeft" );
     actionAlignLeft->addTo( tb );
     actionAlignLeft->addTo( menu );
     actionAlignLeft->setToggleAction( TRUE );
-    actionAlignCenter = new QAction( tr( "Center" ), QPixmap( "textcenter.xpm" ), tr( "C&enter" ), CTRL + Key_E, grp, "textCenter" );
+    actionAlignCenter = new QAction( tr( "Center" ), QPixmap::fromMimeSource( "textcenter.xpm" ), tr( "C&enter" ), CTRL + Key_E, grp, "textCenter" );
     actionAlignCenter->addTo( tb );
     actionAlignCenter->addTo( menu );
     actionAlignCenter->setToggleAction( TRUE );
-    actionAlignRight = new QAction( tr( "Right" ), QPixmap( "textright.xpm" ), tr( "&Right" ), CTRL + Key_R, grp, "textRight" );
+    actionAlignRight = new QAction( tr( "Right" ), QPixmap::fromMimeSource( "textright.xpm" ), tr( "&Right" ), CTRL + Key_R, grp, "textRight" );
     actionAlignRight->addTo( tb );
     actionAlignRight->addTo( menu );
     actionAlignRight->setToggleAction( TRUE );
-    actionAlignJustify = new QAction( tr( "Justify" ), QPixmap( "textjustify.xpm" ), tr( "&Justify" ), CTRL + Key_J, grp, "textjustify" );
+    actionAlignJustify = new QAction( tr( "Justify" ), QPixmap::fromMimeSource( "textjustify.xpm" ), tr( "&Justify" ), CTRL + Key_J, grp, "textjustify" );
     actionAlignJustify->addTo( tb );
     actionAlignJustify->addTo( menu );
     actionAlignJustify->setToggleAction( TRUE );
@@ -293,7 +293,7 @@ void TextEdit::filePrint()
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
 	// Check that there is a valid device to print to.
-	if ( !p.device() ) return;  	    
+	if ( !p.device() ) return;  	
 	QPaintDeviceMetrics metrics( p.device() );
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
@@ -304,10 +304,10 @@ void TextEdit::filePrint()
 	QFont font( currentEditor()->QWidget::font() );
  	font.setPointSize( 10 ); // we define 10pt to be a nice base size for printing
 
-	QSimpleRichText richText( currentEditor()->text(), font, 
-				  currentEditor()->context(), 
-				  currentEditor()->styleSheet(), 
-				  currentEditor()->mimeSourceFactory(), 
+	QSimpleRichText richText( currentEditor()->text(), font,
+				  currentEditor()->context(),
+				  currentEditor()->styleSheet(),
+				  currentEditor()->mimeSourceFactory(),
 				  body.height() );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );

@@ -46,6 +46,8 @@
 #include "qobjectlist.h"
 #include "qapplication.h"
 #include <private/qinternal_p.h>
+#include "qmime.h"
+#include "qdragobject.h"
 
 /*!
     \class QPixmap qpixmap.h
@@ -376,6 +378,22 @@ QPixmap::~QPixmap()
     deref();
 }
 
+/*! Convenience function. Gets the data associated with the absolute
+  name \a abs_name from the default mime source factory and decodes it
+  to a pixmap.
+
+  \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
+*/
+
+QPixmap QPixmap::fromMimeSource( const QString &abs_name )
+{
+    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
+    if ( !m )
+	return QPixmap();
+    QPixmap pix;
+    QImageDrag::decode( m, pix );
+    return pix;
+}
 
 /*!
     Returns a \link shclass.html deep copy\endlink of the pixmap using

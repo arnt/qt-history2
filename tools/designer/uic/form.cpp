@@ -823,10 +823,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << "#include <" << *it << ">" << endl;
     }
 
-    if ( externPixmaps ) {
-	out << "#include <qmime.h>" << endl;
-	out << "#include <qdragobject.h>" << endl;
-    }
     out << "#include <qlayout.h>" << endl;
     out << "#include <qtooltip.h>" << endl;
     out << "#include <qwhatsthis.h>" << endl;
@@ -917,7 +913,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
 	out << endl;
     } else if ( externPixmaps ) {
-	pixmapLoaderFunction = "QMimeSourceFactory::pixmap";
+	pixmapLoaderFunction = "QPixmap::fromMimeSource";
     }
 
     // constructor(s)

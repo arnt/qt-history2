@@ -101,6 +101,9 @@ public:
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QBitmap	createHeuristicMask( bool clipTight = TRUE ) const;
 #endif
+
+    static QPixmap fromMimeSource( const QString& abs_name );
+
     static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
     static  QPixmap grabWidget( QWidget * widget,
 				int x=0, int y=0, int w=-1, int h=-1 );

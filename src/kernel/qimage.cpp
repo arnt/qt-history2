@@ -52,6 +52,8 @@
 #include "qimageformatinterface_p.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#include "qmime.h"
+#include "qdragobject.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -559,6 +561,27 @@ QImage::~QImage()
 	delete data;
     }
 }
+
+
+
+
+/*! Convenience function. Gets the data associated with the absolute
+  name \a abs_name from the default mime source factory and decodes it
+  to an image.
+
+  \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
+*/
+
+QImage QImage::fromMimeSource( const QString &abs_name )
+{
+    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
+    if ( !m )
+	return QImage();
+    QImage img;
+    QImageDrag::decode( m, img );
+    return img;
+}
+
 
 
 /*!
