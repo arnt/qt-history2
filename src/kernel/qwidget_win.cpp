@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#82 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -13,10 +13,11 @@
 #include "qapp.h"
 #include "qpaintdc.h"
 #include "qpainter.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qwidcoll.h"
 #include "qobjcoll.h"
 #include "qaccel.h"
+#include "qimage.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -26,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#81 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#82 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -416,15 +417,65 @@ void QWidget::setCaption( const char *caption )
     SetWindowText( winId(), extra->caption );
 }
 
-void QWidget::setIcon( const QPixmap &pixmap )
+
+/*
+  Create an icon mask the way Windows wants it using CreateBitmap.
+*/
+
+static HANDLE createIconMask( const QBitmap &bitmap )
 {
-    if ( extra )
-	delete extra->icon;
-    else
-	createExtra();
-    extra->icon = new QPixmap( pixmap );
+    QImage bm = bitmap.convertToImage();
+    int w = bm.width();
+    int h = bm.height();
+    int bpl = ((w+15)/16)*2;			// bpl, 16 bit alignment
+    uchar *bits = new uchar[bpl*h];
+    for ( int y=0; y<h; y++ )
+	memcpy( bits+y*bpl, bm.scanLine(y), bpl );
+    HANDLE hbm = CreateBitmap( w, h, 1, 1, bits );
+    delete [] bits;
+    return hbm;
 }
 
+
+void QWidget::setIcon( const QPixmap &pixmap )
+{
+    if ( extra ) {
+	delete extra->icon;
+	extra->icon = 0;
+	if ( extra->winIcon ) {
+	    DestroyIcon( extra->winIcon );
+	    extra->winIcon = 0;
+	}
+    } else {
+	createExtra();
+    }
+    if ( !pixmap.isNull() ) {			// valid icon
+	QPixmap pm;
+	QBitmap mask;
+	if ( pixmap.mask() ) {
+	    pm.resize( pixmap.size() );
+	    pm.fill( black );
+	    bitBlt( &pm, 0, 0, &pixmap );	// make masked area black
+	    mask = *pixmap.mask();
+	} else  {
+	    pm = pixmap;
+	    mask.resize( pixmap.size() );
+	    mask.fill( color1 );
+	}
+	HANDLE im = createIconMask(mask);
+	ICONINFO ii;
+	ii.fIcon    = TRUE;
+	ii.hbmMask  = im;
+	ii.hbmColor = pm.hbm();
+	extra->icon = new QPixmap( pixmap );
+	extra->winIcon = CreateIconIndirect( &ii );
+	DeleteObject( im );
+    }
+    SendMessage( winId(), WM_SETICON, ICON_SMALL, (long)extra->winIcon );
+    SendMessage( winId(), WM_SETICON, ICON_BIG,   (long)extra->winIcon );
+}
+
+ 
 void QWidget::setIconText( const char *iconText )
 {
     if ( extra )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#198 $
 **
 ** Implementation of QWidget class
 **
@@ -18,8 +18,17 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 #include "qapp.h"
+#if defined(_WS_WIN_)
+#if defined(_CC_BOOL_DEF_)
+#undef	bool
+#include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#197 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#198 $");
 
 
 /*!
@@ -769,6 +778,9 @@ void QWidget::createExtra()
 	extra->incw = extra->inch = 0;
 	extra->caption = extra->iconText = 0;
 	extra->icon = extra->bg_pix = 0;
+#if defined(_WS_WIN_)
+	extra->winIcon = 0;
+#endif
 	extra->bg_mode = 0;
 	extra->focusData = 0;
     }
@@ -785,6 +797,10 @@ void QWidget::deleteExtra()
 	delete [] extra->caption;
 	delete [] extra->iconText;
 	delete extra->icon;
+#if defined(_WS_WIN_)
+	if ( extra->winIcon )
+	    DestroyIcon( extra->winIcon );
+#endif
 	delete extra->bg_pix;
 	delete extra->focusData;
 	delete extra;
