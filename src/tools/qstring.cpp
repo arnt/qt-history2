@@ -12389,11 +12389,13 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   0 character. The QChar array of the QString (as returned by
   unicode()) is generally not terminated by a null.
 
+  \keyword QString::null
   A QString that has not been assigned to anything is \e null, i.e., both
   the length and data pointer is 0. A QString that references the empty
   string ("", a single '\0' char) is \e empty.  Both null and empty
   QStrings are legal parameters to the methods. Assigning \c {(const char
-  *)0} to QString gives a null QString.
+  *) 0} to QString gives a null QString. For convenience,
+  \c QString::null is a null QString.
 
   Note that if you find that you are mixing usage of \l QCString,
   QString, and \l QByteArray, this causes lots of unnecessary copying
