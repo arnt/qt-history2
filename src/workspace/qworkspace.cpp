@@ -1008,7 +1008,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 		topLevelWidget()->setCaption( d->topCaption );
 #endif
 	    inCaptionChange = FALSE;
-	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow )
+	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) )
 		hideMaximizeControls();
 	    for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
 		QWorkspaceChild* c = it.current();
@@ -1676,7 +1676,7 @@ void QWorkspace::cascade()
 	d->hbar->setValue( 0 );
 	d->hbar->blockSignals( FALSE );
 	scrollBarChanged();
-    }   
+    }
 
     const int xoffset = 13;
     const int yoffset = 20;
@@ -1749,7 +1749,7 @@ void QWorkspace::tile()
 	d->hbar->setValue( 0 );
 	d->hbar->blockSignals( FALSE );
 	scrollBarChanged();
-    }   
+    }
 
     int rows = 1;
     int cols = 1;
@@ -1807,7 +1807,7 @@ void QWorkspace::tile()
 	    qApp->sendPostedEvents( 0, QEvent::ShowNormal );
 	    used[row*cols+col] = TRUE;
 	    if ( add ) {
-		c->setGeometry( col*w, row*h, QMIN( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ), 
+		c->setGeometry( col*w, row*h, QMIN( w, c->windowWidget()->maximumWidth()+c->baseSize().width() ),
 					      QMIN( 2*h, c->windowWidget()->maximumHeight()+c->baseSize().height() ) );
 		used[(row+1)*cols+col] = TRUE;
 		add--;
@@ -2110,6 +2110,12 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	((QWorkspace*)parentWidget())->showWindow( windowWidget() );
 	break;
     case QEvent::ShowMaximized:
+	if ( windowWidget()->maximumSize().isValid() &&
+	     ( windowWidget()->maximumWidth() < parentWidget()->width() ||
+	       windowWidget()->maximumHeight() < parentWidget()->height() ) ) {
+	    windowWidget()->resize( windowWidget()->maximumSize() );
+	    break;
+	}
 	if ( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) )
 	    ((QWorkspace*)parentWidget())->maximizeWindow( windowWidget() );
 	else
@@ -2432,37 +2438,17 @@ QWidget* QWorkspaceChild::iconWidget() const
 
 void QWorkspaceChild::showMinimized()
 {
-    Q_ASSERT( windowWidget()->testWFlags( WStyle_Minimize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
-    if ( titlebar )
-	titlebar->setMovable( TRUE );
-    QWorkspace *workspace = (QWorkspace*)parentWidget()->qt_cast( "QWorkspace" );
-    if ( workspace )
-	workspace->hideMaximizeControls();
-    widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::showMaximized()
 {
-    if ( windowWidget()->maximumSize().isValid() &&
-	( windowWidget()->maximumWidth() < parentWidget()->width() || windowWidget()->maximumHeight() < parentWidget()->height() ) ) {
-	windowWidget()->resize( windowWidget()->maximumSize() );
-	return;
-    }
-    Q_ASSERT( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
-    if ( titlebar )
-	titlebar->setMovable( FALSE );
-    widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::showNormal()
 {
-    Q_ASSERT( windowWidget()->testWFlags( WStyle_MinMax ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
-    if ( titlebar )
-	titlebar->setMovable( TRUE );
-    widgetResizeHandler->setActive( TRUE );
 }
 
 void QWorkspaceChild::showShaded()
