@@ -1,6 +1,6 @@
 TEMPLATE	= lib
-CONFIG		+= qt warn_on release dll
-win32:DEFINES   += EDITOR_DLL
+CONFIG		+= qt warn_on staticlib
+CONFIG		-= dll
 HEADERS		= editor.h  \
 		  parenmatcher.h  \
 		  completion.h \
@@ -26,7 +26,6 @@ FORMS		= preferences.ui
 		
 TARGET		= editor
 DESTDIR		= ../../../lib
-DLLDESTDIR	= ../../../bin
 VERSION		= 1.0.0
 
 INCLUDEPATH	+= $$QT_SOURCE_TREE/tools/designer/interfaces
