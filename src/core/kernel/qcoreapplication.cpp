@@ -756,21 +756,29 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     // for this object.
     if (!receiver->d->hasPostedEvents) return;
 
-    // iterate over the object-specific list and delete the events.
+    // iterate over the posted event list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
     receiver->d->hasPostedEvents = false;
-    for (int i = 0; i < postedEvents->size(); ++i) {
-        const QPostEvent &pe = postedEvents->at(i);
-        if (pe.receiver != receiver) continue;
 
-        if (pe.event) {
-            pe.event->posted = false;
+    int n = postedEvents->size();
+    int j = 0;
+
+    for (int i = 0; i < n; ++i) {
+        if (postedEvents->offset == i)
+            postedEvents->offset = j;
+
+        const QPostEvent &pe = postedEvents->at(i);
+        if (pe.receiver == receiver) {
             delete pe.event;
-            const_cast<QPostEvent &>(pe).event = 0;
+        } else {
+            if (i != j)
+                postedEvents->swap(i, j);
+            ++j;
         }
-        const_cast<QPostEvent &>(pe).receiver = 0;
     }
+    while (j++ < n)
+        postedEvents->removeLast();
 }
 
 
