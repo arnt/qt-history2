@@ -223,40 +223,6 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
 }
 
 /*!
-    Returns an index based on the field descriptions in \a l and the
-    cursor \a cursor. The field descriptions should be in the same
-    format that toStringList() produces, for example, a surname field
-    in the people table might be in one of these forms: "surname",
-    "surname DESC" or "people.surname ASC".
-
-    \sa toStringList()
-*/
-
-QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cursor )
-{
-    QSqlIndex newSort;
-    for ( int i = 0; i < l.count(); ++i ) {
-	QString f = l[ i ];
-	bool desc = FALSE;
-	if ( f.mid( f.length()-3 ) == "ASC" )
-	    f = f.mid( 0, f.length()-3 );
-	if ( f.mid( f.length()-4 ) == "DESC" ) {
-	    desc = TRUE;
-	    f = f.mid( 0, f.length()-4 );
-	}
-	int dot = f.lastIndexOf( '.' );
-	if ( dot != -1 )
-	    f = f.mid( dot+1 );
-	const QSqlField* field = cursor->field( f.trimmed() );
-	if ( field )
-	    newSort.append( *field, desc );
-	else
-	    qWarning( "QSqlIndex::fromStringList: unknown field: '" + f + "'" );
-    }
-    return newSort;
-}
-
-/*!
     \fn QString QSqlIndex::cursorName() const
 
     Returns the name of the cursor which the index is associated with.

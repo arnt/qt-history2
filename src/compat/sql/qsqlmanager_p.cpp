@@ -41,6 +41,31 @@ public:
     bool autoDelete;
 };
 
+QSqlIndex indexFromStringList( const QStringList& l, const QSqlCursor* cursor )
+{
+    QSqlIndex newSort;
+    for ( int i = 0; i < l.count(); ++i ) {
+        QString f = l[ i ];
+        bool desc = FALSE;
+        if ( f.mid( f.length()-3 ) == "ASC" )
+            f = f.mid( 0, f.length()-3 );
+        if ( f.mid( f.length()-4 ) == "DESC" ) {
+            desc = TRUE;
+            f = f.mid( 0, f.length()-4 );
+        }
+        int dot = f.lastIndexOf( '.' );
+        if ( dot != -1 )
+            f = f.mid( dot+1 );
+        const QSqlField* field = cursor->field( f.trimmed() );
+        if ( field )
+            newSort.append( *field, desc );
+        else
+            qWarning( "QSqlIndex::indexFromStringList: unknown field: '" + f + "'" );
+    }
+    return newSort;
+}
+
+
 /*!
   \class QSqlCursorManager qsqlmanager_p.h
   \brief The QSqlCursorManager class manages a database cursor.
@@ -218,7 +243,7 @@ bool QSqlCursorManager::refresh()
 	return FALSE;
     QString currentFilter = d->ftr;
     QStringList currentSort = d->srt;
-    QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cur );
+    QSqlIndex newSort = indexFromStringList( currentSort, cur );
     return cur->select( currentFilter, newSort );
 }
 
