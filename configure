@@ -628,6 +628,10 @@ then
     esac
 fi
 
+if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/null 2>&1; then
+    CONCURRENT=`echo $MAKEFLAGS | sed "s,.* *-j\([0-9]*\) *.*,\1,"`
+fi
+
 if [ -z "$XPLATFORM" ]
 then
     XPLATFORM="$PLATFORM"
