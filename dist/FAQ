@@ -13,32 +13,37 @@
        for X, a license for shareware developers for X and a fully-fledged
        commercial license.
 
-2: What are the differences between the free and commercial versions of Qt?
+3: What are the differences between the free and commercial versions of Qt?
  
     A: You can write commercial software using the commercial license.
        The library itself is the same. You also get 1 year of free support
        when you buy a commercial license.
 
-3: Can I write software under the GNU General Public License, GNU
+4: Can I write software for internal use in my company/organisation?
+
+    A: No, you have to allow free distribution, and you have to include
+       your source code.
+
+5: Can I write software under the GNU General Public License, GNU
    General Library Public License or BSD licenses using the Qt free license? 
 
     A: Yes. 
 
-4: I want to use Qt to develop free software on Windows. 
+6: I want to use Qt to develop free software on Windows. 
 
     A: Qt is not free for Windows.  We do however sell commercial licenses. 
 
-5: When will 1.0 be released? 
+7: When will 1.0 be released? 
 
     A: 1.0 will be released in the summer of '96.  All the features that
        are scheduled to go into 1.0 exist in-house already, there is only
        testing and polishing left to do.
 
-6: I don't want to give away my source. What do I do? 
+8: I don't want to give away my source. What do I do? 
 
     A: Then you need a shareware or commercial license. 
 
-7: Can I charge for my application? 
+9: Can I charge for my application? 
 
    A: If you have a commercial license; of course. If you have a free
       license your software must be freely distributable and you must
@@ -48,13 +53,13 @@
       CD-ROMs cost money to produce, for example, so you can charge a
       copying fee.
 
-8: Where can I find Qt?  
+10: Where can I find Qt?  
 
     A: The latest version of Qt can be downloaded from http://www.troll.no/
        or from ftp.troll.no, or (less often updated) from sunsite.unc.edu
        in /pub/Linux/X11/devel/ (or /pub/Linux/Incoming).
 
-9: Who is Troll Tech and what are your future plans?  
+11: Who is Troll Tech and what are your future plans?  
 
     A: Troll Tech consists of four talented, hard-working programmers who
        work day and night to improve Qt, and enjoy it. We started the
@@ -65,39 +70,39 @@
       develop code based on Qt for the Norwegian division of NCR
       (previously AT&T).
 
-10: Can I use Qt's classes without writing a graphical user interface?  
+12: Can I use Qt's classes without writing a graphical user interface?  
 
     A: Quite a few of the classes can be used independently of the user
        interface. See utility classes, There are also a few classes that
        will work without the GUI only by chance.
 
 
-11: I want to port Qt to a new platform.  What do I do? 
+13: I want to port Qt to a new platform.  What do I do? 
 
     A: If the new platform is POSIX-like and runs the X Window System, it's
        simple.  Read the file PORTING for details. If you succeed you can
        send us the patches.  When we've added your patches to our source
        tree, Qt will officially support the new platform.
 
-12: Will Qt be available for [OS/2, Mac, Amiga]? 
+14: Will Qt be available for [OS/2, Mac, Amiga]? 
 
     A: At present, Qt only works well on X11 and Win32 (Windows 95 and
        Windows NT).  Porting to other platforms is a lower priority.
        Currently, we concentrate on the Windows and X versions.
 
-13: Can I make a Qt shared library and distribute it with my Linux
+15: Can I make a Qt shared library and distribute it with my Linux
     distribution?
 
     A: Yes, if you do not make changes to Qt and include all the files
        present in our distribution of Qt.  (That is, you must include the
        source code.)
 
-14: Can I distribute dynamically linked applications that use Qt?
+16: Can I distribute dynamically linked applications that use Qt?
     Can I distribute statically linked applications that use Qt? 
 
     A: Yes and yes, as long as you do not modify Qt. 
 
-15: I need to modify Qt 
+17: I need to modify Qt 
 
     A: Are you sure?  Inheritance is very often a  better alternative.  If
        you do change Qt, you may not distribute the modified toolkit or
@@ -107,7 +112,7 @@
       to evaluate the patches and reply as soon as they come in.  If we
       like what we see, we'll incorporate it in the next Qt release.
 
-16: How can I distribute my cool widget library? 
+18: How can I distribute my cool widget library? 
 
     A: In several ways.  Pick and choose. 
 
@@ -126,7 +131,7 @@
        Ada or Perl bindings, fine.  But anyone who uses your bindings must
        also have a license for Qt.
 
-17: I found this obscure bug and I need it fixed, fast! 
+19: I found this obscure bug and I need it fixed, fast! 
 
     A: We sell support and maintenance contracts.  We try to support the
        free users, and we take all bug reports seriously, no matter who
