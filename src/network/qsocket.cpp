@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#25 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#26 $
 **
 ** Implementation of QSocket class.
 **
@@ -677,12 +677,14 @@ void QSocket::flush()
 		s = a ? a->size() : 0;
 	    }
 	    nwritten = d->socket->writeBlock( out.data(), i );
-	    d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
+	    if ( d->wsn )
+		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	} else {
 	    // Big block, write it immediately
 	    i = a->size() - d->windex;
 	    nwritten = d->socket->writeBlock( a->data() + d->windex, i );
-	    d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
+	    if ( d->wsn )
+		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	}
 	if ( nwritten ) {
 	    if ( consumeWriteBuf( nwritten ) )
