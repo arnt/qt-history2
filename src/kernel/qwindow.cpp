@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#4 $
 **
 ** Implementation of QWindow class
 **
@@ -13,19 +13,19 @@
 #include "qwindow.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#3 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#4 $")
 
 
-/*!
+/*----------------------------------------------------------------------------
   \class QWindow qwindow.h
-  \brief The QWindow class is a widget with a caption and an icon.
+  \brief The QWindow class is reserved for future extensions.
 
-  A window is a widget that can have a caption (window title), an
-  icon and an icon text.
-*/
+  This class is not yet finished.  It will contain intelligent handling of
+  menus etc. in a future Qt release.
+ ----------------------------------------------------------------------------*/
 
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a window named \e name, which will be a child widget of
   \e parent.
 
@@ -33,42 +33,18 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#3 $")
   are doing.
 
   These arguments are sent to the QWidget constructor.
-*/
+ ----------------------------------------------------------------------------*/
 
 QWindow::QWindow( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
-    initMetaObject();				// initialize meta object
-    ctext = qAppName();				// default caption
-    ipm = 0;
+    initMetaObject();
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Destroys the window.
-*/
+ ----------------------------------------------------------------------------*/
 
 QWindow::~QWindow()
 {
-    delete ipm;
-}
-
-
-/*!
-  Returns the window caption (title).
-  \sa setCaption.
-*/
-
-char *QWindow::caption() const			// get caption text
-{
-    return (char *)((const char*)ctext);
-}
-
-/*!
-  Returns the icon text.
-  \sa setIcon(), setIconText()
-*/
-
-char *QWindow::iconText() const			// get icon text
-{
-    return (char *)((const char*)itext);
 }
