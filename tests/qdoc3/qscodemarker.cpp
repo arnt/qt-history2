@@ -196,46 +196,63 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 {
     QValueList<ClassSection> sections;
     if ( style == Summary ) {
-	FastClassSection enums( "Enums" );
-	FastClassSection functions( "Functions" );
-	FastClassSection properties( "Properties" );
-	FastClassSection readOnlyProperties( "Read-only Properties" );
-	FastClassSection signalz( "Signals" );
-	FastClassSection writableProperties( "Writable Properties" );
+	FastClassSection enums( classe, "Enums" );
+	FastClassSection functions( classe, "Functions", "function",
+				    "functions" );
+	FastClassSection readOnlyProperties( classe, "Read-only Properties",
+					     "property", "properties" );
+	FastClassSection signalz( classe, "Signals", "signal", "signals" );
+	FastClassSection writableProperties( classe, "Writable Properties",
+					     "property", "properties" );
 
-	NodeList::ConstIterator c = classe->childNodes().begin();
-	while ( c != classe->childNodes().end() ) {
-	    if ( (*c)->access() == Node::Public ) {
-		if ( (*c)->type() == Node::Enum ) {
-		    insert( enums, *c );
-		} else if ( (*c)->type() == Node::Function ) {
-		    const FunctionNode *func = (const FunctionNode *) *c;
-		    if ( func->metaness() == FunctionNode::Signal ) {
-			insert( signalz, *c );
-		    } else {
-			insert( functions, *c );
-		    }
-		} else if ( (*c)->type() == Node::Property ) {
-		    const PropertyNode *property = (const PropertyNode *) *c;
-		    if ( property->setter().isEmpty() ) {
-			insert( readOnlyProperties, *c );
-		    } else {
-			insert( writableProperties, *c );
+	QValueStack<const ClassNode *> stack;
+	stack.push( classe );
+
+	while ( !stack.isEmpty() ) {
+	    const ClassNode *ancestorClass = stack.pop();
+
+	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
+	    while ( c != ancestorClass->childNodes().end() ) {
+		if ( (*c)->access() == Node::Public ) {
+		    if ( (*c)->type() == Node::Enum ) {
+			insert( enums, *c );
+		    } else if ( (*c)->type() == Node::Function ) {
+			const FunctionNode *func = (const FunctionNode *) *c;
+			if ( func->metaness() == FunctionNode::Signal ) {
+			    insert( signalz, *c );
+			} else {
+			    insert( functions, *c );
+			}
+		    } else if ( (*c)->type() == Node::Property ) {
+			const PropertyNode *property = (const PropertyNode *) *c;
+			if ( property->setter().isEmpty() ) {
+			    insert( readOnlyProperties, *c );
+			} else {
+			    insert( writableProperties, *c );
+			}
 		    }
 		}
+		++c;
 	    }
-	    ++c;
+
+	    QValueList<RelatedClass>::ConstIterator b =
+		    ancestorClass->baseClasses().begin();
+	    while ( b != ancestorClass->baseClasses().end() ) {
+		stack.prepend( (*b).node );
+		++b;
+	    }
 	}
+	enums.inherited.clear();
 	append( sections, enums );
 	append( sections, writableProperties );
 	append( sections, readOnlyProperties );
 	append( sections, functions );
 	append( sections, signalz );
     } else {
-	FastClassSection enums( "Enum Documentation" );
-	FastClassSection functionsAndSignals(
+	FastClassSection enums( classe, "Enum Documentation" );
+	FastClassSection functionsAndSignals( classe,
 		"Function and Signal Documentation" );
-	FastClassSection properties( "Property Documentation" );
+	FastClassSection properties( classe, "Property Documentation" );
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {

@@ -322,7 +322,6 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 {
     QValueList<ClassSection> sections;
     QValueList<ClassSection>::ConstIterator s;
-    NodeList::ConstIterator m;
 
     QString title = classe->name() + " Class Reference";
     generateHeader( title, classe );
@@ -353,31 +352,55 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     sections = marker->classSections( classe, CodeMarker::Summary );
     s = sections.begin();
     while ( s != sections.end() ) {
-	bool twoColumn = ( (*s).members.count() >= 5 &&
-			   (*s).members.first()->type() == Node::Property );
-
 	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
-	if ( twoColumn )
-	    out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
-		     " cellspacing=\"0\">\n"
-		  << "<tr><td width=\"45%\" valign=\"top\">";
-	out() << "<ul>\n";
 
-	int i = 0;
-	m = (*s).members.begin();
-	while ( m != (*s).members.end() ) {
-	    if ( twoColumn && i == (int) ((*s).members.count() + 1) / 2 )
-		out() << "</ul></td><td valign=\"top\"><ul>\n";
+	if ( !(*s).members.isEmpty() ) {
+	    bool twoColumn = ( (*s).members.count() >= 5 &&
+			       (*s).members.first()->type() == Node::Property );
 
-	    out() << "<li><div class=\"fn\"/>";
-	    generateSynopsis( *m, classe, marker, CodeMarker::Summary );
-	    out() << "</li>\n";
-	    i++;
-	    ++m;
+	    if ( twoColumn )
+		out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
+			 " cellspacing=\"0\">\n"
+		      << "<tr><td width=\"45%\" valign=\"top\">";
+	    out() << "<ul>\n";
+
+	    int i = 0;
+	    NodeList::ConstIterator m = (*s).members.begin();
+	    while ( m != (*s).members.end() ) {
+		if ( twoColumn && i == (int) ((*s).members.count() + 1) / 2 )
+		    out() << "</ul></td><td valign=\"top\"><ul>\n";
+
+		out() << "<li><div class=\"fn\"/>";
+		generateSynopsis( *m, classe, marker, CodeMarker::Summary );
+		out() << "</li>\n";
+		i++;
+		++m;
+	    }
+	    out() << "</ul>\n";
+	    if ( twoColumn )
+		out() << "</td></tr>\n</table>\n";
 	}
-	out() << "</ul>\n";
-	if ( twoColumn )
-	    out() << "</td></tr>\n</table>\n";
+	if ( !(*s).inherited.isEmpty() ) {
+	    out() << "<ul>\n";
+	    QValueList<QPair<ClassNode *, int> >::ConstIterator p =
+		    (*s).inherited.begin();
+	    while ( p != (*s).inherited.end() ) {
+		out() << "<li><div class=\"fn\"/>";
+		out() << (*p).second << " ";
+		if ( (*p).second == 1 ) {
+		    out() << (*s).singularMember;
+		} else {
+		    out() << (*s).pluralMember;
+		}
+		out() << " inherited from "
+		      << highlightedCode(
+				 marker->markedUpFullName((*p).first, 0),
+							  classe );
+		out() << "</li>\n";
+		++p;
+	    }
+	    out() << "</ul>\n";
+	}
 	++s;
     }
 
@@ -395,7 +418,7 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 	out() << "<hr>\n";
 	out() << "<h2>" << protect( (*s).name ) << "</h2>\n";
 
-	m = (*s).members.begin();
+	NodeList::ConstIterator m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
 	    if ( (*m)->access() != Node::Private ) {
 		out() << "<h3 class=\"fn\">";
@@ -473,6 +496,16 @@ void HtmlGenerator::generateHeader( const QString& title,
 	     "    <title>"
 	  << protect( title )
 	  << "</title>\n"
+	     "<style>\n"
+#if 1
+#if 0
+	     "h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }\n"
+#endif
+	     "a:link { color: #004faf; text-decoration: none }\n"
+	     "a:visited { color: #672967; text-decoration: none }\n"
+	     "body { background: #ffffff; color: black; }\n"
+	     "</style>\n"
+#endif
 	     "</head>\n"
 	     "<body>\n";
 }

@@ -8,22 +8,21 @@
 struct InheritanceBound
 {
     Node::Access access;
-    ClassNode *derivedClass;
-    QString baseClassTemplateArgs;
+    QStringList basePath;
+    QString baseTemplateArgs;
 
     InheritanceBound()
 	: access( Node::Public ) { }
-    InheritanceBound( Node::Access access0, ClassNode *derivedClass0,
-		      const QString& baseClassTemplateArgs0 )
-	: access( access0 ), derivedClass( derivedClass0 ),
-	  baseClassTemplateArgs( baseClassTemplateArgs0 ) { }
+    InheritanceBound( Node::Access access0, const QStringList& basePath0,
+		      const QString& baseTemplateArgs0 )
+	: access( access0 ), basePath( basePath0 ),
+	  baseTemplateArgs( baseTemplateArgs0 ) { }
 };
 
 class TreePrivate
 {
 public:
-    // QMultiMap<baseClassPath, InheritanceBound>
-    QMap<QStringList, QValueList<InheritanceBound> > unresolvedInheritanceMap;
+    QMap<ClassNode *, QValueList<InheritanceBound> > unresolvedInheritanceMap;
 };
 
 Tree::Tree()
@@ -76,12 +75,32 @@ void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
 			 const QStringList& basePath,
 			 const QString& baseTemplateArgs )
 {
-#if 0
-    bas[subclass].append( BaseClass(access, basePath, baseTemplateArgs) );
-#else
-    Q_UNUSED( subclass )
-    Q_UNUSED( access )
-    Q_UNUSED( basePath )
-    Q_UNUSED( baseTemplateArgs )
-#endif
+    priv->unresolvedInheritanceMap[subclass].append(
+	    InheritanceBound(access, basePath, baseTemplateArgs) );
+}
+
+void Tree::resolveInheritance()
+{
+    NodeList::ConstIterator c = root()->childNodes().begin();
+    while ( c != root()->childNodes().end() ) {
+	if ( (*c)->type() == Node::Class )
+	    resolveInheritance( (ClassNode *) *c );
+	++c;
+    }
+    priv->unresolvedInheritanceMap.clear();
+}
+
+void Tree::resolveInheritance( ClassNode *classe )
+{
+    QValueList<InheritanceBound> bounds =
+	    priv->unresolvedInheritanceMap[classe];
+    QValueList<InheritanceBound>::ConstIterator b = bounds.begin();
+    while ( b != bounds.end() ) {
+	ClassNode *baseClass =
+		(ClassNode *) findNode( (*b).basePath, Node::Class );
+	if ( baseClass != 0 )
+	    classe->addBaseClass( (*b).access, baseClass,
+				  (*b).baseTemplateArgs );
+	++b;
+    }
 }

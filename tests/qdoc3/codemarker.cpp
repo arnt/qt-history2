@@ -173,23 +173,26 @@ QString CodeMarker::sortName( const Node *node )
 
 void CodeMarker::insert( FastClassSection& fastSection, Node *node )
 {
-    fastSection.memberMap.insert( sortName(node), node );
+    if ( node->parent() == (const InnerNode *) fastSection.classe ) {
+	fastSection.memberMap.insert( sortName(node), node );
+    } else if ( node->parent()->type() == Node::Class ) {
+	if ( fastSection.inherited.isEmpty() ||
+	     fastSection.inherited.last().first != node->parent() )
+	    fastSection.inherited.append(
+		    QPair<ClassNode *, int>((ClassNode *) node->parent(), 0) );
+	fastSection.inherited.last().second++;
+    }
 }
 
 void CodeMarker::append( QValueList<ClassSection>& sectionList,
 			 const FastClassSection& fastSection )
 {
-    if ( !fastSection.memberMap.isEmpty() ) {
-	ClassSection section( fastSection.name );
-#if QT_VERSION >= 0x030100
+    if ( !fastSection.memberMap.isEmpty() ||
+	 !fastSection.inherited.isEmpty() ) {
+	ClassSection section( fastSection.name, fastSection.singularMember,
+			      fastSection.pluralMember );
 	section.members = fastSection.memberMap.values();
-#else
-	QMap<QString, Node *>::ConstIterator m = fastSection.memberMap.begin();
-	while ( m != fastSection.memberMap.end() ) {
-	    section.members.append( *m );
-	    ++m;
-	}
-#endif
+	section.inherited = fastSection.inherited;
 	sectionList.append( section );
     }
 }

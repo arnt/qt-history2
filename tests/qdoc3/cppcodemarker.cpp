@@ -205,24 +205,33 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
     QValueList<ClassSection> sections;
 
     if ( style == Summary ) {
-	FastClassSection importantInheritedMembers(
-		"Important Inherited Members" );
-	FastClassSection privateFunctions( "Private Functions" );
-	FastClassSection privateSlots( "Private Slots" );
-	FastClassSection privateTypes( "Private Types" );
-	FastClassSection properties( "Properties" );
-	FastClassSection protectedFunctions( "Protected Functions" );
-	FastClassSection protectedSlots( "Protected Slots" );
-	FastClassSection protectedTypes( "Protected Types" );
-	FastClassSection publicFunctions( "Public Functions" );
-	FastClassSection publicSignals( "Signals" );
-	FastClassSection publicSlots( "Public Slots" );
-	FastClassSection publicTypes( "Public Types" );
-	FastClassSection relatedNonMemberFunctions(
-		"Related Non-member Functions" );
-	FastClassSection staticPrivateMembers( "Static Private Members" );
-	FastClassSection staticProtectedMembers( "Static Protected Members" );
-	FastClassSection staticPublicMembers( "Static Public Members" );
+	FastClassSection privateFunctions( classe, "Private Functions",
+					   "function", "functions" );
+	FastClassSection privateSlots( classe, "Private Slots", "slot",
+				       "slots" );
+	FastClassSection privateTypes( classe, "Private Types", "type",
+				       "types" );
+	FastClassSection properties( classe, "Properties", "property",
+				     "properties" );
+	FastClassSection protectedFunctions( classe, "Protected Functions",
+					     "function", "functions" );
+	FastClassSection protectedSlots( classe, "Protected Slots", "slot",
+					 "slots" );
+	FastClassSection protectedTypes( classe, "Protected Types", "type",
+					 "types" );
+	FastClassSection publicFunctions( classe, "Public Functions",
+					  "function", "functions" );
+	FastClassSection publicSignals( classe, "Signals", "signal",
+					"signals" );
+	FastClassSection publicSlots( classe, "Public Slots", "slot", "slots" );
+	FastClassSection publicTypes( classe, "Public Types", "type", "types" );
+	FastClassSection relatedNonMemberFunctions( classe,
+		"Related Non-member Functions", "function", "functions" );
+	FastClassSection staticPrivateMembers( classe,
+		"Static Private Members" );
+	FastClassSection staticProtectedMembers( classe,
+		"Static Protected Members" );
+	FastClassSection staticPublicMembers( classe, "Static Public Members" );
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {
@@ -283,7 +292,6 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	append( sections, publicSlots );
 	append( sections, publicSignals );
 	append( sections, staticPublicMembers );
-	append( sections, importantInheritedMembers );
 	append( sections, protectedTypes );
 	append( sections, protectedFunctions );
 	append( sections, protectedSlots );
@@ -294,10 +302,11 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	append( sections, staticPrivateMembers );
 	append( sections, relatedNonMemberFunctions );
     } else {
-	FastClassSection memberFunctions( "Member Function Documentation" );
-	FastClassSection memberTypes( "Member Type Documentation" );
-	FastClassSection properties( "Property Documentation" );
-	FastClassSection relatedNonMemberFunctions(
+	FastClassSection memberFunctions( classe,
+		"Member Function Documentation" );
+	FastClassSection memberTypes( classe, "Member Type Documentation" );
+	FastClassSection properties( classe, "Property Documentation" );
+	FastClassSection relatedNonMemberFunctions( classe,
 		"Related Non-member Function Documentation" );
 
 	NodeList::ConstIterator c = classe->childNodes().begin();

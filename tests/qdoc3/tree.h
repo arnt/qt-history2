@@ -23,12 +23,15 @@ public:
     void addBaseClass( ClassNode *subclass, Node::Access access,
 		       const QStringList& basePath,
 		       const QString& baseTemplateArgs );
+    void resolveInheritance();
 
     const NamespaceNode *root() const { return &roo; }
 
     NamespaceNode *root() { return &roo; }
 
 private:
+    void resolveInheritance( ClassNode *classe );
+
     NamespaceNode roo;
     TreePrivate *priv;
 };

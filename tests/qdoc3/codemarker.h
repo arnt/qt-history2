@@ -14,20 +14,32 @@ class Config;
 struct ClassSection
 {
     QString name;
+    QString singularMember;
+    QString pluralMember;
     NodeList members;
+    QValueList<QPair<ClassNode *, int> > inherited;
 
     ClassSection() { }
-    ClassSection( const QString& name0 )
-	: name( name0 ) { }
+    ClassSection( const QString& name0, const QString& singularMember0,
+		  const QString& pluralMember0 )
+	: name( name0 ), singularMember( singularMember0 ),
+	  pluralMember( pluralMember0 ) { }
 };
 
 struct FastClassSection
 {
+    const ClassNode *classe;
     QString name;
+    QString singularMember;
+    QString pluralMember;
     QMap<QString, Node *> memberMap;
+    QValueList<QPair<ClassNode *, int> > inherited;
 
-    FastClassSection( const QString& name0 )
-	: name( name0 ) { }
+    FastClassSection( const ClassNode *classe0, const QString& name0,
+		      const QString& singularMember0 = "member",
+		      const QString& pluralMember0 = "members" )
+	: classe( classe0 ), name( name0 ), singularMember( singularMember0 ),
+	  pluralMember( pluralMember0 ) { }
 };
 
 class CodeMarker

@@ -146,6 +146,7 @@ void QsCodeParser::doneParsingHeaderFiles( Tree *tree )
 	    quickifyClass( (ClassNode *) *c );
 	++c;
     }
+    tree->resolveInheritance();
 }
 
 void QsCodeParser::doneParsingSourceFiles( Tree *tree )
@@ -405,6 +406,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 					    .arg(wrapperClass->name()) );
 	}
 	return;
+    }
+
+    QValueList<RelatedClass>::ConstIterator b = qtClass->baseClasses().begin();
+    while ( b != qtClass->baseClasses().end() ) {
+	quickClass->addBaseClass( (*b).access, (*b).node, (*b).templateArgs );
+	++b;
     }
 
     Set<QString> blackList;

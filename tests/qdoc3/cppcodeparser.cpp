@@ -107,8 +107,9 @@ void CppCodeParser::parseSourceFile( const Location& location,
     fclose( in );
 }
 
-void CppCodeParser::doneParsingHeaderFiles( Tree * /* tree */ )
+void CppCodeParser::doneParsingHeaderFiles( Tree *tree )
 {
+    tree->resolveInheritance();
 }
 
 void CppCodeParser::doneParsingSourceFiles( Tree *tree )
