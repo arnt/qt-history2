@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#47 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#47 $";
 #endif
 
 
@@ -796,8 +796,6 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( (e->state() & LeftButton) == 0 )	// left button must be down
-	return;
     int	 item = itemAtPos( e->pos() );
     if ( item == -1 ) {				// no valid item
 	if ( popupActive == -1 ) {		// no active popup sub menu
