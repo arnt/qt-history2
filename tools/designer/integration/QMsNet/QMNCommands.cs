@@ -49,7 +49,6 @@ namespace QMsNet
 
 		    addFileInFilter( vp, "Generated MOC Files", filename + ".moc" );
 		    VCFile mf = (VCFile)((IVCCollection)vp.files).Item( filename + ".moc" );
-
 		    addMStep( mf, filename, true );
 		// Moc'ing a H --------------------------------------
 		} else {
@@ -71,14 +70,13 @@ namespace QMsNet
 		    cbt.AdditionalDependencies  = "$(QTDIR)\\bin\\moc.exe";
 		    if ( local ) {
 			cbt.Description = "Moc'ing " + filename + ".cpp...";
-			cbt.Outputs	    =  filename + ".moc";
+			cbt.Outputs	=  filename + ".moc";
 			cbt.CommandLine = cbt.AdditionalDependencies + " " + filename + ".cpp -o " + cbt.Outputs;
 			
 		    } else {
 			cbt.Description = "Moc'ing " + file.Name + "...";
-			cbt.Outputs	    = "moc_" + filename + ".cpp";
+			cbt.Outputs	= "moc_" + filename + ".cpp";
 			cbt.CommandLine = cbt.AdditionalDependencies + " " + file.RelativePath + " -o " + cbt.Outputs;
-			Console.WriteLine( @"Added moc step for H file" );
 		    }
 		}
 		return true;
@@ -158,14 +156,7 @@ namespace QMsNet
 	    }
 
 	    try {
-		// Make qmake generate a vcproj for project
-		System.Diagnostics.Process tmp = new System.Diagnostics.Process();
-		tmp.StartInfo.FileName = "qmake";
-		tmp.StartInfo.Arguments = "-tp vc " + filename + ".pro";
-		tmp.StartInfo.WorkingDirectory = inf.DirectoryName;
-		tmp.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-		tmp.Start();
-		if ( tmp.WaitForExit(10000) ) {
+		if ( generateVCProjectFile( filename, inf.DirectoryName ) ) {
 		    if ( prj.chkAddToSolution.Checked ) {
 			// Add it to the current Solution
 			try {
@@ -174,7 +165,7 @@ namespace QMsNet
 			}
 			catch ( System.Exception ) {
 			    MessageBox.Show( "*** Couldn't add project to Solution!\n\r" +
-					     "Does a project with the same name already exist in the Solution?" );
+				"Does a project with the same name already exist in the Solution?" );
 			    return;
 			}
 		    } else {
@@ -183,23 +174,49 @@ namespace QMsNet
 			Connect.applicationObject.Solution.AddFromFile( 
 			    inf.DirectoryName + "\\" + filename + ".vcproj", false );
 		    }
-		} else {
-		    tmp.Kill();
-		    MessageBox.Show( "*** QMake never ended (10sec limit)\n\r" +
-			"Please verify that the correct qmake.exe is in your path.\n\r\n\r" +
-			"Path = " + Environment.GetEnvironmentVariable("PATH"),
-			"QMake didn't finish" );
+		    // If generating dynamic DLL, the files copied were
+		    // for a static lib, so make project DLL
+		    if ( prj.optDynamic.Checked )
+			makeProjectDll();
 		}
 		// Start designer with the given .pro file
 		Connect.extLoader.loadDesigner( inf.DirectoryName + "\\" + filename + ".pro", false );
 	    }
 	    catch ( System.Exception e ) {
 		MessageBox.Show( "*** Couldn't start QMake!   " +
-		    "Please verify that qmake.exe is in your path.\n\r\n\r" +
-		    "Path = " + Environment.GetEnvironmentVariable("PATH"),
-		    "Not starting QMake" );
+				 "Please verify that qmake.exe is in your path.\n\r\n\r" +
+				 "Path = " + Environment.GetEnvironmentVariable("PATH"),
+				 "Not starting QMake" );
 		Say( e, "Couldn't run qmake [Path not correct?]" );
 	    }
+	}
+
+	public static bool generateVCProjectFile( string filename, string workingDirectory ) 
+	{
+	    try {
+		// Make qmake generate a vcproj for project
+		System.Diagnostics.Process tmp = new System.Diagnostics.Process();
+		tmp.StartInfo.FileName = "qmake";
+		tmp.StartInfo.Arguments = "-tp vc " + filename + ".pro";
+		tmp.StartInfo.WorkingDirectory = workingDirectory;
+		tmp.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+		tmp.Start();
+		if ( tmp.WaitForExit(10000) )
+		    return true;
+		tmp.Kill();
+		MessageBox.Show( "*** QMake never ended (10sec limit)\n\r" +
+				 "Please verify that the correct qmake.exe is in your path.\n\r\n\r" +
+				 "Path = " + Environment.GetEnvironmentVariable("PATH"),
+				 "QMake didn't finish" );
+	    }
+	    catch ( System.Exception e ) {
+		MessageBox.Show( "*** Couldn't start QMake!   " +
+				 "Please verify that qmake.exe is in your path.\n\r\n\r" +
+				 "Path = " + Environment.GetEnvironmentVariable("PATH"),
+			 	 "Not starting QMake" );
+		Say( e, "Couldn't run qmake [Path not correct?]" );
+	    }
+	    return false;
 	}
 
 	private static void newQtAppProject( string path, string filename, string res, int opt ) {
@@ -211,7 +228,7 @@ namespace QMsNet
 		    File.Copy( res + "\\appSDI\\main.cpp", path + "\\main.cpp", true );
 		    File.Copy( res + "\\appSDI\\mainwindow.ui", path + "\\mainwindow.ui", true );
 		    File.Copy( res + "\\appSDI\\sdiwindow.h", path + "\\sdiwindow.h", true );
-		    // manipulate mdiwindow.cpp
+		    // manipulate sdiwindow.cpp
 		    StreamReader inF  = new StreamReader( res + "\\appSDI\\sdiwindow.cpp" );
 		    StreamWriter outF = new StreamWriter( path + "\\sdiwindow.cpp", false );
 		    string contents = inF.ReadToEnd();
@@ -247,8 +264,18 @@ namespace QMsNet
 
 	private static void newQtLibProject( string path, string filename, string res, bool dyn ) {
 	    try{
-		StreamWriter outF = new StreamWriter( path, false );
-		MessageBox.Show( "Filename: " + filename + "\nPath: " + path + "\nDyn: " + dyn, "Hello" );
+		// copy identical files
+		File.Copy( res + "\\libStatic\\libStatic.pro", path + "\\" + filename + ".pro", true );
+		File.Copy( res + "\\libStatic\\libmain.h", path + "\\libmain.h", true );
+		File.Copy( res + "\\libStatic\\libmain.cpp", path + "\\libmain.cpp", true );
+
+//		// manipulate mdiwindow.cpp
+//		StreamReader inF  = new StreamReader( res + "\\appSDI\\sdiwindow.cpp" );
+//		StreamWriter outF = new StreamWriter( path + "\\sdiwindow.cpp", false );
+//		string contents = inF.ReadToEnd();
+//		contents = contents.Replace( "QMSNETPROJECTNAME", filename );
+//		outF.Write( contents );
+//		outF.Close();
 	    }
 	    catch( System.Exception e ) {
 		Say( e, "Couldn't newQtAppProject() [Are templates available/accessible?]" );

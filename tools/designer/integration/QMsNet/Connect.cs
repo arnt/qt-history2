@@ -116,7 +116,6 @@ namespace QMsNet
 			extLoader.loadDesigner( "", true );
 		    } else if ( commandName == Resource.LoadQtProjectFullCommand ) {
 			handled = true;
-			MessageBox.Show( "Load Qt Project", "Command" );
 			extLoader.loadProject();
 		    } else if ( commandName == Resource.SaveQtProjectFullCommand ) {
 			handled = true;

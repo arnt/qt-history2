@@ -1,11 +1,11 @@
-#include "QMSNETLIBFILENAME.h"
+#include "libmain.h"
 
-QMSNETLIBCLASS::QMSNETLIBCLASS(  QObject *parent, const char *name )
+LibMain::LibMain(  QObject *parent, const char *name )
     : QObject( parent, name )
 {
 }
 
 
-QMSNETLIBCLASS::~QMSNETLIBCLASS()
+LibMain::~LibMain()
 {
 }

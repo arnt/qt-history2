@@ -1,16 +1,14 @@
-#ifndef QMSNETLIBHEAD_H
-#define QMSNETLIBHEAD_H
+#ifndef LIBMAIN_H
+#define LIBMAIN_H
 
 #include <qobject.h>
 
-class QMSNETLIBCLASS : public QObject
+class LibMain : public QObject
 {
     Q_OBJECT
-
 public:
-    QMSNETLIBCLASS( QObject *parent = 0, const char *name = 0 );
-    ~QMSNETLIBCLASS();
-
+    LibMain( QObject *parent = 0, const char *name = 0 );
+    ~LibMain();
 };
 
-#endif // QMSNETLIBHEAD_H
+#endif // LIBMAIN_H

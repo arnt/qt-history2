@@ -1,3 +1,6 @@
+#ifndef MDIWINDOW_H
+#define MDIWINDOW_H
+
 #include "mainwindow.h"
 
 class QWorkspace;
@@ -13,3 +16,5 @@ public slots:
 protected:
     QWorkspace *mdi;
 };
+
+#endif // MDIWINDOW_H

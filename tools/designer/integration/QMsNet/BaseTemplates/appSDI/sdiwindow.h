@@ -1,3 +1,6 @@
+#ifndef SDIWINDOW_H
+#define SDIWINDOW_H
+
 #include "mainwindow.h"
 
 class QTextEdit;
@@ -10,3 +13,5 @@ public:
 protected:
     QTextEdit *doc;
 };
+
+#endif // SDIWINDOW_H

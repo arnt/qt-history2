@@ -15,9 +15,9 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_10CBFD0CC9B04FDC94B9203EDA131277"
+        "MsmKey" = "8:_19EB3515A6DC410094E97A7BDE9D6610"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPMDI\\MAINWINDOW.UI"
+        "MsmSig" = "8:D:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\LIBSTATIC\\LIBMAIN.H"
         }
         "Entry"
         {
@@ -57,9 +57,21 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B6033016A70F431696020EC2FB68595C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:D:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\LIBSTATIC\\LIBMAIN.CPP"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BCC0BE41D86C4B83A42E7A2B6F809AD3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\APPSDI\\APPSDI.PRO"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C84E1F57F48E485CB435031AB35C4E97"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:D:\\HOME\\MARIUS\\SOURCE\\MAIN\\TOOLS\\DESIGNER\\INTEGRATION\\QMSNET\\BASETEMPLATES\\LIBSTATIC\\LIBSTATIC.PRO"
         }
     }
     "Configurations"
@@ -110,12 +122,12 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_10CBFD0CC9B04FDC94B9203EDA131277"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_19EB3515A6DC410094E97A7BDE9D6610"
             {
-            "SourcePath" = "8:appMDI\\mainwindow.ui"
-            "TargetName" = "8:mainwindow.ui"
+            "SourcePath" = "8:libStatic\\libmain.h"
+            "TargetName" = "8:libmain.h"
             "Tag" = "8:"
-            "Folder" = "8:_A0E981CD27DB4F96B1AE9ACD7FD2008A"
+            "Folder" = "8:_2173DA7E1B0A406E9F09CC35538EE030"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -250,12 +262,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B6033016A70F431696020EC2FB68595C"
+            {
+            "SourcePath" = "8:libStatic\\libmain.cpp"
+            "TargetName" = "8:libmain.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_2173DA7E1B0A406E9F09CC35538EE030"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BCC0BE41D86C4B83A42E7A2B6F809AD3"
             {
             "SourcePath" = "8:appSDI\\appSDI.pro"
             "TargetName" = "8:appSDI.pro"
             "Tag" = "8:"
             "Folder" = "8:_BEAF4EFABC574D5F8BEC9BB0700511AF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C84E1F57F48E485CB435031AB35C4E97"
+            {
+            "SourcePath" = "8:libStatic\\libStatic.pro"
+            "TargetName" = "8:libStatic.pro"
+            "Tag" = "8:"
+            "Folder" = "8:_2173DA7E1B0A406E9F09CC35538EE030"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
