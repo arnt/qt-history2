@@ -583,6 +583,7 @@ do
 	fi
 	;;
     zlib)
+	[ "$VAL" = "qt" ] && VAL=yes
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_ZLIB="$VAL"
 	else
@@ -591,12 +592,13 @@ do
 	[ "$VAL" = "no" ] && CFG_LIBPNG=no
 	;;
     libpng)
+	echo ":$VAR: :$VAL:"
 	[ "$VAL" = "yes" ] && VAL=qt
 	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
 	    echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
 	    CFG_PNG=no
 	fi
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
+	if [ "$VAL" = "qt" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_LIBPNG="$VAL"
 	else
 	    UNKNOWN_OPT=yes
@@ -606,9 +608,9 @@ do
 	[ "$VAL" = "yes" ] && VAL=qt
 	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
 	    echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
-	    CFG_PNG=no
+	    CFG_MNG=no
 	fi
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
+	if [ "$VAL" = "qt" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_LIBMNG="$VAL"
 	else
 	    UNKNOWN_OPT=yes
@@ -619,7 +621,7 @@ do
 	if [ "$VAR" = "jpeg" ]; then
 	    echo "-${VAL}-jpeg is left for compatibility, in the future please use -${VAL}-libjpeg"
 	fi
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
+	if [ "$VAL" = "qt" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_LIBJPEG="$VAL"
 	else
 	    UNKNOWN_OPT=yes
