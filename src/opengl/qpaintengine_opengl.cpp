@@ -101,6 +101,7 @@ bool QOpenGLPaintEngine::end()
     dgl->makeCurrent();
     glFlush();
     dgl->swapBuffers();
+    setActive(false);
     return true;
 }
 
