@@ -217,14 +217,14 @@ if [ "${platform}" = "win" ]; then
   echo "Build Makefiles for Borland C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
   ${curdir}/buildmakefiles -win32
-  find . -name Makefile | xargs ${curdir}/unix_to_dos
-  find . -name Makefile | xargs zip -r mkfiles/borland.zip
+  find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
+  find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland.zip
 
   echo "Build Makefiles for Microsoft Visual C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-msvc
   ${curdir}/buildmakefiles -win32
-  find . -name Makefile | xargs ${curdir}/unix_to_dos
-  find . -name Makefile | xargs zip -r mkfiles/msvc.zip
+  find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
+  find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc.zip
 
   rm ${DISTDIR}/qt/lib/qt${VERSIONWIN}.lib
 
