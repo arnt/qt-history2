@@ -35,9 +35,6 @@ QPtrList<MainWindow> *MainWindow::windows = 0;
 
 void MainWindow::init()
 {
-#ifndef Q_WS_MACX
-    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
-#endif
     setupCompleted = FALSE;
 
     goActions = new QPtrList<QAction>;
@@ -53,6 +50,10 @@ void MainWindow::init()
     settingsDia = 0;
 
     Config *config = Config::configuration();
+
+#ifndef Q_WS_MACX
+    setIcon( config->applicationIcon() );
+#endif
 
     dw = new QDockWindow( QDockWindow::InDock, this );
     helpDock = new HelpDialog( dw, this );
@@ -81,7 +82,6 @@ void MainWindow::init()
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
 
-//     QTimer::singleShot( 0, this, SLOT( setup() ) );
     setup();
 }
 

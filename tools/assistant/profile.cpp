@@ -119,6 +119,7 @@ Profile *Profile::createDefaultProfile()
     profile->valid = TRUE;
     profile->defProf = TRUE;
     profile->props["name"] = "defaultprofile";
+    profile->props["applicationicon"] = "appicon.png";
 
     QString path = QString( qInstallPathDocs() ) + "/html/";
 
