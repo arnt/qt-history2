@@ -86,6 +86,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_closeFormAction = new QAction(tr("&Close Form"), this);
     m_closeFormAction->setShortcut(tr("CTRL+W"));
+    connect(m_closeFormAction, SIGNAL(triggered()), this, SLOT(notImplementedYet()));
     m_fileActions->addAction(m_closeFormAction);
 
     m_fileActions->addSeparator();
@@ -182,6 +183,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_previewFormAction = new QAction(tr("&Preview"), this);
     m_previewFormAction->setShortcut(tr("CTRL+R"));
+    connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(notImplementedYet()));
     m_formActions->addAction(m_previewFormAction);
 
 //
@@ -189,8 +191,7 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 //
     m_showWorkbenchAction = new QAction(tr("Show &Workbench"), this);
     m_showWorkbenchAction->setCheckable(true);
-    connect(m_showWorkbenchAction, SIGNAL(checked(bool)),
-            this, SLOT(setWorkbenchVisible(bool)));
+    connect(m_showWorkbenchAction, SIGNAL(checked(bool)), this, SLOT(setWorkbenchVisible(bool)));
     m_windowActions->addAction(m_showWorkbenchAction);
 
 //
@@ -514,6 +515,10 @@ void QDesignerActions::saveFormAs()
         saveFormAs(fw);
 }
 
+void QDesignerActions::notImplementedYet()
+{
+    QMessageBox::information(core()->topLevel(), tr("Designer"), tr("Feature not implemented yet!"));
+}
 
 
 

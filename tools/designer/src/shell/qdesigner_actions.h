@@ -97,6 +97,7 @@ private slots:
     void openForm();
     void saveForm();
     void saveFormAs();
+    void notImplementedYet();
 
 private:
     bool readInForm(const QString &fileName);
