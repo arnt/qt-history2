@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#52 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#53 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -42,8 +42,6 @@
 #ifndef QT_NO_NETWORK
 
 #include "qplatformdefs.h"
-#include "qsocketdevice.h"
-#include "qwindowdefs.h"
 
 // Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
 // defined.  This breaks our sources.
@@ -59,6 +57,9 @@ inline int qt_socket_listen(int s, int backlog)
 #if defined(listen)
 # undef listen
 #endif
+
+#include "qsocketdevice.h"
+#include "qwindowdefs.h"
 
 //#define QSOCKETDEVICE_DEBUG
 
