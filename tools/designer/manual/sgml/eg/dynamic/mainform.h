@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/dynamic/mainform.ui'
 **
-** Created: Mon Feb 19 17:50:10 2001
+** Created: Tue Feb 20 10:45:50 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -35,8 +35,8 @@ public slots:
     virtual void creditDialog();
 
 protected slots:
-    virtual void destroy();
     virtual void init();
+    virtual void destroy();
 
 protected:
     QGridLayout* MainFormLayout;

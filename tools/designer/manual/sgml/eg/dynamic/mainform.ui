@@ -1,6 +1,8 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainForm</class>
+<include location="global" impldecl="in implementation">qradiobutton.h</include>
 <include location="global" impldecl="in implementation">qwidgetfactory.h</include>
+<include location="global" impldecl="in implementation">qspinbox.h</include>
 <pixmapinproject/>
 <widget class="QDialog">
     <property name="name">
@@ -10,8 +12,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>401</width>
-            <height>121</height>
+            <width>397</width>
+            <height>119</height>
         </rect>
     </property>
     <property name="caption">
@@ -74,23 +76,41 @@
         <receiver>MainForm</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
     <slot access="public" language="C++" returnType="void">creditDialog()</slot>
 </connections>
 <functions>
-    <function name="destroy()" >{
+    <function name="init()" >{
 
 }</function>
-    <function name="init()" >{
+    <function name="destroy()" >{
 
 }</function>
     <function name="creditDialog()" >{
     QDialog *creditForm = (QDialog *)
     	QWidgetFactory::create( "../credit/creditformbase.ui" );
-    // Set up the dynamic dialog
+    // Set up the dynamic dialog here
+    
     if ( creditForm-&gt;exec() ) {
 	// The user accepted, act accordingly
+	QRadioButton *child = (QRadioButton *) creditForm-&gt;child( "stdRadioButton" );
+	if ( child &amp;&amp; child-&gt;isChecked() )
+	    ratingTextLabel-&gt;setText( "Standard" );
+	else {
+	    child = (QRadioButton *) creditForm-&gt;child( "noneRadioButton" );
+	    if ( child &amp;&amp; child-&gt;isChecked() ) 
+		ratingTextLabel-&gt;setText( "None" ); 
+	    else {
+		child = (QRadioButton *) creditForm-&gt;child( "specialRadioButton" ); 
+		if ( child &amp;&amp; child-&gt;isChecked() ) {
+		    QSpinBox *amount = (QSpinBox *) creditForm-&gt;child( "amountSpinBox" );
+		    if ( amount )
+			ratingTextLabel-&gt;setText( amount-&gt;text() ); 
+		}
+	    }
+	}
+	    
     }
     delete creditForm;
 }</function>
