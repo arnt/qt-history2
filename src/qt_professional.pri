@@ -10,6 +10,8 @@ contains(QT_PRODUCT,qt-professional) {
 	unix {
 		XML_H		= $$XML_CPP
 		NETWORK_H	= $$NETWORK_CPP
+		#needed for svg
+		LIBS            += -lm  
 	}
 	INCLUDEPATH += $(QTDIR)/src/xml
 	INCLUDEPATH += $(QTDIR)/src/network
