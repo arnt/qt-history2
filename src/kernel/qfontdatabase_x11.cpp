@@ -209,6 +209,8 @@ void QFontDatabase::createDatabase()
 		if ( QFontPrivate::parseXFontName( fontName, tokens ) ) {
 		    // get foundry and insert it into the database if not present
 		    QString foundryName = tokens[QFontPrivate::Foundry];
+		    if ( foundryName.isEmpty() )
+			foundryName = "x11";
 		    QtFontFoundry *foundry = db->foundryDict.find( foundryName );
 		    if ( !foundry ) {
 			foundry = new QtFontFoundry( foundryName );

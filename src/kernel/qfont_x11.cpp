@@ -1480,7 +1480,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     XftPattern *pattern = 0, *result = 0;
 
     if (mono_value >= XFT_MONO) {
-	if (! foundryName.isNull())
+	if ( !foundryName.isNull() && foundryName != "xft" )
 	    pattern = XftPatternBuild(0,
 				      XFT_ENCODING, XftTypeString, "iso10646-1",
 				      XFT_FOUNDRY, XftTypeString, foundryName.latin1(),
@@ -1592,7 +1592,9 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 
     QString foundryName;
     QFontDatabase::parseFontName(familyName, foundryName, familyName);
-
+    if ( foundryName == "x11" )
+	foundryName = QString::null;
+    
     QString addStyle = request.addStyle;
     if (addStyle.isEmpty())
 	addStyle = "*";
