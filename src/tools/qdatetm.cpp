@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#17 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#17 $";
 #endif
 
 
@@ -796,6 +796,8 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
 
 /*!
 Writes the time \e t to the stream \e s and returns a reference to \e s.
+
+\related QTime
 */
 
 QDataStream &operator<<( QDataStream &s, const QTime &t )
@@ -805,6 +807,8 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
 
 /*!
 Reads the time \e t from the stream \e s and returns a reference to \e s.
+
+\related QTime
 */
 
 QDataStream &operator>>( QDataStream &s, QTime &t )
@@ -814,6 +818,8 @@ QDataStream &operator>>( QDataStream &s, QTime &t )
 
 /*!
 Writes the datetime \e dt to the stream \e s and returns a reference to \e s.
+
+\related QDateTime
 */
 
 QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
@@ -823,6 +829,8 @@ QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
 
 /*!
 Reads the datetime \e dt from the stream \e s and returns a reference to \e s.
+
+\related QDateTime
 */
 
 QDataStream &operator>>( QDataStream &s, QDateTime &dt )
