@@ -1311,22 +1311,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break;
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
-#if defined (Q_WS_WIN)
-            {
-                QMatrix wm = p->deviceMatrix();
-                // We cannot use the native function if we have xforms
-                if (wm.m11() == 1 && wm.m22() == 1 && wm.m12() == 0 && wm.m21() == 0) {
-                    RECT rect = { LONG(opt->rect.left() + wm.dx()), LONG(opt->rect.top() + wm.dy()),
-                                  LONG(opt->rect.right() + 1 + wm.dx()), LONG(opt->rect.bottom() + 1 + wm.dy()) };
-                    // Force update the HDC before we use it.
-                    p->paintEngine()->syncState();
-                    HDC hdc = p->device()->getDC();
-                    DrawFocusRect(hdc, &rect);
-                    p->device()->releaseDC(hdc);
-                    break;
-                }
-            }
-#endif
             QRect r = opt->rect;
             p->save();
             p->setBackgroundMode(Qt::TransparentMode);
