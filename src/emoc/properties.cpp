@@ -18,7 +18,7 @@ static const char* TorbensHack[] = {
     "void", "setText", "", "const QString&", ")",
     "QString", "text", "const", ")",
     "void", "setPixmap", "", "const QPixmap&", ")",
-    "const QPixmap*", "pixmap", "const", ")",
+    "QPixmap*", "pixmap", "const", ")",
 
   "+", "QLabel", "", "", "",
     "void", "setText", "", "const QString&", ")",
