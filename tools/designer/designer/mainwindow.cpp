@@ -1558,7 +1558,7 @@ void MainWindow::saveAllTemp()
     if ( inSaveAllTemp )
 	return;
     inSaveAllTemp = TRUE;
-    statusBar()->message( tr( "Qt Designer is crashing - saving work as good as possible..." ) );
+    statusBar()->message( tr( "Qt Designer is crashing - attempting to save work..." ) );
     QWidgetList windows = workSpace()->windowList();
     QString baseName = QDir::homeDirPath() + "/.designer/saved-form-";
     int i = 1;
@@ -2075,7 +2075,7 @@ QObjectList *MainWindow::previewProject()
     }
 
     QApplication::restoreOverrideCursor();
-	
+
     return l;
 }
 
