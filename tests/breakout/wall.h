@@ -25,6 +25,7 @@ class GameMain;
 class Player;
 class Remote;
 class RemoteSocket;
+
 class Ball : public QObject, public QCanvasEllipse 
 {
     Q_OBJECT
@@ -35,9 +36,11 @@ public:
     int rtti() const { return RTTI; }
     void putOnPad();
 public slots:
+    void setBall( double x, double y, double ang, double sp );
     void setSpeed( double ang, double sp );
     void setOwner( Player *player );
 signals:
+    void ballPosition( double x, double y, double ang, double sp );
     void ballOwnedBy( Player *player );
     void ballSpeed( double ang, double sp );
 private:
@@ -55,8 +58,10 @@ public:
     Pad( GameMain *game, Player *pl );
     int rtti() const { return RTTI; }
     Player *getPlayer() const { return player; }
+public slots:
+    void setPosition( double x );
 signals:
-    void padPosition( int x );
+    void padPosition( double x );
 private:
     GameMain *game;
     Player *player;
@@ -130,9 +135,9 @@ public:
     Lives( GameMain *g, Player *player, int lives = InitLives );
     int rtti() const { return RTTI; }
     int getLives() const { return number; }
-    void setLives( int value );
 public slots:
     void looseLife();
+    void setLives( int value );
 signals:
     void newBall();
     void ballLost();
@@ -222,63 +227,6 @@ protected:
 };
 
 
-class RemoteServer : public QServerSocket
-{
-    Q_OBJECT
-public:
-    RemoteServer( Q_UINT16 port = NetworkPort, QObject *parent = 0, const char *name = 0 );
-    void newConnection( int socket );
-signals:
-    void newRemoteSocket( RemoteSocket *remoteSocket );
-};
-
-class RemoteSocket : public QSocket
-{
-    Q_OBJECT
-public:
-    RemoteSocket( int socketConnection, QObject *parent = 0, const char *name = 0 );
-    RemoteSocket( const QString &host, Q_UINT16 port, QObject *parent = 0, const char *name = 0 );
-};
-
-class Remote : public QObject
-{
-    Q_OBJECT
-public:
-    Remote( Q_UINT16 port = NetworkPort, QObject *parent = 0);
-    Remote( const QString &host, Q_UINT16 port = NetworkPort, QObject *parent = 0);
-    bool isServer() const { return iAmServer; }
-public slots:
-    //void setPadPosition();
-    //void sendBallSpeed( double ang, double sp );
-    //void sendLives( int lives );
-    void sendScore( int score );
-    //void sendDied();
-signals:
-    void readPadPosition( int x );
-    void readBallSpeed( double ang, double sp );
-    void readLives( int lives );
-    void readScore( int score );
-    void readDied();
-    void success();
-    void failed();
-private slots:
-    void remoteSocketCreated( RemoteSocket *remoteSocket );
-    void socketReadyRead();
-    void socketConnected();
-    void socketConnectionClosed();
-    void socketError( int e );
-    //void closeConnection();
-    //void socketClosed();
-private:
-    void init();
-    void send( const QString &line );
-    QTextStream stream;
-    RemoteSocket *remoteSocket;
-    RemoteServer *remoteServer;
-    bool iAmServer;
-};
-
-
 class TableView : public QCanvasView 
 {
 public:
@@ -326,7 +274,9 @@ public slots:
     void endGame();
     void endLevel();
     void startBall();
-    void newGame();
+    void newGame( bool multi = FALSE );
+    void serveMultiGame();
+    void joinMultiGame();
     void help();
     void about();
     void toggleColors();
@@ -364,6 +314,66 @@ private:
     Remote *remote;
 };
 
+
+
+class RemoteServer : public QServerSocket
+{
+    Q_OBJECT
+public:
+    RemoteServer( Q_UINT16 port = NetworkPort, QObject *parent = 0, const char *name = 0 );
+    void newConnection( int socket );
+signals:
+    void newRemoteSocket( RemoteSocket *remoteSocket );
+};
+
+class RemoteSocket : public QSocket
+{
+    Q_OBJECT
+public:
+    RemoteSocket( int socketConnection, QObject *parent = 0, const char *name = 0 );
+    RemoteSocket( const QString &host, Q_UINT16 port, QObject *parent = 0, const char *name = 0 );
+};
+
+class Remote : public QObject
+{
+    Q_OBJECT
+public:
+    Remote( Q_UINT16 port = NetworkPort, QObject *parent = 0);
+    Remote( const QString &host, Q_UINT16 port = NetworkPort, QObject *parent = 0);
+    bool isServer() const { return iAmServer; }
+public slots:
+    void sendPad( double x );
+    void sendBall( double x, double y, double ang, double sp );
+    void sendLives( int lives );
+    void sendScore( int score );
+    //void sendDied();
+    //void ownBall();
+signals:
+    void readPad( double x );
+    void readBall( double x, double y, double ang, double sp );
+    void readLives( int lives );
+    void readScore( int score );
+    void readDied();
+    void myBall();
+    void success();
+    void failed();
+private slots:
+    void remoteSocketCreated( RemoteSocket *remoteSocket );
+    void socketReadyRead();
+    void socketConnected();
+    void socketConnectionClosed();
+    void socketError( int e );
+    //void closeConnection();
+    //void socketClosed();
+private:
+    void init();
+    void send( const QString &line );
+    QTextStream stream;
+    RemoteSocket *remoteSocket;
+    RemoteServer *remoteServer;
+    bool iAmServer;
+};
+
 class QLineEdit;
 
 class NetworkDialog : public QDialog {
@@ -380,6 +390,7 @@ private:
     QPushButton *ok;
     Remote *remote;
     bool server;
+    QObject *owner;
 };
 
 

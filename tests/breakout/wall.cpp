@@ -143,6 +143,14 @@ void Ball::advance( int phase )
     }
 }
 
+void Ball::setBall( double x, double y, double ang, double sp )
+{
+/*    if ( xpos + boundingRect().width() > game->getCanvas()->width() ) 
+	xpos = game->getCanvas()->width() - boundingRect().width();*/
+    move( x * game->getBrickWidth(), y * game->getBrickHeight() );
+    setSpeed( ang, sp );
+}
+
 void Ball::setSpeed( double ang, double sp ) 
 {
     angle = ang;
@@ -179,6 +187,16 @@ Pad::Pad( GameMain *g, Player *pl ) :
 	move( ( g->getBrickCols()/2 - 1 ) * g->getBrickWidth(), ( BricksVertical - 1.5 ) * g->getBrickHeight());
     else //up
 	move( ( g->getBrickCols()/2 - 1 ) * g->getBrickWidth(), 1 * g->getBrickHeight());
+}
+
+void Pad::setPosition( double x )
+{
+    double xpos = x * game->getBrickWidth();
+    if ( xpos < 0 )
+	xpos = 0;
+    if ( xpos + boundingRect().width() > game->getCanvas()->width() ) 
+	xpos = game->getCanvas()->width() - boundingRect().width();
+    setX( xpos );
 }
 
 
@@ -350,6 +368,7 @@ void Lives::looseLife()
 	--number;
     print();
     emit ballLost();
+    emit livesChanged( number );
     if ( number <= 0) 
 	emit noMoreLives();
     else 
@@ -360,6 +379,7 @@ void Lives::setLives( int value )
 {
     if ( number != value ) {
 	number = value; 
+	print();
 	emit livesChanged( number );
     }
 }
@@ -404,6 +424,7 @@ void Score::setScore( int value )
 {
     if ( number != value ) {
 	number = value; 
+	print();
 	emit scoreChanged( number );
     }
 }
@@ -588,101 +609,6 @@ Player::Player( GameMain *g, PlayerPosition pos ) :
 
 
 
-RemoteServer::RemoteServer( Q_UINT16 port, QObject *parent, const char *name ) :
-    QServerSocket( port, 1, parent, name )
-{
-}
-
-void RemoteServer::newConnection( int socket )
-{
-    RemoteSocket *remoteSocket = new RemoteSocket( socket, this );
-    emit newRemoteSocket( remoteSocket );
-}
-
-
-RemoteSocket::RemoteSocket( int socketConnection, QObject *parent, const char *name ) :
-    QSocket( parent, name )
-{
-    setSocket( socketConnection );
-}   
-    
-RemoteSocket::RemoteSocket( const QString &host, Q_UINT16 port, QObject *parent, const char *name ) :
-    QSocket( parent, name )
-    
-{
-    connectToHost( host, port );
-}
-
-Remote::Remote( Q_UINT16 port, QObject *parent) :
-    QObject( parent )
-{
-    remoteServer = new RemoteServer( port, this );
-    connect( remoteServer, SIGNAL(newRemote(RemoteSocket*)), this, SLOT(remoteSocketCreated(RemoteSocket*)) );
-    iAmServer = TRUE;
-}
-
-Remote::Remote( const QString &host, Q_UINT16 port, QObject *parent ) :
-    QObject( this )
-{
-    remoteSocket = new RemoteSocket( host, port, this );
-    init();
-    iAmServer = FALSE;
-}
-
-
-void Remote::remoteSocketCreated( RemoteSocket *remoteSock )
-{
-    remoteSocket = remoteSock;
-    init();
-    emit success();
-}
-   
-void Remote::init()
-{
-    connect( remoteSocket, SIGNAL(connected()), this, SLOT(socketConnected()) );
-    connect( remoteSocket, SIGNAL(connectionClosed()), this,  SLOT(socketConnectionClosed()) );
-    connect( remoteSocket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()) );
-    connect( remoteSocket, SIGNAL(error(int)), this, SLOT(socketError(int)) );
-    stream.setDevice( remoteSocket );
-}
-
-void Remote::socketConnected()
-{
-    emit success();
-}
-
-void Remote::socketConnectionClosed()
-{
-    qDebug( "Connection closed!" );
-}
-
-void Remote::socketError( int e )
-{
-    emit failed();
-}
-
-void Remote::socketReadyRead()
-{
-    QString line;
-    while ( remoteSocket->canReadLine() ) {
-	line = remoteSocket->readLine();  
-	if ( line.section( ',', 0, 0 ) == "score" )
-	    emit readScore( line.section( ',', 1, 1 ).toInt() );
-    }
-}
-
-void Remote::send( const QString &line )
-{
-    stream << line << "\n";
-}
-
-void Remote::sendScore( int score )
-{
-    send( "score," + QString::number( score ) );
-}
-
-
-
 TableView::TableView( GameMain *parent, const char *name, WFlags f ) :
     QCanvasView( parent->getCanvas(), parent, name, f ), game( parent )
 {
@@ -754,7 +680,7 @@ GameMain::GameMain( int cols, int rows, int width, int height, QWidget *parent, 
     canvas = new QCanvas( brickCols * brickWidth, brickRows * brickHeight );
     advancePeriod = 20;
     #ifdef Q_OS_WIN32
-    if ( QApplication::winVersion() != Qt::WV_NT_based )
+    if ( !( QApplication::winVersion() & Qt::WV_NT_based ) )
 	advancePeriod = 55;
     #endif
     canvas->setAdvancePeriod( advancePeriod );
@@ -784,6 +710,12 @@ GameMain::GameMain( int cols, int rows, int width, int height, QWidget *parent, 
     //optionsMenu->insertSeparator();
     menu->insertItem( "&Options", optionsMenu );
     
+    QPopupMenu *multiplayerMenu = new QPopupMenu( menu );
+    multiplayerMenu->insertItem( "&Serve multiplayer game", this, SLOT(serveMultiGame()) );
+    multiplayerMenu->insertSeparator();
+    multiplayerMenu->insertItem( "&Join multiplayer game", this, SLOT(joinMultiGame()) );
+    menu->insertItem( "&Multiplayer", multiplayerMenu );
+    
     QPopupMenu *helpMenu = new QPopupMenu( menu );
     helpMenu->insertItem( "&Help", this, SLOT(help()), Key_F1 );
     helpMenu->insertSeparator();
@@ -801,8 +733,9 @@ GameMain::~GameMain()
 {
 }
 
-void GameMain::newGame()
+void GameMain::newGame( bool multi )
 {
+    multiplayer = multi;
     running = FALSE;
     QCanvasItemList cil = canvas->allItems();
     for (QCanvasItemList::Iterator it = cil.begin(); it != cil.end(); ++it) {
@@ -811,20 +744,21 @@ void GameMain::newGame()
     }
     
     player = new Player( this, PlayerDown );
-    if ( multiplayer )
-	player2 = new Player( this, PlayerUp );
     currentPlayer = player;
+    if ( multiplayer ) {
+	player2 = new Player( this, PlayerUp );
+    
+	connect( player->getScore(), SIGNAL(scoreChanged(int)), remote, SLOT(sendScore(int)) );
+	connect( remote, SIGNAL(readScore(int)), player2->getScore(), SLOT(setScore(int)) );
 
-    tableView->takeMouse( FALSE );
+	connect( player->getLives(), SIGNAL(livesChanged(int)), remote, SLOT(sendLives(int)) );
+	connect( remote, SIGNAL(readLives(int)), player2->getLives(), SLOT(setLives(int)) );
 
-    /*
-    remote = NetworkDialog::makeConnection( TRUE, this );
-    if (!remote )
-	return;
+	connect( player->getPad(), SIGNAL(padPosition(double)), remote, SLOT(sendPad(double)) );
+	connect( remote, SIGNAL(readPad(double)), player2->getPad(), SLOT(setPosition(double)) );
 
-    connect( player->getScore(), SIGNAL(scoreChanged(int)), remote, SLOT(setScore(int)) );
-    connect( remote, SIGNAL(readScore(int)), player->getScore(), SLOT(setScore(int)) );
-    */
+	//level multiplayer..
+    }
 
     level->start();
 
@@ -842,6 +776,30 @@ void GameMain::newGame()
     ball = 0;
     startBall();
 }
+
+
+void GameMain::serveMultiGame()
+{
+    delete remote;
+    remote = 0;
+    tableView->takeMouse( FALSE );
+    remote = NetworkDialog::makeConnection( TRUE, this );
+    if ( remote ) {
+	newGame( TRUE );
+    }
+}
+
+void GameMain::joinMultiGame()
+{
+    delete remote;
+    remote = 0;
+    tableView->takeMouse( FALSE );
+    remote = NetworkDialog::makeConnection( FALSE, this );
+    if ( remote ) {
+	newGame( TRUE );
+    }
+}
+
 
 void GameMain::killBall()
 {
@@ -874,6 +832,10 @@ void GameMain::startBall()
     if ( !ball ) {
 	ball = new Ball( this, currentPlayer );
 	connect( ball, SIGNAL(ballOwnedBy(Player*)), this, SLOT(setCurrentPlayer(Player*)) );
+	if ( remote ) {
+	    connect( ball, SIGNAL(ballPosition(double,double,double,double)), remote, SLOT(sendBall(double,double,double,double)) );
+	    connect( remote, SIGNAL(readBall(double,double,double,double)), ball, SLOT(setBall(double,double,double,double)) );
+	}
     }
     setGluedBall( TRUE );
     ball->putOnPad();
@@ -962,8 +924,128 @@ void GameMain::keyPressEvent ( QKeyEvent *e )
 }
 
 
+RemoteServer::RemoteServer( Q_UINT16 port, QObject *parent, const char *name ) :
+    QServerSocket( port, 1, parent, name )
+{
+}
+
+void RemoteServer::newConnection( int socket )
+{
+    RemoteSocket *remoteSocket = new RemoteSocket( socket, this );
+    emit newRemoteSocket( remoteSocket );
+}
+
+
+RemoteSocket::RemoteSocket( int socketConnection, QObject *parent, const char *name ) :
+    QSocket( parent, name )
+{
+    setSocket( socketConnection );
+}   
+    
+RemoteSocket::RemoteSocket( const QString &host, Q_UINT16 port, QObject *parent, const char *name ) :
+    QSocket( parent, name )
+    
+{
+    connectToHost( host, port );
+}
+
+Remote::Remote( Q_UINT16 port, QObject *parent) :
+    QObject( parent )
+{
+    remoteSocket = 0;
+    iAmServer = TRUE;
+    remoteServer = new RemoteServer( port, this );
+    connect( remoteServer, SIGNAL(newRemoteSocket(RemoteSocket*)), this, SLOT(remoteSocketCreated(RemoteSocket*)) );
+}
+
+Remote::Remote( const QString &host, Q_UINT16 port, QObject *parent ) :
+    QObject( this )
+{
+    remoteServer = 0;
+    iAmServer = FALSE;
+    remoteSocket = new RemoteSocket( host, port, this );
+    init();
+}
+
+
+void Remote::remoteSocketCreated( RemoteSocket *remoteSock )
+{
+    remoteSocket = remoteSock;
+    init();
+    emit success();
+}
+   
+void Remote::init()
+{
+    connect( remoteSocket, SIGNAL(connected()), this, SLOT(socketConnected()) );
+    connect( remoteSocket, SIGNAL(connectionClosed()), this,  SLOT(socketConnectionClosed()) );
+    connect( remoteSocket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()) );
+    connect( remoteSocket, SIGNAL(error(int)), this, SLOT(socketError(int)) );
+    stream.setDevice( remoteSocket );
+}
+
+void Remote::socketConnected()
+{
+    emit success();
+}
+
+void Remote::socketConnectionClosed()
+{
+    qDebug( "Connection closed!" );
+}
+
+void Remote::socketError( int e )
+{
+    emit failed();
+}
+
+void Remote::socketReadyRead()
+{
+    QString line;
+    while ( remoteSocket->canReadLine() ) {
+	line = remoteSocket->readLine();  
+qDebug( "Received: %s", line.latin1() );
+	if ( line.section( ',', 0, 0 ) == "score" )
+	    emit readScore( line.section( ',', 1, 1 ).toInt() );
+	else if ( line.section( ',', 0, 0 ) == "lives" )
+	    emit readLives( line.section( ',', 1, 1 ).toInt() );
+	else if ( line.section( ',', 0, 0 ) == "pad" )
+	    emit readPad( line.section( ',', 1, 1 ).toDouble() );
+	else if ( line.section( ',', 0, 0 ) == "ball" )
+	    emit readBall( line.section( ',', 1, 1 ).toDouble(), line.section( ',', 2, 2 ).toDouble(), 
+	                  line.section( ',', 3, 3 ).toDouble(), line.section( ',', 4, 4 ).toDouble() );
+    }
+}
+
+void Remote::send( const QString &line )
+{
+    stream << line << "\n";
+qDebug( "Sent: %s", line.latin1() );
+}
+
+void Remote::sendScore( int score )
+{
+    send( "score," + QString::number( score ) );
+}
+
+void Remote::sendLives( int lives )
+{
+    send( "lives," + QString::number( lives ) );
+}
+
+void Remote::sendPad( double xpos )
+{
+    send( "pad," + QString::number( xpos ) );
+}
+
+void Remote::sendBall( double x, double y, double ang, double sp )
+{
+    send( QString("ball,%1,%2,%3,%4").arg( x ).arg( y ).arg( ang ).arg( sp ) );
+}
+
+
 NetworkDialog::NetworkDialog( bool srv, QWidget *parent, const char *name ) :
-    QDialog( parent, name, TRUE ), server( srv ), remote( 0 )
+    QDialog( parent, name, TRUE ), server( srv ), remote( 0 ), owner( parent )
 {
     QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
     if ( server ) {
@@ -1007,9 +1089,9 @@ void NetworkDialog::tryConnect()
 {
     ok->hide();
     if ( server ) {
-	Remote *remote = new Remote( editPort->text().toInt(), this );
+	remote = new Remote( editPort->text().toInt(), owner );
     } else {
-	Remote *remote = new Remote( editHost->text(), editPort->text().toInt(), this );
+	remote = new Remote( editHost->text(), editPort->text().toInt(), owner );
     }
     connect( remote, SIGNAL(success()), this, SLOT(accept()) );
     connect( remote, SIGNAL(failed()), this, SLOT(failed()) );
