@@ -299,7 +299,7 @@ QSize QToolButton::sizeHint() const
     if ( d->popup && !d->delay )
 	w += style().menuButtonIndicatorWidth( height() );
 #ifdef Q_WS_QWS // ###### should be style option
-    return QSize( w+4, h ).expandedTo( QApplication::globalStrut() );
+    return QSize( w + 4, h + 2 ).expandedTo( QApplication::globalStrut() );
 #else
     return QSize( w + 7, h + 6 ).expandedTo( QApplication::globalStrut() );
 #endif
