@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#299 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#300 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2468,14 +2468,13 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	    tw *= 2;
 	while ( tw*th < 32678 && th < h/2 )
 	    th *= 2;
-	QPixmap tile( tw, th, pixmap.depth() );
+	QPixmap tile( tw, th, pixmap.depth(), QPixmap::NormalOptim );
 	fillTile( &tile, pixmap );
 	if ( mask ) {
-	    QBitmap tilemask( tw, th );
+	    QBitmap tilemask( tw, th, QPixmap::NormalOptim );
 	    fillTile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
-	tile.setOptimization( QPixmap::BestOptim );
 	drawTile( this, x, y, w, h, tile, sx, sy );
     } else {
 	drawTile( this, x, y, w, h, pixmap, sx, sy );

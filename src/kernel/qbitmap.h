@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#36 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#37 $
 **
 ** Definition of QBitmap class
 **
@@ -35,8 +35,10 @@ class Q_EXPORT QBitmap : public QPixmap
 {
 public:
     QBitmap();
-    QBitmap( int w, int h,  bool clear = FALSE );
-    QBitmap( const QSize &, bool clear = FALSE	);
+    QBitmap( int w, int h,  bool clear = FALSE,
+	     QPixmap::Optimization = QPixmap::DefaultOptim );
+    QBitmap( const QSize &, bool clear = FALSE,
+	     QPixmap::Optimization = QPixmap::DefaultOptim );
     QBitmap( int w, int h,  const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QSize &, const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QBitmap & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#54 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -957,6 +957,7 @@ void QDragManager::updatePixmap()
 		int h = y2-y1+1;
 
 		if ( qt_winver == WV_32s || qt_winver == WV_95 ) {
+		    // ###hanord: What about Windows 98?
 		    // Limited cursor size
 		    int reqw = GetSystemMetrics(SM_CXCURSOR);
 		    int reqh = GetSystemMetrics(SM_CYCURSOR);
@@ -972,7 +973,7 @@ void QDragManager::updatePixmap()
 		    h = reqh;
 		}
 
-		QPixmap colorbits(w,h);
+		QPixmap colorbits(w,h,-1,QPixmap::NormalOptim);
 		{
 		    QPainter p(&colorbits);
 		    p.fillRect(0,0,w,h,color1);
@@ -980,8 +981,7 @@ void QDragManager::updatePixmap()
 		    p.drawPixmap(QMAX(0,pm_hot.x()),QMAX(0,pm_hot.y()),cpm);
 		}
 
-		QBitmap maskbits(w,h,TRUE);
-		maskbits.setOptimization(QPixmap::NoOptim);
+		QBitmap maskbits(w,h,TRUE,QPixmap::NormalOptim);
 		{
 		    QPainter p(&maskbits);
 		    if ( pm.mask() ) {
@@ -1004,11 +1004,11 @@ void QDragManager::updatePixmap()
 		}
 
 		ICONINFO ii;
-		ii.fIcon = FALSE;
-		ii.xHotspot = QMAX(0,pm_hot.x());
-		ii.yHotspot = QMAX(0,pm_hot.y());
-		ii.hbmMask = maskbits.hbm();
-		ii.hbmColor = colorbits.hbm();
+		ii.fIcon     = FALSE;
+		ii.xHotspot  = QMAX(0,pm_hot.x());
+		ii.yHotspot  = QMAX(0,pm_hot.y());
+		ii.hbmMask   = maskbits.hbm();
+		ii.hbmColor  = colorbits.hbm();
 		cursor[cnum] = CreateIconIndirect(&ii);
 	    }
 	}

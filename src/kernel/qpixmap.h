@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#103 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#104 $
 **
 ** Definition of QPixmap class
 **
@@ -46,10 +46,12 @@ friend class QPaintDevice;
 friend class QPainter;
 public:
     enum ColorMode { Auto, Color, Mono };
+    enum Optimization { DefaultOptim, NoOptim, MemoryOptim=NoOptim,
+			NormalOptim, BestOptim };
 
     QPixmap();
-    QPixmap( int w, int h,  int depth=-1 );
-    QPixmap( const QSize &, int depth=-1 );
+    QPixmap( int w, int h,  int depth = -1, Optimization = DefaultOptim );
+    QPixmap( const QSize &, int depth = -1, Optimization = DefaultOptim );
     QPixmap( const QString& fileName, const char *format=0,
 	     ColorMode mode=Auto );
     QPixmap( const QString& fileName, const char *format,
@@ -112,8 +114,6 @@ public:
 #endif
 
     int		serialNumber()	const;
-
-    enum Optimization { NoOptim, MemoryOptim=NoOptim, NormalOptim, BestOptim };
 
     Optimization	optimization() const;
     void		setOptimization( Optimization );

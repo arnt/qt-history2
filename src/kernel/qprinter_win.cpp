@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#51 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -416,6 +416,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 	    if ( c == PdcDrawPixmap ) {
 		bits = new uchar[bmh->biSizeImage];
+		// We are guaranteed that the QPainter does not pass
+		// a multi cell pixmap, therefore we can access hbm().
 		GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
 			   bits, bmi, DIB_RGB_COLORS );
 	    } else {

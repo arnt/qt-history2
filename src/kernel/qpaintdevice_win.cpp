@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#71 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -121,13 +121,11 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
     QPixmap *bs = *blackSourcePixmap;
     bool newPixmap = bs == 0;
     if ( newPixmap ) {
-	bs = new QPixmap( src_width, src_height, src_depth );
+	bs = new QPixmap( src_width, src_height, src_depth, QPixmap::NormalOptim );
 	CHECK_PTR( bs );
-	bs->setOptimization( QPixmap::NormalOptim );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,
 		hdc_src, 0, src_offset, SRCCOPY );
-	QBitmap masknot( src_width, src_height );
-	masknot.setOptimization( QPixmap::NormalOptim );
+	QBitmap masknot( src_width, src_height, FALSE, QPixmap::NormalOptim );
 	BitBlt( masknot.handle(), 0, 0, src_width, src_height,
 		hdc_mask, 0, mask_offset, NOTSRCCOPY );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,
@@ -316,6 +314,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		src_pm->data->maskpm = 0;
 	    }
 	} else {
+	    // We can safely access hbm() here since multi cell pixmaps
+	    // are not used under NT.
 	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	}

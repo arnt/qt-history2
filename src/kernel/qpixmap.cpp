@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#104 $
 **
 ** Implementation of QPixmap class
 **
@@ -72,6 +72,13 @@
   sharing\endlink, so it is very efficient to pass QPixmap objects as
   arguments.
 
+  <strong>Note about Windows 95 and 98:</strong> Because of internal
+  limitations in the operating system, Windows 9x easily crashes if you
+  create around 1000 pixmaps or more.  Qt will work around this problem
+  if you set the \link setOptimization() pixmap optimization\endlink
+  to \c QPixmap::MemoryOptim.  Read more about this in the
+  setOptimization() documentation.
+
   \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
 */
 
@@ -84,10 +91,11 @@ QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
   Private constructor which takes the bitmap flag and the optimization.
 */
 
-QPixmap::QPixmap( int w, int h, int depth, bool bitmap, Optimization optim )
+QPixmap::QPixmap( int w, int h, int depth, bool bitmap,
+		  Optimization optimization )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( w, h, depth, bitmap, optim );
+    init( w, h, depth, bitmap, optimization );
 }
 
 
@@ -117,21 +125,22 @@ QPixmap::QPixmap()
   \sa isNull()
 */
 
-QPixmap::QPixmap( int w, int h, int depth )
+QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( w, h, depth, FALSE, defOptim );
+    init( w, h, depth, FALSE, optimization );
 }
 
 /*!
-  \overload QPixmap::QPixmap( const QSize &size, int depth )
+  \overload QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
 */
 
-QPixmap::QPixmap( const QSize &size, int depth )
+QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( size.width(), size.height(), depth, FALSE, defOptim );
+    init( size.width(), size.height(), depth, FALSE, optimization );
 }
+
 
 /*!
   Constructs a pixmap from the file \e fileName. If the file does not
@@ -744,7 +753,8 @@ QPixmap::Optimization QPixmap::defaultOptimization()
 
 void QPixmap::setDefaultOptimization( Optimization optimization )
 {
-    defOptim = optimization;
+    if ( optimization != DefaultOptim )
+	defOptim = optimization;
 }
 
 

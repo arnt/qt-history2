@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#41 $
 **
 ** Implementation of QBitmap class
 **
@@ -73,14 +73,22 @@ QBitmap::QBitmap()
 
 
 /*!
-  Constructs a bitmap with \e w width and \e h height.
+  Constructs a bitmap with \a w width and \a h height.
 
-  The contents of the bitmap is uninitialized if \e clear is FALSE, otherwise
-  it is filled with pixel value 0 (the QColor \c color0).
+  The contents of the bitmap is uninitialized if \a clear is FALSE, otherwise
+  it is filled with pixel value 0 (the QColor \a Qt::color0).
+
+  The optional \a optimization argument specifies the optimization
+  setting for the bitmap.  The default optimization should be used
+  in most cases.  Games and other pixmap-intensive applications may
+  benefit from setting this argument.
+
+  \sa QPixmap::setOptimization(), QPixmap::setDefaultOptimization()
 */
 
-QBitmap::QBitmap( int w, int h, bool clear )
-    : QPixmap( w, h, 1 )
+QBitmap::QBitmap( int w, int h, bool clear,
+		  QPixmap::Optimization optimization )
+    : QPixmap( w, h, 1, optimization )
 {
     data->bitmap = TRUE;
     if ( clear )
@@ -89,11 +97,12 @@ QBitmap::QBitmap( int w, int h, bool clear )
 
 
 /*!
-  Overloaded constructor; takes a QSize parameter instead of \e (w,h).
+  \overload QBitmap::QBitmap( int w, int h, bool clear, QPixmap::Optimization optimization )
 */
 
-QBitmap::QBitmap( const QSize &size, bool clear )
-    : QPixmap( size, 1 )
+QBitmap::QBitmap( const QSize &size, bool clear,
+		  QPixmap::Optimization optimization )
+    : QPixmap( size, 1, optimization )
 {
     data->bitmap = TRUE;
     if ( clear )

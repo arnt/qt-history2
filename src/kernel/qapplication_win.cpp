@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#290 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#291 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -981,22 +981,22 @@ static void sn_activate_fd( int sockfd, int type )
  *****************************************************************************/
 
 static void drawTile( HDC hdc, int x, int y, int w, int h,
-		      const QPixmap &pixmap, int xOffset, int yOffset )
+		      const QPixmap *pixmap, int xOffset, int yOffset )
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
     yOff = yOffset;
     while( yPos < y + h ) {
-	drawH = pixmap.height() - yOff;    // Cropping first row
-	if ( yPos + drawH > y + h )	   // Cropping last row
+	drawH = pixmap->height() - yOff;	// Cropping first row
+	if ( yPos + drawH > y + h )		// Cropping last row
 	    drawH = y + h - yPos;
 	xPos = x;
 	xOff = xOffset;
 	while( xPos < x + w ) {
-	    drawW = pixmap.width() - xOff; // Cropping first column
-	    if ( xPos + drawW > x + w )	   // Cropping last column
+	    drawW = pixmap->width() - xOff;	// Cropping first column
+	    if ( xPos + drawW > x + w )		// Cropping last column
 		drawW = x + w - xPos;
-	    BitBlt( hdc, xPos, yPos, drawW, drawH, pixmap.handle(),
+	    BitBlt( hdc, xPos, yPos, drawW, drawH, pixmap->handle(),
 		    xOff, yOff, SRCCOPY );
 	    xPos += drawW;
 	    xOff = 0;
@@ -1027,14 +1027,11 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
-    QPixmap *pm = (QPixmap*)bg_pixmap;
-    // We must temporarily disable MemoryOptim since we need to access
-    // the pixmap's hbm and hdc
-    bool memOptim = pm->optimization() == QPixmap::MemoryOptim;
-    if ( memOptim )
-	pm->setOptimization( QPixmap::NormalOptim );
-    if ( qt_winver == Qt::WV_NT ) {		// no brush size limitation
-	HBRUSH brush = CreatePatternBrush( pm->hbm() );
+    if ( qt_winver == Qt::WV_NT ) {
+	// NT has no brush size limitation, so this is straight-forward
+	// Note: Since multi cell pixmaps are not used under NT, we can
+	// safely access the hbm() parameter of the pixmap.
+	HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
 	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
 	if ( off_x || off_y ) {
 	    POINT p;
@@ -1046,23 +1043,30 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 	}
 	SelectObject( hdc, oldBrush );
 	DeleteObject( brush );
-    } else {					// Windows 95 & 98
-	QPixmap tile = *pm;
-	int sw = tile.width(), sh = tile.height();
+    } else {
+	// For Windows 9x, we must do everything ourselves.
+	QPixmap *tile = 0;
+	QPixmap *pm;
+	int  sw = bg_pixmap->width(), sh = bg_pixmap->height();
 	if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
 	    int tw = sw, th = sh;
 	    while ( tw*th < 32678 && tw < w/2 )
 		tw *= 2;
 	    while ( tw*th < 32678 && th < h/2 )
 		th *= 2;
-	    tile.resize( tw, th );
-	    tile.setOptimization( QPixmap::BestOptim );
-	    qt_fill_tile( &tile, *pm );
+	    tile = new QPixmap( tw, th, bg_pixmap->depth(),
+				QPixmap::NormalOptim );
+	    qt_fill_tile( tile, *bg_pixmap );
+	    pm = tile;
+	} else {
+	    if ( bg_pixmap->isMultiCellPixmap() )
+		off_y += bg_pixmap->multiCellOffset();
+	    pm = (QPixmap*)bg_pixmap;
 	}
-	drawTile( hdc, x, y, w, h, tile, off_x, off_y );
+	drawTile( hdc, x, y, w, h, pm, off_x, off_y );
+	if ( tile )
+	    delete tile;
     }
-    if ( memOptim )
-	pm->setOptimization( QPixmap::MemoryOptim );
 }
 
 

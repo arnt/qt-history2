@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#83 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -570,7 +570,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str )
 	    if ( !text_formats[i+1] ) {
 		// text/plain is NUL terminated, or payload.size().
 		int l = 0;
-		while ( l < payload.size() && payload[l] )
+		while ( l < (int)payload.size() && payload[l] )
 		    l++;
 		str = QString::fromLocal8Bit(payload,l);
 		return TRUE;

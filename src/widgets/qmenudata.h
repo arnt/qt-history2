@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#66 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#67 $
 **
 ** Definition of QMenuData class
 **
@@ -42,7 +42,7 @@ class QPopupMenu;
 #include "qstring.h"
 #include "qsignal.h"
 
-class Q_EXPORT QMenuItem					// internal menu item class
+class Q_EXPORT QMenuItem			// internal menu item class
 {
 friend class QMenuData;
 public:
@@ -50,9 +50,9 @@ public:
    ~QMenuItem();
 
     int		id()		const	{ return ident; }
-    QIconSet* iconSet()		const	{ return iconset_data; }
-    QString text()		const	{ return text_data; }
-    QString whatsThis()		const	{ return whatsthis_data; }
+    QIconSet   *iconSet()	const	{ return iconset_data; }
+    QString	text()		const	{ return text_data; }
+    QString	whatsThis()	const	{ return whatsthis_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     int		key()		const	{ return accel_key; }
@@ -63,17 +63,17 @@ public:
     bool	isDirty()	const	{ return is_dirty; }
 
     void	setText( const QString &text ) { text_data = text; }
-    void	setDirty( bool d )	    { is_dirty = d; }
+    void	setDirty( bool d )	       { is_dirty = d; }
     void	setWhatsThis( const QString &text ) { whatsthis_data = text; }
 
 private:
-    QIconSet* 	iconset_data;
     int		ident;				// item identifier
+    QIconSet   *iconset_data;			// icons
     QString	text_data;			// item text
     QString	whatsthis_data;			// item Whats This help text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
-    QWidget* widget;				// widget menu item
+    QWidget    *widget;				// widget menu item
     int		accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
@@ -89,7 +89,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 #include "qlist.h"
-typedef QList<QMenuItem> QMenuItemList;
+typedef QList<QMenuItem>	 QMenuItemList;
 typedef QListIterator<QMenuItem> QMenuItemListIt;
 
 #else
@@ -98,10 +98,10 @@ class QMenuItem;
 class QMenuItemList;
 class QPixmap;
 
-#endif
+#endif // INCLUDE_MENUITEM_TEXT
 
 
-class Q_EXPORT QMenuData					// menu data class
+class Q_EXPORT QMenuData			// menu data class
 {
 friend class QMenuBar;
 friend class QPopupMenu;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#154 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -578,6 +578,7 @@ void QPainter::updateBrush()
     } else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
 		(bs == CustomPattern) ) {
 	if ( bs == CustomPattern ) {
+	    // The brush pixmap can never be a multi cell pixmap
 	    hbrushbm = cbrush.pixmap()->hbm();
 	    pixmapBrush = TRUE;
 	    nocolBrush = cbrush.pixmap()->depth() == 1;
@@ -1804,7 +1805,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    if ( sx != 0 || sy != 0 ||
 		 sw != pixmap.width() || sh != pixmap.height() ||
 		 pixmap.isMultiCellPixmap() ) {
-		QPixmap tmp( sw, sh, pixmap.depth() );
+		QPixmap tmp( sw, sh, pixmap.depth(), QPixmap::NormalOptim );
 		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
 		if ( pixmap.mask() ) {
 		    QBitmap mask( sw, sh );
@@ -1948,12 +1949,10 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	    tw *= 2;
 	while ( tw*th < 32678 && th < h/2 )
 	    th *= 2;
-	QPixmap tile( tw, th, pixmap.depth() );
-	tile.setOptimization( QPixmap::BestOptim );
+	QPixmap tile( tw, th, pixmap.depth(), QPixmap::BestOptim );
 	qt_fill_tile( &tile, pixmap );
 	if ( mask ) {
-	    QBitmap tilemask( tw, th );
-	    tilemask.setOptimization( QPixmap::BestOptim );
+	    QBitmap tilemask( tw, th, FALSE, QPixmap::NormalOptim );
 	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
@@ -2056,10 +2055,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QBitmap *wx_bm = get_text_bitmap( mat2, dfont, str.utf8(), len );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
-		QBitmap bm( aw, ah );		// create bitmap
-		if ( bm.optimization() == QPixmap::MemoryOptim )
-		    bm.setOptimization( QPixmap::BestOptim );
-		bm.fill( color0 );
+		QBitmap bm( aw, ah, TRUE, QPixmap::NormalOptim );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( dfont );

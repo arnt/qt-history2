@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#204 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -554,18 +554,15 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	createTLExtra();
     }
     if ( !pixmap.isNull() ) {			// valid icon
-	QPixmap pm;
-	QBitmap mask;
+	QPixmap pm( pixmap.size(), pixmap.depth(), QPixmap::NormalOptim );
+	QBitmap mask( pixmap.size(), FALSE, QPixmap::NormalOptim );
 	if ( pixmap.mask() ) {
-	    pm.resize( pixmap.size() );
-	    pm.fill( black );
-	    bitBlt( &pm, 0, 0, &pixmap );	// make masked area black
-	    mask = *pixmap.mask();
-	} else  {
-	    pm = pixmap;
-	    mask.resize( pixmap.size() );
+	    pm.fill( black );			// make masked area black
+	    bitBlt( &mask, 0, 0, pixmap.mask() );
+	} else {
 	    mask.fill( color1 );
 	}
+	bitBlt( &pm, 0, 0, &pixmap );
 	HBITMAP im = createIconMask(mask);
 	ICONINFO ii;
 	ii.fIcon    = TRUE;
