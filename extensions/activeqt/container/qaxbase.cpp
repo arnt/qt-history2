@@ -3243,7 +3243,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
                 qvar = *(int*)v[0];
                 proptype = 0;
             } else {
-                if (t == -1) {
+                if (t == QVariant::LastType) {
                     qvar = *(QVariant*)v[0];
                     proptype = 0;
                 } else if (t == QVariant::UserType) {
