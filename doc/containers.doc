@@ -694,20 +694,8 @@
     container, the copy still takes place, but thanks to \l{implicit
     sharing} copying a container is very fast.)
 
-    To be able to use \c foreach in your application, you must define
-    the \c QT_KEYWORDS preprocessor symbol. If you use qmake to build
-    your application, simply add the following line to your .pro
-    file:
-
-    \code
-        DEFINES += QT_KEYWORDS
-    \endcode
-
-    (Without the \c QT_KEYWORDS symbol defined, \c foreach is
-    accessible under the name \c{Q_FOREACH}.)
-
-    In addition to \c foreach, the \c QT_KEYWORDS symbol also defines
-    a \c forever pseudo-keyword for infinite loops:
+    In addition to \c foreach, Qt also provides a \c forever
+    pseudo-keyword for infinite loops:
 
     \code
         forever {
