@@ -20,7 +20,7 @@
 #include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
-//#define USE_CORE_GRAPHICS
+#define USE_CORE_GRAPHICS
 
 #if QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
 # define QMAC_NO_FAKECURSOR
@@ -45,115 +45,6 @@ public:
     static bool blocking() { return block != 0; }
 };
 
-class QMacSavedFontInfo
-{
-private:
-    void init(CGrafPtr);
-protected:
-    short tfont, tface;
-    int tsize;
-public:
-    inline QMacSavedFontInfo() { GWorldPtr w; GDHandle h; GetGWorld(&w, &h); init(w); }
-    inline QMacSavedFontInfo(CGrafPtr w) { init(w); }
-    ~QMacSavedFontInfo();
-};
-
-inline QMacSavedFontInfo::~QMacSavedFontInfo()
-{
-    extern int mac_window_count; //qwidget_mac.cpp
-    if(mac_window_count) {
-	TextFont(tfont);
-	TextFace(tface);
-	TextSize(tsize);
-    }
-}
-
-inline void QMacSavedFontInfo::init(CGrafPtr w)
-{
-    extern int mac_window_count; //qwidget_mac.cpp
-    if(mac_window_count) {
-	tfont = GetPortTextFont(w);
-	tface = GetPortTextFace(w);
-	tsize = GetPortTextSize(w);
-    }
-}
-
-class QMacFontInfo
-{
-public:
-    inline QMacFontInfo() : fi_fnum(0), fi_face(0), fi_size(0), fi_enc(0), fi_astyle(0)
-	{ }
-    inline ~QMacFontInfo()
-	{ if(fi_astyle && fi_astyle->deref()) {
-	    ATSUDisposeStyle(fi_astyle->style);
-	    delete fi_astyle;
-	} }
-    inline QMacFontInfo &operator=(const QMacFontInfo &rhs) {
-	setEncoding(rhs.encoding());
-	setFont(rhs.font());
-	setStyle(rhs.style());
-	setSize(rhs.size());
-	if(rhs.atsuStyle()) {
-	    rhs.atsuStyle()->ref();
-	    setATSUStyle(rhs.atsuStyle());
-	} else {
-	    if(fi_astyle && fi_astyle->deref()) {
-		ATSUDisposeStyle(fi_astyle->style);
-		delete fi_astyle;
-	    }
-	    setStyle(NULL);
-	}
-	return *this;
-    }
-
-    inline TextEncoding encoding() const { return fi_enc; }
-    inline void setEncoding(TextEncoding f) { fi_enc = f; }
-
-    inline short font() const { return fi_fnum; }
-    inline void setFont(short f) { fi_fnum = f; }
-
-    inline short style() const { return fi_face; }
-    inline void setStyle(short f) { fi_face = f; }
-
-    inline int size() const { return fi_size; }
-    inline void setSize(int f) { fi_size = f; }
-
-    struct QATSUStyle : public QShared {
-	ATSUStyle style;
-	RGBColor rgb;
-    };
-    inline QATSUStyle *atsuStyle() const { return fi_astyle; }
-    inline void setATSUStyle(QATSUStyle *s) { fi_astyle = s; }
-
-private:
-    short fi_fnum, fi_face;
-    int fi_size;
-    TextEncoding fi_enc;
-    QATSUStyle *fi_astyle;
-};
-
-class QFontEngine;
-class QFontDef;
-class QFontPrivate;
-class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo
-{
-private:
-    static QMacFontInfo *createFontInfo(const QFontEngine *fe, const QFontDef *def, QPaintDevice *pdev);
-
-public:
-    //create this for temporary font settting
-    inline QMacSetFontInfo(const QFontPrivate *d, QPaintDevice *pdev) : QMacSavedFontInfo(),
-									QMacFontInfo() { setMacFont(d, this, pdev); }
-    inline QMacSetFontInfo(const QFontEngine *fe, QPaintDevice *pdev) : QMacSavedFontInfo(),
-									QMacFontInfo() { setMacFont(fe, this, pdev); }
-
-    //you can use these to cause font setting, without restoring old
-    static bool setMacFont(const QMacFontInfo *f, QMacSetFontInfo *sfi=NULL);
-    static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL, QPaintDevice *pdev=NULL);
-    static bool setMacFont(const QFontEngine *fe, QMacSetFontInfo *sfi=NULL, QPaintDevice *pdev=NULL);
-};
-
-
 #include "qpaintdevice.h"
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QAbstractGC;
@@ -165,7 +56,6 @@ class QMacSavedPortInfo
     GDHandle handle;
     PenState pen; //go pennstate
     RGBColor back, fore;
-    QMacSavedFontInfo *fi;
     bool valid_gworld;
     void init();
     QAbstractGC *gc;
@@ -311,7 +201,6 @@ QMacSavedPortInfo::init()
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
-    fi = NULL;
     gc = qt_mac_current_gc;
     extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
@@ -319,7 +208,6 @@ QMacSavedPortInfo::init()
 	GetForeColor(&fore);
 	GetGWorld(&world, &handle);
 	valid_gworld = TRUE;
-	fi = new QMacSavedFontInfo(world);
 	clip = NewRgn();
 	GetClip(clip);
 	GetPenState(&pen);
@@ -340,8 +228,6 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 	RGBForeColor(&fore);
 	RGBBackColor(&back);
     }
-    if(fi)
-	delete fi;
     qt_mac_current_gc = gc;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)

@@ -305,7 +305,36 @@ QString cfstring2qstring(CFStringRef str)
     return ret;
 }
 
-unsigned char * p_str(const char * c, int len=-1)
+void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1)
+{
+    if(len == -1)
+	len = s.length();
+
+    UnicodeMapping mapping;
+    UnicodeToTextInfo info;
+    mapping.unicodeEncoding = CreateTextEncoding(kTextEncodingUnicodeDefault, kTextEncodingDefaultVariant,
+						 kUnicode16BitFormat);
+    mapping.otherEncoding = (encoding ? encoding : mapping.unicodeEncoding);
+    mapping.mappingVersion = kUnicodeUseLatestMapping;
+
+    if(CreateUnicodeToTextInfo(&mapping, &info) != noErr) {
+	qDebug("Qt: internal: Unexpected condition reached %s:%d", __FILE__, __LINE__);
+	return;
+    }
+    const int unilen = len * 2;
+    const UniChar *unibuf = (UniChar *)s.unicode();
+    ConvertFromUnicodeToPString(info, unilen, unibuf, str);
+    DisposeUnicodeToTextInfo(&info);
+}
+
+QString pstring2qstring(const unsigned char *c) {
+    QString ret;
+    if(c[0])
+	ret = QString::fromAscii((char*)c+1, c[0]);
+    return ret;
+}
+
+unsigned char *p_str(const char * c, int len=-1)
 {
     const int maxlen = 255;
     if(len == -1)
@@ -326,14 +355,6 @@ unsigned char * p_str(const QString &s)
     return p_str(s, s.length());
 }
 
-QByteArray p2qstring(const unsigned char *c) {
-       char *arr = (char *)malloc(c[0] + 1);
-       memcpy(arr, c+1, c[0]);
-       arr[c[0]] = '\0';
-       QByteArray ret( arr );
-       delete arr;
-       return ret;
-}
 #endif
 
 

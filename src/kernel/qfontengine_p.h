@@ -33,7 +33,7 @@ typedef int advance_t;
 class QOpenType;
 struct TransformedFont;
 
-#if defined( Q_WS_X11 ) || defined( Q_WS_WIN) || defined( Q_WS_MAC )
+#if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngine : public QShared
 {
 public:
@@ -69,20 +69,20 @@ public:
     virtual ~QFontEngine();
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs,
-				advance_t *advances, int *nglyphs, bool mirrored ) const = 0;
+    virtual Error stringToCMap(const QChar *str, int len, glyph_t *glyphs,
+				advance_t *advances, int *nglyphs, bool mirrored) const = 0;
 
 #ifdef Q_WS_X11
     virtual int cmap() const { return -1; }
     virtual QOpenType *openType() const { return 0; }
 #endif
 
-    virtual void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags ) = 0;
+    virtual void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags) = 0;
 
-    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
+    virtual glyph_metrics_t boundingBox(const glyph_t *glyphs,
 					 const advance_t *advances,
-					 const qoffset_t *offsets, int numGlyphs ) = 0;
-    virtual glyph_metrics_t boundingBox( glyph_t glyph ) = 0;
+					 const qoffset_t *offsets, int numGlyphs) = 0;
+    virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
 
     virtual int ascent() const = 0;
     virtual int descent() const = 0;
@@ -97,9 +97,9 @@ public:
 
     virtual const char *name() const = 0;
 
-    virtual bool canRender( const QChar *string,  int len ) = 0;
+    virtual bool canRender(const QChar *string,  int len) = 0;
 
-    virtual void setScale( double ) {}
+    virtual void setScale(double) {}
     virtual double scale() const { return 1.; }
 
     virtual Type type() const = 0;
@@ -110,7 +110,7 @@ public:
 
 #ifdef Q_WS_WIN
     HDC dc() const;
-    void getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored ) const;
+    void getGlyphIndexes(const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored) const;
     void getCMap();
 
     QByteArray _name;
@@ -136,13 +136,13 @@ public:
     TransformedFont *transformed_fonts;
 #endif
 };
-#elif defined( Q_WS_QWS )
+#elif defined(Q_WS_QWS)
 class QGfx;
 
 class QFontEngine : public QShared
 {
 public:
-    QFontEngine( const QFontDef&, const QPaintDevice * = 0 );
+    QFontEngine(const QFontDef&, const QPaintDevice * = 0);
    ~QFontEngine();
     /*QMemoryManager::FontID*/ void *handle() const;
 
@@ -174,13 +174,13 @@ public:
 	OutOfMemory
     };
     /* returns 0 as glyph index for non existant glyphs */
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
 
-    glyph_metrics_t boundingBox( const glyph_t *glyphs,
-			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+    glyph_metrics_t boundingBox(const glyph_t *glyphs,
+			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
     int ascent() const;
     int descent() const;
@@ -193,7 +193,7 @@ public:
 
     Type type() { return Qws; }
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
     inline const char *name() const { return 0; }
 
     QFontDef fontDef;
@@ -227,16 +227,16 @@ enum IndicFeatures {
 class QFontEngineBox : public QFontEngine
 {
 public:
-    QFontEngineBox( int size );
+    QFontEngineBox(int size);
     ~QFontEngineBox();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
 
-    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+    virtual glyph_metrics_t boundingBox(const glyph_t *glyphs,
+				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
     int ascent() const;
     int descent() const;
@@ -250,7 +250,7 @@ public:
 #endif
     const char *name() const;
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
 
     Type type() const;
     inline int size() const { return _size; }
@@ -296,18 +296,18 @@ class QTextCodec;
 class QFontEngineXft : public QFontEngine
 {
 public:
-    QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap );
+    QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap);
     ~QFontEngineXft();
 
     QOpenType *openType() const;
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
 
-    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+    virtual glyph_metrics_t boundingBox(const glyph_t *glyphs,
+				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
     int ascent() const;
     int descent() const;
@@ -321,15 +321,15 @@ public:
     int cmap() const;
     const char *name() const;
 
-    void setScale( double scale );
+    void setScale(double scale);
     double scale() const { return _scale; }
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
 
     Type type() const;
     XftPattern *pattern() const { return _pattern; }
 
-    void recalcAdvances( int len, glyph_t *glyphs, advance_t *advances );
+    void recalcAdvances(int len, glyph_t *glyphs, advance_t *advances);
 
     FT_Face freetypeFace() const { return _face; }
 private:
@@ -353,16 +353,16 @@ class QFontEngineLatinXLFD;
 class QFontEngineXLFD : public QFontEngine
 {
 public:
-    QFontEngineXLFD( XFontStruct *fs, const char *name, int cmap );
+    QFontEngineXLFD(XFontStruct *fs, const char *name, int cmap);
     ~QFontEngineXLFD();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
 
-    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+    virtual glyph_metrics_t boundingBox(const glyph_t *glyphs,
+				    const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
     int ascent() const;
     int descent() const;
@@ -374,9 +374,9 @@ public:
     int cmap() const;
     const char *name() const;
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
 
-    void setScale( double scale );
+    void setScale(double scale);
     double scale() const { return _scale; }
     Type type() const;
 
@@ -404,19 +404,19 @@ private:
 class QFontEngineLatinXLFD : public QFontEngine
 {
 public:
-    QFontEngineLatinXLFD( XFontStruct *xfs, const char *name, int cmap );
+    QFontEngineLatinXLFD(XFontStruct *xfs, const char *name, int cmap);
     ~QFontEngineLatinXLFD();
 
-    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs,
-			advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str,  int len, glyph_t *glyphs,
+			advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine,
-	       const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine,
+	       const QScriptItem *si, int textFlags);
 
-    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
+    virtual glyph_metrics_t boundingBox(const glyph_t *glyphs,
 					 const advance_t *advances,
-					 const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+					 const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
     int ascent() const;
     int descent() const;
@@ -428,16 +428,16 @@ public:
     int cmap() const { return -1; } // ###
     const char *name() const;
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
 
-    void setScale( double scale );
+    void setScale(double scale);
     double scale() const { return _engines[0]->scale(); }
     Type type() const { return LatinXLFD; }
 
     Qt::HANDLE handle() const { return ((QFontEngineXLFD *) _engines[0])->handle(); }
 
 private:
-    void findEngine( const QChar &ch );
+    void findEngine(const QChar &ch);
 
     QFontEngine **_engines;
     int _count;
@@ -455,10 +455,10 @@ class QTextEngine;
 class QOpenType
 {
 public:
-    QOpenType( FT_Face face );
+    QOpenType(FT_Face face);
     ~QOpenType();
 
-    bool supportsScript( unsigned int script );
+    bool supportsScript(unsigned int script);
 
     void applyGSUBFeature(unsigned int feature, bool *where = 0);
     void applyGPOSFeatures();
@@ -472,7 +472,7 @@ public:
     inline void setLength(int len) { str->length = len; }
     unsigned short *glyphs() { return str->string; }
 private:
-    bool loadTables( FT_ULong script);
+    bool loadTables(FT_ULong script);
 
     FT_Face face;
     TTO_GDEF gdef;
@@ -494,50 +494,56 @@ private:
 };
 #endif // QT_NO_XFTFREETYPE
 
-#elif defined( Q_WS_MAC )
+#elif defined(Q_WS_MAC)
+//#define QMAC_USE_ATSUFONT
 #include "qt_mac.h"
 #include <qmap.h>
 #include <qcache.h>
 
+struct QATSUStyle;
 class QFontEngineMac : public QFontEngine
 {
 #if 0
-    ATSFontMetrics *info;
+    ATSFontRef fontref;
+    ATSFontMetrics *hmetrics, *vmetrics;
 #else
+    short fnum;
     FontInfo *info;
 #endif
-    int psize;
-    short fnum;
-    QMacFontInfo *internal_fi;
+    QATSUStyle *internal_fi;
     enum { widthCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
     friend class QFont;
     friend class QFontPrivate;
-    friend class QMacSetFontInfo;
+    QATSUStyle *getFontStyle();
 
 public:
     QFontEngineMac();
+    ~QFontEngineMac();
 
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
 
-    glyph_metrics_t boundingBox( const glyph_t *glyphs,
-			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+    glyph_metrics_t boundingBox(const glyph_t *glyphs,
+			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
+#ifdef QMAC_USE_ATSUFONT
+    int ascent() const { return FixRound(vmetrics->ascent); }
+    int descent() const { return FixRound(vmetrics->descent); }
+    int leading() const { return FixRound(vmetrics->leading); }
+    int maxCharWidth() const { return FixRound(hmetrics->maxAdvanceWidth); }
+#else
     int ascent() const { return (int)info->ascent; }
     int descent() const { return (int)info->descent; }
     int leading() const { return (int)info->leading; }
-#if 0
-    int maxCharWidth() const { return (int)info->maxAdvanceWidth; }
-#else
     int maxCharWidth() const { return info->widMax; }
 #endif
 
     const char *name() const { return "ATSUI"; }
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
 
     Type type() const { return QFontEngine::Mac; }
 
@@ -548,20 +554,20 @@ public:
 		   QPainter *p=NULL) const;
 };
 
-#elif defined( Q_WS_WIN )
+#elif defined(Q_WS_WIN)
 
 class QFontEngineWin : public QFontEngine
 {
 public:
-    QFontEngineWin( const char *name, HDC, HFONT, bool, LOGFONT );
+    QFontEngineWin(const char *name, HDC, HFONT, bool, LOGFONT);
 
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored ) const;
+    Error stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs, bool mirrored) const;
 
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
 
-    glyph_metrics_t boundingBox( const glyph_t *glyphs,
-			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs );
-    glyph_metrics_t boundingBox( glyph_t glyph );
+    glyph_metrics_t boundingBox(const glyph_t *glyphs,
+			       const advance_t *advances, const qoffset_t *offsets, int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
 
     int ascent() const;
     int descent() const;
@@ -572,7 +578,7 @@ public:
 
     const char *name() const;
 
-    bool canRender( const QChar *string,  int len );
+    bool canRender(const QChar *string,  int len);
 
     Type type() const;
 
@@ -584,8 +590,8 @@ public:
 class QFontEngineUniscribe : public QFontEngineWin
 {
 public:
-    void draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags );
-    bool canRender( const QChar *string,  int len );
+    void draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags);
+    bool canRender(const QChar *string,  int len);
 
     Type type() const;
 };

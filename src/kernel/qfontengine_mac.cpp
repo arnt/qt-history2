@@ -23,7 +23,8 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 //Externals
-QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
+void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
+QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
 		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -54,10 +55,36 @@ int QFontEngine::underlinePosition() const
   return pos ? pos : 1;
 }
 
+struct QATSUStyle : public QShared {
+    ATSUStyle style;
+    QColor rgb;
+};
+
 //Mac (ATSUI) engine
-QFontEngineMac::QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL)
+QFontEngineMac::QFontEngineMac() : QFontEngine(), 
+#ifdef QMAC_USE_ATSUFONT
+				   fontref(0), hmetrics(0), vmetrics(0),
+#else
+				   fnum(-1), info(0),
+#endif
+				   internal_fi(0)
 {
     memset(widthCache, '\0', widthCacheSize);
+}
+
+QFontEngineMac::~QFontEngineMac()
+{
+#ifdef QMAC_USE_ATSUFONT
+    if(vmetrics)
+	free(vmetrics);
+    if(hmetrics)
+	free(hmetrics);
+#else
+    if(info)
+	free(info);
+#endif
+    if(internal_fi && internal_fi->deref())
+	delete internal_fi;
 }
 
 QFontEngine::Error
@@ -206,15 +233,99 @@ QFontEngineMac::calculateCost()
     cache_cost = (ascent() + descent() + 1) * maxCharWidth() * 1024;
 }
 
+//Create a cacheable ATSUStyle
+QATSUStyle *QFontEngineMac::getFontStyle()
+{
+    if(internal_fi) {
+	internal_fi->ref(); //for the caller..
+	return internal_fi;
+    }
+
+    const int arr_guess = 7;
+    int arr = 0;
+    ATSUAttributeTag tags[arr_guess];
+    ByteCount valueSizes[arr_guess];
+    ATSUAttributeValuePtr values[arr_guess];
+    tags[arr] = kATSUSizeTag; //font size
+    Fixed fsize = FixRatio(fontDef.pixelSize, 1);
+    valueSizes[arr] = sizeof(fsize);
+    values[arr] = &fsize;
+    arr++;
+    tags[arr] = kATSUFontTag;  //font
+    ATSUFontID fond;
+#ifdef QMAC_USE_ATSUFONT
+    /* I am *VERY* unimpressed by this, this is just a hack to get me somewhere, but I need to figure a better 
+       way to coerce the ATSUFontRef into the ATSUFontID (I'm sure it can done without the shite below) */
+    { 
+	Str255 qdfont;
+	// encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
+	TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
+						   kTextEncodingDefaultVariant,
+						   kTextEncodingDefaultFormat);
+	qstring2pstring(fontDef.family, qdfont, encoding);
+	short fnum;
+	GetFNum(qdfont, &fnum);
+	ATSUFONDtoFontID(fnum, NULL, &fond);
+    }
+#else
+    ATSUFONDtoFontID(fnum, NULL, &fond);    
+#endif
+    valueSizes[arr] = sizeof(fond);
+    values[arr] = &fond;
+    arr++;
+    tags[arr] = kATSUQDItalicTag;
+    valueSizes[arr] = sizeof(Boolean);
+    Boolean italicBool = fontDef.italic ? true : false;
+    values[arr] = &italicBool;
+    arr++;
+    tags[arr] = kATSUQDBoldfaceTag;
+    valueSizes[arr] = sizeof(Boolean);
+    Boolean boldBool = ((fontDef.weight == QFont::Bold) ? true : false);
+    values[arr] = &boldBool;
+    arr++;
+    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+	qDebug("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
+
+    //create style
+    QATSUStyle *ret = new QATSUStyle;
+    ATSUCreateStyle(&ret->style);
+    if(OSStatus e = ATSUSetAttributes(ret->style, arr, tags, valueSizes, values)) {
+	qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+	delete ret;
+	ret = NULL;
+    } else {
+	const int feat_guess=5;
+	int feats=0;
+	ATSUFontFeatureType feat_types[feat_guess];
+	ATSUFontFeatureSelector feat_values[feat_guess];
+	feat_types[feats] = kLigaturesType;
+	feat_values[feats] = kRareLigaturesOffSelector;
+	feats++;
+	feat_types[feats] = kLigaturesType;
+	feat_values[feats] = kCommonLigaturesOffSelector;
+	feats++;
+	if(feats > feat_guess) //this won't really happen, just so I will not miss the case
+	    qDebug("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
+	if(OSStatus e = ATSUSetFontFeatures(ret->style, feats, feat_types, feat_values))
+	    qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+    }
+#if 1
+    if(ret) {
+	internal_fi = ret;
+	internal_fi->ref(); //well we point to it, don't we?
+    }
+#endif
+    return ret;
+}
+
 int
 QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int x, int y, QPainter *p) const
 {
-    int ret = 0;
-    QMacSetFontInfo fi(this, p ? p->device() : 0);
-    QMacFontInfo::QATSUStyle *st = fi.atsuStyle();
-    if(!st)
+    QATSUStyle *st = const_cast<QFontEngineMac*>(this)->getFontStyle();
+    if(!st) //can't really happen, but just to be sure..
 	return 0;
 
+    int ret = 0;
     if(task & DRAW) {
 	Q_ASSERT(p); //really need a p to do any drawing!!!
 
@@ -236,28 +347,39 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	    ATSUAttributeValuePtr value = &fcolor;
 	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
 		qDebug("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+		if(st->deref())
+		    delete st;
 		return 0;
 	    }
 	}
+    }
 
+    {
+	CGAffineTransform tf = CGAffineTransformIdentity;
+#if QT_MACOSX_VERSION >= 0x1020
+	if(fontDef.stretch != 100) 
+	    tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
+#endif
 #ifdef USE_CORE_GRAPHICS
-	{ //we need to flip the translation here because we flip it internally
+	if(task & DRAW) { //we need to flip the translation here because we flip it internally
 	    int height = 0;
 	    if(p->device()->devType() == QInternal::Widget)
 		height = ((QWidget*)p->device())->topLevelWidget()->height();
 	    else
 		height = p->device()->metric(QPaintDeviceMetrics::PdmHeight);
-	    const ATSUAttributeTag tag = kATSUFontMatrixTag;
-	    CGAffineTransform transform = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, height);
-	    transform = CGAffineTransformScale(transform, 1, -1);
-	    ByteCount size = sizeof(transform);
-	    ATSUAttributeValuePtr value = &transform;
-	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
-		qDebug("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
-		return 0;
-	    }
+	    tf = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, height);
+	    tf = CGAffineTransformScale(tf, 1, -1);
 	}
 #endif
+	const ATSUAttributeTag tag = kATSUFontMatrixTag;
+	ByteCount size = sizeof(tf);
+	ATSUAttributeValuePtr value = &tf;
+	if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
+	    qDebug("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	    if(st->deref())
+		delete st;
+	    return 0;
+	}
     }
 
     if((task & WIDTH)) {
@@ -269,8 +391,11 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
  	    }
  	    ret += widthCache[s[i].unicode()];
  	}
- 	if(use_cached_width && task == WIDTH)
+ 	if(use_cached_width && task == WIDTH) {
+	    if(st->deref())
+		delete st;
 	    return ret;
+	}
     }
 
     //create layout
@@ -281,6 +406,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 						    count, len, 1, &count,
 						    &st->style, &alayout)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	if(st->deref())
+	    delete st;
 	return 0;
     }
 #else
@@ -289,6 +416,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 						    count, use_len, 1, &count,
 						    &st->style, &alayout)) {
 	qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+	if(st->deref())
+	    delete st;
 	return 0;
     }
 #endif
@@ -342,6 +471,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     if(OSStatus err = QDBeginCGContext(port, &ctx)) {
 	qDebug("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
+	if(st->deref())
+	    delete st;
 	return 0;
     }
     
@@ -371,6 +502,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 #ifndef USE_CORE_GRAPHICS
 	QDEndCGContext(port, &ctx);
 #endif
+	if(st->deref())
+	    delete st;
 	return 0;
     }
 
@@ -415,6 +548,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 #ifndef USE_CORE_GRAPHICS
     QDEndCGContext(port, &ctx);
 #endif
+    if(st->deref())
+	delete st;
     return ret;
 }
 

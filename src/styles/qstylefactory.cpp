@@ -33,7 +33,7 @@
 #endif
 
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
-QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
+QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
 #include "qt_mac.h"
 #include "qmacstyle_mac.h"
 #endif
@@ -218,7 +218,7 @@ QStringList QStyleFactory::keys()
 	Str255 str;
 	long int s = 256;
 	if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str))
-	    mstyle += " (" + p2qstring(str) + ")";
+	    mstyle += " (" + pstring2qstring(str) + ")";
     }
     if (!list.contains(mstyle))
 	list << mstyle;

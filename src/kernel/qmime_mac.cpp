@@ -40,7 +40,7 @@
 static QList<QMacMime*> mimes;
 
 //functions
-QByteArray p2qstring(const unsigned char *); //qglobal.cpp
+QByteArray pstring2qstring(const unsigned char *); //qglobal.cpp
 unsigned char * p_str(const QString &s); //qglobal.cpp
 OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal_mac.cpp
 
@@ -170,7 +170,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
     for(int i = 0; i < count; i++) {
 	long pos;
 	ICGetIndMapEntry(internet_config, hdl, i, &pos, &entry);
-	QString mime = p2qstring(entry.MIMEType);
+	QString mime = pstring2qstring(entry.MIMEType);
 	if(!mime.isEmpty()) 
 	    mime_registry.insert(mime, entry.fileType);
     }

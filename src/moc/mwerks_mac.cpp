@@ -26,7 +26,7 @@
 
 //qglobal.cpp
 const unsigned char * p_str(const char * c);
-QCString p2qstring(const unsigned char *c);
+QCString pstring2qstring(const unsigned char *c);
 
 #if CW_USE_PRAGMA_EXPORT
 #pragma export on
