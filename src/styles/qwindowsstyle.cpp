@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#53 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#54 $
 **
 ** Implementation of Windows-like style class
 **
@@ -51,6 +51,7 @@
 #include "qimage.h"
 #include "qpushbutton.h"
 #include "qcombobox.h"
+#include "qlistbox.h"
 #include "qwidget.h"
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
@@ -1920,18 +1921,28 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 		       &cg.brush( QColorGroup::Background ) );
 	break; }
 	
-    case SC_ComboBoxArrow: {
+    case SC_ComboBoxArrow: {	
 	int xpos = r.x();
-	if( !QApplication::reverseLayout() )
+	if ( !QApplication::reverseLayout() )
 	    xpos += r.width() - 2 - 16;
 	QRect ar = querySubControlMetrics( CC_ComboBox, w,
 					   SC_ComboBoxArrow );
-	qDrawWinPanel( p, ar, cg, FALSE, // SUNKEN
-		       &cg.brush( QColorGroup::Button ) );
+	if ( subActive & PStyle_Sunken ) {
+	    p->setPen( cg.dark() );
+	    p->setBrush( cg.brush( QColorGroup::Button ) );
+	    p->drawRect( ar );
+	} else
+	    qDrawWinPanel( p, ar, cg, FALSE,
+			   &cg.brush( QColorGroup::Button ) );
 
 	QRect ra( ar.x()+2, ar.y()+2, ar.width()-4, ar.width()-4 );
 	if ( w->isEnabled() )
 	    flags |= PStyle_Enabled;
+	
+	if ( subActive & PStyle_Sunken ) {
+	    flags |= PStyle_On;
+	    flags |= PStyle_Sunken;
+	}
 	drawPrimitive( PO_ArrowDown, p, ra, cg, flags );
 	break; }
 	
@@ -1942,6 +1953,15 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	if ( cb->hasFocus() && !cb->editable() )
 	    p->fillRect( re.x(), re.y(), re.width(), re.height(),
 			 cg.brush( QColorGroup::Highlight ) );	
+
+	if ( cb->hasFocus() ) {
+	    p->setPen( cg.highlightedText() );
+	    p->setBackgroundColor( cg.highlight() );
+	} else {
+	    p->setPen( cg.text() );
+	    p->setBackgroundColor( cg.background() );
+	}
+	
         break; }
 	
     case SC_ComboBoxFocusRect: {

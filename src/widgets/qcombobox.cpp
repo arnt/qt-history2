@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#342 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#343 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1152,40 +1152,41 @@ void QComboBox::paintEvent( QPaintEvent * )
 	}
 	p.setClipping( FALSE );
     } else {					// windows 95 style
+	QStyle::PFlags flags = QStyle::PStyle_Default;
 	
-	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g );
+	if ( d->arrowDown )
+	    flags |= QStyle::PStyle_Sunken;
+	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
+				    QStyle::CStyle_Default, QStyle::SC_None,
+				    flags );
 
-
-	// Draw the text/pixmap label - this will be tricky to draw in a style..
-
-// 	textR.setRect(tmpR.x()+2, tmpR.y()+1, tmpR.width()-4, tmpR.height()-2);
-// 	p.setClipRect( textR );
-
-// 	if ( hasFocus() ) {
-// 	    p.setPen( g.highlightedText() );
-// 	    p.setBackgroundColor( g.highlight() );
-// 	} else {
-// 	    p.setPen( g.text() );
-// 	    p.setBackgroundColor( g.background() );
-// 	}
-// 	if ( !d->ed ) {
-// 	    QListBoxItem * item = d->listBox()->item( d->current );
-// 	    if ( item ) {
-// 		int itemh = item->height( d->listBox() );
-// 		p.translate( textR.x(), textR.y() + (textR.height() - itemh)/2  );
-// 		item->paint( &p );
-// 	    }
-// 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
-// 	    p.setClipping( FALSE );
-// 	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
-// 	    QListBoxItem * item = d->listBox()->item( d->current );
-// 	    const QPixmap *pix = item->pixmap();
-// 	    if ( pix ) {
-// 		p.fillRect( r.x(), r.y(), pix->width() + 4, r.height(), colorGroup().brush( QColorGroup::Base ) );
-// 		p.drawPixmap( r.x() + 2, r.y() + ( r.height() - pix->height() ) / 2, *pix );
-// 	    }
-// 	}
-// 	p.setClipping( FALSE );
+	QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+					   QStyle::SC_ComboBoxEditField );
+	QRect textR;
+	textR.setRect( re.x()+2, re.y()+1, re.width()-4, re.height()-2 );
+	p.setClipRect( textR );
+	
+	if ( !d->ed ) {
+	    QListBoxItem * item = d->listBox()->item( d->current );
+	    if ( item ) {
+		int itemh = item->height( d->listBox() );
+		p.translate( textR.x(), textR.y() + 
+			     (textR.height() - itemh)/2  );
+		item->paint( &p );
+	    }
+	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
+	    p.setClipping( FALSE );
+	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
+	    QListBoxItem * item = d->listBox()->item( d->current );
+	    const QPixmap *pix = item->pixmap();
+	    if ( pix ) {
+		p.fillRect( r.x(), r.y(), pix->width() + 4, r.height(),
+			    colorGroup().brush( QColorGroup::Base ) );
+		p.drawPixmap( r.x() + 2, r.y() + 
+			      ( r.height() - pix->height() ) / 2, *pix );
+	    }
+	}
+	p.setClipping( FALSE );
     }
 }
 
