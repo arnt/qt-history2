@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#13 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#14 $
 **
 ** Implementation of Network Extension Library
 **
@@ -575,7 +575,7 @@ int QSocketDevice::bytesAvailable() const
   error occurred.
   \sa bytesAvailable()
 */
-int QSocketDevice::waitForMore( int msecs )
+int QSocketDevice::waitForMore( int msecs ) const
 {
     if ( !isValid() )
 	return -1;

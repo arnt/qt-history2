@@ -161,7 +161,7 @@ calling this function.
 \sa address() QSocketDevice::port()
 */
 
-uint QServerSocket::port()
+uint QServerSocket::port() const
 {
     return d->s->port();
 }
@@ -170,7 +170,7 @@ uint QServerSocket::port()
 /*! Returns the operating system socket.
 */
 
-int QServerSocket::socket()
+int QServerSocket::socket() const
 {
     return d->s->socket();
 }
@@ -182,7 +182,7 @@ calling this function.
 \sa port() QSocketDevice::address()
 */
 
-QHostAddress QServerSocket::address()
+QHostAddress QServerSocket::address() const
 {
     return d->s->address();
 }

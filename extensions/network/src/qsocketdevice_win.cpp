@@ -459,9 +459,8 @@ int QSocketDevice::bytesAvailable() const
 }
 
 
-int QSocketDevice::waitForMore( int msecs )
+int QSocketDevice::waitForMore( int msecs ) const
 {
-//#warning "QSocketDevice::waitForMore() not implemented for windows"
     qWarning( "QSocketDevice::waitForMore() not implemented for windows" );
     return -1;
 }

@@ -770,7 +770,7 @@ int QSocket::bytesAvailable() const
   \sa bytesAvailable()
 */
 
-int QSocket::waitForMore( int msecs )
+int QSocket::waitForMore( int msecs ) const
 {
     if ( d->socket == 0 )
 	return 0;

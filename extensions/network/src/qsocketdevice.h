@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#16 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#17 $
 **
 ** Implementation of Network Extension Library
 **
@@ -80,7 +80,7 @@ public:
     virtual int	 accept();
 
     int		 bytesAvailable() const;
-    int		 waitForMore( int msecs );
+    int		 waitForMore( int msecs ) const;
     int		 readBlock( char *data, uint maxlen );
     int		 writeBlock( const char *data, uint len );
     virtual int  writeBlock( const char *data, uint len,

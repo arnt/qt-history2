@@ -73,7 +73,7 @@ public:
     bool	 atEnd() const;
 
     int		 bytesAvailable() const;
-    int		 waitForMore( int msecs );
+    int		 waitForMore( int msecs ) const;
     int		 bytesToWrite() const;
 
     int		 readBlock( char *data, uint maxlen );
@@ -84,7 +84,7 @@ public:
     int		 ungetch(int);
 
     bool	 canReadLine() const;
-    QString	 readLine();
+    virtual QString	 readLine();
 
     uint	 port() const;
     uint	 peerPort() const;

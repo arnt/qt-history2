@@ -47,10 +47,10 @@ public:
 
     bool ok() const;
 
-    uint port();
-    int socket();
+    uint port() const ;
+    int socket() const ;
 
-    QHostAddress address();
+    QHostAddress address() const ;
 
     virtual void newConnection( int socket ) = 0;
 
