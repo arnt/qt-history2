@@ -18,16 +18,10 @@
 #include "qhostaddress.h"
 #include "qsocketdevice.h" // ### remove or keep for users' convenience?
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
-#endif
-
 class QServerSocketPrivate;
 
 
-class QM_EXPORT_NETWORK QServerSocket : public QObject
+class Q_COMPAT_EXPORT QServerSocket : public QObject
 {
     Q_OBJECT
 public:

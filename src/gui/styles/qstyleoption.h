@@ -58,7 +58,7 @@ public:
     QDOC_PROPERTY(QPalette palette);
 };
 
-class QStyleOptionFocusRect  : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionFocusRect  : public QStyleOption
 {
 public:
     enum { Type = SO_FocusRect };
@@ -70,7 +70,7 @@ public:
     QDOC_PROPERTY(QColor backgroundColor);
 };
 
-class QStyleOptionFrame : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionFrame : public QStyleOption
 {
 public:
     enum { Type = SO_Frame };
@@ -84,7 +84,7 @@ public:
     QDOC_PROPERTY(int midLineWidth);
 };
 
-class QStyleOptionHeader : public QStyleOption
+class Q_GUI_EXPORT  QStyleOptionHeader : public QStyleOption
 {
 public:
     enum { Type = SO_Header };
@@ -100,7 +100,7 @@ public:
     QDOC_PROPERTY(QIconSet icon);
 };
 
-class QStyleOptionButton : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionButton : public QStyleOption
 {
 public:
     enum { Type = SO_Button };
@@ -120,7 +120,7 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionButton::ButtonFeatures);
 
-class QStyleOptionTab : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionTab : public QStyleOption
 {
 public:
     enum { Type = SO_Tab };
@@ -141,7 +141,7 @@ public:
     QDOC_PROPERTY(TabPosition position);
 };
 
-class QStyleOptionProgressBar : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionProgressBar : public QStyleOption
 {
 public:
     enum { Type = SO_ProgressBar };
@@ -164,7 +164,7 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionProgressBar::ProgressBarFeatures);
 
-class QStyleOptionMenuItem : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionMenuItem : public QStyleOption
 {
 public:
     enum { Type = SO_MenuItem };
@@ -193,7 +193,7 @@ public:
     QDOC_PROPERTY(QFont font);
 };
 
-class QStyleOptionListViewItem : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionListViewItem : public QStyleOption
 {
 public:
     enum { Type = SO_ListViewItem };
@@ -217,7 +217,7 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionListViewItem::ListViewItemFeatures);
 
-class QStyleOptionDockWindow : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionDockWindow : public QStyleOption
 {
 public:
     enum { Type = SO_DockWindow };
@@ -231,7 +231,7 @@ public:
     QDOC_PROPERTY(bool isCloseEnabled);
 };
 
-class QStyleOptionViewItem : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionViewItem : public QStyleOption
 {
 public:
     enum { Type = SO_ViewItem };
@@ -252,7 +252,7 @@ public:
     QDOC_PROPERTY(Size decorationSize);
 };
 
-class QStyleOptionToolBox : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionToolBox : public QStyleOption
 {
 public:
     enum { Type = SO_ToolBox };
@@ -273,7 +273,7 @@ public:
 };
 
 // -------------------------- Complex style options -------------------------------
-class QStyleOptionComplex : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionComplex : public QStyleOption
 {
 public:
     enum { Type = SO_Complex };
@@ -287,7 +287,7 @@ public:
     QDOC_PROPERTY(QStyle::SubControls activeParts);
 };
 
-class QStyleOptionSlider : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionSlider : public QStyleOptionComplex
 {
 public:
     enum { Type = SO_Slider };
@@ -317,7 +317,7 @@ public:
     QDOC_PROPERTY(int pageStep);
 };
 
-class QStyleOptionSpinBox : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionSpinBox : public QStyleOptionComplex
 {
 public:
     enum { Type = SO_SpinBox };
@@ -337,7 +337,7 @@ public:
     QDOC_PROPERTY(bool frame);
 };
 
-class QStyleOptionListView : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionListView : public QStyleOptionComplex
 {
 public:
     enum { Type = SO_ListView };
@@ -361,7 +361,7 @@ public:
     QDOC_PROPERTY(bool rootIsDecorated);
 };
 
-class QStyleOptionToolButton : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionToolButton : public QStyleOptionComplex
 {
 public:
     enum { Type = SO_ToolButton };
@@ -392,7 +392,7 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionToolButton::ToolButtonFeatures);
 
-class QStyleOptionComboBox : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionComboBox : public QStyleOptionComplex
 {
 public:
     enum { Type = SO_ComboBox };
@@ -406,7 +406,7 @@ public:
     QDOC_PROPERTY(QRect popupRect);
 };
 
-class QStyleOptionTitleBar : public QStyleOptionComplex
+class Q_GUI_EXPORT QStyleOptionTitleBar : public QStyleOptionComplex
 {
 public:
     enum { Type = SO_TitleBar };

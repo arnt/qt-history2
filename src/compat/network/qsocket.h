@@ -19,16 +19,10 @@
 #include "qdns.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
-#endif
-
 class QSocketPrivate;
 class QSocketDevice;
 
-class QM_EXPORT_NETWORK QSocket : public QObject, public QIODevice
+class Q_COMPAT_EXPORT QSocket : public QObject, public QIODevice
 {
     Q_OBJECT
 public:

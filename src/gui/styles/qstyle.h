@@ -28,8 +28,8 @@ class QFontMetrics;
 
 class QStyleHintReturn; // not defined yet
 
-struct QStyleOption;
-struct QStyleOptionComplex;
+class QStyleOption;
+class QStyleOptionComplex;
 class Q_GUI_EXPORT QStyle : public QObject
 {
     Q_OBJECT

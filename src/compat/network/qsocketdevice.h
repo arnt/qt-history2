@@ -17,15 +17,9 @@
 #include "qiodevice.h"
 #include "qhostaddress.h" // for int-to-QHostAddress conversion
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
-#endif
-
 class QSocketDevicePrivate;
 
-class QM_EXPORT_NETWORK QSocketDevice : public QIODevice
+class Q_COMPAT_EXPORT QSocketDevice : public QIODevice
 {
     Q_DECLARE_PRIVATE(QSocketDevice)
 public:
@@ -63,14 +57,14 @@ public:
 
 #ifdef QT_COMPAT
 #ifdef Q_NO_USING_KEYWORD
-    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len) 
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len)
     { return QIODevice::writeBlock(data, len); }
-    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data) 
+    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data)
     { return QIODevice::writeBlock(data); }
 #else
     using QIODevice::writeBlock;
 #endif
-    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len, 
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len,
                                         const QHostAddress & host, Q_UINT16 port)
     { return write(data, len, host, port); }
 #endif

@@ -11,7 +11,7 @@ SOURCES +=      network/q3dns.cpp \
                 network/qsocketdevice.cpp \
                 network/qserversocket.cpp
 
-win:SOURCES +=  network/qsocketdevice_win.cpp
+win32:SOURCES +=  network/qsocketdevice_win.cpp
 unix:SOURCES += network/qsocketdevice_unix.cpp
 
 
