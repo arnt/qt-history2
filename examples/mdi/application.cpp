@@ -59,7 +59,9 @@ ApplicationWindow::ApplicationWindow()
     addToolBar( tb, "Menubar", Top, FALSE );
     QMenuBar *mb = new QMenuBar( tb );
     tb->setStretchableWidget( mb );
-
+    setDockEnabled( tb, Left, FALSE );
+    setDockEnabled( tb, Right, FALSE );
+    
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
 
