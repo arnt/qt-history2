@@ -2816,11 +2816,21 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	}
 
 	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[2];
-	    QPoint p( x, y );
-	    param[0].point = &p;
-	    param[1].str = &shaped;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd )
+	    QPDevCmdParam param[3];
+	    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
+	    cfont.d->textWidth( shaped, 0, len, cache ); // create cache
+	    bool retval = FALSE;
+	    while ( cache ) {
+		QPoint p( x + cache->xoff, y + cache->yoff );
+		QString s = QConstString( cache->string, cache->length ).string();
+		param[0].point = &p;
+		param[1].str = &s;
+		param[2].ival = cache->script;
+		retval = pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
+		cache = cache->next;
+	    }
+	    delete cache;
+	    if ( !retval || !hd )
 		return;
 	}
 
@@ -2918,7 +2928,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     int width = cfont.d->textWidth( shaped, 0, len, cache );
     cfont.d->drawText( dpy, scrn, hd, rendhd, gc, cpen.color(), (Qt::BGMode) bg_mode,
 		       bg_col, x, y, cache );
-
     delete cache;
 
     if ( cfont.underline() || cfont.strikeOut() ) {

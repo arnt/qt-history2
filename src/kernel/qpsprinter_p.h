@@ -94,7 +94,7 @@ private:
     void newPageSetup( QPainter * );
     void resetDrawingTools( QPainter * );
     void emitHeader( bool finished );
-    virtual void setFont( const QFont & );
+    virtual void setFont( const QFont &, int script );
     void drawImage( QPainter *, const QPoint &, const QImage & );
 
     // Disabled copy constructor and operator=

@@ -288,7 +288,7 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
-
+    friend class QPSPrinter;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );

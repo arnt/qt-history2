@@ -2060,6 +2060,7 @@ struct QPSPrinterPrivate {
 	pageEncodings.setAutoDelete( FALSE );
 	currentFontFile = 0;
 	scale = 1.;
+	scriptUsed = -1;
     }
 
     QBuffer * buffer;
@@ -2089,6 +2090,7 @@ struct QPSPrinterPrivate {
     QFontMetrics * fm;
     int textY;
     QFont currentUsed;
+    int scriptUsed;
     QFont currentSet;
     float scale;
 };
@@ -2201,20 +2203,14 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
 				   QPSPrinterPrivate *d )
 {
-    QString key2;
-    key2.sprintf( "%s %d", ps.ascii(), 0);//### cs );
     QString *tmp = d->headerFontNames.find( key );
-
-    QString fontEncoding, fontName;
-    fontEncoding.sprintf( " FE0" );//###, cs );
+    QString fontName;
+    
     if ( d->buffer ) {
 	if ( tmp ) {
 	    fontName = *tmp;
 	} else {
-	    fontName.sprintf( "/F%d", ++d->headerFontNumber );
-	    // ###
-	    d->fontStream << fontName << " /" << ps << "-Unicode findfont definefont pop\n";
-	    d->headerFontNames.insert( key2, new QString( fontName ) );
+	    fontName.sprintf( "/%s-Unicode", ps.latin1());
 	}
 	++d->headerFontNumber;
 	d->fontStream << "/F" << d->headerFontNumber << " "
@@ -2227,9 +2223,7 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
 	if ( tmp ) {
 	    fontName = *tmp;
 	} else {
-	    fontName.sprintf( "/F%d", ++d->pageFontNumber );
-	    // ###
-	    stream << fontName << " /" << ps << "-Unicode findfont definefont pop\n";
+	    fontName.sprintf( "/%s-Unicode", ps.latin1());
 	}
 	++d->pageFontNumber;
 	stream << "/F" << d->pageFontNumber << " "
@@ -4763,9 +4757,6 @@ QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
 QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
 				       QPSPrinterPrivate *d )
 {
-    QString key2;
-    key2.sprintf( "%s %d", ps.ascii(), 0);//###cs );
-
     float slant = 0;
     QString latinName;
     // do correct mapping
@@ -4784,7 +4775,7 @@ QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, con
 	ps = "/Ryumin-Light-H";
 	latinName = "Times-Roman";
     }
-    return emitDef( stream, ps, latinName, f, slant, key, key2, d );
+    return emitDef( stream, ps, latinName, f, slant, key, ps, d );
 }
 
 void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const QPoint &p, 
@@ -5013,7 +5004,7 @@ QString QPSPrinterFontSimplifiedChinese::defineFont( QTextStream &stream, QStrin
 
 class QPSPrinterFont {
 public:
-  QPSPrinterFont(const QFont& f, QPSPrinterPrivate *priv);
+  QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *priv);
   ~QPSPrinterFont();
   QString postScriptFontName()     { return p->postScriptFontName(); }
     QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key, 
@@ -5033,7 +5024,7 @@ QPSPrinterFont::~QPSPrinterFont()
 }
   
 
-QPSPrinterFont::QPSPrinterFont(const QFont& f, QPSPrinterPrivate *priv)
+QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *priv)
     : p(0)
 {
     QString fontfilename;
@@ -5196,12 +5187,12 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, QPSPrinterPrivate *priv)
 	    
 // ================= END OF PS FONT METHODS ============
 
-void QPSPrinter::setFont( const QFont & fnt )
+void QPSPrinter::setFont( const QFont & fnt, int script )
 {
     QFont f = fnt;
     if ( f.rawMode() ) {
 	QFont fnt( QString::fromLatin1("Helvetica"), 12 );
-	setFont( fnt );
+	setFont( fnt, QFont::Unicode );
 	return;
     }
     if ( f.pointSize() == 0 ) {
@@ -5216,7 +5207,7 @@ void QPSPrinter::setFont( const QFont & fnt )
     if ( !fixed_ps_header )
 	makeFixedStrings();
 
-    QPSPrinterFont ff( f, d );
+    QPSPrinterFont ff( f, script, d );
     QString ps = ff.postScriptFontName();
 
     QString s = ps;
@@ -5225,18 +5216,10 @@ void QPSPrinter::setFont( const QFont & fnt )
     // Sivan: I moved the downloading until after we draw text
     // to allow subsetting.
 
-    /*
-    if ( !fontsUsed.contains( s ) )
-      if (d->buffer)
-	ff.download(d->fontStream);
-    */
-
     int i;
     QString key;
-    // ###
-    int cs = 0;//(int)f.charSet();
 
-    key.sprintf( "%s %d %d", ps.ascii(), f.pointSize(), cs );
+    key.sprintf( "%s %d %d", ps.ascii(), f.pointSize(), script );
     QString * tmp;
     tmp = d->headerFontNames.find( key );
     if ( !tmp && !d->buffer )
@@ -5842,6 +5825,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcDrawText2: {
 	uint spaces = 0;
 	QString tmp = *p[1].str;
+	int script = p[2].ival;
 	while( spaces < tmp.length() && tmp[(int)spaces] == ' ' )
 	    spaces++;
 	if ( spaces )
@@ -5850,9 +5834,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    tmp.truncate( tmp.length()-1 );
 	if( tmp.length() == 0 )
 	    break;
-	if ( d->currentSet != d->currentUsed || !d->currentFontFile ) {
+	if ( d->currentSet != d->currentUsed || d->scriptUsed != script || !d->currentFontFile ) {
 	    d->currentUsed = d->currentSet;
-	    setFont( d->currentSet );
+	    setFont( d->currentSet, script );
 	}
 	if( d->currentFontFile ) // better not crash in case somethig goes wrong.
 	    d->currentFontFile->drawText( stream, spaces, *p[0].point, tmp, d, paint); 
