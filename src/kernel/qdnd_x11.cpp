@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#90 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -825,37 +825,41 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 
     ASSERT( object != 0 );
 
-    if ( o == dragSource ) {
-	if ( e->type() == QEvent::MouseMove ) {
-	    QMouseEvent* me = (QMouseEvent *)e;
-	    updateMode(me->stateAfter());
-	    move( dragSource->mapToGlobal( me->pos() ) );
-	    return TRUE;
-	} else if ( e->type() == QEvent::MouseButtonRelease ) {
-	    qApp->removeEventFilter( this );
-	    if ( willDrop )
-		drop();
-	    else
-		cancel();
-	    object = 0;
-	    dragSource = 0;
-	    beingCancelled = FALSE;
-	    qApp->exit_loop();
-	    return TRUE;
-	} else if ( e->type() == QEvent::DragResponse ) {
-	    if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
-		if ( !willDrop ) {
-		    willDrop = TRUE;
-		}
-	    } else {
-		if ( willDrop ) {
-		    willDrop = FALSE;
-		}
+    if ( !o->isWidgetType() )
+	return FALSE;
+
+    QWidget* w = (QWidget*)o;
+
+    if ( e->type() == QEvent::MouseMove ) {
+	QMouseEvent* me = (QMouseEvent *)e;
+	updateMode(me->stateAfter());
+	move( w->mapToGlobal( me->pos() ) );
+	return TRUE;
+    } else if ( e->type() == QEvent::MouseButtonRelease ) {
+	qApp->removeEventFilter( this );
+	if ( willDrop )
+	    drop();
+	else
+	    cancel();
+	object = 0;
+	dragSource = 0;
+	beingCancelled = FALSE;
+	qApp->exit_loop();
+	return TRUE;
+    } else if ( e->type() == QEvent::DragResponse ) {
+	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
+	    if ( !willDrop ) {
+		willDrop = TRUE;
 	    }
-	    updateCursor();
-	    return TRUE;
+	} else {
+	    if ( willDrop ) {
+		willDrop = FALSE;
+	    }
 	}
+	updateCursor();
+	return TRUE;
     }
+
     if ( e->type() == QEvent::KeyPress
       || e->type() == QEvent::KeyRelease )
     {
@@ -877,8 +881,6 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
     // ### We bind modality to widgets, so we have to do this
     // ###  "manually".
     // DnD is modal - eat all other interactive events
-    if ( !o->isWidgetType() )
-	return FALSE;
     switch ( e->type() ) {
       case QEvent::MouseButtonPress:
       case QEvent::MouseButtonRelease:
@@ -1460,7 +1462,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     updatePixmap();
 
     dragSource = (QWidget *)(object->parent());
-    qApp->installEventFilter( this ); // for keys
+
+    qApp->installEventFilter( this );
     qt_xdnd_source_current_time = qt_x_clipboardtime;
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
