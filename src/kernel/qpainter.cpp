@@ -2610,9 +2610,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    QChar *cin = cout;
 	    int l = len;
 	    int skip = 0;
-	    while ( l-- ) {
+	    while ( l ) {
 		if ( *cin == '&' ) {
-		    if ( l ) {
+		    if ( l > 1 && *(cin+1) != '&' ) {
 			cin++;
 			skip++;
 			l--;
@@ -2621,6 +2621,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 		*cout = *cin;
 		cout++;
 		cin++;
+		l--;
 	    }
 	    if ( skip )
 		parStr.setLength( len-skip );
