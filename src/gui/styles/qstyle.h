@@ -107,8 +107,8 @@ private:
 
 class QStyleHintReturn; // not defined yet
 
-class Q4StyleOption;
-class Q4StyleOptionComplex;
+struct Q4StyleOption;
+struct Q4StyleOptionComplex;
 class Q_GUI_EXPORT QStyle: public QObject
 {
     Q_OBJECT
