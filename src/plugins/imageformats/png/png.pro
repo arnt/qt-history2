@@ -1,4 +1,4 @@
-TARGET  += qpng
+TARGET  = qpng
 include(../../qpluginbase.pri)
 
 DESTDIR = $$QT_BUILD_TREE/plugins/imageformats

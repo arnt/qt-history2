@@ -1,4 +1,4 @@
-TARGET  += qjpeg
+TARGET  = qjpeg
 include(../../qpluginbase.pri)
 
 DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
