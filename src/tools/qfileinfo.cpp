@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#54 $
 **
 ** Implementation of QFileInfo class
 **
@@ -63,6 +63,7 @@ static void slashify( QString& s )
 	    s[i] = '/';
     }
 }
+extern QCString qt_win95Name(const QString s);
 
 #elif defined(UNIX)
 
@@ -864,10 +865,28 @@ void QFileInfo::doStat() const
 #if defined (UNIX)
     r = STAT( QFile::encodeName(fn), b );
 #else
+    QString fn2(fn);
+    if ( fn2[0] == '/' && fn2[1] == '/'
+      || fn2[0] == '\\' && fn2[1] == '\\' )
+    {
+	// Bug in samba?
+	//      \\NTBOXEN\C is a directory
+	//      \\UNIXBOXEN\place is a NOT directory
+	//      \\UNIXBOXEN\place\ is a directory
+	int s = fn2.find(fn[0],2);
+	if ( s >= 0 ) {
+	    s = fn2.find(fn[0],s+1);
+	    if ( s < 0 )
+		fn2 += '\\';
+	    else if ( fn[s] == '/' )
+		fn[s] = '\\';
+	}
+    }
     if ( qt_winunicode )
-	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), b);
+	r = _tstat((const TCHAR*)qt_winTchar(fn2,TRUE), b);
     else
-	r = _stat(qt_winQString2MB(QDir::convertSeparators(fn)), b);
+	r = _stat(qt_win95Name(fn2), b);
+debug("%s statmask = %x",fn2.latin1(),b->st_mode&STAT_MASK);
 #endif
 
     if ( r != 0 ) {

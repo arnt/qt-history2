@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#85 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#86 $
 **
 ** Implementation of QFile class
 **
@@ -38,7 +38,24 @@
 
 #if defined(_OS_WIN32_)
 #include <tchar.h>
+
+QCString qt_win95Name(const QString s)
+{
+    if ( s[0] == '/' && s[1] == '/' ) {
+ 	// Win95 cannot handle slash-slash needs slosh-slosh. 
+	QString ss(s);
+	ss[0] = '\\';
+	ss[1] = '\\';
+	int n = ss.find('/');
+	if ( n >= 0 )
+	    ss[n] = '\\';
+	return qt_winQString2MB(ss);
+    } else {
+	return qt_winQString2MB(s);
+    }
+}
 #endif
+
 
 /*!
   \class QFile qfile.h
@@ -175,7 +192,7 @@ bool qt_file_access( const QString& fn, int t )
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
     } else {
-	return _access(QDir::convertSeparators(qt_winQString2MB(fn)), t) == 0;
+	return _access(qt_win95Name(fn), t) == 0;
     }
 #endif
 }
@@ -233,7 +250,7 @@ bool QFile::remove( const QString &fileName )
     if ( qt_winunicode ) {
 	return _tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
     } else {
-	return ::remove(qt_winQString2MB(fileName)) == 0;
+	return ::remove(qt_win95Name(fileName)) == 0;
     }
 #endif
 }
@@ -355,8 +372,7 @@ bool QFile::open( int m )
 	if ( qt_winunicode ) {
 	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
 	} else {
-	    fd = _open(qt_winQString2MB(QDir::convertSeparators(fn)),
-			oflags, 0666 );
+	    fd = _open(qt_win95Name(fn), oflags, 0666 );
 	}
 #endif
 
@@ -408,7 +424,7 @@ bool QFile::open( int m )
 		tperm2[3] = perm2[3];
 		fh = _tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
 	    } else {
-		fh = fopen(qt_winQString2MB(QDir::convertSeparators(fn)),
+		fh = fopen(qt_win95Name(fn),
 			    perm2 );
 	    }
 #endif
@@ -604,7 +620,7 @@ uint QFile::size() const
 	if ( qt_winunicode ) {
 	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), &st);
 	} else {
-	    _stat(qt_winQString2MB(QDir::convertSeparators(fn)), &st);
+	    _stat(qt_win95Name(fn), &st);
 	}
 #endif
     }

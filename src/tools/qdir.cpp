@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#83 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#84 $
 **
 ** Implementation of QDir class
 **
@@ -63,6 +63,8 @@ static void slashify( QString& n )
 	    n[i] = '/';
     }
 }
+
+extern QCString qt_win95Name(const QString s);
 
 #elif defined(UNIX)
 
@@ -338,7 +340,7 @@ QString QDir::canonicalPath() const
 		r = qt_winQString(tmp);
 	}
     } else {
-	if ( _chdir(qt_winQString2MB(convertSeparators(dPath))) >= 0 ) {
+	if ( _chdir(qt_win95Name(dPath)) >= 0 ) {
 	    char tmp[PATH_MAX];
 	    if ( _getcwd( tmp, PATH_MAX ) )
 		r = tmp;
@@ -872,7 +874,7 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     if ( qt_winunicode ) {
 	return _tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
-	return _mkdir(qt_winQString2MB(filePath(dirName,acceptAbsPath))) == 0;
+	return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
     }
 #endif
 }
@@ -899,7 +901,7 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
     if ( qt_winunicode ) {
 	return _trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
     } else {
-	return _rmdir(qt_winQString2MB(filePath(dirName,acceptAbsPath))) == 0;
+	return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
     }
 #endif
 }
@@ -921,7 +923,7 @@ bool QDir::isReadable() const
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
-	return _access(qt_winQString2MB(convertSeparators(dPath)), R_OK) == 0;
+	return _access(qt_win95Name(dPath), R_OK) == 0;
     }
 #endif
 }
@@ -1103,7 +1105,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 	delete [] t2;
 	return r;
     } else {
-	return rename(qt_winQString2MB(fn1), qt_winQString2MB(fn2)) == 0;
+	return rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
     }
 #endif
 }
@@ -1167,7 +1169,7 @@ bool QDir::setCurrent( const QString &path )
     if ( qt_winunicode ) {
 	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
     } else {
-	r = _chdir(qt_winQString2MB(path));
+	r = _chdir(qt_win95Name(path));
     }
 #else
     r = CHDIR( QFile::encodeName(path) );
@@ -1527,15 +1529,12 @@ bool QDir::readDirEntries( const QString &nameFilter,
     if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
 	p += '/';
     p += "*.*";
-    for ( i=0; i<=plen; i++ )
-	if ( p[i] == '/' )
-	    p[i] = '\\';
 
     if ( qt_winunicode ) {
 	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
     } else {
 	// Cast is safe, since char is at end of WIN32_FIND_DATA
-	ff = FindFirstFileA(qt_winQString2MB(p),(WIN32_FIND_DATAA*)&finfo);
+	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
     }
     if ( ff == FF_ERROR ) {
 #if defined(CHECK_RANGE)

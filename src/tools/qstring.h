@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#123 $
+** $Id: //depot/qt/main/src/tools/qstring.h#124 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -677,7 +677,7 @@ Q_EXPORT inline QString operator+( char c1, const QString &s2 )
 extern Q_EXPORT QString qt_winQString(void*);
 extern Q_EXPORT const void* qt_winTchar(const QString& str, bool addnul);
 extern Q_EXPORT void* qt_winTchar_new(const QString& str);
-extern Q_EXPORT QCString qt_winQString2MB( const QString& s );
+extern Q_EXPORT QCString qt_winQString2MB( const QString& s, int len=-1 );
 extern Q_EXPORT QString qt_winMB2QString( const char* mb, int len=-1 );
 #endif
 

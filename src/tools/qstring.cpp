@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#230 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#231 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13100,18 +13100,20 @@ QString qt_winQString(void* tc)
 #endif
 }
 
-QCString qt_winQString2MB( const QString& s )
+QCString qt_winQString2MB( const QString& s, int uclen )
 {
+    if ( uclen < 0 )
+	uclen = s.length();
     BOOL used_def;
     QCString mb(4096);
     int len;
-    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const ushort*)s.unicode(), s.length(),
+    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const ushort*)s.unicode(), uclen,
 		mb.data(), mb.size()-1, 0, &used_def)) )
     {
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
 	    mb.resize(1+WideCharToMultiByte( CP_ACP, 0,
-				(const ushort*)s.unicode(), s.length(),
+				(const ushort*)s.unicode(), uclen,
 				0, 0, 0, &used_def));
 		// and try again...
 	} else {
