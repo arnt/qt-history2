@@ -66,7 +66,6 @@ static void printVersion()
 
 static void processQdocFile( const QString& fileName )
 {
-qDebug( "processQdocFile %s", fileName.latin1() );
     QPtrList<QTranslator> translators;
     translators.setAutoDelete( TRUE );
 
@@ -124,28 +123,24 @@ qDebug( "processQdocFile %s", fileName.latin1() );
 				codeParser->headerFileNameFilter() );
     QStringList::ConstIterator h = headers.begin();
     while ( h != headers.end() ) {
-qDebug( "Parsing header file '%s'", (*h).latin1() );
 	codeParser->parseHeaderFile( config.location(), *h, tree );
 	++h;
     }
-qDebug( "Done parsing header files" );
+    codeParser->doneParsingHeaderFiles( tree );
 
     QStringList sources =
 	    config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
 				codeParser->sourceFileNameFilter() );
     QStringList::ConstIterator s = sources.begin();
     while ( s != sources.end() ) {
-qDebug( "Parsing source file '%s'", (*s).latin1() );
 	codeParser->parseSourceFile( config.location(), *s, tree );
 	++s;
     }
-    tree->normalizeOverloads();
-qDebug( "Done parsing source files" );
+    codeParser->doneParsingSourceFiles( tree );
 
     Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
     Set<QString>::ConstIterator of = outputFormats.begin();
     while ( of != outputFormats.end() ) {
-qDebug( "Generating output '%s'", (*of).latin1() );
 	Generator *generator = Generator::generatorForFormat( *of );
 	if ( generator == 0 )
 	    config.lastLocation().fatal( tr("Unknown output format '%1'")
@@ -153,7 +148,6 @@ qDebug( "Generating output '%s'", (*of).latin1() );
 	generator->generateTree( tree, marker );
 	++of;
     }
-qDebug( "Done generating output" );
 
     Generator::terminate();
     CodeParser::terminate();

@@ -118,19 +118,15 @@ void InnerNode::normalizeOverloads()
     QMap<QString, Node *>::ConstIterator p = primaryFunctionMap.begin();
     while ( p != primaryFunctionMap.end() ) {
 	FunctionNode *primaryFunc = (FunctionNode *) *p;
-	if ( primaryFunc->isOverload() ) {
-	    // ### emit warning
+	if ( primaryFunc->isOverload() )
 	    primaryFunc->ove = FALSE;
-	}
 	if ( secondaryFunctionMap.contains(primaryFunc->name()) ) {
 	    NodeList& secs = secondaryFunctionMap[primaryFunc->name()];
 	    NodeList::ConstIterator s = secs.begin();
 	    while ( s != secs.end() ) {
 		FunctionNode *secondaryFunc = (FunctionNode *) *s;
-		if ( !secondaryFunc->isOverload() ) {
-		    // ### emit warning
+		if ( !secondaryFunc->isOverload() )
 		    secondaryFunc->ove = TRUE;
-		}
 		++s;
 	    }
 	}
@@ -365,16 +361,6 @@ void FunctionNode::setReimplementedFrom( FunctionNode *from )
 {
     rf = from;
     from->rb.append( this );
-}
-
-bool FunctionNode::isConstructor() const
-{
-    return parent()->name() == name();
-}
-
-bool FunctionNode::isDestructor() const
-{
-    return name().startsWith( "~" );
 }
 
 int FunctionNode::overloadNumber() const

@@ -23,6 +23,7 @@
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
 #define COMMAND_QUICKIFY            Doc::alias( "quickify" )
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
+#define COMMAND_PROTECTED           Doc::alias( "protected" )
 #define COMMAND_REPLACE             Doc::alias( "replace" )
 
 static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
@@ -113,8 +114,6 @@ void QsCodeParser::parseHeaderFile( const Location& location,
 	return;
     }
 
-    NodeList quickClasses;
-
     Location fileLocation( filePath );
     FileTokenizer fileTokenizer( fileLocation, in );
     int tok = fileTokenizer.getToken();
@@ -123,7 +122,6 @@ void QsCodeParser::parseHeaderFile( const Location& location,
 	    ClassNode *quickClass = new ClassNode( qsTre->root(),
 						   fileTokenizer.lexeme() );
 	    quickClass->setLocation( fileTokenizer.location() );
-	    quickClasses << quickClass;
 	} else {
 	    fileTokenizer.location().error( tr("Unexpected token '%1' in Qt"
 					       " Script class list")
@@ -133,12 +131,6 @@ void QsCodeParser::parseHeaderFile( const Location& location,
 	tok = fileTokenizer.getToken();
     }
     fclose( in );
-
-    NodeList::ConstIterator c = quickClasses.begin();
-    while ( c != quickClasses.end() ) {
-	quickifyClass( (ClassNode *) *c );
-	++c;
-    }
 }
 
 void QsCodeParser::parseSourceFile( const Location& location,
@@ -146,6 +138,22 @@ void QsCodeParser::parseSourceFile( const Location& location,
 {
     qsTre = tree;
     CppCodeParser::parseSourceFile( location, filePath, tree );
+}
+
+void QsCodeParser::doneParsingHeaderFiles( Tree *tree )
+{
+    NodeList::ConstIterator c = tree->root()->childNodes().begin();
+    while ( c != tree->root()->childNodes().end() ) {
+	if ( (*c)->type() == Node::Class )
+	    quickifyClass( (ClassNode *) *c );
+	++c;
+    }
+}
+
+void QsCodeParser::doneParsingSourceFiles( Tree *tree )
+{
+    tree->root()->normalizeOverloads();
+    // ### check which enums are used
 }
 
 FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
@@ -214,6 +222,18 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 Set<QString> QsCodeParser::otherMetaCommands()
 {
     return commonMetaCommands() << COMMAND_QUICKIFY << COMMAND_REPLACE;
+}
+
+void QsCodeParser::processOtherMetaCommand( const Doc& doc,
+			 		    const QString& command,
+					    const QString& arg, Node *node )
+{
+    if ( command == COMMAND_PROTECTED ) {
+	doc.location().warning( tr("Cannot use '\\%1' in %2")
+				.arg(COMMAND_PROTECTED).arg(language()) );
+    } else {
+	CppCodeParser::processOtherMetaCommand( doc, command, arg, node );
+    }
 }
 
 ClassNode *QsCodeParser::tryClass( const QString& className )
@@ -302,10 +322,11 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	    bare = bare.mid( 1 );
 	} else {
 	    qtClassName.prepend( "Q" );
+	    // ### use QRegExp::escape() in Qt 3.1
+	    replaceBefores << QRegExp( qtClassName );
+	    replaceAfters << bare;
 	}
     }
-
-qDebug( "Quickifying '%s'", qtClassName.latin1() );
 
     ClassNode *qtClass = 0;
     ClassNode *wrapperClass = 0;
@@ -345,15 +366,21 @@ qDebug( "Quickifying '%s'", qtClassName.latin1() );
 	return;
     }
 
+    QMap<QString, int> blackList;
+
     NodeList children = qtClass->childNodes();
-    if ( wrapperClass != 0 )
+    if ( wrapperClass != 0 ) {
 	children += wrapperClass->childNodes();
 
-    QMap<QString, int> blackList;
+	// we don't want the wrapper class constructor and destructor
+	blackList.insert( wrapperClass->name(), 0 );
+	blackList.insert( "~" + wrapperClass->name(), 0 );
+    }
+
     for ( int pass = 0; pass < 2; pass++ ) {
 	NodeList::ConstIterator c = children.begin();
 	while ( c != children.end() ) {
-	    if ( (*c)->access() == Node::Public &&
+	    if ( (*c)->access() != Node::Private &&
 		 (*c)->status() == Node::Commendable ) {
 		if ( pass == 0 ) {
 		    if ( (*c)->type() == Node::Enum ) {
@@ -384,6 +411,9 @@ void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )
 {
     EnumNode *quickEnum = new EnumNode( quickClass, enume->name() );
     quickEnum->setLocation( enume->location() );
+#if 0 // ### not yet
+    quickEnum->setAccess( Node::Protected );
+#endif
 
     QValueList<EnumItem>::ConstIterator it = enume->items().begin();
     while ( it != enume->items().end() ) {
@@ -399,32 +429,39 @@ void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )
 void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 				     FunctionNode *func )
 {
-    if ( func->metaness() != FunctionNode::Plain ) {
-	FunctionNode *quickFunc = new FunctionNode( quickClass, func->name() );
-	quickFunc->setLocation( func->location() );
-	quickFunc->setReturnType( quickifiedDataType(func->returnType()) );
-	if ( func->metaness() == FunctionNode::Signal )
-	    quickFunc->setMetaness( FunctionNode::Signal );
-	quickFunc->setOverload( func->isOverload() );
+    if ( func->metaness() == FunctionNode::Dtor )
+	return;
 
-	QValueList<Parameter>::ConstIterator q = func->parameters().begin();
-	while ( q != func->parameters().end() ) {
-	    Parameter param( quickifiedDataType((*q).leftType(),
-						(*q).rightType()),
-			     "", (*q).name() );
-	    quickFunc->addParameter( param );
-	    ++q;
-	}
+    QString quickName = func->name();
+    if ( func->metaness() == FunctionNode::Ctor )
+	quickName = quickClass->name();
+    FunctionNode *quickFunc = new FunctionNode( quickClass, quickName );
 
-	if ( func->doc().isEmpty() ) {
-	    if ( func->parent() != (InnerNode *) qtClass ) {
-		func = qtClass->findFunctionNode( func );
-		if ( func != 0 )
-		    setQtDoc( quickFunc, func->doc() );
-	    }
-	} else {
-	    setQtDoc( quickFunc, func->doc() );
+    quickFunc->setLocation( func->location() );
+    if ( func->metaness() == FunctionNode::Plain )
+	quickFunc->setAccess( Node::Protected );
+    quickFunc->setReturnType( quickifiedDataType(func->returnType()) );
+    if ( func->metaness() != FunctionNode::Slot )
+	quickFunc->setMetaness( func->metaness() );
+    quickFunc->setOverload( func->isOverload() );
+
+    QValueList<Parameter>::ConstIterator q = func->parameters().begin();
+    while ( q != func->parameters().end() ) {
+	Parameter param( quickifiedDataType((*q).leftType(),
+					    (*q).rightType()),
+			 "", (*q).name() );
+	quickFunc->addParameter( param );
+	++q;
+    }
+
+    if ( func->doc().isEmpty() ) {
+	if ( func->parent() != (InnerNode *) qtClass ) {
+	    func = qtClass->findFunctionNode( func );
+	    if ( func != 0 )
+		setQtDoc( quickFunc, func->doc() );
 	}
+    } else {
+	setQtDoc( quickFunc, func->doc() );
     }
 }
 
@@ -725,6 +762,11 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 {
     QRegExp quickifyCommand( "\\\\" + COMMAND_QUICKIFY + "([^\n]*)(?:\n|$)" );
 
+    if ( quickNode->type() == Node::Function ) {
+	FunctionNode *quickFunc = (FunctionNode *) quickNode;
+	quickFunc->setOverload( FALSE );
+    }
+
     if ( doc.metaCommandsUsed() != 0 &&
 	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFY) ) {
 	QString source = doc.source();
@@ -755,7 +797,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 		       CppCodeParser::otherMetaCommands()) << COMMAND_REPLACE );
 	quickNode->setDoc( quickDoc, TRUE );
 	processOtherMetaCommands( quickDoc, quickNode );
-    } else if ( !doc.isEmpty() ) {
+    } else {
 	quickNode->setDoc( doc, TRUE );
 	processOtherMetaCommands( doc, quickNode );
     }
@@ -765,10 +807,11 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
 				     QStringList *pathPtr,
 				     FunctionNode **funcPtr )
 {
-    QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" +
-			balancedParens + ")\\)\\s*" );
-    QRegExp paramRegExp( "\\s*var\\s+([A-Za-z0-9_]+)?"
-			 "\\s*(?::\\s*([A-Za-z0-9_]+)\\s*)?" );
+    QRegExp funcRegExp(
+	    "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" + balancedParens +
+	    ")\\)\\s*" );
+    QRegExp paramRegExp(
+	    "\\s*([A-Za-z0-9_]+)?\\s*(?::\\s*([A-Za-z0-9_]+)\\s*)?" );
 
     if ( !funcRegExp.exactMatch(synopsis) )
 	return FALSE;

@@ -363,20 +363,21 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     sections = marker->classSections( classe, CodeMarker::Summary );
     s = sections.begin();
     while ( s != sections.end() ) {
-	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
+	bool twoColumn = ( (*s).members.count() >= 5 &&
+			   (*s).members.first()->type() == Node::Property );
 
-	if ( (*s).name.find("Propert") != -1 )
+	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
+	if ( twoColumn )
 	    out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
-		  << " cellspacing=\"0\"><tr><td width=\"50%\" valign=\"top\">";
+		     " cellspacing=\"0\">\n"
+		  << "<tr><td width=\"45%\" valign=\"top\">";
 	out() << "<ul>\n";
 
 	int i = 0;
 	m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
-	    if ( (*s).name.find("Propert") != -1 ) {
-		if ( i == (int) ((*s).members.count() + 1) / 2 )
-		    out() << "</ul></td><td width=\"50%\" valign=\"top\"><ul>";
-	    }
+	    if ( twoColumn && i == (int) ((*s).members.count() + 1) / 2 )
+		out() << "</ul></td><td valign=\"top\"><ul>\n";
 
 	    out() << "<li><div class=\"fn\"/>";
 	    generateSynopsis( *m, classe, marker, CodeMarker::Summary );
@@ -385,9 +386,8 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 	    ++m;
 	}
 	out() << "</ul>\n";
-
-	if ( (*s).name.find("Properties") != -1 )
-	    out() << "</td></tr></table>";
+	if ( twoColumn )
+	    out() << "</td></tr>\n</table>\n";
 	++s;
     }
 

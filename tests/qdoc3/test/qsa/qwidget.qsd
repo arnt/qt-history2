@@ -3,6 +3,21 @@
     \quickify
 */
 
+/*! \quickfn QWidget.constPolish()
+
+    \internal
+*/
+
+/*! \quickfn QWidget.setFixedSize( x : Number, y : Number )
+
+    \public
+
+    \quickify
+
+    This function is imported explicitly from Qt, even though it's
+    not a signal.
+*/
+
 /* IGNORE ! \quickenum QWidget.BackgroundOrigin
 
     \internal

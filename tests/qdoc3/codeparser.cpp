@@ -11,6 +11,8 @@
 #define COMMAND_OBSOLETE            Doc::alias( "obsolete" )
 #define COMMAND_PRELIMINARY         Doc::alias( "preliminary" )
 #define COMMAND_PRIVATE             Doc::alias( "private" )
+#define COMMAND_PROTECTED           Doc::alias( "protected" )
+#define COMMAND_PUBLIC              Doc::alias( "public" )
 
 QValueList<CodeParser *> CodeParser::parsers;
 
@@ -65,7 +67,8 @@ Set<QString> CodeParser::commonMetaCommands()
 {
     return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP
 			  << COMMAND_INMODULE << COMMAND_OBSOLETE
-			  << COMMAND_PRELIMINARY << COMMAND_PRIVATE;
+			  << COMMAND_PRELIMINARY << COMMAND_PRIVATE
+			  << COMMAND_PROTECTED << COMMAND_PUBLIC;
 }
 
 void CodeParser::processCommonMetaCommand( const Location& /* location */,
@@ -85,5 +88,9 @@ void CodeParser::processCommonMetaCommand( const Location& /* location */,
 	node->setStatus( Node::Preliminary );
     } else if ( command == COMMAND_PRIVATE ) {
 	node->setAccess( Node::Private );
+    } else if ( command == COMMAND_PROTECTED ) {
+	node->setAccess( Node::Protected );
+    } else if ( command == COMMAND_PUBLIC ) {
+	node->setAccess( Node::Public );
     }
 }

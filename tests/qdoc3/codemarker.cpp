@@ -156,9 +156,15 @@ QString CodeMarker::sortName( const Node *node )
 {
     if ( node->type() == Node::Function ) {
 	FunctionNode *func = (FunctionNode *) node;
-	QString sortNo = func->isConstructor() ? "1"
-			 : func->isDestructor() ? "2" : "3";
-	return sortNo + func->name() + " " +
+	int sortNo;
+	if ( func->metaness() == FunctionNode::Ctor ) {
+	    sortNo = 1;
+	} else if ( func->metaness() == FunctionNode::Dtor ) {
+	    sortNo = 2;
+	} else {
+	    sortNo = 3;
+	}
+	return QString::number( sortNo ) + func->name() + " " +
 	       QString::number( func->overloadNumber(), 36 );
     } else {
 	return node->name();

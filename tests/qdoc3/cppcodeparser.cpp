@@ -107,6 +107,15 @@ void CppCodeParser::parseSourceFile( const Location& location,
     fclose( in );
 }
 
+void CppCodeParser::doneParsingHeaderFiles( Tree * /* tree */ )
+{
+}
+
+void CppCodeParser::doneParsingSourceFiles( Tree *tree )
+{
+    tree->root()->normalizeOverloads();
+}
+
 const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 						     Tree *tree )
 {
@@ -539,7 +548,15 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
     func->setAccess( access );
     func->setLocation( location() );
     func->setReturnType( returnType.toString() );
+
     func->setMetaness( metaness );
+    if ( parent != 0 ) {
+	if ( name == parent->name() ) {
+	    func->setMetaness( FunctionNode::Ctor );
+	} else if ( name.startsWith("~") )  {
+	    func->setMetaness( FunctionNode::Dtor );
+	}
+    }
     func->setStatic( sta );
 
     if ( tok != Tok_RightParen ) {

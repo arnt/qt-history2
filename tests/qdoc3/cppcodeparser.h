@@ -32,6 +32,8 @@ public:
 				  const QString& filePath, Tree *tree );
     virtual void parseSourceFile( const Location& location,
 				  const QString& filePath, Tree *tree );
+    virtual void doneParsingHeaderFiles( Tree *tree );
+    virtual void doneParsingSourceFiles( Tree *tree );
 
     const FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
 

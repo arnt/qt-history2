@@ -85,8 +85,3 @@ void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
     Q_UNUSED( baseTemplateArgs )
 #endif
 }
-
-void Tree::normalizeOverloads()
-{
-    root()->normalizeOverloads();
-}

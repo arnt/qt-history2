@@ -30,6 +30,8 @@ public:
     virtual void parseSourceFile( const Location& location,
 				  const QString& filePath,
 				  Tree *tree ) = 0;
+    virtual void doneParsingHeaderFiles( Tree *tree ) = 0;
+    virtual void doneParsingSourceFiles( Tree *tree ) = 0;
 
     static void initialize( const Config& config );
     static void terminate();

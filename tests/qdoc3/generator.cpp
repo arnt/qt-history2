@@ -193,7 +193,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	generateStatus( node, marker );
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
-	if ( func->isOverload() )
+	if ( func->isOverload() && func->metaness() != FunctionNode::Ctor )
 	    generateOverload( node, marker );
     }
 

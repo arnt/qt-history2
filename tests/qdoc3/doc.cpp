@@ -136,6 +136,7 @@ public:
     void addAlso( const Text& also );
     void constructExtra();
 
+    // ### move some of this in DocPrivateExtra
     Location loc;
     QString src;
     Text text;
@@ -1673,8 +1674,7 @@ const QString& Doc::source() const
 
 bool Doc::isEmpty() const
 {
-    // ### is that all?
-    return body().isEmpty();
+    return priv->src.isEmpty();
 }
 
 const Text& Doc::body() const

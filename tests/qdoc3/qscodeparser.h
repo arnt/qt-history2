@@ -22,6 +22,8 @@ public:
 				  const QString& filePath, Tree *tree );
     virtual void parseSourceFile( const Location& location,
 				  const QString& filePath, Tree *tree );
+    virtual void doneParsingHeaderFiles( Tree *tree );
+    virtual void doneParsingSourceFiles( Tree *tree );
 
     FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
 
@@ -30,6 +32,9 @@ protected:
     virtual Node *processTopicCommand( const Doc& doc, const QString& command,
 				       const QString& arg );
     virtual Set<QString> otherMetaCommands();
+    virtual void processOtherMetaCommand( const Doc& doc,
+					  const QString& command,
+					  const QString& arg, Node *node );
 
 private:
     ClassNode *tryClass( const QString& className );

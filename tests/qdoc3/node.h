@@ -222,7 +222,7 @@ private:
 class FunctionNode : public LeafNode
 {
 public:
-    enum Metaness { Plain, Signal, Slot };
+    enum Metaness { Plain, Signal, Slot, Ctor, Dtor };
     enum Virtualness { NonVirtual, ImpureVirtual, PureVirtual };
 
     FunctionNode( InnerNode *parent, const QString& name );
@@ -243,8 +243,6 @@ public:
     Virtualness virtualness() const { return vir; }
     bool isConst() const { return con; }
     bool isStatic() const { return sta; }
-    bool isConstructor() const;
-    bool isDestructor() const;
     bool isOverload() const { return ove; }
     bool isReimplementation() const { return rei; }
     int overloadNumber() const;

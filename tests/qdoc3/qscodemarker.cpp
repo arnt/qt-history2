@@ -71,11 +71,8 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         	while ( p != func->parameters().end() ) {
                     if ( p != func->parameters().begin() )
                 	synopsis += ", ";
-		    synopsis += "var";
-		    if ( !(*p).name().isEmpty() )
-			synopsis += " <@param>" + protect( (*p).name() ) +
-				    "</@param>";
-		    synopsis += " : " + protect( (*p).leftType() );
+		    synopsis += " <@param>" + protect( (*p).name() ) +
+				"</@param> : " + protect( (*p).leftType() );
                     ++p;
         	}
         	synopsis += " ";
@@ -242,12 +239,14 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {
-	    if ( (*c)->type() == Node::Enum ) {
-		insert( enums, *c );
-	    } else if ( (*c)->type() == Node::Function ) {
-		insert( functionsAndSignals, *c );
-	    } else if ( (*c)->type() == Node::Property ) {
-		insert( properties, *c );
+	    if ( (*c)->access() == Node::Public ) {
+		if ( (*c)->type() == Node::Enum ) {
+		    insert( enums, *c );
+		} else if ( (*c)->type() == Node::Function ) {
+		    insert( functionsAndSignals, *c );
+		} else if ( (*c)->type() == Node::Property ) {
+		    insert( properties, *c );
+		}
 	    }
 	    ++c;
 	}
