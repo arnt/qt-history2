@@ -1051,6 +1051,28 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 	font->setPixelSizeFloat( float(parseLen( val )) );
     } else if ( prop == "font-family" ) {
 	font->setFamily( val );
+    } else if ( prop == "font-style" ) {
+	if ( val == "normal" )
+	    font->setItalic( FALSE );
+	else if ( val == "italic" )
+	    font->setItalic( TRUE );
+	else
+	    qWarning( "QSvgDevice::setStyleProperty: unhandled "
+		      "font-style: %s", val.latin1() );
+    } else if ( prop == "font-weight" ) {
+	int w = font->weight();
+	// no exact equivalents so we have to "round" a little bit
+	if ( val == "100" || val == "200" )
+	    w = QFont::Light;
+	if ( val == "300" || val == "400" || val == "normal" )
+	    w = QFont::Normal;
+	else if ( val == "500" || val == "600" )
+	    w = QFont::DemiBold;
+	else if ( val == "700" || val == "bold" || val == "800" )
+	    w = QFont::Bold;
+	else if ( val == "900" )
+	    w = QFont::Black;
+	font->setWeight( w );
     } else if ( prop == "text-anchor" ) {
 	if ( val == "middle" )
 	    *talign = Qt::AlignHCenter;
@@ -1297,8 +1319,28 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	// brush/fill for text
 	s += QString( "fill:rgb(%1,%2,%3);" )
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
-	s += QString( "font-size:%1;" ).arg( pt->font().pointSize() );
 	s += QString( "stroke-width:0;" );
+	QFont f = pt->font();
+	s += QString( "font-size:%1;" ).arg( f.pointSize() );
+	s += QString( "font-style:%1;" )
+	     .arg( f.italic() ? "italic" : "normal" );
+	// not a very scientific distribution
+	QString fw;
+	if ( f.weight() <= QFont::Light )
+	    fw = "100";
+	else if ( f.weight() <= QFont::Normal )
+	    fw = "200";
+	else if ( f.weight() <= QFont::DemiBold )
+	    fw = "300";
+	else if ( f.weight() <= QFont::Normal )
+	    fw = "400";
+	else if ( f.weight() <= QFont::Bold )
+	    fw = "700";
+	else if ( f.weight() <= QFont::Black )
+	    fw = "800";
+	else
+	    fw = "900";
+	s += QString( "font-weight:%1;" ).arg( fw );
     } else {
 	s += QString( "stroke:rgb(%1,%2,%3);" )
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
