@@ -18,24 +18,23 @@
 
 #include <string.h>
 
+#include <windows.h>
+#include <winsock.h>
+
 #if !defined (QT_NO_IPV6)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#if !defined(SOCKADDR_STORAGE) && !defined(_SS_ALIGNSIZE)
 // Compiling with old SDK, which does not contain these
 // structs and defines
-# define _SS_MAXSIZE 128
-# define _SS_ALIGNSIZE (sizeof(__int64))
-# define _SS_PAD1SIZE (_SS_ALIGNSIZE - sizeof (short))
-# define _SS_PAD2SIZE (_SS_MAXSIZE - (sizeof (short) + _SS_PAD1SIZE \
-                                                     + _SS_ALIGNSIZE))
-  typedef struct {
+# define QT_SS_MAXSIZE 128
+# define QT_SS_ALIGNSIZE (sizeof(__int64))
+# define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
+# define QT_SS_PAD2SIZE (QT_SS_MAXSIZE - (sizeof (short) + QT_SS_PAD1SIZE \
+                                                     + QT_SS_ALIGNSIZE))
+typedef struct {
       short ss_family;
-      char __ss_pad1[_SS_PAD1SIZE];
+      char __ss_pad1[QT_SS_PAD1SIZE];
       __int64 __ss_align;
-      char __ss_pad2[_SS_PAD2SIZE];
-  } SOCKADDR_STORAGE;
-#endif
+      char __ss_pad2[QT_SS_PAD2SIZE];
+} QT_SOCKADDR_STORAGE;
 
 // sockaddr_in6 size changed between old and new SDK
 // Only the new version is the correct one, so always
@@ -50,11 +49,8 @@ struct alt_sockaddr_in6 {
     struct alt_in6_addr sin6_addr;  /* IPv6 address */
     u_long sin6_scope_id;           /* set of interfaces for a scope */
 };
-
-#else
-#include <windows.h>
-#include <winsock.h>
 #endif
+
 
 #ifndef NO_ERRNO_H
 #include <errno.h>
@@ -118,7 +114,7 @@ QSocketDevice::Protocol QSocketDevice::getProtocol( int socket )
 {
 #if !defined (QT_NO_IPV6)
     if (socket != -1) {
-	SOCKADDR_STORAGE ss;
+	QT_SOCKADDR_STORAGE ss;
 	memset( &ss, 0, sizeof(ss) );
 	SOCKLEN_T sslen = sizeof( ss );
 	if ( !::getsockname(socket, (struct sockaddr *)&ss, &sslen) ) {
@@ -449,7 +445,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 	memcpy( &a6.sin6_addr.alt_s6_addr, &tmp, sizeof(tmp) );
 	setProtocol( IPv6 );
 
-	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(SOCKADDR_STORAGE) );
+	r = ::bind( socket(), (struct sockaddr *)&a6, sizeof(QT_SOCKADDR_STORAGE) );
     } else
 #endif
     {
@@ -523,7 +519,7 @@ int QSocketDevice::accept()
     if ( !isValid() )
 	return -1;
 #if !defined(QT_NO_IPV6)
-    SOCKADDR_STORAGE a;
+    QT_SOCKADDR_STORAGE a;
 #else
     struct sockaddr a;
 #endif
@@ -636,7 +632,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	// With IPv6 support, we must be prepared to receive both IPv4
 	// and IPv6 packets. The generic SOCKADDR_STORAGE (struct
 	// sockaddr_storage on unix) replaces struct sockaddr.
-	SOCKADDR_STORAGE a;
+	QT_SOCKADDR_STORAGE a;
 #else
 	struct sockaddr_in a;
 #endif
@@ -921,7 +917,7 @@ void QSocketDevice::fetchConnectionParameters()
 	return;
     }
 #if !defined (QT_NO_IPV6)
-    SOCKADDR_STORAGE sa;
+    QT_SOCKADDR_STORAGE sa;
 #else
     struct sockaddr_in sa;
 #endif
@@ -957,7 +953,7 @@ void QSocketDevice::fetchPeerConnectionParameters()
     // do the getpeername() lazy on Windows (sales/arc-18/37759 claims that
     // there will be problems otherwise if you use MS Proxy server)
 #if !defined (QT_NO_IPV6)
-    SOCKADDR_STORAGE sa;
+    QT_SOCKADDR_STORAGE sa;
 #else
     struct sockaddr_in sa;
 #endif
