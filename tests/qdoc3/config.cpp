@@ -8,25 +8,91 @@
 
 #include "config.h"
 
-struct MetaStackEntry
+/*
+  ###
+*/
+class MetaStackEntry
 {
+public:
+    void open();
+    void close();
+
     QStringList accum;
     QStringList next;
-
-    MetaStackEntry() { begin(); }
-
-    void end() {
-	accum += next;
-	next.clear();
-    }
-    void begin() {
-	next << "";
-    }
 };
 
-/*! \class Config
+void MetaStackEntry::open()
+{
+    next << "";
+}
 
+void MetaStackEntry::close()
+{
+    accum += next;
+    next.clear();
+}
+
+/*
+  ###
 */
+class MetaStack : private QValueStack<MetaStackEntry>
+{
+public:
+    MetaStack();
+
+    void process( QChar ch, const Location& location );
+    QStringList getExpanded( const Location& location );
+};
+
+MetaStack::MetaStack()
+{
+    push( MetaStackEntry() );
+    top().open();
+}
+
+void MetaStack::process( QChar ch, const Location& location )
+{
+    if ( ch == '{' ) {
+	push( MetaStackEntry() );
+	top().open();
+    } else if ( ch == '}' ) {
+	if ( count() == 1 )
+	    location.fatal( tr("Unexpected '}'") );
+
+	top().close();
+	QStringList suffixes = pop().accum;
+	QStringList prefixes = top().next;
+
+	top().next.clear();
+	QStringList::ConstIterator pre = prefixes.begin();
+	while ( pre != prefixes.end() ) {
+	    QStringList::ConstIterator suf = suffixes.begin();
+	    while ( suf != suffixes.end() ) {
+		top().next << ( *pre + *suf );
+		++suf;
+	    }
+	    ++pre;
+	}
+    } else if ( ch == ',' && count() > 1 ) {
+	top().close();
+	top().open();
+    } else {
+	QStringList::Iterator pre = top().next.begin();
+	while ( pre != top().next.end() ) {
+	    *pre += ch;
+	    ++pre;
+	}
+    }
+}
+
+QStringList MetaStack::getExpanded( const Location& location )
+{
+    if ( count() > 1 )
+	location.fatal( tr("Missing '}'") );
+
+    top().close();
+    return top().accum;
+}
 
 QT_STATIC_CONST_IMPL QString Config::dot = ".";
 
@@ -243,49 +309,13 @@ void Config::load( Location location, const QString& fileName )
 	    bool prevWordQuoted = TRUE;
 	    bool metWord = FALSE;
 
-	    QValueStack<MetaStackEntry> stack;
-	    stack.push( MetaStackEntry() );
-
+	    MetaStack stack;
 	    do {
-		if ( text[i] == '{' ) {
-		    stack.push( MetaStackEntry() );
-		} else if ( text[i] == '}' ) {
-		    if ( stack.count() == 1 )
-			location.fatal( tr("Unexpected '}' in key") );
-
-		    stack.last().end();
-
-		    QStringList suffixes = stack.pop().accum;
-		    QStringList prefixes = stack.top().next;
-		    stack.top().next.clear();
-
-		    QStringList::ConstIterator pre = prefixes.begin();
-		    while ( pre != prefixes.end() ) {
-			QStringList::ConstIterator suf = suffixes.begin();
-			while ( suf != suffixes.end() ) {
-			    stack.top().next << ( *pre + *suf );
-			    ++suf;
-			}
-			++pre;
-		    }
-		} else if ( text[i] == ',' && stack.count() > 1 ) {
-		    stack.top().end();
-		    stack.top().begin();
-		} else {
-		    QStringList::Iterator pre = stack.top().next.begin();
-		    while ( pre != stack.top().next.end() ) {
-			*pre += text[i];
-			++pre;
-		    }
-		}
+		stack.process( text[i], location );
 		SKIP_CHAR();
 	    } while ( isMetaKeyChar(text[i]) );
 
-	    if ( stack.count() > 1 )
-		location.fatal( tr("Missing '}' in key") );
-
-	    stack.top().end();
-	    QStringList keys = stack.top().accum;
+	    QStringList keys = stack.getExpanded( location );
 	    SKIP_SPACES();
 
 	    if ( keys.count() == 1 && keys.first() == "include" ) {
