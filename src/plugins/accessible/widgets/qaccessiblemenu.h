@@ -3,13 +3,13 @@
 
 #include <qaccessiblewidget.h>
 
-class QPopupMenu;
+class QMenu;
 class QMenuBar;
 
-class QAccessiblePopup : public QAccessibleWidget
+class QAccessibleMenu : public QAccessibleWidget
 {
 public:
-    QAccessiblePopup(QWidget *w);
+    QAccessibleMenu(QWidget *w);
 
     int                childCount() const;
     int                childAt(int x, int y) const;
@@ -22,7 +22,7 @@ public:
     bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
-    QPopupMenu *popupMenu() const;
+    QMenu *menu() const;
 };
 
 class QAccessibleMenuBar : public QAccessibleWidget

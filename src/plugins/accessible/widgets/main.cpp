@@ -49,6 +49,7 @@ QStringList AccessibleFactory::keys() const
     list << "QProgressBar";
     list << "QMenuBar";
     list << "QPopupMenu";
+    list << "QMenu";
     list << "QGenericHeader";
     list << "QTabBar";
     list << "QTitleBar";
@@ -129,8 +130,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleWidget(widget, ToolBar, widget->windowTitle());
     } else if (classname == "QMenuBar") {
         iface = new QAccessibleMenuBar(widget);
+    } else if (classname == "QMenu") {
+        iface = new QAccessibleMenu(widget);
     } else if (classname == "QPopupMenu") {
-        iface = new QAccessiblePopup(widget);
+        iface = new QAccessibleMenu(widget);
     } else if (classname == "QGenericHeader") {
         iface = new QAccessibleHeader(widget);
     } else if (classname == "QTabBar") {
