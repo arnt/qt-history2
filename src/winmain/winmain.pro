@@ -5,14 +5,12 @@ DESTDIR	 = $$QMAKE_LIBDIR_QT
 
 CONFIG	+= staticlib warn_on release
 CONFIG	-= qt
-INCLUDEPATH += $$QT_SOURCE_TREE/include/QtCore
-               
 
 win32 {
 	SOURCES		= qtmain_win.cpp
 	CONFIG		+= png zlib
 	CONFIG		-= jpeg
-	INCLUDEPATH	+= tmp $$QMAKE_INCDIR_QT
+	INCLUDEPATH	+= tmp $$QMAKE_INCDIR_QT/QtCore
 }
 
 !win32:error("$$_FILE_ is intended only for Windows!")
