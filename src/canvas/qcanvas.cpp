@@ -411,7 +411,7 @@ static int scm(int a, int b)
 
 /*!
 \class QCanvas qcanvas.h
-\brief The QCanvas class provides a 2D graphic area containing QCanvasItem objects.
+\brief The QCanvas class provides a 2D area that can contain QCanvasItem objects.
 
 \ingroup abstractwidgets
 \module canvas
@@ -4900,11 +4900,14 @@ void QCanvasSprite::setFrame(int f)
 /*!
     \enum QCanvasSprite::FrameAnimationType
 
-    This enum is used to name the different types of frame 
+    This enum is used to identify the different types of frame 
     animation of QCanvasSprite.
 
-    \value Cycle
-    \value Oscillate
+    \value Cycle at each advance the frame number will be incremented by
+    1 (modulo the frame count) 
+    \value Oscillate at each advance the frame number will be
+    incremented by 1 up to the frame count then decremented to by 1 to
+    0, repeating this sequence indefinitely
 */
 
 /*
