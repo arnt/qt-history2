@@ -76,20 +76,62 @@
     \o Briefly read the porting notes below to get an idea of what to expect.
 
     \o Be sure that your code compiles and runs well on all your target
-       platforms with Qt 3, with \c QT_NO_COMPAT defined.
+       platforms with Qt 3.
 
-    \o Run the \l{qt3to4.html}{qt3to4} tool.
+    \o Add the line \c{QT += compat} to your \c .pro file if you use
+       \c qmake; otherwise, edit your makefile or project file to
+       link against the Qt3Compat library. (You might also need to
+       specify other libraries. See
+       \l{qt4-getting-started.html}{Getting Started with Qt 4} for
+       details.)
+
+    \o Run the \l{qt3to4.html}{qt3to4 porting tool}. The tool will go
+       through your source code and adapt it to Qt 4. It will also
+       attempt to convert \c .ui file. Be aware, though, that the \c
+       .ui file convertor is still at an experimental stage,
+       requiring you to put in some manual work.
 
     \o Recompile with Qt 4. For each error, search below for related
-       identifiers (e.g. function names, class names). This document
+       identifiers (e.g., function names, class names). This document
        mentions all relevant identifiers to help you get the information
        you need at the cost of being a little verbose.
 
-    \o If you get stuck, ask on the \link http://lists.trolltech.com/qt4-preview-feedback/
-       qt4-preview-feedback \endlink mailing list, or Trolltech Technical Support if
-       you're a registered licensee.
-
     \endlist
+
+    The \l{qt3to4.html}{qt3to4 porting tool} replaces occurrences of
+    Qt 3 classes that don't exist anymore in Qt 4 with the
+    corresponding compatibility class; for example, \c QListBox is
+    turned into \c Q3ListBox.
+
+    At some point, you might want to stop linking against the Qt 3
+    compatibility library and take advantage of Qt 4's new features.
+    The instructions below explain how to do that for each
+    compatibility class.
+
+    In addition to the compatibility classes (such as \c Q3Action, \c
+    Q3ListBox, and \c Q3ValueList), Qt 4 provides compatibility
+    functions when it's possible for an old API to cohabit with the
+    new one. For example, QString provides a
+    QString::simplifyWhiteSpace() compatibility function that's
+    implemented inline and that simply calls QString::simplified().
+    The compatibility functions are not documented here; instead,
+    they are documented for each class.
+
+    If you have the line \c{Qt += compat} in you \c .pro file, \c
+    qmake will automatically define the \c QT_COMPAT symbol, turning
+    on compatibility function support. You can also define the symbol
+    manually (e.g., if you don't want to link against the \c
+    Qt3Compat library), or you can define \c QT_COMPAT_WARNINGS
+    instead, telling the compiler to emit a warning when a
+    compatibility function is called. (This works only with GCC 3.2+
+    and MSVC 7.)
+
+    If you get stuck, ask on the \link
+    http://lists.trolltech.com/qt4-preview-feedback/
+    qt4-preview-feedback \endlink mailing list. If you are a licensed
+    customer, be aware that Trolltech cannot provide technical
+    support for beta releases. See our \l{bughowto.html}{Feedback
+    Policy} for details.
 
 \omit
     ### what to do with slots that aren't slots anymore
@@ -908,7 +950,7 @@
         ba.data()[5];          // returns '\0'
     \endcode
 
-    The \l{Qt 4 compatibility library} contains a class called
+    The \l{Qt 3 compatibility library} contains a class called
     Q3CString that inherits from the new QByteArray class and that
     extends it to provide an API that is as close to the old \c QCString
     class as possible. Note that the following functions aren't
@@ -1103,7 +1145,7 @@
     container classes was done in a thread-unsafe manner.
 
     With Qt 4, \c QDeepCopy<T> has been renamed Q3DeepCopy<T> and
-    moved to the \l{Qt 4 compatibility library}. Removing it from
+    moved to the \l{Qt 3 compatibility library}. Removing it from
     existing code is straightforward.
 
     \oldcode
@@ -2061,13 +2103,6 @@
     Q3Painter documentation for details and for the reasons why we
     had to do this change.
 
-    \section1 QPicture
-
-    Probably something needs to be said about new stuff from painting? Don't know, I didn't do that part.
-
-    QPicture::copy() is deprecated and QPicture::detach() is now a public internal
-    function. In general, one should have never needed to call these functions.
-
     \section1 QPixmap
 
     QPixmap::fromMimeSource(const QString &) -> qPixmapFromMimeSource(const QString &)
@@ -2117,13 +2152,13 @@
     \section1 QPopupMenu
 
     ###
-\endomit
 
     \section1 QPrinter
 
     page setup / print setup -> Use QPrintDialog, QPageSetupDialog
     Compat functions: margins
     Killed -> setMargins
+\endomit
 
     \section1 QProcess
 
