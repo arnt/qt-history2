@@ -4157,6 +4157,18 @@ QSize QWidget::minimumSizeHint() const
 
     Widget flags are a combination of \l{Qt::WindowFlags}.
 
+    If you want to test for the presence of multiple flags (or
+    composite flags such as \c WStyle_Splash), test the
+    return value for equality against the argument. For example:
+
+    \code
+    int flags = WStyle_Tool | WStyle_NoBorder;
+    if ( testWFlags(flags) )
+	... // WStyle_Tool or WStyle_NoBorder or both are set
+    if ( testWFlags(flags) == flags )
+        ... // both WStyle_Tool and WStyle_NoBorder are set
+    \endcode
+
     \sa getWFlags(), setWFlags(), clearWFlags()
 */
 
