@@ -1000,6 +1000,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 		inTitleChange = FALSE;
 	    }
 	}
+	updateWorkspace();
 	break;
     case QEvent::ShowToParent:
 	if ( o->isA("QWorkspaceChild") && !d->focus.contains((QWorkspaceChild*)o) )
