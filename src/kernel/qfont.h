@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#65 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#66 $
 **
 ** Definition of QFont class
 **
@@ -41,6 +41,29 @@ class  QFontInternal;
 class Q_EXPORT QFont					// font class
 {
 public:
+    enum CharSet   { ISO_8859_1,  Latin1 = ISO_8859_1, AnyCharSet,
+		     ISO_8859_2,  Latin2 = ISO_8859_2,
+		     ISO_8859_3,  Latin3 = ISO_8859_3,
+		     ISO_8859_4,  Latin4 = ISO_8859_4,
+		     ISO_8859_5,
+		     ISO_8859_6,
+		     ISO_8859_7,
+		     ISO_8859_8,
+		     ISO_8859_9,  Latin5 = ISO_8859_9,
+		     ISO_8859_10, Latin6 = ISO_8859_10,
+		     ISO_8859_11,
+		     ISO_8859_12,
+		     ISO_8859_13, Latin7 = ISO_8859_13,
+		     ISO_8859_14, Latin8 = ISO_8859_14,
+		     ISO_8859_15, Latin9 = ISO_8859_15,
+		     KOI8R,
+		     Set_Ja, Set_1 = Set_Ja,
+		     Set_Ko,
+		     Set_Th_TH,
+		     Set_Zh,
+		     Set_Zh_TW, Set_N = Set_Zh_TW,
+		     Unicode,
+		    };
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,
 		     SansSerif	= Helvetica,
 		     Serif	= Times,
@@ -48,24 +71,6 @@ public:
 		     Decorative = OldEnglish};
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
 		     Bold  = 75, Black	= 87 };
-    enum CharSet   { ISO_8859_1, Latin1 = ISO_8859_1, AnyCharSet,
-		     ISO_8859_2, Latin2 = ISO_8859_2,
-		     ISO_8859_3, Latin3 = ISO_8859_3,
-		     ISO_8859_4, Latin4 = ISO_8859_4,
-		     ISO_8859_5,
-		     ISO_8859_6,
-		     ISO_8859_7,
-		     ISO_8859_8,
-		     ISO_8859_9,
-		     KOI8R,
-		     Set_Ja, Set_1 = Set_Ja,
-		     Set_Ko,
-		     Set_Th_TH,
-		     Set_Zh,
-		     Set_Zh_TW, Set_N = Set_Zh_TW,
-		     Unicode
-		    };
-
     QFont();					// default font
     QFont( const QString &family, int pointSize = 12,
 	   int weight = Normal, bool italic = FALSE );
@@ -95,6 +100,9 @@ public:
     void	setStyleHint( StyleHint );
     CharSet	charSet()	const;
     void	setCharSet( CharSet );
+
+    static CharSet charSetForLocale();
+
     bool	rawMode()	const;
     void	setRawMode( bool );
 
@@ -110,11 +118,14 @@ public:
     HANDLE	handle() const;
 #endif
 
+    void	setRawName( const QString & );
     QString	rawName() const;
 
     QString	key() const;
 
-    static const QFont &defaultFont();
+    static QString encodingName( CharSet );
+
+    static const QFont defaultFont();
     static void setDefaultFont( const QFont & );
 
     static QString substitute( const QString &familyName );
@@ -123,6 +134,7 @@ public:
     static QStringList substitutions();
 
     static void initialize();
+    static void locale_init();
     static void cleanup();
     static void cacheStatistics();
 
@@ -136,8 +148,6 @@ protected:
 
 private:
     QFont( QFontData * );
-    enum Internal { QFI0, QFI1 };
-    QFont( Internal );
     void	init();
     void	detach();
     void	initFontInfo() const;
@@ -154,9 +164,8 @@ private:
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 
     QFontData	 *d;				// internal font data
-    static QFont *defFont;
+    static CharSet defaultCharSet;
 };
-
 
 inline bool QFont::bold() const
 { return weight() > Normal; }

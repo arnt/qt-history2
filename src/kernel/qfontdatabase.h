@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#3 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#4 $
 **
-** Definition of the QFontDatabase class and friends
+** Definition of the QFontDatabase class
 **
 ** Created : 981126
 **
@@ -26,11 +26,13 @@
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
+#ifndef _WS_WIN_
+
 //
 //  W A R N I N G
 //  -------------
 //
-//  These classes are under development and are currently unstable.
+//  This class is under development and is currently unstable.
 //
 //  It is very unlikely that this code will be available in the final
 //  Qt 2.0 release.  It will be available soon after then, but a number
@@ -43,100 +45,14 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qstringlist.h"
 #include "qfont.h"
 #include "qlist.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 class QStringList;
 class QFontStylePrivate;
-
-class Q_EXPORT QFontStyle
-{
-public:
-    QFontStyle() {d =0;}  // Dangerous for the time being!
-    QFontStyle( const QFont & ); // Dangerous for the time being!
-
-    bool isNull() const;
-    QString name() const;
-
-    bool scalable() const;
-    bool smoothlyScalable() const;
-
-    bool italic() const;
-    int  weight() const;
-
-    const QArray<int> &pointSizes() const;
-    int nSizes() const; // ### short term hack
-
-    QFont font( int pointSize = 12 ) const;
-private:
-    QFontStyle( QFontStylePrivate* );
-
-    QFontStylePrivate *d;
-    friend class QFontDatabasePrivate;
-    friend class QFontCharSetPrivate;
-};
-
-
-class QFontCharSetPrivate;
-class QFontCharSet
-{
-public:
-    QFontCharSet() {d =0;}  // Dangerous for the time being!
-    bool isNull() const;
-    QString name() const;
-    QFont::CharSet charSet() const;
-
-    bool scalable() const;
-    bool smoothlyScalable() const;
-
-    const QList<QFontStyle> &styles() const;
-    const QStringList &styleNames() const;
-    const QFontStyle &style( const QString &styleName ) const;
-#if 0 
-    const QFontStyle &normal() const;
-    const QFontStyle &bold() const;
-    const QFontStyle &italic() const;
-    const QFontStyle &boldItalic() const;
-#endif
-private:
-    QFontCharSet( QFontCharSetPrivate* );
-
-    QFontCharSetPrivate *d;
-    friend class QFontDatabasePrivate;
-    friend class QFontFamilyPrivate;
-    friend class QFontFamily;
-    friend class QFontStylePrivate;
-};
-
-
-class QFontFamilyPrivate;
-
-class Q_EXPORT QFontFamily
-{
-public:
-    QFontFamily() {d =0;}
-    QFontFamily( const QString &familyName );
-
-    bool isNull() const;
-
-    QString name() const;
-
-    const QList<QFontCharSet> &charSets() const;
-    const QStringList &charSetNames() const;
-    const QFontCharSet &charSet( const QString &charSetName ) const;
-    const QFontCharSet &charSet( QFont::CharSet ) const;
-
-    bool supportsCharSet( QFont::CharSet cs ) const;
-
-private:
-    QFontFamily( QFontFamilyPrivate* );
-    QFontFamilyPrivate *d;
-
-    friend class QFontDatabasePrivate;
-    friend class QFontStylePrivate;
-};
-
 
 class QFontDatabasePrivate;
 
@@ -145,12 +61,63 @@ class Q_EXPORT QFontDatabase
 public:
     QFontDatabase();
 
-    const QList<QFontFamily> &families() const;
-    const QStringList &familyNames() const;
-    const QFontFamily &family( const QString &familyName ) const;
+    const QStringList &families( bool onlyForLocale = TRUE ) const;
+    const QStringList &styles( const QString &family,
+			       const QString &charSet = QString::null ) const;
+    const QValueList<int> pointSizes( const QString &family,
+				      const QString &style,
+				      const QString &charSet = QString::null );
+
+    QFont font( const QString familyName, const QString &style,
+		int pointSize, const QString charSetName = QString::null );
+
+    bool  isBitmapScalable( const QString &family,
+			    const QString &style   = QString::null,
+			    const QString &charSet = QString::null ) const;
+    bool  isSmoothlyScalable( const QString &family,
+			      const QString &style   = QString::null,
+			      const QString &charSet = QString::null ) const;
+    bool  isScalable( const QString &family,
+		      const QString &style   = QString::null,
+		      const QString &charSet = QString::null ) const;
+
+    const QValueList<int> smoothSizes( const QString &family,
+				      const QString &style,
+				      const QString &charSet = QString::null );
+
+    static const QValueList<int> standardSizes();
+
+    bool italic( const QString &family,
+		 const QString &style,
+		 const QString &charSet = QString::null ) const;
+
+    bool bold( const QString &family,
+	       const QString &style,
+	       const QString &charSet = QString::null ) const;
+
+    int weight( const QString &family,
+		const QString &style,
+		const QString &charSet = QString::null ) const;
+
+
+#if 0
+    const QValueList<QFont::CharSet> charSets( const QString &familyName ) const;
+    bool  supportsCharSet( const QString &familyName,
+			   const QString &charSet ) const;
+    bool  supportsCharSet( const QString &familyName,
+			   QFont::CharSet charSet ) const;
+#endif
+
+const QStringList charSets( const QString &familyName,
+			    bool onlyForLocale = TRUE ) const;
+
+
+
 private:
+    static void createDatabase();
+
     QFontDatabasePrivate *d;
-    friend class QFontDatabasePrivate;
 };
 
+#endif
 #endif // QFONTDATABASE_H

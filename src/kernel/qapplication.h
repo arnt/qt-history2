@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#120 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#121 $
 **
 ** Definition of QApplication class
 **
@@ -183,7 +183,7 @@ private:
     char	   **app_argv;
     bool	     quit_now;
     int		     quit_code;
-    static QStyle	    *app_style;
+    static QStyle   *app_style;
     static int	     app_cspec;
     static QPalette *app_pal;
     static QFont    *app_font;

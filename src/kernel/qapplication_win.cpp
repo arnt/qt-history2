@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#296 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#297 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -501,8 +501,9 @@ void qt_init( int *argcptr, char **argv )
 	qt_win_use_simple_timers ?
 	(TIMERPROC)qt_simple_timer_func : 0 );
 #endif
+    // QFont::locale_init();  ### Uncomment when it does something on Windows
+    app_font = new QFont( "MS Sans Serif", 8 );   // default font
 }
-
 
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished

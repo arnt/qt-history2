@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#242 $
 **
 ** Implementation of QApplication class
 **
@@ -216,7 +216,6 @@
   \header qglobal.h
 */
 
-
 /*
   The qt_init() and qt_cleanup() functions are implemented in the
   qapplication_xyz.cpp file.
@@ -425,7 +424,6 @@ QApplication::QApplication( int &argc, char **argv )
         argc = 0;
         argv = &empty;
     }
-
     qt_init( &argc, argv );
     process_cmdline( &argc, argv );
 
@@ -474,11 +472,15 @@ void QApplication::initialize( int argc, char **argv )
     quit_now = FALSE;
     quit_code = 0;
     if ( !app_pal ) {				// palette not already set
-        create_palettes();
-        app_pal = new QPalette( *stdPalette );
-        CHECK_PTR( app_pal );
+	create_palettes();
+	app_pal = new QPalette( *stdPalette );
+	CHECK_PTR( app_pal );
     }
-
+    if ( !app_font ) {				// font not already set
+        app_font = new QFont;
+        app_font->setCharSet( QFont::defaultFont().charSet() );
+        CHECK_PTR( app_font );
+    }
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
 
@@ -866,12 +868,14 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
     }
 }
 
-
-
 /*!
-  \fn QFont *QApplication::font(const QWidget* = 0)
-  Returns the default application font.	 There is always an application
-  font, i.e. the returned pointer is guaranteed to be non-null.
+  Returns the default font for a widget. Basicly this function uses the
+  class name of the widget to get a font for it.
+
+  If \a w is 0 the default application font is returned.  There is always
+  an application font, i.e. the returned pointer is guaranteed to be
+  non-null if a QApplication object has been constructed.
+
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
@@ -900,17 +904,16 @@ QFont QApplication::font( const QWidget* w )
     return *app_font;
 }
 
-
-
 /*!
   Changes the default application font to \e font.
 
-  The default font depends on the X server in use.
+  The default font depends on the underlying window system, under X
+  Windows on the X server in use.
 
   If \e updateAllWidgets is TRUE, then the font of all existing
   widgets is set to \e font.
 
-  If a className is passed, then the palette is only set for widgets
+  If a className is passed, then the font is only set for widgets
   that inherit this class in the sense of QObject::inherits()
 
   Widgets created after this call get \e font as their \link
@@ -925,7 +928,6 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
 	delete app_font;
 	app_font = new QFont( font );
 	CHECK_PTR( app_font );
-	QFont::setDefaultFont( *app_font );
     }
     else {
 	if (!app_fonts){
@@ -1380,8 +1382,6 @@ const QColor& QApplication::winStyleHighlightColor()
 {
     return palette().normal().highlight();
 }
-
-
 
 /*!
   \fn Qt::WindowsVersion QApplication::winVersion()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#490 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#491 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -455,59 +455,6 @@ static void qt_x11_process_intern_atoms()
 	create_atoms_now = TRUE;
     }
 }
-
-
-/*****************************************************************************
-  set_local_font() - tries to set a sensible default font char set
- *****************************************************************************/
-
-/* This will go away - we'll just use codecForLocale() */
-static struct {
-    const char * name;
-    QFont::CharSet cs;
-} encoding_names[] = {
-    { "ISO8859-1", QFont::ISO_8859_1 },
-    { "ISO8859-2", QFont::ISO_8859_2 },
-    { "ISO8859-3", QFont::ISO_8859_3 },
-    { "ISO8859-4", QFont::ISO_8859_4 },
-    { "ISO8859-5", QFont::ISO_8859_5 },
-    { "ISO8859-6", QFont::ISO_8859_6 },
-    { "ISO8859-7", QFont::ISO_8859_7 },
-    { "ISO8859-8", QFont::ISO_8859_8 },
-    { "ISO8859-9", QFont::ISO_8859_9 },
-    { "KOI8-R", QFont::KOI8R },
-    { "eucJP", QFont::Set_Ja },
-    { "SJIS", QFont::Set_Ja },
-    { "JIS7", QFont::Set_Ja },
-    { "eucKR", QFont::Set_Ko },
-    { "TACTIS", QFont::Set_Th_TH },
-    { "eucCN", QFont::Set_Zh },
-    { "eucTW", QFont::Set_Zh_TW },
-    { 0, /* anything */ QFont::ISO_8859_1 }
-};
-
-static void set_local_font()
-{
-    QTextCodec * t = QTextCodec::codecForLocale();
-    const char * p = t ? t->name() : 0;
-    if ( p && *p ) {
-	int i=0;
-	while( encoding_names[i].name &&
-	       qstricmp( p, encoding_names[i].name ) )
-	    i++;
-	if ( encoding_names[i].name ) {
-	    QFont::setDefaultFont( QFont(
-		QString::fromLatin1("Helvetica"), 12, QFont::Normal,
-					  FALSE, encoding_names[i].cs ) );
-	    return;
-	}
-    }
-
-    QFont::setDefaultFont( QFont(
-	    QString::fromLatin1("Helvetica"), 12,
-				  QFont::Normal, FALSE, QFont::Latin1 ) );
-}
-
 
 // read the QT_DESKTOP_PROPERTIES property and apply the settings to
 // the application
@@ -1024,7 +971,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
 
     // pick default character set (now that we have done setlocale stuff)
-    set_local_font();
+    QFont::locale_init();
+    QApplication::setFont( QFont( "Helvetica", 12 ) ); // default font,
+                                             // must come after locale_init()
 }
 
 void qt_init( int *argcptr, char **argv )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#107 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -22,7 +22,11 @@
 #include "qfontdata.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
+
+#if 0
 #include "qfontdatabase.h"
+#endif
+
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qdict.h"
@@ -194,12 +198,18 @@ void QFontCache::deleteItem( Item d )
 
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-QFont		     *QFont::defFont = 0;	// default font
-
+                                                // default character set:
+// ### Not used until we have support for for codecs on Windows 95/98
+QFontDef::CharSet     QFontDef::defaultCharSet = QFontDef::Latin1; 
 
 /*****************************************************************************
   QFont member functions
  *****************************************************************************/
+
+void QFont::locale_init()
+{
+    // ### Does nothing until we have support for codecs on Windows 95/98
+}
 
 void QFont::initialize()
 {
@@ -211,8 +221,6 @@ void QFont::initialize()
     CHECK_PTR( fontCache );
     fontDict = new QFontDict( 29 );
     CHECK_PTR( fontDict );
-    if ( !defFont )
-	defFont = new QFont( QFI0 );		// create the default font
 }
 
 void QFont::cleanup()
@@ -242,16 +250,6 @@ void QFont::cacheStatistics()
     qDebug( "}" );
 #endif
 }
-
-
-QFont::QFont( Internal )
-{
-    init();
-    d->req.family    = QString::fromLatin1("MS Sans Serif"); // default font
-    d->req.pointSize = 8*10;
-    d->req.weight    = QFont::Normal;
-}
-
 
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->fin is a valid pointer:
@@ -476,10 +474,9 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	    cs = GREEK_CHARSET;
 	    break;
 	default:
-	    cs = DEFAULT_CHARSET;
+	    cs = DEFAULT_CHARSET; // Charset follows locale
 	    break;
     }
-
     lf.lfCharSet	= cs;
     lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
     lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
@@ -847,6 +844,8 @@ void* QFontData::fontSet() const
     return 0;
 }
 
+#if 0
+
 /*--------------------------------------------------------------------------
   -------------------------- QFontDatabase ---------------------------------
   --------------------------------------------------------------------------*/
@@ -1066,5 +1065,7 @@ bool QFontFamily::supportsCharSet( QFont::CharSet /*cs*/ ) const
 QFontFamily::QFontFamily( QFontFamilyPrivate *data )
 {
 }
+
+#endif
 
 

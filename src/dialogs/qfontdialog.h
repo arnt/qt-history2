@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#12 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#13 $
 **
 ** Definition of QFontDialog
 **
@@ -26,19 +26,16 @@
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
+#ifndef _WS_WIN_
+
 //
 //  W A R N I N G
 //  -------------
 //
-//  This class is under development and is currently unstable.
+//  This class is under development and has private constructors.
 //
-//  It is very unlikely that this code will be available in the final
-//  Qt 2.0 release.  It will be available soon after then, but a number
-//  of important API changes still need to be made.
-//
-//  Thus, it is important that you do NOT use this code in an application
-//  unless you are willing for your application to be dependent on the
-//  snapshot releases of Qt.
+//  You may use the public static getFont() functions which are guaranteed
+//  to be available in the future.
 //
 
 #ifndef QT_H
@@ -55,16 +52,16 @@ class Q_EXPORT QFontDialog: public QDialog
 {
     Q_OBJECT
 public:
+    static QFont getFont( bool *ok, const QFont &def,
+    			  QWidget *parent = 0, const char* name = 0);
+
+    static QFont getFont( bool *ok, QWidget *parent = 0, const char* name = 0);
+private:
     QFontDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		 WFlags f=0 );
    ~QFontDialog();
 
-    static QFont getFont( bool *ok, const QFont &def,
-			    QWidget *parent = 0, const char* name = 0);
-
-    static QFont getFont( bool *ok, QWidget *parent = 0, const char* name = 0);
-
-
+private:
     QFont font() const;
     void setFont( const QFont &font );
 
@@ -87,6 +84,13 @@ protected:
     QComboBox * scriptCombo() const;
     virtual void updateScripts();
 
+#if 0
+    QString family() const;
+    QString script() const;
+    QString style() const;
+    QString size() const;
+#endif
+
 protected slots:
     void familySelected();
     void scriptSelected();
@@ -95,6 +99,7 @@ protected slots:
 
 private slots:
     void familyHighlighted( const QString &);
+    void familyHighlighted( int );
     void scriptHighlighted( const QString &);
     void styleHighlighted( const QString &);
     void sizeHighlighted( const QString &);
@@ -108,5 +113,6 @@ private:
     QFontDialogPrivate * d;
 };
 
+#endif
 
 #endif // QFONTDIALOG_H

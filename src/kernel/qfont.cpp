@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#128 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -32,6 +32,7 @@
 #include "qmap.h"
 #include "qstrlist.h"
 #include "qdatastream.h"
+#include "qapplication.h"
 #include <ctype.h>
 #include <limits.h>
 
@@ -78,20 +79,21 @@
   \endcode
 
   The default QFont constructor makes a copy of the \link
-  setDefaultFont() default font. \endlink
+  QApplication::font() application's default font. \endlink
 
   You can also change these attributes of an existing QFont object
   using functions such as setFamily(), setPointSize(), setWeight() and
   setItalic().
 
   There are also some less-used attributes.  setUnderline() decides
-  whether the font is underlined or not; setStrikeOut() can be used to
-  get overstrike (a horizontal line through the middle of the
-  characters); setFixedPitch() determines whether Qt should give
-  preference to fixed-pitch or variable-pitch fonts when it needs to
-  choose an installed font; setStyleHint() can be used to offer more
-  general help to the font matching algorithm, and on X11 setRawMode()
-  can be used to bypass the entire font matching and use an X11 XLFD.
+  whether the font is underlined or not; setStrikeOut() can be used to get
+  overstrike (a horizontal line through the middle of the characters);
+  setFixedPitch() determines whether Qt should give preference to
+  fixed-pitch (also known as fixed-width) or variable-pitch fonts when it
+  needs to choose an installed font; setStyleHint() can be used to offer
+  more general help to the font matching algorithm, and on X11
+  setRawName() can be used to bypass the entire font matching and use an
+  X11 XLFD.
 
   Of course there is also a reader function for each of these set*()
   functions.  Note that the reader functions return the values
@@ -116,11 +118,11 @@
   cacheStatistics() offers cache effectiveness information; this is
   useful mostly for debugging.
 
-  Finally, setDefaultFont() allows you to set the default font.  The
-  default default font is chosen at application startup from a set of
-  common installed fonts that support the correct \link QFont::CharSet
-  character set. \endlink Of course, the initialization algorithm has
-  a default, too: The default default default font!
+  Finally, QApplication::setFont() allows you to set the default font.
+  The default default font is chosen at application startup from a set of
+  common installed fonts that support the correct character set for the
+  current locale. \endlink Of course, the initialization algorithm has a
+  default, too: The default default default font!
 
   For more general information on fonts, see the
   <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ</a>
@@ -138,14 +140,13 @@
   \internal
   Initializes the internal QFontData structure.
 */
-
 void QFont::init()
 {
     d = new QFontData;
     CHECK_PTR( d );
     d->req.pointSize	 = 0;
     d->req.styleHint	 = AnyStyle;
-    d->req.charSet	 = defFont?(CharSet)(defFont->d->req.charSet):Latin1;
+    d->req.charSet	 = defaultCharSet;
     d->req.weight	 = 0;
     d->req.italic	 = FALSE;
     d->req.underline	 = FALSE;
@@ -185,21 +186,37 @@ void QFont::detach()
 
 /*!
   Constructs a font object that refers to the default font.
+
+  /sa QApplication::setFont(), QApplication::font()
 */
 
 QFont::QFont()
 {
-    if ( !defFont )
-	defFont = new QFont( QFI0 );
-    d = defFont->d;
+#if 0               // ###
+    const QFont * tmp = QApplication::font();
+
+    if ( tmp ) {
+        d = tmp->d;
+	d->ref();
+    } else {          // QApplication has not been constructed.
+	QFont f = QFont( "Helvetica" );
+        d = f.d;
+	d->ref();
+    }
+#else
+    const QFont tmp = QApplication::font();
+
+    d = tmp.d;
     d->ref();
+#endif
+
 }
 
 
 /*!
   Constructs a font object with the specified \e family, \e pointSize,
   \e weight and \e italic settings.  The \link charSet() character set
-  \endlink is copied from the \link defaultFont() default font
+  \endlink is copied from the \link QApplication::font() default font
   \endlink and the rest of the settings ser set reasonably.
 
   If \e pointSize is less than or equal to 0 it is set to 1.
@@ -646,7 +663,6 @@ void QFont::setStyleHint( StyleHint hint )
     }
 }
 
-
 /*!
   Returns the character set by setCharSet().
 
@@ -709,6 +725,10 @@ void QFont::setCharSet( CharSet charset )
     }
 }
 
+QFont::CharSet QFont::charSetForLocale()
+{
+    return defaultCharSet;
+}
 
 /*!
   Returns the value set by setRawMode().
@@ -754,7 +774,6 @@ void QFont::setRawMode( bool enable )
 	d->req.dirty   = TRUE;
     }
 }
-
 
 /*!
   Returns TRUE if a window system font exactly matching the settings
@@ -817,29 +836,110 @@ bool QFont::isCopyOf( const QFont & f ) const
 
 
 /*!
-  Returns the system default font.
+  Returns the encoding name of a character set, e.g. QFont::ISO_8859_1
+  returns "iso8859-1" and QFont::Unicode returns "iso10646".
+ */
+QString QFont::encodingName( CharSet cs )
+{
+    QString result;
+    switch( cs ) {
+    case QFont::ISO_8859_1:
+	result = "iso8859-1";
+	break;
+    case QFont::ISO_8859_2:
+	result = "iso8859-2";
+	break;
+    case QFont::ISO_8859_3:
+	result = "iso8859-3";
+	break;
+    case QFont::ISO_8859_4:
+	result = "iso8859-4";
+	break;
+    case QFont::ISO_8859_5:
+	result = "iso8859-5";
+	break;
+    case QFont::ISO_8859_6:
+	result = "iso8859-6";
+	break;
+    case QFont::ISO_8859_7:
+	result = "iso8859-7";
+	break;
+    case QFont::ISO_8859_8:
+	result = "iso8859-8";
+	break;
+    case QFont::ISO_8859_9:
+	result = "iso8859-9";
+	break;
+    case QFont::ISO_8859_10:
+	result = "iso8859-10";
+	break;
+    case QFont::ISO_8859_11:
+	result = "iso8859-11";
+	break;
+    case QFont::ISO_8859_12:
+	result = "iso8859-12";
+	break;
+    case QFont::ISO_8859_13:
+	result = "iso8859-13";
+	break;
+    case QFont::ISO_8859_14:
+	result = "iso8859-14";
+	break;
+    case QFont::ISO_8859_15:
+	result = "iso8859-15";
+    case QFont::KOI8R:
+        result = "KOI8-R";
+	break;
+    case QFont::Set_Ja:
+        result = "Set_Ja";
+	break;
+    case QFont::Set_Ko:
+        result = "Set_Ko";
+	break;
+    case QFont::Set_Th_TH:
+        result = "Set_Th_TH";
+	break;
+    case QFont::Set_Zh:
+        result = "Set_Zh";
+	break;
+    case QFont::Set_Zh_TW:
+        result = "Set_Zh_TW";
+	break;
+    case QFont::AnyCharSet:
+        result = "AnyCharSet";
+	break;
+    case QFont::Unicode:
+        result = "iso10646";
+	break;
+    }
+    return result;
+}
 
-  \sa setDefaultFont()
+
+/*!
+  Returns the QApplication default font.
+
+  This function will be removed in a future version of Qt. Please use
+  QApplication::font() instead.
 */
 
-const QFont &QFont::defaultFont()
+const QFont QFont::defaultFont()
 {
-    if ( !defFont )
-	defFont = new QFont( QFI0 );
-    return *defFont;
+    return QApplication::font();
 }
 
 /*!
-  Sets the system default font.
+  \obsolete
+  Sets the QApplication default font.
 
-  \sa defaultFont()
+  This function will be removed in a future version of Qt. Please use
+  QApplication::setFont() instead.
 */
 
 void  QFont::setDefaultFont( const QFont &f )
+    
 {
-    if ( !defFont )
-	defFont = new QFont( QFI0 );
-    *defFont = f;
+    QApplication::setFont( f );
 }
 
 
@@ -1732,8 +1832,6 @@ QFont::CharSet QFontInfo::charSet() const
 
   If it is a raw mode font, all other functions in QFontInfo will return the
   same values set in the QFont, regardless of the font actually used.
-
-  \warning The default font is a raw-mode font.
 
   \sa QFont::rawMode()
 */
