@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#24 $
 **
 ** Implementation of QDialog class
 **
@@ -16,32 +16,77 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#24 $")
 
 
 /*----------------------------------------------------------------------------
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.
 
-  A dialog window is a window used to communicate with the user.  It
-  offers mechanisms such as default buttons.
+  A dialog window is a window used to communicate with the user. It offers
+  mechanisms such as default buttons.
 
-  The dialog window can either be modeless or modal.  A modeless
-  dialog is a normal window, while a modal window must be finished
-  before the user can continue with other parts of the program.
+  The dialog window can either be modeless or modal. A modeless dialog is
+  a normal window, while a modal window must be finished before the user
+  can continue with other parts of the program.  The third constructor
+  argument must be set to TRUE to create a modal dialog, otherwise it will
+  create a modeless dialog.
+
+  Example (your own modal dialog):
+  \code
+    class Modal : public QDialog {
+        Q_OBJECT
+    public:
+        Modal( QWidget *parent, const char *name );
+    };
+
+    Modal::Modal( QWidget *parent, const char *name )
+	: QDialog( parent, name, TRUE )
+    {
+        QPushButton *ok, cancel;
+	ok = new QPushButton( "Ok" );
+	ok->setGeometry( 10,10, 100,30 );
+	connect( ok, SIGNAL(clicked()), SLOT(accept()) );
+	cancel = new QPushButton( "Cancel" );
+	cancel->setGeometry( 10,60, 100,30 );
+	connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
+    }
+  \endcode
+
+  Note that the parent widget has a different meaning for modal dialogs
+  than for other types of widgets. A dialog is placed on top of the parent
+  widget. The dialog is centered on the screen if the parent widget is
+  zero.
+
+  You would normally call exec() to start a modal dialog. This enters
+  a local event loop, which is terminated when the modal dialog calls
+  done() (or accept() or reject()).
+
+  Example (using a modal dialog):
+  \code
+    Modal m;
+    if ( m.exec() ) {
+       // ok was pressed, then fetch the interesting dialog data
+    }
+  \endcode
+
+  Modeless dialogs behave just like ordinary widgets. The only difference
+  is that they have the default button mechanism.
  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
-  Constructs a dialog named \e name, which will be a child widget of
-  \e parent.
+  Constructs a dialog named \e name, which has a parent widget \e parent.
 
   The dialog will by default be modeless, unless you set \e modal to
   TRUE, which constructs a modal dialog.
+
+  \warning Creating a modeless dialog with a parent makes it an ordinary
+  child widget, which is probably not what you want. Expect strange
+  behavior (QDialog has a default button mechanism).
  ----------------------------------------------------------------------------*/
 
-QDialog::QDialog( QWidget *parent, const char *name,
-		  bool modal, WFlags f )
+QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWindow( parent, name, modal ? (f | WType_Modal) : f )
 {
     rescode = 0;
@@ -59,8 +104,8 @@ QDialog::~QDialog()
 
 /*----------------------------------------------------------------------------
   \internal
-  Called from the push button \e pushButton when this push button becomes the
-  default button.
+  This function is called by the push button \e pushButton when it becomes
+  the default button.
  ----------------------------------------------------------------------------*/
 
 void QDialog::setDefault( QPushButton *pushButton )
@@ -78,8 +123,13 @@ void QDialog::setDefault( QPushButton *pushButton )
 
 
 /*----------------------------------------------------------------------------
-  Starts the dialog and returns the result code. Same as calling
-  show(), then result().
+  Starts the dialog and returns the result code.
+
+  Equivalent to calling show(), then result().
+
+  This function is very useful for modal dialogs. It enters a new local
+  event loop. The event loop is terminated when the dialog is hidden,
+  usually by calling done().
  ----------------------------------------------------------------------------*/
 
 int QDialog::exec()
@@ -92,6 +142,13 @@ int QDialog::exec()
 
 /*----------------------------------------------------------------------------
   Closes the dialog and sets the result code to \e r.
+
+  Equivalent to calling hide(), then setResult(\e r ).
+
+  This function is very useful for modal dialogs. It leaves the local
+  event loop and returns from the exec() or show() function.
+
+  \sa accept(), reject()
  ----------------------------------------------------------------------------*/
 
 void QDialog::done( int r )
@@ -102,6 +159,8 @@ void QDialog::done( int r )
 
 /*----------------------------------------------------------------------------
   Closes the dialog and sets the result code to \c Accepted.
+
+  Equivalent to done(Accepted);
  ----------------------------------------------------------------------------*/
 
 void QDialog::accept()
@@ -111,6 +170,8 @@ void QDialog::accept()
 
 /*----------------------------------------------------------------------------
   Closes the dialog and sets the result code to \c Rejected.
+
+  Equivalent to done(Rejected);
  ----------------------------------------------------------------------------*/
 
 void QDialog::reject()
@@ -120,11 +181,15 @@ void QDialog::reject()
 
 
 /*****************************************************************************
-   Event handlers
+  Event handlers
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Calls accept() if Return/Enter is pressed, or reject() if Escape is pressed.
+  Handles key press events for the dialog.
+
+  Calls reject() if Escape is pressed.
+  Simulates a button click for the default button if Enter is pressed.
+  All other keys are ignored.
  ----------------------------------------------------------------------------*/
 
 void QDialog::keyPressEvent( QKeyEvent *e )
@@ -156,9 +221,9 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 		e->ignore();
 		return;
 	}
-    }
-    else
+    } else {
 	e->ignore();
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -176,14 +241,21 @@ void QDialog::closeEvent( QCloseEvent *e )
 
 
 /*****************************************************************************
-   Geometry management.
+  Geometry management.
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Shows the dialog box on the screen, as QWidget::show().  This
-  implementation also does auto-resize and auto-positioning, to find a
-  size that fits the contents and position near the middle of the
-  screen.
+  Shows the dialog box on the screen, as QWidget::show() and enters a
+  local event loop if this dialog is modal (see constructor).
+
+  This implementation also does automatic resizing and automatic
+  positioning. If you have not already resized or moved the dialog, it
+  will find a size that fits the contents and a position near the middle
+  of the screen (or centered relative to the parent widget if any).
+
+  \warning Calling show() for a modal dialog enters a local event loop.
+  The event loop is terminated when the dialog is hidden, usually by
+  calling done().
 
   \sa exec()
  ----------------------------------------------------------------------------*/
@@ -203,13 +275,11 @@ void QDialog::show()
 	      p.y() + w->height()/2 - height()/2 );
     }
     QWidget::show();
-    // put these in an event filter on the children instead
-    // did_resize = did_move = FALSE;
 }
 
 
 /*****************************************************************************
-   Detects any widget geometry changes done by the user.
+  Detects any widget geometry changes done by the user.
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
