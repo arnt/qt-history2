@@ -943,20 +943,21 @@ for plat in mac win x11 qnx6 embedded; do
 	    [ "$DO_BZIP" = "yes" ] && status "Bzip2.." && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
             if [ "$plat" = "mac" ] && [ "$DO_STUFF" = "yes" ]; then
                status "Stuffit.."
-	       mkdir "QtMac"
+	       create_dir="QtMac-${VERSION_STR}"
+	       mkdir -p "$create_dir"
 	       sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
 		   -e "s,%DISTNAME%,$PLATNAME,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" \
 		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}
 	       if [ "$TYPE" = "-snapshot" ]; then
 		  sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" \
-		      ${TMP_FILE} >QtMac/README
+		      ${TMP_FILE} >${create_dir}/README
 	       else
 		  sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" \
-		      ${TMP_FILE} >QtMac/README
+		      ${TMP_FILE} >${create_dir}/README
 	       fi
-	       cp "$OUT_TREE/${PLATNAME}.tar" "QtMac"
-               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "QtMac"
-	       rm -rf "QtMac"
+	       cp "$OUT_TREE/${PLATNAME}.tar" "$create_dir"
+               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
+	       rm -rf "$create_dir"
             fi
 	elif [ "$plat" = "win" ]; then
 	    txtfiles=""
