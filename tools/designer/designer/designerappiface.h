@@ -27,7 +27,7 @@ class DesignerMainWindowInterface : public QComponentInterface
 public:
     DesignerMainWindowInterface( MainWindow *mw );
 
-    QComponentInterface *queryInterface( const QCString &request );
+    QComponentInterface *queryInterface( const QString &request );
 
 private:
     QGuardedPtr<DesignerFormWindowInterface> fwIface;

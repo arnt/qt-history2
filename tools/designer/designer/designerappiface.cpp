@@ -17,14 +17,12 @@ QComponentInterface * DesignerApplicationInterface::queryInterface( const QStrin
     return 0;
 }
 
-
-
 DesignerMainWindowInterface::DesignerMainWindowInterface( MainWindow *mw )
     : QComponentInterface( mw ), mainWindow( mw )
 {
 }
 
-QComponentInterface *DesignerMainWindowInterface::queryInterface( const QCString &request )
+QComponentInterface *DesignerMainWindowInterface::queryInterface( const QString &request )
 {
     if ( request == "DesignerFormWindowInterface" )
 	return fwIface ? fwIface : ( fwIface = new DesignerFormWindowInterface( mainWindow ) );
@@ -32,8 +30,6 @@ QComponentInterface *DesignerMainWindowInterface::queryInterface( const QCString
 	return sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterface( mainWindow->statusBar() ) );
     return 0;
 }
-
-
 
 DesignerFormWindowInterface::DesignerFormWindowInterface( MainWindow *mw )
     : QComponentInterface( mw ), mainWindow( mw )
@@ -105,8 +101,6 @@ void DesignerFormWindowInterface::reconnect()
 	    connect( (*it2).sender, (*it2).signal, (FormWindow*)o, (*it2).slot );
     }
 }
-
-
 
 DesignerStatusBarInterface::DesignerStatusBarInterface( QStatusBar *sb )
     : QComponentInterface( sb ), statusBar( sb )
