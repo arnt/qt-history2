@@ -34,6 +34,7 @@ extraimages.HTML	= logo32
 macro.key               = "\\bold"
 macro.menu              = "\\bold"
 macro.reg.HTML          = "&reg;"
+macro.QD                = "\\e{Qt Designer}"
 
 Cpp.ignoretokens	= QAXFACTORY_EXPORT \
                           QM_EXPORT_CANVAS \
