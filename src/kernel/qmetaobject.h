@@ -198,8 +198,6 @@ public:
 #ifndef QT_NO_PROPERTIES
     static QMetaProperty 	*new_metaproperty( int );
 #endif
-    static QClassInfo 		*new_classinfo( int );
-
 
 private:
     QMemberDict		*init( QMetaData *, int );

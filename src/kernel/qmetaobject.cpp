@@ -219,13 +219,9 @@ QMetaObject::~QMetaObject()
     if ( signalData )
 	delete [] signalData;			//   initMetaObject()
 #ifndef QT_NO_PROPERTIES
-    if ( d->enumData )
-	delete [] d->enumData;
     if ( d->propData )
 	delete [] d->propData;
 #endif
-    if ( d->classInfo )
-	delete [] d->classInfo;
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
@@ -399,13 +395,6 @@ QMetaProperty *QMetaObject::new_metaproperty( int numEntries )
     return numEntries > 0 ? new QMetaProperty[numEntries] : 0;
 }
 #endif
-
-/*!\internal
- */
-QClassInfo *QMetaObject::new_classinfo( int numEntries )
-{
-    return numEntries > 0 ? new QClassInfo[numEntries] : 0;
-}
 
 
 /*!\internal

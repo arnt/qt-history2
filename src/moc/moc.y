@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#219 $
+** $Id: //depot/qt/main/src/moc/moc.y#220 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2561,14 +2561,14 @@ int generateClassInfos()
 	moc_err("The declaration of the class \"%s\" contains class infos"
 		" but no Q_OBJECT macro!", className.data());
 
-    fprintf( out, "    QClassInfo* classinfo_tbl = QMetaObject::new_classinfo( %i );\n", infos.count() );
-
+    fprintf( out, "static const QClassInfo classinfo_tbl_%s[%i] = {\n", (const char*) className, infos.count() );
     int i = 0;
     for( QListIterator<ClassInfo> it( infos ); it.current(); ++it, ++i ) {
-	fprintf( out, "    classinfo_tbl[%i].name = \"%s\";\n", i, it.current()->name.data() );
-	fprintf( out, "    classinfo_tbl[%i].value = \"%s\";\n", i, it.current()->value.data() );
+	if ( i )
+	    fprintf( out, ",\n" );
+	fprintf( out, "    { \"%s\", \"%s\" }", it.current()->name.data(),it.current()->value.data() );
     }
-
+    fprintf( out, "\n};\n" );
     return i;
 }
 
@@ -2626,7 +2626,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#219 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#220 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2729,7 +2729,12 @@ void generateClass()		      // generate C++ source code for a class
 // Enums HAVE to be generated BEFORE the properties and staticMetaObject
 //
     int n_enums = generateEnums();
-    
+
+// Build the classinfo array
+// classinfos HAVE to be generated BEFORE  staticMetaObject
+//
+   int n_infos = generateClassInfos();
+
 //
 // Generate staticMetaObject member function
 //
@@ -2744,11 +2749,6 @@ void generateClass()		      // generate C++ source code for a class
 // Build property array in staticMetaObject()
 //
    int n_props = generateProps();
-
-//
-// Build class info  array in staticMetaObject()
-//
-   int n_infos = generateClassInfos();
 
 //
 // Build slots array in staticMetaObject()
@@ -2789,7 +2789,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 
     if ( n_infos )
-	fprintf( out, "\tclassinfo_tbl, %d );\n", n_infos );
+	fprintf( out, "\tclassinfo_tbl_%s, %d );\n", (const char*) className, n_infos );
     else
 	fprintf( out, "\t0, 0 );\n" );
 
