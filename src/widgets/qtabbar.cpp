@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#26 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#26 $");
 
 
 QTab::~QTab()
@@ -27,6 +27,7 @@ struct QTabPrivate {
     int focus;
     QTab * pressed;
     QAccel * a;
+    QTabBar::Style s;
 };
 
 
@@ -70,6 +71,7 @@ QTabBar::QTabBar( QWidget * parent, const char * name )
     d->id = 0;
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
+    d->s = RoundedAbove;
     l = new QListT<QTab>;
     l->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
@@ -225,45 +227,113 @@ QSize QTabBar::sizeHint() const
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
     QRect r( t->r );
-    if ( selected ) {
-	p->setPen( colorGroup().background() );
-	p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
-	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
-	p->setPen( colorGroup().light() );
-	QFont bold( font() );
-	bold.setWeight( QFont::Bold );
-	p->setFont( bold );
-    } else {
-	p->setPen( colorGroup().light() );
-	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-	r.setRect( r.left() + 2, r.top() + 2, r.width() - 4, r.height() - 2 );
-	p->setFont( font() );
-    }
+    if ( d->s == RoundedAbove ) {
+	if ( selected ) {
+	    p->setPen( colorGroup().background() );
+	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
+	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
+	    p->setPen( colorGroup().light() );
+	    QFont bold( font() );
+	    bold.setWeight( QFont::Bold );
+	    p->setFont( bold );
+	} else {
+	    p->setPen( colorGroup().light() );
+	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	    r.setRect( r.left() + 2, r.top() + 2,
+		       r.width() - 4, r.height() - 2 );
+	    p->setFont( font() );
+	}
     
-    p->drawLine( r.left(), r.bottom(), r.left(), r.top() + 2 );
-    p->drawPoint( r.left()+1, r.top() + 1 );
-    p->drawLine( r.left()+2, r.top(),
-		 r.right() - 2, r.top() );
+	p->drawLine( r.left(), r.bottom(), r.left(), r.top() + 2 );
+	p->drawPoint( r.left()+1, r.top() + 1 );
+	p->drawLine( r.left()+2, r.top(),
+		     r.right() - 2, r.top() );
 
-    p->setPen( colorGroup().dark() );
-    p->drawLine( r.right() - 1, r.top() + 2, r.right() - 1, r.bottom() - 1 ); 
-    p->setPen( black );
-    p->drawPoint( r.right() - 1, r.top() + 1 );
-    p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - 1 ); 
+	p->setPen( colorGroup().dark() );
+	p->drawLine( r.right() - 1, r.top() + 2,
+		     r.right() - 1, r.bottom() - 1 ); 
+	p->setPen( colorGroup().foreground() );
+	p->drawPoint( r.right() - 1, r.top() + 1 );
+	p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - 1 ); 
+    } else if ( d->s == RoundedBelow ) {
+	if ( selected ) {
+	    p->setPen( colorGroup().background() );
+	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
+	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+	    p->setPen( colorGroup().dark() );
+	    QFont bold( font() );
+	    bold.setWeight( QFont::Bold );
+	    p->setFont( bold );
+	} else {
+	    p->setPen( colorGroup().dark() );
+	    p->drawLine( r.left(), r.top(), r.right(), r.top() );
+	    r.setRect( r.left() + 2, r.top(),
+		       r.width() - 4, r.height() - 2 );
+	    p->setFont( font() );
+	}
 
-    QRect br = p->fontMetrics().boundingRect( t->label );
-    br.setHeight( p->fontMetrics().height() );
-    br.setRect( r.left() + (r.width()-br.width())/2 - 3,
-		r.top() + (r.height()-br.height())/2,
-		br.width() + 5,
-		br.height() + 2 );
+	p->drawLine( r.right() - 1, r.top(),
+		     r.right() - 1, r.bottom() - 2 );
+	p->drawPoint( r.right() - 2, r.bottom() - 2 );
+	p->drawLine( r.right() - 2, r.bottom() - 1,
+		     r.left() + 1, r.bottom() - 1 );
+	p->drawPoint( r.left() + 1, r.bottom() - 2 );
+    
+	p->setPen( colorGroup().foreground() );
+	p->drawLine( r.right(), r.top(),
+		     r.right(), r.bottom() - 1 );
+	p->drawPoint( r.right() - 1, r.bottom() - 1 );
+	p->drawLine( r.right() - 1, r.bottom(),
+		     r.left() + 2, r.bottom() );
 
-    paintLabel( p, br, t, t->id == keyboardFocusTab() );
+	p->setPen( colorGroup().light() );
+	p->drawLine( r.left(), r.top(),
+		     r.left(), r.bottom() - 2 );
+    } else {
+	// triangular, above or below
+	int y;
+	int x;
+	QPointArray a( 10 );
+	a.setPoint( 0, 0, -1 );
+	a.setPoint( 1, 0, 0 );
+	y = t->r.height()-2;
+	x = y/3;
+	a.setPoint( 2, x++, y-1 );
+	a.setPoint( 3, x++, y );
+	a.setPoint( 3, x++, y++ );
+	a.setPoint( 4, x, y );
+
+	int i;
+	int right = t->r.width() - 1;
+	for ( i = 0; i < 5; i++ )
+	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+
+	if ( d->s == TriangularAbove )
+	    for ( i = 0; i < 10; i++ )
+		a.setPoint( i, a.point(i).x(),
+			    t->r.height() - 1 - a.point( i ).y() );
+
+	a.translate( t->r.left(), t->r.top() );
+
+	p->setBrush( colorGroup().background() );
+	p->setPen( colorGroup().foreground() );
+	p->drawPolygon( a );
+	p->setBrush( NoBrush );
+    }
+
+    int w = p->fontMetrics().width( t->label ) + 4;
+    int h = p->fontMetrics().height() + 4;
+    paintLabel( p, QRect( r.left() + (r.width()-w)/2 - 3,
+			  r.top() + (r.height()-h)/2,
+			  w, h ), t, t->id == keyboardFocusTab() );
 }
 
-/*!
-  QT_VERSION == 200 - this should be virtual.
+/*!  Paints the label of tab \a t centered in rectangle \a br using
+  painter \a p and draws a focus indication iff \a has_focus is TRUE.
+
+  In Qt 2.0, this will be virtual.
 */
+
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
                           QTab* t, bool has_focus ) const
 {
@@ -287,7 +357,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     if ( style() == WindowsStyle )
 	p->drawWinFocusRect( br );
-    else
+    else // shouldn't this be black, irrespective of everything?
 	p->drawRect( br );
 }
 
@@ -555,4 +625,25 @@ QTab * QTabBar::tab( int id )
 QListT<QTab> * QTabBar::tabList()
 {
     return l;
+}
+
+
+/*!  Returns the style of this tab bar. \sa setStyle() */
+
+QTabBar::Style QTabBar::style() const
+{
+    return d ? d->s : RoundedAbove;
+}
+
+
+/*!  Sets the style of this tab bar to \a s and refreshes the bar.
+*/
+
+void QTabBar::setStyle( Style s )
+{
+    if ( !d && d->s == s )
+	return;
+
+    d->s = s;
+    repaint();
 }
