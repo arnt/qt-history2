@@ -212,15 +212,17 @@ QStringList QStyleFactory::keys()
 #endif
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
     QString mstyle = "Macintosh";
-    if(Collection c=NewCollection()) {
+    Collection c = NewCollection();
+    if (c) {
 	GetTheme(c);
 	Str255 str;
 	long int s = 256;
 	if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str))
 	    mstyle += " (" + p2qstring(str) + ")";
     }
-    if ( !list.contains( mstyle ) )
+    if (!list.contains(mstyle))
 	list << mstyle;
+    DisposeCollection(c);
 #endif
 
     return list;
