@@ -22,7 +22,7 @@ namespace Qt {
 #else
 class Q_CORE_EXPORT Qt {
     Q_OBJECT
-    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity LayoutDirection ArrowType)
+    Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType)
     Q_ENUMS(ToolButtonStyle IconSize)
     Q_FLAGS(Alignment)
 public:
@@ -1146,6 +1146,14 @@ public:
         ShortcutFocusReason,
         MenuBarFocusReason,
         OtherFocusReason
+    };
+
+    //documented in qwidget.cpp
+    enum ContextMenuPolicy {
+        NoContextMenu,
+        DefaultContextMenu,
+        ActionsContextMenu,
+        CustomContextMenu
     };
 
     enum InputMethodQuery {

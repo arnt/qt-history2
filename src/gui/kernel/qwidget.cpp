@@ -785,6 +785,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.widget_flags = f;
 
     data.focus_policy = 0;
+    data.context_menu_policy = Qt::DefaultContextMenu;
 
     data.sizehint_forced = 0;
     data.is_closing = 0;
@@ -3591,6 +3592,51 @@ QSize QWidget::contentsMarginSize() const
     return QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
 }
 
+/*!
+    \enum Qt::ContextMenuPolicy
+
+    This enum type defines the various policies a widget can have with
+    respect to showing a context menu.
+
+    \value NoContextMenu  the widget does not feature a context menu.
+    \value DefaultContextMenu  the widget's QWidget::contextMenuEvent() handler is called.
+    \value ActionsContextMenu  the widget displays it's QWidget::actions() as context menu.
+    \value CustomContextMenu  the widget emits the QWidget::customContextMenuRequested() signal.
+*/
+
+/*!
+  \fn void QWidget::customContextMenuRequested(const QPoint &pos)
+
+  This signal is emitted when the widget's \l contextMenuPolicy is
+  Qt::CustomContextMenu, and the user has requested a context menu on
+  the widget. The position \a pos is the position of the request in
+  widget coordinates.
+
+  \sa mapToGlobal() QMenu contextMenuPolicy
+*/
+
+/*!
+    \property QWidget::contextMenuPolicy
+    \brief how the widget shows a context menu
+
+    The default value of this property is Qt::DefaultContextMenu,
+    which means the contextMenuEvent() handler is called. Other values
+    are Qt::NoContextMenu, Qt::ActionsContextMenu, and
+    Qt::CustomContextMenu. With Qt::CustomContextMenu, the signal
+    customContextMenuRequested() is emitted.
+
+    \sa contextMenuEvent() customContextMenuRequested()
+*/
+
+Qt::ContextMenuPolicy QWidget::contextMenuPolicy() const
+{
+    return (Qt::ContextMenuPolicy)data->context_menu_policy;
+}
+
+void QWidget::setContextMenuPolicy(Qt::ContextMenuPolicy policy)
+{
+    data->context_menu_policy = (uint) policy;
+}
 
 /*!
     \property QWidget::focusEnabled
@@ -3626,6 +3672,7 @@ QSize QWidget::contentsMarginSize() const
 
 */
 
+
 /*!
     \property QWidget::focusPolicy
     \brief the way the widget accepts keyboard focus
@@ -3644,6 +3691,7 @@ QSize QWidget::contentsMarginSize() const
     \sa focusEnabled, focusInEvent(), focusOutEvent(), keyPressEvent(),
         keyReleaseEvent(), enabled
 */
+
 
 Qt::FocusPolicy QWidget::focusPolicy() const
 {
@@ -4565,7 +4613,23 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ContextMenu:
-        contextMenuEvent((QContextMenuEvent *)e);
+        switch (data->context_menu_policy) {
+        case Qt::DefaultContextMenu:
+            contextMenuEvent(static_cast<QContextMenuEvent *>(e));
+            break;
+        case Qt::CustomContextMenu:
+            emit customContextMenuRequested(static_cast<QContextMenuEvent *>(e)->pos());
+            break;
+        case Qt::ActionsContextMenu:
+            if (d->actions.count()) {
+                QMenu::exec(d->actions, static_cast<QContextMenuEvent *>(e)->globalPos());
+                break;
+            }
+            // fall through
+        default:
+            e->ignore();
+            break;
+        }
         break;
 
 #ifndef QT_NO_DRAGANDDROP
@@ -5193,21 +5257,19 @@ void QWidget::closeEvent(QCloseEvent *e)
     This event handler, for event \a e, can be reimplemented in a
     subclass to receive widget context menu events.
 
+    The handler is called when the widget's \l contextMenuPolicy is
+    Qt::DefaultContextMenu.
+
     The default implementation calls e->ignore(), which rejects the
     context event. See the \l QContextMenuEvent documentation for
     more details.
 
-    \sa event(), QContextMenuEvent
+    \sa event(), QContextMenuEvent customContextMenuRequested()
 */
 
 void QWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    if(d->actions.count()) {
-        QMenu::exec(d->actions, e->globalPos());
-        e->accept();
-    } else {
-        e->ignore();
-    }
+    e->ignore();
 }
 
 

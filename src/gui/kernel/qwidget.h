@@ -74,6 +74,7 @@ public:
     uint in_set_window_state : 1;
     uint fstrut_dirty : 1;
     uint im_enabled : 1;
+    uint context_menu_policy : 3;
     QRect crect;
 #ifndef QT_NO_PALETTE
     mutable QPalette pal;
@@ -135,6 +136,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(bool isActiveWindow READ isActiveWindow)
     Q_PROPERTY(Qt::FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy)
     Q_PROPERTY(bool focus READ hasFocus)
+    Q_PROPERTY(Qt::ContextMenuPolicy contextMenuPolicy READ contextMenuPolicy WRITE setContextMenuPolicy)
     Q_PROPERTY(bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
     Q_PROPERTY(bool visible READ isVisible)
     Q_PROPERTY(bool hidden READ isHidden WRITE setHidden DESIGNABLE false SCRIPTABLE false)
@@ -330,6 +332,8 @@ public:
     static void setTabOrder(QWidget *, QWidget *);
     void setFocusProxy(QWidget *);
     QWidget *focusProxy() const;
+    Qt::ContextMenuPolicy contextMenuPolicy() const;
+    void setContextMenuPolicy(Qt::ContextMenuPolicy policy);
 
     // Grab functions
     void grabMouse();
@@ -486,6 +490,9 @@ public:
     QInputContext *inputContext();
     void setInputContext(const QString &);
 #endif
+
+signals:
+    void customContextMenuRequested(const QPoint &pos);
 
 protected:
     // Event handlers
