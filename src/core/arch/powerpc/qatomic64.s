@@ -66,7 +66,7 @@ q_atomic_increment:
 	addi   5,4,1
 	extsw  4,5
 	stwcx. 4,0,3
-	bne-   $-12
+	bne-   $-16
 	mr     3,4
 	blr
 LT..q_atomic_increment:
@@ -90,7 +90,7 @@ q_atomic_decrement:
 	subi   5,4,1
 	extsw  4,5
 	stwcx. 4,0,3
-	bne-   $-12
+	bne-   $-16
 	mr     3,4
 	blr
 LT..q_atomic_decrement:
