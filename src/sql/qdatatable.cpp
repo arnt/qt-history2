@@ -88,6 +88,7 @@ public:
     QStringList srt;
     QStringList fld;
     QStringList fldLabel;
+    QValueList<int> fldWidth;
     QValueList< QIconSet > fldIcon;
     QSqlCursorManager cur;
     QDataManager dat;
@@ -245,11 +246,15 @@ QDataTable::~QDataTable()
 
 */
 
-void QDataTable::addColumn( const QString& fieldName, const QString& label, const QIconSet& iconset )
+void QDataTable::addColumn( const QString& fieldName,
+			    const QString& label,
+			    int width,
+			    const QIconSet& iconset )
 {
     d->fld += fieldName;
     d->fldLabel += label;
     d->fldIcon += iconset;
+    d->fldWidth += width;
 }
 
 /*!  Sets column \a col to display field \a field.  If \a label is
@@ -260,11 +265,15 @@ void QDataTable::addColumn( const QString& fieldName, const QString& label, cons
 
 */
 
-void QDataTable::setColumn( uint col, const QString& fieldName, const QString& label, const QIconSet& iconset )
+void QDataTable::setColumn( uint col, const QString& fieldName,
+			    const QString& label,
+			    int width,
+			    const QIconSet& iconset )
 {
     d->fld[col]= fieldName;
     d->fldLabel[col] = label;
     d->fldIcon[col] = iconset;
+    d->fldWidth[col] = width;
 }
 
 /*!  Removes column \a col from the list of columns to be displayed.
@@ -280,6 +289,17 @@ void QDataTable::removeColumn( uint col )
 	d->fld.remove( d->fld.at( col ) );
 	d->fldLabel.remove( d->fldLabel.at( col ) );
 	d->fldIcon.remove( d->fldIcon.at( col ) );
+	d->fldWidth.remove( d->fldWidth.at( col ) );
+    }
+}
+
+/*! \reimp
+ */
+
+void QDataTable::setColumnWidth( int col, int w )
+{
+    if ( d->fldWidth.at( col ) != d->fldWidth.end() ) {
+	d->fldWidth[col] = w;
     }
 }
 
@@ -1180,6 +1200,7 @@ void QDataTable::reset()
     d->lastAt = -1;
     d->fld.clear();
     d->fldLabel.clear();
+    d->fldWidth.clear();
     d->fldIcon.clear();
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
@@ -1601,6 +1622,7 @@ void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDele
 	if ( autoPopulate ) {
 	    d->fld.clear();
 	    d->fldLabel.clear();
+	    d->fldWidth.clear();
 	    d->fldIcon.clear();
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->field( i )->name() ); //## algorithm for betten display label
@@ -1788,8 +1810,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 	    for ( uint i = 0; i < d->fld.count(); ++i ) {
 		field = cur->field( d->fld[ i ] );
 		if ( field && ( cur->isGenerated( field->name() ) ||
-				cur->isCalculated( field->name() ) ) &&
-		     !cur->primaryIndex().contains( field->name() ) )
+				cur->isCalculated( field->name() ) ) )
 		    {
 			setNumCols( numCols() + 1 );
 			d->colIndex.append( cur->position( field->name() ) );
@@ -1798,6 +1819,8 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 			QString label = d->fldLabel[ i ];
 			QIconSet icons = d->fldIcon[ i ];
 			h->setLabel( numCols()-1, icons, label );
+			if ( d->fldWidth[ i ] > -1 )
+			    QTable::setColumnWidth( i, d->fldWidth[i] );
 		    }
 	    }
 	}

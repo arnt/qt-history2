@@ -80,9 +80,15 @@ public:
     QDataTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
     ~QDataTable();
 
-    virtual void addColumn( const QString& fieldName, const QString& label = QString::null, const QIconSet& iconset = QIconSet() );
+    virtual void addColumn( const QString& fieldName,
+			    const QString& label = QString::null,
+			    int width = -1,
+			    const QIconSet& iconset = QIconSet() );
     virtual void removeColumn( uint col );
-    virtual void setColumn( uint col, const QString& fieldName, const QString& label = QString::null, const QIconSet& iconset = QIconSet() );
+    virtual void setColumn( uint col, const QString& fieldName,
+			    const QString& label = QString::null,
+			    int width = -1,
+			    const QIconSet& iconset = QIconSet() );
 
     QString      nullText() const;
     QString      trueText() const;
@@ -98,9 +104,14 @@ public:
     QStringList  sort() const;
 
     void setCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
-    virtual void setSqlCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE ) { setCursor( cursor, autoPopulate, autoDelete ); }
-    virtual void setSqlCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
-    virtual void setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete = FALSE );
+    virtual void setSqlCursor( QSqlCursor* cursor = 0,
+			       bool autoPopulate = FALSE,
+			       bool autoDelete = FALSE )
+    { setCursor( cursor, autoPopulate, autoDelete ); }
+    virtual void setSqlCursor( QSqlCursor* cursor )
+    { setCursor( cursor, FALSE, FALSE ); }
+    virtual void setCursor( QSqlCursor* cursor,
+			    bool autoPopulate, bool autoDelete = FALSE );
     QSqlCursor* sqlCursor() const;
 
     virtual void setNullText( const QString& nullText );
@@ -116,6 +127,7 @@ public:
     virtual void setFilter( const QString& filter );
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );
+    void setColumnWidth( int col, int w );
 
     enum Refresh {
 	RefreshData = 1,
