@@ -12,7 +12,6 @@ unix:TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT
 
 win32:TMAKE_CFLAGS     += -DUNICODE
 win32:TMAKE_CXXFLAGS   += -DUNICODE
-win32:TMAKE_LIBS   += imm32.lib
 #win32:TMAKE_CFLAGS     += -MD
 #win32:TMAKE_CXXFLAGS   += -MD
 
@@ -22,7 +21,7 @@ win32:INCLUDEPATH      += tmp
 win32-borland:INCLUDEPATH += kernel
 
 win32:MOC_DIR	= tmp
-win32:OBJECTS_DIR = $(TMP)
+win32:OBJECTS_DIR = tmp
 
 win32:DIALOGS_H	= ../include
 win32:KERNEL_H	= ../include
