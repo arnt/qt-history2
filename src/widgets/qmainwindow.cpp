@@ -919,23 +919,23 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
 {
     switch ( edge ) {
     case Top:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow );
 	break;
     case Bottom:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow );
 	break;
     case Right:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow );
 	break;
     case Left:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow );
 	break;
     case TornOff:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	dockWindow->undock();
 	break;
     case Minimized:
@@ -961,23 +961,23 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
     dockWindow->setOffset( extraOffset );
     switch ( edge ) {
     case Top:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->topDock->moveDockWindow( dockWindow, index );
 	break;
     case Bottom:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->bottomDock->moveDockWindow( dockWindow, index );
 	break;
     case Right:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->rightDock->moveDockWindow( dockWindow, index );
 	break;
     case Left:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	d->leftDock->moveDockWindow( dockWindow, index );
 	break;
     case TornOff:
-	dockWindow->removeFromDock();
+	dockWindow->removeFromDock( FALSE );
 	dockWindow->undock();
 	break;
     case Minimized:

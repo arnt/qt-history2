@@ -1202,10 +1202,10 @@ void QDockWindow::undock( QWidget *w )
     }
 }
 
-void QDockWindow::removeFromDock()
+void QDockWindow::removeFromDock( bool fixNewLines )
 {
     if ( dockArea )
-	dockArea->removeDockWindow( this, FALSE, FALSE );
+	dockArea->removeDockWindow( this, FALSE, FALSE, fixNewLines );
 }
 
 /*! Docks this QDockWindow back into the QDockArea, in which it has

@@ -112,7 +112,7 @@ public:
     ~QDockArea();
 
     void moveDockWindow( QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap );
-    void removeDockWindow( QDockWindow *w, bool makeFloating, bool swap );
+    void removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines = TRUE );
     void moveDockWindow( QDockWindow *w, int index = -1 );
     bool hasDockWindow( QDockWindow *w, int *index = 0 );
 

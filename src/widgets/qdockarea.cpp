@@ -683,14 +683,16 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 
 /*! Removes the dock window \a w from this dock area. If \a
   makeFloating is TRUE, \a w gets floated, and if \a swap is TRUE, the
-  orientation of \a w gets swapped.
+  orientation of \a w gets swapped. \a fixNewLines specifies wheather
+  newslines in the area should be fixed (default) after \a w is
+  removed, or not.
 
   Normally you never need to call that function yourself, as this
   function is only used by QDockWindow. Better use QDockWindow::dock()
   and QDockWindow::undock() instead.
 */
 
-void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap )
+void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines )
 {
     w->removeEventFilter( this );
     QDockWindow *dockWindow = 0;
@@ -700,7 +702,7 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap )
     dockWindow = dockWindows->at( i );
     dockWindows->remove( i );
     QList<QDockWindow> lineStarts = layout->lineStarts();
-    if ( lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
+    if ( fixNewLines && lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
 	dockWindows->at( i )->setNewLine( TRUE );
     if ( makeFloating )
 	dockWindow->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog,

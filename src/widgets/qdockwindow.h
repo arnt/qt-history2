@@ -121,7 +121,7 @@ public:
 
     virtual void setOpaqueMoving( bool b );
     bool opaqueMoving() const;
-    
+
 signals:
     void orientationChanged( Orientation o );
     void placeChanged( QDockWindow::Place p );
@@ -146,7 +146,7 @@ private:
     void endRectDraw( bool drawRect );
     void updatePosition( const QPoint &globalPos  );
     QWidget *areaAt( const QPoint &gp );
-    void removeFromDock();
+    void removeFromDock( bool fixNewLines = TRUE );
 
 private:
     QDockWindowHandle *horHandle, *verHandle;
@@ -174,7 +174,7 @@ private:
     QPoint lastPos;
     QWidgetResizeHandler *widgetResizeHandler;
     bool opaque;
-    
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDockWindow( const QDockWindow & );
