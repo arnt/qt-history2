@@ -85,7 +85,7 @@ private:
 class Q_CORE_EXPORT QMutex
 {
 public:
-    inline explicit QMutex(bool = false) {}
+    inline explicit QMutex(RecursionMode mode = NonRecursive) {}
     inline ~QMutex() {}
 
     static inline void lock() {}
