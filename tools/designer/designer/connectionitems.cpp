@@ -172,6 +172,37 @@ void ConnectionItem::setConnection( ConnectionContainer *c )
     conn = c;
 }
 
+// ------------------------------------------------------------------
+
+static void appendChildActions( QAction *action, QStringList &lst )
+{
+    QObjectListIt it( *action->children() );
+    while ( it.current() ) {
+	QObject *o = it.current();
+	++it;
+	if ( !o->inherits( "QAction" ) )
+	    continue;
+	lst << o->name();
+	if ( o->children() && o->inherits( "QActionGroup" ) )
+	    appendChildActions( (QAction*)o, lst );
+    }
+}
+
+static QStringList flatActions( const QPtrList<QAction> &l )
+{
+    QStringList lst;
+
+    QPtrListIterator<QAction> it( l );
+    while ( it.current() ) {
+	QAction *action = it.current();
+	lst << action->name();
+	if ( action->children() && action->inherits( "QActionGroup" ) )
+	    appendChildActions( action, lst );
+	++it;
+    }
+
+    return lst;
+}
 
 // ------------------------------------------------------------------
 
@@ -196,22 +227,7 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
 	++it;
     }
 
-    QPtrListIterator<QAction> it2( formWindow->actionList() );
-    while ( it2.current() ) {
-	QAction *action = it2.current();
-	lst << it2.current()->name();
-	if ( ( action->children() ) && ( action->inherits( "QActionGroup" ) ) ) {
-	    QObjectListIt it3( *action->children() );
-	    while ( it3.current() ) {
-		QObject *o = it3.current();
-		++it3;
-		if ( !o->inherits( "QAction" ) )
-		    continue;
-		lst << o->name();
-	    }
-	}
-	++it2;
-    }
+    lst += flatActions( formWindow->actionList() );
 
     lst.prepend( "<No Sender>" );
     lst.sort();
@@ -268,22 +284,7 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
 	++it;
     }
 
-    QPtrListIterator<QAction> it2( formWindow->actionList() );
-    while ( it2.current() ) {
-	QAction *action = it2.current();
-	lst << it2.current()->name();
-	if ( ( action->children() ) && ( action->inherits( "QActionGroup" ) ) ) {
-	    QObjectListIt it3( *action->children() );
-	    while ( it3.current() ) {
-		QObject *o = it3.current();
-		++it3;
-		if ( !o->inherits( "QAction" ) )
-		    continue;
-		lst << o->name();
-	    }
-	}
-	++it2;
-    }
+    lst += flatActions( formWindow->actionList() );
 
     lst.prepend( "<No Receiver>" );
     lst.sort();
