@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#48 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#48 $");
 
 
 /*!
@@ -656,8 +656,8 @@ int QFile::writeBlock( const char *p, uint len )
   Reads a line of text.
 
   Reads bytes from the file until end-of-line is reached, or up to \a
-  maxlen bytes, and returns the number of bytes read.  The terminating
-  newline is not stripped.
+  maxlen bytes, and returns the number of bytes read, or -1 in case of
+  error.  The terminating newline is not stripped.
 
   This function is efficient only for buffered files.  Avoid
   readLine() for files that have been opened with the \c IO_Raw

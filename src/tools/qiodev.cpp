@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#32 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#32 $");
 
 
 /*!
@@ -437,6 +437,8 @@ bool QIODevice::atEnd() const
 /*!
   Reads a line of text, up to \e maxlen bytes including a terminating
   \0.  If there is a newline at the end if the line, it is not stripped.
+
+  Returns the number of bytes read, or -1 in case of error.
 
   This virtual function can be reimplemented much more efficiently by
   the most subclasses.
