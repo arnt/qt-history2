@@ -158,7 +158,7 @@ signals:
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
     void invalidatePersistentIndices(const QModelIndex &parent = 0);
-    friend class QPersistentModelIndex;
+    friend class QPersistentModelIndexData;
 };
 
 #endif

@@ -119,6 +119,35 @@ const char *QAbstractItemModelDrag::format()
 
 QPersistentModelIndexData QPersistentModelIndexData::shared_null;
 
+QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index,
+                                                             QAbstractItemModel *model)
+{
+    // FIXME: this is slow
+    QPersistentModelIndexData *d = &QPersistentModelIndexData::shared_null;
+    QList<QPersistentModelIndexData*> *persistentIndices = &(model->d_func()->persistentIndices);
+    for (int i = 0; i < persistentIndices->count(); ++i) {
+        if (persistentIndices->at(i)->index == index) {
+            d = persistentIndices->at(i);
+            break;
+        }
+    }
+    if (d == &QPersistentModelIndexData::shared_null) {
+        d = new QPersistentModelIndexData;
+        d->model = model;
+        d->index = index;
+        persistentIndices->append(d);
+    }
+    return d;
+}
+
+void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
+{
+    if (data != &QPersistentModelIndexData::shared_null) {
+        data->model->d_func()->persistentIndices.removeAll(data);
+        delete data;
+    }
+}
+
 QPersistentModelIndex::QPersistentModelIndex()
     : d(&QPersistentModelIndexData::shared_null)
 {
@@ -138,29 +167,14 @@ QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstract
         ++d->ref;
         return;
     }
-    // FIXME: this is slow
-    QList<QPersistentModelIndexData*> *persistentIndices = &(model->d_func()->persistentIndices);
-    for (int i = 0; i < persistentIndices->count(); ++i) {
-        if (persistentIndices->at(i)->index == index) {
-            d = persistentIndices->at(i);
-            break;
-        }
-    }
-    if (d == &QPersistentModelIndexData::shared_null) {
-        d = new QPersistentModelIndexData;
-        d->model = model;
-        d->index = index;
-        persistentIndices->append(d);
-    }
+    d = QPersistentModelIndexData::create(index, model);
     ++d->ref;
 }
 
 QPersistentModelIndex::~QPersistentModelIndex()
 {
-    if (!--d->ref && d != &QPersistentModelIndexData::shared_null) {
-        d->model->d_func()->persistentIndices.removeAll(d);
-        delete d;
-    }
+    if (!--d->ref)
+        QPersistentModelIndexData::destroy(d);
     d = 0;
 }
 
@@ -171,10 +185,8 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 
 void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
-    if (!--d->ref && d != &QPersistentModelIndexData::shared_null) {
-        d->model->d_func()->persistentIndices.removeAll(d);
-        delete d;
-    }
+    if (!--d->ref)
+        QPersistentModelIndexData::destroy(d);
     d = other.d;
     ++d->ref;
 }

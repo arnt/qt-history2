@@ -250,7 +250,6 @@ public:
     QFileIconProvider defaultProvider;
 
     QStringList savedPaths;
-    QList<QPersistentModelIndex> savedIndices;
 };
 
 #define d d_func()
@@ -839,23 +838,27 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 void QDirModelPrivate::savePersistentIndices()
 {
     savedPaths.clear();
-    savedIndices.clear();
     for (int i = 0; i < persistentIndices.count(); ++i) {
         QModelIndex idx = persistentIndices.at(i)->index;
         QString pth = q->path(idx);
         savedPaths.append(pth);
-        QPersistentModelIndex persistent(idx, q); // FIXME: n^2
-        savedIndices.append(persistent);
+        ++persistentIndices.at(i)->ref; // save
         persistentIndices[i]->index = QModelIndex(); // invalidated
     }
 }
 
 void QDirModelPrivate::restorePersistentIndices()
 {
+    QList<QPersistentModelIndexData*> deleteList;
     for (int i = 0; i < persistentIndices.count(); ++i) {
         QString pth = savedPaths.at(i);
         persistentIndices[i]->index = q->index(pth);
+        if (!--persistentIndices.at(i)->ref)
+            deleteList.append(persistentIndices.at(i));
     }
     savedPaths.clear();
-    savedIndices.clear();
+    while (!deleteList.isEmpty()) {
+        QPersistentModelIndexData::destroy(deleteList.last());
+        deleteList.removeLast();
+    }
 }
