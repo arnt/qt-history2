@@ -214,6 +214,11 @@ void FtpWindow::enableConnectButton()
 
 void FtpWindow::enableDownloadButton()
 {
-    QString currentFile = fileList->currentItem()->text();
-    downloadButton->setEnabled(!isDirectory.value(currentFile));
+    QListWidgetItem *current = fileList->currentItem();
+    if (current) {
+        QString currentFile = current->text();
+        downloadButton->setEnabled(!isDirectory.value(currentFile));
+    } else {
+        downloadButton->setEnabled(false);
+    }
 }
