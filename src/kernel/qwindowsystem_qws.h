@@ -22,7 +22,7 @@
 #define QTFB_H
 
 #ifndef QT_H
-#include <qserversocket.h>
+#include <qwssocket_qws.h>
 #include <qmap.h>
 #include <qdatetime.h>
 #include <qlist.h>
@@ -120,7 +120,7 @@ private:
  *********************************************************************/
 
 struct QWSCommandStruct;
-class QWSServer : private QServerSocket
+class QWSServer : private QWSServerSocket
 {
     Q_OBJECT
 
@@ -344,7 +344,7 @@ private slots:
     void errorHandler( int );
 private:
     int s; // XXX csocket->d->socket->socket() is this value
-    QSocket *csocket;
+    QWSSocket *csocket;
     QWSCommand* command;
     uint isClosed : 1;
 };

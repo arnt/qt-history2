@@ -22,7 +22,7 @@
 #define QWSUTILS_H
 
 #ifndef QT_H
-#include <qsocket.h>
+#include <qwssocket_qws.h>
 #endif // QT_H
 
 /********************************************************************
@@ -31,7 +31,7 @@
  *
  ********************************************************************/
 
-inline int qws_read_uint( QSocket *socket )
+inline int qws_read_uint( QWSSocket *socket )
 {
     if ( !socket || socket->size() < sizeof( int ) )
 	return -1;
@@ -42,7 +42,7 @@ inline int qws_read_uint( QSocket *socket )
     return i;
 }
 
-inline void qws_write_uint( QSocket *socket, int i )
+inline void qws_write_uint( QWSSocket *socket, int i )
 {
     if ( !socket )
 	return;

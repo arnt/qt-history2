@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#21 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#22 $
 **
 ** Implementation of Network Extension Library
 **
@@ -26,6 +26,9 @@
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
 #include <string.h>
+
+
+//#define QSOCKETDEVICE_DEBUG
 
 
 class QSocketDevicePrivate
@@ -107,9 +110,9 @@ public:
   \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
   \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
 */
-QSocketDevice::QSocketDevice( int socket, Type type, bool )
+QSocketDevice::QSocketDevice( int socket, Type type )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ),
-      d( new QSocketDevicePrivate )
+      d( 0 )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
@@ -447,4 +450,28 @@ QHostAddress QSocketDevice::peerAddress() const
 QSocketDevice::Error QSocketDevice::error() const
 {
     return e;
+}
+
+
+/*!
+  This class can be used to provide low level support for other socket types.
+  In this implementation the function always returns FALSE and sets an error.
+
+  You have to subclass it to take an advantage of it.
+
+  \sa QSocket::genericConnect()
+*/
+bool QSocketDevice::connect()
+{
+    e = ConnectionRefused;
+    return FALSE;
+}
+
+
+/*!
+  Allows subclasses to set the error state.
+*/
+void QSocketDevice::setError( Error err )
+{
+    e = err;
 }

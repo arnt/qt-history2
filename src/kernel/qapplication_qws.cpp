@@ -45,7 +45,7 @@
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qbitmap.h"
-#include "../../extensions/network/src/qsocket.h"
+#include "qwssocket_qws.h"
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsproperty_qws.h"
@@ -246,7 +246,7 @@ public:
 	if ( singleProcess )
 	    csocket = 0;
 	else
-	    csocket = new QSocket(parent);
+	    csocket = new QWSSocket(parent);
 	init();
     }
 
@@ -255,7 +255,7 @@ public:
     QWSRegionManager *rgnMan;
 
 private:
-    QSocket *csocket;
+    QWSSocket *csocket;
     QList<QWSEvent> queue;
     uchar* offscreenaddress;
 

@@ -33,8 +33,8 @@
  *
  *********************************************************************/
 
-void qws_write_command( QSocket *socket, int type, char *simpleData, int simpleLen, char *rawData, int rawLen );
-bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen, char *&rawData, int &rawLen, int &bytesRead );
+void qws_write_command( QWSSocket *socket, int type, char *simpleData, int simpleLen, char *rawData, int rawLen );
+bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen, char *&rawData, int &rawLen, int &bytesRead );
 
 /*********************************************************************
  *
@@ -59,8 +59,8 @@ struct QWSProtocolItem
     bool deleteRaw;
 
     // functions
-    void write( QSocket *s );
-    bool read( QSocket *s );
+    void write( QWSSocket *s );
+    bool read( QWSSocket *s );
     void copyFrom( const QWSProtocolItem *item );
     
     virtual void setData( char *data, int len, bool allocateMem = TRUE );

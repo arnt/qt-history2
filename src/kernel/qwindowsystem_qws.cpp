@@ -93,7 +93,7 @@ QWSClient::QWSClient( QObject* parent, int socket )
 	isClosed = FALSE;
 	
     } else {
-	csocket = new QSocket( this );
+	csocket = new QWSSocket( this );
 	csocket->setSocket(socket,FALSE);
 	isClosed = FALSE;
 
@@ -127,13 +127,13 @@ void QWSClient::errorHandler( int err )
 {
     QString s = "Unknown";
     switch( err ) {
-    case QSocket::ErrConnectionRefused:
+    case QWSSocket::ErrConnectionRefused:
 	s = "Connection Refused";
 	break;
-    case QSocket::ErrHostNotFound:
+    case QWSSocket::ErrHostNotFound:
 	s = "Host Not Found";
 	break;
-    case QSocket::ErrSocketRead:
+    case QWSSocket::ErrSocketRead:
 	s = "Socket Read";
 	break;
     }
@@ -512,7 +512,7 @@ static void ignoreSignal( int )
 
 QWSServer::QWSServer( int flags,
 		      QObject *parent, const char *name ) :
-    QServerSocket(QTE_PIPE,16,parent,name),
+    QWSServerSocket(QTE_PIPE,16,parent,name),
     disablePainting(false)
 {
     ASSERT( !qwsServer );

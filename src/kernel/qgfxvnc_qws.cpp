@@ -119,7 +119,7 @@ static struct {
 
 /*
  */
-void QRfbRect::read( QSocket *s )
+void QRfbRect::read( QWSSocket *s )
 {
     Q_UINT16 buf[4];
     s->readBlock( (char*)buf, 8 );
@@ -129,7 +129,7 @@ void QRfbRect::read( QSocket *s )
     h = ntohs( buf[3] );
 }
 
-void QRfbRect::write( QSocket *s )
+void QRfbRect::write( QWSSocket *s )
 {
     Q_UINT16 buf[4];
     buf[0] = htons( x );
@@ -141,7 +141,7 @@ void QRfbRect::write( QSocket *s )
 
 /*
  */
-void QRfbPixelFormat::read( QSocket *s )
+void QRfbPixelFormat::read( QWSSocket *s )
 {
     char buf[16];
     s->readBlock( buf, 16 );
@@ -167,7 +167,7 @@ void QRfbPixelFormat::read( QSocket *s )
     blueShift = buf[12];
 }
 
-void QRfbPixelFormat::write( QSocket *s )
+void QRfbPixelFormat::write( QWSSocket *s )
 {
     char buf[16];
     buf[0] = bitsPerPixel;
@@ -203,7 +203,7 @@ void QRfbServerInit::setName( const char *n )
     strcpy( name, n );
 }
 
-void QRfbServerInit::read( QSocket *s )
+void QRfbServerInit::read( QWSSocket *s )
 {
     s->readBlock( (char *)&width, 2 );
     width = ntohs( width );
@@ -220,7 +220,7 @@ void QRfbServerInit::read( QSocket *s )
     name[len] = '\0';
 }
 
-void QRfbServerInit::write( QSocket *s )
+void QRfbServerInit::write( QWSSocket *s )
 {
     Q_UINT16 t = htons(width);
     s->writeBlock( (char *)&t, 2 );
@@ -235,7 +235,7 @@ void QRfbServerInit::write( QSocket *s )
 
 /*
  */
-bool QRfbSetEncodings::read( QSocket *s )
+bool QRfbSetEncodings::read( QWSSocket *s )
 {
     if ( s->bytesAvailable() < 3 )
 	return FALSE;
@@ -250,7 +250,7 @@ bool QRfbSetEncodings::read( QSocket *s )
 
 /*
  */
-bool QRfbFrameBufferUpdateRequest::read( QSocket *s )
+bool QRfbFrameBufferUpdateRequest::read( QWSSocket *s )
 {
     if ( s->bytesAvailable() < 9 )
 	return FALSE;
@@ -263,7 +263,7 @@ bool QRfbFrameBufferUpdateRequest::read( QSocket *s )
 
 /*
  */
-bool QRfbKeyEvent::read( QSocket *s )
+bool QRfbKeyEvent::read( QWSSocket *s )
 {
     if ( s->bytesAvailable() < 7 )
 	return FALSE;
@@ -299,7 +299,7 @@ bool QRfbKeyEvent::read( QSocket *s )
 
 /*
  */
-bool QRfbPointerEvent::read( QSocket *s )
+bool QRfbPointerEvent::read( QWSSocket *s )
 {
     if ( s->bytesAvailable() < 5 )
 	return FALSE;
@@ -325,7 +325,7 @@ bool QRfbPointerEvent::read( QSocket *s )
 
 /*
  */
-bool QRfbClientCutText::read( QSocket *s )
+bool QRfbClientCutText::read( QWSSocket *s )
 {
     if ( s->bytesAvailable() < 7 )
 	return FALSE;
@@ -341,7 +341,7 @@ bool QRfbClientCutText::read( QSocket *s )
 /*
  */
 QVNCServer::QVNCServer()
-    : QServerSocket( 5900, 0, 0 )
+    : QWSServerSocket( 5900, 0, 0 )
 {
     qDebug( "QVNCServer created" );
     handleMsg = FALSE;
@@ -365,12 +365,12 @@ void QVNCServer::newConnection( int socket )
 	qDebug( "Killing old client" );
 	delete client;
     }
-    client = new QSocket(this);
+    client = new QWSSocket(this);
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
     connect(client,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
     connect(client,SIGNAL(closed()),this,SLOT(discardClient()));
     client->setSocket(socket);
-    client->setMode(QSocket::Binary);
+    client->setMode(QWSSocket::Binary);
     handleMsg = FALSE;
     encodingsPending = 0;
     cutTextPending = 0;

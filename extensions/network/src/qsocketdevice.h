@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#14 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#15 $
 **
 ** Implementation of Network Extension Library
 **
@@ -43,8 +43,8 @@ friend class QSocket;
 public:
     enum Type { Stream, Datagram };
 
-    QSocketDevice( Type type = Stream, bool inet=TRUE );
-    QSocketDevice( int socket, Type type, bool inet=TRUE );
+    QSocketDevice( Type type = Stream );
+    QSocketDevice( int socket, Type type );
    ~QSocketDevice();
 
     bool	 isValid() const;
@@ -74,10 +74,9 @@ public:
     virtual void setSendBufferSize( uint );
 
     virtual bool connect( const QHostAddress &, uint );
-    virtual bool connect( const QString& localfilename );
+    virtual bool connect();
 
     virtual bool bind( const QHostAddress &, uint );
-    virtual bool bind( const QString& );
     virtual bool listen( int backlog );
     virtual int	 accept();
 
@@ -102,6 +101,9 @@ public:
 		 NetworkFailure, UnknownError };
     Error 	 error() const;
 
+protected:
+    void setError( Error err );
+
 private:
     int fd;
     Type t;
@@ -109,7 +111,7 @@ private:
     QHostAddress a;
     uint pp;
     QHostAddress pa;
-    mutable QSocketDevice::Error e;
+    QSocketDevice::Error e;
     QSocketDevicePrivate * d;
 
     enum Option { Broadcast, ReceiveBuffer, ReuseAddress, SendBuffer };

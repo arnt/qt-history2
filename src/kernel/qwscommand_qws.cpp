@@ -26,7 +26,7 @@
  *
  *********************************************************************/
 
-void qws_write_command( QSocket *socket, int type,
+void qws_write_command( QWSSocket *socket, int type,
 			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
     qws_write_uint( socket, type );
@@ -37,7 +37,7 @@ void qws_write_command( QSocket *socket, int type,
 	socket->writeBlock( rawData, rawLen );
 }
 
-bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen,
+bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
 			      char *&rawData, int &rawLen,
 			      int &bytesRead )
 {
@@ -77,12 +77,12 @@ bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen,
 
 QWSProtocolItem::~QWSProtocolItem() { if (deleteRaw) delete [] rawDataPtr; }
 
-void QWSProtocolItem::write( QSocket *s ) {
+void QWSProtocolItem::write( QWSSocket *s ) {
     //qDebug( "sending type %d", type );
     qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
 }
 
-bool QWSProtocolItem::read( QSocket *s ) {
+bool QWSProtocolItem::read( QWSSocket *s ) {
     bool b = qws_read_command( s, simpleDataPtr, simpleLen,
 			       rawDataPtr, rawLen, bytesRead );
     if ( b ) {

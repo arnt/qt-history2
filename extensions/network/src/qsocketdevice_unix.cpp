@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#10 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#11 $
 **
 ** Implementation of Network Extension Library
 **
@@ -111,7 +111,7 @@ void QSocketDevice::init()
 
   \sa blocking()
 */
-QSocketDevice::QSocketDevice( Type type, bool inet )
+QSocketDevice::QSocketDevice( Type type )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -119,8 +119,7 @@ QSocketDevice::QSocketDevice( Type type, bool inet )
 	    this, type );
 #endif
     init();
-    int s = ::socket( inet ? AF_INET : AF_UNIX,
-	    type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    int s = ::socket( AF_INET, type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s < 0 ) {
 	// leave fd at -1 but set the type
 	t = type;
@@ -275,16 +274,17 @@ int QSocketDevice::option( Option opt ) const
 	if ( r >= 0 )
 	    return v;
 	if ( !e ) {
+	    QSocketDevice *that = (QSocketDevice*)this; // mutable function
 	    switch( errno ) {
 	    case EBADF:
 	    case ENOTSOCK:
-		e = Impossible;
+		that->e = Impossible;
 		break;
 	    case EFAULT:
-		e = Bug;
+		that->e = Bug;
 		break;
 	    default:
-		e = UnknownError;
+		that->e = UnknownError;
 		break;
 	    }
 	}
@@ -401,63 +401,6 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 
 
 /*!
-  Fnord???
-*/
-bool QSocketDevice::connect( const QString &localfilename )
-{
-    if ( !isValid() )
-	return FALSE;
-
-    struct sockaddr_un a;
-    memset( &a, 0, sizeof(a) );
-    a.sun_family = AF_UNIX;
-    strncpy(a.sun_path,localfilename.local8Bit(),UNIX_PATH_MAX-1);
-
-    int r = ::connect( fd, (struct sockaddr*)&a,
-		       sizeof(struct sockaddr_un) );
-    if ( r == 0 ) {
-	fetchConnectionParameters();
-	return TRUE;
-    }
-    if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS )
-	return TRUE;
-    if ( e != NoError )
-	return FALSE;
-    switch( errno ) {
-    case EBADF:
-    case ENOTSOCK:
-	e = Impossible;
-	break;
-    case EFAULT:
-    case EAFNOSUPPORT:
-	e = Bug;
-	break;
-    case ECONNREFUSED:
-	e = ConnectionRefused;
-	break;
-    case ETIMEDOUT:
-    case ENETUNREACH:
-	e = NetworkFailure;
-	break;
-    case EADDRINUSE:
-	e = NoResources;
-	break;
-    case EACCES:
-    case EPERM:
-	e = Inaccessible;
-	break;
-    case EAGAIN:
-	// ignore that.  can retry.
-	break;
-    default:
-	e = UnknownError;
-	break;
-    }
-    return FALSE;
-}
-
-
-/*!
   Assigns a name to an unnamed socket.  If the operation succeeds,
   bind() returns TRUE.  Otherwise, it returns FALSE without changing
   what port() and address() return.
@@ -479,54 +422,6 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_in) );
     if ( r < 0 ) {
 	switch( errno ) {
-	case EINVAL:
-	    e = AlreadyBound;
-	    break;
-	case EACCES:
-	    e = Inaccessible;
-	    break;
-	case ENOMEM:
-	    e = NoResources;
-	    break;
-	case EFAULT: // a was illegal
-	case ENAMETOOLONG: // sz was wrong
-	    e = Bug;
-	    break;
-	case EBADF: // AF_UNIX only
-	case ENOTSOCK: // AF_UNIX only
-	case EROFS: // AF_UNIX only
-	case ENOENT: // AF_UNIX only
-	case ENOTDIR: // AF_UNIX only
-	case ELOOP: // AF_UNIX only
-	    e = Impossible;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
-	}
-	return FALSE;
-    }
-    fetchConnectionParameters();
-    return TRUE;
-}
-
-
-/*!
-  Fnord???
-*/
-bool QSocketDevice::bind( const QString & filename )
-{
-    if ( !isValid() )
-	return FALSE;
-
-    struct sockaddr_un a;
-    memset( &a, 0, sizeof(a) );
-    a.sun_family = AF_UNIX;
-    strncpy(a.sun_path, filename.local8Bit(),107);
-
-    int r = ::bind( fd, (struct sockaddr*)&a,sizeof(struct sockaddr_un) );
-    if ( r < 0 ) {
-	switch( r ) {
 	case EINVAL:
 	    e = AlreadyBound;
 	    break;

@@ -71,7 +71,7 @@ void QSocketDevice::init()
 }
 
 
-QSocketDevice::QSocketDevice( Type type, bool )
+QSocketDevice::QSocketDevice( Type type )
     : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -79,7 +79,7 @@ QSocketDevice::QSocketDevice( Type type, bool )
 	    this, type );
 #endif
     init();
-    int s = ::socket( AF_INET, (type == Datagram ? SOCK_DGRAM : SOCK_STREAM), 0 );
+    int s = ::socket( AF_INET, type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s == INVALID_SOCKET ) {
 	// leave fd at -1 but set the type
 	t = type;
@@ -332,13 +332,6 @@ successful:
 }
 
 
-bool QSocketDevice::connect( const QString & )
-{
-    //######## implementation?
-    return FALSE;
-}
-
-
 bool QSocketDevice::bind( const QHostAddress &address, uint port )
 {
     if ( !isValid() )
@@ -388,13 +381,6 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
     }
     fetchConnectionParameters();
     return TRUE;
-}
-
-
-bool QSocketDevice::bind( const QString& )
-{
-    //######## you should do a implementation here
-    return FALSE;
 }
 
 

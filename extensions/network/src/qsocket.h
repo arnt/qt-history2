@@ -56,12 +56,11 @@ public:
     void	 setMode( Mode );
 
     int		socket() const;
-    virtual void setSocket( int, bool inet=TRUE );
+    virtual void setSocket( int );
 
 #ifndef QT_NO_DNS
     virtual void connectToHost( const QString &host, int port );
 #endif
-    virtual void connectToLocalFile( const QString &file );
     QString	 peerName() const;
 
     // Implementation of QIODevice abstract virtual functions
@@ -107,7 +106,9 @@ protected slots:
 
 protected:
     QSocketDevice *socketDevice();
+    void        setSocketDevice( QSocketDevice *sd );
     void	timerEvent( QTimerEvent * );
+    void        genericConnect();
 
 private slots:
     void	tryConnecting();

@@ -31,6 +31,7 @@
 #include <string.h>
 #include <errno.h>
 
+
 //#define QSOCKET_DEBUG
 
 
@@ -107,7 +108,7 @@ QSocketPrivate::~QSocketPrivate()
   Creates a QSocket object in \c QSocket::Idle state.
 
   This socket can be used to make a connection to a host using
-  the connectToHost() or connectToLocalFile() functions.
+  the connectToHost() function.
 */
 
 QSocket::QSocket( QObject *parent, const char *name )
@@ -294,39 +295,6 @@ void QSocket::connectToHost( const QString &host, int port )
 
 #endif
 
-
-/*!
-  Fnord...
-*/
-
-void QSocket::connectToLocalFile( const QString &filename )
-{
-#if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket (%s)::connectToLocalFile: file %s",
-	    name(), filename.ascii() );
-#endif
-    setSocket( -1, FALSE );
-
-    d->state = HostLookup;
-    d->host = QString::null;
-    d->port = 0;
-#ifndef QT_NO_DNS
-    d->dns = 0;
-#endif
-
-    d->state = Connecting;
-    if ( d->socket->connect( filename ) == FALSE ) {
-	if ( d->socket->error() == QSocketDevice::NoError )
-	    return; // not serious, try again later
-	d->state = Idle;
-	emit error( ErrConnectionRefused );
-    } else {
-	d->state = Connection;
-	emit connected();
-    }
-    // The socket write notifier will fire when the connection succeeds
-    d->wsn->setEnabled( TRUE );
-}
 
 /*!
   This private slots continues the connection process where connectToHost()
@@ -1126,35 +1094,14 @@ int QSocket::socket() const
 /*!  Sets the socket to use \a socket and the state() to \c Connected.
 */
 
-void QSocket::setSocket( int socket, bool inet )
+void QSocket::setSocket( int socket )
 {
-    if ( state() != Idle )
-	close();
-    // close may not have actually deleted the thing.  so, we brutally
-    // Act.
-    delete d;
-
-    d = new QSocketPrivate( this );
+    QSocketDevice *sd;
     if ( socket >= 0 )
-	d->socket = new QSocketDevice( socket, QSocketDevice::Stream, inet );
+	sd = new QSocketDevice( socket, QSocketDevice::Stream );
     else
-	d->socket = new QSocketDevice( QSocketDevice::Stream, inet );
-    d->socket->setBlocking( FALSE );
-    d->socket->setAddressReusable( TRUE );
-    d->state = Connection;
-    d->mode = Binary;
-    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
-				  this, "read" );
-    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
-				  this, "write" );
-    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    d->rsn->setEnabled( TRUE );
-    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
-    d->wsn->setEnabled( FALSE );
-    // Initialize the IO device flags
-    setFlags( IO_Direct );
-    setStatus( IO_Ok );
-    open( IO_ReadWrite );
+	sd = new QSocketDevice( QSocketDevice::Stream );
+    setSocketDevice( sd );
 }
 
 
@@ -1208,4 +1155,80 @@ QHostAddress QSocket::peerAddress() const
 QString QSocket::peerName() const
 {
     return d->host;
+}
+
+
+/*!
+  Low level function to set the socket device. There will only be rare
+  situationions where you will find this useful.
+
+  Attention: this class will delete the socket device if it is no longer
+  needed.
+
+  \sa setSocket()
+*/
+void QSocket::setSocketDevice( QSocketDevice *sd )
+{
+    if ( state() != Idle )
+	close();
+    // close may not have actually deleted the thing.  so, we brutally
+    // Act.
+    delete d;
+
+    d = new QSocketPrivate( this );
+    d->socket = sd;
+    d->socket->setBlocking( FALSE );
+    d->socket->setAddressReusable( TRUE );
+    d->state = Connection;
+    d->mode = Binary;
+    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
+				  this, "read" );
+    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
+				  this, "write" );
+    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
+    d->rsn->setEnabled( TRUE );
+    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
+    d->wsn->setEnabled( FALSE );
+    // Initialize the IO device flags
+    setFlags( IO_Direct );
+    setStatus( IO_Ok );
+    open( IO_ReadWrite );
+}
+
+
+/*!
+  Low level function to allow the use of other socket types than AF_INET. You
+  should not use this unless you really now what you are doing.
+
+  To use this function you have to subclass \l QSocketDevice and reiimplement
+  the QSocketDevice::connect() function. You should set socket device with
+  setSocketDevice() before calling this function.
+*/
+
+void QSocket::genericConnect()
+{
+#if defined(QSOCKET_DEBUG)
+    qDebug( "QSocket (%s)::genericConnect",
+            name() );
+#endif
+
+    d->host = QString::null;
+    d->port = 0;
+#ifndef QT_NO_DNS
+    delete d->dns;
+    d->dns = 0;
+#endif
+
+    d->state = Connecting;
+    if ( d->socket->connect() == FALSE ) {
+        if ( d->socket->error() == QSocketDevice::NoError )
+            return; // not serious, try again later
+        d->state = Idle;
+        emit error( ErrConnectionRefused );
+    } else {
+        d->state = Connection;
+        emit connected();
+    }
+    // The socket write notifier will fire when the connection succeeds
+    d->wsn->setEnabled( TRUE );
 }

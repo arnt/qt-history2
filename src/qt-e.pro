@@ -318,7 +318,8 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qwsmanager_qws.cpp \
 		  kernel/qwsproperty_qws.cpp \
 		  kernel/qlock_qws.cpp \
-		  kernel/qwsregionmanager_qws.cpp
+		  kernel/qwsregionmanager_qws.cpp \
+		  kernel/qwssocket_qws.cpp
 
 unix:SOURCES   += kernel/qpsprinter.cpp \
 		  kernel/qwidgetcreate_qws.cpp \
@@ -548,7 +549,8 @@ ALLHEADERS        += $$KERNEL_H/qfontmanager_qws.h \
 		  $$KERNEL_H/qwscursor_qws.h \
 		  $$KERNEL_H/qlock_qws.h \
 		  $$KERNEL_H/qwsregionmanager_qws.h \
-		  $$KERNEL_H/qwsdisplay_qws.h
+		  $$KERNEL_H/qwsdisplay_qws.h \
+		  $$KERNEL_H/qwssocket_qws.h
 
 ALLHEADERS		+= $$QNETWORK/qdns.h \
 		  $$QNETWORK/qftp.h \
