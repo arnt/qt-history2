@@ -865,7 +865,7 @@ QGLContext::~QGLContext()
 	QList<int> keys = qt_tex_cache->keys();
 	for (int i = 0; i < keys.size(); ++i) {
 	    int key = keys.at(i);
-	    if (qt_tex_cache->find(key)->context == this)
+	    if (qt_tex_cache->object(key)->context == this)
 		qt_tex_cache->remove(key);
 	}
 	// ### thread safety
@@ -932,7 +932,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
 	qt_tex_cache = new QGLTextureCache(qt_max_tex_cache_size);
 
     int key = scramble(fname);
-    QGLTexture *texture = qt_tex_cache->find(key);
+    QGLTexture *texture = qt_tex_cache->object(key);
 
     if (texture && texture->context == this) {
 	glBindTexture(GL_TEXTURE_2D, texture->id);
@@ -1053,7 +1053,7 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
     if (!qt_tex_cache)
 	qt_tex_cache = new QGLTextureCache(qt_max_tex_cache_size);
 
-    QGLTexture *texture = qt_tex_cache->find(pm.serialNumber());
+    QGLTexture *texture = qt_tex_cache->object(pm.serialNumber());
     if (texture && texture->context == this) {
 	glBindTexture(GL_TEXTURE_2D, texture->id);
 	return texture->id;
@@ -1100,7 +1100,7 @@ void QGLContext::deleteTexture(GLuint id)
 
     QList<int> keys = qt_tex_cache->keys();
     for (int i = 0; i < keys.size(); ++i) {
-	QGLTexture *tex = qt_tex_cache->find(keys.at(i));
+	QGLTexture *tex = qt_tex_cache->object(keys.at(i));
 	if (tex->id == id && tex->context == this) {
 	    qt_tex_cache->remove(keys.at(i));
 	    break;
