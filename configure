@@ -1210,7 +1210,7 @@ Installation options:
                                 Possible values for <driver>: [$SQL_AVAIL ]
                                 Auto-Detected on this system: [$SQL_AUTODETECTED ]
 
-    -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by 
+    -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by
                                 default all available are on.
     -plugin-style-<style> ..... Enable GUI <style> as a plugin to be linked
                                 to at run time.
@@ -1753,6 +1753,16 @@ else
     [ -f $outpath/include/qmodules.h ] && chmod +w $outpath/include/qmodules.h
     mv -f $outpath/include/qmodules.h.new $outpath/include/qmodules.h
     chmod -w $outpath/include/qmodules.h
+fi
+
+if [ "$QWS_PLATFORM" = "yes" ]
+    then
+    if [ "$XPLATFORM" = "$PLATFORM" ]
+    then
+	QMAKE_CONFIG="$QMAKE_CONFIG nocrosscompiler"
+    fi
+else
+    QMAKE_CONFIG="$QMAKE_CONFIG nocrosscompiler"
 fi
 
 ##
