@@ -1743,7 +1743,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	QPainter::initialize();
 #if defined(QT_THREAD_SUPPORT)
 	QThread::initialize();
-#endif	
+#endif
     }
     gettimeofday( &watchtime, 0 );
 
@@ -1989,7 +1989,7 @@ void qt_cleanup()
 #if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();
 #endif
-    
+
 #ifndef QT_NO_XINPUT
     if ( dev != NULL )
 	XCloseDevice( appDpy, dev );
@@ -2005,10 +2005,10 @@ void qt_cleanup()
 		       QPaintDevice::x11AppColormap() );
 
 #define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<screenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
-    CLEANUP_GC(app_gc_ro);
-    CLEANUP_GC(app_gc_ro_m);
-    CLEANUP_GC(app_gc_tmp);
-    CLEANUP_GC(app_gc_tmp_m);
+    QT_CLEANUP_GC(app_gc_ro);
+    QT_CLEANUP_GC(app_gc_ro_m);
+    QT_CLEANUP_GC(app_gc_tmp);
+    QT_CLEANUP_GC(app_gc_tmp_m);
 #undef QT_CLEANUP_GC
 
     delete sip_list;
