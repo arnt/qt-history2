@@ -248,7 +248,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 	return QString::null;
     }
 
-    QFile f( config->findDepth(filePath, config->exampleDirList()) );
+    QFile f( filePath );
     if ( !f.open(IO_ReadOnly) ) {
 	if ( !shutUp )
 	    message( 1, "Cannot open example file '%s'", filePath.latin1() );
