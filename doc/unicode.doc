@@ -62,16 +62,16 @@ The home page for the standard</a>
 
 <p>
 
-<b>The Standard.</b> The current version of the standard is 3.0.0. <ul>
+<b>The Standard.</b> The current version of the standard is 3.0.1. <ul>
 
+<li><a href="http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t">
+The Unicode Standard, version 3.0.</a>  See also
+<a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.1.html">
+its home page.</a>
 <li> <a href="http://www.amazon.com/exec/obidos/ASIN/0201473459/trolltech/t">
 The Unicode Standard, version 2.0.</a>  See also the
 <a href="http://www.unicode.org/unicode/reports/tr8.html">2.1 update</a> and
 <a href="http://www.unicode.org/unicode/standard/versions/enumeratedversions.html#Unicode 2.1.9">the 2.1.9 data files</a> at www.unicode.org.
-<li><a href="http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t">
-The Unicode Standard, version 3.0.</a>  See also
-<a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
-its home page.</a>
 
 </ul>
 
@@ -80,17 +80,16 @@ most or all user-visible strings are stored in Unicode, and Qt
 provides <ul>
 
 <li> Translation to/from legacy encodings for file I/O - see \l
-QTextCodec and \l QTextStream
-<li> Translation from Input Methods and 8-bit keyboard input
-<li> Translation to legacy character sets for on-screen display
+QTextCodec and \l QTextStream.
+<li> Translation from Input Methods and 8-bit keyboard input.
+<li> Translation to legacy character sets for on-screen display.
 <li> A string class, \l QString, that stores Unicode characters, with
 support for migrating from C strings including fast (cached)
 translation to and from the US-ASCII, and all the usual string
-operations
-<li> Unicode-aware widgets where necessary
-<li> On Windows 95/98/NT/2000, Unicode support detection, so that Qt
-provides Unicode even on Windows platforms that do not support it
-
+operations.
+<li> Unicode-aware widgets where necessary.
+<li> Unicode support detection on Windows 95/98/NT/2000, so that Qt
+provides Unicode even on Windows platforms that do not support it.
 
 </ul>
 
@@ -124,7 +123,7 @@ mapping.
 Turning back to Unicode, for programs that needs to talk to other
 programs or read/write files in legacy file formats, Qt provides a
 number of built-in \l QTextCodec classes, that is, classes that know
-how to translate between Unicode and a legacy encoding.
+how to translate between Unicode and legacy encodings.
 
 By default, conversion to/from \c const \c char \c * uses a
 locale-dependent codec.  However, the program can easily find codecs
@@ -141,10 +140,12 @@ application's icon one might do this:
 	QFile f( QString::fromLatin1("appicon.png") );
 \endcode
 
-Regarding output, Qt will do a best-effort conversion from Unicode to
-whatever encoding the system and fonts provide.  Depending on
+Regarding output, Qt will do a best-effort conversion from
+<a href="http://my.ispchannel.com/~markdavis/unicode/Unicode_transcription_images/U_Combined.gif">Unicode</a>
+to whatever encoding the system and fonts provide.  Depending on
 operating system, locale, font availability and Qt's support for the
-characters used, this conversion may be good or bad.  We aim to extend
+characters used, this conversion may be good or bad.  We will extend
 this in upcoming versions, with emphasis on the most common locales
 first.
+
 */
