@@ -312,9 +312,6 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
     custom_highlight = FALSE;
     p = n = 0;
 
-    // just something that'll look noticeable in the debugger
-    x = y = 42;
-
     if (listbox)
 	listbox->insertItem( this );
 }
@@ -332,9 +329,6 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
     dirty = TRUE;
     custom_highlight = FALSE;
     p = n = 0;
-
-    // just something that'll be noticeable in the debugger
-    x = y = 42;
 
     if (listbox)
 	listbox->insertItem( this, after );
@@ -4064,27 +4058,6 @@ void QListBox::showEvent( QShowEvent * )
     d->mustPaintAll = FALSE;
     ensureCurrentVisible();
 }
-
-#ifdef QT_COMPAT
-
-/*!
-  \obsolete
-
-  Returns the vertical pixel-coordinate in \a *yPos, of the list box
-  item at position \a index in the list. Returns FALSE if the item is
-  outside the visible area.
-*/
-bool QListBox::itemYPos( int index, int *yPos ) const
-{
-    QListBoxItem* i = item(index);
-    if ( !i )
-	return FALSE;
-    if ( yPos )
-	*yPos = i->y;
-    return TRUE;
-}
-
-#endif
 
 /*!
     \fn bool QListBoxItem::isSelected() const

@@ -249,7 +249,6 @@ protected:
     void doLayout() const;
 
 #ifdef QT_COMPAT
-    QT_COMPAT bool itemYPos( int index, int *yPos ) const;
     QT_COMPAT int findItem( int yPos ) const { return index(itemAt(QPoint(0,yPos)) ); }
 #endif
 
@@ -334,7 +333,6 @@ private:
     uint dirty:1;
     uint custom_highlight : 1;
     uint unused : 28;
-    int x, y;
     QListBoxItem * p, * n;
     QListBox* lbox;
     friend class QListBox;
