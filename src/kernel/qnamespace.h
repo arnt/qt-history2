@@ -208,11 +208,32 @@ public:
 	OpaqueMode
     };
 
+#ifndef QT_NO_COMPAT    
+    enum PaintUnit {				// paint unit
+	PixelUnit,
+	LoMetricUnit, // OBSOLETE
+	HiMetricUnit, // OBSOLETE
+	LoEnglishUnit, // OBSOLETE
+	HiEnglishUnit, // OBSOLETE
+	TwipsUnit // OBSOLETE
+    };
+#endif
+    
+#ifdef QT_NO_COMPAT
     enum GUIStyle {
 	WindowsStyle,
 	MotifStyle
     };
-
+#else
+    enum GUIStyle {
+	MacStyle, // OBSOLETE
+	WindowsStyle,
+	Win3Style, // OBSOLETE
+	PMStyle, // OBSOLETE
+	MotifStyle
+    };
+#endif
+    
     enum Modifier {		// accelerator modifiers
 	SHIFT         = 0x00200000,
 	CTRL          = 0x00400000,
