@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#24 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#24 $");
 
 
 /*!
@@ -544,15 +544,15 @@ void qDrawItem( QPainter *p, GUIStyle gs,
 	else if ( (flags & AlignHCenter) == AlignHCenter )
 	    x += w/2 - pm.width()/2;
 	if ( !enabled ) {
-	    if ( pm.mask() ) {
-		if ( !pm.selfMask() ) {
+	    if ( pm.mask() ) {			// pixmap with a mask
+		if ( !pm.selfMask() ) {		// mask is not pixmap itself
 		    QPixmap pmm( *pm.mask() );
 		    pmm.setMask( *((QBitmap *)&pmm) );
 		    pm = pmm;
 		}
-	    } else if ( pm.depth() == 1 ) {
+	    } else if ( pm.depth() == 1 ) {	// monochrome pixmap, no mask
 		pm.setMask( *((QBitmap *)&pm) );
-	    } else {
+	    } else {				// color pixmap, no mask
 		QString k;
 		k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
 		QPixmap *mask = QPixmapCache::find(k);
