@@ -82,6 +82,7 @@
 #include "qcompletionedit.h"
 #include <qaccel.h>
 #include <qtooltip.h>
+#include <stdlib.h>
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
