@@ -5,9 +5,9 @@
     We are pleased to present our first beta release for Qt 4. We are
     releasing this code to our users because we want you to have the
     opportunity to give us your feedback before the Qt 4.0 API is
-    frozen. The feedback we receive will help us to ensure that the
-    final Qt 4.0 release provides as much value and productivity as
-    possible.
+    completely frozen. The feedback we receive will help us to ensure
+    that the final Qt 4.0 release provides as much value and
+    productivity as possible.
 
     This beta release is not meant to be used in production code.
     However, you can already start using it for new projects. The API
