@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#47 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#48 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -13,7 +13,7 @@
 #define QIMAGE_H
 
 #include "qpixmap.h"
-#include "qstring.h"
+#include "qstrlist.h"
 
 
 class QImage
@@ -82,6 +82,9 @@ public:
     static QImage::Endian systemByteOrder();
 
     static const char *imageFormat( const char *fileName );
+    static QStrList inputFormats();
+    static QStrList outputFormats();
+
     bool	load( const char *fileName, const char *format=0 );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0 );
@@ -151,6 +154,8 @@ public:
 
     static const char *imageFormat( const char *fileName );
     static const char *imageFormat( QIODevice * );
+    static QStrList inputFormats();
+    static QStrList outputFormats();
 
     static void defineIOHandler( const char *format,
 				 const char *header,

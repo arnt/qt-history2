@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#111 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#111 $");
 
 
 /*!
@@ -1174,14 +1174,14 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   and instead interprets all alpha values from 127 and below as
   transparent and values from 128 and above as opaque. It is much
   faster than dithering and may be sufficient when reading images with
-  transparent colors.  
+  transparent colors.  This is also the effect of disabling dithering.
 
   Mode QImage::Bayer selects Bayer's ordered
   dithering algorithm to create the mask. This is relatively fast.  
 
   Mode QImage::Floyd selects the Floyd-Steinberg
   dithering algorithm to create the mask. It gives accurate results but
-  is somewhat slow.  
+  is somewhat slow.  This is the default if dithering is enabled.
 */
 void QImage::setAlphaDitherMode( DitherMode mode )
 {
@@ -1196,7 +1196,7 @@ QImage::DitherMode QImage::alphaDitherMode()
     return alphadithermode;
 }
 
-QImage::DitherMode QImage::alphadithermode = Threshold;
+QImage::DitherMode QImage::alphadithermode = Floyd;
 
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
@@ -1510,7 +1510,9 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot be read or if the format cannot be recognized.
 
-  The QImageIO documentation lists the supported image formats.
+  The QImageIO documentation lists the garranteed
+  supported image formats, or use the QImage::inputFormats()
+  QImage::outputFormats() to get lists that include installed formats.
 
   \sa load(), save()
 */
@@ -1518,6 +1520,22 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
 const char *QImage::imageFormat( const char *fileName )
 {
     return QImageIO::imageFormat(fileName);
+}
+
+/*!
+  Returns a list of image formats which are supported for image input.
+*/
+QStrList QImage::inputFormats()
+{
+    return QImageIO::inputFormats();
+}
+
+/*!
+  Returns a list of image formats which are supported for image output.
+*/
+QStrList QImage::outputFormats()
+{
+    return QImageIO::outputFormats();
 }
 
 
@@ -2090,6 +2108,53 @@ const char *QImageIO::imageFormat( QIODevice *d )
     d->at( pos );				// restore position
     return format;
 }
+
+/*!
+  Returns a sorted list of image formats which are supported for image input.
+*/
+QStrList QImageIO::inputFormats()
+{
+    QStrList result;
+
+    if ( imageHandlers == 0 )
+	init_image_handlers();
+
+    // Include asynchronous loaders first.
+    result = QImageDecoder::inputFormats();
+
+    QImageHandler *p = imageHandlers->first();
+    while ( p ) {
+	if ( p->read_image && !result.contains(p->format) )
+	    result.inSort(p->format);
+	p = imageHandlers->next();
+    }
+
+    return result;
+}
+
+/*!
+  Returns a sorted list of image formats which are supported for image output.
+*/
+QStrList QImageIO::outputFormats()
+{
+    QStrList result;
+
+    if ( imageHandlers == 0 )
+	init_image_handlers();
+
+    // Include asynchronous loaders first.
+    // ### (None)
+
+    QImageHandler *p = imageHandlers->first();
+    while ( p ) {
+	if ( p->write_image && !result.contains(p->format) )
+	    result.inSort(p->format);
+	p = imageHandlers->next();
+    }
+
+    return result;
+}
+
 
 
 /*!

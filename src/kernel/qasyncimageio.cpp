@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#3 $
 **
 ** Implementation of movie classes
 **
@@ -207,6 +207,24 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 	}
     }
     return name;
+}
+
+/*!
+  Returns a sorted list of formats for which asynchronous loading is supported.
+*/
+QStrList QImageDecoder::inputFormats()
+{
+    QStrList result;
+
+    for (QImageFormatDecoderFactory* f = QImageDecoderPrivate::factories.first();
+	f; f = QImageDecoderPrivate::factories.next())
+    {
+	if ( !result.contains(  f->formatName() ) ) {
+	    result.inSort(  f->formatName() );
+	}
+    }
+
+    return result;
 }
 
 /*!

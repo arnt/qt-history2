@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#2 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#3 $
 **
 ** Definition of asynchronous image/movie loading classes
 **
@@ -51,6 +51,7 @@ public:
 
     static const char* formatName(const uchar* buffer, int length);
 
+    static QStrList QImageDecoder::inputFormats();
     static void registerDecoderFactory(QImageFormatDecoderFactory*);
     static void unregisterDecoderFactory(QImageFormatDecoderFactory*);
 
