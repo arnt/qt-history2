@@ -646,7 +646,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		out << "\t/****** Slot parameter uses unsupported datatype" << endl;
 
 	    out << "\t\t[id(" << id << ")] ";
-	    out << "HRESULT " << slot << ";" << endl;
+	    out << "void " << slot << ";" << endl;
 	    
 	    if ( !ok )
 		out << "\t******/" << endl;
@@ -693,7 +693,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    out << ", nonbrowsable";
 		if ( isBindable )
 		    out << ", requestedit";
-		out << "] HRESULT " << name << "([in] " << type << " newVal);" << endl;
+		out << "] void " << name << "([in] " << type << " newVal);" << endl;
 	    }
 
 	    if ( !ok )
