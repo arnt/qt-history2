@@ -2398,11 +2398,11 @@ static QVariant::Type type_to_variant( const QString &s )
     return QVariant::Invalid;
 }
 
+#ifndef QT_NO_SQL
 static bool parent_is_data_aware( QObject *o )
 {
     if ( !o->inherits( "QWidget" ) )
 	return FALSE;
-#ifndef QT_NO_SQL
     QWidget *w = (QWidget*)o;
     QWidget *p = w->parentWidget();
     while ( p && !p->isTopLevel() ) {
@@ -2410,9 +2410,9 @@ static bool parent_is_data_aware( QObject *o )
 	    return TRUE;
 	p = p->parentWidget();
     }
-#endif
     return FALSE;
 }
+#endif
 
 /*!  Sets up the property list by adding an item for each designable
 property of the widget which is just edited.
