@@ -405,4 +405,8 @@ adapted.
 Both classes no longer subclass from QNetworkProtocol. They only provide
 the direct interface to FTP and HTTP.
 
+\section1 QSlider
+
+The functions sliderStart() and sliderRect() have been removed. You can retrieve this functionality with QAbstractSlider::sliderPosition() and QStyle::querySubControlMetrics() respectively.
+
 */

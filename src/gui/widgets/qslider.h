@@ -63,8 +63,6 @@ public:
     QSlider(Orientation, QWidget *parent = 0, const char *name = 0);
     QSlider(int minValue, int maxValue, int pageStep, int value, Orientation orientation,
                       QWidget *parent = 0, const char *name = 0);
-    inline QT_COMPAT int sliderStart() const { return sliderPosition(); }
-    QT_COMPAT QRect sliderRect() const;
 public slots:
     inline QT_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };
     inline QT_COMPAT void subtractStep() { triggerAction(SliderSingleStepSub); };

@@ -91,24 +91,54 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
     \mainclass
 
     The slider is the classic widget for controlling a bounded value.
-    It lets the user move a slider along a horizontal or vertical
-    groove and translates the slider's position into an integer value
+    It lets the user move a slider handle along a horizontal or vertical
+    groove and translates the handle's position into an integer value
     within the legal range.
 
-    QSlider inherits QAbstractSlider, which provides most of the functionality.
-    QSlider provides the concrete painting and interaction
-    of the slider. See the \l QAbstractSlider
-    documentation for information about the many other functions that
-    class provides.
-
+    QSlider has very few of its own functions; most of the functionality is in
+    QAbstractSlider. The most useful functions are setValue() to set
+    the slider directly to some value; triggerAction() to simulate
+    the effects of clicking (useful for accelerator keys);
+    setSingleStep(), setPageStep() to set the steps; and setMinimum()
+    and setMaximum() to define the range of the scroll bar.
+ 
     QSlider provides methods for controlling tickmarks.
     You can use setTickmarks() to indicate where
     you want the tickmarks to be, setTickInterval() to indicate how
     many of them you want.
  
+    QSlider inherits a comprehensive set of signals:
+    \table
+    \header \i Signal \i Emitted when
+    \row \i \l valueChanged()
+    \i the slider's value has changed. The tracking()
+       determines whether this signal is emitted during user
+       interaction.
+    \row \i \l sliderPressed()
+    \i the user starts to drag the slider.
+    \row \i \l sliderMoved()
+    \i the user drags the slider.
+    \row \i \l sliderReleased()
+    \i the user releases the slider.
+    \endtable
+ 
+ 
+    QSlider only provides integer ranges. Note that although
+    QSlider handles very large numbers, it becomes difficult for users
+    to effectivley use a slider for very large ranges.
+ 
     A slider accepts focus on Tab and provides both a mouse wheel and a
-    keyboard interface.
-
+    keyboard interface. The keyboard interface is the following:
+ 
+    \list
+        \i Left/Right move a horizontal slider by one single step.
+        \i Up/Down move a vertical slider by one single step.
+        \i PageUp moves up one page.
+        \i PageDown moves down one page.
+        \i Home moves to the start (mininum).
+        \i End moves to the end (maximum).
+    \endlist
+ 
     <img src=qslider-m.png> <img src=qslider-w.png>
 
     \important setRange
@@ -191,11 +221,6 @@ QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Orientatio
     d->orientation = orientation;
     d->init();
 }
-
-QRect QSlider::sliderRect() const
-{
-    return style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
-}
 #endif
 
 /*!
@@ -267,7 +292,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
         ev->ignore();
         return;
     }
-    int newPosition = d->pick(ev->pos()) - d->clickOffset;
+    int newPosition = d->pixelPosToRangeValue(d->pick(ev->pos()) - d->clickOffset);
     int m = style().pixelMetric(QStyle::PM_MaximumDragDistance, this);
     if (m >= 0) {
         QRect r = rect();
@@ -275,7 +300,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
         if (!r.contains(ev->pos()))
             newPosition = d->snapBackPosition;
     }
-    setSliderPosition(d->pixelPosToRangeValue(newPosition));
+    setSliderPosition(newPosition);
 }
 
 
@@ -289,9 +314,12 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
         return;
     }
     ev->accept();
+    QStyle::SubControl oldPressed = (QStyle::SubControl)d->pressedControl;
     d->pressedControl = QStyle::SC_None;
-    triggerAction(SliderNoAction);
-    update();  // ### Optimize this!
+    setRepeatAction(SliderNoAction);
+    if (oldPressed == QStyle::SC_SliderHandle)
+        setSliderDown(false);
+    update(style().querySubControlMetrics(QStyle::CC_Slider, this, oldPressed));
 }
 
 
