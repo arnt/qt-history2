@@ -90,7 +90,7 @@ public:
     bool reset(QObject *obj) const;
 
     bool hasStdCppSet() const;
-    inline isValid() const { return isReadable(); }
+    inline bool isValid() const { return isReadable(); }
 
 private:
     const QMetaObject *mobj[10];
