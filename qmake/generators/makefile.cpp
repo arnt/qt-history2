@@ -292,7 +292,6 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		    *(big_buffer + x + inc_len) = '\0';
 		    inc = big_buffer + x;
 		} else if(total_size_read >= x + 14 && !strncmp(big_buffer + x,  "qmake_warning ", 14)) {
-		    fuck = !fuck;
 		    for(x+=14; //skip spaces after keyword
 			x < total_size_read && (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t');
 			x++);
