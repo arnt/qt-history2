@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#96 $
 **
 ** Implementation of QScrollView class
 **
@@ -379,7 +379,7 @@ will be propagated to the viewport() widget.
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f, FALSE )
 {
-    d = new QScrollViewData(this,(f&WPaintClever));
+    d = new QScrollViewData(this,WResizeNoErase|(f&WPaintClever));
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
@@ -1790,6 +1790,41 @@ void QScrollView::enableClipper(bool y)
 }
 
 /*!
+  Returns the
+    point \a p
+  translated to
+    a point on the viewport() widget.
+*/
+QPoint QScrollView::contentToViewport(const QPoint& p)
+{
+    if ( d->clipped_viewport ) {
+	return QPoint( p.x() - contentsX() - d->clipped_viewport->x(),
+		       p.y() - contentsY() - d->clipped_viewport->y() );
+    } else {
+	return QPoint( p.x() - contentsX(),
+		       p.y() - contentsY() );
+    }
+}
+
+/*!
+  Returns the
+    point on the viewport \a vp
+  translated to
+    a point in the contents.
+*/
+QPoint QScrollView::viewportToContent(const QPoint& vp)
+{
+    if ( d->clipped_viewport ) {
+	return QPoint( vp.x() + contentsX() + d->clipped_viewport->x(),
+		       vp.y() + contentsY() + d->clipped_viewport->y() );
+    } else {
+	return QPoint( vp.x() + contentsX(),
+		       vp.y() + contentsY() );
+    }
+}
+
+
+/*!
   Translates
     a point (\a x, \a y) in the contents
   to
@@ -1797,13 +1832,9 @@ void QScrollView::enableClipper(bool y)
 */
 void QScrollView::contentToViewport(int x, int y, int& vx, int& vy)
 {
-    if ( d->clipped_viewport ) {
-	vx = x - contentsX() - d->clipped_viewport->x();
-	vy = y - contentsY() - d->clipped_viewport->y();
-    } else {
-	vx = x - contentsX();
-	vy = y - contentsY();
-    }
+    const QPoint v = contentToViewport(QPoint(x,y));
+    vx = v.x();
+    vy = v.y();
 }
 
 /*!
@@ -1814,12 +1845,8 @@ void QScrollView::contentToViewport(int x, int y, int& vx, int& vy)
 */
 void QScrollView::viewportToContent(int vx, int vy, int& x, int& y)
 {
-    if ( d->clipped_viewport ) {
-	x = vx + contentsX() + d->clipped_viewport->x();
-	y = vy + contentsY() + d->clipped_viewport->y();
-    } else {
-	x = vx + contentsX();
-	y = vy + contentsY();
-    }
+    const QPoint c = viewportToContent(QPoint(vx,vy));
+    x = c.x();
+    y = c.y();
 }
 
