@@ -86,9 +86,9 @@ clean:
 	cd extensions
 	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..
-	cd plugins\src\codecs
+	cd plugins\src
 	$(MAKE) $(CONTINUEONERROR) clean
-	cd ..\..\..
+	cd ..\..
 
 distclean: clean
 	-del .qmake.cache
