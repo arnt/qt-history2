@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+#define QT_LITE_COMPONENTS
 
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
