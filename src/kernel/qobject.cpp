@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#136 $
 **
 ** Implementation of QObject class
 **
@@ -13,8 +13,11 @@
 #include "qobjcoll.h"
 #include "qregexp.h"
 #include <ctype.h>
+#if defined(DEBUG)
+#include "qapp.h"
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#135 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#136 $");
 
 
 /*!
@@ -1664,7 +1667,11 @@ static void dumpRecursive( int level, QObject *object )
 	QString buf;
 	buf.fill( '\t', level );
 	const char *name = object->name() ? object->name() : "????";
-	debug( "%s%s::%s", (const char*)buf, object->className(), name );
+	QString flags;
+	if ( qApp->focusWidget() == object )
+	    flags += 'F';
+	debug( "%s%s::%s %s", (const char*)buf, object->className(), name,
+	    (const char*)flags );
 	if ( object->children() ) {
 	    QObjectListIt it(*object->children());
 	    while ( it ) {

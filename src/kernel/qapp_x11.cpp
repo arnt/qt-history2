@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#248 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#247 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#248 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -110,6 +110,9 @@ static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
+#if defined(DEBUG)
+static int	debug_level = 0;
+#endif
 
 static QWidgetList *modal_stack  = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets = 0;		// list of popup widgets
@@ -261,6 +264,10 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		    QApplication::setStyle( WindowsStyle );
 		else if ( s == "motif" )
 		    QApplication::setStyle( MotifStyle );
+#if defined(DEBUG)
+	    } else if ( arg == "-qtdebug" ) {
+		debug_level++;
+#endif
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
 		if ( ++i < argc )
 		    qt_ncols_option = QMAX(0,atoi(argv[i]));
@@ -2582,6 +2589,17 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	debug( "translateKey: Multibyte translation not supported (%d, %s)",
 	       count, ascii );
 	return FALSE;
+    }
+#endif
+#if defined(DEBUG)
+    if ( debug_level > 0
+      && type==Event_KeyPress
+      && code==Key_D
+      && (state&ControlButton)
+      && (state&AltButton) )
+    {
+	QObject::dumpObjectTree();
+	return TRUE;
     }
 #endif
     QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
