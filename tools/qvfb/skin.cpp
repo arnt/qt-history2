@@ -18,14 +18,15 @@
 **
 **********************************************************************/
 
+#include "skin.h"
+#include "qvfb.h"
+#include "qvfbview.h"
+
 #include <qbitmap.h>
 #include <qpixmap.h>
 #include <qtextstream.h>
 #include <qfile.h>
 #include <qpainter.h>
-#include "skin.h"
-#include "qvfb.h"
-#include "qvfbview.h"
 #ifdef Q_WS_MAC
 # include <qt_mac.h>
 #endif

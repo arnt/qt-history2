@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt/Embedded virtual framebuffer.
 **
@@ -18,13 +18,14 @@
 **
 **********************************************************************/
 
+#include "qvfb.h"
+
 #include <qapplication.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <qpainter.h>
 #include <qregexp.h>
 
-#include "qvfb.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 void usage( const char *app )
 {

@@ -40,13 +40,13 @@
 #include <qpainter.h>
 #include "qanimationwriter.h"
 
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <math.h>
 

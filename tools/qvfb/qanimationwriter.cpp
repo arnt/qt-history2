@@ -18,9 +18,11 @@
 **
 **********************************************************************/
 
-#define QT_CLEAN_NAMESPACE
 #include "qanimationwriter.h"
+
+#define QT_CLEAN_NAMESPACE
 #include <qfile.h>
+
 #include <png.h>
 #include <netinet/in.h> // for htonl
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt/Embedded virtual framebuffer.
 **
@@ -18,11 +18,12 @@
 **
 **********************************************************************/
 
+#include "qvfbratedlg.h"
+
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qslider.h>
 #include <qpushbutton.h>
-#include "qvfbratedlg.h"
 
 QVFbRateDialog::QVFbRateDialog( int rate, QWidget *parent, const char *name,
     bool modal )
@@ -64,4 +65,3 @@ void QVFbRateDialog::cancel()
     rateChanged( oldRate );
     reject();
 }
-
