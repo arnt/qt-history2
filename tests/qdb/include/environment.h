@@ -33,7 +33,9 @@ namespace qdb {
 	virtual bool next() = 0;
 	virtual bool prev() = 0;
 	virtual Record& currentRecord() = 0;
-	virtual uint size() = 0;
+	virtual uint size() const = 0;
+	virtual uint count() const = 0;
+	virtual QStringList columns() const = 0;
     };
 
     struct FileDriver

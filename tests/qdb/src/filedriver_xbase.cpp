@@ -197,11 +197,11 @@ bool FileDriver::open()
 
 bool FileDriver::close()
 {
+    if ( !isOpen() )
+	return TRUE;
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::close..." << flush;
 #endif
-    if ( !isOpen() )
-	return TRUE;
     if ( !commit() )
 	return FALSE;
     d->file.CloseDatabase();   /* Close database and associated indexes */
@@ -536,17 +536,18 @@ bool FileDriver::rangeScan( const qdb::List& data )
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
 	qdb::List rangeScanFieldData = data[i].toList();
-	if ( rangeScanFieldData.count() != 2 ) {
+	if ( rangeScanFieldData.count() != 4 ) {
 	    ERROR_RETURN( "internal error:FileDriver::rangeScanFieldData: bad field description");
 	}
 	QString name = rangeScanFieldData[0].toString();
-	QVariant value = rangeScanFieldData[1];
+	QVariant value = data[++i];
 	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 	if (  fieldnum == -1 ) {
 	    ERROR_RETURN( "internal error:FileDriver::rangeScan: field not found:" + name );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( value.type() ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeScan: bad field type:" + name );
+	    ERROR_RETURN( "internal error:FileDriver::rangeScan: bad field type:" +
+			  QString( value.typeName() ) );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +
 		     name;
@@ -609,13 +610,16 @@ bool FileDriver::rangeScan( const qdb::List& data )
     }
     if ( forceScan ) {
 	/* use brute force */
+#ifdef DEBUG_XBASE
+	env->output() << "using full table scan..." << flush;
+#endif
 	rc = d->file.GetFirstRecord();
 	while ( rc == XB_NO_ERROR ) {
 	    bool markRecord = FALSE;
 	    for ( i = 0; i < data.count(); ++i ) {
 		qdb::List rangeScanFieldData = data[i].toList();
 		QString name = rangeScanFieldData[0].toString();
-		QVariant value = rangeScanFieldData[1];
+		QVariant value = data[++i];
 		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 		QVariant v;
 		field( fieldnum, v );

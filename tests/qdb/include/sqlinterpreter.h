@@ -76,7 +76,9 @@ public:
     bool next();
     bool prev();
     qdb::Record& currentRecord();
-    uint size() { return data.count(); }
+    uint size() const { return data.count(); }
+    uint count() const;
+    QStringList columns() const;
 
 private:
     class Header;

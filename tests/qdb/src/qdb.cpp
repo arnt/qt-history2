@@ -139,8 +139,8 @@ bool QDb::execute( bool verbose )
     d->pgm.resetCounter();
     while( (op = d->pgm.next() ) ) {
 	if ( !op->exec( this ) ) {
-//	    if ( verbose )
-//		output() << "[Line " + QString::number(d->pgm.counter()) + "] " + lastError() << endl;
+	    if ( verbose )
+		output() << "[Line " + QString::number(d->pgm.counter()) + "] " + lastError() << endl;
 	    return FALSE;
 	}
     }

@@ -230,6 +230,19 @@ void ResultSet::clear()
     head->fields.clear();
 }
 
+uint ResultSet::count() const
+{
+    return head->fields.count();
+}
+
+QStringList ResultSet::columns() const
+{
+    QStringList cols;
+    for ( uint i = 0; i < head->fields.count(); ++i )
+	 cols += head->fields[i].name;
+    return cols;
+}
+
 /*!
 
 */
@@ -247,7 +260,7 @@ bool ResultSet::setHeader( const qdb::List& list )
 	    return 0;
 	}
 	head->fields[i].name = fieldDescription[0].toString();
-	head->fields[i].type = fieldDescription[1].type();
+	head->fields[i].type = (QVariant::Type)fieldDescription[1].toInt();
     }
     return TRUE;
 }
@@ -272,7 +285,11 @@ bool ResultSet::append( const qdb::Record& buf )
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
 	if ( buf[j].type() != head->fields[j].type ) {
-	    env->setLastError( "internal error:ResultSet: incorrect buffer field type" );
+	    QVariant v;
+	    v.cast( head->fields[j].type );
+	    env->setLastError( "internal error:ResultSet: incorrect field type: " +
+			       QString( buf[j].typeName() ) + " (expected " +
+			       QString( v.typeName() ) + ")" );
 	    return FALSE;
 	}
     }
