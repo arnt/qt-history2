@@ -35,9 +35,9 @@ static void init_colors()
 {
     if ( backColor1 )
 	return;
-    backColor1 = new QColor( 236, 245, 255 );
-    backColor2 = new QColor( 250, 250, 250 );
-    selectedBack = new QColor( 221, 221, 221 );
+    backColor1 = new QColor( 232, 231, 241 );
+    backColor2 = new QColor( 254, 254, 254 );
+    selectedBack = new QColor( 230, 230, 230 );
 }
 
 #endif
