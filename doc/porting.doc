@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.42 1999/04/26 23:18:50 warwick Exp $
+** $Id: porting.doc,v 1.43 1999/04/28 08:10:13 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -107,6 +107,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QPixmap>QPixmap</a></b>
  <li><b><a href=#QRegion>QRegion</a></b>
  <li><b><a href=#QRgb>QRgb</a></b>
+ <li><b><a href=#QScrollView>QScrollView</a></b>
  <li><b><a href=#QStrList>QStrList</a></b>
  <li><b><a href=#QString>QString</a></b>
  <li><b><a href=#QTextStream>QTextStream</a></b>
@@ -703,6 +704,20 @@ etc.
 functions rather than QListView's dragMoveEvent() etc.  For other
 cases, you will need to use an event filter to act on the drag/drop events
 of another widget (as is the usual way to intercept foreign events).
+
+
+<h3><a name=QScrollView>QScrollView</a></h3>
+
+The parameters in the signal
+\link QScrollView::contentsMoving() contentsMoving(int,int)\endlink
+are now positive rather than negative values, coinciding with
+\link QScrollView::setContentsPos setContentsPos()\endlink.  Search for
+connections you make to this signal, and either change the slot they are
+connected to such that it also expects positive rather than negative
+values, or introduce an intermediate slot and signal that negates them.
+
+If you used drag and drop with QScrollView, you may experience the problem
+described for <a href=#QDropSite>QDropSite</a>.
 
 
 <h3><a name=QTextStream>QTextStream</a></h3>
