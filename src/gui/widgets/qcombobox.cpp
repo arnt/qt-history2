@@ -29,6 +29,33 @@
 #define q q_func()
 
 
+QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &option,
+                                                      const QModelIndex &index) const {
+    QStyleOptionMenuItem menuOption;
+
+    menuOption.palette = QApplication::palette("QMenu");
+    menuOption.state = QStyle::State_None;
+    if (mCombo->topLevelWidget()->isActiveWindow())
+        menuOption.state = QStyle::State_Active;
+    if (option.state & QStyle::State_Enabled)
+        menuOption.state |= QStyle::State_Enabled;
+    if (option.state & QStyle::State_Selected)
+        menuOption.state |= QStyle::State_Selected;
+    menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
+    menuOption.checked = mCombo->currentItem() == index.row();
+    menuOption.menuItemType = QStyleOptionMenuItem::Normal;
+    menuOption.icon = index.model()->data(index, QAbstractItemModel::DecorationRole).toIcon();
+    menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
+    menuOption.tabWidth = 0;
+    menuOption.maxIconWidth = 0;
+    menuOption.maxIconWidth =  option.decorationSize.width() + 4;
+    menuOption.menuRect = option.rect;
+    menuOption.rect = option.rect;
+    extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
+    menuOption.font = qt_app_fonts_hash()->value("QComboMenuItem", mCombo->font());
+    return menuOption;
+}
+
 /*!
     \internal
 */
@@ -523,7 +550,7 @@ void QComboBoxPrivate::updateLineEditGeometry()
     QRect editorRect = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
                                               QStyle::CC_ComboBox, &opt,
                                               QStyle::SC_ComboBoxEditField, q));
-    const QPixmap &pix = q->itemIcon(q->currentItem()).pixmap(Qt::SmallIconSize);
+    const QPixmap &pix = q->itemIcon(q->currentItem()).pixmap(q->style()->pixelMetric(QStyle::PM_SmallIconSize));
     if (!pix.isNull())
         editorRect.setLeft(editorRect.left() + pix.width() + 4);
     lineEdit->setGeometry(editorRect);
@@ -1003,7 +1030,7 @@ QIcon QComboBox::itemIcon(int index) const
     QStyleOptionComboBox opt = d->getStyleOption();
     QModelIndex item = model()->index(index, 0, rootModelIndex());
     return model()->data(item, QAbstractItemModel::DecorationRole).toIcon()
-        .pixmap(Qt::SmallIconSize,
+        .pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize),
                 opt.state & QStyle::State_Enabled ? QIcon::Normal : QIcon::Disabled);
 }
 
@@ -1166,7 +1193,7 @@ QSize QComboBox::sizeHint() const
     for (int i = 0; i < model()->rowCount(rootModelIndex()); ++i) {
         index = model()->index(i, 0, rootModelIndex());
         txt = itemText(index.row());
-        const QPixmap &pix = itemIcon(index.row()).pixmap(Qt::SmallIconSize);
+        const QPixmap &pix = itemIcon(index.row()).pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize));
         // check listview item width
         maxWidth = itemView()->sizeHintForIndex(index).width();
         // check combo text+pixmap width
@@ -1362,7 +1389,7 @@ void QComboBox::paintEvent(QPaintEvent *)
     // draw the icon and text
     if (d->currentIndex.isValid()) {
         QString txt = model()->data(d->currentIndex, QAbstractItemModel::DisplayRole).toString();
-        const QPixmap &pix = itemIcon(currentItem()).pixmap(Qt::SmallIconSize);
+        const QPixmap &pix = itemIcon(currentItem()).pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize));
         QRect editField = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
                                                  QStyle::CC_ComboBox, &opt,
                                                  QStyle::SC_ComboBoxEditField, this));

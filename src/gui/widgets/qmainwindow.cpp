@@ -21,6 +21,7 @@
 #include <qmenubar.h>
 #include <qstatusbar.h>
 #include <qevent.h>
+#include <qstyle.h>
 
 #include <private/qwidget_p.h>
 #define d d_func()
@@ -28,15 +29,24 @@
 
 class QMainWindowPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QMainWindow)
 public:
     inline QMainWindowPrivate()
-        : layout(0), iconSize(Qt::SmallIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
+        : layout(0), toolButtonStyle(Qt::ToolButtonIconOnly)
     { }
     QMainWindowLayout *layout;
-    Qt::IconSize iconSize;
+    QSize iconSize;
     Qt::ToolButtonStyle toolButtonStyle;
+    void init();
 };
 
+void QMainWindowPrivate::init()
+{
+    Q_Q(QMainWindow);
+    int e = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+    iconSize = QSize(e, e);
+    layout = new QMainWindowLayout(q);
+}
 
 /*
     The Main Window:
@@ -86,7 +96,7 @@ public:
 */
 
 /*!
-    \fn void QMainWindow::iconSizeChanged(Qt::IconSize iconSize)
+    \fn void QMainWindow::iconSizeChanged(const QSize &iconSize)
 
     This signal is emitted when the size of the icons used in the
     window is changed. The new icon size is passed in \a iconSize.
@@ -116,7 +126,7 @@ public:
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
-    d->layout = new QMainWindowLayout(this);
+    d->init();
 }
 
 #ifdef QT_COMPAT
@@ -129,7 +139,7 @@ QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
     setObjectName(name);
-    d->layout = new QMainWindowLayout(this);
+    d->init();
 }
 #endif
 
@@ -142,13 +152,13 @@ QMainWindow::~QMainWindow()
 /*! \property QMainWindow::iconSize
     \brief size of toolbar icons in this mainwindow.
 
-    The default is Qt::SmallIconSize.
+    The default is the default tool bar icon size of the GUI style.
 */
 
-Qt::IconSize QMainWindow::iconSize() const
+QSize QMainWindow::iconSize() const
 { return d->iconSize; }
 
-void QMainWindow::setIconSize(Qt::IconSize iconSize)
+void QMainWindow::setIconSize(const QSize &iconSize)
 {
     if (d->iconSize == iconSize)
         return;
@@ -316,8 +326,9 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(area),
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
-    connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
-            toolbar, SLOT(setIconSize(Qt::IconSize)));
+    toolbar->setIconSize(d->iconSize);
+    connect(this, SIGNAL(iconSizeChanged(QSize)),
+            toolbar, SLOT(setIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
             toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
@@ -362,8 +373,9 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
-    connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
-            toolbar, SLOT(setIconSize(Qt::IconSize)));
+    toolbar->setIconSize(d->iconSize);
+    connect(this, SIGNAL(iconSizeChanged(QSize)),
+            toolbar, SLOT(setIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
             toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
@@ -378,8 +390,8 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 */
 void QMainWindow::removeToolBar(QToolBar *toolbar)
 {
-    disconnect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
-               toolbar, SLOT(setIconSize(Qt::IconSize)));
+    disconnect(this, SIGNAL(iconSizeChanged(QSize)),
+               toolbar, SLOT(setIconSize(QSize)));
     disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
                toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 

@@ -24,11 +24,11 @@ class QMenu;
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_ENUMS(Qt::ToolButtonStyle Qt::IconSize Qt::ArrowType)
+    Q_ENUMS(Qt::ToolButtonStyle Qt::ArrowType)
 
     Q_PROPERTY(ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
-    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(Qt::ArrowType arrowType READ arrowType WRITE setArrowType)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
@@ -46,7 +46,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    Qt::IconSize iconSize() const;
+    QSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
 
     Qt::ArrowType arrowType() const;
@@ -65,7 +65,7 @@ public:
     bool autoRaise() const;
 
 public slots:
-    void setIconSize(Qt::IconSize size);
+    void setIconSize(const QSize &size);
     void setToolButtonStyle(Qt::ToolButtonStyle style);
     void setDefaultAction(QAction *);
 
@@ -120,7 +120,7 @@ public:
     inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
-    inline QT_COMPAT bool usesBigPixmap() const { return iconSize() == Qt::LargeIconSize; }
+    inline QT_COMPAT bool usesBigPixmap() const { return iconSize().height() > 22; }
     inline QT_COMPAT bool usesTextLabel() const { return toolButtonStyle() != Qt::ToolButtonIconOnly; }
     inline QT_COMPAT TextPosition textPosition() const
     { return toolButtonStyle() == Qt::ToolButtonTextUnderIcon ? BelowIcon : BesideIcon; }
@@ -128,11 +128,12 @@ public:
     QT_COMPAT int popupDelay() const;
 
 public slots:
-    QT_MOC_COMPAT void setUsesBigPixmap(bool enable) { enable ? setIconSize(Qt::LargeIconSize) : setIconSize(Qt::SmallIconSize); }
-    QT_MOC_COMPAT void setUsesTextLabel(bool enable) { enable ? setToolButtonStyle(Qt::ToolButtonTextUnderIcon)
-                                                              : setToolButtonStyle(Qt::ToolButtonIconOnly); }
-    QT_MOC_COMPAT void setTextPosition(TextPosition pos) { pos == BesideIcon ? setToolButtonStyle(Qt::ToolButtonTextBesideIcon)
-                                                                             : setToolButtonStyle(Qt::ToolButtonTextUnderIcon); }
+    QT_MOC_COMPAT void setUsesBigPixmap(bool enable)
+        { setIconSize(enable?QSize(32,32):QSize(22,22)); }
+    QT_MOC_COMPAT void setUsesTextLabel(bool enable)
+        { setToolButtonStyle(enable?Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly); }
+    QT_MOC_COMPAT void setTextPosition(TextPosition pos)
+        { setToolButtonStyle(pos == BesideIcon ? Qt::ToolButtonTextBesideIcon : Qt::ToolButtonTextUnderIcon); }
 
 #endif
 };

@@ -38,7 +38,8 @@ public:
     QPixmap pixmap(const QSize &size, Mode mode = Normal, State state = Off) const;
     inline QPixmap pixmap(int w, int h, Mode mode = Normal, State state = Off) const
         { return pixmap(QSize(w, h), mode, state); }
-    QPixmap pixmap(Qt::IconSize size, Mode mode = Normal, State state = Off) const;
+    inline QPixmap pixmap(int extent, Mode mode = Normal, State state = Off) const
+        { return pixmap(QSize(extent, extent), mode, state); }
 
     void paint(QPainter *painter, const QRect &rect, Qt::Alignment alignment = Qt::AlignCenter, Mode mode = Normal, State state = Off) const;
     inline void paint(QPainter *painter, int x, int y, int w, int h, Qt::Alignment alignment = Qt::AlignCenter, Mode mode = Normal, State state = Off) const
@@ -48,8 +49,6 @@ public:
     bool isDetached() const;
 
     void addPixmap(const QPixmap &pixmap, Mode mode = Normal, State state = Off);
-
-    static QSize sizeHint(Qt::IconSize size);
 
 #ifdef QT_COMPAT
     enum Size { Small, Large, Automatic = Small };

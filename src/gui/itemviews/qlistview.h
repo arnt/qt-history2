@@ -25,7 +25,7 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
     Q_PROPERTY(Movement movement READ movement WRITE setMovement)
     Q_PROPERTY(Flow flow READ flow WRITE setFlow)
     Q_PROPERTY(bool isWrapping READ isWrapping WRITE setWrapping)
-    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
     Q_PROPERTY(LayoutMode layoutMode READ layoutMode WRITE setLayoutMode)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
@@ -52,8 +52,8 @@ public:
     void setWrapping(bool enable);
     bool isWrapping() const;
 
-    void setIconSize(Qt::IconSize size);
-    Qt::IconSize iconSize() const;
+    void setIconSize(const QSize &size);
+    QSize iconSize() const;
 
     void setResizeMode(ResizeMode mode);
     ResizeMode resizeMode() const;

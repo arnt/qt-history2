@@ -290,7 +290,7 @@ void QAbstractItemViewPrivate::init()
 
 /*!
 \fn void QAbstractItemView::pressed(const QModelIndex &index)
-    
+
     This signal is emitted when a mouse button is pressed. The item the
 mouse was pressed on is specified by \a index (which may be invalid if
                                                the mouse was not pressed on an item). The state of the mouse buttons
@@ -1819,7 +1819,8 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.font = font();
     option.state = (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
     option.state |= (state() == EditingState ? QStyle::State_Editing : QStyle::State_None);
-    option.decorationSize = QStyleOptionViewItem::Small;
+    int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
+    option.decorationSize = QSize(icone, icone);
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
     option.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;

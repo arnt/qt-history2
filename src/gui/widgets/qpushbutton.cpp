@@ -330,8 +330,8 @@ QSize QPushButton::sizeHint() const
     // calculate contents size...
 #ifndef QT_NO_ICON
     if (!icon().isNull()) {
-        int iw = icon().pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4;
-        int ih = icon().pixmap(Qt::SmallIconSize, QIcon::Normal).height();
+        int ih = style()->pixelMetric(QStyle::PM_SmallIconSize);
+        int iw = ih + 4;
         w += iw;
         h = qMax(h, ih);
     }

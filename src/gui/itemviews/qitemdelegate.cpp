@@ -510,8 +510,7 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
 {
     switch (variant.type()) {
     case QVariant::Icon:
-        return variant.toIcon().pixmap(option.decorationSize == QStyleOptionViewItem::Small
-                                       ? Qt::SmallIconSize : Qt::LargeIconSize,
+        return variant.toIcon().pixmap(option.decorationSize,
                                        option.state & QStyle::State_Enabled
                                        ? QIcon::Normal : QIcon::Disabled,
                                        option.state & QStyle::State_Open

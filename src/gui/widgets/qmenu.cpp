@@ -91,7 +91,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     QList<QAction*> items = q->actions();
     int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1, y = 0;
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuHMargin, 0, q),
-              vmargin = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q);
+              vmargin = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q),
+              icone = q->style()->pixelMetric(QStyle::PM_SmallIconSize, 0, q);
 
     //for compatability now - will have to refactor this away..
     tabWidth = 0;
@@ -102,9 +103,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             continue;
         QIcon is = action->icon();
         if (!is.isNull())
-            maxIconWidth =
-                qMax(uint(maxIconWidth),
-                     uint(is.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4));
+            maxIconWidth = qMax(uint(maxIconWidth), uint(icone + 4));
     }
 
     //calculate size
@@ -139,7 +138,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
 
             QIcon is = action->icon();
             if (!is.isNull()) {
-                QSize is_sz = is.pixmap(Qt::SmallIconSize, QIcon::Normal).size();
+                QSize is_sz = QSize(icone, icone);
                 if (is_sz.height() > sz.height())
                     sz.setHeight(is_sz.height());
             }

@@ -331,12 +331,11 @@ public:
     enum { Version = 1 };
 
     enum Position { Left, Right, Top, Bottom };
-    enum Size { Small, Large };
 
     Qt::Alignment displayAlignment;
     Qt::Alignment decorationAlignment;
     Position decorationPosition;
-    Size decorationSize;
+    QSize decorationSize;
     QFont font;
 
     QStyleOptionViewItem();
@@ -344,7 +343,7 @@ public:
     QDOC_PROPERTY(Qt::Alignment displayAlignment)
     QDOC_PROPERTY(Qt::Alignment decorationAlignment)
     QDOC_PROPERTY(Position decorationPosition)
-    QDOC_PROPERTY(Size decorationSize)
+    QDOC_PROPERTY(QSize decorationSize)
     QDOC_PROPERTY(QFont font)
 
 protected:
@@ -484,7 +483,6 @@ public:
     QIcon icon;
     QString text;
     Qt::ArrowType arrowType;
-    Qt::IconSize iconSize;
     Qt::ToolButtonStyle toolButtonStyle;
     QPoint pos;
     QFont font;
@@ -495,7 +493,6 @@ public:
     QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(Qt::ArrowType arrowType)
-    QDOC_PROPERTY(Qt::IconSize iconSize)
     QDOC_PROPERTY(Qt::ToolButtonStyle toolButtonStyle)
     QDOC_PROPERTY(QPoint pos)
     QDOC_PROPERTY(QFont font)

@@ -27,15 +27,15 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
 {
     Q_OBJECT
 
-    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 
 public:
     explicit QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~QMainWindow();
 
-    Qt::IconSize iconSize() const;
-    void setIconSize(Qt::IconSize iconSize);
+    QSize iconSize() const;
+    void setIconSize(const QSize &iconSize);
 
     Qt::ToolButtonStyle toolButtonStyle() const;
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
@@ -82,7 +82,7 @@ public:
 #endif
 
 signals:
-    void iconSizeChanged(Qt::IconSize iconSize);
+    void iconSizeChanged(const QSize &iconSize);
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:

@@ -439,17 +439,6 @@ QPixmap QIcon::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) c
     return d->engine->pixmap(size, mode, state);
 }
 
-/*! \overload
-  Returns a pixmap with the required \a size, \a mode, and
-  \a state, generating one if necessary.
-*/
-QPixmap QIcon::pixmap(Qt::IconSize size, QIcon::Mode mode, QIcon::State state) const
-{
-    if (!d)
-        return QPixmap();
-    return d->engine->pixmap(sizeHint(size), mode, state);
-}
-
 
 /*! Uses the \a painter to paint the icon with specified \a alignment,
  *  required \a mode, and \a state into the rectangle \a rect/
@@ -489,17 +478,6 @@ void QIcon::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State stat
         return;
     d->engine->addPixmap(pixmap, mode, state);
 }
-
-/*!
-  Returns the style's preferred icon size for a give logical \a size.
- */
-QSize QIcon::sizeHint(Qt::IconSize size)
-{
-    int sz = QApplication::style()->pixelMetric(size == Qt::LargeIconSize ? QStyle::PM_LargeIconSize : QStyle::PM_SmallIconSize);
-    return QSize(sz, sz);
-}
-
-
 
 
 #ifdef QT_COMPAT

@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QToolBar : public QWidget
                DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) != 0))
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation
                DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) == 0))
-    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 
 public:
@@ -79,11 +79,11 @@ public:
 
     QAction *toggleViewAction() const;
 
-    Qt::IconSize iconSize() const;
+    QSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
 
 public slots:
-    void setIconSize(Qt::IconSize iconSize);
+    void setIconSize(const QSize &iconSize);
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
 signals:
@@ -91,7 +91,7 @@ signals:
     void movableChanged(bool movable);
     void allowedAreasChanged(Qt::ToolBarAreas allowedAreas);
     void orientationChanged(Qt::Orientation orientation);
-    void iconSizeChanged(Qt::IconSize iconSize);
+    void iconSizeChanged(const QSize &iconSize);
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:

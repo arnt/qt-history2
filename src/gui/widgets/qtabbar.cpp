@@ -719,9 +719,9 @@ QSize QTabBar::minimumSizeHint() const
 QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
-        QSize iconSize = tab->icon.isNull() ? QSize()
-                         : QIcon::sizeHint(Qt::SmallIconSize);
         QStyleOptionTab opt = d->getStyleOption(index);
+        int iconExtent = style()->pixelMetric(QStyle::PM_SmallIconSize, &opt, this);
+        QSize iconSize = tab->icon.isNull() ? QSize() : QSize(iconExtent, iconExtent);
         int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, this);
         int vframe  = style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt, this);
         const QFontMetrics fm = fontMetrics();

@@ -263,7 +263,7 @@ public:
 
     void init();
     void prepareItemsLayout();
-    
+
     QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
     QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
     void initBinaryTree(const QSize &contents);
@@ -298,7 +298,7 @@ public:
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
         { return model->index(itemIndex(item), column, root); }
-    
+
     int itemIndex(const QListViewItem &item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
@@ -319,7 +319,8 @@ public:
     QSize gridSize;
     QListView::Flow flow;
     QListView::Movement movement;
-    Qt::IconSize iconSize;
+    QSize iconSize;
+    inline bool hasLargeIcons() const { return iconSize.height() > 22; }
     QListView::ResizeMode resizeMode;
     QListView::LayoutMode layoutMode;
     QListView::ViewMode viewMode;

@@ -1595,9 +1595,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (checked)
-                    pixmap = menuitem->icon.pixmap(Qt::SmallIconSize, mode, QIcon::On);
+                    pixmap = menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, QIcon::On);
                 else
-                    pixmap = menuitem->icon.pixmap(Qt::SmallIconSize, mode);
+                    pixmap = menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 if (act && !dis && !checked)
@@ -2474,7 +2474,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
-                              mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal).height()
+                              mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height()
                               + 2 * windowsItemFrame));
             bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;

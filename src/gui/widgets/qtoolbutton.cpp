@@ -42,9 +42,9 @@ public:
     QStyleOptionToolButton getStyleOption() const;
     QPointer<QMenu> menu; //the menu set by the user (setMenu)
     QBasicTimer popupTimer;
+    QSize iconSize;
     int delay;
     Qt::ArrowType arrowType;
-    Qt::IconSize iconSize;
     Qt::ToolButtonStyle toolButtonStyle;
     QToolButton::ToolButtonPopupMode popupMode;
     uint menuButtonDown          : 1;
@@ -211,8 +211,10 @@ void QToolButtonPrivate::init()
     menuButtonDown = false;
     popupMode = QToolButton::DelayedPopup;
 
+    int e = q->style()->pixelMetric(QStyle::PM_SmallIconSize);
+    iconSize = QSize(e, e);
+
     toolButtonStyle = Qt::ToolButtonIconOnly;
-    iconSize = Qt::SmallIconSize;
 
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -229,7 +231,6 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     bool checked = q->isChecked();
     opt.text = q->text();
     opt.icon = q->icon();
-    opt.iconSize = q->iconSize();
     opt.arrowType = arrowType;
     if (down)
         opt.state |= QStyle::State_Down;
@@ -299,9 +300,8 @@ QSize QToolButton::sizeHint() const
         w = fm.width(text());
         h = fm.height();
     } else {
-        QSize sz = QIcon::sizeHint(d->iconSize);
-        w = sz.width();
-        h = sz.height();
+        w = d->iconSize.width();
+        h = d->iconSize.height();
     }
 
     if (d->toolButtonStyle != Qt::ToolButtonIconOnly) {
@@ -371,7 +371,7 @@ QSize QToolButton::minimumSizeHint() const
     signal in the QMainWindow in which it resides. We strongly
     recommend that you use QMainWindow::iconSize() instead.
 
-    The default size is Qt::SmallIconSize.
+    The default size is defined by the GUI style.
 */
 
 /*!
@@ -392,7 +392,7 @@ QSize QToolButton::minimumSizeHint() const
     This displays an arrow as the icon for the QToolButton.
 */
 
-Qt::IconSize QToolButton::iconSize() const
+QSize QToolButton::iconSize() const
 {
     return d->iconSize;
 }
@@ -407,7 +407,7 @@ Qt::ArrowType QToolButton::arrowType() const
     return d->arrowType;
 }
 
-void QToolButton::setIconSize(Qt::IconSize size)
+void QToolButton::setIconSize(const QSize &size)
 {
     if (d->iconSize == size)
         return;

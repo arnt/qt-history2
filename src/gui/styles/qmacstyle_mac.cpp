@@ -464,10 +464,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         if (szHint == QSize(-1, -1)) { //just 'guess'..
             const QToolButton *bt = static_cast<const QToolButton *>(widg);
             if (!bt->icon().isNull()) {
-                Qt::IconSize sz = Qt::SmallIconSize;
-                if (bt->iconSize() == Qt::LargeIconSize)
-                    sz = Qt::LargeIconSize;
-                QSize iconSize = sz == Qt::SmallIconSize ? QSize(22, 22) : QSize(32, 32);
+                QSize iconSize = bt->iconSize();
                 QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
@@ -1859,7 +1856,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 QIcon::Mode mode = (mi->state & QStyle::State_Enabled) ? QIcon::Normal
                                                                        : QIcon::Disabled;
                 // Always be normal or disabled to follow the Mac style.
-                QPixmap pixmap = mi->icon.pixmap(Qt::SmallIconSize, mode);
+                QPixmap pixmap = mi->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect cr(xpos, contentRect.y(), checkcol, contentRect.height());
@@ -1955,7 +1952,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                   Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                   | Qt::TextSingleLine,
                                   mi->palette,
-                                  mi->icon.pixmap(Qt::SmallIconSize,
+                                  mi->icon.pixmap(pixelMetric(PM_SmallIconSize),
                           (mi->state & QStyle::State_Enabled) ? QIcon::Normal : QIcon::Disabled),
                                   &mi->palette.buttonText().color());
             } else {
@@ -3538,7 +3535,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 // Always be normal or disabled to follow the Mac style.
                 QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 QPixmap pixmap;
-                pixmap = mi->icon.pixmap(Qt::SmallIconSize, mode);
+                pixmap = mi->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect cr(xpos, y, checkcol, h);
@@ -3623,7 +3620,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (!mi->icon.isNull()) {
             q->drawItemPixmap(p, mi->rect,
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                        mi->palette, mi->icon.pixmap(Qt::SmallIconSize, (mi->state & QStyle::State_Enabled)? QIcon::Normal : QIcon::Disabled),
+                        mi->palette, mi->icon.pixmap(pixelMetric(PM_SmallIconSize), (mi->state & QStyle::State_Enabled)? QIcon::Normal : QIcon::Disabled),
                         &mi->palette.buttonText().color());
             } else {
                 q->drawItemText(p, mi->rect,
@@ -5220,7 +5217,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QIcon::Mode mode = QIcon::Disabled;
                 if (opt->state & QStyle::State_Enabled)
                     mode = QIcon::Normal;
-                QPixmap pixmap = header->icon.pixmap(Qt::SmallIconSize, mode);
+                QPixmap pixmap = header->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
 
                 QRect pixr = header->rect;
                 pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
@@ -5495,7 +5492,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             } else {
                 h = qMax(h, mi->fontMetrics.height() + 2);
                 if (!mi->icon.isNull())
-                    h = qMax(h, mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal).height() + 4);
+                    h = qMax(h, mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height() + 4);
             }
             if (mi->text.contains('\t'))
                 w += 12;

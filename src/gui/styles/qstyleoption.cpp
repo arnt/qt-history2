@@ -1189,8 +1189,7 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
     \value Menu The tool button has a menu.
     \value PopupDelay There is a delay to showing the menu.
 
-    \sa features, QToolButton::toolButtonStyle(), QToolButton::popupMode(),
-        QToolButton::iconSize()
+    \sa features, QToolButton::toolButtonStyle(), QToolButton::popupMode()
 */
 
 /*!
@@ -1200,7 +1199,7 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 
 QStyleOptionToolButton::QStyleOptionToolButton()
     : QStyleOptionComplex(Version, SO_ToolButton), features(None), arrowType(Qt::DownArrow)
-    , iconSize(Qt::SmallIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
+    , toolButtonStyle(Qt::ToolButtonIconOnly)
 {
 }
 
@@ -1209,7 +1208,7 @@ QStyleOptionToolButton::QStyleOptionToolButton()
 */
 QStyleOptionToolButton::QStyleOptionToolButton(int version)
     : QStyleOptionComplex(version, SO_ToolButton), features(None), arrowType(Qt::DownArrow)
-    , iconSize(Qt::SmallIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
+    , toolButtonStyle(Qt::ToolButtonIconOnly)
 
 {
 }
@@ -1241,13 +1240,6 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \brief The direction of the arrow for the tool button
 
     This value is only used if \l features includes \l Arrow.
-*/
-
-/*!
-    \property QStyleOptionToolButton::iconSize
-    \brief The size of the tool button icon
-
-    \sa QToolButton::iconSize()
 */
 
 /*!
@@ -1439,7 +1431,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 QStyleOptionViewItem::QStyleOptionViewItem()
     : QStyleOption(Version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
-      decorationPosition(Left), decorationSize(Small)
+      decorationPosition(Left)
 {
 }
 
@@ -1448,7 +1440,7 @@ QStyleOptionViewItem::QStyleOptionViewItem()
 */
 QStyleOptionViewItem::QStyleOptionViewItem(int version)
     : QStyleOption(version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
-      decorationPosition(Left), decorationSize(Small)
+      decorationPosition(Left)
 {
 }
 

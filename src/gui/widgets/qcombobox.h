@@ -186,7 +186,7 @@ public:
             setItemText(currentItem(), text);
     }
     inline QT_COMPAT QString text(int index) const { return itemText(index); }
-    inline QT_COMPAT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(Qt::SmallIconSize); }
+    inline QT_COMPAT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(QSize(22,22)); }
     inline QT_COMPAT void insertStringList(const QStringList &list, int index = -1)
         { insertItems(index, list); }
     inline QT_COMPAT void insertItem(const QString &text, int index = -1)

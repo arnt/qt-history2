@@ -149,34 +149,7 @@ protected:
 
 private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
-                                        const QModelIndex &index) const {
-        QStyleOptionMenuItem menuOption;
-
-        menuOption.palette = QApplication::palette("QMenu");
-        menuOption.state = QStyle::State_None;
-        if (mCombo->topLevelWidget()->isActiveWindow())
-            menuOption.state = QStyle::State_Active;
-        if (option.state & QStyle::State_Enabled)
-            menuOption.state |= QStyle::State_Enabled;
-        if (option.state & QStyle::State_Selected)
-            menuOption.state |= QStyle::State_Selected;
-        menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
-        menuOption.checked = mCombo->currentItem() == index.row();
-        menuOption.menuItemType = QStyleOptionMenuItem::Normal;
-        menuOption.icon = index.model()->data(index, QAbstractItemModel::DecorationRole).toIcon();
-        menuOption.text = index.model()->data(index, QAbstractItemModel::DisplayRole).toString();
-        menuOption.tabWidth = 0;
-        menuOption.maxIconWidth = 0;
-        if (!menuOption.icon.isNull())
-            menuOption.maxIconWidth
-                = menuOption.icon.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4;
-        menuOption.menuRect = option.rect;
-        menuOption.rect = option.rect;
-        extern QHash<QByteArray, QFont> *qt_app_fonts_hash();
-        menuOption.font = qt_app_fonts_hash()->value("QComboMenuItem", mCombo->font());
-        return menuOption;
-    }
-
+                                        const QModelIndex &index) const;
     QComboBox *mCombo;
     QPalette pal;
 };

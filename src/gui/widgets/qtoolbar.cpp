@@ -57,10 +57,13 @@ void QToolBarPrivate::init()
     movable = (qt_cast<QMainWindow *>(q->parentWidget()) != 0);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
 
+
     QStyleOptionFrame opt = getStyleOption(q);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     QStyle *style = q->style();
+    int e = style->pixelMetric(QStyle::PM_ToolBarIconSize);
+    iconSize = QSize(e, e);
     layout->setAlignment(Qt::AlignLeft);
     layout->setMargin(style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q)
                       + style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, q));
@@ -119,9 +122,9 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         QToolButton *button = new QToolButton(q);
         button->setAutoRaise(true);
         button->setFocusPolicy(Qt::NoFocus);
-        button->setIconSize(Qt::IconSize(q->style()->styleHint(QStyle::SH_ToolBar_IconSize, 0, q)));
-        QObject::connect(q, SIGNAL(iconSizeChanged(Qt::IconSize)),
-                         button, SLOT(setIconSize(Qt::IconSize)));
+        button->setIconSize(iconSize);
+        QObject::connect(q, SIGNAL(iconSizeChanged(QSize)),
+                         button, SLOT(setIconSize(QSize)));
         QObject::connect(q, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
                          button, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
         button->setDefaultAction(action);
@@ -197,7 +200,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
 */
 
 /*!
-    \fn void QToolBar::iconSizeChanged(Qt::IconSize iconSize)
+    \fn void QToolBar::iconSizeChanged(const QSize &iconSize)
 
     This signal is emitted when the icon size is changed.  The \a
     iconSize parameter holds the toolbar's new icon size.
@@ -362,10 +365,10 @@ Qt::Orientation QToolBar::orientation() const
     The default is Qt::AutomaticIconSize.
 */
 
-Qt::IconSize QToolBar::iconSize() const
+QSize QToolBar::iconSize() const
 { return d->iconSize; }
 
-void QToolBar::setIconSize(Qt::IconSize iconSize)
+void QToolBar::setIconSize(const QSize &iconSize)
 {
     if (d->iconSize == iconSize)
         return;

@@ -1138,6 +1138,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DefaultChildMargin
     \value PM_DefaultLayoutSpacing
 
+    \value PM_ToolBarIconSize Default tool bar icon size, defaults to PM_SmallIconSize
     \value PM_SmallIconSize Default small icon size
     \value PM_LargeIconSize Default large icon size
 
@@ -1415,8 +1416,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
      \value SH_ToolButton_PopupDelay An int indicating the popup delay in milliseconds
      for menus attached to tool buttons.
-
-     \value SH_ToolBar_IconSize The default icon size for the icons in a toolbar.
 
      \value SH_FocusFrame_Mask The mask of the focus frame.
 

@@ -334,7 +334,7 @@ bool QListView::isWrapping() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QListView::setIconSize(Qt::IconSize size)
+void QListView::setIconSize(const QSize &size)
 {
     d->modeProperties |= uint(QListViewPrivate::IconSize);
     d->iconSize = size;
@@ -342,7 +342,7 @@ void QListView::setIconSize(Qt::IconSize size)
         doItemsLayout();
 }
 
-Qt::IconSize QListView::iconSize() const
+QSize QListView::iconSize() const
 {
     return d->iconSize;
 }
@@ -459,8 +459,10 @@ void QListView::setViewMode(ViewMode mode)
             d->flow = TopToBottom;
         if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Static;
-        if (!(d->modeProperties & QListViewPrivate::IconSize))
-            d->iconSize = Qt::SmallIconSize;
+        if (!(d->modeProperties & QListViewPrivate::IconSize)) {
+            int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
+            d->iconSize = QSize(icone, icone);
+        }
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
     } else {
@@ -474,8 +476,10 @@ void QListView::setViewMode(ViewMode mode)
             d->flow = LeftToRight;
         if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Free;
-        if (!(d->modeProperties & QListViewPrivate::IconSize))
-            d->iconSize = Qt::LargeIconSize;
+        if (!(d->modeProperties & QListViewPrivate::IconSize)) {
+            int icone = style()->pixelMetric(QStyle::PM_LargeIconSize);
+            d->iconSize = QSize(icone, icone);
+        }
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
     }
@@ -646,7 +650,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->iconSize == Qt::LargeIconSize) {
+        if (!d->rubberBand->isVisible() && d->hasLargeIcons()) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }
@@ -821,12 +825,11 @@ void QListView::internalDrag(QDrag::DropActions supportedActions)
 QStyleOptionViewItem QListView::viewOptions() const
 {
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
-    if (d->iconSize != Qt::SmallIconSize) {
-        option.decorationSize = QStyleOptionViewItem::Large;
+    option.decorationSize = d->iconSize;
+    if (d->hasLargeIcons()) {
         option.decorationPosition = QStyleOptionViewItem::Top;
         option.displayAlignment = Qt::AlignHCenter|Qt::AlignBottom;
     } else {
-        option.decorationSize = QStyleOptionViewItem::Small;
         option.decorationPosition = QStyleOptionViewItem::Left;
     }
     return option;

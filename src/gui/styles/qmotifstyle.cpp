@@ -964,9 +964,9 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     mode = QIcon::Active;
                 QPixmap pixmap;
                 if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable && menuitem->checked)
-                    pixmap = menuitem->icon.pixmap(Qt::SmallIconSize, mode, QIcon::On);
+                    pixmap = menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, QIcon::On);
                 else
-                    pixmap = menuitem->icon.pixmap(Qt::SmallIconSize, mode);
+                    pixmap = menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();

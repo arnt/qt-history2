@@ -409,6 +409,7 @@ public:
         PM_DefaultChildMargin,
         PM_DefaultLayoutSpacing,
 
+        PM_ToolBarIconSize,
         PM_SmallIconSize,
         PM_LargeIconSize,
 
@@ -507,7 +508,6 @@ public:
         SH_MessageBox_UseBorderForButtonSpacing,
         SH_TitleBar_AutoRaise,
         SH_ToolButton_PopupDelay,
-        SH_ToolBar_IconSize,
         SH_FocusFrame_Mask,
         SH_RubberBand_Mask,
         // Add new style hint values here

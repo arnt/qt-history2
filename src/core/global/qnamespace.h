@@ -1173,11 +1173,6 @@ public:
         ImCurrentSelection
     };
 
-    enum IconSize {
-        SmallIconSize,
-        LargeIconSize
-    };
-
     enum ToolButtonStyle {
         ToolButtonIconOnly,
         ToolButtonTextOnly,

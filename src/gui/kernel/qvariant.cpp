@@ -429,7 +429,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
 #ifndef QT_NO_ICON
     case QVariant::Icon:
         //### add stream operator to icon
-        s << v_cast<QIcon>(d)->pixmap(Qt::LargeIconSize); //FIXME
+        s << v_cast<QIcon>(d)->pixmap(QSize(22, 22)); //FIXME
         break;
 #endif
     case QVariant::TextFormat:
@@ -495,8 +495,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 #endif
 #ifndef QT_NO_ICON
     case QVariant::Icon:
-        return v_cast<QIcon>(a)->pixmap(Qt::LargeIconSize).serialNumber()
-            == v_cast<QIcon>(b)->pixmap(Qt::LargeIconSize).serialNumber(); //FIXME
+        return false; // #### FIXME
 #endif
     case QVariant::TextFormat:
         return *v_cast<QTextFormat>(a) == *v_cast<QTextFormat>(b);
