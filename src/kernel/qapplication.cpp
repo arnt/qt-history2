@@ -3766,8 +3766,8 @@ class QSessionManagerData
 public:
     QStringList restartCommand;
     QStringList discardCommand;
-    QString& sessionId;
-    QString& sessionKey;
+    QString sessionId;
+    QString sessionKey;
     QSessionManager::RestartHint restartHint;
 };
 
