@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#64 $
 **
 ** Implementation of QPicture class
 **
@@ -218,7 +218,7 @@ bool QPicture::play( QPainter *painter )
 	UINT16 cs,ccs;
 	QByteArray buf = pictb.buffer();	// pointer to data
 	s >> cs;				// read checksum
-	ccs = qchecksum( buf.data() + data_start, buf.size() - data_start );
+	ccs = qChecksum( buf.data() + data_start, buf.size() - data_start );
 	if ( ccs != cs ) {
 #if defined(CHECK_STATE)
 	    qWarning( "QPicture::play: Invalid checksum %x, %x expected",
