@@ -11,11 +11,11 @@ for a in $MAKEFILES ; do
 ####### This section is automatically generated from
 #######    `pwd`/Makefile
 
-INCDIR	= ${QTDIR}/include
-CFLAGS	= ${CFLAGS}
-LFLAGS	= -L${QTDIR}/lib ${LFLAGS}
-CC	= ${CC}
-MOC	= ${QTDIR}/bin/moc
+INCDIR	=	${QTDIR}/include
+CFLAGS	=	${CFLAGS}
+LFLAGS	=	-L${QTDIR}/lib ${LFLAGS}
+CC	=	${CC}
+MOC	=	${QTDIR}/bin/moc
 
 ####### End of automatically generated section
 #
