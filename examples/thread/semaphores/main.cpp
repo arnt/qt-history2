@@ -86,7 +86,7 @@ class GreenThread: public QThread
 {
 public:
    GreenThread(QWidget *o)
-	: receiver(o)
+	: receiver(o), stopped( FALSE )
     { ; }
 
     void run();
