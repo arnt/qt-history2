@@ -238,8 +238,13 @@ Q_LLONG QUdpSocket::writeDatagram(const char *data, Q_LLONG size, const QHostAdd
 #endif
     QT_ENSURE_INITIALIZED(-1);
     Q_LLONG sent = d->socketLayer.writeDatagram(data, size, address, port);
-    if (sent > 0)
+    if (sent >= 0) {
         emit bytesWritten(sent);
+    } else {
+        d->socketError = d->socketLayer.socketError();
+        d->socketErrorString = d->socketLayer.errorString();
+        emit error(d->socketError);
+    }
     return sent;
 }
 
@@ -265,6 +270,11 @@ Q_LLONG QUdpSocket::readDatagram(char *data, Q_LLONG maxLength, QHostAddress *ad
 #endif
     QT_CHECK_BOUND("QUdpSocket::readDatagram()", -1);
     Q_LLONG readBytes = d->socketLayer.readDatagram(data, maxLength, address, port);
+    if (readBytes < 0) {
+        d->socketError = d->socketLayer.socketError();
+        d->socketErrorString = d->socketLayer.errorString();
+        emit error(d->socketError);
+    }
     d->readSocketNotifier->setEnabled(true);
     return readBytes;
 }
