@@ -1073,12 +1073,14 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( !w->hasFocus() )
 	    w->setFocus();
 	if ( !passiveInteractor || currentTool() != ORDER_TOOL ) {
-	    if( e->type() == QEvent::ContextMenu )
+	    if( e->type() == QEvent::ContextMenu ) {
 		( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e,
 						       ( (FormWindow*)w )->designerWidget( o ) );
-	    else
+		return TRUE;
+	    } else {
 		( (FormWindow*)w )->handleMousePress( (QMouseEvent*)e,
 						      ( (FormWindow*)w )->designerWidget( o ) );
+	    }
 	}
 	lastPressWidget = (QWidget*)o;
 	if ( passiveInteractor )
