@@ -594,12 +594,12 @@ void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedIte
     d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
     memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
 
-    unsigned char fa[256];
-    unsigned char *featuresToApply = fa;
+    unsigned short fa[256];
+    unsigned short *featuresToApply = fa;
 
     bool allocated = FALSE;
     if ( d->num_glyphs > 255 ) {
-	featuresToApply = (unsigned char *)malloc( d->num_glyphs );
+	featuresToApply = (unsigned short *)malloc( d->num_glyphs );
 	allocated = TRUE;
     }
 
