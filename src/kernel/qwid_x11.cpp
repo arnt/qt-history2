@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#80 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#79 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#80 $";
 #endif
 
 
@@ -959,17 +959,45 @@ void QWidget::setSizeIncrement( int w, int h )
 }
 
 /*!
-  Erases the widget contents without generating a \link paintEvent()
-  paint event\endlink.
+  Erases the specified area \e (x,y,w,h) in the widget without generating
+  a \link paintEvent() paint event\endlink.
 
   Child widgets are not affected.
 
   \sa repaint()
 */
 
-void QWidget::erase()				// erase widget contents
+/*!
+  \fn 
+  Erases the specified area \e (x,y,w,h) in the widget without generating
+  a \link paintEvent() paint event\endlink.
+
+  Child widgets are not affected.
+
+  \sa repaint()
+*/
+
+/*!
+  Erases the specified area \e (x,y,w,h) in the widget without generating
+  a \link paintEvent() paint event\endlink.
+
+  Child widgets are not affected.
+
+  \sa repaint()
+*/
+
+/*!
+  Erases the specified area \e (x,y,w,h) in the widget without generating
+  a \link paintEvent() paint event\endlink.
+
+  Child widgets are not affected.
+
+  \sa repaint()
+*/
+
+void QWidget::erase( int x, int y, int w, int h );
 {
-    XClearArea( dpy, ident, 0, 0, 0, 0, FALSE );
+    XClearArea( dpy, ident, x, y, w, h, FALSE );
 }
 
 /*!
