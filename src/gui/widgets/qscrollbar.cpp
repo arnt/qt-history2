@@ -337,7 +337,7 @@ void QScrollBar::paintEvent(QPaintEvent *)
 	flags |= QStyle::Style_Horizontal;
 
     style().drawComplexControl(QStyle::CC_ScrollBar, &p, this, rect(), palette(),
-			       flags, QStyle::SC_All,
+			       flags,  QStyle::SC_All,
 			       d->pointerLeftControl ? QStyle::SC_None : (QStyle::SubControl) d->pressedControl);
 }
 

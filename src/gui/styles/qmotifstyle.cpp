@@ -1290,12 +1290,10 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
     case CC_ScrollBar:
 	{
-	    if (sub == (SC_ScrollBarAddLine | SC_ScrollBarSubLine | SC_ScrollBarAddPage |
-			SC_ScrollBarSubPage | SC_ScrollBarFirst | SC_ScrollBarLast |
-			SC_ScrollBarSlider))
+	    if (sub & SC_ScrollBarGroove)
 		qDrawShadePanel(p, widget->rect(), pal, TRUE,
-				pixelMetric(PM_DefaultFrameWidth, widget),
-				&pal.brush(QPalette::Mid));
+			       pixelMetric(PM_DefaultFrameWidth, widget),
+			       &pal.brush(QPalette::Mid));
 	    QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags, sub,
 					     subActive, opt);
 	    break;
