@@ -794,7 +794,7 @@ void QProcess::hangUp() const
 
 /*!
   Terminates the process. This is not a safe way to end a process since the
-  process will not be able to do cleanup. hangUp() is the saver way to do it,
+  process will not be able to do cleanup. hangUp() is a safer way to do it,
   but processes might ignore a hangUp().
 
   The function returns immediately: it does not wait until the process has
