@@ -2226,6 +2226,23 @@ void QWorkspace::scrollBarChanged()
     updateWorkspace();
 }
 
+#ifndef QT_NO_STYLE
+/*!\reimp */
+void QWorkspace::styleChange( QStyle &olds )
+{
+    bool fs = style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this);
+    if ( isVisibleTo(0) && d->maxWindow && 
+	 fs != olds.styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+	if(fs)
+	    hideMaximizeControls();
+	else
+	    showMaximizeControls();
+    }
+    QWidget::styleChange(olds);
+}
+#endif
+
+
 
 
 #include "qworkspace.moc"

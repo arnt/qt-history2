@@ -83,6 +83,9 @@ public slots:
     void tile();
 
 protected:
+#ifndef QT_NO_STYLE
+    void styleChange( QStyle& );
+#endif
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
