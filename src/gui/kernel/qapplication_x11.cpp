@@ -3090,7 +3090,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
 }
 
 
-bool QApplicationPrivate::tryModal(QWidget *widget, XEvent *event)
+bool qt_try_modal(QWidget *widget, XEvent *event)
 {
     if (qt_xdnd_dragging) {
         // allow mouse events while DnD is active
