@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#35 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#35 $";
 #endif
 
 
@@ -420,12 +420,12 @@ QString & QString::stripWhiteSpace()		// strip white space
 
 /*----------------------------------------------------------------------------
   Strips white space away from the start and end of the string, and
-  change all internal white space (any sequence of ASCII codes 9, 10,
+  changes all internal white space (any sequence of ASCII codes 9, 10,
   11, 12, 13 and 32) into a single space.
 
   \code
   QString a = "  lots\t of\nwhite    space ";
-  a.simplifyWhiteSpace();		\/ a: " lots of white space "
+  a.simplifyWhiteSpace();		// a: "lots of white space"
   \endcode
 
   \sa stripWhiteSpace().
@@ -445,6 +445,8 @@ QString &QString::simplifyWhiteSpace()
     while ( *from ) {
 	while (*from && isspace(*from))
 	    from++;
+        if ( !*from )
+            break;
 	while (*from && !isspace(*from))
 	    *to++ = *from++;
 	*to++ = ' ';
