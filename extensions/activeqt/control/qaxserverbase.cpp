@@ -1021,7 +1021,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		    spSite->OnFocus(TRUE);
 		    spSite->Release();
 		}
-		if ( that->qt.widget->focusWidget() )
+		if ( that->qt.widget->focusWidget() && !that->inDesignMode )
 		    that->qt.widget->focusWidget()->setFocus();
 		else {
 		    QFocusData *focusData = ((HackWidget*)that->qt.widget)->focusData();
@@ -2920,6 +2920,9 @@ HRESULT QAxServerBase::internalActivate()
     m_spInPlaceFrame = 0;
     IOleInPlaceUIWindow *spInPlaceUIWindow = 0;
     frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
+
+    OnAmbientPropertyChange( DISPID_AMBIENT_USERMODE );
+
     if ( isWidget ) {
 	HWND hwndParent;
 	if ( m_spInPlaceSite->GetWindow(&hwndParent) == S_OK ) {
@@ -2994,7 +2997,6 @@ HRESULT QAxServerBase::internalActivate()
 	}
     }
 
-    OnAmbientPropertyChange( DISPID_AMBIENT_USERMODE );
     m_spClientSite->ShowObject();
 
     return S_OK;
