@@ -254,8 +254,8 @@ Q_CORE_EXPORT QTextStream &noforcepoint(QTextStream &s);
 
 Q_CORE_EXPORT QTextStream &uppercasebase(QTextStream &s);
 Q_CORE_EXPORT QTextStream &uppercasedigits(QTextStream &s);
-Q_CORE_EXPORT QTextStream &nouppercasebase(QTextStream &s);
-Q_CORE_EXPORT QTextStream &nouppercasedigits(QTextStream &s);
+Q_CORE_EXPORT QTextStream &lowercasebase(QTextStream &s);
+Q_CORE_EXPORT QTextStream &lowercasedigits(QTextStream &s);
 
 Q_CORE_EXPORT QTextStream &fixed(QTextStream &s);
 Q_CORE_EXPORT QTextStream &scientific(QTextStream &s);

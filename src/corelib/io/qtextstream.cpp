@@ -110,31 +110,31 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \keyword QTextStream manipulators
 
     \table
-    \header \o Function             \o Description
-    \row    \o \c bin               \o Same as setIntegerBase(2).
-    \row    \o \c oct               \o Same as setIntegerBase(8).
-    \row    \o \c dec               \o Same as setIntegerBase(10).
-    \row    \o \c hex               \o Same as setIntegerBase(16).
-    \row    \o \c showbase          \o Same as setNumberFlags(ShowBase).
-    \row    \o \c forcesign         \o Same as setNumberFlags(ForceSign).
-    \row    \o \c forcepoint        \o Same as setNumberFlags(ForcePoint).
-    \row    \o \c noshowbase        \o Same as setNumberFlags(numberFlags() & ~ShowBase).
-    \row    \o \c noforcesign       \o Same as setNumberFlags(numberFlags() & ~ForceSign).
-    \row    \o \c noforcepoint      \o Same as setNumberFlags(numberFlags() & ~ForcePoint).
-    \row    \o \c uppercasebase     \o Same as setNumberFlags(UppercaseBase).
-    \row    \o \c uppercasedigits   \o Same as setNumberFlags(UppercaseDigits).
-    \row    \o \c nouppercasebase   \o Same as setNumberFlags(numberFlags() & ~UppercaseBase).
-    \row    \o \c nouppercasedigits \o Same as setNumberFlags(numberFlags() & ~UppercaseDigits).
-    \row    \o \c fixed             \o Same as setRealNumberNotation(FixedNotation).
-    \row    \o \c scientific        \o Same as setRealNumberNotation(ScientificNotation).
-    \row    \o \c left              \o Same as setFieldAlignment(AlignLeft).
-    \row    \o \c right             \o Same as setFieldAlignment(AlignRight).
-    \row    \o \c center            \o Same as setFieldAlignment(AlignCenter).
-    \row    \o \c endl              \o Same as operator<<('\n') and flush().
-    \row    \o \c flush             \o Same as flush().
-    \row    \o \c reset             \o Same as reset().
-    \row    \o \c ws                \o Same as skipWhiteSpace().
-    \row    \o \c bom               \o Same as setGenerateByteOrderMark(true).
+    \header \o Function           \o Description
+    \row    \o \c bin             \o Same as setIntegerBase(2).
+    \row    \o \c oct             \o Same as setIntegerBase(8).
+    \row    \o \c dec             \o Same as setIntegerBase(10).
+    \row    \o \c hex             \o Same as setIntegerBase(16).
+    \row    \o \c showbase        \o Same as setNumberFlags(ShowBase).
+    \row    \o \c forcesign       \o Same as setNumberFlags(ForceSign).
+    \row    \o \c forcepoint      \o Same as setNumberFlags(ForcePoint).
+    \row    \o \c noshowbase      \o Same as setNumberFlags(numberFlags() & ~ShowBase).
+    \row    \o \c noforcesign     \o Same as setNumberFlags(numberFlags() & ~ForceSign).
+    \row    \o \c noforcepoint    \o Same as setNumberFlags(numberFlags() & ~ForcePoint).
+    \row    \o \c uppercasebase   \o Same as setNumberFlags(UppercaseBase).
+    \row    \o \c uppercasedigits \o Same as setNumberFlags(UppercaseDigits).
+    \row    \o \c lowercasebase   \o Same as setNumberFlags(numberFlags() & ~UppercaseBase).
+    \row    \o \c lowercasedigits \o Same as setNumberFlags(numberFlags() & ~UppercaseDigits).
+    \row    \o \c fixed           \o Same as setRealNumberNotation(FixedNotation).
+    \row    \o \c scientific      \o Same as setRealNumberNotation(ScientificNotation).
+    \row    \o \c left            \o Same as setFieldAlignment(AlignLeft).
+    \row    \o \c right           \o Same as setFieldAlignment(AlignRight).
+    \row    \o \c center          \o Same as setFieldAlignment(AlignCenter).
+    \row    \o \c endl            \o Same as operator<<('\n') and flush().
+    \row    \o \c flush           \o Same as flush().
+    \row    \o \c reset           \o Same as reset().
+    \row    \o \c ws              \o Same as skipWhiteSpace().
+    \row    \o \c bom             \o Same as setGenerateByteOrderMark(true).
     \endtable
 
     \sa QDataStream, QIODevice, QFile, QBuffer, QTcpSocket
@@ -2232,7 +2232,7 @@ QTextStream &noforcepoint(QTextStream &stream)
     Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
     QTextStream::UppercaseBase) on \a stream and returns \a stream.
 
-    \sa nouppercasebase(), uppercasedigits(), {QTextStream manipulators}
+    \sa lowercasebase(), uppercasedigits(), {QTextStream manipulators}
 */
 QTextStream &uppercasebase(QTextStream &stream)
 {
@@ -2246,7 +2246,7 @@ QTextStream &uppercasebase(QTextStream &stream)
     Calls QTextStream::setNumberFlags(QTextStream::numberFlags() |
     QTextStream::UppercaseDigits) on \a stream and returns \a stream.
 
-    \sa nouppercasedigits(), uppercasebase(), {QTextStream manipulators}
+    \sa lowercasedigits(), uppercasebase(), {QTextStream manipulators}
 */
 QTextStream &uppercasedigits(QTextStream &stream)
 {
@@ -2260,9 +2260,9 @@ QTextStream &uppercasedigits(QTextStream &stream)
     Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
     ~QTextStream::UppercaseBase) on \a stream and returns \a stream.
 
-    \sa uppercasebase(), nouppercasedigits(), {QTextStream manipulators}
+    \sa uppercasebase(), lowercasedigits(), {QTextStream manipulators}
 */
-QTextStream &nouppercasebase(QTextStream &stream)
+QTextStream &lowercasebase(QTextStream &stream)
 {
     stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseBase);
     return stream;
@@ -2274,9 +2274,9 @@ QTextStream &nouppercasebase(QTextStream &stream)
     Calls QTextStream::setNumberFlags(QTextStream::numberFlags() &
     ~QTextStream::UppercaseDigits) on \a stream and returns \a stream.
 
-    \sa uppercasedigits(), nouppercasebase(), {QTextStream manipulators}
+    \sa uppercasedigits(), lowercasebase(), {QTextStream manipulators}
 */
-QTextStream &nouppercasedigits(QTextStream &stream)
+QTextStream &lowercasedigits(QTextStream &stream)
 {
     stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseDigits);
     return stream;
