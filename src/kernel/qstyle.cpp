@@ -1492,6 +1492,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_Slider
     \value CT_Header
     \value CT_LineEdit
+    \value CT_MenuBar
 
 
     \value CT_CustomBase  base value for custom ControlElements. All

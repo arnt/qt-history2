@@ -1222,9 +1222,9 @@ void QObject::removeChild( QObject *obj )
 
     An event filter is an object that receives all events that are
     sent to this object. The filter can either stop the event or
-    forward it to this object. The event filter \a obj receives events
-    via its eventFilter() function. The eventFilter() function must
-    return TRUE if the event should be filtered, (i.e. stopped);
+    forward it to this object. The event filter \a filterObj receives
+    events via its eventFilter() function. The eventFilter() function
+    must return TRUE if the event should be filtered, (i.e. stopped);
     otherwise it must return FALSE.
 
     If multiple event filters are installed on a single object, the

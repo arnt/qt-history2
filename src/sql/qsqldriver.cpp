@@ -154,10 +154,10 @@ bool QSqlDriver::isOpenError() const
     \value PreparedQueries  whether the driver supports prepared query execution
     \value OracleBindingStyle  whether the driver supports the Oracle specific
     binding style
-    \value ODBCBBindingStyle  whether the driver supports the ODBC specific
+    \value ODBCBindingStyle  whether the driver supports the ODBC specific
     binding style
 
-    More information about supported features can be found in the 
+    More information about supported features can be found in the
     \link sql-driver.html Qt SQL driver\endlink documentation.
 
     \sa hasFeature()

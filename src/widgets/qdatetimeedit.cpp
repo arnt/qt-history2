@@ -703,7 +703,7 @@ bool QDateTimeEditor::setFocusSection( int sec )
     return d->setFocusSection( sec );
 }
 
-/*! \class QDateTimeEditBase
+/*! \class QDateTimeEditBase qdatetimeedit.h
     \brief The QDateTimeEditBase class provides an abstraction for date and edit editors.
     \internal
 
@@ -1749,6 +1749,21 @@ public:
     \img datetimewidgets.png Date Time Widgets
 
     \sa QTime QDateEdit QDateTimeEdit
+*/
+
+/*!
+    \fn virtual void QTimeEdit::setMinValue( const QTime& d )
+
+    Sets the time edit's minimum value to \a d an its maximum value to
+    maxValue().
+*/
+
+
+/*!
+    \fn virtual void QTimeEdit::setMaxValue( const QTime& d )
+
+    Sets the time edit's maximum value to \a d an its minimum value to
+    minValue().
 */
 
 

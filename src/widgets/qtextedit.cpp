@@ -211,33 +211,31 @@ static bool block_set_alignment = FALSE;
     \row \i Plain Text Editor \i setTextFormat(PlainText)
 	 \i Set text with setText(); text() returns plain text. Text
 	 attributes (e.g. colors) can be set, but plain text is always
-	 returned.<sup>1.</sup>
+	 returned.
     \row \i Rich Text Editor \i setTextFormat(RichText)
 	 \i Set text with setText(); text() returns rich text. Rich
 	 text editing is fairly limited. You can't set margins or
 	 insert images for example (although you can read and
 	 correctly display files that have margins set and that
 	 include images). This mode is mostly useful for editing small
-	 amounts of rich text. <sup>2.</sup>
-    \row \i Text Viewer<sup>3.</sup> \i setReadOnly(TRUE)
+	 amounts of rich text. <sup>1.</sup>
+    \row \i Text Viewer \i setReadOnly(TRUE)
          \i Set text with setText() or append() (which has no undo
 	 history so is faster and uses less memory); text() returns
 	 plain or rich text depending on the textFormat(). This mode
 	 can correctly display a large subset of HTML tags.
+    \row \i Log Viewer \i setTextFormat(LogText)
+	 \i Append text using append(). The widget is set to be read
+	 only and rich text support is disabled although a few HTML
+	 tags (for color, bold, italic and underline) may be used.
+	 (See \link #logtextmode LogText mode\endlink for details.)
     \endtable
 
-    <sup>1.</sup><small>We do \e not recommend using QTextEdit to
-    create syntax highlighting editors because the current API is
-    insufficient for this purpose. We hope to release a more complete
-    API that will support syntax highlighting in a later
-    release.</small>
-
-    <sup>2.</sup><small>A more complete API that supports setting
+    <sup>1.</sup><small>A more complete API that supports setting
     margins, images, etc., is planned for a later Qt release.</small>
 
-    <sup>3.</sup><small>Qt 3.1 will provide a Log Viewer mode which is
-    optimised for the fast and memory efficient display of large
-    amounts of read only text.</small>
+    QTextEdit can be used as a syntax highlighting editor when used in
+    conjunction with QSyntaxHighlighter.
 
     We recommend that you always call setTextFormat() to set the mode
     you want to use. If you use \c AutoText then setText() and
@@ -399,6 +397,64 @@ static bool block_set_alignment = FALSE;
     mimeSourceFactory() when quering data. (See QTextEdit() and
     \l{context()}.)
 
+    \target logtextmode
+    \section2 Using QTextEdit in LogText Mode
+
+    Setting the text format to \c LogText puts the widget in a special
+    mode which is optimized for very large texts. In this mode editing
+    and rich text support are disabled (the widget is explicitly set
+    to read-only mode). This allows the text to be stored in a
+    different, more memory efficient manner. However, a certain degree
+    of text formatting is supported through the use of formatting
+    tags. A tag is delimited by \c < and \c {>}. The characters \c
+    {<}, \c > and \c & are escaped by using \c {&lt;}, \c {&gt;} and
+    \c {&amp;}. A tag pair consists of a left and a right tag (or
+    open/close tags). Left-tags mark the starting point for
+    formatting, while right-tags mark the ending point. A right-tag
+    always start with a \c / before the tag keyword. For example \c
+    <b> and \c </b> are a tag pair. Tags can be nested, but they
+    have to be closed in the same order as they are opened. For
+    example, \c <b><u></u></b> is valid, while \c
+    <b><u></b></u> will output an error message.
+
+    By using tags it is possible to change the color, bold, italic and
+    underline settings for a piece of text. A color can be specified
+    by using the HTML font tag \c {<font color=colorname>}. The color
+    name can be one of the color names from the X11 color database, or
+    a RGB hex value (e.g \c {#00ff00}). Example of valid color tags:
+    \c {<font color=red>}, \c {<font color="light blue">}, \c {<font
+    color="#223344">}. Bold, italic and underline settings can be
+    specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
+    tag does not necessarily have to be closed. A valid example:
+    \code
+    This is <font color=red>red</font> while <b>this</b> is <font color=blue>blue</font>.
+    <font color=green><font color=yellow>Yellow,</font> and <u>green</u>.
+    \endcode
+
+    Stylesheets can also be used in LogText mode. To create and use a
+    custom tag, you could do the following:
+    \code
+    QTextEdit * log = new QTextEdit( this );
+    log->setTextFormat( Qt::LogText );
+    QStyleSheetItem * item = new QStyleSheetItem( log->styleSheet(), "mytag" );
+    item->setColor( "red" );
+    item->setFontWeight( QFont::Bold );
+    item->setFontUnderline( TRUE );
+    log->append( "This is a <mytag>custom tag</mytag>!" );
+    \endcode
+    Note that only the color, bold, underline and italic attributes of
+    a QStyleSheetItem is used in LogText mode.
+
+    There are a few things that you need to be aware of when the
+    widget is in this mode:
+    \list
+    \i Functions that deal with rich text formatting will not work or
+    return anything valid.
+    \i Lines are equivalent to paragraphs.
+    \i Inserting lines is not supported. It is only possible to append
+    lines.
+    \endlist
+
     \section1 Using QTextEdit as an Editor
 
     All the information about using QTextEdit as a display widget also
@@ -498,61 +554,6 @@ static bool block_set_alignment = FALSE;
     text to the right of the cursor is moved out of the way. The mode
     can be changed to overwrite, where new text overwrites any text to
     the right of the cursor, using setOverwriteMode().
-
-    Setting the text format to \c LogText puts the widget in a special
-    mode which is optimized for very large texts. In this mode editing
-    and rich text support are disabled (the widget is explicitly set
-    to read-only mode). This allows the text to be stored in a
-    different, more memory efficient manner. However, a certain degree
-    of text formatting is supported through the use of formatting
-    tags. A tag is delimited by \c < and \c {>}. The characters \c
-    {<}, \c > and \c & are escaped by using \c {&lt;}, \c {&gt;} and
-    \c {&amp;}. A tag pair consists of a left and a right tag (or
-    open/close tags). Left-tags mark the starting point for
-    formatting, while right-tags mark the ending point. A right-tag
-    always start with a \c / before the tag keyword. For example \c
-    <b> and \c </b> are a tag pair. Tags can be nested, but they
-    have to be closed in the same order as they are opened. For
-    example, \c <b><u></u></b> is valid, while \c
-    <b><u></b></u> will output an error message.
-
-    By using tags it is possible to change the color, bold, italic and
-    underline settings for a piece of text. A color can be specified
-    by using the HTML font tag \c {<font color=colorname>}. The color
-    name can be one of the color names from the X11 color database, or
-    a RGB hex value (e.g \c {#00ff00}). Example of valid color tags:
-    \c {<font color=red>}, \c {<font color="light blue">}, \c {<font
-    color="#223344">}. Bold, italic and underline settings can be
-    specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
-    tag does not necessarily have to be closed. A valid example:
-    \code
-    This is <font color=red>red</font> while <b>this</b> is <font color=blue>blue</font>.
-    <font color=green><font color=yellow>Yellow,</font> and <u>green</u>.
-    \endcode
-
-    Stylesheets can also be used in LogText mode. To create and use a
-    custom tag, you could do the following:
-    \code
-    QTextEdit * log = new QTextEdit( this );
-    log->setTextFormat( Qt::LogText );
-    QStyleSheetItem * item = new QStyleSheetItem( log->styleSheet(), "mytag" );
-    item->setColor( "red" );
-    item->setFontWeight( QFont::Bold );
-    item->setFontUnderline( TRUE );
-    log->append( "This is a <mytag>custom tag</mytag>!" );
-    \endcode
-    Note that only the color, bold, underline and italic attributes of
-    a QStyleSheetItem is used in LogText mode.
-
-    There are a few things that you need to be aware of when the
-    widget is in this mode:
-    \list
-    \i Functions that deal with rich text formatting will not work or
-    return anything valid.
-    \i Lines are equivalent to paragraphs.
-    \i Inserting lines is not supported. It is only possible to append
-    lines.
-    \endlist
 */
 
 /*!
@@ -3530,6 +3531,9 @@ QString QTextEdit::text( int para ) const
     \a text may be interpreted either as plain text or as rich text,
     depending on the textFormat(). The default setting is \c AutoText,
     i.e. the text edit auto-detects the format from \a text.
+
+    For rich text the rendering style and available tags are defined
+    by a styleSheet(); see QStyleSheet for details.
 
     The optional \a context is a path which the text edit's
     QMimeSourceFactory uses to resolve the locations of files and

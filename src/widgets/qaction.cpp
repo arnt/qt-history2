@@ -761,8 +761,11 @@ bool QAction::isEnabled() const
 */
 
 /*!
-    If \a visible is TRUE the action can be seen (e.g. in menus and
-    toolbars) and chosen by the user; if \a visible is FALSE the
+    \property QAction::visible
+    \brief whether the action can be seen (e.g. in menus and toolbars)
+
+    If \e visible is TRUE the action can be seen (e.g. in menus and
+    toolbars) and chosen by the user; if \e visible is FALSE the
     action cannot be seen or chosen by the user.
 
     Actions which are not visible are \e not just greyed out; they do
@@ -781,7 +784,7 @@ void QAction::setVisible( bool visible )
 	d->d_group->update( (QActionGroup*) this );
 }
 
-/*!
+/*
     Returns TRUE if the action is visible (e.g. in menus and
     toolbars); otherwise returns FALSE.
 */
