@@ -795,7 +795,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	QDesignerWidgetStack *ws = new QDesignerWidgetStack( parent, name );
 	if ( init ) {
 	    FormWindow *fw = find_formwindow( parent );
-	    QWidget *w = fw ? new QDesignerWidget( fw, ws, "StackPage" ) : new QWidget( ws, "StackPage" );
+	    QWidget *w = fw ? new QDesignerWidget( fw, ws, "WStackPage" ) : new QWidget( ws, "WStackPage" );
 	    ws->insertPage( w );
 	    MetaDataBase::addEntry( w );
 	    MetaDataBase::addEntry( ws );

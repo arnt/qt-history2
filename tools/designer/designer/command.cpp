@@ -908,7 +908,7 @@ AddWidgetStackPageCommand::AddWidgetStackPageCommand( const QString &n, FormWind
 						      QDesignerWidgetStack *ws )
     : Command( n, fw ), widgetStack( ws )
 {
-    stackPage = new QDesignerWidget( formWindow(), widgetStack, "StackPage" );
+    stackPage = new QDesignerWidget( formWindow(), widgetStack, "WStackPage" );
     stackPage->hide();
     index = -1;
     MetaDataBase::addEntry( stackPage );
