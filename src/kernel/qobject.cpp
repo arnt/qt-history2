@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#113 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#113 $");
 
 
 /*!
@@ -871,10 +871,12 @@ void QObject::insertChild( QObject *obj )	// add object object
 
 void QObject::removeChild( QObject *obj )
 {
-    if ( childObjects && childObjects->removeRef(obj) &&
-	 childObjects->isEmpty() ) {
-	delete childObjects;			// last child removed
-	childObjects = 0;			// reset children list
+    if ( childObjects && childObjects->removeRef(obj) ) {
+	obj->parentObj = 0;
+	if ( childObjects->isEmpty() ) {
+	    delete childObjects;			// last child removed
+	    childObjects = 0;			// reset children list
+	}
     }
 }
 
