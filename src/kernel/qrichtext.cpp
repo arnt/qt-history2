@@ -5620,8 +5620,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		lastBreak = i;
 	} else {
 	    tminw += ww;
-	    int belowBaseLine = QMAX( tmph - tmpBaseLine, c->height()- c->ascent() );
-	    tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
+	    int cascent = c->ascent();
+	    int cheight = c->height();
+	    int belowBaseLine = QMAX( tmph - tmpBaseLine, cheight-cascent );
+	    tmpBaseLine = QMAX( tmpBaseLine, cascent );
 	    tmph = tmpBaseLine + belowBaseLine;
 	}
 

@@ -362,7 +362,8 @@ int QTextFormat::ascent() const
     if ( !pntr || !pntr->isActive() )
 	return asc;
     pntr->setFont( fn );
-    return pntr->fontMetrics().ascent() + (pntr->fontMetrics().leading()+1)/2;
+    const QFontMetrics &fm = pntr->fontMetrics();
+    return fm.ascent() + (fm.leading()+1)/2;
 }
 
 int QTextFormat::descent() const
