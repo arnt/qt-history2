@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#4 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#5 $
 **
 ** Definition of QLabel class
 **
@@ -28,7 +28,7 @@ public:
     void    setText( long );
     void    setText( float );
     void    setText( double );
-    char   *text() const;
+    const char *text() const;
 
 protected:
     void    paintEvent( QPaintEvent * );
