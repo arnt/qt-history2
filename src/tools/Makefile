@@ -4,9 +4,9 @@
 
 ####### Directories
 
-SRCDIR		= $(QTDIR)/src
-INCDIR		= $(SRCDIR)/include
-LIBDIR		= $(SRCDIR)/lib
+BASEDIR		= $(QTDIR)
+INCDIR		= $(BASEDIR)/include
+LIBDIR		= $(BASEDIR)/lib
 
 ####### Compiler
 
