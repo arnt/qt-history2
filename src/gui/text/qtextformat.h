@@ -216,12 +216,12 @@ public:
     inline void setFontPointSize(float size)
     { setProperty(FontPointSize, size); }
     inline float fontPointSize() const
-    { return floatProperty(FontPointSize); }
+    { return floatProperty(FontPointSize, 12); }
 
     inline void setFontWeight(int weight)
     { setProperty(FontWeight, weight); }
     inline int fontWeight() const
-    { return intProperty(FontWeight); }
+    { return intProperty(FontWeight, QFont::Normal); }
 
     inline void setFontItalic(bool italic)
     { setProperty(FontItalic, italic); }
@@ -276,7 +276,7 @@ public:
     inline void setObjectType(int type)
     { setProperty(ObjectType, type); }
     inline int objectType() const
-    { return intProperty(ObjectType); }
+    { return intProperty(ObjectType, NoObject); }
 
     inline void setFloatPosition(FloatPosition f)
     { setProperty(Float, (int)f); }
