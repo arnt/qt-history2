@@ -21,6 +21,7 @@
 #include <qstyle.h>
 #include <qapplication.h>
 #include <private/qabstractitemmodel_p.h>
+#include <qdebug.h>
 
 
 static bool qt_copy_file(const QString &from, const QString &to)
@@ -281,7 +282,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QMo
 
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     QDirModelPrivate::QDirNode *n = d->node(row, p);
-    
+
     if (!n) {
         qWarning("index: the node does not exist");
 	return QModelIndex();
@@ -328,7 +329,7 @@ int QDirModel::rowCount(const QModelIndex &parent) const
         return 1;
 
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
-        
+
     bool isDir = !p || p->info.isDir();
     QVector<QDirModelPrivate::QDirNode> *nodes = p ? &(p->children) : &(d->root.children);
 
@@ -800,10 +801,11 @@ QModelIndex QDirModel::index(const QString &path) const
         return QModelIndex();
 
 //    qDebug("index: path '%s'", path.latin1());
-    QStringList pth = QDir(path).absolutePath().split(QDir::separator(), QString::SkipEmptyParts);
+    QChar sep = '/';//QDir::separator() // FIXME
+    QStringList pth = QDir(path).absolutePath().split(sep, QString::SkipEmptyParts);
 
 //     for (int j = 0; j < pth.count(); ++j)
-//         qDebug("index: path element '%s'", pth.at(j).latin1());
+// 	qDebug("index: path element '%s'", pth.at(j).latin1());
 
 #ifdef Q_OS_WIN
     if (pth.isEmpty()) {
@@ -823,7 +825,7 @@ QModelIndex QDirModel::index(const QString &path) const
 
     for (int i = 0; i < pth.count(); ++i) {
 
-//        qDebug("index: ---");
+//       qDebug("index: ---");
 
         if (pth.at(i).isEmpty()) {
             qWarning("index: path element %d was empty", i);
@@ -832,20 +834,19 @@ QModelIndex QDirModel::index(const QString &path) const
 
         node = idx.isValid() ? static_cast<QDirModelPrivate::QDirNode*>(idx.data()) : &(d->root);
 
-#if 0
+#ifdef Q_OS_WIN
         if (!idx.isValid()) {
 //            qDebug("index: idx is not valid");
             QFileInfoList info = d->rootChildren(); // the children could be drives
             entries.clear();
             for (int j = 0; j < info.count(); ++j)
-                entries << info.at(j).absoluteFilePath();
+                entries << QDir::cleanPath(info.at(j).absoluteFilePath()); // FIXME:
         } else
 #endif
         {
 //            qDebug("index: idx is valid");
             QString absPath = node->info.absoluteFilePath();
 //            qDebug("index: getting entries in '%s'", absPath.latin1());
-
             // FIXME: workaround for problem in QDir
 #if 1
             QDir dir(absPath);
@@ -860,8 +861,8 @@ QModelIndex QDirModel::index(const QString &path) const
 #endif
         }
 
-//         for (int j = 0; j < entries.count(); ++j)
-//             qDebug("index: entry %d '%s'", j, entries.at(j).latin1());
+//          for (int j = 0; j < entries.count(); ++j)
+//              qDebug("index: entry %d '%s'", j, entries.at(j).latin1());
 
         QString entry = pth.at(i);
 //        qDebug("index: path element %d is '%s'", i, entry.latin1());
@@ -973,7 +974,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
         qWarning("mkdir: parent node does not exist");
         return QModelIndex();
     }
-    
+
     d->savePersistentIndexes();
 
     QDir dir = p->info.dir();
@@ -1022,7 +1023,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
         qWarning("rmdir: the parent node does not exist");
         return false;
     }
-    
+
     emit rowsRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
@@ -1089,11 +1090,11 @@ bool QDirModel::remove(const QModelIndex &index)
 /*
   The root node is never seen outside the model.
 */
-  
+
 void QDirModelPrivate::init(const QDir &directory)
 {
     rootIsVirtual = false;
-    
+
     root.parent = 0;
     root.info = QFileInfo(directory.absolutePath());
     root.children = children(0); // FIXME: ???
@@ -1184,7 +1185,7 @@ void QDirModelPrivate::refresh(QDirNode *parent)
         QDir dir = QDir(parent->info.filePath());
         info = dir.entryInfoList(nameFilters, filterSpec, sortSpec);
     }
-    
+
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
     if (nodes->count() != info.count()) {
         qWarning("refresh: the number of children has changed");
