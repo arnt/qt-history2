@@ -588,6 +588,9 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             CONVERT_PROPERTY("iconSet", "icon");
             CONVERT_PROPERTY("textLabel", "text");
 
+            CONVERT_PROPERTY("toggleButton", "checkable");
+            CONVERT_PROPERTY("isOn", "checked");
+
             name = prop->attributeName(); // sync the name
 
             if (className.size() && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))) {
