@@ -56,8 +56,8 @@ Specific enhancements
 ---------------------
 
 QCursor
-  Make the pointing hand cursor look like the Windows pointing hand cursor 
- (when you select a web link in Netscape/IE).  There is a IDC_HAND constant 
+  Make the pointing hand cursor look like the Windows pointing hand cursor
+ (when you select a web link in Netscape/IE).  There is a IDC_HAND constant
  in LoadCursor (Win2K only?) if this is any use.
 
 QRect
@@ -127,8 +127,8 @@ QScrollView
 
 QApplication
   something like bool hasPostedEvents() (info/arc-07/15087)
-  Return QApplication::topLevelWidgets in z-order (order that the widgets 
-are shown on the screen) 
+  Return QApplication::topLevelWidgets in z-order (order that the widgets
+are shown on the screen)
 
 QObject
   UserData. d-pointer.
@@ -173,7 +173,7 @@ qt_winEventFilter
 
 QPopupMenu
   One user requested the ability to show just the icons in a torn off menu, and asked
-  if the torn off menu could get a WS_EX_TOOLWINDOW style.  I don't think that this 
+  if the torn off menu could get a WS_EX_TOOLWINDOW style.  I don't think that this
   will benefit anyone much as they might as well just use a toolbar.
 
 
@@ -187,23 +187,7 @@ Plugin System (Volker)
     look at the hacks done in KDE to see all problems)
 
 BiDi (Lars)
-    BiDi algorithm for all text displaying. ASA the QTextView,
-    QTextBrowser, QTextEdit, QRichText part described in
-    "Extending existing functionality" is working start integrating
-    the BiDi stuff into that. This also includes making layouts and
-    widgets rtl. Like a listview has to have the first column on the
-    right, scrollbars have to be at the right and not at the left,
-    menubars have to go from right to left, etc.
-    clean up the old bidi functions in qstring and qtrlcodec
-
-
-Database classes (Dave)
-    Classes to query SQL databases.  Eventually use the plugin system to
-    dynamically load required drivers.  Also, eventually create 'data
-    aware' widgets to speed Qt database app development.  Integrate them
-    into designer.  Possibly integrate with XML query mechanism so that
-    you can run SQL queries against XML files as if it were just another
-    database.
+    Finish getting widgets right-to-left
 
 QSettings (Brad, Volker)
     QSetting class to store Qt settings in a XML tree
@@ -245,9 +229,6 @@ XML Query mechanism (rms?)
 
 Multi-head display support?
     ... was asked by a lot of people on qt-interest.
-
-Syntax coloring
-    ... a version of QMultiLineEdit that allows syntax coloring 
 
 
 Extending existing functionality
@@ -302,7 +283,7 @@ XML (rms)
 QRichText
     valign for tables
 
-QListView/QListBox/maybe QTable (Reggie)
+QListBox/maybe QTable (Reggie)
     DnD API, like QIconView
 
 QListView/QHeader (Reggie)
