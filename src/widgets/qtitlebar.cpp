@@ -45,7 +45,7 @@
 #include "../kernel/qapplication_p.h"
 #include "qtooltip.h"
 #include "qimage.h"
-#include "qdatetime.h"
+#include "qtimer.h"
 #include "qpainter.h"
 #include "../kernel/qinternal_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -180,19 +180,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	case QStyle::TitleSysMenu:
 	{
 	    buttonDown = 0;
-	    static QTime* t = 0;
-	    static QTitleBar* tc = 0;
-	    if ( !t )
-		t = new QTime;
-	    if ( tc != this || t->elapsed() > QApplication::doubleClickInterval() ) {
-		emit showOperationMenu();
-		t->start();
-		tc = this;
-	    } else {
-		tc = 0;
-		emit doClose();
-		return;
-	    }
+	    QTimer::singleShot(QApplication::doubleClickInterval() + 1, this, SIGNAL(showOperationMenu()));
 	    break;
 	}
 	case QStyle::TitleShadeButton:

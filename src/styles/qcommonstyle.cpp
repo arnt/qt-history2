@@ -453,67 +453,16 @@ void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
 void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 					uint controls, uint activeControl )
 {
-    if(tb->window) {
-	QRegion titleReg(0, 0, tb->width(), tb->height());
-	QRect r;
-
-	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
-		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	titleReg -= r;
-	if(controls & TitleCloseButton) {
-	    bool down = activeControl & TitleCloseButton;
-	    QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
-	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
-	    int xoff=0, yoff=0;
-	    if(down)
-		getButtonShift(xoff, yoff);
-	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
-	}
-
-	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*2),
-		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	titleReg -= r;
-	if(controls & TitleMaxButton) {
-	    bool down = activeControl & TitleMaxButton;
-	    QPixmap pm(titleBarPixmap(tb, TitleMaxButton));
-	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
-	    int xoff=0, yoff=0;
-	    if(down)
-		getButtonShift(xoff, yoff);
-	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
-	}
-
-	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3),
-		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	titleReg -= r;
-	if(controls & TitleMinButton || controls & TitleNormalButton) {
-	    QStyle::TitleControl ctrl = controls & TitleNormalButton ? TitleNormalButton : TitleMinButton;
-	    bool down = activeControl & ctrl;
-	    QPixmap pm(titleBarPixmap(tb, ctrl));
-	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
-			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
-	    int xoff=0, yoff=0;
-	    if(down)
-		getButtonShift(xoff, yoff);
-	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
-	}
-
-	r = QRect(TITLEBAR_SEPARATION+2, 2, TITLEBAR_PIXMAP_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	titleReg -= r;
-	if(tb->pixmap.mask())
-	    titleReg += QRegion(*tb->pixmap.mask()) ^ QRegion(r);
-	if(controls & TitleSysMenu)
-	    drawItem( p, r.x(), r.y(), TITLEBAR_CONTROL_WIDTH,
-		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &tb->pixmap, QString::null );
-	p->setClipRegion(titleReg);
-    }
-
     if(controls & TitleLabel) {
+	QRect r;
+	if(tb->window)
+	    r = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH, 0,
+		       tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
+		       (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
+		       tb->height());
+	else
+	    r = QRect(0, 0, tb->width(), tb->height());
+
 	QColor left = tb->act || !tb->window ? tb->aleftc : tb->ileftc;
 	QColor right = tb->act || !tb->window ? tb->arightc : tb->irightc;
 	if ( left != right ) {
@@ -525,29 +474,79 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    double gD = double(right.green() - gS) / tb->width();
 	    double bD = double(right.blue() - bS) / tb->width();
 
-	    int w = tb->width();
-	    for ( int sx = 0; sx < w; sx++ ) {
+	    int w = r.width();
+	    for ( int sx = r.x(); sx < w; sx++ ) {
 		rS+=rD;
 		gS+=gD;
 		bS+=bD;
 		p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
-		p->drawLine( sx, 0, sx, tb->height() );
+		p->drawLine( sx, r.y(), sx, r.height() );
 	    }
 	} else {
-	    p->fillRect( 0, 0, tb->width(), tb->height(), left );
+	    p->fillRect( r, left );
 	}
 
 	p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
-	QRect r;
-	if(tb->window)
-	    r = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH, 0,
-		       tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
-		       (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
-		       tb->height());
-	else
-	    r = QRect(0, 0, tb->width(), tb->height());
 	p->drawText(r.x()+2, r.y(), r.width(), r.height(),
 		    AlignAuto | AlignVCenter | SingleLine, tb->cuttext );
+    }
+
+    if(tb->window) {
+	if(controls & TitleCloseButton) {
+	    QRect r(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
+		    2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    bool down = activeControl & TitleCloseButton;
+	    QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
+	    p->fillRect(r.x(), 0, r.width()+ TITLEBAR_SEPARATION, tb->height(), 
+			tb->act || !tb->window ? tb->aleftc : tb->ileftc);
+	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
+			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	    int xoff=0, yoff=0;
+	    if(down)
+		getButtonShift(xoff, yoff);
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
+	}
+
+	if(controls & TitleMaxButton) {
+	    QRect r(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*2),
+		    2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    bool down = activeControl & TitleMaxButton;
+	    QPixmap pm(titleBarPixmap(tb, TitleMaxButton));
+	    p->fillRect(r.x(), 0, r.width()+ TITLEBAR_SEPARATION, tb->height(), 
+			tb->act || !tb->window ? tb->aleftc : tb->ileftc);
+	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
+			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	    int xoff=0, yoff=0;
+	    if(down)
+		getButtonShift(xoff, yoff);
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
+	}
+
+	if(controls & TitleMinButton || controls & TitleNormalButton) {
+	    QRect r(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3),
+		    2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    QStyle::TitleControl ctrl = controls & TitleNormalButton ? TitleNormalButton : TitleMinButton;
+	    bool down = activeControl & ctrl;
+	    QPixmap pm(titleBarPixmap(tb, ctrl));
+	    p->fillRect(r.x(), 0, r.width()+ TITLEBAR_SEPARATION, tb->height(), 
+			tb->act || !tb->window ? tb->aleftc : tb->ileftc);
+	    drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
+			    tb->colorGroup(), FALSE, down, TRUE, FALSE );
+	    int xoff=0, yoff=0;
+	    if(down)
+		getButtonShift(xoff, yoff);
+	    drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
+	}
+
+	if(controls & TitleSysMenu) {
+	    p->fillRect(0, 0, TITLEBAR_CONTROL_WIDTH + TITLEBAR_SEPARATION, tb->height(), 
+			tb->act || !tb->window ? tb->aleftc : tb->ileftc);
+	    drawItem( p, TITLEBAR_SEPARATION+2, 2, TITLEBAR_CONTROL_WIDTH,
+		      TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &tb->pixmap, QString::null );
+	}
     }
 }
 
