@@ -201,7 +201,7 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
     hfont = _hfont;
     logfont = lf;
     SelectObject( hdc, hfont );
-    stockFont = stockFont;
+    this->stockFont = stockFont;
 
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;

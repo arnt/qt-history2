@@ -256,6 +256,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		GetTextCharsetInfo( hdc, &signature, 0 );
 		SelectObject( hdc, oldobj );
 		DeleteObject( hfont );
+		ReleaseDC( 0, hdc );
 	    } );
 #else
 	    CHARSETINFO csi;
