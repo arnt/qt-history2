@@ -239,6 +239,7 @@ QTableItem::QTableItem( QTable *table, EditType et, const QString &text )
     : txt( text ), pix(), t( table ), edType( et ), wordwrap( FALSE ),
       tcha( TRUE ), rw( -1 ), cl( -1 ), rowspan( 1 ), colspan( 1 )
 {
+    enabled = TRUE;
 }
 
 /*!  Creates an item for the table \a table with the text \a text and the
@@ -250,6 +251,7 @@ QTableItem::QTableItem( QTable *table, EditType et,
     : txt( text ), pix( p ), t( table ), edType( et ), wordwrap( FALSE ),
       tcha( TRUE ), rw( -1 ), cl( -1 ), rowspan( 1 ), colspan( 1 )
 {
+    enabled = TRUE;
 }
 
 /*!  Destructor.
@@ -566,6 +568,26 @@ int QTableItem::col() const
     return cl;
 }
 
+/*! If \a b is TRUE, the item gets enabled, otherwise disabled. A
+  disabled item doesn't react on any user input.*/
+
+void QTableItem::setEnabled( bool b )
+{
+    if ( b == (bool)enabled )
+	return;
+    enabled = b;
+    table()->updateCell( row(), col() );
+}
+
+/*! Returns whether the item is enabled or disabled.
+
+  \sa setEnabled()
+*/
+
+bool QTableItem::isEnabled() const
+{
+    return (bool)enabled;
+}
 
 /*!
   \class QTableComboBoxItem qtable.h
@@ -1521,7 +1543,10 @@ void QTable::paintCell( QPainter* p, int row, int col,
     QTableItem *itm = item( row, col );
     if ( itm ) {
 	p->save();
-	itm->paint( p, colorGroup(), cr, selected );
+	QColorGroup cg = colorGroup();
+	if ( !itm->isEnabled() )
+	    cg = palette().disabled();
+	itm->paint( p, cg, cr, selected );
 	p->restore();
     } else {
 	p->fillRect( 0, 0, w, h, selected ? colorGroup().brush( QColorGroup::Highlight ) : colorGroup().brush( QColorGroup::Base ) );
@@ -1946,6 +1971,10 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
 
+    QTableItem *itm = item( pressedRow, pressedCol );
+    if ( itm && !itm->isEnabled() )
+	return;
+
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
 	if ( selMode != NoSelection ) {
 	    if ( !currentSel ) {
@@ -1990,6 +2019,9 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
+    QTableItem *itm = item( tmpRow, tmpCol );
+    if ( itm && !itm->isEnabled() )
+	return;
     if ( tmpRow != -1 && tmpCol != -1 ) {
 	if ( beginEdit( tmpRow, tmpCol, FALSE ) )
 	    setEditMode( Editing, tmpRow, tmpCol );
@@ -2864,6 +2896,8 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
     if ( isReadOnly() || isRowReadOnly( row ) || isColumnReadOnly( col ) )
 	return 0;
     QTableItem *itm = item( row, col );
+    if ( itm && !itm->isEnabled() )
+	return 0;
     if ( itm && cellWidget( itm->row(), itm->col() ) )
 	return 0;
     ensureCellVisible( curRow, curCol );

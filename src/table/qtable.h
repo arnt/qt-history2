@@ -134,6 +134,9 @@ public:
 
     void updateEditor( int oldRow, int oldCol );
 
+    virtual void setEnabled( bool b );
+    bool isEnabled() const;
+
 private:
     QString txt;
     QPixmap pix;
@@ -141,6 +144,7 @@ private:
     EditType edType;
     uint wordwrap : 1;
     uint tcha : 1;
+    uint enabled : 1;
     int rw, cl;
     int rowspan, colspan;
 
