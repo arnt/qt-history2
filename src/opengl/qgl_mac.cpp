@@ -391,10 +391,53 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     aglUseFont((AGLContext) cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 
-// ### fix me
+static CFBundleRef GetOpenGLBundle(void)
+{
+    SInt16 frameworksVRefNum;
+    SInt32 frameworksDirID;
+    CFBundleRef bundle = 0;
+
+    if (FindFolder(kSystemDomain, kFrameworksFolderType, kDontCreateFolder,
+		   &frameworksVRefNum, &frameworksDirID) == noErr)
+    {
+	FSSpec spec;
+	FSRef ref;
+
+	if (FSMakeFSSpec(frameworksVRefNum, frameworksDirID,
+			 "\pOpenGL.framework" , &spec) == noErr) {
+	    FSpMakeFSRef(&spec, &ref);
+	    CFURLRef url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
+	    if (url) {
+		CFBundleRef bundle = CFBundleCreate(kCFAllocatorDefault, url);
+		CFRelease(url);
+	    }
+	}
+    }
+    return bundle;
+}
+
+static void *GetBundleProcAddress(CFBundleRef bundle, const char *name)
+{
+    CFStringRef string = CFStringCreateWithCString(kCFAllocatorDefault, name,
+						   kCFStringEncodingMacRoman);
+    void *address = CFBundleGetFunctionPointerForName(bundle, string);
+    CFRelease(string);
+    return address;
+}
+
+static void ReleaseBundle(CFBundleRef bundle)
+{
+    if (bundle)
+	CFRelease(bundle);
+}
+
 void *QGLContext::getProcAddress(const QString &proc) const
 {
-    return 0;
+    CFBundleRef bundle = GetOpenGLBundle();
+    void *proc = GetBundleProcAddress(bundle, proc.latin1());
+    ReleaseBundle(bundle);
+
+    return proc;
 }
 
 /*****************************************************************************
