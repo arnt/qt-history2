@@ -1362,7 +1362,6 @@ void QPopupMenu::drawContents( QPainter* p )
 	    break;
 	++it;
 	int itemh = itemHeight( mi );
-
 	sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
 				      QSize(0, itemh),
 				      QStyleOption(mi,maxPMWidth,0)
@@ -1870,7 +1869,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 		    for(int i = 0, y = sh*2; it.current(); i++, ++it) {
 			if(i >= d->scroll.topScrollableIndex) {
-			    y += itemHeight(it.current());
+			    int itemh = itemHeight(it.current());
+			    QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this, 
+								QSize(0, itemh), 
+								QStyleOption(it.current(),maxPMWidth,0));
+			    y += sz.height();
 			    if(y > contentsRect().height()) {
 				d->scroll.topScrollableIndex++;
 				refresh = TRUE;
@@ -1947,10 +1950,13 @@ void QPopupMenu::subScrollTimer() {
 	}
     } else if(pos.y() >= (y() + contentsRect().height()) - sh) { //down
 	QMenuItemListIt it(*mitems);
-	for(int i = 0, y = sh*2; it.current(); i++, ++it) {
+	for(int i = 0, y = contentsRect().y() + sh; it.current(); i++, ++it) {
 	    if(i >= d->scroll.topScrollableIndex) {
-		y += itemHeight(it.current());
-		if(y > contentsRect().height()) {
+		int itemh = itemHeight(it.current());
+		QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this, QSize(0, itemh), 
+						    QStyleOption(it.current(),maxPMWidth,0));
+		y += sz.height();
+		if(y > contentsRect().height() - sh) {
 		    d->scroll.topScrollableIndex++;
 		    refresh = TRUE;
 		    break;
