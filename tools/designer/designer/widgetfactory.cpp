@@ -520,7 +520,7 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
     QString str = WidgetDatabase::createWidgetName( id );
     const char *s = str.latin1();
     w = createWidget( n, parent, name ? name : s, init, r, orient );
-    if ( w->inherits( "QScrollView" ) )
+    if ( w && w->inherits( "QScrollView" ) )
 	( (QScrollView*)w )->disableSizeHintCaching();
     if ( !w && WidgetDatabase::isCustomWidget( id ) )
 	w = createCustomWidget( parent, name ? name : s, MetaDataBase::customWidget( id ) );
