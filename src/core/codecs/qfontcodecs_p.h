@@ -39,7 +39,7 @@
 class QJpUnicodeConv;
 
 
-class QFontJis0201Codec : public QTextCodec
+class Q_CORE_EXPORT QFontJis0201Codec : public QTextCodec
 {
 public:
     QFontJis0201Codec();
@@ -66,7 +66,7 @@ public:
 };
 
 
-class QFontJis0208Codec : public QTextCodec
+class Q_CORE_EXPORT QFontJis0208Codec : public QTextCodec
 {
 public:
     QFontJis0208Codec();
@@ -108,7 +108,7 @@ private:
 
 
 
-class QFontKsc5601Codec : public QTextCodec
+class Q_CORE_EXPORT QFontKsc5601Codec : public QTextCodec
 {
 public:
     QFontKsc5601Codec();
@@ -144,7 +144,7 @@ public:
 
 
 
-class QFontGb2312Codec : public QTextCodec
+class Q_CORE_EXPORT QFontGb2312Codec : public QTextCodec
 {
 public:
     QFontGb2312Codec();
@@ -181,7 +181,7 @@ public:
 
 
 
-class QFontGbkCodec : public QTextCodec
+class Q_CORE_EXPORT QFontGbkCodec : public QTextCodec
 {
 public:
     QFontGbkCodec();
@@ -219,7 +219,7 @@ public:
 
 
 
-class QFontGb18030_0Codec : public QTextCodec
+class Q_CORE_EXPORT QFontGb18030_0Codec : public QTextCodec
 {
 public:
     QFontGb18030_0Codec();
@@ -255,7 +255,7 @@ public:
 
 
 
-class QFontBig5Codec : public QTextCodec
+class Q_CORE_EXPORT QFontBig5Codec : public QTextCodec
 {
 public:
     QFontBig5Codec();
@@ -291,7 +291,7 @@ public:
 
 
 
-class QFontBig5hkscsCodec : public QTextCodec
+class Q_CORE_EXPORT QFontBig5hkscsCodec : public QTextCodec
 {
 public:
     QFontBig5hkscsCodec();
@@ -326,7 +326,7 @@ public:
 };
 
 
-class QFontLaoCodec : public QTextCodec
+class Q_CORE_EXPORT QFontLaoCodec : public QTextCodec
 {
 public:
     QFontLaoCodec();
