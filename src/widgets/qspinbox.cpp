@@ -109,21 +109,23 @@ public:
   would be 0 to 100:
 
   \code
-  class MySpinBox : public QSpinBox {
-  public:
-    ...
-
-    QString	mapValueToText( int value )
+    class MySpinBox : public QSpinBox
     {
-      return QString("%1.%2").arg(value/10).arg(value%10);
-    }
+	Q_OBJECT
+    public:
+	...
 
-    int		mapTextToValue( bool* ok )
-    {
-      return int(text().toFloat()*10);
-    }
+	QString mapValueToText( int value )
+	{
+	    return QString( "%1.%2" )
+		   .arg( value / 10 ).arg( value % 10 );
+	}
 
-  };
+	int mapTextToValue( bool *ok )
+	{
+	    return (int) ( 10 * text().toFloat() );
+	}
+    };
   \endcode
 
   <img src=qspinbox-m.png> <img src=qspinbox-w.png>
