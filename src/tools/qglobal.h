@@ -225,7 +225,9 @@
 #  endif
 #elif defined(__EDG) || defined(__EDG__)
 // one observed on SGI DCC, the other documented
+#if defined(_BOOL)
 #  define Q_HAS_BOOL_TYPE
+#endif
 #  define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 #  define _CC_OC_
