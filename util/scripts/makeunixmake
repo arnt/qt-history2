@@ -35,6 +35,7 @@ find tutorial \
  extensions -name '*.pro' |
     while read pro_file
     do
+	(
 	DIR=$(dirname $pro_file)
 	cd $DIR # we are in a subshell
 	TEMPLATE=$(echo $(basename $DIR).t)
@@ -47,7 +48,8 @@ find tutorial \
 	    fi
 	fi
 	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
-        if [ -n "$LIST" ] ; then echo "$DIR/Makefile.in" ; fi
+        if [ -n "$LIST" ] ; then echo "$DIR/Makefile.in" ; fi	
+	; )
     done
 
 
