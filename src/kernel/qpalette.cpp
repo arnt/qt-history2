@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#42 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -178,11 +178,11 @@ const QBrush &QColorGroup::brush( ColorRole r ) const
 }
 
 /*!
-  Sets the color of the brush used for color role \a r to \a c.
+  Sets the brush used for color role \a r to a solid color \a c.
 */
 void QColorGroup::setColor( ColorRole r, const QColor &c )
 {
-    br[r].setColor( c );
+    setBrush( r, QBrush(c) );
 }
 
 /*!
@@ -610,13 +610,11 @@ const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
 }
 
 /*!
-  Sets the color of the brush in \a gr used for color role \a r to \a c.
+  Sets the brush in \a gr used for color role \a r to the solid color \a c.
 */
 void QPalette::setColor(ColorGroup gr,QColorGroup::ColorRole r,const QColor &c)
 {
-    detach();
-    data->ser_no = palette_count++;
-    directBrush( gr, r ).setColor( c );
+    setBrush( gr, r, QBrush(c) );
 }
 
 /*!
@@ -634,11 +632,7 @@ void QPalette::setBrush(ColorGroup gr,QColorGroup::ColorRole r,const QBrush &b)
 */
 void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
 {
-    detach();
-    data->ser_no = palette_count++;
-    directBrush( Normal,   r ).setColor( c );
-    directBrush( Disabled, r ).setColor( c );
-    directBrush( Active,   r ).setColor( c );
+    setBrush( r, QBrush(c) );
 }
 
 /*!
