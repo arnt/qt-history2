@@ -327,6 +327,10 @@ char *QRingBuffer::readPointer() const
 */
 void QRingBuffer::free(int bytes)
 {
+    bufferSize -= bytes;
+    if (bufferSize < 0)
+        bufferSize = 0;
+
     for (;;) {
         int nextBlockSize = nextDataBlockSize();
         if (bytes <= nextBlockSize) {
@@ -358,6 +362,8 @@ void QRingBuffer::free(int bytes)
 */
 char *QRingBuffer::reserve(int bytes)
 {
+    bufferSize += bytes;
+
     // if there is already enough space, simply return.
     if (tail + bytes <= buffers.at(tailBuffer).size()) {
         char *writePtr = buffers[tailBuffer].data() + tail;
@@ -391,6 +397,10 @@ char *QRingBuffer::reserve(int bytes)
 */
 void QRingBuffer::truncate(int bytes)
 {
+    bufferSize -= bytes;
+    if (bufferSize < 0)
+        bufferSize = 0;
+
     for (;;) {
         // special case: head and tail are in the same buffer
         if (tailBuffer == 0) {
@@ -451,6 +461,7 @@ void QRingBuffer::ungetChar(char c)
         ++tailBuffer;
     }
     buffers[0][head] = c;
+    ++bufferSize;
 }
 
 /*! \internal
@@ -460,21 +471,7 @@ void QRingBuffer::ungetChar(char c)
 */
 int QRingBuffer::size() const
 {
-    int tmpSize = 0;
-    for (int i = 0; i < buffers.size(); ++i) {
-        if (i == 0) {
-            if (i == tailBuffer)
-                tmpSize += tail - head;
-            else
-                tmpSize += buffers.at(i).size() - head;
-        } else if (i == tailBuffer) {
-            tmpSize += tail;
-        } else {
-            tmpSize += buffers.at(i).size();
-        }
-    }
-
-    return tmpSize;
+    return bufferSize;
 }
 
 /*! \internal
@@ -492,6 +489,7 @@ void QRingBuffer::clear()
 
     head = tail = 0;
     tailBuffer = 0;
+    bufferSize = 0;
 }
 
 /*! \internal
@@ -1314,7 +1312,7 @@ Q_UINT16 QAbstractSocket::localPort() const
 /*!
     Returns the host address of the local socket if available;
     otherwise returns QHostAddress::NullAddress.
-    
+
     This is normally the main IP address of the host, but can be
     QHostAddress::LocalHostAddress (127.0.0.1) for connections to the
     local host.

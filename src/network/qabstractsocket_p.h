@@ -36,6 +36,7 @@ private:
     int head, tail;
     int tailBuffer;
     int basicBlockSize;
+    int bufferSize;
 };
 
 class QSlidingWindowBuffer
