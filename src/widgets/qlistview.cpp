@@ -7119,7 +7119,6 @@ void QListView::contentsDropEvent( QDropEvent *e )
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( i && i->dropEnabled() && i->acceptDrop( e ) ) {
 	i->dropped( e );
-	emit dropped( e );
 	e->accept();
     } else if ( acceptDrops() ) {
 	emit dropped( e );
