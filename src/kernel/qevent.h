@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#38 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#39 $
 **
 ** Definition of event classes
 **
@@ -25,6 +25,7 @@
 #define Event_KeyPress		    6		// key pressed
 #define Event_KeyRelease	    7		// key released
 #define Event_FocusIn		    8		// keyboard focus received
+#define Event_FocusRestore	   21		// restore original focus
 #define Event_FocusOut		    9		// keyboard focus lost
 #define Event_Enter		   10		// mouse enters widget
 #define Event_Leave		   11		// mouse leaves widget

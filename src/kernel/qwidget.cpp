@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#203 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#202 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#203 $");
 
 
 /*!
@@ -2688,6 +2688,7 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case Event_FocusIn:
+	case Event_FocusRestore:
 	    focusInEvent( (QFocusEvent*)e );
 	    break;
 
