@@ -160,7 +160,7 @@
              </size>
             </property>
             <property name="focusPolicy" >
-             <enum>TabFocus</enum>
+             <enum>Qt::TabFocus</enum>
             </property>
             <property name="text" />
            </widget>

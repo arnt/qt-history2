@@ -297,8 +297,8 @@ QString Index::getDocumentTitle( const QString &fileName )
     QTextStream s( &file );
     QString text = s.read();
 
-    int start = text.indexOf( "<title>", 0, QString::CaseInsensitive) + 7;
-    int end = text.indexOf( "</title>", 0, QString::CaseInsensitive);
+    int start = text.indexOf( "<title>", 0, Qt::CaseInsensitive) + 7;
+    int end = text.indexOf( "</title>", 0, Qt::CaseInsensitive);
 
     QString title = text.mid( start, end - start );
     return title;

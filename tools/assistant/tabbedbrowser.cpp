@@ -176,7 +176,7 @@ void TabbedBrowser::init()
 
     QToolButton *newTabButton = new QToolButton(this);
     ui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
-    newTabButton->setCursor(arrowCursor);
+    newTabButton->setCursor(Qt::arrowCursor);
     newTabButton->setAutoRaise(true);
     newTabButton->setIcon(qPixmapFromMimeSource("addtab.png"));
     newTabButton->setFixedSize(s, s);
@@ -186,7 +186,7 @@ void TabbedBrowser::init()
     QToolButton *closeTabButton = new QToolButton(this);
     closeTabButton->setPalette(pal);
     ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
-    closeTabButton->setCursor(arrowCursor);
+    closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
     QIconSet is(qPixmapFromMimeSource("closetab.png"));
     QPixmap disabledPix = qPixmapFromMimeSource("d_closetab.png");

@@ -125,7 +125,7 @@ void HelpNavigationListItem::addLink(const QString &link)
     }
 
     QString preHash = link.left(hash);
-    if (linkList.find(preHash, QString::CaseInsensitive).count() > 0)
+    if (linkList.find(preHash, Qt::CaseInsensitive).count() > 0)
         return;
     linkList << link;
 }
@@ -287,7 +287,7 @@ void HelpDialog::loadIndexFile()
     if (indexDone)
         return;
 
-    setCursor(waitCursor);
+    setCursor(Qt::waitCursor);
     indexDone = true;
     ui.labelPrepare->setText(tr("Prepare..."));
     ui.framePrepare->show();
@@ -348,7 +348,7 @@ void HelpDialog::loadIndexFile()
     }
     ui.framePrepare->hide();
     showInitDoneMessage();
-    setCursor(arrowCursor);
+    setCursor(Qt::arrowCursor);
 }
 
 Q_UINT32 HelpDialog::getFileAges()
@@ -562,14 +562,14 @@ void HelpDialog::currentIndexChanged(QListBoxItem *)
 void HelpDialog::showTopic(int button, QListBoxItem *item,
                             const QPoint &)
 {
-    if(button == LeftButton && item)
+    if(button == Qt::LeftButton && item)
         showTopic();
 }
 
 void HelpDialog::showTopic(int button, Q3ListViewItem *item,
                             const QPoint &)
 {
-    if(button == LeftButton && item)
+    if(button == Qt::LeftButton && item)
         showTopic();
 }
 
@@ -654,7 +654,7 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
 
     if (o == ui.editIndex && e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
-        if (ke->key() == Key_Up) {
+        if (ke->key() == Qt::Key_Up) {
             int i = ui.listIndex->currentItem();
             if (--i >= 0) {
                 ui.listIndex->setCurrentItem(i);
@@ -663,7 +663,7 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
                 ui.editIndex->blockSignals(false);
             }
             return true;
-        } else if (ke->key() == Key_Down) {
+        } else if (ke->key() == Qt::Key_Down) {
             int i = ui.listIndex->currentItem();
             if (++i < int(ui.listIndex->count())) {
                 ui.listIndex->setCurrentItem(i);
@@ -672,7 +672,7 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
                 ui.editIndex->blockSignals(false);
             }
             return true;
-        } else if (ke->key() == Key_Next || ke->key() == Key_Prior) {
+        } else if (ke->key() == Qt::Key_Next || ke->key() == Qt::Key_Prior) {
             QApplication::sendEvent(ui.listIndex, e);
             ui.editIndex->blockSignals(true);
             ui.editIndex->setText(ui.listIndex->currentText());
@@ -776,7 +776,7 @@ void HelpDialog::insertContents()
 
     contentsInserted = true;
     ui.listContents->clear();
-    setCursor(waitCursor);
+    setCursor(Qt::waitCursor);
     if (!titleMapDone)
         setupTitleMap();
 
@@ -827,7 +827,7 @@ void HelpDialog::insertContents()
         }
         processEvents();
     }
-    setCursor(arrowCursor);
+    setCursor(Qt::arrowCursor);
     showInitDoneMessage();
 }
 
@@ -911,7 +911,7 @@ void HelpDialog::setupFullTextIndex()
     QFile f(cacheFilesPath + "indexdb.dict." + pname);
     if (!f.exists()) {
         help->statusBar()->clear();
-        setCursor(waitCursor);
+        setCursor(Qt::waitCursor);
         ui.labelPrepare->setText(tr("Indexing files..."));
         ui.progressPrepare->setTotalSteps(100);
         ui.progressPrepare->reset();
@@ -923,15 +923,15 @@ void HelpDialog::setupFullTextIndex()
         fullTextIndex->writeDict();
         ui.progressPrepare->setProgress(100);
         ui.framePrepare->hide();
-        setCursor(arrowCursor);
+        setCursor(Qt::arrowCursor);
         showInitDoneMessage();
     } else {
-        setCursor(waitCursor);
+        setCursor(Qt::waitCursor);
         help->statusBar()->message(tr("Reading dictionary..."));
         processEvents();
         fullTextIndex->readDict();
         help->statusBar()->message(tr("Done"), 3000);
-        setCursor(arrowCursor);
+        setCursor(Qt::arrowCursor);
     }
 }
 
@@ -985,7 +985,7 @@ void HelpDialog::startSearch()
             return;
         }
     }
-    setCursor(waitCursor);
+    setCursor(Qt::waitCursor);
     foundDocs.clear();
     foundDocs = fullTextIndex->query(terms, termSeq, seqWords);
     QString msg(QString("%1 documents found.").arg(foundDocs.count()));
@@ -1015,7 +1015,7 @@ void HelpDialog::startSearch()
     if (!s.isEmpty())
         terms << s;
 
-    setCursor(arrowCursor);
+    setCursor(Qt::arrowCursor);
 }
 
 void HelpDialog::on_helpButton_clicked()
@@ -1025,7 +1025,7 @@ void HelpDialog::on_helpButton_clicked()
 
 void HelpDialog::on_resultBox_mouseButtonClicked(int button, QListBoxItem *i, const QPoint &)
 {
-    if(button == LeftButton) {
+    if(button == Qt::LeftButton) {
         showResultPage(i);
     }
 }

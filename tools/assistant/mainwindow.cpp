@@ -54,11 +54,11 @@ MainWindow::MainWindow()
     dw = new QDockWindow(this);
     helpDock = new HelpDialog(dw, this);
 
-    dw->setAllowedAreas(AllDockWindowAreas);
+    dw->setAllowedAreas(Qt::AllDockWindowAreas);
     dw->setClosable(true);
     dw->setMovable(true);
     dw->setFloatable(true);
-    dw->setCurrentArea(DockWindowAreaLeft);
+    dw->setCurrentArea(Qt::DockWindowAreaLeft);
     dw->setWindowTitle(tr("Sidebar"));
 
 /*
@@ -378,7 +378,7 @@ void MainWindow::showBookmark(QAction *action)
 
 void MainWindow::showLinkFromClient(const QString &link)
 {
-    setWindowState(windowState() & ~WindowMinimized);
+    setWindowState(windowState() & ~Qt::WindowMinimized);
     raise();
     setActiveWindow();
     showLink(link);
@@ -591,13 +591,13 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
 {
     HelpWindow * hw = tabs->currentBrowser();
     hw->blockScrolling(true);
-    hw->setCursor(waitCursor);
+    hw->setCursor(Qt::waitCursor);
     if (hw->source() == link)
         hw->reload();
     else
         showLink(link);
     hw->sync();
-    hw->setCursor(arrowCursor);
+    hw->setCursor(Qt::arrowCursor);
 
     hw->viewport()->setUpdatesEnabled(false);
     int minPar = INT_MAX;
@@ -611,7 +611,7 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
                 minPar = para;
                 minIndex = index;
             }
-            hw->setColor(red);
+            hw->setColor(Qt::red);
             found = hw->find(term, false, true, true);
         }
     }

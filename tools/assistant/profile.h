@@ -68,35 +68,35 @@ inline void Profile::addDCFTitle(const QString &dcf, const QString &title)
     QString absdcf = QFileInfo(dcf).absFilePath();
     dcfTitles[title] = absdcf;
     if (docs.contains(absdcf) == 0)
-	docs << absdcf;
+        docs << absdcf;
 }
 
 inline void Profile::addDCF( const QString &docfile )
 {
     if( !docs.contains( docfile ) == 0 )
-	docs << docfile;
+        docs << docfile;
 }
 
 inline void Profile::addDCFIcon( const QString docfile,
-				     const QString &icon )
+                                     const QString &icon )
 {
     icons[docfile] = icon;
 }
 
 inline void Profile::addDCFIndexPage( const QString title,
-				      const QString &indexPage )
+                                      const QString &indexPage )
 {
     indexPages[title] = indexPage;
 }
 
 inline void Profile::addDCFImageDir( const QString docfile,
-				     const QString &imgDir )
+                                     const QString &imgDir )
 {
     imageDirs[docfile] = imgDir;
 }
 
 inline void Profile::addProperty( const QString &name,
-				  const QString &value )
+                                  const QString &value )
 {
     props[name] = value;
 }

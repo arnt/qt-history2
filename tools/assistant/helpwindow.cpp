@@ -205,23 +205,23 @@ void HelpWindow::ensureCursorVisible()
 
 void HelpWindow::contentsMousePressEvent(QMouseEvent *e)
 {
-    shiftPressed = (e->state() & ShiftButton);
+    shiftPressed = (e->state() & Qt::ShiftButton);
     QTextBrowser::contentsMousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)
 {
-    shiftPressed = (e->state() & ShiftButton);
+    shiftPressed = (e->state() & Qt::ShiftButton);
     QTextBrowser::keyPressEvent(e);
 }
 
 void HelpWindow::copy()
 {
-    if (textFormat() == PlainText) {
+    if (textFormat() == Qt::PlainText) {
         QTextBrowser::copy();
     } else {
-        TextFormat oldTf = textFormat();
-        setTextFormat(PlainText);
+        Qt::TextFormat oldTf = textFormat();
+        setTextFormat(Qt::PlainText);
         QString selectText = selectedText();
         selectText.replace("<br>", "\n");
         selectText.replace("\xa0", " ");
