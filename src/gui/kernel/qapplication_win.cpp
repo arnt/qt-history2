@@ -340,10 +340,10 @@ static void qt_show_system_menu(QWidget* tlw)
 #define disabled (MF_BYCOMMAND | MF_GRAYED)
 
 #ifndef Q_OS_TEMP
-    EnableMenuItem(menu, SC_MINIMIZE, enabled);
-    bool maximized  = IsZoomed(tlw->winId());
+    EnableMenuItem(menu, SC_MINIMIZE, tlw->testWFlags(Qt::WStyle_Minimize)?enabled:disabled);
+    bool maximized = IsZoomed(tlw->winId());
 
-    EnableMenuItem(menu, SC_MAXIMIZE, maximized?disabled:enabled);
+    EnableMenuItem(menu, SC_MAXIMIZE, !tlw->testWFlags(Qt::WStyle_Maximize) || maximized?disabled:enabled);
     EnableMenuItem(menu, SC_RESTORE, maximized?enabled:disabled);
 
     EnableMenuItem(menu, SC_SIZE, maximized?disabled:enabled);
