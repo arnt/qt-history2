@@ -226,9 +226,6 @@ public:
     QTextDocument *document() { return q_func(); }
     const QTextDocument *document() const { return q_func(); }
 
-    inline void setContext(const QString &context) { docContext = context; }
-    inline QString context() const { return docContext; }
-
 private:
     QTextDocumentPrivate(const QTextDocumentPrivate& m);
     QTextDocumentPrivate& operator= (const QTextDocumentPrivate& m);
@@ -263,8 +260,6 @@ private:
     bool modified;
     // position in undo stack of the last setModified(false) call
     int lastUnmodifiedUndoStackPos;
-
-    QString docContext;
 };
 
 #endif // QTEXTDOCUMENT_P_H

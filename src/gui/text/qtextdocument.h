@@ -121,9 +121,6 @@ public:
 
     bool isModified() const;
 
-    void setContext(const QString &context);
-    QString context() const;
-
 signals:
     void contentsChanged();
     void undoAvailable(bool);
@@ -151,7 +148,7 @@ private:
 class QImage;
 struct QTextDocumentLoaderInterface
 {
-    virtual QImage image(const QString &name, const QString &context = QString::null) = 0;
+    virtual QImage image(const QString &name) = 0;
 };
 Q_DECLARE_INTERFACE(QTextDocumentLoaderInterface, "http://trolltech.com/Qt/QTextDocumentLoaderInterface/1.0")
 

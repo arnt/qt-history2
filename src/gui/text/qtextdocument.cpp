@@ -621,25 +621,6 @@ void QTextDocument::setModified(bool m)
 }
 
 /*!
-    Sets this document's \a context. The context a base URL used for
-    looking for images and other external document elements.
-*/
-void QTextDocument::setContext(const QString &context)
-{
-    docHandle()->setContext(context);
-}
-
-/*!
-    Returns this document's context, which is either an empty string
-    or base URL. The context is used for looking for images and other
-    external document elements.
-*/
-QString QTextDocument::context() const
-{
-    return docHandle()->context();
-}
-
-/*!
   \internal
 
   So that not all classes have to be friends of each other...

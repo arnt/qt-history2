@@ -42,11 +42,18 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
         const QString name = format.name();
 
         if (QTextImageHandler::externalLoader) {
-            img = QTextImageHandler::externalLoader(name, doc->context());
+            QString context;
+
+            // ###
+            /*
+            if ((QTextBrowser *browser = qt_cast<doc->parent()))
+                context = browser->source();
+            */
+            img = QTextImageHandler::externalLoader(name, context);
         } else if (layout && layout->parent() && layout->parent()->parent()) { // ### temporary, until Q4TextBrowser and friends are in main
             QTextDocumentLoaderInterface *loader = qt_cast<QTextDocumentLoaderInterface *>(layout->parent()->parent());
             if (loader)
-                img = loader->image(name, doc->context());
+                img = loader->image(name);
         }
 
         if (img.isNull()) // try direct loading
