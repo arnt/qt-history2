@@ -1996,6 +1996,7 @@ const Node *HtmlGenerator::findNodeForTarget(const QString &target,
     const Node *relative, CodeMarker *marker, const Atom *atom)
 {
     const Node *node = 0;
+    
 
     if (target.isEmpty()) {
         node = relative;
@@ -2005,9 +2006,10 @@ const Node *HtmlGenerator::findNodeForTarget(const QString &target,
         node = marker->resolveTarget(target, tre, relative);
         if (!node)
             node = tre->findFakeNodeByTitle(target);
-        if (!node && atom)
+        if (!node && atom) {
             node = tre->findUnambiguousTarget(target,
-                const_cast<Atom*>(atom));
+                *const_cast<Atom**>(&atom));
+        }
     }
 
     if (!node) {
