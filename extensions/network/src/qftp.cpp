@@ -39,7 +39,7 @@
   \class QFtp qftp.h
   \brief The QFtp class implements the FTP protocol
 
-  \extension network
+  \extension Network
 
   The QFtp class implements the FTP protocol. This class
   is derived from QNetworkProtocol and can be
