@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#90 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#91 $
 **
 ** Implementation of QFileDialog class
 **
@@ -40,7 +40,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#91 $");
 
 
 static QFileIconProvider * fileIconProvider = 0;
@@ -274,7 +274,7 @@ const char * QFileDialogPrivate::File::key( int column, bool ascending ) const
     static QDateTime epoch( QDate( 1968, 6, 19 ) );
 
     char majorkey = ascending == info.isDir() ? '0' : '1';
-    
+
     if ( info.fileName() == ".." ) {
 	r = ascending ? "0" : "a"; // a > 9
     } else if ( column == 1 ) {
@@ -1033,7 +1033,7 @@ void QFileDialog::rereadDir()
 	    d->paths->insertItem( cwd.canonicalPath(), i );
 	d->paths->setCurrentItem( i );
     }
-    
+
     d->cdToParent->setEnabled( !cwd.isRoot() );
 
     const QFileInfoList *filist = 0;
@@ -1548,7 +1548,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 }
 
 
-/*!  Updates the dialog when enter is pressed in the file name edit. */
+/*!  Updates the dialog when the file name edit changes. */
 
 void QFileDialog::fileNameEditDone()
 {
@@ -1838,9 +1838,31 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return TRUE;
     if ( o == files && e->type() == Event_FocusOut &&
-	 files->currentItem() )
+	 files->currentItem() ) {
 	files->setSelected( files->currentItem(), FALSE );
-    else if ( o == nameEdit && e->type() == Event_FocusIn )
+    } else if ( o == nameEdit && e->type() == Event_KeyPress ) {
+	// ### hack.  after 1.40, we need to merge the completion code
+	// ### here, in QListView and QComboBox.
+	if ( !files->currentItem() )
+	    files->setCurrentItem( files->firstChild() );
+	if ( files->currentItem() && ((QKeyEvent *)e)->ascii() ) {
+	    files->blockSignals( TRUE );
+	    QApplication::sendEvent( files, e );
+	    files->blockSignals( FALSE );
+	    QString nt( nameEdit->text() );;
+	    nt.detach();
+	    nt.truncate( nameEdit->cursorPosition() );
+	    nt += (char)(((QKeyEvent *)e)->ascii());
+	    if ( !qstrncmp( nt, files->currentItem()->text( 0 ),
+			    nt.length() ) ) {
+		nt = files->currentItem()->text( 0 );
+		int cp = nameEdit->cursorPosition()+1;
+		nameEdit->validateAndSet( nt, cp, cp, nt.length() );
+		return TRUE;
+	    }
+	}
+    } else if ( o == nameEdit && e->type() == Event_FocusIn ) {
 	fileNameEditDone();
+    }
     return FALSE;
 }
