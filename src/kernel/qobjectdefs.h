@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#9 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#10 $
 **
 ** Macros and definitions related to QObject
 **
@@ -64,9 +64,9 @@ class QListM_QConnection;			// connection list
 #define QConnectionList   QListM_QConnection
 #define QConnectionListIt QListIteratorM_QConnection
 
-class QDictM_QConnectionList;			// signal dictionary
-#define QSignalDict   QDictM_QConnectionList
-#define QSignalDictIt QDictIteratorM_QConnectionList
+class QDictM_QListM_QConnection;		// signal dictionary
+#define QSignalDict   QDictM_QListM_QConnection
+#define QSignalDictIt QDictIteratorM_QListM_QConnection
 
 class QListM_QObject;				// object list
 #define QObjectList QListM_QObject
