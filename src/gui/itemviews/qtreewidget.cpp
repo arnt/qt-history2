@@ -547,17 +547,14 @@ void QTreeModel::sort(int column, Qt::SortOrder order, const QModelIndex &parent
     if (column == -1)
         return;
 
-    int count = 0;
     QList<QTreeWidgetItem*>::iterator begin;
     QList<QTreeWidgetItem*>::iterator end;
     QTreeWidgetItem *par = static_cast<QTreeWidgetItem*>(parent.data());
 
     if (!par) {
-        count = tree.count();
         begin = tree.begin();
         end = tree.end();
     } else {
-        count = par->children.count();
         begin = par->children.begin();
         end = par->children.end();
     }
