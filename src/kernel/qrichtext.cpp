@@ -531,6 +531,7 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
     nested = TRUE;
     QPoint p( globalPos.x() - offsetX(), globalPos.y() - offsetY() );
     Q_ASSERT( string->at( idx )->isCustom() );
+    ox = string->at( idx )->x;
     string->at( idx )->customItem()->enterAt( this, doc, string, idx, ox, oy, p );
 }
 
@@ -781,7 +782,7 @@ void QTextCursor::processNesting( Operation op )
     if ( !doc )
 	return;
     push();
-    ox = 0;
+    ox = string->at( idx )->x;
     int bl, y;
     string->lineHeightOfChar( idx, &bl, &y );
     oy = y + string->rect().y();
