@@ -33,7 +33,7 @@
 **
 **********************************************************************/
  
-/*! \page casestudy-qws.html
+/*! \page emb-casestudy.html
 
 \title Qt/Embedded Case Study - Cassiopeia E-100
 
@@ -116,7 +116,7 @@ things worth noting:
 \list 1
 \i Two fonts are set - helvetica 10 point as the application's default font,
 and helvetica 12 point for the editor.  Since we will use prerendered fonts
-these fonts must be prepared as \link fonts-qws.html described
+these fonts must be prepared as \link emb-fonts.html described
 here\endlink.
 \i The QApplication is constructed with the QApplication::GuiServer type
 specified.  This makes the note pad a Qt/Embedded server.  One server must
@@ -172,7 +172,7 @@ disable the following features:
     #define QT_NO_EFFECTS
 \endcode
 
-See \link features.html Qt Features\endlink for a description of the
+See \link emb-features.html Qt Features\endlink for a description of the
 features that can be disabled.  This leaves us with a small set of
 widgets and dialogs necessary for our application.  Cross-compile the
 library for the mips target on the x86 platform:

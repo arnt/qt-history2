@@ -33,7 +33,7 @@
 **
 **********************************************************************/
 
-/*! \page accel.html
+/*! \page emb-accel.html
 
 \title Adding an accelerated graphics driver to Qt/Embedded
 

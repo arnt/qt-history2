@@ -42,7 +42,7 @@ The installation procedure is different for the different Qt platforms:
 \list
  \i \link install-x11.html Qt/X11 \endlink
  \i \link install-win.html Qt/Windows \endlink
- \i \link install-qws.html Qt/Embedded \endlink
+ \i \link emb-install.html Qt/Embedded \endlink
 \endlist
 
 */

@@ -70,15 +70,15 @@ When compiling for this platform, the macro \c{Q_WS_QWS} is defined
 (the window system is literally the Qt Window System).
 
 \list
- \i \link install-qws.html Installation\endlink
- \i \link performance-qws.html Qt/Embedded performance tuning\endlink
- \i \link running-qws.html Running Qt/Embedded applications\endlink
- \i \link porting-qws.html Porting your applications to Qt/Embedded\endlink
- \i \link fonts-qws.html Font formats and definitions\endlink
- \i \link charinput-qws.html Character input (keyboard, pen, ...)\endlink
- \i \link pointer-qws.html Pointer handling (mouse, pen, ...)\endlink
- \i \link features.html Reduce memory use with the feature definition file\endlink
- \i \link casestudy-qws.html A case study embedding on Cassiopeia\endlink
+ \i \link emb-install.html Installation\endlink
+ \i \link emb-performance.html Qt/Embedded performance tuning\endlink
+ \i \link emb-running.html Running Qt/Embedded applications\endlink
+ \i \link emb-porting.html Porting your applications to Qt/Embedded\endlink
+ \i \link emb-fonts.html Font formats and definitions\endlink
+ \i \link emb-charinput.html Character input (keyboard, pen, ...)\endlink
+ \i \link emb-pointer.html Pointer handling (mouse, pen, ...)\endlink
+ \i \link emb-features.html Reduce memory use with the feature definition file\endlink
+ \i \link emb-casestudy.html A case study embedding on Cassiopeia\endlink
 \endlist
 
 */

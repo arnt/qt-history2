@@ -78,23 +78,23 @@
 
 \i
     \list
-    \i \link qvfb-qws.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
+    \i \link emb-qvfb.html  QVFb tool - virtual framebuffer for Qt/Embedded \endlink
     <p>&nbsp;</p>
-    \i \link install-qws.html Installing Qt/Embedded \endlink
-    \i \link features.html The Feature Definition File \endlink
-    \i \link embedclasses.html The Qt/Embedded-specific classes \endlink
-    \i \link accel.html Adding an accelerated graphics driver to Qt/Embedded \endlink
-    \i \link casestudy-qws.html Qt/Embedded Case Study - Cassiopeia E-100 \endlink
-    \i \link HOWTO-framebuffer.html Enabling the Linux Framebuffer \endlink
-    \i \link running-qws.html Running Qt/Embedded applications \endlink
-    \i \link charinput-qws.html Character input in Qt/Embedded \endlink
-    \i \link fonts-qws.html Fonts in Qt/Embedded \endlink
-    \i \link pointer-qws.html Qt/Embedded Pointer Handling \endlink
-    \i \link envvars.html Qt/Embedded environment variables \endlink
-    \i \link porting-qws.html Porting your applications to Qt/Embedded \endlink
-    \i \link embedporting.html Issues when porting Qt/Embedded to another OS \endlink
-    \i \link performance-qws.html Qt/Embedded Performance Tuning \endlink
-    \i \link vnc-qws.html Qt/Embedded as a VNC Server \endlink
+    \i \link emb-install.html Installing Qt/Embedded \endlink
+    \i \link emb-features.html The Feature Definition File \endlink
+    \i \link emb-classes.html The Qt/Embedded-specific classes \endlink
+    \i \link emb-accel.html Adding an accelerated graphics driver to Qt/Embedded \endlink
+    \i \link emb-casestudy.html Qt/Embedded Case Study - Cassiopeia E-100 \endlink
+    \i \link emb-framebuffer-howto.html Enabling the Linux Framebuffer \endlink
+    \i \link emb-running.html Running Qt/Embedded applications \endlink
+    \i \link emb-charinput.html Character input in Qt/Embedded \endlink
+    \i \link emb-fonts.html Fonts in Qt/Embedded \endlink
+    \i \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
+    \i \link emb-envvars.html Qt/Embedded environment variables \endlink
+    \i \link emb-porting.html Porting your applications to Qt/Embedded \endlink
+    \i \link emb-porting.html Issues when porting Qt/Embedded to another OS \endlink
+    \i \link emb-performance.html Qt/Embedded Performance Tuning \endlink
+    \i \link emb-vnc.html Qt/Embedded as a VNC Server \endlink
     \endlist
 \endtable
 

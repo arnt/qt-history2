@@ -33,7 +33,7 @@
 **
 **********************************************************************/
 
-/*! \page HOWTO-framebuffer.html
+/*! \page emb-framebuffer-howto.html
 
 \title Enabling the Linux Framebuffer
 

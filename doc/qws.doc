@@ -32,7 +32,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-/*! \page install-qws.html
+/*! \page emb-install.html
 
 \title Installing Qt/Embedded
 
@@ -75,7 +75,7 @@ Configurations files are found in \c configs/.
 
    You may need to recompile your kernel to enable the framebuffer.
    This document does not describe how to do this; the
-   \link HOWTO-framebuffer.html HOWTO-Framebuffer page \endlink
+   \link emb-framebuffer-howto.html HOWTO-Framebuffer page \endlink
    contains a short description. (You should see
    a penguin logo at boot time when the frame buffer is enabled.)
 
@@ -162,13 +162,13 @@ Configurations files are found in \c configs/.
 \i Customization.
 
    The Qt/Embedded library can be reduced in size by
-   \link features.html removing unnecessary features \endlink.
+   \link emb-features.html removing unnecessary features \endlink.
 
 \endlist
 
 */
 
-/*! \page fonts-qws.html
+/*! \page emb-fonts.html
 
 \title Fonts in Qt/Embedded
 
@@ -195,7 +195,7 @@ Qt/Embedded supports four font formats:
 
 Support for each of these font formats, except QPF which is always
 enabled, can be enabled or disabled independently by using the \link
-features.html Qt/Embedded Features Definition\endlink. There is
+emb-features.html Qt/Embedded Features Definition\endlink. There is
 support in Qt/Embedded for writing a QPF font file from any font, thus
 you can initially enable TTF and BDF formats, save QPF files for the
 fonts and sizes you need, then remove TTF and BDF support.
@@ -308,7 +308,7 @@ TrueType and Type1 support.
 
 */
 
-/*! \page running-qws.html
+/*! \page emb-running.html
 
 \title Running Qt/Embedded applications
 
@@ -325,8 +325,8 @@ master application by constructing the QApplication object with the
 This document assumes you have the Linux framebuffer configured correctly
 and no master process is running.  If you do not have a working Linux
 framebuffer you can use the
-\link qvfb-qws.html Qt/Embedded virtual framebuffer\endlink, or you can
-run Qt/Embedded as a \link vnc-qws.html VNC server\endlink.
+\link emb-qvfb.html Qt/Embedded virtual framebuffer\endlink, or you can
+run Qt/Embedded as a \link emb-vnc.html VNC server\endlink.
 
 Change to a Linux console and select an example to run, e.g. \c examples/widgets.
 Make sure $QTDIR is set to the directory where you installed Qt/Embedded
@@ -410,11 +410,11 @@ variable, e.g.:
 export QWS_MOUSE_PROTO=IntelliMouse
 \endcode
 
-\sa \link pointer-qws.html Qt/Embedded Pointer Handling \endlink
+\sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
 
 */
 
-/*! \page porting-qws.html
+/*! \page emb-porting.html
 
 \title Porting your applications to Qt/Embedded
 
@@ -437,7 +437,7 @@ using \c #ifdef directives:
 */
 
 
-/*! \page pointer-qws.html
+/*! \page emb-pointer.html
 \title Qt/Embedded Pointer Handling
 
 Pointer handling in Qt/Embedded works for any mouse or mouse-like
@@ -482,7 +482,7 @@ a subclass of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
 */
 
 
-/*! \page performance-qws.html
+/*! \page emb-performance.html
 \title Qt/Embedded Performance Tuning
 
 When building embedded applications on low-powered devices, a number
@@ -491,7 +491,7 @@ application environment. These options reduce the memory and/or CPU
 requirements at the cost of other factors.
 
 \list
- \i \link features.html <b>Tuning the functionality of Qt\endlink
+ \i \link emb-features.html <b>Tuning the functionality of Qt\endlink
  \i \link #general General programming style\endlink
  \i \link #static Static vs. Dynamic linking\endlink
  \i \link #alloc Alternative memory allocation\endlink
@@ -583,7 +583,7 @@ by adding the following to your code:
 \endcode
 */
 
-/*! \page vnc-qws.html
+/*! \page emb-vnc.html
 
 \title Qt/Embedded as a VNC Server
 
@@ -610,7 +610,7 @@ e.g. \c QWS_SIZE=240x320.
 VNC clients are available for a vast array of display systems - X11,
 Windows, Amiga, DOS, VMS, and dozens of others.
 
-The \link qvfb-qws.html Qt Virtual Framebuffer \endlink is an alternative
+The \link emb-qvfb.html Qt Virtual Framebuffer \endlink is an alternative
 technique. It uses shared memory and thus is much faster and smoother, but
 it does not operate over a network.
 
