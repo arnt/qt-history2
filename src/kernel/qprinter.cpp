@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#11 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#11 $";
 #endif
 
 
@@ -70,7 +70,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#10 $";
       QApplication a( argc, argv );
 
       QPrinter prt;
-      if ( prt.select( 0 ) ) {
+      if ( prt.setup( 0 ) ) {
           QPainter p;
           p.begin( &prt );
           p.setFont( QFont( "times", 96, QFont::Bold ) );
@@ -369,10 +369,10 @@ void QPrinter::setFromTo( int fromPage, int toPage )
   Sets the min page and max page.
 
   The min-page and max-page restrict the from-page and to-page settings.
-  When the printer selection dialog comes up, the user cannot select
+  When the printer setup dialog comes up, the user cannot select
   from and to that are outsize the range specified by min and max pages.
 
-  \sa minPage(), maxPage(), select()
+  \sa minPage(), maxPage(), setup()
  ----------------------------------------------------------------------------*/
 
 void QPrinter::setMinMax( int minPage, int maxPage )
