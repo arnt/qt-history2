@@ -169,16 +169,18 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     GetModuleFileNameA(0, qAxModuleFilename, MAX_PATH-1);
     qAxInstance = hInstance;
     
-    lpCmdLine = GetCommandLineA(); //this line necessary for _ATL_MIN_CRT
+    lpCmdLine = GetCommandLineA();
     QString cmdLine = QString::fromLatin1(lpCmdLine);
     
     QStringList cmds = cmdLine.split(" ");
+    QStringList unprocessed;
+
     int nRet = 0;
     bool run = true;
     bool runServer = false;
     for (QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it) {
         QString cmd = (*it).toLower();
-        if (cmd == "-activex" || cmd == "/activex") {
+        if (cmd == "-activex" || cmd == "/activex" || cmd == "-embedding" || cmd == "/embedding") {
             runServer = true;
         } else if (cmd == "-unregserver" || cmd == "/unregserver") {
             nRet = UpdateRegistry(false);
@@ -208,12 +210,16 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
             }
             run = false;
             break;
+        } else {
+            unprocessed += (*it);
         }
     }
     
     if (run) {
         int argc;
         char* cmdp = 0;
+        cmdLine = unprocessed.join(" ");
+
         // Use malloc/free for eval package compability
         cmdp = (char*) malloc((cmdLine.length() + 1) * sizeof(char));
         qstrcpy(cmdp, cmdLine.latin1());
@@ -225,7 +231,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
         qAxInit();
         if (runServer)
             QAxFactory::startServer();
-        nRet = main(argc, argv.data());
+        nRet = main(argc - 1, argv.data() + 1); // application name double from qWinMain
         QAxFactory::stopServer();
         qAxCleanup();
         CoUninitialize();
