@@ -1465,6 +1465,7 @@ public:
 	    b->item = 0;
 	    delete b;
 	}
+	data->setDirty();
 	return item;
     }
 
