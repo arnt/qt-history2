@@ -1743,12 +1743,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    QCursor cursor(Qt::ArrowCursor);
-	    if(widget) { //only over the app, do we set a cursor..
+	    QWidget *cursor_widget = widget;
+	    if(cursor_widget && cursor_widget == qt_button_down && ekind == kEventMouseUp)
+		cursor_widget = QApplication::widgetAt(where.h, where.v, true);
+	    if(cursor_widget) { //only over the app, do we set a cursor..
 		if(!qApp->d->cursor_list.isEmpty()) {
 		    cursor = qApp->d->cursor_list.first();
 		} else {
-		    for(QWidget *p = widget; p; p = p->parentWidget()) {
-			QWExtra *extra = ((QExtraWidget*)p)->extraData();
+		    for( ; cursor_widget; cursor_widget = cursor_widget->parentWidget()) {
+			QWExtra *extra = ((QExtraWidget*)cursor_widget)->extraData();
 			if(extra && extra->curs) {
 			    cursor = *extra->curs;
 			    break;
