@@ -34,11 +34,11 @@ components and other software items under the following restrictions:
 You may make modifications to the Software.  In order to preserve the
 copyright of the unmodified version of the Software, modifications must
 be distributed in the form of patches, and the following restrictions
-apply to those patches: 
+apply to each patch: 
 
-  1. The patches must not modify copyright notices in the Software.
+  1. The patch must not modify copyright notices in the Software.
 
-  2. The patches must include the following copyright notice:
+  2. The patch must include the following copyright notice:
 
         Permission is hereby granted, free of charge, to any person
         obtaining a copy of this patch, to deal in the patch without
@@ -46,12 +46,15 @@ apply to those patches:
         copy, modify, merge, publish, distribute, sublicense, and/or
         sell copies of the patch.  
 
-  3. The patches must include an accurate English-language description
-      of the modification.
+  3. The patch must include an accurate English-language description
+     of the modification and the date of the modification.
 
 You may additionally distribute machine-executable forms of the modified
 version of the Software that results mechanically from using the patch
 files.
+
+Troll Tech AS may publish new versions of the license, each new version
+will be given a version number.
 
 			    Limitations of Liability
 
