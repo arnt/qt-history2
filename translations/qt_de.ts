@@ -537,7 +537,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Ogham</source>
-        <translation type='unfinished'>Ogham</translation>
+        <translation>Ogham</translation>
     </message>
     <message>
         <source>Hebrew</source>
@@ -553,11 +553,11 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Thaana</source>
-        <translation type='unfinished'>Thaana</translation>
+        <translation>Thaana</translation>
     </message>
     <message>
         <source>Devanagari</source>
-        <translation type='unfinished'>Devanagari</translation>
+        <translation>Devanagari</translation>
     </message>
     <message>
         <source>Bengali</source>
@@ -565,7 +565,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Gurmukhi</source>
-        <translation type='unfinished'>Gurmukhi</translation>
+        <translation>Gurmukhi</translation>
     </message>
     <message>
         <source>Gujarati</source>
@@ -573,7 +573,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Oriya</source>
-        <translation type='unfinished'>Oriya</translation>
+        <translation>Oriya</translation>
     </message>
     <message>
         <source>Tamil</source>
@@ -581,19 +581,19 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Telugu</source>
-        <translation type='unfinished'>Telugu</translation>
+        <translation>Telugu</translation>
     </message>
     <message>
         <source>Kannada</source>
-        <translation type='unfinished'>Kannada</translation>
+        <translation>Kannada</translation>
     </message>
     <message>
         <source>Malayalam</source>
-        <translation type='unfinished'>Malayalam</translation>
+        <translation>Malayalam</translation>
     </message>
     <message>
         <source>Sinhala</source>
-        <translation type='unfinished'>Sinhala</translation>
+        <translation>Sinhala</translation>
     </message>
     <message>
         <source>Thai</source>
@@ -601,7 +601,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Lao</source>
-        <translation type='unfinished'>Lao</translation>
+        <translation>Lao</translation>
     </message>
     <message>
         <source>Tibetan</source>
@@ -609,15 +609,15 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Myanmar</source>
-        <translation type='unfinished'>Myanmar</translation>
+        <translation>Myanmar</translation>
     </message>
     <message>
         <source>Khmer</source>
-        <translation type='unfinished'>Khmer</translation>
+        <translation>Khmer</translation>
     </message>
     <message>
         <source>Han</source>
-        <translation type='unfinished'>Han</translation>
+        <translation>Han</translation>
     </message>
     <message>
         <source>Hiragana</source>
@@ -629,11 +629,11 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Hangul</source>
-        <translation type='unfinished'>Hangul</translation>
+        <translation>Hangul</translation>
     </message>
     <message>
         <source>Bopomofo</source>
-        <translation type='unfinished'>Bopomofo</translation>
+        <translation>Bopomofo</translation>
     </message>
     <message>
         <source>Yi</source>
@@ -756,7 +756,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Scr&amp;ipt</source>
-        <translation>&amp;Handschrift</translation>
+        <translation type='unfinished'>&amp;Handschrift</translation>
     </message>
     <message>
         <source>OK</source>
@@ -811,11 +811,11 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type='unfinished'></translation>
+        <translation>Rechner %1 nicht gefunden</translation>
     </message>
     <message>
         <source>Connection refused to host %1</source>
-        <translation type='unfinished'></translation>
+        <translation>Verbindung mit %1 verweigert</translation>
     </message>
 </context>
 <context>
@@ -829,51 +829,51 @@ Datei wurde nicht gefunden.
     <name>QHttp</name>
     <message>
         <source>Connection refused</source>
-        <translation type='unfinished'></translation>
+        <translation>Verbindung verweigert</translation>
     </message>
     <message>
         <source>Host %1 not found</source>
-        <translation type='unfinished'></translation>
+        <translation>Rechner %1 nicht gefunden</translation>
     </message>
     <message>
         <source>Connection closed by %1</source>
-        <translation type='unfinished'></translation>
+        <translation>%1 hat Verbindung beendet</translation>
     </message>
     <message>
         <source>Invalid HTTP reply header</source>
-        <translation type='unfinished'></translation>
+        <translation>Ungültiger HTTP Reply-Header</translation>
     </message>
     <message>
         <source>Wrong content length</source>
-        <translation type='unfinished'></translation>
+        <translation>Falsche Content-Length</translation>
     </message>
     <message>
         <source>HTTP request failed</source>
-        <translation type='unfinished'></translation>
+        <translation>HTTP Anfrage schlug fehl</translation>
     </message>
     <message>
         <source>Host %1 found</source>
-        <translation type='unfinished'>Rechner %1 gefunden</translation>
+        <translation>Rechner %1 gefunden</translation>
     </message>
     <message>
         <source>Host found</source>
-        <translation type='unfinished'>Rechner gefunden</translation>
+        <translation>Rechner gefunden</translation>
     </message>
     <message>
         <source>Connected to host %1</source>
-        <translation type='unfinished'>Verbunden mit Rechner %1</translation>
+        <translation>Verbunden mit Rechner %1</translation>
     </message>
     <message>
         <source>Connected to host</source>
-        <translation type='unfinished'>Verbindung mit Rechner besteht</translation>
+        <translation>Verbindung mit Rechner besteht</translation>
     </message>
     <message>
         <source>Connection to %1 closed</source>
-        <translation type='unfinished'>Verbindung mit %1 beendet</translation>
+        <translation>Verbindung mit %1 beendet</translation>
     </message>
     <message>
         <source>Connection closed</source>
-        <translation type='unfinished'>Verbindung beendet</translation>
+        <translation>Verbindung beendet</translation>
     </message>
 </context>
 <context>
@@ -919,23 +919,23 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Rückgängig</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Wiederherstellen</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Ausschneiden</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Kopieren</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Einfügen</translation>
     </message>
 </context>
 <context>
@@ -954,7 +954,7 @@ nach
         <source>Could not open
 %1</source>
         <translation>Konnte nicht geöffnet werden:
-%s</translation>
+%1</translation>
     </message>
     <message>
         <source>Could not write
@@ -1018,11 +1018,11 @@ nach
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type='unfinished'></translation>
+        <translation>&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++.&lt;/p&gt;&lt;p&gt;Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf  Windows 95/98/NT/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX und vielen anderen Unix-Versionen, die X11 verwenden.&lt;br&gt;Qt ist auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Qt ist ein Produkt von Trolltech. Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type='unfinished'></translation>
+        <translation>&lt;h3&gt;Über Qt&lt;/h3&gt;&lt;p&gt;Dieses Programm verwendet Qt Version %1&lt;/p&gt;&lt;p&gt;Qt ist ein multi-platform Framework zum Erstellen von GUI-Programmen in C++.&lt;/p&gt;&lt;p&gt;Qt bietet Portierungsmöglichkeiten mit nur einer Quellcode-Basis auf Windows 95/98/NT/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX und vielen anderen Unix-Versionen, die X11 verwenden.&lt;br&gt;Qt ist auch für eingebettete Systeme erhältlich.&lt;/p&gt;&lt;p&gt;Qt ist ein Produkt von Trolltech. Weitere Informationen finden Sie unter &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1333,23 +1333,23 @@ nach
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Rückgängig</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Wiederherstellen</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Ausschneiden</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Kopieren</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Einfügen</translation>
     </message>
 </context>
 <context>
@@ -1474,7 +1474,7 @@ nach
     </message>
     <message>
         <source>BeOS</source>
-        <translation type='unfinished'></translation>
+        <translation>BeOS</translation>
     </message>
 </context>
 <context>
@@ -1665,11 +1665,11 @@ nach
     </message>
     <message>
         <source>encoding declaration or standalone declaration expected while reading the XML declaration</source>
-        <translation type='unfinished'></translation>
+        <translation>fehlende Encoding-Deklaration oder Standalone-Deklaration beim Parsen der XML-Deklaration</translation>
     </message>
     <message>
         <source>standalone declaration expected while reading the XML declaration</source>
-        <translation type='unfinished'></translation>
+        <translation>fehlende Standalone-Deklaration beim Parsen der XML Deklaration</translation>
     </message>
 </context>
 <context>
