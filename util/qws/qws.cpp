@@ -211,6 +211,9 @@ void QWSServer::doClient()
 	case QWSCommand::RemoveProperty:
 	    invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
 	    break;
+	case QWSCommand::GetProperty:
+	    invokeGetProperty( (QWSGetPropertyCommand*)command, client );
+	    break;
 	}
 
 	delete command;
@@ -309,6 +312,23 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
  	qDebug( "removing property failed" );
 }
 
+void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client )
+{
+    qDebug( "QWSServer::invokeGetProperty %d %d", cmd->simpleData.windowid,
+	    cmd->simpleData.property );
+    char *data;
+    int len;
+    if ( properties()->getProperty( cmd->simpleData.windowid,
+				    cmd->simpleData.property,
+				    data, len ) ) {
+ 	qDebug( "get property successful" );
+	client->writeBlock( (char*)&len, sizeof( len ) );
+	client->writeBlock( data, len );
+    } else {
+ 	qDebug( "get property failed" );
+	client->writeBlock( (char*)&len, sizeof( len ) );
+    }
+}
 
 void QWSWindow::addAllocation(QRegion r)
 {

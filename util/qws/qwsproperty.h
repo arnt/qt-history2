@@ -45,18 +45,19 @@ public:
     bool hasProperty( int winId, int property );
     bool removeProperty( int winId, int property );
     bool addProperty( int winId, int property );
+    bool getProperty( int winId, int property, char *&data, int &len );
 
 private:
     char *createKey( int winId, int property ) const;
-    
+
 private:
     struct Property {
 	int len;
 	char *data;
     };
-    
+
     QDict<Property> properties;
-    
+
 };
 
 

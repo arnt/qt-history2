@@ -81,10 +81,10 @@ struct QWSCommand
 {
     // ctor - dtor
     QWSCommand( int t, int len, char *ptr ) : type( t ),
-	simpleLen( len ), rawLen( -1 ), simpleDataPtr( ptr ), 
+	simpleLen( len ), rawLen( -1 ), simpleDataPtr( ptr ),
 	rawDataPtr( 0 ), bytesRead( 0 ) {}
     virtual ~QWSCommand() { delete rawDataPtr; }
-    
+
     enum Type {
 	Unknown = 0,
 	Create,
@@ -92,7 +92,8 @@ struct QWSCommand
 	Region,
 	SetProperty,
 	AddProperty,
-	RemoveProperty
+	RemoveProperty,
+	GetProperty
     };
 
     // data
@@ -122,7 +123,7 @@ struct QWSCommand
 	memcpy( rawDataPtr, data, len );
 	rawLen = len;
     }
-    
+
     // temp variables
     char *simpleDataPtr;
     char *rawDataPtr;
@@ -146,7 +147,7 @@ struct QWSCreateCommand : public QWSCommand
 struct QWSRegionCommand : public QWSCommand
 {
     QWSRegionCommand() :
-	QWSCommand( QWSCommand::Region, sizeof( simpleData ), 
+	QWSCommand( QWSCommand::Region, sizeof( simpleData ),
 		    (char*)&simpleData ) {}
 
     void setData( char *d, int len, bool allocateMem = TRUE ) {
@@ -179,14 +180,14 @@ struct QWSAddPropertyCommand : public QWSCommand
 struct QWSSetPropertyCommand : public QWSCommand
 {
     QWSSetPropertyCommand() :
-	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), 
+	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ),
 		    (char*)&simpleData ) { data = 0; }
 
     void setData( char *d, int len, bool allocateMem = TRUE ) {
 	QWSCommand::setData( d, len, allocateMem );
 	data = rawDataPtr;
     }
-        
+
     struct SimpleData {
 	int windowid, property, mode;
     } simpleData;
@@ -198,6 +199,17 @@ struct QWSRemovePropertyCommand : public QWSCommand
 {
     QWSRemovePropertyCommand() :
 	QWSCommand( QWSCommand::RemoveProperty, sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid, property;
+    } simpleData;
+
+};
+
+struct QWSGetPropertyCommand : public QWSCommand
+{
+    QWSGetPropertyCommand() :
+	QWSCommand( QWSCommand::GetProperty, sizeof( simpleData ), (char*)&simpleData ) {}
 
     struct SimpleData {
 	int windowid, property;

@@ -81,6 +81,7 @@ private:
     void invokeAddProperty( QWSAddPropertyCommand *cmd );
     void invokeSetProperty( QWSSetPropertyCommand *cmd );
     void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
+    void invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client );
 
 private slots:
     void doClient();
