@@ -217,7 +217,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
-	    if (s == QFont::UnknownScript)
+	    if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
 		s = script;
 
 	    if (s != script) {
@@ -233,7 +233,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 
 	    unsigned short uc = text[i].unicode();
 	    QFont::Script s = (QFont::Script)scriptForChar( uc );
-	    if (s == QFont::UnknownScript)
+	    if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
 		s = script;
 
 	    QChar::Category category = ::category( uc );
