@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#540 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#541 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -478,6 +478,17 @@ static void qt_x11_process_intern_atoms()
     }
 }
 
+
+static void qt_fix_tooltips() 
+{
+    // No resources for this yet (unlike on Windows).
+    QColorGroup cg( Qt::black, QColor(255,255,220),
+		    QColor(96,96,96), Qt::black, Qt::black,
+		    Qt::black, QColor(255,255,220) );
+    QPalette pal( cg, cg, cg );
+    QApplication::setPalette( pal, TRUE, "QTipLabel");
+}
+
 // read the _QT_DESKTOP_PROPERTIES property and apply the settings to
 // the application
 static bool qt_set_desktop_properties()
@@ -518,6 +529,7 @@ static bool qt_set_desktop_properties()
     if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
     }
+    qt_fix_tooltips();
     return TRUE;
 }
 
@@ -637,6 +649,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QPalette pal( cg, dcg, cg );
 	if ( pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
+	qt_fix_tooltips();
     }
 }
 
@@ -996,15 +1009,6 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	f=QFont( "Helvetica", 11 ); // default font
     f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
     QApplication::setFont( f );
-
-    {
-	// No resources for this yet (unlike on Windows).
-	QColorGroup cg( Qt::black, QColor(255,255,220),
-			QColor(96,96,96), Qt::black, Qt::black,
-			Qt::black, QColor(255,255,220) );
-	QPalette pal( cg, cg, cg );
-	QApplication::setPalette( pal, TRUE, "QTipLabel");
-    }
 
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 }
