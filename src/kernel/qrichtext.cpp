@@ -1280,7 +1280,7 @@ void QTextParagraph::init()
 	else
 	    align = Qt::AlignLeft;
     }
-    
+
     clear = QTextCustomItem::ClearNone;
     if ( attributes_.contains("clear") ) {
  	QString s = attributes_["clear"].lower();
@@ -1550,7 +1550,7 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     alignment = paragraph->alignment();
 
     width = flow->width;
-    
+
     int mm = adjustHorizontalMargins( paragraph->clear );
     if ( mm ) {
 	flow->adjustFlow( y_, widthUsed, mm + m ) ;
@@ -1674,9 +1674,10 @@ void QRichTextFormatter::updateCharFormat( QPainter* p )
 }
 
 
-void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
-			      QRegion& backgroundRegion,
-			      const QColorGroup& cg, const QTextOptions& to )
+void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, 
+				    int w, int h, int ox, int oy,
+				    QRegion& backgroundRegion,
+				    const QColorGroup& cg, const QTextOptions& to )
 
 {
     if ( !par->parent )
@@ -1691,7 +1692,8 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
 
     QFont font = p->font();
     p->setFont( par->parent->format.font() );
-    int size = p->fontMetrics().lineSpacing() / 3;
+    QFontMetrics fm( p->fontMetrics() );
+    int size = fm.lineSpacing() / 3;
     if ( size > 12 * xscale )
 	size = int(12 * xscale);
 
@@ -1719,18 +1721,18 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
 		break;
 	    }
 	    l += QString::fromLatin1(". ");
-	    p->drawText( r, Qt::AlignRight|Qt::AlignVCenter, l);
+	    p->drawText( r.right() - fm.width( l ), r.top() + base, l );
 	}
 	break;
     case QStyleSheetItem::ListSquare:
 	{
-	    QRect er( r.right()-size*2, r.center().y()-1, size, size);
+ 	    QRect er( r.right()-size*2, r.top() + base - fm.ascent()/2 - size/2, size, size);
 	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
 	{
-	    QRect er( r.right()-size*2, r.center().y()-1, size, size);
+	    QRect er( r.right()-size*2, r.top() + base - fm.ascent()/2 - size/2, size, size);
 	    p->drawEllipse( er );
 	}
 	break;
@@ -1738,7 +1740,7 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
     default:
 	{
 	    p->setBrush( cg.brush( QColorGroup::Foreground ));
-	    QRect er( r.right()-size*2, r.center().y()-1, size, size );
+	    QRect er( r.right()-size*2, r.top() + base - fm.ascent()/2 - size/2, size, size);
 	    p->drawEllipse( er );
 	    p->setBrush( Qt::NoBrush );
 	}
