@@ -108,14 +108,18 @@ public:
     void shape( ShapedItem &shaped, const QFont &font, const QString &string,
 		const ScriptItemArray &items, int item ) const;
 
-    void position( ShapedItem &shaped ) const;
-
     int cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const;
     int xToCursor( ShapedItem &shaped, int x ) const;
 
     int width( ShapedItem &shaped ) const;
     int width( ShapedItem &shaped, int charFrom, int numChars ) const;
     bool split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const;
+
+private:
+    // not in the interface
+    void shape( ShapedItem &shaped ) const;
+    void position( ShapedItem &shaped ) const;
+
 };
 
 
@@ -191,20 +195,39 @@ void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &str
     shaped.d->fontEngine = f.engineForScript( script );
     shaped.d->analysis = si.analysis;
 
+    shaped.d->isShaped = FALSE;
+    shaped.d->isPositioned = FALSE;
+}
+
+void TextLayoutQt::shape( ShapedItem &shaped ) const
+{
+    if ( shaped.d->isShaped )
+	return;
+    QFont::Script script = (QFont::Script)shaped.d->analysis.script;
     if ( shaped.d->fontEngine && shaped.d->fontEngine != (FontEngineIface*)-1 )
 	scriptEngines[script]->shape( &shaped );
+    shaped.d->isShaped = TRUE;
 }
 
 void TextLayoutQt::position( ShapedItem &shaped ) const
 {
+    if ( !shaped.d->isShaped )
+	shape( shaped );
+    if ( shaped.d->isPositioned )
+	return;
     QFont::Script script = (QFont::Script)shaped.d->analysis.script;
     if ( shaped.d->fontEngine && shaped.d->fontEngine != (FontEngineIface*)-1 )
 	scriptEngines[script]->position( &shaped );
+    shaped.d->isPositioned = TRUE;
 }
 
 int TextLayoutQt::cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const
 {
+    if ( !shaped.d->isPositioned )
+	position( shaped );
+
     ShapedItemPrivate *d = shaped.d;
+
     if ( cpos > d->length )
 	cpos = d->length;
     if ( cpos < 0 )
@@ -233,7 +256,11 @@ int TextLayoutQt::cursorToX( ShapedItem &shaped, int cpos, Edge edge ) const
 
 int TextLayoutQt::xToCursor( ShapedItem &shaped, int x ) const
 {
+    if ( !shaped.d->isPositioned )
+	position( shaped );
+
     ShapedItemPrivate *d = shaped.d;
+
     bool reverse = d->analysis.bidiLevel % 2;
     if ( x < 0 )
 	return reverse ? d->length : 0;
@@ -279,6 +306,9 @@ int TextLayoutQt::xToCursor( ShapedItem &shaped, int x ) const
 
 int TextLayoutQt::width( ShapedItem &shaped ) const
 {
+    if ( !shaped.d->isPositioned )
+	position( shaped );
+
     int width = 0;
     for ( int i = 0; i < shaped.d->num_glyphs; i++ )
 	width += shaped.d->advances[i].x;
@@ -287,6 +317,9 @@ int TextLayoutQt::width( ShapedItem &shaped ) const
 
 int TextLayoutQt::width( ShapedItem &shaped, int charFrom, int numChars ) const
 {
+    if ( !shaped.d->isPositioned )
+	position( shaped );
+
     if ( charFrom + numChars > shaped.d->length )
 	numChars = shaped.d->length - charFrom;
     if ( numChars <= 0 )
@@ -313,6 +346,9 @@ int TextLayoutQt::width( ShapedItem &shaped, int charFrom, int numChars ) const
 
 bool TextLayoutQt::split( ScriptItemArray &items, int item, ShapedItem &shaped, CharAttributesArray &attrs, int width ) const
 {
+    if ( !shaped.d->isPositioned )
+	position( shaped );
+
 //     qDebug("TextLayoutQt::split: item=%d, width=%d", item, width );
     // line breaks are always done in logical order
     ShapedItemPrivate *d = shaped.d;

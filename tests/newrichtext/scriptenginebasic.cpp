@@ -224,10 +224,11 @@ void ScriptEngineBasic::shape( ShapedItem *result )
     }
 
     heuristicSetGlyphAttributes( result );
+    d->isShaped = TRUE;
 }
 
 
-void ScriptEngineBasic::position( ShapedItem *shaped )
+void ScriptEngineBasic::calculateAdvances( ShapedItem *shaped )
 {
     ShapedItemPrivate *d = shaped->d;
     d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
@@ -244,20 +245,14 @@ void ScriptEngineBasic::position( ShapedItem *shaped )
 	d->ascent = QMAX( d->ascent, -y );
 	d->descent = QMAX( d->descent, y + gi.height );
     }
+}
 
+void ScriptEngineBasic::position( ShapedItem *shaped )
+{
+    if ( shaped->d->isPositioned )
+	return;
+
+    calculateAdvances( shaped );
     heuristicPositionMarks( shaped );
-}
-
-int ScriptEngineBasic::cursorToX( int cPos, const ShapedItem &shaped )
-{
-    Q_UNUSED(cPos);
-    Q_UNUSED(shaped);
-    return 0;
-}
-
-int ScriptEngineBasic::xToCursor( int x, const ShapedItem &shaped )
-{
-    Q_UNUSED(x);
-    Q_UNUSED(shaped);
-    return 0;
+    shaped->d->isPositioned = TRUE;
 }

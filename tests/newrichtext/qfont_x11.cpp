@@ -2574,7 +2574,6 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     i--;
     ShapedItem shaped;
     layout->shape( shaped, QFont( d ), str, items, i );
-    layout->position( shaped );
 
     return layout->width( shaped, pos-items[i].position, 1 );
 }
@@ -2607,8 +2606,6 @@ int QFontMetrics::width( const QString &str, int len ) const
     int nchars;
     for ( int i = 0; i < items.size() && (nchars = len-items[i].position) > 0; i++ ) {
 	layout->shape( shaped, QFont( d ), str, items, i );
-	layout->position( shaped );
-
 	width += layout->width( shaped, 0, nchars );
     }
     return width;

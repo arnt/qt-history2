@@ -577,31 +577,7 @@ void ScriptEngineArabic::shape( ShapedItem *result )
     }
 
     free( shaped );
-
-}
-
-
-void ScriptEngineArabic::position( ShapedItem *result )
-{
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
-
-    if ( openType && openType->supportsScript( QFont::Arabic ) ) {
-	openTypePosition( QFont::Arabic, openType, result );
-	return;
-    }
-
-    ScriptEngineBasic::position( result );
-
-
-#if 0
-    Offset *advances = result->d->advances;
-    Offset *offsets = result->d->offsets;
-    qDebug("positioned glyphs:" );
-    for ( int i = 0; i < result->d->num_glyphs; i++) {
-	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
-	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
-    }
-#endif
+    d->isShaped = TRUE;
 }
 
 void ScriptEngineArabic::openTypeShape( int script, const OpenTypeIface *openType, ShapedItem *result )
@@ -621,14 +597,6 @@ void ScriptEngineArabic::openTypeShape( int script, const OpenTypeIface *openTyp
 
     heuristicSetGlyphAttributes( result );
 
-#if 0
-    qDebug("before shaping: glyph attributes:" );
-    for ( int i = 0; i < result->d->num_glyphs; i++) {
-	qDebug("   ->\tmark=%d",
-	       result->d->glyphAttributes[i].mark );
-    }
-#endif
-
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
 
@@ -641,46 +609,8 @@ void ScriptEngineArabic::openTypeShape( int script, const OpenTypeIface *openTyp
     for ( int i = 0; i < d->num_glyphs; i++ )
 	featuresToApply[i] = shapeToOpenTypeBit[glyphVariantLogical( text, from + i )];
 
-    ((OpenTypeIface *) openType)->applyGlyphSubstitutions( script, result, featuresToApply );
+    ((OpenTypeIface *) openType)->apply( script, result, featuresToApply );
 
     if ( allocated )
 	free( featuresToApply );
-}
-
-
-void ScriptEngineArabic::openTypePosition( int script, const OpenTypeIface *openType, ShapedItem *result )
-{
-    ShapedItemPrivate *d = result->d;
-    d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
-    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
-    d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
-    d->ascent = d->fontEngine->ascent();
-    d->descent = d->fontEngine->descent();
-    for ( int i = 0; i < d->num_glyphs; i++ ) {
-	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
-	d->advances[i].x = gi.xoff;
-	d->advances[i].y = gi.yoff;
-	// #### not quite correct! should be done after glyph positioning!
-	int y = d->offsets[i].y + gi.y;
-	d->ascent = QMAX( d->ascent, -y );
-	d->descent = QMAX( d->descent, y + gi.height );
-    }
-
-    bool positioned = ((OpenTypeIface *) openType)->applyGlyphPositioning( script, result );
-#if 0
-    qDebug("after positoning: glyph attributes:" );
-    for ( int i = 0; i < result->d->num_glyphs; i++) {
-	qDebug("   ->\tmark=%d",
-	       result->d->glyphAttributes[i].mark );
-    }
-#endif
-    if ( !positioned ) {
-// 	qDebug("no open type positioning, using heuristics");
-	heuristicPositionMarks( result );
-    }
-
-
-//     qDebug("logClusters:");
-//     for ( int i = 0; i < result->d->length; i++ )
-// 	qDebug("    %d -> %d", i, result->d->logClusters[i] );
 }

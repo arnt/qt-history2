@@ -8,7 +8,6 @@ class ScriptEngineSyriac : public ScriptEngineArabic
 {
 public:
     void shape( ShapedItem *result );
-    void position( ShapedItem *result );
 };
 
 #endif

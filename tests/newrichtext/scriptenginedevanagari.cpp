@@ -502,18 +502,19 @@ void ScriptEngineDevanagari::shape( ShapedItem *result )
 	d->logClusters[i] = pos;
     }
 
+    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+    int error = d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
+    if ( error == FontEngineIface::OutOfMemory ) {
+	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
+    }
+
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
     if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
-	openTypeShape( QFont::Devanagari, openType, result, reordered, featuresToApply );
+	((OpenTypeIface *) openType)->apply( QFont::Devanagari, result, featuresToApply );
+	d->isPositioned = TRUE;
     } else {
-	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-	int error = d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
-	if ( error == FontEngineIface::OutOfMemory ) {
-	    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-	    d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
-	}
-
 	heuristicSetGlyphAttributes( result );
     }
 
@@ -524,88 +525,9 @@ void ScriptEngineDevanagari::shape( ShapedItem *result )
 
 void ScriptEngineDevanagari::position( ShapedItem *result )
 {
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
-
-    if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
-	openTypePosition( QFont::Devanagari, openType, result );
+    if ( result->d->isPositioned )
 	return;
-    }
-    ShapedItemPrivate *d = result->d;
-    d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
-    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
-    d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
-    d->ascent = d->fontEngine->ascent();
-    d->descent = d->fontEngine->descent();
-    for ( int i = 0; i < d->num_glyphs; i++ ) {
-	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
-	d->advances[i].x = gi.xoff;
-	d->advances[i].y = gi.yoff;
-// 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
-	int y = d->offsets[i].y + gi.y;
-	d->ascent = QMAX( d->ascent, -y );
-	d->descent = QMAX( d->descent, y + gi.height );
-    }
-}
 
-void ScriptEngineDevanagari::openTypeShape( int script, const OpenTypeIface *openType, ShapedItem *result, const QString &reordered, unsigned short *featuresToApply )
-{
-//     qDebug("ScriptEngineDevanagari::openTypeShape()");
-    ShapedItemPrivate *d = result->d;
-    int len = d->num_glyphs;
-
-    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-    int error = d->fontEngine->stringToCMap( reordered.unicode(), len, d->glyphs, &d->num_glyphs );
-    if ( error == FontEngineIface::OutOfMemory ) {
-	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-	d->fontEngine->stringToCMap( reordered.unicode(), len, d->glyphs, &d->num_glyphs );
-    }
-
-#if 0
-    qDebug("before shaping: glyph attributes:" );
-    for ( int i = 0; i < result->d->num_glyphs; i++) {
-	qDebug("   ->\tmark=%d",
-	       result->d->glyphAttributes[i].mark );
-    }
-#endif
-
-    ((OpenTypeIface *) openType)->applyGlyphSubstitutions( script, result, featuresToApply );
-
-}
-
-
-void ScriptEngineDevanagari::openTypePosition( int script, const OpenTypeIface *openType, ShapedItem *result )
-{
-    ShapedItemPrivate *d = result->d;
-    d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
-    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
-    d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
-    d->ascent = d->fontEngine->ascent();
-    d->descent = d->fontEngine->descent();
-    for ( int i = 0; i < d->num_glyphs; i++ ) {
-	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
-	d->advances[i].x = gi.xoff;
-	d->advances[i].y = gi.yoff;
-	// #### not quite correct! should be done after glyph positioning!
-	int y = d->offsets[i].y + gi.y;
-	d->ascent = QMAX( d->ascent, -y );
-	d->descent = QMAX( d->descent, y + gi.height );
-    }
-
-    bool positioned = ((OpenTypeIface *) openType)->applyGlyphPositioning( script, result );
-#if 0
-    qDebug("after positoning: glyph attributes:" );
-    for ( int i = 0; i < result->d->num_glyphs; i++) {
-	qDebug("   ->\tmark=%d",
-	       result->d->glyphAttributes[i].mark );
-    }
-#endif
-    if ( !positioned ) {
-// 	qDebug("no open type positioning, using heuristics");
-	heuristicPositionMarks( result );
-    }
-
-
-//     qDebug("logClusters:");
-//     for ( int i = 0; i < result->d->length; i++ )
-// 	qDebug("    %d -> %d", i, result->d->logClusters[i] );
+    calculateAdvances( result );
+    result->d->isPositioned = TRUE;
 }

@@ -166,14 +166,13 @@ public:
 	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
 	  glyphAttributes( 0 ), fontEngine( 0 ),
 	  from( 0 ), length( 0 ), ascent( 0 ), descent( 0 ),
-	  enginePrivate( 0 ) {}
+	  isShaped( FALSE ), isPositioned( FALSE ) {}
     ~ShapedItemPrivate() {
 	free( glyphs );
 	free( offsets );
 	free( advances );
 	free( logClusters );
 	free( glyphAttributes );
-	assert( enginePrivate == 0 );
     }
     int num_glyphs;
     GlyphIndex * glyphs;
@@ -188,7 +187,8 @@ public:
     int length;
     short ascent;
     short descent;
-    void *enginePrivate;
+    bool isShaped : 1;
+    bool isPositioned : 1;
 };
 
 class ShapedItem
@@ -251,8 +251,6 @@ public:
 
     virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			const ScriptItemArray &items, int item ) const = 0;
-
-    virtual void position( ShapedItem &shaped ) const = 0;
 
     // ### we need something for justification
 

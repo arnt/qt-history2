@@ -4,6 +4,7 @@
 #include <qglobal.h>
 #include "qtextlayout.h"
 #include "qfont.h"
+#include "scriptenginebasic.h"
 
 static inline void tag_to_string( char *string, FT_ULong tag )
 {
@@ -218,9 +219,8 @@ bool OpenTypeIface::loadTables( FT_ULong script)
     assert( script < QFont::Unicode );
     // find script in our list of supported scripts.
     const SupportedScript *s = supported_scripts + script;
-    script = s->tag;
 
-    FT_Error error = TT_GSUB_Select_Script( gsub, script, &script_index );
+    FT_Error error = TT_GSUB_Select_Script( gsub, s->tag, &script_index );
     if ( error ) {
 	qDebug("could not select script %d: %d", (int)script, error );
 	if ( s->tag == DefaultScript ) {
@@ -232,6 +232,7 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 	    return FALSE;
 	}
     }
+    script = s->tag;
 
 //     qDebug("arabic is script %d", script_index );
 
@@ -325,7 +326,7 @@ bool OpenTypeIface::supportsScript( unsigned int script )
 	if ( (error = TT_Load_GDEF_Table( face, &gdef )) ) {
 	    qDebug("error loading gdef table: %d", error );
 	    hasGDef = FALSE;
-	    return FALSE;
+// 	    return FALSE;
 	}
     }
 
@@ -359,20 +360,25 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     return FALSE;
 }
 
-bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
+void OpenTypeIface::apply( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
 {
     if ( current_script != supported_scripts[script].tag ) {
 	TT_GSUB_Clear_Features( gsub );
 
 	if ( !loadTables( script ) )
-	    return FALSE;
+	    return;
     }
 
-    for ( int i = 0; i < shaped->d->num_glyphs; i++ ) {
-	featuresToApply[i] |= always_apply;
-    }
+    TTO_GSUB_String *string = substitute( shaped, featuresToApply );
 
+    position( shaped, string );
 
+    if ( string )
+	TT_GSUB_String_Done( string );
+}
+
+TTO_GSUB_String *OpenTypeIface::substitute( ShapedItem *shaped, unsigned short *featuresToApply )
+{
     TTO_GSUB_String *in = 0;
     TTO_GSUB_String *out = 0;
 
@@ -385,8 +391,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     for ( int i = 0; i < shaped->d->num_glyphs; i++) {
       in->string[i] = shaped->d->glyphs[i];
       in->logClusters[i] = i;
-      in->properties[i] = ~featuresToApply[i];
-//        qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], i );
+      in->properties[i] = ~((featuresToApply ? featuresToApply[i] : 0)|always_apply);
     }
     in->max_ligID = 0;
 
@@ -423,31 +428,17 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 
     TT_GSUB_String_Done( in );
 
-    // we need to keep this one around for shaping
-    if ( hasGPos )
-	shaped->d->enginePrivate = (void *)out;
-    else
-	TT_GSUB_String_Done( out );
-    return TRUE;
+    shaped->d->isShaped = TRUE;
+    return out;
 }
 
 
-bool OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shaped )
+void OpenTypeIface::position( ShapedItem *shaped, TTO_GSUB_String *in )
 {
-    TTO_GSUB_String *in = (TTO_GSUB_String *)shaped->d->enginePrivate;
-    TTO_GPOS_Data *out = 0;
+    ScriptEngineBasic::calculateAdvances( shaped );
 
-    bool retval = FALSE;
     if ( hasGPos ) {
-	retval = TRUE;
-
-	if ( current_script != supported_scripts[script].tag ) {
-	    TT_GSUB_Clear_Features( gsub );
-
-	    if ( !loadTables( script ) )
-		return FALSE;
-	}
-
+	TTO_GPOS_Data *out = 0;
 
 	bool reverse = (shaped->d->analysis.bidiLevel % 2);
 	// ### is FT_LOAD_DEFAULT the right thing to do?
@@ -480,12 +471,7 @@ bool OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shap
 	    // 	qDebug("   ->\tadv=(%d/%d)\tpos=(%d/%d)",
 	    // 	       advances[i].x, advances[i].y, offsets[i].x, offsets[i].y );
 	}
+	free( out );
+	shaped->d->isPositioned = TRUE;
     }
-
-    if ( in )
-	TT_GSUB_String_Done( in );
-    shaped->d->enginePrivate = 0;
-    free( out );
-
-    return retval;
 }

@@ -12,8 +12,8 @@ public:
     void shape( ShapedItem *result );
     void position( ShapedItem *shaped );
 
-    int cursorToX( int cursorPos, const ShapedItem &shaped );
-    int xToCursor( int x, const ShapedItem &shaped );
+    // internal
+    static void calculateAdvances( ShapedItem *shaped );
 };
 
 

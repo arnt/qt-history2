@@ -135,7 +135,6 @@ void EditWidget::paintEvent( QPaintEvent * )
 	    const ScriptItem &it = d->items[ start+current ];
 	    ShapedItem shaped;
 	    layout->shape( shaped, d->font, d->text, d->items, current+start );
-	    layout->position( shaped );
 	    if ( it.position <= d->cursorPos &&
 		 (current == d->items.size()-1 || d->items[ start+current+1 ].position > d->cursorPos) ) {
 		// draw cursor
@@ -144,24 +143,15 @@ void EditWidget::paintEvent( QPaintEvent * )
 		painter.drawLine( x+xp, y-30, x+xp, y+10 );
 	    }
 
+	    int swidth = layout->width( shaped );
+
 	    QFont::Script script = (QFont::Script)it.analysis.script;
 	    FontEngineIface *fe = d->font.engineForScript( script );
 // 	    qDebug("drawing item %d (pos=%d), script=%d, fe=%p", current, d->items[current].position, script, fe );
 	    if ( fe && fe != (FontEngineIface *)-1 ) {
 		fe->draw( &painter, x,  y, shaped.glyphs(), shaped.advances(), shaped.offsets(), shaped.count(),
 			  (shaped.d->analysis.bidiLevel%2) );
-		int xoff = 0;
-		int yoff = 0;
-		const Offset *advances = shaped.advances();
-		int i = shaped.count();
-		while ( i-- ) {
-		    xoff += advances->x;
-		    yoff += advances->y;
-		    ++advances;
-		}
-		// 	    qDebug("width = %d", xoff );
-		x += xoff;
-		y += yoff;
+		x += swidth;
 		// 	    drawLine( x, y-20, x, y+20 );
 	    }
 	}
@@ -197,7 +187,6 @@ void EditWidget::recalculate()
     int descent = 0;
     while ( i < d->items.size() ) {
 	layout->shape( shaped, d->font, d->text, d->items, i );
-	layout->position( shaped );
 	int cw = layout->width( shaped );
 // 	qDebug("width(%d)=%d", i, cw );
 	if ( lw + cw > w ) {
@@ -206,7 +195,8 @@ void EditWidget::recalculate()
 	    layout->attributes( attrs, d->text, d->items, i );
 	    if ( layout->split( d->items, i, shaped, attrs, w - lw ) ) {
 		layout->shape( shaped, d->font, d->text, d->items, i );
-		layout->position( shaped );
+		// dummy call to initialize the ascent and descent
+		layout->width( shaped );
 		ascent = QMAX( ascent, shaped.ascent() );
 		descent = QMAX( descent, shaped.descent() );
 		i++;

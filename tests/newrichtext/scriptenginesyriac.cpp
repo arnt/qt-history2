@@ -12,16 +12,3 @@ void ScriptEngineSyriac::shape( ShapedItem *result )
     }
     ScriptEngineBasic::shape( result );
 }
-
-
-void ScriptEngineSyriac::position( ShapedItem *result )
-{
-    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
-
-    if ( openType && openType->supportsScript( QFont::Syriac ) ) {
-	openTypePosition( QFont::Syriac, openType, result );
-	return;
-    }
-
-    ScriptEngineBasic::position( result );
-}

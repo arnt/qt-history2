@@ -3134,7 +3134,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	const ScriptItem &it = items[ current ];
 	ShapedItem shaped;
 	layout->shape( shaped, cfont, string, items, current );
-	layout->position( shaped );
+	int swidth = layout->width( shaped );
 
 	QFont::Script script = (QFont::Script)it.analysis.script;
 	FontEngineIface *fe = cfont.engineForScript( script );
@@ -3156,18 +3156,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
 	fe->draw( this, x,  y, shaped.glyphs()+from, shaped.advances()+from,
 		  shaped.offsets()+from, length, rightToLeft );
-	int xoff = 0;
-	int yoff = 0;
-	const Offset *advances = shaped.advances();
-	int i = shaped.count();
-	while ( i-- ) {
-	    xoff += advances->x;
-	    yoff += advances->y;
-	    ++advances;
-	}
-	// 	    qDebug("width = %d", xoff );
-	x += xoff;
-	y += yoff;
+	if ( from != 0 || length != shaped.count() )
+	    x += layout->width( shaped, from,  length );
+	else
+	    x += swidth;
 	// 	    drawLine( x, y-20, x, y+20 );
     }
 

@@ -13,9 +13,6 @@ public:
     virtual void shape( ShapedItem *shaped ) = 0;
     virtual void position( ShapedItem *shaped ) = 0;
 
-    virtual int cursorToX( int cPos, const ShapedItem &shaped ) = 0;
-    virtual int xToCursor( int x, const ShapedItem &shaped ) = 0;
-
     //virtual const char ** supportedCMaps() const = 0;
 
 
