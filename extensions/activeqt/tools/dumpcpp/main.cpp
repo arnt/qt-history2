@@ -21,21 +21,21 @@
 
 #include <qt_windows.h>
 #include <ocidl.h>
-#include <ctype.h>
 
-//#include "../../shared/qaxtypes.h"
+static ITypeInfo *currentTypeInfo = 0;
 
 enum ObjectCategory
 {
-    DefaultObject   = 0x0,
-    SubObject       = 0x01,
-    ActiveX         = 0x02,
-    NoMetaObject    = 0x04,
-    NoImplementation = 0x08,
-    NoDeclaration   = 0x10,
-    NoInlines       = 0x20,
-    OnlyInlines     = 0x40,
-    DoNothing       = 0x80
+    DefaultObject    = 0x00,
+    SubObject        = 0x001,
+    ActiveX          = 0x002,
+    NoMetaObject     = 0x004,
+    NoImplementation = 0x008,
+    NoDeclaration    = 0x010,
+    NoInlines        = 0x020,
+    OnlyInlines      = 0x040,
+    DoNothing        = 0x080,
+    Licensed         = 0x100
 };
 
 // this comes from moc/qmetaobject.cpp
@@ -73,6 +73,7 @@ extern QMetaObject *qax_readEnumInfo(ITypeLib *typeLib, const QMetaObject *paren
 extern QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
 extern QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject);
 extern QList<QByteArray> qax_qualified_usertypes;
+extern QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name);
 
 void writeEnums(QTextStream &out, const QMetaObject *mo)
 {
@@ -165,6 +166,8 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         out << "{" << endl;
         out << "public:" << endl;
         out << "    " << className << "(";
+        if (category & Licensed)
+            out << "const QString &licenseKey, ";
         if (category & ActiveX)
             out << "QWidget *parent = 0, Qt::WFlags f";
         else if (category & SubObject)
@@ -181,11 +184,12 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << "QAxObject(parent";
         out << ")" << endl;
         out << "    {" << endl;
-        if (category & SubObject) {
+        if (category & SubObject)
             out << "        internalRelease();" << endl;
-        } else {
+        else if (category & Licensed)
+            out << "        setControl(\"" << controlID << ":\" + licenseKey);" << endl;
+        else
             out << "        setControl(\"" << controlID << "\");" << endl;
-        }
         out << "    }" << endl;
         out << endl;
 
@@ -236,11 +240,22 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         if (propertyName == "control" || propertyName == className)
             continue;
 
+        if (!(category & OnlyInlines)) {
+            out << indent << "/*" << endl << indent << "Property " << propertyName << endl;
+            QString documentation = qax_docuFromName(currentTypeInfo, propertyName);
+            if (!documentation.isEmpty()) {
+                out << endl;
+                out << indent << documentation << endl;
+            }
+            out << indent << "*/" << endl;
+        }
+
         QByteArray propertyType(property.typeName());
         QByteArray castType(propertyType);
 
         QByteArray simplePropType = propertyType;
         simplePropType.replace('*', "");
+
         out << indent << "inline ";
         bool foreignNamespace = true;
         if (!propertyType.contains("::") && qax_qualified_usertypes.contains(simplePropType)) {
@@ -286,7 +301,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             }
             out << indent << "}" << endl;
         } else {
-            out << ";" << endl;
+            out << "; //Returns the value of " << propertyName << endl;
         }
 
         functions << propertyName;
@@ -300,15 +315,17 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                 setter[0] = toupper(setter[0]);
                 setter = "set" + setter;
             }
+            
             out << indent << "inline " << "void ";
             if (category & OnlyInlines)
                 out << className << "::";
             out << setter << "(" << constRefify(propertyType) << " value)";
             
-            if (!(category & NoInlines))
+            if (!(category & NoInlines)) {
                 out << "{ setProperty(\"" << propertyName << "\", QVariant(value)); }" << endl;
-            else
-                out << ";" << endl;
+            } else {
+                out << "; //Sets the value of the " << propertyName << " property" << endl;
+            }
 
             functions << setter;
         }
@@ -332,8 +349,19 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 #endif
 
         QByteArray slotSignature(slot.signature());
-        if (functions.contains(slotSignature.left(slotSignature.indexOf('('))))
+        QByteArray slotName = slotSignature.left(slotSignature.indexOf('('));
+        if (functions.contains(slotName))
             continue;
+
+        if (!(category & OnlyInlines)) {
+            out << indent << "/*" << endl << indent << "Method " << slotName << endl;
+            QString documentation = qax_docuFromName(currentTypeInfo, slotName);
+            if (!documentation.isEmpty()) {
+                out << endl;
+                out << indent << documentation << endl;
+            }
+            out << indent << "*/" << endl;
+        }
 
         QByteArray slotParameters(joinParameterNames(slot.parameterNames()));
         QByteArray slotTag(slot.tag());
@@ -395,7 +423,6 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << indent << "{" << endl;
             
             if (!slotType.isEmpty()) {
-                
                 out << indent << "    " << slotType << " qax_result";
                 if (slotType.endsWith('*'))
                     out << " = 0";
@@ -422,10 +449,8 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << "};" << endl;
 
             out << indent << "    qt_metacall(QMetaObject::InvokeMetaMember, " << islot << ", _a);" << endl;
-
-            if (!slotType.isEmpty()) {
+            if (!slotType.isEmpty())
                 out << indent << "    return qax_result;" << endl;
-            }
             out << indent << "}" << endl;
         }
 
@@ -935,22 +960,32 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         }
 
         if (metaObject) {
+            currentTypeInfo = typeinfo;
             QByteArray className(metaObject->className());
-            if (declFile.isOpen()) {
-                if (typekind == TKIND_COCLASS) { // write those later...
-                    generateClassDecl(classesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
-                    classesOut << endl;
-                } else {
-                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
-                    declOut << endl;
+            if (!(typeattr->wTypeFlags & TYPEFLAG_FDUAL) 
+                && (metaObject->propertyCount() - metaObject->propertyOffset()) == 1 
+                && className.contains("Events")) {
+                declOut << "// skipping event interface " << className << endl << endl;
+            } else {
+                if (declFile.isOpen()) {
+                    if (typeattr->wTypeFlags & TYPEFLAG_FLICENSED)
+                        object_category |= Licensed;
+                    if (typekind == TKIND_COCLASS) { // write those later...
+                        generateClassDecl(classesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
+                        classesOut << endl;
+                    } else {
+                        generateClassDecl(declOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
+                        declOut << endl;
+                    }
+                    generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|OnlyInlines));
+                    inlinesOut << endl;
                 }
-                generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|OnlyInlines));
-                inlinesOut << endl;
+                if (implFile.isOpen()) {
+                    generateClassImpl(implOut, metaObject, className, libName.toLatin1(), (ObjectCategory)object_category);
+                    implOut  << endl;
+                }
             }
-            if (implFile.isOpen()) {
-                generateClassImpl(implOut, metaObject, className, libName.toLatin1(), (ObjectCategory)object_category);
-                implOut  << endl;
-            }
+            currentTypeInfo = 0;
         }
 
         delete metaObject;
