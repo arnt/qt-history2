@@ -32,6 +32,7 @@ public:
 	Widget,
 	Dialog,
 	Wizard,
+	Mainwindow,
 	Custom
     };
 
@@ -42,7 +43,7 @@ public:
 
 private:
     QString templPath;
-    
+
 };
 
 #endif

@@ -2169,6 +2169,9 @@ FormWindow* MainWindow::insertFormWindow( int type )
     } else if ( type == NewForm::Wizard ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWizard" ), fw, n.latin1() );
 	fw->setMainContainer( w );
+    } else if ( type == NewForm::Mainwindow ) {
+	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QMainWindow" ), fw, n.latin1() );
+	fw->setMainContainer( w );
     }
     fw->setCaption( n );
     fw->resize( 600, 480 );

@@ -417,6 +417,15 @@ void WidgetDatabase::setupDataBase()
 
     append( r );
 
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "";
+    r->name = "QMainWindow";
+    r->includeFile = "qmainwindow.h";
+    r->group = widgetGroup( "Temp" );
+    r->isContainer = TRUE;
+
+    append( r );
+
     qt_init_kde_widget_database();
 
     QStringList widgets = widgetManager()->featureList();

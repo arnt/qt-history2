@@ -68,6 +68,8 @@
 #include <qvaluelist.h>
 #include <qtimer.h>
 #include <qscrollbar.h>
+#include <qmainwindow.h>
+#include <qmenubar.h>
 
 #include <globaldefs.h>
 
@@ -645,6 +647,16 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	else if ( r->width() < r->height() )
 	    l->setOrientation( Qt::Vertical );
 	return l;
+    } else if ( className == "QMainWindow" ) {
+	QMainWindow *mw = new QMainWindow( parent, name, 0 );
+	if ( init ) {
+	    QDesignerWidget *dw = new QDesignerWidget( (FormWindow*)parent, mw, "central widget" );
+	    MetaDataBase::addEntry( dw );
+	    mw->setCentralWidget( dw );
+	    mw->menuBar()->insertItem( "Dummy" );
+	    dw->show();
+	}
+	return mw;
     }
 
     QWidget *w = qt_create_kde_widget( className, parent, name, init );
@@ -747,6 +759,8 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 	return ((QWizard*)w)->currentPage();
     if ( w->inherits( "QWidgetStack" ) )
 	return ((QWidgetStack*)w)->visibleWidget();
+    if ( w->inherits( "QMainWindow" ) )
+	return ((QMainWindow*)w)->centralWidget();
     return w;
 }
 

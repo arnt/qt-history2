@@ -55,6 +55,10 @@ NewForm::NewForm( QWidget *parent, const QString &tPath )
     i->setText( tr( "Widget" ) );
     i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     i->setDragEnabled( FALSE );
+    i = new QIconViewItem( templateView );
+    i->setText( tr( "Mainwindow" ) );
+    i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+    i->setDragEnabled( FALSE );
 
     QString templateDir = templatePath( templPath );
     QDir dir( templateDir );
@@ -87,6 +91,8 @@ NewForm::Form NewForm::formType() const
 	return Wizard;
     if ( templateView->currentItem()->text() == tr( "Widget" ) )
 	return Widget;
+    if ( templateView->currentItem()->text() == tr( "Mainwindow" ) )
+	return Mainwindow;
     return Custom;
 }
 

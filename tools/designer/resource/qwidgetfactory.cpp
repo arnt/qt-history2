@@ -44,6 +44,7 @@
 #include <qwidgetstack.h>
 #include <qtextedit.h>
 #include <qscrollbar.h>
+#include <qmainwindow.h>
 
 static QList<QWidgetFactory> widgetFactories;
 
@@ -258,6 +259,8 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return new QTextEdit( parent, name );
     } else if ( className == "QScrollBar" ) {
 	return new QScrollBar( parent, name );
+    } else if ( className == "QMainWindow" ) {
+	return new QMainWindow( parent, name );
     }
 
     // maybe it is a KDE widget we support
