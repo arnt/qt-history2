@@ -9,7 +9,7 @@ public:
     virtual void foo();
 };
 
-class VisualSomething : public QWidget
+class VisualSomething : public QWidget, public Something
 {
     Q_OBJECT
 public:
