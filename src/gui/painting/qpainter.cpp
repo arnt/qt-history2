@@ -168,14 +168,20 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, bool winding, S
 
     switch (state->brush.style()) {
     case Qt::HorPattern:
+        if (state->bgMode == Qt::OpaqueMode)
+            q->fillRect(bounds, state->bgBrush);
         for (int y=bounds.top(); y<bounds.bottom(); y+=8)
             q->drawLine(bounds.left(), y, bounds.right(), y);
         break;
     case Qt::VerPattern:
+        if (state->bgMode == Qt::OpaqueMode)
+            q->fillRect(bounds, state->bgBrush);
         for (int x=bounds.left(); x<bounds.right(); x+=8)
             q->drawLine(x, bounds.top(), x, bounds.bottom());
         break;
     case Qt::CrossPattern:
+        if (state->bgMode == Qt::OpaqueMode)
+            q->fillRect(bounds, state->bgBrush);
         for (int x=bounds.left(); x<bounds.right(); x+=8)
             q->drawLine(x, bounds.top(), x, bounds.bottom());
         for (int y=bounds.top(); y<bounds.bottom(); y+=8)
