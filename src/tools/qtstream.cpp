@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#25 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -97,9 +97,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#24 $")
 #define I_SIGN_MASK	0x0f00
 
 
-const long QTS::basefield   = I_BASE_MASK;
-const long QTS::adjustfield = QTS::left | QTS::right | QTS::internal;
-const long QTS::floatfield  = QTS::scientific | QTS::fixed;
+const int QTS::basefield   = I_BASE_MASK;
+const int QTS::adjustfield = QTS::left | QTS::right | QTS::internal;
+const int QTS::floatfield  = QTS::scientific | QTS::fixed;
 
 
 int eat_ws( QIODevice *d )
@@ -915,7 +915,7 @@ QTextStream &QTextStream::operator<<( const char *s )
 
 QTextStream &QTextStream::operator<<( void *ptr )
 {
-    long f = flags();
+    int f = flags();
     setf( hex, basefield );
     setf( showbase );
     unsetf( uppercase );

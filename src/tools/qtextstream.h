@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#11 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#12 $
 **
 ** Definition of QTextStream class
 **
@@ -77,15 +77,15 @@ public:
 	fixed	  = 0x2000			// fixed float output
     };
 
-    static const long basefield;		// bin | oct | dec | hex
-    static const long adjustfield;		// left | right | internal
-    static const long floatfield;		// scientific | fixed
+    static const int basefield;			// bin | oct | dec | hex
+    static const int adjustfield;		// left | right | internal
+    static const int floatfield;		// scientific | fixed
 
-    long  flags() const;
-    long  flags( long f );
-    long  setf( long bits );
-    long  setf( long bits, long mask );
-    long  unsetf( long bits );
+    int   flags() const;
+    int   flags( int f );
+    int   setf( int bits );
+    int   setf( int bits, int mask );
+    int   unsetf( int bits );
 
     void  reset();
 
@@ -100,7 +100,7 @@ private:
     long	 input_int();
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
-    long	 fflags;
+    int		 fflags;
     int		 fwidth;
     int		 fillchar;
     int		 fprec;
@@ -121,20 +121,20 @@ inline QIODevice *QTextStream::device() const
 inline bool QTextStream::eof() const
 { return dev ? dev->atEnd() : FALSE; }
 
-inline long QTextStream::flags() const
+inline int QTextStream::flags() const
 { return fflags; }
 
-inline long QTextStream::flags( long newf )
-{ long f = fflags;  fflags = newf;  return f; }
+inline int QTextStream::flags( int newf )
+{ int f = fflags;  fflags = newf;  return f; }
 
-inline long QTextStream::setf( long bits )
-{ long f = fflags;  fflags |= bits;  return f; }
+inline int QTextStream::setf( int bits )
+{ int f = fflags;  fflags |= bits;  return f; }
 
-inline long QTextStream::setf( long bits, long mask )
-{ long f = fflags;  fflags = (fflags & ~mask) | (bits & mask);	return f; }
+inline int QTextStream::setf( int bits, int mask )
+{ int f = fflags;  fflags = (fflags & ~mask) | (bits & mask);	return f; }
 
-inline long QTextStream::unsetf( long mask )
-{ long f = fflags;  fflags &= ~mask;  return f; }
+inline int QTextStream::unsetf( int mask )
+{ int f = fflags;  fflags &= ~mask;  return f; }
 
 inline int QTextStream::width() const
 { return fwidth; }
