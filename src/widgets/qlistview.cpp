@@ -4155,7 +4155,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		}
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
-		return;
+		goto emit_signals;
 	    }
 	}
     }
