@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#308 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#309 $
 **
 ** Implementation of QListView widget class
 **
@@ -2011,7 +2011,7 @@ void QListView::clear()
 	delete c;
 	c = n;
     }
-    resizeContents( d->h->sizeHint().width(), 0 );
+    resizeContents( d->h->sizeHint().width(), contentsHeight() );
     triggerUpdate();
 }
 
@@ -2218,10 +2218,10 @@ void QListView::updateContents()
 {
     if ( !isVisible() )
 	return;
-    // ### this function is probably very inefficient, and it is also
-    // ### central to the smooth operation of QListView.  need fixing.
-    viewport()->repaint( FALSE );
+    viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
+    viewport()->setUpdatesEnabled( TRUE );
+    viewport()->repaint( FALSE );
     ensureItemVisible( d->focusItem );
 }
 
