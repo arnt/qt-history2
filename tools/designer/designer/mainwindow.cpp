@@ -2284,6 +2284,7 @@ QObjectList *MainWindow::previewProject()
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 {
+    qwf_execute_code = FALSE;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
 	e->save();
     if ( currentTool() == ORDER_TOOL )
@@ -2327,29 +2328,6 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
     buffer.close();
     buffer.open( IO_ReadOnly );
-
-    oWindow->parentWidget()->show();
-    if ( programPluginManager ) {
-	QString lang = currentProject->language();
-	ProgramInterface *piface = (ProgramInterface*)programPluginManager->queryInterface( lang );
-	if ( piface ) {
-	    QStringList error;
-	    QValueList<int> line;
-	    LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
-	    if ( editorPluginManager && lIface ) {
-		EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
-		if ( !piface->check( SourceEditor::sourceOfForm( fw, lang, eiface, lIface ), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-		    oWindow->setErrorMessages( error, line );
-		    eiface->setError( line[ 0 ] );
-		    QApplication::restoreOverrideCursor();
-		    return 0;
-		}
-		if ( eiface )
-		    eiface->release();
-		lIface->release();
-	    }
-	}
-    }
 
     QWidget *w = QWidgetFactory::create( &buffer );
     if ( w ) {

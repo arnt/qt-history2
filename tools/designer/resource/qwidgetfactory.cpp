@@ -303,7 +303,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			QStringList::Iterator eit, fit;
 			for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
 			    QString func = *fit;
-			    if ( widgetFactory->languageSlots.find( func ) != widgetFactory->languageSlots.end() )
+			    if ( widgetFactory->languageSlots.find( func ) != widgetFactory->languageSlots.end() && qwf_execute_code )
 				eventInterface->setEventHandler( it.key(), widgetFactory->toplevel, *eit, func );
 			}
 		    }
