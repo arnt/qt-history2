@@ -2703,10 +2703,10 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	case QEvent::MouseMove:
 	    me = (QMouseEvent*)e;
 	    if ( me && me->state() & LeftButton && mousePressed) {
-		
+
 		i = (PropertyListItem*) itemAt( me->pos() );
 		if( i  && i == pressItem ) {
-		
+
 		    if(( pressPos - me->pos() ).manhattanLength() > QApplication::startDragDistance() ){
 			if ( i->inherits("PropertyColorItem") ) {
 			    QColor col = i->value().asColor();
@@ -2970,8 +2970,8 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
-    menu.insertItem( tr( "New Event-Handler" ), NEW_ITEM );
-    menu.insertItem( tr( "Delete Event-Handler" ), DEL_ITEM );
+    menu.insertItem( tr( "New Signal Handler" ), NEW_ITEM );
+    menu.insertItem( tr( "Delete Signal Handler" ), DEL_ITEM );
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
 	QString s1 = ( i->parent() ? i->parent() : i )->text( 0 );
