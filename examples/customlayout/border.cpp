@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.cpp#3 $
+** $Id: //depot/qt/main/examples/customlayout/border.cpp#4 $
 **
 ** Implementing your own layout: flow example
 **
@@ -58,7 +58,7 @@ QLayoutItem *BorderLayoutIterator::next()
 
 QLayoutItem *BorderLayoutIterator::takeCurrent()
 {
-    BorderLayout::BorderLayoutStruct *b 
+    BorderLayout::BorderLayoutStruct *b
 	= idx < int( list->count() ) ? list->take(  idx  ) : 0;
     QLayoutItem *item =  b ? b->item : 0;
     delete b;
@@ -71,6 +71,10 @@ BorderLayoutIterator &BorderLayoutIterator::operator++()
     return *this;
 }
 
+BorderLayout::~BorderLayout()
+{
+    deleteAllItems();
+}
 
 
 void BorderLayout::addItem( QLayoutItem *item )
@@ -218,3 +222,5 @@ void BorderLayout::calcSize( SizeType st )
 
     return;
 }
+
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.h#3 $
+** $Id: //depot/qt/main/examples/customlayout/border.h#4 $
 **
 ** Definition of simple flow layout for custom layout example
 **
@@ -70,8 +70,7 @@ public:
           sizeDirty( TRUE ), msizeDirty( TRUE )
     {}
 
-    ~BorderLayout()
-    {}
+    ~BorderLayout();
 
     void addItem( QLayoutItem *item );
 
