@@ -1224,14 +1224,19 @@ int QWidget::metric( int m ) const
     return 0;
 }
 
+QPoint QWExtra::currentOrigin(0, 0);
+
 void QWidget::createSysExtra()
 {
-    qDebug( "QWidget::createSysExtra" );
+  extra->savedClip = NewRgn();
+  extra->is_locked = FALSE;
 }
 
 void QWidget::deleteSysExtra()
 {
-    qDebug( "QWidget::deleteSysExtra" );
+  if(extra->is_locked)
+    unlockPort();
+  DisposeRgn(extra->savedClip);
 }
 
 void QWidget::createTLSysExtra()
@@ -1358,47 +1363,120 @@ void QWidget::propagateUpdates(int x, int y, int w, int h)
   }
 }
 
+static QPoint posInWindow(QWidget *w)
+{
+  int x = 0, y = 0;
+  for(QWidget *p = w; p && p->parentWidget(); p = p->parentWidget()) {
+    x += p->x();
+    y += p->y();
+  }
+  return QPoint(x, y);
+}
+
 //FIXME: I think function was used to define a clipping region
 //FIXME: Basically in ensures that I widget doesn't draw over
 //FIXME: The top of child widgets
 //FIXME: Maybe we should use Qt/Embedded code for doing this.
-
-static QList<QPoint> lstack; //FIXME, this is just a test
-
 void QWidget::lockPort()
 {
-    if ( !hd )
-	return;
-    SetPortWindowPort( (WindowPtr)hd );
+  createExtra();
+  if ( !hd || extra->is_locked)
+    return;
+  extra->is_locked = TRUE;
 
-    //origin
-    int x = 0;
-    int y = 0;
-    for(QWidget *p = this; p && p->parentWidget(); p = p->parentWidget()) {
-      x += p->x();
-      y += p->y();
+  //this is all important, set the window port before painting can happen
+  SetPortWindowPort( (WindowPtr)hd );
+  QPoint mp = posInWindow(this);
+
+  //save the old settings
+  GetClip(extra->savedClip);
+  extra->savedOrigin = QWExtra::currentOrigin;
+
+  Rect rect;
+  SetOrigin(0, 0); //start with an origin in 0, 0. I'll set it properly after this
+
+  //clippedRgn will contain my clipped area
+  RgnHandle clippedRgn = NewRgn();
+  OpenRgn();
+  SetRect(&rect,mp.x(),mp.y(),mp.x()+width(),mp.y()+height());
+  FrameRect(&rect);
+  CloseRgn(clippedRgn);
+
+  //clip out my children
+  if(const QObjectList *chldnlst=children()) {
+    RgnHandle chldRgns = NewRgn();
+    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
+      if((*it)->isWidgetType()) {
+	QWidget *cw = (QWidget *)(*it);
+	if(cw->isVisible() && cw->back_type != 3) {
+	  QPoint cmp = posInWindow(cw);
+	  RgnHandle chldRgn = NewRgn();
+	  OpenRgn();
+	  SetRect(&rect, cmp.x(), cmp.y(), cmp.x()+cw->width(), cmp.y()+cw->height());
+	  FrameRect(&rect);
+	  CloseRgn(chldRgn);
+
+	  UnionRgn(chldRgn, chldRgns, chldRgns);
+	  DisposeRgn(chldRgn);
+	}
+      }
     }
-    lstack.setAutoDelete(TRUE);
-    lstack.append(new QPoint(-x, -y));
-    //qDebug("QLCD lock.. setting origin to %d %d", -x, -y);
-    SetOrigin( -x, -y );
-    
-    //FIXME: NO CLIPPING
+    SectRgn(chldRgns, clippedRgn, chldRgns);
+    XorRgn(chldRgns, clippedRgn, clippedRgn);
+  }
+
+  //clip away my siblings
+  if(parentWidget()) {
+    if(const QObjectList *siblst = parentWidget()->children()) {
+      RgnHandle sibRgns = NewRgn();
+      //loop to this because its in zorder, and i don't care about people behind me
+      QObjectListIt it(*siblst);
+      for(it.toLast(); it.current() && it.current() != this; --it) {
+	if((*it)->isWidgetType()) {
+	  QWidget *sw = (QWidget *)(*it);
+	  if(sw->isVisible()) {
+	    QPoint smp = posInWindow(sw);
+	    RgnHandle sibRgn = NewRgn();
+	    OpenRgn();
+	    SetRect(&rect, smp.x(), smp.y(), smp.x()+sw->width(), smp.y()+sw->height());
+	    FrameRect(&rect);
+	    CloseRgn(sibRgn);
+
+	    UnionRgn(sibRgn, sibRgns, sibRgns);
+	    DisposeRgn(sibRgn);
+	  }
+	}
+      }
+      SectRgn(sibRgns, clippedRgn, sibRgns);
+      XorRgn(sibRgns, clippedRgn, clippedRgn);
+    }
+  }
+
+  /* NOTE TO SELF, FIXME FIXME FIXME
+     after all that we can set the clipped out area, this is horribly inefficent however.
+     we will optimize this later by doing the following:
+     1) only call lock in QPainter::begin, and unlock in QPainter::end
+     2) take the origin into account in the event handler
+  */
+  OffsetRgn(clippedRgn, -mp.x(), -mp.y());
+  SetClip(clippedRgn);
+  DisposeRgn(clippedRgn);
+
+  //handle origin now
+  QWExtra::currentOrigin = QPoint(-mp.x(), -mp.y());
+  SetOrigin( -mp.x(), -mp.y() );
 }
 
 void QWidget::unlockPort() 
 { 
-  lstack.removeFirst();
-  if(lstack.count()) {
-    QPoint *p = lstack.getFirst();
-    //qDebug("QLCD unlock.. setting origin to %d %d", p->x(), p->y());
-    SetOrigin(p->x(), p->y());
-  } else {
-    //    qDebug("QLCD unlock.. (special) setting origin to 0 0");
-    SetOrigin(0,0);
-  }
+  createExtra();
+  if(!extra->is_locked)
+    return;
 
-  //FIXME: UNCLIP
+  QWExtra::currentOrigin = extra->savedOrigin;
+  SetOrigin(extra->savedOrigin.x(), extra->savedOrigin.y());
+  SetClip(extra->savedClip);
+  extra->is_locked = FALSE;
 } 
 
 BitMap

@@ -868,6 +868,12 @@ struct QWExtra {
     QRegion mask;				// widget mask
 #endif
     char     bg_mode;				// background mode
+#if defined(_WS_MAC_)
+  static QPoint currentOrigin;
+  bool is_locked;
+  QPoint savedOrigin;
+  RgnHandle savedClip;
+#endif
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif
