@@ -308,7 +308,7 @@ void Generator::generateCode()
                 fprintf(out, ",\n    ");
             fprintf(out, "    &%s::staticMetaObject", extraList.at(i).constData());
         }
-        fprintf(out, "\n};\n\n");
+        fprintf(out, ",0\n};\n\n");
     }
 
 
