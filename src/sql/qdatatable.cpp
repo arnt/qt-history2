@@ -66,7 +66,9 @@ public:
 	  insertRowLast( -1 ),
 	  insertPreRows( -1 ),
 	  editBuffer( 0 ),
-	  cancelMode( FALSE )
+	  cancelMode( FALSE ),
+	  cancelInsert( FALSE ),
+	  cancelUpdate( FALSE )
     {}
     ~QDataTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -88,6 +90,8 @@ public:
     int insertPreRows;
     QSqlRecord* editBuffer;
     bool cancelMode;
+    bool cancelInsert;
+    bool cancelUpdate;
     int lastAt;
     QString ftr;
     QStringList srt;
@@ -643,8 +647,8 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	c = d->editCol;
     }
 
-    bool cancelInsert = FALSE;
-    bool cancelUpdate = FALSE;
+    d->cancelInsert = FALSE;
+    d->cancelUpdate = FALSE;
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	int conf = QSql::Yes;
@@ -660,7 +664,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		d->cancelMode = FALSE;
 	    }
 	    if ( conf == QSql::Yes ) {
-		cancelInsert = TRUE;
+		d->cancelInsert = TRUE;
 	    } else {
 		QWidget *editorWidget = cellWidget( r, c );
 		if ( editorWidget ) {
@@ -677,7 +681,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		d->cancelMode = FALSE;
 	    }
 	    if ( conf == QSql::Yes ){
-		cancelUpdate = TRUE;
+		d->cancelUpdate = TRUE;
 	    } else {
 		QWidget *editorWidget = cellWidget( r, c );
 		if ( editorWidget ) {
@@ -733,7 +737,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	if ( !d->cancelMode && editorWidget && o == editorWidget &&
 	     ( d->dat.mode() == QSql::Insert) && !d->continuousEdit) {
 	    setCurrentCell( r, c );
-	    cancelInsert = TRUE;
+	    d->cancelInsert = TRUE;
 	}
 	break;
     }
@@ -744,10 +748,6 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     bool b = QTable::eventFilter( o, e );
-    if ( cancelInsert )
-	endInsert();
-    if ( cancelUpdate )
-	endUpdate();
     return b;
 }
 
@@ -837,7 +837,7 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
 /*! \reimp */
 void QDataTable::endEdit( int row, int col, bool, bool )
 {
-    bool accept = autoEdit();
+    bool accept = autoEdit() && !d->cancelInsert && !d->cancelUpdate;
 
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
