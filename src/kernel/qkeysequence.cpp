@@ -85,11 +85,6 @@ static struct {
     int key;
     const char* name;
 } keyname[] = {
-    // More consistent namings
-    { Qt::Key_Prior,	    QT_TRANSLATE_NOOP( "QAccel", "Page Up" ) },
-    { Qt::Key_Next,	    QT_TRANSLATE_NOOP( "QAccel", "Page Down" ) },
-    // --------------------------------------------------------------
-   
     { Qt::Key_Space,	    QT_TRANSLATE_NOOP( "QAccel", "Space" ) },
     { Qt::Key_Escape,	    QT_TRANSLATE_NOOP( "QAccel", "Esc" ) },
     { Qt::Key_Tab,	    QT_TRANSLATE_NOOP( "QAccel", "Tab" ) },
@@ -157,6 +152,21 @@ static struct {
     { Qt::Key_LaunchD,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (D)" ) },
     { Qt::Key_LaunchE,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (E)" ) },
     { Qt::Key_LaunchF,	    QT_TRANSLATE_NOOP( "QAccel", "Launch (F)" ) },
+
+    // --------------------------------------------------------------
+    // More consistent namings
+    { Qt::Key_Print,	    QT_TRANSLATE_NOOP( "QAccel", "Print Screen" ) },
+    { Qt::Key_Prior,	    QT_TRANSLATE_NOOP( "QAccel", "Page Up" ) },
+    { Qt::Key_Next,	    QT_TRANSLATE_NOOP( "QAccel", "Page Down" ) },
+    { Qt::Key_CapsLock,	    QT_TRANSLATE_NOOP( "QAccel", "Caps Lock" ) },
+    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP( "QAccel", "Num Lock" ) },
+    { Qt::Key_NumLock,	    QT_TRANSLATE_NOOP( "QAccel", "Number Lock" ) },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP( "QAccel", "Scroll Lock" ) },
+    { Qt::Key_Insert,	    QT_TRANSLATE_NOOP( "QAccel", "Insert" ) },
+    { Qt::Key_Delete,	    QT_TRANSLATE_NOOP( "QAccel", "Delete" ) },
+    { Qt::Key_Escape,	    QT_TRANSLATE_NOOP( "QAccel", "Escape" ) },
+    { Qt::Key_SysReq,	    QT_TRANSLATE_NOOP( "QAccel", "System Request" ) },
+
     { 0, 0 }
 };
 
