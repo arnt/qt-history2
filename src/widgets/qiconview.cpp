@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#118 $
 **
 ** Definition of QIconView widget class
 **
@@ -335,6 +335,7 @@ void QIconDragItem::setTextRect( const QRect &r )
 
 /*!
   \class QIconDrag qiconview.h
+
   \brief The QIconDrag is the drag object which is used for moving items in the iconview
 
   The QIconDrag is the drag object which is used for moving items in the
@@ -343,15 +344,21 @@ void QIconDragItem::setTextRect( const QRect &r )
   shades in correct positions.
 
   It's suggested that, if you write a drag object for own QIconViewItems,
-  you derive the drag object class from QIconDrag and just implement the
+  you derive the drag object class from QIconDrag and just (re)implement the
   methods which are needed for encoding/decoding your data and the mimetype
-  handling. Because if you do this, the position informations will be stored
+  handling. Because if you do this, the position information will be stored
   in the drag object too.
 
   An example, how to implement this, is in the QtFileIconView example.
+  
+  \sa QFileIconView::QFileIconView()
 */
 
 /*!
+  Constructs a icon dragobject which contains a list of \a icons (list of QIconDragItems). 
+  \a dragSource  is the widget which started the dragand \a name the name of the object.
+  
+  \sa QIconDragItem::QIconDragItem()
  */
 
 QIconDrag::QIconDrag( const QIconList &icons_, QWidget * dragSource, const char* name )
@@ -360,6 +367,7 @@ QIconDrag::QIconDrag( const QIconList &icons_, QWidget * dragSource, const char*
 }
 
 /*!
+  \reimp
  */
 
 QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
@@ -368,6 +376,7 @@ QIconDrag::QIconDrag( QWidget * dragSource, const char* name )
 }
 
 /*!
+  Destructor.
  */
 
 QIconDrag::~QIconDrag()
@@ -375,7 +384,11 @@ QIconDrag::~QIconDrag()
 }
 
 /*!
- */
+  Sets the \a list of icon drag items which should be stored in this
+  dragobject.
+
+  \sa QIconDragItem::QIconDragItem()
+*/
 
 void QIconDrag::setIcons( const QIconList &list_ )
 {
@@ -383,7 +396,11 @@ void QIconDrag::setIcons( const QIconList &list_ )
 }
 
 /*!
- */
+  Appends an icon drag item which should be stored in this 
+  dragobject.
+  
+  \sa QIconDragItem::QIconDragItem()
+*/
 
 void QIconDrag::append( const QIconDragItem &icon_ )
 {
@@ -391,7 +408,8 @@ void QIconDrag::append( const QIconDragItem &icon_ )
 }
 
 /*!
- */
+  \reimp
+*/
 
 const char* QIconDrag::format( int i ) const
 {
@@ -401,7 +419,9 @@ const char* QIconDrag::format( int i ) const
 }
 
 /*!
- */
+  Returns the encoded data of the drag object if
+  \a mime is application/x-qiconlist.
+*/
 
 QByteArray QIconDrag::encodedData( const char* mime ) const
 {
@@ -427,7 +447,9 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 }
 
 /*!
- */
+  Returns TRUE if \a e can be decoded by the QIconDrag,
+  else FALSE.
+*/
 
 bool QIconDrag::canDecode( QMimeSource* e )
 {
@@ -437,7 +459,9 @@ bool QIconDrag::canDecode( QMimeSource* e )
 }
 
 /*!
- */
+  Decodes the data which is stored (endocded) in \a e and if successful,
+  fills the \a list of icon drag items with the decoded data.
+*/
 
 bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 {
