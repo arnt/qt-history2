@@ -81,7 +81,10 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     for(int i = 0; i < len; i++) {
         glyphs[i].glyph = str[i].unicode();
         if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
-            glyphs[i].advance.rx() = widthCache[str[i].unicode()];
+            int c = widthCache[str[i].unicode()];
+            if(c == -777)
+                c = 0;
+            glyphs[i].advance.rx() = c;
             glyphs[i].advance.ry() = 0;
         } else {
             glyphs[i].advance.rx() = doTextTask(str+i, 0, 1, 1, WIDTH);
@@ -144,9 +147,8 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
         mgc->setupQDFont();
     }
 
-    QGlyphLayout *glyphs = si.glyphs;
     if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
-        glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
+        glyph_metrics_t br = boundingBox(si.glyphs, si.num_glyphs);
         pState->painter->fillRect(x + int(br.x), y + int(br.y), int(br.width), int(br.height),
                                   pState->painter->background().color());
     }
@@ -156,37 +158,31 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
         CGContextSetShouldAntialias(QMacCGContext(p->painter()), textAA);
 
-    int w = 0;
-    uchar task = DRAW;
-    if(textFlags != 0)
-        task |= WIDTH; //I need the width for these..
     if(si.right_to_left) {
-        glyphs += si.num_glyphs;
-        for(int i = 0; i < si.num_glyphs; i++) {
-            glyphs--;
-            w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
-            x += int(glyphs->advance.x());
+        for(int i = si.num_glyphs-1; i >= 0; --i) {
+            doTextTask((QChar*)(si.glyphs+i), 0, 1, 1, DRAW, x, y, p);
+            x += int(si.glyphs[i].advance.x());
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
         for(int i = 0; i < si.num_glyphs; ++i)
-            g[i] = glyphs[i].glyph;
-        w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
+            g[i] = si.glyphs[i].glyph;
+        doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
     }
-    if(w && textFlags != 0) {
+    if(si.width && textFlags != 0) {
+        QPen oldPen = p->painter()->pen();
         QBrush oldBrush = p->painter()->brush();
         p->painter()->setBrush(p->painter()->pen().color());
+        p->painter()->setPen(Qt::NoPen);
         const float lw = lineThickness();
-        if(textFlags & Qt::TextUnderline)
-            p->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(),
-                                          si.right_to_left ? -w : w, lw));
+        if(textFlags & Qt::TextUnderline) 
+            p->painter()->drawRect(QRectF(req_x-1, req_y + underlinePosition(), si.width, lw));
         if(textFlags & Qt::TextOverline)
-            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1),
-                                          si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));
         if(textFlags & Qt::TextStrikeOut)
-            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3),
-                                          si.right_to_left ? -w : w, lw));
+            p->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3), si.width, lw));
         p->painter()->setBrush(oldBrush);
+        p->painter()->setPen(oldPen);
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
         CGContextSetShouldAntialias(QMacCGContext(p->painter()), !textAA);
