@@ -510,11 +510,17 @@ QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
 
 void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 {
-    QRect area = d->viewport->geometry();
+    QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(item);
 
-    if (area.contains(rect) || model()->parent(item) != root())
+    if (model()->parent(item) != root())
         return;
+    
+    if (area.contains(rect)) {
+        d->viewport->repaint(rect);
+        return;
+    }
+                                 
 
     // vertical
     if (rect.top() < area.top()) { // above

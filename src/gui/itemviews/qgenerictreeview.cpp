@@ -214,11 +214,13 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
 
 void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
 {
-    QRect area = viewport()->geometry();
+    QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(item);
 
-    if (area.contains(rect))
+    if (area.contains(rect)) {
+        d->viewport->repaint(rect);
         return;
+    }
 
     // vertical
     if (rect.top() < area.top()) { // above
@@ -233,7 +235,8 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
         int y = area.height();
         while (y > 0 && i > 0)
             y -= delegate->sizeHint(fontMetrics, options, d->items.at(i--).index).height();
-        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, options, d->items.at(i).index).height();
+        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, options,
+                                                             d->items.at(i).index).height();
         verticalScrollBar()->setValue(++i * verticalFactor() + a);
     }
 

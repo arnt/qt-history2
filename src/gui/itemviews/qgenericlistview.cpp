@@ -363,7 +363,7 @@ QRect QGenericListView::itemViewportRect(const QModelIndex &index) const
 
 void QGenericListView::ensureItemVisible(const QModelIndex &item)
 {
-    QRect area = d->viewport->geometry();
+    QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(item);
 
     if (model()->parent(item) != root())
