@@ -1665,33 +1665,8 @@ void QString::truncate( uint newLen )
     string, and sets the length of the string to \a newLen. Any new
     space allocated contains arbitrary data.
 
-    This function always detaches the string from other references to
-    the same data. If \a newLen is 0, then the string becomes empty
-    (non-null).
-
-    This function is useful for code that needs to build up a long
-    string and wants to avoid repeated reallocation. In this example,
-    we want to add to the string until some condition is true, and
-    we're fairly sure that size is big enough:
-    \code
-	QString result;
-	int len = 0;
-	result.setLength( maxLen );     // allocate some space
-	while ( ... ) {
-	    result[len++] = ...         // fill part of the space
-	}
-	result.truncate( len );         // and get rid of the rest
-    \endcode
-
-    If \a newLen is an underestimate, the worst that will happen is
-    that the loop will slow down.
-
-    If it is not possible to allocate enough memory, the string
-    remains unchanged.
-
-    \sa truncate(), isNull(), isEmpty(), length()
+    \sa reserve(), truncate()
 */
-
 void QString::setLength( uint newLen )
 {
     if ( d->count != 1 || newLen > d->maxl ||
@@ -1717,34 +1692,64 @@ void QString::setLength( uint newLen )
     Returns the number of characters this string can hold
     in the allocated memory.
 
-    \sa setLength()
+    \sa reserve(), squeeze()
 */
 
-/*!
-    Allocates memory to hold \a newCap characters. 
-    
-    If \a newCap is smaller than the current length of the 
-    string the string is truncated. Any new space allocated
-    contains arbitrary data.
+/*
+    Ensures that at least \a minCapacity characters are allocated to
+    the string.
 
-    This function always detaches the string from other references
-    to the same data. If \a newCap is 0, then the string becomes
-    empty (non-null).
+    This function is useful for code that needs to build up a long
+    string and wants to avoid repeated reallocation. In this example,
+    we want to add to the string until some condition is true, and
+    we're fairly sure that size is big enough:
+    \code
+	QString result;
+	int len = 0;
+	result.reserve(maxLen);
+	while (...) {
+	    result[len++] = ...         // fill part of the space
+	}
+	result.squeeze();
+    \endcode
 
-    \sa setLength(), truncate()
+    If \e maxLen is an underestimate, the worst that will happen is
+    that the loop will slow down.
+
+    If it is not possible to allocate enough memory, the string
+    remains unchanged.
+
+    \sa capacity(), squeeze(), resize()
 */
-void QString::setCapacity( uint newCap )
+
+void QString::reserve( uint minCapacity )
 {
-    if ( d->maxl != newCap ) {
-	d->len = QMIN( d->len, newCap );
-	d->setDirty();
-
-	QChar *nd = QT_ALLOC_QCHAR_VEC( newCap );
+    if ( d->maxl < minCapacity ) {
+	QChar *nd = QT_ALLOC_QCHAR_VEC( minCapacity + 1 );
 	if ( nd ) {
 	    uint len = d->len;
 	    memcpy( nd, d->unicode, sizeof(QChar) * len );
 	    deref();
-	    d = new QStringData( nd, len, newCap );
+	    d = new QStringData( nd, len, minCapacity + 1 );
+	}
+    }
+}
+
+
+/*!
+    Squeezes the string's capacity to the current content.
+
+    \sa capacity(), reserve()
+*/
+void QString::squeeze()
+{
+    if ( d->maxl > d->len ) {
+	QChar *nd = QT_ALLOC_QCHAR_VEC( d->len + 1 );
+	if ( nd ) {
+	    uint len = d->len;
+	    memcpy( nd, d->unicode, sizeof(QChar) * len );
+	    deref();
+	    d = new QStringData( nd, len, d->len + 1 );
 	}
     }
 }

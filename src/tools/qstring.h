@@ -698,7 +698,8 @@ public:
     void setLength( uint newLength );
 
     uint capacity() const;
-    void setCapacity( uint newCap );
+    void reserve( uint minCapacity );
+    void squeeze();
 
     bool simpleText() const { if ( !d->issimpletext ) checkSimpleText(); return (bool)d->issimpletext; }
     bool isRightToLeft() const;
