@@ -655,7 +655,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
 		else
 		    qDrawShadePanel( p, xpos, y, checkcol, h,
-				     cg, TRUE, 1, &cg.brush( QColorGroup::Midlight ) );
+				     cg, TRUE, 1, 
+				     &QBrush(cg.light(), Dense4Pattern) );
 	    } else if (! act)
 		p->fillRect(xpos, y, checkcol , h, cg.brush( QColorGroup::Button ));
 
