@@ -56,10 +56,10 @@ bool Uic::toBool( const QString& s )
 QString Uic::fixString( const QString &str )
 {
     QString s( str );
-    s = s.replace( QRegExp( "\\\\" ), "\\\\" );
-    s = s.replace( QRegExp( "\"" ), "\\\"" );
-    s = s.replace( QRegExp( "\n" ), "\\n" );
-    s = s.replace( QRegExp( "\r" ), "\\r" );
+    s.replace( QRegExp( "\\\\" ), "\\\\" );
+    s.replace( QRegExp( "\"" ), "\\\"" );
+    s.replace( QRegExp( "\n" ), "\\n\"\n\"" );
+    s.replace( QRegExp( "\r" ), "\\r" );
 
     bool onlyAscii = TRUE;
     unsigned int i;
