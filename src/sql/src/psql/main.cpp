@@ -34,7 +34,6 @@
 **
 **********************************************************************/
 
-#define Q_UUIDIMPL
 #include <qsqldriverinterface.h>
 #include "qsql_psql.h"
 
