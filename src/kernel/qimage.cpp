@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#196 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1119,6 +1119,7 @@ static bool convert_8_to_32( const QImage *src, QImage *dst )
 {
     if ( !dst->create(src->width(), src->height(), 32) )
 	return FALSE;				// create failed
+    dst->setAlphaBuffer( src->hasAlphaBuffer() );
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
 	register uint *p = (uint *)dst->scanLine(y);
 	uchar  *b = src->scanLine(y);
@@ -1134,6 +1135,7 @@ static bool convert_1_to_32( const QImage *src, QImage *dst )
 {
     if ( !dst->create(src->width(), src->height(), 32) )
 	return FALSE;				// could not create
+    dst->setAlphaBuffer( src->hasAlphaBuffer() );
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
 	register uint *p = (uint *)dst->scanLine(y);
 	uchar *b = src->scanLine(y);
@@ -1160,6 +1162,7 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 {
     if ( !dst->create(src->width(), src->height(), 8, 2) )
 	return FALSE;				// something failed
+    dst->setAlphaBuffer( src->hasAlphaBuffer() );
     if (src->numColors() >= 2) {
 	dst->setColor( 0, src->color(0) );	// copy color table
 	dst->setColor( 1, src->color(1) );
@@ -1168,8 +1171,8 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 	if (src->numColors() >= 1)
 	    dst->setColor( 0, src->color(0) );
 	else
-	    dst->setColor( 0, 0x00ffffff );
-	dst->setColor( 1, 0x00000000 );
+	    dst->setColor( 0, 0xffffffff );
+	dst->setColor( 1, 0xff000000 );
     }
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
 	register uchar *p = dst->scanLine(y);
