@@ -14759,22 +14759,15 @@ int QString::contains( const char* str, bool cs ) const
 
 int QString::contains( const QString &str, bool cs ) const
 {
-    int count = 0;
-    const QChar *uc = unicode();
-    if ( !uc )
+    if ( isNull() )
 	return 0;
-    int len = str.length();
-    int n = length() - len + 1;
-    while ( n-- > 0 ) { // counts overlapping strings
-	if ( cs ) {
-	    if ( ucstrncmp( uc, str.unicode(), len ) == 0 )
-		count++;
-	} else {
-	    if ( ucstrnicmp(uc, str.unicode(), len) == 0 )
-		count++;
-	}
-	uc++;
-    }
+    int count = 0;
+    uint skiptable[0x100];
+    bm_init_skiptable( str, skiptable, cs );
+    int i = -1;
+    // use boyer-moore for the ultimate speed experience
+    while ( ( i = bm_find( *this, i+1, str, skiptable, cs ) ) != -1 )
+	count++;
     return count;
 }
 

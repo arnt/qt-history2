@@ -946,7 +946,7 @@ int QCString::find( const char *str, int index, bool cs ) const
     if ( sl + index > l )
 	return -1;
 
-    if ( sl == 1 ) 
+    if ( sl == 1 )
 	return find( *str, index, cs );
 
     /*
@@ -1058,8 +1058,8 @@ int QCString::findRev( const char *str, int index, bool cs ) const
 	return -1;
     if ( index > delta )
 	index = delta;
-    
-    if ( sl == 1 ) 
+
+    if ( sl == 1 )
 	return findRev( *str, index, cs );
 
     const char* needle = str;
@@ -1150,23 +1150,10 @@ int QCString::contains( char c, bool cs ) const
 int QCString::contains( const char *str, bool cs ) const
 {
     int count = 0;
-    char *d = data();
-    if ( !d )
-	return 0;
-    int len = qstrlen( str );
-    if ( cs ) {
-	while ( *d ) {				// counts overlapping strings
-	    if ( *d == *str && qstrncmp( d, str, len ) == 0 )
-		count++;
-	    ++d;
-	}
-    } else {
-	while ( *d ) {				// counts overlapping strings
-	    if ( qstrnicmp( d, str, len ) == 0 )
-		count++;
-	    ++d;
-	}
-    }
+    int i = -1;
+    // use find for the faster hashing algorithm
+    while ( ( i = find ( str, i+1, cs ) ) != -1 )
+	count++;
     return count;
 }
 
@@ -1655,7 +1642,7 @@ QCString &QCString::replace( const char *before, const char *after )
     const int al = after ? strlen( after ) : 0;
     char *d = data();
     uint len = length();
-    
+
     if ( bl == al ) {
 	if ( bl ) {
 	    while( (index = find( before, index ) ) != -1 ) {
@@ -1729,7 +1716,7 @@ QCString &QCString::replace( const char *before, const char *after )
 		int insertstart = indices[pos] + pos*(al-bl);
 		int moveto = insertstart + al;
 		memmove( d + moveto, d + movestart, (moveend - movestart) );
-		if ( after ) 
+		if ( after )
 		    memcpy( d + insertstart, after, al );
 		moveend = movestart - bl;
 	    }
