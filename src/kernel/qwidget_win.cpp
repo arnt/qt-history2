@@ -194,12 +194,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp );
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
+	}
 #else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu );
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title );
-#endif
 	}
+	// Default to maximized show()
+	QTLWExtra *top = topData();
+	top->showMode = 2;
+#endif
 	// workaround for some versions of Windows
 	if ( testWFlags( WStyle_MinMax ) )
 	    clearWFlags( WStyle_ContextHelp );
@@ -995,6 +999,7 @@ void QWidget::showMaximized()
 
 void QWidget::showNormal()
 {
+    topData()->showMode = 0;
     if ( isTopLevel() ) {
 #ifndef Q_OS_TEMP
 	if ( d->topData()->fullscreen ) {
