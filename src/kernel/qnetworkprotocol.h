@@ -165,10 +165,11 @@ private slots:
 };
 
 struct QNetworkOperationPrivate;
-class Q_EXPORT QNetworkOperation
+class Q_EXPORT QNetworkOperation : public QObject
 {
+    Q_OBJECT
     friend class QUrlOperator;
-    
+
 public:
     QNetworkOperation( QNetworkProtocol::Operation operation,
 		    const QString &arg0, const QString &arg1,
@@ -191,9 +192,14 @@ public:
     QString protocolDetail() const;
     int errorCode() const;
 
+    void free();
+    
+private slots:
+    void deleteMe();
+    
 private:
     QByteArray &raw( int num ) const;
-    
+
     QNetworkOperationPrivate *d;
 
 };

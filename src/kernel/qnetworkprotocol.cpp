@@ -30,6 +30,7 @@
 #include "qmap.h"
 
 //#define QNETWORKPROTOCOL_DEBUG
+#define NETWORK_OP_DELAY 1000
 
 extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
@@ -43,7 +44,6 @@ struct QNetworkProtocolPrivate
     QTimer *opStartTimer, *removeTimer;
     int removeInterval;
     bool autoDelete;
-    QNetworkOperation *old;
 };
 
 // NOT REVISED
@@ -302,7 +302,6 @@ QNetworkProtocol::QNetworkProtocol()
     d->operationQueue.setAutoDelete( FALSE );
     d->autoDelete = FALSE;
     d->removeInterval = 10000;
-    d->old = 0;
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
     connect( d->removeTimer, SIGNAL( timeout() ),
@@ -347,12 +346,15 @@ QNetworkProtocol::~QNetworkProtocol()
     d->removeTimer->stop();
     if ( d->opInProgress == d->operationQueue.head() )
 	d->operationQueue.dequeue();
-    delete d->opInProgress;
-    d->operationQueue.setAutoDelete( TRUE );
+    if ( d->opInProgress )
+	d->opInProgress->free();
+    d->opInProgress = 0;
+    while ( d->operationQueue.head() ) {
+	d->operationQueue.head()->free();
+	d->operationQueue.dequeue();
+    }
     delete d->opStartTimer;
     d->opStartTimer = 0;
-    delete d->old;
-    d->old = 0;
     delete d;
     d = 0;
 }
@@ -709,12 +711,8 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 #endif
     d->removeTimer->stop();
 
-    bool makeNull = old == d->old;
-    delete d->old;
-    if ( !makeNull )
-	d->old = old;
-    else
-	d->old = 0;
+    if ( old )
+	old->free();
 
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;
@@ -791,7 +789,7 @@ void QNetworkProtocol::stop()
 	op->setProtocolDetail( tr( "Operation stopped by the user" ) );
 	emit finished( op );
 	setUrl( 0 );
-	delete op;
+	op->free();
     }
 }
 
@@ -846,6 +844,7 @@ struct QNetworkOperationPrivate
     QMap<int, QByteArray> rawArgs;
     QString protocolDetail;
     int errorCode;
+    QTimer *deleteTimer;
 };
 
 /*!
@@ -873,6 +872,9 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 				      const QString &arg2 )
 {
     d = new QNetworkOperationPrivate;
+    d->deleteTimer = new QTimer( this );
+    connect( d->deleteTimer, SIGNAL( timeout() ),
+	     this, SLOT( deleteMe() ) );
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
     d->args[ 0 ] = arg0;
@@ -897,6 +899,9 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
 				      const QByteArray &arg2 )
 {
     d = new QNetworkOperationPrivate;
+    d->deleteTimer = new QTimer( this );
+    connect( d->deleteTimer, SIGNAL( timeout() ),
+	     this, SLOT( deleteMe() ) );
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
     d->args[ 0 ] = QString::null;
@@ -928,6 +933,10 @@ QNetworkOperation::~QNetworkOperation()
 
 void QNetworkOperation::setState( QNetworkProtocol::State state )
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     d->state = state;
 }
 
@@ -937,6 +946,10 @@ void QNetworkOperation::setState( QNetworkProtocol::State state )
 
 void QNetworkOperation::setProtocolDetail( const QString &detail )
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     d->protocolDetail = detail;
 }
 
@@ -948,6 +961,10 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
 
 void QNetworkOperation::setErrorCode( int ec )
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     d->errorCode = ec;
 }
 
@@ -957,6 +974,10 @@ void QNetworkOperation::setErrorCode( int ec )
 
 void QNetworkOperation::setArg( int num, const QString &arg )
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     d->args[ num ] = arg;
 }
 
@@ -966,6 +987,10 @@ void QNetworkOperation::setArg( int num, const QString &arg )
 
 void QNetworkOperation::setRawArg( int num, const QByteArray &arg )
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     d->rawArgs[ num ] = arg;
 }
 
@@ -975,6 +1000,10 @@ void QNetworkOperation::setRawArg( int num, const QByteArray &arg )
 
 QNetworkProtocol::Operation QNetworkOperation::operation() const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->operation;
 }
 
@@ -986,6 +1015,10 @@ QNetworkProtocol::Operation QNetworkOperation::operation() const
 
 QNetworkProtocol::State QNetworkOperation::state() const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->state;
 }
 
@@ -996,6 +1029,10 @@ QNetworkProtocol::State QNetworkOperation::state() const
 
 QString QNetworkOperation::arg( int num ) const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->args[ num ];
 }
 
@@ -1006,6 +1043,10 @@ QString QNetworkOperation::arg( int num ) const
 
 QByteArray QNetworkOperation::rawArg( int num ) const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->rawArgs[ num ];
 }
 
@@ -1016,6 +1057,10 @@ QByteArray QNetworkOperation::rawArg( int num ) const
 
 QString QNetworkOperation::protocolDetail() const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->protocolDetail;
 }
 
@@ -1026,6 +1071,10 @@ QString QNetworkOperation::protocolDetail() const
 
 int QNetworkOperation::errorCode() const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->errorCode;
 }
 
@@ -1035,5 +1084,34 @@ int QNetworkOperation::errorCode() const
 
 QByteArray& QNetworkOperation::raw( int num ) const
 {
+    if ( d->deleteTimer->isActive() ) {
+	d->deleteTimer->stop();
+	d->deleteTimer->start( NETWORK_OP_DELAY );
+    }
     return d->rawArgs[ num ];
+}
+
+/*!
+  If this method is called the QNetworkOperation deletes itself after it has been
+  1 sec unused, which means for 1 second no method of the QNetworkOperation
+  has been accessed.
+  
+  Because QNetworkOperation pointers are passed around a lot the QNetworkProtocol
+  can't delete these at the correct time. So, if a QNetworkProtocol doesn't need an operation
+  anymore and calles this method, so that it gets deleted correctly.
+*/
+
+void QNetworkOperation::free()
+{
+    d->deleteTimer->start( NETWORK_OP_DELAY );
+}
+
+/*!
+  \internal
+  Internal slot for autodeletion.
+*/
+
+void QNetworkOperation::deleteMe()
+{
+    delete this;
 }

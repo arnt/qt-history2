@@ -2692,7 +2692,7 @@ void qt_leave_modal( QWidget* );
 
   NOTE: In the windows version of Qt this static method uses the native
   windows file dialog, and not the QFileDialog.
-  
+
   \sa getSaveFileName()
 */
 
@@ -3532,7 +3532,7 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 }
 
 
-/*! 
+/*!
   Ask the user for the name of an existing directory, starting at
   \a dir.  Returns the name of the directory the user selected.
 
