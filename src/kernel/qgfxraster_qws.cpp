@@ -5608,21 +5608,26 @@ variable pixel for drawing points, lines and rectangles.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::useBrush()
 {
-    if(depth==32||depth==24) {
-	pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
-	      | (cbrush.color().blue());
-    } else if(depth==16) {
-	pixel=((cbrush.color().red() >> 3) << 11) |
-	      ((cbrush.color().green() >> 2) << 5) |
-	      (cbrush.color().blue() >> 3);
-   } else if(depth==1) {
-	pixel=qGray(cbrush.color().red(),cbrush.color().green(),
-		    cbrush.color().blue()) < 128 ? 1 : 0;
-    } else {
-	pixel=gfx_screen->alloc(cbrush.color().red(),
-				cbrush.color().green(),
-				cbrush.color().blue());
-    }
+#ifndef QT_NO_QWS_REPEATER
+    if (isScreenGfx) {
+	if(depth==32||depth==24) {
+	    pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
+		  | (cbrush.color().blue());
+	} else if(depth==16) {
+	    pixel=((cbrush.color().red() >> 3) << 11) |
+		  ((cbrush.color().green() >> 2) << 5) |
+		  (cbrush.color().blue() >> 3);
+	} else if(depth==1) {
+	    pixel=qGray(cbrush.color().red(),cbrush.color().green(),
+			cbrush.color().blue()) < 128 ? 1 : 0;
+	} else {
+	    pixel=gfx_screen->alloc(cbrush.color().red(),
+				    cbrush.color().green(),
+				    cbrush.color().blue());
+	}
+    } else 
+#endif
+	pixel = cbrush.color().pixel();
 }
 
 /*
@@ -5633,21 +5638,26 @@ variable pixel for drawing points, lines and rectangles.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::usePen()
 {
-    if(depth==32||depth==24) {
-	pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
-	      | (cpen.color().blue());
-    } else if(depth==16) {
-	pixel=((cpen.color().red() >> 3) << 11) |
-	      ((cpen.color().green() >> 2) << 5) |
-	      (cpen.color().blue() >> 3);
-    } else if(depth==1) {
-	pixel=qGray(cpen.color().red(),cpen.color().green(),
-		    cpen.color().blue()) < 128 ? 1 : 0;
-    } else {
-	pixel=gfx_screen->alloc(cpen.color().red(),
-				cpen.color().green(),
-				cpen.color().blue());
-    }
+#ifndef QT_NO_QWS_REPEATER
+    if (isScreenGfx) {
+	if(depth==32||depth==24) {
+	    pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
+		  | (cpen.color().blue());
+	} else if(depth==16) {
+	    pixel=((cpen.color().red() >> 3) << 11) |
+		  ((cpen.color().green() >> 2) << 5) |
+		  (cpen.color().blue() >> 3);
+	} else if(depth==1) {
+	    pixel=qGray(cpen.color().red(),cpen.color().green(),
+			cpen.color().blue()) < 128 ? 1 : 0;
+	} else {
+	    pixel=gfx_screen->alloc(cpen.color().red(),
+				    cpen.color().green(),
+				    cpen.color().blue());
+	}
+    } else
+#endif
+	pixel = cpen.color().pixel();
 }
 
 /*!
