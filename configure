@@ -356,7 +356,7 @@ while [ -n "$1" ]; do
 	if [ -n $MODULE -a -d "src/$MODULE" ]
 	then
 	    echo "${MODULES}" | grep $MODULE
-	    if [ ! $? ]
+	    if [ '!' $? ]
 	    then
 		MODULES="$MODULES $MODULE"
 	    fi
@@ -848,7 +848,7 @@ then
 fi
 # QMAKE_OUTDIR="${QMAKE_OUTDIR}-`uname -n`"
 
-if [ '!' "x$EMBEDDED" = "xno" ]
+if [ "x$EMBEDDED" != "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
@@ -871,26 +871,26 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 
 # Make sure QMAKE_PROJECTS contains src/qt.pro and src/moc/moc.pro
 echo "${MODULES}" | grep "src/qt.pro"
-if [ ! $? ]
+if [ '!' $? ]
 then
     echo "Adding src/qt.pro to list of projects"
     QMAKE_PROJECTS="src/qt.pro ${QMAKE_PROJECTS}"
 fi
 
 echo "${MODULES}" | grep "src/moc/moc.pro"
-if [ ! $? ]
+if [ '!' $? ]
 then
     echo "Adding src/moc/moc.pro to list of projects"
     QMAKE_PROJECTS="src/moc/moc.pro ${QMAKE_PROJECTS}"
 fi
 
-[ ! -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
-if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
+[ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
+if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]
 then
     QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
-[ ! -z "$R_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
-if [ ! -z "$I_FLAGS" ]
+[ '!' -z "$R_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
+if [ '!' -z "$I_FLAGS" ]
 then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
@@ -973,7 +973,7 @@ then
     echo "QMake swtiches... $QMAKE_SWITCHES"
 fi
 
-if [ ! "x$CONCURRENT" = "x0" ]
+if [ "x$CONCURRENT" != "x0" ]
 then
     echo "Concurrent........... $CONCURRENT"
 fi
@@ -1021,7 +1021,7 @@ for a in $QMAKE_PROJECTS ; do
 	EXEC=$PIPE
     else
 	EXEC="$EXEC ($PIPE & ) ;"
-	if [ ! "x$PROCS" = "x$CONCURRENT" ]
+	if [ "x$PROCS" != "x$CONCURRENT" ]
 	then
 	    PROCS=`expr $PROCS + 1`
 	else
@@ -1046,7 +1046,7 @@ for a in $QMAKE_PROJECTS ; do
     fi
 done
 #this is just incase the concurrant task is not a multiple of the number of tasks
-[ ! -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
+[ '!' -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
 
 if echo $LD_LIBRARY_PATH | grep >/dev/null $QTDIR/lib
 then
