@@ -483,8 +483,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(resource) {
 	ret += QString("-$(DEL_FILE) -r \"") + dst_targ + "\"" + "\n\t";
 	ret += QString("-$(COPY_DIR) \"") + src_targ + "\" \"" + dst_targ + "\"";
-    else {
-	ret += QString("-$(COPY)" \"") + src_targ + "\" \"" + dst_targ + "\"";
+    } else {
+	ret += QString("-$(COPY) \"") + src_targ + "\" \"" + dst_targ + "\"";
     }
     if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
