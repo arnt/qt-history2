@@ -1360,6 +1360,10 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	    platinumPlugin->setOn( false );
 	    platinumDirect->setOn( true );
 	}
+	if ( xpPlugin->isOn() ) {
+	    xpPlugin->setOn( false );
+	    xpOff->setOn( true );
+	}
 	if ( enterprise ) {
 	    if ( mysqlPlugin->isOn() ) {
 		mysqlPlugin->setOn( false );
@@ -1394,6 +1398,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	motifplusPlugin->setEnabled( false );
 	motifPlugin->setEnabled( false );
 	platinumPlugin->setEnabled( false );
+	xpPlugin->setEnabled( false );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( false );
 	    ociPlugin->setEnabled( false );
@@ -1412,6 +1417,7 @@ void SetupWizardImpl::setStaticEnabled( bool se )
 	motifplusPlugin->setEnabled( true );
 	motifPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
+	xpPlugin->setEnabled( true );
 	if ( enterprise ) {
 	    mysqlPlugin->setEnabled( true );
 	    ociPlugin->setEnabled( true );

@@ -1,7 +1,7 @@
 #include <private/qstyleinterface_p.h>
 #include <qobjectcleanuphandler.h>
 
-#include "windowsxpstyle.h"
+#include "qwindowsxpstyle.h"
 
 class WindowsXPStyle : public QStyleFactoryInterface, public QLibraryInterface
 {

@@ -1,4 +1,4 @@
-#include "windowsxpstyle.h"
+#include "qwindowsxpstyle.h"
 
 #if !defined (Q_WS_WIN)
 #error "This style can only be compiled on Windows XP"

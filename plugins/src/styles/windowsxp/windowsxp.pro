@@ -1,16 +1,16 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_off release plugin
 
-HEADERS		= windowsxpstyle.h
+HEADERS		= qwindowsxpstyle.h
 
 SOURCES		= main.cpp \
-		  windowsxpstyle.cpp
+		  qwindowsxpstyle.cpp
 
 unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
 
 TARGET		= qwindowsxpstyle
-DESTDIR		= ../../../plugins/styles
+DESTDIR		= ../../../styles
 LIBS		+= uxtheme.lib
 win32-msvc:{
     LIBS	+= delayimp.lib

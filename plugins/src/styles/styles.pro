@@ -7,3 +7,4 @@ contains(style-plugins, cde)		:SUBDIRS += cde
 contains(style-plugins, sgi)		:SUBDIRS += sgi
 contains(style-plugins, compact)	:SUBDIRS += compact 
 contains(style-plugins, aqua)		:SUBDIRS += aqua
+contains(style-plugins, windowsxp)	:SUBDIRS += windowsxp

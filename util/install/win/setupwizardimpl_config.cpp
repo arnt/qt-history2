@@ -208,6 +208,14 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-windows";
 
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Off", &settingsOK );
+    if ( entry == "Direct" )
+	args += "-qt-style-windowsxp";
+    else if ( entry == "Plugin" )
+	args += "-plugin-style-windowsxp";
+    else if ( entry == "Off" )
+	args += "-no-style-windowsxp";
+
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Motif", "Direct", &settingsOK );
     if ( entry == "Direct" )
 	args += "-qt-style-motif";
@@ -708,6 +716,20 @@ void SetupWizardImpl::showPageConfig()
     motifDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     motifDirect->setOn( entry == "Direct" );
 
+    folder = new QCheckListItem( stfolder, "Windows XP" );
+    folder->setOpen( true );
+    entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", "Off", &settingsOK );
+    xpOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+    xpOff->setOn( entry == "Off" );
+    xpPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
+    xpPlugin->setOn( entry == "Plugin" );
+    xpPlugin->setEnabled( findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
+			  findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
+			  findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
+    xpDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+    xpDirect->setOn( entry == "Direct" );
+    xpDirect->setEnabled( false );
+
     folder = new QCheckListItem( stfolder, "Windows" );
     folder->setOpen( true );
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
@@ -824,7 +846,14 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 	  findFileInPaths( "sqldb.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    
+    if ( i == xpDirect )
+	QMessageBox::warning( this, "Unsupported configuration", "The Windows XP style requires XP components and\n"
+								 "can only be used as a plugin with a shared Qt DLL." );
+    if ( i == xpPlugin && !i->isEnabled() )
+	QMessageBox::warning( this, "Platform SDK needed", "The Windows XP style requires a Platform SDK with support for\n"
+							   "Windows XP to be installed properly. The required libraries and\n"
+							   "headers were not found in the LIB and INCLUDE environment variable paths." );
+
     if ( i->text(0) == "Required" ) {
 	configPage->explainOption->setText( tr("These modules are a necessary part of the Qt library. "
 				   "They can not be disabled.") );

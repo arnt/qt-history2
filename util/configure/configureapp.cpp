@@ -66,6 +66,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STYLE_PLATINUM" ]  = "yes";
     dictionary[ "STYLE_SGI" ]	    = "yes";
     dictionary[ "STYLE_CDE" ]	    = "yes";
+    dictionary[ "STYLE_WINDOWSXP" ] = "no";
 
     dictionary[ "SQL_MYSQL" ]	    = "no";
     dictionary[ "SQL_ODBC" ]	    = "no";
@@ -255,6 +256,13 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_SGI" ] = "plugin";
 	else if( (*args) == "-no-style-sgi" )
 	    dictionary[ "STYLE_SGI" ] = "no";
+
+/*	else if( (*args) == "-qt-style-windowsxp" )
+	    dictionary[ "STYLE_WINDOWSXP" ] = "yes";*/
+	else if( (*args) == "-plugin-style-windowsxp" )
+	    dictionary[ "STYLE_WINDOWSXP" ] = "plugin";
+	else if( (*args) == "-no-style-windowsxp" )
+	    dictionary[ "STYLE_WINDOWSXP" ] = "no";
 
 	else if( (*args) == "-qt-sql-mysql" )
 	    dictionary[ "SQL_MYSQL" ] = "yes";
@@ -529,6 +537,7 @@ bool Configure::displayHelp()
 	cout << "-no-style-*          Don't build the specified style" << endl;
 	cout << "                     where style is one of" << endl;
 	cout << "                         windows" << endl;
+	cout << "                         windowsxp (plugin only)" << endl;
 	cout << "                         motif" << endl;
 	cout << "                         cde" << endl;
 	cout << "                         sgi" << endl;
@@ -628,6 +637,13 @@ void Configure::generateOutputVars()
 	qmakeStyles += "windows";
     else if ( dictionary[ "STYLE_WINDOWS" ] == "plugin" )
 	qmakeStylePlugins += "windows";
+
+/*
+    if ( dictionary[ "STYLE_WINDOWSXP" ] == "yes" )
+	qmakeStyles += "windowsxp";
+    else */
+    if ( dictionary[ "STYLE_WINDOWSXP" ] == "plugin" )
+	qmakeStylePlugins += "windowsxp";
 
     if ( dictionary[ "STYLE_MOTIF" ] == "yes" )
 	qmakeStyles += "motif";
@@ -863,6 +879,7 @@ void Configure::displayConfig()
 
     cout << "Styles:" << endl;
     cout << "Windows....................." << dictionary[ "STYLE_WINDOWS" ] << endl;
+    cout << "Windows XP.................." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
     cout << "Motif......................." << dictionary[ "STYLE_MOTIF" ] << endl;
     cout << "Platinum...................." << dictionary[ "STYLE_PLATINUM" ] << endl;
     cout << "MotifPlus..................." << dictionary[ "STYLE_MOTIFPLUS" ] << endl;
