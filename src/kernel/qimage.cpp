@@ -5644,6 +5644,8 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	    QRgb c_rgb;
 	    if ( ((sbuf.length()-1) % 3) && (sbuf[0] == '#') ) {
 		sbuf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+	    }
+	    if (sbuf[0] == '#') {
 		qt_get_hex_rgb( sbuf, &c_rgb );
 	    } else {
 		qt_get_named_rgb( sbuf, &c_rgb );
