@@ -9,12 +9,12 @@
 class QActionPlugIn : public QActionInterface, public QPlugIn
 {
 public:
-    QString queryInterface() { return "QActionInterface"; }
-
     QActionPlugIn( const QString& filename, LibraryPolicy = Default );
 
+    QString queryInterface() { return "QActionInterface"; }
+
     QAction* create( const QString& classname, QObject* parent = 0 );
-    QStringList actions();
+    QApplicationInterface* appInterface();
 };
 
 class QActionPlugInManager : public QPlugInManager<QActionPlugIn>, public QActionFactory
@@ -24,12 +24,9 @@ public:
 
     QString factoryName() const { return "QActionPlugInManager"; }
 
-protected:
-    bool addPlugIn( QPlugIn* );
-    bool removePlugIn( QPlugIn* );
-
 private:
     QAction* newAction( const QString& classname, QObject* parent = 0 );
     QStringList actions();
 };
+
 #endif // QACTIONPLUGIN_H

@@ -27,17 +27,6 @@ QWidget* QWidgetPlugIn::create( const QString& classname, QWidget* parent, const
     return w;
 }
 
-/*! \reimp
-*/
-QStringList QWidgetPlugIn::widgets()
-{
-    if ( !use() )
-	return QStringList();
-    QStringList list = ((QWidgetInterface*)iface())->widgets();
-
-    return list;
-}
-
 /*!
   \class QDefaultPlugInManager qdefaultpluginmanager.h
 
@@ -54,42 +43,6 @@ QStringList QWidgetPlugIn::widgets()
 QWidgetPlugInManager::QWidgetPlugInManager( const QString& path, QPlugIn::LibraryPolicy pol )
 : QPlugInManager<QWidgetPlugIn>( path, pol )
 {
-}
-
-/*! \reimp
-*/
-bool QWidgetPlugInManager::addPlugIn( QPlugIn* p )
-{
-    QWidgetPlugIn* plugin = (QWidgetPlugIn*)p;
-   
-    bool useful = FALSE;
-
-    QStringList list = plugin->widgets();
-    for ( QStringList::Iterator w = list.begin(); w != list.end(); w++ ) {
-	useful = TRUE;
-#ifdef CHECK_RANGE
-	if ( plugDict[*w] )
-	    qWarning("%s: Widget %s already defined!", plugin->library().latin1(), (*w).latin1() );
-	else
-#endif
-	    plugDict.insert( *w, plugin );
-    }
-
-    return useful;
-}
-
-/*! \reimp
-*/
-bool QWidgetPlugInManager::removePlugIn( QPlugIn* p )
-{
-    QWidgetPlugIn* plugin = (QWidgetPlugIn*)p;
-    bool res = TRUE;
-
-    QStringList wl = plugin->widgets();
-    for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ )
-        res = res && plugDict.remove( *w );
-
-    return res;
 }
 
 /*! \reimp
@@ -111,7 +64,7 @@ QStringList QWidgetPlugInManager::widgets()
     QDictIterator<QPlugIn> it (libDict);
 
     while( it.current() ) {
-	QStringList widgets = ((QWidgetPlugIn*)it.current())->widgets();
+	QStringList widgets = it.current()->featureList();
 	for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ )
 	    list << *w;
 	++it;
@@ -119,5 +72,3 @@ QStringList QWidgetPlugInManager::widgets()
 
     return list;
 }
-
-

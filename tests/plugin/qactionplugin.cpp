@@ -16,42 +16,6 @@ QActionPlugIn::QActionPlugIn( const QString& file, LibraryPolicy pol )
 }
 
 /*! \reimp
-
-bool QActionPlugIn::addToManager( QPlugInDict& dict )
-{
-    if ( !use() )
-	return FALSE;
-    
-    bool useful = FALSE;
-
-    QStringList list = actions();
-    for ( QStringList::Iterator a = list.begin(); a != list.end(); a++ ) {
-	useful = TRUE;
-#ifdef CHECK_RANGE
-	if ( dict[*a] )
-	    qWarning("%s: Action %s already defined!", library().latin1(), (*a).latin1() );
-	else
-#endif
-	    dict.insert( *a, this );
-    }
-
-    return useful;
-}
-
-/*! \reimp
-
-bool QActionPlugIn::removeFromManager( QPlugInDict& dict )
-{
-    bool res = TRUE;
-
-    QStringList wl = this->actions();
-    for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ )
-        res = res && dict.remove( *w );
-
-    return res;
-}
-
-/*! \reimp
 */
 QAction* QActionPlugIn::create( const QString& classname, QObject* parent )
 {
@@ -65,13 +29,14 @@ QAction* QActionPlugIn::create( const QString& classname, QObject* parent )
 
 /*! \reimp
 */
-QStringList QActionPlugIn::actions()
+QApplicationInterface* QActionPlugIn::appInterface()
 {
     if ( !use() )
-	return QStringList();
-    QStringList list = ((QActionInterface*)iface())->actions();
+	return 0;
 
-    return list;
+    QApplicationInterface* w = ((QActionInterface*)iface())->appInterface();
+    guard( w );
+    return w;
 }
 
 /*!
@@ -94,42 +59,6 @@ QActionPlugInManager::QActionPlugInManager( const QString& path, QPlugIn::Librar
 
 /*! \reimp
 */
-bool QActionPlugInManager::addPlugIn( QPlugIn* p )
-{
-    QActionPlugIn* plugin = (QActionPlugIn*)p;
-    bool useful = FALSE;
-
-    QStringList al = plugin->actions();
-    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
-	useful = TRUE;
-#ifdef CHECK_RANGE
-	if ( plugDict[*a] )
-	    qWarning("%s: Action %s already defined!", plugin->library().latin1(), (*a).latin1() );
-	else
-#endif
-	    plugDict.insert( *a, plugin );
-    }
-
-    return useful;
-}
-
-/*! \reimp
-*/
-bool QActionPlugInManager::removePlugIn( QPlugIn* p )
-{
-    QActionPlugIn* plugin = (QActionPlugIn*)p;
-    bool res = TRUE;
-
-    QStringList al = plugin->actions();
-    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
-        res = res && plugDict.remove( *a );
-
-    return res;
-}
-
-
-/*! \reimp
-*/
 QAction* QActionPlugInManager::newAction( const QString& classname, QObject* parent )
 {
     QActionPlugIn* plugin = (QActionPlugIn*)plugDict[ classname ];
@@ -147,7 +76,7 @@ QStringList QActionPlugInManager::actions()
     QDictIterator<QPlugIn> it (libDict);
 
     while( it.current() ) {
-	QStringList actions = ((QActionPlugIn*)it.current())->actions();
+	QStringList actions = it.current()->featureList();
 	for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ )
 	    list << *a;
 	++it;

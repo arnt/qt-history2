@@ -52,9 +52,6 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     QStringList wl = QWidgetFactory::widgetList();
     for ( uint w = 0; w < wl.count(); w++ )
 	menuIDs.insert( wl[w], new int(widgetMenu->insertItem( wl[w] )) );
-    QStringList al = QActionFactory::actionList();
-    for ( uint a = 0; a < al.count(); a++ )
-	addAction( QActionFactory::create( al[a], this ) );
 }
 
 void PlugMainWindow::fileOpen()
@@ -68,31 +65,23 @@ void PlugMainWindow::fileOpen()
     QPlugIn* plugin = 0;
     if ( ( plugin = widgetManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Widget-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
-	QStringList wl = ((QWidgetPlugIn*)plugin)->widgets();
+	QStringList wl = plugin->featureList();
 	for ( uint i = 0; i < wl.count(); i++ )
 	    menuIDs.insert( wl[i], new int(widgetMenu->insertItem( wl[i] )) );
     } else if ( ( plugin = actionManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Action-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
-	QStringList al = ((QActionPlugIn*)plugin)->actions();
+	QStringList al = plugin->featureList();
 	for ( uint a = 0; a < al.count(); a++ ) {
-	    if ( !addAction( QActionFactory::create( al[a], this ) ) ) {
+	    QAction* action = QActionFactory::create( al[a], this );
+	    if ( !addAction( action ) ) {
 		QMessageBox::information( this, "Error", tr("Couldn't create action\n%1").arg( al[a] ) );
 	    }
 	}
+	connect( ((QActionPlugIn*)plugin)->appInterface(), SIGNAL( openFile() ), this, SLOT( fileOpen() ));
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
     }
-    // creating a nice popupmenu and add all available actions
-/*    QPopupMenu* pop = (QPopupMenu*) QWidgetFactory::create( "QPopupMenu", &mw );
-    QStringList actions = QActionFactory::actionList();
-    for ( uint j = 0; j < actions.count(); j++ ) {
-	bool self = TRUE;
-	QAction* a = QActionFactory::create( actions[j], self, &mw );
-	if ( a )
-	    a->addTo( pop );
-    }
-*/
 }
 
 void PlugMainWindow::fileClose()
@@ -136,14 +125,12 @@ void PlugMainWindow::fileClose()
 	QString ifc = it.current()->queryInterface();
 	if ( ifc == "QWidgetInterface" ) {
 	    QListViewItem* item = new QListViewItem( wplugins, p->name(), p->description(), p->author(), p->library() );
-	    QWidgetPlugIn* wp = (QWidgetPlugIn*)it.current();
-	    QStringList wl = wp->widgets();
+	    QStringList wl = it.current()->featureList();
 	    for ( uint i = 0; i < wl.count(); i++ )
 		new QListViewItem( item, wl[i] );
 	} else if ( ifc == "QActionInterface" ) {
 	    QListViewItem* item = new QListViewItem( aplugins, p->name(), p->description(), p->author(), p->library() );
-	    QActionPlugIn* ap = (QActionPlugIn*)it.current();
-	    QStringList al = ap->actions();
+	    QStringList al = it.current()->featureList();
 	    for ( uint i = 0; i < al.count(); i++ )
 		new QListViewItem( item, al[i] );
 	} else {
@@ -164,7 +151,7 @@ void PlugMainWindow::fileClose()
 	QString file = item->text( 3 );
 	QString info;
 	if ( item->parent() == wplugins ) {
-	    QWidgetPlugIn* plugin = (QWidgetPlugIn*)widgetManager->plugInFromFile( file );
+	    QPlugIn* plugin = widgetManager->plugInFromFile( file );
 	    if ( plugin ) {
 		// Make sure to have a deep copy of the string, else it
 		// would be corrupted with the unloading of the library
@@ -173,7 +160,7 @@ void PlugMainWindow::fileClose()
 		// (the data is part of the library)
 		info = QString( "\"%1\"").arg( ((QPlugIn*)plugin)->name() );
 		{
-		    QStringList wl = plugin->widgets();
+		    QStringList wl = plugin->featureList();
 		    for ( uint i = 0; i < wl.count(); i++ ) {
 			QString w = wl[i];
 			int* id = menuIDs[w];
@@ -188,11 +175,11 @@ void PlugMainWindow::fileClose()
 		return;
 	    }
 	} else if ( item->parent() == aplugins ) {
-	    QActionPlugIn* plugin = (QActionPlugIn*)actionManager->plugInFromFile( file );
+	    QPlugIn* plugin = actionManager->plugInFromFile( file );
 	    if ( plugin ) {
 		info = QString( "\"%1\"").arg( ((QPlugIn*)plugin)->name() );
 		{
-		    QStringList wl = plugin->actions();
+		    QStringList wl = plugin->featureList();
 		    for ( uint i = 0; i < wl.count(); i++ ) {
 			QString w = wl[i];
 			int* id = menuIDs[w];
@@ -228,7 +215,7 @@ void PlugMainWindow::runWidget( int id )
 	return;
     }
     setCentralWidget( w );
-    QToolTip::add( w, QString("%1 ( %2 )").arg( w->className() ).arg( QWidgetFactory::widgetFactory( w->className() )->factoryName() ) );
+    QToolTip::add( w, QString("%1 ( %2 )").arg( w->className() ).arg( QWidgetFactory::widgetFactory( it.currentKey() )->factoryName() ) );
 }
 
 bool PlugMainWindow::addAction( QAction* action )

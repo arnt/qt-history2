@@ -1,9 +1,7 @@
 #ifndef QPLUGININTERFACE_H
 #define QPLUGININTERFACE_H
 
-#include <qstring.h>
-#include <qobject.h>
-#include <qapplication.h>
+#include <qstringlist.h>
 
 class QPlugInInterface
 {
@@ -15,6 +13,7 @@ public:
     virtual QString description() { return QString::null; }
     virtual QString author() { return QString::null; }
 
+    virtual QStringList featureList() { return QStringList(); }
     virtual QString queryInterface() = 0;
 };
 

@@ -2,6 +2,8 @@
 #define QPLUGIN_H
 
 #include "qplugininterface.h"
+#include <qstringlist.h>
+#include <qobject.h>
 
 class QPlugIn;
 
@@ -35,6 +37,8 @@ public:
     QString name();
     QString description();
     QString author();
+
+    QStringList featureList();
 
 signals:
     void loaded();

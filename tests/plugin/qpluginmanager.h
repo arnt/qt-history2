@@ -7,22 +7,12 @@
 
 typedef QDict<QPlugIn> QPlugInDict;
 
-class QAbstractPlugInManager : public QObject
-{
-protected:
-    QAbstractPlugInManager()
-	: QObject( qApp ) {}
-
-    virtual bool addPlugIn( QPlugIn* ) = 0;
-    virtual bool removePlugIn( QPlugIn* ) = 0;
-};
-
 template<class Type>
-class QPlugInManager : protected QAbstractPlugInManager
+class QPlugInManager : protected QObject
 {
 public:
     QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
-	: defPol( pol )
+	: QObject( qApp, path ), defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
@@ -48,10 +38,17 @@ public:
     bool removeLibrary( const QString& file )
     {
 	Type* plugin = (Type*)(libDict[ file ]);
-/*	if ( plugin && plugin->removeFromManager( plugDict ) && libDict.remove( file ) )
-		return TRUE;*/
-	if ( plugin && removePlugIn( plugin ) && libDict.remove( file ) )
-		return TRUE;
+	if ( !plugin )
+	    return FALSE;
+
+	QStringList al = ((QPlugIn*)plugin)->featureList();
+	for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
+	    plugDict.remove( *a );
+
+	if ( !libDict.remove( file ) )
+	    return FALSE;
+
+
 	return FALSE;
     }
 
@@ -62,10 +59,19 @@ public:
 
 	Type* plugin = new Type( file, defPol );
 
-//	bool result = plugin->addToManager( plugDict );
-	bool result = addPlugIn( plugin );
+	bool useful = FALSE;
+	QStringList al = ((QPlugIn*)plugin)->featureList();
+	for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
+	    useful = TRUE;
+#ifdef CHECK_RANGE
+	    if ( plugDict[*a] )
+		qWarning("%s: Action %s already defined!", plugin->library().latin1(), (*a).latin1() );
+	    else
+#endif
+		plugDict.insert( *a, plugin );
+	}
 
-	if ( result ) {
+	if ( useful ) {
 #ifdef CHECK_RANGE
 	    if ( libDict[plugin->library()] )
 		qWarning( "QPlugInManager: Can't manage library twice! (%s)", plugin->library().latin1() );

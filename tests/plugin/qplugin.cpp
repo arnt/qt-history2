@@ -1,6 +1,8 @@
 #include "qplugin.h"
 #include <qdir.h>
 #include <qtimer.h>
+#include <qapplication.h>
+
 #ifdef _WS_WIN_
 #include <qt_windows.h>
 #else
@@ -117,13 +119,11 @@ bool QPlugIn::unload( bool force )
 	    if ( dc )
 		if ( !dc( qApp ) )
 		    return FALSE;
-	    qDebug("*********Unloading library*************");
 #if defined(_WS_WIN_)
 	    FreeLibrary( pHnd );
 #elif defined(_WS_X11_)
 	    dlclose( pHnd );
 #endif	
-	    qDebug("*********Library unloaded**************");
 	}
 	emit unloaded();
     }
@@ -273,7 +273,9 @@ bool QPlugIn::loadInterface()
 */
 QString QPlugIn::name()
 {
-    use();
+    if ( !use() )
+	return QString::null;
+
     QString str = iface()->name();
     unuse();
 
@@ -285,7 +287,9 @@ QString QPlugIn::name()
 */
 QString QPlugIn::description()
 {
-    use();
+    if ( !use() )
+	return QString::null;
+
     QString str = iface()->description();
     unuse();
 
@@ -297,11 +301,27 @@ QString QPlugIn::description()
 */
 QString QPlugIn::author()
 {
-    use();
+    if ( !use() )
+	return QString::null;
+
     QString str = iface()->author();
     unuse();
 
     return str;
+}
+
+/*!
+  Calls the library's featureList() function and returns the result.
+*/
+QStringList QPlugIn::featureList()
+{
+    if ( !use() )
+	return QStringList();
+
+    QStringList list = iface()->featureList();
+    unuse();
+
+    return list;
 }
 
 /*!
