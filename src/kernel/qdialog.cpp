@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#50 $
 **
 ** Implementation of QDialog class
 **
@@ -288,12 +288,28 @@ void QDialog::show()
     if ( !did_move ) {
 	QWidget *w = parentWidget();
 	QPoint p( 0, 0 );
+	QWidget* desk = QApplication::desktop();
 	if ( w )
 	    p = w->mapToGlobal( p );
 	else
-	    w = QApplication::desktop();
-	move( p.x() + w->width()/2  - width()/2,
-	      p.y() + w->height()/2 - height()/2 );
+	    w = desk;
+
+	int fw = frameGeometry().width();
+	int fh = frameGeometry().height();
+
+	int x = p.x() + w->width()/2  - fw/2;
+	int y = p.y() + w->height()/2 - fh/2;
+
+	if ( x+fw > desk->width() )
+	    x = desk->width()-fw;
+	if ( y+fh > desk->height() )
+	    y = desk->height()-fh;
+	if ( x < 0 )
+	    x = 0;
+	if ( y < 0 )
+	    y = 0;
+
+	move(x, y);
     }
     QWidget::show();
     if ( testWFlags(WType_Modal) )
