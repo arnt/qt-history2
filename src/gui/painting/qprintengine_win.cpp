@@ -314,6 +314,8 @@ bool QWin32PrintEngine::newPage()
 
     Q_ASSERT(d->hdc);
 
+    bool transparent = GetBkMode(d->hdc) == TRANSPARENT;
+
     if (!EndPage(d->hdc)) {
         qErrnoWarning("QWin32PrintEngine::newPage: EndPage failed");
         return false;
@@ -332,6 +334,8 @@ bool QWin32PrintEngine::newPage()
     }
 
     SetTextAlign(d->hdc, TA_BASELINE);
+    if (transparent)
+        SetBkMode(d->hdc, TRANSPARENT);
     d->setupPrinterMapping();
     d->setupOriginMapping();
 
