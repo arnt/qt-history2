@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#3 $
 **
 ** Implementation of QColorDialog class
 **
@@ -227,11 +227,10 @@ QColorPicker::QColorPicker(QWidget* parent=0, const char* name=0)
     QImage img( pHeight, pWidth, 32 );
     int x,y;
     for ( y = 0; y < pHeight; y++ )
-    for ( x = 0; x < pWidth; x++ ) {
+	for ( x = 0; x < pWidth; x++ ) {
 	    QPoint p( x, y );
-	    img.setPixel( x, y,
-			  QColor(huePt(p), satPt(p), 200, QColor::Hsv).rgb()
-			  );
+	    img.setPixel( x, y, QColor(huePt(p), satPt(p),
+				       200, QColor::Hsv).rgb() );
 	}
     pix = new QPixmap;
     pix->convertFromImage(img);
@@ -500,6 +499,7 @@ Q_OBJECT
 public:
     QColorDialogPrivate( QColorDialog *p );
     QRgb currentColor() const { return cs->currentColor(); }
+    void setCurrentColor( QRgb rgb );
 
 private slots:
     void addCustom();
@@ -509,7 +509,6 @@ private slots:
     void newCustom( int, int );
     void newStandard( int, int );
 private:
-    void newRgb( QRgb rgb );
     QColorPicker *cp;
     QColorLuminancePicker *lp;
     QWellArray *custom;
@@ -528,7 +527,7 @@ void QColorDialogPrivate::newHsv( int h, int s, int v )
 }
 
 //sets all widgets to display rgb
-void QColorDialogPrivate::newRgb( QRgb rgb )
+void QColorDialogPrivate::setCurrentColor( QRgb rgb )
 {
     cs->setRgb( rgb );
     newColorTypedIn( rgb );
@@ -545,13 +544,13 @@ void QColorDialogPrivate::newColorTypedIn( QRgb rgb )
 
 void QColorDialogPrivate::newCustom( int r, int c )
 {
-    newRgb( cusrgb[r+c*2] ); //###
+    setCurrentColor( cusrgb[r+c*2] ); //###
     standard->setSelected(-1,-1);
 }
 
 void QColorDialogPrivate::newStandard( int r, int c )
 {
-    newRgb( stdrgb[r+c*6] ); //###
+    setCurrentColor( stdrgb[r+c*6] ); //###
     custom->setSelected(-1,-1);
 }
 
@@ -659,15 +658,18 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 /*!
   Pops up a color dialog letting the user choose a color and returns
-  that color. Returns an \link QColor::isValid() invalid\endlink color
-  if the user cancels the dialog. All colors allocated by the dialog will be
-  deallocated before this function returns.
+  that color. The color is initially set to \a initial. Returns an
+  \link QColor::isValid() invalid\endlink color if the user cancels
+  the dialog. All colors allocated by the dialog will be deallocated
+  before this function returns.
 */
 
-QColor QColorDialog::getColor( QWidget *parent, const char *name )
+QColor QColorDialog::getColor( QColor initial, QWidget *parent,
+			       const char *name )
 {
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
+    dlg->setSelectedColor( initial );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
     QColor result;
@@ -689,6 +691,27 @@ QColor QColorDialog::selectedColor() const
     return QColor(d->currentColor());
 }
 
+
+/*! Destroys the dialog and frees allocated memory.
+
+*/
+
+QColorDialog::~QColorDialog()
+{
+    //d inherits QObject, so it is deleted by Qt.
+}
+
+
+/*!
+  Sets the color shown in the dialog to \a c.
+*/
+
+void QColorDialog::setSelectedColor( QColor c )
+{
+    d->setCurrentColor( c.rgb() );
+}
+
 #include "qcolordialog.moc"
+
 
 
