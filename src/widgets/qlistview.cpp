@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#28 $
 **
 ** Implementation of something useful
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#28 $");
 
 
 const int Unsorted = 32767;
@@ -748,7 +748,8 @@ QListView::QListView( QWidget * parent, const char * name )
 
 QListView::~QListView()
 {
-    // nothing
+    delete d->r;
+    delete d;
 }
 
 
@@ -1762,3 +1763,11 @@ void QListView::changeSortColumn( int column )
 {
     setSorting( column, d->ascending );
 }
+
+
+/*! \fn void QListView::rightButtonClicked( QListViewItem *, const QPoint&, int )
+
+  This signal is emitted when the right button is clicked (ie. when
+  it's released).  The arguments are the relevant QListViewItem (may
+  be 0), the point in global coordinates and the relevant column.
+*/
