@@ -80,6 +80,18 @@ public:
 	Black	 = 87
     };
 
+    enum Stretch {
+	UltraCondensed =  52,
+	ExtraCondensed =  61,
+	Condensed      =  72,
+	SemiCondensed  =  85,
+	Unstretched    = 100,
+	SemiExpanded   = 115,
+	Expanded       = 132,
+	ExtraExpanded  = 152,
+	UltraExpanded  = 174
+    };
+
     // default font
     QFont();
     // specific font
