@@ -2,17 +2,14 @@
 #define QLISTMODEL_H
 
 #ifndef QT_H
-#include <qgenericitemmodel.h>
-#include <qlist.h>
 #include <qiconset.h>
 #include <qstring.h>
+#include <qvector.h>
+#include <qgenericitemmodel.h>
 #endif
-
-class QListModel;
 
 class Q_GUI_EXPORT QListModelItem
 {
-    friend class QListModel;
 
 public:
     QListModelItem()  : edit(true), select(true) {}
@@ -50,45 +47,6 @@ private:
     QVector<Data> values;
     uint edit : 1;
     uint select : 1;
-};
-
-
-class QListModelPrivate;
-
-class Q_GUI_EXPORT QListModel : public QGenericItemModel
-{
-    friend class QListModelItem;
-
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QListModel);
-
-public:
-    QListModel(QObject *parent = 0);
-    ~QListModel();
-
-    virtual void setText(int row, const QString &text);
-    virtual void setIconSet(int row, const QIconSet &iconSet);
-    QString text(int row) const;
-    QIconSet iconSet(int row) const;
-
-    QListModelItem item(int row) const;
-    void setItem(int row, const QListModelItem &item);
-    void append(const QListModelItem &item);
-
-private:
-    QModelIndex index(int row, int column, const QModelIndex &parent = 0,
-                      QModelIndex::Type type = QModelIndex::View) const;
-
-    int rowCount(const QModelIndex &parent = 0) const;
-    int columnCount(const QModelIndex &parent = 0) const;
-
-    QVariant data(const QModelIndex &index, int role) const;
-    void setData(const QModelIndex &index, int role, const QVariant &value);
-
-    QModelIndex insertItem(const QModelIndex &index);
-
-    bool isSelectable(const QModelIndex &index) const;
-    bool isEditable(const QModelIndex &index) const;
 };
 
 #endif // QLISTMODEL_H

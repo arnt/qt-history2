@@ -6,13 +6,15 @@
 #include <qlistmodel.h>
 #endif
 
+class QListView_Private;
+
 class Q_GUI_EXPORT QListView_ : public QGenericListView
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QListView_);
 
 public:
     QListView_(QWidget *parent = 0);
-    QListView_(QListModel *model, QWidget *parent = 0);
     ~QListView_();
 
     void setText(int row, const QString &text);
@@ -28,8 +30,6 @@ public:
     QListModelItem item(int row) const;
     void setItem(int row, const QListModelItem &item);
     void appendItem(const QListModelItem &item);
-
-    inline QListModel *model() const { return ::qt_cast<QListModel*>(QAbstractItemView::model()); }
 };
 
 #endif // QLISTVIEW_H
