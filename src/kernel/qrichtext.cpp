@@ -5505,9 +5505,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 #ifndef QT_NO_TEXTCUSTOMITEM
 	QTextCustomItem* ci = c->customItem();
 	if ( c->isCustom() && ci->ownLine() ) {
+	    QTextLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, SPACE(w - x) );
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
-	    QTextLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, SPACE(w - x) );
 	    ci->resize( w - x);
 	    if ( ci->width < w - x ) {
 		if ( align & Qt::AlignHCenter )
