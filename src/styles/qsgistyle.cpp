@@ -295,7 +295,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	    if ( qt_cast<QScrollBar*>(widget) ) {
 		d->lastScrollbarRect.rect = ((QScrollBar*)widget)->sliderRect();
 		d->lastScrollbarRect.scrollbar = ((QScrollBar*)widget);
-		widget->repaint( FALSE );
+		widget->repaint();
 	    } else
 #endif
 	    {
@@ -303,7 +303,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 		if ( qt_cast<QSlider*>(widget) ) {
 		    d->lastSliderRect.rect = ((QSlider*)widget)->sliderRect();
 		    d->lastSliderRect.slider = ((QSlider*)widget);
-		    widget->repaint( FALSE );
+		    widget->repaint();
 		}
 #endif
 	    }
@@ -317,13 +317,13 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	    } else if ( qt_cast<QScrollBar*>(widget) ) {
 		QRect oldRect = d->lastScrollbarRect.rect;
 		d->lastScrollbarRect.rect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect, FALSE );
+		widget->repaint( oldRect );
 #endif
 #ifndef QT_NO_SLIDER
 	    } else if ( qt_cast<QSlider*>(widget) ) {
 		QRect oldRect = d->lastSliderRect.rect;
 		d->lastSliderRect.rect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect, FALSE );
+		widget->repaint( oldRect );
 #endif
             }
         }
@@ -337,14 +337,14 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 
 	d->hotWidget = widget;
         d->mousePos = ((QMouseEvent*)e)->pos();
-	widget->repaint( FALSE );
+	widget->repaint();
         break;
 
     case QEvent::Enter:
 	if ( !widget->isActiveWindow() )
 	    break;
         d->hotWidget = widget;
-        widget->repaint( FALSE );
+        widget->repaint();
         break;
 
     case QEvent::Leave:
@@ -352,7 +352,7 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	    break;
         if ( widget == d->hotWidget) {
             d->hotWidget = 0;
-            widget->repaint( FALSE );
+            widget->repaint();
         }
         break;
 
@@ -900,8 +900,6 @@ void QSGIStyle::drawControl( ControlElement element,
 
 	    p->setPen( pal.foreground() );
 	    p->setBrush( QBrush( pal.button(),Qt::NoBrush ) );
-	    p->setBrushOrigin( -widget->backgroundOffset().x(),
-			       -widget->backgroundOffset().y() );
 
 	    int diw = pixelMetric( QStyle::PM_ButtonDefaultIndicator );
 	    if ( btn->isDefault() || btn->autoDefault() ) {

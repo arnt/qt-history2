@@ -641,8 +641,6 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    if (flags & Style_HasFocus)
 		br.addCoords(1, 1, -1, -1);
 	    p->save();
-	    p->setBrushOrigin( -button->backgroundOffset().x(),
-			       -button->backgroundOffset().y() );
 	    drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
 	    p->restore();
 #endif
@@ -1465,7 +1463,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		break;
 
 	    singleton->sliderActive = FALSE;
-	    ((QWidget *) object)->repaint(FALSE);
+	    ((QWidget *) object)->repaint();
 	    break;
         }
 
@@ -1479,7 +1477,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		singleton->hoverWidget = 0;
 		break;
 	    }
-	    singleton->hoverWidget->repaint(FALSE);
+	    singleton->hoverWidget->repaint();
 	    break;
 	}
 
@@ -1489,7 +1487,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 		break;
 	    QWidget *w = singleton->hoverWidget;
 	    singleton->hoverWidget = 0;
-	    w->repaint(FALSE);
+	    w->repaint();
 	    break;
 	}
 
@@ -1504,7 +1502,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 	    singleton->mousePos = ((QMouseEvent *) event)->pos();
 	    if (! singleton->mousePressed) {
 		singleton->hovering = TRUE;
-		singleton->hoverWidget->repaint(FALSE);
+		singleton->hoverWidget->repaint();
 		singleton->hovering = FALSE;
 	    }
 

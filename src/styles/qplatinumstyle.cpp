@@ -730,8 +730,6 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    SFlags flags;
 	    flags = Style_Default;
 	    btn = (const QPushButton*)widget;
-	    p->setBrushOrigin( -widget->backgroundOffset().x(),
-			       -widget->backgroundOffset().y() );
 
 	    // take care of the flags based on what we know...
 	    if ( btn->isDown() )
