@@ -693,7 +693,7 @@ QRect QTextEditPrivate::cursorUpdateRect() const
     Selection of text is handled by the QTextCursor class, which provides
     functionality for creating selections, retrieving the text contents or
     deleting selections. You can retrieve the object that corresponds with 
-    the user-visible cursor using the cursor() method. If you want to set 
+    the user-visible cursor using the textCursor() method. If you want to set 
     a selection in QTextEdit just create one on a QTextCursor object and 
     then make that cursor the visible cursor using setCursor(). The selection 
     can be copied to the clipboard with copy(), or cut to the clipboard with 
@@ -758,7 +758,7 @@ QRect QTextEditPrivate::cursorUpdateRect() const
     will select the character to the right, and \e{Shift+Ctrl+Right
     Arrow} will select the word to the right, etc.
 
-    \sa QTextDocument QTextCursor document() cursor() setDocument() setCursor()
+    \sa QTextDocument QTextCursor document() textCursor() setDocument() setTextCursor()
 
 */
 
@@ -992,7 +992,7 @@ QTextDocument *QTextEdit::document() const
 /*!
     Sets the visible cursor to \a cursor.
 */
-void QTextEdit::setCursor(const QTextCursor &cursor)
+void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
@@ -1002,7 +1002,7 @@ void QTextEdit::setCursor(const QTextCursor &cursor)
 /*!
     Returns a QTextCursor that represents the currently visible cursor.
  */
-QTextCursor QTextEdit::cursor() const
+QTextCursor QTextEdit::textCursor() const
 {
     return d->cursor;
 }
@@ -1192,7 +1192,7 @@ void QTextEdit::clear()
 /*!
     Selects all text.
 
-    \sa copy() cut() cursor()
+    \sa copy() cut() textCursor()
  */
 void QTextEdit::selectAll()
 {
@@ -1906,7 +1906,7 @@ void QTextEdit::setAutoFormatting(AutoFormatting features)
     It is equivalent to
 
     \code
-    edit->cursor().insertText(text);
+    edit->textCursor().insertText(text);
     \endcode
  */
 void QTextEdit::insertPlainText(const QString &text)
@@ -1922,7 +1922,7 @@ void QTextEdit::insertPlainText(const QString &text)
 
     \code
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
-    edit->cursor().insertFragment(fragment);
+    edit->textCursor().insertFragment(fragment);
     \endcode
  */
 void QTextEdit::insertHtml(const QString &text)
@@ -2050,7 +2050,7 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
     if (search.isNull())
         return false;
 
-    setCursor(search);
+    setTextCursor(search);
     return true;
 }
 
@@ -2490,13 +2490,13 @@ void QTextEdit::ensureCursorVisible()
 /*!
     \fn bool QTextEdit::hasSelectedText() const
 
-    Use cursor().hasSelection() instead.
+    Use textCursor().hasSelection() instead.
 */
 
 /*!
     \fn QString QTextEdit::selectedText() const
 
-    Use cursor().selectedText() instead.
+    Use textCursor().selectedText() instead.
 */
 
 /*!

@@ -48,9 +48,9 @@ void HelpWindow::setSource(const QString &name)
         return;
 
     if (newWindow || shiftPressed) {
-        QTextCursor c = cursor();
+        QTextCursor c = textCursor();
         c.clearSelection();
-        setCursor(c);
+        setTextCursor(c);
         mw->saveSettings();
         mw->saveToolbarSettings();
         MainWindow *nmw = new MainWindow;

@@ -90,8 +90,8 @@ public:
     void setDocument(QTextDocument *document);
     QTextDocument *document() const;
 
-    void setCursor(const QTextCursor &cursor);
-    QTextCursor cursor() const;
+    void setTextCursor(const QTextCursor &cursor);
+    QTextCursor textCursor() const;
 
     bool isReadOnly() const;
     void setReadOnly(bool ro);
@@ -284,9 +284,9 @@ public:
     */
 
     inline QT_COMPAT bool hasSelectedText() const
-    { return cursor().hasSelection(); }
+    { return textCursor().hasSelection(); }
     inline QT_COMPAT QString selectedText() const
-    { return cursor().selectedText(); }
+    { return textCursor().selectedText(); }
 
     inline QT_COMPAT bool isUndoAvailable() const
     { return document()->isUndoAvailable(); }

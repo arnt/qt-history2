@@ -208,7 +208,7 @@ QTextEdit widget with bold headers for the days of the week:
     QTextEdit *edit = new QTextEdit();
     edit->show();
 
-    QTextCursor cursor(edit->cursor());
+    QTextCursor cursor(edit->textCursor());
     cursor.movePosition(QTextCursor::Start); 
 
     QTextCharFormat format(cursor.charFormat());

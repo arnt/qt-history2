@@ -415,7 +415,7 @@ void TextEdit::textStyle(int styleIndex)
     if (!currentEditor)
         return;
 
-    QTextCursor cursor = currentEditor->cursor();
+    QTextCursor cursor = currentEditor->textCursor();
 
     if (styleIndex != 0) {
         QTextListFormat::Style style = QTextListFormat::ListDisc;
@@ -567,7 +567,7 @@ void TextEdit::editorChanged()
     connect(actionUndo, SIGNAL(triggered()), currentEditor->document(), SLOT(undo()));
     connect(actionRedo, SIGNAL(triggered()), currentEditor->document(), SLOT(redo()));
 
-    const bool selection = currentEditor->cursor().hasSelection();
+    const bool selection = currentEditor->textCursor().hasSelection();
     actionCut->setEnabled(selection);
     actionCopy->setEnabled(selection);
 

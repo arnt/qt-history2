@@ -606,12 +606,12 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
 {
     HelpWindow * hw = tabs->currentBrowser();
     hw->blockScrolling(true);
-    hw->QWidget::setCursor(Qt::waitCursor);
+    hw->setCursor(Qt::waitCursor);
     if (hw->source() == link)
         hw->reload();
     else
         showLink(link);
-    hw->QWidget::setCursor(Qt::arrowCursor);
+    hw->setCursor(Qt::arrowCursor);
 
     hw->viewport()->setUpdatesEnabled(false);
     int minPar = INT_MAX;
