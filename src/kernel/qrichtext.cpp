@@ -735,7 +735,7 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
 	ch = s->lineHeight( i );
 	if ( !chr )
 	    return FALSE;
-	if ( pos.y() >= y + cy && pos.y() <= y + cy + ch )
+	if ( pos.y() <= y + cy + ch )
 	    break;
     }
     int nextLine;
