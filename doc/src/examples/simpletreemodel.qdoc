@@ -289,7 +289,7 @@
     \skipto TreeModel::data(
     \printuntil /^\}/
 
-    Note that we only support the \l{QAbstractItemModel::Role}{DisplayRole}
+    Note that we only support the \l{Qt::ItemDataRole}{DisplayRole}
     in this implementation, and we also return invalid QVariant objects for
     invalid model indexes.
 
