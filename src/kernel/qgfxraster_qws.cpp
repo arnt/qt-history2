@@ -38,7 +38,7 @@
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 
-#define QT_QWS_REVERSE_BYTE_ENDIANNESS
+// #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
 #ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
