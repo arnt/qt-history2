@@ -13,6 +13,11 @@
 #include <qregexp.h>
 #include <qmessagebox.h>
 
+/*****************************************************************************
+  QMenubar debug facilities
+ *****************************************************************************/
+//#define DEBUG_MENUBAR_ACTIVATE
+
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 
@@ -302,10 +307,15 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			    mod |= kMenuOptionModifier;
 			if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
 			    mod |= kMenuShiftModifier;
-			char keycode = (char) (k & (~(Qt::SHIFT | Qt::CTRL | Qt::ALT)));
+			int keycode = (k & (~(Qt::SHIFT | Qt::CTRL | Qt::ALT)));
 			if(keycode & 0xFF) {
 			    SetMenuItemModifiers(ret, id, mod);
-			    SetItemCmd(ret, id, keycode );
+			    if(keycode >= Qt::Key_F1 && keycode <= Qt::Key_F15) {
+				keycode = (keycode - Qt::Key_F1) + kMenuF1Glyph;
+				SetMenuItemKeyGlyph(ret, id, (SInt16)keycode);
+			    } else {
+				SetItemCmd(ret, id, (CharParameter)keycode );
+			    }
 			}
 		    }
 		}
@@ -370,6 +380,10 @@ bool QMenuBar::activateCommand(uint cmd)
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
     if(activeMenuBar && activeMenuBar->mac_d->commands) {
 	if(MacPrivate::CommandBinding *mcb = activeMenuBar->mac_d->commands->find(cmd)) {
+#ifdef DEBUG_MENUBAR_ACTIVATE
+	    qDebug("ActivateCommand: activating internal merging '%s'", 
+		   mcb->qpopup->text(mcb->qpopup->idAt(mcb->index)).latin1());
+#endif
 	    mcb->qpopup->activateItemAt(mcb->index);
 	    HiliteMenu(0);
 	    return TRUE;
@@ -377,10 +391,16 @@ bool QMenuBar::activateCommand(uint cmd)
     }
 #endif
     if(cmd == kHICommandQuit) {
+#ifdef DEBUG_MENUBAR_ACTIVATE
+	qDebug("ActivateCommand: activating internal command Quit");
+#endif
 	qApp->closeAllWindows();
 	HiliteMenu(0);
 	return TRUE;
     } else if(cmd == kHICommandAbout) {
+#ifdef DEBUG_MENUBAR_ACTIVATE
+	qDebug("ActivateCommand: activating internal command About");
+#endif
 	QMessageBox::aboutQt(NULL);
 	HiliteMenu(0);
 	return TRUE;
@@ -403,6 +423,10 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
+#ifdef DEBUG_MENUBAR_ACTIVATE
+	qDebug("ActivateMenuitem: activating internal menubar binding '%s' %d",
+	       mpb->qpopup->text(cmd).latin1(), highlight);
+#endif
 	if(highlight) {
 	    if(mpb->qpopup->isItemEnabled(cmd)) 
 		mpb->qpopup->hilitSig(cmd);
