@@ -602,10 +602,10 @@ void Configure::generateOutputVars()
     else if( dictionary[ "LIBMNG" ] == "system" )
 	qmakeConfig += "system-mng";
 
-    else if( dictionary[ "PNG" ] == "no" )
-	qmakeConfig += "no-png";
     if( dictionary[ "PNG" ] == "qt" )
 	qmakeConfig += "png";
+    else if( dictionary[ "PNG" ] == "no" )
+	qmakeConfig += "no-png";
     else if( dictionary[ "PNG" ] == "plugin" )
 	qmakeFormatPlugins += "png";
     else if( dictionary[ "LIBPNG" ] == "system" )
