@@ -46,15 +46,15 @@
   choice. In a group of radio button, only one button at a time can be
   checked. If the user selects another button, the previously selected
   button is switched off.
-  
+
   While it is technically possible to imlement radio-behaviour with
   check boxes and vice versa, it's strongly recommended to stick with
   the well-known semantics. Otherwise your users would be pretty
   confused.
-  
+
   The easiest way to implement a "one of many" choice, is to simply
   stick the radio buttons into QButtonGroup.
-  
+
   Whenver a button is switched on or off, it emits the signal
   toggled(). Connect to this signal if you want to trigger an action
   each time the button changes state. Otherwise, use isChecked() to
@@ -66,7 +66,7 @@
   isToggleButton, setDown, isDown, isOn, state, autoRepeat,
   isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
   clicked, toggled, state stateChanged
-  
+
   \sa QPushButton QToolButton
   <a href="guibooks.html#fowler">GUI Design Handbook: Radio Button</a>
 */
@@ -318,6 +318,8 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 }
 
 
+/*!
+ */
 void QRadioButton::updateMask()
 {
     QBitmap bm(width(),height());
