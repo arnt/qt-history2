@@ -14,7 +14,7 @@ public:
                               const QObject *receiver, const char *resultsReady );
 };
 
-struct QResolverHostInfo
+struct Q_NETWORK_EXPORT QResolverHostInfo
 {
     QResolverHostInfo();
     QResolverHostInfo(const QResolverHostInfo &d);
