@@ -70,7 +70,6 @@ void DatabaseConnectionEditor::deleteConnection()
 void DatabaseConnectionEditor::newConnection()
 {
     blockChanges = TRUE;
-    listConnections->clearSelection();
     enableAll( TRUE );
     QString n( "(default)" );
     if ( project->databaseConnection( n ) ) {
@@ -81,6 +80,7 @@ void DatabaseConnectionEditor::newConnection()
 	n = n + QString::number( i );
     }
     editName->setText( n );
+    listConnections->clearSelection();
     blockChanges = FALSE;
 }
 
@@ -126,8 +126,9 @@ void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
     DatabaseConnection *conn = project->databaseConnection( s );
     blockChanges = TRUE;
     enableAll( (bool)conn );
+    editName->setEnabled( FALSE );
     blockChanges = FALSE;
-    if ( !conn)
+    if ( !conn )
 	return;
     blockChanges = TRUE;
     editName->setText( conn->name() );
@@ -142,7 +143,7 @@ void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
 
 void DatabaseConnectionEditor::connectionNameChanged( const QString &s )
 {
-    if ( listConnections->currentItem() == -1 || blockChanges )
+    if ( listConnections->currentItem() == 0 || blockChanges )
 	return;
     listConnections->changeItem( s, listConnections->currentItem() );
 }
