@@ -89,8 +89,7 @@ kernel {
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_H/qrichtext_p.h \
-		  $$KERNEL_H/qsimplerichtext.h \
-		  $$KERNEL_H/qpngio.h
+		  $$KERNEL_H/qsimplerichtext.h 
 
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
@@ -195,8 +194,7 @@ kernel {
 		  $$KERNEL_CPP/qwmatrix.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
-		  $$KERNEL_CPP/qsimplerichtext.cpp \
-		  $$KERNEL_CPP/qpngio.cpp
+		  $$KERNEL_CPP/qsimplerichtext.cpp 
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h

@@ -1,5 +1,6 @@
 # Qt graphics 
 
+#jpeg support..
 jpeg {
 	unix:LIBS += -ljpeg
 	win32:LIBS += $(QTDIR)/lib/libjpeg.lib
@@ -8,6 +9,10 @@ jpeg {
 }
 !jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
+
+#png support
+HEADERS+=$$KERNEL_H/qpngio.h
+SOURCES+=$$KERNEL_CPP/qpngio.cpp
 png {
 	INCLUDEPATH  += 3rdparty/libpng
 	SOURCES	+= 3rdparty/libpng/png.c \
@@ -26,9 +31,9 @@ png {
 		  3rdparty/libpng/pngwtran.c \
 		  3rdparty/libpng/pngwutil.c 
 }
-
 !png:LIBS += -lpng
 
+#zlib support
 zlib {
 	INCLUDEPATH       += 3rdparty/zlib
 	SOURCES	+= 3rdparty/zlib/adler32.c \
@@ -48,14 +53,15 @@ zlib {
 }
 !zlib:LIBS += -lz
 
+#mng support
 mng {
 	REQUIRES = jpeg
 	!jpeg:message(mng support requires jpeg)
+
 	unix:LIBS	+= -lmng
 	INCLUDEPATH        += 3rdparty/libmng
 	HEADERS += $$KERNEL_H/qmngio.h
 	SOURCES += $$KERNEL_CPP/qmngio.cpp
-
 }
 !mng:DEFINES += QT_NO_IMAGEIO_MNG
 
