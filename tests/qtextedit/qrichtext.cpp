@@ -5403,7 +5403,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 				const QString& doc)
 {
     Q_UNUSED( style ); // #### use them
-    Q_CONST_UNUSED( fmt );
+    Q_UNUSED( fmt );
 
     maxw = QWIDGETSIZE_MAX;
     minw = 0;

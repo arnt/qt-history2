@@ -1563,7 +1563,7 @@ QBrush QTextEdit::paper() const
 
 void QTextEdit::setPaperColorGroup( const QColorGroup& colgrp )
 {
-    Q_CONST_UNUSED( colgrp );
+    Q_UNUSED( colgrp );
     ASSERT( 0 );
 }
 
@@ -1613,7 +1613,7 @@ int QTextEdit::heightForWidth( int w ) const
 
 void QTextEdit::append( const QString& text )
 {
-    Q_CONST_UNUSED( text );
+    Q_UNUSED( text );
     ASSERT( 0 );
 }
 

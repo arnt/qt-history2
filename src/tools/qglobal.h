@@ -489,8 +489,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 // Use to avoid "unused parameter" warnings
 //
 
-#define Q_UNUSED(x) x=x;
-#define Q_CONST_UNUSED(x) (void)x;
+#define Q_UNUSED(x) (void)x;
 
 Q_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_) && !defined(__INSURE__)
