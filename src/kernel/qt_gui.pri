@@ -230,7 +230,7 @@ newpainter {
 		   $$KERNEL_H/qwin32pixmapgc.h
     }
 
-    unix { 
+    x11 { 
 
 	SOURCES -= $$KERNEL_CPP/qpainter_x11.cpp	
 
@@ -239,4 +239,15 @@ newpainter {
 	HEADERS += $$KERNEL_H/qx11gc.h \
 		   $$KERNEL_P/qx11gc_p.h
     }
+
+    embedded { 
+
+	SOURCES -= $$KERNEL_CPP/qpainter_qws.cpp	
+
+	SOURCES += $$KERNEL_CPP/qwsgc_qws.cpp
+
+	HEADERS += $$KERNEL_H/qwsgc_qws.h \
+		   $$KERNEL_P/qwsgc_p.h
+    }
+
 }

@@ -77,6 +77,10 @@
 #endif
 #endif
 
+#if Q_Q4PAINTER
+#include "qwsgc_qws.h"
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
@@ -1423,7 +1427,11 @@ static void init_display()
 #ifndef QT_NO_CURSOR
     QCursor::initialize();
 #endif
+#ifdef Q_Q4PAINTER
+    QWSGC::initialize();
+#else
     QPainter::initialize();
+#endif
     QFontManager::initialize();
 #ifndef QT_NO_QWS_MANAGER
     qws_decoration = QWSManager::newDefaultDecoration();
@@ -1588,7 +1596,11 @@ void qt_init(QApplicationPrivate *priv, int type )
 void qt_cleanup()
 {
     QPixmapCache::clear();
+#ifdef Q_Q4PAINTER
+    QWSGC::cleanup();
+#else
     QPainter::cleanup();
+#endif
 #ifndef QT_NO_CURSOR
     QCursor::cleanup();
 #endif
