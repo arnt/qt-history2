@@ -71,7 +71,7 @@ public:
     bool                 isEmpty() const;
     bool                 contains( const QString& name ) const;
     virtual void         clear();
-    virtual void         clearValues( bool nullify = FALSE );
+    virtual void         clearValues();
     int                 count() const;
     virtual QString      toString( const QString& prefix = QString(),
 				   const QString& sep = "," ) const;

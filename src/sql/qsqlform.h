@@ -61,7 +61,7 @@ public slots:
     virtual void writeFields();
 
     virtual void clear();
-    virtual void clearValues( bool nullify = FALSE );
+    virtual void clearValues();
 
 protected:
     virtual void insert( QWidget * widget, QSqlField * field );

@@ -28,11 +28,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlFieldPrivate
-{
-public:
-    QVariant::Type type;
-};
+class QSqlFieldPrivate;
 
 class QM_EXPORT_SQL QSqlField
 {
@@ -43,40 +39,22 @@ public:
     bool operator==(const QSqlField& other) const;
     virtual ~QSqlField();
 
-    virtual void	setValue( const QVariant& value );
-    virtual QVariant	value() const;
-    virtual void	setName( const QString& name );
-    QString		name() const;
-    virtual void	setNull();
-    bool		isNull() const;
-    virtual void	setReadOnly( bool readOnly );
-    bool		isReadOnly() const;
-    void		clear( bool nullify = TRUE );
-    QVariant::Type	type() const;
+    virtual void setValue( const QVariant& value );
+    virtual QVariant value() const;
+    virtual void setName( const QString& name );
+    QString name() const;
+#ifndef QT_NO_COMPAT
+    void setNull();
+#endif
+    bool isNull() const;
+    virtual void setReadOnly( bool readOnly );
+    bool isReadOnly() const;
+    virtual void clear();
+    QVariant::Type type() const;
 
 private:
-    QString       nm;
-    QVariant      val;
-    uint          ro: 1;
-    uint          nul: 1;
     QSqlFieldPrivate* d;
 };
-
-inline QVariant QSqlField::value() const
-{ return val; }
-
-inline QString QSqlField::name() const
-{ return nm; }
-
-inline bool QSqlField::isNull() const
-{ return nul; }
-
-inline bool QSqlField::isReadOnly() const
-{ return ro; }
-
-inline QVariant::Type QSqlField::type() const
-{ return d->type; }
-
 
 /******************************************/
 /*******     QSqlFieldInfo Class     ******/

@@ -16,6 +16,19 @@
 
 #ifndef QT_NO_SQL
 
+class QSqlFieldPrivate
+{
+public:
+    QSqlFieldPrivate(QSqlField* pd): p(pd), ro(FALSE), type(QVariant::Invalid)
+    {}
+    
+    QSqlField* p;
+    QString       nm;
+    QVariant      val;
+    uint          ro: 1;
+    QVariant::Type type;
+};
+
 
 /*!
     \class QSqlField qsqlfield.h
@@ -73,11 +86,11 @@
 */
 
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
-    : nm(fieldName), ro(FALSE), nul(FALSE)
 {
-    d = new QSqlFieldPrivate();
+    d = new QSqlFieldPrivate(this);
     d->type = type;
-    val.cast( type );
+    d->nm = fieldName;
+    d->val.cast( type );
 }
 
 /*!
@@ -85,10 +98,13 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
 */
 
 QSqlField::QSqlField( const QSqlField& other )
-    : nm( other.nm ), val( other.val ), ro( other.ro ), nul( other.nul )
 {
-    d = new QSqlFieldPrivate();
+    d = new QSqlFieldPrivate(this);
     d->type = other.d->type;
+    d->nm = other.d->nm;
+    d->val = other.d->val;
+    d->ro = other.d->ro;
+    
 }
 
 /*!
@@ -97,10 +113,9 @@ QSqlField::QSqlField( const QSqlField& other )
 
 QSqlField& QSqlField::operator=( const QSqlField& other )
 {
-    nm = other.nm;
-    val = other.val;
-    ro = other.ro;
-    nul = other.nul;
+    d->nm = other.d->nm;
+    d->val = other.d->val;
+    d->ro = other.d->ro;
     d->type = other.d->type;
     return *this;
 }
@@ -120,10 +135,9 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
 */
 bool QSqlField::operator==(const QSqlField& other) const
 {
-    return ( nm == other.nm &&
-	     val == other.val &&
-	     ro == other.ro &&
-	     nul == other.nul &&
+    return ( d->nm == other.d->nm &&
+	     d->val == other.d->val &&
+	     d->ro == other.d->ro &&
 	     d->type == other.d->type );
 }
 
@@ -135,13 +149,6 @@ QSqlField::~QSqlField()
 {
     delete d;
 }
-
-
-/*!
-    \fn QVariant QSqlField::value() const
-
-    Returns the value of the field as a QVariant.
-*/
 
 /*!
     Sets the value of the field to \a value. If the field is read-only
@@ -166,27 +173,23 @@ void QSqlField::setValue( const QVariant& value )
     if ( isReadOnly() )
 	return;
     if ( value.type() != d->type ) {
-	if ( !val.canCast( d->type ) )
+	if ( !d->val.canCast( d->type ) )
 	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
-		      nm.local8Bit(), value.typeName(), QVariant::typeToName( d->type ) );
+		      d->nm.local8Bit(), value.typeName(), QVariant::typeToName( d->type ) );
     }
-    val = value;
-    nul = val.type() == QVariant::Invalid || val.isNull();
+    d->val = value;
 }
 
 /*!
-    Clears the value of the field. If the field is read-only, nothing
-    happens. If \a nullify is TRUE (the default), the field is set to
-    NULL.
+    Clears the value of the field and sets it to NULL.
+    If the field is read-only, nothing happens.
 */
 
-void QSqlField::clear( bool nullify )
+void QSqlField::clear()
 {
     if ( isReadOnly() )
 	return;
-    val = QVariant(type());
-    if ( nullify )
-	nul = TRUE;
+    d->val = QVariant(type());
 }
 
 /*!
@@ -197,21 +200,20 @@ void QSqlField::clear( bool nullify )
 
 void QSqlField::setName( const QString& name )
 {
-    nm = name;
+    d->nm = name;
 }
 
 /*!
-    \fn void QSqlField::setNull()
+    \obsolete
 
-    Sets the field to NULL and clears the value using clear(). If the
-    field is read-only, nothing happens.
-
-    \sa isReadOnly() clear()
+    use clear() instead.
+    
+    \sa clear().
 */
 
 void QSqlField::setNull()
 {
-    clear( TRUE );
+    clear();
 }
 
 /*!
@@ -223,34 +225,41 @@ void QSqlField::setNull()
 */
 void QSqlField::setReadOnly( bool readOnly )
 {
-    ro = readOnly;
+    d->ro = readOnly;
 }
 
 /*!
-    \fn QString QSqlField::name() const
+    Returns the value of the field as a QVariant.
+*/
+QVariant QSqlField::value() const
+{ return d->val; }
 
+/*!
     Returns the name of the field.
 */
+QString QSqlField::name() const
+{ return d->nm; }
 
 /*!
-    \fn QVariant::Type QSqlField::type() const
-
     Returns the field's type.
 */
+QVariant::Type QSqlField::type() const
+{ return d->type; }
+
 
 /*!
-    \fn bool QSqlField::isReadOnly() const
-
     Returns TRUE if the field's value is read only; otherwise returns
     FALSE.
 */
+bool QSqlField::isReadOnly() const
+{ return d->ro; }
 
 /*!
-    \fn bool QSqlField::isNull() const
-
     Returns TRUE if the field is currently NULL; otherwise returns
     FALSE.
 */
+bool QSqlField::isNull() const
+{ return d->val.isNull(); }
 
 
 /******************************************/
