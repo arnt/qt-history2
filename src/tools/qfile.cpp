@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#32 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#32 $")
 
 
 /*----------------------------------------------------------------------------
@@ -657,7 +657,8 @@ int QFile::readLine( char *p, uint maxlen )
 /*----------------------------------------------------------------------------
   Reads a single byte/character from the file.
 
-  Returns -1 if the end of file has been reached.
+  Returns the byte/character read, or -1 if the end of the file has been
+  reached.
 
   \sa putch(), ungetch()
  ----------------------------------------------------------------------------*/
@@ -722,7 +723,8 @@ int QFile::putch( int ch )
 }
 
 /*----------------------------------------------------------------------------
-  Puts the character \e ch back into the file.
+  Puts the character \e ch back into the file and decrements the index if it
+  is not zero.
 
   This function is normally called to "undo" a getch() operation.
 
