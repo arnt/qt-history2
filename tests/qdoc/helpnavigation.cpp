@@ -98,6 +98,11 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     indexList = new QListBox( indexTab );
     indexLayout->addWidget( indexList );
 
+    connect( indexList, SIGNAL( returnPressed( QListBoxItem * ) ),
+	     this, SIGNAL( moveFocusToBrowser() ) );
+    connect( indexEdit, SIGNAL( returnPressed() ),
+	     this, SIGNAL( moveFocusToBrowser() ) );
+    
     l->setBuddy( indexEdit );
 
     connect( indexEdit, SIGNAL( textChanged( const QString & ) ),
@@ -227,6 +232,10 @@ void HelpNavigation::showTopic( QListBoxItem *i )
     if ( !i )
 	return;
 
+    indexEdit->blockSignals( TRUE );
+    indexEdit->setText( i->text() );
+    indexEdit->blockSignals( FALSE );
+    
     HelpNavigationListItem *item = (HelpNavigationListItem*)i;
 
     QStringList links = item->links();
@@ -374,7 +383,7 @@ bool HelpNavigation::eventFilter( QObject * o, QEvent * e )
 	} else if ( ke->key() == Key_Enter ||
 		    ke->key() == Key_Return ) {
 	    showTopic( indexList->item( indexList->currentItem() ) );
-	    return TRUE;
+	    return FALSE;
 	}
     }
 

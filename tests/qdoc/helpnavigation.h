@@ -61,13 +61,14 @@ public:
 
 signals:
     void showLink( const QString &s, const QString& t );
-
+    void moveFocusToBrowser();
+    
 private slots:
     void searchInIndexLine( const QString &s );
     void showTopic( QListBoxItem * );
     void setIndexTopic( QListBoxItem * );
     void showContents( QListViewItem * );
-
+    
 private:
     void loadIndexFile( const QString &indexFile, const QString &titleFile );
     void setupContentsView( const QString &titleFile );

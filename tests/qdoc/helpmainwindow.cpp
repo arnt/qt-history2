@@ -212,6 +212,8 @@ HelpMainWindow::HelpMainWindow()
 
     connect( viewer, SIGNAL( newSource( const QString & ) ),
 	     this, SLOT( newSource( const QString & ) ) );
+    connect( navigation, SIGNAL( moveFocusToBrowser() ),
+	     this, SLOT( moveFocusToBrowser() ) );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -325,4 +327,9 @@ void HelpMainWindow::slotHelpAboutQt()
 void HelpMainWindow::newSource( const QString &name )
 {
     viewer->setCaption( navigation->titleOfLink( name ) );
+}
+
+void HelpMainWindow::moveFocusToBrowser()
+{
+    viewer->setFocus();
 }

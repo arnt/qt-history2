@@ -34,6 +34,7 @@ private slots:
     void slotHelpAboutQt();
 
     void newSource( const QString &name );
+    void moveFocusToBrowser();
     
 private:
     QPopupMenu *history;
