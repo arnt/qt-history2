@@ -82,7 +82,7 @@ public:
 			     const QWidget *widget,
 			     const QRect &r,
 			     const QColorGroup &cg,
-			     SFlags how = CStyle_Default,
+			     SFlags how = Style_Default,
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;

@@ -88,7 +88,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	     QABS(r.width() - r.height()) > 10 ) {
 	    // small buttons
 
-	    if ( !(flags & PStyle_Sunken) ) {
+	    if ( !(flags & Style_Sunken) ) {
 		p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4,
 			     r.height() - 4, cg.brush( QColorGroup::Button ) );
 		// the bright side
@@ -161,7 +161,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    }
 	} else {
 	    // big ones
-	    if ( !(flags & PStyle_Sunken) ) {
+	    if ( !(flags & Style_Sunken) ) {
 		p->fillRect( r.x() + 3, r.y() + 3, r.width() - 6,
 			     r.height() - 6, cg.brush(QColorGroup::Button) );
 
@@ -269,7 +269,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		w = r.width();
 		h = r.height();
 
-		if ( !(flags && PStyle_Sunken) ) {
+		if ( !(flags && Style_Sunken) ) {
 		    p->fillRect(x+3, y+3, w-6, h-6, cg.brush( QColorGroup::Button ));
 		    // the bright side
 		    p->setPen(cg.shadow());
@@ -434,16 +434,16 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	const QPushButton *btn;
 	int x1, y1, x2, y2;
 	bool useBevelButton;
-	PFlags flags;
-	flags = PStyle_Default;
+	SFlags flags;
+	flags = Style_Default;
 // 	if ( btn->isEnabled() )
-// 	    flags |= PStyle_Enabled;
+// 	    flags |= Style_Enabled;
 // 	if ( btn->isDown() )
-// 	    flags |= PStyle_Down;
+// 	    flags |= Style_Down;
 // 	if ( btn->isOn() )
-// 	    flags |= PStyle_On;
-// 	if ( ! btn->isFlat() && ! (flags & PStyle_Down) )
-// 	    flags |= PStyle_Raised;
+// 	    flags |= Style_On;
+// 	if ( ! btn->isFlat() && ! (flags & Style_Down) )
+// 	    flags |= Style_Raised;
 
 
 	btn = (const QPushButton*)widget;
@@ -507,13 +507,13 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
 	    if ( useBevelButton ) {
 		if ( btn->isOn() || btn->isDown() )
-		    flags |= PStyle_Sunken;
+		    flags |= Style_Sunken;
 		drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1, x2 - x1 + 1,
 							 y2 - y1 + 1 ),
 			       myCg, flags, data );
 	    } else {
 		if ( btn->isOn() || btn->isDown() )
-		    flags |= PStyle_Sunken;
+		    flags |= Style_Sunken;
 		drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1, x2 - x1 + 1,
 							   y2 - y1 + 1 ),
 			       myCg, flags, data );
@@ -528,8 +528,8 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	const QPushButton *btn;
 	bool on;
 	int x, y, w, h;
-	PFlags flags;
-	flags = PStyle_Default;
+	SFlags flags;
+	flags = Style_Default;
 	btn = (const QPushButton*)widget;
 	on = btn->isDown() || btn->isOn();
 	r.rect( &x, &y, &w, &h );
@@ -550,7 +550,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		p->drawLine( xx + 2, yy + 2, xx + 2, yy + hh - 2 );
 	    }
 	    if ( btn->isEnabled() )
-		flags |= PStyle_Enabled;
+		flags |= Style_Enabled;
 	    drawPrimitive( PE_ArrowDown, p, QRect(x + w - dx - 1, y + 2,
 						  dx, h - 4),
 			   g, flags, data );

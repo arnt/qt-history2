@@ -43,7 +43,6 @@
 // ##############
 #define QT_NO_STYLE_CDE
 #define QT_NO_STYLE_MOTIFPLUS
-#define QT_NO_STYLE_PLATINUM
 #define QT_NO_STYLE_SGI
 #define QT_NO_STYLE_COMPACT
 // ###################
