@@ -34,6 +34,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
 		  $$KERNEL_H/qclipboard.h \
+		  $$KERNEL_H/qcodemapper.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
@@ -42,6 +43,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$KERNEL_H/qdrawutil.h \
 		  $$KERNEL_H/qdropsite.h \
 		  $$KERNEL_H/qevent.h \
+		  $$KERNEL_H/qeucmapper.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_H/qfontdata.h \
@@ -176,6 +178,7 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \
 		  kernel/qclipboard.cpp \
+		  kernel/qcodemapper.cpp \
 		  kernel/qcolor.cpp \
 		  kernel/qconnection.cpp \
 		  kernel/qcursor.cpp \
@@ -184,6 +187,7 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  kernel/qdrawutil.cpp \
 		  kernel/qdropsite.cpp \
 		  kernel/qevent.cpp \
+		  kernel/qeucmapper.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
 		  kernel/qiconset.cpp \
