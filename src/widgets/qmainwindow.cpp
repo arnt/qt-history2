@@ -39,6 +39,7 @@
 #include "qtoolbar.h"
 #include "qstatusbar.h"
 #include "qscrollview.h"
+#include "qtooltip.h"
 
 #include "qtooltip.h"
 #include "qwhatsthis.h"
@@ -76,8 +77,8 @@
 
   The QMainWindow allows by default toolbars in all docking areas.
   You can use setDockEnabled() to enable and disable docking areas
-  for toolbar. Currently, only \c Top, \c Left, \c Right and \c Bottom
-  are meaningful.
+  for toolbars. Currently, only \c Top, \c Left, \c Right, \c Bottom
+  and \c Hidden are meaningful.
 
   Several functions let you change the appearance of a QMainWindow
   globally: setRightJustification() determines whether QMainWindow
@@ -89,7 +90,11 @@
   Toolbars can be dragged by the user into each enabled docking area
   and inside each docking area to change the order of the toolbars
   there. This feature can be enabled and disabled using setMovableToolbarsEnabled().
-  By default this feature is enabled.
+  By default this feature is enabled. If the \c Hidden dock is enabled the user
+  can hide/show a toolbar with a click on the toolbar handle. The handles of
+  all hidden toolbars are drawn below the menu bar in one row, and if the user
+  moves the mouse cursor onto such a handle, the label of the toolbar
+  is displayed in a tool tip (see QToolBar::label()).
 
   An application with multiple toolbars should always save the layout
   of the toolbars (docking area and position there) and restore that
@@ -124,6 +129,8 @@
     <li>\c Bottom - below the central widget, above the status bar.
     <li>\c Left - to the left of the central widget.
     <li>\c Right - to the left of the central widget.
+    <li>\c Hidden - the toolbar is not shown - all handles of hidden toolbars
+    are drawn in one row below the menu bar.
   </ul>
 
   Other values are also defined for future expansion.
@@ -216,11 +223,20 @@ public:
     int oldiPos;
     QToolBar *oldCovering;
     HideDock *hideDock;
-    
+
     bool movable;
 
     QMap< int, bool > dockable;
 };
+
+class HideToolTip : public QToolTip
+{
+public:
+    HideToolTip( QWidget *parent ) : QToolTip( parent ) {}
+    
+    void maybeTip( const QPoint &pos );
+};
+
 
 class HideDock : public QWidget
 {
@@ -233,8 +249,10 @@ public:
 	pressed = FALSE;
 	setMouseTracking( TRUE );
 	win = parent;
+	tip = new HideToolTip( this );
     }
-
+    ~HideDock() { delete tip; }
+    
 protected:
     void paintEvent( QPaintEvent * ) {
 	if ( !d->hidden || d->hidden->isEmpty() )
@@ -250,7 +268,7 @@ protected:
 	    x += 30;
 	}
     }
-    
+
     void mousePressEvent( QMouseEvent *e ) {
 	pressed = TRUE;
 	if ( !d->hidden || d->hidden->isEmpty() )
@@ -283,7 +301,7 @@ protected:
 	if ( old != -1 )
 	    repaint( TRUE );
     }
-	    
+	
     void mouseReleaseEvent( QMouseEvent *e ) {
 	pressed = FALSE;
 	if ( pressedHandle == -1 )
@@ -298,14 +316,38 @@ protected:
 	pressedHandle = -1;
 	repaint( TRUE );
     }
-    
+
 private:
     QMainWindowPrivate *d;
     QMainWindow *win;
     int pressedHandle;
     bool pressed;
+    HideToolTip *tip;
+    
+    friend class HideToolTip;
     
 };
+
+void HideToolTip::maybeTip( const QPoint &pos ) 
+{
+    if ( !parentWidget() )
+	return;
+    HideDock *dock = (HideDock*)parentWidget();
+	
+    if ( !dock->d->hidden || dock->d->hidden->isEmpty() )
+	return;
+    QMainWindowPrivate::ToolBar *tb;
+    int x = 0;
+    int i = 0;
+    for ( tb = dock->d->hidden->first(); tb; tb = dock->d->hidden->next(), ++i ) {
+	if ( pos.x() >= x && pos.x() <= x + 30 ) {
+	    if ( !tb->t->label().isEmpty() )
+		tip( QRect( x, 0, 30, dock->height() ), tb->t->label() );
+	    return;
+	}
+	x += 30;
+    }
+}
 
 class QToolLayout : public QLayout
 {
@@ -1262,7 +1304,7 @@ void QMainWindow::setUpLayout()
     } else {
 	d->hideDock->hide();
     }
-    
+
     addToolBarToLayout( d->top, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE,
 			d->justify, style() );
@@ -1868,11 +1910,11 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QApplication::setOverrideCursor( Qt::pointingHandCursor );
     	d->movedEnough = TRUE;
     }
-    
+
     // if now mouse movement yet, don't do anything
     if ( !d->movedEnough )
 	return;
-    
+
     // find the dock, rect, etc. for the current mouse pos
     d->pos = pos;
     QRect r;

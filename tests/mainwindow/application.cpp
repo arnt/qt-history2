@@ -181,6 +181,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
 	QWhatsThis::add( fileSave, fileSaveText );
 	QWhatsThis::add( filePrint, filePrintText );
+	addToolBar( fileTools, "Toolbar 1", Top, FALSE );
 	return fileTools;
     } else if ( name == "file2 operations" ) {
 	QToolBar* fileTools2 = new QToolBar( this, "file2 operations" );
@@ -197,7 +198,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	(void)new QToolButton( printIcon2, "Print File", QString::null,
 			       this, SLOT(print2()), fileTools2, "print file2" );
 
-	addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
+	addToolBar( fileTools2, "Toolbar 2", Top, FALSE );
 	return fileTools2;
     } else if ( name == "file3 operations" ) {
 	QToolBar *fileTools3 = new QToolBar( this, "file3 operations" );
@@ -218,7 +219,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	(void)new QToolButton( printIcon2, "Print File", QString::null,
 			       this, SLOT(print2()), fileTools3, "print file2" );
 
-	addToolBar( fileTools3, "FILETOOLS2", Top, nl );
+	addToolBar( fileTools3, "Toolbar 3", Top, nl );
 	return fileTools3;
     } else if ( name == "file4 operations" ) {
 	QToolBar* fileTools4 = new QToolBar( this, "file4 operations" );
@@ -237,7 +238,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	(void)new QToolButton( printIcon2, "Print File", QString::null,
 			       this, SLOT(print2()), fileTools4, "print file2" );
 
-	addToolBar( fileTools4, "FILETOOLS2", Top, FALSE );
+	addToolBar( fileTools4, "Toolbar 4", Top, FALSE );
 	return fileTools4;
     }
 
