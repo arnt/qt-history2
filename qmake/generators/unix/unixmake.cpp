@@ -386,8 +386,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << endl << endl;
 	clean_targets += " mocclean";
     }
+    t << "uiclean:" << "\n\t"
+      << "-rm -f $(UICIMPLS) $(UICDECLS)" << "\n\t"
+      << endl << endl;
+    clean_targets += " uiclean";
+
     t << "clean:" << clean_targets << "\n\t"
-      << "-rm -f $(OBJECTS) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
+      << "-rm -f $(OBJECTS) $(TARGET)" << "\n\t";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty())
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
@@ -470,7 +475,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
       << "grep \"^qmake_all:$$\" $$pro 2>/dev/null >/dev/null && "
       << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
-    t <<"install mocclean clean:" << "\n\t"
+    t <<"install uiclean mocclean clean:" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@; fi; ) ; done" << endl << endl;
 
     t <<"FORCE:" << endl << endl;
