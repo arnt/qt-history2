@@ -922,10 +922,11 @@ static void laTeXifyImages( QString& html )
 			      QString("\\includegraphics[scale=0.45]{%1}")
 			      .arg(qdocOutputDir + src) );
 	    } else {
-		qWarning( "Problem with generation of '%s.eps'", src.latin1() );
+		qWarning( "Problem with generation of '%s.eps'", dst.latin1() );
 	    }
 	} else {
-	    qWarning( "Cannot handle non-PNG image '%s'", src.latin1() );
+	    qWarning( "Cannot handle non-PNG or non-JPG image '%s'",
+		      src.latin1() );
 	    return;
 	}
 	k++;
