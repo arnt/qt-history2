@@ -11,6 +11,7 @@ xbase {
 	XBASE_ROOT	= ../xdb-1.2.0
 	XBASE_PATH	= $$XBASE_ROOT/xdb
 	DEFINES		+= HAVE_CONFIG_H
+	INCLUDEPATH	+= $$XBASE_ROOT
 	SOURCES		+= $$XBASE_PATH/dbf.cpp \
 			$$XBASE_PATH/fields.cpp\
 			$$XBASE_PATH/index.cpp\
