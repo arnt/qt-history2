@@ -74,6 +74,13 @@ static inline int qt_socket_connect(int s, const struct sockaddr *addr, QT_SOCKL
 # undef connect
 #endif
 
+// UnixWare 7 redefines socket() to _socket().  This breaks our sources.
+static inline int qt_socket_socket(int domain, int type, int protocol)
+{ return ::socket(domain, type, protocol); }
+#if defined(socket)
+# undef socket
+#endif
+
 // UnixWare 7 redefines listen() to _listen().  This breaks our sources.
 static inline int qt_socket_listen(int s, int backlog)
 { return ::listen(s, backlog); }
@@ -100,7 +107,7 @@ void QSocketDevice::init()
 
 int QSocketDevice::createNewSocket ()
 {
-    int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    int s = qt_socket_socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s < 0 ) {
 	switch( errno ) {
 	case EPROTONOSUPPORT:
