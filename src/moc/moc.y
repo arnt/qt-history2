@@ -3083,8 +3083,14 @@ void generateClass()		      // generate C++ source code for a class
 		while ( a ) {
 		    QCString type = a->leftType + ' ' + a->rightType;
 		    type = type.simplifyWhiteSpace();
-		    QCString utype = uType( type );
-		    fprintf( out, "    static_QUType_%s.set(o+%d,t%d);\n", utype.data(), offset+1, offset );
+		    if ( validUType( type ) ) {
+			QCString utype = uType( type );
+			fprintf( out, "    static_QUType_%s.set(o+%d,t%d);\n", utype.data(), offset+1, offset );
+		    } else if ( uType( type ) == "varptr" ) {
+			fprintf( out, "    static_QUType_varptr.set(o+%d,&t%d);\n", offset+1, offset );
+		    } else {
+			fprintf( out, "    static_QUType_ptr.set(o+%d,&t%d);\n", offset+1, offset );
+		    }
 		    a = f->args->next();
 		    offset++;
 		}
