@@ -69,6 +69,7 @@ single file rather than duplicate them in each form in which they
 appear.
 </para>
 <para id="akvr">
+\x[Button^PushButton]
 Start \qd if you haven't already. Click \menu[File|New Project] to invoke
 the \dlg[Project Settings] dialog. Enter 'multiclip' as the project's name and
 'multiclip.pro' as the project's filename, then click \ok.  The name of
