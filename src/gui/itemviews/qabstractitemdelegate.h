@@ -26,8 +26,7 @@ class QAbstractItemModel;
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(EditorType EndEditFlags)
-    Q_FLAGS(StartEditFlags)
+    Q_ENUMS(EditorType)
 
 public:
     QAbstractItemDelegate(QObject *parent = 0);
@@ -35,21 +34,8 @@ public:
 
     enum EditorType {
         Events,
-        Widget,
-        PersistentWidget
+        Widget
     };
-
-    enum BeginEditAction {
-        NeverEdit = 0,
-        CurrentChanged = 1,
-        DoubleClicked = 2,
-        SelectedClicked = 4,
-        EditKeyPressed = 8,
-        AnyKeyPressed = 16,
-        AlwaysEdit = 31
-    };
-
-    Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction);
 
     // painting
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -61,7 +47,7 @@ public:
     // editing
     virtual EditorType editorType(const QAbstractItemModel *model, const QModelIndex &index) const;
 
-    virtual QWidget *editor(BeginEditAction action, QWidget *parent,
+    virtual QWidget *editor(QWidget *parent,
                             const QStyleOptionViewItem &option,
                             const QAbstractItemModel *model,
                             const QModelIndex &index);
@@ -92,7 +78,5 @@ protected:
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                          const QString &org) const;
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemDelegate::BeginEditActions);
 
 #endif

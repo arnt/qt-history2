@@ -33,9 +33,9 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
-    Q_PROPERTY(QAbstractItemDelegate::BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
+    Q_PROPERTY(BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
     Q_ENUMS(SelectionMode SelectionBehaviour)
-
+    Q_FLAGS(BeginEditActions)
 public:
     enum SelectionMode {
         SingleSelection,
@@ -48,6 +48,18 @@ public:
         SelectRows,
         SelectColumns
     };
+    
+    enum BeginEditAction {
+        NeverEdit = 0,
+        CurrentChanged = 1,
+        DoubleClicked = 2,
+        SelectedClicked = 4,
+        EditKeyPressed = 8,
+        AnyKeyPressed = 16,
+        AlwaysEdit = 31
+    };
+
+    Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction);
 
     QAbstractItemView(QWidget *parent = 0);
     ~QAbstractItemView();
@@ -70,8 +82,8 @@ public:
     QModelIndex currentItem() const;
     QModelIndex root() const;
 
-    void setBeginEditActions(QAbstractItemDelegate::BeginEditActions actions);
-    QAbstractItemDelegate::BeginEditActions beginEditActions() const;
+    void setBeginEditActions(BeginEditActions actions);
+    BeginEditActions beginEditActions() const;
 
     void setAutoScroll(bool b);
     bool autoScroll() const;
@@ -146,8 +158,7 @@ protected:
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
-    virtual bool edit(const QModelIndex &index, QAbstractItemDelegate::BeginEditAction action,
-                      QEvent *event);
+    virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &index, bool accepted = true);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
@@ -184,5 +195,7 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void timerEvent(QTimerEvent *e);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::BeginEditActions);
 
 #endif

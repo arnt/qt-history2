@@ -26,7 +26,7 @@
 
 void QTableViewPrivate::init()
 {
-    q->setBeginEditActions(beginEditActions|QAbstractItemDelegate::AnyKeyPressed);
+    q->setBeginEditActions(beginEditActions|QAbstractItemView::AnyKeyPressed);
 
     QHeaderView *vertical = new QHeaderView(Qt::Vertical, q);
     vertical->setModel(model);

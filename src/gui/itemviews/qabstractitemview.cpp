@@ -49,8 +49,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionMode(QAbstractItemView::ExtendedSelection),
         selectionBehavior(QAbstractItemView::SelectItems),
         state(QAbstractItemView::NoState),
-        beginEditActions(QAbstractItemDelegate::DoubleClicked
-                         |QAbstractItemDelegate::EditKeyPressed),
+        beginEditActions(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         inputInterval(400),
         autoScroll(true),
         autoScrollTimer(0),
@@ -612,7 +611,7 @@ void QAbstractItemView::edit(const QModelIndex &index)
 {
     if (!index.isValid())
         qWarning("edit: index was invalid");
-    if (!edit(index, QAbstractItemDelegate::AlwaysEdit, 0))
+    if (!edit(index, AlwaysEdit, 0))
         qWarning("edit: editing failed");
 }
 
@@ -642,16 +641,16 @@ void QAbstractItemView::doItemsLayout()
     \brief which actions will initiate item editing
 
     This property is a selection of flags defined by
-    \l{QAbstractItemDelegate::BeginEditAction}, combined using the OR
+    \l{BeginEditAction}, combined using the OR
     operator. The view will only initiate the editing of an item if the
     action performed is set in this property.
 */
-void QAbstractItemView::setBeginEditActions(QAbstractItemDelegate::BeginEditActions actions)
+void QAbstractItemView::setBeginEditActions(BeginEditActions actions)
 {
     d->beginEditActions = actions;
 }
 
-QAbstractItemDelegate::BeginEditActions QAbstractItemView::beginEditActions() const
+QAbstractItemView::BeginEditActions QAbstractItemView::beginEditActions() const
 {
     return d->beginEditActions;
 }
@@ -758,7 +757,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     setSelection(rect.normalize(), command);
 
     emit pressed(index, e->button());
-    edit(index, QAbstractItemDelegate::SelectedClicked, e);
+    edit(index, SelectedClicked, e);
 }
 
 /*!
@@ -856,7 +855,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     if (!index.isValid())
         return;
     emit doubleClicked(index, e->button());
-    edit(index, QAbstractItemDelegate::DoubleClicked, e);
+    edit(index, DoubleClicked, e);
 }
 
 /*!
@@ -1042,12 +1041,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         emit deletePressed(currentItem());
         return;
     case Qt::Key_F2:
-        if (edit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
+        if (edit(currentItem(), EditKeyPressed, e))
             return;
         break;
     default:
         if (!e->text().isEmpty()) {
-            if (edit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e)) {
+            if (edit(currentItem(), AnyKeyPressed, e)) {
                 return;
             } else {
                 keyboardSearch(e->text());
@@ -1088,7 +1087,7 @@ void QAbstractItemView::timerEvent(QTimerEvent *e)
     \sa endEdit()
 */
 bool QAbstractItemView::edit(const QModelIndex &index,
-                             QAbstractItemDelegate::BeginEditAction action,
+                             BeginEditAction action,
                              QEvent *event)
 {
     if (itemDelegate()->editorType(model(), index) == QAbstractItemDelegate::Events) {
@@ -1112,7 +1111,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
         option.rect = itemViewportRect(edit);
         option.state |= (edit == currentItem()
                          ? QStyle::Style_HasFocus : QStyle::Style_Default);
-        editor = itemDelegate()->editor(action, d->viewport, option, model(), edit);
+        editor = itemDelegate()->editor(d->viewport, option, model(), edit);
         if (editor) {
             QObject::connect(editor, SIGNAL(destroyed(QObject*)),
                              this, SLOT(editorDestroyed(QObject*)));
@@ -1407,8 +1406,7 @@ void QAbstractItemView::setPersistentEditor(const QModelIndex &index, bool /*ena
         QStyleOptionViewItem option = viewOptions();
         option.rect = itemViewportRect(index);
         option.state = (index == currentItem() ? QStyle::Style_HasFocus|option.state : option.state);
-        editor = itemDelegate()->editor(QAbstractItemDelegate::AlwaysEdit,
-                                        d->viewport, option, model(), index);
+        editor = itemDelegate()->editor(d->viewport, option, model(), index);
         itemDelegate()->setModelData(editor, model(), index);
         itemDelegate()->updateEditorGeometry(editor, option, model(), index);
         d->editors.insert(persistent, editor);
@@ -1527,7 +1525,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 
     if (current.isValid()) {
         ensureItemVisible(current);
-        edit(current, QAbstractItemDelegate::CurrentChanged, 0);
+        edit(current, CurrentChanged, 0);
     }
 }
 
@@ -1785,7 +1783,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
     return QItemSelectionModel::ClearAndSelect | behavior;
 }
 
-bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction action,
+bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction action,
                                           const QModelIndex &index)
 {
     if (!index.isValid())
@@ -1794,7 +1792,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction
         return false;
     if (state == QAbstractItemView::Editing)
         return false;
-    if (action == QAbstractItemDelegate::AlwaysEdit)
+    if (action == QAbstractItemView::AlwaysEdit)
         return true;
     if (action & beginEditActions)
         return true;

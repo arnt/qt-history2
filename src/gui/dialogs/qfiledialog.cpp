@@ -1391,7 +1391,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     lview->setWrapping(true);
     lview->setResizeMode(QListView::Adjust);
     lview->setLayoutMode(QListView::Batched);
-    lview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);
+    lview->setBeginEditActions(QAbstractItemView::EditKeyPressed);
     grid->addWidget(lview, 1, 0, 1, 6);
 
     tview = new QTreeView(q);
@@ -1407,7 +1407,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     tview->header()->setResizeMode(QHeaderView::Stretch, 0);
     tview->header()->setSortIndicator(0, Qt::DescendingOrder);
     tview->hide();
-    tview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);
+    tview->setBeginEditActions(QAbstractItemView::EditKeyPressed);
     grid->addWidget(tview, 1, 0, 1, 6);
 
     // actions

@@ -59,7 +59,7 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     list->setFrameStyle(QFrame::NoFrame);
     list->setLineWidth(0);
     list->setSpacing(0);
-    list->setBeginEditActions(QAbstractItemDelegate::NeverEdit);
+    list->setBeginEditActions(QAbstractItemView::NeverEdit);
     list->setFocusPolicy(Qt::StrongFocus);
     connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));

@@ -29,7 +29,7 @@ public:
 
     void init();
 
-    bool shouldEdit(QAbstractItemDelegate::BeginEditAction action, const QModelIndex &index);
+    bool shouldEdit(QAbstractItemView::BeginEditAction action, const QModelIndex &index);
     bool shouldAutoScroll(const QPoint &pos);
     void doDelayedItemsLayout();
 
@@ -47,7 +47,7 @@ public:
 
     QAbstractItemView::State state;
     QPoint cursorIndex;
-    QAbstractItemDelegate::BeginEditActions beginEditActions;
+    QAbstractItemView::BeginEditActions beginEditActions;
 
     QPersistentModelIndex root;
     int horizontalFactor;

@@ -148,8 +148,8 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QAbstr
 /*!
     Returns the editor to be used for editing the data item at the
     given \a index in the \a model. The action that caused the edit is
-    specified by \a action; see \c BeginEditAction. The editor's parent
-    widget is specified by \a parent, and the item options by \a option.
+    specified by \a action; The editor's parent widget is specified by
+    \a parent, and the item options by \a option.
     Ownership is kept by the delegate. Subsequent calls to this
     function with the same arguments are not guaranteed to return
     the same editor object.
@@ -161,7 +161,7 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QAbstr
 
     \sa editorType() setModelData() setEditorData() releaseEditor()
 */
-QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *, const QStyleOptionViewItem &,
+QWidget *QAbstractItemDelegate::editor(QWidget *, const QStyleOptionViewItem &,
                                        const QAbstractItemModel *, const QModelIndex &)
 {
     return 0;

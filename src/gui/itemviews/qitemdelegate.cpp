@@ -187,33 +187,24 @@ QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *,
 }
 
 /*!
-    \fn QWidget *QItemDelegate::editor(QAbstractItemDelegate::BeginEditAction action,
-                    QWidget *parent,
-                    const QStyleOptionViewItem &option,
-                    const QAbstractItemModel *model, const QModelIndex &index)
-
     Returns the widget used to edit the item specified by the \a model and
     item \a index for the editing \a action given. The \a parent widget and
     style \a option are used to control how the editor widget appears.
 
-    \sa QAbstractItemDelegate::BeginEditAction QAbstractItemDelegate::editor()
-
+    \sa QAbstractItemDelegate::editor()
 */
 
-QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
-                               const QStyleOptionViewItem &option,
-                               const QAbstractItemModel *model, const QModelIndex &index)
+QWidget *QItemDelegate::editor(QWidget *parent,
+                               const QStyleOptionViewItem &,
+                               const QAbstractItemModel *,
+                               const QModelIndex &index)
 {
     if (index.type() != QModelIndex::View)
         return 0;
-    if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked | AlwaysEdit)
-        || (option.state & QStyle::Style_HasFocus && editorType(model, index) == Widget)) {
-        QLineEdit *lineEdit = new QLineEdit(parent);
-        lineEdit->setFrame(false);
-        lineEdit->installEventFilter(this);
-        return lineEdit;
-    }
-    return 0;
+    QLineEdit *lineEdit = new QLineEdit(parent);
+    lineEdit->setFrame(false);
+    lineEdit->installEventFilter(this);
+    return lineEdit;
 }
 
 /*!

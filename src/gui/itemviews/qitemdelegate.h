@@ -35,9 +35,12 @@ public:
     // editing
     QAbstractItemDelegate::EditorType editorType(const QAbstractItemModel *model,
                                                  const QModelIndex &index) const;
-    QWidget *editor(QAbstractItemDelegate::BeginEditAction action, QWidget *parent,
+
+    QWidget *editor(QWidget *parent,
                     const QStyleOptionViewItem &option,
-                    const QAbstractItemModel *model, const QModelIndex &index);
+                    const QAbstractItemModel *model,
+                    const QModelIndex &index);
+
     void releaseEditor(QWidget *editor);
 
     void setEditorData(QWidget *editor,
