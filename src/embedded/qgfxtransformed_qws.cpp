@@ -530,6 +530,9 @@ public:
 
 protected:
     virtual void setSourceWidgetOffset( int x, int y );
+    void processSpans( int n, QPoint* point, int* width );
+    
+
     bool inDraw;
 };
 
@@ -624,21 +627,13 @@ void QGfxTransformedRaster<depth,type>::fillRect( int x, int y, int w, int h )
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool w, int idx, int num )
 {
-    switch ( qt_trans_screen->transformation() ) {
-	case QTransformedScreen::Rot90:
-	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Bottom+QPolygonScanner::Left);
-	    break;
-	case QTransformedScreen::Rot180:
-	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Bottom+QPolygonScanner::Right);
-	    break;
-	case QTransformedScreen::Rot270:
-	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Top+QPolygonScanner::Right);
-	    break;
-	default:
-	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
-	    break;
-    }
-    if ( inDraw ) {
+    // Because of stitchedges, we cannot transform first. However, if
+    // we draw an outline, edges do not matter and we can do a fastpath 
+    // solution. The brush offset logic is complicated enough, so we don't
+    // fastpath patternedbrush.
+    
+    if ( inDraw  || cpen.style()==NoPen || patternedbrush ) {
+	//slowpath
 	QT_TRANS_GFX_BASE<depth,type>::drawPolygon( a, w, idx, num );
     } else {
 	inDraw = TRUE;
@@ -653,8 +648,50 @@ void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool 
 	QT_TRANS_GFX_BASE<depth,type>::drawPolygon( na, w, 0, num );
 	inDraw = FALSE;
     }
-    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
 }
+
+
+template <const int depth, const int type>
+void QGfxTransformedRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
+{
+    if ( inDraw || patternedbrush && srcwidth != 0 && srcheight != 0 ) {
+	//in the patternedbrush case, we let blt do the transformation
+	// so we leave inDraw false.
+	QT_TRANS_GFX_BASE<depth,type>::processSpans( n, point, width );		    
+    } else {
+	inDraw = TRUE;
+	while (n--) {
+	    if ( *width > 0 ) {
+		int x=tx(point->x(),point->y())+xoffs;
+		int y=ty(point->x(),point->y())+yoffs;
+
+		switch( qt_trans_screen->transformation() ) {
+		case QTransformedScreen::Rot90:
+		    vline( x, y-(*width-1), y );
+		    break;
+		case QTransformedScreen::Rot180:
+		    hline( x - (*width-1), x, y );
+		    break;
+		case QTransformedScreen::Rot270:
+		    vline( x, y, y+*width-1 );
+		    break;
+		default:
+		    hline( x, x+*width-1, y );
+		    break;
+		}
+	    }
+	    point++;
+	    width++;
+	}
+	inDraw = FALSE;
+    }
+
+}
+
+
+
+
+
 
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawPolyline( const QPointArray &a, int idx, int num )
@@ -682,11 +719,16 @@ void QGfxTransformedRaster<depth,type>::blt( int x, int y, int w, int h, int sx,
     if ( w == 0 || h == 0 )
 	return;
     QRect r;
-    r.setCoords( tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1) );
-    r = r.normalize();
     int rsx;
     int rsy;
-    switch ( qt_trans_screen->transformation() ) {
+    if ( inDraw ) {
+	r = QRect( x, y, w, h );
+	rsx = sx;
+	rsy = sy;
+    } else {
+	r.setCoords( tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1) );
+	r = r.normalize();
+	switch ( qt_trans_screen->transformation() ) {
 	case QTransformedScreen::Rot90:
 	    rsx = sy;
 	    rsy = srcwidth - sx - w;
@@ -703,6 +745,7 @@ void QGfxTransformedRaster<depth,type>::blt( int x, int y, int w, int h, int sx,
 	    rsx = sx;
 	    rsy = sy;
 	    break;
+	}
     }
     QT_TRANS_GFX_BASE<depth,type>::blt( r.x(), r.y(), r.width(), r.height(), rsx, rsy );
 }
