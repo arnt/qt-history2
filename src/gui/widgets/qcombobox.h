@@ -26,7 +26,7 @@ class QStringList;
 class QLineEdit;
 class QValidator;
 class QListBox;
-class QComboBoxData;
+class QComboBoxPrivate;
 class QWheelEvent;
 
 class Q_GUI_EXPORT QComboBox : public QWidget
@@ -53,11 +53,6 @@ public:
     int		count() const;
 
     void	insertStringList( const QStringList &, int index=-1 );
-#if defined(QT_COMPAT) && 0 // ### probably take out for Qt 4.0
-    QT_COMPAT void	insertStrList( const QStrList &, int index=-1 );
-    QT_COMPAT void	insertStrList( const QStrList *, int index=-1 );
-#endif
-    void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
     void	insertItem( const QString &text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
@@ -159,16 +154,8 @@ protected:
     void	updateMask();
 
 private:
-    void	setUpListBox();
-    void	setUpLineEdit();
-    void	popDownListBox();
-    void	reIndex();
-    void	currentChanged();
-    int		completionIndex( const QString &, int ) const;
+    Q_DECL_PRIVATE(QComboBox);
 
-    QComboBoxData	*d;
-
-private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QComboBox( const QComboBox & );
     QComboBox &operator=( const QComboBox & );
