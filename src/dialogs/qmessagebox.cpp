@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#96 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#97 $
 **
 ** Implementation of QMessageBox class
 **
@@ -730,7 +730,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 	QImage image(xpm_data);
 	if ( style == MotifStyle ) {
 	    // All that colour looks ugly in Motif
-	    QColorGroup g = QApplication::palette()->normal();
+	    QColorGroup g = QApplication::palette().normal();
 	    switch ( icon ) {
 	      case Information:
 		image.setColor( 2, 0xff000000 | g.dark().rgb() );
@@ -1302,5 +1302,5 @@ void QMessageBoxLabel::initMetaObject()
 // testing Freehand 8 last month.  I took a screen shot.  I believe I
 // was trying to convert a file from one format to another.
 // Apparently, I...
-// 
+//
 // http://www.people.cornell.edu/pages/mlj8/cant.gif
