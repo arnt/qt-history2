@@ -67,11 +67,19 @@
 #ifndef Q_OS_TEMP
 #include <locale.h>
 #endif
-#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6)
+#if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
 #endif
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
+#endif
+
+#if defined(Q_OS_SOLARIS)
+// On Solaris <euc.h> defines a macro "multibyte" and for some
+// reason is included by <string> and <iterator> on Solaris 2.5.1.
+#ifdef multibyte
+#undef multibyte
+#endif
 #endif
 
 static QPtrList<QTextCodec> * all = 0;
