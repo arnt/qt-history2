@@ -97,16 +97,16 @@ protected slots:
 
 protected:
     QSocketDevice *socketDevice();
-    void	  timerEvent( QTimerEvent * );
+    void	 timerEvent( QTimerEvent * );
 
 private slots:
-    void	tryConnecting();
+    void	 tryConnecting();
 
 private:
     QSocketPrivate *d;
 
-    bool	 skipReadBuf( int nbytes, char * );
-    bool	 skipWriteBuf( int nbytes );
+    bool	 consumeReadBuf( int nbytes, char * );
+    bool	 consumeWriteBuf( int nbytes );
     bool	 scanNewline( QByteArray * = 0 );
 
 private:	// Disabled copy constructor and operator=

@@ -29,10 +29,7 @@
 #include "qdns.h"
 
 #if defined(UNIX)
-// gethostbyname
-#include <sys/types.h>
-#include <netdb.h>
-#include <netinet/in.h>
+#include <errno.h>
 #endif
 
 #if defined(_OS_WIN32_)
@@ -76,7 +73,7 @@ QSocketPrivate::QSocketPrivate()
 
 QSocketPrivate::~QSocketPrivate()
 {
-    // order is important here - the socket notifiers must go away
+    // Order is important here - the socket notifiers must go away
     // before the socket does.
     delete rsn;
     delete wsn;
@@ -324,9 +321,9 @@ void QSocket::connectToHost( const QString &host, int port )
 };
 
 
-
-/*!  This private slots continues the connection process where
-connectToHost() leaves off.
+/*!
+  This private slots continues the connection process where connectToHost()
+  leaves off.
 */
 
 void QSocket::tryConnecting()
@@ -531,10 +528,10 @@ void QSocket::close()
 
 /*!
   This function consumes data from the read buffer and copies
-  it into \a copyInto if it is a valid pointer.
+  it into \a sink if it is a valid pointer.
 */
 
-bool QSocket::skipReadBuf( int nbytes, char *copyInto )
+bool QSocket::consumeReadBuf( int nbytes, char *sink )
 {
     if ( nbytes <= 0 || nbytes > d->rsize )
 	return FALSE;
@@ -547,9 +544,9 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
 	if ( d->rindex + nbytes >= (int)a->size() ) {
 	    // Here we skip the whole byte array and get the next later
 	    int len = a->size() - d->rindex;
-	    if ( copyInto ) {
-		memcpy( copyInto, a->data()+d->rindex, len );
-		copyInto += len;
+	    if ( sink ) {
+		memcpy( sink, a->data()+d->rindex, len );
+		sink += len;
 	    }
 	    nbytes -= len;
 	    d->rba.remove();
@@ -561,8 +558,8 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
 	    }
 	} else {
 	    // Here we skip only a part of the first byte array
-	    if ( copyInto )
-		memcpy( copyInto, a->data()+d->rindex, nbytes );
+	    if ( sink )
+		memcpy( sink, a->data()+d->rindex, nbytes );
 	    d->rindex += nbytes;
 	    if ( d->mode == Ascii )
 		d->newline = scanNewline();
@@ -579,7 +576,7 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
   into another buffer.
 */
 
-bool QSocket::skipWriteBuf( int nbytes )
+bool QSocket::consumeWriteBuf( int nbytes )
 {
     if ( nbytes <= 0 || nbytes > d->wsize )
 	return FALSE;
@@ -643,7 +640,7 @@ bool QSocket::scanNewline( QByteArray *store )
 		    case '\0':
 #if defined(QSOCKET_DEBUG)
 			qDebug( "QSocket::scanNewline: Oops, unexpected "
-			       "0-terminated text read %s", store->data() );
+				"0-terminated text read %s", store->data() );
 #endif
 			store->resize( i );
 			return FALSE;
@@ -701,7 +698,7 @@ void QSocket::flush()
 	    nwritten = d->socket->writeBlock( a->data() + d->windex,
 					      a->size() - d->windex );
 	}
-	skipWriteBuf( nwritten );
+	consumeWriteBuf( nwritten );
 	if ( nwritten > 0 )
 	    emit bytesWritten( nwritten );
 #if defined(QSOCKET_DEBUG)
@@ -757,7 +754,7 @@ bool QSocket::at( int index )
 {
     if ( index < 0 || index > d->rsize )
 	return FALSE;
-    skipReadBuf( index, 0 );			// throw away data 0..index-1
+    consumeReadBuf( index, 0 );			// throw away data 0..index-1
     return TRUE;
 }
 
@@ -769,7 +766,7 @@ bool QSocket::at( int index )
 bool QSocket::atEnd() const
 {
     QSocket * that = (QSocket *)this;
-    if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
+    if ( that->d->socket->bytesAvailable() )	// a little slow, perhaps...
 	that->sn_read();
     return that->d->rsize == 0;
 }
@@ -826,7 +823,7 @@ int QSocket::readBlock( char *data, uint maxlen )
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket: readBlock %d bytes", maxlen );
 #endif
-    skipReadBuf( maxlen, data );
+    consumeReadBuf( maxlen, data );
     if ( d->mode == Ascii )
 	d->newline = scanNewline();
     return maxlen;
@@ -899,7 +896,7 @@ int QSocket::getch()
 {
     if ( isOpen() && d->rsize > 0 ) {
 	uchar c;
-	skipReadBuf( 1, (char*)&c );
+	consumeReadBuf( 1, (char*)&c );
 	if ( d->mode == Ascii && c == '\n' )
 	    d->newline = scanNewline();
 	return c;
@@ -978,10 +975,13 @@ void QSocket::sn_read()
     QByteArray *a = 0;
 
     if ( nbytes <= 0 ) {			// connection closed?
+
 	// On Windows this may happen when the connection is still open.
 	// This happens when the system is heavily loaded and we have
 	// read all the data on the socket before a new WSAsyncSelect
 	// event is processed. A new read operation would then block.
+	// This code is also useful when QSocket is used without an
+	// event loop.
 	nread = d->socket->readBlock( buf, sizeof(buf) );
 	if ( nread == 0 ) {			// really closed
 #if defined(QSOCKET_DEBUG)
@@ -998,20 +998,25 @@ void QSocket::sn_read()
 	    return;
 	} else {
 	    if ( nread < 0 ) {
-#if defined(_OS_WIN32_)
+#if defined(_OS_WIN_)
 		if ( WSAGetLastError() == WSAEWOULDBLOCK )
 		    return;			// WSA event too late
+#elif defined(UNIX)
+		if ( errno = EWOULDBLOCK )
+		    return;			// socket not closed
 #endif
 #if defined(CHECK_RANGE)
 		qWarning( "QSocket::sn_read: Close error" );
 #endif
-		emit error( ErrSocketRead );			// socket close error
+		emit error( ErrSocketRead );	// socket close error
 		return;
 	    }
 	    a = new QByteArray( nread );
 	    memcpy( a->data(), buf, nread );
 	}
+
     } else {					// data to be read
+
 #if defined(QSOCKET_DEBUG)
 	qDebug( "QSocket: sn_read: %d incoming bytes", nbytes );
 #endif
@@ -1022,7 +1027,7 @@ void QSocket::sn_read()
 	    qWarning( "QSocket::sn_read: Read error" );
 #endif
 	    delete a;
-	    emit error( ErrSocketRead );			// socket read error
+	    emit error( ErrSocketRead );	// socket read error
 	}
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
