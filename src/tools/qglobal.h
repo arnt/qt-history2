@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#118 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#119 $
 **
 ** Global type declarations and definitions
 **
@@ -40,6 +40,7 @@
 //   AIX	- AIX Unix
 //   UNIXWARE	- SCO UnixWare
 //   GNU	- GNU Hurd
+//   DGUX	- DG Unix
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
@@ -89,6 +90,8 @@
 #define _OS_UNIXWARE_
 #elif defined(__GNU__)
 #define _OS_GNU_
+#elif defined(DGUX)
+#define _OS_DGUX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
