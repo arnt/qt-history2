@@ -347,7 +347,7 @@ void QIconDragItem::setData( const QByteArray &d )
 
   If you want to offer the data in other mime-types too, derive a class from this
   and implement the needed encoding and decoding here.
-  
+
   An example, how to implement this, is in the QtFileIconView example
   (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
 */
@@ -1652,45 +1652,29 @@ void QIconViewItem::calcTmpText()
   If you want to have drag shapes drawn, you have to do quite a bit more and
   complex things:
 
-  ########### HAS TO BE UPDATED - NOT VALID ANYMORE
-  
   The first part is starting drags:
-  If you want to reimplement DnD in the QIconView, because you need some
-  extended functionality, you normally will not use QIconDrag as dragobject for your
-  items. But you should derive your drag object from QIconDrag. This derived class
-  (let's call it MyIconDrag), should contain for each iconview item, which should be
-  dragged, a QIconDragItem. But again, as this drag item contains the data of
-  an item, you may use a class derived from QIconDragItem (let's call it MyIconDragItem)
-  and not directly QIconDragItem.
-  So you implement MyIconDrag which contains a list of MyIconDragItems. See
-  the documentation of QIconDrag and QIconDragItem for more information.
+  If you want to use extended DnD in the QIconView, you should use QIconDrag
+  (or a derived class from that) as dragobject and in dragObject() create such
+  an object and return it. Before returning it, fill it there with QIconDragItems. 
+  Normally such a drag should offer data of each selected item. So in dragObject() 
+  you should iterate over all items, create for each selected item a QIconDragItem and 
+  append this with QIconDrag::append() to the QIconDrag object. With 
+  QIconDragItem::setData() you can set the data of each item which should be dragged. 
+  If you want to offer the data in additional mime-types, it's the best to use
+  a class derived from QIconDrag which implements additional encoding and 
+  decoding functions. 
 
-  Finally, you need to reimplement QIconView::dragObject(). This method is called
-  by QIconView to get the drag object when starting a drag. In this method
-  you have to create and return an instance of MyIconDrag which contains a list of
-  MyIconDragItems (normally one MyIconDragItem for each selected item
-  in the iconview).
-
-  Now, when a drag enters the iconview, you should know following:
-  If the entered drag is known (the drag object is a class derived from
-  QIconDrag) we also know the coordinates of the icons which are
-  dragged around. So, we can draw drag shapes of the dragged items.
-  For that some stuff has to be initialized. So, when a drag enters, the
-  iconview calls QIconView::initDragEnter(). Reimplement this method
-  to do your initialization. For more information about that, see the
-  documentation of QIconView::initDragEnter().
-
-  Finally you should connect to the QIconView::dropped() signal, which is
-  emitted when a drag is dropped onto the viewport of the iconview.
-  If it's allowed to drop onto iconview items, you should reimplement
-  QIconViewItem::dropped() in your iconview item subclass, as this method
-  is called when a drag is dropped onto an iconview item.
-
+  Now, when a drag enters the iconview, there is not much todo. Just connect to 
+  the dropped() signal and reimplement QIconViewItem::dropped() and
+  QIconViewItem::acceptDrop(). The only special thing in this case is the
+  second argument in the dropped() signal and in QIconViewItem::dropped().
+  Fur further details about that look at the documentation of these signal/method.
+  
   For an example implementation of the complex Drag'n'Drop stuff look at the
   qfileiconview example (qt/examples/qfileiconview)
 
   Finally, see also QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
-      QIconViewItem::acceptDrop() and QIconViewItem::dropped()
+  QIconViewItem::acceptDrop() and QIconViewItem::dropped()
 */
 
 /*! \enum QIconView::ResizeMode
