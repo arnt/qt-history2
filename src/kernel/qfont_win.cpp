@@ -565,6 +565,9 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
     HFONT hfont;
 
+    if ( (fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)) )
+       fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
+
     QT_WA( {
 	memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirect( &lf );
