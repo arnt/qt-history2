@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#290 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#291 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1551,7 +1551,7 @@ void QFileDialog::init()
 
     d->splitter = new QSplitter( this );
 
-    d->stack = new QWidgetStack( d->splitter ? d->splitter :  this , "files and more files" );
+    d->stack = new QWidgetStack( d->splitter, "files and more files" );
 
     files = new QFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
@@ -1700,7 +1700,7 @@ void QFileDialog::init()
 
     QHBoxLayout * h;
 
-    d->preview = new QWidgetStack( d->splitter ? d->splitter : this );
+    d->preview = new QWidgetStack( d->splitter );
 	
     d->infoPreviewWidget = new QWidget( d->preview );
     d->contentsPreviewWidget = new QWidget( d->preview );
@@ -3649,9 +3649,54 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     } else {
 	QFileDialogPrivate::File * i = 0;
 	QFileDialogPrivate::MCItem *i2 = 0;
-	i = new QFileDialogPrivate::File( d, &inf, files );
-	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
+	if ( sortFilesBy == QDir::Unsorted ) {
+	    i = new QFileDialogPrivate::File( d, &inf, files );
+	    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	} else {
+	    QListViewItemIterator it( files );	
+	    QListViewItem *after = it.current();
+
+	    bool iterate = TRUE;
+	    if ( it.current() ) {
+		if ( inf.isDir() ) {
+		    if ( !( ( QFileDialogPrivate::File * )it.current() )->info.isDir() ) {
+			after = 0;
+			iterate = FALSE;
+		    }
+		} else {
+		    for ( ; it.current() && 
+			      ( ( QFileDialogPrivate::File * )it.current() )->info.isDir() ; ++it)
+			after = it.current();
+		}
+	    }
+	    
+	    if ( iterate ) { 	
+		for ( ; it.current(); ++it ) {
+		    after = it.current();
+		    if ( inf.isDir() && !( ( QFileDialogPrivate::File * )it.current() )->info.isDir() &&
+			 after ) {
+			QListViewItemIterator i( after );
+			--i;
+			if ( i.current() )
+			    after = i.current();
+			break;
+		    }
+		    if ( QUrlInfo::greaterThan( inf, 
+						( ( QFileDialogPrivate::File * )it.current() )->info,
+						sortFilesBy ) )
+			break;
+		}
+	    }
+	    
+	    i = new QFileDialogPrivate::File( d, &inf, files, after );
+	    if ( after )
+		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, 
+						     ( ( QFileDialogPrivate::File * )after )->i );
+	    else
+		i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	}
+	
 	if ( d->mode == ExistingFiles && inf.isDir() ) {
 	    i->setSelectable( FALSE );
 	    i2->setSelectable( FALSE );
