@@ -2338,8 +2338,8 @@ void QWSServer::openKeyboard()
 	QString spec = *k;
 	int colon=spec.find(':');
 	if ( colon>=0 ) {
-	    type = spec.left(colon-1);
-	    device = spec.mid(colon);
+	    type = spec.left(colon);
+	    device = spec.mid(colon+1);
 	} else {
 	    type = spec;
 	}
@@ -2349,8 +2349,8 @@ void QWSServer::openKeyboard()
 #else
     int colon=keyboards.find(':');
     if ( colon>=0 ) {
-	type = keyboards.left(colon-1);
-	device = keyboards.mid(colon);
+	type = keyboards.left(colon);
+	device = keyboards.mid(colon+1);
     } else {
 	type = keyboards;
     }
