@@ -6,6 +6,16 @@
 default values for particular instances. In this chapter we'll explain
 how to use the value editors, but first we'll briefly describe the
 Choose a Pixmap dialog since this is used by many of the value editors. 
+Note that all value editors are invoked using the same techniques:
+either double click the widget or right click the widget and click the
+<guimenuitem>Edit</guimenuitem> menu item on the pop up menu. If you
+click <guibutton>Apply</guibutton> in any of the value editor dialogs
+the settings are applied to the widget in the form. If you want to
+revert your changes you can either change the settings in the value
+editor dialog, or, close the dialog and click the
+<guibutton>Undo</guibutton> toolbar button (or press
+<keycap>Ctrl+Z</keycap>). If you undo too much you can always click
+<guibutton>Redo</guibutton> (or press <keycap>Ctrl+Y</keycap>).
 </para>
 
 <sect1 id="sharedpixmaps">
@@ -54,7 +64,7 @@ Inline', then click \ok.
 \img[listbox]
 </figure>
 This value editor allows us to hard-code list items. We can always
-change them in code at runtime. A list item consists of some text or a
+change them in code. A list item consists of some text or a
 pixmap or both. Item's are added by clicking the <guibutton>New
 Item</guibutton> button and deleted by clicking <guibutton>Delete
 Item</guibutton>. The order of items can be changed by clicking an item
@@ -64,14 +74,6 @@ the selected item. If you want a pixmap click the ellipsis
 Pixmap dialog. You can either choose one of the pixmaps shown or click
 <guibutton>Add</guibutton> to add one from somewhere in your filesystem.
 To remove a pixmap click the item, then click the scissors button. 
-</para>
-<para>
-You can see how the list will look on the form by clicking
-<guibutton>Apply</guibutton>. If you want to revert all your changes
-after you've applied them click \ok (or <guibutton>Cancel</guibutton>)
-then press <keycap>Ctrl+Z</keycap> (undo).
-</para>
-<para>
 The same value editor is used for list boxes and combo boxes.
 </para>
 </sect1>
@@ -80,7 +82,43 @@ The same value editor is used for list boxes and combo boxes.
 <sect1 id="listviewtreeview">
 <title>ListView (Tree View) </title>
 <para>
-
+<figure>
+<title>Edit List View Dialog</title>
+\img[listview]
+</figure>
+This editor allows us to hard-code columns and list items. We can
+change the list view dynamically in code. A list
+view consists of one or more columns of data. The first column may have
+a tree structure with items having sub-items and so on. The dialog
+consists of two tabs, the Items tab where we can add, edit and delete
+items and move them within the list view, and the Columns tab where we
+name the columns we require.
+</para>
+<para>
+We'll describe the Columns tab first. To add a new column click the
+<guibutton>New Column</guibutton> button and enter a name in the Text
+line edit. You can add a pixmap to the column by clicking the ellipsis
+(<guibutton>...</guibutton>) button and choosing a pixmap from the
+Choose a Pixmap dialog. The scissors button is used to delete the
+pixmap, and the blue up and down arrow buttons are used to move the
+highlighted column up and down in the column list. 
+</para>
+<para>
+The Items tab is used to add items. To add a top-level item click the
+<guibutton>New Item</guibutton> button. To add a sub-item click the item
+that you want to be the sub-item's <emphasis>parent</emphasis> then click
+<guibutton>New Subitem</guibutton>. The Text line edit is used to enter
+the item's text. Since there may be more than one column the Column spin
+box is used to choose which column the text you enter will go into.
+Items can also have pixmaps which are added by clicking the ellipsis
+button and choosing a pixmap and deleted by clicking the scissors
+button. Items and sub-items can be deleted by clicking them, then
+clicking the <guibutton>Delete Item</guibutton> button. The up and down
+blue arrow buttons  move the selected item up and down amongst the other
+items with the same parent. The right and left blue arrow buttons are
+used to move an item up and down in the hierarchy, i.e. to make a
+sub-item into a top-level item click the sub-item then click the left
+blue arrow button.  
 </para>
 </sect1>
 
@@ -88,15 +126,59 @@ The same value editor is used for list boxes and combo boxes.
 <sect1 id="textedit">
 <title>TextEdit </title>
 <para>
-This widget is a multi-line editor (replacing <classname>QMultiLineEdit</classname>),
-which can also display rich text
+<figure>
+<title>Text Dialog</title>
+\img[textedit]
+</figure>
+This widget is a multi-line editor (replacing
+<classname>QMultiLineEdit</classname>), which can display either plain
+text or rich text. The dialog presents a text edit in plain text mode.
+You can enter rich text by using HTML tags and attributes, for example,
+<programlisting>
+&lt;h2&gt;Text Edit&lt;/h2&gt;
+&lt;p align="center"&gt;
+The Text Edit widget supports &lt;b&gt;rich&lt;/b&gt; 
+&lt;font color="ff0000"&gt;text&lt;/font&gt;.&lt;/p&gt;
+</programlisting>
+Block level tags like headings, aligned paragraphs, ordered and
+unordered lists are all available. Inline tags like bold, italic, big,
+small and font are also supported. Tables, hypertext links and images
+may also be used.
+Full information on the tags and attributes that Text Edit supports is
+given in the online <ulink
+url="http://doc.trolltech.com/qstylesheet.html">QStyleSheet</>
+documentation.
 </para>
 </sect1>
 
 <sect1 id="table">
 <title>Table </title>
 <para>
-
+<figure>
+<title>Edit Table Dialog</title>
+\img[table]
+</figure>
+This dialog is used to set up the characteristics of the table; it
+is not a value editor. The Edit Table dialog is used to specify how many
+columns and rows the table should have and to label the rows and
+columns. All these characteristics can be changed in code. The left hand
+part of the dialog shows a preview of the table, the right hand part
+contains two tabs, the Columns tab and the Rows tab. Columns are
+added by clicking the <guibutton>New Column</guibutton> button. A column
+may have a textual label entered in the Label line edit and a pixmap.
+The pixmap is inserted by clicking the ellipsis button and choosing the
+pixmap you want. You can delete the pixmap by clicking the scissors
+button. The columns can be reordered by clicking a column in the column
+list and then clicking the blue up and down arrow buttons. To delete a
+column click it in the column list then click <guibutton>Delete
+Column</guibutton>.
+</para>
+<para>
+The Rows tab is used to add rows. It works on the same basis as the
+columns tab. Click <guibutton>New Row</guibutton> to add a row and
+change its label in the Label line edit. Rows can also have a pixmap and
+may be reordered in exactly the same way as columns. The contents of
+cells must be inserted through code.
 </para>
 </sect1>
 
@@ -104,7 +186,18 @@ which can also display rich text
 <sect1 id="iconview">
 <title>IconView </title>
 <para>
-
+<figure>
+<title>Edit Iconview Dialog</title>
+\img[iconview]
+</figure>
+This dialog is used to add labelled icons to an icon view. New items are
+added by clicking <guibutton>New Item</guibutton>, then typing in their
+text in the Text line edit. You can either use the default icon or
+choose your own by clicking the ellipsis button to invoke the Choose a
+Pixmap dialog. The pixmap can be deleted by clicking the scissors
+button, and the item can be delected by clicking it then clicking
+<guibutton>Delete Item</guibutton>. Items can also be added and deleted
+in code.
 </para>
 </sect1>
 </chapter>
