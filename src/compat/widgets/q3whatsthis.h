@@ -28,8 +28,8 @@ public:
     ~Q3WhatsThis();
     bool eventFilter(QObject *, QEvent *);
 
-    static inline void enterWhatsThisMode();
-    static inline bool inWhatsThisMode();
+    static inline void enterWhatsThisMode() { QWhatsThis::enterWhatsThisMode(); }
+    static inline bool inWhatsThisMode() { return QWhatsThis::inWhatsThisMode(); }
 
     static inline void add(QWidget *w, const QString &s) { QWhatsThis::add(w, s); }
     static inline void remove(QWidget *w) { QWhatsThis::remove(w); }
