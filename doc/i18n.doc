@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.20 1999/05/10 19:17:01 warwick Exp $
+** $Id: i18n.doc,v 1.21 1999/06/14 12:31:35 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -99,7 +99,8 @@ in the following stages:
 	If you disable the const char* to QString automatic conversion by
 	compiling your software with the macro QT_NO_CAST_ASCII defined,
 	you'll be very likely to catch any strings you are missing. See
-	QString::fromLatin1() for more details.
+	QString::fromLatin1() for more details. Doing this can make
+        programming uncomfortable though.
 	</p>
  <li><b>Use QTranslator to load translated text.</b>
 	<p>
@@ -212,7 +213,9 @@ be too concerned with the actual limitations.
     <dd><ul>
      <li>Locale-oriented fonts and input methods.  Qt hides these and
 	    provides Unicode input and output.
-     <li>Filesystem conventions such as UTF-8 are under development
+     <li>Filesystem conventions such as
+            <a href=http://www.ietf.org/rfc/rfc2279.txt>UTF-8</a>
+            are under development
 	    in some Unix variants.  All Qt file functions allow Unicode,
 	    but currently converts all filenames to Latin-1.
      <li>File I/O defaults to Latin-1, with Unicode options in QTextStream.
@@ -325,7 +328,9 @@ with new developments like the True Type font servers
 <a href=ftp://sunsite.unc.edu/pub/Linux/X11/fonts>xfstt</a>,
 and
 <a href=http://hawk.ise.chuo-u.ac.jp/student/person/tshiozak/x-tt/>x-tt</a>,
-as well as UTF-8 (a Unicode encoding) filenames such as with the
+as well as
+<a href=http://www.ietf.org/rfc/rfc2279.txt>UTF-8</a>
+(a Unicode encoding) filenames such as with the
 <a href=http://www.sun.com/software/white-papers/wp-unicode/>Unicode
 support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
 
