@@ -1041,6 +1041,7 @@ bool QDataTable::insertCurrent()
 	    refresh();
 	    QSqlIndex idx = sqlCursor()->primaryIndex();
 	    findBuffer( idx, d->lastAt );
+	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 	    emit cursorChanged( QSql::Insert );
 	}
 	break;
@@ -1196,7 +1197,7 @@ bool QDataTable::deleteCurrent()
 	    refresh();
 	    emit cursorChanged( QSql::Delete );
 	    setCurrentCell( currentRow(), currentColumn() );
-	    updateRow( currentRow() );
+	    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
 	    verticalHeader()->repaint(); // get rid of trailing garbage
 	}
 	break;
@@ -1800,8 +1801,6 @@ void QDataTable::setSize( QSqlCursor* sql )
  		 this, SLOT( sliderReleased() ) );
 	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadNextPage() ) );
-	verticalScrollBar()->setValue( 0 );
-	setNumRows( 0 );
 	loadNextPage();
     }
 }
