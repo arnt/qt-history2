@@ -61,6 +61,7 @@ public:
     EditorInterface *editorInterface() const { return iFace; }
 
     void setFocus();
+    int numLines() const;
 
 protected:
     void closeEvent( QCloseEvent *e );

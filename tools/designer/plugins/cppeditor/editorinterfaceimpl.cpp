@@ -195,6 +195,9 @@ bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, 
 
 void EditorInterfaceImpl::gotoLine( int line )
 {
+    if ( !viewManager || !viewManager->currentView() )
+	return;
+    ( (CppEditor*)viewManager->currentView() )->setCursorPosition( line, 0 );
 }
 
 void EditorInterfaceImpl::indent()
@@ -289,4 +292,11 @@ void EditorInterfaceImpl::update()
 {
     if ( dIface )
 	dIface->updateFunctionList();
+}
+
+int EditorInterfaceImpl::numLines() const
+{
+    if ( !viewManager || !viewManager->currentView() )
+	return;
+    return ( (CppEditor*)viewManager->currentView() )->paragraphs();
 }

@@ -101,8 +101,10 @@
 #include <qvbox.h>
 #include <qtimer.h>
 #include <qtooltip.h>
+#include <qspinbox.h>
 #include "finddialog.h"
 #include "replacedialog.h"
+#include "gotolinedialog.h"
 
 static int forms = 0;
 
@@ -361,7 +363,7 @@ void MainWindow::setupEditActions()
     actionEditLower->setEnabled( FALSE );
 
     actionEditAccels = new QAction( tr( "Check Accelerators" ), QPixmap(),
-				    tr( "Check Accele&rators" ), CTRL + Key_R, this, 0 );
+				    tr( "Check Accele&rators" ), ALT + Key_R, this, 0 );
     actionEditAccels->setStatusTip( tr("Checks if the accelerators used in the form are unique") );
     actionEditAccels->setWhatsThis( tr("<b>Check Accelerators</b>"
 				       "<p>Checks if the accelerators used in the form are unique. If this "
@@ -499,7 +501,7 @@ void MainWindow::setupSerachActions()
     actionSearchReplace->setEnabled( FALSE );
 
     actionSearchGotoLine = new QAction( tr( "Goto Line" ), QIconSet(),
-				    tr( "&Goto Line..." ), CTRL + Key_G, this, 0 );
+				    tr( "&Goto Line..." ), ALT + Key_G, this, 0 );
     connect( actionSearchGotoLine, SIGNAL( activated() ), this, SLOT( searchGotoLine() ) );
     actionSearchGotoLine->setEnabled( FALSE );
 
@@ -2145,6 +2147,17 @@ void MainWindow::searchReplace()
 
 void MainWindow::searchGotoLine()
 {
+    if ( !workSpace()->activeWindow() ||
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	 return;
+
+    if ( !gotoLineDialog )
+	gotoLineDialog = new GotoLineDialog( this, 0, FALSE );
+    gotoLineDialog->show();
+    gotoLineDialog->raise();
+    gotoLineDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface() );
+    gotoLineDialog->spinLine->setFocus();
+    gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)workSpace()->activeWindow() )->numLines() - 1 );
 }
 
 QObjectList *MainWindow::previewProject()

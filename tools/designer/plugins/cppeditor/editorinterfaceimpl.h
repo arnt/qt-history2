@@ -63,6 +63,8 @@ public:
     void setError( int line );
     void setModified( bool m );
 
+    int numLines() const;
+
 protected:
     bool eventFilter( QObject*, QEvent* );
 

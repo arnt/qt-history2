@@ -57,6 +57,7 @@ struct EditorInterface : public QUnknownInterface
     virtual void setError( int line ) = 0;
     virtual void readSettings() = 0;
     virtual void setModified( bool m ) = 0;
+    virtual int numLines() const = 0;
 
 };
 

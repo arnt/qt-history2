@@ -196,3 +196,8 @@ void SourceEditor::setFocus()
     if ( editor )
 	editor->setFocus();
 }
+
+int SourceEditor::numLines() const
+{
+    iFace->numLines();
+}

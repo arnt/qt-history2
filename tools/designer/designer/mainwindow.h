@@ -61,6 +61,7 @@ class QTimer;
 class FindDialog;
 struct DesignerProject;
 class ReplaceDialog;
+class GotoLineDialog;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -371,6 +372,7 @@ private:
     QLineEdit *incrementalSearch;
     QGuardedPtr<FindDialog> findDialog;
     QGuardedPtr<ReplaceDialog> replaceDialog;
+    QGuardedPtr<GotoLineDialog> gotoLineDialog;
 
 };
 
