@@ -46,7 +46,7 @@ QM_EXPORT_OPENGL inline const char *qGLVersion() {
  * never double buffer and *can* be acclerated. If set to 1 (the default)
  * it will always double buffer. Unlike before the value of this macro does
  * not upset binary compatability either. */
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 # define QMAC_OPENGL_DOUBLEBUFFER 0
 #endif
 #endif

@@ -1082,7 +1082,7 @@ int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs
     if (from > delta)
 	from = delta;
 
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
     if (sl == 1)
 	return findRev(*(const QChar*) s.d->data, from, cs);
 #endif
@@ -1525,7 +1525,6 @@ int QString::indexOf(const QRegExp& rx, int from) const { return rx.search(*this
 */
 
 int QString::lastIndexOf(const QRegExp& rx, int from) const { return rx.searchRev(*this, from); }
-
 
 /*!
     \overload

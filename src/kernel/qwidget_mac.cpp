@@ -588,7 +588,7 @@ bool qt_mac_is_macdrawer(QWidget *w)
 
 bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/Mac can use this..
 {
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
     if(!qt_mac_is_macdrawer(w))
 	return FALSE;
     OptionBits bits;
@@ -717,7 +717,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
 #endif
@@ -856,7 +856,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent((WindowRef)id, (WindowRef)parentWidget()->handle());
 #endif
@@ -908,7 +908,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	ReshapeCustomWindow((WindowPtr)hd);
 	if(qt_mac_is_macsheet(this))
 	    QMacSavedPortInfo::setAlphaTransparency(this, 0.85);
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    SetDrawerOffsets((WindowPtr)hd, 0.0, 25.0);
 #endif
@@ -1440,7 +1440,7 @@ void QWidget::showWindow()
 	SizeWindow((WindowPtr)hd, width(), height(), 1);
 	if(qt_mac_is_macsheet(this))
 	    qt_event_request_showsheet(this);
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
 #endif
@@ -1458,7 +1458,7 @@ void QWidget::hideWindow()
 
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
-#ifndef MACOSX_101
+#if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    CloseDrawer((WindowPtr)hd, true);
 	else

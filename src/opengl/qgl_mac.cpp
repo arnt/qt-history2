@@ -238,7 +238,7 @@ void QGLContext::fixBufferRect()
 	QWidget *w = (QWidget *)d->paintDevice;
 	QRegion clp = w->clippedRegion();
 	if(clp.isEmpty()) {
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 	    if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
 		aglDisable((AGLContext)cx, AGL_CLIP_REGION);
 #endif
@@ -258,7 +258,7 @@ void QGLContext::fixBufferRect()
 		d->oldR = QRect(offs[0], offs[1], offs[2], offs[3]);
 		aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	    }
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 	    if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
 		aglEnable((AGLContext)cx, AGL_CLIP_REGION);
 	    aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle());

@@ -1612,13 +1612,10 @@ if [ "$CFG_CUPS" != "no" ]; then
 fi
 
 #mac
+QT_MAC_VERSION=
 if [ "$PLATFORM_MAC" = "yes" ]; then
     mactests=$relpath/config.tests/mac
-    if $mactests/mac102.test "$OPT_VERBOSE" "$relpath" "$outpath"; then
-	D_FLAGS="$D_FLAGS MACOSX_102" #10.2 (Jaguar)
-    else
-	D_FLAGS="$D_FLAGS MACOSX_101" #10.1
-    fi
+    QT_MAC_VERSION=`$mactests/mac_version.test "$OPT_VERBOSE" "$relpath" "$outpath"`
 fi
 
 # x11
@@ -2963,6 +2960,9 @@ if [ "$CFG_LARGEFILE" = "yes" ]; then
     echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
 fi
 
+if [ ! -z "$QT_MAC_VERSION" ]; then
+    echo "#define QT_MACOSX_VERSION  ${QT_MAC_VERSION}  /*from config.tests*/" >>$outpath/include/qconfig.h.new
+fi
 
 ## find excluded styles and add this to $QCONFIG_FLAGS
 

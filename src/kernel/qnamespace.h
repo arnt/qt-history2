@@ -690,11 +690,16 @@ public:
 
 	//Version numbers
 	MV_9            = 0x0001,
-	MV_10_DOT_1     = 0x0002,
-	MV_10_DOT_2     = 0x0003,
+	MV_10_DOT_0     = 0x0002,
+	MV_10_DOT_1     = 0x0003,
+	MV_10_DOT_2     = 0x0004,
+	MV_10_DOT_3     = 0x0005,
 
 	//Code names
-	MV_JAGUAR       = MV_10_DOT_2
+	MV_CHEETAH      = MV_10_DOT_0,
+	MV_PUMA         = MV_10_DOT_1,
+	MV_JAGUAR       = MV_10_DOT_2,
+	MV_PANTHER      = MV_10_DOT_3
     };
 
     // documented in qapplication_win.cpp

@@ -141,10 +141,15 @@ int qMacVersion()
 	first = FALSE;
 	long gestalt_version;
 	if(Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
-	    if(gestalt_version >= 0x1020 && gestalt_version < 0x1030)
+	    if(gestalt_version >= 0x1030 && gestalt_version < 0x1040)
+		macver = Qt::MV_10_DOT_3;
+	    else if(gestalt_version >= 0x1020 && gestalt_version < 0x1030)
 		macver = Qt::MV_10_DOT_2;
 	    else if(gestalt_version >= 0x1010 && gestalt_version < 0x1020)
 		macver = Qt::MV_10_DOT_1;
+	    else if(gestalt_version >= 0x1000 && gestalt_version < 0x1010)
+		macver = Qt::MV_10_DOT_0;
+
 	}
     }
     return macver;

@@ -1415,7 +1415,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.max = sldr->maxValue();
 	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
 	ttdi.attributes |= kThemeTrackShowThumb;
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 	if(flags & Style_HasFocus)
 	    ttdi.attributes |= kThemeTrackHasFocus;
 #endif
@@ -1739,7 +1739,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	ttdi.kind = kThemeMediumSlider;
 	if(qt_aqua_size_constrain(w) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallSlider;
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 	if(w->hasFocus())
 	    ttdi.attributes |= kThemeTrackHasFocus;
 #endif

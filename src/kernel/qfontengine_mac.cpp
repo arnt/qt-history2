@@ -318,7 +318,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading | kATSLineFractDisable;
 
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
     if(qMacVersion() == Qt::MV_10_DOT_1)
 	layopts |= kATSLineIsDisplayOnly;
     else
@@ -384,7 +384,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	    ret = 1;
     } else if((task & WIDTH) && !ret) {
 	ATSUTextMeasurement left, right, bottom, top;
-#if defined(MACOSX_102)
+#if QT_MACOSX_VERSION >= 0x1020
 	if(qMacVersion() >= Qt::MV_10_DOT_2)
 	    ATSUGetUnjustifiedBounds(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 				     &left, &right, &bottom, &top);

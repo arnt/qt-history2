@@ -248,7 +248,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 	    (*w) = NULL;
 	return wpc;
     }
-#if !defined(QMAC_NO_FAKECURSOR) && !defined(MACOSX_102)
+#if !defined(QMAC_NO_FAKECURSOR) && QT_MACOSX_VERSION < 0x1020
     if(wp && !unhandled_dialogs.contains(wp)) {
 	QWidget *tmp_w = QWidget::find((WId)wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
@@ -2460,7 +2460,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		} else {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 		    bool by_accel = FALSE;
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 		    UInt32 command_flags;
 		    if(!GetEventParameter(event, kEventParamMenuContext, typeUInt32,
 					  NULL, sizeof(command_flags), NULL, &command_flags)) {
@@ -2861,8 +2861,14 @@ bool QApplication::qt_mac_apply_settings()
 
     \value MV_Unknown Version cannot be detected
     \value MV_9 Mac OS 9
+    \value MV_10_DOT_3 Mac OS X 10.3
     \value MV_10_DOT_2 Mac OS X 10.2
     \value MV_10_DOT_1 Mac OS X 10.1
-    \value MV_JAGUAR 10.2 Codename
+    \value MV_10_DOT_0 Mac OS X 10.0
+
+    \value MV_CHEETAH 10.0 Codename
+    \value MV_PUMA    10.1 Codename
+    \value MV_JAGUAR  10.2 Codename
+    \value MV_PANTHER 10.3 Codename
 */
 

@@ -23,7 +23,7 @@
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 //# define QMAC_USE_BIG_CURSOR_API
 #endif
 #ifdef QMAC_USE_BIG_CURSOR_API
@@ -73,7 +73,7 @@ public:
 	    setAcceptDrops(TRUE); //bleh
 	    hide();
 	    int attribs = kWindowNoShadowAttribute;
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
 	    attribs |= kWindowIgnoreClicksAttribute;
 #endif
 	    ChangeWindowAttributes((WindowPtr)handle(), attribs, 0);

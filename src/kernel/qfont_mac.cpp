@@ -118,7 +118,7 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
     Boolean boldBool = ((def->weight == QFont::Bold) ? true : false);
     values[arr] = &boldBool;
     arr++;
-#ifdef MACOSX_102
+#if QT_MACOSX_VERSION >= 0x1020
     CGAffineTransform tf = CGAffineTransformIdentity;
     if(def->stretch != 100) {
 	tf = CGAffineTransformMakeScale(def->stretch/100, 1);
