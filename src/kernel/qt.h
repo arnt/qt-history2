@@ -208,6 +208,9 @@
 #include <qtable.h>
 #include <qmultilineedit.h>
 #include <qtabwidget.h>
+#ifdef QT_NEW_RICHTEXT
+#include "qtextedit.h"
+#endif
 #include "qtextview.h"
 #include <qbig5codec.h>
 #include <qtextstream.h>
