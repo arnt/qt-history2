@@ -1393,6 +1393,9 @@ void QPrintDialog::printerOrFileSelected( int id )
 		cur += '/';
 	    if ( cur.left( home.length() ) != home )
 		cur = home;
+#ifdef Q_WS_X11
+	    cur += "print.ps";
+#endif
 	    d->fileName->setText( cur );
 	    d->fileName->setCursorPosition( cur.length() );
 	    d->fileName->selectAll();
