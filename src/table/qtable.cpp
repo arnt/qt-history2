@@ -886,6 +886,9 @@ QSize QTableItem::sizeHint() const
 
 void QTableItem::setSpan( int rs, int cs )
 {
+    if ( rs == rowspan && cs == colspan )
+	return;
+
     if ( !table()->d->hasRowSpan )
 	table()->d->hasRowSpan = rs > 1;
     if ( !table()->d->hasColSpan )
@@ -4473,6 +4476,7 @@ int QTable::numCols() const
 void QTable::saveContents( QPtrVector<QTableItem> &tmp,
 			   QPtrVector<QTable::TableWidget> &tmp2)
 {
+    int nCols = numCols();
     if ( editRow != -1 && editCol != -1 )
 	endEdit( editRow, editCol, FALSE, edMode != Editing );
     tmp.resize( contents.size() );
@@ -4480,7 +4484,7 @@ void QTable::saveContents( QPtrVector<QTableItem> &tmp,
     int i;
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *item = contents[ i ];
-	if ( item && indexOf( item->row(), item->col() ) == i )
+	if ( item && ( item->row() * nCols) + item->col() == i )
 	    tmp.insert( i, item );
 	else
 	    tmp.insert( i, 0 );
@@ -4488,7 +4492,7 @@ void QTable::saveContents( QPtrVector<QTableItem> &tmp,
     for ( i = 0; i < (int)tmp2.size(); ++i ) {
 	QWidget *w = widgets[ i ];
 	if ( w )
-	    tmp2.insert( i, new TableWidget( w, i / numCols(), i % numCols() ) );
+	    tmp2.insert( i, new TableWidget( w, i / nCols, i % nCols ) );
 	else
 	    tmp2.insert( i, 0 );
     }
@@ -4531,14 +4535,16 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 			      QPtrVector<QTable::TableWidget> &tmp2 )
 {
     int i;
+    int nCols = numCols();
     for ( i = 0; i < (int)tmp.size(); ++i ) {
 	QTableItem *it = tmp[ i ];
 	if ( it ) {
-	    int idx =indexOf( it->row(), it->col() );
+	    int idx = ( it->row() * nCols ) + it->col();
 	    if ( (uint)idx < contents.size() &&
-		 it->row() == idx /  numCols() && it->col() == idx % numCols() ) {
+		 it->row() == idx /  nCols && it->col() == idx % nCols ) {
 		contents.insert( idx, it );
-		it->setSpan( it->rowSpan(), it->colSpan() );
+		if ( it->rowSpan() > 1 || it->colSpan() > 1 )
+		    it->setSpan( it->rowSpan(), it->colSpan() );
 	    } else {
 		delete it;
 	    }
@@ -4547,9 +4553,9 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
     for ( i = 0; i < (int)tmp2.size(); ++i ) {
 	TableWidget *w = tmp2[ i ];
 	if ( w ) {
-	    int idx = indexOf( w->row, w->col );
+	    int idx = ( w->row * nCols ) + w->col;
 	    if ( (uint)idx < widgets.size() &&
-		 w->row == idx / numCols() && w->col == idx % numCols() )
+		 w->row == idx / nCols && w->col == idx % nCols )
 		widgets.insert( idx, w->wid );
 	    else
 		delete w->wid;
