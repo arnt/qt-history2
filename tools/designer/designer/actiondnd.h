@@ -5,6 +5,8 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 
+class QDesignerPopupMenu;
+
 class QDesignerToolBar : public QToolBar
 {
     Q_OBJECT
@@ -25,7 +27,8 @@ protected:
 class QDesignerMenuBar : public QMenuBar
 {
     Q_OBJECT
-
+    friend class QDesignerPopupMenu;
+    
 public:
     QDesignerMenuBar( QWidget *mw );
 
@@ -36,7 +39,7 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
-    
+
 };
 
 class QDesignerPopupMenu : public QPopupMenu
@@ -53,7 +56,7 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
-    
+
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "actiondnd.h"
 #include <qaction.h>
+#include <qmainwindow.h>
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw )
@@ -119,6 +120,8 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     a->addTo( this );
     if ( indexOf( 42 ) != -1 )
 	removeItem( 42 );
+    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups(); 
+    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 ); 
 }
 
 #endif
