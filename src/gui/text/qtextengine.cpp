@@ -1055,7 +1055,7 @@ QFont QTextEngine::font(const QScriptItem &si) const
 {
     QFontPrivate *fp = fnt;
     if (block.docHandle()) {
-        QTextFormat f = formats()->format(formatIndex(&si));
+        QTextFormat f = format(&si);
         Q_ASSERT(f.isCharFormat());
         QTextCharFormat chf = f.toCharFormat();
         QFont fnt = chf.font();
@@ -1349,7 +1349,7 @@ int QTextEngine::formatIndex(const QScriptItem *si) const
 }
 
 
-QTextFormat QTextEngine::format(const QScriptItem *si)
+QTextFormat QTextEngine::format(const QScriptItem *si) const
 {
     QTextFormat format = formats()->format(formatIndex(si));
     if (specialData) {
