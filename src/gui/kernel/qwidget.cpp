@@ -52,6 +52,25 @@
 #define q q_func()
 
 
+QWidgetPrivate::QWidgetPrivate() :
+        QObjectPrivate(), extra(0), focus_child(0), actions(0)
+#ifndef QT_NO_LAYOUT
+        ,layout(0)
+#endif
+        ,paintEngine(0)
+        ,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
+#ifndef QT_NO_PALETTE
+        ,fg_role(QPalette::Foreground)
+        ,bg_role(QPalette::Background)
+#endif
+#if defined(Q_WS_X11)
+        ,xinfo(0)
+#endif
+{
+    isWidget = true;
+    high_attributes[0] = 0;
+}
+
 
 QWidgetPrivate::~QWidgetPrivate()
 {

@@ -37,6 +37,38 @@ static const int GUARDED_SIGNAL = INT_MIN;
 static int DIRECT_CONNECTION_ONLY = 0;
 
 
+QObjectPrivate::QObjectPrivate()
+    :
+    thread(0),
+    connections(0),
+    senders(0),
+        polished(0),
+    objectName(0),
+    ownObjectName(false)
+{
+    // QObjectData initialization
+    q_ptr = 0;
+    parent = 0;                                // no parent yet. It is set by setParent()
+    isWidget = false;                                 // assume not a widget object
+    pendTimer = false;                                // no timers yet
+    blockSig = false;                              // not blocking signals
+    wasDeleted = false;                               // double-delete catcher
+    hasPostedEvents = false;
+#ifdef QT_COMPAT
+    hasPostedChildInsertedEvents = false;
+#endif
+}
+
+QObjectPrivate::~QObjectPrivate()
+{
+#ifndef QT_NO_USERDATA
+    while (!userData.isEmpty())
+        delete userData.takeFirst();
+#endif
+}
+
+
+
 /*!\internal
  */
 void QMetaObject::addGuard(QObject **ptr)
