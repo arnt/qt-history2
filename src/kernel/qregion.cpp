@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#22 $
 **
 ** Implementation of QRegion class
 **
@@ -14,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#22 $");
 
 
 /*!
@@ -64,6 +64,18 @@ QByteArray QRegion::QRegionData::unused_shared;	// ### remove in 2.0
 /*****************************************************************************
   QRegion member functions
  *****************************************************************************/
+
+/*!
+  Constructs a rectangular or elliptic region.
+
+  \a x, \a y, \a w, and \a h specify the region rectangle.
+  \a t is the region type: QRegion::Rectangle (default) or
+  QRegion::Ellipse.
+*/
+QRegion::QRegion( int x, int y, int w, int h, RegionType t )
+{
+    *this = QRegion(QRect(x,y,w,h),t);
+}
 
 /*!
   Detaches from shared region data to makes sure that this region is the
