@@ -3149,6 +3149,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	    selections.append( currentSel );
 	    if ( !isRowSelection( selectionMode() ) ) {
 		currentSel->init( tmpRow, tmpCol );
+		currentSel->expandTo( tmpRow, tmpCol );
 	    } else {
 		currentSel->init( tmpRow, 0 );
 		currentSel->expandTo( tmpRow, numCols() - 1 );
@@ -3172,6 +3173,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 		selections.append( currentSel );
 		if ( !isRowSelection( selectionMode() ) ) {
 		    currentSel->init( tmpRow, tmpCol );
+		    currentSel->expandTo( tmpRow, tmpCol );
 		} else {
 		    currentSel->init( tmpRow, 0 );
 		    currentSel->expandTo( tmpRow, numCols() - 1 );
