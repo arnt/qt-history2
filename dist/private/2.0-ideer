@@ -1,5 +1,24 @@
+NYE KLASSER
+-----------
+
 - en fin Interator-klasse som alle de andre interatorene arver
+
+
+DESIGNENDRINGER
+---------------
 
 - hacke QLineEdit til å kunne arves
 
+
+FUNKSJONSENDRINGER
+------------------
+
 - QTableView const: cellWidth, cellHeight, totalWidth,  totalHeight, .....
+
+
+AKSESSENDRINGER
+---------------
+
+- QObject::eventFilter protected overalt
+
+- QObject::parent public
