@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#21 $
 **
 ** Implementation of QFileDialog class
 **
@@ -189,10 +189,10 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
   #### todo
 */
 
-const QNetworkOperation *QNetworkProtocol::get( const QCString &d )
+const QNetworkOperation *QNetworkProtocol::get()
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
-						    QString::fromLatin1( d ),
+						    QString::null,
 						    QString::null, QString::null );
     addOperation( res );
     return res;
