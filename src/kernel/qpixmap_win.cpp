@@ -733,6 +733,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     int	  ncols	   = image.numColors();
+#ifndef Q_OS_TEMP
     char *bmi_data = new char[sizeof(BITMAPINFO)+sizeof(QRgb)*ncols];
     BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
@@ -750,6 +751,46 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
     bool doAlloc = ( QApplication::colorSpec() == QApplication::CustomColor
 		     && QColor::hPal() );
+#else
+    int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD) * (d > 8 ? 3 : ncols);
+    char *bmi_data        = new char[bmi_data_len];
+    memset( bmi_data, 0, bmi_data_len );
+    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
+    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
+    bmh->biWidth	  = w;
+    bmh->biHeight	  = -h;
+    bmh->biPlanes	  = 1;
+    bmh->biBitCount	  = d;
+    bmh->biCompression    = (d > 8 ? BI_BITFIELDS : BI_RGB);
+    bmh->biSizeImage	  = image.numBytes();
+    bmh->biXPelsPerMeter  = 0;
+    bmh->biYPelsPerMeter  = 0;
+    bmh->biClrUsed	  = ncols;
+    bmh->biClrImportant	  = ncols;
+    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+    bool doAlloc = ( QApplication::colorSpec() == QApplication::CustomColor
+		     && QColor::hPal() );
+    if ( ncols == 0 && d > 8 ) {
+	switch( data->d ) {
+	case 16:
+	    coltbl[0] = 0x00F800; // R 1111100000000000 (5)
+	    coltbl[1] = 0x0007E0; // G 0000011111100000 (6)
+	    coltbl[2] = 0x00001F; // B 0000000000011111 (5)
+	    break;
+	case 32:
+	    coltbl[0] = 0xff0000; // R
+	    coltbl[1] = 0x00ff00; // G
+	    coltbl[2] = 0x0000ff; // B
+	    break;
+	default:
+#ifdef QT_CHECK_RANGE
+	    qWarning( "QPixmap::convertFromImage(): Unsupported bitmap depth (%d)", d );
+#endif
+	    break;
+	}
+    }
+#endif
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
 	QRgb	 c = image.color(i);
