@@ -507,14 +507,14 @@ private:
 
     bool parse (QTextContainer* current, QTextNode* lastChild, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos);
-    bool eat(const QString& doc, int& pos, const QChar& c);
-    bool lookAhead(const QString& doc, int& pos, const QChar& c);
+    bool eat(const QString& doc, int& pos, QChar c);
+    bool lookAhead(const QString& doc, int& pos, QChar c);
     QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr, bool& emptyTag);
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
     QString parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord);
-    bool hasPrefix(const QString& doc, int pos, const QChar& c);
+    bool hasPrefix(const QString& doc, int pos, QChar c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
     const QStyleSheet* sheet_;

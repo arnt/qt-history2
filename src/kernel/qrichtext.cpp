@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#8 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -2027,7 +2027,7 @@ bool QTextDocument::eatSpace(const QString& doc, int& pos)
     return old_pos < pos;
 }
 
-bool QTextDocument::eat(const QString& doc, int& pos, const QChar& c)
+bool QTextDocument::eat(const QString& doc, int& pos, QChar c)
 {
     valid &= (bool) (doc[pos] == c);
     if (valid)
@@ -2035,7 +2035,7 @@ bool QTextDocument::eat(const QString& doc, int& pos, const QChar& c)
     return valid;
 }
 
-bool QTextDocument::lookAhead(const QString& doc, int& pos, const QChar& c)
+bool QTextDocument::lookAhead(const QString& doc, int& pos, QChar c)
 {
     return (doc[pos] == c);
 }
@@ -2145,7 +2145,7 @@ QString QTextDocument::parsePlainText(const QString& doc, int& pos, bool pre, bo
 }
 
 
-bool QTextDocument::hasPrefix(const QString& doc, int pos, const QChar& c)
+bool QTextDocument::hasPrefix(const QString& doc, int pos, QChar c)
 {
     return valid && doc[pos] ==c;
 }

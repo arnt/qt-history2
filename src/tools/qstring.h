@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#116 $
+** $Id: //depot/qt/main/src/tools/qstring.h#117 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -127,24 +127,24 @@ public:
     ushort unicode() const { return (rw << 8) | cl; }
     operator char() const { return latin1(); }
 
-    friend int operator==( const QChar& c1, const QChar& c2 );
-    friend int operator==( const QChar& c1, char c );
-    friend int operator==( char ch, const QChar& c );
-    friend int operator!=( const QChar& c1, const QChar& c2 );
-    friend int operator!=( const QChar& c, char ch );
-    friend int operator!=( char ch, const QChar& c );
-    friend int operator<=( const QChar& c1, const QChar& c2 );
-    friend int operator<=( const QChar& c1, char c );
-    friend int operator<=( char ch, const QChar& c );
-    friend int operator>=( const QChar& c1, const QChar& c2 );
-    friend int operator>=( const QChar& c, char ch );
-    friend int operator>=( char ch, const QChar& c );
-    friend int operator<( const QChar& c1, const QChar& c2 );
-    friend int operator<( const QChar& c1, char c );
-    friend int operator<( char ch, const QChar& c );
-    friend int operator>( const QChar& c1, const QChar& c2 );
-    friend int operator>( const QChar& c, char ch );
-    friend int operator>( char ch, const QChar& c );
+    friend int operator==( QChar c1, QChar c2 );
+    friend int operator==( QChar c1, char c );
+    friend int operator==( char ch, QChar c );
+    friend int operator!=( QChar c1, QChar c2 );
+    friend int operator!=( QChar c, char ch );
+    friend int operator!=( char ch, QChar c );
+    friend int operator<=( QChar c1, QChar c2 );
+    friend int operator<=( QChar c1, char c );
+    friend int operator<=( char ch, QChar c );
+    friend int operator>=( QChar c1, QChar c2 );
+    friend int operator>=( QChar c, char ch );
+    friend int operator>=( char ch, QChar c );
+    friend int operator<( QChar c1, QChar c2 );
+    friend int operator<( QChar c1, char c );
+    friend int operator<( char ch, QChar c );
+    friend int operator>( QChar c1, QChar c2 );
+    friend int operator>( QChar c, char ch );
+    friend int operator>( char ch, QChar c );
 
     uchar& cell() { return cl; }
     uchar& row() { return rw; }
@@ -167,49 +167,49 @@ private:
 #endif
 };
 
-inline int operator==( char ch, const QChar& c )
+inline int operator==( char ch, QChar c )
 {
     return ch == c.cl && !c.rw;
 }
 
-inline int operator==( const QChar& c, char ch )
+inline int operator==( QChar c, char ch )
 {
     return ch == c.cl && !c.rw;
 }
 
-inline int operator==( const QChar& c1, const QChar& c2 )
+inline int operator==( QChar c1, QChar c2 )
 {
     return c1.cl == c2.cl
 	&& c1.rw == c2.rw;
 }
 
-inline int operator!=( const QChar& c1, const QChar& c2 )
+inline int operator!=( QChar c1, QChar c2 )
 {
     return c1.cl != c2.cl
 	|| c1.rw != c2.rw;
 }
 
-inline int operator!=( char ch, const QChar& c )
+inline int operator!=( char ch, QChar c )
 {
     return ch != c.cl || c.rw;
 }
 
-inline int operator!=( const QChar& c, char ch )
+inline int operator!=( QChar c, char ch )
 {
     return ch != c.cl || c.rw;
 }
 
-inline int operator<=( const QChar& c, char ch )
+inline int operator<=( QChar c, char ch )
 {
     return !(ch < c.cl || c.rw);
 }
 
-inline int operator<=( char ch, const QChar& c )
+inline int operator<=( char ch, QChar c )
 {
     return ch <= c.cl || c.rw;
 }
 
-inline int operator<=( const QChar& c1, const QChar& c2 )
+inline int operator<=( QChar c1, QChar c2 )
 {
     return c1.rw > c2.rw
 	? FALSE
@@ -218,15 +218,15 @@ inline int operator<=( const QChar& c1, const QChar& c2 )
 	    : c1.cl <= c2.cl;
 }
 
-inline int operator>=( const QChar& c, char ch ) { return ch <= c; }
-inline int operator>=( char ch, const QChar& c ) { return c <= ch; }
-inline int operator>=( const QChar& c1, const QChar& c2 ) { return c2 <= c1; }
-inline int operator<( const QChar& c, char ch ) { return !(ch<=c); }
-inline int operator<( char ch, const QChar& c ) { return !(c<=ch); }
-inline int operator<( const QChar& c1, const QChar& c2 ) { return !(c2<=c1); }
-inline int operator>( const QChar& c, char ch ) { return !(ch>=c); }
-inline int operator>( char ch, const QChar& c ) { return !(c>=ch); }
-inline int operator>( const QChar& c1, const QChar& c2 ) { return !(c2>=c1); }
+inline int operator>=( QChar c, char ch ) { return ch <= c; }
+inline int operator>=( char ch, QChar c ) { return c <= ch; }
+inline int operator>=( QChar c1, QChar c2 ) { return c2 <= c1; }
+inline int operator<( QChar c, char ch ) { return !(ch<=c); }
+inline int operator<( char ch, QChar c ) { return !(c<=ch); }
+inline int operator<( QChar c1, QChar c2 ) { return !(c2<=c1); }
+inline int operator>( QChar c, char ch ) { return !(ch>=c); }
+inline int operator>( char ch, QChar c ) { return !(c>=ch); }
+inline int operator>( QChar c1, QChar c2 ) { return !(c2>=c1); }
 
 
 
@@ -234,7 +234,7 @@ class Q_EXPORT QString
 {
 public:
     QString();					// make null string
-    QString( const QChar& );			// one-char string
+    QString( QChar );			// one-char string
     QString( const QString & );			// impl-shared copy
     QString( const QByteArray& );		// deep copy
     QString( const QChar* unicode, uint length ); // deep copy
@@ -355,13 +355,13 @@ public:
     QString    &operator+=( char c );
 
     // Your compiler is smart enough to use the const one if it can.
-    const QChar& at( uint i ) const
+    QChar at( uint i ) const
 	{ return i<d->len ? d->unicode[i] : QChar::null; }
-    const QChar& operator[]( int i ) const { return at((uint)i); }
+    QChar operator[]( int i ) const { return at((uint)i); }
     QCharRef at( uint i );
     QCharRef operator[]( int i );
 
-    const QChar& constref(uint i) const
+    QChar constref(uint i) const
 	{ return at(i); }
     QChar& ref(uint i)
 	{ // Optimized for easy-inlining by simple compilers.
@@ -445,14 +445,14 @@ public:
     // An operator= for each QChar cast constructor...
     QCharRef operator=(char c ) { s.ref(p)=c; return *this; }
     QCharRef operator=(uchar c ) { s.ref(p)=c; return *this; }
-    QCharRef operator=(const QChar& c ) { s.ref(p)=c; return *this; }
+    QCharRef operator=(QChar c ) { s.ref(p)=c; return *this; }
     QCharRef operator=(const QCharRef& c ) { s.ref(p)=c.unicode(); return *this; }
     QCharRef operator=(ushort rc ) { s.ref(p)=rc; return *this; }
     QCharRef operator=(short rc ) { s.ref(p)=rc; return *this; }
     QCharRef operator=(uint rc ) { s.ref(p)=rc; return *this; }
     QCharRef operator=(int rc ) { s.ref(p)=rc; return *this; }
 
-    operator const QChar& () const { return s.constref(p); }
+    operator QChar () const { return s.constref(p); }
 
     // each function...
     ushort unicode() const { return s.constref(p).unicode(); }

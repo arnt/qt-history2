@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#217 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#218 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13204,7 +13204,7 @@ static inline bool is_arabic(unsigned short x) {
 	    ((x >= 0xfe70) && (x <= 0xfeff)));
 }
 
-static inline bool is_neutral(const QChar &ch) {
+static inline bool is_neutral(QChar ch) {
     QChar::Direction dir = ch.direction();
     return ((dir == QChar::DirB) ||
 	    (dir == QChar::DirS) ||
@@ -13678,7 +13678,7 @@ void Q_EXPORT qt_qstring_stats()
 /*!
   Constructs a string containing the one character \a ch.
 */
-QString::QString( const QChar& ch )
+QString::QString( QChar ch )
 {
     d = new Data(new QChar[1],1,1);
     d->unicode[0] = ch;
@@ -15761,7 +15761,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar& QString::at( uint ) const
+  \fn QChar QString::at( uint ) const
 
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
@@ -15772,7 +15772,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn const QChar& QString::operator[](int) const
+  \fn QChar QString::operator[](int) const
 
   Returns the character at \a i, or QChar::null if \a i is beyond the
   length of the string. 
@@ -15796,7 +15796,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn QChar& QString::at( uint i )
+  \fn QCharRef QString::at( uint i )
   Returns a reference to the character at \a i, expanding
   the string with QChar::null if necessary.  The resulting reference
   can then be assigned to, or otherwise used immediately, but
