@@ -107,6 +107,10 @@
 #include "gotolinedialog.h"
 
 static int forms = 0;
+static bool mblockNewForms = FALSE;
+extern QMap<QWidget*, QString> *qwf_functions;
+extern QMap<QWidget*, QString> *qwf_forms;
+extern QString *qwf_language;
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -2170,17 +2174,86 @@ QObjectList *MainWindow::previewProject()
     }
     if ( !ok )
 	editDatabaseConnections();
-    // ### TODO: syntax checking of all forms
 
     QApplication::setOverrideCursor( WaitCursor );
     for ( cit = conns.begin(); cit != conns.end(); ++cit )
 	currentProject->openDatabase( *cit );
 #endif
 
+    delete qwf_functions;
+    qwf_functions = 0;
+    delete qwf_forms;
+    qwf_forms = 0;
+    delete qwf_language;
+    qwf_language = new QString( currentProject->language() );
+
     QStringList forms = currentProject->uiFiles();
-    QObjectList *l = new QObjectList;
     for ( QStringList::Iterator it = forms.begin(); it != forms.end(); ++it ) {
 	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it ) );
+
+	if ( w ) {
+	    w->hide();
+	    if ( programPluginManager ) {
+		QString lang = currentProject->language();
+		ProgramInterface *piface = (ProgramInterface*)programPluginManager->queryInterface( lang );
+		if ( piface ) {
+		    QStringList error;
+		    QValueList<int> line;
+		    if ( qwf_functions ) {
+			QMap<QWidget*, QString>::Iterator it = qwf_functions->find( w );
+			if ( it == qwf_functions->end() )
+			    continue;
+			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
+			    oWindow->setErrorMessages( error, line );
+			    bool found = FALSE;
+			    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+			    QWidgetList windows = workspace->windowList();
+			    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+				if ( !w->inherits( "FormWindow" ) )
+				    continue;
+				FormWindow *fw = (FormWindow*)w;
+				if ( fw->project() != currentProject )
+				    continue;
+				if ( QString( fw->name() ) == QString( it.key()->name() ) ) {
+				    fw->setFocus();
+				    lastActiveFormWindow = fw;
+				    qApp->processEvents();
+				    editSource();
+				    eiface->setError( line[ 0 ] );
+				    found = TRUE;
+				    break;
+				}
+			    }
+			    if ( !found ) {
+				mblockNewForms = TRUE;
+				openFile( currentProject->makeAbsolute( *qwf_forms->find( it.key() ) ) );
+				qApp->processEvents(); // give all views the chance to get the formwindow
+				editSource();
+				eiface->setError( line[ 0 ] );
+				mblockNewForms = FALSE;
+			    }
+			    piface->release();
+			    QApplication::restoreOverrideCursor();
+			    eiface->release();
+			    return 0;
+			}
+		    }
+		}
+		piface->release();
+	    }
+	}
+    }
+
+    delete qwf_functions;
+    qwf_functions = 0;
+    delete qwf_forms;
+    qwf_forms = 0;
+    delete qwf_language;
+    qwf_language = 0;
+
+    QObjectList *l = new QObjectList;
+    for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
+	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ) );
 	if ( w ) {
 	    l->append( w );
 	    w->hide();
@@ -2877,8 +2950,12 @@ void MainWindow::insertFormWindow( FormWindow *fw )
     connect( fw, SIGNAL( modificationChanged( bool, FormWindow * ) ),
 	     this, SIGNAL( formModified( bool ) ) );
 
-    formlist()->addForm( fw );
-
+    if ( !mblockNewForms ) {
+	formlist()->addForm( fw );
+    } else {
+	fw->setProject( currentProject );
+	currentProject->setFormWindow( fw->fileName(), fw );
+    }
     fw->show();
     fw->currentToolChanged();
     if ( fw->caption().isEmpty() && qstrlen( fw->name() )  )
@@ -4346,7 +4423,7 @@ void MainWindow::doSlotsChanged()
 
 void MainWindow::updateFunctionList()
 {
-    if ( !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+    if ( !workSpace()->activeWindow() || !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
 	return;
     ( (SourceEditor*)workSpace()->activeWindow() )->save();
     hierarchyView->functionList()->refreshFunctions();

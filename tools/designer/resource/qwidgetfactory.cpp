@@ -90,6 +90,9 @@ static QInterfaceManager<InterpreterInterface> *interpreterInterfaceManager = 0;
 static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
 static QInterfaceManager<WidgetInterface> *widgetInterfaceManager = 0;
 
+QMap<QWidget*, QString> *qwf_functions = 0;
+QMap<QWidget*, QString> *qwf_forms = 0;
+QString *qwf_language = 0;
 
 /*!
   \class QWidgetFactory
@@ -146,7 +149,11 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
     if ( !f.open( IO_ReadOnly ) )
 	return 0;
 
-    return QWidgetFactory::create( &f, connector, parent, name );
+    QWidget *w = QWidgetFactory::create( &f, connector, parent, name );
+    if ( !qwf_forms )
+	qwf_forms = new QMap<QWidget*, QString>;
+    qwf_forms->insert( w, uiFile );
+    return w;
 }
 
 /*!  \overload
@@ -1405,8 +1412,16 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 		}
 		QString s;
 		QString body = n.firstChild().toText().data();
-		s += "function " + name + body + "\n";
+		s += "function " + name + "\n" + body + "\n\n";
 		funcs->functions += s;
+		if ( qwf_language && *qwf_language == *it ) {
+		    if ( !qwf_functions )
+			qwf_functions = new QMap<QWidget*, QString>;
+		    if ( !qwf_forms )
+			qwf_forms = new QMap<QWidget*, QString>;
+		    (*(qwf_functions))[ toplevel ].append( s );
+		}
+		
 	    }
 	}
 	n = n.nextSibling().toElement();

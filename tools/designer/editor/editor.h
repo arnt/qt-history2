@@ -65,6 +65,7 @@ protected:
     ParenMatcher *parenMatcher;
     QString filename;
     Config *cfg;
+    bool hasError;
 
 };
 

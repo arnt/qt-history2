@@ -27,7 +27,7 @@
 #include <qapplication.h>
 
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )
-    : QTextEdit( parent, name )
+    : QTextEdit( parent, name ), hasError( FALSE )
 {
     document()->setFormatter( new QTextFormatterBreakInWords );
     if ( !fn.isEmpty() )
@@ -45,12 +45,12 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
 
 void Editor::cursorPosChanged( QTextCursor *c )
 {
-    bool r = document()->removeSelection( Error );
-    r = document()->removeSelection( Step ) || r;
-    if ( parenMatcher->match( c ) || r )
+    if ( parenMatcher->match( c ) )
 	repaintChanged();
-    if ( r )
+    if ( hasError ) {
 	emit clearErrorMarker();
+	hasError = FALSE;
+    }
 }
 
 void Editor::load( const QString &fn )
@@ -87,8 +87,9 @@ void Editor::setErrorSelection( int line )
     c.setParag( p );
     c.setIndex( 0 );
     document()->setSelectionStart( Error, &c );
-    c.gotoEnd();
+    c.gotoLineEnd();
     document()->setSelectionEnd( Error, &c );
+    hasError = TRUE;
 }
 
 void Editor::setStepSelection( int line )
@@ -100,7 +101,7 @@ void Editor::setStepSelection( int line )
     c.setParag( p );
     c.setIndex( 0 );
     document()->setSelectionStart( Step, &c );
-    c.gotoEnd();
+    c.gotoLineEnd();
     document()->setSelectionEnd( Step, &c );
 }
 

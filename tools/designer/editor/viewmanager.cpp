@@ -96,7 +96,6 @@ void ViewManager::resizeEvent( QResizeEvent *e )
 
 void ViewManager::clearErrorMarker()
 {
-    qDebug( "here" );
     QTextParag *p = ( (Editor*)curView )->document()->firstParag();
     while ( p ) {
 	if ( p->extraData() )

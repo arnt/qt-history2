@@ -2215,7 +2215,12 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 	return;
     ts << makeIndent( indent ) << "<functions>" << endl;
     ++indent;
-    for ( QMap<QString, QString>::Iterator it = functionBodies.begin(); it != functionBodies.end(); ++it ) {
+
+    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
+    QValueList<MetaDataBase::Slot>::Iterator sit = slotList.begin();
+    for ( ; sit != slotList.end(); ++sit ) {
+	MetaDataBase::Slot slot = *sit;
+	QMap<QString, QString>::Iterator it = functionBodies.find( MetaDataBase::normalizeSlot( (*sit).slot ) );
 	ts << makeIndent( indent ) << "<function name=\"" << entitize( it.key() ) << "\" ";
 	ts << ">" << entitize( *it ) << "</function>" << endl;
     }
