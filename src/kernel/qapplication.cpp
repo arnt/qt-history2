@@ -876,7 +876,6 @@ void QApplication::initialize( int argc, char **argv )
 }
 
 
-
 /*****************************************************************************
   Functions returning the active popup and modal widgets.
  *****************************************************************************/
@@ -1114,7 +1113,7 @@ QStyle& QApplication::style()
 
     QPalette app_pal_copy ( *app_pal );
     app_style->polish( *app_pal );
-	
+
     if ( is_app_running && !is_app_closing && (*app_pal != app_pal_copy) ) {
 	QEvent e( QEvent::ApplicationPaletteChange );
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
