@@ -63,6 +63,7 @@ class QTestContainer : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( QString unicode READ unicode WRITE setUnicode )
+    Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( bool boolval READ boolval WRITE setBoolval )
     Q_PROPERTY( int number READ number WRITE setNumber )
     Q_PROPERTY( uint posnumber READ posnumber WRITE setPosnumber )
@@ -84,6 +85,7 @@ public:
 	: QObject( 0, "Test Container" )
     {
 	m_unicode = "unicode";
+	m_text = "c-string";
 	m_boolval = TRUE;
 	m_number = 42;
 	m_posnumber = UINT_MAX;
@@ -281,6 +283,9 @@ public:
     QString unicode() const { PROP(unicode) }
     void setUnicode( const QString &unicode ){ SET_PROP(unicode) }
 
+    QString text() const { PROP(text) }
+    void setText( const QString &text ){ SET_PROP(text) }
+
     bool boolval() const { PROP(boolval) }
     void setBoolval( bool boolval ) { SET_PROP(boolval) }
     
@@ -327,6 +332,9 @@ public slots:
 
     void unicodeChanged( const QString &unicode ) { m_unicode = unicode; }
     void unicodeRefSignal( QString &unicode ) { unicode = m_unicode; }
+
+    void textChanged( const QString &text ) { m_text = text; }
+    void textRefSignal( QString &text ) { text = m_text; }
 
     void boolvalChanged( bool boolval ) { m_boolval = boolval; }
     void boolvalRefSignal( bool &boolval ) { boolval = m_boolval; }
@@ -376,6 +384,7 @@ private:
     QAxObject *object;
 
     QString m_unicode;
+    QString m_text;
     bool m_boolval;
     int m_number;
     uint m_posnumber;

@@ -30,6 +30,7 @@ class QTestControl : public QWidget, public QAxBindable
 {
     Q_OBJECT
     Q_PROPERTY( QString unicode READ unicode WRITE setUnicode )
+    Q_PROPERTY( QCString text READ text WRITE setText )
     Q_PROPERTY( bool boolval READ boolval WRITE setBoolval )
     Q_PROPERTY( int number READ number WRITE setNumber )
     Q_PROPERTY( uint posnumber READ posnumber WRITE setPosnumber )
@@ -55,6 +56,9 @@ public:
 
     QString unicode() const { PROP(unicode) }
     void setUnicode( const QString &unicode ){ SET_PROP(unicode) }
+
+    QCString text() const { PROP(text) }
+    void setText( const QCString &text ){ SET_PROP(text) }
 
     bool boolval() const { PROP(boolval) }
     void setBoolval( bool boolval ) { SET_PROP(boolval) }
@@ -101,6 +105,11 @@ public slots:
     void setUnicodeSlot( const QString &unicode ) { SET_PROP_SLOT(unicode) }
     QString getAndSetUnicodeSlot( QString &unicode ) { GET_AND_SET(unicode, QString) }
     QString emitUnicodeRefSignal() { EMIT_REF(unicode, QString) }
+
+    QCString getTextSlot() const { GET_PROP_SLOT(text) }
+    void setTextSlot( const QCString &text ) { SET_PROP_SLOT(text) }
+    QCString getAndSetTextSlot( QCString &text ) { GET_AND_SET(text, QCString) }
+    QCString emitTextRefSignal() { EMIT_REF(text, QCString) }
 
     bool getBoolvalSlot() const { GET_PROP_SLOT(boolval) }
     void setBoolvalSlot( bool boolval ) { SET_PROP_SLOT(boolval) }
@@ -172,6 +181,9 @@ signals:
     void unicodeChanged( const QString& );
     void unicodeRefSignal( QString& );
 
+    void textChanged( const QCString& );
+    void textRefSignal( QCString& );
+
     void boolvalChanged( bool );
     void boolvalRefSignal( bool& );
 
@@ -214,6 +226,7 @@ signals:
 */
 private:
     QString m_unicode;
+    QCString m_text;
     bool m_boolval;
     int m_number;
     uint m_posnumber;
