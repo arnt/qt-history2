@@ -2560,8 +2560,6 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    for ( int i = 0; i < varc; ++i ) {
 		const QUParameter *param = slot->method->parameters + i + retoff;
 		VariantInit( arg + (varc-i-1) );
-		if ( param->inOut & QUParameter::Out )
-		    arg[varc-i-1].vt |= VT_BYREF;
 		QVariantToVARIANT( vars[i], arg[varc-i-1], param );
 	    }
 	    disptype = DISPATCH_METHOD;

@@ -911,11 +911,8 @@ static inline void makeReference( VARIANT &arg )
 bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 {
     bool byref = param && ( param->inOut & QUParameter::Out ) && ( param->inOut != QUParameter::Out );
-    if ( byref ) {
-	Q_ASSERT( arg.vt & VT_BYREF );
-	if ( arg.vt != VT_BYREF )
-	    VariantClear( &arg );
-    }
+    if ( arg.vt != VT_BYREF )
+	VariantClear( &arg );
 
     if ( param && !QUType::isEqual( param->type, obj->type ) && param->type->canConvertFrom( obj, obj->type ) )
 	param->type->convertFrom( obj, obj->type );
