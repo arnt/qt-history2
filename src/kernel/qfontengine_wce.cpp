@@ -304,6 +304,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
     int xo = x;
 
+    y -= ascent();
     if ( !(si->analysis.bidiLevel % 2) ) {
 	// hack to get symbol fonts working on Win95. See also QFontEngine constructor
 	bool haveOffsets = FALSE;
