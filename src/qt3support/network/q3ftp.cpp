@@ -829,7 +829,15 @@ bool Q3FtpPI::processReply()
 	    if ( replyCode[0]<0 || replyCode[0]>5 )
 		state = Failure;
 	    else
-		state = table[ replyCode[0] - 1 ];
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
+            {
+                // work around a crash on 64 bit gcc IRIX
+                State *t = (State *) table;
+                state = t[replyCode[0] - 1];
+            }
+#else
+            state = table[replyCode[0] - 1];
+#endif            
 	    break;
 	default:
 	    // ### spontaneous message
