@@ -1265,8 +1265,7 @@ void TrWindow::openFile( const QString& name )
 	    setEnabled( TRUE );
 	    slv->repaint();
 	    slv->viewport()->repaint();
-	    lv->repaint();
-	    lv->viewport()->repaint();
+	    lv->triggerUpdate();
 	    updateProgress();
 	    filename = name;
 	    dirty = FALSE;
