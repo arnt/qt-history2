@@ -99,6 +99,9 @@ struct QUrlOperatorPrivate
 
   Of course an implementation for the FTP protocol has to be registered for this example.
   There is an implementation of the FTP protocol in the Qt Network Extension Library.
+  You can use the function qInitNetworkProtocols() to register all network
+  protocols that are shipped with the Qt network extension (at the moment FTP
+  and HTTP are supported).
 
   For more information about the Qt Network Architecture see the <a href="network.html">Qt Network Documentation</a>.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qnetwork.cpp#5 $
+** $Id: //depot/qt/main/src/network/qnetwork.cpp#6 $
 **
 ** Implementation of qInitNetworkProtocols function.
 **
@@ -45,6 +45,14 @@
 #include "qftp.h"
 #include "qhttp.h"
 
+/*!
+  \relates QUrlOperator
+
+  This function registers the network protocols for FTP and HTTP. You have to
+  call this function before you use QUrlOperator for these protocols.
+
+  Include the header qnetwork.h if you want to use this function.
+*/
 void qInitNetworkProtocols()
 {
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
