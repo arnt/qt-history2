@@ -47,6 +47,11 @@
 #if defined(Q_CC_MSVC)
 #pragma warning(disable: 4273) // '_errno' : inconsistent dll linkage.  dllexport assumed
 #endif
+// PostgreSQL 7.2.x headers redefine errno (wrongly) without reason.
+// We try to work around by undefining system header macros.
+#if defined(errno)
+#undef errno
+#endif
 #include <catalog/pg_type.h>
 #if defined(Q_CC_MSVC)
 #pragma warning(default: 4273)
