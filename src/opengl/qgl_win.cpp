@@ -903,26 +903,29 @@ void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
   QGLWidget Win32/WGL-specific code
  *****************************************************************************/
 
-void QGLWidget::init( const QGLFormat& fmt, const QGLWidget* shareWidget )
+void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
 {
     glcx = 0;
     autoSwap = TRUE;
 
-    if ( shareWidget )
-	setContext( new QGLContext( fmt, this ), shareWidget->context() );
-    else
-	setContext( new QGLContext( fmt, this ) );
+    if ( !ctx->device() )
+	ctx->setDevice( this );
+
+    if ( shareWidget ) {
+	setContext( ctx, shareWidget->context() );
+    } else {
+	setContext( ctx );
+    }
     setBackgroundMode( NoBackground );
 
-    if ( isValid() && format().hasOverlay() ) {
+    if ( isValid() && context()->format().hasOverlay() ) {
 	olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
         if ( !olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
 	    delete olcx;
 	    olcx = 0;
 	    glcx->glFormat.setOverlay( FALSE );
 	}
-    }
-    else {
+    } else {
 	olcx = 0;
     }
 }

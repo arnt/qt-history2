@@ -129,11 +129,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 	if(deviceIsPixmap()) {
 	    QPixmap *pm = (QPixmap *)d->paintDevice;
 	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
-	    aglSetOffScreen(ctx, pm->width(), pm->height(), 
+	    aglSetOffScreen(ctx, pm->width(), pm->height(),
 			    GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
 #else
 #error "Not ready to handle that case, tror jeg!"
-#endif	    
+#endif
 	} else {
 	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
 	}
@@ -373,13 +373,13 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
   QGLWidget AGL-specific code
  *****************************************************************************/
 
-void QGLWidget::init(const QGLFormat& format, const QGLWidget* shareWidget)
+void QGLWidget::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
     slcx = glcx = 0;
     autoSwap = TRUE;
 
     gl_pix = NULL;
-    req_format = format;
+    req_format = ctx->format();
     pending_fix = 0;
 #if defined(QMAC_OPENGL_DOUBLEBUFFER)
     dblbuf = QMAC_OPENGL_DOUBLEBUFFER;
@@ -390,9 +390,9 @@ void QGLWidget::init(const QGLFormat& format, const QGLWidget* shareWidget)
     glcx_dblbuf = 2;
     clp_serial = 0;
     macInternalDoubleBuffer(FALSE); //just get things going
-    macInternalRecreateContext(format, shareWidget ? shareWidget->context() : NULL, FALSE);
+    macInternalRecreateContext(ctx, shareWidget ? shareWidget->context() : NULL, FALSE);
 
-    if(isValid() && this->format().hasOverlay()) {
+    if(isValid() && context()->format().hasOverlay()) {
 	olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
         if(!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
 	    delete olcx;
@@ -419,8 +419,8 @@ void QGLWidget::reparent(QWidget* parent, WFlags f, const QPoint& p,
 
 void QGLWidget::macWidgetChangedWindow()
 {
-    if(!macInternalDoubleBuffer(FALSE)) 
-	macInternalRecreateContext(req_format);
+    if(!macInternalDoubleBuffer(FALSE))
+	macInternalRecreateContext(new QGLContext(req_format, this));
 }
 
 void QGLWidget::setMouseTracking(bool enable)
@@ -533,7 +533,7 @@ void QGLWidget::setColormap(const QGLColormap &)
 }
 
 void QGLWidget::cleanupColormaps()
-{	
+{
 }
 
 bool QGLWidget::macInternalDoubleBuffer(bool fix)
@@ -570,14 +570,14 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 	    dblbuf = (rgn != QRegion(rct));
 	}
     }
-    if(glcx_dblbuf != dblbuf) 
+    if(glcx_dblbuf != dblbuf)
 	need_fix = TRUE;
     else if(dblbuf && (!gl_pix || gl_pix->size() != size()))
 	need_fix = TRUE;
     if(pending_fix || need_fix) {
-	if(fix) 
-	    macInternalRecreateContext(req_format);
-	else 
+	if(fix)
+	    macInternalRecreateContext(new QGLContext(req_format,this));
+	else
 	    pending_fix = TRUE;
     }
 #else
@@ -586,11 +586,13 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
     return (bool)dblbuf;
 }
 
-void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLContext *share_ctx,
+void QGLWidget::macInternalRecreateContext(QGLContext *ctx, const QGLContext *share_ctx,
 					   bool update)
 {
     if(QApplication::closingDown())
 	return;
+    if (!ctx->device())
+	ctx->setDevice(this);
     if(glcx && QMacBlockingFunction::blocking()) { //nah, let's do it "later"
 	if(!dblbuf) {
 	    glcx->fixBufferRect();
@@ -598,7 +600,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 	    aglSetDrawable((AGLContext)glcx->cx, NULL);
 	    gl_pix->resize(size());
 	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
-	    aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
+	    aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(),
 			    GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
 	}
 	pending_fix = TRUE;
@@ -616,7 +618,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 		aglSetDrawable((AGLContext)glcx->cx, NULL);
 		gl_pix->resize(w, h);
 		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
-		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
+		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(),
 				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
 	    }
 	} else {
@@ -626,19 +628,19 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 	    }
 	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
 	    if(oldcx)
-		qgl_delete_d(this); 
-	    setContext(new QGLContext(format, gl_pix), share_ctx ? share_ctx : slcx, FALSE);
+		qgl_delete_d(this);
+	    setContext(ctx, share_ctx ? share_ctx : slcx, FALSE);
 	}
     } else {
 	setEraseColor(black);
 	if(oldcx)
-	    qgl_delete_d(this); 
-	setContext(new QGLContext(format, this), share_ctx ? share_ctx : slcx, FALSE);
+	    qgl_delete_d(this);
+	setContext(ctx, share_ctx ? share_ctx : slcx, FALSE);
 	glcx->fixBufferRect();
     }
-    if(update) 
+    if(update)
 	repaint();
-    if(oldcx && oldcx != glcx) 
+    if(oldcx && oldcx != glcx)
 	delete oldcx;
 }
 

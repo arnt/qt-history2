@@ -111,7 +111,7 @@ public:
 	NoStencilBuffer         = StencilBuffer << 16,
 	NoStereoBuffers         = StereoBuffers << 16,
 	IndirectRendering       = DirectRendering << 16,
-	NoOverlay       	= HasOverlay << 16
+	NoOverlay		= HasOverlay << 16
     };
 };
 
@@ -123,43 +123,44 @@ public:
     QGLFormat();
     QGLFormat( int options, int plane = 0 );
 
-    bool    		doubleBuffer() const;
-    void    		setDoubleBuffer( bool enable );
-    bool    		depth() const;
-    void    		setDepth( bool enable );
-    bool    		rgba() const;
-    void    		setRgba( bool enable );
-    bool    		alpha() const;
-    void    		setAlpha( bool enable );
-    bool    		accum() const;
-    void    		setAccum( bool enable );
-    bool    		stencil() const;
-    void    		setStencil( bool enable );
-    bool    		stereo() const;
-    void    		setStereo( bool enable );
-    bool    		directRendering() const;
-    void    		setDirectRendering( bool enable );
-    bool    		hasOverlay() const;
-    void    		setOverlay( bool enable );
+    bool doubleBuffer() const;
+    void setDoubleBuffer( bool enable );
+    bool depth() const;
+    void setDepth( bool enable );
+    bool rgba() const;
+    void setRgba( bool enable );
+    bool alpha() const;
+    void setAlpha( bool enable );
+    bool accum() const;
+    void setAccum( bool enable );
+    bool stencil() const;
+    void setStencil( bool enable );
+    bool stereo() const;
+    void setStereo( bool enable );
+    bool directRendering() const;
+    void setDirectRendering( bool enable );
+    bool hasOverlay() const;
+    void setOverlay( bool enable );
 
-    int			plane() const;
-    void		setPlane( int plane );
+    int plane() const;
+    void setPlane( int plane );
 
-    void		setOption( FormatOption opt );
-    bool		testOption( FormatOption opt ) const;
+    void setOption( FormatOption opt );
+    bool testOption( FormatOption opt ) const;
 
-    static QGLFormat	defaultFormat();
-    static void		setDefaultFormat( const QGLFormat& f );
+    static QGLFormat defaultFormat();
+    static void setDefaultFormat( const QGLFormat& f );
 
-    static QGLFormat	defaultOverlayFormat();
-    static void		setDefaultOverlayFormat( const QGLFormat& f );
+    static QGLFormat defaultOverlayFormat();
+    static void setDefaultOverlayFormat( const QGLFormat& f );
 
-    static bool		hasOpenGL();
-    static bool		hasOpenGLOverlays();
+    static bool hasOpenGL();
+    static bool hasOpenGLOverlays();
 
-    friend QM_EXPORT_OPENGL bool operator==( const QGLFormat&, const QGLFormat& );
-    friend QM_EXPORT_OPENGL bool operator!=( const QGLFormat&, const QGLFormat& );
-
+    friend QM_EXPORT_OPENGL bool operator==( const QGLFormat&,
+					     const QGLFormat& );
+    friend QM_EXPORT_OPENGL bool operator!=( const QGLFormat&,
+					     const QGLFormat& );
 private:
     uint opts;
     int pln;
@@ -173,82 +174,83 @@ class QM_EXPORT_OPENGL QGLContext : public QGL
 {
 public:
     QGLContext( const QGLFormat& format, QPaintDevice* device );
+    QGLContext( const QGLFormat& format );
     virtual ~QGLContext();
 
-    virtual bool	create( const QGLContext* shareContext = 0 );
-    bool		isValid() const;
-    bool		isSharing() const;
-    virtual void	reset();
+    virtual bool create( const QGLContext* shareContext = 0 );
+    bool isValid() const;
+    bool isSharing() const;
+    virtual void reset();
 
-    QGLFormat		format() const;
-    QGLFormat		requestedFormat() const;
-    virtual void	setFormat( const QGLFormat& format );
+    QGLFormat format() const;
+    QGLFormat requestedFormat() const;
+    virtual void setFormat( const QGLFormat& format );
 
-    virtual void	makeCurrent();
-    virtual void	swapBuffers() const;
+    virtual void makeCurrent();
+    virtual void swapBuffers() const;
 
-    QPaintDevice*	device() const;
+    QPaintDevice* device() const;
 
-    QColor		overlayTransparentColor() const;
+    QColor overlayTransparentColor() const;
 
-    static const QGLContext*	currentContext();
+    static const QGLContext* currentContext();
 
 protected:
-    virtual bool	chooseContext( const QGLContext* shareContext = 0 );
-    virtual void	doneCurrent(); // ### 4.0: make this public - needed for multithreading stuff
+    virtual bool chooseContext( const QGLContext* shareContext = 0 );
+    virtual void doneCurrent(); // ### 4.0: make this public - needed for multithreading stuff
 
 #if defined(Q_WS_WIN)
-    virtual int		choosePixelFormat( void* pfd, HDC pdc );
+    virtual int choosePixelFormat( void* pfd, HDC pdc );
 #endif
 #if defined(Q_WS_X11)
-    virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
-    virtual void*	chooseVisual();
+    virtual void* tryVisual( const QGLFormat& f, int bufDepth = 1 );
+    virtual void* chooseVisual();
 #endif
 #if defined(Q_WS_MAC)
-    virtual void*	chooseMacVisual(GDHandle);
+    virtual void* chooseMacVisual(GDHandle);
 #endif
 
-    bool		deviceIsPixmap() const;
-    bool		windowCreated() const;
-    void		setWindowCreated( bool on );
-    bool		initialized() const;
-    void		setInitialized( bool on );
-    void 		generateFontDisplayLists( const QFont & fnt, int listBase );
+    bool deviceIsPixmap() const;
+    bool windowCreated() const;
+    void setWindowCreated( bool on );
+    bool initialized() const;
+    void setInitialized( bool on );
+    void generateFontDisplayLists( const QFont & fnt, int listBase );
 
-    uint		colorIndex( const QColor& c ) const;
-    void 		setValid( bool valid );
-    
+    uint colorIndex( const QColor& c ) const;
+    void setValid( bool valid );
+    void setDevice( QPaintDevice *pDev );
+
 protected:
 #if  defined(Q_WS_WIN)
-    HGLRC		rc;
-    HDC			dc;
+    HGLRC rc;
+    HDC dc;
     WId	win;
-    int			pixelFormatId;
-    QGLCmap*		cmap;
-#elif defined(Q_WS_X11)
-    void*		vi;
-    void*		cx;
-    Q_UINT32		gpm;
-#elif defined(Q_WS_MAC)
-    void*               vi;
-    void*		cx;
+    int pixelFormatId;
+    QGLCmap* cmap;
+#elif defined(Q_WS_X11) || defined(Q_WS_MAC)
+    void* vi;
+    void* cx;
+#if defined(Q_WS_X11)
+    Q_UINT32 gpm;
 #endif
-
-    QGLFormat		glFormat;
-    QGLFormat		reqFormat;
+#endif
+    QGLFormat glFormat;
+    QGLFormat reqFormat;
     static QGLContext*	currentCtx;
 
 private:
+    void init( QPaintDevice *dev = 0 );
     class Private {
     public:
-	bool		valid;
-	bool		sharing;
-	bool		initDone;
-	bool		crWin;
-	QPaintDevice*	paintDevice;
-	QColor		transpColor;
+	bool valid;
+	bool sharing;
+	bool initDone;
+	bool crWin;
+	QPaintDevice* paintDevice;
+	QColor transpColor;
 #ifdef Q_WS_MAC
-	QRect             oldR;
+	QRect oldR;
 #endif
     };
     Private* d;
@@ -261,7 +263,7 @@ private:
 private:	// Disabled copy constructor and operator=
     QGLContext() {}
     QGLContext( const QGLContext& ) {}
-    QGLContext&		operator=( const QGLContext& ) { return *this; }
+    QGLContext& operator=( const QGLContext& ) { return *this; }
 };
 
 
@@ -273,110 +275,114 @@ class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 public:
     QGLWidget( QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
+    QGLWidget( QGLContext *context, QWidget* parent=0, const char* name=0,
+	       const QGLWidget* shareWidget = 0, WFlags f=0 );
     QGLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
     ~QGLWidget();
 
-    void		qglColor( const QColor& c ) const;
-    void		qglClearColor( const QColor& c ) const;
+    void qglColor( const QColor& c ) const;
+    void qglClearColor( const QColor& c ) const;
 
-    bool		isValid() const;
-    bool		isSharing() const;
-    virtual void	makeCurrent();
+    bool isValid() const;
+    bool isSharing() const;
+    virtual void makeCurrent();
 
-    bool		doubleBuffer() const;
-    virtual void	swapBuffers();
+    bool doubleBuffer() const;
+    virtual void swapBuffers();
 
-    QGLFormat		format() const;
+    QGLFormat format() const;
 #ifndef Q_QDOC
-    virtual void	setFormat( const QGLFormat& format );
+    virtual void setFormat( const QGLFormat& format );
 #endif
 
-    const QGLContext*	context() const;
+    const QGLContext* context() const;
 #ifndef Q_QDOC
-    virtual void	setContext( QGLContext* context,
-				    const QGLContext* shareContext = 0,
-				    bool deleteOldContext = TRUE );
+    virtual void setContext( QGLContext* context,
+			     const QGLContext* shareContext = 0,
+			     bool deleteOldContext = TRUE );
 #endif
 
-    virtual QPixmap	renderPixmap( int w = 0, int h = 0,
-				      bool useContext = FALSE );
-    virtual QImage	grabFrameBuffer( bool withAlpha = FALSE );
+    virtual QPixmap renderPixmap( int w = 0, int h = 0,
+				  bool useContext = FALSE );
+    virtual QImage grabFrameBuffer( bool withAlpha = FALSE );
 
-    virtual void	makeOverlayCurrent();
-    const QGLContext*	overlayContext() const;
+    virtual void makeOverlayCurrent();
+    const QGLContext* overlayContext() const;
 
-    static QImage	convertToGLFormat( const QImage& img );
+    static QImage convertToGLFormat( const QImage& img );
 
-    void		setMouseTracking( bool enable );
-    virtual void 	reparent( QWidget* parent, WFlags f, const QPoint& p,
-				  bool showIt = FALSE );
+    void setMouseTracking( bool enable );
+    virtual void  reparent( QWidget* parent, WFlags f, const QPoint& p,
+			    bool showIt = FALSE );
 
     const QGLColormap & colormap() const;
-    void                setColormap( const QGLColormap & map );
-    
-    void 		renderText( int x, int y, const QString & str, const QFont & fnt = QFont(),
-				    int listBase = 2000 );
-    void 		renderText( double x, double y, double z, const QString & str,
-				    const QFont & fnt = QFont(), int listBase = 2000 );
+    void  setColormap( const QGLColormap & map );
+
+    void renderText( int x, int y, const QString & str,
+		     const QFont & fnt = QFont(), int listBase = 2000 );
+    void renderText( double x, double y, double z, const QString & str,
+		     const QFont & fnt = QFont(), int listBase = 2000 );
 public slots:
-    virtual void	updateGL();
-    virtual void	updateOverlayGL();
+    virtual void updateGL();
+    virtual void updateOverlayGL();
 
 protected:
-    virtual void	initializeGL();
-    virtual void	resizeGL( int w, int h );
-    virtual void	paintGL();
+    virtual void initializeGL();
+    virtual void resizeGL( int w, int h );
+    virtual void paintGL();
 
-    virtual void	initializeOverlayGL();
-    virtual void	resizeOverlayGL( int w, int h );
-    virtual void	paintOverlayGL();
+    virtual void initializeOverlayGL();
+    virtual void resizeOverlayGL( int w, int h );
+    virtual void paintOverlayGL();
 
-    void		setAutoBufferSwap( bool on );
-    bool		autoBufferSwap() const;
+    void setAutoBufferSwap( bool on );
+    bool autoBufferSwap() const;
 
-    void		paintEvent( QPaintEvent* );
-    void		resizeEvent( QResizeEvent* );
+    void paintEvent( QPaintEvent* );
+    void resizeEvent( QResizeEvent* );
 
-    virtual void	glInit();
-    virtual void	glDraw();
+    virtual void glInit();
+    virtual void glDraw();
 
 private:
-    int 		displayListBase( const QFont & fnt, int listBase );
-    void 		cleanupColormaps();
-    void		init( const QGLFormat& fmt,
-			      const QGLWidget* shareWidget );
-    bool		renderCxPm( QPixmap* pm );
-    QGLContext*		glcx;
-    bool		autoSwap;
+    int displayListBase( const QFont & fnt, int listBase );
+    void cleanupColormaps();
+    void init( QGLContext *context, const QGLWidget* shareWidget );
+    bool renderCxPm( QPixmap* pm );
+    QGLContext* glcx;
+    bool autoSwap;
 
-    QGLColormap         cmap;
+    QGLColormap cmap;
 
-#if  defined(Q_WS_WIN)
-    QGLContext*		olcx;
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+    QGLContext* olcx;
 #elif defined(Q_WS_X11)
     QGLOverlayWidget*	olw;
     friend class QGLOverlayWidget;
-#elif defined(Q_WS_MAC)
-    QGLContext*		olcx;
 #endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QGLWidget( const QGLWidget& );
-    QGLWidget&		operator=( const QGLWidget& );
+    QGLWidget& operator=( const QGLWidget& );
 #endif
 
 #if defined(Q_WS_MAC)
 private:
     const QGLContext *slcx;
-    uint pending_fix : 1, glcx_dblbuf : 2, dblbuf : 1, clp_serial : 15;
+    uint pending_fix : 1,
+	 glcx_dblbuf : 2,
+	 dblbuf : 1,
+	 clp_serial : 15;
     QPixmap *gl_pix;
     QGLFormat req_format;
 
-    void macInternalRecreateContext(const QGLFormat&, const QGLContext * =NULL, bool update=TRUE);
-    bool macInternalDoubleBuffer(bool fix=TRUE);
-    virtual void setRegionDirty(bool);
+    void macInternalRecreateContext( QGLContext *ctx,
+				     const QGLContext* = NULL,
+				     bool update = TRUE );
+    bool macInternalDoubleBuffer( bool fix = TRUE );
+    virtual void setRegionDirty( bool );
     virtual void macWidgetChangedWindow();
 #endif
 private slots:

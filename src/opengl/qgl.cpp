@@ -773,36 +773,13 @@ QGLContext* QGLContext::currentCtx = 0;
 QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     : glFormat(format), reqFormat(format)
 {
-    d = new Private;
-    d->paintDevice = device;
-    d->valid = FALSE;
-#if defined(Q_WS_X11)
-    gpm = 0;
-#endif
-#if defined(Q_WS_WIN)
-    dc = 0;
-    win = 0;
-    pixelFormatId = 0;
-    cmap = 0;
-#endif
-#if defined(Q_WS_MAC)
-    d->oldR = QRect(1, 1, 1, 1);
-#endif
-    d->crWin = FALSE;
-    d->initDone = FALSE;
-    d->sharing = FALSE;
-    if ( d->paintDevice == 0 ) {
-#if defined(QT_CHECK_NULL)
-	qWarning( "QGLContext: Paint device cannot be null" );
-	return;
-#endif
-    }
-    if ( d->paintDevice->devType() != QInternal::Widget &&
-	 d->paintDevice->devType() != QInternal::Pixmap ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning( "QGLContext: Unsupported paint device type" );
-#endif
-    }
+    init( device );
+}
+
+QGLContext::QGLContext( const QGLFormat &format )
+    : glFormat( format ), reqFormat(format)
+{
+    init();
 }
 
 /*!
@@ -863,6 +840,40 @@ void QGLContext::setFormat( const QGLFormat &format )
     glFormat = reqFormat = format;
 }
 
+void QGLContext::setDevice( QPaintDevice *pDev )
+{
+    if ( isValid() )
+	reset();
+    d->paintDevice = pDev;
+    if ( d->paintDevice && (d->paintDevice->devType() != QInternal::Widget
+			&& d->paintDevice->devType() != QInternal::Pixmap) ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QGLContext: Unsupported paint device type" );
+#endif
+    }
+}
+
+void QGLContext::init( QPaintDevice *dev )
+{
+    d = new Private;
+    d->valid = FALSE;
+    setDevice( dev );
+#if defined(Q_WS_X11)
+    gpm = 0;
+#endif
+#if defined(Q_WS_WIN)
+    dc = 0;
+    win = 0;
+    pixelFormatId = 0;
+    cmap = 0;
+#endif
+#if defined(Q_WS_MAC)
+    d->oldR = QRect(1, 1, 1, 1);
+#endif
+    d->crWin = FALSE;
+    d->initDone = FALSE;
+    d->sharing = FALSE;
+}
 
 /*!
     \fn bool QGLContext::isValid() const
@@ -1276,7 +1287,7 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
     : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
 {
-    init( QGLFormat::defaultFormat(), shareWidget );
+    init( new QGLContext(QGLFormat::defaultFormat(), this), shareWidget );
 }
 
 
@@ -1313,10 +1324,40 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      WFlags f )
     : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
 {
-    init( format, shareWidget );
+    init( new QGLContext(format, this), shareWidget );
 }
 
+/*!
+    Constructs an OpenGL widget with parent \a parent, called \a name.
 
+    The \a context argument is a pointer to the QGLContext that
+    you wish to be bound to this widget. This allows you to pass in
+    your own QGLContext sub-classes.
+
+    The widget will be \link isValid() invalid\endlink if the system
+    has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
+
+    The \a parent, \a name and widget flag, \a f, arguments are passed
+    to the QWidget constructor.
+
+    If the \a shareWidget parameter points to a valid QGLWidget, this
+    widget will share OpenGL display lists with \a shareWidget. If
+    this widget and \a shareWidget have different \link format()
+    formats\endlink, display list sharing may fail. You can check
+    whether display list sharing succeeded by calling isSharing().
+
+    The initialization of OpenGL rendering state, etc. should be done
+    by overriding the initializeGL() function, rather than in the
+    constructor of your QGLWidget subclass.
+
+    \sa QGLFormat::defaultFormat(), isValid()
+*/
+QGLWidget::QGLWidget( QGLContext *context, QWidget *parent,
+		      const char *name, const QGLWidget *shareWidget, WFlags f )
+    : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
+{
+    init( context, shareWidget );
+}
 
 /*!
     Destroys the widget.

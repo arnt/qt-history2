@@ -464,8 +464,8 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 		// bug workaround - some systems (eg. FireGL) refuses to return an overlay
 		// visual if the GLX_TRANSPARENT_TYPE_EXT attribute is specfied, even if
 		// the implementation supports transparent overlays
- 		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
- 				  f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT,
+		int tmpSpec[] = { GLX_LEVEL, f.plane(), GLX_TRANSPARENT_TYPE_EXT,
+				  f.rgba() ? GLX_TRANSPARENT_RGB_EXT : GLX_TRANSPARENT_INDEX_EXT,
 				  None };
 		XVisualInfo * vinf = glXChooseVisual( d->paintDevice->x11Display(),
 						      d->paintDevice->x11Screen(), tmpSpec );
@@ -723,20 +723,21 @@ void QGLOverlayWidget::paintGL()
 /*****************************************************************************
   QGLWidget UNIX/GLX-specific code
  *****************************************************************************/
-
-void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
+void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
 {
     glcx = 0;
     olw = 0;
     autoSwap = TRUE;
+    if ( !context->device() )
+	context->setDevice( this );
 
     if ( shareWidget )
-	setContext( new QGLContext( format, this ), shareWidget->context() );
+	setContext( context, shareWidget->context() );
     else
-	setContext( new QGLContext( format, this ) );
+	setContext( context );
     setBackgroundMode( NoBackground );
 
-    if ( isValid() && format.hasOverlay() ) {
+    if ( isValid() && context->format().hasOverlay() ) {
 	QCString olwName( name() );
 	olwName += "-QGL_internal_overlay_widget";
 	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(),
