@@ -206,10 +206,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "first: all" << endl;
     t << "####### Implicit rules" << endl << endl;
     t << ".SUFFIXES:";
-    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
+    QStringList::Iterator cppit;
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
 	t << " " << (*cppit);
     t << endl << endl;
-    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
 	t << (*cppit) << ".o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
     t << ".c.o:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
 
