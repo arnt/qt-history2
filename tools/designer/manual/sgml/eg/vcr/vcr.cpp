@@ -98,22 +98,18 @@ Vcr::Vcr( QWidget *parent, const char *name )
     layout->setMargin( 0 );
 
     QPushButton *rewind = new QPushButton( QPixmap( rewind_xpm ), 0, this, "vcr_rewind" );
-    rewind->setMinimumSize( 20, 20 );
     layout->addWidget( rewind );
     connect( rewind, SIGNAL(clicked()), SIGNAL(rewind()) ); 
 
     QPushButton *play = new QPushButton( QPixmap( play_xpm ), 0, this, "vcr_play" );
-    play->setMinimumSize( 20, 20 );
     layout->addWidget( play );
     connect( play, SIGNAL(clicked()), SIGNAL(play()) ); 
 
     QPushButton *next = new QPushButton( QPixmap( next_xpm ), 0, this, "vcr_next" );
-    next->setMinimumSize( 20, 20 );
     layout->addWidget( next );
     connect( next, SIGNAL(clicked()), SIGNAL(next()) ); 
 
     QPushButton *stop = new QPushButton( QPixmap( stop_xpm ), 0, this, "vcr_stop" );
-    stop->setMinimumSize( 20, 20 );
     layout->addWidget( stop );
     connect( stop, SIGNAL(clicked()), SIGNAL(stop()) ); 
 }

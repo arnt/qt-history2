@@ -8,13 +8,13 @@ creating forms with \qd. Subclassing is used to extend the functionality
 of a form by creating your own class based upon a form you create in
 \qd. Dynamic dialogs are <filename>.ui</filename> files which can be
 executed by a Qt application; this keeps the GUI design and the code
-quite distinct and is useful in environments where the GUI may have to
-change more often than the underlying application.
+separate and is useful in environments where the GUI may have to
+change more often than the underlying application logic.
 </para>
 
 <sect1 id="subclassing">
 <title>Subclassing</title>
-
+<!--
 <sidebar id="subclassingvscodinginqtdesigner">
 <title>Subclassing vs Coding in Qt Designer</title>
 <para>
@@ -35,36 +35,36 @@ approach may be to subclass the main window (to ease debugging) and code
 the dialogs wholly within \qd. 
 </para>
 </sidebar>
-
+-->
 <para>
 We'll start with a general description of how to subclass a form and
 follow with a short example.
 </para>
 
 <sect2 id="turningdesignersuifilesintosourcecode">
-<title>Turning Designer's .ui files into Source Code </title>
+<title>Generating Source Code from Qt Designer .ui Files</title>
 <para>
 \qd reads and writes \cmd[qmake] <filename>.pro</filename> (project)
 files which are used to record the files used to build the application
-and from which Makefiles are generated. Designer also reads and writes
+and from which Makefiles are generated. \qd also reads and writes
 <function>.ui</function> (user interface) files. These are XML files
 that record the widgets, layouts, source code and settings you've used
 for a form. Every <filename>.ui</filename> file is converted by
 the \cmd[uic] (user interface compiler) into a C++ <filename>.h</filename>
 file and a C++ <filename>.cpp</filename> file. These C++ files are then
-read by \cmd[moc] (meta object compiler -- the tool that converts Qt's
-signals and slots into standard C++), and finally compiled by your
+read by \cmd[moc] (meta object compiler), and finally compiled by your
 compiler into a working application.
 </para>
 
 <para>
-If you create applications wholly within \qd you need only create a
+If you create applications wholly within \qd you only need to create a
 <filename>main.cpp</filename> and add 
 <programlisting>
 SOURCES += main.cpp
 </programlisting>
 at the end of your project's <filename>.pro</filename> file. You can
-then use \cmd[qmake] to generate the Makefile. Running \cmd[make]
+then use \cmd[qmake] to generate the Makefile. (For example
+<literal>qmake -o Makefile myproject.pro</literal>.) Running \cmd[make]
 (Linux, Unix or Borland compilers), or \cmd[nmake] (Visual C++), will
 then call \cmd[uic], \cmd[moc] and your compiler as necessary to build
 your application.
@@ -91,22 +91,29 @@ implementation files to the <filename>.pro</filename> file.
 <title>Subclassing a Form </title>
 
 <para>
-When subclassing a form it is helpful to use a naming convention for the
-form to help us see which files are generated from \qd's
+When subclassing a form it is helpful to use a naming convention 
+to help us identify which files are generated from \qd's
 <filename>.ui</filename> files and which are hand coded. 
 </para>
 <para>
-For example, suppose we have an application with a dialog that we want
-to subclass. If we were writing the code directly in \qd we might call
-the dialog form 'SettingsForm' and the <filename>.ui</filename>
-file, <filename>settingsform.ui</filename>. If we intend
-subclassing we suggest that you call the form 'SettingsFormBase'
-and its <filename>.ui</filename> file,
-<filename>settingsformbase.ui</filename>. You would then call your
-subclass files <filename>settingsform.h</filename> and
-<filename>settingsform.cpp</filename>. The class name of the form
-would be 'SettingsFormBase', and you would derive from this class
-calling your subclass 'SettingsForm'. 
+Suppose, for example, that we are developing a dialog and writing the
+code directly in \qd. We might call our dialog 'OptionsForm' and the
+<filename>.ui</filename> file, <filename>optionsform.ui</filename>. The
+automatically generated files will be <filename>optionsform.h</filename>
+and <filename>optionsform.cpp</filename>.
+</para>
+<para>
+If we were developing another dialog, but this time one that we intended
+to subclass, we want to make it easy to distinguish between the
+automatically generated files and our hand coded files. For example, we
+might call our dialog 'SettingsFormBase' and the
+<filename>.ui</filename> file <filename>settingsformbase.ui</filename>.
+The automatically generated files would then be called
+<filename>settingsformbase.h</filename> and
+<filename>settingsformbase.cpp</filename>. We would then call our
+subclass 'SettingsForm' and code it in the files
+<filename>settingsform.h</filename> and
+<filename>settingsform.cpp</filename>. 
 </para>
 <para>
 Any subclass of a form should include the <literal>Q_OBJECT</literal>
@@ -125,7 +132,7 @@ INTERFACES = settingsformbase.ui
 </programlisting>
 to the project file. The <filename>settingsformbase.h</filename> and
 <filename>settingsformbase.cpp</filename> files will be generated from
-the <filename>.ui</filename> file.
+the <filename>.ui</filename> file automatically.
 </para>
 </sect2>
 
@@ -162,8 +169,8 @@ We'll now add the widgets we need.
 <listitem>
 <para>
 Click the <guibutton>Button Group</guibutton> toolbar button, then click
-the form near the top left. Resize the button group to take up
-approximately half the form. Change the button group's name to
+near the top left of the form. Resize the button group so that it takes
+up approximately half the form. Change the button group's name to
 'creditButtonGroup' and its title property to 'Credit Rating'.
 </para>
 </listitem>
@@ -222,13 +229,12 @@ vertically). Click the Credit Rating button group, then press
 <para>
 Click the form so that the button group is no longer selected.
 Ctrl+Click the OK button and drag the rubber band to touch the Cancel
-button, then release. Press <keycap>Ctrl+H</keycap> (lay out
-horizontally).
+button, then release. Press <keycap>Ctrl+H</keycap>.
 </para>
 </listitem>
 <listitem>
 <para>
-Click the form, then press <keycap>Ctrl+L</keycap> (lay out vertically).
+Click the form, then press <keycap>Ctrl+L</keycap>.
 </para>
 <para>
 The buttons expand to take up the full width of the form. It might look
@@ -243,8 +249,8 @@ and third spacers, click on the first spacer, press
 <keycap>Ctrl+C</keycap> then <keycap>Ctrl+V</keycap>. Drag the new
 spacer to the desired position.) Ctrl+Click the left most spacer and
 drag the rubber band so that it touches the buttons and the spacers,
-then release. Press <keycap>Ctrl+H</keycap> (lay out horizontally).
-Click the form then press <keycap>Ctrl+L</keycap> (lay out vertically).
+then release. Press <keycap>Ctrl+H</keycap>.
+Click the form then press <keycap>Ctrl+L</keycap>.
 </para>
 </listitem>
 </orderedlist>
@@ -272,7 +278,7 @@ signal and the <function>setEnabled()</function> slot.
 </para>
 <para>
 If the user checks the standard or none radio buttons we want to set the
-amount accordingly. Press <keycap>F3</keycap> (connect signals/slots),
+amount accordingly. Press <keycap>F3</keycap>,
 then click the credit rating button group. Drag to the form and release.
 Click the <function>clicked()</function> signal.
 We want to connect this signal to our own custom slot, but we
@@ -302,6 +308,7 @@ follows:
 <programlisting>
 #include &lt;qapplication.h&gt;
 #include "creditformbase.h"
+
 int main( int argc, char *argv[] ) 
 {
     QApplication app( argc, argv );
@@ -344,7 +351,7 @@ We've declared the slot, <function>setAmount()</function>,
 that we created in \qd. The <literal>Q_OBJECT</literal> macro is
 included because it is essential for classes that use signals and slots.
 </para>
-<para id="originalsetamount">
+<para>
 The implementation in 
 <filename>qt/tools/designer/eg/credit/creditform.cpp</filename> is
 simple:
@@ -373,7 +380,7 @@ We must also update the project file by adding two new lines at the end:
 HEADERS += creditform.h
 SOURCES += creditform.cpp
 </programlisting>
-To test the form rerun \cmd[qmake] to regenerate the Makefile, make
+To test the form rerun \cmd[qmake] to regenerate the Makefile, then make
 and run.
 </para>
 
@@ -430,9 +437,9 @@ PROJECTNAME = receiver
 </programlisting>
 We do <emphasis>not</emphasis> include the
 <filename>creditformbase.ui</filename> file since this file will be read
-at runtime. We must include the <filename>qresource</filename>
-library since the functionality we require is not part of the standard
-Qt library.
+at runtime, as we'll see shortly. We must include the
+<filename>qresource</filename> library since the functionality we
+require is not part of the standard Qt library.
 </para>
 </sect2>
 
@@ -446,6 +453,7 @@ form we're going to create in \qd as its main form. This form will then
 load and execute the dynamic dialog. 
 <programlisting>
 \scan eg/receiver1/main.cpp /#include/ 1
+
 \scan eg/receiver1/main.cpp /int main/ /^}/ 
 </programlisting>
 We create a new instance of our MainForm class, set it to be the main
@@ -479,7 +487,7 @@ we've just described.)
 </listitem>
 <listitem>
 <para>
-We will also add a couple of labels so that we can show the settings the
+We will now add a couple of labels so that we can show the settings the
 user chose in the dynamic dialog. Click the <guibutton>Text
 Label</guibutton> toolbar button, then click the form below the Credit
 Dialog button. Change the label's text to 'Credit Rating'. Add another
@@ -500,7 +508,7 @@ We'll now handle the signals and slots connections. Press
 button, drag to the form and release. Click the
 <function>clicked()</function> signal. We'll need to implement a custom
 slot. Click <guibutton>Edit Slots</guibutton> to invoke the Edit Slots
-dialog. Click <guibutton>new Slot</guibutton> and type in the Slot name
+dialog. Click <guibutton>New Slot</guibutton> and type in the Slot name
 'creditDialog()'. Click \ok. The new slot is now in
 the list of slots; click the <function>creditDialog()</function> slot to
 make the connection then click \ok. Connect the Quit button's
@@ -514,8 +522,9 @@ release. Click the <function>clicked()</function> signal and the
 </orderedlist>
 <para>
 Save the form and call it <filename>mainform.ui</filename>. (Press
-<keycap>Ctrl+S</keycap> and enter the filename.) We'll write the code
-for loading and launching the dynamic dialog directly in \qd.
+<keycap>Ctrl+S</keycap> and enter the filename.) In the next section
+we'll write the code for loading and launching the dynamic dialog
+directly in \qd.
 </para>
 </sect3>
 
@@ -529,7 +538,7 @@ the Source tab in the Object Hierarchy. Right click Included (in
 Implementation), then click <guibutton>New</guibutton>. Type in
 '<literal>&lt;qwidgetfactory.h&gt;</literal>', then press
 <keycap>Return</keycap>. Because we will need to access the spin box in
-the dynamic dialog we must add its header file. Righ click Included
+the dynamic dialog we must add its header file. Right click Included
 (in Implmentation), then click New. Type in
 '<literal>&lt;qspinbox.h&gt;</literal>', then press
 <keycap>Return</keycap>. 
@@ -545,29 +554,32 @@ code is taken from <filename>qt/tools/designer/eg/receiver1/mainform.cpp</filena
 </programlisting>
 The <function>create()</function> function is a static
 <classname>QWidgetFactory</classname> function. It loads the specified
-<filename>.ui</filename> file and returns a pointer to a
-<classname>QWidget</classname>. We have cast the pointer to
-<classname>QDialog</classname> since we know that the
-<filename>creditformbase.ui</filename> file defines a
+<filename>.ui</filename> file and returns a pointer to the toplevel
+<classname>QWidget</classname> created from the <filename>.ui</filename>
+file. We have cast the pointer to <classname>QDialog</classname> since
+we know that the <filename>creditformbase.ui</filename> file defines a
 <classname>QDialog</classname>. After creating the dialog we
 <function>exec()</function> it. If the user clicked
 <guibutton>OK</guibutton> the dialog returns Accepted and we enter the
 body of the <literal>if</literal> statement. We want to know the amount
-of credit that the user selected.
-We call the <function>child()</function>
-function on the dialog passing it the name of the widget we're
-interested in. The <function>child()</function> function returns a
-pointer to the widget with the name we passed, or returns 0 if no widget
-of that name was found. In the example we call <function>child()</function> to get a pointer to the 'amountSpinBox'. If the pointer we get back is not 0 we set the rating text to the amount in the dialog's spin box.
-At the end we delete the dynamic dialog.
+of credit that the user selected. We call the
+<function>child()</function> function on the dialog passing it the name
+of the widget we're interested in. The <function>child()</function>
+function returns a pointer to the widget with the name we passed, or
+returns 0 if no widget of that name was found. In the example we call
+<function>child()</function> to get a pointer to the 'amountSpinBox'. If
+the pointer we get back is not 0 we set the rating text to the amount in
+the dialog's spin box. At the end we delete the dynamic dialog. Deleting
+the dialog ensures that we free up its resources as soon as it is no
+longer required.
 </para>
 
 <para>
 We used the <function>child()</function> to gain access to a
 widget within the dynamic dialog, passing it the name of the widget we
 were interested in. In some situations we might not know what a widget
-is called. The <classname>QObject</classname>
-<function>queryList()</function> function is called with the name of a
+is called. The 
+<function>QObject::queryList()</function> function is called with the name of a
 class and returns a <classname>QObjectList</classname> pointer which
 points to every object in the dialog that is derived from the given
 class. See the online <ulink
@@ -587,7 +599,7 @@ we have not implemented the <function>setAmount()</function> slot. We
 can implement slots for dynamic dialogs by creating a
 <classname>QObject</classname> subclass. We then create an instance of
 this subclass and pass a pointer to it to the
-<classname>QWidgetFactory</classname> <function>create()</function>
+<function>QWidgetFactory::create()</function>
 function which will connect the dynamic dialog's signals to the slots
 implemented in our subclass.
 </para>
@@ -596,7 +608,7 @@ implemented in our subclass.
 We need to create a <classname>QObject</classname> subclass and
 change our <function>creditDialog()</function> to create an instance of
 our subclass that can be passed to the
-<classname>QWidgetFactory</classname> <function>create()</function>
+<function>QWidgetFactory::create()</function>
 function. Here is the modified <function>creditDialog()</function>
 function from the
 <filename>qt/tools/designer/eg/receiver2/mainform.cpp</filename> file
@@ -661,7 +673,7 @@ call <function>setAmount()</function> in the
 Since we may be updating the amount spin box we need to get a pointer to
 it. We call <function>child()</function> on the pointer
 <literal>p</literal> which points to the dynamic dialog assigned in the
-<function>setParent()</function> call. We cast the resultant pointer to
+<function>setParent()</function> call. We cast the resulting pointer to
 the correct type so that we can call any functions relevant to that
 type. In the example we call <function>child()</function> to get a
 pointer to the amount spin box, and then call
@@ -674,44 +686,41 @@ get a pointer to the 'noneRadioButton' and set the amount if this button
 is checked. We do nothing if the 'specialRadioButton' is checked because
 the user is free to enter a value of their choice. 
 </para>
-<para>
-It's worth comparing the implementation of the dynamic dialog version of
-<function>setAmount()</function> that we've presented here with the
-subclassing version we did earlier. (See <xref
-linkend="originalsetamount"> <filename>creditform.cpp</filename>.) The
-dynamic dialog version involves more code because we have to obtain
-pointers to the widgets; in the subclassing version the widgets are
-members directly available to our code.
-</para>
 
 <sidebar id="complingvsdynamicallyloadingdialogs">
-<title>Compling vs Dynamically Loading Dialogs</title>
+<title>Compiling vs Dynamically Loading Dialogs</title>
 <para>
 The differences between using a 'compiled in' <filename>.ui</filename>
 file and a dynamically loaded <filename>.ui</filename> file are these:
 <itemizedlist>
 <listitem>
 <para>
-The <filename>.ui</filename> file cannot contain any C++ code; any
-custom slots must be implemented via a <classname>QObject</classname>
-subclass.
+Dynamic dialogs cannot have any C++ code in the <filename>.ui</filename>
+file; any custom slots must be implemented via a
+<classname>QObject</classname> subclass. Compiled dialogs can contain
+code either in the <filename>.ui</filename> file or in a subclass.
 </para>
 </listitem>
 <listitem>
 <para>
-The <filename>.ui</filename> file will load slower than using compiled
-code -- although it may be so fast the user doesn't realise this.
+Dynamic dialogs will load slower because the <filename>.ui</filename>
+file must be read and a <classname>QWidget</classname> instance
+instantiated based on the <filename>.ui</filename> file's parse tree.
+Compiled code will load much faster because no file reading or parsing
+is necessary. Note that the user may not notice any difference in speed
+since the difference may be mere fractions of a second.
 </para>
 </listitem>
 <listitem>
 <para>
-The <filename>.ui</filename> file can be changed independently of the
-code so long as none of the changes impact the code. For example
-changing the appearance of the form is perfectly safe providing none of
-the widgets that the code depends on are renamed or deleted. Widgets can
-be replaced, for example a list box could be replaced by a combobox,
-providing the replacement had the same name and the code only used
-functions common to the original and the replacement widget.
+Dynamic dialogs allow you to change the <filename>.ui</filename> file
+independently of the code so long as none of the changes impact the
+code. This means that you can change the appearance of the form, e.g.
+move widgets and lay them out differently. If you want to change a
+compiled dialog you must change the <filename>.ui</filename> file and
+recompile. If you are building an application and want your customers to
+be able to customize aspects of the user interface you can give them a
+copy of \qd and use dynamic dialogs.
 </para>
 </listitem>
 </itemizedlist>

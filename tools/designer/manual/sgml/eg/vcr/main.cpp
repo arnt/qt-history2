@@ -1,5 +1,6 @@
 #include <qapplication.h>
 #include "vcr.h"
+
 int main( int argc, char ** argv )
 {
     QApplication app( argc, argv );

@@ -5,30 +5,266 @@
 <sect1 id="customizingqtdesigner">
 <title>Customizing Qt Designer </title>
 <para>
-
+\qd can be customized in two ways: you can add custom widgets, and you
+can change aspects of how \qd works. Custom widgets are covered in <xref
+linkend="creating-custom-widgets-with-plugins"> "Creating Custom
+Widgets". This section will focus on customizing \qd itself.
 </para>
-
 <para>
-Cross reference the plugins chapter.
+\qd's toolbars are all dockable so they can be dragged by their toolbar
+handles and arranged how you like. The Files, Object Hierarchy, Property
+Editor and Output Windows are also dockable so you can also drag them to
+the positions that you prefer.
 </para>
+<para>
+General preferences can be set by clicking
+<guimenuitem>Edit|Preferences</guimenuitem> to invoke the Preferences
+dialog. If you check the Restore last workspace on startup checkbox \qd
+will remember the sizes and positions of the toolbars and the dockable
+windows. You can change \qd's main window background either by selecting
+a color or a pixmap. You can also switch off the grid (uncheck Show
+Grid) since using layouts makes the grid redundant.
+</para>
+<para>
+The C++ Editor tab is used to set your preferred fonts for
+syntax highlighting in \qd's code editor. The base font for all elements
+is set in the 'Standard' element (which is the last item in the list),
+so if you want one font to be used throughout set the 'Standard' font
+and all the other elements will inherit its setting. 
+</para>
+
+<sect2 id="qtdesignerscodeeditor">
+<title>Qt Designer's Code Editor</title>
+<para>
+The code editor provides the following keystrokes:
+<itemizedlist>
+<listitem><para>Left Arrow -- Move the cursor one character left</para></listitem>
+<listitem><para>Right Arrow -- Move the cursor one character right</para></listitem>
+<listitem><para>Up Arrow -- Move the cursor one line up</para></listitem>
+<listitem><para>Down Arrow -- Move the cursor one line down</para></listitem>
+<listitem><para>Page Up -- Move the cursor one page up</para></listitem>
+<listitem><para>Page Down -- Move the cursor one page down</para></listitem>
+<listitem><para>Backspace -- Delete the character to the left of the cursor</para></listitem>
+<listitem><para>Home -- Move the cursor to the beginning of the line</para></listitem>
+<listitem><para>End -- Move the cursor to the end of the line</para></listitem>
+<listitem><para>Delete -- Delete the character to the right of the cursor</para></listitem>
+<listitem><para>Ctrl+A -- Move the cursor to the beginning of the line</para></listitem>
+<listitem><para>Ctrl+B -- Move the cursor one character left</para></listitem>
+<listitem><para>Ctrl+C -- Copy the selected text to the clipboard (also Ctrl+Insert under Windows)</para></listitem>
+<listitem><para>Ctrl+D -- Delete the character to the right of the cursor</para></listitem>
+<listitem><para>Ctrl+E -- Move the cursor to the end of the line</para></listitem>
+<listitem><para>Ctrl+F -- Invoke the Find Text dialog</para></listitem>
+<listitem><para>Ctrl+G -- Invoke the Goto Line dialog</para></listitem>
+<listitem><para>Ctrl+H -- Delete the character to the left of the cursor</para></listitem>
+<listitem><para>Alt+I -- Incremental search (see below)</para></listitem>
+<listitem><para>Ctrl+K -- Delete to end of line</para></listitem>
+<listitem><para>Ctrl+N -- Move the cursor one line down</para></listitem>
+<listitem><para>Ctrl+P -- Move the cursor one line up</para></listitem>
+<listitem><para>Ctrl+R -- Invoke the Replace Text dialog</para></listitem>
+<listitem><para>Ctrl+V -- Paste the clipboard text into line edit (also Shift+Insert under Windows)</para></listitem>
+<listitem><para>Ctrl+X -- Cut the marked text, copy to clipboard (also Shift+Delete under Windows)</para></listitem>
+<listitem><para>Ctrl+Y -- Redo the last operation</para></listitem>
+<listitem><para>Ctrl+Z -- Undo the last operation</para></listitem>
+<listitem><para>Ctrl+Left Arrow -- Move the cursor one word left</para></listitem>
+<listitem><para>Ctrl+Right Arrow -- Move the cursor one word right</para></listitem>
+<listitem><para>Ctrl+Up Arrow -- Move the cursor one word up</para></listitem>
+<listitem><para>Ctrl+Down Arrow -- Move the cursor one word down</para></listitem>
+<listitem><para>Ctrl+Home Arrow -- Move the cursor to the beginning of the text</para></listitem>
+<listitem><para>Ctrl+End Arrow -- Move the cursor to the end of the text</para></listitem>
+<listitem><para>Tab -- Completion (see below)</para></listitem>
+</itemizedlist>
+</para>
+<para>
+To select (mark) text hold down the Shift key whilst pressing one of the
+movement keystrokes, for example, <keycap>Shift+Right Arrow</keycap>
+will select the character to the right, and <keycap>Shift+Ctrl+Right
+Arrow</keycap> will select the word to the right, etc.
+</para>
+<para>
+Pressing <keycap>Alt+I</keycap> starts incremental search. The
+characters you type will appear in the Incremental Search line edit in
+the Search toolbar and the cursor will be moved to the first matching
+text in the editor. As you type the search will continue. Press
+<keycap>Return</keycap> to move to the next match and press
+<keycap>Esc</keycap> to cancel the search at the position you've
+reached.
+</para>
+<para>
+Pressing <keycap>Tab</keycap> after you've typed one or more characters
+invokes completion. Completion works like this:
+start typing some text then press <keycap>Tab</keycap>. If the editor
+can find another item of text that begins with the same characters it
+will complete your text for you; if it finds more than one possibility
+it will pop up a list of choices. You can use the arrow keys to choose a
+piece of text then press <keycap>Return</keycap>, or press
+<keycap>Esc</keycap> to continue typing. You can switch off completion
+in the Preferences dialog.
+</para>
+<para>
+When you enter
+<literal>-&gt;</literal> or <literal>.</literal> the editor will pop up
+a command completion list; use the arrow keys to move to the item you
+want and press <keycap>Return</keycap>, or press <keycap>Esc</keycap> to
+ignore the list.
+</para>
+</sect2>
+
+</sect1>
+
+
+<sect1 id="creatingandusingtemplates">
+<title>Creating and Using Templates </title>
+<para>
+
+</para>
+
 </sect1>
 
 
 <sect1 id="integratingqtdesignerwithothertools">
-<title>Integrating Qt Designer with Other Tools </title>
+<title>Integrating Qt Designer with Visual Studio </title>
+<para>
+\qd can be integrated into Visual Studio using the
+<filename>qmsdev.dsp</filename> file that is supplied with Qt.
+</para>
+<para>
+Start up Visual Studio and click <guimenuitem>File|Open
+Workspace</guimenuitem>. Open
+<filename>%QTDIR%\tools\designer\integration\qmsdev\qmsdev.dsp</filename>.
+Click <guimenuitem>Build|Set Active Configuration</guimenuitem> and in
+the list click 'QMsDev - Win32 Release', then click \ok. Now click
+<guimenuitem>Build|Build qmsdev.dll</guimenuitem>. You should now copy
+the file
+<filename>%QTDIR%\tools\designer\integration\qmsdev\release\qmsdev.dll</filename>
+into <filename>\Program Files\Microsoft Visual
+Studio\Common\MSDev98\AddIns</filename>. Now click
+<guimenuitem>Tools|Customize</guimenuitem>. Click the Add-in Macro Files
+tab, then click the <guibutton>Browse</guibutton> button. Change the
+file type to 'Add-ins (.dll)' and navigate to <filename>\Program
+Files\Microsoft Visual Studio\Common\MSDev98\AddIns</filename>. Click
+the <filename>qmsdev.dll</filename> file, click
+<guibutton>Open</guibutton>, then click <guibutton>Close</guibutton>.
+</para>
+<para>
+A new toolbar will appear in Visual Studio with the following toolbar
+buttons:
+<itemizedlist>
+<listitem><para>New Qt Project -- A small application wizard</para></listitem>
+<listitem><para>Generate Qt Project -- Runs the TMAKE tool with a .pro-file</para></listitem>
+<listitem><para>New Qt Dialog -- Add an empty Qt Dialog to the active project</para></listitem>
+<listitem><para>Qt GUI Designer -- Run the Qt Designer</para></listitem>
+<listitem><para>Use Qt -- Add the Qt libraries to the active project</para></listitem>
+<listitem><para>Add MOC -- Add the MOC precompiler to the active file</para></listitem>
+<listitem><para>Add UIC -- Add the UIC precompiler to the active file</para></listitem></itemizedlist>
+Double clicking a <filename>.ui</filename> file in the workspace
+overview will now launch \qd.
+</para>
+<para>
+If you wish to delete the add-in simply delete the
+<filename>qmsdev.dll</filename> file from the add-ins directory. 
+</para>
 
 <sect2 id="creatingmakefileswithoutqmake">
 <title>Creating Makefiles without qmake </title>
 <para>
-Dealing with \cmd[uic] and dependencies.
+The \cmd[qmake] tool provided with Qt can create Makefiles appropriate
+to your platform based on <filename>.pro</filename> project files. This
+section describes the dependencies involved in building a Qt application
+and gives a couple of simple example Makefiles. This section assumes
+that you have a good understanding of Makefiles.
+</para>
+<para>
+\qd produces <filename>.ui</filename> files which are used to generate
+<filename>.h</filename> and <filename>.cpp</filename> files for the
+compiler to compile. The <filename>.ui</filename> files are processed by
+\cmd[uic]. Files which use slots and signals require an additional
+<filename>.cpp</filename> file to be generated. These files are
+generated by the \cmd[moc] and are named
+'<emphasis>moc_</emphasis>file.cpp' where the original
+<filename>.cpp</filename> file is called 'file.cpp'.
+</para>
+<para>
+The dependencies work as follows:
+<itemizedlist>
+<listitem>
+<para>
+The application itself depends on the <filename>.o</filename> (object)
+files.
+</para>
+</listitem>
+<listitem>
+<para>
+The <filename>.o</filename> (object) files depend on the
+<filename>.cpp</filename> files.
+</para>
+</listitem>
+<listitem>
+<para>
+The <filename>moc_*.cpp</filename> files depend on the <filename>.h</filename>
+files.
+</para>
+</listitem>
+<listitem>
+<para>
+The <filename>.cpp</filename> files depend on the <filename>.ui</filename> files <emphasis>and</emphasis> the <filename>.h</filename> files.
+</para>
+</listitem>
+<listitem>
+<para>
+The <filename>.h</filename> files depend on the <filename>.ui</filename>
+files.
+</para>
+</listitem>
+</itemizedlist>
+</para>
+<para>
+We'll look at a simple Makefile to see the dependencies in practice.
+<programlisting>
+myapp: moc_myform.o myform.o main.o
+        g++ -lqt -o myapp moc_myform.o myform.o main.o
+
+main.o: main.cpp
+        g++ -o main.o main.cpp
+
+moc_myform.o: moc_myform.cpp
+        g++ -o moc_myform.o moc_myform.cpp
+
+moc_myform.cpp: myform.h
+        moc myform.h -o moc_myform.cpp
+
+myform.o: myform.cpp
+        g++ -o myform.o myform.cpp
+
+myform.cpp: myform.h myform.ui
+        uic myform.ui -i myform.h -o myform.cpp
+
+myform.h: myform.ui
+        uic myform.h -o myform.h
+</programlisting>
+In Unix/Linux environments the \cmd[make] command may be able to
+do more for us, so we should be able to use a simpler Makefile like
+this:
+<programlisting>
+myapp: moc_myform.o myform.o main.o
+        g++ -lq -o $@ $^
+
+%.o: %.cpp
+        g++ -o $^ $@
+
+moc_%.cpp: %.h
+        moc $^ -o $@
+
+myform.cpp: myform.h myform.ui
+        uic myform.ui -i myform.h -o myform.cpp
+
+myform.h: myform.ui
+        uic myform.h -o myform.h
+</programlisting>
+To see more sophisticated Makefiles simply generate them using
+\cmd[qmake] on any of your Qt projects or any of the examples supplied
+with Qt.
 </para>
 </sect2>
 
-<sect2 id="integratingqtdesignerwithanide">
-<title>Integrating Qt Designer with an IDE </title>
-<para>
-For example, integrating Designer with Visual Studio.
-</para>
-</sect2>
 </sect1>
 </chapter>

@@ -77,18 +77,17 @@ embedded xpm images.
 We create a <classname>QHBoxLayout</classname> in which we'll place the
 buttons. We've only shown the rewind button in the code above since all
 the others are identical except for the names of the buttons, pixmaps
-and signals. For each button we require we call the
+and signals. For each of the buttons we require we call the
 <classname>QPushButton</classname> constructor passing it the
-appropriate embedded pixmap. We then set the button's minimum size and
-add it to the layout. Lastly we connect the button's
-<function>clicked()</function> signal to the appropriate
-<emphasis>signal</emphasis>. Since the <function>clicked()</function>
-signals aren't specific to our widget we want to emit signals that
-reflect the widget's use. The <function>rewind()</function>,
-<function>play()</function>, etc. signals are meaningful in the context
-of our widget so we propagate each button's
-<function>clicked()</function> signal to the appropriate widget-specific
-signal. 
+appropriate embedded pixmap. We then add it to the layout. Finally we
+connect the button's <function>clicked()</function> signal to the
+appropriate <emphasis>signal</emphasis>. Since the
+<function>clicked()</function> signals aren't specific to our widget we
+want to emit signals that reflect the widget's use. The
+<function>rewind()</function>, <function>play()</function>, etc. signals
+are meaningful in the context of our widget so we propagate each
+button's <function>clicked()</function> signal to the appropriate
+widget-specific signal. 
 </para>
 
 <para>
@@ -133,14 +132,14 @@ Change the Class name from 'MyCustomWidget' to 'Vcr'.
 Click the ellipsis (<guibutton>...</guibutton>) button to the right of
 the Headerfile line edit to invoke the file Open dialog. Locate
 <filename>vcr.h</filename>, select it, and click
-<guibutton>Open</guibutton>. It will now appear as the Headerfile. 
+<guibutton>Open</guibutton>. It will now appear as the header file. 
 </para>
 </listitem>
 <listitem>
 <para>
 If you have a pixmap that you want to use to identify your widget on the
 toolbar click the ellipsis (<guibutton>...</guibutton>) button to the right of
-the Pixmap.
+Pixmap.
 </para>
 <para>
 In our example we have the file

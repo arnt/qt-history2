@@ -4,18 +4,18 @@
 <para>
 \qd provides value editors for some widgets which allow you to set
 default values for particular instances. In this chapter we'll explain
-how to use the value editors, but first we'll briefly describe the
-Choose a Pixmap dialog since this is used by many of the value editors. 
-Note that all value editors are invoked using the same techniques:
-either double click the widget or right click the widget and click the
-<guimenuitem>Edit</guimenuitem> menu item on the pop up menu. If you
-click <guibutton>Apply</guibutton> in any of the value editor dialogs
-the settings are applied to the widget in the form. If you want to
-revert your changes you can either change the settings in the value
-editor dialog, or, close the dialog and click the
-<guibutton>Undo</guibutton> toolbar button (or press
-<keycap>Ctrl+Z</keycap>). If you undo too much you can always click
-<guibutton>Redo</guibutton> (or press <keycap>Ctrl+Y</keycap>).
+how to use the value editors. All value editors are invoked using the
+same techniques: either double click the widget or right click the
+widget and click the <guimenuitem>Edit</guimenuitem> menu item on the
+pop up menu. If you click <guibutton>Apply</guibutton> in any of the
+value editor dialogs the settings are applied to the widget in the form.
+If you want to revert your changes you can either change the settings in
+the value editor dialog and re-<guibutton>Apply</guibutton>, or, close
+the dialog and click the <guibutton>Undo</guibutton> toolbar button (or
+press <keycap>Ctrl+Z</keycap>). If you undo too much you can always
+click <guibutton>Redo</guibutton> (or press <keycap>Ctrl+Y</keycap>).
+First we'll briefly detour to describe the Choose a Pixmap dialog since
+this is used by many of the value editors. 
 </para>
 
 <sect1 id="sharedpixmaps">
@@ -68,7 +68,7 @@ change them in code. A list item consists of some text or a
 pixmap or both. Item's are added by clicking the <guibutton>New
 Item</guibutton> button and deleted by clicking <guibutton>Delete
 Item</guibutton>. The order of items can be changed by clicking an item
-in the list to select it and clicking the up or down blue arrows to move
+in the list to select it and clicking the up and down blue arrows to move
 the selected item. If you want a pixmap click the ellipsis
 (<guibutton>...</guibutton>) button which will pop up the Choose a
 Pixmap dialog. You can either choose one of the pixmaps shown or click
@@ -116,7 +116,7 @@ button. Items and sub-items can be deleted by clicking them, then
 clicking the <guibutton>Delete Item</guibutton> button. The up and down
 blue arrow buttons  move the selected item up and down amongst the other
 items with the same parent. The right and left blue arrow buttons are
-used to move an item up and down in the hierarchy, i.e. to make a
+used to move an item up and down in the hierarchy, e.g. to make a
 sub-item into a top-level item click the sub-item then click the left
 blue arrow button.  
 </para>
@@ -130,7 +130,7 @@ blue arrow button.
 <title>Text Dialog</title>
 \img[textedit]
 </figure>
-This widget is a multi-line editor (replacing
+This widget is a multi-line editor (superceding
 <classname>QMultiLineEdit</classname>), which can display either plain
 text or rich text. The dialog presents a text edit in plain text mode.
 You can enter rich text by using HTML tags and attributes, for example,
@@ -174,7 +174,7 @@ column click it in the column list then click <guibutton>Delete
 Column</guibutton>.
 </para>
 <para>
-The Rows tab is used to add rows. It works on the same basis as the
+The Rows tab is used to add rows. It works in the same way as the
 columns tab. Click <guibutton>New Row</guibutton> to add a row and
 change its label in the Label line edit. Rows can also have a pixmap and
 may be reordered in exactly the same way as columns. The contents of
@@ -192,12 +192,11 @@ cells must be inserted through code.
 </figure>
 This dialog is used to add labelled icons to an icon view. New items are
 added by clicking <guibutton>New Item</guibutton>, then typing in their
-text in the Text line edit. You can either use the default icon or
-choose your own by clicking the ellipsis button to invoke the Choose a
-Pixmap dialog. The pixmap can be deleted by clicking the scissors
-button, and the item can be delected by clicking it then clicking
-<guibutton>Delete Item</guibutton>. Items can also be added and deleted
-in code.
+text in the Text line edit. Items can also be added or deleted in code.
+You can either use the default icon or choose your own by clicking the
+ellipsis button to invoke the Choose a Pixmap dialog. The pixmap can be
+deleted by clicking the scissors button, and the item can be delected by
+clicking it then clicking <guibutton>Delete Item</guibutton>. 
 </para>
 </sect1>
 </chapter>
