@@ -133,7 +133,7 @@ The same concept applies to the other container classes:
 
 	typedef QValueVector<int> Vector;
 	Vector vec;
-	for( Vec::iterator it = vec.begin(); it != vec.end(); ++it )
+	for( Vector::iterator it = vec.begin(); it != vec.end(); ++it )
 		printf("Data=%d\n", *it );
 \endcode
 

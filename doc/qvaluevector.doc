@@ -126,7 +126,7 @@
 	
 	EmployeeVector::iterator it;
 	for( it = vec.begin(); it != vec.end(); ++it )
-	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary().latin1() );
+	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
 
 	return 0;
     }
