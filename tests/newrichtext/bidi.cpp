@@ -2,7 +2,7 @@
 
 #include "qtextdata.h"
 
-#define BIDI_DEBUG 1//2
+#define BIDI_DEBUG 0//2
 #if (BIDI_DEBUG >= 1)
 #include <iostream>
 
@@ -73,7 +73,7 @@ static QChar::Direction basicDirection( const QString &str )
     int pos = 0;
     const QChar *uc = str.unicode() + pos;
     while( pos < len ) {
-	switch( uc->direction() )
+	switch( direction( *uc ) )
 	{
 	case QChar::DirL:
 	case QChar::DirLRO:
@@ -137,7 +137,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
 
 	QFont::Script s;
 	SCRIPT_FOR_CHAR( s, text[i] );
-	if ( s != script && !text[i].isSpace() ) {
+	if ( s != script && !isSpace( text[i] ) ) {
 	    ScriptItem item;
 	    item.position = i;
 	    item.analysis.script = s;
@@ -187,7 +187,7 @@ static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Dir
 	if ( current == (int)length )
 	    dirCurrent = control.basicDirection();
 	else
-	    dirCurrent = QTextData::direction( unicode[current] );
+	    dirCurrent = direction( unicode[current] );
 
 #if (BIDI_DEBUG >= 2)
 	cout << "pos=" << current << " dir=" << directions[dir]
@@ -253,7 +253,7 @@ static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Dir
 		case QChar::DirAN:
 		    if ( !first ) {
 			appendItems( items, sor, eor, control, dir, unicode );
-			dir = QTextData::direction( unicode[eor] ); status.eor = dir;
+			dir = direction( unicode[eor] ); status.eor = dir;
 		    }
 		    break;
 		case QChar::DirES:
@@ -276,7 +276,7 @@ static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Dir
 			    else
 				eor = current - 1;
 			    appendItems( items, sor, eor, control, dir, unicode );
-			    dir = QTextData::direction( unicode[eor] ); status.eor = dir;
+			    dir = direction( unicode[eor] ); status.eor = dir;
 			} else {
 			    if(status.eor != QChar::DirL) {
 				appendItems( items, sor, eor, control, dir, unicode );
@@ -588,7 +588,7 @@ static void bidiReorder( int numItems, const Q_UINT8 *levels, int *visualOrder )
 	    int end = i-1;
 
 	    if(start != end) {
-		cout << "reversing from " << start << " to " << end << endl;
+		//cout << "reversing from " << start << " to " << end << endl;
 		for(int j = 0; j < (end-start+1)/2; j++) {
 		    int tmp = visualOrder[start+j];
 		    visualOrder[start+j] = visualOrder[end-j];

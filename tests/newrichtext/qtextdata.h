@@ -4,13 +4,9 @@
 #include <qstring.h>
 #include <qfont.h>
 
-class QTextData {
+#include <private/qunicodetables_p.h>
 
-    static const Q_UINT8 * const unicode_info[];
-    static const Q_UINT8 * const direction_info[];
-    static const Q_UINT8 * const combining_info[];
-    static const Q_UINT16 symmetricPairs[];
-    static const int symmetricPairsSize;
+class QTextData {
 
     static const unsigned char otherScripts[];
     static const unsigned char indicScripts[];
@@ -18,49 +14,6 @@ class QTextData {
     enum { SCRIPTS_INDIC = 0x7e };
 
 public:
-    static QChar::Category category( const QChar &c )
-    {
-	return (QChar::Category)(unicode_info[c.row()][c.cell()]);
-    }
-
-
-    static QChar::Direction direction( const QChar &c )
-    {
-	const Q_UINT8 *rowp = direction_info[c.row()];
-	if(!rowp) return QChar::DirL;
-	return (QChar::Direction) ( *(rowp+c.cell()) & 0x1f );
-    }
-
-    static QChar::Joining joining( const QChar &c )
-    {
-	const Q_UINT8 *rowp = direction_info[c.row()];
-	if ( !rowp )
-	    return QChar::OtherJoining;
-	return (QChar::Joining) ((*(rowp+c.cell()) >> 5) &0x3);
-    }
-
-    static bool mirrored( const QChar &c )
-    {
-	const Q_UINT8 *rowp = direction_info[c.row()];
-	if ( !rowp )
-	    return FALSE;
-	return *(rowp+c.cell())>128;
-    }
-
-    static QChar mirroredChar( const QChar &ch )
-    {
-	if(!QTextData::mirrored( ch ))
-	    return ch;
-
-	int i;
-	unsigned short c = ch.unicode();
-	for (i = 0; i < symmetricPairsSize; i ++) {
-	    if (symmetricPairs[i] == c)
-		return symmetricPairs[(i%2) ? (i-1) : (i+1)];
-	}
-	return ch;
-    }
-
 
     static QFont::Script scriptForChar( ushort uc )
     {
@@ -94,8 +47,6 @@ do { 						\
 #else
 #define SCRIPT_FOR_CHAR( script, c ) script = QTextData::scriptForChar( c )
 #endif
-
-
 
 };
 

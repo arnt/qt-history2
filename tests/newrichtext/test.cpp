@@ -102,11 +102,11 @@ void MyWidget::paintEvent( QPaintEvent * )
 
 //const char * s = "אי U יו";
 
-//const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode";
+const char * s = "אירופה, תוכנה והאינטרנט: Unicode יוצא לשוק העולמי הירשמו כעת לכנס Unicode הבינלאומי העשירי, שייערך בין התאריכים 12־10 במרץ 1997, במיינץ שבגרמניה. בכנס ישתתפו מומחים מכל ענפי התעשייה בנושא האינטרנט העולמי וה־Unicode, בהתאמה לשוק הבינלאומי והמקומי, ביישום Unicode במערכות הפעלה וביישומים, בגופנים, בפריסת טקסט ובמחשוב רב־לשוני. some english inbetween כאשר העולם רוצה לדבר, הוא מדבר ב־Unicode";
 //const char * s = "אירופה, תוכנה והאינטרנט: Unicode";
 
 
-const char *s = "أوروبا, برمجيات الحاسوب + انترنيت : some english تصبح";
+//const char *s = "أوروبا, برمجيات الحاسوب + انترنيت : some english تصبح";
 
 
 
@@ -122,13 +122,16 @@ int main( int argc, char **argv )
 
     {
 	QRTString string = QString::fromUtf8( s );
+	qDebug("string length=%d",  string.str().length() );
+#if 0
 	string.setFormat( QRTFormat( QFont( "Arial", 24 ), Qt::black ) );
 	const TextLayout *textLayout = TextLayout::instance();
 	w->string = string;
-#if 0
+#else
 	QTime t;
 	t.start();
 	ScriptItemArray items;
+	const TextLayout * const textLayout = TextLayout::instance();
 	for ( int i = 0; i < 1000; i++ ) {
 	    textLayout->itemize( items, string );
 	}
