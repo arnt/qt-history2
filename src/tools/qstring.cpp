@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#197 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#198 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9685,10 +9685,8 @@ QString QString::visual(int index, int len)
 
 
 /*!
-
-  This utility function converts the 8-bit string \a ba to Unicode,
-  returning the result. If the length (excluding 0-terminator) of \a
-  ba is 0, this function returns 0.
+  This utility function converts the 8-bit string
+  \a ba to Unicode, returning the result.
 
   The caller is responsible for deleting the return value with delete[].
 */
@@ -9696,28 +9694,22 @@ QString QString::visual(int index, int len)
 QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
 {
     int l = 0;
-    QChar *result;
     while ( l < (int)ba.size() && ba[l] )
 	l++;
+    char* str = ba.data();
+    QChar *uc = new QChar[l];
+    QChar *result = uc;
     if ( len )
 	*len = l;
-    if ( l ) {
-	char* str = ba.data();
-	QChar *uc = new QChar[l];
-	result = uc;
-	while (l--)
-	    *uc++ = *str++;
-    }
-    else
-	result = 0;
+    while (l--)
+	*uc++ = *str++;
     return result;
 }
 
 /*!
-  This utility function converts the NUL-terminated 8-bit string \a
-  str to Unicode, returning the result and setting \a len to the
-  length of the Unicode string. If the length (excluding 0-terminator)
-  of \a str is 0, this function returns 0.
+  This utility function converts the NUL-terminated 8-bit string
+  \a str to Unicode, returning the result and setting \a len to
+  the length of the Unicode string.
 
   The caller is responsible for deleting the return value with delete[].
 */
@@ -9734,16 +9726,11 @@ QChar* QString::asciiToUnicode(const char *str, uint* len, uint maxlen )
 	    // Faster?
 	    l = strlen(str);
 	}
-	if ( l ) {
-	    QChar *uc = new QChar[l];
-	    result = uc;
-	    uint i = l;
-	    while ( i-- )
-		*uc++ = *str++;
-	}
-	else {
-	    result = 0;
-	}
+	QChar *uc = new QChar[l];
+	result = uc;
+	uint i = l;
+	while ( i-- )
+	    *uc++ = *str++;
     }
     if ( len )
 	*len = l;
