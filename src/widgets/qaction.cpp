@@ -88,7 +88,7 @@
   To insert an action into a menu or a tool bar, use addTo().
   It will appear as either a menu entry or a tool button:
 
-  \dontinclude action/application.cpp
+  \walkthrough action/application.cpp
   \skipto fileOpenAction
   \printline fileOpenAction
   \skipto fileOpenAction
@@ -372,7 +372,7 @@ QAction::~QAction()
 
 /*! Sets the icon set to \a icon, e.g.:
 
-  \dontinclude action/toggleaction/toggleaction.cpp
+  \walkthrough action/toggleaction/toggleaction.cpp
   \skipto labelonoffaction
   \printline labelonoffaction
   \skipto setIconSet
@@ -524,7 +524,7 @@ QString QAction::statusTip() const
 
   \a whatsThis may contain rich-text elements, e.g.:
 
-  \dontinclude action/application.cpp
+  \walkthrough action/application.cpp
   \skipto filePrintText
   \printuntil setWhatsThis
 
@@ -559,7 +559,7 @@ QString QAction::whatsThis() const
 
 /*! Sets the action's accelerator to \a key, e.g.:
 
-  \dontinclude action/toggleaction/toggleaction.cpp
+  \walkthrough action/toggleaction/toggleaction.cpp
   \skipto labelonoffaction
   \printline labelonoffaction
   \skipto setAccel
@@ -713,8 +713,7 @@ bool QAction::isEnabled() const
     return d->enabled;
 }
 
-/*!
-  \internal
+/*! \internal
 */
 void QAction::internalActivation()
 {
@@ -723,8 +722,7 @@ void QAction::internalActivation()
     emit activated();
 }
 
-/*!
-  \internal
+/*! \internal
 */
 void QAction::toolButtonToggled( bool on )
 {
@@ -741,7 +739,7 @@ void QAction::toolButtonToggled( bool on )
   as a tool button; an action added to a pop up menu appears
   as a menu entry:
 
-  \dontinclude action/application.cpp
+  \walkthrough action/application.cpp
   \skipto fileTools
   \printline fileTools
   \skipto addTo( fileTools )
@@ -963,7 +961,7 @@ void QAction::objectDestroyed()
   been switched on or off connect it to a slot that takes care
   about its state, e.g.:
 
-  \dontinclude action/toggleaction/toggleaction.cpp
+  \walkthrough action/toggleaction/toggleaction.cpp
   \skipto QMainWindow * window
   \printline QMainWindow * window
   \skipto labelonoffaction
@@ -1048,7 +1046,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   belong together. As a QActionGroup they can be
   added to and removed from a menu or a tool bar with a single call:
 
-  \dontinclude action/actiongroup/editor.cpp
+  \walkthrough action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printuntil redfontcolor
   \skipto colors->addTo
@@ -1219,7 +1217,7 @@ bool QActionGroup::isExclusive() const
   Its menu entry can be adjusted by changing the action group's menuText()
   and iconSet() properties:
 
-  \dontinclude action/actiongroup/editor.cpp
+  \walkthrough action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printline QActionGroup
 
@@ -1607,7 +1605,7 @@ void QActionGroup::childEvent( QChildEvent *e )
   To call a user program depending on which action was switched on connect
   this signal to a slot that takes care of the action argument:
 
-  \dontinclude action/actiongroup/editor.cpp
+  \walkthrough action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printline QActionGroup
   \skipto QObject::connect
@@ -1669,7 +1667,7 @@ void QActionGroup::objectDestroyed()
 }
 
 /*! This function is called from the addTo() function when it created
-  a widget (\a actionWidget) for the child action \a in the \a
+  a widget (\a actionWidget) for the child action \a a in the \a
   container.
 */
 
@@ -1683,7 +1681,7 @@ void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container, QAction *
 /*! \overload
 
   This function is called from the addTo() function when it created a
-  menu item for the child action \a at the index \a index in the popup
+  menu item for the child action at the index \a index in the popup
   menu \a menu.
 */
 

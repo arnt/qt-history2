@@ -72,7 +72,7 @@ Apart from the private helper variable \e indent that we will use to
 get indentation right, there is nothing special about our new 
 \e StructureParser class.
 
-\dontinclude xml/tagreader/structureparser.cpp
+\walkthrough xml/tagreader/structureparser.cpp
 
 Even the implementation is straight-forward: 
 
@@ -121,7 +121,7 @@ whitespaces added in startElement().
 With this we're done with our parser and can start writing the main() 
 program.
 
-\dontinclude xml/tagreader/tagreader.cpp
+\walkthrough xml/tagreader/tagreader.cpp
 
 \skipto include
 \printuntil qxml.h 

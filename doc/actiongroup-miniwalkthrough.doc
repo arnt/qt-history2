@@ -57,7 +57,7 @@ might be called from outside the class.
 
 <h2>Action!</h2>
 
-\dontinclude action/actiongroup/editor.cpp
+\walkthrough action/actiongroup/editor.cpp
 
 \skipto include
 \printuntil qaction.h

@@ -103,7 +103,7 @@ that QApplication returns when it leaves the event loop.
 <a name="ApplicationWindow"></a>
 <h2>The Implementation of ApplicationWindow</h2>
 
-\dontinclude application/application.cpp
+\walkthrough application/application.cpp
 
 Since the implementation is quite large (almost 300 lines) we 
 won't bore you with the preliminary headerfile \e #includes. Before we 
