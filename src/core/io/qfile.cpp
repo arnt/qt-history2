@@ -810,7 +810,7 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
             d->buffer.free(len);
         }
     }
-    if(ret != maxlen) {
+    if(ret > 0 && ret != maxlen) {
         *(data + ret) = '\0';
         ret++;
     }
