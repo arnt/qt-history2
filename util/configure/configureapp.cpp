@@ -859,7 +859,7 @@ void Configure::generateConfigfiles()
     QFile::remove( outName );
     QFile outFile( outName );
 
-    if( outFile.open( IO_WriteOnly ) ) {
+    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream outStream( &outFile );
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
@@ -1238,8 +1238,8 @@ void Configure::readLicense()
 	    if( buffer[ 0 ] != '#' ) {
 		QStringList components = QStringList::split( '=', buffer );
 		QStringList::Iterator it = components.begin();
-		QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null ).upper();
-		QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+		QString key = (*it++).stripWhiteSpace().replace( "\"", QString::null ).upper();
+		QString value = (*it++).stripWhiteSpace().replace( "\"", QString::null );
 
 		licenseInfo[ key ] = value;
 	    }
