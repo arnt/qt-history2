@@ -1,4 +1,3 @@
-//depot/qt/3.0/src/kernel/qpainter_x11.cpp#27 - edit change 87417 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -2065,13 +2064,17 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
         }
         map( x, y, w, h, &x, &y, &w, &h );
     }
-    w--;
-    h--;
     if ( w <= 0 || h <= 0 ) {
         if ( w == 0 || h == 0 )
             return;
         fix_neg_rect( &x, &y, &w, &h );
     }
+    if ( w == 1 && h == 1 ) {
+	XDrawPoint( dpy, hd, (cpen.style() == NoPen)?gc_brush:gc, x, y );
+	return;
+    }
+    w--;
+    h--;
     if ( cbrush.style() != NoBrush ) {          // draw filled ellipse
         XFillArc( dpy, hd, gc_brush, x, y, w, h, 0, 360*64 );
         if ( cpen.style() == NoPen ) {
