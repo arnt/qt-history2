@@ -301,6 +301,12 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     newly arrived events.
 */
 
+/*! \fn void QEventLoop::aboutToBlock()
+
+    This signal is emitted just before the event loop calls a function
+    that could block.
+*/
+
 /*! \fn bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
     Processes the next event received that matches \a flags. If no

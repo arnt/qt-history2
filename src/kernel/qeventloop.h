@@ -95,6 +95,7 @@ public:
 
 signals:
     void awake();
+    void aboutToBlock();
 
 protected:
     virtual bool processNextEvent( ProcessEventsFlags flags, bool canWait );
