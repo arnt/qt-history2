@@ -103,6 +103,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     HelpWindow *win = new HelpWindow(mainWin, 0, "qt_assistant_helpwin");
     win->setFont(browserFont());
     win->setPalette(palette());
+    win->setSearchPaths(Config::configuration()->mimePaths());
     // ### FIXME
     //win->setLinkUnderline(tabLinkUnderline);
     //win->setStyleSheet(tabStyleSheet);
