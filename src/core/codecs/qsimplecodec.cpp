@@ -692,10 +692,14 @@ QByteArray QSimpleTextCodec::convertFromUnicode(const QChar *in, int length, Con
     while(i--)
     {
         u = ucp->unicode();
-        *rp = u < 128 ? u : ((u < rmsize) ? (*(rmp+u)) : '?');
-        if (*rp == 0) {
-            *rp = replacement;
-            ++invalid;
+        if (u < 128) {
+            *rp = (char)u;
+        } else {
+            *rp = ((u < rmsize) ? (*(rmp+u)) : 0);
+            if (*rp == 0) {
+                *rp = replacement;
+                ++invalid;
+            }
         }
         rp++;
         ucp++;
