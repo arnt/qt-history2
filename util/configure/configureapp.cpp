@@ -1582,7 +1582,7 @@ void Configure::generateMakefiles()
 #if !defined(EVAL)
 	QStringList qtProjects;
 	qtProjects << "winmain" << "moc" << "corelib" << "gui" << "network"
-	    << "opengl" << "sql" << "xml" << "compat";
+	    << "opengl" << "sql" << "xml" << "qt3support";
 
         for (i=0;i<qtProjects.size();++i)
             appendMakeItem(0, qtProjects.at(i));
