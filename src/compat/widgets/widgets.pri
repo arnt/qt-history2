@@ -7,7 +7,8 @@ HEADERS +=      widgets/q3whatsthis.h \
 		widgets/q3buttongroup.h \
                 widgets/q3menudata.h \
                 widgets/q3menubar.h \
-                widgets/q3popupmenu.h
+                widgets/q3popupmenu.h \
+	 	../gui/widgets/qdatetimeedit.h
 
 SOURCES +=      widgets/q3whatsthis.cpp \
 		widgets/q3action.cpp \
@@ -16,6 +17,6 @@ SOURCES +=      widgets/q3whatsthis.cpp \
 		widgets/q3buttongroup.cpp \
                 widgets/q3menudata.cpp \
                 widgets/q3menubar.cpp \
-                widgets/q3popupmenu.cpp
-		
+                widgets/q3popupmenu.cpp \
+	 	../gui/widgets/qdatetimeedit.cpp
 mac:SOURCES += widgets/q3menubar_mac.cpp
