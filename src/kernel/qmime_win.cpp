@@ -324,8 +324,8 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
     }
 
     QByteArray r(s+2);
-    r[0]=char(0xff); // BOM
-    r[1]=char(0xfe);
+    r[0]=uchar(0xff); // BOM
+    r[1]=uchar(0xfe);
     memcpy(r.data()+2,data.data(),s);
     return r;
 }
@@ -367,7 +367,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mim
 	return QByteArray();
 
     // Windows uses un-marked little-endian nul-terminated Unicode
-    if ( data[0] == char(0xff) && data[1] == char(0xfe) )
+    if ( data[0] == uchar(0xff) && data[1] == uchar(0xfe) )
     {
 	// Right way - but skip header and add nul
 	QByteArray r(data.size());
@@ -383,7 +383,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mim
 	    s--;
 	}
 	char* i = data.data();
-	if ( i[0] == char(0xfe) && i[1] == char(0xff) ) {
+	if ( i[0] == uchar(0xfe) && i[1] == uchar(0xff) ) {
 	    i += 2;
 	    s -= 2;
 	}

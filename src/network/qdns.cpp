@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#18 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#19 $
 **
 ** Implementation of QDns class.
 **
@@ -1101,7 +1101,7 @@ void QDnsManager::transmitQuery( int i )
 	p[pp++] = 16;
 	break;
     default:
-	p[pp++] = (char)255; // any
+	p[pp++] = (uchar)255; // any
 	break;
     }
     // query class (always internet)

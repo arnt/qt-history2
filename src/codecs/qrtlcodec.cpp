@@ -92,10 +92,10 @@ static bool to8bit(const QChar ch, QCString *rstr)
 		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
 	} else if ( ch.row() == 0x20 ) {
 	    if ( ch.cell() == 0x3E ) {
-		*rstr += (char)0xAF;
+		*rstr += (uchar)0xAF;
 		converted = TRUE;
 	    } else if ( ch.cell() == 0x17 ) {
-		*rstr += (char)0xCF;
+		*rstr += (uchar)0xCF;
 		converted = TRUE;
 	    }
 	} else {
@@ -317,7 +317,7 @@ static QChar::Direction findBasicDirection(QString str)
     pos = 0;
     while (pos < len-1 ) {
 	if(str.at(pos).category() == QChar::Punctuation_Other) {
-	    if( str.at(pos) != 0xbf && str.at(pos) != 0xa1 ) // spanish inverted question and exclamation mark
+	    if( str.at(pos) != (uchar)0xbf && str.at(pos) != (uchar)0xa1 ) // spanish inverted question and exclamation mark
 		if( str.at(pos+1).direction() < 2 ) return QChar::DirR;
 	}
 	pos++;
