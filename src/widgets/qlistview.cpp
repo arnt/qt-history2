@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#264 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#265 $
 **
 ** Implementation of QListView widget class
 **
@@ -1758,21 +1758,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	if ( current->i == d->focusItem && hasFocus() &&
 	     d->allColumnsShowFocus ) {
 	    p->save();
-	    int x = contentsX() - ox;
-	    int w = visibleWidth();
-	    if ( contentsX() ) {
-            x--;
-            w++;
-	    }
-	    if ( contentsX() + visibleWidth() < contentsWidth() ) {
-            w++;
-	    }
-        
-        int tmpW = header()->cellPos( header()->count() - 1 ) + 
-                   header()->cellSize( header()->count() - 1 ) - contentsX();
-        if ( w > tmpW )
-            w = tmpW;
-        
+	    int x = -contentsX();
+        int w = header()->cellPos( header()->count() - 1 ) +
+                header()->cellSize( header()->count() - 1 );
+	 
 	    r.setRect( x, current->y - oy, w, ih );
 	    //WINDOWSBUG### should use this
 	    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
