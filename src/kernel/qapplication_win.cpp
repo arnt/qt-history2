@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#173 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -617,6 +617,7 @@ class QPEObject : public QObject		// trick to set/clear pendEvent
 {
 public:
     void setPendEventFlag()	{ pendEvent = TRUE; }
+    void clearPendEventFlag()	{ pendEvent = FALSE; }
 };
 
 class QPEvent : public QEvent			// trick to set/clear posted
@@ -700,6 +701,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		sendEvent( receiver, pe->event );
 	    }
 	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    // We don't clearPendEventFlag - be conservative.
 	    delete pe;
 	}
     }
@@ -737,6 +739,11 @@ static void sendPostedEvents()			// transmit posted events
 	if ( pe->event ) {
 	    QApplication::sendEvent( pe->receiver, pe->event );
 	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
+	    if ( pe->event->type() == QEvent::ChildInserted ) {
+		((QPEObject*)(((QChildEvent*)(pe->event))->child()))
+		    ->clearPendEventFlag();
+	    }
 	}
 	delete pe;
     }
@@ -749,7 +756,11 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
 	return;
     register QPostEvent *pe = postedEvents->first();
     while ( pe ) {
-	if ( pe->receiver == receiver ) {	// remove this receiver
+	if ( pe->receiver == receiver ||
+	    pe->event->type() == QEvent::ChildInserted
+	    && ((QChildEvent*)(pe->event))->child() == receiver )
+	{
+    	    // remove this receiver
 	    ((QPEvent*)pe->event)->clearPostedFlag();
 	    postedEvents->remove();
 	    pe = postedEvents->current();

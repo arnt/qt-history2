@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#170 $
 **
 ** Implementation of QObject class
 **
@@ -935,6 +935,7 @@ void QObject::insertChild( QObject *obj )
     else
 	childObjects->append( obj );		// normal priority appends
 
+    obj->pendEvent = TRUE;
     QChildEvent *e = new QChildEvent( QEvent::ChildInserted, obj );
     QApplication::postEvent( this, e );
 }
