@@ -19,7 +19,7 @@ public:
     SQLHANDLE hStmt;
 };
 
-QString WarnODBCHandle(int handleType, SQLHANDLE handle)
+QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 {
     char state_[SQL_SQLSTATE_SIZE+1];
     SQLINTEGER nativeCode_;
@@ -38,46 +38,27 @@ QString WarnODBCHandle(int handleType, SQLHANDLE handle)
     return QString::null;
 }
 
-QString ODBCWarn( const QODBCPrivate* odbc)
+QString qODBCWarn( const QODBCPrivate* odbc)
 {
-    return ( WarnODBCHandle( SQL_HANDLE_ENV, odbc->hEnv ) + WarnODBCHandle( SQL_HANDLE_DBC, odbc->hDbc ) + WarnODBCHandle( SQL_HANDLE_STMT, odbc->hStmt ) );
+    return ( qWarnODBCHandle( SQL_HANDLE_ENV, odbc->hEnv ) + qWarnODBCHandle( SQL_HANDLE_DBC, odbc->hDbc ) + qWarnODBCHandle( SQL_HANDLE_STMT, odbc->hStmt ) );
 }
 
 void qSystemWarning( const QString& message, const QODBCPrivate* odbc )
 {
 #ifdef CHECK_RANGE
-    qWarning( message + "\tError:" + ODBCWarn( odbc ) );
+    qWarning( message + "\tError:" + qODBCWarn( odbc ) );
 #endif
 }
 
-QSqlError makeError( const QString& err, int type, const QODBCPrivate* p )
+QSqlError qMakeError( const QString& err, int type, const QODBCPrivate* p )
 {
-    return QSqlError( "QODBC: " + err, ODBCWarn(p), type );
+    return QSqlError( "QODBC: " + err, qODBCWarn(p), type );
 }
 
-QSqlFieldInfo makeFieldInfo( const QODBCPrivate* p, int i  )
+QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
 {
-    SQLCHAR colName[255];
-    SQLSMALLINT colNameLen;
-    SQLSMALLINT colType;
-    SQLUINTEGER colSize;
-    SQLSMALLINT colScale;
-    SQLSMALLINT nullable;
-    SQLRETURN r = SQLDescribeCol( p->hStmt,
-			i+1,
-			colName,
-			sizeof(colName),
-			&colNameLen,
-			&colType,
-			&colSize,
-			&colScale,
-			&nullable);
-#ifdef CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-	qSystemWarning( QString("Unable to describe column %1").arg(i), p );
-#endif
-    QVariant::Type type;
-    switch ( colType ) {
+    QVariant::Type type = QVariant::Invalid;
+    switch ( sqltype ) {
     case SQL_DECIMAL:
     case SQL_NUMERIC:
     case SQL_REAL:
@@ -116,9 +97,133 @@ QSqlFieldInfo makeFieldInfo( const QODBCPrivate* p, int i  )
 	type = QVariant::String;
 	break;
     }
+    return type;
+}
+
+QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
+{
+    SQLCHAR colName[255];
+    SQLSMALLINT colNameLen;
+    SQLSMALLINT colType;
+    SQLUINTEGER colSize;
+    SQLSMALLINT colScale;
+    SQLSMALLINT nullable;
+    SQLRETURN r = SQLDescribeCol( p->hStmt,
+			i+1,
+			colName,
+			sizeof(colName),
+			&colNameLen,
+			&colType,
+			&colSize,
+			&colScale,
+			&nullable);
+#ifdef CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qSystemWarning( QString("Unable to describe column %1").arg(i), p );
+#endif
+    QVariant::Type type = qDecodeODBCType( colType );
     return QSqlFieldInfo( QString((char*)colName), type, (int)colSize, (int)colScale );
 }
 
+QString qGetStringData( SQLHANDLE hStmt, int column, SQLCHAR* buf, SQLINTEGER& lengthIndicator, bool& isNull )
+{
+    QString fieldVal;
+    SQLRETURN r;
+    while ( TRUE ) {
+	r = SQLGetData( hStmt,
+			column+1,
+			SQL_C_CHAR,
+			(SQLPOINTER)buf,
+			sizeof(buf),
+			&lengthIndicator );
+	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+	    if ( lengthIndicator == SQL_NO_TOTAL )
+		fieldVal += QString( (char*)buf );  // keep going
+	    else if ( lengthIndicator == SQL_NULL_DATA ) {
+		fieldVal = QString::null;
+		isNull = TRUE;
+		break;
+	    } else {
+		if ( r == SQL_SUCCESS ) {
+		    fieldVal += QString( (char*)buf );
+		    break;
+		} else
+		    fieldVal += QString( (char*)buf );
+	    }
+	} else {
+	    fieldVal += QString::null;
+	    break;
+	}
+    }
+    return fieldVal;
+}
+
+int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
+{		
+    SQLINTEGER intbuf;
+    isNull = FALSE;
+    SQLINTEGER lengthIndicator = 0;
+    SQLRETURN r = SQLGetData( hStmt,
+		    column+1,
+		    SQL_C_SLONG,
+		    (SQLPOINTER)&intbuf,
+		    0,
+		    &lengthIndicator );
+    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+	if ( lengthIndicator == SQL_NULL_DATA )
+	    isNull = TRUE;
+    }
+    return (int)intbuf;
+}
+
+QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
+{
+    QSqlFieldInfo fi;
+    SQLHANDLE hStmt;
+    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
+				  d->hDbc,
+				  &hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef CHECK_RANGE	
+	qSystemWarning( "Unable to list primary key", d );
+#endif	
+	return fi;
+    }
+    r = SQLSetStmtAttr( hStmt,
+                        SQL_ATTR_CURSOR_TYPE,
+                        (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+                        SQL_IS_UINTEGER );
+    r =  SQLColumns( hStmt,
+		     NULL,
+		     0,
+		     NULL,
+		     0,
+		     (SQLCHAR*)tablename.local8Bit().data(),
+		     tablename.length(),
+		     (SQLCHAR*)fieldname.local8Bit().data(),
+		     fieldname.length() );
+#ifdef CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qSystemWarning( "Unable to execute column list", d );
+#endif
+    r = SQLFetchScroll( hStmt,
+                        SQL_FETCH_NEXT,
+                        0);
+    if ( r == SQL_SUCCESS ) {
+	bool isNull;
+	int type = qGetIntData( hStmt, 4, isNull ); // column type
+	int length = qGetIntData( hStmt, 6, isNull ); // column size
+	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
+	fi.name = fieldname;
+	fi.type = qDecodeODBCType( type );
+	fi.length = length;
+	fi.precision = precision;
+    }
+    r = SQLFreeStmt( hStmt, SQL_CLOSE );
+    return fi;
+}
+
+/////////////////
 
 QODBCDriver::QODBCDriver( QObject * parent, const char * name )
 : QSqlDriver(parent,name ? name : "QODBC")
@@ -187,7 +292,7 @@ bool QODBCDriver::open( const QString & db,
 			    &cb,
 			    SQL_DRIVER_NOPROMPT);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-	setLastError( makeError( "Unable to connect", QSqlError::Connection, d ) );
+	setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
 	return FALSE;
     }
@@ -256,7 +361,7 @@ bool QODBCDriver::beginTransaction()
 			    (SQLPOINTER)ac,
 			    sizeof(ac));
     if ( r != SQL_SUCCESS ) {
-	setLastError( makeError( "Unable to disable autocommit", QSqlError::Transaction, d ) );
+	setLastError( qMakeError( "Unable to disable autocommit", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     return TRUE;
@@ -268,7 +373,7 @@ bool QODBCDriver::commitTransaction()
     				d->hEnv,
 				SQL_COMMIT);
     if ( r != SQL_SUCCESS ) {
-	setLastError( makeError("Unable to commit transaction", QSqlError::Transaction, d ) );
+	setLastError( qMakeError("Unable to commit transaction", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     return endTrans();
@@ -280,7 +385,7 @@ bool QODBCDriver::rollbackTransaction()
     				d->hEnv,
 				SQL_ROLLBACK);
     if ( r != SQL_SUCCESS ) {
-    	setLastError( makeError( "Unable to rollback transaction", QSqlError::Transaction, d ) );
+    	setLastError( qMakeError( "Unable to rollback transaction", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     return endTrans();
@@ -294,7 +399,7 @@ bool QODBCDriver::endTrans()
 			    (SQLPOINTER)ac,
 			    sizeof(ac));
     if ( r != SQL_SUCCESS ) {
-    	setLastError( makeError( "Unable to enable autocommit", QSqlError::Transaction, d ) );
+    	setLastError( qMakeError( "Unable to enable autocommit", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     return TRUE;
@@ -313,7 +418,9 @@ QStringList QODBCDriver::tables() const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-	qSystemWarning( "Unable to list tables", d );	
+#ifdef CHECK_RANGE		
+	qSystemWarning( "Unable to list tables", d );
+#endif	
 	return tl;
     }
     r = SQLSetStmtAttr( hStmt,
@@ -328,10 +435,10 @@ QStringList QODBCDriver::tables() const
 		   NULL,
 		   0,
 		   NULL,
-		   0);    
+		   0);
 #ifdef CHECK_RANGE
-    if ( r != SQL_SUCCESS )     
-	qSystemWarning( "Unable to list tables", d );
+    if ( r != SQL_SUCCESS )
+	qSystemWarning( "Unable to execute tables list", d );
 #endif
     int tableNameLen(0);
     r = SQLGetInfo( d->hDbc,
@@ -339,47 +446,76 @@ QStringList QODBCDriver::tables() const
 		    &tableNameLen,
 		    sizeof(tableNameLen),
 		    NULL );
-    SQLCHAR* buf = new SQLCHAR[ tableNameLen ];    
+    SQLCHAR* buf = new SQLCHAR[ tableNameLen ];
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
                         0);
     while ( r == SQL_SUCCESS ) {
-	QString fieldVal;
-	SQLINTEGER lengthIndicator = 0;	    
-	while ( TRUE ) {
-	    r = SQLGetData( hStmt,
-			    3, // TABLE_NAME
-			    SQL_C_CHAR,
-			    (SQLPOINTER)buf,
-			    sizeof(buf),
-			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NO_TOTAL )
-		    fieldVal += QString( (char*)buf );  // keep going
-		else if ( lengthIndicator == SQL_NULL_DATA ) {
-		    fieldVal = QString::null;
-		    break;
-		} else {
-		    if ( r == SQL_SUCCESS ) {
-			fieldVal += QString( (char*)buf );
-			break;
-		    } else
-			fieldVal += QString( (char*)buf );
-		}
-	    } else {
-		fieldVal += QString::null;
-		break;
-	    }
-	}
+	SQLINTEGER lengthIndicator = 0;
+	bool isNull;
+	QString fieldVal = qGetStringData( hStmt, 2, buf, lengthIndicator, isNull ); // table name
 	tl.append( fieldVal );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
     }
-    delete buf;	
+    delete buf;
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return tl;
 }
+
+QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
+{
+    QSqlIndex index;
+    SQLHANDLE hStmt;
+    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
+				  d->hDbc,
+				  &hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef CHECK_RANGE	
+	qSystemWarning( "Unable to list primary key", d );
+#endif	
+	return index;
+    }
+    r = SQLSetStmtAttr( hStmt,
+                        SQL_ATTR_CURSOR_TYPE,
+                        (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+                        SQL_IS_UINTEGER );
+    r = SQLPrimaryKeys( hStmt,
+			NULL,
+			0,
+			NULL,
+			0,
+			(SQLCHAR*)tablename.local8Bit().data(),
+			tablename.length());
+#ifdef CHECK_RANGE
+    if ( r != SQL_SUCCESS )
+	qSystemWarning( "Unable to execute primary key list", d );
+#endif
+    int nameLen(0);
+    r = SQLGetInfo( d->hDbc,
+		    SQL_MAX_TABLE_NAME_LEN,
+		    &nameLen,
+		    sizeof(nameLen),
+		    NULL );
+    SQLCHAR* buf = new SQLCHAR[ nameLen ];
+    r = SQLFetchScroll( hStmt,
+                        SQL_FETCH_NEXT,
+                        0);
+    while ( r == SQL_SUCCESS ) {
+	SQLINTEGER lengthIndicator = 0;
+	bool isNull;
+	QString fieldVal = qGetStringData( hStmt, 3, buf, lengthIndicator, isNull ); // column name
+	index.append( qMakeFieldInfo( d, tablename, fieldVal ) );
+	r = SQLFetchScroll( hStmt,
+			    SQL_FETCH_NEXT,
+			    0);
+    }
+    delete buf;
+    r = SQLFreeStmt( hStmt, SQL_CLOSE );
+    return index;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -395,7 +531,7 @@ QODBCResultInfo::QODBCResultInfo( const QODBCPrivate* p )
 #endif
     if ( count > 0 && r == SQL_SUCCESS ) {
 	for ( int i = 0; i < count; ++i ) {
-            appendField( makeFieldInfo( p, i ) );
+            appendField( qMakeFieldInfo( p, i ) );
         }
     }
     SQLINTEGER affectedRowCount(0);
@@ -526,7 +662,7 @@ bool QODBCResult::reset ( const QString& query )
 	qSystemWarning( "Need data", d );
     }
     if ( r != SQL_SUCCESS ) {
-	setLastError( makeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
     setActive( TRUE) ;
@@ -600,22 +736,11 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); current++ ) {
-	QSqlFieldInfo info = makeFieldInfo( d, field );
+	QSqlFieldInfo info = qMakeFieldInfo( d, field );
 	switch ( info.type ) {
 	case QVariant::Int:
-	    SQLINTEGER intbuf;
 	    isNull = FALSE;
-	    r = SQLGetData( d->hStmt,
-			    current+1,
-			    SQL_C_SLONG,
-			    (SQLPOINTER)&intbuf,
-			    0,
-			    &lengthIndicator );
-	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		if ( lengthIndicator == SQL_NULL_DATA )
-		    isNull = TRUE;
-	    }
-	    fieldCache[ current ] = QVariant( (int)intbuf );
+	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Double:
@@ -691,33 +816,7 @@ QVariant QODBCResult::data( int field )
 	case QVariant::String:
 	    SQLCHAR* buf = new SQLCHAR[info.length];
 	    isNull = FALSE;
-	    QString fieldVal;
-	    while ( TRUE ) {
-		r = SQLGetData( d->hStmt,
-				current+1,
-				SQL_C_CHAR,
-				(SQLPOINTER)buf,
-				sizeof(buf),
-				&lengthIndicator );
-		if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-		    if ( lengthIndicator == SQL_NO_TOTAL )
-			fieldVal += QString( (char*)buf );  // keep going
-		    else if ( lengthIndicator == SQL_NULL_DATA ) {
-			fieldVal = QString::null;
-			isNull = TRUE;
-			break;
-		    } else {
-			if ( r == SQL_SUCCESS ) {
-			    fieldVal += QString( (char*)buf );
-			    break;
-			} else
-			    fieldVal += QString( (char*)buf );
-		    }
-		} else {
-		    fieldVal += QString::null;
-		    break;
-		}
-	    }
+	    QString fieldVal = qGetStringData( d->hStmt, current, buf, lengthIndicator, isNull );
 	    delete buf;
 	    fieldCache[ current ] = QVariant( fieldVal );
 	    nullCache[ current ] = isNull;
@@ -731,3 +830,4 @@ bool QODBCResult::isNull( int field ) const
 {
     return nullCache[ field ];
 }
+

@@ -20,8 +20,9 @@ public:
 			const QString & host = QString::null );
     void 	close();
     QSql 	createResult() const;
-    QSqlFieldInfoList table( const QString& name) const;
-    QStringList         tables() const;        
+    QSqlFieldInfoList   table( const QString& name) const;
+    QStringList         tables() const;
+    QSqlIndex           primaryIndex( const QString& tablename ) const;
 protected:
     bool    beginTransaction();
     bool    commitTransaction();
