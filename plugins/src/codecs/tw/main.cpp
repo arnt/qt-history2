@@ -1,29 +1,19 @@
-#include <qtextcodecinterface.h>
+#include <qtextcodecplugin.h>
 #include <qtextcodec.h>
 #include <qptrlist.h>
-#include <qapplication.h>
 
 #include <qbig5codec.h>
 #include <private/qfontcodecs_p.h>
 
 
-class TWTextCodecs : public QTextCodecFactoryInterface
+class TWTextCodecs : public QTextCodecPlugin
 {
 public:
     TWTextCodecs();
-    virtual ~TWTextCodecs();
-
-    // unknown interface
-    QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    Q_REFCOUNT;
-
-    // feature list interface
-    QStringList featureList() const;
-
-    // text codec interface
+    
+    QStringList keys() const;
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
 
 private:
     QPtrList<QTextCodec> codecs;
@@ -34,29 +24,7 @@ TWTextCodecs::TWTextCodecs()
 {
 }
 
-
-TWTextCodecs::~TWTextCodecs()
-{
-}
-
-QRESULT TWTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    *iface = 0;
-
-    if (uuid == IID_QUnknown )
-	*iface = (QUnknownInterface *) this;
-    else if (uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface *) this;
-    else if (uuid == IID_QTextCodecFactory )
-	*iface = (QTextCodecFactoryInterface*) this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList TWTextCodecs::featureList() const
+QStringList TWTextCodecs::keys() const
 {
     QStringList list;
     list << "Big5" << "big5*-0";
@@ -125,7 +93,5 @@ QTextCodec *TWTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( TWTextCodecs );
-}
+Q_EXPORT_PLUGIN( TWTextCodecs );
+
