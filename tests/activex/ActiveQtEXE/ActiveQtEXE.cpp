@@ -8,10 +8,10 @@
 #include "stdafx.h"
 #include "resource.h"
 #include <initguid.h>
-#include "ActiveQtEXE.h"
+#include "activeqtexe.h"
 
 #include "ActiveQtEXE_i.c"
-#include "QActiveX.h"
+#include "qActivex.h"
 
 
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
@@ -92,7 +92,6 @@ LPCTSTR FindOneOf(LPCTSTR p1, LPCTSTR p2)
 }
 
 QApplication* pGlobalApp;
-//QActiveXApp* pGlobalApp;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -135,7 +134,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
 	int tmp( 0 );
 		// Create our QApplication object before starting our monitor.
 	pGlobalApp = new QApplication( tmp, NULL );
-//	pGlobalApp = new QActiveXApp( tmp, NULL );
         _Module.StartMonitor();
         hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE);
         _ASSERTE(SUCCEEDED(hRes));

@@ -19,11 +19,11 @@ class QActiveX;
 class CTestWidget : public QActiveXBase 
 {
 public:
-    CTestWidget( HWND hWndParent );
+    CTestWidget();
     ~CTestWidget();
 
-    virtual void resizeEvent( QResizeEvent* pEvent );
-    void keyPressEvent( QKeyEvent* pEvent );
+    void resizeEvent( QResizeEvent* pEvent );
+
 private:
     QSlider* m_pSlider;
     QLCDNumber* m_pLCD;

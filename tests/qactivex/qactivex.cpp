@@ -1065,11 +1065,35 @@ QVariant QActiveXBase::dynamicCall( const QCString &function, const QVariant &va
 
     if ( slot ) {
 	qt_invoke( index + meta->slotOffset(), obj );
-	if ( !QUType::isEqual( obj[0].type, &static_QUType_Null ) ) {
-	    if ( obj[0].type == &static_QUType_int ) {
-		result = static_QUType_int.get( &obj[0] );
-	    } else if ( obj[0].type == &static_QUType_ptr ) {
+	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+	    result = static_QUType_int.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+	    result = static_QUType_QString.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+	    result = static_QUType_charstar.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
+	    result = static_QUType_bool.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
+	    result = static_QUType_double.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
+	    result = static_QUType_enum.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+	    result = static_QUType_QVariant.get( obj );
+	} else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
+	    //###
+	} else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
+	    //###
+	} else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && slot->parameters ) {
+	    const QUParameter *param = slot->parameters;
+	    const char *type = (const char*)param->typeExtra;
+	    if ( !qstrcmp( type, "int" ) ) {
+		result = *(int*)static_QUType_ptr.get( obj );
+	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
+		result = *(QString*)static_QUType_ptr.get( obj );
+	    } else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
+		result = *(QDateTime*)static_QUType_ptr.get( obj );
 	    }
+	    //###
 	}
     }
 #if defined(QT_CHECK_RANGE)

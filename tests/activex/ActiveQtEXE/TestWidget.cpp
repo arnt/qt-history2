@@ -9,7 +9,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTestWidget::CTestWidget( HWND hWndParent )
+CTestWidget::CTestWidget()
 {
     // Create our child widgets
     m_pSlider = new QSlider( 0, 100, 1, 50, QSlider::Horizontal, this );
@@ -19,16 +19,12 @@ CTestWidget::CTestWidget( HWND hWndParent )
     // Initialize the state
     m_pLCD->display( 50 );
 
-    ::SetParent( winId(), hWndParent );
-    ::SetWindowLong( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-
     // Make sure things get updated properly
     QObject::connect( m_pSlider, SIGNAL( valueChanged( int ) ), m_pLCD, SLOT( display( int ) ) );
 }
 
 CTestWidget::~CTestWidget()
 {
-    debug("CTestWidget::~CTestWidget()");
 }
 
 void CTestWidget::resizeEvent( QResizeEvent* pEvent )
@@ -43,16 +39,4 @@ void CTestWidget::resizeEvent( QResizeEvent* pEvent )
     m_pEdit->resize( newSize.width(), newSize.height() >> 2 );
     m_pEdit2->move( 0, newSize.height() - ( newSize.height() >> 2 ) );
     m_pEdit2->resize( newSize.width(), newSize.height() >> 2 );
-}
-
-void CTestWidget::keyPressEvent( QKeyEvent* pEvent )
-{
-    static int i( 0 );
-
-    i++;
-
-    if( i % 2 )
-	setBackgroundColor( red );
-    else
-	setBackgroundColor( blue );
 }

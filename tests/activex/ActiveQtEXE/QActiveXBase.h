@@ -10,10 +10,10 @@
 #include <qwidget.h>
 #include <qapplication.h>
 
-class QActiveXBase : public QWidget 
+class QActiveXBase : public QWidget
 {
 public:
-    QActiveXBase( const char* pName = NULL ) : QWidget( 0, pName, WStyle_Customize )
+    QActiveXBase() : QWidget( 0, 0, WStyle_Customize )
     {
     }
     ~QActiveXBase()

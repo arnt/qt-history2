@@ -5,7 +5,7 @@
 
 #include "resource.h"       // main symbols
 #include <atlctl.h>
-#include "TestWidget.h"
+#include "testwidget.h"
 
 Q_EXPORT LRESULT QtWndProcGate( HWND, UINT, WPARAM, LPARAM );
 
@@ -88,37 +88,33 @@ BEGIN_MSG_MAP(QActiveX)
     MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow )
     MESSAGE_HANDLER(WM_PAINT, OnPaint )
     MESSAGE_HANDLER(WM_SIZE, ForwardMessage )
-    MESSAGE_HANDLER(WM_ACTIVATE, ForwardKeyMessage)
+    MESSAGE_HANDLER(WM_ACTIVATE, ForwardMessage)
     MESSAGE_HANDLER(WM_MOUSEACTIVATE, ForwardMessage)
     MESSAGE_HANDLER(WM_KEYUP, ForwardMessage)
     MESSAGE_HANDLER(WM_KEYDOWN, ForwardMessage)
     MESSAGE_HANDLER(WM_CHAR, ForwardMessage)
-    MESSAGE_HANDLER(WM_SETFOCUS, ForwardFocus )
-    MESSAGE_HANDLER(WM_KILLFOCUS, ForwardFocus )
+    MESSAGE_HANDLER(WM_SETFOCUS, ForwardFocusMessage )
+    MESSAGE_HANDLER(WM_KILLFOCUS, ForwardFocusMessage )
 END_MSG_MAP()
 
 // IViewObjectEx
     DECLARE_VIEW_STATUS(VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE)
 
-
-    STDMETHOD(GetViewStatus)(DWORD* pdwStatus)
-    {
-	*pdwStatus = VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE;
-	return S_OK;
-    }
-
-
 private:
-    CTestWidget* m_pWidget;
+    QActiveXBase* m_pWidget;
 
     LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-	m_pWidget = new CTestWidget( m_hWnd );
+	m_pWidget = new CTestWidget();
+	::SetParent( m_pWidget->winId(), m_hWnd );
+	::SetWindowLong( m_pWidget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+
 	if( m_pWidget ) {
 	    m_pWidget->raise();
 	    m_pWidget->move( 0, 0 );
 	}
 	return 0;
+	
     }
     LRESULT OnShowWindow( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
     {
@@ -141,31 +137,16 @@ private:
 	    return ::SendMessage( m_pWidget->winId(), uMsg, wParam, lParam );
 	return 0;
     }
-    LRESULT ForwardKeyMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+
+    LRESULT ForwardFocusMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
     {
-	if( m_pWidget )
+	if( m_pWidget ) {
+	    if ( uMsg == WM_SETFOCUS )
+		::SendMessage( m_pWidget->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
 	    return ::SendMessage( m_pWidget->winId(), uMsg, wParam, lParam );
+	}
 	return 0;
     }
-
-    LRESULT ForwardFocus( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-    {
-	if( !m_pWidget )
-	    return 0;
-
-	switch( uMsg ) {
-	case WM_SETFOCUS:
-	    Beep( 440, 50 );
-	    return ::SendMessage( m_pWidget->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), NULL );
-	case WM_KILLFOCUS:
-	    Beep( 220, 50 );
-	    return ::SendMessage( m_pWidget->winId(), WM_ACTIVATE, MAKEWPARAM( WA_INACTIVE, 0 ), NULL );
-	default:
-	    Beep( 880, 100 );
-	    return 0;
-	}
-    }
-
 };
 
 #endif

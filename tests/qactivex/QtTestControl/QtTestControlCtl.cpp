@@ -489,24 +489,14 @@ void CQtTestControlCtrl::Sub(long x, long y, long FAR* res)
 
 #include <qapplication.h>
 
-class MyWidget : public QWidget
-{
-public:
-    MyWidget( HWND hwnd )
-    {
-	//create( hwnd );
-    }
-
-    void mousePressEvent( QMouseEvent *e )
-    {
-	qDebug( "Mouse Press!" );
-    }
-};
-
 long CQtTestControlCtrl::OpenWidget() 
 {
 	if ( qApp ) {
-	    MyWidget *widget = new MyWidget( m_hWnd );
+	    QWidget *widget = new QWidget( 0, 0, Qt::WStyle_Customize );
+	    ::SetParent( widget->winId(), m_hWnd );
+	    ::SetWindowLong( widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	    widget->raise();
+	    widget->move( 0, 0 );
 	    widget->show();
 	}
 
