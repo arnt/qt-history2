@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#279 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#280 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -133,7 +133,7 @@ struct QGC
 {
     GC	 gc;
     char in_use;
-    char mono;
+    bool mono;
 };
 
 const  int  gc_array_size = 256;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#53 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -32,12 +32,9 @@
 #include <stdlib.h>
 
 #if defined(_OS_WIN32_)
-
 #include <io.h>
 #include <fcntl.h>
-
 #else
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#407 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#408 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -76,6 +76,7 @@
 
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4018)
+#undef open
 #undef close
 #endif
 
