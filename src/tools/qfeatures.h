@@ -245,6 +245,9 @@
 */
 //#define QT_NO_QWS_GFX_SPEED
 
+/*! Qt/Embedded window system properties.  */
+//#define QT_NO_QWS_PROPERTIES
+
 /*!
     Drawing utility functions
 */
