@@ -404,7 +404,10 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
     }
     if(location == QMenuScroller::ScrollTop && (newScrollFlags & QMenuScroller::ScrollUp) 
        && !(scroll->scrollFlags & QMenuScroller::ScrollUp))
-       newOffset += scrollHeight; 
+        newOffset += scrollHeight; 
+    else if(location == QMenuScroller::ScrollBottom && (newScrollFlags & QMenuScroller::ScrollDown) 
+            && !(scroll->scrollFlags & QMenuScroller::ScrollDown))
+        newOffset -= scrollHeight; 
 
     int dh = QApplication::desktop()->height();
     const int desktopFrame = q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
@@ -1140,6 +1143,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
     }
     d->tearoffHighlighted = 0;
+    d->motions = 0;
 
     d->updateActions();
     QPoint pos = p;
@@ -1491,6 +1495,9 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
     if(d->mouseEventTaken(e))
         return;
+    if(!d->mouseDown && d->motions < 6)
+        return;
+
     d->mouseDown = false;
     QAction *action = d->actionAt(e->pos());
     for(QWidget *caused = this; caused;) {
@@ -1831,6 +1838,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
 {
     if(!isVisible() || d->mouseEventTaken(e))
         return;
+    d->motions++;
 
     QAction *action = d->actionAt(e->pos());
     if(!action) {
