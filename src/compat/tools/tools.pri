@@ -23,6 +23,7 @@ compat {
 		  tools/qptrqueue.h \
 		  tools/qptrstack.h \
 		  tools/qptrvector.h \
+                  tools/qshared.h \
 		  tools/qsortedlist.h \
 		  tools/qstrlist.h \
 		  tools/qstrvec.h \
@@ -38,5 +39,6 @@ compat {
 		  tools/qgdict.cpp \
 		  tools/qglist.cpp \
 		  tools/qgvector.cpp \
+                  tools/qshared.cpp \
 		  tools/qptrcollection.cpp
 }

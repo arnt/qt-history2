@@ -16,7 +16,6 @@
 #define QIMAGE_H
 
 #ifndef QT_H
-#include "qshared.h"
 #include "qrgb.h"
 #include "qrect.h"
 #ifndef QT_INCLUDE_COMPAT
@@ -28,6 +27,16 @@
 class QIODevice;
 class QStringList;
 template <class T> class QList;
+
+// Remove this and perhaps switch to atomic refcounting when changing this.
+struct QSharedTemporary
+{
+    QSharedTemporary() : count( 1 ) { }
+    void ref()		{ ++count; }
+    bool deref()	{ return !--count; }
+    uint count;
+};
+
 
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
@@ -211,7 +220,7 @@ private:
     void	reinit();
     void	freeBits();
 
-    struct QImageData : public QShared {	// internal image data
+    struct QImageData : public QSharedTemporary {	// internal image data
 	int	w;				// image width
 	int	h;				// image height
 	int	d;				// image depth

@@ -15,9 +15,8 @@
 #ifndef QWSPAINTENGINE_QWS_H
 #define QWSPAINTENGINE_QWS_H
 
+#include "qatomic.h"
 #include "qpaintengine.h"
-#include "qshared.h"
-
 
 class QGfx;
 struct QWSPaintEngineData;
@@ -111,7 +110,9 @@ private:
 #endif
 };
 
-struct QWSPaintEngineData : public QShared {
+/* I don't know where you use this, but I removed the QShared and gave you a QAtomic --tws */
+struct QWSPaintEngineData {
+    QAtomic ref;
     /*Display*/ void *x_display;
     int x_screen;
     int x_depth;

@@ -179,7 +179,7 @@ protected:
     };
 #endif
 
-    struct QPixmapData : public QShared {	// internal pixmap data
+    struct QPixmapData : public QSharedTemporary {	// internal pixmap data
 	QCOORD	w, h;
 	short	d;
 	uint	uninit	 : 1;

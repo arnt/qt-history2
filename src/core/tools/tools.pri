@@ -15,7 +15,6 @@ HEADERS +=  \
 	tools/qmap.h \
 	tools/qqueue.h \
 	tools/qregexp.h \
-	tools/qshared.h \
 	tools/qshareddatapointer.h \
 	tools/qstack.h \
 	tools/qstring.h \
@@ -37,7 +36,6 @@ SOURCES += \
 	tools/qmap.cpp \
 	tools/qqueue.cpp \
 	tools/qregexp.cpp \
-	tools/qshared.cpp \
 	tools/qshareddatapointer.cpp \
 	tools/qstack.cpp \
 	tools/qstring.cpp \
