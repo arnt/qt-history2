@@ -525,9 +525,18 @@ QString QAccessibleButton::text( Text t, int control ) const
 
     switch ( t ) {
     case DefaultAction:
-	if ( role(control) == PushButton )
+	switch( role(control) ) {
+	case PushButton:
 	    return QButton::tr("Press");
-	return QButton::tr("Open");
+	case CheckBox:
+	    if ( state(control) & Checked )
+		return QButton::tr("UnCheck");
+	    return QButton::tr("Check");
+	case RadioButton:
+	    return QButton::tr("Check");
+	default:
+	    return QButton::tr("Press");
+	}	
     case Accelerator:
 	tx = hotKey( ((QButton*)widget())->text() );
 	if ( !!tx ) {
