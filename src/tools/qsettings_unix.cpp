@@ -147,7 +147,7 @@
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
     \list 1
-    \i $QT_INSTALL_PREFIX/etc
+    \i $QT_INSTALL_PREFIX/etc/settings
     \i /opt/MyCompany/share/etc
     \i /opt/MyCompany/share/MyApplication/etc
     \i $HOME/.qt
@@ -1068,7 +1068,7 @@ bool QSettings::removeEntry(const QString &key)
     /MyCompany/MyApplication/geometry/height
     \endcode
     \code
-    QStringList keys = entryList( "/MyApplication" );
+    QStringList keys = entryList( "/MyCompany/MyApplication" );
     \endcode
     \c keys contains 'background color' and 'foreground color'. It does
     not contain 'geometry' because this key contains keys not entries.
@@ -1121,8 +1121,6 @@ QStringList QSettings::entryList(const QString &key) const
     } else
 	realkey = key;
 
-    int start = realkey.length();
-
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
     QStringList ret;
@@ -1131,9 +1129,14 @@ QStringList QSettings::entryList(const QString &key) const
 	itkey = it.key();
 	it++;
 
-	if (start > 0 && itkey.left(start) != realkey)
-	    continue;
-	else if (itkey.find('/', start) != -1)
+	if ( realkey.length() > 0 ) {
+	    if ( itkey.left( realkey.length() ) != realkey )
+		continue;
+	    else
+		itkey.remove( 0, realkey.length() + 1 );
+	}
+
+	if ( itkey.find( '/' ) != -1 )
 	    continue;
 
 	ret << itkey;
@@ -1160,7 +1163,7 @@ QStringList QSettings::entryList(const QString &key) const
     /MyCompany/MyApplication/recent files/3
     \endcode
     \code
-    QStringList keys = subkeyList( "/MyApplication" );
+    QStringList keys = subkeyList( "/MyCompany/MyApplication" );
     \endcode
     \c keys contains 'geometry' and 'recent files'. It does not contain
     'background color' or 'foreground color' because they are keys which
@@ -1210,8 +1213,6 @@ QStringList QSettings::subkeyList(const QString &key) const
     } else
 	realkey = key;
 
-    int start = realkey.length();
-
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
     QStringList ret;
@@ -1220,12 +1221,20 @@ QStringList QSettings::subkeyList(const QString &key) const
 	itkey = it.key();
 	it++;
 
-	if (start > 0 && itkey.left(start) != realkey)
-	    continue;
-	else if (itkey.find('/', start) == -1)
-	    continue;
+	if ( realkey.length() > 0 ) {
+	    if ( itkey.left( realkey.length() ) != realkey )
+		continue;
+	    else
+		itkey.remove( 0, realkey.length() + 1 );
+	}
 
-	ret << itkey;
+	int slash = itkey.find( '/' );
+	if ( slash == -1 )
+	    continue;
+	itkey.truncate( slash );
+
+	if ( ! ret.contains( itkey ) )
+	    ret << itkey;
     }
 
     return ret;
