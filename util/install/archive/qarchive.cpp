@@ -237,7 +237,7 @@ bool QArchive::readArchive( QString outpath )
 		if( verbosityMode & Destination )
 		    emit operationFeedback( "Directory " + dirName + "... " );
 
-		if( !outDir.exists( dirName ) && createDir( dirName ) )
+		if( !outDir.exists( dirName ) && !createDir( dirName ) )
 		    return FALSE;
 		outDir.cd( dirName );
 	    }
