@@ -45,9 +45,9 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
-
     static bool itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right);
     static bool itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
+    QList<QListWidgetItem*> find(const QRegExp &rx) const;
 
     void itemChanged(QListWidgetItem *item);
 
@@ -230,6 +230,17 @@ bool QListModel::itemLessThan(const QListWidgetItem *left, const QListWidgetItem
 bool QListModel::itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right)
 {
     return !(*left < *right);
+}
+
+QList<QListWidgetItem*> QListModel::find(const QRegExp &rx) const
+{
+    QList<QListWidgetItem*> result;
+    QList<QListWidgetItem*>::const_iterator it = lst.begin();
+    for (; it != lst.end(); ++it) {
+        if (rx.exactMatch((*it)->text()))
+            result << (*it);
+    }
+    return result;
 }
 
 void QListModel::itemChanged(QListWidgetItem *item)
@@ -983,17 +994,9 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
   \a flags (see QAbstractItemModel::MatchFlags).
 */
 
-QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
-                                               QAbstractItemModel::MatchFlags flags) const
+QList<QListWidgetItem*> QListWidget::findItems(const QRegExp &rx) const
 {
-    QModelIndex topLeft = d->model()->index(0, 0);
-    int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount();
-    QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
-    QList<QListWidgetItem*> items;
-    for (int i = 0; i < indexes.count(); ++i)
-        items << d->model()->at(indexes.at(i).row());
-    return items;
+    return d->model()->find(rx);
 }
 
 /*!

@@ -136,10 +136,7 @@ public:
     bool isSelected(const QListWidgetItem *item) const;
     void setSelected(const QListWidgetItem *item, bool select);
     QList<QListWidgetItem*> selectedItems() const;
-
-    QList<QListWidgetItem*> findItems(const QString &text,
-                                      QAbstractItemModel::MatchFlags flags
-                                      = QAbstractItemModel::MatchDefault) const;
+    QList<QListWidgetItem*> findItems(const QRegExp &rx) const;
 
     bool isItemHidden(const QListWidgetItem *item) const;
     void setItemHidden(const QListWidgetItem *item, bool hide);

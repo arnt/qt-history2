@@ -186,9 +186,7 @@ public:
 
     QList<QTableWidgetSelectionRange> selectedRanges() const;
     QList<QTableWidgetItem*> selectedItems(bool fillEmptyCells = false);
-    QList<QTableWidgetItem*> findItems(const QString &text,
-                                       QAbstractItemModel::MatchFlags flags
-                                       = QAbstractItemModel::MatchDefault) const;
+    QList<QTableWidgetItem*> findItems(const QRegExp &rx) const;
 
     int visualRow(const QTableWidgetItem *item) const;
     int visualColumn(const QTableWidgetItem *item) const;

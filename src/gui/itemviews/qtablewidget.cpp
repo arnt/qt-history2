@@ -66,6 +66,7 @@ public:
     void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
     static bool itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
+    QList<QTableWidgetItem*> find(const QRegExp &rx) const;
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
@@ -382,6 +383,17 @@ bool QTableModel::itemLessThan(const QTableWidgetItem *left, const QTableWidgetI
 bool QTableModel::itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
 {
     return !(*left < *right);
+}
+
+QList<QTableWidgetItem*> QTableModel::find(const QRegExp &rx) const
+{
+    QList<QTableWidgetItem*> result;
+    QVector<QTableWidgetItem*>::const_iterator it = table.begin();
+    for (; it != table.end(); ++it) {
+        if (rx.exactMatch((*it)->text()))
+            result << (*it);
+    }
+    return result;
 }
 
 QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -1419,21 +1431,12 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems(bool fillEmptyCells)
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the
-  \a flags (see QAbstractItemModel::MatchFlags).
+  Finds items that matches the \a rx.
 */
 
-QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,
-                                                 QAbstractItemModel::MatchFlags flags) const
+QList<QTableWidgetItem*> QTableWidget::findItems(const QRegExp &rx) const
 {
-    QModelIndex topLeft = d->model()->index(0, 0);
-    int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount() * d->model()->columnCount();
-    QModelIndexList indexes = d->model()->match(topLeft, role, text, hits, flags);
-    QList<QTableWidgetItem*> items;
-    for (int i = 0; i < indexes.count(); ++i)
-        items << d->model()->item(indexes.at(i));
-    return items;
+    return d->model()->find(rx);
 }
 
 /*!
