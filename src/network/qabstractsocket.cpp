@@ -642,6 +642,9 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
     qDebug("QAbstractSocketPrivate::startConnecting(hostInfo == %s)", s.latin1());
 #endif
 
+    // Try all addresses twice.
+    addresses += addresses;
+
     // If there are no addresses in the host list, report this to the
     // user.
     if (addresses.isEmpty()) {
