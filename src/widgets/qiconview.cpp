@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#46 $
 **
 ** Definition of QIconView widget class
 **
@@ -993,8 +993,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     int h = 0;
     int w = 0;
     QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(),
-			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak | Qt::BreakWithinWords,
-			       t ) );
+			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
     w = r.width();
     h = r.height();
 
@@ -1046,7 +1045,7 @@ void QIconViewItem::paintItem( QPainter *p )
     else
 	p->setPen( view->colorGroup().text() );
 
-    p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak | Qt::BreakWithinWords , itemText );
+    p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
 
     p->restore();
 }

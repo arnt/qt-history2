@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#285 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#286 $
 **
 ** Implementation of QListView widget class
 **
@@ -1582,7 +1582,7 @@ QListView::QListView( QWidget * parent, const char *name )
 QListView::~QListView()
 {
     if ( d->iterators ) {
-        QListViewItemIterator *i = d->iterators->first();
+	QListViewItemIterator *i = d->iterators->first();
 	while ( i ) {
 	    i->listView = 0;
 	    i = d->iterators->next();
@@ -1666,7 +1666,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		// find first interesting column, once
 		x = 0;
 		c = 0;
-		cs = d->h->cellSize( 0 	);
+		cs = d->h->cellSize( 0	);
 		while ( x + cs <= cx && c < d->h->count() ) {
 		    x += cs;
 		    c++;
@@ -1691,18 +1691,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    x = fx;
 	    c = fc;
 
-            // draw to last interesting column
-            while( c < lc ) {
+	    // draw to last interesting column
+	    while( c < lc ) {
 		int i = d->h->mapToLogical( c );
-                cs = d->h->cellSize( c );
-                r.setRect( x - ox, current->y - oy, cs, ih );
+		cs = d->h->cellSize( c );
+		r.setRect( x - ox, current->y - oy, cs, ih );
 		if ( i==0 && current->i->parentItem )
 		    r.setLeft( r.left() + current->l * treeStepSize() );
 
 		p->save();
 		//WINDOWSBUG### should use this
-                //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
-                p->translate( r.left(), r.top() );
+		//p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		p->translate( r.left(), r.top() );
 		int ac = d->h->mapToLogical( c );
 		current->i->paintCell( p, colorGroup(), ac, r.width(),
 				       columnAlignment( ac ) );
@@ -1761,8 +1761,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	     d->allColumnsShowFocus ) {
 	    p->save();
 	    int x = -contentsX();
-        int w = header()->cellPos( header()->count() - 1 ) +
-                header()->cellSize( header()->count() - 1 );
+	    int w = header()->cellPos( header()->count() - 1 ) +
+		    header()->cellSize( header()->count() - 1 );
 	
 	    r.setRect( x, current->y - oy, w, ih );
 	    //WINDOWSBUG### should use this
@@ -2206,7 +2206,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
     viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
     viewport()->setUpdatesEnabled( TRUE );
-    
+
     int actual = d->h->mapToActual( section );
     int dx = ns - os;
     int left = d->h->cellPos( actual ) - contentsX() + d->h->cellSize( actual );
@@ -2215,11 +2215,11 @@ void QListView::handleSizeChange( int section, int os, int ns )
     if ( left < visibleWidth() )
 	viewport()->scroll( dx, 0, QRect( left, 0, visibleWidth() - left, visibleHeight() ) );
     viewport()->repaint( left-4, 0, 4, visibleHeight(), FALSE ); // border between the items
-    
-    if ( columnAlignment( actual ) != AlignLeft )
-	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0, 
+
+    if ( columnAlignment( section ) != AlignLeft )
+	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0,
 			     d->h->cellSize( actual ), visibleHeight() );
-    
+
 }
 
 
