@@ -1,4 +1,3 @@
-//depot/qt/main/src/widgets/qlistview.cpp#781 - edit change 79563 (text)
 /****************************************************************************
 ** $Id$
 **
@@ -6,7 +5,7 @@
 **
 ** Created : 970809
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -5294,7 +5293,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 */
 
 /*!
-    \fn void doubleClicked( QListViewItem *, const QPoint&, int  )
+    \fn void QListView::doubleClicked( QListViewItem *, const QPoint&, int  )
 
     This signal is emitted whenever an item is double-clicked. It's
     emitted on the second button press, not the second button release.
@@ -5860,13 +5859,13 @@ QCheckListItem::~QCheckListItem()
 */
 
 /*!
-   Sets tristate to \a if the Type is either a CheckBoxController or CheckBox.
+   Sets tristate to \a b if the Type is either a CheckBoxController or CheckBox.
 
    Note that CheckBoxControllers by default have tristate enabled.
 
    \sa state() isTristate()
 */
-void QCheckListItem::setTristate( bool b)
+void QCheckListItem::setTristate( bool b )
 {
     if ( ( myType != CheckBoxController ) && ( myType != CheckBox ) ) {
 	qWarning( "QCheckListItem::setTristate(), has no effect on RadioButton "
