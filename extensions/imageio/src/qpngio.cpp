@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#5 $
+** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#6 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -114,6 +114,7 @@ void read_png_image(QImageIO* iio)
 	png_set_gamma(png_ptr, 2.2, info_ptr->gamma);
 
     QImage image;
+    bool noalpha = FALSE;
 
     if (info_ptr->bit_depth == 1
      && info_ptr->channels == 1
@@ -187,19 +188,23 @@ void read_png_image(QImageIO* iio)
 	    png_set_gray_to_rgb(png_ptr);
 	}
 
-	// Only add filler if no alpha, or we'll get 5 channel data!
+	// Only add filler if no alpha, or we can get 5 channel data.
 	if (!(info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
 	   && !(info_ptr->valid & PNG_INFO_tRNS))
+	{
 	    png_set_filler(png_ptr, 0xff,
 		QImage::systemByteOrder() == QImage::BigEndian ?
 		    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
+	    // We want 4 bytes, but it isn't an alpha channel
+	    noalpha = TRUE;
+	}
 
 	png_read_update_info(png_ptr, info_ptr);
 	image.create(info_ptr->width,info_ptr->height,32);
     }
 
-    if (info_ptr->channels == 4 || 
-	(info_ptr->channels == 3 && (info_ptr->valid & PNG_INFO_tRNS))) {
+    if (!noalpha && (info_ptr->channels == 4 || 
+	(info_ptr->channels == 3 && (info_ptr->valid & PNG_INFO_tRNS)))) {
 	image.setAlphaBuffer(TRUE);
     }
 
