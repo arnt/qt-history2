@@ -64,6 +64,7 @@
 #endif
 
 class QHideDock;
+class QMainWindowLayout;
 
 /*
  QMainWindowPrivate - private variables of QMainWindow
@@ -73,7 +74,7 @@ class QMainWindowPrivate
 {
 public:
     QMainWindowPrivate()
-	:  mb(0), sb(0), ttg(0), mc(0), tll(0), ubp( FALSE ), utl( FALSE ),
+	:  mb(0), sb(0), ttg(0), mc(0), tll(0), mwl(0), ubp( FALSE ), utl( FALSE ),
 	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE )
     {
 	docks.insert( Qt::DockTop, TRUE );
@@ -99,20 +100,20 @@ public:
     QWidget * mc;
 
     QBoxLayout * tll;
+    QMainWindowLayout * mwl;
 
-    bool ubp;
-    bool utl;
-    bool justify;
-
-    bool movable;
-    bool opaque;
+    uint ubp :1;
+    uint utl :1;
+    uint justify :1;
+    uint movable :1;
+    uint opaque :1;
+    uint dockMenu :1;
 
     QDockArea *topDock, *bottomDock, *leftDock, *rightDock;
 
     QPtrList<QDockWindow> dockWindows;
     QMap<Qt::Dock, bool> docks;
     QStringList disabledDocks;
-    bool dockMenu;
     QHideDock *hideDock;
 
     QGuardedPtr<QPopupMenu> rmbMenu, tbMenu, dwMenu;
@@ -1420,6 +1421,7 @@ void QMainWindow::setUpLayout()
 	mwl->setCentralWidget( centralWidget() );
     if(d->rightDock->parentWidget() == this)
 	mwl->setRightDock( d->rightDock );
+    d->mwl = mwl;
 
     if(d->bottomDock->parentWidget() == this)
 	d->tll->addWidget( d->bottomDock );
@@ -1582,6 +1584,7 @@ void QMainWindow::childEvent( QChildEvent* e)
 	    triggerLayout();
 	} else if ( e->child() == d->mc ) {
 	    d->mc = 0;
+	    d->mwl->setCentralWidget( 0 );
 	    triggerLayout();
 	} else if ( e->child()->isWidgetType() && e->child()->inherits("QDockWindow")) {
 	    removeDockWindow( (QDockWindow *)(e->child()) );
@@ -1609,6 +1612,7 @@ bool QMainWindow::event( QEvent * e )
     if ( e->type() == QEvent::ChildRemoved && ( (QChildEvent*)e )->child() == d->mc ) {
 	d->mc->removeEventFilter( this );
 	d->mc = 0;
+	d->mwl->setCentralWidget( 0 );
     }
 
     return QWidget::event( e );
@@ -1633,7 +1637,7 @@ bool QMainWindow::usesBigPixmaps() const
 
 void QMainWindow::setUsesBigPixmaps( bool enable )
 {
-    if ( d->ubp == enable )
+    if ( enable == (bool)d->ubp )
 	return;
 
     d->ubp = enable;
@@ -1671,7 +1675,7 @@ bool QMainWindow::usesTextLabel() const
 
 void QMainWindow::setUsesTextLabel( bool enable )
 {
-    if ( d->utl == enable )
+    if ( enable == (bool)d->utl )
 	return;
 
     d->utl = enable;
@@ -1717,7 +1721,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 
 void QMainWindow::setRightJustification( bool enable )
 {
-    if ( enable == d->justify )
+    if ( enable == (bool)d->justify )
 	return;
     d->justify = enable;
     triggerLayout( TRUE );
