@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#50 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#51 $
 **
 ** Definition of QTextStream class
 **
@@ -88,6 +88,7 @@ public:
     QTextStream &writeRawBytes( const char* , uint len );
 
     QString	readLine();
+    QString	read();
     void	eatWhiteSpace() { eat_ws(); }
 
     enum {

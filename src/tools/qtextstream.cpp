@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#82 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#83 $
 **
 ** Implementation of QTextStream class
 **
@@ -1235,8 +1235,7 @@ QString QTextStream::readLine()
 #if defined(CHECK_STATE)
     if ( !dev ) {
 	warning( "QTextStream::readLine: No device" );
-	QString nullString;
-	return nullString;
+	return QString::null;
     }
 #endif
     QString   result;
@@ -1252,6 +1251,48 @@ QString QTextStream::readLine()
     }
     if ( i > 0 && result[i-1] == '\r' )
 	result.truncate(i-1);			// if there are two \r, let one stay
+    return result;
+}
+
+
+/*!
+  Reads the entire stream and returns a string containing the text.
+
+  \sa QIODevice::readLine()
+*/
+
+QString QTextStream::read()
+{
+#if defined(CHECK_STATE)
+    if ( !dev ) {
+	warning( "QTextStream::readLine: No device" );
+	return QString::null;
+    }
+#endif
+    QString   result;
+    QChar     c = ts_getc();
+    bool      skipcr = TRUE;
+
+    while ( c != QEOF ) {
+	if ( c == '\r' ) {
+	    // Only skip single cr's preceeding lf's
+	    if ( skipcr ) {
+		skipcr = FALSE;
+	    } else {
+		result += c;
+	    }
+	} else {
+	    if ( c == '\n' ) {
+		if ( skipcr ) {
+		    // Should not have skipped it, append now
+		    result += '\r';
+		}
+	    }
+	    skipcr = TRUE;
+	    result += c;
+	}
+	c = ts_getc();
+    }
     return result;
 }
 
