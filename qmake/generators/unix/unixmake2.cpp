@@ -80,7 +80,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
-			    !project->isActiveConfig("staticlib")));
+			    !project->isActiveConfig("staticlib"))), 
+	 src_incremental=FALSE, moc_incremental=FALSE;
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC       = ";
@@ -164,11 +165,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	if(incrs_out.count() == objs.count()) { //we just switched places, no real incrementals to be done!
 	    t << incrs_out.join(" \\\n\t\t") << endl;
-	    do_incremental = FALSE;
 	} else if(!incrs_out.count()) {
 	    t << endl;
-	    do_incremental = FALSE;
 	} else {
+	    src_incremental = TRUE;
 	    t << endl;
 	    t << "INCREMENTAL_OBJECTS = " << incrs_out.join(" \\\n\t\t") << endl;
 	}
@@ -198,17 +198,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	if(incrs_out.count() == objs.count()) { //we just switched places, no real incrementals to be done!
 	    t << incrs_out.join(" \\\n\t\t") << endl;
-	    do_incremental = FALSE;
 	} else if(!incrs_out.count()) {
 	    t << endl;
-	    do_incremental = FALSE;
 	} else {
+	    moc_incremental = TRUE;
 	    t << endl;
 	    t << "INCREMENTAL_OBJMOC = " << incrs_out.join(" \\\n\t\t") << endl;
 	}
     } else {
 	t << "OBJMOC = " << objMoc << endl;
     }
+    if(do_incremental && !moc_incremental && !src_incremental)
+	do_incremental = FALSE;
     t << "DIST	   = " << varList("DISTFILES") << endl;
     t << "QMAKE_TARGET = " << var("QMAKE_ORIG_TARGET") << endl;
     t << "DESTDIR  = " << var("DESTDIR") << endl;
