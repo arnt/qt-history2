@@ -2068,7 +2068,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
 	    QFont dfont( cfont );
 	    QWMatrix mat2;
-	    if ( txop == TxScale ) {
+	    if ( txop == TxScale && pdev->devType() != QInternal::Printer ) {
 		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
 		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
 		dfont.setPointSize( newSize );
@@ -2094,9 +2094,24 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
 		QBitmap bm( aw, ah, TRUE, QPixmap::NormalOptim );
+		QFont pmFont( dfont );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
-		paint.setFont( dfont );
+		if ( pdev->devType() == QInternal::Printer ) {
+		    // Adjust for the difference in lpi of pixmap vs. printer
+		    int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
+		    int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
+		    bool vxfScale = testf(VxF) && ( dw != ww || dw != vw
+						    || dh != wh || dh != vh );
+		    float fs = dfont.pointSizeFloat();
+		    int prlpy = GetDeviceCaps(hdc,LOGPIXELSY);
+		    int pmlpy = GetDeviceCaps(paint.hdc, LOGPIXELSY);
+		    if ( prlpy && pmlpy && !vxfScale ) {	// Sanity
+			float nfs = fs * (float)prlpy / (float)pmlpy;
+			pmFont.setPointSizeFloat( nfs );
+		    }
+		}
+		paint.setFont( pmFont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
