@@ -308,6 +308,20 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
         doc = new QTextDocument(q);
         QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
         cursor = QTextCursor(doc);
+
+        hbar->setSingleStep(20);
+        vbar->setSingleStep(20);
+
+        // compat signals
+        QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
+        QObject::connect(doc, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));
+        QObject::connect(doc, SIGNAL(redoAvailable(bool)), q, SIGNAL(redoAvailable(bool)));
+
+        cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
+
+        viewport->setBackgroundRole(QPalette::Base);
+        viewport->setFocusPolicy(Qt::WheelFocus);
+        viewport->setAcceptDrops(true);
     }
 
     readOnly = false;
@@ -419,19 +433,17 @@ QTextEdit::QTextEdit(QWidget *parent)
     : QViewport(*new QTextEditPrivate, parent)
 {
     d->init();
-    d->hbar->setSingleStep(20);
-    d->vbar->setSingleStep(20);
+}
 
-    // compat signals
-    connect(d->doc, SIGNAL(contentsChanged()), this, SIGNAL(textChanged()));
-    connect(d->doc, SIGNAL(undoAvailable(bool)), this, SIGNAL(undoAvailable(bool)));
-    connect(d->doc, SIGNAL(redoAvailable(bool)), this, SIGNAL(redoAvailable(bool)));
-
-    d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
-
-    d->viewport->setBackgroundRole(QPalette::Base);
-    d->viewport->setFocusPolicy(Qt::WheelFocus);
-    d->viewport->setAcceptDrops(true);
+/*!
+    Constructs a QTextEdit with parent \a parent. The text edit will display
+    the text \a text. The text is interpreted as html.
+*/
+QTextEdit::QTextEdit(const QString &text, QWidget *parent)
+    : QViewport(*new QTextEditPrivate, parent)
+{
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
+    d->init(fragment);
 }
 
 QTextEdit::~QTextEdit()

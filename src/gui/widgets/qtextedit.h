@@ -51,6 +51,7 @@ public:
     Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlags);
 
     QTextEdit(QWidget *parent);
+    QTextEdit(const QString &text, QWidget *parent);
     virtual ~QTextEdit();
 
     QTextDocument *document() const;
