@@ -164,9 +164,9 @@ void QTextCursorPrivate::adjustCursor()
                 adjusted_anchor = anchorChain.at(i)->endPosition() + 1;
         } else {
             if (i < positionChain.size())
-                position = positionChain.at(i)->endPosition() - 1;
+                position = positionChain.at(i)->endPosition() + 1;
             if (i < anchorChain.size())
-                adjusted_anchor = anchorChain.at(i)->startPosition() + 1;
+                adjusted_anchor = anchorChain.at(i)->startPosition() - 1;
         }
 
         f_position = positionChain.at(i-1);
