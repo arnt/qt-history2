@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#9 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#10 $
 **
 ** Definition of Qt extension classes for Netscape Plugin support.
 **
@@ -101,6 +101,9 @@ public:
     virtual void streamAsFile(QNPStream*, const char* fname);
 
     void* getJavaPeer() const;
+
+    virtual bool printFullPage();
+    virtual void print(QPainter*);
 
 protected:
     QNPInstance();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#13 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#14 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -43,6 +43,12 @@
 #include <qwidget.h>
 #include <qobjcoll.h>
 #include <qwidcoll.h>
+
+#include <qprinter.h>
+#include <qpsprn.h>
+#include <qfile.h>
+#include <qpainter.h>
+#include <qpaintdc.h>
 
 #include "qnp.h"
 
@@ -788,7 +794,7 @@ NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buffer)
 
 
 extern "C" NPError 
-NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
+NPP_DestroyStream(NPP instance, NPStream *stream, NPError /*reason*/)
 {
     _NPInstance* This;
 
@@ -829,6 +835,33 @@ NPP_StreamAsFile(NPP instance, NPStream *stream, const char* fname)
     }
 }
 
+typedef struct
+{
+    int32    type;
+    FILE*    fp;
+} NPPrintCallbackStruct;
+
+#ifdef _WS_X11_
+
+class QNPPrinter : public QPrinter {
+    QFile file;
+public:
+    QNPPrinter(FILE* fp)
+    {
+	file.open(IO_WriteOnly, fp);
+	QPDevCmdParam param;
+	param.device = &file;
+	cmd(PDC_SETDEV, 0, &param);
+    }
+    void end()
+    {
+	QPDevCmdParam param;
+	param.device = 0;
+	cmd(PDC_SETDEV, 0, &param);
+    }
+};
+#endif
+
 extern "C" void 
 NPP_Print(NPP instance, NPPrint* printInfo)
 {
@@ -836,23 +869,35 @@ NPP_Print(NPP instance, NPPrint* printInfo)
         return;
 
     if (instance != NULL) {
-        // _NPInstance* This = (_NPInstance*) instance->pdata;
+        _NPInstance* This = (_NPInstance*) instance->pdata;
     
         if (printInfo->mode == NP_FULL) {
-            // void* platformPrint =
-            //     printInfo->print.fullPrint.platformPrint;
-            // NPBool printOne =
-            //     printInfo->print.fullPrint.printOne;
-            
-            /* Do the default*/
-            printInfo->print.fullPrint.pluginPrinted = FALSE;
-        }
-        else {    /* If not fullscreen, we must be embedded */
-
-            // NPWindow* printWindow =
-            //     &(printInfo->print.embedPrint.window);
-            // void* platformPrint =
-            //     printInfo->print.embedPrint.platformPrint;
+            printInfo->print.fullPrint.pluginPrinted =
+		This->instance->printFullPage();
+        } else if (printInfo->mode == NP_EMBED) {
+#ifdef _WS_X11_
+            void* platformPrint =
+                printInfo->print.embedPrint.platformPrint;
+	    FILE* outfile = ((NPPrintCallbackStruct*)platformPrint)->fp;
+	    if (ftell(outfile)) {
+		NPWindow* w =
+		    &(printInfo->print.embedPrint.window);
+		QNPPrinter prn(outfile);
+		QPainter painter(&prn);
+		// #### config viewport with w->{x,y,width,height}
+		This->instance->print(&painter);
+		prn.end();
+	    } else {
+		// Why does the browser make spurious NPP_Print calls?
+	    }
+#endif
+#ifdef _WS_WIN_
+            NPWindow* printWindow =
+                &(printInfo->print.embedPrint.window);
+            void* platformPrint =
+                printInfo->print.embedPrint.platformPrint;
+	    // #### Nothing yet.
+#endif
         }
     }
 }
@@ -1411,6 +1456,39 @@ void QNPInstance::postURL(const char* url, const char* window,
 	     uint len, const char* buf, bool file)
 {
     NPN_PostURL( pi->npp, url, window, len, buf, file );
+}
+
+/*!
+  Print the instance full-page.  By default, this returns FALSE, causing the
+  browser to call the (embedded) print() function instead.
+
+  This function is not tested.
+  It is an encapsulation of the NPP_Print
+  function of the Netscape Plugin API.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgdr.htm#nppprint>
+  Netscape: NPP_Print method</a>
+*/
+bool QNPInstance::printFullPage()
+{
+    return FALSE;
+}
+
+/*!
+  Print the instance embedded in a page.
+
+  This function is not tested.
+  It is an encapsulation of the NPP_Print
+  function of the Netscape Plugin API.
+
+  See also:
+  <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgdr.htm#nppprint>
+  Netscape: NPP_Print method</a>
+*/
+void QNPInstance::print(QPainter*)
+{
+    // ### default could redirected-print the window.
 }
 
 /*!
