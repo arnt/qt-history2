@@ -2,234 +2,288 @@
 
 \section1 qmake's Advanced Concepts
 
-Even though it appears that \e qmake can only be used for simple purposes, it can also be very powerful.  It also allows you to decide what to do on certain 
-platforms.  This avoids having to create a project file for each platform.
+The \e qmake project files we've seen up to now have been very simple,
+just a list of \e{name = value} and \e{name += value} lines. \e qmake
+provides a lot more power, for example you can use a single project
+file to produce makefiles for multiple platforms.
 
 \section1 Operators
 
-So far, you have seen the \e = operator and \e += operator being used in a project file.  There are more operators available for use; but some of these should be 
-used carefully as they may change more than you expect them to.
+So far, you have seen the \e = operator and \e += operator being used
+in a project file.  There are more operators available for use; but
+some of these should be used carefully as they may change more than
+you expect them to.
 
 \section2 The '=' operator
 
-This operator simply assigns a value to a variable, it should be used in the following form:
+This operator simply assigns a value to a variable, it is used like
+this:
 
 \code
-	TARGET = myapp
+    TARGET = myapp
 \endcode
 
-This sets the TARGET variable to \e myapp.  This will remove any previously set TARGET.
+This sets the TARGET variable to \e myapp.  This will remove any
+previously set TARGET.
 
 \section2 The '+=' operator
 
-This operator adds a value to the list of values in a variable.  It should be used in the following form:
+This operator adds a value to the list of values in a variable.  It
+is used like this:
 
 \code
-	DEFINES += QT_DLL
+    DEFINES += QT_DLL
 \endcode
 
-This adds QT_DLL to the list of pre-processor defines to be put in the makefile.
+This adds QT_DLL to the list of pre-processor defines to be put in the
+makefile.
 
 \section2 The '-=' operator
 
-This operator removes a value from the list of values in a variable.  It should be used in the following form:
+This operator removes a value from the list of values in a variable.
+It is used like this:
 
 \code
-	DEFINES -= QT_DLL
+    DEFINES -= QT_DLL
 \endcode
 
-This removes QT_DLL from the list of pre-processor defines to be put in the makefile.
+This removes QT_DLL from the list of pre-processor defines to be put
+in the makefile.
 
 \section2 The '*=' operator
 
-This operator only adds a value to the list of values in a variable if it doesn't already exist.  It should be used in the following form:
+This operator only adds a value to the list of values in a variable if
+it doesn't already exist.  It is used like this:
 
 \code
-	DEFINES *= QT_DLL
+    DEFINES *= QT_DLL
 \endcode
 
-If QT_DLL is already in the list of pre-processor defines then it is not added, otherwise it is.
+QT_DLL will only be added to the list of pre-processor defines if it
+is not already defined.
 
 \section2 The '~=' operator
 
-This operator replaces any values that match the regexp with the specified value.  It should be used in the following form:
+This operator replaces any values that match the regexp with the
+specified value.  It is used like this:
 
 \code
-	DEFINES ~= s/QT_[DT].+/QT
+    DEFINES ~= s/QT_[DT].+/QT
 \endcode
 
-This removes any values in the list that start with QT_D or QT_T with QT.
+This removes any values in the list that start with QT_D or QT_T with
+QT.
 
 \section1 Scopes
 
-A scope are similar to 'if' statements, if a certain condition is true, the settings inside the scope are processed.  A scope should be written in the following
-form:
+A scope are similar to 'if' statements, if a certain condition is
+true, the settings inside the scope are processed.  A scope is written
+like this:
 
 \code
-	win32 {
-		DEFINES += QT_DLL
-	}
+    win32 {
+	DEFINES += QT_DLL
+    }
 \endcode
 
-The above code will add the QT_DLL define to the makefile if \e qmake is used on a Windows platform.  If \e qmake is used on a different platform than Windows, the 
-define will be ignored.
+The above code will add the QT_DLL define to the makefile if \e qmake
+is used on a Windows platform.  If \e qmake is used on a different
+platform than Windows, the define will be ignored.
 
-Let's say we want to process something on all platforms except for the Windows platform.  In this case all we would need to do is put \e ! before win32, so 
-the scope will look like:
+For example, suppose we want to process something on all platforms
+\e except for Windows. We can achieve this by negating the scope like
+this:
 
 \code
-	!win32 {
-		DEFINES += QT_DLL
-	}
+    !win32 {
+	DEFINES += QT_DLL
+    }
 \endcode
 
-This means that the above code will be processed on all platforms except for Windows.
-
-Scopes also apply for anything that is put on the CONFIG line, so if it is on the CONFIG line then it is true.  This makes it easy to change the configuration for a 
-project without losing all the custom settings that might be needed for a specific configuration.  Since it is possible to put your own values on the CONFIG line, 
-this provides you with a very powerful configuration tool for your makefiles.
+Any entry on the CONFIG line is also a scope. For example, if you
+write this:
+\code
+    CONFIG += warn_on
+\endcode
+you will have a scope called 'warn_on'. This makes it easy to change
+the configuration for a project without losing all the custom settings
+that might be needed for a specific configuration.  Since it is
+possible to put your own values on the CONFIG line, this provides you
+with a very powerful configuration tool for your makefiles. For
+example:
 
 \code
-	CONFIG += qt warn_on debug
-	debug {
-		TARGET = myappdebug
-	}
-	release {
-		TARGET = myapp
-	}
+    CONFIG += qt warn_on debug
+    debug {
+	TARGET = myappdebug
+    }
+    release {
+	TARGET = myapp
+    }
 \endcode
 
-In the above code, two scopes are created which would depend on what is put on the CONFIG line.  In the example, \e debug is on the config line, so the TARGET
-variable is set to \e myappdebug.  If \e release was on the config line, then the TARGET variable would be set to \e myapp.
+In the above code, two scopes are created which depend on what
+is put on the CONFIG line.  In the example, \e debug is on the config
+line, so the TARGET variable is set to \e myappdebug.  If \e release
+was on the config line, then the TARGET variable would be set to \e
+myapp.
 
-It is also possible to check for two things before processing some settings.  For instance, if you want to check if qmake is used on Windows and that the thread 
-configuration is set, then using the way already shown, it would look like:
+It is also possible to check for two things before processing some
+settings.  For instance, if you want to check if the platform is
+Windows and that the thread configuration is set, you would write
+this:
+\code
+    win32 {
+	thread {
+	    DEFINES += QT_THREAD_SUPPORT
+	}
+    }
+\endcode
+
+To save writing many nested scopes, you can nest scopes using a colon
+like this:
 
 \code
-	win32 {
-		thread {
-			DEFINES += QT_THREAD_SUPPORT
-		}
-	}
+    win32:thread {
+	DEFINES += QT_THREAD_SUPPORT
+    }
 \endcode
-
-This can be shortened down, so it looks like:
-
-\code
-	win32:thread {
-		DEFINES += QT_THREAD_SUPPORT
-	}
-\endcode
-
-Which makes it easier to understand and easier to maintain.
 
 \section1 Variables
 
-The variables that we have encountered so far are system variables, such as \e DEFINES, \e SOURCES and \e HEADERS.  It is possible for you to create your own 
-variables so that you use them in scopes.  It's easy to create your own variable; just name it and assign something to it.  An example of this is:
+The variables that we have encountered so far are system variables,
+such as \e DEFINES, \e SOURCES and \e HEADERS.  It is possible for you
+to create your own variables so that you use them in scopes.  It's
+easy to create your own variable; just name it and assign something to
+it. For example:
 
 \code
-	THIS_IS_MY_OWN = variable
+    MY_VARIABLE = value
 \endcode
 
-There are no restricitions on what you do to your own variables, as \e qmake will just ignore them unless it needs to look at them for a scope.  
+There are no restricitions on what you do to your own variables, as \e
+qmake will just ignore them unless it needs to look at them for a
+scope.  
 
-You can also assign the value of a current variable to another variable by prefixing $$ to the variable name.  An example of this:
+You can also assign the value of a current variable to another
+variable by prefixing $$ to the variable name. For example:
 
 \code
-	MY_DEFINES = $$DEFINES
+    MY_DEFINES = $$DEFINES
 \endcode
 
-Now the MY_DEFINES variable contains what is currently in the DEFINES variable.
+Now the MY_DEFINES variable contains what is in the DEFINES variable
+at this point in the project file.
 
 \section1 Functions
 
-\e qmake provides built-in functions that perform simple, yet powerful tasks.  The following are a few functions that are available for use.
+\e qmake provides built-in functions that perform simple, yet powerful
+tasks.  
+
 \section2 contains( variablename, value )
 
-If \e value is in the list of values for \e variablename, then the settings inside the scope will be processed.  For example:
+If \e value is in the list of values stored in the variable called \e
+variablename, then the settings inside the scope will be processed.
+For example:
 
 \code
-	contains( CONFIG, thread ) {
-		DEFINES += QT_THREAD_SUPPORT
-	}
+    contains( CONFIG, thread ) {
+	DEFINES += QT_THREAD_SUPPORT
+    }
 \endcode
 
-If \e thread is in the list of values for the \e CONFIG variable, then QT_THREAD_SUPPORT will be added to the list of values in the \e DEFINES variable.
+If \e thread is in the list of values for the \e CONFIG variable, then
+QT_THREAD_SUPPORT will be added to the list of values in the \e
+DEFINES variable.
 
 \section2 count( variablename, number )
 
-If \e number matches the number of elements in \e variablename, then the settings inside the scope will be processed.  For example:
+If \e number matches the number of values stored in the variable
+called \e variablename, then the settings inside the scope will be
+processed.  For example:
 
 \code
-	count( DEFINES, 5 ) {
-		CONFIG += debug
-	}
+    count( DEFINES, 5 ) {
+	CONFIG += debug
+    }
 \endcode
 
 \section2 error( string )
 
-This function just simply outputs the string given and then \e qmake will exit.  For example:
+This function outputs the string given and then makes \e qmake exit.
+For example:
 
 \code
-	error( "An error has occured" )
+    error( "An error has occured" )
 \endcode
 
-The text "An error has occured" will be displayed on the console and \e qmake will exit.
+The text "An error has occured" will be displayed on the console and
+\e qmake will exit.
 
 \section2 exists( filename )
 
-If the specified file exists, then the settings inside the scope will be processed.  For example:
+If the specified file exists, then the settings inside the scope will
+be processed.  For example:
 
 \code
-	exists( /local/qt/qmake/main.cpp ) {
-		SOURCES += main.cpp
-	}
+    exists( /local/qt/qmake/main.cpp ) {
+	SOURCES += main.cpp
+    }
 \endcode
 
-If \e /local/qt/qmake/main.cpp exists then main.cpp is added to the list of source files.
+If \e /local/qt/qmake/main.cpp exists then main.cpp is added to the
+list of source files.
+
+Note that "/" can be used as a directory separator regardless of the
+platform.
 
 \section2 include( filename )
 
-The contents of filename are included at this point in the project file, so any settings in the specified file will be processed.  An example of
-this is:
+The contents of filename are included at this point in the project
+file, so any settings in the specified file will be processed.  An
+example of this is:
 
 \code 
-	include( myotherapp.pro )
+    include( myotherapp.pro )
 \endcode
 
 Any settings in the \e myotherapp.pro project file are now processed.
 
 \section2 isEmpty( variablename )
 
-This is the equivalent of using count( variablename, 0 ).  If the variablename has no elements, then the settings inside the scope will be processed.  An example
-of this is:
+This is the equivalent of using count( variablename, 0 ).  If the
+variable called \e variablename has no elements, then the settings
+inside the scope will be processed.  An example of this is:
 
 \code
-	isEmpty( CONFIG ) {
-		CONFIG += qt warn_on debug
-	}
+    isEmpty( CONFIG ) {
+	CONFIG += qt warn_on debug
+    }
 \endcode
 
 \section2 message( string ) 
 
-This function simply outputs a message on the console without interfering with any further processing.
+This function simply outputs a message on the console.
 
 \code
-	message( "This is a message" )
+    message( "This is a message" )
 \endcode
 
-The text "This is a message" is outputted to the console and processing of the project file carries on.
+The text "This is a message" is output to the console and
+processing of the project file carries on.
 
 \section2 system( command )
 
-The specified command is performed and if it returns an exit code of 1, the settings inside the scope are processed.  For example:
+The specified command is performed and if it returns an exit code of
+1, the settings inside the scope are processed.  For example:
 
 \code
-	system( ls /bin ) {
-		SOURCES += bin/main.cpp
-		HEADERS += bin/main.h
-	}
+    system( ls /bin ) {
+	SOURCES += bin/main.cpp
+	HEADERS += bin/main.h
+    }
 \endcode
 
-So if the command \e {ls /bin} returns 1 then \e bin/main.cpp is added to the list of sources and \e bin/main.h is added to the list of headers.
+So if the command \e {ls /bin} returns 1 then \e bin/main.cpp is added
+to the list of sources and \e bin/main.h is added to the list of
+headers.
