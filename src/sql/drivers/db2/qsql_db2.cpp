@@ -1062,8 +1062,8 @@ bool QDB2Driver::commitTransaction()
 #endif
 	return FALSE;
     }
-    SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
-			      d->hEnv,
+    SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
+			      d->hDbc,
 			      SQL_COMMIT );
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to commit transaction", QSqlError::Transaction, d ) );
@@ -1080,8 +1080,8 @@ bool QDB2Driver::rollbackTransaction()
 #endif
 	return FALSE;
     }
-    SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
-			      d->hEnv,
+    SQLRETURN r = SQLEndTran( SQL_HANDLE_DBC,
+			      d->hDbc,
 			      SQL_ROLLBACK );
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to rollback transaction", QSqlError::Transaction, d ) );
