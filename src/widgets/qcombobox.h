@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#2 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#3 $
 **
 ** Definition of QComboBox class
 **
@@ -55,7 +55,7 @@ public:
 
     void         setBackgroundColor( const QColor & );
 
-protected signals:
+signals:
     void	 highlighted( int index );
     void	 activated( int index );
 

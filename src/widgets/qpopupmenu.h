@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#15 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#16 $
 **
 ** Definition of QPopupMenu class
 **
@@ -33,7 +33,7 @@ public:
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
 
-protected signals:
+signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
     void	activatedRedirect( int itemId );// to parent menu

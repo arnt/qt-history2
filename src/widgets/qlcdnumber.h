@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#8 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#9 $
 **
 ** Definition of QLCDNumber class
 **
@@ -44,7 +44,7 @@ public slots:
     void    setMode( Mode );
     void    smallDecimalPoint( bool );
 
-protected signals:
+signals:
     void    overflow();
 
 protected:
