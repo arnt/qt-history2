@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 1.8 1996/09/16 17:40:53 agulbra Exp $
+** $Id: shclass.doc,v 1.9 1996/09/18 15:10:19 agulbra Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -12,7 +12,7 @@
 
 <title>Qt Shared Classes</title>
 </head><body bgcolor=white>
-<h1>Shared Classes</h1>
+<h1 align=center>Shared Classes</h1>
 <hr>
 
 

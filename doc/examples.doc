@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $
+** $Id: examples.doc,v 1.7 1996/09/18 15:10:18 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,13 +8,13 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 1.7 1996/09/18 15:10:18 agulbra Exp $";
 #endif
 
 
 /*! \example aclock/aclock.cpp
 
-  <h1>Analog Clock</h1>
+  <h1 align=center>Analog Clock</h1>
 
   This example displays an analog clock widget.
 
@@ -32,7 +32,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example connect/connect.cpp
 
-  <h1>A Graphical Hello World</h1>
+  <h1 align=center>A Graphical Hello World</h1>
 
   This example shows very simple mouse-based user interaction and
   painting without any world transform matrix or other advanced
@@ -43,7 +43,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example cursor/cursor.cpp
 
-  <h1>Cursors</h1>
+  <h1 align=center>Cursors</h1>
 
   This example shows how to set a mouse cursor for a widget.
 */
@@ -51,7 +51,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example dclock/dclock.cpp
 
-  <h1>Digital Clock</h1>
+  <h1 align=center>Digital Clock</h1>
 
   This example displays a digital LCD clock and can switch between time
   and date.
@@ -66,7 +66,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example drawdemo/drawdemo.cpp
 
-  <h1>Draw Demo</h1>
+  <h1 align=center>Draw Demo</h1>
 
   This example demontrates several drawing functions and printer output.
   You can easily add you own drawing functions.  See "ourDrawFunctions".
@@ -75,7 +75,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example forever/forever.cpp
 
-  <h1>A Rectangle Draw "Benchmark"</h1>
+  <h1 align=center>A Rectangle Draw "Benchmark"</h1>
 
   This example continuously draws rectangles in a window and
   has another widget that counts the number of rectangles that
@@ -84,7 +84,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 
 /*! \example hello/hello.cpp
-  <h1>Hello, World</h1>
+  <h1 align=center>Hello, World</h1>
 
   This example brings up a message box with a text and a button.
 */
@@ -92,21 +92,21 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example menu/menu.cpp
 
-  <h1>Using menus</h1>
+  <h1 align=center>Using menus</h1>
 
   This example demontrates simple use of menus.
 */
 
 
 /*! \example picture/makepic.cpp
-  <h1>Make Picture</h1>
+  <h1 align=center>Make Picture</h1>
 
   This example draws a car in a picture and writes it to a file.
 */
 
 
 /*! \example picture/showpic.cpp
-  <h1>Show Picture</h1>
+  <h1 align=center>Show Picture</h1>
 
   This example loads a picture file and displays it in a window.
 */
@@ -114,7 +114,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $"
 
 /*! \example qmag/qmag.cpp
 
-<h1>QMag</h1>
+<h1 align=center>QMag</h1>
 
 This is a simple magnifier-type program.  It shows how one can do
 some quite low-level operations portably using Qt.
@@ -130,7 +130,7 @@ cursor is on.
 
 /*! \example showimg/showimg.cpp
 
-  <h1>Show Image</h1>
+  <h1 align=center>Show Image</h1>
 
   This example reads and displays an image.
 */
@@ -138,7 +138,7 @@ cursor is on.
 
 /*! \example tictac/tictac.cpp
 
-  <h1>Tic Tac Toe</h1>
+  <h1 align=center>Tic Tac Toe</h1>
 
   This is an implementation of the Tic-tac-toe game.
 
@@ -160,7 +160,7 @@ cursor is on.
 
 /*! \example widgets/widgets.cpp
 
-  <h1>Widgets Demo</h1>
+  <h1 align=center>Widgets Demo</h1>
 
   This example creates a window with many Qt widgets and two custom
   example widgets; aclock and dclock.
@@ -171,7 +171,7 @@ cursor is on.
 
 /*! \example xshape/xshape.cpp
 
-  <h1>X Shape Extension Demo</h1>
+  <h1 align=center>X Shape Extension Demo</h1>
 
   This example creates a window which make use of the X Shape Extension.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.26 1996/09/17 18:26:26 hanord Exp $
+** $Id: misc.doc,v 1.27 1996/09/18 15:10:18 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.26 1996/09/17 18:26:26 hanord Exp $";
+static char ident[] = "$Id: misc.doc,v 1.27 1996/09/18 15:10:18 agulbra Exp $";
 #endif
 
 
@@ -406,7 +406,7 @@ Here is some more information about Qt:
 </head><body bgcolor=white>
 <meta http-equiv="refresh" content="60"; URL="easteregg2.html">
 
-<h1>Congratulations!</h1>
+<h1 align=center>Congratulations!</h1>
 <h2>You've found our easter egg</h2>
 <h6>No prizes, though</h6>
 <p>
@@ -443,7 +443,7 @@ Amen!
 <title>Qt Official Easter Egg</title>
 </head><body bgcolor=white>
 
-<h1>Congratulations!</h1>
+<h1 align=center>Congratulations!</h1>
 <h2>You've found our easter egg</h2>
 <h6>No prizes, though</h6>
 <p>
