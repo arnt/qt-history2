@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#29 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#29 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -117,7 +117,7 @@ void QEvent::peErrMsg()				// posted event error message
   The basic QEvent only contains an event type parameter.  Subclasses
   of QEvent contain additional parameters that descripe the particular
   event.
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QEvent::QEvent( int type )
@@ -522,3 +522,35 @@ void QEvent::peErrMsg()				// posted event error message
 
   \sa accept()
  ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \class QCustomEvent qevent.h
+  \brief The QCustomEvent class provides support for user-defined events.
+
+  \ingroup event
+
+  QCustomEvent is a user-defined event type which contains a \c void*.
+
+  \warning
+  This event class is internally used to implement Qt enhancements.  It is
+  not advisable to use QCustomEvent in normal applications, where other
+  event types and the signal/slot mechanism can do the job.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QCustomEvent::QCustomEvent( int type, void *data )
+  Constructs a custom event object with the event type \e type and a
+  pointer to \e data.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void *QCustomEvent::data() const
+  Returns a pointer to the event data (specified in the constructor).
+
+  The event data can be anything and must be casted to something useful
+  based on the \link type() event type\endlink. Again, it is not
+  recommended to use custom events unless you are implementing Qt kernel
+  enhancements.
+ ----------------------------------------------------------------------------*/
+
