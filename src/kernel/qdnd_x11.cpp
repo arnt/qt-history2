@@ -511,18 +511,23 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 		//NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
 		QDragEnterEvent de( p );
+		de.setAction(accepted_action);
 		QApplication::sendEvent( c, &de );
 		if ( de.isAccepted() ) {
 		    me.accept( de.answerRect() );
-		    if ( !me.isActionAccepted() ) // only as a copy (move if we del)
+		    if ( !de.isActionAccepted() ) // only as a copy (move if we del)
 			accepted_action = QDropEvent::Copy;
+		    else
+			me.acceptAction(TRUE);
 		} else {
 		    me.ignore( de.answerRect() );
 		}
 	    }
 	} else {
-	    if ( qt_xdnd_target_answerwas )
+	    if ( qt_xdnd_target_answerwas ) {
 		me.accept();
+		me.acceptAction(global_requested_action == global_accepted_action);
+	    }
 	}
 
 	if ( !c->acceptDrops() ) {
@@ -698,8 +703,9 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 	de.setAction( global_accepted_action );
 	QApplication::sendEvent( qt_xdnd_current_widget, &de );
 	if ( !de.isAccepted() ) {
-	    // Ignore a failed move
+	    // Ignore a failed drag
 	    global_accepted_action = QDropEvent::Copy;
+	    dndCancelled = TRUE;
 	}
 	XClientMessageEvent finished;
 	finished.type = ClientMessage;
@@ -1501,7 +1507,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 			qt_xdnd_source_current_time );
     oldstate = ButtonState(-1); // #### Should use state that caused the drag
     drag_mode = mode;
-    global_accepted_action = QDropEvent::Copy; // #####
+    global_accepted_action = QDropEvent::Copy;
     updateMode(ButtonState(0));
     qt_xdnd_source_sameanswer = QRect();
     move(QCursor::pos());
