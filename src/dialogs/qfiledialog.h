@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#14 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#15 $
 **
 ** Definition of QFileDialog class
 **
@@ -59,7 +59,7 @@ private slots:
     void fileSelected( int );
     void fileHighlighted( int );
     void dirSelected( int );
-    void pathSelected( int ); 
+    void pathSelected( int );
 
     void updateFileNameEdit( QListViewItem *);
     void selectDirectoryOrFile( QListViewItem * );
@@ -80,7 +80,6 @@ private:
     void init();
     void updatePathBox( const char * );
 
-
     QDir cwd;
     QString fileName;
 
@@ -95,7 +94,7 @@ private:
     void *unused5;
     void *unused6;
     void *unused7;
-    QPushButton *okB; 
+    QPushButton *okB;
     QPushButton *cancelB;
 
 private:	// Disabled copy constructor and operator=
