@@ -442,9 +442,8 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
                 this, SLOT(currentChanged(QModelIndex,QModelIndex)));
 
         bool block = d->selectionModel->blockSignals(true);
-        if (!d->selectionModel->currentIndex().isValid())
-            d->selectionModel->setCurrentIndex(d->model->index(0, 0, root()),
-                                              QItemSelectionModel::NoUpdate);
+        if (!currentIndex().isValid())
+            setCurrentIndex(d->model->index(0, 0, root()));
         d->selectionModel->blockSignals(block);
     }
 }
@@ -549,7 +548,7 @@ int QAbstractItemView::selectionBehavior() const
 */
 void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 {
-    selectionModel()->setCurrentIndex(index, selectionCommand(Qt::NoButton, index));
+    selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 }
 
 /*!
@@ -767,7 +766,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
         d->pressedPosition = pos + offset;
 
     if (index.isValid())
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        setCurrentIndex(index);
 
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
@@ -827,7 +826,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
                 return;
             }
         }
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        setCurrentIndex(index);
     }
     setState(Selecting);
     setSelection(QRect(topLeft, bottomRight).normalize(),
@@ -1017,7 +1016,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                                                            e->type(),
                                                                            (Qt::Key)e->key());
             if (command & QItemSelectionModel::Current) {
-                selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
+                setCurrentIndex(newCurrent);
                 QPoint offset(horizontalOffset(), verticalOffset());
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
