@@ -518,7 +518,11 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		origPressPos = oldPressPos;
 		checkedSelectionsForMove = FALSE;
 		moving.clear();
-		targetContainer = w->parentWidget();
+		if (w->parentWidget() && !w->parentWidget()->inherits( "QDesignerDialog" )) {
+		    targetContainer = w->parentWidget();
+		    hadOwnPalette = w->parentWidget()->ownPalette();
+		    restoreColor = w->parentWidget()->backgroundColor();
+		}
 	    } else if ( e->button() == RightButton ) { // RMB menu
 		if ( mainContainer()->inherits( "QMainWindow" ) &&
 		     ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget )
