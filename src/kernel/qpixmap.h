@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#92 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#93 $
 **
 ** Definition of QPixmap class
 **
@@ -32,7 +32,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPixmap : public QPaintDevice		// pixmap class
+class Q_EXPORT QPixmap : public QPaintDevice, public Qt	// pixmap class
 {
 friend class QPaintDevice;
 friend class QPainter;
