@@ -1640,6 +1640,8 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     const bool isResize = (olds != QSize(w, h));
     if(!isTopLevel() && !isResize && QPoint(x, y) == oldp)
         return;
+    if(isResize && isMaximized())
+        clearWState(WState_Maximized);
     const bool visible = isVisible();
     data->crect = QRect(x, y, w, h);
     //update the widget also..
@@ -1649,8 +1651,6 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     HIViewSetFrame((HIViewRef)winId(), &bounds);
 
     if(isTopLevel()) {
-        if(isResize && isMaximized())
-            clearWState(WState_Maximized);
         WindowPtr window = qt_mac_window_for((HIViewRef)winId());
         if(isMove)
             MoveWindow(window, x, y, false);
