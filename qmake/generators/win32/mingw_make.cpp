@@ -25,8 +25,38 @@ MingwMakefileGenerator::MingwMakefileGenerator() : Win32MakefileGenerator(), ini
     Option::res_ext = ".o";
 }
 
-bool MingwMakefileGenerator::findLibraries() // todo - pascal
+bool MingwMakefileGenerator::findLibraries()
 {
+    QStringList &l = project->variables()["QMAKE_LIBS"];
+
+    QList<QMakeLocalFileName> dirs;
+    {
+        QStringList &libpaths = project->variables()["QMAKE_LIBDIR"];
+        for(QStringList::Iterator libpathit = libpaths.begin();
+            libpathit != libpaths.end(); ++libpathit)
+            dirs.append(QMakeLocalFileName((*libpathit)));
+    }
+    
+    QStringList::Iterator it = l.begin();
+    while (it != l.end()) {
+        if ((*it).startsWith("-l")) {
+            QString steam = (*it).mid(2);
+            QString suffix;
+            if (!project->isEmpty("QMAKE_" + steam.toUpper() + "_SUFFIX"))
+                suffix = project->first("QMAKE_" + steam.toUpper() + "_SUFFIX");
+	    QString extension;
+	    for (QList<QMakeLocalFileName>::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
+	        int ver = findHighestVersion((*dir_it).local(), steam);
+                if (ver != -1) {
+		    extension += QString::number(ver);
+	            break;
+	    	}
+	    }
+	    extension += suffix;
+	    (*it) += extension;
+	}
+        ++it;
+    }
     return true;
 }
 
@@ -118,8 +148,9 @@ void MingwMakefileGenerator::init()
         QString destDir = "";
         if(!project->first("DESTDIR").isEmpty())
             destDir = Option::fixPathToTargetOS(project->first("DESTDIR") + Option::dir_sep, false, false);
-        project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") +
-                                                    destDir + "lib" + project->first("TARGET") + ".a");
+        project->variables()["MINGW_IMPORT_LIB"].prepend(destDir + "lib" + project->first("TARGET")
+                                                         + project->first("TARGET_VERSION_EXT") + ".a");
+	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") + project->first("MINGW_IMPORT_LIB"));
     }
 
     if(!project->variables()["DEF_FILE"].isEmpty())
@@ -127,7 +158,7 @@ void MingwMakefileGenerator::init()
 
     MakefileGenerator::init();
     if(project->isActiveConfig("dll")) {
-        project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") +"lib" + project->first("TARGET") + ".a");
+        project->variables()["QMAKE_CLEAN"].append(project->first("MINGW_IMPORT_LIB"));
     }
 }
 
