@@ -52,9 +52,15 @@ then
     exit 1
 fi
 
+if [ -z "$XBASEDIR" ]
+then
+XBASEDIR=../xdb
+fi
+
 cat >.qmake.cache <<EOF
 OBJECTS_DIR=.obj
 MOC_DIR=.moc
+XBASE_ROOT=$XBASEDIR
 EOF
 
 TOP=`pwd`
