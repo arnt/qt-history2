@@ -65,12 +65,16 @@ Now let's fill this framework with functionality.
 First we include the APIs of the classes we use in the 
 \e EuroConverter implementation.
 
-\printline static const struct {
+\printline static struct {
 \printuntil rate
 
 We need something to store currencies and exchange rates. For this
-reason we create a \e struct datatype that files currencies in
-a \l QString and the exchange rates in a \e double.
+reason we create a \e struct datatype that files currencies as
+\e{const char *} and the exchange rates in a \e double.
+(Usually one would use a \l QString instead of \e{const char *} but
+for compatibility reasons with the SunPro cc compiler we don't use
+QString in a struct.)
+
 
 \printline rates[
 
