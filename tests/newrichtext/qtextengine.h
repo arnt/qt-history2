@@ -139,7 +139,7 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const = 0;
 
-    virtual QOpenType *openTypeIface() const { return 0; }
+    virtual QOpenType *openType() const { return 0; }
     virtual int cmap() const = 0;
 
     virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,

@@ -883,7 +883,7 @@ static void arabic_attributes( const QString &text, int from, int len, QCharAttr
 
 static void arabic_shape( int /*script*/, const QString &string, int from, int len, QScriptItem *si )
 {
-    QOpenType *openType = si->fontEngine->openTypeIface();
+    QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
 	openTypeShape( QFont::Arabic, openType, string,  from,  len, si );
@@ -914,7 +914,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 
 static void syriac_shape( int script, const QString &string, int from, int len, QScriptItem *item )
 {
-    QOpenType *openType = item->fontEngine->openTypeIface();
+    QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
 	openTypeShape( QFont::Syriac, openType, string, from, len, item );
@@ -2663,7 +2663,7 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 	item->fontEngine->stringToCMap( reordered.unicode(), shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
     }
 
-    QOpenType *openType = item->fontEngine->openTypeIface();
+    QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
 	((QOpenType *) openType)->apply( QFont::Devanagari, featuresToApply, item, len );
@@ -2675,6 +2675,16 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     if ( len > 127 )
 	delete featuresToApply;
 }
+
+
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+//
+// Tibetan
+//
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 
 
