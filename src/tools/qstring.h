@@ -490,13 +490,17 @@ public:
     QString    &append( char );
     QString    &append( QChar );
     QString    &append( const QString & );
-    QString    &append( const QCString & );
+#ifndef QT_NO_CAST_ASCII
+    QString    &append( const QByteArray & );
     QString    &append( const char * );
+#endif
     QString    &prepend( char );
     QString    &prepend( QChar );
     QString    &prepend( const QString & );
-    QString    &prepend( const QCString & );
+#ifndef QT_NO_CAST_ASCII
+    QString    &prepend( const QByteArray & );
     QString    &prepend( const char * );
+#endif
     QString    &remove( uint index, uint len );
     QString    &remove( QChar c );
     QString    &remove( char c ) { return remove( QChar(c) ); }
@@ -548,8 +552,10 @@ public:
     void        setExpand( uint index, QChar c );
 
     QString    &operator+=( const QString &str );
-    QString    &operator+=( const QCString &str );
+#ifndef QT_NO_CAST_ASCII
+    QString    &operator+=( const QByteArray &str );
     QString    &operator+=( const char *str );
+#endif
     QString    &operator+=( QChar c );
     QString    &operator+=( char c );
 
@@ -786,13 +792,13 @@ inline QString &QString::prepend( QChar c )
 inline QString &QString::prepend( char c )
 { return insert(0,c); }
 
-inline QString &QString::prepend( const QCString & s )
+inline QString &QString::prepend( const QByteArray & s )
 { return insert(0,s.data()); }
 
 inline QString &QString::append( const QString & s )
 { return operator+=(s); }
 
-inline QString &QString::append( const QCString &s )
+inline QString &QString::append( const QByteArray &s )
 { return operator+=(s.data()); }
 
 inline QString &QString::append( const char * s )
@@ -804,7 +810,7 @@ inline QString &QString::append( QChar c )
 inline QString &QString::append( char c )
 { return operator+=(c); }
 
-inline QString &QString::operator+=( const QCString &s )
+inline QString &QString::operator+=( const QByteArray &s )
 { return operator+=(s.data()); }
 
 inline QString &QString::setNum( short n, int base )
