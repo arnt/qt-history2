@@ -256,12 +256,6 @@ void MainWindow::init()
 #ifdef QT_PALMTOPCENTER_DOCS
     settings.insertSearchPath( QSettings::Unix,
 			       QDir::homeDirPath() + "/.palmtopcenter/" );
-    actionGoLinguist->removeFrom( goMenu );
-    actionGoLinguist->removeFrom( Toolbar );
-    actionGoQt->removeFrom( goMenu );
-    actionGoQt->removeFrom( Toolbar );
-    actionGoDesigner->removeFrom( goMenu );
-    actionGoDesigner->removeFrom( Toolbar );
 #else
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 #endif
@@ -279,6 +273,11 @@ void MainWindow::init()
 
     // read geometry configuration
     QString keybase("/Qt Assistant/3.1/");
+
+#ifndef QT_PALMTOPCENTER_DOCS
+    setupGoActions( settings.readListEntry( keybase + "AdditionalDocFiles" ),
+	settings.readListEntry( keybase + "CategoriesSelected" ) );
+#endif
     if ( !settings.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
 	QRect r( pos(), size() );
 	r.setX( settings.readNumEntry( keybase + "GeometryX", r.x() ) );
@@ -391,6 +390,46 @@ void MainWindow::setup()
 
 }
 
+void MainWindow::setupGoActions( const QStringList &docList, const QStringList &catList )
+{
+    QStringList::ConstIterator it = docList.begin();
+    bool separatorInserted = FALSE;
+    for ( ; it != docList.end(); ++it ) {
+	if ( (*it).lower().contains( "qt.xml" ) &&
+	     catList.find( "qt/reference" ) != catList.end() ) {
+	    if ( !separatorInserted )
+		separatorInserted = insertActionSeparator();
+	    actionGoQt->addTo( goMenu );
+	    actionGoQt->addTo( Toolbar );
+	} else if ( (*it).lower().contains( "designer.xml" ) &&
+		    catList.find( "qt/designer" ) != catList.end() ) {
+	    if ( !separatorInserted )
+		separatorInserted = insertActionSeparator();
+	    actionGoDesigner->addTo( goMenu );
+	    actionGoDesigner->addTo( Toolbar );
+	} else if ( (*it).lower().contains( "assistant.xml" ) &&
+		    catList.find( "qt/assistant" ) != catList.end() ) {
+	    if ( !separatorInserted )
+		separatorInserted = insertActionSeparator();
+	    actionGoAssistant->addTo( goMenu );
+	    actionGoAssistant->addTo( Toolbar );
+	} else if ( (*it).lower().contains( "linguist.xml" ) &&
+		    catList.find( "qt/linguist" ) != catList.end() ) {
+	    if ( !separatorInserted )
+		separatorInserted = insertActionSeparator();
+	    actionGoLinguist->addTo( goMenu );
+	    actionGoLinguist->addTo( Toolbar );
+	}
+    }
+}
+
+bool MainWindow::insertActionSeparator()
+{
+    goMenu->insertSeparator();
+    Toolbar->addSeparator();
+    return TRUE;
+}
+
 void MainWindow::setObjectsEnabled( bool b )
 {
     if ( b ) {
@@ -427,7 +466,7 @@ void MainWindow::about()
     static const char *about_text =
     "<p><b>About Qt Assistant</b></p>"
     "<p>The Qt documentation browser.</p>"
-    "<p>Version 1.0</p>"
+    "<p>Version 2.0</p>"
     "<p>Copyright (C) 2001-2002 Trolltech AS</p>";
     QMessageBox::about( this, tr("Qt Assistant"), tr( about_text ) );
 }
@@ -475,7 +514,7 @@ void MainWindow::showLinguistHelp()
 void MainWindow::print()
 {
     QPrinter printer;
-    printer.setFullPage(TRUE);
+    printer.setFullPage( TRUE );
     if ( printer.setup( this ) ) {
 	QPaintDeviceMetrics screen( this );
 	printer.setResolution( screen.logicalDpiY() );
@@ -585,7 +624,6 @@ void MainWindow::showSettingsDialog()
     if ( !settingsDia ){
 	settingsDia = new SettingsDialog( this );
 	connect( settingsDia, SIGNAL( docuFilesChanged() ), helpDock, SLOT( generateNewDocu() ));
-	connect( settingsDia, SIGNAL( categoryChanged() ), helpDock, SLOT( showChangedDocu() ));
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->insertStringList( fonts.families() );
@@ -599,6 +637,28 @@ void MainWindow::showSettingsDialog()
 
     if ( ret != QDialog::Accepted )
 	return;
+
+    actionGoQt->removeFrom( goMenu );
+    actionGoQt->removeFrom( Toolbar );
+    actionGoDesigner->removeFrom( goMenu );
+    actionGoDesigner->removeFrom( Toolbar );
+    actionGoAssistant->removeFrom( goMenu );
+    actionGoAssistant->removeFrom( Toolbar );
+    actionGoLinguist->removeFrom( goMenu );
+    actionGoLinguist->removeFrom( Toolbar );
+    goMenu->removeItemAt( goMenu->count() - 1 );
+    QObjectList *lst;
+    (const QObjectList*)lst = Toolbar->children();
+    QObject *obj;
+    for ( obj = lst->last(); obj; obj = lst->prev() ) {
+	if ( obj->isA( "QToolBarSeparator" ) ) {
+	    delete obj;
+	    obj = 0;
+	    break;
+	}
+    }
+
+    setupGoActions( settingsDia->documentationList(), settingsDia->selCategoriesList() );
 
     QFont fnt( browser->QWidget::font() );
     fnt.setFamily( settingsDia->fontCombo->currentText() );

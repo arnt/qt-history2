@@ -25,9 +25,11 @@
 #include <qlistview.h>
 #include <qmap.h>
 #include <qstringlist.h>
+#include <qvalidator.h>
 
 #include "index.h"
 #include "helpdialog.h"
+#include "helpwindow.h"
 
 class QProgressBar;
 class MainWindow;
@@ -43,6 +45,16 @@ public:
 private:
     QStringList linkList;
 
+};
+
+class SearchValidator : public QValidator
+{
+    Q_OBJECT
+public:
+    SearchValidator( QObject *parent, const char *name = 0 )
+	: QValidator( parent, name ) {}
+    ~SearchValidator() {}
+    QValidator::State validate( QString &str, int & ) const;
 };
 
 class HelpNavigationContentsItem : public QListViewItem
@@ -63,7 +75,7 @@ class HelpDialog : public HelpDialogBase
     Q_OBJECT
 
 public:
-    HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v );
+    HelpDialog( QWidget *parent, MainWindow *h, HelpWindow *v );
 
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
@@ -72,10 +84,10 @@ public:
 protected slots:
     void loadIndexFile();
     void insertContents();
+    void setupFullTextIndex();
     void currentTabChanged( const QString &s );
     void currentIndexChanged( QListBoxItem *i );
     void generateNewDocu();
-    void showChangedDocu();
     void showTopic();
     void searchInIndex( const QString &s );
     void addBookmark();
@@ -97,11 +109,13 @@ signals:
 
 private slots:
     void lastWinClosed();
-    void setupFullTextIndex();
     void showResultPage( int page );
     void setIndexingProgress( int prog );
 
 private:
+    void buildKeywordDB();
+    Q_UINT32 getFileAges();
+    void buildTitlemapDB();
     void showIndexTopic();
     void showBookmarkTopic();
     void insertBookmarks();
@@ -113,7 +127,6 @@ private:
     void insertContents( const QString &filename, const QString &title,
 			 HelpNavigationContentsItem *lastItem,
 			 HelpNavigationContentsItem *handbook );
-    QString generateFileNumber();
     bool isValidCategory( QString category );
 
 private:
@@ -122,11 +135,11 @@ private:
     bool indexDone, bookmarksInserted, contentsDone, contentsInserted;
     bool lwClosed;
     MainWindow *help;
-    QTextBrowser *viewer;
+    HelpWindow *viewer;
     QString documentationPath;
     Index *fullTextIndex;
     QStringList terms, foundDocs;
-    bool needNewIndex;
+    bool newFullTextIndex;
 };
 
 #endif

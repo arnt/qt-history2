@@ -49,11 +49,29 @@ QDataStream &operator<<( QDataStream &s, const Document &l )
     return s;
 }
 
+Index::Index( const QString &dp, const QString &hp )
+    : QObject( 0, 0 ), dict( 8999 ), docPath( dp ), homePath( hp )
+{
+    alreadyHaveDocList = FALSE;
+}
+
+Index::Index( const QStringList &dl, const QString &hp )
+    : QObject( 0, 0 ), dict( 8999 ), homePath( hp )
+{
+    docList = dl;
+    alreadyHaveDocList = TRUE;
+}
+
 void Index::makeIndex()
 {
-    setupDocumentList();
+    if ( !alreadyHaveDocList )
+	setupDocumentList();
+    if ( docList.isEmpty() )
+	return;
     QStringList::Iterator it = docList.begin();
     int steps = docList.count() / 100;
+    if ( !steps )
+	steps++;
     int prog = 0;
     for ( int i = 0; it != docList.end(); ++it, ++i ) {
 	parseDocument( *it, i );
@@ -90,7 +108,7 @@ void Index::parseDocument( const QString &filename, int docNum )
 {
     QFile file( docPath + "/" + filename );
     if ( !file.open( IO_ReadOnly ) ) {
-	qDebug( "can not open file " + filename );
+	qWarning( "can not open file " + filename );
 	return;
     }
     bool valid = TRUE;
@@ -253,7 +271,7 @@ QString Index::getDocumentTitle( const QString &fileName )
 {
     QFile file( docPath + "/" + fileName );
     if ( !file.open( IO_ReadOnly ) ) {
-	qDebug( "can not open file " + fileName );
+	qWarning( "can not open file " + fileName );
 	return fileName;
     }
     char c = file.getch();
@@ -401,7 +419,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
 {
     QFile file( docPath + "/" + fileName );
     if ( !file.open( IO_ReadOnly ) ) {
-	qDebug( "can not open file " + fileName );
+	qWarning( "can not open file " + fileName );
 	return FALSE;
     }
 

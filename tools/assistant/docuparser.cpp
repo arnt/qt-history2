@@ -30,7 +30,8 @@ bool DocuParser::startElement( const QString &, const QString &,
     if( qname == "DCF" && state == StateInit ) {
 	state = StateContent;
 	contentRef = attr.value( "ref" );
-	title = attr.value( "title" );
+	docTitle = attr.value( "title" );
+	title = docTitle;
 	category = attr.value( "category" );
 	contentList.append( new ContentItem( title, contentRef, depth ) );
     }
@@ -94,7 +95,7 @@ bool DocuParser::characters( const QString& ch )
     return TRUE;
 }
 
-QString DocuParser::errorProtocol()
+QString DocuParser::errorProtocol() const
 {
     return errorProt;
 }
@@ -109,17 +110,22 @@ bool DocuParser::fatalError( const QXmlParseException& exception )
     return QXmlDefaultHandler::fatalError( exception );
 }
 
-QString DocuParser::getCategory()
+QString DocuParser::getCategory() const
 {
     return category;
 }
 
-QPtrList<ContentItem> DocuParser::getContentItems()
+QString DocuParser::getDocumentationTitle() const
+{
+    return docTitle;
+}
+
+QPtrList<ContentItem>& DocuParser::getContentItems()
 {
     return contentList;
 }
 
-QPtrList<IndexItem> DocuParser::getIndexItems()
+QPtrList<IndexItem>& DocuParser::getIndexItems()
 {
     return indexList;
 }

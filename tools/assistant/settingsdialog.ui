@@ -258,7 +258,7 @@
                     <cstring>tab</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Documentation Files</string>
+                    <string>Documentations</string>
                 </attribute>
                 <vbox>
                     <property name="name">
@@ -525,7 +525,7 @@
                         <string>&amp;OK</string>
                     </property>
                     <property name="accel">
-                        <number>276824143</number>
+                        <number>0</number>
                     </property>
                     <property name="autoDefault">
                         <bool>true</bool>
@@ -542,7 +542,7 @@
                         <string>&amp;Cancel</string>
                     </property>
                     <property name="accel">
-                        <number>276824131</number>
+                        <number>0</number>
                     </property>
                     <property name="autoDefault">
                         <bool>true</bool>

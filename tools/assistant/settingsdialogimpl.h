@@ -24,11 +24,12 @@
 #include <qstringlist.h>
 #include <qptrlist.h>
 #include <qlistview.h>
+
 #include "settingsdialog.h"
 
 struct listItem {
-    listItem( QString ln, QString sn, int de ) 
-	: lname( ln ), sname( sn ), d( de ) {}    
+    listItem( QString ln, QString sn, int de )
+	: lname( ln ), sname( sn ), d( de ) {}
     QString lname;
     QString sname;
     int d;
@@ -42,12 +43,12 @@ struct stateListItem {
 };
 
 
-class CheckListItem : public QObject, public QCheckListItem 
+class CheckListItem : public QObject, public QCheckListItem
 {
     Q_OBJECT
-        
+
 public:
-    CheckListItem( CheckListItem *parent, const QString &text, 
+    CheckListItem( CheckListItem *parent, const QString &text,
 	const QString &fullcat );
     CheckListItem( QListView *parent, const QString &text,
 	const QString &fullcat );
@@ -69,6 +70,8 @@ class SettingsDialog : public SettingsDialogBase
 
 public:
     SettingsDialog( QWidget *parent, const char* name = 0 );
+    QStringList documentationList() const;
+    QStringList selCategoriesList() const;
 
 protected slots:
     void selectColor();
@@ -79,9 +82,9 @@ protected slots:
     void browseWebApp();
     void accept();
     void reject();
+
 signals:
     void docuFilesChanged();
-    void categoryChanged();
 
 private:
     void init();
@@ -90,7 +93,7 @@ private:
     void checkItem( CheckListItem* );
     QStringList getCheckedItemList();
     bool changed, selectionChanged;
-    QStringList docuFileList, catListAvail, catListSel;
+    QStringList docuFileList, docuTitleList, catListAvail, catListSel;
     QPtrList<CheckListItem> catItemList;
     CheckListItem *allItem;
 };

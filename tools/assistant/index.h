@@ -61,8 +61,8 @@ public:
 	QValueList<uint> positions;
     };
 
-    Index( const QString &dp, const QString &hp )
-	: QObject( 0, 0 ), dict( 8999 ), docPath( dp ), homePath( hp ) {}
+    Index( const QString &dp, const QString &hp );
+    Index( const QStringList &dl, const QString &hp );
     void writeDict();
     void readDict();
     void makeIndex();
@@ -88,6 +88,7 @@ private:
     QAsciiDict<PosEntry> miniDict;
     uint wordNum;
     QString docPath, homePath;
+    bool alreadyHaveDocList;
 };
 
 struct Term {

@@ -13,7 +13,7 @@
 #include "mainwindow.h"
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
-    : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE )
+    : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE ), blockScroll( FALSE )
 {
 }
 
@@ -147,4 +147,15 @@ void HelpWindow::keyReleaseEvent( QKeyEvent *e )
 {
     shiftPressed = FALSE;
     QTextBrowser::keyReleaseEvent( e );
+}
+
+void HelpWindow::blockScrolling( bool b )
+{
+    blockScroll = b;
+}
+
+void HelpWindow::ensureCursorVisible()
+{
+    if ( !blockScroll )
+	QTextBrowser::ensureCursorVisible();
 }

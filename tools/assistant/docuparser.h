@@ -31,22 +31,23 @@ enum States{
 class DocuParser : public QXmlDefaultHandler
 {
 public:
-    DocuParser();    
+    DocuParser();
     bool startDocument();
     bool startElement( const QString&, const QString&, const QString& ,
                        const QXmlAttributes& );
     bool endElement( const QString&, const QString&, const QString& );
     bool characters( const QString & );
     bool fatalError( const QXmlParseException& exception );
-    QString errorProtocol();
-    
-    QPtrList<ContentItem> getContentItems();
-    QPtrList<IndexItem> getIndexItems();
-    QString getCategory();
-    
+    QString errorProtocol() const;
+
+    QPtrList<ContentItem>& getContentItems();
+    QPtrList<IndexItem>& getIndexItems();
+    QString getCategory() const;
+    QString getDocumentationTitle() const;
+
 private:
     QString category, contentRef, indexRef, errorProt;
-    QString title;
+    QString docTitle, title;
     int depth;
     States state;
     QPtrList<ContentItem> contentList;

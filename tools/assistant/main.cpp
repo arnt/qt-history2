@@ -120,8 +120,6 @@ bool AddDoc::addDocFile( const QString &file )
 	return FALSE;
     }
 
-    addItemToList( "/Qt Assistant/3.1/AdditionalDocFiles/", fi.absFilePath() );
-
     DocuParser handler;
 
     QFile f( file );
@@ -139,6 +137,11 @@ bool AddDoc::addDocFile( const QString &file )
     if ( handler.getCategory().isEmpty() )
 	return TRUE;
 
+    QString title = handler.getDocumentationTitle();
+    if ( title.isEmpty() )
+	title = fi.absFilePath();
+    addItemToList( "/Qt Assistant/3.1/AdditionalDocFiles/", fi.absFilePath() );
+    addItemToList( "/Qt Assistant/3.1/AdditionalDocTitles/", title );
     addItemToList( "/Qt Assistant/3.1/CategoriesAvailable/", handler.getCategory() );
     addItemToList( "/Qt Assistant/3.1/CategoriesSelected/", handler.getCategory() );
 
@@ -225,6 +228,32 @@ int main( int argc, char ** argv )
     }
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
     QString link = config->readEntry( keybase + "Source", "" );
+
+#ifndef QT_PALMTOPCENTER_DOCS
+    bool firstRun = config->readBoolEntry( keybase + "FirstRun", TRUE );
+    if ( firstRun ) {
+	QString path = QString( qInstallPathDocs() ) + "/html/";
+	QStringList lst;
+	lst.append( path + "qt.xml" );
+	lst.append( path + "designer.xml" );
+	lst.append( path + "assistant.xml" );
+	lst.append( path + "linguist.xml" );
+	lst.append( path + "qmake.xml" );
+	config->writeEntry( keybase + "AdditionalDocFiles", lst );
+	lst.clear();
+	lst << "Qt Reference Documentation" << "Qt Designer Manual";
+	lst << "Qt Assistant Manual" << "Qt Linguist Manual" << "qmake User Guide";
+	config->writeEntry( keybase + "AdditionalDocTitles", lst );
+	lst.clear();
+	lst << "qt" << "qt/reference" << "qt/designer" << "qt/assistant" << "qt/linguist" << "qt/qmake";
+	config->writeEntry( keybase + "CategoriesAvailable", lst );
+	lst.prepend( "all" );
+	config->writeEntry( keybase + "CategoriesSelected", lst );
+	config->writeEntry( keybase + "FirstRun", FALSE );
+	config->writeEntry( keybase + "NewDoc", TRUE );
+    }
+#endif
+
     delete config;
     config = 0;
 
