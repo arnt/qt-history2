@@ -73,6 +73,14 @@ public:
     void contentsDragEnterEvent( QDragEnterEvent *e );
     void contentsDragMoveEvent( QDragMoveEvent *e );
 
+    void drawContentsOffset( QPainter *p, int ox, int oy,
+			     int cx, int cy, int cw, int ch ) {
+	setUpdatesEnabled( FALSE );
+	triggerUpdate();
+	setUpdatesEnabled( TRUE );
+	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
+    }
+
 public slots:
     void modificationChanged( bool m, FormWindow *fw );
     void fileNameChanged( const QString &s, FormWindow *fw );

@@ -96,6 +96,12 @@ void FormListItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
     p->setPen( QPen( cg.dark(), 1 ) );
     if ( column == 0 )
 	p->drawLine( 0, 0, 0, height() - 1 );
+    if ( listView()->firstChild() != this ) {
+	if ( nextSibling() != itemBelow() && itemBelow()->depth() < depth() ) {
+	    int d = depth() - itemBelow()->depth();
+	    p->drawLine( -listView()->treeStepSize() * d, height() - 1, 0, height() - 1 );
+	}
+    }
     p->drawLine( 0, height() - 1, width, height() - 1 );
     p->drawLine( width - 1, 0, width - 1, height() );
     p->restore();

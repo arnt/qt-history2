@@ -73,6 +73,13 @@ public:
     void changeNameOf( QWidget *w, const QString &name );
     void changeDatabaseOf( QWidget *w, const QString &info );
     void setFormWindow( FormWindow *fw ) { formWindow = fw; }
+    void drawContentsOffset( QPainter *p, int ox, int oy,
+			     int cx, int cy, int cw, int ch ) {
+	setUpdatesEnabled( FALSE );
+	triggerUpdate();
+	setUpdatesEnabled( TRUE );
+	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
+    }
 
 protected:
     void keyPressEvent( QKeyEvent *e );
