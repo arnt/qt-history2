@@ -2430,10 +2430,16 @@ QString QAxBase::generateDocumentation()
 	for ( it = propMap.begin(); it != propMap.end(); ++it ) {
 	    QString name = it.key();
 	    QString type = it.data();
+
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
 	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
 	    docuFromName( typeInfo, name, detail );
 	    QVariant::Type vartype = QVariant::nameToType( type );
+	    const QMetaProperty *prop = mo->property( mo->findProperty( name.latin1() ) );
+	    Q_ASSERT( prop );
+
+	    if ( vartype == QVariant::Invalid && prop->isEnumType() )
+		vartype = QVariant::Int;
 	    if ( vartype != QVariant::Invalid ) {
 		detail += "<p>Read this property's value using QObject::property:<pre>\n";
 		detail += "\t" + type + " val = object->property( \"" + name + "\" ).to" + type + "();\n";
@@ -2445,9 +2451,7 @@ QString QAxBase::generateDocumentation()
 	    } else {
 		detail += "<p>This property is of an unsupported type.\n";	    
 	    }
-	    const QMetaProperty *prop = mo->property( mo->findProperty( name.latin1() ) );
-	    Q_ASSERT( prop );
-	    if ( vartype != QVariant::Invalid && prop && prop->writable() ) {
+	    if ( prop->writable() ) {
 		detail += "Set this property' value using QObject::setProperty:<pre>\n";
 		detail += "\t" + type + " newValue = ...\n";
 		detail += "\tobject->setProperty( \"" + name + "\", newValue );\n";
@@ -2463,7 +2467,7 @@ QString QAxBase::generateDocumentation()
 		}
 		detail += "<a href=\"#" + setterSlot + "\">" + setterSlot + "</a> slot.\n";
 	    }
-	    if ( vartype != QVariant::Invalid && prop && prop->isEnumType() ) {
+	    if ( prop->isEnumType() ) {
 		QCString enumName = prop->enumData->name;
 		detail += "<p>See also <a href=\"#" + enumName + "\">" + enumName + "</a>.\n";
 	    }
