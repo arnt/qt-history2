@@ -63,7 +63,6 @@ public:
 
     QSize span(const QModelIndex &index) const;
 
-public slots:
     bool submit();
     void revert();
 
