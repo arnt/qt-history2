@@ -1743,8 +1743,8 @@ int QHttpConnection::keepAliveTimeout() const
  *
  ****************************************************/
 /*!
-  \class QHttp qhttp.h \brief The QHttp class is a network protocol class for
-  HTTP.
+  \class QHttp qhttp.h
+  \brief The QHttp class is a network protocol class for HTTP.
 
   \module network
 
