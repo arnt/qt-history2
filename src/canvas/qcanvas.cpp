@@ -2009,7 +2009,7 @@ void QCanvasItem::move( double x, double y )
 
 
 /*!
-    Returns TRUE is the canvas item is in motion; otherwise returns
+    Returns TRUE if the canvas item is in motion; otherwise returns
     FALSE.
 
     \sa setVelocity(), setAnimated()

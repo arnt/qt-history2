@@ -96,6 +96,7 @@ QPrinter::QPrinter( PrinterMode m )
     state = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
+    paper_source = OnlyOne;
     switch ( m ) {
 	case ScreenResolution:
 #ifdef Q_WS_QWS
@@ -174,7 +175,7 @@ bool QPrinter::abort()
 }
 
 /*!
-    Returns TRUE is the printer job was aborted; otherwise returns
+    Returns TRUE if the print job was aborted; otherwise returns
     FALSE.
 
     \sa abort()

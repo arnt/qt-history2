@@ -701,8 +701,7 @@ void QDataManager::setAutoEdit( bool autoEdit )
 
 /*! \internal
 
-  Returns TRUE if auto-edit mode is enabled, otherwise FALSE is
-  returned.
+  Returns TRUE if auto-edit mode is enabled; otherwise returns FALSE.
 
 */
 

@@ -71,7 +71,7 @@
 /*!
     \fn bool QPtrStack::isEmpty () const 
 
-    Returns TRUE is the stack contains no elements; otherwise returns
+    Returns TRUE if the stack contains no elements; otherwise returns
     FALSE.
 */
 

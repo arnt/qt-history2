@@ -224,14 +224,14 @@ static QWSInputMethod *current_IM = 0;
 /*!
     \fn bool QWSWindow::isPartiallyObscured() const
 
-    Returns TRUE is the window is partially obscured by another window
+    Returns TRUE if the window is partially obsured by another window
     or by the bounds of the screen; otherwise returns FALSE.
 */
 
 /*!
     \fn bool QWSWindow::isFullyObscured() const
 
-    Returns TRUE is the window is completely obscured by another window
+    Returns TRUE if the window is completely obsured by another window
     or by the bounds of the screen; otherwise returns FALSE.
 */
 
