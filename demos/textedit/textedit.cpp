@@ -226,6 +226,7 @@ void TextEdit::setupTextActions()
     addToolBar(tb);
 
     comboStyle = new QComboBox(tb);
+    comboStyle->setFocusPolicy(Qt::NoFocus);
     tb->addWidget(comboStyle);
     comboStyle->insertItem("Standard");
     comboStyle->insertItem("Bullet List (Disc)");
@@ -238,6 +239,7 @@ void TextEdit::setupTextActions()
             this, SLOT(textStyle(int)));
 
     comboFont = new QComboBox(tb);
+    comboFont->setFocusPolicy(Qt::NoFocus);
     tb->addWidget(comboFont);
     comboFont->setEditable(true);
     QFontDatabase db;
@@ -247,6 +249,7 @@ void TextEdit::setupTextActions()
     comboFont->setEditText(QApplication::font().family());
 
     comboSize = new QComboBox(tb);
+    comboSize->setFocusPolicy(Qt::NoFocus);
     tb->addWidget(comboSize);
     comboSize->setEditable(true);
 
