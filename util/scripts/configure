@@ -140,8 +140,8 @@ each option:
  *  -shared ............ Create and use a shared Qt library (libqt.so)
     -static ............ Create and use a static Qt library (libqt.a)
 
- *  -no-gif ............ Do not compile in GIF support. Please see qgif.h.
-    -gif ............... Compile in GIF support. Please see qgif.h.
+ *  -no-gif ............ Do not compile in GIF reading support.
+    -gif ............... Compile in GIF reading support. See src/kernel/qgif.h
 
  *  -no-sm ............. Do not support X Session Management.
     -sm ................ Support X Session Management, links in -lXSM -lICE.
