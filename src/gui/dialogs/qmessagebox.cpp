@@ -553,7 +553,7 @@ void QMessageBox::init(int button0, int button1, int button2)
         *translatedTextAboutQt = tr(
             "<h3>About Qt</h3>"
             "<p>This program uses Qt version %1.</p>"
-            "<p>Qt is a C++ toolkit for cross-platform GUI &amp; "
+            "<p>Qt is a C++ toolkit for cross-platform GUI and "
             "application development.</p>"
             "<p>Qt provides single-source "
             "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
