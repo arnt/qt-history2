@@ -360,6 +360,7 @@ void FormFile::showFormWindow()
 void FormFile::showEditor()
 {
     showFormWindow();
+    MainWindow::self->editSource();
 }
 
 static int count = 0;
