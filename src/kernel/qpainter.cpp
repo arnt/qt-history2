@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#126 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#126 $");
 
 
 /*!
@@ -2103,6 +2103,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	p_alloc = FALSE;
     }
 
+    // We do the rectangle ourselves.
+    // ### need to check efficiency
+    BGMode oldmode = painter->backgroundMode();
+    painter->setBackgroundMode(TransparentMode);
+
     if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
 	tf |= DontClip;				// no need to clip
 
@@ -2140,6 +2145,14 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	mask = 0;
 	pp = 0;
 	pm = 0;
+    }
+
+    // ### should we union with br?
+    if ( painter->backgroundMode() == OpaqueMode ) {
+	QPen oldpen = painter->pen();
+	painter->setPen(NoPen);
+	painter->drawRect(x,y,w,h);
+	painter->setPen(oldpen);
     }
 
     yp += fascent;
@@ -2235,6 +2248,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	delete [] p;
     if ( code_alloc )
 	free( codes );
+
+    painter->setBackgroundMode(oldmode);
 }
 
 
