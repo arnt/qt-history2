@@ -232,6 +232,7 @@ void QInputContext::shutdown()
 	aimmpump = 0;
     }
     delete imeComposition;
+    imeComposition = 0;
 }
 
 static HIMC getContext( HWND wnd )
