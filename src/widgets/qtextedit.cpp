@@ -233,16 +233,14 @@
   currently placed.
 */
 
-/*! \fn bool QTextEdit::isOverwriteMode() const
+/*!
+  \property QTextEdit::overWriteMode
+  \brief the QTextEdits overwrite mode
 
-  Returns TRUE if this editor is in overwrite mode, i.e.  if
-  characters typed replace characters in the editor.
+  If TRUE, the editor is in overwrite mode, i.e. typed characters
+  overwrite characters in the editor.
 */
 
-/*! \fn int QTextEdit::undoDepth() const
-
-  Returns how many steps the undo/redo history can maximally store.
-*/
 
 /*! \fn void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
 
@@ -252,12 +250,6 @@
   result of newlines is not defined. If \a removeSelected is TRUE,
   selected text is removed before the text is inserted, else the
   inserted text gets selected.
-*/
-
-/*! \fn void QTextEdit::setOverwriteMode( bool b )
-
-  Sets overwrite mode if \a b on is TRUE. Overwrite mode means that
-  characters typed replace characters in the editor.
 */
 
 /*! \fn void QTextEdit::undo()
@@ -400,10 +392,11 @@
   Resets the current format to the default format.
 */
 
-/*! \fn void QTextEdit::setUndoDepth( int d )
+/*!
+  \property QTextEdit::undoDepth
+  \brief the depth of the undo history
 
-  Sets the number of steps the undo/redo history can maximally store
-  to \a d.
+  The maximum number of steps in the undo/redo history.
 */
 
 /*! \fn void QTextEdit::undoAvailable( bool yes )
