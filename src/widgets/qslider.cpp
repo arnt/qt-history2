@@ -342,9 +342,9 @@ QRect QSlider::sliderRect() const
 
 void QSlider::reallyMoveSlider( int newPos )
 {
-    QRect oldR = style().subRect( QStyle::SR_SliderHandleRect, this);
+    QRect oldR = sliderRect();
     sliderPos = newPos;
-    QRect newR = style().subRect( QStyle::SR_SliderHandleRect, this);
+    QRect newR = sliderRect();
     //since sliderRect isn't virtual, I know that oldR and newR
     // are the same size.
     if ( orient == Horizontal ) {
