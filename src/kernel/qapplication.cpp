@@ -719,7 +719,7 @@ void QApplication::initialize( int argc, char **argv )
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX) && !defined(QT_NO_STYLE_SGI)
 	app_style = new QSGIStyle; // default comment
 #elif defined(Q_WS_X11) && !defined(QT_NO_STYLE_MOTIF)
-	app_style = new QMotifStyle; // default style for X Windows
+	app_style = new QMotifStyle; // default style for X11
 #elif defined(Q_WS_MAC) && !defined(QT_NO_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
 #elif defined(Q_WS_QWS) && !defined(QT_NO_STYLE_COMPACT)
@@ -727,7 +727,7 @@ void QApplication::initialize( int argc, char **argv )
 #elif !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
 #elif !defined(QT_NO_STYLE_MOTIF)
-	app_style = new QMotifStyle; // default style for X Windows
+	app_style = new QMotifStyle; // default style for X11
 #elif !defined(QT_NO_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
 #else

@@ -1006,6 +1006,9 @@ void QWidget::setMouseTracking( bool enable )
   mouse when a button is pressed and keeps it until the last button is
   released.
 
+  Beware that only widgets actually shown on the screen may grab the
+  mouse input.
+
   \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
 */
 
@@ -1976,7 +1979,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( just_update )
 	return;
-    
+
     // Don't let the server be bogged-down with repaint events
     bool repaint_immediately = qt_sip_count( this ) < 3;
 
@@ -2092,20 +2095,20 @@ void QWidget::createTLSysExtra()
 	XFontSet fontset = xic_fontset(fontMetrics().fontSet(), font().pointSize());
 
 	XVaNestedList preedit_att = XVaCreateNestedList(0,
-			XNSpotLocation, &spot,
-			XNFontSet, fontset,
-			NULL);
+							XNSpotLocation, &spot,
+							XNFontSet, fontset,
+							NULL);
 	XVaNestedList status_att = XVaCreateNestedList(0,
-			XNFontSet, fontset,
-			NULL);
+						       XNFontSet, fontset,
+						       NULL);
 
 	extra->topextra->xic = (void*)XCreateIC( qt_xim,
-			XNInputStyle, qt_xim_style,
-			XNClientWindow, winId(),
-			XNFocusWindow, winId(),
-			XNPreeditAttributes, preedit_att,
-			XNStatusAttributes, status_att,
-			0 );
+						 XNInputStyle, qt_xim_style,
+						 XNClientWindow, winId(),
+						 XNFocusWindow, winId(),
+						 XNPreeditAttributes, preedit_att,
+						 XNStatusAttributes, status_att,
+						 0 );
 
 	XFree(preedit_att);
 	XFree(status_att);
@@ -2113,6 +2116,8 @@ void QWidget::createTLSysExtra()
     } else {
 	extra->topextra->xic = 0;
     }
+#else
+    extra->topextra->xic = 0;
 #endif
 }
 
