@@ -328,7 +328,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
     } else {
 	d = new QIconSetPrivate;
     }
-    if ( size == Large ) {
+    if ( size == Large || (size == Automatic && pm.width() > 22)) {
 	switch( mode ) {
 	case Active:
 	    d->largeActive.pm = new QPixmap( pm );
@@ -341,7 +341,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
 	    d->large.pm = new QPixmap( pm );
 	    break;
 	}
-    } else if ( size == Small ) {
+    } else if ( size == Small  || (size == Automatic && pm.width() <= 22)) {
 	switch( mode ) {
 	case Active:
 	    d->smallActive.pm = new QPixmap( pm );
