@@ -16,7 +16,6 @@ public:
     virtual void licenseAccepted();
     virtual void clickedFolderPath();
     virtual void clickedDevSysPath();
-    virtual void clickedSave();
 
     virtual void showPage( QWidget* );
     QApplication* app;
@@ -47,8 +46,11 @@ protected slots:
     void makeDone();
     void integratorDone();
     void readConfigureOutput();
+    void readConfigureError();
     void readMakeOutput();
+    void readMakeError();
     void readIntegratorOutput();
+    void readIntegratorError();
 
 private:
     void readArchive( QString arcname, QString installPath );
@@ -59,9 +61,11 @@ private:
     int filesToCompile;
     int filesCompiled;
 
-    QString currentLine;
+    QString currentOLine;
+    QString currentELine;
 
-    void updateOutputDisplay( QProcess* );
+    void updateOutputDisplay( QProcess* proc );
+    void updateErrorDisplay( QProcess* proc );
     void installIcons( QString iconFolder, QString dirName, bool common );
 
     enum {
@@ -69,4 +73,9 @@ private:
 	Borland = 1,
 	GCC = 2
     };
+    void logFiles( QString entry, bool close = false );
+    void logOutput( QString entry, bool close = false );
+
+    QFile fileLog;
+    QFile outputLog;
 };

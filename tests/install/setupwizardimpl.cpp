@@ -17,7 +17,7 @@
 #include <qpushbutton.h>
 #include <qcombobox.h>
 
-#define BUFFERSIZE 65536
+#define BUFFERSIZE 64 * 1024
 
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
     SetupWizard( pParent, pName, modal, f ),
@@ -29,12 +29,12 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     tmpPath( QEnvironment::getTempPath() )
 {
     setNextEnabled( introPage, false );
-//    setFinishEnabled( finishPage, true );
     setBackEnabled( progressPage, false );
-//    setBackEnabled( finishPage, false );
     setNextEnabled( progressPage, false );
     setBackEnabled( buildPage, false );
     setNextEnabled( buildPage, false );
+    setFinishEnabled( finishPage, true );
+    setBackEnabled( finishPage, false );
 
     readArchive( "sys.arq", tmpPath );
 }
@@ -74,24 +74,6 @@ void SetupWizardImpl::clickedDevSysPath()
     }
 }
 
-void SetupWizardImpl::clickedSave()
-{
-    QString fileName = QFileDialog::getSaveFileName( QEnvironment::getEnv( "QTDIR" ) + "\\buildlog.txt", "*.txt" );
-
-    if( fileName.isEmpty() )
-	return;
-
-    QFile logFile( fileName );
-    if( logFile.open( IO_WriteOnly ) ) {
-	QTextStream outStream( &logFile );
-	for( int i = 0; i < outputDisplay->count(); i++ ) {
-	    QString entry = outputDisplay->text( i );
-	    outStream << entry.latin1();
-	}
-	logFile.close();
-    }
-}
-
 void SetupWizardImpl::clickedSystem( int sys )
 {
     sysID = sys;
@@ -117,11 +99,26 @@ void SetupWizardImpl::readIntegratorOutput()
     updateOutputDisplay( &integrator );
 }
 
+void SetupWizardImpl::readConfigureError()
+{
+    updateOutputDisplay( &configure );
+}
+
+void SetupWizardImpl::readMakeError()
+{
+    updateOutputDisplay( &make );
+}
+
+void SetupWizardImpl::readIntegratorError()
+{
+    updateOutputDisplay( &integrator );
+}
+
 void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 {
     QString outbuffer;
 
-    outbuffer = QString( proc->readStdout() ) + QString( proc->readStderr() );
+    outbuffer = QString( proc->readStdout() );
     
     for( int i = 0; i < outbuffer.length(); i++ ) {
 	QChar c = outbuffer[ i ];
@@ -130,21 +127,52 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 	case 0x00:
 	    break;
 	case '\t':
-	    currentLine += "    ";  // Simulate a TAB by using 4 spaces
+	    currentOLine += "    ";  // Simulate a TAB by using 4 spaces
 	    break;
 	case '\n':
-	    if( currentLine.length() ) {
-		if( currentLine.right( 4 ) == ".cpp" ) {
+	    if( currentOLine.length() ) {
+		if( currentOLine.right( 4 ) == ".cpp" ) {
 		    filesCompiled++;
 		    compileProgress->setProgress( filesCompiled );
 		}
-		outputDisplay->insertItem( currentLine );
-		outputDisplay->setBottomItem( outputDisplay->count() - 1 );
-		currentLine = "";
+		logOutput( currentOLine );
+		currentOLine = "";
 	    }
 	    break;
 	default:
-	    currentLine += c;
+	    currentOLine += c;
+	    break;
+	}
+    }
+}
+
+void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
+{
+    QString outbuffer;
+
+    outbuffer = QString( proc->readStderr() );
+    
+    for( int i = 0; i < outbuffer.length(); i++ ) {
+	QChar c = outbuffer[ i ];
+	switch( char( c ) ) {
+	case '\r':
+	case 0x00:
+	    break;
+	case '\t':
+	    currentELine += "    ";  // Simulate a TAB by using 4 spaces
+	    break;
+	case '\n':
+	    if( currentELine.length() ) {
+		if( currentELine.right( 4 ) == ".cpp" ) {
+		    filesCompiled++;
+		    compileProgress->setProgress( filesCompiled );
+		}
+		logOutput( currentELine );
+		currentELine = "";
+	    }
+	    break;
+	default:
+	    currentELine += c;
 	    break;
 	}
     }
@@ -174,6 +202,9 @@ void SetupWizardImpl::integratorDone()
 {
     QString dirName, examplesName, tutorialsName;
     bool common( folderGroups->currentItem() == 1 );
+
+    logOutput( QString::null, true );
+    
     /*
     ** We still have some more items to do in order to finish all the
     ** integration stuff.
@@ -181,7 +212,11 @@ void SetupWizardImpl::integratorDone()
     switch( sysID ) {
     case MSVC:
 	{
-	    
+	    QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+
+	    if( autoexp.open( IO_Append ) ) {
+		QTextStream outstream( &autoexp );
+	    }
 	}
 	break;
     }
@@ -211,7 +246,7 @@ void SetupWizardImpl::makeDone()
 
     connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
     connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
-    connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorOutput() ) );
+    connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorError() ) );
 
     args << tmpPath + QString( "\\" ) + integrators[ sysID ];
     args << devSysPath->text() + "\\Common\\MsDev98\\Addins";
@@ -229,7 +264,7 @@ void SetupWizardImpl::configDone()
 
     connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
     connect( &make, SIGNAL( readyReadStdout() ), this, SLOT( readMakeOutput() ) );
-    connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeOutput() ) );
+    connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 
     args << makeCmds[ sysID ];
 
@@ -356,7 +391,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	    operationProgress->setTotalSteps( totalSize );
 
-	    filesDisplay->insertItem( *WinShell::getInfoImage(), "Starting copy process" );
+	    filesDisplay->append( "Starting copy process\n" );
 	    readArchive( "build.arq", installPath->text() );
 
 	    readArchive( "qt.arq", installPath->text() );
@@ -367,10 +402,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 	    filesCopied = true;
-	    filesDisplay->insertItem( *WinShell::getInfoImage(), "All files have been copied." );
-	    filesDisplay->insertItem( *WinShell::getInfoImage(), "This log will be written to the installation directory" );
-	    filesDisplay->setBottomItem( filesDisplay->count() - 1 );
+	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
+//	    filesDisplay->append( "All files have been copied.\n" );
+//	    filesDisplay->append( "This log will be written to the installation directory.\n" );
 
+/*
 	    QFile logFile( installPath->text() + "\\install.log" );
 	    if( logFile.open( IO_WriteOnly ) ) {
 		QTextStream outStream( &logFile );
@@ -380,18 +416,33 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		}
 		logFile.close();
 	    }
+*/
 	}
 	setNextEnabled( progressPage, true );
     }
     else if( newPage == configPage ) {
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
 	QByteArray pathBuffer;
-	QString path;
+	QStringList path;
 
 	QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
 	QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
-	QEnvironment::putEnv( "PATH", QString( "%QTDIR%\\bin;%QTDIR%\\lib;" ) + QEnvironment::getEnv( "PATH", QEnvironment::LocalEnv ), QEnvironment::LocalEnv );
-	QEnvironment::putEnv( "PATH2", QString( "%QTDIR%\\bin;%QTDIR%\\lib;" ) + QEnvironment::getEnv( "PATH", QEnvironment::DefaultEnv ), QEnvironment::DefaultEnv );
+
+	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
+	if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
+	    path.prepend( "%QTDIR%\\lib" );
+	if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
+	    path.prepend( "%QTDIR%\\bin" );
+	QEnvironment::putEnv( "PATH", path.join( ";" ) );
+
+	path.clear();
+
+	path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::DefaultEnv ) );
+	if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
+	    path.prepend( "%QTDIR%\\lib" );
+	if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
+	    path.prepend( "%QTDIR%\\bin" );
+	QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::DefaultEnv );
 
 	configList->clear();
 	advancedList->clear();
@@ -400,7 +451,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QCheckListItem* item;
 	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
 	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
-	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureOutput() ) );
+	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureError() ) );
 
 	QString qtdir = QEnvironment::getEnv( "QTDIR" );
 
@@ -473,7 +524,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QTextStream tmpStream;
 	bool settingsOK;
 
-	outputDisplay->insertItem( "Execute configure...\n" );
+	outputDisplay->append( "Execute configure...\n" );
 
 	args << QEnvironment::getEnv( "QTDIR" ) + "\\configure.bat";
 	entry = settings.readEntry( "/Trolltech/Qt/Mode", &settingsOK );
@@ -514,7 +565,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    tmpFile.close();
 	}
 
-	outputDisplay->insertItem( args.join( " " ) + "\n" );
+	outputDisplay->append( args.join( " " ) + "\n" );
+//	outputDisplay->insertItem( args.join( " " ) + "\n" );
 	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	configure.setArguments( args );
 
@@ -591,14 +643,13 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 		    if( app ) {
 			app->processEvents();
 			operationProgress->setProgress( totalRead );
-			filesDisplay->insertItem( *WinShell::getOpenFolderImage(), dirName );
-			filesDisplay->setBottomItem( filesDisplay->count() - 1 );
+			logFiles( dirName + "\\\n" );
 		    }
 		}
 	    }
 	    else
 	    {
-		QString fileName = outDir.absPath() + QString( "\\" ) + entryName;
+		QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "\\" ) + entryName );
 		totalOut = 0;
 		outFile.setName( fileName );
 		
@@ -607,8 +658,7 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 		    if( app ) {
 			app->processEvents();
 			operationProgress->setProgress( totalRead );
-			filesDisplay->insertItem( *WinShell::getFileImage(), fileName );
-			filesDisplay->setBottomItem( filesDisplay->count() - 1 );
+			logFiles( fileName + "\n" );
 		    }
 		    // Try to count the files to get some sort of idea of compilation progress
 		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
@@ -649,3 +699,35 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
     }
 }
 
+void SetupWizardImpl::logFiles( QString entry, bool close )
+{
+    if( !fileLog.isOpen() ) {
+	fileLog.setName( installPath->text() + "\\install.log" );
+	if( !fileLog.open( IO_WriteOnly ) )
+	    return;
+    }
+    QTextStream outstream( &fileLog );
+
+    filesDisplay->append( entry );
+    outstream << entry;
+
+    if( close )
+	fileLog.close();
+}
+
+void SetupWizardImpl::logOutput( QString entry, bool close )
+{
+    QTextStream outstream;
+    if( !outputLog.isOpen() ) {
+	outputLog.setName( installPath->text() + "\\buildlog.txt" );
+	if( !outputLog.open( IO_WriteOnly ) )
+	    return;
+    }
+    outstream.setDevice( &outputLog );
+
+    outputDisplay->append( entry );
+    outstream << entry;
+
+    if( close )
+	outputLog.close();
+}
