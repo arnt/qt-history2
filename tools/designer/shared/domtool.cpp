@@ -182,7 +182,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
     } else if ( e.tagName() == "number" ) {
 	bool ok = TRUE;
 	v = QVariant( e.firstChild().toText().data().toInt( &ok ) );
-	if ( !ok ) 
+	if ( !ok )
 	    v = QVariant( e.firstChild().toText().data().toDouble() );
     } else if ( e.tagName() == "bool" ) {
 	QString t = e.firstChild().toText().data();
@@ -358,20 +358,43 @@ void DomTool::fixDocument( QDomDocument& doc )
     e = doc.firstChild().toElement();
     if ( e.tagName() != "UI" )
 	return;
-    if ( e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0 )
+
+    // latest version, don't do anything
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.0 )
 	return;
 
+    nl = doc.elementsByTagName( "property" );
+
+    // in 3.0, we need to fix a spelling error
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() == 3.0 ) {
+	qDebug( "here" );
+	for ( i = 0; i <  (int) nl.length(); i++ ) {
+	    QDomElement el = nl.item(i).toElement();
+	    QString s = el.attribute( "name" );
+	    if ( s == "resizeable" ) {
+		qDebug( "yessa" );
+		el.removeAttribute( "name" );
+		el.setAttribute( "name", "resizable" );
+	    }
+	}
+	return;
+    }
+
+
+    // in versions smaller than 3.0 we need to change more
     e.setAttribute( "version", 3.0 );
 
     e.setAttribute("stdsetdef", 1 );
-    nl = doc.elementsByTagName( "property" );
     for ( i = 0; i <  (int) nl.length(); i++ ) {
 	e = nl.item(i).toElement();
 	QString name;
 	QDomElement n2 = e.firstChild().toElement();
 	if ( n2.tagName() == "name" ) {
 	    name = n2.firstChild().toText().data();
-	    e.setAttribute( "name", name );
+	    if ( name == "resizeable" )
+		e.setAttribute( "name", "resizable" );
+	    else
+		e.setAttribute( "name", name );
 	    e.removeChild( n2 );
 	}
 	bool stdset = toBool( e.attribute( "stdset" ) );
