@@ -41,9 +41,10 @@ ApplicationWindow::ApplicationWindow()
 {
     printer = new QPrinter;
     
-    QAction *fileNewAction, *fileOpenAction, *fileSaveAction,
-	* fileSaveAsAction, *filePrintAction, *fileCloseAction,
-	*fileQuitAction;
+    QAction * fileNewAction; 
+    QAction * fileOpenAction; 
+    QAction * fileSaveAction, * fileSaveAsAction, * filePrintAction; 
+    QAction * fileCloseAction, * fileQuitAction;
     
     fileNewAction = new QAction( "New", "&New", CTRL+Key_N, this, "new" );
     connect( fileNewAction, SIGNAL( activated() ) , this, 
@@ -58,7 +59,7 @@ ApplicationWindow::ApplicationWindow()
                      "You can also select the <b>Open</b> command "
                      "from the <b>File</b> menu.</p>"; 
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", 
-                                                     QPixmap( fileopen ) );
+                                          fileOpenAction->iconSet().pixmap() );
     fileOpenAction->setWhatsThis( fileOpenText );
     
     fileSaveAction = new QAction( "Save File", QPixmap( filesave ), 
@@ -97,10 +98,9 @@ ApplicationWindow::ApplicationWindow()
     connect( fileQuitAction, SIGNAL( activated() ) , qApp, 
              SLOT( closeAllWindows() ) );
 
-    
     // populate a tool bar with some actions
     
-    QToolBar* fileTools = new QToolBar( this, "file operations" );
+    QToolBar * fileTools = new QToolBar( this, "file operations" );
     fileTools->setLabel( "File Operations" );
     fileOpenAction->addTo( fileTools );
     fileSaveAction->addTo( fileTools );

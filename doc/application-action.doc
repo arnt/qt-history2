@@ -38,8 +38,9 @@ to use this striking concept. So let's write an
 \printline ApplicationWindow::ApplicationWindow
 \printuntil QPrinter
 
-Nothing new so far. But with the next line...
+Nothing new so far. But with the next lines...
 
+\printline fileNewAction;
 \printuntil fileQuitAction;
 
 ... the difference becomes obvious. Here we define the actions our application
@@ -73,12 +74,24 @@ is assigned a pixmap (the one included with the \e fileopen.xpm file).
 For the \e fileOpenAction we want to provide "What's This?" help and therefore
 define an appropriate rich-text. 
 
-\printline defaultFactory()
-\printline ( fileopen )
+\printline defaultFactory()->setPixmap( "fileopen"
+\printline fileOpenAction->iconSet()
 
 As \e fileOpenText makes use of a pixmap, we have to inform the rich-text
-engine that it should provide <EM>QPixmap( fileopen )</EM> whenever a rich-text
+engine that it should provide the pixmap defined for \e fileOpenAction 
+whenever a rich-text
 asks for an image-source named \e fileopen.
+
+The slightly complex procedure to gain the pixmap from the action is
+due to the fact that a \l QAction is not simply assigned a pixmap but an
+entire iconset. A \l QIconSet provides up to six pixmaps suited for
+different sizes (large, small) and modes (active, disabled etc.).
+As we initially fed \e fileOpenAction with just one pixmap its iconset
+will be calculated from it automatically. 
+
+For simplicity reasons we want the icon in the "What's this?" text to be the same we 
+used in the \e fileOpenAction constructor. This is done by using
+\l QIconSet::pixmap() upon \e fileOpenAction's \e iconSet().
 
 \printline setWhatsThis( fileOpenText )
 
