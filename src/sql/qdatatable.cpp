@@ -622,8 +622,9 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 
 void QDataTable::resizeEvent ( QResizeEvent * e )
 {
-
-    if ( sqlCursor() && !sqlCursor()->driver()->hasQuerySizeSupport() )
+    if ( sqlCursor() &&
+	 sqlCursor()->driver() &&
+	 !sqlCursor()->driver()->hasQuerySizeSupport() )
 	loadNextPage();
     QTable::resizeEvent( e );
 }
@@ -1587,7 +1588,7 @@ int QDataTable::fieldAlignment( const QSqlField* /*field*/ )
 void QDataTable::setSize( QSqlCursor* sql )
 {
     // ### what are the connect/disconnect calls doing here!? move to refresh()
-    if ( sql->driver()->hasQuerySizeSupport() ) {
+    if ( sql->driver() && sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadLine(int) ) );
@@ -1631,8 +1632,12 @@ void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDele
 	}
 	if ( sqlCursor()->isReadOnly() )
 	    setReadOnly( TRUE );
-	setNullText(sqlCursor()->driver()->nullText() );
+	if ( sqlCursor()->driver() )
+	    setNullText(sqlCursor()->driver()->nullText() );
 	setAutoDelete( autoDelete );
+    } else {
+	setNumRows( 0 );
+	setNumCols( 0 );
     }
     setUpdatesEnabled( TRUE );
 }
