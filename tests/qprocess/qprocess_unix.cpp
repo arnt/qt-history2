@@ -7,12 +7,16 @@
 #include "qlist.h"
 #include "qprocess.h"
 
+#define QPROCESS_DEBUG
 
 struct sigaction *QProcessPrivate::oldact;
 QList<QProcess> *QProcessPrivate::proclist = 0;
 
 QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
 {
+#if defined(QPROCESS_DEBUG)
+    qDebug( "QProcessPrivate: Constructor" );
+#endif
     stdinBufRead = 0;
 
     notifierStdin = 0;
@@ -50,6 +54,9 @@ QProcessPrivate::QProcessPrivate( QProcess *proc ) : d( proc )
 
 QProcessPrivate::~QProcessPrivate()
 {
+#if defined(QPROCESS_DEBUG)
+    qDebug( "QProcessPrivate: Destructor" );
+#endif
     // restore SIGCHLD handler
     proclist->remove( d );
     if ( proclist->count() == 0 ) {
@@ -74,11 +81,11 @@ QProcessPrivate::~QProcessPrivate()
 	delete notifierStderr;
     }
     if( socketStdin[1] != 0 )
-	close( socketStdin[1] );
+	::close( socketStdin[1] );
     if( socketStdout[0] != 0 )
-	close( socketStdout[0] );
+	::close( socketStdout[0] );
     if( socketStderr[0] != 0 )
-	close( socketStderr[0] );
+	::close( socketStderr[0] );
 }
 
 void QProcessPrivate::sigchldHnd( int )
@@ -86,6 +93,9 @@ void QProcessPrivate::sigchldHnd( int )
     QProcess *proc;
     for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
 	if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcessPrivate::sigchldHnd(): process exited" );
+#endif
 	    emit proc->processExited();
 	}
     }
@@ -94,6 +104,9 @@ void QProcessPrivate::sigchldHnd( int )
 
 bool QProcess::start()
 {
+#if defined(QPROCESS_DEBUG)
+    qDebug( "QProcess::start()" );
+#endif
     d->exitValuesCalculated = FALSE;
     d->exitStat = 0;
     d->exitNormal = FALSE;
@@ -116,13 +129,13 @@ bool QProcess::start()
     }
 
     // open sockets for piping
-    if ( socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdin ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdin ) ) {
 	return FALSE;
     }
-    if ( socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdout ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStdout ) ) {
 	return FALSE;
     }
-    if ( socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStderr ) ) {
+    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, d->socketStderr ) ) {
 	return FALSE;
     }
 
@@ -140,29 +153,29 @@ bool QProcess::start()
     d->pid = fork();
     if ( d->pid == 0 ) {
 	// child
-	close( d->socketStdin[1] );
-	close( d->socketStdout[0] );
-	close( d->socketStderr[0] );
-	dup2( d->socketStdin[0], STDIN_FILENO );
-	dup2( d->socketStdout[1], STDOUT_FILENO );
-	dup2( d->socketStderr[1], STDERR_FILENO );
-	chdir( d->workingDir.absPath().latin1() );
-	execvp( d->command.latin1(), (char*const*)arglist ); // ### a hack
-	exit( -1 );
+	::close( d->socketStdin[1] );
+	::close( d->socketStdout[0] );
+	::close( d->socketStderr[0] );
+	::dup2( d->socketStdin[0], STDIN_FILENO );
+	::dup2( d->socketStdout[1], STDOUT_FILENO );
+	::dup2( d->socketStderr[1], STDERR_FILENO );
+	::chdir( d->workingDir.absPath().latin1() );
+	::execvp( d->command.latin1(), (char*const*)arglist ); // ### a hack
+	::exit( -1 );
     } else if ( d->pid == -1 ) {
 	// error forking
-	close( d->socketStdin[1] );
-	close( d->socketStdout[0] );
-	close( d->socketStderr[0] );
-	close( d->socketStdin[0] );
-	close( d->socketStdout[1] );
-	close( d->socketStderr[1] );
+	::close( d->socketStdin[1] );
+	::close( d->socketStdout[0] );
+	::close( d->socketStderr[0] );
+	::close( d->socketStdin[0] );
+	::close( d->socketStdout[1] );
+	::close( d->socketStderr[1] );
 	delete[] arglist;
 	return FALSE;
     }
-    close( d->socketStdin[0] );
-    close( d->socketStdout[1] );
-    close( d->socketStderr[1] );
+    ::close( d->socketStdin[0] );
+    ::close( d->socketStdout[1] );
+    ::close( d->socketStderr[1] );
     // TODO? test if exec was successful
 
     // setup notifiers for the sockets
@@ -201,10 +214,13 @@ bool QProcess::kill()
 bool QProcess::isRunning()
 {
     if ( d->exitValuesCalculated ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::isRunning(): FALSE (already computed)" );
+#endif
 	return FALSE;
     } else {
 	int status;
-	if ( waitpid( d->pid, &status, WNOHANG ) == d->pid )
+	if ( ::waitpid( d->pid, &status, WNOHANG ) == d->pid )
 	{
 	    // compute the exit values
 	    d->exitNormal = WIFEXITED( status ) != 0;
@@ -212,8 +228,14 @@ bool QProcess::isRunning()
 		d->exitStat = WEXITSTATUS( status );
 	    }
 	    d->exitValuesCalculated = TRUE;
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcess::isRunning(): FALSE" );
+#endif
 	    return FALSE;
 	} else {
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcess::isRunning(): TRUE" );
+#endif
 	    return TRUE;
 	}
     }
@@ -221,6 +243,9 @@ bool QProcess::isRunning()
 
 void QProcess::dataStdin( const QByteArray& buf )
 {
+#if defined(QPROCESS_DEBUG)
+//    qDebug( "QProcess::dataStdin(): write to stdin (%d)", d->socketStdin[1] );
+#endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
         d->notifierStdin->setEnabled( TRUE );
@@ -231,9 +256,18 @@ void QProcess::dataStdin( const QByteArray& buf )
 void QProcess::closeStdin()
 {
     if ( d->socketStdin[1] !=0 ) {
-	if ( close( d->socketStdin[1] ) != 0 ) {
+	// ### what is with pending data?
+	if ( d->notifierStdin ) {
+	    d->notifierStdin->setEnabled( FALSE );
+	    delete d->notifierStdin;
+	    d->notifierStdin = 0;
+	}
+	if ( ::close( d->socketStdin[1] ) != 0 ) {
 	    qWarning( "Could not close stdin of child process" );
 	}
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->socketStdin[1] );
+#endif
 	d->socketStdin[1] =0 ;
     }
 }
@@ -241,33 +275,36 @@ void QProcess::closeStdin()
 
 void QProcess::socketRead( int fd )
 {
+#if defined(QPROCESS_DEBUG)
+    qDebug( "QProcess::socketRead(): %d", fd );
+#endif
     const size_t bufsize = 4096;
     char *buffer = new char[bufsize];
-    int n = read( fd, buffer, bufsize-1 );
+    int n = ::read( fd, buffer, bufsize-1 );
 
     if ( n == 0 ) {
 	if ( fd == d->socketStdout[0] ) {
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
+#endif
 	    d->notifierStdout->setEnabled( FALSE );
 	    delete d->notifierStdout;
 	    d->notifierStdout = 0;
-	    close( d->socketStdout[0] );
+	    ::close( d->socketStdout[0] );
 	    d->socketStdout[0] = 0;
-//	    return;
+	    return;
 	} else {
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
+#endif
 	    d->notifierStderr->setEnabled( FALSE );
 	    delete d->notifierStderr;
 	    d->notifierStderr = 0;
-	    close( d->socketStderr[0] );
+	    ::close( d->socketStderr[0] );
 	    d->socketStderr[0] = 0;
-//	    return;
-	}
-
-	if ( d->socketStderr[0] == 0 && d->socketStdout[0] == 0 ) {
-//	    emit processExited();
 	    return;
 	}
 
-	return;
 	/* ### just have to think what to do best
 	if ( err[ 0 ] == 0 && out[ 0 ] == 0 ) {
 	    int s;
@@ -292,8 +329,14 @@ void QProcess::socketRead( int fd )
     buf.assign( buffer, n );
 
     if ( fd == d->socketStdout[0] ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::socketRead(): read from stdout (%d)", fd );
+#endif
 	emit dataStdout( buf );
     } else {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::socketRead(): read from stderr (%d)", fd );
+#endif
 	emit dataStderr( buf );
     }
     if ( fd == d->socketStdout[0] ) {
@@ -312,6 +355,9 @@ void QProcess::socketWrite( int fd )
 	d->notifierStdin->setEnabled( FALSE );
 	return;
     }
+#if defined(QPROCESS_DEBUG)
+    qDebug( "QProcess::socketWrite(): write to stdin (%d)", fd );
+#endif
     d->stdinBufRead += write( fd,
 	    d->stdinBuf.head()->data() + d->stdinBufRead,
 	    d->stdinBuf.head()->size() - d->stdinBufRead );

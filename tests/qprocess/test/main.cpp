@@ -9,14 +9,14 @@ int main( int argc, char **argv )
 {
     if ( argc > 1 && QString( "-cat" ) == argv[1] ) {
 	char ch;
-	do
+	while( !cin.eof() )
 	{
 	    cin >> ch;
 	    cout << ch;
 	    cout.flush();
 	    cerr << (char)(ch +1);
 	    cerr.flush();
-	} while( !cin.eof() );
+	}
 	return ch;
     } else {
 	QApplication a( argc, argv );
