@@ -63,12 +63,8 @@ public:
 
     QDir(const QDir &);
     QDir(const QString &path="");
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QDir(const QString &path, const QString &nameFilter,
-                               int sortSpec = Name | IgnoreCase, int filterSpec = All);
-    QT_COMPAT_CONSTRUCTOR QDir(const QString &path, const QStringList &nameFilters,
-                               int sortSpec = Name | IgnoreCase, int filterSpec = All);
-#endif
+    QDir(const QString &path, const QString &nameFilter,
+         int sortSpec = Name | IgnoreCase, int filterSpec = All);
     ~QDir();
 
     QDir &operator=(const QDir &);
@@ -168,7 +164,7 @@ public:
     inline bool operator!=(const QDir &dir) const {  return !operator==(dir); }
 
     bool remove(const QString &fileName, bool acceptAbsPath = true);
-    bool rename(const QString &name, const QString &newName, bool acceptAbsPaths = true);
+    bool rename(const QString &oldName, const QString &newName, bool acceptAbsPaths = true);
     bool exists(const QString &name, bool acceptAbsPath = true) const;
 
     static QFileInfoList drives();
@@ -197,7 +193,7 @@ public:
     bool match(const QStringList &filters, const QString &fileName);
     bool match(const QString &filter, const QString &fileName);
 #endif
-    static QString cleanPath(const QString &name);
+    static QString cleanPath(const QString &path);
 #ifdef QT_COMPAT
     inline QT_COMPAT static QString cleanDirPath(const QString &name) { return cleanPath(name); }
 #endif

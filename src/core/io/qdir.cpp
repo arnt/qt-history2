@@ -250,22 +250,6 @@ QDirPrivate::detach()
 }
 
 //************* QDir
-inline static QStringList qt_makeFilterStringList(const QString &nameFilter)
-{
-    if (nameFilter.isEmpty())
-        return QStringList();
-
-    QChar sep(';');
-    int i = nameFilter.indexOf(sep, 0);
-    if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
-        sep = QChar(' ');
-
-    QStringList ret = nameFilter.split(sep);
-    for(QStringList::Iterator it = ret.begin(); it != ret.end(); ++it)
-        (*it) = (*it).trimmed();
-    return ret;
-}
-
 /*!
     \class QDir
     \brief The QDir class provides access to directory structures and their contents in a platform-independent way.
@@ -411,30 +395,42 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
     d->data->sortSpec = SortSpec(Name | IgnoreCase);
 }
 
-#ifdef QT_COMPAT
+/*!
+    Constructs a QDir with path \a path, that filters its entries by
+    name using \a nameFilter and by attributes using \a filterSpec. It
+    also sorts the names using \a sortSpec.
+
+    The default \a nameFilter is an empty string, which excludes
+    nothing; the default \a filterSpec is \c All, which also means
+    exclude nothing. The default \a sortSpec is \c Name|IgnoreCase,
+    i.e. sort by name case-insensitively.
+
+    Example that lists all the files in "/tmp":
+    \code
+    QDir d( "/tmp" );
+    for ( int i = 0; i < d.count(); i++ )
+	printf( "%s\n", d[i] );
+    \endcode
+
+    If \a path is "" or QString::null, QDir uses "." (the current
+    directory). If \a nameFilter is "" or QString::null, QDir uses the
+    name filter "*" (all files).
+
+    Note that \a path need not exist.
+
+    \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
+*/
+
 QDir::QDir(const QString &path, const QString &nameFilter,
              int sortSpec, int filterSpec)  : d_ptr(new QDirPrivate(this))
 {
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
-    d->data->nameFilters = qt_makeFilterStringList(nameFilter);
+    d->data->nameFilters = QDir::nameFiltersFromString(nameFilter);
     if (d->data->nameFilters.isEmpty())
         d->data->nameFilters = QString::fromLatin1("*");
     d->data->sortSpec = sortSpec;
     d->data->filterSpec = filterSpec;
 }
-
-QDir::QDir(const QString &path, const QStringList &nameFilters,
-             int sortSpec, int filterSpec) : d_ptr(new QDirPrivate(this))
-{
-    d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
-    if (d->data->nameFilters.isEmpty()) 
-        d->data->nameFilters = QString::fromLatin1("*");
-    else 
-        d->data->nameFilters = nameFilters;
-    d->data->sortSpec = sortSpec;
-    d->data->filterSpec = filterSpec;
-}
-#endif
 
 /*!
     Constructs a QDir object that is a copy of the QDir object for
@@ -1320,8 +1316,8 @@ QDir::remove(const QString &fileName, bool acceptAbsPath)
 
     Returns true if successful; otherwise returns false.
 
-    On most file systems, rename() fails only if \a name does not
-    exist or if \a newName and \a name are not on the same
+    On most file systems, rename() fails only if \a oldName does not
+    exist or if \a newName and \a oldName are not on the same
     partition. On Windows, rename() will fail if \a newName already
     exists. However, there are also other reasons why rename() can
     fail. For example, on at least one file system rename() fails if
@@ -1329,17 +1325,16 @@ QDir::remove(const QString &fileName, bool acceptAbsPath)
 */
 
 bool
-QDir::rename(const QString &name, const QString &newName, bool acceptAbsPaths)
-    // ### Change "name" to "oldName"
+QDir::rename(const QString &oldName, const QString &newName, bool acceptAbsPaths)
 {
-    if (name.isEmpty() || newName.isEmpty()) {
+    if (oldName.isEmpty() || newName.isEmpty()) {
         qWarning("QDir::rename: Empty or null file name(s)");
         return false;
     }
     if(!d->data->fileEngine)
         return false;
 
-    QFile file(filePath(name, acceptAbsPaths));
+    QFile file(filePath(oldName, acceptAbsPaths));
     if(!file.exists())
         return false;
     return file.rename(filePath(newName, acceptAbsPaths));
@@ -1574,11 +1569,11 @@ QDir::match(const QString &filter, const QString &fileName)
 */
 
 QString
-QDir::cleanPath(const QString &in) // ### Change "in" to "path"
+QDir::cleanPath(const QString &path)
 {
-    if (in.isEmpty())
-        return in;
-    QString name = in;
+    if (path.isEmpty())
+        return path;
+    QString name = path;
     if(QDir::separator() != '/')
 	name.replace(QDir::separator(), '/');
 
