@@ -129,6 +129,7 @@ public:
 
     struct MetaInfo
     {
+	MetaInfo() : classNameChanged( FALSE ) { }
 	QString className;
 	bool classNameChanged;
 	QString comment;
