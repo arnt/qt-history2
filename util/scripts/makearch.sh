@@ -205,7 +205,7 @@ VERSION=${VERSION}
 # Creates the library when all files have been compiled
 
 library: \$(OBJECTS) \$(METAOBJ)
-	-rm -f ../../../lib/libqt.so.\${VERSION}
+	-rm -f ../../../lib/libqt.so.\$(VERSION)
 	\$(CC) -shared -Wl,-soname,libqt.so.0 \\
 		-o ../../../lib/libqt.so.\$(VERSION) \\
 		\$(OBJECTS) \$(METAOBJ) -lX11
