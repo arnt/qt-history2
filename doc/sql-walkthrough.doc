@@ -39,7 +39,7 @@
 \title Example SQL application walkthrough
 
 This walkthrough shows simple use of QSqlIndex, QSqlQuery, QSqlCursor,
-QSqlTable and QSqlForm - classes that a database front-end or database
+QDataTable and QSqlForm - classes that a database front-end or database
 application would be expected to use. It is not meant as a guide to Qt
 programming in general, but rather to illustrate the most common use
 of some of the classes in the SQL module. Explanations that cover
@@ -129,16 +129,10 @@ database we want to use.
 \code
     QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL6" );
 \endcode 
-The line above specifies which driver should be used to access the
-database. The Qt SQL module currently supports the following drivers:
 
-<ul>
-<li>QPSQL6 - Postgres v6.x databases</li>
-<li>QPSQL7 - Postgres v7.x databases</li>
-<li>QMYSQL - MySQL databases</li>
-<li>QODBC - ODBC databases</li>
-<li>QOCI - Oracle databases</li>
-</ul>
+The line above specifies which driver should be used to access the
+database. See the <a href="sql.html">Qt SQL Documentation</a> for a
+list of supported drivers.
 
 As we have used Postgres version 6.5 to implement our \a pingpong
 database, we choose the QPSQL6 driver to access the database. After

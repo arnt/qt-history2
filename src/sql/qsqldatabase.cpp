@@ -369,6 +369,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
      <li>QPSQL7 - PostgreSQL v7.x Driver
      <li>QMYSQL - MySQL Driver
      </ul>
+     
+     Note that additional 3rd party drivers can be loaded dynamically.  See
 
 */
 
