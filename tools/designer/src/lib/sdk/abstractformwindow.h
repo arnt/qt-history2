@@ -113,6 +113,8 @@ signals:
     void selectionChanged();
     void geometryChanged();
 
+    void resourceFilesChanged();
+
     void widgetManaged(QWidget *widget);
     void widgetUnmanaged(QWidget *widget);
     void aboutToUnmanageWidget(QWidget *widget);
