@@ -77,6 +77,8 @@ public:
     QSqlQuery		createQuery() const;
     QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlRecord          record( const QString& tablename ) const;
+    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
+    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
 
     QString		formatValue( const QSqlField* field,

@@ -345,7 +345,7 @@ bool QTDSResult::reset ( const QString& query )
 	return FALSE;
     }
 
-    setSelect( (DBCMDROW( d->dbproc ) == SUCCEED) );
+    setSelect( (DBCMDROW( d->dbproc ) == SUCCEED) ); // decide whether or not we are dealing with a SELECT query
     for ( int i = 0; i < dbnumcols( d->dbproc ) ; ++i ) {
 	QVariant::Type vType = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
 	RETCODE ret = -1;
@@ -628,6 +628,47 @@ QSqlRecord QTDSDriver::record( const QString& tablename ) const
 	fil.append( f );
     }
     return fil;
+}
+
+QSqlRecordInfo QTDSDriver::recordInfo( const QSqlQuery& query ) const
+{
+	QSqlRecordInfo info;
+	if ( !isOpen() )
+	    return info;
+
+	if ( query.isActive() && query.driver() == this ) {
+	    QTDSResult* result = (QTDSResult*) query.result();
+	    int count = dbnumcols ( result->d->dbproc );
+	    for ( int i = 0; i < count; ++i ) {
+		info.append( QSqlField( dbcolname( result->d->dbproc, i+1 ), 
+					qDecodeTDSType( dbcoltype( result->d->dbproc, i+1 ) ) ) );
+	    }
+	}
+	return info;
+}
+
+QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
+{
+    QSqlRecordInfo info;
+    if ( !isOpen() )
+		return info;
+    QSqlQuery t = createQuery();
+    QString stmt ( "select name, type, isnullable, length, prec, iscomputed  from syscolumns "
+		   "where id = (select id from sysobjects where name = '%1')" );
+    t.exec( stmt.arg( tablename ) );
+    while ( t.next() ) {
+	info.append( QSqlFieldInfo( t.value(0).toString().stripWhiteSpace(),// name
+				    qDecodeTDSType( t.value(1).toInt() ),   // type
+				    (t.value(2).toInt() == 0) ? 1:0,	    // required
+				    t.value(3).toInt(),			    // length
+				    t.value(4).toInt(),			    // precision
+				    QVariant(),				    // default value
+				    t.value(1).toInt(),			    // db internal type id
+				    TRUE,				    // generated
+				    FALSE,				    // trim
+				    t.value(5).toInt() ) );		    // calculated
+    }
+    return info;
 }
 
 QStringList QTDSDriver::tables( const QString& /*user*/ ) const
