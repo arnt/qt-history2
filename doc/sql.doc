@@ -205,7 +205,7 @@ connection.
 First we activate the driver by calling \l QSqlDatabase::addDatabase(),
 passing the name of the driver we wish to use for this connection. At
 the time of writing the available drivers are: QODBC3 (Open Database
-Connectivity), QOCI8 (Oracle), QTDS7 (Sybase Adaptive Server and 
+Connectivity), QOCI8 (Oracle 8 and 9), QTDS7 (Sybase Adaptive Server and 
 Microsoft SQL Server), QPSQL7 (PostgreSQL 6 and 7) and QMYSQL3 (MySQL).
 Note that some of these drivers aren't included in the Qt Free Edition, 
 look at the README files for details.
@@ -215,9 +215,10 @@ database connection and will be used by the Qt SQL classes if no
 other database is specified. 
 
 Second we call setDatabaseName(), setUserName(), setPassword() and
-setHostName() to initialize the connection information. Note that
-for the QOCI8 (Oracle) driver the TNS Service Name has to be passed
-to setDatbaseName().
+setHostName() to initialize the connection information. Note that for
+the QOCI8 (Oracle 8 and 9) driver the TNS Service Name has to be
+passed to setDatbaseName(). When connecting to ODBC data sources the
+Data Source Name (DSN) should be used in the setDatabaseName() call.
 
 Third we call open() to open the database and give us access to the
 data. If this call fails it will return FALSE; error information can
