@@ -92,6 +92,7 @@ typedef int timeval;
 //#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
+//#define DEBUG_PLATFORM_SETTINGS
 
 #define QMAC_SPEAK_TO_ME
 #ifdef QMAC_SPEAK_TO_ME
@@ -211,6 +212,28 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
     }
 }
 
+#ifdef DEBUG_PLATFORM_SETTINGS
+static void qt_mac_debug_palette(const QPalette &pal, const char *where)
+{
+    const char *groups[] = { "Disabled", "Active", "Inactive" };
+    const char *roles[] = { "Foreground", "Button", "Light", "Midlight", "Dark", "Mid",
+			    "Text", "BrightText", "ButtonText", "Base", "Background", "Shadow",
+			    "Highlight", "HighlightedText", "Link", "LinkVisited" };
+    if(where)
+	qDebug("qt-internal: %s", where);
+    for(int grp = 0; grp < QPalette::NColorGroups; grp++) {
+	for(int role = 0; role < QColorGroup::NColorRoles; role++) {
+	    QBrush b = pal.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role);
+	    qDebug("  %s::%s %d::%d::%d [%p]", groups[grp], roles[role], b.color().red(), 
+		   b.color().green(), b.color().blue(), b.pixmap());
+	}
+    }
+    
+}
+#else
+#define qt_mac_debug_palette(x, y)
+#endif
+
 /* lookup widget helper function */
 static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 {
@@ -268,6 +291,9 @@ void qt_mac_update_os_settings()
 	int i = qt_mac_get_global_setting("AppleKeyboardUIMode", "0").toInt(&ok);
 	qt_tab_all_widgets = !ok || (i & 0x2);
     }
+#ifdef DEBUG_PLATFORM_SETTINGS
+    qDebug("qt_mac_update_os_settings *********************************************************************");
+#endif
     { //setup the global peltte
 	QColor qc;
 	RGBColor c;
@@ -295,12 +321,17 @@ void qt_mac_update_os_settings()
 	    pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
 	    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
 	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
+
 	}
 	pal.setDisabled(pal.inactive());
 	//This is what triggers the "inactive" appearance in Qt/Mac!
 	pal.setColor(QPalette::Inactive, QColorGroup::Link, QColor(148, 148, 148));
-	if(!(pal == QApplication::palette()))
+	if(!(pal == QApplication::palette())) {
 	    QApplication::setPalette(pal);
+#ifdef DEBUG_PLATFORM_SETTINGS
+	    qt_mac_debug_palette(pal, "Global Palette");
+#endif
+	}
     }
     { //setup the global font
 	Str255 f_name;
@@ -339,8 +370,13 @@ void qt_mac_update_os_settings()
 		if(QFont *oldfnt = QApplication::app_fonts->find(mac_widget_fonts[i].qt_class))
 		    set_font = !(fnt == *oldfnt);
 	    }
-	    if(set_font)
+	    if(set_font) {
 		QApplication::setFont(fnt, TRUE, mac_widget_fonts[i].qt_class);
+#ifdef DEBUG_PLATFORM_SETTINGS
+		qDebug("qt-internal: Font for %s [%s::%d::%d::%d]", mac_widget_fonts[i].qt_class, 
+		       fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
+#endif
+	    }
 	}
     }
     { //setup the palette
@@ -401,10 +437,17 @@ void qt_mac_update_os_settings()
 		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class))
 		    set_palette = !(pal == *oldpal);
 	    }
-	    if(set_palette && pal != apppal)
+	    if(set_palette && pal != apppal) {
 		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
+#ifdef DEBUG_PLATFORM_SETTINGS
+		qt_mac_debug_palette(pal, QString("Palette for ") + mac_widget_colours[i].qt_class);
+#endif
+	    }
 	}
     }
+#ifdef DEBUG_PLATFORM_SETTINGS
+    qDebug("qt_mac_update_os_settings END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+#endif
 }
 
 /* Event masks */
