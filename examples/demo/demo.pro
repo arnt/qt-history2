@@ -16,14 +16,19 @@ opengl:HEADERS += opengl/glworkspace.h \
 		  opengl/glcontrolwidget.h \
 		  opengl/gltexobj.h \
 		  opengl/glbox.h \
-		  opengl/glgear.h
+		  opengl/glgear.h \
+		  opengl/gllandscape.h \
+		  opengl/fbm.h
 opengl:SOURCES += opengl/glworkspace.cpp \
 		  opengl/glcontrolwidget.cpp \
 		  opengl/gltexobj.cpp \
 		  opengl/glbox.cpp \
-		  opengl/glgear.cpp
+		  opengl/glgear.cpp \
+		  opengl/gllandscape.cpp \
+		  opengl/fbm.c
 
-opengl:INTERFACES += opengl/printpreview.ui
+opengl:INTERFACES += opengl/printpreview.ui \
+		     opengl/gllandscapeviewer.ui
 
 TARGET		= demo
 INCLUDEPATH	+= .

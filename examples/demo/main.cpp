@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#22 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#23 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -18,6 +18,7 @@
 
 #if defined(QT_MODULE_OPENGL)
 #include "opengl/glworkspace.h"
+#include "opengl/gllandscapeviewer.h"
 #endif
 
 #include <stdlib.h>
@@ -73,6 +74,8 @@ int main( int argc, char **argv )
     tab = new QTabWidget();
     w = new GLWorkspace( tab );
     tab->addTab( w, "3d Demo" );
+    w = new GLLandscapeViewer( tab );
+    tab->addTab( w, "Fractal landscape" );
     frame.addCategory( tab, threedpix, threedpix_sel, "3D Graphics" );
 #endif
     // example 4
