@@ -98,7 +98,7 @@ public:
     {
 	selectionStart.line = selectionStart.index = -1;
 	selectionEnd.line = selectionEnd.index = -1;
-	search.line = search.index = -1;
+	search.line = search.index = 0;
     }
     int len;
     int numLines;
@@ -4922,8 +4922,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 	    selEnd = od->selectionStart.line;
 	    idxEnd = od->selectionStart.index;
 	}
-	if ( startLine <= selStart && endLine >= selEnd )
-	{
+	if ( startLine <= selStart && endLine >= selEnd ) {
 	    // case 1: area to paint covers entire selection
 	    int paragS = selStart - startLine;
 	    int paragE = paragS + (selEnd - selStart);
@@ -4939,13 +4938,11 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 		if ( td->text( paragE ).length() >= (uint) idxEnd )
 		    c2.setIndex( idxEnd );
 	    }
-	} else if ( startLine > selStart && endLine < selEnd )
-	{
+	} else if ( startLine > selStart && endLine < selEnd ) {
 	    // case 2: area to paint is all part of the selection
 	    td->selectAll( QTextDocument::Standard );
 	} else if ( startLine > selStart && endLine >= selEnd &&
-		    startLine <= selEnd )
-	{
+		    startLine <= selEnd ) {
 	    // case 3: area to paint starts inside a selection, ends past it
 	    c1.setParag( td->firstParag() );
 	    c1.setIndex( 0 );
@@ -4957,8 +4954,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
 		    c2.setIndex( idxEnd );
 	    }
 	} else if ( startLine <= selStart && endLine < selEnd &&
-		    endLine > selStart )
-	{
+		    endLine > selStart ) {
 	    // case 4: area to paint starts before a selection, ends inside it
 	    int paragS = selStart - startLine;
 	    QTextParag * parag = td->paragAt( paragS );
@@ -4976,7 +4972,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
     }
 
 // just to remind me about that stupid paintbug
-//    p->fillRect( clipx, clipy, clipw, cliph, colorGroup().base() );
+    p->fillRect( clipx, clipy, clipw, cliph, colorGroup().base() );
     
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
@@ -5158,8 +5154,8 @@ void QTextEdit::optimizedSetSelection( int startLine, int startIdx,
 				       int endLine, int endIdx )
 {
     od->selectionStart.line = startLine;
-    od->selectionEnd.line = startIdx;
-    od->selectionStart.index = endLine;
+    od->selectionEnd.line = endLine;
+    od->selectionStart.index = startIdx;
     od->selectionEnd.index = endIdx;
 }
 
@@ -5202,8 +5198,8 @@ bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
 			       bool fw, int * para, int * index )
 {
     bool found = FALSE;
-    int parag = para ? *para : 0, idx = index ? *index : 0, i;
-    
+    int parag = para ? *para : od->search.line,
+	  idx = index ? *index : od->search.index, i;
 
     if ( od->len == 0 )
 	return FALSE;
@@ -5219,15 +5215,17 @@ bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
     }
     
     if ( found ) {
-	*index = od->search.index = idx;
-	*para = od->search.line = i;
-	od->selectionStart.line = i;
-	od->selectionEnd.line = i;
-	od->selectionStart.index = idx;
-	od->selectionEnd.index = idx + expr.length();
-	
+	if ( index )
+	    *index = idx;
+	if ( para )
+	    *para = i;
+	od->search.index = idx;
+	od->search.line = i;	
+	optimizedSetSelection( i, idx, i, idx + expr.length() );	
 	QFontMetrics fm( QScrollView::font() );
-	
+	int h = fm.lineSpacing();
+	int x = fm.width( od->lines[ i ].left( idx + expr.length()) ) + 4;
+	ensureVisible( x, i * h + h / 2, 1, h / 2 + 2 ); 
     }
     return found;
 }
