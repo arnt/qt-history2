@@ -82,7 +82,7 @@ public:
     void setMargin( int );
 
     QSizePolicy sizePolicy() const;
-    
+
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );
@@ -93,7 +93,8 @@ protected:
     bool eventFilter( QObject *, QEvent * );
 
 signals:
-    void selected( const QString& );
+    void currentChanged( QWidget * );
+    void selected( const QString& ); // obsolete
 
 private slots:
     void showTab( int i );

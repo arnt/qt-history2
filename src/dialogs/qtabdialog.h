@@ -109,7 +109,8 @@ signals:
     void defaultButtonPressed();
     void helpButtonPressed();
 
-    void selected( const QString& );
+    void currentChanged( QWidget * );
+    void selected( const QString& ); // obsolete
 
 private slots:
     void showTab( int i );

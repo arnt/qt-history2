@@ -90,7 +90,7 @@
   show(); if there is any chance that the state of the application may
   change between the creation of the tab dialog and the time it show()
   is called, you must connect this signal to a slot which resets the
-  state of the dialog. <li> selected() is emitted when the user
+  state of the dialog. <li> currentChanged() is emitted when the user
   selects some page. </ul>
 
   Each tab is either enabled or disabled at any given time.  If a tab
@@ -165,12 +165,20 @@
   \sa QDialog
 */
 
-/*! \fn void QTabDialog::selected( const QString &tabLabel );
+/*! \obsolete
+  \fn void QTabDialog::selected( const QString &tabLabel );
 
   This signal is emitted whenever a tab is selected (raised),
   including during the first show().
 
   \sa raise()
+*/
+
+/*! \fn void QTabDialog::currentChanged( QWidget* );
+
+  This signal is emitted whenever the current page changes.
+
+  \sa currentPage(), showPage(), tabLabel()
 */
 
 
@@ -210,6 +218,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
 
     d->tw = new QTabWidget( this, "tab widget" );
     connect ( d->tw, SIGNAL ( selected( const QString& ) ), this, SIGNAL( selected( const QString& ) ) );
+    connect ( d->tw, SIGNAL ( currentChanged( QWidget* ) ), this, SIGNAL( currentChanged( QWidget* ) ) );
 
     d->ok = new QPushButton( this, "ok" );
     CHECK_PTR( d->ok );

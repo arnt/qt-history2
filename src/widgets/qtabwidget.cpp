@@ -61,7 +61,8 @@
   meaningful and descriptive to the user, while the widget name is
   used primarily for debugging.
 
-  A signal selected() is emitted when the user selects some page.
+  A signal currentChanged() is emitted when the user selects some
+  page.
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled, the tab text is drawn in black and the user can select
@@ -93,12 +94,22 @@
 */
 
 
-/*! \fn void QTabWidget::selected( const QString &tabLabel );
+/*! \obsolete
+  
+  \fn void QTabWidget::selected( const QString &tabLabel );
 
   This signal is emitted whenever a tab is selected (raised),
   including during the first show().
 
   \sa raise()
+*/
+
+
+/*! \fn void QTabWidget::currentChanged( QWidget* );
+
+  This signal is emitted whenever the current page changes.
+
+  \sa currentPage(), showPage(), tabLabel()
 */
 
 class QTabWidgetData
@@ -472,6 +483,7 @@ void QTabWidget::showTab( int i )
     if ( d->stack->widget( i ) ) {
 	d->stack->raiseWidget( i );
 	emit selected( d->tabs->tab( i )->label );
+	emit currentChanged( d->stack->widget( i ) );
     }
 }
 
