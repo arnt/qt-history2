@@ -8,7 +8,7 @@ class QTextDocument;
 class QTextDocumentFragmentPrivate;
 class QTextCursor;
 
-class QTextDocumentFragment
+class Q_GUI_EXPORT QTextDocumentFragment
 {
     friend class QTextCursor;
 public:

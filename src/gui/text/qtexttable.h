@@ -11,7 +11,7 @@
 class QTextTablePrivate;
 class QTextPieceTable;
 
-class QTextTableCellProperties
+class Q_GUI_EXPORT QTextTableCellProperties
 {
 public:
     QTextTableCellProperties();
@@ -44,7 +44,7 @@ private:
     int cSpan;
 };
 
-class QTextTable : public QObject
+class Q_GUI_EXPORT QTextTable : public QObject
 {
     Q_OBJECT
 public:

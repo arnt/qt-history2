@@ -19,7 +19,7 @@ class QTextImageFormat;
 class QTextPieceTable;
 class QTextTable;
 
-class QTextCursor
+class Q_GUI_EXPORT QTextCursor
 {
     friend class QTextDocumentFragmentPrivate;
 public:

@@ -27,7 +27,7 @@ inline QAbstractUndoItem::~QAbstractUndoItem()
 {
 }
 
-class QTextDocument : public QObject
+class Q_GUI_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
     friend class QTextEditor; // ####
