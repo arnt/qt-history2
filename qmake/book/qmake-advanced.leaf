@@ -194,7 +194,7 @@ variable by prefixing $$ to the variable name. For example:
 \endcode
 
 Now the MY_DEFINES variable contains what is in the DEFINES variable at
-this point in the project file.  This is also equivlant to:
+this point in the project file.  This is also equivalent to:
 
 \code 
     MY_DEFINES = $${DEFINES}
