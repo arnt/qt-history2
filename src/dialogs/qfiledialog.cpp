@@ -3119,8 +3119,6 @@ void QFileDialog::rereadDir()
     if ( d->mimeTypeTimer->isActive() )
 	d->mimeTypeTimer->stop();
     d->currListChildren = d->url.listChildren();
-    if ( QApplication::overrideCursor() )
-	QApplication::restoreOverrideCursor();
 }
 
 
@@ -5511,6 +5509,10 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     if ( !op )
 	return;
 
+    if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	if ( QApplication::overrideCursor() )
+	    QApplication::restoreOverrideCursor();
+    }
     if ( op->state() == QNetworkProtocol::StFailed ) {
 	if ( d->paths->hasFocus() )
 	    d->ignoreNextKeyPress = TRUE;
@@ -5615,7 +5617,6 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
     if ( op && op->operation() == QNetworkProtocol::OpListChildren &&
 	 op != d->currListChildren )
 	return;
-    QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
     QValueList<QUrlInfo>::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	const QUrlInfo &inf = *it;
@@ -5904,8 +5905,6 @@ void QFileDialog::setContentsPreview( QWidget *w, QFilePreview *preview )
 
 void QFileDialog::resortDir()
 {
-    if ( !QApplication::overrideCursor() )
-	QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
     d->mimeTypeTimer->stop();
     d->pendingItems.clear();
 
@@ -5941,8 +5940,6 @@ void QFileDialog::resortDir()
     // specific icons.
     if ( d->url.isLocalFile() )
 	d->mimeTypeTimer->start( 0 );
-    if ( QApplication::overrideCursor() )
-	QApplication::restoreOverrideCursor();
 }
 
 /*!
