@@ -183,6 +183,7 @@ private:
     bool antialias;
     bool outline_drawing;
     int subpixel;
+    FT_Matrix matrix; // for subpixel
 
     /* we don't cache glyphs that are too large anyway, so we can make this struct rather small */
     struct Glyph {

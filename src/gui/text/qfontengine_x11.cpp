@@ -408,6 +408,8 @@ bool QFontEngineXLFD::canRender(const QChar *string, int len)
 // Multi FT engine
 // ------------------------------------------------------------------
 
+#include FT_OUTLINE_H
+
 QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s)
     : QFontEngineMulti(fs->nfont), fontSet(fs), screen(s)
 {
@@ -430,13 +432,18 @@ void QFontEngineMultiFT::loadEngine(int at)
     QFontCache::Key key(fontDef, -1, screen);
     QFontEngine *fontEngine = QFontCache::instance->findEngine(key);
     if (!fontEngine) {
-        QFontEngineFT *engine = new QFontEngineFT(pattern, fontDef, screen);
-        if (engine->invalid()) {
+        FcConfigSubstitute(0, pattern, FcMatchPattern);
+        FcDefaultSubstitute(pattern);
+        FcResult res;
+        FcPattern *match = FcFontMatch(0, pattern, &res);
+        QFontEngineFT *engine = new QFontEngineFT(match, fontDef, screen);
+        if (engine->invalid())
             delete engine;
+        else
+            fontEngine = engine;
+        if (!fontEngine) {
             fontEngine = new QFontEngineBox(fontDef.pixelSize);
             fontEngine->fontDef = fontDef;
-        } else {
-            fontEngine = engine;
         }
         QFontCache::instance->insertEngine(key, fontEngine);
     }
@@ -527,7 +534,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         antialias = b;
     if (FcPatternGetInteger(pattern, FC_RGBA, 0, &subpixel) == FcResultNoMatch)
         subpixel = X11->screens[screen].subpixel;
-    if (subpixel == FC_RGBA_UNKNOWN)
+    if (!antialias || subpixel == FC_RGBA_UNKNOWN)
         subpixel = FC_RGBA_NONE;
 
     if (!library)
@@ -559,13 +566,27 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     line_thickness = underline_position = 1.;
     metrics = freetype->face->size->metrics;
 
-    load_flags = FT_LOAD_RENDER;
-    if (!antialias)
+    matrix.xx = matrix.yy = 0x10000;
+    matrix.yx = matrix.xy = 0;
+    load_flags = FT_LOAD_DEFAULT;
+    int format = PictStandardA8;
+    if (!antialias) {
         load_flags |= FT_LOAD_TARGET_MONO;
+        format = PictStandardA1;
+    } else {
+        if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
+            load_flags |= FT_LOAD_TARGET_LCD;
+            matrix.xx = 0x30000;
+            format = PictStandardARGB32;
+        } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
+            load_flags |= FT_LOAD_TARGET_LCD_V;
+            matrix.yy = 0x30000;
+            format = PictStandardARGB32;
+        }
+    }
+
     unlockFace();
-    glyphSet = XRenderCreateGlyphSet(X11->display,
-                                     XRenderFindStandardFormat(X11->display,
-                                                               antialias ? PictStandardA8 : PictStandardA1));
+    glyphSet = XRenderCreateGlyphSet(X11->display, XRenderFindStandardFormat(X11->display, format));
     _openType = 0;
 }
 
@@ -638,21 +659,71 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
     info.xOff = TRUNC(ROUND(slot->advance.x));
     info.yOff = 0;
 
-    int hmul = 1; // 3 for subpixel
-    int vmul = 1;
-    int pitch;
-    if (antialias)
-        pitch = (info.width * hmul + 3) & ~3;
-    else
-        pitch = ((info.width + 31) & ~31) >> 3;
-
-    int size = pitch * slot->bitmap.rows;
-    char *buffer = new char[size];
+    int hfactor = matrix.xx >> 16;
+    int vfactor = matrix.yy >> 16;
+    int pitch = antialias ? (info.width * hfactor + 3) & ~3 : ((info.width + 31) & ~31) >> 3;
+    int size = pitch * info.height * vfactor;
+    uchar *buffer = new uchar[size];
     memset (buffer, 0, size);
 
-    if (slot->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
-        char *src = (char *)slot->bitmap.buffer;
-        char *dst = buffer;
+    if (slot->format == FT_GLYPH_FORMAT_OUTLINE) {
+        FT_Bitmap bitmap;
+        bitmap.rows = info.height*vfactor;
+        bitmap.width = info.width*hfactor;
+        bitmap.pitch = pitch;
+        bitmap.buffer = buffer;
+        bitmap.pixel_mode = antialias ? ft_pixel_mode_grays : ft_pixel_mode_mono;
+
+        FT_Outline_Transform(&slot->outline, (FT_Matrix *)&matrix);
+        FT_Outline_Translate (&slot->outline, -left*hfactor, -bottom*vfactor);
+        FT_Outline_Get_Bitmap(library, &slot->outline, &bitmap);
+        if (hfactor != 1) {
+            Q_ASSERT (bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
+            Q_ASSERT(antialias);
+            uchar *src = buffer;
+            size = info.width * 4 * info.height;
+            uchar *newBuf = new uchar[size];
+            uint *dst = (uint *)newBuf;
+            int h = info.height;
+            const uint r = (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_VRGB) ? 16 : 0;
+            const uint b = 16 - r;
+            while (h--) {
+                uint *dd = dst;
+                for (int x = 0; x < bitmap.width; x += 3) {
+                    // ############# filter
+                    uint res = (src[x] << r) + (src[x+1] << 8) + (src[x+2] << b);
+                    *dd = res;
+                    ++dd;
+                }
+                dst += info.width;
+                src += bitmap.pitch;
+            }
+            delete [] buffer;
+            buffer = newBuf;
+        } else if (vfactor != 1) {
+            uchar *src = buffer;
+            size = info.width * 4 * info.height;
+            uchar *newBuf = new uchar[size];
+            uint *dst = (uint *)newBuf;
+            int h = info.height;
+            const uint r = (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_VRGB) ? 16 : 0;
+            const uint b = 16 - r;
+            while (h--) {
+                for (int x = 0; x < info.width; x++) {
+                    // ############# filter
+                    uint res = src[x] << r + src[x+bitmap.pitch] << 8 + src[x+2*bitmap.pitch] << b;
+                    dst[x] = res;
+                }
+                dst += info.width;
+                src += 3*bitmap.pitch;
+            }
+            delete [] buffer;
+            buffer = newBuf;
+        }
+    } else if (slot->format == FT_GLYPH_FORMAT_BITMAP) {
+        Q_ASSERT(slot->bitmap.pixel_mode == FT_PIXEL_MODE_MONO);
+        uchar *src = slot->bitmap.buffer;
+        uchar *dst = buffer;
         int h = slot->bitmap.rows;
         if (!antialias) {
             int bytes = ((info.width + 7) & ~7) >> 3;
@@ -662,36 +733,45 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
                 src += slot->bitmap.pitch;
             }
         } else {
-            while (h--) {
-                for (int x = 0; x < slot->bitmap.width; x++) {
-                    unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
-#if 0
-                    if (subpixel) {
-                        for (v = 0; v < vmul; v++)
-                            for (h = 0; h < hmul; h++)
-                                dst[v * pitch + x*hmul + h] = a;
-                    } else
-#endif
-                    {
+            if (hfactor != 1) {
+                while (h--) {
+                    uchar *dd = dst;
+                    for (int x = 0; x < slot->bitmap.width; x++) {
+                        unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
+                        *dd++ = a;
+                        *dd++ = a;
+                        *dd++ = a;
+                    }
+                    dst += pitch * vfactor;
+                    src += slot->bitmap.pitch;
+                }
+
+            } else if (vfactor != 1) {
+                while (h--) {
+                    for (int x = 0; x < slot->bitmap.width; x++) {
+                        unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
                         dst[x] = a;
-		    }
-		    dst += pitch * vmul;
-		    src += slot->bitmap.pitch;
-		}
+                    }
+                    memcpy(dst + pitch, dst, pitch);
+                    dst += pitch;
+                    memcpy(dst + pitch, dst, pitch);
+                    dst += pitch;
+                    src += slot->bitmap.pitch;
+                }
+            } else {
+                while (h--) {
+                    for (int x = 0; x < slot->bitmap.width; x++) {
+                        unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
+                        dst[x] = a;
+                    }
+                    dst += pitch;
+                    src += slot->bitmap.pitch;
+                }
             }
         }
-    } else if (slot->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
-        Q_ASSERT(antialias);
-        char *src = (char *)slot->bitmap.buffer;
-        char *dst = buffer;
-        int h = slot->bitmap.rows;
-        while (h--) {
-            memcpy (dst, src, info.width);
-            dst += pitch;
-            src += slot->bitmap.pitch;
-        }
     } else {
-        qWarning("unhandled pixel mode in qfontengine_x11");
+        qWarning("glyph neither outline nor bitmap");
+        return 0;
     }
 
 #ifndef QT_NO_XRENDER
@@ -716,7 +796,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
         }
 
         ::Glyph xglyph = glyph;
-        XRenderAddGlyphs (X11->display, glyphSet, &xglyph, &info, 1, buffer, size);
+        XRenderAddGlyphs (X11->display, glyphSet, &xglyph, &info, 1, (const char *)buffer, size);
     }
 #endif
     // ################ fix non render case
@@ -724,11 +804,11 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
     delete [] buffer;
 
     bool large_glyph = (((char)(slot->linearHoriAdvance>>16) != slot->linearHoriAdvance>>16)
-                       || ((uchar)(info.width) != info.width)
-                       || ((uchar)(info.height) != info.height)
-                       || ((char)(info.x) != info.x)
-                       || ((char)(info.y) != info.y)
-                       || ((char)(info.xOff) != info.xOff));
+                        || ((uchar)(info.width) != info.width)
+                        || ((uchar)(info.height) != info.height)
+                        || ((char)(info.x) != info.x)
+                        || ((char)(info.y) != info.y)
+                        || ((char)(info.xOff) != info.xOff));
 
     if (large_glyph) {
         qDebug("got a large glyph!");

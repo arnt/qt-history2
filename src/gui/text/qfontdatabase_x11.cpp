@@ -1335,8 +1335,11 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
             // list doesn't contain them.
             addPatternProps(pattern, key, false, true, fp, request, script);
 
-            FcConfigSubstitute (0, pattern, FcMatchPattern);
-            QFontEngineFT *engine = new QFontEngineFT(pattern, request, fp->screen);
+            FcConfigSubstitute(0, pattern, FcMatchPattern);
+            FcDefaultSubstitute(pattern);
+            FcResult res;
+            FcPattern *match = FcFontMatch(0, pattern, &res);
+            QFontEngineFT *engine = new QFontEngineFT(match, request, fp->screen);
             if (engine->invalid())
                 delete engine;
             else
