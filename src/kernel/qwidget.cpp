@@ -3158,9 +3158,11 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *startingPoint = f->it.current();
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
+    extern bool qt_tab_all_widgets;
+    uint focus_flag = qt_tab_all_widgets ? TabFocus : TextListFocus;
     do {
 	if ( w && w != startingPoint &&
-	     ( ( w->focusPolicy() & TabFocus ) == TabFocus )
+	     ( ( w->focusPolicy() & focus_flag ) == focus_flag )
 	     && !w->focusProxy() && w->isVisibleTo(this) && w->isEnabled())
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
@@ -3551,6 +3553,9 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
     \value TabFocus  the widget accepts focus by tabbing.
     \value ClickFocus  the widget accepts focus by clicking.
+    \value TextListFocus like TabFocus except on platforms where tab focus
+                         is supported for only Text/List controls this will
+			 be used instead.
     \value StrongFocus  the widget accepts focus by both tabbing
 			and clicking.
     \value WheelFocus  like StrongFocus plus the widget accepts

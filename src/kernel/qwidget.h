@@ -294,8 +294,9 @@ public:
 	NoFocus = 0,
 	TabFocus = 0x1,
 	ClickFocus = 0x2,
-	StrongFocus = 0x3,
-	WheelFocus = 0x7
+	TextListFocus = 0x8,
+	StrongFocus = TabFocus | ClickFocus | TextListFocus,
+	WheelFocus = StrongFocus | 0x4
     };
 
     bool		isActiveWindow() const;
