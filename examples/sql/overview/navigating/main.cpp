@@ -21,16 +21,16 @@ int main( int argc, char *argv[] )
     QApplication app( argc, argv );
 
     if ( createConnections() ) {
-	int i;
 	QSqlQuery query( "SELECT id, name FROM people ORDER BY name;" );
 	if ( ! query.isActive() ) return 1; // Query failed
+	int i;
 	i = query.size();		// In this example we have 9 records; i == 9.
-	query.first();		// Moves to the first record. 
-	i = query.at();		// i == 0
-	query.last();		// Moves to the last record.  
-	i = query.at();		// i == 8
+	query.first();			// Moves to the first record. 
+	i = query.at();			// i == 0
+	query.last();			// Moves to the last record.  
+	i = query.at();			// i == 8
 	query.seek( query.size() / 2 ); // Moves to the middle record. 
-	i = query.at();		// i == 4
+	i = query.at();			// i == 4
     }
 
     return 0;

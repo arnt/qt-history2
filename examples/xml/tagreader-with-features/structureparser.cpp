@@ -36,14 +36,11 @@ bool StructureParser::startElement( const QString& namespaceURI,
     stack.push( element );
     element->setOpen( TRUE );
 
-    if ( attributes.length() > 0 ){
-        QListViewItem * attribute;
-	for ( int i = 0 ; i < attributes.length(); i++ ){
-	    attribute = new QListViewItem( element,
-	                                   attributes.qName(i), 
-	                                   attributes.uri(i) ); 
-	}      
-    } 
+    if ( attributes.length() > 0 ) {
+	for ( int i = 0 ; i < attributes.length(); i++ ) {
+	    new QListViewItem( element, attributes.qName(i), attributes.uri(i) );
+	}
+    }
     return TRUE;
 }
 
