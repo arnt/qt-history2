@@ -117,3 +117,8 @@ void GroupBoxTaskMenu::updateSelection()
         m_editor->deleteLater();
 }
 
+QAction *GroupBoxTaskMenu::preferredEditAction() const
+{
+    return m_editTitleAction;
+}
+

@@ -39,7 +39,7 @@ void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Signals/Slots"), this);
-    m_action->setShortcut(tr("F3"));
+    m_action->setShortcut(tr("F4"));
     QIcon icon(QIcon(core->resourceLocation() + QLatin1String("/signalslottool.png")));
     m_action->setIcon(icon);
     m_action->setEnabled(false);

@@ -186,7 +186,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_editWidgetsAction = new QAction(tr("Edit Widgets"), this);
     m_editWidgetsAction->setCheckable(true);
-    m_editWidgetsAction->setShortcut(tr("F2"));
+    m_editWidgetsAction->setShortcut(tr("F3"));
     m_editWidgetsAction->setIcon(QIcon(m_core->resourceLocation() + QLatin1String("/widgettool.png")));
     connect(formWindowManager, SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
                 this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));

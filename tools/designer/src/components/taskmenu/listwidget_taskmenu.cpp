@@ -32,16 +32,19 @@ ListWidgetTaskMenu::ListWidgetTaskMenu(QListWidget *button, QObject *parent)
     : QDesignerTaskMenu(button, parent),
       m_listWidget(button)
 {
-    QAction *action = 0;
-
-    action = new QAction(this);
-    action->setText(tr("Edit Items..."));
-    connect(action, SIGNAL(triggered()), this, SLOT(editItems()));
-    m_taskActions.append(action);
+    m_editItemsAction = new QAction(this);
+    m_editItemsAction->setText(tr("Edit Items..."));
+    connect(m_editItemsAction, SIGNAL(triggered()), this, SLOT(editItems()));
+    m_taskActions.append(m_editItemsAction);
 }
 
 ListWidgetTaskMenu::~ListWidgetTaskMenu()
 {
+}
+
+QAction *ListWidgetTaskMenu::preferredEditAction() const
+{
+    return m_editItemsAction;
 }
 
 QList<QAction*> ListWidgetTaskMenu::taskActions() const

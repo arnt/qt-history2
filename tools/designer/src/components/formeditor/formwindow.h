@@ -216,6 +216,7 @@ public slots:
     void breakLayout(QWidget *w);
 
     void breakLayout();
+    void editContents();
 
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;

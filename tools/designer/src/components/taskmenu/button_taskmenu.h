@@ -30,6 +30,7 @@ public:
     ButtonTaskMenu(QAbstractButton *button, QObject *parent = 0);
     virtual ~ButtonTaskMenu();
 
+    virtual QAction *preferredEditAction() const;
     virtual QList<QAction*> taskActions() const;
 
 private slots:
@@ -43,6 +44,7 @@ private:
     QPointer<AbstractFormWindow> m_formWindow;
     QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
+    QAction *m_preferredEditAction;
 };
 
 class ButtonTaskMenuFactory: public DefaultExtensionFactory

@@ -30,6 +30,7 @@ public:
     GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent = 0);
     virtual ~GroupBoxTaskMenu();
 
+    virtual QAction *preferredEditAction() const;
     virtual QList<QAction*> taskActions() const;
 
 private slots:

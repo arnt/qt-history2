@@ -31,16 +31,19 @@ ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
     : QDesignerTaskMenu(button, parent),
       m_button(button)
 {
-    QAction *action = 0;
-
-    action = new QAction(this);
-    action->setText(tr("Edit Button Text"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editText()));
-    m_taskActions.append(action);
+    m_preferredEditAction = new QAction(this);
+    m_preferredEditAction->setText(tr("Edit Button Text"));
+    connect(m_preferredEditAction, SIGNAL(triggered()), this, SLOT(editText()));
+    m_taskActions.append(m_preferredEditAction);
 }
 
 ButtonTaskMenu::~ButtonTaskMenu()
 {
+}
+
+QAction *ButtonTaskMenu::preferredEditAction() const
+{
+    return m_preferredEditAction;
 }
 
 QList<QAction*> ButtonTaskMenu::taskActions() const

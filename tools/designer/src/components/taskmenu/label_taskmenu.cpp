@@ -31,16 +31,19 @@ LabelTaskMenu::LabelTaskMenu(QLabel *label, QObject *parent)
     : QDesignerTaskMenu(label, parent),
       m_label(label)
 {
-    QAction *action = 0;
-
-    action = new QAction(this);
-    action->setText(tr("Edit Label Text"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editText()));
-    m_taskActions.append(action);
+    m_editTextAction= new QAction(this);
+    m_editTextAction->setText(tr("Edit Label Text"));
+    connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
+    m_taskActions.append(m_editTextAction);
 }
 
 LabelTaskMenu::~LabelTaskMenu()
 {
+}
+
+QAction *LabelTaskMenu::preferredEditAction() const
+{
+    return m_editTextAction;
 }
 
 QList<QAction*> LabelTaskMenu::taskActions() const

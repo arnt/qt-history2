@@ -247,6 +247,12 @@ void FormWindow::init()
     core()->metaDataBase()->add(this);
 
     initializeCoreTools();
+
+    QAction *a = new QAction(this);
+    a->setText(tr("Edit contents"));
+    a->setShortcut(tr("F2"));
+    connect(a, SIGNAL(triggered()), this, SLOT(editContents()));
+    addAction(a);
 }
 
 QWidget *FormWindow::mainContainer() const
@@ -1948,5 +1954,18 @@ bool FormWindow::blockSelectionChanged(bool b)
     return blocked;
 }
 
+void FormWindow::editContents()
+{
+    QList<QWidget*> sel = selectedWidgets();
+    if (sel.count() == 1) {
+        QWidget *widget = sel.first();
+
+        if (ITaskMenu *taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), widget)) {
+            if (QAction *a = taskMenu->preferredEditAction()) {
+                a->trigger();
+            }
+        }
+    }
+}
 
 #include "formwindow.moc"

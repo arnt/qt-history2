@@ -30,6 +30,7 @@ public:
     ComboBoxTaskMenu(QComboBox *button, QObject *parent = 0);
     virtual ~ComboBoxTaskMenu();
 
+    virtual QAction *preferredEditAction() const;
     virtual QList<QAction*> taskActions() const;
 
 private slots:
@@ -41,6 +42,7 @@ private:
     QPointer<AbstractFormWindow> m_formWindow;
     QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
+    QAction *m_editItemsAction;
 };
 
 class ComboBoxTaskMenuFactory: public DefaultExtensionFactory

@@ -30,6 +30,7 @@ public:
     LabelTaskMenu(QLabel *button, QObject *parent = 0);
     virtual ~LabelTaskMenu();
 
+    virtual QAction *preferredEditAction() const;
     virtual QList<QAction*> taskActions() const;
 
 private slots:
@@ -43,6 +44,7 @@ private:
     QPointer<AbstractFormWindow> m_formWindow;
     QPointer<QLineEdit> m_editor;
     mutable QList<QAction*> m_taskActions;
+    QAction *m_editTextAction;
 };
 
 class LabelTaskMenuFactory: public DefaultExtensionFactory

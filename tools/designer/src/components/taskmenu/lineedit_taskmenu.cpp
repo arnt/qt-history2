@@ -31,16 +31,19 @@ LineEditTaskMenu::LineEditTaskMenu(QLineEdit *lineEdit, QObject *parent)
     : QDesignerTaskMenu(lineEdit, parent),
       m_lineEdit(lineEdit)
 {
-    QAction *action = 0;
-
-    action = new QAction(this);
-    action->setText(tr("Edit Text"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editText()));
-    m_taskActions.append(action);
+    m_editTextAction = new QAction(this);
+    m_editTextAction->setText(tr("Edit Text"));
+    connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
+    m_taskActions.append(m_editTextAction);
 }
 
 LineEditTaskMenu::~LineEditTaskMenu()
 {
+}
+
+QAction *LineEditTaskMenu::preferredEditAction() const
+{
+    return m_editTextAction;
 }
 
 QList<QAction*> LineEditTaskMenu::taskActions() const

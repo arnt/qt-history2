@@ -23,8 +23,15 @@ class ITaskMenu
 public:
     virtual ~ITaskMenu() {}
 
+    virtual QAction *preferredEditAction() const;
+
     virtual QList<QAction*> taskActions() const = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(ITaskMenu, "http://trolltech.com/Qt/IDE/TaskMenu")
+
+
+inline QAction *ITaskMenu::preferredEditAction() const
+{ return 0; }
+
 
 #endif // TASKMENU_H
