@@ -783,9 +783,6 @@ public:
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
-    void setLinkColor( const QColor &c ) { linkC = c; }
-    QColor linkColor() const { return linkC; }
-
     void setUnderlineLinks( bool b ) { underlLinks = b; }
     bool underlineLinks() const { return underlLinks; }
 

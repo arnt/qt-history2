@@ -114,10 +114,11 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 }
 
 
-/*!  A more complex constructor for QSimpleRichText that takes
-  an additional mime source factory \a factory, a vertical break
-  parameter \a verticalBreak, a link color \a linkColor and a bool \a
-  linkUnderline.
+/*!  A more complex constructor for QSimpleRichText that takes an
+  additional mime source factory \a factory, a vertical break
+  parameter \a verticalBreak, a bool \a linkUnderline. \a linkColor is
+  only provided for compatibility, but has no effect, as QColorGroup's
+  QColorGroup::link() color is used now.
 
   The constructor is useful to create a QSimpleRichText object
   suitable for printing. Set \a verticalBreak to be the height of the
@@ -139,7 +140,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc->setVerticalBreak( TRUE );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
     d->doc->setMimeSourceFactory( (QMimeSourceFactory*)factory );
-    d->doc->setLinkColor( linkColor );
+    Q_UNUSED( linkColor )
     d->doc->setUnderlineLinks( linkUnderline );
     d->doc->setText( text, context );
 }

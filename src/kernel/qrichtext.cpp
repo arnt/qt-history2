@@ -3577,7 +3577,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
     painter.setFont( lastFormat->font() );
 
     if ( doc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() && lastFormat->useLinkColor() ) {
-	painter.setPen( QPen( doc->linkColor() ) );
+	painter.setPen( QPen( cg.link() ) );
 	if ( doc->underlineLinks() ) {
 	    QFont fn = lastFormat->font();
 	    fn.setUnderline( TRUE );

@@ -76,7 +76,6 @@ class Q_EXPORT QTextView : public QScrollView
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
-    Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
     Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
     Q_PROPERTY( QString documentTitle READ documentTitle )
     Q_PROPERTY( int length READ length )
@@ -128,7 +127,6 @@ public:
     QMimeSourceFactory* mimeSourceFactory() const;
 
     QBrush paper() const;
-    QColor linkColor() const;
     bool linkUnderline() const;
 
     int heightForWidth( int w ) const;
@@ -154,7 +152,6 @@ public slots:
     virtual void scrollToAnchor( const QString& name );
     virtual void setPaper( const QBrush& pap );
     virtual void setLinkUnderline( bool );
-    virtual void setLinkColor( const QColor & );
 
     virtual void setWordWrap( WordWrap mode );
     virtual void setWrapColumnOrWidth( int );

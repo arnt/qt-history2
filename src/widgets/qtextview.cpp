@@ -2278,23 +2278,6 @@ QBrush QTextView::paper() const
     return QBrush();
 }
 
-/*! Specifies the color which should be used for displaying
-  links. This defaults to blue
-*/
-
-void QTextView::setLinkColor( const QColor &c )
-{
-    doc->setLinkColor( c );
-}
-
-/*! Returnes the color used for links.
- */
-
-QColor QTextView::linkColor() const
-{
-    return doc->linkColor();
-}
-
 /*! Specifies whether links should be displayed underlined or
   not. This defaults to TRUE.
  */
