@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#66 $
 **
 ** Implementation of QWidget class
 **
@@ -21,20 +21,22 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#65 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#66 $";
 #endif
 
 /*!
-\class QWidget qwidget.h
-\brief The QWidget class is the base class of all user interface objects.
-\ingroup abstractwidgets
+  \class QWidget qwidget.h
+  \brief The QWidget class is the base class of all user interface objects.
 
-A widget without a parent, called a top level widget, is a window with a
-frame and title bar (depends on the widget style specified by the widget
-flags). A widget with a parent becomes a child window in the parent's
-window.
+  \ingroup abstractwidgets
 
-If intend to set a caption (title) or an icon, you should inherit QWindow.
+  A widget without a parent, called a top level widget, is a window with a
+  frame and title bar (depends on the widget style specified by the widget
+  flags). A widget with a parent becomes a child window in the parent's
+  window.
+
+  If you intend to set a caption (title) or an icon, you should inherit
+  QWindow.
 */
 
 // --------------------------------------------------------------------------
