@@ -349,7 +349,7 @@ bool QSQLiteDriver::beginTransaction()
 
     QSqlQuery q(createResult());
     if (!q.exec(QLatin1String("BEGIN"))) {
-        setLastError(QSqlError(QLatin1String("Unable to begin transaction"),
+        setLastError(QSqlError(tr("Unable to begin transaction"),
                                q.lastError().databaseText(), QSqlError::TransactionError));
         return false;
     }
@@ -364,7 +364,7 @@ bool QSQLiteDriver::commitTransaction()
 
     QSqlQuery q(createResult());
     if (!q.exec(QLatin1String("COMMIT"))) {
-        setLastError(QSqlError(QLatin1String("Unable to begin transaction"),
+        setLastError(QSqlError(tr("Unable to commit transaction"),
                                q.lastError().databaseText(), QSqlError::TransactionError));
         return false;
     }
@@ -379,7 +379,7 @@ bool QSQLiteDriver::rollbackTransaction()
 
     QSqlQuery q(createResult());
     if (!q.exec(QLatin1String("ROLLBACK"))) {
-        setLastError(QSqlError(QLatin1String("Unable to begin transaction"),
+        setLastError(QSqlError(tr("Unable to roll back transaction"),
                                q.lastError().databaseText(), QSqlError::TransactionError));
         return false;
     }
