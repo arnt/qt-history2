@@ -321,12 +321,13 @@ public:
     inline bool endsWith(const QString &s, bool cs) const
     { return endsWith(s, cs?CaseSensitive:CaseInsensitive); }
     QCharRef at(int i);
-    QString &setAscii( const char *str, int len=-1 )
+    inline QString &setAscii( const char *str, int len=-1 )
     { *this = fromAscii(str, len); return *this; }
-    QString &setLatin1( const char *str, int len=-1 )
+    inline QString &setLatin1( const char *str, int len=-1 )
     { *this = fromLatin1(str, len); return *this; }
-    QChar constref(uint i) const
+    inline QChar constref(uint i) const
     { return at(i); }
+    QChar &ref(uint i);
     inline QString leftJustify(int width, QChar fill=' ', bool trunc=false) const
     { return leftJustified(width, fill, trunc); }
     inline QString rightJustify(int width, QChar fill=' ', bool trunc=false) const
@@ -601,6 +602,8 @@ inline bool operator!=(const QString &s, QString::Null)
 { return !s.isNull(); }
 inline QCharRef QString::at(int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
+inline QChar &QString::ref(uint i)
+{ if ((int)i > d->size || d->ref != 1) resize(QMAX((int)i, d->size)); return (QChar&)d->data[i]; }
 #endif
 
 #ifndef QT_NO_DATASTREAM
