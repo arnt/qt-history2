@@ -239,9 +239,9 @@
               on older compilers like C Set 3.1 (decimal notation) */
 #  define Q_CC_XLC
 #  define Q_FULL_TEMPLATE_INSTANTIATION
-#  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
+#    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  endif
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 /* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
