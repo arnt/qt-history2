@@ -112,12 +112,9 @@ public:
     {
 	return image->scanLine(iLinenr);
     }
-    mng_bool refresh( mng_uint32  iTop,
-		      mng_uint32  iLeft,
-		      mng_uint32  iBottom,
-		      mng_uint32  iRight	)
+    mng_bool refresh( mng_uint32 x, mng_uint32 y, mng_uint32 w, mng_uint32 h )
     {
-	QRect r; r.setCoords(iLeft,iTop,iRight,iBottom);
+	QRect r(x,y,w,h);
 	consumer->changed(r);
 	consumer->setFramePeriod(0);
 	consumer->frameDone();
