@@ -522,6 +522,7 @@ bool QEventLoop::winEventFilter(void *message, long *result)
     return false;
 }
 
+#ifdef Q_WIN_EVENT_NOTIFIER
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
     MSG         msg;
@@ -596,7 +597,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
             exit(0);
             return false;
         }
-        winProcessEvent(&msg);
+        winProcessEvent(&msg); 
     }
 
     if (!(flags & ExcludeSocketNotifiers))
@@ -606,6 +607,105 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 
     return true;
 }
+
+#else
+
+bool QEventLoop::processEvents(ProcessEventsFlags flags)
+{
+    MSG         msg;
+
+    emit awake();
+
+    QCoreApplication::sendPostedEvents();
+
+    bool shortcut = d->exitloop || d->quitnow;
+
+    QThreadData *data = QThreadData::current();
+    bool canWait = (data->postEventList.size() == 0
+                    && !d->exitloop
+                    && !d->quitnow
+                    && (flags & WaitForMore));
+
+    if (flags & ExcludeUserInput) {
+        // purge all userinput messages from eventloop
+        while (winPeekMessage(&msg, 0, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
+            ;
+        while (winPeekMessage(&msg, 0, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
+            ;
+        while (winPeekMessage(&msg, 0, WM_MOUSEWHEEL, WM_MOUSEWHEEL, PM_REMOVE))
+            ;
+        // ### tablet?
+
+        // now that we have eaten all userinput we shouldn't wait for the next one...
+        canWait = false;
+    }
+
+    // activate all full-speed timers until there is a message (timers have low priority)
+    bool message = false;
+    if (numZeroTimers) {
+        while (numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
+            d->activateZeroTimers();
+        }
+    }
+
+    message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+    if (!message && !canWait) // still no message, and shouldn't block
+        return false;
+
+    // process all messages, unless userinput is blocked, then we process only one
+    if (flags & ExcludeUserInput) {
+        winProcessEvent(&msg);
+        shortcut = d->exitloop || d->quitnow;
+    } else {
+        // ### Don't send two timers in a row, since it could potentially block
+        // other events from being fired.
+        bool lastWasTimer = false;
+        while (message && !shortcut && !lastWasTimer) {
+            winProcessEvent(&msg);
+            if (msg.message == WM_TIMER)
+                lastWasTimer = true;
+            message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+            shortcut = d->exitloop || d->quitnow;
+        }
+
+        if (lastWasTimer)
+            winProcessEvent(&msg);
+    }
+
+    // don't wait if there are pending socket notifiers
+    canWait = d->sn_pending_list.isEmpty() && canWait;
+
+    shortcut = d->exitloop || d->quitnow;
+
+    // wait for next message if allowed to block
+    if (canWait && !shortcut) {
+        emit aboutToBlock();
+        
+        //### The message sould be empty at this point. This will not return untill
+        // a new message comes. This point is not reached so offten so maybe need 
+        // to do a zero timeout version out side of this "canWait" block  
+        DWORD ret = MsgWaitForMultipleObjectsEx(0, 0, INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
+
+        if (ret == WAIT_OBJECT_0 + 0 && winPeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+            //### instead of taking this message we should jump out and let the code above
+            // take care of the message incase there are some ExcludeUserInput flags
+            // or else remove input events from the dwWakeMask.
+            if (msg.message == WM_QUIT) {
+                exit(0);
+                return false;
+            }
+            winProcessEvent(&msg);
+        } 
+    }
+
+    if (!(flags & ExcludeSocketNotifiers))
+        activateSocketNotifiers();
+
+    QCoreApplication::sendPostedEvents();
+
+    return true;
+}
+#endif
 
 void QEventLoop::wakeUp()
 {

@@ -284,3 +284,54 @@ bool QSocketNotifier::event(QEvent *e)
     }
     return false;
 }
+
+
+#ifdef Q_WIN_EVENT_NOTIFIER
+//### for want of a better place
+
+/*
+This class is menat for use with Windows Wait functions. 
+witht MsgWaitForMultipleObjectsEx now used in the windows event loop it should be 
+possible to use this class in a similar way to QSocketNotifier. It will enable the use
+ of overlapped io true async qProcess on windows
+
+  for the now the api models QSocketNotifier and is just in a trial period.
+*/
+
+QWinEventNotifier::QWinEventNotifier(long hEvent, QObject *parent)
+: handleToEvent(hEvent), enabled(false), QObject(parent)
+{
+}
+
+QWinEventNotifier::~QWinEventNotifier()
+{
+    if (isEnabled())
+        setEnabled(false);
+}
+
+long  QWinEventNotifier::handle() const
+{
+    return handleToEvent;
+}
+
+bool QWinEventNotifier::isEnabled() const
+{
+    return enabled; 
+}
+    
+void QWinEventNotifier::setEnabled(bool enable)
+{
+}
+
+bool QWinEventNotifier::event(QEvent * e)
+{
+    // hijack the socket notifier code for now
+    QObject::event(e);                        // will activate filters
+    if (e->type() == QEvent::SockAct) {
+        emit activated(handleToEvent);
+        return true;
+    }
+    return false;
+}
+
+#endif
