@@ -15,8 +15,9 @@
 
 #ifndef QT_NO_TEXTVIEW
 
-/*! \class Q3TextView
-    \brief The Q3TextView class provides a rich-text viewer.
+/*! 
+  \class Q3TextView
+  \brief The Q3TextView class provides a rich text viewer.
 
   \compat
 
