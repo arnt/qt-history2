@@ -87,6 +87,9 @@ Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit ) : QObject( p )
 	    this, SLOT(connectExit(bool)) );
     cb3->setChecked( cExit );
     connectExit( cExit );
+    // signal wroteStdin()
+    QObject::connect( proc, SIGNAL(wroteStdin()),
+		this, SLOT(wroteStdin()) );
 
     if ( !proc->start() ) {
 	qWarning( "Could not start process" );
@@ -141,6 +144,11 @@ void Some::procExited()
 #if defined(_OS_UNIX_)
     main.hide();
 #endif
+}
+
+void Some::wroteStdin()
+{
+    qDebug( "wroteStdin()" );
 }
 
 void Some::connectStdout( bool enable )

@@ -23,6 +23,7 @@ public slots:
     void connectStdout( bool enable );
     void connectStderr( bool enable );
     void connectExit( bool enable );
+    void wroteStdin();
 
 signals:
 
