@@ -1141,6 +1141,11 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
+    \property QTreeWidget::columnCount
+    \brief the number of columns displayed in the tree widget
+*/
+
+/*!
     \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
     This signal is emitted when the user clicks inside the widget.
@@ -1263,6 +1268,10 @@ void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 {
     d->model()->tree.append(item);
 }
+
+/*!
+    Removes the top-level item at the given \a index in the tree and returns it.
+*/
 
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
@@ -1464,7 +1473,7 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 }
 
 /*!
-  Hides the \a item if \a hide is true, otherwise shows the item.
+  Hides the given \a item if \a hide is true; otherwise shows the item.
 */
 void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 {
