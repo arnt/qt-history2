@@ -132,6 +132,9 @@ class QTextFramePrivate : public QTextGroupPrivate
 public:
     int fragment_start;
     int fragment_end;
+
+    QTextFrame *parentFrame;
+    QList<QTextFrame *> childFrames;
 };
 
 

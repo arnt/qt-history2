@@ -687,3 +687,14 @@ QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
     : QTextGroup(p, parent)
 {
 }
+
+
+QList<QTextFrame *> QTextFrame::children()
+{
+    return d->childFrames;
+}
+
+QTextFrame *QTextFrame::parent()
+{
+    return d->parentFrame;
+}
