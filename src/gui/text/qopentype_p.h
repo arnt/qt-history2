@@ -3,6 +3,7 @@
 
 #include "qtextengine_p.h"
 
+#ifdef QT_OPENTYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "ftxopen.h"
@@ -66,5 +67,6 @@ private:
     int length;
     int orig_nglyphs;
 };
-#endif // QT_NO_OPENTYPE
+#endif // QT_OPENTYPE
 
+#endif //QOPENTYPE_P_H
