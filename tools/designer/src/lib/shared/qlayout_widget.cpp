@@ -825,9 +825,11 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
     }
 #endif
 
-    p.setPen(QPen(Qt::red, 1));
-
-    p.drawRect(0, 0, width() - 1, height() - 1);
+    // only draw red borders if we're editting widgets
+    if (m_formWindow->currentTool() == 0) {
+        p.setPen(QPen(Qt::red, 1));
+        p.drawRect(0, 0, width() - 1, height() - 1);
+    }
 }
 
 void QLayoutWidget::updateMargin()

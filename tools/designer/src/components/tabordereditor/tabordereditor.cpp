@@ -83,10 +83,10 @@ void TabOrderEditor::updateBackground()
 
     m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
 
-    QPainter p(&m_bg_pixmap);
+/*    QPainter p(&m_bg_pixmap);
     p.setPen(QColor(0, 0, 255, 22));
     for (int y = 0; y < m_bg_pixmap.height(); y += 2)
-        p.drawLine(0, y, m_bg_pixmap.width(), y);
+        p.drawLine(0, y, m_bg_pixmap.width(), y); */
 
     initTabOrder();
     update();
