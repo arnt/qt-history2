@@ -1049,7 +1049,7 @@ void Configure::generateCachefile()
 	cacheStream << "bins.path=" << dictionary[ "QT_INSTALL_BINS" ] << endl;
 	cacheStream << "data.path=" << dictionary[ "QT_INSTALL_DATA" ] << endl;
 	cacheStream << "translations.path=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
-
+        cacheStream.flush();
 	cacheFile.close();
     }
     QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs\\qconfig.pri" );
@@ -1074,7 +1074,7 @@ void Configure::generateCachefile()
         configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
         if (licenseInfo[ "PRODUCTS" ].length())
 	    configStream << "QT_PRODUCT = " << licenseInfo["PRODUCTS"];
-
+        configStream.flush();
 	configFile.close();
     }
 }
