@@ -59,7 +59,7 @@ up.  (This is a good reason for wanting the _CC_whatever_ define above.)
 To create and send us a patch, do:
 
 	cd qt/arch
-	diff -uwr template whatever | mail qt-bugs@troll.no
+	diff -ubr template whatever | mail qt-bugs@troll.no
 
 For most Unix varieties, that's all.  Some may need some include file
 tweaks.  Good luck, and feel free to send mail to qt-bugs@troll.no.
