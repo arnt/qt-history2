@@ -96,7 +96,7 @@ Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
  */
 QByteArray QIOEngine::readAll()
 {
-    if (!isSequential()) {     // read until we reach the end
+    if (isSequential()) {     // read until we reach the end
         const int blocksize = 512;
         int nread = 0;
         QByteArray ba;
