@@ -801,48 +801,48 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
 #endif
-	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
+	else if (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
 	    wclass = kFloatingWindowClass;
-	else if(dialog)
+	else if (dialog)
 	    wclass = kToolbarWindowClass;
 	else
 	    wclass = kDocumentWindowClass;
 
 	WindowGroupRef grp = 0;
 	WindowAttributes wattr = kWindowNoAttributes;
-	if(testWFlags(WStyle_Customize)) {
-	    if(qt_mac_is_macsheet(this)) {
+	if (testWFlags(WStyle_Customize)) {
+	    if (qt_mac_is_macsheet(this)) {
 		grp = GetWindowGroupOfClass(kMovableModalWindowClass);
 		wclass = kSheetWindowClass;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
-		if(testWFlags(WStyle_NoBorder)) {
-		    if(wclass == kDocumentWindowClass)
+                // Shift things around a bit to get the correct window class based on the presence
+                // (or lack) of the border.
+		if (testWFlags(WStyle_NoBorder)) {
+		    if (wclass == kDocumentWindowClass)
 			wclass = kPlainWindowClass;
-		    else if(wclass == kFloatingWindowClass)
+		    else if (wclass == kFloatingWindowClass)
 			wclass = kToolbarWindowClass;
 		} else {
-		    if(wclass != kModalWindowClass)
+		    if (wclass != kModalWindowClass)
 			wattr |= kWindowResizableAttribute;
-		}
-		if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
-		    if(wclass == kToolbarWindowClass) {
-			if(!parentWidget() || parentWidget()->isDesktop())
-			    wclass = kDocumentWindowClass;
-			else
-			    wclass = kFloatingWindowClass;
-		    }
+                    if (wclass == kToolbarWindowClass) {
+                        if (!parentWidget() || parentWidget()->isDesktop())
+                            wclass = kDocumentWindowClass;
+                        else
+                            wclass = kFloatingWindowClass;
+                    }
 		}
 		// Only add extra decorations (well, buttons) for widgets that can have them
 		// and have an actual border we can put them on.
-		if (wclass != kModalWindowClass && wclass != kMovableModalWindowClass
-			&& wclass != kSheetWindowClass && wclass != kPlainWindowClass
-			&& !testWFlags(WStyle_NoBorder)) {
-		    if(testWFlags(WStyle_Maximize))
+                if (wclass != kModalWindowClass && wclass != kMovableModalWindowClass
+                    && wclass != kSheetWindowClass && wclass != kPlainWindowClass
+                    && !testWFlags(WStyle_NoBorder)) {
+		    if (testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
-		    if(testWFlags(WStyle_Minimize))
+		    if (testWFlags(WStyle_Minimize))
 			wattr |= kWindowCollapseBoxAttribute;
-		    if(testWFlags(WStyle_Title) || testWFlags(WStyle_SysMenu))
+		    if (testWFlags(WStyle_Title) || testWFlags(WStyle_SysMenu))
 		       wattr |= kWindowCloseBoxAttribute;
 		}
 	    }
