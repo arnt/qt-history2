@@ -220,6 +220,7 @@ QString QSound::fileName() const
 void QSound::stop()
 {
     server().stop(this);
+    d->looprem = 0;
 }
 
 
