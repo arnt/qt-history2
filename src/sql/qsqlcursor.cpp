@@ -363,11 +363,8 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
   ...
   myCursor.select( "deptno>10" ); // select other departments
   ...
-  myCursor.select();              // select all records again
+  myCursor.select();              // select WHERE DEPTNO>10 again
   \endcode
-
-  Both select("*") and select() will select all records. However, the first
-  form allows you to add a sort, e.g. select("*", mysort).
 
 */
 
@@ -375,7 +372,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
     QString str= "select " + toString( d->nm );
     str += " from " + d->nm;
-    if ( !filter.isNull() && filter != "*" ) {
+    if ( !filter.isEmpty() && filter != "*" ) {
 	d->ftr = filter;
 	str += " where " + filter;
     } else
@@ -390,16 +387,21 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 
 /*!  \overload
 
-  Selects all fields in the cursor from the database.  The order in
-  which the rows are returned is undefined.  The cursor is initially
+  Selects all fields in the cursor from the database.  The rows are
+  returned in the order specified by the last call to setSort().  If
+  there is no current order, the order in which the rows are returned
+  is undefined.  The records are filtered according to filter
+  specified by the last call to setFilter().  If there is no current
+  filter, all records are returned.  The cursor is initially
   positioned to an invalid row.  To move to a valid row, use seek(),
   first(), last(), prev() or next().
 
+  \sa setSort() setFilter()
 */
 
 bool QSqlCursor::select()
 {
-    return select( "*", QSqlIndex() );
+    return select( sort(), filter() );
 }
 
 /*!  \overload
