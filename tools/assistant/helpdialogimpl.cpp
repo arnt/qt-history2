@@ -18,6 +18,36 @@
 **
 **********************************************************************/
 
+static const char * book_xpm[]={
+    "22 22 4 1",
+    "# c #000000",
+    "a c #808080",
+    "b c #ffffff",
+    ". c None",
+    "......................",
+    "......................",
+    "......................",
+    "......................",
+    ".....##...............",
+    "....#ab#....###.......",
+    "....#abb#.##bb#.......",
+    "....#abbb#abbb###.....",
+    "....#abbb#bbbb#a#.....",
+    "....#abbb#abbb#a#.....",
+    "....#abbb#bbbb#a#.....",
+    "....#abbb#abbb#a#.....",
+    "....#abbb#bbbb#a#.....",
+    ".....#abb#abb##a#.....",
+    "......#ab#b##bba#.....",
+    ".......#a##aaaaa#.....",
+    ".......##a#######.....",
+    "........##............",
+    "......................",
+    "......................",
+    "......................",
+    "......................"};
+
+
 #include "helpdialogimpl.h"
 #include "topicchooserimpl.h"
 #include "mainwindow.h"
@@ -41,6 +71,9 @@
 #include <qtextbrowser.h>
 #include <qaccel.h>
 #include <qregexp.h>
+#include <qpixmap.h>
+
+static QPixmap *bookPixmap = 0;
 
 class MyString : public QString
 {
@@ -127,6 +160,7 @@ QString HelpNavigationContentsItem::link() const
 HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     : HelpDialogBase( parent, 0, FALSE ), help( h ), viewer( v )
 {
+    bookPixmap = new QPixmap( book_xpm );
     documentationPath = QString( getenv( "QTDIR" ) ) + "/doc/html";
     indexDone = FALSE;
     contentsDone = FALSE;
@@ -506,15 +540,19 @@ void HelpDialog::insertContents()
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
     qtDocu->setText( 0, tr( "Qt Class Documentation" ) );
     qtDocu->setLink( "index.html" );
+    qtDocu->setPixmap( 0, *bookPixmap );
     handbook = new HelpNavigationContentsItem( listContents, 0 );
     handbook->setText( 0, tr( "Designer Handbook" ) );
     handbook->setLink( "designer-manual.html" );
+    handbook->setPixmap( 0, *bookPixmap );
     linguistDocu = new HelpNavigationContentsItem( listContents, 0 );
     linguistDocu->setText( 0, tr( "Qt Linguist Manual" ) );
     linguistDocu->setLink( "linguist-manual.html" );
+    linguistDocu->setPixmap( 0, *bookPixmap );
     assistantDocu = new HelpNavigationContentsItem( listContents, 0 );
     assistantDocu->setText( 0, tr( "Qt Assistant" ) );
     assistantDocu->setLink( "assistant.html" );
+    assistantDocu->setPixmap( 0, *bookPixmap );
 
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
