@@ -50,9 +50,9 @@ static void printHtmlShortMembers( HtmlWriter& out,
 	    out.putsMeta( "<li><div class=fn>" );
 	    (*m)->printHtmlShort( out );
 	    if ( (*m)->internal() )
-		out.putsMeta( "\xa0\xa0<em>(internal)</em>" );
+		out.putsMeta( "  <em>(internal)</em>" );
 	    else if ( (*m)->obsolete() )
-		out.putsMeta( "\xa0\xa0<em>(obsolete)</em>" );
+		out.putsMeta( "  <em>(obsolete)</em>" );
 	    out.putsMeta( "</div></li>\n" );
 	    ++m;
 	}
@@ -229,7 +229,6 @@ QString Decl::anchor( const QString& name )
 {
     static QRegExp *op = 0;
     static QRegExp *sp = 0;
-    static QRegExp *nbsp = 0;
     static QRegExp *amp = 0;
     static QRegExp *lt = 0;
     static QRegExp *eq = 0;
@@ -238,7 +237,6 @@ QString Decl::anchor( const QString& name )
     if ( op == 0 ) {
 	op = new QRegExp( QString("^operator") );
 	sp = new QRegExp( QChar(' ') );
-	nbsp = new QRegExp( QChar('\xa0') );
 	amp = new QRegExp( QChar('&') );
 	lt = new QRegExp( QChar('<') );
 	eq = new QRegExp( QChar('=') );
@@ -248,7 +246,6 @@ QString Decl::anchor( const QString& name )
     if ( name.find(*op) == 0 ) {
 	QString t = name;
 	t.replace( *sp, QChar('-') );
-	t.replace( *nbsp, QChar('-') );
 	t.replace( *amp, QString("-and") );
 	t.replace( *lt, QString("-lt") );
 	t.replace( *eq, QString("-eq") );
@@ -575,10 +572,10 @@ void ClassDecl::printHtmlShort( HtmlWriter& out ) const
 {
     out.putsMeta( "class" );
     if ( !name().isEmpty() ) {
-	out.puts( "\xa0" );
+	out.puts( " " );
 	printHtmlShortName( out, this );
     }
-    out.putsMeta( "\xa0{\xa0}" );
+    out.putsMeta( " { }" );
 }
 
 void ClassDecl::printHtmlLong( HtmlWriter& out ) const
@@ -719,10 +716,10 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	while ( p != properties().end() ) {
 	    out.printfMeta( "<tr><td>%s<td>%s<td>%s<td>%s\n",
 			    (*p).type().latin1(), (*p).name().latin1(),
-			    (*p).readFunction().isEmpty() ? "&nbsp; "
-			    : (*p).readFunction().latin1(),
-			    (*p).writeFunction().isEmpty() ? "&nbsp;"
-			    : (*p).writeFunction().latin1() );
+			    ( (*p).readFunction().isEmpty() 
+			      ? "&nbsp; " : (*p).readFunction().latin1() ),
+			    ( (*p).writeFunction().isEmpty()
+			      ? "&nbsp;" : (*p).writeFunction().latin1() ) );
 
 	    QString opts;
 	    if ( (*p).stored() != (*p).storedDefault() ) {
@@ -838,8 +835,7 @@ void ClassDecl::fillInDocsThis()
 	while ( g != (*f).end() ) {
 	    if ( (*g)->fnDoc() != 0 && (*g)->fnDoc()->overloads() ) {
 		warning( 3, (*g)->fnDoc()->location(),
-			 "Suspicious '\\overload' in doc comment for"
-			 " constructor" );
+			 "Suspicious '\\overload' in doc for constructor" );
 		(*g)->fnDoc()->setOverloads( FALSE );
 	    }
 	    ++g;
@@ -873,18 +869,19 @@ void ClassDecl::fillInDocsThis()
 	int overloadNo = 2;
 
 	/*
-	  First pass:  Fill in the candidate lists.  Among the candidates, we'll
-	  choose a canonical function and make sure all the others are
-	  '\overload's.
+	  First pass: Fill in the candidate lists.  Among the
+	  candidates, we'll choose a canonical function and make sure
+	  all the others are '\overload's.
 
-	  There are three candidate lists, to distinguish between three levels
-	  of quality.  The best candidate should fall in candidates[0].
+	  There are three candidate lists, to distinguish between
+	  three levels of quality.  The best candidate should fall in
+	  candidates[0].
 	*/
 	g = (*f).begin();
 	while ( g != (*f).end() ) {
 	    /*
-	      Make sure there is no clash with overload numbers for '\important'
-	      members.
+	      Make sure there is no clash with overload numbers for
+	      '\important' members.
 	    */
 	    if ( (*g)->overloadNumber() >= overloadNo )
 		overloadNo = (*g)->overloadNumber() + 1;
@@ -1035,7 +1032,7 @@ void Parameter::printHtmlShort( HtmlWriter& out ) const
 {
     dataType().printHtml( out, QString::null, name() );
     if ( !defaultValue().isEmpty() ) {
-	out.printfMeta( "\xa0=\xa0" );
+	out.printfMeta( " = " );
 	defaultValue().printHtml( out );
     }
 }
@@ -1044,7 +1041,7 @@ void Parameter::printHtmlLong( HtmlWriter& out, const Decl *context ) const
 {
     printHtmlDataType( out, dataType(), context, name() );
     if ( !defaultValue().isEmpty() ) {
-	out.printfMeta( "\xa0=\xa0" );
+	out.printfMeta( " = " );
 	defaultValue().printHtml( out );
     }
 }
@@ -1141,69 +1138,69 @@ bool FunctionDecl::isDestructor() const
 void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 {
     if ( isVirtual() )
-	out.putsMeta( "virtual\xa0" );
+	out.putsMeta( "virtual " );
     if ( !returnType().isEmpty() ) {
 	returnType().printHtml( out );
-	out.putsMeta( "\xa0" );
+	out.putsMeta( " " );
     }
     printHtmlShortName( out, this );
-    out.putsMeta( "\xa0(" );
+    out.putsMeta( " (" );
 
     ParameterIterator param = parameterBegin();
     if ( param != parameterEnd() ) {
-	out.putsMeta( "\xa0" );
+	out.putsMeta( " " );
 	(*param).printHtmlShort( out );
 	while ( ++param != parameterEnd() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlShort( out );
 	}
-	out.putsMeta( "\xa0" );
+	out.putsMeta( " " );
     }
     out.putsMeta( ")" );
 
     if ( isConst() )
-	out.putsMeta( "\xa0" "const" );
+	out.putsMeta( " " "const" );
 }
 
 void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 {
     if ( !returnType().isEmpty() ) {
 	printHtmlDataType( out, returnType(), context() );
-	out.putsMeta( "\xa0" );
+	out.putsMeta( " " );
     }
-    out.printfMeta( "<a name=%s></a>%s\xa0(", anchor().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a>%s (", anchor().latin1(),
 		    fullName().latin1() );
 
     ParameterIterator param = parameterBegin();
     if ( param != parameterEnd() ) {
-	out.putsMeta( "\xa0" );
+	out.putsMeta( " " );
 	(*param).printHtmlLong( out, context() );
 	while ( ++param != parameterEnd() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlLong( out, context() );
 	}
-	out.putsMeta( "\xa0" );
+	out.putsMeta( " " );
     }
     out.putsMeta( ")" );
 
     if ( isConst() )
-	out.putsMeta( "\xa0" "const" );
+	out.putsMeta( " " "const" );
 
     QString bracketedStuff;
     if ( isVirtual() )
-	bracketedStuff += QString( "\xa0virtual" );
+	bracketedStuff += QString( " virtual" );
     if ( isStatic() )
-	bracketedStuff += QString( "\xa0static" );
+	bracketedStuff += QString( " static" );
 
     if ( access() == Decl::Protected )
-	bracketedStuff += QString( "\xa0protected" );
+	bracketedStuff += QString( " protected" );
     else if ( access() == Decl::Private )
-	bracketedStuff += QString( "\xa0private" );
+	bracketedStuff += QString( " private" );
 
     if ( isSignal() )
-	bracketedStuff += QString( "\xa0signal" );
+	bracketedStuff += QString( " signal" );
     if ( isSlot() )
-	bracketedStuff += QString( "\xa0slot" );
+	bracketedStuff += QString( " slot" );
 
     if ( !bracketedStuff.isEmpty() ) {
 	bracketedStuff[0] = QChar( '[' );
@@ -1235,7 +1232,7 @@ void EnumItem::printHtml( HtmlWriter& out ) const
 {
     out.putsMeta( ident().latin1() );
     if ( !value().isEmpty() ) {
-	out.puts( "\xa0=\xa0" );
+	out.puts( " = " );
 	value().printHtml( out );
     }
 }
@@ -1249,10 +1246,10 @@ void EnumDecl::printHtmlShort( HtmlWriter& out ) const
 {
     out.putsMeta( "enum" );
     if ( !name().isEmpty() ) {
-	out.printfMeta( "\xa0" );
+	out.printfMeta( " " );
 	printHtmlShortName( out, this );
     }
-    out.putsMeta( "\xa0{" );
+    out.putsMeta( " {" );
 
     ItemIterator i = itemBegin();
     if ( i != itemEnd() ) {
@@ -1263,12 +1260,12 @@ void EnumDecl::printHtmlShort( HtmlWriter& out ) const
 	    (*i).printHtml( out );
 	}
     }
-    out.putsMeta( "\xa0}" );
+    out.putsMeta( " }" );
 }
 
 void EnumDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    out.printfMeta( "<a name=%s></a><b>%s</b>", anchor().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", anchor().latin1(),
 		    fullName().latin1() );
 }
 
@@ -1280,12 +1277,12 @@ TypedefDecl::TypedefDecl( const Location& loc, const QString& name,
 
 void TypedefDecl::printHtmlShort( HtmlWriter& out ) const
 {
-    out.putsMeta( "typedef\xa0" );
+    out.putsMeta( "typedef " );
     t.printHtml( out, QString::null, htmlShortName(this) );
 }
 
 void TypedefDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    out.printfMeta( "<a name=%s></a><b>%s</b>", anchor().latin1(),
+    out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", anchor().latin1(),
 		    fullName().latin1() );
 }
