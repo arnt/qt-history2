@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#201 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#202 $
 **
 ** Implementation of QObject class
 **
@@ -324,21 +324,21 @@ QObject::QObject( QObject *parent, const char *name )
 {
     if ( !objectDict )				// will create object dict
 	initMetaObject();
-    objname = name ? qstrdup(name) : 0;		// set object name
-    parentObj = parent;				// set parent
-    childObjects = 0;				// no children yet
-    connections = 0;				// no connections yet
+    objname       = name ? qstrdup(name) : 0;   // set object name
+    parentObj     = 0;				// parent set by insertChild()
+    childObjects  = 0;				// no children yet
+    connections   = 0;				// no connections yet
     senderObjects = 0;				// no signals connected yet
-    eventFilters = 0;				// no filters installed
-    sigSender = 0;				// no sender yet
+    eventFilters  = 0;				// no filters installed
+    sigSender     = 0;				// no sender yet
     isSignal   = FALSE;				// assume not a signal object
     isWidget   = FALSE;				// assume not a widget object
     pendTimer  = FALSE;				// no timers yet
     pendEvent  = FALSE;				// no events yet
     blockSig   = FALSE;				// not blocking signals
     wasDeleted = FALSE;				// double-delete catcher
-    if ( parentObj )				// add object to parent
-	parentObj->insertChild( this );
+    if ( parent )				// add object to parent
+	parent->insertChild( this );
 }
 
 
