@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#92 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#93 $
 **
 ** Implementation of QFile class
 **
@@ -36,7 +36,7 @@
 #include "qfiledefs.h"
 
 #if defined(_OS_WIN32_)
-#include <qt_windows.h>
+#include <windows.h>
 #include <direct.h>
 #include <tchar.h>
 

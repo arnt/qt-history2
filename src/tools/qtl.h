@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#12 $
+** $Id: //depot/qt/main/src/tools/qtl.h#13 $
 **
 ** Definition of Qt template library classes
 **
@@ -25,8 +25,8 @@
 #ifndef QTL_H
 #define QTL_H
 
-#include <qtextstream.h>
-#include <qstring.h>
+#include "qtextstream.h"
+#include "qstring.h"
 
 
 template <class T>
