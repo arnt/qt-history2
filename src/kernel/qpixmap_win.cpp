@@ -1462,7 +1462,7 @@ void QPixmap::convertToAlphaPixmap( bool initAlpha )
 	// doesn't have one, we bitBlt() the source with the destination's
 	// alpha channel. In that case, there is no need to initialize the
 	// alpha values.
-	uchar *p = pm.data->realAlphaBits + 3;
+	uchar *p = pm.data->realAlphaBits;
 	uchar *pe = p + bmh->biSizeImage;
 	if ( mask() ) {
 	    QImage msk = mask()->convertToImage();
@@ -1470,14 +1470,19 @@ void QPixmap::convertToAlphaPixmap( bool initAlpha )
 	    int w = width();
 	    int backgroundIndex = msk.color(0) == QColor(Qt::color0).rgb() ? 0 : 1;
 	    while ( p < pe ) {
-		if ( msk.pixelIndex( i%w, i/w ) == backgroundIndex )
-		    *p = 0x00;
-		else
-		    *p = 0xff;
-		p += 4;
-		i++;
+		if ( msk.pixelIndex( i%w, i/w ) == backgroundIndex ) {
+		    *(p++) = 0x00;
+		    *(p++) = 0x00;
+		    *(p++) = 0x00;
+		    *(p++) = 0x00;
+		} else {
+		    p += 3;
+		    *(p++) = 0xff;
+		}
+		++i;
 	    }
 	} else {
+	    p += 3;
 	    while ( p < pe ) {
 		*p = 0xff;
 		p += 4;
