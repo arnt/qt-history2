@@ -305,7 +305,7 @@ QWindowsStyle::indicatorSize() const
 
 void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
-				   bool on, bool down, bool /* enabled */ )
+				   bool on, bool down, bool enabled )
 {
 
     static const QCOORD pts1[] = {		// dark lines
@@ -368,10 +368,9 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     else
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
     a.translate( x, y );
-    QColor fillColor = down ? g.button() : g.base();
+    QColor fillColor = ( down || !enabled ) ? g.button() : g.base();
     p->setPen( fillColor );
-    p->setBrush( down ?  g.brush( QColorGroup::Button ) :
-			 g.brush( QColorGroup::Base ) ) ;
+    p->setBrush( fillColor  ) ;
     p->drawPolygon( a );
     if ( on ) {
 	p->setPen( NoPen );
