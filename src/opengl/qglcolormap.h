@@ -17,8 +17,7 @@
 
 #ifndef QT_H
 #include "qcolor.h"
-#include "qmemarray.h"
-#include "qshared.h"
+#include "qvector.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -50,24 +49,24 @@ public:
     int    findNearest( QRgb color ) const;
     
 private:
-    class Private : public QShared
-    {
-    public:
-	Private() {
-	    cells.resize( 256 ); // ### hardcoded to 256 entries for now
-	    cmapHandle = 0;
-	}
-
-	~Private() {
-	}
-
-	QMemArray<QRgb> cells;
-	Qt::HANDLE      cmapHandle;
+    struct QGLColormapData {
+	QAtomic ref;
+	QVector<QRgb> *cells;
+	Qt::HANDLE cmapHandle;
     };
     
-    Private * d;
+    QGLColormapData *d;
+    static struct QGLColormapData shared_null;
+    static void cleanup(QGLColormapData *x);
+    void detach_helper();
 
     friend class QGLWidget;
 };
+
+inline void QGLColormap::detach()
+{
+    if (d->ref != 1 )
+	detach_helper();
+}
 
 #endif

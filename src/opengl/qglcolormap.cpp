@@ -72,26 +72,26 @@
 */
 
 #include "qglcolormap.h"
-#include "qmemarray.h"
 
+QGLColormap::QGLColormapData QGLColormap::shared_null = { Q_ATOMIC_INIT(1), 0, 0 };
 
 /*!
     Construct a QGLColormap.
 */
 QGLColormap::QGLColormap()
+    : d(&shared_null)
 {
-    d = 0;
+    ++d->ref;
 }
 
 
 /*!
     Construct a shallow copy of \a map.
 */
-QGLColormap::QGLColormap( const QGLColormap & map )
+QGLColormap::QGLColormap(const QGLColormap &map)
+    : d(map.d)
 {
-    d = map.d;
-    if ( d )
-	d->ref();
+    ++d->ref;
 }
 
 /*!
@@ -100,56 +100,55 @@ QGLColormap::QGLColormap( const QGLColormap & map )
 */
 QGLColormap::~QGLColormap()
 {
-    if ( d && d->deref() ) {
-	delete d;
-	d = 0;
-    }
+    if (!--d->ref)
+	cleanup(d);
+}
+
+void QGLColormap::cleanup(QGLColormap::QGLColormapData *x)
+{
+    delete x->cells;
+    x->cells = 0;
+    delete x;
 }
 
 /*!
     Assign a shallow copy of \a map to this QGLColormap.
 */
-QGLColormap & QGLColormap::operator=( const QGLColormap & map )
+QGLColormap & QGLColormap::operator=(const QGLColormap &map)
 {
-    if ( map.d != 0 )
-	map.d->ref();
-
-    if ( d && d->deref() )
-	delete d;
-    d = map.d;
-
+    QGLColormapData *x = map.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	cleanup(x);
     return *this;
 }
 
 /*!
+    \fn void QGLColormap::detach()
     Detaches this QGLColormap from the shared block.
 */
-void QGLColormap::detach()
+
+void QGLColormap::detach_helper()
 {
-    if ( d && d->count != 1 ) {
-	// ### What about the actual colormap handle?
-	Private * newd = new Private();
-	newd->cells = d->cells;
-	newd->cells.detach();
-	if ( d->deref() )
-	    delete d;
-	d = newd;
+    QGLColormapData *x = new QGLColormapData;
+    x->cmapHandle = 0;
+    x->cells = 0;
+    if (d->cells) {
+	x->cells = new QVector<QRgb>(256);
+	*x->cells = *d->cells;
     }
 }
 
 /*!
     Set cell at index \a idx in the colormap to color \a color.
 */
-void QGLColormap::setEntry( int idx, QRgb color )
+void QGLColormap::setEntry(int idx, QRgb color)
 {
-    if ( !d )
-	d = new Private();
-
-    if ( idx < 0 || idx > (int) d->cells.size() ) {
-	qWarning( "QGLColormap::setRgb: Index out of range." );
-	return;
-    }
-    d->cells[ idx ] = color;
+    detach();
+    if (!d->cells)
+	d->cells = new QVector<QRgb>(256);
+    d->cells->insert(idx, color);
 }
 
 /*!
@@ -157,20 +156,16 @@ void QGLColormap::setEntry( int idx, QRgb color )
     colors that should be set, \a colors is the array of colors, and
     \a base is the starting index.
 */
-void QGLColormap::setEntries( int count, const QRgb * colors, int base )
+void QGLColormap::setEntries(int count, const QRgb *colors, int base)
 {
-    if ( !d )
-	d = new Private();
+    detach();
+    if (!d->cells)
+	d->cells = new QVector<QRgb>(256);
 
-    if ( !colors || base < 0 || base >= (int) d->cells.size() )
-	return;
-
-    for( int i = base; i < base + count; i++ ) {
-	if ( i < (int) d->cells.size() )
-	    setEntry( i, colors[i] );
-	else
-	    break;
-    }
+    Q_ASSERT_X(!colors || base >= 0 || base + count < d->cells->size(), "QGLColormap::setEntries",
+	       "preconditions not met");
+    for (int i = base; i < base + count; ++i)
+	setEntry( i, colors[i] );
 }
 
 /*!
@@ -178,10 +173,10 @@ void QGLColormap::setEntries( int count, const QRgb * colors, int base )
 */
 QRgb QGLColormap::entryRgb( int idx ) const
 {
-    if ( !d || idx < 0 || idx > (int) d->cells.size() )
+    if (d == &shared_null || !d->cells)
 	return 0;
     else
-	return d->cells[ idx ];
+	return d->cells->at(idx);
 }
 
 /*!
@@ -189,20 +184,20 @@ QRgb QGLColormap::entryRgb( int idx ) const
 
     Set the cell with index \a idx in the colormap to color \a color.
 */
-void QGLColormap::setEntry( int idx, const QColor & color )
+void QGLColormap::setEntry(int idx, const QColor &color)
 {
-    setEntry( idx, color.rgb() );
+    setEntry(idx, color.rgb());
 }
 
 /*!
     Returns the QRgb value in the colorcell with index \a idx.
 */
-QColor QGLColormap::entryColor( int idx ) const
+QColor QGLColormap::entryColor(int idx) const
 {
-    if ( !d || idx < 0 || idx > (int) d->cells.size() )
+    if (d == &shared_null || !d->cells)
 	return QColor();
     else
-	return QColor( d->cells[ idx ] );
+	return QColor(d->cells->at(idx));
 }
 
 /*!
@@ -211,7 +206,7 @@ QColor QGLColormap::entryColor( int idx ) const
 */
 bool QGLColormap::isEmpty() const
 {
-    return (d == 0) || (d->cells.size() == 0)  || (d->cmapHandle == 0);
+    return d == &shared_null || d->cells == 0 || d->cells->size() == 0 || d->cmapHandle == 0;
 }
 
 
@@ -220,17 +215,17 @@ bool QGLColormap::isEmpty() const
 */
 int QGLColormap::size() const
 {
-    return d != 0 ? d->cells.size() : 0;
+    return d->cells ? d->cells->size() : 0;
 }
 
 /*!
     Returns the index of the color \a color. If \a color is not in the
     map, -1 is returned.
 */
-int QGLColormap::find( QRgb color ) const
+int QGLColormap::find(QRgb color) const
 {
-    if ( d )
-	return d->cells.find( color );
+    if (d->cells)
+	return d->cells->indexOf(color);
     return -1;
 }
 
@@ -238,24 +233,24 @@ int QGLColormap::find( QRgb color ) const
     Returns the index of the color that is the closest match to color
     \a color.
 */
-int QGLColormap::findNearest( QRgb color ) const
+int QGLColormap::findNearest(QRgb color) const
 {
-    int idx = find( color );
-    if ( idx >= 0 )
+    int idx = find(color);
+    if (idx >= 0)
 	return idx;
     int mapSize = size();
     int mindist = 200000;
-    int r = qRed( color );
-    int g = qGreen( color );
-    int b = qBlue( color );
+    int r = qRed(color);
+    int g = qGreen(color);
+    int b = qBlue(color);
     int rx, gx, bx, dist;
-    for ( int i=0; i < mapSize; i++ ) {
-	QRgb ci = d->cells[i];
-	rx = r - qRed( ci );
-	gx = g - qGreen( ci );
-	bx = b - qBlue( ci );
-	dist = rx*rx + gx*gx + bx*bx;	// calculate distance
-	if ( dist < mindist ) {		// minimal?
+    for (int i = 0; i < mapSize; ++i) {
+	QRgb ci = d->cells->at(i);
+	rx = r - qRed(ci);
+	gx = g - qGreen(ci);
+	bx = b - qBlue(ci);
+	dist = rx * rx + gx * gx + bx * bx;	// calculate distance
+	if (dist < mindist) {		// minimal?
 	    mindist = dist;
 	    idx = i;
 	}
