@@ -1499,6 +1499,8 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
   printf("%s %d\n",__FILE__,__LINE__);
     int sw = pixmap.width();
     int sh = pixmap.height();
+    if (!sw || !sh )
+	return;
     if ( sx < 0 )
         sx = sw - -sx % sw;
     else

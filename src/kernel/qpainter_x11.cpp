@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#315 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#316 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2476,6 +2476,8 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 {
     int sw = pixmap.width();
     int sh = pixmap.height();
+    if (!sw || !sh )
+	return;
     if ( sx < 0 )
 	sx = sw - -sx % sw;
     else

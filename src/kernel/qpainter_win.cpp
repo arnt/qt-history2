@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#171 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1945,6 +1945,8 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 {
     int sw = pixmap.width();
     int sh = pixmap.height();
+    if (!sw || !sh )
+	return;
     if ( sx < 0 )
 	sx = sw - -sx % sw;
     else
