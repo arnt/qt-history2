@@ -516,19 +516,20 @@ static void qt_set_windows_resources()
     }
 
     QColor ttip(qt_colorref2qrgb(GetSysColor(COLOR_INFOBK)));
+
     QColor ttipText(qt_colorref2qrgb(GetSysColor(COLOR_INFOTEXT)));
     {
         QPalette tiplabel(pal);
-        tiplabel.setColor(QPalette::Active, QPalette::Button, ttip);
-        tiplabel.setColor(QPalette::Active, QPalette::Background, ttip);
-        tiplabel.setColor(QPalette::Active, QPalette::Text, ttipText);
-        tiplabel.setColor(QPalette::Active, QPalette::Foreground, ttipText);
-        tiplabel.setColor(QPalette::Active, QPalette::ButtonText, ttipText);
-        tiplabel.setColor(QPalette::Active, QPalette::Button, ttip);
-        tiplabel.setColor(QPalette::Active, QPalette::Background, ttip);
-        tiplabel.setColor(QPalette::Active, QPalette::Text, ttipText);
-        tiplabel.setColor(QPalette::Active, QPalette::Foreground, ttipText);
-        tiplabel.setColor(QPalette::Active, QPalette::ButtonText, ttipText);
+        tiplabel.setColor(QPalette::All, QPalette::Button, ttip);
+        tiplabel.setColor(QPalette::All, QPalette::Background, ttip);
+        tiplabel.setColor(QPalette::All, QPalette::Text, ttipText);
+        tiplabel.setColor(QPalette::All, QPalette::Foreground, ttipText);
+        tiplabel.setColor(QPalette::All, QPalette::ButtonText, ttipText);
+        tiplabel.setColor(QPalette::All, QPalette::Button, ttip);
+        tiplabel.setColor(QPalette::All, QPalette::Background, ttip);
+        tiplabel.setColor(QPalette::All, QPalette::Text, ttipText);
+        tiplabel.setColor(QPalette::All, QPalette::Foreground, ttipText);
+        tiplabel.setColor(QPalette::All, QPalette::ButtonText, ttipText);
         const QColor fg = tiplabel.foreground().color(), btn = tiplabel.button().color();
         QColor disabled((fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
                          (fg.blue()+btn.blue())/2);
