@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#42 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#42 $");
 
 
 /*!
@@ -24,8 +24,8 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $");
   \brief The QTabDialog class provides a tabbed dialog.
 
   A tabbed dialog is one in which several "pages" are available, and
-  the user selects which page to see and use by clicking on its tab.
-  No keyboard shortcuts are available.
+  the user selects which page to see and use by clicking on its tab,
+  or by pressing the indicated Alt-(letter) key combination.
 
   QTabDialog does not provide more than one row of tabs, and does not
   provide tabs along the sides or bottom of the pages.  It also does
@@ -38,16 +38,19 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $");
   The normal way to use QTabDialog is to do the following in the
   constructor: <ol> <li> Create a QTabDialog, <li> create a QWidget
   for each of the pages in the tab dialog, insert children into it,
-  set up geometry management for it, and finally use addTab() to set
-  up a tab for it, <li> set up the buttons for the tab dialog (Apply,
-  Cancel and so on), and finally <li> connect to the signals and
-  slots. </ol>
+  set up geometry management for it, and use addTab() to set up a tab
+  and keyboard accelerator for it, <li> set up the buttons for the tab
+  dialog (Apply, Cancel and so on), and finally <li> connect to the
+  signals and slots. </ol>
 
   The pref.cpp example does all this.
 
   If you don't call addTab(), the page you have created will not be
   visible.  Please don't confuse the object name you supply to the
-  QWidget constructor and the tab label you supply to addTab().
+  QWidget constructor and the tab label you supply to addTab():
+  addTab() takes a name which indicates an accelerator and is
+  meaningful and descriptive to the user, while the widget name is
+  used primarily for debugging.
 
   Almost all applications have to connect the applyButtonPressed()
   signal to something.  applyButtonPressed() is emitted when either OK
@@ -67,10 +70,10 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#41 $");
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled, the tab text is drawn in black and the user can select
-  that tab.  If it is disabled, the tab is drawn in (usually) gray and
-  the user can not select that tab.  Note that even though a tab is
-  disabled, the page can still be visible, for example if it is
-  visible at the moment you call setTabEnabled().
+  that tab.  If it is disabled, the tab is drawn in a different way
+  and the user can not select that tab.  Note that even though a tab
+  is disabled, the page can still be visible, for example if all of
+  the tabs happen to be disabled.
 
   While tab dialogs can be a very good way to split up a complex
   dialog, it's also very easy to make a royal mess out of a tab
@@ -325,6 +328,7 @@ bool QTabDialog::hasApplyButton() const
 
 void QTabDialog::show()
 {
+    d->tabs->setFocus();
     emit aboutToShow();
     setSizes();
 
@@ -366,6 +370,17 @@ void QTabDialog::showTab( int i )
   to widget constructors and to e.g. setTabEnabled()) and the tab
   label: The name is internal to the program and invariant, while the
   label is shown on screen and may vary according to e.g. language.
+
+  \a label is written in the QButton style, where &P makes Qt create
+  an accelerator key on Alt-P for this page.  For example:  
+
+  \code
+    td->addTab( graphicsPane, "&Graphics" );
+    td->addTab( soundPane, "&Sound" );
+  \endcode
+
+  If the user presses Alt-S the sound page of the tab dialog is shown,
+  if the user presses Alt-P the graphics page is shown.
 
   If you call addTab() after show(), the screen will flicker and the
   user will be confused.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#19 $
 **
 ** Implementation of QTabBar class
 **
@@ -9,8 +9,11 @@
 
 #include "qtabbar.h"
 #include "qkeycode.h"
+#include "qaccel.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#18 $");
+#include <ctype.h>
+
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#19 $");
 
 
 QTab::~QTab()
@@ -23,6 +26,7 @@ struct QTabPrivate {
     int id;
     int focus;
     QTab * pressed;
+    QAccel * a;
 };
 
 
@@ -65,9 +69,12 @@ QTabBar::QTabBar( QWidget * parent, const char * name )
     d = new QTabPrivate;
     d->id = 0;
     d->focus = 0;
+    d->a = new QAccel( this, "tab accelerators" );
     l = new QListT<QTab>;
     l->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
+
+    connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
 }
 
 
@@ -86,7 +93,9 @@ QTabBar::~QTabBar()
   Add \a newTab to the tab control.
 
   Allocate a new id, set t's id, locate it just to the right of the
-  existing tabs, add it to the bar, and return the newly allocated id.
+  existing tabs, insert an accelerator if the tab's label contains the
+  string "&p" for some value of p, add it to the bar, and return the
+  newly allocated id.
 */
 
 int QTabBar::addTab( QTab * newTab )
@@ -106,6 +115,12 @@ int QTabBar::addTab( QTab * newTab )
 
     newTab->id = d->id++;
     l->append( newTab );
+
+    const char * p = strchr( newTab->label, '&' );
+    while( p && *p && p[1] == '&' )
+	p = strchr( p+2, '&' );
+    if ( p && *p && isalpha(p[1]) )
+	d->a->insertItem( ALT + toupper(p[1]), newTab->id );
 
     return newTab->id;
 }
@@ -129,6 +144,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 	if ( t && t->id == id ) {
 	    if ( t->enabled != enabled ) {
 		t->enabled = enabled;
+		d->a->setItemEnabled( t->id, enabled );
 		QRect r( t->r );
 		if ( !enabled && id == currentTab() ) {
 		    QPoint p1( t->r.center() ), p2;
@@ -245,17 +261,17 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 
     if ( t->enabled ) {
 	p->setPen( palette().normal().text() );
-	p->drawText( br, AlignCenter, t->label );
+	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().text() );
-	p->drawText( br, AlignCenter, t->label );
+	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
 	p->setPen( white );
 	QRect wr = br;
 	wr.moveBy( 1, 1 );
-	p->drawText( wr, AlignCenter, t->label );
+	p->drawText( wr, AlignCenter | ShowPrefix, t->label );
 	p->setPen( palette().disabled().text() );
-	p->drawText( br, AlignCenter, t->label );
+	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     }
 
     if ( t->id != keyboardFocusTab() )
