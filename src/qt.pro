@@ -235,6 +235,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qrangecontrol.h \
 		  $$WIDGETS_H/qscrollbar.h \
 		  $$WIDGETS_H/qscrollview.h \
+		  $$WIDGETS_H/qsgistyle.h \
 		  $$WIDGETS_H/qslider.h \
 		  $$WIDGETS_H/qspinbox.h \
 		  $$WIDGETS_H/qsplitter.h \
@@ -427,6 +428,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qrangecontrol.cpp \
 		  widgets/qscrollbar.cpp \
 		  widgets/qscrollview.cpp \
+		  widgets/qsgistyle.cpp \
 		  widgets/qslider.cpp \
 		  widgets/qspinbox.cpp \
 		  widgets/qsplitter.cpp \

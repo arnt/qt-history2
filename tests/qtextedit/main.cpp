@@ -259,7 +259,7 @@ private slots:
 
     void saveClicked() {
 	edit->setTextFormat( Qt::RichText );
-	edit->save( "test.html" );
+	edit->save( QString( "test.html" ) );
     }
 
 private:

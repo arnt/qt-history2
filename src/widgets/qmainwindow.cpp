@@ -2436,7 +2436,7 @@ bool QMainWindow::rightJustification() const
 
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
-    if ( !deleteLayout ) {
+    if ( !deleteLayout && d->tll ) {
 	if ( d->hidden && !d->hidden->isEmpty() ) {
 	    int visibles = 0;
 	    d->hideDock->show();

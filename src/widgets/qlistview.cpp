@@ -2948,7 +2948,7 @@ void QListViewItem::widthChanged( int c ) const
 
 /*! \fn void QListView::clicked( QListViewItem *item )
 
-  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  This signal is emitted whenever the user clicks (mouse pressed + mouse released)
   into the listview.
   \a item is the pointer to the clicked listview item or NULL, if the user didn't click on an item.
 
@@ -2959,7 +2959,7 @@ void QListViewItem::widthChanged( int c ) const
 /*!
   \fn void QListView::mouseButtonClicked(int button, QListViewItem * item, const QPoint & pos, int c)
 
-  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  This signal is emitted whenever the user clicks (mouse pressed + mouse released)
   into the listview. \a button is the mouse button which the user pressed,
   \a item is the pointer to the clicked listview item or NULL, if the user didn't click on an item, and
   \a c the listview column into which the user pressed (this argument is only valid, if \a item
@@ -2984,7 +2984,7 @@ void QListViewItem::widthChanged( int c ) const
 
 /*! \fn void QListView::clicked( QListViewItem *item, const QPoint &pnt, int c )
 
-  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  This signal is emitted whenever the user clicks (mouse pressed + mouse released)
   into the listview.
   \a item is the pointer to the clicked listview item or NULL, if the user didn't click on an item.
   \a pnt is the position where the user

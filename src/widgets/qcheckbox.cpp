@@ -309,47 +309,43 @@ void QCheckBox::resizeEvent( QResizeEvent* )
 void QCheckBox::updateMask()
 {
     QBitmap bm(width(),height());
-    {
-	bm.fill(color0);
-	QPainter p( &bm, this );
-	int x, y, w, h;
-	GUIStyle gs = style().guiStyle();
-        QFontMetrics fm = fontMetrics();
-	QSize lsz = fm.size(ShowPrefix, text());
-	QSize sz = style().indicatorSize();
-        if ( gs == WindowsStyle )
-          sz.setWidth(sz.width() + 1);
-	y = 0;
-        x = sz.width() + extraWidth(gs);
-	w = width() - x;
-	h = height();
+    bm.fill(color0);
+    QPainter p( &bm, this );
+    int x, y, w, h;
+    GUIStyle gs = style().guiStyle();
+    QFontMetrics fm = fontMetrics();
+    QSize lsz = fm.size(ShowPrefix, text());
+    QSize sz = style().indicatorSize();
+    y = 0;
+    x = sz.width() + extraWidth(gs);
+    w = width() - x;
+    h = height();
 
-        QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
+    QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
-	style().drawItem( &p, x, y, w, h,
-			  AlignLeft|AlignVCenter|ShowPrefix,
-			  cg, TRUE,
-			  pixmap(), text() );
-        x = 0;
-        y = (height() - lsz.height() + fm.height() - sz.height())/2;
+    style().drawItem( &p, x, y, w, h,
+		      AlignLeft|AlignVCenter|ShowPrefix,
+		      cg, TRUE,
+		      pixmap(), text() );
+    x = 0;
+    y = (height() - lsz.height() + fm.height() - sz.height())/2;
 	
-        style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
+    style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
 
-	if ( hasFocus() ) {
-            y = 0;
-            x = sz.width() + extraWidth(gs);
-	    QRect br = style().itemRect( &p, x, y, w, h,
-					 AlignLeft|AlignVCenter|ShowPrefix,
-					 isEnabled(),
-					 pixmap(), text() );
-	    br.setLeft( br.left()-3 );
-	    br.setRight( br.right()+2 );
-	    br.setTop( br.top()-2 );
-	    br.setBottom( br.bottom()+2);
-	    br = br.intersect( QRect(0,0,width(),height()) );
+    if ( hasFocus() ) {
+	y = 0;
+	x = sz.width() + extraWidth(gs);
+	QRect br = style().itemRect( &p, x, y, w, h,
+				     AlignLeft|AlignVCenter|ShowPrefix,
+				     isEnabled(),
+				     pixmap(), text() );
+	br.setLeft( br.left()-3 );
+	br.setRight( br.right()+2 );
+	br.setTop( br.top()-2 );
+	br.setBottom( br.bottom()+2);
+	br = br.intersect( QRect(0,0,width(),height()) );
 
-	    style().drawFocusRect( &p, br, cg );
-	}
+	style().drawFocusRect( &p, br, cg );
     }
     setMask(bm);
 }

@@ -888,6 +888,14 @@ void QWidget::lower()
 		  SWP_NOSIZE );
 }
 
+void QWidget::stackUnder( QWidget* w)
+{
+    if ( !w || isTopLevel() || parentWidget() != w->parentWidget() )
+	return;
+    SetWindowPos( winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE |
+		  SWP_NOSIZE );
+}
+
 
 //
 // The internal qWinRequestConfig, defined in qapplication_win.cpp, stores move,

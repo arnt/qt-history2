@@ -33,6 +33,7 @@
 #include "qmotifstyle.h"
 #include "qplatinumstyle.h"
 #include "qcdestyle.h"
+#include "qsgistyle.h"
 #include "qtranslator.h"
 #include "qtextcodec.h"
 #include "qpngio.h"
@@ -346,6 +347,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    setStyle( new QPlatinumStyle );
 	} else if ( stricmp(arg, "-style=cde") == 0 ) {
 	    setStyle( new QCDEStyle );
+	} else if ( stricmp(arg, "-style=sgi") == 0 ) {
+	    setStyle( new QSGIStyle );
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
@@ -357,6 +360,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 		setStyle( new QPlatinumStyle );
 	    else if ( s == "cde" )
 		setStyle( new QCDEStyle );
+	    else if ( s == "sgi" )
+		setStyle( new QSGIStyle );
 	} else if ( strcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
@@ -558,7 +563,11 @@ void QApplication::initialize( int argc, char **argv )
 #if defined(_WS_WIN_)
 	app_style = new QWindowsStyle; // default style for Windows
 #elif defined(_WS_X11_)
+#if defined(_OS_IRIX_)
+	app_style = new QSGIStyle; // default comment
+#else
 	app_style = new QMotifStyle; // default style for X Windows
+#endif
 #elif defined(_WS_MAC_)
 	app_style = new QPlatinumStyle; // default comment
 #else

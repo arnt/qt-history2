@@ -403,8 +403,7 @@ QSize QPushButton::sizeHint() const
 	// microsoft's size specifications
 	if ( h <= 25 )
 	    h = 22;
-	if ( w < 85 && !pixmap() &&
-	     topLevelWidget()->inherits( "QDialog" ) )
+	if ( w < 85 && !pixmap() && ( isDefault() || autoDefault() ) )
 	    w = 80;
     }
 

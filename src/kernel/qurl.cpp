@@ -908,10 +908,6 @@ QString QUrl::path( bool correct ) const
 		d->cleanPath = QDir::cleanDirPath( d->path );
 	}
 
-	if ( check && d->cleanPath.length() > 1 ) {
-	    if ( d->cleanPath.left( 2 ) == "//" )
-		d->cleanPath.remove( d->cleanPath.length() - 1, 1 );
-	}
 	if ( check )
 	    slashify( d->cleanPath, FALSE );
 	d->cleanPathDirty = FALSE;

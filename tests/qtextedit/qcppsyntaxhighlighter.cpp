@@ -3,6 +3,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
+#include <qapplication.h>
 
 static QString keywords[] = {
     // C++ keywords
@@ -115,20 +116,24 @@ QCppSyntaxHighlighter::QCppSyntaxHighlighter( QTextEditDocument *d )
 
 void QCppSyntaxHighlighter::createFormats()
 {
+    int normalSize =  qApp->font().pointSize();
+    QString normalFamily = "helvetica";
+    QString commentFamily = "times";
+    int normalWeight = qApp->font().weight();
     addFormat( Standard,
-	       new QTextEditFormat( QFont( "helvetica", 12, QFont::Bold ), Qt::black ) );
+	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::black ) );
     addFormat( Comment,
-	       new QTextEditFormat( QFont( "times", 12, QFont::Bold, TRUE ), Qt::red ) );
+	       new QTextEditFormat( QFont( commentFamily, normalSize, normalWeight, TRUE ), Qt::red ) );
     addFormat( Number,
-	       new QTextEditFormat( QFont( "helvetica", 12, QFont::Bold ), Qt::darkBlue ) );
+	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
     addFormat( String,
-	       new QTextEditFormat( QFont( "helvetica", 12, QFont::Bold ), Qt::darkGreen ) );
+	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkGreen ) );
     addFormat( Type,
-	       new QTextEditFormat( QFont( "helvetica", 12, QFont::Bold ), Qt::darkMagenta ) );
+	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkMagenta ) );
     addFormat( Keyword,
-	       new QTextEditFormat( QFont( "helvetica", 12, QFont::Bold ), Qt::darkYellow ) );
+	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkYellow ) );
     addFormat( PreProcessor,
-	       new QTextEditFormat( QFont( "helvetica", 12, QFont::Bold ), Qt::darkBlue ) );
+	       new QTextEditFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
 }
 
 void QCppSyntaxHighlighter::highlighte( QTextEditParag *string, int start, bool invalidate )
@@ -457,12 +462,24 @@ QCppIndent::QCppIndent( QTextEditDocument *d )
 {
 }
 
+static void uncomment( QString &s )
+{
+    int i;
+    if ( ( i = s.find( "//" ) ) != -1 )
+	s = s.remove( i, s.length() - i + 1 );
+    if ( ( i = s.findRev( "/*" ) ) != -1 ) {
+	int j = s.find( "*/", i + 1 );
+	if ( j == -1 || j == s.length() - 2 )
+	    s = s.remove( i, s.length() - i + 1 );
+    }
+}
+
 void QCppIndent::indent( QTextEditParag *parag, int *oldIndent, int *newIndent )
 {
     // ####################
     // This is a very simple (and too simple for a good programming editor)
     // implementation of auto-indentation (works like in all simple editors
-    // like kwrite - ok a bit better but still for from working well!)
+    // like kwrite - ok a bit better but still far from working well!)
     // So, auto-indentation has to be rewritten to work depending on open/closed
     // parens like e.g. in (x)emacs!
     // ####################
@@ -494,18 +511,32 @@ void QCppIndent::indent( QTextEditParag *parag, int *oldIndent, int *newIndent )
 	    }
 	    ++i;
 	}
+
+	QString s( p->string()->toString() );
+	s = s.simplifyWhiteSpace();
+	uncomment( s );
+	if ( p->prev() && s != "{" ) {
+	    s = p->prev()->string()->toString();
+	    s = s.simplifyWhiteSpace();
+	    uncomment( s );
+	    if ( !s.isEmpty() && s[ (int)s.length() - 1 ] != '{' &&
+		 ( s.left( 3 ) == "if " || s.left( 5 ) == "else " || s.left( 6 ) == "while " || s.left( 4 ) == "for " || s.left( 3 ) == "do " ) )
+		lastIndent--;
+	}
     }
 
 
     QString s( parag->string()->toString() );
     s = s.simplifyWhiteSpace();
+    uncomment( s );
     int diff = 0;
-    if ( /*s.left( 1 ) == "{" || */ s.left( 1 ) == "}" )
+    if ( s == "{" || s[ 0 ] == '}' )
 	diff--;
     if ( p ) {
 	s = p->string()->toString();
 	s = s.simplifyWhiteSpace();
-	if ( s.right( 1 ) == "{" )
+	uncomment( s );
+	if ( !s.isEmpty() && ( s[ (int)s.length() - 1 ] == '{' ||  s[ (int)s.length() - 1 ] != ';' && s[ (int)s.length() - 1 ] != '}' ) )
 	    diff++;
     }
 

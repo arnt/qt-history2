@@ -1793,11 +1793,11 @@ void QWidget::setBackgroundFromMode()
 	    break;
 	}
     }
-    QPixmap * p = colorGroup().brush( r ).pixmap();
+    QPixmap * p = palette().active().brush( r ).pixmap();
     if ( p )
 	setBackgroundPixmapDirect( *p );
     else
-	setBackgroundColorDirect( colorGroup().color( r ) );
+	setBackgroundColorDirect( palette().active().color( r ) );
 }
 
 /*!
@@ -4747,7 +4747,7 @@ void QWidget::showFullScreen()
  */
 
 /*!
-  \fn bool QWidget::ownPalette()
+  \fn bool QWidget::ownPalette() const
   Returns whether the widget uses its own palette or its natural
   default palette.
   

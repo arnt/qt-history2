@@ -74,6 +74,7 @@ void GLBox::initializeGL()
 
 GLBox::~GLBox()
 {
+    makeCurrent();				// We're going to do gl calls
     if ( localDisplayList != 0 ) {		// Did we make our own?
 	glDeleteLists( localDisplayList, 1 );	// Yes, delete it
 	qDebug( "GLBox %s deleted private display list.", name() );

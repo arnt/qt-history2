@@ -113,6 +113,8 @@ QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
     connect( parent, SIGNAL(orientationChanged(Orientation)),
 	     this, SLOT(setOrientation(Orientation)) );
     setOrientation( o );
+    setBackgroundMode( parent->backgroundMode() );
+    setBackgroundOrigin( ParentOrigin );
 }
 
 
@@ -868,7 +870,6 @@ void QToolBar::paintToolBar()
 	return;
 
     QPainter p( this );
-    p.fillRect( 1, 1, width() - 2, height() - 2, colorGroup().brush( QColorGroup::Background ) );
     int w = width();
     int h = height();
     if ( orientation() == Horizontal && w < sizeHint().width() )

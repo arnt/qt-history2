@@ -77,8 +77,7 @@ struct QSpinBoxPrivate
   Normally, the spin box displays up and down arrows in the buttons.
   You can use setButtonSymbols() to change the display to
   show + and - symbols, if this is clearer for your intended purpose.
-  In either case, the + and - keys and up and down arrow keys
-  always work.
+  In either case, the up and down arrow keys always work.
 
   It is often desirable to give the user a special, often default,
   choice in addition to the range of numeric values.  See
@@ -107,7 +106,7 @@ struct QSpinBoxPrivate
 
     int		mapTextToValue( bool* ok )
     {
-      return int(currentValueText().toFloat()*10);
+      return int(text().toFloat()*10);
     }
 
   };
@@ -570,10 +569,10 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    interpretText();
     } else if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
-	if ( k->key() == Key_Up || k->text() == "+" ) {
+	if ( k->key() == Key_Up ) {
 	    stepUp();
 	    return TRUE;
-	} else if ( k->key() == Key_Down || k->text() == "-" ) {
+	} else if ( k->key() == Key_Down ) {
 	    stepDown();
 	    return TRUE;
 	} else if ( k->key() == Key_Return ) {

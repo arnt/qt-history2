@@ -562,14 +562,18 @@ void QMenuBar::show()
 {
     setupAccelerators();
     if ( parentWidget() )
-	resize( parentWidget()->width(), height() );
+		resize( parentWidget()->width(), height() );
     calculateRects();
     QWidget::show();
+    if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
+		( (QMainWindow*)parent() )->triggerLayout();
+
     raise();
 }
 
 /*!
-  Reimplements QWidget::hide() in order to deselect any selected item.
+  Reimplements QWidget::hide() in order to deselect any selected item and
+  calls setUpLayout() for the mainwindow.
 */
 
 void QMenuBar::hide()
@@ -577,8 +581,10 @@ void QMenuBar::hide()
     QWidget::hide();
     setAltMode( FALSE );
     hidePopups();
-}
 
+    if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
+		( (QMainWindow*)parent() )->triggerLayout();
+}
 
 /*!
   \internal

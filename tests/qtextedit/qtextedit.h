@@ -98,8 +98,8 @@ public slots:
 
     virtual void load( const QString &fn ) { load( fn, FALSE ); }
     virtual void load( const QString &fn, bool tabify );
-    virtual void save() { save( QString::null ); }
-    virtual void save( const QString &fn );
+    virtual void save( bool untabify = FALSE ) { save( QString::null, untabify ); }
+    virtual void save( const QString &fn, bool untabify = FALSE  );
 
     virtual void setCursorPosition( int parag, int index );
     virtual void setSelection( int parag_from, int index_from,
@@ -111,7 +111,7 @@ public slots:
 
     virtual void setMaxLines( int l );
     virtual void resetFormat();
-    
+
 signals:
     void currentFontChanged( const QFont &f );
     void currentColorChanged( const QColor &c );

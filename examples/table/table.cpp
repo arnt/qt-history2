@@ -76,7 +76,7 @@ Table::Table( int numRows, int numCols, QWidget *parent, const char *name )
 {
     setResizePolicy( Manual );
 
-    // create headers
+    // Create headers
     leftHeader = new QHeader( numRows, this );
     leftHeader->setOrientation( Vertical );
     leftHeader->setTracking( TRUE );
@@ -102,7 +102,7 @@ Table::Table( int numRows, int numCols, QWidget *parent, const char *name )
     enableClipper( TRUE );
     viewport()->setBackgroundMode( PaletteBase );
 
-    // preperations for contents
+    // Prepare for contents
     contents.resize( numRows * numCols );
     contents.setAutoDelete( TRUE );
     QWMatrix wm;
@@ -112,7 +112,7 @@ Table::Table( int numRows, int numCols, QWidget *parent, const char *name )
     setCellPixmap( 3, 3, pix );
     setCellText( 3, 3, "A Pixmap" );
 
-    // connect header, table and scrollbars
+    // Connect header, table and scrollbars
     connect( horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
 	     topHeader, SLOT( setOffset( int ) ) );
     connect( verticalScrollBar(), SIGNAL( valueChanged( int ) ),
@@ -122,11 +122,11 @@ Table::Table( int numRows, int numCols, QWidget *parent, const char *name )
     connect( leftHeader, SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( rowHeightChanged( int, int, int ) ) );
 
-    // init variables
+    // Initialize variables
     curRow = curCol = 0;
     editor = 0;
 
-    // initial size
+    // Initial size
     resize( 640, 480 );
 }
 
@@ -135,9 +135,9 @@ Table::~Table()
 }
 
 /****************************************************************************
-  Two drawing functions, 1 which finds out which cells to draw
+  Two drawing functions, one which finds out which cells to draw
   and one which actually draws a cell.
-  Also one drawing function to darw empty areas.
+  Also one drawing function to draw empty areas.
 *****************************************************************************/
 
 void Table::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
@@ -157,21 +157,22 @@ void Table::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( collast == -1 )
 	collast = cols() - 1;
     
-    // go through the rows
+    // Go through the rows
     for ( int r = rowfirst; r <= rowlast; ++r ) {
 	// get row position and height
 	int rowp = rowPos( r );
 	int rowh = rowHeight( r );
 	
-	// go through the columns in the row r
-	// if we know from where to where use this limits (colstart, colend), else go through all of them
+	// Go through the columns in the row r
+	// if we know from where to where, go through [colfirst, collast],
+	// else go through all of them
 	for ( int c = colfirst; c <= collast; ++c ) {
 	    // get position and width of column c
 	    int colp, colw;
 	    colp = columnPos( c );
 	    colw = columnWidth( c );
 
-	    //  translate painter ad draw the cell
+	    // Translate painter and draw the cell
 	    p->saveWorldMatrix();
 	    p->translate( colp, rowp );
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ) );
@@ -179,7 +180,7 @@ void Table::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
     }
 
-    // paint empty rects
+    // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );
 }
 
@@ -190,17 +191,17 @@ void Table::paintCell( QPainter* p, int row, int col, const QRect &cr )
     int x2 = w - 1;
     int y2 = h - 1;
 
-    // draw cell background
+    // Draw cell background
     p->fillRect( 0, 0, w, h, colorGroup().brush( QColorGroup::Base ) );
 
-    // draw our lines
+    // Draw our lines
     QPen pen( p->pen() );
     p->setPen( gray );
     p->drawLine( x2, 0, x2, y2 );
     p->drawLine( 0, y2, x2, y2 );
     p->setPen( pen );
 
-    // if we are the focus cell, draw indication
+    // If we are in the focus cell, draw indication
     if ( row == curRow &&col == curCol ) {
 	if ( hasFocus() || viewport()->hasFocus() )
 	    p->drawRect( 0, 0, x2, y2 );
@@ -213,7 +214,7 @@ void Table::paintCell( QPainter* p, int row, int col, const QRect &cr )
 	x = pix.width() + 2;
     }
 
-    // find out if contents is a number or a string
+    // Find out if contents is a number or a string
     bool num;
     bool ok1 = FALSE, ok2 = FALSE;
     QString s( cellText( row, col ) );
@@ -221,20 +222,20 @@ void Table::paintCell( QPainter* p, int row, int col, const QRect &cr )
     s.toDouble( &ok2 );
     num = ok1 || ok2;
 
-    // draw conetnst
+    // Draw contents
     p->drawText( x, 0, w - x, h, ( num ? AlignRight : AlignLeft ) | AlignVCenter, s );
 }
 
 void Table::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    // recion of the rect we should draw
+    // Region of the rect we should draw
     QRegion reg( QRect( cx, cy, cw, ch ) );
-    // subtract the table from it
+    // Subtract the table from it
     reg = reg.subtract( QRect( QPoint( 0, 0 ), tableSize() ) );
     p->save();
-    // set clip region
+    // Set clip region...
     p->setClipRegion( reg );
-    // and fill background
+    // ...and fill background
     p->fillRect( cx, cy, cw, ch, colorGroup().brush( QColorGroup::Base ) );
     p->restore();
 }
@@ -328,7 +329,7 @@ void Table::contentsMousePressEvent( QMouseEvent* e )
     if ( curCol == -1 )
 	curCol = oldCol;
 
-    // of we have a new focus cell, repaint
+    // if we have a new focus cell, repaint
     if ( curRow != oldRow || curCol != oldCol ) {
 	updateCell( oldRow, oldCol );
 	updateCell( curRow, curCol );
@@ -349,7 +350,7 @@ void Table::keyPressEvent( QKeyEvent* e )
     // if a cell is just editing, do some special stuff
     if ( editor ) {
 	if ( e->key() == Key_Escape )
-	    ediorCancel();
+	    editorCancel();
 	else if ( e->key() == Key_Return || e->key() == Key_Enter )
 	    editorOk();
 	return;
@@ -563,10 +564,10 @@ void Table::editorOk()
     if ( !editor )
 	return;
     setCellText( curRow, curCol, editor->text() );
-    ediorCancel();
+    editorCancel();
 }
 
-void Table::ediorCancel()
+void Table::editorCancel()
 {
     if ( !editor )
 	return;
@@ -575,4 +576,3 @@ void Table::ediorCancel()
     viewport()->setFocus();
     editor = 0;
 }
-

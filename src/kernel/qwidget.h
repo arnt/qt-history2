@@ -312,6 +312,7 @@ public slots:
 
     void		raise();
     void		lower();
+    void		stackUnder( QWidget* );
     virtual void	move( int x, int y );
     void		move( const QPoint & );
     virtual void	resize( int w, int h );

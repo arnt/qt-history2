@@ -57,7 +57,7 @@ protected:
 
     void reformat();
     void hideOrShow();
-
+    bool event( QEvent *);
 private:
     QStatusBarPrivate * d;
 private:	// Disabled copy constructor and operator=

@@ -784,7 +784,7 @@ QListBox::~QListBox()
 
 /*! \fn void QListBox::clicked( QListBoxItem *item )
 
-  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  This signal is emitted whenever the user clicks (mouse pressed + mouse released)
   into the listbox.
   \a item is the pointer to the clicked listbox item or NULL, if the user didn't click on an item.
 
@@ -794,7 +794,7 @@ QListBox::~QListBox()
 
 /*! \fn void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
 
-  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  This signal is emitted whenever the user clicks (mouse pressed + mouse released)
   into the listbox.
   \a item is the pointer to the clicked listbox item or NULL, if the user didn't click on an item.
   \a pnt is the position where the user has clicked.
@@ -806,7 +806,7 @@ QListBox::~QListBox()
 /*!
   \fn void QListBox::mouseButtonClicked (int button, QListBoxItem * item, const QPoint & pos)
 
-  This signal is emitted whenever the user clicks (moues pressed + mouse released)
+  This signal is emitted whenever the user clicks (mouse pressed + mouse released)
   into the listbox.
   \a button is the mouse button, which the user pressed.
   \a item is the pointer to the clicked listbox item or NULL, if the user didn't click on an item.
@@ -3557,7 +3557,7 @@ long QListBox::maxItemWidth() const
     if ( d->layoutDirty )
 	doLayout();
     long m = 0;
-    int i = d->columnPos.size()-1;
+    int i = d->columnPos.size();
     while( i-- )
 	if ( m < d->columnPos[i] )
 	    m = d->columnPos[i];

@@ -190,9 +190,9 @@ public:
     void setText( const QString &text, bool tabify = FALSE );
     void load( const QString &fn, bool tabify = FALSE );
 
-    void save( const QString &fn = QString::null );
+    void save( const QString &fn = QString::null, bool untabify = FALSE );
     QString fileName() const;
-    QString text() const;
+    QString text( bool untabify = FALSE ) const;
     QString text( int parag, bool formatted ) const;
 
     int x() const;
@@ -234,7 +234,8 @@ public:
     QString selectedText( int id ) const;
     void copySelectedText( int id );
     void removeSelectedText( int id, QTextEditCursor *cursor );
-
+    void indentSelection( int id );
+    
     void setCompletionEnabled( bool b );
     bool isCompletionEnabled() const;
 
@@ -270,8 +271,8 @@ private:
     void setPlainText( const QString &text, bool tabify = FALSE );
     void setRichText( const QString &text );
     QString richText( QTextEditParag *p = 0, bool formatted = FALSE ) const;
-    QString plainText( QTextEditParag *p = 0, bool formatted = FALSE ) const;
-
+    QString plainText( QTextEditParag *p = 0, bool formatted = FALSE, bool untabify = FALSE ) const;
+    
 private:
     struct Selection {
 	QTextEditParag *startParag, *endParag;

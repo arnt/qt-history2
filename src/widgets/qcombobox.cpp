@@ -258,7 +258,7 @@ void QComboData::updateLinedGeometry()
     QRect r( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
     if ( pix && pix->width() < r.width() )
 	r.setLeft( r.left() + pix->width() + 4 );
-    if ( r != ed->rect() )
+    if ( r != ed->geometry() )
 	ed->setGeometry( r );
 }
 
@@ -920,7 +920,7 @@ QSize QComboBox::sizeHint() const
 	if ( h > maxH )
 	    maxH = h;
     }
-    if ( maxH <= 17 && style() == WindowsStyle || parentWidget() &&
+    if ( maxH <= 20 && style() == WindowsStyle || parentWidget() &&
 	 ( parentWidget()->inherits( "QToolBar" ) ||
 	   parentWidget()->inherits( "QDialog" ) && d->ed ) )
 	maxH = 12;
@@ -1762,7 +1762,7 @@ void QComboBox::returnPressed()
 	}
 	insertItem( s, c );
     }
-    
+
     setCurrentItem( c );
     emit activated( c );
     emit activated( s );

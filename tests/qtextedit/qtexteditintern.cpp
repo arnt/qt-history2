@@ -198,7 +198,7 @@ void QTextEditCursor::insert( const QString &s, bool checkNewLine )
 	    p->setEndState( -1 );
 	    p = p->next();
 	}
-    }	
+    }
 }
 
 void QTextEditCursor::gotoLeft()
@@ -375,7 +375,7 @@ void QTextEditCursor::gotoPageDown( QTextEdit *view )
 	s = doc->lastParag();
 
     if ( !s->isValid() )
- 	return;
+	return;
 
     string = s;
     idx = 0;
@@ -601,7 +601,7 @@ bool QTextEditCursor::checkOpenParen()
 	++i;
     }
 
-aussi:
+ aussi:
     return FALSE;
 }
 
@@ -677,7 +677,7 @@ bool QTextEditCursor::checkClosedParen()
 	--i;
     }
 
-aussi:
+ aussi:
     return FALSE;
 }
 
@@ -872,7 +872,24 @@ void QTextEditDocument::setText( const QString &text, bool tabify )
 	setPlainText( text, tabify );
 }
 
-QString QTextEditDocument::plainText( QTextEditParag *p, bool formatted ) const
+static void do_untabify( QString &s )
+{
+    int numTabs = 0;
+    int i = 0;
+    while ( s[ i++ ] == '\t' )
+	numTabs++;
+    if ( !numTabs )
+	return;
+
+    int realTabs = ( numTabs / 2 ) * 2;
+    if ( realTabs != numTabs )
+	s = s.replace( numTabs - 1, 1, "    " );
+    QString tabs;
+    tabs.fill( '\t', realTabs / 2 );
+    s = s.replace( 0, realTabs, tabs );
+}
+
+QString QTextEditDocument::plainText( QTextEditParag *p, bool formatted, bool untabify ) const
 {
     if ( !p ) {
 	QString buffer;
@@ -880,6 +897,8 @@ QString QTextEditDocument::plainText( QTextEditParag *p, bool formatted ) const
 	QTextEditParag *p = fParag;
 	while ( p ) {
 	    s = p->string()->toString();
+	    if ( untabify )
+		do_untabify( s );
 	    s += "\n";
 	    buffer += s;
 	    p = p->next();
@@ -900,6 +919,7 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 	// #### very poor implementation!
 	QString text;
 	p = fParag;
+	QTextEditParag *lastParag = 0;
 	QTextEditFormat *lastFormat = 0;
 	QTextEditString::Char *c = 0;
 	bool listDepth = 0;
@@ -918,7 +938,7 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 
 	    if ( inList ) {
 		s = "<li>";
-	    } else {
+	    } else if ( !lastParag || lastParag->alignment() != p->alignment() ) {
 		s = "<p align=\"";
 		if ( p->alignment() & Qt::AlignRight )
 		    s += "right";
@@ -927,6 +947,8 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 		else
 		    s += "left";
 		s += "\">";
+	    } else {
+		s = "<p>";
 	    }
 	
 	    int len = 0;
@@ -949,6 +971,7 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 	    else if ( len > 0 )
 		text += s + lastFormat->makeFormatEndTags() + "\n";
 	    lastFormat = 0;
+	    lastParag = p;
 	    p = p->next();
 	}
 	text += "\n";
@@ -959,14 +982,13 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
     }
 }
 
-QString QTextEditDocument::text() const
+QString QTextEditDocument::text( bool untabify ) const
 {
     if ( plainText().simplifyWhiteSpace().isEmpty() )
 	return QString::null;
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
 	return richText();
-    else
-	return plainText();
+    return plainText( 0, FALSE, untabify );
 }
 
 QString QTextEditDocument::text( int parag, bool formatted ) const
@@ -990,16 +1012,19 @@ void QTextEditDocument::invalidate()
     }
 }
 
-void QTextEditDocument::save( const QString &fn )
+void QTextEditDocument::save( const QString &fn, bool untabify )
 {
     if ( !fn.isEmpty() )
 	filename = fn;
     if ( !filename.isEmpty() ) {
 	QFile file( filename );
-	file.open( IO_WriteOnly );
-	QTextStream ts( &file );
-	ts << text();
-	file.close();
+	if ( file.open( IO_WriteOnly ) ) {
+	    QTextStream ts( &file );
+	    ts << text( untabify );;
+	    file.close();
+	} else {
+	    qWarning( "couldn't open file %s", filename.latin1() );
+	}
     } else {
 	qWarning( "QTextEditDocument::save(): couldn't save - no filename specified!" );
     }
@@ -1172,8 +1197,8 @@ bool QTextEditDocument::removeSelection( int id )
     QTextEditParag *p = start;
     while ( p ) {
 	p->removeSelection( id );
- 	if ( p == end )
- 	     break;
+	if ( p == end )
+	    break;
 	p = p->next();
     }
 
@@ -1317,6 +1342,27 @@ void QTextEditDocument::removeSelectedText( int id, QTextEditCursor *cursor )
     }
 
     removeSelection( id );
+}
+
+void QTextEditDocument::indentSelection( int id )
+{
+    QMap<int, Selection>::Iterator it = selections.find( id );
+    if ( it == selections.end() )
+	return;
+
+    Selection sel = *it;
+    QTextEditParag *startParag = sel.startParag;
+    QTextEditParag *endParag = sel.endParag;
+    if ( sel.endParag->paragId() < sel.startParag->paragId() ) {
+	endParag = sel.startParag;
+	startParag = sel.endParag;
+    }
+
+    QTextEditParag *p = startParag;
+    while ( p && p != endParag ) {
+	p->indent();
+	p = p->next();
+    }
 }
 
 void QTextEditDocument::addCompletionEntry( const QString &s )
@@ -1537,9 +1583,9 @@ QTextEditParag::QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextE
     : invalid( -1 ), p( pr ), n( nx ), doc( d ), typ( Normal ), align( Qt::AlignLeft )
 {
     if ( p )
- 	p->n = this;
+	p->n = this;
     if ( n )
- 	n->p = this;
+	n->p = this;
     if ( !p )
 	doc->setFirstParag( this );
     if ( !n )
@@ -1668,7 +1714,7 @@ void QTextEditParag::format( int start, bool doMove )
 
     if ( doc->syntaxHighlighter() &&
 	 ( needHighlighte || state == -1 ) )
- 	doc->syntaxHighlighter()->highlighte( this, 0 );
+	doc->syntaxHighlighter()->highlighte( this, 0 );
     needHighlighte = FALSE;
 
     if ( invalid == -1 )
@@ -2309,7 +2355,7 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *of, QTextEd
 	cres = fm;
 	cres->addRef();
     }
-		     		
+					
     return cres;
 }
 
@@ -2340,7 +2386,7 @@ QTextEditFormat *QTextEditFormatCollection::format( const QFont &f, const QColor
     cachedFormat->collection = this;
     cKey.insert( cachedFormat->key(), cachedFormat );
 #ifdef DEBUG_COLLECTION
-	qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
+    qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
 #endif
     return cachedFormat;
 }
@@ -2350,9 +2396,9 @@ void QTextEditFormatCollection::remove( QTextEditFormat *f )
     if ( lastFormat == f )
 	lastFormat = 0;
     if ( cres == f )
- 	cres = 0;
+	cres = 0;
     if ( cachedFormat == f )
- 	cachedFormat = 0;
+	cachedFormat = 0;
     cKey.remove( f->key() );
 }
 
@@ -2444,50 +2490,71 @@ static int makeLogicFontSize( int s )
     return 7;
 }
 
+static QTextEditFormat *defaultFormat = 0;
+
 QString QTextEditFormat::makeFormatChangeTags( QTextEditFormat *f ) const
 {
+    if ( !defaultFormat )
+	defaultFormat = new QTextEditFormat( QApplication::font(),
+					     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+
     QString tag;
-    if ( !f ) {
-	if ( fn.bold() )
-	    tag += "<b>";
-	if ( fn.italic() )
-	    tag += "<i>";
-	if ( fn.underline() )
-	    tag += "<u>";
-	tag += "<font color=\"" + col.name() + "\" face=\"" + fn.family() + "\" size=\"" +
-	       QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\">";
-	return tag;
+    if ( f ) {
+	if ( f->font() != defaultFormat->font() ||
+	     f->color().rgb() != defaultFormat->color().rgb() )
+	    tag += "</font>";
+	if ( f->font() != defaultFormat->font() ) {
+	    if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
+		tag += "</u>";
+	    if ( f->font().italic() && f->font().italic() != defaultFormat->font().italic() )
+		tag += "</i>";
+	    if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
+		tag += "</b>";
+	}
     }
 
-    tag += "</font>";
-    if ( f->font().underline() )
-	tag += "</u>";
-    if ( f->font().italic() )
-	tag += "</i>";
-    if ( f->font().bold() )
-	tag += "</b>";
-
-    if ( fn.bold() )
-	tag += "<b>";
-    if ( fn.italic() )
-	tag += "<i>";
-    if ( fn.underline() )
-	tag += "<u>";
-    tag += "<font color=\"" + col.name() + "\" face=\"" + fn.family() + "\" size=\"" +
-	   QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\">";
+    if ( font() != defaultFormat->font() ) {
+	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
+	    tag += "<b>";
+	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
+	    tag += "<i>";
+	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
+	    tag += "<u>";
+    }
+    if ( font() != defaultFormat->font() ||
+	 color().rgb() != defaultFormat->color().rgb() ) {
+	tag += "<font ";
+	if ( font().family() != defaultFormat->font().family() )
+	    tag +="face=\"" + fn.family() + "\" ";
+	if ( font().pointSize() != defaultFormat->font().pointSize() )
+	    tag +="size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\" ";
+	if ( color().rgb() != defaultFormat->color().rgb() )
+	    tag +="color=\"" + col.name() + "\" ";
+	tag += ">";
+    }
 
     return tag;
 }
 
 QString QTextEditFormat::makeFormatEndTags() const
 {
+    if ( !defaultFormat )
+	defaultFormat = new QTextEditFormat( QApplication::font(),
+					     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
+
     QString tag;
-    tag += "</font>";
-    if ( fn.underline() )
-	tag += "</u>";
-    if ( fn.italic() )
-	tag += "</i>";
-    if ( fn.bold() )
-	tag += "</b>";
+    if ( font() != defaultFormat->font() ||
+	 color().rgb() != defaultFormat->color().rgb() )
+	tag += "</font>";
+    if ( font() != defaultFormat->font() ) {
+	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
+	    tag += "</u>";
+	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
+	    tag += "</i>";
+	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
+	    tag += "</b>";
+    }
     return tag;
 }
+
+

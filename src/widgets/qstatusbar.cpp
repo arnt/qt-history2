@@ -409,3 +409,16 @@ void QStatusBar::paintEvent( QPaintEvent * )
 		    d->tempItem );
     }
 }
+
+
+
+/*!
+  \reimp
+*/
+
+bool QStatusBar::event( QEvent *e )
+{
+    if ( e->type() == QEvent::LayoutHint )
+	update();
+    return QWidget::event( e );
+}

@@ -497,6 +497,7 @@ QScrollView::~QScrollView()
 }
 
 
+
 /*!
   \reimp
 */
@@ -1077,11 +1078,12 @@ void QScrollView::addChild(QWidget* child, int x, int y)
     if ( d->children.isEmpty() && d->policy == Default ) {
 	setResizePolicy( AutoOne );
 	child->installEventFilter( this );
-    } else if ( d->policy > Manual ) {
+    } else if ( d->policy != Manual ) {
 	child->removeEventFilter( this );
+        setResizePolicy( Manual );
     }
     if ( child->parentWidget() != viewport() ) {
-	child->reparent( viewport(), 0, QPoint(0,0), FALSE );
+	    child->reparent( viewport(), 0, QPoint(0,0), FALSE );
     }
     d->addChildRec(child,x,y)->hideOrShow(this, d->clipped_viewport);
 

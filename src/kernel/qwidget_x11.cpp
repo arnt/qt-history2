@@ -1456,7 +1456,7 @@ void QWidget::showNormal()
   If there are any siblings of this widget that overlap it on the screen,
   this widget will be visually in front of its siblings afterwards.
 
-  \sa lower()
+  \sa lower(), stackUnder()
 */
 
 void QWidget::raise()
@@ -1473,7 +1473,7 @@ void QWidget::raise()
   If there are siblings of this widget that overlap it on the screen, this
   widget will be obscured by its siblings afterwards.
 
-  \sa raise()
+  \sa raise(), stackUnder()
 */
 
 void QWidget::lower()
@@ -1483,6 +1483,25 @@ void QWidget::lower()
 	p->childObjects->insert( 0, p->childObjects->take() );
     XLowerWindow( x11Display(), winId() );
 }
+
+
+/*!
+  Places the widget under \a w in the parent widget's stack.
+  
+  To make this work, the widget itself and \a w have to be siblings.
+
+  \sa raise(), lower()
+*/
+void QWidget::stackUnder( QWidget* w)
+{
+    if ( !w || isTopLevel() || parentWidget() != w->parentWidget() )
+	return;
+    Window stack[2];
+    stack[0] = w->winId();;
+    stack[1] = winId();
+    XRestackWindows( x11Display(), stack, 2 );
+}
+
 
 
 /*

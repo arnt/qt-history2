@@ -74,8 +74,6 @@ struct QLineEditPrivate {
     QRect cursorRepaintRect;
     bool inDoubleClick;
     bool offsetDirty;
-    QPopupMenu *popup;
-    int id[ 7 ];
     QValueList<QLineEditUndoItem> undoList;
     QValueList<QLineEditUndoItem> redoList;
     bool undo;
@@ -228,16 +226,6 @@ void QLineEdit::init()
     alignmentFlag = Qt::AlignLeft;
     setAcceptDrops( TRUE );
     ed = FALSE;
-    d->popup = new QPopupMenu( this );
-    d->id[ 0 ] = d->popup->insertItem( tr( "Undo" ) );
-    d->id[ 1 ] = d->popup->insertItem( tr( "Redo" ) );
-    d->popup->insertSeparator();
-    d->id[ 2 ] = d->popup->insertItem( tr( "Cut" ) );
-    d->id[ 3 ] = d->popup->insertItem( tr( "Copy" ) );
-    d->id[ 4 ] = d->popup->insertItem( tr( "Paste" ) );
-    d->id[ 5 ] = d->popup->insertItem( tr( "Clear" ) );
-    d->popup->insertSeparator();
-    d->id[ 6 ] = d->popup->insertItem( tr( "Select All" ) );
 }
 
 
@@ -760,37 +748,50 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     d->dnd_startpos = e->pos();
     d->dnd_primed = FALSE;
     if ( e->button() == RightButton ) {
-	d->popup->setItemEnabled( this->d->id[0],
+	QPopupMenu *popup = new QPopupMenu( this );
+	int id[ 7 ];
+	id[ 0 ] = popup->insertItem( tr( "Undo" ) );
+	id[ 1 ] = popup->insertItem( tr( "Redo" ) );
+	popup->insertSeparator();
+	id[ 2 ] = popup->insertItem( tr( "Cut" ) );
+	id[ 3 ] = popup->insertItem( tr( "Copy" ) );
+	id[ 4 ] = popup->insertItem( tr( "Paste" ) );
+	id[ 5 ] = popup->insertItem( tr( "Clear" ) );
+	popup->insertSeparator();
+	id[ 6 ] = popup->insertItem( tr( "Select All" ) );
+	popup->setItemEnabled( id[0],
 				  !this->d->readonly && !this->d->undoList.isEmpty() );
-	d->popup->setItemEnabled( this->d->id[ 1 ],
+	popup->setItemEnabled( id[ 1 ],
 				  !this->d->readonly && !this->d->redoList.isEmpty() );
-	d->popup->setItemEnabled( this->d->id[ 2 ],
+	popup->setItemEnabled( id[ 2 ],
 				  !this->d->readonly && !this->d->readonly && hasMarkedText() );
-	d->popup->setItemEnabled( this->d->id[ 3 ], hasMarkedText() );
-	d->popup->setItemEnabled( this->d->id[ 4 ],
+	popup->setItemEnabled( id[ 3 ], hasMarkedText() );
+	popup->setItemEnabled( id[ 4 ],
 				  !this->d->readonly
 				  && (bool)QApplication::clipboard()->text().length() );
-	d->popup->setItemEnabled( this->d->id[ 5 ],
+	popup->setItemEnabled( id[ 5 ],
 				  !this->d->readonly && (bool)text().length() );
 	int allSelected = minMark() == 0 && maxMark() == (int)text().length();
-	d->popup->setItemEnabled( this->d->id[ 6 ],
+	popup->setItemEnabled( id[ 6 ],
 				  (bool)text().length() && !allSelected );
-	int id = d->popup->exec( e->globalPos() );
-	if ( id == d->id[ 0 ] )
-	    undoInternal();
-	else if ( id == d->id[ 1 ] )
-	    redoInternal();
-	else if ( id == d->id[ 2 ] )
-	    cut();
-	else if ( id == d->id[ 3 ] )
-	    copy();
-	else if ( id == d->id[ 4 ] )
-	    paste();
-	else if ( id == d->id[ 5 ] )
-	    clear();
-	else if ( id == d->id[ 6 ] )
-	    selectAll();
+	
+	int r = popup->exec( e->globalPos() );
+	delete popup;
 
+	if ( r == id[ 0 ] )
+	    undoInternal();
+	else if ( r == id[ 1 ] )
+	    redoInternal();
+	else if ( r == id[ 2 ] )
+	    cut();
+	else if ( r == id[ 3 ] )
+	    copy();
+	else if ( r == id[ 4 ] )
+	    paste();
+	else if ( r == id[ 5 ] )
+	    clear();
+	else if ( r == id[ 6 ] )
+	    selectAll();
 	return;
     }
 

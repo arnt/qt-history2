@@ -164,7 +164,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
 	
 	parag->setChanged( FALSE );
- 	QSize s( parag->rect().size() );
+	QSize s( parag->rect().size() );
 	if ( s.width() > doubleBuffer->width() ||
 	     s.height() > doubleBuffer->height() ) {
 	    if ( painter.isActive() )
@@ -269,9 +269,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	break;
     default: {
 	    if ( e->text().length() &&
-		   ( e->ascii() >= 32 || ( e->text() == "\t" &&
-					   !( e->state() & ControlButton && e->key() == Key_I ) ) ) &&
-					   !( e->state() & AltButton ) ) {
+		 ( e->ascii() >= 32 || ( e->text() == "\t" &&
+					 !( e->state() & ControlButton && e->key() == Key_I ) ) ) &&
+		 !( e->state() & AltButton ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
 		    if ( cursor->index() == 0 && cursor->parag()->type() != QTextEditParag::Normal ) {
@@ -368,7 +368,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    break;
 		}
 	    }
-    }
+	}
     }
 
     if ( clearUndoRedoInfo )
@@ -437,8 +437,8 @@ void QTextEdit::doKeyboardAction( int action )
 	}
 	undoRedoInfo.text += "\n";
 	cursor->splitAndInsertEmtyParag();
- 	if ( cursor->parag()->prev() )
- 	    lastFormatted = cursor->parag()->prev();
+	if ( cursor->parag()->prev() )
+	    lastFormatted = cursor->parag()->prev();
 	break;
     }
 
@@ -575,7 +575,7 @@ void QTextEdit::ensureCursorVisible()
 
 void QTextEdit::drawCursor( bool visible )
 {
-    if ( !cursor->parag()->isValid() || 
+    if ( !cursor->parag()->isValid() ||
 	 ( !hasFocus() && !viewport()->hasFocus() ) )
 	return;
 
@@ -774,7 +774,7 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
     while ( ( i = text.find( '\r' ) ) != -1 )
 	text.replace( i, 1, "" );
     if ( QTextDrag::decode( e, text ) ) {
- 	if ( ( e->source() == this ||
+	if ( ( e->source() == this ||
 	       e->source() == viewport() ) &&
 	     e->action() == QDropEvent::Move ) {
 	    removeSelectedText();
@@ -865,8 +865,8 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextEditCursor *c )
 	chr = s->lineStartOfLine( i, &index );
 	cy = s->lineY( i );
 	ch = s->lineHeight( i );
- 	if ( !chr )
- 	    return;
+	if ( !chr )
+	    return;
 	if ( pos.y() >= y + cy && pos.y() <= y + cy + ch )
 	    break;
     }
@@ -1013,7 +1013,7 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
 
     if ( o == completionPopup || o == completionListBox ||
-	o == completionListBox->viewport() ) {
+	 o == completionListBox->viewport() ) {
 	if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    if ( ke->key() == Key_Enter || ke->key() == Key_Return ||
@@ -1081,7 +1081,7 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
     if ( !doc->syntaxHighlighter() )
 	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
 		
-    if ( indent && txt == "{" || txt == "}" )
+    if ( indent && ( txt == "{" || txt == "}" ) )
 	cursor->indent();
     formatMore();
     repaintChanged();
@@ -1176,7 +1176,10 @@ void QTextEdit::indent()
 	return;
 
     drawCursor( FALSE );
-    cursor->indent();
+    if ( !doc->hasSelection( QTextEditDocument::Standard ) )
+	cursor->indent();
+    else
+	doc->indentSelection( QTextEditDocument::Standard );
     repaintChanged();
     drawCursor( TRUE );
     emit textChanged();
@@ -1428,17 +1431,16 @@ void QTextEdit::load( const QString &fn, bool tabify )
     emit textChanged();
 }
 
-void QTextEdit::save( const QString &fn )
+void QTextEdit::save( const QString &fn, bool untabify )
 {
-    doc->save( fn );
+    doc->save( fn, untabify );
 }
 
 bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
-			   int *parag, int *index )
+		      int *parag, int *index )
 {
     drawCursor( FALSE );
-    for ( int i = 0; i < doc->numSelections; ++i )
-	doc->removeSelection( i );
+    doc->removeSelection( QTextEditDocument::Search );
     bool found = doc->find( expr, cs, wo, forward, parag, index, cursor );
     ensureCursorVisible();
     drawCursor( TRUE );
@@ -1698,3 +1700,4 @@ void QTextEdit::resetFormat()
     setParagType( QTextEdit::Normal );
     setFormat( doc->formatCollection()->defaultFormat(), QTextEditFormat::Format );
 }
+

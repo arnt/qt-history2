@@ -239,7 +239,8 @@ public:
     // Binary compatibility contortions, to become virtual in 3.0
     QSize scrollBarExtent(); // ### const 3.0
     int buttonDefaultIndicatorWidth() const;
-    int toolBarHandleExtend() const; // ### virtual 3.0
+    int toolBarHandleExtent() const; // ### virtual 3.0
+    int toolBarHandleExtend() const; // obsolete
     void drawToolBarHandle( QPainter *p, const QRect &r,
 			    Qt::Orientation orientation,
 			    bool highlight, const QColorGroup &cg,

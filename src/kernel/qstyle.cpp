@@ -192,7 +192,7 @@ void QStyle::unPolish( QWidget*)
 /*!
   Late initialization of the QApplication object.
 
-  \sa unPolish
+  \sa unPolish(QApplication*)
  */
 void QStyle::polish( QApplication*)
 {
@@ -201,7 +201,7 @@ void QStyle::polish( QApplication*)
 /*!
   Redo the application polish
 
-  \sa polish
+  \sa polish(QApplication*)
  */
 void QStyle::unPolish( QApplication*)
 {
@@ -212,7 +212,7 @@ void QStyle::unPolish( QApplication*)
   function it has the chance to change the palette according to these
   requirements.
 
-  \sa unPolish, QPalette, QApplication::setPalette()
+  \sa QPalette, QApplication::setPalette()
  */
 void QStyle::polish( QPalette&)
 {
@@ -353,8 +353,15 @@ QRect QStyle::buttonRect( int x, int y, int w, int h){
 
   \sa drawButtonMask()
 */
-void QStyle::drawButtonMask( QPainter *, int , int , int , int )
+void QStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
 {
+    QPen oldPen = p->pen();
+    QBrush oldBrush = p->brush();
+
+    p->fillRect( x, y, w, h, QBrush(color1) ); 
+
+    p->setBrush( oldBrush );
+    p->setPen( oldPen );
 }
 
 /*!
@@ -764,18 +771,27 @@ QSize QStyle::scrollBarExtent()
 }
 
 /*!
-  Returns the extend (height or width depending on the orientation) which a toolbar
+  Returns the extent (height or width depending on the orientation) which a toolbar
   handle has.
 
   WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
   it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
 */
 
-int QStyle::toolBarHandleExtend() const
+int QStyle::toolBarHandleExtent() const
 {
     if ( guiStyle() == Qt::MotifStyle )
 	return 9;
     return 11;
+}
+
+/*!\obsolete
+  
+  Guess who did it? ;-)
+ */
+int QStyle::toolBarHandleExtend() const
+{
+    return toolBarHandleExtent();
 }
 
 /*!
@@ -823,7 +839,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 		p->drawPoints( a );
 		if ( drawBorder ) {
 		    p->setPen( QPen( Qt::darkGray ) );
-		    p->drawLine( r.width() - 1, 0, r.width() - 1, toolBarHandleExtend() );
+		    p->drawLine( r.width() - 1, 0, r.width() - 1, toolBarHandleExtent() );
 		}
 	    }
 	} else {
@@ -849,7 +865,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 		p->drawPoints( a );
 		if ( drawBorder ) {
 		    p->setPen( QPen( Qt::darkGray ) );
-		    p->drawLine( 0, r.height() - 1, toolBarHandleExtend(), r.height() - 1 );
+		    p->drawLine( 0, r.height() - 1, toolBarHandleExtent(), r.height() - 1 );
 		}
 	    }
 	}

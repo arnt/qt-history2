@@ -536,6 +536,8 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 */
 void QTabBar::mousePressEvent( QMouseEvent * e )
 {
+    if ( e->button() != LeftButton )
+	return;
     QTab * t = selectTab( e->pos() );
     if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
 	setCurrentTab( t );
@@ -683,6 +685,8 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 
 /*!  Returns a pointer to the tab with ID \a id, or 0 if there is no
   such tab.
+  
+  \sa count()
 */
 
 QTab * QTabBar::tab( int id )
@@ -693,6 +697,17 @@ QTab * QTabBar::tab( int id )
 	    return t;
     return 0;
 }
+
+
+/*! Returns the number of tabs in the tab bar.
+  
+  \sa tab()
+*/
+int QTabBar::count() const
+{
+    return l->count();
+}
+
 
 /*!
   The list of QTab objects added.

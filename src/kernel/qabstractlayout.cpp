@@ -1003,6 +1003,10 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
+    case QEvent::HideToParent:
+    case QEvent::ShowToParent:
+	QApplication::postEvent( o, new QEvent( QEvent::LayoutHint ) );
+	break;
     case QEvent::LayoutHint:
 	activate(); //######## Check that LayoutHint events are collapsed
 	break;

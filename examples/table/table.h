@@ -82,7 +82,7 @@ protected slots:
 
 private slots:
     void editorOk();
-    void ediorCancel();
+    void editorCancel();
 
 private:
     void paintCell( QPainter *p, int row, int col, const QRect &cr );
