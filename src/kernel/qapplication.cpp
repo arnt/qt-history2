@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#211 $
 **
 ** Implementation of QApplication class
 **
@@ -120,6 +120,7 @@ QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
 static QWidget *desktopWidget	= 0;		// root window widget
+static QTextCodec *default_codec	= 0;		// root window widget
 
 
 //Definitions for posted events.
@@ -1259,6 +1260,31 @@ void QApplication::removeTranslator( QTranslator * mf )
 }
 
 
+/*!
+  If the literal quoted text in the program is not in Latin1 encoding,
+  set an appropriate encoding here.  For example, software developed
+  by Korean programmers might use eucKR for all the text in the program,
+  in which case main() would be:
+
+  \code
+    main(int argc, char** argv)
+    {
+	QApplication app(argc, argv);
+	... install any additional codecs ...
+	QApplication::setDefaultCodec( QTextCodec::codecForName("eucKR") );
+	...
+    }
+  \endcode
+
+  Note that some Qt built-in classes call tr() with various strings.  These
+  strings are in English, so for a full translation, a codec would be
+  required for these strings.
+*/
+void QApplication::setDefaultCodec( QTextCodec* codec )
+{
+    default_codec = codec;
+}
+
 /*!  Returns the best available translation for \a key in \a scope, by
   querying the installed messages files.  The message file that was
   installed last is asked first.
@@ -1296,7 +1322,11 @@ QString QApplication::translate( const char * scope, const char * key ) const
 		return result;
 	}
     }
-    return key;
+    if ( default_codec ) {
+	return default_codec->toUnicode(key);
+    } else {
+	return key;
+    }
 }
 
 
