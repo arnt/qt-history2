@@ -5,7 +5,7 @@
 
     Qt's ActiveX support allows Qt/Windows developers to access 
     and use ActiveX controls provided by any ActiveX server in their
-    Qt application, and to turn their Qt applications into ActiveX 
+    Qt application, and to turn their Qt projects into ActiveX 
     servers providing any number of Qt widgets as ActiveX controls.
 
     The framework consists of two modules. 
@@ -29,8 +29,8 @@
 
     \title The QAxServer Module
 
-    The ActiveQt framework provides a static library implementing the
-    functions required to turn a standard Qt executable into an ActiveX
+    The QAxServer module provides a static library implementing the
+    functions required to turn a standard Qt binary into an ActiveX
     control server.
 
     The module consists of two classes
@@ -55,15 +55,6 @@
 
     To make a standard Qt application an ActiveX server using the QAxServer 
     library you have to add \c activeqt as a CONFIG setting in your .pro-file.
-    To build an in-process server, use a .pro-file like this:
-    \code
-    TEMPLATE = lib
-    CONFIG  += qt activeqt dll
-    
-    DEF_FILE = qaxserver.def
-    RC_FILE  = qaxserver.rc
-    ...
-    \endcode
 
     An out-of-process executable server is being generated from a .pro-file
     like this:
@@ -71,6 +62,16 @@
     TEMPLATE = app
     CONFIG  += qt activeqt
 
+    RC_FILE  = qaxserver.rc
+    ...
+    \endcode
+    
+    To build an in-process server, use a .pro-file like this:
+    \code
+    TEMPLATE = lib
+    CONFIG  += qt activeqt dll
+    
+    DEF_FILE = qaxserver.def
     RC_FILE  = qaxserver.rc
     ...
     \endcode
@@ -102,8 +103,11 @@
     An in-process server is usually smaller and has a better startup time. The
     communication between client and server is done directly through virtual 
     function calls and does not introduce the overhead required for the remote
-    procedure calling, but if the server crashes the client application is likely
+    procedure calling. But if the server crashes the client application is likely
     to crash as well.
+
+    Both server types can use Qt as a shared library, or statically linked into
+    the server binary.
 
     \section1 Implementing Controls
 
@@ -126,14 +130,14 @@
         Q_PROPERTY( int value READ value WRITE setValue )
     \endcode
 
-    Declare a standard QWidget constructor, and functions, signals or
-    slots as for any QWidget.
+    Declare a standard QWidget constructor taking a parent widget and a name, 
+    and functions, signals and slots as for any QWidget.
     \footnote
     If a standard constructor is not present the compiler will issue an error
     "no overloaded function takes 2 parameters" when using the default factory
     through the QAXFACTORY_DEFAULT macro. If you cannot provide a standard constructor
     you will have to implement a \l QAxFactory custom factory and call the 
-    constructor you have in QAxFactory::create.
+    constructor you have in your implementation of QAxFactory::create.
     \endfootnote
 
     \code
@@ -190,7 +194,7 @@
     QAxBindable class to allow ActiveX clients to bind to the control properties.
     \footnote 
     This is not required, but gives the client more control over 
-    the ActiveX control.
+    the ActiveX.
     \endfootnote
 
     \section1 Serving the Controls
@@ -222,22 +226,6 @@
 
     The \link QAxFactory QAxFactory class documentation \endlink explains 
     how to use this macro, and how to implement and use custom factories.
-
-    To build the ActiveX server executable run qmake to generate the 
-    makefile, and the maketool for your compiler as for any other Qt 
-    application. The make process will also register the controls in the
-    system registry by calling the resulting executable with the
-    \c -regserver command line switch. See the \link qaxserver-compiler.html
-    Typical build errors \endlink list for frequent problems when building
-    the ActiveQt server executable.
-
-    Supported commandline switches are
-    \list
-    \i -regserver Registers the server in the system registry
-    \i -unregserver Unregisters the server from the system registry
-    \i -activex Starts the application as an ActiveX server
-    \i -dumpidl <file> Writes the IDL for this server to a file
-    \endlist
 
     For out-of-process executable servers, implement a main() method like 
     for any other Qt application, instantiate a QApplication object and enter 
@@ -273,6 +261,26 @@
     }
     \endcode
 
+    To build the ActiveX server executable run qmake to generate the 
+    makefile, and the maketool for your compiler as for any other Qt 
+    application. The make process will also register the controls in the
+    system registry by calling the resulting executable with the
+    \c -regserver command line switch. See the \link qaxserver-compiler.html
+    Typical build errors \endlink list for frequent problems when building
+    the ActiveQt server executable.
+
+    If the ActiveX server is an executable, the following commandline switches are
+    supportd:
+    \list
+    \i -regserver Registers the server in the system registry
+    \i -unregserver Unregisters the server from the system registry
+    \i -activex Starts the application as an ActiveX server
+    \i -dumpidl <file> Writes the IDL for this server to a file
+    \endlist
+
+    In-process servers can be registered using the \c regsvr32 tool available
+    on all Windows systems.
+
     \section1 Using the Controls
 
     To use the ActiveX controls, e.g. to embed them in a web page, use
@@ -281,6 +289,13 @@
     \code
     <object ID="MyActiveX1" CLASSID="CLSID:ad90301a-849e-4e8b-9a91-0a6dc5f6461f">
        ...
+    <\object>
+    \endcode
+
+    To initialize the properties of the control, use
+    \code
+    <object ID=...>
+        <param name="name" value="value">
     <\object>
     \endcode
 
