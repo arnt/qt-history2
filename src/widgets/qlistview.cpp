@@ -540,6 +540,8 @@ QListViewItem::~QListViewItem()
     QListView *lv = listView();
 
     if ( lv ) {
+	if ( lv->d->oldFocusItem == this )
+	    lv->d->oldFocusItem = 0;
 	if ( lv->d->iterators ) {
 	    QListViewItemIterator *i = lv->d->iterators->first();
 	    while ( i ) {
@@ -716,7 +718,9 @@ void QListViewItem::takeItem( QListViewItem * item )
     bool emit_changed = FALSE;
     QListViewItem *oldCurrent = 0;
     if ( lv && !lv->d->clearing ) {
-
+	if ( lv->d->oldFocusItem == this )
+	    lv->d->oldFocusItem = 0;
+	
 	if ( lv->d->iterators ) {
 	    QListViewItemIterator *i = lv->d->iterators->first();
 	    while ( i ) {
@@ -1904,6 +1908,7 @@ void QListView::init()
     d->h = new QHeader( this, "list view header" );
     d->h->installEventFilter( this );
     d->focusItem = 0;
+    d->oldFocusItem = 0;
     d->drawables = 0;
     d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
@@ -5364,6 +5369,7 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 void QListView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
     setCurrentItem( d->oldFocusItem );
+    d->oldFocusItem = 0;
 }
 
 /*! \reimp */
