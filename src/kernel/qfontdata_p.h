@@ -72,7 +72,7 @@ class QCharStruct;
 struct QFontDef {
     QFontDef()
 	: pixelSize(0), pointSize(0), lbearing(SHRT_MIN), rbearing(SHRT_MIN),
-	  styleStrategy(QFont::PreferDefault), styleHint(QFont::AnyStyle), 
+	  styleStrategy(QFont::PreferDefault), styleHint(QFont::AnyStyle),
 	  weight(0), italic(FALSE), underline(FALSE), strikeOut(FALSE),
 	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
     { ; }
@@ -109,13 +109,15 @@ class QTextCodec;
 class QFontStruct : public QShared
 {
 public:
-    QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, QCString n, QTextCodec *c, int a) :
-	QShared(), handle(h), xfthandle(xfth), name(n), codec(c), cache_cost(a), scale( 1. )
+    QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, Qt::HANDLE xftp,
+		QCString n, QTextCodec *c, int a) :
+	QShared(), handle(h), xfthandle(xfth), xftpattern(xftp),
+	name(n), codec(c), cache_cost(a), scale( 1. )
     { ; }
 
     ~QFontStruct();
 
-    Qt::HANDLE handle, xfthandle;
+    Qt::HANDLE handle, xfthandle, xftpattern;
     QCString name;
     QTextCodec *codec;
     int cache_cost;
@@ -254,7 +256,7 @@ public:
 #endif // Q_WS_WIN
 	paintdevice = pd;
     }
-    
+
     // requested font
     QFontDef request;
     // actual font
@@ -439,7 +441,7 @@ public:
     QPaintDevice *paintdevice;
 
 #ifdef Q_WS_WIN
-    ~QFontPrivate() { 
+    ~QFontPrivate() {
 	if( fin )
 	    fin->deref();
     }

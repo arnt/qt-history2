@@ -343,6 +343,11 @@ QFontStruct::~QFontStruct()
 	XftFreeTypeClose(QPaintDevice::x11AppDisplay(), (XftFontStruct *) xfthandle);
 	xfthandle = 0;
     }
+
+    if (xftpattern) {
+	XftPatternDestroy((XftPattern *) xftpattern);
+	xftpattern = 0;
+    }
 #endif // QT_NO_XFTFREETYPE
 
 }
@@ -1848,8 +1853,8 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 
 	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
-		resx = QPaintDevice::x11AppDpiX();
-		resy = QPaintDevice::x11AppDpiY();
+		resx = 0;
+		resy = 0;
 	    } else {
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
@@ -2070,9 +2075,40 @@ void QFontPrivate::initFontInfo(QFont::Script script)
     actual.rbearing = SHRT_MIN;
 
     if (exactMatch) {
-	// ### this is not 100% correct for Xft, as the matched font could be
-	// of a different family!
 	actual = request;
+
+#ifndef   QT_NO_XFTFREETYPE
+	if (x11data.fontstruct[script]->xftpattern) {
+	    // parse the pattern
+	    XftPattern *pattern =
+		(XftPattern *) x11data.fontstruct[script]->xftpattern;
+
+	    char *family_value;
+	    int slant_value;
+	    int weight_value;
+	    int spacing_value = XFT_PROPORTIONAL;
+	    XftPatternGetString (pattern, XFT_FAMILY, 0, &family_value);
+	    XftPatternGetInteger (pattern, XFT_SLANT, 0, &slant_value);
+	    XftPatternGetInteger (pattern, XFT_WEIGHT, 0, &weight_value);
+	    XftPatternGetInteger (pattern, XFT_SPACING, 0, &spacing_value);
+	    if (weight_value == XFT_WEIGHT_LIGHT)
+		weight_value = QFont::Light;
+	    else if (weight_value == XFT_WEIGHT_DEMIBOLD)
+		weight_value = QFont::DemiBold;
+	    else if (weight_value < XFT_WEIGHT_BOLD)
+		weight_value = QFont::Bold;
+	    else if ( weight_value == XFT_WEIGHT_BLACK)
+		weight_value = QFont::Black;
+	    else
+		weight_value = QFont::Normal;
+
+	    actual.family = family_value;
+	    actual.weight = weight_value;
+	    actual.italic = (slant_value != XFT_SLANT_ROMAN);
+	    actual.fixedPitch = (spacing_value >= XFT_MONO);
+	}
+#endif // QT_NO_XFTFREETYPE
+
 	actual.dirty = FALSE;
 
 	if ( actual.pointSize == -1 )
@@ -2485,8 +2521,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
 				xftmatch);
-
-	XftPatternDestroy(xftmatch);
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -2592,9 +2626,9 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     qfs = new QFontStruct((Qt::HANDLE) xfs,
 #ifndef QT_NO_XFTFREETYPE
-			  (Qt::HANDLE) xftfs,
+			  (Qt::HANDLE) xftfs, (Qt::HANDLE) xftmatch,
 #else
-			  0,
+			  0, 0,
 #endif // QT_NO_XFTFREETYPE
 			  fontname, codec, cost);
     x11data.fontstruct[script] = qfs;
