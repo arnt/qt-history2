@@ -23,11 +23,26 @@ static const char* TorbensHack[] = {
   "int", "margin", "const", ")",
   "void", "setSpacing", "", "int", ")",
   "int", "spacing", "const", ")",
+
+  "+", "DFormWidget", "A qbuilder grid layout", "", "",
+  "+", "DMenuListView", "", "", "",
+  "+", "DSeparator", "", "", "",
+  "+", "DListView", "", "", "",
+
+  "+", "DStretch", "", "", "",
+  "void", "setStretch", "", "int", ")",
+  "int", "stretch", "const", ")",
+
+  "+", "DSpacing", "", "", "",
+  "void", "setSpacing", "", "int", ")",
+  "int", "Spacing", "const", ")",
+
   0
 };
 
 static const char* TorbensLayout[] = {
-  "QLayout", "QGridLayout", "QHBoxLayout", "QVBoxLayout", 0
+  "QLayout", "QGridLayout", "QHBoxLayout", "QVBoxLayout",
+  "DGridLayout", 0
 };
 
 static const char* TorbensAbstract[] = {
