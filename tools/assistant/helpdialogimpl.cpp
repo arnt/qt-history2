@@ -61,8 +61,9 @@ static bool verifyDirectory(const QString &str)
 	return QDir().mkdir(str);
     if (!dirInfo.isDir()) {
 	qWarning("'%s' exists but is not a directory", str.latin1());
-	return false;
+	return FALSE;
     }
+    return TRUE;
 }
 
 struct IndexKeyword {
