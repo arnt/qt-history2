@@ -469,6 +469,7 @@ static const char* const ignore_props[] =
     "focus",
     "focusEnabled",
     "customWhatsThis",
+    "shown",
     0
 };
 
@@ -487,6 +488,8 @@ static const char* const ignore_slots[] =
     "polish",
     "constPolish",
     "stackUnder",
+    "setShown",
+    "setHidden",
     0
 };
 
