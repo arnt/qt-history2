@@ -1969,6 +1969,10 @@ void QMainWindow::setOpaqueMoving( bool b )
   opaquely (i.e. it shows the toolbar as it looks when docked) when
   moved. If FALSE (the default) they are shown transparently,
   (i.e. as an outline rectangle).
+
+  Opaque moving of toolbars and dockwindows is known to have several
+  problems. We suggest not to use it at this point in time. We will
+  fix that behavior problems in a future release.
 */
 
 bool QMainWindow::opaqueMoving() const

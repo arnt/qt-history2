@@ -1693,6 +1693,10 @@ void QDockWindow::showEvent( QShowEvent *e )
 
     If this property is FALSE, (the default), the dock window
     will be represented by an outline rectangle whilst it is being moved.
+
+    Opaque moving of toolbars and dockwindows is known to have several
+    problems. We suggest not to use it at this point in time. We will
+    fix that behavior problems in a future release.
 */
 
 void QDockWindow::setOpaqueMoving( bool b )
