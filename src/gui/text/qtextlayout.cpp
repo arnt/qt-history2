@@ -22,6 +22,7 @@
 #include <qabstracttextdocumentlayout.h>
 #include "qtextdocument_p.h"
 #include "qtextformat_p.h"
+#include "qstyleoption.h"
 #include <limits.h>
 
 #include "qfontengine_p.h"
@@ -1143,6 +1144,8 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
         bg = pal->text().color();
         text = pal->background().color();
         break;
+    case QTextLayout::FocusIndicatorSelection:
+        return; // handled in QTextLine directly
     case QTextLayout::NoSelection:
         Q_ASSERT(false); // should never happen.
         return;
@@ -1257,6 +1260,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
     for (int i = 0; i < nItems; ++i)
         levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
+
+    QRectF focusRect;
 
     QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
@@ -1373,8 +1378,18 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                     for (int g = start_glyph; g < end_glyph; ++g)
                         swidth += glyphs[g].advance.x() + qReal(glyphs[g].space_18d6)/qReal(64);
                 }
-                p->save();
+
                 QRectF rect(x + soff, y - line.ascent, swidth, line.height());
+
+                if (selections[s].type() == QTextLayout::FocusIndicatorSelection) {
+                    if (!focusRect.isValid())
+                        focusRect = rect;
+                    else
+                        focusRect = focusRect.unite(rect);
+                    continue;
+                }
+
+                p->save();
                 p->setClipRect(rect);
                 drawSelection(p, eng->pal, selections[s].type(), rect);
                 p->drawTextItem(QPointF(x, y), gf);
@@ -1384,6 +1399,15 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
         }
         x += gf.width;
     }
+
+    if (focusRect.isValid()) {
+        QStyleOptionFocusRect opt;
+        opt.rect = focusRect.toRect();
+        opt.state = QStyle::Style_None;
+        opt.palette = *eng->pal;
+        QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
+    }
+
 }
 
 /*!

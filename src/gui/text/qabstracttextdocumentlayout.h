@@ -46,6 +46,7 @@ public:
         bool textColorFromPalette;
         QRect rect;
         int imStart, imEnd, imSelectionStart, imSelectionEnd;
+        QTextCursor focusIndicator;
     };
 
     QAbstractTextDocumentLayout(QTextDocument *doc);

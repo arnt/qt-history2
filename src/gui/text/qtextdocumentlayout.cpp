@@ -574,8 +574,8 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     QTextLayout::Selection s[3];
     int nSel = 0;
     if (context.cursor.hasSelection()) {
-        int selStart = context.cursor.selectionStart();
-        int selEnd = context.cursor.selectionEnd();
+        const int selStart = context.cursor.selectionStart();
+        const int selEnd = context.cursor.selectionEnd();
         s[nSel].setRange(selStart - bl.position(), selEnd - selStart);
         s[nSel].setType(QTextLayout::Highlight);
         ++nSel;
@@ -588,6 +588,13 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     if (context.imSelectionStart != context.imSelectionEnd) {
         s[nSel].setRange(context.imSelectionStart - bl.position(), context.imSelectionEnd - context.imSelectionStart);
         s[nSel].setType(QTextLayout::ImSelection);
+        ++nSel;
+    }
+    if (context.focusIndicator.hasSelection()) {
+        const int selStart = context.focusIndicator.selectionStart();
+        const int selEnd = context.focusIndicator.selectionEnd();
+        s[nSel].setRange(selStart - bl.position(), selEnd - selStart);
+        s[nSel].setType(QTextLayout::FocusIndicatorSelection);
         ++nSel;
     }
 
