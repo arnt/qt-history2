@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------
 #
 # Usage:
-#	mkdist.generic [options] {commercial|free|trial} {distdir}
+#	mkdist.generic [options] {commercial|free} {distdir}
 #
 # Options:
 #	-nodoc	Don't generate documentation
@@ -28,9 +28,6 @@ DISTDIR=$3
 
 unset LANG
 
-x11onlysrc="kernel/qpsprn.cpp dialogs/qprndlg.cpp kernel/qpnpsupport.cpp"
-x11onlyhdr="kernel/qpsprn.h dialogs/qprndlg.h"
-
 unset goodparam1
 unset goodparam2
 
@@ -39,7 +36,7 @@ curdir=`/bin/pwd`
 echo >&2
 echo "Creating a new Qt distribution:" >&2
 
-if [ "${disttype}" = "free" -o "${disttype}" = "commercial" -o "${disttype}" = "trial" ]; then
+if [ "${disttype}" = "free" -o "${disttype}" = "commercial" ]; then
   goodparam1=yes
   echo "  Distribution type... " ${disttype} >&2
 fi
@@ -51,7 +48,7 @@ if [ "${platform}" = "x11" -o "${platform}" = "win" ]; then
 fi
 
 if [ "${goodparam1}" = "" -o "${goodparam2}" = "" -o "${DISTDIR}" = "" ]; then
-  echo 'Usage: mkdist.generic commercial|free|trial x11|win dist-dir' >&2
+  echo 'Usage: mkdist.generic commercial|free x11|win dist-dir' >&2
   exit
 fi
 
@@ -79,7 +76,7 @@ fi
 
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
-for d in `make showdirs`; do cd $d ; rm -fv `make showinternal`; cd .. ; done
+rm -fv `make showinternal`
 
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
@@ -114,6 +111,10 @@ else
 fi
 
 echo "Removing local files..." >&2
+if [ "${platform}" = "win" ]; then
+  cd ${DISTDIR}/qt/src
+  make showx11only | xargs rm -v
+fi
 cd ${DISTDIR}
 find qt -name .cvsignore -o -name doc.conf | xargs rm -f
 rm -rf qt/bugs qt/doc qt/etc qt/gif qt/reqs qt/tests qt/tmake
@@ -121,6 +122,7 @@ rm -rf qt/examples/sheet
 rm -rf qt/examples/scrollview
 rm -rf qt/examples/network
 rm -rf qt/examples/validator
+rm -f qt/src/qtinternal.pro
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
@@ -141,9 +143,6 @@ if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
   perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
   cd ${DISTDIR}/qt/src
-  echo "Removing X11-only files..." >&2
-  rm ${x11onlysrc}
-  rm ${x11onlyhdr}
   echo "Moving source and include files..." >&2
   rm -f ../include/*
   mv */q*.h ../include
@@ -186,7 +185,7 @@ if [ "${platform}" = "win" ]; then
   mkdir qt/src/tmp
   echo "This is a temporary directory for moc output" > qt/src/tmp/README
   v=`echo ${VERSION} | sed -e 's/\.//'`
-  zip -r -9 qtwin${v}.zip qt
+  zip -q -r -9 qtwin${v}.zip qt
 fi
 
 if [ "${platform}" = "x11" ]; then
