@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#246 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#247 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11256,18 +11256,17 @@ int QString::contains( const char* str, bool cs ) const
 }
 
 /*!
-  \fn int QString::contains (char c, bool cs=TRUE) const
-  \overload
+  \overload int QString::contains (char c, bool cs) const
 */
 
 /*!
-  \fn int QString::find (char c, int index=0, bool cs=TRUE) const
-  \overload
+  \overload int QString::find (char c, int index, bool cs) const
+  
 */
 
 /*!
-  \fn int QString::findRev (char c, int index=-1, bool cs=TRUE) const
-  \overload
+  \overload int QString::findRev (char c, int index, bool cs) const
+  
 */
 
 /*!
@@ -11705,8 +11704,7 @@ QString &QString::insert( uint index, QChar c )	// insert char
 }
 
 /*!
-  \fn QString& QString::insert( uint index, char c )
-  \overload
+  \overload QString& QString::insert( uint index, char c )
 */
 
 /*!
@@ -12206,25 +12204,25 @@ QString &QString::setNum( ulong n, int base )
 }
 
 /*!
-  \fn QString &QString::setNum( int n, int base=10 )
+  \fn QString &QString::setNum( int n, int base )
   Sets the string to the printed value of \a n and returns a reference
   to the string.
 */
 
 /*!
-  \fn QString &QString::setNum( uint n, int base=10 )
+  \fn QString &QString::setNum( uint n, int base )
   Sets the string to the printed unsigned value of \a n and returns a
   reference to the string.
 */
 
 /*!
-  \fn QString &QString::setNum( short n, int base=10 )
+  \fn QString &QString::setNum( short n, int base )
   Sets the string to the printed value of \a n and returns a reference
   to the string.
 */
 
 /*!
-  \fn QString &QString::setNum( ushort n, int base=10 )
+  \fn QString &QString::setNum( ushort n, int base )
   Sets the string to the printed unsigned value of \a n and returns a
   reference to the string.
 */
