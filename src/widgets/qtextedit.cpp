@@ -887,12 +887,12 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
     bool clearUndoRedoInfo = TRUE;
 
-    if ( doc->oTextValid && (e->key() == Key_Delete || 
+    if ( doc->oTextValid && (e->key() == Key_Delete ||
 			     e->key() == Key_Return ||
 			     e->key() == Key_Enter ||
 			     e->key() == Key_Backspace) )
 	doc->invalidateOriginalText();
-    
+
     switch ( e->key() ) {
     case Key_Left:
     case Key_Right: {
@@ -1020,8 +1020,10 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
 		    if ( d->allowTabs ) {
-			if ( cursor->index() == 0 && cursor->parag()->style() &&
-			     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			if ( textFormat() != Qt::PlainText &&
+			     cursor->index() == 0 && cursor->parag()->style() &&
+			     cursor->parag()->style()->displayMode() ==
+			     QStyleSheetItem::DisplayListItem ) {
 			    cursor->parag()->incDepth();
 			    drawCursor( FALSE );
 			    repaintChanged();
@@ -1033,10 +1035,14 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			break;
 		    }
 		}
-		if ( cursor->parag()->style() &&
-		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock &&
+		if ( textFormat() != Qt::PlainText && ( !cursor->parag()->style() ||
+		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock ) &&
 		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
 		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
+		    cursor->parag()->incDepth();
+		    drawCursor( FALSE );
+		    repaintChanged();
+		    drawCursor( TRUE );
 		} else {
 		    if ( overWrite && !cursor->atParagEnd() )
 			cursor->remove();
@@ -1211,7 +1217,9 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	}
     } break;
     case ActionBackspace:
-	if ( cursor->parag()->style() && cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
+	if ( textFormat() != Qt::PlainText &&
+	     cursor->parag()->style() &&
+	     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
 	     cursor->index() == 0 ) {
 	    cursor->parag()->decDepth();
 	    lastFormatted = cursor->parag();
@@ -1829,7 +1837,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
 #endif
-    } 
+    }
 #ifndef QT_NO_CLIPBOARD
     else if ( e->button() == MidButton && !isReadOnly() ) {
         // only do middle-click pasting on systems that have selections (ie. X11)
@@ -3269,7 +3277,7 @@ Qt::TextFormat QTextEdit::textFormat() const
     if ( optimizedMode ) {
 	return Qt::PlainText;
     }
-#endif    
+#endif
     return doc->textFormat();
 }
 
@@ -5024,7 +5032,7 @@ void QTextEdit::optimizedDrawContents( QPainter * p, int clipx, int clipy,
     td->doLayout( p, viewport()->width() );
     if ( (contentsX() + clipw) > td->width() )
  	p->fillRect( td->width(), clipy, clipw, cliph, colorGroup().base() );
-    
+
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
     // painted
@@ -5256,7 +5264,7 @@ bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
 	return FALSE;
 
     for ( i = parag; fw ? i < od->numLines : i >= 0; fw ? i++ : i-- ) {
-	idx = fw ? od->lines[ i ].find( expr, idx, cs ) : 
+	idx = fw ? od->lines[ i ].find( expr, idx, cs ) :
 	      od->lines[ i ].findRev( expr, idx, cs );
 	if ( idx != -1 ) {
 	    found = TRUE;
@@ -5264,7 +5272,7 @@ bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
 	} else if ( fw )
 	    idx = 0;
     }
-    
+
     if ( found ) {
 	if ( index )
 	    *index = idx;
@@ -5276,7 +5284,7 @@ bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
 	QFontMetrics fm( QScrollView::font() );
 	int h = fm.lineSpacing();
 	int x = fm.width( od->lines[ i ].left( idx + expr.length()) ) + 4;
-	ensureVisible( x, i * h + h / 2, 1, h / 2 + 2 ); 
+	ensureVisible( x, i * h + h / 2, 1, h / 2 + 2 );
     }
     return found;
 }

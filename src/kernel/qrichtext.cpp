@@ -4595,10 +4595,10 @@ void QTextParag::setList( bool b, int listStyle )
     if ( b ) {
 	if ( style()->displayMode() != QStyleSheetItem::DisplayListItem || this->listStyle() != listStyle ) {
 	    styleSheetItemsVec().remove( styleSheetItemsVec().size() - 1 );
-	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 2 ];
+	    QStyleSheetItem *item = (*mStyleSheetItemsVec)[ mStyleSheetItemsVec->size() - 1 ];
 	    if ( item )
-		mStyleSheetItemsVec->remove( mStyleSheetItemsVec->size() - 2 );
-	    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 2,
+		mStyleSheetItemsVec->remove( mStyleSheetItemsVec->size() - 1 );
+	    mStyleSheetItemsVec->insert( mStyleSheetItemsVec->size() - 1,
 				       listStyle == QStyleSheetItem::ListDisc || listStyle == QStyleSheetItem::ListCircle
 				       || listStyle == QStyleSheetItem::ListSquare ?
 				       document()->styleSheet()->item( "ul" ) : document()->styleSheet()->item( "ol" ) );
