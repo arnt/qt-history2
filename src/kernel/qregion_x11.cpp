@@ -42,6 +42,8 @@
 #include "qbitmap.h"
 #include "qt_x11.h"
 
+#include <stdlib.h>
+
 // inline QRect::setCoords
 inline void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
 {
