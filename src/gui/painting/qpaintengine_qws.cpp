@@ -354,22 +354,18 @@ void QWSPaintEngine::updateMatrix(const QMatrix &)
 void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
     bool clipEnabled = op != Qt::NoClip;
-//    qDebug("QWSPaintEngine::updateClipRegion");
-
     Q_ASSERT(isActive());
-
-    bool painterClip = clipEnabled;
     bool eventClip = paintEventDevice == d->pdev && paintEventClipRegion;
+
 /*
   if (enable == testf(ClipOn)
   && (paintEventDevice != device() || !enable
   || !paintEventSaveRegion || paintEventSaveRegion->isNull()))
   return;
 */
-
-    if (painterClip || eventClip) {
+    if (clipEnabled || eventClip) {
         QRegion crgn;
-        if (painterClip) {
+        if (clipEnabled) {
             crgn = clipRegion;
             if (eventClip)
                 crgn = crgn.intersect(*paintEventClipRegion);
@@ -381,7 +377,8 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
     } else {
         d->gfx->setClipping(false);
     }
-    if (painterClip)
+
+    if (clipEnabled)
         setf(ClipOn);
     else
         clearf(ClipOn);

@@ -280,6 +280,9 @@ void QGfxRasterBase::setBrushOrigin(int x, int y)
 */
 void QGfxRasterBase::setClipRegion(const QRegion &r, Qt::ClipOperation op)
 {
+    if (!regionClip && op != Qt::NoClip)
+        op = Qt::ReplaceClip;
+
     regionClip= op != Qt::NoClip;
     QRegion mr = r;
     mr.translate(xoffs,yoffs);
