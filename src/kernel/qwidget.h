@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#10 $
 **
 ** Definition of QWidget class
 **
@@ -21,7 +21,6 @@
 #include "qcolor.h"
 #include "qfont.h"
 #include "qcursor.h"
-#include "qstring.h"
 #include "qevent.h"
 
 
@@ -31,7 +30,7 @@ friend class QApplication;
 friend class QPainter;
     Q_OBJECT
 public:
-    QWidget( QView *parent=0, WFlags f=0 );
+    QWidget( QView *parent=0, const char *name=0, WFlags f=0 );
    ~QWidget();
 
     WId	     id()		const	{ return ident; }
