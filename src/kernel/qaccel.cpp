@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#81 $
 **
 ** Implementation of QAccel class
 **
@@ -470,7 +470,7 @@ int QAccel::shortcutKey( const QString &str )
 	    return 0;
 	if ( str[p] != '&' ) {
 	    QChar c = str[p];
-	    if ( c < ' ' || ( c > '\176' && c < '\240' ) )
+	    if ( c < QChar(' ') || ( c > QChar('\176') && c < QChar('\240') ) )
 		return 0;
 	    c = c.upper();
 	    return c.unicode() + ALT + UNICODE_ACCEL;
