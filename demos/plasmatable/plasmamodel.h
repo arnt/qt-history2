@@ -19,6 +19,7 @@
 
 class PlasmaModel : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     PlasmaModel(int rows, int cols, QObject *parent = 0);
     ~PlasmaModel();

@@ -18,6 +18,7 @@
 
 class PlasmaDelegate : public QAbstractItemDelegate
 {
+    Q_OBJECT
 public:
     PlasmaDelegate(QObject *parent = 0);
     ~PlasmaDelegate();
