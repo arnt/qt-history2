@@ -2682,7 +2682,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 
     selectionChanged();
 
-    if ( w->inherits( "SourceEditor" ) ) {
+    if ( w && w->inherits( "SourceEditor" ) ) {
 	actionEditUndo->setEnabled( TRUE );
 	actionEditRedo->setEnabled( TRUE );
 	actionEditCut->setEnabled( TRUE );
