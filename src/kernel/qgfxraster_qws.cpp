@@ -62,10 +62,6 @@ typedef unsigned int __u32;
 #include <asm/mtrr.h>
 #endif
 
-#ifndef QT_NO_QWS_VGA_16
-#include <sys/io.h>
-#endif
-
 #ifndef QT_NO_QWS_GFX_SPEED
 # define QWS_EXPERIMENTAL_FASTPATH
 # define GFX_INLINE inline
@@ -1502,58 +1498,6 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 }
 
 
-#ifndef QT_NO_QWS_VGA_16
-static inline void qgfx_vga_io_w_fast(unsigned short port, unsigned char reg,
-                                 unsigned char val)
-{
-    outw((val<<8)|reg, port);
-}
-
-static inline void
-qgfx_vga16_set_color(int c)
-{
-    qgfx_vga_io_w_fast( 0x3CE, 0, c );
-}
-
-static inline void
-qgfx_vga16_set_enable_sr(int mask)
-{
-    qgfx_vga_io_w_fast( 0x3CE, 1, mask );
-}
-
-static inline void
-qgfx_vga16_set_mask(int mask)
-{
-    qgfx_vga_io_w_fast( 0x3CE, 8, mask );
-}
-
-static inline void
-qgfx_vga16_set_mode(int mode)
-{
-    qgfx_vga_io_w_fast( 0x3CE, 5, mode );
-}
-
-// Bits 0-2: rotate count
-// Bits 3-4: 0=NOP, 1=AND, 2=OR, 3=XOR
-static inline void
-qgfx_vga16_set_op(int op)
-{
-    qgfx_vga_io_w_fast( 0x3CE, 3, op );
-}
-
-static inline void
-qgfx_vga16_set_read_plane(int plane)
-{
-    qgfx_vga_io_w_fast( 0x3CE, 4, plane );
-}
-
-static inline void
-qgfx_vga16_set_write_planes(int mask)
-{
-    qgfx_vga_io_w_fast( 0x3C4, 2, mask );
-}
-#endif
-
 /*
  *
  */
@@ -1562,15 +1506,6 @@ template <const int depth, const int type>
 QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     : QGfxRasterBase(b,w,h)
 {
-#ifndef QT_NO_QWS_VGA_16
-    if ( type == QGfxRaster_VGA16 ) {
-	if (-1 == ioperm (0x3c0, 0x20, 1))
-	    qDebug("Can't IO permissions");
-	qgfx_vga16_set_enable_sr(0xf);
-	qgfx_vga16_set_op(0);
-	qgfx_vga16_set_mode(0);
-    }
-#endif
     setLineStep((depth*width+7)/8);
     if ( depth == 1 ) {
 	setPen( color1 );
@@ -1786,13 +1721,6 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 	    ((ushort*)l)[x] = (pixel & 0xffff);
 	else if ( depth == 8 )
 	    l[x] = (pixel & 0xff);
-#ifndef QT_NO_QWS_VGA_16
-	else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
-	    qgfx_vga16_set_color(pixel);
-	    qgfx_vga16_set_mask(1 << (x%8));
-	    l[x/8] |= 1;
-	}
-#endif
 	else if ( depth == 1 )
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
@@ -1805,13 +1733,6 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 	    ((ushort*)l)[x] = ((ushort*)l)[x] ^ pixel;
 	else if ( depth == 8 )
 	    l[x] = l[x] ^ pixel;
-#ifndef QT_NO_QWS_VGA_16
-	else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
-	    qgfx_vga16_set_color(pixel);
-	    qgfx_vga16_set_mask(1 << (x%8));
-	    l[x/8] |= 1;
-	}
-#endif
 	else if ( depth == 1 )
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
@@ -1824,13 +1745,6 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 	    ((ushort*)l)[x] = ~(((ushort*)l)[x]);
 	else if ( depth == 8 )
 	    l[x] = ~(l[x]);
-#ifndef QT_NO_QWS_VGA_16
-	else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
-	    qgfx_vga16_set_color(pixel);
-	    qgfx_vga16_set_mask(1 << (x%8));
-	    l[x/8] |= 1;
-	}
-#endif
 	else if ( depth == 1 )
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
@@ -3702,11 +3616,6 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 #ifndef QT_NO_QWS_DEPTH_1
     } else if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_VGA_16
-    } else if(d==4) {
-	printf("Creating a non-VGA16 4-bit QGfxRaster object!!\n");
-	ret = new QGfxRaster<4,QGfxRaster_VGA16>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
