@@ -1664,7 +1664,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         return pm;
     }
 
-#if 0 //!defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     // server side pixmap transformations. We have to find a way to fix the alpha
     // channel to get it to work correctly.
     if (data->xft_hd) {
@@ -1682,7 +1682,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
             { 0, 0, XDoubleToFixed(1.) }
         }};
         XRenderSetPictureTransform (dpy, pict, &tranform);
-        XRenderSetPictureFilter (dpy, pict,
+        XRenderSetPictureFilter(dpy, pict,
                                  (char *)(mode == Qt::SmoothTransformation ? "bilinear" : "nearest"), 0, 0);
 
         XRenderComposite(dpy, PictOpSrc, pict,
@@ -1697,27 +1697,30 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
             // create 8bpp pixmap and render picture
             result.data->alphapm->data->hd =
-                XCreatePixmap(result.data->xinfo.display(),
-                              RootWindow(result.data->xinfo.display(), result.data->xinfo.screen()),
-                              w, h, 8);
+                XCreatePixmap(dpy, RootWindow(dpy, result.data->xinfo.screen()), w, h, 8);
             result.data->alphapm->data->xft_hd =
-                (Qt::HANDLE) XftDrawCreateAlpha(result.data->xinfo.display(), result.data->alphapm->data->hd, 8);
+                (Qt::HANDLE) XftDrawCreateAlpha(dpy, result.data->alphapm->data->hd, 8);
+//             XRenderColor color = { 0,0,0,0 };
+//             XRenderFillRectangle(dpy, PictOpOver, result.data->alphapm->xftPictureHandle(), &color, 0, 0, w, h);
 
             Pixmap alpha_pm;
+            XftDraw *alpha_draw;
             ::Picture apict = 0;
             if (data->alphapm) {
-                apict = XftDrawPicture((XftDraw *) data->alphapm->data->xft_hd);
+                alpha_draw = (XftDraw *) data->alphapm->data->xft_hd;
             } else {
                 // create 8bpp pixmap and render picture
-                alpha_pm = XCreatePixmap(result.data->xinfo.display(),
-                                         RootWindow(result.data->xinfo.display(), result.data->xinfo.screen()),
-                                         w, h, 8);
-                apict = XRenderCreatePicture(dpy, alpha_pm,
-                                             XRenderFindStandardFormat(dpy, PictStandardA8), 0, 0);
-                XRenderColor color = { 0, 0, 0, 1<<15 };
-                XRenderFillRectangle(dpy, PictOpOver, apict, &color, 0, 0, w, h);
+                alpha_pm = XCreatePixmap(dpy, RootWindow(dpy, result.data->xinfo.screen()), ws, hs, 8);
+                alpha_draw = XftDrawCreateAlpha(dpy, alpha_pm, 8);
+            }
+            apict = XftDrawPicture(alpha_draw);
+            if (!data->alphapm) {
+                XRenderColor color = { 0xffffff, 0xffffff, 0xffffff, 0xffffff };
+                XRenderFillRectangle(dpy, PictOpSrc, apict, &color, 0, 0, ws, hs);
             }
             XRenderSetPictureTransform (dpy, apict, &tranform);
+            XRenderSetPictureFilter(dpy, apict,
+                                    (char *)(mode == Qt::SmoothTransformation ? "bilinear" : "nearest"), 0, 0);
             XRenderComposite(dpy, PictOpSrc, apict,
                              0, result.data->alphapm->xftPictureHandle(),
                              0, 0, 0, 0, 0, 0, w, h);
@@ -1726,7 +1729,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
             XRenderSetPictureTransform(dpy, apict, &unity);
             if (!data->alphapm) {
-                XRenderFreePicture(dpy, apict);
+                XftDrawDestroy(alpha_draw);
                 XFreePixmap(dpy, alpha_pm);
             }
         }
