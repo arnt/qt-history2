@@ -1616,6 +1616,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextParag* curpar = lParag;
     int pos = 0;
     QValueStack<QTextDocumentTag> tags;
+    if ( !sheet_->item( "p" ) )
+	(new QStyleSheetItem( sheet_, "p" ))->setDisplayMode( QStyleSheetItem::DisplayBlock );
     QTextDocumentTag initag( "p", sheet_->item("p"), *formatCollection()->defaultFormat() );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
@@ -2020,7 +2022,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	}
     }
 
-    if ( doLineBreak && curpar->prev() ) 
+    if ( doLineBreak && curpar->prev() )
         curpar->prev()->ubm = 0;
     if ( hasNewPar && curpar != fParag ) {
 	// cleanup unused last paragraphs
