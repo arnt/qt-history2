@@ -23,10 +23,10 @@ int main( int argc, char ** argv ) {
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
 
     style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "dt" );
-    style->setDisplayMode(QStyleSheetItem::DisplayListItem);
+    style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setContexts("dl");
 
-    style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "dd" );
+//     style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "dd" );
 
     style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "big" );
     style->setFontSize( 24 );
