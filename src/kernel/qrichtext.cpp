@@ -972,7 +972,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     selectionText[ Selection6] = FALSE;
     selectionText[ Selection7] = FALSE;
     selectionText[ Selection8] = FALSE;
-    commandHistory = new QTextCommandHistory( 100 ); // ### max undo/redo steps should be configurable
+    commandHistory = new QTextCommandHistory( 100 );
     tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
 }
 
@@ -2526,7 +2526,7 @@ void QTextParag::format( int start, bool doMove )
 	QTextParag *s = n;
 	bool makeInvalid = FALSE;
 	while ( s ) {
- 	    if ( !s->isFullWidth() ) // ######### check this, might be a bit inefficient!
+ 	    if ( !s->isFullWidth() )
 		makeInvalid = TRUE;
 	    if ( makeInvalid )
 		s->invalidate( 0 );

@@ -1445,7 +1445,7 @@ void QTextView::setFontInternal( const QFont &f_ )
 }
 
 /*! Returns the contents of the view.
-  
+
   If the view is readonly (i.e. it is a QTextView or QTextBrowser),
   exactly the same contents as you did set is returned. If it is
   editable (i.e. it is a QTextEdit), the current contens is set, and
@@ -1953,7 +1953,10 @@ bool QTextView::hasSelectedText() const
     return doc->hasSelection( QTextDocument::Standard );
 }
 
-/*! Returns the selected text, if there is one, else an empty string
+/*! Returns the selected text, if there is one, else an empty
+ string. Up to now only plain text is supported here. In the future
+ some kind of HTML subset might be returned here depending on
+ textFormat().
  */
 
 QString QTextView::selectedText() const
