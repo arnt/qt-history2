@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#4 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#4 $";
 #endif
 
 
@@ -52,7 +52,7 @@ void QLabel::setText( long l )
 void QLabel::setText( double d )
 {
     QString tmp;
-    tmp.sprintf( "%g", l );
+    tmp.sprintf( "%g", d );
     if ( tmp != t ) {
 	t = tmp;
 	update();
