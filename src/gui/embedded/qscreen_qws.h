@@ -19,6 +19,7 @@
 #include "qrgb.h"
 #include "qrect.h"
 #include "qimage.h"
+#include "qregion.h"
 
 class QScreenCursor;
 class QGfx;
