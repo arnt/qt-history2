@@ -40,8 +40,19 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qobject.h"
 
+// Define these appropriately to use an accelerated driver
+// as the basis for shadowfb
+
+#define SHADOWFB_RASTER_PARENT QGfxRaster<depth,type>
+#define SHADOWFB_CURSOR_PARENT QScreenCursor
+#define SHADOWFB_SCREEN_PARENT QLinuxFbScreen
+
+// Define this to use a QGfx for the shadow screen updates
+// (useful if you have hardware acceleration)
+// #define SHADOWFB_USE_QGFX
+
 template <const int depth, const int type>
-class QGfxShadow : public QGfxRaster<depth,type>
+class QGfxShadow : public SHADOWFB_RASTER_PARENT
 {
 public:
     QGfxShadow(unsigned char *b,int w,int h);
@@ -62,7 +73,7 @@ public:
 };
 
 #ifndef QT_NO_QWS_CURSOR
-class QShadowScreenCursor : public QScreenCursor
+class QShadowScreenCursor : public SHADOWFB_CURSOR_PARENT
 {
 public:
     QShadowScreenCursor();
@@ -88,7 +99,7 @@ private:
 
 };
 
-class QShadowFbScreen : public QLinuxFbScreen
+class QShadowFbScreen : public SHADOWFB_SCREEN_PARENT
 {
 
 public:

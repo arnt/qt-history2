@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_QWS_CURSOR
 
-QShadowScreenCursor::QShadowScreenCursor() : QScreenCursor()
+QShadowScreenCursor::QShadowScreenCursor() : SHADOWFB_CURSOR_PARENT ()
 {
 }
 
@@ -25,7 +25,7 @@ void QShadowScreenCursor::set( const QImage &image, int hotx, int hoty )
     QWSDisplay::grab( TRUE );
     QRect r( data->x - hotx, data->y - hoty, image.width(), image.height() );
     qt_screen->setDirty( data->bound | r );
-    QScreenCursor::set( image, hotx, hoty );
+    SHADOWFB_CURSOR_PARENT ::set( image, hotx, hoty );
     QWSDisplay::ungrab();
 }
 
@@ -34,14 +34,14 @@ void QShadowScreenCursor::move( int x, int y )
     QWSDisplay::grab( TRUE );
     QRect r( x - data->hotx, y - data->hoty, data->width, data->height );
     qt_screen->setDirty( r | data->bound );
-    QScreenCursor::move( x, y );
+    SHADOWFB_CURSOR_PARENT ::move( x, y );
     QWSDisplay::ungrab();
 }
 #endif
 
 template <const int depth, const int type>
 QGfxShadow<depth,type>::QGfxShadow(unsigned char *b,int w,int h)
-    : QGfxRaster<depth, type>( b, w, h )
+    : SHADOWFB_RASTER_PARENT ( b, w, h )
 {
 }
 
@@ -55,7 +55,7 @@ void QGfxShadow<depth,type>::drawPoint( int x, int y )
 {
     QWSDisplay::grab( TRUE );
     qt_screen->setDirty( QRect( x+xoffs, y+yoffs, 1, 1 ) & clipbounds );
-    QGfxRaster<depth,type>::drawPoint( x, y );
+    SHADOWFB_RASTER_PARENT ::drawPoint( x, y );
     QWSDisplay::ungrab();
 }
 
@@ -66,7 +66,7 @@ void QGfxShadow<depth,type>::drawPoints( const QPointArray &pa,int x,int y )
     QRect r = pa.boundingRect();
     r.moveBy( xoffs, yoffs );
     qt_screen->setDirty( r & clipbounds );
-    QGfxRaster<depth,type>::drawPoints( pa, x, y );
+    SHADOWFB_RASTER_PARENT ::drawPoints( pa, x, y );
     QWSDisplay::ungrab();
 }
 
@@ -77,7 +77,7 @@ void QGfxShadow<depth,type>::drawLine( int x1,int y1,int x2,int y2 )
     QRect r;
     r.setCoords( x1+xoffs, y1+yoffs, x2+xoffs, y2+yoffs );
     qt_screen->setDirty( r & clipbounds );
-    QGfxRaster<depth,type>::drawLine( x1, y1, x2, y2 );
+    SHADOWFB_RASTER_PARENT ::drawLine( x1, y1, x2, y2 );
     QWSDisplay::ungrab();
 }
 
@@ -86,7 +86,7 @@ void QGfxShadow<depth,type>::fillRect( int x,int y,int w,int h )
 {
     QWSDisplay::grab( TRUE );
     qt_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) & clipbounds );
-    QGfxRaster<depth,type>::fillRect( x, y, w, h );
+    SHADOWFB_RASTER_PARENT ::fillRect( x, y, w, h );
     QWSDisplay::ungrab();
 }
 
@@ -97,7 +97,7 @@ void QGfxShadow<depth,type>::drawPolyline( const QPointArray &pa,int x,int y )
     QRect r = pa.boundingRect();
     r.moveBy( xoffs, yoffs );
     qt_screen->setDirty( r & clipbounds );
-    QGfxRaster<depth,type>::drawPolyline( pa, x, y );
+    SHADOWFB_RASTER_PARENT ::drawPolyline( pa, x, y );
     QWSDisplay::ungrab();
 }
 
@@ -108,7 +108,7 @@ void QGfxShadow<depth,type>::drawPolygon( const QPointArray &pa,bool w,int x,int
     QRect r = pa.boundingRect();
     r.moveBy( xoffs, yoffs );
     qt_screen->setDirty( r & clipbounds );
-    QGfxRaster<depth,type>::drawPolygon( pa, w, x, y );
+    SHADOWFB_RASTER_PARENT ::drawPolygon( pa, w, x, y );
     QWSDisplay::ungrab();
 }
 
@@ -117,7 +117,7 @@ void QGfxShadow<depth,type>::blt( int x,int y,int w,int h, int sx, int sy )
 {
     QWSDisplay::grab( TRUE );
     qt_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) & clipbounds );
-    QGfxRaster<depth,type>::blt( x, y, w, h, sx, sy );
+    SHADOWFB_RASTER_PARENT ::blt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
 
@@ -129,7 +129,7 @@ void QGfxShadow<depth,type>::scroll( int x,int y,int w,int h,int sx,int sy )
     int dx = sx - x;
     qt_screen->setDirty( QRect(QMIN(x,sx) + xoffs, QMIN(y,sy) + yoffs,
 			   w+abs(dx), h+abs(dy)) & clipbounds );
-    QGfxRaster<depth,type>::scroll( x, y, w, h, sx, sy );
+    SHADOWFB_RASTER_PARENT ::scroll( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
 
@@ -139,7 +139,7 @@ void QGfxShadow<depth,type>::stretchBlt( int x,int y,int w,int h,int sx,int sy )
 {
     QWSDisplay::grab( TRUE );
     qt_screen->setDirty( QRect( x + xoffs, y + yoffs, w, h) & clipbounds );
-    QGfxRaster<depth,type>::stretchBlt( x, y, w, h, sx, sy );
+    SHADOWFB_RASTER_PARENT ::stretchBlt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
 #endif
@@ -149,7 +149,7 @@ void QGfxShadow<depth,type>::tiledBlt( int x,int y,int w,int h )
 {
     QWSDisplay::grab( TRUE );
     qt_screen->setDirty( QRect(x + xoffs, y + yoffs, w, h) & clipbounds );
-    QGfxRaster<depth,type>::tiledBlt( x, y, w, h );
+    SHADOWFB_RASTER_PARENT ::tiledBlt( x, y, w, h );
     QWSDisplay::ungrab();
 }
 
@@ -166,7 +166,7 @@ void QShadowTimerHandler::timerEvent(QTimerEvent *)
 }
 
 QShadowFbScreen::QShadowFbScreen( int display_id )
-    : QLinuxFbScreen(display_id)
+    : SHADOWFB_SCREEN_PARENT (display_id)
 {
     timer=new QShadowTimerHandler(this);
 }
@@ -178,12 +178,12 @@ QShadowFbScreen::~QShadowFbScreen()
 
 bool QShadowFbScreen::initDevice()
 {
-    return QLinuxFbScreen::initDevice();
+    return SHADOWFB_SCREEN_PARENT ::initDevice();
 }
 
 bool QShadowFbScreen::connect( const QString &displaySpec )
 {
-    bool ret=QLinuxFbScreen::connect(displaySpec);
+    bool ret=SHADOWFB_SCREEN_PARENT ::connect(displaySpec);
     if(!ret)
 	return false;
 
@@ -198,7 +198,7 @@ void QShadowFbScreen::disconnect()
 {
     data=real_screen;
 
-    QLinuxFbScreen::disconnect();
+    SHADOWFB_SCREEN_PARENT ::disconnect();
 }
 
 int QShadowFbScreen::initCursor(void* end_of_location, bool init)
@@ -222,17 +222,17 @@ int QShadowFbScreen::initCursor(void* end_of_location, bool init)
 
 void QShadowFbScreen::shutdownDevice()
 {
-    QLinuxFbScreen::shutdownDevice();
+    SHADOWFB_SCREEN_PARENT ::shutdownDevice();
 }
 
 void QShadowFbScreen::save()
 {
-    QLinuxFbScreen::save();
+    SHADOWFB_SCREEN_PARENT ::save();
 }
 
 void QShadowFbScreen::restore()
 {
-    QLinuxFbScreen::restore();
+    SHADOWFB_SCREEN_PARENT ::restore();
 }
 
 QGfx * QShadowFbScreen::createGfx(unsigned char * bytes,int w,int h,int d,
@@ -273,13 +273,13 @@ QGfx * QShadowFbScreen::createGfx(unsigned char * bytes,int w,int h,int d,
     ret->setLineStep(linestep);
     return ret;
     } else {
-	return QLinuxFbScreen::createGfx(bytes,w,h,d,linestep);
+	return SHADOWFB_SCREEN_PARENT ::createGfx(bytes,w,h,d,linestep);
     }
 }
 
 void QShadowFbScreen::setMode(int nw,int nh,int nd)
 {
-    QLinuxFbScreen::setMode(nw,nh,nd);
+    SHADOWFB_SCREEN_PARENT ::setMode(nw,nh,nd);
 }
 
 void QShadowFbScreen::setDirty( const QRect& r )
@@ -293,10 +293,7 @@ void QShadowFbScreen::doUpdate()
     QRect screen(0,0,w,h);
 #ifdef SHADOWFB_USE_QGFX
     // This is here to allow accelerated shadowfb copies
-    // You'd need to #define the above and to alter QShadowFbScreen
-    // to inherit from your accelerated screen instead of LinuxFb to use it
-    // (and also change the line that instantiates the gfx)
-    QGfx * gfx=QScreen::createGfx(real_screen,w,h,d,lstep);
+    QGfx * gfx=SHADOWFB_SCREEN_PARENT ::createGfx(real_screen,w,h,d,lstep);
     gfx->setSource(data,w,h,lstep,d,&screenclut,screencols);
 #endif
     for(unsigned int loopc=0;loopc<rectlist.size();loopc++) {
@@ -373,7 +370,7 @@ int QShadowFbScreen::sharedRamSize(void * end)
     shadow_screen=(uchar *)end;
     shadow_screen-=size;
     data=shadow_screen;
-    int ret=QLinuxFbScreen::sharedRamSize((void *)shadow_screen);
+    int ret=SHADOWFB_SCREEN_PARENT ::sharedRamSize((void *)shadow_screen);
     return ret+size;
 }
 
