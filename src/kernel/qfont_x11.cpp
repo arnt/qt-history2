@@ -625,7 +625,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 		    qfs = x11data.fontstruct[currs];
 		}
 		// 2b. string width (this is for the PREVIOUS truple)
-		currw += runWidth( this, qfs, str, lasts, i - lasts, mapped );
+		currw += runWidth( this, qfs, str, lasts + pos, i - lasts, mapped );
 	    }
 
 	    currs = tmp;
@@ -639,7 +639,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 	    load(currs);
 	    qfs = x11data.fontstruct[currs];
 	}
-	currw += runWidth( this, qfs, str, lasts, i - lasts, mapped );
+	currw += runWidth( this, qfs, str, lasts + pos, i - lasts, mapped );
     }
     return currw;
 
@@ -671,7 +671,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		}
 		// string width (this is for the PREVIOUS truple)
 		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, qfs );
-		currw += runWidth( this, qfs, str, lasts, i - lasts, cache->mapped );
+		currw += runWidth( this, qfs, str, lasts + pos, i - lasts, cache->mapped );
 		QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 		cache->next = run;
 		cache = run;
@@ -706,7 +706,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		}
 		// string width (this is for the PREVIOUS truple)
 		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, qfs );
-		currw += runWidth( this, qfs, str, lasts, i - lasts, cache->mapped );
+		currw += runWidth( this, qfs, str, lasts + pos, i - lasts, cache->mapped );
 		QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 		cache->next = run;
 		cache = run;
@@ -933,8 +933,11 @@ void QFontPrivate::drawText( Display *dpy, WId hd, GC gc, int x, int y,
 			      chars, cache->length );
 	    } else {
 		const char *chars = cache->mapped.data();
-		XDrawString(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
-			    chars, cache->length );
+		if ( chars ) 
+		    XDrawString(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
+				chars, cache->length );
+		else
+		    qDebug( "internal error in QFontPrivate::drawText()" );
 	    }
 	}
 

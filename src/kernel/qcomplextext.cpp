@@ -715,7 +715,8 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
 
     QChar baseChar = QComplexText::shapedCharacter( str, pos );
     QRect baseRect = f->boundingRect( baseChar );
-
+    int baseOffset = f->textWidth( str, pos, 1 );
+    
     //qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
     int offset = f->request.pixelSize / 10 + 1;
     QPointArray pa( nmarks );
@@ -787,7 +788,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
         }
         //qDebug( "char=%x combiningClass = %d offset=%d/%d", mark.unicode(), cmb, p.x(), p.y() );
         markRect.moveBy( p.x(), p.y() );
-        p += QPoint( - baseRect.width(), 0 );
+        p += QPoint( -baseOffset, 0 );
         attachmentRect |= markRect;
 	if ( boundingRect )
 	    *boundingRect |= markRect;
