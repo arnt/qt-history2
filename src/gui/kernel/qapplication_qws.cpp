@@ -1612,6 +1612,7 @@ void qt_init(QApplicationPrivate *priv, int type)
         QApplication::setStyle(new QInterlaceStyle);
 */
 #endif
+}
 
 bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 {
