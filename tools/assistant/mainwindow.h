@@ -87,7 +87,7 @@ private:
     Ui::MainWindow ui;
 
     QList<QAction*> goActions;
-    int setupCompleted:1;
+    uint setupCompleted:1;
     TabbedBrowser *tabs;
     SettingsDialog *settingsDia;
     QMap<QAction*, QString> bookmarks;
