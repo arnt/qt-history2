@@ -275,12 +275,12 @@ web browser you wish to use. Click \OK to accept the
 selection. Alternatively, type in the name of your browser's
 executable in the line edit.
 
-\i Documentations 
+\i Documentation 
 
 To add your own documentation to \QA, click \Button Add to invoke the
 \Widget Assistant dialog. Navigate through the files until you find
 the documentation you want to add and then click \OK. Click \Button
-Delete to remove obsolete documentation from the Documentations
+Delete to remove obsolete documentation from the Documentation
 list box. Read more about adding your own documentation in the next
 chapter, \l {Adding Documentation to Qt Assistant}. 
 
@@ -334,7 +334,7 @@ Adding new documentation to \QA is straight-forward. You simply
 specify a new documentation content file for \QA to use.
 
 Click \Menu Edit|Settings to invoke the \Widget Settings dialog. Click
-the \Menu{Documentations} tab. Now click \Button Add to invoke a
+the \Menu{Documentation} tab. Now click \Button Add to invoke a
 file open dialog. Select the new documentation's content file. (This
 file must be an XML file in \QA's documentation content file format.)
 
