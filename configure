@@ -145,7 +145,7 @@ else
 fi
 
 qdir="\$(QTDIR)"
-[ "x$QTDIR" != "x$outpath" ] && qdir="$outpath"
+[ "x$relpath" != "x$outpath" ] && qdir="$outpath"
 
 if [ -f $outpath/include/qconfig.h ]
 then
@@ -669,7 +669,7 @@ do
 	   elif [ "$VAR" = "sql" ]; then
 	      VAR="${VAR}-driver"
 	   fi
-	   QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
+	   QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\" \"styles -= $VAL\""
 	elif [ "$OPT" = "no" ]; then
 	   PLUG_VAR="${VAR}-plugin"
 	   IN_VAR="${VAR}"
@@ -1531,10 +1531,23 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$SHARED" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG dll"
 [ "x$SHARED" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
 [ "x$NAS_SOUND" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
+[ "x$JPEG" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
 [ "x$JPEG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
 [ "x$JPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
-[ "x$MNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
+[ "x$MNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
+[ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
+[ "x$GIF" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-gif"
+[ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
+[ "x$ZLIB" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
+[ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
+[ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
+[ "x$LIBPNG" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-png"
+[ "x$LIBPNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-png"
+
+[ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
+
+
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$X11_PLATFORM" = "yes" ]
 then
@@ -1570,13 +1583,7 @@ then
         QMAKE_CONFIG="$QMAKE_CONFIG xkb"
     fi
 fi
-[ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
-[ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
-[ "x$ZLIB" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
-[ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
-[ "x$LIBPNG" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-png"
 
-[ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
 if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]

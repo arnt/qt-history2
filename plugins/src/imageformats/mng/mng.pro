@@ -3,9 +3,9 @@ CONFIG += qt plugin
 TARGET += qmng
 VERSION = 1.0.0
 DESTDIR = ../../../imageformats
-INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
-INCLUDEPATH += $(QTDIR)/src/3rdparty/libjpeg
-INCLUDEPATH += $(QTDIR)/src/3rdparty/libmng
+INCLUDEPATH += ../../../../src/3rdparty/zlib
+INCLUDEPATH += ../../../../src/3rdparty/libjpeg
+INCLUDEPATH += ../../../../src/3rdparty/libmng
 REQUIRES += !mng
 
 win32-borland {
@@ -31,8 +31,9 @@ SOURCES += main.cpp \
 	../../../../src/3rdparty/libmng/libmng_read.c \
 	../../../../src/3rdparty/libmng/libmng_trace.c \
 	../../../../src/3rdparty/libmng/libmng_write.c \
-	../../../../src/3rdparty/libmng/libmng_zlib.c \
+	../../../../src/3rdparty/libmng/libmng_zlib.c
 
+!zlib:!system-zlib:SOURCES+= \
 	../../../../src/3rdparty/zlib/adler32.c \
 	../../../../src/3rdparty/zlib/compress.c \
 	../../../../src/3rdparty/zlib/crc32.c \
@@ -46,8 +47,9 @@ SOURCES += main.cpp \
 	../../../../src/3rdparty/zlib/infutil.c \
 	../../../../src/3rdparty/zlib/trees.c \
 	../../../../src/3rdparty/zlib/uncompr.c \
-	../../../../src/3rdparty/zlib/zutil.c \
+	../../../../src/3rdparty/zlib/zutil.c
 
+!jpeg:!system-jpeg:SOURCES += \
 	../../../../src/3rdparty/libjpeg/jcapimin.c \
 	../../../../src/3rdparty/libjpeg/jcapistd.c \
 	../../../../src/3rdparty/libjpeg/jccoefct.c \
