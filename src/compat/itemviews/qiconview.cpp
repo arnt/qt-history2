@@ -5561,10 +5561,10 @@ void QIconView::initDragEnter(QDropEvent *e)
     background using the painter \a p.
 
     The default implementation fills \a r with the viewport's
-    backgroundBrush(). Subclasses may reimplement this to draw custom
+    backgroundBrush(). Subclasses can reimplement this to draw custom
     backgrounds.
 
-    \sa contentsX() contentsY() drawContents()
+    \sa drawContents()
 */
 
 void QIconView::drawBackground(QPainter *p, const QRect &r)

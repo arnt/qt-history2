@@ -163,7 +163,7 @@ explicitly shared:
 \i \l QBitArray
 \i \l QPointArray
 \i \l QByteArray
-\i Any other instantiation of \link QMemArray QMemArray\<type\>\endlink
+\i Any other instantiation of \c{QMemArray<type>}
 \endlist
 
 These classes have a detach() function that can be called if you want

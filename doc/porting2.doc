@@ -695,7 +695,7 @@ QFont::substitutions()</tt>.
 
 Calling resize(0,0) or resize(1,1) will no longer work magically.
 Remove all such calls. The default size of top level widgets will be their
-\link QWidget::sizeHint() sizeHint()\endlink.
+\c{sizeHint()}.
 
 The default implementation of QWidget::sizeHint() will no longer
 return just an invalid size; if the widget has a layout, it will return
@@ -770,12 +770,12 @@ drag-and-drop code with clipboard operations).
 <P>
 QDropSite is obsolete.  If you simply passed <tt>this</tt>, just remove
 the inheritance of QDropSite and call
-\link QWidget::setAcceptDrops() setAcceptDrops(TRUE)\endlink in the class
+\c{setAcceptDrops(TRUE)} in the class
 constructor.
 If you passed something other than <tt>this</tt>,
 your code will not work.  A common case is passing
 the
-\link QScrollView::viewport() viewport()\endlink of a QListView,
+\c viewport() of a QListView,
 in which case,
 override the
 \link QScrollView::contentsDragMoveEvent() contentsDragMoveEvent()\endlink,

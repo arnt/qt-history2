@@ -104,20 +104,22 @@ static const QString::CaseSensitivity CaseSensitiveFS =
 
     See if a directory exists.
     \code
-    QDir d("example");                        // "./example"
-    if (!d.exists())
+    QDir dir("example");                     // "./example"
+    if (!dir.exists())
         qWarning("Cannot find the example directory");
     \endcode
+    (Alternatively, we could use the static convenience function
+     QFile::exists().)
 
     Traversing directories and reading a file.
     \code
-    QDir d = QDir::root();                        // "/"
-    if (!d.cd("tmp")) {                        // "/tmp"
+    QDir dir = QDir::root();                 // "/"
+    if (!dir.cd("tmp")) {                    // "/tmp"
         qWarning("Cannot find the \"/tmp\" directory");
     } else {
-        QFile f(d.filePath("ex1.txt"));        // "/tmp/ex1.txt"
-        if (!f.open(IO_ReadWrite))
-            qWarning("Cannot create the file %s", f.name());
+        QFile file(dir.filePath("ex1.txt")); // "/tmp/ex1.txt"
+        if (!file.open(IO_ReadWrite))
+            qWarning("Cannot create the file %s", file.name());
     }
     \endcode
 
@@ -129,13 +131,13 @@ static const QString::CaseSensitivity CaseSensitiveFS =
 
     int main(int argc, char **argv)
     {
-        QDir d;
-        d.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-        d.setSorting(QDir::Size | QDir::Reversed);
+        QDir dir;
+        dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+        dir.setSorting(QDir::Size | QDir::Reversed);
 
-        QFileInfoList list = d.entryInfoList();
+        QFileInfoList list = dir.entryInfoList();
         printf("     Bytes Filename\n");
-        for(int i = ; i < list.size(); ++i) {
+        for (int i = 0; i < list.size(); ++i) {
             QFileInfo fi = list.at(i);
             printf("%10li %s\n", fi.size(), fi.fileName().latin1());
         }

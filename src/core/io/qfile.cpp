@@ -99,8 +99,9 @@ void QFilePrivate::init()
     QFile file("file.txt");
     if (file.open(IO_WriteOnly)) {
         QTextStream stream(&file);
-        for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
-            stream << *it << "\n";
+        QStringList::ConstIterator i = lines.constBegin();
+        for (; i != lines.constEnd(); ++i)
+            stream << *i << "\n";
         file.close();
     }
     \endcode

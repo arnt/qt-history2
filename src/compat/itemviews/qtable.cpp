@@ -745,7 +745,7 @@ void QTableItem::paint(QPainter *p, const QPalette &pal,
     \skipto createEditor
     \printto }
 
-    \sa QTable::createEditor() setContentFromEditor() QTable::viewport() setReplaceable()
+    \sa QTable::createEditor() setContentFromEditor() setReplaceable()
 */
 
 QWidget *QTableItem::createEditor() const
@@ -2217,7 +2217,7 @@ void QTable::setColumnReadOnly(int col, bool ro)
     see \link qtableitem.html#wheneditable
     QTableItem::EditType\endlink.
 
-    \sa QWidget::enabled setColumnReadOnly() setRowReadOnly()
+    \sa setColumnReadOnly() setRowReadOnly()
 */
 
 bool QTable::isReadOnly() const
