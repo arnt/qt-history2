@@ -634,7 +634,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		DeleteDC( hdc );
 		hdc = 0;
 	    }
-	    state = PST_ABORTED;
+	    state = PST_IDLE;
 	    return FALSE;
 	} else {
 	    state = PST_ACTIVE;
