@@ -51,6 +51,7 @@
 #include "src/oci/qsql_oci.h"
 #endif
 
+#include "qcleanuphandler.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverinterface.h"
@@ -62,17 +63,17 @@
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultDatabase = "qt_sql_default_database";
 
-class QSqlDatabaseManager : public QObject
+class QSqlDatabaseManager
 {
 public:
+    ~QSqlDatabaseManager();
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
     static void          removeDatabase( const QString& name );
 
 protected:
     static QSqlDatabaseManager* instance();
-    QSqlDatabaseManager( QObject* parent=0, const char* name=0 );
-    ~QSqlDatabaseManager();
+    QSqlDatabaseManager();
     QDict< QSqlDatabase > dbDict;
 };
 
@@ -80,8 +81,8 @@ protected:
 
 */
 
-QSqlDatabaseManager::QSqlDatabaseManager( QObject* parent, const char* name )
-    : QObject( parent, name ), dbDict( 1 )
+QSqlDatabaseManager::QSqlDatabaseManager()
+    : dbDict( 1 )
 {
 }
 
@@ -100,21 +101,18 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
     }
 }
 
+static QSqlDatabaseManager * sqlConnection = 0;
+static QCleanupHandler< QSqlDatabaseManager > qsql_cleanup_database_manager;
+
 /*!
   \internal
 
 */
-
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
-    static QSqlDatabaseManager* sqlConnection = 0;
-    // ### use cleanup handler
     if ( !sqlConnection ) {
-#ifdef QT_CHECK_RANGE
-	if ( !qApp )
-	    qWarning("Warning: creating QSqlDatabaseManager with no parent." );
-#endif
-	sqlConnection = new QSqlDatabaseManager( qApp, "qt_qsqldatabasemanager_instance" );
+	sqlConnection = new QSqlDatabaseManager();
+	qsql_cleanup_database_manager.add( sqlConnection );
     }
     return sqlConnection;
 }
