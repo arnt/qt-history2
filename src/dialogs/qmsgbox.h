@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#3 $
 **
 ** Definition of QMessageBox class
 **
@@ -23,7 +23,7 @@ class QMessageBox : public QDialog
     Q_OBJECT
 public:
     static int message( const char *caption,
-			const char *text,  const char *buttonText,
+			const char *text,  const char *buttonText=0,
 			QWidget *parent=0, const char *name=0 );
 
     QMessageBox( QWidget *parent=0, const char *name=0 );
