@@ -302,9 +302,6 @@ void QDataTable::setColumnWidth( int col, int w )
     }
 }
 
-/*!
- */
-
 QString QDataTable::filter() const
 {
     return d->cur.filter();
@@ -335,8 +332,8 @@ void QDataTable::setFilter( const QString& filter )
   The table sort affects the order in which data records are viewed
   in the table.  To actually apply a sort, use refresh().
 
-  When examining the sort property, a stringlist is returned in the
-  form 'fieldname order', e.g.  'id ASC', 'surname DESC'.
+  When examining the sort property, a string list is returned in the
+  form 'fieldname order' (e.g., 'id ASC', 'surname DESC').
 
   \sa filter() refresh()
 
@@ -362,19 +359,6 @@ void QDataTable::setSort( const QSqlIndex& sort )
     d->cur.setSort( sort );
 }
 
-
-/*! Returns the current sort used on the displayed data as a list of
-  strings.  Each field is in the form:
-
-  "cursorname.fieldname ASC" (for ascending sort) or
-  "cursorname.fieldname DESC" (for descending sort)
-
-  If there is no current cursor, an empty string list is returned.
-
-  \sa setSort()
-
- */
-
 QStringList QDataTable::sort() const
 {
     return d->cur.sort();
@@ -388,43 +372,20 @@ QSqlCursor* QDataTable::sqlCursor() const
     return d->cur.cursor();
 }
 
-/*! If \a confirm is TRUE, \e all edit operations (inserts, updates and
-  deletes) will be confirmed by the user.  If \a confirm is FALSE (the
-  default), all edits are posted to the database immediately.
-
-*/
 void QDataTable::setConfirmEdits( bool confirm )
 {
     d->dat.setConfirmEdits( confirm );
 }
-
-/*! If \a confirm is TRUE, all inserts will be confirmed by the user.
-  If \a confirm is FALSE (the default), all inserts are posted to the
-  database immediately.
-
-*/
 
 void QDataTable::setConfirmInsert( bool confirm )
 {
     d->dat.setConfirmInsert( confirm );
 }
 
-/*! If \a confirm is TRUE, all updates will be confirmed by the user.
-  If \a confirm is FALSE (the default), all updates are posted to the
-  database immediately.
-
-*/
-
 void QDataTable::setConfirmUpdate( bool confirm )
 {
     d->dat.setConfirmUpdate( confirm );
 }
-
-/*! If \a confirm is TRUE, all deletes will be confirmed by the user.
-  If \a confirm is FALSE (the default), all deletes are posted to the
-  database immediately.
-
-*/
 
 void QDataTable::setConfirmDelete( bool confirm )
 {
@@ -508,9 +469,6 @@ void QDataTable::setConfirmCancels( bool confirm )
 {
     d->dat.setConfirmCancels( confirm );
 }
-
-/*!
-*/
 
 bool QDataTable::confirmCancels() const
 {
@@ -1288,10 +1246,6 @@ void QDataTable::setAutoEdit( bool autoEdit )
     d->dat.setAutoEdit( autoEdit );
 }
 
-
-/*!
-*/
-
 bool QDataTable::autoEdit() const
 {
     return d->dat.autoEdit();
@@ -1310,9 +1264,6 @@ void QDataTable::setNullText( const QString& nullText )
 {
     d->nullTxt = nullText;
 }
-
-/*!
-*/
 
 QString QDataTable::nullText() const
 {
@@ -1333,9 +1284,6 @@ void QDataTable::setTrueText( const QString& trueText )
     d->trueTxt = trueText;
 }
 
-/*!
-*/
-
 QString QDataTable::trueText() const
 {
     return d->trueTxt;
@@ -1354,10 +1302,6 @@ void QDataTable::setFalseText( const QString& falseText )
 {
     d->falseTxt = falseText;
 }
-
-
-/*!
-*/
 
 QString QDataTable::falseText() const
 {

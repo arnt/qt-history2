@@ -1014,11 +1014,6 @@ void QScrollView::contextMenuEvent( QContextMenuEvent *e )
 	e->ignore();
 }
 
-/*!
-  Returns the currently set mode for the vertical scroll bar.
-
-  \sa setVScrollBarMode()
-*/
 QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
 {
     return d->vMode;
@@ -2531,14 +2526,6 @@ void QScrollView::setDragAutoScroll( bool b )
 {
     d->drag_autoscroll = b;
 }
-
-
-/*!
-  Returns TRUE if autoscrolling in drag move events is enabled, otherwise
-  FALSE.
-
-  \sa setDragAutoScroll()
-*/
 
 bool QScrollView::dragAutoScroll() const
 {

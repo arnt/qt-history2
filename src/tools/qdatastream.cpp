@@ -748,13 +748,6 @@ QDataStream &QDataStream::operator<<( Q_INT16 i )
     return *this;
 }
 
-
-/*!
-  \fn QDataStream &QDataStream::operator<<( Q_UINT32 i )
-  Writes an unsigned 32-bit integer to the stream and returns a reference to
-  the stream.
-*/
-
 /*!
   Writes a signed 32-bit integer to the stream and returns a reference to
   the stream.
@@ -827,13 +820,6 @@ QDataStream &QDataStream::operator<<( Q_LONG i )
   (Q_UINT32).
   Returns a reference to the stream.
 */
-
-/*!
-  \fn QDataStream &QDataStream::operator<<( Q_INT32 i )
-  Writes a signed integer to the stream as a 32-bit signed integer (Q_INT32).
-  Returns a reference to the stream.
-*/
-
 
 /*!
   Writes a 32-bit floating point number to the stream using the standard

@@ -1497,13 +1497,6 @@ bool QHeader::isResizeEnabled( int section ) const
     return TRUE;
 }
 
-/*!
-  Returns TRUE if the sections of the header can be moved around be the user,
-  otherwise FALSE.
-
-  \sa setMovingEnabled()
-*/
-
 bool QHeader::isMovingEnabled() const
 {
     return d->move;
@@ -1626,12 +1619,6 @@ void QHeader::setStretchEnabled( bool b, int section )
 	d->fullSize = -2;
     adjustHeaderSize();
 }
-
-/*! Returns whether the header sections always cover the full width of
-  the header by automatically adjusted all sections.
-
-  \sa setStretchEnabled()
-*/
 
 bool QHeader::isStretchEnabled() const
 {

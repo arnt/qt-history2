@@ -704,10 +704,6 @@ QTabWidget::TabShape QTabWidget::tabShape() const
     return d->shape;
 }
 
-/*!
-  Sets the shape of the tabs to \a s.
-*/
-
 void QTabWidget::setTabShape( TabShape s )
 {
     if ( d->shape == s )

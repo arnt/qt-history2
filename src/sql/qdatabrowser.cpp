@@ -54,7 +54,6 @@ public:
 };
 
 /*!
-
   \class QDataBrowser qdatabrowser.h
 
   \brief The QDataBrowser class provides data manipulation and
@@ -113,7 +112,6 @@ QDataBrowser::QDataBrowser( QWidget *parent, const char *name, WFlags fl )
 }
 
 /*! Destroys the object and frees any allocated resources.
-
 */
 
 QDataBrowser::~QDataBrowser()
@@ -175,9 +173,6 @@ void QDataBrowser::setBoundaryChecking( bool active )
     d->boundaryCheck = active;
 }
 
-/*!
-*/
-
 bool QDataBrowser::boundaryChecking() const
 {
     return d->boundaryCheck;
@@ -197,11 +192,10 @@ bool QDataBrowser::boundaryChecking() const
 
 */
 
-void QDataBrowser::setSort( const QSqlIndex& sort )
+void QDataBrowser::setSort( const QStringList& sort )
 {
     d->cur.setSort( sort );
 }
-
 
 /*! \overload
 
@@ -209,14 +203,10 @@ void QDataBrowser::setSort( const QSqlIndex& sort )
   sort, use refresh().
 
 */
-
-void QDataBrowser::setSort( const QStringList& sort )
+void QDataBrowser::setSort( const QSqlIndex& sort )
 {
     d->cur.setSort( sort );
 }
-
-/*!
-*/
 
 QStringList QDataBrowser::sort() const
 {
@@ -241,9 +231,6 @@ void QDataBrowser::setFilter( const QString& filter )
     d->cur.setFilter( filter );
 }
 
-
-/*!
-*/
 
 QString QDataBrowser::filter() const
 {
@@ -335,25 +322,10 @@ void QDataBrowser::setReadOnly( bool active )
     d->readOnly = active;
 }
 
-/*!
-*/
-
 bool QDataBrowser::isReadOnly() const
 {
     return d->readOnly;
 }
-
-/*! \property QDataBrowser::confirmEdits
-
-  \brief whether the browser confirms edit operations
-
-  If the confirmEdits property is active, the browser confirms all
-  edit operations (inserts, updates and deletes) with the user (this
-  behavior can be changed by overriding the confirmEdit() function),
-  otherwise all edit operations happen immediately.
-
-  \sa confirmEdit() confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
-*/
 
 void QDataBrowser::setConfirmEdits( bool confirm )
 {
@@ -410,10 +382,11 @@ void QDataBrowser::setConfirmDelete( bool confirm )
   \brief whether the browser confirms edit operations
 
   If the confirmEdits property is active, the browser confirms all
-  edit operations (inserts, updates and deletes), otherwise all edit
-  operations happen immediately.
+  edit operations (inserts, updates and deletes) with the user (this
+  behavior can be changed by reimplementing the confirmEdit() function),
+  otherwise all edit operations happen immediately.
 
-  \sa confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
+  \sa confirmEdit() confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
 
 bool QDataBrowser::confirmEdits() const
@@ -421,24 +394,15 @@ bool QDataBrowser::confirmEdits() const
     return ( d->dat.confirmEdits() );
 }
 
-/*!
-*/
-
 bool QDataBrowser::confirmInsert() const
 {
     return ( d->dat.confirmInsert() );
 }
 
-/*!
-*/
-
 bool QDataBrowser::confirmUpdate() const
 {
     return ( d->dat.confirmUpdate() );
 }
-
-/*!
-*/
 
 bool QDataBrowser::confirmDelete() const
 {
@@ -462,9 +426,6 @@ void QDataBrowser::setConfirmCancels( bool confirm )
     d->dat.setConfirmCancels( confirm );
 }
 
-/*!
-*/
-
 bool QDataBrowser::confirmCancels() const
 {
     return d->dat.confirmCancels();
@@ -478,11 +439,10 @@ bool QDataBrowser::confirmCancels() const
   insert or update on a form there are two possible outcomes when they
   navigate to another record:
 
-  <ol>
-  <li> the insert or update is is performed -- this occurs if autoEdit is TRUE
-  <li> the insert or update is abandoned -- this occurs if autoEdit is FALSE
-  </ol>
-
+  \list 1
+  \i the insert or update is is performed -- this occurs if autoEdit is TRUE
+  \i the insert or update is abandoned -- this occurs if autoEdit is FALSE
+  \endlist
 */
 
 void QDataBrowser::setAutoEdit( bool autoEdit )
@@ -490,16 +450,10 @@ void QDataBrowser::setAutoEdit( bool autoEdit )
     d->dat.setAutoEdit( autoEdit );
 }
 
-
-/*! Returns TRUE if the autoEdit property is on, otherwise returns FALSE.
-
-*/
-
 bool QDataBrowser::autoEdit() const
 {
     return d->dat.autoEdit();
 }
-
 
 /*! \fn void QDataBrowser::firstRecordAvailable( bool available )
 
@@ -1249,6 +1203,5 @@ QSql::Confirm  QDataBrowser::confirmCancel( QSql::Op m )
   This signal is emitted just before the cursor's edit buffer  is deleted from the database.
   The \a buf parameter points to the edit buffer being deleted.
 */
-
 
 #endif

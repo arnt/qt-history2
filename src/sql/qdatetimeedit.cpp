@@ -364,9 +364,6 @@ void QDateTimeEditBase::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*!
-*/
-
 bool QDateTimeEditBase::frame() const
 {
     return d ? d->frame() : TRUE;
@@ -743,9 +740,6 @@ QDateEdit::~QDateEdit()
   minimum date.
 */
 
-/*!
-*/
-
 QDate QDateEdit::minValue() const
 {
     return d->min;
@@ -758,9 +752,6 @@ QDate QDateEdit::minValue() const
   Setting the maximum date value for the editor is equivalent to
   calling QDateEdit::setRange( minValue(), \e d ), where \e d is the
   maximum date.
-*/
-
-/*!
 */
 
 QDate QDateEdit::maxValue() const
@@ -950,9 +941,6 @@ void QDateEdit::setOrder( QDateEdit::Order order )
 }
 
 
-/*!
-*/
-
 QDateEdit::Order QDateEdit::order() const
 {
     return d->ord;
@@ -1120,9 +1108,6 @@ void QDateEdit::setDate( const QDate& date )
     d->changed = FALSE;
     repaint( rect(), FALSE );
 }
-
-/*!
-*/
 
 QDate QDateEdit::date() const
 {
@@ -1383,16 +1368,12 @@ void QDateEdit::setAutoAdvance( bool advance )
 }
 
 
-/*!
-*/
-
 bool QDateEdit::autoAdvance() const
 {
     return d->adv;
 }
 
 /*! \reimp
-
 */
 
 void QDateEdit::timerEvent( QTimerEvent * )
@@ -1526,9 +1507,6 @@ QTimeEdit::~QTimeEdit()
   minimum time.
 */
 
-/*!
-*/
-
 QTime QTimeEdit::minValue() const
 {
     return d->min;
@@ -1542,9 +1520,6 @@ QTime QTimeEdit::minValue() const
   QTimeEdit::setRange( minValue(), \e t ), where \e t is the
   maximum time.
 */
-
-/*!
- */
 
 QTime QTimeEdit::maxValue() const
 {
@@ -1595,10 +1570,6 @@ void QTimeEdit::setTime( const QTime& time )
     repaint( rect(), FALSE );
 }
 
-
-/*!
-*/
-
 QTime QTimeEdit::time() const
 {
     if ( QTime::isValid( d->h, d->m, d->s ) )
@@ -1615,20 +1586,10 @@ QTime QTimeEdit::time() const
 
 */
 
-/*!
-*/
-
 void QTimeEdit::setAutoAdvance( bool advance )
 {
     d->adv = advance;
 }
-
-/*! Returns TRUE if auto-advance is enabled, otherwise FALSE is
-  returned.
-
-  \sa setAutoAdvance()
-
-*/
 
 bool QTimeEdit::autoAdvance() const
 {
@@ -2167,6 +2128,8 @@ QSize QDateTimeEdit::sizeHint() const
 
   \brief the datetime value of the editor
 
+  dateTime() returns the current datetime in the editor, or an invalid
+  datetime if the editor does not contain a valid datetime.
 */
 
 void QDateTimeEdit::setDateTime( const QDateTime & dt )
@@ -2177,12 +2140,6 @@ void QDateTimeEdit::setDateTime( const QDateTime & dt )
 	emit valueChanged( dt );
     }
 }
-
-/*!  Returns the current datetime in the editor, or an invalid
-  datetime if the editor does not contain a valid datetime.
-
-    \sa setDateTime()
-*/
 
 QDateTime QDateTimeEdit::dateTime() const
 {

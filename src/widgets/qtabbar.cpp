@@ -817,10 +817,6 @@ QTabBar::Shape QTabBar::shape() const
     return d ? d->s : RoundedAbove;
 }
 
-
-/*!  Sets the shape of this tab bar to \a s and refreshes the bar.
-*/
-
 void QTabBar::setShape( Shape s )
 {
     if ( !d || d->s == s )
@@ -830,8 +826,6 @@ void QTabBar::setShape( Shape s )
     updateMask();
     update();
 }
-
-
 
 /*!
   Lays out all existing tabs (i.e., sets their \c r attribute) according

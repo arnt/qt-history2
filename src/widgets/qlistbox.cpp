@@ -1484,13 +1484,6 @@ int QListBox::numItemsVisible() const
     return rows*columns;
 }
 
-/*!
-  Returns the index of the current (highlighted) item of the list box,
-  or -1 if no item has been selected.
-
-  \sa topItem
-*/
-
 int QListBox::currentItem() const
 {
     if ( !d->current || !d->head )
@@ -1514,6 +1507,8 @@ int QListBox::currentItem() const
 
   When setting this property, the highlighting is moved and the list
   box scrolled as necessary.
+
+  If no item has been selected, currentItem() returns -1.
 */
 
 void QListBox::setCurrentItem( int index )
@@ -2326,13 +2321,6 @@ bool QListBox::isMultiSelection() const
     return selectionMode() == Multi || selectionMode() == Extended;
 }
 
-/*!
-  \obsolete
-  Consider using the \l selectionMode property instead of this method.
-
-  \sa selectionMode
-*/
-
 void QListBox::setMultiSelection( bool enable )
 {
     setSelectionMode( enable ? Multi : Single );
@@ -2596,17 +2584,6 @@ void QListBox::triggerUpdate( bool doLayout )
 }
 
 
-/*!
-  Sets the column layout mode to \a mode and the number of displayed
-  columns accordingly.
-
-  The row layout mode implicitly becomes \c Variable.
-
-  If \a mode is \c Variable, this function returns without doing anything.
-
-  \sa setRowMode() columnMode()
-*/
-
 void QListBox::setColumnMode( LayoutMode mode )
 {
     if ( mode == Variable )
@@ -2634,18 +2611,6 @@ void QListBox::setColumnMode( int columns )
     triggerUpdate( TRUE );
 }
 
-
-/*!
-  Sets the row layout mode to \a mode, and the number of displayed
-  rows accordingly.
-
-  The column layout mode implicitly becomes \c Variable.
-
-  If \a mode is \c Variable, this function returns without doing anything.
-
-  \sa columnMode rowMode
-*/
-
 void QListBox::setRowMode( LayoutMode mode )
 {
     if ( mode == Variable )
@@ -2654,7 +2619,6 @@ void QListBox::setRowMode( LayoutMode mode )
     d->rowMode = mode;
     triggerUpdate( TRUE );
 }
-
 
 /*!
   Sets the row layout mode for this list box to \c FixedNumber and sets the
@@ -2673,13 +2637,19 @@ void QListBox::setRowMode( int rows )
     triggerUpdate( TRUE );
 }
 
-
 /*!
   \property QListBox::columnMode
   \brief the column layout mode for this list box.
 
   \sa rowMode numColumns
+
+  setColumnMode() sets the layout mode and adjusts the number of
+  displayed columns. The row layout mode automatically becomes
+  \c Variable, unless the column mode is \c Variable.
+
+  \sa setRowMode() columnMode()
 */
+
 
 QListBox::LayoutMode QListBox::columnMode() const
 {
@@ -2696,8 +2666,13 @@ QListBox::LayoutMode QListBox::columnMode() const
 
   This property is normally \c Variable.
 
-  \sa columnMode numRows
+  setRowMode() sets the layout mode and adjusts the number of displayed
+  rows. The column layout mode automatically becomes \c Variable, unless
+  the row mode is \c Variable.
+
+  \sa columnMode rowMode
 */
+
 
 QListBox::LayoutMode QListBox::rowMode() const
 {

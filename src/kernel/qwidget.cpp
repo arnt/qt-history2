@@ -2196,16 +2196,6 @@ const QColor & QWidget::backgroundColor() const
     return backgroundColorForMode( backgroundMode() );
 }
 
-/*!
-  This is a convenience function that creates and sets a modified
-  QPalette with setPalette(). The palette is modified according to the
-  widget's background mode. For example, if the background mode is
-  PaletteButton the palette entry QColorGroup::Button is set to
-  \a color.
-
-  \sa setPalette(), QApplication::setPalette(), backgroundMode(),
-      setBackgroundPixmap(), setBackgroundMode(), setEraseColor()
-*/
 void QWidget::setBackgroundColor( const QColor &color )
 {
     setBackgroundColorForMode( backgroundMode(), color );

@@ -446,20 +446,15 @@ QString QLineEdit::selectedText() const
 /*! \property QLineEdit::maxLength
     \brief the maximum permitted length of the text in the editor
 
-  \sa setMaxLength()
+  If the text is too long, it is chopped off at the limit. Any marked
+  text will be unmarked. The cursor position is set to 0 and the
+  first part of the string is shown.
 */
 
 int QLineEdit::maxLength() const
 {
     return d->maxLen;
 }
-
-/*!
-  Set the maximum length of the text in the editor.  If the text is
-  too long, it is chopped off at the limit. Any marked text will
-  be unmarked.	The cursor position is set to 0 and the first part of the
-  string is shown. \sa maxLength().
-*/
 
 void QLineEdit::setMaxLength( int m )
 {
@@ -1365,9 +1360,6 @@ bool QLineEdit::frame() const
 {
     return frameShape() != NoFrame;
 }
-
-
-/*!  Sets the echo mode of the line edit widget.  */
 
 void QLineEdit::setEchoMode( EchoMode mode )
 {

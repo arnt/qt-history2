@@ -640,32 +640,20 @@ void QSqlDatabase::setPort( int p )
     d->port = p;
 }
 
-/*!
-*/
-
 QString QSqlDatabase::databaseName() const
 {
     return d->dbname;
 }
-
-/*!
-*/
 
 QString QSqlDatabase::userName() const
 {
     return d->uname;
 }
 
-/*!
-*/
-
 QString QSqlDatabase::password() const
 {
     return d->pword;
 }
-
-/*!
-*/
 
 QString QSqlDatabase::hostName() const
 {
@@ -680,9 +668,6 @@ QString QSqlDatabase::driverName() const
     return d->drvName;
 }
 
-/*! Returns the port used by the database connection.
-
-*/
 int QSqlDatabase::port() const
 {
     return d->port;

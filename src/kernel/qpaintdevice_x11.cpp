@@ -267,16 +267,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 
 
 /*!
-  \fn virtual HDC QPaintDevice::handle() const
-
-  Returns the window system handle of the paint device, for low-level
-  access.  Using this function is not portable.
-
-  The HDC type varies with platform; see qpaintdevice.h and qwindowdefs.h
-  for details.
-*/
-
-/*!
   \fn Display *QPaintDevice::x11AppDisplay()
 
   Returns a pointer to the X display global to the application (X11 only).

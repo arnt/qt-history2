@@ -307,13 +307,6 @@ void QSplitter::setOrientation( Orientation o )
 
 
 /*!
-   \fn Orientation QSplitter::orientation() const
-
-   Returns the orientation (\c Horizontal or \c Vertical) of the splitter.
-   \sa setOrientation()
-*/
-
-/*!
   \reimp
 */
 void QSplitter::resizeEvent( QResizeEvent * )

@@ -288,26 +288,15 @@ void QLabel::clear()
     setText( QString::fromLatin1("") );
 }
 
-
 /*!
   \property QLabel::pixmap
   \brief the label contents pixmap
  
-  If no pixmap has been set this will return an invalid pixmap. Setting the
-  pixmap clears any previous content.
+  If no pixmap has been set this will return an invalid pixmap.
+
+  Setting the pixmap clears any previous content, and resizes the label
+  if \l autoResize is TRUE. The buddy accelerator, if any, is disabled.
 */
-
-
-/*!
-  Sets 
-
-  The buddy accelerator, if any, is disabled.
-
-  The label resizes itself if auto-resizing is enabled.
-
-  \sa pixmap(), setBuddy()
-*/
-
 void QLabel::setPixmap( const QPixmap &pixmap )
 {
     QSize osh = sizeHint();

@@ -515,10 +515,6 @@ void QAction::setWhatsThis( const QString& whatsThis )
     d->update();
 }
 
-/*! Returns the What's This help text for this action.
-
-  \sa setWhatsThis()
-*/
 QString QAction::whatsThis() const
 {
     return d->whatsthis;
@@ -601,7 +597,8 @@ bool QAction::isToggleAction() const
   \property QAction::on
   \brief whether a toggle action is on
 
-  The property has no effect on command actions and QActionGroups.
+  This property is always on for command actions and QActionGroups.
+  setOn() has no effect on them.
 
   \sa toggleAction
 */
@@ -621,12 +618,6 @@ void QAction::setOn( bool enable )
     emit toggled( enable );
 }
 
-/*! Returns TRUE if this toggle action is switched on otherwise returns FALSE.
-
-  For command actions isOn() is always FALSE.
-
-  \sa setOn(), isToggleAction()
-*/
 bool QAction::isOn() const
 {
     return d->on;

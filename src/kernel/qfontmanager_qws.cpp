@@ -81,20 +81,16 @@ QFontManager * qt_fontmanager=0;
 */
 
 /*!
-  \fn void QFontManager::initialize()
   Creates a new QFontManager and points qt_fontmanager to it
 */
-
 void QFontManager::initialize()
 {
     qt_fontmanager=new QFontManager();
 }
 
 /*!
-  \fn void QFontManager::cleanup()
   Destroys the font manager
 */
-
 void QFontManager::cleanup()
 {
     delete qt_fontmanager;
@@ -117,6 +113,7 @@ void QFontManager::cleanup()
 
 /*!
   \fn QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
+
   This constructs a QRenderedFont; the QDiskFont and QFontDef are needed by 
   the font factory to render glyphs.
 */
@@ -153,7 +150,6 @@ QRenderedFont::~QRenderedFont()
 // some best guesses
 
 /*!
-\fn int QRenderedFont::minLeftBearing()
 Returns the minimum left bearing (distance before the start of a character)
 of any character in the font. Unimplemented.
 */
@@ -164,7 +160,6 @@ int QRenderedFont::minLeftBearing()
 }
 
 /*!
-\fn int QRenderedFont::minLeftBearing()
 Returns the minimum right bearing (distance from the end of a character)
 of any character in the font. Unimplemented.
 */
@@ -175,7 +170,6 @@ int QRenderedFont::minRightBearing()
 }
 
 /*!
-\fn int QRenderedFont::maxWidth()
 Returns the maximum width in pixels of any character in the font.
 */
 
@@ -186,7 +180,6 @@ int QRenderedFont::maxWidth()
 }
 
 /*!
-\fn QFontManager::QFontManager()
 Creates a font manager. This method reads in the font definition file
 from $QTDIR/etc/fonts/fontdir (or /usr/local/qt-embedded/etc/fonts/fontdir
 if QTDIR isn't defined) and creates a list of QDiskFonts to hold the 
