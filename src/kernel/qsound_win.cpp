@@ -77,9 +77,8 @@ void QAuServerWindows::play(QSound* s)
     play(s->fileName(), s->loops() );
 }
 
-void QAuServerWindows::stop(QSound* s)
+void QAuServerWindows::stop( QSound* )
 {
-    Q_UNUSED( s );
     QT_WA( {
 	PlaySoundW( 0, 0, 0 );
     } , {
