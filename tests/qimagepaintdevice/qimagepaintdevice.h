@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#1 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#2 $
 **
 ** Definition of QImagePaintDevice classes
 **
@@ -113,6 +113,8 @@ private:
     void drawTextFormatted(const QRect& r, int i, const QString& s);
     void drawPixmap(QPoint p, QPixmap pm);
     void drawImage(QPoint p, const QImage& im);
+    void drawImage(QPoint p, const QImage& src, int sx, int sy,
+			     int sw, int sh, int conversion_flags );
     void saveState();
     void restoreState();
     void setBkColor(const QColor& c);
@@ -146,6 +148,7 @@ private:
     bool find(QPoint);
     void findOutside(int x, int y, QRect& cr);
 
+    void fillSpans(int n, QPoint* pt, int* w);
     void blit( int x, int y, const char* data, int w, int h );
     void blit( const QPoint&, const QTMap* );
     QFontRenderer* renderer;

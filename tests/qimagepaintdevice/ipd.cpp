@@ -14,6 +14,8 @@ public:
 	clip = rect();
 	mode = 'I';
 	painter.setClipRegion(clip);
+	QImage bg("bg.png");
+	painter.drawImage(0,0,bg);
     }
 
     ~Main()
@@ -37,6 +39,7 @@ public:
 	  case 'r':
 	  case 'p':
 	  case 't':
+	  case 'i':
 	    shape = e->ascii();
 	    break;
 	  case 'S':
@@ -56,6 +59,8 @@ public:
 	}
 
 	if ( mode && shape ) {
+	    QImage im("pngtest.png");
+
 	    QPainter *ptr=0;
 
 	    QPixmap pm(width(),height());
@@ -90,6 +95,7 @@ public:
 	    }
 
 	    QPointArray poly(50);
+	    srand(1234);
 	    if ( shape == 'p' )
 		for (int p=0; p<50; p++) {
 		    poly[p] = QPoint(rand()%width()/2,rand()%height()/2);
@@ -137,6 +143,13 @@ public:
 		    x %= w;
 		    y %= h;
 		    pix+=500; // bogus
+		} else if ( shape=='i' ) {
+		    ptr->drawImage(x,y,im);
+		    x += 12345*i;
+		    y += 2345+i;
+		    x %= w;
+		    y %= h;
+		    pix+=im.width()*im.height();
 		}
 	    }
 	    qApp->syncX();
