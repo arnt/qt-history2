@@ -653,10 +653,12 @@ void Connection::checkWidgets()
     if (m_source != 0) {
         QRect r = m_edit->widgetRect(m_source);
         if (r != m_source_rect) {
+            if (m_source_pos != QPoint(-1, -1)) {
+                QPoint offset = m_source_pos - m_source_rect.topLeft();
+                m_source_pos = pointInsideRect(r, r.topLeft() + offset);
+            }
             m_edit->update(m_source_rect);
             m_source_rect = r;
-            if (m_source_pos != QPoint(-1, -1))
-                m_source_pos = pointInsideRect(m_source_rect, m_source_pos);
             changed = true;
         }
     }
@@ -664,10 +666,12 @@ void Connection::checkWidgets()
     if (m_target != 0) {
         QRect r = m_edit->widgetRect(m_target);
         if (r != m_target_rect) {
+            if (m_target_pos != QPoint(-1, -1)) {
+                QPoint offset = m_target_pos - m_target_rect.topLeft();
+                m_target_pos = pointInsideRect(r, r.topLeft() + offset);
+            }
             m_edit->update(m_target_rect);
             m_target_rect = r;
-            if (m_target_pos != QPoint(-1, -1))
-                m_target_pos = pointInsideRect(m_target_rect, m_target_pos);
             changed = true;
         }
     }
