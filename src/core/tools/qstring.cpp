@@ -3454,12 +3454,12 @@ QString &QString::sprintf( const char* cformat, ... )
     	    	// contains at least one digit
 		precision = precision_str.toInt();
 	    }
-	}
-	else if (*c == '*') {
-	    precision = va_arg(ap, int);
-	    if (precision < 0)
-	    	precision = -1; // treat all negative numbers as unspecified
-	    ++c;
+	    else if (*c == '*') {
+		precision = va_arg(ap, int);
+		if (precision < 0)
+	    	    precision = -1; // treat all negative numbers as unspecified
+		++c;
+	    }
 	}
 
 	if (*c == '\0') {
