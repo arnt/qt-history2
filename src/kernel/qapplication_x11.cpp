@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#359 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#360 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -568,7 +568,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     }
 }
 
-
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
@@ -766,18 +765,29 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 #if !defined(NO_XIM)
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
-     if(XSetLocaleModifiers ("") == NULL){
-       fprintf(stderr,"Cannot set locale modifiers.\n");
-       exit(1);
-     }
 
-
-    if ( XSupportsLocale() &&
-	 ( qstrlen(XSetLocaleModifiers( "" )) ||
-	   qstrlen(XSetLocaleModifiers( "@im=none" ) ) ) )
-	xim = XOpenIM( appDpy, 0, 0, 0 );
-    else
-	xim = 0;
+    xim = 0;
+    if ( XSupportsLocale() ) {
+	if(XSetLocaleModifiers ("") == NULL)
+	{
+	    fprintf(stderr,"Cannot set locale modifiers.\n");
+	} else {
+	    xim = XOpenIM( appDpy, 0, 0, 0 );
+#if 0
+	    char* lm;
+	    if ( qstrlen(lm=XSetLocaleModifiers( "" )) ) {
+		xim = XOpenIM( appDpy, 0, 0, 0 );
+	    } else if ( qstrlen(lm=XSetLocaleModifiers( "@im=none" )) ) {
+		fprintf(stderr,"Disabling input methods for this locale. %s\n",lm);
+		xim = XOpenIM( appDpy, 0, 0, 0 );
+	    } else {
+		fprintf(stderr,"No valid input methods.\n");
+	    }
+#endif
+	}
+    } else {
+	fprintf(stderr,"Locales not supported on X server.\n");
+    }
 
     if ( xim ) {
 	XIMStyles *styles;
@@ -813,8 +823,8 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		close_xim();
 	    }
 	}
-    }
 debug("LOCALE %s",XLocaleOfIM(xim));
+    }
 #endif
 }
 
