@@ -430,19 +430,20 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    if (d->cbrush.style() == Qt::LinearGradientPattern) {
-	qt_fill_linear_gradient(r, d->cbrush);
-	return;
-    }
-
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
-    if (d->cbrush.style() != Qt::NoBrush) {
-        dgl->qglColor(d->cbrush.color());
-        glRecti(x, y, x+w, y+h);
-        dgl->qglColor(d->cpen.color());
-        if (d->cpen.style() == Qt::NoPen)
-            return;
+    if (d->cbrush.style() == Qt::LinearGradientPattern) {
+	qt_fill_linear_gradient(r, d->cbrush);
+	if (d->cpen.style() == Qt::NoPen)
+	    return;
+    } else {
+	if (d->cbrush.style() != Qt::NoBrush) {
+	    dgl->qglColor(d->cbrush.color());
+	    glRecti(x, y, x+w, y+h);
+	    dgl->qglColor(d->cpen.color());
+	    if (d->cpen.style() == Qt::NoPen)
+		return;
+	}
     }
     w--;
     h--;
