@@ -273,6 +273,7 @@ CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
+CFG_ENDIAN=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -398,6 +399,10 @@ while [ "$#" -gt 0 ]; do
 	    VAL=$1
 	fi
 	;;
+    -*-endian)
+	VAR=endian
+	VAL=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
+	;;
     -D?*|-D)
 	VAR="define"
 	if [ "$1" = "-D" ]; then
@@ -506,6 +511,15 @@ while [ "$#" -gt 0 ]; do
 	    CFG_EMBEDDED=no
 	fi
 	;;
+    endian)
+        if [ "$VAL" = "little" ]; then
+            CFG_ENDIAN="Q_LITTLE_ENDIAN"
+        elif [ "$VAL" = "big" ]; then
+	    CFG_ENDIAN="Q_BIG_ENDIAN"
+        else
+	    UNKNOWN_OPT=yes
+	fi
+        ;;
     depths)
 	CFG_QWS_DEPTHS="$VAL"
 	;;
@@ -2235,6 +2249,13 @@ Qt/Embedded only:
     -embedded arch...... This will enable the embedded build, you must have a
 			 proper license for this switch to work.
 
+    -little-endian ..... Target platform is little endian (LSB first).
+    -big-endian ........ Target platform is big endian (MSB first).
+
+                         You only need to specify the endianness when
+                         cross-compiling, otherwise the host
+                         endianness will be used.
+
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
@@ -2609,10 +2630,12 @@ if [ $PLATFORM = "hpux-acc" -a "$CFG_STL" != "no" ]; then
    echo
 fi
 
-if $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-    ENDIAN="Q_LITTLE_ENDIAN"
-else
-    ENDIAN="Q_BIG_ENDIAN"
+if [ "$CFG_ENDIAN" = "auto" ]; then
+    if $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+        CFG_ENDIAN="Q_LITTLE_ENDIAN"
+    else
+        CFG_ENDIAN="Q_BIG_ENDIAN"
+    fi
 fi
 
 if [ "$CFG_STL" = "auto" ]; then
@@ -3103,7 +3126,7 @@ cat >> $outpath/src/core/global/qconfig.h.new <<EOF
 /* Machine byte-order */
 #define Q_BIG_ENDIAN 4321
 #define Q_LITTLE_ENDIAN 1234
-#define Q_BYTE_ORDER $ENDIAN
+#define Q_BYTE_ORDER $CFG_ENDIAN
 
 /* Compile time features */
 EOF
