@@ -264,12 +264,12 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     r = SQLDescribeCol( hStmt,
 			column+1,
 			colName,
-			sizeof(colName),
+			COLNAMESIZE,
 			&colNameLen,
 			&colType,
 			&colSize,
 			&colScale,
-			&nullable);
+			&nullable );
 #ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qWarning( QString("qGetBinaryData: Unable to describe column %1").arg(column) );
