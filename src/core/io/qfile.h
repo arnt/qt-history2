@@ -112,7 +112,7 @@ public:
 
     virtual int ungetch(int character);
 
-#if !define(Q_NO_USING_KEYWORD)
+#if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::readLine;
 #else
     inline QByteArray readLine();
