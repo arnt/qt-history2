@@ -355,29 +355,6 @@ void QListWidgetItem::clear()
 }
 
 /*!
-  If \a hide is true, the item will be hidden; otherwise it will be shown.
-*/
-void QListWidgetItem::setHidden(bool hide)
-{
-    if (view) {
-        int r = view->row(this);
-        view->setRowHidden(r, hide);
-    }
-}
-
-/*!
-  Returns true if the item is explicitly hidden; otherwise returns false.
-*/
-bool QListWidgetItem::isHidden() const
-{
-    if (view) {
-        int r = view->row(this);
-        return view->isRowHidden(r);
-    }
-    return false;
-}
-
-/*!
   \fn QAbstractItemModel::ItemFlags QListWidgetItem::flags() const
 
   Returns the item flags for this item (see {QAbstractItemModel::ItemFlags}).
@@ -981,6 +958,22 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
 }
 
 /*!
+  Returns true if the item is explicitly hidden; otherwise returns false.
+*/
+bool QListWidget::isItemHidden(const QListWidgetItem *item) const
+{
+    return isRowHidden(row(item));
+}
+
+/*!
+  If \a hide is true, the item will be hidden; otherwise it will be shown.
+*/
+void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
+{
+    setRowHidden(row(item), hide);
+}
+
+/*!
   Returns true if the \a item is in the viewport; otherwise returns false.
 */
 
@@ -989,7 +982,9 @@ bool QListWidget::isItemVisible(const QListWidgetItem *item) const
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     QRect rect = itemViewportRect(index);
-    return d->viewport->rect().contains(rect);
+    if (rect.isValid())
+        return d->viewport->rect().contains(rect);
+    return false;
 }
 
 /*!

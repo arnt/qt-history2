@@ -1007,37 +1007,6 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 }
 
 /*!
-  Returns true if the item is explicitly hidden, otherwise returns false.
-*/
-bool QTreeWidgetItem::isHidden() const
-{
-    if (view && model) {
-        if (this == model->header)
-            return view->header()->isHidden();
-        QModelIndex index = model->index(const_cast<QTreeWidgetItem*>(this));
-        QModelIndex parent = model->parent(index);
-        return view->isRowHidden(index.row(), parent);
-    }
-    return false;
-}
-
-/*!
-  Hides the item if \a hide is true, otherwise shows the item.
-*/
-void QTreeWidgetItem::setHidden(bool hide)
-{
-    if (view && model) {
-        if (this == model->header) {
-            view->header()->setHidden(hide);
-        } else {
-            QModelIndex index = model->index(this);
-            QModelIndex parent = model->parent(index);
-            view->setRowHidden(index.row(), parent, hide);
-        }
-    }
-}
-
-/*!
   Sorts the children by the value in the given \a column, in the \a order
   specified. If \a climb is true, the items below each of the children will
   also be sorted.
@@ -1330,7 +1299,7 @@ int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
     \sa setHeaderItem()
 */
 
-QTreeWidgetItem *QTreeWidget::headerItem()
+QTreeWidgetItem *QTreeWidget::headerItem() const
 {
     return d->model()->header;
 }
@@ -1497,6 +1466,32 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
 }
 
 /*!
+  Returns true if the item is explicitly hidden, otherwise returns false.
+*/
+bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
+{
+    if (item == headerItem())
+        return header()->isHidden();
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    QModelIndex parent = d->model()->parent(index);
+    return isRowHidden(index.row(), parent);
+}
+
+/*!
+  Hides the item if \a hide is true, otherwise shows the item.
+*/
+void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
+{
+    if (item == headerItem()) {
+        header()->setHidden(hide);
+    } else {
+        QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+        QModelIndex parent = d->model()->parent(index);
+        setRowHidden(index.row(), parent, hide);
+    }
+}
+
+/*!
   Returns true if the \a item is in the viewport; otherwise returns false.
 */
 
@@ -1505,7 +1500,9 @@ bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     QRect rect = itemViewportRect(index);
-    return d->viewport->rect().contains(rect);
+    if (rect.isValid())
+        return d->viewport->rect().contains(rect);
+    return false;
 }
 
 /*!

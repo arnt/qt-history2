@@ -289,7 +289,7 @@ bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
         itm->setData(role, value);
         return true;
     }
-    
+
     QTableWidget *view = qt_cast<QTableWidget*>(QObject::parent());
     if (!view)
         return false;
@@ -988,7 +988,9 @@ bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     QRect rect = itemViewportRect(index);
-    return d->viewport->rect().contains(rect);
+    if (rect.isValid())
+        return d->viewport->rect().contains(rect);
+    return false;
 }
 
 /*!

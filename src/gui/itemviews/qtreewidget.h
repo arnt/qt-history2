@@ -97,12 +97,6 @@ public:
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
-    inline void hide() { setHidden(true); }
-    inline void show() { setHidden(false); }
-
-    bool isHidden() const;
-    void setHidden(bool hide);
-
 protected:
     QTreeWidgetItem();
     void sortChildren(int column, Qt::SortOrder order, bool climb);
@@ -148,7 +142,7 @@ public:
     QTreeWidgetItem *takeTopLevelItem(int index);
     int indexOfTopLevelItem(QTreeWidgetItem *item);
 
-    QTreeWidgetItem *headerItem();
+    QTreeWidgetItem *headerItem() const;
     void setHeaderItem(QTreeWidgetItem *item);
     void setHeaderLabels(const QStringList &labels);
 
@@ -169,6 +163,9 @@ public:
     QList<QTreeWidgetItem*> findItems(const QString &text,
                                       QAbstractItemModel::MatchFlags flags
                                       = QAbstractItemModel::MatchDefault) const;
+
+    bool isItemHidden(const QTreeWidgetItem *item) const;
+    void setItemHidden(const QTreeWidgetItem *item, bool hide);
 
     bool isItemVisible(const QTreeWidgetItem *item) const;
     bool isItemOpen(const QTreeWidgetItem *item) const;

@@ -86,12 +86,6 @@ public:
     virtual bool operator<(const QListWidgetItem &other) const;
     virtual void clear();
 
-    inline void hide() { setHidden(true); }
-    inline void show() { setHidden(false); }
-
-    bool isHidden() const;
-    void setHidden(bool hide);
-
 protected:
     struct Data {
         Data() : role(-1) {}
@@ -146,6 +140,9 @@ public:
     QList<QListWidgetItem*> findItems(const QString &text,
                                       QAbstractItemModel::MatchFlags flags
                                       = QAbstractItemModel::MatchDefault) const;
+
+    bool isItemHidden(const QListWidgetItem *item) const;
+    void setItemHidden(const QListWidgetItem *item, bool hide);
 
     bool isItemVisible(const QListWidgetItem *item) const;
 

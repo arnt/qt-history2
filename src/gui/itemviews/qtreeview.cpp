@@ -1323,9 +1323,11 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
     QVector<QModelIndex> o = opened;
     for (int j = 0; j < o.count(); ++j) {
         if (model->parent(o.at(j)) == parent) {
+            int v = viewIndex(o.at(j));
+            if (v < 0)
+                continue;
             int k = opened.indexOf(o.at(j));
             opened.remove(k);
-            int v = viewIndex(o.at(j));
             open(v, update);
         }
     }
