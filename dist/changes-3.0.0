@@ -173,6 +173,14 @@ application in a platform independent manner. It gives you full control over
 the started program as for example redirection of input and output of console
 applications.
 
+acessibility
+-----------
+
+Qt-3.0 features better support for accessibility features, .....
+
+### Volker, some words?
+
+
 XML Improvements
 ------------------
 
