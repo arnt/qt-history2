@@ -1349,7 +1349,6 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 	    bmh->biSizeImage	  = dst->width() * dst->height() * 4;
 	    bmh->biClrUsed	  = 0;
 	    bmh->biClrImportant	  = 0;
-	    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
 	    QPixmap pm( dst->width(), dst->height(), 32 );
 	    pm.initAlphaPixmap( 0, 0, bmi );
