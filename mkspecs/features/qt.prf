@@ -37,7 +37,6 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
    else:isEqual(QTLIB, canvas):qlib = QtCanvas
    else:isEqual(QTLIB, qt3support):qlib = Qt3Support
    else:message("Unknown QT: $$QTLIB"):qlib =
-   message(boink $$QTLIB)
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QT of $$QTLIB)
