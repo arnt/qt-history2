@@ -60,7 +60,6 @@ SOURCES += $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp       \
                   $$QT_SOURCE_TREE/src/core/tools/qdatetime.cpp \
                   $$QT_SOURCE_TREE/src/core/io/qfile.cpp                \
                   $$QT_SOURCE_TREE/src/core/io/qfileengine.cpp  \
-                  $$QT_SOURCE_TREE/src/core/io/qioengine.cpp  \
                   $$QT_SOURCE_TREE/src/core/io/qdir.cpp         \
                   $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp    \
                   $$QT_SOURCE_TREE/src/core/io/qtemporaryfile.cpp \
