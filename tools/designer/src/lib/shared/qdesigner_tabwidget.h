@@ -23,7 +23,6 @@ class QAction;
 class QT_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
 {
     Q_OBJECT
-    Q_OVERRIDE(int currentIndex DESIGNABLE true)
     Q_PROPERTY(QString currentTabName READ currentTabName WRITE setCurrentTabName STORED false DESIGNABLE true)
     Q_PROPERTY(QString currentTabText READ currentTabText WRITE setCurrentTabText STORED false DESIGNABLE true)
     Q_PROPERTY(QString currentTabToolTip READ currentTabToolTip WRITE setCurrentTabToolTip STORED false DESIGNABLE true)
