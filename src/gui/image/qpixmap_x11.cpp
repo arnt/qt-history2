@@ -1046,8 +1046,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         pixmap.data->w = w;  pixmap.data->h = h;  pixmap.data->d = 1;
 
         if (image.hasAlphaBuffer()) {
-            QBitmap m;
-            m = image.createAlphaMask(flags);
+            QBitmap m = QBitmap::fromImage(image.createAlphaMask(flags));
             pixmap.setMask(m);
         }
         return pixmap;
@@ -1683,8 +1682,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     pixmap.data->d = dd;
 
     if (image.hasAlphaBuffer()) {
-        QBitmap m;
-        m = image.createAlphaMask(flags);
+        QBitmap m = QBitmap::fromImage(image.createAlphaMask(flags));
         pixmap.setMask(m);
 
     }

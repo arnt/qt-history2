@@ -28,19 +28,20 @@ public:
     QBitmap(const QSize &, const uchar *bits, bool isXbitmap=false);
     QBitmap(const QBitmap &);
     QBitmap(const QPixmap &);
-    QBitmap(const QImage &);
 #ifndef QT_NO_IMAGEIO
     explicit QBitmap(const QString &fileName, const char *format=0);
 #endif
     QBitmap &operator=(const QBitmap &);
     QBitmap &operator=(const QPixmap &);
-    QBitmap &operator=(const QImage  &);
     operator QVariant() const;
 
+    static QBitmap fromImage(const QImage &image, Qt::ImageConversionFlags flags = Qt::AutoColor);
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     QBitmap transformed(const QMatrix &) const;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
+    QT3_SUPPORT_CONSTRUCTOR QBitmap(const QImage &image) { *this = fromImage(image); }
+    QT3_SUPPORT QBitmap &operator=(const QImage  &image) { *this = fromImage(image); return *this; }
 #endif
 #endif
 };

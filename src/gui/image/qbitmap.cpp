@@ -169,18 +169,13 @@ QBitmap::QBitmap(const QPixmap &pixmap)
 }
 
 /*!
+  \fn QBitmap::QBitmap(const QImage &image)
+
     Constructs a bitmap that is a copy of the \a image given.
 
     Dithering will be performed if the image has a QImage::depth()
     greater than 1.
 */
-
-QBitmap::QBitmap(const QImage &image)
-{
-    data->bitmap = true;
-    QBitmap::operator=(image);
-}
-
 
 #ifndef QT_NO_IMAGEIO
 /*!
@@ -245,7 +240,7 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
     } else {                                        // n-bit depth pixmap
         QImage image;
         image = pixmap.toImage();                                // convert pixmap to image
-        *this = image;                                // will dither image
+        *this = fromImage(image);                                // will dither image
     }
     return *this;
 }
@@ -262,6 +257,8 @@ QBitmap::operator QVariant() const
 }
 
 /*!
+  \fn QBitmap &QBitmap::operator=(const QImage &image)
+
     \overload
 
     Converts the image \a image to a bitmap, and assigns the result to
@@ -271,10 +268,10 @@ QBitmap::operator QVariant() const
     greater than 1.
 */
 
-QBitmap &QBitmap::operator=(const QImage &image)
+QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
 {
-    *this = fromImage(image);
-    return *this;
+    QImage img = image.convertDepth(1, flags);
+    return QBitmap(QPixmap::fromImage(img, flags));
 }
 
 

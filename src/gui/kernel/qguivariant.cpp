@@ -502,7 +502,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t,
             *static_cast<QBitmap *>(result) = *v_cast<QPixmap>(d);
             return true;
         } else if (d->type == QVariant::Image) {
-            *static_cast<QBitmap *>(result) = *v_cast<QImage>(d);
+            *static_cast<QBitmap *>(result) = QBitmap::fromImage(*v_cast<QImage>(d));
             return true;
         }
         break;

@@ -196,7 +196,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
         bmm.fromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
     }
     else {
-        bmm.resize(bm.size());
+        bmm = QBitmap(bm.size());
         bmm.fill(Qt::color1);
     }
 

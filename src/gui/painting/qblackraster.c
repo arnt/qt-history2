@@ -1119,7 +1119,7 @@ Bezier_Up( RAS_ARGS Int        degree,
         return FAILURE;
     }
 
-    QT_FT_TRACE6("       Flow = %s start=%d, e=%f, e2=%f y1=%f, y2=%f\n",
+    QT_FT_TRACE6("       Flow = %s start=%ld, e=%f, e2=%f y1=%f, y2=%f\n",
               ras.cProfile->flow == Flow_Up ? "Flow_Up" : "Flow_Down",
               ras.cProfile->start, e/64., e2/64.,y1/64.,y2/64.);
 
@@ -1164,7 +1164,7 @@ Bezier_Up( RAS_ARGS Int        degree,
 Fin:
     ras.top  = top;
     ras.arc -= degree;
-    QT_FT_TRACE6("    currently %d points in profile, start=%d top=%p\n", ras.top - ras.cProfile->offset, ras.cProfile->start, ras.top);
+    QT_FT_TRACE6("    currently %ld points in profile, start=%ld top=%p\n", ras.top - ras.cProfile->offset, ras.cProfile->start, ras.top);
     return SUCCESS;
 }
 
@@ -2006,6 +2006,7 @@ Vertical_Sweep_Init( RAS_ARGS Short*  min,
 {
     QT_FT_UNUSED( min );
     QT_FT_UNUSED( max );
+    QT_FT_UNUSED( raster );
 }
 
 
@@ -2363,6 +2364,7 @@ static int
 qt_ft_black_new( void*      memory,
               QT_FT_Raster  *araster )
 {
+    QT_FT_UNUSED( memory );
     static TRaster_Instance the_raster;
 
     *araster = (QT_FT_Raster) &the_raster;
@@ -2375,6 +2377,7 @@ qt_ft_black_new( void*      memory,
 static void
 qt_ft_black_done( QT_FT_Raster  raster )
 {
+    QT_FT_UNUSED( raster );
     /* nothing */
 /*     raster->init = 0; */
 }

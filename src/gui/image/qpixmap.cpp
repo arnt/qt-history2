@@ -610,6 +610,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
+    qDebug("trying to load %s", fileName.toLatin1().data());
     QFileInfo info(fileName);
     QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString();
 
@@ -805,10 +806,9 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 
 QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 {
-    QPixmap res, buf;
 
     if (!widget)
-        return res;
+        return QPixmap();
 
     QRect r(rect);
     if (r.width() < 0)
@@ -817,11 +817,11 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
         r.setHeight(widget->height() - rect.y());
 
     if (!r.intersects(widget->rect()))
-        return res;
+        return QPixmap();
 
-    res.resize(r.size());
-    buf.resize(r.size());
-    if(!res || !buf)
+    QPixmap res(r.size());
+    QPixmap buf(r.size());
+    if(res.isNull() || buf.isNull())
         return res;
 
     grabWidget_helper(widget, res, buf, r, QPoint());
