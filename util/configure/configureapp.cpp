@@ -114,6 +114,14 @@ void Configure::parseCmdLine()
 	reloadCmdLine();
 	args = configCmdLine.begin();	// We've got a new command line...
     }
+    else if( (*args) == "-loadconfig" ) {
+	++args;
+	dictionary[ "REDO" ] = "yes";
+	dictionary[ "CUSTOMCONFIG" ] = "_" + (*args);
+	configCmdLine.clear();
+	reloadCmdLine();
+	args = configCmdLine.begin();
+    }
 
     for( ; args != configCmdLine.end(); ++args ) {
 	if( (*args) == "-help" )
@@ -315,6 +323,11 @@ void Configure::parseCmdLine()
 	    dictionary[ "VERSION" ] = (*args);
 	}
 
+	else if( (*args) == "-saveconfig" ) {
+	    ++args;
+	    dictionary[ "CUSTOMCONFIG" ] = "_" + (*args);
+	}
+
 	else if( (*args).find( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -390,81 +403,83 @@ bool Configure::displayHelp()
     if( dictionary[ "HELP" ] == "yes" ) {
 	cout << endl << endl;
 	cout << "Command line arguments:  (* indicates default behaviour)" << endl << endl;
-	cout << "-help               Bring up this help text." << endl << endl;
+	cout << "-help                Bring up this help text." << endl << endl;
 
-	cout << "-debug              Enable debug information." << endl;
-	cout << "-release          * Disable debug information." << endl << endl;
+	cout << "-debug               Enable debug information." << endl;
+	cout << "-release           * Disable debug information." << endl << endl;
 
-	cout << "-shared           * Build Qt as a shared library." << endl;
-	cout << "-static             Build Qt as a static library." << endl << endl;
+	cout << "-shared            * Build Qt as a shared library." << endl;
+	cout << "-static              Build Qt as a static library." << endl << endl;
 
-	cout << "-thread           * Configure Qt with thread support." << endl;
-	cout << "-no-thread          Configure Qt without thread support." << endl << endl;
+	cout << "-thread            * Configure Qt with thread support." << endl;
+	cout << "-no-thread           Configure Qt without thread support." << endl << endl;
 
-	cout << "-spec               Specify a platform, uses %QMAKESPEC% as default." << endl;
-	cout << "-qconfig            Specify config, available configs:" << endl;
+	cout << "-spec                Specify a platform, uses %QMAKESPEC% as default." << endl;
+	cout << "-qconfig             Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
-	    cout << "                        " << (*config).latin1() << endl;
+	    cout << "                         " << (*config).latin1() << endl;
 
-	cout << "-qt-gif             Enable GIF support." << endl;
-	cout << "-no-gif           * Disable GIF support." << endl << endl;
+	cout << "-qt-gif              Enable GIF support." << endl;
+	cout << "-no-gif            * Disable GIF support." << endl << endl;
 
-	cout << "-no-zlib            Disable zlib.  Implies -no-png." << endl;
-	cout << "-qt-zlib          * Compile in zlib." << endl;
-	cout << "-system-zlib        Use existing zlib in system." << endl << endl;
+	cout << "-no-zlib             Disable zlib.  Implies -no-png." << endl;
+	cout << "-qt-zlib           * Compile in zlib." << endl;
+	cout << "-system-zlib         Use existing zlib in system." << endl << endl;
 
-	cout << "-no-png             PNG support through plugin." << endl;
-	cout << "-qt-png           * Compile in PNG support." << endl;
-	cout << "-system-png	     Use existing libPNG in system." << endl  << endl;
+	cout << "-no-png              PNG support through plugin." << endl;
+	cout << "-qt-png            * Compile in PNG support." << endl;
+	cout << "-system-png	      Use existing libPNG in system." << endl  << endl;
 
-	cout << "-no-mng           * MNG support through plugin." << endl;
-	cout << "-qt-mng             Compile in MNG support." << endl;
-	cout << "-system-mng         Use existing libMNG in system." << endl << endl;
+	cout << "-no-mng            * MNG support through plugin." << endl;
+	cout << "-qt-mng              Compile in MNG support." << endl;
+	cout << "-system-mng          Use existing libMNG in system." << endl << endl;
 
-	cout << "-no-jpeg          * JPEG support through plugin." << endl;
-	cout << "-qt-jpeg            Compile in JPEG support" << endl;
-	cout << "-system-jpeg        Use existing libJPEG in system" << endl << endl;
+	cout << "-no-jpeg           * JPEG support through plugin." << endl;
+	cout << "-qt-jpeg             Compile in JPEG support" << endl;
+	cout << "-system-jpeg         Use existing libJPEG in system" << endl << endl;
 	
-	cout << "-stl                Enable STL support." << endl;
-	cout << "-no-stl           * Disable STL support." << endl  << endl;
+	cout << "-stl                 Enable STL support." << endl;
+	cout << "-no-stl            * Disable STL support." << endl  << endl;
 
-	cout << "-accessibility    * Enable Windows Active Accessibility." << endl;
-	cout << "-no-accessibility   Disable Windows Active Accessibility." << endl  << endl;
+	cout << "-accessibility     * Enable Windows Active Accessibility." << endl;
+	cout << "-no-accessibility    Disable Windows Active Accessibility." << endl  << endl;
 
-	cout << "-tablet             Enable tablet support." << endl;
-	cout << "-no-tablet        * Disable tablet support." << endl  << endl;
+	cout << "-tablet              Enable tablet support." << endl;
+	cout << "-no-tablet         * Disable tablet support." << endl  << endl;
 
-	cout << "-big-codecs       * Enable the building of big codecs." << endl;
-	cout << "-no-big-codecs      Disable the building of big codecs." << endl << endl;
+	cout << "-big-codecs        * Enable the building of big codecs." << endl;
+	cout << "-no-big-codecs       Disable the building of big codecs." << endl << endl;
 
-	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
-	cout << "-dsp              * Enable the generation of VC++ .DSP-files." << endl << endl;
+	cout << "-no-dsp              Disable the generation of VC++ .DSP-files." << endl;
+	cout << "-dsp               * Enable the generation of VC++ .DSP-files." << endl << endl;
 
-	cout << "-no-qmake           Do not build qmake." << endl;
-	cout << "-lean               Only process the Qt core projects." << endl;
-	cout << "                    (qt.pro, qtmain.pro)." << endl << endl;
+	cout << "-no-qmake            Do not build qmake." << endl;
+	cout << "-lean                Only process the Qt core projects." << endl;
+	cout << "                     (qt.pro, qtmain.pro)." << endl << endl;
 
-	cout << "-D <define>         Add <define> to the list of defines." << endl;
-	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
-	cout << "-l <library>        Add <library> to the library list." << endl << endl;
+	cout << "-D <define>          Add <define> to the list of defines." << endl;
+	cout << "-I <includepath>     Add <includepath> to the include searchpath." << endl;
+	cout << "-l <library>         Add <library> to the library list." << endl << endl;
 
-	cout << "-enable-*           Enable the specified module, where module is one of" << endl;
-	cout << "                    " << modules.join( " " ) << endl << endl;
+	cout << "-enable-*            Enable the specified module, where module is one of" << endl;
+	cout << "                     " << modules.join( " " ) << endl << endl;
 
-	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
-	cout << "                    " << modules.join( " " ) << endl << endl;
+	cout << "-disable-*           Disable the specified module, where module is one of" << endl;
+	cout << "                     " << modules.join( " " ) << endl << endl;
 
-	cout << "-qt-sql-*	     Build the specified Sql driver into Qt" << endl;
-	cout << "-plugin-sql-*	     Build the specified Sql driver into a plugin" << endl;
-	cout << "-no-sql-*	   * Don't build the specified Sql driver" << endl;
-	cout << "		     where sql driver is one of mysql, psql, oci, odbc, tds" << endl << endl;
+	cout << "-qt-sql-*	      Build the specified Sql driver into Qt" << endl;
+	cout << "-plugin-sql-*	      Build the specified Sql driver into a plugin" << endl;
+	cout << "-no-sql-*	    * Don't build the specified Sql driver" << endl;
+	cout << "		      where sql driver is one of mysql, psql, oci, odbc, tds" << endl << endl;
 	
-	cout << "-qt-style-*	   * Build the specified style into Qt" << endl;
-	cout << "-plugin-style-*     Build the specified style into a plugin" << endl;
-	cout << "-no-style-*	     Don't build the specified style" << endl;
-	cout << "                    where style is one of windows, motif, cde, sgi, motifplus, platinum" << endl << endl;
+	cout << "-qt-style-*	    * Build the specified style into Qt" << endl;
+	cout << "-plugin-style-*      Build the specified style into a plugin" << endl;
+	cout << "-no-style-*	      Don't build the specified style" << endl;
+	cout << "                     where style is one of windows, motif, cde, sgi, motifplus, platinum" << endl << endl;
 
-	cout << "-redo               Run configure with the same parameters as last time." << endl << endl;
+	cout << "-redo                Run configure with the same parameters as last time." << endl;
+	cout << "-saveconfig <config> Run configure and save the parameters as custom config <config>." << endl;
+	cout << "-loadconfig <config> Run configure with the parameters from custom config <config>." << endl;
 	return true;
     }
     return false;
@@ -1055,7 +1070,7 @@ void Configure::readLicense()
 void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
-	QFile inFile( qtDir + "/configure.cache" );
+	QFile inFile( qtDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
 	if( inFile.open( IO_ReadOnly ) ) {
 	    QTextStream inStream( &inFile );
 	    QString buffer;
@@ -1072,11 +1087,12 @@ void Configure::reloadCmdLine()
 void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
-	QFile outFile( qtDir + "/configure.cache" );
+	QFile outFile( qtDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
 	if( outFile.open( IO_WriteOnly ) ) {
 	    QTextStream outStream( &outFile );
-	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it )
+	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it ) {
 		outStream << (*it) << " " << endl;
+	    }
 	    outFile.close();
 	}
     }
