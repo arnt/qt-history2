@@ -2137,7 +2137,7 @@ void QTextEdit::doResize()
 {
     if (( wrapMode != WidgetWidth ) && ( wrapMode != FixedColumnWidth ))
 	return;
-    doc->setMinimumWidth( -1, 0 );
+    doc->setMinimumWidth( -1 );
     resizeContents( 0, 0 );
     doc->setWidth( visibleWidth() );
     wrapWidth = visibleWidth();
@@ -2940,9 +2940,9 @@ void QTextEdit::setText( const QString &text, const QString &context )
     if ( wrapMode == FixedPixelWidth ) {
 	resizeContents( wrapWidth, 0 );
 	doc->setWidth( wrapWidth );
-	doc->setMinimumWidth( wrapWidth, 0 );
+	doc->setMinimumWidth( wrapWidth );
     } else {
-	doc->setMinimumWidth( -1, 0 );
+	doc->setMinimumWidth( -1 );
 	resizeContents( 0, 0 );
     }
 
@@ -3969,7 +3969,7 @@ void QTextEdit::setWordWrap( WordWrap mode )
 	document()->formatter()->setWrapEnabled( FALSE );
 	document()->formatter()->setWrapAtColumn( -1 );
 	doc->setWidth( visibleWidth() );
-	doc->setMinimumWidth( -1, 0 );
+	doc->setMinimumWidth( -1 );
 	doc->invalidate();
 	repaintContents( FALSE );
 	lastFormatted = doc->firstParag();
@@ -4021,12 +4021,12 @@ void QTextEdit::setWrapColumnOrWidth( int value )
 	document()->formatter()->setWrapAtColumn( wrapWidth );
 	resizeContents( 0, 0 );
 	doc->setWidth( visibleWidth() );
-	doc->setMinimumWidth( -1, 0 );
+	doc->setMinimumWidth( -1 );
     } else if (wrapMode == FixedPixelWidth ) {
 	document()->formatter()->setWrapAtColumn( -1 );
 	resizeContents( wrapWidth, 0 );
 	doc->setWidth( wrapWidth );
-	doc->setMinimumWidth( wrapWidth, 0 );
+	doc->setMinimumWidth( wrapWidth );
     } else {
 	return;
     }
@@ -4324,7 +4324,7 @@ void QTextEdit::setFont( const QFont &f )
 #endif    
     QFont old( QScrollView::font() );
     QScrollView::setFont( f );
-    doc->setMinimumWidth( -1, 0 );
+    doc->setMinimumWidth( -1 );
 
     // ### that is a bit hacky
     static short diff = 1;

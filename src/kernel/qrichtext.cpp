@@ -1349,6 +1349,7 @@ void QTextDocument::init()
     pages = FALSE;
     focusIndicator.parag = 0;
     minw = 0;
+    wused = 0;
     minwParag = 0;
     align = AlignAuto;
     nSelections = 1;
@@ -1427,19 +1428,7 @@ void QTextDocument::clear( bool createEmptyParag )
 
 int QTextDocument::widthUsed() const
 {
-    QTextParag *p = fParag;
-    int w = 0;
-    while ( p ) {
-	int a = p->alignment();
-	p->setAlignment( Qt::AlignLeft );
-	p->invalidate( 0 );
-	p->format();
-	w = QMAX( w, p->rect().width() );
-	p->setAlignment( a );
-	p->invalidate( 0 );
-	p = p->next();
-    }
-    return w;
+    return wused;
 }
 
 int QTextDocument::height() const
@@ -1458,20 +1447,23 @@ QTextParag *QTextDocument::createParag( QTextDocument *d, QTextParag *pr, QTextP
     return new QTextParag( d, pr, nx, updateIds );
 }
 
-bool QTextDocument::setMinimumWidth( int w, QTextParag *p )
+bool QTextDocument::setMinimumWidth( int needed, int used, QTextParag *p )
 {
-    if ( w == -1 ) {
+    if ( needed == -1 ) {
 	minw = 0;
+	wused = 0;
 	p = 0;
     }
     if ( p == minwParag ) {
-	minw = w;
+	minw = needed;
 	emit minimumWidthChanged( minw );
-    } else if ( w > minw ) {
-	minw = w;
+    } else if ( needed > minw ) {
+	minw = needed;
 	minwParag = p;
 	emit minimumWidthChanged( minw );
     }
+    wused = QMAX( wused, used );
+    wused = QMAX( wused, minw );
     cw = QMAX( minw, cw );
     return TRUE;
 }
@@ -2763,8 +2755,7 @@ bool QTextDocument::inSelection( int selId, const QPoint &pos ) const
 
 void QTextDocument::doLayout( QPainter *p, int w )
 {
-    if ( p )
-	fCollection->setPaintDevice( p->device() );
+    minw = wused = 0;
     if ( !is_printer( p ) )
 	p = 0;
     withoutDoubleBuffer = ( p != 0 );
@@ -2997,8 +2988,8 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	}
  	if ( !flow()->isEmpty() ) {
  	    QRect cr( cx, cy, cw, ch );
-  	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
-  				      parag->document()->height() - ( parag->rect().y() + parag->rect().height() ) ) );
+//   	    cr = cr.intersect( QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
+//   				      parag->document()->height() - ( parag->rect().y() + parag->rect().height() ) ) );
  	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
  	}
     }
@@ -3852,15 +3843,20 @@ void QTextParag::format( int start, bool doMove )
     if ( hasdoc && mFloatingItems ) {
 	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() ) {
 	    i->ypos = r.y();
-	    if ( i->placement() == QTextCustomItem::PlaceRight )
+	    if ( i->placement() == QTextCustomItem::PlaceRight ) {
 		i->xpos = r.x() + r.width() - i->width;
+	    }
 	}
     }
 #endif
     QMap<int, QTextParagLineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
     int y = formatter()->format( document(), this, start, oldLineStarts );
-    r.setWidth( QMAX( r.width(), minimumWidth() ) );
+
+
+    r.setWidth( QMAX( r.width(), formatter()->minimumWidth() ) );
+
+
     QMap<int, QTextParagLineStart*>::Iterator it = oldLineStarts.begin();
 
     for ( ; it != oldLineStarts.end(); ++it )
@@ -3893,8 +3889,19 @@ void QTextParag::format( int start, bool doMove )
     if ( y != r.height() )
 	r.setHeight( y );
 
-    if ( !visible )
+    if ( !visible ) {
 	r.setHeight( 0 );
+    } else {
+	int minw = formatter()->minimumWidth();
+	int wused = formatter()->widthUsed();
+	wused = QMAX( minw, wused );
+	if ( hasdoc ) {
+	    document()->setMinimumWidth( minw, wused, this );
+	}  else {
+	    pseudoDocument()->minw = QMAX( pseudoDocument()->minw, minw );
+	    pseudoDocument()->wused = QMAX( pseudoDocument()->wused, wused );
+	}
+    }
 
     // do page breaks if required
     if ( hasdoc && document()->isPageBreakEnabled() ) {
@@ -4940,7 +4947,7 @@ QTextPreProcessor::QTextPreProcessor()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatter::QTextFormatter()
-    : wrapEnabled( TRUE ), wrapColumn( -1 ), biw( FALSE )
+    : minw(0), wused(0), wrapEnabled( TRUE ), wrapColumn( -1 ), biw( FALSE )
 {
 }
 
@@ -5247,7 +5254,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     int rm = parag->rightMargin();
     int w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
     bool fullWidth = TRUE;
-    int minw = 0;
+    minw = 0;
+    wused = 0;
     bool wrapEnabled = isWrapEnabled( parag );
 
     start = 0;    //######### what is the point with start?! (Matthias)
@@ -5309,7 +5317,6 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
-
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw;
 	    y += h;
@@ -5332,6 +5339,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 
 	c->x = x;
 	x += ww;
+	wused = QMAX( wused, x );
     }
 
     int m = parag->bottomMargin();
@@ -5343,8 +5351,6 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     y += h + m;
     if ( !wrapEnabled )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
-    if ( doc )
-	doc->setMinimumWidth( minw, parag );
     return y;
 }
 
@@ -5382,7 +5388,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int w = dw - rdiff;
     bool fullWidth = TRUE;
     int marg = left + rdiff;
-    int minw = 0;
+    minw = 0;
+    wused = 0;
     int tminw = marg;
     int linespace = doc ? parag->lineSpacing() : 0;
     bool wrapEnabled = isWrapEnabled( parag );
@@ -5515,8 +5522,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    else
 			ww = nx - x;
 		}
-		if ( x != left || w != dw )
-		    fullWidth = FALSE;
 		curLeft = x;
 		y += h;
 		tmph = c->height() + linespace;
@@ -5543,8 +5548,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    else
 			ww = nx - x;
 		}
-		if ( x != left || w != dw )
-		    fullWidth = FALSE;
 		curLeft = x;
 		y += h;
 		tmph = c->height() + linespace;
@@ -5569,8 +5572,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tmph = QMAX( tmph, c->height() + linespace );
 	    }
 	    minw = QMAX( minw, tminw );
-	    // make sure minw is greater then rightmost text.
-	    minw = QMAX( minw, x + ww );
 
 	    tminw = marg + ww;
 	    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
@@ -5587,6 +5588,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
 	c->x = x;
 	x += ww;
+	wused = QMAX( wused, x );
     }
 
     // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between
@@ -5621,10 +5623,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     if ( !wrapEnabled )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
-    if ( doc ) {
-	doc->setMinimumWidth( minw, parag );
-    }
-
+    wused += rm;
     return y;
 }
 

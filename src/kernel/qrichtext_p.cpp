@@ -670,11 +670,6 @@ QTextFormatter *QTextParag::formatter() const
     return ( ( (QTextParag*)this )->pseudoDocument()->pFormatter = new QTextFormatterBreakWords );
 }
 
-int QTextParag::minimumWidth() const
-{
-    return hasdoc ? document()->minimumWidth() : 0;
-}
-
 void QTextParag::setTabArray( int *a )
 {
     delete [] tArray;
@@ -722,7 +717,7 @@ QTextStringChar::~QTextStringChar()
     }
 }
 
-QTextParagPseudoDocument::QTextParagPseudoDocument():pFormatter(0),commandHistory(0){}
+QTextParagPseudoDocument::QTextParagPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0){}
 QTextParagPseudoDocument::~QTextParagPseudoDocument(){ delete pFormatter; delete commandHistory; }
 
 

@@ -751,7 +751,7 @@ public:
     int height() const;
     void setWidth( int w );
     int minimumWidth() const;
-    bool setMinimumWidth( int w, QTextParag *parag );
+    bool setMinimumWidth( int needed, int used = -1, QTextParag *parag = 0 );
 
     void setY( int y );
     int leftMargin() const;
@@ -959,6 +959,7 @@ private:
     QPixmap *buf_pixmap;
     Focus focusIndicator;
     int minw;
+    int wused;
     int leftmargin;
     int rightmargin;
     QTextParag *minwParag;
@@ -1160,9 +1161,11 @@ public:
     QRect docRect;
     QTextFormatter *pFormatter;
     QTextCommandHistory *commandHistory;
+    int minw;
+    int wused;
 };
 
-
+//nase
 class Q_EXPORT QTextParag
 {
     friend class QTextDocument;
@@ -1292,7 +1295,6 @@ public:
     int documentY() const;
     QTextFormatCollection *formatCollection() const;
     QTextFormatter *formatter() const;
-    int minimumWidth() const;
 
     virtual int nextTab( int i, int x );
     int *tabArray() const;
@@ -1395,6 +1397,9 @@ public:
     virtual void setWrapAtColumn( int c );
     virtual void setAllowBreakInWords( bool b ) { biw = b; }
     bool allowBreakInWords() const { return biw; }
+    
+    int minimumWidth() const { return minw; }
+    int widthUsed() const { return wused; }
 
 protected:
     virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
@@ -1405,6 +1410,9 @@ protected:
 #endif
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
+
+    int minw;
+    int wused;
 
 private:
     bool wrapEnabled;

@@ -55,11 +55,13 @@ class QLabelPrivate
 {
 public:
     QLabelPrivate()
-	:minimumWidth(0), img(0), pix(0)
+	:img(0), pix(0), valid_hints( FALSE )
     {}
-    int minimumWidth; // for richtext
     QImage* img; // for scaled contents
     QPixmap* pix; // for scaled contents
+    QSize sh;
+    QSize msh;
+    uint valid_hints;
 };
 
 
@@ -298,8 +300,6 @@ void QLabel::setText( const QString &text )
 	    t.prepend( "<nobr>" );
 	doc = new QSimpleRichText( t, font() );
 	doc->setDefaultFont( font() );
-	doc->setWidth( 10 );
-	d->minimumWidth = doc->widthUsed();
     }
 #endif
 
@@ -621,7 +621,9 @@ int QLabel::heightForWidth( int w ) const
 */
 QSize QLabel::sizeHint() const
 {
-    return sizeForWidth( -1 );
+    if ( !d->valid_hints )
+	(void) minimumSizeHint();
+    return d->sh;
 }
 
 /*!
@@ -630,7 +632,11 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
-    QSize hint = sizeHint();
+    if ( d->valid_hints )
+	return d->msh;
+
+    d->valid_hints = TRUE;
+    d->sh = sizeForWidth( -1 );
     QSize sz( -1, -1 );
 
     if (
@@ -638,20 +644,19 @@ QSize QLabel::minimumSizeHint() const
 	 !doc &&
 #endif
 	 (align & WordBreak) == 0 ) {
-	sz = hint;
+	sz = d->sh;
     } else {
-#ifndef QT_NO_RICHTEXT
-	if ( doc )
-	    sz.rwidth() = d->minimumWidth;
-#endif
-	sz.setHeight( heightForWidth(QWIDGETSIZE_MAX) );
-	if ( hint.height() < sz.height() )
-	    sz.rheight() = hint.height();
+	// think about caching these for performance
+	sz.rwidth() = sizeForWidth( 0 ).width();
+	sz.rheight() = sizeForWidth(QWIDGETSIZE_MAX).height();
+	if ( d->sh.height() < sz.height() )
+	    sz.rheight() = d->sh.height();
     }
     if ( sizePolicy().horData() == QSizePolicy::Ignored )
 	sz.rwidth() = -1;
     if ( sizePolicy().verData() == QSizePolicy::Ignored )
 	sz.rheight() = -1;
+    d->msh = sz;
     return sz;
 }
 
@@ -830,6 +835,7 @@ void QLabel::drawContents( QPainter *p )
 
 void QLabel::updateLabel( QSize oldSizeHint )
 {
+    d->valid_hints = FALSE;
     QSizePolicy policy = sizePolicy();
     bool wordBreak = align & WordBreak;
     policy.setHeightForWidth( wordBreak );

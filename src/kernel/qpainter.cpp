@@ -2777,6 +2777,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     }
     if ( brect ) {
 	*brect = parag->rect();
+	brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
 	if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
 	    brect->setLeft( brect->left() + parag->leftGap());
 	brect->moveBy( xoff, yoff );
