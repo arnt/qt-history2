@@ -5428,12 +5428,9 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 #endif
     popup->setItemEnabled( d->id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text( d->clipboard_mode ).isEmpty() );
 #endif
-    popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !text().isEmpty() );
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    popup->setItemEnabled( d->id[ IdSelectAll ], d->optimMode ? d->od->len : (bool)text().length() );
-#else
-    popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() );
-#endif
+    const bool isEmptyDocument = (length() == 0);
+    popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !isEmptyDocument );
+    popup->setItemEnabled( d->id[ IdSelectAll ], !isEmptyDocument );
     return popup;
 #else
     return 0;
