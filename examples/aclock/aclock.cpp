@@ -122,7 +122,8 @@ void AnalogClock::setAutoMask(bool b)
 {
     if (b) {
 #ifdef Q_WS_MAC
-	reparent(NULL, Qt::WStyle_Customize|Qt::WStyle_NoBorder, pos());
+	if(isTopLevel())
+	    reparent(NULL, Qt::WStyle_Customize|Qt::WStyle_NoBorder, pos());
 #endif
 	setBackgroundMode( PaletteForeground );
     } else {
