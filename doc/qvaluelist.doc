@@ -509,15 +509,7 @@ private:
 
 /*!
   \fn void QValueList::detach()
-
   \internal
-
-  If the list does not share its data with another QValueList
-  instance, nothing happens. Otherwise the function creates a new
-  copy of this data and detaches from the shared one. This function
-  is called whenever the list is modified. The implicit sharing
-  mechanism is implemented this way.
-
 */
 
 /*!

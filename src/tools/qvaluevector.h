@@ -50,7 +50,6 @@ template <class T>
 class Q_EXPORT QValueVectorPrivate : public QShared
 {
 public:
-
     typedef T value_type;
     typedef T* pointer;
 
@@ -60,7 +59,6 @@ public:
     }
 
     QValueVectorPrivate( const QValueVectorPrivate<T>& x )
-	: QShared()
     {
 	if ( x.size() > 0 ) {
 	    start = new T[ x.size() ];
@@ -87,11 +85,10 @@ public:
 	}
     }
 
-    void derefAndDelete() // ### hack to get around hp-cc brain damage
+    void derefAndDelete() // work-around for hp-cc
     {
-	if ( deref() ) {
+	if ( deref() )
 	    delete this;
-	}
     }
 
 #if defined(Q_TEMPLATEDLL)
@@ -206,7 +203,6 @@ private:
     }
 
     QValueVectorPrivate& operator=( const QValueVectorPrivate<T>& x );
-
 };
 
 template <class T>
@@ -222,7 +218,7 @@ public:
     typedef const value_type& const_reference;
     typedef size_t size_type;
 #ifndef QT_NO_STL
-    typedef ptrdiff_t  difference_type;
+    typedef ptrdiff_t difference_type;
 #else
     typedef int difference_type;
 #endif
@@ -275,15 +271,9 @@ public:
     }
 #endif
 
-    size_type size() const
-    {
-	return sh->size();
-    }
+    size_type size() const { return sh->size(); }
 
-    bool empty() const
-    {
-	return sh->empty();
-    }
+    bool empty() const { return sh->empty(); }
 
     size_type capacity() const
     {
@@ -464,6 +454,7 @@ public:
 	return first;
     }
 
+    // ### remove in Qt 4.0
     bool operator==( const QValueVector<T>& x )
     {
 	return qEqual( begin(), end(), x.begin() );
@@ -473,6 +464,19 @@ public:
     {
 	return qEqual( begin(), end(), x.begin() );
     }
+
+    typedef T ValueType;
+    typedef ValueType *Iterator;
+    typedef const ValueType *ConstIterator;
+
+    size_type count() const { return size(); }
+    bool isEmpty() const { return empty(); }
+
+    reference first() { return front(); }
+    const_reference first() const { return front(); }
+    reference last() { return back(); }
+    const_reference last() const { return back(); }
+    void append( const T& x ) { push_back( x ); }
 
 protected:
     void detach()

@@ -45,7 +45,7 @@
   \ingroup tools
   \ingroup shared
   \mainclass
-  
+
   QValueVector is a Qt implementation of an STL-like vector container.  It
   can be used in your application if the standard \c vector is not
   available.  QValueVector is part of the \link qtl.html  Qt Template
@@ -60,15 +60,14 @@
 
   QValueVector contains and manages a collection of objects of type T
   and provides random access iterators that allow the contained
-  objects to be addressed.  QValueVector owns the contained elements.
+  objects to be addressed.  QValueVector owns the contained items.
   For more relaxed ownership semantics, see QPtrCollection and friends
   which are pointer-based containers.
 
   QValueVector provides good performance if you append or remove
-  elements from the end of the vector.  If you insert or remove
-  elements from anywhere but the end, performance is very bad.  The
-  reason for this is that elements will need to be copied into new
-  positions.
+  items from the end of the vector.  If you insert or remove items
+  from anywhere but the end, performance is very poor, since many
+  items will need to be copied into new positions.
 
   Some classes cannot be used within a QValueVector - for example, all classes
   derived from QObject and thus all classes that implement widgets.
@@ -85,9 +84,11 @@
   copy constructors if no explicit version is supplied. In many cases
   this is sufficient.
 
-  QValueVector uses an STL-like syntax to manipulate and address the
-  objects it contains. See \link qtl.html this document\endlink for
-  more information.
+  QValueList's function naming is consistent with the other Qt
+  classes (e.g., count(), isEmpty()). QValueList also provides extra
+  functions for compatibility with STL algorithms, such as size() and
+  empty(). Programmers already familiar with the STL \c list can use
+  these functions instead.
 
   Example:
   \code
@@ -100,15 +101,16 @@
     public:
 	Employee(): s(0) {}
 	Employee( const QString& name, int salary )
-	    : n(name), s(salary)
-	{}
+	    : n( name ), s( salary )
+	{ }
 
-	QString     name()   const	 	{ return n; }
-	int	    salary() const	 	{ return s; }
-	void	    setSalary( int salary )	{ s = salary; }
+	QString name() const { return n; }
+	int salary() const { return s; }
+	void setSalary( int salary ) { s = salary; }
+
     private:
-	QString     n;
-	int         s;
+	QString n;
+	int s;
     };
 
     int main()
@@ -116,14 +118,14 @@
 	typedef QValueVector<Employee> EmployeeVector;
 	EmployeeVector vec( 4 );	// vector of 4 Employees
 
-	vec[0] = Employee("Bill", 50000);
-	vec[1] = Employee("Steve",80000);
-	vec[2] = Employee("Ron",  60000);
+	vec[0] = Employee( "Bill", 50000 );
+	vec[1] = Employee( "Steve", 80000 );
+	vec[2] = Employee( "Ron", 60000 );
 
 	Employee joe( "Joe", 50000 );
-	vec.push_back( joe );
+	vec.append( joe );
 	joe.setSalary( 4000 );
-	
+
 	EmployeeVector::iterator it;
 	for( it = vec.begin(); it != vec.end(); ++it )
 	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
@@ -147,46 +149,46 @@
   end() functions return iterators to the beginning and end of the
   vector.  The advantage of getting an iterator is that you can now move
   forward or backward from this position by incrementing/decrementing
-  the iterator.  The iterator returned by end() points to the element
-  which is one past the last element in the container. The
+  the iterator.  The iterator returned by end() points to the items
+  which is one past the last item in the container. The
   past-the-end iterator is still associated with the vector it belongs
   to, however it is \e not dereferenceable; operator*() will not
   return a well-defined value. If the vector is empty(), the iterator
   returned by begin() will equal the iterator returned by end().
 
-  The fastest way to access an element of a vector is by using
+  The fastest way to access an item of a vector is by using
   operator[].  This function provides random access and will return a
-  reference to the element located at the specified index.  Thus, you
-  can access every element directly, in constant time, providing you
-  know the location of the element.  It is undefined to access an
-  element that does not exist (your application will probably crash).
+  reference to the item located at the specified index.  Thus, you
+  can access every item directly, in constant time, providing you
+  know the location of the item.  It is undefined to access an
+  item that does not exist (your application will probably crash).
   For example:
 
 \code
-  QValueVector<int> vec1;  // an empty vector
-  vec1[10] = 4;  // WARNING: undefined, probably a crash
+  QValueVector<int> vec1;           // an empty vector
+  vec1[10] = 4;                     // undefined, probably a crash
 
-  QValueVector<QString> vec2(25); // initialize with 25 elements
-  vec2[10] = "Dave";  // OK
+  QValueVector<QString> vec2( 25 ); // initialize with 25 items
+  vec2[10] = "Bill";                // OK
 \endcode
 
-  Whenever inserting, removing or referencing elements in a vector,
+  Whenever inserting, removing or referencing items in a vector,
   always make sure you are referring to valid positions.  For example:
 
 \code
   void func( QValueVector<int>& vec )
   {
-      if ( vec.size() > 10 ) {
+      if ( vec.size() > 9 ) {
           vec[9] = 99; // OK
       }
-  };
+  }
 \endcode
 
   The iterators provided by vector are random access iterators,
   therefore you can use them with many generic algorithms, for
-  example, algorithms provided by the STL or the \link qtl.html QTL\endlink.  
+  example, algorithms provided by the STL or the \link qtl.html QTL\endlink.
 
-  Another way to find an element in the vector is by using the
+  Another way to find an item in the vector is by using the
   std::find() or \link qtl.html#qFind qFind()\endlink
   algorithms.  For example:
 
@@ -195,17 +197,17 @@
   ...
   QValueVector<int>::const_iterator it = qFind( vec.begin(), vec.end(), 3 );
   if ( it != vector.end() )
-      // 'it' points to the found element
+      // 'it' points to the found item
 \endcode
 
   It is safe to have multiple iterators on the vector at the same time.
   Since QValueVector manages memory dynamically, all iterators can
   become invalid if a memory reallocation occurs.  For example, if
   some member of the vector is removed, iterators that point to the
-  removed element and to all following elements become
+  removed item and to all following items become
   invalidated. Inserting into the middle of the vector will
   invalidate all iterators.  For convenience, the function back()
-  returns a reference to the last element in the vector, and front()
+  returns a reference to the last item in the vector, and front()
   one for the first.  If the vector is empty(), both back() and front()
   have undefined behavior (your application will crash or do
   unpredictable things).  Use back() and front() with caution, for
@@ -213,12 +215,12 @@
 
 \code
   QValueVector<int> vec( 3 );
-  vec.push_back( 1 );
-  vec.push_back( 2 );
-  vec.push_back( 3 );
+  vec.append( 1 );
+  vec.append( 2 );
+  vec.append( 3 );
   ...
   if ( !vec.empty() ) {
-      // OK: modify the first element
+      // OK: modify the first item
       int& i = vec.front();
       i = 18;
   }
@@ -229,10 +231,10 @@
 
   Because QValueVector manages memory dynamically, it is recommended
   to contruct a vector with an initial size.  Inserting and removing
-  elements happens fastest when:
+  items happens fastest when:
 
 \list
-	\i Inserting or removing elements happens at the end() of the vector
+	\i Inserting or removing items happens at the end() of the vector
 	\i The vector does not need to allocate additional memory
 \endlist
 
@@ -243,7 +245,7 @@
   used.
 
   Because QValueVector is value-based there is no need to be careful about
-  deleting elements in the vector. The vector holds its own copies and
+  deleting items in the vector. The vector holds its own copies and
   will free them if the corresponding member or the vector itself is
   deleted. You can force the vector to free all of its items with
   clear().
@@ -256,15 +258,15 @@
   QValueVector is being used in a multi-threaded program, you must
   protect all access to the vector.  See QMutex.
 
-  There are several ways to insert elements into the vector.  The
-  push_back() function insert elements into the end of the vector. The
-  insert() can be used to add elements at specific positions within
-  the vector (normally, inserting elements at the end() of the vector is
+  There are several ways to insert items into the vector.  The
+  append() function insert items into the end of the vector. The
+  insert() can be used to add items at specific positions within
+  the vector (normally, inserting items at the end() of the vector is
   fastest).
 
   Items can be also be removed from the vector in several ways. There
   are several variants of the erase() function which removes a
-  specific element, or range of elements, from the vector.
+  specific item, or range of items, from the vector.
 
   Vectors can be also sorted with various STL algorithms , or it can
   be sorted using the \link qtl.html Qt Template Library\endlink.  For
@@ -273,41 +275,47 @@
   Example:
   \code
     QValueVector<int> v( 4 );
-    v.push_back( 5 );
-    v.push_back( 8 );
-    v.push_back( 3 );
-    v.push_back( 4 );
+    v.append( 5 );
+    v.append( 8 );
+    v.append( 3 );
+    v.append( 4 );
     qBubbleSort( v );
   \endcode
 
-  QValueVector stores its elements in contiguous memory.  This means
+  QValueVector stores its items in contiguous memory.  This means
   that you can use a QValueVector in any situation that requires an
-  array.  
+  array.
 */
 
-/*! \enum QValueVector::value_type 
+/*! \enum QValueVector::value_type
 	The type of the object stored in the vector. */
-/*! \enum QValueVector::pointer 
+/*! \enum QValueVector::ValueType
+	The type of the object stored in the vector. */
+/*! \enum QValueVector::pointer
 	The pointer to T type. */
-/*! \enum QValueVector::const_pointer 
+/*! \enum QValueVector::const_pointer
 	The const pointer to T type. */
-/*! \enum QValueVector::iterator 
+/*! \enum QValueVector::iterator
 	The vector's iterator type. */
-/*! \enum QValueVector::const_iterator 
+/*! \enum QValueVector::const_iterator
 	The vector's const iterator type. */
-/*! \enum QValueVector::reference 
+/*! \enum QValueVector::Iterator
+	The vector's iterator type. */
+/*! \enum QValueVector::ConstIterator
+	The vector's const iterator type. */
+/*! \enum QValueVector::reference
 	The reference to T type. */
-/*! \enum QValueVector::const_reference 
+/*! \enum QValueVector::const_reference
 	The const reference to T type. */
-/*! \enum QValueVector::size_type 
+/*! \enum QValueVector::size_type
 	An unsigned integral type, used to represent various sizes. */
-/*! \enum QValueVector::difference_type 
+/*! \enum QValueVector::difference_type
 	A signed integral type used to represent the distance between two iterators. */
 
 
 /*! \fn QValueVector::QValueVector()
-  Constructs an empty vector without any elements.  To create a vector
-  which reserves an initial amount of space for elements, use \c
+  Constructs an empty vector without any items.  To create a vector
+  which reserves an initial amount of space for items, use \c
   QValueVector(size_type n).  */
 
 /*! \fn QValueVector::QValueVector( const QValueVector<T>& v )
@@ -329,12 +337,12 @@
 */
 
 /*! \fn QValueVector::QValueVector( size_type n, const T& val )
-  Constructs a vector with an initial size of \a n elements.  Each
-  element is initialized with the value of \a val.
+  Constructs a vector with an initial size of \a n items.  Each
+  item is initialized with the value of \a val.
 */
 
 /*! \fn QValueVector::~QValueVector()
-  Destroys the vector, destroying all elements and freeing the memory.
+  Destroys the vector, destroying all items and freeing the memory.
   References to the values in the vector and all iterators of this
   vector become invalidated. Note that it is impossible for an
   iterator to check whether or not it is valid - QValueVector is
@@ -358,16 +366,37 @@
 */
 
 /*! \fn size_type QValueVector::size() const
-  Returns the number of elements in the vector.
+  Returns the number of items in the vector.
+
+  This function is provided for STL compatibility. It is equivalent
+  to count().
+
+  \sa empty()
+*/
+
+/*! \fn size_type QValueVector::count() const
+  Returns the number of items in the vector.
+
+  \sa isEmpty()
 */
 
 /*! \fn bool QValueVector::empty() const
-  Returns TRUE if the vector is empty, otherwise FALSE.  Equivalent to
-  size()==0, but is faster.
+  Returns TRUE if the vector is empty; returns FALSE otherwise.
+
+  This function is provided for STL compatibility. It is equivalent
+  to isEmpty().
+
+  \sa size()
+*/
+
+/*! \fn bool QValueVector::isEmpty() const
+  Returns TRUE if the vector is empty; returns FALSE otherwise.
+
+  \sa count()
 */
 
 /*! \fn size_type QValueVector::capacity() const
-  Returns the maximum number of elements possible without memory
+  Returns the maximum number of items possible without memory
   reallocation.  If memory reallocation takes place, some or all
   iterators may become invalidated.
 */
@@ -384,16 +413,16 @@
 */
 
 /*! \fn iterator QValueVector::end()
-  Returns an iterator pointing behind the last element of the vector.
+  Returns an iterator pointing behind the last item of the vector.
 */
 
 /*! \fn const_iterator QValueVector::end() const
     \overload
-  Returns a const iterator pointing behind the last element of the vector.
+  Returns a const iterator pointing behind the last item of the vector.
 */
 
 /*! \fn reference QValueVector::at( size_type i , bool* ok )
-  Returns a reference to the element with index \a i.  If \a ok is
+  Returns a reference to the item with index \a i.  If \a ok is
   non-null, and the index \a i is out of range, \c *\a ok is set to FALSE
   and the returned reference is undefined.  If the index \a i is
   within the range of the vector, and \a ok is non-null, \c *\a ok is set to
@@ -402,7 +431,7 @@
 
 /*! \fn const_reference QValueVector::at( size_type i , bool* ok ) const
     \overload
-  Returns a const reference to the element with index \a i.  If \a ok is
+  Returns a const reference to the item with index \a i.  If \a ok is
   non-null, and the index \a i is out of range, \c *\a ok is set to FALSE
   and the returned reference is undefined.  If the index \a i is
   within the range of the vector, and \a ok is non-null, \c *\a ok is set to
@@ -410,44 +439,85 @@
 */
 
 /*! \fn reference QValueVector::operator[]( size_type i )
-  Returns a reference to the element at index \a i.  If \a i is out of
+  Returns a reference to the item at index \a i.  If \a i is out of
   range, this function has undefined behavior.
 */
 
 /*! \fn const_reference QValueVector::operator[]( size_type i ) const
     \overload
-  Returns a const reference to the element at index \a i.  If \a i is out of
+  Returns a const reference to the item at index \a i.  If \a i is out of
   range, this function has undefined behavior.
 */
 
 /*! \fn reference QValueVector::front()
-  Returns a reference to the first element in the vector.  If there is
-  no first element, this function has undefined behavior.  
+  Returns a reference to the first item in the vector.  If there is
+  no first item, this function has undefined behavior.
+
+  This function is provided for STL compatibility. It is equivalent
+  to first().
+
+  \sa back()
 */
 
 /*! \fn const_reference QValueVector::front() const
     \overload
-  Returns a const reference to the first element in the vector.  If there is
-  no first element, this function has undefined behavior.  
+*/
+
+/*! \fn reference QValueVector::first()
+  Returns a reference to the first item in the vector.  If there is
+  no first item, this function has undefined behavior.
+
+  \sa last()
+*/
+
+/*! \fn const_reference QValueVector::first() const
+    \overload
 */
 
 /*! \fn reference QValueVector::back()
-  Returns a reference to the last element in the vector.  If there is
-  no last element, this function has undefined behavior.  
+  Returns a reference to the last item in the vector.  If there is
+  no last item, this function has undefined behavior.
+
+  This function is provided for STL compatibility. It is equivalent
+  to last().
+
+  \sa front()
 */
 
 /*! \fn const_reference QValueVector::back() const
     \overload
-  Returns a const reference to the last element in the vector.  If there is
-  no last element, this function has undefined behavior.  
+*/
+
+/*! \fn reference QValueVector::last()
+  Returns a reference to the last item in the vector.  If there is
+  no last item, this function has undefined behavior.
+
+  \sa first()
+*/
+
+/*! \fn const_reference QValueVector::last() const
+    \overload
 */
 
 /*! \fn void QValueVector::push_back( const T& x )
   Appends a copy of \a x to the end of the vector.
+
+  This function is provided for STL compatibility. It is equivalent
+  to append().
+
+  \sa insert()
+*/
+
+/*! \fn void QValueVector::append( const T& x )
+  Appends a copy of \a x to the end of the vector.
+
+  \sa insert()
 */
 
 /*! \fn void QValueVector::pop_back()
-  Removes the last element from the vector.
+  Removes the last item from the vector.
+
+  This function is provided for STL compatibility.
 */
 
 /*! \fn iterator QValueVector::insert( iterator pos, const T& x )
@@ -464,42 +534,42 @@
   capacity(), nothing happens.  Otherwise, additional memory is
   allocated so that capacity() will be increased to a value greater
   than or equal to \a n.  All iterators will then become invalidated.
-  Note that the vector's size() and the values of existing elements
+  Note that the vector's size() and the values of existing items
   remain unchanged.
 */
 
 /*! \fn void QValueVector::resize( size_type n, const T& val = T() )
   Changes the size of the vector to \a n.  If n is greater than the
-  current size(), elements are added to the end and initialized with
-  the value of \a val.  If \a n is less than size(), elements are
+  current size(), items are added to the end and initialized with
+  the value of \a val.  If \a n is less than size(), items are
   removed from the end.  If \a n is equal to size() nothing happens.
 */
 
 /*! \fn void QValueVector::clear()
-  Removes all elements from the vector.
+  Removes all items from the vector.
 */
 
 /*! \fn iterator QValueVector::erase( iterator pos )
-  Removes the element at position \a pos and returns the position of
-  the next element.
+  Removes the item at position \a pos and returns the position of
+  the next item.
 */
 
 /*! \fn iterator QValueVector::erase( iterator first, iterator last )
     \overload
-  Removes all elements from \a first up to but not including \a last
-  and returns the position of the next element.
+  Removes all items from \a first up to but not including \a last
+  and returns the position of the next item.
 */
 
 /*! \fn bool QValueVector::operator==( const QValueVector<T>& x ) const
-  Returns TRUE if each element in this vector equals each
-  corresponding element in \a x, otherwise FALSE is returned.
+  Returns TRUE if each item in this vector equals each
+  corresponding item in \a x, otherwise FALSE is returned.
+*/
+
+/*! \fn bool QValueVector::operator==( const QValueVector<T>& x )
+  \internal
 */
 
 /*!
   \fn void QValueVector::detach()
-  If the vector does not share its data with another QValueVector instance, nothing
-  happens. Otherwise the function creates a new copy of this data and detaches
-  from the shared one. This function is called whenever the vector is modified.
-  The implicit sharing mechanism is implemented this way.
+  \internal
 */
-
