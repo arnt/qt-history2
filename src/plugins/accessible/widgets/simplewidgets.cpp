@@ -65,6 +65,8 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
             break;
         case RadioButton:
             return QRadioButton::tr("Check");
+ 	default:
+ 	    break;
         }
         break;
     }
