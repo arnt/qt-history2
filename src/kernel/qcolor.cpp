@@ -849,7 +849,10 @@ uint QColor::pixel() const
 	return d.d32.pix;
 }
 
-
+/*!
+    \fn QStringList QColor::colorNames()
+    Returns a QStringList containing the color names Qt knows about.
+*/
 
 /*****************************************************************************
   QColor stream functions
@@ -961,3 +964,4 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 
     Returns a gray value 0..255 from the given \a rgb colour.
 */
+

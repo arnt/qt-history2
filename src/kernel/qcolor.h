@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 const QRgb  RGB_MASK    = 0x00ffffff;		// masks RGB values
@@ -123,7 +124,7 @@ public:
     static void leaveAllocContext();
     static int  currentAllocContext();
     static void destroyAllocContext( int );
-
+    
 #if defined(Q_WS_WIN)
     static const QRgb* palette( int* numEntries = 0 );
     static int setPaletteEntries( const QRgb* entries, int numEntries,
@@ -134,6 +135,8 @@ public:
 
     static void initialize();
     static void cleanup();
+
+    static QStringList colorNames();
 
     enum { Dirt = 0x44495254, Invalid = 0x49000000 };
 

@@ -764,6 +764,15 @@ uint qt_get_rgb_val( const char *name )
     return r;
 }
 
+QStringList QColor::colorNames()
+{
+    int i = 0;
+    QStringList lst;
+    for ( i = 0; i < rgbTblSize; i++ )
+	lst << rgbTbl[i].name;
+
+    return lst;
+}
 #else
 
 bool qt_get_named_rgb( const char *, QRgb* )
@@ -776,4 +785,8 @@ uint qt_get_rgb_val( const char * )
     return 0;
 }
 
+QStringList QColor::colorNames()
+{
+    return QStringList();
+}
 #endif // QT_NO_COLORNAMES
