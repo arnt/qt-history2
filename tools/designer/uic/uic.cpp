@@ -1059,6 +1059,8 @@ void Uic::createFormImpl( const QDomElement &e )
     out << " */" << endl;
     out << nameOfClass << "::~" << nameOfClass << "()" << endl;
     out << "{" << endl;
+    if ( protectedSlots.find( "destroy()" ) != protectedSlots.end() )
+	out << indent << "destroy();" << endl;
     out << indent << "// no need to delete child widgets, Qt does it all for us" << endl;
     out << "}" << endl;
     out << endl;
@@ -1208,7 +1210,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    }
 	    if ( createWarning ) {
 		out << "{" << endl;
-		if ( *it != "init()" )
+		if ( *it != "init()" && *it != "destroy()" )
 		    out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
 		out << "}" << endl;
 	    }

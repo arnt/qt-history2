@@ -111,9 +111,6 @@ QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar 
 	    objName = ths->name();
     }
 
-    if ( !objName.isNull() )
-	qDebug( objName );
-
     if ( !objName.isEmpty() ) {
 	func = expr.mid( i + 1 );
 	func = func.simplifyWhiteSpace();
