@@ -210,7 +210,8 @@ void QDockWidgetTitleBar::updateGui()
 
 QDockWidget::QDockWidget( QWidget *parent, const char *name )
     : QFrame( parent, name, WStyle_Customize | WStyle_NoBorderEx ), curPlace( OutsideDock ),
-      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE )
+      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
+      addY( 0 ), addX( 0 )
 {
     titleBar = new QDockWidgetTitleBar( this );
     handle = new QDockWidgetHandle( this );
@@ -272,6 +273,7 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 
 void QDockWidget::updateGui()
 {
+    addX = addY = 0;
     if ( curPlace == OutsideDock ) {
 	handle->hide();
 	titleBar->setGeometry( 2, 2, width() - 4, titleBar->sizeHint().height() - 4 );
@@ -280,6 +282,7 @@ void QDockWidget::updateGui()
 	titleBar->show();
 	titleBar->updateGui();
 	setLineWidth( 2 );
+	addX = titleBar->height();
     } else {
 	titleBar->hide();
 	if ( dockArea && dockArea->orientation() == Horizontal ) {
@@ -287,11 +290,13 @@ void QDockWidget::updateGui()
 	    handle->setGeometry( 1, 1, handle->sizeHint().width() - 2, height() - 2 );
 	    if ( wid )
 		wid->setGeometry( handle->width() + 1, 1, width() - handle->width() - 2, height() - 2);
+	    addY = handle->width();
 	} else {
 	    handle->setMinimumHeight( 14 );
 	    handle->setGeometry( 1, 1, width() - 2, handle->sizeHint().height() - 2 );
 	    if ( wid )
 		wid->setGeometry( 1, handle->height() + 1, width() - 2, height() - handle->height() - 2 );
+	    addX = handle->height();
 	}
 	handle->show();
 	handle->updateGui();
@@ -376,6 +381,33 @@ void QDockWidget::setCloseEnabled( bool b )
 bool QDockWidget::isCloseEnabled() const
 {
     return closeEnabled;
+}
+
+QSize QDockWidget::sizeHint() const
+{
+    if ( !wid )
+	return QFrame::sizeHint();
+    QSize s = wid->sizeHint();
+    s += QSize( addX, addY );
+    return s;
+}
+
+QSize QDockWidget::minimumSize() const
+{
+    if ( !wid )
+	return QFrame::minimumSize();
+    QSize s = wid->minimumSize();
+    s += QSize( addX, addY );
+    return s;
+}
+
+QSize QDockWidget::minimumSizeHint() const
+{
+    if ( !wid )
+	return QFrame::minimumSizeHint();
+    QSize s = wid->minimumSizeHint();
+    s += QSize( addX, addY );
+    return s;
 }
 
 #include "qdockwidget.moc"

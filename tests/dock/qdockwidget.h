@@ -32,6 +32,10 @@ public:
 
     QDockArea *area() const;
 
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QSize minimumSizeHint() const;
+    
 protected:
     void resizeEvent( QResizeEvent *e );
 
@@ -57,6 +61,7 @@ private:
     Orientation startOrientation;
     QRect startRect;
     QPoint startOffset;
+    int addY, addX;
     
 };
 
