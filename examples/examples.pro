@@ -75,7 +75,8 @@ network:SUBDIRS +=  network/clientserver/client \
 		    network/networkprotocol
 workspace:SUBDIRS+= mdi
 table:SUBDIRS +=    statistics \
-		    table
+		    table/small-table-demo \
+		    table/bigtable
 sql:SUBDIRS += sql
 
 xml:SUBDIRS +=	xml/outliner \
