@@ -384,7 +384,7 @@ public:
   decorated windows as opposed to frameless child widgets.  QWorkspace
   makes it easy to implement a multidocument interface (MDI).
 
-  \ingroup realwidgets
+  \ingroup application
 
   An MDI application has one main window that has a menubar. The
   central widget of this main window is a workspace. The workspace
