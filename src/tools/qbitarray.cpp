@@ -90,7 +90,8 @@ void QBitArray::resize(int size)
     int s = d.size();
     d.resize(1 + (size+7)/8);
     uchar* c = (uchar*)d.data();
-    memset(c + s, 0, d.size() - s);
+    if (size > (s << 3))
+	memset(c + s, 0, d.size() - s);
     *c = d.size()*8 - size;
 }
 
