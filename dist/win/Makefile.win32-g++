@@ -28,7 +28,7 @@ sub-tools: sub-plugins $(FORCEDEP)
 
 #plugins
 sub-plugins: sub-src $(FORCEDEP)
-	cd plugins/src && $(MAKE)
+	cd plugins\src && $(MAKE)
 
 #tutorials
 sub-tutorial: sub-src $(FORCEDEP)
@@ -47,7 +47,7 @@ clean:
 	cd tutorial && $(MAKE) $(CONTINUEONERROR) clean
 	cd examples && $(MAKE) $(CONTINUEONERROR) clean
 	cd extensions && $(MAKE) $(CONTINUEONERROR) clean
-	cd plugins/src && $(MAKE) $(CONTINUEONERROR) clean
+	cd plugins\src && $(MAKE) $(CONTINUEONERROR) clean
 	cd qmake && $(MAKE) -f Makefile.win32-g++ $(CONTINUEONERROR) clean
 
 distclean: clean

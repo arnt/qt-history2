@@ -187,8 +187,8 @@ Qt 3.3 adds support for two new compilers. The Intel C++ compiler is
 supported on Windows, Linux and FreeBSD. GNU gcc is supported on
 Windows using MinGW.
 
-Qt 3.3 no longer officially supports the Sun CC 5.0 compiler or the
-IRIX MIPSpro o32 mode.
+Qt 3.3 no longer officially supports the Sun WorkShop 5.0 compiler or the
+SGI MIPSpro o32 mode.
 
 
 ****************************************************************************
