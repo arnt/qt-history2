@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include <qsqldriverplugin.h>
+#include <qstringlist.h>
 #include "../../../sql/drivers/odbc/qsql_odbc.h"
 
 class QODBCDriverPlugin : public QSqlDriverPlugin

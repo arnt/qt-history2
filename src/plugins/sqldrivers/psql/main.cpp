@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include <qsqldriverplugin.h>
+#include <qstringlist.h>
 #include "../../../sql/drivers/psql/qsql_psql.h"
 
 class QPSQLDriverPlugin : public QSqlDriverPlugin

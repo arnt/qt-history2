@@ -14,6 +14,7 @@
 
 #define Q_UUIDIMPL
 #include <qsqldriverplugin.h>
+#include <qstringlist.h>
 #ifdef Q_OS_WIN32    // We assume that MS SQL Server is used. Set Q_USE_SYBASE to force Sybase.
 #include <windows.h>
 #endif
