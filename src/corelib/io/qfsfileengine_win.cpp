@@ -646,6 +646,12 @@ QFSFileEnginePrivate::doStat() const
         if(file.isEmpty())
             return could_stat;
 
+#ifdef Q_CC_BOR
+        // Borland can stat dir/* which is not what we would expect
+        if (file.contains("*") || file.contains("?"))
+            return could_stat;
+#endif	
+
 	UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
         // Stat on windows doesn't accept drivename : without \ so append \ it if this is the case
