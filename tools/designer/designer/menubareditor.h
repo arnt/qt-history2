@@ -14,17 +14,18 @@ class MenuBarEditorItem : public QObject
 
     friend class MenuBarEditor;
 
-    // FIXME: Qt-ify the constructors
-    MenuBarEditorItem( MenuBarEditor * bar = 0, int id = -1 );
+    MenuBarEditorItem( MenuBarEditor * bar = 0, QObject * parent = 0, const char * name = 0 );
     
 public:
-    MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar, int id = -1 );
-    MenuBarEditorItem( QActionGroup * actionGroup, MenuBarEditor * bar, int id = -1 );
-    MenuBarEditorItem( MenuBarEditorItem * item, int id = -1 );
+    MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar,
+		       QObject * parent = 0, const char * name = 0);
+    MenuBarEditorItem( QActionGroup * actionGroup, MenuBarEditor * bar,
+		       QObject * parent = 0, const char * name = 0);
+    MenuBarEditorItem( MenuBarEditorItem * item,
+		       QObject * parent = 0, const char * name = 0);
     ~MenuBarEditorItem() { };
 
     PopupMenuEditor * menu() { return popupMenu; }
-    int id() { return identity; }
 
     void setMenuText( const QString t ) { text = t; };
     QString menuText() { return text; }
@@ -46,7 +47,6 @@ private:
     int visible : 1;
     int separator : 1;
     int removable : 1;
-    int identity;
 };
 
 class QLineEdit;
@@ -64,18 +64,16 @@ public:
 
     MenuBarEditorItem * createItem( int index = -1 );
     void insertItem( MenuBarEditorItem * item, int index = -1 );
-    void insertItem( QString text, PopupMenuEditor * menu, int id = -1, int index = -1 );
-    void insertItem( QString text, QActionGroup * group, int id = -1, int index = -1 );
+    void insertItem( QString text, PopupMenuEditor * menu, int index = -1 );
+    void insertItem( QString text, QActionGroup * group, int index = -1 );
 
     void insertSeparator( int index = -1 );
     
     void removeItemAt( int index );
     void removeItem( MenuBarEditorItem * item );
-    void removeItem( int id );
     
     int findItem( MenuBarEditorItem * item );
     int findItem( PopupMenuEditor * menu );
-    int findItem( int id );
     int findItem( QPoint & pos );
     
     MenuBarEditorItem * item( int index = -1 );

@@ -60,52 +60,49 @@ bool MenuBarEditorItemPtrDrag::decode( QDropEvent * e, MenuBarEditorItem ** i )
 
 // MenuBarEditorItem ---------------------------------------------------
 
-MenuBarEditorItem::MenuBarEditorItem( MenuBarEditor * bar, int id )
-    : menuBar( bar ),
+MenuBarEditorItem::MenuBarEditorItem( MenuBarEditor * bar, QObject * parent, const char * name )
+    : QObject( parent, name ),
+      menuBar( bar ),
       popupMenu( 0 ),
       visible( TRUE ),
       separator( FALSE ),
-      removable( FALSE ),
-      //autodelete( FALSE ),
-      identity( id )
+      removable( FALSE )
 { }
 
-MenuBarEditorItem::MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar, int id )
-    : menuBar( bar ),
+MenuBarEditorItem::MenuBarEditorItem( PopupMenuEditor * menu, MenuBarEditor * bar,
+				      QObject * parent, const char * name )
+    : QObject( parent, name ),
+      menuBar( bar ),
       popupMenu( menu ),
       visible( TRUE ),
       separator( FALSE ),
-      removable( TRUE ),
-      //autodelete( TRUE ),
-      identity( id )
+      removable( TRUE )
 {
     text = menu->name();
 }
 
-MenuBarEditorItem::MenuBarEditorItem( QActionGroup * actionGroup,
-				      MenuBarEditor * bar, int id )
-    : menuBar( bar ),
+MenuBarEditorItem::MenuBarEditorItem( QActionGroup * actionGroup, MenuBarEditor * bar,
+				      QObject * parent, const char * name )
+    : QObject( parent, name ),
+      menuBar( bar ),
       popupMenu( 0 ),
       visible( TRUE ),
       separator( FALSE ),
-      removable( TRUE ),
-      //autodelete( TRUE ),
-      identity( id )
+      removable( TRUE )
 {
     text = actionGroup->menuText();
     popupMenu = new PopupMenuEditor( menuBar->formWindow(), menuBar );
     popupMenu->insert( actionGroup );
 }
 
-MenuBarEditorItem::MenuBarEditorItem( MenuBarEditorItem * item, int id )
-    : menuBar( item->menuBar ),
+MenuBarEditorItem::MenuBarEditorItem( MenuBarEditorItem * item, QObject * parent, const char * name )
+    : QObject( parent, name ),
+      menuBar( item->menuBar ),
       popupMenu( 0 ),
       text( item->text ),
       visible( item->visible ),
       separator( item->separator ),
-      removable( item->removable ),
-      //autodelete( item->autodelete ),
-      identity( id )
+      removable( item->removable )
 {
     popupMenu = new PopupMenuEditor( menuBar->formWindow(), item->popupMenu, menuBar );
 }
@@ -183,17 +180,17 @@ void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
 	update();
 }
 
-void MenuBarEditor::insertItem( QString text, PopupMenuEditor * menu, int id, int index )
+void MenuBarEditor::insertItem( QString text, PopupMenuEditor * menu, int index )
 {
-    MenuBarEditorItem * item = new MenuBarEditorItem( menu, this, id );
+    MenuBarEditorItem * item = new MenuBarEditorItem( menu, this );
     if ( !text.isNull() )
 	item->setMenuText( text );
     insertItem( item, index );
 }
 
-void MenuBarEditor::insertItem( QString text, QActionGroup * group, int id, int index )
+void MenuBarEditor::insertItem( QString text, QActionGroup * group, int index )
 {
-    MenuBarEditorItem * item = new MenuBarEditorItem( group, this, id );
+    MenuBarEditorItem * item = new MenuBarEditorItem( group, this );
     if ( !text.isNull() )
 	item->setMenuText( text );
     insertItem( item, index );
@@ -239,11 +236,6 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
     }
 }
 
-void MenuBarEditor::removeItem( int id )
-{
-    removeItemAt( findItem( id ) );
-}
-
 int MenuBarEditor::findItem( MenuBarEditorItem * item )
 {
     return itemList.findRef( item );
@@ -259,18 +251,6 @@ int MenuBarEditor::findItem( PopupMenuEditor * menu )
 	i = itemList.next();
     }
 
-    return -1;
-}
-
-int MenuBarEditor::findItem( int id )
-{
-    MenuBarEditorItem * i = itemList.first();
-
-    while ( i ) {
-	if ( i->id() == id )
-	    return itemList.at();
-	i = itemList.next();
-    }
     return -1;
 }
 
@@ -420,7 +400,7 @@ void MenuBarEditor::showLineEdit( int index )
     lineEdit->setText( i->menuText() );
     lineEdit->selectAll();
     QPoint pos = itemPos( index );
-    lineEdit->move( pos.x() + borderSize, pos.y() ); //FIXME: move
+    lineEdit->move( pos.x() + borderSize, pos.y() );
     QPainter p( this );
     lineEdit->resize( itemSize( i ) );
     lineEdit->show();

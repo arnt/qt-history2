@@ -161,8 +161,8 @@ protected:
     void focusInEvent( QFocusEvent * e );
     void focusOutEvent( QFocusEvent * e );
 
-    void drawItems( QPainter * p ) const;
-    void drawItem( QPainter * p, const PopupMenuEditorItem * i, const QRect & r, const int f ) const;
+    void drawItems( QPainter * p );
+    void drawItem( QPainter * p, PopupMenuEditorItem * i, const QRect & r, const int f ) const;
     void drawWinFocusRect( QPainter * p, const QRect & r ) const;
 
     QSize contentsSize();
@@ -200,6 +200,7 @@ private:
     
     int currentField;
     int currentIndex;
+    int drawAll;
     QPoint mousePressPos;
     static PopupMenuEditorItem * draggedItem;
 
