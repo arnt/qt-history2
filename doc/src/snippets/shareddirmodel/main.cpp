@@ -27,9 +27,7 @@ int main(int argc, char *argv[])
     QDirModel *model = new QDirModel(QDir(), splitter);
 
     QTreeView *tree = new QTreeView(splitter);
-    tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
     QListView *list = new QListView(splitter);
-    list->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     tree->setModel(model);
     list->setModel(model);
