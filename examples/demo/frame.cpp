@@ -142,7 +142,9 @@ Frame::Frame( QWidget *parent, const char *name )
     categories->setHScrollBarMode( QScrollView::AlwaysOff );
 
     connect( categories, SIGNAL( clicked( QListBoxItem *) ),
-                   	     SLOT( clickedCategory( QListBoxItem *) ) );
+	     SLOT( clickedCategory( QListBoxItem *) ) );
+    connect( categories, SIGNAL( returnPressed( QListBoxItem *) ),
+	     SLOT( clickedCategory( QListBoxItem *) ) );
 
     // stack for the demo widgets
     stack = new QWidgetStack( hbox );
