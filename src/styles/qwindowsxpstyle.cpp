@@ -826,7 +826,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 		w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
 		if ( qt_cast<QDockWindow*>(p) && !qt_cast<QToolBar*>(p) ) {
-		    drawDockTitle = TRUE;
+		    int drawArea = QMIN( r.right() - r.left(), r.bottom() - r.top() );
+		    drawDockTitle = ( drawArea >= w->fontMetrics().height() );
 		    isDockWindow = TRUE;
 		    title = p->caption();
 		}
