@@ -15,7 +15,7 @@
 #define __QIOENGINE_P_H__
 
 class QIOEngine;
-class QIOEnginePrivate
+class Q_CORE_EXPORT QIOEnginePrivate
 {
 protected:
     QIOEngine *q_ptr;

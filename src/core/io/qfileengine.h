@@ -18,7 +18,7 @@
 #include "qdir.h"
 
 class QFileEnginePrivate;
-class QFileEngine : public QIOEngine
+class Q_CORE_EXPORT QFileEngine : public QIOEngine
 {
     Q_DECLARE_PRIVATE(QFileEngine)
 public:

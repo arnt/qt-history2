@@ -59,11 +59,10 @@ SOURCES += $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp       \
                   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
                   $$QT_SOURCE_TREE/src/core/tools/qdatetime.cpp \
                   $$QT_SOURCE_TREE/src/core/io/qfile.cpp                \
-                  $$QT_SOURCE_TREE/src/core/io/qfsfileengine.cpp  \
+                  $$QT_SOURCE_TREE/src/core/io/qfileengine.cpp  \
+                  $$QT_SOURCE_TREE/src/core/io/qioengine.cpp  \
                   $$QT_SOURCE_TREE/src/core/io/qdir.cpp         \
-                  $$QT_SOURCE_TREE/src/core/io/qfsdirengine.cpp  \
                   $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp    \
-                  $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine.cpp  \
                   $$QT_SOURCE_TREE/src/core/global/qglobal.cpp          \
                   $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp    \
                   $$QT_SOURCE_TREE/src/core/tools/qlist.cpp             \
@@ -87,15 +86,9 @@ SOURCES += $$QT_SOURCE_TREE/src/core/tools/qregexp.cpp \
                   $$QT_SOURCE_TREE/src/core/codecs/qutfcodec.cpp
 
 
-unix:SOURCES += \
-        $$QT_SOURCE_TREE/src/core/io/qfsfileengine_unix.cpp \
-        $$QT_SOURCE_TREE/src/core/io/qfsdirengine_unix.cpp \
-        $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine_unix.cpp
+unix:SOURCES += $$QT_SOURCE_TREE/src/core/io/qfileengine_unix.cpp 
 
-win32:SOURCES += \
-        $$QT_SOURCE_TREE/src/core/io/qfsfileengine_win.cpp \
-        $$QT_SOURCE_TREE/src/core/io/qfsdirengine_win.cpp \
-        $$QT_SOURCE_TREE/src/core/io/qfsfileinfoengine_win.cpp
+win32:SOURCES += $$QT_SOURCE_TREE/src/core/io/qfileengine_win.cpp 
 
 macx: {
 SOURCES += $$QT_SOURCE_TREE/src/core/kernel/qcore_mac.cpp

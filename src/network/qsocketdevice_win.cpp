@@ -214,16 +214,17 @@ int QSocketDevicePrivate::createNewSocket()
 }
 
 
-void QSocketDeviceEngine::close()
+bool QSocketDeviceEngine::close()
 {
-    if (d->fd == -1 || !isOpen())                // already closed
-        return;
-    ::closesocket(d->fd);
+    if (d->device->d->fd == -1)                // already closed
+        return false;
+    ::closesocket(d->device->d->fd);
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug("QSocketDevice::close: Closed socket %x", d->fd);
+    qDebug("QSocketDevice::close: Closed socket %x", d->device->d->fd);
 #endif
     d->device->d->fd = -1;
     d->device->d->fetchConnectionParameters();
+    return true;
 }
 
 
@@ -642,23 +643,12 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
 
 Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
 {
-    if (data == 0 && maxlen != 0) {
-        qWarning("QSocketDevice::readBlock: Null pointer error");
-    }
-    if (!isValid()) {
+    if (!d->device->isValid()) {
         qWarning("QSocketDevice::readBlock: Invalid socket");
         return -1;
     }
-    if (!isOpen()) {
-        qWarning("QSocketDevice::readBlock: Device is not open");
-        return -1;
-    }
-    if (!isReadable()) {
-        qWarning("QSocketDevice::readBlock: Read operation not permitted");
-        return -1;
-    }
     Q_LONG r = 0;
-    if (d->t == Datagram) {
+    if (d->device->d->t == QSocketDevice::Datagram) {
 #if !defined(QT_NO_IPV6)
         // With IPv6 support, we must be prepared to receive both IPv4
         // and IPv6 packets. The generic SOCKADDR_STORAGE (struct
@@ -670,18 +660,18 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
         memset(&a, 0, sizeof(a));
         SOCKLEN_T sz;
         sz = sizeof(a);
-        r = ::recvfrom(d->fd, data, maxlen, 0, (struct sockaddr *)&a, &sz);
-        qt_socket_getportaddr((struct sockaddr *)(&a), &d->pp, &d->pa);
+        r = ::recvfrom(d->device->d->fd, data, maxlen, 0, (struct sockaddr *)&a, &sz);
+        qt_socket_getportaddr((struct sockaddr *)(&a), &d->device->d->pp, &d->device->d->pa);
     } else {
-        r = ::recv(d->fd, data, maxlen, 0);
+        r = ::recv(d->device->d->fd, data, maxlen, 0);
     }
-    if (r == SOCKET_ERROR && d->e == NoError) {
+    if (r == SOCKET_ERROR && d->device->d->e == QSocketDevice::NoError) {
         switch (WSAGetLastError()) {
             case WSANOTINITIALISED:
-                d->e = Impossible;
+                d->device->d->e = QSocketDevice::Impossible;
                 break;
             case WSAECONNABORTED:
-                close();
+                d->device->close();
                 r = 0;
                 break;
             case WSAETIMEDOUT:
@@ -693,44 +683,44 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
 
                 So we should not close this socket just because one sendto failed.
                 */
-                if (d->t != Datagram)
-                    close(); // connection closed
+                if (d->device->d->t != QSocketDevice::Datagram)
+                    d->device->close(); // connection closed
                 r = 0;
                 break;
             case WSAENETDOWN:
             case WSAENETRESET:
-                d->e = NetworkFailure;
+                d->device->d->e = QSocketDevice::NetworkFailure;
                 break;
             case WSAEFAULT:
             case WSAENOTCONN:
             case WSAESHUTDOWN:
             case WSAEINVAL:
-                d->e = Impossible;
+                d->device->d->e = QSocketDevice::Impossible;
                 break;
             case WSAEINTR:
                 // ### ?
                 r = 0;
                 break;
             case WSAEINPROGRESS:
-                d->e = NoResources;
+                d->device->d->e = QSocketDevice::NoResources;
                 break;
             case WSAENOTSOCK:
-                d->e = Impossible;
+                d->device->d->e = QSocketDevice::Impossible;
                 break;
             case WSAEOPNOTSUPP:
-                d->e = InternalError; // ### ?
+                d->device->d->e = QSocketDevice::InternalError; // ### ?
                 break;
             case WSAEWOULDBLOCK:
                 break;
             case WSAEMSGSIZE:
-                d->e = NoResources; // ### ?
+                d->device->d->e = QSocketDevice::NoResources; // ### ?
                 break;
             case WSAEISCONN:
                 // ### ?
                 r = 0;
                 break;
             default:
-                d->e = UnknownError;
+                d->device->d->e = QSocketDevice::UnknownError;
                 break;
         }
     }
@@ -738,75 +728,63 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
 }
 
 
-Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len)
+Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
 {
-    if (data == 0 && len != 0) {
-        qWarning("QSocketDevice::writeBlock: Null pointer error");
-        return -1;
-    }
-    if (!isValid()) {
+    if (!d->device->isValid()) {
         qWarning("QSocketDevice::writeBlock: Invalid socket");
-        return -1;
-    }
-    if (!isOpen()) {
-        qWarning("QSocketDevice::writeBlock: Device is not open");
-        return -1;
-    }
-    if (!isWritable()) {
-        qWarning("QSocketDevice::writeBlock: Write operation not permitted");
         return -1;
     }
     bool done = false;
     Q_LONG r = 0;
     while (!done) {
         // Don't write more than 64K (see Knowledge Base Q201213).
-        r = ::send(d->fd, data, (len>64*1024 ? 64*1024 : len), 0);
+        r = ::send(d->device->d->fd, data, (len>64*1024 ? 64*1024 : len), 0);
         done = true;
-        if (r == SOCKET_ERROR && d->e == NoError) {//&& errno != WSAEAGAIN) {
+        if (r == SOCKET_ERROR && d->device->d->e == QSocketDevice::NoError) {//&& errno != WSAEAGAIN) {
             switch(WSAGetLastError()) {
                 case WSANOTINITIALISED:
-                    d->e = Impossible;
+                    d->device->d->e = QSocketDevice::Impossible;
                     break;
                 case WSAENETDOWN:
                 case WSAEACCES:
                 case WSAENETRESET:
                 case WSAESHUTDOWN:
                 case WSAEHOSTUNREACH:
-                    d->e = NetworkFailure;
+                    d->device->d->e = QSocketDevice::NetworkFailure;
                     break;
                 case WSAECONNABORTED:
                 case WSAECONNRESET:
                     // connection closed
-                    close();
+                    d->device->close();
                     r = 0;
                     break;
                 case WSAEINTR:
                     done = false;
                     break;
                 case WSAEINPROGRESS:
-                    d->e = NoResources;
+                    d->device->d->e = QSocketDevice::NoResources;
                     // ### perhaps try it later?
                     break;
                 case WSAEFAULT:
                 case WSAEOPNOTSUPP:
-                    d->e = InternalError;
+                    d->device->d->e = QSocketDevice::InternalError;
                     break;
                 case WSAENOBUFS:
                     // ### try later?
                     break;
                 case WSAEMSGSIZE:
-                    d->e = NoResources;
+                    d->device->d->e = QSocketDevice::NoResources;
                     break;
                 case WSAENOTCONN:
                 case WSAENOTSOCK:
                 case WSAEINVAL:
-                    d->e = Impossible;
+                    d->device->d->e = QSocketDevice::Impossible;
                     break;
                 case WSAEWOULDBLOCK:
                     r = 0;
                     break;
                 default:
-                    d->e = UnknownError;
+                    d->device->d->e = QSocketDevice::UnknownError;
                     break;
             }
         }

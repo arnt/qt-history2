@@ -18,7 +18,7 @@
 #include "qiodevice.h"
 
 class QIOEnginePrivate;
-class QIOEngine
+class Q_CORE_EXPORT QIOEngine
 {
 protected:
     QIOEnginePrivate *d_ptr;
