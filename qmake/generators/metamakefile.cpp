@@ -80,6 +80,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
     Build *glue = 0;
     if(!makefiles.first()->name.isNull()) {
         glue = new Build;
+        project->variables()["CONFIG"] += "no_fileio";
         glue->makefile = createMakefileGenerator(project);
         makefiles += glue;
     }
