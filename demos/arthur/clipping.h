@@ -32,8 +32,9 @@ public:
     void mouseMoveEvent(QMouseEvent *e);
 
 private:
-    QList<QRect> rects;
-    QList<QPoint> rectDirection;
+    QList<QRectF> rects;
+    QList<QPointF> rectDirection;
+    int lastStep;
 
     QPoint pressPoint;
     QPoint currentPoint;

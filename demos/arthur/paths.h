@@ -21,7 +21,6 @@ class Paths : public DemoWidget
 {
 public:
     Paths(QWidget *parent=0);
-    void resetState();
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -31,7 +30,6 @@ protected:
 
 private:
     QPixmap dblBuffer;
-    int step;
 };
 
 #endif

@@ -17,24 +17,24 @@
 #include <qpainterpath.h>
 
 Paths::Paths(QWidget *parent)
-    : DemoWidget(parent), step(0)
+    : DemoWidget(parent)
 {
-    setAttribute(Qt::WA_PaintOnScreen);
 }
 
 
 void Paths::paintEvent(QPaintEvent *)
 {
-    QPainter p(&dblBuffer);
+    int stepped = animationStep();
+
+    QPainter p(this);
 
     if (attributes->antialias)
         p.setRenderHint(QPainter::Antialiasing);
 
-    if (!attributes->alpha)
-        drawBackground(&p);
+    drawBackground(&p);
 
-    p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 159 : 255), 5));
-    p.setBrush(QColor(191, 191, 255, attributes->alpha ? 63 : 255));
+    p.setPen(QPen(QColor(63, 63, 127, attributes->alpha ? 191 : 255), 5));
+    p.setBrush(QColor(191, 191, 255, attributes->alpha ? 127 : 255));
 
     int w = width(), h = height();
 
@@ -42,10 +42,10 @@ void Paths::paintEvent(QPaintEvent *)
     int bezierCount = 2;
     QPolygon a;
     for (int i=0; i<bezierCount*3+1; ++i) {
-        a.append(QPoint(int(xfunc(step*0.7 + i*20) * w/2 + w/2),
-                        int(yfunc(step*0.7 + i*20) * h/2 + h/2)));
+        a.append(QPoint(int(xfunc(stepped*0.031415 + i*20) * w/2 + w/2),
+                        int(yfunc(stepped*0.031415 + i*20) * h/2 + h/2)));
     }
-    ++step;
+    ++stepped;
 
     // Create the path
     QPainterPath path;
@@ -61,13 +61,7 @@ void Paths::paintEvent(QPaintEvent *)
     path.addRect(100, 100, w-200, h-200);
 
     // Draw the path
-    p.setClipRect(100-p.pen().width()/2, 100-p.pen().width()/2,
-                  w-200+p.pen().width(), h-200+p.pen().width());
     p.drawPath(path);
-    p.end();
-
-    p.begin(this);
-    p.drawPixmap(0, 0, dblBuffer);
 }
 
 void Paths::resizeEvent(QResizeEvent *event)
@@ -76,10 +70,4 @@ void Paths::resizeEvent(QResizeEvent *event)
     QPainter p(&dblBuffer);
     drawBackground(&p);
     DemoWidget::resizeEvent(event);
-}
-
-void Paths::resetState()
-{
-    QPainter p(&dblBuffer);
-    drawBackground(&p);
 }

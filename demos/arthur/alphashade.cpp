@@ -106,7 +106,7 @@ void drawShadedCube(DemoWidget *dw, QPainter *p, int iterations, int spread, int
 
     // Get painter into position...
     p->translate(w/2-10, h/2-20);
-    p->rotate(step);
+    p->rotate(step/10.0);
     p->translate(-w/4, -h/4);
     p->setPen(Qt::NoPen);
 
@@ -117,9 +117,9 @@ void drawShadedCube(DemoWidget *dw, QPainter *p, int iterations, int spread, int
     for (int x=0; x<iterations*spread; x+=spread) {
         for (int y=0; y<iterations*spread; y+=spread) {
             p->save();
-            p->rotate(-step);
+            p->rotate(-step/10.0);
             p->translate(offset + x, offset * 1.5 + y);
-            p->rotate(step);
+            p->rotate(step/10.0);
             p->drawRect(0, 0, w/2, h/2);
             p->restore();
         }
