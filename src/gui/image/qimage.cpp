@@ -4022,8 +4022,8 @@ bool QImage::isDetached() const
     alphaChannel is converted to 32 bit and the intensity of the RGB
     pixel values is used.
 
-    if \a alphaChannel is a null image, the image is reset to
-    fully opaque.
+    The image will be converted to the format
+    Format_ARGB32_Premultiplied if the function succeeds.
 
     This function has no effect if the image is not 32 bit.
 */
@@ -4037,24 +4037,21 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
         qWarning("QImage::setAlphaChannel(), image must be 32-bit");
         return;
     }
-    if (d->width != alphaChannel.d->width || d->height != alphaChannel.d->height) {
-        qWarning("QImage::setAlphaChannel(), alpha channel must have same dimensions as the target image.");
+
+    int w = d->width;
+    int h = d->height;
+
+    if (w != alphaChannel.d->width || h != alphaChannel.d->height) {
+        qWarning("QImage::setAlphaChannel(), "
+                 "alpha channel must have same dimensions as the target image.");
         return;
     }
 
     detach();
 
-    // Reset alpha channel to full opacity
-    if (alphaChannel.isNull()) {
-        d->format = Format_RGB32;
-        return;
-    }
+    *this = convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
-    d->format = Format_ARGB32;
-
-    int w = d->width;
-    int h = d->height;
-
+    // Slight optimization since alphachannels are returned as 8-bit grays.
     if (alphaChannel.d->depth == 8 && alphaChannel.isGrayscale()) {
         const uchar *src_data = alphaChannel.d->data;
         const uchar *dest_data = d->data;
@@ -4062,7 +4059,12 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
             const uchar *src = src_data;
             QRgb *dest = (QRgb *)dest_data;
             for (int x=0; x<w; ++x) {
-                *dest = (*src << 24) | (0x00ffffff & *dest);
+                int alpha = *src;
+                int destAlpha = qt_div_255(alpha * qAlpha(*dest));
+                *dest = ((destAlpha << 24)
+                         | (qt_div_255(qRed(*dest) * alpha) << 16)
+                         | (qt_div_255(qGreen(*dest) * alpha) << 8)
+                         | (qt_div_255(qBlue(*dest) * alpha)));
                 ++dest;
                 ++src;
             }
@@ -4071,19 +4073,23 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
         }
 
     } else {
-        const QImage sourceImage = alphaChannel.convertToFormat(QImage::Format_ARGB32);
-        const uchar *src_data = alphaChannel.d->data;
+        const QImage sourceImage = alphaChannel.convertToFormat(QImage::Format_RGB32);
+        const uchar *src_data = sourceImage.d->data;
         const uchar *dest_data = d->data;
         for (int y=0; y<h; ++y) {
             const QRgb *src = (const QRgb *) src_data;
             QRgb *dest = (QRgb *) dest_data;
             for (int x=0; x<w; ++x) {
                 int alpha = qGray(*src);
-                *dest = (alpha << 24) | (0x00ffffff & *dest);
+                int destAlpha = qt_div_255(alpha * qAlpha(*dest));
+                *dest = ((destAlpha << 24)
+                         | (qt_div_255(qRed(*dest) * alpha) << 16)
+                         | (qt_div_255(qGreen(*dest) * alpha) << 8)
+                         | (qt_div_255(qBlue(*dest) * alpha)));
                 ++dest;
                 ++src;
             }
-            src_data += alphaChannel.d->bytes_per_line;
+            src_data += sourceImage.d->bytes_per_line;
             dest_data += d->bytes_per_line;
         }
     }
