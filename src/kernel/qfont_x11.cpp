@@ -671,7 +671,7 @@ void QFontPrivate::load( QFont::Script script, bool )
 	    if ( fe->type() != QFontEngine::Box )
 		break;
 
-	    fe = 0;
+	    if ( ! req.family.isEmpty() ) fe = 0;
 	    continue;
 	}
 
@@ -685,7 +685,7 @@ void QFontPrivate::load( QFont::Script script, bool )
 	    // ### what do we do here?
 	    // act = req;
 
-	    fe = 0;
+	    if ( ! req.family.isEmpty() ) fe = 0;
 	} else {
 	    fontCache->insert( k, fe, fe->cache_cost );
 	}
