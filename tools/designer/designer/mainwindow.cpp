@@ -3237,7 +3237,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	ids << ( id = rmbFormWindow->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
 
-	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages"), -1, 0 ) );
+	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages..."), -1, 0 ) );
 	commands.insert( "edit", id );
 
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
