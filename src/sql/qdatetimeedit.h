@@ -191,6 +191,7 @@ signals:
     void valueChanged( const QTime& );
 
 protected:
+    bool event( QEvent *e );
     void timerEvent ( QTimerEvent *e );
     void stepUp();
     void stepDown();

@@ -921,6 +921,7 @@ void QDateEdit::setDate( const QDate& date )
     d->y = date.year();
     d->m =  date.month();
     d->d = date.day();
+    emit valueChanged( date );
     repaint( rect(), FALSE );
 }
 
@@ -1010,6 +1011,7 @@ bool QDateEdit::setFocusSection( int s )
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
 	fix();
+	emit valueChanged( date() );
     }
     return QDateTimeEditBase::setFocusSection( s );
 }
@@ -1036,6 +1038,9 @@ void QDateEdit::fix()
 	    year = ( loCentury*100 ) + year;
 	else
 	    year = ( hiCentury*100 ) + year;
+    } else if ( year > 100 && year <= 999 ) {
+	int currentCentury = (int) floor( (double)date.year()/100 );
+	year = ( currentCentury*100 ) + year;
     }
     setYear( year );
 }
@@ -1047,8 +1052,10 @@ void QDateEdit::fix()
 
 bool QDateEdit::event( QEvent *e )
 {
-    if( e->type() == QEvent::FocusOut )
+    if( e->type() == QEvent::FocusOut ) {
 	fix();
+	emit valueChanged( date() );
+    }
     return QDateTimeEditBase::event( e );
 }
 
@@ -1170,6 +1177,7 @@ void QTimeEdit::setTime( const QTime& time )
     d->h = time.hour();
     d->m = time.minute();
     d->s = time.second();
+    emit valueChanged( time );
     repaint( rect(), FALSE );
 }
 
@@ -1209,6 +1217,18 @@ bool QTimeEdit::autoAdvance() const
 /*! \fn void QTimeEdit::valueChanged( const QTime& )
 
 */
+
+/*!
+
+*/
+
+bool QTimeEdit::event( QEvent *e )
+{
+    if( e->type() == QEvent::FocusOut ) {
+	emit valueChanged( time() );
+    }
+    return QDateTimeEditBase::event( e );
+}
 
 
 /*!
@@ -1300,6 +1320,7 @@ bool QTimeEdit::setFocusSection( int s )
     if ( s != focusSection() ) {
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
+	emit valueChanged( time() );
     }
     return QDateTimeEditBase::setFocusSection( s );
 }
@@ -1626,8 +1647,11 @@ QSize QDateTimeEdit::sizeHint() const
 
 void QDateTimeEdit::setDateTime( const QDateTime & dt )
 {
-    de->setDate( dt.date() );
-    te->setTime( dt.time() );
+    if ( dt.isValid() ) {
+	de->setDate( dt.date() );
+	te->setTime( dt.time() );
+	emit valueChanged( dt );
+    }
 }
 
 /*!  Returns the datetime in this QDateTimeEdit.
