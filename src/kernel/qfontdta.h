@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdta.h#26 $
+** $Id: //depot/qt/main/src/kernel/qfontdta.h#27 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
 **		This file is NOT a part of the Qt interface!
 **
-*** Definition of QFontData struct
+** Definition of QFontData struct
 **
 ** Created : 941229
 **
