@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.10 1999/05/21 09:36:30 warwick Exp $
+** $Id: layout.doc,v 2.11 1999/05/21 09:38:57 warwick Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -221,7 +221,9 @@ lays out the widgets on top of each other, each widget is offset by
 
 To write your own layout class, you must define the following:
   <ul>
-  <li>A data structure. We will simply use a QList in this example.
+  <li>A data structure to store the items
+       (widgets or nested layouts) handle by the layout.
+	We will simply use a QList in this example.
   <li>\link QLayout::addItem() addItem() \endlink, how to add items 
 	to the layout.
   <li>\link QLayout::setGeometry() setGeometry() \endlink, how to do the 
@@ -232,8 +234,8 @@ To write your own layout class, you must define the following:
 	layout.
   </ul>
 
-In most cases, you will also implement link QLayout::minimumSize() 
-minimumSize() \endlink.
+In most cases, you will also implement \link QLayout::minimumSize() 
+minimumSize()\endlink.
 
 <h3> card.h </h3>
 
