@@ -233,5 +233,75 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	       flags, g, enabled, pixmap, text, len, penColor );
 }
 
+/*!
+  \enum PrimitiveOperation
+
+  This enum represents a style PrimitiveOperation.  A PrimitiveOperation is
+  a common GUI element, such as a checkbox indicator or pushbutton bevel.
+
+  \value PO_ButtonCommand
+  \value PO_ButtonBevel
+  \value PO_ButtonTool
+  \value PO_ButtonDropDown
+
+  \value PO_FocusRect
+
+  \value PO_ArrowUp
+  \value PO_ArrowDown
+  \value PO_ArrowRight
+  \value PO_ArrowLeft
+
+  \value PO_SpinWidgetUp
+  \value PO_SpinWidgetDown
+  \value PO_SpinWidgetPlus
+  \value PO_SpinWidgetMinus
+
+  \value PO_Indicator
+  \value PO_IndicatorMask
+  \value PO_ExclusiveIndicator
+  \value PO_ExclusiveIndicatorMask
+
+  \value PO_DockWindowHandle
+  \value PO_DockWindowSeparator
+  \value PO_DockWindowResizeHandle
+
+  \value PO_Splitter
+
+  \value PO_MenuBarItem
+
+  \value PO_Panel
+  \value PO_PanelPopup
+  \value PO_PanelMenuBar
+  \value PO_PanelDockWindow
+
+  \value PO_TabBarBase
+
+  \value PO_HeaderSection
+  \value PO_StatusBarSection
+
+  \value PO_GroupBoxFrame
+
+  \value PO_Separator
+
+  \value PO_SizeGrip
+
+  \value PO_CheckMark
+*/
+
+/*!
+  \fn void drawPrimitive ( PrimitiveOperation op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
+
+  Draws the style primitive \a op using the painter \a p in the
+  rect \a r.  Colors are used from the color group \cg.
+
+  The \a flags argument is used to control how the primitive is drawn.  Multiple
+  flags can be used.
+
+  For example, a pressed button would be drawn with the flags PStyle_Enabled and
+  PStyle_Down.
+
+  \sa PrimitiveOperation, PrimitiveOperationFlags
+*/
+
 
 #endif // QT_NO_STYLE
