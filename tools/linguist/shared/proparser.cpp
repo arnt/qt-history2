@@ -42,37 +42,37 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     for ( line = lines.begin(); line != lines.end(); ++line ) {
 	QStringList toks = QStringList::split( QChar(' '), *line );
 
-        if ( toks.count() >= 3 && 
-             (toks[1] == QString("=") || toks[1] == QString("+=")) ) {
-            QString tag = toks.first();
+	if ( toks.count() >= 3 && 
+	     (toks[1] == QString("=") || toks[1] == QString("+=")) ) {
+	    QString tag = toks.first();
 	    int k = tag.findRev( QChar(':') ); // as in 'unix:'
 	    if ( k != -1 )
 		tag = tag.mid( k + 1 );
-            toks.remove( toks.begin() );
+	    toks.remove( toks.begin() );
 
-            QString action = toks.first();
-            toks.remove( toks.begin() );
+	    QString action = toks.first();
+	    toks.remove( toks.begin() );
 
-            if ( tagMap.contains(tag) ) {
-                if ( action == QString("=") )
-                    tagMap.replace( tag, toks.join(QChar(' ')) );
-                else
-                    tagMap[tag] += QChar( ' ' ) + toks.join( QChar(' ') );
-            } else {
-                tagMap[tag] = toks.join( QChar(' ') );
+	    if ( tagMap.contains(tag) ) {
+		if ( action == QString("=") )
+		    tagMap.replace( tag, toks.join(QChar(' ')) );
+		else
+		    tagMap[tag] += QChar( ' ' ) + toks.join( QChar(' ') );
+	    } else {
+		tagMap[tag] = toks.join( QChar(' ') );
 	    }
-        }
+	}
     }
 
     QRegExp var( "\\$\\$[a-zA-Z0-9_]+" );
     QMap<QString, QString>::Iterator it;
     for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-        int i = 0;
+	int i = 0;
 
-        while ( (i = var.search(it.data(), i)) != -1 ) {
+	while ( (i = var.search(it.data(), i)) != -1 ) {
 	    int len = var.matchedLength();
 	    QString after = tagMap[(*it).mid(i + 2, len - 2)];
-            (*it).replace( i, len, after );
+	    (*it).replace( i, len, after );
 	    i += after.length();
 	}
     }
