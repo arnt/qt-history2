@@ -311,6 +311,15 @@ MetrowerksMakefileGenerator::init()
     }
     MakefileGenerator::init();
 
+    if ( project->isActiveConfig("opengl") ) {
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
+	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
+	     (project->first("TARGET") == "qt-mt") )
+	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
+	else 
+	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
+    }
+
     //let metrowerks find the files & set the files to the type I expect
     QDict<void> seen(293);
     QString paths[] = { QString("SOURCES"),QString("HEADERS"),QString::null };
