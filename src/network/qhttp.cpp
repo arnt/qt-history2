@@ -26,6 +26,7 @@
 #include "qtimer.h"
 #include "private/qinternal_p.h"
 #include "qcoreevent.h"
+#include "private/qspinlock_p.h"
 
 //#define QHTTP_DEBUG
 
@@ -34,6 +35,7 @@ class QHttpRequest
 public:
     QHttpRequest()
     {
+        QSpinLockLocker locker(idCounterSpinLock);
         id = ++idCounter;
     }
     virtual ~QHttpRequest()
@@ -49,6 +51,7 @@ public:
     int id;
 
 private:
+    static QStaticSpinLock idCounterSpinLock;
     static int idCounter;
 };
 
@@ -90,6 +93,7 @@ public:
 };
 
 int QHttpRequest::idCounter = 0;
+QStaticSpinLock QHttpRequest::idCounterSpinLock = 0;
 
 bool QHttpRequest::hasRequestHeader()
 {
@@ -978,6 +982,8 @@ QString QHttpRequestHeader::toString() const
  ****************************************************/
 /*!
     \class QHttp qhttp.h
+    \reentrant
+
     \brief The QHttp class provides an implementation of the HTTP protocol.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
