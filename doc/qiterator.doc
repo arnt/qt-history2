@@ -1,7 +1,7 @@
 /*! \class QListIterator
     \brief The QListIterator class provides a Java-style const iterator for QList and QQueue.
 
-    QList features both \l{Java-style iterators} and \l{STL-style
+    QList has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
@@ -34,7 +34,8 @@
     items. The first call to next() advances the iterator to the
     position between the first and second item, and returns the first
     item; the second call to next() advances the iterator to the
-    position between the second and third item; and so on.
+    position between the second and third item, and returns the second
+    item; and so on.
 
     \img javaiterators1.png
 
@@ -47,12 +48,13 @@
 	    cout << i.prev() << endl;
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop.
 
     Multiple iterators can be used on the same list. If the list is
-    modified while the QListIterator is active, QListIterator
-    continues iterating over the original list.
+    modified while a QListIterator is active, the QListIterator will
+    continue iterating over the original list, ignoring the modified
+    copy.
 
     \sa QListMutableIterator, QList::const_iterator
 */
@@ -60,7 +62,7 @@
 /*! \class QLinkedListIterator
     \brief The QLinkedListIterator class provides a Java-style const iterator for QLinkedList.
 
-    QLinkedList features both \l{Java-style iterators} and
+    QLinkedList has both \l{Java-style iterators} and
     \l{STL-style iterators}. The Java-style iterators are more
     high-level and easier to use than the STL-style iterators; on the
     other hand, they are slightly less efficient.
@@ -88,7 +90,8 @@
     items. The first call to next() advances the iterator to the
     position between the first and second item, and returns the first
     item; the second call to next() advances the iterator to the
-    position between the second and third item; and so on.
+    position between the second and third item, and returns the second
+    item; and so on.
 
     \img javaiterators1.png
 
@@ -101,12 +104,13 @@
 	    cout << i.prev() << endl;
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop.
 
     Multiple iterators can be used on the same list. If the list is
-    modified while the QLinkedListIterator is active,
-    QLinkedListIterator continues iterating over the original list.
+    modified while a QLinkedListIterator is active, the
+    QLinkedListIterator will continue iterating over the original
+    list, ignoring the modified copy.
 
     \sa QLinkedListMutableIterator, QLinkedList::const_iterator
 */
@@ -114,7 +118,7 @@
 /*! \class QVectorIterator
     \brief The QVectorIterator class provides a Java-style const iterator for QVector and QStack.
 
-    QVector features both \l{Java-style iterators} and \l{STL-style
+    QVector has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
@@ -147,7 +151,8 @@
     items. The first call to next() advances the iterator to the
     position between the first and second item, and returns the first
     item; the second call to next() advances the iterator to the
-    position between the second and third item; and so on.
+    position between the second and third item, returning the second
+    item; and so on.
 
     \img javaiterators1.png
 
@@ -160,12 +165,13 @@
 	    cout << i.prev() << endl;
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop.
 
     Multiple iterators can be used on the same vector. If the vector
-    is modified while the QLinkedListIterator is active,
-    QVectorIterator continues iterating over the original vector.
+    is modified while a QVectorIterator is active, the QVectorIterator
+    will continue iterating over the original vector, ignoring the
+    modified copy.
 
     \sa QVectorIterator, QVector::const_iterator
 */
@@ -173,7 +179,7 @@
 /*! \class QListMutableIterator
     \brief The QListMutableIterator class provides a Java-style non-const iterator for QList and QQueue.
 
-    QList features both \l{Java-style iterators} and \l{STL-style
+    QList has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
@@ -184,8 +190,9 @@
     using iterators.
 
     QListMutableIterator\<T\> allows you to iterate over a QList\<T\>
-    (or a QQueue\<T\>) and modify the list. If you want to iterate
-    over a const QList, use QListIterator\<T\> instead.
+    (or a QQueue\<T\>) and modify the list. If you don't want to
+    modify the list (or have a const QList), use the slightly faster
+    QListIterator\<T\> instead.
 
     The QListMutableIterator constructor takes a QList as argument.
     After construction, the iterator is located at the very beginning
@@ -206,7 +213,8 @@
     items. The first call to next() advances the iterator to the
     position between the first and second item, and returns the first
     item; the second call to next() advances the iterator to the
-    position between the second and third item; and so on.
+    position between the second and third item, returning the second
+    item; and so on.
 
     \img javaiterators1.png
 
@@ -219,7 +227,7 @@
 	    cout << i.prev() << endl;
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop.
 
     If you want to remove items as you iterate over the list, use
@@ -229,19 +237,19 @@
 
     Example:
     \code
-	QListMutableIterator<float> i(list);
+	QListMutableIterator<int> i(list);
         while (i.hasNext()) {
-	    float val = i.next();
-            if (val < 0.0) {
+	    int val = i.next();
+            if (val < 0) {
 		i.setValue(-val);
-            } else if (val == 0.0) {
+            } else if (val == 0) {
 		i.remove();
             }
         }
     \endcode
 
-    The example traverses a list, replacing negative numbers with the
-    opposite positive numbers and eliminating zeroes.
+    The example traverses a list, replacing negative numbers with
+    their absolute values, and eliminating zeroes.
 
     \sa QListIterator, QList::iterator
 */
@@ -249,14 +257,15 @@
 /*! \class QLinkedListMutableIterator
     \brief The QLinkedListMutableIterator class provides a Java-style non-const iterator for QLinkedList.
 
-    QLinkedList features both \l{Java-style iterators} and
+    QLinkedList has both \l{Java-style iterators} and
     \l{STL-style iterators}. The Java-style iterators are more
     high-level and easier to use than the STL-style iterators; on the
     other hand, they are slightly less efficient.
 
     QLinkedListMutableIterator\<T\> allows you to iterate over a
-    QLinkedList\<T\> and modify the list. If you want to iterate over
-    a const QLinkedList, use QLinkedListIterator\<T\> instead.
+    QLinkedList\<T\> and modify the list. If you don't want to modify
+    the list (or have a const QLinkedList), use the slightly faster
+    QLinkedListIterator\<T\> instead.
 
     The QLinkedListMutableIterator constructor takes a QLinkedList as
     argument. After construction, the iterator is located at the very
@@ -277,7 +286,8 @@
     items. The first call to next() advances the iterator to the
     position between the first and second item, and returns the first
     item; the second call to next() advances the iterator to the
-    position between the second and third item; and so on.
+    position between the second and third item, returning the second
+    item; and so on.
 
     \img javaiterators1.png
 
@@ -290,7 +300,7 @@
 	    cout << i.prev() << endl;
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop.
 
     If you want to remove items as you iterate over the list, use
@@ -300,19 +310,19 @@
 
     Example:
     \code
-	QLinkedListMutableIterator<float> i(list);
+	QLinkedListMutableIterator<int> i(list);
         while (i.hasNext()) {
-	    float val = i.next();
-            if (val < 0.0) {
+	    int val = i.next();
+            if (val < 0) {
 		i.setValue(-val);
-            } else if (val == 0.0) {
+            } else if (val == 0) {
 		i.remove();
             }
         }
     \endcode
 
-    The example traverses a list, replacing negative numbers with the
-    opposite positive numbers and eliminating zeroes.
+    The example traverses a list, replacing negative numbers with
+    their absolute values, and eliminating zeroes.
 
     \sa QLinkedListIterator, QLinkedList::iterator
 */
@@ -320,7 +330,7 @@
 /*! \class QVectorMutableIterator
     \brief The QVectorMutableIterator class provides a Java-style non-const iterator for QVector and QStack.
 
-    QVector features both \l{Java-style iterators} and \l{STL-style
+    QVector has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
@@ -331,8 +341,9 @@
     using iterators.
 
     QVectorMutableIterator\<T\> allows you to iterate over a
-    QVector\<T\> and modify the vector. If you want to iterate over a
-    const QVector, use QVectorIterator\<T\> instead.
+    QVector\<T\> and modify the vector. If you don't want to modify
+    the vector (or have a const QVector), use the slightly faster
+    QVectorIterator\<T\> instead.
 
     The QVectorMutableIterator constructor takes a QVector as
     argument. After construction, the iterator is located at the very
@@ -353,7 +364,8 @@
     items. The first call to next() advances the iterator to the
     position between the first and second item, and returns the first
     item; the second call to next() advances the iterator to the
-    position between the second and third item; and so on.
+    position between the second and third item, returning the second
+    item; and so on.
 
     \img javaiterators1.png
 
@@ -366,7 +378,7 @@
 	    cout << i.prev() << endl;
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop.
 
     If you want to remove items as you iterate over the vector, use
@@ -376,19 +388,19 @@
 
     Example:
     \code
-	QVectorMutableIterator<float> i(vector);
+	QVectorMutableIterator<int> i(vector);
         while (i.hasNext()) {
-	    float val = i.next();
-            if (val < 0.0) {
+	    int val = i.next();
+            if (val < 0) {
 		i.setValue(-val);
-            } else if (val == 0.0) {
+            } else if (val == 0) {
 		i.remove();
             }
         }
     \endcode
 
-    The example traverses a vector, replacing negative numbers with
-    the opposite positive numbers and eliminating zeroes.
+    The example traverses a list, replacing negative numbers with
+    their absolute values, and eliminating zeroes.
 
     \sa QVectorIterator, QVector::iterator
 */
@@ -466,8 +478,9 @@
     \fn bool QLinkedListMutableIterator::hasNext() const
     \fn bool QVectorMutableIterator::hasNext() const
 
-    Returns true if the iterator is \a not at the back of the
-    container; otherwise returns false.
+    Returns true if there is at least one item ahead of the iterator,
+    i.e. the iterator is \a not at the back of the container;
+    otherwise returns false.
 
     \sa hasPrev(), next()
 */
@@ -528,8 +541,9 @@
     \fn bool QLinkedListMutableIterator::hasPrev() const
     \fn bool QVectorMutableIterator::hasPrev() const
 
-    Returns true if the iterator is \a not at the front of the
-    container; otherwise returns false.
+    Returns true if there is at least one item behind the iterator,
+    i.e. the iterator is \a not at the front of the container;
+    otherwise returns false.
 
     \sa hasNext(), prev()
 */
@@ -585,8 +599,8 @@
     Searches for \a value starting from the current iterator position
     forward. Returns true if \a value is found; otherwise returns false.
 
-    After the call, if \a value is found, the iterator is positioned
-    right after the matching item; otherwise, the iterator is
+    After the call, if \a value was found, the iterator is positioned
+    just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
     \sa findPrev()
@@ -603,8 +617,8 @@
     backward. Returns true if \a value is found; otherwise returns
     false.
 
-    After the call, if \a value is found, the iterator is positioned
-    right before the matching item; otherwise, the iterator is
+    After the call, if \a value was found, the iterator is positioned
+    just before the matching item; otherwise, the iterator is
     positioned at the front of the container.
 
     \sa findNext()
@@ -612,7 +626,7 @@
 
 /*! \fn void QListMutableIterator::remove()
 
-    Removes the last item that was skipped over using one of the
+    Removes the last item that was jumped over using one of the
     traversal functions (next(), prev(), findNext(), findPrev()).
 
     Example:
@@ -630,7 +644,7 @@
 
 /*! \fn void QLinkedListMutableIterator::remove()
 
-    Removes the last item that was skipped over using one of the
+    Removes the last item that was jumped over using one of the
     traversal functions (next(), prev(), findNext(), findPrev()).
 
     Example:
@@ -648,7 +662,7 @@
 
 /*! \fn void QVectorMutableIterator::remove()
 
-    Removes the last item that was skipped over using one of the
+    Removes the last item that was jumped over using one of the
     traversal functions (next(), prev(), findNext(), findPrev()).
 
     Example:
@@ -744,7 +758,7 @@
     \fn void QVectorMutableIterator::insert(const T &value)
 
     Inserts \a value at the current iterator position. After the
-    call, the iterator is located right after the inserted item.
+    call, the iterator is located just after the inserted item.
 
     \sa remove(), setValue()
 */
@@ -752,7 +766,7 @@
 /*! \class QMapIterator
     \brief The QMapIterator class provides a Java-style const iterator for QMap and QMultiMap.
 
-    QMap features both \l{Java-style iterators} and \l{STL-style
+    QMap has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
@@ -800,7 +814,7 @@
 	}
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop. For example:
 
     \code
@@ -812,11 +826,12 @@
     \endcode
 
     QMapIterator also provides findNextKey() and findPrevKey() to
-    find all occurrences of a certain key.
+    find all occurrences of a particular key.
 
     Multiple iterators can be used on the same map. If the map is
-    modified while the QMapIterator is active, QMapIterator continues
-    iterating over the original map.
+    modified while a QMapIterator is active, the QMapIterator will
+    continue iterating over the original map, ignoring the modified
+    copy.
 
     \sa QMapMutableIterator, QMap::const_iterator
 */
@@ -825,7 +840,7 @@
 
     \brief The QHashIterator class provides a Java-style const iterator for QHash and QMultiHash.
 
-    QHash features both \l{Java-style iterators} and \l{STL-style
+    QHash has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
@@ -873,7 +888,7 @@
 	}
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop. For example:
 
     \code
@@ -885,11 +900,12 @@
     \endcode
 
     QHashIterator also provides findNextKey() and findPrevKey() to
-    find all occurrences of a certain key.
+    find all occurrences of a particular key.
 
     Multiple iterators can be used on the same hash. If the hash is
-    modified while the QHashIterator is active, QHashIterator continues
-    iterating over the original hash.
+    modified while a QHashIterator is active, the QHashIterator will
+    continue iterating over the original hash, ignoring the modified
+    copy.
 
     \sa QHashMutableIterator, QHash::const_iterator
 */
@@ -897,14 +913,15 @@
 /*! \class QMapMutableIterator
     \brief The QMapMutableIterator class provides a Java-style non-const iterator for QMap and QMultiMap.
 
-    QMap features both \l{Java-style iterators} and \l{STL-style
+    QMap has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
 
     QMapMutableIterator\<Key, T\> allows you to iterate over a QMap
-    (or a QMultiMap) and modify the map. If you want to iterate over
-    a const QMap, use QMapIterator instead.
+    (or a QMultiMap) and modify the map. If you don't want to modify
+    the map (or have a const QMap), use the slightly faster
+    QMapIterator instead.
 
     The QMapMutableIterator constructor takes a QMap as argument.
     After construction, the iterator is located at the very beginning
@@ -945,7 +962,7 @@
 	}
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop. For example:
 
     \code
@@ -957,7 +974,7 @@
     \endcode
 
     QMapMutableIterator also provides findNextKey() and findPrevKey()
-    to find all occurrences of a certain key.
+    to find all occurrences of a particular key.
 
     If you want to remove items as you iterate over the map, use
     remove(). If you want to modify the value of an item, use
@@ -975,7 +992,7 @@
     \endcode
 
     The example removes all (key, value) pairs where the key and the
-    value are equals.
+    value are the same.
 
     \sa QMapIterator, QMap::iterator
 */
@@ -983,14 +1000,15 @@
 /*! \class QHashMutableIterator
     \brief The QHashMutableIterator class provides a Java-style non-const iterator for QHash and QMultiHash.
 
-    QHash features both \l{Java-style iterators} and \l{STL-style
+    QHash has both \l{Java-style iterators} and \l{STL-style
     iterators}. The Java-style iterators are more high-level and
     easier to use than the STL-style iterators; on the other hand,
     they are slightly less efficient.
 
     QHashMutableIterator\<Key, T\> allows you to iterate over a QHash
-    (or a QMultiHash) and modify the hash. If you want to iterate over
-    a const QHash, use QHashIterator instead.
+    (or a QMultiHash) and modify the hash. If you don't want to modify
+    the hash (or have a const QHash), use the slightly faster
+    QHashIterator instead.
 
     The QHashMutableIterator constructor takes a QHash as argument.
     After construction, the iterator is located at the very beginning
@@ -1031,7 +1049,7 @@
 	}
     \endcode
 
-    If you want to find all occurrences of a certain value, use
+    If you want to find all occurrences of a particular value, use
     findNext() or findPrev() in a loop. For example:
 
     \code
@@ -1043,7 +1061,7 @@
     \endcode
 
     QHashMutableIterator also provides findNextKey() and findPrevKey()
-    to find all occurrences of a certain key.
+    to find all occurrences of a particular key.
 
     If you want to remove items as you iterate over the hash, use
     remove(). If you want to modify the value of an item, use
@@ -1061,7 +1079,7 @@
     \endcode
 
     The example removes all (key, value) pairs where the key and the
-    value are equals.
+    value are the same.
 
     \sa QHashIterator, QHash::iterator
 */
@@ -1129,8 +1147,9 @@
     \fn bool QMapMutableIterator::hasNext() const
     \fn bool QHashMutableIterator::hasNext() const
 
-    Returns true if the iterator is \a not at the back of the
-    container; otherwise returns false.
+    Returns true if there is at least one item ahead of the iterator,
+    i.e. the iterator is \a not at the back of the container;
+    otherwise returns false.
 
     \sa hasPrev(), next()
 */
@@ -1196,8 +1215,9 @@
     \fn bool QMapMutableIterator::hasPrev() const
     \fn bool QHashMutableIterator::hasPrev() const
 
-    Returns true if the iterator is \a not at the front of the
-    container; otherwise returns false.
+    Returns true if there is at least one item behind the iterator,
+    i.e. the iterator is \a not at the front of the container;
+    otherwise returns false.
 
     \sa hasNext(), prev()
 */
@@ -1317,8 +1337,8 @@
     forward. Returns true if a (key, value) pair with value \a value
     is found; otherwise returns false.
 
-    After the call, if \a value is found, the iterator is positioned
-    right after the matching item; otherwise, the iterator is
+    After the call, if \a value was found, the iterator is positioned
+    just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
     \sa findNextKey(), findPrev()
@@ -1333,8 +1353,8 @@
     backward. Returns true if a (key, value) pair with value \a value
     is found; otherwise returns false.
 
-    After the call, if \a value is found, the iterator is positioned
-    right before the matching item; otherwise, the iterator is
+    After the call, if \a value was found, the iterator is positioned
+    just before the matching item; otherwise, the iterator is
     positioned at the front of the container.
 
     \sa findPrevKey(), findNext()
@@ -1349,8 +1369,8 @@
     forward. Returns true if a (key, value) pair with key \a key is
     found; otherwise returns false.
 
-    After the call, if \a key is found, the iterator is positioned
-    right after the matching item; otherwise, the iterator is
+    After the call, if \a key was found, the iterator is positioned
+    just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
     \sa findPrevKey(), findNext()
@@ -1365,8 +1385,8 @@
     backward. Returns true if a (key, value) pair with key \a key is
     found; otherwise returns false.
 
-    After the call, if \a key is found, the iterator is positioned
-    right before the matching item; otherwise, the iterator is
+    After the call, if \a key was found, the iterator is positioned
+    just before the matching item; otherwise, the iterator is
     positioned at the front of the container.
 
     \sa findNextKey(), findPrev()
@@ -1375,7 +1395,7 @@
 /*! \fn void QMapMutableIterator::remove()
     \fn void QHashMutableIterator::remove()
 
-    Removes the last item that was skipped over using one of the
+    Removes the last item that was jumped over using one of the
     traversal functions (next(), prev(), findNext(), findPrev(),
     findNextKey(), findPrevKey()).
 
