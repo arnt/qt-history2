@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#45 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#46 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -56,24 +56,38 @@ sub copyandstrip {
 	    }
 
 	    #
-	    # Outdate everything before $date (except the head (!))
+	    # Outdate almost everything before $date (except the head (!))
 	    #
 	    $v =~ s/.*?head\s*(.*?);.*?\ncomment[^\n]*\n\s*//s;
-	    $head = $1;
 	    $v =~ s/\n\ndesc\n.*$//s;
-	    $v =~ s/\ndate\s+(\d+)\.(\d+)\.(\d+)\..*?\n\n/ $1$2$3\n/gs;
+	    $v =~ s/\ndate\s+(\d+)\.(\d+)\.(\d+)\..*?(?:$|(?:\n\n))/ $1$2$3\n/gs;
+	    $fd = undef;
+	    $ld = undef;
 	    foreach $f ( split( /\n/, $v ) ) {
-		if ( $f =~ /^(\S+)\s+(\d+)$/ && $2 < $date
-		     && $1 ne $head )
-		{
-		    print "Stripping revision $1 from $dir$_\n" if $verbose == 1;
-		    if ( $verbose <= 1 ) {
-			print SH "rcs -q -o:$1 $dir$_\n";
-		    } else {
-			print SH "echo rcs -o:$1 $dir$_\n";
-			print SH "rcs -o:$1 $dir$_\n";
-		    }
-		    last;
+		if ( !( $f =~ /^(\S+)\s+(\d+)$/ ) ) {
+		    # should not happen...
+		} elsif ( $2 > $date ) {
+		    # keep that one.
+		} elsif ( !defined( $ld ) ) {
+		    # the latest revision before the cutoff date
+		    # we'll keep it, but the next one goes.
+		    $ld = "magic";
+		} elsif ( $ld eq "magic" ) {
+		    # last deleted revision
+		    $ld = $1;
+		} else {
+		    # first deleted revision (afaik - we'll change it if we
+		    # see another)
+		    $fd = $1;
+		}
+	    }
+	    if ( defined( $ld ) && defined( $fd ) ) {
+		print "Stripping $fd to $ld from $dir$_\n" if $verbose == 1;
+		if ( $verbose <= 1 ) {
+		    print SH "rcs -q -o$fd:$ld $dir$_\n";
+		} else {
+		    print SH "echo rcs -o$fd:$ld $dir$_\n";
+		    print SH "rcs -o$fd:$ld $dir$_\n";
 		}
 	    }
 	}
@@ -132,7 +146,7 @@ WINFILES='src/Makefile.win32-dll'
 WINFILES=\$WINFILES`find src -name '*_win*'; find include -name '*_win*'`
 rm -f \$WINZIP
 WINZIP=/local/qt/dist/qtwin$snapshotversion-`date +%Y%m%d`-snapshot.zip
-rm -f 
+rm -f
 zip -9 \$WINZIP \$WINFILES
 rm \$WINFILES
 rm -rf $base/cvs/qt/*/*/*_win*
