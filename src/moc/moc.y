@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#191 $
+** $Id: //depot/qt/main/src/moc/moc.y#192 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1147,7 +1147,7 @@ property:		IDENTIFIER IDENTIFIER
 				     if ( tmpPropOverride )
 				         propStored = "";
 				     else
-					 propStored = "true";
+				         propStored = "true";
 				     propReset = "";
 				     propOverride = tmpPropOverride;
 				     if ( tmpPropOverride )
@@ -1182,9 +1182,9 @@ prop_statements:	  /* empty */
 			| STORED IDENTIFIER prop_statements { propStored = $2; }
 			| DESIGNABLE IDENTIFIER
 				{
-					if ( qstrcmp( $2, "true" ) == 0 )
+					if ( qstricmp( $2, "true" ) == 0 )
 						propDesignable = 1;
-					else if ( qstrcmp( $2, "false" ) == 0 )
+					else if ( qstricmp( $2, "false" ) == 0 )
 						propDesignable = 0;
 					else
 						moc_err( "DESIGNABLE may only be followed by 'true' or 'false'" );
@@ -2254,7 +2254,7 @@ int generateProps()
 	}
 
 	// Resolve and verify the STORED function (if any)
-	if ( !p->stored.isEmpty() &&  p->stored != "true" && p->stored != "false" ) {
+	if ( !p->stored.isEmpty() &&  qstricmp( p->stored.data(), "true" ) && qstricmp( p->stored.data(), "false" ) ) {
 	    bool found = FALSE;
 	    FuncList candidates = propfuncs.find( p->stored );
 	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
@@ -2399,10 +2399,9 @@ int generateProps()
 	    }
 
 	    // Handle STORED
-	    if ( it.current()->stored == "false" )
+	    if ( qstricmp( it.current()->stored.data(), "false" ) == 0 )
 		flags +="QMetaProperty::NotStored|";
-	    else if ( !it.current()->stored.isEmpty() && it.current()->stored != "true" )
-	    {
+	    else if ( !it.current()->stored.isEmpty() && qstricmp( it.current()->stored.data(), "true" ) ) {
 		fprintf( out, "    typedef bool(%s::*s3_t%d)()const;\n", (const char*)className, count );
 		fprintf( out, "    s3_t%d sv3_%d = &%s::%s;\n", count, count, (const char*)className,
 			 (const char*)it.current()->stored );
@@ -2468,7 +2467,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#191 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#192 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
