@@ -140,7 +140,7 @@ public:
         AlignVertical_Mask = AlignTop | AlignBottom | AlignVCenter,
 
         AlignCenter = AlignVCenter | AlignHCenter
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         , AlignAuto = AlignLeft
 #endif
     };
