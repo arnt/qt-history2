@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#15 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#16 $
 **
 ** Definition of QWidget class
 **
@@ -163,6 +163,7 @@ protected:
     void    clearFlag( WFlags n )	{ flags &= ~n; }
     void    setRect( const QRect & );		// set rect, update ncrect
     void    setNCRect( const QRect & );		// set ncrect, update rect
+    long    metric( int ) const;		// get metric information
     static  ulong nWidgets();			// get number of widgets
 
 #if defined(_WS_PM_)
