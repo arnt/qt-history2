@@ -103,7 +103,7 @@ QAXFACTORY_DEFAULT(QSimpleAX,
 	   "{EC08F8FC-2754-47AB-8EFE-56A54057F34E}",	   
 	   "{A095BA0C-224F-4933-A458-2DD7F6B85D8F}")
 
-int qMain( int argc, char **argv )
+int main( int argc, char **argv )
 {
     if ( !QAxFactory::isServer() )
 	return -1;
