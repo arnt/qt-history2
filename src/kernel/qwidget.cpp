@@ -919,32 +919,6 @@ void QWidget::setWinId( WId id )		// set widget identifier
 	mapper->insert(winid, this);
 }
 
-
-/*!
-  \internal
-  Returns a pointer to the block of extra widget data.
-*/
-
-QWExtra *QWidgetPrivate::extraData()
-{
-    return extra;
-}
-
-
-/*!
-  \internal
-  Returns a pointer to the block of extra top level widget data.
-
-  This data is guaranteed to exist for top level widgets.
-*/
-
-QTLWExtra *QWidgetPrivate::topData()
-{
-    createTLExtra();
-    return extra->topextra;
-}
-
-
 void QWidgetPrivate::createTLExtra()
 {
     if ( !extra )
@@ -1531,8 +1505,7 @@ QRect QWidget::frameGeometry() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->d->topData();
+	QTLWExtra *top = d->topData();
 	return QRect(crect.x() - top->fleft,
 		     crect.y() - top->ftop,
 		     crect.width() + top->fleft + top->fright,
@@ -1555,8 +1528,7 @@ int QWidget::x() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	QWidget *that = (QWidget *) this;
-	return crect.x() - that->d->topData()->fleft;
+	return crect.x() - d->topData()->fleft;
     }
     return crect.x();
 }
@@ -1576,8 +1548,7 @@ int QWidget::y() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	QWidget *that = (QWidget *) this;
-	return crect.y() - that->d->topData()->ftop;
+	return crect.y() - d->topData()->ftop;
     }
     return crect.y();
 }
@@ -1610,8 +1581,7 @@ QPoint QWidget::pos() const
     if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
-	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->d->topData();
+	QTLWExtra *top = d->topData();
 	return QPoint(crect.x() - top->fleft, crect.y() - top->ftop);
     }
     return crect.topLeft();

@@ -141,8 +141,8 @@ public:
     QWidgetPrivate() : QObjectPrivate(), extra(0) {}
     ~QWidgetPrivate();
 
-    QWExtra	*extraData();
-    QTLWExtra	*topData();
+    QWExtra	*extraData() const;
+    QTLWExtra	*topData() const;
 
     void createTLExtra();
     void createExtra();
@@ -162,6 +162,18 @@ public:
 
     QWExtra *extra;
 };
+
+inline QWExtra *QWidgetPrivate::extraData() const
+{
+    return extra;
+}
+
+inline QTLWExtra *QWidgetPrivate::topData() const
+{
+    const_cast<QWidgetPrivate *>(this)->createTLExtra();
+    return extra->topextra;
+}
+
 
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
 extern int qt_widget_tlw_gravity;
