@@ -43,7 +43,7 @@ class QArrowWidget : public QWidget
 {
 public:
     QArrowWidget( Qt::Orientation o, QWidget *parent ) : QWidget( parent ), orient( o ) {}
-    
+
 protected:
     void paintEvent( QPaintEvent * ) {
 	QPainter p( this );
@@ -61,10 +61,10 @@ protected:
 	p.setPen( colorGroup().midlight() );
 	p.drawPolyline( a );
     }
-    
+
 private:
     Qt::Orientation orient;
-    
+
 };
 
 class QToolBarPrivate
@@ -72,7 +72,7 @@ class QToolBarPrivate
 public:
     QToolBarPrivate() : moving( FALSE ), arrow( 0 ), menu( 0 ), back( 0 ), button( 0 )
     { stretchable[ 0 ] = FALSE; stretchable[ 1 ] = FALSE; hiddenItems.setAutoDelete( FALSE ); }
-    
+
     bool moving;
     bool stretchable[ 2 ];
     QToolButton *arrow;
@@ -80,7 +80,7 @@ public:
     QArrowWidget *back;
     QIntDict<QButton> hiddenItems;
     QButton *button;
-    
+
 };
 
 
@@ -317,7 +317,7 @@ void QToolBar::setOrientation( Orientation newOrientation )
 	    delete d->arrow;
 	    d->arrow = 0;
 	}
-    
+
 	if ( d->back ) {
 	    delete d->back;
 	    d->back = 0;
@@ -617,27 +617,34 @@ void QToolBar::updateArrowStuff()
 {
     if ( orientation() == Horizontal ) {
 	int shw = sizeHint().width();
-	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() ) 
+	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() )
 	    shw -= QMAX( d->arrow->width(), d->back->width() );
 	if ( width() < shw ) {
 	    setUpdatesEnabled( TRUE );
+	    setupArrowMenu();
 	    if ( !d->back ) {
 		d->back = new QArrowWidget( orientation(), this );
 	    }
-	    d->back->show();
-	    d->back->raise();
 	    if ( !d->arrow ) {
 		d->arrow = new QToolButton( RightArrow, this );
 		d->arrow->setAutoRaise( TRUE );
+		d->arrow->setPopupDelay( 0 );
 	    }
-	    d->arrow->show();
-	    d->arrow->raise();
-	    
+	    if ( d->menu && d->menu->count() > 0 ) {
+		d->back->show();
+		d->back->raise();
+		d->arrow->show();
+		d->arrow->raise();
+		d->arrow->setPopup( d->menu );
+	    } else if ( d->menu ) {
+		d->back->hide();
+		d->arrow->hide();
+	    }
+	
 	    if ( d->back->geometry() != QRect( width() - 20, 1, 20, height() - 2 ) )
 		d->back->setGeometry( width() - 20, 1, 20, height() - 2 );
 	    if ( d->arrow->geometry() != QRect( width() - 14, 3, 13, height() - 6 ) )
 		d->arrow->setGeometry( width() - 14, 3, 13, height() - 6 );
-	    setupArrowMenu();
 	    paintToolBar();
 	    setUpdatesEnabled( FALSE );
 	} else {
@@ -651,27 +658,34 @@ void QToolBar::updateArrowStuff()
 	}
     } else {
 	int shh = sizeHint().height();
-	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() ) 
+	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() )
 	    shh -= QMAX( d->arrow->height(), d->back->height() );
 	if ( height() < shh ) {
 	    setUpdatesEnabled( TRUE );
+	    setupArrowMenu();
 	    if ( !d->back ) {
 		d->back = new QArrowWidget( orientation(), this );
 	    }
-	    d->back->show();
-	    d->back->raise();
 	    if ( !d->arrow ) {
 		d->arrow = new QToolButton( DownArrow, this );
 		d->arrow->setAutoRaise( TRUE );
+		d->arrow->setPopupDelay( 0 );
 	    }
-	    d->arrow->show();
-	    d->arrow->raise();
-	    
+	    if ( d->menu && d->menu->count() > 0 ) {
+		d->back->show();
+		d->back->raise();
+		d->arrow->show();
+		d->arrow->raise();
+		d->arrow->setPopup( d->menu );
+	    } else if ( d->menu ) {
+		d->back->hide();
+		d->arrow->hide();
+	    }
+	
 	    if ( d->back->geometry() != QRect( 1, height() - 20, width() - 2, 20 ) )
 		d->back->setGeometry( 1, height() - 20, width() - 2, 20 );
 	    if ( d->arrow->geometry() != QRect( 3, height() - 14, width() - 6, 13 ) )
 		d->arrow->setGeometry( 3, height() - 14, width() - 6, 13 );
-	    setupArrowMenu();
 	    paintToolBar();
 	    setUpdatesEnabled( FALSE );
 	} else {
@@ -701,7 +715,7 @@ void QToolBar::setupArrowMenu()
 	bool justHadSep = TRUE;
 	QObject *o = 0;
 	for ( o = childs->first(); o; o = childs->next() ) {
-	    if ( o->isWidgetType() && o->parent() == this && 
+	    if ( o->isWidgetType() && o->parent() == this &&
 		 o != d->arrow && o != d->menu && o->inherits( "QButton" ) ) {
 		QWidget *w = (QWidget*)o;
 		bool mv = FALSE;
@@ -752,9 +766,6 @@ void QToolBar::setupArrowMenu()
 	    }
 	}
     }
-    
-    d->arrow->setPopup( d->menu );
-    d->arrow->setPopupDelay( 0 );
 }
 
 void QToolBar::popupSelected( int id )
@@ -769,7 +780,7 @@ void QToolBar::emulateButtonClicked()
 {
     if ( !d->button )
 	return;
-    
+
     if ( d->button->inherits( "QPushButton" ) &&
 	 ( (QPushButton*)d->button )->popup() ) {
 	( (QPushButton*)d->button )->popup()->exec( QCursor::pos() );
@@ -790,7 +801,7 @@ void QToolBar::emulateButtonClicked()
 void QToolBar::paintToolBar()
 {
     QPainter p( this );
-    p.fillRect( 2, 2, width() - 4, height() - 4,
+    p.fillRect( 1, 1, width() - 2, height() - 2,
 		colorGroup().brush( QColorGroup::Background ) );
     if ( mw && !mw->toolBarsMovable() ) {
 	return;
