@@ -24,6 +24,15 @@
 
 #include "qfontengine_p.h"
 
+/*!
+  \class QTextInlineObject
+
+  Represents an inline object in a QTextLayout.
+
+  Only used if the text layout is used to layout parts of a
+  QTextDocument.
+*/
+
 QRect QTextInlineObject::rect() const
 {
     QScriptItem& si = eng->items[itm];
@@ -60,16 +69,36 @@ void QTextInlineObject::setDescent(int d)
     eng->items[itm].descent = d;
 }
 
+/*!
+  The position of the inline object within the text layout.
+*/
 int QTextInlineObject::at() const
 {
     return eng->items[itm].position;
 }
 
-int QTextInlineObject::format() const
+/*!
+  Returns an integer describing the format of the inline object
+  within the text layout.
+*/
+int QTextInlineObject::formatIndex() const
 {
     return eng->items[itm].format;
 }
 
+/*!
+  Returns format of the inline object within the text layout.
+*/
+QTextFormat QTextInlineObject::format() const
+{
+    if (!eng->formats)
+        return QTextFormat();
+    return eng->formats->format(eng->items[itm].format);
+}
+
+/*!
+  Returns if the object should be laid out right-to-left or left-to-right.
+*/
 bool QTextInlineObject::isRightToLeft() const
 {
     return (eng->items[itm].analysis.bidiLevel % 2);
@@ -561,42 +590,83 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 }
 
 
+/*!
+  \class QTextLine
+
+  This class represents a line of text inside a QtextLayout.
+
+  A line of text can be created using QTextLayout::createLine().
+
+  After being created, the line can be filled using the layout(int
+  width) method.
+*/
+
+/*!
+  returns the bounding rectangle of the line.
+*/
 QRect QTextLine::rect() const
 {
     const QScriptLine& si = eng->lines[i];
     return QRect(si.x.toInt(), si.y.toInt(), si.width.toInt(), (si.ascent + si.descent).toInt());
 }
 
+/*!
+  the x position of the line.
+*/
 int QTextLine::x() const
 {
     return eng->lines[i].x.toInt();
 }
 
+/*!
+  the y position of the line.
+*/
 int QTextLine::y() const
 {
     return eng->lines[i].y.toInt();
 }
 
+/*!
+  the width position of the line as specified by the layout() method.
+*/
 int QTextLine::width() const
 {
     return eng->lines[i].width.toInt();
 }
 
+
+/*!
+  the ascent of the line.
+*/
 int QTextLine::ascent() const
 {
     return eng->lines[i].ascent.toInt();
 }
 
+/*!
+  the descent of the line.
+*/
 int QTextLine::descent() const
 {
     return eng->lines[i].descent.toInt();
 }
 
+/*!
+  the actual space of the line that is occupied by text. This is
+  always smaller or equals to width().
+
+  textWidth() equals the minimum width one could use in layout() that would result
+  in the same line break position .
+*/
 int QTextLine::textWidth() const
 {
     return eng->lines[i].textWidth.toInt();
 }
 
+/*!
+  layout the line with a width of \a width. The line is filled from
+  it's starting position with as many character as fit into the line.
+*/
 void QTextLine::layout(int width)
 {
     QScriptLine &line = eng->lines[i];
@@ -727,22 +797,35 @@ void QTextLine::layout(int width)
     // ##########################
 }
 
+/*!
+  Move the line to position \a pos.
+*/
 void QTextLine::setPosition(const QPoint &pos)
 {
     eng->lines[i].x = pos.x();
     eng->lines[i].y = pos.y();
 }
 
+/*!
+  The start of the line from the beginning of the string passed to the QTextLayout.
+*/
 int QTextLine::from() const
 {
     return eng->lines[i].from;
 }
 
+/*!
+  The length of the text in the line.
+*/
 int QTextLine::length() const
 {
     return eng->lines[i].length;
 }
 
+/*!
+  Draws the line to the painter at position \a xpos /\a ypos. \a
+  selection is reserved for internal use.
+*/
 void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 {
     const QScriptLine &line = eng->lines[i];
@@ -881,7 +964,12 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 }
 
 
+/*!
+  Converts the cursor position cPos to the corresponding x position inside the line.
 
+  If cPos does not point to a valid cursor position it will be
+  adjusted to the next valid cursor position.
+*/
 int QTextLine::cursorToX(int *cPos, Edge edge) const
 {
     if (!i && !eng->items.size()) {
@@ -986,6 +1074,9 @@ int QTextLine::cursorToX(int *cPos, Edge edge) const
     return x.toInt();
 }
 
+/*!
+  Converts a x coordinate to the nearest matching cursor position.
+*/
 int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
 {
     const QScriptLine &line = eng->lines[i];

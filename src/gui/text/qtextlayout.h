@@ -26,6 +26,7 @@ class QTextEngine;
 class QFont;
 class QRect;
 class QRegion;
+class QTextFormat;
 
 class Q_GUI_EXPORT QTextInlineObject
 {
@@ -50,7 +51,8 @@ public:
     QTextEngine *engine() const { return eng; }
     int item() const { return itm; }
 
-    int format() const;
+    int formatIndex() const;
+    QTextFormat format() const;
 
 private:
     friend class QTextLayout;
