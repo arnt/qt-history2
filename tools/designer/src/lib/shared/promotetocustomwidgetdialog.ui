@@ -59,7 +59,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="text" >
-        <string>Custom cass name:</string>
+        <string>Custom class name:</string>
        </property>
        <property name="textFormat" >
         <enum>Qt::AutoText</enum>
