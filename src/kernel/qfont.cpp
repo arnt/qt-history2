@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#70 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#70 $");
 
 
 /*!
@@ -1609,6 +1609,7 @@ bool QFontInfo::strikeOut() const
 
 /*!
   Returns the fixed pitch value of the matched window system font.
+  A fixed pitch font is a font that has constant character pixel width.  
   \sa QFont::fixedPitch()
 */
 
