@@ -27,7 +27,7 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     quitButton = new QPushButton(tr("Quit"), this);
 
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
-    connect(revertButton, SIGNAL(clicked()), model, SLOT(cancelChanges()));
+    connect(revertButton, SIGNAL(clicked()), model, SLOT(revertAll()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
     QVBoxLayout *buttonLayout = new QVBoxLayout;
