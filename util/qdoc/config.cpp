@@ -129,7 +129,7 @@ Config::Config( int argc, char **argv )
     if ( !f.open(IO_ReadOnly) ) {
 	warning( 0, "Cannot open configuration file '%s'",
 		 confFilePath.latin1() );
-	exit(EXIT_FAILURE);
+	exit( EXIT_FAILURE );
     }
 
     QTextStream t( &f );
@@ -370,6 +370,8 @@ bool Config::isDef( const QString& symbol ) const
 
 bool Config::generateHtmlFile( const QString& fileName ) const
 {
+debug( "%s.match( %s ) == %d", onlyfn.pattern().latin1(), fileName.latin1(),
+onlyfn.match( fileName ) );
     return onlyfn.match( fileName );
 }
 

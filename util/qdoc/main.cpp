@@ -18,7 +18,7 @@ extern void parseCppSourceFile( Steering *steering, const QString& fileName );
 // defined in htmlparser.cpp
 extern void parseHtmlFile( Steering *steering, const QString& fileName );
 
-static int cmp( const void *n1, const void *n2 )
+static int compareByMtime( const void *n1, const void *n2 )
 {
     if ( n1 == 0 || n2 == 0 )
 	return 0;
@@ -29,8 +29,8 @@ static int cmp( const void *n1, const void *n2 )
 	return -1;
     else if ( f1.lastModified() > f2.lastModified() )
 	return 1;
-
-    return 0;
+    else
+	return 0;
 }
 
 static QStringList find( const QString & rootDir, const QString & nameFilter )
@@ -59,7 +59,6 @@ static QStringList find( const QString & rootDir, const QString & nameFilter )
 	    result += find( dir.filePath(*fn), nameFilter );
 	++fn;
     }
-
     return result;
 }
 
@@ -115,20 +114,20 @@ int main( int argc, char **argv )
 
     int i = 0;
     int n = sourceFiles.count();
-    QString * files = new QString[n];
+    QString *files = new QString[n];
     s = sourceFiles.begin();
-    while( s != sourceFiles.end() && i < n ) {
+    while ( s != sourceFiles.end() && i < n ) {
 	files[i++] = *s;
 	++s;
     }
-    qsort( files, n, sizeof( QString ), cmp );
+    qsort( files, n, sizeof(QString), compareByMtime );
     i = n;
     while( i-- > 0 )
 	parseCppSourceFile( &steering, files[i] );
     delete[] files;
     files = 0;
 
-    // finally, pick up old output for the editor
+    // finally, pick up old output for the supervisor
     QStringList outputFiles;
     if ( config->supervisor() ) {
 	outputFiles = find( config->outputDir(), QString("*.html") );
