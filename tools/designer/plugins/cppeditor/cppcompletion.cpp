@@ -50,14 +50,21 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     if ( !obj )
 	return FALSE;
 
-    QStringList lst;
-    QStrList slts = obj->metaObject()->slotNames( TRUE );
-    for ( QListIterator<char> sit( slts ); sit.current(); ++sit ) {
-	QString f( sit.current() );
-	f = f.left( f.find( "(" ) ) + "()";
-	if ( lst.find( f ) == lst.end() )
-	    lst << f;
+    QValueList<CompletionEntry> lst;
+
+    if ( obj->children() ) {
+	for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit ) {
+	    QString s( cit.current()->name() );
+	    if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 && s.find( "unnamed" ) == -1 ) {
+		CompletionEntry c;
+		c.type = "variable";
+		c.text = s;
+		c.prefix = "";
+		lst << c;
+	    }
+	}
     }
+
     QStrList props = obj->metaObject()->propertyNames( TRUE );
     for ( QListIterator<char> pit( props ); pit.current(); ++pit ) {
 	QString f( pit.current() );
@@ -65,19 +72,28 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	f.remove( 0, 1 );
 	f.prepend( c.upper() );
 	f.prepend( "set" );
-	f += "()";
-	if ( lst.find( f ) == lst.end() )
-	    lst << f;
+
+	CompletionEntry ce;
+	ce.type = "property";
+	ce.text = f;
+	ce.prefix = "()";
+
+	if ( lst.find( ce ) == lst.end() )
+	    lst << ce;
     }
 
-    if ( obj->children() ) {
-	for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit ) {
-	    QString s( cit.current()->name() );
-	    if ( s.find( " " ) == -1 && s.find( "qt_" ) == -1 )
-		lst << s;
-	}
+    QStrList slts = obj->metaObject()->slotNames( TRUE );
+    for ( QListIterator<char> sit( slts ); sit.current(); ++sit ) {
+	QString f( sit.current() );
+	f = f.left( f.find( "(" ) );
+	CompletionEntry c;
+	c.type = "slot";
+	c.text = f;
+	c.prefix = "()";
+	if ( lst.find( c ) == lst.end() )
+	    lst << c;
     }
-    lst = lst.grep( QRegExp( "[^unnamed]" ) ); // filter out unnamed objects
+
     if ( lst.isEmpty() )
 	return FALSE;
 
@@ -165,6 +181,10 @@ QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar 
 		return lst;
 	}
     }
+
+    const QMetaProperty *prop = obj->metaObject()->property( func[ 3 ].lower() + func.mid( 4 ), TRUE );
+    if ( prop )
+	return QStringList( prop->type() );
 
     return QStringList();
 }

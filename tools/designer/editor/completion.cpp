@@ -1,4 +1,4 @@
- /**********************************************************************
+/**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -28,6 +28,66 @@
 #include "qapplication.h"
 #include "qregexp.h"
 #include "qlabel.h"
+
+static QColor getColor( const QString &type )
+{
+    if ( type == "function" || type == "slot")
+	return Qt::blue;
+    if ( type == "variable" )
+	return Qt::darkRed;
+    if ( type == "property" )
+	return Qt::darkGreen;
+    return Qt::black;
+}
+
+class CompletionItem : public QListBoxItem
+{
+public:
+    CompletionItem( QListBox *lb, const QString &txt, const QString &t, const QString &p )
+	: QListBoxItem( lb ), type( t ), prefix( p ), parag( 0 ) { setText( txt ); }
+    ~CompletionItem() { delete parag; }
+    void paint( QPainter *painter ) {
+	if ( !parag )
+	    setupParag();
+	parag->paint( *painter, listBox()->colorGroup() );
+    }
+
+    int height( const QListBox * ) const {
+	if ( !parag )
+	    ( (CompletionItem*)this )->setupParag();
+	return parag->rect().height();
+    }
+    int width( const QListBox * ) const {
+	if ( !parag )
+	    ( (CompletionItem*)this )->setupParag();
+	return parag->rect().width() - 2;
+    }
+    QString text() const { return QListBoxItem::text() + prefix; }
+
+private:
+    void setupParag() {
+	if ( !parag ) {
+	    QTextFormatter *formatter;
+	    formatter = new QTextFormatterBreakWords;
+	    formatter->setWrapEnabled( FALSE );
+	    parag = new QTextParag( 0 );
+	    parag->setFormatter( formatter );
+	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + QListBoxItem::text() + prefix );
+	    QTextFormat *f1 = parag->formatCollection()->format( listBox()->font(), getColor( type ) );
+	    QFont f( listBox()->font() );
+	    f.setBold( TRUE );
+	    QTextFormat *f2 = parag->formatCollection()->format( f, Qt::black );
+	    parag->setFormat( 1, type.length() + 1, f1 );
+	    parag->setFormat( type.length() + 2, QListBoxItem::text().length(), f2 );
+	    f1->removeRef();
+	    f2->removeRef();
+	    parag->format();
+	}
+    }
+    QString type, prefix;
+    QTextParag *parag;
+
+};
 
 EditorCompletion::EditorCompletion( Editor *e )
 {
@@ -80,7 +140,7 @@ void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument * )
     }
 }
 
-QStringList EditorCompletion::completionList( const QString &s, QTextDocument *doc ) const
+QValueList<CompletionEntry> EditorCompletion::completionList( const QString &s, QTextDocument *doc ) const
 {
     if ( doc )
 	( (EditorCompletion*)this )->updateCompletionMap( doc );
@@ -88,14 +148,17 @@ QStringList EditorCompletion::completionList( const QString &s, QTextDocument *d
     QChar key( s[ 0 ] );
     QMap<QChar, QStringList>::ConstIterator it = completionMap.find( key );
     if ( it == completionMap.end() )
-	return QStringList();
-    QStringList::ConstIterator it2 = ( *it ).begin();
-    QStringList lst;
+	return QValueList<CompletionEntry>();
+    QStringList::ConstIterator it2 = (*it).begin();
+    QValueList<CompletionEntry> lst;
     int len = s.length();
-    for ( ; it2 != ( *it ).end(); ++it2 ) {
-	if ( (int)( *it2 ).length() > len && ( *it2 ).left( len ) == s &&
-	     lst.find( *it2 ) == lst.end() )
-	    lst << *it2;
+    for ( ; it2 != (*it).end(); ++it2 ) {
+	CompletionEntry c;
+	c.type = "";
+	c.text = *it2;
+	c.prefix = "";
+	if ( (int)(*it2).length() > len && (*it2).left( len ) == s && lst.find( c ) == lst.end() )
+	    lst << c;
     }
 
     return lst;
@@ -168,7 +231,7 @@ bool EditorCompletion::doCompletion()
 
     searchString = s;
 
-    QStringList lst( completionList( s, doc ) );
+    QValueList<CompletionEntry> lst( completionList( s, doc ) );
     if ( lst.count() > 1 ) {
 	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
@@ -177,7 +240,8 @@ bool EditorCompletion::doCompletion()
 	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
 	y += cursor->parag()->rect().y();
 	completionListBox->clear();
-	completionListBox->insertStringList( lst );
+	for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
+	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
 	cList = lst;
 	completionPopup->resize( completionListBox->sizeHint() + QSize( 4, 4 ) );
 	completionListBox->setCurrentItem( 0 );
@@ -185,7 +249,7 @@ bool EditorCompletion::doCompletion()
 	completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
 	completionPopup->show();
     } else if ( lst.count() == 1 ) {
-	curEditor->insert( lst.first().mid( completionOffset, 0xFFFFFF ), TRUE );
+	curEditor->insert( lst.first().text.mid( completionOffset, 0xFFFFFF ), TRUE );
     } else {
 	return FALSE;
     }
@@ -253,6 +317,9 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		QApplication::sendEvent( curEditor, e );
 		return TRUE;
 	    }
+	} else if ( e->type() == QEvent::MouseButtonDblClick ) {
+	    completeCompletion();
+	    return TRUE;
 	}
     }
     if ( o == functionLabel || o->inherits( "Editor" ) && functionLabel->isVisible() ) {
@@ -339,7 +406,8 @@ bool EditorCompletion::continueComplete()
 {
     if ( searchString.isEmpty() ) {
 	completionListBox->clear();
-	completionListBox->insertStringList( cList );
+	for ( QValueList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it )
+	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
 	completionListBox->setCurrentItem( 0 );
 	completionListBox->setSelected( completionListBox->currentItem(), TRUE );
 	return TRUE;
@@ -356,11 +424,16 @@ bool EditorCompletion::continueComplete()
     if ( txt1 == txt2 && !i->next() )
 	return FALSE;
 
-    QStringList res = cList.grep( QRegExp( "^" + searchString ) );
+    QValueList<CompletionEntry> res;
+    for ( QValueList<CompletionEntry>::ConstIterator it = cList.begin(); it != cList.end(); ++it ) {
+	if ( (*it).text.left( searchString.length() ) == searchString )
+	    res << *it;
+    }
     if ( res.isEmpty() )
 	return FALSE;
     completionListBox->clear();
-    completionListBox->insertStringList( res );
+    for ( QValueList<CompletionEntry>::ConstIterator it = res.begin(); it != res.end(); ++it )
+	(void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
     completionListBox->setCurrentItem( 0 );
     completionListBox->setSelected( completionListBox->currentItem(), TRUE );
     return TRUE;
@@ -489,7 +562,7 @@ void EditorCompletion::setContext( QObjectList *, QObject * )
 {
 }
 
-void EditorCompletion::showCompletion( const QStringList &lst )
+void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
 {
     QTextCursor *cursor = curEditor->textCursor();
     QTextStringChar *chr = cursor->parag()->at( cursor->index() );
@@ -499,7 +572,8 @@ void EditorCompletion::showCompletion( const QStringList &lst )
     cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
     y += cursor->parag()->rect().y();
     completionListBox->clear();
-    completionListBox->insertStringList( lst );
+    for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
+	(void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
     cList = lst;
     completionPopup->resize( completionListBox->sizeHint() + QSize( 4, 4 ) );
     completionListBox->setCurrentItem( 0 );

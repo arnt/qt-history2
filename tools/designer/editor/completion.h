@@ -33,9 +33,19 @@ class QVBox;
 class QListBox;
 class QLabel;
 
+struct CompletionEntry
+{
+    QString type;
+    QString text;
+    QString prefix;
+
+    bool operator==( const CompletionEntry &c ) const { return c.type == type && c.text == text && c.prefix == prefix; }
+};
+
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class EDITOR_EXPORT QMap<QChar, QStringList>;
+template class EDITOR_EXPORT QValueList<CompletionEntry>;
 // MOC_SKIP_ENDI
 #endif
 
@@ -48,7 +58,7 @@ public:
     ~EditorCompletion();
 
     virtual void addCompletionEntry( const QString &s, QTextDocument *doc );
-    virtual QStringList completionList( const QString &s, QTextDocument *doc ) const;
+    virtual QValueList<CompletionEntry> completionList( const QString &s, QTextDocument *doc ) const;
     virtual void updateCompletionMap( QTextDocument *doc );
 
     bool eventFilter( QObject *o, QEvent *e );
@@ -67,7 +77,7 @@ public:
 
 protected:
     virtual bool continueComplete();
-    virtual void showCompletion( const QStringList &lst );
+    virtual void showCompletion( const QValueList<CompletionEntry> &lst );
     virtual void completeCompletion();
 
 protected:
@@ -77,7 +87,7 @@ protected:
     int completionOffset;
     Editor *curEditor;
     QString searchString;
-    QStringList cList;
+    QValueList<CompletionEntry> cList;
     QMap<QChar, QStringList> completionMap;
     bool enabled;
 
