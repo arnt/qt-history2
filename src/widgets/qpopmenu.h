@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#27 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#28 $
 **
 ** Definition of QPopupMenu class
 **
@@ -27,6 +27,9 @@ public:
 
     void	popup( const QPoint & pos, int indexAtPoint = 0 );// open popup
     void	updateItem( int id );
+    
+    void	setItemCheckingEnabled( bool );
+    bool	isItemCheckingEnabled();
 
     void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show
@@ -75,14 +78,18 @@ private:
     int		itemAtPos( const QPoint & );
     int		itemPos( int index );
     void	updateSize();
+    void	updateRow( int row );
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
+
+    void	setTabMark( int );
+    int		tabMark();
 
     QMenuItem  *selfItem;
     QAccel     *autoaccel;
     bool	accelDisabled;
     int		popupActive;
-    int		tabMark;
+    int		tabCheck;
 
 private:	// Disabled copy constructor and operator=
     QPopupMenu( const QPopupMenu & ) {}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#86 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#86 $");
 
 
 // Motif style parameters
@@ -30,8 +30,10 @@ static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
 static const int motifItemVMargin	= 2;	// menu item ver text margin
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
-static const int motifArrowVMargin	= 2;	// arrow horizontal margin
+static const int motifArrowVMargin	= 2;	// arrow vertical margin
 static const int motifTabSpacing	= 12;	// space between text and tab
+static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
+
 
 /*
 
@@ -66,6 +68,174 @@ static const int motifTabSpacing	= 12;	// space between text and tab
 */
 
 
+// size of checkmark image
+
+static void getSizeOfBitmap( int gs, int *w, int *h )
+{
+	if ( gs == WindowsStyle )
+	    *w = *h = 7;
+	else
+	    *w = *h = 6;
+}
+
+
+static int getWidthOfCheckCol( int gs )
+{
+    int w = motifItemFrame + 2 * motifCheckMarkHMargin;
+    if ( gs == WindowsStyle )
+	w += 7;
+    else
+	w += 9;
+    return w;
+}
+
+// Checkmark drawing -- temporarily here...
+static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
+			    const QColorGroup &g, int gs, bool act )
+{
+    int markW, markH;
+    getSizeOfBitmap( gs, &markW, &markH );
+    int posX = x + ( w - markW )/2;
+    int posY = y + ( h - markH )/2;
+
+    if ( gs == WindowsStyle ) {
+	// Could do with some optimizing/caching...
+	QPointArray a( 7*2 );
+	int i, xx, yy;
+	xx = posX;
+	yy = posY + 3;
+	for ( i=0; i<3; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy++;
+	}
+	yy -= 2;
+	for ( i=3; i<7; i++ ) {
+	    a.setPoint( 2*i,   xx, yy );
+	    a.setPoint( 2*i+1, xx, yy+2 );
+	    xx++; yy--;
+	}
+	p->setPen( act ? white : black );
+	p->drawLineSegments( a );
+    }
+    else {
+	QBrush fill( g.mid() );
+	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE, 2, &fill );
+    }
+}
+
+
+//
+// Creates an accelerator string for the key k.
+// For instance CTRL+Key_O gives "Ctrl+O".
+//
+
+static QString accel_str( int k )
+{
+    QString s;
+    if ( (k & SHIFT) == SHIFT )
+	s = "Shift";
+    if ( (k & CTRL) == CTRL ) {
+	if ( s.isEmpty() )
+	    s = "Ctrl";
+	else
+	    s += "+Ctrl";
+    }
+    if ( (k & ALT) == ALT ) {
+	if ( s.isEmpty() )
+	    s = "Alt";
+	else
+	    s += "+Alt";
+    }
+    k &= ~(SHIFT | CTRL | ALT);
+    QString p;
+    if ( k >= Key_F1 && k <= Key_F24 )
+	p.sprintf( "F%d", k - Key_F1 + 1 );
+    else if ( k >= Key_Space && k <= Key_AsciiTilde )
+	p.sprintf( "%c", k );
+    else {
+	switch ( k ) {
+	    case Key_Escape:
+		p = "Esc";
+		break;
+	    case Key_Tab:
+		p = "Tab";
+		break;
+	    case Key_Backtab:
+		p = "Backtab";
+		break;
+	    case Key_Backspace:
+		p = "Backspace";
+		break;
+	    case Key_Return:
+		p = "Return";
+		break;
+	    case Key_Enter:
+		p = "Enter";
+		break;
+	    case Key_Insert:
+		p = "Ins";
+		break;
+	    case Key_Delete:
+		p = "Del";
+		break;
+	    case Key_Pause:
+		p = "Pause";
+		break;
+	    case Key_Print:
+		p = "Print";
+		break;
+	    case Key_SysReq:
+		p = "SysReq";
+		break;
+	    case Key_Home:
+		p = "Home";
+		break;
+	    case Key_End:
+		p = "End";
+		break;
+	    case Key_Left:
+		p = "Left";
+		break;
+	    case Key_Up:
+		p = "Up";
+		break;
+	    case Key_Right:
+		p = "Right";
+		break;
+	    case Key_Down:
+		p = "Down";
+		break;
+	    case Key_Prior:
+		p = "PgUp";
+		break;
+	    case Key_Next:
+		p = "PgDown";
+		break;
+	    case Key_CapsLock:
+		p = "CapsLock";
+		break;
+	    case Key_NumLock:
+		p = "NumLock";
+		break;
+	    case Key_ScrollLock:
+		p = "ScrollLock";
+		break;
+	    default:
+		p.sprintf( "<%d?>", k );
+		break;
+	}
+    }
+    if ( s.isEmpty() )
+	s = p;
+    else {
+	s += '+';
+	s += p;
+    }
+    return s;
+}
+
+
 /*****************************************************************************
   QPopupMenu member functions
  *****************************************************************************/
@@ -90,13 +260,14 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     autoaccel	  = 0;
     accelDisabled = FALSE;
     popupActive	  = -1;
-    tabMark	  = 0;
+    setTabMark( 0 );
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
     switch ( style() ) {
 	case WindowsStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	    setMouseTracking( TRUE );
+	    setItemCheckingEnabled( TRUE );		
 	    break;
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
@@ -122,8 +293,58 @@ QPopupMenu::~QPopupMenu()
 
 void QPopupMenu::updateItem( int id )		// update popup menu item
 {
-    updateCell( indexOf(id), 0, FALSE );
+    updateRow( indexOf(id) );
 }
+
+
+// Double use of tabMark / checkingEnabled until 2.0
+
+/*!
+  Enables or disables display of check marks by the menu items.
+
+  \sa isItemCheckingEnabled(), QMenuData::setItemChecked()
+*/
+
+void QPopupMenu::setItemCheckingEnabled( bool enable )
+{
+    if ( enable ) {
+	setNumCols( 2 );
+	tabCheck |= 0x80000000;
+    }
+    else {
+	setNumCols( 1 );
+	tabCheck &= 0x7FFFFFFF;
+    }
+    badSize = TRUE;
+    update();
+}
+
+/*!
+  Returns whether display of check marks by the menu items is enabled.
+
+  \sa setItemCheckingEnabled(), QMenuData::setItemChecked()
+*/
+
+bool QPopupMenu::isItemCheckingEnabled()
+{
+    return tabCheck & 0x80000000;
+}
+
+
+void QPopupMenu::setTabMark( int t )
+{
+    bool e = isItemCheckingEnabled();
+    tabCheck = t;
+    if ( e )
+	tabCheck |= 0x80000000;
+}
+
+
+int QPopupMenu::tabMark()
+{
+    return tabCheck & 0x7FFFFFFF;
+}    
+
 
 void QPopupMenu::menuContentsChanged()
 {
@@ -358,7 +579,11 @@ void QPopupMenu::updateSize()
 {
     int height	  = 0;
     int max_width = 10;
+    GUIStyle gs	  = style();
     QFontMetrics fm = fontMetrics();
+#if 0
+    QFontMetrics fm( font() );
+#endif
     QMenuItemListIt it( *mitems );
     register QMenuItem *mi;
     bool hasSubMenu = FALSE;
@@ -397,11 +622,18 @@ void QPopupMenu::updateSize()
     int extra_width = 0;
     if ( tab_width ) {
 	extra_width = tab_width + motifTabSpacing;
-	tabMark = max_width + motifTabSpacing;
+	setTabMark( max_width + motifTabSpacing );
     }
     else
-	tabMark = 0;
-    max_width  += 2*motifItemHMargin + 2*motifItemFrame;
+	setTabMark( 0 );
+
+    max_width  += 2*motifItemHMargin;
+
+    if ( isItemCheckingEnabled() )
+	max_width += getWidthOfCheckCol( gs ) + motifItemFrame;
+    else
+	max_width += 2*motifItemFrame;
+
     if ( hasSubMenu ) {
 	if ( fm.ascent() + motifArrowHMargin > extra_width )
 	    extra_width = fm.ascent() + motifArrowHMargin;
@@ -412,116 +644,6 @@ void QPopupMenu::updateSize()
     badSize = FALSE;
 }
 
-
-//
-// Creates an accelerator string for the key k.
-// For instance CTRL+Key_O gives "Ctrl+O".
-//
-
-static QString accel_str( int k )
-{
-    QString s;
-    if ( (k & SHIFT) == SHIFT )
-	s = "Shift";
-    if ( (k & CTRL) == CTRL ) {
-	if ( s.isEmpty() )
-	    s = "Ctrl";
-	else
-	    s += "+Ctrl";
-    }
-    if ( (k & ALT) == ALT ) {
-	if ( s.isEmpty() )
-	    s = "Alt";
-	else
-	    s += "+Alt";
-    }
-    k &= ~(SHIFT | CTRL | ALT);
-    QString p;
-    if ( k >= Key_F1 && k <= Key_F24 )
-	p.sprintf( "F%d", k - Key_F1 + 1 );
-    else if ( k >= Key_Space && k <= Key_AsciiTilde )
-	p.sprintf( "%c", k );
-    else {
-	switch ( k ) {
-	    case Key_Escape:
-		p = "Esc";
-		break;
-	    case Key_Tab:
-		p = "Tab";
-		break;
-	    case Key_Backtab:
-		p = "Backtab";
-		break;
-	    case Key_Backspace:
-		p = "Backspace";
-		break;
-	    case Key_Return:
-		p = "Return";
-		break;
-	    case Key_Enter:
-		p = "Enter";
-		break;
-	    case Key_Insert:
-		p = "Ins";
-		break;
-	    case Key_Delete:
-		p = "Del";
-		break;
-	    case Key_Pause:
-		p = "Pause";
-		break;
-	    case Key_Print:
-		p = "Print";
-		break;
-	    case Key_SysReq:
-		p = "SysReq";
-		break;
-	    case Key_Home:
-		p = "Home";
-		break;
-	    case Key_End:
-		p = "End";
-		break;
-	    case Key_Left:
-		p = "Left";
-		break;
-	    case Key_Up:
-		p = "Up";
-		break;
-	    case Key_Right:
-		p = "Right";
-		break;
-	    case Key_Down:
-		p = "Down";
-		break;
-	    case Key_Prior:
-		p = "PgUp";
-		break;
-	    case Key_Next:
-		p = "PgDown";
-		break;
-	    case Key_CapsLock:
-		p = "CapsLock";
-		break;
-	    case Key_NumLock:
-		p = "NumLock";
-		break;
-	    case Key_ScrollLock:
-		p = "ScrollLock";
-		break;
-	    default:
-		p.sprintf( "<%d?>", k );
-		break;
-	}
-    }
-    if ( s.isEmpty() )
-	s = p;
-    else {
-	s += '+';
-	s += p;
-    }
-    return s;
-}
 
 
 /*!
@@ -652,9 +774,18 @@ int QPopupMenu::cellHeight( int row )
     return h;
 }
 
-int QPopupMenu::cellWidth( int )
+
+
+int QPopupMenu::cellWidth( int col )
 {
-    return width() - 2*frameWidth();
+    if ( isItemCheckingEnabled() ) {
+	if ( col == 0 )
+	    return getWidthOfCheckCol(style());
+	else
+	    return width() - ( 2*frameWidth() + getWidthOfCheckCol(style()) );
+    }	    
+    else
+	return width() - 2*frameWidth();	
 }
 
 
@@ -671,27 +802,44 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     if ( !mi->isDirty() )
 	return;
 
-    if ( mi->isSeparator() ) {			// draw separator
-	p->setPen( g.dark() );
-	p->drawLine( 0, 0, cellw, 0 );
-	p->setPen( g.light() );
-	p->drawLine( 0, 1, cellw, 1 );
-	return;
+    int rw = isItemCheckingEnabled() ? totalWidth() : cellw;
+
+    if ( col == 0 ) {
+	if ( mi->isSeparator() ) {			// draw separator
+	    p->setPen( g.dark() );
+	    p->drawLine( 0, 0, rw, 0 );
+	    p->setPen( g.light() );
+	    p->drawLine( 0, 1, rw, 1 );
+	    return;
+	}
+        
+	int pw = motifItemFrame;
+	if ( gs != MotifStyle )
+	    pw = 1;
+	if ( gs == WindowsStyle ) {
+	    p->fillRect( 0, 0, rw, cellh, act ? darkBlue : g.background() );
+	} else if ( gs == MotifStyle ) {
+	    if ( act )				// active item frame
+		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw );
+	    else				// incognito frame
+		qDrawPlainRect( p, 0, 0, rw, cellh, g.background(), pw );
+	}
+
+	if ( isItemCheckingEnabled() ) {	// just "checking"...
+	    int mw = cellw - ( 2*motifCheckMarkHMargin + motifItemFrame );
+	    int mh = cellh - 2*motifItemFrame;
+	    if ( mi->isChecked() ) {
+		qDrawCheckMark( p, motifItemFrame + motifCheckMarkHMargin,
+				motifItemFrame, mw, mh, g, gs, act );
+	    }
+	    return;
+	}
     }
-    int pw = motifItemFrame;
-    if ( gs != MotifStyle )
-	pw = 1;
-    if ( gs == WindowsStyle ) {
-	p->fillRect( 0, 0, cellw, cellh, act ? darkBlue : g.background() );
+
+    if ( gs == WindowsStyle )
 	p->setPen( act ? white : g.text() );
-    }
-    else if ( gs == MotifStyle ) {
-	if ( act )				// active item frame
-	    qDrawShadePanel( p, 0, 0, cellw, cellh, g, FALSE, pw );
-	else					// incognito frame
-	    qDrawPlainRect( p, 0, 0, cellw, cellh, g.background(), pw );
+    else
 	p->setPen( g.text() );
-    }
 
     QColor discol;
     if ( dis ) {
@@ -699,18 +847,17 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	p->setPen( discol );
     }
 
+    int x = motifItemHMargin + ( isItemCheckingEnabled() ? 0 : motifItemFrame);
     if ( mi->pixmap() ) {			// draw pixmap
 	QPixmap *pixmap = mi->pixmap();
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixmap( motifItemFrame + motifItemHMargin, motifItemFrame,
-		       *pixmap );
+	p->drawPixmap( x, motifItemFrame, *pixmap );
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
     } else if ( mi->text() ) {			// draw text
 	const char *s = mi->text();
 	const char *t = strchr( s, '\t' );
-	int x = motifItemFrame + motifItemHMargin;
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t ) {				// draw text before tab
@@ -723,7 +870,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    p->drawText( x, m, cellw, cellh-2*m, text_flags,
 			 s, (int)((long)t-(long)s) );
 	    s = t + 1;
-	    x = tabMark;
+	    x = tabMark();
 	}
 	if ( gs == WindowsStyle && dis && !act ) {
 	    p->setPen( white );
@@ -756,7 +903,7 @@ void QPopupMenu::paintAll()
     while ( (mi=it.current()) ) {
 	++it;
 	if ( mi->isDirty() )			// this item needs a refresh
-	    updateCell( row, 0, FALSE );
+	    updateRow( row );
 	++row;
     }
 }
@@ -865,7 +1012,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    int lastActItem = actItem;
 	    actItem = -1;
 	    if ( lastActItem >= 0 )
-		updateCell( lastActItem, 0, FALSE );
+		updateRow( lastActItem );
 	}
 	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
 	    hidePopups();
@@ -888,8 +1035,8 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	}
 	hidePopups();				// hide popup items
 	if ( lastActItem >= 0 )
-	    updateCell( lastActItem, 0, FALSE );
-	updateCell( actItem, 0, FALSE );
+	    updateRow( lastActItem );
+	updateRow( actItem );
 	if ( mi->id() >= 0 )			// valid identifier
 	    hilitSig( mi->id() );
     }
@@ -1011,8 +1158,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    actItem = i;
 	    if ( mi->id() >= 0 )
 		hilitSig( mi->id() );
-	    updateCell( lastActItem, 0, FALSE );
-	    updateCell( actItem, 0, FALSE );
+	    updateRow( lastActItem );
+	    updateRow( actItem );
 	}
     }
 }
@@ -1036,4 +1183,12 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 	popupActive = actItem;
 	popup->popup( mapToGlobal(pos) );
     }
+}
+
+
+void QPopupMenu::updateRow( int row )
+{
+    updateCell( row, 0, FALSE );
+    if ( isItemCheckingEnabled() )
+	updateCell( row, 1, FALSE );
 }
