@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#26 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#27 $
 **
 ** Definition of QPushButton class
 **
@@ -47,6 +47,7 @@ public slots:
 protected:
     void	drawButton( QPainter * );
     void	drawButtonLabel( QPainter * );
+    void	focusInEvent( QFocusEvent * );
 
 private:
     void	init();

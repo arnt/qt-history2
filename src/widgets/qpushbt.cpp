@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#80 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#80 $");
 
 
 /*!
@@ -208,9 +208,9 @@ void QPushButton::setDefault( bool enable )
     if ( gs != MotifStyle ) {
 	if ( isVisible() )
 	    repaint( FALSE );
-    }
-    else
+    } else {
 	resizeDefButton( (QPushButton*)this );
+    }
 }
 
 
@@ -483,4 +483,16 @@ void QPushButton::drawButtonLabel( QPainter *paint )
     } else if ( text() ) {
 	p->drawText( x, y, w, h, AlignCenter|ShowPrefix, text() );
     }
+}
+
+
+/*!
+  Handles focus in events for the push button.
+*/
+
+void QPushButton::focusInEvent( QFocusEvent *e )
+{
+    if ( autoDefButton )
+	setDefault( TRUE );
+    QButton::focusInEvent( e );
 }
