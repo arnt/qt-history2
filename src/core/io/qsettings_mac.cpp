@@ -20,7 +20,6 @@
 #include "qstring.h"
 #include "qcleanuphandler.h"
 #include <private/qcore_mac_p.h>
-#include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>
 
 /*****************************************************************************
