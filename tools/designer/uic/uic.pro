@@ -1,7 +1,6 @@
 TEMPLATE	= app
 CONFIG		+= qt console warn_on release professional
 mac:CONFIG      -= resource_fork
-QCONFIG         -= gui
 HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
