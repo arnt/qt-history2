@@ -4352,7 +4352,7 @@ public:
 
 QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
 {
-    codec = QTextCodec::codecForMib( 36 ); // ksc5601.1987-0
+    codec = QTextCodec::codecForMib( 38 ); // eucKR
     int type = getPsFontType( f );
     psname = makePSFontName( f, type );
     QString best = "[ /" + psname + " 1.0 0.0 ]";
