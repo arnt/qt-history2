@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#21 $
 **
 ** Implementation of QScrollView class
 **
@@ -524,28 +524,39 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
     int cw=contentsWidth();
     int ch=contentsHeight();
 
-    if ( pw < xmargin*2 ) xmargin=pw/2;
-    if ( ph < ymargin*2 ) ymargin=ph/2;
+    if ( pw < xmargin*2 )
+	xmargin=pw/2;
+    if ( ph < ymargin*2 )
+	ymargin=ph/2;
 
-    if ( cw <= pw ) { xmargin=0; cx=0; }
-    if ( ch <= ph ) { ymargin=0; cy=0; }
-
-    if ( x < -cx+xmargin ) {
+    if ( cw <= pw ) {
+	xmargin=0;
+	cx=0;
+    }
+    if ( ch <= ph ) {
+	ymargin=0;
+	cy=0;
+    }
+    
+    if ( x < -cx+xmargin )
 	cx = -x+pw-xmargin;
-    } else if ( x >= -cx+pw-xmargin ) {
+    else if ( x >= -cx+pw-xmargin )
 	cx = -x+xmargin;
-    }
 
-    if ( y < -cy+ymargin ) {
+    if ( y < -cy+ymargin )
 	cy = -y+ph-ymargin;
-    } else if ( y >= -cy+ph-ymargin ) {
+    else if ( y >= -cy+ph-ymargin )
 	cy = -y+ymargin;
-    }
 
-    if ( cx > 0 ) cx=0;
-    else if ( cx < pw-cw && cw>pw ) cx=pw-cw;
-    if ( cy > 0 ) cy=0;
-    else if ( cy < ph-ch && ch>ph ) cy=ph-ch;
+    if ( cx > 0 )
+	cx=0;
+    else if ( cx < pw-cw && cw>pw )
+	cx=pw-cw;
+
+    if ( cy > 0 )
+	cy=0;
+    else if ( cy < ph-ch && ch>ph )
+	cy=ph-ch;
 
     // Choke signal handling while we update BOTH sliders.
     signal_choke=TRUE;
