@@ -2735,7 +2735,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     
     // return value
     VARIANT ret;
-    VARIANT *pret = slot.type() ? 0 : &ret;
+    VARIANT *pret = &ret;
     
     // call the method
     UINT argerr = 0;
