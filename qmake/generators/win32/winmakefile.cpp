@@ -228,11 +228,18 @@ void Win32MakefileGenerator::processVars()
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     if (!project->variables()["QMAKE_INCDIR"].isEmpty())
         project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
+    
     if (!project->variables()["VERSION"].isEmpty()) {
         QStringList l = project->first("VERSION").split('.');
         project->variables()["VER_MAJ"].append(l[0]);
         project->variables()["VER_MIN"].append(l[1]);
     }
+
+    // TARGET_VERSION_EXT will be used to add a version number onto the target name
+    if (project->variables()["TARGET_VERSION_EXT"].isEmpty()
+        && !project->variables()["VER_MAJ"].isEmpty()) 
+        project->variables()["TARGET_VERSION_EXT"].append(project->variables()["VER_MAJ"].first());
+    
     if(project->isEmpty("QMAKE_COPY_FILE"))
         project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
     if(project->isEmpty("QMAKE_COPY_DIR"))
@@ -263,7 +270,7 @@ void Win32MakefileGenerator::fixTargetExt()
 {
     if (project->isActiveConfig("dll")) {
         if (!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-            project->variables()["TARGET_EXT"].append(project->first("VERSION").replace(".", "") + ".dll");
+            project->variables()["TARGET_EXT"].append(project->first("TARGET_VERSION_EXT") + ".dll");
         } else {
             project->variables()["TARGET_EXT"].append(".dll");
         }

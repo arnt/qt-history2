@@ -90,7 +90,7 @@ BorlandMakefileGenerator::init()
         // bcc does not generate a .tds file for static libs
         QString tdsPostfix;
         if (!project->variables()["VERSION"].isEmpty())
-            tdsPostfix = project->first("VERSION").replace(".", "");
+            tdsPostfix = project->first("TARGET_VERSION_EXT");
         tdsPostfix += ".tds";
         project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + tdsPostfix);
     }

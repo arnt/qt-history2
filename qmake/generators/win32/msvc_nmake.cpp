@@ -161,7 +161,7 @@ void NmakeMakefileGenerator::init()
         project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
     }
 
-    QString version = project->first("VERSION").replace(".", "");
+    QString version = project->first("TARGET_VERSION_EXT");
     if(project->isActiveConfig("dll")) {
         project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
     }

@@ -892,7 +892,9 @@ MakefileGenerator::writePrlFile(QTextStream &t)
         t << "QMAKE_PRL_CXXFLAGS = " << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ") << endl;
     if(!project->isEmpty("CONFIG"))
         t << "QMAKE_PRL_CONFIG = " << project->variables()["CONFIG"].join(" ") << endl;
-    if(!project->isEmpty("VERSION"))
+    if(!project->isEmpty("TARGET_VERSION_EXT")) 
+        t << "QMAKE_PRL_VERSION = " << project->first("TARGET_VERSION_EXT") << endl;
+    else if(!project->isEmpty("VERSION")) 
         t << "QMAKE_PRL_VERSION = " << project->first("VERSION") << endl;
     if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
         QStringList libs;
