@@ -160,7 +160,7 @@ public:
 	// remove multiple lines with removeSelectedText()
     };
 
-    static int numSelections;
+    static const int numSelections;
 
     enum Bullet {
 	FilledCircle,
@@ -240,7 +240,7 @@ public:
     Bullet bullet( int depth ) const;
 
     bool find( const QString &expr, bool cs, bool wo, bool forward, int *parag, int *index, QTextEditCursor *cursor );
-    
+
 private:
     struct Selection {
 	QTextEditParag *startParag, *endParag;

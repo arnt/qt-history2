@@ -635,7 +635,7 @@ aussi:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int QTextEditDocument::numSelections = 4; // Don't count the Temp one!
+const int QTextEditDocument::numSelections = 4; // Don't count the Temp one!
 
 QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     : filename( fn )
@@ -1251,7 +1251,7 @@ QTextEditCursor *QTextEditDocument::redo( QTextEditCursor *c )
     return commandHistory->redo( c );
 }
 
-bool QTextEditDocument::find( const QString &expr, bool cs, bool wo, bool forward, 
+bool QTextEditDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 			      int *parag, int *index, QTextEditCursor *cursor )
 {
     // #### wo and forward is ignored at the moment
@@ -1285,7 +1285,7 @@ bool QTextEditDocument::find( const QString &expr, bool cs, bool wo, bool forwar
 	}
 	p = p->next();
     }
-    
+
     return FALSE;
 }
 
