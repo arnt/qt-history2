@@ -1,0 +1,23 @@
+# qt-with-extensions.qdoc
+
+include( qt.qdoc )
+
+project		= Qt with Extensions
+headerdirs	= $QUICK/src/extensions \
+		   extensions
+sourcedirs	= $QUICK/src/extensions \
+		   extensions
+headers		= $QTDIR/include/qwizard.h \
+		  $QTDIR/include/qwidget.h \
+		  $QTDIR/include/qstring.h \
+		  $QTDIR/include/qaccel.h \
+		  $QTDIR/include/qaction.h
+sources		= $QTDIR/src/dialogs/qwizard.cpp \
+		  $QTDIR/src/tools/qstring.cpp \
+		  $QTDIR/src/kernel/qaccel.cpp \
+		  $QTDIR/src/kernel/qwidget.cpp \
+		  $QTDIR/src/kernel/qwidget_x11.cpp \
+		  $QTDIR/src/widgets/qaction.cpp
+formats		= ""
+spurious	= ".*"
+outputdir	= output/qt-with-extensions
