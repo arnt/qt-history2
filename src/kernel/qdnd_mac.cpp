@@ -301,9 +301,12 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     QPixmap pix = o->pixmap();
     if(pix.isNull()) {
 	if(QTextDrag::canDecode(o)) {
-	    //draw the string
+	    //get the string
 	    QString s;
 	    QTextDrag::decode(o, s);
+	    if(s.length() > 13) 
+		s = s.left(13) + "...";
+	    //draw it
 	    QFont f(qApp->font());
 	    f.setPointSize(12);
 	    QFontMetrics fm(f);
@@ -312,7 +315,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 	    p.fillRect(0, 0, tmp.width(), tmp.height(), color0);
 	    p.setPen(color1);
 	    p.setFont(f);
-	    p.drawText(0, tmp.height(), s);
+	    p.drawText(0, fm.ascent(), s);
 	    //save it
 	    pix = tmp;
 	    hotspot = QPoint(tmp.width() / 2, tmp.height() / 2);
