@@ -112,7 +112,7 @@ bool QSqlSelectCursor::select( const QString&, const QSqlIndex& )
 /*! \internal */
 void QSqlSelectCursor::populateCursor()
 {
-    QSqlRecordInfo inf = driver()->recordInfo( *(QSqlQuery*)this );
+    QSqlRecordInfo inf = QSqlRecordInfo(record());
     for ( QSqlRecordInfo::const_iterator it = inf.begin(); it != inf.end(); ++it )
 	QSqlCursor::append( *it );
     d->populated = TRUE;
