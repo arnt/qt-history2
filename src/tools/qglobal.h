@@ -869,6 +869,15 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
+/* Install paths from configure */
+Q_EXPORT const char *qInstallPath();
+Q_EXPORT const char *qInstallPathDocs();
+Q_EXPORT const char *qInstallPathHeaders();
+Q_EXPORT const char *qInstallPathLibs();
+Q_EXPORT const char *qInstallPathBins();
+Q_EXPORT const char *qInstallPathPlugins();
+Q_EXPORT const char *qInstallPathData();;
+
 #endif // __cplusplus
 
 #endif // QGLOBAL_H

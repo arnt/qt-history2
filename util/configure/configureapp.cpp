@@ -887,15 +887,6 @@ void Configure::generateConfigfiles()
 	    }
 	}
 	outStream << endl;
-	outStream << "/* Install paths from configure */" << endl;
-	outStream << "const char *qInstallPath();" << endl;
-	outStream << "const char *qInstallPathDocs();" << endl;
-	outStream << "const char *qInstallPathHeaders();" << endl;
-	outStream << "const char *qInstallPathLibs();" << endl;
-	outStream << "const char *qInstallPathBins();" << endl;
-	outStream << "const char *qInstallPathPlugins();" << endl;
-	outStream << "const char *qInstallPathData();" << endl;
-	outStream << endl;
 	outStream << "/* License information */" << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
