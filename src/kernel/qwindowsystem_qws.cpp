@@ -46,7 +46,7 @@
 #include "qcursor.h"
 #include "qgfx_qws.h"
 #include "qwindowdefs.h"
-#include "qlock_qws.h"
+#include "qlock_p.h"
 #include "qwsregionmanager_qws.h"
 #include "qptrqueue.h"
 #include "qfile.h"

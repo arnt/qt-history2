@@ -22,9 +22,9 @@
 #if !defined( Q_WS_QWS ) || defined( QT_NO_QWS_MULTIPROCESS )
 #define QLock QWSSemaphore
 #undef QT_NO_QWS_MULTIPROCESS
-#include "../../src/kernel/qlock_qws.cpp"
+#include "../../src/kernel/qlock.cpp"
 #else
-#include "qws_lock.h"
+#include "qlock_p.h"
 #endif
 
 #include "qvfbview.h"

@@ -15,7 +15,7 @@ embedded {
 		    $$KERNEL_H/qfontmanager_qws.h \
 		    $$KERNEL_H/qgfx_qws.h \
 		    $$KERNEL_H/qgfxraster_qws.h \
-		    $$KERNEL_H/qlock_qws.h \
+		    $$KERNEL_H/qlock_p.h \
 		    $$KERNEL_H/qmemorymanager_qws.h \
 		    $$KERNEL_H/qwindowsystem_qws.h \
 		    $$KERNEL_H/qwsbeosdecoration_qws.h \
@@ -51,7 +51,7 @@ embedded {
 		    $$KERNEL_CPP/qfontmanager_qws.cpp \
 		    $$KERNEL_CPP/qgfx_qws.cpp \
 		    $$KERNEL_CPP/qgfxraster_qws.cpp \
-		    $$KERNEL_CPP/qlock_qws.cpp \
+		    $$KERNEL_CPP/qlock.cpp \
 		    $$KERNEL_CPP/qinputcontext_qws.cpp \
 		    $$KERNEL_CPP/qmemorymanager_qws.cpp \
 		    $$KERNEL_CPP/qpaintdevice_qws.cpp \

@@ -66,7 +66,7 @@
 #include "qgfx_qws.h"
 #include "qfontmanager_qws.h"
 #include "qcopchannel_qws.h"
-#include "qlock_qws.h"
+#include "qlock_p.h"
 #include "qmemorymanager_qws.h"
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"

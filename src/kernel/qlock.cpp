@@ -30,7 +30,7 @@
 **
 **********************************************************************/
 
-#include "qlock_qws.h"
+#include "qlock_p.h"
 #ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -76,7 +76,7 @@ public:
 #endif
 
 /*!
-    \class QLock qlock_qws.h
+    \class QLock qlock_p.h
     \brief The QLock class is a wrapper for a System V shared semaphore.
 
     \ingroup qws
