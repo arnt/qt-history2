@@ -1177,8 +1177,10 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 		filterlist << *it;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-	    filterlist +=  iface->fileFilterList();
-	    additionalSources += iface->fileExtensionList();
+	    if ( iface ) {
+		filterlist +=  iface->fileFilterList();
+		additionalSources += iface->fileExtensionList();
+	    }
 	    filterlist << tr( "All Files (*)" );
 	} else {
 	    filterlist << filter;
