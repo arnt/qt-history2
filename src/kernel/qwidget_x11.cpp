@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#195 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#194 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#195 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -30,6 +30,7 @@ void qt_leave_modal( QWidget * );		// --- "" ---
 bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
 void qt_close_popup( QWidget * );		// --- "" ---
+void qt_insert_sip( QWidget*, int, int );	// --- "" ---
 void qt_updated_rootinfo();
 
 
@@ -1424,6 +1425,7 @@ void QWidget::scroll( int dx, int dy )
 	h += dy;
     }
     XCopyArea( dpy, winid, winid, qt_xget_readonly_gc(), x1, y1, w, h, x2, y2);
+    qt_insert_sip( this, dx, dy );
     if ( children() ) {				// scroll children
 	QPoint pd( dx, dy );
 	QObjectListIt it(*children());

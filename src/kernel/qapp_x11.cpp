@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#239 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#238 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#239 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -109,7 +109,9 @@ static GC	app_gc_tmp	= 0;		// temporary GC
 static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 static QWidget *desktopWidget	= 0;		// root window widget
+Atom		q_wm_protocols;			// window manager protocols
 Atom		q_wm_delete_window;		// delete window protocol
+Atom		q_qt_scrolldone;		// scroll synchronization
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -159,6 +161,7 @@ public:
     bool translatePaintEvent( const XEvent * );
     bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
+    bool translateScrollDoneEvent( const XEvent * );
 };
 
 
@@ -341,7 +344,12 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
   // Support protocols
 
+    q_wm_protocols = XInternAtom( appDpy, "WM_PROTOCOLS", FALSE );
     q_wm_delete_window = XInternAtom( appDpy, "WM_DELETE_WINDOW", FALSE );
+
+  // Internal protocols
+
+    q_qt_scrolldone = XInternAtom( appDpy, "QT_SCROLL_DONE", TRUE );
 
   // Misc. initialization
 
@@ -530,7 +538,6 @@ bool qt_nograb()				// application no-grab option
     return FALSE;
 #endif
 }
-
 
 static GC create_gc( bool monochrome )
 {
@@ -1619,10 +1626,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 
 	case ClientMessage:			// client message
-	    if ( (event->xclient.format == 32) ) {
-		long *l = event->xclient.data.l;
-		if ( *l == (long)q_wm_delete_window )
-		    widget->translateCloseEvent(event);
+	    if ( event->xclient.format == 32 )
+	    {
+		if ( event->xclient.message_type == q_wm_protocols ) {
+		    long *l = event->xclient.data.l;
+		    if ( *l == (long)q_wm_delete_window )
+			widget->translateCloseEvent(event);
+		} else if ( event->xclient.message_type == q_qt_scrolldone ) {
+		    widget->translateScrollDoneEvent(event);
+		}
 	    }
 	    break;
 
@@ -2631,12 +2643,48 @@ static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
 }
 #endif
 
+struct QScrollInProgress {
+    static long serial;
+    QScrollInProgress( QWidget* w, int x, int y ) :
+	id( serial++ ), scrolled_widget( w ), dx( x ), dy( y )
+    {
+    }
+
+    long id;
+    QWidget* scrolled_widget;
+    int dx, dy;
+};
+
+long QScrollInProgress::serial=0;
+
+QList<QScrollInProgress> *sip_list = 0;
+
+void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
+{
+    if ( !sip_list ) {
+	sip_list = new QList<QScrollInProgress>;
+	sip_list->setAutoDelete( TRUE );
+    }
+
+    QScrollInProgress* sip = new QScrollInProgress( scrolled_widget, dx, dy );
+    sip_list->append( sip );
+
+    XClientMessageEvent client_message;
+    client_message.type = ClientMessage;
+    client_message.window = scrolled_widget->winId();
+    client_message.format = 32;
+    client_message.message_type = q_qt_scrolldone;
+    client_message.data.l[0] = sip->id;
+
+    XSendEvent( appDpy, scrolled_widget->winId(), FALSE, NoEventMask,
+	(XEvent*)&client_message );
+}
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
     QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
 		      event->xexpose.width, event->xexpose.height );
-    bool   clever = testWFlags(WPaintClever);
+    bool   merging_okay = !testWFlags(WPaintClever);
     XEvent xevent;
     PaintEventInfo info;
 
@@ -2646,16 +2694,38 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.check	= testWFlags(WType_TopLevel);
     info.config = 0;
 
-    while ( !clever ) {
-	if ( !XCheckIfEvent(dpy,&xevent,isPaintEvent,(XPointer)&info) )
-	    break;
-	if ( qApp->x11EventFilter(&xevent) )	// send event through filter
-	    break;
-	if ( !info.config ) {
-	    paintRect = paintRect.unite( QRect(xevent.xexpose.x,
-					       xevent.xexpose.y,
-					       xevent.xexpose.width,
-					       xevent.xexpose.height) );
+    if ( sip_list ) {
+	int dx=0, dy=0;
+	int sips=0;
+	for (QScrollInProgress* sip = sip_list->first();
+	    sip; sip=sip_list->next())
+	{
+	    if ( sip->scrolled_widget == this ) {
+		if ( sips ) {
+		    dx += sip->dx;
+		    dy += sip->dy;
+		}
+		sips++;
+	    }
+	}
+	if ( sips > 1 ) {
+	    paintRect.moveBy( dx, dy );
+	    // ##### TODO:  be really smart - rather than isPaintEvent below,
+	    // #####        also process applicable scroll-done messages.
+	    merging_okay = FALSE;
+	}
+    }
+
+    if ( merging_okay ) {
+	while ( XCheckIfEvent(dpy,&xevent,isPaintEvent,(XPointer)&info) 
+	    && qApp->x11EventFilter(&xevent) )	// send event through filter
+	{
+	    if ( !info.config ) {
+		paintRect = paintRect.unite( QRect(xevent.xexpose.x,
+						   xevent.xexpose.y,
+						   xevent.xexpose.width,
+						   xevent.xexpose.height) );
+	    }
 	}
     }
 
@@ -2676,6 +2746,27 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     QApplication::sendEvent( this, &e );
     clearWFlags( WState_PaintEvent );
     return TRUE;
+}
+
+//
+// Scroll-done event translation.
+//
+
+bool QETWidget::translateScrollDoneEvent( const XEvent *event )
+{
+    if ( !sip_list ) return FALSE;
+
+    long id = event->xclient.data.l[0];
+
+    // Remove any scroll-in-progress record for the given id.
+    for (QScrollInProgress* sip = sip_list->first(); sip; sip=sip_list->next()) {
+	if ( sip->id == id ) {
+	    sip_list->remove( sip_list->current() );
+	    return TRUE;
+	}
+    }
+
+    return FALSE;
 }
 
 
