@@ -26,7 +26,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-// BEING REVISED: paul
+// REVISED: paul
 /*!
   \class QBuffer qbuffer.h
   \brief The QBuffer class is an I/O device that operates on a QByteArray
