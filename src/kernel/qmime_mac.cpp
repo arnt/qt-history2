@@ -43,6 +43,12 @@
 
 static QList<QMacMime*> mimes;
 
+static void cleanup_mimes()
+{
+    while (!mimes.isEmpty())
+	delete mimes.takeFirst();
+}
+
 //functions
 QByteArray pstring2qstring(const unsigned char *); //qglobal.cpp
 unsigned char * p_str(const QString &s); //qglobal.cpp
@@ -346,7 +352,7 @@ int QMacMimeAnyMime::flavor(int index)
     int i = 0;
     for(QMap<QString, int>::Iterator it = mime_registry.begin(); it != mime_registry.end(); ++it, ++i) {
 	if(i == index)
-	    return it.data();
+	    return it.value();
     }
     return 0;
 }
@@ -360,7 +366,7 @@ const char* QMacMimeAnyMime::mimeFor(int flav)
 {
     loadMimeRegistry();
     for(QMap<QString, int>::Iterator it = mime_registry.begin(); it != mime_registry.end(); ++it) {
-	if(it.data() == flav)
+	if(it.value() == flav)
 	    return it.key();
     }
     return NULL;
@@ -777,8 +783,9 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* m
 */
 void QMacMime::initialize()
 {
+    mimes.ensure_constructed();
     if(mimes.isEmpty()) {
-	mimes.setAutoDelete(true);
+	qAddPostRoutine(cleanup_mimes);
 	new QMacMimeImage;
 	new QMacMimeText;
 	new QMacMimeFileUri;
@@ -800,7 +807,7 @@ QMacMime::convertor(QMacMimeType t, const char *mime, int flav)
 	return 0;
 
     for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
-	if(((*it)->type & t) && (*it)->canConvert(mime,flav)) 
+	if(((*it)->type & t) && (*it)->canConvert(mime,flav))
 	    return (*it);
     }
     return 0;

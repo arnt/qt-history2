@@ -36,11 +36,11 @@ void qt_event_request_sockact(QGuiEventLoop *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_flush_updates(); //qapplication_mac.cpp
 void qt_event_request_wakeup(); //qapplication_mac.cpp
-bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =NULL); //qapplication_mac.cpp
+bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
 
-static EventLoopTimerUPP timerUPP = NULL;       //UPP
-static EventLoopTimerUPP mac_select_timerUPP = NULL;
+static EventLoopTimerUPP timerUPP = 0;       //UPP
+static EventLoopTimerUPP mac_select_timerUPP = 0;
 
 /*****************************************************************************
   Timers stuff
@@ -61,41 +61,37 @@ QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
     }
     if(tmr->pending)
 	return;
-    tmr->pending = TRUE;
+    tmr->pending = true;
     qt_event_request_timer(tmr);
 }
 
 int QGuiEventLoop::registerTimer(int interval, QObject *obj)
 {
-    if(!d->macTimerList) {
+    if (!d->macTimerList)
 	d->macTimerList = new MacTimerList;
-	d->macTimerList->setAutoDelete(TRUE);
-    }
 
-    static int serial_id = 666;
-    MacTimerInfo *t = new MacTimerInfo;
-    t->obj = obj;
-    t->mac_timer = NULL;
-    t->interval = interval;
-    t->pending = TRUE;
-    t->id = serial_id++;
-    if(interval) {
-	if(!timerUPP)
+    static int serial_id = 0;
+    MacTimerInfo t;
+    t.obj = obj;
+    t.mac_timer = 0;
+    t.interval = interval;
+    t.pending = false;
+    t.id = serial_id++;
+    if (interval) {
+	if (!timerUPP)
 	    timerUPP = NewEventLoopTimerUPP(qt_activate_mac_timer);
 	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
-	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
-				 timerUPP, t, &t->mac_timer)) {
-	    delete t;
+	d->macTimerList->append(t); //carbon timers go at the end..
+	if (InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
+				 timerUPP, &(d->macTimerList->last()), &(t.mac_timer))) {
 	    qFatal("This cannot really happen, can it!?!");
 	    return 0; //exceptional error
 	}
-	d->macTimerList->append(t); //carbon timers go at the end..
     } else {
 	d->zero_timer_count++;
-	d->macTimerList->insert(0, t); //zero timers come first
+	d->macTimerList->prepend(t); //zero timers come first
     }
-    t->pending = FALSE;
-    return t->id;
+    return t.id;
 }
 
 QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *data)
@@ -106,39 +102,40 @@ QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *data)
 bool QGuiEventLoop::unregisterTimer(int id)
 {
     if(!d->macTimerList || id <= 0)
-	return FALSE;				// not init'd or invalid timer
-    for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
-	MacTimerInfo *t = (*it);
-	if(t->id == id) {
-	    if(t->mac_timer) {
-		RemoveEventLoopTimer(t->mac_timer);
-		if(t->pending) {
+	return false;				// not init'd or invalid timer
+    for (int i = 0; i < d->macTimerList->size(); ++i) {
+	const MacTimerInfo &t = d->macTimerList->at(i);
+	if (t.id == id) {
+	    if (t.mac_timer) {
+		RemoveEventLoopTimer(t.mac_timer);
+		if (t.pending) {
 		    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
-		    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)t);
+		    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)&t);
 		    DisposeEventComparatorUPP(fnc);
 		}
 	    } else {
 		d->zero_timer_count--;
 	    }
-	    return d->macTimerList->remove(t);
+	    d->macTimerList->removeAt(i);
+	    return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 bool QGuiEventLoop::unregisterTimers(QObject *obj)
 {
     if(!d->macTimerList)				// not initialized
-	return FALSE;
+	return false;
     MacTimerList removes;
-    for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) { // check all timers
-	MacTimerInfo *t = (*it);
-	if(t->obj == obj) {			// object found
-	    if(t->mac_timer) {
-		RemoveEventLoopTimer(t->mac_timer);
-		if(t->pending) {
+    for (MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
+	const MacTimerInfo &t = *it;
+	if (t.obj == obj) {
+	    if (t.mac_timer) {
+		RemoveEventLoopTimer(t.mac_timer);
+		if (t.pending) {
 		    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
-		    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)t);
+		    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)&t);
 		    DisposeEventComparatorUPP(fnc);
 		}
 	    } else {
@@ -147,9 +144,14 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 	    removes += (*it);
 	}
     }
-    for(MacTimerList::Iterator it = removes.begin(); it != removes.end(); ++it) // do removes
-	d->macTimerList->remove((*it));
-    return TRUE;
+    for (MacTimerList::Iterator it = removes.begin(); it != removes.end(); ++it) {
+	for (int i = 0; i < d->macTimerList->size(); ++i) {
+	    const MacTimerInfo &info = d->macTimerList->at(i);
+	    if (info.id == (*it).id)
+		d->macTimerList->removeAt(i);
+	}
+    }
+    return true;
 }
 
 
@@ -159,9 +161,9 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 
 void QGuiEventLoop::init()
 {
-    d->macSockets = NULL;
-    d->macTimerList = NULL;
-    d->select_timer = NULL;
+    d->macSockets = 0;
+    d->macTimerList = 0;
+    d->select_timer = 0;
     d->zero_timer_count = 0;
 }
 
@@ -170,31 +172,31 @@ void QGuiEventLoop::cleanup()
     //timer cleanup
     d->zero_timer_count = 0;
     if(d->macTimerList) {
-	for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
-	    MacTimerInfo *t = (*it);
-	    if(t->mac_timer) {
-		RemoveEventLoopTimer(t->mac_timer);
-		if(t->pending) {
+	for (MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
+	    const MacTimerInfo &t = *it;
+	    if (t.mac_timer) {
+		RemoveEventLoopTimer(t.mac_timer);
+		if (t.pending) {
 		    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
-		    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)t);
+		    FlushSpecificEventsFromQueue(GetMainEventQueue(), fnc, (void *)&t);
 		    DisposeEventComparatorUPP(fnc);
 		}
 	    }
 	}
 	delete d->macTimerList;
-	d->macTimerList = NULL;
+	d->macTimerList = 0;
     }
     if(timerUPP) {
 	DisposeEventLoopTimerUPP(timerUPP);
-	timerUPP = NULL;
+	timerUPP = 0;
     }
     //select cleanup
     if(d->select_timer) {
 	RemoveEventLoopTimer(d->select_timer);
-	d->select_timer = NULL;
+	d->select_timer = 0;
     }
     DisposeEventLoopTimerUPP(mac_select_timerUPP);
-    mac_select_timerUPP = NULL;
+    mac_select_timerUPP = 0;
     if(d->macSockets) {
 	for(QHash<QSocketNotifier *, MacSocketInfo *>::Iterator it = d->macSockets->begin();
 	    it != d->macSockets->end(); ++it) {
@@ -210,7 +212,7 @@ void QGuiEventLoop::cleanup()
 	    delete it.value();
 	}
 	delete d->macSockets;
-	d->macSockets = NULL;
+	d->macSockets = 0;
     }
 }
 
@@ -265,10 +267,10 @@ void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 {
     QEventLoop::registerSocketNotifier(notifier);
 
-    MacSocketInfo *mac_notifier = NULL;
+    MacSocketInfo *mac_notifier = 0;
     if(notifier->type() == QSocketNotifier::Read) {
 	mac_notifier = new MacSocketInfo;
-	CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), &mac_notifier->read_not, NULL);
+	CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), &mac_notifier->read_not, 0);
 	CFStreamClientContext ctx;
 	memset(&ctx, '\0', sizeof(ctx));
 	ctx.info = this;
@@ -277,7 +279,7 @@ void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 	CFReadStreamOpen(mac_notifier->read_not);
     } else if(notifier->type() == QSocketNotifier::Write) {
 	mac_notifier = new MacSocketInfo;
-	CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), NULL, &mac_notifier->write_not);
+	CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), 0, &mac_notifier->write_not);
 	CFStreamClientContext ctx;
 	memset(&ctx, '\0', sizeof(ctx));
 	ctx.info = this;
@@ -318,7 +320,7 @@ void QGuiEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     }
     if(d->sn_highest == -1 && d->select_timer) {
 	RemoveEventLoopTimer(d->select_timer);
-	d->select_timer = NULL;
+	d->select_timer = 0;
     }
 }
 
@@ -334,13 +336,13 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     //TrackDrag says you may not use the EventManager things..
     if(qt_mac_in_drag) {
 	qWarning("Qt: Cannot process events whilst dragging!");
-	return FALSE;
+	return false;
     }
 #endif
     int	   nevents = 0;
 
     if(!qt_mac_safe_pdev) { //create an empty widget and this can be used for a port anytime
-	QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
+	QWidget *tlw = new QWidget(0, "empty_widget", Qt::WDestructiveClose);
 	tlw->hide();
 	qt_mac_safe_pdev = tlw;
     }
@@ -351,7 +353,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     EventRef event;
     do {
 	do {
-	    if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, TRUE, &event) != noErr)
+	    if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, true, &event) != noErr)
 		break;
 	    if(qt_mac_send_event(flags, event))
 		nevents++;
@@ -360,10 +362,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 	QApplication::sendPostedEvents();
     } while(GetNumEventsInQueue(GetMainEventQueue()));
     if(d->quitnow || d->exitloop)
-	return FALSE;
+	return false;
 
     QApplication::sendPostedEvents();
-    bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
+    bool canWait = d->exitloop || d->quitnow ? false : (flags & WaitForMore);
 
     if(canWait && !d->zero_timer_count) {
 	emit aboutToBlock();
@@ -385,11 +387,11 @@ int QGuiEventLoop::activateTimers()
 	return 0;
     int ret = 0;
     for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
-	MacTimerInfo *t = (*it);
-	if(!t->interval) {
+	const MacTimerInfo &t = *it;
+	if(!t.interval) {
 	    ret++;
-	    QTimerEvent e(t->id);
-	    QApplication::sendEvent(t->obj, &e);	// send event
+	    QTimerEvent e(t.id);
+	    QApplication::sendEvent(t.obj, &e);
 	}
     }
     return ret;
@@ -434,7 +436,7 @@ protected:
 	    QApplication::flush();
     }
 };
-QMacBlockingFunction::Object *QMacBlockingFunction::block = NULL;
+QMacBlockingFunction::Object *QMacBlockingFunction::block = 0;
 QMacBlockingFunction::QMacBlockingFunction()
 {
     if(!block)

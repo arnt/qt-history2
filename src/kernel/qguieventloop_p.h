@@ -45,14 +45,14 @@ struct MacTimerInfo {
     bool pending;
     EventLoopTimerRef mac_timer;
 };
-typedef QList<MacTimerInfo*> MacTimerList;	// list of TimerInfo structs
+typedef QList<MacTimerInfo> MacTimerList;	// list of TimerInfo structs
 
 struct MacSocketInfo {
     union {
 	CFReadStreamRef read_not;
 	CFWriteStreamRef write_not;
     };
-};    
+};
 
 #endif
 
