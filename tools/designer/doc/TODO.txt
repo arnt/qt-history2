@@ -80,3 +80,19 @@ Implement length property for spacers which is used for fixed, preferred, etc. T
 only change if the spacer is resized by the use, not when resized by the layout
 
 Possibility to add signals to a form (Reggie)
+
+QMsDev
+   "c. (Request).  It would be nice to have a toolbutton that runs UIC  in
+    the -subimpl, -subdecl modes, to generate  .H and .CPP files for
+    a UI subclass.
+    * Please prompt (file dialog) for the .UI file to use (like the
+      current UIC toolbutton).
+    * Please prompt for the subclass name (so that developers can use
+      the [MyForm, MyFormImpl] convention or the [MyFormBase, MyForm]
+      convention (or something else) for the parent and child classes.
+
+      {Note: I started off using [MyForm,MyFormImpl], but then found
+      I had to #include MyFormImpl.h in client DLLs -- this seems
+      suboptimal (exposes implementation detail, which changes if I revise
+      a class to use UIC), so I just changed to use [MyFormBase,MyForm]
+      in all my .UI forms." (support/arc-07/15878)
