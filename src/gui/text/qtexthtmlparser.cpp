@@ -576,39 +576,6 @@ int QTextHtmlParser::bottomMargin(int i) const
     return m;
 }
 
-int QTextHtmlParser::findChild(int i, const char *tag) const
-{
-    int parent = i;
-    int grandParent = at(i).parent;
-    ++i;
-    for (; i < count(); ++i)
-        if (at(i).parent == parent) {
-            if (at(i).tag == QLatin1String(tag))
-                return i;
-            continue;
-        } else if (i == grandParent)
-            return -1;
-
-    return -1;
-}
-
-int QTextHtmlParser::findNextChild(int parent, int currentChild) const
-{
-    QString tag = at(currentChild).tag;
-    int grandParent = at(parent).parent;
-
-    int i = currentChild + 1;
-    for (; i < count(); ++i)
-        if (at(i).parent == parent) {
-            if (at(i).tag == tag)
-                return i;
-            continue;
-        } else if (i == grandParent)
-            return -1;
-
-    return -1;
-}
-
 void QTextHtmlParser::eatSpace()
 {
     while (pos < len && txt.at(pos).isSpace() && txt.at(pos) != QChar::ParagraphSeparator)

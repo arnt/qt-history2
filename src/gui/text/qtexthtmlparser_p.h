@@ -195,8 +195,6 @@ public:
     inline int leftMargin(int i) const { return margin(i, MarginLeft); }
     inline int rightMargin(int i) const { return margin(i, MarginRight); }
     inline int firstLineMargin(int i) const { return margin(i, MarginFirstLine); }
-    int findChild(int i, const char *tag) const;
-    int findNextChild(int parent, int currentChild) const;
 
     void dumpHtml();
 
