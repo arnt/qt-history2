@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#321 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#322 $
 **
 ** Implementation of QListView widget class
 **
@@ -1059,7 +1059,7 @@ void QListViewItem::setText( int column, const QString &text )
  	if ( parent() )
 	    parent()->lsc = Unsorted;
 	else
-	    ; //########### reggie fix this; lsc is private listView()->d->r->lsc = Unsorted;
+	    listView()->d->r->lsc = Unsorted;
 	listView()->triggerUpdate();
     } else if ( oldW != listView()->columnWidth( column ) )
 	listView()->triggerUpdate();
