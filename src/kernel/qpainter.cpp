@@ -913,8 +913,7 @@ void QPainter::setPen( PenStyle style )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
     QPen::QPenData *d = cpen.d;
-    QRgb blackrgb = Qt::black.rgb();
-    if ( d->style == style && d->linest == style && !d->width && d->rgb == blackrgb )
+    if ( d->style == style && d->linest == style && !d->width && d->color == black )
 	return;
     if ( d->ref != 1 ) {
 	cpen.detach_helper();
@@ -922,7 +921,7 @@ void QPainter::setPen( PenStyle style )
     }
     d->style = style;
     d->width = 0;
-    d->rgb = blackrgb;
+    d->color = black;
     d->linest = style;
     updatePen();
 }
@@ -941,8 +940,7 @@ void QPainter::setPen( const QColor &color )
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
     QPen::QPenData *d = cpen.d;
-    QRgb rgb = color.rgb();
-    if ( d->rgb == rgb && !d->width && d->style == SolidLine && d->linest == SolidLine )
+    if ( d->color == color && !d->width && d->style == SolidLine && d->linest == SolidLine )
 	return;
     if ( d->ref != 1 ) {
 	cpen.detach_helper();
@@ -950,7 +948,7 @@ void QPainter::setPen( const QColor &color )
     }
     d->style = SolidLine;
     d->width = 0;
-    d->rgb = rgb;
+    d->color = color;
     d->linest = SolidLine;
     updatePen();
 }
@@ -3129,9 +3127,6 @@ QRect QPainter::boundingRect( const QRect &r, int flags,
     \sa QPainter, QPainter::setPen()
 */
 
-QPen::QPenData QPen::shared_default = { Q_ATOMIC_INIT(1),
-					(PenStyle)(SolidLine & MPenStyle), 0, 0, SolidLine };
-
 /*!
   \internal
   Initializes the pen.
@@ -3143,7 +3138,7 @@ void QPen::init(const QColor &color, int width, uint linestyle)
     d->ref = 1;
     d->style = (PenStyle)(linestyle & MPenStyle);
     d->width = width;
-    d->rgb = color.rgb();
+    d->color = color;
     d->linest = linestyle;
 }
 
@@ -3153,9 +3148,8 @@ void QPen::init(const QColor &color, int width, uint linestyle)
 */
 
 QPen::QPen()
-    : d(&shared_default)
 {
-    ++d->ref;
+    init(black, 0, SolidLine);
 }
 
 /*!
@@ -3238,7 +3232,7 @@ void QPen::detach_helper()
     x->ref = 1;
     x->style = d->style;
     x->width = d->width;
-    x->rgb = d->rgb;
+    x->color = d->color;
     x->linest = d->linest;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
@@ -3405,7 +3399,7 @@ void QPen::setJoinStyle(PenJoinStyle j)
 void QPen::setColor(const QColor &c)
 {
     detach();
-    d->rgb = c.rgb();
+    d->color = c;
 }
 
 
@@ -3431,7 +3425,8 @@ void QPen::setColor(const QColor &c)
 
 bool QPen::operator==(const QPen &p) const
 {
-    return (p.d == d) || (p.d->linest == d->linest && p.d->width == d->width && p.d->rgb == d->rgb);
+    return (p.d == d) || (p.d->linest == d->linest && p.d->width == d->width
+			  && p.d->color == d->color);
 }
 
 

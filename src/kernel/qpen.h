@@ -35,7 +35,7 @@ public:
     void setStyle( PenStyle );
     inline int width() const { return d->width; }
     void setWidth(int width);
-    inline QColor color() const { return QColor(d->rgb); }
+    inline QColor color() const { return d->color; }
     void setColor(const QColor &color);
     PenCapStyle	capStyle() const;
     void setCapStyle(PenCapStyle pcs);
@@ -54,11 +54,10 @@ private:
 	QAtomic ref;
 	PenStyle style;
 	int width;
-	QRgb rgb;
+	QColor color;
 	Q_UINT16 linest;
     };
     struct QPenData *d;
-    static QPenData shared_default;
 };
 
 
