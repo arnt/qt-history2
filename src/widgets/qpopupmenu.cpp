@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#131 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#131 $");
 
 
 // Motif style parameters
@@ -1398,7 +1398,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Left:
 	if ( parentMenu && parentMenu->isPopupMenu ) {
 	    ((QPopupMenu *)parentMenu)->hidePopups();
-	    popupSubMenuLater( 20, this );
+	    if ( singleSingleShot )
+		singleSingleShot->stop();
 	} else {
 	    ok_key = FALSE;
 	}
@@ -1407,8 +1408,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Right:
 	if ( actItem >= 0 && (popup=mitems->at( actItem )->popup()) ) {
 	    hidePopups();
-	    popupSubMenuLater( 20, this );
+	    if ( singleSingleShot )
+		singleSingleShot->stop();
 	    popup->setFirstItemActive();
+	    subMenuTimer();
 	} else {
 	    ok_key = FALSE;
 	}
