@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#32 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#33 $
 **
 ** Definition of QCursor class
 **
@@ -53,7 +53,11 @@ public:
     const QBitmap *mask()   const;
     QPoint	  hotSpot() const;
 
+#if defined(_WS_WIN_)
     HCURSOR	  handle()  const;
+#elif defined(_WS_X11_)
+    HANDLE	  handle()  const;
+#endif
 
     static QPoint pos();
     static void	  setPos( int x, int y );
