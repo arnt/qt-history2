@@ -21,6 +21,7 @@
 
 #ifndef QT_NO_QWS_CURSOR
 static QWSCursor *systemCursorTable[16];
+static bool systemCursorTableInit = false;
 
 // 16 x 16
 static const uchar cur_arrow_bits[] = {
@@ -266,9 +267,6 @@ void QWSServer::initializeCursor()
 #ifndef QT_NO_QWS_CURSOR
 //    qt_screen->initCursor(sharedram + ramlen,TRUE);
 
-    for ( int i = 0; i <= LastCursor; i++ )
-	systemCursorTable[i] = 0;
-
     // default cursor
     cursor = 0;
     setCursor(QWSCursor::systemCursor(ArrowCursor));
@@ -295,9 +293,26 @@ void QWSServer::setCursor(QWSCursor *curs)
 #endif
 }
 
+#ifndef QT_NO_QWS_CURSOR
+static void cleanupSystemCursorTable()
+{
+    for ( int i = 0; i <= LastCursor; i++ )
+	if ( systemCursorTable[i] ) {
+	    delete systemCursorTable[i];
+	    systemCursorTable[i] = 0;
+	}
+}
+#endif
+
 void QWSCursor::createSystemCursor( int id )
 {
 #ifndef QT_NO_QWS_CURSOR
+    if ( !systemCursorTableInit ) {
+	for ( int i = 0; i <= LastCursor; i++ )
+	    systemCursorTable[i] = 0;
+	qAddPostRoutine( cleanupSystemCursorTable );
+	systemCursorTableInit = true;
+    }
     switch ( id ) {
 	// 16x16 cursors
 	case ArrowCursor:
