@@ -1905,7 +1905,7 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE ] && rm -f $CACHEFILE
 cat >>$CACHEFILE <<EOF
-CONFIG += $QMAKE_CONFIG dylib
+CONFIG += $QMAKE_CONFIG dylib create_prl link_prl
 QMAKESPEC = $XPLATFORM
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
