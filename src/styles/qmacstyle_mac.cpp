@@ -1188,7 +1188,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(menuarea, p),
+	    DrawThemeButton(qt_glb_mac_rect(menuarea, p, FALSE),
 			    kThemeBevelButton, &info, NULL, NULL, NULL, 0);
 	    QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
 	    DrawThemePopupArrow(qt_glb_mac_rect(r, p),
