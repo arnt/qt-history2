@@ -5,6 +5,7 @@ SUBDIRS       = analogclock \
                 digitalclock \
                 groupbox \
                 lineedits \
+                scribble \
                 sliders \
                 spinboxes \
 		styles \

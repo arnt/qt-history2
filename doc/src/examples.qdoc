@@ -29,6 +29,7 @@
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
+    \o \l{widgets/scribble}{Scribble}
     \o \l{widgets/sliders}{Sliders}
     \o \l{widgets/spinboxes}{Spin Boxes}
     \o \l{widgets/styles}{Styles}\raisedaster
