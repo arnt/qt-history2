@@ -397,7 +397,7 @@ void QLabel::setNum( double num )
     ShowPrefix flags apply only if the label contains plain text;
     otherwise they are ignored. The \c DontClip flag is always
     ignored. \c WordBreak applies to both rich text and plain text
-    labels.
+    labels. The \c BreakAnywhere flag is not supported in QLabel.
 
     If the label has a buddy, the \c ShowPrefix flag is forced to
     TRUE.
