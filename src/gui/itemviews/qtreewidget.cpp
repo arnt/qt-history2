@@ -908,6 +908,7 @@ public:
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
+private:
     bool sortingEnabled;
 };
 
@@ -1026,7 +1027,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 QTreeWidget::QTreeWidget(QWidget *parent)
-    : QTreeView(*new QTreeViewPrivate(), parent)
+    : QTreeView(*new QTreeWidgetPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
     connect(this, SIGNAL(pressed(const QModelIndex&, int)),
@@ -1306,7 +1307,7 @@ void QTreeWidget::closeItem(const QTreeWidgetItem *item)
 
 void QTreeWidget::sortItems(int column)
 {
-    if (isSortingEnabled()) {
+    if (d->sortingEnabled) {
         Qt::SortOrder order = header()->sortIndicatorOrder();
         int section = header()->sortIndicatorSection();
         order = (order == Qt::AscendingOrder && column == section
