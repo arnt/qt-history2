@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -48,6 +48,7 @@
 #include <shlobj.h>
 #include <initguid.h>
 #include <ctype.h>
+#include <limits.h>
 
 #ifndef Q_OS_TEMP
 

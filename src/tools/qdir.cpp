@@ -5,7 +5,7 @@
 **
 ** Created : 950427
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -44,6 +44,7 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 #include "qdeepcopy.h"
+#include <limits.h>
 
 #if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
 const bool CaseSensitiveFS = FALSE;
