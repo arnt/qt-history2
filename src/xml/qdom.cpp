@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#32 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#33 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -2672,7 +2672,7 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
     s << "<!DOCTYPE " << name << " ";
 
     if ( entities->length() > 0 || notations->length() > 0 ) {
-	s << "[ ";
+	s << "[ " << endl;
 
 	QDictIterator<QDomNodePrivate> it2( notations->map );
 	for ( ; it2.current(); ++it2 )
@@ -2685,7 +2685,7 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 	s << " ]";
     }
 
-    s << ">";
+    s << ">" << endl;
 }
 
 /**************************************************************
@@ -4396,14 +4396,14 @@ QDomNodePrivate* QDomNotationPrivate::cloneNode( bool deep)
 void QDomNotationPrivate::save( QTextStream& s, int ) const
 {
     s << "<!NOTATION " << name << " ";
-    if ( !m_pub.isEmpty() )  {
+    if ( !m_pub.isNull() )  {
 	s << "PUBLIC \"" << m_pub << "\"";
-	if ( !m_sys.isEmpty() )
+	if ( !m_sys.isNull() )
 	    s << " \"" << m_sys << "\"";
     }  else {
 	s << "SYSTEM \"" << m_sys << "\"";
     }
-    s << ">";
+    s << ">" << endl;
 }
 
 /**************************************************************
@@ -4595,7 +4595,7 @@ static QCString encodeEntity( const QCString& str )
 void QDomEntityPrivate::save( QTextStream& s, int ) const
 {
     if ( m_sys.isNull() && m_pub.isNull() ) {
-	s << "<!ENTITY " << name << " \"" << encodeEntity( value.utf8() ) << "\">";
+	s << "<!ENTITY " << name << " \"" << encodeEntity( value.utf8() ) << "\">" << endl;
     } else {
 	s << "<!ENTITY " << name << " ";
 	if ( m_pub.isNull() ) {
@@ -4606,7 +4606,7 @@ void QDomEntityPrivate::save( QTextStream& s, int ) const
 	if (! m_notationName.isNull() ) {
 	    s << " NDATA " << m_notationName;
 	}
-	s << ">";
+	s << ">" << endl;
     }
 }
 
@@ -4908,7 +4908,7 @@ QDomNodePrivate* QDomProcessingInstructionPrivate::cloneNode( bool deep)
 
 void QDomProcessingInstructionPrivate::save( QTextStream& s, int ) const
 {
-    s << "<?" << name << " " << value << "?>";
+    s << "<?" << name << " " << value << "?>" << endl;
 }
 
 /**************************************************************
@@ -5230,6 +5230,8 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
 	} else {
 	    s.setCodec( QTextCodec::codecForName( enc ) );
 	}
+    } else {
+	s.setEncoding( QTextStream::UnicodeUTF8 );
     }
     while ( n ) {
 	if ( !doc && !(n->isProcessingInstruction()&&n->nodeName()=="xml") ) {
