@@ -720,7 +720,10 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    paramType = convertTypes( type, &ok );
 		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
-		    paramType = convertTypes( uenum->name, &ok );
+		    if ( uenum )
+			paramType = convertTypes( uenum->name, &ok );
+		    else
+			ok = FALSE;
 		} else {
 		    paramType = convertTypes( param->type->desc(), &ok );
 		}
@@ -819,7 +822,10 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		    paramType = convertTypes( type, &ok );
 		} else if ( QUType::isEqual( param->type, &static_QUType_enum ) ) {
 		    const QUEnum *uenum = (const QUEnum*)param->typeExtra;
-		    paramType = convertTypes( uenum->name, &ok );
+		    if ( uenum )
+			paramType = convertTypes( uenum->name, &ok );
+		    else
+			ok = FALSE;
 		} else {
 		    paramType = convertTypes( param->type->desc(), &ok );
 		}
