@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#27 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#27 $";
 #endif
 
 
@@ -59,9 +59,9 @@ static const motifPopupFrame	= 2;		// popup frame width
 static const motifItemFrame	= 2;		// menu item frame width
 static const motifSepHeight	= 2;		// separator item height
 static const motifItemHMargin	= 3;		// menu item hor text margin
-static const motifItemVMargin	= 8;		// menu item ver text margin
+static const motifItemVMargin	= 2;		// menu item ver text margin
 static const motifArrowHMargin	= 6;		// arrow horizontal margin
-static const motifArrowVMargin	= 4;		// arrow horizontal margin
+static const motifArrowVMargin	= 2;		// arrow horizontal margin
 static const motifTabSpacing	= 12;		// space between text and tab
 
 static char sizePopupFrame[] =
@@ -309,7 +309,7 @@ void QPopupMenu::updateSize()			// update popup size params
     QMenuItemListIt it( *mitems );
     register QMenuItem *mi;
     bool hasSubMenu = FALSE;
-    int cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
+    int cellh = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     int tab_width = 0;
     while ( (mi=it.current()) ) {
 	int w = 0;
@@ -569,7 +569,7 @@ int QPopupMenu::cellHeight( long row )
 	h = mi->pixmap()->height() + 2*motifItemFrame;
     else {					// text height
         QFontMetrics fm = fontMetrics();
-	h = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
+	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     }
     return h;
 }
