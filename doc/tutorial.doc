@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.9 1995/12/28 15:24:18 hanord Exp $
+** $Id: tutorial.doc,v 1.10 1996/01/02 13:47:08 hanord Exp $
 **
 ** Tutorial
 **
@@ -32,8 +32,8 @@ Tutorial chapters:
 <li>\link t2.html Calling it Quits\endlink
 <li>\link t3.html Family Values\endlink
 <li>\link t4.html Let There Be Widgets\endlink
-<li>\link t5.html Lego\endlink
-<li>\link t6.html Lego Galore!\endlink
+<li>\link t5.html Building Blocks\endlink
+<li>\link t6.html Building Blocks Galore!\endlink
 <li>\link t7.html One Thing Leads to Another\endlink
 <li>\link t8.html Preparing for Battle\endlink
 <li>\link t9.html With Cannon You Can\endlink
@@ -162,6 +162,9 @@ running the program with the -geometry option (e.g. -geometry
 
 You may now go on to \link t2.html chapter two. \endlink
 
+[\link t2.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
+
 */
 
 
@@ -247,6 +250,10 @@ Hint: The QPushButton inherits most of its behavior from QButton.
 
 You may now go on to \link t3.html chapter three. \endlink
 
+[\link t1.html Previous tutorial\endlink]
+[\link t3.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
+
 */
 
 
@@ -328,6 +335,10 @@ after \link QApplication::setMainWidget() a.setMainWidget()\endlink.
 Does -geometry still work?
 
 You may now go on to \link t4.html chapter four. \endlink
+
+[\link t2.html Previous tutorial\endlink]
+[\link t4.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -436,6 +447,10 @@ changed.
 Try creating two or more MyWidgets in main.
 
 You may now go on to \link t5.html chapter five. \endlink
+
+[\link t3.html Previous tutorial\endlink]
+[\link t5.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -587,6 +602,10 @@ Try to make the application quit when the LCD number overflows.
 
 You may now go on to \link t6.html chapter six. \endlink
 
+[\link t4.html Previous tutorial\endlink]
+[\link t6.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
+
 */
 
 
@@ -679,6 +698,10 @@ Change MyWidget so each LCDRange is guaranteed to be square.
 Initialize each scroll bar with a different/random value on startup.
 
 You may now go on to \link t7.html chapter seven. \endlink
+
+[\link t5.html Previous tutorial\endlink]
+[\link t7.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -871,6 +894,10 @@ LCDs back to 30. Click on the left arrow on the bottom right scroll bar.
 What happens? Why is this the correct behavior?
 
 You may now go on to \link t8.html chapter eight. \endlink
+
+[\link t6.html Previous tutorial\endlink]
+[\link t8.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -1143,6 +1170,10 @@ of the CannonField.
 
 You may now go on to \link t9.html chapter nine. \endlink
 
+[\link t7.html Previous tutorial\endlink]
+[\link t9.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
+
 */
 
 
@@ -1315,6 +1346,10 @@ slow machine.  We'll fix this in the next chapter.
 Set a background pixmap for the CannonField widget.
 
 You may now go on to \link t10.html chapter ten. \endlink
+
+[\link t8.html Previous tutorial\endlink]
+[\link t10.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -1560,6 +1595,10 @@ Make the size of the cannon barrel be dependent on the force.
 Put the cannon in the bottom right corner.
 
 You may now go on to \link t11.html chapter eleven. \endlink
+
+[\link t9.html Previous tutorial\endlink]
+[\link t11.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -1821,6 +1860,10 @@ QPainter::drawEllipse()\endlink ).
 Change the color of the cannon when a shot is in the air.
 
 You may now go on to \link t12.html chapter twelve. \endlink
+
+[\link t10.html Previous tutorial\endlink]
+[\link t12.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -2183,6 +2226,10 @@ Hint: make a Shot object.
 
 You may now go on to \link t13.html chapter thirteen. \endlink
 
+[\link t11.html Previous tutorial\endlink]
+[\link t13.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
+
 */
 
 
@@ -2479,6 +2526,10 @@ Make some splatter effects when the shot hits the target.
 Implement multiple targets.
 
 You may now go on to \link t14.html chapter fourteen. \endlink
+
+[\link t12.html Previous tutorial\endlink]
+[\link t14.html Next tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
 
@@ -2808,5 +2859,9 @@ the CannonField.
 Make a space invaders game and contribute it to the net.
 
 You may now go on to write your own Qt applications.
+
+[\link t13.html Previous tutorial\endlink]
+[\link t1.html First tutorial\endlink]
+[\link tutorial.html Main tutorial page\endlink]
 
 */
