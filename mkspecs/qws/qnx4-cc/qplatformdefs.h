@@ -18,7 +18,7 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
-//#include <sys/ipc.h>
+#include <sys/select.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -31,8 +31,10 @@
 // <arpa/nameser.h> must be included before <resolv.h>.
 #include <netinet/in.h>
 #include <arpa/nameser.h>
-#define class cclass
+#define class c_class
+extern "C" {
 #include <resolv.h>
+}
 #undef class
 
 
@@ -66,7 +68,7 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T		size_t
+#define QT_SOCKLEN_T		int
 
 #if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
 #define QT_SNPRINTF		::snprintf
