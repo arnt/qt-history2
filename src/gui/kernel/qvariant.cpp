@@ -612,6 +612,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
             static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d->value.ptr));
             converted = true;
         }
+        break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence: {
         QKeySequence *seq = static_cast<QKeySequence *>(result);
