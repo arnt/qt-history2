@@ -7841,8 +7841,10 @@ void QListView::adjustColumn( int col )
     w = QMAX( w, QApplication::globalStrut().width() );
 
     d->h->adjustHeaderSize( oldw - w );
-    d->h->resizeSection( col, w );
-    d->h->sizeChange( col, oldw, w);
+    if (oldw != w) {
+	d->h->resizeSection( col, w );
+	emit d->h->sizeChange( col, oldw, w);
+    }
 }
 
 #endif // QT_NO_LISTVIEW
