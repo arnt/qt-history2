@@ -84,7 +84,7 @@
        link against the Qt3Compat library and add \c -DQT_COMPAT to your
        compiler flags. (You might also need to
        specify other libraries. See
-       \l{qt4-getting-started.html}{Getting Started with Qt 4} for
+       \l{qt4-intro.html}{What's New in Qt 4} for
        details.)
 
     \o Run the \l{qt3to4.html}{qt3to4 porting tool}. The tool will go

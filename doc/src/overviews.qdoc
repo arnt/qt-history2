@@ -41,7 +41,6 @@
     \o \l{gpl.html}{GNU General Public License (GPL)}
     \o \l{qalgorithms.html}{Generic Algorithms}
     \o \l{containers.html}{Generic Containers}
-    \o \l{qt4-getting-started.html}{Getting Started with Qt 4}
     \o \l{how-to-learn-qt.html}{How to Learn Qt}
     \o \l{bughowto.html}{How to Report a Bug}
     \o \l{opengl-x11-overlays.html}{How to Use X11 Overlays with the Qt OpenGL Extension}
@@ -110,7 +109,7 @@
     \o \l{unicode.html}{Unicode}
     \o \l{uic.html}{User Interface Compiler (uic)}
     \o \l{moc.html}{Using the Meta-Object Compiler (moc)}
-    \o \l{qt4-intro.html}{Welcome to the Qt 4.0 Beta 1}
+    \o \l{qt4-intro.html}{What's New in Qt 4}
     \o \l{templates.html}{Why Doesn't Qt Use Templates for Signals and Slots?}
     \o \l{geometry.html}{Window Geometry}
     \o \l{winsystem.html}{Window System Specific Notes}
