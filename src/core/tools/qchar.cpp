@@ -353,10 +353,10 @@
     \sa isNull()
 */
 
-/*! \fn QChar::QChar(QLatin1Char ch)
+/*! 
+    \fn QChar::QChar(QLatin1Char ch)
 
-    Constructs a QChar corresponding to ASCII/Latin-1 character \a
-    ch.
+    Constructs a QChar corresponding to ASCII/Latin-1 character \a ch.
 */
 
 /*!
@@ -442,7 +442,8 @@ QChar::QChar(uchar ch)
     ('\\0'); otherwise returns false.
 */
 
-/*! \fn uchar QChar::cell() const
+/*! 
+    \fn uchar QChar::cell() const
 
     Returns the cell (least significant byte) of the Unicode
     character.
@@ -450,7 +451,8 @@ QChar::QChar(uchar ch)
     \sa row()
 */
 
-/*! \fn uchar QChar::row() const
+/*! 
+    \fn uchar QChar::row() const
 
     Returns the row (most significant byte) of the Unicode character.
 
@@ -710,7 +712,9 @@ const char QChar::toAscii() const
     Converts the ascii character \a c to its equivalent QChar. This
     is mainly useful for non-internationalized software.
 
+\omit
 ###
+\endomit
     An alternative is to use QLatin1Char().
 
     \sa fromLatin1(), unicode(), QTextCodec::codecForCStrings()
@@ -758,12 +762,14 @@ QDataStream &operator>>(QDataStream &in, QChar &chr)
 }
 #endif
 
-/*! \fn ushort & QChar::unicode()
+/*! 
+    \fn ushort & QChar::unicode()
 
     Returns a reference to the numberic Unicode value of the QChar.
 */
 
-/*! \fn ushort QChar::unicode() const
+/*! 
+    \fn ushort QChar::unicode() const
 
     \overload
 */
