@@ -948,7 +948,7 @@ static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p)
             CGPathMoveToPoint(ret, 0, elm.x, elm.y);
             break;
         case QPainterPath::LineToElement:
-            CGPathAddLineToPoint(ret, 0, elm.x, elm.y+1);
+            CGPathAddLineToPoint(ret, 0, elm.x, elm.y);
             break;
         case QPainterPath::CurveToElement:
             Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
