@@ -468,8 +468,6 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
         out << "};" << endl;
     }
-
-    out.flush();
 }
 
 #define addString(string) \
@@ -998,6 +996,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     delete namespaceObject;
 
     classesOut.flush();
+    inlinesOut.flush();
+
     if (declFile.isOpen()) {
         if (classes.size()) {
             declOut << "// Actual coclasses" << endl;
