@@ -1114,6 +1114,10 @@ void QComboTableItem::setStringList( const QStringList &l )
 {
     entries = l;
     current = 0;
+    if ( table()->cellWidget( row(), col() ) ) {
+	cb->clear();
+	cb->insertStringList( entries );
+    }
     table()->updateCell( row(), col() );
 }
 
