@@ -162,9 +162,10 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                     action->setAttributeName(actionName);
                     action->setElementProperty(properties);
 
-                    if (actionName.isEmpty())
+                    if (actionName.isEmpty()) {
+                        fprintf(stderr, "=========> no actionName??\n");
                         delete action;
-                    else
+                    } else
                         ui_action_list.append(action);
                 } else if (tag == QLatin1String("actiongroup")) {
                     DomActionGroup *g= new DomActionGroup();
@@ -343,7 +344,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         }
     }
 
-    return hasMenuText ? objectName : QString::null;
+    return objectName;
 }
 
 void Ui3Reader::fixActionGroup(DomActionGroup *g)
