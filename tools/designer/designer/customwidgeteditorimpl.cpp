@@ -359,7 +359,7 @@ void CustomWidgetEditor::chooseHeader()
     if ( !i || !w )
 	return;
 
-    QString h = QFileDialog::getOpenFileName( QString::null, tr( "Header Files (*.h *.h++ *.hxx)" ), this );
+    QString h = QFileDialog::getOpenFileName( QString::null, tr( "Header Files (*.h *.h++ *.hxx *.hh)" ), this );
     if ( h.isEmpty() )
 	return;
     editHeader->setText( h );

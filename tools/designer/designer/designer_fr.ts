@@ -343,7 +343,7 @@ so it is not possible to add another one with this name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Header Files (*.h *.h++ *.hxx)</source>
+        <source>Header Files (*.h *.h++ *.hxx *.hh)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
