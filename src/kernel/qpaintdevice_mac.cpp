@@ -287,6 +287,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     sh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
   }
 
+  if(!sw || !sh)
+      return;
+
+
   GWorldPtr savedworld;
   GDHandle savedhandle;
   GetGWorld(&savedworld, &savedhandle);
@@ -317,9 +321,19 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       QPoint p(posInWindow(w));
       srcoffx = p.x();
       srcoffy = p.y();
+
+      if(sw < 0)
+	  sw = w->width();
+      if(sh < 0)
+	  sh = w->height();
   } else if(src->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)src;
       srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+
+      if(sw < 0)
+	  sw = pm->width();
+      if(sh < 0)
+	  sh = pm->height();
   }
 
   if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
