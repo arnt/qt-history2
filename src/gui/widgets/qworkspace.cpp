@@ -1783,7 +1783,10 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
     widgetResizeHandler->setSizeProtection(!parent->scrollBarsEnabled());
     connect(widgetResizeHandler, SIGNAL(activate()),
              this, SLOT(activate()));
-    widgetResizeHandler->setExtraHeight(th + contentsRect().y() - 2*frameWidth());
+    if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+        widgetResizeHandler->setExtraHeight(th + contentsRect().y() - 2*frameWidth());
+    else
+        widgetResizeHandler->setExtraHeight(th + contentsRect().y() - frameWidth());
     if (childWidget->minimumSize() == childWidget->maximumSize())
         widgetResizeHandler->setActive(QWidgetResizeHandler::Resize, false);
     setBaseSize(baseSize());
