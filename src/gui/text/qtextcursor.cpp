@@ -1379,7 +1379,9 @@ void QTextCursor::insertImage(const QTextImageFormat &format)
 }
 
 /*!
-    Returns true if the \a rhs cursor is at a different position in
+    \fn bool QTextCursor::operator!=(const QTextCursor &other) const
+
+    Returns true if the \a other cursor is at a different position in
     the document as this cursor; otherwise returns false.
 */
 bool QTextCursor::operator!=(const QTextCursor &rhs) const
@@ -1388,7 +1390,9 @@ bool QTextCursor::operator!=(const QTextCursor &rhs) const
 }
 
 /*!
-    Returns true if the \a rhs cursor is positioned later in the
+    \fn bool QTextCursor::operator<(const QTextCursor &other) const
+
+    Returns true if the \a other cursor is positioned later in the
     document than this cursor; otherwise returns false.
 */
 bool QTextCursor::operator<(const QTextCursor &rhs) const
@@ -1405,7 +1409,9 @@ bool QTextCursor::operator<(const QTextCursor &rhs) const
 }
 
 /*!
-    Returns true if the \a rhs cursor is positioned later or at the
+    \fn bool QTextCursor::operator<=(const QTextCursor &other) const
+
+    Returns true if the \a other cursor is positioned later or at the
     same position in the document as this cursor; otherwise returns
     false.
 */
@@ -1423,7 +1429,9 @@ bool QTextCursor::operator<=(const QTextCursor &rhs) const
 }
 
 /*!
-    Returns true if the \a rhs cursor is at the same position in the
+    \fn bool QTextCursor::operator==(const QTextCursor &other) const
+
+    Returns true if the \a other cursor is at the same position in the
     document as this cursor; otherwise returns false.
 */
 bool QTextCursor::operator==(const QTextCursor &rhs) const
@@ -1438,7 +1446,9 @@ bool QTextCursor::operator==(const QTextCursor &rhs) const
 }
 
 /*!
-    Returns true if the \a rhs cursor is positioned earlier or at the
+    \fn bool QTextCursor::operator>=(const QTextCursor &other) const
+
+    Returns true if the \a other cursor is positioned earlier or at the
     same position in the document as this cursor; otherwise returns
     false.
 */
@@ -1456,7 +1466,9 @@ bool QTextCursor::operator>=(const QTextCursor &rhs) const
 }
 
 /*!
-    Returns true if the \a rhs cursor is positioned earlier in the
+    \fn bool QTextCursor::operator>(const QTextCursor &other) const
+
+    Returns true if the \a other cursor is positioned earlier in the
     document than this cursor; otherwise returns false.
 */
 bool QTextCursor::operator>(const QTextCursor &rhs) const

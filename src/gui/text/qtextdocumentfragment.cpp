@@ -266,9 +266,9 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &cursor)
 }
 
 /*!
-    \fn QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
+    \fn QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &other)
 
-    Copy constructor. Creates a copy of the given \a fragment.
+    Copy constructor. Creates a copy of the \a other fragment.
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
     : d(0)

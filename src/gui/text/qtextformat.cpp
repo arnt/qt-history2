@@ -309,16 +309,17 @@ uint QTextFormatPrivate::recalcHash() const
     specific parts of the document.
 
     A format has a \c FormatType which specifies the kinds of thing it
-    can format, e.g. a block of text, a list, a table, etc. A format
+    can format; e.g. a block of text, a list, a table, etc. A format
     also has various properties (some specific to particular format
     types), as described by the \c Property enum. Every property has a
     \c PropertyType.
 
-    The format type is given by type(), tested with
-    isCharFormat(), isBlockFormat(), isListFormat(),
-    isTableFormat(), isFrameFormat(), and isImageFormat(), and
-    retrieved with toCharFormat(), toBlockFormat(), toListFormat(),
-    toTableFormat(), toFrameFormat(), and toImageFormat().
+    The format type is given by type(), and the format can be tested
+    with isCharFormat(), isBlockFormat(), isListFormat(),
+    isTableFormat(), isFrameFormat(), and isImageFormat(). If the
+    type is determined, it can be retrieved with toCharFormat(),
+    toBlockFormat(), toListFormat(), toTableFormat(), toFrameFormat(),
+    and toImageFormat().
 
     A format's properties can be set with the setProperty() functions,
     and retrieved with boolProperty(), intProperty(), floatProperty(),
@@ -329,7 +330,9 @@ uint QTextFormatPrivate::recalcHash() const
     A format's object index can be set with setObjectIndex(), and
     retrieved with objectIndex(). These methods can be used to
     associate the format with a QTextObject. It is used to represent
-    lists, frames and tables inside the document.
+    lists, frames, and tables inside the document.
+
+    \sa \l{text.html}{Text Related Classes}
 */
 
 /*!
@@ -514,7 +517,9 @@ QTextFormat::QTextFormat(int type)
 
 
 /*!
-    Creates a new text format with the same attributes at the \a rhs
+    \fn QTextFormat::QTextFormat(const QTextFormat &other)
+
+    Creates a new text format with the same attributes at the \a other
     text format.
 */
 QTextFormat::QTextFormat(const QTextFormat &rhs)
@@ -523,7 +528,9 @@ QTextFormat::QTextFormat(const QTextFormat &rhs)
 }
 
 /*!
-    Assigns the \a rhs text format to this text format and returns a
+    \fn QTextFormat &QTextFormat::operator=(const QTextFormat &other)
+
+    Assigns the \a other text format to this text format, and returns a
     reference to this text format.
 */
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
@@ -541,7 +548,7 @@ QTextFormat::~QTextFormat()
 
 /*!
     Merges the \a other format with this format; where there are
-    conflicts \a other takes precedence.
+    conflicts the \a other format takes precedence.
 */
 void QTextFormat::merge(const QTextFormat &other)
 {
@@ -557,6 +564,8 @@ void QTextFormat::merge(const QTextFormat &other)
 
 /*!
     Returns the type of this format.
+
+    \sa ObjectTypes
 */
 int QTextFormat::type() const
 {
@@ -624,8 +633,8 @@ QTextImageFormat QTextFormat::toImageFormat() const
 }
 
 /*!
-    Returns the value of the property specified by \a propertyId; if the
-    property isn't of \c QTextFormat::Bool type the \a defaultValue is
+    Returns the value of the property specified by \a propertyId. If the
+    property isn't of \c QTextFormat::Bool type, the \a defaultValue is
     returned instead.
 
     \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() intListProperty() PropertyType
@@ -639,8 +648,8 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 }
 
 /*!
-    Returns the value of the property specified by \a propertyId; if the
-    property is not of \c QTextFormat::Integer type the \a defaultValue is
+    Returns the value of the property specified by \a propertyId. If the
+    property is not of \c QTextFormat::Integer type, the \a defaultValue is
     returned instead.
 
     \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() intListProperty() PropertyType
@@ -654,8 +663,8 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 }
 
 /*!
-    Returns the value of the property specified by \a propertyId; if the
-    property isn't of \c QTextFormat::Float type the \a defaultValue is
+    Returns the value of the property specified by \a propertyId. If the
+    property isn't of \c QTextFormat::Float type, the \a defaultValue is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() intListProperty() PropertyType
@@ -716,7 +725,9 @@ QList<int> QTextFormat::intListProperty(int propertyId) const
 /*!
     \overload
 
-    Sets the value of the property given by \a propertyId to \a value.
+    Sets the value of the property given by \a propertyId to \a value,
+    unless \a value == \a defaultValue, in which case the property's
+    value is cleared.
 
     \sa boolProperty() PropertyType
 */
@@ -731,7 +742,9 @@ void QTextFormat::setProperty(int propertyId, bool value, bool defaultValue)
 /*!
     \overload
 
-    Sets the value of the property given by \a propertyId to \a value.
+    Sets the value of the property given by \a propertyId to \a value,
+    unless \a value == \a defaultValue, in which case the property's
+    value is cleared.
 
     \sa intProperty() PropertyType
 */
@@ -746,7 +759,9 @@ void QTextFormat::setProperty(int propertyId, int value, int defaultValue)
 /*!
     \overload
 
-    Sets the value of the property given by \a propertyId to \a value.
+    Sets the value of the property given by \a propertyId to \a value,
+    unless \a value == \a defaultValue, in which case the property's
+    value is cleared.
 
     \sa floatProperty() PropertyType
 */
@@ -761,7 +776,7 @@ void QTextFormat::setProperty(int propertyId, float value, float defaultValue)
 /*!
     Sets the value of the property given by \a propertyId to \a value,
     unless \a value == \a defaultValue, in which case the property's
-    value is cleared..
+    value is cleared.
 
     \sa stringProperty() PropertyType
 */
@@ -774,7 +789,9 @@ void QTextFormat::setProperty(int propertyId, const QString &value, const QStrin
 }
 
 /*!
-    Sets the value of the property given by \a propertyId to \a value.
+    Sets the value of the property given by \a propertyId to \a value,
+    unless \a value == \a defaultValue, in which case the property's
+    value is cleared.
 
     \sa colorProperty() PropertyType
 */
@@ -787,7 +804,9 @@ void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor 
 }
 
 /*!
-    Sets the value of the property given by \a propertyId to \a value.
+    Sets the value of the property given by \a propertyId to \a value,
+    unless \a value == \a defaultValue, in which case the property's
+    value is cleared.
 
     \sa intListProperty() PropertyType
 */
@@ -799,8 +818,7 @@ void QTextFormat::setProperty(int propertyId, const QList<int> &value)
 /*!
     \fn void QTextFormat::setObjectType(int type)
 
-    Sets the text format's object type to \a type. See
-    \c{ObjectTypes}.
+    Sets the text format's object \a type. See \c{ObjectTypes}.
 */
 
 
@@ -812,8 +830,7 @@ void QTextFormat::setProperty(int propertyId, const QList<int> &value)
 
 
 /*!
-    Returns the index of the text format's format object, or -1 if
-    there isn't a format object.
+    Returns the index of the format object, or -1 if the format object is invalid.
 
     \sa setObjectIndex()
 */
@@ -826,7 +843,9 @@ int QTextFormat::objectIndex() const
 }
 
 /*!
-    Sets the format object's object index to \a o.
+    \fn void QTextFormat::setObjectIndex(int index)
+
+    Sets the format object's object \a index.
 
     \sa objectIndex()
 */
@@ -881,15 +900,17 @@ QList<int> QTextFormat::allPropertyIds() const
 
 
 /*!
-    \fn bool QTextFormat::operator!=(const QTextFormat &rhs) const
+    \fn bool QTextFormat::operator!=(const QTextFormat &other) const
 
-    Returns true if this text format is different from the \a rhs text
+    Returns true if this text format is different from the \a other text
     format.
 */
 
 
 /*!
-    Returns true if this text format is the same as the \a rhs text
+    \fn bool QTextFormat::operator==(const QTextFormat &other) const
+
+    Returns true if this text format is the same as the \a other text
     format.
 */
 bool QTextFormat::operator==(const QTextFormat &rhs) const
@@ -1776,23 +1797,21 @@ QFont QTextCharFormat::font() const
 /*!
     \fn QTextImageFormat::QTextImageFormat()
 
-    Creates a new QTextImageFormat.
+    Creates a new image format object.
 */
 
 
 /*!
     \fn bool QTextImageFormat::isValid() const
 
-    Returns true if this image format is valid; otherwise
-    returns false.
+    Returns true if this image format is valid; otherwise returns false.
 */
 
 
 /*!
     \fn void QTextImageFormat::setName(const QString &name)
 
-    Sets the name of the image to \a name. The \a name is used to
-    locate the image.
+    Sets the \a name of the image. The \a name is used to locate the image.
 
     \sa name()
 */
@@ -1810,7 +1829,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextImageFormat::setWidth(int width)
 
-    Sets the width of the rectangle occupied by the image to \a width.
+    Sets the \a width of the rectangle occupied by the image.
 
     \sa width() setHeight()
 */
@@ -1828,8 +1847,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextImageFormat::setHeight(int height)
 
-    Sets the height of the rectangle occupied by the image to \a
-    height.
+    Sets the \a height of the rectangle occupied by the image.
 
     \sa height() setWidth()
 */
