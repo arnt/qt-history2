@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#38 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -134,7 +134,7 @@ void QSpinBox::initSpinBox()
     down->setAutoRepeat( TRUE );
 
     validator = new QIntValidator( minValue(), maxValue(), this, "validator" );
-    vi = new QLineEdit( this, "this is not /usr/bin/vi" );
+    vi = new QLineEdit( this, "lineeditor" );
     vi->setFrame( FALSE );
     setFocusProxy( vi );
     setFocusPolicy( StrongFocus );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#11 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -197,6 +197,8 @@ void QWidgetStack::raiseWidget( QWidget * w )
 bool QWidgetStack::isMyChild( QWidget * w )
 {
     const QObjectList * c = children();
+    if ( !c )
+	return FALSE;
     QObjectListIt it( *c );
     QObject * o;
 
@@ -235,13 +237,15 @@ void QWidgetStack::setChildGeometries()
     l->setColStretch( 1, 1 );
 
     const QObjectList * c = children();
-    QObjectListIt it( *c );
-    QObject * o;
-
-    while( (o=it.current()) != 0 ) {
-	++it;
-	if ( o->isWidgetType() )
-	    l->addWidget( (QWidget *)o, 1, 1 );
+    if ( c ) {
+	QObjectListIt it( *c );
+	QObject * o;
+	
+	while( (o=it.current()) != 0 ) {
+	    ++it;
+	    if ( o->isWidgetType() )
+		l->addWidget( (QWidget *)o, 1, 1 );
+	}
     }
     l->activate();
 }
@@ -252,7 +256,7 @@ void QWidgetStack::setChildGeometries()
 
 void QWidgetStack::show()
 {
-    if ( !isVisible() ) {
+    if ( !isVisible() && children() ) {
 	const QObjectList * c = children();
 	QObjectListIt it( *c );
 	QObject * o;
