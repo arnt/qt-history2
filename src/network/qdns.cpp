@@ -1613,12 +1613,6 @@ void QDns::setLabel( const QString & label )
   address. The label is set to the IN-ADDR.ARPA domain name. This is useful in
   combination with the Ptr record type (e.g. if you want to look up a hostname
   for a given address).
-
-  This does not change the recordType(), but its isWorking() status will
-  probably change as a result.
-
-  The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emitted.
 */
 
 void QDns::setLabel( const QHostAddress & address )
