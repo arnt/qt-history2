@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#78 $
 **
 ** Implementation of QFile class
 **
@@ -671,6 +671,10 @@ bool QFile::atEnd() const
 	warning( "QFile::atEnd: File is not open" );
 #endif
 	return FALSE;
+    }
+    if ( isDirectAccess() ) {
+	if ( at() < length )
+	    return FALSE;
     }
     return QIODevice::atEnd();
 }
