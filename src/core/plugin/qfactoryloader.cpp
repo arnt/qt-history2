@@ -44,7 +44,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
 #if defined(Q_OS_WIN32)
     filters << "*.dll";
 #elif defined(Q_OS_DARWIN)
-    filters << "*.dylib;" << "*.so" << "*.bundle";
+    filters << "*.dylib" << "*.so" << "*.bundle";
 #elif defined(Q_OS_HPUX)
     filters << "*.sl";
 #elif defined(Q_OS_UNIX)
