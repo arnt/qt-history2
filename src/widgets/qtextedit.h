@@ -211,6 +211,7 @@ public:
     QColor paragraphBackgroundColor( int para ) const;
 
     bool isUndoRedoEnabled() const;
+    bool eventFilter( QObject *o, QEvent *e );
 
 public slots:
     void setEnabled( bool );
@@ -328,7 +329,6 @@ protected:
     void contentsDropEvent( QDropEvent *e );
 #endif
     void contentsContextMenuEvent( QContextMenuEvent *e );
-    bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
     QTextDocument *document() const;
     QTextCursor *textCursor() const;
