@@ -2,6 +2,7 @@
 #define QEVENTDISPATCHERWIN32_H
 
 #include "qabstracteventdispatcher.h"
+#include "qt_windows.h"
 
 class QWinEventNotifier;
 class QEventDispatcherWin32Private;
@@ -32,12 +33,9 @@ public:
     void interrupt();
     void flush();
 
-    virtual void winProcessEvent(void *message);
-    virtual bool winEventFilter(void *message, long *res);
-
 private:
-    friend bool qt_dispatch_socketnotifier(MSG *msg);
-    friend Q_CORE_EXPORT bool qt_dispatch_timer(uint timerId, MSG *msg);
+    friend LRESULT CALLBACK qt_socketnotifier_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp);
+    friend void CALLBACK qt_timer_proc(HWND, UINT, UINT idEvent, DWORD);
 };
 
 #endif
