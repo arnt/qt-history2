@@ -84,7 +84,6 @@ long buf_size_total = 0, buf_index = 0;
 #include <string.h>
 #include <stdlib.h>
 
-/* char c,c1; */
 int classPLevel      = 1;  /* Depth of nested curly braces in IN_CLASS */
 int namespacePLevel  = 1;  /* Depth of nested curly braces in IN_NAMESPACE */
 int expLevel         = 1;  /* Depth of nested parentheses in IN_EXPR */
@@ -419,7 +418,7 @@ STRING		{ALMOSTSTRING}\"
 
 
 ^#define.*\\$		{ /* skip multi-line macro-definitions */
-			  char c, c1;
+			  int c, c1;
 			  input();   /* Discard the '\n'. */
 			  do {
 			      c1=' ';
@@ -451,7 +450,7 @@ STRING		{ALMOSTSTRING}\"
                           }
                         }
 "/*"			{ /* C comment */
-			  char c = ' ';
+			  int c = ' ';
 			  do {
 			      if ( c!= '*' ) {
 				  while((c = linput()) != '*' && c != 0)
