@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QSimpleRichText class
 **
 ** Created : 990101
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -52,7 +52,7 @@ public:
 };
 
 // Pull this private function in from qglobal.cpp
-extern unsigned int q_int_sqrt( unsigned int n );
+extern unsigned int qt_int_sqrt( unsigned int n );
 
 void QSimpleRichTextData::adjustSize() {
     QFontMetrics fm( font );
@@ -60,11 +60,11 @@ void QSimpleRichTextData::adjustSize() {
     int w = mw;
     doc->doLayout( 0,w );
     if ( doc->widthUsed() != 0 ) {
-	w = q_int_sqrt( 5 * doc->height() * doc->widthUsed() / 3 );
+	w = qt_int_sqrt( 5 * doc->height() * doc->widthUsed() / 3 );
 	doc->doLayout( 0, QMIN( w, mw) );
 
 	if ( w*3 < 5*doc->height() ) {
-	    w = q_int_sqrt( 2 * doc->height() * doc->widthUsed() );
+	    w = qt_int_sqrt( 2 * doc->height() * doc->widthUsed() );
 	    doc->doLayout( 0,QMIN(w, mw ) );
 	}
     }

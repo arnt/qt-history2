@@ -5,7 +5,7 @@
 ** Embedded Qt
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -56,7 +56,7 @@ typedef unsigned int __u32;
 #endif
 
 // Pull this private function in from qglobal.cpp
-extern unsigned int q_int_sqrt( unsigned int n );
+extern unsigned int qt_int_sqrt( unsigned int n );
 
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
@@ -3008,7 +3008,7 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
 
 	int dx = x2 - x1;
 	int dy = y2 - y1;
-	int w = q_int_sqrt(dx*dx+dy*dy);
+	int w = qt_int_sqrt(dx*dx+dy*dy);
 	int iy = w ? (penwidth * dy)/ w : dy ? 0 : penwidth;
 	int ix = w ? (penwidth * dx)/ w : dx ? 0 : penwidth;
 

@@ -808,11 +808,11 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
     Deliberately not exported as part of the Qt API, but used in both
     qsimplerichtext.cpp and qgfxraster_qws.cpp
 */
-unsigned int q_int_sqrt( unsigned int n )
+unsigned int qt_int_sqrt( unsigned int n )
 {
     // n must be in the range 0...UINT_MAX/2-1
     if ( n >= UINT_MAX>>2 ) {
-	unsigned int r = 2 * q_int_sqrt( n / 4 );
+	unsigned int r = 2 * qt_int_sqrt( n / 4 );
 	if ( n / r > r + 1 )
 	    return r + 1;
 	return r;
