@@ -1,5 +1,7 @@
 #include "qaccessiblewidgets.h"
 #include "qaccessiblemenu.h"
+#include "simplewidgets.h"
+#include "rangecontrols.h"
 
 #include <qaccessibleplugin.h>
 #include <qtoolbutton.h>

@@ -6,8 +6,12 @@ DESTDIR   = ../../../accessible
 REQUIRES += accessibility
 
 SOURCES  += main.cpp \
-	qaccessiblewidgets.cpp \
-	qaccessiblemenu.cpp
+	    simplewidgets.cpp \
+	    rangecontrols.cpp \
+	    qaccessiblewidgets.cpp \
+	    qaccessiblemenu.cpp
 
 HEADERS  += qaccessiblewidgets.h \
-	qaccessiblemenu.h
+	    simplewidgets.h \
+	    rangecontrols.h \
+	    qaccessiblemenu.h

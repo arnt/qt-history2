@@ -3,12 +3,8 @@
 
 #include <qaccessiblewidget.h>
 
-class QButton;
 class QScrollView;
 class QHeader;
-class QSpinWidget;
-class QScrollBar;
-class QSlider;
 class QListBox;
 class QListView;
 class QTextEdit;
@@ -35,109 +31,6 @@ public:
 
 protected:
     QWidgetStack *widgetStack() const;
-};
-
-class QAccessibleButton : public QAccessibleWidget
-{
-public:
-    QAccessibleButton(QWidget *o, Role r, QString description = QString(),
-	QString help = QString());
-
-    QString	text(Text t, int child) const;
-    State	state(int child) const;
-
-    bool	doAction(int action, int child);
-
-protected:
-    QButton *button() const;
-};
-
-class QAccessibleRangeControl : public QAccessibleWidget
-{
-public:
-    QAccessibleRangeControl(QWidget *o, Role role, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
-
-    QString	text(Text t, int child) const;
-};
-
-class QAccessibleSpinWidget : public QAccessibleRangeControl
-{
-public:
-    QAccessibleSpinWidget(QWidget *o);
-
-    int		childCount() const;
-    QRect	rect(int child) const;
-
-    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
-
-    QString	text(Text t, int child) const;
-    Role	role(int child) const;
-    State	state(int child) const;
-
-    bool	doAction(int action, int child);
-};
-
-class QAccessibleScrollBar : public QAccessibleRangeControl
-{
-public:
-    QAccessibleScrollBar(QWidget *o, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
-
-    int		childCount() const;
-
-    QRect	rect(int child) const;
-    QString	text(Text t, int child) const;
-    Role	role(int child) const;
-
-    bool	doAction(int action, int child);
-
-protected:
-    QScrollBar *scrollBar() const;
-};
-
-class QAccessibleSlider : public QAccessibleRangeControl
-{
-public:
-    QAccessibleSlider(QWidget *o, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
-
-    int		childCount() const;
-    int		relationTo(int child, const QAccessibleInterface *other, int otherChild);
-
-    QRect	rect(int child) const;
-    QString	text(Text t, int child) const;
-    Role	role(int child) const;
-
-    bool	doAction(int action, int child);
-
-protected:
-    QSlider *slider() const;
-};
-
-class QAccessibleText : public QAccessibleWidget
-{
-public:
-    QAccessibleText(QWidget *o, Role role, QString name = QString(), 
-	QString description = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
-
-    QString	text(Text t, int child) const;
-    State	state(int child) const;
-};
-
-class QAccessibleDisplay : public QAccessibleWidget
-{
-public:
-    QAccessibleDisplay(QWidget *o, Role role, QString description = QString(), 
-	QString value = QString(), QString help = QString(), 
-	QString defAction = QString(), QString accelerator = QString());
-
-    QString	text(Text t, int child) const;
-    Role	role(int child) const;
 };
 
 class QAccessibleHeader : public QAccessibleWidget

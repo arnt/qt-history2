@@ -12,12 +12,12 @@ class MyPopupMenu : public QPopupMenu
 QAccessiblePopup::QAccessiblePopup(QWidget *w)
 : QAccessibleWidget(w)
 {
-    Q_ASSERT(qt_cast<QPopupMenu*>(w));
+    Q_ASSERT(popupMenu());
 }
 
 QPopupMenu *QAccessiblePopup::popupMenu() const
 {
-    return (QPopupMenu*)object();
+    return qt_cast<QPopupMenu*>(object());
 }
 
 int QAccessiblePopup::childCount() const
@@ -172,12 +172,12 @@ class MyMenuBar : public QMenuBar
 QAccessibleMenuBar::QAccessibleMenuBar(QWidget *w)
 : QAccessibleWidget(w)
 {
-    Q_ASSERT(qt_cast<QMenuBar*>(w));
+    Q_ASSERT(menuBar());
 }
 
 QMenuBar *QAccessibleMenuBar::menuBar() const
 {
-    return (QMenuBar*)object();
+    return qt_cast<QMenuBar*>(object());
 }
 
 int QAccessibleMenuBar::childCount() const
