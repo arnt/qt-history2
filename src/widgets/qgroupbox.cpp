@@ -741,7 +741,7 @@ QSize QGroupBox::sizeHint() const
 	th = d->checkbox->sizeHint().height() + fm.width( QChar(' ') );
 #endif
     } else {
-	tw = fm.width( title() ) + 2 * fm.width( "xx" );
+	tw = fm.size(ShowPrefix, title() + "xxxx").width();
 	th = fm.height() + fm.width( QChar(' ') );
     }
 
