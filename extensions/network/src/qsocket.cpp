@@ -995,8 +995,12 @@ void QSocket::sn_read()
 	    return;
 	} else {
 	    if ( nread < 0 ) {
+		if ( d->socket->error() == QSocketDevice::NoError ) {
+		    // all is fine
+		    return;
+		}
 #if defined(CHECK_RANGE)
-		qWarning( "QSocket::sn_read: Close error" );
+		qWarning( "QSocket::sn_read (%s): Close error", name() );
 #endif
 		emit error( ErrSocketRead );	// socket close error
 		return;
