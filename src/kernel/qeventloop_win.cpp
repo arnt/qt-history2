@@ -520,6 +520,12 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 
     if ( dict == 0 )
 	return;
+
+    QSockNot *sn = dict->find(sockfd);
+    if ( !sn )
+	return;
+    d->sn_pending_list.removeRef( sn );		// remove from activation list
+
     if ( !dict->remove(sockfd) )		// did not find sockfd
 	return;
 
