@@ -13,6 +13,7 @@
 #	-nodoc	Don't generate documentation
 #	-local	Copy local distribution from $QTDIR, don't use cvs
 #	-noch	Ignore the fact that the changes file doesn't exist
+#       -msonly Build Microsoft Visual C++ makefiles only (in win-mode)
 #
 
 # Leave -e set - it ensures we don't miss any vital error messages.
@@ -25,6 +26,7 @@ while true ; do
     "-nodoc") nodoc="yes"; shift;;
     "-local") local="yes"; shift;;
     "-noch")  noch="yes"; shift;;
+    "-msonly") msonly="yes"; shift;;
     *) break;;
   esac
 done
@@ -213,14 +215,17 @@ if [ "${platform}" = "win" ]; then
   mkdir mkfiles
 
 # Convince tmake to use the right DLL library and set right DLL lib Makefile
+  [ ! -d lib ] && mkdir lib
   touch lib/qt${VERSIONWIN}.lib
   mv src/Makefile.win32-dll src/Makefile
 
-  echo "Build DLL Makefiles for Borland C++" >&2
-  export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
-  ${curdir}/buildmakefiles -win32 -dll
-  find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
-  find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland_dll.zip
+  if [ -z "$msonly" ]; then
+    echo "Build DLL Makefiles for Borland C++" >&2
+    export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
+    ${curdir}/buildmakefiles -win32 -dll
+    find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
+    find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland_dll.zip
+  fi
 
   echo "Build DLL Makefiles for Microsoft Visual C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-msvc
@@ -234,11 +239,13 @@ if [ "${platform}" = "win" ]; then
   rm src/qtdll.mak
   rm src/qtmain.mak
 
-  echo "Build Makefiles for Borland C++" >&2
-  export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
-  ${curdir}/buildmakefiles -win32
-  find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
-  find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland.zip
+  if [ -z "$msonly" ]; then
+    echo "Build Makefiles for Borland C++" >&2
+    export TMAKEPATH=${TMAKEDIR}/lib/win32-borland
+    ${curdir}/buildmakefiles -win32
+    find . -name Makefile -o -name "qt*.mak" | xargs ${curdir}/unix_to_dos
+    find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland.zip
+  fi
 
   echo "Build Makefiles for Microsoft Visual C++" >&2
   export TMAKEPATH=${TMAKEDIR}/lib/win32-msvc
@@ -296,7 +303,10 @@ fi
 echo "Copying the README, LICENSE etc. files..." >&2
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null || true
-cp -f changes-${VERSION_SHORT}[0-9]* ..
+if [ -z "$noch" ]
+then
+    cp -f changes-${VERSION_SHORT}[0-9]* ..
+fi
 cd ${DISTDIR}/qt/dist/${disttype}
 tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}/qt/dist/${platform}
