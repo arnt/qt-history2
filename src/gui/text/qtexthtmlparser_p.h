@@ -20,7 +20,6 @@
 #include <qfont.h>
 #include <private/qtextformat_p.h>
 #include <private/qtextdocument_p.h>
-#include <Qt3Compat/qstylesheet.h> // ### remove when > TP
 
 #include "qtextdocument.h"
 #include "qtextcursor.h"
@@ -171,7 +170,6 @@ private:
 
     int margin[5];
     friend class QTextHtmlParser;
-    const QStyleSheetItem *style; // will go away
 };
 Q_DECLARE_TYPEINFO(QTextHtmlParserNode, Q_MOVABLE_TYPE);
 

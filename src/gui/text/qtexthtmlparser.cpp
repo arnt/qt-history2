@@ -576,12 +576,12 @@ static QString quoteNewline(const QString &s)
 }
 
 QTextHtmlParserNode::QTextHtmlParserNode()
-    : parent(0), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
+    : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false),
       fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(DefaultFontSize), fontWeight(QFont::Normal),
       alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1),
-      wsm(WhiteSpaceModeUndefined), style(0)
+      wsm(WhiteSpaceModeUndefined)
 {
     margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0;
 }
@@ -633,7 +633,6 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
     } else {
         node->tag.clear();
         node->text.clear();
-        node->style = 0;
         node->id = -1;
     }
     node->parent = parent;
@@ -647,7 +646,6 @@ void QTextHtmlParser::parse(const QString &text)
     txt = text;
     pos = 0;
     len = txt.length();
-    nodes[0].style = QStyleSheet::defaultSheet()->item(QLatin1String(""));
     parse();
     //dumpHtml();
 }
@@ -813,12 +811,6 @@ void QTextHtmlParser::parseTag()
     // parse tag name
     node->tag = parseWord().toLower();
 
-    // resolve style
-    node->style = QStyleSheet::defaultSheet()->item(node->tag);
-    if (!node->style)
-        node->style = QStyleSheet::defaultSheet()->item("");
-    Q_ASSERT(node->style != 0);
-
     const QTextHtmlElement *elem = ::lookupElement(node->tag);
     if (elem->name) {
         node->id = elem->id;
@@ -968,7 +960,7 @@ void QTextHtmlParser::resolveParent()
 
     // some elements are not self nesting
     if (node->tag == at(p).tag) {
-        if (node->style && node->isNotSelfNesting())
+        if (node->isNotSelfNesting())
             p = at(p).parent;
     }
 
@@ -1018,9 +1010,6 @@ void QTextHtmlParser::resolveNode()
     node->margin[3] = 0;
     node->margin[4] = 0;
     node->cssFloat = QTextFrameFormat::InFlow;
-
-    if (!node->style)
-        return;
 
     node->setAttributesFromId();
 }
