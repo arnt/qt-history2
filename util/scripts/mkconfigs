@@ -3,7 +3,7 @@
 VERBOSE=
 LIST=
 SUBARGS=
-while [ -n "$1" ]
+while [ -n "$2" ]
 do
     case "$1" in
        -v) VERBOSE=1
@@ -12,6 +12,8 @@ do
     esac
     shift
 done
+
+PLATFORM=$1
 
 export TMAKEPATH=$TMAKEDIR/lib/linux-g++ # Any should do
 

@@ -407,7 +407,7 @@ for $platform ( "x11", "qws" ) {
 
     # Generate makefiles
 
-    open( I, "$qtdir/util/scripts/makeunixmake -v 2>&1 |" )
+    open( I, "$qtdir/util/scripts/makeunixmake -v $platform 2>&1 |" )
       || die "could not run makeunixmake, stopped";
     $_ = <I>; # what do we do with it? nothing for now...
     close I;

@@ -3,7 +3,7 @@
 VERBOSE=
 LIST=
 SUBARGS=
-while [ -n "$1" ]
+while [ -n "$2" ]
 do
     case "$1" in
        -v) VERBOSE=1
@@ -14,6 +14,15 @@ do
     shift
 done
 
+PLATFORM=$1
+
+if [ "$PLATFORM" = "qws" ]
+then
+    PLATPRO=-e
+else
+    PLATPRO=
+fi
+
 if [ -n "$VERBOSE" ] ; then echo 'Building top-level make files...' >&2; fi
 
 export UNIX_MKDIST_QT=1
@@ -21,10 +30,10 @@ export TMAKEPATH=$QTDIR/tmake:$TMAKEPATH
 ( cd $QTDIR/src/moc; tmake moc.pro >Makefile.in)
 if [ -n "$LIST" ] ; then echo 'src/moc/Makefile.in' ; fi
 
-$QTDIR/util/scripts/mkconfigs $SUBARGS
-$QTDIR/util/scripts/makemake $SUBARGS
+$QTDIR/util/scripts/mkconfigs $SUBARGS $PLATFORM
+$QTDIR/util/scripts/makemake $SUBARGS $PLATFORM
 
-(cd $QTDIR/src; perl -p -i -e 's/(^CONFIG\s+\+=\s*png\s+zlib)/\# $1/' qt.pro; tmake -t ../tmake/propagate.t qt.pro | perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
+(cd $QTDIR/src; perl -p -i -e 's/(^CONFIG\s+\+=\s*png\s+zlib)/\# $1/' qt$PLATPRO.pro; tmake -t ../tmake/propagate.t qt$PLATPRO.pro | perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
 if [ -n "$LIST" ] ; then echo 'src/Makefile.in' ; fi
 
 cp -f $QTDIR/util/scripts/configure $QTDIR
