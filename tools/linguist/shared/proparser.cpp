@@ -103,6 +103,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
         t.replace( "=", QString(" = ") );
         t.replace( "+ =", QString(" += ") );
         t.replace( "\n", QString(";") );
+        t.replace( "\r", QString("") ); // remove carriage return
         t = t.simplified();
 
         /*
