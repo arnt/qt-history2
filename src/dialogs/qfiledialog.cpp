@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#156 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#157 $
 **
 ** Implementation of QFileDialog class
 **
@@ -30,6 +30,7 @@
 #include "qpushbutton.h"
 #include "qmessagebox.h"
 #include "qlistview.h"
+#include "qlistbox.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qbitmap.h"
@@ -103,6 +104,8 @@ static const char* closed_xpm[]={
 "#cbababababab#d",
 "##############d",
 ".dddddddddddddd"};
+
+
 /* XPM */
 static const char* cdtoparent_xpm[]={
 "15 13 3 1",
@@ -122,6 +125,8 @@ static const char* cdtoparent_xpm[]={
 "#aaaaaaaaaaaaa#",
 "#aaaaaaaaaaaaa#",
 "###############"};
+
+
 /* XPM */
 static const char* detailedview_xpm[]={
 "14 11 3 1",
@@ -139,6 +144,8 @@ static const char* detailedview_xpm[]={
 ".####.###.###.",
 "..............",
 ".####.###.###."};
+
+
 /* XPM */
 static const char* mclistview_xpm[]={
 "15 11 4 1",
@@ -157,6 +164,8 @@ static const char* mclistview_xpm[]={
 "...#####...####",
 ".a.#bbb#.a.#bbb",
 "...#####...####"};
+
+
 static QPixmap * openFolderIcon = 0;
 static QPixmap * closedFolderIcon = 0;
 static QPixmap * detailViewIcon = 0;
@@ -242,35 +251,18 @@ struct QFileDialogPrivate {
 	QFileDialogPrivate * d;
     };
 
-    class MCList: public QTableView {
+    class MCItem: public QListBoxItem {
     public:
-	MCList( QListView *, QWidget * );
-	~MCList();
-	void paintCell( QPainter *, int row, int col );
-
-	void clear();
-    protected:
-	void mousePressEvent( QMouseEvent * );
-	void mouseMoveEvent( QMouseEvent * );
-	void mouseReleaseEvent( QMouseEvent * );
-	void mouseDoubleClickEvent( QMouseEvent * );
-	void focusInEvent( QFocusEvent * );
-	void focusOutEvent( QFocusEvent * );
-	void paintEvent( QPaintEvent * );
-	void resizeEvent( QResizeEvent * );
-	void keyPressEvent( QKeyEvent * );
-	int cellWidth ( int );
-    private:
-	void setFocusToPoint( const QPoint & );
-	void setUpContents();
-	void updateItem( QListViewItem * );
-	void ensureVisible( int col );
-	QListView * lv;
-	QVector<QListViewItem> * items;
-	QArray<int> * widths;
+	MCItem( QListBox *, QListViewItem * item );
+	QString text() const;
+	const QPixmap *pixmap() const;
+	int height( const QListBox * ) const;
+	int width( const QListBox * ) const;
+	void paint( QPainter * );
+	QListViewItem * i;
     };
 
-    MCList * moreFiles;
+    QListBox * moreFiles;
 
     QFileDialog::Mode mode;
 
@@ -381,369 +373,57 @@ QString QFileDialogPrivate::File::key( int column, bool ascending ) const
 }
 
 
-
-QFileDialogPrivate::MCList::MCList( QListView * files, QWidget * parent )
-    : QTableView( parent, "multi-column list box" )
+QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
+    : QListBoxItem()
 {
-    lv = files;
-    items = 0;
-    widths = 0;
-    setCellHeight( fontMetrics().height() + 2*files->itemMargin() );
-    setCellWidth( 0 );
-    setBackgroundMode( PaletteBase ); // NoBackground for really cool bugs
+    i = item;
+    lb->insertItem( this );
 }
 
 
-
-QFileDialogPrivate::MCList::~MCList()
+QString QFileDialogPrivate::MCItem::text() const
 {
-    delete items;
-    delete widths;
+    return i->text( 0 );
 }
 
 
-int QFileDialogPrivate::MCList::cellWidth ( int c )
+const QPixmap *QFileDialogPrivate::MCItem::pixmap() const
 {
-    if ( !widths )
-	setUpContents();
-    if ( !widths || c >= (int)(widths->size()) )
-	return 25;
-    return (*widths)[c];
+    return i->pixmap( 0 );
 }
 
 
-void QFileDialogPrivate::MCList::paintCell( QPainter *p, int row, int col )
+int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
-    if ( (uint)(col * numRows() + row) >= items->count() )
-	return;
-
-    QListViewItem * file = (*items)[col*numRows() + row];
-    if ( file ) {
-	file->paintCell( p, colorGroup(), 0, cellWidth(col), AlignLeft );
-	if ( lv->currentItem() == file )
-	    file->paintFocus( p, colorGroup(),
-			      QRect( 0, 0,
-				     cellWidth( col ), cellHeight( row ) ) );
-    }
+    return lb->fontMetrics().height() + 4;
 }
 
 
-void QFileDialogPrivate::MCList::clear()
+int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
 {
-    delete items;
-    items = 0;
-}
-
-void QFileDialogPrivate::MCList::setFocusToPoint( const QPoint & p )
-{
-    if ( !items )
-	setUpContents();
-
-    int row = findRow( p.y() ), col = findCol( p.x() );
-    if ( row < 0 || col < 0 )
-	return;
-
-    int i = col * numRows() + row;
-    if ( i >= (int)items->count() )
-	return;
-
-    const QListViewItem * file = (*items)[col*numRows() + row];
-    if ( !file )
-	return;
-
-    QListViewItem * prev = lv->currentItem();
-    if ( prev != file ) {
-	bool s = TRUE;
-	if ( lv->isMultiSelection() &&
-	     ( prev ? !prev->isSelected() : file->isSelected() ) )
-	    s = FALSE;
-	lv->setSelected( (QListViewItem *)file, s );
-	lv->setCurrentItem( (QListViewItem *)file );
-	ensureVisible( col );
-	updateCell( row, col );
-    }
-    updateItem( prev );
+    const QFontMetrics & fm = lb->fontMetrics();
+    int w = 4;
+    if ( pixmap() )
+	w += pixmap()->width();
+    w += fm.width( text() );
+    return w;
 }
 
 
-void QFileDialogPrivate::MCList::ensureVisible( int col )
+void QFileDialogPrivate::MCItem::paint( QPainter * p )
 {
-    if ( col < leftCell() ) {
-	setLeftCell( col );
-    } else if ( col >= lastColVisible() ) {
-	int w = viewWidth();
-	int i = col;
-	while( i >= 0 && w > 0 ) {
-	    w -= cellWidth( i );
-	    if ( w >= 0 )
-		i--;
-	}
-	if ( w < 0 && i < col )
-	    i++;
-	if ( i < 0 )
-	    i = 0;
-	setLeftCell( i );
-    }
+    const QPixmap * pm = pixmap();
+    if ( pm )
+	p->drawPixmap( 2, 2, *pm );
+    QFontMetrics fm = p->fontMetrics();
+    int yPos;			// vertical text position
+    if ( !pm || pm->height() < fm.height() )
+	yPos = fm.ascent() + fm.leading()/2;
+    else
+	yPos = pm->height()/2 - fm.height()/2 + fm.ascent();
+    p->drawText( pm ? pm->width()+4 : 20, yPos, text() );
 }
 
-
-void QFileDialogPrivate::MCList::setUpContents()
-{
-    bool oldAutoUpdate = autoUpdate();
-    setAutoUpdate( FALSE );
-    const QListViewItem * file;
-    if ( !items ) {
-	setNumRows( QMAX( 1, (height()+2) / cellHeight() ) );
-
-	file = lv->firstChild();
-	int i = 0;
-	int w, maxw, totalw;
-	maxw = 40;
-	totalw = 0;
-	
-	int count = 0;
-	while( file ) {
-	    file = file->nextSibling();
-	    count++;
-	}
-	
-	file = lv->firstChild();
-
-	delete widths;
-	widths = new QArray<int>( (count+numRows()-1)/numRows() );
-
-	while( file ) {
-	    if ( file->height() ) {
-		w = file->width( fontMetrics(), lv, 0 );
-		if ( w > maxw )
-		    maxw = w;
-		file = file->nextSibling();
-		if ( (i+1) % numRows() == 0 || !file ) {
-		    (*widths)[ i / numRows() ] = maxw;
-		    totalw += maxw;
-		    maxw = 40;
-		}
-		i++;
-	    } else {
-		file = file->nextSibling();
-	    }
-	}
-
-	if ( totalw > width() ) {
-	    i = numRows();
-	    setNumRows( (height() + 2 - horizontalScrollBar()->height())
-			/ cellHeight() );
-	    if ( i != numRows() ) {
-		// ### not optimal; repeated code.
-		file = lv->firstChild();
-		i = 0;
-		maxw = 40;
-		/* totalw = 0; */
-
-		delete widths;
-		widths = new QArray<int>( (count+numRows()-1)/numRows() );
-
-		while( file ) {
-		    if ( file->height() ) {
-			w = file->width( fontMetrics(), lv, 0 );
-			if ( w > maxw )
-			    maxw = w;
-			file = file->nextSibling();
-			if ( (i+1) % numRows() == 0 || !file ) {
-			    (*widths)[ i / numRows() ] = maxw;
-			    /* totalw += maxw; */
-			    maxw = 40;
-			}
-			i++;
-		    } else {
-			file = file->nextSibling();
-		    }
-		}
-	    }
-	    setTableFlags( Tbl_hScrollBar
-			   + Tbl_snapToHGrid + Tbl_clipCellPainting
-			   + Tbl_cutCellsV + Tbl_smoothHScrolling );
-	} else {
-	    setTableFlags( Tbl_snapToHGrid + Tbl_clipCellPainting
-			   + Tbl_cutCellsV );
-	}
-	setNumCols( widths->size() );
-
-	items = new QVector<QListViewItem>( count );
-	i = 0;
-	file = lv->firstChild();
-	// may have the wrong order.  fix that later.
-	while( file ) {
-	    if ( file->height() )
-		items->insert( i++, file );
-	    file = file->nextSibling();
-	}
-    }
-    setAutoUpdate( oldAutoUpdate );
-}
-
-
-void QFileDialogPrivate::MCList::updateItem( QListViewItem * file )
-{
-    setUpContents();
-    int i = items->count() -1 ;
-    while( i >= 0 ) {
-	if ( (*items)[i] == file ) {
-	    // and all this because it's too much work to
-	    // add a proper QListBox::setMultiColumn()? hm...
-
-	    int col, row;
-	    col = i / numRows();
-	    row = i - ( col * numRows() );
-	    updateCell( row, col );
-	    return;
-	}
-	i--;
-    }
-}
-
-
-void QFileDialogPrivate::MCList::mousePressEvent( QMouseEvent * e )
-{
-    if ( e ) {
-	if ( lv->isMultiSelection() && lv->currentItem() ) {
-	    QListViewItem * i = lv->currentItem();
-	    lv->setCurrentItem( 0 );
-	    updateItem( i );
-	}
-	setFocusToPoint( e->pos() );
-    }
-}
-
-
-void QFileDialogPrivate::MCList::mouseMoveEvent( QMouseEvent * )
-{
-}
-
-
-void QFileDialogPrivate::MCList::mouseReleaseEvent( QMouseEvent * )
-{
-}
-
-
-void QFileDialogPrivate::MCList::mouseDoubleClickEvent( QMouseEvent * e )
-{
-    if ( e ) {
-	setFocusToPoint( e->pos() );
-	// ### uglehack alert ###
-	QKeyEvent ke( QEvent::KeyPress, Key_Enter, 0, 0 );
-	QApplication::sendEvent( lv, &ke );
-    }
-}
-
-
-void QFileDialogPrivate::MCList::paintEvent( QPaintEvent * e )
-{
-    if ( !items )
-	setUpContents();
-    QTableView::paintEvent( e );
-}
-
-
-void QFileDialogPrivate::MCList::resizeEvent( QResizeEvent * e )
-{
-    clear();
-    setNumRows( (height()+2) / cellHeight() );
-    QTableView::resizeEvent( e );
-}
-
-
-void QFileDialogPrivate::MCList::keyPressEvent( QKeyEvent * e )
-{
-    if ( !e )
-	return;
-
-    int col=0, row=0;
-    setUpContents();
-    int i = items->count() -1 ;
-    while( i >= 0 ) {
-	if ( (*items)[i] == lv->currentItem() ) {
-	    col = i / numRows();
-	    row = i - ( col * numRows() );
-	    break;
-	}
-	i--;
-    }
-
-    switch( e->key() ) {
-    case Key_Down:
-	e->accept();
-	if ( row < numRows() - 1 )
-	    row++;
-	break;
-    case Key_Up:
-	e->accept();
-	if ( row )
-	    row--;
-	break;
-    case Key_Left:
-	e->accept();
-	if ( col )
-	    col--;
-	break;
-    case Key_Right:
-	e->accept();
-	if ( col < numCols() - 1 )
-	    col++;
-	break;
-    case Key_Space:
-	if ( lv->isMultiSelection() && lv->currentItem() ) {
-	    QListViewItem * i = lv->currentItem();
-	    lv->setSelected( i, !i->isSelected() );
-	    updateItem( i );
-	    return;
-	}
-    case Key_Enter:
-	QApplication::sendEvent( lv, e );
-	clear();
-	update();
-	return;
-    default:
-	if ( e->ascii() > 32 && e->ascii() < 127 ) {
-	    QListViewItem * oldFile = lv->currentItem();
-	    QApplication::sendEvent( lv, e );
-	    QListViewItem * newFile = lv->currentItem();
-	    if ( oldFile != newFile ) {
-		updateItem( oldFile );
-		updateItem( newFile );
-	    }
-	}
-	return;
-    }
-
-    if ( col * numRows() + row >= (int)(items->count()) )
-	return;
-
-    QListViewItem * prev = lv->currentItem();
-    QListViewItem * file = (*items)[col * numRows() + row];
-    if ( prev != file ) {
-	if ( lv->isMultiSelection() && e->state() && prev )
-	    lv->setSelected( file, prev->isSelected() );
-	else if ( !lv->isMultiSelection() )
-	    lv->setSelected( file, TRUE );
-	lv->setCurrentItem( file );
-	ensureVisible( col );
-	updateCell( row, col );
-	updateItem( prev );
-    }
-}
-
-
-void QFileDialogPrivate::MCList::focusInEvent( QFocusEvent * )
-{
-    updateItem( lv->currentItem() );
-}
-
-
-void QFileDialogPrivate::MCList::focusOutEvent( QFocusEvent * )
-{
-    updateItem( lv->currentItem() );
-}
 
 /*!
   \class QFileDialog qfiledialog.h
@@ -834,7 +514,7 @@ void QFileDialog::init()
     d->stack->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 			
     files = new QListView( d->stack, "current directory listing" );
-    QFontMetrics fm( fontMetrics() );
+    const QFontMetrics & fm( fontMetrics() );
     files->addColumn( tr("Name"), 150 );
     files->setColumnWidthMode( 0, QListView::Manual );
     files->addColumn( tr("Size"), 30 + fm.width( tr("Size") ) );
@@ -859,14 +539,22 @@ void QFileDialog::init()
 					      const QPoint &, int)),
 	     this, SLOT(popupContextMenu(QListViewItem *,
 					 const QPoint &, int)) );
+
     files->setFocusPolicy( StrongFocus );
 
     files->installEventFilter( this );
     files->viewport()->installEventFilter( this );
 
-    d->moreFiles = new QFileDialogPrivate::MCList( files, d->stack );
+    d->moreFiles = new QListBox( d->stack );
     d->moreFiles->setFrameStyle( QFrame::NoFrame );
     d->moreFiles->setFocusPolicy( StrongFocus );
+    d->moreFiles->setRowMode( QListBox::FitToHeight );
+    d->moreFiles->setVariableWidth( TRUE );
+
+    connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
+	     this, SLOT(updateFileNameEdit(QListBoxItem *)) );
+    connect( d->moreFiles, SIGNAL(selected(QListBoxItem *)),
+	     this, SLOT(selectDirectoryOrFile(QListBoxItem *)) );
 
     okB = new QPushButton( tr("OK"), this, "OK" ); //### Or "Save (see other "OK")
     okB->setAutoDefault( TRUE );
@@ -997,7 +685,7 @@ void QFileDialog::init()
 	resize( 420, 236 );
     } else {
 	QSize s( files->sizeHint() );
-	s = QSize( s.width() + 50, s.height() + 80 );
+	s = QSize( s.width() + 250, s.height() + 82 );
 
 	if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
 	    s.setWidth( QApplication::desktop()->width() * 2 / 3 );
@@ -1208,6 +896,7 @@ void QFileDialog::rereadDir()
 	}
     }
 
+    d->moreFiles->clear();
     files->clear();
 
     QFileInfoListIterator it( *filist );
@@ -1220,10 +909,9 @@ void QFileDialog::rereadDir()
 		= new QFileDialogPrivate::File( d, fi, files );
 	    if ( mode() == ExistingFiles && fi->isDir() )
 		i->setSelectable( FALSE );
+	    (void)new QFileDialogPrivate::MCItem( d->moreFiles, i );
 	}
     }
-    d->moreFiles->clear();
-    d->moreFiles->repaint();
 }
 
 
@@ -1597,8 +1285,7 @@ void QFileDialog::updateGeometry()
 }
 
 
-/*!  Updates the dialog when the cursor moves in the listview.
-*/
+/*!  Updates the dialog when the cursor moves in the listview. */
 
 void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 {
@@ -1618,6 +1305,18 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 	trySetSelection( i->info, TRUE );
     }
+}
+
+
+/*! \overload */
+
+void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
+{
+    if ( !newItem )
+	return;
+    QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
+    i->i->setSelected( i->selected() );
+    updateFileNameEdit( i->i );
 }
 
 
@@ -1661,6 +1360,16 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    accept();
 	}
     }
+}
+
+
+void QFileDialog::selectDirectoryOrFile( QListBoxItem * newItem )
+{
+    if ( !newItem )
+	return;
+    QFileDialogPrivate::MCItem * i = (QFileDialogPrivate::MCItem *)newItem;
+    i->i->setSelected( i->selected() );
+    selectDirectoryOrFile( i->i );
 }
 
 
