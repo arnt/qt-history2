@@ -77,9 +77,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    precompcpp = project->first("TARGET") + "_pch";
 	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".obj";
 	    project->variables()["QMAKE_CLEAN"] += precompcpp + ".cpp";
-	    project->variables()["OBJECTS"] += precompcpp + ".obj";
 	    precompcpp += ".cpp";
 	}
+	// Add linking of PCH compiled objects
+	project->variables()["OBJECTS"] += QString(precompcpp).replace(".cpp", ".obj");
     }
 
     t << "####### Compiler, tools and options" << endl << endl;
