@@ -63,12 +63,10 @@ public:
     QAction *menuActions[LastMenuAction];
 
     static QWidget *active;
-    static QPoint mousePressPos;
-    static QPoint lastMousePos;
+    static QPoint mousePos;
 };
 QWidget *QWSManagerPrivate::active = 0;
-QPoint QWSManagerPrivate::mousePressPos;
-QPoint QWSManagerPrivate::lastMousePos;
+QPoint QWSManagerPrivate::mousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
@@ -147,9 +145,8 @@ bool QWSManager::event(QEvent *e)
 
 void QWSManager::mousePressEvent(QMouseEvent *e)
 {
-    d->mousePressPos = e->globalPos();
-    d->lastMousePos = d->mousePressPos;
-    d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePressPos);
+    d->mousePos = e->globalPos();
+    d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePos);
     if (d->activeRegion == QDecoration::Menu)
         menu(d->managed->geometry().topLeft());
     if (d->activeRegion != QDecoration::None &&
@@ -259,9 +256,8 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
 void QWSManager::handleMove(const QPoint &g)
 {
-    if (g == d->lastMousePos)
+    if (g == d->mousePos)
         return;
-    d->lastMousePos = g;
 
     if ( d->managed->isMaximized() )
         return;
@@ -273,47 +269,48 @@ void QWSManager::handleMove(const QPoint &g)
 
     QRect geom(d->managed->geometry());
 
+    QPoint delta = g - d->mousePos;
+    d->mousePos = g;
+
     if (d->activeRegion == QDecoration::Title) {
-        QPoint delta = g - d->mousePressPos;
         geom = QRect(x + delta.x(), y + delta.y(), w, h);
-        d->mousePressPos = g;
     } else {
         bool keepTop = true;
         bool keepLeft = true;
         switch (d->activeRegion) {
         case QDecoration::Top:
-            geom.setTop(g.y());
+            geom.setTop(geom.y() + delta.y());
             keepTop = false;
             break;
         case QDecoration::Bottom:
-            geom.setBottom(g.y());
+            geom.setBottom(geom.y() + delta.y());
             keepTop = true;
             break;
         case QDecoration::Left:
-            geom.setLeft(g.x());
+            geom.setLeft(geom.x() + delta.x());
             keepLeft = false;
             break;
         case QDecoration::Right:
-            geom.setRight(g.x());
+            geom.setRight(geom.x() + delta.x());
             keepLeft = true;
             break;
         case QDecoration::TopRight:
-            geom.setTopRight(g);
+            geom.setTopRight(geom.topRight() + delta);
             keepLeft = true;
             keepTop = false;
             break;
         case QDecoration::TopLeft:
-            geom.setTopLeft(g);
+            geom.setTopLeft(geom.topLeft() + delta);
             keepLeft = false;
             keepTop = false;
             break;
         case QDecoration::BottomLeft:
-            geom.setBottomLeft(g);
+            geom.setBottomLeft(geom.bottomLeft() + delta);
             keepLeft = false;
             keepTop = true;
             break;
         case QDecoration::BottomRight:
-            geom.setBottomRight(g);
+            geom.setBottomRight(geom.bottomRight() + delta);
             keepLeft = true;
             keepTop = true;
             break;
@@ -333,10 +330,6 @@ void QWSManager::handleMove(const QPoint &g)
         else
             geom.setLeft(geom.left() - (newSize.width() - geom.width()));
     }
-
-
-
-
     if (geom != d->managed->geometry()) {
         QApplication::sendPostedEvents();
         d->managed->setGeometry(geom);
@@ -453,7 +446,7 @@ void QWSManager::menuTriggered(QAction *item)
                || item == d->menuActions[QWSManagerPrivate::NormalizeAction]) {
         toggleMaximize();
     } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
-        d->mousePressPos = QCursor::pos();
+        d->mousePos = QCursor::pos();
         d->activeRegion = QDecoration::Title;
         d->active = d->managed;
         d->managed->grabMouse();
