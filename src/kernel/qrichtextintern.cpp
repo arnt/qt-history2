@@ -47,7 +47,7 @@ public:
     QTextCharFormat();
     QTextCharFormat( const QTextCharFormat &format );
     QTextCharFormat( const QFont &f, const QColor &c );
-    QTextCharFormat &QTextCharFormat::operator=( const QTextCharFormat &fmt );
+    QTextCharFormat &operator=( const QTextCharFormat &fmt );
     bool operator==( const QTextCharFormat &format );
     virtual ~QTextCharFormat();
 

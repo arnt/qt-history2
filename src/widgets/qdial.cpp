@@ -482,7 +482,8 @@ void QDial::rangeChange()
 
 int QDial::valueFromPoint( const QPoint & p ) const
 {
-    double a = atan2( height()/2 - p.y(), p.x() - width()/2 );
+    double a = atan2( (double)height()/2.0 - p.y(),
+		      (double)p.x() - width()/2.0 );
     if ( a < m_pi/-2 )
 	a = a + m_pi*2;
 

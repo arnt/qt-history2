@@ -219,7 +219,7 @@ ArgList *addArg( Argument * );			// add arg to tmpArgList
 
 enum Member { SignalMember,
 	      SlotMember,
-	      PropertyCandidateMember,
+	      PropertyCandidateMember
 	    };
 
 void	 addMember( Member );			// add tmpFunc to current class
