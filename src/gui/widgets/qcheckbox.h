@@ -48,8 +48,6 @@ protected:
     bool hitButton(const QPoint &pos) const;
     void checkStateSet();
     void nextCheckState();
-    void drawBevel(QPainter *);
-    void drawLabel(QPainter *);
     void paintEvent(QPaintEvent *);
     void updateMask();
 

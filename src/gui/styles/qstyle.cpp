@@ -680,19 +680,20 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     a widget that performs some action or displays information to the
     user.
 
-    \value CE_PushButton  The bevel and default indicator of a QPushButton
-    \value CE_PushButtonLabel  The label (icon with text or pixmap)
-        of a QPushButton
+    \value CE_PushButton  A QPushButton, draws CE_PushButtonBevel, CE_PushButtonLabel and PE_FocusRect
+    \value CE_PushButtonBevel  The bevel and default indicator of a QPushButton.
+    \value CE_PushButtonLabel  The label (icon with text or pixmap) of a QPushButton
 
-    \value CE_CheckBox  The indicator of a QCheckBox
+    \value CE_CheckBox  A QCheckBox, draws a PE_Indicator, a CE_CheckBoxLabel and a PE_FocusRect
     \value CE_CheckBoxLabel  The label (text or pixmap) of a QCheckBox
 
-    \value CE_RadioButton  The indicator of a QRadioButton
+    \value CE_RadioButton  A QRadioButton, draws a PE_ExclusiveIndicator, a CE_RadioButtonLabel and a PE_FocusRect
     \value CE_RadioButtonLabel  The label (text or pixmap) of a QRadioButton
 
     \value CE_TabBarTab  The tab within a QTabBar (a QTab)
     \value CE_TabBarLabel  The label within a QTab
 
+    \value CE_ProgressBar  A QProgressBar, draws CE_ProgressBarGroove, CE_ProgressBarContents and CE_ProgressBarLabel
     \value CE_ProgressBarGroove  The groove where the progress
         indicator is drawn in a QProgressBar
     \value CE_ProgressBarContents  The progress indicator of a QProgressBar
@@ -862,8 +863,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 */
 
 /*!
-    \fn QRect QStyle::subRect(SubRect subRect, const QStyleOption *option, \
-                              const QFontMetrics &metrics, const QWidget *widget) const
+    \fn QRect QStyle::subRect(SubRect subRect, const QStyleOption *option, const QWidget *widget) const
 
     Returns the sub-area \a subRect as described in \a option in logical
     coordinates.
@@ -1270,12 +1270,10 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
 /*!
     \fn QSize QStyle::sizeFromContents(ContentsType type, const QStyleOption *option, \
-                                       const QSize &contentsSize, const QFontMetrics &metrics, \
-                                       const QWidget *widget) const
+                                       const QSize &contentsSize, const QWidget *widget) const
 
     Returns the size of styled object described in \a option based on the
-    contents size \a contentsSize. The font metrics in \a metrics can aid
-    in determining the size.
+    contents size \a contentsSize.
 
     The \a option argument is a pointer to a QStyleOption or one of its
     subclasses. The \a option can be cast to the appropriate type based

@@ -354,7 +354,7 @@ QSize QToolButton::sizeHint() const
     if ((d->menu || !actions().isEmpty()) && ! popupDelay())
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
-    return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), fm, this).
+    return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
             expandedTo(QApplication::globalStrut());
 }
 
@@ -447,8 +447,7 @@ void QToolButton::drawBevel(QPainter *p)
 void QToolButton::drawLabel(QPainter *p)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ToolButtonContents, &opt,
-                                                  fontMetrics(), this));
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ToolButtonContents, &opt, this));
     style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
 }
 

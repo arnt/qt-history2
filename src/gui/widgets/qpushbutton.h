@@ -51,8 +51,6 @@ public slots:
     void showMenu();
 
 protected:
-    void drawBevel(QPainter *);
-    void drawLabel(QPainter *);
     void paintEvent(QPaintEvent *);
     void keyPressEvent(QKeyEvent *);
     void focusInEvent(QFocusEvent *);

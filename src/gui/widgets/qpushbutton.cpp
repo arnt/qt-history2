@@ -356,35 +356,8 @@ QSize QPushButton::sizeHint() const
         w += sz.width();
     if(!empty || !h)
         h = qMax(h, sz.height());
-    return (style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), fm, this).
+    return (style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), this).
             expandedTo(QApplication::globalStrut()));
-}
-
-/*!
-    Draws the push button bevel on painter \a paint. Called from
-    paintEvent().
-
-    \sa drawLabel()
-*/
-
-void QPushButton::drawBevel(QPainter *paint)
-{
-    QStyleOptionButton opt = d->getStyleOption();
-    style()->drawControl(QStyle::CE_PushButton, &opt, paint, this);
-}
-
-
-/*!
-    Draws the push button label on painter \a paint. Called from
-    paintEvent().
-
-    \sa drawBevel()
-*/
-void QPushButton::drawLabel(QPainter *paint)
-{
-    QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = style()->subRect(QStyle::SR_PushButtonContents, &opt, fontMetrics(), this);
-    style()->drawControl(QStyle::CE_PushButtonLabel, &opt, paint, this);
 }
 
 
@@ -405,24 +378,13 @@ void QPushButton::updateMask()
 }
 
 
-/*!
-    \fn void QPushButton::paintEvent(QPaintEvent *event)
-
-    Paints the button in response to the paint \a event, by first
-    calling drawBevel() and then drawLabel(). If you reimplement
-    paintEvent() just to draw a different label, you can call
-    drawBevel() from your own code, for example:
-    \code
-        QPainter p(this);
-        drawBevel(&p);
-        // ... your label drawing code
-    \endcode
+/*!\reimp
 */
 void QPushButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    drawBevel(&p);
-    drawLabel(&p);
+    QStyleOptionButton opt = d->getStyleOption();
+    style()->drawControl(QStyle::CE_PushButton, &opt, &p, this);
 }
 
 

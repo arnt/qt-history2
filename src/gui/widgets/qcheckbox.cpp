@@ -213,56 +213,16 @@ QSize QCheckBox::sizeHint() const
     QFontMetrics fm = fontMetrics();
     QStyleOptionButton opt = d->getStyleOption();
     QSize sz = style()->itemRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
-    return (style()->sizeFromContents(QStyle::CT_CheckBox, &opt, sz, fm, this)
-                   .expandedTo(QApplication::globalStrut()));
+    return (style()->sizeFromContents(QStyle::CT_CheckBox, &opt, sz, this) .expandedTo(QApplication::globalStrut()));
 }
 
-/*!
-    Draws the checkbox bevel on painter \a paint. Called from paintEvent().
-
-    \sa drawLabel()
-*/
-void QCheckBox::drawBevel(QPainter *paint)
-{
-    QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxIndicator, &opt, fontMetrics(),
-                                  this));
-    style()->drawControl(QStyle::CE_CheckBox, &opt, paint, this);
-}
-
-
-/*!
-    Draws the check box label on painter \a p. Called from paintEvent().
-
-    \sa drawBevel()
-*/
-void QCheckBox::drawLabel(QPainter *p)
-{
-    QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxContents, &opt, fontMetrics(),
-                                                  this));
-    style()->drawControl(QStyle::CE_CheckBoxLabel, &opt, p, this);
-}
-
-/*!
-    \fn void QCheckBox::paintEvent(QPaintEvent *event)
-
-    Paints the button in response to the paint \a event, by first
-    calling drawBevel() and then drawLabel(). If you reimplement
-    paintEvent() in order to draw a different label only, you can call
-    drawBevel() from your own code.
-
-    \code
-        QPainter p(this);
-        drawBevel(&p);
-        // ... your label drawing code
-    \endcode
+/*!\reimp
 */
 void QCheckBox::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    drawBevel(&p);
-    drawLabel(&p);
+    QStyleOptionButton opt = d->getStyleOption();
+    style()->drawControl(QStyle::CE_CheckBox, &opt, &p, this);
 }
 
 
@@ -272,8 +232,7 @@ void QCheckBox::paintEvent(QPaintEvent *)
 void QCheckBox::updateMask()
 {
     QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxIndicator, &opt, fontMetrics(),
-                                                  this));
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxIndicator, &opt, this));
 
     QBitmap bm(width(), height());
     bm.fill(Qt::color0);
@@ -282,11 +241,8 @@ void QCheckBox::updateMask()
     style()->drawControlMask(QStyle::CE_CheckBox, &opt, &p, this);
     if (!text().isNull() || !icon().isNull()) {
         QStyleOptionButton opt = d->getStyleOption();
-        const QFontMetrics &fm = fontMetrics();
-        QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxContents, &opt, fm,
-                                                         this));
-        QRect frect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, fm,
-                                                         this));
+        QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxContents, &opt, this));
+        QRect frect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, this));
         QRect label(crect.unite(frect));
         p.fillRect(label, Qt::color1);
     }
@@ -299,8 +255,7 @@ void QCheckBox::updateMask()
 bool QCheckBox::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = d->getStyleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, fontMetrics(),
-                                                 this));
+    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, this));
     if (qApp->reverseLayout()) {
         r.setRight(width());
     } else {

@@ -207,7 +207,7 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
         //let the style modify the above size..
         QStyleOptionMenuItem opt = getStyleOption(action);
-        sz = q->style()->sizeFromContents(QStyle::CT_MenuBarItem, &opt, sz, fm, q);
+        sz = q->style()->sizeFromContents(QStyle::CT_MenuBarItem, &opt, sz, q);
 
         if(!sz.isEmpty()) {
             { //update the separator state
@@ -306,6 +306,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
         opt.state |= QStyle::Style_Enabled;
     else
         opt.palette.setCurrentColorGroup(QPalette::Disabled);
+    opt.fontMetrics = q->fontMetrics();
     if (currentAction && currentAction == action) {
         opt.state |= QStyle::Style_Selected;
         if (popupState && !closePopupMode)
@@ -1097,7 +1098,7 @@ QSize QMenuBar::sizeHint() const
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
         opt.palette = palette();
         return (style()->sizeFromContents(QStyle::CT_MenuBar, &opt,
-                                         ret.expandedTo(QApplication::globalStrut()), fontMetrics(),
+                                         ret.expandedTo(QApplication::globalStrut()),
                                          this));
     }
     return ret;
@@ -1132,14 +1133,12 @@ int QMenuBar::heightForWidth(int max_width) const
         height = qMax(d->rightWidget->sizeHint().height(), height);
     if(as_gui_menubar) {
         QStyleOptionMenuItem opt;
-        opt.rect = rect();
+        opt.init(this);
         opt.menuRect = rect();
         opt.state = QStyle::Style_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
         opt.checkType = QStyleOptionMenuItem::NotCheckable;
-        opt.palette = palette();
-        return style()->sizeFromContents(QStyle::CT_MenuBar, &opt, QSize(0, height), fontMetrics(),
-                                        this).height(); //not pretty..
+        return style()->sizeFromContents(QStyle::CT_MenuBar, &opt, QSize(0, height), this).height(); //not pretty..
     }
     return height;
 }

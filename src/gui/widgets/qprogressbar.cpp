@@ -256,21 +256,8 @@ Qt::Alignment QProgressBar::alignment() const
 void QProgressBar::paintEvent(QPaintEvent *)
 {
     QStylePainter paint(this);
-
     QStyleOptionProgressBar opt = d->getStyleOption();
-    const QFontMetrics &fm = fontMetrics();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ProgressBarGroove, &opt, fm, this));
-
-    paint.drawControl(QStyle::CE_ProgressBarGroove, opt);
-    opt.rect = rect();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ProgressBarContents, &opt, fm, this));
-    paint.drawControl(QStyle::CE_ProgressBarContents, opt);
-
-    if (d->textVisible) {
-        opt.rect = rect();
-        opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_ProgressBarLabel, &opt, fm, this));
-        paint.drawControl(QStyle::CE_ProgressBarLabel, opt);
-    }
+    paint.drawControl(QStyle::CE_ProgressBar, opt);
 }
 
 /*!
@@ -283,7 +270,7 @@ QSize QProgressBar::sizeHint() const
     QStyleOptionProgressBar opt = d->getStyleOption();
     int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
     return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt,
-                                    QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), fm, this);
+                                    QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), this);
 }
 
 /*!

@@ -383,8 +383,7 @@ QSize QSlider::sizeHint() const
         w = SliderLength;
         h = thick;
     }
-    return style()->sizeFromContents(QStyle::CT_Slider, &opt, QSize(w, h), fontMetrics(),
-                                    this).expandedTo(QApplication::globalStrut());
+    return style()->sizeFromContents(QStyle::CT_Slider, &opt, QSize(w, h), this).expandedTo(QApplication::globalStrut());
 }
 
 /*!

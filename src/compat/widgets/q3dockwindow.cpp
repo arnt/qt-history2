@@ -91,8 +91,7 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
     int sw = 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, &opt, this) / 3;
-    return (style()->sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), fontMetrics(),
-            this).expandedTo(QApplication::globalStrut()));
+    return (style()->sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), this).expandedTo(QApplication::globalStrut()));
 }
 
 void Q3DockWindowResizeHandle::setOrientation(Qt::Orientation o)
@@ -392,8 +391,8 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     opt.rect = rect();
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_DockWindowHandleRect, &opt,
-                                                  fontMetrics(), this));
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect,
+                                  style()->subRect(QStyle::SR_DockWindowHandleRect, &opt, this));
     style()->drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
     QWidget::paintEvent(e);
 }

@@ -133,10 +133,9 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
 QSize QRadioButton::sizeHint() const
 {
     ensurePolished();
-    QFontMetrics fm = fontMetrics();
-    QSize sz = style()->itemRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
+    QSize sz = style()->itemRect(fontMetrics(), QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
     QStyleOptionButton opt = getStyleOption(this);
-    return (style()->sizeFromContents(QStyle::CT_RadioButton, &opt, sz, fm, this).
+    return (style()->sizeFromContents(QStyle::CT_RadioButton, &opt, sz, this).
             expandedTo(QApplication::globalStrut()));
 }
 
@@ -147,8 +146,7 @@ bool QRadioButton::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = getStyleOption(this);
     QRect r =
-        QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, fontMetrics(),
-                                            this));
+        QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, this));
     if (isRightToLeft()) {
         r.setRight(width());
     } else {
@@ -157,54 +155,14 @@ bool QRadioButton::hitButton(const QPoint &pos) const
     return r.contains(pos);
 }
 
-/*!
-    Draws the radio button bevel on painter \a p. Called from
-    paintEvent().
-
-    \sa drawLabel()
-*/
-void QRadioButton::drawBevel(QPainter *p)
-{
-    QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonIndicator, &opt,
-                                                  fontMetrics(), this));
-    style()->drawControl(QStyle::CE_RadioButton, &opt, p, this);
-}
-
-/*!
-    Draws the radio button label on painter \a p. Called from
-    paintEvent().
-
-    \sa drawBevel()
-*/
-void QRadioButton::drawLabel(QPainter *p)
-{
-    QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonContents, &opt,
-                                                  fontMetrics(), this));
-    style()->drawControl(QStyle::CE_RadioButtonLabel, &opt, p, this);
-}
-
-/*!
-    \fn void QRadioButton::paintEvent(QPaintEvent *event)
-
-    Paints the button in response to the paint \a event, by first
-    calling drawBevel() and then drawLabel(). If you reimplement
-    paintEvent() just to draw a different label, you can call
-    drawBevel() from your own code. For example:
-    \code
-        QPainter p(this);
-        drawBevel(&p);
-        // ... your label drawing code
-    \endcode
-*/
+/*!\reimp
+ */
 void QRadioButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    drawBevel(&p);
-    drawLabel(&p);
+    QStyleOptionButton opt = getStyleOption(this);
+    style()->drawControl(QStyle::CE_RadioButton, &opt, &p, this);
 }
-
 
 /*!
     \reimp
@@ -212,19 +170,14 @@ void QRadioButton::paintEvent(QPaintEvent *)
 void QRadioButton::updateMask()
 {
     QStyleOptionButton opt = getStyleOption(this);
-    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonIndicator, &opt,
-                                                  fontMetrics(), this));
+    opt.rect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonIndicator, &opt, this));
     QBitmap bm(width(), height());
     bm.fill(Qt::color0);
     QPainter p(&bm);
     style()->drawControlMask(QStyle::CE_RadioButton, &opt, &p, this);
     if (!text().isEmpty() || !icon().isNull()) {
-        const QFontMetrics &fm = fontMetrics();
-        QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonContents, &opt,
-                                                         fm, this));
-        QRect frect =
-            QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, fm,
-                                               this));
+        QRect crect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonContents, &opt, this));
+        QRect frect = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, this));
         QRect label(crect.unite(frect));
         p.fillRect(label, Qt::color1);
     }

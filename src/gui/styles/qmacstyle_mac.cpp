@@ -328,8 +328,7 @@ public:
                               const QWidget *w = 0) const;
     void HIThemeDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
                             const QWidget *w = 0) const;
-    QRect HIThemeSubRect(QStyle::SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
-                         const QWidget *widget = 0) const;
+    QRect HIThemeSubRect(QStyle::SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void HIThemeDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                    QPainter *p, const QWidget *w = 0) const;
     QStyle::SubControl HIThemeQuerySubControl(QStyle::ComplexControl cc,
@@ -350,8 +349,7 @@ public:
                              const QWidget *w = 0) const;
     void AppManDrawControl(QStyle::ControlElement element, const QStyleOption *opt, QPainter *p,
                            const QWidget *w = 0) const;
-    QRect AppManSubRect(QStyle::SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
-                        const QWidget *widget = 0) const;
+    QRect AppManSubRect(QStyle::SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void AppManDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt,
                                   QPainter *p, const QWidget *w = 0) const;
     QStyle::SubControl AppManQuerySubControl(QStyle::ComplexControl cc,
@@ -1682,7 +1680,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (ce) {
-    case QStyle::CE_PushButton:
+    case QStyle::CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::Style_Raised | QStyle::Style_Down | QStyle::Style_On)))
                 break;
@@ -2099,8 +2097,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
 #endif
 }
 
-QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *opt,
-                                       const QFontMetrics &fm, const QWidget *widget) const
+QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *opt, const QWidget *widget) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     QRect r;
@@ -2150,12 +2147,12 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
     default:
-        r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
+        r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
     }
     return r;
 #else
-    return q->QWindowsStyle::subRect(sr, opt, fm, widget);
+    return q->QWindowsStyle::subRect(sr, opt, widget);
 #endif
 }
 
@@ -3652,8 +3649,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
     }
 }
 
-QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt,
-                                      const QFontMetrics &fm, const QWidget *widget) const
+QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *opt, const QWidget *widget) const
 {
     QRect r = QRect();
     switch (sr) {
@@ -3676,7 +3672,7 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
         break;
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
-        r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
+        r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
     case QStyle::SR_PanelTab: {
         r = opt->rect;
@@ -3688,7 +3684,7 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
             r.setY(r.y() + newOffset + 8);
         break; }
     default:
-        r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
+        r = q->QWindowsStyle::subRect(sr, opt, widget);
         break;
     }
     return r;
@@ -5005,12 +5001,11 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 }
 
 /*! \reimp */
-QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
-                         const QWidget *w) const
+QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
 {
     if (d->useHITheme)
-	return d->HIThemeSubRect(sr, opt, fm, w);
-    return d->AppManSubRect(sr, opt, fm, w);
+	return d->HIThemeSubRect(sr, opt, w);
+    return d->AppManSubRect(sr, opt, w);
 }
 
 /*! \reimp */
@@ -5078,8 +5073,8 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionCom
 }
 
 /*! \reimp */
-QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &csz,
-                                  const QFontMetrics &fm, const QWidget *widget) const
+QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                                  const QSize &csz, const QWidget *widget) const
 {
     QSize sz(csz);
     switch (ct) {
@@ -5122,11 +5117,11 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
                 if (sz.height() > tabh)
                     sz.rheight() = tabh;
             } else {
-                QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+                QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
             }
         break; }
     case QStyle::CT_PushButton:
-        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
         sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
         break;
     case QStyle::CT_MenuItem:
@@ -5140,7 +5135,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
                 GetThemeMenuSeparatorHeight(&ash);
                 h = ash;
             } else {
-                h = qMax(h, fm.height() + 2);
+                h = qMax(h, mi->fontMetrics.height() + 2);
                 if (!mi->icon.isNull())
                     h = qMax(h, mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal).height() + 4);
             }
@@ -5172,15 +5167,15 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             sz = btn->icon.pixmap(Qt::LargeIconSize, QIcon::Normal).size() + QSize(7, 7);
             if (!btn->text.isEmpty()) {
-                sz.rheight() += fm.lineSpacing();
-                sz.rwidth() = qMax(sz.width(), fm.width(btn->text));
+                sz.rheight() += btn->fontMetrics.lineSpacing();
+                sz.rwidth() = qMax(sz.width(), btn->fontMetrics.width(btn->text));
             }
             if (btn->features & QStyleOptionButton::HasMenu)
                 sz.rwidth() += 12;
         }
         break;
     default:
-        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
+        sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
     }
     QSize macsz;
     if (qt_aqua_size_constrain(widget, ct, sz, &macsz) != QAquaSizeUnknown) {

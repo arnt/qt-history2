@@ -163,7 +163,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
 
     QPixmap pm = icon().pixmap(Qt::SmallIconSize, isEnabled() ? QIcon::Normal : QIcon::Disabled);
 
-    QRect cr = style()->subRect(QStyle::SR_ToolBoxTabContents, &opt, fontMetrics(), this);
+    QRect cr = style()->subRect(QStyle::SR_ToolBoxTabContents, &opt, this);
     QRect tr, ir;
     int ih = 0;
     if (pm.isNull()) {

@@ -32,8 +32,7 @@ public:
                      const QWidget *w = 0) const;
     void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
                          const QWidget *w = 0) const;
-    QRect subRect(SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
-                  const QWidget *widget = 0) const;
+    QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
     void drawComplexControlMask(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
@@ -42,8 +41,8 @@ public:
                                const QPoint &pt, const QWidget *w = 0) const;
     QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
                                  const QWidget *w = 0) const;
-    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &contentsSize,
-                           const QFontMetrics &fm, const QWidget *widget = 0) const;
+    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                           const QSize &contentsSize, const QWidget *widget = 0) const;
 
     int pixelMetric(PixelMetric m, const QStyleOption *opt = 0, const QWidget *widget = 0) const;
 

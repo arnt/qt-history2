@@ -197,6 +197,7 @@ public:
                                const QWidget *w = 0) const = 0;
     enum ControlElement {
         CE_PushButton,
+        CE_PushButtonBevel,
         CE_PushButtonLabel,
 
         CE_CheckBox,
@@ -208,6 +209,7 @@ public:
         CE_TabBarTab,
         CE_TabBarLabel,
 
+        CE_ProgressBar,
         CE_ProgressBarGroove,
         CE_ProgressBarContents,
         CE_ProgressBarLabel,
@@ -287,8 +289,7 @@ public:
         SR_CustomBase = 0xf0000000
     };
 
-    virtual QRect subRect(SubRect r, const QStyleOption *opt, const QFontMetrics &fm,
-                          const QWidget *widget = 0) const = 0;
+    virtual QRect subRect(SubRect r, const QStyleOption *opt, const QWidget *widget = 0) const = 0;
 
 
     enum ComplexControl {
@@ -478,8 +479,7 @@ public:
     };
 
     virtual QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
-                                   const QSize &contentsSize, const QFontMetrics &fm,
-                                   const QWidget *w = 0) const = 0;
+                                   const QSize &contentsSize, const QWidget *w = 0) const = 0;
 
     enum StyleHint {
         // ...

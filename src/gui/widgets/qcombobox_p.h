@@ -128,7 +128,7 @@ protected:
         QVariant value = index.model()->data(index, QAbstractItemModel::FontRole);
         QFont fnt = value.isValid() ? value.toFont() : option.font;
         return QApplication::style()->sizeFromContents(
-            QStyle::CT_MenuItem, &opt, option.rect.size(), QFontMetrics(fnt), 0);
+            QStyle::CT_MenuItem, &opt, option.rect.size(), 0);
     }
 
 private:

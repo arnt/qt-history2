@@ -1774,8 +1774,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 }
 
 /*! \reimp */
-QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
-                             const QWidget *w) const
+QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
 {
     QRect r;
     switch (sr) {
@@ -1784,7 +1783,7 @@ QRect QWindowsStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMet
         r = opt->rect;
         break;
     default:
-        r = QCommonStyle::subRect(sr, opt, fm, w);
+        r = QCommonStyle::subRect(sr, opt, w);
     }
     return r;
 }
@@ -1862,7 +1861,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (slider->state & Style_HasFocus) {
                     QStyleOptionFocusRect fropt;
-                    fropt.rect = subRect(SR_SliderFocusRect, slider, p->fontMetrics(), widget);
+                    fropt.rect = subRect(SR_SliderFocusRect, slider, widget);
                     fropt.palette = slider->palette;
                     fropt.state = Style_None;
                     drawPrimitive(PE_FocusRect, &fropt, p, widget);
@@ -2206,8 +2205,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (cmb->state & Style_HasFocus && !cmb->editable) {
                     QStyleOptionFocusRect focus;
-                    focus.rect = QStyle::visualRect(opt->direction, opt->rect, subRect(SR_ComboBoxFocusRect, cmb,
-                                                            p->fontMetrics(), widget));
+                    focus.rect = QStyle::visualRect(opt->direction, opt->rect,
+                                                    subRect(SR_ComboBoxFocusRect, cmb, widget));
                     focus.palette = cmb->palette;
                     focus.state = Style_FocusAtBorder;
                     focus.backgroundColor = cmb->palette.highlight().color();
@@ -2222,14 +2221,14 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 }
 
 /*! \reimp */
-QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &csz,
-                                      const QFontMetrics &fm, const QWidget *widget) const
+QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                                      const QSize &csz, const QWidget *widget) const
 {
     QSize sz(csz);
     switch (ct) {
     case CT_PushButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
-            sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
+            sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             int w = sz.width(),
                 h = sz.height();
             int defwidth = 0;
@@ -2245,7 +2244,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width();
-            sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
+            sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal).height()
@@ -2271,7 +2270,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
             sz = QSize(sz.width() + windowsItemHMargin * 5 + 1, sz.height() + windowsItemVMargin * 2);
         break;
     default:
-        sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
+        sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
     }
     return sz;
 }

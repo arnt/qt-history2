@@ -150,7 +150,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         //let the style modify the above size..
         QStyleOptionMenuItem opt = getStyleOption(action);
         opt.rect = q->rect();
-        sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q->fontMetrics(), q);
+        sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
 
         if(!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
@@ -1159,8 +1159,7 @@ QSize QMenu::sizeHint() const
     s.rheight() += 2 * style()->pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
 
     return style()->sizeFromContents(QStyle::CT_Menu, &opt,
-                                    s.expandedTo(QApplication::globalStrut()),
-                                    fontMetrics(), this);
+                                    s.expandedTo(QApplication::globalStrut()), this);
 }
 
 /*!

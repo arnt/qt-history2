@@ -87,6 +87,8 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
     opt.rect = q->tabRect(tab);
     opt.palette = q->palette();
+    opt.fontMetrics = q->fontMetrics();
+    opt.direction = q->layoutDirection();
     bool isCurrent = tab == currentIndex;
     opt.state = QStyle::Style_None;
     opt.row = 0;
@@ -631,7 +633,7 @@ QSize QTabBar::tabSizeHint(int index) const
         QSize csz(fm.width(tab->text) + iconSize.width() + 5,
                   qMax(fm.height() + 10, iconSize.height()));
         QStyleOptionTab opt = d->getStyleOption(index);
-        return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, fm, this);
+        return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
     return QSize();
 }

@@ -502,7 +502,7 @@ QSize QLineEdit::sizeHint() const
     opt.palette = palette();
     opt.state = QStyle::Style_None;
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + m, h + m).
-                                     expandedTo(QApplication::globalStrut()), fontMetrics(), this));
+                                     expandedTo(QApplication::globalStrut()), this));
 }
 
 

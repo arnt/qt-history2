@@ -1187,8 +1187,7 @@ QSize QComboBox::sizeHint() const
 
     // add style and strut values
     QStyleOptionComboBox opt = d->getStyleOption();
-    d->sizeHint = (style()->sizeFromContents(QStyle::CT_ComboBox, &opt, d->sizeHint, fm, this)
-                   .expandedTo(QApplication::globalStrut()));
+    d->sizeHint = (style()->sizeFromContents(QStyle::CT_ComboBox, &opt, d->sizeHint, this) .expandedTo(QApplication::globalStrut()));
     return d->sizeHint;
 }
 

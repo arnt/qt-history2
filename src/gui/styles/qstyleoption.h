@@ -48,6 +48,7 @@ public:
     QStyle::StyleFlags state;
     Qt::LayoutDirection direction;
     QRect rect;
+    QFontMetrics fontMetrics;
     QPalette palette;
 
     QStyleOption(int version = QStyleOption::Version, int type = SO_Default);

@@ -32,8 +32,6 @@ public:
 
 protected:
     bool hitButton(const QPoint &) const;
-    void drawBevel(QPainter *p);
-    void drawLabel(QPainter *p);
     void paintEvent(QPaintEvent *);
     void updateMask();
 

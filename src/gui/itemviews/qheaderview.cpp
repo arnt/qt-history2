@@ -1262,12 +1262,12 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.iconAlignment = Qt::AlignVCenter;
 
     style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
-    opt.rect = style()->subRect(QStyle::SR_HeaderLabel, &opt, fontMetrics(), this);
+    opt.rect = style()->subRect(QStyle::SR_HeaderLabel, &opt, this);
     style()->drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
         opt.rect = rect;
-        opt.rect = style()->subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
+        opt.rect = style()->subRect(QStyle::SR_HeaderArrow, &opt, this);
         opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
                      ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
         style()->drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
@@ -1286,7 +1286,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole).toIconSet();
-    size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
+    size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
         int margin = style()->pixelMetric(QStyle::PM_HeaderMargin);

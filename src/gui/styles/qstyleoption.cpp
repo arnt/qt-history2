@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qstyleoption.h"
-
+#include "qapplication.h"
 /*!
     \class QStyleOption
     \brief The QStyleOption class stores the parameters used by QStyle functions.
@@ -118,7 +118,7 @@
 */
 
 QStyleOption::QStyleOption(int version, int type)
-    : version(version), type(type), state(QStyle::Style_None), direction(Qt::LeftToRight)
+    : version(version), type(type), state(QStyle::Style_None), direction(QApplication::layoutDirection()), fontMetrics(QFont())
 {
 }
 
@@ -151,6 +151,7 @@ void QStyleOption::init(const QWidget *widget)
     direction = widget->layoutDirection();
     rect = widget->rect();
     palette = widget->palette();
+    fontMetrics = widget->fontMetrics();
 }
 
 

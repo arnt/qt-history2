@@ -1607,8 +1607,6 @@ void QListBox::setCurrentItem(QListBoxItem * i)
     if (!i || d->current == i)
         return;
 
-    QRect mfrect = itemRect(i);
-
     QListBoxItem * o = d->current;
     d->current = i;
     int ind = index(i);

@@ -401,7 +401,7 @@ QDialogButtons::layoutButtons()
             w->show();
             QStyleOption opt(0);
             opt.init(this);
-            w->setGeometry(style()->subRect(rects[i], &opt, fontMetrics(), this));
+            w->setGeometry(style()->subRect(rects[i], &opt, this));
         }
     }
 }
@@ -414,8 +414,8 @@ QDialogButtons::sizeHint() const
     if(d->custom)
         s = d->custom->sizeHint();
     QStyleOption opt(0);
-    return style()->sizeFromContents(QStyle::CT_DialogButtons, &opt, s, fontMetrics(), this).
-                                     expandedTo(QApplication::globalStrut());
+    return style()->sizeFromContents(QStyle::CT_DialogButtons, &opt, s, this).
+        expandedTo(QApplication::globalStrut());
 }
 
 QSize

@@ -153,7 +153,7 @@ QSize QSizeGrip::sizeHint() const
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    return (style()->sizeFromContents(QStyle::CT_SizeGrip, &opt, QSize(13, 13), fontMetrics(), this).
+    return (style()->sizeFromContents(QStyle::CT_SizeGrip, &opt, QSize(13, 13), this).
             expandedTo(QApplication::globalStrut()));
 }
 
