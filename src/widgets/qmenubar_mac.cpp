@@ -275,7 +275,6 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
     activeMenuBar->mac_d->popups->insert((int)mid, 
 					 new QMenuBar::MacPrivate::PopupBinding(d, ret, 
 										top_level));
-
 #if 0
     MenuDefSpec spec;
     spec.defType = kMenuDefProcPtr;
@@ -300,58 +299,10 @@ bool QMenuBar::updateMenuBar()
 	QMenuItem *item = findItem(idAt(x));
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
-
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
     }
-
-#if 1
-    //Sanity check that the menubar looks like I want! Grrrr!
-    static bool checking = FALSE;
-    if(!checking) {
-	checking = TRUE;
-	bool valid = TRUE;
-	for(int ii = 0; ii < 100; ii++) {
-	    valid = TRUE;
-	    MenuRef mr = AcquireRootMenu();
-	    CFStringRef str = no_ampersands("Blah..");
-	    for(int x = 1, qx=0; qx < (int)count(); x++, qx++) {
-		QMenuItem *item = findItem(idAt(qx));
-		while(item && item->isSeparator()) 
-		    item = findItem(idAt(++qx));
-		if(!item)
-		    break;
-
-		
-		MenuRef sub;
-		OSStatus foo = GetMenuItemHierarchicalMenu(mr, x, &sub);
-		if(!foo) {
-		    CopyMenuTitleAsCFString(sub, &str);
-		    if(CFStringCompare(str, no_ampersands(item->text()), 0) != kCFCompareEqualTo) {
-			valid = FALSE;
-			break;
-		    }
-		} else {
-		    valid = FALSE;
-		    break;
-		}
-	    }
-	    ReleaseMenu(mr);
-	    if(valid)
-		break;
-	    updateMenuBar();
-	}
-	checking = FALSE;
-	if(!valid) {
-	    qDebug("Invalid after many attempts to correct, waazupwitdat!?");
-	    qt_event_request_menubarupdate();
-	    return FALSE;
-	}
-	InvalMenuBar();
-    }
-#endif
-
     return TRUE;
 }
 
@@ -478,11 +429,22 @@ void QMenuBar::macUpdateMenuBar()
 {
     if(!menubars) 
 	return;
-
+    QWidget *w = qApp->activeWindow();
+    if(!w) {
+	WindowClass c;
+	for(WindowPtr wp = FrontWindow(); wp; wp = GetNextWindow(wp)) {
+	    if(GetWindowClass(wp, &c))
+		break;
+	    if(c == kOverlayWindowClass) 
+		continue;
+	    w = QWidget::find((WId)wp);
+	    break;
+	}
+    }
     static bool first = TRUE;
-    if(QWidget *w = qApp->activeWindow()) {
+    if(w) {
 	QMenuBar *mb = menubars->find((int)w);
-	while(!mb && w->isDialog() && !w->testWFlags(WShowModal) && w->parentWidget())
+	while(!mb && !w->testWFlags(WShowModal) && w->parentWidget()) 
 	    mb = menubars->find((int)(w = w->parentWidget()));
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar)))
