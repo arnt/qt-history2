@@ -396,12 +396,18 @@ QLinkedListData QLinkedListData::shared_null = {
 
     Removes the first item in the list and returns it.
 
+    If you don't use the return value, removeFirst() is more
+    efficient.
+
     \sa takeLast(), removeFirst()
 */
 
 /*! \fn T QLinkedList::takeLast()
 
     Removes the last item in the list and returns it.
+
+    If you don't use the return value, removeLast() is more
+    efficient.
 
     \sa takeFirst(), removeLast()
 */

@@ -511,6 +511,8 @@ void QMapData::dump()
     items for \a key in the map, only the most recently inserted one
     is removed and returned.
 
+    If you don't use the return value, remove() is more efficient.
+
     \sa remove()
 */
 

@@ -672,6 +672,8 @@ void QHashData::free()
     items for \a key in the hash, only the most recently inserted one
     is removed.
 
+    If you don't use the return value, remove() is more efficient.
+
     \sa remove()
 */
 

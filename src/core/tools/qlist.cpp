@@ -602,6 +602,8 @@ void **QListData::erase(void **xi)
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
+    If you don't use the return value, removeAt() is more efficient.
+
     \sa removeAt(), takeFirst(), takeLast()
 */
 
@@ -615,6 +617,9 @@ void **QListData::erase(void **xi)
     preallocates extra space on both sides of its internal buffer to
     allow for fast growth at both ends of the list.
 
+    If you don't use the return value, removeFirst() is more
+    efficient.
+
     \sa takeLast(), takeAt(), removeFirst()
 */
 
@@ -627,6 +632,9 @@ void **QListData::erase(void **xi)
     This operation is very fast (\l{constant time}), because QList
     preallocates extra space on both sides of its internal buffer to
     allow for fast growth at both ends of the list.
+
+    If you don't use the return value, removeLast() is more
+    efficient.
 
     \sa takeFirst(), takeAt(), removeLast()
 */
