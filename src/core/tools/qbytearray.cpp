@@ -833,8 +833,12 @@ QByteArray::QByteArray(const char*s, int size)
    } else if (size <= 0) {
        d = &shared_empty;
    } else {
-       int slen = strlen(s);
-       int len = size < 0 ? slen : qMin(slen, size);
+       int len = 0;
+       if (size < 0)
+	   len = strlen(s);
+       else
+	   while (len < size && s[len] )
+	       ++len;
        d = (Data *)qMalloc(sizeof(Data)+len);
        if (!d) {
 	   d = &shared_null;
