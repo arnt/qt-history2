@@ -13,7 +13,7 @@
 
 
 #ifdef _WS_X11_
-#include <qt_x11.h>
+#include "qt_x11.h"
 
 
 static const int fontFields = 14;
@@ -128,7 +128,7 @@ private:
 
     QMap<int, int> sizeMap;
     QValueList<int> sizeList;
-    
+
     friend void QFontDatabase::createDatabase();
 };
 
@@ -198,7 +198,7 @@ class QtFontFamily
 {
 public:
     QtFontFamily( QtFontFoundry *prnt, const QString &n )
-	{ p                = prnt; 
+	{ p                = prnt;
           nm               = n;
 	  namesDirty       = TRUE;
           bitmapScalable   = FALSE;
@@ -214,7 +214,7 @@ public:
 
     const QStringList &charSets( bool onlyForLocale = TRUE ) const;
     const QtFontCharSet *charSet( const QString &n = QString::null ) const;
-    
+
     bool isBitmapScalable() const;
     bool isSmoothlyScalable() const;
 
@@ -294,7 +294,7 @@ private:
 
     void addFoundry( QtFontFoundry *f )
 	{ foundryDict.insert( f->name(), f ); }
-    
+
     friend void QFontDatabase::createDatabase();
 };
 
@@ -434,23 +434,23 @@ const QtFontStyle *QtFontCharSet::style( const QString &s ) const
 }
 
 bool QtFontCharSet::isLocaleCharSet() const
-{			      
+{			
     return charSet() == QFont::charSetForLocale() || isUnicode();
 }
 
 bool QtFontCharSet::isUnicode() const
-{			      
+{			
     return charSet() == QFont::Unicode;
 }
 
 bool QtFontCharSet::isBitmapScalable() const
-{			      
+{			
     refresh();
     return bitmapScalable;
 }
 
 bool QtFontCharSet::isSmoothlyScalable() const
-{			      
+{			
     refresh();
     return smoothlyScalable;
 }
@@ -569,7 +569,7 @@ const QStringList &QtFontFamily::charSets( bool onlyForLocale ) const
 }
 
 QString localCharSet()
-{    
+{
     return getCharSetName( QFont::charSetForLocale() );
 }
 
@@ -582,13 +582,13 @@ const QtFontCharSet *QtFontFamily::charSet( const QString &n ) const
 }
 
 bool QtFontFamily::isBitmapScalable() const
-{			      
+{			
     refresh();
     return bitmapScalable;
 }
 
 bool QtFontFamily::isSmoothlyScalable() const
-{			      
+{			
     refresh();
     return smoothlyScalable;
 }
@@ -730,7 +730,7 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
 {
     if ( name.isEmpty() )
 	return 0;
-    QFontDatabasePrivate *that = (QFontDatabasePrivate*)this; // Mutable    
+    QFontDatabasePrivate *that = (QFontDatabasePrivate*)this; // Mutable
     const QtFontFamily *result = bestFamilyDict.find(name);
     if ( !result ) {
 	const QtFontFoundry *fndry;
@@ -763,7 +763,7 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
 		}
 		if ( fam->isBitmapScalable() )
 		    bitmapScalable = fam;
-		else 
+		else
 		    nonScalable    = fam;
 	    }		
 	}
@@ -787,7 +787,7 @@ const QStringList &QFontDatabasePrivate::foundries() const
 	that->namesDirty = FALSE;
     }
     return foundryNames;
-    
+
 }
 
 const QtFontFoundry *QFontDatabasePrivate::foundry( const QString foundryName ) const
@@ -981,7 +981,7 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 	    case '9': return QFont::ISO_8859_9;
 	    default: break;
 	    }
-	} else if ( encoding[0] == '1' && encoding[1] != 0 
+	} else if ( encoding[0] == '1' && encoding[1] != 0
 		    && encoding[2] == 0 ) {
 	    switch( encoding[0] ) {	
 	    case '0': return QFont::ISO_8859_10;
@@ -1239,7 +1239,7 @@ QString QFontDatabase::charSetSample( const QString &charSetName )
 
 QString QFontDatabase::styleString( const QFont &f )  // ### fttb
 {
-    
+
     QString result;
     if ( f.weight() >= QFont::Bold ) {
 	if ( f.italic() )
@@ -1409,7 +1409,7 @@ QFont QFontDatabase::font( const QString family, const QString &style,
     return sty->font( family, pointSize );
 }
 
-/*!  
+/*!
   Returns the point sizes of a font style that is guaranteed to look
   good. For non-scalable fonts and smoothly scalable fonts this function
   is equivalent to pointSizes().
