@@ -315,12 +315,12 @@ void qt_mac_update_os_settings()
     }
     { //paging mode
         /* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.2.3 */
-        QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "false");
-        qt_scrollbar_jump_to_pos = (paging == "true");
+        QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "FALSE");
+        qt_scrollbar_jump_to_pos = (paging == "TRUE");
     }
     { //collapse
 	/* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.3.3 */
-	QString collapse = qt_mac_get_global_setting("AppleMiniaturizeOnDoubleClick", "FALSE");
+	QString collapse = qt_mac_get_global_setting("AppleMiniaturizeOnDoubleClick", "TRUE");
 	qt_mac_collapse_on_dblclick = (collapse == "TRUE");
     }
 
