@@ -1669,7 +1669,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    long int mdelt;
 	    GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, NULL,
 			      sizeof(mdelt), NULL, &mdelt);
-	    wheel_delta = mdelt * 100;
+	    wheel_delta = mdelt * 120;
 	    state = after_state;
 	    break;
 	}
