@@ -1,0 +1,5 @@
+dclock
+*moc*
+*.debug
+*.release
+.obj

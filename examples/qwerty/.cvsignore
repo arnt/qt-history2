@@ -1,0 +1,5 @@
+qwerty
+*moc*
+*.debug
+*.release
+.obj

@@ -1,0 +1,5 @@
+aclock
+*moc*
+*.debug
+*.release
+.obj

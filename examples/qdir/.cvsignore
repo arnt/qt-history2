@@ -1,0 +1,5 @@
+qdir
+*moc*
+*.debug
+*.release
+.obj

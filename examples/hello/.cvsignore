@@ -1,0 +1,5 @@
+hello
+*moc*
+*.debug
+*.release
+.obj

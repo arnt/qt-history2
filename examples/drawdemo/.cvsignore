@@ -1,0 +1,5 @@
+drawdemo
+*moc*
+*.debug
+*.release
+.obj

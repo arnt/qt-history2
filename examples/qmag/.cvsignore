@@ -1,0 +1,5 @@
+qmag
+*moc*
+*.debug
+*.release
+.obj

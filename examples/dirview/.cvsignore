@@ -1,0 +1,5 @@
+dirview
+*moc*
+*.debug
+*.release
+.obj

@@ -1,0 +1,5 @@
+validator
+*moc*
+*.debug
+*.release
+.obj

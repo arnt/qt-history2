@@ -1,0 +1,5 @@
+showimg
+*moc*
+*.debug
+*.release
+.obj

@@ -1,0 +1,5 @@
+splitter
+*moc*
+*.debug
+*.release
+.obj
