@@ -40,7 +40,6 @@ widgets {
 		  $$WIDGETS_H/qstatusbar.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtabwidget.h \
-		  $$WIDGETS_H/qtableview.h \
 		  $$WIDGETS_P/qtitlebar_p.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbutton.h \
@@ -94,7 +93,6 @@ widgets {
 		  $$WIDGETS_CPP/qstatusbar.cpp \
 		  $$WIDGETS_CPP/qtabbar.cpp \
 		  $$WIDGETS_CPP/qtabwidget.cpp \
-		  $$WIDGETS_CPP/qtableview.cpp \
 		  $$WIDGETS_CPP/qtitlebar.cpp \
 		  $$WIDGETS_CPP/qtoolbar.cpp \
 		  $$WIDGETS_CPP/qtoolbutton.cpp \

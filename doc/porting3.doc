@@ -88,7 +88,9 @@ that is the Qt Developer Community!
  <li><b>\link #QRegExp QRegExp \endlink</b>
  <li><b>\link #QTranslator QTranslator \endlink</b>
  <li><b>\link #QXml QXml classes \endlink</b>
+ <li><b>\link #QTableView QTableView \endlink</b>
  <li><b>\link #Bezier Bezier Curves \endlink</b>
+ <li><b>\link #QMultiLineEdit QMultiLineEdit \endlink</b>
 </ul>
 
 <hr>
@@ -380,6 +382,16 @@ Has to be changed to:
     reader.parse( source );
 \endcode
 
+<h3><a name="QTableView">QTableView</a></h3> 
+
+The QTableView class has been obsoleted and is no longer a part of the
+Qt API. You should use the QTable class in any new code you create. If
+you really need this class for compatibility issues you can find it in
+\c $QTDIR/src/attic/qttableview.h/cpp. Note that the class has been
+renamed from QTableView to QtTableView to avoid name clashes. To
+use it, simply include it in your project and rename all references in
+your code from QTableView to QtTableView.
+
 <h3><a name="Bezier">Bezier Curves</a></h3>
 The function names for Bezier curves in \c QPainter and
 \c QPointArray have been corrected. They now properly reflect their
@@ -392,7 +404,6 @@ with
  <li>QPointArray QPointArray::cubicBezier() const
 </ul>
 respectively. Neither the arguments nor the resulting curve have changed.
-*/
 
 // I split this to work around limitations in perl's regexp parser. --Arnt
 
@@ -407,7 +418,7 @@ included for compatibility reasons. It is now a subclass of
 QTextEdit which wrappes the old QMultiLineEdit so that it is mostly
 source compatible to keep old applications working.
 
-If you implement something new with QMultiLineEdit, rather use
+If you implement something new with QMultiLineEdit, you should use
 QTextEdit instead.
 
 Although most of the old QMultiLineEdit API is still available,
@@ -418,9 +429,19 @@ engine only knows paragraphs as elements in the data structure. So
 all functions (like numLines(), textLine()), which worked on lines,
 now work on paragraphs.
 
-Also the function getString() has been removed as this one published
-the internal data structure.
+Also the function getString() has been removed as this function
+published the internal data structure.
 
 So, applications which made normal usage of the QMultiLineEdit,
 should keep working without problems. Programs which did some
 special stuff with it might require some porting.
+
+The source code for the old 2.x version of QMultiLineEdit can be found
+in \c $QTDIR/src/attic/qtmultilineedit.h/cpp. Note that the class has
+been renamed to QtMultiLineEdit to avoid name clashes. If you really
+need to keep compatibility with the old QMultiLineEdit, simply include
+this class in your project and rename all references from
+QMultiLineEdit to QtMultiLineEdit.
+
+
+*/

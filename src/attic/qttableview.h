@@ -1,7 +1,7 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#31 $
+** $Id: //depot/qt/main/src/attic/qttableview.h#31 $
 **
-** Definition of QTableView class
+** Definition of QtTableView class
 **
 ** Created : 941115
 **
@@ -35,20 +35,20 @@
 **
 **********************************************************************/
 
-#ifndef QTABLEVIEW_H
-#define QTABLEVIEW_H
+#ifndef QTTABLEVIEW_H
+#define QTTABLEVIEW_H
 
 #ifndef QT_H
 #include "qframe.h"
 #endif // QT_H
 
-#ifndef QT_NO_TABLEVIEW
+#ifndef QT_NO_QTTABLEVIEW
 
 class QScrollBar;
 class QCornerSquare;
 
 
-class Q_EXPORT QTableView : public QFrame
+class Q_EXPORT QtTableView : public QFrame
 {
     Q_OBJECT
 public:
@@ -61,8 +61,8 @@ public:
     void	repaint( const QRect &, bool erase=TRUE );
 
 protected:
-    QTableView( QWidget *parent=0, const char *name=0, WFlags f=0 );
-   ~QTableView();
+    QtTableView( QWidget *parent=0, const char *name=0, WFlags f=0 );
+   ~QtTableView();
 
     int		numRows()	const;
     virtual void setNumRows( int );
@@ -193,8 +193,8 @@ private:
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QTableView( const QTableView & );
-    QTableView &operator=( const QTableView & );
+    QtTableView( const QtTableView & );
+    QtTableView &operator=( const QtTableView & );
 #endif
 };
 
@@ -223,52 +223,52 @@ const uint Tbl_snapToVGrid	= 0x00010000;
 const uint Tbl_snapToGrid	= 0x00018000;
 
 
-inline int QTableView::numRows() const
+inline int QtTableView::numRows() const
 { return nRows; }
 
-inline int QTableView::numCols() const
+inline int QtTableView::numCols() const
 { return nCols; }
 
-inline int QTableView::topCell() const
+inline int QtTableView::topCell() const
 { return yCellOffs; }
 
-inline int QTableView::leftCell() const
+inline int QtTableView::leftCell() const
 { return xCellOffs; }
 
-inline int QTableView::xOffset() const
+inline int QtTableView::xOffset() const
 { return xOffs; }
 
-inline int QTableView::yOffset() const
+inline int QtTableView::yOffset() const
 { return yOffs; }
 
-inline int QTableView::cellHeight() const
+inline int QtTableView::cellHeight() const
 { return cellH; }
 
-inline int QTableView::cellWidth() const
+inline int QtTableView::cellWidth() const
 { return cellW; }
 
-inline uint QTableView::tableFlags() const
+inline uint QtTableView::tableFlags() const
 { return tFlags; }
 
-inline bool QTableView::testTableFlags( uint f ) const
+inline bool QtTableView::testTableFlags( uint f ) const
 { return (tFlags & f) != 0; }
 
-inline QRect QTableView::cellUpdateRect() const
+inline QRect QtTableView::cellUpdateRect() const
 { return cellUpdateR; }
 
-inline bool QTableView::autoUpdate() const
+inline bool QtTableView::autoUpdate() const
 { return isUpdatesEnabled(); }
 
-inline void QTableView::repaint( bool erase )
+inline void QtTableView::repaint( bool erase )
 { repaint( 0, 0, width(), height(), erase ); }
 
-inline void QTableView::repaint( const QRect &r, bool erase )
+inline void QtTableView::repaint( const QRect &r, bool erase )
 { repaint( r.x(), r.y(), r.width(), r.height(), erase ); }
 
-inline void QTableView::updateScrollBars()
+inline void QtTableView::updateScrollBars()
 { updateScrollBars( 0 ); }
 
 
-#endif // QT_NO_TABLEVIEW
+#endif // QT_NO_QTTABLEVIEW
 
-#endif // QTABLEVIEW_H
+#endif // QTTABLEVIEW_H
