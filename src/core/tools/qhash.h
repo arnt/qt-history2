@@ -96,7 +96,7 @@ inline void QHashData::mightGrow()
 inline void QHashData::hasShrunk()
 {
     if (size <= (numBuckets >> 3) && numBits > userNumBits)
-        rehash(qMax<short>(numBits - 2, userNumBits));
+        rehash(qMax((int)numBits - 2, (int)userNumBits));
 }
 
 inline QHashData::Node *QHashData::firstNode()
