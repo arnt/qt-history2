@@ -65,8 +65,8 @@ void QMacStyleQDPainter::setport()
 #include <qlineedit.h>
 #include <qlistview.h>
 #include <qmainwindow.h>
-#include <q3menubar.h>
-#include <q3popupmenu.h>
+//#include <q3menubar.h>
+//#include <q3popupmenu.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
@@ -378,12 +378,14 @@ void QMacStyleQD::polish(QWidget* w)
         label->setFrameStyle(QFrame::NoFrame);
         label->setLineWidth(1);
         label->setWindowOpacity(0.95);
+        /*
 #ifdef QT_COMPAT
     } else if(Q3PopupMenu *popup = ::qt_cast<Q3PopupMenu*>(w)) {
         popup->setMargin(0);
         popup->setLineWidth(0);
         w->setWindowOpacity(0.95);
 #endif
+*/
     } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.75);
     } else if(QMenu *menu = ::qt_cast<QMenu*>(w)) {
@@ -401,10 +403,12 @@ void QMacStyleQD::unPolish(QWidget* w)
     if(btn) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(true);
+        /*
 #ifdef QT_COMPAT
     } else if(::qt_cast<Q3PopupMenu*>(w)) {
         w->setWindowOpacity(1.0);
 #endif
+*/
     } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(1.0);
     } else if(::qt_cast<QMenu*>(w)) {
@@ -905,6 +909,7 @@ void QMacStyleQD::drawControl(ControlElement element,
         break; }
 #ifdef QT_COMPAT
     case CE_Q3PopupMenuItem: {
+                                 /*
         if(!widget || opt.isDefault())
             break;
         Q3PopupMenu *popupmenu = (Q3PopupMenu *)widget;
@@ -1053,6 +1058,7 @@ void QMacStyleQD::drawControl(ControlElement element,
                     p->setBackgroundMode(TransparentMode);
             }
         }
+        */
         break; }
 #endif
     case CE_MenuBarItem: {
@@ -2611,6 +2617,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
         break; }
 #ifdef QT_COMPAT
     case CT_Q3PopupMenuItem: {
+                                 /*
         if(!widget || opt.isDefault())
             break;
         const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
@@ -2661,6 +2668,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
         else
             w += 12;
         sz = QSize(w, h);
+        */
         break; }
 #endif
     case CT_PushButton:
@@ -2968,6 +2976,7 @@ QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
 static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *slider,
                           const QPainter *p, ThemeTrackDrawInfo *tdi, const QWidget *needToRemove)
 {
+    memset(tdi, 0, sizeof(ThemeTrackDrawInfo));
     tdi->filler1 = 0;
     bool isScrollbar = (cc == QStyle::CC_ScrollBar);
     switch (qt_aqua_size_constrain(needToRemove)) {
@@ -3015,12 +3024,14 @@ static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *
                                                              : kThemeTrackDisabled;
     if (!qAquaActive(slider->palette))
         tdi->enableState = kThemeTrackDisabled;
-    if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
-        tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-    else if (slider->tickmarks == QSlider::Above)
-        tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
-    else
-        tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
+    if (!isScrollbar) {
+        if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
+            tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
+        else if (slider->tickmarks == QSlider::Above)
+            tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
+        else
+            tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
+    }
 }
 
 void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
@@ -3028,13 +3039,29 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
 {
     switch (cc) {
     case CC_Slider:
+    case CC_ScrollBar:
         if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
             ThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, p, &tdi, widget);
-            if (slider->activeParts == SC_SliderGroove)
-                tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
-            else if (slider->activeParts == SC_SliderHandle)
-                tdi.trackInfo.slider.pressState = kThemeThumbPressed;
+            if (cc == CC_Slider) {
+                if (slider->activeParts == SC_SliderGroove)
+                    tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
+                else if (slider->activeParts == SC_SliderHandle)
+                    tdi.trackInfo.slider.pressState = kThemeThumbPressed;
+            } else {
+                if (slider->activeParts == SC_ScrollBarSubLine)
+                    tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
+                                                         | kThemeLeftOutsideArrowPressed;
+                else if (slider->activeParts == SC_ScrollBarAddLine)
+                    tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
+                                                         | kThemeRightOutsideArrowPressed;
+                else if(slider->activeParts == SC_ScrollBarAddPage)
+                    tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
+                else if(slider->activeParts == SC_ScrollBarSubPage)
+                    tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
+                else if(slider->activeParts == SC_ScrollBarSlider)
+                    tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+            }
 
             //The AppManager draws outside my rectangle, so account for that difference..
             Rect macRect;
@@ -3085,25 +3112,48 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl cc, const Q4Style
 {
     SubControl sc = SC_None;
     switch (cc) {
-        case CC_Slider:  // It seems I can't hit anything here.
-#if 0
-            if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
-                ThemeTrackDrawInfo tdi;
-                getSliderInfo(cc, slider, 0, &tdi, widget);
-                ControlPartCode hit = 0;
-                Point macpt = { (short)pt.x(), (short)pt.y() };
-                if (HitTestThemeTrack(&tdi, macpt, &hit) == true) {
-                    if (hit == kControlPageDownPart || hit == kControlPageUpPart)
-                        sc = SC_SliderGroove;
-                    else
-                        sc = SC_SliderHandle;
-                }
-
+    case CC_ScrollBar:
+        if (Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            ThemeTrackDrawInfo tdi;
+            getSliderInfo(cc, scrollbar, 0, &tdi, widget);
+            Point pos = { (short)pt.y(), (short)pt.x() };
+            Rect mrect;
+            GetThemeTrackBounds(&tdi, &mrect);
+            ControlPartCode cpc;
+            if (HitTestThemeScrollBarArrows(&tdi.bounds, tdi.enableState,
+                                            0, scrollbar->orientation == Horizontal,
+                                            pos, &mrect, &cpc)) {
+                if (cpc == kControlUpButtonPart)
+                    sc = SC_ScrollBarSubLine;
+                else if (cpc == kControlDownButtonPart)
+                    sc = SC_ScrollBarAddLine;
+            } else if (HitTestThemeTrack(&tdi, pos, &cpc)) {
+                if (cpc == kControlPageUpPart)
+                    sc = SC_ScrollBarSubPage;
+                else if (cpc == kControlPageDownPart)
+                    sc = SC_ScrollBarAddPage;
+                else
+                    sc = SC_ScrollBarSlider;
             }
-            break;
-#endif
-        default:
-            sc = QWindowsStyle::querySubControl(cc, opt, pt, widget);
+        }
+        break;
+    case CC_Slider:
+        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            ThemeTrackDrawInfo tdi;
+            getSliderInfo(cc, slider, 0, &tdi, widget);
+            ControlPartCode hit = 0;
+            Point macpt = { (short)pt.y(), (short)pt.x() };
+            if (HitTestThemeTrack(&tdi, macpt, &hit) == true) {
+                if (hit == kControlPageDownPart || hit == kControlPageUpPart)
+                    sc = SC_SliderGroove;
+                else
+                    sc = SC_SliderHandle;
+            }
+
+        }
+        break;
+    default:
+        sc = QWindowsStyle::querySubControl(cc, opt, pt, widget);
     }
     return sc;
 }
@@ -3114,6 +3164,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
     QRect ret;
     switch (cc) {
     case CC_Slider:
+    case CC_ScrollBar:
         if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
             ThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, 0, &tdi, widget);
@@ -3127,6 +3178,14 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl cc, const Q4StyleOption
                 GetThemeTrackBounds(&tdi, &mrect);
                 ret.setRect(mrect.left, mrect.top,
                             mrect.right - mrect.left, mrect.bottom - mrect.top); }
+                break;
+            case SC_ScrollBarGroove: {
+                Rect mrect;
+                GetThemeTrackDragRect(&tdi, &mrect);
+                ret.setRect(mrect.left, mrect.top, mrect.right - mrect.left,
+                        mrect.bottom - mrect.top);
+                break; }
+            case SC_ScrollBarSlider:
             case SC_SliderHandle: {
                 Rect r;
                 RgnHandle rgn = qt_mac_get_rgn();

@@ -100,6 +100,8 @@ Q4StyleOptionSlider QSliderPrivate::getStyleOption() const
     opt.sliderValue = value;
     opt.singleStep = singleStep;
     opt.pageStep = pageStep;
+    if (orientation == Horizontal)
+        opt.state |= QStyle::Style_Horizontal;
     return opt;
 }
 

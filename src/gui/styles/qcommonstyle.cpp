@@ -1877,6 +1877,109 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             }
         }
         break;
+    case CC_ScrollBar:
+        if (const Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            // Since we really get this thing is a const it is not correct to be making
+            // changes to it. So make a copy here and reset it for each primitive.
+            Q4StyleOptionSlider newScrollbar = *scrollbar;
+            SFlags saveFlags = scrollbar->state;
+            if (scrollbar->minimum == scrollbar->maximum)
+                saveFlags |= Style_Enabled;
+
+            if (scrollbar->parts & SC_ScrollBarSubLine) {
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarSubLine;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarSubLine)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarSubLine, &newScrollbar, p, widget);
+                }
+            }
+            if (scrollbar->parts & SC_ScrollBarAddLine) {
+                newScrollbar.rect = scrollbar->rect;
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarAddLine;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarAddLine)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarAddLine, &newScrollbar, p, widget);
+                }
+            }
+            if (scrollbar->parts & SC_ScrollBarSubPage) {
+                newScrollbar.rect = scrollbar->rect;
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarSubPage;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarSubPage)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarSubPage, &newScrollbar, p, widget);
+                }
+            }
+            if (scrollbar->parts & SC_ScrollBarAddPage) {
+                newScrollbar.rect = scrollbar->rect;
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarAddPage;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarAddPage)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarAddPage, &newScrollbar, p, widget);
+                }
+            }
+            if (scrollbar->parts & SC_ScrollBarFirst) {
+                newScrollbar.rect = scrollbar->rect;
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarFirst;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarFirst)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarFirst, &newScrollbar, p, widget);
+                }
+            }
+            if (scrollbar->parts & SC_ScrollBarLast) {
+                newScrollbar.rect = scrollbar->rect;
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarLast;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarLast)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarLast, &newScrollbar, p, widget);
+                }
+            }
+            if (scrollbar->parts & SC_ScrollBarSlider) {
+                newScrollbar.rect = scrollbar->rect;
+                newScrollbar.state = saveFlags;
+                newScrollbar.parts = SC_ScrollBarSlider;
+                newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar, widget),
+                                               widget);
+                if (newScrollbar.rect.isValid()) {
+                    if (scrollbar->activeParts & SC_ScrollBarSlider)
+                        newScrollbar.state |= Style_Down;
+                    drawPrimitive(PE_ScrollBarSlider, &newScrollbar, p, widget);
+
+                    if (scrollbar->state & Style_HasFocus) {
+                        Q4StyleOptionFocusRect fropt(0);
+                        fropt.rect.setRect(newScrollbar.rect.x() + 2, newScrollbar.rect.y() + 2,
+                                newScrollbar.rect.width() - 5, newScrollbar.rect.height() - 5);
+                        fropt.palette = newScrollbar.palette;
+                        fropt.state = Style_Default;
+                        drawPrimitive(PE_FocusRect, &fropt, p, widget);
+                    }
+                }
+            }
+        }
+        break;
     default:
         qWarning("drawComplexControl control not handled %d", cc);
     }
@@ -1904,6 +2007,21 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4Styl
                 r = visualRect(querySubControlMetrics(cc, slider, widget), widget);
                 if (r.isValid() && r.contains(pt))
                     sc = SC_SliderGroove;
+            }
+        }
+        break;
+    case CC_ScrollBar:
+        if (Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            QRect r;
+            uint ctrl = SC_ScrollBarAddLine;
+            while (sc == SC_None && ctrl <= SC_ScrollBarGroove) {
+                scrollbar->parts = (QStyle::SubControl)ctrl;
+                r = visualRect(querySubControlMetrics(cc, scrollbar, widget), widget);
+                if (r.isValid() && r.contains(pt)) {
+                    sc = (QStyle::SubControl)ctrl;
+                    break;
+                }
+                ctrl <<= 1;
             }
         }
         break;
@@ -1945,6 +2063,81 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
                     ret.setRect(tickOffset, 0, thickness, slider->rect.height());
                 break;
             default:
+                break;
+            }
+        }
+        break;
+    case CC_ScrollBar:
+        if (Q4StyleOptionSlider *scrollbar = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
+            int maxlen = ((scrollbar->orientation == Qt::Horizontal) ?
+                    scrollbar->rect.width() : scrollbar->rect.height()) - (sbextent * 2);
+            int sliderlen;
+
+            // calculate slider length
+            if (scrollbar->maximum != scrollbar->minimum) {
+                uint range = scrollbar->maximum - scrollbar->minimum;
+                sliderlen = (scrollbar->pageStep * maxlen) / (range + scrollbar->pageStep);
+
+                int slidermin = pixelMetric(PM_ScrollBarSliderMin, widget);
+                if (sliderlen < slidermin || range > INT_MAX / 2)
+                    sliderlen = slidermin;
+                if (sliderlen > maxlen)
+                    sliderlen = maxlen;
+            } else {
+                sliderlen = maxlen;
+            }
+
+            int sliderstart = sbextent + positionFromValue(scrollbar->minimum, scrollbar->maximum,
+                                                           scrollbar->sliderPosition,
+                                                           maxlen - sliderlen,
+                                                           scrollbar->useRightToLeft);
+            switch (scrollbar->parts) {
+            case SC_ScrollBarSubLine:            // top/left button
+                if (scrollbar->orientation == Qt::Horizontal) {
+                    int buttonWidth = qMin(scrollbar->rect.width() / 2, sbextent);
+                    ret.setRect(0, 0, buttonWidth, sbextent);
+                } else {
+                    int buttonHeight = qMin(scrollbar->rect.height() / 2, sbextent);
+                    ret.setRect(0, 0, sbextent, buttonHeight);
+                }
+                break;
+            case SC_ScrollBarAddLine:            // bottom/right button
+                if (scrollbar->orientation == Qt::Horizontal) {
+                    int buttonWidth = qMin(scrollbar->rect.width()/2, sbextent);
+                    ret.setRect(scrollbar->rect.width() - buttonWidth, 0, buttonWidth, sbextent);
+                } else {
+                    int buttonHeight = qMin(scrollbar->rect.height()/2, sbextent);
+                    ret.setRect(0, scrollbar->rect.height() - buttonHeight, sbextent, buttonHeight);
+                }
+                break;
+            case SC_ScrollBarSubPage:            // between top/left button and slider
+                if (scrollbar->orientation == Qt::Horizontal)
+                    ret.setRect(sbextent, 0, sliderstart - sbextent, sbextent);
+                else
+                    ret.setRect(0, sbextent, sbextent, sliderstart - sbextent);
+                break;
+            case SC_ScrollBarAddPage:            // between bottom/right button and slider
+                if (scrollbar->orientation == Qt::Horizontal)
+                    ret.setRect(sliderstart + sliderlen, 0,
+                            maxlen - sliderstart - sliderlen + sbextent, sbextent);
+                else
+                    ret.setRect(0, sliderstart + sliderlen, sbextent,
+                            maxlen - sliderstart - sliderlen + sbextent);
+                break;
+            case SC_ScrollBarGroove:
+                if (scrollbar->orientation == Qt::Horizontal)
+                    ret.setRect(sbextent, 0, scrollbar->rect.width() - sbextent * 2,
+                            scrollbar->rect.height());
+                else
+                    ret.setRect(0, sbextent, scrollbar->rect.width(),
+                            scrollbar->rect.height() - sbextent * 2);
+                break;
+            case SC_ScrollBarSlider:
+                if (scrollbar->orientation == Qt::Horizontal)
+                    ret.setRect(sliderstart, 0, sliderlen, sbextent);
+                else
+                    ret.setRect(0, sliderstart, sbextent, sliderlen);
                 break;
             }
         }

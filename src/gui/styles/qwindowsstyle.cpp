@@ -2429,7 +2429,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     case PE_ButtonBevel:
     case PE_HeaderSection: {
         QBrush fill;
-        if (! (opt->state & Style_Down) && (opt->state & Style_On))
+        if (!(opt->state & Style_Down) && opt->state & Style_On)
             fill = QBrush(opt->palette.light(), Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
@@ -2450,26 +2450,24 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         QPointArray a;
         switch (pe) {
             case PE_ArrowUp:
-                a.setPoints(7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2);
+                a.setPoints(7, -4, 1, 2, 1, -3, 0, 1, 0, -2, -1, 0, -1, -1, -2);
                 break;
 
             case PE_ArrowDown:
-                a.setPoints(7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1);
+                a.setPoints(7, -4, -2, 2, -2, -3, -1, 1, -1, -2, 0, 0, 0, -1, 1);
                 break;
 
             case PE_ArrowRight:
-                a.setPoints(7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0);
+                a.setPoints(7, -2, -3, -2, 3, -1, -2, -1, 2, 0, -1, 0, 1, 1, 0);
                 break;
 
             case PE_ArrowLeft:
-                a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
+                a.setPoints(7, 0, -3, 0, 3, -1, -2, -1, 2, -2, -1, -2, 1, -3, 0);
                 break;
 
             default:
                 break;
         }
-        if (a.isEmpty())
-            return;
         p->save();
         if (opt->state & Style_Down)
             p->translate(pixelMetric(PM_ButtonShiftHorizontal),
@@ -2629,6 +2627,67 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             }
             break;
         }
+    case PE_ScrollBarSubLine:
+    case PE_ScrollBarAddLine: {
+        if (use2000style && opt->state & Style_Down) {
+            p->setPen(opt->palette.dark());
+            p->setBrush(opt->palette.brush(QPalette::Button));
+            p->drawRect(opt->rect);
+        } else {
+            Q4StyleOption buttonOpt = *opt;
+            if (!(buttonOpt.state & Style_Down))
+                buttonOpt.state = Style_Raised;
+            drawPrimitive(PE_ButtonBevel, &buttonOpt, p, w);
+        }
+        PrimitiveElement arrow;
+        if (opt->state & Style_Horizontal) {
+            if (pe == PE_ScrollBarAddLine)
+                arrow = PE_ArrowRight;
+            else
+                arrow = PE_ArrowLeft;
+        } else {
+            if (pe == PE_ScrollBarAddLine)
+                arrow = PE_ArrowDown;
+            else
+                arrow = PE_ArrowUp;
+        }
+        drawPrimitive(arrow, opt, p, w);
+        break; }
+    case PE_ScrollBarAddPage:
+    case PE_ScrollBarSubPage: {
+            QBrush br;
+            QColor c = p->background().color();
+            p->setPen(NoPen);
+            p->setBackgroundMode(OpaqueMode);
+
+            if (opt->state & Style_Down) {
+                br = QBrush(opt->palette.shadow(), Dense4Pattern);
+                p->setBackground(opt->palette.dark());
+                p->setBrush(QBrush(opt->palette.shadow(), Dense4Pattern));
+            } else {
+                br = opt->palette.brush(QPalette::Light).pixmap()
+                     ? opt->palette.brush(QPalette::Light)
+                     : QBrush(opt->palette.light(), Dense4Pattern);
+                p->setBrush(br);
+            }
+            p->drawRect(opt->rect);
+            p->setBackground(c);
+            break; }
+    case PE_ScrollBarSlider:
+        if (!(opt->state & Style_Enabled)) {
+            QBrush br = opt->palette.brush(QPalette::Light).pixmap()
+                        ?  opt->palette.brush(QPalette::Light)
+                        : QBrush(opt->palette.light(), Dense4Pattern);
+            p->setPen(NoPen);
+            p->setBrush(br);
+            p->setBackgroundMode(OpaqueMode);
+            p->drawRect(opt->rect);
+        } else {
+            Q4StyleOption buttonOpt = *opt;
+            buttonOpt.state = Style_Enabled | Style_Raised;
+            drawPrimitive(PE_ButtonBevel, &buttonOpt, p, w);
+        }
+        break;
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
