@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#36 $
 **
 ** Implementation of QScrollView class
 **
@@ -200,7 +200,9 @@ Destructs the QScrollView.  Any QWidget set with setContents() will be destructe
 */
 QScrollView::~QScrollView()
 {
-    delete d;
+    QScrollViewData * d2 = d;
+    d = 0;
+    delete d2;
 }
 
 // This variable allows ensureVisible to move the contents widget then
@@ -549,6 +551,9 @@ QScrollView::ResizePolicy QScrollView::resizePolicy() const
 */
 void QScrollView::removeChild(QWidget* child)
 {
+    if ( !d )
+	return;
+
     ChildRec *r = d->rec(child);
     if ( r ) d->deleteChildRec( r );
 }
@@ -740,7 +745,7 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 	ymargin=0;
 	cy=0;
     }
-    
+
     if ( x < -cx+xmargin )
 	cx = -x+pw-xmargin;
     else if ( x >= -cx+pw-xmargin )
