@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#11 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#12 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -172,24 +172,25 @@ typedef ulong WFlags;
 #define WState_Visible	0x00000004
 #define WState_Active	0x00000008
 #define WState_Paint	0x00000010
+#define WState_MGrab	0x00000020
+#define WState_KGrab	0x00000030
+#define WState_FocusA	0x00000040		// active focus
+#define WState_FocusP	0x00000080		// passive focus
 
-#define WType_Overlap	0x00000040		// widget type flags
-#define WType_Modal	0x00000080
+#define WType_Overlap	0x00000100		// widget type flags
+#define WType_Modal	0x00000200
 
-#define WStyle_Title	0x00000100		// widget style flags
-#define WStyle_Border	0x00000200
-#define WStyle_Close	0x00000400
-#define WStyle_Resize	0x00000800
-#define WStyle_Minimize 0x00001000
-#define WStyle_Maximize 0x00002000
+#define WStyle_Title	0x00001000		// widget style flags
+#define WStyle_Border	0x00002000
+#define WStyle_Close	0x00004000
+#define WStyle_Resize	0x00008000
+#define WStyle_Minimize 0x00010000
+#define WStyle_Maximize 0x00020000
 #define WStyle_MinMax	(WStyle_Minimize | WStyle_Maximize)
-#define WStyle_VScroll	0x00004000
-#define WStyle_HScroll	0x00008000
-#define WStyle_Scroll	(WStyle_VScroll | WStyle_HScroll)
-#define WStyle_All	0x0000ff00
+#define WStyle_All	0x000ff000
 
-#define WWin_AltCreate	0x00010000		// widget flags for Windows
-#define WWin_AltClass	0x00020000
+#define WWin_AltCreate	0x00100000		// widget flags for Windows
+#define WWin_AltClass	0x00200000
 
 #define WEtc_MouseMove	0x01000000		// misc widget flags
 #define WEtc_InConfig	0x02000000
