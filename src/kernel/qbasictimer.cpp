@@ -1,11 +1,11 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QTimer class
+** Implementation of QBasicTimer class
 **
-** Created : 931111
+** Created : 030531
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -35,54 +35,73 @@
 **
 **********************************************************************/
 
-#ifndef QTIMER_H
-#define QTIMER_H
+#include "qbasictimer.h"
 
-#ifndef QT_H
-#include "qbasictimer.h" // conceptual inheritance
-#endif // QT_H
+bool qKillTimer( int id );
+
+/*!
+    \class QBasicTimer qbasictimer.h
+
+    \brief The QBasicTimer class facilitates timer events for
+    QObjects.
+
+    \ingroup time
+    \ingroup events
+
+    This class exists for the sake of low level size and performance
+    optimizations. In user code, we suggest using the higher level
+    abstraction provided by QTimer instead.
+*/
 
 
-class Q_EXPORT QTimer : public QObject
+/*!
+  \fn QBasicTimer::QBasicTimer()
+
+  Contructs a basic timer.
+*/
+/*!
+  \fn QBasicTimer::~QBasicTimer()
+
+  Destroys the basic timer.
+*/
+
+/*!
+  \fn bool isActive() const
+
+    Returns true if the timer is running (pending); otherwise returns
+    false.
+*/
+
+/*!
+  \fn int timerId() const
+
+  Returns the timer id.
+
+  \sa QTimerEvent::timerId().
+*/
+
+/*!
+    Starts or restarts the timer with a \a msec milliseconds timeout
+    on object \a obj.
+
+    The object will receive timer events.
+
+    \sa QObject::timerEvent()
+ */
+void QBasicTimer::start(int msec, QObject *obj)
 {
-    Q_OBJECT
-public:
-    QTimer( QObject *parent=0, const char *name=0 );
-   ~QTimer();
-
-    bool	isActive() const;
-
-    int		start( int msec, bool sshot = FALSE );
-    void	changeInterval( int msec );
-    void	stop();
-
-    static void singleShot( int msec, QObject *receiver, const char *member );
-
-    int		timerId() const	{ return id; }
-
-signals:
-    void	timeout();
-
-protected:
-    bool	event( QEvent * );
-
-private:
-    int id;
-    uint single : 1;
-    uint nulltimer : 1;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QTimer( const QTimer & );
-    QTimer &operator=( const QTimer & );
-#endif
-};
-
-
-inline bool QTimer::isActive() const
-{
-    return id >= 0;
+   stop();
+   if (obj)
+       id = obj->startTimer(msec);
 }
 
+/*!
+  Stops the timer.
+ */
+void QBasicTimer::stop()
+{
+    if (id)
+        qKillTimer(id);
+    id = 0;
+}
 
-#endif // QTIMER_H

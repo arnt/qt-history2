@@ -72,26 +72,23 @@
 struct QLineEditPrivate : public Qt
 {
     QLineEditPrivate( QLineEdit *q )
-	: q(q), cursor(0), cursorTimer(0), tripleClickTimer(0), frame(1),
+	: q(q), cursor(0), cursorTimer(0), frame(1),
 	  cursorVisible(0), separator(0), readOnly(0), modified(0),
-	  direction(QChar::DirON), dragEnabled(0), alignment(0),
+	  direction(QChar::DirON), dragEnabled(1), alignment(0),
 	  echoMode(0), textDirty(0), selDirty(0), validInput(1),
 	  ascent(0), maxLength(32767), menuId(0),
 	  hscroll(0), validator(0), maskData(0),
 	  undoState(0), selstart(0), selend(0),
 	  imstart(0), imend(0), imselstart(0), imselend(0)
-#ifndef QT_NO_DRAGANDDROP
-	,dndTimer(0)
-#endif
 	{}
     void init( const QString&);
 
     QLineEdit *q;
     QString text;
     int cursor;
-    int cursorTimer;
+    int cursorTimer; // -1 for non blinking cursor.
     QPoint tripleClick;
-    int tripleClickTimer;
+    QBasicTimer tripleClickTimer;
     uint frame : 1;
     uint cursorVisible : 1;
     uint separator : 1;
@@ -261,7 +258,7 @@ struct QLineEditPrivate : public Qt
 #ifndef QT_NO_DRAGANDDROP
     // drag and drop
     QPoint dndPos;
-    int dndTimer;
+    QBasicTimer dndTimer;
     void drag();
 #endif
 };
@@ -1391,16 +1388,14 @@ bool QLineEdit::event( QEvent * e )
     } else if ( e->type() == QEvent::Timer ) {
 	// should be timerEvent, is here for binary compatibility
 	int timerId = ((QTimerEvent*)e)->timerId();
-	if ( timerId == d->cursorTimer ) {
+	if ( timerId == d->cursorTimer )
 	d->setCursorVisible( !d->cursorVisible );
 #ifndef QT_NO_DRAGANDDROP
-	} else if ( timerId == d->dndTimer ) {
+	else if ( timerId == d->dndTimer.timerId() )
 	    d->drag();
 #endif
-	} else if ( timerId == d->tripleClickTimer ) {
-	    killTimer( d->tripleClickTimer );
-	    d->tripleClickTimer = 0;
-	}
+	else if ( timerId == d->tripleClickTimer.timerId() )
+	    d->tripleClickTimer.stop();
     }
     return QWidget::event( e );
 }
@@ -1411,7 +1406,7 @@ void QLineEdit::mousePressEvent( QMouseEvent* e )
 {
     if ( e->button() == RightButton )
 	return;
-    if ( d->tripleClickTimer && ( e->pos() - d->tripleClick ).manhattanLength() <
+    if ( d->tripleClickTimer.isActive() && ( e->pos() - d->tripleClick ).manhattanLength() <
 	 QApplication::startDragDistance() ) {
 	selectAll();
 	return;
@@ -1425,8 +1420,8 @@ void QLineEdit::mousePressEvent( QMouseEvent* e )
 	d->updateMicroFocusHint();
 	update();
 	d->dndPos = e->pos();
-	if ( !d->dndTimer )
-	    d->dndTimer = startTimer( QApplication::startDragTime() );
+	if (!d->dndTimer.isActive())
+	    d->dndTimer.start(QApplication::startDragTime(), this);
     } else
 #endif
     {
@@ -1452,7 +1447,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent * e )
 
     if ( e->state() & LeftButton ) {
 #ifndef QT_NO_DRAGANDDROP
-	if ( d->dndTimer ) {
+	if (d->dndTimer.isActive()) {
 	    if ( ( d->dndPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() )
 		d->drag();
 	} else
@@ -1469,9 +1464,8 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent* e )
 {
 #ifndef QT_NO_DRAGANDDROP
     if ( e->button() == LeftButton ) {
-	if ( d->dndTimer ) {
-	    killTimer( d->dndTimer );
-	    d->dndTimer = 0;
+	if (d->dndTimer.isActive()) {
+	    d->dndTimer.stop();
 	    deselect();
 	    return;
 	}
@@ -1502,7 +1496,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent* e )
 	while ( end > d->cursor && d->text[end-1].isSpace() )
 	    --end;
 	d->moveCursor( end, TRUE );
-	d->tripleClickTimer = startTimer( QApplication::doubleClickInterval() );
+	d->tripleClickTimer.start(QApplication::doubleClickInterval(), this);
 	d->tripleClick = e->pos();
     }
 }
@@ -2062,8 +2056,7 @@ void QLineEdit::dropEvent( QDropEvent* e )
 
 void QLineEditPrivate::drag()
 {
-    q->killTimer( dndTimer );
-    dndTimer = 0;
+    dndTimer.stop();
     QTextDrag *tdo = new QTextDrag( q->selectedText(), q );
     if ( tdo->drag() && !readOnly ) {
 	int priorState = undoState;

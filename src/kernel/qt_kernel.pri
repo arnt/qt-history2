@@ -76,6 +76,7 @@ kernel {
 		  $$KERNEL_H/qsound.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
+		  $$KERNEL_H/qbasictimer.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
@@ -225,6 +226,7 @@ kernel {
 		  $$KERNEL_CPP/qsocketnotifier.cpp \
 		  $$KERNEL_CPP/qsound.cpp \
 		  $$KERNEL_CPP/qstylesheet.cpp \
+		  $$KERNEL_CPP/qbasictimer.cpp \
 		  $$KERNEL_CPP/qtimer.cpp \
 		  $$KERNEL_CPP/qurl.cpp \
 		  $$KERNEL_CPP/qlocalfs.cpp \
