@@ -38,13 +38,14 @@
 
 #include "qcanvas.h"
 #ifndef QT_NO_CANVAS
-#include "qpainter.h"
-#include "qimage.h"
+#include "qapplication.h"
 #include "qbitmap.h"
-#include "qwidget.h"
-#include "qtl.h"
-#include "qtimer.h"
+#include "qimage.h"
+#include "qpainter.h"
 #include "qpolygonscanner.h"
+#include "qtimer.h"
+#include "qtl.h"
+#include "qwidget.h"
 
 #include <stdlib.h>
 
@@ -3557,18 +3558,16 @@ void QCanvasView::drawContents( QPainter * )
 {
 }
 
-// ### shouldn't this take transformations into account? Lars
 /*!
   Suggests a size sufficient to view the entire canvas.
-
-  \internal
-  Why not like this in QScrollView?
 */
 QSize QCanvasView::sizeHint() const
 {
     if ( !canvas() )
 	return QScrollView::sizeHint();
-    return canvas()->size()+QSize(frameWidth(),frameWidth())*2;
+    // should maybe take transformations into account
+    return ( canvas()->size() + 2 * QSize(frameWidth(), frameWidth()) )
+	   .boundedTo( 3 * QApplication::desktop()->size() / 4 );
 }
 
 // ### Qt 4.0 customer request: operate on doubles rather than int.
