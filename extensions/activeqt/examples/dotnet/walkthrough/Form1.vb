@@ -77,12 +77,12 @@ Public Class Form1
 
 #End Region
 
+    Private Sub circleWidget_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles circleWidget.ClickEvent
+        Me.circleWidget.lineWidth = Me.circleWidget.lineWidth + 1
+    End Sub
+
     Private Sub resetButton_clicked(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles resetButton.clicked
         Me.circleWidget.lineWidth = 1
         Me.resetButton.setFocus()
-    End Sub
-
-    Private Sub circleWidget_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles circleWidget.ClickEvent
-        Me.circleWidget.lineWidth = Me.circleWidget.lineWidth + 1
     End Sub
 End Class
