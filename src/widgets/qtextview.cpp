@@ -1845,7 +1845,7 @@ void QTextView::setText( const QString &text, const QString &context )
     viewport()->repaint( FALSE );
     emit textChanged();
     formatMore();
-
+    updateCurrentFormat();
 }
 
 /*! If you used load() to load and set the contents, this function
@@ -1871,6 +1871,7 @@ void QTextView::load( const QString &fn )
     viewport()->repaint( FALSE );
     emit textChanged();
     doResize();
+    updateCurrentFormat();
 }
 
 void QTextView::save( const QString &fn )

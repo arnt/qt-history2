@@ -1492,7 +1492,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag.name = tagname;
 		    if ( curtag.name == "a" && attr.find( "name" ) != attr.end() && doc[ pos] == '<' ) 	// hack to be sure
 			doc.insert( pos, " " );						// <a name=".."></a> formats or inserted
-
+		    if ( attr.find( "align" ) != attr.end() &&
+			 ( curtag.name == "p" || curtag.name == "li" || curtag.name[ 0 ] == 'h' ) ) {
+			if ( *attr.find( "align" ) == "center" )
+			    curpar->setAlignment( Qt::AlignCenter );
+			else if ( *attr.find( "align" ) == "right" )
+			    curpar->setAlignment( Qt::AlignRight );
+		    }
 		    depth++;
 		}
 	    } else {
@@ -1602,6 +1608,17 @@ QString QTextDocument::plainText( QTextParag *p ) const
     }
 }
 
+static QString align_to_string( const QString &tag, int a )
+{
+    if ( tag == "p" || tag == "li" || tag[ 0 ] == "h" ) {
+	if ( a & Qt::AlignRight )
+	    return " align=right ";
+	if ( a & Qt::AlignCenter )
+	    return " align=center ";
+    }
+    return "";
+}
+
 QString QTextDocument::richText( QTextParag *p ) const
 {
     QString s;
@@ -1617,7 +1634,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
 			if ( items[ i ]->name().isEmpty() )
 			    continue;
-			s += "<" + items[ i ]->name() + ">";
+			s += "<" + items[ i ]->name() + align_to_string( items[ i ]->name(), p->alignment() ) + ">";
 		    }
 		} else {
 		    QString end;
@@ -1629,7 +1646,8 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    s += end;
 		}
 		lastItems = items;
-		s += "<" + item->name() + ">" + p->richText() + "</" + item->name() + ">\n";
+		s += "<" + item->name() + align_to_string( item->name(), p->alignment() ) + ">" +
+		     p->richText() + "</" + item->name() + ">\n";
 	    } else {
 		QString end;
 		for ( int i = 0; i < (int)lastItems.size(); ++i ) {
@@ -1638,7 +1656,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
 		}
 		s += end;
-		s += "<p>" + p->richText() + "</p>\n";
+		s += "<p" + align_to_string( "p", p->alignment() ) + ">" + p->richText() + "</p>\n";
 		lastItems = items;
 	    }
 	    p = p->next();
