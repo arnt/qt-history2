@@ -20,7 +20,7 @@ public:
     bool canUnload() const;
 
 private:
-    QObjectCleanupHandler<QStyle> styles;
+    QObjectCleanupHandler styles;
 
     unsigned long ref;
 };
@@ -40,9 +40,12 @@ QRESULT WindowsXPStyle::queryInterface( const QUuid &uuid, QUnknownInterface **i
 	*iface = (QStyleFactoryInterface*)this;
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
+    else
+        return QE_NOINTERFACE;
 
-    if ( *iface )
-	(*iface)->addRef();
+    (*iface)->addRef();
+
+    return QS_OK;
 }
 
 unsigned long WindowsXPStyle::addRef()
@@ -63,13 +66,13 @@ unsigned long WindowsXPStyle::release()
 QStringList WindowsXPStyle::featureList() const
 {
     QStringList list;
-    list << "Windows XP";
+    list << "WindowsXP";
     return list;
 }
 
 QStyle* WindowsXPStyle::create( const QString& s )
 {
-    if ( s.lower() == "windows xp" ) {
+    if ( s.lower() == "windowsxp" ) {
 	QStyle *style = new QWindowsXPStyle();
 	styles.add( style );
 	return style;
