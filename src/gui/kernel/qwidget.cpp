@@ -3690,19 +3690,10 @@ void QWidget::setUpdatesEnabled(bool enable)
 
 /*!  \fn void QWidget::show()
 
-    Shows the widget and its child widgets.
+    Shows the widget and its child widgets. This function is
+    equivalent to setVisible(true).
 
-    If its size or position has changed, Qt guarantees that a widget
-    gets move and resize events just before it is shown. If the widget
-    has not been resized yet, Qt will adjust the widget's size to a
-    useful default using adjustSize().
-
-    You almost never have to reimplement this function. If you need to
-    change some settings before a widget is shown, use showEvent()
-    instead. If you need to do some delayed initialization use
-    the Polish event delivered to the event() method.
-
-    \sa showEvent(), hide(), showMinimized(), showMaximized(),
+    \sa showEvent(), hide(), setVisible(), showMinimized(), showMaximized(),
     showNormal(), isVisible()
 */
 
@@ -3810,12 +3801,10 @@ void QWidgetPrivate::show_helper()
 
 /*! \fn void QWidget::hide()
 
-    Hides the widget.
+    Hides the widget. This function is equivalent to
+    setVisible(false).
 
-    You almost never have to reimplement this function. If you need to
-    do something after a widget is hidden, use hideEvent() instead.
-
-    \sa hideEvent(), isExplicitlyHidden(), show(), showMinimized(), isVisible(), close()
+    \sa hideEvent(), isExplicitlyHidden(), show(), setVisible(), isVisible(), close()
 */
 
 /*!\internal
@@ -3869,6 +3858,18 @@ void QWidgetPrivate::hide_helper()
     }
 #endif
 }
+
+/*!
+    \fn bool QWidget::isExplicitlyHidden() const
+
+    Returns true if the widget is explicity hidden, otherwise returns
+    false.
+
+    Widgets are explicitly hidden if they were created as toplevel
+    windows, or if hide() or setVisible(false) was called.
+
+    \sa setVisible(), hideI)(
+*/
 
 void QWidget::setVisible(bool visible)
 {
@@ -4100,14 +4101,18 @@ bool QWidget::close()
     \property QWidget::visible
     \brief whether the widget is visible
 
-    Calling show() sets the widget to visible status if all its parent
-    widgets up to the window are visible. If an ancestor is
-    not visible, the widget won't become visible until all its
-    ancestors are shown.
+    Calling setVisible(true) or show() sets the widget to visible
+    status if all its parent widgets up to the window are visible. If
+    an ancestor is not visible, the widget won't become visible until
+    all its ancestors are shown. If its size or position has changed,
+    Qt guarantees that a widget gets move and resize events just
+    before it is shown. If the widget has not been resized yet, Qt
+    will adjust the widget's size to a useful default using
+    adjustSize().
 
-    Calling hide() hides a widget explicitly. An explicitly hidden
-    widget will never become visible, even if all its ancestors become
-    visible, unless you show it.
+    Calling setVisible(false) or hide() hides a widget explicitly. An
+    explicitly hidden widget will never become visible, even if all
+    its ancestors become visible, unless you show it.
 
     A widget receives show and hide events when its visibility status
     changes. Between a hide and a show event, there is no need to
@@ -4123,6 +4128,11 @@ bool QWidget::close()
     is changed by the window system, e.g. a spontaneous hide event
     when the user minimizes the window, and a spontaneous show event
     when the window is restored again.
+
+    You almost never have to reimplement the setVisible() function. If
+    you need to change some settings before a widget is shown, use
+    showEvent() instead. If you need to do some delayed initialization
+    use the Polish event delivered to the event() method
 
     \sa show(), hide(), isExplicitlyHidden(), isVisibleTo(), isMinimized(),
     showEvent(), hideEvent()

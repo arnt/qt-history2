@@ -2627,10 +2627,14 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
 
-    case PM_MenuPanelWidth:
-    case PM_SpinBoxFrameWidth:
     case PM_DefaultFrameWidth:
         ret = 2;
+        break;
+
+    case PM_ComboBoxFrameWidth:
+    case PM_SpinBoxFrameWidth:
+    case PM_MenuPanelWidth:
+        ret = pixelMetric(PM_DefaultFrameWidth, opt, widget);
         break;
 
     case PM_MDIFrameWidth:
@@ -2919,7 +2923,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         sz = QSize(sz.width() + 6, sz.height() + 5);
         break;
     case CT_ComboBox: {
-        int dfw = pixelMetric(PM_DefaultFrameWidth, opt, widget) * 2;
+        int dfw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget) * 2;
         sz = QSize(sz.width() + dfw + 21, sz.height() + dfw);
         break; }
     case CT_HeaderSection:

@@ -28,6 +28,7 @@
 #include "qstyleoption.h"
 #include "qtabbar.h"
 #include "qwidget.h"
+#include "qdebug.h"
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -1473,6 +1474,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_PanelButtonBevel: {
         QBrush fill;
         bool panel = pe != PE_FrameButtonBevel;
+        p->setBrushOrigin(opt->rect.topLeft());
         if (!(opt->state & State_Down) && (opt->state & State_On))
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
         else
@@ -1954,7 +1956,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->setBackgroundMode(Qt::OpaqueMode);
             p->drawRect(opt->rect);
         } else {
-            QStyleOption buttonOpt = *opt;
+            QStyleOptionButton buttonOpt;
+            buttonOpt.QStyleOption::operator=(*opt);
             buttonOpt.state = State_Enabled | State_Raised;
             drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
         }

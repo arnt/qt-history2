@@ -58,6 +58,8 @@ public:
     virtual void drawItemPixmap(QPainter *painter, const QRect &rect,
                                 int alignment, const QPixmap &pixmap) const;
 
+    virtual QPalette standardPalette();
+
     enum StateFlag {
         State_None    =       0x00000000,
 #ifdef QT3_SUPPORT
@@ -340,6 +342,7 @@ public:
 
         PM_DefaultFrameWidth,
         PM_SpinBoxFrameWidth,
+        PM_ComboBoxFrameWidth,
 
         PM_MaximumDragDistance,
 

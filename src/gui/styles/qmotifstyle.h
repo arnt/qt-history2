@@ -71,10 +71,12 @@ public:
 
     bool event(QEvent *);
 
+    QPalette standardPalette();
+protected:
+    QPointer<QFocusFrame> focus;
 private:
     Q_DISABLE_COPY(QMotifStyle)
 
-    QPointer<QFocusFrame> focus;
     bool highlightCols;
 };
 

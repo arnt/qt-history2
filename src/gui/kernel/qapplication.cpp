@@ -352,9 +352,9 @@ QStyle *QApplicationPrivate::app_style = 0;        // default application style
 bool qt_explicit_app_style = false; // style explicitly set by programmer
 
 int QApplicationPrivate::app_cspec = QApplication::NormalColor;
-#ifndef QT_NO_PALETTE
 QPalette *QApplicationPrivate::app_pal = 0;        // default application palette
-#endif
+QPalette *QApplicationPrivate::sys_pal = 0;        // default system palette
+QPalette *QApplicationPrivate::set_pal = 0;        // default palette set by programmer
 QFont *QApplicationPrivate::app_font = 0;        // default application font
 bool qt_app_has_font = false;
 QIcon *QApplicationPrivate::app_icon = 0;
@@ -494,38 +494,6 @@ QClipboard              *qt_clipboard = 0;        // global clipboard object
 #endif
 QWidgetList * qt_modal_stack=0;                // stack of modal widgets
 
-#ifndef QT_NO_PALETTE
-QPalette *qt_std_pal = 0;
-
-void qt_create_std_palette()
-{
-    if (qt_std_pal)
-        delete qt_std_pal;
-
-    QColor background(0xd4, 0xd0, 0xc8); // win 2000 grey
-    QColor light(background.light());
-    QColor dark(background.dark());
-    QColor mid(Qt::gray);
-
-    if (QApplicationPrivate::app_style) {
-        if (QApplicationPrivate::app_style->inherits("QCDEStyle")) {
-            background = QColor(0xb6, 0xb6, 0xcf);
-            light = background.light();
-            mid = background.dark(150);
-            dark = background.dark();
-        } else if (QApplicationPrivate::app_style->inherits("QMotifStyle")) {
-            background = QColor(0xcf, 0xcf, 0xcf);
-            light = background.light();
-            mid = QColor(0xa6, 0xa6, 0xa6);
-            dark = QColor(0x79, 0x7d, 0x79);
-        }
-    }
-    qt_std_pal = new QPalette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, dark);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, dark);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, background);
-}
 
 static void qt_fix_tooltips()
 {
@@ -535,7 +503,6 @@ static void qt_fix_tooltips()
                   Qt::black, QColor(255,255,220));
     QApplication::setPalette(pal, "QTipLabel");
 }
-#endif
 
 /*!
     \internal
@@ -592,9 +559,6 @@ void QApplication::process_cmdline()
             if (!qt_style_override)
                 qt_style_override = new QString;
             *qt_style_override = s;
-            delete QApplicationPrivate::app_style;
-            QApplicationPrivate::app_style = 0;
-            qt_explicit_app_style = false;
         }
 #endif
     }
@@ -744,8 +708,8 @@ QApplication::QApplication(int &argc, char **argv, Type type)
 void QApplication::construct()
 {
     qt_is_gui_used = (qt_appType != Tty);
-    qt_init(d, qt_appType);   // Must be called before initialize()
     process_cmdline();
+    qt_init(d, qt_appType);   // Must be called before initialize()
     initialize();
     if (qt_is_gui_used)
         qt_maxWindowRect = desktop()->rect();
@@ -829,9 +793,8 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
 void QApplication::initialize()
 {
     QWidgetPrivate::mapper = new QWidgetMapper;
-#ifndef QT_NO_PALETTE
-    (void) palette();  // trigger creation of application palette
-#endif
+    if (qt_appType != Tty)
+        (void) style();  // trigger creation of application style
 #ifndef QT_NO_VARIANT
     // trigger registering of QVariant's GUI types
     extern bool qRegisterGuiVariant();
@@ -950,13 +913,13 @@ QApplication::~QApplication()
         delete myMapper;
     }
 
-#ifndef QT_NO_PALETTE
-    delete qt_std_pal;
-    qt_std_pal = 0;
     delete QApplicationPrivate::app_pal;
     QApplicationPrivate::app_pal = 0;
+    delete QApplicationPrivate::sys_pal;
+    QApplicationPrivate::sys_pal = 0;
+    delete QApplicationPrivate::set_pal;
+    QApplicationPrivate::set_pal = 0;
     app_palettes()->clear();
-#endif
     delete QApplicationPrivate::app_font;
     QApplicationPrivate::app_font = 0;
     app_fonts()->clear();
@@ -1152,10 +1115,12 @@ QStyle *QApplication::style()
             qFatal("No %s style available!", style.toLatin1().constData());
     }
 
-    if (palette().isCopyOf(*qt_std_pal)) {
-        qt_create_std_palette();
-        setPalette(*qt_std_pal);
-    }
+    if (!QApplicationPrivate::sys_pal)
+        QApplicationPrivate::sys_pal = new QPalette(QApplicationPrivate::app_style->standardPalette());
+    QApplication::setPalette(QApplicationPrivate::set_pal
+                             ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
+
+
     QApplicationPrivate::app_style->polish(qApp);
 #endif
     return QApplicationPrivate::app_style;
@@ -1187,11 +1152,6 @@ void QApplication::setStyle(QStyle *style)
     QStyle* old = QApplicationPrivate::app_style;
     QApplicationPrivate::app_style = style;
 
-    if (startingUp()) {
-        delete old;
-        return;
-    }
-
     // clean up the old style
     if (old) {
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
@@ -1209,10 +1169,8 @@ void QApplication::setStyle(QStyle *style)
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
     // might call QApplication::setStyle() itself
-    if (true || palette().isCopyOf(*qt_std_pal)) { //###FIXME
-        qt_create_std_palette();
-        setPalette(*qt_std_pal);
-    }
+    QApplication::setPalette(QApplicationPrivate::set_pal
+                             ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
 
     // initialize the application with the new style
     QApplicationPrivate::app_style->polish(qApp);
@@ -1392,7 +1350,6 @@ void QApplication::setGlobalStrut(const QSize& strut)
     QApplicationPrivate::app_strut = strut;
 }
 
-#ifndef QT_NO_PALETTE
 /*!
     Returns the application palette.
 
@@ -1403,13 +1360,8 @@ QPalette QApplication::palette()
     if (!qApp)
         qWarning("QApplication::palette: This function can only be "
                   "called after the QApplication object has been created");
-    if (!QApplicationPrivate::app_pal) {
-        if (!qt_std_pal)
-            qt_create_std_palette();
-        QApplicationPrivate::app_pal = new QPalette(*qt_std_pal);
-        qt_fix_tooltips();
-    }
-
+    if (!QApplicationPrivate::app_pal)
+        QApplicationPrivate::app_pal = new QPalette(Qt::black);
     return *QApplicationPrivate::app_pal;
 }
 
@@ -1480,6 +1432,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 
     if (QApplicationPrivate::app_style)
         QApplicationPrivate::app_style->polish(pal); // NB: non-const reference
+
     bool all = false;
     PaletteHash *hash = app_palettes();
     if (!className) {
@@ -1507,9 +1460,25 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
                 sendEvent(w, &e);
         }
     }
+    if (!className && (!QApplicationPrivate::sys_pal || !palette.isCopyOf(*QApplicationPrivate::sys_pal))) {
+        if (!QApplicationPrivate::set_pal)
+            QApplicationPrivate::set_pal = new QPalette(palette);
+        else
+            *QApplicationPrivate::set_pal = palette;
+    }
 }
 
-#endif // QT_NO_PALETTE
+
+
+void QApplicationPrivate::setSystemPalette(const QPalette &pal)
+{
+    if (!sys_pal)
+        sys_pal = new QPalette(pal);
+    else
+        *sys_pal = pal;
+    if (!QApplicationPrivate::set_pal)
+        QApplication::setPalette(*sys_pal);
+}
 
 /*!
   Returns the default font for the widget \a w, or the default
@@ -1563,7 +1532,6 @@ void QApplication::setFont(const QFont &font, const char* className)
             all = true;
             hash->clear();
         }
-        // ### qt_fix_tooltips() ?
     } else if (hash) {
         hash->insert(className, font);
     }

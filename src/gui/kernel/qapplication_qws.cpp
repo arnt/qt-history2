@@ -1368,11 +1368,6 @@ static bool        qt_try_modal(QWidget *, QWSEvent *);
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-#ifndef QT_NO_PALETTE
-// Palette handling
-extern QPalette *qt_std_pal;
-extern void qt_create_std_palette();
-#endif
 
 /*****************************************************************************
   qt_init() - initializes Qt/FB
@@ -1383,28 +1378,27 @@ extern void qt_create_std_palette();
 static void qt_set_qws_resources()
 
 {
-#ifndef QT_NO_PALETTE
-    if (!qt_std_pal)
-        qt_create_std_palette();
     if (appFont)
         QApplication::setFont(QFont(appFont));
 
     if (appBGCol || appBTNCol || appFGCol) {
+        (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
         QColor fg;
         if (appBGCol)
             bg = QColor(appBGCol);
         else
-            bg = qt_std_pal->color(QPalette::Background);
+            bg = QApplicationPrivate::sys_pal->color(QPalette::Background);
         if (appFGCol)
             fg = QColor(appFGCol);
         else
-            fg = qt_std_pal->color(QPalette::Foreground);
+            fg = QApplicationPrivate::sys_pal->color(QPalette::Foreground);
         if (appBTNCol)
             btn = QColor(appBTNCol);
         else
-            btn = qt_std_pal->color(QPalette::Button);
+            btn = QApplicationPrivate::sys_pal->color(QPalette::Button);
+
         int h,s,v;
         fg.getHsv(&h,&s,&v);
         QColor base = Qt::white;
@@ -1422,18 +1416,21 @@ static void qt_set_qws_resources()
             pal.setColor(QPalette::HighlightedText, Qt::white);
             pal.setColor(QPalette::Highlight, Qt::darkBlue);
         }
-        QColor disabled((fg.red()+btn.red())/2,
-                         (fg.green()+btn.green())/2,
-                         (fg.blue()+btn.blue())/2);
-        pal.setColor(QPalette::Disabled, QPalette::Foreground, disabled);
-        pal.setColor(QPalette::Disabled, QPalette::Light, btn.light(125));
-        pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
-        pal.setColor(QPalette::Disabled, QPalette::Base, Qt::white);
-        if (pal != *qt_std_pal && pal != QApplication::palette())
-            QApplication::setPalette(pal);
-        *qt_std_pal = pal;
+        QColor disabled((fg.red()   + btn.red())  / 2,
+                        (fg.green() + btn.green())/ 2,
+                        (fg.blue()  + btn.blue()) / 2);
+        pal.setColorGroup(QPalette::Disabled, disabled, btn, btn.light(125),
+                          btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg);
+        if (bright_mode) {
+            pal.setColor(QPalette::Disabled, QPalette::HighlightedText, base);
+            pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::white);
+        } else {
+            pal.setColor(QPalette::Disabled, QPalette::HighlightedText, Qt::white);
+            pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::darkBlue);
+        }
+        QApplicationPrivate::setSystemPalette(pal);
+
     }
-#endif // QT_NO_PALETTE
 }
 
 

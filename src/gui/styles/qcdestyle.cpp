@@ -212,4 +212,19 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     }
 }
 
+/*!\reimp*/
+QPalette QCDEStyle::standardPalette()
+{
+    QColor background = QColor(0xb6, 0xb6, 0xcf);
+    QColor light = background.light();
+    QColor mid = background.dark(150);
+    QColor dark = background.dark();
+    QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
+    palette.setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::Text, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::Base, background);
+    return palette;
+}
+
 #endif

@@ -175,20 +175,21 @@ void QStyleOption::init(const QWidget *widget)
     fontMetrics = widget->fontMetrics();
 }
 
-/*!
-    Initializes the \l state, \l direction, \l rect, \l palette, and
-    \l fontMetrics member variables based on \a opt.
-
-    This function is provided only for convenience. You can also
-    initialize the variables manually if you want.
-*/
-void QStyleOption::init(const QStyleOption *opt)
+QStyleOption::QStyleOption(const QStyleOption &other)
+    : version(Version), type(Type), state(other.state),
+      direction(other.direction), rect(other.rect), fontMetrics(other.fontMetrics),
+      palette(other.palette)
 {
-    state = opt->state;
-    direction = opt->direction;
-    rect = opt->rect;
-    palette = opt->palette;
-    fontMetrics = opt->fontMetrics;
+}
+
+QStyleOption &QStyleOption::operator=(const QStyleOption &other)
+{
+    state = other.state;
+    direction = other.direction;
+    rect = other.rect;
+    fontMetrics = other.fontMetrics;
+    palette = other.palette;
+    return *this;
 }
 
 

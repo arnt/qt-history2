@@ -1038,7 +1038,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         button is down
 
     \value PM_DefaultFrameWidth  Default frame width (usually 2)
-    \value PM_SpinBoxFrameWidth  Frame width of a spin box
+    \value PM_SpinBoxFrameWidth  Frame width of a spin box, defaults to PM_DefaultFrameWidth
+    \value PM_ComboBoxFrameWidth Frame width of a combo box, defaults to PM_DefaultFrameWidth.
     \value PM_MDIFrameWidth  Frame width of an MDI window
     \value PM_MDIMinimizedWidth  Width of a minimized MDI window
 
@@ -1068,7 +1069,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         vertical dock window
     \value PM_DockWidgetFrameWidth  Frame width of a dock window
 
-    \value PM_MenuBarPanelWidth  Frame width of a menubar
+    \value PM_MenuBarPanelWidth  Frame width of a menubar, defaults to PM_DefaultFrameWidth
     \value PM_MenuBarItemSpacing  Spacing between menubar items
     \value PM_MenuBarHMargin  Spacing between menubar items and left/right of bar
     \value PM_MenuBarVMargin  Spacing between menubar items and top/bottom of bar
@@ -1725,5 +1726,23 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
     Use one of the drawItem() overloads that takes a QPalette instead
     of a QColorGroup.
 */
+
+/*!
+     Returns the style's standard palette. On systems that support
+     system colors, the style's standard palette is not used.
+ */
+QPalette QStyle::standardPalette()
+{
+    QColor background(0xd4, 0xd0, 0xc8); // win 2000 grey
+    QColor light(background.light());
+    QColor dark(background.dark());
+    QColor mid(Qt::gray);
+    QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
+    palette.setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::Text, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::Base, background);
+    return palette;
+}
 
 #endif // QT_NO_STYLE

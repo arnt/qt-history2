@@ -91,12 +91,10 @@ public:
     static void changeOverrideCursor(const QCursor &);
     static void restoreOverrideCursor();
 #endif
-#ifndef QT_NO_PALETTE
     static QPalette palette();
     static QPalette palette(const QWidget *);
     static QPalette palette(const char *className);
     static void setPalette(const QPalette &, const char* className = 0);
-#endif
     static QFont font(const QWidget* = 0);
     static void setFont(const QFont &, const char* className = 0);
     static QFontMetrics fontMetrics();
@@ -246,7 +244,6 @@ public:
     inline static QT3_SUPPORT bool hasGlobalMouseTracking() {return true;}
     inline static QT3_SUPPORT void setGlobalMouseTracking(bool) {};
     inline static QT3_SUPPORT void flushX() { flush(); }
-#ifndef QT_NO_PALETTE
     static inline QT3_SUPPORT void setWinStyleHighlightColor(const QColor &c) {
         QPalette p(palette());
         p.setColor(QPalette::Highlight, c);
@@ -256,7 +253,6 @@ public:
         { return palette().color(QPalette::Active, QPalette::Highlight); }
     static inline QT3_SUPPORT void setPalette(const QPalette &pal, bool, const char* className = 0)
         { setPalette(pal, className); };
-#endif // QT_NO_PALETTE
     static inline QT3_SUPPORT void setFont(const QFont &font, bool, const char* className = 0)
         { setFont(font, className); }
 

@@ -356,10 +356,6 @@ extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 extern void qt_clear_paintevent_clipping();
 
 
-// Palette handling
-extern QPalette *qt_std_pal;
-extern void qt_create_std_palette();
-
 
 class QETWidget : public QWidget                // event translator widget
 {
@@ -513,9 +509,6 @@ static void qt_x11_create_intern_atoms()
 */
 bool QApplicationPrivate::x11_apply_settings()
 {
-    if (! qt_std_pal)
-        qt_create_std_palette();
-
     Atom type;
     int format;
     long offset = 0;
@@ -589,37 +582,36 @@ bool QApplicationPrivate::x11_apply_settings()
 
     QStringList strlist;
     int i;
-    QPalette pal(QApplication::palette());
+    QPalette pal(Qt::black);
+    int groupCount = 0;
     strlist = settings.value(QLatin1String("Palette/active")).toStringList();
     if (strlist.count() == QPalette::NColorRoles) {
+        ++groupCount;
         for (i = 0; i < QPalette::NColorRoles; i++)
             pal.setColor(QPalette::Active, (QPalette::ColorRole) i,
                          QColor(strlist[i]));
     }
     strlist = settings.value(QLatin1String("Palette/inactive")).toStringList();
     if (strlist.count() == QPalette::NColorRoles) {
+        ++groupCount;
         for (i = 0; i < QPalette::NColorRoles; i++)
             pal.setColor(QPalette::Inactive, (QPalette::ColorRole) i,
                          QColor(strlist[i]));
     }
     strlist = settings.value(QLatin1String("Palette/disabled")).toStringList();
     if (strlist.count() == QPalette::NColorRoles) {
+        ++groupCount;
         for (i = 0; i < QPalette::NColorRoles; i++)
             pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i,
                          QColor(strlist[i]));
     }
 
-    // workaround for KDE 3.0, which messes up the buttonText value of
-    // the disabled palette in QSettings
-    if (pal.color(QPalette::Disabled, QPalette::ButtonText)
-        == pal.color(QPalette::Active, QPalette::ButtonText)) {
-        pal.setColor(QPalette::Disabled, QPalette::ButtonText,
-                     pal.color(QPalette::Disabled, QPalette::Foreground));
-    }
-    if (pal != *qt_std_pal && pal != QApplication::palette()) {
-        QApplication::setPalette(pal);
-        *qt_std_pal = pal;
-    }
+
+    if (groupCount == QPalette::NColorGroups)
+        if (QApplicationPrivate::sys_pal)
+            *QApplicationPrivate::sys_pal = pal;
+        else
+            QApplicationPrivate::sys_pal = new QPalette(pal);
 
     if (!qt_app_has_font) {
         QFont font(QApplication::font());
@@ -805,8 +797,6 @@ static void qt_set_input_encoding()
 static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                                   const char* bg = 0, const char* button = 0)
 {
-    if (!qt_std_pal)
-        qt_create_std_palette();
 
     QString resFont, resFG, resBG, resEF, sysFont;
 
@@ -936,23 +926,24 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     }
 
     if (button || !resBG.isEmpty() || !resFG.isEmpty()) {// set app colors
+        (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
         QColor fg;
         if (!resBG.isEmpty())
             bg = QColor(QString(resBG));
         else
-            bg = qt_std_pal->color(QPalette::Active, QPalette::Background);
+            bg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Background);
         if (!resFG.isEmpty())
             fg = QColor(QString(resFG));
         else
-            fg = qt_std_pal->color(QPalette::Active, QPalette::Foreground);
+            fg = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Foreground);
         if (button)
             btn = QColor(button);
         else if (!resBG.isEmpty())
             btn = bg;
         else
-            btn = qt_std_pal->color(QPalette::Active, QPalette::Button);
+            btn = QApplicationPrivate::sys_pal->color(QPalette::Active, QPalette::Button);
 
         int h,s,v;
         fg.getHsv(&h,&s,&v);
@@ -983,8 +974,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             pal.setColor(QPalette::Disabled, QPalette::HighlightedText, Qt::white);
             pal.setColor(QPalette::Disabled, QPalette::Highlight, Qt::darkBlue);
         }
-        if (pal != *qt_std_pal)
-            QApplication::setPalette(pal);
+        QApplicationPrivate::setSystemPalette(pal);
     }
 
     if (!resEF.isEmpty()) {

@@ -160,9 +160,9 @@ public:
     static QWidgetList *popupWidgets;
     static QStyle *app_style;
     static int app_cspec;
-#ifndef QT_NO_PALETTE
     static QPalette *app_pal;
-#endif
+    static QPalette *sys_pal;
+    static QPalette *set_pal;
     static QFont *app_font;
     static QWidget *main_widget;
     static QWidget *focus_widget;
@@ -182,6 +182,8 @@ public:
     static bool fade_tooltip;
     static bool animate_toolbox;
     static bool widgetCount; // Coupled with -widgetcount switch
+
+    static void setSystemPalette(const QPalette &pal);
 
 #if defined(Q_WS_X11)
     static void applyX11SpecificCommandLineArguments(QWidget *main_widget);

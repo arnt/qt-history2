@@ -2,9 +2,9 @@
 #define NORWEGIANWOODSTYLE_H
 
 #include <QPalette>
-#include <QWindowsStyle>
+#include <QMotifStyle>
 
-class NorwegianWoodStyle : public QWindowsStyle
+class NorwegianWoodStyle : public QMotifStyle
 {
     Q_OBJECT
 
@@ -17,18 +17,9 @@ public:
                        QPainter *painter, const QWidget *widget) const;
     void drawControl(ControlElement control, const QStyleOption *option,
                      QPainter *painter, const QWidget *widget) const;
-#if 0
-    void drawComplexControl(ControlElement control,
-                            const QStyleOptionComplex *option,
-                            QPainter *painter, const QWidget *widget) const;
-    SubControl hitTestComplexControl(ComplexControl control,
-                                     const QStyleOptionComplex *option,
-                                     const QPoint &pos,
-                                     const QWidget *widget) const;
-    QRect subControlRect(ComplexControl control,
-                         const QStyleOptionComplex *option,
-                         SubControl subControl, const QWidget *widget) const;
-#endif
+
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
+                    const QWidget *widget = 0) const;
 
 private:
     enum Direction { PointUp, PointDown, PointLeft, PointRight };
@@ -37,8 +28,6 @@ private:
                   const QBrush &brush);
     void setBrushPixmap(QPalette &palette, QPalette::ColorRole role,
                         const QPixmap &pixmap);
-    void drawSemiCircleButton(Direction direction, QPainter *painter,
-                              const QStyleOption *option) const;
 
     QImage buttonImage;
     QImage lightImage;

@@ -225,6 +225,28 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         }
         break;
 
+    case PE_FrameFocusRect:
+        if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
+            if ((fropt->state & State_HasFocus) && focus && focus->isVisible())
+                break;
+            QColor bg = fropt->backgroundColor;
+            QPen oldPen = p->pen();
+            if (bg.isValid()) {
+                int h, s, v;
+                bg.getHsv(&h, &s, &v);
+                if (v >= 128)
+                    p->setPen(Qt::black);
+                else
+                    p->setPen(Qt::white);
+            } else {
+                p->setPen(opt->palette.foreground().color());
+            }
+            p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
+                              opt->rect.height() - 2));
+            p->setPen(oldPen);
+        }
+        break;
+
     case PE_IndicatorToolBarHandle: {
         p->save();
         p->translate(opt->rect.x(), opt->rect.y());
@@ -301,6 +323,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
+        p->setBrushOrigin(opt->rect.topLeft());
         qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Down | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break; }
@@ -768,7 +791,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             }
             if (!(btn->features & QStyleOptionButton::Flat) ||
                 (btn->state & (State_Down|State_On))) {
-                QStyleOption newOpt = *opt;
+                QStyleOptionButton newOpt = *btn;
                 newOpt.rect = QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
                 p->setBrushOrigin(p->brushOrigin());
                 drawPrimitive(PE_PanelButtonCommand, &newOpt, p, widget);
@@ -1317,9 +1340,12 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (opt->subControls & SC_ComboBoxArrow) {
                 int awh, ax, ay, sh, sy, dh, ew;
-                int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+                int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
 
-                drawPrimitive(PE_PanelButtonCommand, opt, p, widget);
+                QStyleOptionButton btn;
+                btn.QStyleOption::operator=(*cb);
+                btn.state |= QStyle::State_Raised;
+                drawPrimitive(PE_PanelButtonCommand, &btn, p, widget);
 
                 QRect tr = opt->rect;
                 tr.addCoords(fw, fw, -fw, -fw);
@@ -1655,14 +1681,14 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
         switch (sc) {
         case SC_ComboBoxArrow: {
             int ew, awh, sh, dh, ax, ay, sy;
-            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
             QRect cr = opt->rect;
             cr.addCoords(fw, fw, -fw, -fw);
             get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
             return QRect(QPoint(ax, ay), cr.bottomRight()); }
 
         case SC_ComboBoxEditField: {
-            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
             QRect rect = opt->rect;
             rect.addCoords(fw, fw, -fw, -fw);
             int ew = get_combo_extra_width(rect.height(), rect.width());
@@ -2316,6 +2342,20 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
     }
 
     return ret;
+}
+
+QPalette QMotifStyle::standardPalette()
+{
+    QColor background = QColor(0xcf, 0xcf, 0xcf);
+    QColor light = background.light();
+    QColor mid = QColor(0xa6, 0xa6, 0xa6);
+    QColor dark = QColor(0x79, 0x7d, 0x79);
+    QPalette palette(Qt::black, background, light, dark, mid, Qt::black, Qt::white);
+    palette.setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::Text, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
+    palette.setBrush(QPalette::Disabled, QPalette::Base, background);
+    return palette;
 }
 
 

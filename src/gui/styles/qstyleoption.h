@@ -47,16 +47,18 @@ public:
     QPalette palette;
 
     QStyleOption(int version = QStyleOption::Version, int type = SO_Default);
+    QStyleOption(const QStyleOption &other);
     ~QStyleOption();
 
     void init(const QWidget *w);
-    void init(const QStyleOption *opt);
+    QStyleOption &operator=(const QStyleOption &other);
 
     QDOC_PROPERTY(int version)
     QDOC_PROPERTY(int type)
     QDOC_PROPERTY(QStyle::State state)
     QDOC_PROPERTY(QRect rect)
     QDOC_PROPERTY(QPalette palette)
+
 };
 
 class Q_GUI_EXPORT QStyleOptionFocusRect  : public QStyleOption
@@ -68,6 +70,7 @@ public:
     QColor backgroundColor;
 
     QStyleOptionFocusRect();
+    QStyleOptionFocusRect(const QStyleOptionFocusRect &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QColor backgroundColor)
 
@@ -85,6 +88,7 @@ public:
     int midLineWidth;
 
     QStyleOptionFrame();
+    QStyleOptionFrame(const QStyleOptionFrame &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(int lineWidth)
     QDOC_PROPERTY(int midLineWidth)
@@ -107,6 +111,7 @@ public:
     QSize leftCornerWidgetSize;
 
     QStyleOptionTabWidgetFrame();
+    QStyleOptionTabWidgetFrame(const QStyleOptionTabWidgetFrame &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(int lineWidth)
     QDOC_PROPERTY(int midLineWidth)
@@ -134,6 +139,7 @@ public:
     SelectedPosition selectedPosition;
 
     QStyleOptionHeader();
+    QStyleOptionHeader(const QStyleOptionHeader &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(int section)
     QDOC_PROPERTY(QString text)
@@ -160,6 +166,7 @@ public:
     QIcon icon;
 
     QStyleOptionButton();
+    QStyleOptionButton(const QStyleOptionButton &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(ButtonFeatures features)
     QDOC_PROPERTY(QString text)
@@ -188,6 +195,7 @@ public:
     SelectedPosition selectedPosition;
 
     QStyleOptionTab();
+    QStyleOptionTab(const QStyleOptionTab &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QTabBar::Shape shape)
     QDOC_PROPERTY(QString text)
@@ -216,6 +224,7 @@ public:
 
 
     QStyleOptionProgressBar();
+    QStyleOptionProgressBar(const QStyleOptionProgressBar &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(int minimum)
     QDOC_PROPERTY(int maximum)
@@ -249,6 +258,7 @@ public:
     QFont font;
 
     QStyleOptionMenuItem();
+    QStyleOptionMenuItem(const QStyleOptionMenuItem &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(MenuItemType menuItemType)
     QDOC_PROPERTY(CheckType checkType)
@@ -281,6 +291,7 @@ public:
     int childCount;
 
     QStyleOptionQ3ListViewItem();
+    QStyleOptionQ3ListViewItem(const QStyleOptionQ3ListViewItem &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(ListViewItemFeatures features)
     QDOC_PROPERTY(int height)
@@ -304,6 +315,7 @@ public:
     bool closeEnabled;
 
     QStyleOptionQ3DockWindow();
+    QStyleOptionQ3DockWindow(const QStyleOptionQ3DockWindow &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(bool docked)
     QDOC_PROPERTY(bool closeEnabled)
@@ -324,6 +336,7 @@ public:
     bool floatable;
 
     QStyleOptionDockWidget();
+    QStyleOptionDockWidget(const QStyleOptionDockWidget &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QString title)
     QDOC_PROPERTY(bool closable)
@@ -349,6 +362,7 @@ public:
     QFont font;
 
     QStyleOptionViewItem();
+    QStyleOptionViewItem(const QStyleOptionViewItem &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(Qt::Alignment displayAlignment)
     QDOC_PROPERTY(Qt::Alignment decorationAlignment)
@@ -370,6 +384,7 @@ public:
     QIcon icon;
 
     QStyleOptionToolBox();
+    QStyleOptionToolBox(const QStyleOptionToolBox &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(QIcon icon)
@@ -389,6 +404,7 @@ public:
     QStyle::SubControls activeSubControls;
 
     QStyleOptionComplex(int version = QStyleOptionComplex::Version, int type = SO_Complex);
+    QStyleOptionComplex(const QStyleOptionComplex &other) : QStyleOption(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QStyle::SubControls subControls)
     QDOC_PROPERTY(QStyle::SubControls activeSubControls)
@@ -412,6 +428,7 @@ public:
     int pageStep;
 
     QStyleOptionSlider();
+    QStyleOptionSlider(const QStyleOptionSlider &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(Qt::Orientation orientation)
     QDOC_PROPERTY(int minimum)
@@ -441,6 +458,7 @@ public:
     bool showFrame;
 
     QStyleOptionSpinBox();
+    QStyleOptionSpinBox(const QStyleOptionSpinBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols)
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled)
@@ -467,6 +485,7 @@ public:
     bool rootIsDecorated;
 
     QStyleOptionQ3ListView();
+    QStyleOptionQ3ListView(const QStyleOptionQ3ListView &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QList<QStyleOptionQ3ListViewItem> items)
     QDOC_PROPERTY(QPalette viewportPalette)
@@ -498,6 +517,7 @@ public:
     QFont font;
 
     QStyleOptionToolButton();
+    QStyleOptionToolButton(const QStyleOptionToolButton &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(ToolButtonFeatures features)
     QDOC_PROPERTY(QIcon icon)
@@ -523,6 +543,7 @@ public:
     QRect popupRect;
 
     QStyleOptionComboBox();
+    QStyleOptionComboBox(const QStyleOptionComboBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(bool editable)
     QDOC_PROPERTY(QRect popupRect)
@@ -543,6 +564,7 @@ public:
     Qt::WFlags titleBarFlags;
 
     QStyleOptionTitleBar();
+    QStyleOptionTitleBar(const QStyleOptionTitleBar &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(QIcon icon)

@@ -61,6 +61,7 @@ void WidgetGallery::changeStyle(const QString &styleName)
     } else {
         QApplication::setStyle(QStyleFactory::create(styleName));
     }
+    QApplication::setPalette(QApplication::style()->standardPalette());
 }
 
 void WidgetGallery::advanceProgressBar()
@@ -97,6 +98,7 @@ void WidgetGallery::createTopRightGroupBox()
 
     normalPushButton = new QPushButton(tr("Normal Push Button"),
                                        topRightGroupBox);
+    connect(normalPushButton, SIGNAL(clicked()), this, SLOT(showImage()));
     togglePushButton = new QPushButton(tr("Toggle Push Button"),
                                        topRightGroupBox);
     togglePushButton->setCheckable(true);
@@ -111,6 +113,14 @@ void WidgetGallery::createTopRightGroupBox()
     layout->addStretch(1);
 }
 
+void WidgetGallery::showImage()
+{
+    QPixmap pm = QPixmap::grabWidget(this);
+    QLabel *label = new QLabel;
+    label->setAttribute(Qt::WA_DeleteOnClose);
+    label->setPixmap(pm);
+    label->show();
+}
 void WidgetGallery::createBottomLeftTabWidget()
 {
     bottomLeftTabWidget = new QTabWidget(this);

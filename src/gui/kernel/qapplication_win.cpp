@@ -363,10 +363,6 @@ static void qt_show_system_menu(QWidget* tlw)
 
 extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
-// Palette handling
-extern QPalette *qt_std_pal;
-extern void qt_create_std_palette();
-
 static void qt_set_windows_resources()
 {
 #ifndef Q_OS_TEMP
@@ -410,9 +406,6 @@ static void qt_set_windows_resources()
     GetObject(stockFont, sizeof(lf), &lf);
     QApplication::setFont(qt_LOGFONTtoQFont(lf, true));
 #endif// Q_OS_TEMP
-
-    if (qt_std_pal && *qt_std_pal != QApplication::palette())
-        return;
 
     // Do the color settings
     QPalette pal;
@@ -467,7 +460,7 @@ static void qt_set_windows_resources()
     pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
                   QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))));
 
-    QApplication::setPalette(pal);
+    QApplicationPrivate::setSystemPalette(pal);
 
     QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
@@ -628,8 +621,6 @@ void qt_init(QApplicationPrivate *priv, int)
 
     // QFont::locale_init();  ### Uncomment when it does something on Windows
 
-    if (!qt_std_pal)
-        qt_create_std_palette();
     if (QApplication::desktopSettingsAware())
         qt_set_windows_resources();
 
@@ -2988,7 +2979,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 // see comment above
                 if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
                     code = Qt::Key_Backtab;
-                
+
                 k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
                 if (code == Qt::Key_Alt)
                     k0 = true; // don't let window see the meta key
