@@ -1,5 +1,5 @@
 
-TARGET = designer4u
+TARGET = designer
 
 HEADERS += \
     qdesigner.h \
