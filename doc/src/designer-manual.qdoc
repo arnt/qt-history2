@@ -430,11 +430,12 @@ the form's design.
 
 \tableofcontents
 
-With Qt's integrated build tools, \e qmake and \e uic, the code for user
-interface components created with \QD is automatically generated when the
-rest of of your application is built. Forms can be included and used
-directly from your application or, and you can use them to extend
-subclasses of standard widgets.
+With Qt's integrated build tools, \l{qmake-manual.html}{qmake} and
+\l{uic.html}{uic}, the code for user interface components created
+with \QD is automatically generated when the rest of of your
+application is built. Forms can be included and used directly from
+your application or, and you can use them to extend subclasses of
+standard widgets.
 
 There are three approaches to using a form in your application: the
 direct approach, single inheritance subclassing, and multiple
@@ -458,7 +459,7 @@ To demonstrate how user interface components can be used straight from
 create a simple application to display it.
 
 The source of the application consists of two files: \c main.cpp and
-\c imagedialog.ui. We will use \e qmake to build the executable, so we
+\c imagedialog.ui. We will use \c qmake to build the executable, so we
 need to write a \c .pro file:
 
 \quotefromfile snippets/designer/imagedialog/imagedialog.pro
@@ -466,10 +467,10 @@ need to write a \c .pro file:
 \printuntil SOURCES
 
 The special feature of this file is the \c FORMS declaration that tells
-\e qmake which files it needs to process with \e uic. In this case,
+\c qmake which files it needs to process with \c uic. In this case,
 the \c imagedialog.ui file is used to create a \c ui_imagedialog.h file
 that can be used by any files listed in the \c SOURCES declaration.
-To ensure that \e qmake generates the \c ui_imagedialog.h file, we need
+To ensure that \c qmake generates the \c ui_imagedialog.h file, we need
 to include it in a file listed in \c SOURCES. Since we only have
 \c main.cpp, we include it there:
 
@@ -509,7 +510,7 @@ making signal and slot connections between the user interface and other
 objects in your application.
 
 To ensure that we can use the user interface, we need to include the
-header file that \e uic generates before referring to \c{Ui::ImageDialog}:
+header file that \c uic generates before referring to \c{Ui::ImageDialog}:
 
 \quotefromfile snippets/designer/singleinheritance/imagedialog.h
 \skipto #include "ui_imagedialog.h"
@@ -555,7 +556,7 @@ components defined in the form directly accessible within the scope of
 the subclass, and enables signal and slot connections to be made in
 the usual way with the \l{QObject::connect()}{connect()} function.
 
-As before, we need to include the header file that \e uic generates
+As before, we need to include the header file that \c uic generates
 from the \c imagedialog.ui file:
 
 \quotefromfile snippets/designer/multipleinheritance/imagedialog.h
@@ -644,7 +645,7 @@ was given for the image.
 \section2 A Dialog With Auto-Connect
 
 Although it is easy to implement a custom slot in the dialog and
-connect it in the constructor, we could instead use \e uic's
+connect it in the constructor, we could instead use \c{uic}'s
 auto-connection facilities to connect the \key OK button's clicked()
 signal to a slot in our subclass. To do this, we only need to
 declare and implement a slot with a name that follows a standard
