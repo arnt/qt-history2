@@ -87,10 +87,9 @@
 */
 
 /*!
-  Constructs a QCommonStyle that provides the style \a s.  This determines
-  the default behavior of the virtual functions.
+  Constructs a QCommonStyle.
 */
-QCommonStyle::QCommonStyle(GUIStyle s) : QStyle(s)
+QCommonStyle::QCommonStyle() : QStyle()
 {
 }
 
@@ -1350,10 +1349,10 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	const QSpinWidget * sw = (const QSpinWidget *) widget;
 	SFlags flags;
 	PrimitiveElement pe;
-	
+
 	if ( controls & SC_SpinWidgetFrame )
 	    qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
-	
+
 	if ( controls & SC_SpinWidgetUp ) {
 	    flags = Style_Default | Style_Enabled;
 	    if (active == SC_SpinWidgetUp ) {
@@ -1547,6 +1546,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	xpos += wi - 2 - 16;
 
 	switch ( sc ) {
+	case SC_ComboBoxFrame:
+	    rect = widget->rect();
+	    break;
 	case SC_ComboBoxArrow:
 	    rect.setRect(xpos, y+2, 16, he-4);
 	    break;
@@ -1698,77 +1700,77 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 #endif // QT_NO_SLIDER
 
 #ifndef QT_NO_TOOLBUTTON
- case CC_ToolButton:
-     {
-	 const QToolButton *toolbutton = (const QToolButton *) widget;
-	 int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+    case CC_ToolButton:
+	{
+	    const QToolButton *toolbutton = (const QToolButton *) widget;
+	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 
-	 rect = toolbutton->rect();
+	    rect = toolbutton->rect();
 
-	 switch (sc) {
-	 case SC_ToolButton:
-	     if (toolbutton->popup() && ! toolbutton->popupDelay())
-		 rect.addCoords(0, 0, -mbi, 0);
-	     break;
+	    switch (sc) {
+	    case SC_ToolButton:
+		if (toolbutton->popup() && ! toolbutton->popupDelay())
+		    rect.addCoords(0, 0, -mbi, 0);
+		break;
 
-	 case SC_ToolButtonMenu:
-	     if (toolbutton->popup() && ! toolbutton->popupDelay())
-		 rect.addCoords(rect.width() - mbi, 0, 0, 0);
-	     break;
+	    case SC_ToolButtonMenu:
+		if (toolbutton->popup() && ! toolbutton->popupDelay())
+		    rect.addCoords(rect.width() - mbi, 0, 0, 0);
+		break;
 
-	 default:
-	     break;
-	 }
-	 break;
-     }
+	    default:
+		break;
+	    }
+	    break;
+	}
 #endif // QT_NO_TOOLBUTTON
 
 #ifndef QT_NO_TITLEBAR
- case CC_TitleBar:
-     {
-	 const QTitleBar *titlebar = (const QTitleBar *) widget;
+    case CC_TitleBar:
+	{
+	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 
-	 switch (sc) {
-	 case SC_TitleBarLabel:
-	     rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
-			    titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
-						TITLEBAR_SEPARATION) * 3),
-			    titlebar->height());
-	     break;
+	    switch (sc) {
+	    case SC_TitleBarLabel:
+		rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
+			       titlebar->width()-((TITLEBAR_CONTROL_WIDTH +
+						   TITLEBAR_SEPARATION) * 3),
+			       titlebar->height());
+		break;
 
-	 case SC_TitleBarCloseButton:
-	     rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
-					     TITLEBAR_SEPARATION), 2,
-			  TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	     break;
+	    case SC_TitleBarCloseButton:
+		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
+						TITLEBAR_SEPARATION), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	 case SC_TitleBarMaxButton:
-	     rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-					      TITLEBAR_SEPARATION) * 2), 2,
-			  TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	     break;
+	    case SC_TitleBarMaxButton:
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						 TITLEBAR_SEPARATION) * 2), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	 case SC_TitleBarMinButton:
-	     rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-					      TITLEBAR_SEPARATION) * 3), 2,
-			  TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	     break;
+	    case SC_TitleBarMinButton:
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						 TITLEBAR_SEPARATION) * 3), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	 case SC_TitleBarSysMenu:
-	     rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
-			  TITLEBAR_CONTROL_HEIGHT);
-	     break;
+	    case SC_TitleBarSysMenu:
+		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
+			     TITLEBAR_CONTROL_HEIGHT);
+		break;
 
-	 default:
-	     break;
-	 }
-	 break;
-     }
+	    default:
+		break;
+	    }
+	    break;
+	}
 #endif //QT_NO_TITLEBAR
 
- default:
-     break;
-}
+    default:
+	break;
+    }
 
     return rect;
 }
@@ -2122,13 +2124,25 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
     int ret;
 
     switch (sh) {
+    case SH_GUIStyle:
+	ret = WindowsStyle;
+	break;
+
     case SH_ScrollBar_BackgroundMode:
 	ret = QWidget::PaletteBackground;
 	break;
 
     case SH_TabBar_Alignment:
-    case SH_Header_Arrow_Alignment:
+    case SH_Header_ArrowAlignment:
 	ret = Qt::AlignLeft;
+	break;
+
+    case SH_PopupMenu_SubMenuPopupDelay:
+	ret = 256;
+	break;
+
+    case SH_ProgressDialog_TextLabelAlignment:
+	ret = Qt::AlignCenter;
 	break;
 
     default:

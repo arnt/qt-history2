@@ -94,6 +94,10 @@ public:
 			    const QSize &contentsSize,
 			    void **data ) const;
 
+    int styleHint( StyleHint hint,
+		   const QWidget *widget = 0,
+		   void ***returnData = 0) const;
+
     QPixmap stylePixmap( StylePixmap stylepixmap,
 			 const QWidget *widget = 0,
 			 void **data = 0 ) const;

@@ -833,84 +833,86 @@ void QScrollView::updateScrollBars()
     }
 
     // Configure scrollbars that we will show
-        if ( needv ) {
-            d->vbar->setRange( 0, contentsHeight()-porth );
-            d->vbar->setSteps( QScrollView::d->vbar->lineStep(), porth );
-        } else {
-            d->vbar->setRange( 0, 0 );
-        }
-        if ( needh ) {
-            d->hbar->setRange( 0, QMAX(0, contentsWidth()-portw) );
-            d->hbar->setSteps( QScrollView::d->hbar->lineStep(), portw );
-        } else {
-            d->hbar->setRange( 0, 0 );
-        }
+    if ( needv ) {
+	d->vbar->setRange( 0, contentsHeight()-porth );
+	d->vbar->setSteps( QScrollView::d->vbar->lineStep(), porth );
+    } else {
+	d->vbar->setRange( 0, 0 );
+    }
+    if ( needh ) {
+	d->hbar->setRange( 0, QMAX(0, contentsWidth()-portw) );
+	d->hbar->setSteps( QScrollView::d->hbar->lineStep(), portw );
+    } else {
+	d->hbar->setRange( 0, 0 );
+    }
 
     // Position the scrollbars, viewport and corner widget.
     int bottom;
     bool reverse = QApplication::reverseLayout();
     int xoffset = ( reverse && (showv || cornerWidget() )) ? vsbExt : 0;
     int xpos = reverse ? 0 : w - vsbExt;
-    if( style() == WindowsStyle ) {
-        if ( reverse )
+    bool frameContentsOnly =
+	style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
+    if( ! frameContentsOnly ) {
+	if ( reverse )
             xpos += fw;
         else
             xpos -= fw;
     }
     if ( showh ) {
         int right = ( showv || cornerWidget() ) ? w-vsbExt : w;
-        if ( style() == WindowsStyle )
+        if ( ! frameContentsOnly )
             setHBarGeometry( *d->hbar, fw + xoffset, h-hsbExt-fw,
-                            right-fw-fw, hsbExt );
+			     right-fw-fw, hsbExt );
         else
             setHBarGeometry( *d->hbar, 0 + xoffset, h-hsbExt, right,
-                            hsbExt );
+			     hsbExt );
         bottom=h-hsbExt;
     } else {
         bottom=h;
     }
     if ( showv ) {
-        clipper()->setGeometry( lmarg + xoffset, tmarg,
-                                w-vsbExt-lmarg-rmarg,
-                                bottom-tmarg-bmarg );
-        d->viewportResized( w-vsbExt-lmarg-rmarg, bottom-tmarg-bmarg );
-        if ( style() == WindowsStyle )
-            changeFrameRect(QRect(0, 0, w, h) );
-        else
-            changeFrameRect(QRect(xoffset, 0, w-vsbExt, bottom));
-        if (cornerWidget()) {
-            if ( style() == WindowsStyle )
-                setVBarGeometry( *d->vbar, xpos,
-                                 fw, vsbExt,
-                                 h-hsbExt-fw-fw );
-            else
-                setVBarGeometry( *d->vbar, xpos, 0,
-                                 vsbExt,
-                                 h-hsbExt );
-        }
-        else {
-            if ( style() == WindowsStyle )
-                setVBarGeometry( *d->vbar, xpos,
-                                 fw, vsbExt,
-                                 bottom-fw-fw );
-            else
-                setVBarGeometry( *d->vbar, xpos, 0,
-                                 vsbExt, bottom );
-        }
+	clipper()->setGeometry( lmarg + xoffset, tmarg,
+				w-vsbExt-lmarg-rmarg,
+				bottom-tmarg-bmarg );
+	d->viewportResized( w-vsbExt-lmarg-rmarg, bottom-tmarg-bmarg );
+	if ( ! frameContentsOnly )
+	    changeFrameRect(QRect(0, 0, w, h) );
+	else
+	    changeFrameRect(QRect(xoffset, 0, w-vsbExt, bottom));
+	if (cornerWidget()) {
+	    if ( ! frameContentsOnly )
+		setVBarGeometry( *d->vbar, xpos,
+				 fw, vsbExt,
+				 h-hsbExt-fw-fw );
+	    else
+		setVBarGeometry( *d->vbar, xpos, 0,
+				 vsbExt,
+				 h-hsbExt );
+	}
+	else {
+	    if ( ! frameContentsOnly )
+		setVBarGeometry( *d->vbar, xpos,
+				 fw, vsbExt,
+				 bottom-fw-fw );
+	    else
+		setVBarGeometry( *d->vbar, xpos, 0,
+				 vsbExt, bottom );
+	}
     } else {
-        if ( style() == WindowsStyle )
+        if ( ! frameContentsOnly )
             changeFrameRect(QRect(0, 0, w, h));
         else
             changeFrameRect(QRect(0, 0, w, bottom));
         clipper()->setGeometry( lmarg, tmarg,
-                                 w-lmarg-rmarg, bottom-tmarg-bmarg );
+				w-lmarg-rmarg, bottom-tmarg-bmarg );
         d->viewportResized( w-lmarg-rmarg, bottom-tmarg-bmarg );
     }
 
     QWidget *corner = d->corner;
     if ( !d->corner )
 	corner = d->defaultCorner;
-    if ( style() == WindowsStyle )
+    if ( ! frameContentsOnly )
 	corner->setGeometry( xpos,
 			     h-hsbExt-fw,
 			     vsbExt,

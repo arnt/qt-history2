@@ -49,8 +49,6 @@
 static const int thresholdTime = 500;
 static const int repeatTime = 100;
 
-static const bool funnyWindowsStyle = FALSE;
-
 static int sliderStartVal = 0; //##### class member?
 
 
@@ -395,8 +393,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
-    } else if ( e->button() == MidButton ||
-		(funnyWindowsStyle && style() == WindowsStyle) ) {
+    } else if ( e->button() == MidButton ) {
 	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideLength / 2 );
 	state = Dragging;
@@ -427,21 +424,19 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
     if ( state != Dragging )
 	return;
 
-    if ( style() == WindowsStyle ) {
-	QRect r = rect();
-	int m = style().pixelMetric( QStyle::PM_MaximumDragDistance,
-				     this );
-	if ( m >= 0 ) {
-	    if ( orientation() == Horizontal )
-		r.setRect( r.x() - m, r.y() - 2*m/3,
-			   r.width() + 2*m, r.height() + 3*m );
-	    else
-		r.setRect( r.x() - 2*m/3, r.y() - m,
-			   r.width() + 3*m, r.height() + 2*m );
-	    if ( !r.contains( e->pos() ) ) {
-		moveSlider( positionFromValue( sliderStartVal) );
-		return;
-	    }
+    QRect r = rect();
+    int m = style().pixelMetric( QStyle::PM_MaximumDragDistance,
+				 this );
+    if ( m >= 0 ) {
+	if ( orientation() == Horizontal )
+	    r.setRect( r.x() - m, r.y() - 2*m/3,
+		       r.width() + 2*m, r.height() + 3*m );
+	else
+	    r.setRect( r.x() - 2*m/3, r.y() - m,
+		       r.width() + 3*m, r.height() + 2*m );
+	if ( !r.contains( e->pos() ) ) {
+	    moveSlider( positionFromValue( sliderStartVal) );
+	    return;
 	}
     }
 
@@ -503,22 +498,10 @@ void QSlider::moveSlider( int pos )
 	sliderVal = newVal;
 	emit sliderMoved( sliderVal );
     }
-    if ( tracking() && sliderVal != value() ) {
+    if ( tracking() && sliderVal != value() )
 	setValue( sliderVal );
-	// ### Why do we emit the valueChanged signal here?  It will get emitted in
-	// valueChange() anyway...
-	//emit valueChanged( sliderVal );
-    }
-
-    switch ( (GUIStyle)style() ) {
-    case WindowsStyle:
+    if (style().styleHint(QStyle::SH_Slider_SnapToValue, this))
 	newPos = positionFromValue( newVal );
-	break;
-    default:
-    case MotifStyle:
-	break;
-    }
-
     if ( sliderPos != newPos )
 	reallyMoveSlider( newPos );
 }
@@ -556,7 +539,7 @@ void QSlider::resetState()
 */
 void QSlider::keyPressEvent( QKeyEvent *e )
 {
-    bool sloppy = ( style() == MotifStyle );
+    bool sloppy = bool(style().styleHint(QStyle::SH_Slider_SloppyKeyEvents, this));
     switch ( e->key() ) {
     case Key_Left:
 	if ( sloppy || orient == Horizontal )
@@ -660,8 +643,8 @@ QSize QSlider::sizeHint() const
 	thick += tickSpace;
     if ( ticks & Below )
 	thick += tickSpace;
-    if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
-	thick += style().pixelMetric( QStyle::PM_SliderLength, this ) / 4; // pointed slider
+    // if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
+    // thick += style().pixelMetric( QStyle::PM_SliderLength, this ) / 4; // pointed slider
     if ( orient == Horizontal )
 	return QSize( length, thick ).expandedTo( QApplication::globalStrut() );
     else

@@ -68,7 +68,7 @@
     bool ok;
     QFont font = QFontDialog::getFont( &ok, QFont( "Helvetica [Cronyx]", 10 ), this );
     if ( ok ) {
-	// font is set to the font the user selected 
+	// font is set to the font the user selected
     } else {
 	// the user cancelled the dialog; font is set to the initial
 	// value, in this case Helvetica [Cronyx], 10
@@ -138,7 +138,7 @@ public:
 
 
 /*!
-  Constructs a common font dialog. 
+  Constructs a common font dialog.
 
   Use setFont() for setting the initial font attributes.
 
@@ -342,7 +342,7 @@ QFontDialog::~QFontDialog()
     bool ok;
     QFont font = QFontDialog::getFont( &ok, QFont( "Times", 12 ), this );
     if ( ok ) {
-	// font is set to the font the user selected 
+	// font is set to the font the user selected
     } else {
 	// the user cancelled the dialog; font is set to the initial
 	// value, in this case Times, 12.
@@ -382,7 +382,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont &initial,
     bool ok;
     QFont font = QFontDialog::getFont( &ok, this );
     if ( ok ) {
-	// font is set to the font the user selected 
+	// font is set to the font the user selected
     } else {
 	// the user cancelled the dialog; font is set to the default
 	// application font, QApplication::font()
@@ -418,7 +418,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
     return result;
 }
 
-/*! 
+/*!
     Returns a pointer to the "font family" list box.  This is mainly
     useful mainly if you reimplement updateFontFamilies();
 */
@@ -428,7 +428,7 @@ QListBox * QFontDialog::familyListBox() const
     return d->familyList;
 }
 
-/*! 
+/*!
     Returns a pointer to the "font style" list box.  This is mainly
     useful if you reimplement updateFontStyles();
 */
@@ -438,7 +438,7 @@ QListBox * QFontDialog::styleListBox() const
     return d->styleList;
 }
 
-/*! 
+/*!
     Returns a pointer to the "font style" list box.  This is mainly
     useful if you reimplement updateFontStyles();
 */
@@ -448,7 +448,7 @@ QComboBox * QFontDialog::scriptCombo() const
     return d->scriptCombo;
 }
 
-/*! 
+/*!
     Returns a pointer to the "font size" list box.  This is mainly
     useful if you reimplement updateFontSizes();
 */
@@ -476,7 +476,7 @@ void QFontDialog::sizeChanged( const QString &s )
 }
 
 
-/*!  
+/*!
     An event filter to make the Up, Down, PageUp and PageDown keys work
     correctly in the line edits. The source of the event is the object
     \a o and the event is \a e.
@@ -512,11 +512,13 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 	     k->key() == Key_Next ) {
 	    int ci = lb->currentItem();
 	    (void)QApplication::sendEvent( lb, k );
-	    if ( ci != lb->currentItem() && style() == WindowsStyle )
+	    if ( ci != lb->currentItem() &&
+		 style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this))
 		le->selectAll();
 	    return TRUE;
 	}
-    } else if ( e->type() == QEvent::FocusIn && style() == WindowsStyle ) {
+    } else if ( e->type() == QEvent::FocusIn &&
+		style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this)) {
 	if ( o == d->familyEdit )
 	    d->familyEdit->selectAll();
 	else if ( o == d->styleEdit )
@@ -701,7 +703,8 @@ void QFontDialog::updateSizes()
 void QFontDialog::familyHighlighted( const QString &s )
 {
     d->familyEdit->setText(d->familyList->text(d->familyList->currentItem()));
-    if ( style() == WindowsStyle && d->familyEdit->hasFocus() )
+    if ( style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) &&
+	 d->familyEdit->hasFocus() )
 	d->familyEdit->selectAll();
 
     d->family = s;
@@ -750,7 +753,8 @@ void QFontDialog::scriptHighlighted( const QString &s )
 void QFontDialog::styleHighlighted( const QString &s )
 {
     d->styleEdit->setText( s );
-    if ( style() == WindowsStyle && d->styleEdit->hasFocus() )
+    if ( style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) &&
+	 d->styleEdit->hasFocus() )
 	d->styleEdit->selectAll();
 
     d->style = s;
@@ -781,7 +785,8 @@ void QFontDialog::styleHighlighted( const QString &s )
 void QFontDialog::sizeHighlighted( const QString &s )
 {
     d->sizeEdit->setText( s );
-    if ( style() == WindowsStyle && d->sizeEdit->hasFocus() )
+    if ( style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) &&
+	 d->sizeEdit->hasFocus() )
 	d->sizeEdit->selectAll();
 
     d->size = s;

@@ -159,10 +159,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     if ( popup ) {
 	setCellWidth( 18 );
 	setCellHeight( 18 );
-	if ( style() == WindowsStyle )
-	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	else
-	    setFrameStyle( QFrame::Panel | QFrame::Raised );
+	setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 	setMargin( 1 );
 	setLineWidth( 2 );
     } else {
@@ -198,30 +195,18 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     const QColorGroup & g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
     if ( !smallStyle && row ==selRow && col == selCol &&
-	 style() != MotifStyle ) {
+	 style().styleHint(QStyle::SH_GUIStyle) != MotifStyle) {
 	int n = 2;
 	p->drawRect( n, n, w-2*n, h-2*n );
     }
 
+    style().drawPrimitive(QStyle::PE_Panel, p, QRect(b, b, w-2*b, h-2*b), g,
+			  QStyle::Style_Enabled | QStyle::Style_Sunken);
 
-    if ( style() == WindowsStyle ) {
-	qDrawWinPanel( p, b, b ,  w - 2*b,  h - 2*b,
-		       g, TRUE );
-	b += 2;
-    } else {
-	if ( smallStyle ) {
-	    qDrawShadePanel( p, b, b ,  w - 2*b,  h - 2*b,
-			     g, TRUE, 2 );
-	    b += 2;
-	} else {
-	    int t = ( row == selRow && col == selCol ) ? 2 : 0;
-	    b -= t;
-	    qDrawShadePanel( p, b, b ,  w - 2*b,  h - 2*b,
-			     g, TRUE, 2 );
-	    b += 2 + t;
-	}
-    }
-
+    int t = 0;
+    if (style().styleHint(QStyle::SH_GUIStyle) == MotifStyle)
+	t = ( row == selRow && col == selCol ) ? 2 : 0;
+    b += 2 + t;
 
     if ( (row == curRow) && (col == curCol) ) {
 	if ( smallStyle ) {

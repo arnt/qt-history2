@@ -250,7 +250,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     setLineWidth( style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this) );
 
     QFontMetrics fm = fontMetrics();
-    int gs = style();
+    int gs = style().styleHint(QStyle::SH_GUIStyle);
     int h;
     if ( gs == WindowsStyle ) {
 	h = 2 + fm.height() + motifItemVMargin + 2*frameWidth() + 2*motifItemFrame;
@@ -279,7 +279,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
 void QMenuBar::styleChange( QStyle& old )
 {
-    switch ( style().guiStyle() ) {
+    switch ( style().styleHint(QStyle::SH_GUIStyle) ) {
     case WindowsStyle:
 	setMouseTracking( TRUE );
 	break;
@@ -435,12 +435,12 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	return FALSE;
     }
 
-    if (  !isVisible() ||
-	  !object->isWidgetType() ||
-	  !( event->type() == QEvent::Accel ||
+    if ( ! isVisible() ||
+	 ! object->isWidgetType() ||
+	 ! ( event->type() == QEvent::Accel ||
 	     event->type() == QEvent::KeyPress ||
 	     event->type() == QEvent::KeyRelease ) ||
-	  style() != WindowsStyle )
+	 ! style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) )
 	return FALSE;
 
 #ifndef QT_NO_ACCEL
@@ -585,7 +585,7 @@ void QMenuBar::goodbye( bool cancelled )
 {
     mouseBtDn = FALSE;
     popupvisible = 0;
-    if ( cancelled && style() == WindowsStyle )
+    if ( cancelled && style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) )
 	setAltMode( TRUE );
     else
 	setAltMode( FALSE );
@@ -774,7 +774,7 @@ int QMenuBar::calculateRects( int max_width )
     int max_height = 0;
     int max_item_height = 0;
     int nlitems = 0;				// number on items on cur line
-    int gs = style();
+    int gs = style().styleHint(QStyle::SH_GUIStyle);
     bool reverse = QApplication::reverseLayout();
     int x = frameWidth();
     int y = frameWidth();
@@ -821,7 +821,7 @@ int QMenuBar::calculateRects( int max_width )
 	    w = QMAX( w, QApplication::globalStrut().width() );
 	    h = QMAX( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
 	} else if ( mi->isSeparator() ) {	// separator item
-	    if ( style() == MotifStyle )
+	    if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
 		separator = i; //### only motif?
 	}
 	if ( !mi->isSeparator() || mi->widget() ) {
@@ -1022,7 +1022,7 @@ void QMenuBar::drawContents( QPainter *p )
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     if ( !mac_eaten_menubar ) {
 #endif
-	GUIStyle gs = style().guiStyle();
+	Qt::GUIStyle gs = (Qt::GUIStyle) style().styleHint(QStyle::SH_GUIStyle);
 	if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
 	    p->setPen( g.light() );
 	    p->drawLine( 0, height()-1, width()-1, height()-1 );
@@ -1065,7 +1065,10 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	return;
     }
     bool showMenu = TRUE;
-    if ( toggleclose && style() == WindowsStyle && actItem == item )
+    if ( toggleclose &&
+	 // pressing an item twice closes in windows, but not in motif :/
+	 style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle &&
+	 actItem == item )
 	showMenu = FALSE;
     setActiveItem( item, showMenu, !hasMouseTracking() );
     toggleclose = 0;
@@ -1130,7 +1133,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     case Key_Down:
     case Key_Enter:
     case Key_Return:
-	if ( style() == WindowsStyle )
+	if ( style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation) )
 	    setActiveItem( actItem );
 	break;
 

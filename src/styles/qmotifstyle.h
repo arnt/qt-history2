@@ -103,13 +103,17 @@ public:
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
-			   const QWidget *widget,
-			   const QSize &contentsSize,
-			   void **data ) const;
+			    const QWidget *widget,
+			    const QSize &contentsSize,
+			    void **data ) const;
 
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
     QPixmap stylePixmap(StylePixmap, const QWidget * = 0, void **data = 0) const;
+
+    int styleHint(StyleHint hint,
+		  const QWidget *widget = 0,
+		  void ***returnData = 0) const;
 
 
 private:

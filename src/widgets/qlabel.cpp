@@ -733,7 +733,8 @@ void QLabel::drawContents( QPainter *p )
 	    xo = cr.width()-rw;
 	else if ( align & AlignHCenter )
 	    xo = (cr.width()-rw)/2;
-	if ( style() == WindowsStyle && !isEnabled() ) {
+	if (! isEnabled() &&
+	    style().styleHint(QStyle::SH_EtchDisabledText, this)) {
 	    QColorGroup cg = colorGroup();
 	    cg.setColor( QColorGroup::Text, cg.light() );
 	    doc->draw(p, cr.x()+xo+1, cr.y()+yo+1, cr, cg, 0);

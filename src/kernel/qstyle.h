@@ -51,10 +51,8 @@ class QStylePrivate;
 class Q_EXPORT QStyle: public QObject
 {
     Q_OBJECT
-    GUIStyle gs;
 
 private:
-    QStyle(GUIStyle);
     QStyle();
     friend class QCommonStyle;
 
@@ -235,12 +233,6 @@ public:
 	SR_ProgressBarLabel,
 
 	SR_ToolButtonContents
-
-	/*
-	  SR_DefaultFrameContents,
-	  SR_PopupFrameContents,
-	  SR_MenuFrameContents,
-	*/
     };
 
     virtual QRect subRect( SubRect r, const QWidget *widget ) const = 0;
@@ -274,8 +266,9 @@ public:
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
-	SC_ComboBoxEditField =		0x00000001,
-	SC_ComboBoxArrow =		0x00000002,
+	SC_ComboBoxFrame =		0x00000001,
+	SC_ComboBoxEditField =		0x00000002,
+	SC_ComboBoxArrow =		0x00000004,
 
 	SC_SliderGroove =		0x00000001,
 	SC_SliderHandle = 		0x00000002,
@@ -368,17 +361,6 @@ public:
 	PM_IndicatorHeight,
 	PM_ExclusiveIndicatorWidth,
 	PM_ExclusiveIndicatorHeight
-
-	/*
-	  PM_PopupFrameWidth,
-	  PM_MenuFrameWidth,
-
-	  PM_ComboBoxAdditionalWidth,
-	  PM_ComboBoxAdditionalHeight,
-
-	  PM_SpinWidgetAdditionalWidth,
-	  PM_SpinWidgetAdditionalHeight,
-	*/
     };
 
     virtual int pixelMetric( PixelMetric metric,
@@ -403,11 +385,78 @@ public:
 				    void **data = 0 ) const = 0;
 
     enum StyleHint  {
+	// ...
+	// the general hints
+	// ...
+       	// disabled text should be etched, ala Windows
+	SH_EtchDisabledText,
+
+	// the GUI style enum, argh!
+	SH_GUIStyle,
+
+	// ...
+	// widget specific hints
+	// ...
 	SH_ScrollBar_BackgroundMode,
 	SH_ScrollBar_MiddleClickAbsolutePosition,
 	SH_ScrollBar_ScrollWhenPointerLeavesControl,
+
 	SH_TabBar_Alignment,
-	SH_Header_Arrow_Alignment
+
+	SH_Header_ArrowAlignment,
+
+	// bool - sliders snap to values while moving, ala Windows
+	SH_Slider_SnapToValue,
+
+	// bool - key presses handled in a sloppy manner - ie. left on a vertical
+	// slider subtracts a line
+	SH_Slider_SloppyKeyEvents,
+
+	// bool - center button on progress dialogs, ala Motif, else right aligned
+	// perhaps this should be a Qt::Alignment value
+	SH_ProgressDialog_CenterCancelButton,
+
+	// Qt::AlignmentFlags - text label alignment in progress dialogs
+	// Center on windows, Auto|VCenter otherwize
+	SH_ProgressDialog_TextLabelAlignment,
+
+	// bool - right align buttons on print dialog, ala Windows
+	SH_PrintDialog_RightAlignButtons,
+
+	// bool - 1 or 2 pixel space between the menubar and the dockarea, ala Windows
+	// this *REALLY* needs a better name
+	SH_MainWindow_SpaceBelowMenuBar,
+
+	// bool - select the text in the line edit about the listbox when selecting
+	// an item from the listbox, or when the line edit receives focus, ala Windows
+	SH_FontDialog_SelectAssociatedText,
+
+	// bool - allows disabled menu items to be active
+	SH_PopupMenu_AllowActiveAndDisabled,
+
+	// bool - pressing space activates item, ala Motif
+	SH_PopupMenu_SpaceActivatesItem,
+
+	// int - number of milliseconds to wait before opening a submenu
+	// 256 on windows, 96 on motif
+	SH_PopupMenu_SubMenuPopupDelay,
+
+	// bool - should scrollviews draw their frame only around contents (ala Motif),
+	// or around contents, scrollbars and corner widgets (ala Windows) ?
+	SH_ScrollView_FrameOnlyAroundContents,
+
+	// bool - menubars items are navigatable by pressing alt, followed by using
+	// the arrow keys to select the desired item
+	SH_MenuBar_AltKeyNavigation,
+
+	// bool - mouse tracking in combobox dropdown lists
+	SH_ComboBox_ListMouseTracking,
+
+	// bool - mouse tracking in popupmenus
+	SH_PopupMenu_MouseTracking,
+
+	// bool - mouse tracking in menubars
+	SH_MenuBar_MouseTracking
     };
 
     virtual int styleHint( StyleHint stylehint,
@@ -422,7 +471,10 @@ public:
 	SP_TitleBarNormalButton,
 	SP_TitleBarShadeButton,
 	SP_TitleBarUnshadeButton,
-	SP_DockWindowCloseButton
+	SP_DockWindowCloseButton,
+	SP_MessageBoxInformation,
+	SP_MessageBoxWarning,
+	SP_MessageBoxCritical
     };
 
     virtual QPixmap stylePixmap( StylePixmap stylepixmap,
@@ -440,16 +492,12 @@ public:
     // Old 2.x QStyle API
 
 #ifndef QT_NO_COMPAT
-    operator GUIStyle() const { return gs; }
-    bool operator==(GUIStyle s) const { return gs==s; }
-    bool operator!=(GUIStyle s) const { return gs!=s; }
-
     int defaultFrameWidth() const
     {
 	return pixelMetric( PM_DefaultFrameWidth );
     }
     void tabbarMetrics( const QWidget* t,
-		    int& hf, int& vf, int& ov ) const
+			int& hf, int& vf, int& ov ) const
     {
 	hf = pixelMetric( PM_TabBarTabHSpace, t );
 	vf = pixelMetric( PM_TabBarTabVSpace, t );
@@ -458,11 +506,9 @@ public:
     QSize scrollBarExtent() const
     {
 	return QSize(pixelMetric(PM_ScrollBarExtent),
-		    pixelMetric(PM_ScrollBarExtent));
+		     pixelMetric(PM_ScrollBarExtent));
     }
 #endif
-
-    GUIStyle guiStyle() const { return gs; }
 
 
 private:

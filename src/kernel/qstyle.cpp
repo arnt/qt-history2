@@ -135,25 +135,20 @@ public:
 */
 
 /*!
-  Constructs a QStyle that provides the style \a s.  This determines
-  the default behavior of the virtual functions.
-*/
+  \obsolete
 
-QStyle::QStyle(GUIStyle s) : gs(s)
-{
-    d = new QStylePrivate;
-}
+  Constructs a QStyle. \a s is unused.
+  * /
+  QStyle::QStyle(GUIStyle s)
+  {
+  d = new QStylePrivate;
+  }
+*/
 
 /*!
-  Constructs a QStyle that provides the style most appropriate for
-  the operating system - WindowsStyle for Windows, MotifStyle for Unix.
+  Constructs a QStyle.
 */
-QStyle::QStyle() :
-#ifdef Q_WS_X11
-    gs(MotifStyle)
-#else
-    gs(WindowsStyle)
-#endif
+QStyle::QStyle()
 {
     d = new QStylePrivate;
 }
@@ -283,7 +278,8 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled, const QPixmap *pixmap,
 			const QString& text, int len ) const
 {
-    return qItemRect( p, gs, r.x(), r.y(), r.width(), r.height(),
+    return qItemRect( p, (Qt::GUIStyle) styleHint(SH_GUIStyle),
+		      r.x(), r.y(), r.width(), r.height(),
 		      flags, enabled, pixmap, text, len );
 }
 
@@ -306,7 +302,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 		       const QPixmap *pixmap, const QString& text, int len,
 		       const QColor* penColor ) const
 {
-    qDrawItem( p, gs, r.x(), r.y(), r.width(), r.height(),
+    qDrawItem( p, (Qt::GUIStyle) styleHint(SH_GUIStyle),
+	       r.x(), r.y(), r.width(), r.height(),
 	       flags, g, enabled, pixmap, text, len, penColor );
 }
 

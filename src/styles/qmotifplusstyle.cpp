@@ -358,14 +358,6 @@ void QMotifPlusStyle::unPolish(QApplication *app)
 
 
 /*! \reimp */
-void QMotifPlusStyle::polishPopupMenu(QPopupMenu *menu)
-{
-    menu->setMouseTracking(TRUE);
-}
-
-
-
-/*! \reimp */
 int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     int ret;
@@ -1691,6 +1683,24 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
     }
 
     return QMotifStyle::eventFilter(object, event);
+}
+
+
+/*! \reimp */
+int QMotifPlusStyle::styleHint(StyleHint hint,
+			       const QWidget *widget,
+			       void ***returnData) const
+{
+    int ret;
+    switch (hint) {
+    case SH_PopupMenu_MouseTracking:
+	ret = 1;
+	break;
+    default:
+	ret = QMotifStyle::styleHint(hint, widget, returnData);
+	break;
+    }
+    return ret;
 }
 
 

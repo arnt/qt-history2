@@ -67,8 +67,6 @@ public:
     void polish(QApplication *app);
     void unPolish(QApplication *app);
 
-    void polishPopupMenu(QPopupMenu *menu);
-
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
@@ -102,6 +100,10 @@ public:
 				 void **data = 0) const;
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
+
+    int styleHint(StyleHint hint,
+		  const QWidget *widget = 0,
+		  void ***returnData = 0) const;
 
 
 protected:

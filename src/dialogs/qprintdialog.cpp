@@ -674,14 +674,17 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     QBoxLayout *horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
 
-    if ( style() != MotifStyle )
+    bool rightalign =
+	bool(style().styleHint(QStyle::SH_PrintDialog_RightAlignButtons, this));
+
+    if (rightalign)
         horiz->addStretch( 1 );
 
     d->ok = new QPushButton( this, "ok" );
     d->ok->setText( tr("OK") );
     d->ok->setDefault( TRUE );
     horiz->addWidget( d->ok );
-    if ( style() == MotifStyle )
+    if (! rightalign)
         horiz->addStretch( 1 );
     horiz->addSpacing( 6 );
 

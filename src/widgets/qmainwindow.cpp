@@ -1365,10 +1365,10 @@ void QMainWindow::setUpLayout()
     }
 #endif
 
-    d->tll->addWidget( d->hideDock );
-
-    if ( style() == WindowsStyle )
+    if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
 	d->tll->addSpacing( d->movable ? 1  : 2 );
+
+    d->tll->addWidget( d->hideDock );
     d->tll->addWidget( d->topDock );
 
     QMainWindowLayout *mwl = new QMainWindowLayout( this, d->tll );
@@ -1457,7 +1457,8 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-    if ( style() == WindowsStyle && d->mb ) {
+    if (d->mb &&
+	style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
 	style().drawPrimitive(QStyle::PE_Separator, &p, QRect(0, y, width(), 1),

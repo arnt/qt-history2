@@ -91,7 +91,7 @@ static bool use2000style = TRUE;
 /*!
     Constructs a QWindowsStyle
 */
-QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
+QWindowsStyle::QWindowsStyle() : QCommonStyle()
 {
 #if defined(Q_OS_WIN32)
     if (qWinVersion() == Qt::WV_2000 ||
@@ -981,7 +981,6 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 {
 #ifndef QT_NO_POPUPMENU
-    p->setMouseTracking( TRUE );
     if ( !p->testWState( WState_Polished ) )
         p->setCheckable( TRUE );
 #endif
@@ -1123,6 +1122,132 @@ static const char * dock_window_close_xpm[] = {
 "##....##",
 "........"};
 
+// Message box icons, from page 210 of the Windows style guide.
+
+// Hand-drawn to resemble Microsoft's icons, but in the Mac/Netscape
+// palette.  The "question mark" icon, which Microsoft recommends not
+// using but a lot of people still use, is left out.
+
+/* XPM */
+static const char * const information_xpm[]={
+"32 32 5 1",
+". c None",
+"c c #000000",
+"* c #999999",
+"a c #ffffff",
+"b c #0000ff",
+"...........********.............",
+"........***aaaaaaaa***..........",
+"......**aaaaaaaaaaaaaa**........",
+".....*aaaaaaaaaaaaaaaaaa*.......",
+"....*aaaaaaaabbbbaaaaaaaac......",
+"...*aaaaaaaabbbbbbaaaaaaaac.....",
+"..*aaaaaaaaabbbbbbaaaaaaaaac....",
+".*aaaaaaaaaaabbbbaaaaaaaaaaac...",
+".*aaaaaaaaaaaaaaaaaaaaaaaaaac*..",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac*.",
+"*aaaaaaaaaabbbbbbbaaaaaaaaaaac*.",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
+".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
+"..*aaaaaaaaaabbbbbaaaaaaaaac***.",
+"...caaaaaaabbbbbbbbbaaaaaac****.",
+"....caaaaaaaaaaaaaaaaaaaac****..",
+".....caaaaaaaaaaaaaaaaaac****...",
+"......ccaaaaaaaaaaaaaacc****....",
+".......*cccaaaaaaaaccc*****.....",
+"........***cccaaaac*******......",
+"..........****caaac*****........",
+".............*caaac**...........",
+"...............caac**...........",
+"................cac**...........",
+".................cc**...........",
+"..................***...........",
+"...................**..........."};
+/* XPM */
+static const char* const warning_xpm[]={
+"32 32 4 1",
+". c None",
+"a c #ffff00",
+"* c #000000",
+"b c #999999",
+".............***................",
+"............*aaa*...............",
+"...........*aaaaa*b.............",
+"...........*aaaaa*bb............",
+"..........*aaaaaaa*bb...........",
+"..........*aaaaaaa*bb...........",
+".........*aaaaaaaaa*bb..........",
+".........*aaaaaaaaa*bb..........",
+"........*aaaaaaaaaaa*bb.........",
+"........*aaaa***aaaa*bb.........",
+".......*aaaa*****aaaa*bb........",
+".......*aaaa*****aaaa*bb........",
+"......*aaaaa*****aaaaa*bb.......",
+"......*aaaaa*****aaaaa*bb.......",
+".....*aaaaaa*****aaaaaa*bb......",
+".....*aaaaaa*****aaaaaa*bb......",
+"....*aaaaaaaa***aaaaaaaa*bb.....",
+"....*aaaaaaaa***aaaaaaaa*bb.....",
+"...*aaaaaaaaa***aaaaaaaaa*bb....",
+"...*aaaaaaaaaa*aaaaaaaaaa*bb....",
+"..*aaaaaaaaaaa*aaaaaaaaaaa*bb...",
+"..*aaaaaaaaaaaaaaaaaaaaaaa*bb...",
+".*aaaaaaaaaaaa**aaaaaaaaaaa*bb..",
+".*aaaaaaaaaaa****aaaaaaaaaa*bb..",
+"*aaaaaaaaaaaa****aaaaaaaaaaa*bb.",
+"*aaaaaaaaaaaaa**aaaaaaaaaaaa*bb.",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
+".*aaaaaaaaaaaaaaaaaaaaaaaaa*bbbb",
+"..*************************bbbbb",
+"....bbbbbbbbbbbbbbbbbbbbbbbbbbb.",
+".....bbbbbbbbbbbbbbbbbbbbbbbbb.."};
+/* XPM */
+static const char* const critical_xpm[]={
+"32 32 4 1",
+". c None",
+"a c #999999",
+"* c #ff0000",
+"b c #ffffff",
+"...........********.............",
+".........************...........",
+".......****************.........",
+"......******************........",
+".....********************a......",
+"....**********************a.....",
+"...************************a....",
+"..*******b**********b*******a...",
+"..******bbb********bbb******a...",
+".******bbbbb******bbbbb******a..",
+".*******bbbbb****bbbbb*******a..",
+"*********bbbbb**bbbbb*********a.",
+"**********bbbbbbbbbb**********a.",
+"***********bbbbbbbb***********aa",
+"************bbbbbb************aa",
+"************bbbbbb************aa",
+"***********bbbbbbbb***********aa",
+"**********bbbbbbbbbb**********aa",
+"*********bbbbb**bbbbb*********aa",
+".*******bbbbb****bbbbb*******aa.",
+".******bbbbb******bbbbb******aa.",
+"..******bbb********bbb******aaa.",
+"..*******b**********b*******aa..",
+"...************************aaa..",
+"....**********************aaa...",
+"....a********************aaa....",
+".....a******************aaa.....",
+"......a****************aaa......",
+".......aa************aaaa.......",
+".........aa********aaaaa........",
+"...........aaaaaaaaaaa..........",
+".............aaaaaaa............"};
+
+
 /*!
  \reimp
  */
@@ -1145,6 +1270,12 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 	return QPixmap((const char **)qt_close_xpm);
     case SP_DockWindowCloseButton:
 	return QPixmap((const char **)dock_window_close_xpm );
+    case SP_MessageBoxInformation:
+	return QPixmap((const char **)information_xpm);
+    case SP_MessageBoxWarning:
+	return QPixmap((const char **)warning_xpm);
+    case SP_MessageBoxCritical:
+	return QPixmap((const char **)critical_xpm);
     default:
 	break;
     }
@@ -1609,6 +1740,35 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					  subActive, data );
 	break;
     }
+}
+
+
+/*! \reimp */
+int QWindowsStyle::styleHint( StyleHint hint,
+			      const QWidget *widget,
+			      void ***returnData ) const
+{
+    int ret;
+
+    switch (hint) {
+    case SH_EtchDisabledText:
+    case SH_Slider_SnapToValue:
+    case SH_PrintDialog_RightAlignButtons:
+    case SH_MainWindow_SpaceBelowMenuBar:
+    case SH_FontDialog_SelectAssociatedText:
+    case SH_PopupMenu_AllowActiveAndDisabled:
+    case SH_MenuBar_AltKeyNavigation:
+    case SH_MenuBar_MouseTracking:
+    case SH_PopupMenu_MouseTracking:
+	ret = 1;
+	break;
+
+    default:
+	ret = QCommonStyle::styleHint(hint, widget, returnData);
+	break;
+    }
+
+    return ret;
 }
 
 #endif

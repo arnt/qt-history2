@@ -345,26 +345,6 @@ void QComboBoxData::updateLinedGeometry()
 	ed->setGeometry( r );
 }
 
-bool QComboBox::getMetrics( int *dist, int *buttonW, int *buttonH ) const
-{
-    if ( d->usingListBox()  && style() == WindowsStyle ) {
-	QRect r  = arrowRect();
-	*buttonW = r.width();
-	*buttonH = r.height();
-	*dist    = 4;
-    } else if ( d->usingListBox() ) {
-	*dist = 6;
-	*buttonW = 16;
-	*buttonH = 18;
-    } else {
-	*dist     = 8;
-	*buttonH  = 7;
-	*buttonW  = 11;
-    }
-    return TRUE;
-}
-
-
 static inline bool checkInsertIndex( const char *method, const char * name,
 				     int count, int *index)
 {
@@ -411,7 +391,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboBoxData( this );
-    if ( style() == WindowsStyle ) {
+    if ( style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle ) {
 	setUpListBox();
     } else {
 	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
@@ -1119,7 +1099,9 @@ void QComboBox::paintEvent( QPaintEvent * )
     bool reverse = QApplication::reverseLayout();
     if ( !d->usingListBox() ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
-	getMetrics( &dist, &buttonW, &buttonH );
+	dist     = 8;
+	buttonH  = 7;
+	buttonW  = 11;
 	int xPos;
 	int x0;
 	int w = width() - dist - buttonW - 1;
@@ -1151,79 +1133,38 @@ void QComboBox::paintEvent( QPaintEvent * )
 
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
-
-    } else if ( style() == MotifStyle ) {	// motif 2.0 style
+    } else {
 	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
 				    flags, QStyle::SC_All,
-				    d->arrowDown ? QStyle::SC_ComboBoxArrow : QStyle::SC_None );
+				    (d->arrowDown ?
+				     QStyle::SC_ComboBoxArrow :
+				     QStyle::SC_None ));
 
-	if ( !d->ed ) {
-	    QRect clip = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-									   QStyle::SC_ComboBoxEditField), this );
-	    p.setPen( g.foreground() );
-	    p.setClipRect( clip );
-	    p.setPen( g.foreground() );
-	    QListBoxItem * item = d->listBox()->item( d->current );
-	    if ( item ) {
-		int itemh = item->height( d->listBox() );
-		p.translate( clip.x(), clip.y() + (clip.height() - itemh)/2  );
-		item->paint( &p );
-	    }
-	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
-	    QRect r = QStyle::visualRect( style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-									 QStyle::SC_ComboBoxEditField), this );
-	    QListBoxItem * item = d->listBox()->item( d->current );
-	    const QPixmap *pix = item->pixmap();
-	    if ( pix ) {
-		p.fillRect( r.x(), r.y(), pix->width() + 4, r.height(), colorGroup().brush( QColorGroup::Base ) );
-		p.drawPixmap( r.x() + 2, r.y() + ( r.height() - pix->height() ) / 2, *pix );
-	    }
-	}
-	p.setClipping( FALSE );
-    } else {					// windows 95 style
-	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
-				    flags, QStyle::SC_All,
-				    d->arrowDown ? QStyle::SC_ComboBoxArrow : QStyle::SC_None );
-
-	QRect re = QStyle::visualRect( style().querySubControlMetrics( QStyle::CC_ComboBox, this,
-								       QStyle::SC_ComboBoxEditField ), this );
-	QRect textR;
-	textR.setRect( re.x()+2, re.y()+1, re.width()-4, re.height()-2 );
-	p.setClipRect( textR );
+	QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+						   QStyle::SC_ComboBoxEditField );
+	re = QStyle::visualRect(re, this);
+	p.setClipRect( re );
 
 	if ( !d->ed ) {
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    if ( item ) {
 		int itemh = item->height( d->listBox() );
-		p.translate( textR.x(), textR.y() +
-			     (textR.height() - itemh)/2  );
+		p.translate( re.x(), re.y() + (re.height() - itemh)/2  );
 		item->paint( &p );
 	    }
 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
 	    p.setClipping( FALSE );
-	    QRect r = QStyle::visualRect( style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-									 QStyle::SC_ComboBoxEditField), this );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {
-		p.fillRect( r.x(), r.y(), pix->width() + 4, r.height(),
+		p.fillRect( re.x(), re.y(), pix->width() + 4, re.height(),
 			    colorGroup().brush( QColorGroup::Base ) );
-		p.drawPixmap( r.x() + 2, r.y() +
-			      ( r.height() - pix->height() ) / 2, *pix );
+		p.drawPixmap( re.x() + 2, re.y() +
+			      ( re.height() - pix->height() ) / 2, *pix );
 	    }
 	}
 	p.setClipping( FALSE );
     }
-}
-
-
-/*!
-  \internal
-  Returns the button arrow rectangle for windows style comboboxes.
-*/
-QRect QComboBox::arrowRect() const
-{
-    return QRect( width() - 2 - 16, 2, 16, height() - 4 );
 }
 
 
@@ -1240,15 +1181,17 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
     }
     if ( count() ) {
 	d->arrowPressed = FALSE;
-	if ( style() == WindowsStyle ) {
+
+	if ( d->usingListBox() ) {
 	    popup();
-	    if ( arrowRect().contains( e->pos() ) ) {
+	    QRect arrowRect = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+							      QStyle::SC_ComboBoxArrow);
+	    arrowRect = QStyle::visualRect(arrowRect, this);
+	    if ( arrowRect.contains( e->pos() ) ) {
 		d->arrowPressed = TRUE;
 		d->arrowDown    = TRUE;
 		repaint( FALSE );
 	    }
-	} else if ( d->usingListBox() ) {
-	    popup();
 	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
 	    d->shortClick = TRUE;
 	} else {
@@ -1542,11 +1485,14 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		if ( d->listBox()->rect().contains( pos ) )
 		    d->mouseWasInsidePopup = TRUE;
 		// Check if arrow button should toggle
-		// this applies only to windows style
 		if ( d->arrowPressed ) {
 		    QPoint comboPos;
 		    comboPos = mapFromGlobal( d->listBox()->mapToGlobal(pos) );
-		    if ( arrowRect().contains( comboPos ) ) {
+		    QRect arrowRect =
+			style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+							QStyle::SC_ComboBoxArrow);
+		    arrowRect = QStyle::visualRect(arrowRect, this);
+		    if ( arrowRect.contains( comboPos ) ) {
 			if ( !d->arrowDown  ) {
 			    d->arrowDown = TRUE;
 			    repaint( FALSE );
@@ -1558,8 +1504,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 			}
 		    }
 		}
-	    } else if ((e->state() & ( RightButton | LeftButton | MidButton ) )
-		       == 0 && style() == WindowsStyle ){
+	    } else if ((e->state() & ( RightButton | LeftButton | MidButton ) ) == 0 &&
+		       style().styleHint(QStyle::SH_ComboBox_ListMouseTracking, this)) {
 		QWidget *mouseW = QApplication::widgetAt( e->globalPos(), TRUE );
 		if ( mouseW == d->listBox()->viewport() ) { //###
 		    QMouseEvent m( QEvent::MouseMove, e->pos(), e->globalPos(),

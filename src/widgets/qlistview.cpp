@@ -5504,7 +5504,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     int marg = lv->itemMargin();
     int r = marg;
 
-    bool winStyle = lv->style() == WindowsStyle;
+    bool winStyle = lv->style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle;
 
     if ( myType == Controller ) {
 	if ( !pixmap( 0 ) )

@@ -946,9 +946,6 @@ void QTabDialog::setSizes()
 	    bh = s.height();
     }
 
-    if ( style() == WindowsStyle && bw < 75 )
-	bw = 75;
-
     // and set all the buttons to that size
     if ( d->ok )
 	d->ok->setFixedSize( bw, bh );

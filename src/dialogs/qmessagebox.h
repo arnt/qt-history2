@@ -149,7 +149,10 @@ public:
 
     void	adjustSize();
 
-    static QPixmap standardIcon( Icon icon, GUIStyle style );
+/* OBSOLETE */
+    static QPixmap standardIcon( Icon icon, GUIStyle );
+
+    static QPixmap standardIcon( Icon icon );
 
     TextFormat textFormat() const;
     void	 setTextFormat( TextFormat );

@@ -58,6 +58,7 @@
 #include "qdockwindow.h"
 #include "qdockarea.h"
 #include "qprogressbar.h"
+#include "qimage.h"
 #include <limits.h>
 
 
@@ -92,7 +93,7 @@ static const int motifCheckMarkSpace    = 12;
     highlighting, which is a simple inversion between the base and the
     text color.
 */
-QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
+QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle()
 {
     highlightCols = useHighlightCols;
 }
@@ -1084,7 +1085,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 		drawSub |= SC_SpinWidgetUp;
 	    if ( sub & SC_SpinWidgetDown )
 		drawSub |= SC_SpinWidgetDown;
-	    
+
 	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      drawSub, subActive, data );
 	}
@@ -1685,7 +1686,6 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 */
 void QMotifStyle::polishPopupMenu( QPopupMenu* p)
 {
-    p->setMouseTracking( FALSE );
     if ( !p->testWState( WState_Polished ) )
         p->setCheckable( FALSE );
 }
@@ -1826,6 +1826,132 @@ static const char * dock_window_close_xpm[] = {
 "##....##",
 "........"};
 
+// Message box icons, from page 210 of the Windows style guide.
+
+// Hand-drawn to resemble Microsoft's icons, but in the Mac/Netscape
+// palette.  The "question mark" icon, which Microsoft recommends not
+// using but a lot of people still use, is left out.
+
+/* XPM */
+static const char * const information_xpm[]={
+"32 32 5 1",
+". c None",
+"c c #000000",
+"* c #999999",
+"a c #ffffff",
+"b c #0000ff",
+"...........********.............",
+"........***aaaaaaaa***..........",
+"......**aaaaaaaaaaaaaa**........",
+".....*aaaaaaaaaaaaaaaaaa*.......",
+"....*aaaaaaaabbbbaaaaaaaac......",
+"...*aaaaaaaabbbbbbaaaaaaaac.....",
+"..*aaaaaaaaabbbbbbaaaaaaaaac....",
+".*aaaaaaaaaaabbbbaaaaaaaaaaac...",
+".*aaaaaaaaaaaaaaaaaaaaaaaaaac*..",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac*.",
+"*aaaaaaaaaabbbbbbbaaaaaaaaaaac*.",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
+".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
+"..*aaaaaaaaaabbbbbaaaaaaaaac***.",
+"...caaaaaaabbbbbbbbbaaaaaac****.",
+"....caaaaaaaaaaaaaaaaaaaac****..",
+".....caaaaaaaaaaaaaaaaaac****...",
+"......ccaaaaaaaaaaaaaacc****....",
+".......*cccaaaaaaaaccc*****.....",
+"........***cccaaaac*******......",
+"..........****caaac*****........",
+".............*caaac**...........",
+"...............caac**...........",
+"................cac**...........",
+".................cc**...........",
+"..................***...........",
+"...................**..........."};
+/* XPM */
+static const char* const warning_xpm[]={
+"32 32 4 1",
+". c None",
+"a c #ffff00",
+"* c #000000",
+"b c #999999",
+".............***................",
+"............*aaa*...............",
+"...........*aaaaa*b.............",
+"...........*aaaaa*bb............",
+"..........*aaaaaaa*bb...........",
+"..........*aaaaaaa*bb...........",
+".........*aaaaaaaaa*bb..........",
+".........*aaaaaaaaa*bb..........",
+"........*aaaaaaaaaaa*bb.........",
+"........*aaaa***aaaa*bb.........",
+".......*aaaa*****aaaa*bb........",
+".......*aaaa*****aaaa*bb........",
+"......*aaaaa*****aaaaa*bb.......",
+"......*aaaaa*****aaaaa*bb.......",
+".....*aaaaaa*****aaaaaa*bb......",
+".....*aaaaaa*****aaaaaa*bb......",
+"....*aaaaaaaa***aaaaaaaa*bb.....",
+"....*aaaaaaaa***aaaaaaaa*bb.....",
+"...*aaaaaaaaa***aaaaaaaaa*bb....",
+"...*aaaaaaaaaa*aaaaaaaaaa*bb....",
+"..*aaaaaaaaaaa*aaaaaaaaaaa*bb...",
+"..*aaaaaaaaaaaaaaaaaaaaaaa*bb...",
+".*aaaaaaaaaaaa**aaaaaaaaaaa*bb..",
+".*aaaaaaaaaaa****aaaaaaaaaa*bb..",
+"*aaaaaaaaaaaa****aaaaaaaaaaa*bb.",
+"*aaaaaaaaaaaaa**aaaaaaaaaaaa*bb.",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
+".*aaaaaaaaaaaaaaaaaaaaaaaaa*bbbb",
+"..*************************bbbbb",
+"....bbbbbbbbbbbbbbbbbbbbbbbbbbb.",
+".....bbbbbbbbbbbbbbbbbbbbbbbbb.."};
+/* XPM */
+static const char* const critical_xpm[]={
+"32 32 4 1",
+". c None",
+"a c #999999",
+"* c #ff0000",
+"b c #ffffff",
+"...........********.............",
+".........************...........",
+".......****************.........",
+"......******************........",
+".....********************a......",
+"....**********************a.....",
+"...************************a....",
+"..*******b**********b*******a...",
+"..******bbb********bbb******a...",
+".******bbbbb******bbbbb******a..",
+".*******bbbbb****bbbbb*******a..",
+"*********bbbbb**bbbbb*********a.",
+"**********bbbbbbbbbb**********a.",
+"***********bbbbbbbb***********aa",
+"************bbbbbb************aa",
+"************bbbbbb************aa",
+"***********bbbbbbbb***********aa",
+"**********bbbbbbbbbb**********aa",
+"*********bbbbb**bbbbb*********aa",
+".*******bbbbb****bbbbb*******aa.",
+".******bbbbb******bbbbb******aa.",
+"..******bbb********bbb******aaa.",
+"..*******b**********b*******aa..",
+"...************************aaa..",
+"....**********************aaa...",
+"....a********************aaa....",
+".....a******************aaa.....",
+"......a****************aaa......",
+".......aa************aaaa.......",
+".........aa********aaaaa........",
+"...........aaaaaaaaaaa..........",
+".............aaaaaaa............"};
+
+
 /*!
  \reimp
  */
@@ -1848,11 +1974,101 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 	return QPixmap((const char **)qt_close_xpm);
     case SP_DockWindowCloseButton:
 	return QPixmap((const char **)dock_window_close_xpm );
+
+    case SP_MessageBoxInformation:
+    case SP_MessageBoxWarning:
+    case SP_MessageBoxCritical:
+	{
+	    const char * const * xpm_data;
+	    switch ( sp ) {
+	    case SP_MessageBoxInformation:
+		xpm_data = information_xpm;
+		break;
+	    case SP_MessageBoxWarning:
+		xpm_data = warning_xpm;
+		break;
+	    case SP_MessageBoxCritical:
+		xpm_data = critical_xpm;
+		break;
+	    default:
+		xpm_data = 0;
+		break;
+	    }
+	    QPixmap pm;
+	    if ( xpm_data ) {
+		QImage image( (const char **) xpm_data);
+		// All that color looks ugly in Motif
+		QColorGroup g = QApplication::palette().active();
+		switch ( sp ) {
+		case SP_MessageBoxInformation:
+		    image.setColor( 2, 0xff000000 | g.dark().rgb() );
+		    image.setColor( 3, 0xff000000 | g.base().rgb() );
+		    image.setColor( 4, 0xff000000 | g.text().rgb() );
+		    break;
+		case SP_MessageBoxWarning:
+		    image.setColor( 1, 0xff000000 | g.base().rgb() );
+		    image.setColor( 2, 0xff000000 | g.text().rgb() );
+		    image.setColor( 3, 0xff000000 | g.dark().rgb() );
+		    break;
+		case SP_MessageBoxCritical:
+		    image.setColor( 1, 0xff000000 | g.dark().rgb() );
+		    image.setColor( 2, 0xff000000 | g.text().rgb() );
+		    image.setColor( 3, 0xff000000 | g.base().rgb() );
+		    break;
+		default:
+		    break; // Can't happen
+		}
+		pm.convertFromImage(image);
+	    }
+	    return pm;
+	}
+
     default:
 	break;
     }
 
     return QCommonStyle::stylePixmap(sp, widget, data);
+}
+
+
+/*! \reimp */
+int QMotifStyle::styleHint(StyleHint hint,
+			   const QWidget *widget,
+			   void ***returnData) const
+{
+    int ret;
+
+    switch (hint) {
+    case SH_GUIStyle:
+	ret = MotifStyle;
+	break;
+
+    case SH_ScrollBar_BackgroundMode:
+	ret = QWidget::PaletteMid;
+	break;
+
+    case SH_ScrollBar_MiddleClickAbsolutePosition:
+    case SH_Slider_SloppyKeyEvents:
+    case SH_ProgressDialog_CenterCancelButton:
+    case SH_PopupMenu_SpaceActivatesItem:
+    case SH_ScrollView_FrameOnlyAroundContents:
+	ret = 1;
+	break;
+
+    case SH_PopupMenu_SubMenuPopupDelay:
+	ret = 96;
+	break;
+
+    case SH_ProgressDialog_TextLabelAlignment:
+	ret = AlignAuto | AlignVCenter;
+	break;
+
+    default:
+	ret = QCommonStyle::styleHint(hint, widget, returnData);
+	break;
+    }
+
+    return ret;
 }
 
 

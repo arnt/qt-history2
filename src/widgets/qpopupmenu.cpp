@@ -259,6 +259,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     ncols = 1;
     setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
     setLineWidth(style().pixelMetric(QStyle::PM_DefaultFrameWidth, this));
+    setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
     connectModalRecursionSafety = 0;
@@ -1428,7 +1429,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    updateRow( lastActItem );
 
 	if ( !rect().contains( e->pos() )  && !tryMenuBar( e ) )
-	    popupSubMenuLater( style() == WindowsStyle ? 256 : 96, this );
+	    popupSubMenuLater(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay,
+						this),
+			      this);
     } else {					// mouse on valid item
 	// but did not register mouse press
 	if ( (e->state() & Qt::MouseButtonMask) && !mouseBtDn )
@@ -1449,7 +1452,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    return;
 
 	if ( mi->popup() || (popupActive >= 0 && popupActive != item) )
-	    popupSubMenuLater( style() == WindowsStyle ? 256 : 96, this );
+	    popupSubMenuLater(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay,
+						this),
+			      this);
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
 
@@ -1476,7 +1481,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 			((e->state() & AltButton) ? ALT : 0));
 
 	if (mi)
-	    setAccel(modifier + e->key(), mi->id());  ;
+	    setAccel(modifier + e->key(), mi->id());
 	return;
     }
 
@@ -1499,9 +1504,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Alt:
-	if ( style() == WindowsStyle ) {
+	if ( style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) )
 	    byeMenuBar();
-	}
 	break;
 
     case Key_Escape:
@@ -1562,7 +1566,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Space:
-	if ( style() != MotifStyle )
+	if (! style().styleHint(QStyle::SH_PopupMenu_SpaceActivatesItem, this))
 	    break;
 	// for motif, fall through
 
@@ -1678,8 +1682,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( !mi->isSeparator()
-		 && ( style() != MotifStyle || mi->isEnabled() ) )
+	    if ( !mi->isSeparator() &&
+		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
+		   || mi->isEnabled() ) )
 		break;
 	}
 	if ( i != actItem )
@@ -1700,6 +1705,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 */
 void  QPopupMenu::styleChange( QStyle& old )
 {
+    setMouseTracking(style().styleHint(QStyle::SH_PopupMenu_MouseTracking, this));
     style().polishPopupMenu( this );
     updateSize();
     QFrame::styleChange( old );
@@ -2049,8 +2055,9 @@ bool QPopupMenu::focusNextPrevChild( bool next )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( !mi->isSeparator()
-		 && ( style() != MotifStyle || mi->isEnabled() ) )
+	    if ( !mi->isSeparator() &&
+		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
+		   || mi->isEnabled() ) )
 		break;
 	}
 	if ( i != actItem )

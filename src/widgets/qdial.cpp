@@ -265,17 +265,17 @@ void QDial::repaintScreen( const QRect *cr )
 
     QRect br( calcDial() );
     p.setPen( NoPen );
-    if ( style() == MotifStyle )
-	p.setBrush( colorGroup().brush( QColorGroup::Mid ) );
-    else {
-      QBrush b;
-      if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
+    // if ( style() == MotifStyle )
+    // p.setBrush( colorGroup().brush( QColorGroup::Mid ) );
+    // else {
+    QBrush b;
+    if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
 	b = QBrush( colorGroup().brush( QColorGroup::Light ) );
-      else
+    else
 	b = QBrush( colorGroup().light(), Dense4Pattern );
-      p.setBrush( b );
-      p.setBackgroundMode( OpaqueMode );
-    }
+    p.setBrush( b );
+    p.setBackgroundMode( OpaqueMode );
+    // }
 
     QRect te = br;
     te.setWidth(te.width()+2);

@@ -1361,7 +1361,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
     int arrowHeight = fr.height() - 6;
     int tw = tw = p->fontMetrics().width( s ) + 16, ew = 0;
-    if( style().styleHint( QStyle::SH_Header_Arrow_Alignment, this ) & AlignRight)
+    if( style().styleHint( QStyle::SH_Header_ArrowAlignment, this ) & AlignRight)
 	ew = fr.width() - tw - pw - arrowWidth - 8;
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
 	if( reverse() ) {

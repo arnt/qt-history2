@@ -48,131 +48,6 @@
 #include "qaccessible.h"
 #endif
 
-// Message box icons, from page 210 of the Windows style guide.
-
-// Hand-drawn to resemble Microsoft's icons, but in the Mac/Netscape
-// palette.  The "question mark" icon, which Microsoft recommends not
-// using but a lot of people still use, is left out.
-
-/* XPM */
-static const char * const information_xpm[]={
-"32 32 5 1",
-". c None",
-"c c #000000",
-"* c #999999",
-"a c #ffffff",
-"b c #0000ff",
-"...........********.............",
-"........***aaaaaaaa***..........",
-"......**aaaaaaaaaaaaaa**........",
-".....*aaaaaaaaaaaaaaaaaa*.......",
-"....*aaaaaaaabbbbaaaaaaaac......",
-"...*aaaaaaaabbbbbbaaaaaaaac.....",
-"..*aaaaaaaaabbbbbbaaaaaaaaac....",
-".*aaaaaaaaaaabbbbaaaaaaaaaaac...",
-".*aaaaaaaaaaaaaaaaaaaaaaaaaac*..",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac*.",
-"*aaaaaaaaaabbbbbbbaaaaaaaaaaac*.",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
-".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
-"..*aaaaaaaaaabbbbbaaaaaaaaac***.",
-"...caaaaaaabbbbbbbbbaaaaaac****.",
-"....caaaaaaaaaaaaaaaaaaaac****..",
-".....caaaaaaaaaaaaaaaaaac****...",
-"......ccaaaaaaaaaaaaaacc****....",
-".......*cccaaaaaaaaccc*****.....",
-"........***cccaaaac*******......",
-"..........****caaac*****........",
-".............*caaac**...........",
-"...............caac**...........",
-"................cac**...........",
-".................cc**...........",
-"..................***...........",
-"...................**..........."};
-/* XPM */
-static const char* const warning_xpm[]={
-"32 32 4 1",
-". c None",
-"a c #ffff00",
-"* c #000000",
-"b c #999999",
-".............***................",
-"............*aaa*...............",
-"...........*aaaaa*b.............",
-"...........*aaaaa*bb............",
-"..........*aaaaaaa*bb...........",
-"..........*aaaaaaa*bb...........",
-".........*aaaaaaaaa*bb..........",
-".........*aaaaaaaaa*bb..........",
-"........*aaaaaaaaaaa*bb.........",
-"........*aaaa***aaaa*bb.........",
-".......*aaaa*****aaaa*bb........",
-".......*aaaa*****aaaa*bb........",
-"......*aaaaa*****aaaaa*bb.......",
-"......*aaaaa*****aaaaa*bb.......",
-".....*aaaaaa*****aaaaaa*bb......",
-".....*aaaaaa*****aaaaaa*bb......",
-"....*aaaaaaaa***aaaaaaaa*bb.....",
-"....*aaaaaaaa***aaaaaaaa*bb.....",
-"...*aaaaaaaaa***aaaaaaaaa*bb....",
-"...*aaaaaaaaaa*aaaaaaaaaa*bb....",
-"..*aaaaaaaaaaa*aaaaaaaaaaa*bb...",
-"..*aaaaaaaaaaaaaaaaaaaaaaa*bb...",
-".*aaaaaaaaaaaa**aaaaaaaaaaa*bb..",
-".*aaaaaaaaaaa****aaaaaaaaaa*bb..",
-"*aaaaaaaaaaaa****aaaaaaaaaaa*bb.",
-"*aaaaaaaaaaaaa**aaaaaaaaaaaa*bb.",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
-".*aaaaaaaaaaaaaaaaaaaaaaaaa*bbbb",
-"..*************************bbbbb",
-"....bbbbbbbbbbbbbbbbbbbbbbbbbbb.",
-".....bbbbbbbbbbbbbbbbbbbbbbbbb.."};
-/* XPM */
-static const char* const critical_xpm[]={
-"32 32 4 1",
-". c None",
-"a c #999999",
-"* c #ff0000",
-"b c #ffffff",
-"...........********.............",
-".........************...........",
-".......****************.........",
-"......******************........",
-".....********************a......",
-"....**********************a.....",
-"...************************a....",
-"..*******b**********b*******a...",
-"..******bbb********bbb******a...",
-".******bbbbb******bbbbb******a..",
-".*******bbbbb****bbbbb*******a..",
-"*********bbbbb**bbbbb*********a.",
-"**********bbbbbbbbbb**********a.",
-"***********bbbbbbbb***********aa",
-"************bbbbbb************aa",
-"************bbbbbb************aa",
-"***********bbbbbbbb***********aa",
-"**********bbbbbbbbbb**********aa",
-"*********bbbbb**bbbbb*********aa",
-".*******bbbbb****bbbbb*******aa.",
-".******bbbbb******bbbbb******aa.",
-"..******bbb********bbb******aaa.",
-"..*******b**********b*******aa..",
-"...************************aaa..",
-"....**********************aaa...",
-"....a********************aaa....",
-".....a******************aaa.....",
-"......a****************aaa......",
-".......aa************aaaa.......",
-".........aa********aaaaa........",
-"...........aaaaaaaaaaa..........",
-".............aaaaaaa............"};
-
 
 // the Qt logo, for aboutQt
 /* XPM */
@@ -821,7 +696,7 @@ int QMessageBox::indexOf( int button ) const
 void QMessageBox::resizeButtons()
 {
     int i;
-    QSize maxSize( style() == MotifStyle ? 0 : 75, 0 );
+    QSize maxSize;
     for ( i=0; i<mbd->numButtons; i++ ) {
         QSize s = mbd->pb[i]->sizeHint();
         maxSize.setWidth(  QMAX(maxSize.width(), s.width()) );
@@ -885,61 +760,50 @@ QMessageBox::Icon QMessageBox::icon() const
 //#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0 (same for setIconPixmap and friends)
 void QMessageBox::setIcon( Icon icon )
 {
-    setIconPixmap( standardIcon(icon, style()) );
+    setIconPixmap( standardIcon(icon) );
     mbd->icon = icon;
 }
+
+/*!
+  \obsolete
+
+  Returns the pixmap used for a standard icon.  This
+  allows the pixmaps to be used in more complex message boxes.
+  \a icon specifies the required icon, e.g. QMessageBox::Information,
+  QMessageBox::Warning or QMessageBox::Critical.
+
+  \a style is unused.
+*/
+
+QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style)
+{
+    Q_UNUSED(style);
+    return QMessageBox::standardIcon(icon);
+}
+
 
 /*!
   Returns the pixmap used for a standard icon.  This
   allows the pixmaps to be used in more complex message boxes.
   \a icon specifies the required icon, e.g. QMessageBox::Information,
-  QMessageBox::Warning or QMessageBox::Critical, and \a style specifies
-  the GUI style.
+  QMessageBox::Warning or QMessageBox::Critical.
 */
 
-QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
+QPixmap QMessageBox::standardIcon( Icon icon )
 {
-    const char * const * xpm_data;
+    QPixmap pm;
     switch ( icon ) {
     case Information:
-        xpm_data = information_xpm;
+	pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxInformation);
         break;
     case Warning:
-        xpm_data = warning_xpm;
+	pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxWarning);
         break;
     case Critical:
-        xpm_data = critical_xpm;
+	pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxCritical);
         break;
     default:
-        xpm_data = 0;
-    }
-    QPixmap pm;
-    if ( xpm_data ) {
-        QImage image( (const char **) xpm_data);
-        if ( style == MotifStyle ) {
-            // All that color looks ugly in Motif
-            QColorGroup g = QApplication::palette().active();
-            switch ( icon ) {
-            case Information:
-                image.setColor( 2, 0xff000000 | g.dark().rgb() );
-                image.setColor( 3, 0xff000000 | g.base().rgb() );
-                image.setColor( 4, 0xff000000 | g.text().rgb() );
-                break;
-            case Warning:
-                image.setColor( 1, 0xff000000 | g.base().rgb() );
-                image.setColor( 2, 0xff000000 | g.text().rgb() );
-                image.setColor( 3, 0xff000000 | g.dark().rgb() );
-                break;
-            case Critical:
-                image.setColor( 1, 0xff000000 | g.dark().rgb() );
-                image.setColor( 2, 0xff000000 | g.text().rgb() );
-                image.setColor( 3, 0xff000000 | g.base().rgb() );
-                break;
-            default:
-                break; // Can't happen
-            }
-        }
-        pm.convertFromImage(image);
+	break;
     }
     return pm;
 }
@@ -1040,7 +904,7 @@ void QMessageBox::adjustSize()
     if ( border <= 0 )
         border = 10;
     int btn_spacing = 7;
-    if ( style() == MotifStyle )
+    if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
         btn_spacing = border;
     int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
     int h = bh;
@@ -1076,7 +940,7 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     if ( border <= 0 )
         border = 10;
     int btn_spacing = 7;
-    if ( style() == MotifStyle )
+    if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
         btn_spacing = border;
     int lmargin = 0;
     mbd->iconLabel.adjustSize();
@@ -1088,7 +952,7 @@ void QMessageBox::resizeEvent( QResizeEvent * )
                         width() - lmargin -2*border,
                         height() - 3*border - bh );
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
-    if ( style() == MotifStyle )
+    if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
         for ( i=0; i<n; i++ )
             mbd->pb[i]->move( border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
                               height() - border - bh );

@@ -49,7 +49,7 @@ class Q_EXPORT QCommonStyle: public QStyle
 {
     Q_OBJECT
 private:
-    QCommonStyle(GUIStyle);
+    QCommonStyle();
     ~QCommonStyle();
 
     friend class QMotifStyle;

@@ -75,9 +75,7 @@ public:
 	cancellation_flag( FALSE ),
 	showTime( defaultShowTime )
     {
-	label->setAlignment( that->style() != Qt::WindowsStyle
-			     ? Qt::AlignCenter
-			     : Qt::AlignAuto|Qt::AlignVCenter );
+	label->setAlignment(that->style().styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, that));
     }
 
     QWidget	 *creator;
@@ -633,7 +631,8 @@ void QProgressDialog::layout()
     int sp = spacing;
     int mtb = margin_tb;
     int mlr = QMIN(width()/10, margin_lr);
-    const bool centered = (style() != WindowsStyle);
+    const bool centered =
+	bool(style().styleHint(QStyle::SH_ProgressDialog_CenterCancelButton, this));
 
     QSize cs = d->cancel ? d->cancel->sizeHint() : QSize(0,0);
     QSize bh = bar()->sizeHint();

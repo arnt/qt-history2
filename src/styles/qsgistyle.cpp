@@ -764,7 +764,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		qDrawShadeLine( p, 0, yPos, kPos, yPos, cg );
 		drawPrimitive( PE_ButtonBevel, p, QRect( kPos, yPos-sw/2+1, kSize+1, kSize ), cg, flags, data );
 		qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, cg );
-	    }	
+	    }
 	}
 	break;
 
@@ -1011,7 +1011,7 @@ void QSGIStyle::drawControl( ControlElement element,
     default:
 	QMotifStyle::drawControl( element, p, widget, r, cg, flags, data );
 	break;
-    }    
+    }
 }
 
 /*! \reimp */
@@ -1068,34 +1068,45 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_SliderTickmarks )
 		QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags,
-						  SC_SliderTickmarks, subActive,
-						  data );
+						 SC_SliderTickmarks, subActive,
+						 data );
 
 	    break;
 	}
     case CC_ComboBox:
-	if ( sub & SC_ComboBoxArrow ) {
-	    int awh, ax, ay, sh, sy, dh, ew;
-	    get_combo_parameters( widget->rect(), ew, awh, ax, ay, sh, dh, sy );
-
-//	    drawBevelButton( p, x, y, w, h, g, FALSE, &fill );
-
-	    QBrush arrow = cg.brush( QColorGroup::Dark );
-	    drawPrimitive( PE_ArrowDown, p, QRect( ax, ay, awh, awh ), cg, flags, data );
-
-	    p->fillRect( ax, sy, awh, sh, arrow );
-	}
-	if ( sub & SC_ComboBoxEditField ) {
+	{
 	    const QComboBox * cb = (QComboBox *) widget;
-	    if ( cb->editable() ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
-								       SC_ComboBoxEditField ), cb );
-		er.addCoords( -1, -1, 1, 1);
-		qDrawShadePanel( p, QRect( er.x()-1, er.y()-1, er.width()+2, er.height()+2 ),
-				 cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+
+	    if (sub & SC_ComboBoxFrame) {
+		QRect fr =
+		    QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
+								SC_ComboBoxFrame ), cb );
+		drawPrimitive( PE_ButtonBevel, p, fr, cg, flags );
 	    }
+
+	    if ( sub & SC_ComboBoxArrow ) {
+		int awh, ax, ay, sh, sy, dh, ew;
+		get_combo_parameters( widget->rect(), ew, awh, ax, ay, sh, dh, sy );
+
+		QBrush arrow = cg.brush( QColorGroup::Dark );
+		drawPrimitive( PE_ArrowDown, p, QRect( ax, ay, awh, awh ), cg,
+			       flags, data );
+
+		p->fillRect( ax, sy, awh, sh, arrow );
+	    }
+	    if ( sub & SC_ComboBoxEditField ) {
+		if ( cb->editable() ) {
+		    QRect er =
+			QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
+								    SC_ComboBoxEditField ), cb );
+		    er.addCoords( -1, -1, 1, 1);
+		    qDrawShadePanel( p, QRect( er.x()-1, er.y()-1,
+					       er.width()+2, er.height()+2 ),
+				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+		}
+	    }
+	    break;
 	}
-	break;
 
     case CC_ScrollBar:
 	{
@@ -1154,7 +1165,7 @@ QRect QSGIStyle::subRect( SubRect r, const QWidget *widget ) const
     default:
 	return QMotifStyle::subRect( r, widget );
     }
-    
+
     return rect;
 }
 
@@ -1169,6 +1180,10 @@ QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
     switch ( control ) {
     case CC_ComboBox:
 	switch ( sub ) {
+	case SC_ComboBoxFrame:
+	    rect = widget->rect();
+	    break;
+
 	case SC_ComboBoxArrow:
 	    {
 		int ew, awh, sh, dh, ax, ay, sy;

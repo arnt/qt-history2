@@ -1489,15 +1489,15 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		QString mod = (down || on) ? "on_" : "off_";
 		if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
 		    QToolBar * bar  = (QToolBar *) btn_prnt;
-		    if( bar->orientation() == Qt::Vertical ) 
+		    if( bar->orientation() == Qt::Vertical )
 			mod += "v";
 		    QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
 		    QObjectListIt it( *l );
-		    if ( it.toFirst() == toolbutton ) 
+		    if ( it.toFirst() == toolbutton )
 			mod += "left";
 		    else if( it.toLast() == toolbutton && !toolbutton->popup() )
 			mod += "right";
-		    else 
+		    else
 			mod += "mid";
 		    delete l;
 		} else {
@@ -1521,15 +1521,15 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    QString mod = (down || on || (subActive & SC_ToolButtonMenu)) ? "on_" : "off_";
 	    if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
 		QToolBar * bar  = (QToolBar *) btn_prnt;
-		if( bar->orientation() == Qt::Vertical ) 
+		if( bar->orientation() == Qt::Vertical )
 		    mod += "v";
 		QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
 		QObjectListIt it( *l );
 		if ( it.toFirst() == toolbutton ) {
-		    if( bar->orientation() == Qt::Horizontal ) 
+		    if( bar->orientation() == Qt::Horizontal )
 			mod += "left";
 		} else if( it.toLast() == toolbutton && !toolbutton->popup() ){
-		    if( bar->orientation() == Qt::Horizontal ) 
+		    if( bar->orientation() == Qt::Horizontal )
 			mod += "right";
 		} else {
 		    mod += "mid";
@@ -1625,7 +1625,7 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
 {
     int ret = 0;
     switch(sh) {
-    case SH_Header_Arrow_Alignment:
+    case SH_Header_ArrowAlignment:
 	ret = Qt::AlignRight;
 	break;
     case SH_TabBar_Alignment:
