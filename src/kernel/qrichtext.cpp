@@ -2126,8 +2126,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
-	    mar = QMAX( 0, item->margin( QStyleSheetItem::MarginLeft ) );
-	    m = QMAX( m, mar );
+	    m += QMAX( 0, item->margin( QStyleSheetItem::MarginLeft ) );
 	}
 	stylesPar->ulm = m - stylesPar->leftMargin();
 
@@ -2141,8 +2140,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
-	    mar = QMAX( 0, item->margin( QStyleSheetItem::MarginRight ) );
-	    m = QMAX( m, mar );
+	    m += QMAX( 0, item->margin( QStyleSheetItem::MarginRight ) );
 	}
 	stylesPar->urm = m - stylesPar->rightMargin();
 
