@@ -791,6 +791,9 @@ void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 
     for ( QStringList::ConstIterator sit = lst.begin(); sit != lst.end(); ++sit ) {
 	QString s = *sit;
+	if ( s.startsWith( "#include" ) )
+	    s.remove( 0, 8 );
+	s = s.simplifyWhiteSpace();
 	if ( s[ 0 ] != '<' && s[ 0 ] != '"' ) {
 	    s.prepend( "\"" );
 	    s.append( "\"" );
@@ -830,6 +833,9 @@ void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
 
     for ( QStringList::ConstIterator sit = lst.begin(); sit != lst.end(); ++sit ) {
 	QString s = *sit;
+	if ( s.startsWith( "#include" ) )
+	    s.remove( 0, 8 );
+	s = s.simplifyWhiteSpace();
 	if ( s[ 0 ] != '<' && s[ 0 ] != '"' ) {
 	    s.prepend( "\"" );
 	    s.append( "\"" );
