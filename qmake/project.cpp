@@ -1291,9 +1291,9 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         bool ret = read(t, place);
         parser = pi;
         return ret;
-    } else if(func == "isConfig") {
+    } else if(func == "CONFIG") {
         if(args.count() < 1 || args.count() > 2) {
-            fprintf(stderr, "%s:%d: isConfig(config) requires one argument.\n", parser.file.latin1(),
+            fprintf(stderr, "%s:%d: CONFIG(config) requires one argument.\n", parser.file.latin1(),
                     parser.line_no);
             return false;
         }
@@ -1711,9 +1711,9 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 for(QStringList::ConstIterator arg_it = arg_list.begin();
                     arg_it != arg_list.end(); ++arg_it)
                     lst += split_value_list((*arg_it));
-            } else if(val.toLower() == "printf") {
+            } else if(val.toLower() == "sprintf") {
                 if(arg_list.count() < 1) {
-                    fprintf(stderr, "%s:%d: printf(format, ...) requires one argument.\n",
+                    fprintf(stderr, "%s:%d: sprintf(format, ...) requires one argument.\n",
                             parser.file.latin1(), parser.line_no);
                 } else {
                     replacement = arg_list.first();

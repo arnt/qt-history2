@@ -1,6 +1,6 @@
 CONFIG *= moc thread
 
-isConfig(release, debug|release):DEFINES += QT_NO_DEBUG
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG
 no_keywords:DEFINES += QT_NO_KEYWORDS
 
 # make sure that the Qt includes are before all others... this
@@ -35,7 +35,7 @@ for(QTLIB, $$list($$unique(QT))) {
              INCLUDEPATH = $$QMAKE_INCDIR_QT/$$qlib $$INCLUDEPATH
          }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
-	 false:isConfig(debug, debug|release) {
+	 false:CONFIG(debug, debug|release) {
 	    LIBS   += -l$${qlib}_debug
 	 } else { 
 	    LIBS   += -l$${qlib}

@@ -4,7 +4,7 @@
      DebugPackage.CONFIG = debug
      ReleasePackage.target = release
      ReleasePackage.CONFIG = release
-     isConfig(debug, debug|release) {
+     CONFIG(debug, debug|release) {
          BUILDS += DebugPackage ReleasePackage
      } else {
          BUILDS += ReleasePackage DebugPackage

@@ -18,7 +18,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
   INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
 }
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
-isConfig(release, debug|release):DEFINES += QT_NO_DEBUG
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG
 no_keywords:DEFINES += QT_NO_KEYWORDS
 target_qt {
     shared {
@@ -53,7 +53,7 @@ for(QTLIB, $$list($$unique(QT))) {
 	    }
 	    exists($$QMAKE_INCDIR_QT/$$qlib):INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$qlib
 	    isEqual(QTLIB, opengl):CONFIG += opengl
-	    false:isConfig(debug, debug|release) {
+	    false:CONFIG(debug, debug|release) {
 	        LIBS   += -l$${qlib}d
 	    } else { 
 	        LIBS   += -l$${qlib}
