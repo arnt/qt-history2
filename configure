@@ -1440,7 +1440,9 @@ Qt/X11 only:
 			 Requires X11/Xft/XftFreetype.h and libXft.
 
  $XIN  -no-tablet ......... Do not compile Tablet support.
- $XIY  -tablet ............ Compile Tablet support (currently only on IRIX).
+ $XIY  -tablet ............ Compile Tablet support.
+			 Requires IRIX with wacom.h and libXi or
+			 XFree86 with X11/extensions/XInput.h and libXi.
 
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
