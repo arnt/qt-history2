@@ -691,11 +691,13 @@ QAction::showStatusText(QWidget *widget)
 void QAction::activate(ActionEvent event)
 {
     if(event == Trigger) {
-        if(d->checkable)
+        if(d->checkable) {
             // the checked action of an exclusive group cannot be  unchecked
-            if (d->checked && d->group && d->group->isExclusive() && d->group->checkedAction() == this)
+            if (d->checked && (d->group && d->group->isExclusive()
+                               && d->group->checkedAction() == this))
                 return;
             setChecked(!d->checked);
+        }
         emit triggered();
 #ifdef QT_COMPAT
         emit activated();
