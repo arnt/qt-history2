@@ -135,9 +135,10 @@ ProjectGenerator::init()
         if(Option::projfile::do_pwd)
             dirs.prepend(".");
         const QString out_file = fileFixify(Option::output.name());
-        for(QStringList::Iterator pd = dirs.begin(); pd != dirs.end(); pd++) {
-            if(QFile::exists((*pd))) {
-                QString newdir = (*pd);
+        for(int i = 0; i < dirs.count(); ++i) {
+            QString pd = dirs.at(i);
+            if(QFile::exists(pd)) {
+                QString newdir = pd;
                 QFileInfo fi(newdir);
                 if(fi.isDir()) {
                     newdir = fileFixify(newdir);
@@ -165,13 +166,13 @@ ProjectGenerator::init()
                         d.setFilter(QDir::Dirs);
                         for(int i = 0; i < (int)d.count(); i++) {
                             QString nd = fileFixify(newdir + QDir::separator() + d[i]);
-                            if(d[i] != "." && d[i] != ".." && !dirs.contains(nd))
+                            if(d[i] != "." && d[i] != ".." && !dirs.contains(nd)) 
                                 dirs.append(nd);
                         }
                     }
                 }
             } else { //regexp
-                QString regx = (*pd), dir;
+                QString regx = pd, dir;
                 int s = regx.lastIndexOf(Option::dir_sep);
                 if(s != -1) {
                     dir = regx.left(s+1);

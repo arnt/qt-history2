@@ -418,32 +418,6 @@ QDir::QDir() : d_ptr(new QDirPrivate(this))
     d->data->sortSpec = SortSpec(Name | IgnoreCase);
 }
 
-/*!
-    Constructs a QDir with path \a path, that filters its entries by
-    name using \a nameFilter and by attributes using \a filterSpec. It
-    also sorts the names using \a sortSpec.
-
-    The default \a nameFilter is an empty string, which excludes
-    nothing; the default \a filterSpec is \c All, which also means
-    exclude nothing. The default \a sortSpec is \c Name|IgnoreCase,
-    i.e. sort by name case-insensitively.
-
-    Example that lists all the files in "/tmp":
-    \code
-    QDir d( "/tmp" );
-    for ( int i = 0; i < d.count(); i++ )
-	printf( "%s\n", d[i] );
-    \endcode
-
-    If \a path is "" or QString::null, QDir uses "." (the current
-    directory). If \a nameFilter is "" or QString::null, QDir uses the
-    name filter "*" (all files).
-
-    Note that \a path need not exist.
-
-    \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
-*/
-
 #ifdef QT_COMPAT
 QDir::QDir(const QString &path, const QString &nameFilter,
              int sortSpec, int filterSpec)  : d_ptr(new QDirPrivate(this))
@@ -488,8 +462,13 @@ QDir::QDir(const QString &path, const QStringList &nameFilters,
 {
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = nameFilters;
-    if (d->data->nameFilters.isEmpty())
+    if(d->data->nameFilters.count() == 1) {
+        QStringList filterStringList = qt_makeFilterStringList(d->data->nameFilters.first());
+        if(filterStringList.count() > d->data->nameFilters.count())
+            d->data->nameFilters = filterStringList;
+    } else if (d->data->nameFilters.isEmpty()) {
         d->data->nameFilters = QString::fromLatin1("*");
+    }
     d->data->sortSpec = sortSpec;
     d->data->filterSpec = filterSpec;
 }
