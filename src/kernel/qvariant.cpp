@@ -972,7 +972,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 33;
+static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1007,7 +1007,9 @@ static const char* const type_map[ntypes] =
     "QByteArray",
     "QBitArray",
     "QKeySequence",
-    "QPen"
+    "QPen",
+    "Q_LLONG",
+    "Q_ULLONG"
 };
 
 
