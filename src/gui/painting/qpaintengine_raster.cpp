@@ -1837,8 +1837,8 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
                 target += len;
             }
         } else {
-            data->blend(target, (const QSpan *)spans, (xoff + spans->x)%image_width, y+yoff,
-                        data->imageData, image_width, image_height);
+            data->blend(target, (const QSpan *)spans, (xoff + spans->x)%image_width,
+                        ((y + yoff) % image_height), data->imageData, image_width, image_height);
         }
         ++spans;
     }
