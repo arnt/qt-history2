@@ -229,10 +229,20 @@ bool FileDriver::insert( const qdb::List& data )
 	if ( !insertData.count() ) {
 	    ERROR_RETURN( "internal error:FileDriver::insert: no insert data" );
 	}
-	QString name = insertData[0].toString(); //## handle field position, not just name
-	int pos = d->file.GetFieldNo( name );
+	QString name;
+	int pos;
+	if ( insertData[0].type() == QVariant::String || insertData[0].type() == QVariant::CString ) {
+	    name = insertData[0].toString();
+	    pos = d->file.GetFieldNo( name );
+	} else {
+	    pos = insertData[0].toInt();
+	    name = d->file.GetFieldName( pos );
+	}
 	if ( pos == -1 ) {
 	    ERROR_RETURN( "internal error:FileDriver::insert: unknown field: " + name );
+	}
+	if ( !name.length() ) {
+	    ERROR_RETURN( "internal error:FileDriver::internal: unknown field number:" + QString::number(pos) );
 	}
 	QVariant val = insertData[1];
 	if ( d->file.PutField( pos, val.toString().latin1() ) != XB_NO_ERROR ) {
@@ -366,10 +376,11 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
 	ERROR_RETURN( "internal error:FileDriver::fieldDescription: field does not exist" );
     }
     qdb::List field;
+    QString name = d->file.GetFieldName( i );
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
     int prec = d->file.GetFieldDecimal( i );
-    field.append( nm );
+    field.append( name );
     field.append( type );
     field.append( len );
     field.append( prec );
@@ -635,8 +646,8 @@ bool FileDriver::createIndex( const qdb::List& data, bool unique )
     QString indexDesc;
     for ( ; i < data.count(); ++i ) {
 	qdb::List createIndexData = data[i].toList();
-	if ( createIndexData.count() != 3 ) {
-	    ERROR_RETURN( "internal error:FileDriver::createIndex: no index data");
+	if ( createIndexData.count() != 4 ) {
+	    ERROR_RETURN( "internal error:FileDriver::createIndex: bad index data");
 	}
 	QString name = createIndexData[0].toString();
 	QVariant::Type type = (QVariant::Type)createIndexData[1].toInt();
