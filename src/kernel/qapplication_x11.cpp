@@ -686,8 +686,8 @@ static void qt_x11_process_intern_atoms()
 }
 
 
-static bool seems_like_KDE_is_running = FALSE;
-
+static bool read_settings_cache_only = FALSE;
+static bool ignore_settings_change = FALSE;
 
 // read the _QT_SETTINGS_CACHE_3 property and apply the settings to the application
 bool QApplication::x11_apply_settings()
@@ -700,53 +700,56 @@ bool QApplication::x11_apply_settings()
     long offset = 0;
     unsigned long nitems, after;
     unsigned char *data;
+    bool read_settings = FALSE,
+	       success = FALSE,
+	   prop_exists = read_settings_cache_only;
 
-    bool read_settings = FALSE, success = FALSE, prop_exists = FALSE;
+    if (! read_settings_cache_only) {
+	int e = XGetWindowProperty(appDpy, appRootWin, qt_settings_cache_stamp, 0, 0,
+				   FALSE, AnyPropertyType, &type, &format, &nitems,
+				   &after, &data);
+	if (data)
+	    XFree(data);
 
-    int e = XGetWindowProperty(appDpy, appRootWin, qt_settings_cache_stamp, 0, 0,
-			       FALSE, AnyPropertyType, &type, &format, &nitems,
-			       &after, &data);
-    if (data)
-	XFree(data);
+	if (e == Success && format == 8) {
+	    QBuffer ts;
+	    ts.open(IO_WriteOnly);
 
-    if (e == Success && format == 8) {
-	QBuffer ts;
-	ts.open(IO_WriteOnly);
+	    while (after > 0) {
+		XGetWindowProperty(appDpy, appRootWin, qt_settings_cache_stamp,
+				   offset, 1024, FALSE, AnyPropertyType,
+				   &type, &format, &nitems, &after, &data);
+		if (format == 8) {
+		    ts.writeBlock((const char *) data, nitems);
+		    offset += nitems / 4;
+		}
 
-	while (after > 0) {
-	    XGetWindowProperty(appDpy, appRootWin, qt_settings_cache_stamp,
-			       offset, 1024, FALSE, AnyPropertyType,
-			       &type, &format, &nitems, &after, &data);
-	    if (format == 8) {
-		ts.writeBlock((const char *) data, nitems);
-		offset += nitems / 4;
+		XFree(data);
 	    }
 
-	    XFree(data);
-	}
+	    QDataStream d(ts.buffer(), IO_ReadOnly);
+	    QDateTime timestamp, settingsstamp;
+	    settingsstamp = settings()->lastModficationTime("/qt/font");
+	    d >> timestamp;
 
-	QDataStream d(ts.buffer(), IO_ReadOnly);
-	QDateTime timestamp, settingsstamp;
-	settingsstamp = settings()->lastModficationTime("/qt/font");
-	d >> timestamp;
-
-	if (settingsstamp.isValid() &&
-	    timestamp.isValid() &&
-	    settingsstamp != timestamp)
+	    if (settingsstamp.isValid() &&
+		timestamp.isValid() &&
+		settingsstamp != timestamp)
+		read_settings = TRUE;
+	} else
 	    read_settings = TRUE;
-    } else
-	read_settings = TRUE;
 
-    e = XGetWindowProperty(appDpy, appRootWin, qt_settings_cache, 0, 1,
-			   FALSE, AnyPropertyType, &type, &format, &nitems,
-			   &after, &data);
-    if (data)
-	XFree(data);
+	e = XGetWindowProperty(appDpy, appRootWin, qt_settings_cache, 0, 1,
+			       FALSE, AnyPropertyType, &type, &format, &nitems,
+			       &after, &data);
+	if (data)
+	    XFree(data);
 
-    if (e != Success || ! nitems)
-	read_settings = TRUE;
-    else
-	prop_exists = TRUE;
+	if (e != Success || ! nitems)
+	    read_settings = TRUE;
+	else
+	    prop_exists = TRUE;
+    }
 
     if (read_settings) {
 	// didn't get the property from the root window, let's try the settings
@@ -769,24 +772,25 @@ bool QApplication::x11_apply_settings()
 	  /qt/Font Substitutions/... - QStringList
 	*/
 
+	QSettings settings;
 	QString str;
 	QStringList strlist;
 	int i, num;
 	QPalette pal(QApplication::palette());
 
-	strlist = QApplication::settings()->readListEntry("/qt/Palette/active");
+	strlist = settings.readListEntry("/qt/Palette/active");
 	if (strlist.count() == QColorGroup::NColorRoles) {
 	    for (i = 0; i < QColorGroup::NColorRoles; i++)
 		pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
 			     QColor(strlist[i]));
 	}
-	strlist = QApplication::settings()->readListEntry("/qt/Palette/inactive");
+	strlist = settings.readListEntry("/qt/Palette/inactive");
 	if (strlist.count() == QColorGroup::NColorRoles) {
 	    for (i = 0; i < QColorGroup::NColorRoles; i++)
 		pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
 			     QColor(strlist[i]));
 	}
-	strlist = QApplication::settings()->readListEntry("/qt/Palette/disabled");
+	strlist = settings.readListEntry("/qt/Palette/disabled");
 	if (strlist.count() == QColorGroup::NColorRoles) {
 	    for (i = 0; i < QColorGroup::NColorRoles; i++)
 		pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
@@ -800,7 +804,7 @@ bool QApplication::x11_apply_settings()
 
 	QFont font(QApplication::font());
 	// read new font
-	str = QApplication::settings()->readEntry("/qt/font");
+	str = settings.readEntry("/qt/font");
 	if (! str.isNull() && ! str.isEmpty()) {
 	    font.fromString(str);
 
@@ -810,7 +814,7 @@ bool QApplication::x11_apply_settings()
 
 	// read library (ie. plugin) path list
 	QStringList pathlist =
-	    QApplication::settings()->readListEntry("/qt/libraryPath", ':');
+	    settings.readListEntry("/qt/libraryPath", ':');
 	if (! pathlist.isEmpty()) {
 	    QStringList::ConstIterator it = pathlist.begin();
 	    while (it != pathlist.end())
@@ -818,7 +822,7 @@ bool QApplication::x11_apply_settings()
 	}
 
 	// read new QStyle
-	QString stylename = QApplication::settings()->readEntry("/qt/style");
+	QString stylename = settings.readEntry("/qt/style");
 	if (! stylename.isNull() && ! stylename.isEmpty()) {
 	    QStyle *style = QStyleFactory::create(stylename);
 	    if (style)
@@ -829,22 +833,22 @@ bool QApplication::x11_apply_settings()
 	    stylename = "default";
 
 	num =
-	    QApplication::settings()->readNumEntry("/qt/doubleClickInterval",
-						   QApplication::doubleClickInterval());
+	    settings.readNumEntry("/qt/doubleClickInterval",
+				  QApplication::doubleClickInterval());
 	QApplication::setDoubleClickInterval(num);
 
 	num =
-	    QApplication::settings()->readNumEntry("/qt/cursorFlashTime",
-						   QApplication::cursorFlashTime());
+	    settings.readNumEntry("/qt/cursorFlashTime",
+				  QApplication::cursorFlashTime());
 	QApplication::setCursorFlashTime(num);
 
 	num =
-	    QApplication::settings()->readNumEntry("/qt/wheelScrollLines",
-						   QApplication::wheelScrollLines());
+	    settings.readNumEntry("/qt/wheelScrollLines",
+				  QApplication::wheelScrollLines());
 	QApplication::setWheelScrollLines(num);
 
-	QString colorspec = QApplication::settings()->readEntry("/qt/colorSpec",
-								"default");
+	QString colorspec = settings.readEntry("/qt/colorSpec",
+					       "default");
 	if (colorspec == "normal")
 	    QApplication::setColorSpec(QApplication::NormalColor);
 	else if (colorspec == "custom")
@@ -854,15 +858,15 @@ bool QApplication::x11_apply_settings()
 	else if (colorspec != "default")
 	    colorspec = "default";
 
-	QString defaultcodec = QApplication::settings()->readEntry("/qt/defaultCodec",
-								   "none");
+	QString defaultcodec = settings.readEntry("/qt/defaultCodec",
+						  "none");
 	if (defaultcodec != "none") {
 	    QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
 	    if (codec)
 		qApp->setDefaultCodec(codec);
 	}
 
-	QStringList strut = QApplication::settings()->readListEntry("/qt/globalStrut");
+	QStringList strut = settings.readListEntry("/qt/globalStrut");
 	if (! strut.isEmpty()) {
 	    if (strut.count() == 2) {
 		QSize sz(strut[0].toUInt(), strut[1].toUInt());
@@ -873,7 +877,7 @@ bool QApplication::x11_apply_settings()
 	}
 
 	QStringList effects =
-	    QApplication::settings()->readListEntry("/qt/GUIEffects");
+	    settings.readListEntry("/qt/GUIEffects");
 
 	if (! effects.isEmpty()) {
 	    if ( effects.contains("none") )
@@ -894,7 +898,7 @@ bool QApplication::x11_apply_settings()
 	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);
 
 	QStringList fontsubs =
-	    QApplication::settings()->entryList("/qt/Font Substitutions");
+	    settings.entryList("/qt/Font Substitutions");
 	if (!fontsubs.isEmpty()) {
 	    QStringList subs;
 	    QString fam, skey;
@@ -902,7 +906,7 @@ bool QApplication::x11_apply_settings()
 	    while (it != fontsubs.end()) {
 		fam = (*it++).latin1();
 		skey = "/qt/Font Substitutions/" + fam;
-		subs = QApplication::settings()->readListEntry(skey, ',');
+		subs = settings.readListEntry(skey, ',');
 		QFont::insertSubstitutions(fam, subs);
 	    }
 	}
@@ -927,6 +931,7 @@ bool QApplication::x11_apply_settings()
 	while (it != fontsubs.end())
 	    d << QFont::substitutes(*it++);
 
+	ignore_settings_change = TRUE;
 	XChangeProperty(appDpy, appRootWin, qt_settings_cache,
 			qt_desktop_properties, 8, PropModeReplace,
 			(unsigned char *) prop.buffer().data(),
@@ -934,7 +939,7 @@ bool QApplication::x11_apply_settings()
 
 	QBuffer stamp;
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
-	s << settings()->lastModficationTime("/qt/font");
+	s << settings.lastModficationTime("/qt/font");
 
 	XChangeProperty(appDpy, appRootWin, qt_settings_cache_stamp,
 			qt_settings_cache_stamp, 8, PropModeReplace,
@@ -1100,6 +1105,8 @@ bool QApplication::x11_apply_settings()
     return success;
 }
 
+
+static bool seems_like_KDE_is_running = FALSE;
 
 
 // read the _QT_DESKTOP_PROPERTIES property and apply the settings to the application
@@ -3384,8 +3391,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
-		else if ( event->xproperty.atom == qt_settings_cache )
-		    QApplication::x11_apply_settings();
+		else if ( event->xproperty.atom == qt_settings_cache ) {
+		    read_settings_cache_only = TRUE;
+		    if (! ignore_settings_change)
+			QApplication::x11_apply_settings();
+		    ignore_settings_change = FALSE;
+		    read_settings_cache_only = FALSE;
+		}
 	    }
 	} else if ( widget) {
 	    if (event->xproperty.window == widget->winId()) { // widget properties

@@ -194,7 +194,6 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-
 }
 
 
@@ -207,68 +206,76 @@ void MainWindow::fileSave()
 
     statusBar()->message("Saving changes...");
 
-    QSettings settings;
-    QFontDatabase db;
-    QFont font = db.font(familycombo->currentText(),
-			 stylecombo->currentText(),
-			 psizecombo->currentText().toInt());
-    QStringList actcg, inactcg, discg;
+    {
+	QSettings settings;
+	QFontDatabase db;
+	QFont font = db.font(familycombo->currentText(),
+			     stylecombo->currentText(),
+			     psizecombo->currentText().toInt());
+	QStringList actcg, inactcg, discg;
 
-    int i;
-    for (i = 0; i < QColorGroup::NColorRoles; i++)
-	actcg << editPalette.color(QPalette::Active,
-				   (QColorGroup::ColorRole) i).name();
-    for (i = 0; i < QColorGroup::NColorRoles; i++)
-	inactcg << editPalette.color(QPalette::Inactive,
-				     (QColorGroup::ColorRole) i).name();
-    for (i = 0; i < QColorGroup::NColorRoles; i++)
-	discg << editPalette.color(QPalette::Disabled,
-				   (QColorGroup::ColorRole) i).name();
+	int i;
+	for (i = 0; i < QColorGroup::NColorRoles; i++)
+	    actcg << editPalette.color(QPalette::Active,
+				       (QColorGroup::ColorRole) i).name();
+	for (i = 0; i < QColorGroup::NColorRoles; i++)
+	    inactcg << editPalette.color(QPalette::Inactive,
+					 (QColorGroup::ColorRole) i).name();
+	for (i = 0; i < QColorGroup::NColorRoles; i++)
+	    discg << editPalette.color(QPalette::Disabled,
+				       (QColorGroup::ColorRole) i).name();
 
-    settings.writeEntry("/qt/font", font.toString());
-    settings.writeEntry("/qt/Palette/active", actcg);
-    settings.writeEntry("/qt/Palette/inactive", inactcg);
-    settings.writeEntry("/qt/Palette/disabled", discg);
-    settings.writeEntry("/qt/libraryPath", QApplication::libraryPaths(), ':');
-    settings.writeEntry("/qt/style", gstylecombo->currentText());
-    settings.writeEntry("/qt/useXft", xftcheckbox->isChecked());
-    settings.writeEntry("/qt/doubleClickInterval", dcispin->value());
-    settings.writeEntry("/qt/cursorFlashTime", cfispin->value());
-    settings.writeEntry("/qt/wheelScrollLines", wslspin->value());
+	settings.writeEntry("/qt/font", font.toString());
+	settings.writeEntry("/qt/Palette/active", actcg);
+	settings.writeEntry("/qt/Palette/inactive", inactcg);
+	settings.writeEntry("/qt/Palette/disabled", discg);
+	settings.writeEntry("/qt/libraryPath",
+					     QApplication::libraryPaths(), ':');
+	settings.writeEntry("/qt/style", gstylecombo->currentText());
+	settings.writeEntry("/qt/useXft", xftcheckbox->isChecked());
+	settings.writeEntry("/qt/doubleClickInterval",
+					     dcispin->value());
+	settings.writeEntry("/qt/cursorFlashTime", cfispin->value());
+	settings.writeEntry("/qt/wheelScrollLines", wslspin->value());
 
-    QStringList strut;
-    strut << QString::number(strutwidth->value());
-    strut << QString::number(strutheight->value());
-    settings.writeEntry("/qt/globalStrut", strut);
+	QStringList strut;
+	strut << QString::number(strutwidth->value());
+	strut << QString::number(strutheight->value());
+	settings.writeEntry("/qt/globalStrut", strut);
 
-    QStringList effects;
-    if (effectcheckbox->isChecked()) {
-	effects << "general";
+	QStringList effects;
+	if (effectcheckbox->isChecked()) {
+	    effects << "general";
 
-	switch (menueffect->currentItem()) {
-	case 1: effects << "animatemenu"; break;
-	case 2: effects << "fademenu"; break;
+	    switch (menueffect->currentItem()) {
+	    case 1: effects << "animatemenu"; break;
+	    case 2: effects << "fademenu"; break;
+	    }
+
+	    switch (comboeffect->currentItem()) {
+	    case 1: effects << "animatecombo"; break;
+	    }
+
+	    switch (tooltipeffect->currentItem()) {
+	    case 1: effects << "animatetooltip"; break;
+	    case 2: effects << "fadetooltip"; break;
+	    }
+	} else
+	    effects << "none";
+	settings.writeEntry("/qt/GUIEffects", effects);
+
+	QStringList familysubs = QFont::substitutions();
+	QStringList::Iterator fit = familysubs.begin();
+	while (fit != familysubs.end()) {
+	    QStringList subs = QFont::substitutes(*fit);
+	    settings.writeEntry("/qt/Font Substitutions/" + *fit, subs);
+	    fit++;
 	}
-
-	switch (comboeffect->currentItem()) {
-	case 1: effects << "animatecombo"; break;
-	}
-
-	switch (tooltipeffect->currentItem()) {
-	case 1: effects << "animatetooltip"; break;
-	case 2: effects << "fadetooltip"; break;
-	}
-    } else
-	effects << "none";
-    settings.writeEntry("/qt/GUIEffects", effects);
-
-    QStringList familysubs = QFont::substitutions();
-    QStringList::Iterator fit = familysubs.begin();
-    while (fit != familysubs.end()) {
-	QStringList subs = QFont::substitutes(*fit);
-	settings.writeEntry("/qt/Font Substitutions/" + *fit, subs);
-	fit++;
     }
+
+#if defined(Q_WS_X11)
+    QApplication::x11_apply_settings();
+#endif // Q_WS_X11
 
     setModified(FALSE);
     statusBar()->message("Saved changes.");
