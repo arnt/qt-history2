@@ -346,37 +346,31 @@ of these (actually, <tt>&#92;&#92;</tt> in C++ strings), unless it is already
 there.
 
 Example: Old code like
-
 \code
     QRegExp rx( "([0-9|]*\\)" );        // works in Qt 2.x
 \endcode
-
 should be converted into
-
 \code
-    QRegExp rx( "\\([0-9]\\|]*\\)" );   // works in Qt 2.x and 3.x
+    QRegExp rx( "\\([0-9\\|]*\\)" );      // works in Qt 2.x and 3.x
 \endcode
+(Within character classes, the backslash is not necessary in front of certain
+characters, e.g. <tt>|</tt>, but it doesn't hurt.)
 
 However, wildcard patterns need no conversion.  Here are two examples:
-
 \code
     QRegExp wild( "(*.*)" );
     wild.setWildcard( TRUE );
 \endcode
-
 \code
     // TRUE as third argument means wildcard
     QRegExp wild( "(*.*)", FALSE, TRUE );
 \endcode
-
 Usually, QRegExp is easy to spot in programs.  However, in one unfortunate case,
 it is subtle: as the first argument to \l QString::replace().  Code like
-
 \code
     QString text = fetch_it_from_somewhere();
     text.replace( QString("([^)]*)"), "" );
 \endcode
-
 involves an implicit QRegExp (namely, \c "([^)]*)") that should be
 changed.
 
@@ -384,25 +378,21 @@ changed.
 
 This function has been replaced by \l QRegExp::setPattern() in Qt 2.2.
 Old code such as
-
 \code
     QRegExp rx( "alpha" );
     rx.setCaseSensitive( FALSE );
     rx.setWildcard( TRUE );
     rx = "beta";
 \endcode
-
 still compiles with Qt 3, but produces a different result (the case sensitivity
 and wildcard options are forgotten). This way,
 \code
     rx = "beta";
 \endcode
-
 is the same as
 \code
     rx = QRegExp( "beta" );
 \endcode
-
 which is what one expects.
 
 \section2 QRegExp::match()
