@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#9 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,24 +22,25 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 #include <qapplication.h>
+#include <qcombobox.h>
 
 HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* parent, const char *name )
-    : QMainWindow( parent, name, WDestructiveClose )
+    : QMainWindow( parent, name, WDestructiveClose ), pathCombo( 0 ), selectedURL()
 {
 
     browser = new QTextBrowser( this );
     browser->mimeSourceFactory()->setFilePath( path );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     connect( browser, SIGNAL( textChanged() ),
-	     this, SLOT( textChanged() ) );
+             this, SLOT( textChanged() ) );
 
     setCentralWidget( browser );
 
     if ( !home_.isEmpty() )
-	browser->setSource( home_ );
+        browser->setSource( home_ );
 
     connect( browser, SIGNAL( highlighted( const QString&) ),
-	     statusBar(), SLOT( message( const QString&)) );
+             statusBar(), SLOT( message( const QString&)) );
 
     resize( 640,700 );
 
@@ -52,11 +53,11 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
 
     QPopupMenu* go = new QPopupMenu( this );
     backwardId = go->insertItem( QPixmap("back.xpm"),
-				       tr("&Backward"), browser, SLOT( backward() ),
-				       ALT | Key_Left );
+                                 tr("&Backward"), browser, SLOT( backward() ),
+                                 ALT | Key_Left );
     forwardId = go->insertItem( QPixmap("forward.xpm"),
-				      tr("&Forward"), browser, SLOT( forward() ),
-				       ALT | Key_Right );
+                                tr("&Forward"), browser, SLOT( forward() ),
+                                ALT | Key_Right );
     go->insertItem( QPixmap("home.xpm"), tr("&Home"), browser, SLOT( home() ) );
 
     QPopupMenu* help = new QPopupMenu( this );
@@ -71,9 +72,9 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     menuBar()->setItemEnabled( forwardId, FALSE);
     menuBar()->setItemEnabled( backwardId, FALSE);
     connect( browser, SIGNAL( backwardAvailable( bool ) ),
-	     this, SLOT( setBackwardAvailable( bool ) ) );
+             this, SLOT( setBackwardAvailable( bool ) ) );
     connect( browser, SIGNAL( forwardAvailable( bool ) ),
-	     this, SLOT( setForwardAvailable( bool ) ) );
+             this, SLOT( setForwardAvailable( bool ) ) );
 
 
     QToolBar* toolbar = new QToolBar( this );
@@ -88,6 +89,16 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     button->setEnabled( FALSE );
     button = new QToolButton( QPixmap("home.xpm"), tr("Home"), "", browser, SLOT(home()), toolbar );
 
+    toolbar->addSeparator();
+    
+    pathCombo = new QComboBox( TRUE, toolbar );
+    connect( pathCombo, SIGNAL( activated( const QString & ) ),
+             this, SLOT( pathSelected( const QString & ) ) ); 
+    toolbar->setStretchableWidget( pathCombo );
+    setRightJustification( TRUE );
+    
+    pathCombo->insertItem( home_ );
+    
     browser->setFocus();
 }
 
@@ -106,9 +117,27 @@ void HelpWindow::setForwardAvailable( bool b)
 void HelpWindow::textChanged()
 {
     if ( browser->documentTitle().isNull() )
-	setCaption( browser->context() );
+        setCaption( browser->context() );
     else
-	setCaption( browser->documentTitle() ) ;
+        setCaption( browser->documentTitle() ) ;
+    
+    selectedURL = caption();
+    if ( !selectedURL.isEmpty() && pathCombo ) {
+        bool exists = FALSE;
+        unsigned int i;
+        for ( i = 0; i < pathCombo->count(); ++i ) {
+            if ( pathCombo->text( i ) == selectedURL ) {
+                exists = TRUE;
+                break;
+            }
+        }
+        if ( !exists ) {
+            pathCombo->insertItem( selectedURL, 0 );
+            pathCombo->setCurrentItem( 0 );
+        } else
+            pathCombo->setCurrentItem( i );
+        selectedURL = QString::null;
+    }
 }
 
 HelpWindow::~HelpWindow()
@@ -118,10 +147,10 @@ HelpWindow::~HelpWindow()
 void HelpWindow::about()
 {
     QMessageBox::about( this, "QBrowser Example",
-			"<p>This example implements a simple HTML browser "
-			"using Qt's rich text capabilities</p>"
-			"<p>It's just about 100 lines of C++ code, so don't expect too much :-)</p>"
-			);
+                        "<p>This example implements a simple HTML browser "
+                        "using Qt's rich text capabilities</p>"
+                        "<p>It's just about 100 lines of C++ code, so don't expect too much :-)</p>"
+        );
 }
 
 
@@ -134,10 +163,15 @@ void HelpWindow::openFile()
 {
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
-	browser->setSource( fn );
+        browser->setSource( fn );
 }
 
 void HelpWindow::newWindow()
 {
     ( new HelpWindow(browser->source(), "qbrowser") )->show();
+}
+
+void HelpWindow::pathSelected( const QString &path )
+{
+    browser->setSource( path );
 }

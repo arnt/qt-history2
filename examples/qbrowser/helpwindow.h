@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#3 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -13,6 +13,8 @@
 #include <qtextbrowser.h>
 #include <qmainwindow.h>
 
+class QComboBox;
+
 class HelpWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,7 +25,7 @@ public:
 
     void setupSlideshow( const QString& file);
 
- private slots:
+private slots:
     void setBackwardAvailable( bool );
     void setForwardAvailable( bool );
 
@@ -33,10 +35,14 @@ public:
     void openFile();
     void newWindow();
 
+    void pathSelected( const QString & );
+    
 private:
     QTextBrowser* browser;
+    QComboBox *pathCombo;
     int backwardId, forwardId;
-
+    QString selectedURL;
+    
 };
 
 
