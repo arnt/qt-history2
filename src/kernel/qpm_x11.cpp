@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#73 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#72 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#73 $")
 
 
 /*****************************************************************************
@@ -1360,8 +1360,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ulong trigx, trigy;
     ulong maxws = ws<<16, maxhs=hs<<16;
     uchar *p	= dptr;
-    int	  x, xbpl;
-    int	  p_inc;
+    int	  xbpl, p_inc;
     bool  msbfirst = xi->bitmap_bit_order == MSBFirst;
 
     if ( depth1 ) {
@@ -1445,8 +1444,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    while ( p < maxp ) {
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
-		    x = trigx >> 16;					      \
-		    if ( *(sptr+sbpl*(trigy>>16)+(x>>3)) & (1 << 7-(x&7)) )   \
+		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+			 (1 << 7-((trigx>>16)&7)) )			      \
 			*p |= b;					      \
 		}							      \
 		trigx += m11;						      \
@@ -1467,8 +1466,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    while ( p < maxp ) {
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
-		    x = trigx >> 16;					      \
-		    if ( *(sptr+sbpl*(trigy>>16)+(x>>3)) & (1 << (x&7)) )     \
+		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+			 (1 << ((trigx>>16)&7)) )			      \
 			*p |= b;					      \
 		}							      \
 		trigx += m11;						      \
