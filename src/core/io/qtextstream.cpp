@@ -173,12 +173,13 @@
 #define CHECK_STREAM_PRECOND(x)
 #endif
 
-#define TS_MOD_NOT   0x10
-#define TS_SPACE     0x01
-#define TS_EOL       0x02
-#define TS_HEX       0x03
-#define TS_DIGIT     0x04
-#define TS_BIN       0x05
+#define TS_MOD_NOT       0x10
+#define TS_MOD_CONSUME   0x20
+#define TS_SPACE         0x01
+#define TS_EOL           0x02
+#define TS_HEX           0x03
+#define TS_DIGIT         0x04
+#define TS_BIN           0x05
 
 #define I_SHORT      0x0010
 #define I_INT        0x0020
@@ -244,7 +245,8 @@ protected:
     void ts_putc(int);
 
     /* These are the only functions that actually interact with the input/output */
-    bool ts_getbuf(QChar*, int, uchar =0, uint * =NULL);
+    enum GetBufEnd { TS_END_UNKNOWN, TS_END_FOUND, TS_END_OF_INPUT, TS_END_OF_OUTPUT };
+    QTextStreamPrivate::GetBufEnd  ts_getbuf(QChar*, int, uchar =0, uint * =NULL);
     void ts_putc(QChar);
 
     ulong input_bin();
@@ -458,7 +460,11 @@ QTextStream::~QTextStream()
 */
 void QTextStream::skipWhiteSpace()
 {
-    while(!d->ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_SPACE));
+    while(1) {
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_SPACE);
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
+            break;
+    }
 }
 
 /*
@@ -513,12 +519,13 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
     of the file. EOF is reached when the return value does not equal
     \a len.
 */
-bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
+QTextStreamPrivate::QTextStreamPrivate::GetBufEnd 
+QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 {
     if (len < 1) {
         if(l)
             *l = 0;
-        return false;
+        return QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
 
     //just read directly from the string (optimization)
@@ -530,13 +537,13 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                 if(l)
                     *l = i;
                 d->strOff += i * sizeof(QChar);
-                return true;
+                return QTextStreamPrivate::TS_END_OF_INPUT;
             } else if(int end = ts_end(data+i, remaining - i, end_flags)) {
                 i += end - 1;
                 if(l)
                     *l = i;
                 d->strOff += i * sizeof(QChar);
-                return true;
+                return QTextStreamPrivate::TS_END_FOUND;
             }
             if(out)
                 out[i] = data[i];
@@ -544,11 +551,12 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
         if(l)
             *l = len;
         d->strOff += len * sizeof(QChar);
-        return false;
+        return QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
 
     //read from the device
-    enum { NO_FINISH, END_FOUND, END_BUFFER } ret = NO_FINISH;
+    const int leaveEnd = (end_flags & TS_MOD_CONSUME) ? 0 : 1;
+    QTextStreamPrivate::GetBufEnd ret = QTextStreamPrivate::QTextStreamPrivate::TS_END_UNKNOWN;
     int rnum = 0;   // the number of QChars really read
 
     if (d->doUnicodeHeader) {
@@ -557,7 +565,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
         if (c1 == EOF) {
             if(l)
                 *l = rnum;
-            return true;
+            return QTextStreamPrivate::TS_END_OF_INPUT;
         }
         int c2 = d->dev->getch();
         if (c1 == (int)0xfe && c2 == (int)0xff) {
@@ -587,7 +595,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
     }
 
     char buff[getbuf_cache_size];
-    while(ret == NO_FINISH) {
+    while(ret == QTextStreamPrivate::TS_END_UNKNOWN) {
         //read out of the unget buffer
         if (d->ungetcBuf.length()) {
             int ungetc_len = d->ungetcBuf.length(), ungetc_used = 0;
@@ -595,8 +603,8 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
             while(rnum < ungetc_len && ungetc_used < ungetc_len) {
                 if(int end = ts_end(ungetc_buff+ungetc_used, 
 				    ungetc_len-ungetc_used, end_flags)) {
-		    ungetc_used += end - 1;
-                    ret = END_FOUND;
+		    ungetc_used += end - leaveEnd;
+                    ret = QTextStreamPrivate::TS_END_FOUND;
                     break;
                 }
                 if(out) 
@@ -604,22 +612,24 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
 		ungetc_used++;
                 rnum++;
                 if(rnum >= len) {
-                    ret = END_BUFFER;
+                    ret = QTextStreamPrivate::TS_END_OF_OUTPUT;
                     break;
                 }
             }
             d->ungetcBuf = d->ungetcBuf.mid(ungetc_used);
-            if (ret != NO_FINISH) {
+            if (ret != QTextStreamPrivate::TS_END_UNKNOWN) {
                 if(l)
                     *l = rnum;
-                return (ret == END_FOUND);
+                return ret;
             }
         }
 
         //read from the device
         const int buff_len = d->dev->read(buff, getbuf_cache_size);
-        if(buff_len <= 0)
+        if(buff_len <= 0) {
+            ret = QTextStreamPrivate::TS_END_OF_INPUT;
             break;
+        }
 
 #ifndef QT_NO_TEXTCODEC
         if(d->mapper) {
@@ -631,8 +641,8 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
             if(end_flags) {
                 for(int i = 0; i < used_len; i++) {
                     if(int end = ts_end(s.unicode()+i, used_len - i, end_flags)) {
-                        used_len = i + (end - 1);
-                        ret = END_FOUND;
+                        used_len = i + (end - leaveEnd);
+                        ret = QTextStreamPrivate::TS_END_FOUND;
                         break;
                     }
                 }
@@ -640,6 +650,8 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
             if(out) 
                 memcpy(out + rnum, s.unicode(), used_len*sizeof(out[0]));
             rnum += used_len;
+            if(ret == TS_END_FOUND)
+                rnum -= 1;
             if(used_len != s.length())
                 d->ungetcBuf += s.mid(used_len);
         } else
@@ -665,9 +677,9 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                         end = ts_end(&c, 1, end_flags);
                     }
                     if(end) {
-                        used_len += (end - 1);
+                        used_len += (end - leaveEnd);
                         rnum += (end - 1);
-                        ret = END_FOUND;
+                        ret = QTextStreamPrivate::TS_END_FOUND;
                         break;
                     }
                 }
@@ -683,7 +695,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                     next_c = QChar(buff[i+1], buff[i]);
                 else
                     next_c = QChar(buff[i], buff[i+1]);
-                if(ret == NO_FINISH && end_flags) {
+                if(ret == QTextStreamPrivate::TS_END_UNKNOWN && end_flags) {
                     int end = 0;
                     if((end_flags & 0x0F) == TS_EOL) {
                         if(next_c == QLatin1Char('\r') && i + 4 <= buff_len) {
@@ -697,18 +709,18 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                             if(end_flags & TS_MOD_NOT)
                                 end = !end;
                             if(end)
-                                ret = END_FOUND;
+                                ret = QTextStreamPrivate::TS_END_FOUND;
                         }
                     }
                     if(!end)
                         end = ts_end(&next_c, 1, end_flags);
                     if(end) {
-                        used_len += (end - 1);
-                        rnum += (end - 1);
-                        ret = END_FOUND;
+                        used_len += (end - leaveEnd);
+                        rnum += (end - leaveEnd);
+                        ret = QTextStreamPrivate::TS_END_FOUND;
                     }
                 }
-                if(ret == END_FOUND) {
+                if(ret == QTextStreamPrivate::TS_END_FOUND) {
                     d->ungetcBuf += next_c;
                 } else {
                     if(out)
@@ -718,14 +730,12 @@ bool QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l
                 }
             }
         }
-        if(ret == NO_FINISH && rnum >= len)
-            ret = END_BUFFER;
+        if(ret == QTextStreamPrivate::TS_END_UNKNOWN && rnum >= len)
+            ret = QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
     if(l)
         *l = rnum;
-    if(q->atEnd())
-        return rnum == 0;
-    return ret == END_FOUND;
+    return ret;
 }
 
 /*
@@ -1064,10 +1074,10 @@ ulong QTextStreamPrivate::input_bin()
     const int buf_size = getnum_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_BIN, &l);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_BIN, &l);
         for(uint i = 0; i < l; i++)
             val = (val << 1) + buf[i].digitValue();
-        if(sr)
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
     return val;
@@ -1102,10 +1112,10 @@ ulong QTextStreamPrivate::input_dec()
     const int buf_size = getnum_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_DIGIT, &l);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_DIGIT, &l);
         for(uint i = 0; i < l; i++)
             val = val * 10 + buf[i].digitValue();
-        if(sr)
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
     return val;
@@ -1118,12 +1128,12 @@ ulong QTextStreamPrivate::input_hex()
     const int buf_size = getnum_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_HEX, &l);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_HEX, &l);
         for(uint i = 0; i < l; i++) {
             char c = buf[i].toLower().latin1();
             val = (val << 4) + (buf[i].isDigit() ? c - '0' : 10 + c-'a');
         }
-        if(sr)
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
     return val;
@@ -1415,11 +1425,11 @@ QTextStream &QTextStream::operator>>(char *s)
     const int buf_size = getstr_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_SPACE, &l);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_SPACE, &l);
         for(uint i = 0; i < l; i++)
             *(s++) = buf[i].latin1();
         total += l;
-        if(sr || (maxlen && total >= maxlen-1))
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT || (maxlen && total >= maxlen-1))
            break;
     }
     *s = '\0';
@@ -1445,9 +1455,9 @@ QTextStream &QTextStream::operator>>(QString &str)
     const int buf_size = getstr_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_SPACE, &l);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_SPACE, &l);
         str.append(QString(buf, l));
-        if(sr)
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
     return *this;
@@ -1472,7 +1482,7 @@ QTextStream &QTextStream::operator>>(QByteArray &str)
     str.resize(buf_size);
     QChar buf[buf_size];
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_SPACE, &l);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_SPACE, &l);
         if(l) {
             if((int)(used+l) >= str.size())
                 str.resize(used+l+1);
@@ -1480,7 +1490,7 @@ QTextStream &QTextStream::operator>>(QByteArray &str)
                 str[(int)(used+i)] = buf[i].latin1();
             used += l;
         }
-        if(sr)
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
     str.resize(used);
@@ -1516,12 +1526,12 @@ QString QTextStream::readLine()
 
     uint l;
     while(1) {
-        bool sr = d->ts_getbuf(buf, buf_size, TS_EOL, &l);
-        result.append(QString(buf, l));
-        if(sr)
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_CONSUME|TS_EOL, &l);
+        if(end != QTextStreamPrivate::TS_END_OF_INPUT)
+            result.append(QString(buf, l));
+        if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
-    d->ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_EOL);
     return result;
 }
 
@@ -1546,7 +1556,7 @@ QString QTextStream::read()
     bool       skipped_cr = false;
 
     while(1) {
-        bool sr = d->ts_getbuf(buf, bufsize, 0, &num);
+        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, bufsize, 0, &num);
         // convert dos (\r\n) and mac (\r) style eol to unix style (\n)
         start = 0;
         for (i=0; i<num; i++) {
@@ -1572,7 +1582,7 @@ QString QTextStream::read()
         }
         if (start < num)
             result += QString(&buf[start], i-start);
-        if (sr) // EOF
+        if (end != QTextStreamPrivate::TS_END_OF_OUTPUT)
             break;
     }
     return result;
@@ -2427,7 +2437,7 @@ QChar QTextStreamPrivate::ts_getc()
     QChar r;
     uint l;
     d->ts_getbuf(&r, 1, 0, &l);
-    if (!l)
+    if(!l)
         r = QChar(0xffff);
     return r;
 }
