@@ -372,6 +372,8 @@ bool QLibraryPrivate::load()
 {
     if (pHnd)
         return true;
+    if (fileName.isEmpty())
+        return false;
     return load_sys();
 }
 
