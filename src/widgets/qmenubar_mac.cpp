@@ -391,7 +391,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    else if(!it.atLast()) {
 		QMenuItemListIt it2 = it;
 		++it2;
-		if(isCommand((*it2))) {
+		if(isCommand((*it2), TRUE)) {
 		    if(it2.atLast()) 
 			continue;
 		    ++it2;
