@@ -18,6 +18,8 @@
 #include "qprintengine.h"
 #include "qpaintdevicemetrics.h"
 #include "qlist.h"
+#include <qprintdialog.h>
+#include <qpagesetupdialog.h>
 
 #if defined (Q_WS_WIN)
 #include "qprintengine_win.h"
@@ -1173,8 +1175,11 @@ QPrinter::PrinterState QPrinter::printerState() const
 */
 bool QPrinter::setup(QWidget *parent)
 {
-    QPrintDialog dlg(this, parent);
-    return dlg.exec();
+    return printSetup(parent)
+#ifdef Q_WS_MAC
+        && pageSetup(parent)
+#endif
+        ;
 }
 #endif
 
@@ -1224,3 +1229,15 @@ bool QPrinter::setup(QWidget *parent)
 
     Use printerState() == QPrinter::Aborted instead.
 */
+
+bool QPrinter::pageSetup(QWidget *parent)
+{
+    QPageSetupDialog psd(this, parent);
+    return psd.exec() != 0;
+}
+
+bool QPrinter::printSetup(QWidget *parent)
+{
+    QPrintDialog pd(this, parent);
+    return pd.exec() != 0;
+}

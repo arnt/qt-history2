@@ -69,6 +69,12 @@ public:
        is handled in the next begin or newpage. */
     void doReinit();
 
+    /* Used by print/page setup dialogs */
+    HGLOBAL *createDevNames();
+
+    void readDevmode(HGLOBAL globalDevmode);
+    void readDevnames(HGLOBAL globalDevnames);
+
     // Windows GDI printer references.
     HANDLE hPrinter;
 

@@ -1055,4 +1055,65 @@ int QWin32PrintEngine::numCopies() const
     return 1;
 }
 
+HGLOBAL *QWin32PrintEnginePrivate::createDevNames()
+{
+    int size = sizeof(DEVNAMES)
+               + program.length() * 2 + 2
+               + name.length() * 2 + 2
+               + port.length() * 2 + 2;
+    HGLOBAL *hGlobal = (HGLOBAL *) GlobalAlloc(GMEM_MOVEABLE, size);
+    DEVNAMES *dn = (DEVNAMES*) GlobalLock(hGlobal);
+
+    dn->wDriverOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
+    dn->wDeviceOffset = dn->wDriverOffset + program.length() + 1;
+    dn->wOutputOffset = dn->wDeviceOffset + name.length() + 1;
+
+    memcpy((ushort*)dn + dn->wDriverOffset, program.utf16(), program.length() * 2 + 2);
+    memcpy((ushort*)dn + dn->wDeviceOffset, name.utf16(), name.length() * 2 + 2);
+    memcpy((ushort*)dn + dn->wOutputOffset, port.utf16(), port.length() * 2 + 2);
+    dn->wDefault = 0;
+
+#if defined QT_PRINTDIALOG_DEBUG
+    printf("QPrintDialogWinPrivate::createDevNames()\n"
+           " -> wDriverOffset: %d\n"
+           " -> wDeviceOffset: %d\n"
+           " -> wOutputOffset: %d\n",
+           dn->wDriverOffset,
+           dn->wDeviceOffset,
+           dn->wOutputOffset);
+
+    printf("QPrintDialogWinPrivate::createDevNames(): %s, %s, %s\n",
+           QString::fromUtf16((ushort*)(dn) + dn->wDriverOffset).latin1(),
+           QString::fromUtf16((ushort*)(dn) + dn->wDeviceOffset).latin1(),
+           QString::fromUtf16((ushort*)(dn) + dn->wOutputOffset).latin1());
+#endif // QT_PRINTDIALOG_DEBUG
+
+    GlobalUnlock(hGlobal);
+
+    return hGlobal;
+}
+
+void QWin32PrintEnginePrivate::readDevnames(HGLOBAL globalDevnames)
+{
+    if (globalDevnames) {
+        DEVNAMES *dn = (DEVNAMES*) GlobalLock(globalDevnames);
+        name = QString::fromUtf16((ushort*)(dn) + dn->wDeviceOffset);
+        port = QString::fromUtf16((ushort*)(dn) + dn->wOutputOffset);
+        program = QString::fromUtf16((ushort*)(dn) + dn->wDriverOffset);
+        GlobalUnlock(globalDevnames);
+    }
+}
+
+void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
+{
+    if (globalDevmode) {
+        DEVMODE *dm = (DEVMODE*) GlobalLock(globalDevmode);
+        release();
+        globalDevMode = globalDevmode;
+        devMode = dm;
+        hdc = CreateDC(program.utf16(), name.utf16(), 0, dm);
+        setupPrinterMapping();
+    }
+}
+
 #endif // QT_NO_PRINTER

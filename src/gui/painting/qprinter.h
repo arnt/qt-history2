@@ -128,6 +128,9 @@ public:
     QString printerSelectionOption() const;
     void setPrinterSelectionOption(const QString &);
 
+    bool pageSetup(QWidget *parent = 0);
+    bool printSetup(QWidget *parent = 0);
+
 #ifdef QT_COMPAT
     QT_COMPAT bool setup(QWidget *parent = 0);
 #endif

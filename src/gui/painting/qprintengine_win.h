@@ -103,6 +103,7 @@ public:
 
 private:
     friend class QPrintDialogWin;
+    friend class QPageSetupDialog;
 };
 
 #endif // QPRINTENGINE_WIN_H
