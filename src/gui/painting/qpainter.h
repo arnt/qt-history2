@@ -209,6 +209,7 @@ public:
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags = 0);
     void drawTextItem(const QPoint& p, const QTextItem &ti, int textflags = 0);
 
+    void drawEdges(int x, int y, int w, int h, Qt::RectangleEdges);
     void drawEdges(const QRect &rect, Qt::RectangleEdges);
 
     QRect boundingRect(int x, int y, int w, int h, int flags,
@@ -437,6 +438,12 @@ inline void QPainter::drawImage(const QPoint &p, const QImage &i, int conversion
 {
     drawImage(p.x(), p.y(), i, 0, 0, i.width(), i.height(), conversion_flags);
 }
+
+inline void QPainter::drawEdges(int x, int y, int w, int h, Qt::RectangleEdges edges)
+{
+    drawEdges(QRect(x, y, w, h), edges);
+}
+
 
 inline void QPainter::translate(const QPoint &offset)
 {

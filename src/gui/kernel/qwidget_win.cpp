@@ -355,7 +355,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                     w = 100;
                     h = 30;
                 }
-
                 MoveWindow(winId(), x, y, w, h, true);
             }
             GetWindowRect(id, &fr);                // update rects
@@ -916,7 +915,6 @@ void QWidget::repaint(const QRegion& rgn)
     bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
                           && br.width()  <= QWinDoubleBuffer::MaxWidth
                           && br.height() <= QWinDoubleBuffer::MaxHeight);
-
     bool tmphdc = !d->hd;
     if (tmphdc)
         d->hd = GetDC(winId());
@@ -1015,12 +1013,13 @@ void QWidget::repaint(const QRegion& rgn)
 
 
     if (double_buffer) {
+        int increment = QRect::rectangleMode() == QRect::ExclusiveRectangles ? 1 : 0;
         QVector<QRect> rects = rgn.rects();
         for (int i=0; i<rects.size(); ++i) {
             QRect &rr = d->mapToWS(rects.at(i));
             BitBlt(old_dc,
                    rr.x(), rr.y(),
-                   rr.width(), rr.height(),
+                   rr.width()+increment, rr.height()+increment,
                    (HDC)d->hd,
                    rr.x()-brWS.x(), rr.y()-brWS.y(),
                    SRCCOPY);
@@ -1529,8 +1528,8 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (d->extra) {
                 fr.setLeft(fr.left() + x - data->crect.left());
                 fr.setTop(fr.top() + y - data->crect.top());
-                fr.setRight(fr.right() + (x + w - 1) - data->crect.right());
-                fr.setBottom(fr.bottom() + (y + h - 1) - data->crect.bottom());
+                fr.setRight(fr.right() + (x + w - QRect::rectangleMode()) - data->crect.right());
+                fr.setBottom(fr.bottom() + (y + h - QRect::rectangleMode()) - data->crect.bottom());
             }
             MoveWindow(winId(), fr.x(), fr.y(), fr.width(), fr.height(), true);
             data->crect.setRect(x, y, w, h);
