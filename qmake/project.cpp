@@ -100,7 +100,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    int lparen = scope.find('(');
 	    if(lparen != -1) { /* if there is an lparen in the scope, it IS a function */
 		if(!scope_failed) {
-		    int rparen = scope.findRev(')', scope.length()-1);
+		    int rparen = scope.findRev(')');
 		    if(rparen == -1) {
 			QCString error;
 			error.sprintf("Function missing right paren: %s", scope.latin1());
