@@ -1040,23 +1040,23 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( needFontEventHandler || needSqlTableEventHandler || needSqlFormEventHandler ) {
 	//	indent = "\t"; // increase indentation for if-clause below
 	out << "/*  " << endl;
-	out << " *  Main event handler. Reimplemented to handle";
-	if ( needFontEventHandler )
-	    out << " application font changes";
-	if ( needSqlTableEventHandler ) {
-	    if ( needFontEventHandler )
+	out << " *  Main event handler. Reimplemented to handle" << endl;
+	if ( needFontEventHandler ) {
+	    out <<  " *  application font changes";
+	    if ( needSqlTableEventHandler || needSqlFormEventHandler )
 		out << " and" << endl;
 	    else
 		out << endl;
+	}
+	if ( needSqlTableEventHandler ) {
 	    out << " *  default SQL table initialization" << endl;
-	}
-	if ( needSqlFormEventHandler ) {
-	    if ( needSqlTableEventHandler || needFontEventHandler )
-		out << " *  and";
+	    if ( needSqlFormEventHandler )
+		out << " and" << endl;
 	    else
-		out << " * ";
-	    out << " default SQL form initialization" << endl;
+		out << endl;
 	}
+	if ( needSqlFormEventHandler )
+	    out << " *  default SQL form initialization" << endl;
 	out << " */" << endl;
 	out << "bool " << nameOfClass  << "::event( QEvent* ev )" << endl;
 	out << "{" << endl;
