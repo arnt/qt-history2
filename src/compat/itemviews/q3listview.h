@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QLISTVIEW_H
-#define QLISTVIEW_H
+#ifndef Q3LISTVIEW_H
+#define Q3LISTVIEW_H
 
 #ifndef QT_H
 #include "qscrollview.h"
