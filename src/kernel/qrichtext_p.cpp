@@ -428,29 +428,17 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
     return k;
 }
 
-QString QTextString::toString( const QMemArray<QTextStringChar> &data, bool fixspaces)
+QString QTextString::toString( const QMemArray<QTextStringChar> &data )
 {
     QString s;
     int l = data.size();
     s.setUnicode( 0, l );
     QTextStringChar *c = data.data();
     QChar *uc = (QChar *)s.unicode();
-    while ( l-- ) {
-	*uc = c->c;
-	// ### workaround so that non-breaking whitespaces are drawn
-	// properly, actually this should be fixed in QFont somewhere
-	if ( fixspaces && *uc == (char)0xa0 )
-	    *uc = 0x20;
-	uc++;
-	c++;
-    }
+    while ( l-- )
+	*(uc++) = (c++)->c;
 
     return s;
-}
-
-QString QTextString::toString(bool fixspaces) const
-{
-    return toString( data, fixspaces );
 }
 
 void QTextParagraph::setSelection( int id, int start, int end )

@@ -187,8 +187,8 @@ public:
     QTextString( const QTextString &s );
     virtual ~QTextString();
 
-    static QString toString( const QMemArray<QTextStringChar> &data, bool fixspaces = TRUE );
-    QString toString( bool fixspaces = TRUE ) const;
+    static QString toString( const QMemArray<QTextStringChar> &data );
+    QString toString() const { return toString( data ); }
 
     QTextStringChar &at( int i ) const;
 #if defined(Q_STRICT_INLINING_RULES)
