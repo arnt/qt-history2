@@ -28,20 +28,6 @@ styles {
         }
 	else:DEFINES += QT_NO_STYLE_MAC
 
-	#embedded|!macx-*:styles -= aqua
-	contains( styles, aqua ) {
-		HEADERS += $$STYLES_H/qaquastyle.h 
-		SOURCES += $$STYLES_CPP/qaquastyle.cpp 
-		HEADERS *= $$STYLES_CPP/qaquastyle_p.h 
-		SOURCES *= $$STYLES_CPP/qaquastyle_p.cpp 
-
-		!contains( styles, windows ) {
-			message( aqua requires windows )
-			styles += windows
-		}
-	}
-	else:DEFINES += QT_NO_STYLE_AQUA
-
 	contains( styles, cde ) {
 		HEADERS +=$$STYLES_H/qcdestyle.h
 		SOURCES +=$$STYLES_CPP/qcdestyle.cpp

@@ -692,11 +692,6 @@
 #define QT_NO_PRINTER
 #endif
 
-// Aqua style
-#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
-#define QT_NO_STYLE_AQUA
-#endif
-
 // Vertical group boxes
 #if !defined(QT_NO_VGROUPBOX) && (defined(QT_NO_HGROUPBOX))
 #define QT_NO_VGROUPBOX

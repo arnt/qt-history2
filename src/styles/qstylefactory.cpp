@@ -28,9 +28,6 @@
 #ifndef QT_NO_STYLE_WINDOWSXP
 #include "qwindowsxpstyle.h"
 #endif
-#ifndef QT_NO_STYLE_AQUA
-#include "qaquastyle.h"
-#endif
 #ifndef QT_NO_STYLE_POCKETPC
 #include "qpocketpcstyle_wce.h"
 #endif
@@ -138,10 +135,6 @@ QStyle *QStyleFactory::create( const QString& key )
         ret = new QCompactStyle;
     else
 #endif
-#ifndef QT_NO_STYLE_AQUA
-    if ( style == "aqua" )
-        ret = new QAquaStyle;
-#endif
 #ifndef QT_NO_STYLE_POCKETPC
     if ( style == "pocketpc" )
 	ret = new QPocketPCStyle;
@@ -216,10 +209,6 @@ QStringList QStyleFactory::keys()
 #ifndef QT_NO_STYLE_COMPACT
     if ( !list.contains( "Compact" ) )
 	list << "Compact";
-#endif
-#ifndef QT_NO_STYLE_AQUA
-    if ( !list.contains( "Aqua" ) )
-	list << "Aqua";
 #endif
 #if !defined( QT_NO_STYLE_MAC ) && defined( Q_WS_MAC )
     QString mstyle = "Macintosh";
