@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#3 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -426,6 +426,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Delete:
 	    del();
 	    break;
+	case Key_Next:
+	    pageDown();
+	    break;
+	case Key_Prior:
+	    pageUp();
+	    break;
 	case Key_Enter:
 	case Key_Return:
 	    newLine();
@@ -439,6 +445,27 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	e->ignore();
 	return;
     }
+}
+
+void QMultiLineEdit::pageDown()
+{
+    int delta = cursorY - topCell();
+    int pageSize = lastRowVisible() - topCell();
+    int oldY = cursorY;
+    cursorY = ( QMIN( topCell() + delta + pageSize, (int)count() - 1 ) );
+    setTopCell( QMIN( topCell() + pageSize, (int)count() - 1 ) );
+    //debug("Current item is %d", currentItem() );
+    updateCell( oldY, 0 );
+}
+void QMultiLineEdit::pageUp()
+{
+    int delta = cursorY - topCell();
+    int pageSize = lastRowVisible() - topCell();
+    int oldY = cursorY;
+    cursorY = ( QMAX( topCell() + delta - pageSize, 0 ) );
+    setTopCell( QMAX( topCell() - pageSize, 0 ) );
+	    //debug("Current item is %d", currentItem() );
+    updateCell( oldY, 0 );
 }
 
 
@@ -590,6 +617,7 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	updateCell( cursorY, 0 );
     }
     makeVisible();
+    startTimer( blinkTime );
 }
 
 /*!
@@ -626,8 +654,7 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 	//###scrolling &c
 	updateCell( cursorY, 0 );
     }
-
-
+	startTimer( blinkTime );
 }
 
 
@@ -659,6 +686,7 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	updateCell( cursorY, 0 );
     }
     makeVisible();
+    startTimer( blinkTime );
 }
 
 
@@ -690,6 +718,7 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	updateCell( cursorY, 0 );
     }
     makeVisible();
+    startTimer( blinkTime );
 }
 
 
@@ -886,3 +915,4 @@ void QMultiLineEdit::makeVisible()
 	    setTopCell( cursorY );
     }
 }
+
