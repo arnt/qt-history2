@@ -534,14 +534,14 @@ QStringList QSqlDatabase::connectionNames()
 
     \table
     \header \i Driver Type \i Description
-    \row \i QDB2    \i IBM DB2, v7.1 and higher
-    \row \i QIBASE  \i Borland Interbase Driver
-    \row \i QMYSQL  \i MySQL Driver
-    \row \i QOCI    \i Oracle Call Interface Driver
-    \row \i QODBC   \i ODBC Driver (includes Microsoft SQL Server)
-    \row \i QPSQL   \i PostgreSQL v6.x and v7.x Driver
-    \row \i QSQLITE \i SQLite Driver
-    \row \i QTDS    \i Sybase Adaptive Server
+    \row \i QDB2     \i IBM DB2, v7.1 and higher
+    \row \i QIBASE   \i Borland Interbase Driver
+    \row \i QMYSQL   \i MySQL Driver
+    \row \i QOCI     \i Oracle Call Interface Driver
+    \row \i QODBC    \i ODBC Driver (includes Microsoft SQL Server)
+    \row \i QPSQL    \i PostgreSQL v6.x and v7.x Driver
+    \row \i QSQLITE  \i SQLite version 3 or above
+    \row \i QTDS     \i Sybase Adaptive Server
     \endtable
 
     Additional third party drivers, including your own custom

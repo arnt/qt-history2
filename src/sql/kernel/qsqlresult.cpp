@@ -33,7 +33,7 @@ class QSqlResultPrivate
 {
 public:
     QSqlResultPrivate(QSqlResult* d)
-    : q(d), sqldriver(0), idx(QSql::BeforeFirstRecord), active(false),
+    : q(d), sqldriver(0), idx(QSql::BeforeFirstRow), active(false),
       isSel(false), forwardOnly(false), bindCount(0), binds(QSqlResult::PositionalBinding)
     {}
 
@@ -207,8 +207,8 @@ QString QSqlResult::lastQuery() const
 
 /*!
     Returns the current (zero-based) row position of the result. May
-    return the special values QSql::BeforeFirstRecord or
-    QSql::AfterLastRecord.
+    return the special values QSql::BeforeFirstRow or
+    QSql::AfterLastRow.
 
     \sa setAt(), isValid()
 */
@@ -228,8 +228,7 @@ int QSqlResult::at() const
 
 bool QSqlResult::isValid() const
 {
-    return (d->idx != QSql::BeforeFirstRecord &&
-            d->idx != QSql::AfterLastRecord) ? true : false;
+    return d->idx != QSql::BeforeFirstRow && d->idx != QSql::AfterLastRow;
 }
 
 /*!

@@ -121,7 +121,7 @@ bool QSqlCachedResult::fetch(int i)
         return true;
     if (d->forwardOnly) {
         // speed hack - do not copy values if not needed
-        if (at() > i || at() == QSql::AfterLastRecord)
+        if (at() > i || at() == QSql::AfterLastRow)
             return false;
         while(at() < i - 1) {
             if (!gotoNext(d->cache, -1))
@@ -162,7 +162,7 @@ bool QSqlCachedResult::fetchPrevious()
 
 bool QSqlCachedResult::fetchFirst()
 {
-    if (d->forwardOnly && at() != QSql::BeforeFirstRecord) {
+    if (d->forwardOnly && at() != QSql::BeforeFirstRow) {
         return false;
     }
     if (d->canSeek(0)) {
@@ -174,7 +174,7 @@ bool QSqlCachedResult::fetchFirst()
 
 bool QSqlCachedResult::fetchLast()
 {
-    if (at() == QSql::AfterLastRecord) {
+    if (at() == QSql::AfterLastRow) {
         if (d->forwardOnly)
             return false;
         else
@@ -184,7 +184,7 @@ bool QSqlCachedResult::fetchLast()
     int i = at();
     while (fetchNext())
         ++i; /* brute force */
-    if (d->forwardOnly && at() == QSql::AfterLastRecord) {
+    if (d->forwardOnly && at() == QSql::AfterLastRow) {
         setAt(i);
         return true;
     } else {
@@ -212,7 +212,7 @@ bool QSqlCachedResult::isNull(int i)
 
 void QSqlCachedResult::cleanup()
 {
-    setAt(QSql::BeforeFirstRecord);
+    setAt(QSql::BeforeFirstRow);
     setActive(false);
     d->cleanup();
 }

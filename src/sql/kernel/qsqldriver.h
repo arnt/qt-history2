@@ -73,11 +73,11 @@ public:
     virtual QSqlResult *createResult() const = 0;
 
     virtual bool open(const QString& db,
-                       const QString& user = QString(),
-                       const QString& password = QString(),
-                       const QString& host = QString(),
-                       int port = -1,
-                       const QString& connOpts = QString()) = 0;
+                      const QString& user = QString(),
+                      const QString& password = QString(),
+                      const QString& host = QString(),
+                      int port = -1,
+                      const QString& connOpts = QString()) = 0;
 protected:
     virtual void setOpen(bool o);
     virtual void setOpenError(bool e);

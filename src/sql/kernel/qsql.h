@@ -19,12 +19,12 @@
 namespace QSql
 {
     enum Location {
-        BeforeFirstRecord = -1,
-        AfterLastRecord = -2
-//#ifdef QT_COMPAT ### should uncomment the check at some point
-        , BeforeFirst = BeforeFirstRecord,
-        AfterLast = AfterLastRecord
-//#endif
+        BeforeFirstRow = -1,
+        AfterLastRow = -2
+#ifdef QT_COMPAT
+        , BeforeFirst = BeforeFirstRow,
+        AfterLast = AfterLastRow
+#endif
     };
 
     enum ParamTypeFlag {
