@@ -39,6 +39,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qptrdict.h"
 #include "qstring.h"
 #include "qsqlerror.h"
 #include "qsqlquery.h"
@@ -55,6 +56,10 @@
 
 #ifndef QT_NO_SQL
 
+class QSqlDriverExtension;
+
+extern QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
+
 class QSqlDatabase;
 
 class QM_EXPORT_SQL QSqlDriver : public QObject
@@ -67,7 +72,6 @@ public:
 
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
-
     bool			isOpen() const;
     bool			isOpenError() const;
 
@@ -98,6 +102,7 @@ protected:
     virtual void		setOpenError( bool e );
     virtual void		setLastError( const QSqlError& e );
 private:
+    // ### This could use a d-pointer in 4.0.
     int		          dbState;
     QSqlError	          error;
 #if defined(Q_DISABLE_COPY)

@@ -40,10 +40,14 @@
 
 #include "qdatetime.h"
 #include "qregexp.h"
+#include "qsqlextension_p.h"
 
 // database states
 #define DBState_Open		0x0001
 #define DBState_OpenError	0x0002
+
+// ### This needs to go in 4.0!
+QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
 
 /*!
     \class QSqlDriver qsqldriver.h
@@ -124,6 +128,12 @@ QSqlDriver::~QSqlDriver()
 
 bool QSqlDriver::isOpen() const
 {
+    if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
+	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
+	if ( ext )
+	    return ext->isOpen();
+    }
+
     return ((dbState & DBState_Open) == DBState_Open);
 }
 
@@ -448,5 +458,6 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
     }
     return r;
 }
+
 
 #endif // QT_NO_SQL

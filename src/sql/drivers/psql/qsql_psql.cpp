@@ -35,6 +35,7 @@
 **********************************************************************/
 
 #include "qsql_psql.h"
+#include <private/qsqlextension_p.h>
 
 #include <qsqlrecord.h>
 #include <qregexp.h>
@@ -63,6 +64,23 @@ public:
     PGresult	*result;
     bool        isUtf8;
 };
+
+class QPSQLDriverExtension : public QSqlDriverExtension
+{
+public:
+    QPSQLDriverExtension( QPSQLDriver *dri )
+	: QSqlDriverExtension(), driver(dri) { }
+    ~QPSQLDriverExtension() {}
+
+    bool isOpen() const;
+private:
+    QPSQLDriver *driver;
+};
+
+bool QPSQLDriverExtension::isOpen() const
+{
+    return PQstatus( driver->connection() ) == CONNECTION_OK;
+}
 
 QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
 {
@@ -439,6 +457,10 @@ QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
 
 void QPSQLDriver::init()
 {
+    if ( !qt_driver_extension_dict )
+	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
+
+    qt_driver_extension_dict->insert( this, new QPSQLDriverExtension(this) );
     d = new QPSQLPrivate();
 }
 
@@ -447,6 +469,17 @@ QPSQLDriver::~QPSQLDriver()
     if ( d->connection )
 	PQfinish( d->connection );
     delete d;
+    if ( qt_driver_extension_dict ) {
+	if ( !qt_driver_extension_dict->isEmpty() ) {
+	    QSqlDriverExtension *ext = qt_driver_extension_dict->take( this );
+	    delete ext;
+	}
+
+	if ( qt_driver_extension_dict->isEmpty() ) {
+	    delete qt_driver_extension_dict;
+	    qt_driver_extension_dict = 0;
+	}
+    }
 }
 
 PGconn* QPSQLDriver::connection()

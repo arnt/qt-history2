@@ -84,9 +84,17 @@ public:
     BindMethod bindMethod();
     BindMethod bindm;
     int bindCount;
-    
+
     QMap<int, QString> index;
     QMap<QString, QVariant> values;
+};
+
+class QM_EXPORT_SQL QSqlDriverExtension
+{
+public:
+    QSqlDriverExtension();
+    virtual ~QSqlDriverExtension();
+    virtual bool isOpen() const = 0;
 };
 
 #endif

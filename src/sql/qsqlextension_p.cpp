@@ -95,4 +95,13 @@ QSqlExtension::BindMethod QSqlExtension::bindMethod()
 {
     return bindm;
 }
+
+QSqlDriverExtension::QSqlDriverExtension()
+{
+}
+
+QSqlDriverExtension::~QSqlDriverExtension()
+{
+}
+
 #endif
