@@ -102,4 +102,7 @@ QStringList QODBCDriverPlugin::featureList() const
     return l;
 }
 
-Q_EXPORT_INTERFACE(QODBCDriverPlugin)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( QODBCDriverPlugin )
+}

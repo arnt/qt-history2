@@ -104,4 +104,7 @@ QStringList QPSQLDriverPlugin::featureList() const
     return l;
 }
 
-Q_EXPORT_INTERFACE(QPSQLDriverPlugin)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( QPSQLDriverPlugin )
+}
