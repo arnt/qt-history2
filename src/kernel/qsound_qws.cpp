@@ -25,7 +25,7 @@
 
 #include "qapplication.h"
 
-#if QT_FEATURE_SOUND
+#ifdef QT_FEATURE_SOUND
 
 #include "qsound.h"
 
