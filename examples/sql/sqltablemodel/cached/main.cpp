@@ -49,7 +49,8 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     model->select();
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    QGenericTableView *view = new QGenericTableView(model, this);
+    QGenericTableView *view = new QGenericTableView(this);
+    view->setModel(model);
 
     QHBox *box = new QHBox(this);
     QPushButton *submitButton = new QPushButton(tr("Submit"), box);

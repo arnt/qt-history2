@@ -30,7 +30,9 @@ int main(int argc, char *argv[])
     model->setFilter("id > 0");
     model->select();
 
-    QGenericTableView view(model, 0);
+    QGenericTableView view(0);
+    view.setModel(model);
+
     app.setMainWidget(&view);
     view.show();
 

@@ -31,8 +31,10 @@ int main(int argc, char *argv[])
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->select();
 
-    QGenericTableView view1(model);
-    QGenericTableView view2(model);
+    QGenericTableView view1(0);
+    view1.setModel(model);
+    QGenericTableView view2(0);
+    view2.setModel(model);
 
     view1.show();
     view2.show();

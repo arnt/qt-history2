@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
     CustomSqlModel *model = new CustomSqlModel(&app);
     model->setQuery("select * from persons");
 
-    QGenericTableView view(model, 0);
+    QGenericTableView view(0);
+    view.setModel(model);
     app.setMainWidget(&view);
     view.show();
 
