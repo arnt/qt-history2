@@ -137,9 +137,11 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	ag->setMenuText( actionname );
 	ag->setText( actionname );
 	ag->setUsesDropDown( TRUE );
-	ag->setExclusive( FALSE );
+	ag->setExclusive( TRUE );
 
 	QStringList list = QStyleFactory::styles();
+	list.sort();
+
 	QAction *a;
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	    QString style = *it;
