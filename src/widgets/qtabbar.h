@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#8 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#9 $
 **
 ** Definition of QTabBar class
 **
@@ -37,11 +37,11 @@ public:
     QTabBar( QWidget * parent = 0, const char * name = 0 );
    ~QTabBar();
 
-    enum Style { RoundedAbove, RoundedBelow,
+    enum Shape { RoundedAbove, RoundedBelow,
 		 TriangularAbove, TriangularBelow };
 
-    Style style() const;
-    void setStyle( Style );
+    Shape shape() const;
+    void setShape( Shape );
 
     void show();
 

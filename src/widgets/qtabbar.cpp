@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#27 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#27 $");
 
 
 QTab::~QTab()
@@ -27,7 +27,7 @@ struct QTabPrivate {
     int focus;
     QTab * pressed;
     QAccel * a;
-    QTabBar::Style s;
+    QTabBar::Shape s;
 };
 
 
@@ -37,9 +37,36 @@ struct QTabPrivate {
   \brief The QTabBar class provides a tab bar, for use in e.g. tabbed
   dialogs.
 
-  As implemented, the class provides a look and feel suitable for
-  QTabDialog.  It can be subclassed easily, to provide tab bars with
-  other appearances.
+  The class is quite simple; it draws the tabs in one of four shapes
+  and emits a signal when one is selected.  It can be subclassed to
+  tailor the look and feel.
+
+  The four possible shapes are <ul> <li> \c RoundedAbove - (the
+  default) rounded tabs to be located above the pages.  <li> \c
+  RoundedBelow - rounded tabs to be located below the pages. <li> \c
+  TriangularAbove - triangular tabs to be located above the pages
+  (very unusual, included for completeness). <li> \c TriangularBelow
+  - triangular tabs to be located below the pages. </ul>
+
+  The choice of tab shape is still a matter of taste, to a large
+  degree.  Tab dialogs (preferences and the like) invariable use \c
+  RoundedAbove and nobody uses \c TriangularAbove.  Tab controls in
+  windows other than dialogs almost always either \c RoundedBelow or
+  \c TriangularBelow.  Many spreadsheets and other tab controls where
+  all the pages are essentially similar to use \c TriangularBelow,
+  while \c RoundedBelow is used mostly when the pages are different
+  (e.g. a multi-page tool palette).  There is no strong tradition yet,
+  however, so use your taste and create the tradition.
+
+  The most important part of QTabBar's API is the signal selected().
+  It's emitted whenever the selected page changes (even at startup,
+  when the selected page changes from 'none').  There are also a slot,
+  setCurrentTab(), which can be used to select a page
+  programmatically.
+
+  QTabBar creates automatic accelerator keys in the manner of QButton;
+  e.g. if a tab's label is "\&Graphics" Alt-G becomes an accelerator
+  key for switching to that tab.
 
   The following virtual functions may need to be reimplemented: <ul>
   <li> paint() paints a single tab.  paintEvent() calls paint() for
@@ -340,7 +367,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     if ( t->enabled ) {
 	p->setPen( palette().normal().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
-    } else if ( style() == MotifStyle ) {
+    } else if ( shape() == MotifStyle ) {
 	p->setPen( palette().disabled().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
@@ -628,18 +655,18 @@ QListT<QTab> * QTabBar::tabList()
 }
 
 
-/*!  Returns the style of this tab bar. \sa setStyle() */
+/*!  Returns the shape of this tab bar. \sa setShape() */
 
-QTabBar::Style QTabBar::style() const
+QTabBar::Shape QTabBar::shape() const
 {
     return d ? d->s : RoundedAbove;
 }
 
 
-/*!  Sets the style of this tab bar to \a s and refreshes the bar.
+/*!  Sets the shape of this tab bar to \a s and refreshes the bar.
 */
 
-void QTabBar::setStyle( Style s )
+void QTabBar::setShape( Shape s )
 {
     if ( !d && d->s == s )
 	return;
