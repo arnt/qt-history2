@@ -1288,7 +1288,7 @@ int QSqlCursor::del(bool invalidate)
 {
     QSqlIndex idx = primaryIndex(false);
     if (idx.isEmpty())
-        return del(toString(&d->editBuffer, d->nm, "=", "and"), invalidate);
+        return del(qWhereClause(&d->editBuffer, d->nm, "and", driver()), invalidate);
     else
         return del(toString(primaryIndex(), &d->editBuffer, d->nm,
                           "=", "and"), invalidate);
