@@ -185,7 +185,7 @@ similar forms, or where you want to 'brand' your forms.
 
 \section1 The Edit Dialogs
 
-\img qd-editslots1.png
+\img editfunc.png
 \caption Edit Functions
 
 \target dialog-edit-slots
@@ -210,9 +210,6 @@ button.
 Click \OK to save all changes made to the functions. Click \CANCEL to leave
 the dialog without making any changes to the functions.   
 
-###\img qd-viewconnections.png###
-\caption View Connections
-
 \target dialog-view-connections
 \section2 View and Edit Connections Dialog 
 
@@ -234,14 +231,11 @@ and then click the \Button {Edit Slots} button. This will invoke the
 Click \OK to save all changes made to the connections. Click \CANCEL to leave
 the dialog without making any changes to the connections.   
 
-###\img qd-viewconnections.png###
-\caption View Connections
+\img vieweditconn.png
+\caption View and Edit Connections
 
 \target dialog-view-connections
 \section2 View Connections Dialog 
-
-###\img qd-editformsettings.png###
-\caption Form Settings
 
 \target dialog-edit-form-settings
 \section2 Form Settings Dialog
@@ -276,19 +270,29 @@ Type the function's name (with no signature) in the 'Use Function'
 line edit. This function will be used in the generated code for
 loading pixmaps. Your function will be called with the text you put in
 the pixmap property (e.g. the image name) whenever an image is
-required.    
+required. 
+
+\img formsettings.png
+\caption Form Settings
 
 \section3 Layouts
 
 Click the 'Default Margin' spinbox or the 'Default Spacing' spinbox to
 change the default layout settings of the current form. 
 
-###If you don't want to specify hardcoded values for the layout's default
+To use the functions in the generated code to dynamically retrieve
+values for the layout's default margin and spacing, check the Use
+Functions chechbox. In the Margin and Spacing line edits, specify the
+function names (no signatures or parantheses) which should be used to
+retrieve the margin and spacing.  
+
+\omit ###If you don't want to specify hardcoded values for the layout's default
 margin and spacing, but want to use functions in the generated code to
 retrieve these values dynamically, check the use functions checkbox
 ans specify the function names (only the function name, no signature
 or parantheses) which should be used to retrieve the
 margin and spacing in the margin and spacing line edits.#######
+\endomit
 
 Click \OK to accept changes to the form settings. Click \CANCEL to leave the
 dialog without making any changes.
@@ -834,6 +838,9 @@ Click \Button Open to open the selected file. Click \CANCEL to leave
 the dialog without opening a file.
 
 \section3 ####Tools|Configure Toolbox###
+
+
+
 
 \img qd-chooseanimage.png
 \caption Choose an Image
