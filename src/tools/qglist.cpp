@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#48 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -611,22 +611,25 @@ GCI QGList::takeLast()
 void QGList::clear()
 {
     register QLNode *n = firstNode;
+
+    firstNode = lastNode = curNode = 0;		// initialize list
+    numNodes = 0;
+    curIndex = -1;
+
+    if ( iterators ) {
+	register QGListIterator *i = (QGListIterator*)iterators->first();
+	while ( i ) {				// notify all iterators that
+	    i->curNode = 0;			// this list is empty
+	    i = (QGListIterator*)iterators->next();
+	}
+    }
+
     QLNode *prevNode;
     while ( n ) {				// for all nodes ...
 	deleteItem( n->data );			// deallocate data
 	prevNode = n;
 	n = n->next;
 	delete prevNode;			// deallocate node
-    }
-    firstNode = lastNode = curNode = 0;		// initialize list
-    numNodes = 0;
-    curIndex = -1;
-    if ( !iterators )				// no iterators for this list
-	return;
-    register QGListIterator *i = (QGListIterator*)iterators->first();
-    while ( i ) {				// notify all iterators that
-	i->curNode = 0;				// this list is empty
-	i = (QGListIterator*)iterators->next();
     }
 }
 
