@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 
-#define DB_SALES_DRIVER	    "QODBC"
+#define DB_BOOKS_DRIVER	    "QODBC"
 #define DB_BOOKS	    "book"
 #define DB_BOOKS_USER	    "bookuser"
 #define DB_BOOKS_PASSWD	    "bookpw"

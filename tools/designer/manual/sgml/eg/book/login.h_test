@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 
-#define DB_SALES_DRIVER	    "QPSQL6"
+#define DB_BOOKS_DRIVER	    "QPSQL6"
 #define DB_BOOKS	    "testdb"
 #define DB_BOOKS_USER	    "postgres"
 #define DB_BOOKS_PASSWD	    "postgres"
