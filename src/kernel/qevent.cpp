@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#84 $
 **
 ** Implementation of event classes
 **
@@ -1095,3 +1095,11 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   window manager controls.
 */
 
+
+/*!
+  \fn QByteArray QDropEvent::data(const char* f) const
+
+  \obsolete
+
+  Use QDropEvent::encodedData().
+*/
