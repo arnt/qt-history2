@@ -866,7 +866,7 @@ void QListViewItem::okRename( int col )
     removeRenameBox();
 
     // we set the parent lsc to Unsorted if that column is the sorted one
-    if ( parent() && parent()->lsc == col )
+    if ( parent() && (int)parent()->lsc == col )
 	parent()->lsc = Unsorted;
 
     emit lv->itemRenamed( this, col );
