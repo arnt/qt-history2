@@ -12,7 +12,6 @@ Applications compiled for 3.1 will continue to run with 3.2.
 *			    General					   *
 ****************************************************************************
 
-
 Qt library
 ----------
 
@@ -91,6 +90,10 @@ return and parameter types of slots, and allows error reporting through
 COM exceptions.
 The Designer integration has been extended to support property dialogs
 implemented by the control server.
+Controls developed with ActiveQt support aggregation, which makes it
+possible to use them in containers that require this form of containment to
+be supported. ActiveQt also supports masked controls in containers that
+support this for window'ed controls.
 
 Qt Designer
 -----------
@@ -132,6 +135,13 @@ It is possible to specify a default home page.
 
 It is possible to specify a PDF reader so that urls to PDF files can
 be opened from Qt Assistant.
+
+Compilers
+---------
+
+Note: Qt 3.2 is the last version to officially support IRIX MIPSpro
+o32 and Sun CC 5.0. A script, $QTDIR/bin/qt32castcompat, is provided
+for 3.2 which needs to be run for these compilers.
 
 ****************************************************************************
 *			   Library					   *
@@ -217,6 +227,9 @@ be opened from Qt Assistant.
 	dialog to have a Qt parent, and 2) it allows a Qt dialog to have
 	a Motif parent.
 
+- QMYSQLDriver
+	Better support for MySQL/embedded.
+
 - QPixmapCache
 	Added the new function, remove(), to explicitly remove a
 	pixmap from the cache.
@@ -288,7 +301,7 @@ be opened from Qt Assistant.
 
 - QTextEdit
 	In Log mode, added the new functions: setMaxLogLines() and
-	maxLogLines().
+	maxLogLines(). Implemented insertAt() for LogText mode.
 
 - QThreadStorage [new]
 	This new tool class provides per-thread data storage, also
