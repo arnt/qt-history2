@@ -351,9 +351,11 @@ void MainForm::editFind()
 
 void MainForm::lookfor( const QString& text )
 {
+    if ( text.isEmpty() )
+	return;
     QString ltext = text.lower();
     QWidget *visible = colorWidgetStack->visibleWidget();
-    bool found = false;
+    bool found = FALSE;
 
     if ( visible == tablePage && colorTable->numRows() ) {
 	int row = colorTable->currentRow();
@@ -362,7 +364,7 @@ void MainForm::lookfor( const QString& text )
 		colorTable->setCurrentCell( i, 0 );
 		colorTable->clearSelection();
 		colorTable->selectRow( i );
-		found = true;
+		found = TRUE;
 		break;
 	}
 	if ( !found )
@@ -375,7 +377,7 @@ void MainForm::lookfor( const QString& text )
 	    if ( item->text().lower().contains( ltext ) ) {
 		colorIconView->setCurrentItem( item );
 		colorIconView->ensureItemVisible( item );
-		found = true;
+		found = TRUE;
 		break;
 	    }
 	if ( !found && start )
@@ -501,13 +503,13 @@ void MainForm::editOptions()
     OptionsForm *options = new OptionsForm( this, "options", TRUE );
     switch ( m_clip_as ) {
     case CLIP_AS_HEX:
-	options->hexRadioButton->setChecked( true );
+	options->hexRadioButton->setChecked( TRUE );
 	break;
     case CLIP_AS_NAME:
-	options->nameRadioButton->setChecked( true );
+	options->nameRadioButton->setChecked( TRUE );
 	break;
     case CLIP_AS_RGB:
-	options->rgbRadioButton->setChecked( true );
+	options->rgbRadioButton->setChecked( TRUE );
 	break;
     }
     options->webCheckBox->setChecked( m_show_web );
@@ -531,7 +533,7 @@ void MainForm::loadSettings()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
-    int windowWidth = settings.readNumEntry( APP_KEY + "WindowWidth", 450 );
+    int windowWidth = settings.readNumEntry( APP_KEY + "WindowWidth", 550 );
     int windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 500 );
     int windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 );
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
