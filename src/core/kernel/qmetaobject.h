@@ -53,10 +53,13 @@ public:
     const char *key(int index) const;
     int value(int index) const;
 
+    const char *scope() const;
+
     int keyToValue(const char *key) const;
     const char* valueToKey(int value) const;
     int keysToValue(const char * keys) const;
     QByteArray valueToKeys(int value) const;
+
 
     inline bool isValid() const { return name() != 0; }
 private:

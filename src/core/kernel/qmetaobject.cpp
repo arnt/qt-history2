@@ -903,7 +903,8 @@ QMetaMember::Access QMetaMember::access() const
     The conversion functions keyToValue(), valueToKey(), keysToValue()
     and valueToKeys() allow conversion between the integer
     representation of an enumeration or set value and its literal
-    representation.
+    representation. The function scope() returns the class scope this
+    enumerator was declared in.
 */
 
 /*!
@@ -980,6 +981,15 @@ bool QMetaEnum::isFlag() const
     return mobj && mobj->d.data[handle + 1];
 }
 
+
+/*!
+    Returns the scope this enumerator was declared in.
+ */
+const char *QMetaEnum::scope() const
+{
+    return mobj?mobj->d.stringdata : 0;
+}
+
 /*!
     Returns the integer value of the enumeration key \a key, or -1 if
     \a key isn't found.
@@ -992,10 +1002,20 @@ int QMetaEnum::keyToValue(const char *key) const
 {
     if (!mobj || !key)
         return -1;
+    int scope = 0;
+    const char *qualified_key = key;
+    const char *s = key;
+    while (*s  && *s != ':')
+        ++s;
+    if (*s && *(s+1)==':') {
+        scope = s - key;
+        key += scope + 2;
+    }
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
     for (int i = 0; i < count; ++i)
-        if (!strcmp(key, mobj->d.stringdata + mobj->d.data[data + 2*i]))
+        if ((!scope || strncmp(qualified_key, mobj->d.stringdata, scope) == 0)
+             && strcmp(key, mobj->d.stringdata + mobj->d.data[data + 2*i]) == 0)
             return mobj->d.data[data + 2*i + 1];
     return -1;
 }
@@ -1037,11 +1057,21 @@ int QMetaEnum::keysToValue(const char *keys) const
     int count = mobj->d.data[handle + 2];
     int data = mobj->d.data[handle + 3];
     for (int li = 0; li < (int)l.size(); ++li) {
-        QString s = l[li].trimmed();
+        QString trimmed = l[li].trimmed();
+        const char *key = trimmed.latin1();
+        int scope = 0;
+        const char *qualified_key = key;
+        const char *s = key;
+        while (*s  && *s != ':')
+            ++s;
+        if (*s && *(s+1)==':') {
+            scope = s - key;
+            key += scope + 2;
+        }
         int i;
         for (i = count-1; i >= 0; --i)
-            if (!strcmp(s.latin1(),
-                        mobj->d.stringdata + mobj->d.data[data + 2*i])) {
+            if ((!scope || strncmp(qualified_key, mobj->d.stringdata, scope) == 0)
+                 && strcmp(key, mobj->d.stringdata + mobj->d.data[data + 2*i]) == 0) {
                 value |= mobj->d.data[data + 2*i + 1];
                 break;
             }
