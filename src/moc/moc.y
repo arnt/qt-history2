@@ -639,31 +639,31 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  slot_area
 			| SIGNALS		{ BEGIN QT_DEF; }
 			  ':'  opt_signal_declarations
-			| Q_OBJECT		{ 
+			| Q_OBJECT		{
 			      if ( tmpAccessPerm )
 				  moc_warn("Q_OBJECT is not in the private"
 					   " section of the class.\n"
 					   "Q_OBJECT is a macro that resets"
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
-			      Q_COMPONENTdetected = FALSE; 
+			      Q_COMPONENTdetected = FALSE;
 			  }
-			| Q_CUSTOM_FACTORY		{ 
+			| Q_CUSTOM_FACTORY		{
 			    if ( tmpAccessPerm )
 				moc_warn("Q_CUSTOM_FACTORY is not in the private"
 					 " section of the class.\n"
 					 "Q_CUSTOM_FACTORY is a macro that resets"
 					 " access permission to \"private\".");
-			    Q_CUSTOM_FACTORYdetected = TRUE; 
+			    Q_CUSTOM_FACTORYdetected = TRUE;
 			  }
-			| Q_COMPONENT		{ 
+			| Q_COMPONENT		{
 			    if ( tmpAccessPerm )
 				moc_warn("Q_COMPONENT is not in the private"
 					 " section of the class.\n"
 					 "Q_COMPONENT is a macro that resets"
 					 " access permission to \"private\".");
 			    Q_OBJECTdetected = TRUE;
-			    Q_COMPONENTdetected = TRUE; 
+			    Q_COMPONENTdetected = TRUE;
 			    doProperties = TRUE;
 			  }
 			| Q_METAPROP { BEGIN IN_BUILDER; }
@@ -990,11 +990,11 @@ struct Property
     Function* setfunc;
     Function* getfunc;
     QCString type;
-    
+
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
     Specification sspec;
     Specification gspec;
-    
+
     static const char* specToString( Specification s )
     {
 	switch ( s ) {
@@ -1664,7 +1664,7 @@ void generateTypedef( Function* f, int num )
   This map is copied from QVariant ( kernel/qvariant.cpp )
  */
 static const int ntypes = 20;
-static const char* type_map[ntypes] = 
+static const char* type_map[ntypes] =
 {
     0,
     "QString",
@@ -1694,10 +1694,10 @@ bool isPropertyType( const char* type, bool test_enums = TRUE )
 	if ( !qstrcmp( type_map[i], type ) )
 	    return TRUE;
     }
-    
+
     if ( !test_enums )
 	return FALSE;
-    
+
     for( QListIterator<Enum> lit( enums ); lit.current(); ++lit ) {
 	if ( lit.current()->name == type )
 	    return TRUE;
@@ -1800,15 +1800,17 @@ int generateProps()
 		    p->gspec = Property::Class;
 		}
 		tmp = tmp.simplifyWhiteSpace();
-		if ( propertyWarnings &&  !p->type.isEmpty() && p->type != tmp ) {
-		    moc_warn("Property '%s' has different types in get and set functions.", name.data() );
+		if ( !p->type.isEmpty() && p->type != tmp ) {
+		    p->setfunc = 0;
+		    if ( propertyWarnings )
+			moc_warn("Property '%s' has different types in get and set functions.", name.data() );
 		}
 		p->type = tmp;
 	    }
 	}
 	
 	else { // set function
-	    
+	
 	    if ( p->setfunc ) {
 		if ( propertyWarnings )
 		    moc_warn("Property '%s' has set function defined twice.", name.data() );
@@ -1822,18 +1824,14 @@ int generateProps()
 		    tmp = tmp.left( tmp.length() - 1 );
 		    p->sspec = Property::Reference;
 		}
-		/* else if ( tmp.right(1) == "*" )
-	       {
-	       tmp = tmp.left( tmp.length() - 1 );
-	       p->setSpec = 'p';
-	       } */
 		else {
 		    p->sspec = Property::Class;
 		}
 		tmp = tmp.simplifyWhiteSpace();
-		if ( !p->type.isEmpty() && p->type != tmp )
-		    moc_err("Property '%s' has different types in set and get functions.", name.data() );
-
+		if ( !p->type.isEmpty() && p->type != tmp ) {
+		    if ( propertyWarnings )
+			moc_err("Property '%s' has different types in set and get functions.", name.data() );
+		}
 		p->type = tmp;
 		p->setfunc = f;
 	    }
@@ -2331,9 +2329,9 @@ void addMember( char m )
 	
 	if ( tmpFunc->type == "void" ) { //  set-function candidate
 
-	    if ( tmpFunc->args->count() != 1 ) 
+	    if ( tmpFunc->args->count() != 1 )
 		goto Failed; // set functions have one parameter
-    
+
 	    // check wether the parameter is legal
 	    bool special = FALSE;
 	    QCString tmp = tmpFunc->args->first()->leftType.copy();
@@ -2363,10 +2361,10 @@ void addMember( char m )
 		goto Failed;
 	    }
 	} else { // get-function candidate
-	    
-	    if ( tmpFunc->args->count() != 0 ) 
+	
+	    if ( tmpFunc->args->count() != 0 )
 		goto Failed; // get functions have no parameter
-	    
+	
 	    QCString tmp = tmpFunc->type;
 	    tmp = tmp.simplifyWhiteSpace();
 	    bool special = FALSE;
