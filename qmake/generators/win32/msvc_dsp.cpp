@@ -32,8 +32,8 @@ bool DspMakefileGenerator::writeMakefile(QTextStream &t)
         return true;
     }
 
-    if ((project->first("TEMPLATE") == "vcapp" 
-       || project->first("TEMPLATE") == "vclib") 
+    if ((project->first("TEMPLATE") == "vcapp"
+       || project->first("TEMPLATE") == "vclib")
        && !project->isActiveConfig("build_pass")) {
         return writeDspParts(t);
     } else if(project->first("TEMPLATE") == "subdirs") {
@@ -75,7 +75,7 @@ bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
     DspMakefileGenerator * config = this;
     if (mergedProjects.count())
         config = mergedProjects.at(0);
-    
+
     t << "# Microsoft Developer Studio Project File - Name=\"" << var("MSVCDSP_PROJECT") << "\" - Package Owner=<4>" << endl;
     t << "# Microsoft Developer Studio Generated Build File, Format Version 6.00" << endl;
     t << "# ** DO NOT EDIT **" << endl;
@@ -140,10 +140,10 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
         writeFileGroup(t, QStringList("TRANSLATIONS"), "Translations", "ts");
         writeFileGroup(t, QStringList("LEXSOURCES"), "Lexables", "l");
         writeFileGroup(t, QStringList("YACCSOURCES"), "Yaccables", "y");
-        writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");            
+        writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");
 
         project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
-                
+
         writeFileGroup(t, QString("GENERATED_SOURCES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
     } else { // directory mode
@@ -182,7 +182,7 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
         */
     }
 
-  
+
     t << "# End Target" << endl;
     t << "# End Project" << endl;
     return true;
@@ -211,7 +211,7 @@ DspMakefileGenerator::init()
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     processVars();
-    
+
     if(!project->variables()["VERSION"].isEmpty()) {
         QString version = project->variables()["VERSION"].first();
         int firstDot = version.indexOf(".");
@@ -224,7 +224,7 @@ DspMakefileGenerator::init()
     QString msvcdsp_project;
     if(project->variables()["TARGET"].count())
         msvcdsp_project = project->variables()["TARGET"].first();
-    
+
     MakefileGenerator::init();
 
     if(msvcdsp_project.isEmpty())
@@ -237,7 +237,7 @@ DspMakefileGenerator::init()
     msvcdsp_project.replace("-", "");
 
     project->variables()["MSVCDSP_PROJECT"].append(msvcdsp_project);
-    
+
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
 
     for(QStringList::Iterator it = proj.begin(); it != proj.end(); ++it)
@@ -266,7 +266,7 @@ DspMakefileGenerator::init()
     }
 
     project->variables()["MSVCDSP_LFLAGS"] += project->variables()["QMAKE_LFLAGS"];
-    
+
     if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
         project->variables()["MSVCDSP_LFLAGS"].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
 
@@ -307,7 +307,6 @@ DspMakefileGenerator::init()
         dest = project->variables()["TARGET"].first() + project->first("TARGET_EXT");
         dest.prepend(project->first("DESTDIR"));
         Option::fixPathToTargetOS(dest);
-        dest;
         project->variables()["MSVCDSP_TARGET"].append(
             QString("/out:\"") + dest + "\"");
         if(project->isActiveConfig("dll")) {
@@ -357,7 +356,7 @@ DspMakefileGenerator::init()
         // Created files
         precompObj = var("OBJECTS_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
         precompPch = var("OBJECTS_DIR") + project->first("TARGET") + "_pch.pch";
-        
+
         // Add PRECOMPILED_HEADER to HEADERS
         if (!project->variables()["HEADERS"].contains(precompH))
             project->variables()["HEADERS"] += precompH;
@@ -482,7 +481,7 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
 
 bool DspMakefileGenerator::mergeBuildProject(MakefileGenerator *other)
 {
-   
+
     mergedProjects.prepend(static_cast<DspMakefileGenerator*>(other));
     return true;
 }
@@ -490,7 +489,7 @@ bool DspMakefileGenerator::mergeBuildProject(MakefileGenerator *other)
 bool DspMakefileGenerator::writeProjectMakefile()
 {
     bool ret = true;
-    
+
     QTextStream t(&Option::output);
     // Check if all requirements are fullfilled
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
@@ -531,13 +530,13 @@ bool DspMakefileGenerator::writeProjectMakefile()
         t << endl;
 
         if (project->isActiveConfig("flat")) {
-            
+
             QMap< QString, QSet<QString> > files;
-            
+
             // merge source files
             int i = 0;
             for (i = 0; i < mergedProjects.count(); ++i) {
-                
+
                 DspMakefileGenerator* config = mergedProjects.at(i);
 
                 files["DEF_FILE"] += config->project->variables()["DEF_FILE"].toSet();
@@ -566,7 +565,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
             project->variables()["LEXSOURCES"] = QList<QString>::fromSet(files["LEXSOURCES"]);
             project->variables()["YACCSOURCES"] = QList<QString>::fromSet(files["YACCSOURCES"]);
             project->variables()["TYPELIBS"] = QList<QString>::fromSet(files["TYPELIBS"]);
-            
+
             writeFileGroup(t, QString("SOURCES|DEF_FILE").split("|"), "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
             writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
             writeFileGroup(t, QString("FORMS|INTERFACES").split("|"), "Form Files", "ui");
@@ -575,15 +574,15 @@ bool DspMakefileGenerator::writeProjectMakefile()
             writeFileGroup(t, QStringList("TRANSLATIONS"), "Translations", "ts");
             writeFileGroup(t, QStringList("LEXSOURCES"), "Lexables", "l");
             writeFileGroup(t, QStringList("YACCSOURCES"), "Yaccables", "y");
-            writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");            
+            writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");
 
             // done last as generated may have changed when creating build rules for the above
             for (i = 0; i < mergedProjects.count(); ++i) {
-                
+
                 DspMakefileGenerator* config = mergedProjects.at(i);
-                
+
                 files["UIC3_HEADERS"] += config->project->variables()["UIC3_HEADERS"].toSet();
-                
+
                 config->project->variables()["SWAPPED_BUILD_STEPS"] = config->swappedBuildSteps.keys();
                 files["SWAPPED_BUILD_STEPS"] +=  config->project->variables()["SWAPPED_BUILD_STEPS"].toSet();
 
@@ -593,7 +592,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
             project->variables()["SWAPPED_BUILD_STEPS"] = QList<QString>::fromSet(files["SWAPPED_BUILD_STEPS"]);
             project->variables()["UIC3_HEADERS"] = QList<QString>::fromSet(files["UIC3_HEADERS"]);
             project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
-            
+
             writeFileGroup(t, QString("GENERATED_SOURCES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
         }
@@ -614,7 +613,7 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &lis
             files[list.at(j)] = listNames.at(i);
         }
     }
-    
+
     if (files.isEmpty())
         return false;
 
@@ -646,10 +645,10 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     //only add special build rules when needed
 
     QStringList specialBuilds;
-    int i = 0;  
+    int i = 0;
     for (i = 0; i < mergedProjects.count(); ++i)
         specialBuilds += writeBuildstepForFileForConfig(file, listName, mergedProjects.at(i));
-    
+
     // no specail build just return
     if (specialBuilds.join("").isEmpty())
         return true;
@@ -657,7 +656,7 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     for (i = 0; i < mergedProjects.count(); ++i) {
         if (i == 0)
             t << "!IF";
-        else 
+        else
             t << "!ELSEIF";
         t << "\"$(CFG)\" == \"" << configName(mergedProjects.at(i)) << "\"" << endl;
         t << endl;
@@ -679,11 +678,11 @@ bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *
     QString outDir = config->project->first("DESTDIR");
     while (outDir.endsWith(Option::dir_sep))
         outDir.chop(1);
-    
+
     QString intDir = config->project->first("OBJECTS_DIR");
     while (intDir.endsWith(Option::dir_sep))
         intDir.chop(1);
-    
+
     t << "# PROP BASE Use_MFC 0" << endl;
     t << "# PROP BASE Use_Debug_Libraries " << (isDebug ? "1" : "0") << endl;
     t << "# PROP BASE Output_Dir \"" << outDir << "\"" << endl;
@@ -691,7 +690,7 @@ bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *
     t << "# PROP BASE Target_Dir \"\"" << endl;
     t << "# PROP Use_MFC 0" << endl;
     t << "# PROP Use_Debug_Libraries " << (isDebug ? "1" : "0") << endl;
-    
+
     t << "# PROP Output_Dir \"" << outDir << "\"" << endl;
     t << "# PROP Intermediate_Dir \"" << intDir << "\"" << endl;
     if (config->project->isActiveConfig("dll") || config->project->isActiveConfig("plugin"))
@@ -711,7 +710,7 @@ bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *
 
     if (!config->project->variables()["MSVCDSP_POST_LINK"].isEmpty())
         t << config->project->variables()["MSVCDSP_POST_LINK"].first();
-    
+
     return true;
 }
 
@@ -823,7 +822,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
                         step.deps += config->fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
                 }
             }
-        
+
 
             QString mappedFile;
             if (hasBuiltin) {
@@ -882,6 +881,6 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
     }
     t << endl;
     t << "# End Custom Build" << endl;
-    
+
     return ret;
 }
