@@ -40,8 +40,6 @@
 #ifndef QT_NO_COMPONENT
 #include "qsettings.h"
 #include "qlibrary.h"
-#include "qcleanuphandler.h"
-#include "qsettings.h"
 #include "qfile.h"
 
 /*!
