@@ -177,13 +177,13 @@
     is that it is possible to build up non-linear shapes which can be
     drawn later one go.
 
-    Building blocks can be joined in closed sub-paths, such as a
+    Building blocks can be joined in closed subpaths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
-    sub-paths, although an unclosed path will not be filled.
+    subpaths, although an unclosed path will not be filled.
 
     Below is a code example on how a path can be used. The
     painter in this case has a pen width of 3 and a light blue brush. We
-    first add a rectangle, which becomes a closed sub-path.  We then add
+    first add a rectangle, which becomes a closed subpath.  We then add
     two bezier curves, and finally draw the entire path.
 
     \code
