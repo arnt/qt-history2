@@ -1586,9 +1586,10 @@ int QCheckTableItem::rtti() const
     very important to reimplement resizeData() to have no functionality,
     to prevent QTable from attempting to create a huge array. You will
     also need to reimplement item(), setItem(), clearCell(), and
-    insertWidget(), cellWidget() and clearCellWidget(). If you wish to
-    support sorting you should also reimplement swapRows(), swapCells()
-    and possibly swapColumns().
+    insertWidget(), cellWidget() and clearCellWidget(). In almost
+    every circumstance (for sorting, removing and inserting columns
+    and rows, etc.,) you must also reimplement swapRows(), swapCells()
+    and swapColumns(), including header handling.
 
     If you represent active cells with a dictionary of QTableItems and
     QWidgets, i.e. only store references to cells that are actually
