@@ -15,7 +15,8 @@
 #define WRITEINCLUDES_H
 
 #include "treewalker.h"
-#include <qhash.h>
+#include <qmap.h>
+#include <qstring.h>
 
 class QTextStream;
 class Driver;
@@ -53,8 +54,10 @@ private:
     QTextStream &output;
     const Option &option;
 
-    QHash<QString, bool> m_includes;
-    QHash<QString, bool> m_customWidgets;
+    QMap<QString, bool> m_includes;
+    QMap<QString, bool> m_customWidgets;
+    QMap<QString, QString> m_classToHeader;
+    QMap<QString, QString> m_oldHeaderToNewHeader;
 };
 
 #endif // WRITEINCLUDES_H
