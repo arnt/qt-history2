@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#211 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#212 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2189,6 +2189,22 @@ void QListBox::refreshSlot()
 
 void QListBox::viewportPaintEvent( QPaintEvent * e )
 {
+
+
+
+
+
+
+
+				    return;
+
+
+
+
+
+
+
+
     QWidget* vp = viewport();
     QPainter p( vp );
     QRegion r = e->region();
