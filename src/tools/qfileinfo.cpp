@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#16 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#16 $")
 
 
 struct QFileInfoCache
@@ -719,7 +719,7 @@ uint QFileInfo::size() const
 
 
 /*----------------------------------------------------------------------------
-  Returns the date and tim when the file was last modified.
+  Returns the date and time when the file was last modified.
   \sa lastRead()
  ----------------------------------------------------------------------------*/
 
