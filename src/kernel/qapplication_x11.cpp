@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#199 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#200 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -46,7 +46,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#199 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#200 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1211,6 +1211,12 @@ bool QApplication::processNextEvent( bool canWait )
 	    else if ( widget->testWFlags(WRecreated) )
 		qPRCleanup( widget );		// remove from alt mapper
 	}
+
+	if ( event.type == MappingNotify ) {	// keyboard mapping changed
+	    XRefreshKeyboardMapping( &event.xmapping );
+	    continue;
+	}
+
 	if ( !widget )				// don't know this window
 	    continue;
 
@@ -1264,10 +1270,6 @@ bool QApplication::processNextEvent( bool canWait )
 		if ( widget->isEnabled() )
 		    widget->translateKeyEvent( &event, g != 0 );
 		}
-		break;
-
-	    case MappingNotify:			// keyboard mapping changed
-		XRefreshKeyboardMapping( &event.xmapping );
 		break;
 
 	    case GraphicsExpose:
