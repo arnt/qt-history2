@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#138 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -39,7 +39,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#137 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#138 $")
 
 
 /*****************************************************************************
@@ -1281,8 +1281,8 @@ int QApplication::enter_loop()
 			    a = &a2;		// typical for mwm, fvwm
 			else
 			    a = &a1;		// typical for twm, olwm
-			a->x += a2.border_width;// a->x = parent frame width
-			a->y += a2.border_width;// a->y = parent caption height
+			a->x += a2.border_width;
+			a->y += a2.border_width;
 			widget->frect = QRect(QPoint(r->left() - a->x,
 						     r->top()  - a->y),
 					      QPoint(r->right()  + a->x,
@@ -1341,8 +1341,10 @@ int QApplication::enter_loop()
 	else if ( nsel > 0 && sn_highest >= 0 ) {
 	    sn_activate();
 	}
-	qt_reset_color_avail();			// color approx. optimization
+
 	activateTimer();			// activate timer(s)
+	qt_reset_color_avail();			// color approx. optimization
+
     }
     app_exit_loop = FALSE;
     return 0;
@@ -2147,7 +2149,6 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     }
 
     if ( info.config ) {
-	XClearArea( dpy, id(), 0, 0, 0, 0, FALSE );
 	XConfigureEvent *c = (XConfigureEvent *)&xevent;
 	int  x, y;
 	uint w, h, b, d;
@@ -2155,7 +2156,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	XGetGeometry( dpy, id(), &root, &x, &y, &w, &h, &b, &d );
 	c->width  = w;				// send resize event first
 	c->height = h;
-	translateConfigEvent( (XEvent*)c );
+	translateConfigEvent( (XEvent*)c );	// will clear window
 	paintRect = QRect( 0, 0, w, h );
     }
 
@@ -2188,6 +2189,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
+	XClearArea( dpy, id(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );
