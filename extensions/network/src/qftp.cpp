@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#22 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#23 $
 **
 ** Implementation of Network Extension Library
 **
@@ -164,11 +164,17 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     if ( tmp_[ 0 ] == QChar( 'd' ) ) {
 	info.setDir( TRUE );
 	info.setFile( FALSE );
+	info.setSymLink( FALSE );
     } else if ( tmp_[ 0 ] == QChar( '-' ) ) {
 	info.setDir( FALSE );
 	info.setFile( TRUE );
+	info.setSymLink( FALSE );
+    } else if ( tmp_[ 0 ] == QChar( 'l' ) ) { 
+	info.setDir( TRUE ); // #### todo
+	info.setFile( FALSE );
+	info.setSymLink( TRUE );
     } else
-	return; // ### todo links
+	return;
 
     // owner
     tmp_ = lst[ 2 ];
