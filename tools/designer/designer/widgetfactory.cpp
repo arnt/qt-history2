@@ -1726,13 +1726,6 @@ void QDesignerToolBox::setPageName( const QCString &n )
     currentPage()->setName( n );
 }
 
-void QDesignerToolBox::setCurrentPage( QWidget *page )
-{
-    QToolBox::setCurrentPage( page );
-    if ( MainWindow::self->propertyeditor()->widget() == this )
-	MainWindow::self->propertyeditor()->refetchData();
-}
-
 void QDesignerToolBox::insertPage( QWidget *page, const QIconSet &iconSet,
 				   const QString &label, int index )
 {

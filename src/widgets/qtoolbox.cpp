@@ -102,7 +102,7 @@ class QToolBoxPrivate
 public:
     struct Page
     {
-	QToolButton *button;
+	QToolBoxButton *button;
 	QWidget *page;
 	QString label;
 	QIconSet iconSet;
@@ -114,7 +114,6 @@ public:
 	{}
 
 
-    QToolBoxButton *button( QWidget *page );
     Page *page( QWidget *page );
     void updatePageBackgroundMode();
     void updateTabs( QToolBox *tb );
@@ -133,12 +132,6 @@ QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *page )
 	if ( (*i).page == page )
 	    return (Page*) &(*i);
     return 0;
-}
-
-QToolBoxButton *QToolBoxPrivate::button( QWidget *pg )
-{
-    Page *p = page( pg );
-    return (QToolBoxButton*)(p ? p->button : 0);
 }
 
 void QToolBoxPrivate::updatePageBackgroundMode()
@@ -503,14 +496,14 @@ void QToolBox::setCurrentPage( QWidget *page )
     if ( !page || d->currentPage == page )
 	return;
 
-    QToolBoxButton *tb = d->button( page );
-    if( !tb )
+    QToolBoxPrivate::Page *c = d->page( page );
+    if ( !c || !c->button )
 	return;
 
     if ( d->lastButton )
 	d->lastButton->setSelected( FALSE );
-    tb->setSelected( TRUE );
-    d->lastButton = tb;
+    c->button->setSelected( TRUE );
+    d->lastButton = c->button;
     if ( d->currentPage )
 	d->currentPage->hide();
     d->currentPage = page;
@@ -518,7 +511,7 @@ void QToolBox::setCurrentPage( QWidget *page )
     d->currentPage->show();
     d->updateTabs( this );
     qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
-    emit currentChanged( page );
+    emit currentChanged( indexOf(page) );
 }
 
 void QToolBox::relayout()
@@ -546,14 +539,14 @@ void QToolBox::removePage( QWidget *page )
     if ( !page )
 	return;
 
-    QToolBoxButton *tb = d->button( page );
-    if ( !tb )
+    QToolBoxPrivate::Page *c = d->page( page );
+    if ( !c || !c->button )
 	return;
 
     page->hide();
-    tb->hide();
+    c->button->hide();
     d->layout->remove( page );
-    d->layout->remove( tb );
+    d->layout->remove( c->button );
 
    for ( QValueList<QToolBoxPrivate::Page>::Iterator i = d->pageList.begin();
 	  i != d->pageList.end(); ++i )
@@ -627,14 +620,14 @@ void QToolBox::setPageEnabled( QWidget *page, bool enabled )
     page = internal_page( page, this );
     if ( !page )
 	return;
-    QToolBoxButton *tb = d->button( page );
-    if ( !tb )
+    QToolBoxPrivate::Page *c = d->page( page );
+    if ( !c || !c->button )
 	return;
 
     if ( !enabled )
 	activateClosestPage( page );
 
-    tb->setEnabled( enabled );
+    c->button->setEnabled( enabled );
 }
 
 void QToolBox::activateClosestPage( QWidget *page )
@@ -671,9 +664,8 @@ void QToolBox::setPageLabel( QWidget *page, const QString &label )
     page = internal_page( page, this );
     if ( !page )
 	return;
-    QToolBoxButton *tb = d->button( page );
     QToolBoxPrivate::Page *c = d->page( page );
-    if ( !tb || !c )
+    if ( !c || !c->button )
 	return;
 
     c->label = label;
@@ -689,13 +681,12 @@ void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
     page = internal_page( page, this );
     if ( !page )
 	return;
-    QToolBoxButton *tb = d->button( page );
     QToolBoxPrivate::Page *c = d->page( page );
-    if ( !tb || !c )
+    if ( !c || !c->button )
 	return;
 
     c->iconSet = iconSet;
-    ( (QToolBoxButton*)c->button )->setIcon( iconSet );
+    c->button->setIcon( iconSet );
 }
 
 /*!
@@ -707,14 +698,12 @@ void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
     page = internal_page( page, this );
     if ( !page )
 	return;
-    QToolBoxButton *tb = d->button( page );
     QToolBoxPrivate::Page *c = d->page( page );
-    if ( !tb || !c )
+    if ( !c || !c->button )
 	return;
-
     c->toolTip = toolTip;
-    QToolTip::remove( tb );
-    QToolTip::add( tb, toolTip );
+    QToolTip::remove( c->button );
+    QToolTip::add( c->button, toolTip );
 }
 
 /*!
@@ -726,8 +715,8 @@ bool QToolBox::isPageEnabled( QWidget *page ) const
     page = internal_page( page, this );
     if ( !page )
 	return FALSE;
-    QToolBoxButton *tb = d->button( page );
-    return tb && tb->isEnabled();
+    QToolBoxPrivate::Page *c = d->page( page );
+    return c && c->button && c->button->isEnabled();
 }
 
 /*!

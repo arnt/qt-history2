@@ -473,7 +473,6 @@ public:
     QCString pageName() const;
     void setPageName( const QCString &n );
 
-    void setCurrentPage( QWidget *page );
     void insertPage( QWidget *page, const QIconSet &iconSet,
 		     const QString &label, int index = -1 );
     bool eventFilter( QObject *o, QEvent *e );
