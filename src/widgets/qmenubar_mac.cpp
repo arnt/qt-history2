@@ -149,7 +149,7 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
 	GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 0,
 			  sizeof(menu), 0, &menu);
 	int mid = GetMenuID(menu);
-	if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
+	if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups ? activeMenuBar->mac_d->popups->find(mid) : NULL) {
 	    short idx;
 	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, 0,
 			      sizeof(idx), 0, &idx);
@@ -352,7 +352,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		for(QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> cmd_it(*(activeMenuBar->mac_d->commands));
 		    cmd_it.current() && !found; ++cmd_it)
 		    found = (cmd_it.current()->index == index && cmd_it.current()->qpopup == d);
-		if(found)
+		if(found) 
 		    continue;
 	    }
 #endif
@@ -553,16 +553,17 @@ bool QMenuBar::updateMenuBar()
 	InsertMenu(mac_d->apple_menu, 0);
     }
 
-    for(int x = 0; x < (int)count(); x++) {
-	QMenuItem *item = findItem(idAt(x));
+    for(QMenuItemListIt it(*mitems); it.current(); ++it) {
+	QMenuItem *item = (*it);
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
-	MenuRef mp = createMacPopup(item->popup(), TRUE);
-	CFStringRef cfref;
-	qt_mac_no_ampersands(item->text(), &cfref);
-	SetMenuTitleWithCFString(mp, cfref);
-	CFRelease(cfref);
-	InsertMenu(mp, 0);
+	if(MenuRef mp = createMacPopup(item->popup(), TRUE)) {
+	    CFStringRef cfref;
+	    qt_mac_no_ampersands(item->text(), &cfref);
+	    SetMenuTitleWithCFString(mp, cfref);
+	    CFRelease(cfref);
+	    InsertMenu(mp, 0);
+	}
     }
     return TRUE;
 }
@@ -600,7 +601,7 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 	return FALSE;
 
     int mid = GetMenuID(menu);
-    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups ? activeMenuBar->mac_d->popups->find(mid) : NULL) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	if(by_accel) {
@@ -792,7 +793,7 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 	return FALSE;
 
     int mid = GetMenuID(mr);
-    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups ? activeMenuBar->mac_d->popups->find(mid) : NULL) {
 	if(mpb->qpopup) {
 	    emit mpb->qpopup->aboutToShow();
 	    if(1 || mpb->qpopup->mac_dirty_popup) {
@@ -816,7 +817,7 @@ bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
 	return FALSE;
 
     int mid = GetMenuID(mr);
-    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups ? activeMenuBar->mac_d->popups->find(mid) : NULL) {
 	if(mpb->qpopup)
 	    return TRUE;
     }
