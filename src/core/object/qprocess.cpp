@@ -480,22 +480,25 @@ QString QProcess::readLineStdout()
     QByteArray a;
     a.resize( 256 );
     QMembuf *buf = membufStdout();
-    if ( buf->scanNewline( &a ) ) {
-	uint size = a.size();
-	buf->consumeBytes( size, 0 );
+    if ( !buf->scanNewline( &a ) ) {
+      if ( !canReadLineStdout() )
+	return QString::null;
 
-	// get rid of terminating \n or \r\n
-	if ( size>0 && a.at( size - 1 ) == '\n' ) {
-	    if ( size>1 && a.at( size - 2 ) == '\r' )
-		a[size - 2] = '\0';
-	    else
-		a[size - 1] = '\0';
-	}
-	return QString( a.data() );
-    } else if ( canReadLineStdout() ) {
+      if ( !buf->scanNewline( &a ) )
 	return QString( buf->readAll() );
     }
-    return QString::null;
+
+    uint size = a.size();
+    buf->consumeBytes( size, 0 );
+    
+    // get rid of terminating \n or \r\n
+    if ( size>0 && a.at( size - 1 ) == '\n' ) {
+      if ( size>1 && a.at( size - 2 ) == '\r' )
+	a[size - 2] = '\0';
+      else
+	a[size - 1] = '\0';
+    }
+    return QString( a.data() );
 }
 
 /*!
@@ -514,22 +517,25 @@ QString QProcess::readLineStderr()
     QByteArray a;
     a.resize( 256 );
     QMembuf *buf = membufStderr();
-    if ( buf->scanNewline( &a ) ) {
-	uint size = a.size();
-	buf->consumeBytes( size, 0 );
+    if ( !buf->scanNewline( &a ) ) {
+      if ( !canReadLineStderr() )
+	return QString::null;
 
-	// get rid of terminating \n or \r\n
-	if ( size>0 && a.at( size - 1 ) == '\n' ) {
-	    if ( size>1 && a.at( size - 2 ) == '\r' )
-		a[size - 2] = '\0';
-	    else
-		a[size - 1] = '\0';
-	}
-	return QString( a.data() );
-    } else if ( canReadLineStderr() ) {
+      if ( !buf->scanNewline( &a ) )
 	return QString( buf->readAll() );
     }
-    return QString::null;
+
+    uint size = a.size();
+    buf->consumeBytes( size, 0 );
+    
+    // get rid of terminating \n or \r\n
+    if ( size>0 && a.at( size - 1 ) == '\n' ) {
+      if ( size>1 && a.at( size - 2 ) == '\r' )
+	a[size - 2] = '\0';
+      else
+	a[size - 1] = '\0';
+    }
+    return QString( a.data() );
 }
 
 /*!
