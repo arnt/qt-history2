@@ -143,6 +143,7 @@ public:
     void setModified( bool b, QWidget *window );
     void slotsChanged();
     void updateFunctionList();
+    void updateFormList();
     QObjectList *runProject();
 
     Project *emptyProject();

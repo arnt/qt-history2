@@ -20,6 +20,7 @@
 
 #include "pixmapcollection.h"
 #include "project.h"
+#include "mainwindow.h"
 #include <qmime.h>
 #include <qdir.h>
 #include <qfileinfo.h>
@@ -196,6 +197,7 @@ static bool block_create = FALSE;
 
 void PixmapCollection::createCppFile()
 {
+    MainWindow::self->updateFormList();
     if ( project->projectName() == "<No Project>" )
 	return;
     if ( block_create )

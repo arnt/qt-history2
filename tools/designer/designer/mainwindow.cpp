@@ -4569,6 +4569,11 @@ void MainWindow::updateFunctionList()
     hierarchyView->functionList()->refreshFunctions();
 }
 
+void MainWindow::updateFormList()
+{
+    formList->setProject( currentProject );
+}
+
 void MainWindow::showDebugStep( QObject *o, int line )
 {
     if ( !o || line == -1 ) {

@@ -35,6 +35,8 @@ class Project;
 class FormListItem : public QListViewItem
 {
 public:
+    enum Type { Parent = 1001, Form, Image };
+
     FormListItem( QListView *parent );
     FormListItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw );
 
@@ -44,10 +46,15 @@ public:
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
 
+    void setType( Type t ) { this->t = t; }
+    Type type() const { return t; }
+    int rtti() const { return (int)type(); }
+
 private:
     FormWindow *formwindow;
     QColor backgroundColor();
     QColor backColor;
+    Type t;
 
 };
 
@@ -89,6 +96,7 @@ private:
     MainWindow *mainWindow;
     Project *project;
     FormListItem *formsParent;
+    FormListItem *imageParent;
 
 };
 

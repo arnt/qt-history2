@@ -26,6 +26,7 @@
 #include "globaldefs.h"
 #include "command.h"
 #include "project.h"
+#include "pixmapcollection.h"
 
 #include <qheader.h>
 #include <qdragobject.h>
@@ -155,7 +156,14 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 	folderPixmap = new QPixmap( folder_xpm );
     }
 
+    imageParent = new FormListItem( this );
+    imageParent->setType( FormListItem::Parent );
+    imageParent->setText( 0, tr( "Images" ) );
+    imageParent->setPixmap( 0, *folderPixmap );
+    imageParent->setOpen( TRUE );
+
     formsParent = new FormListItem( this );
+    formsParent->setType( FormListItem::Parent );
     formsParent->setText( 0, tr( "Forms" ) );
     formsParent->setPixmap( 0, *folderPixmap );
     formsParent->setOpen( TRUE );
@@ -166,7 +174,14 @@ void FormList::setProject( Project *pro )
     project = pro;
     clear();
 
+    imageParent = new FormListItem( this );
+    imageParent->setType( FormListItem::Parent );
+    imageParent->setText( 0, tr( "Images" ) );
+    imageParent->setPixmap( 0, *folderPixmap );
+    imageParent->setOpen( TRUE );
+
     formsParent = new FormListItem( this );
+    formsParent->setType( FormListItem::Parent );
     formsParent->setText( 0, tr( "Forms" ) );
     formsParent->setPixmap( 0, *folderPixmap );
     formsParent->setOpen( TRUE );
@@ -174,6 +189,7 @@ void FormList::setProject( Project *pro )
     QStringList lst = project->uiFiles();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	FormListItem *item = new FormListItem( formsParent, tr( "<unknown>" ), *it, 0 );
+	item->setType( FormListItem::Form );
 	QString className = project->formName( item->text( 1 ) );
 	if ( !className.isEmpty() )
 	    item->setText( 0, className );
@@ -193,6 +209,18 @@ void FormList::setProject( Project *pro )
 	    ++it;
 	}
     }
+
+    QValueList<PixmapCollection::Pixmap> pixmaps = project->pixmapCollection()->pixmaps();
+    for ( QValueList<PixmapCollection::Pixmap>::Iterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
+	FormListItem *item = new FormListItem( imageParent, (*it).name, "", 0 );
+	QPixmap pix( (*it).pix );
+	QImage img = pix.convertToImage();
+	img = img.smoothScale( 20, 20 );
+	pix.convertFromImage( img );
+	item->setPixmap( 0, pix );
+	item->setType( FormListItem::Image );
+    }
+
 }
 
 void FormList::addForm( FormWindow *fw )
@@ -210,6 +238,7 @@ void FormList::addForm( FormWindow *fw )
 
     QString fn = project->makeRelative( fw->fileName() );
     FormListItem *i = new FormListItem( formsParent, fw->name(), fn, 0 );
+    i->setType( FormListItem::Form );
     i->setFormWindow( fw );
     if ( !project )
 	return;
@@ -282,7 +311,7 @@ void FormList::closeEvent( QCloseEvent *e )
 
 void FormList::itemClicked( int button, QListViewItem *i )
 {
-    if ( !i || button != LeftButton || i == formsParent )
+    if ( !i || button != LeftButton || i->rtti() != FormListItem::Form )
 	return;
     if ( ( (FormListItem*)i )->formWindow() ) {
 	( (FormListItem*)i )->formWindow()->setFocus();
@@ -328,7 +357,7 @@ void FormList::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void FormList::rmbClicked( QListViewItem *i )
 {
-    if ( !i || i == formsParent )
+    if ( !i || i->rtti() != FormListItem::Form )
 	return;
     QPopupMenu menu( this );
 
