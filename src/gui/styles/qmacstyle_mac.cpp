@@ -877,7 +877,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     tdi->attributes = kThemeTrackShowThumb;
     if (slider->orientation == Qt::Horizontal)
         tdi->attributes |= kThemeTrackHorizontal;
-    if (slider->useRightToLeft)
+    if (slider->upsideDown)
         tdi->attributes |= kThemeTrackRightToLeft;
     tdi->enableState = slider->state & QStyle::Style_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
@@ -943,7 +943,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         tdi->attributes |= kThemeTrackHasFocus;
     if (slider->orientation == Qt::Horizontal)
         tdi->attributes |= kThemeTrackHorizontal;
-    if (slider->useRightToLeft)
+    if (slider->upsideDown)
         tdi->attributes |= kThemeTrackRightToLeft;
     tdi->enableState = slider->state & QStyle::Style_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
@@ -1879,7 +1879,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             q->drawItem(p, mi->rect,
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                         mi->palette, mi->state & QStyle::Style_Enabled,
-                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal), 
+                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal),
                         mi->text, -1, &mi->palette.buttonText().color());
         }
         break;
@@ -3467,7 +3467,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             q->drawItem(p, mi->rect,
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                         mi->palette, mi->state & QStyle::Style_Enabled,
-                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal), 
+                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal),
                         mi->text, -1, &mi->palette.buttonText().color());
         }
         break;
@@ -4449,9 +4449,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         ret = 8;
         break;
 
-    case PM_MenuBarVMargin: 
+    case PM_MenuBarVMargin:
         ret = 0;
-        break; 
+        break;
 
     case QStyle::PM_MenuDesktopFrameWidth:
         ret = 15;
@@ -5197,7 +5197,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 void QMacStyle::drawItem(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled,
                          const QString &text, int len, const QColor *penColor) const
 {
-    QWindowsStyle::drawItem(p, r, flags | Qt::TextHideMnemonic, 
+    QWindowsStyle::drawItem(p, r, flags | Qt::TextHideMnemonic,
                             pal, enabled, text, len, penColor);
 }
 

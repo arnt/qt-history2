@@ -227,7 +227,7 @@ QStyleOptionSlider QScrollBarPrivate::getStyleOption() const
     opt.sliderValue = value;
     opt.singleStep = singleStep;
     opt.pageStep = pageStep;
-    opt.useRightToLeft = invertedAppearance;
+    opt.upsideDown = invertedAppearance;
     if (orientation == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     return opt;
@@ -509,7 +509,7 @@ int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
     }
 
     return  QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin,
-                                      sliderMax - sliderMin, d->invertedAppearance);
+                                      sliderMax - sliderMin, opt.upsideDown);
 }
 
 

@@ -62,7 +62,7 @@ void Window::createControls(const QString &title)
     minimumSpinBox = new QSpinBox(controlsGroup);
     minimumSpinBox->setRange(-20, 20);
     minimumSpinBox->setSingleStep(1);
-    minimumSpinBox->setValue(0);
+    minimumSpinBox->setValue(-20);
 
     maximumSpinBox = new QSpinBox(controlsGroup);
     maximumSpinBox->setRange(-20, 20);

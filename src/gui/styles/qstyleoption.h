@@ -383,7 +383,7 @@ public:
     int maximum;
     QSlider::TickPosition tickPosition;
     int tickInterval;
-    bool useRightToLeft;
+    bool upsideDown;
     int sliderPosition;
     int sliderValue;
     int singleStep;
@@ -396,7 +396,7 @@ public:
     QDOC_PROPERTY(int maximum)
     QDOC_PROPERTY(QSlider::TickPosition tickPosition)
     QDOC_PROPERTY(int tickInterval)
-    QDOC_PROPERTY(bool useRightToLeft)
+    QDOC_PROPERTY(bool upsideDown)
     QDOC_PROPERTY(int sliderPosition)
     QDOC_PROPERTY(int sliderValue)
     QDOC_PROPERTY(int singleStep)

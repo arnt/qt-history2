@@ -477,6 +477,7 @@ bool QAbstractSlider::invertedAppearance() const
 void QAbstractSlider::setInvertedAppearance(bool invert)
 {
     d->invertedAppearance = invert;
+    update();
 }
 
 

@@ -2144,7 +2144,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
                                               slider->sliderPosition,
                                               (horizontal ? slider->rect.width()
                                                : slider->rect.height()) - len,
-                                              slider->useRightToLeft);
+                                              slider->upsideDown);
                 if (horizontal)
                     ret.setRect(sliderPos, tickOffset, len, thickness);
                 else
@@ -2185,7 +2185,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             int sliderstart = sbextent + positionFromValue(scrollbar->minimum, scrollbar->maximum,
                                                            scrollbar->sliderPosition,
                                                            maxlen - sliderlen,
-                                                           scrollbar->useRightToLeft);
+                                                           scrollbar->upsideDown);
             switch (sc) {
             case SC_ScrollBarSubLine:            // top/left button
                 if (scrollbar->orientation == Qt::Horizontal) {

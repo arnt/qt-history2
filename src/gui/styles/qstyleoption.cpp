@@ -724,7 +724,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 
 QStyleOptionSlider::QStyleOptionSlider()
     : QStyleOptionComplex(Version, SO_Slider), minimum(0), maximum(0),
-      tickPosition(QSlider::NoTicks), tickInterval(0), useRightToLeft(false),
+      tickPosition(QSlider::NoTicks), tickInterval(0), upsideDown(false),
       sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0)
 {
 }
@@ -734,7 +734,7 @@ QStyleOptionSlider::QStyleOptionSlider()
 */
 QStyleOptionSlider::QStyleOptionSlider(int version)
     : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
-      tickPosition(QSlider::NoTicks), tickInterval(0), useRightToLeft(false),
+      tickPosition(QSlider::NoTicks), tickInterval(0), upsideDown(false),
       sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0)
 {
 }
@@ -769,15 +769,15 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \property QStyleOptionSlider::useRightToLeft
+    \property QStyleOptionSlider::upsideDown
     \brief Indicates slider control orientation.
 
-    Normally a slider increases as it moves up or to the right; useRightToLeft
+    Normally a slider increases as it moves up or to the right; upsideDown
     indicates that it should do the opposite (increase as it moves down or to
     the left).
 
     \sa QStyle::positionFromValue(), QStyle::valueFromPosition(),
-        QAbstractSlider::invertedAppearance, QApplication::isRightToLeft()
+        QAbstractSlider::invertedAppearance
 */
 
 /*!
