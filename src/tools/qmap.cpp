@@ -19,7 +19,7 @@ QMapData *QMapData::createData()
     d->cachedNode = e;
     d->ref = 1;
     d->topLevel = 0;
-    d->size = size;
+    d->size = 0;
     d->randomBits = 0;
     return d;
 }
@@ -71,6 +71,7 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 	update[i]->forward[i] = abstractNode;
 	update[i] = abstractNode;
     }
+    ++size;
     return abstractNode;
 }
 
@@ -81,8 +82,8 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
 	    break;
 	update[i]->forward[i] = node->forward[i];
     }
-    --size;
     if (cachedNode == node)
 	cachedNode = node->forward[0];
+    --size;
     qFree((char *)node - offset);
 }

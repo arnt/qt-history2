@@ -3,10 +3,9 @@
 
 #ifndef QT_H
 #include "qatomic.h"
-#include "qdatastream.h"
 #include "qiterator.h"
 #include "qlist.h"
-#include "qpair.h"
+//#include "qpair.h" ###
 #endif
 
 #ifndef QT_NO_STL
@@ -16,10 +15,9 @@
 
 #include <new>
 
-struct QMapData
+struct Q_CORE_EXPORT QMapData
 {
-    struct Node
-    {
+    struct Node {
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
 	Node *backward;
 #endif
@@ -48,8 +46,7 @@ struct QMapData
 template <class Key, class T>
 class QMap
 {
-    struct Node
-    {
+    struct Node {
 	Key key;
         T value;
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
@@ -188,7 +185,7 @@ public:
 
     void clear();
 
-//    QPair<Iterator, bool> insert(const value_type &x); // ###?
+//    QPair<Iterator, bool> insert(const value_type &x);
     Iterator insert(const Key &key, const T &value);
 #ifdef QT_COMPAT
     QT_COMPAT Iterator insert(const Key &key, const T &value, bool overwrite);
@@ -363,11 +360,10 @@ Q_INLINE_TEMPLATE int QMap<Key, T>::count(const Key &key) const
     int cnt = 0;
     QMapData::Node *node = findNode(key);
     if (node != e) {
-	Node *concreteNode = concrete(node);
         do {
 	    ++cnt;
             node = node->forward[0];
-	} while (node != e && (concreteNode = concrete(node))->key == key);
+	} while (node != e && concrete(node)->key == key);
     }
     return cnt;
 }
@@ -433,6 +429,7 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::erase(const Key &key)
     QMapData::Node *update[QMapData::LastLevel + 1];
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
+    int oldSize = d->size;
 
     for (int i = d->topLevel; i >= 0; i--) {
 	while ((next = cur->forward[i]) != e && concrete(next)->key < key)
@@ -440,13 +437,16 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::erase(const Key &key)
 	update[i] = cur;
     }
 
-    bool found = (next != e && concrete(next)->key == key);
-    if (found) {
-	concrete(next)->key.~Key();
-	concrete(next)->value.~T();
-	d->node_delete(update, offset(), next);
+    if (next != e && concrete(next)->key == key) {
+	do {
+	    cur = next;
+            next = cur->forward[0];
+	    concrete(cur)->key.~Key();
+	    concrete(cur)->value.~T();
+	    d->node_delete(update, offset(), cur);
+	} while (next != e && concrete(next)->key == key);
     }
-    return found;
+    return oldSize - d->size;
 }
 
 template <class Key, class T>
@@ -506,10 +506,9 @@ QMap<Key, T>::mutableFindNode(QMapData::Node *update[], const Key &key)
 	    cur = next;
 	update[i] = cur;
     }
-    if (next != e && !(key < concrete(next)->key)) {
+    if (next != e && key == concrete(next)->key) {
 	return next;
     } else {
-	++d->size;
 	return e;
     }
 }
@@ -544,11 +543,10 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key)
     QList<T> list;
     QMapData::Node *node = findNode(key);
     if (node != e) {
-	Node *concreteNode = concrete(node);
         do {
-	    list.append(concreteNode->value);
+	    list.append(concrete(node)->value);
 	    node = node->forward[0];
-        } while (node != e && (concreteNode = concrete(node))->key == key);
+        } while (node != e && concrete(node)->key == key);
     }
     return list;
 }
