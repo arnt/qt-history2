@@ -1,6 +1,6 @@
 /*!
-    \page interview-overview.html
-    \title The Interview Classes
+    \page qt4-interview.html
+    \title Qt 4: The Interview Classes
 
     The Interview classes provide a model/view framework for Qt
     applications based on the well known Model-View-Controller design
@@ -11,7 +11,7 @@
 
     \tableofcontents
 
-    \section1 Overview of the model/view architecture
+    \section1 Overview of the Model/View Architecture
 
     Model-View-Controller (MVC) is a design pattern originating from
     Smalltalk that is often used when building user interfaces.
@@ -71,7 +71,7 @@
     For details about the Model/View classes, see the
     \l{model-view-programming.html}{Model/View Programming} document.
 
-    \section1 The current state of Interview
+    \section1 The Current State of Interview
 
     The following features are provided with the technology preview.
 
@@ -112,7 +112,7 @@
     examples that show different aspects of the model/view
     architecture.
 
-    \section2 Sharing a model between two views
+    \section2 Sharing a Model Between two Views
 
     In this example, we display the contents of a model using two
     different views, and share the user's selection between
@@ -167,7 +167,7 @@
     this example with a completely different model, one that will perhaps
     obtain data from a remote server, or from a database.
 
-    \section2 Creating a custom model
+    \section2 Creating a Custom Model
 
     In this example, we display the contents of a simple read-only
     model using a ready-made view class.
@@ -291,7 +291,7 @@
     models and views provided with Qt 4 (not included with this preview)
     will make the process even easier.
 
-    \section1 What's changed since Qt 3?
+    \section1 What's Changed Since Qt 3?
 
     The table and item view classes in Qt 3 implemented widgets that
     served both as containers and as views onto their contents. These
@@ -344,7 +344,7 @@
     \c QTreeView widgets.
 
 
-    \section1 Future work
+    \section1 Future Work
 
     We plan to introduce the following features in the Qt 4 release:
 

@@ -1,6 +1,6 @@
 /*!
-\page mainwindow-overview.html
-\title The Main Window Classes
+\page qt4-mainwindow.html
+\title Qt 4: The Main Window Classes
 
 Qt 4 introduces a new set of main window classes that will replace the
 Qt 3 main window classes, providing a more efficient implementation
@@ -8,7 +8,7 @@ while remaining easy-to-use.
 
 \tableofcontents
 
-\section1 Overview of the main window classes
+\section1 Overview of the Main Window Classes
 
 The main window-related classes have been redesigned to satisfy a
 number of requirements, addressing issues raised by our customers and
@@ -38,7 +38,7 @@ windows. One consequence is that the old \c QDockArea class is no
 longer required in Qt 4.
 
 
-\section1 The current state of the main window classes
+\section1 The Current State of the Main Window Classes
 
 Qt 4 provides the following classes for managing main windows and
 associated user interface components:
@@ -216,7 +216,7 @@ center widget is created and installed:
 The center widget can be any subclass of \c QWidget.
 
 
-\section1 What's changed since Qt 3?
+\section1 What's Changed since Qt 3?
 
 Although the \c QMainWindow class in Qt 3 provided support for tool
 bars, dock windows, and other standard user interface components, its
@@ -298,7 +298,7 @@ response to feedback from customers, we hope to improve these classes
 even further.
 
 
-\section1 Future work
+\section1 Future Work
 
 The main window classes will continue to evolve and improve as part of
 the push toward Qt 4. Below are some ideas that have been discussed by

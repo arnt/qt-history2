@@ -1,7 +1,7 @@
 /*!
-    \page arthur-overview.html
+    \page qt4-arthur.html
 
-    \title The Qt 4.0 Paint Subsystem
+    \title Qt 4: The Arthur Paint Subsystem
 
     This document describes Qt 4's approach to painting, and contrasts
     it with the Qt 3 approach.
@@ -18,10 +18,10 @@
     QPixmap are QPaintDevices. \l QPaintEngine is the painter's means
     of drawing to a specific device type.
 
-    \section2 A look back at Qt 3.x
+    \section2 A Look Back at Qt 3
 
-    In Qt 3.x QPainter could be used to draw on widgets and pixmaps. (It
-    could also be used to draw to printers on Windows and Mac OS
+    In Qt 3, QPainter could be used to draw on widgets and pixmaps.
+    (It could also be used to draw to printers on Windows and Mac OS
     X). When other paint devices needed to be supported, such as
     QPrinter on X11, this was done by deriving from QPaintDevice and
     reimplementing the virtual function QPaintDevice::cmd(). A
@@ -40,7 +40,7 @@
     This has led us to devise a more convenient and intuitive API for
     Qt 4.
 
-    \section2 How painting is done in Qt 4
+    \section2 How Painting is Done in Qt 4
 
     In Qt 4 we have introduced the abstract class \l QPaintEngine.
     Implementations of this class provide the concrete functionallity
@@ -69,16 +69,16 @@
     and providing default implementations for unsupported ones has
     become much simpler.
 
-    \section2 Enabling use of GDI+ on Windows
+    \section2 Enabling Use of GDI+ on Windows
 
     GDI+ is installed by default on Windows XP, and is available as a
     downloadable redistributable binary for 98/ME/NT/2000. In order for
     Qt to take advantage of the features in GDI+ the gdiplus.dll
     library must be in the PATH.
 
-    \section1 New features in the Qt 4 paint subsystem
+    \section1 New Features in the Qt 4 Paint Subsystem
 
-    \section2 Linear gradient brushes
+    \section2 Linear Gradient Brushes
 
     With Qt 4 it is possible to fill shapes using a linear gradient
     brush. A gradient in this case is used to describe the transition
@@ -102,7 +102,7 @@
     \sa QBrush
 
 
-    \section2 Alpha-blended drawing
+    \section2 Alpha-Blended Drawing
 
     With Qt 4 we support alpha-blended outlining and filling. The alpha
     channel of a color is specified through \l QColor.
@@ -133,7 +133,7 @@
     operations, such as transformations and pixmap drawing.
 
 
-    \section2 Anti-aliased edges
+    \section2 Anti-Aliased Edges
 
     On platforms where this is supported by the drawing API's, we
     provide the option of turning on anti-aliased edges when drawing
@@ -156,7 +156,7 @@
     installed, and OpenGL.
 
 
-    \section2 Extensive use of native graphics operations
+    \section2 Extensive Use of Native Graphics Operations
 
     In the Qt 4 Paint Subsystem we make more use of native graphics
     operations. The benefit we gain from this is that these operations
@@ -168,7 +168,7 @@
     pixmap operations have also been moved closer to hardware.
 
 
-    \section2 QPainterPath
+    \section2 Painter Paths
 
     A painter path is an object composed of a number of graphical
     building blocks, such as rectangles, ellipses, lines and curves. A
@@ -199,7 +199,7 @@
     \img pathexample.png
 
 
-    \section2 Widget double-buffering
+    \section2 Widget Double-Buffering
 
     In Qt 4, all widgets are double-buffered by default.
 
@@ -234,7 +234,7 @@
     unbufferedWidget->setAttribute(Qt::WA_PaintOnScreen);
     \endcode
 
-    \section1 More to come
+    \section1 More to Come
 
     The Qt 4 Paint Subsystem is mostly completed, but there is still
     work being done.

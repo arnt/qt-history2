@@ -1,5 +1,5 @@
-/*! \page tech-preview.html
-    \title Welcome to the Qt 4 Technology Preview
+/*! \page qt4-tech-preview.html
+    \title Welcome to the Second Qt 4 Technology Preview
 
 Dear Qt user,
 
@@ -28,17 +28,17 @@ are five new technologies that we hope you will try out and give us
 feedback on. All are new to Qt, written specifically for Qt 4:
 
 \list 1
-\i \link tulip-overview.html Tulip \endlink, a new set of template container classes.
+\i \link qt4-tulip.html Tulip \endlink, a new set of template container classes.
 
-\i \link interview-overview.html Interview \endlink, a model/view architecture for item views.
+\i \link qt4-interview.html Interview \endlink, a model/view architecture for item views.
 
-\i \link arthur-overview.html Arthur \endlink, the Qt 4 painting framework.
+\i \link qt4-arthur.html Arthur \endlink, the Qt 4 painting framework.
 
-\i \link scribe-overview.html Scribe \endlink, the Unicode text
+\i \link qt4-scribe.html Scribe \endlink, the Unicode text
 renderer with a public API for performing low-level text layout.
 
-\i A modern action-based \link mainwindow-overview.html mainwindow, toolbar, menu, and docking
-architecture \endlink.
+\i A modern action-based \link qt4-mainwindow.html mainwindow,
+toolbar, menu, and docking architecture \endlink.
 \endlist
 
 Follow the hyperlinks above for a detailed description for each of
@@ -68,7 +68,7 @@ final Qt product. The Technology Preview supports:
 Other operating systems and compilers might work but are not yet part
 of the testing program.
 
-\section1 How to provide feedback
+\section1 How to Provide Feedback
 
 Trolltech has set up a special mailing list, qt4-preview-feedback, for
 discussion of Qt Technology Preview-related issues. To subscribe, send

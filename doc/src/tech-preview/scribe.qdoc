@@ -1,18 +1,6 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 /*!
-\page scribe-overview.html
-\title The Scribe Classes
+\page qt4-scribe.html
+\title Qt 4: The Scribe Classes
 
 Scribe introduces a set of text layout classes to Qt 4. These classes
 replace the old rich text engine found in Qt 3, and provide new features
@@ -34,7 +22,7 @@ The following sections provide a brief overview of the main concepts
 behind Scribe.
 
 
-\section2 The document interface
+\section2 The Document Interface
 
 Text documents are represented by the \c QTextDocument class, rather
 than by \c QString objects. Each \c QTextDocument object contains
@@ -58,7 +46,7 @@ the style of text used and its alignment. The linear representation of
 the document is used for editing and manipulation of the document's
 contents.
 
-\section2 Document structure
+\section2 Document Structure
 
 Each document contains a root frame into which all other structural
 elements are placed. This frame contains other structural elements,
@@ -83,7 +71,7 @@ flow, alignment, and background color.
 The document structure is not manipulated directly. Editing is
 performed through the cursor-based interface.
 
-\section2 Editing and content creation
+\section2 Editing and Content Creation
 
 Documents can be edited via the interface provided by the \c QTextCursor
 class; cursors are either created using a constructor or obtained from
@@ -100,7 +88,7 @@ has selected in the document, again following a model that is
 conceptually similar to the actions made by the user to select text
 in an editor.
 
-\section2 Document layout
+\section2 Document Layout
 
 The layout of a document is only relevant when it is to be displayed on
 a device, or when some information is requested that requires a visual
@@ -113,7 +101,7 @@ interface for layout and rendering engines. The default rendering
 behavior is currently implemented in a private class.
 
 
-\section1 The state of Scribe
+\section1 The State of Scribe
 
 The new Scribe classes are functioning, but some parts are still
 incomplete. Plain text layout through the \c QTextLayout class should
@@ -152,14 +140,14 @@ The rich text module still has a few missing features:
 \endlist
 
 
-\section1 Example code
+\section1 Example Code
 
 Here we present two different ways in which the Scribe classes can be
 used: for creating and manipulating rich text, and for laying out
 plain text.
 
 
-\section2 Manipulating rich text
+\section2 Manipulating Rich Text
 
 Rich text is stored in text documents that can either be created by
 importing HTML from an external source, or generated using a
@@ -254,7 +242,7 @@ Scribe provides much more sophisticated layout and formatting features.
 These can be seen in the demonstrations and examples that accompany this
 release.
 
-\section2 Plain text layout
+\section2 Plain Text Layout
 
 Sometimes it is important to be able to format plain text within an
 irregularly-shaped region, perhaps when rendering a custom widget, for
@@ -331,7 +319,7 @@ QTextCursor editing interface.
 The \c QTextBrowser class is not included in this release.
 
 
-\section1 Future work
+\section1 Future Work
 
 The rich text support continues to evolve. Some ideas on what's planned
 towards Qt 4 can be found below. Some of them might be implemented while

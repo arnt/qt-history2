@@ -1,7 +1,7 @@
 /*!
-\page tulip-overview.html
+\page qt4-tulip.html
 
-\title The Tulip Container Classes
+\title Qt 4: The Tulip Container Classes
 
 Qt 4 introduces a new set of containers that will replace both the old
 \c QCollection pointer-based containers and the newer "QTL" value-based
@@ -9,7 +9,7 @@ containers.
 
 \tableofcontents
 
-\section1 General overview
+\section1 General Overview
 
 The Tulip containers are similar to Qt 3's QTL containers (\c
 QValueList, \c QValueVector, \c QMap), but have the following
@@ -95,7 +95,7 @@ empty strings has been watered down so that \c{QByteArray() ==
 QByteArray("")} and \c{QString() == QString("")}.
 
 
-\section1 The state of Tulip
+\section1 The State of Tulip
 
 The Tulip classes are essentially finished and fully documented.
 
