@@ -5,7 +5,7 @@
 **
 ** Created : 970610
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -38,7 +38,6 @@
 #include "qvalidator.h"
 #ifndef QT_NO_VALIDATOR
 
-#include <ctype.h>
 #include <limits.h>
 #include <math.h>
 
