@@ -52,6 +52,12 @@ public:
         return ptr[idx];
     }
 
+    inline void append(const T &t) {
+        const int idx = s;
+        resize(idx + 1);
+        ptr[idx] = t;
+    }
+
     inline operator T *() { return ptr; }
     inline operator const T *() const { return ptr; }
 
