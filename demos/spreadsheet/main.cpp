@@ -34,10 +34,10 @@ public:
             return formula;
 
         QString op = list.at(0).toLower();
-        int r1 = list.at(1).at(0).digitValue() - 1;
-        int c1 = list.at(1).at(1).digitValue() - 1;
-        int r2 = list.at(2).at(0).digitValue() - 1;
-        int c2 = list.at(2).at(1).digitValue() - 1;
+        int c1 = list.at(1).at(0).ascii() - 'A';
+        int r1 = list.at(1).at(1).digitValue() - 1;
+        int c2 = list.at(2).at(0).ascii() - 'A';
+        int r2 = list.at(2).at(1).digitValue() - 1;
         QTableWidgetItem *start = table->item(r1, c1);
         QTableWidgetItem *end = table->item(r2, c2);
 
@@ -127,14 +127,20 @@ class SpreadSheet : public QMainWindow
     Q_OBJECT
 
 public:
-    static const int numRows = 9;
-    static const int numColumns = 9;
+    static const int numRows = 10;
+    static const int numColumns = 5;
 
     SpreadSheet(QWidget *parent = 0) : QMainWindow(parent) {
         table = new SpreadSheetTable(numRows, numColumns, this);
-        for (int r=0; r<numRows; ++r)
-            for (int c=0; c<numColumns; ++c)
+        for (int r=0; r<numRows; ++r) {
+            for (int c=0; c<numColumns; ++c) {
+                QString character(QChar('A' + c));
+                QTableWidgetItem *headerItem = new QTableWidgetItem(character);
+                headerItem->setTextAlignment(Qt::AlignCenter);
+                table->setHorizontalHeaderItem(c, headerItem);
                 table->setItem(r, c, new SpreadSheetItem(table));
+            }
+        }
         setCentralWidget(table);
         statusBar();
         connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
@@ -168,10 +174,10 @@ public slots:
         QTableWidgetItem *last = selected.last();
         if (first && last && contextItem)
             contextItem->setText(QString("sum %1%2 %3%4").
+                                 arg(QChar('A' + (table->column(first)))).
                                  arg((table->row(first) + 1)).
-                                 arg((table->column(first) + 1)).
-                                 arg((table->row(last) + 1)).
-                                 arg((table->column(last) +1)));
+                                 arg(QChar('A' + (table->column(last)))).
+                                 arg((table->row(last) + 1)));
     }
 
     void clear() {
