@@ -38,6 +38,7 @@
 #include <qguardedptr.h>
 #include <qtextedit.h>
 #include <qtoolbutton.h>
+#include <qmainwindow.h>
 #include <qsize.h>
 #include <qslider.h>
 #include <qlabel.h>
@@ -339,6 +340,15 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 	QWidget *top = w->parentWidget();
 	while(!top->isTopLevel() && !top->testWFlags(WSubWindow))
 	    top = top->parentWidget();
+	if(top->inherits("QMainWindow")) {
+	    QWidget *central = ((QMainWindow*)top)->centralWidget();
+	    for(QWidget *par = w; par; par = par->parentWidget(TRUE)) {
+		if(par == central) {
+		    top = central;
+		    break;
+		}
+	    }
+	}
 	if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
 	    if(w->inherits("QComboBox") && ((QComboBox*)w)->editable())
 		w = (QWidget*)((QComboBox*)w)->lineEdit();
