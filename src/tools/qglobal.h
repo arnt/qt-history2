@@ -250,7 +250,6 @@
 #    define QT_NO_QWS_CURSOR
 #  endif
 
-/* this is defined also for mingw on windows */
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  define Q_C_CALLBACKS
@@ -286,6 +285,8 @@
    Visual Age C++ 4.0         ...
                   ...         ...
    Visual Age C++ 5.0         C Compiler 5.0
+                  ...         ...
+   Visual Age C++ 6.0         C Compiler 6.0
 
    Now:
    __xlC__    is the version of the C compiler in hexadecimal notation
