@@ -120,6 +120,7 @@ private:
     void swapSections( int oldIdx, int newIdx );
     bool doSelection( QMouseEvent *e );
     void sectionLabelChanged( int section );
+    void resizeArrays( int n );
 
 private:
     QMemArray<int> states, oldStates;
@@ -4015,14 +4016,15 @@ void QTable::setNumRows( int r )
     bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
-    int w = VERTICALMARGIN;
+    int w = fontMetrics().width( QString::number( r ) + " " );
     if ( r > numRows() ) {
+	leftHeader->QHeader::resizeArrays( r + 1 );
+	leftHeader->QTableHeader::resizeArrays( r + 1 );
+	int old = numRows();
 	clearSelection( FALSE );
-	while ( numRows() < r ) {
-	    leftHeader->addLabel( QString::number( numRows() ), 20 );
-	    int tmpw = fontMetrics().width( QString::number( numRows() ) + "  " );
-	    w = QMAX( w, tmpw );
-	}
+	int i = 0;
+	for ( i = old; i < r; ++i )
+	    leftHeader->addLabel( QString::null, 20 );
     } else {
 	clearSelection( FALSE );
 	while ( numRows() > r )
@@ -4048,6 +4050,7 @@ void QTable::setNumRows( int r )
     }
 
     leftHeader->setUpdatesEnabled( isUpdatesEnabled );
+
     QRect r2( cellGeometry( numRows() - 1, numCols() - 1 ) );
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
@@ -4086,10 +4089,15 @@ void QTable::setNumCols( int c )
     bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
     topHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = c < numCols();
+
     if ( c > numCols() ) {
+	topHeader->QHeader::resizeArrays( c + 1 );
+	topHeader->QTableHeader::resizeArrays( c + 1 );
+	int old = numCols();
 	clearSelection( FALSE );
-	while ( numCols() < c )
-	    topHeader->addLabel( QString::number( numCols() + 1 ), 100 );
+	int i = 0;
+	for ( i = old; i < c; ++i )
+	    topHeader->addLabel( QString::null, 100 );
     } else {
 	clearSelection( FALSE );
 	while ( numCols() > c )
@@ -5382,11 +5390,26 @@ QTableHeader::QTableHeader( int i, QTable *t,
 
 void QTableHeader::addLabel( const QString &s , int size )
 {
-    states.resize( states.count() + 1 );
-    states[ (int)states.count() - 1 ] = Normal;
-    stretchable.resize( stretchable.count() + 1 );
-    stretchable[ (int)stretchable.count() - 1 ] = FALSE;
+    if ( size > (int)states.size() ) {
+	states.resize( states.count() + 1 );
+	states[ (int)states.count() - 1 ] = Normal;
+	stretchable.resize( stretchable.count() + 1 );
+	stretchable[ (int)stretchable.count() - 1 ] = FALSE;
+    }
     QHeader::addLabel( s , size );
+}
+
+void QTableHeader::resizeArrays( int n )
+{
+    int old = states.size();
+    states.resize( n );
+    stretchable.resize( n );
+    if ( n > old ) {
+	for ( int i = old; i < n; ++i ) {
+	    stretchable[ i ] = FALSE;	
+	    states[ i ] = Normal;
+	}
+    }
 }
 
 void QTableHeader::setLabel( int section, const QString & s, int size )

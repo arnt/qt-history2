@@ -758,10 +758,12 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	QTable *table = (QTable*)obj;
 	int i;
 	QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
+	bool isDataTable = table->inherits( "QDataTable" );
 	for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
-	    if ( table->horizontalHeader()->label( i ).toInt() != i + 1 ||
+	    if ( !table->horizontalHeader()->label( i ).isNull() &&
+		 table->horizontalHeader()->label( i ).toInt() != i + 1 ||
 		 table->horizontalHeader()->iconSet( i ) ||
-		 table->inherits( "QDataTable" ) ) {
+		  isDataTable ) {
 		ts << makeIndent( indent ) << "<column>" << endl;
 		indent++;
 		QStringList l;
@@ -783,7 +785,8 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    }
 	}
 	for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
-	    if ( table->verticalHeader()->label( i ).toInt() != i + 1 ||
+	    if ( !table->verticalHeader()->label( i ).isNull() &&
+		 table->verticalHeader()->label( i ).toInt() != i + 1 ||
 		 table->verticalHeader()->iconSet( i ) ) {
 		ts << makeIndent( indent ) << "<row>" << endl;
 		indent++;

@@ -48,9 +48,12 @@
 
 class QShowEvent;
 class QHeaderData;
+class QTable;
 
 class Q_EXPORT QHeader : public QWidget
 {
+    friend class QTable;
+
     Q_OBJECT
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
     Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
@@ -162,6 +165,7 @@ private:
     void	setSectionSizeAndHeight( int section, int size,
 					 const QString& s );
 
+    void resizeArrays( int size );
     int		offs;
     int		handleIdx;
     int		oldHIdxSize;

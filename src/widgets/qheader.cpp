@@ -60,7 +60,6 @@ public:
 	iconsets.setAutoDelete( TRUE );
 	sizes.resize(n);
 	positions.resize(n);
-	heights.resize(n);
 	labels.resize(n);
 	if ( int( iconsets.size() ) < n )
 	    iconsets.resize( n );
@@ -71,7 +70,6 @@ public:
 	int p =0;
 	for ( int i = 0; i < n; i ++ ) {
 	    sizes[i] = 88;
-	    // heights[i] = 10; set properly in QHeader::init()
 	    i2s[i] = i;
 	    s2i[i] = i;
 	    positions[i] = p;
@@ -92,7 +90,7 @@ public:
 
 
     QMemArray<QCOORD>	sizes;
-    QMemArray<QCOORD>	heights;
+    int height;
     QMemArray<QCOORD>	positions; // sorted by index
     QPtrVector<QString>	labels;
     QPtrVector<QIconSet> iconsets;
@@ -389,9 +387,8 @@ void QHeader::init( int n )
     cachedIdx = 0; // unused
     cachedPos = 0; // unused
     d = new QHeaderData(n);
-    for ( int i = 0; i < n; i ++ ) {
-	d->heights[i] = fontMetrics().lineSpacing() + 6;
-    }
+    int h = fontMetrics().lineSpacing() + 6;
+    d->height = h;
     offs = 0;
     if( reverse() )
 	offs = d->lastPos - width();
@@ -911,14 +908,12 @@ void QHeader::removeLabel( int section )
     int i;
     for ( i = section; i < n; ++i ) {
 	d->sizes[i] = d->sizes[i+1];
-	d->heights[i] = d->heights[i+1];
 	d->labels.insert( i, d->labels.take( i + 1 ) );
 	d->iconsets.insert( i, d->iconsets.take( i + 1 ) );
     }
 
     d->sizes.resize( n );
     d->positions.resize( n );
-    d->heights.resize( n );
     d->labels.resize( n );
     d->iconsets.resize( n );
 
@@ -977,7 +972,7 @@ void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
 	d->sizes[section] = size;
     }
     // we abuse the heights as widths for vertical layout
-    d->heights[section] = ( orient == Horizontal ) ? height : width;
+    d->height = QMAX( ( orient == Horizontal ) ? height : width, d->height );
 }
 
 /*!
@@ -990,27 +985,32 @@ void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
 int QHeader::addLabel( const QString &s, int size )
 {
     int n = ++d->count;
-    d->labels.resize( n );
-    if ( int( d->iconsets.size() ) < n  )
+    if ( (int)d->iconsets.size() < n  ) {
 	d->iconsets.resize( n );
-    d->sizes.resize( n );
-    d->positions.resize( n );
-    d->heights.resize( n );
-    int section = n - 1;
-    d->labels.insert( section, new QString( s ) );  // n - 1 is last real idx
+	d->labels.resize( n );
+	d->sizes.resize( n );
+	d->positions.resize( n );
+	d->i2s.resize( n );
+	d->s2i.resize( n );
+	d->clicks.resize( n );
+	d->resize.resize( n );
+    }
+    int section = d->count - 1;
+    if ( !s.isNull() )
+	d->labels.insert( section, new QString( s ) );
 
-    d->sizes[section] = -1;
-    setSectionSizeAndHeight( section, size, s );
+    if ( size >= 0 && s.isNull() ) {
+	d->sizes[section] = size;
+    } else {
+	d->sizes[section] = -1;
+	setSectionSizeAndHeight( section, size, s );
+    }
 
     int index = section;
     d->positions[index] = d->lastPos;
 
-    d->i2s.resize( n );
-    d->s2i.resize( n );
     d->s2i[section] = index;
     d->i2s[index] = section;
-    d->clicks.resize( n );
-    d->resize.resize( n );
     d->clicks.setBit( section, d->clicks_default );
     d->resize.setBit( section, d->resize_default );
 
@@ -1020,6 +1020,18 @@ int QHeader::addLabel( const QString &s, int size )
 	update();
     }
     return index;
+}
+
+void QHeader::resizeArrays( int size )
+{
+    d->iconsets.resize( size );
+    d->labels.resize( size );
+    d->sizes.resize( size );
+    d->positions.resize( size );
+    d->i2s.resize( size );
+    d->s2i.resize( size );
+    d->clicks.resize( size );
+    d->resize.resize( size );
 }
 
 /*! \reimp */
@@ -1033,18 +1045,16 @@ QSize QHeader::sizeHint() const
     if ( orient == Horizontal ) {
 	height = fm.lineSpacing() + 6;
 	width = 0;
-	for ( int i = 0; i < count(); i++ ) {
-	    height = QMAX( height, d->heights[i] );
+	height = QMAX( height, d->height );
+	for ( int i = 0; i < count(); i++ )
 	    width += d->sizes[i];
-	}
     }
     else {
 	width = fm.width( ' ' );
 	height = 0;
-	for ( int i = 0; i < count(); i++ ) {
-	    width = QMAX( width, d->heights[i] );
+	width = QMAX( width, d->height );
+	for ( int i = 0; i < count(); i++ )
 	    height += d->sizes[i];
-	}
     }
     return QSize( width, height );
 }
@@ -1116,7 +1126,7 @@ int QHeader::pHeight( int i ) const
     int section = mapToSection(i);
     if ( section < 0 )
 	return 0;
-    return d->heights[section];
+    return d->height;
 }
 
 /*!
@@ -1128,7 +1138,7 @@ void QHeader::setPHeight( int i, int h )
     int section = mapToSection(i);
     if ( section < 0 )
 	return;
-    d->heights[section] = h;
+    d->height = h;
 }
 
 
@@ -1356,9 +1366,9 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     if ( d->labels[section] )
 	s = *(d->labels[section]);
     else if ( orient == Horizontal )
-	s = tr("%1").arg(section);
+	s = tr("%1").arg(section + 1);
     else
-	s = tr("%1").arg(section);
+	s = tr("%1").arg(section + 1);
 
     int dx = 0, dy = 0;
     if (index==handleIdx && ( state == Pressed || state == Moving ) ) {
