@@ -102,6 +102,7 @@ public:
         PdcRestoreWMatrix = 57,
         PdcSetClip = 60, // ival
         PdcSetClipRegion = 61, // rgn
+        PdcSetRenderHint = 62, // ival
 
         PdcReservedStart = 0, // codes 0-199 are reserved
         PdcReservedStop = 199 //   for Qt

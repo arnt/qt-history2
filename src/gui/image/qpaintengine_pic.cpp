@@ -236,6 +236,17 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
     writeCmdLength(pos, QRectF(), false);
 }
 
+void QPicturePaintEngine::updateRenderHints(QPainter::RenderHints hints)
+{
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> updateRenderHints(): " << hints;
+#endif
+    int pos;
+    SERIALIZE_CMD(QPicturePrivate::PdcSetRenderHint);
+    d->s << (quint32) hints;
+    writeCmdLength(pos, QRect(), false);
+}
+
 void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
 {
     int newpos = pic_d->pictb.pos();            // new position

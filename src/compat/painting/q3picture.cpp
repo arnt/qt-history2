@@ -89,6 +89,7 @@ bool Q3Picture::load(QIODevice *dev, const char *format)
 	if (!svg.load(dev))
 	    return FALSE;
         QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
 	bool b = svg.play(&p);
 	d->brect = svg.boundingRect();
 	return b;

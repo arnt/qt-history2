@@ -46,6 +46,7 @@ public:
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+    void updateRenderHints(QPainter::RenderHints hints);
 
     void drawPath(const QPainterPath &path);
     void drawLine(const QLineF &line);

@@ -697,6 +697,10 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             s >> rgn >> i_8;
             painter->setClipRegion(rgn);
             break;
+        case QPicturePrivate::PdcSetRenderHint:
+            s >> ul;
+            painter->setRenderHint(QPainter::RenderHint(ul & QPainter::Antialiasing));
+            break;
         default:
             qWarning("QPicture::play: Invalid command %d", c);
             if (len)                        // skip unknown command
