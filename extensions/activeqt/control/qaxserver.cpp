@@ -986,9 +986,11 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 {
     qAxIsServer = FALSE;
     QTextStream out;
-    QString outpath = outfile.left( outfile.findRev( "\\" ) );
-    QDir dir;
-    dir.mkdir( outpath, FALSE );
+    if (outfile.contains("\\")) {
+	QString outpath = outfile.left( outfile.findRev( "\\" ) );
+	QDir dir;
+	dir.mkdir( outpath, FALSE );
+    }
     QFile file( outfile );
     file.remove();
 
