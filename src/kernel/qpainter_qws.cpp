@@ -1191,7 +1191,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	return;
     QPointArray pa = a;
     if ( testf(ExtDev) ) {
-	if ( nlines != (int)pa.size()/2 ) {
+	if (2*nlines != (int)pa.size()) {
 	    pa = QPointArray( nlines*2 );
 	    for ( int i=0; i<nlines*2; i++ )
 		pa.setPoint( i, a.point(index+i) );
