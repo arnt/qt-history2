@@ -814,22 +814,19 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 }
 
 
-/*
-
-  !
+/*! \obsolete
   Returns the character set by setCharSet().
-
+  
   Use QFontInfo to find the CharSet of the window system font actually used.
   \sa setCharSet()
-  * /
-
-  QFont::CharSet QFont::charSet() const
-  {
-  return (CharSet) d->req.charSet;
-  }
 */
+QFont::CharSet QFont::charSet() const
+{
+    return d->charsetcompat;
+}
 
-/*!
+
+/*! \obsolete
   Sets the character set encoding (e.g. \c Latin1).
 
   If the character set encoding is not available another will be used
@@ -842,30 +839,24 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
   class.
 
   \sa charSet(), QFontInfo
-  * /
-
-  void QFont::setCharSet( CharSet charset )
-  {
-  if ( (CharSet)d->req.charSet == charset )
-  return;
-
-  detach();
-  d->req.charSet = charset;
-  d->req.dirty   = TRUE;
-  }
 */
+void QFont::setCharSet( CharSet charset )
+{
+    d->charsetcompat = charset;
+}
 
 
-/*!  Returns a guess at the character set most likely to be
+/*! \obsolete
+  For Qt 3.0 and higher, this method always returns Unicode.
+  
+  Returns a guess at the character set most likely to be
   appropriate for the locale the application is running in.  This is
   the character sets fonts will use by default.
-  * /
-
-  QFont::CharSet QFont::charSetForLocale()
-  {
-  return defaultCharSet;
-  }
 */
+QFont::CharSet QFont::charSetForLocale()
+{
+    return Unicode;
+}
 
 
 /*!
@@ -1394,16 +1385,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 
     return s << (Q_INT16) font.d->request.pointSize
 	     << (Q_UINT8) font.d->request.styleHint
-
-#ifndef QT_NO_COMPAT
-#ifdef _GNUCC__
-#warning "TODO: re-add CharSet for source compatibility"
-#endif
-	     << (Q_UINT8) 0xbeef // font.d->charset
-#else
-	     << (Q_UINT8) 0
-#endif
-
+	     << (Q_UINT8) font.d->charsetcompat
 	     << (Q_UINT8) font.d->request.weight
 	     << get_font_bits(font.d->request);
 }
@@ -1442,14 +1424,8 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     font.d->request.styleHint = styleHint;
     font.d->request.weight = weight;
     font.d->request.dirty = TRUE;
-
-#ifndef QT_NO_COMPAT
-#ifdef __GNUCC__
-#warning "TODO: re-add CharSet for source compatibility"
-#endif
-    // font.d->charset = (QFont::CharSet) charsetcompat;
-#endif
-
+    font.d->charsetcompat = (QFont::CharSet) charSet;
+    
     set_font_bits( bits, &(font.d->request) );
 
     return s;
@@ -1975,7 +1951,7 @@ QFontInfo::QFontInfo( const QPainter *p )
     painter->setf( QPainter::FontInf );
     d = painter->cfont.d;
     d->ref();
-    
+
     d->load();
 
     flags = 0;
@@ -2130,16 +2106,14 @@ QFont::StyleHint QFontInfo::styleHint() const
 }
 
 
-/*!
+/*! \obsolete
   Returns the character set of the matched window system font.
   \sa QFont::charSet()
-  * /
-
-  QFont::CharSet QFontInfo::charSet() const
-  {
-  return (QFont::CharSet)spec()->charSet;
-  }
 */
+QFont::CharSet QFontInfo::charSet() const
+{
+    return d->charsetcompat;
+}
 
 
 /*!
@@ -2352,11 +2326,11 @@ void QFontCache::timerEvent(QTimerEvent *)
 
 
 
-
+// **********************************************************************
 // QFontPrivate member methods
 // **********************************************************************
 
-// ********// Converts a weight string to a value************************
+// Converts a weight string to a value
 int QFontPrivate::getFontWeight(const QCString &weightString, bool adjustScore)
 {
     // Test in decreasing order of commonness
@@ -2679,7 +2653,7 @@ QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
 	return QFontPrivate::Han;
     }
 
-    qDebug("QFP::scriptForChar: unknown character U+%04x", c.unicode());
+    // qDebug("QFP::scriptForChar: unknown character U+%04x", c.unicode());
     return QFontPrivate::UnknownScript;
 }
 
@@ -2695,8 +2669,7 @@ QString QFontPrivate::key() const
 	      2 +  // point size
 	      1 +  // font bits
 	      1 +  // weight
-	      1 +  // hint
-	      1;   // char set
+	      1;   // hint
 
     QByteArray buf(len);
     uchar *p = (uchar *) buf.data();
@@ -2710,15 +2683,6 @@ QString QFontPrivate::key() const
     *p++ = request.weight;
     *p++ = (request.hintSetByUser ?
 	    (int) request.styleHint : (int) QFont::AnyStyle);
-
-#ifndef QT_NO_COMPAT
-#ifdef __GNUCC__
-#warning "TODO: re-add CharSet for source compatibility"
-#endif
-    *p = 0xff; // charsetcompat;
-#else
-    *p = 0;
-#endif
-
+    
     return QString((QChar *) buf.data(), buf.size() / 2);
 }

@@ -2684,6 +2684,12 @@ struct qt_truple
 };
 
 
+/*!
+  Draws at most \a len characters of the string \a str to position \a (x,y).
+
+  \a (x,y) is the base line position.  Note that the meaning of \a y
+  is not the same for the two drawText() varieties.
+*/
 void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if (len < 0)
@@ -2693,8 +2699,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     drawText( x, y, str, 0, len );
 }
 
+
 /*!
-  Draws at most \a len characters starting at position \a pos fomr the string \a str to
+  Draws at most \a len characters starting at position \a pos from the string \a str to
   position \a (x,y).
 
   \a (x,y) is the base line position.  Note that the meaning of \a y
@@ -2852,13 +2859,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 
 		if (truples[currt - 1].script != QFontPrivate::UnknownScript) {
 		    cfont.d->load(truples[currt - 1].script);
-		    
+
 		    qfs = cfont.d->x11data.fontstruct[truples[currt - 1].script];
 		    if (qfs && qfs != (QFontStruct *) -1) {
 			f = (XFontStruct *) qfs->handle;
 		    }
 		}
-		
+
 		if (f) {
 		    // 2b. string width (this is for the PREVIOUS truple)
 		    if (qfs->codec) {
@@ -2922,14 +2929,14 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		    x11data.fontstruct[truples[currt - 1].script]->handle;
 	    }
 	}
-	
+
 	if (f) {
 	    // 2b. string width (this is for the PREVIOUS truple)
 	    if (qfs->codec) {
 		truples[currt - 1].mapped =
 		    qfs->codec->fromUnicode( str, truples[currt - 1].stroffset,
 					     i + pos - truples[currt - 1].stroffset );
-		
+
 		if (f->max_byte1) {
 		    currx += XTextWidth16(f, (XChar2b *)
 					  truples[currt - 1].mapped.data(),
@@ -2974,17 +2981,17 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 	// step 5
 	int j;
 	currs = truples[i].script;
-	
+
 	if (currs != QFontPrivate::UnknownScript) {
 	    qfs = cfont.d->x11data.fontstruct[currs];
 	} else {
 	    qfs = 0;
 	}
-	
+
 	if (qfs && qfs != (QFontStruct *) -1) {
 	    f = (XFontStruct *) qfs->handle;
 	    XSetFont(dpy, gc, f->fid);
-	    
+
 	    for (j = i; j < len; j++) {
 		if (truples[j].stroffset == -1) {
 		    break;
@@ -3019,7 +3026,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			    rects[k].y = y - inc + 2;
 			    rects[k].width = rects[k].height = inc - 3;
 			}
-			
+
 			XDrawRectangles(dpy, hd, gc, rects, l);
 			delete [] rects;
 		    }

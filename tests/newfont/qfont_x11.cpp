@@ -1002,14 +1002,14 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
 	return;
     }
-    
+
     if (script == NoScript) script = defaultScript;
 
     if (script > Unicode) {
 	qDebug("OUT OF RANGE");
 	int *foo = 0; *foo = 0;
     }
-    
+
     if (x11data.fontstruct[script] && ! request.dirty) {
 	return;
     }
@@ -1466,7 +1466,7 @@ void QFont::initialize()
     // create font cache and name dict
     if (! QFontPrivate::fontCache) {
 	QFontPrivate::fontCache = new QFontCache();
-	
+
 	fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
 	Q_CHECK_PTR(fontNameDict);
 	fontNameDict->setAutoDelete(TRUE);
@@ -1495,7 +1495,7 @@ void QFont::cleanup()
     QFontPrivate::fontCache->setAutoDelete(TRUE);
     delete QFontPrivate::fontCache;
     QFontPrivate::fontCache = 0;
-    
+
     delete fontNameDict;
     fontNameDict = 0;
 }
@@ -1515,7 +1515,7 @@ void QFont::cleanup()
 Qt::HANDLE QFont::handle() const
 {
 
-#ifndef QT_NO_COMPAT
+#warning "TODO: handle based on charset compatibility?"
     // qDebug("QFont::handle: checking charset for !QT_NO_COMPAT");
     // qDebug("QFont::handle: d->charset is %d '%s'", d->charset,
     // qt_x11encodings[d->charset]);
@@ -1534,7 +1534,6 @@ Qt::HANDLE QFont::handle() const
     // } else {
     // qDebug("QFont::handle: charset not set");
     // }
-#endif
 
     d->load(QFontPrivate::defaultScript);
 
@@ -2049,9 +2048,6 @@ int QFontMetrics::lineSpacing() const
 
   \sa boundingRect()
 */
-
-#ifndef QT_NO_COMPAT
-
 int QFontMetrics::width(QChar ch) const
 {
     QFontPrivate::Script script = QFontPrivate::scriptForChar(ch);
@@ -2070,8 +2066,6 @@ int QFontMetrics::width(QChar ch) const
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : d->request.pointSize * 3 / 40;
 }
-
-#endif // QT_NO_COMPAT
 
 
 /*!

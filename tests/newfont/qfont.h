@@ -45,10 +45,6 @@
 
 
 class QStringList;
-
-// these three should probably be merged into one class
-// struct QFontDef;
-// struct QFontData;
 class QFontPrivate;
 
 
@@ -172,19 +168,66 @@ public:
     static void initialize();
     static void cleanup();
     static void cacheStatistics();
-    
-    
+
+
 #if defined(Q_WS_QWS)
     void qwsRenderToDisk(bool all=TRUE);
 #endif
 
 
 #ifndef QT_NO_COMPAT
-    // CharSet charSet() const;
-    // void setCharSet(CharSet);
-#endif
+    
+    enum CharSet {
+	ISO_8859_1,  Latin1 = ISO_8859_1, AnyCharSet,
+	ISO_8859_2,  Latin2 = ISO_8859_2,
+	ISO_8859_3,  Latin3 = ISO_8859_3,
+	ISO_8859_4,  Latin4 = ISO_8859_4,
+	ISO_8859_5,
+	ISO_8859_6,
+	ISO_8859_7,
+	ISO_8859_8,
+	ISO_8859_9,  Latin5 = ISO_8859_9,
+	ISO_8859_10, Latin6 = ISO_8859_10,
+	ISO_8859_11, TIS620 = ISO_8859_11,
+	ISO_8859_12,
+	ISO_8859_13, Latin7 = ISO_8859_13,
+	ISO_8859_14, Latin8 = ISO_8859_14,
+	ISO_8859_15, Latin9 = ISO_8859_15,
+	KOI8R,
+	Set_Ja, Set_1 = Set_Ja,
+	Set_Ko,
+	Set_Th_TH,
+	Set_Zh,
+	Set_Zh_TW,
+	Set_GBK,
+	Set_Big5,
+	Set_N = Set_Zh_TW,
 
+	/*
+	  The following are font-specific encodings that
+	  we shouldn't need in a perfect world.
+	*/
+	// 8-bit fonts
+	JIS_X_0201 = 0xa0,
+	// 16-bit fonts
+	JIS_X_0208 = 0xc0, Enc16 = JIS_X_0208,
+	KSC_5601,
+	GB_2312,
+	Big5,
+	TSCII,
+	KOI8U,
+		
+	Unicode
+    };
+    
+    CharSet charSet() const;
+    void setCharSet(CharSet);
+    
+    static CharSet charSetForLocale();
+    
+#endif // QT_NO_COMPAT
 
+    
 protected:
     // why protected?
     bool dirty() const;
@@ -199,9 +242,11 @@ private:
 #if defined(Q_WS_MAC)
     void macSetFont(QPaintDevice *);
 #endif
+    
+    
 #if defined(Q_WS_WIN)
     void *textMetric() const;
-	HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );	
+    HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
 #endif
 
     friend class QFontInternal;
@@ -214,8 +259,7 @@ private:
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 #endif
-
-
+    
     // private data
     QFontPrivate *d;
 };

@@ -113,6 +113,7 @@ public:
 
 #endif // Q_WS_X11
 
+
 #ifdef Q_WS_WIN
 
 class QFontStruct : public QShared
@@ -143,7 +144,8 @@ public:
 //    friend void QFont::initFontInfo() const;
 };
 
-#endif
+#endif // Q_WS_WIN
+
 
 typedef QCacheIterator<QFontStruct> QFontCacheIterator;
 class QFontCache : public QObject, public QCache<QFontStruct>
@@ -257,32 +259,34 @@ public:
 #define NSCRIPTSEGCSHACK 54
 
     static Script scriptForChar(const QChar &c);
-    
+
     static QFontCache *fontCache;
-    
-    
+
+
 public:
     QFontPrivate()
 	: exactMatch(FALSE), lineWidth(1)
     {
-#ifndef QT_NO_COMPAT
-	// charset = QFont::AnyCharSet;
-#endif
+	
+	charsetcompat = QFont::Unicode;
+	
 #ifdef Q_WS_WIN
 		fin = 0;
-#endif
+#endif // Q_WS_WIN
+		
     }
 
     QFontPrivate(const QFontPrivate &fp)
 	: QShared(fp), request(fp.request), actual(fp.actual),
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
-#ifndef QT_NO_COMPAT
-	// charset = fp.charset;
-#endif
+	
+	charsetcompat = fp.charsetcompat;
+	
 #ifdef Q_WS_WIN
-		fin = 0;
-#endif
+	fin = 0;
+#endif // Q_WS_WIN
+	
     }
 
     // requested font
@@ -302,7 +306,7 @@ public:
 
     static int getFontWeight(const QCString &, bool = FALSE);
 
-#if defined(Q_WS_X11)
+#ifdef Q_WS_X11
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
@@ -380,23 +384,21 @@ public:
 	    }
 	}
     } x11data;
-    
+
     static QFontPrivate::Script defaultScript;
 
 #endif // Q_WS_X11
 
-#if defined(Q_WS_WIN)
+#ifdef Q_WS_WIN
 	~QFontPrivate() { if( fin ) fin->deref(); }
-	void load();	
+	void load();
 	void initFontInfo();
 	HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
 	QFontStruct *fin;
-#endif
+#endif // Q_WS_WIN
 
-#ifndef QT_NO_COMPAT
     // source compatibility for QFont
-    // QFont::CharSet charsetcompat;
-#endif // QT_NO_COMPAT
+    QFont::CharSet charsetcompat;
 
 };
 

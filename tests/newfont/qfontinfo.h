@@ -48,7 +48,7 @@ class Q_EXPORT QFontInfo
 public:
     QFontInfo( const QFont & );
     QFontInfo( const QFontInfo & );
-   ~QFontInfo();
+    ~QFontInfo();
 
     QFontInfo	       &operator=( const QFontInfo & );
 
@@ -64,6 +64,10 @@ public:
     bool		rawMode()	const;
 
     bool		exactMatch()	const;
+    
+#ifndef QT_NO_COMPAT
+    QFont::CharSet charSet() const;
+#endif // QT_NO_COMPAT
 
 #if 1	/* OBSOLETE */
     const QFont &font() const;
@@ -72,7 +76,7 @@ public:
 private:
     QFontInfo( const QPainter * );
     static void reset( const QPainter * );
-    
+
     QFontPrivate *d;
     QPainter *painter;
     int flags;
