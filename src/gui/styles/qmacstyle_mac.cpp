@@ -371,7 +371,7 @@ public:
                            const QWidget *widget) const;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     void HIThemeDrawClickThroughButton(const HIRect &macRect, const HIThemeButtonDrawInfo &bdi,
-                                       QPainter *p) const;
+                                       QPainter *p, const QStyleOption *opt) const;
 #endif
 
     // Appearance Manager-based functions
@@ -394,6 +394,9 @@ public:
     void AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz, const QWidget *w);
     int AppManPixelMetric(QStyle::PixelMetric metric, const QStyleOption *opt,
                           const QWidget *widget) const;
+    void AppManDrawClickThroughButton(const Rect &macRect, const ThemeButtonKind bkind,
+                                      const ThemeButtonDrawInfo &bdi, QPainter *p,
+                                      const QStyleOption *opt) const;
     void drawPantherTab(const QStyleOptionTab *tab, QPainter *p, const QWidget *w = 0) const;
 
 protected:
@@ -1589,15 +1592,70 @@ void QMacStylePrivate::HIThemePolish(QApplication *app)
 #endif
 }
 
+void QMacStylePrivate::AppManDrawClickThroughButton(const Rect &macRect, const ThemeButtonKind bkind,
+                                                    const ThemeButtonDrawInfo &bdi, QPainter *p,
+                                                    const QStyleOption *opt) const
+{
+    int x, y, width, height;
+    if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+        x = cmb->rect.x() + (cmb->editable ? 0 : 2);
+        y = cmb->rect.y() + (cmb->editable ? 0 : 2);
+        width = macRect.right - macRect.left;
+        height = macRect.bottom - macRect.top;
+    } else {
+        x = opt->rect.x();
+        y = opt->rect.y();
+        width = macRect.right - macRect.left + 1;
+        height = macRect.bottom - macRect.top + 1;
+    }
+    QPixmap pm(width, height);
+    QString key = QLatin1String("$qt_mac_style_am_ctb_") + QString::number(bkind) + QLatin1Char('_')
+                  + QString::number(bdi.value) + QLatin1Char('_') + QString::number(width)
+                  + QLatin1Char('_') + QString::number(height);
+    if (!QPixmapCache::find(key, pm)) {
+        QPainter pixPainter(&pm);
+        pixPainter.fillRect(0, 0, pm.width(), pm.height(), opt->palette.brush(QPalette::Background));
+        qt_mac_set_port(&pixPainter);
+        Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, pm.width(), pm.height()), &pixPainter);
+        DrawThemeButton(&pixRect, bkind, &bdi, 0, 0, 0, 0);
+        QImage img = pm.toImage();
+
+        for (int y = 0; y < img.height(); ++y) {
+            QRgb *scanline = reinterpret_cast<QRgb *>(img.scanLine(y));
+            for (int x = 0; x < img.width(); ++x) {
+                uint pixel = scanline[x];
+                int distance = qAbs(qRed(pixel) - qGreen(pixel))
+                    + qAbs(qRed(pixel) - qBlue(pixel))
+                    + qAbs(qGreen(pixel) - qBlue(pixel));
+                if (distance > 20) {
+                    int tmp;
+                    if (qRed(pixel) > qGreen(pixel) && qRed(pixel) > qBlue(pixel))
+                        tmp = qRed(pixel);
+                    else if (qGreen(pixel) > qRed(pixel) && qGreen(pixel) > qBlue(pixel))
+                        tmp = qGreen(pixel);
+                    else
+                        tmp = qBlue(pixel);
+                    pixel = qRgba(tmp, tmp, tmp, qAlpha(pixel));
+                    scanline[x] = pixel;
+                }
+            }
+        }
+        pm.fromImage(img);
+        QPixmapCache::insert(key, pm);
+    }
+    p->drawPixmap(x, y, width, height, pm);
+}
+
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 void QMacStylePrivate::HIThemeDrawClickThroughButton(const HIRect &macRect, const HIThemeButtonDrawInfo &bdi,
-                                                     QPainter *p) const
+                                                     QPainter *p, const QStyleOption *) const
 {
     int width = int(macRect.size.width);
     int height = int(macRect.size.height);
 
-    QString key = QLatin1String("$qt_mac_style_ctb_") + QString::number(bdi.kind) + QLatin1Char(' ')
-                  + QString::number(width) + QLatin1Char(' ') + QString::number(height);
+    QString key = QLatin1String("$qt_mac_style_ctb_") + QString::number(bdi.kind) + QLatin1Char('_')
+                  + QString::number(bdi.value) + QLatin1Char('_') + QString::number(width)
+                  + QLatin1Char('_') + QString::number(height);
     QPixmap pm;
     if (!QPixmapCache::find(key, pm)) {
         QCFType<CGColorSpaceRef> colorspace = CGColorSpaceCreateDeviceRGB();
@@ -1711,7 +1769,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             if (!hasClickThrough)
                 HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             else
-                HIThemeDrawClickThroughButton(macRect, bdi, p);
+                HIThemeDrawClickThroughButton(macRect, bdi, p, opt);
         }
         break; }
     case QStyle::PE_IndicatorArrowUp:
@@ -2606,7 +2664,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             if (!hasClickThrough)
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
             else
-                HIThemeDrawClickThroughButton(hirect, bdi, p);
+                HIThemeDrawClickThroughButton(hirect, bdi, p, opt);
         }
         break;
     case QStyle::CC_TitleBar:
@@ -3217,6 +3275,10 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                 || pe == QStyle::PE_IndicatorRadioButton
                 || pe == QStyle::PE_IndicatorRadioButtonMask);
         ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
+        bool isClickThrough = (!(opt->state & QStyle::State_Active))
+                                    && opt->palette.currentColorGroup() == QPalette::Active;
+        if (isClickThrough && tds == kThemeStateInactive)
+            info.state = kThemeStateActive;
         if (opt->state & QStyle::State_HasFocus
                 && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
             info.adornment |= kThemeAdornmentFocus;
@@ -3260,8 +3322,12 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
             p->fillRect(opt->rect, Qt::color1);
             p->restore();
         } else {
-            qt_mac_set_port(p);
-            DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, 0, 0, 0, 0);
+            if (!isClickThrough) {
+                qt_mac_set_port(p);
+                DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, 0, 0, 0, 0);
+            } else {
+                AppManDrawClickThroughButton(*qt_glb_mac_rect(opt->rect, p, false), bkind, info, p, opt);
+            }
         }
         break; }
     case QStyle::PE_FrameFocusRect:
@@ -4189,6 +4255,10 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
     case QStyle::CC_ComboBox:
         if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+            bool isClickThrough = (!(combo->state & QStyle::State_Active))
+                                        && combo->palette.currentColorGroup() == QPalette::Active;
+            if (isClickThrough && tds == kThemeStateInactive)
+                info.state = kThemeStateActive;
             bool hasFocus = combo->state & QStyle::State_HasFocus;
             if (hasFocus)
                 info.adornment |= kThemeAdornmentFocus;
@@ -4233,9 +4303,14 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                                 (myRect.top - macRect.top)
                                  + (macRect.bottom - myRect.bottom) + offset);
             }
-            qt_mac_set_port(p);
-            DrawThemeButton(qt_glb_mac_rect(combo->rect, p, true, off_rct), bkind, &info,
-                            0, 0, 0, 0);
+            if (!isClickThrough){
+                qt_mac_set_port(p);
+                DrawThemeButton(qt_glb_mac_rect(combo->rect, p, true, off_rct), bkind, &info,
+                                0, 0, 0, 0);
+            } else {
+                AppManDrawClickThroughButton(*qt_glb_mac_rect(combo->rect, p, false, off_rct),
+                                             bkind, info, p, opt);
+            }
         }
         break;
     case QStyle::CC_TitleBar:
