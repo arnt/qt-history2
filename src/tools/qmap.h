@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#10 $
+** $Id: //depot/qt/main/src/tools/qmap.h#11 $
 **
 ** Definition of QMap class
 **
@@ -312,7 +312,7 @@ public:
     --node_count;
   }
 
-#ifdef DEBUG
+#ifdef QT_QMAP_DEBUG
   void inorder( QMapNodeBase* x = 0, int level = 0 )
   {
     if ( !x ) x = header->parent;
