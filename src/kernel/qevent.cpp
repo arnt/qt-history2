@@ -90,11 +90,11 @@
     \value MidButton  the middle button.
     \value ShiftButton  a Shift key on the keyboard is also pressed.
     \value ControlButton  a Ctrl key on the keyboard is also pressed.
-    \value AltButton  an Alt (or Meta) key on the keyboard is also pressed.
+    \value AltButton  an Alt key on the keyboard is also pressed.
     \value MetaButton a Meta key on the keyboard is also pressed.
     \value Keypad  a keypad button is pressed.
-    \value KeyButtonMask a mask for ShiftButton, ControlButton and
-    AltButton.
+    \value KeyButtonMask a mask for ShiftButton, ControlButton,
+    AltButton and MetaButton.
     \value MouseButtonMask a mask for LeftButton, RightButton and MidButton.
 */
 
