@@ -639,6 +639,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 void QComboBox::insertItem( const QString &t, int index )
 {
     int cnt = count();
+    d->sizeHint = QSize();	// invalidate size hint
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
@@ -667,6 +668,7 @@ void QComboBox::insertItem( const QString &t, int index )
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
 {
     int cnt = count();
+    d->sizeHint = QSize();		// invalidate size hint
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
@@ -695,6 +697,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int index )
 {
     int cnt = count();
+    d->sizeHint = QSize();		// invalidate size hint
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
@@ -722,6 +725,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, const QString& text, int inde
 void QComboBox::removeItem( int index )
 {
     int cnt = count();
+    d->sizeHint = QSize();		// invalidate size hint
     if ( !checkIndex( "removeItem", name(), cnt, index ) )
 	return;
     if ( d->usingListBox() )
@@ -767,6 +771,7 @@ void QComboBox::removeItem( int index )
 
 void QComboBox::clear()
 {
+    d->sizeHint = QSize();		// invalidate size hint
     if ( d->usingListBox() ) {
 	d->listBox()->resize( 0, 0 );
 	d->listBox()->clear();
@@ -832,6 +837,7 @@ const QPixmap *QComboBox::pixmap( int index ) const
 
 void QComboBox::changeItem( const QString &t, int index )
 {
+    d->sizeHint = QSize();		// invalidate size hint
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox() )
@@ -857,6 +863,7 @@ void QComboBox::changeItem( const QString &t, int index )
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
+    d->sizeHint = QSize();		// invalidate size hint
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox() )
@@ -877,6 +884,7 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 
 void QComboBox::changeItem( const QPixmap &im, const QString &t, int index )
 {
+    d->sizeHint = QSize();		// invalidate size hint
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox() )
@@ -1930,6 +1938,7 @@ bool QComboBox::autoCompletion() const
  */
 void QComboBox::styleChange( QStyle& s )
 {
+    d->sizeHint = QSize();		// invalidate size hint...
     if ( d->ed )
 	d->updateLinedGeometry();
     QWidget::styleChange( s );
