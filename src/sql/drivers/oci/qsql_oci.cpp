@@ -279,7 +279,8 @@ void QOCIPrivate::outValues(QVector<QVariant> &values, IndicatorArray &indicator
                 values[i] = qMakeDate(tmpStorage.takeFirst()).time();
                 break;
             case QVariant::String:
-                values[i] = QString::fromUtf16((ushort*)tmpStorage.takeFirst().constData());
+                values[i] = QString::fromUtf16(
+                        reinterpret_cast<const ushort *>(tmpStorage.takeFirst().constData()));
                 break;
             default:
                 break; //nothing
@@ -357,8 +358,9 @@ QVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, i
         type = QVariant::Int;
     else if (ocitype == QLatin1String("FLOAT"))
         type = QVariant::Double;
-//    else if (ocitype == "LONG" || ocitype == "NCLOB" || ocitype == "CLOB")
-//        type = QVariant::CString;
+    else if (ocitype == QLatin1String("LONG") || ocitype == QLatin1String("NCLOB")
+             || ocitype == QLatin1String("CLOB"))
+        type = QVariant::ByteArray;
     else if (ocitype == QLatin1String("RAW") || ocitype == QLatin1String("LONG RAW")
              || ocitype == QLatin1String("ROWID") || ocitype == QLatin1String("BLOB")
              || ocitype == QLatin1String("CFILE") || ocitype == QLatin1String("BFILE"))
@@ -389,7 +391,7 @@ QVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_VCS:
     case SQLT_AVC:
     case SQLT_RDD:
-    case SQLT_LNG: //???
+//    case SQLT_LNG: //???
 #ifdef SQLT_INTERVAL_YM
     case SQLT_INTERVAL_YM:
 #endif
@@ -407,10 +409,7 @@ QVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_UIN:
         type = QVariant::Double;
         break;
-    case SQLT_CLOB:
-//    case SQLT_LNG:
-//        type = QVariant::CString;
-//        break;
+    case SQLT_LNG:
     case SQLT_VBI:
     case SQLT_BIN:
     case SQLT_LBI:
@@ -421,6 +420,7 @@ QVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_NTY:
     case SQLT_REF:
     case SQLT_RID:
+    case SQLT_CLOB:
         type = QVariant::ByteArray;
         break;
     case SQLT_DAT:
@@ -622,12 +622,14 @@ private:
     class OraFieldInf
     {
     public:
-        OraFieldInf(): data(0), len(0), ind(0), typ(QVariant::Invalid), def(0), lob(0) {}
+        OraFieldInf(): data(0), len(0), ind(0), typ(QVariant::Invalid), oraType(0), def(0), lob(0)
+        {}
         ~OraFieldInf();
         char *data;
         int len;
         sb2 ind;
         QVariant::Type typ;
+        ub4 oraType;
         OCIDefine *def;
         OCILobLocator *lob;
     };
@@ -677,33 +679,33 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
 #endif //SQLT_INTERVAL_YM
         else
             dataSize = ofi.oraLength;
-        QVariant::Type type = ofi.type;
-        fieldInf[count-1].typ = type;
-        switch (type) {
-            case QVariant::DateTime:
-                r = OCIDefineByPos(d->sql,
-                                    &dfn,
-                                    d->err,
-                                    count,
-                                    create(idx, dataSize+1),
-                                    dataSize+1,
-                                    SQLT_DAT,
-                                    (dvoid *) &(fieldInf[idx].ind),
-                                    0, 0, OCI_DEFAULT);
+        fieldInf[idx].typ = ofi.type;
+        fieldInf[idx].oraType = ofi.oraType;
+        switch (ofi.type) {
+        case QVariant::DateTime:
+            r = OCIDefineByPos(d->sql,
+                               &dfn,
+                               d->err,
+                               count,
+                               create(idx, dataSize+1),
+                               dataSize+1,
+                               SQLT_DAT,
+                               (dvoid *) &(fieldInf[idx].ind),
+                               0, 0, OCI_DEFAULT);
             break;
-            case QVariant::ByteArray:
-                // RAW and LONG RAW fields can't be bound to LOB locators
-                if (ofi.oraType == SQLT_BIN) {
-                //                    qDebug("binding SQLT_BIN");
+        case QVariant::ByteArray:
+            // RAW and LONG RAW fields can't be bound to LOB locators
+            if (ofi.oraType == SQLT_BIN) {
+            //                    qDebug("binding SQLT_BIN");
                 r = OCIDefineByPos(d->sql,
-                                    &dfn,
-                                    d->err,
-                                    count,
-                                    create(idx, dataSize),
-                                    dataSize,
-                                    SQLT_BIN,
-                                    (dvoid *) &(fieldInf[idx].ind),
-                                    0, 0, OCI_DYNAMIC_FETCH);
+                                   &dfn,
+                                   d->err,
+                                   count,
+                                   create(idx, dataSize),
+                                   dataSize,
+                                   SQLT_BIN,
+                                   (dvoid *) &(fieldInf[idx].ind),
+                                   0, 0, OCI_DYNAMIC_FETCH);
             } else if (ofi.oraType == SQLT_LBI) {
                 //                    qDebug("binding SQLT_LBI");
                 r = OCIDefineByPos(d->sql,
@@ -715,6 +717,11 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                     SQLT_LBI,
                                     (dvoid *) &(fieldInf[idx].ind),
                                     0, 0, OCI_DYNAMIC_FETCH);
+            } else if (ofi.oraType == SQLT_CLOB) {
+                qDebug("BINDING CLOB");
+                r = OCIDefineByPos(d->sql, &dfn, d->err, count, createLobLocator(idx, d->env),
+                                   (sb4)-1, SQLT_CLOB, (dvoid *) &(fieldInf[idx].ind), 0,
+                                   0, OCI_DEFAULT);
             } else {
                 // qDebug("binding SQLT_BLOB");
                 r = OCIDefineByPos(d->sql,
@@ -728,22 +735,22 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                     0, 0, OCI_DEFAULT);
             }
             break;
-            case QVariant::String:
-                dataSize += dataSize + sizeof(QChar);
+        case QVariant::String:
+            dataSize += dataSize + sizeof(QChar);
             //qDebug("OCIDefineByPosStr: %d", dataSize);
             r = OCIDefineByPos(d->sql,
-                                &dfn,
-                                d->err,
-                                count,
-                                create(idx, dataSize),
-                                dataSize,
-                                SQLT_STR,
-                                (dvoid *) &(fieldInf[idx].ind),
-                                0, 0, OCI_DEFAULT);
-            if (r == 0)
-                setCharset(dfn);
-            break;
-            default:
+                               &dfn,
+                               d->err,
+                               count,
+                               create(idx, dataSize),
+                               dataSize,
+                               SQLT_STR,
+                               (dvoid *) &(fieldInf[idx].ind),
+                               0, 0, OCI_DEFAULT);
+           if (r == 0)
+               setCharset(dfn);
+           break;
+        default:
             dataSize += ++dataSize; // REMOVE ME
             //qDebug("OCIDefineByPosDef: %d", dataSize);
             r = OCIDefineByPos(d->sql,
@@ -844,7 +851,8 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
     int            fieldNum = -1;
     int            r = 0;
     bool           nullField;
-    for (; ;) {
+
+    do {
         r = OCIStmtGetPieceInfo(d->sql, d->err, (dvoid**) &dfn, &typep,
                                  &in_outp, &iterp, &idxp, &piecep);
         if (r != OCI_SUCCESS)
@@ -863,17 +871,16 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
             OCIErrorGet((dvoid *)d->err, (ub4) 1, (text *) NULL,
                         &errcode, NULL, 0,OCI_HTYPE_ERROR);
             switch (errcode) {
-                case 1405: /* NULL */
+            case 1405: /* NULL */
                 nullField = true;
                 break;
-                default:
+            default:
                 qOraWarning("OCIResultPrivate::readPiecewise: unable to fetch next:", d);
                 break;
             }
         }
-        if (status == OCI_NO_DATA) {
+        if (status == OCI_NO_DATA)
             break;
-        }
         if (nullField || !chunkSize) {
             values[fieldNum + index] = QVariant(QVariant::ByteArray);
             fieldInf[fieldNum].ind = -1;
@@ -885,58 +892,52 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
             values[fieldNum + index] = ba;
             fieldInf[fieldNum].ind = 0;
         }
-        if (status == OCI_SUCCESS_WITH_INFO ||
-             status == OCI_NEED_DATA) {
-        } else
-            break;
-    }
+    } while (status == OCI_SUCCESS_WITH_INFO || status == OCI_NEED_DATA);
     return r;
+}
+
+static int qInitialLobSize(QOCIPrivate *d, OCILobLocator *lob)
+{
+    ub4 i;
+    int r = OCILobGetChunkSize(d->svc, d->err, lob, &i);
+    if (r != OCI_SUCCESS) {
+        qOraWarning("OCIResultPrivate::readLobs: Couldn't get LOB chunk size: ", d);
+        i = 1024 * 10;
+    }
+    return i;
 }
 
 int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
 {
-    int r = 0;
-    OCILobLocator* lob;
-    ub4 amount;
-    for (int i = 0; i < size(); ++i) {
-        lob = fieldInf.at(i).lob;
-        if (!lob || isNull(i))
-            continue;
-        r = OCILobGetLength(d->svc, d->err, lob, &amount);
-        //qDebug("At %d: got length %d", index, amount);
-        if (r != 0) {
-            qOraWarning("OCIResultPrivate::readLOBs: Can't get size of LOB:", d);
-            amount = 0;
-        }
-        if (amount > 0) {
-            QByteArray buf;
-            buf.resize(amount);
-            // get lob charset ID and tell oracle to transform it
-            ub1 csfrm = 0;
-            r = OCILobCharSetForm(d->env, d->err, lob, &csfrm);
-            if (r != 0) {
-                qOraWarning("OCIResultPrivate::readLOBs: Can't get encoding of LOB: ", d);
-                csfrm = 0;
-            }
+    int r = OCI_SUCCESS;
+    OCILobLocator *lob;
 
-            r = OCILobRead(d->svc,
-                            d->err,
-                            lob,
-                            &amount,
-                            1,
-                            (void*) buf.constData(),
-                            (ub4) buf.size(),
-                            0, 0,
-                            0,
-                            csfrm);
-            if (r != 0)
-                qOraWarning("OCIResultPrivate::readLOBs: Cannot read LOB:", d);
+    for (int i = 0; i < size(); ++i) {
+        if (isNull(i) || !(lob = fieldInf.at(i).lob))
+            continue;
+
+        QByteArray buf;
+        buf.resize(qInitialLobSize(d, lob));
+        ub4 read = 0;
+
+        while (true) {
+            ub4 amount = ub4(-1); // read maximum amount of data
+            r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, buf.data() + read,
+                           ub4(buf.size() - read), 0, 0, 2000, 0);
+            //qDebug(" read: %d", amount);
+            read += amount;
+            if (r == OCI_NEED_DATA)
+                buf.resize(buf.size() * 3);
             else
-                values[i + index] = buf;
+                break;
         }
-        if (r != 0 || !amount) {
-            values[i + index] = QByteArray();
-            r = 0; // non-fatal error
+
+        if (r == OCI_SUCCESS) {
+            //qDebug("amount: %d", read);
+            buf.resize(read);
+            values[i + index] = buf;
+        } else {
+            qOraWarning("OCIResultPrivate::readLOBs: Cannot read LOB: ", d);
         }
     }
     return r;
@@ -1073,7 +1074,7 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
         else
             r = cols->readPiecewise(values, index);
     }
-    if(r == OCI_ERROR) {
+    if (r == OCI_ERROR) {
         switch (qOraErrorNumber(d)) {
         case 1406:
             qWarning("QOCI Warning: data truncated for %s", lastQuery().toLocal8Bit().constData());
