@@ -1,5 +1,5 @@
 TEMPLATE    =	lib
-CONFIG      =	qt warn_on release
+CONFIG      =	qt x11inc warn_on release
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
 		dialogs/qprndlg.h \
