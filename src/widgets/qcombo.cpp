@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#88 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#88 $");
 
 
 /*!
@@ -727,10 +727,11 @@ QSize QComboBox::sizeHint() const
     int maxW = 0;
     int maxH = QMAX( fm.height(), style()==WindowsStyle ? 16 : 18 );
     
-    for( i = 0 ; i < count() ; i++ ) {
+    for( i = 0; i < count(); i++ ) {
 	tmp = text( i );
 	if ( tmp ) {
 	    w = fm.width( tmp );
+	    h = 0;
 	} else {
 	    const QPixmap *pix = pixmap( i );
 	    if ( pix ) {
@@ -912,7 +913,9 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
 
-    } else if ( style() == MotifStyle ) { // motif 2.0 style
+    } else if ( style() == MotifStyle ) {	// motif 2.0 style
+
+	// ARNT!!! INITIALIZE x1, y1
 	int x1, y1;
 	QPointArray l;
 
@@ -923,7 +926,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    ay = 0;
 	} else if ( height() < 18 ) {
 	    awh = height() - 6;
-	    awh = 0;
+	    ay = 0;
 	} else {
 	    awh = height()*4/10;
 	    ay = awh/2;
@@ -978,7 +981,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( hasFocus() )
 	    p.drawRect( x1 - 2, y1 - 2, 20, 22 );
 
-    } else {				// windows 95 style
+    } else {					// windows 95 style
+
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
 	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
@@ -1009,6 +1013,7 @@ void QComboBox::paintEvent( QPaintEvent * )
     p.end();
 }
 
+
 /*!
   \internal
   Returns the button arrow rectangle for windows style combo boxes.
@@ -1017,6 +1022,7 @@ QRect QComboBox::arrowRect() const
 {
     return QRect( width() - 2 - 16, 2, 16, height() - 4 );
 }
+
 
 /*!
   Handles mouse press events for the combo box.
