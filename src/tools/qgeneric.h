@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#15 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#16 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
@@ -14,16 +14,30 @@
 
 #include "qglobal.h"
 
-// First try to include the system defines where it is sure to exist
+
+// Try to include the system defines where it is sure to exist
 #if defined(_CC_SUN_) || (defined(_CC_EDG_) && defined(_OS_IRIX_))
 #include <generic.h>
 #endif
 
-// Next, define them if necessary and appropriate
-#if !defined(declare) && defined(QT_ADD_GENERIC_MACROS)
+
+// Define Qt generic macros
+// At some time in the future, these will be the only #defines left here
+
+#if defined(QT_ADD_GENERIC_MACROS)
+
+#define Q_NAME2(a,b)		Q_NAME2_AUX(a,b)
+#define Q_NAME2_AUX(a,b)	a##b
+#define Q_DECLARE(a,t)		Q_NAME2(a,declare)(t)
+
+#endif // QT_ADD_GENERIC_MACROS
+
 
 // Standard token-pasting macros for ANSI C preprocessors
 // We will remove these from Qt in version 2.0 or 3.0
+
+#if !defined(declare)
+
 #define name2(a,b)		_name2_aux(a,b)
 #define _name2_aux(a,b)		a##b
 #define name3(a,b,c)		_name3_aux(a,b,c)
@@ -36,13 +50,7 @@
 #define declare2(a,t1,t2)	name2(a,declare2)(t1,t2)
 #define implement2(a,t1,t2)	name2(a,implement2)(t1,t2)
 
-#endif
-
-// Finally, define our very own macros
-// At some time in the future, these will be the only #defines left here
-#define Q_NAME2(a,b)		Q_NAME2_AUX(a,b)
-#define Q_NAME2_AUX(a,b)	a##b
-#define Q_DECLARE(a,t)		Q_NAME2(a,declare)(t)
+#endif // !declare
 
 
 #endif // QGENERIC_H
