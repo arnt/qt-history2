@@ -142,7 +142,7 @@ public:
 	HANGUL,
 	BOPOMOFO,
 
-	UNICODE,
+	Unicode,
 
 	// End
 	NScripts,
