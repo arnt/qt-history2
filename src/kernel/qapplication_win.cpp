@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#83 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#83 $");
 
 
 /*****************************************************************************
@@ -744,7 +744,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     }
     int sn_event = 0;
     if ( sn_read && sn_read->find(sockfd) )
-	sn_event |= FD_READ | FD_CLOSE;
+	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
     if ( sn_write && sn_write->find(sockfd) )
 	sn_event |= FD_WRITE | FD_CONNECT;
     if ( sn_except && sn_except->find(sockfd) )
