@@ -13,14 +13,15 @@
 
 #include "qdesigner_stackedbox.h"
 #include "formwindow.h"
-#include "command.h"
-#include "qtundo.h"
-#include "abstractformeditor.h"
-#include "abstractpropertyeditor.h"
+
+#include <abstractformeditor.h>
+#include <abstractpropertyeditor.h>
 #include <abstractmetadatabase.h>
 
 #include <qextensionmanager.h>
 #include <propertysheet.h>
+#include <qdesigner_command.h>
+#include <qtundo.h>
 
 #include <qevent.h>
 #include <qtoolbutton.h>

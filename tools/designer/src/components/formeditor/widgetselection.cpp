@@ -14,12 +14,12 @@
 #include "widgetselection.h"
 #include "formwindow.h"
 #include "formwindowmanager.h"
-#include "layoutinfo.h"
-#include "command.h"
-#include "taskmenu.h"
 
 #include <qextensionmanager.h>
 #include <abstractwidgetfactory.h>
+#include <layoutinfo.h>
+#include <qdesigner_command.h>
+#include <taskmenu.h>
 
 #include <QMenu>
 #include <QVariant>

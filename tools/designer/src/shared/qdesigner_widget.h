@@ -14,18 +14,19 @@
 #ifndef QDESIGNER_WIDGET_H
 #define QDESIGNER_WIDGET_H
 
-#include "formeditor_global.h"
-#include <layoutdecoration.h>
+#include "shared_global.h"
+#include "layoutdecoration.h"
 
 #include <abstractmetadatabase.h>
 
-#include <QGridLayout>
-#include <QWidget>
-#include <QDialog>
-#include <QLabel>
-#include <QPixmap>
-#include <QPointer>
-#include <qpair.h>
+#include <QtCore/QPointer>
+#include <QtCore/QPair>
+
+#include <QtGui/QGridLayout>
+#include <QtGui/QWidget>
+#include <QtGui/QDialog>
+#include <QtGui/QLabel>
+#include <QtGui/QPixmap>
 
 class AbstractFormWindow;
 class QAction;
@@ -34,7 +35,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QGridLayout;
 
-class QT_FORMEDITOR_EXPORT QDesignerWidget : public QWidget
+class QT_SHARED_EXPORT QDesignerWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -56,7 +57,7 @@ private:
     QPixmap grid;
 };
 
-class QT_FORMEDITOR_EXPORT QLayoutSupport: public QObject
+class QT_SHARED_EXPORT QLayoutSupport: public QObject
 {
     Q_OBJECT
 public:
@@ -139,7 +140,7 @@ private:
     QPair<int, int> m_currentCell;
 };
 
-class QT_FORMEDITOR_EXPORT QLayoutWidget: public QWidget
+class QT_SHARED_EXPORT QLayoutWidget: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(int margin READ layoutMargin WRITE setLayoutMargin DESIGNABLE true)
@@ -231,7 +232,7 @@ protected:
     { Q_ASSERT(me()->widget()); return me()->widget()->layout(); }
 };
 
-class QT_FORMEDITOR_EXPORT QDesignerDialog : public QDialog
+class QT_SHARED_EXPORT QDesignerDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -245,7 +246,7 @@ private:
     AbstractFormWindow *m_formWindow;
 };
 
-class QT_FORMEDITOR_EXPORT QDesignerLabel : public QLabel
+class QT_SHARED_EXPORT QDesignerLabel : public QLabel
 {
     Q_OBJECT
     Q_PROPERTY(QString buddy READ buddyWidget WRITE setBuddyWidget)
@@ -275,7 +276,7 @@ private:
     QString myBuddy;
 };
 
-class QT_FORMEDITOR_EXPORT Line : public QFrame
+class QT_SHARED_EXPORT Line : public QFrame
 {
     Q_OBJECT
 

@@ -13,7 +13,8 @@
 
 #include "qdesigner_toolbox.h"
 #include "formwindow.h"
-#include "command.h"
+
+#include <qdesigner_command.h>
 
 #include <qaction.h>
 

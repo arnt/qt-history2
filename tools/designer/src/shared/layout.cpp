@@ -14,14 +14,13 @@
 #include "layout.h"
 #include "qdesigner_widget.h"
 #include "layoutdecoration.h"
+#include "spacer.h"
 
 #include <abstractwidgetdatabase.h>
 #include <abstractformwindow.h>
 #include <abstractwidgetfactory.h>
 #include <abstractformeditor.h>
 #include <qextensionmanager.h>
-
-#include <spacer.h>
 
 #include <QtCore/qdebug.h>
 #include <QtCore/QVector>

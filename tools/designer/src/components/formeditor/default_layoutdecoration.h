@@ -15,7 +15,7 @@
 #define DEFAULT_LAYOUTDECORATION_H
 
 #include "formeditor_global.h"
-#include "layoutdecoration.h"
+#include <layoutdecoration.h>
 
 #include <default_extensionfactory.h>
 #include <qpair.h>

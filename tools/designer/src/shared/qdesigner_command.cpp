@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "command.h"
+#include "qdesigner_command.h"
 #include "layout.h"
 #include "qdesigner_widget.h"
 
@@ -25,11 +25,12 @@
 #include <qextensionmanager.h>
 #include <propertysheet.h>
 
-#include <QToolBox>
-#include <QStackedWidget>
-#include <QTabWidget>
-#include <QSplitter>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
+
+#include <QtGui/QToolBox>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QTabWidget>
+#include <QtGui/QSplitter>
 
 // ---- AbstractFormEditorCommand ----
 AbstractFormEditorCommand::AbstractFormEditorCommand(const QString &description, AbstractFormEditor *core)

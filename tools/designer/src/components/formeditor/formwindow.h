@@ -68,14 +68,6 @@ private:
     QPoint m_hot_spot;
 };
 
-class InvisibleWidget: public QWidget
-{
-    Q_OBJECT
-public:
-    InvisibleWidget(QWidget *parent = 0)
-        : QWidget(parent) {}
-};
-
 // ### fake - remove when actions are implemented
 class QT_FORMEDITOR_EXPORT WidgetToActionMap
 {

@@ -12,12 +12,14 @@
 **
 ****************************************************************************/
 
-#include <QLabel>
-#include <qtundo.h>
 #include "buddyeditor.h"
 
 #include <formwindow.h>
-#include <command.h>
+
+#include <qtundo.h>
+#include <qdesigner_command.h>
+
+#include <QtGui/QLabel>
 
 /*******************************************************************************
 ** BuddyConnection
@@ -30,7 +32,7 @@ public:
         : Connection(edit, source, target) {}
     virtual void inserted();
     virtual void removed();
-    
+
     BuddyEditor *buddyEditor() const { return qt_cast<BuddyEditor*>(edit()); }
 };
 
@@ -72,7 +74,7 @@ BuddyEditor::BuddyEditor(FormWindow *form, QWidget *parent)
 QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *w = ConnectionEdit::widgetAt(pos);
-    
+
     if (state() == Editing) {
         QLabel *label = qt_cast<QLabel*>(w);
         if (label == 0)
@@ -84,7 +86,7 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
                 return 0;
         }
     }
-            
+
     return w;
 }
 

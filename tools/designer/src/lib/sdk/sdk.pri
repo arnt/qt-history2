@@ -16,7 +16,8 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstracticoncache.h \
     $$PWD/propertysheet.h \
     $$PWD/taskmenu.h \
-    $$PWD/abstractwidgetbox.h
+    $$PWD/abstractwidgetbox.h \
+    $$PWD/layoutdecoration.h
 
 SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractpropertyeditor.cpp \

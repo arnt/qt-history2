@@ -16,8 +16,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../signalsloteditor \
     ../buddyeditor
 
-HEADERS += qdesigner_widget.h \
-           qdesigner_tabwidget.h \
+HEADERS += qdesigner_tabwidget.h \
            qdesigner_stackedbox.h \
            qdesigner_toolbox.h \
            qdesigner_resource.h \
@@ -26,10 +25,8 @@ HEADERS += qdesigner_widget.h \
            formwindowcursor.h \
            widgetselection.h \
            widgetfactory.h \
-           layout.h \
            metadatabase.h \
            widgetdatabase.h \
-           command.h \
            formwindowmanager.h \
            orderindicator.h \
            formeditor.h \
@@ -38,13 +35,11 @@ HEADERS += qdesigner_widget.h \
            qlayoutwidget_propertysheet.h \
            spacer_propertysheet.h \
            default_container.h \
-           layoutdecoration.h \
            default_layoutdecoration.h \
            iconcache.h \
            tool_widgeteditor.h
 
-SOURCES += qdesigner_widget.cpp \
-           qdesigner_tabwidget.cpp \
+SOURCES += qdesigner_tabwidget.cpp \
            qdesigner_stackedbox.cpp \
            qdesigner_toolbox.cpp \
            qdesigner_resource.cpp \
@@ -53,10 +48,8 @@ SOURCES += qdesigner_widget.cpp \
            formwindowcursor.cpp \
            widgetselection.cpp \
            widgetfactory.cpp \
-           layout.cpp \
            metadatabase.cpp \
            widgetdatabase.cpp \
-           command.cpp \
            formwindowmanager.cpp \
            orderindicator.cpp \
            formeditor.cpp \

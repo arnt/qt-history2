@@ -13,11 +13,11 @@
 
 #include "formwindowcursor.h"
 #include "formwindow.h"
-#include "command.h"
 
 // sdk
 #include <propertysheet.h>
 #include <qextensionmanager.h>
+#include <qdesigner_command.h>
 
 #include <qdebug.h>
 

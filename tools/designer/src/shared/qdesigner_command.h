@@ -11,28 +11,31 @@
 **
 ****************************************************************************/
 
-#ifndef COMMAND_H
-#define COMMAND_H
+#ifndef QDESIGNER_COMMAND_H
+#define QDESIGNER_COMMAND_H
 
-#include <qtundo.h>
-#include <layoutinfo.h>
-#include <buddyeditor.h>
-#include "layoutdecoration.h"
+#include "shared_global.h"
+#include "qtundo.h"
+#include "layoutinfo.h"
 
-#include <QPointer>
-#include <QVariant>
-#include <qpair.h>
+#include <layoutdecoration.h>
+
+#include <QtCore/QPointer>
+#include <QtCore/QPair>
+
+#include <QtGui/QVariant>
 
 class AbstractFormEditor;
 class AbstractFormWindowManager;
 class AbstractFormWindow;
 class Layout;
-class QToolBox;
-class QTabWidget;
-class QStackedWidget;
 
 struct IPropertySheet;
 struct AbstractMetaDataBaseItem;
+
+class QToolBox;
+class QTabWidget;
+class QStackedWidget;
 
 class AbstractFormEditorCommand: public QtCommand
 {
@@ -433,4 +436,4 @@ public:
     virtual void undo();
 };
 
-#endif // COMMAND_H
+#endif // QDESIGNER_COMMAND_H

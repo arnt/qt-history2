@@ -12,29 +12,27 @@
 ****************************************************************************/
 
 #include "qdesigner_widget.h"
-#include "qdesigner_stackedbox.h"
-#include "formwindow.h"
-#include "command.h"
+#include "qdesigner_command.h"
 #include "layout.h"
+#include "invisible_widget.h"
 
+#include <abstractformwindow.h>
 #include <abstractformeditor.h>
 #include <abstractwidgetfactory.h>
 #include <propertysheet.h>
 #include <qextensionmanager.h>
-#include <qtundo.h>
 
-#include <QBitmap>
-#include <QPixmapCache>
-#include <QToolButton>
-#include <QPainter>
-#include <QApplication>
-#include <QLayout>
-#include <QAction>
-#include <QMessageBox>
+#include <QtGui/QBitmap>
+#include <QtGui/QPixmapCache>
+#include <QtGui/QToolButton>
+#include <QtGui/QPainter>
+#include <QtGui/QApplication>
+#include <QtGui/QLayout>
+#include <QtGui/QAction>
+#include <QtGui/QMessageBox>
+#include <QtGui/qevent.h>
 
-#include <qevent.h>
-#include <qpair.h>
-#include <qdebug.h>
+#include <QtCore/qdebug.h>
 
 
 class FriendlyLayout: public QLayout

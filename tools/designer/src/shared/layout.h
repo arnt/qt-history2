@@ -14,7 +14,7 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 
 #include <layoutinfo.h>
 

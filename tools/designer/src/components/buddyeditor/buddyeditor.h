@@ -24,16 +24,16 @@ class QT_BUDDYEDITOR_EXPORT BuddyEditor : public ConnectionEdit
 {
     Q_OBJECT
 
-public:    
+public:
     BuddyEditor(FormWindow *form, QWidget *parent);
     FormWindow *form() const { return m_form; }
-    
+
 protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
 
-private:    
+private:
     virtual Connection *createConnection(QWidget *source, QWidget *destination);
-    
+
     FormWindow *m_form;
 };
 

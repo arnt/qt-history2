@@ -16,31 +16,33 @@
 #include "formwindowmanager.h"
 #include "tool_widgeteditor.h"
 
-#include "command.h"
 #include "orderindicator.h"
 #include "widgetselection.h"
-#include "qdesigner_widget.h"
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_resource.h"
 #include "signalsloteditor.h"
 #include "buddyeditor.h"
-#include "layoutdecoration.h"
 
 #ifdef DESIGNER_VIEW3D
 #    include "view3d.h"
 #endif
 
 // shared
+#include <qdesigner_command.h>
 #include <spacer.h>
 #include <layoutinfo.h>
+#include <layoutdecoration.h>
+#include <qdesigner_widget.h>
+#include <invisible_widget.h>
 
 // sdk
 #include <abstractformeditor.h>
 #include <abstractformwindowtool.h>
 #include <abstractwidgetfactory.h>
 #include <abstractwidgetdatabase.h>
+#include <ui4.h>
 
 #include <container.h>
 #include <propertysheet.h>

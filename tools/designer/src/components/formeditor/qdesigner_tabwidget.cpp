@@ -12,8 +12,9 @@
 ****************************************************************************/
 
 #include "qdesigner_tabwidget.h"
-#include "command.h"
 #include "formwindow.h"
+
+#include <qdesigner_command.h>
 
 #include <QApplication>
 #include <QTabBar>
