@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#181 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#182 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -155,6 +155,13 @@
 
   You can also use highlighted(int) signal.
 */
+
+/*! \fn void QComboBox::textChanged( const QString &string )
+
+  This signal is useful for editable comboboxes. It is emitted whenever
+  the contents of the text entry field changes.
+*/
+
 
 struct QComboData
 {
@@ -323,6 +330,8 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
     if ( rw ) {
 	d->ed = new QLineEdit( this, "combo edit" );
+	connect (d->ed, SIGNAL( textChanged( const QString& ) ),
+		 this, SIGNAL( textChanged( const QString& ) ) );
 	d->ed->setFrame( FALSE );
 	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
 	d->ed->installEventFilter( this );

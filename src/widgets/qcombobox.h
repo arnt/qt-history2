@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#65 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#66 $
 **
 ** Definition of QComboBox class
 **
@@ -110,6 +110,7 @@ signals:
     void	highlighted( int index );
     void	activated( const QString &);
     void	highlighted( const QString &);
+    void	textChanged( const QString &);
 
 private slots:
     void	internalActivate( int );
