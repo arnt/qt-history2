@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#12 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#13 $
 **
 ** Definition of QObject class
 **
@@ -45,6 +45,12 @@ public:
 
     QObjectList *children() const { return childObjects; }
 
+    void	insertChild( QObject * );	// add child object
+    void	removeChild( QObject * );	// remove child object
+
+    void	insertEventFilter( const QObject * );
+    void	removeEventFilter( const QObject * );
+
     static bool	connect( QObject *sender, const char *signal,
 			 const QObject *receiver, const char *member );
     bool	connect( QObject *sender, const char *signal,
@@ -68,12 +74,6 @@ protected:
     void	activate_signal( const char *signal, long );
     void	activate_signal( const char *signal, const char * );
     QObject     *sender();			// sender of last signal
-
-    void	insertChild( QObject * );	// add child object
-    void	removeChild( QObject * );	// remove child object
-
-    void	insertEventFilter( QObject * );	// add event filter object
-    void	removeEventFilter( QObject * );	// remove event filter object
 
     virtual void initMetaObject();		// initialize meta object
 

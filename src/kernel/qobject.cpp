@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#14 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#14 $";
 #endif
 
 
@@ -59,6 +59,7 @@ QObject::QObject( QObject *parent, const char *name )
     childObjects = 0;				// no children yet
     connections = 0;				// no connections yet
     senderObjects = 0;				// no signals connected yet
+    eventFilters = 0;				// no filters installed
     sigSender = 0;				// no sender yet
     isSignal = FALSE;				// assume not a signal object
     isWidget = FALSE;				// assume not a widget object
@@ -109,6 +110,7 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
+    delete eventFilters;
 }
 
 
@@ -124,9 +126,28 @@ void QObject::setName( const char *name )	// set object name
 }
 
 
-bool QObject::event( QEvent * )			// receive event
+bool QObject::event( QEvent *e )		// receive event
+{
+    return activate_filters( e );
+}
+
+bool QObject::eventFilter( QObject *, QEvent * )// filter event
 {
     return FALSE;				// don't do anything with it
+}
+
+
+bool QObject::activate_filters( QEvent *e )	// activate event filters
+{
+    register QObject *obj = eventFilters ? eventFilters->first() : 0;
+    bool stop = FALSE;
+    while ( obj ) {				// send to all filters
+	stop = obj->eventFilter( this, e );	//   until one returns TRUE
+	if ( stop )
+	    break;
+	obj = eventFilters->next();
+    }
+    return stop;				// don't do anything with it
 }
 
 
@@ -182,12 +203,32 @@ void QObject::insertChild( QObject *obj )	// add object object
 
 void QObject::removeChild( QObject *obj )	// remove child object
 {
-    if ( childObjects ) {
-	if ( childObjects->findRef(obj) >= 0 )
-	    childObjects->remove();		// does not delete object
+    if ( childObjects && childObjects->findRef(obj) >= 0 ) {
+	childObjects->remove();			// remove object from list
 	if ( childObjects->isEmpty() ) {	// list becomes empty
 	    delete childObjects;
 	    childObjects = 0;			// reset children list
+	}
+    }
+}
+
+
+void QObject::insertEventFilter( const QObject *obj )
+{						// add event filter object
+    if ( !eventFilters ) {
+	eventFilters = new QObjectList;
+	CHECK_PTR( eventFilters );
+    }
+    eventFilters->insert( obj );
+}
+
+void QObject::removeEventFilter( const QObject *obj )
+{						// remove event filter object
+    if ( eventFilters && eventFilters->findRef(obj) >= 0 ) {
+	eventFilters->remove();			// remove object from list
+	if ( eventFilters->isEmpty() ) {
+	    delete eventFilters;
+	    eventFilters = 0;			// reset event filter list
 	}
     }
 }
