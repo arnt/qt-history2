@@ -28,13 +28,13 @@ class FileItem : QListViewItem
 public:
     FileItem( QListViewItem *parent, const QString &s1, const QString &s2 )
 	: QListViewItem( parent, s1, s2 ), pix( 0 ) {}
-    
-    QPixmap *pixmap( int i ) const;
+
+    const QPixmap *pixmap( int i ) const;
     void setPixmap( QPixmap *p );
-    
+
 private:
     QPixmap *pix;
-    
+
 };
 
 class Directory : public QListViewItem
@@ -52,16 +52,16 @@ public:
     void setOpen( bool );
     void setup();
 
-    QPixmap *pixmap( int i ) const;
+    const QPixmap *pixmap( int i ) const;
     void setPixmap( QPixmap *p );
-    
+
 private:
     QFile f;
     Directory * p;
     bool readable;
     bool showDirsOnly;
     QPixmap *pix;
-    
+
 };
 
 class DirectoryView : public QListView

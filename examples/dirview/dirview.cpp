@@ -181,7 +181,7 @@ void Directory::setPixmap( QPixmap *p )
 }
 
 
-QPixmap *Directory::pixmap( int i ) const
+const QPixmap *Directory::pixmap( int i ) const
 {
     if ( i )
 	return 0;
@@ -510,7 +510,7 @@ void FileItem::setPixmap( QPixmap *p )
 }
 
 
-QPixmap *FileItem::pixmap( int i ) const
+const QPixmap *FileItem::pixmap( int i ) const
 {
     if ( i )
 	return 0;
