@@ -61,8 +61,8 @@ EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
     QToolButton *button = new QToolButton(this);
     button->setToolButtonStyle(Qt::ToolButtonIconOnly);
     button->setIcon(createIconSet(QLatin1String("resetproperty.png")));
-    button->setFixedWidth(20);
-    button->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+    button->setIconSize(QSize(8,8));
+    button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
     m_layout->addWidget(button);
     connect(button, SIGNAL(clicked()), this, SLOT(emitResetProperty()));
 }
@@ -75,6 +75,8 @@ void EditorWithReset::emitResetProperty()
 void EditorWithReset::setChildEditor(QWidget *child_editor)
 {
     m_child_editor = child_editor;
+
+    m_child_editor->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
     m_layout->insertWidget(0, m_child_editor);
     setFocusProxy(m_child_editor);
 }
