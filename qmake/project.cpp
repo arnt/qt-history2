@@ -636,10 +636,11 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                             iterator->test.append(IteratorBlock::Test(func, args, invert_test));
                             test = !invert_test;
                         } else if(func == "define") {
-                            if(function) {
+                            if(!function_blocks.isEmpty()) {
                                 fprintf(stderr, 
                                         "%s:%d: cannot define a function within another definition.\n",
                                         parser.file.latin1(), parser.line_no);
+                                return false;
                             }
                             if(args.count() != 1) {
                                 fprintf(stderr, "%s:%d: define(function_name) requires one arguments.\n",
