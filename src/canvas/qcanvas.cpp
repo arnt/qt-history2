@@ -1968,7 +1968,7 @@ QCanvasItemExtra& QCanvasItem::extra()
 /*!
     \fn void QCanvasItem::setX(double x)
 
-    Moves the canvas item so that its x-position is \a x.
+    Moves the canvas item so that its x position is \a x.
 
     \sa x(), move()
 */
