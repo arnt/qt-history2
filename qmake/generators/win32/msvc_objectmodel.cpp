@@ -724,7 +724,7 @@ bool VCCLCompilerTool::parseOption(const char* option)
             break;
         case 'd':
         case 'l':
-            AdditionalOptions =+ option;
+            AdditionalOptions += option;
             break;
         case 'u':
             UsePrecompiledHeader = pchUseUsingSpecific;
