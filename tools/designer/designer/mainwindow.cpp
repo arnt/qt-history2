@@ -743,6 +743,16 @@ void MainWindow::previewForm( const QString & style )
 
 void MainWindow::helpContents()
 {
+    QWidget *focusWidget = qApp->focusWidget();
+    bool showClassDocu = TRUE;
+    while ( focusWidget ) {
+	if ( focusWidget->isA( "PropertyList" ) ) {
+	    showClassDocu = FALSE;
+	    break;
+	}
+	focusWidget = focusWidget->parentWidget();
+    }
+
     QString source = "book1.html";
     if ( propertyDocumentation.isEmpty() ) {
 	QString indexFile = documentationPath() + "/propertyindex";
@@ -766,7 +776,7 @@ void MainWindow::helpContents()
 	}
     }
 
-    if ( propertyEditor->widget() ) {
+    if ( propertyEditor->widget() && !showClassDocu ) {
 	if ( !propertyEditor->currentProperty().isEmpty() ) {
 	    QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
 	    QString s;
@@ -799,6 +809,8 @@ void MainWindow::helpContents()
 	    else
 		source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
 	}
+    } else if ( propertyEditor->widget() ) {
+	source = QString( WidgetFactory::classNameOf( propertyEditor->widget() ) ).lower() + ".html#details";
     }
 
     if ( !source.isEmpty() ) {
