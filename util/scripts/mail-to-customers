@@ -21,7 +21,7 @@ $custfile = $ENV{"HOME"}."/troll/kunder.txt";
 open( MESSAGE, "<".$ARGV[0] ) || die "1";
 
 undef $/;
-$message = <MESSAGE>;
+$message_template = <MESSAGE>;
 
 $/ = "\n";
 open( CUSTOMERS, "<".$custfile ) || die "1";
@@ -35,15 +35,35 @@ foreach $line ( <CUSTOMERS> ) {
 
     $to = $addr;
 
-    print "Sending mail to ", $to, "\n";
-
     if ($dryrun) {
         open( MAIL, ">> $dryrun" );
     } else {
         open( MAIL, "| /usr/sbin/sendmail -t" );
     }
 
-    print MAIL  "To: ",$to,"\n";
-    print MAIL $message,"\n";
-    close MAIL;
+    $message = $message_template;
+    if ( $platform =~ m/xw|wx/i ) {
+	$message =~ s/<both>(.*?)<\/both>/\1/sig;
+    } else {
+	$message =~ s/<both>.*?<\/both>//sig;
+    }
+    if ( $platform =~ m/x/i ) {
+	$message =~ s/<x11>(.*?)<\/x11>/\1/sig;
+    } else {
+	$message =~ s/<x11>.*?<\/x11>//sig;
+    }
+    if ( $platform =~ m/w/i ) {
+	$message =~ s/<win>(.*?)<\/win>/\1/sig;
+    } else {
+	$message =~ s/<win>.*?<\/win>//sig;
+    }
+
+    if ( $message =~ /^\s*$/ ) {
+	print "No mail to ", $to, "\n";
+    } else {
+	print "Sending mail to ", $to, "\n";
+	print MAIL  "To: ",$to,"\n";
+	print MAIL $message,"\n";
+	close MAIL;
+    }
 }
