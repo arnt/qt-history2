@@ -2387,8 +2387,8 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	    map( x, y, &x, &y );
 	}
 	gfx->blt(x,y,sw,sh,sx,sy);
+	return;
     }
-    return;
 #endif
 
     if ( !isActive() || image.isNull() )
