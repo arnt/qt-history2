@@ -229,19 +229,10 @@ static int get_object_id()
 */
 
 
-struct QWSWindowData
-{
-    //bool fullScreen;
-    int altitude;
-};
-
-
 QWSWindow::QWSWindow(int i, QWSClient* client)
 	: id(i), alloc_region_idx(-1), modified(FALSE), needAck(FALSE),
 	    onTop(FALSE), c(client), last_focus_time(0)
 {
-    d = new QWSWindowData;
-    d->altitude = 0;
 }
 
 /*!
@@ -362,7 +353,6 @@ void QWSWindow::operation( QWSWindowOperationEvent::Operation o )
 */
 QWSWindow::~QWSWindow()
 {
-    delete d;
 }
 
 
@@ -1768,8 +1758,8 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
     qDebug( "QWSServer::invokeSetAltitude winId %d alt %d)", winId, alt );
 #endif
 
-    if ( alt < -1 || alt > 2 ) {
-	qWarning( "Only lower, raise, stays-on-top and full-screen supported" );
+    if ( alt < -1 || alt > 1 ) {
+	qWarning( "QWSServer::invokeSetAltitude Only lower, raise and stays-on-top supported" );
 	return;
     }
 
@@ -1783,7 +1773,6 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
 
     if ( fixed && alt >= 1) {
 	changingw->onTop = TRUE;
-	changingw->d->altitude = alt;
     }
     if ( alt < 0 )
 	lowerWindow( changingw, alt );
@@ -2020,50 +2009,8 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 }
 
 
-void QWSServer::raiseWindow( QWSWindow *changingw, int alt )
+void QWSServer::raiseWindow( QWSWindow *changingw, int /*alt*/ )
 {
-    QWSWindow *win = windows.first();
-
-    // Find all the full-screen windows
-    while ( win && ( win->onTop || win->d->altitude == 2 ) ) {
-
-	// Not raising the foremost window, and
-	// Top window is in full-screen mode
-	if ( ( win != changingw ) && ( win->d->altitude == 2 ) ) {
-	    QWSWindow *next = windows.next();
-
-	    // Resize full-screen windows to the maximum window size.
-	    setWindowRegion( win, maxwindow_rect );
-
-	    // Set the position in the list to where we were before
-	    QWSWindow *w = windows.first();
-	    while ( w && ( w != win ) )
-		w = windows.next();
-
-	    // Move the full-screen windows to below the onTop windows.
-	    windows.take();
-	    w = windows.first();
-	    while ( w && ( w->onTop || w->d->altitude == 2 ) )
-		w = windows.next();
-	    windows.insert( windows.at(), win );
-	    win->onTop = FALSE;
-
-	    // Reset our position in the list again
-	    w = windows.first();
-	    while ( w && ( w != next ) )
-		w = windows.next();
-
-	    win = w;
-	} else {
-	    win = windows.next();
-	}
-    }
-    win = windows.first();
-
-    // Update the altitude for non-fullscreen windows
-    if ( changingw->d->altitude != 2 )
-	changingw->d->altitude = alt;
-
     if ( changingw == windows.first() ) {
 	rgnMan->commit();
 	changingw->updateAllocation(); // still need ack
@@ -2109,13 +2056,8 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int alt )
     emit windowEvent( changingw, Raise );
 }
 
-void QWSServer::lowerWindow( QWSWindow *changingw, int alt )
+void QWSServer::lowerWindow( QWSWindow *changingw, int /*alt*/ )
 {
-    // Update the altitude for non-fullscreen windows
-    QWSWindow *win = windows.first();
-    if ( ( win != changingw ) || ( win->d->altitude != 2 ) )
-        changingw->d->altitude = alt;
-
     if ( changingw == windows.last() ) {
 	rgnMan->commit();
 	changingw->updateAllocation(); // still need ack

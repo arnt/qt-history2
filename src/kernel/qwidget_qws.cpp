@@ -728,7 +728,6 @@ void QWidget::showWindow()
 	    qwsDisplay()->requestFocus(winId(),TRUE);
 	}
 	qwsDisplay()->setAltitude( winId(),
-	    topData()->fullscreen ? 2 :
 		testWFlags(WStyle_StaysOnTop) ? 1 : 0, TRUE );
 
     } else if ( !topLevelWidget()->in_show ) {
