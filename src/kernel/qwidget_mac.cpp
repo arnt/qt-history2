@@ -857,24 +857,26 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
-    deactivateWidgetCleanup();
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	ShowHide((WindowPtr)hd, 0);
 
-	QWidget *w = NULL;
-	if(parentWidget()) {
-	    w = parentWidget()->topLevelWidget();
-	    if(w && !w->isVisible())
-		w = NULL;
+	if(isActiveWindow()) {
+	    QWidget *w = NULL;
+	    if(parentWidget()) {
+		w = parentWidget()->topLevelWidget();
+		if(w && !w->isVisible())
+		    w = NULL;
+	    }
+	    if(!w)
+		w = QWidget::find( (WId)FrontWindow() );
+	    if(w) 
+		w->setActiveWindow();
 	}
-	if(!w)
-	    w = QWidget::find( (WId)FrontWindow() );
-	if(w) 
-	    w->setActiveWindow();
     } else if(isVisible()) {
 	update();
     }
+    deactivateWidgetCleanup();
 }
 
 
