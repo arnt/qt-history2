@@ -8,13 +8,13 @@
 	Q*Private::*;
 	QPSPrinter*;
 	Q*RegExpEngine::*;
-	Q*SvgDevice::*
-	QUnicodeTables::*
-	QFontDef::*
-	QFontStruct::*
-	QFont*Codec::*
+	Q*SvgDevice::*;
+	QUnicodeTables::*;
+	QFontDef::*;
+	QFontStruct::*;
+	QFont*Codec::*;
 	QInputContext::*
   };
-  TT_*
-  TTO_*
+  TT_*;
+  TTO_*;
 };
