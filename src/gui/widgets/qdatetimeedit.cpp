@@ -991,13 +991,13 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     }
 
     if (s == HoursSection && display & AMPMSection) {
-	if (val % 12 == 0 && steps < 0) {
-	    val = wrapping ? val + 12 + steps : 12;
-	} else if (val % 12 == 11 && steps > 0) {
-	    val = wrapping ? val - 12 + steps : val;
-	} else {
-	    val += steps;
-	}
+	if (val == 12 && steps > 0) {
+	    val = wrapping ? val + steps : 12;
+	} else if (val == 23 && steps > 0) {
+	    val = wrapping ? val + steps : 23;
+ 	} else {
+ 	    val += steps;
+ 	}
     } else {
 	val += steps;
     }
@@ -1029,7 +1029,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 inline int QDateTimeEditPrivate::absoluteMax(Section s) const
 {
     switch(s) {
-    case HoursSection: return (display & AMPMSection ? 12 : 23);
+    case HoursSection: return 23;
     case MinutesSection:
     case SecondsSection: return 59;
     case MSecsSection: return 999;
@@ -1056,7 +1056,7 @@ inline int QDateTimeEditPrivate::absoluteMax(Section s) const
 inline int QDateTimeEditPrivate::absoluteMin(Section s) const
 {
     switch(s) {
-    case HoursSection: return (display & AMPMSection ? 1 : 0);
+    case HoursSection:
     case MinutesSection:
     case SecondsSection:
     case MSecsSection: return 0;
@@ -1642,6 +1642,13 @@ inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidat
             if (!ok) {
                 state = QValidator::Invalid;
             } else {
+		if (s == HoursSection) {
+		    bool pm = (sectionText(*text, AMPMLowerCaseSection).toLower() == "pm");
+		    if (pm && num < 12)
+			num += 12;
+		    else if (!pm && num == 12)
+			num = 0;
+		}
                 if (num < absoluteMin(s) || num > absoluteMax(s)) {
                     state = done ? QValidator::Invalid : QValidator::Intermediate;
                 } else {

@@ -1037,9 +1037,10 @@ QCoreVariant QAbstractSpinBoxPrivate::bound(const QCoreVariant &val, const QCore
 	    v = (wasMax && steps > 0 || (!wasMin && steps < 0)) ? minimum : maximum;
 	} else if (v < minimum) {
 	    v = (!wasMax && !wasMin ? minimum : maximum);
-	} else if (wasMin && steps < 0 || wasMax && steps > 0) {
+	} 
+	/*else if (wasMin && steps < 0 || wasMax && steps > 0) {
 	    v = (wasMax ? minimum : maximum);
-	}
+	}*/
     }
 
     return v;
