@@ -4,7 +4,7 @@
   *   "returntype", "name", "qualifier",
   *     "arg1", "arg2", ..., ")"
   *   "enum", "name", "enum1", "enum2", ..., "}"
-  * 
+  *
   *
   */
 static const char* TorbensHack[] = {
@@ -34,8 +34,6 @@ static const char* TorbensHack[] = {
   "+", "QLineEdit", "", "", "",
   "+", "QDialog", "", "", "",
   "+", "QMainWindow", "", "", "",
-  "void", "setCaption", "", "const QString&", ")",
-  "QString", "caption", "const", ")",
   "+", "QToolBar", "", "", "",
   "void", "setLabel", "", "const QString&", ")",
   "QString", "label", "const", ")",
