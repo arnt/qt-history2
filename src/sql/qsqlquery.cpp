@@ -47,8 +47,10 @@
 
 QSqlResultShared::~QSqlResultShared()
 {
-    if ( sqlResult )
+    if ( sqlResult ) {
 	delete sqlResult;
+	sqlResult = 0;
+    }
 }
 
 /*! \class QSqlQuery qsqlquery.h
