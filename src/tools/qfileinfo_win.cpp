@@ -251,7 +251,7 @@ QString QFileInfo::readLink() const
 
 QString QFileInfo::owner() const
 {
-#ifndef Q_OS_TEMP
+#if !defined(Q_OS_TEMP) && defined(UNICODE)
     if ( qt_winunicode ) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
@@ -295,7 +295,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-#ifndef Q_OS_TEMP
+#if !defined(Q_OS_TEMP) && defined(UNICODE)
     if ( qt_winunicode ) {
 	PSID pGroup = 0;
 	PSECURITY_DESCRIPTOR pSD;
@@ -337,7 +337,7 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int p ) const
 {
-#ifndef Q_OS_TEMP
+#if !defined(Q_OS_TEMP) && defined(UNICODE)
     if ( qt_winunicode ) {
 	PSID pOwner = 0, pGroup = 0;
 	PACL pDacl;
