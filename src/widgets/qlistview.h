@@ -501,6 +501,8 @@ public:
     bool isTristate() const;
     ToggleState state() const;
     void setState( ToggleState s);
+    void setChecked( bool checked );
+    bool isChecked() const;
 
     int rtti() const;
     static int RTTI;
