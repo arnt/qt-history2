@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of q_atomic_test_and_set_* functions.
+** Definition/Implementation of q_atomic_* functions.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
