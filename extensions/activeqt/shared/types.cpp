@@ -28,6 +28,9 @@
 #include <olectl.h>
 
 #include "types.h"
+#include <qpixmap.h>
+#include <qpaintdevicemetrics.h>
+#include <qpainter.h>
 
 IFontDisp *QFontToIFont( const QFont &font )
 {
@@ -71,6 +74,63 @@ QFont IFontToQFont( IFont *f )
     SysFreeString(name);
 
     return font;
+}
+
+IPictureDisp *QPixmapToIPicture( const QPixmap &pixmap )
+{
+    if ( pixmap.isNull() )
+	return 0;
+
+    HDC hdc = ::CreateCompatibleDC( pixmap.handle() );
+    if ( !hdc ) {
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "QPixmapToIPicture: Failed to create compatible device context" );
+#endif
+	return 0;
+    }
+    HBITMAP hbm = ::CreateCompatibleBitmap( pixmap.handle(), pixmap.width(), pixmap.height() );
+    if ( !hbm ) {
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "QPixmapToIPicture: Failed to create compatible bitmap" );
+#endif
+	return 0;
+    }
+    ::SelectObject( hdc, hbm );
+    BOOL res = ::BitBlt( hdc, 0, 0, pixmap.width(), pixmap.height(), pixmap.handle(), 0, 0, SRCCOPY );
+
+    ::DeleteObject( hdc );
+
+    PICTDESC desc;
+    desc.cbSizeofstruct = sizeof(PICTDESC);
+    desc.picType = PICTYPE_BITMAP;
+
+    desc.bmp.hbitmap = hbm;
+    desc.bmp.hpal = QColor::hPal();
+
+    IPictureDisp *pic = 0;
+    HRESULT hres = OleCreatePictureIndirect( &desc, IID_IPictureDisp, TRUE, (void**)&pic );
+    return pic;
+}
+
+QPixmap IPictureToQPixmap( IPicture *ipic )
+{
+    SHORT type;
+    ipic->get_Type( &type );
+    if ( type != PICTYPE_BITMAP )
+	return QPixmap();
+
+    QPixmap pm( 1,1 );
+    QPaintDeviceMetrics pdm( &pm );
+    OLE_XSIZE_HIMETRIC pWidth, pHeight;
+    ipic->get_Width( &pWidth );
+    ipic->get_Height( &pHeight );
+    QSize sz( MAP_LOGHIM_TO_PIX( pWidth, pdm.logicalDpiX() ),
+	      MAP_LOGHIM_TO_PIX( pHeight, pdm.logicalDpiY() ) );
+
+    pm.resize( sz );
+    ipic->Render( pm.handle(), 0, 0, pm.width(), pm.height(), 0, 0, pWidth, pHeight, 0 );
+
+    return pm;
 }
 
 QDateTime DATEToQDateTime( DATE ole )
@@ -160,6 +220,12 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
 	arg.vt = VT_DISPATCH;
 	arg.pdispVal = QFontToIFont( var.toFont() );
 	break;
+
+    case QVariant::Pixmap:
+	arg.vt = VT_DISPATCH;
+	arg.pdispVal = QPixmapToIPicture( var.toPixmap() );
+	break;
+
     default:
 	break;
     }
@@ -325,10 +391,22 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 		if ( ifont ) {
 		    var = IFontToQFont( ifont );
 		    ifont->Release();
+		    break;
 		}
+
+		IPicture *ipic = 0;
+		disp->QueryInterface( IID_IPicture, (void**)&ipic );
+		if ( ipic ) {
+		    var = IPictureToQPixmap( ipic );
+		    ipic->Release();
+		}
+	    } else if ( hint ) {
+		if ( !qstrcmp( hint, "QPixmap" ) )
+		    var = QPixmap();
+		else if ( !qstrcmp( hint, "QFont" ) )
+		    var = QFont();
 	    }
 	}
-	//var = (int)arg.pdispVal; ###
 	break;
     case VT_UNKNOWN:
 	//var = (int)arg.punkVal; ###
@@ -406,6 +484,9 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExt
 	static_QUType_ptr.set( &obj, QFontToIFont( var.toFont() ) );
 	break;
     case QVariant::Pixmap:
+	static_QUType_ptr.set( &obj, QPixmapToIPicture( var.toPixmap() ) );
+	break;
+
     case QVariant::Brush:
     case QVariant::Rect:
     case QVariant::Size:

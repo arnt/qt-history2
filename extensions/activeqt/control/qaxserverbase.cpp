@@ -1391,6 +1391,15 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
 			if ( disp ) {
 			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
+			    for ( p = 0; p < signalcount; ++p ) {
+				const QUParameter *param = signal->method->parameters + p;
+				if ( param->inOut & QUParameter::Out ) {
+				    QUObject *obj = _o + p + 1;
+				    if ( obj->type )
+					obj->type->clear( obj );
+				    VARIANTToQUObject( dispParams.rgvarg[ signalcount - p - 1 ], obj );
+				}
+			    }
 			    disp->Release();
 			}
 			c->pUnk->Release(); // AddRef'ed by clist->Next implementation
@@ -1602,7 +1611,15 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    if ( index == -1 )
 		break;
 	    // verify parameter count
+	    const QUParameter *params = slot->method->parameters;
 	    int pcount = slot->method->count;
+	    int retoff = 0;
+	    if ( pcount ) {
+		retoff = ( params[0].inOut & QUParameter::Out ) ? 1 : 0;
+		pcount -= retoff;
+	    }
+	    if ( retoff && !pvarResult )
+		return DISP_E_PARAMNOTOPTIONAL;
 	    int argcount = pDispParams->cArgs;
 	    if ( pcount > argcount )
 		return DISP_E_PARAMNOTOPTIONAL;
@@ -1611,15 +1628,15 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    // setup parameters
 	    QUObject *objects = 0;
-	    const QUParameter *params = slot->method->parameters;
 	    if ( pcount ) {
-		int retoff = ( params[0].inOut & QUParameter::Out ) ? 1 : 0;
 		objects = new QUObject[pcount+1];
 		for ( int p = 0; p < pcount; ++p ) {
 		    // map the VARIANT to the QUObject, and try to get the required type
 		    objects[p+1].type = params[p+retoff].type;  // first object is return value
 		    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
 		}
+	    } else if ( retoff ) {
+		objects = new QUObject[1];
 	    }
 
 	    // call the slot
@@ -1627,8 +1644,15 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    // ### update reference parameters and value
 	    for ( int p = 0; p < pcount; ++p ) {
+		if ( params[p+1].inOut & QUParameter::Out )
+		    QUObjectToVARIANT( objects+p+1, pDispParams->rgvarg[ pcount-p-1 ], params+p+1 );
 		objects[p+1].type->clear( objects + p + 1 );
 	    }
+	    if ( retoff ) {
+		QUObjectToVARIANT( objects, *pvarResult, params );
+		objects->type->clear( objects );
+	    }
+
 	    delete [] objects;
 	    res = S_OK;
 	}

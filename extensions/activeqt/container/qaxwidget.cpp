@@ -40,7 +40,6 @@
 
 static HHOOK hhook = 0;
 static int hhookref = 0;
-#define HIMETRIC_PER_INCH   2540
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	QEvent::MouseMove,		0,
@@ -350,8 +349,6 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 	m_spOleObject->SetHostNames( OLESTR("AXWIN"), 0 );
 	QPaintDeviceMetrics pdm( widget );
 
-#define MAP_PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
-
 	SIZEL hmSize;
 	hmSize.cx = MAP_PIX_TO_LOGHIM( sizehint.width(), pdm.logicalDpiX() );
 	hmSize.cy = MAP_PIX_TO_LOGHIM( sizehint.height(), pdm.logicalDpiY() );
@@ -359,7 +356,6 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 	m_spOleObject->SetExtent( DVASPECT_CONTENT, &hmSize );
 	m_spOleObject->GetExtent( DVASPECT_CONTENT, &hmSize );
 
-#define MAP_LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
 	sizehint.setWidth( MAP_LOGHIM_TO_PIX( hmSize.cx, pdm.logicalDpiX() ) );
 	sizehint.setHeight( MAP_LOGHIM_TO_PIX( hmSize.cy, pdm.logicalDpiY() ) );
 

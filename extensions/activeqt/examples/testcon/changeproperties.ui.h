@@ -16,6 +16,8 @@
 #define PropRequesting	0x00010000
 
 #include <qmessagebox.h>
+#include <qfiledialog.h>
+#include <qpixmap.h>
 
 class CheckListItem : public QCheckListItem
 {
@@ -103,6 +105,18 @@ void ChangeProperties::setValue()
 	    }
 	}
 	break;
+    case QVariant::Pixmap:
+	{
+	    QString fileName = editValue->text();
+	    if ( fileName.isEmpty() )
+		fileName = QFileDialog::getOpenFileName( QString::null, QString::null, this );
+	    QPixmap pm( fileName );
+	    if ( pm.isNull() )
+		return;
+
+	    value = pm;
+	}
+	break;
     case QVariant::Bool:
 	{
 	    QString txt = editValue->text().lower();
@@ -173,6 +187,12 @@ void ChangeProperties::updateProperties()
 	    case QVariant::Bool:
 		{
 		    item->setText( 2, var.toBool() ? "true" : "false" );
+		}
+		break;
+	    case QVariant::Pixmap:
+		{
+		    QPixmap pm = var.toPixmap();
+		    item->setPixmap( 2, pm );
 		}
 		break;
 	    case QVariant::Int:

@@ -896,7 +896,7 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
 	    QString userTypeName = BSTRToQString( usertypename );
 	    SysFreeString( usertypename );
-	    
+
 	    // known enum?
 	    QMetaEnum *metaEnum = enumlist.find( userTypeName );
 	    if ( metaEnum )
@@ -905,6 +905,8 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 		typeName = "QColor";
 	    else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
 		typeName = "QFont";
+	    else if ( userTypeName == "Picture" || userTypeName == "Picture*" )
+		typeName = "QPixmap";
 
 	    if ( typeName.isEmpty() ) {
 		TYPEATTR *typeattr = 0;
@@ -990,7 +992,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	break;
     case VT_PTR:
 	str = guessTypes( *tdesc.lptdesc, info, enumlist, function );
-	if ( !str.isEmpty() && str != "QFont" )
+	if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
 	    str += "*";
 	break;
     case VT_SAFEARRAY:
@@ -2354,10 +2356,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		    return FALSE;
 
 		// map result VARIANTARG to QVariant
-		if ( ( arg.vt == VT_UI4 || arg.vt == VT_I4 ) && pname.endsWith( "Color" ) )
-		    *_v = VARIANTToQVariant( arg, "QColor" );
-		
-		*_v = VARIANTToQVariant( arg );
+		*_v = VARIANTToQVariant( arg, prop->type() );
 		return ( _v->isValid() );
 	    }
 	case 2: // Reset

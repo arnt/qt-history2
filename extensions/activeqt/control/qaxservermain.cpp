@@ -309,6 +309,7 @@ static const char* const type_map[][2] =
     { "QTime",		"DATE" },
     { "QDateTime",	"DATE" },
     { "QFont",		"IFontDisp*" },
+    { "QPixmap",	"IPictureDisp*" },
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },
@@ -618,41 +619,6 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	out << "\t{" << endl;
 
 	out << "\tproperties:" << endl;
-	out << "\tmethods:" << endl;
-	for ( i = slotoff; i < mo->numSlots( TRUE ); ++i ) {
-	    const QMetaData *slotdata = mo->slot( i, TRUE );
-	    if ( !slotdata || slotdata->access != QMetaData::Public )
-		continue;
-
-	    bool ok = TRUE;
-	    if ( ignore( slotdata->method->name, ignore_slots ) )
-		continue;
-
-	    QString slotName = renameOverloads( replaceKeyword( slotdata->method->name ) );
-	    QString slot = slotName ;
-	    slot += "(";
-	    for ( int p = 0; p < slotdata->method->count && ok; ++p ) {
-		slot += convertTypes( slotdata->method->parameters[p].type->desc(), &ok );
-		if ( slotdata->method->parameters[p].name )
-		    slot += " _" + replaceKeyword( slotdata->method->parameters[p].name );
-		else
-		    slot += " p" + QString::number(p);
-		if ( p+1 < slotdata->method->count )
-		    slot += ", ";
-	    }
-	    slot += ")";
-	    
-	    if ( !ok )
-		out << "\t/****** Slot parameter uses unsupported datatype" << endl;
-
-	    out << "\t\t[id(" << id << ")] ";
-	    out << "void " << slot << ";" << endl;
-	    
-	    if ( !ok )
-		out << "\t******/" << endl;
-	    ++id;
-	}
-	
 	for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
 	    const QMetaProperty *property = mo->property( i, TRUE );
 	    if ( !property || property->testFlags( QMetaProperty::Override ) )
@@ -676,26 +642,79 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		out << "\t/****** Property is of unsupported datatype" << endl;
 
 	    if ( read ) {
-		out << "\t\t[id(" << id << "), propget";
+		out << "\t\t[id(" << id << ")";
+		if ( !write )
+		    out << ", readonly";
 		if ( scriptable )
 		    out << ", bindable";
 		if ( !designable )
 		    out << ", nonbrowsable";
 		if ( isBindable )
 		    out << ", requestedit";
-		out << "] " << type << " " << name << "();" << endl;
-	    }
-	    if ( write ) {
-		out << "\t\t[id(" << id << "), propput";
-		if ( scriptable )
-		    out << ", bindable";
-		if ( !designable )
-		    out << ", nonbrowsable";
-		if ( isBindable )
-		    out << ", requestedit";
-		out << "] void " << name << "([in] " << type << " newVal);" << endl;
+		out << "] " << type << " " << name << ";" << endl;
 	    }
 
+	    if ( !ok )
+		out << "\t******/" << endl;
+	    ++id;
+	}
+	out << endl;
+	out << "\tmethods:" << endl;
+	for ( i = slotoff; i < mo->numSlots( TRUE ); ++i ) {
+	    const QMetaData *slotdata = mo->slot( i, TRUE );
+	    if ( !slotdata || slotdata->access != QMetaData::Public )
+		continue;
+
+	    bool ok = TRUE;
+	    if ( ignore( slotdata->method->name, ignore_slots ) )
+		continue;
+
+	    QString slot = renameOverloads( replaceKeyword( slotdata->method->name ) );
+	    QString returnType = "void ";
+	    QString paramType;
+	    slot += "(";
+	    for ( int p = 0; p < slotdata->method->count && ok; ++p ) {
+		const QUParameter *param = slotdata->method->parameters + p;
+		bool returnValue = FALSE;
+
+		if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
+		    paramType = convertTypes( QString((const char*)param->typeExtra), &ok ) + " ";
+		else
+		    paramType = convertTypes( param->type->desc(), &ok ) + " ";
+
+		if ( param->inOut == QUParameter::In ) {
+		    slot += " [in] " + paramType;
+		} else if ( param->inOut == QUParameter::Out ) {
+		    if ( p ) {
+			slot += " [out] " + paramType;
+		    } else {
+			returnType = paramType;
+			returnValue = TRUE;
+		    }
+		} else if ( param->inOut ) {
+		    slot += " [in,out] " + paramType;
+		}
+
+		if ( returnValue )
+		    continue;
+
+		if ( param->inOut & QUParameter::Out )
+		    slot += "*";
+		if ( param->name )
+		    slot += "_" + replaceKeyword( param->name );
+		else
+		    slot += "p" + QString::number( p );
+		if ( p+1 < slotdata->method->count )
+		    slot += ", ";
+	    }
+	    slot += ")";
+
+	    if ( !ok )
+		out << "\t/****** Slot parameter uses unsupported datatype" << endl;
+
+	    out << "\t\t[id(" << id << ")] ";
+	    out << returnType << slot << ";" << endl;
+	    
 	    if ( !ok )
 		out << "\t******/" << endl;
 	    ++id;
@@ -734,13 +753,40 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 	    bool ok = TRUE;
 	    QString signal = renameOverloads( replaceKeyword( signaldata->method->name ) );
+	    QString returnType = "void ";
+	    QString paramType;
 	    signal += "(";
 	    for ( int p = 0; p < signaldata->method->count && ok; ++p ) {
-		signal += convertTypes( signaldata->method->parameters[p].type->desc(), &ok );
-		if ( signaldata->method->parameters[p].name ) 
-		    signal += " _" + replaceKeyword( signaldata->method->parameters[p].name );
+		const QUParameter *param = signaldata->method->parameters + p;
+		bool returnValue = FALSE;
+
+		if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
+		    paramType = convertTypes( QString((const char*)param->typeExtra), &ok ) + " ";
 		else
-		    signal += " p" + QString::number(p);
+		    paramType = convertTypes( param->type->desc(), &ok ) + " ";
+
+		if ( param->inOut == QUParameter::In ) {
+		    signal += " [in] " + paramType;
+		} else if ( param->inOut == QUParameter::Out ) {
+		    if ( p ) {
+			signal += " [out] " + paramType;
+		    } else {
+			returnType = paramType;
+			returnValue = TRUE;
+		    }
+		} else if ( param->inOut ) {
+		    signal += " [in,out] " + paramType;
+		}
+
+		if ( returnValue )
+		    continue;
+
+		if ( param->inOut & QUParameter::Out )
+		    signal += "*";
+		if ( param->name )
+		    signal += "_" + replaceKeyword( param->name );
+		else
+		    signal += "p" + QString::number( p );
 		if ( p+1 < signaldata->method->count )
 		    signal += ", ";
 	    }
