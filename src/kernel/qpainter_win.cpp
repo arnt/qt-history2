@@ -667,11 +667,11 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	pdev = (QPaintDevice *)pd;
     }
 
-    if ( pdev->paintingActive() ) {		// somebody else is already painting
+    if ( pdev->isExtDev() && pdev->paintingActive() ) {		// somebody else is already painting
 #if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::begin: Another QPainter is already painting "
-		 "this device;\n\tA paint device can only be painted by "
-		 "one QPainter at a time" );
+		  "this device;\n\tAn extended paint device can only be "
+		  "painted by one QPainter at a time" );
 #endif
 	return FALSE;
     }
@@ -704,7 +704,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     setf( IsActive );
     pdev->painters++;				// also tell paint device
-    Q_ASSERT(pdev->painters==1);
     bro = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
