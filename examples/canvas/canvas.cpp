@@ -191,26 +191,6 @@ void FigureEditor::clear()
     }
 }
 
-void Main::init()
-{
-    clear();
-
-    static int r=24;
-    srand(++r);
-
-    int i;
-
-    for ( i=0; i<canvas.width() / 56; i++) {
-	addButterfly();
-    }
-    for ( i=0; i<canvas.width() / 85; i++) {
-	addHexagon();
-    }
-    for ( i=0; i<canvas.width() / 128; i++) {
-	addLogo();
-    }
-}
-
 void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 {
     if ( moving ) {
@@ -321,6 +301,9 @@ void BouncyLogo::advance(int stage)
     }
 }
 
+static uint mainCount = 0;
+static QImage *butterflyimg;
+static QImage *logoimg;
 
 Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     QMainWindow(parent,name,f),
@@ -388,9 +371,38 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     init();
 }
 
+void Main::init()
+{
+    clear();
+
+    static int r=24;
+    srand(++r);
+
+    mainCount++;
+    butterflyimg = 0;
+    logoimg = 0;
+
+    int i;
+    for ( i=0; i<canvas.width() / 56; i++) {
+	addButterfly();
+    }
+    for ( i=0; i<canvas.width() / 85; i++) {
+	addHexagon();
+    }
+    for ( i=0; i<canvas.width() / 128; i++) {
+	addLogo();
+    }
+}
+
 Main::~Main()
 {
     delete printer;
+    if ( !--mainCount ) {
+	delete[] butterflyimg;
+	butterflyimg = 0;
+	delete[] logoimg;
+	logoimg = 0;
+    }
 }
 
 void Main::newView()
@@ -532,20 +544,19 @@ void Main::addButterfly()
 {
     if ( butterfly_fn.isEmpty() )
 	return;
-    static QImage *img;
-    if ( !img ) {
-	img = new QImage[4];
-	img[0].load( butterfly_fn );
-	img[1] = img[0].smoothScale( int(img[0].width()*0.75),
-		int(img[0].height()*0.75) );
-	img[2] = img[0].smoothScale( int(img[0].width()*0.5),
-		int(img[0].height()*0.5) );
-	img[3] = img[0].smoothScale( int(img[0].width()*0.25),
-		int(img[0].height()*0.25) );
+    if ( !butterflyimg ) {
+	butterflyimg = new QImage[4];
+	butterflyimg[0].load( butterfly_fn );
+	butterflyimg[1] = butterflyimg[0].smoothScale( int(butterflyimg[0].width()*0.75),
+		int(butterflyimg[0].height()*0.75) );
+	butterflyimg[2] = butterflyimg[0].smoothScale( int(butterflyimg[0].width()*0.5),
+		int(butterflyimg[0].height()*0.5) );
+	butterflyimg[3] = butterflyimg[0].smoothScale( int(butterflyimg[0].width()*0.25),
+		int(butterflyimg[0].height()*0.25) );
     }
-    QCanvasPolygonalItem* i = new ImageItem(img[rand()%4],&canvas);
-    i->move(rand()%(canvas.width()-img->width()),
-	    rand()%(canvas.height()-img->height()));
+    QCanvasPolygonalItem* i = new ImageItem(butterflyimg[rand()%4],&canvas);
+    i->move(rand()%(canvas.width()-butterflyimg->width()),
+	    rand()%(canvas.height()-butterflyimg->height()));
     i->setZ(rand()%256+250);
     i->show();
 }
@@ -554,20 +565,19 @@ void Main::addLogo()
 {
     if ( logo_fn.isEmpty() )
 	return;
-    static QImage *img;
-    if ( !img ) {
-	img = new QImage[4];
-	img[0].load( logo_fn );
-	img[1] = img[0].smoothScale( int(img[0].width()*0.75),
-		int(img[0].height()*0.75) );
-	img[2] = img[0].smoothScale( int(img[0].width()*0.5),
-		int(img[0].height()*0.5) );
-	img[3] = img[0].smoothScale( int(img[0].width()*0.25),
-		int(img[0].height()*0.25) );
+    if ( !logoimg ) {
+	logoimg = new QImage[4];
+	logoimg[0].load( logo_fn );
+	logoimg[1] = logoimg[0].smoothScale( int(logoimg[0].width()*0.75),
+		int(logoimg[0].height()*0.75) );
+	logoimg[2] = logoimg[0].smoothScale( int(logoimg[0].width()*0.5),
+		int(logoimg[0].height()*0.5) );
+	logoimg[3] = logoimg[0].smoothScale( int(logoimg[0].width()*0.25),
+		int(logoimg[0].height()*0.25) );
     }
-    QCanvasPolygonalItem* i = new ImageItem(img[rand()%4],&canvas);
-    i->move(rand()%(canvas.width()-img->width()),
-	    rand()%(canvas.height()-img->width()));
+    QCanvasPolygonalItem* i = new ImageItem(logoimg[rand()%4],&canvas);
+    i->move(rand()%(canvas.width()-logoimg->width()),
+	    rand()%(canvas.height()-logoimg->width()));
     i->setZ(rand()%256+256);
     i->show();
 }
