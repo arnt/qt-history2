@@ -1,117 +1,305 @@
 /*!
     \example widgets/calculator
     \title Calculator Example
-
-    The Calculator example shows how to build the logic of a calculator. It 
-    also shows how to create the proper functionality and look and feel using 
-    the concept of signals and slots, eventhandling, layout and color.
-
+    
     \image calculator-example.png Screenshot of the Calculator example
-    
-    This example also demonstrates how to reimplement and customize inherited 
-    functions.
-    
+
+    The Calculator example shows how to use signals and slots to
+    create the functionality of a calculator widget. Signals and slots,
+    together with eventhandling and layout, also provide the proper look
+    and feel. In addition this example demonstrates how to reimplement and
+    customize inherited functions to manipulate a widget's appearance.
+
     \section1 Calculator Class Definition
 
     \quotefromfile widgets/calculator/calculator.h
     \skipto class Calculator
     \printuntil addToMemory();
 
-    The \c Calculator class provides a simple calculator widget. We subclass 
-    QDialog and implement several private slots to provide the 
-    functionality associated with pressing the calculator's buttons. 
-    QObject::eventFilter() is reimplemented to handle other user input.
+    The \c Calculator class provides a simple calculator widget. We
+    subclass QDialog and implement several private slots associated with
+    pressing the calculator's buttons. QObject::eventFilter() is
+    reimplemented to handle other arbitrary user input.
 
     \printline private:
-    \printuntil };
+    \printuntil calculate
 
-    The logic of the calculator requires three variables \a sumSoFar,
-    \a pendingTerm and \a sumInMemory to hold the pending operands and the 
-    results of the calculations. It also requires \a pendingAdditiveOperator 
-    and \a pendingMultiplicativeOperator to hold the pending operators during
-    calculations. A boolean variable \a waitingForOperand makes sure the 
-    operands, when given by the user, are separated.
+    The private \c createButton() function is used as part of the
+    widget construction. \c abortOperation() is called whenever a division
+    by zero occurs, or when a squareroot operation is applied to a
+    negative number. \c calculate() performs single additive and
+    multiplicative calculations.
 
-    Three private functions are implemented to provide specific functionality: 
-    \c abortOperation() is needed whenever a division by zero or a squareroot 
-    operation of a negative number occur, \c calculate() performs single
-    additive and multiplicative operations and \c createButton() is used when 
-    the widget is constructed.
+    \printline sumSoFar
+    \printuntil /^\};/
 
-    \section1 Button Class Definition
-
-    \quotefromfile widgets/calculator/button.h
-    \skipto class Button
-    \printuntil };
-
-    The calculator's buttons are of QToolButton type. But in order to 
-    customize their appearence, we subclass QToolButton and reimplement the 
-    \l {QToolButton::QToolButton()}{constructor} and the 
-    \l {QToolButton::sizeHint()}{sizeHint()} function.   
-
-    \section1 Button Class Implementation
-
-    \quotefromfile widgets/calculator/button.cpp
-    \skipto Button::
-    \printuntil }
-
-    The layout of the calculator widget, and the buttons' appearence, is 
-    determined by the size and \l {QSizePolicy} {sizePolicy} of its child 
-    widgets and the space available. Therefore the call to the inherited
-    QWidget::setSizePolicy() in the constructor makes sure that the button 
-    will appear in the size implied by \c sizeHint() vertically, but that it 
-    can be both shrunk and expanded horisontally. Then the text is set along 
-    with the color.
-
-    \printline QSize
-    \printuntil }
-
-    The \c sizeHint function returns an expansion of the preferred 
-    \l {Qsize} size implied by the inherited QWidget::sizeHint(). The height is
-    expanded with a constant, while the width is set to the largest of the 
-    width and heigth returned by the buttons original 
-    \l {QWidget::sizeHint}{sizeHint()}
+    There are two types of operators: unary and binary. In addition a
+    binary operator can be either additive or multiplicative. In a
+    calculator, unary operators can be applied immediately since the
+    operand is already known when the operator button is pressed. But
+    the binary operators require \c pendingAdditiveOperator and \c
+    pendingMultiplicativeOperator to hold the operators while retrieving
+    or calculating the second term. At the same time \c sumSoFar and \c
+    pendingTerm hold the intermediary sum and the pending operand. \c
+    waitingForOperand reflects the state of the calculator. It is \c false
+    when the calculator is receiving an operand or operator, otherwise \c
+    true.
 
     \section1 Calculator Class Implementation
 
     \quotefromfile widgets/calculator/calculator.cpp
-    \skipto Calculator::
-    \printto lineEdit
+    \skipto Calculator
+    \printuntil waitingForOperand
 
-    When the widget is constructed, all of the \c double variables and the \c
-    boolean one is initialized with their default values. Then the  window of 
-    the calculator in the form of a QLineEdit is customized:
+    In the constructor we initialize the intermediary sum, the pending
+    operator and the calculator's memory to zero. The default behaviour of
+    the calculator is to wait for an operand. We customize the
+    QLineEdit
+    representing the window of the calculator:
+ 
+    \printline 
+    \printuntil setFont
 
-    \printline lineEdit
-    \printto QColor
-
-    The \a lineEdit is initialized with a zero. It's restricted to read only,
-    right alignment and a maximum length of 15 characters. It installs an 
-    event filter which we will come back to later. \a lineEdit 's font 
-    is enlarged by a constant, forcing the entire window of the calculator to 
-    be larger.
+    The \c lineEdit is initialized with a zero. We restrict it to be
+    read only, have right alignment and a maximum length of 15
+    characters. An event filter is installed which we will come back to
+    later. We also enlarge \c lineEdit's font with a constant, forcing the
+    entire window of the calculator to be larger.
 
     \printline QColor
-    \printto QGridLayout
+    \printuntil equalPressed
 
-    Four different colors are defined and used in the creation of the buttons:
-    For each button the private function \c createButton() is called with a 
-    proper textlabel, the associated color and a slot to connect to the button.
+    We define four different colors and use them when we create the
+    buttons: For each button we call the private \c createButton()
+    function with the proper textlabel, the associated color and a
+    slot to connect to the button.
 
     \printline QGridLayout
+    \printto /^\}/
+
+    The widget consist of one single QGridLayout \c mainLayout which
+    is given a fixed size preventing the user from resizing the calculator
+    once created. The size of the widget is given by the \c mainLayout
+    which in turn is determined by the size and \l {QSizePolicy}
+    {sizePolicy} of its child widgets. We add \c lineEdit and all of the
+    buttons to \c mainLayout, and finally set the title of the
+    window.
+
+    \skipto digitPressed
     \printuntil /^\}/
 
-    The widget consist of one single QGridLayout \a mainLayout which is given 
-    a fixed size preventing the user from resizing it. The size of the layout
-    is determined by the size and \l {QSizePolicy} {sizePolicy} of its child 
-    widgets and the space available. Each child widget is then added to the 
-    \a mainLayout, and finally the title of the window is set.
-
-    \printline ::eventFilter
-    \printuntil /^\}/
-
-    The \c eventFilter() function is inherited from QObject.It is 
-    reimplemented to respond to arbitrary user input apart from pushing the 
-    calculators buttons. The filter is installed on
+    Pressing one of the calculator's digit buttons will emit the
+    button's \c pressed() signal which will trigger the \c
+    digitPressed() slot. When called, the \c digitPressed() slot
+    identifies which button sent the signal with QObject::sender(). This
+    function returns the button as a QObject which then is casted to a
+    QToolButton pointer with QObject::qobject_cast(). The digit in
+    question is extracted from the button's text. The slot needs to
+    consider two situations in particular. When \c lineEdit only contains
+    "0", and the digit button pressed is "0" at the same time, no new
+    digit needs to be added and the slot returns. And if the calculator is
+    waiting for an operand, there might be a result of a previous
+    calculation displayed in \c lineEdit, and \c lineEdit is cleared. In
+    the end the last pressed digit is displayed.
     
+    \printline unaryOperatorPressed
+    \printuntil /^\}/
+
+    The \c unaryOperatorPressed() slot is called whenever one of the
+    unary operator buttons are pressed. Again a pointer to the pressed
+    button is retrieved with QObject::sender(). The operand is
+    obtained from \c lineEdit. The operator in question is extracted from
+    the button's text and stored in \c theOperator. The calculations
+    are straight forward, but if a square root operation is applied to a
+    negative number, the private \c abortOperation() function will be
+    called and the slot will return. The same will happen if the
+    reciprocal operation is applied to "0". At the end the result of the
+    calculation, stored in \c sumSoFar, is displayed, and the calculator
+    is set to wait for a new operand.
+
+    \printline additiveOperatorPressed
+    \printto pendingMultiplicativeOperator.isEmpty
+
+    The \c additiveOperatorPressed() slot is called when pressing the
+    plus or minus button. Again a pointer to the pressed button is
+    retrieved with QObject::sender(). The operand is obtained from \c
+    lineEdit. The operator in question is extracted from the button's text
+    and stored in \c theOperator.
+
+    \printline pendingMultiplicativeOperator.isEmpty
+    \printto pendingAdditiveOperator.isEmpty
+
+    If a binary operator has been pressed earlier, without pressing \c
+    equalButton afterwards, some intermediate results need to be
+    obtained. First any pending multiplicative term must be calculated. A
+    failure in the calculation will cause a call to \c abortOperation()
+    and the slot will return. Otherwise the intermediate result of the
+    calculation is displayed and stored in \c nextOperand. In addition the
+    \c pendingMultiplicativeOperator is cleared.
+
+    \printline pendingAdditiveOperator.isEmpty
+    \printto theOperator
+
+    Then, any pending additive operator must be applied to the \c
+    sumSoFar and \c nextOperand. Again a failure in the calculation will
+    cause a call to \c abortOperation() and the slot will
+    return. Otherwise the result of the calculation is displayed. If there
+    is no pending additive operator, \c sumSoFar is simply set equal to \c
+    nextOperand.
+
+    \printline theOperator
+    \printuntil /^\}/
+ 
+    Finally, \c theOperator is saved as the pending additive
+    operator and the calculator is set to wait for a new operand.
+
+    \printline multiplicativeOperatorPressed
+    \printuntil /^\}/
+
+    The \c multiplicativeOperatorPressed() slot is called when
+    pressing the multiplication or division button. Again a pointer
+    to the pressed button is retrieved with QObject::sender(). The
+    operand is obtained from \c lineEdit. The operator in question is
+    extracted from the button's text and stored in \c theOperator. If
+    a multiplicative operator has been pressed earlier, without pressing
+    \c equalButton afterwards, any pending multiplicative term must be
+    calculated. A failure in the calculation will cause a call to \c
+    abortOperation() and the slot will return. Otherwise the intermediate
+    result of the calculation is displayed. If there is no pending
+    multiplicative operator, \c pendingTerm is simply set equal to \c
+    nextOperand. Finally, \c theOperator is saved as the pending
+    multiplicative operator and the calculator is set to wait for a new
+    operand.
+
+    \printline equalPressed
+    \printuntil /^\}/
+
+    The \c equalPressed() slot performs a final calculation. The
+    pattern is the same as the one used in the \c
+    pendingAdditiveOperator() slot. First any pending multiplicative term
+    is resolved then the pending additive operator is applied. In the
+    end the final result is displayed. Then all pending operators and
+    operands are removed, and the calculator is set to wait for a new
+    operand.
+
+    \printline pointPressed
+    \printuntil /^\}/
+
+    The \c pointPressed() slot adds a decimal point to the content in \c
+    lineEdit, but only if it's not done before for the operand in
+    question. In case \c lineEdit simply contains "0" and the decimal
+    point is given as the first element of the operand, \c
+    waitingForOperand is set to false.
+ 
+    \printline changeSignPressed
+    \printuntil /^\}/
+
+    Pressing the sign button will call the \c changeSignPressed() slot, and
+    simply change the sign of the value in \c lineEdit and display the
+    negated value instead.
+
+    \printline backspacePressed
+    \printuntil /^\}/
+
+    As long as the calculator is not waiting for a new operand, a call
+    to the \c backspacePressed() slot will remove the rightmost digit of
+    the number in \c lineEdit. If it is the last digit, it's replaced with
+    "0", and the calculator is set to wait for an operand.
+
+    \printline clear
+    \printto clearMemory
+
+    The difference between the \c clear() slot and the \c clearAll()
+    slot, is that \c clearAll() will erase all stored information: the sum so
+    far, the pending term and operators. It will also set \c lineEdit to
+    "0", and the calculator to wait for a new operand. \c clear() will
+    only erase the number in \c lineEdit, preserving the pending term and
+    operators.
+
+    \printline clearMemory
+    \printto createButton
+
+    The functionality provided by the memory buttons and their
+    connected slots are straight forward. The \c clearMemory() slot
+    erase the sum kept in memory, \c readMemory() displays the sum as an
+    operand, \c setMemory() replace the sum in memory with the number in
+    \c lineEdit while \c addToMemory() add the number to the current sum.
+
+    \printline createButton
+    \printuntil /^\}/
+
+    The private \c createButton() function is used in the construction
+    of the widget. It creates a button using a reimplementation of the
+    QTooolButton class which we will come back to later. The button is
+    labeled and colored  with \c text and \c color, and connected to
+    the \c slot. Finally the function returns the button.
+
+    \printline abortOperation
+    \printuntil /^\}/
+
+    The private \c abortOperation() function is called whenever a
+    calculation fails. It will display the error message "####", erase
+    all pending operands and operators, and set the calculator to
+    wait for a new operand.
+
+    \printline calculate
+    \printuntil /^\}/
+
+    The private \c calculate() function performs a single arithmetic
+    operation. Depending on \c theOperator, \c nextOperand is added or
+    subtracted from \c sumSoFar, multiplied with \c pendingTerm or \c
+    pendingTerm is divided by \c nextOperand. The function return \c false
+    if a division by zero occurs, otherwise true.
+
+    As mentioned in the constructor and in the definition of the \c
+    Calculator class, an event filter is installed on \c lineEdit:	
+
+    \quotefromfile widgets/calculator/calculator.cpp
+    \skipto eventFilter
+    \printuntil /^\}/
+
+    The \c eventFilter() function is inherited from QDialog. It is
+    reimplemented to respond to arbitrary user input apart from pressing
+    the calculator's buttons. The filter is installed on \c lineEdit, and
+    filters any attempt to click the left mousebutton in the calculator's
+    window to write manually. If the event occurs, the filter invert the \c
+    lineEdit 's colors indicating the disabled functionality. Any other
+    events will be passed on to QDialog::eventFilter(). The original
+    \c eventFilter() returns \c true if it wants to stop further handling
+    of the event, otherwise it returns \c false. This reimplementation
+    pass on the return value of the original function.
+
+    \section1 Button Class Definition
+  
+    \quotefromfile widgets/calculator/button.h
+    \skipto class Button
+    \printuntil };
+
+    The calculator's buttons are of QToolButton type. But in order to
+    customize their appearance, we subclass QToolButton and reimplement
+    the \l {QToolButton::QToolButton()}{constructor} and the \l
+    {QToolButton::sizeHint()}{sizeHint()} function.
+
+    \section1 Button Class Implementation
+
+    \quotefromfile widgets/calculator/button.cpp
+    \skipto Button
+    \printuntil }
+
+    The buttons' appearance, is determined by the layout of the
+    calculator widget through the size and \l {QSizePolicy} {sizePolicy}
+    of the layout's child widgets. Therefore the call to the \l {
+    QWidget::setSizePolicy()}{setSizePolicy} function in the constructor
+    makes sure that the button will appear in the size implied by \c
+    sizeHint() vertically, but allows it to be both shrunk and expanded
+    horisontally. Then the text is set along with the color.
+
+    \printline QSize
+    \printuntil }
+
+    The \c sizeHint() function returns the preferred \l {QSize} size
+    implied by \l { Widget::setSizePolicy()}{sizeHint()} enlarged as
+    follows: the height is expanded with a constant, while the width is
+    set to the largest of the width and heigth returned by the buttons
+    original \l {QWidget::sizeHint()}{sizeHint()}.
 */

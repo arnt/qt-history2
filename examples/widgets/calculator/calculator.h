@@ -23,7 +23,7 @@ private slots:
     void multiplicativeOperatorPressed();
     void equalPressed();
     void pointPressed();
-    void signPressed();
+    void changeSignPressed();
     void backspacePressed();
     void clear();
     void clearAll();
@@ -51,7 +51,7 @@ private:
     QToolButton *digitButtons[NumDigitButtons];
 
     QToolButton *pointButton;
-    QToolButton *signButton;
+    QToolButton *changeSignButton;
     QToolButton *backspaceButton;
     QToolButton *clearButton;
     QToolButton *clearAllButton;
@@ -66,7 +66,7 @@ private:
     QToolButton *plusButton;
     QToolButton *squareRootButton;
     QToolButton *powerButton;
-    QToolButton *invertButton;
+    QToolButton *reciprocalButton;
     QToolButton *equalButton;
 };
 

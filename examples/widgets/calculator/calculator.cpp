@@ -34,7 +34,7 @@ Calculator::Calculator(QWidget *parent)
     }
 
     pointButton = createButton(tr("."), digitColor, SLOT(pointPressed()));
-    signButton = createButton(tr("±"), digitColor, SLOT(signPressed()));
+    changeSignButton = createButton(tr("±"), digitColor, SLOT(changeSignPressed()));
    
     backspaceButton = createButton(tr("Backspace"), backspaceColor,
                                    SLOT(backspacePressed()));
@@ -62,8 +62,8 @@ Calculator::Calculator(QWidget *parent)
                                     SLOT(unaryOperatorPressed()));
     powerButton = createButton(tr("x²"), operatorColor,
                                SLOT(unaryOperatorPressed()));
-    invertButton = createButton(tr("1/x"), operatorColor,
-                                SLOT(unaryOperatorPressed()));
+    reciprocalButton = createButton(tr("1/x"), operatorColor,
+                                    SLOT(unaryOperatorPressed()));
     equalButton = createButton(tr("="), operatorColor.light(120),
                                SLOT(equalPressed()));
    
@@ -88,7 +88,7 @@ Calculator::Calculator(QWidget *parent)
 
     mainLayout->addWidget(digitButtons[0], 5, 1);
     mainLayout->addWidget(pointButton, 5, 2);
-    mainLayout->addWidget(signButton, 5, 3);
+    mainLayout->addWidget(changeSignButton, 5, 3);
 
     mainLayout->addWidget(divisionButton, 2, 4);
     mainLayout->addWidget(timesButton, 3, 4);
@@ -97,7 +97,7 @@ Calculator::Calculator(QWidget *parent)
 
     mainLayout->addWidget(squareRootButton, 2, 5);
     mainLayout->addWidget(powerButton, 3, 5);
-    mainLayout->addWidget(invertButton, 4, 5);
+    mainLayout->addWidget(reciprocalButton, 4, 5);
     mainLayout->addWidget(equalButton, 5, 5);
 
     setWindowTitle(tr("Calculator"));
@@ -245,7 +245,7 @@ void Calculator::pointPressed()
   }
 }
 
-void Calculator::signPressed()
+void Calculator::changeSignPressed()
 {
     QString text = lineEdit->text();
     double value = text.toDouble();
