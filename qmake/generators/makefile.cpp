@@ -1886,14 +1886,18 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		t << mkdir_p_asstring(root+tmp_dst) << "\n\t";
 	    }
 	    t << target << endl << endl;
-	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {
 		t << "uninstall_" << (*it) << ": " << "\n\t"
 		  << uninst.join("") << "\n\t"
 		  << "-$(DEL_DIR) \"" << ( root + dst ) << "\"" << endl << endl;
-		all_uninstalls += "uninstall_" + (*it) + " ";
 	    }
 	    t << endl;
+
+	    if(project->variables()[(*it) + ".CONFIG"].findIndex("no_default_install") == -1) {
+		all_installs += QString("install_") + (*it) + " ";
+		if(!uninst.isEmpty())
+		    all_uninstalls += "uninstall_" + (*it) + " ";
+	    }
 	}   else {
 	    debug_msg(1, "no definition for install %s: install target not created",(*it).latin1());
 	}
