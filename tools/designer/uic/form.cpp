@@ -131,11 +131,21 @@ void Uic::createFormDecl( const QDomElement &e )
     QStringList forwardDecl;
     QStringList forwardDecl2;
     QString exportMacro;
+    QStringList customImages;
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "customwidgets" ) {
+	    nl = n.elementsByTagName( "pixmap" );
+	    for ( i = 0; i < (int) nl.length(); i++ )
+		customImages += nl.item( i ).firstChild().toText().data();
+	}
+    }
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "images" ) {
 	    nl = n.elementsByTagName( "image" );
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString img = registerObject( nl.item(i).toElement().attribute("name") );
+		if ( customImages.contains(img) )
+		    continue;
 		registerObject( img );
 		imageMembers += QString( "    QPixmap %1;\n" ).arg( img );
 	    }
@@ -809,8 +819,13 @@ void Uic::createFormImpl( const QDomElement &e )
     static const char *imgTags[] = { "pixmap", "iconset", 0 };
     for ( i = 0; imgTags[i] != 0; i++ ) {
 	nl = e.parentNode().toElement().elementsByTagName( imgTags[i] );
-	for ( int j = 0; j < (int) nl.length(); j++ )
-	    requiredImages += nl.item(j).firstChild().toText().data();
+	for ( int j = 0; j < (int) nl.length(); j++ ) {
+	    QDomNode nn = nl.item(j);
+	    while ( nn.parentNode() != e.parentNode() )
+		nn = nn.parentNode();
+	    if ( nn.nodeName() != "customwidgets" )
+		requiredImages += nl.item(j).firstChild().toText().data();
+	}
     }
 
     if ( !requiredImages.isEmpty() || externPixmaps ) {
