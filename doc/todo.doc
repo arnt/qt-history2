@@ -8,59 +8,59 @@
 <H1 align=center>Qt TODO</H1>
 <H2>General clean-up</H2>
 <DL>
-  <DT><B>64-bit-clean <CODE>sizeof</CODE> and <CODE>size_t</CODE></B> 
-  <DD>On 64-bit platforms <CODE>sizeof</CODE> and <CODE>size_t</CODE> are 64-bit 
-  and cannot be cast to <CODE>uint</CODE>. Review code and API to get 
-  64-bit-clean. 
+  <DT><B>64-bit-clean <CODE>sizeof</CODE> and <CODE>size_t</CODE></B>
+  <DD>On 64-bit platforms <CODE>sizeof</CODE> and <CODE>size_t</CODE> are 64-bit
+  and cannot be cast to <CODE>uint</CODE>. Review code and API to get
+  64-bit-clean.
 
-  <DT><B>const-correctness for <CODE>char*</CODE></B> 
-  <DD>Some functions in the API return <CODE>char*</CODE> instead of <CODE>const 
-  char*</CODE>. Change to <CODE>const char*</CODE> in the API and the code. 
-  Remove some casts that had been added as a workaround to avoid relevant 
-  warnings. This is illegal C/C++: <BR><CODE>char *str = "constant!"</CODE> 
+  <DT><B>const-correctness for <CODE>char*</CODE></B>
+  <DD>Some functions in the API return <CODE>char*</CODE> instead of <CODE>const
+  char*</CODE>. Change to <CODE>const char*</CODE> in the API and the code.
+  Remove some casts that had been added as a workaround to avoid relevant
+  warnings. This is illegal C/C++: <BR><CODE>char *str = "constant!"</CODE>
 
-  <DT><B>Pointer to pointer to member function</B> 
-  <DD>Avoid it in the code and the API. Use a pointer to member function. This 
-  way a cast will be an implicit <CODE>reinterpret_cast</CODE>. <CODE>QMember* 
-  QConnection::member()</CODE> should be <CODE>QMember 
-  QConnection::member()</CODE>. 
+  <DT><B>Pointer to pointer to member function</B>
+  <DD>Avoid it in the code and the API. Use a pointer to member function. This
+  way a cast will be an implicit <CODE>reinterpret_cast</CODE>. <CODE>QMember*
+  QConnection::member()</CODE> should be <CODE>QMember
+  QConnection::member()</CODE>.
 
-  <DT><B>Use <CODE>_OS_*_</CODE> and <CODE>_CC_*_</CODE></B> 
-  <DD>Use <CODE>_OS_*_</CODE> and <CODE>_CC_*_</CODE> everywhere or create new 
-  <CODE>Q_*</CODE> flags. For example <CODE>#if defined(BSD4_4)</CODE> should be 
-  something like <CODE>#if defined(_OS_FREEBSD_)</CODE> or <CODE>#if 
-  defined(Q_BSD44_SOCKET_API)</CODE>. At least this is how it was done until now 
+  <DT><B>Use <CODE>_OS_*_</CODE> and <CODE>_CC_*_</CODE></B>
+  <DD>Use <CODE>_OS_*_</CODE> and <CODE>_CC_*_</CODE> everywhere or create new
+  <CODE>Q_*</CODE> flags. For example <CODE>#if defined(BSD4_4)</CODE> should be
+  something like <CODE>#if defined(_OS_FREEBSD_)</CODE> or <CODE>#if
+  defined(Q_BSD44_SOCKET_API)</CODE>. At least this is how it was done until now
   because this level of indirection had been useful in the past... </DL>
 
 <H2>Specific enhancements</H2>
 <DL>
-  <DT><B>QRect</B> 
-  <DD>Make 0x0 rectangles valid and fix any problems that may arise from it. 
+  <DT><B>QRect</B>
+  <DD>Make 0x0 rectangles valid and fix any problems that may arise from it.
 
-  <DT><B>PNG</B> 
-  <DD>Get Qt to work with libpng 1.0.8. Send a bug report if the bug is in 
-  libpng 1.0.8 and find a workaround. Use functions instead of direct struct 
-  access to maintain binary compatibility with all libpng versions. 
+  <DT><B>PNG</B>
+  <DD>Get Qt to work with libpng 1.0.8. Send a bug report if the bug is in
+  libpng 1.0.8 and find a workaround. Use functions instead of direct struct
+  access to maintain binary compatibility with all libpng versions.
 
-  <DT><B>PNG</B> 
-  <DD>Two images from the PNG test suite are still not read correctly. 
+  <DT><B>PNG</B>
+  <DD>Two images from the PNG test suite are still not read correctly.
 
-  <DT><B>Drag and Drop</B> 
-  <DD>Still doesn't work (sometimes crashes?) when dragging from or dropping to 
-  non-Qt programs. Can't paste or drop to NEdit. Can't drag from ClearCase. Asks 
-  useless question when dropping Netscape's "Location". Can't paste from 
-  Netscape. 
+  <DT><B>Drag and Drop</B>
+  <DD>Still doesn't work (sometimes crashes?) when dragging from or dropping to
+  non-Qt programs. Can't paste or drop to NEdit. Can't drag from ClearCase. Asks
+  useless question when dropping Netscape's "Location". Can't paste from
+  Netscape.
 
-  <DT><B>QScrollView</B> 
-  <DD>Add a AutoOneFit resize policy. 
+  <DT><B>QScrollView</B>
+  <DD>Add a AutoOneFit resize policy.
 
-  <DT><B>QImageIO</B> 
-  <DD>Clean up the compression parameter passing code. You'll need to change the 
-  API. 
+  <DT><B>QImageIO</B>
+  <DD>Clean up the compression parameter passing code. You'll need to change the
+  API.
 
-  <DT><B>QProgressBar</B> 
-  <DD>Add a "Busy" indicator for operations which have no concept of 
-  "percentage" like waiting for a network operation to be completed. 
+  <DT><B>QProgressBar</B>
+  <DD>Add a "Busy" indicator for operations which have no concept of
+  "percentage" like waiting for a network operation to be completed.
 </DL>
 
 <H2>Feature Requests</H2>
@@ -80,5 +80,57 @@
     <DT><B>QProgressBar</B>
     <DD>setPercentageVisible( bool )</DD>
 </DL>
+
+<H2>New functionality</H2>
+<DL>
+    <DT><B>Docking widgets</B> (Reggie)</DT>
+    <DD>QDockArea and QDockWidget (or QToolWindow) to allow real
+    docking (floating and inside a dockarea) like in Visual
+    Studio. Also have resizeable dockwindows and all that
+    stuff. Toolbars will then be just such
+    toolwindows/dockwidgets.</DD> 
+
+    <DT><B>Plugin System</B> (Volker)</DT>
+    <DD>System for dynamically loading plugins. First used by designer
+    but offered as Qt class. Find a solution to fix qAddPostRoutine as
+    this doesn't allow unloading libraries without crashing.</DD>
+
+    <DT><B>BiDi</B> (Lars)</DT>
+    <DD>BiDi algorithm for all text displaying. ASA the QTextView,
+    QTextBrowser, QTextEdit, QRichText part described in
+    "Extending existing functionality" is working start integrating
+    the BiDi stuff into that.</DD>
+
+    <DT><B>Database classes</B> (Dave)</DT>
+    <DD>Description missing here...</DD>
+
+    <DT><B>QSettings</B> (Brad, Volker)</DT>
+    <DD>QSetting class to store Qt settings in a XML tree
+    structure. Offer API so that Qt apps can use that to store
+    settings. Allow to read/write all C++ and Qt datatypes
+    (QVariant). On windows do it either as Registry frontend or also
+    using XML. When done, get rid of all static QApplication methods
+    which are just settings and replace that by having a QSetting
+    object. Also write a tool which allows to set the Qt relevant
+    settings (default style, double click interval, etc.)</DD>
+
+</DL>
+
+<H2>Extending existing functionality</H2>
+<DL>
+    <DT><B>Action/Mainwindow editor</B> (Reggie)</DT>
+    <DD>Actioneditor for QMainWindow so that one can drag'n'drop
+    actions in a special mode between the actin editor (which shows
+    all available actios) and the menus and toolbars. Allows also
+    creating new toolbars and menus (?) on the fly. Like you can doe
+    in Visual Studio and MS-Office</DD> 
+
+    <DT><B>QTextView, QTextBrowser, QTextEdit, QRichText</B> (Matthias, Reggie)</DT>
+    <DD>Merge the old QRichText engine with the new one from QTextEdit
+    (done already), and make QTextView,QTextBrowser and QTextEdit
+    using this engine. Then get rid of QMultiLineEdit</DD>
+
+</DL>
+
 
 */

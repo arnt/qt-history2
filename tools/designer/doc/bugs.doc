@@ -13,6 +13,15 @@
 
 <H2>Severe</H2>
 <DL>
+    <DT><B>Line in grid layout</B>(Reggie)</DT>
+    <DD>When putting a horizontal line in a grid layout, and
+    breaking that it is too small to fit into the layout again. When
+    breaking a layout make sure all widgets are >= (16, 16)</DD>
+
+    <DT><B>corrupted designerrc</B>(Reggie)</DT>
+    <DD>When the .designerrc is empty or corrupted designer crashes on
+    startup</DD>
+
 </DL>
 
 <H2>Small</H2>
