@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
     tree->setModel(model);
     list->setModel(model);
 
-    QItemSelectionModel *selection = new QItemSelectionModel(model, model);
+    QItemSelectionModel *selection = new QItemSelectionModel(model, splitter);
+
     tree->setSelectionModel(selection);
     list->setSelectionModel(selection);
 
