@@ -76,6 +76,7 @@ Feature Requests
 QFileDialog
   setSelectedFilter( const QString&/int ) to set used filter
   set filter to initial file-extension
+  make addFilter public
 
 QSizeGrip (Win32) (Volker)
   Outlined resize as set in the system properties
