@@ -340,6 +340,8 @@ public:
     }
     int formatIndex(const QScriptItem *si) const;
 
+    qreal nextTab(const QScriptItem *si, qreal x);
+
     mutable QScriptLineArray lines;
 
     QString text;

@@ -1464,3 +1464,22 @@ void QTextEngine::splitItem(int item, int pos) const
 //     qDebug("split at position %d itempos=%d", pos, item);
 }
 
+qreal QTextEngine::nextTab(const QScriptItem *si, qreal x)
+{
+    // #### should work for alignright and righttoleft
+    if (!(option.alignment() & Qt::AlignLeft) ||
+        option.textDirection() != Qt::LeftToRight)
+        return x + si->width;
+
+    QList<qreal> tabArray = option.tabArray();
+    if (!tabArray.isEmpty()) {
+        for (int i = 0; i < tabArray.size(); ++i) {
+            if (tabArray.at(i) > x)
+                return tabArray.at(i);
+        }
+    }
+    qreal tab = option.tabStop();
+    if (tab <= 0)
+        tab = 80; // default
+    return ((int)(x/tab) + 1)*tab;
+}

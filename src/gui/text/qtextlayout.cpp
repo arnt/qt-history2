@@ -1121,21 +1121,8 @@ void QTextLine::layout_helper(int maxGlyphs)
         } else if (current.isTab &&
                    (eng->option.alignment() & Qt::AlignLeft)) {
             qreal x = line.x + line.textWidth;
-
-            QList<qreal> tabArray = eng->option.tabArray();
-            if (!tabArray.isEmpty()) {
-                // ##################
-            } else {
-                qreal tab = eng->option.tabStop();
-                if (tab == 0)
-                    tab = 80; // default
-                qreal nx = ((int)(x/tab) + 1)*tab;
-                eng->layoutData->items[item].width = nx - x;
-            }
-            QGlyphLayout *glyph = eng->glyphs(&current);
-            glyph->advance.rx() = current.width;
-            line.textWidth += current.width;
-            qDebug("isTab width=%f", current.width);
+            qreal nx = eng->nextTab(&current, x);
+            line.textWidth += nx - x;
             line.length++;
             ++item;
             ++glyphCount;
@@ -1393,9 +1380,13 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 QTextCharFormat format = eng->format(&si).toCharFormat();
                 if (selection)
                     format.merge(selection->format);
-                setPenAndDrawBackground(p, pen, format, QRectF(x, y - line.ascent, si.width, line.height()));
+                qreal width = si.width;
+                if (si.isTab) {
+                    width = eng->nextTab(&si, x - pos.x()) - (x - pos.x());
+                }
+                setPenAndDrawBackground(p, pen, format, QRectF(x, y - line.ascent, width, line.height()));
                 if (si.isObject) {
-                    QRectF itemRect(x, y-si.ascent, si.width, si.height());
+                    QRectF itemRect(x, y-si.ascent, width, si.height());
                     eng->docLayout()->drawInlineObject(p, itemRect,
                                                        QTextInlineObject(item, eng), format);
                     if (selection) {
@@ -1412,7 +1403,10 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 p->restore();
             }
 
-            x += si.width;
+            if (si.isTab)
+                x = eng->nextTab(&si, x - pos.x()) + pos.x();
+            else
+                x += si.width;
             continue;
         }
 
@@ -1589,27 +1583,6 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     bool reverse = eng->layoutData->items[itm].analysis.bidiLevel % 2;
 
     int lineEnd = line.from + line.length;
-//     // don't draw trailing spaces or take them into the layout.
-//     const QCharAttributes *attributes = eng->attributes();
-//     while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
-//         --lineEnd;
-
-    if (si->isObject) {
-        if(pos == l)
-            x += si->width;
-    } else {
-        if (reverse) {
-            int end = qMin(lineEnd, si->position + l) - si->position;
-            int glyph_end = end == l ? si->num_glyphs : logClusters[end];
-            for (int i = glyph_end - 1; i >= glyph_pos; i--)
-                x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
-        } else {
-            int start = qMax(line.from - si->position, 0);
-            int glyph_start = logClusters[start];
-            for (int i = glyph_start; i < glyph_pos; i++)
-                x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
-        }
-    }
 
     // add the items left of the cursor
 
@@ -1631,7 +1604,10 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         if (!si.num_glyphs)
             eng->shape(item);
 
-        if (si.isTab || si.isObject) {
+        if (si.isTab) {
+            x = eng->nextTab(&si, x);
+            continue;
+        } else if (si.isObject) {
             x += si.width;
             continue;
         }
@@ -1648,6 +1624,26 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         while (gs <= ge) {
             x += glyphs[gs].advance.x() + qreal(glyphs[gs].space_18d6)/qreal(64);
             ++gs;
+        }
+    }
+
+    if (si->isTab) {
+        if(pos == l)
+            x = eng->nextTab(si, x);
+    } else if (si->isObject) {
+        if(pos == l)
+            x += si->width;
+    } else {
+        if (reverse) {
+            int end = qMin(lineEnd, si->position + l) - si->position;
+            int glyph_end = end == l ? si->num_glyphs : logClusters[end];
+            for (int i = glyph_end - 1; i >= glyph_pos; i--)
+                x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
+        } else {
+            int start = qMax(line.from - si->position, 0);
+            int glyph_start = logClusters[start];
+            for (int i = glyph_start; i < glyph_pos; i++)
+                x += glyphs[i].advance.x() + qreal(glyphs[i].space_18d6)/qreal(64);
         }
     }
 
@@ -1723,7 +1719,9 @@ int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
             QGlyphLayout *glyphs = eng->glyphs(&si);
 
             qreal item_width = 0;
-            if (si.isTab || si.isObject) {
+            if (si.isTab) {
+                item_width = eng->nextTab(&si, pos) - pos;
+            } else if (si.isObject) {
                 item_width = si.width;
             } else {
                 int g = gs;
