@@ -382,7 +382,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 	if ( hasBeenHidden )
 	    w->hide();
-	else if ( !isVisible() )  // that's a case were we don't receive a showEvent in time. Tricky.
+	else if ( !isVisible() ) 	// that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
 
 	if ( !hasPos )
@@ -1567,7 +1567,8 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      (toplevel == Yes ? WType_TopLevel : 0 ) | WDestructiveClose | WNoMousePropagation | WSubWindow )
+	      (toplevel == Yes ? WType_TopLevel : 0 ) | WStyle_Customize | 
+	      WStyle_MinMax | WStyle_SysMenu | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
     statusbar = 0;
     setMouseTracking( TRUE );
