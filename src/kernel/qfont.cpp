@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#12 $
 **
 ** Implementation of QFont and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#12 $";
 #endif
 
 
@@ -347,6 +347,18 @@ int QFontInfo::weight() const
     return (int) f.d->act.weight;
 }
 
+int QFontInfo::underline() const
+{
+    UPDATE_DATA
+    return (int) f.d->act.underline;
+}
+
+int QFontInfo::strikeOut() const
+{
+    UPDATE_DATA
+    return (int) f.d->act.strikeOut;
+}
+
 bool QFontInfo::fixedPitch() const
 {
     UPDATE_DATA
@@ -383,6 +395,14 @@ int QFontMetrics::width( char ch ) const
     tmp[1] = '\0';
     tmp[0] = ch;
     return width( tmp, 1 );
+}
+
+QRect QFontMetrics::boundingRect( char ch ) const
+{
+    char tmp[2];
+    tmp[1] = '\0';
+    tmp[0] = ch;
+    return boundingRect( tmp, 1 );
 }
 
 const QFont &QFontMetrics::font() const
