@@ -806,21 +806,15 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
     if ( valid && mmPos >= 0 && mmPos <= mmLen ) {
 #ifndef QT_NO_REGEXP_OPTIM
 	if ( mmPos <= mmLen - minl ) {
-	    if ( caretAnchored || oneTest ) {
+	    if ( caretAnchored || oneTest )
 		matched = matchHere();
-	    } else {
-
-		if ( useGoodStringHeuristic )
-		    matched = goodStringMatch();
-		else
-		    matched = badCharMatch();
-	    }
+	    else if ( useGoodStringHeuristic )
+		matched = goodStringMatch();
+	    else
+		matched = badCharMatch();
 	}
 #else
-	if ( oneTest )
-	    matched = matchHere();
-	else
-	    matched = bruteMatch();
+	matched = oneTest ? matchHere() : bruteMatch();
 #endif
     }
 
@@ -1030,7 +1024,6 @@ void QRegExpEngine::heuristicallyChooseHeuristic()
 
     useGoodStringHeuristic = ( goodStringScore > badCharScore );
 }
-
 #endif
 
 #if defined(DEBUG)
@@ -1426,8 +1419,6 @@ bool QRegExpEngine::matchHere()
 			else
 			    in = cc->in( QChar(ch).lower() ) ||
 				 cc->in( QChar(ch).upper() );
-#else
-			in = TRUE;
 #endif
 #ifndef QT_NO_REGEXP_BACKREF
 		    } else { /* ( (m & BackRefBit) != 0 ) */
