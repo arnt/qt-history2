@@ -583,6 +583,9 @@ void QTextDrag::setText( const QString &text )
 }
 
 
+/*!
+  \reimp
+*/
 const char * QTextDrag::format(int i) const
 {
     if ( i >= d->nfmt )
@@ -793,6 +796,9 @@ void QImageDrag::setImage( QImage image )
 	ofmts.insert(0,"PNG");
 }
 
+/*!
+  \reimp
+*/
 const char * QImageDrag::format(int i) const
 {
     if ( i < (int)ofmts.count() ) {
@@ -929,6 +935,9 @@ QStoredDrag::~QStoredDrag()
     delete d;
 }
 
+/*!
+  \reimp
+*/
 const char * QStoredDrag::format(int i) const
 {
     if ( i==0 )
