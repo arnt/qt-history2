@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 	*/
 	fullText.replace( QRegExp(QString("#[^\n]$")), QString(" ") );
 	fullText.replace( QRegExp(QString("\\\\\\s*\n")), QString(" ") );
-	fullText.replace( QRegExp(QString("=")), QString(" = ") );
+	fullText.replace( QRegExp(QString("\\+?=")), QString(" = ") );
 	fullText.replace( QRegExp(QString("\n")), QString(";") );
 	fullText = fullText.simplifyWhiteSpace();
 
