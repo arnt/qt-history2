@@ -1113,6 +1113,7 @@ void QDockWindow::updateGui()
 	    setLineWidth( 1 );
 	else
 	    setLineWidth( 0 );
+	hbox->setMargin( lineWidth() );
 	widgetResizeHandler->setActive( FALSE );
     }
 }
