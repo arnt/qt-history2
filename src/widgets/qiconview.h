@@ -312,9 +312,11 @@ public:
     QIconSet::Size viewMode() const;
 public:
     virtual void showEvent( QShowEvent * );
+    
 qproperties:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
+    
 public:
     virtual void setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
 					      QFont *highlightedText, QColor *highlightedTextCol,
@@ -325,6 +327,7 @@ public:
 qproperties:
     virtual void setUseSingleClickMode( bool b );
     bool useSingleClickMode() const;
+
 public:
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
@@ -338,6 +341,7 @@ public:
     QIconViewItem* findFirstVisibleItem() const;
 
     virtual void clear();
+
 qproperties:
     virtual void setGridX( int rx );
     virtual void setGridY( int ry );
@@ -359,15 +363,18 @@ qproperties:
     int maxItemTextLength() const;
     void setAligning( bool b );
     bool aligning() const;
+
 public:
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
     bool sortDirection() const;
+    
 qproperties:
     virtual void setEnableMoveItems( bool b );
     bool enableMoveItems() const;
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
+    
 public:
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
