@@ -279,9 +279,9 @@ void QCursor::update() const
         d->hcurs = CreateCursor(qWinAppInst(), d->hx, d->hy, bbits.width(), bbits.height(),
                                    xBits, xMask);
 #endif
-        delete xBits;
-        delete xMask;
-        return;
+	delete [] xBits;
+	delete [] xMask;
+	return;
     }
     default:
         qWarning("QCursor::update: Invalid cursor shape %d", d->cshape);
