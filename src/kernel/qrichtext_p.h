@@ -402,6 +402,7 @@ public:
     virtual bool ownLine() const;
     virtual void resize( QPainter*, int nwidth );
     virtual void invalidate();
+    virtual int ascent() const { return height; }
 
     virtual bool isNested() const;
     virtual int minimumWidth() const;
@@ -2055,7 +2056,7 @@ inline int QTextStringChar::height() const
 
 inline int QTextStringChar::ascent() const
 {
-    return !isCustom() ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
+    return !isCustom() ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->ascent() : 0 );
 }
 
 inline int QTextStringChar::descent() const
