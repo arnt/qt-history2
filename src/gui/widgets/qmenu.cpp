@@ -1529,7 +1529,11 @@ Q4MenuBar::Q4MenuBar(QWidget *parent) : QWidget(*new Q4MenuBarPrivate, parent, 0
     d->macCreateMenuBar(parent);
 #endif
     setBackgroundRole(QPalette::Button);
-    topLevelWidget()->installEventFilter(this); //grab accels & handle resizes
+    if(parent) {
+        topLevelWidget()->installEventFilter(this); //grab accels (and maybe resizes)
+        if(!parent->isTopLevel())
+            parent->installEventFilter(this); //handle resizes
+    }
     setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
     setGeometry(QRect(QPoint(0, 0), sizeHint()));
 }
@@ -1816,6 +1820,8 @@ void Q4MenuBar::changeEvent(QEvent *e)
     if(e->type() == QEvent::StyleChange) {
         d->itemsDirty = 1;
         setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
+        if(parentWidget())
+            resize(parentWidget()->width(), heightForWidth(parentWidget()->width()));
     }
 }
 
