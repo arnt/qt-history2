@@ -217,7 +217,8 @@ void Frame::setCurrentCategory( QWidget *w )
 
 void Frame::setCurrentCategory( const QString &s )
 {
-    if(QListBoxItem *i = categories->findItem(s)) {
+    QListBoxItem *i = categories->findItem( s );
+    if ( i ) {
 	categories->setCurrentItem( i );
 	clickedCategory( i );
     }
