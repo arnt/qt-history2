@@ -2756,8 +2756,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	grep "QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
 	grep "QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
 	if [ "$Products" = "qt-free" ]; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION
-            EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
+            EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
         else
 	    echo "include Makefile.commercial" >>$mkfile
         fi
