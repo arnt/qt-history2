@@ -16,7 +16,7 @@ ADDCLEAN    =
 
 #qmake code
 OBJS=project.o main.o makefile.o unixmake.o unixmake2.o borland_bmake.o mingw_make.o \
-	msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o projectgenerator.o \
+	msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o projectgenerator.o xmloutput.o \
 	metrowerks_xml.o pbuilder_pbx.o msvc_objectmodel.o property.o meta.o qtmd5.o makefiledeps.o
 
 #qt code
@@ -238,3 +238,6 @@ pbuilder_pbx.o: generators/mac/pbuilder_pbx.cpp
 
 makefiledeps.o: generators/makefiledeps.cpp
 	$(CXX) $(CXXFLAGS) generators/makefiledeps.cpp
+
+xmloutput.o: generators/xmloutput.cpp
+	$(CXX) $(CXXFLAGS) generators/xmloutput.cpp
