@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#132 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -445,27 +445,30 @@ int QFont::weight() const
 }
 
 /*!
-  Sets the weight (or boldness).
+  \enum QFont::Weight
 
-  \define QFont::Weight
-
-  The enum \c QFont::Weight contains the predefined font weights:<ul>
+  Contains the predefined font weights:<ul>
   <li> \c QFont::Light (25)
   <li> \c QFont::Normal (50)
   <li> \c QFont::DemiBold (63)
   <li> \c QFont::Bold (75)
   <li> \c QFont::Black (87)
   </ul>
+*/
 
-  Strictly speaking you can use all values in the range [0,99] (where
-  0 is ultralight and 99 is extremely black), but there is such a
-  thing as asking too much of the underlying window system.
+/*!
+  Sets the weight (or boldness), which should be a value
+  from the QFont::Weight enumeration.
 
   Example:
   \code
     QFont font( "courier" );
     font.setWeight( QFont::Bold );
   \endcode
+
+  Strictly speaking you can use all values in the range [0,99] (where
+  0 is ultralight and 99 is extremely black), but there is perhaps
+  asking too much of the underlying window system.
 
   If the specified weight is not available the closest available will
   be used. Use QFontInfo to check the actual weight.
@@ -613,19 +616,28 @@ QFont::StyleHint QFont::styleHint() const
 }
 
 /*!
-  Sets the style hint.
+  \enum QFont::StyleHint
 
-  \define QFont::StyleHint
-
-  The style hint is used by the \link fontmatch.html font
+  Style hints are used by the \link fontmatch.html font
   matching algorithm \endlink when a selected font family cannot be
   found and is used to find an appropriate default family.
+
+  The style hint value of \c AnyStyle leaves the
+  task of finding a good default family to the font matching
+  algorithm.
+
+  The other available style hints are \c QFont::SansSerif, \c
+  QFont::TypeWriter, \c QFont::OldEnglish, \c QFont::System
+*/
+
+/*!
+  Sets the style hint.
 
   The style hint has a default value of \c AnyStyle which leaves the
   task of finding a good default family to the font matching
   algorithm.
 
-  In this example (which is a complete program) the push button will
+  In the example below the push button will
   display its text label with the Bavaria font family if this family
   is available, if not it will display its text label with another
   serif font:
@@ -647,10 +659,7 @@ QFont::StyleHint QFont::styleHint() const
     }
   \endcode
 
-  The other available style hints are \c QFont::SansSerif, \c
-  QFont::TypeWriter, \c QFont::OldEnglish, \c QFont::System
-
-  \sa styleHint(), QFontInfo, \link fontmatch.html font matching\endlink
+  \sa QFont::StyleHint, styleHint(), QFontInfo, \link fontmatch.html font matching\endlink
 */
 
 void QFont::setStyleHint( StyleHint hint )
@@ -676,9 +685,28 @@ QFont::CharSet QFont::charSet() const
 }
 
 /*!
-  Sets the character set encoding (e.g. \c Latin1).
+  \enum QFont::CharSet
 
-  \define QFont::CharSet
+  The following character set encodings are available: <ul>
+  <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
+  <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
+  <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
+  <li> \c QFont::ISO_8859_4 - Latin4, less common European character set
+  <li> \c QFont::ISO_8859_5, Cyrillic
+  <li> \c QFont::ISO_8859_6, Arabic
+  <li> \c QFont::ISO_8859_7, Greek
+  <li> \c QFont::ISO_8859_8, Hebrew
+  <li> \c QFont::ISO_8859_9, Turkish
+  <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
+  <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
+       <a href="http://ds.internic.net/rfc/rfc1489.txt">RFC 1489.</a>
+  <li> \c QFont::AnyCharSet - whatever is handiest.
+  </ul>
+
+*/
+
+/*!
+  Sets the character set encoding (e.g. \c Latin1).
 
   If the character set encoding is not available another will be used
   for drawing.  for most non-trivial applications you will probably
@@ -697,22 +725,6 @@ QFont::CharSet QFont::charSet() const
     if ( info.charSet() != Latin1 )	     // check actual font
 	qFatal( "Cannot find a Latin 1 Times font" );
   \endcode
-
-  The following character set encodings are available: <ul>
-  <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
-  <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
-  <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
-  <li> \c QFont::ISO_8859_4 - Latin4, less common European character set
-  <li> \c QFont::ISO_8859_5, Cyrillic
-  <li> \c QFont::ISO_8859_6, Arabic
-  <li> \c QFont::ISO_8859_7, Greek
-  <li> \c QFont::ISO_8859_8, Hebrew
-  <li> \c QFont::ISO_8859_9, Turkish
-  <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
-  <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
-       <a href="http://ds.internic.net/rfc/rfc1489.txt">RFC 1489.</a>
-  <li> \c QFont::AnyCharSet - whatever is handiest.
-  </ul>
 
   \sa charSet(), QFontInfo, \link fontmatch.html font matching\endlink
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#101 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#102 $
 **
 ** Implementation of QMessageBox class
 **
@@ -159,8 +159,6 @@ static const char* critical_xpm[]={
   \class QMessageBox qmessagebox.h
   \brief Displays a brief message, an icon, and some buttons.
   \ingroup dialogs
-
-  \define QMessageBox::Icon
 
   A message box is a modal dialog that displays an icon, a text and up to
   three push buttons.  It's used for simple messages and questions.
@@ -665,17 +663,20 @@ void QMessageBox::setText( const QString &text )
     label->setText( text );
 }
 
-
 /*!
-  Returns the icon of the message box.
+  \enum QMessageBox::Icon
 
-  The return value is one of the following:
+  This type includes the following values:
   <ul>
   <li> \c QMessageBox::NoIcon
   <li> \c QMessageBox::Information
   <li> \c QMessageBox::Warning
   <li> \c QMessageBox::Critical
   </ul>
+*/
+
+/*!
+  Returns the icon of the message box.
 
   \sa setIcon(), iconPixmap()
 */

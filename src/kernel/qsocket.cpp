@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#25 $
 **
 ** Implementation of QSocket class
 **
@@ -224,17 +224,19 @@ void QSocket::timerEvent( QTimerEvent *e )
 
 
 /*!
-  Returns the current state of the socket connection.
+  \enum QSocket::State
 
-  \define QSocket::State
-
-  The enum \c QSocket::State contains the connection states:
+  This enum contains the connection states:
   <ul>
   <li> \c QSocket::Idle if there is no connection,
   <li> \c QSocket::HostLookup during a host lookup,
   <li> \c QSocket::Connecting during an attempt to connect to a host, and
   <li> \c QSocket::Connection when there is a connection.
   </ul>
+*/
+
+/*!
+  Returns the current state of the socket connection.
 */
 
 QSocket::State QSocket::state() const
@@ -259,17 +261,21 @@ QSocket::Mode QSocket::mode() const
     return d->mode;
 }
 
-
 /*!
-  Sets the communication mode to either binary or ascii.
+  \enum QSocket::Mode
 
-  \define QSocket::Mode
-
-  The enum \c QSocket::Mode specifies the communication mode:
+  This enum specifies the communication mode:
   <ul>
   <li> \c QSocket::Binary (default)
   <li> \c QSocket::Ascii
   </ul>
+*/
+
+/*!
+  Sets the
+    \link QSocket::Mode communication mode\endlink to either binary or ascii.
+
+  QSocket::Binary is the default.
 
   The mode only relates to incoming data. If binary mode is set,
   you read data using the readBlock() function.  bytesAvailable()

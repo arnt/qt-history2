@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#68 $
 **
 ** Implementation of QMainWindow class
 **
@@ -51,8 +51,6 @@
   \ingroup realwidgets
   \ingroup application
 
-  \define QMainWindow::ToolBarDock
-
   In addition, you need the large central widget, which you supply and
   tell QMainWindow about using setCentralWidget(), and perhaps a few
   tool bars, which you can add using addToolBar().
@@ -91,6 +89,20 @@
   <img src=qmainwindow-m.png> <img src=qmainwindow-w.png>
 
   \sa QToolBar QStatusBar QMenuBar QToolTipGroup QDialog
+*/
+
+/*!
+  \enum QMainWindow::ToolBarDock
+
+  Each toolbar can be in one of the following positions:
+  <ul>
+    <li>\c Top - above the central widget, below the menubar.
+    <li>\c Bottom - below the central widget, above the status bar.
+    <li>\c Left - to the left of the central widget.
+    <li>\c Right - to the left of the central widget.
+  </ul>
+
+  Other values are also defined for future expansion.
 */
 
 class QMainWindowPrivate {

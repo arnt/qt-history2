@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#56 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1239,13 +1239,19 @@ bool QLayout::activate()
   subclass.
 
   It constructs a QSizePolicy with independent horizontal and vertical
-  sizing types, \a hor and \a ver respectively.  These sizing types
+  sizing types, \a hor and \a ver respectively.  These
+  \link QSizePolicy::SizeType sizing types\endlink
   affect how the widget is treated by the \a link QLayout layout
   engine\endlink.
 
-  \define QSizePolicy::SizeType
+  If \a hfw is TRUE, the preferred height of the widget is dependent on the
+  width of the widget (for example, a QLabel with automatic word-breaking).
+*/
 
-  The sizing types are:
+/*!
+  \enum QSizePolicy::SizeType
+
+  The sizing types used when constructing a QSizePolicy are:
 <ul>
     <li> \c Fixed - the sizeHint() is the only acceptable alternative,
 		so never grow or shrink
@@ -1271,9 +1277,6 @@ bool QLayout::activate()
 		get as much space as possible.
 		(eg. the horizontal direction of a slider)
 </ul>
-
-  If \a hfw is TRUE, the preferred height of the widget is dependent on the
-  width of the widget (for example, a QLabel with automatic word-breaking).
 */
 
 /*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
@@ -1454,8 +1457,7 @@ QGLayoutIterator::~QGLayoutIterator()
 
 
 /*!
-  \define QLayout::ResizeMode
-  Sets the resize mode to \a mode.
+  \enum QLayout::ResizeMode
 
     The possible values are are:
 <ul>
@@ -1465,9 +1467,16 @@ QGLayoutIterator::~QGLayoutIterator()
     minimumSize(), it cannot be smaller.
     <li> \c FreeResize - the widget is not constrained.
 </ul>
-    The default value is \c Minimum for top level widgets, and \c FreeResize
-    for all others.
 
+*/
+
+/*!
+  Sets the resize mode to \a mode.
+
+  The default mode is \c Minimum for top level widgets, and \c FreeResize
+  for all others.
+
+  \sa QLayout::ResizeMode
 */
 
 void QLayout::setResizeMode( ResizeMode mode )
