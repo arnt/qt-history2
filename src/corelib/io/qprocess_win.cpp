@@ -23,6 +23,7 @@
 #include <qwaitcondition.h>
 #include <private/qwineventnotifier_p.h>
 #include <qabstracteventdispatcher.h>
+#include <qdebug.h>
 
 //#define QPROCESS_DEBUG
 
@@ -30,6 +31,49 @@
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
 #define MAXSINGLEWRITE qint64(10000) //### may not need this now
+
+class QIncrimentalSleepTimer
+{
+public:
+    QIncrimentalSleepTimer(int msecs)
+        : totalTimeOut(msecs)
+        , nextSleep(qMin(SLEEPMIN, totalTimeOut))
+    {
+        timer.start();
+    }
+
+    int nextSleepTime() 
+    {
+        if (totalTimeOut == -1)
+            return -1;
+
+        int tmp = nextSleep;
+
+        nextSleep = qMin(nextSleep * 2, qMin(SLEEPMAX, timeLeft()));
+        
+        return tmp;
+    }
+
+    int timeLeft()
+    {
+        return qMax(totalTimeOut - timer.elapsed(), 0);
+    }
+
+    bool hasTimedOut()
+    {
+        return timer.elapsed() >= totalTimeOut; 
+    }
+
+    void resetIncriments()
+    {
+        nextSleep = qMin(SLEEPMIN, timeLeft());
+    }
+
+private:
+    QTime timer;
+    int totalTimeOut;
+    int nextSleep;
+};
 
 class QWindowsPipeWriter : public QThread
 {
@@ -475,35 +519,28 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 {
     Q_Q(QProcess);
 
-    QTime start;
-    start.start();
+    QIncrimentalSleepTimer timer(msecs);
 
-    int nextSleep = SLEEPMIN;
     forever {
 
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
             canWrite();
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         bool readyReadEmitted = false;
         if (bytesAvailableFromStdout() != 0) {
             readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         if (bytesAvailableFromStderr() != 0) {
             readyReadEmitted = canReadStandardError() ? true : readyReadEmitted;
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         if (readyReadEmitted)
             return true;
-
-        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
-        if (msecs <= start.elapsed())
-            break;
-        nextSleep = qMax(nextSleep, 0);
 
         if (!pid)
             return false;
@@ -513,8 +550,9 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             return false;
         }
 
-        Sleep(nextSleep);
-        nextSleep *= 2;
+        Sleep(timer.nextSleepTime());
+        if (timer.hasTimedOut())
+            break;
     }
 
     processError = QProcess::Timedout;
@@ -527,10 +565,8 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
     Q_Q(QProcess);
 
-    QTime start;
-    start.start();
+    QIncrimentalSleepTimer timer(msecs);
 
-    int nextSleep = SLEEPMIN;
     forever {
 
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
@@ -540,12 +576,12 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
         if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         if (bytesAvailableFromStderr() != 0) {
             canReadStandardError();
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         if (!pid)
@@ -555,23 +591,20 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
             return false;
         }
 
-        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
-        if (msecs <= start.elapsed())
-            break;
-        nextSleep = qMax(nextSleep, 0);
-
-        if (pipeWriter->waitForWrite(nextSleep)) {
+        if (pipeWriter->waitForWrite(timer.nextSleepTime())) {
              if (canWrite())
                 return true;
         }
 
-        nextSleep *= 2;
+        if (timer.hasTimedOut())
+            break;
     }
 
     processError = QProcess::Timedout;
     q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
     return false;
 }
+
 
 bool QProcessPrivate::waitForFinished(int msecs)
 {
@@ -580,38 +613,34 @@ bool QProcessPrivate::waitForFinished(int msecs)
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
 
-    QTime start;
-    start.start();
+    QIncrimentalSleepTimer timer(msecs);
 
-    int nextSleep = SLEEPMIN;
     forever {
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
             canWrite();
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
 
         if (bytesAvailableFromStderr() != 0) {
             canReadStandardError();
-            nextSleep = qMin(SLEEPMIN, msecs);
+            timer.resetIncriments();
         }
-
-        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
-        if (msecs <= start.elapsed())
-            break;
-        nextSleep = qMax(nextSleep, 0);
 
         if (!pid)
             return true;
-        if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
+
+        if (WaitForSingleObject(pid->hProcess, timer.nextSleepTime()) == WAIT_OBJECT_0) {
             processDied();
             return true;
         }
-        nextSleep *= 2;
+
+        if (timer.hasTimedOut())
+            break;
     }
     processError = QProcess::Timedout;
     q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
