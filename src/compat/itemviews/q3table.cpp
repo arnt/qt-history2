@@ -7281,10 +7281,10 @@ void Q3TableHeader::setLabels(const QStringList & labels)
 {
     int i = 0;
     bool updates = isUpdatesEnabled();
+    const int c = QMIN(count(), (int)labels.count());
     setUpdatesEnabled(false);
-    for (QStringList::ConstIterator it = labels.begin();
-	  it != labels.end() && i < count(); ++i, ++it) {
-	if (i == (int)labels.count() - 1) {
+    for (QStringList::ConstIterator it = labels.begin(); i < c; ++i, ++it) {
+	if (i == c - 1) {
 	    setUpdatesEnabled(updates);
 	    setLabel(i, *it);
 	} else {
