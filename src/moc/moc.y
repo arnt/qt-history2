@@ -1658,7 +1658,7 @@ int main( int argc, char **argv )
 				 QT_VERSION_STR );
 		cleanup();
 		return 1;
-	    } else if ( opt == "k" ) {		// don't stop on errors
+	    } else if ( opt == "k" ) {		// stop on errors
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
 		displayWarnings = FALSE;
@@ -2125,14 +2125,16 @@ void yyerror( const char *msg )			// print yacc error message
     sprintf(msg2, "%s:%d Error: %s", g->fileName.data(), lineNo, msg);
     CWReportMessage(g_ctx, NULL, msg2, NULL, messagetypeError, 0);
 #endif
+    if ( errorControl ) {
+	if ( !g->outputFile.isEmpty() && yyin && fclose(yyin) == 0 )
+	    remove( g->outputFile );
+	exit( -1 );
+    }
 }
 
 void moc_err( const char *s )
 {
     yyerror( s );
-    if ( errorControl ) {
-	exit( -1 );
-    }
 }
 
 void moc_err( const char *s1, const char *s2 )
@@ -2140,9 +2142,6 @@ void moc_err( const char *s1, const char *s2 )
     static char tmp[1024];
     sprintf( tmp, s1, s2 );
     yyerror( tmp );
-    if ( errorControl ) {
-	exit( -1 );
-    }
 }
 
 void moc_warn( const char *msg )
