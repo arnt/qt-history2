@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#81 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -881,6 +881,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Prior:
 	    setTopCell( QMAX( topCell() - pageSize, 0 ) );
 	    break;
+	case Key_C:
+	    if ( echoMode() == Normal && (e->state()&ControlButton) )
+		copy();
+	    else
+		unknown++;
+	    break; 
 	default:
 	    unknown++;
 	}
@@ -1712,7 +1718,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	setCursorPosition( newY, newX, TRUE);
 	return;
     }
-    
+
     if (
 	inMark(newX, newY)		// Click on highlighted text
 	&& echoMode() == Normal		// No DnD of passwords, etc.
