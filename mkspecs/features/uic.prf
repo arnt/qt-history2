@@ -49,15 +49,23 @@ uic3 {
     uic3_moc.name = UIC3 MOC ${QMAKE_FILE_IN}
     QMAKE_EXTRA_COMPILERS += uic3_moc
 }
-#### we don't have a replacement for `uic3 -embed' yet!
 
-uic3_emb.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-uic3_emb.output = $$UI_SOURCES_DIR/qmake_image_collection.cpp
-uic3_emb.variable_out = SOURCES
-uic3_emb.depends = $$QMAKE_UIC3
-uic3_emb.input = IMAGES
-uic3_emb.CONFIG += combine
-uic3_emb.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
-QMAKE_EXTRA_COMPILERS += uic3_emb
+image_collection.output = qmake_image_collection.cpp
+image_collection.variable_out = SOURCES
+image_collection.input = IMAGES
+image_collection.CONFIG += combine
+image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
+q3mimesourcefactory {
+    image_collection.depends = $$QMAKE_UIC3
+    image_collection.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+} else {
+   isEmpty(QMAKE_RCC) {
+      win32:QMAKE_RCC = $(QTDIR)\bin\rcc.exe
+      else:QMAKE_RCC = $(QTDIR)/bin/rcc
+   }
+   image_collection.depends = $$QMAKE_RCC
+   image_collection.commands = $$QMAKE_RCC -prefix /qt/q3mimesourcefactory ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+}
+QMAKE_EXTRA_COMPILERS += image_collection
 
 

@@ -24,7 +24,6 @@ SOURCES += \
 	image/qiconset.cpp \
 	image/qimage.cpp \
 	image/qimageformatplugin.cpp \
-	image/qimage_gui.cpp \
 	image/qmovie.cpp \
 	image/qpaintengine_pic.cpp \
 	image/qpicture.cpp \

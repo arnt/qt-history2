@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+
 #include "qimage.h"
 #include "qregexp.h"
 #include "qfile.h"
@@ -32,9 +33,17 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "qmime.h"
+#include "qdragobject.h"
 
 #ifdef Q_WS_QWS
 #include "qgfx_qws.h"
+#endif
+
+#if defined(Q_WS_X11)
+#include <X11/Xlib.h>                                // needed for systemBitOrder
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
 #endif
 
 // 16bpp images on supported on Qt/Embedded
@@ -6256,6 +6265,31 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
 }
 
 #endif // QT_NO_IMAGE_TEXT
+
+/*
+    Sets the image bits to the \a pixmap contents and returns a
+    reference to the image.
+
+    If the image shares data with other images, it will first
+    dereference the shared data.
+
+    Makes a call to QPixmap::convertToImage().
+*/
+
+/*! \fn QImage::Endian QImage::systemBitOrder()
+
+    Determines the bit order of the display hardware. Returns
+    QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
+
+    \sa systemByteOrder()
+*/
+
+#if defined(Q_WS_X11)
+QImage::Endian qX11BitmapBitOrder()
+{ 
+    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian; 
+}
+#endif
 
 #ifdef Q_WS_QWS
 /*!

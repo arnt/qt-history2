@@ -21,6 +21,7 @@
 #include "qhash.h"
 #include "qobject.h"
 #include "qmime.h"
+#include "qmimefactory.h"
 #endif // QT_H
 
 #ifndef QT_NO_RICHTEXT

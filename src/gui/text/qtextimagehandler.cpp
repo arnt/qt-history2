@@ -22,19 +22,17 @@ static QPixmap getPixmap(const QTextImageFormat &format)
         size.setHeight(format.height());
 
     QString key = QString("$qt_rt_%1_%2_%3").arg(format.name()).arg(size.width()).arg(size.height());
+#if 0
     if (!QPixmapCache::find(key, pm)) {
-
-        QImage img = qFromMimeSource_helper(format.name());
-
+        QImage img = qImageFromMimeSource_helper(format.name());
         if (img.isNull())
             return pm;
-
         if (size.isValid() && img.size() != size)
             img = img.smoothScale(size);
-
         pm.convertFromImage(img);
         QPixmapCache::insert(key, pm);
     }
+#endif
     return pm;
 }
 

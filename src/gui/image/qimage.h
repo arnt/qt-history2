@@ -72,64 +72,61 @@ public:
     QImage(const QImage &);
    ~QImage();
 
-    QImage     &operator=(const QImage &);
-    bool        operator==(const QImage &) const;
-    bool        operator!=(const QImage &) const;
-    void        detach();
-    QImage        copy()                const;
-    QImage        copy(int x, int y, int w, int h, int conversion_flags=0) const;
-    QImage        copy(const QRect&)        const;
-#ifndef QT_NO_MIME
-    static QImage fromMimeSource(const QString& abs_name);
-#endif
-    bool        isNull()        const        { return data->bits == 0; }
+    QImage &operator=(const QImage &);
+    bool operator==(const QImage &) const;
+    bool operator!=(const QImage &) const;
+    void detach();
+    QImage copy() const;
+    QImage copy(int x, int y, int w, int h, int conversion_flags=0) const;
+    QImage copy(const QRect&)        const;
+    bool isNull() const { return data->bits == 0; }
 
-    int                width()                const        { return data->w; }
-    int                height()        const        { return data->h; }
-    QSize        size()                const        { return QSize(data->w,data->h); }
-    QRect        rect()                const        { return QRect(0,0,data->w,data->h); }
-    int                depth()                const        { return data->d; }
-    int                numColors()        const        { return data->ncols; }
-    Endian        bitOrder()        const        { return (Endian) data->bitordr; }
+    int width() const { return data->w; }
+    int height() const { return data->h; }
+    QSize size() const { return QSize(data->w,data->h); }
+    QRect rect() const { return QRect(0,0,data->w,data->h); }
+    int depth() const { return data->d; }
+    int numColors() const { return data->ncols; }
+    Endian bitOrder() const { return (Endian) data->bitordr; }
 
-    QRgb        color(int i)        const;
-    void        setColor(int i, QRgb c);
-    void        setNumColors(int);
+    QRgb color(int i)        const;
+    void setColor(int i, QRgb c);
+    void setNumColors(int);
 
-    bool        hasAlphaBuffer() const;
-    void        setAlphaBuffer(bool);
+    bool hasAlphaBuffer() const;
+    void setAlphaBuffer(bool);
 
-    bool        allGray() const;
-    bool        isGrayscale() const;
+    bool allGray() const;
+    bool isGrayscale() const;
 
-    uchar      *bits()                const;
-    uchar      *scanLine(int) const;
-    uchar     **jumpTable()        const;
-    QRgb       *colorTable()        const;
-    int                numBytes()        const;
-    int                bytesPerLine()        const;
+    uchar *bits() const;
+    uchar *scanLine(int) const;
+    uchar **jumpTable() const;
+    QRgb *colorTable() const;
+    int numBytes() const;
+    int bytesPerLine() const;
 
 #ifdef Q_WS_QWS
 //#ifdef QT_OLD_GFX
-    QGfx * graphicsContext();
+    QGfx *graphicsContext();
 //#endif
 #endif
 
-    bool        create(int width, int height, int depth, int numColors=0,
-                        Endian bitOrder=IgnoreEndian);
-    bool        create(const QSize&, int depth, int numColors=0,
-                        Endian bitOrder=IgnoreEndian);
-    void        reset();
+    bool create(int width, int height, int depth, int numColors=0,
+                Endian bitOrder=IgnoreEndian);
+    bool create(const QSize&, int depth, int numColors=0,
+                Endian bitOrder=IgnoreEndian);
+    void reset();
 
-    void        fill(uint pixel);
-    void        invertPixels(bool invertAlpha = true);
+    void fill(uint pixel);
+    void invertPixels(bool invertAlpha = true);
 
-    QImage        convertDepth(int) const;
+    QImage convertDepth(int) const;
 #ifndef QT_NO_IMAGE_TRUECOLOR
-    QImage        convertDepthWithPalette(int, QRgb* p, int pc, int cf=0) const;
+    QImage convertDepthWithPalette(int, QRgb* p, int pc, int cf=0) const;
 #endif
-    QImage        convertDepth(int, int conversion_flags) const;
-    QImage        convertBitOrder(Endian) const;
+    QImage convertDepth(int, int conversion_flags) const;
+    QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
     QImage smoothScale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
@@ -145,16 +142,16 @@ public:
 #endif
 
 #ifndef QT_NO_IMAGE_DITHER_TO_1
-    QImage        createAlphaMask(int conversion_flags=0) const;
+    QImage createAlphaMask(int conversion_flags=0) const;
 #endif
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
-    QImage        createHeuristicMask(bool clipTight=true) const;
+    QImage createHeuristicMask(bool clipTight=true) const;
 #endif
 #ifndef QT_NO_IMAGE_MIRROR
-    QImage        mirror() const;
-    QImage        mirror(bool horizontally, bool vertically) const;
+    QImage mirror() const;
+    QImage mirror(bool horizontally, bool vertically) const;
 #endif
-    QImage        swapRGB() const;
+    QImage swapRGB() const;
 
     static Endian systemBitOrder();
     static inline Endian systemByteOrder()
@@ -166,20 +163,20 @@ public:
     static QList<QByteArray> outputFormats();
     static QStringList inputFormatList();
     static QStringList outputFormatList();
-    bool        load(const QString &fileName, const char* format=0);
-    bool        loadFromData(const uchar *buf, uint len,
-                              const char *format=0);
-    bool        loadFromData(QByteArray data, const char* format=0);
-    bool        save(const QString &fileName, const char* format,
-                      int quality=-1) const;
-    bool        save(QIODevice * device, const char* format,
-                      int quality=-1) const;
+    bool load(const QString &fileName, const char* format=0);
+    bool loadFromData(const uchar *buf, uint len,
+                      const char *format=0);
+    bool loadFromData(QByteArray data, const char* format=0);
+    bool save(const QString &fileName, const char* format,
+              int quality=-1) const;
+    bool save(QIODevice * device, const char* format,
+              int quality=-1) const;
 #endif //QT_NO_IMAGEIO
 
-    bool        valid(int x, int y) const;
-    int                pixelIndex(int x, int y) const;
-    QRgb        pixel(int x, int y) const;
-    void        setPixel(int x, int y, uint index_or_rgb);
+    bool valid(int x, int y) const;
+    int pixelIndex(int x, int y) const;
+    QRgb pixel(int x, int y) const;
+    void setPixel(int x, int y, uint index_or_rgb);
 
     // Auxiliary data
     int dotsPerMeterX() const;
@@ -197,32 +194,32 @@ public:
     void setText(const char* key, const char* lang, const QString&);
 #endif
 private:
-    void        init();
-    void        reinit();
-    void        freeBits();
+    void init();
+    void reinit();
+    void freeBits();
 
     struct QImageData {        // internal image data
         // ### move to QAtomic/implicit sharing
         QImageData() : count(1) { }
-        void ref()                { ++count; }
-        bool deref()        { return !--count; }
+        void ref() { ++count; }
+        bool deref() { return !--count; }
         uint count;
-        int        w;                                // image width
-        int        h;                                // image height
-        int        d;                                // image depth
-        int        ncols;                                // number of colors
-        int        nbytes;                                // number of bytes data
-        int        bitordr;                        // bit order (1 bit depth)
-        QRgb   *ctbl;                                // color table
-        uchar **bits;                                // image data
-        bool        alpha;                                // alpha buffer
-        int        dpmx;                                // dots per meter X (or 0)
-        int        dpmy;                                // dots per meter Y (or 0)
-        QPoint        offset;                                // offset in pixels
+        int w;                    // image width
+        int h;                    // image height
+        int d;                    // image depth
+        int ncols;                // number of colors
+        int nbytes;               // number of bytes data
+        int bitordr;              // bit order (1 bit depth)
+        QRgb *ctbl;               // color table
+        uchar **bits;             // image data
+        bool alpha;               // alpha buffer
+        int  dpmx;                // dots per meter X (or 0)
+        int  dpmy;                // dots per meter Y (or 0)
+        QPoint  offset;           // offset in pixels
 #ifndef QT_NO_IMAGE_TEXT
-        QImageDataMisc* misc;                        // less common stuff
+        QImageDataMisc* misc;     // less common stuff
 #endif
-        bool    ctbl_mine;                        // this allocated ctbl
+        bool ctbl_mine;           // this allocated ctbl
     } *data;
 #ifndef QT_NO_IMAGE_TEXT
     QImageDataMisc& misc() const;
@@ -260,28 +257,28 @@ public:
    ~QImageIO();
 
 
-    const QImage &image()        const        { return im; }
-    int                status()        const        { return iostat; }
-    const char *format()        const        { return frmt; }
-    QIODevice  *ioDevice()        const        { return iodev; }
-    QString        fileName()        const        { return fname; }
-    int                quality()        const;
-    QString        description()        const        { return descr; }
-    const char *parameters()        const;
+    const QImage &image() const { return im; }
+    int status() const { return iostat; }
+    const char *format() const { return frmt; }
+    QIODevice *ioDevice() const { return iodev; }
+    QString fileName() const { return fname; }
+    int quality() const;
+    QString description() const { return descr; }
+    const char *parameters() const;
     float gamma() const;
 
-    void        setImage(const QImage &);
-    void        setStatus(int);
-    void        setFormat(const char *);
-    void        setIODevice(QIODevice *);
-    void        setFileName(const QString &);
-    void        setQuality(int);
-    void        setDescription(const QString &);
-    void        setParameters(const char *);
-    void        setGamma(float);
+    void setImage(const QImage &);
+    void setStatus(int);
+    void setFormat(const char *);
+    void setIODevice(QIODevice *);
+    void setFileName(const QString &);
+    void setQuality(int);
+    void setDescription(const QString &);
+    void setParameters(const char *);
+    void setGamma(float);
 
-    bool        read();
-    bool        write();
+    bool read();
+    bool write();
 
     static QByteArray imageFormat(const QString &fileName);
     static QByteArray imageFormat(QIODevice *);
@@ -289,21 +286,21 @@ public:
     static QList<QByteArray> outputFormats();
 
     static void defineIOHandler(const char *format,
-                                 const char *header,
-                                 const char *flags,
-                                 image_io_handler read_image,
-                                 image_io_handler write_image);
-
+                                const char *header,
+                                const char *flags,
+                                image_io_handler read_image,
+                                image_io_handler write_image);
+    
 private:
-    void        init();
+    void init();
 
-    QImage        im;                                // image
-    int                iostat;                                // IO status
-    QByteArray        frmt;                                // image format
-    QIODevice  *iodev;                                // IO device
-    QString        fname;                                // file name
-    char       *params;                                // image parameters //### change to QImageIOData *d in 3.0
-    QString     descr;                                // image description
+    QImage im;               // image
+    int iostat;              // IO status
+    QByteArray frmt;         // image format
+    QIODevice *iodev;        // IO device
+    QString fname;           // file name
+    char *params;            // image parameters //### change to QImageIOData *d in 3.0
+    QString descr;           // image description
     QImageIOData *d;
 
 private:        // Disabled copy constructor and operator=
@@ -401,15 +398,6 @@ inline QPoint QImage::offset() const
 {
     return data->offset;
 }
-
-
-#ifndef QT_NO_MIME
-Q_GUI_EXPORT QImage qFromMimeSource_helper(const QString &abs_name);
-inline QImage QImage::fromMimeSource(const QString &abs_name)
-{
-    return qFromMimeSource_helper(abs_name);
-}
-#endif
 
 
 inline QImage::Endian QImage::systemBitOrder()

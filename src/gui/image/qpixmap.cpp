@@ -22,7 +22,6 @@
 #include "qbuffer.h"
 #include "qapplication.h"
 #include <private/qinternal_p.h>
-#include "qmime.h"
 #include "qdragobject.h"
 #include "qevent.h"
 #include "qfile.h"
@@ -343,31 +342,6 @@ QPixmap::~QPixmap()
 {
     deref();
 }
-
-/*! Convenience function. Gets the data associated with the absolute
-  name \a abs_name from the default mime source factory and decodes it
-  to a pixmap.
-
-  \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
-*/
-
-#ifndef QT_NO_MIME
-QPixmap QPixmap::fromMimeSource(const QString &abs_name)
-{
-    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data(abs_name);
-    if (!m) {
-        if (QFile::exists(abs_name))
-            return QPixmap(abs_name);
-        if (!abs_name.isEmpty())
-            qWarning("QPixmap::fromMimeSource: Cannot find pixmap \"%s\" in the mime source factory",
-                      abs_name.latin1());
-        return QPixmap();
-    }
-    QPixmap pix;
-    QImageDrag::decode(m, pix);
-    return pix;
-}
-#endif
 
 /*!
     Returns a \link shclass.html deep copy\endlink of the pixmap using
@@ -1098,10 +1072,6 @@ QPixmap QPixmap::grabWidget(QWidget * widget, int x, int y, int w, int h)
     grabWidget_helper(widget, res, buf, r, QPoint());
     return res;
 }
-
-
-
-
 
 /*****************************************************************************
   QPixmap stream functions
