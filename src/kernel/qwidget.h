@@ -112,9 +112,9 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect visibleRect READ visibleRect ) // obsolete
     Q_PROPERTY( bool hidden READ isHidden WRITE setHidden DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool shown READ isShown WRITE setShown DESIGNABLE false SCRIPTABLE false )
-    Q_PROPERTY( bool minimized READ isMinimized WRITE setMinimized DESIGNABLE false )
-    Q_PROPERTY( bool maximized READ isMaximized WRITE setMaximized DESIGNABLE false )
-    Q_PROPERTY( bool fullScreen READ isFullScreen WRITE setFullScreen DESIGNABLE false )
+    Q_PROPERTY( bool minimized READ isMinimized )
+    Q_PROPERTY( bool maximized READ isMaximized )
+    Q_PROPERTY( bool fullScreen READ isFullScreen )
     Q_PROPERTY( QSize sizeHint READ sizeHint )
     Q_PROPERTY( QSize minimumSizeHint READ minimumSizeHint )
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
@@ -361,13 +361,12 @@ public:
     bool		isVisibleTo(QWidget*) const;
     bool 		isHidden() const;
     bool 		isShown() const;
+    bool		isMinimized() const;
+    bool		isMaximized() const;
+    bool		isFullScreen() const;
 
-    bool isMinimized() const;
-    void setMinimized( bool = TRUE );
-    bool isMaximized() const;
-    void setMaximized( bool = TRUE );
-    bool isFullScreen() const;
-    void setFullScreen( bool = TRUE );
+    uint windowState() const;
+    void setWindowState(uint windowState);
 
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
@@ -599,7 +598,6 @@ private:
     void setEnabled_helper(bool);
     void	 reparentFocusWidgets( QWidget * );
     void	 updateFrameStrut() const;
-    void	 changeState_helper(WState);
 
     WId		 winid;
     WState widget_state; // will go away, eventually

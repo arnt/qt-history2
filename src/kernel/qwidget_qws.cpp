@@ -762,27 +762,32 @@ void QWidget::hideWindow()
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
 }
 
-void QWidget::changeState_helper(WState newstate)
+void QWidget::setWindowState(uint newstate)
 {
-    newstate &= (WState_Minimized | WState_Maximized | WState_FullScreen);
+    uint oldstate = windowState();
 
     bool needShow = FALSE;
     if (isTopLevel()) {
-	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
+	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
 	    // change maximized state
 	}
 
-	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
+	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
 	    // change fullscreen state
 	}
 
-	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
+	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
 	    // change minimized state
 	}
     }
 
     widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
-    widget_state |= newstate;
+    if (newstate & WindowMinimized)
+	widget_state |= WState_Minimized;
+    if (newstate & WindowMaximized)
+	widget_state |= WState_Maximized;
+    if (newstate & WindowFullScreen)
+	widget_state |= WState_FullScreen;
 
     if (needShow)
 	show();

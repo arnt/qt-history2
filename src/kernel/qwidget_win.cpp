@@ -907,21 +907,33 @@ void QWidget::repaint(const QRegion& r)
 }
 
 
-void QWidget::changeState_helper(WState newstate)
+void QWidget::setWindowState(uint newstate)
 {
-    newstate &= (WState_Minimized | WState_Maximized | WState_FullScreen);
+    uint oldstate = windowState();
 
     bool needShow = FALSE;
+
+    int max = SW_MAXIMIZE;
+    int min = SW_MINIMIZE;
+    int normal = SW_SHOWNOACTIVATE;
+    if (newstate & WindowActive) {
+	max = SW_SHOWMAXIMIZED;
+	min = SW_SHOWMINIMIZED;
+	normal = SW_SHOWNORMAL;
+    }
+
     if (isTopLevel()) {
-	if ((widget_state & WState_Maximized) != (newstate & WState_Maximized)) {
+	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
 	    if (isVisible())
-		ShowWindow(winId(), (newstate & WState_Maximized) ? SW_MAXIMIZE : SW_SHOWNOACTIVATE);
+		ShowWindow(winId(), (newstate & WindowMaximized) ? max : normal);
 	}
 
-	if ((widget_state & WState_FullScreen) != (newstate & WState_FullScreen)) {
+	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
     	    needShow = isVisible();
 
-	    if (newstate & WState_FullScreen) {
+	    //### TODO: Vohi, try that with SetWindowLong
+
+	    if (newstate & WindowFullScreen) {
 		if ( d->topData()->normalGeometry.width() < 0 )
 		    d->topData()->normalGeometry = QRect( pos(), size() );
 		d->topData()->savedFlags = getWFlags();
@@ -929,7 +941,9 @@ void QWidget::changeState_helper(WState newstate)
 			 // preserve some widget flags
 			 (getWFlags() & 0xffff0000),
 			 mapToGlobal(QPoint(0, 0)));
-		setGeometry(qApp->desktop()->screenGeometry(this));
+		QRect r = qApp->desktop()->screenGeometry(this);
+		move( r.topLeft() );
+		resize( r.size() );
 	    } else {
 		reparent( 0, d->topData()->savedFlags, QPoint(0,0) );
 		QRect r = d->topData()->normalGeometry;
@@ -942,14 +956,19 @@ void QWidget::changeState_helper(WState newstate)
 	    }
 	}
 
-	if ((widget_state & WState_Minimized) != (newstate & WState_Minimized)) {
+	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
 	    if (isVisible())
-		ShowWindow(winId(), (newstate & WState_Minimized) ? SW_MINIMIZE : SW_SHOWNOACTIVATE);
+		ShowWindow(winId(), (newstate & WindowMinimized) ? min : normal);
 	}
     }
 
     widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
-    widget_state |= newstate;
+    if (newstate & WindowMinimized)
+	widget_state |= WState_Minimized;
+    if (newstate & WindowMaximized)
+	widget_state |= WState_Maximized;
+    if (newstate & WindowFullScreen)
+	widget_state |= WState_FullScreen;
 
     if (needShow)
 	show();
