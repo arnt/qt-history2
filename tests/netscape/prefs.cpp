@@ -13,6 +13,51 @@
 #include <qbuttonrow.h>
 #include <qlayout.h>
 
+class StrongHeading : public QHBox {
+public:
+    StrongHeading(const char* label, const char* desc, QWidget* parent=0, const char* name=0) :
+	QHBox(parent, name)
+    {
+	QLabel* l = new QLabel(label, this);
+	QLabel* d = new QLabel(desc, this);
+	QPalette p(black);
+	l->setPalette(p);
+	d->setPalette(p);
+
+	QFont bold = *QApplication::font();
+	bold.setBold(TRUE);
+	bold.setPointSize(bold.pointSize()+2);
+	l->setFont(bold);
+    }
+};
+
+static QWidget* advanced()
+{
+    QVBox *vbox = new QVBox;
+    //StrongHeading *l = new StrongHeading( "Advanced", "Change preferences that affect the entire product", vbox );
+
+    QVBox *box;
+
+    QLabelled *frame = new QLabelled( vbox );
+    box = new QVBox( frame );
+    new QCheckBox( "&Automatically load images and other data types\n"
+	   "(Otherwise, click the Images button to load when needed)", box );
+    new QCheckBox( "Enable &Java", box );
+    new QCheckBox( "Enable Ja&vaScript", box );
+    new QCheckBox( "Enable &Style Sheets", box );
+    new QCheckBox( "Enable Auto&Install", box );
+    new QCheckBox( "Send email address as anonymous &FTP password", box );
+
+    box = new QVBox( new QLabelled( "Cookies", vbox ) );
+    new QRadioButton( "Accept all &cookies", box );
+    new QRadioButton( "&Only accept cookies originating from the same server as\n"
+		      "the page being viewed", box );
+    new QRadioButton( "&Do not accept or send cookies", box );
+    new QCheckBox( "&Warn me before accepting a cookie", box );
+
+    return vbox;
+}
+
 class DummyCategory : public QLabel {
 public:
     DummyCategory( const char * s = 0 ) :
@@ -119,7 +164,7 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     add(group = new PreferenceItem(selector, "Composer"), new DummyCategory);
     add(new PreferenceItem(group, "New Page Colors"), new DummyCategory);
     add(new PreferenceItem(group, "Publish"), new DummyCategory);
-    add(group = new PreferenceItem(selector, "Advanced"), new DummyCategory);
+    add(group = new PreferenceItem(selector, "Advanced"), advanced());
     add(new PreferenceItem(group, "Cache"), new DummyCategory);
     add(new PreferenceItem(group, "Proxies"), new DummyCategory);
     add(new PreferenceItem(group, "Disk Space"), new DummyCategory);
