@@ -62,8 +62,8 @@ public:
 
     bool loadCode();
     void load();
-    bool save( bool withMsgBox = TRUE, bool ignoreModified = FALSE );
-    bool saveAs( bool ignoreModified = FALSE );
+    bool save( bool withMsgBox = TRUE, bool ignoreModified = FALSE, bool exportAsPackage = FALSE );
+    bool saveAs( bool ignoreModified = FALSE, bool exportAsPackage = FALSE );
     bool close();
     bool closeEvent();
     bool isModified( int who = WAnyOrAll );

@@ -174,7 +174,7 @@ QString FormFile::code()
     return txt;
 }
 
-bool FormFile::save( bool withMsgBox, bool ignoreModified )
+bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage )
 {
     if ( !formWindow() )
 	return TRUE;
@@ -184,7 +184,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	return TRUE;
     if ( ed )
 	ed->save();
-    else if ( isPackage() && !cm && !ignoreModified )
+    else if ( exportAsPackage && !cm && !ignoreModified )
 	loadCode();
 
     if ( isModified( WFormWindow ) ) {
@@ -250,7 +250,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
     return TRUE;
 }
 
-bool FormFile::saveAs( bool ignoreModified )
+bool FormFile::saveAs( bool ignoreModified, bool exportAsPackage )
 {
     QString f = pro->makeAbsolute( fileName() );
     if ( fileNameTemp && formWindow() )
@@ -298,7 +298,7 @@ bool FormFile::saveAs( bool ignoreModified )
     if ( ed && formWindow() )
 	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
     setModified( TRUE );
-    return save( TRUE, ignoreModified );
+    return save( TRUE, ignoreModified, exportAsPackage );
 }
 
 bool FormFile::close()

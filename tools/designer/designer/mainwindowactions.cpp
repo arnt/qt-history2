@@ -1509,7 +1509,7 @@ void MainWindow::fileExport( QObject *o )
 	FormFile *ff = (FormFile*)o;
 	ff->load();
 	ff->setPackage( TRUE );
-	if ( !ff->saveAs( TRUE ) )
+	if ( !ff->saveAs( TRUE, TRUE ) )
 	    return;
 	QString fn = ff->fileName();
 	currentProject->setModified( TRUE );
