@@ -217,8 +217,7 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	}
     }
 
-    if ( ! motifparent || ( widgetclass == applicationShellWidgetClass ||
-			    widgetclass == topLevelShellWidgetClass ) ) {
+    if ( ! motifparent ) {
 	ArgList realargs = new Arg[argcount + 3];
 	Cardinal nargs = argcount;
 	memcpy( realargs, args, sizeof( Arg ) * argcount );
@@ -243,11 +242,7 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	realargs = 0;
     }
 
-    if ( widgetclass == applicationShellWidgetClass ||
-	 widgetclass == topLevelShellWidgetClass )
-	d->widget = d->shell;
-    else
-	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
+    d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
 
     if (! extraData()) {
         // createExtra() is private, so use topData() to ensure that
