@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#337 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#338 $
 **
 ** Implementation of QWidget class
 **
@@ -2775,6 +2775,7 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
     if ( children() ) {
