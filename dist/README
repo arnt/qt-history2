@@ -67,11 +67,10 @@ unixware7-cc
 aix-g++
 aix-xlc
 hpux-acc
+hpux-g++
 
-During the beta period, we will add support for more Unix platforms
-and compilers e.g. HP-UX/gcc. If you test the beta on an a yet
-unsupported Unix, please contact us at support@trolltech.com so that
-we can assist you.
+If you test the beta on an a yet unsupported Unix, please contact us
+at support@trolltech.com so that we can assist you.
 
 
 How to get the beta release:
