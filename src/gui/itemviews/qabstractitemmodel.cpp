@@ -24,7 +24,7 @@ QPersistentModelIndexData QPersistentModelIndexData::shared_null;
 
 QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index)
 {
-    // NOTE: index should never be invalid
+    Q_ASSERT(index.isValid());
     QPersistentModelIndexData *d = &QPersistentModelIndexData::shared_null;
     QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
     QList<QPersistentModelIndexData*> *persistentIndexes =
@@ -309,7 +309,8 @@ bool QPersistentModelIndex::isValid() const
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_NO_STREAMING_DEBUG
-    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << "," << idx.model() << ")";
+    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column()
+                  << "," << idx.data() << "," << idx.model() << ")";
     return dbg.space();
 #else
     qWarning("This compiler doesn't support the streaming of QDebug");
