@@ -411,9 +411,16 @@ static int qt_native_select(const QList<int> &fd, int timeout, bool selectForRea
     tv.tv_usec = (timeout % 1000) * 1000;
 
     if (selectForRead)
-        return select(fdmax + 1, &fds, 0, 0, timeout < 0 ? 0 : &tv);
+        select(fdmax + 1, &fds, 0, 0, timeout < 0 ? 0 : &tv);
     else
-        return select(fdmax + 1, 0, &fds, 0, timeout < 0 ? 0 : &tv);
+        select(fdmax + 1, 0, &fds, 0, timeout < 0 ? 0 : &tv);
+
+    int ret = 0;
+    for (int i = 0; i < fd.count(); ++i) {
+        if (FD_ISSET(fd.at(i), &fds))
+            ret += 1<<i;
+    }
+    return ret;
 }
 
 bool QProcessPrivate::waitForStarted(int msecs)
@@ -432,17 +439,31 @@ bool QProcessPrivate::waitForStarted(int msecs)
 bool QProcessPrivate::waitForReadyRead(int msecs)
 {
     Q_Q(QProcess);
-    int fd = (processChannel == QProcess::StandardOutput)
-             ? standardReadPipe[0] : errorReadPipe[0];
+    if (QProcessManager::instance().has(pid)) {
+        forever {
+            int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0]
+                                       << standardReadPipe[0] << errorReadPipe[0],
+                                       msecs, true);
+            int channel = (processChannel == QProcess::StandardOutput? 2 : 3);
 
-    int ret = qt_native_select(QList<int>() << fd, msecs < 0 ? 0 : msecs, true);
-    if (ret == 0) {
-        processError = QProcess::Timedout;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
-        return false;
+            if (ret == 0) {
+                processError = QProcess::Timedout;
+                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+                return false;
+            }
+            if (ret & 2)
+                canReadStandardOutput();
+            if (ret & 3)
+                canReadStandardError();
+            if (ret & 1) {
+                QProcessManager::instance().deadChildNotification(0);
+                return (ret & channel);
+            }
+            if (ret & channel)
+                return true;
+        }
     }
-
-    return true;
+    return false;
 }
 
 bool QProcessPrivate::waitForBytesWritten(int msecs)
@@ -466,18 +487,25 @@ bool QProcessPrivate::waitForFinished(int msecs)
 {
     Q_Q(QProcess);
     if (QProcessManager::instance().has(pid)) {
-        int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0],
-                                   msecs, true);
-        if (ret == 0) {
-            processError = QProcess::Timedout;
-            q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
-            return false;
+        forever {
+            int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0]
+                                       << standardReadPipe[0] << errorReadPipe[0],
+                                       msecs, true);
+            if (ret == 0) {
+                processError = QProcess::Timedout;
+                q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+                return false;
+            }
+            if (ret & 2)
+                canReadStandardOutput();
+            if (ret & 3)
+                canReadStandardError();
+            if (ret & 1) {
+                QProcessManager::instance().deadChildNotification(0);
+                return true;
+            }
         }
-
-        QProcessManager::instance().deadChildNotification(0);
-        return true;
     }
-
     return false;
 }
 
