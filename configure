@@ -1624,20 +1624,10 @@ else
         ARCH=powerpc
         ;;
     AIX:*:00????????00)
-        case "$XPLATFORM" in
-        aix-*-64)
-            if [ "$OPT_VERBOSE" = "yes" ]; then
-                echo "    64-bit IBM PowerPC (powerpc)"
-            fi
-            ARCH=powerpc
-    	;;
-        *)
-            if [ "$OPT_VERBOSE" = "yes" ]; then
-                echo "    32-bit IBM RS/6000 (rs6k)"
-            fi
-            ARCH=rs6k
-            ;;
-        esac
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    IBM POWER (powerpc)"
+        fi
+        ARCH=powerpc
         ;;
     HP-UX:*:9000*)
         if [ "$OPT_VERBOSE" = "yes" ]; then
