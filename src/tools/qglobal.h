@@ -141,12 +141,12 @@
 #  define Q_OS_QNX
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
-#elif defined(_SCO_DS)      /* SCO OpenServer 5 */
+#elif defined(_SCO_DS)              /* SCO OpenServer 5 */
 #  define Q_OS_SCO
-#elif defined(__USLC__)     /* UnixWare 7 + UDK, Open UNIX 8 + OUDK */
+#elif defined(__USLC__)             /* UnixWare 7 + UDK, Open UNIX 8 + OUDK */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
-#elif defined(__svr4__)     /* UnixWare 7 + GCC, Open UNIX 8 + GCC */
+#elif defined(__svr4__) && defined(i386) /* Open UNIX 8 + GCC */
 #  define Q_OS_UNIXWARE
 #  define Q_OS_UNIXWARE7
 #else
