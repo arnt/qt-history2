@@ -14,9 +14,9 @@
 #ifndef Q3TEXTEDIT_H
 #define Q3TEXTEDIT_H
 
-#include "Qt3Compat/q3scrollview.h"
-#include "Qt3Compat/q3stylesheet.h"
-#include "Qt3Compat/q3mimefactory.h"
+#include "Qt3Support/q3scrollview.h"
+#include "Qt3Support/q3stylesheet.h"
+#include "Qt3Support/q3mimefactory.h"
 #include "QtCore/qmap.h"
 
 #ifndef QT_NO_TEXTEDIT

@@ -77,8 +77,8 @@ public:
 
     virtual QMenu *createPopupMenu();
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
 #endif
 
 signals:

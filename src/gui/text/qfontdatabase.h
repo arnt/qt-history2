@@ -17,7 +17,7 @@
 #include "QtGui/qwindowdefs.h"
 #include "QtCore/qstring.h"
 #include "QtGui/qfont.h"
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include "QtCore/qstringlist.h"
 #include "QtCore/qlist.h"
 #endif
@@ -61,23 +61,23 @@ public:
     static QString scriptName(int script);
     static QString scriptSample(int script);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QStringList families(bool) const;
-    inline QT_COMPAT QStringList styles(const QString &, const QString &) const;
-    inline QT_COMPAT QList<int> pointSizes(const QString &, const QString &, const QString &);
-    inline QT_COMPAT QList<int> smoothSizes(const QString &, const QString &, const QString &);
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QStringList families(bool) const;
+    inline QT3_SUPPORT QStringList styles(const QString &, const QString &) const;
+    inline QT3_SUPPORT QList<int> pointSizes(const QString &, const QString &, const QString &);
+    inline QT3_SUPPORT QList<int> smoothSizes(const QString &, const QString &, const QString &);
 
-    inline QT_COMPAT QFont font(const QString &, const QString &, int, const QString &);
+    inline QT3_SUPPORT QFont font(const QString &, const QString &, int, const QString &);
 
-    inline QT_COMPAT bool isBitmapScalable(const QString &, const QString &, const QString &) const;
-    inline QT_COMPAT bool isSmoothlyScalable(const QString &, const QString &, const QString &) const;
-    inline QT_COMPAT bool isScalable(const QString &, const QString &, const QString &) const;
-    inline QT_COMPAT bool isFixedPitch(const QString &, const QString &, const QString &) const;
+    inline QT3_SUPPORT bool isBitmapScalable(const QString &, const QString &, const QString &) const;
+    inline QT3_SUPPORT bool isSmoothlyScalable(const QString &, const QString &, const QString &) const;
+    inline QT3_SUPPORT bool isScalable(const QString &, const QString &, const QString &) const;
+    inline QT3_SUPPORT bool isFixedPitch(const QString &, const QString &, const QString &) const;
 
-    inline QT_COMPAT bool italic(const QString &, const QString &, const QString &) const;
-    inline QT_COMPAT bool bold(const QString &, const QString &, const QString &) const;
-    inline QT_COMPAT int weight(const QString &, const QString &, const QString &) const;
-#endif // QT_COMPAT
+    inline QT3_SUPPORT bool italic(const QString &, const QString &, const QString &) const;
+    inline QT3_SUPPORT bool bold(const QString &, const QString &, const QString &) const;
+    inline QT3_SUPPORT int weight(const QString &, const QString &, const QString &) const;
+#endif // QT3_SUPPORT
 
 private:
     static QFontEngine *findFont(int script, const QFontPrivate *fp,
@@ -95,7 +95,7 @@ private:
     QFontDatabasePrivate *d;
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QStringList QFontDatabase::families(bool) const
 {
     return families();
@@ -177,7 +177,7 @@ inline int QFontDatabase::weight(const QString &family,
 {
     return weight(family, style);
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #endif // QT_NO_FONTDATABASE
 

@@ -250,7 +250,7 @@ void QCheckBox::nextCheckState()
         QAbstractButton::nextCheckState();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.

@@ -25,7 +25,7 @@ public:
         StatementError,
         TransactionError,
         UnknownError
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , None = NoError,
         Connection = ConnectionError,
         Statement = StatementError,

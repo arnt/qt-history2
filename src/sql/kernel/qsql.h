@@ -21,7 +21,7 @@ namespace QSql
     enum Location {
         BeforeFirstRow = -1,
         AfterLastRow = -2
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , BeforeFirst = BeforeFirstRow,
         AfterLast = AfterLastRow
 #endif
@@ -42,7 +42,7 @@ namespace QSql
         AllTables = 0xff
     };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     enum Op {
         None = -1,
         Insert = 0,

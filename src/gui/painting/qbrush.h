@@ -58,10 +58,10 @@ public:
     bool operator==(const QBrush &b) const;
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT operator const QColor&() const;
-    QT_COMPAT QPixmap *pixmap() const;
-    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setTexture(pixmap); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT operator const QColor&() const;
+    QT3_SUPPORT QPixmap *pixmap() const;
+    inline QT3_SUPPORT void setPixmap(const QPixmap &pixmap) { setTexture(pixmap); }
 #endif
 
 private:
@@ -104,7 +104,7 @@ struct QBrushData
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QBrush::operator const QColor&() const { return d->color; }
 #endif
 

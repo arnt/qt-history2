@@ -755,7 +755,7 @@ QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     d_func()->init(f);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \overload
     \obsolete
@@ -794,7 +794,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
 
     data.winid = 0;
     data.widget_attributes = 0;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (f & Qt::WStaticContents)
         q->setAttribute(Qt::WA_StaticContents);
     if (f & Qt::WDestructiveClose)
@@ -873,7 +873,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (q->parent() && sendChildEvents) {
         QChildEvent e(QEvent::ChildAdded, q);
         QApplication::sendEvent(q->parent(), &e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
 #endif
     }
@@ -1199,7 +1199,7 @@ void QWidgetPrivate::propagatePaletteChange()
             w->d_func()->resolvePalette();
         }
     }
-#if defined(QT_COMPAT)
+#if defined(QT3_SUPPORT)
     q->paletteChange(q->palette()); // compatibility
 #endif
 }
@@ -1410,12 +1410,12 @@ void QWidget::setStyle(QStyle *style)
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     styleChange(*old);
 #endif
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \overload
 
@@ -1889,7 +1889,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
 #endif
     QEvent e(QEvent::EnabledChange);
     QApplication::sendEvent(q, &e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     q->enabledChange(!enable); // compatibility
 #endif
 }
@@ -2512,7 +2512,7 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Returns the color role used for painting the widget's background.
 
@@ -2642,7 +2642,7 @@ void QWidget::setBackgroundMode(Qt::BackgroundMode m, Qt::BackgroundMode)
     setBackgroundRole(role);
 }
 
-QT_COMPAT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
+QT3_SUPPORT QWidgetMapper *QWidget::wmapper() { return QWidgetPrivate::mapper; }
 
 #endif
 
@@ -2819,7 +2819,7 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
         return;
 
     Q_Q(QWidget);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QFont old = data.fnt;
 #endif
     data.fnt = font;
@@ -2837,7 +2837,7 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
         setFont_sys();
     QEvent e(QEvent::FontChange);
     QApplication::sendEvent(q, &e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     q->fontChange(old);
 #endif
 }
@@ -3872,7 +3872,7 @@ void QWidget::show()
     if (needUpdateGeometry)
         updateGeometry();
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if(d->sendChildEvents)
         QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
@@ -3917,7 +3917,7 @@ void QWidgetPrivate::show_recursive()
     // polish if necessary
     q->ensurePolished();
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if(sendChildEvents)
         QApplication::sendPostedEvents(q, QEvent::ChildInserted);
 #endif
@@ -3956,7 +3956,7 @@ void QWidgetPrivate::show_helper()
     // finally show all children recursively
     showChildren(false);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (q->parentWidget() && sendChildEvents)
         QApplication::sendPostedEvents(q->parentWidget(),
                                         QEvent::ChildInserted);
@@ -4351,7 +4351,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QRect QWidget::visibleRect() const
 {
     return d_func()->clipRect();
@@ -4611,7 +4611,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::TabletRelease:
         tabletEvent((QTabletEvent*)e);
         break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QEvent::Accel:
         e->ignore();
         return false;
@@ -4662,7 +4662,7 @@ bool QWidget::event(QEvent *e)
             d->resolveFont();
         if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
             d->resolvePalette();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         if(d->sendChildEvents)
             QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
@@ -4792,7 +4792,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate: {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         windowActivationChange(e->type() != QEvent::WindowActivate);
 #endif
         if (isVisible()) {
@@ -4822,7 +4822,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::LanguageChange:
         changeEvent(e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         languageChange();
 #endif
         // fall through
@@ -6076,7 +6076,7 @@ void QWidget::repaint(const QRect &r)
     This version repaints a region \a rgn inside the widget.
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Clear the rectangle at point (\a x, \a y) of width \a w and height
     \a h.
@@ -6150,7 +6150,7 @@ const QPixmap *QWidget::icon() const
     return (d->extra && d->extra->topextra) ? d->extra->topextra->icon : 0;
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 /*!
     Sets the attribute \a attribute on this widget if \a on is true;

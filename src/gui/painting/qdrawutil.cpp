@@ -603,7 +603,7 @@ void qDrawPlainRect(QPainter *p, const QRect &r, const QColor &c,
                     lineWidth, fill);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
                            int x, int y, int w, int h,
                            const QPalette &pal, bool enabled)
@@ -659,7 +659,7 @@ static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
     }
     p->setPen(savePen);                        // restore pen
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable: 4244)
@@ -803,7 +803,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
 }
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QRect qItemRect(QPainter *p, Qt::GUIStyle gs,
                 int x, int y, int w, int h,
                 int flags,

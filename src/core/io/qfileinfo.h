@@ -97,7 +97,7 @@ public:
     bool caching() const;
     void setCaching(bool on);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     enum Permission {
         ReadOwner = QFile::ReadOwner, WriteOwner = QFile::WriteOwner, ExeOwner = QFile::ExeOwner,
         ReadUser  = QFile::ReadUser,  WriteUser  = QFile::WriteUser,  ExeUser  = QFile::ExeUser,
@@ -106,26 +106,26 @@ public:
     };
     Q_DECLARE_FLAGS(PermissionSpec, Permission)
 
-    inline QT_COMPAT QString baseName(bool complete) {
+    inline QT3_SUPPORT QString baseName(bool complete) {
         if(complete)
             return completeBaseName();
         return baseName();
     }
-    inline QT_COMPAT QString extension(bool complete = true) const {
+    inline QT3_SUPPORT QString extension(bool complete = true) const {
         if(complete)
             return completeSuffix();
         return suffix();
     }
-    inline QT_COMPAT QString absFilePath() const { return absoluteFilePath(); }
+    inline QT3_SUPPORT QString absFilePath() const { return absoluteFilePath(); }
 
-    inline QT_COMPAT QString dirPath(bool absPath = false) const {
+    inline QT3_SUPPORT QString dirPath(bool absPath = false) const {
         if(absPath)
             return absolutePath();
         return path();
     }
-    QT_COMPAT QDir dir(bool absPath) const;
-    inline QT_COMPAT bool convertToAbs() { return makeAbsolute(); }
-    inline QT_COMPAT bool permission(PermissionSpec permissions) const
+    QT3_SUPPORT QDir dir(bool absPath) const;
+    inline QT3_SUPPORT bool convertToAbs() { return makeAbsolute(); }
+    inline QT3_SUPPORT bool permission(PermissionSpec permissions) const
     { return permission(QFile::Permissions((int)permissions)); }
 #endif
 
@@ -136,12 +136,12 @@ private:
 };
 Q_DECLARE_TYPEINFO(QFileInfo, Q_MOVABLE_TYPE);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFileInfo::PermissionSpec)
 #endif
 
 typedef QList<QFileInfo> QFileInfoList;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 typedef QList<QFileInfo>::Iterator QFileInfoListIterator;
 #endif
 

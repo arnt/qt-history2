@@ -34,10 +34,10 @@ protected:
     bool hitButton(const QPoint &) const;
     void paintEvent(QPaintEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QRadioButton(QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QRadioButton(const QString &text, QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QRadioButton(QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QRadioButton(const QString &text, QWidget *parent, const char* name);
 #endif
 
 private:

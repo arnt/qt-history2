@@ -55,7 +55,7 @@ public:
     static void moveToMainThread(QObject *o);
     static void removePostedEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
 #endif
 

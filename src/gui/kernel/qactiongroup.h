@@ -41,11 +41,11 @@ public:
     bool isEnabled() const;
     bool isVisible() const;
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT void add(QAction* a) { addAction(a); }
-    inline QT_COMPAT void addSeparator()
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void add(QAction* a) { addAction(a); }
+    inline QT3_SUPPORT void addSeparator()
     { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
-    inline QT_COMPAT bool addTo(QWidget *w) { w->addActions(actions()); return true; }
+    inline QT3_SUPPORT bool addTo(QWidget *w) { w->addActions(actions()); return true; }
 #endif
 
 public slots:

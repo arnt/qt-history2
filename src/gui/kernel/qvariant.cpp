@@ -70,7 +70,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QVariant::Palette:
             v_construct<QPalette>(x, copy);
             break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         case QVariant::ColorGroup:
             v_construct<QColorGroup>(x, copy);
             break;
@@ -135,7 +135,7 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QVariant::Palette:
             v_construct<QPalette>(x);
             break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         case QVariant::ColorGroup:
             v_construct<QColorGroup>(x);
             break;
@@ -208,7 +208,7 @@ static void clear(QCoreVariant::Private *d)
     case QVariant::Palette:
         v_clear<QPalette>(d);
         break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QVariant::ColorGroup:
         v_clear<QColorGroup>(d);
         break;
@@ -273,7 +273,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Color:
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QVariant::ColorGroup:
 #endif
 #endif
@@ -330,7 +330,7 @@ static void load(QVariant::Private *d, QDataStream &s)
     case QVariant::Palette:
         s >> *v_cast<QPalette>(d);
         break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QVariant::ColorGroup:
         qt_stream_in_qcolorgroup(s, *v_cast<QColorGroup>(d));
         break;
@@ -420,7 +420,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::Palette:
         s << *v_cast<QPalette>(d);
         break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QVariant::ColorGroup:
         qt_stream_out_qcolorgroup(s, *v_cast<QColorGroup>(d));
         break;
@@ -488,7 +488,7 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
         return *v_cast<QPalette>(a) == *v_cast<QPalette>(b);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QVariant::ColorGroup:
         return *v_cast<QColorGroup>(a) == *v_cast<QColorGroup>(b);
 #endif
@@ -906,7 +906,7 @@ QVariant::QVariant(const QBrush &val) { create(Brush, &val); }
 QVariant::QVariant(const QColor &val) { create(Color, &val); }
 #ifndef QT_NO_PALETTE
 QVariant::QVariant(const QPalette &val) { create(Palette, &val); }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     QVariant's don't store color groups directly; store and retrieve a
     QPalette instead.
@@ -1068,7 +1068,7 @@ QPalette QVariant::toPalette() const
     return *v_cast<QPalette>(&d);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     QVariant's don't store color groups directly; store and retrieve a
     QPalette instead. See toPalette().
@@ -1142,7 +1142,7 @@ QIcon QVariant::toIcon() const
 
     return *v_cast<QIcon>(&d);
 }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use toIcon() instead.
 */

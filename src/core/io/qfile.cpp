@@ -246,7 +246,7 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     isExecutable().
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \typedef QFile::PermissionSpec
 
@@ -1331,7 +1331,7 @@ QFile::errorString() const
         case OpenError:
             str = QT_TRANSLATE_NOOP("QFile", "Could not open the file");
             break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         case ConnectError:
             str = QT_TRANSLATE_NOOP("QFile", "Could not connect to host");
             break;
@@ -1363,7 +1363,7 @@ QFile::errorString() const
         }
 #if defined(QT_BUILD_CORE_LIB)
         QString ret = QCoreApplication::translate("QFile", str);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         if(ret == str)
             ret = QCoreApplication::translate("QIODevice", str);
 #endif

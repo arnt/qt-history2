@@ -102,7 +102,7 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
     }
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
 

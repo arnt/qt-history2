@@ -61,10 +61,10 @@ protected:
     void focusInEvent(QFocusEvent *);
     void changeEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QGroupBox(QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QGroupBox(const QString &title, QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QGroupBox(QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QGroupBox(const QString &title, QWidget* parent, const char* name);
 #endif
 
 private:

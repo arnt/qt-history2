@@ -67,18 +67,18 @@ protected:
     void showEvent(QShowEvent *e);
     void changeEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QToolBox(QWidget *parent, const char *name, Qt::WFlags f = 0);
-    inline QT_COMPAT void setItemLabel(int index, const QString &text) { setItemText(index, text); }
-    inline QT_COMPAT QString itemLabel(int index) const { return itemText(index); }
-    inline QT_COMPAT QWidget *currentItem() const { return widget(currentIndex()); }
-    inline QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
-    inline QT_COMPAT void setItemIconSet(int index, const QIcon &icon) { setItemIcon(index, icon); }
-    inline QT_COMPAT QIcon itemIconSet(int index) const { return itemIcon(index); }
-    inline QT_COMPAT int removeItem(QWidget *item)
+    QT3_SUPPORT_CONSTRUCTOR QToolBox(QWidget *parent, const char *name, Qt::WFlags f = 0);
+    inline QT3_SUPPORT void setItemLabel(int index, const QString &text) { setItemText(index, text); }
+    inline QT3_SUPPORT QString itemLabel(int index) const { return itemText(index); }
+    inline QT3_SUPPORT QWidget *currentItem() const { return widget(currentIndex()); }
+    inline QT3_SUPPORT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
+    inline QT3_SUPPORT void setItemIconSet(int index, const QIcon &icon) { setItemIcon(index, icon); }
+    inline QT3_SUPPORT QIcon itemIconSet(int index) const { return itemIcon(index); }
+    inline QT3_SUPPORT int removeItem(QWidget *item)
     { int i = indexOf(item); removeItem(i); return i; }
-    inline QT_COMPAT QWidget *item(int index) const { return widget(index); }
+    inline QT3_SUPPORT QWidget *item(int index) const { return widget(index); }
 #endif
 
 private:

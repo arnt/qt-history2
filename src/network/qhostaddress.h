@@ -68,13 +68,13 @@ public:
     bool isNull() const;
     void clear();
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT quint32 ip4Addr() const { return toIPv4Address(); }
-    inline QT_COMPAT bool isIPv4Address() const { return protocol() == QAbstractSocket::IPv4Protocol
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT quint32 ip4Addr() const { return toIPv4Address(); }
+    inline QT3_SUPPORT bool isIPv4Address() const { return protocol() == QAbstractSocket::IPv4Protocol
                                                       || protocol() == QAbstractSocket::UnknownNetworkLayerProtocol; }
-    inline QT_COMPAT bool isIp4Addr() const  { return protocol() == QAbstractSocket::IPv4Protocol
+    inline QT3_SUPPORT bool isIp4Addr() const  { return protocol() == QAbstractSocket::IPv4Protocol
                                                       || protocol() == QAbstractSocket::UnknownNetworkLayerProtocol; }
-    inline QT_COMPAT bool isIPv6Address() const { return protocol() == QAbstractSocket::IPv6Protocol; }
+    inline QT3_SUPPORT bool isIPv6Address() const { return protocol() == QAbstractSocket::IPv6Protocol; }
 #endif
 
 private:

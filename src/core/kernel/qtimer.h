@@ -27,8 +27,8 @@ class Q_CORE_EXPORT QTimer : public QObject
     Q_PROPERTY(int interval READ interval WRITE setInterval)
 public:
     explicit QTimer(QObject *parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QTimer(QObject *parent, const char *name);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QTimer(QObject *parent, const char *name);
 #endif
     ~QTimer();
 
@@ -49,7 +49,7 @@ public slots:
     void start();
     void stop();
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     inline QT_MOC_COMPAT void changeInterval(int msec) { start(msec); };
     QT_MOC_COMPAT int start(int msec, bool sshot);
 #endif

@@ -31,9 +31,9 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 
 public:
     explicit QSpinBox(QWidget *parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSpinBox(QWidget *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QSpinBox(int min, int max, int step, QWidget *parent,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QSpinBox(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QSpinBox(int min, int max, int step, QWidget *parent,
                                    const char *name = 0);
 #endif
 
@@ -59,12 +59,12 @@ public:
 
     void setRange(int min, int max);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT void setLineStep(int step) { setSingleStep(step); }
-    inline QT_COMPAT void setMaxValue(int val) { setMaximum(val); }
-    inline QT_COMPAT void setMinValue(int val) { setMinimum(val); }
-    inline QT_COMPAT int maxValue() const { return maximum(); }
-    inline QT_COMPAT int minValue() const { return minimum(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void setLineStep(int step) { setSingleStep(step); }
+    inline QT3_SUPPORT void setMaxValue(int val) { setMaximum(val); }
+    inline QT3_SUPPORT void setMinValue(int val) { setMinimum(val); }
+    inline QT3_SUPPORT int maxValue() const { return maximum(); }
+    inline QT3_SUPPORT int minValue() const { return minimum(); }
 #endif
 
 protected:

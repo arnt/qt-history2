@@ -986,7 +986,7 @@ or because setChecked() was called.
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use icon() instead.
 */

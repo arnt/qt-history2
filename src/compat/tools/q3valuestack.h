@@ -14,7 +14,7 @@
 #ifndef Q3VALUESTACK_H
 #define Q3VALUESTACK_H
 
-#include "Qt3Compat/q3valuelist.h"
+#include "Qt3Support/q3valuelist.h"
 
 template<class T>
 class Q3ValueStack : public Q3ValueList<T>

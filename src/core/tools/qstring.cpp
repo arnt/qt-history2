@@ -56,7 +56,7 @@
 QTextCodec *QString::codecForCStrings;
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 static QHash<void *, QByteArray> *asciiCache = 0;
 #endif
 
@@ -739,7 +739,7 @@ QString::QString(QChar ch)
 
 void QString::free(Data *d)
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (d->asciiCache) {
         Q_ASSERT(asciiCache);
         asciiCache->remove(d);
@@ -887,7 +887,7 @@ void QString::realloc(int alloc)
         if (!--x->ref)
             free(x);
     } else {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         if (d->asciiCache) {
             Q_ASSERT(asciiCache);
             asciiCache->remove(d);
@@ -3019,7 +3019,7 @@ QString QString::fromLatin1(const char *str, int size)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*!
   \internal

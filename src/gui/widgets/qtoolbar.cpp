@@ -246,7 +246,7 @@ QToolBar::QToolBar(QWidget *parent)
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs a QToolBar with the given \a parent and \a name.
 */

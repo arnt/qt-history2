@@ -43,10 +43,10 @@ public:
 signals:
     void buttonChecked(QAbstractButton *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    inline QT_COMPAT void insert(QAbstractButton *b) { addButton(b); }
-    inline QT_COMPAT void remove(QAbstractButton *b) { removeButton(b); }
+    inline QT3_SUPPORT void insert(QAbstractButton *b) { addButton(b); }
+    inline QT3_SUPPORT void remove(QAbstractButton *b) { removeButton(b); }
 #endif
 
 private:

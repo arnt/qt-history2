@@ -23,11 +23,11 @@ public:
     static void showText(const QPoint &pos, const QString &text, QWidget *w = 0);
 
     static QPalette palette();
-#ifdef QT_COMPAT
-    static inline QT_COMPAT void add(QWidget *w, const QString &s) { w->setToolTip(s); }
-    static inline QT_COMPAT void add(QWidget *w, const QRect &, const QString &s)
+#ifdef QT3_SUPPORT
+    static inline QT3_SUPPORT void add(QWidget *w, const QString &s) { w->setToolTip(s); }
+    static inline QT3_SUPPORT void add(QWidget *w, const QRect &, const QString &s)
     { w->setToolTip(s); }
-    static inline QT_COMPAT void remove(QWidget *w) { w->setToolTip(QString()); }
+    static inline QT3_SUPPORT void remove(QWidget *w) { w->setToolTip(QString()); }
 #endif
 };
 

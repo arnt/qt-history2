@@ -688,10 +688,10 @@ void qCritical(const char *msg, ...)
 
     qt_message_output(QtCriticalMsg, buf);
 }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 void qSystemWarning(const char *msg, int code)
    { qCritical("%s (%s)", msg, qt_error_string(code).toLocal8Bit().constData()); }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 void qErrnoWarning(const char *msg, ...)
 {
@@ -784,7 +784,7 @@ char *qgetenv(const char *varName)
 #endif
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include <qlibraryinfo.h>
 static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
 {

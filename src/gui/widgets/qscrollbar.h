@@ -41,13 +41,13 @@ protected:
     void     changeEvent(QEvent *);
     void sliderChange(SliderChange change);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QScrollBar(QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QScrollBar(Qt::Orientation, QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QScrollBar(int minValue, int maxValue, int lineStep, int pageStep,
+    QT3_SUPPORT_CONSTRUCTOR QScrollBar(QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QScrollBar(Qt::Orientation, QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QScrollBar(int minValue, int maxValue, int lineStep, int pageStep,
                 int value, Qt::Orientation, QWidget *parent=0, const char* name = 0);
-    inline QT_COMPAT bool draggingSlider() { return isSliderDown(); }
+    inline QT3_SUPPORT bool draggingSlider() { return isSliderDown(); }
 #endif
 
 private:

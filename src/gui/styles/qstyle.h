@@ -62,7 +62,7 @@ public:
 
     enum StateFlag {
         State_None    =       0x00000000,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         State_Default = State_None,
 #endif
         State_Enabled =       0x00000001,
@@ -91,7 +91,7 @@ public:
     };
     Q_DECLARE_FLAGS(State, StateFlag)
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     typedef State SFlags;
 #endif
 
@@ -317,7 +317,7 @@ public:
     };
     Q_DECLARE_FLAGS(SubControls, SubControl)
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     typedef SubControls SCFlags;
 #endif
 
@@ -514,7 +514,7 @@ public:
         SH_RubberBand_Mask,
         // Add new style hint values here
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         SH_GUIStyle = 0x00000100,
         SH_ScrollBar_BackgroundMode,
         // Add other compat values here

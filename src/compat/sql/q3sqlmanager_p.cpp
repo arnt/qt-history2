@@ -53,7 +53,7 @@ QSqlIndex indexFromStringList(const QStringList& l, const Q3SqlCursor* cursor)
             desc = true;
             f = f.mid(0, f.length()-4);
         }
-        int dot = f.lastIndexOf('.');
+        int dot = f.lastIndexOf(QChar('.'));
         if (dot != -1)
             f = f.mid(dot+1);
         const QSqlField field = cursor->field(f.trimmed());

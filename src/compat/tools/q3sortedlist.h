@@ -14,7 +14,7 @@
 #ifndef Q3SORTEDLIST_H
 #define Q3SORTEDLIST_H
 
-#include "Qt3Compat/q3ptrlist.h"
+#include "Qt3Support/q3ptrlist.h"
 
 template<class type>
 class Q3SortedList : public Q3PtrList<type>

@@ -4,7 +4,7 @@
 
 TEMPLATE = lib 
 
-QT += compat
+QT += qt3support
 
 include(../../plugins.pri)
 

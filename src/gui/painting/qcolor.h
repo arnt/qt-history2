@@ -140,25 +140,25 @@ public:
     bool operator==(const QColor &c) const;
     bool operator!=(const QColor &c) const;
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QColor(int x, int y, int z, Spec colorSpec)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT_CONSTRUCTOR QColor(int x, int y, int z, Spec colorSpec)
     { if (colorSpec == Hsv) setHsv(x, y, z); else setRgb(x, y, z); }
 
-    inline QT_COMPAT void rgb(int *r, int *g, int *b) const
+    inline QT3_SUPPORT void rgb(int *r, int *g, int *b) const
     { getRgb(r, g, b); }
-    inline QT_COMPAT void hsv(int *h, int *s, int *v) const
+    inline QT3_SUPPORT void hsv(int *h, int *s, int *v) const
     { getHsv(h, s, v); }
 
-    inline QT_COMPAT void setRgba(int r, int g, int b, int a)
+    inline QT3_SUPPORT void setRgba(int r, int g, int b, int a)
     { setRgb(r, g, b, a); }
-    inline QT_COMPAT void getRgba(int *r, int *g, int *b, int *a) const
+    inline QT3_SUPPORT void getRgba(int *r, int *g, int *b, int *a) const
     { getRgb(r, g, b, a); }
 
-    QT_COMPAT uint pixel(int screen = -1) const;
+    QT3_SUPPORT uint pixel(int screen = -1) const;
 #endif
 
 private:
-#ifndef QT_COMPAT
+#ifndef QT3_SUPPORT
     // do not allow a spec to be used as an alpha value
     QColor(int, int, int, Spec);
 #endif

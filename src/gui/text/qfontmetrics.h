@@ -72,7 +72,7 @@ public:
     bool operator==(const QFontMetrics &other);
     inline bool operator !=(const QFontMetrics &other) { return !operator==(other); }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     inline QRect boundingRect(const QString &text, int len) const
         { return boundingRect(text.left(len)); }
     inline QRect boundingRect(int x, int y, int w, int h, int flags, const QString& str, int len,

@@ -127,54 +127,54 @@ public:
     static QString fromPunycode(const QByteArray &);
     static QByteArray toPunycode(const QString &);
 
-#if defined QT_COMPAT
-    inline QT_COMPAT QString protocol() const { return scheme(); }
-    inline QT_COMPAT void setProtocol(const QString &s) { setScheme(s); }
-    inline QT_COMPAT void setUser(const QString &s) { setUserName(s); }
-    inline QT_COMPAT QString user() const { return userName(); }
-    inline QT_COMPAT bool hasUser() const { return !userName().isEmpty(); }
-    inline QT_COMPAT bool hasPassword() const { return !password().isEmpty(); }
-    inline QT_COMPAT bool hasHost() const { return !host().isEmpty(); }
-    inline QT_COMPAT bool hasPort() const { return port() != -1; }
-    inline QT_COMPAT bool hasPath() const { return !path().isEmpty(); }
-    inline QT_COMPAT void setQuery(const QString &txt)
+#if defined QT3_SUPPORT
+    inline QT3_SUPPORT QString protocol() const { return scheme(); }
+    inline QT3_SUPPORT void setProtocol(const QString &s) { setScheme(s); }
+    inline QT3_SUPPORT void setUser(const QString &s) { setUserName(s); }
+    inline QT3_SUPPORT QString user() const { return userName(); }
+    inline QT3_SUPPORT bool hasUser() const { return !userName().isEmpty(); }
+    inline QT3_SUPPORT bool hasPassword() const { return !password().isEmpty(); }
+    inline QT3_SUPPORT bool hasHost() const { return !host().isEmpty(); }
+    inline QT3_SUPPORT bool hasPort() const { return port() != -1; }
+    inline QT3_SUPPORT bool hasPath() const { return !path().isEmpty(); }
+    inline QT3_SUPPORT void setQuery(const QString &txt)
     {
         setEncodedQuery(txt.toLatin1());
     }
-    inline QT_COMPAT QString query() const
+    inline QT3_SUPPORT QString query() const
     {
         return QString::fromLatin1(encodedQuery());
     }
-    inline QT_COMPAT QString ref() const { return fragment(); }
-    inline QT_COMPAT void setRef(const QString &txt) { setFragment(txt); }
-    inline QT_COMPAT bool hasRef() const { return !fragment().isEmpty(); }
-    inline QT_COMPAT void addPath(const QString &p) { setPath(path() + QLatin1String("/") + p); }
-    QT_COMPAT void setFileName(const QString &txt);
-    QT_COMPAT QString fileName() const;
-    QT_COMPAT QString dirPath() const;
-    static inline QT_COMPAT void decode(QString &url)
+    inline QT3_SUPPORT QString ref() const { return fragment(); }
+    inline QT3_SUPPORT void setRef(const QString &txt) { setFragment(txt); }
+    inline QT3_SUPPORT bool hasRef() const { return !fragment().isEmpty(); }
+    inline QT3_SUPPORT void addPath(const QString &p) { setPath(path() + QLatin1String("/") + p); }
+    QT3_SUPPORT void setFileName(const QString &txt);
+    QT3_SUPPORT QString fileName() const;
+    QT3_SUPPORT QString dirPath() const;
+    static inline QT3_SUPPORT void decode(QString &url)
     {
         url = QUrl::fromPercentEncoding(url.toLatin1());
     }
-    static inline QT_COMPAT void encode(QString &url)
+    static inline QT3_SUPPORT void encode(QString &url)
     {
         url = QString::fromLatin1(QUrl::toPercentEncoding(url));
     }
-    inline QT_COMPAT operator QString() const { return toString(); }
-    inline QT_COMPAT bool cdUp()
+    inline QT3_SUPPORT operator QString() const { return toString(); }
+    inline QT3_SUPPORT bool cdUp()
     {
         *this = resolved(QUrl(QLatin1String("..")));
         return true;
     }
-    static inline QT_COMPAT bool isRelativeUrl(const QString &url)
+    static inline QT3_SUPPORT bool isRelativeUrl(const QString &url)
     {
         return QUrl(url).isRelative();
     }
 #endif
 
 protected:
-#if defined (QT_COMPAT)
-    inline QT_COMPAT void reset() { clear(); }
+#if defined (QT3_SUPPORT)
+    inline QT3_SUPPORT void reset() { clear(); }
 #endif
 
     QUrl(QUrlPrivate &d);

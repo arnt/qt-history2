@@ -116,7 +116,7 @@ QMouseEvent::~QMouseEvent()
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state)
     : QInputEvent(type), p(pos), b((Qt::MouseButton)button)
 {
@@ -332,7 +332,7 @@ QWheelEvent::~QWheelEvent()
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), d(delta), o(orient)
 {
@@ -359,7 +359,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta,
     : QInputEvent(Wheel, modifiers), p(pos), g(globalPos), d(delta), mouseState(buttons), o(orient)
 {}
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
                          Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
@@ -970,7 +970,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPo
     : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
 {}
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos,
                                      int)
     : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
@@ -1000,7 +1000,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
     gp = QCursor::pos();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
     : QInputEvent(ContextMenu), p(pos), reas(reason)
 {
@@ -1754,7 +1754,7 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
     The opposite of accept(); i.e. you have ignored the drop event.
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn bool QDropEvent::isActionAccepted () const
 
@@ -1762,7 +1762,7 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
     otherwise returns false.
 */
 
-QT_COMPAT QDropEvent::Action QDropEvent::action() const
+QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
 {
     switch(drop_action) {
     case QDrag::CopyAction:

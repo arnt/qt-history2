@@ -405,7 +405,7 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     \sa QClipboard::Mode, supportsSelection()
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn QMimeSource *QClipboard::data(Mode mode) const
     \compat
@@ -443,7 +443,7 @@ void QClipboard::setData(QMimeSource *source, Mode mode)
     d->compat_data[mode] = source;
     setMimeData(new QMimeSourceWrapper(d, mode));
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 const char* QMimeDataWrapper::format(int n) const
 {

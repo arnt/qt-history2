@@ -114,9 +114,9 @@ private:
     QRegion exposed;
     int last_focus_time;
     QWSWindowData *d;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QRegion requested() const { return requested_region; }
-    inline QT_COMPAT QRegion allocation() const { return allocated_region; }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QRegion requested() const { return requested_region; }
+    inline QT3_SUPPORT QRegion allocation() const { return allocated_region; }
 #endif
 };
 
@@ -161,8 +161,8 @@ class QWSServer : public QObject
 
 public:
     explicit QWSServer(int flags = 0, QObject *parent=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QWSServer(int flags, QObject *parent, const char *name);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QWSServer(int flags, QObject *parent, const char *name);
 #endif
     ~QWSServer();
     enum ServerFlags { DisableKeyboard = 0x01,
@@ -177,7 +177,7 @@ public:
 
 #ifndef QT_NO_QWS_IM
     enum IMState { InputMethodStart /*###remove this*/, InputMethodCompose, InputMethodEnd, IMMarkedText, IMInternal = 42
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                    , IMStart = InputMethodStart, IMCompose = InputMethodCompose, IMEnd = InputMethodEnd
 #endif
     };
@@ -478,9 +478,9 @@ private:
     int microX;
     int microY;
 #endif
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_QWS_KEYBOARD
-    static inline QT_COMPAT void setKeyboardFilter(KeyboardFilter *f)
+    static inline QT3_SUPPORT void setKeyboardFilter(KeyboardFilter *f)
         { if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }
 #endif
 #endif

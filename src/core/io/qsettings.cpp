@@ -2604,7 +2604,7 @@ void QSettings::setUserIniPath(const QString &dir)
     *defaultUserIniPath() = dir;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \fn bool QSettings::writeEntry(const QString &key, bool value)
 
     Sets the value of setting \a key to \a value.

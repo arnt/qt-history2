@@ -17,7 +17,7 @@
 #include "QtGui/qmenu.h"
 
 class QMenuBarPrivate;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class QMenuItem;
 #endif
 
@@ -88,164 +88,164 @@ protected:
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QMenuBar(QWidget *parent, const char *name);
-    inline QT_COMPAT uint count() const { return actions().count(); }
-    inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
+    QT3_SUPPORT_CONSTRUCTOR QMenuBar(QWidget *parent, const char *name);
+    inline QT3_SUPPORT uint count() const { return actions().count(); }
+    inline QT3_SUPPORT int insertItem(const QString &text, const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         return insertAny(0, &text, receiver, member, &shortcut, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text,
+    inline QT3_SUPPORT int insertItem(const QIcon& icon, const QString &text,
                                     const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         return insertAny(&icon, &text, receiver, member, &shortcut, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member,
+    inline QT3_SUPPORT int insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member,
                                     const QKeySequence& shortcut = 0, int id = -1, int index = -1) {
         QIcon icon(pixmap);
         return insertAny(&icon, 0, receiver, member, &shortcut, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
+    inline QT3_SUPPORT int insertItem(const QString &text, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text, int id=-1, int index=-1) {
+    inline QT3_SUPPORT int insertItem(const QIcon& icon, const QString &text, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
+    inline QT3_SUPPORT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIcon& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
+    inline QT3_SUPPORT int insertItem(const QIcon& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
         return insertAny(&icon, &text, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
+    inline QT3_SUPPORT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
         QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
+    inline QT3_SUPPORT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
         QIcon icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
-    QT_COMPAT int insertSeparator(int index=-1);
-    inline QT_COMPAT void removeItem(int id) {
+    QT3_SUPPORT int insertSeparator(int index=-1);
+    inline QT3_SUPPORT void removeItem(int id) {
         if(QAction *act = findActionForId(id))
             removeAction(act); }
-    inline QT_COMPAT void removeItemAt(int index) {
+    inline QT3_SUPPORT void removeItemAt(int index) {
         if(QAction *act = actions().value(index))
             removeAction(act); }
 #ifndef QT_NO_ACCEL
-    inline QT_COMPAT QKeySequence accel(int id) const {
+    inline QT3_SUPPORT QKeySequence accel(int id) const {
         if(QAction *act = findActionForId(id))
             return act->shortcut();
         return QKeySequence(); }
-    inline QT_COMPAT void setAccel(const QKeySequence& key, int id) {
+    inline QT3_SUPPORT void setAccel(const QKeySequence& key, int id) {
         if(QAction *act = findActionForId(id))
             act->setShortcut(key);
     }
 #endif
-    inline QT_COMPAT QIcon iconSet(int id) const {
+    inline QT3_SUPPORT QIcon iconSet(int id) const {
         if(QAction *act = findActionForId(id))
             return act->icon();
         return QIcon(); }
-    inline QT_COMPAT QString text(int id) const {
+    inline QT3_SUPPORT QString text(int id) const {
         if(QAction *act = findActionForId(id))
             return act->text();
         return QString(); }
-    inline QT_COMPAT QPixmap pixmap(int id) const {
+    inline QT3_SUPPORT QPixmap pixmap(int id) const {
         if(QAction *act = findActionForId(id))
             return act->icon().pixmap(QSize(22,22));
         return QPixmap(); }
-    inline QT_COMPAT void setWhatsThis(int id, const QString &w) {
+    inline QT3_SUPPORT void setWhatsThis(int id, const QString &w) {
         if(QAction *act = findActionForId(id))
             act->setWhatsThis(w); }
-    inline QT_COMPAT QString whatsThis(int id) const {
+    inline QT3_SUPPORT QString whatsThis(int id) const {
         if(QAction *act = findActionForId(id))
             return act->whatsThis();
         return QString(); }
 
-    inline QT_COMPAT void changeItem(int id, const QString &text) {
+    inline QT3_SUPPORT void changeItem(int id, const QString &text) {
         if(QAction *act = findActionForId(id))
             act->setText(text); }
-    inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) {
+    inline QT3_SUPPORT void changeItem(int id, const QPixmap &pixmap) {
         if(QAction *act = findActionForId(id))
             act->setIcon(QIcon(pixmap)); }
-    inline QT_COMPAT void changeItem(int id, const QIcon &icon, const QString &text) {
+    inline QT3_SUPPORT void changeItem(int id, const QIcon &icon, const QString &text) {
         if(QAction *act = findActionForId(id)) {
             act->setIcon(icon);
             act->setText(text);
         }
     }
-    inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
-    inline QT_COMPAT bool isItemEnabled(int id) const {
+    inline QT3_SUPPORT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
+    inline QT3_SUPPORT bool isItemEnabled(int id) const {
         if(QAction *act = findActionForId(id))
             return act->isEnabled();
         return false; }
-    inline QT_COMPAT void setItemEnabled(int id, bool enable) {
+    inline QT3_SUPPORT void setItemEnabled(int id, bool enable) {
         if(QAction *act = findActionForId(id))
             act->setEnabled(enable); }
-    inline QT_COMPAT bool isItemChecked(int id) const {
+    inline QT3_SUPPORT bool isItemChecked(int id) const {
         if(QAction *act = findActionForId(id))
             return act->isChecked();
         return false; }
-    inline QT_COMPAT void setItemChecked(int id, bool check) {
+    inline QT3_SUPPORT void setItemChecked(int id, bool check) {
         if(QAction *act = findActionForId(id))
             act->setChecked(check); }
-    inline QT_COMPAT bool isItemVisible(int id) const {
+    inline QT3_SUPPORT bool isItemVisible(int id) const {
         if(QAction *act = findActionForId(id))
             return act->isVisible();
         return false; }
-    inline QT_COMPAT void setItemVisible(int id, bool visible) {
+    inline QT3_SUPPORT void setItemVisible(int id, bool visible) {
         if(QAction *act = findActionForId(id))
             act->setVisible(visible); }
-    inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
-    inline QT_COMPAT int idAt(int index) const {
+    inline QT3_SUPPORT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
+    inline QT3_SUPPORT int idAt(int index) const {
         return index >= 0 && index < actions().size()
                         ? findIdForAction(actions().at(index))
                         : -1;
     }
-    inline QT_COMPAT void activateItemAt(int index) {
+    inline QT3_SUPPORT void activateItemAt(int index) {
         if(QAction *ret = actions().value(index))
             ret->activate(QAction::Trigger);
     }
-    inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
+    inline QT3_SUPPORT bool connectItem(int id, const QObject *receiver, const char* member) {
         if(QAction *act = findActionForId(id)) {
             QObject::connect(act, SIGNAL(triggered()), receiver, member);
             return true;
         }
         return false;
     }
-    inline QT_COMPAT bool disconnectItem(int id,const QObject *receiver, const char* member) {
+    inline QT3_SUPPORT bool disconnectItem(int id,const QObject *receiver, const char* member) {
         if(QAction *act = findActionForId(id)) {
             QObject::disconnect(act, SIGNAL(triggered()), receiver, member);
             return true;
         }
         return false;
     }
-    inline QT_COMPAT QMenuItem *findItem(int id) const {
+    inline QT3_SUPPORT QMenuItem *findItem(int id) const {
         return (QMenuItem*)findActionForId(id);
     }
-    QT_COMPAT bool setItemParameter(int id, int param);
-    QT_COMPAT int itemParameter(int id) const;
+    QT3_SUPPORT bool setItemParameter(int id, int param);
+    QT3_SUPPORT int itemParameter(int id) const;
 
     //frame
-    QT_COMPAT int frameWidth() const;
+    QT3_SUPPORT int frameWidth() const;
 
     //menubar
     enum Separator { Never=0, InWindowsStyle=1 };
-    inline QT_COMPAT Separator separator() const { return InWindowsStyle; }
-    inline QT_COMPAT void setSeparator(Separator) { }
+    inline QT3_SUPPORT Separator separator() const { return InWindowsStyle; }
+    inline QT3_SUPPORT void setSeparator(Separator) { }
 
 signals:
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);
 
 protected:
-    inline QT_COMPAT QRect itemRect(int index) {
+    inline QT3_SUPPORT QRect itemRect(int index) {
         if(QAction *act = actions().value(index))
             return actionGeometry(act);
         return QRect();
     }
-    inline QT_COMPAT int itemAtPos(const QPoint &p) {
+    inline QT3_SUPPORT int itemAtPos(const QPoint &p) {
         return findIdForAction(actionAt(p));
     }
 

@@ -649,7 +649,7 @@ QWSServer::QWSServer(int flags, QObject *parent) :
     initServer(flags);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use the two-argument overload and call setObjectName() instead.
 */

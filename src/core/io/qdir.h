@@ -32,7 +32,7 @@ public:
                   Drives      = 0x004,
                   NoSymLinks  = 0x008,
                   TypeMask    = 0x00f,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                   All         = TypeMask,
 #endif
 
@@ -40,7 +40,7 @@ public:
                   Writable    = 0x020,
                   Executable  = 0x040,
                   PermissionMask    = 0x070,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                   RWEMask     = 0x070,
 #endif
 
@@ -53,12 +53,12 @@ public:
                   CaseSensitive = 0x800,
 
                   NoFilter = -1
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                   ,DefaultFilter = NoFilter
 #endif
     };
     Q_DECLARE_FLAGS(Filters, Filter)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     typedef Filters FilterSpec;
 #endif
 
@@ -73,7 +73,7 @@ public:
                     IgnoreCase  = 0x10,
                     DirsLast    = 0x20,
                     NoSort = -1
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                   ,DefaultSort = NoSort
 #endif
     };
@@ -166,41 +166,41 @@ public:
     static QString cleanPath(const QString &path);
     void refresh() const;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     typedef SortFlags SortSpec;
-    inline QT_COMPAT QString absPath() const { return absolutePath(); }
-    inline QT_COMPAT QString absFilePath(const QString &fileName, bool acceptAbsPath = true) const
+    inline QT3_SUPPORT QString absPath() const { return absolutePath(); }
+    inline QT3_SUPPORT QString absFilePath(const QString &fileName, bool acceptAbsPath = true) const
        { Q_UNUSED(acceptAbsPath); return absoluteFilePath(fileName); }
-    inline QT_COMPAT bool matchAllDirs() const
+    inline QT3_SUPPORT bool matchAllDirs() const
         { return filter() & AllDirs; }
-    inline QT_COMPAT void setMatchAllDirs(bool on)
+    inline QT3_SUPPORT void setMatchAllDirs(bool on)
     {
         if(on)
             setFilter(filter() | AllDirs);
         else
             setFilter(filter() & ~(int)AllDirs);
     }
-    inline QT_COMPAT QStringList entryList(const QString &nameFilter, Filters filters = NoFilter,
+    inline QT3_SUPPORT QStringList entryList(const QString &nameFilter, Filters filters = NoFilter,
                                            SortFlags sort = NoSort) const
     { return entryList(nameFiltersFromString(nameFilter), filters, sort); }
-    inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter,
+    inline QT3_SUPPORT QFileInfoList entryInfoList(const QString &nameFilter,
                                                  Filters filters = NoFilter,
                                                  SortFlags sort = NoSort) const
     { return entryInfoList(nameFiltersFromString(nameFilter), filters, sort); }
 
-    QT_COMPAT QString nameFilter() const;
-    QT_COMPAT void setNameFilter(const QString &nameFilter);
+    QT3_SUPPORT QString nameFilter() const;
+    QT3_SUPPORT void setNameFilter(const QString &nameFilter);
 
-    inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const
+    inline QT3_SUPPORT bool mkdir(const QString &dirName, bool acceptAbsPath) const
         { Q_UNUSED(acceptAbsPath); return mkdir(dirName, NonRecursive); }
-    inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const
+    inline QT3_SUPPORT bool rmdir(const QString &dirName, bool acceptAbsPath) const
         { Q_UNUSED(acceptAbsPath); return rmdir(dirName, NonRecursive); }
 
-    inline QT_COMPAT void convertToAbs() { makeAbsolute(); }
-    inline QT_COMPAT static QString currentDirPath() { return currentPath(); }
-    inline QT_COMPAT static QString homeDirPath() { return homePath(); }
-    inline QT_COMPAT static QString rootDirPath() { return rootPath(); }
-    inline QT_COMPAT static QString cleanDirPath(const QString &name) { return cleanPath(name); }
+    inline QT3_SUPPORT void convertToAbs() { makeAbsolute(); }
+    inline QT3_SUPPORT static QString currentDirPath() { return currentPath(); }
+    inline QT3_SUPPORT static QString homeDirPath() { return homePath(); }
+    inline QT3_SUPPORT static QString rootDirPath() { return rootPath(); }
+    inline QT3_SUPPORT static QString cleanDirPath(const QString &name) { return cleanPath(name); }
 #endif
 };
 

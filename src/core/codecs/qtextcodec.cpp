@@ -938,7 +938,7 @@ bool QTextCodec::canEncode(const QString& s) const
     return (state.invalidChars == 0);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Returns a string representing the current language and
     sublanguage, e.g. "pt" for Portuguese, or "pt_br" for Portuguese/Brazil.
@@ -1035,7 +1035,7 @@ QByteArray QTextEncoder::fromUnicode(const QChar *uc, int len)
     return result;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \overload
 

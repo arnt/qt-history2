@@ -2931,7 +2931,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = QEvent::MouseButtonPress;
         break;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case SH_GUIStyle:
         ret = Qt::WindowsStyle;
         break;

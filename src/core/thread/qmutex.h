@@ -35,15 +35,15 @@ public:
     bool tryLock();
     void unlock();
 
-#if defined(QT_COMPAT)
-    inline QT_COMPAT bool locked()
+#if defined(QT3_SUPPORT)
+    inline QT3_SUPPORT bool locked()
     {
         if (!tryLock())
             return true;
         unlock();
         return false;
     }
-    inline QT_COMPAT_CONSTRUCTOR QMutex(bool recursive)
+    inline QT3_SUPPORT_CONSTRUCTOR QMutex(bool recursive)
     {
         new (this) QMutex(recursive ? Recursive : NonRecursive);
     }
@@ -88,8 +88,8 @@ public:
     static inline bool tryLock() { return true; }
     static void unlock() {}
 
-#if defined(QT_COMPAT)
-    static inline QT_COMPAT bool locked() { return false; }
+#if defined(QT3_SUPPORT)
+    static inline QT3_SUPPORT bool locked() { return false; }
 #endif
 
 private:

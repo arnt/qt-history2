@@ -652,7 +652,7 @@ QLayoutPrivate::QLayoutPrivate()
 
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Constructs a new top-level QLayout called \a name, with parent
     widget \a parent. \a parent may not be 0.
@@ -938,7 +938,7 @@ void QLayout::widgetEvent(QEvent *e)
             }
         }
         break;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QEvent::ChildInserted:
         if (d->topLevel && d->autoNewChild) {
             QChildEvent *c = (QChildEvent *)e;

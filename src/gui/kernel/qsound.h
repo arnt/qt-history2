@@ -43,9 +43,9 @@ public slots:
     void stop();
 
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSound(const QString& filename, QObject* parent, const char* name);
-    static inline QT_COMPAT bool available() { return isAvailable(); }
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QSound(const QString& filename, QObject* parent, const char* name);
+    static inline QT3_SUPPORT bool available() { return isAvailable(); }
 #endif
 private:
     Q_DECLARE_PRIVATE(QSound)

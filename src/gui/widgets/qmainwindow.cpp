@@ -129,7 +129,7 @@ QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \obsolete
     Constructs a QMainWindow with the given \a parent, \a name, and

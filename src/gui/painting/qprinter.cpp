@@ -28,9 +28,9 @@
 #include <private/qprintengine_ps_p.h>
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #  include "qprintdialog.h"
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #define d d_func()
 
@@ -348,7 +348,7 @@ QPrinter::QPrinter(PrinterMode mode)
 */
 QPrinter::~QPrinter()
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     delete d->printDialog;
 #endif
     delete d;
@@ -1132,7 +1132,7 @@ void QPrinter::setPrinterSelectionOption(const QString &option)
 #endif
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 bool qt_compat_QPrinter_printSetup(QPrinter *p, QPrinterPrivate *pd, QWidget *parent)
 {
@@ -1478,4 +1478,4 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     return const_cast<QPrinter*>(this)->d->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT

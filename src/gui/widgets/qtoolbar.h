@@ -102,12 +102,12 @@ protected:
     void resizeEvent(QResizeEvent *event);
     bool event(QEvent *event);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QToolBar(QWidget *parent, const char *name);
-    inline QT_COMPAT void setLabel(const QString &label)
+    QT3_SUPPORT_CONSTRUCTOR QToolBar(QWidget *parent, const char *name);
+    inline QT3_SUPPORT void setLabel(const QString &label)
     { setWindowTitle(label); }
-    inline QT_COMPAT QString label() const
+    inline QT3_SUPPORT QString label() const
     { return windowTitle(); }
 #endif
 

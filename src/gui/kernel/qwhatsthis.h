@@ -20,7 +20,7 @@
 
 #ifndef QT_NO_WHATSTHIS
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class QToolButton;
 #endif
 
@@ -35,10 +35,10 @@ public:
     static void showText(const QPoint &pos, const QString& text, QWidget* w = 0);
     static void hideText();
 
-#ifdef QT_COMPAT
-    static QT_COMPAT void add(QWidget *w, const QString &s);
-    static QT_COMPAT void remove(QWidget *);
-    static QT_COMPAT QToolButton * whatsThisButton(QWidget * parent);
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT void add(QWidget *w, const QString &s);
+    static QT3_SUPPORT void remove(QWidget *);
+    static QT3_SUPPORT QToolButton * whatsThisButton(QWidget * parent);
 #endif
 };
 

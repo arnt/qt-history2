@@ -1392,7 +1392,7 @@ void QPrintDialogPrivate::setLastPage(int lp)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   Adds the button \a but to the layout of the print dialog. The added
   buttons are arranged from the left to the right below the

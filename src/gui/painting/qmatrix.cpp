@@ -612,7 +612,7 @@ QPainterPath QMatrix::map(const QPainterPath &path) const
 
     \sa QMatrix::mapRect()
 */
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QRegion QMatrix::mapToRegion(const QRect &rect) const
 {
     QRegion result;

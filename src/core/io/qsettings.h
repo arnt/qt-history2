@@ -17,7 +17,7 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qcorevariant.h"
 #include "QtCore/qstring.h"
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include "QtCore/qstringlist.h"
 #endif
 
@@ -57,7 +57,7 @@ public:
     enum Scope {
         UserScope,
         SystemScope
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ,
         User = UserScope,
         Global = SystemScope
@@ -117,28 +117,28 @@ public:
     static void setSystemIniPath(const QString &dir);
     static void setUserIniPath(const QString &dir);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool writeEntry(const QString &key, bool value)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool writeEntry(const QString &key, bool value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, double value)
+    inline QT3_SUPPORT bool writeEntry(const QString &key, double value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, int value)
+    inline QT3_SUPPORT bool writeEntry(const QString &key, int value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, const char *value)
+    inline QT3_SUPPORT bool writeEntry(const QString &key, const char *value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, const QString &value)
+    inline QT3_SUPPORT bool writeEntry(const QString &key, const QString &value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, const QStringList &value)
+    inline QT3_SUPPORT bool writeEntry(const QString &key, const QStringList &value)
     { setValue(key, value); return isWritable(); }
-    inline QT_COMPAT bool writeEntry(const QString &key, const QStringList &value, QChar separator)
+    inline QT3_SUPPORT bool writeEntry(const QString &key, const QStringList &value, QChar separator)
     { setValue(key, value.join(QString(separator))); return isWritable(); }
-    inline QT_COMPAT QStringList readListEntry(const QString &key, bool *ok = 0)
+    inline QT3_SUPPORT QStringList readListEntry(const QString &key, bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key).toStringList();
     }
-    inline QT_COMPAT QStringList readListEntry(const QString &key, QChar separator, bool *ok = 0)
+    inline QT3_SUPPORT QStringList readListEntry(const QString &key, QChar separator, bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
@@ -147,41 +147,41 @@ public:
             return QStringList();
         return str.split(separator);
     }
-    inline QT_COMPAT QString readEntry(const QString &key, const QString &defaultValue = QString(),
+    inline QT3_SUPPORT QString readEntry(const QString &key, const QString &defaultValue = QString(),
                                        bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key, defaultValue).toString();
     }
-    inline QT_COMPAT int readNumEntry(const QString &key, int defaultValue = 0, bool *ok = 0)
+    inline QT3_SUPPORT int readNumEntry(const QString &key, int defaultValue = 0, bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key, defaultValue).toInt();
     }
-     inline QT_COMPAT double readDoubleEntry(const QString &key, double defaultValue = 0,
+     inline QT3_SUPPORT double readDoubleEntry(const QString &key, double defaultValue = 0,
                                             bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key, defaultValue).toDouble();
     }
-    inline QT_COMPAT bool readBoolEntry(const QString &key, bool defaultValue = false,
+    inline QT3_SUPPORT bool readBoolEntry(const QString &key, bool defaultValue = false,
                                         bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key, defaultValue).toBool();
     }
-    inline QT_COMPAT bool removeEntry(const QString &key)
+    inline QT3_SUPPORT bool removeEntry(const QString &key)
     { remove(key); return true; }
 
     enum System { Unix, Windows, Mac };
-    inline QT_COMPAT void insertSearchPath(System, const QString &) {}
-    inline QT_COMPAT void removeSearchPath(System, const QString &) {}
+    inline QT3_SUPPORT void insertSearchPath(System, const QString &) {}
+    inline QT3_SUPPORT void removeSearchPath(System, const QString &) {}
 
-    inline QT_COMPAT void setPath(const QString &organization, const QString &application,
+    inline QT3_SUPPORT void setPath(const QString &organization, const QString &application,
                                   Scope scope = Global)
     {
         QObject *parent = this->parent();
@@ -189,12 +189,12 @@ public:
         new (this) QSettings(scope == Global ? QSettings::SystemScope : QSettings::UserScope,
                              organization, application, parent);
     }
-    inline QT_COMPAT void resetGroup()
+    inline QT3_SUPPORT void resetGroup()
     {
         while (!group().isEmpty())
             endGroup();
     }
-    inline QT_COMPAT QStringList entryList(const QString &key) const
+    inline QT3_SUPPORT QStringList entryList(const QString &key) const
     {
         QSettings *that = const_cast<QSettings *>(this);
         QStringList result;
@@ -204,7 +204,7 @@ public:
         that->endGroup();
         return result;
     }
-    inline QT_COMPAT QStringList subkeyList(const QString &key) const
+    inline QT3_SUPPORT QStringList subkeyList(const QString &key) const
     {
         QSettings *that = const_cast<QSettings *>(this);
         QStringList result;

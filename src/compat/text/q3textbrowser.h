@@ -16,7 +16,7 @@
 
 #include "QtGui/qpixmap.h"
 #include "QtGui/qcolor.h"
-#include "Qt3Compat/q3textedit.h"
+#include "Qt3Support/q3textedit.h"
 
 #ifndef QT_NO_TEXTBROWSER
 

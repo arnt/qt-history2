@@ -34,11 +34,11 @@ public:
     explicit QGridLayout(QLayout *parentLayout);
     QGridLayout();
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
                                       int spacing = -1, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QGridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols = 1, int spacing = -1,
+    QT3_SUPPORT_CONSTRUCTOR QGridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols = 1, int spacing = -1,
                                       const char *name = 0);
 #endif
     ~QGridLayout();
@@ -92,24 +92,24 @@ protected:
 private:
     Q_DISABLE_COPY(QGridLayout)
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT void expand(int rows, int cols);
-    inline QT_COMPAT void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
-    inline QT_COMPAT void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
-    inline QT_COMPAT void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    QT3_SUPPORT void expand(int rows, int cols);
+    inline QT3_SUPPORT void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
+    inline QT3_SUPPORT void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
+    inline QT3_SUPPORT void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addWidget(w, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
-    inline QT_COMPAT void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    inline QT3_SUPPORT void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addItem(l, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
-    inline QT_COMPAT void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    inline QT3_SUPPORT void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addLayout(layout, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
 
-    inline QT_COMPAT int numRows() const { return rowCount(); }
-    inline QT_COMPAT int numCols() const { return columnCount(); }
-    inline QT_COMPAT void setColStretch(int col, int stretch) {setColumnStretch(col, stretch); }
-    inline QT_COMPAT int colStretch(int col) const {return columnStretch(col); }
-    inline QT_COMPAT void setColSpacing(int col, int minSize) { setColumnSpacing(col, minSize); }
-    inline QT_COMPAT int colSpacing(int col) const { return columnSpacing(col); }
+    inline QT3_SUPPORT int numRows() const { return rowCount(); }
+    inline QT3_SUPPORT int numCols() const { return columnCount(); }
+    inline QT3_SUPPORT void setColStretch(int col, int stretch) {setColumnStretch(col, stretch); }
+    inline QT3_SUPPORT int colStretch(int col) const {return columnStretch(col); }
+    inline QT3_SUPPORT void setColSpacing(int col, int minSize) { setColumnSpacing(col, minSize); }
+    inline QT3_SUPPORT int colSpacing(int col) const { return columnSpacing(col); }
 #endif
 };
 
@@ -128,12 +128,12 @@ public:
     explicit QBoxLayout(Direction, QLayout *parentLayout);
     explicit QBoxLayout(Direction);
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
                 const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR  QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
+    QT3_SUPPORT_CONSTRUCTOR  QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
                 const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR  QBoxLayout(Direction, int spacing, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR  QBoxLayout(Direction, int spacing, const char *name = 0);
 #endif
     ~QBoxLayout();
 
@@ -192,12 +192,12 @@ public:
     explicit QHBoxLayout(QLayout *parentLayout);
     ~QHBoxLayout();
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QHBoxLayout(QWidget *parent, int border,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(QWidget *parent, int border,
                  int spacing = -1, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QHBoxLayout(QLayout *parentLayout,
+    QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(QLayout *parentLayout,
                  int spacing, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QHBoxLayout(int spacing, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(int spacing, const char *name = 0);
 #endif
 
 private:
@@ -213,12 +213,12 @@ public:
     explicit QVBoxLayout(QLayout *parentLayout);
     ~QVBoxLayout();
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QVBoxLayout(QWidget *parent, int border,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(QWidget *parent, int border,
                  int spacing = -1, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QVBoxLayout(QLayout *parentLayout,
+    QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(QLayout *parentLayout,
                  int spacing, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QVBoxLayout(int spacing, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(int spacing, const char *name = 0);
 #endif
 
 private:

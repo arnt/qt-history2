@@ -664,7 +664,7 @@ int QFont::pixelSize() const
     return d->request.pixelSize;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
 
   Sets the logical pixel height of font characters when shown on
@@ -1263,7 +1263,7 @@ QFont QFont::resolve(const QFont &other) const
     \internal
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*! \obsolete
 

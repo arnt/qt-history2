@@ -2861,7 +2861,7 @@ QPaintEngine *QGLWidget::paintEngine() const
     return qt_widget_paintengine;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \overload
     \obsolete
@@ -2908,4 +2908,4 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
     d->init(context, shareWidget);
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT

@@ -980,7 +980,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int mh = h - 2*motifItemFrame;
                 if (menuitem->checked) {
                     QStyleOptionMenuItem newMenuItem = *menuitem;
-                    newMenuItem.state = State_Default;
+                    newMenuItem.state = State_None;
                     if ((opt->state & State_Enabled))
                         newMenuItem.state |= State_Enabled;
                     if ((opt->state & State_Selected))
@@ -1034,9 +1034,9 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                                            QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
                                                  y+h/2-dim/2, dim, dim));
                 if ((opt->state & State_Selected))
-                    arrowOpt.state = (State_Down | ((opt->state & State_Enabled) ? State_Enabled : State_Default));
+                    arrowOpt.state = (State_Down | ((opt->state & State_Enabled) ? State_Enabled : State_None));
                 else
-                    arrowOpt.state = ((opt->state & State_Enabled) ? State_Enabled : State_Default);
+                    arrowOpt.state = ((opt->state & State_Enabled) ? State_Enabled : State_None);
                 drawPrimitive(arrow, &arrowOpt, p, widget);
             }
             break; }
@@ -1505,9 +1505,9 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
             int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height() : sl->rect.width();
             int ticks = sl->tickPosition;
             int n = 0;
-            if (ticks & QSlider::Above)
+            if (ticks & QSlider::TicksAbove)
                 n++;
-            if (ticks & QSlider::Below)
+            if (ticks & QSlider::TicksBelow)
                 n++;
             if (!n) {
                 ret = space;
@@ -2255,7 +2255,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
     int ret;
 
     switch (hint) {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case SH_GUIStyle:
         ret = Qt::MotifStyle;
         break;

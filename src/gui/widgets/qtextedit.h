@@ -17,7 +17,7 @@
 #include <QtGui/qviewport.h>
 #include <QtGui/qtextdocument.h>
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qtextformat.h>
 #include <QtGui/qtextobject.h>
@@ -75,7 +75,7 @@ public:
         MoveEnd,
         MovePageUp,
         MovePageDown
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ,
         MovePgUp = MovePageUp,
         MovePgDown = MovePageDown
@@ -209,7 +209,7 @@ protected:
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 signals:
     QT_MOC_COMPAT void textChanged();
     QT_MOC_COMPAT void undoAvailable(bool b);
@@ -218,8 +218,8 @@ signals:
     QT_MOC_COMPAT void currentColorChanged(const QColor &c);
 
 public:
-    QT_COMPAT_CONSTRUCTOR QTextEdit(QWidget *parent, const char *name);
-    inline QT_COMPAT bool find(const QString &exp, bool cs, bool wo)
+    QT3_SUPPORT_CONSTRUCTOR QTextEdit(QWidget *parent, const char *name);
+    inline QT3_SUPPORT bool find(const QString &exp, bool cs, bool wo)
     {
         QTextDocument::FindFlags flags = 0;
         if (cs)
@@ -229,9 +229,9 @@ public:
         return find(exp, flags);
     }
 
-    inline QT_COMPAT void sync() {}
+    inline QT3_SUPPORT void sync() {}
 
-    QT_COMPAT void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+    QT3_SUPPORT void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     enum KeyboardAction {
         ActionBackspace,
@@ -242,42 +242,42 @@ public:
         ActionWordDelete
     };
 
-    QT_COMPAT void doKeyboardAction(KeyboardAction action);
+    QT3_SUPPORT void doKeyboardAction(KeyboardAction action);
 
-    QT_COMPAT void setText(const QString &text);
-    QT_COMPAT QString text() const;
-    QT_COMPAT void setTextFormat(Qt::TextFormat);
-    QT_COMPAT Qt::TextFormat textFormat() const;
+    QT3_SUPPORT void setText(const QString &text);
+    QT3_SUPPORT QString text() const;
+    QT3_SUPPORT void setTextFormat(Qt::TextFormat);
+    QT3_SUPPORT Qt::TextFormat textFormat() const;
 
-    inline QT_COMPAT void setBold(bool b) { setFontWeight(b ? QFont::Bold : QFont::Normal); }
-    inline QT_COMPAT void setUnderline(bool b) { setFontUnderline(b); }
-    inline QT_COMPAT void setItalic(bool i) { setFontItalic(i); }
-    inline QT_COMPAT void setFamily(const QString &family) { setFontFamily(family); }
-    inline QT_COMPAT void setPointSize(int size) { setFontPointSize(size); }
+    inline QT3_SUPPORT void setBold(bool b) { setFontWeight(b ? QFont::Bold : QFont::Normal); }
+    inline QT3_SUPPORT void setUnderline(bool b) { setFontUnderline(b); }
+    inline QT3_SUPPORT void setItalic(bool i) { setFontItalic(i); }
+    inline QT3_SUPPORT void setFamily(const QString &family) { setFontFamily(family); }
+    inline QT3_SUPPORT void setPointSize(int size) { setFontPointSize(size); }
 
-    inline QT_COMPAT bool italic() const { return fontItalic(); }
-    inline QT_COMPAT bool bold() const { return fontWeight() >= QFont::Bold; }
-    inline QT_COMPAT bool underline() const { return fontUnderline(); }
-    inline QT_COMPAT QString family() const { return fontFamily(); }
-    inline QT_COMPAT int pointSize() const { return (int)(fontPointSize()+0.5); }
+    inline QT3_SUPPORT bool italic() const { return fontItalic(); }
+    inline QT3_SUPPORT bool bold() const { return fontWeight() >= QFont::Bold; }
+    inline QT3_SUPPORT bool underline() const { return fontUnderline(); }
+    inline QT3_SUPPORT QString family() const { return fontFamily(); }
+    inline QT3_SUPPORT int pointSize() const { return (int)(fontPointSize()+0.5); }
 
-    inline QT_COMPAT bool hasSelectedText() const
+    inline QT3_SUPPORT bool hasSelectedText() const
     { return textCursor().hasSelection(); }
-    inline QT_COMPAT QString selectedText() const
+    inline QT3_SUPPORT QString selectedText() const
     { return textCursor().selectedText(); }
 
-    inline QT_COMPAT bool isUndoAvailable() const
+    inline QT3_SUPPORT bool isUndoAvailable() const
     { return document()->isUndoAvailable(); }
-    inline QT_COMPAT bool isRedoAvailable() const
+    inline QT3_SUPPORT bool isRedoAvailable() const
     { return document()->isRedoAvailable(); }
 
-    inline QT_COMPAT void insert(const QString &text)
+    inline QT3_SUPPORT void insert(const QString &text)
     { insertPlainText(text); }
 
-    inline QT_COMPAT bool isModified() const
+    inline QT3_SUPPORT bool isModified() const
     { return document()->isModified(); }
 
-    inline QT_COMPAT QColor color() const
+    inline QT3_SUPPORT QColor color() const
     { return textColor(); }
 
 public slots:

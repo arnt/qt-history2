@@ -16,12 +16,12 @@
 
 #include "QtCore/qstring.h"
 #include "QtGui/qvariant.h"
-#include "Qt3Compat/q3table.h"
+#include "Qt3Support/q3table.h"
 #include "QtSql/qsql.h"
-#include "Qt3Compat/q3sqlcursor.h"
+#include "Qt3Support/q3sqlcursor.h"
 #include "QtSql/qsqlindex.h"
-#include "Qt3Compat/q3sqleditorfactory.h"
-#include "Qt3Compat/qiconset.h"
+#include "Qt3Support/q3sqleditorfactory.h"
+#include "Qt3Support/qiconset.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

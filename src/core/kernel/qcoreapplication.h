@@ -94,18 +94,18 @@ public:
 
     static void flush();
 
-#if defined(QT_COMPAT)
-    inline QT_COMPAT void lock() {}
-    inline QT_COMPAT void unlock(bool = true) {}
-    inline QT_COMPAT bool locked() { return false; }
-    inline QT_COMPAT bool tryLock() { return false; }
+#if defined(QT3_SUPPORT)
+    inline QT3_SUPPORT void lock() {}
+    inline QT3_SUPPORT void unlock(bool = true) {}
+    inline QT3_SUPPORT bool locked() { return false; }
+    inline QT3_SUPPORT bool tryLock() { return false; }
 
-    static inline QT_COMPAT void processOneEvent()
+    static inline QT3_SUPPORT void processOneEvent()
     { processEvents(QEventLoop::WaitForMoreEvents); }
-    static QT_COMPAT bool hasPendingEvents();
-    static QT_COMPAT int enter_loop();
-    static QT_COMPAT void exit_loop();
-    static QT_COMPAT int loopLevel();
+    static QT3_SUPPORT bool hasPendingEvents();
+    static QT3_SUPPORT int enter_loop();
+    static QT3_SUPPORT void exit_loop();
+    static QT3_SUPPORT int loopLevel();
 #endif
 
 #if defined(Q_WS_WIN)

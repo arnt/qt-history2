@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG        += qt warn_on uic3
 LANGUAGE = C++
-QT += compat
+QT += qt3support
 SOURCES        += colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp
 HEADERS        += colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h
 FORMS        = mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui

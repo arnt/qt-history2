@@ -430,7 +430,7 @@ void QBrush::setColor(const QColor &c)
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*!
     \fn void QBrush::setPixmap(const QPixmap &pixmap)

@@ -89,14 +89,14 @@ protected:
 
     void changeEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QSplitter(QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QSplitter(Qt::Orientation, QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QSplitter(QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QSplitter(Qt::Orientation, QWidget* parent, const char* name);
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
-    QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
-    inline QT_COMPAT void moveToFirst(QWidget *w) { insertWidget(0,w); }
-    inline QT_COMPAT void moveToLast(QWidget *w) { addWidget(w); }
+    QT3_SUPPORT void setResizeMode(QWidget *w, ResizeMode mode);
+    inline QT3_SUPPORT void moveToFirst(QWidget *w) { insertWidget(0,w); }
+    inline QT3_SUPPORT void moveToLast(QWidget *w) { addWidget(w); }
 #endif
 
 private:
@@ -105,7 +105,7 @@ private:
 private:
 };
 
-//#ifdef QT_COMPAT
+//#ifdef QT3_SUPPORT
 #ifndef QT_NO_TEXTSTREAM
 Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
 Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);

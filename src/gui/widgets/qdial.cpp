@@ -75,7 +75,7 @@ void QDialPrivate::init()
     showNotches = false;
     onlyOutside = false;
     q->setFocusPolicy(Qt::WheelFocus);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QObject::connect(q, SIGNAL(sliderPressed()), q, SIGNAL(dialPressed()));
     QObject::connect(q, SIGNAL(sliderMoved(int)), q, SIGNAL(dialMoved(int)));
     QObject::connect(q, SIGNAL(sliderReleased()), q, SIGNAL(dialReleased()));
@@ -415,7 +415,7 @@ QDial::QDial(QWidget *parent)
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.

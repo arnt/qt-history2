@@ -38,8 +38,8 @@ public:
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     QBitmap transform(const QMatrix &) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT QBitmap xForm(const QMatrix &matrix) const { return transform(matrix); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transform(matrix); }
 #endif
 #endif
 };

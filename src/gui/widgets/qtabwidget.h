@@ -62,7 +62,7 @@ public:
     int count() const;
 
     enum TabPosition { North, South, West, East
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , Top = North, Bottom = South
 #endif
     };
@@ -97,38 +97,38 @@ protected:
     QTabBar* tabBar() const;
     void changeEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
+    QT3_SUPPORT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
 
-    inline QT_COMPAT void insertTab(QWidget * w, const QString &s, int index = -1) { insertTab(index, w, s); }
-    inline QT_COMPAT void insertTab(QWidget *child, const QIcon& icon,
+    inline QT3_SUPPORT void insertTab(QWidget * w, const QString &s, int index = -1) { insertTab(index, w, s); }
+    inline QT3_SUPPORT void insertTab(QWidget *child, const QIcon& icon,
                                     const QString &label, int index = -1) { insertTab(index, child, icon, label); }
 
-    inline QT_COMPAT void changeTab(QWidget *w, const QString &s) {setTabText(indexOf(w), s); }
-    inline QT_COMPAT void changeTab(QWidget *w, const QIcon& icon,
+    inline QT3_SUPPORT void changeTab(QWidget *w, const QString &s) {setTabText(indexOf(w), s); }
+    inline QT3_SUPPORT void changeTab(QWidget *w, const QIcon& icon,
                                     const QString &label) { int idx = indexOf(w); setTabText(idx, label); setTabIcon(idx, icon); }
 
-    inline QT_COMPAT bool isTabEnabled( QWidget *w) const {return isTabEnabled(indexOf(w)); }
-    inline QT_COMPAT void setTabEnabled(QWidget *w, bool b) { setTabEnabled(indexOf(w), b); }
+    inline QT3_SUPPORT bool isTabEnabled( QWidget *w) const {return isTabEnabled(indexOf(w)); }
+    inline QT3_SUPPORT void setTabEnabled(QWidget *w, bool b) { setTabEnabled(indexOf(w), b); }
 
-    inline QT_COMPAT QString tabLabel(QWidget *w) const  {return tabText(indexOf(w)); }
-    inline QT_COMPAT void setTabLabel(QWidget *w, const QString &l) { setTabText(indexOf(w), l); }
+    inline QT3_SUPPORT QString tabLabel(QWidget *w) const  {return tabText(indexOf(w)); }
+    inline QT3_SUPPORT void setTabLabel(QWidget *w, const QString &l) { setTabText(indexOf(w), l); }
 
-    inline QT_COMPAT QIcon tabIconSet(QWidget * w) const  {return tabIcon(indexOf(w)); }
-    inline QT_COMPAT void setTabIconSet(QWidget * w, const QIcon & icon) { setTabIcon(indexOf(w), icon); }
+    inline QT3_SUPPORT QIcon tabIconSet(QWidget * w) const  {return tabIcon(indexOf(w)); }
+    inline QT3_SUPPORT void setTabIconSet(QWidget * w, const QIcon & icon) { setTabIcon(indexOf(w), icon); }
 
-    inline QT_COMPAT void removeTabToolTip(QWidget * w) {setTabToolTip(indexOf(w), QString());}
-    inline QT_COMPAT void setTabToolTip(QWidget * w, const QString & tip) {setTabToolTip(indexOf(w), tip);}
-    inline QT_COMPAT QString tabToolTip(QWidget * w) const { return tabToolTip(indexOf(w)); }
+    inline QT3_SUPPORT void removeTabToolTip(QWidget * w) {setTabToolTip(indexOf(w), QString());}
+    inline QT3_SUPPORT void setTabToolTip(QWidget * w, const QString & tip) {setTabToolTip(indexOf(w), tip);}
+    inline QT3_SUPPORT QString tabToolTip(QWidget * w) const { return tabToolTip(indexOf(w)); }
 
-    inline QT_COMPAT QWidget * currentPage() const { return currentWidget(); }
-    inline QT_COMPAT QWidget *page(int index) const { return widget(index); }
-    inline QT_COMPAT QString label(int index) const { return tabText(index); }
-    inline QT_COMPAT int currentPageIndex() const { return currentIndex(); }
+    inline QT3_SUPPORT QWidget * currentPage() const { return currentWidget(); }
+    inline QT3_SUPPORT QWidget *page(int index) const { return widget(index); }
+    inline QT3_SUPPORT QString label(int index) const { return tabText(index); }
+    inline QT3_SUPPORT int currentPageIndex() const { return currentIndex(); }
 
-    inline QT_COMPAT int margin() const { return 0; }
-    inline QT_COMPAT void setMargin(int) {}
+    inline QT3_SUPPORT int margin() const { return 0; }
+    inline QT3_SUPPORT void setMargin(int) {}
 
 public slots:
     inline QT_MOC_COMPAT void setCurrentPage(int index) { setCurrentIndex(index); }
@@ -137,7 +137,7 @@ public slots:
 
 signals:
     QT_MOC_COMPAT void currentChanged(QWidget *);
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 private:
     Q_DECLARE_PRIVATE(QTabWidget)

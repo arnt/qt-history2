@@ -66,10 +66,10 @@ public:
                         Active,
                         Aborted,
                         Error };
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     enum PrintRange { AllPages, Selection, PageRange };
     enum PrinterOption { PrintToFile, PrintSelection, PrintPageRange };
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
     void setPrinterName(const QString &);
     QString printerName() const;
@@ -143,35 +143,35 @@ public:
     void releaseDC(HDC hdc);
 #endif
 
-#if defined (QT_COMPAT)
+#if defined (QT3_SUPPORT)
 #ifdef Q_WS_MAC
-    QT_COMPAT bool pageSetup(QWidget *parent = 0);
-    QT_COMPAT bool printSetup(QWidget *parent = 0);
+    QT3_SUPPORT bool pageSetup(QWidget *parent = 0);
+    QT3_SUPPORT bool printSetup(QWidget *parent = 0);
 #endif
 
-    QT_COMPAT bool setup(QWidget *parent = 0);
+    QT3_SUPPORT bool setup(QWidget *parent = 0);
 
-    QT_COMPAT void setFromTo(int fromPage, int toPage);
-    QT_COMPAT int fromPage() const;
-    QT_COMPAT int toPage() const;
+    QT3_SUPPORT void setFromTo(int fromPage, int toPage);
+    QT3_SUPPORT int fromPage() const;
+    QT3_SUPPORT int toPage() const;
 
-    QT_COMPAT void setMinMax(int minPage, int maxPage);
-    QT_COMPAT int minPage() const;
-    QT_COMPAT int maxPage() const;
+    QT3_SUPPORT void setMinMax(int minPage, int maxPage);
+    QT3_SUPPORT int minPage() const;
+    QT3_SUPPORT int maxPage() const;
 
-    QT_COMPAT void setCollateCopiesEnabled(bool);
-    QT_COMPAT bool collateCopiesEnabled() const;
+    QT3_SUPPORT void setCollateCopiesEnabled(bool);
+    QT3_SUPPORT bool collateCopiesEnabled() const;
 
-    QT_COMPAT void setPrintRange(PrintRange range);
-    QT_COMPAT PrintRange printRange() const;
+    QT3_SUPPORT void setPrintRange(PrintRange range);
+    QT3_SUPPORT PrintRange printRange() const;
 
-    QT_COMPAT void setOptionEnabled(PrinterOption, bool enable);
-    QT_COMPAT bool isOptionEnabled(PrinterOption) const;
+    QT3_SUPPORT void setOptionEnabled(PrinterOption, bool enable);
+    QT3_SUPPORT bool isOptionEnabled(PrinterOption) const;
 
-    inline QT_COMPAT QSize margins() const;
-    inline QT_COMPAT void margins(uint *top, uint *left, uint *bottom, uint *right) const;
+    inline QT3_SUPPORT QSize margins() const;
+    inline QT3_SUPPORT void margins(uint *top, uint *left, uint *bottom, uint *right) const;
 
-    inline QT_COMPAT bool aborted() { return printerState() == Aborted; }
+    inline QT3_SUPPORT bool aborted() { return printerState() == Aborted; }
 #endif
 
 protected:
@@ -185,7 +185,7 @@ private:
     friend class QPrintDialogWin;
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 Q_GUI_EXPORT QSize QPrinter::margins() const
 {
     QRect page = pageRect();
@@ -206,7 +206,7 @@ Q_GUI_EXPORT void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *r
     if (right)
         *right = paper.right() - page.right();
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #endif // QT_NO_PRINTER
 

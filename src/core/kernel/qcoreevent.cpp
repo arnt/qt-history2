@@ -375,7 +375,7 @@ QChildEvent::~QChildEvent()
 
 
 */
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QCustomEvent::QCustomEvent(int type, void *data)
     : QEvent(static_cast<Type>(type))
 {

@@ -68,7 +68,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     is_session_restored = false;
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     qt_compat_used = 0;
     qt_compat_resolved = 0;
     qt_tryAccelEvent = 0;
@@ -1020,7 +1020,7 @@ QWidget *QApplication::widgetAt(const QPoint &p)
 bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents)
 {
     if ((event->type() == QEvent::UpdateRequest
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
           || event->type() == QEvent::LayoutHint
 #endif
           || event->type() == QEvent::LayoutRequest
@@ -1036,7 +1036,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
             if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type())
                 continue;
             if (cur.event->type() == QEvent::LayoutRequest
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                  || cur.event->type() == QEvent::LayoutHint
 #endif
                  || cur.event->type() == QEvent::UpdateRequest) {
@@ -1203,7 +1203,7 @@ void QApplication::setStyle(QStyle *style)
                         QApplicationPrivate::app_style->polish(w);                // repolish
                     QEvent e(QEvent::StyleChange);
                     QApplication::sendEvent(w, &e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                     w->styleChange(*old);
 #endif
                     if (w->isVisible())
@@ -2525,7 +2525,7 @@ Qt::LayoutDirection QApplication::layoutDirection()
   alignment flags are left untouched.
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
 {
     align &= Qt::AlignHorizontal_Mask;
@@ -2607,10 +2607,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                .arg(QString::number((qlonglong)(receiver->thread())), 16)
                .toLatin1().constData());
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
         d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
     // capture the current mouse/keyboard state
     if(e->spontaneous()) {
@@ -2669,7 +2669,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     if (!receiver->isWidgetType()) {
         res = notify_helper(receiver, e);
     } else switch (e->type()) {
-#if defined QT_COMPAT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
     case QEvent::Accel:
         {
             if (d->use_compat()) {
@@ -2686,14 +2686,14 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
             break;
         }
-#endif //QT_COMPAT && !QT_NO_ACCEL
+#endif //QT3_SUPPORT && !QT_NO_ACCEL
     case QEvent::ShortcutOverride:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
             QWidget* w = static_cast<QWidget*>(receiver);
             QKeyEvent* key = static_cast<QKeyEvent*>(e);
-#if defined QT_COMPAT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
             if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
                 break;
 #endif

@@ -183,13 +183,13 @@ public:
     void setText(const char* key, const char* lang, const QString&);
 #endif
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
-    inline QT_COMPAT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
+    inline QT3_SUPPORT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scale(QSize(w, h), mode, Qt::SmoothTransformation); }
-    QImage QT_COMPAT smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
+    QImage QT3_SUPPORT smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scale(s, mode, Qt::SmoothTransformation); }
-    inline QT_COMPAT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
+    inline QT3_SUPPORT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
 #endif
 
 private:

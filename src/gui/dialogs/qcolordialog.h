@@ -34,7 +34,7 @@ public:
     static void setCustomColor(int, QRgb);
     static void setStandardColor(int, QRgb);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     static QColor getColor(const QColor& init, QWidget* parent, const char* name)
         { Q_UNUSED(name); return getColor(init, parent); }
     static QRgb getRgba(QRgb rgba, bool* ok, QWidget* parent, const char* name)

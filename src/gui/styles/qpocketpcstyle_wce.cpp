@@ -809,7 +809,7 @@ int QPocketPCStyle::styleHint(StyleHint stylehint,
         ret = QEvent::MouseButtonPress;
         break;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     // For special widget cases, use the windows behavior
     case SH_GUIStyle:
         ret = Qt::WindowsStyle;
@@ -2543,7 +2543,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             break;
         }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CE_Q3MenuBarItem:
         {
             bool active = flags & State_Active;

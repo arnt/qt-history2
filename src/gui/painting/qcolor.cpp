@@ -1658,7 +1658,7 @@ void QColor::invalidate()
     ct.argb.pad = 0;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*!
     Returns the pixel value.
@@ -1679,7 +1679,7 @@ uint QColor::pixel(int screen) const
     return cmap.pixel(*this);
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 /*****************************************************************************
   QColor stream functions

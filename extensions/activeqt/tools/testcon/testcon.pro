@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 CONFIG	+= uic3 qaxserver qaxserver_no_postlink qaxcontainer
-QT += compat
+QT += qt3support
 
 # ui_qaxselect.h
 INCLUDEPATH += ../../container/debug \

@@ -304,79 +304,79 @@ public:
     static QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
     static void restoreRedirected(const QPaintDevice *device);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
-    inline QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
-    inline QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
+    inline QT3_SUPPORT void setBackgroundColor(const QColor &color) { setBackground(color); }
+    inline QT3_SUPPORT const QColor &backgroundColor() const { return background().color(); }
 
-    inline QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
+    inline QT3_SUPPORT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
         { drawText(x, y, s.mid(pos, len), dir); }
-    inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
+    inline QT3_SUPPORT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
         { drawText(p, s.mid(pos, len), dir); }
-    inline QT_COMPAT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
+    inline QT3_SUPPORT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
         { drawText(x, y, s.left(len), dir); }
-    inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
+    inline QT3_SUPPORT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
         { drawText(p, s.left(len), dir); }
-    inline QT_COMPAT void drawText(const QRect &r, int flags, const QString &str, int len, QRect *br=0)
+    inline QT3_SUPPORT void drawText(const QRect &r, int flags, const QString &str, int len, QRect *br=0)
         { drawText(r, flags, str.left(len), br); }
-    inline QT_COMPAT void drawText(int x, int y, int w, int h, int flags, const QString &text, int len, QRect *br=0)
+    inline QT3_SUPPORT void drawText(int x, int y, int w, int h, int flags, const QString &text, int len, QRect *br=0)
         { drawText(QRect(x, y, w, h), flags, text.left(len), br); }
-    inline QT_COMPAT QRect boundingRect(const QRect &rect, int flags, const QString &text, int len)
+    inline QT3_SUPPORT QRect boundingRect(const QRect &rect, int flags, const QString &text, int len)
         { return boundingRect(rect, flags, text.left(len)); }
-    inline QT_COMPAT QRect boundingRect(int x, int y, int w, int h, int flags, const QString &text, int len)
+    inline QT3_SUPPORT QRect boundingRect(int x, int y, int w, int h, int flags, const QString &text, int len)
         { return boundingRect(QRect(x, y, w, h), flags, text.left(len)); }
 
-    inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
+    inline QT3_SUPPORT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
-    QT_COMPAT void drawPoints(const QPolygon &pa, int index, int npoints = -1)
+    QT3_SUPPORT void drawPoints(const QPolygon &pa, int index, int npoints = -1)
     { drawPoints(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
 
-    QT_COMPAT void drawCubicBezier(const QPolygon &pa, int index = 0);
+    QT3_SUPPORT void drawCubicBezier(const QPolygon &pa, int index = 0);
 
-    QT_COMPAT void drawLineSegments(const QPolygon &points, int index = 0, int nlines = -1);
+    QT3_SUPPORT void drawLineSegments(const QPolygon &points, int index = 0, int nlines = -1);
 
-    inline QT_COMPAT void drawPolyline(const QPolygon &pa, int index, int npoints = -1)
+    inline QT3_SUPPORT void drawPolyline(const QPolygon &pa, int index, int npoints = -1)
     { drawPolyline(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
 
-    inline QT_COMPAT void drawPolygon(const QPolygon &pa, bool winding, int index = 0, int npoints = -1)
+    inline QT3_SUPPORT void drawPolygon(const QPolygon &pa, bool winding, int index = 0, int npoints = -1)
     { drawPolygon(pa.data() + index, npoints == -1 ? pa.size() - index : npoints,
                   winding ? Qt::WindingFill : Qt::OddEvenFill); }
 
-    inline QT_COMPAT void drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
+    inline QT3_SUPPORT void drawPolygon(const QPolygonF &polygon, bool winding, int index = 0,
                                       int npoints = -1)
     { drawPolygon(polygon.data() + index, npoints == -1 ? polygon.size() - index : npoints,
                   winding ? Qt::WindingFill : Qt::OddEvenFill); }
 
-    inline QT_COMPAT void drawConvexPolygon(const QPolygonF &polygon, int index, int npoints = -1)
+    inline QT3_SUPPORT void drawConvexPolygon(const QPolygonF &polygon, int index, int npoints = -1)
     { drawConvexPolygon(polygon.data() + index, npoints == -1 ? polygon.size() - index : npoints); }
-    inline QT_COMPAT void drawConvexPolygon(const QPolygon &pa, int index, int npoints = -1)
+    inline QT3_SUPPORT void drawConvexPolygon(const QPolygon &pa, int index, int npoints = -1)
     { drawConvexPolygon(pa.data() + index, npoints == -1 ? pa.size() - index : npoints); }
 
-    static inline QT_COMPAT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
+    static inline QT3_SUPPORT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
     { setRedirected(pdev, replacement); }
-    static inline QT_COMPAT QPaintDevice *redirect(QPaintDevice *pdev)
+    static inline QT3_SUPPORT QPaintDevice *redirect(QPaintDevice *pdev)
     { return const_cast<QPaintDevice*>(redirected(pdev)); }
 
-    inline QT_COMPAT void setWorldMatrix(const QMatrix &wm, bool combine=false) { setMatrix(wm, combine); }
-    inline QT_COMPAT const QMatrix &worldMatrix() const { return matrix(); }
-    inline QT_COMPAT void setWorldXForm(bool enabled) { setMatrixEnabled(enabled); }
-    inline QT_COMPAT bool hasWorldXForm() const { return matrixEnabled(); }
-    inline QT_COMPAT void resetXForm() { resetMatrix(); }
+    inline QT3_SUPPORT void setWorldMatrix(const QMatrix &wm, bool combine=false) { setMatrix(wm, combine); }
+    inline QT3_SUPPORT const QMatrix &worldMatrix() const { return matrix(); }
+    inline QT3_SUPPORT void setWorldXForm(bool enabled) { setMatrixEnabled(enabled); }
+    inline QT3_SUPPORT bool hasWorldXForm() const { return matrixEnabled(); }
+    inline QT3_SUPPORT void resetXForm() { resetMatrix(); }
 
-    inline QT_COMPAT void setViewXForm(bool enabled) { setViewTransformEnabled(enabled); }
-    inline QT_COMPAT bool hasViewXForm() const { return viewTransformEnabled(); }
+    inline QT3_SUPPORT void setViewXForm(bool enabled) { setViewTransformEnabled(enabled); }
+    inline QT3_SUPPORT bool hasViewXForm() const { return viewTransformEnabled(); }
 
-    QT_COMPAT void map(int x, int y, int *rx, int *ry) const;
-    QT_COMPAT QPoint xForm(const QPoint &) const; // map virtual -> deviceb
-    QT_COMPAT QRect xForm(const QRect &) const;
-    QT_COMPAT QPolygon xForm(const QPolygon &) const;
-    QT_COMPAT QPolygon xForm(const QPolygon &, int index, int npoints) const;
-    QT_COMPAT QPoint xFormDev(const QPoint &) const; // map device -> virtual
-    QT_COMPAT QRect xFormDev(const QRect &) const;
-    QT_COMPAT QPolygon xFormDev(const QPolygon &) const;
-    QT_COMPAT QPolygon xFormDev(const QPolygon &, int index, int npoints) const;
-    QT_COMPAT qreal translationX() const;
-    QT_COMPAT qreal translationY() const;
+    QT3_SUPPORT void map(int x, int y, int *rx, int *ry) const;
+    QT3_SUPPORT QPoint xForm(const QPoint &) const; // map virtual -> deviceb
+    QT3_SUPPORT QRect xForm(const QRect &) const;
+    QT3_SUPPORT QPolygon xForm(const QPolygon &) const;
+    QT3_SUPPORT QPolygon xForm(const QPolygon &, int index, int npoints) const;
+    QT3_SUPPORT QPoint xFormDev(const QPoint &) const; // map device -> virtual
+    QT3_SUPPORT QRect xFormDev(const QRect &) const;
+    QT3_SUPPORT QPolygon xFormDev(const QPolygon &) const;
+    QT3_SUPPORT QPolygon xFormDev(const QPolygon &, int index, int npoints) const;
+    QT3_SUPPORT qreal translationX() const;
+    QT3_SUPPORT qreal translationY() const;
 #endif
 
 private:

@@ -12,7 +12,7 @@
 ****************************************************************************/
 #include "qmenudata.h"
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include <qaction.h>
 #include <qsignal.h>
 #include <private/qaction_p.h>

@@ -36,11 +36,11 @@ public:
     bool isDescending(int i) const;
     void setDescending(int i, bool desc);
 
-#ifdef QT_COMPAT
-    QT_COMPAT QString toString(const QString &prefix = QString(),
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT QString toString(const QString &prefix = QString(),
                                const QString &sep = QLatin1String(","),
                                bool verbose = true) const;
-    QT_COMPAT QStringList toStringList(const QString& prefix = QString(),
+    QT3_SUPPORT QStringList toStringList(const QString& prefix = QString(),
                                        bool verbose = true) const;
 #endif
 

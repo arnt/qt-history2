@@ -34,7 +34,7 @@ public:
 
     enum Shape { RoundedNorth, RoundedSouth, RoundedWest, RoundedEast,
                  TriangularNorth, TriangularSouth, TriangularWest, TriangularEast
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 , RoundedAbove = RoundedNorth, RoundedBelow = RoundedSouth,
                 TriangularAbove = TriangularNorth, TriangularBelow = TriangularSouth
 #endif
@@ -93,7 +93,7 @@ protected:
     void keyPressEvent(QKeyEvent *);
     void changeEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public slots:
     QT_MOC_COMPAT void setCurrentTab(int index) { setCurrentIndex(index); }
 signals:

@@ -158,18 +158,18 @@ public:
     inline bool empty() const { return isEmpty(); }
     typedef int size_type;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     // compatibility
-    inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
-    inline QT_COMPAT int findIndex(const T& t) const
+    inline QT3_SUPPORT iterator remove(iterator pos) { return erase(pos); }
+    inline QT3_SUPPORT int findIndex(const T& t) const
     { int i=0; for (const_iterator it = begin(); it != end(); ++it, ++i) if(*it == t) return i; return -1;}
-    inline QT_COMPAT iterator find(iterator from, const T& t)
+    inline QT3_SUPPORT iterator find(iterator from, const T& t)
     { while (from != end() && !(*from == t)) ++from; return from; }
-    inline QT_COMPAT iterator find(const T& t)
+    inline QT3_SUPPORT iterator find(const T& t)
     { return find(begin(), t); }
-    inline QT_COMPAT const_iterator find(const_iterator from, const T& t) const
+    inline QT3_SUPPORT const_iterator find(const_iterator from, const T& t) const
     { while (from != end() && !(*from == t)) ++from; return from; }
-    inline QT_COMPAT const_iterator find(const T& t) const
+    inline QT3_SUPPORT const_iterator find(const T& t) const
     { return find(begin(), t); }
 #endif
 

@@ -30,7 +30,7 @@
 #include <abstractformwindow.h>
 #include <abstractwidgetbox.h>
 
-#include <Qt3Compat/Q3Workspace>
+#include <Qt3Support/Q3Workspace>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QActionGroup>

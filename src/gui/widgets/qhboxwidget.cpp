@@ -44,7 +44,7 @@
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs an hbox widget with parent \a parent, called \a name.
     The parent, name and widget flags, \a f, are passed to the QFrame
@@ -143,7 +143,7 @@ void QHBoxWidget::setSpacing(int space)
 
 QSize QHBoxWidget::sizeHint() const
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QWidget *mThis = (QWidget*)this;
     QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
 #endif
@@ -158,7 +158,7 @@ QSize QHBoxWidget::sizeHint() const
 */
 bool QHBoxWidget::setStretchFactor(QWidget* w, int stretch)
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QWidget *mThis = (QWidget*)this;
     QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
 #endif

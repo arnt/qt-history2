@@ -72,7 +72,7 @@ public:
         InsertAtBottom,
         InsertAfterCurrent,
         InsertBeforeCurrent
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ,
         NoInsertion = NoInsert,
         AtTop = InsertAtTop,
@@ -82,7 +82,7 @@ public:
         BeforeCurrent = InsertBeforeCurrent
 #endif
     };
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     typedef InsertPolicy Policy;
 #endif
 
@@ -169,14 +169,14 @@ protected:
     void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
-    inline QT_COMPAT InsertPolicy insertionPolicy() const { return insertPolicy(); }
-    inline QT_COMPAT void setInsertionPolicy(InsertPolicy policy) { setInsertPolicy(policy); }
-    inline QT_COMPAT bool editable() const { return isEditable(); }
-    inline QT_COMPAT void setCurrentText(const QString& text) {
+    QT3_SUPPORT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
+    inline QT3_SUPPORT InsertPolicy insertionPolicy() const { return insertPolicy(); }
+    inline QT3_SUPPORT void setInsertionPolicy(InsertPolicy policy) { setInsertPolicy(policy); }
+    inline QT3_SUPPORT bool editable() const { return isEditable(); }
+    inline QT3_SUPPORT void setCurrentText(const QString& text) {
         int i = findText(text);
         if (i != -1)
             setCurrentItem(i);
@@ -185,24 +185,24 @@ public:
         else
             setItemText(currentItem(), text);
     }
-    inline QT_COMPAT QString text(int index) const { return itemText(index); }
-    inline QT_COMPAT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(QSize(22,22)); }
-    inline QT_COMPAT void insertStringList(const QStringList &list, int index = -1)
+    inline QT3_SUPPORT QString text(int index) const { return itemText(index); }
+    inline QT3_SUPPORT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(QSize(22,22)); }
+    inline QT3_SUPPORT void insertStringList(const QStringList &list, int index = -1)
         { insertItems(index, list); }
-    inline QT_COMPAT void insertItem(const QString &text, int index = -1)
+    inline QT3_SUPPORT void insertItem(const QString &text, int index = -1)
         { insertItem(index, text); }
-    inline QT_COMPAT void insertItem(const QPixmap &pix, int index = -1)
+    inline QT3_SUPPORT void insertItem(const QPixmap &pix, int index = -1)
         { insertItem(index, QIcon(pix), QString()); }
-    inline QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int index = -1)
+    inline QT3_SUPPORT void insertItem(const QPixmap &pix, const QString &text, int index = -1)
         { insertItem(index, QIcon(pix), text); }
-    inline QT_COMPAT void changeItem(const QString &text, int index)
+    inline QT3_SUPPORT void changeItem(const QString &text, int index)
         { setItemText(index, text); }
-    inline QT_COMPAT void changeItem(const QPixmap &pix, int index)
+    inline QT3_SUPPORT void changeItem(const QPixmap &pix, int index)
         { setItemIcon(index, QIcon(pix)); }
-    inline QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int index)
+    inline QT3_SUPPORT void changeItem(const QPixmap &pix, const QString &text, int index)
         { setItemIcon(index, QIcon(pix)); setItemText(index, text); }
-    inline QT_COMPAT void clearValidator() { setValidator(0); }
-    inline QT_COMPAT void clearEdit() { clearEditText(); }
+    inline QT3_SUPPORT void clearValidator() { setValidator(0); }
+    inline QT3_SUPPORT void clearEdit() { clearEditText(); }
 #endif
 
 protected:

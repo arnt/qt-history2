@@ -186,7 +186,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs an empty label.
 
@@ -250,7 +250,7 @@ QLabel::QLabel(QWidget *buddy,  const QString &text,
     setBuddy(buddy);
     setText(text);
 }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 /*!
     Destroys the label.
@@ -458,7 +458,7 @@ void QLabel::setAlignment(Qt::Alignment alignment)
     d->updateLabel();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 void QLabel::setAlignment(int alignment)
 {
     d->align = alignment & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask|Qt::TextWordWrap);
@@ -1149,7 +1149,7 @@ void QLabel::setScaledContents(bool enable)
     \fn void QLabel::setAlignment(Qt::AlignmentFlag flag)
 
     Without this function, a call to e.g. setAlignment(Qt::AlignTop)
-    results in the QT_COMPAT function setAlignment(int) being called,
+    results in the QT3_SUPPORT function setAlignment(int) being called,
     rather than setAlignment(Qt::Alignment).
 */
 

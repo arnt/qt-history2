@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT      += compat
+QT      += qt3support
 
 CONFIG += qaxcontainer
 

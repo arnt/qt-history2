@@ -56,8 +56,8 @@ class QCache
 public:
     inline explicit QCache(int maxCost = 100)
         : f(0), l(0), mx(maxCost), total(0) {}
-#ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QCache(int maxCost, int /* dummy */)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT_CONSTRUCTOR QCache(int maxCost, int /* dummy */)
         : f(0), l(0), mx(maxCost), total(0) {}
 #endif
     inline ~QCache() { clear(); }
@@ -84,8 +84,8 @@ public:
 private:
     void trim(int m);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT T *find(const Key &key) const { return object(key); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT T *find(const Key &key) const { return object(key); }
 #endif
 
 };

@@ -135,7 +135,7 @@ QToolButton::QToolButton(QWidget * parent)
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Constructs an empty tool button called \a name, with parent \a
     parent.
@@ -555,7 +555,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*!
     Use icon() instead.
@@ -774,7 +774,7 @@ void QToolButtonPrivate::popupTimerDone()
         q->repaint();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn void QToolButton::setPopupDelay(int delay)
 

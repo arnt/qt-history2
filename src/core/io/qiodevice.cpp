@@ -1094,7 +1094,7 @@ QString QIODevice::errorString() const
     Use write() instead.
 */
 
-#if defined QT_COMPAT
+#if defined QT3_SUPPORT
 QIODevice::Status QIODevice::status() const
 {
 #if !defined(QT_NO_QOBJECT)

@@ -16,7 +16,7 @@
 
 #ifndef QT_H
 #include "QtCore/qobject.h"
-#include "Qt3Compat/q3networkprotocol.h"
+#include "Qt3Support/q3networkprotocol.h"
 #include "QtCore/qmap.h"
 #include "QtCore/qstringlist.h"
 #endif // QT_H

@@ -549,7 +549,7 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
     }
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -572,7 +572,7 @@ QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     d->init();
     setTitle(title);
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #include "moc_qgroupbox.cpp"
 

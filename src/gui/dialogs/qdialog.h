@@ -34,8 +34,8 @@ class Q_GUI_EXPORT QDialog : public QWidget
 
 public:
     explicit QDialog(QWidget *parent = 0, Qt::WFlags f = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QDialog(QWidget *parent, const char *name, bool modal = false,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QDialog(QWidget *parent, const char *name, bool modal = false,
                                   Qt::WFlags f = 0);
 #endif
     ~QDialog();

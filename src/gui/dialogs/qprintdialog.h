@@ -28,7 +28,7 @@ public:
     explicit QPrintDialog(QPrinter *printer, QWidget *parent = 0);
     ~QPrintDialog();
 
-#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC) && defined (QT_COMPAT)
+#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC) && defined (QT3_SUPPORT)
     void setPrinter(QPrinter *, bool = false);
     QPrinter *printer() const;
     void addButton(QPushButton *button);

@@ -114,19 +114,19 @@ protected:
     void timerEvent(QTimerEvent *);
     void wheelEvent(QWheelEvent *e);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    inline QT_COMPAT int minValue() const { return minimum(); }
-    inline QT_COMPAT int maxValue() const { return maximum(); }
-    inline QT_COMPAT int lineStep() const { return singleStep(); }
-    inline QT_COMPAT void setMinValue(int v) { setMinimum(v); }
-    inline QT_COMPAT void setMaxValue(int v) { setMaximum(v); }
-    inline QT_COMPAT void setLineStep(int v) { setSingleStep(v); }
-    inline QT_COMPAT void setSteps(int single, int page) { setSingleStep(single); setPageStep(page); }
-    inline QT_COMPAT void addPage() { triggerAction(SliderPageStepAdd); }
-    inline QT_COMPAT void subtractPage() { triggerAction(SliderPageStepSub); }
-    inline QT_COMPAT void addLine() { triggerAction(SliderSingleStepAdd); }
-    inline QT_COMPAT void subtractLine() { triggerAction(SliderSingleStepSub); }
+    inline QT3_SUPPORT int minValue() const { return minimum(); }
+    inline QT3_SUPPORT int maxValue() const { return maximum(); }
+    inline QT3_SUPPORT int lineStep() const { return singleStep(); }
+    inline QT3_SUPPORT void setMinValue(int v) { setMinimum(v); }
+    inline QT3_SUPPORT void setMaxValue(int v) { setMaximum(v); }
+    inline QT3_SUPPORT void setLineStep(int v) { setSingleStep(v); }
+    inline QT3_SUPPORT void setSteps(int single, int page) { setSingleStep(single); setPageStep(page); }
+    inline QT3_SUPPORT void addPage() { triggerAction(SliderPageStepAdd); }
+    inline QT3_SUPPORT void subtractPage() { triggerAction(SliderPageStepSub); }
+    inline QT3_SUPPORT void addLine() { triggerAction(SliderSingleStepAdd); }
+    inline QT3_SUPPORT void subtractLine() { triggerAction(SliderSingleStepSub); }
 #endif
 
 protected:

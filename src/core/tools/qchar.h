@@ -50,7 +50,7 @@ public:
         ObjectReplacementCharacter = 0xfffc,
         ByteOrderMark = 0xfeff,
         ByteOrderSwapped = 0xfffe,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         null = Null,
         replacement = ReplacementCharacter,
         byteOrderMark = ByteOrderMark,
@@ -116,7 +116,7 @@ public:
     enum Decomposition
     {
         NoDecomposition,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         Single = NoDecomposition,
 #endif
         Canonical, Font, NoBreak, Initial, Medial,
@@ -174,8 +174,8 @@ public:
     Direction direction() const;
     Joining joining() const;
     bool hasMirrored() const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool mirrored() const { return hasMirrored(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool mirrored() const { return hasMirrored(); }
 #endif
     QChar mirroredChar() const;
     QString decomposition() const;
@@ -208,14 +208,14 @@ public:
     inline void setCell(uchar cell) { ucs = (ucs & 0xff00) + cell; }
     inline void setRow(uchar row) { ucs = (ushort(row)<<8) + (ucs&0xff); }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QChar lower() const { return toLower(); }
-    inline QT_COMPAT QChar upper() const { return toUpper(); }
-    static inline QT_COMPAT bool networkOrdered() {
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QChar lower() const { return toLower(); }
+    inline QT3_SUPPORT QChar upper() const { return toUpper(); }
+    static inline QT3_SUPPORT bool networkOrdered() {
         return QSysInfo::ByteOrder == QSysInfo::BigEndian;
     }
-    inline QT_COMPAT const char latin1() const { return toLatin1(); }
-    inline QT_COMPAT const char ascii() const { return toAscii(); }
+    inline QT3_SUPPORT const char latin1() const { return toLatin1(); }
+    inline QT3_SUPPORT const char ascii() const { return toAscii(); }
 #endif
 
 private:

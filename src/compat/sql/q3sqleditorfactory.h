@@ -14,7 +14,7 @@
 #ifndef Q3SQLEDITORFACTORY_H
 #define Q3SQLEDITORFACTORY_H
 
-#include "Qt3Compat/q3editorfactory.h"
+#include "Qt3Support/q3editorfactory.h"
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 

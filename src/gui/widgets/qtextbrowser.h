@@ -63,9 +63,9 @@ protected:
     virtual bool focusNextPrevChild(bool next);
     virtual void paintEvent(QPaintEvent *e);
 
-#if defined(QT_COMPAT)
+#if defined(QT3_SUPPORT)
 public:
-    QT_COMPAT_CONSTRUCTOR QTextBrowser(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QTextBrowser(QWidget *parent, const char *name);
 #endif
 
 private:

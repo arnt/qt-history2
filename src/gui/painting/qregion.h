@@ -35,16 +35,16 @@ public:
     QRegion(int x, int y, int w, int h, RegionType t = Rectangle);
     QRegion(const QRect &r, RegionType t = Rectangle);
     QRegion(const QPolygon &pa, Qt::FillRule fillRule = Qt::OddEvenFill);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QRegion(const QPolygon &pa, bool winding);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QRegion(const QPolygon &pa, bool winding);
 #endif
     QRegion(const QRegion &region);
     QRegion(const QBitmap &bitmap);
     ~QRegion();
     QRegion &operator=(const QRegion &);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool isNull() const { return isEmpty(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool isNull() const { return isEmpty(); }
 #endif
     bool isEmpty() const;
 

@@ -14,7 +14,7 @@
 #ifndef Q3PTRQUEUE_H
 #define Q3PTRQUEUE_H
 
-#include "Qt3Compat/q3glist.h"
+#include "Qt3Support/q3glist.h"
 
 template<class type>
 class Q3PtrQueue : protected Q3GList

@@ -378,12 +378,12 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ct = QStyle::CT_ProgressBar;
         else if (qt_cast<const QLineEdit *>(widg))
             ct = QStyle::CT_LineEdit;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         else if (widg->inherits("Q3Header"))
             ct = QStyle::CT_Header;
 #endif
         else if (qt_cast<const QMenuBar *>(widg)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 || widg->inherits("Q3MenuBar")
 #endif
                )
@@ -543,7 +543,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         }
     } else if (ct == QStyle::CT_Header) {
         if (sz == QAquaSizeLarge && (widg && (qt_cast<const QTreeView *>(widg)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                         || widg->parentWidget()->inherits("Q3ListView")
 #endif
                         )))
@@ -888,7 +888,7 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
              || (le && qt_cast<const QAbstractSpinBox*>(le->parentWidget()))
              || (le && !qt_cast<const QComboBox *>(le->parentWidget()))
              || (qt_cast<const QTextEdit *>(w) && !static_cast<const QTextEdit *>(w)->isReadOnly())
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
              || w->inherits("QListBox") || w->inherits("QListView")
 #endif
            );
@@ -1080,7 +1080,7 @@ bool QMacStylePrivate::addWidget(QWidget *w)
         return true;
     } else {
         bool isProgressBar = (qt_cast<QProgressBar *>(w)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 || w->inherits("Q3ProgressBar")
 #endif
             );
@@ -1099,7 +1099,7 @@ void QMacStylePrivate::removeWidget(QWidget *w)
     if (btn && btn == defaultButton) {
         stopAnimate(AquaPushButton, btn);
     } else if (qt_cast<QProgressBar *>(w)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             || w->inherits("Q3ProgressBar")
 #endif
             ) {
@@ -1162,7 +1162,7 @@ void QMacStylePrivate::timerEvent(QTimerEvent *)
                             pb->update();
                     }
                 }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 else {
                     // Watch me now...
                     QVariant progress = maybeProgress->property("progress");
@@ -1587,7 +1587,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             if (w && (qt_cast<QTreeView *>(w->parentWidget())
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                         || w->parentWidget()->inherits("Q3ListView")
 #endif
                 ))
@@ -2116,7 +2116,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             QStyle::State flags = header->state;
             QRect ir = header->rect;
             if (w && (qt_cast<QTreeView *>(w->parentWidget())
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                         || w->parentWidget()->inherits("Q3ListView")
 #endif
                 )) {
@@ -3146,7 +3146,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     case QStyle::PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
             if (w && (qt_cast<QTreeView *>(w->parentWidget())
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                         || w->parentWidget()->inherits("Q3ListView")
 #endif
                 ))
@@ -3374,7 +3374,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 frame = 0;
             }
             if (darken && (btn->state & QStyle::State_Active)) {
-                QTextOStream os(&pmkey);
+                QTextStream os(&pmkey, QIODevice::WriteOnly);
                 os << "$qt_mac_pshbtn_" << opt->rect.width() << "x" << opt->rect.height() << "_"
                    << opt->state << "_" << frame;
                 tds = kThemeStatePressed;
@@ -3727,7 +3727,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             bool scaleHeader = false;
             SInt32 headerHeight = 0;
             if (widget && (qt_cast<QTreeView *>(widget->parentWidget())
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                         || widget->parentWidget()->inherits("Q3ListView")
 #endif
                 )) {
@@ -4167,7 +4167,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             }
             if (!tbar->text.isEmpty()) {
                 QString pmkey;
-                QTextOStream os(&pmkey);
+                QTextStream os(&pmkey, QIODevice::WriteOnly);
                 os << "$qt_mac_style_titlebar_" << "_" << newr.width()
                    << "x" << newr.height() << "_" << twa << "_" << tds << "_" << tbar->text;
                 if (QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
@@ -4745,7 +4745,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
                 || (qt_cast<const QMainWindow*>(widget->parentWidget())
                    && static_cast<QMainWindow *>(widget->parentWidget())->centralWidget() == widget))
                 && (qt_cast<const QViewport *>(widget)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                     || widget->inherits("QScrollView")
 #endif
                     || widget->inherits("QWorkspaceChild")))
@@ -4942,7 +4942,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ScrollView_FrameOnlyAroundContents:
         if (w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
             && (qt_cast<const QViewport *>(w)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 || w->inherits("QScrollView")
 #endif
                 || w->inherits("QWorkspaceChild")))
@@ -5230,7 +5230,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             if (p->font().bold()) {
                 // If it's a table, use the bright text instead.
                 if (!(w && (qt_cast<QTreeView *>(w->parentWidget())
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                             || w->parentWidget()->inherits("Q3ListView")
 #endif
                           )))

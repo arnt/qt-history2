@@ -33,7 +33,7 @@ public:
         ExcludeSocketNotifiers = 0x02,
         WaitForMoreEvents = 0x04
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ,
         ExcludeUserInput = ExcludeUserInputEvents,
         WaitForMore = WaitForMoreEvents

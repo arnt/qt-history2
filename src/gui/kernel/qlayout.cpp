@@ -923,7 +923,7 @@ QGridLayout::QGridLayout()
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Constructs a new QGridLayout with \a nRows rows, \a nCols columns
@@ -1161,7 +1161,7 @@ QRect QGridLayout::cellGeometry(int row, int column) const
 {
     return d->cellGeometry(row, column);
 }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Expands this grid so that it will have \a nRows rows and \a nCols
@@ -1803,7 +1803,7 @@ QBoxLayout::QBoxLayout(Direction dir)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Constructs a new QBoxLayout with direction \a dir and main widget \a
@@ -1862,7 +1862,7 @@ QBoxLayout::QBoxLayout(Direction dir, int spacing, const char *name)
     setObjectName(name);
     setSpacing(spacing);
 }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 
 /*!
@@ -2495,7 +2495,7 @@ QHBoxLayout::QHBoxLayout()
 
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Constructs a new top-level horizontal box called \a name, with
@@ -2611,7 +2611,7 @@ QVBoxLayout::QVBoxLayout()
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Constructs a new top-level vertical box called \a name, with

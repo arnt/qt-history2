@@ -15,7 +15,7 @@
 #define Q3LOCALFS_H
 
 #ifndef QT_H
-#include "Qt3Compat/q3networkprotocol.h"
+#include "Qt3Support/q3networkprotocol.h"
 #include "QtCore/qdir.h"
 #endif // QT_H
 

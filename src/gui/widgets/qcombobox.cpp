@@ -375,7 +375,7 @@ QComboBox::QComboBox(QWidget *parent) :
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -399,7 +399,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     setObjectName(name);
 }
 
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 /*!
     \class QComboBox qcombobox.h

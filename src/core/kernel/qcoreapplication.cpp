@@ -152,7 +152,7 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
         const QPostEvent &pe = data->postEventList.at(i);
         if (pe.event) {
             --pe.receiver->d->postedEvents;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             if (pe.event->type() == QEvent::ChildInserted)
                 --pe.receiver->d->postedChildInsertedEvents;
 #endif
@@ -187,7 +187,7 @@ void QCoreApplicationPrivate::moveToMainThread(QObject *o)
     o->d->thread = 0;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver, QObject *child)
 {
     QThreadData *data = QThreadData::current();
@@ -438,10 +438,10 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
                .arg(QString::number((ulong) receiver->thread(), 16))
                .toLocal8Bit().data());
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
   if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
       d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
     return receiver->isWidgetType() ? false : d->notify_helper(receiver, e);
 }
@@ -675,7 +675,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
 
         event->posted = true;
         ++receiver->d->postedEvents;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         if (event->type() == QEvent::ChildInserted)
             ++receiver->d->postedChildInsertedEvents;
 #endif
@@ -729,7 +729,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
                    "Posted events can only be send from threads started with QThread");
     }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
     if (receiver && event_type == QEvent::ChildInserted
         && !receiver->d->postedChildInsertedEvents) {
@@ -781,7 +781,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
             --r->d->postedEvents;
             Q_ASSERT(r->d->postedEvents >= 0);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             if (e->type() == QEvent::ChildInserted)
                 --r->d->postedChildInsertedEvents;
             Q_ASSERT(r->d->postedChildInsertedEvents >= 0);
@@ -859,7 +859,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
         if (pe.receiver == receiver) {
             if (pe.event) {
                 --receiver->d->postedEvents;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 if (pe.event->type() == QEvent::ChildInserted)
                     --receiver->d->postedChildInsertedEvents;
 #endif
@@ -874,7 +874,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     }
 
     Q_ASSERT(!receiver->d->postedEvents);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     Q_ASSERT(!receiver->d->postedChildInsertedEvents);
 #endif
 
@@ -924,7 +924,7 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
                      pe.receiver ? pe.receiver->objectName().toLocal8Bit().data() : "object");
 #endif
             --pe.receiver->d->postedEvents;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             if (pe.event->type() == QEvent::ChildInserted)
                 --pe.receiver->d->postedChildInsertedEvents;
 #endif
@@ -1463,7 +1463,7 @@ bool QCoreApplication::filterEvent(void *message, long *result)
 #endif
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \fn void QCoreApplication::lock()
 
     In Qt 3, this function locked the Qt library mutex, allowing

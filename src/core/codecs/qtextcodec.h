@@ -88,14 +88,14 @@ protected:
     virtual ~QTextCodec();
 
 public:
-#ifdef QT_COMPAT
-    static QT_COMPAT QTextCodec* codecForContent(const char*, int) { return 0; }
-    static QT_COMPAT const char* locale();
-    static QT_COMPAT QTextCodec* codecForName(const char* hint, int) { return codecForName(QByteArray(hint)); }
-    QT_COMPAT QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QT_COMPAT QString toUnicode(const QByteArray&, int len) const;
-    QT_COMPAT QByteArray mimeName() const { return name(); }
-    static QT_COMPAT QTextCodec *codecForIndex(int i) { return codecForName(availableCodecs().at(i)); }
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QTextCodec* codecForContent(const char*, int) { return 0; }
+    static QT3_SUPPORT const char* locale();
+    static QT3_SUPPORT QTextCodec* codecForName(const char* hint, int) { return codecForName(QByteArray(hint)); }
+    QT3_SUPPORT QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    QT3_SUPPORT QString toUnicode(const QByteArray&, int len) const;
+    QT3_SUPPORT QByteArray mimeName() const { return name(); }
+    static QT3_SUPPORT QTextCodec *codecForIndex(int i) { return codecForName(availableCodecs().at(i)); }
 #endif
 
 private:
@@ -115,7 +115,7 @@ public:
     ~QTextEncoder();
     QByteArray fromUnicode(const QString& str);
     QByteArray fromUnicode(const QChar *uc, int len);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QByteArray fromUnicode(const QString& uc, int& lenInOut);
 #endif
 private:

@@ -7,7 +7,7 @@ VERSION  = 1.0.0
 
 QTDIR_build:REQUIRES += "contains(QT_CONFIG, accessibility)"
 
-QT += compat
+QT += qt3support
 
 SOURCES  += main.cpp \
             q3simplewidgets.cpp \

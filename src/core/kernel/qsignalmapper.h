@@ -44,9 +44,9 @@ public slots:
 private slots:
     void removeMapping();
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QSignalMapper(QObject *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QSignalMapper(QObject *parent, const char *name);
 #endif
 };
 #endif // QT_NO_SIGNALMAPPER

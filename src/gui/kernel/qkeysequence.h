@@ -46,7 +46,7 @@ public:
         NoMatch,
         PartialMatch,
         ExactMatch
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , Identical = ExactMatch
 #endif
     };

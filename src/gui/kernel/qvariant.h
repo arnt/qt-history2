@@ -24,7 +24,7 @@ class QPixmap;
 class QBrush;
 class QColor;
 class QPalette;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class QColorGroup;
 #endif
 class QIcon;
@@ -56,9 +56,9 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QVariant(const QColor &color);
 #ifndef QT_NO_PALETTE
     QVariant(const QPalette &palette);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QVariant(const QColorGroup &cg);
-#endif // QT_COMPAT
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QVariant(const QColorGroup &cg);
+#endif // QT3_SUPPORT
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICON
     QVariant(const QIcon &icon);
@@ -89,8 +89,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(quint64 ull);
     inline QVariant(double d);
     inline QVariant(bool b);
-#ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QVariant(bool b, int);
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT_CONSTRUCTOR QVariant(bool b, int);
 #endif
 
     inline QVariant(const char *str);
@@ -121,8 +121,8 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QBrush toBrush() const;
     QColor toColor() const;
     QPalette toPalette() const;
-#ifdef QT_COMPAT
-    QT_COMPAT QColorGroup toColorGroup() const;
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT QColorGroup toColorGroup() const;
 #endif
     QIcon toIcon() const;
     QTextFormat toTextFormat() const;
@@ -139,33 +139,33 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QPen toPen() const;
     QSizePolicy toSizePolicy() const;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QIcon toIconSet() const;
-    inline QT_COMPAT QFont& asFont() { return *reinterpret_cast<QFont *>(castOrDetach(Font)); }
-    inline QT_COMPAT QImage& asImage() { return *reinterpret_cast<QImage *>(castOrDetach(Image)); }
-    inline QT_COMPAT QBrush& asBrush() { return *reinterpret_cast<QBrush *>(castOrDetach(Brush)); }
-    inline QT_COMPAT QColor& asColor() { return *reinterpret_cast<QColor *>(castOrDetach(Color)); }
+    inline QT3_SUPPORT QFont& asFont() { return *reinterpret_cast<QFont *>(castOrDetach(Font)); }
+    inline QT3_SUPPORT QImage& asImage() { return *reinterpret_cast<QImage *>(castOrDetach(Image)); }
+    inline QT3_SUPPORT QBrush& asBrush() { return *reinterpret_cast<QBrush *>(castOrDetach(Brush)); }
+    inline QT3_SUPPORT QColor& asColor() { return *reinterpret_cast<QColor *>(castOrDetach(Color)); }
 #ifndef QT_NO_PALETTE
-    inline QT_COMPAT QPalette& asPalette() { return *reinterpret_cast<QPalette *>(castOrDetach(Palette)); }
-    inline QT_COMPAT QColorGroup& asColorGroup() { return *reinterpret_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
+    inline QT3_SUPPORT QPalette& asPalette() { return *reinterpret_cast<QPalette *>(castOrDetach(Palette)); }
+    inline QT3_SUPPORT QColorGroup& asColorGroup() { return *reinterpret_cast<QColorGroup *>(castOrDetach(ColorGroup)); }
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICON
-    inline QT_COMPAT QIcon &asIconSet() { return *reinterpret_cast<QIcon *>(castOrDetach(IconSet)); }
+    inline QT3_SUPPORT QIcon &asIconSet() { return *reinterpret_cast<QIcon *>(castOrDetach(IconSet)); }
 #endif
-    inline QT_COMPAT QPolygon& asPointArray() { return *reinterpret_cast<QPolygon *>(castOrDetach(Polygon)); }
-    inline QT_COMPAT QBitmap& asBitmap() { return *reinterpret_cast<QBitmap *>(castOrDetach(Bitmap)); }
-    inline QT_COMPAT QRegion& asRegion() { return *reinterpret_cast<QRegion *>(castOrDetach(Region)); }
+    inline QT3_SUPPORT QPolygon& asPointArray() { return *reinterpret_cast<QPolygon *>(castOrDetach(Polygon)); }
+    inline QT3_SUPPORT QBitmap& asBitmap() { return *reinterpret_cast<QBitmap *>(castOrDetach(Bitmap)); }
+    inline QT3_SUPPORT QRegion& asRegion() { return *reinterpret_cast<QRegion *>(castOrDetach(Region)); }
 #ifndef QT_NO_CURSOR
-    inline QT_COMPAT QCursor& asCursor() { return *reinterpret_cast<QCursor *>(castOrDetach(Cursor)); }
+    inline QT3_SUPPORT QCursor& asCursor() { return *reinterpret_cast<QCursor *>(castOrDetach(Cursor)); }
 #endif
 #ifndef QT_NO_ACCEL
-    inline QT_COMPAT QKeySequence& asKeySequence() { return *reinterpret_cast<QKeySequence *>(castOrDetach(KeySequence)); }
+    inline QT3_SUPPORT QKeySequence& asKeySequence() { return *reinterpret_cast<QKeySequence *>(castOrDetach(KeySequence)); }
 #endif
-    inline QT_COMPAT QPen& asPen() { return *reinterpret_cast<QPen *>(castOrDetach(Pen)); }
-    inline QT_COMPAT QSizePolicy& asSizePolicy()
+    inline QT3_SUPPORT QPen& asPen() { return *reinterpret_cast<QPen *>(castOrDetach(Pen)); }
+    inline QT3_SUPPORT QSizePolicy& asSizePolicy()
         { return *reinterpret_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
-    inline QT_COMPAT QPixmap& asPixmap() { return *reinterpret_cast<QPixmap *>(castOrDetach(Pixmap)); }
-#endif //QT_COMPAT
+    inline QT3_SUPPORT QPixmap& asPixmap() { return *reinterpret_cast<QPixmap *>(castOrDetach(Pixmap)); }
+#endif //QT3_SUPPORT
 
 protected:
     void create(int type, const void *copy);
@@ -186,7 +186,7 @@ inline QVariant::QVariant(qint64 ll) : QCoreVariant(ll) {};
 inline QVariant::QVariant(quint64 ull) : QCoreVariant(ull) {};
 inline QVariant::QVariant(bool b) : QCoreVariant(b) {};
 inline QVariant::QVariant(double d) : QCoreVariant(d) {};
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QVariant::QVariant(bool b, int) : QCoreVariant(b) {};
 #endif
 

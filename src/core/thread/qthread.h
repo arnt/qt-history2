@@ -76,10 +76,10 @@ protected:
     static void msleep(unsigned long);
     static void usleep(unsigned long);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    inline QT_COMPAT bool finished() const { return isFinished(); }
-    inline QT_COMPAT bool running() const { return isRunning(); }
+    inline QT3_SUPPORT bool finished() const { return isFinished(); }
+    inline QT3_SUPPORT bool running() const { return isRunning(); }
 #endif
 
 private:

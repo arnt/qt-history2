@@ -81,7 +81,7 @@ class Q_CORE_EXPORT QCoreVariant
         Locale = 39,
         UserType = 63,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , ColorGroup = 12,
         IconSet = Icon,
         CString = ByteArray,
@@ -172,28 +172,28 @@ class Q_CORE_EXPORT QCoreVariant
     QUrl toUrl() const;
     QLocale toLocale() const;
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT int &asInt();
-    inline QT_COMPAT uint &asUInt();
-    inline QT_COMPAT qlonglong &asLongLong();
-    inline QT_COMPAT qulonglong &asULongLong();
-    inline QT_COMPAT bool &asBool();
-    inline QT_COMPAT double &asDouble();
-    inline QT_COMPAT QByteArray &asByteArray();
-    inline QT_COMPAT QBitArray &asBitArray();
-    inline QT_COMPAT QString &asString();
-    inline QT_COMPAT QStringList &asStringList();
-    inline QT_COMPAT QDate &asDate();
-    inline QT_COMPAT QTime &asTime();
-    inline QT_COMPAT QDateTime &asDateTime();
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT int &asInt();
+    inline QT3_SUPPORT uint &asUInt();
+    inline QT3_SUPPORT qlonglong &asLongLong();
+    inline QT3_SUPPORT qulonglong &asULongLong();
+    inline QT3_SUPPORT bool &asBool();
+    inline QT3_SUPPORT double &asDouble();
+    inline QT3_SUPPORT QByteArray &asByteArray();
+    inline QT3_SUPPORT QBitArray &asBitArray();
+    inline QT3_SUPPORT QString &asString();
+    inline QT3_SUPPORT QStringList &asStringList();
+    inline QT3_SUPPORT QDate &asDate();
+    inline QT3_SUPPORT QTime &asTime();
+    inline QT3_SUPPORT QDateTime &asDateTime();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QT_COMPAT QList<QCoreVariant> &asList();
-    inline QT_COMPAT QMap<QString,QCoreVariant> &asMap();
+    inline QT3_SUPPORT QList<QCoreVariant> &asList();
+    inline QT3_SUPPORT QMap<QString,QCoreVariant> &asMap();
 #endif
-    inline QT_COMPAT QPoint &asPoint();
-    inline QT_COMPAT QRect &asRect();
-    inline QT_COMPAT QSize &asSize();
-#endif //QT_COMPAT
+    inline QT3_SUPPORT QPoint &asPoint();
+    inline QT3_SUPPORT QRect &asRect();
+    inline QT3_SUPPORT QSize &asSize();
+#endif //QT3_SUPPORT
 
 #ifndef QT_NO_DATASTREAM
     void load(QDataStream &ds);
@@ -202,10 +202,10 @@ class Q_CORE_EXPORT QCoreVariant
     static const char *typeToName(Type type);
     static Type nameToType(const char *name);
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QCoreVariant(bool, int);
-    inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
-    inline QT_COMPAT QByteArray &asCString() { return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QCoreVariant(bool, int);
+    inline QT3_SUPPORT const QByteArray toCString() const { return toByteArray(); }
+    inline QT3_SUPPORT QByteArray &asCString() { return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
 
     void *data();
@@ -392,7 +392,7 @@ bool qVariantGet(const QCoreVariant &v, T &t)
 inline QCoreVariant::QCoreVariant() {}
 inline bool QCoreVariant::isValid() const { return d.type != Invalid; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline int &QCoreVariant::asInt()
 { return *reinterpret_cast<int *>(castOrDetach(Int)); }
 inline uint &QCoreVariant::asUInt()
@@ -431,7 +431,7 @@ inline QRect &QCoreVariant::asRect()
 { return *reinterpret_cast<QRect *>(castOrDetach(Rect)); }
 inline QSize &QCoreVariant::asSize()
 { return *reinterpret_cast<QSize *>(castOrDetach(Size)); }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QCoreVariant& p);

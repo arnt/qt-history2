@@ -304,7 +304,7 @@ QBitmap QBitmap::transform(const QMatrix &matrix) const
 }
 #endif // QT_NO_TRANSFORMATIONS
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn QBitmap QBitmap::xForm(const QMatrix &matrix) const
 

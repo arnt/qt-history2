@@ -31,7 +31,7 @@ public:
     enum State {
         Invalid,
         Intermediate,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         Valid = Intermediate,
 #endif
         Acceptable
@@ -40,9 +40,9 @@ public:
     virtual State validate(QString &, int &) const = 0;
     virtual void fixup(QString &) const;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QValidator(QObject * parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QValidator(QObject * parent, const char *name);
 #endif
 
 private:
@@ -69,10 +69,10 @@ public:
     int bottom() const { return b; }
     int top() const { return t; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QIntValidator(QObject * parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QIntValidator(int bottom, int top, QObject * parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QIntValidator(QObject * parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QIntValidator(int bottom, int top, QObject * parent, const char *name);
 #endif
 
 private:
@@ -107,10 +107,10 @@ public:
     double top() const { return t; }
     int decimals() const { return d; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QDoubleValidator(QObject * parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QDoubleValidator(double bottom, double top, int decimals,
+    QT3_SUPPORT_CONSTRUCTOR QDoubleValidator(QObject * parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QDoubleValidator(double bottom, double top, int decimals,
                                            QObject * parent, const char *name);
 #endif
 private:
@@ -136,10 +136,10 @@ public:
     void setRegExp(const QRegExp& rx);
     const QRegExp& regExp() const { return r; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QRegExpValidator(QObject *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QRegExpValidator(const QRegExp& rx, QObject *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QRegExpValidator(QObject *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QRegExpValidator(const QRegExp& rx, QObject *parent, const char *name);
 #endif
 
 private:

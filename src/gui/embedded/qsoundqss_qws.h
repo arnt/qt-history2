@@ -64,9 +64,9 @@ public:
     explicit QWSSoundServerSocket(QObject *parent=0);
     void incomingConnection(int s);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QWSSoundServerSocket(QObject *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QWSSoundServerSocket(QObject *parent, const char *name);
 #endif
 
 signals:

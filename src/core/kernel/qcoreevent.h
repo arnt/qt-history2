@@ -51,7 +51,7 @@ public:
         Close = 19,                             // request to close widget
         Quit = 20,                              // request to quit application
         ParentChange = 21,                      // widget has been reparented
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         Reparent = ParentChange,
 #endif
         ShowMinimized = 22,                     // widget is shown minimized
@@ -83,7 +83,7 @@ public:
         DragResponse = 64,                      // drag accepted/rejected
         ChildAdded = 68,                        // new child widget
         ChildPolished = 69,                     // polished child widget
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ChildInserted = 70,                     // compatibility posted insert
         LayoutHint = 72,                        // compatibility relayout request
 #endif
@@ -139,7 +139,7 @@ public:
         Shortcut = 117,                         // shortcut triggered
         ShortcutOverride = 51,                  // shortcut override request
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         Accel = 30,                             // accelerator event
         AccelAvailable = 32,                    // accelerator available event
         AccelOverride = ShortcutOverride,       // accelerator override event
@@ -148,7 +148,7 @@ public:
         WhatsThisClicked = 118,
         AccessibilityHelp = 119,                // accessibility help request
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         CaptionChange = WindowTitleChange,
         IconChange = WindowIconChange,
 #endif
@@ -216,8 +216,8 @@ public:
     ~QChildEvent();
     QObject *child() const { return c; }
     bool added() const { return type() == ChildAdded; }
-#ifdef QT_COMPAT
-    QT_COMPAT bool inserted() const { return type() == ChildInserted; }
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT bool inserted() const { return type() == ChildInserted; }
 #endif
     bool polished() const { return type() == ChildPolished; }
     bool removed() const { return type() == ChildRemoved; }
@@ -225,14 +225,14 @@ protected:
     QObject *c;
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class Q_CORE_EXPORT QCustomEvent : public QEvent
 {
 public:
-    QT_COMPAT_CONSTRUCTOR QCustomEvent(int type, void *data = 0);
+    QT3_SUPPORT_CONSTRUCTOR QCustomEvent(int type, void *data = 0);
     ~QCustomEvent();
-    QT_COMPAT void *data()  const { return d; }
-    QT_COMPAT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
+    QT3_SUPPORT void *data()  const { return d; }
+    QT3_SUPPORT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
 };
 #endif
 

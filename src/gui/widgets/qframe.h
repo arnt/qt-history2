@@ -50,7 +50,7 @@ public:
         VLine = 0x0005, // vertical line
         StyledPanel = 0x0006, // rectangular panel depending on the GUI style
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         PopupPanel = StyledPanel, // rectangular panel depending on the GUI style
         MenuBarPanel = StyledPanel,
         ToolBarPanel = StyledPanel,
@@ -87,9 +87,9 @@ protected:
     void changeEvent(QEvent *);
     void drawFrame(QPainter *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
+    QT3_SUPPORT_CONSTRUCTOR QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
 #endif
 
 protected:

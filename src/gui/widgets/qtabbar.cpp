@@ -669,7 +669,7 @@ void QTabBar::setCurrentIndex(int index)
         d->currentIndex = index;
         update();
         d->makeVisible(index);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit selected(index);
 #endif
         emit currentChanged(index);

@@ -106,7 +106,7 @@ QTimer::QTimer(QObject *parent)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Constructs a timer called \a name, with a \a parent.
 */
@@ -177,7 +177,7 @@ void QTimer::start(int msec)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \overload
 
 Call setSingleShot(\a sshot) and start(\a msec) instead.

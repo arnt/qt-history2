@@ -88,7 +88,7 @@ private:
 #endif
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 // CursorShape is defined in X11/X.h
 #ifdef CursorShape
 #define X_CursorShape CursorShape

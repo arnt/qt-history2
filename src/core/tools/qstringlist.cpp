@@ -208,7 +208,7 @@ void QtPrivate::QStringList_sort(QStringList *that)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
 
@@ -262,7 +262,7 @@ void QtPrivate::QStringList_sort(QStringList *that)
     \sa join() QString::section()
 */
 #endif
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 /*!
     \fn QStringList QStringList::filter(const QString &str, Qt::CaseSensitivity cs) const

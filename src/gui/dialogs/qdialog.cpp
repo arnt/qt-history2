@@ -195,7 +195,7 @@ QDialog::QDialog(QWidget *parent, Qt::WFlags f)
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \overload
     \obsolete

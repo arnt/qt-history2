@@ -48,21 +48,21 @@ protected:
     void nextCheckState();
     void paintEvent(QPaintEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
     enum ToggleState {
         Off =      Qt::Unchecked,
         NoChange = Qt::PartiallyChecked,
         On =       Qt::Checked
     };
-    inline QT_COMPAT ToggleState state() const
+    inline QT3_SUPPORT ToggleState state() const
         { return static_cast<QCheckBox::ToggleState>(static_cast<int>(checkState())); }
-    inline QT_COMPAT void setState(ToggleState state)
+    inline QT3_SUPPORT void setState(ToggleState state)
         { setCheckState(static_cast<Qt::CheckState>(static_cast<int>(state))); }
-    inline QT_COMPAT void setNoChange()
+    inline QT3_SUPPORT void setNoChange()
         { setCheckState(Qt::PartiallyChecked); }
-    QT_COMPAT_CONSTRUCTOR QCheckBox(QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QCheckBox(const QString &text, QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QCheckBox(QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QCheckBox(const QString &text, QWidget *parent, const char* name);
 #endif
 
 private:

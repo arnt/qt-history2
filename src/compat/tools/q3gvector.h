@@ -14,7 +14,7 @@
 #ifndef Q3GVECTOR_H
 #define Q3GVECTOR_H
 
-#include "Qt3Compat/q3ptrcollection.h"
+#include "Qt3Support/q3ptrcollection.h"
 
 
 class Q_COMPAT_EXPORT Q3GVector : public Q3PtrCollection	// generic vector

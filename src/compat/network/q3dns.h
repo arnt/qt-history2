@@ -19,7 +19,7 @@
 #include "QtNetwork/qhostaddress.h"
 #include "QtCore/qsocketnotifier.h"
 #include "QtCore/qstringlist.h"
-#include "Qt3Compat/q3valuelist.h"
+#include "Qt3Support/q3valuelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_DNS

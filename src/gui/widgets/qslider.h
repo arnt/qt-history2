@@ -37,7 +37,7 @@ public:
         TicksRight = TicksBelow,
         TicksBothSides = 3
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ,NoMarks = NoTicks,
         Above = TicksAbove,
         Left = TicksAbove,
@@ -67,15 +67,15 @@ protected:
     void mouseReleaseEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QSlider(QWidget *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QSlider(Qt::Orientation, QWidget *parent, const char *name);
-    QT_COMPAT_CONSTRUCTOR QSlider(int minValue, int maxValue, int pageStep, int value,
+    QT3_SUPPORT_CONSTRUCTOR QSlider(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QSlider(Qt::Orientation, QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QSlider(int minValue, int maxValue, int pageStep, int value,
                                   Qt::Orientation orientation,
                                   QWidget *parent = 0, const char *name = 0);
-    inline QT_COMPAT void setTickmarks(TickPosition position) { setTickPosition(position); }
-    inline QT_COMPAT TickPosition tickmarks() const { return tickPosition(); }
+    inline QT3_SUPPORT void setTickmarks(TickPosition position) { setTickPosition(position); }
+    inline QT3_SUPPORT TickPosition tickmarks() const { return tickPosition(); }
 public slots:
     inline QT_MOC_COMPAT void addStep() { triggerAction(SliderSingleStepAdd); };
     inline QT_MOC_COMPAT void subtractStep() { triggerAction(SliderSingleStepSub); };

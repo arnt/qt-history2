@@ -755,7 +755,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             break;
         }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CE_Q3MenuBarItem:
         {
 #ifndef QT_NO_MENUDATA
@@ -903,7 +903,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
         }
 #endif // QT_NO_MENU
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_POPUPMENU
     case CE_Q3PopupMenuItem:
         {

@@ -19,7 +19,7 @@
 #include "QtCore/qstringlist.h"
 #include "QtSql/qsql.h"
 #include "QtSql/qsqlindex.h"
-#include "Qt3Compat/q3sqlcursor.h"
+#include "Qt3Support/q3sqlcursor.h"
 #include "QtSql/qsqlerror.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS

@@ -224,7 +224,7 @@ QLineEdit::QLineEdit(const QString& contents, QWidget* parent)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Constructs a line edit with no text.
 
@@ -555,7 +555,7 @@ int QLineEdit::cursorPositionAt(const QPoint &pos)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
 
     Use setText(), setCursorPosition() and setSelection() instead.
@@ -579,7 +579,7 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
     }
     return false;
 }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 /*!
     \property QLineEdit::alignment
@@ -819,7 +819,7 @@ int QLineEdit::selectionStart() const
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use isModified() instead.
 */

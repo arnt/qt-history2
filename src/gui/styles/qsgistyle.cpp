@@ -169,7 +169,7 @@ QSGIStyle::polish(QApplication* app)
     QApplication::setPalette(pal, "Q3MenuBar");
     QApplication::setPalette(pal, "QToolBar");
     QApplication::setPalette(pal, "QMenu");
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QApplication::setPalette(pal, "Q3PopupMenu");
 #endif
 }
@@ -266,7 +266,7 @@ QSGIStyle::polish(QWidget* w)
         f.setItalic(true);
         w->setFont(f);
 #endif
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_POPUPMENU
     } else if (qt_cast<Q3PopupMenu*>(w)) {
         ((QFrame*) w)->setLineWidth(pixelMetric(PM_DefaultFrameWidth) + 1);
@@ -289,7 +289,7 @@ QSGIStyle::unPolish(QWidget* w)
     } else if (qt_cast<QMenu*>(w)) {
         w->setFont(QApplication::font());
 #endif
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_POPUPMENU
     } else if (qt_cast<Q3PopupMenu*>(w)) {
         ((QFrame*)w)->setLineWidth(pixelMetric(PM_DefaultFrameWidth));
@@ -1106,7 +1106,7 @@ void QSGIStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
         }
         break;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CE_Q3PopupMenuItem:
         {
 #ifndef QT_NO_POPUPMENU
@@ -1294,7 +1294,7 @@ void QSGIStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
         }
         break;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CE_Q3MenuBarItem:
         {
 #ifndef QT_NO_MENUDATA
@@ -1607,7 +1607,7 @@ QSize QSGIStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             break;
         }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CT_Q3PopupMenuItem:
         {
 #ifndef QT_NO_POPUPMENU

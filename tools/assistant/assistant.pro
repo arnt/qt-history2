@@ -3,7 +3,7 @@ LANGUAGE = C++
 TARGET         = assistant
 
 CONFIG        += qt warn_on
-QT += compat xml network
+QT += qt3support xml network
 
 PROJECTNAME        = Assistant
 DESTDIR            = ../../bin

@@ -965,7 +965,7 @@ static bool canCast(const QCoreVariant::Private *d, QCoreVariant::Type t)
         return d->type == QCoreVariant::Int || d->type == QCoreVariant::UInt;
     case QCoreVariant::ByteArray:
         return
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             d->type == QCoreVariant::CString ||
 #endif
             d->type == QCoreVariant::String;
@@ -1538,7 +1538,7 @@ static const char* const type_map[ntypes] =
     "QSize",
     "QColor",
     "QPalette",
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     "QColorGroup",
 #else
     "",

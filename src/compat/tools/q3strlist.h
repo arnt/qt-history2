@@ -15,7 +15,7 @@
 #define Q3STRLIST_H
 
 #include "QtCore/qstring.h"
-#include "Qt3Compat/q3ptrlist.h"
+#include "Qt3Support/q3ptrlist.h"
 #include "QtCore/qdatastream.h"
 #include "QtCore/qlist.h"
 

@@ -50,7 +50,7 @@ public:
         ResizeError = 12,
         PermissionsError = 13,
         CopyError = 14
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , ConnectError = 30
 #endif
     };
@@ -129,10 +129,10 @@ public:
 
     virtual QFileEngine *fileEngine() const;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     typedef Permission PermissionSpec;
-    inline QT_COMPAT QString name() const { return fileName(); }
-    inline QT_COMPAT void setName(const QString &name) { setFileName(name); }
+    inline QT3_SUPPORT QString name() const { return fileName(); }
+    inline QT3_SUPPORT void setName(const QString &name) { setFileName(name); }
 #endif
 
 protected:

@@ -32,7 +32,7 @@ public:
 
 public slots:
     void showMessage(const QString &message);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     inline QT_MOC_COMPAT void message(const QString &text) { showMessage(text); }
 #endif
 

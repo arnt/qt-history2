@@ -47,7 +47,7 @@ static QString qt_strippedText(QString s)
 QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
                                    visible(1), forceInvisible(0), checkable(0), checked(0), separator(0)
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     static int qt_static_action_id = -1;
     param = id = --qt_static_action_id;
     act_signal = 0;
@@ -293,7 +293,7 @@ QFont QAction::font() const
     return d->font;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the QAction constructors that doesn't take a \a name
     argument and call setObjectName() instead.
@@ -660,7 +660,7 @@ void QAction::setChecked(bool b)
     d->sendDataChanged();
     if(d->checkable) {
         emit checked(b);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit toggled(b);
 #endif
     }
@@ -787,7 +787,7 @@ void QAction::activate(ActionEvent event)
             setChecked(!d->checked);
         }
         emit triggered();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit activated(d->param);
 #endif
     } else if(event == Hover) {

@@ -209,7 +209,7 @@ QTabWidget::QTabWidget(QWidget *parent)
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -508,7 +508,7 @@ void QTabWidgetPrivate::showTab(int index)
     if (index < stack->count() && index >= 0) {
         stack->setCurrentIndex(index);
         emit q->currentChanged(index);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit q->currentChanged(stack->widget(index));
 #endif
     }

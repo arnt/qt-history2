@@ -51,16 +51,16 @@ Q_CORE_EXPORT int qstrnicmp(const char *, const char *, uint len);
 Q_CORE_EXPORT int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap);
 Q_CORE_EXPORT int qsnprintf(char *str, size_t n, const char *fmt, ...);
 
-#ifdef QT_COMPAT
-inline QT_COMPAT void *qmemmove(void *dst, const void *src, uint len)
+#ifdef QT3_SUPPORT
+inline QT3_SUPPORT void *qmemmove(void *dst, const void *src, uint len)
 { return memmove(dst, src, len); }
-inline QT_COMPAT uint cstrlen(const char *str)
+inline QT3_SUPPORT uint cstrlen(const char *str)
 { return uint(strlen(str)); }
-inline QT_COMPAT char *cstrcpy(char *dst, const char *src)
+inline QT3_SUPPORT char *cstrcpy(char *dst, const char *src)
 { return qstrcpy(dst,src); }
-inline QT_COMPAT int cstrcmp(const char *str1, const char *str2)
+inline QT3_SUPPORT int cstrcmp(const char *str1, const char *str2)
 { return strcmp(str1,str2); }
-inline QT_COMPAT int cstrncmp(const char *str1, const char *str2, uint len)
+inline QT3_SUPPORT int cstrncmp(const char *str1, const char *str2, uint len)
 { return strncmp(str1,str2,len); }
 #endif
 
@@ -148,10 +148,10 @@ public:
     QByteArray leftJustified(int width, char fill = ' ', bool truncate = false) const;
     QByteArray rightJustified(int width, char fill = ' ', bool truncate = false) const;
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
     { return leftJustified(int(width), fill, truncate); }
-    inline QT_COMPAT QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
+    inline QT3_SUPPORT QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
     { return rightJustified(int(width), fill, truncate); }
 #endif
 
@@ -258,27 +258,27 @@ public:
     bool isNull() const;
 
     // compatibility
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QByteArray(int size);
-    inline QT_COMPAT QByteArray& duplicate(const QByteArray& a) { *this = a; return *this; }
-    inline QT_COMPAT QByteArray& duplicate(const char *a, uint n)
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QByteArray(int size);
+    inline QT3_SUPPORT QByteArray& duplicate(const QByteArray& a) { *this = a; return *this; }
+    inline QT3_SUPPORT QByteArray& duplicate(const char *a, uint n)
     { *this = QByteArray(a, n); return *this; }
-    inline QT_COMPAT QByteArray& setRawData(const char *a, uint n)
+    inline QT3_SUPPORT QByteArray& setRawData(const char *a, uint n)
     { *this = fromRawData(a, n); return *this; }
-    inline QT_COMPAT void resetRawData(const char *, uint) { clear(); }
-    inline QT_COMPAT QByteArray lower() const { return toLower(); }
-    inline QT_COMPAT QByteArray upper() const { return toUpper(); }
-    inline QT_COMPAT QByteArray stripWhiteSpace() const { return trimmed(); }
-    inline QT_COMPAT QByteArray simplifyWhiteSpace() const { return simplified(); }
-    inline QT_COMPAT int find(char c, int from = 0) const { return indexOf(c, from); }
-    inline QT_COMPAT int find(const char *c, int from = 0) const { return indexOf(c, from); }
-    inline QT_COMPAT int find(const QByteArray &ba, int from = 0) const { return indexOf(ba, from); }
-    inline QT_COMPAT int findRev(char c, int from = -1) const { return lastIndexOf(c, from); }
-    inline QT_COMPAT int findRev(const char *c, int from = -1) const { return lastIndexOf(c, from); }
-    inline QT_COMPAT int findRev(const QByteArray &ba, int from = -1) const { return lastIndexOf(ba, from); }
+    inline QT3_SUPPORT void resetRawData(const char *, uint) { clear(); }
+    inline QT3_SUPPORT QByteArray lower() const { return toLower(); }
+    inline QT3_SUPPORT QByteArray upper() const { return toUpper(); }
+    inline QT3_SUPPORT QByteArray stripWhiteSpace() const { return trimmed(); }
+    inline QT3_SUPPORT QByteArray simplifyWhiteSpace() const { return simplified(); }
+    inline QT3_SUPPORT int find(char c, int from = 0) const { return indexOf(c, from); }
+    inline QT3_SUPPORT int find(const char *c, int from = 0) const { return indexOf(c, from); }
+    inline QT3_SUPPORT int find(const QByteArray &ba, int from = 0) const { return indexOf(ba, from); }
+    inline QT3_SUPPORT int findRev(char c, int from = -1) const { return lastIndexOf(c, from); }
+    inline QT3_SUPPORT int findRev(const char *c, int from = -1) const { return lastIndexOf(c, from); }
+    inline QT3_SUPPORT int findRev(const QByteArray &ba, int from = -1) const { return lastIndexOf(ba, from); }
 #ifndef QT_NO_CAST_TO_ASCII
-    QT_COMPAT int find(const QString &s, int from = 0) const;
-    QT_COMPAT int findRev(const QString &s, int from = -1) const;
+    QT3_SUPPORT int find(const QString &s, int from = 0) const;
+    QT3_SUPPORT int findRev(const QString &s, int from = -1) const;
 #endif
 #endif
 
@@ -329,7 +329,7 @@ inline bool QByteArray::isDetached() const
 { return d->ref == 1; }
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 { ++d->ref; }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QByteArray::QByteArray(int size) : d(&shared_null)
 { ++d->ref; if (size > 0) fill('\0', size); }
 #endif

@@ -109,7 +109,7 @@ QRegion::QRegion(int x, int y, int w, int h, RegionType t)
     d = tmp.d;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QRegion::QRegion(const QPolygon &pa, bool winding)
 {
     new (this) QRegion(pa, winding ? Qt::WindingFill : Qt::OddEvenFill);

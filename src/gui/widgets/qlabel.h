@@ -92,16 +92,16 @@ protected:
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QLabel(const QString &text, QWidget *parent, const char* name,
+    QT3_SUPPORT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
+    QT3_SUPPORT_CONSTRUCTOR QLabel(const QString &text, QWidget *parent, const char* name,
            Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
+    QT3_SUPPORT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
            QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
-    QT_COMPAT void setAlignment(int alignment);
+    QT3_SUPPORT void setAlignment(int alignment);
 
-    // don't mark the next function with QT_COMPAT
+    // don't mark the next function with QT3_SUPPORT
     inline void setAlignment(Qt::AlignmentFlag flag) { setAlignment((Qt::Alignment)flag); }
 #endif
 

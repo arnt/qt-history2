@@ -2811,7 +2811,7 @@ void QPainter::drawChord(const QRectF &r, int a, int alen)
     drawPath(path);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Draws \a nlines separate lines from points defined in \a a,
     starting at \a{a}\e{[index]} (\a index defaults to 0). If \a nlines is
@@ -2867,7 +2867,7 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
 
     d->engine->drawLines(lines.data(), lines.size());
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 /*!
     Draws the first \a lineCount lines in the array \a lines
     using the current pen.
@@ -4317,7 +4317,7 @@ void QPainter::setViewTransformEnabled(bool enable)
     d->updateMatrix();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 qreal QPainter::translationX() const
 {
@@ -5037,7 +5037,7 @@ void QPainterState::init(QPainter *p) {
         layoutDirection = QApplication::layoutDirection();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
                           const QPaintDevice *src, const QRect &sr, bool imask)
 {
@@ -5077,7 +5077,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     bitBlt_helper(dst, QPoint(dx, dy), &srcPixmap, QRect(sx, sy, sw, sh), false);
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 /*!
     \enum Qt::PaintUnit

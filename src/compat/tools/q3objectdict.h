@@ -16,7 +16,7 @@
 
 #ifndef QT_H
 #include "QtCore/qmetaobject.h"
-#include "Qt3Compat/q3asciidict.h"
+#include "Qt3Support/q3asciidict.h"
 #endif // QT_H
 
 

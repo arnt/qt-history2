@@ -19,7 +19,6 @@
 #include "QtCore/qatomic.h"
 #include "QtCore/qnamespace.h"
 
-
 #ifdef QT_INCLUDE_COMPAT
 #include <qcstring.h>
 #endif
@@ -302,6 +301,8 @@ public:
     { return (*this = fromAscii(ch)); }
     inline QString &operator=(const QByteArray &a)
     { return (*this = fromAscii(a)); }
+    inline QString &operator=(char c)
+    { return (*this = QChar(c)); }
 
     // these are needed, so it compiles with STL support enabled
     inline QString &prepend(const char *s)
@@ -316,6 +317,8 @@ public:
     { return append(QString::fromAscii(s)); }
     inline QString &operator+=(const QByteArray &s)
     { return append(QString(s)); }
+    inline QString &operator+=(char c)
+    { return append(QChar(c)); }
 
     inline bool operator==(const char *s) const;
     inline bool operator!=(const char *s) const;
@@ -363,69 +366,69 @@ public:
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT const char *ascii() const { return ascii_helper(); }
-    inline QT_COMPAT const char *latin1() const { return latin1_helper(); }
-    inline QT_COMPAT QByteArray utf8() const { return toUtf8(); }
-    inline QT_COMPAT QByteArray local8Bit() const{ return toLocal8Bit(); }
-    inline QT_COMPAT void setLength(int nl) { resize(nl); }
-    inline QT_COMPAT QString copy() const { return *this; }
-    inline QT_COMPAT QString &remove(QChar c, bool cs)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT const char *ascii() const { return ascii_helper(); }
+    inline QT3_SUPPORT const char *latin1() const { return latin1_helper(); }
+    inline QT3_SUPPORT QByteArray utf8() const { return toUtf8(); }
+    inline QT3_SUPPORT QByteArray local8Bit() const{ return toLocal8Bit(); }
+    inline QT3_SUPPORT void setLength(int nl) { resize(nl); }
+    inline QT3_SUPPORT QString copy() const { return *this; }
+    inline QT3_SUPPORT QString &remove(QChar c, bool cs)
     { return remove(c, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT QString &remove(const QString  &s, bool cs)
+    inline QT3_SUPPORT QString &remove(const QString  &s, bool cs)
     { return remove(s, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT QString &replace(QChar c, const QString  &after, bool cs)
+    inline QT3_SUPPORT QString &replace(QChar c, const QString  &after, bool cs)
     { return replace(c, after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT QString &replace(const QString &before, const QString &after, bool cs)
+    inline QT3_SUPPORT QString &replace(const QString &before, const QString &after, bool cs)
     { return replace(before, after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
 #ifndef QT_NO_CAST_FROM_ASCII
-    inline QT_COMPAT QString &replace(char c, const QString &after, bool cs)
+    inline QT3_SUPPORT QString &replace(char c, const QString &after, bool cs)
     { return replace(QChar(c), after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
     // strange overload, required to avoid GCC 3.3 error
-    inline QT_COMPAT QString &replace(char c, const QString &after, Qt::CaseSensitivity cs)
+    inline QT3_SUPPORT QString &replace(char c, const QString &after, Qt::CaseSensitivity cs)
     { return replace(QChar(c), after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
 #endif
-    inline QT_COMPAT int find(QChar c, int i = 0, bool cs = true) const
+    inline QT3_SUPPORT int find(QChar c, int i = 0, bool cs = true) const
     { return indexOf(c, i, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT int find(const QString &s, int i = 0, bool cs = true) const
+    inline QT3_SUPPORT int find(const QString &s, int i = 0, bool cs = true) const
     { return indexOf(s, i, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT int findRev(QChar c, int i = -1, bool cs = true) const
+    inline QT3_SUPPORT int findRev(QChar c, int i = -1, bool cs = true) const
     { return lastIndexOf(c, i, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT int findRev(const QString &s, int i = -1, bool cs = true) const
+    inline QT3_SUPPORT int findRev(const QString &s, int i = -1, bool cs = true) const
     { return lastIndexOf(s, i, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
 #ifndef QT_NO_REGEXP
-    inline QT_COMPAT int find(const QRegExp &rx, int i=0) const
+    inline QT3_SUPPORT int find(const QRegExp &rx, int i=0) const
     { return indexOf(rx, i); }
-    inline QT_COMPAT int findRev(const QRegExp &rx, int i=-1) const
+    inline QT3_SUPPORT int findRev(const QRegExp &rx, int i=-1) const
     { return lastIndexOf(rx, i); }
 #endif
-    inline QT_COMPAT QBool contains(QChar c, bool cs) const
+    inline QT3_SUPPORT QBool contains(QChar c, bool cs) const
     { return contains(c, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT QBool contains(const QString &s, bool cs) const
+    inline QT3_SUPPORT QBool contains(const QString &s, bool cs) const
     { return contains(s, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT bool startsWith(const QString &s, bool cs) const
+    inline QT3_SUPPORT bool startsWith(const QString &s, bool cs) const
     { return startsWith(s, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT bool endsWith(const QString &s, bool cs) const
+    inline QT3_SUPPORT bool endsWith(const QString &s, bool cs) const
     { return endsWith(s, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
-    inline QT_COMPAT QChar constref(uint i) const
+    inline QT3_SUPPORT QChar constref(uint i) const
     { return at(i); }
-    QT_COMPAT QChar &ref(uint i);
-    inline QT_COMPAT QString leftJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
+    QT3_SUPPORT QChar &ref(uint i);
+    inline QT3_SUPPORT QString leftJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
     { return leftJustified(width, fill, trunc); }
-    inline QT_COMPAT QString rightJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
+    inline QT3_SUPPORT QString rightJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
     { return rightJustified(width, fill, trunc); }
-    inline QT_COMPAT QString lower() const { return toLower(); }
-    inline QT_COMPAT QString upper() const { return toUpper(); }
-    inline QT_COMPAT QString stripWhiteSpace() const { return trimmed(); }
-    inline QT_COMPAT QString simplifyWhiteSpace() const { return simplified(); }
-    inline QT_COMPAT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
+    inline QT3_SUPPORT QString lower() const { return toLower(); }
+    inline QT3_SUPPORT QString upper() const { return toUpper(); }
+    inline QT3_SUPPORT QString stripWhiteSpace() const { return trimmed(); }
+    inline QT3_SUPPORT QString simplifyWhiteSpace() const { return simplified(); }
+    inline QT3_SUPPORT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
     { return setUtf16(unicode_as_ushorts, size); }
-    inline QT_COMPAT const ushort *ucs2() const { return utf16(); }
-    inline static QT_COMPAT QString fromUcs2(const ushort *unicode, int size = -1)
+    inline QT3_SUPPORT const ushort *ucs2() const { return utf16(); }
+    inline static QT3_SUPPORT QString fromUcs2(const ushort *unicode, int size = -1)
     { return fromUtf16(unicode, size); }
-    inline QT_COMPAT QString &setAscii(const char *str, int len = -1)
+    inline QT3_SUPPORT QString &setAscii(const char *str, int len = -1)
     { *this = fromAscii(str, len); return *this; }
-    inline QT_COMPAT QString &setLatin1(const char *str, int len = -1)
+    inline QT3_SUPPORT QString &setLatin1(const char *str, int len = -1)
     { *this = fromLatin1(str, len); return *this; }
 protected:
     friend class QObject;
@@ -433,9 +436,9 @@ protected:
     const char *latin1_helper() const;
 public:
 #ifndef QT_NO_CAST_TO_ASCII
-    inline QT_COMPAT operator const char *() const { return ascii_helper(); }
+    inline QT3_SUPPORT operator const char *() const { return ascii_helper(); }
 private:
-    QT_COMPAT operator QNoImplicitBoolCast() const;
+    QT3_SUPPORT operator QNoImplicitBoolCast() const;
 public:
 #endif
 #endif
@@ -621,17 +624,17 @@ public:
     inline int digitValue() const { return QChar(*this).digitValue(); }
     QChar toLower() const { return QChar(*this).toLower(); }
     QChar toUpper() const { return QChar(*this).toUpper(); }
-#ifdef QT_COMPAT
-    inline QT_COMPAT QChar lower() const { return QChar(*this).toLower(); }
-    inline QT_COMPAT QChar upper() const { return QChar(*this).toUpper(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QChar lower() const { return QChar(*this).toLower(); }
+    inline QT3_SUPPORT QChar upper() const { return QChar(*this).toUpper(); }
 #endif
 
     QChar::Category category() const { return QChar(*this).category(); }
     QChar::Direction direction() const { return QChar(*this).direction(); }
     QChar::Joining joining() const { return QChar(*this).joining(); }
     bool hasMirrored() const { return QChar(*this).hasMirrored(); }
-#ifdef QT_COMPAT
-    inline bool QT_COMPAT mirrored() const { return hasMirrored(); }
+#ifdef QT3_SUPPORT
+    inline bool QT3_SUPPORT mirrored() const { return hasMirrored(); }
 #endif
     QChar mirroredChar() const { return QChar(*this).mirroredChar(); }
     QString decomposition() const { return QChar(*this).decomposition(); }
@@ -647,7 +650,7 @@ public:
 
     const char toAscii() const { return QChar(*this).toAscii(); }
     const char toLatin1() const { return QChar(*this).toLatin1(); }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     const char latin1() const { return QChar(*this).toLatin1(); }
     const char ascii() const { return QChar(*this).toAscii(); }
 #endif
@@ -729,12 +732,12 @@ inline int QByteArray::indexOf(const QString &s, int from) const
 { return indexOf(s.toAscii(), from); }
 inline int QByteArray::lastIndexOf(const QString &s, int from) const
 { return lastIndexOf(s.toAscii(), from); }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline int QByteArray::find(const QString &s, int from) const
 { return indexOf(s, from); }
 inline int QByteArray::findRev(const QString &s, int from) const
 { return lastIndexOf(s, from); }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 #endif // QT_NO_CAST_TO_ASCII
 
 inline const QString operator+(const QString &s1, const QString &s2)
@@ -772,7 +775,7 @@ inline QString::QString(const std::string &s)
 }
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QChar &QString::ref(uint i)
 {
     if (int(i) > d->size || d->ref != 1)
@@ -786,13 +789,13 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QString &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class QConstString : public QString
 {
 public:
-    inline QT_COMPAT_CONSTRUCTOR QConstString(const QChar *unicode, int size)
+    inline QT3_SUPPORT_CONSTRUCTOR QConstString(const QChar *unicode, int size)
         :QString(unicode, size){} // cannot use fromRawData() due to changed semantics
-    inline QT_COMPAT const QString &string() const { return *this; }
+    inline QT3_SUPPORT const QString &string() const { return *this; }
 };
 #endif
 

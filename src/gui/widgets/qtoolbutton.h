@@ -91,7 +91,7 @@ private:
     Q_PRIVATE_SLOT(d, void buttonPressed())
     Q_PRIVATE_SLOT(d, void actionTriggered())
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
     enum TextPosition {
         BesideIcon,
@@ -100,32 +100,32 @@ public:
         Under = BelowIcon
     };
 
-    QT_COMPAT_CONSTRUCTOR QToolButton(QWidget * parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QToolButton(Qt::ArrowType type, QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QToolButton( const QIcon& s, const QString &textLabel,
+    QT3_SUPPORT_CONSTRUCTOR QToolButton(QWidget * parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QToolButton(Qt::ArrowType type, QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QToolButton( const QIcon& s, const QString &textLabel,
                                        const QString& grouptext,
                                        QObject * receiver, const char* slot,
                                        QWidget * parent, const char* name=0 );
-    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIcon>(pixmap)); }
-    QT_COMPAT void setOnIconSet(const QIcon&);
-    QT_COMPAT void setOffIconSet(const QIcon&);
-    inline QT_COMPAT void setIconSet(const QIcon &icon){setIcon(icon);}
-    QT_COMPAT void setIconSet(const QIcon &, bool on);
-    inline QT_COMPAT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
-    inline QT_COMPAT QString textLabel() const { return text(); }
-    QT_COMPAT QIcon onIconSet() const;
-    QT_COMPAT QIcon offIconSet() const;
-    QT_COMPAT QIcon iconSet(bool on) const;
-    inline QT_COMPAT QIcon iconSet() const { return icon(); }
-    inline QT_COMPAT void openPopup()  { showMenu(); }
-    inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
-    inline QT_COMPAT QMenu* popup() const { return menu(); }
-    inline QT_COMPAT bool usesBigPixmap() const { return iconSize().height() > 22; }
-    inline QT_COMPAT bool usesTextLabel() const { return toolButtonStyle() != Qt::ToolButtonIconOnly; }
-    inline QT_COMPAT TextPosition textPosition() const
+    inline QT3_SUPPORT void setPixmap(const QPixmap &pixmap) { setIcon(static_cast<QIcon>(pixmap)); }
+    QT3_SUPPORT void setOnIconSet(const QIcon&);
+    QT3_SUPPORT void setOffIconSet(const QIcon&);
+    inline QT3_SUPPORT void setIconSet(const QIcon &icon){setIcon(icon);}
+    QT3_SUPPORT void setIconSet(const QIcon &, bool on);
+    inline QT3_SUPPORT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
+    inline QT3_SUPPORT QString textLabel() const { return text(); }
+    QT3_SUPPORT QIcon onIconSet() const;
+    QT3_SUPPORT QIcon offIconSet() const;
+    QT3_SUPPORT QIcon iconSet(bool on) const;
+    inline QT3_SUPPORT QIcon iconSet() const { return icon(); }
+    inline QT3_SUPPORT void openPopup()  { showMenu(); }
+    inline QT3_SUPPORT void setPopup(QMenu* popup) {setMenu(popup); }
+    inline QT3_SUPPORT QMenu* popup() const { return menu(); }
+    inline QT3_SUPPORT bool usesBigPixmap() const { return iconSize().height() > 22; }
+    inline QT3_SUPPORT bool usesTextLabel() const { return toolButtonStyle() != Qt::ToolButtonIconOnly; }
+    inline QT3_SUPPORT TextPosition textPosition() const
     { return toolButtonStyle() == Qt::ToolButtonTextUnderIcon ? BelowIcon : BesideIcon; }
-    QT_COMPAT void setPopupDelay(int delay);
-    QT_COMPAT int popupDelay() const;
+    QT3_SUPPORT void setPopupDelay(int delay);
+    QT3_SUPPORT int popupDelay() const;
 
 public slots:
     QT_MOC_COMPAT void setUsesBigPixmap(bool enable)

@@ -56,14 +56,14 @@ protected:
     void focusOutEvent(QFocusEvent *);
 
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QPushButton(QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QPushButton(const QString &text, QWidget *parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QPushButton(const QIcon& icon, const QString &text, QWidget *parent, const char* name);
-    inline QT_COMPAT void openPopup()  { showMenu(); }
-    inline QT_COMPAT bool isMenuButton() const { return menu() !=  0; }
-    inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
-    inline QT_COMPAT QMenu* popup() const { return menu(); }
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QPushButton(QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QPushButton(const QString &text, QWidget *parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QPushButton(const QIcon& icon, const QString &text, QWidget *parent, const char* name);
+    inline QT3_SUPPORT void openPopup()  { showMenu(); }
+    inline QT3_SUPPORT bool isMenuButton() const { return menu() !=  0; }
+    inline QT3_SUPPORT void setPopup(QMenu* popup) {setMenu(popup); }
+    inline QT3_SUPPORT QMenu* popup() const { return menu(); }
 #endif
 
 private:

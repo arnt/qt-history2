@@ -37,9 +37,9 @@ public:
     void setFileName(const QString &fileName);
     QString fileName() const;
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QString library() const { return fileName(); }
-    inline QT_COMPAT void setAutoUnload( bool ) {}
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QString library() const { return fileName(); }
+    inline QT3_SUPPORT void setAutoUnload( bool ) {}
 #endif
 private:
     QLibraryPrivate *d;

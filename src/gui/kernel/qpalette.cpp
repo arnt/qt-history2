@@ -32,7 +32,7 @@ static QColor qt_mix_colors(QColor a, QColor b)
                    (a.blue() + b.blue()) / 2);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 #ifndef QT_NO_DATASTREAM
 QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g)
@@ -736,7 +736,7 @@ bool QPalette::operator==(const QPalette &p) const
     return true;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 bool QColorGroup::operator==(const QColorGroup &other) const
 {
     if (isCopyOf(other))

@@ -64,7 +64,7 @@ public:
     static FocusRectPolicy focusRectPolicy(const QWidget *w);
 
     enum WidgetSizePolicy { SizeSmall, SizeLarge, SizeMini, SizeDefault
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                             , SizeNone = SizeDefault
 #endif
     };

@@ -106,7 +106,7 @@ QValidator::QValidator(QObject * parent)
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Sets up the validator. The \a parent and \a name parameters are
@@ -246,7 +246,7 @@ QIntValidator::QIntValidator(int minimum, int maximum,
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
 
@@ -423,7 +423,7 @@ QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
     d = decimals;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
 
@@ -676,7 +676,7 @@ QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent)
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
 

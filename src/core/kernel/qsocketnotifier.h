@@ -24,8 +24,8 @@ public:
     enum Type { Read, Write, Exception };
 
     QSocketNotifier(int socket, Type, QObject *parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSocketNotifier(int socket, Type, QObject *parent, const char *name);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QSocketNotifier(int socket, Type, QObject *parent, const char *name);
 #endif
     ~QSocketNotifier();
 

@@ -247,7 +247,7 @@ QObjectPrivate::QObjectPrivate(int version)
     wasDeleted = false;                         // double-delete catcher
     sendChildEvents = true;                     // if we should send ChildInsert and ChildRemove events to parent
     postedEvents = 0;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     postedChildInsertedEvents = 0;
 #endif
 }
@@ -507,7 +507,7 @@ QObject::QObject(QObject *parent)
     setParent(parent);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \overload
     \obsolete
@@ -703,7 +703,7 @@ void QObject::setObjectName(const QString &name)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \internal
     QObject::child is compat but needs to call itself recursively,
     that's why we need this helper.
@@ -782,7 +782,7 @@ bool QObject::event(QEvent *e)
 
     case QEvent::ChildAdded:
     case QEvent::ChildPolished:
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QEvent::ChildInserted:
 #endif
     case QEvent::ChildRemoved:
@@ -1105,7 +1105,7 @@ void QObject::killTimer(int id)
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 static void objSearch(QObjectList &result,
                        const QObjectList &list,
                        const char  *inheritsClass,
@@ -1327,11 +1327,11 @@ void QObjectPrivate::setParent_helper(QObject *parent)
             if (!d->isWidget) {
                 QChildEvent e(QEvent::ChildAdded, q);
                 QCoreApplication::sendEvent(d->parent, &e);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
 #endif
             }
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             else {
                 QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
             }

@@ -37,8 +37,8 @@ private:
 
     explicit QInputDialog(const QString &label, QWidget* parent = 0,
                           Type type = LineEdit, Qt::WFlags f = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QInputDialog(const QString &label, QWidget* parent, const char* name,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QInputDialog(const QString &label, QWidget* parent, const char* name,
                                        bool modal = true, Type type = LineEdit, Qt::WFlags f = 0);
 #endif
     ~QInputDialog();
@@ -65,23 +65,23 @@ public:
                            int current = 0, bool editable = true, bool *ok = 0,Qt::WFlags f = 0);
 
 
-#ifdef QT_COMPAT
-    inline static QT_COMPAT QString getText(const QString &caption, const QString &label,
+#ifdef QT3_SUPPORT
+    inline static QT3_SUPPORT QString getText(const QString &caption, const QString &label,
                            QLineEdit::EchoMode echo = QLineEdit::Normal,
                            const QString &text = QString::null, bool *ok = 0,
                            QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
         { return getText(parent, caption, label, echo, text, ok, f); }
-    inline static QT_COMPAT int getInteger(const QString &caption, const QString &label, int value = 0,
+    inline static QT3_SUPPORT int getInteger(const QString &caption, const QString &label, int value = 0,
                           int minValue = -2147483647, int maxValue = 2147483647,
                           int step = 1, bool *ok = 0,
                           QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
         { return getInteger(parent, caption, label, value, minValue, maxValue, step, ok, f); }
-    inline static QT_COMPAT double getDouble(const QString &caption, const QString &label, double value = 0,
+    inline static QT3_SUPPORT double getDouble(const QString &caption, const QString &label, double value = 0,
                             double minValue = -2147483647, double maxValue = 2147483647,
                             int decimals = 1, bool *ok = 0,
                             QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
         { return getDouble(parent, caption, label, value, minValue, maxValue, decimals, ok, f); }
-    inline static QT_COMPAT QString getItem(const QString &caption, const QString &label, const QStringList &list,
+    inline static QT3_SUPPORT QString getItem(const QString &caption, const QString &label, const QStringList &list,
                            int current = 0, bool editable = true, bool *ok = 0,
                            QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
         { return getItem(parent, caption, label, list, current, editable, ok, f); }

@@ -256,7 +256,7 @@
 #    define Q_CC_INTEL
 #  else
 #    ifdef __APPLE__
-#      define Q_NO_COMPAT_CONSTRUCTORS
+#      define Q_NO_DEPRECATED_CONSTRUCTORS
 #    endif
 #    if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #      define Q_FULL_TEMPLATE_INSTANTIATION
@@ -560,45 +560,33 @@ typedef const char *pcchar;
 //
 // Warnings and errors when using deprecated methods
 //
-#if defined(QT_COMPAT_WARNINGS)
-#  ifdef QT_COMPAT
-#    undef QT_COMPAT
-#  endif
-#  ifdef QT_COMPAT_VARIABLE
-#    undef QT_COMPAT_VARIABLE
-#  endif
-#  if defined(Q_MOC_RUN)
-#    define QT_COMPAT QT_COMPAT
-#  elif defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
-#    define QT_COMPAT __attribute__ ((__deprecated__))
-#  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
-#    define QT_COMPAT __declspec(deprecated)
-#    if defined (Q_CC_INTEL)
-#      define QT_COMPAT_VARIABLE
-#    endif
+#if defined(Q_MOC_RUN)
+#  define Q_DECL_DEPRECATED Q_DECL_DEPRECATED
+#elif defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
+#  define Q_DECL_DEPRECATED __attribute__ ((__deprecated__))
+#elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
+#  define Q_DECL_DEPRECATED __declspec(deprecated)
+#  if defined (Q_CC_INTEL)
+#    define Q_DECL_VARIABLE_DEPRECATED
 #  else
-#    define QT_COMPAT
 #  endif
-#elif defined(QT_COMPAT) // make sure QT_COMPAT is void
-#  undef QT_COMPAT
-#  define QT_COMPAT
+#else
+#  define Q_DECL_DEPRECATED
 #endif
-
-#ifndef QT_COMPAT_VARIABLE
-#  define QT_COMPAT_VARIABLE QT_COMPAT
+#ifndef Q_DECL_VARIABLE_DEPRECATED
+#  define Q_DECL_VARIABLE_DEPRECATED Q_DECL_DEPRECATED
 #endif
-
-#ifndef QT_COMPAT_CONSTRUCTOR
+#ifndef QT3_SUPPORT_CONSTRUCTOR
 #  if defined(Q_MOC_RUN)
-#    define QT_COMPAT_CONSTRUCTOR QT_COMPAT_CONSTRUCTOR
-#  elif defined(Q_NO_COMPAT_CONSTRUCTORS)
-#    define QT_COMPAT_CONSTRUCTOR explicit
-#  elif defined(QT_COMPAT)
-#    define QT_COMPAT_CONSTRUCTOR explicit QT_COMPAT
+#    define Q_DECL_CONSTRUCTOR_DEPRECATED Q_DECL_CONSTRUCTOR_DEPRECATED
+#  elif defined(Q_NO_DEPRECATED_CONSTRUCTORS)
+#    define Q_DECL_CONSTRUCTOR_DEPRECATED explicit
+#  else
+#    define Q_DECL_CONSTRUCTOR_DEPRECATED explicit Q_DECL_DEPRECATED
 #  endif
 #endif
-
-#ifdef QT_MOC_COMPAT //for marking signals/slots
+// moc compats (signals/slots)
+#ifdef QT_MOC_COMPAT
 # undef QT_MOC_COMPAT
 #endif
 # if defined(Q_MOC_RUN)
@@ -606,19 +594,41 @@ typedef const char *pcchar;
 #else
 #   define QT_MOC_COMPAT
 #endif
-
-#if defined(QT_DEPRECATED_WARNINGS)
-#  if defined(Q_MOC_RUN)
-#    define QT_DEPRECATED QT_DEPRECATED
-#  elif defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
-#    define QT_DEPRECATED __attribute__ ((__deprecated__))
-#  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
-#    define QT_DEPRECATED __declspec(deprecated)
-#  else
-#    define QT_DEPRECATED
+#if defined(QT3_SUPPORT_WARNINGS)
+#  if !defined(QT_COMPAT_WARNINGS) //also enable compat
+#    define QT_COMPAT_WARNINGS
 #  endif
-#else
-#  define QT_DEPRECATED
+#  undef QT3_SUPPORT
+#  define QT3_SUPPORT Q_DECL_DEPRECATED
+#  undef QT3_SUPPORT_VARIABLE
+#  define QT3_SUPPORT_VARIABLE Q_DECL_VARIABLE_DEPRECATED
+#  undef QT3_SUPPORT_CONSTRUCTOR
+#  define QT3_SUPPORT_CONSTRUCTOR Q_DECL_CONSTRUCTOR_DEPRECATED
+#elif defined(QT3_SUPPORT) //define back to nothing
+#  if !defined(QT_COMPAT) //also enable qt3 support
+#    define QT_COMPAT
+#  endif
+#  undef QT3_SUPPORT
+#  define QT3_SUPPORT
+#  undef QT3_SUPPORT_VARIABLE
+#  define QT3_SUPPORT_VARIABLE
+#  undef QT3_SUPPORT_CONSTRUCTOR
+#  define QT3_SUPPORT_CONSTRUCTOR
+#endif
+#if defined(QT_COMPAT_WARNINGS)
+#  undef QT_COMPAT
+#  define QT_COMPAT Q_DECL_DEPRECATED
+#  undef QT_COMPAT_VARIABLE
+#  define QT_COMPAT_VARIABLE Q_DECL_VARIABLE_DEPRECATED
+#  undef QT_COMPAT_CONSTRUCTOR
+#  define QT_COMPAT_CONSTRUCTOR Q_DECL_CONSTRUCTOR_DEPRECATED
+#elif defined(QT_COMPAT) //define back to nothing
+#  undef QT_COMPAT
+#  define QT_COMPAT
+#  undef QT_COMPAT_VARIABLE
+#  define QT_COMPAT_VARIABLE
+#  undef QT_COMPAT_CONSTRUCTOR
+#  define QT_COMPAT_CONSTRUCTOR
 #endif
 
 #ifdef __i386__
@@ -632,7 +642,6 @@ typedef const char *pcchar;
 #else
 #  define QT_FASTCALL
 #endif
-
 
 //
 // Size-dependent types (architechture-dependent byte order)
@@ -659,7 +668,7 @@ typedef unsigned long long quint64;// 64 bit unsigned
 typedef qint64 qlonglong;
 typedef quint64 qulonglong;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 typedef qint8 Q_INT8;
 typedef quint8 Q_UINT8;
 typedef qint16 Q_INT16;
@@ -706,7 +715,7 @@ inline const T &qMin(const T &a, const T &b) { if (a < b) return a; return b; }
 template <typename T>
 inline const T &qMax(const T &a, const T &b) { if (a < b) return b; return a; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #  define QABS(a) qAbs(a)
 #  define QMAX(a, b) qMax((a), (b))
 #  define QMIN(a, b) qMin((a), (b))
@@ -1058,8 +1067,8 @@ Q_CORE_EXPORT bool qSharedBuild();
 inline int qMacVersion() { return QSysInfo::MacintoshVersion; }
 #endif
 
-#ifdef QT_COMPAT
-inline QT_COMPAT bool qSysInfo(int *wordSize, bool *bigEndian)
+#ifdef QT3_SUPPORT
+inline QT3_SUPPORT bool qSysInfo(int *wordSize, bool *bigEndian)
 {
     *wordSize = QSysInfo::WordSize;
     *bigEndian = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
@@ -1068,9 +1077,9 @@ inline QT_COMPAT bool qSysInfo(int *wordSize, bool *bigEndian)
 #endif
 
 #if defined(Q_WS_WIN)
-#if defined(QT_COMPAT)
-inline QT_COMPAT bool qt_winUnicode() { return !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based); }
-inline QT_COMPAT int qWinVersion() { return QSysInfo::WindowsVersion; }
+#if defined(QT3_SUPPORT)
+inline QT3_SUPPORT bool qt_winUnicode() { return !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based); }
+inline QT3_SUPPORT int qWinVersion() { return QSysInfo::WindowsVersion; }
 #endif
 
 #ifdef Q_OS_TEMP
@@ -1144,9 +1153,9 @@ Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
 #endif
 ;
 
-#ifdef QT_COMPAT
-Q_CORE_EXPORT QT_COMPAT void qSystemWarning(const char *msg, int code = -1);
-#endif // QT_COMPAT
+#ifdef QT3_SUPPORT
+Q_CORE_EXPORT QT3_SUPPORT void qSystemWarning(const char *msg, int code = -1);
+#endif // QT3_SUPPORT
 Q_CORE_EXPORT void qErrnoWarning(int code, const char *msg, ...);
 Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 
@@ -1197,9 +1206,9 @@ Q_CORE_EXPORT void qt_message_output(QtMsgType, const char *buf);
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_CORE_EXPORT QtMsgHandler qInstallMsgHandler(QtMsgHandler);
 
-#ifdef QT_COMPAT
-inline QT_COMPAT void qSuppressObsoleteWarnings(bool = true) {}
-inline QT_COMPAT void qObsolete(const char *, const char * = 0, const char * = 0) {}
+#ifdef QT3_SUPPORT
+inline QT3_SUPPORT void qSuppressObsoleteWarnings(bool = true) {}
+inline QT3_SUPPORT void qObsolete(const char *, const char * = 0, const char * = 0) {}
 #endif
 
 #if defined(QT_NO_THREAD)
@@ -1791,22 +1800,22 @@ typedef float qreal;
 //
 // Compat functions that were generated by configure
 //
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_PRODUCT_LICENSEE
 #  define QT_PRODUCT_LICENSEE QLibraryInfo::licensee()
 #endif
 #ifndef QT_PRODUCT_LICENSE
 #  define QT_PRODUCT_LICENSE QLibraryInfo::licensedProducts()
 #endif
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPath();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathDocs();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathHeaders();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathLibs();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathBins();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathPlugins();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathData();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathTranslations();
-QT_COMPAT Q_CORE_EXPORT const char *qInstallPathSysconf();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPath();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathDocs();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathHeaders();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathLibs();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathBins();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathPlugins();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathData();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathTranslations();
+QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #endif
 
 #endif /* __cplusplus */

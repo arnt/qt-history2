@@ -141,19 +141,19 @@ public:
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_IMAGEIO
     enum ColorMode { Auto, Color, Mono };
-    QT_COMPAT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
-    QT_COMPAT bool load(const QString& fileName, const char *format, ColorMode mode);
-    QT_COMPAT bool loadFromData(const uchar *buf, uint len, const char* format, ColorMode mode);
+    QT3_SUPPORT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
+    QT3_SUPPORT bool load(const QString& fileName, const char *format, ColorMode mode);
+    QT3_SUPPORT bool loadFromData(const uchar *buf, uint len, const char* format, ColorMode mode);
 #endif
-    inline QT_COMPAT QImage convertToImage() const { return toImage(); }
-    QT_COMPAT bool convertFromImage(const QImage &, ColorMode mode);
-    QT_COMPAT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
+    inline QT3_SUPPORT QImage convertToImage() const { return toImage(); }
+    QT3_SUPPORT bool convertFromImage(const QImage &, ColorMode mode);
+    QT3_SUPPORT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
         { return fromImage(img, flags); }
-    inline QT_COMPAT operator QImage() const { return toImage(); }
-    inline QT_COMPAT QPixmap xForm(const QMatrix &matrix) const { return transform(matrix); }
+    inline QT3_SUPPORT operator QImage() const { return toImage(); }
+    inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transform(matrix); }
 #endif
 
 protected:
@@ -215,9 +215,9 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 /*****************************************************************************
  QPixmap (and QImage) helper functions
 *****************************************************************************/
-#ifdef QT_COMPAT
-QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src,
+#ifdef QT3_SUPPORT
+QT3_SUPPORT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src,
                                     int sx=0, int sy=0, int sw=-1, int sh=-1);
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #endif // QPIXMAP_H

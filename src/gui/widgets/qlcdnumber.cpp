@@ -296,7 +296,7 @@ static const char *getSegments(char ch)               // gets list of segments f
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs an LCD number, sets the number of digits to 5, the base
     to decimal, the decimal point mode to 'small' and the frame style
@@ -338,7 +338,7 @@ QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent, const char *name)
     d->ndigits = numDigits;
     d->init();
 }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 /*!
     Constructs an LCD number, sets the number of digits to 5, the base

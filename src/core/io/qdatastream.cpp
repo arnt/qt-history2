@@ -263,7 +263,7 @@ QDataStream::QDataStream(QIODevice *d)
     q_status = Ok;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn QDataStream::QDataStream(QByteArray *array, int mode)
     \compat
@@ -1099,7 +1099,7 @@ int QDataStream::writeRawData(const char *s, int len)
     return dev->write(s, len);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \fn QDataStream &QDataStream::readRawBytes(char *str, uint len)
 

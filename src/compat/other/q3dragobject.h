@@ -18,7 +18,7 @@
 #include "QtGui/qcolor.h"
 #include "QtGui/qmime.h"
 #include "QtGui/qimage.h"
-#include "Qt3Compat/q3strlist.h"
+#include "Qt3Support/q3strlist.h"
 #include "QtCore/qlist.h"
 
 class QWidget;

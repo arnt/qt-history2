@@ -35,23 +35,19 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
    else:isEqual(QTLIB, sql):qlib = QtSql
    else:isEqual(QTLIB, core):qlib = QtCore
    else:isEqual(QTLIB, canvas):qlib = QtCanvas
-   else:isEqual(QTLIB, compat):qlib = Qt3Compat
+   else:isEqual(QTLIB, qt3support):qlib = Qt3Support
    else:message("Unknown QT: $$QTLIB"):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QT of $$QTLIB)
       } else {
          DEFINES *= $$upper(QT_$${QTLIB}_LIB)
-	 isEqual(QTLIB, compat) {
-	    !qt_no_compat_warning:QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
-	    INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
-	    DEFINES *= QT_COMPAT
-	 }
 	 exists($$QMAKE_INCDIR_QT/$$qlib) {
              INCLUDEPATH -= $$QMAKE_INCDIR_QT/$$qlib
              INCLUDEPATH = $$QMAKE_INCDIR_QT/$$qlib $$INCLUDEPATH
          }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
+	 isEqual(QTLIB, qt3support):DEFINES *= QT3_SUPPORT
 	 mac:!qt_no_framework:exists(/Library/Frameworks/$${qlib}.framework/$${qlib}) {
 	    FRAMEWORK_INCLUDE = /Library/Frameworks/$${qlib}.framework/Headers
 	    !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
@@ -67,4 +63,10 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
          }
       }
    }
+}
+
+qt_compat {
+   !qt_compat_no_warning:QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
+   INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
+   DEFINES *= QT_COMPAT
 }

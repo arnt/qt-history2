@@ -35,8 +35,8 @@ public:
              const QBrush &bright_text, const QBrush &base, const QBrush &background);
     QPalette(const QColor &foreground, const QColor &background, const QColor &light,
              const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
 #endif
     QPalette(const QPalette &palette);
     ~QPalette();
@@ -87,17 +87,17 @@ public:
     inline const QBrush &link() const { return brush(Link); }
     inline const QBrush &linkVisited() const { return brush(LinkVisited); }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QPalette copy() const { QPalette p = *this; p.detach(); return p; }
-    QT_COMPAT QColorGroup normal() const;
-    inline QT_COMPAT void setNormal(const QColorGroup &cg) { setColorGroup(Active, cg); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QPalette copy() const { QPalette p = *this; p.detach(); return p; }
+    QT3_SUPPORT QColorGroup normal() const;
+    inline QT3_SUPPORT void setNormal(const QColorGroup &cg) { setColorGroup(Active, cg); }
 
-    QT_COMPAT QColorGroup active() const;
-    QT_COMPAT QColorGroup disabled() const;
-    QT_COMPAT QColorGroup inactive() const;
-    inline QT_COMPAT void setActive(const QColorGroup &cg) { setColorGroup(Active, cg); }
-    inline QT_COMPAT void setDisabled(const QColorGroup &cg) { setColorGroup(Disabled, cg); }
-    inline QT_COMPAT void setInactive(const QColorGroup &cg) { setColorGroup(Inactive, cg); }
+    QT3_SUPPORT QColorGroup active() const;
+    QT3_SUPPORT QColorGroup disabled() const;
+    QT3_SUPPORT QColorGroup inactive() const;
+    inline QT3_SUPPORT void setActive(const QColorGroup &cg) { setColorGroup(Active, cg); }
+    inline QT3_SUPPORT void setDisabled(const QColorGroup &cg) { setColorGroup(Disabled, cg); }
+    inline QT3_SUPPORT void setInactive(const QColorGroup &cg) { setColorGroup(Inactive, cg); }
 #endif
 
     bool operator==(const QPalette &p) const;
@@ -118,7 +118,7 @@ private:
                        const QBrush &button_text, const QBrush &shadow,
                        const QBrush &highlight, const QBrush &highlighted_text,
                        const QBrush &link, const QBrush &link_visited);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     friend class QColorGroup;
     void setColorGroup(ColorGroup, const QColorGroup &);
     QColorGroup createColorGroup(ColorGroup) const;
@@ -132,7 +132,7 @@ private:
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class Q_GUI_EXPORT QColorGroup : public QPalette
 {
 public:
@@ -150,27 +150,27 @@ public:
     bool operator==(const QColorGroup &other) const;
     inline bool operator!=(const QColorGroup &other) const { return !(operator==(other)); }
 
-    inline QT_COMPAT const QColor &foreground() const { return color(Foreground); }
-    inline QT_COMPAT const QColor &button() const { return color(Button); }
-    inline QT_COMPAT const QColor &light() const { return color(Light); }
-    inline QT_COMPAT const QColor &dark() const { return color(Dark); }
-    inline QT_COMPAT const QColor &mid() const { return color(Mid); }
-    inline QT_COMPAT const QColor &text() const { return color(Text); }
-    inline QT_COMPAT const QColor &base() const { return color(Base); }
-    inline QT_COMPAT const QColor &background() const { return color(Background); }
-    inline QT_COMPAT const QColor &midlight() const { return color(Midlight); }
-    inline QT_COMPAT const QColor &brightText() const { return color(BrightText); }
-    inline QT_COMPAT const QColor &buttonText() const { return color(ButtonText); }
-    inline QT_COMPAT const QColor &shadow() const { return color(Shadow); }
-    inline QT_COMPAT const QColor &highlight() const { return color(Highlight); }
-    inline QT_COMPAT const QColor &highlightedText() const { return color(HighlightedText); }
-    inline QT_COMPAT const QColor &link() const { return color(Link); }
-    inline QT_COMPAT const QColor &linkVisited() const { return color(LinkVisited); }
+    inline QT3_SUPPORT const QColor &foreground() const { return color(Foreground); }
+    inline QT3_SUPPORT const QColor &button() const { return color(Button); }
+    inline QT3_SUPPORT const QColor &light() const { return color(Light); }
+    inline QT3_SUPPORT const QColor &dark() const { return color(Dark); }
+    inline QT3_SUPPORT const QColor &mid() const { return color(Mid); }
+    inline QT3_SUPPORT const QColor &text() const { return color(Text); }
+    inline QT3_SUPPORT const QColor &base() const { return color(Base); }
+    inline QT3_SUPPORT const QColor &background() const { return color(Background); }
+    inline QT3_SUPPORT const QColor &midlight() const { return color(Midlight); }
+    inline QT3_SUPPORT const QColor &brightText() const { return color(BrightText); }
+    inline QT3_SUPPORT const QColor &buttonText() const { return color(ButtonText); }
+    inline QT3_SUPPORT const QColor &shadow() const { return color(Shadow); }
+    inline QT3_SUPPORT const QColor &highlight() const { return color(Highlight); }
+    inline QT3_SUPPORT const QColor &highlightedText() const { return color(HighlightedText); }
+    inline QT3_SUPPORT const QColor &link() const { return color(Link); }
+    inline QT3_SUPPORT const QColor &linkVisited() const { return color(LinkVisited); }
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QT_COMPAT QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg);
-Q_GUI_EXPORT QT_COMPAT QDataStream &operator>>(QDataStream &ds, QColorGroup &cg);
+Q_GUI_EXPORT QT3_SUPPORT QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg);
+Q_GUI_EXPORT QT3_SUPPORT QDataStream &operator>>(QDataStream &ds, QColorGroup &cg);
 #endif
 
 inline QColorGroup QPalette::inactive() const { return createColorGroup(Inactive); }

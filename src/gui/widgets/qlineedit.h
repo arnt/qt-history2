@@ -49,10 +49,10 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
 public:
     explicit QLineEdit(QWidget* parent=0);
     explicit QLineEdit(const QString &, QWidget* parent=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QLineEdit(QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QLineEdit(const QString &, QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QLineEdit(const QString &, const QString &, QWidget* parent=0, const char* name=0);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QLineEdit(QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QLineEdit(const QString &, QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QLineEdit(const QString &, const QString &, QWidget* parent=0, const char* name=0);
 #endif
     ~QLineEdit();
 
@@ -154,8 +154,8 @@ protected:
 #endif
     void changeEvent(QEvent *);
     void contextMenuEvent(QContextMenuEvent *);
-#ifdef QT_COMPAT
-    inline QT_COMPAT void repaintArea(int, int) { update(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void repaintArea(int, int) { update(); }
 #endif
 
     void inputMethodEvent(QInputMethodEvent *);
@@ -165,19 +165,19 @@ public:
 protected:
 
 public:
-#ifdef QT_COMPAT
-    inline QT_COMPAT void clearModified() { setModified(false); }
-    inline QT_COMPAT void cursorLeft(bool mark, int steps = 1) { cursorForward(mark, -steps); }
-    inline QT_COMPAT void cursorRight(bool mark, int steps = 1) { cursorForward(mark, steps); }
-    QT_COMPAT bool validateAndSet(const QString &, int, int, int);
-    inline QT_COMPAT bool frame() const { return hasFrame(); }
-    inline QT_COMPAT void clearValidator() { setValidator(0); }
-    inline QT_COMPAT bool hasMarkedText() const { return hasSelectedText(); }
-    inline QT_COMPAT QString markedText() const { return selectedText(); }
-    QT_COMPAT bool edited() const;
-    QT_COMPAT void setEdited(bool);
-    QT_COMPAT int characterAt(int, QChar*) const;
-    QT_COMPAT bool getSelection(int *, int *);
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void clearModified() { setModified(false); }
+    inline QT3_SUPPORT void cursorLeft(bool mark, int steps = 1) { cursorForward(mark, -steps); }
+    inline QT3_SUPPORT void cursorRight(bool mark, int steps = 1) { cursorForward(mark, steps); }
+    QT3_SUPPORT bool validateAndSet(const QString &, int, int, int);
+    inline QT3_SUPPORT bool frame() const { return hasFrame(); }
+    inline QT3_SUPPORT void clearValidator() { setValidator(0); }
+    inline QT3_SUPPORT bool hasMarkedText() const { return hasSelectedText(); }
+    inline QT3_SUPPORT QString markedText() const { return selectedText(); }
+    QT3_SUPPORT bool edited() const;
+    QT3_SUPPORT void setEdited(bool);
+    QT3_SUPPORT int characterAt(int, QChar*) const;
+    QT3_SUPPORT bool getSelection(int *, int *);
 #endif
 
 private:

@@ -886,7 +886,7 @@ QTextStream::RealNumberNotation QTextStream::realNumberNotation() const
     return d->realNumberNotation;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 int QTextStream::flagsInternal() const
 {
     Q_D(const QTextStream);
@@ -2062,7 +2062,7 @@ bool QTextStream::autoDetectUnicode() const
     return d->autoDetectUnicode;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 void QTextStream::setEncoding(Encoding encoding)
 {
     Q_D(QTextStream);

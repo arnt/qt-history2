@@ -229,7 +229,7 @@ QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent) :
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent, const char *name) :
     QTcpServer(parent)
 {

@@ -2318,7 +2318,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 break;
 
             bool key_event = true;
-#if defined(QT_COMPAT) && !defined(QT_NO_ACCEL)
+#if defined(QT3_SUPPORT) && !defined(QT_NO_ACCEL)
             if(etype == QEvent::KeyPress && !mac_keyboard_grabber
                && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
                 /* We offer the shortcut a text representation of chr, this is because the Mac
@@ -2354,7 +2354,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     }
                 }
             }
-#endif // QT_COMPAT && !QT_NO_ACCEL
+#endif // QT3_SUPPORT && !QT_NO_ACCEL
             if(key_event) {
                 //Find out if someone else wants the event, namely
                 //is it of use to text services? If so we won't bother
@@ -3009,7 +3009,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
     return true;
 }
 
-#if defined(Q_OS_MAC) && defined(QT_COMPAT)
+#if defined(Q_OS_MAC) && defined(QT3_SUPPORT)
 /*!
     \enum Qt::MacintoshVersion
 

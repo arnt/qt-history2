@@ -16,9 +16,9 @@
 
 #ifndef QT_H
 #include "QtCore/qobject.h"
-#include "Qt3Compat/q3url.h"
-#include "Qt3Compat/q3ptrlist.h"
-#include "Qt3Compat/q3networkprotocol.h"
+#include "Qt3Support/q3url.h"
+#include "Qt3Support/q3ptrlist.h"
+#include "Qt3Support/q3networkprotocol.h"
 #include "QtCore/qstringlist.h" // QString->QStringList conversion
 #endif // QT_H
 

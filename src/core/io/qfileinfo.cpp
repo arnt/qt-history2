@@ -732,7 +732,7 @@ QFileInfo::absoluteDir() const
     return QDir(absolutePath());
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use absoluteDir() or the dir() overload that takes no parameters
     instead.
@@ -743,7 +743,7 @@ QDir QFileInfo::dir(bool absPath) const
         return absoluteDir();
     return dir();
 }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 #endif //QT_NO_DIR
 
 /*!

@@ -31,9 +31,9 @@ public:
     void setMargin(int margin);
     void setSpacing(int spacing);
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QGridWidget(int n, QWidget* parent, const char* name, Qt::WFlags f);
-    QT_COMPAT_CONSTRUCTOR QGridWidget(int n, Qt::Orientation orientation, QWidget* parent, const char* name, Qt::WFlags f);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QGridWidget(int n, QWidget* parent, const char* name, Qt::WFlags f);
+    QT3_SUPPORT_CONSTRUCTOR QGridWidget(int n, Qt::Orientation orientation, QWidget* parent, const char* name, Qt::WFlags f);
     typedef Qt::Orientation Direction;
 #endif
 

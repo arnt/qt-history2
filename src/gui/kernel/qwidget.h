@@ -160,8 +160,8 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 
 public:
     explicit QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QWidget(QWidget* parent, const char *name, Qt::WFlags f = 0);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QWidget(QWidget* parent, const char *name, Qt::WFlags f = 0);
 #endif
     ~QWidget();
 
@@ -453,8 +453,8 @@ public:
     Qt::WState testWState(Qt::WState s) const;
     Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
-#ifdef QT_COMPAT
-    static QT_COMPAT QWidgetMapper *wmapper();
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QWidgetMapper *wmapper();
 #endif
     inline QWidget *childAt(int x, int y) const
     { return childAt(QPoint(x, y)); }
@@ -606,89 +606,89 @@ private:
 
     QWidgetData *data;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT QStyle *setStyle(const QString&);
-    inline QT_COMPAT bool isVisibleToTLW() const;
-    QT_COMPAT QRect visibleRect() const;
-    inline QT_COMPAT void iconify() { showMinimized(); }
-    inline QT_COMPAT void constPolish() const { ensurePolished(); }
-    inline QT_COMPAT void polish() { ensurePolished(); }
-    inline QT_COMPAT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
+    QT3_SUPPORT QStyle *setStyle(const QString&);
+    inline QT3_SUPPORT bool isVisibleToTLW() const;
+    QT3_SUPPORT QRect visibleRect() const;
+    inline QT3_SUPPORT void iconify() { showMinimized(); }
+    inline QT3_SUPPORT void constPolish() const { ensurePolished(); }
+    inline QT3_SUPPORT void polish() { ensurePolished(); }
+    inline QT3_SUPPORT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
-    inline QT_COMPAT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
+    inline QT3_SUPPORT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
     { setParent(parent, getWFlags() & ~Qt::WType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
-    inline QT_COMPAT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
+    inline QT3_SUPPORT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
-    inline QT_COMPAT void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
+    inline QT3_SUPPORT void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
     { QSizePolicy sp(hor, ver); sp.setHeightForWidth(hfw); setSizePolicy(sp);}
-    inline QT_COMPAT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
+    inline QT3_SUPPORT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
-    inline QT_COMPAT bool ownCursor() const { return testAttribute(Qt::WA_SetCursor); }
+    inline QT3_SUPPORT bool ownCursor() const { return testAttribute(Qt::WA_SetCursor); }
 #endif
-    inline QT_COMPAT bool ownFont() const { return testAttribute(Qt::WA_SetFont); }
-    inline QT_COMPAT void unsetFont() { setFont(QFont()); }
-    inline QT_COMPAT bool ownPalette() const { return testAttribute(Qt::WA_SetPalette); }
-    inline QT_COMPAT void unsetPalette() { setPalette(QPalette()); }
-    Qt::BackgroundMode QT_COMPAT backgroundMode() const;
-    void QT_COMPAT setBackgroundMode(Qt::BackgroundMode, Qt::BackgroundMode = Qt::PaletteBackground);
-    const QT_COMPAT QColor &eraseColor() const;
-    void QT_COMPAT setEraseColor(const QColor &);
-    const QT_COMPAT QColor &foregroundColor() const;
-    const QT_COMPAT QPixmap *erasePixmap() const;
-    void QT_COMPAT setErasePixmap(const QPixmap &);
-    const QT_COMPAT QColor &paletteForegroundColor() const;
-    void QT_COMPAT setPaletteForegroundColor(const QColor &);
-    const QT_COMPAT QColor &paletteBackgroundColor() const;
-    void QT_COMPAT setPaletteBackgroundColor(const QColor &);
-    const QT_COMPAT QPixmap *paletteBackgroundPixmap() const;
-    void QT_COMPAT setPaletteBackgroundPixmap(const QPixmap &);
-    const QT_COMPAT QBrush& backgroundBrush() const;
-    const QT_COMPAT QColor &backgroundColor() const;
-    const QT_COMPAT QPixmap *backgroundPixmap() const;
-    void QT_COMPAT setBackgroundPixmap(const QPixmap &);
-    QT_COMPAT void setBackgroundColor(const QColor &);
-    QT_COMPAT QColorGroup colorGroup() const;
-    QT_COMPAT QWidget *parentWidget(bool sameWindow) const;
-    inline QT_COMPAT void setKeyCompression(bool b) { setAttribute(Qt::WA_KeyCompression, b); }
-    inline QT_COMPAT void setFont(const QFont &f, bool) { setFont(f); }
-    inline QT_COMPAT void setPalette(const QPalette &p, bool) { setPalette(p); }
+    inline QT3_SUPPORT bool ownFont() const { return testAttribute(Qt::WA_SetFont); }
+    inline QT3_SUPPORT void unsetFont() { setFont(QFont()); }
+    inline QT3_SUPPORT bool ownPalette() const { return testAttribute(Qt::WA_SetPalette); }
+    inline QT3_SUPPORT void unsetPalette() { setPalette(QPalette()); }
+    Qt::BackgroundMode QT3_SUPPORT backgroundMode() const;
+    void QT3_SUPPORT setBackgroundMode(Qt::BackgroundMode, Qt::BackgroundMode = Qt::PaletteBackground);
+    const QT3_SUPPORT QColor &eraseColor() const;
+    void QT3_SUPPORT setEraseColor(const QColor &);
+    const QT3_SUPPORT QColor &foregroundColor() const;
+    const QT3_SUPPORT QPixmap *erasePixmap() const;
+    void QT3_SUPPORT setErasePixmap(const QPixmap &);
+    const QT3_SUPPORT QColor &paletteForegroundColor() const;
+    void QT3_SUPPORT setPaletteForegroundColor(const QColor &);
+    const QT3_SUPPORT QColor &paletteBackgroundColor() const;
+    void QT3_SUPPORT setPaletteBackgroundColor(const QColor &);
+    const QT3_SUPPORT QPixmap *paletteBackgroundPixmap() const;
+    void QT3_SUPPORT setPaletteBackgroundPixmap(const QPixmap &);
+    const QT3_SUPPORT QBrush& backgroundBrush() const;
+    const QT3_SUPPORT QColor &backgroundColor() const;
+    const QT3_SUPPORT QPixmap *backgroundPixmap() const;
+    void QT3_SUPPORT setBackgroundPixmap(const QPixmap &);
+    QT3_SUPPORT void setBackgroundColor(const QColor &);
+    QT3_SUPPORT QColorGroup colorGroup() const;
+    QT3_SUPPORT QWidget *parentWidget(bool sameWindow) const;
+    inline QT3_SUPPORT void setKeyCompression(bool b) { setAttribute(Qt::WA_KeyCompression, b); }
+    inline QT3_SUPPORT void setFont(const QFont &f, bool) { setFont(f); }
+    inline QT3_SUPPORT void setPalette(const QPalette &p, bool) { setPalette(p); }
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
-    inline QT_COMPAT void setBackgroundOrigin(BackgroundOrigin){};
-    inline QT_COMPAT BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
-    inline QT_COMPAT QPoint backgroundOffset() const { return QPoint(); }
-    inline QT_COMPAT void repaint(bool) { repaint(); }
-    inline QT_COMPAT void repaint(int x, int y, int w, int h, bool) { repaint(x,y,w,h); }
-    inline QT_COMPAT void repaint(const QRect &r, bool) { repaint(r); }
-    inline QT_COMPAT void repaint(const QRegion &rgn, bool) { repaint(rgn); }
-    QT_COMPAT void erase();
-    inline QT_COMPAT void erase(int x, int y, int w, int h) { erase_helper(x, y, w, h); }
-    QT_COMPAT void erase(const QRect &);
-    QT_COMPAT void erase(const QRegion &);
-    QT_COMPAT void drawText(const QPoint &p, const QString &s)
+    inline QT3_SUPPORT void setBackgroundOrigin(BackgroundOrigin){};
+    inline QT3_SUPPORT BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
+    inline QT3_SUPPORT QPoint backgroundOffset() const { return QPoint(); }
+    inline QT3_SUPPORT void repaint(bool) { repaint(); }
+    inline QT3_SUPPORT void repaint(int x, int y, int w, int h, bool) { repaint(x,y,w,h); }
+    inline QT3_SUPPORT void repaint(const QRect &r, bool) { repaint(r); }
+    inline QT3_SUPPORT void repaint(const QRegion &rgn, bool) { repaint(rgn); }
+    QT3_SUPPORT void erase();
+    inline QT3_SUPPORT void erase(int x, int y, int w, int h) { erase_helper(x, y, w, h); }
+    QT3_SUPPORT void erase(const QRect &);
+    QT3_SUPPORT void erase(const QRegion &);
+    QT3_SUPPORT void drawText(const QPoint &p, const QString &s)
     { drawText_helper(p.x(), p.y(), s); }
-    inline QT_COMPAT void drawText(int x, int y, const QString &s)
+    inline QT3_SUPPORT void drawText(int x, int y, const QString &s)
     { drawText_helper(x, y, s); }
-    QT_COMPAT bool close(bool);
-    inline QT_COMPAT QWidget *childAt(int x, int y, bool includeThis) const
+    QT3_SUPPORT bool close(bool);
+    inline QT3_SUPPORT QWidget *childAt(int x, int y, bool includeThis) const
     {
         QWidget *w = childAt(x, y);
         return w ? w : ((includeThis && rect().contains(x,y))?const_cast<QWidget*>(this):0);
     }
-    inline QT_COMPAT QWidget *childAt(const QPoint &p, bool includeThis) const
+    inline QT3_SUPPORT QWidget *childAt(const QPoint &p, bool includeThis) const
     {
         QWidget *w = childAt(p);
         return w ? w : ((includeThis && rect().contains(p))?const_cast<QWidget*>(this):0);
     }
-    inline QT_COMPAT void setCaption(const QString &c)   { setWindowTitle(c); }
-    inline QT_COMPAT void setIcon(const QPixmap &i)      { setWindowIcon(i); }
-    inline QT_COMPAT void setIconText(const QString &it) { setWindowIconText(it); }
-    inline QT_COMPAT QString caption() const             { return windowTitle(); }
-    QT_COMPAT const QPixmap *icon() const;
-    inline QT_COMPAT QString iconText() const            { return windowIconText(); }
-    inline QT_COMPAT void setInputMethodEnabled(bool b) { setAttribute(Qt::WA_InputMethodEnabled, b); }
-    inline QT_COMPAT bool isInputMethodEnabled() const { return testAttribute(Qt::WA_InputMethodEnabled); }
-    inline QT_COMPAT void setActiveWindow() { activateWindow(); }
+    inline QT3_SUPPORT void setCaption(const QString &c)   { setWindowTitle(c); }
+    inline QT3_SUPPORT void setIcon(const QPixmap &i)      { setWindowIcon(i); }
+    inline QT3_SUPPORT void setIconText(const QString &it) { setWindowIconText(it); }
+    inline QT3_SUPPORT QString caption() const             { return windowTitle(); }
+    QT3_SUPPORT const QPixmap *icon() const;
+    inline QT3_SUPPORT QString iconText() const            { return windowIconText(); }
+    inline QT3_SUPPORT void setInputMethodEnabled(bool b) { setAttribute(Qt::WA_InputMethodEnabled, b); }
+    inline QT3_SUPPORT bool isInputMethodEnabled() const { return testAttribute(Qt::WA_InputMethodEnabled); }
+    inline QT3_SUPPORT void setActiveWindow() { activateWindow(); }
 
 private:
     void drawText_helper(int x, int y, const QString &);
@@ -865,7 +865,7 @@ inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const
     return testAttribute_helper(attribute);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline bool QWidget::isVisibleToTLW() const
 { return isVisible(); }
 inline QWidget *QWidget::parentWidget(bool sameWindow) const
@@ -900,8 +900,8 @@ inline const QPixmap *QWidget::paletteBackgroundPixmap() const
 { return 0; }
 inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &pm)
 { QPalette p = palette(); p.setBrush(backgroundRole(), QBrush(pm)); setPalette(p); }
-inline QT_COMPAT void QWidget::erase() { erase_helper(0, 0, data->crect.width(), data->crect.height()); }
-inline QT_COMPAT void QWidget::erase(const QRect &r) { erase_helper(r.x(), r.y(), r.width(), r.height()); }
+inline QT3_SUPPORT void QWidget::erase() { erase_helper(0, 0, data->crect.width(), data->crect.height()); }
+inline QT3_SUPPORT void QWidget::erase(const QRect &r) { erase_helper(r.x(), r.y(), r.width(), r.height()); }
 #endif
 
 #define QWIDGETSIZE_MAX ((1<<24)-1)

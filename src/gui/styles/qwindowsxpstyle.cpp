@@ -1235,7 +1235,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         stateId = 1;
         break;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_POPUPMENU
     case CE_Q3PopupMenuItem:
         {
@@ -1445,7 +1445,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         return;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CE_Q3MenuBarItem:
         {
             if (option.isDefault())

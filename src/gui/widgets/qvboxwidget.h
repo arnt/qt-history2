@@ -24,9 +24,9 @@ class Q_GUI_EXPORT QVBoxWidget : public QHBoxWidget
 public:
     explicit QVBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QVBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
+    QT3_SUPPORT_CONSTRUCTOR QVBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
 #endif
 
 private:

@@ -61,7 +61,7 @@ public:
 
     QDataStream();
     explicit QDataStream(QIODevice *);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QDataStream(QByteArray *, int mode);
 #endif
     QDataStream(QByteArray *, QIODevice::OpenMode flags);
@@ -73,8 +73,8 @@ public:
     void unsetDevice();
 
     bool atEnd() const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool eof() const { return atEnd(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool eof() const { return atEnd(); }
 #endif
 
     Status status() const;
@@ -124,13 +124,13 @@ public:
     QDataStream &writeBytes(const char *, uint len);
     int writeRawData(const char *, int len);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QDataStream &readRawBytes(char *str, uint len)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QDataStream &readRawBytes(char *str, uint len)
         { readRawData(str, (int)len); return *this; }
-    inline QT_COMPAT QDataStream &writeRawBytes(const char *str, uint len)
+    inline QT3_SUPPORT QDataStream &writeRawBytes(const char *str, uint len)
         { writeRawData(str, (int)len); return *this; }
-    inline QT_COMPAT bool isPrintableData() const { return false; }
-    inline QT_COMPAT void setPrintableData(bool) {}
+    inline QT3_SUPPORT bool isPrintableData() const { return false; }
+    inline QT3_SUPPORT void setPrintableData(bool) {}
 #endif
 
 private:

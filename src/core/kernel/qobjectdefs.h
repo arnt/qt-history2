@@ -40,7 +40,7 @@ class QByteArray;
 #define Q_OVERRIDE(text)
 #define Q_ENUMS(x)
 #define Q_FLAGS(x)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 # define Q_SETS(x)
 #endif
 #define Q_SCRIPTABLE
@@ -89,7 +89,7 @@ private:
 #define Q_OVERRIDE(text) Q_OVERRIDE(text)
 #define Q_ENUMS(x) Q_ENUMS(x)
 #define Q_FLAGS(x) Q_FLAGS(x)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 # define Q_SETS(x) Q_SETS(x)
 #endif
  /* tmake ignore Q_OBJECT */
@@ -115,7 +115,7 @@ private:
 #define SLOT(a)                "1"#a
 #define SIGNAL(a)        "2"#a
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #define METHOD_CODE        0                        // member type codes
 #define SLOT_CODE        1
 #define SIGNAL_CODE        2
@@ -197,8 +197,8 @@ struct Q_CORE_EXPORT QMetaObject
         QueryPropertyEditable
     };
 
-#ifdef QT_COMPAT
-    QT_COMPAT const char *superClassName() const;
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT const char *superClassName() const;
 #endif
 
     struct { // private data
@@ -215,7 +215,7 @@ inline const char *QMetaObject::className() const
 inline const QMetaObject *QMetaObject::superClass() const
 { return d.superdata; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline const char *QMetaObject::superClassName() const
 { return d.superdata ? d.superdata->className() : 0; }
 #endif

@@ -46,9 +46,9 @@ public:
     QString text(QString& subtype, Mode mode = Clipboard) const;
     void setText(const QString &, Mode mode = Clipboard);
 
-#ifdef QT_COMPAT
-    QT_COMPAT QMimeSource *data(Mode mode  = Clipboard) const;
-    QT_COMPAT void setData(QMimeSource*, Mode mode  = Clipboard);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT QMimeSource *data(Mode mode  = Clipboard) const;
+    QT3_SUPPORT void setData(QMimeSource*, Mode mode  = Clipboard);
 #endif
     const QMimeData *mimeData(Mode mode = Clipboard ) const;
     void setMimeData(QMimeData *data, Mode mode = Clipboard);

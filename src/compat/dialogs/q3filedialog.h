@@ -29,8 +29,8 @@ class Q3FileDialogQFileListView;
 
 #include "QtCore/qdir.h"
 #include "QtGui/qdialog.h"
-#include "Qt3Compat/q3urloperator.h"
-#include "Qt3Compat/q3valuelist.h"
+#include "Qt3Support/q3urloperator.h"
+#include "Qt3Support/q3valuelist.h"
 #include "QtNetwork/qurlinfo.h"
 
 #ifndef QT_NO_FILEDIALOG

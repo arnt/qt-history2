@@ -56,13 +56,13 @@ public:
     inline Qt::MouseButton button() const { return b; }
     inline Qt::MouseButtons buttons() const { return mouseState; }
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state);
-    QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state);
+    QT3_SUPPORT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                                       Qt::ButtonState button, int state);
-    inline QT_COMPAT Qt::ButtonState state() const
+    inline QT3_SUPPORT Qt::ButtonState state() const
     { return Qt::ButtonState((mouseState^b)|int(modifiers())); }
-    inline QT_COMPAT Qt::ButtonState stateAfter() const
+    inline QT3_SUPPORT Qt::ButtonState stateAfter() const
     { return Qt::ButtonState(int(mouseState)|int(modifiers())); }
 #endif
 protected:
@@ -95,12 +95,12 @@ public:
     inline Qt::MouseButtons buttons() const { return mouseState; }
     Qt::Orientation orientation() const { return o; }
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QWheelEvent(const QPoint &pos, int delta, int state,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QWheelEvent(const QPoint &pos, int delta, int state,
                                       Qt::Orientation orient = Qt::Vertical);
-    QT_COMPAT_CONSTRUCTOR QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
+    QT3_SUPPORT_CONSTRUCTOR QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
                                       Qt::Orientation orient = Qt::Vertical);
-    inline QT_COMPAT Qt::ButtonState state() const
+    inline QT3_SUPPORT Qt::ButtonState state() const
     { return static_cast<Qt::ButtonState>(int(buttons())|int(modifiers())); }
 #endif
 protected:
@@ -159,8 +159,8 @@ public:
     inline bool isAutoRepeat() const { return autor; }
     inline int count() const { return int(c); }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
                                            int modifiers, const QString& text = QString::null,
                                            bool autorep = false, ushort count = 1)
         : QInputEvent(type, (Qt::KeyboardModifiers)(modifiers & Qt::KeyButtonMask)), txt(text), k(key),
@@ -169,10 +169,10 @@ public:
         if (key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
             ignore();
     }
-    inline QT_COMPAT int ascii() const
+    inline QT3_SUPPORT int ascii() const
     { return (txt.length() ? txt.unicode()->toLatin1() : 0); }
-    inline QT_COMPAT Qt::ButtonState state() const { return Qt::ButtonState(QInputEvent::modifiers()); }
-    inline QT_COMPAT Qt::ButtonState stateAfter() const { return Qt::ButtonState(modifiers()); }
+    inline QT3_SUPPORT Qt::ButtonState state() const { return Qt::ButtonState(QInputEvent::modifiers()); }
+    inline QT3_SUPPORT Qt::ButtonState stateAfter() const { return Qt::ButtonState(modifiers()); }
 #endif
 protected:
     QString txt;
@@ -191,7 +191,7 @@ public:
     inline bool gotFocus() const { return type() == FocusIn; }
     inline bool lostFocus() const { return type() == FocusOut; }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     enum Reason { Mouse=Qt::MouseFocusReason, Tab=Qt::TabFocusReason,
                   Backtab=Qt::BacktabFocusReason, MenuBar=Qt::MenuBarFocusReason,
                   ActiveWindow=Qt::ActiveWindowFocusReason, Other=Qt::OtherFocusReason,
@@ -215,8 +215,8 @@ public:
     inline const QRect &rect() const { return m_rect; }
     inline const QRegion &region() const { return m_region; }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool erased() const { return true; }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool erased() const { return true; }
 #endif
 
 protected:
@@ -319,11 +319,11 @@ public:
 
     inline Reason reason() const { return Reason(reas); }
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos, int);
-    QT_COMPAT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, int);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos, int);
+    QT3_SUPPORT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, int);
 
-    QT_COMPAT Qt::ButtonState state() const;
+    QT3_SUPPORT Qt::ButtonState state() const;
 #endif
 protected:
     QPoint p;
@@ -372,9 +372,9 @@ private:
 class QMimeData;
 
 class Q_GUI_EXPORT QDropEvent : public QEvent
-// QT_COMPAT
+// QT3_SUPPORT
                               , public QMimeSource
-// END QT_COMPAT
+// END QT3_SUPPORT
 {
 public:
     QDropEvent(const QPoint& pos, QDrag::DropActions actions, const QMimeData *data, Type type = Drop);
@@ -392,20 +392,20 @@ public:
     QWidget* source() const;
     inline const QMimeData *mimeData() const { return mdata; }
 
-// QT_COMPAT
+// QT3_SUPPORT
     const char* format(int n = 0) const;
     QByteArray encodedData(const char*) const;
     bool provides(const char*) const;
-// END QT_COMPAT
-#ifdef QT_COMPAT
+// END QT3_SUPPORT
+#ifdef QT3_SUPPORT
     inline void accept() { QEvent::accept(); }
-    inline QT_COMPAT void accept(bool y) { setAccepted(y); }
-    inline QT_COMPAT QByteArray data(const char* f) const { return encodedData(f); }
+    inline QT3_SUPPORT void accept(bool y) { setAccepted(y); }
+    inline QT3_SUPPORT QByteArray data(const char* f) const { return encodedData(f); }
 
     enum Action { Copy, Link, Move, Private, UserAction = Private };
-    QT_COMPAT Action action() const;
-    inline QT_COMPAT void acceptAction(bool y = true)  { if (y) { drop_action = default_action; accept(); } }
-    inline QT_COMPAT void setPoint(const QPoint& np) { p = np; }
+    QT3_SUPPORT Action action() const;
+    inline QT3_SUPPORT void acceptAction(bool y = true)  { if (y) { drop_action = default_action; accept(); } }
+    inline QT3_SUPPORT void setPoint(const QPoint& np) { p = np; }
 #endif
 
 
@@ -415,7 +415,7 @@ protected:
     QDrag::DropAction drop_action;
     QDrag::DropAction default_action;
     const QMimeData *mdata;
-    mutable QList<QByteArray> fmts; // only used for QT_COMPAT
+    mutable QList<QByteArray> fmts; // only used for QT3_SUPPORT
 };
 
 
@@ -433,8 +433,8 @@ public:
     inline void accept(const QRect & r) { accept(); rect = r; }
     inline void ignore(const QRect & r) { ignore(); rect = r; }
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT void accept(bool y) { setAccepted(y); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void accept(bool y) { setAccepted(y); }
 #endif
 
 protected:

@@ -37,7 +37,7 @@ protected:
     enum BindingSyntax {
         PositionalBinding,
         NamedBinding
-// #ifdef QT_COMPAT ### uncomment later on
+// #ifdef QT3_SUPPORT ### uncomment later on
         , BindByPosition = PositionalBinding,
         BindByName = NamedBinding
 // #endif

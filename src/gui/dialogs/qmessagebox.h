@@ -116,15 +116,15 @@ public:
 
     QSize sizeHint() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QMessageBox(const QString &caption, const QString &text, Icon icon,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QMessageBox(const QString &caption, const QString &text, Icon icon,
                                       int button0, int button1, int button2,
                                       QWidget *parent, const char *name, bool modal,
                                       Qt::WFlags f = Qt::WStyle_DialogBorder);
-    QT_COMPAT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
 
-    static QT_COMPAT QPixmap standardIcon(Icon icon, Qt::GUIStyle);
-    static QT_COMPAT int message(const QString &caption,
+    static QT3_SUPPORT QPixmap standardIcon(Icon icon, Qt::GUIStyle);
+    static QT3_SUPPORT int message(const QString &caption,
                                  const QString& text,
                                  const QString& buttonText=QString(),
                                  QWidget *parent=0, const char * =0) {
@@ -132,7 +132,7 @@ public:
                                         buttonText.isEmpty()
                                      ? tr("OK") : buttonText) == 0;
     }
-    static QT_COMPAT bool query(const QString &caption,
+    static QT3_SUPPORT bool query(const QString &caption,
                                 const QString& text,
                                 const QString& yesButtonText=QString(),
                                 const QString& noButtonText=QString(),

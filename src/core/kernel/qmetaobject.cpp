@@ -1422,7 +1422,7 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     uint t = QCoreVariant::Invalid;
     if (isEnumType()) {
         if (v.type() == QCoreVariant::String
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
             || v.type() == QCoreVariant::CString
 #endif
             ) {

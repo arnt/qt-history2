@@ -378,7 +378,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     } else {
         def->name = parseType();
         while (!def->name.isEmpty() && lookup() != LPAREN) {
-            if (def->type == "QT_MOC_COMPAT" || def->type == "QT_COMPAT")
+            if (def->type == "QT_MOC_COMPAT" || def->type == "QT3_SUPPORT")
                 def->isCompat = true;
             else if (def->type == "Q_INVOKABLE")
                 def->isInvokable = true;
@@ -428,7 +428,7 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
     } else {
         def->name = parseType();
         while (!def->name.isEmpty() && lookup() != LPAREN) {
-            if (def->type == "QT_MOC_COMPAT" || def->type == "QT_COMPAT")
+            if (def->type == "QT_MOC_COMPAT" || def->type == "QT3_SUPPORT")
                 def->isCompat = true;
             else if (def->type == "Q_INVOKABLE")
                 def->isInvokable = true;

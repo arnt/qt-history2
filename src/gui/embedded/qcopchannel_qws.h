@@ -26,8 +26,8 @@ class QCopChannel : public QObject
     Q_OBJECT
 public:
     explicit QCopChannel(const QString& channel, QObject *parent=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QCopChannel(const QString& channel, QObject *parent, const char *name);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QCopChannel(const QString& channel, QObject *parent, const char *name);
 #endif
     virtual ~QCopChannel();
 

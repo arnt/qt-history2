@@ -70,7 +70,7 @@ QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.

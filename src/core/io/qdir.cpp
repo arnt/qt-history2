@@ -37,7 +37,7 @@ protected:
     void sortFileList(QDir::SortFlags, QStringList &, QStringList *, QFileInfoList *) const;
 
 private:
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QChar filterSepChar;
 #endif
     static inline QChar getFilterSepChar(const QString &nameFilter)
@@ -108,7 +108,7 @@ private:
 };
 
 QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                                                      , filterSepChar(0)
 #endif
 {
@@ -1733,7 +1733,7 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
     return QDirPrivate::splitFilters(nameFilter);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use nameFilters() instead.
 */

@@ -14,7 +14,7 @@
 #ifndef Q3GARRAY_H
 #define Q3GARRAY_H
 
-#include "Qt3Compat/q3shared.h"
+#include "Qt3Support/q3shared.h"
 
 
 class Q_COMPAT_EXPORT Q3GArray					// generic array

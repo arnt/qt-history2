@@ -423,7 +423,7 @@ QPixmap &QPixmap::operator=(const QImage &image)
 
     Returns the pixmap as a QImage.
 
-    This automatic conversion is disabled when \c QT_COMPAT is not
+    This automatic conversion is disabled when \c QT3_SUPPORT is not
     defined. Use toImage() instead.
 */
 
@@ -1106,7 +1106,7 @@ Qt::HANDLE QPixmap::handle() const
 #endif
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #ifndef QT_NO_IMAGEIO
 static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 {
@@ -1210,7 +1210,7 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
 
 #endif //QT_NO_DATASTREAM
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
                           const QPixmap *src, int sx, int sy, int sw, int sh)
 {

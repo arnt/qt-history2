@@ -16,7 +16,7 @@
 
 #include "QtGui/qwidget.h"
 #include "QtCore/qlist.h"
-#include "Qt3Compat/q3dockwindow.h"
+#include "Qt3Support/q3dockwindow.h"
 #include "QtGui/qlayout.h"
 #include "QtCore/qpointer.h"
 

@@ -77,10 +77,10 @@ public:
 
     QMatrix &operator=(const QMatrix &);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT QMatrix invert(bool *invertible=0) const { return inverted(invertible); }
-    inline QT_COMPAT QRect map(const QRect &r) const { return mapRect(r); }
-    QT_COMPAT QRegion mapToRegion(const QRect &r) const;
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT QMatrix invert(bool *invertible=0) const { return inverted(invertible); }
+    inline QT3_SUPPORT QRect map(const QRect &r) const { return mapRect(r); }
+    QT3_SUPPORT QRegion mapToRegion(const QRect &r) const;
 #endif
 
 private:
@@ -123,7 +123,7 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 
 #endif // QT_NO_MATRIX
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include "QtGui/qwmatrix.h"
 #endif
 

@@ -1,4 +1,4 @@
-TARGET	   = Qt3Compat
+TARGET	   = Qt3Support
 QPRO_PWD   = $$PWD
 QT         = core gui network sql
 DEFINES   += QT_BUILD_COMPAT_LIB
@@ -22,6 +22,6 @@ include(painting/painting.pri)
 mac:LIBS += -framework Carbon
 
 QMAKE_LIBS += $$QMAKE_LIBS_COMPAT $$QMAKE_LIBS_NETWORK
-DEFINES -= QT_COMPAT_WARNINGS
-DEFINES += QT_COMPAT
+DEFINES -= QT3_SUPPORT_WARNINGS
+DEFINES += QT3_SUPPORT
 MOCDIR = .moc

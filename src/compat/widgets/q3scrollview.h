@@ -14,7 +14,7 @@
 #ifndef Q3SCROLLVIEW_H
 #define Q3SCROLLVIEW_H
 
-#include "Qt3Compat/q3frame.h"
+#include "Qt3Support/q3frame.h"
 #include "QtGui/qscrollbar.h"
 
 class Q3ScrollViewData;

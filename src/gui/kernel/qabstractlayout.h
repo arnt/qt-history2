@@ -102,11 +102,11 @@ private:
     QWidget *wid;
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class Q_GUI_EXPORT QLayoutIterator
 {
 public:
-    inline QT_COMPAT_CONSTRUCTOR QLayoutIterator(QLayout *i) : layout(i), index(0) {}
+    inline QT3_SUPPORT_CONSTRUCTOR QLayoutIterator(QLayout *i) : layout(i), index(0) {}
     inline QLayoutIterator(const QLayoutIterator &i)
 	: layout(i.layout), index(i.index) {}
     inline QLayoutIterator &operator=(const QLayoutIterator &i) {
@@ -114,10 +114,10 @@ public:
         index = i.index;
         return *this;
     }
-    inline QT_COMPAT QLayoutItem *operator++();
-    inline QT_COMPAT QLayoutItem *current();
-    inline QT_COMPAT QLayoutItem *takeCurrent();
-    inline QT_COMPAT void deleteCurrent();
+    inline QT3_SUPPORT QLayoutItem *operator++();
+    inline QT3_SUPPORT QLayoutItem *current();
+    inline QT3_SUPPORT QLayoutItem *takeCurrent();
+    inline QT3_SUPPORT void deleteCurrent();
 
 private:
     // hack to avoid deprecated warning
@@ -213,25 +213,25 @@ private:
 
     friend class QApplication;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QLayout(QWidget *parent, int margin, int spacing = -1,
+    QT3_SUPPORT_CONSTRUCTOR QLayout(QWidget *parent, int margin, int spacing = -1,
                              const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR QLayout(int spacing, const char *name = 0);
-    inline QT_COMPAT QWidget *mainWidget() const { return parentWidget(); }
-    inline QT_COMPAT void remove(QWidget *w) { removeWidget(w); }
-    inline QT_COMPAT void add(QWidget *w) { addWidget(w); }
+    QT3_SUPPORT_CONSTRUCTOR QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QLayout(int spacing, const char *name = 0);
+    inline QT3_SUPPORT QWidget *mainWidget() const { return parentWidget(); }
+    inline QT3_SUPPORT void remove(QWidget *w) { removeWidget(w); }
+    inline QT3_SUPPORT void add(QWidget *w) { addWidget(w); }
 
-    QT_COMPAT void setAutoAdd(bool a);
-    QT_COMPAT bool autoAdd() const;
-    inline QT_COMPAT QLayoutIterator iterator() { return QLayoutIterator(this,true); }
+    QT3_SUPPORT void setAutoAdd(bool a);
+    QT3_SUPPORT bool autoAdd() const;
+    inline QT3_SUPPORT QLayoutIterator iterator() { return QLayoutIterator(this,true); }
 
-    inline QT_COMPAT int defaultBorder() const { return spacing(); }
+    inline QT3_SUPPORT int defaultBorder() const { return spacing(); }
 #endif
 };
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QLayoutItem *QLayoutIterator::operator++() { return layout->itemAt(++index); }
 inline QLayoutItem *QLayoutIterator::current() { return layout->itemAt(index); }
 inline QLayoutItem *QLayoutIterator::takeCurrent() { return layout->takeAt(index); }

@@ -39,7 +39,7 @@ public:
 
     enum Mode {
         Hex, Dec, Oct, Bin
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         , HEX = Hex, DEC = Dec, OCT = Oct, BIN = Bin
 #endif
     };
@@ -83,9 +83,9 @@ protected:
     void paintEvent(QPaintEvent *);
 
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QLCDNumber(QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QLCDNumber(uint numDigits, QWidget* parent, const char* name);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QLCDNumber(QWidget* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QLCDNumber(uint numDigits, QWidget* parent, const char* name);
 #endif
 
 private:

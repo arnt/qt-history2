@@ -74,7 +74,7 @@ QCopChannel::QCopChannel(const QString& channel, QObject *parent) :
     init(channel);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use the two argument overload, and call setObjectName() to \a name
     the instance, instead.

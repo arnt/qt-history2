@@ -14,9 +14,9 @@
 #ifndef Q3WIDGETSTACK_H
 #define Q3WIDGETSTACK_H
 
-#include "Qt3Compat/q3frame.h"
-#include "Qt3Compat/q3intdict.h"
-#include "Qt3Compat/q3ptrdict.h"
+#include "Qt3Support/q3frame.h"
+#include "Qt3Support/q3intdict.h"
+#include "Qt3Support/q3ptrdict.h"
 
 class Q3WidgetStackPrivate;
 

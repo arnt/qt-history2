@@ -121,7 +121,7 @@ void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidg
                                  SFlags flags, const Q3StyleOption& opt)
 {
     switch (element) {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case CE_Q3PopupMenuItem:
         {
             if (! widget || opt.isDefault())

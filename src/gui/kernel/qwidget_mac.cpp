@@ -1311,7 +1311,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
     if(!pixmap.isNull())
         x->icon = new QPixmap(pixmap);
     if(q->isTopLevel()) {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         //I hate to do this but, I've moved the application icon to
         //where it belongs in *gasp* QApplication but I'm afraid to
         //break assumptions so I'll leave this in for now maybe we can

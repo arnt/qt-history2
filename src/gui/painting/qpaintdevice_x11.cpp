@@ -178,7 +178,7 @@ int QPaintDevice::metric(PaintDeviceMetric) const
 
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*!
     Use QX11Info::display() instead.

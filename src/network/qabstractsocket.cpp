@@ -1533,7 +1533,7 @@ void QAbstractSocket::disconnectFromHost()
         return;
     }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     emit connectionClosed(); // compat signal
 #endif
 
@@ -1583,7 +1583,7 @@ void QAbstractSocket::disconnectFromHost()
     d->state = UnconnectedState;
     emit stateChanged(d->state);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     emit delayedCloseFinished(); // compat signal
 #endif
     emit disconnected();
@@ -1688,7 +1688,7 @@ void QAbstractSocket::setSocketError(SocketError socketError)
     d->socketError = socketError;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \enum QAbstractSocket::Error
     \compat
 

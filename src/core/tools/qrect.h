@@ -39,11 +39,11 @@ public:
     int right() const;
     int bottom() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT int &rLeft() { return x1; }
-    QT_COMPAT int &rTop() { return y1; }
-    QT_COMPAT int &rRight() { return x2; }
-    QT_COMPAT int &rBottom() { return y2; }
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT int &rLeft() { return x1; }
+    QT3_SUPPORT int &rTop() { return y1; }
+    QT3_SUPPORT int &rRight() { return x2; }
+    QT3_SUPPORT int &rBottom() { return y2; }
 #endif
 
     int x() const;
@@ -82,9 +82,9 @@ public:
     void moveTo(int x, int t);
     void moveTo(const QPoint &p);
 
-#ifdef QT_COMPAT
-    QT_COMPAT void moveBy(int dx, int dy) { translate(dx, dy); }
-    QT_COMPAT void moveBy(const QPoint &p) { translate(p); }
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT void moveBy(int dx, int dy) { translate(dx, dy); }
+    QT3_SUPPORT void moveBy(const QPoint &p) { translate(p); }
 #endif
 
     void setRect(int x, int y, int w, int h);
@@ -119,9 +119,9 @@ public:
     friend Q_CORE_EXPORT inline bool operator==(const QRect &, const QRect &);
     friend Q_CORE_EXPORT inline bool operator!=(const QRect &, const QRect &);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT void rect(int *x, int *y, int *w, int *h) const { getRect(x, y, w, h); }
-    inline QT_COMPAT void coords(int *x1, int *y1, int *x2, int *y2) const { getCoords(x1, y1, x2, y2); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void rect(int *x, int *y, int *w, int *h) const { getRect(x, y, w, h); }
+    inline QT3_SUPPORT void coords(int *x1, int *y1, int *x2, int *y2) const { getCoords(x1, y1, x2, y2); }
 #endif
 
 private:

@@ -19,9 +19,9 @@
 #include "QtCore/qchar.h"
 
 #ifndef QT_NO_TEXTCODEC
-#ifdef QT_COMPAT
-#include "QtCore/qtextcodec.h"
-#endif
+#  ifdef QT3_SUPPORT
+#    include "QtCore/qtextcodec.h"
+#  endif
 #endif
 
 #include <stdio.h>
@@ -145,24 +145,24 @@ public:
     inline QTextStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
 #endif
 
-#ifdef QT_COMPAT
-    // not marked as QT_COMPAT to avoid double compiler warnings, as
-    // they are used in the QT_COMPAT functions below.
-    inline QT_COMPAT int flags() const { return flagsInternal(); }
-    inline QT_COMPAT int flags(int f) { return flagsInternal(f); }
+#ifdef QT3_SUPPORT
+    // not marked as QT3_SUPPORT to avoid double compiler warnings, as
+    // they are used in the QT3_SUPPORT functions below.
+    inline QT3_SUPPORT int flags() const { return flagsInternal(); }
+    inline QT3_SUPPORT int flags(int f) { return flagsInternal(f); }
 
-    inline QT_COMPAT int setf(int bits)
+    inline QT3_SUPPORT int setf(int bits)
     { int old = flagsInternal(); flagsInternal(flagsInternal() | bits); return old; }
-    inline QT_COMPAT int setf(int bits, int mask)
+    inline QT3_SUPPORT int setf(int bits, int mask)
     { int old = flagsInternal(); flagsInternal(flagsInternal() | (bits & mask)); return old; }
-    inline QT_COMPAT int unsetf(int bits)
+    inline QT3_SUPPORT int unsetf(int bits)
     { int old = flagsInternal(); flagsInternal(flagsInternal() & ~bits); return old; }
 
-    inline QT_COMPAT int width(int w)
+    inline QT3_SUPPORT int width(int w)
     { int old = fieldWidth(); setFieldWidth(w); return old; }
-    inline QT_COMPAT int fill(int f)
+    inline QT3_SUPPORT int fill(int f)
     { QChar ch = padChar(); setPadChar(QChar(f)); return ch.unicode(); }
-    inline QT_COMPAT int precision(int p)
+    inline QT3_SUPPORT int precision(int p)
     { int old = realNumberPrecision(); setRealNumberPrecision(p); return old; }
 
     enum {
@@ -189,13 +189,13 @@ public:
 
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
                     UnicodeReverse, RawUnicode, UnicodeUTF8 };
-    QT_COMPAT void setEncoding(Encoding encoding);
-    inline QT_COMPAT QString read() { return readAll(); }
-    inline QT_COMPAT void unsetDevice() { setDevice(0); }
+    QT3_SUPPORT void setEncoding(Encoding encoding);
+    inline QT3_SUPPORT QString read() { return readAll(); }
+    inline QT3_SUPPORT void unsetDevice() { setDevice(0); }
 #endif
 
 private:
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     int flagsInternal() const;
     int flagsInternal(int flags);
 #endif
@@ -266,8 +266,8 @@ Q_CORE_EXPORT QTextStream &endl(QTextStream &s);
 Q_CORE_EXPORT QTextStream &flush(QTextStream &s);
 Q_CORE_EXPORT QTextStream &reset(QTextStream &s);
 
-#ifdef QT_COMPAT
-inline Q_CORE_EXPORT QT_COMPAT QTextStream &ws(QTextStream &s) { s.skipWhiteSpace(); return s; }
+#ifdef QT3_SUPPORT
+inline Q_CORE_EXPORT QT3_SUPPORT QTextStream &ws(QTextStream &s) { s.skipWhiteSpace(); return s; }
 #endif
 
 inline QTextStreamManipulator qSetFieldWidth(int width)
@@ -288,7 +288,7 @@ inline QTextStreamManipulator qSetRealNumberPrecision(int precision)
     return QTextStreamManipulator(func, precision);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 typedef QTextStream QTS;
 
 class Q_CORE_EXPORT QTextIStream : public QTextStream

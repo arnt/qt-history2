@@ -43,36 +43,36 @@ public:
     void setPattern(const QString &pattern);
     Qt::CaseSensitivity caseSensitivity() const;
     void setCaseSensitivity(Qt::CaseSensitivity cs);
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool caseSensitive() const { return caseSensitivity() == Qt::CaseSensitive; }
-    inline QT_COMPAT void setCaseSensitive(bool sensitive)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool caseSensitive() const { return caseSensitivity() == Qt::CaseSensitive; }
+    inline QT3_SUPPORT void setCaseSensitive(bool sensitive)
     { setCaseSensitivity(sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive); }
 #endif
 #ifndef QT_NO_REGEXP_WILDCARD
     PatternSyntax patternSyntax() const;
     void setPatternSyntax(PatternSyntax syntax);
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool wildcard() const { return patternSyntax() == Wildcard; }
-    inline QT_COMPAT void setWildcard(bool wildcard)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool wildcard() const { return patternSyntax() == Wildcard; }
+    inline QT3_SUPPORT void setWildcard(bool wildcard)
     { setPatternSyntax(wildcard ? Wildcard : RegExp); }
 #endif
 #endif
 
     bool isMinimal() const;
     void setMinimal(bool minimal);
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool minimal() const { return isMinimal(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT bool minimal() const { return isMinimal(); }
 #endif
 
     bool exactMatch(const QString &str) const;
 
     int indexIn(const QString &str, int offset = 0, CaretMode caretMode = CaretAtZero) const;
     int lastIndexIn(const QString &str, int offset = -1, CaretMode caretMode = CaretAtZero) const;
-#ifdef QT_COMPAT
-    inline QT_COMPAT int search(const QString &str, int from = 0,
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT int search(const QString &str, int from = 0,
                                 CaretMode caretMode = CaretAtZero) const
     { return indexIn(str, from, caretMode); }
-    inline QT_COMPAT int searchRev(const QString &str, int from = -1,
+    inline QT3_SUPPORT int searchRev(const QString &str, int from = -1,
                                    CaretMode caretMode = CaretAtZero) const
     { return lastIndexIn(str, from, caretMode); }
 #endif
@@ -87,8 +87,8 @@ public:
 
     static QString escape(const QString &str);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QRegExp(const QString &pattern, bool cs, bool wildcard = false)
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT_CONSTRUCTOR QRegExp(const QString &pattern, bool cs, bool wildcard = false)
     {
         new (this)
             QRegExp(pattern, cs ? Qt::CaseSensitive : Qt::CaseInsensitive,

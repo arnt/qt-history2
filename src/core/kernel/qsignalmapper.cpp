@@ -108,7 +108,7 @@ QSignalMapper::QSignalMapper(QObject* parent)
 {
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \overload
     \obsolete

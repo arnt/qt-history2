@@ -17,7 +17,7 @@
 #ifndef QT_H
 #include "QtCore/qstring.h" // char*->QString conversion
 #include "QtNetwork/qurlinfo.h"
-#include "Qt3Compat/q3networkprotocol.h"
+#include "Qt3Support/q3networkprotocol.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP

@@ -14,7 +14,7 @@
 #ifndef Q3GLIST_H
 #define Q3GLIST_H
 
-#include "Qt3Compat/q3ptrcollection.h"
+#include "Qt3Support/q3ptrcollection.h"
 
 class Q_COMPAT_EXPORT Q3LNode
 {

@@ -22,7 +22,7 @@
 #ifdef QT_INCLUDE_COMPAT
 # include "QtGui/qdesktopwidget.h"
 #endif
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 # include "QtGui/qwidget.h"
 # include "QtGui/qpalette.h"
 #endif
@@ -224,45 +224,45 @@ protected:
     bool event(QEvent *);
     bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    static inline QT_COMPAT void setReverseLayout(bool b) { setLayoutDirection(b?Qt::RightToLeft:Qt::LeftToRight); }
-    static inline bool QT_COMPAT reverseLayout() { return layoutDirection() == Qt::RightToLeft; }
-    static QT_COMPAT Qt::Alignment horizontalAlignment(Qt::Alignment align);
+    static inline QT3_SUPPORT void setReverseLayout(bool b) { setLayoutDirection(b?Qt::RightToLeft:Qt::LeftToRight); }
+    static inline bool QT3_SUPPORT reverseLayout() { return layoutDirection() == Qt::RightToLeft; }
+    static QT3_SUPPORT Qt::Alignment horizontalAlignment(Qt::Alignment align);
     typedef int ColorMode;
     enum { NormalColors = NormalColor, CustomColors = CustomColor };
-    static inline QT_COMPAT ColorMode colorMode() { return static_cast<ColorMode>(colorSpec()); }
-    static inline QT_COMPAT void setColorMode(ColorMode mode) { setColorSpec(int(mode)); }
+    static inline QT3_SUPPORT ColorMode colorMode() { return static_cast<ColorMode>(colorSpec()); }
+    static inline QT3_SUPPORT void setColorMode(ColorMode mode) { setColorSpec(int(mode)); }
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-    static QT_COMPAT Qt::WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
+    static QT3_SUPPORT Qt::WindowsVersion winVersion() { return (Qt::WindowsVersion)QSysInfo::WindowsVersion; }
 #endif
 #if defined(Q_OS_MAC)
-    static QT_COMPAT Qt::MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
+    static QT3_SUPPORT Qt::MacintoshVersion macVersion() { return (Qt::MacintoshVersion)QSysInfo::MacintoshVersion; }
 #endif
-    inline static  QT_COMPAT void setOverrideCursor(const QCursor &cursor, bool replace)
+    inline static  QT3_SUPPORT void setOverrideCursor(const QCursor &cursor, bool replace)
         { if (replace) changeOverrideCursor(cursor); else setOverrideCursor(cursor); }
-    inline static QT_COMPAT bool hasGlobalMouseTracking() {return true;}
-    inline static QT_COMPAT void setGlobalMouseTracking(bool) {};
-    inline static QT_COMPAT void flushX() { flush(); }
+    inline static QT3_SUPPORT bool hasGlobalMouseTracking() {return true;}
+    inline static QT3_SUPPORT void setGlobalMouseTracking(bool) {};
+    inline static QT3_SUPPORT void flushX() { flush(); }
 #ifndef QT_NO_PALETTE
-    static inline QT_COMPAT void setWinStyleHighlightColor(const QColor &c) {
+    static inline QT3_SUPPORT void setWinStyleHighlightColor(const QColor &c) {
         QPalette p(palette());
         p.setColor(QPalette::Highlight, c);
         setPalette(p);
     }
-    static inline QT_COMPAT const QColor &winStyleHighlightColor()
+    static inline QT3_SUPPORT const QColor &winStyleHighlightColor()
         { return palette().color(QPalette::Active, QPalette::Highlight); }
-    static inline QT_COMPAT void setPalette(const QPalette &pal, bool, const char* className = 0)
+    static inline QT3_SUPPORT void setPalette(const QPalette &pal, bool, const char* className = 0)
         { setPalette(pal, className); };
 #endif // QT_NO_PALETTE
-    static inline QT_COMPAT void setFont(const QFont &font, bool, const char* className = 0)
+    static inline QT3_SUPPORT void setFont(const QFont &font, bool, const char* className = 0)
         { setFont(font, className); }
 
-    static inline QT_COMPAT QWidget *widgetAt(int x, int y, bool child)
+    static inline QT3_SUPPORT QWidget *widgetAt(int x, int y, bool child)
         { QWidget *w = widgetAt(x, y); return child ? w : (w ? w->topLevelWidget() : 0); }
-    static inline QT_COMPAT QWidget *widgetAt(const QPoint &p, bool child)
+    static inline QT3_SUPPORT QWidget *widgetAt(const QPoint &p, bool child)
         { QWidget *w = widgetAt(p); return child ? w : (w ? w->topLevelWidget() : 0); }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 private:
     static QWidget *widgetAt_sys(int x, int y);

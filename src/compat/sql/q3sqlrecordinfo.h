@@ -18,9 +18,9 @@
 
 #ifndef QT_NO_SQL
 
-#include "Qt3Compat/q3valuelist.h"
+#include "Qt3Support/q3valuelist.h"
 #include "QtSql/qsqlrecord.h"
-#include "Qt3Compat/q3sqlfieldinfo.h"
+#include "Qt3Support/q3sqlfieldinfo.h"
 
 /* Q3SqlRecordInfo Class
    This class is obsolete, use QSqlRecord instead.

@@ -96,7 +96,7 @@ typedef QList<TabletDeviceData> TabletDeviceDataList;
 TabletDeviceDataList *qt_tablet_devices();
 #endif
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 extern "C" {
     typedef bool (*Ptrqt_tryAccelEvent)(QWidget *w, QKeyEvent *e);
     typedef bool (*Ptrqt_tryComposeUnicode)(QWidget *w, QKeyEvent *e);
@@ -131,7 +131,7 @@ public:
     QPointer<QWidget> toolTipWidget;
     QShortcutMap shortcutMap;
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     bool qt_compat_used;
     bool qt_compat_resolved;
     Ptrqt_tryAccelEvent qt_tryAccelEvent;

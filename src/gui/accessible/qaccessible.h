@@ -94,7 +94,7 @@ public:
         Offscreen       = 0x00010000,
         Sizeable        = 0x00020000,
         Movable         = 0x00040000,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         Moveable        = Movable,
 #endif
         SelfVoicing     = 0x00080000,

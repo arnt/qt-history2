@@ -15,7 +15,7 @@
 #define Q3MAINWINDOW_H
 
 #include "QtGui/qwidget.h"
-#include "Qt3Compat/q3toolbar.h"
+#include "Qt3Support/q3toolbar.h"
 #include "QtCore/qtextstream.h"
 
 #ifndef QT_NO_MAINWINDOW

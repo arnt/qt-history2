@@ -1,6 +1,6 @@
 
 DESTDIR = ../../../../bin
-QT += xml network compat
+QT += xml network qt3support
 CONFIG += qt depend_prl assistant
 
 INCLUDEPATH += ../uilib \

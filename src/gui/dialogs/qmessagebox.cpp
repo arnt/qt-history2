@@ -712,7 +712,7 @@ void QMessageBox::setIcon(Icon icon)
     d->icon = icon;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \compat
 

@@ -15,7 +15,7 @@
 #define Q3BUTTONGROUP_H
 
 #include "QtGui/qbuttongroup.h"
-#include "Qt3Compat/q3groupbox.h"
+#include "Qt3Support/q3groupbox.h"
 #include "QtCore/qmap.h"
 
 

@@ -175,12 +175,12 @@ public:
     inline uint resolve() const { return resolve_mask; }
     inline void resolve(uint mask) { resolve_mask = mask; }
 
-#ifdef QT_COMPAT
-    static QT_COMPAT QFont defaultFont();
-    static QT_COMPAT void setDefaultFont(const QFont &);
-    QT_COMPAT void setPixelSizeFloat(float);
-    QT_COMPAT float pointSizeFloat() const { return pointSizeF(); }
-    QT_COMPAT void setPointSizeFloat(float size) { setPointSizeF(size); }
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QFont defaultFont();
+    static QT3_SUPPORT void setDefaultFont(const QFont &);
+    QT3_SUPPORT void setPixelSizeFloat(float);
+    QT3_SUPPORT float pointSizeFloat() const { return pointSizeF(); }
+    QT3_SUPPORT void setPointSizeFloat(float size) { setPointSizeF(size); }
 #endif
 
 private:

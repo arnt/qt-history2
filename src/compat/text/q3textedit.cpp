@@ -1252,7 +1252,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
             removeSelectedText();
         if (textFormat() == Qt::RichText && (e->state() & Qt::ControlButton)) {
             // Ctrl-Enter inserts a line break in rich text mode
-            insert(QString(QChar::LineSeparator), true, false);
+            insert(QString(QChar(QChar::LineSeparator)), true, false);
         } else {
 #ifndef QT_NO_CURSOR
             viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);

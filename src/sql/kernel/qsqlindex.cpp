@@ -135,7 +135,7 @@ void QSqlIndex::setDescending(int i, bool desc)
         sorts[i] = desc;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 /*!
     Returns a comma-separated list of all the index's field names as a

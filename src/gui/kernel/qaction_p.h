@@ -29,7 +29,7 @@
 #include <private/qobject_p.h>
 #include "qmenu.h"
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 class QMenuItemEmitter;
 #endif
 
@@ -67,7 +67,7 @@ public:
 
     static QShortcutMap *globalMap;
 
-#ifdef QT_COMPAT //for menubar/menu compat
+#ifdef QT3_SUPPORT //for menubar/menu compat
     QMenuItemEmitter *act_signal;
     int id, param;
 #endif

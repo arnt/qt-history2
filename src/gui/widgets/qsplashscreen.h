@@ -36,10 +36,10 @@ public slots:
     void showMessage(const QString &message, int alignment = Qt::AlignLeft,
                   const QColor &color = Qt::black);
     void clearMessage();
-#ifdef QT_COMPAT
-    inline QT_COMPAT void message(const QString &str, int alignment = Qt::AlignLeft,
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void message(const QString &str, int alignment = Qt::AlignLeft,
         const QColor &color = Qt::black) { showMessage(str, alignment, color); }
-    inline QT_COMPAT void clear() { clearMessage(); }
+    inline QT3_SUPPORT void clear() { clearMessage(); }
 #endif
 
 signals:

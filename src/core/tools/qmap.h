@@ -174,8 +174,8 @@ public:
 
         inline const Key &key() const { return concrete(i)->key; }
         inline T &value() const { return concrete(i)->value; }
-#ifdef QT_COMPAT
-        inline QT_COMPAT T &data() const { return concrete(i)->value; }
+#ifdef QT3_SUPPORT
+        inline QT3_SUPPORT T &data() const { return concrete(i)->value; }
 #endif
         inline T &operator*() const { return concrete(i)->value; }
         inline T *operator->() const { return &concrete(i)->value; }
@@ -226,8 +226,8 @@ public:
 
         inline const Key &key() const { return concrete(i)->key; }
         inline const T &value() const { return concrete(i)->value; }
-#ifdef QT_COMPAT
-        inline QT_COMPAT const T &data() const { return concrete(i)->value; }
+#ifdef QT3_SUPPORT
+        inline QT3_SUPPORT const T &data() const { return concrete(i)->value; }
 #endif
         inline const T &operator*() const { return concrete(i)->value; }
         inline const T *operator->() const { return &concrete(i)->value; }
@@ -271,8 +271,8 @@ public:
     inline const_iterator end() const { return const_iterator(e); }
     inline const_iterator constEnd() const { return const_iterator(e); }
     iterator erase(iterator it);
-#ifdef QT_COMPAT
-    inline QT_COMPAT iterator remove(iterator it) { return erase(it); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT iterator remove(iterator it) { return erase(it); }
 #endif
 
     // more Qt
@@ -286,12 +286,12 @@ public:
     iterator upperBound(const Key &key);
     const_iterator upperBound(const Key &key) const;
     iterator insert(const Key &key, const T &value);
-#ifdef QT_COMPAT
-    QT_COMPAT iterator insert(const Key &key, const T &value, bool overwrite);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT iterator insert(const Key &key, const T &value, bool overwrite);
 #endif
     iterator insertMulti(const Key &key, const T &value);
-#ifdef QT_COMPAT
-    inline QT_COMPAT iterator replace(const Key &key, const T &value) { return insert(key, value); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT iterator replace(const Key &key, const T &value) { return insert(key, value); }
 #endif
     QMap<Key, T> &merge(const QMap<Key, T> &other);
 
@@ -446,7 +446,7 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key
     return iterator(node);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &key,
                                                                        const T &value,

@@ -69,19 +69,19 @@ public:
     inline int lastIndexOf(const QString &str, int from = -1) const
     { return QList<QString>::lastIndexOf(str, from); }
 #endif
-#ifdef QT_COMPAT
-    static inline QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
-    static inline QT_COMPAT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
-    static inline QT_COMPAT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
-    inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
+#ifdef QT3_SUPPORT
+    static inline QT3_SUPPORT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
+    static inline QT3_SUPPORT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
+    static inline QT3_SUPPORT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
+    inline QT3_SUPPORT QStringList grep(const QString &str, bool cs = true) const
         { return filter(str, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
-    inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return filter(rx); }
-    inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs = true)
+    inline QT3_SUPPORT QStringList grep(const QRegExp &rx) const { return filter(rx); }
+    inline QT3_SUPPORT QStringList &gres(const QString &before, const QString &after, bool cs = true)
         { return replaceInStrings(before, after, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
-    inline QT_COMPAT QStringList &gres(const QRegExp &rx, const QString &after)
+    inline QT3_SUPPORT QStringList &gres(const QRegExp &rx, const QString &after)
         { return replaceInStrings(rx, after); }
-    inline Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }
-    inline ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
+    inline Iterator QT3_SUPPORT fromLast() { return (isEmpty() ? end() : --end()); }
+    inline ConstIterator QT3_SUPPORT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
 };
 
@@ -153,7 +153,7 @@ inline int QStringList::lastIndexOf(const QRegExp &rx, int from) const
 #endif
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
 {
     if (str.isEmpty())
@@ -180,7 +180,7 @@ inline QStringList QStringList::split(const QRegExp &sep, const QString &str, bo
 }
 #endif // QT_NO_REGEXP
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 
 #ifndef QT_NO_DATASTREAM

@@ -285,7 +285,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     current item.
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Constructs a toolbox called \a name with parent \a parent and flags \a f.
 */

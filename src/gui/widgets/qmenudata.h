@@ -16,7 +16,7 @@
 
 #include <QtCore/qglobal.h>
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include <QtGui/qaction.h>
 
 class QSignalEmitter;
@@ -26,9 +26,9 @@ class Q_GUI_EXPORT QMenuItem : public QAction
 public:
     QMenuItem();
 
-    QT_COMPAT int id() const;
-    QT_COMPAT QSignalEmitter *signal() const;
-    QT_COMPAT int signalValue() const;
+    QT3_SUPPORT int id() const;
+    QT3_SUPPORT QSignalEmitter *signal() const;
+    QT3_SUPPORT int signalValue() const;
 private:
     friend class QMenu;
     friend class QMenuBar;

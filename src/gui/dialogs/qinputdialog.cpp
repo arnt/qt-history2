@@ -186,7 +186,7 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt:
     d->init(label, type);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
 

@@ -37,9 +37,9 @@ public:
 protected:
     void childEvent(QChildEvent *);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QHBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
+    QT3_SUPPORT_CONSTRUCTOR QHBoxWidget(QWidget* parent, const char* name, Qt::WFlags f=0);
 #endif
 protected:
     QHBoxWidget(Qt::Orientation orientation, QWidget* parent, Qt::WFlags f);

@@ -47,10 +47,10 @@ public:
     QAction(const QString &text, QObject* parent=0);
     QAction(const QIcon &icon, const QString &text, QObject* parent=0);
 
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QAction(QObject* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QIcon &icon, const QString &text, const QKeySequence &shortcut,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QAction(QObject* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QAction(const QIcon &icon, const QString &text, const QKeySequence &shortcut,
                                   QObject* parent, const char* name);
 #endif
     ~QAction();
@@ -102,19 +102,19 @@ public:
     void activate(ActionEvent event);
     bool showStatusText(QWidget *widget=0);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT void setMenuText(const QString &text) { setText(text); }
-    inline QT_COMPAT QString menuText() const { return text(); }
-    inline QT_COMPAT bool isOn() const { return isChecked(); }
-    inline QT_COMPAT void setOn(bool b) { setChecked(b); }
-    inline QT_COMPAT bool isToggleAction() const { return isCheckable(); }
-    inline QT_COMPAT void setToggleAction(bool b) { setCheckable(b); }
-    inline QT_COMPAT void setIconSet(const QIcon &i) { setIcon(i); }
-    inline QT_COMPAT QIcon iconSet() const { return icon(); }
-    inline QT_COMPAT bool addTo(QWidget *w) { w->addAction(this); return true; }
-    inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
-    inline QT_COMPAT void setAccel(const QKeySequence &shortcut) { setShortcut(shortcut); }
-    inline QT_COMPAT QKeySequence accel() const { return shortcut(); }
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void setMenuText(const QString &text) { setText(text); }
+    inline QT3_SUPPORT QString menuText() const { return text(); }
+    inline QT3_SUPPORT bool isOn() const { return isChecked(); }
+    inline QT3_SUPPORT void setOn(bool b) { setChecked(b); }
+    inline QT3_SUPPORT bool isToggleAction() const { return isCheckable(); }
+    inline QT3_SUPPORT void setToggleAction(bool b) { setCheckable(b); }
+    inline QT3_SUPPORT void setIconSet(const QIcon &i) { setIcon(i); }
+    inline QT3_SUPPORT QIcon iconSet() const { return icon(); }
+    inline QT3_SUPPORT bool addTo(QWidget *w) { w->addAction(this); return true; }
+    inline QT3_SUPPORT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
+    inline QT3_SUPPORT void setAccel(const QKeySequence &shortcut) { setShortcut(shortcut); }
+    inline QT3_SUPPORT QKeySequence accel() const { return shortcut(); }
 #endif
 
     QWidget *parentWidget() const;
@@ -136,7 +136,7 @@ signals:
     void triggered();
     void hovered();
     void checked(bool);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QT_MOC_COMPAT void toggled(bool);
     QT_MOC_COMPAT void activated(int = 0);
 #endif
@@ -144,7 +144,7 @@ signals:
 private:
     Q_DISABLE_COPY(QAction)
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     friend class QMenuItem;
 #endif
     friend class QWidget;

@@ -62,11 +62,11 @@ protected:
 
     void sliderChange(SliderChange change);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QDial(int minValue, int maxValue, int pageStep, int value,
+    QT3_SUPPORT_CONSTRUCTOR QDial(int minValue, int maxValue, int pageStep, int value,
                                 QWidget* parent = 0, const char* name = 0);
-    QT_COMPAT_CONSTRUCTOR QDial(QWidget *parent, const char *name);
+    QT3_SUPPORT_CONSTRUCTOR QDial(QWidget *parent, const char *name);
 
 signals:
     QT_MOC_COMPAT void dialPressed();

@@ -140,7 +140,7 @@ QSound::QSound(const QString& filename, QObject* parent)
     server().init(this);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
   \obsolete
     Constructs a QSound that can quickly play the sound in a file

@@ -21,7 +21,7 @@
 #include "qpainter.h"
 #include "qtimer.h"
 #include "qhash.h"
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include "qtoolbutton.h"
 #endif
 #include "qaction.h"
@@ -363,7 +363,7 @@ class QWhatsThisPrivate : public QObject
     static QWhatsThisPrivate *instance;
     bool eventFilter(QObject *, QEvent *);
     QPointer<QAction> action;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     QPointer<QToolButton> button;
 #endif
     static void say(QWidget *, const QString &, int x = 0, int y = 0);
@@ -403,7 +403,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 {
     if (action)
         action->setChecked(false);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     if (button)
         button->setChecked(false);
 #endif
@@ -510,7 +510,7 @@ void QWhatsThisAction::actionTriggered()
 QWhatsThis::QWhatsThis()
 {}
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     \obsolete
 

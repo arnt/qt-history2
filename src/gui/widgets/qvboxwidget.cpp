@@ -35,7 +35,7 @@
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs a vbox widget called \a name with parent \a parent and
     widget flags \a f.
@@ -47,7 +47,7 @@ QVBoxWidget::QVBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
     setObjectName(nm);
     layout()->setObjectName(nm);
 }
-#endif //QT_COMPAT
+#endif //QT3_SUPPORT
 
 /*!
     Constructs a vbox widget with parent \a parent and

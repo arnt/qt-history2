@@ -46,7 +46,7 @@ public:
         NoDirection = 0,
         Horizontally = 1,
         Vertically = 2,
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         Horizontal = Horizontally,
         Vertical = Vertically,
 #endif
@@ -90,26 +90,26 @@ public:
     void transpose();
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QSizePolicy(SizeType hor, SizeType ver, bool hfw)
+    QT3_SUPPORT_CONSTRUCTOR QSizePolicy(SizeType hor, SizeType ver, bool hfw)
         : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) { }
 
-    QT_COMPAT_CONSTRUCTOR QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = false)
+    QT3_SUPPORT_CONSTRUCTOR QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = false)
         : data(hor | (ver<<HSize) | (hfw ? (1U<<2*HSize) : 0)) {
         setHorizontalStretch(hors);
         setVerticalStretch(vers);
     }
 
-    inline QT_COMPAT SizeType horData() const { return static_cast<SizeTypeFlag>(data & HMask); }
-    inline QT_COMPAT SizeType verData() const { return static_cast<SizeTypeFlag>((data & VMask) >> HSize); }
-    inline QT_COMPAT void setHorData(SizeType d) { setHorizontalData(d); }
-    inline QT_COMPAT void setVerData(SizeType d) { setVerticalData(d); }
+    inline QT3_SUPPORT SizeType horData() const { return static_cast<SizeTypeFlag>(data & HMask); }
+    inline QT3_SUPPORT SizeType verData() const { return static_cast<SizeTypeFlag>((data & VMask) >> HSize); }
+    inline QT3_SUPPORT void setHorData(SizeType d) { setHorizontalData(d); }
+    inline QT3_SUPPORT void setVerData(SizeType d) { setVerticalData(d); }
 
-    inline QT_COMPAT uint horStretch() const { return horizontalStretch(); }
-    inline QT_COMPAT uint verStretch() const { return verticalStretch(); }
-    inline QT_COMPAT void setHorStretch(uchar sf) { setHorizontalStretch(sf); }
-    inline QT_COMPAT void setVerStretch(uchar sf) { setVerticalStretch(sf); }
+    inline QT3_SUPPORT uint horStretch() const { return horizontalStretch(); }
+    inline QT3_SUPPORT uint verStretch() const { return verticalStretch(); }
+    inline QT3_SUPPORT void setHorStretch(uchar sf) { setHorizontalStretch(sf); }
+    inline QT3_SUPPORT void setVerStretch(uchar sf) { setVerticalStretch(sf); }
 #endif
 
 private:

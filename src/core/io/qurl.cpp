@@ -99,7 +99,7 @@
 #include <qvarlengtharray.h>
 #include "qurl.h"
 
-#if defined QT_COMPAT
+#if defined QT3_SUPPORT
 #include <qfileinfo.h>
 #endif
 
@@ -2823,7 +2823,7 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
     Use QFileInfo(path()).absolutePath() or QFileInfo(path()) instead.
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 void QUrl::setFileName(const QString &txt)
 {
     QFileInfo fileInfo(path());

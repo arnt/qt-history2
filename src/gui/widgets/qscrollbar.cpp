@@ -270,7 +270,7 @@ QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent)
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -313,7 +313,7 @@ QScrollBar::QScrollBar(int minimum, int maximum, int lineStep, int pageStep,
     d->orientation = orientation;
     d->init();
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 /*!
     Destroys the scroll bar.

@@ -15,7 +15,7 @@
 #define Q3STRVEC_H
 
 #include "QtCore/qstring.h"
-#include "Qt3Compat/q3ptrvector.h"
+#include "Qt3Support/q3ptrvector.h"
 #include "QtCore/qdatastream.h"
 
 class Q_COMPAT_EXPORT Q3StrVec : public Q3PtrVector<char>

@@ -36,9 +36,9 @@ public:
     int weekNumber(int *yearNum = 0) const;
 
 #ifndef QT_NO_TEXTDATE
-#ifdef QT_COMPAT
-    static QT_COMPAT QString monthName(int month) { return shortMonthName(month); }
-    static QT_COMPAT QString dayName(int weekday) { return shortDayName(weekday); }
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QString monthName(int month) { return shortMonthName(month); }
+    static QT3_SUPPORT QString dayName(int weekday) { return shortDayName(weekday); }
 #endif
     static QString shortMonthName(int month);
     static QString shortDayName(int weekday);
@@ -70,15 +70,15 @@ public:
     static QDate fromString(const QString &s, const QString &format);
     static bool isValid(int y, int m, int d);
     static bool isLeapYear(int year);
-#ifdef QT_COMPAT
-    inline static QT_COMPAT bool leapYear(int year) { return isLeapYear(year); }
+#ifdef QT3_SUPPORT
+    inline static QT3_SUPPORT bool leapYear(int year) { return isLeapYear(year); }
 #endif
 
     static uint gregorianToJulian(int y, int m, int d);
     static void julianToGregorian(uint jd, int &y, int &m, int &d);
 
-#ifdef QT_COMPAT
-    static QT_COMPAT QDate currentDate(Qt::TimeSpec spec);
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QDate currentDate(Qt::TimeSpec spec);
 #endif
 
     static inline QDate fromJulianDay(int jd) { QDate d; d.jd = jd; return d; }
@@ -133,9 +133,9 @@ public:
     static QTime fromString(const QString &s, const QString &format);
     static bool isValid(int h, int m, int s, int ms = 0);
 
-#ifdef QT_COMPAT
-    static QT_COMPAT QTime currentTime(Qt::TimeSpec spec);
-    static QT_COMPAT QDate currentDate(Qt::TimeSpec spec);
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT QTime currentTime(Qt::TimeSpec spec);
+    static QT3_SUPPORT QDate currentDate(Qt::TimeSpec spec);
 #endif
 
     void start();
@@ -204,13 +204,13 @@ public:
 #endif
     static QDateTime fromString(const QString &s, const QString &format);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT void setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec spec) {
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec spec) {
         setTime_t(secsSince1Jan1970UTC);
         if (spec == Qt::UTC)
             *this = toUTC();
     }
-    static inline QT_COMPAT QDateTime currentDateTime(Qt::TimeSpec spec) {
+    static inline QT3_SUPPORT QDateTime currentDateTime(Qt::TimeSpec spec) {
         if (spec == Qt::LocalTime)
             return currentDateTime();
         else
@@ -228,7 +228,7 @@ private:
 };
 Q_DECLARE_TYPEINFO(QDateTime, Q_MOVABLE_TYPE);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 inline QDate QDate::currentDate(Qt::TimeSpec spec)
 {
     if (spec == Qt::LocalTime)

@@ -225,24 +225,24 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
             if(action_e == QAction::Trigger) {
                 emit qmenu->triggered(action->action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenu->activated(qmenu->findIdForAction(action->action));
 #endif
             } else if(action_e == QAction::Hover) {
                 emit qmenu->hovered(action->action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenu->highlighted(qmenu->findIdForAction(action->action));
 #endif
             }
         } else if(QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
             if(action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action->action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenubar->activated(qmenu->findIdForAction(action->action));
 #endif
             } else if(action_e == QAction::Hover) {
                 emit qmenubar->hovered(action->action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenubar->highlighted(qmenu->findIdForAction(action->action));
 #endif
             }
@@ -306,7 +306,7 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                     handled_event = true;
                     if(ekind == kEventMenuOpening)
                         emit qmenu->aboutToShow();
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                     else
                         emit qmenu->aboutToHide();
 #endif

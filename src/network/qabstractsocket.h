@@ -56,7 +56,7 @@ public:
         BoundState,
         ListeningState,
         ClosingState
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         ,
         Idle = UnconnectedState,
         HostLookup = HostLookupState,
@@ -138,16 +138,16 @@ private:
     Q_PRIVATE_SLOT(d, bool canReadNotification(int))
     Q_PRIVATE_SLOT(d, bool canWriteNotification(int))
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
     enum Error {
         ErrConnectionRefused = ConnectionRefusedError,
         ErrHostNotFound = HostNotFoundError,
         ErrSocketRead = UnknownSocketError
     };
-    inline QT_COMPAT int socket() const { return socketDescriptor(); }
-    inline QT_COMPAT void setSocket(int socket) { setSocketDescriptor(socket); }
-    inline QT_COMPAT qulonglong waitForMore(int msecs, bool *timeout = 0) const
+    inline QT3_SUPPORT int socket() const { return socketDescriptor(); }
+    inline QT3_SUPPORT void setSocket(int socket) { setSocketDescriptor(socket); }
+    inline QT3_SUPPORT qulonglong waitForMore(int msecs, bool *timeout = 0) const
     {
         QAbstractSocket *that = const_cast<QAbstractSocket *>(this);
         if (that->waitForReadyRead(msecs))

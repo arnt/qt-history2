@@ -17,9 +17,9 @@
 #ifndef QT_H
 #include "QtNetwork/qurlinfo.h"
 #include "QtCore/qstring.h"
-#include "Qt3Compat/q3dict.h"
+#include "Qt3Support/q3dict.h"
 #include "QtCore/qobject.h"
-#include "Qt3Compat/q3valuelist.h"
+#include "Qt3Support/q3valuelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL

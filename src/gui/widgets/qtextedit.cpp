@@ -230,7 +230,7 @@ void QTextEditPrivate::updateCurrentCharFormat()
     lastCharFormat = fmt;
 
     emit q->currentCharFormatChanged(fmt);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     // compat signals
     emit q->currentFontChanged(fmt.font());
     emit q->currentColorChanged(fmt.textColor());
@@ -821,7 +821,7 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     d->init(fragment);
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -2449,7 +2449,7 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options, QText
     cursor changed.
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use the QTextCursor() class instead.
 */
@@ -2569,7 +2569,7 @@ Qt::TextFormat QTextEdit::textFormat() const
     return d->textFormat;
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 
 /*!

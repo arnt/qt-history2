@@ -33,10 +33,10 @@
 #include "qmenubar_p.h"
 #include "qdebug.h"
 #include <private/qaction_p.h>
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include <qmenudata.h>
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 #define d d_func()
 #define q q_func()
@@ -610,24 +610,24 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             widget = qmenu->d->causedPopup;
             if (action_e == QAction::Trigger) {
                 emit qmenu->triggered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenu->activated(qmenu->findIdForAction(action));
 #endif
             } else if (action_e == QAction::Hover) {
                 emit qmenu->hovered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenu->highlighted(qmenu->findIdForAction(action));
 #endif
             }
         } else if (QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
             if (action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenubar->activated(qmenu->findIdForAction(action));
 #endif
             } else if (action_e == QAction::Hover) {
                 emit qmenubar->hovered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
                 emit qmenubar->highlighted(qmenu->findIdForAction(action));
 #endif
             }
@@ -652,7 +652,7 @@ void QMenuPrivate::actionTriggered()
 {
     if (QAction *action = qt_cast<QAction *>(q->sender())) {
         emit q->triggered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit q->activated(q->findIdForAction(action));
 #endif
     }
@@ -662,7 +662,7 @@ void QMenuPrivate::actionHovered()
 {
     if (QAction *action = qt_cast<QAction *>(q->sender())) {
         emit q->hovered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit q->highlighted(q->findIdForAction(action));
 #endif
     }
@@ -1433,7 +1433,7 @@ QAction *QMenu::exec(QList<QAction*> actions, const QPoint &pos, QAction *at)
 */
 void QMenu::hideEvent(QHideEvent *)
 {
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     emit aboutToHide();
 #endif
     if (d->eventLoop)
@@ -2118,7 +2118,7 @@ void QMenu::setNoReplayFor(QWidget *noReplayFor)
     d->noReplayFor = noReplayFor;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,
                           const QKeySequence *shortcut, const QMenu *popup, int id, int index)
@@ -2222,7 +2222,7 @@ int QMenu::findIdForAction(QAction *act) const
         return -1;
     return act->d->id;
 }
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 /*!
     \fn uint QMenu::count() const

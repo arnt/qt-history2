@@ -78,8 +78,8 @@ class Q_CORE_EXPORT QTranslator : public QObject
     Q_OBJECT
 public:
     explicit QTranslator(QObject *parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QTranslator(QObject * parent, const char * name);
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QTranslator(QObject * parent, const char * name);
 #endif
     ~QTranslator();
 
@@ -117,8 +117,8 @@ public:
 
     bool isEmpty() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT QString find(const char *context, const char *sourceText, const char * comment = 0) const
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT QString find(const char *context, const char *sourceText, const char * comment = 0) const
         { return findMessage(context, sourceText, comment).translation(); }
 #endif
 

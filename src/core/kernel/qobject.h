@@ -59,7 +59,7 @@ public:
     uint sendChildEvents : 1;
     uint unused : 26;
     int postedEvents;
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     int postedChildInsertedEvents;
 #else
     int reserved;
@@ -114,10 +114,10 @@ public:
     QObjectList findChildren(const QRegExp &re) const;
 #endif
 
-#ifdef QT_COMPAT
-    QT_COMPAT QObject *child(const char *objName, const char *inheritsClass = 0,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT QObject *child(const char *objName, const char *inheritsClass = 0,
                    bool recursiveSearch = true) const;
-    QT_COMPAT QObjectList queryList(const char *inheritsClass = 0,
+    QT3_SUPPORT QObjectList queryList(const char *inheritsClass = 0,
                           const char *objName = 0,
                           bool regexpMatch = true,
                           bool recursiveSearch = true) const;
@@ -183,26 +183,26 @@ protected:
     virtual void connectNotify(const char *signal);
     virtual void disconnectNotify(const char *signal);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 public:
-    QT_COMPAT_CONSTRUCTOR QObject(QObject *parent, const char *name);
-    inline QT_COMPAT void insertChild(QObject *o)
+    QT3_SUPPORT_CONSTRUCTOR QObject(QObject *parent, const char *name);
+    inline QT3_SUPPORT void insertChild(QObject *o)
         { if (o) o->setParent(this); }
-    inline QT_COMPAT void removeChild(QObject *o)
+    inline QT3_SUPPORT void removeChild(QObject *o)
         { if (o) o->setParent(0); }
-    inline QT_COMPAT bool isA(const char *classname) const
+    inline QT3_SUPPORT bool isA(const char *classname) const
         { return qstrcmp(classname, metaObject()->className()) == 0; }
-    inline QT_COMPAT const char *className() const { return metaObject()->className(); }
-    inline QT_COMPAT const char *name() const { return objectName().latin1_helper(); }
-    inline QT_COMPAT const char *name(const char *defaultName) const
+    inline QT3_SUPPORT const char *className() const { return metaObject()->className(); }
+    inline QT3_SUPPORT const char *name() const { return objectName().latin1_helper(); }
+    inline QT3_SUPPORT const char *name(const char *defaultName) const
         { QString s = objectName(); return s.isEmpty()?defaultName:s.latin1_helper(); }
-    inline QT_COMPAT void setName(const char *name) { setObjectName(QLatin1String(name)); }
+    inline QT3_SUPPORT void setName(const char *name) { setObjectName(QLatin1String(name)); }
 protected:
-    inline QT_COMPAT bool checkConnectArgs(const char *signal,
+    inline QT3_SUPPORT bool checkConnectArgs(const char *signal,
                                   const QObject *,
                                   const char *member)
         { return QMetaObject::checkConnectArgs(signal, member); }
-    static inline QT_COMPAT QByteArray normalizeSignalSlot(const char *signalSlot)
+    static inline QT3_SUPPORT QByteArray normalizeSignalSlot(const char *signalSlot)
         { return QMetaObject::normalizedSignature(signalSlot); }
 #endif
 

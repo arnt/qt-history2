@@ -52,18 +52,18 @@ public:
 
     void addPixmap(const QPixmap &pixmap, Mode mode = Normal, State state = Off);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     enum Size { Small, Large, Automatic = Small };
-    static QT_COMPAT void setPixmapSize(Size which, const QSize &size);
-    static QT_COMPAT QSize pixmapSize(Size which);
-    inline QT_COMPAT void reset(const QPixmap &pixmap, Size /*size*/) { *this = QIcon(pixmap); }
-    inline QT_COMPAT void setPixmap(const QPixmap &pixmap, Size, Mode mode = Normal, State state = Off)
+    static QT3_SUPPORT void setPixmapSize(Size which, const QSize &size);
+    static QT3_SUPPORT QSize pixmapSize(Size which);
+    inline QT3_SUPPORT void reset(const QPixmap &pixmap, Size /*size*/) { *this = QIcon(pixmap); }
+    inline QT3_SUPPORT void setPixmap(const QPixmap &pixmap, Size, Mode mode = Normal, State state = Off)
         { addPixmap(pixmap, mode, state); }
-    inline QT_COMPAT void setPixmap(const QString &fileName, Size, Mode mode = Normal, State state = Off)
+    inline QT3_SUPPORT void setPixmap(const QString &fileName, Size, Mode mode = Normal, State state = Off)
         { addPixmap(QPixmap(fileName), mode, state); }
-    QT_COMPAT QPixmap pixmap(Size size, Mode mode, State state = Off) const;
-    QT_COMPAT QPixmap pixmap(Size size, bool enabled, State state = Off) const;
-    QT_COMPAT QPixmap pixmap() const;
+    QT3_SUPPORT QPixmap pixmap(Size size, Mode mode, State state = Off) const;
+    QT3_SUPPORT QPixmap pixmap(Size size, bool enabled, State state = Off) const;
+    QT3_SUPPORT QPixmap pixmap() const;
 #endif
 
     Q_DUMMY_COMPARISON_OPERATOR(QIcon)
@@ -75,7 +75,7 @@ private:
 Q_DECLARE_SHARED(QIcon);
 Q_DECLARE_TYPEINFO(QIcon, Q_MOVABLE_TYPE);
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 typedef QIcon QIconSet;
 #endif
 

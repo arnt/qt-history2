@@ -2106,7 +2106,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use selectedFiles() instead.
 

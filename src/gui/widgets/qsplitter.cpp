@@ -720,7 +720,7 @@ QSplitterLayoutStruct *QSplitterPrivate::findWidget(QWidget *w) const
     return 0;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 static void setStretch(QWidget *w, int sf)
 {
     QSizePolicy sp = w->sizePolicy();
@@ -751,7 +751,7 @@ static int getStretch(const QWidget *w)
     event loop. In that case, we use a special value, 243, instead of
     0 to prevent 0 from being overwritten with 1 in addWidget(). This
     is a wicked hack, but fortunately it only occurs as a result of
-    calling a \c QT_COMPAT function.
+    calling a \c QT3_SUPPORT function.
 */
 void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
 {
@@ -835,7 +835,7 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
         if (newHandle && q->isVisible())
             newHandle->show(); // will trigger sending of post events
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         if (compatMode) {
             int sf = getStretch(sls->widget);
             if (sf == 243)
@@ -1216,7 +1216,7 @@ bool QSplitter::event(QEvent *e)
         d->firstShow = false;
         // fall through
     case QEvent::LayoutRequest:
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
     case QEvent::LayoutHint:
 #endif
         d->recalc(isVisible());
@@ -1341,7 +1341,7 @@ void QSplitter::setOpaqueResize(bool on)
     d->opaque = on;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
 \fn void QSplitter::moveToFirst(QWidget *w)
 
@@ -1599,7 +1599,7 @@ bool QSplitter::restoreState(const QByteArray &state)
 }
 
 
-//#ifdef QT_COMPAT
+//#ifdef QT3_SUPPORT
 #ifndef QT_NO_TEXTSTREAM
 /*!
     \relates QSplitter
@@ -1637,7 +1637,7 @@ QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
     return ts;
 }
 #endif // QT_NO_TEXTSTREAM
-//#endif // QT_COMPAT
+//#endif // QT3_SUPPORT
 #endif // QT_NO_SPLITTER
 
 /*!

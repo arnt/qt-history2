@@ -19,10 +19,10 @@
 #include "QtCore/qmap.h"
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #define QGL_VERSION        460
 #define QGL_VERSION_STR        "4.6"
-Q_OPENGL_EXPORT inline QT_COMPAT const char *qGLVersion() {
+Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
     return QGL_VERSION_STR;
 }
 #endif
@@ -235,12 +235,12 @@ public:
                        const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
     explicit QGLWidget(const QGLFormat& format, QWidget* parent=0,
                        const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QGLWidget(QWidget* parent, const char* name,
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QGLWidget(QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QGLWidget(QGLContext *context, QWidget* parent, const char* name,
+    QT3_SUPPORT_CONSTRUCTOR QGLWidget(QGLContext *context, QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QGLWidget(const QGLFormat& format, QWidget* parent, const char* name,
+    QT3_SUPPORT_CONSTRUCTOR QGLWidget(const QGLFormat& format, QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
 #endif
     ~QGLWidget();

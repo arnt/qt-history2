@@ -1311,7 +1311,7 @@ bool QSqlDatabase::isValid() const
     return d->driver && d->driver != d->shared_null()->driver;
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use query.record() instead.
 */

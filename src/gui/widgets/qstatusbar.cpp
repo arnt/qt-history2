@@ -111,7 +111,7 @@ public:
     \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
 */
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Constructs a status bar called \a name with parent \a parent and
     with a size grip.
@@ -506,7 +506,7 @@ bool QStatusBar::event(QEvent *e)
     Q_D(QStatusBar);
 
     if (e->type() == QEvent::LayoutRequest
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         || e->type() == QEvent::LayoutHint
 #endif
         ) {

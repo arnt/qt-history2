@@ -25,7 +25,7 @@
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 #include <private/qaction_p.h>
 #include <qmenudata.h>
 #endif
@@ -294,7 +294,7 @@ void QMenuBarPrivate::actionTriggered()
     Q_Q(QMenuBar);
     if (QAction *action = qt_cast<QAction *>(q->sender())) {
         emit q->triggered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit q->activated(q->findIdForAction(action));
 #endif
     }
@@ -305,7 +305,7 @@ void QMenuBarPrivate::actionHovered()
     Q_Q(QMenuBar);
     if (QAction *action = qt_cast<QAction *>(q->sender())) {
         emit q->hovered(action);
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
         emit q->highlighted(q->findIdForAction(action));
 #endif
     }
@@ -452,7 +452,7 @@ QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
     d->init();
 }
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
@@ -1278,7 +1278,7 @@ QWidget *QMenuBar::cornerWidget(Qt::Corner corner) const
 */
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 /*!
     Use style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, this)
     instead.

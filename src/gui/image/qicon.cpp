@@ -499,7 +499,7 @@ void QIcon::addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State stat
 }
 
 
-#ifdef QT_COMPAT
+#ifdef QT3_SUPPORT
 
 static int widths[2] = { 22, 32 };
 static int heights[2] = { 22, 32 };
@@ -562,6 +562,6 @@ QSize QIcon::pixmapSize(QIcon::Size which)
     return ::pixmapSize(which);
 }
 
-#endif // QT_COMPAT
+#endif // QT3_SUPPORT
 
 
