@@ -126,7 +126,7 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
         if (xform) {
             bounds = pathBounds.toRect();
         } else {
-            bounds = state->matrix.mapRect(pathBounds).toRect();
+            bounds = state->worldMatrix.mapRect(pathBounds).toRect();
             q->resetMatrix();
         }
         q->drawPixmap(QRectF(bounds.topLeft(), pixmap->size()),
@@ -169,7 +169,7 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
     } else {
         // Non xform or translate case. We allocate a pixmap the size
         // of the bounds and that.
-        bounds = state->matrix.mapRect(pathBounds).toRect();
+        bounds = state->worldMatrix.mapRect(pathBounds).toRect();
         q->resetMatrix();
         image = QImage(bounds.size(), 32);
         if (!state->brush.isOpaque()) {
