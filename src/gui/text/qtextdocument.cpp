@@ -955,13 +955,14 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
 */
 QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
 {
-    // ### title
-
     html = QLatin1String("<html><head><meta name=\"qrichtext\" content=\"1\" />");
 
     if (!encoding.isEmpty())
         html += QString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\" />").arg(QString::fromAscii(encoding));
 
+    QString title  = doc->metaInformation(QTextDocument::DocumentTitle);
+    if (!title.isEmpty())
+        html += "<title>" + title + "</title>";
     html += QString("</head><body style=\" white-space: pre-wrap; font-family:%1; font-weight:%2; font-style:%3; text-decoration:none;\"")
             .arg(defaultCharFormat.fontFamily())
             .arg(defaultCharFormat.fontWeight() * 8)
