@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.cpp#71 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -1047,8 +1047,6 @@ QWSMouseHandler *QWSServer::mouseHandler()
 // called by QWSMouseHandler constructor, not user code.
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
-    connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
-	    qwsServer, SLOT(setMouse(const QPoint&,int)));
     qwsServer->mousehandlers.prepend(mh);
 }
 

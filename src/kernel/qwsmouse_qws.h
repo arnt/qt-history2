@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#12 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.h#13 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -61,7 +61,6 @@ public:
 protected:
     enum {mouseBufSize = 128};
 
-signals:
     void mouseChanged(const QPoint& pos, int bstate);
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qwsmouse_qws.cpp#52 $
 **
 ** Implementation of Qt/Embedded mouse drivers
 **
@@ -102,12 +102,14 @@ QWSMouseHandler::~QWSMouseHandler()
 }
 
 /*!
-  \fn void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
-
-  This signal is emited by the mouse handler to signal that the
+  To be called by the mouse handler to signal that the
   mouse is now at position \a pos and the mouse buttons are now
   in the state \a bstate.
 */
+void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
+{
+    QWSServer::sendMouseEvent(pos,bstate);
+}
 
 
 typedef struct {
@@ -477,7 +479,7 @@ mousePos.x(),mousePos.y(),
 (h.buttonState()&Qt::MidButton)?'M':'.',
 (h.buttonState()&Qt::RightButton)?'R':'.');
 */
-	    emit mouseChanged(mousePos,h.buttonState());
+	    mouseChanged(mousePos,h.buttonState());
 	    return TRUE;
 	} else {
 	    h.takeMotion();
@@ -713,7 +715,7 @@ void QWSMouseHandlerPrivate::handleMouseData()
 	    if ( bstate != obstate ) {
 		mousePos += QPoint(tdx,-tdy);
 		limitToScreen( mousePos );
-		emit mouseChanged(mousePos,bstate);
+		mouseChanged(mousePos,bstate);
 		sendEvent = FALSE;
 		tdx = 0;
 		tdy = 0;
@@ -725,7 +727,7 @@ void QWSMouseHandlerPrivate::handleMouseData()
     if ( sendEvent ) {
 	mousePos += QPoint(tdx,-tdy);
 	limitToScreen( mousePos );
-	emit mouseChanged(mousePos,bstate);
+	mouseChanged(mousePos,bstate);
     }
 
     int surplus = mouseIdx - idx;
@@ -920,7 +922,7 @@ bool QCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
 {
     if ( !button ) {
 	if ( numSamples >= samples.count() )
-	    emit mouseChanged( mousePos, 0 );
+	    mouseChanged( mousePos, 0 );
 	currSample = 0;
 	numSamples = 0;
 	return TRUE;
@@ -957,7 +959,7 @@ bool QCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
 	pos = transform( pos );
 	if ( pos != mousePos || numSamples == samples.count() ) {
 	    mousePos = pos;
-	    emit mouseChanged( mousePos, button );
+	    mouseChanged( mousePos, button );
 	    sent = TRUE;
 	}
     }
@@ -1130,7 +1132,7 @@ void QIpaqHandlerPrivate::readMouseData()
 # ifdef QT_QWS_IPAQ_RAW
 		mousePos = transform( mousePos );
 # endif
-		emit mouseChanged(mousePos,Qt::LeftButton);
+		mouseChanged(mousePos,Qt::LeftButton);
 		oldmouse=mousePos;
 		waspressed=true;
 	    }
@@ -1141,7 +1143,7 @@ void QIpaqHandlerPrivate::readMouseData()
 	    if(waspressed) {
 		currSample = 0;
 		numSamples = 0;
-		emit mouseChanged(oldmouse,0);
+		mouseChanged(oldmouse,0);
 		waspressed=false;
 	    }
 	}
@@ -1206,9 +1208,9 @@ void QCustomTPanelHandlerPrivate::readMouseData()
 	q.setY(data.ypos);
 	mousePos=q;
 	if(data.status & 0x40) {
-	  emit mouseChanged(mousePos,Qt::LeftButton);
+	    mouseChanged(mousePos,Qt::LeftButton);
 	} else {
-	  emit mouseChanged(mousePos,0);
+	    mouseChanged(mousePos,0);
 	}
     }
     if(ret<0) {
@@ -1270,7 +1272,7 @@ void QVFbMouseHandlerPrivate::readMouseData()
 	int *bstate = (int *)mb;
 	mousePos = *p;
 	limitToScreen( mousePos );
-	emit mouseChanged(mousePos, *bstate);
+	mouseChanged(mousePos, *bstate);
 	idx += sizeof( QPoint ) + sizeof( int );
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.h#32 $
+** $Id: //depot/qt/main/src/kernel/qwindowsystem_qws.h#33 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -294,7 +294,6 @@ private slots:
     void clientClosed();
     void doClient();
 #endif
-    void setMouse(const QPoint& pos,int bstate);
 
     void screenSaverWake();
     void screenSaverSleep();
