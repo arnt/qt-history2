@@ -18,7 +18,11 @@
 **
 **********************************************************************/
 
+#if defined(DESIGNER)
 #include "database.h"
+#else
+#include "database2.h"
+#endif
 
 #ifndef QT_NO_SQL
 

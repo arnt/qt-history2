@@ -9,7 +9,7 @@ HEADERS		= qwidgetfactory.h \
 		  ../shared/domtool.h
 
 sql:SOURCES += 		  ../designer/database.cpp
-sql:HEADERS +=		  ../designer/database.h
+sql:HEADERS +=		  ../designer/database2.h
 
 include( ../../../src/qt_professional.pri )
 TARGET		= qui

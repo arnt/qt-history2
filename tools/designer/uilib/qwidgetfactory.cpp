@@ -26,7 +26,7 @@
 #include "qwidgetfactory.h"
 #include <qfeatures.h>
 #include "../designer/config.h"
-#include "../designer/database.h"
+#include "../designer/database2.h"
 #include <qdom.h>
 #include <qfile.h>
 #include <qlayout.h>
