@@ -65,13 +65,7 @@ class QListBoxPrivate
 public:
     QListBoxPrivate( QListBox *lb ):
 	head( 0 ), last( 0 ), cache( 0 ), cacheIndex( -1 ), current( 0 ), highlighted( 0 ),
-	layoutDirty( TRUE ),
-	mustPaintAll( TRUE ),
-	dragging( FALSE ),
-	variableHeight( TRUE /* !!! ### FALSE */ ),
-	variableWidth( FALSE ),
 	columnPosOne( 0 ),
-	rowModeWins( FALSE ),
 	rowMode( QListBox::FixedNumber ), columnMode( QListBox::FixedNumber ),
 	numRows( 1 ), numColumns( 1 ),
 	currentRow( 0 ), currentColumn( 0 ),
@@ -80,9 +74,15 @@ public:
 	scrollTimer( 0 ), updateTimer( 0 ), visibleTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 ),
-	ignoreMoves( FALSE ),
 	listBox( lb ), currInputString( QString::null ),
-	context_menu( FALSE )
+	context_menu( FALSE ),
+	rowModeWins( FALSE ),
+	ignoreMoves( FALSE ),
+	layoutDirty( TRUE ),
+	mustPaintAll( TRUE ),
+	dragging( FALSE ),
+	variableHeight( TRUE /* !!! ### FALSE */ ),
+	variableWidth( FALSE )
     {}
     void findItemByName( const QString &text );
     ~QListBoxPrivate();
@@ -3820,7 +3820,7 @@ int QListBox::inSort( const QString& text )
     return inSort( new QListBoxText(text) );
 }
 
-#endif 
+#endif
 
 
 /*! \reimp */
