@@ -156,8 +156,8 @@ public:
 
     QValueList<T>& operator+= (const T& x) { append(x); return *this; }
 
-    T& operator[] ( size_type i ) { return *at(i); }
-    const T& operator[] ( size_type i ) const { return *at(i); }
+    T& operator[] (typename QValueList<T>::size_type i) { return *at(i); }
+    const T& operator[] (typename QValueList<T>::size_type i) const { return *at(i); }
 
 };
 
