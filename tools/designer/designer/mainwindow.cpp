@@ -1539,12 +1539,13 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     buffer.open( IO_WriteOnly );
     Resource resource( this );
     resource.setWidget( fw );
-    resource.save( &buffer );
+    QValueList<Resource::Image> images;
+    resource.save( &buffer, FALSE, &images );
 
     buffer.close();
     buffer.open( IO_ReadOnly );
     Resource preview( style, palet );
-    if ( preview.load( &buffer ) && preview.widget() ) {
+    if ( preview.load( &buffer, &images ) && preview.widget() ) {
 	preview.widget()->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)preview.widget() )->setWFlags( WDestructiveClose );
 	QApplication::restoreOverrideCursor();

@@ -142,7 +142,7 @@ bool Resource::load( const QString& filename )
     return b;
 }
 
-bool Resource::load( QIODevice* dev )
+bool Resource::load( QIODevice* dev, QValueList<Image> *imgs )
 {
     QDomDocument doc;
     if ( !doc.setContent( dev ) ) {
@@ -204,6 +204,8 @@ bool Resource::load( QIODevice* dev )
 
     if ( !imageCollection.isNull() )
 	loadImageCollection( imageCollection );
+    if ( images.isEmpty() && imgs )
+	images = *imgs;
     if ( !customWidgets.isNull() )
 	loadCustomWidgets( customWidgets, this );
     if ( !createObject( firstWidget, !previewMode ? formwindow : 0, 0) )
@@ -243,7 +245,7 @@ bool Resource::save( const QString& filename )
     return b;
 }
 
-bool Resource::save( QIODevice* dev )
+bool Resource::save( QIODevice* dev, bool saveImages, QValueList<Image> *imgs )
 {
     if ( !formwindow )
 	return FALSE;
@@ -256,12 +258,16 @@ bool Resource::save( QIODevice* dev )
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
 	saveCustomWidgets( ts, 0 );
-    if ( !images.isEmpty() )
+    if ( !images.isEmpty() && saveImages )
 	saveImageCollection( ts, 0 );
     if ( !MetaDataBase::connections( formwindow ).isEmpty() || !MetaDataBase::slotList( formwindow ).isEmpty() )
 	saveConnections( ts, 0 );
     saveTabOrder( ts, 0 );
     ts << "</UI>" << endl;
+
+    if ( imgs )
+	*imgs = images;
+    
     images.clear();
 
     return TRUE;

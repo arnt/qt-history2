@@ -43,18 +43,27 @@ class QListViewItem;
 class Resource
 {
 public:
+    struct Image {
+	QImage img;
+	QString name;
+	bool operator==(  const Image &i ) const {
+	    return ( i.name == name &&
+		     i.img == img );
+	}
+    };
+
     Resource( QStyle* s = 0, QPalette* pal = 0 );
     Resource( MainWindow* mw, QStyle* s = 0, QPalette* pal = 0 );
 
     void setWidget( FormWindow *w );
     QWidget *widget() const;
 
-    bool load( const QString& filename);
-    bool load( QIODevice* );
+    bool load( const QString& filename );
+    bool load( QIODevice*, QValueList<Image> *images = 0 );
     QString copy();
 
     bool save( const QString& filename);
-    bool save( QIODevice* );
+    bool save( QIODevice*, bool saveImages = TRUE, QValueList<Image> *images = 0 );
     void paste( const QString &cb, QWidget *parent );
 
     static void saveImageData( const QImage &img, QTextStream &ts, int indent );
@@ -94,16 +103,6 @@ private:
     void loadItem( const QDomElement &n, QPixmap &pix, QString &txt, bool &hasPixmap );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e );
-
-private:
-    struct Image {
-	QImage img;
-	QString name;
-	bool operator==(  const Image &i ) const {
-	    return ( i.name == name &&
-		     i.img == img );
-	}
-    };
 
 private:
     MainWindow *mainwindow;
