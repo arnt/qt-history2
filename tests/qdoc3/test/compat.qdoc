@@ -9,9 +9,6 @@ alias.inheaderfile	= headerfile
 alias.o			= i
 alias.quotefile		= include
 alias.quotefromfile	= quotefile
-alias.quoteline		= printline
-alias.quoteto		= printto
-alias.quoteuntil	= printuntil
 alias.private		= internal
 alias.related		= relates
 
