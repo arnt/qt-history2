@@ -233,7 +233,7 @@ private:
     friend void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src);
     friend void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 					 const QPixmap *src, int sx = 0, int sy = 0,
-					 int sw = -1, int sh = -1, bool fill = FALSE);
+					 int sw = -1, int sh = -1);
 #endif
 
     friend class QBitmap;

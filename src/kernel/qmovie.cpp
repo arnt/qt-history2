@@ -404,7 +404,7 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
     // in qpixmap_x11.cpp
     extern void qt_x11_blit_alpha_pixmap(QPixmap *, int, int,
 					 const QPixmap *, int = 0, int = 0,
-					 int = -1, int = -1, bool = FALSE);
+					 int = -1, int = -1);
     qt_x11_blit_alpha_pixmap(&mypixmap, area.left(), area.top(),
 			     &lines, off.x(), off.y(), area.width(), area.height());
 #endif

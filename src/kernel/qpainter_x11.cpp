@@ -2798,12 +2798,77 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
          mask == 0 ) {
         if ( txop == TxTranslate )
             map( x, y, &x, &y );
-        XSetTile( dpy, gc, pixmap.handle() );
-        XSetFillStyle( dpy, gc, FillTiled );
-        XSetTSOrigin( dpy, gc, x-sx, y-sy );
-        XFillRectangle( dpy, hd, gc, x, y, w, h );
-        XSetTSOrigin( dpy, gc, 0, 0 );
-        XSetFillStyle( dpy, gc, FillSolid );
+
+#ifndef QT_NO_XRENDER
+        if (rendhd && pixmap.x11RenderHandle() &&
+            pixmap.data->alphapm && pixmap.data->alphapm->x11RenderHandle()) {
+
+#if 0
+	    // ###
+	    // According to the RENDER protocol spec, this is supposed to work,
+	    // yet for some cases, it doesn't.  So, we have to disable this for
+	    // now and do it a different way.
+
+	    // set the repeat (tile) attribute
+	    XRenderPictureAttributes pattr;
+	    pattr.repeat = TRUE;
+	    XRenderChangePicture(dpy, pixmap.x11RenderHandle(),
+				 CPRepeat, &pattr);
+	    XRenderChangePicture(dpy, pixmap.data->alphapm->x11RenderHandle(),
+				 CPRepeat, &pattr);
+            XRenderComposite(dpy, PictOpOver,
+                             pixmap.x11RenderHandle(),			// src
+                             pixmap.data->alphapm->x11RenderHandle(),	// mask
+                             rendhd,					// dst
+                             sx, sy,					// src offset
+			     sx, sy,					// mask offset
+			     x, y, w, h);				// dst rect
+	    // restore the repeat attribute
+	    pattr.repeat = FALSE;
+	    XRenderChangePicture(dpy, pixmap.x11RenderHandle(),
+				 CPRepeat, &pattr);
+	    XRenderChangePicture(dpy, pixmap.data->alphapm->x11RenderHandle(),
+				 CPRepeat, &pattr);
+#else
+	    // this is essentially drawTile() from above, inlined for
+	    // the XRenderComposite call
+	    int yPos, xPos, drawH, drawW, yOff, xOff;
+	    yPos = y;
+	    yOff = sy;
+	    while( yPos < y + h ) {
+		drawH = pixmap.height() - yOff;    // Cropping first row
+		if ( yPos + drawH > y + h )        // Cropping last row
+		    drawH = y + h - yPos;
+		xPos = x;
+		xOff = sx;
+		while( xPos < x + w ) {
+		    drawW = pixmap.width() - xOff; // Cropping first column
+		    if ( xPos + drawW > x + w )    // Cropping last column
+			drawW = x + w - xPos;
+		    XRenderComposite(dpy, PictOpOver,
+				     pixmap.x11RenderHandle(),
+				     pixmap.data->alphapm->x11RenderHandle(),
+				     rendhd,
+				     xOff, yOff,
+				     xOff, yOff,
+				     xPos, yPos, drawW, drawH);
+		    xPos += drawW;
+		    xOff = 0;
+		}
+		yPos += drawH;
+		yOff = 0;
+	    }
+#endif
+	} else
+#endif
+	    {
+		XSetTile( dpy, gc, pixmap.handle() );
+		XSetFillStyle( dpy, gc, FillTiled );
+		XSetTSOrigin( dpy, gc, x-sx, y-sy );
+		XFillRectangle( dpy, hd, gc, x, y, w, h );
+		XSetTSOrigin( dpy, gc, 0, 0 );
+		XSetFillStyle( dpy, gc, FillSolid );
+	    }
         return;
     }
 

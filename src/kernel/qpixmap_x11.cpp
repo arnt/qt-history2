@@ -1907,7 +1907,7 @@ void QPixmap::x11SetScreen( int screen )
 */
 void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 			      const QPixmap *src, int sx = 0, int sy = 0,
-			      int sw = -1, int sh = -1, bool fill = FALSE)
+			      int sw = -1, int sh = -1)
 {
     if (! dst || ! src || ! src->data->alphapm)
 	return;
@@ -1946,12 +1946,6 @@ void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 	sh = src->height() - sy;
 
     GC gc = XCreateGC(dst->x11Display(), dst->data->alphapm->hd, 0, 0);
-    if (fill) {
-	XSetForeground(dst->x11Display(), gc,
-		       WhitePixel(dst->x11Display(), dst->x11Screen()));
-	XFillRectangle(dst->x11Display(), dst->handle(), gc, 0, 0,
-		       dst->width(), dst->height());
-    }
     XCopyArea(dst->x11Display(), src->data->alphapm->hd, dst->data->alphapm->hd, gc,
 	      sx, sy, sw, sh, dx, dy);
     XFreeGC(dst->x11Display(), gc);
@@ -1971,7 +1965,7 @@ void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src)
     dst->data->alphapm = 0;
 
     // blit the alpha channel
-    qt_x11_blit_alpha_pixmap(dst, 0, 0, src, 0, 0, dst->width(), dst->height(), TRUE);
+    qt_x11_blit_alpha_pixmap(dst, 0, 0, src, 0, 0, dst->width(), dst->height());
 }
 
 #endif // !QT_NO_XRENDER
