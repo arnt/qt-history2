@@ -82,15 +82,15 @@ public:
     };
 
     enum Stretch {
-	UltraCondensed =  52,
-	ExtraCondensed =  61,
-	Condensed      =  72,
-	SemiCondensed  =  85,
+	UltraCondensed =  50,
+	ExtraCondensed =  62,
+	Condensed      =  75,
+	SemiCondensed  =  87,
 	Unstretched    = 100,
-	SemiExpanded   = 115,
-	Expanded       = 132,
-	ExtraExpanded  = 152,
-	UltraExpanded  = 174
+	SemiExpanded   = 112,
+	Expanded       = 125,
+	ExtraExpanded  = 150,
+	UltraExpanded  = 200
     };
 
     // default font
