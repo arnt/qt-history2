@@ -60,11 +60,12 @@ void FortuneThread::run()
             }
         }
 
+        QMutexLocker locker(&mutex);
+
         QString fortune;
         in >> fortune;
         emit newFortune(fortune);
 
-        QMutexLocker locker(&mutex);
         cond.wait(&mutex);
         serverName = hostName;
         serverPort = port;
