@@ -39,7 +39,7 @@
 #endif
 #endif
 
-#ifndef Q_KERNEL_EXPORT_PLUGIN
+#ifndef Q_EXPORT_PLUGIN
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1
 #define Q_PLUGIN_FLAGS_STRING "11"
@@ -69,7 +69,7 @@
 
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
-#	    define Q_KERNEL_PLUGIN(PLUGIN) \
+#	    define Q_EXPORT_PLUGIN(PLUGIN) \
 	        Q_PLUGIN_VERIFICATION_DATA \
 		Q_EXTERN_C __declspec(dllexport) \
                 const char * __stdcall qt_ucm_query_verification_data() \
