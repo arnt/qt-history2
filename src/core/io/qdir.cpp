@@ -580,11 +580,6 @@ QString QDir::dirName() const
     be relative. Redundant multiple separators or "." and ".."
     directories in \a fileName are not removed (see cleanPath()).
 
-    If \a acceptAbsPath is true a \a fileName starting with a
-    separator "/" will be returned without change. If \a acceptAbsPath
-    is false an absolute path will be prepended to the fileName and
-    the resultant string returned.
-
     \sa dirName() absoluteFilePath(), isRelative(), canonicalPath()
 */
 
@@ -608,11 +603,6 @@ QString QDir::filePath(const QString &fileName) const
     not check if the file actually exists in the directory; but see
     exists(). Redundant multiple separators or "." and ".."
     directories in \a fileName are not removed (see cleanPath()).
-
-    If \a acceptAbsPath is true a \a fileName starting with a
-    separator "/" will be returned without change. If \a acceptAbsPath
-    is false an absolute path will be prepended to the fileName and
-    the resultant string returned.
 
     \sa filePath() canonicalPath()
 */
@@ -669,12 +659,6 @@ QString QDir::convertSeparators(const QString &pathName)
 
 /*!
     Changes the QDir's directory to \a dirName.
-
-    If \a acceptAbsPath is true a path starting with separator "/"
-    will cause the function to change to the absolute directory. If \a
-    acceptAbsPath is false any number of separators at the beginning
-    of \a dirName will be removed and the function will descend into
-    \a dirName.
 
     Returns true if the new directory exists and is readable;
     otherwise returns false. Note that the logical cd() operation is
@@ -828,6 +812,8 @@ QDir::Filters QDir::filter() const
     \omitvalue TypeMask
     \omitvalue  RWEMask
     \omitvalue AccessMask
+    \omitvalue PermissionMask
+    \omitvalue NoFilter
 
     If you do not set any of \c Readable, \c Writable, or \c
     Executable, QDir will set all three of them. This makes the
@@ -889,6 +875,7 @@ QDir::SortFlags QDir::sorting() const
 
     \omitvalue SortByMask
     \omitvalue DefaultSort
+    \omitvalue NoSort
 
     You can only specify one of the first four.
 
@@ -1073,11 +1060,6 @@ QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, QDir::Filters 
     NonRecursive then is assumed that all subdirectories of \a dirName
     exist already.
 
-    If \a acceptAbsPath is true a path starting with a separator ('/')
-    will create the absolute directory; if \a acceptAbsPath is false
-    any number of separators at the beginning of \a dirName will be
-    removed.
-
     Returns true if successful; otherwise returns false.
 
     \sa rmdir()
@@ -1104,11 +1086,6 @@ bool QDir::mkdir(const QString &dirName, Recursion recurse) const
     If \a recurse is \c Recursive then subdirectories along the path
     to \a dirName will be removed if they are empty. If \a recurse is
     \c NonRecursive then only the directory \a dirName will be
-    removed.
-
-    If \a acceptAbsPath is true a path starting with a separator ('/')
-    will remove the absolute directory; if \a acceptAbsPath is false
-    any number of separators at the beginning of \a dirName will be
     removed.
 
     The directory must be empty for rmdir() to succeed.
@@ -1363,11 +1340,6 @@ QDir &QDir::operator=(const QString &path)
 /*!
     Removes the file, \a fileName.
 
-    If \a acceptAbsPath is true a path starting with separator "/"
-    will remove the file with the absolute path. If \a acceptAbsPath
-    is false any number of separators at the beginning of \a fileName
-    will be removed and the resultant file name will be removed.
-
     Returns true if the file is removed successfully; otherwise
     returns false.
 */
@@ -1383,14 +1355,8 @@ bool QDir::remove(const QString &fileName)
 }
 
 /*!
-    Renames a file or directory.
-
-    If \a acceptAbsPaths is true a path starting with a separator
-    ('/') will rename the file with the absolute path; if \a
-    acceptAbsPaths is false any number of separators at the beginning
-    of the names will be removed.
-
-    Returns true if successful; otherwise returns false.
+    Renames a file or directory from \a oldName to \a newName, and returns
+    true if successful; otherwise returns false.
 
     On most file systems, rename() fails only if \a oldName does not
     exist or if \a newName and \a oldName are not on the same
@@ -1420,11 +1386,6 @@ bool QDir::rename(const QString &oldName, const QString &newName)
 /*!
     Returns true if the file called \a name exists; otherwise returns
     false.
-
-    If \a acceptAbsPath is true a path starting with separator "/"
-    will check the file with the absolute path. If \a acceptAbsPath is
-    false any number of separators at the beginning of \a name will be
-    removed and the resultant file name will be checked.
 
     \sa QFileInfo::exists(), QFile::exists()
 */

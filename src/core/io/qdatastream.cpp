@@ -192,6 +192,16 @@
     \value LittleEndian Less significant byte first
 */
 
+/*!
+    \enum QDataStream::Status
+
+    This enum describes the current status of the data stream.
+
+    \value Ok               The data stream is operating normally.
+    \value ReadPastEnd      The data stream has read past the end of the
+                            data in the underlying device.
+    \value ReadCorruptData  The data stream has read corrupt data.
+*/
 
 /*****************************************************************************
   QDataStream member functions
@@ -254,6 +264,14 @@ QDataStream::QDataStream(QIODevice *d)
 }
 
 #ifdef QT_COMPAT
+/*!
+    \fn QDataStream::QDataStream(QByteArray *array, int mode)
+    \compat
+
+    Constructs a data stream that operates on the given \a array. The
+    \a mode specifies how the byte array is to be used, and is
+    usually either \c QIODevice::ReadOnly or \c QIODevice::WriteOnly.
+*/
 QDataStream::QDataStream(QByteArray *a, int mode)
 {
     QBuffer *buf = new QBuffer(a);
@@ -268,9 +286,12 @@ QDataStream::QDataStream(QByteArray *a, int mode)
 #endif
 
 /*!
+    \fn QDataStream::QDataStream(QByteArray *a, QIODevice::OpenMode mode)
+
     Constructs a data stream that operates on a byte array, \a a. The
-    \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
-    \c QIODevice::WriteOnly. Alternatively, you can use QDataStream(const QByteArray&) if you
+    \a mode describes how the device is to be used.
+
+    Alternatively, you can use QDataStream(const QByteArray &) if you
     just want to read from a byte array.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
@@ -378,7 +399,10 @@ bool QDataStream::atEnd() const
     return dev ? dev->atEnd() : true;
 }
 
-/*
+/*!
+    Returns the status of the data stream.
+
+    \sa Status setStatus() resetStatus()
 */
 
 QDataStream::Status QDataStream::status() const
@@ -386,15 +410,20 @@ QDataStream::Status QDataStream::status() const
     return q_status;
 }
 
-/*
+/*!
+    Resets the status of the data stream.
+
+    \sa Status status() setStatus()
 */
 void QDataStream::resetStatus()
 {
     q_status = Ok;
 }
 
-/*
+/*!
+    Sets the status of the data stream to the \a status given.
 
+    \sa Status status() resetStatus()
 */
 void QDataStream::setStatus(Status status)
 {
