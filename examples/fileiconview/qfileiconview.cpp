@@ -13,7 +13,7 @@
 #include <qstringlist.h>
 #include <qpixmap.h>
 #include <qmime.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qdragobject.h>
 #include <qmessagebox.h>
 #include <qevent.h>
@@ -416,7 +416,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QPtrStrList lst;
+    QStrList lst;
     QUriDrag::decode( e, lst );
 
     QString str;
@@ -694,7 +694,7 @@ void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QPtrStrList lst;
+    QStrList lst;
     QUriDrag::decode( e, lst );
 
     QString str;

@@ -12,13 +12,13 @@
 #define IMAGEFIP_H
 
 #include <qfiledialog.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qpixmap.h>
 
 class ImageIconProvider : public QFileIconProvider
 {
     Q_OBJECT
-    QPtrStrList fmts;
+    QStrList fmts;
     QPixmap imagepm;
 
 public:

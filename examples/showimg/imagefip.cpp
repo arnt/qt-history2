@@ -14,7 +14,7 @@
 /* XPM */
 static const char *image_xpm[] = {
 "17 15 9 1",
-" 	c #7F7F7F",
+"	c #7F7F7F",
 ".	c #FFFFFF",
 "X	c #00B6FF",
 "o	c #BFBFBF",

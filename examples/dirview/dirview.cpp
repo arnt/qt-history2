@@ -19,7 +19,7 @@
 #include <qmessagebox.h>
 #include <qdragobject.h>
 #include <qmime.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qstringlist.h>
 #include <qapplication.h>
 #include <qheader.h>
@@ -392,7 +392,7 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
     QListViewItem *item = itemAt( contentsToViewport(e->pos()) );
     if ( item ) {
 
-	QPtrStrList lst;
+	QStrList lst;
 
 	QUriDrag::decode( e, lst );
 

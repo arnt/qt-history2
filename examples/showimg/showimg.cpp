@@ -43,7 +43,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     menubar = new QMenuBar(this);
     menubar->setSeparator( QMenuBar::InWindowsStyle );
 
-    QPtrStrList fmt = QImage::outputFormats();
+    QStrList fmt = QImage::outputFormats();
     saveimage = new QPopupMenu( menubar );
     savepixmap = new QPopupMenu( menubar );
     for (const char* f = fmt.first(); f; f = fmt.next()) {

@@ -93,7 +93,7 @@ void DropSite::dropEvent( QDropEvent * e )
 	return;
     }
 
-    QPtrStrList strings;
+    QStrList strings;
     if ( QUrlDrag::decode( e, strings ) ) {
 	QString m("Full URLs:\n");
 	for (const char* u=strings.first(); u; u=strings.next())
