@@ -200,7 +200,7 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
     while ( it2.current() ) {
 	QAction *action = it2.current();
 	lst << it2.current()->name();
-	if ( action->inherits( "QActionGroup" ) ) {
+	if ( ( action->children() ) && ( action->inherits( "QActionGroup" ) ) ) {
 	    QObjectListIt it3( *action->children() );
 	    while ( it3.current() ) {
 		QObject *o = it3.current();
@@ -272,7 +272,7 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
     while ( it2.current() ) {
 	QAction *action = it2.current();
 	lst << it2.current()->name();
-	if ( action->inherits( "QActionGroup" ) ) {
+	if ( ( action->children() ) && ( action->inherits( "QActionGroup" ) ) ) {
 	    QObjectListIt it3( *action->children() );
 	    while ( it3.current() ) {
 		QObject *o = it3.current();
