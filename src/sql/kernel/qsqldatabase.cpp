@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qsqldatabase.h"
+#include "qsqlquery.h"
 
 #ifdef Q_OS_WIN32
 // Conflicting declarations of LPCBYTE in sqlfront.h and winscard.h
