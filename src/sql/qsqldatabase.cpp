@@ -917,10 +917,11 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 }
 
 /*!
-    Sets the specified connection option. The options depend on the
-    database client used.
+    Sets the specified connect option. To unset an option, set the
+    option value to QString::null. The options supported depend on the
+    database client used:
 
-    For MySQL the following options are recognised:
+    MySQL:
     CLIENT_COMPRESS
     CLIENT_FOUND_ROWS
     CLIENT_IGNORE_SPACE
@@ -929,15 +930,14 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     CLIENT_NO_SCHEMA
     CLIENT_INTERACTIVE
     
-    For PostgreSQL:
-    host
+    PostgreSQL:
     connect_timeout
     options
     tty
     requiressl
     service
     
-    For ODBC:
+    ODBC:
     SQL_ATTR_ACCESS_MODE
     SQL_ATTR_CONNECTION_TIMEOUT
     SQL_ATTR_LOGIN_TIMEOUT
@@ -947,15 +947,31 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     SQL_ATTR_TRACEFILE
     SQL_ATTR_TRACE
 
-    For DB2:
+    DB2:
     SQL_ATTR_ACCESS_MODE
     SQL_ATTR_LOGIN_TIMEOUT
     
-    For OCI:
+    No options are currently supported for the OCI and TDS drivers.
+    Example:
     
-    For TDS:
+    \code
+    // MySQL connection
+    db->setConnectOption( "CLIENT_SSL", "TRUE" ); // enable SSL connections for MySQL
+    if ( !db->open() ) {
+        db->setConnectOption( "CLIENT_SSL", "FALSE" ); // disable the SSL option and try again
+	...
+    }
+    ...
+    // ODBC connection
+    db->setConnectOption( "SQL_ATTR_TRACE", "SQL_OPT_TRACE_ON" ); // turn on ODBC tracing
+    if ( !db->open() ) {
+        db->setConnectOption( "SQL_ATTR_TRACE", QString::null ); // don't try to set this option at all
+	...
+    }
+    ...
+    \endcode
 */
-void QSqlDatabase::setConnectionOption( const QString& option, const QString& value )
+void QSqlDatabase::setConnectOption( const QString& option, const QString& value )
 {
     if ( value == QString::null ) {
 	QMap<QString, QString>::Iterator it;
@@ -967,10 +983,10 @@ void QSqlDatabase::setConnectionOption( const QString& option, const QString& va
 }
 
 /*!
-    Returns the value assosiated with connection option \a option.
+    Returns the value assosiated with connect option \a option.
     If the option is not set to anything, a null string is returned.
 */
-QString QSqlDatabase::connectionOption( const QString& option ) const
+QString QSqlDatabase::connectOption( const QString& option ) const
 {
     QMap<QString, QString>::Iterator it;
     if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
