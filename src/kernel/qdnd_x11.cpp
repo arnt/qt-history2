@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#21 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -659,7 +659,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
   \sa format()
 */
 
-const QByteArray QDragMoveEvent::data( const char * format )
+QByteArray QDragMoveEvent::data( const char * format )
 {
     return qt_xdnd_obtain_data( format );
 }

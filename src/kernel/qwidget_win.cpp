@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#108 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -40,6 +40,8 @@ void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
 void	    qt_open_popup( QWidget * );
 void	    qt_close_popup( QWidget * );
+void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst ); // dnd_win
+QOleDropTarget* qt_olednd_register( QWidget* widget );
 
 
 extern bool qt_nograb();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#150 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -222,9 +222,6 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     if (NOERROR != OleInitialize(NULL))
        return 1;
 
-  // Deinitialize OLE
-    OleUninitialize();
-
   // Call user main()
 
     return main( argc, argv.data() );
@@ -332,6 +329,9 @@ void qt_cleanup()
     QColor::cleanup();
     if ( displayDC )
 	ReleaseDC( 0, displayDC );
+
+  // Deinitialize OLE
+debug("Deinit");
     OleUninitialize();
 }
 
