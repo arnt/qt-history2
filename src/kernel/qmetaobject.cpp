@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#58 $
 **
 ** Implementation of QMetaObject class
 **
@@ -441,7 +441,7 @@ void QMetaObject::fixProperty( QMetaProperty* prop, bool fix_enum_type )
     }
     super = super->superClass();
 
-    if ( prop->get && prop->set && ( prop->enumType || !fix_enum_type ) )
+    if ( (prop->get != 0) && (prop->set != 0) && ( prop->enumType || !fix_enum_type ) )
       return;
   }
 

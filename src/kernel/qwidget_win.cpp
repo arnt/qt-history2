@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#240 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -769,7 +769,7 @@ void QWidget::showWindow()
     else {
 	int sm = SW_SHOW;
 	if ( isTopLevel() ) {
-	    switch ( topData->showMode ) {
+	    switch ( topData()->showMode ) {
 	    case 1:
 		sm = SW_SHOWMINIMIZED;
 		break;
@@ -780,7 +780,7 @@ void QWidget::showWindow()
 		sm = SW_SHOW;
 		break;
 	    }
-	    topData->showMode = 0; // reset
+	    topData()->showMode = 0; // reset
 	}
 	ShowWindow( winId(), sm );
     }
