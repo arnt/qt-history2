@@ -70,20 +70,22 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 #define FALSE OLD_F
 #endif
 
+#ifdef DO_MAC_LIBRARY
 struct glibs_ref {
     QString name;
     int count;
     void *handle;
 };
 static QDict<glibs_ref> *glibs_loaded = 0;
+#endif
 
 bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
 
+#ifdef DO_MAC_LIBRARY
     QString filename = library->library();
-
     if(!glibs_loaded) {
 	glibs_loaded = new QDict<glibs_ref>();
     } else if(glibs_ref *i = glibs_loaded->find( filename )) {
@@ -91,24 +93,24 @@ bool QLibraryPrivate::loadLibrary()
 	pHnd = i->handle;
 	return TRUE;
     }
-
-#ifdef DO_MAC_LIBRARY
     NSObjectFileImage img;
     if( NSCreateObjectFileImageFromFile( filename, &img)  != NSObjectFileImageSuccess )
 	return FALSE;
-
-    if((pHnd = (void *)NSLinkModule(img, filename, NSLINKMODULE_OPTION_PRIVATE))) {
+    if((pHnd = (void *)NSLinkModule(img, filename, 
+				    NSLINKMODULE_OPTION_PRIVATE|NSLINKMODULE_OPTION_RETURN_ON_ERROR))) {
 	glibs_ref *i = new glibs_ref;
 	i->handle = pHnd;
 	i->count = 1;
 	i->name = filename;
 	glibs_loaded->insert( filename, i ); //insert it in the loaded hash
+	return TRUE;
     }
-    return TRUE;
-#else
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+    qDebug( "Failed to load library %s!", filename.latin1() );
+#endif
+#endif
     pHnd = NULL;
     return FALSE;
-#endif
 }
 
 bool QLibraryPrivate::freeLibrary()
@@ -116,36 +118,40 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return TRUE;
 
+#ifdef DO_MAC_LIBRARY
     if(glibs_loaded) {
 	for(QDictIterator<glibs_ref> it(*glibs_loaded); it.current(); ++it) {
 	    if( it.current()->handle == pHnd && !(--it.current()->count)) {
 		glibs_loaded->remove(it.currentKey());
+
+		NSUnLinkModule(pHnd, 
+			       NSUNLINKMODULE_OPTION_KEEP_MEMORY_MAPPED|
+			       NSUNLINKMODULE_OPTION_RESET_LAZY_REFERENCES);
+
 		break;
 	    }
 	}
     }
-#ifdef DO_MAC_LIBRARY
-    NSUnLinkModule(pHnd, FALSE);
-    pHnd = 0;
-    return TRUE;
-#else
-    pHnd = 0;
-    return TRUE;
 #endif
+    pHnd = 0;
+    return TRUE;
 }
 
 void* QLibraryPrivate::resolveSymbol( const char *symbol )
 {
     if ( !pHnd )
 	return 0;
-
+    void *ret = NULL;
 #ifdef DO_MAC_LIBRARY
     QCString symn2;
     symn2.sprintf("_%s", symbol);
-    return NSAddressOfSymbol(NSLookupSymbolInModule(pHnd, symn2));
-#else
-    return 0;
+    ret = NSAddressOfSymbol(NSLookupSymbolInModule(pHnd, symn2));
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+    if(!ret)
+	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif
+#endif
+    return ret;
 }
 
 #elif defined(Q_OS_MAC9)
