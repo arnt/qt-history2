@@ -615,7 +615,11 @@ void QGLWidget::macInternalRecreateContext(QGLContext *ctx, const QGLContext *sh
 void QGLWidget::setRegionDirty(bool b) //Internally we must put this off until "later"
 {
     QWidget::setRegionDirty(b);
+#if 0
     QTimer::singleShot(0, this, SLOT(macInternalFixBufferRect()));
+#else
+    macInternalFixBufferRect();
+#endif
 }
 
 void QGLWidget::macInternalFixBufferRect()

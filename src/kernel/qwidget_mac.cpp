@@ -1886,6 +1886,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     bool just_update = QABS(dx) > width() || QABS(dy) > height();
     if(just_update)
 	update();
+
     QRegion bltd;
     QPoint p(posInWindow(this));
     if(w > 0 && h > 0) {
@@ -1895,8 +1896,19 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	requested.translate(p.x(), p.y());
 	bltd &= requested;
 	bltd &= clippedRegion(valid_rect); //finally clip to clipping region
-	QMacSavedPortInfo pi(this, bltd);
-	unclippedBitBlt(this,x2,y2,this,x1,y1,w,h,Qt::CopyROP,TRUE,TRUE);
+	{   //can't blt that which is dirty
+	    RgnHandle r = qt_mac_get_rgn();
+	    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
+	    if(!EmptyRgn(r)) {
+		QRegion dirty; //the dirty region
+		CopyRgn(r, dirty.handle(TRUE));
+		dirty.translate(-topLevelWidget()->geometry().x(),
+				-topLevelWidget()->geometry().y());
+		bltd -= dirty;
+		debug_wndw_rgn("this is the dirty area", this, dirty);
+	    }
+	    qt_mac_dispose_rgn(r);
+	}
     }
     dirtyClippedRegion(TRUE);
     if(!valid_rect) {	// scroll children
@@ -1914,9 +1926,14 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         //now send move events (do not do this in the above loop, breaks QAquaFocusWidget)
 	for(int i = 0; i < moved.size(); i++) {
 	    QWidget *w = moved.at(i);
+	    w->dirtyClippedRegion(TRUE);
 	    QMoveEvent e(w->pos(), w->pos() - pd);
 	    QApplication::sendEvent(w, &e);
 	}
+    }
+    {
+	QMacSavedPortInfo pi(this, bltd);
+	unclippedBitBlt(this,x2,y2,this,x1,y1,w,h,Qt::CopyROP,TRUE,TRUE);
     }
 
     if(just_update)
