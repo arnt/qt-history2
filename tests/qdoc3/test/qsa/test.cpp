@@ -6,3 +6,8 @@
     \replace /(filter)\(\)/\1/
     \replace /setEnabled\(true\)/enabled = true/
 */
+
+/*! \quickfn ListView.setContentsPos( Number alpha, Number beta )
+
+  Bla bla.
+*/

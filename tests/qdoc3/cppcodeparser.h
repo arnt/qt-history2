@@ -46,7 +46,6 @@ private:
     const Location& location();
     QString previousLexeme();
     QString lexeme();
-
     bool match( int target );
     bool matchTemplateAngles( CodeChunk *type = 0 );
     bool matchTemplateHeader();
@@ -54,7 +53,6 @@ private:
     bool matchParameter( FunctionNode *func );
     bool matchFunctionDecl( InnerNode *parent, QStringList *pathPtr = 0,
 			    FunctionNode **funcPtr = 0 );
-
     bool matchBaseSpecifier( ClassNode *classe );
     bool matchBaseList( ClassNode *classe );
     bool matchClassDecl( InnerNode *parent );
@@ -63,10 +61,8 @@ private:
     bool matchTypedefDecl( InnerNode *parent );
     bool matchProperty( InnerNode *parent );
     bool matchDeclList( InnerNode *parent );
-
     bool matchDocsAndStuff();
-
-    void makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
+    bool makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
 			   FunctionNode **funcPtr );
 
     QMap<QString, Node::Type> nodeTypeMap;

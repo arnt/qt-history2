@@ -244,12 +244,12 @@ void ClassNode::addBaseClass( Access access, ClassNode *node,
 
 QValueList<ClassSection> ClassNode::overviewSections() const
 {
+    ClassSection properties( "Properties" );
     ClassSection publicMembers( "Public Members" );
     ClassSection publicSlots( "Public Slots" );
     ClassSection publicSignals( "Signals" );
     ClassSection staticPublicMembers( "Static Public Members" );
     ClassSection importantInheritedMembers( "Important Inherited Members" );
-    ClassSection properties( "Properties" );
     ClassSection protectedMembers( "Protected Members" );
     ClassSection protectedSlots( "Protected Slots" );
     ClassSection staticProtectedMembers( "Static Protected Members" );
@@ -305,12 +305,12 @@ QValueList<ClassSection> ClassNode::overviewSections() const
     }
 
     QValueList<ClassSection> sections;
+    append( &sections, properties );
     append( &sections, publicMembers );
     append( &sections, publicSlots );
     append( &sections, publicSignals );
     append( &sections, staticPublicMembers );
     append( &sections, importantInheritedMembers );
-    append( &sections, properties );
     append( &sections, protectedMembers );
     append( &sections, protectedSlots );
     append( &sections, staticProtectedMembers );

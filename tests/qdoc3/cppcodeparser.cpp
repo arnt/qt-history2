@@ -101,12 +101,11 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 						     Tree *tree )
 {
     QStringList path;
-    FunctionNode *clone = 0;
+    FunctionNode *clone;
     FunctionNode *func = 0;
 
     reset( tree );
-    makeFunctionNode( synopsis, &path, &clone );
-    if ( clone != 0 ) {
+    if ( makeFunctionNode(synopsis, &path, &clone) ) {
 	func = tree->findFunctionNode( path, clone );
 	delete clone;
     }
@@ -128,13 +127,10 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
     if ( command == COMMAND_FN ) {
 	QStringList path;
 	FunctionNode *func = 0;
-	FunctionNode *clone = 0;
+	FunctionNode *clone;
 
-	makeFunctionNode( arg, &path, &clone );
-	if ( clone == 0 )
-	    makeFunctionNode( "void " + arg, &path, &clone );
-
-	if ( clone == 0 ) {
+	if ( !makeFunctionNode(arg, &path, &clone) &&
+	     !makeFunctionNode("void " + arg, &path, &clone) ) {
 	    doc.location().warning( tr("Invalid syntax in '\\%1'")
 				    .arg(COMMAND_FN) );
 	} else {
@@ -845,7 +841,7 @@ bool CppCodeParser::matchDocsAndStuff()
 
 	    if ( command.isEmpty() ) {
 		QStringList path;
-		FunctionNode *clone = 0;
+		FunctionNode *clone;
 		FunctionNode *func = 0;
 
 		if ( matchFunctionDecl(0, &path, &clone) ) {
@@ -901,7 +897,7 @@ bool CppCodeParser::matchDocsAndStuff()
 	    }
 	} else {
 	    QStringList path;
-	    FunctionNode *clone = 0;
+	    FunctionNode *clone;
 	    FunctionNode *node = 0;
 
 	    if ( matchFunctionDecl(0, &path, &clone) ) {
@@ -927,7 +923,7 @@ bool CppCodeParser::matchDocsAndStuff()
     return TRUE;
 }
 
-void CppCodeParser::makeFunctionNode( const QString& synopsis,
+bool CppCodeParser::makeFunctionNode( const QString& synopsis,
 				      QStringList *pathPtr,
 				      FunctionNode **funcPtr )
 {
@@ -939,8 +935,11 @@ void CppCodeParser::makeFunctionNode( const QString& synopsis,
 				     synopsis.length() );
     tokenizer = &stringTokenizer;
     readToken();
-    matchFunctionDecl( 0, pathPtr, funcPtr );
+
+    bool ok = matchFunctionDecl( 0, pathPtr, funcPtr );
 
     tokenizer = outerTokenizer;
     tok = outerTok;
+
+    return ok;
 }

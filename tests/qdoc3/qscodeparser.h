@@ -13,6 +13,8 @@ public:
     QsCodeParser( Tree *cppTree );
     ~QsCodeParser();
 
+    virtual void initializeParser( const Config& config );
+    virtual void terminateParser();
     virtual QString language();
     virtual void parseHeaderFile( const Location& location,
 				  const QString& filePath, Tree *tree );
@@ -29,6 +31,8 @@ protected:
 
 private:
     ClassNode *tryClass( const QString& className );
+    void extractTarget( const QString& target, QString *source,
+			const Doc& doc );
     void applyReplacementList( QString *source, const Doc& doc );
     void quickifyClass( ClassNode *quickClass, ClassNode *qtClass,
 			ClassNode *wrapperClass );
@@ -43,9 +47,18 @@ private:
     QString quickifiedDoc( const QString& source );
     void setQtDoc( Node *quickNode, const Doc& doc );
     void setQuickDoc( Node *quickNode, const Doc& doc );
+    bool makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
+			   FunctionNode **funcPtr );
+
+    static bool isWord( QChar ch );
+    static bool leftWordBoundary( const QString& str, int pos );
+    static bool rightWordBoundary( const QString& str, int pos );
+    static int columnForIndex( const QString& str, int index );
 
     Tree *cppTre;
     Tree *qsTre;
+
+    static int tabSize;
 };
 
 #endif

@@ -4,30 +4,17 @@
 
 #include <qregexp.h>
 
+#include "config.h"
 #include "qscodeparser.h"
 #include "tree.h"
 
-#define COMMAND_JUSTLIKEQT          Doc::alias( "justlikeqt" )
 #define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
 #define COMMAND_QUICKIFIED          Doc::alias( "quickified" )
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
 #define COMMAND_REPLACE             Doc::alias( "replace" )
 
-static bool isWord( QChar ch )
-{
-    return ch.isLetterOrNumber() || ch == QChar( '_' );
-}
-
-static bool leftWordBoundary( const QString& str, int pos )
-{
-    return !isWord( str[pos - 1] ) && isWord( str[pos] );
-}
-
-static bool rightWordBoundary( const QString& str, int pos )
-{
-    return isWord( str[pos - 1] ) && !isWord( str[pos] );
-}
+int QsCodeParser::tabSize;
 
 QsCodeParser::QsCodeParser( Tree *cppTree )
     : cppTre( cppTree ), qsTre( 0 )
@@ -36,6 +23,17 @@ QsCodeParser::QsCodeParser( Tree *cppTree )
 
 QsCodeParser::~QsCodeParser()
 {
+}
+
+void QsCodeParser::initializeParser( const Config& config )
+{
+    tabSize = config.getInt( CONFIG_TABSIZE );
+    CppCodeParser::initializeParser( config );
+}
+
+void QsCodeParser::terminateParser()
+{
+    CppCodeParser::terminateParser();
 }
 
 QString QsCodeParser::language()
@@ -60,37 +58,15 @@ void QsCodeParser::parseSourceFile( const Location& location,
 FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
 					      Tree *tree )
 {
-    /*
-      This is a quick and dirty implementation. It will be rewritten
-      when the rest of the class is implemented for real.
-    */
-    QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\(([^)]*)\\)"
-			"\\s*" );
-    QRegExp paramRegExp( "\\s*([A-Za-z0-9_]+)(?:\\s+[A-Za-z0-9_]+)?\\s*" );
+    QStringList path;
+    FunctionNode *clone;
+    FunctionNode *func = 0;
 
-    if ( funcRegExp.exactMatch(synopsis) ) {
-	ClassNode *classe = (ClassNode *) tree->findNode( funcRegExp.cap(1),
-							  Node::Class );
-	if ( classe == 0 )
-	    return 0;
-
-	FunctionNode clone( 0, funcRegExp.cap(2) );
-
-	QString paramStr = funcRegExp.cap( 3 );
-	QStringList params = QStringList::split( ",", paramStr );
-	QStringList::ConstIterator p = params.begin();
-	while ( p != params.end() ) {
-	    if ( paramRegExp.exactMatch(*p) ) {
-		clone.addParameter( Parameter(paramRegExp.cap(1)) );
-	    } else {
-		return 0;
-	    }
-	    ++p;
-	}
-	return classe->findFunctionNode( &clone );
-    } else {
-	return 0;
+    if ( makeFunctionNode(synopsis, &path, &clone) ) {
+	func = tree->findFunctionNode( path, clone );
+	delete clone;
     }
+    return func;
 }
 
 Set<QString> QsCodeParser::topicCommands()
@@ -161,13 +137,24 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	setQuickDoc( quickClass, doc );
 	return 0;
     } else if ( command == COMMAND_QUICKFN ) {
-	FunctionNode *quickFunc = findFunctionNode( arg, qsTre );
-	if ( quickFunc == 0 ) {
+	QStringList path;
+	FunctionNode *clone;
+
+	if ( makeFunctionNode(arg, &path, &clone) ) {
+	    FunctionNode *quickFunc = qsTre->findFunctionNode( path, clone );
+	    if ( quickFunc == 0 ) {
+		doc.location().warning( tr("Cannot resolve '%1' specified with"
+					   " '\\%2'")
+					.arg(arg).arg(command) );
+	    } else {
+		quickFunc->borrowParameterNames( clone );
+		setQuickDoc( quickFunc, doc );
+	    }
+	    delete clone;
+	} else {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
 				       " '\\%2'")
 				    .arg(arg).arg(command) );
-	} else {
-	    setQuickDoc( quickFunc, doc );
 	}
 	return 0;
     } else if ( command == COMMAND_QUICKPROPERTY ) {
@@ -189,13 +176,32 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 
 Set<QString> QsCodeParser::otherMetaCommands()
 {
-    return commonMetaCommands() << COMMAND_JUSTLIKEQT << COMMAND_QUICKIFIED
-				<< COMMAND_REPLACE;
+    return commonMetaCommands() << COMMAND_QUICKIFIED << COMMAND_REPLACE;
 }
 
 ClassNode *QsCodeParser::tryClass( const QString& className )
 {
     return (ClassNode *) cppTre->findNode( className, Node::Class );
+}
+
+void QsCodeParser::extractTarget( const QString& target, QString *source,
+				  const Doc& doc )
+{
+    QRegExp targetRegExp(
+	    "(\\\\target\\s+(\\S+)[^\n]*\n"
+	    "(?:(?!\\s*\\\\code)[^\n]+\n|\\s*\\\\code.*\\\\endcode\\s*\n)*)"
+	    "(?:\\s*\n|[^\n]*$)" );
+    targetRegExp.setMinimal( TRUE );
+
+    int pos = 0;
+    while ( (pos = source->find(targetRegExp, pos)) != -1 ) {
+	if ( targetRegExp.cap(2) == target ) {
+	    *source = targetRegExp.cap( 1 ) + "\n";
+	    return;
+	}
+	pos += targetRegExp.matchedLength();
+    }
+    doc.location().warning( tr("Cannot find target '%1'").arg(target) );
 }
 
 void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
@@ -399,11 +405,23 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 		result += code[i++];
 		inString = TRUE;
 	    } else if ( code[i] == 'Q' && leftWordBoundary(code, i) ) {
-		if ( code[i + 1].lower() == code[i + 1] ) {
-		    result += code[i++];		
+		if ( code.mid(i - 4, 3) == "new" ) {
+		    if ( code[i + 1].lower() == code[i + 1] ) {
+			result += code[i++];		
+		    } else {
+			i++;
+		    }
 		} else {
-		    i++;
+		    result += "var";
+		    i = code.find( QRegExp("[^A-Za-z0-9_]|$"), i );
 		}
+	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
+		int numSpaces = columnForIndex( code, i ) -
+				columnForIndex( result, result.length() );
+		while ( numSpaces-- > 0 )
+		    result += " ";
+		while ( i < (int) code.length() && code[i] != '\n' )
+		    result += code[i++];
 	    } else if ( (code[i] == ':' && code[i + 1] == ':') ||
 			(code[i] == '-' && code[i + 1] == '>') ) {
 		result += '.';
@@ -480,27 +498,28 @@ void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 
 void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 {
-    static QRegExp justlikeqt( "\\\\" + COMMAND_JUSTLIKEQT );
-    static QRegExp quickified( "\\\\" + COMMAND_QUICKIFIED );
+    QRegExp quickifiedCommand(
+	    "\\\\" + QRegExp::escape(COMMAND_QUICKIFIED) + "([^\n]*)(?:\n|$)" );
 
     if ( doc.metaCommandsUsed() != 0 &&
-	 (doc.metaCommandsUsed()->contains(COMMAND_JUSTLIKEQT) ||
-	  doc.metaCommandsUsed()->contains(COMMAND_QUICKIFIED)) ) {
+	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFIED) ) {
 	QString source = doc.source();
-	int pos;
 
-	pos = source.find( justlikeqt );
-	if ( pos != -1 ) {
-	    QString qtSource = quickNode->doc().source(); // wrong
-	    applyReplacementList( &qtSource, doc );
-	    source.replace( pos, justlikeqt.matchedLength(), qtSource );
-	}
-
-	pos = source.find( quickified );
+	int pos = source.find( quickifiedCommand );
 	if ( pos != -1 ) {
 	    QString quickifiedSource = quickNode->doc().source();
 	    applyReplacementList( &quickifiedSource, doc );
-	    source.replace( pos, quickified.matchedLength(), quickifiedSource );
+
+	    do {
+		QString extract = quickifiedSource;
+		QString target =
+			quickifiedCommand.cap( 1 ).simplifyWhiteSpace();
+		if ( !target.isEmpty() )
+		    extractTarget( target, &extract, doc );
+		source.replace( pos, quickifiedCommand.matchedLength(),
+				extract );
+		pos += quickifiedCommand.matchedLength();
+	    } while ( (pos = source.find(quickifiedCommand)) != -1 );
 	}
 
 	Doc quickDoc( doc.location(), source,
@@ -511,4 +530,76 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
     } else {
 	quickNode->setDoc( doc, TRUE );
     }
+}
+
+bool QsCodeParser::makeFunctionNode( const QString& synopsis,
+				     QStringList *pathPtr,
+				     FunctionNode **funcPtr )
+{
+    /*
+      This is a quick and dirty implementation. It will be rewritten
+      when the rest of the class is implemented for real.
+    */
+    QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\(([^)]*)\\)"
+			"\\s*" );
+    QRegExp paramRegExp( "\\s*([A-Za-z0-9_]+)(\\s+[A-Za-z0-9_]+)?\\s*" );
+
+    if ( !funcRegExp.exactMatch(synopsis) )
+	return FALSE;
+
+    ClassNode *classe = (ClassNode *) qsTre->findNode( funcRegExp.cap(1),
+						       Node::Class );
+    if ( classe == 0 )
+	return FALSE;
+
+    FunctionNode *clone = new FunctionNode( 0, funcRegExp.cap(2) );
+
+    QString paramStr = funcRegExp.cap( 3 );
+    QStringList params = QStringList::split( ",", paramStr );
+    QStringList::ConstIterator p = params.begin();
+    while ( p != params.end() ) {
+	if ( paramRegExp.exactMatch(*p) ) {
+	    clone->addParameter( Parameter(paramRegExp.cap(1), "",
+					   paramRegExp.cap(2)) );
+	} else {
+	    delete clone;
+	    return FALSE;
+	}
+	++p;
+    }
+    if ( pathPtr != 0 )
+	*pathPtr = QStringList() << classe->name();
+    if ( funcPtr != 0 )
+	*funcPtr = clone;
+    return TRUE;
+}
+
+bool QsCodeParser::isWord( QChar ch )
+{
+    return ch.isLetterOrNumber() || ch == QChar( '_' );
+}
+
+bool QsCodeParser::leftWordBoundary( const QString& str, int pos )
+{
+    return !isWord( str[pos - 1] ) && isWord( str[pos] );
+}
+
+bool QsCodeParser::rightWordBoundary( const QString& str, int pos )
+{
+    return isWord( str[pos - 1] ) && !isWord( str[pos] );
+}
+
+int QsCodeParser::columnForIndex( const QString& str, int index )
+{
+    int endOfPrevLine = str.findRev( "\n", index - 1 );
+    int column = 0;
+
+    for ( int i = endOfPrevLine + 1; i < index; i++ ) {
+	if ( str[i] == '\t' ) {
+	    column = ( (column / tabSize) + 1 ) * tabSize;
+	} else {
+	    column++;
+	}
+    }
+    return column;
 }

@@ -15,6 +15,13 @@
 #include "quoter.h"
 #include "text.h"
 
+struct Macro
+{
+    QString defaultDef;
+    QMap<QString, QString> otherDefs;
+    int numParams;
+};
+
 enum {
     CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C,
     CMD_CAPTION, CMD_CHAPTER, CMD_CODE, CMD_ENDABSTRACT, CMD_ENDCHAPTER,
@@ -102,168 +109,9 @@ static struct {
     { 0, 0, 0 }
 };
 
-static int endCommandOf( int command )
-{
-    switch ( command ) {
-    case CMD_ABSTRACT:
-	return CMD_ENDABSTRACT;
-    case CMD_CHAPTER:
-	return CMD_ENDCHAPTER;
-    case CMD_CODE:
-	return CMD_ENDCODE;
-    case CMD_FOOTNOTE:
-	return CMD_ENDFOOTNOTE;
-    case CMD_LIST:
-	return CMD_ENDLIST;
-    case CMD_OMIT:
-	return CMD_ENDOMIT;
-    case CMD_PART:
-	return CMD_ENDPART;
-    case CMD_QUOTATION:
-	return CMD_ENDQUOTATION;
-    case CMD_SECTION1:
-	return CMD_ENDSECTION1;
-    case CMD_SECTION2:
-	return CMD_ENDSECTION2;
-    case CMD_SECTION3:
-	return CMD_ENDSECTION3;
-    case CMD_SECTION4:
-	return CMD_ENDSECTION4;
-    case CMD_SIDEBAR:
-	return CMD_ENDSIDEBAR;
-    case CMD_TABLE:
-	return CMD_ENDTABLE;
-    default:
-	return command;
-    }
-}
-
-struct Macro
-{
-    QString defaultDef;
-    QMap<QString, QString> otherDefs;
-    int numParams;
-};
-
 static QMap<QString, QString> *aliasMap = 0;
 static QDict<int> *commandDict = 0;
 static QDict<Macro> *macroDict = 0;
-
-static QString commandName( int command )
-{
-    return cmds[command].alias;
-}
-
-static QString endCommandName( int command )
-{
-    return commandName( endCommandOf(command) );
-}
-
-static int numParams( const QString& str )
-{
-    int max = 0;
-    for ( int i = 0; i < (int) str.length(); i++ ) {
-	if ( str[i].unicode() > 0 && str[i].unicode() < 8 )
-	    max = QMAX( max, str[i].unicode() );
-    }
-    return max;
-}
-
-static QString untabifyEtc( const QString& str )
-{
-    QString result;
-    int column = 0;
-
-    for ( int i = 0; i < (int) str.length(); i++ ) {
-	if ( str[i] == '\t' ) {
-	    result += "        " + ( column & 0x7 );
-	    column = ( column + 8 ) & ~0x7;
-	} else {
-	    result += str[i];
-	    if ( str[i] == '\n' )
-		column = 0;
-	    else
-		column++;
-	}
-    }
-
-    result.replace( QRegExp(" +\n"), "\n" );
-    while ( result.endsWith("\n\n") )
-	result.truncate( result.length() - 1 );
-    while ( result.startsWith("\n") )
-	result = result.mid( 1 );
-    return result;
-}
-
-static int indentLevel( const QString& str )
-{
-    int minIndent = INT_MAX;
-    int column = 0;
-
-    for ( int i = 0; i < (int) str.length(); i++ ) {
-	if ( str[i] == '\n' ) {
-	    column = 0;
-	} else {
-	    if ( str[i] != ' ' && column < minIndent )
-		minIndent = column;
-	    column++;
-	}
-    }
-    return minIndent;
-}
-
-static QString unindent( int level, const QString& str )
-{
-    if ( level == 0 )
-	return str;
-
-    QString t;
-    int column = 0;
-
-    for ( int i = 0; i < (int) str.length(); i++ ) {
-	if ( str[i] == '\n' ) {
-	    t += '\n';
-	    column = 0;
-	} else {
-	    if ( column >= level )
-		t += str[i];
-	    column++;
-	}
-    }
-    return t;
-}
-
-static int editDistance( const QString& s, const QString& t )
-{
-#define D( i, j ) d[(i) * n + (j)]
-    int i;
-    int j;
-    int m = s.length() + 1;
-    int n = t.length() + 1;
-    int *d = new int[m * n];
-    int result;
-
-    for ( i = 0; i < m; i++ )
-	D( i, 0 ) = i;
-    for ( j = 0; j < n; j++ )
-	D( 0, j ) = j;
-    for ( i = 1; i < m; i++ ) {
-	for ( j = 1; j < n; j++ ) {
-	    if ( s[i - 1] == t[j - 1] ) {
-		D( i, j ) = D( i - 1, j - 1 );
-	    } else {
-		int x = D( i - 1, j );
-		int y = D( i - 1, j - 1 );
-		int z = D( i, j - 1 );
-		D( i, j ) = 1 + QMIN( QMIN(x, y), z );
-	    }
-	}
-    }
-    result = D( m - 1, n - 1 );
-    delete[] d;
-    return result;
-#undef D
-}
 
 class DocPrivateExtra
 {
@@ -330,6 +178,7 @@ public:
     void parse( const QString& source, DocPrivate *docPrivate,
 		const Set<QString>& metaCommandSet );
 
+    static int tabSize;
     static QStringList exampleFiles;
     static QStringList exampleDirs;
 
@@ -368,6 +217,14 @@ private:
     void skipSpacesOrOneEndl();
     void skipAllSpaces();
 
+    static int endCommandOf( int command );
+    static QString commandName( int command );
+    static QString endCommandName( int command );
+    static QString untabifyEtc( const QString& str );
+    static int indentLevel( const QString& str );
+    static QString unindent( int level, const QString& str );
+    static int editDistance( const QString& s, const QString& t );
+
     QString in;
     int pos;
     int len;
@@ -389,6 +246,7 @@ private:
     Quoter quoter;
 };
 
+int DocParser::tabSize;
 QStringList DocParser::exampleFiles;
 QStringList DocParser::exampleDirs;
 
@@ -1518,6 +1376,148 @@ void DocParser::skipAllSpaces()
 	pos++;
 }
 
+int DocParser::endCommandOf( int command )
+{
+    switch ( command ) {
+    case CMD_ABSTRACT:
+	return CMD_ENDABSTRACT;
+    case CMD_CHAPTER:
+	return CMD_ENDCHAPTER;
+    case CMD_CODE:
+	return CMD_ENDCODE;
+    case CMD_FOOTNOTE:
+	return CMD_ENDFOOTNOTE;
+    case CMD_LIST:
+	return CMD_ENDLIST;
+    case CMD_OMIT:
+	return CMD_ENDOMIT;
+    case CMD_PART:
+	return CMD_ENDPART;
+    case CMD_QUOTATION:
+	return CMD_ENDQUOTATION;
+    case CMD_SECTION1:
+	return CMD_ENDSECTION1;
+    case CMD_SECTION2:
+	return CMD_ENDSECTION2;
+    case CMD_SECTION3:
+	return CMD_ENDSECTION3;
+    case CMD_SECTION4:
+	return CMD_ENDSECTION4;
+    case CMD_SIDEBAR:
+	return CMD_ENDSIDEBAR;
+    case CMD_TABLE:
+	return CMD_ENDTABLE;
+    default:
+	return command;
+    }
+}
+
+QString DocParser::commandName( int command )
+{
+    return cmds[command].alias;
+}
+
+QString DocParser::endCommandName( int command )
+{
+    return commandName( endCommandOf(command) );
+}
+
+QString DocParser::untabifyEtc( const QString& str )
+{
+    QString result;
+    int column = 0;
+
+    for ( int i = 0; i < (int) str.length(); i++ ) {
+	if ( str[i] == '\t' ) {
+	    result += "        " + ( column % tabSize );
+	    column = ( (column / tabSize) + 1 ) * tabSize;
+	} else {
+	    result += str[i];
+	    if ( str[i] == '\n' )
+		column = 0;
+	    else
+		column++;
+	}
+    }
+
+    result.replace( QRegExp(" +\n"), "\n" );
+    while ( result.endsWith("\n\n") )
+	result.truncate( result.length() - 1 );
+    while ( result.startsWith("\n") )
+	result = result.mid( 1 );
+    return result;
+}
+
+int DocParser::indentLevel( const QString& str )
+{
+    int minIndent = INT_MAX;
+    int column = 0;
+
+    for ( int i = 0; i < (int) str.length(); i++ ) {
+	if ( str[i] == '\n' ) {
+	    column = 0;
+	} else {
+	    if ( str[i] != ' ' && column < minIndent )
+		minIndent = column;
+	    column++;
+	}
+    }
+    return minIndent;
+}
+
+QString DocParser::unindent( int level, const QString& str )
+{
+    if ( level == 0 )
+	return str;
+
+    QString t;
+    int column = 0;
+
+    for ( int i = 0; i < (int) str.length(); i++ ) {
+	if ( str[i] == '\n' ) {
+	    t += '\n';
+	    column = 0;
+	} else {
+	    if ( column >= level )
+		t += str[i];
+	    column++;
+	}
+    }
+    return t;
+}
+
+int DocParser::editDistance( const QString& s, const QString& t )
+{
+#define D( i, j ) d[(i) * n + (j)]
+    int i;
+    int j;
+    int m = s.length() + 1;
+    int n = t.length() + 1;
+    int *d = new int[m * n];
+    int result;
+
+    for ( i = 0; i < m; i++ )
+	D( i, 0 ) = i;
+    for ( j = 0; j < n; j++ )
+	D( 0, j ) = j;
+    for ( i = 1; i < m; i++ ) {
+	for ( j = 1; j < n; j++ ) {
+	    if ( s[i - 1] == t[j - 1] ) {
+		D( i, j ) = D( i - 1, j - 1 );
+	    } else {
+		int x = D( i - 1, j );
+		int y = D( i - 1, j - 1 );
+		int z = D( i, j - 1 );
+		D( i, j ) = 1 + QMIN( QMIN(x, y), z );
+	    }
+	}
+    }
+    result = D( m - 1, n - 1 );
+    delete[] d;
+    return result;
+#undef D
+}
+
 Doc::Doc()
 {
     priv = new DocPrivate;
@@ -1665,6 +1665,7 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
 
 void Doc::initialize( const Config& config )
 {
+    DocParser::tabSize = config.getInt( CONFIG_TABSIZE );
     DocParser::exampleFiles = config.getStringList( CONFIG_EXAMPLES );
     DocParser::exampleDirs = config.getStringList( CONFIG_EXAMPLEDIRS );
 
@@ -1806,4 +1807,14 @@ void Doc::trimCStyleComment( Location& location, QString& str )
     for ( int i = 0; i < 3; i++ )
 	location.advance( str[i] );
     str = str.mid( 3, str.length() - 5 );
+}
+
+int Doc::numParams( const QString& str )
+{
+    int max = 0;
+    for ( int i = 0; i < (int) str.length(); i++ ) {
+	if ( str[i].unicode() > 0 && str[i].unicode() < 8 )
+	    max = QMAX( max, str[i].unicode() );
+    }
+    return max;
 }

@@ -78,7 +78,7 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	    }
 	    inLink = TRUE;
 	} else if ( atom->string() == "parameter" ) {
-	    out() << "<i>";
+	    // out() << "<u>";
 	} else if ( atom->string() == "subscript" ) {
 	    out() << "<sub>";
 	} else if ( atom->string() == "superscript" ) {
@@ -105,7 +105,7 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 		}
 	    }
 	} else if ( atom->string() == "parameter" ) {
-	    out() << "</i>";
+	    // out() << "</u>";
 	} else if ( atom->string() == "subscript" ) {
 	    out() << "</sub>";
 	} else if ( atom->string() == "superscript" ) {
@@ -457,7 +457,7 @@ void HtmlGenerator::generateSynopsis( const Node *node,
 				      CodeMarker::SynopsisStyle style )
 {
     QString marked = marker->markedUpSynopsis( node, relative, style );
-    marked.replace( QRegExp("@param>"), "u>" );
+    marked.replace( QRegExp("</?@param>"), "" );
 
     if ( style == CodeMarker::Overview ) {
 	if ( node->status() == Node::Commendable ||
@@ -604,7 +604,7 @@ QString HtmlGenerator::highlightedCode( const QString& markedCode,
     html.replace( QRegExp("</@type>"), "</font>" );
 #endif
     html.replace( QRegExp("</?@[^>]*>"), "" );
-    return "<font color=\"blue\">" + html + "</font>";
+    return html;
 }
 
 #if 0
