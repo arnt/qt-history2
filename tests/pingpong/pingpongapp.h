@@ -23,6 +23,22 @@ protected:
     QSqlCursor * teamCr;
 };
 
+class PlayerCursor : public QSqlCursor
+{
+public:
+    PlayerCursor();
+protected:
+    void     primeInsert( QSqlRecord* buf );
+};
+
+class TeamCursor : public QSqlCursor
+{
+public:
+    TeamCursor();
+protected:
+    void     primeInsert( QSqlRecord* buf );
+};
+
 class PingPongApp : public QMainWindow
 {
     Q_OBJECT
@@ -41,7 +57,7 @@ protected slots:
     void editTeam();
 
 protected:
-    void editWindow( const QString& cursor, const QString& sortField, const QString& caption );
+    void editWindow( QSqlCursor& cursor, const QString& sortField, const QString& caption );
 
 private:
     QSqlTable * matchTable;

@@ -32,17 +32,16 @@ MatchCursor::MatchCursor()
     field("sets")->setDisplayLabel( "Sets" );
 
     // add lookup field
+    QSqlField loser("loser", QVariant::String );
+    loser.setDisplayLabel("Loser");
+    append( loser );
 
     QSqlField winner("winner", QVariant::String );
     winner.setDisplayLabel("Winner");
-    prepend( winner );
-    
-    QSqlField loser("loser", QVariant::String );
-    loser.setDisplayLabel("Loser");
-    prepend( loser );
-    
-    setCalculated( loser.name(), TRUE );    
-    setCalculated( winner.name(), TRUE );    
+    append( winner );
+
+    setCalculated( loser.name(), TRUE );
+    setCalculated( winner.name(), TRUE );
 }
 
 QVariant MatchCursor::calculateField( const QString& name )
@@ -53,7 +52,7 @@ QVariant MatchCursor::calculateField( const QString& name )
 	teamCr->setValue( "id", field("loserid")->value() );
     else
 	return QVariant( QString::null );
-	
+
     teamCr->select( teamCr->primaryIndex(), teamCr->primaryIndex() );
     if( teamCr->next() )
 	return teamCr->value( "name" );
@@ -67,6 +66,32 @@ void MatchCursor::primeInsert( QSqlRecord* buf )
     if ( q.next() )
 	buf->setValue( "id", q.value(0) );
     buf->setValue( "date", QDate::currentDate() );
+}
+
+PlayerCursor::PlayerCursor()
+    : QSqlCursor( "player" )
+{
+}
+
+void PlayerCursor::primeInsert( QSqlRecord* buf )
+{
+    QSqlQuery q;
+    q.exec( "select nextval( 'playerid_sequence' );" );
+    if ( q.next() )
+	buf->setValue( "id", q.value(0) );
+}
+
+TeamCursor::TeamCursor()
+    : QSqlCursor( "team" )
+{
+}
+
+void TeamCursor::primeInsert( QSqlRecord* buf )
+{
+    QSqlQuery q;
+    q.exec( "select nextval( 'teamid_sequence' );" );
+    if ( q.next() )
+	buf->setValue( "id", q.value(0) );
 }
 
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
@@ -182,15 +207,17 @@ void PingPongApp::deleteMatch()
 
 void PingPongApp::editPlayer()
 {
-    editWindow( "player", "name", "Edit Players" );
+    PlayerCursor pc;
+    editWindow( pc, "name", "Edit Players" );
 }
 
 void PingPongApp::editTeam()
 {
-    editWindow( "team", "name", "Edit Teams" );
+    TeamCursor tc;
+    editWindow( tc, "name", "Edit Teams" );
 }
 
-void PingPongApp::editWindow( const QString& cursor, const QString& sortField, const QString& caption )
+void PingPongApp::editWindow( QSqlCursor& cursor, const QString& sortField, const QString& caption )
 {
     QDialog* dlg = new QDialog( this, "dlg", TRUE );
     dlg->setMinimumSize( 320, 240 );
@@ -205,9 +232,8 @@ void PingPongApp::editWindow( const QString& cursor, const QString& sortField, c
     connect( close, SIGNAL( clicked() ),
 	     dlg, SLOT( accept() ) );
     t->viewport()->setFocus();
-    QSqlCursor team( cursor );
-    team.select( team.index( sortField ) );
-    t->setCursor( &team );
+    cursor.select( cursor.index( sortField ) );
+    t->setCursor( &cursor );
     dlg->exec();
     delete dlg;
 }
