@@ -448,7 +448,7 @@
 
     View classes display a header at the top to label the columns. To
     change the header texts, call
-    \l{QAbstractItemView::setHeaderData()}{setHeaderData()} on the
+    \l{QAbstractItemModel::setHeaderData()}{setHeaderData()} on the
     model. For example:
 
     \quotefromfile sql/relationaltablemodel/relationaltablemodel.cpp
