@@ -15,7 +15,6 @@
 
     The rest of this file assumes that Qt is unpacked in /Developer/qt.
 
-
 2.  Set some environment variables in the file .login (or .profile or
     something else depending on your shell) in your home directory.
     Create this file if it is not already there. You can check your shell
@@ -27,7 +26,6 @@
 
 	QTDIR		   - wherever you installed Qt
 	PATH		   - to locate the moc program and other Qt tools
-	MANPATH 	   - to access the Qt man pages
 	DYLD_LIBRARY_PATH  - for the shared Qt library
 
     This is done like this:
@@ -36,7 +34,6 @@
 
 	setenv QTDIR /Developer/qt
 	setenv PATH $QTDIR/bin:$PATH
-	setenv MANPATH /usr/share/man:/usr/X11R6/share/man:/usr/local/share/man:$QTDIR/doc/man:$MANPATH
 	setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
 
         ***************************WARNING******************************
@@ -46,25 +43,29 @@
         *
 	*  setenv QTDIR /Developer/qt
 	*  setenv PATH $QTDIR/bin:$PATH
-	*  setenv MANPATH $QTDIR/doc/man
 	*  setenv DYLD_LIBRARY_PATH $QTDIR/lib
 
     In .profile (if your shell is bash), add the following lines:
 
 	QTDIR=/Developer/qt
 	PATH=$QTDIR/bin:$PATH
-	MANPATH=/usr/share/man:/usr/X11R6/share/man:/usr/local/share/man:$QTDIR/doc/man:$MANPATH
 	DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
 
-	export QTDIR PATH MANPATH DYLD_LIBRARY_PATH
+	export QTDIR PATH DYLD_LIBRARY_PATH
 
     If you use a different shell, please modify your environment variables
     accordingly.
 
-3.  If you have the commercial edition of Qt, install your license
+3.  Make a symbolic link from $QTDIR/doc/man to $QTDIR/man by typing the following:
+
+        ln -s $QTDIR/doc/man $QTDIR/man
+
+    This will give you the man pages for the commandline Qt programs.
+
+4.  If you have the commercial edition of Qt, install your license
     file as $HOME/.qt-license.
 
-4.  Building.
+5.  Building.
 
     This step compiles the Qt library, and builds the example programs,
     the tutorial, and the tools (e.g. Qt Designer, etc.).
@@ -88,7 +89,7 @@
     information on known issues.
 
 
-5.  Launching Qt applications from the Finder.
+6.  Launching Qt applications from the Finder.
 
     If you built Qt using the -static option, your executables will contain the
     Qt library and can be run from Finder automatically. Otherwise, your
