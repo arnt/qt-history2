@@ -49,12 +49,41 @@
 class QSqlCursorNavigator::QSqlCursorNavigatorPrivate
 {
 public:
-    QSqlCursorNavigatorPrivate() : cur(0), autoDelete(FALSE) {}
+    QSqlCursorNavigatorPrivate() : cur( 0 ), autoDelete( FALSE ), boundryCheck( TRUE ) {}
     QString ftr;
     QStringList srt;
     QSqlCursor* cur;
     bool autoDelete;
+    bool boundryCheck;
 };
+
+/*! \enum QSqlCursorNavigator::Boundry
+
+  This enum type describes where the navigator is currently positioned.
+
+  The currently defined values are:
+  <ul>
+
+  <li> \c Unknown - the boundry cannot be determined (usually because
+  there is no default cursor).
+
+  <li> \c None - the navigator is not positioned on a boundry.
+
+  <li> \c BeforeBeginning - the navigator is positioned before the
+  beginning of the available records.
+
+  <li> \c Beginning - the navigator is positioned at the beginning of
+  the available records.
+
+  <li> \c End - the navigator is positioned at the end of
+  the available records.
+
+  <li> \c AfterEnd - the navigator is positioned after the end of the
+  available records.
+
+  </ul>
+*/
+
 
 /*!
   \class QSqlCursorNavigator qsqlnavigator.h
@@ -66,6 +95,10 @@ public:
   includes saving and applying sorts and filters, refreshing (i.e.,
   re-selecting) the cursor and searching for records within the
   cursor.
+
+  QSqlCursorNavigator can determine boundry conditions of the cursor
+  (i.e., whether the cursor is on the first or last record) with
+  boundry().
 
 */
 
@@ -453,6 +486,7 @@ int QSqlCursorNavigator::insert()
     else {
 	refresh();
 	findBuffer( cur->primaryIndex() );
+	updateBoundry();
 	cursorChanged( QSqlCursor::Insert );
     }
     return ar;
@@ -481,6 +515,7 @@ int QSqlCursorNavigator::update()
     else {
 	refresh();
 	findBuffer( cur->primaryIndex() );
+	updateBoundry();
 	cursorChanged( QSqlCursor::Update );
     }
     return ar;
@@ -504,6 +539,7 @@ int QSqlCursorNavigator::del()
     int ar = cur->del();
     if ( ar ) {
 	refresh();
+	updateBoundry();
 	cursorChanged( QSqlCursor::Delete );
     } else {
 	if ( !cur->isActive() )
@@ -521,14 +557,210 @@ void QSqlCursorNavigator::handleError( const QSqlError& )
 {
 }
 
+
+/*! If boundryChecking() is TRUE, checks the boundry of the current
+  default cursor and calls virtual functions which indicate the
+  position of the cursor.
+*/
+
+void QSqlCursorNavigator::updateBoundry()
+{
+    if ( d->boundryCheck ) {
+	Boundry bound = boundry();
+	switch ( bound ) {
+	case Unknown:
+	case None:
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( TRUE );
+	    nextRecordAvailable( TRUE );
+	    lastRecordAvailable( TRUE );
+	    break;
+
+	case BeforeBeginning:
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( FALSE );
+	    nextRecordAvailable( TRUE );
+	    lastRecordAvailable( TRUE );
+	    break;
+
+	case Beginning:
+	    firstRecordAvailable( FALSE );
+	    prevRecordAvailable( FALSE );
+	    nextRecordAvailable( TRUE );
+	    lastRecordAvailable( TRUE );
+	    break;
+
+	case End:
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( TRUE );
+	    nextRecordAvailable( FALSE );
+	    lastRecordAvailable( FALSE );
+	    break;
+
+	case AfterEnd:
+	    firstRecordAvailable( TRUE );
+	    prevRecordAvailable( TRUE );
+	    nextRecordAvailable( FALSE );
+	    lastRecordAvailable( TRUE );
+	    break;
+
+	}
+    }
+}
+
+/*!  Moves the default cursor to the first record.  If there is no
+  default cursor, nothing happens and 0 is returned.  Otherwise, returns
+  TRUE if the navigator successfully moved to the first record,
+  otherwise FALSE is returned.
+
+*/
+
+bool QSqlCursorNavigator::first()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return FALSE;
+    if ( cur->first() ) {
+	updateBoundry();
+	return TRUE;
+    }
+    updateBoundry();
+    return FALSE;
+}
+
+/*!  Moves the default cursor to the last record.  If there is no
+  default cursor, nothing happens and 0 is returned.  Otherwise,
+  returns TRUE if the navigator successfully moved to the last record,
+  otherwise FALSE is returned.
+
+*/
+
+bool QSqlCursorNavigator::last()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return FALSE;
+    if ( cur->last() ) {
+	updateBoundry();
+	return TRUE;
+    }
+    updateBoundry();
+    return FALSE;
+}
+
+/*!  Moves the default cursor to the next record.  If there is no
+  default cursor, nothing happens and 0 is returned.  Otherwise,
+  returns TRUE if the navigator successfully moved to the next record.
+  Otherwise, the navigator moves the default cursor to the last record
+  and FALSE is returned.
+
+*/
+
+bool QSqlCursorNavigator::next()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return FALSE;
+    bool b = cur->next();
+    if( !b )
+	cur->last();
+    updateBoundry();
+    return b;
+}
+
+/*!  Moves the default cursor to the previous record.  If there is no
+  default cursor, nothing happens and 0 is returned.  Otherwise,
+  returns TRUE if the navigator successfully moved to the previous
+  record.  Otherwise, the navigator moves the default cursor to the
+  first record and FALSE is returned.
+
+*/
+
+bool QSqlCursorNavigator::prev()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur )
+	return FALSE;
+    bool b = cur->prev();
+    if( !b )
+	cur->first();
+    updateBoundry();
+    return b;
+}
+
+/*! Returns an enum indicating the boundry status of the navigator.
+This is done by moving the default cursor and checking the position,
+however the current default form values will not be altered.  After
+checking for the boundry, the cursor is moved back to its former
+position.
+
+  \sa Boundry
+*/
+QSqlCursorNavigator::Boundry QSqlCursorNavigator::boundry()
+{
+    QSqlCursor* cur = cursor();
+    if ( !cur || !cur->isActive() )
+	return Unknown;
+    if ( !cur->isValid() ) {
+	if ( cur->at() == QSqlResult::BeforeFirst )
+	    return BeforeBeginning;
+	if ( cur->at() == QSqlResult::AfterLast )
+	    return AfterEnd;
+	return Unknown;
+    }
+    if ( cur->at() == 0 )
+	return Beginning;
+    int currentAt = cur->at();
+    Boundry b = None;
+    if ( !cur->prev() )
+	b = Beginning;
+    else
+	cur->seek( currentAt );
+    if ( b == None && !cur->next() )
+	b = End;
+    cur->seek( currentAt );
+    return b;
+}
+
+void QSqlCursorNavigator::setBoundryChecking( bool active )
+{
+    d->boundryCheck = active;
+}
+
+bool QSqlCursorNavigator::boundryChecking() const
+{
+    return d->boundryCheck;
+}
+/*! \internal
+ */
+void QSqlCursorNavigator::firstRecordAvailable( bool )
+{
+}
+
+/*! \internal
+ */
+void QSqlCursorNavigator::lastRecordAvailable( bool )
+{
+}
+
+/*! \internal
+ */
+void QSqlCursorNavigator::nextRecordAvailable( bool )
+{
+}
+
+/*! \internal
+ */
+void QSqlCursorNavigator::prevRecordAvailable( bool )
+{
+}
+
 class QSqlFormNavigator::QSqlFormNavigatorPrivate
 {
 public:
-    QSqlFormNavigatorPrivate() : frm(0), boundryCheck( TRUE ) {}
+    QSqlFormNavigatorPrivate() : frm(0) {}
     QSqlForm* frm;
-    bool boundryCheck;
 };
-
 
 /*!
   \class QSqlFormNavigator qsqlnavigator.h
@@ -540,40 +772,8 @@ public:
   used by QSqlWidget and QSqlDialog to provide automatic cursor
   navigation when editing/browsing a database cursor and form.
 
-  QSqlFormNavigator can determine boundry conditions of the cursor (i.e.,
-  whether the cursor is on the first or last record) with boundry().
-  This can be used, for example, to update widgets according to the
-  position of the navigator within the cursor.
-
   \sa QSqlWidget QSqlDialog
 
-*/
-
-/*! \enum QSqlFormNavigator::Boundry
-
-  This enum type describes where the navigator is currently positioned.
-
-  The currently defined values are:
-  <ul>
-
-  <li> \c Unknown - the boundry cannot be determined (usually because
-  there is no default cursor).
-
-  <li> \c None - the navigator is not positioned on a boundry.
-
-  <li> \c BeforeBeginning - the navigator is positioned before the
-  beginning of the available records.
-
-  <li> \c Beginning - the navigator is positioned at the beginning of
-  the available records.
-
-  <li> \c End - the navigator is positioned at the end of
-  the available records.
-
-  <li> \c AfterEnd - the navigator is positioned after the end of the
-  available records.
-
-  </ul>
 */
 
 /*!  Constructs a form navigator.
@@ -632,8 +832,6 @@ int QSqlFormNavigator::insert()
 	return 0;
     frm->writeFields();
     int ar = QSqlCursorNavigator::insert();
-    if ( ar )
-	updateBoundry();
     return ar;
 }
 
@@ -655,7 +853,6 @@ int QSqlFormNavigator::update()
     frm->writeFields();
     int ar = QSqlCursorNavigator::update();
     if ( ar ) {
-	updateBoundry();
 	cursor()->editBuffer( TRUE );
 	frm->readFields();
     }
@@ -685,19 +882,31 @@ int QSqlFormNavigator::del()
     if ( ar ) {
 	if ( !cur->seek( n ) )
 	    last();
-	else
-	    updateBoundry();
 	cur->editBuffer();
 	frm->readFields();
     }
     return ar;
 }
 
+/*! Causes the default form to read its fields .  If there is no
+  default form, nothing happens.
+
+  \sa setForm()
+
+*/
+
 void QSqlFormNavigator::readFields()
 {
     if ( form() )
 	form()->readFields();
 }
+
+/*! Causes the default form to write its fields .  If there is no
+  default form, nothing happens.
+
+  \sa setForm()
+
+*/
 
 void QSqlFormNavigator::writeFields()
 {
@@ -706,10 +915,11 @@ void QSqlFormNavigator::writeFields()
 }
 
 /*!  Moves the default cursor to the first record and updates the
-default form.  If there is no default cursor, nothing happens and 0 is
-returned.  Otherwise, returns TRUE if the navigator successfully moved
-to the first record, otherwise FALSE is returned.
+  default form.  If there is no default form, nothing happens and 0 is
+  returned.  Otherwise, returns TRUE if the navigator successfully
+  moved to the first record, otherwise FALSE is returned.
 
+  \sa QSqlCursorNavigator::first()
 */
 
 bool QSqlFormNavigator::first()
@@ -717,22 +927,20 @@ bool QSqlFormNavigator::first()
     QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
-    if ( cur->first() ) {
+    bool b = QSqlCursorNavigator::first();
+    if ( b ) {
 	cur->primeUpdate();
 	QSqlForm* frm = form();
 	if ( frm )
 	    frm->readFields();
-	updateBoundry();
-	return TRUE;
     }
-    updateBoundry();
-    return FALSE;
+    return b;
 }
 
 /*!  Moves the default cursor to the last record and updates the
-default form.  If there is no default cursor, nothing happens and 0 is
-returned.  Otherwise, returns TRUE if the navigator successfully moved
-to the last record, otherwise FALSE is returned.
+  default form.  If there is no default form, nothing happens and 0 is
+  returned.  Otherwise, returns TRUE if the navigator successfully
+  moved to the last record, otherwise FALSE is returned.
 
 */
 
@@ -741,23 +949,21 @@ bool QSqlFormNavigator::last()
     QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
-    if ( cur->last() ) {
+    bool b = QSqlCursorNavigator::last();
+    if ( b ) {
 	cur->primeUpdate();
 	QSqlForm* frm = form();
 	if ( frm )
 	    frm->readFields();
-	updateBoundry();
-	return TRUE;
     }
-    updateBoundry();
-    return FALSE;
+    return b;
 }
 
 /*!  Moves the default cursor to the next record and updates the
-default form.  If there is no default cursor, nothing happens and 0 is
-returned.  Otherwise, returns TRUE if the navigator successfully moved
-to the next record.  Otherwise, the navigator moves the default cursor
-to the last record and FALSE is returned.
+  default form.  If there is no default form, nothing happens and 0 is
+  returned.  Otherwise, returns TRUE if the navigator successfully
+  moved to the next record.  Otherwise, the navigator moves the
+  default cursor to the last record and FALSE is returned.
 
 */
 
@@ -766,22 +972,19 @@ bool QSqlFormNavigator::next()
     QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
-    bool b = cur->next();
-    if( !b )
-	cur->last();
+    bool b = QSqlCursorNavigator::next();
     cur->primeUpdate();
     QSqlForm* frm = form();
     if ( frm )
 	frm->readFields();
-    updateBoundry();
     return b;
 }
 
 /*!  Moves the default cursor to the previous record and updates the
-default form.  If there is no default cursor, nothing happens and 0 is
-returned.  Otherwise, returns TRUE if the navigator successfully moved
-to the previous record.  Otherwise, the navigator moves the default
-cursor to the first record and FALSE is returned.
+  default form.  If there is no default form, nothing happens and 0 is
+  returned.  Otherwise, returns TRUE if the navigator successfully
+  moved to the previous record.  Otherwise, the navigator moves the
+  default cursor to the first record and FALSE is returned.
 
 */
 
@@ -790,14 +993,11 @@ bool QSqlFormNavigator::prev()
     QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
-    bool b = cur->prev();
-    if( !b )
-	cur->first();
+    bool b = QSqlCursorNavigator::prev();
     cur->primeUpdate();
     QSqlForm* frm = form();
     if ( frm )
 	frm->readFields();
-    updateBoundry();
     return b;
 }
 
@@ -814,124 +1014,6 @@ void QSqlFormNavigator::clearValues()
     QSqlForm* frm = form();
     if ( frm )
 	frm->clearValues();
-}
-
-/*! Returns an enum indicating the boundry status of the navigator.
-This is done by moving the default cursor and checking the position,
-however the current default form values will not be altered.  After
-checking for the boundry, the cursor is moved back to its former
-position.
-
-  \sa Boundry
-*/
-QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
-{
-    QSqlCursor* cur = cursor();
-    if ( !cur || !cur->isActive() )
-	return Unknown;
-    if ( !cur->isValid() ) {
-	if ( cur->at() == QSqlResult::BeforeFirst )
-	    return BeforeBeginning;
-	if ( cur->at() == QSqlResult::AfterLast )
-	    return AfterEnd;
-	return Unknown;
-    }
-    if ( cur->at() == 0 )
-	return Beginning;
-    int currentAt = cur->at();
-    Boundry b = None;
-    if ( !cur->prev() )
-	b = Beginning;
-    else
-	cur->seek( currentAt );
-    if ( b == None && !cur->next() )
-	b = End;
-    cur->seek( currentAt );
-    return b;
-}
-
-void QSqlFormNavigator::setBoundryChecking( bool active )
-{
-    d->boundryCheck = active;
-}
-
-bool QSqlFormNavigator::boundryChecking() const
-{
-    return d->boundryCheck;
-}
-
-/*! If boundryChecking() is TRUE, checks the boundry of the current
-  default cursor and calls virtual functions which indicate the
-  position of the cursor.
-*/
-
-void QSqlFormNavigator::updateBoundry()
-{
-    if ( d->boundryCheck ) {
-	Boundry bound = boundry();
-	switch ( bound ) {
-	case Unknown:
-	case None:
-	    firstRecordAvailable( TRUE );
-	    prevRecordAvailable( TRUE );
-	    nextRecordAvailable( TRUE );
-	    lastRecordAvailable( TRUE );
-	    break;
-
-	case BeforeBeginning:
-	    firstRecordAvailable( TRUE );
-	    prevRecordAvailable( FALSE );
-	    nextRecordAvailable( TRUE );
-	    lastRecordAvailable( TRUE );
-	    break;
-
-	case Beginning:
-	    firstRecordAvailable( FALSE );
-	    prevRecordAvailable( FALSE );
-	    nextRecordAvailable( TRUE );
-	    lastRecordAvailable( TRUE );
-	    break;
-
-	case End:
-	    firstRecordAvailable( TRUE );
-	    prevRecordAvailable( TRUE );
-	    nextRecordAvailable( FALSE );
-	    lastRecordAvailable( FALSE );
-	    break;
-
-	case AfterEnd:
-	    firstRecordAvailable( TRUE );
-	    prevRecordAvailable( TRUE );
-	    nextRecordAvailable( FALSE );
-	    lastRecordAvailable( TRUE );
-	    break;
-
-	}
-    }
-}
-
-/*! \internal
- */
-void QSqlFormNavigator::firstRecordAvailable( bool )
-{
-}
-
-/*! \internal
- */
-void QSqlFormNavigator::lastRecordAvailable( bool )
-{
-}
-
-/*! \internal
- */
-void QSqlFormNavigator::nextRecordAvailable( bool )
-{
-}
-
-/*! \internal
- */
-void QSqlFormNavigator::prevRecordAvailable( bool )
-{
 }
 
 #endif

@@ -58,6 +58,19 @@ public:
     QSqlCursorNavigator();
     virtual ~QSqlCursorNavigator();
 
+    enum Boundry {
+	Unknown,
+	None,
+	BeforeBeginning,
+	Beginning,
+	End,
+	AfterEnd
+    };
+
+    Boundry boundry();
+    virtual void setBoundryChecking( bool active );
+    bool boundryChecking() const;
+
     virtual void setSort( const QSqlIndex& sort );
     virtual void setSort( const QStringList& sort );
     QStringList  sort() const;
@@ -65,6 +78,16 @@ public:
     QString filter() const;
     virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
     QSqlCursor* cursor() const;
+
+    virtual bool first();
+    virtual bool last();
+    virtual bool next();
+    virtual bool prev();
+
+    virtual void firstRecordAvailable( bool available );
+    virtual void lastRecordAvailable( bool available );
+    virtual void nextRecordAvailable( bool available );
+    virtual void prevRecordAvailable( bool available );
 
     virtual void refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
@@ -83,6 +106,7 @@ protected:
     virtual void handleError( const QSqlError& e );
 
 private:
+    void updateBoundry();
     class QSqlCursorNavigatorPrivate;
     QSqlCursorNavigatorPrivate* d;
 };
@@ -93,42 +117,22 @@ public:
     QSqlFormNavigator();
     ~QSqlFormNavigator();
 
-    enum Boundry {
-	Unknown,
-	None,
-	BeforeBeginning,
-	Beginning,
-	End,
-	AfterEnd
-    };
-
-    virtual bool first();
-    virtual bool last();
-    virtual bool next();
-    virtual bool prev();
     virtual void clearValues();
-
-    virtual int insert();
-    virtual int update();
-    virtual int del();
-
     virtual void readFields();
     virtual void writeFields();
 
-    Boundry boundry();
-    virtual void setBoundryChecking( bool active );
-    bool boundryChecking() const;
+    int insert();
+    int update();
+    int del();
+    bool first();
+    bool last();
+    bool next();
+    bool prev();
 
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
 
-    virtual void firstRecordAvailable( bool available );
-    virtual void lastRecordAvailable( bool available );
-    virtual void nextRecordAvailable( bool available );
-    virtual void prevRecordAvailable( bool available );
-
 private:
-    void updateBoundry();
     class QSqlFormNavigatorPrivate;
     QSqlFormNavigatorPrivate* d;
 };
