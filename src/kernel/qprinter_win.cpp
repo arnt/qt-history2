@@ -110,6 +110,9 @@ static PaperSize paperSizes[QPrinter::NPageSize] =
     {  MM(279), MM(432) },      // Tabloid
 };
 
+static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE *hnames);
+
+
 static void setPrinterMapping( HDC hdc, int res )
 {
     int mapMode = MM_ANISOTROPIC;
@@ -461,12 +464,13 @@ void QPrinter::readPdlg( void* pdv )
     if ( pd->hDevNames ) {
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         if ( dn ) {
-	    // order is important here since setPrinterName() calls
-	    // setDefaultPrinter() which modifies the DEVNAMES structure
+	    // order is important here since
+	    // setDefaultPrinter() modifies the DEVNAMES structure
             TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
             setPrintProgram( QString::fromUcs2( (ushort*)drName ) );
             TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
-            setPrinterName( QString::fromUcs2( (ushort*)prName ) );
+	    printer_name = QString::fromUcs2( (ushort*)prName );
+	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
 	    GlobalUnlock( pd->hDevNames );
         }
     }
@@ -535,12 +539,13 @@ void QPrinter::readPdlgA( void* pdv )
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         // (There is no DEVNAMESA)
         if ( dn ) {
-	    // order is important here since setPrinterName() calls
-	    // setDefaultPrinter() which modifies the DEVNAMES structure
+	    // order is important here since
+	    // setDefaultPrinter() modifies the DEVNAMES structure
             char* drName = ((char*)dn) + dn->wDriverOffset;
             setPrintProgram( QString::fromLocal8Bit( drName ) );
             char* prName = ((char*)dn) + dn->wDeviceOffset;
-            setPrinterName( QString::fromLocal8Bit( prName ) );
+	    printer_name = QString::fromLocal8Bit( prName );
+	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
 	    GlobalUnlock( pd->hDevNames );
         }
     }
@@ -1038,6 +1043,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);
             di.lpszDocName = (TCHAR*)doc_name.ucs2();
+	    if ( output_file && !output_filename.isEmpty() )
+		di.lpszOutput = (TCHAR *)output_filename.ucs2();
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } , {
@@ -1046,6 +1053,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             di.cbSize = sizeof(DOCINFOA);
 	    QCString docNameA = doc_name.local8Bit();
             di.lpszDocName = docNameA.data();
+	    QCString outfileA = output_filename.local8Bit();
+	    if ( output_file && !output_filename.isEmpty() )
+		di.lpszOutput = outfileA.data();
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } );
