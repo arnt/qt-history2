@@ -107,6 +107,8 @@ public:
     QWidget *page( const QString &key, QWidget *container, int index ) const;
     void renamePage( const QString &key, QWidget *container, int index, const QString &newName ) const;
     QWidgetList pages( const QString &key, QWidget *container ) const;
+    QString createCode( const QString &key, const QString &container,
+			const QString &page, const QString &pageName ) const;
 
     bool init();
     void cleanup();
@@ -326,6 +328,15 @@ QWidgetList QWidgetPluginPrivate::pages( const QString &key, QWidget *container 
     return QWidgetList();
 }
 
+QString QWidgetPluginPrivate::createCode( const QString &key, const QString &container,
+					  const QString &page, const QString &pageName ) const
+{
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    if ( p )
+	return p->createCode( key, container, page, pageName );
+    return QString::null;
+}
+
 /*!
     Constructs a widget plugin. This is invoked automatically by the
     \c Q_EXPORT_PLUGIN macro.
@@ -484,6 +495,12 @@ void QWidgetContainerPlugin::renamePage( const QString &, QWidget *, int, const 
 QWidgetList QWidgetContainerPlugin::pages( const QString &, QWidget * ) const
 {
     return QWidgetList();
+}
+
+QString QWidgetContainerPlugin::createCode( const QString &, const QString &,
+					    const QString &, const QString & ) const
+{
+    return QString::null;
 }
 
 #endif //QT_NO_WIDGETPLUGIN

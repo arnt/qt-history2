@@ -132,6 +132,8 @@ public:
     virtual void renamePage( const QString &key, QWidget *container,
 			     int index, const QString &newName ) const = 0;
     virtual QWidgetList pages( const QString &f, QWidget *container ) const = 0;
+    virtual QString createCode( const QString &f, const QString &container,
+				const QString &page, const QString &pageName ) const = 0;
 };
 
 #endif // QT_NO_WIDGETPLUGIN

@@ -26,6 +26,8 @@
 #include <qstringlist.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
+#include "../interfaces/widgetinterface.h"
+#include "../shared/widgetdatabase.h"
 
 /*!
   Creates a declaration for the object given in \a e.
@@ -277,11 +279,31 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    }
 	}
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
-	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	    if ( tags.contains( n.tagName() ) )
-		createObjectImpl( n, objClass, objName );
-	}
-    }
+	 WidgetInterface *iface = 0;
+	 widgetManager()->queryInterface( objClass, &iface );
+	 int id = WidgetDatabase::idFromClassName( objClass );
+	 if ( WidgetDatabase::isContainer( id ) && iface && WidgetDatabase::isCustomPluginWidget( id ) ) {
+	     QWidgetContainerInterfacePrivate *iface2 = 0;
+	     iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
+	     if ( iface2 ) {
+		 for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+		     if ( tags.contains( n.tagName()  ) ) {
+			 QString page = createObjectImpl( n, objClass, objName );
+			 QString comment;
+			 QString label = DomTool::readAttribute( n, "label", "", comment ).toString();
+			 out << indent << iface2->createCode( objClass, objName, page, label ) << endl;
+		     }
+		 }
+		 iface2->release();
+	     }
+	     iface->release();
+	 } else {
+	     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+		 if ( tags.contains( n.tagName() ) )
+		     createObjectImpl( n, objClass, objName );
+	     }
+	 }
+     }
 
     return objName;
 }
