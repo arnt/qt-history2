@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#147 $
 **
 ** Implementation of QListView widget class
 **
@@ -459,7 +459,8 @@ QListViewItem::~QListViewItem()
 }
 
 
-/*!  Inserts \a newChild into its list of children.  Called by the
+/*!  Inserts \a newChild into its list of children.  You should not
+  need to call this function; it is called automatically by the
   constructor of \a newChild.
 */
 
@@ -476,8 +477,10 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 }
 
 
-/*!  Removes \a tbg from this object's list of children.  This is
-  normally called by tbg's destructor. */
+/*!  Removes \a tbg from this object's list of children.  You should
+  normally not need to call this function, as
+  QListViewItem::~QListViewItem() calls it.
+*/
 
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
@@ -1457,7 +1460,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     QRect r;
     int fx = -1, x, fc = 0, lc = 0;
     int tx = -1;
-    class QListViewPrivate::DrawableItem * current;
+    QListViewPrivate::DrawableItem * current;
 
     while ( (current = it.current()) != 0 ) {
 	++it;
@@ -1630,7 +1633,7 @@ void QListView::buildDrawableList() const
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
 
-    class QListViewPrivate::Pending * cur;
+    QListViewPrivate::Pending * cur;
 
     // used to work around lack of support for mutable
     QList<QListViewPrivate::DrawableItem> * dl;
@@ -3002,6 +3005,8 @@ void QListView::widthChanged(const QListViewItem* item, int c)
 	QFontMetrics fm = fontMetrics();
 	int col = c < 0 ? 0 : c;
 	int indent = treeStepSize() * item->depth();
+	if ( rootIsDecorated() )
+	    indent += treeStepSize();
 	do {
 	    int w = item->width( fm, this, col ) + indent;
 	    if ( w > columnWidth(col) )
