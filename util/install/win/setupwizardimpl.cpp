@@ -636,6 +636,7 @@ void SetupWizardImpl::initPages()
     if ( configPage )
 	setBackEnabled( configPage, FALSE );
     if ( progressPage ) {
+	setBackEnabled( progressPage, FALSE );
 	setNextEnabled( progressPage, FALSE );
     }
     if ( buildPage ) {
@@ -1149,14 +1150,16 @@ void SetupWizardImpl::makeDone()
 void SetupWizardImpl::makeDone( bool error )
 {
     if( error ) {
-	logOutput( "The build process failed!\n" );
-	emit wizardPageFailed( indexOf(currentPage()) );
-	QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
-	buildPage->restartBuild->setText( "Restart compile" );
+	if (!backButton()->isEnabled()) {
+	    logOutput( "The build process failed!\n" );
+	    emit wizardPageFailed( indexOf(currentPage()) );
+	    QMessageBox::critical( this, "Error", "The build process failed!\nSee the log for details." );
+	    buildPage->restartBuild->setText( "Restart compile" );
+	    backButton()->setEnabled(TRUE);
+	}
 	setAppropriate( progressPage, false );
 #if defined(QSA)
     } else if ( make.workingDirectory() == QEnvironment::getEnv( "QTDIR" ) ) {
-	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
 	QStringList args;
 	args << globalInformation.text(GlobalInformation::MakeTool);
 	args << "sub-examples";
@@ -1199,6 +1202,8 @@ void SetupWizardImpl::configDone()
 	logOutput( "The configure process failed.\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
 	buildPage->restartBuild->setText( "Restart configure" );
+	setAppropriate( progressPage, false );
+	backButton()->setEnabled(TRUE);
     } else
 #endif
     {
@@ -1241,7 +1246,6 @@ void SetupWizardImpl::configDone()
 	make.setArguments( args );
 
 	if( !make.start() ) {
-	    //### a bit too late here, and non-assistive error message
 	    logOutput( "Could not start make process.\n"
 		       "Make sure that your compiler tools are installed\n"
 		       "and registered correctly in your PATH environment." );
@@ -1272,10 +1276,10 @@ void SetupWizardImpl::restartBuild()
     } else if ( make.isRunning() || 
 	      (!make.isRunning() && (!make.normalExit() || make.exitStatus())) ) {
 	if ( make.isRunning() ) {	// Stop compile
-	    make.kill();
 	    buildPage->restartBuild->setText( "Restart compile" );
 	    logOutput( "\n*** Compilation stopped by user...\n" );
 	    backButton()->setEnabled( TRUE );
+	    make.kill();
 	} else {			// Restart compile
 	    wizardPageShowed( indexOf(currentPage()) );
 	    backButton()->setEnabled( FALSE );
