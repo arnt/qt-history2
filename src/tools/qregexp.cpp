@@ -205,8 +205,8 @@
     Regexps provide a rich language that can be used in a variety of
     ways. For example suppose we want to count all the occurrences of
     'Eric' and 'Eirik' in a string. Two valid regexps to match these are
-    <b>\\</b><b>b(Eric|Eirik)</b><b>\\</b><b>b</b> and
-    <b>\\</b><b>bEi?ri[ck]</b><b>\\</b><b>b</b>. We need the word boundary
+    <b>\\b(Eric|Eirik)\\b</b> and
+    <b>\\bEi?ri[ck]\\b</b>. We need the word boundary
     '\b' so we don't get 'Ericsson' etc. The second regexp actually
     matches more than we want, 'Eric', 'Erik', 'Eiric' and 'Eirik'.
 
@@ -221,35 +221,35 @@
     <li><b>c</b> Any character represents itself unless it has a special regexp
     meaning. Thus <b>c</b> matches the character \e c.
 
-    <li><b>\\</b><b>c</b> A character that follows a backslash matches the
+    <li><b>\\c</b> A character that follows a backslash matches the
     character itself except where mentioned below. For example if you
     wished to match a literal caret at the beginning of a string you
     would write <b>\^</b>.
 
-    <li><b>\\</b><b>a</b> This matches the ASCII bell character (BEL, 0x07).
-    <li><b>\\</b><b>f</b> This matches the ASCII form feed character (FF, 0x0C).
-    <li><b>\\</b><b>n</b> This matches the ASCII line feed character (LF, 0x0A, Unix newline).
-    <li><b>\\</b><b>r</b> This matches the ASCII carriage return character (CR, 0x0D).
-    <li><b>\\</b><b>t</b> This matches the ASCII horizontal tab character (HT, 0x09).
-    <li><b>\\</b><b>v</b> This matches the ASCII vertical tab character (VT, 0x0B).
-    <li><b>\\</b><b>xhhhh</b> This matches the Unicode character corresponding
+    <li><b>\\a</b> This matches the ASCII bell character (BEL, 0x07).
+    <li><b>\\f</b> This matches the ASCII form feed character (FF, 0x0C).
+    <li><b>\\n</b> This matches the ASCII line feed character (LF, 0x0A, Unix newline).
+    <li><b>\\r</b> This matches the ASCII carriage return character (CR, 0x0D).
+    <li><b>\\t</b> This matches the ASCII horizontal tab character (HT, 0x09).
+    <li><b>\\v</b> This matches the ASCII vertical tab character (VT, 0x0B).
+    <li><b>\\xhhhh</b> This matches the Unicode character corresponding
     to the hexadecimal number hhhh (between 0x0000 and 0xFFFF). \0ooo
     (i.e., \zero ooo) matches the ASCII/Latin-1 character corresponding
     to the octal number ooo (between 0 and 0377).
     <li><b>. (dot)</b> This matches any character (including newline).
-    <li><b>\\</b><b>d</b> This matches a digit (see QChar::isDigit()).
-    <li><b>\\</b><b>D</b> This matches a non-digit.
-    <li><b>\\</b><b>s</b> This matches a whitespace (see QChar::isSpace()).
-    <li><b>\\</b><b>S</b> This matches a non-whitespace.
-    <li><b>\\</b><b>w</b> This matches a word character (see QChar::isLetterOrNumber()).
-    <li><b>\\</b><b>W</b> This matches a non-word character.
-    <li><b>\\</b><b>n</b> The n-th
+    <li><b>\\d</b> This matches a digit (see QChar::isDigit()).
+    <li><b>\\D</b> This matches a non-digit.
+    <li><b>\\s</b> This matches a whitespace (see QChar::isSpace()).
+    <li><b>\\S</b> This matches a non-whitespace.
+    <li><b>\\w</b> This matches a word character (see QChar::isLetterOrNumber()).
+    <li><b>\\W</b> This matches a non-word character.
+    <li><b>\\n</b> The n-th
     <a href="#capturing-text">backreference</a>, e.g. \1, \2, etc.
     </ul>
 
     <em>Note that the C++ compiler transforms backslashes in strings so
     to include a <b>\\</b> in a regexp you will need to enter it twice,
-    i.e. <b>\\</b><b>\\</b>.</em>
+    i.e. <b>\\\\</b>.</em>
 
     <a name="sets-of-characters"><b>Sets of Characters</b></a>
 
@@ -391,18 +391,18 @@
     optionally followed by whitespace. If you wish to match a literal
     <tt>$</tt> you must escape it by writing <tt>\\$</tt>.
 
-    <li><b>\\</b><b>b</b> A word boundary. For example the regexp
-    <b>\\</b><b>bOK</b>\\</b><b>b</b> means match immediately after a
+    <li><b>\\b</b> A word boundary. For example the regexp
+    <b>\\bOK</b>\\b</b> means match immediately after a
     word boundary (e.g. start of string or whitespace) the letter 'O'
     then the letter 'K' immediately before another word boundary (e.g.
     end of string or whitespace). But note that the assertion does not
     actually match any whitespace so if we write
-    <b>(</b><b>\\</b><b>bOK</b>\\</b><b>b)</b> and we have a match it
+    <b>(\\bOK</b>\\b)</b> and we have a match it
     will only contain 'OK' even if the string is "Its <u>OK</u> now".
 
-    <li><b>\\</b><b>B</b> A non-word boundary. This assertion is true
-    wherever <b>\\</b><b>b</b> is false. For example if we searched for
-    <b>\\</b><b>Bon</b>\\</b><b>B</b> in "Left on" the match would fail
+    <li><b>\\B</b> A non-word boundary. This assertion is true
+    wherever <b>\\b</b> is false. For example if we searched for
+    <b>\\Bon</b>\\B</b> in "Left on" the match would fail
     (space and end of string aren't non-word boundaries), but it would
     match in "t<u>on</u>ne".
 
@@ -447,10 +447,8 @@
     same as <b>.*</b> in full regexps.
 
     <li><b>[...]</b> Sets of characters can be represented in square
-    brackets the same as for full regexps.
-
-    <!-- JASMIN: Are the character classes, \w, etc supported in
-    wildcards? -->
+    brackets, similar to full regexps. Within the character class,
+    like outside, backslash has no special meaning.
 
     </ul>
 
@@ -520,7 +518,7 @@
     Perl's split and join functions.
 
     Note: because C++ transforms \\'s they must be written \e twice in
-    code, e.g. <b>\\</b><b>b</b> must be written <b>\\</b><b>\\</b><b>b</b>.
+    code, e.g. <b>\\b</b> must be written <b>\\\\b</b>.
 
     <a name="code-examples"><b>Code Examples</b></a>
 
@@ -2848,8 +2846,8 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
     mmCapturedNoMatch.fill( -1, 2 + 2 * realncap );
 
     /*
-      We use one QMemArray<int> for all the big data used a lot in matchHere() and
-      friends.
+      We use one QMemArray<int> for all the big data used a lot in
+      matchHere() and friends.
     */
 #ifndef QT_NO_REGEXP_OPTIM
     mmSlideTabSize = QMAX( minl + 1, 16 );
@@ -3304,7 +3302,7 @@ bool QRegExp::caseSensitive() const
 /*!
   Sets case sensitive matching to \a sensitive.
 
-  If \a sensitive is TRUE, <b>\\</b><b>.txt$</b> matches
+  If \a sensitive is TRUE, <b>\\.txt$</b> matches
   <tt>readme.txt</tt> but not <tt>README.TXT</tt>.
 
   \sa caseSensitive()
@@ -3481,14 +3479,14 @@ int QRegExp::match( const QString& str, int index, int *len,
   Example:
   \code
     QString str = "offsets: 1.23 .50 71.00 6.00";
-    QRegExp rx( "\\d*\\.\\d+" );    // very simple floating point matching
+    QRegExp rx( "\\d*\\.\\d+" );    // primitive floating point matching
     int count = 0;
     int pos = 0;
     while ( pos >= 0 ) {
 	pos = rx.search( str, pos );
 	count++;
     }
-    // pos will be 9, 14, 18 and finally 24; count will end up as 4.
+    // pos will be 9, 14, 18 and finally 24; count will end up as 4
   \endcode
 
   \sa searchRev() match() matchedLength() capturedTexts()
@@ -3606,7 +3604,7 @@ int QRegExp::matchedLength()
 
   Some regexps can match an indeterminate number of times. For example
   if the input string is "Offsets: 12 14 99 231 7" and the regexp,
-  <tt>rx</tt>, is <b>(</b><b>\\</b><b>d+)+</b>, we would hope to get a
+  <tt>rx</tt>, is <b>(\\d+)+</b>, we would hope to get a
   list of all the numbers matched. However, after calling
   <tt>rx.search(str)</tt>, capturedTexts() will return the list ( "12",
   "12" ), i.e. the entire match was "12" and the first subexpression
@@ -3653,11 +3651,11 @@ QStringList QRegExp::capturedTexts()
     }
   \endcode
 
-    <a name="cap_in_a_loop">
-    Some patterns may lead to a number of matches which cannot be
-    determined in advance, for example:</a>
+  <a name="cap_in_a_loop">
+  Some patterns may lead to a number of matches which cannot be
+  determined in advance, for example:</a>
 
-    \code
+  \code
     QRegExp rx( "(\\d+)" );
     str = "Offsets: 12 14 99 231 7";
     QStringList list;
@@ -3669,8 +3667,8 @@ QStringList QRegExp::capturedTexts()
 	    pos  += rx.matchedLength();
 	}
     }
-    // list contains: ( "12", "14", "99", "231", "7" ).
-    \endcode
+    // list contains "12", "14", "99", "231", "7"
+  \endcode
 
   The order of elements matched by cap() is as follows. The first
   element, cap( 0 ), is the entire matching string. Each subsequent
@@ -3688,9 +3686,10 @@ QString QRegExp::cap( int nth )
 	return capturedTexts()[nth];
 }
 
-/*! Returns the position of the \a nth captured text in the
-    searched string.  If \a nth is 0 (the default), pos() returns the
-    position of the whole match.
+/*!
+  Returns the position of the \a nth captured text in the
+  searched string.  If \a nth is 0 (the default), pos() returns the
+  position of the whole match.
 
   Example:
   \code
