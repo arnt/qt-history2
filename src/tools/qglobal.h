@@ -402,13 +402,13 @@ const bool TRUE = !0;
 // Utility macros and inline functions
 //
 
-#define QMAX(a,b)	((a) > (b) ? (a) : (b))
-#define QMIN(a,b)	((a) < (b) ? (a) : (b))
+#define QMAX(a, b)	((b) < (a) ? (a) : (b))
+#define QMIN(a, b)	((a) < (b) ? (a) : (b))
 #define QABS(a)		((a) >= 0  ? (a) : -(a))
 
 inline int qRound( double d )
 {
-    return d > 0.0 ? int(d+0.5) : int(d-0.5);
+    return d > 0.0 ? int( d + 0.5 ) : int( d - 0.5 );
 }
 
 
