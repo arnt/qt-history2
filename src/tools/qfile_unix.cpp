@@ -462,8 +462,9 @@ bool QFile::at( Offset pos )
 	return FALSE;
     bool ok;
     if ( isRaw() ) {
-	pos = (Offset)::lseek( fd, pos, SEEK_SET );
-	ok = ( (long int) pos != -1 );		// ### fix this bad hack!
+	off_t l = ::lseek( fd, pos, SEEK_SET );
+	ok = ( l != -1 );
+	pos = (Offset)l;
     } else {					// buffered file
 #if defined(QT_LARGEFILE_SUPPORT)
 	ok = ( ::fseeko(fh, pos, SEEK_SET) == 0 );
@@ -506,16 +507,16 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	qWarning( "QFile::readBlock: Null pointer error" );
 #endif
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {				// file not open
+    if ( !isOpen() ) {
 	qWarning( "QFile::readBlock: File not open" );
 	return 0;
     }
-    if ( !isReadable() ) {			// reading not permitted
+    if ( !isReadable() ) {
 	qWarning( "QFile::readBlock: Read operation not permitted" );
 	return 0;
     }
 #endif
-    int nread = 0;					// number of bytes read
+    Q_ULONG nread = 0;					// number of bytes read
     if ( !ungetchBuffer.isEmpty() ) {
 	// need to add these to the returned string.
 	int l = ungetchBuffer.length();
@@ -527,7 +528,7 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	ungetchBuffer.truncate( l - nread );
     }
 
-    if ( nread < (int)len ) {
+    if ( nread < len ) {
 	if ( isRaw() ) {				// raw file
 	    nread += ::read( fd, p, len-nread );
 	    if ( len && nread <= 0 ) {
@@ -580,18 +581,18 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	return -1;
     }
 #endif
-    int nwritten;				// number of bytes written
+    Q_ULONG nwritten;				// number of bytes written
     if ( isRaw() )				// raw file
 	nwritten = ::write( fd, (void *)p, len );
     else					// buffered file
 	nwritten = fwrite( p, 1, len, fh );
-    if ( nwritten != (int)len ) {		// write error
+    if ( nwritten != len ) {		// write error
 	if ( errno == ENOSPC )			// disk is full
 	    setStatus( IO_ResourceError );
 	else
 	    setStatus( IO_WriteError );
 	if ( !isSequentialAccess() ) {
-	    if ( isRaw() )				// recalc file position
+	    if ( isRaw() )			// recalc file position
 		ioIndex = (Offset)::lseek( fd, 0, SEEK_CUR );
 	    else
 #if defined(QT_LARGEFILE_SUPPORT)
