@@ -321,7 +321,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
 	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
 	    t << "\n\t"
-	      << "$(LINK) " << incr_lflags << " -o " << incr_target_dir << " $(OBJECTS) $(OBJMOC)" << endl;
+	      << "$(LINK) " << incr_lflags << " -o " << incr_target_dir << " $(OBJECTS) $(OBJMOC) $(LIBS)" << endl;
 	    //real target
 	    QString cmd = var("QMAKE_LINK_SHLIB_CMD").replace(QRegExp("\\$\\(OBJECTS\\) \\$\\(OBJMOC\\)"), "$(INCREMENTAL_OBJECTS) ");
 	    if(!destdir.isEmpty())
