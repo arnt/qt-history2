@@ -104,16 +104,13 @@ this widget is deleted, the timer is deleted too. Next, its timeout
 signal is connected to the slot that will do the work, and finally
 it's started.
 
-QTimer also provides a simple one-shot timer API. \l QButton uses this
-to show the button being pressed down and then (0.1 seconds later) be
-released when the keyboard is used to "press" a button, for example:
-
+QTimer also provides a simple one-shot timer API, for example:
 \code
-    QTimer::singleShot( 100, this, SLOT(animateTimeout()) );
+    QTimer::singleShot( 100, this, SLOT(timeout()) );
 \endcode
 
-0.1 seconds after this line of code is executed, the same button's
-animateTimeout() slot is called.
+0.1 seconds after this line of code is executed, \c this widget's
+timeout() slot is called.
 
 Here is an outline of a slightly longer example that combines object
 communication via signals and slots with a QTimer object. It

@@ -14,18 +14,23 @@
 #define q q_func()
 
 /*!
+  \class QGenericTreeViewItem qgenerictreeview.cpp
+
+  This class implements a QViewItem working on a QGenericTreeView.
+*/
+
+/*!
+    \fn QGenericTreeViewItem::QGenericTreeViewItem()
+    \internal
+*/
+
+/*!
   \class QGenericTreeView qgenerictreeview.h
 
   \brief Tree view implementation
 
   This class implements a tree representation of a QGenericItemView working
   on a QAbstractItemModel.
-*/
-
-/*!
-  \class QGenericTreeViewItem qgenerictreeview.cpp
-
-  This class implements a QViewItem working on a QGenericTreeView.
 */
 
 QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)

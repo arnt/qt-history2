@@ -50,20 +50,16 @@ public:
     A QButtonGroup can be used to group check buttons visually.
 
     Whenever a checkbox is checked or cleared it emits the signal
-    toggled(). Connect to this signal if you want to trigger an action
-    each time the checkbox changes state. You can use isChecked() to
-    query whether or not a checkbox is checked.
-
-    \warning The toggled() signal can not be trusted for tristate
-    checkboxes.
+    stateChanged(). Connect to this signal if you want to trigger an
+    action each time the checkbox changes state. You can use
+    isChecked() to query whether or not a checkbox is checked.
 
     In addition to the usual checked and unchecked states, QCheckBox
     optionally provides a third state to indicate "no change". This
     is useful whenever you need to give the user the option of neither
     checking nor unchecking a checkbox. If you need this third state,
     enable it with setTristate() and use state() to query the current
-    toggle state. When a tristate checkbox changes state, it emits the
-    stateChanged() signal.
+    toggle state.
 
     Just like QPushButton, a checkbox can display text or a pixmap.
     The text can be set in the constructor or with setText(); the
@@ -79,6 +75,16 @@ public:
 
     \sa QButton QRadioButton
     \link guibooks.html#fowler Fowler: Check Box \endlink
+*/
+
+
+/*!
+    \fn void QCheckBox::stateChanged(int state)
+
+    This signal is emitted whenever the check box's state changes,
+    i.e. whenever the user checks or unchecks it.
+
+    \a state contains the check box's new \c ToggleState.
 */
 
 /*!

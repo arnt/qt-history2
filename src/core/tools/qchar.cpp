@@ -303,16 +303,16 @@
 */
 
 /*!
-    \enum QChar::SpecialChar
+    \enum QChar::SpecialCharacter
 
-    \value Null Character 0x0000. A QChar with this value isNull().
+    \value Null Character 0x0000 A QChar with this value isNull().
+    \value Nbsp Non-breaking space
     \value ReplacementCharacter
     \value ObjectReplacementCharacter
     \value ByteOrderMark
     \value ByteOrderSwapped
-    \value Nbsp Non-breaking space
     \value ParagraphSeparator
-    \value LineSeparator.
+    \value LineSeparator
 */
 
 /*!
@@ -340,7 +340,7 @@
 */
 
 /*!
-    \fn QChar::QChar(SpecialChar ch)
+    \fn QChar::QChar(SpecialCharacter ch)
 
     Constructs a QChar for the predefined character value \a ch.
 */
