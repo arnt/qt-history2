@@ -151,6 +151,8 @@ QSound::~QSound()
 
 /*!
     Returns true if the sound has finished playing; otherwise returns false.
+
+    \warning On Windows this function always returns true for unlooped sounds.
 */
 bool QSound::isFinished() const
 {
