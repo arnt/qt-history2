@@ -818,9 +818,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (d->enteredItem != index) {
         if (index.isValid())
-            emit itemEntered(index);
+            emit itemEntered(index, e->state());
         else
-            emit viewportEntered();
+            emit viewportEntered(e->state());
         d->enteredItem = persistent;
     } else if (state() == Selecting) {
         return; // we haven't moved over another item yet

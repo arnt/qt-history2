@@ -479,7 +479,7 @@ public:
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index);
+    void emitItemEntered(const QModelIndex &index, Qt::ButtonState state);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
@@ -515,9 +515,9 @@ void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QM
     emit q->currentChanged(model()->at(current.row()), model()->at(previous.row()));
 }
 
-void QListWidgetPrivate::emitItemEntered(const QModelIndex &index)
+void QListWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::ButtonState state)
 {
-    emit q->itemEntered(model()->at(index.row()));
+    emit q->itemEntered(model()->at(index.row()), state);
 }
 
 void QListWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
@@ -809,8 +809,8 @@ void QListWidget::setup()
             SLOT(emitKeyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
     connect(this, SIGNAL(returnPressed(const QModelIndex&)),
             SLOT(emitReturnPressed(const QModelIndex&)));
-    connect(this, SIGNAL(itemEntered(const QModelIndex&)),
-            SLOT(emitItemEntered(const QModelIndex&)));
+    connect(this, SIGNAL(itemEntered(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitItemEntered(const QModelIndex&, Qt::ButtonState)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
             SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
     connect(selectionModel(),

@@ -67,8 +67,8 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
             this, SLOT(updateScrollers()));
     connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int, int)),
             this, SLOT(updateScrollers()));
-    connect(list, SIGNAL(onItem(const QModelIndex &, int)),
-            this, SLOT(setCurrentIndex(const QModelIndex &, int)));
+    connect(list, SIGNAL(itemEntered(const QModelIndex &, Qt::ButtonState)),
+            this, SLOT(setCurrentIndex(const QModelIndex &, Qt::ButtonState)));
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -129,11 +129,11 @@ void ListViewContainer::updateScrollers()
 /*
   \internal
 
-  Sets currentIndex on onItem if the LeftButton is not pressed. This
+  Sets currentIndex on itemEntered if the LeftButton is not pressed. This
   means that if mouseTracking(...) is on, we setCurrentIndex and select
   even when LeftButton is not pressed.
 */
-void ListViewContainer::setCurrentIndex(const QModelIndex &index, int bstate)
+void ListViewContainer::setCurrentIndex(const QModelIndex &index, Qt::ButtonState bstate)
 {
     if (bstate & Qt::LeftButton)
         return;

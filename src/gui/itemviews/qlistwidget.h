@@ -162,7 +162,7 @@ signals:
     void returnPressed(QListWidgetItem *item);
     void currentChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void selectionChanged();
-    void itemEntered(QListWidgetItem *item);
+    void itemEntered(QListWidgetItem *item, Qt::ButtonState state);
     void aboutToShowContextMenu(QMenu *menu, QListWidgetItem *item);
     void itemChanged(QListWidgetItem *item);
 
@@ -178,7 +178,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current));
-    Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index, Qt::ButtonState state));
     Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index));
     Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight));
 };

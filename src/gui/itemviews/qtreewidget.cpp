@@ -903,7 +903,7 @@ public:
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
-    void emitItemEntered(const QModelIndex &index);
+    void emitItemEntered(const QModelIndex &index, Qt::ButtonState state);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
@@ -949,9 +949,9 @@ void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QM
     emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
-void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index)
+void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::ButtonState state)
 {
-    emit q->itemEntered(model()->item(index), index.column());
+    emit q->itemEntered(model()->item(index), index.column(), state);
 }
 
 void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
@@ -1040,8 +1040,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitExpanded(const QModelIndex&)));
     connect(this, SIGNAL(collapsed(const QModelIndex&)),
             SLOT(emitCollapsed(const QModelIndex&)));
-    connect(this, SIGNAL(itemEntered(const QModelIndex&)),
-            SLOT(emitItemEntered(const QModelIndex&)));
+    connect(this, SIGNAL(itemEntered(const QModelIndex&, Qt::ButtonState)),
+            SLOT(emitItemEntered(const QModelIndex&, Qt::ButtonState)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
             SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
     connect(selectionModel(),
