@@ -196,9 +196,14 @@ bool QReadWriteLock::tryLock(AccessMode mode)
 void QReadWriteLock::unlock()
 {
     Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
-    if (!d->accessCount.testAndSet(-1, 0))
-        --d->accessCount;
-
+    
+    bool unlocked = d->accessCount.testAndSet(-1, 0);
+    if (!unlocked) {
+        unlocked = !--d->accessCount;
+        if (!unlocked)
+            return; // still locked, can't wake anyone up
+    }
+        
     if (d->waitingWriters != 0) {
         report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
         pthread_cond_signal(&d->writerWait);
