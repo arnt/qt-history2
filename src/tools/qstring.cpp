@@ -10715,8 +10715,10 @@ QChar* QString::asciiToUnicode( const QByteArray& ba, uint* len )
 
 static QChar* internalAsciiToUnicode( const QByteArray& ba, uint* len )
 {
-    if ( ba.isNull() )
+    if ( ba.isNull() ) {
+	*len = 0;
 	return 0;
+    }
     int l = 0;
     while ( l < (int)ba.size() && ba[l] )
 	l++;
