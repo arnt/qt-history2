@@ -40,7 +40,7 @@ bool QProcess::start()
 	delete notifierStderr;
 	notifierStderr = 0;
     }
-    
+
     // open sockets for piping
     if ( socketpair( AF_UNIX, SOCK_STREAM, 0, socketStdin ) ) {
 	return FALSE;
@@ -114,6 +114,11 @@ bool QProcess::start()
 }
 
 
+bool QProcess::kill()
+{
+    return TRUE;
+}
+
 bool QProcess::isRunning()
 {
     int status;
@@ -128,7 +133,6 @@ bool QProcess::isRunning()
 	return TRUE;
     }
 }
-
 
 void QProcess::dataStdin( const QByteArray& buf )
 {
@@ -229,4 +233,8 @@ void QProcess::socketWrite( int fd )
 	delete stdinBuf.dequeue();
 	socketWrite( fd );
     }
+}
+
+void QProcess::timeout()
+{
 }

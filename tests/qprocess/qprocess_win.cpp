@@ -280,11 +280,16 @@ bool QProcess::start()
 }
 
 
+bool QProcess::kill()
+{
+    TerminateProcess( pid.hProcess, 0 );
+    return TRUE;
+}
+
 bool QProcess::isRunning()
 {
     return TRUE;
 }
-
 
 void QProcess::dataStdin( const QByteArray& buf )
 {
@@ -409,14 +414,17 @@ void QProcess::socketWrite( int fd )
 
 }
 
-
 void QProcess::timeout()
 {
 //    socketWrite( 0 );
     socketRead( 0 );
+    if ( WaitForSingleObject( pid.hProcess, 0) == WAIT_OBJECT_0 ) {
+	lookup->stop();
+	emit processExited();
+    }
 }
 
-// testing if non blocking pipes are working
+// non-blocking read on the pipe
 QByteArray QProcess::readStdout( ulong bytes )
 {
 #if defined ( RMS_USE_SOCKETS )
@@ -434,7 +442,10 @@ QByteArray QProcess::readStdout( ulong bytes )
 	if ( bytes == 0 ) {
 	    // get the number of bytes that are waiting to be read
 	    char dummy;
-	    PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 );
+	    if ( !PeekNamedPipe( pipeStdout[0], &dummy, 1, &r, &i, 0 ) ) {
+//		emit processExited();
+		i = 0;
+	    }
 	} else {
 	    i = bytes;
 	}

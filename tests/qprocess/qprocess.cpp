@@ -84,7 +84,7 @@ QProcess::~QProcess()
 
 
 /*!
-  Ask the process to terminate. If this does not work you can try kill()
+  Ask the process to terminate. If this does not work you can try \l kill()
   instead.
 
   Return TRUE on success, otherwise FALSE.
@@ -95,19 +95,17 @@ bool QProcess::hangUp()
 }
 
 /*!
+  \fn bool QProcess::kill()
+
   Terminate the process. This is not a safe way to end a process; you should
-  try hangUp() first and use this function only if it failed.
+  try \l hangUp() first and use this function only if it failed.
 
   Return TRUE on success, otherwise FALSE.
 */
-bool QProcess::kill()
-{
-    return TRUE;
-}
-
 
 /*!
   \fn bool QProcess::isRunning()
+
   Return TRUE if the process is running, otherwise FALSE.
 */
 

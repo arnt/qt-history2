@@ -109,9 +109,7 @@ private:
 private slots:
     void socketRead( int fd );
     void socketWrite( int fd );
-#if defined( _WS_WIN_ )
     void timeout();
-#endif
 };
 
 
