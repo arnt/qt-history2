@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#87 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -878,7 +878,6 @@ void QUriDrag::setUris( QStrList uris )
 	memcpy(a.data()+c+l,"\r\n",2);
 	c+=l;
     }
-    a.resize(c-1); // chop off last nul
     setEncodedData(a);
 }
 
@@ -915,7 +914,7 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
 		l.append( s );
 	    // Skip junk
 	    while (c < payload.size() && d[c] &&
-		    (d[c]=='\n' || d[c]!='\r'))
+		    (d[c]=='\n' || d[c]=='\r'))
 		c++;
 	}
 	return TRUE;
@@ -1083,6 +1082,13 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 	    } else {
 		file.insert(0,'/');
 	    }
+#ifdef _WS_WIN_
+	    if ( file.length() > 2 && file[0] == '/' && file[2] == '|' ) {
+		file[2] = ':';
+		file.remove(0,1);
+	    }
+	    // Leave slash as slashes.
+#endif
 	}
     }
 

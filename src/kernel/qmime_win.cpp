@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#4 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -22,6 +22,7 @@
 #include "qstrlist.h"
 #include "qimage.h"
 #include "qdatastream.h"
+#include "qdragobject.h"
 #include "qbuffer.h"
 #include "qt_windows.h"
 #include <shlobj.h>
@@ -56,7 +57,7 @@ static QList<QWindowsMime> mimes;
 		a \link QImage::outputFormats() Qt image format\endlink,
 	    and thus supported by QImageDrag.
     <li> \c CF_HDROP - converted to "text/uri-list",
-	    and thus supported by QUrlDrag.
+	    and thus supported by QUriDrag.
   </ul>
 
   An example usage of this class would be to map the Windows Metafile
@@ -445,7 +446,7 @@ int htod(int h)
 }
 
 
-class Q_EXPORT QWindowsMimeUrl : public QWindowsMime {
+class Q_EXPORT QWindowsMimeUri : public QWindowsMime {
 public:
     int		countCf();
     const char* convertorName();
@@ -457,27 +458,27 @@ public:
     QByteArray	convertFromMime( QByteArray data, const char* mime, int cf );
 };
 
-int QWindowsMimeUrl::countCf()
+int QWindowsMimeUri::countCf()
 {
     return 1;
 }
 
-const char* QWindowsMimeUrl::convertorName()
+const char* QWindowsMimeUri::convertorName()
 {
-    return "Urls";
+    return "Uris";
 }
 
-int QWindowsMimeUrl::cf(int index)
+int QWindowsMimeUri::cf(int index)
 {
     return CF_HDROP;
 }
 
-int QWindowsMimeUrl::cfFor(const char* mime)
+int QWindowsMimeUri::cfFor(const char* mime)
 {
     return qstricmp(mime,"text/uri-list")==0;
 }
 
-const char* QWindowsMimeUrl::mimeFor(int cf)
+const char* QWindowsMimeUri::mimeFor(int cf)
 {
     if ( cf == CF_HDROP )
 	return "text/uri-list";
@@ -485,167 +486,76 @@ const char* QWindowsMimeUrl::mimeFor(int cf)
 	return 0;
 }
 
-bool QWindowsMimeUrl::canConvert( const char* mime, int cf )
+bool QWindowsMimeUri::canConvert( const char* mime, int cf )
 {
     return cf == CF_HDROP && 0==qstricmp(mime,"text/uri-list");
 }
 
-QByteArray QWindowsMimeUrl::convertToMime( QByteArray data, const char* mime, int cf )
+QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, int cf )
 {
     if ( qstricmp(mime,"text/uri-list")!=0 || cf != CF_HDROP )  // Sanity
 	return QByteArray();
 
     LPDROPFILES hdrop = (LPDROPFILES)data.data();
     const char* files = (const char* )data.data() + hdrop->pFiles;
-    const char* end = (const char* )data.data() + data.size();
-    const ushort* filesw = (const ushort*)(data.data() + hdrop->pFiles);
+    const ushort* filesw = (const ushort*)files;
+
     int i=0;
-    int size=0;
-    bool wide = hdrop->fWide;
-    while (
-	// until double-NUL
-	wide ? filesw[i] || filesw[i+1]
-	     : files[i] || files[i+1]
-    ) {
-	char ch = wide ? filesw[i] : files[i];
-	if ( !ch )
-	    size+=protocol_len+1;
-	else if ( ch == '+' || ch == '%' ) // ### more
-	    size+=3;
-	else
-	    size++;
-	i++;
-	if ( (wide ? (const char* )(filesw+i) : files+i) >= end )
-	    return QByteArray(); // Bad Data
-    }
-    if (i)
-	size += protocol_len;
-
-    QByteArray result(size);
-
-    char* out = result.data();
-
-    if ( size ) {
-	memcpy(out, protocol, protocol_len);
-	out += protocol_len;
-    }
-
-    i = 0;
-    while (
-	// until double-NUL
-	wide ? filesw[i] || filesw[i+1]
-	     : files[i] || files[i+1]
-    ) {
-	char ch = wide ? filesw[i] : files[i];
-	if ( !ch ) {
-	    *out++ = ch;
-	    memcpy(out, protocol, protocol_len);
-	    out += protocol_len;
-	} else if ( ch == '+' || ch == '%' ) {
-	    // special. ### more
-	    *out++ = '%';
-	    *out++ = dtoh(ch/16);
-	    *out++ = dtoh(ch%16);
-	} else if ( ch == ' ' ) {
-	    *out++ = '+';
-	} else if ( ch == ':' ) {
-	    *out++ = '|';
-	} else {
-	    *out++ = ch;
+    QCString texturi;
+    if ( hdrop->fWide ) {
+	while ( filesw[i] ) {
+	    QString fn = qt_winQString( (void*)(filesw+i) );
+	    texturi += QUriDrag::localFileToUri(fn);
+	    texturi += "\r\n";
+	    i += fn.length()+1;
 	}
-	i++;
-	ASSERT( result.data()+size >= out );
+    } else {
+	while ( files[i] ) {
+	    QString fn = qt_winMB2QString( files+i );
+	    texturi += QUriDrag::localFileToUri(fn);
+	    texturi += "\r\n";
+	    i += fn.length()+1;
+	}
     }
 
-    return result;
+    return texturi;
 }
 
-QByteArray QWindowsMimeUrl::convertFromMime( QByteArray data, const char* mime, int cf )
+QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, int cf )
 {
     if ( qstricmp(mime,"text/uri-list")!=0 || cf != CF_HDROP )  // Sanity
 	return QByteArray();
 
-    DROPFILES hdrop;
-    hdrop.pFiles = sizeof(hdrop);
-    GetCursorPos(&hdrop.pt); // try
-    hdrop.fNC = TRUE;
-    hdrop.fWide = FALSE;
+    QStoredDrag t("text/uri-list");
+    t.setEncodedData(data);
+    QStringList fn;
+    QUriDrag::decodeLocalFiles( &t, fn );
 
-    const char* urls = (const char* )data.data();
-    int size=0;
-    bool expectprotocol=TRUE;
-    bool ignore=FALSE;
-    uint i=0;
-
-    while (i < data.size()) {
-	if ( expectprotocol ) {
-	    if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
-		ignore = TRUE;
-	    } else {
-		i += protocol_len;
-		if ( urls[i] == '/' && urls[i+1] != '/' ) {
-		    // Host specified!
-		    ignore = TRUE;
-		}
-	    }
-	    expectprotocol = FALSE;
-	}
-	if ( !urls[i] ) {
-	    expectprotocol = TRUE;
-	} else if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
-	    i+=2;
-	}
-	if ( !ignore )
-	    size++;
-	i++;
+    int size = sizeof(DROPFILES)+2;
+    QStringList::Iterator i;
+    for ( i = fn.begin(); i!=fn.end(); ++i ) {
+	size += i->length()+1;
     }
 
-    size += sizeof(hdrop);
-    size += 2; // double-NUL
-    QByteArray result(size);
+    QByteArray result(size*sizeof(TCHAR));
+    DROPFILES* d = (DROPFILES*)result.data();
+    d->pFiles = sizeof(DROPFILES);
+    GetCursorPos(&d->pt); // try
+    d->fNC = TRUE;
+    d->fWide = TRUE;
+    const char* files = ((const char* )d) + d->pFiles;
+    WCHAR* f = (WCHAR*)files;
 
-    char* out = result.data();
-
-    memcpy(out, &hdrop, sizeof(hdrop));
-    out += sizeof(hdrop);
-
-    expectprotocol=TRUE;
-    ignore=FALSE;
-    i=0;
-    while (i < data.size()) {
-	if ( expectprotocol ) {
-	    if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
-		ignore = TRUE;
-	    } else {
-		i += protocol_len;
-		if ( urls[i] == '/' && urls[i+1] != '/' ) {
-		    // Host specified!
-		    ignore = TRUE;
-		}
-	    }
-	    expectprotocol = FALSE;
-	}
-	if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
-	    *out++ = htod(urls[i+1])*16 + htod(urls[i+2]);
-	} else {
-	    if ( !urls[i] )
-		expectprotocol = TRUE;
-	    if (!ignore) {
-		if ( urls[i] == '+' )
-		    *out++ = ' ';
-		else if ( urls[i] == '|' )
-		    *out++ = ':';
-		else
-		    *out++ = urls[i];
-	    }
-	}
-	i++;
+    for ( i = fn.begin(); i!=fn.end(); ++i ) {
+	int l = i->length();
+	memcpy(f, (WCHAR*)i->unicode(), l*sizeof(WCHAR));
+	for (int j = 0; j<l; j++)
+	    if ( f[j] == '/' )
+		f[j] = '\\';
+	f += i->length();
+	*f++ = 0;
     }
-    // double-NUL
-    *out++ = 0;
-    *out++ = 0;
-
-    ASSERT( result.data()+size == out );
+    *f++ = 0;
 
     return result;
 }
@@ -672,7 +582,7 @@ void QWindowsMime::initialize()
     if ( mimes.isEmpty() ) {
 	new QWindowsMimeImage;
 	new QWindowsMimeText;
-	new QWindowsMimeUrl;
+	new QWindowsMimeUri;
 	new QWindowsMimeAnyMime;
 	qAddPostRoutine(cleanup_mimes);
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#57 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -34,6 +34,31 @@ extern Qt::WindowsVersion qt_winver;
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;
+static bool user_wants_move = FALSE;
+
+/* OleStdGetDropEffect
+** -------------------
+**
+** Convert a keyboard state into a DROPEFFECT.
+**
+** returns the DROPEFFECT value derived from the key state.
+**    the following is the standard interpretation:
+**          no modifier -- Default Drop     (0 is returned)
+**          CTRL        -- DROPEFFECT_COPY
+**          SHIFT       -- DROPEFFECT_MOVE
+**          CTRL-SHIFT  -- DROPEFFECT_LINK
+**
+**    Default Drop: this depends on the type of the target application.
+**    this is re-interpretable by each target application. a typical
+**    interpretation is if the drag is local to the same document
+**    (which is source of the drag) then a MOVE operation is
+**    performed. if the drag is not local, then a COPY operation is
+**    performed.
+*/
+#define OleStdGetDropEffect(grfKeyState)    \
+    ( (grfKeyState & MK_CONTROL) ?          \
+        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
+        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
 
 // Returns a LPFORMATETC enumerating all CF's that ms can be produced.
 static
@@ -421,6 +446,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
 	break;
     }
+    allowed_effects |= DROPEFFECT_LINK;
     updatePixmap();
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
     QDragResponseEvent e( r == DRAGDROP_S_DROP );
@@ -428,12 +454,13 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     obj->Release();	// Will delete obj if refcount becomes 0
     src->Release();	// Will delete src if refcount becomes 0
 
+    current_dropobj = 0;
     dragSource = 0;
     global_src = 0;
     object = 0;
     updatePixmap();
 
-    return result_effect==DROPEFFECT_MOVE;
+    return r == DRAGDROP_S_DROP && result_effect == DROPEFFECT_MOVE;
 }
 
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
@@ -509,7 +536,9 @@ QOleDropSource::Release(void)
 STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-     if (fEscapePressed)
+    user_wants_move = OleStdGetDropEffect(grfKeyState) == DROPEFFECT_MOVE;
+
+    if (fEscapePressed)
         return ResultFromScode(DRAGDROP_S_CANCEL);
     else if (!(grfKeyState & MK_LBUTTON))
         return ResultFromScode(DRAGDROP_S_DROP);
@@ -527,7 +556,10 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 	    c = 0;
 	    break;
 	  case DROPEFFECT_COPY:
-	    c = 1;
+	    if ( user_wants_move )
+		c = 0;
+	    else
+		c = 1;
 	    break;
 	  case DROPEFFECT_LINK:
 	    c = 2;
@@ -794,8 +826,14 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     current_dropobj = pDataObj;
 
     QDragEnterEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
+    if ( *pdwEffect & DROPEFFECT_MOVE )
+	de.setAction( QDropEvent::Move );
+    else if ( *pdwEffect & DROPEFFECT_LINK )
+	de.setAction( QDropEvent::Link );
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
+    //if ( !de.isActionAccepted() )
+	//*pdwEffect = DROPEFFECT_COPY;
 
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
@@ -805,12 +843,18 @@ STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
+    if ( *pdwEffect & DROPEFFECT_MOVE )
+	de.setAction( QDropEvent::Move );
+    else if ( *pdwEffect & DROPEFFECT_LINK )
+	de.setAction( QDropEvent::Link );
     if ( acceptfmt )
 	de.accept();
     else
 	de.ignore();
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
+    //if ( !de.isActionAccepted() )
+	//*pdwEffect = DROPEFFECT_COPY;
 
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
@@ -836,7 +880,13 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	if ( global_src )
 	    global_src->setTarget(widget);
 	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
+	if ( *pdwEffect & DROPEFFECT_MOVE )
+	    de.setAction( QDropEvent::Move );
+	else if ( *pdwEffect & DROPEFFECT_LINK )
+	    de.setAction( QDropEvent::Link );
 	QApplication::sendEvent( widget, &de );
+	//if ( !de.isActionAccepted() )
+	    //*pdwEffect = DROPEFFECT_COPY;
 	DragLeave();
 	return NOERROR;
     }
@@ -844,30 +894,6 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
     *pdwEffect = DROPEFFECT_NONE;
     return ResultFromScode(DATA_E_FORMATETC);
 }
-
-/* OleStdGetDropEffect
-** -------------------
-**
-** Convert a keyboard state into a DROPEFFECT.
-**
-** returns the DROPEFFECT value derived from the key state.
-**    the following is the standard interpretation:
-**          no modifier -- Default Drop     (0 is returned)
-**          CTRL        -- DROPEFFECT_COPY
-**          SHIFT       -- DROPEFFECT_MOVE
-**          CTRL-SHIFT  -- DROPEFFECT_LINK
-**
-**    Default Drop: this depends on the type of the target application.
-**    this is re-interpretable by each target application. a typical
-**    interpretation is if the drag is local to the same document
-**    (which is source of the drag) then a MOVE operation is
-**    performed. if the drag is not local, then a COPY operation is
-**    performed.
-*/
-#define OleStdGetDropEffect(grfKeyState)    \
-    ( (grfKeyState & MK_CONTROL) ?          \
-        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
-        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
 
 //---------------------------------------------------------------------
 // QOleDropTarget::QueryDrop: Given key state, determines the type of
@@ -883,11 +909,13 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
 
     *pdwEffect = OleStdGetDropEffect(grfKeyState);
     if (*pdwEffect == 0) {
-        // No modifier keys used by user while dragging. Try in order: MOVE, COPY.
+        // No modifier keys used by user while dragging. Try in order: MOVE, COPY, LINK.
         if (DROPEFFECT_MOVE & dwOKEffects) {
             *pdwEffect = DROPEFFECT_MOVE;
         } else if (DROPEFFECT_COPY & dwOKEffects) {
             *pdwEffect = DROPEFFECT_COPY;
+        } else if (DROPEFFECT_LINK & dwOKEffects) {
+            *pdwEffect = DROPEFFECT_LINK;
 	}
         else goto dropeffect_none;
     }
@@ -897,8 +925,8 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
         if (!(*pdwEffect & dwOKEffects))
             goto dropeffect_none;
         // We don't accept links
-        if (*pdwEffect == DROPEFFECT_LINK)
-            goto dropeffect_none;
+        //if (*pdwEffect == DROPEFFECT_LINK)
+            //goto dropeffect_none;
     }
     return TRUE;
 

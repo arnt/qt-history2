@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#96 $
 **
 ** Implementation of event classes
 **
@@ -885,6 +885,10 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   also be acceptable if they remain within the rectangle \a r on the
   widget - this can improve performance, but may also be ignored by
   the underlying system.
+
+  If the rectangle \link QRect::isEmpty() is empty\endlink, then drag
+  move events will be sent continuously.  This is useful if the source is
+  scrolling in a timer event.
 */
 
 /*!

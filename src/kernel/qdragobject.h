@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#39 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#40 $
 **
 ** Definition of QDragObject
 **
@@ -39,7 +39,7 @@ class Q_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
 public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
-    ~QDragObject();
+    virtual ~QDragObject();
 
     bool drag();
     bool dragMove();

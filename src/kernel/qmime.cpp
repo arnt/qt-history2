@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#8 $
 **
 ** Implementation of MIME support
 **
@@ -62,6 +62,10 @@ QMimeSource::~QMimeSource()
   Returns TRUE if the object can provide the data
   in format \a mimeType.  The default implementation
   iterates over format().
+
+  Note that it is often better to use the more-abstract
+  canDecode() functions such as QTextDrag::canDecode()
+  and QImageDrag::canDecode().
 */
 bool QMimeSource::provides(const char* mimeType) const
 {

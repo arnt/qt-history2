@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#88 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -767,6 +767,15 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 	    // Ignore a failed move
 	    global_accepted_action = QDropEvent::Copy;
 	}
+	XClientMessageEvent finished;
+	finished.type = ClientMessage;
+	finished.window = qt_xdnd_dragsource_xid;
+	finished.format = 32;
+	finished.message_type = qt_xdnd_finished;
+	finished.data.l[0] = qt_xdnd_current_widget->topLevelWidget()->winId();
+	finished.data.l[1] = 0; // flags
+	XSendEvent( qt_xdisplay(), qt_xdnd_dragsource_xid, FALSE,
+		    NoEventMask, (XEvent*)&finished );
     }
     QDragLeaveEvent e;
     QApplication::sendEvent( qt_xdnd_current_widget, &e );
@@ -775,7 +784,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
 }
 
 
-void qt_handle_xdnd_finished( QWidget *, const XEvent * xe, bool passive )
+void qt_handle_xdnd_finished( QWidget *w, const XEvent * xe, bool passive )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
@@ -787,6 +796,8 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe, bool passive )
 	current_embedding_widget = 0;
 	qt_xdnd_current_target = 0;
 	qt_xdnd_current_proxy_target = 0;
+	delete qt_xdnd_source_object;
+	qt_xdnd_source_object = 0;
     }
 }
 
@@ -1201,8 +1212,7 @@ void QDragManager::drop()
     else
 	XSendEvent( qt_xdisplay(), qt_xdnd_current_proxy_target, FALSE, emask,
 		    (XEvent*)&drop );
-    qt_xdnd_current_target = 0;
-    qt_xdnd_current_proxy_target = 0;
+
     if ( restoreCursor ) {
 	QApplication::restoreOverrideCursor();
 	restoreCursor = FALSE;
@@ -1436,7 +1446,6 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	return FALSE;
 
     if ( object ) {
-debug("OLD OBJECT");
 	cancel();
 	qApp->removeEventFilter( this );
 	beingCancelled = FALSE;
