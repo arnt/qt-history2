@@ -76,8 +76,8 @@ protected:
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
 
-    bool fileAbsolute(QString &file);
-    bool fileAbsolute(QStringList &files);
+    bool fileFixify(QString &file);
+    bool fileFixify(QStringList &files);
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator() { }

@@ -43,6 +43,7 @@
 
 
 void fixEnvVariables(QString &x);
+void debug_msg(int level, const char *fmt, ...);
 
 struct Option
 {
@@ -67,6 +68,7 @@ struct Option
     static QString cachefile;
     static QString specfile;
     static QFile output;
+    static QString output_dir;
     
     static QStringList project_files;
 

@@ -61,16 +61,14 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	return TRUE;
 
     if(s == "}") {
-	if(Option::debug_level >= 1)
-	    printf("Project Parser: %s:%d : Leaving block %d\n", file.latin1(), line_count, scope_block);
+	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), line_count, scope_block);
 	scope_block--;
 	return TRUE;
     }
     else if(!(scope_flag & (0x01 << scope_block))) {
 	for(int i = (s.contains('{')-s.contains('}')); i; i--)
 	    scope_flag &= ~(0x01 << (++scope_block));
-	if(Option::debug_level >= 1)
-	    printf("Project Parser: %s:%d : Ignored due to block being false.\n", file.latin1(), line_count);
+	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.", file.latin1(), line_count);
 	return TRUE;
     }
 
@@ -118,9 +116,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    if(invert_test)
 		test = !test;
 	    if(!test && !scope_failed) {
-		if(Option::debug_level)
-		    printf("Project Parser: %s:%d : Test (%s%s) failed.\n", file.latin1(), line_count,
-			   invert_test ? "not " : "", scope.latin1());
+		debug_msg(1, "Project Parser: %s:%d : Test (%s%s) failed.", file.latin1(), line_count,
+			  invert_test ? "not " : "", scope.latin1());
 		scope_failed = TRUE;
 	    }
 	    if(*d == '{') {/* scoping block */
@@ -129,9 +126,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		else
 		    scope_flag &= ~(0x01 << (++scope_block));
 
-		if(Option::debug_level >= 1)
-		    printf("Project Parser: %s:%d : Entering block %d (%d).\n", file.latin1(), line_count,
-			   scope_block, !scope_failed);
+		debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", file.latin1(), line_count,
+			  scope_block, !scope_failed);
 	    }
 	}
 	else var += *d;
@@ -170,9 +166,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
 	    QString rep_var = UN_TMAKEIFY(vals.mid(rep + left, rep_len - (left + right)));
 	    const QString &replacement = place[rep_var].join(" ");
-	    if(Option::debug_level >= 2)
-		printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(),
-		       vals.mid(rep, rep_len).latin1(), replacement.latin1());
+	    debug_msg(2, "Project parser: (%s) :: %s -> %s", vals.latin1(),
+		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
 	    vals.replace(rep, rep_len, replacement);
 	}
     }
@@ -192,9 +187,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     vallist += QStringList::split(' ', vals);
 
     QStringList &varlist = place[var]; /* varlist is the list in the symbol table */
-    if(Option::debug_level)
-	printf("Project Parser: %s:%d :%s: :%s: (%s)\n", file.latin1(), line_count,
-	       var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
+    debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", file.latin1(), line_count,
+	      var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
 
     /* now do the operation */
     if(op == "~=") {
@@ -337,16 +331,14 @@ QMakeProject::read(QString project, QString pwd)
 	    Option::specfile.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
 	}
 
-	if(Option::debug_level)
-	    printf("MKSPEC file: reading %s\n", Option::specfile.latin1());
+	debug_msg(1, "MKSPEC file: reading %s", Option::specfile.latin1());
 
 	if(!read(Option::specfile, base_vars)) {
 	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", Option::specfile.latin1());
 	    return FALSE;
 	}
 	if(!cachefile.isEmpty()) {
-	    if(Option::debug_level)
-		printf("QMAKECACHE file: reading %s\n", cachefile.latin1());
+	    debug_msg(1, "QMAKECACHE file: reading %s", cachefile.latin1());
 	    read(cachefile, base_vars);
 	}
 
@@ -362,9 +354,7 @@ QMakeProject::read(QString project, QString pwd)
     }
 
     /* parse project file */
-    if(Option::debug_level)
-	printf("Project file: reading %s\n", project.latin1());
-
+    debug_msg(1, "Project file: reading %s", project.latin1());
     vars = base_vars; /* start with the base */
 
     pfile = project;
@@ -376,9 +366,7 @@ QMakeProject::read(QString project, QString pwd)
 
     /* now let the user override the template from an option.. */
     if(!Option::user_template.isEmpty()) {
-	if(Option::debug_level)
-	    fprintf(stderr, "Overriding TEMPLATE (%s) with: %s\n", vars["TEMPLATE"].first().latin1(),
-	    Option::user_template.latin1());
+	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), Option::user_template.latin1());
 	vars["TEMPLATE"].clear();
 	vars["TEMPLATE"].append(Option::user_template);
     }
@@ -463,8 +451,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 		file.replace(rep, rep_len, place[file.mid(rep + left, rep_len - (left+right))].join(" "));
 	}
 
-	if(Option::debug_level)
-	    printf("Project Parser: Including file %s.\n", file.latin1());
+	debug_msg(1, "Project Parser: Including file %s.", file.latin1());
 	int l = line_count;
 	bool r = read(file.latin1(), place);
 	if(r)

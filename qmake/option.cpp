@@ -65,6 +65,7 @@ QString Option::specfile;
 QString Option::cachefile;
 QStringList Option::user_vars;
 QFile Option::output;
+QString Option::output_dir;
 QStringList Option::project_files;
 
 
@@ -174,3 +175,16 @@ Option::fixPathToLocalOS(QString in)
 #endif
 }
 
+void debug_msg(int level, const char *fmt, ...)
+{
+    if(Option::debug_level < level)
+	return;
+    fprintf(stdout, "DEBUG %d: ", level);
+    {
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(stdout, fmt, ap);
+	va_end(ap);
+    }
+    fprintf(stdout, "\n");
+}
