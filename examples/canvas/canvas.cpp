@@ -146,6 +146,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     QMenuBar* menu = menuBar();
 
     QPopupMenu* file = new QPopupMenu;
+    file->insertItem("&Erase canvas", this, SLOT(clear()), CTRL+Key_E);
     file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
     file->insertSeparator();
     file->insertItem("&Quit", qApp, SLOT(quit()), CTRL+Key_Q);
@@ -197,6 +198,16 @@ void Main::newView()
     qApp->setMainWidget(m);
     m->show();
     qApp->setMainWidget(0);
+}
+
+void Main::clear()
+{
+    QCanvasItemList list = canvas.allItems();
+    QCanvasItemList::Iterator it = list.begin();
+    for (; it != list.end(); ++it) {
+	if ( *it )
+	    delete *it;
+    }
 }
 
 void Main::help()

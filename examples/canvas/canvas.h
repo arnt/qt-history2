@@ -46,6 +46,7 @@ public slots:
 private slots:
     void aboutQt();
     void newView();
+    void clear();
 
     void addSprite();
     void addCircle();
