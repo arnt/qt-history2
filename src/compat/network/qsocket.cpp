@@ -596,6 +596,11 @@ void QSocketPrivate::connectToNextAddress()
                addr.toString().latin1(), port);
 #endif
 
+        // If we're already in connecting state, we need to reset the
+        // socket device.
+        if (state == QSocket::Connecting)
+            internalSetSocketDevice(0);
+
         // try connecting (nonblocking).  if the connect failed but
         // there was no error, the write socket notifier will fire at
         // a point where we should call connect() again. wsn is
