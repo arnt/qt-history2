@@ -75,7 +75,6 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 void QAbstractItemViewPrivate::init()
 {
     q->setSelectionModel(new QItemSelectionModel(model, q));
-    q->setItemDelegate(new QItemDelegate(model, q));
 
     QObject::connect(model, SIGNAL(contentsChanged(QModelIndex,QModelIndex)),
                      q, SLOT(contentsChanged(QModelIndex,QModelIndex)));
@@ -553,16 +552,20 @@ void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &
 
 QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 {
+    if (!d->delegate)
+        d->delegate = new QItemDelegate(d->model, const_cast<QAbstractItemView *>(this));
     return d->delegate;
 }
 
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-//     if (delegate->model() != model()) {
-//          qWarning("QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
-//                    "which works on a different model than the view.");
-//          return;
-//     }
+    if (delegate->model() != model()) {
+         qWarning("QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
+                   "which works on a different model than the view.");
+         return;
+    }
+    if (d->delegate && d->delegate->parent() == this)
+        delete d->delegate;
     d->delegate = delegate;
 }
 
