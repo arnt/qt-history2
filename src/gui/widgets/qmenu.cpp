@@ -1636,7 +1636,10 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             }
         }
         if(!key_consumed && key == Qt::Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
+            QPointer<QWidget> caused = d->causedPopup;
             hide();
+            if(caused) 
+                caused->setFocus();
             key_consumed = true;
         }
         break; }
@@ -1652,10 +1655,13 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             return;
         }
         {
-            QWidget *caused = d->causedPopup;
+            QPointer<QWidget> caused = d->causedPopup;
             hide(); //hide after getting causedPopup
-            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused))
-                mb->d->setCurrentAction(d->menuAction); // not sure why this is necessary at all, but it is ###
+            if(caused) {
+                if(QMenuBar *mb = qt_cast<QMenuBar*>(caused))
+                    mb->d->setCurrentAction(d->menuAction);
+                caused->setFocus();
+            }
         }
         break;
 

@@ -1446,7 +1446,7 @@ void QWidget::hide_sys()
             ShowHide(window, false);
             d->toggleDrawers(false);
         }
-        if(isActiveWindow()) {
+        if(isActiveWindow() && !isPopup()) {
             QWidget *w = 0;
             if(parentWidget())
                 w = parentWidget()->topLevelWidget();
