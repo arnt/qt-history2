@@ -31,6 +31,8 @@ struct QVFbHeader
     bool dirty;
     int  numcols;
     QRgb clut[256];
+    int viewerVersion;
+    int serverVersion;
 };
 
 struct QVFbKeyData

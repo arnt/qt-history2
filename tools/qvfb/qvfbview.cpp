@@ -323,7 +323,9 @@ void QVFbView::sendMouseData( const QPoint &pos, int buttons, int wheel )
 {
     write( mouseFd, &pos, sizeof( QPoint ) );
     write( mouseFd, &buttons, sizeof( int ) );
-    write( mouseFd, &wheel, sizeof( int ) );
+    if (hdr->serverVersion >= 0x040000) {
+        write( mouseFd, &wheel, sizeof( int ) );
+    }
 }
 
 void QVFbView::sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
