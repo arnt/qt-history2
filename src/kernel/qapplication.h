@@ -190,7 +190,7 @@ public:
     static bool reverseLayout();
 
     static int horizontalAlignment( int align );
-    
+
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
@@ -253,6 +253,7 @@ private:
     void	     initialize( int, char ** );
     void	     init_precmdline();
     void	     process_cmdline( int* argcptr, char ** argv );
+    bool	     internalNotify( QObject *, QEvent * );
 #if defined(_WS_QWS_)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );

@@ -2912,7 +2912,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			       globalPos, button, state );
-		qt_propagateMouseEvent( popupButtonFocus, & e );
+		QApplication::sendEvent( popupButtonFocus, & e );
 		if ( releaseAfter ) {
 		    popupButtonFocus = 0;
 		    popupOfPopupButtonFocus = 0;
@@ -2920,10 +2920,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    } else if ( popupChild ) {
 		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
 			       globalPos, button, state );
-		qt_propagateMouseEvent( popupChild, & e );
+		QApplication::sendEvent( popupChild, & e );
 	    } else {
 		QMouseEvent e( type, pos, globalPos, button, state );
-		qt_propagateMouseEvent( popupChild ? popupChild : popup, & e );
+		QApplication::sendEvent( popupChild ? popupChild : popup, & e );
 	    }
 
 	    if ( releaseAfter )
@@ -2981,7 +2981,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    } else
 #endif
 		{
-		    qt_propagateMouseEvent( widget, &e );
+		    QApplication::sendEvent( widget, &e );
 		}
 	}
 	// }
@@ -3046,7 +3046,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     //###### TODO lacks AccelOverride functionality, see qapplication_x11 for details
 
 
-    return qt_propagateKeyEvent( this, &e );
+    return QApplication::sendEvent( this, &e );
 }
 
 void QETWidget::repaintHierarchy(QRegion r)

@@ -1589,8 +1589,11 @@ void QApplication::closeAllWindows()
 */
 
 /*!
-  Sends \a event to \a receiver: <code>receiver->event( event )</code>
+  Sends event \a e to \a receiver: <code>receiver->event( event )</code>
   Returns the value that is returned from the receiver's event handler.
+  
+  ##### TODO this function now does propagation of mouse, wheel and
+  key events
 
   Reimplementing this virtual function is one of five ways to process
   an event: <ol> <li> Reimplementing this function.  Very powerful,
@@ -1618,7 +1621,7 @@ void QApplication::closeAllWindows()
   \sa QObject::event(), installEventFilter()
 */
 
-bool QApplication::notify( QObject *receiver, QEvent *event )
+bool QApplication::notify( QObject *receiver, QEvent *e )
 {
     // no events are delivered after ~QApplication has started
     if ( is_app_closing )
@@ -1631,14 +1634,8 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	return FALSE;
     }
 
-#if 0
-    if ( qdevel && event->type() == QEvent::Reparent
-	 && receiver->isWidgetType()
-	 && ((QWidget*)receiver)->isTopLevel() )
-	qdevel->addTopLevelWidget( (QWidget*)receiver );
-#endif
 
-    if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved &&
+    if ( receiver->pendEvent && e->type() == QEvent::ChildRemoved &&
 	 postedEvents ) {
 	// if this is a child remove event and the child insert hasn't been
 	// dispatched yet, kill that insert and return.
@@ -1647,7 +1644,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	     ((QWidget*)receiver)->extra &&
 	     ((QWidget*)receiver)->extra->posted_events )
 	    l = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
-	QObject * c = ((QChildEvent*)event)->child();
+	QObject * c = ((QChildEvent*)e)->child();
 	QPostEvent * pe;
 	l->first();
 	while( ( pe = l->current()) != 0 ) {
@@ -1664,36 +1661,128 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	    l->next();
 	}
     }
+    
+    bool res = FALSE;
+    if ( !receiver->isWidgetType() )
+	res = internalNotify( receiver, e );
+    else switch ( e->type() ) {
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::AccelOverride: 
+	{
+	    QWidget* w = (QWidget*)receiver;
+	    QKeyEvent* key = (QKeyEvent*) e;
+	    bool def = key->isAccepted();
+	    while ( w ) {
+		if ( def )
+		    key->accept();
+		else
+		    key->ignore();
+		res = internalNotify( w, e );
+		if ( res || w->isTopLevel() )
+		    break;
+		w = w->parentWidget();
+	    }
+	}
+	break;
+	
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseMove: 
+	{
+	    QWidget* w = (QWidget*)receiver;
+	    QMouseEvent* mouse = (QMouseEvent*) e;
+	    QMouseEvent* t, *ev = mouse;
+	    while ( w ) {
+		ev->accept();
+		internalNotify( w, ev );
+		if ( mouse->isAccepted() || w->isTopLevel() )
+		    break;
+		t = ev;
+		ev = new QMouseEvent( t->type(), t->pos() + w->pos(), t->globalPos(), t->button(), t->state() );
+		if ( t != mouse )
+		    delete t;
+		w = w->parentWidget();
+	    }
+	    if ( ev != e ) {
+		if ( ev->isAccepted() )
+		    mouse->accept();
+		else
+		    mouse->ignore();
+		delete ev;
+	    }
+	    res = mouse->isAccepted();
+	}
+	break;
+    case QEvent::Wheel:
+	{
+	    QWidget* w = (QWidget*)receiver;
+	    QWheelEvent* wheel = ( QWheelEvent*) e;
+	    QWheelEvent* t, *ev = wheel;
+	    while ( w ) {
+		ev->accept();
+		internalNotify( w, e );
+		if ( ev->isAccepted() || w->isTopLevel() )
+		    break;
+		t = ev;
+		ev = new QWheelEvent( t->pos() + w->pos(), t->globalPos(), t->delta(), t->state() );
+		if ( t != wheel )
+		    delete t;
+		w = w->parentWidget();
+	    }
+	    if ( e != wheel ) {
+		if ( ev->isAccepted() )
+		    wheel->accept();
+		else
+		    wheel->ignore();
+		delete ev;
+	    }
+	    res = wheel->isAccepted();
+	}
+	break;
+    default:
+	res = internalNotify( receiver, e );
+	break;
+    }
 
+    return res;
+}
+
+
+/*!\internal
+  
+  Helper function called by notify()
+ */
+bool QApplication::internalNotify( QObject *receiver, QEvent * e)
+{
     if ( eventFilters ) {
 	QObjectListIt it( *eventFilters );
 	register QObject *obj;
 	while ( (obj=it.current()) != 0 ) {	// send to all filters
 	    ++it;				//   until one returns TRUE
-	    if ( obj->eventFilter(receiver,event) )
+	    if ( obj->eventFilter(receiver,e) )
 		return TRUE;
 	}
     }
 
     // throw away mouse events to disabled widgets
-    if ( event->type() <= QEvent::MouseMove &&
-	 event->type() >= QEvent::MouseButtonPress &&
+    if ( e->type() <= QEvent::MouseMove &&
+	 e->type() >= QEvent::MouseButtonPress &&
 	 ( receiver->isWidgetType() &&
 	   !((QWidget *)receiver)->isEnabled() ) ) {
-	( (QMouseEvent*) event)->ignore();
+	( (QMouseEvent*) e)->ignore();
 	return FALSE;
     }
 
     // throw away any mouse-tracking-only mouse events
-    if ( event->type() == QEvent::MouseMove &&
-	 (((QMouseEvent*)event)->state()&QMouseEvent::MouseButtonMask) == 0 &&
+    if ( e->type() == QEvent::MouseMove &&
+	 (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
 	 ( receiver->isWidgetType() &&
 	   !((QWidget *)receiver)->hasMouseTracking() ) )
 	return TRUE;
 
-    return receiver->event( event );
+    return receiver->event( e );
 }
-
 
 /*!
   Returns TRUE if an application object has not been created yet.
@@ -2369,7 +2458,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	if ( w->topLevelWidget() == old_active || w->topLevelWidget()==active_window ) {
 	    QColorGroup acg = w->palette().active();
 	    QColorGroup icg = w->palette().inactive();
-	    if ( acg != icg && 
+	    if ( acg != icg &&
 		 ( acg.background() != icg.background() ||
 		   acg.base() != icg.base() ||
 		   acg.button() != icg.button() ||
@@ -2424,7 +2513,7 @@ void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     }
     return;
 #endif
-    
+
     QWidget* w ;
     if ( !enter && !leave )
 	return;
@@ -2486,71 +2575,6 @@ void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     QEvent enterEvent( QEvent::Enter );
     for ( w = enterList.first(); w; w = enterList.next() )
 	QApplication::sendEvent( w, &enterEvent );
-}
-
-
-bool  qt_propagateKeyEvent( QWidget* w, QKeyEvent* e )
-{
-    bool def = e->isAccepted();
-    while ( w ) {
-	if ( def )
-	    e->accept();
-	else
-	    e->ignore();
-	QApplication::sendEvent( w, e );
-	if ( e->isAccepted() || w->isTopLevel() )
-	    break;
-	w = w->parentWidget();
-    }
-    return e->isAccepted();
-}
-
-bool  qt_propagateMouseEvent( QWidget* w, QMouseEvent* ev )
-{
-    QMouseEvent* t, *e = ev;
-    while ( w ) {
-	e->accept();
-	QApplication::sendEvent( w, e );
-	if ( e->isAccepted() || w->isTopLevel() )
-	    break;
-	t = e;
-	e = new QMouseEvent( t->type(), t->pos() + w->pos(), t->globalPos(), t->button(), t->state() );
-	if ( t != ev )
-	    delete t;
-	w = w->parentWidget();
-    }
-    if ( e != ev ) {
-	if ( e->isAccepted() )
-	    ev->accept();
-	else 
-	    ev->ignore();
-	delete e;
-    }
-    return ev->isAccepted();
-}
-
-bool  qt_propagateWheelEvent( QWidget* w, QWheelEvent* ev )
-{
-    QWheelEvent* t, *e = ev;
-    while ( w ) {
-	e->accept();
-	QApplication::sendEvent( w, e );
-	if ( e->isAccepted() || w->isTopLevel() )
-	    break;
-	t = e;
-	e = new QWheelEvent( t->pos() + w->pos(), t->globalPos(), t->delta(), t->state() );
-	if ( t != ev )
-	    delete t;
-	w = w->parentWidget();
-    }
-    if ( e != ev ) {
-	if ( e->isAccepted() )
-	    ev->accept();
-	else 
-	    ev->ignore();
-	delete e;
-    }
-    return ev->isAccepted();
 }
 
 
@@ -3222,7 +3246,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn int QApplication::horizontalAlignment( int align )
 
-  Strips out vertical alignment flags and transforms an 
+  Strips out vertical alignment flags and transforms an
   alignment \e align of AlignAuto into AlignLeft or
   AlignRight according to the language used. The other horizontal
   alignment flags are left untouched.

@@ -3881,14 +3881,20 @@ bool QWidget::event( QEvent *e )
 
 	case QEvent::MouseMove:
 	    mouseMoveEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
 	    break;
 
 	case QEvent::MouseButtonPress:
 	    mousePressEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
 	    break;
 
 	case QEvent::MouseButtonRelease:
 	    mouseReleaseEvent( (QMouseEvent*)e );
+	    if ( ! ((QMouseEvent*)e)->isAccepted() )
+		return FALSE;
 	    break;
 
 	case QEvent::MouseButtonDblClick:

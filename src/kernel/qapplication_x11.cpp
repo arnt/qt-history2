@@ -3832,7 +3832,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			   globalPos, button, state );
-	    qt_propagateMouseEvent( popupButtonFocus, &e );
+	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter ) {
 		popupButtonFocus = 0;
 		popupOfPopupButtonFocus = 0;
@@ -3840,10 +3840,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	} else if ( popupChild ) {
 	    QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
 			   globalPos, button, state );
-	    qt_propagateMouseEvent( popupChild, &e );
+	    QApplication::sendEvent( popupChild, &e );
 	} else {
 	    QMouseEvent e( type, pos, globalPos, button, state );
-	    qt_propagateMouseEvent( popupChild ? popupChild : popup, &e );
+	    QApplication::sendEvent( popupChild ? popupChild : popup, &e );
 	}
 
 	if ( releaseAfter )
@@ -3889,7 +3889,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 
 	QMouseEvent e( type, pos, globalPos, button, state );
-	qt_propagateMouseEvent( widget, &e );
+	QApplication::sendEvent( widget, &e );
     }
     return TRUE;
 }
@@ -3917,7 +3917,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
 		       QPoint(global_x, global_y), delta, state );
-	if ( qt_propagateWheelEvent( w, &e ) )
+	if ( QApplication::sendEvent( w, &e ) )
 	    return TRUE;
     }
 
@@ -3928,7 +3928,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
 		       QPoint(global_x, global_y), delta, state );
-	if ( qt_propagateWheelEvent( w, &e ) )
+	if ( QApplication::sendEvent( w, &e ) )
 	    return TRUE;
     }
     return FALSE;
@@ -4326,7 +4326,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
 		      QMAX(count, int(text.length())) );
 	aa.ignore();
-	qt_propagateKeyEvent( this, &aa );
+	QApplication::sendEvent( this, &aa );
 	if ( !aa.isAccepted() ) {
 	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor,
 			 QMAX(count, int(text.length())) );
@@ -4336,7 +4336,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		return TRUE;
 	}
     }
-    return qt_propagateKeyEvent( this, &e );
+    return QApplication::sendEvent( this, &e );
 }
 
 

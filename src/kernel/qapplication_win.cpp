@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#419 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#420 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1283,7 +1283,7 @@ int QApplication::exec()
 		delete w;
 	}
     }
-    
+
     return quit_code;
 }
 
@@ -2367,7 +2367,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type,
 		popupButtonFocus->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
-	    qt_propagateMouseEvent( popupButtonFocus, &e );
+	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter ) {
 		popupButtonFocus = 0;
 	    }
@@ -2375,10 +2375,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QMouseEvent e( type,
 		popupChild->mapFromGlobal(QPoint(gpos.x,gpos.y)),
 		QPoint(gpos.x,gpos.y), button, state );
-	    qt_propagateMouseEvent( popupChild, &e );
+	    QApplication::sendEvent( popupChild, &e );
 	} else {
 	    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	    qt_propagateMouseEvent( popupChild ? popupChild : popup, &e );
+	    QApplication::sendEvent( popupChild ? popupChild : popup, &e );
 	}
 
 	if ( releaseAfter )
@@ -2437,7 +2437,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    qt_button_down = 0;
 	}
 	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	qt_propagateMouseEvent( widget, &e );
+	QApplication::sendEvent( widget, &e );
 	if ( type != QEvent::MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression
     }
@@ -2851,7 +2851,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	if ( popup && w != popup )
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
-	if ( qt_propagateWheelEvent( w, &e ) )
+	if ( QApplication::sendEvent( w, &e ) )
 	    return TRUE;
     }
 
@@ -2861,7 +2861,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	if ( popup && w != popup )
 	    popup->hide();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state );
-	if ( qt_propagateWheelEvent( w, &e ) )
+	if ( QApplication::sendEvent( w, &e ) )
 	    return TRUE;
     }
     return FALSE;
@@ -2880,7 +2880,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( type == QEvent::KeyPress && !grab ) {	// send accel events
 	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor );
 	aa.ignore();
-	qt_propagateKeyEvent( this, &aa );
+	QApplication::sendEvent( this, &aa );
 	if ( !aa.isAccepted() ) {
 	    QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor );
 	    a.ignore();
@@ -2892,7 +2892,7 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code, int ascii,
     if ( !isEnabled() )
 	return FALSE;
     QKeyEvent e( type, code, ascii, state, text, autor );
-    qt_propagateKeyEvent( this, &e );
+    QApplication::sendEvent( this, &e );
     if ( !isModifierKey(code) && state == QMouseEvent::AltButton
 	 && ((code>=Key_A && code<=Key_Z) || (code>=Key_0 && code<=Key_9))
 	 && type == QEvent::KeyPress && !e.isAccepted() )
