@@ -467,9 +467,6 @@ inline QWidget *QWidgetMapper::find( WId id )
 
 inline void QWidgetMapper::insert( const QWidget *widget )
 {
-#ifdef Q_OS_MAC
-    qDebug("Insert for %d\n",(int)widget->winId());
-#endif
     QWidgetIntDict::insert((long)widget->winId(),widget);
 }
 
@@ -479,9 +476,6 @@ inline bool QWidgetMapper::remove( WId id )
 	cur_id = 0;
 	cur_widget = 0;
     }
-#ifdef Q_OS_MAC
-    qDebug("Remove for %d\n",(int)id);
-#endif
     return QWidgetIntDict::remove((long)id);
 }
 

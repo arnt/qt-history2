@@ -280,144 +280,18 @@ int qWinVersion()
 static QtMsgHandler handler = 0;			// pointer to debug handler
 
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MAC9
 
-static FILE * mac_debug=0;
+#include "qt_mac.h"
+const unsigned char * p_str(const char * c);
 
-void qDebug( const char *msg, ... )
+static void mac_default_handler(const char *msg)
 {
-    mac_debug=fopen( "debug.txt", "a+" );
-    if(mac_debug) {
-	char buf[8196];
-	va_list ap;
-	va_start( ap, msg );			// use variable arg list
-	if ( handler ) {
-	    vsnprintf( buf, 512, msg, ap );
-	    va_end( ap );
-	    (*handler)( QtDebugMsg, buf );
-	} else {
-	    vfprintf( mac_debug, msg, ap );
-	    va_end( ap );
-	    fprintf( mac_debug, "\n" );		// add newline
-	    fflush( mac_debug );
-	}
-	fclose(mac_debug);
-    } else {
-	exit(0);
-    }
+      DebugStr(p_str(msg));	
 }
 
-// copied... this looks really bad.
-void debug( const char *msg, ... )
-{
-    mac_debug=fopen( "debug.txt", "a+" );
-    if(mac_debug) {
-	char buf[8196];
-	va_list ap;
-	va_start( ap, msg );			// use variable arg list
-	if ( handler ) {
-	    vsnprintf( buf, 512, msg, ap );
-	    va_end( ap );
-	    (*handler)( QtDebugMsg, buf );
-	} else {
-	    vfprintf( mac_debug, msg, ap );
-	    va_end( ap );
-	    fprintf( mac_debug, "\n" );		// add newline
-	    fflush( mac_debug );
-	}
-	fclose(mac_debug);
-    }
-}
+#endif
 
-void qWarning( const char *msg, ... )
-{
-    mac_debug=fopen( "debug.txt", "a+" );
-    if(mac_debug) {
-	char buf[8196];
-	va_list ap;
-	va_start( ap, msg );			// use variable arg list
-	if ( handler ) {
-	    vsnprintf( buf, 512, msg, ap );
-	    va_end( ap );
-	    (*handler)( QtDebugMsg, buf );
-	} else {
-	    vfprintf( mac_debug, msg, ap );
-	    va_end( ap );
-	    fprintf( mac_debug, "\n" );		// add newline
-	    fflush( mac_debug );
-	}
-	fclose(mac_debug);
-    }
-}
-
-// copied... this looks really bad.
-void warning( const char *msg, ... )
-{
-    mac_debug=fopen( "debug.txt", "a+" );
-    if(mac_debug) {
-	char buf[8196];
-	va_list ap;
-	va_start( ap, msg );			// use variable arg list
-	if ( handler ) {
-	    vsnprintf( buf, 512, msg, ap );
-	    va_end( ap );
-	    (*handler)( QtDebugMsg, buf );
-	} else {
-	    vfprintf( mac_debug, msg, ap );
-	    va_end( ap );
-	    fprintf( mac_debug, "\n" );		// add newline
-	    fflush( mac_debug );
-	}
-	fclose(mac_debug);
-    }
-}
-
-void qFatal( const char *msg, ... )
-{
-    mac_debug=fopen( "debug.txt", "a+");
-    if(mac_debug) {
-	char buf[8196];
-	va_list ap;
-	va_start( ap, msg );			// use variable arg list
-	if ( handler ) {
-	    vsnprintf( buf, 512, msg, ap );
-	    va_end( ap );
-	    (*handler)( QtDebugMsg, buf );
-	} else {
-	    vfprintf( mac_debug, msg, ap );
-	    va_end( ap );
-	    fprintf( mac_debug, "\n" );		// add newline
-	    fflush( mac_debug );
-	}
-	fclose(mac_debug);
-    }
-    exit(0);
-}
-
-// copied... this looks really bad.
-void fatal( const char *msg, ... )
-{
-    mac_debug=fopen( "debug.txt", "a+" );
-    if(mac_debug) {
-	char buf[8196];
-	va_list ap;
-	va_start( ap, msg );			// use variable arg list
-	if ( handler ) {
-	    vsnprintf( buf, 512, msg, ap );
-	    va_end( ap );
-	    (*handler)( QtDebugMsg, buf );
-	} else {
-	    vfprintf( mac_debug, msg, ap );
-	    va_end( ap );
-	    fprintf( mac_debug, "\n" );		// add newline
-	    fflush( mac_debug );
-	}
-	fclose(mac_debug);
-    }
-    exit(0);
-}
-
-#else
 
 void qDebug( const char *msg, ... )
 {
@@ -429,9 +303,15 @@ void qDebug( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
+#ifdef Q_OS_MAC9
+	vsprintf( buf, msg, ap );		
+	va_end( ap );
+        mac_default_handler(buf);
+#else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif
     }
 }
 
@@ -446,9 +326,15 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
+#ifdef Q_OS_MAC9
+	vsprintf( buf, msg, ap );		
+	va_end( ap );
+        mac_default_handler(buf);
+#else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif
     }
 }
 
@@ -462,9 +348,15 @@ void qWarning( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
+#ifdef Q_OS_MAC9
+	vsprintf( buf, msg, ap );		
+	va_end( ap );
+        mac_default_handler(buf);
+#else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif
     }
 }
 
@@ -480,9 +372,15 @@ void warning( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
+#ifdef Q_OS_MAC9
+	vsprintf( buf, msg, ap );		
+	va_end( ap );
+        mac_default_handler(buf);
+#else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif
     }
 }
 
@@ -496,9 +394,15 @@ void qFatal( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
+#ifdef Q_OS_MAC9
+	vsprintf( buf, msg, ap );		
+	va_end( ap );
+        mac_default_handler(buf);
+#else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif    
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
 #else
@@ -518,9 +422,15 @@ void fatal( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
+#ifdef Q_OS_MAC9
+	vsprintf( buf, msg, ap );		
+	va_end( ap );
+        mac_default_handler(buf);
+#else
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif    
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
 #else
@@ -528,8 +438,6 @@ void fatal( const char *msg, ... )
 #endif
     }
 }
-
-#endif
 
 
 /*!
