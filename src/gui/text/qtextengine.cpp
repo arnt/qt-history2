@@ -1162,11 +1162,7 @@ QFont QTextEngine::font() const
 QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
 {
     if (!fnt) {
-        Q_ASSERT(formats);
-        QTextFormat f = formats->format(si.format);
-        Q_ASSERT(f.isCharFormat());
-        QTextCharFormat chf = f.toCharFormat();
-        QFont font = chf.font();
+        QFont font = this->font(si);
         return font.d->engineForScript((QFont::Script)si.analysis.script);
     }
     return fnt->engineForScript((QFont::Script)si.analysis.script);
