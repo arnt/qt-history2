@@ -19,6 +19,7 @@
 #include "layout.h"
 
 #include <abstractformeditor.h>
+#include <abstractwidgetfactory.h>
 #include <propertysheet.h>
 #include <qextensionmanager.h>
 
@@ -251,7 +252,7 @@ void QLayoutWidget::updateMargin()
     if (!layout())
         return;
 
-#if 0
+#if 0 // ### fix me
     if (qt_cast<QLayoutWidget*>(parentWidget())) {
         layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultChildMargin, 0, 0));
         qDebug() << "use default-child margin";
@@ -283,8 +284,10 @@ bool QLayoutWidget::event(QEvent *e)
 
         case QEvent::LayoutRequest: {
             bool rtn = QWidget::event(e);
+#if 0 // ### fix me
             if (LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
                 resize(layout()->sizeHint());
+#endif
             update();
             return rtn;
         }
@@ -555,16 +558,16 @@ void QLayoutSupport::insertWidget(QWidget *widget)
         } break;
 
         case LayoutInfo::Grid: {
-            QGridLayout *g = qt_cast<QGridLayout*>(layout());
+            QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
             QPoint pos = widget->pos();
             int index = findItemAt(pos);
             if (index != -1) {
-                QLayoutItem *item = layout()->itemAt(index);
+                QLayoutItem *item = gridLayout->itemAt(index);
                 if (item && item->spacerItem()) {
                     int row, column, rowspan, colspan;
-                    g->getItemPosition(index, &row, &column, &rowspan, &colspan);
-                    g->takeAt(index);
-                    g->addWidget(widget, row, column, rowspan, colspan);
+                    gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
+                    gridLayout->takeAt(index);
+                    gridLayout->addWidget(widget, row, column, rowspan, colspan);
                     delete item;
                     return;
                 }
@@ -577,74 +580,6 @@ void QLayoutSupport::insertWidget(QWidget *widget)
         default:
             Q_ASSERT(0);
     } // end switch
-
-#if 0
-    qDebug() << "QLayoutSupport::insertWidget:" << widget;
-
-    QPoint pos = widget->pos();
-    int index = findItemAt(pos);
-
-    qDebug() << "position:" << pos << "index:" << index
-        << "isEmpty:" << (index != -1 ? layout()->itemAt(index)->spacerItem() : 0);
-
-    if (!qt_cast<QGridLayout*>(layout())) {
-        qWarning("not implemented yet!");
-        Q_ASSERT(0);
-    }
-
-    if (index != -1) {
-        QLayoutItem *item = layout()->itemAt(index);
-        if (QSpacerItem *spacer = item->spacerItem()) {
-
-            QGridLayout *g = qt_cast<QGridLayout*>(layout());
-            int row, column, rowspan, colspan;
-            g->getItemPosition(index, &row, &column, &rowspan, &colspan);
-
-            layout()->takeAt(index);
-            g->addWidget(widget, row, column, rowspan, colspan);
-            delete item;
-
-            update();
-        } else {
-            Q_ASSERT(item->layout() == 0);
-
-            QGridLayout *g = qt_cast<QGridLayout*>(layout());
-            int row, column, rowspan, colspan;
-            g->getItemPosition(index, &row, &column, &rowspan, &colspan);
-            insertRow(g, row);
-            qDebug() << "===============> insert row at:" << row;
-            insertWidget(widget);
-        }
-    }
-#endif
-}
-
-void QLayoutSupport::insertRow(QGridLayout *gridLayout, int row)
-{
-    qDebug() << "insertRow:" << row;
-
-    QHash<QLayoutItem*, QRect> infos;
-    computeGridLayout(gridLayout, &infos);
-
-    QHashMutableIterator<QLayoutItem*, QRect> it(infos);
-    while (it.hasNext()) {
-        it.next();
-
-        QRect info = it.value();
-        qDebug() << "widget:" << it.key()->widget() << "info:" << info;
-        if (info.y() > row) {
-            info.translate(0, 1);
-            it.setValue(info);
-            qDebug() << "move item:" << it.key()->widget();
-        }
-    }
-
-    for (int c = 0; c < gridLayout->columnCount(); ++c) {
-        infos.insert(new QSpacerItem(0,0), QRect(c, row + 1, 1, 1));
-        qDebug() << "inserted fake spacer at:" << QRect(c, row + 1, 1, 1);
-    }
-
-    rebuildGridLayout(gridLayout, infos);
 }
 
 void QLayoutSupport::createEmptyCells(QGridLayout *gridLayout)
@@ -694,10 +629,28 @@ void QLayoutSupport::createEmptyCells(QGridLayout *gridLayout)
     }
 }
 
+void QLayoutSupport::insertRow(QGridLayout *gridLayout, int row)
+{
+    QHash<QLayoutItem*, QRect> infos;
+    computeGridLayout(gridLayout, &infos);
+
+    QHashMutableIterator<QLayoutItem*, QRect> it(infos);
+    while (it.hasNext()) {
+        it.next();
+
+        QRect info = it.value();
+        if (info.y() >= row) {
+            info.translate(0, 1);
+            it.setValue(info);
+        }
+    }
+
+    rebuildGridLayout(gridLayout, infos);
+    createEmptyCells(gridLayout);
+}
+
 void QLayoutSupport::insertColumn(QGridLayout *gridLayout, int column)
 {
-    qDebug() << "insertColumn:" << column;
-
     QHash<QLayoutItem*, QRect> infos;
     computeGridLayout(gridLayout, &infos);
 
@@ -707,18 +660,15 @@ void QLayoutSupport::insertColumn(QGridLayout *gridLayout, int column)
 
         QRect info = it.value();
 
-        if (info.x() > column) {
+        if (info.x() >= column) {
             info.translate(1, 0);
             it.setValue(info);
         }
     }
 
-    for (int r = 0; r < gridLayout->rowCount(); ++r)
-        infos.insert(new QSpacerItem(0, 0), QRect(column + 1, r, 1, 1));
-
     rebuildGridLayout(gridLayout, infos);
+    createEmptyCells(gridLayout);
 }
-
 
 QRect QLayoutSupport::itemInfo(int index) const
 {
@@ -765,7 +715,7 @@ void QLayoutSupport::computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutIte
     }
 }
 
-void QLayoutSupport::rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLayoutItem*, QRect> &infos)
+void QLayoutSupport::rebuildGridLayout(QGridLayout *&gridLayout, const QHash<QLayoutItem*, QRect> &infos)
 {
     { // take the items
         int index = 0;
@@ -773,8 +723,12 @@ void QLayoutSupport::rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLay
             gridLayout->takeAt(index);
     }
 
+    Q_ASSERT(gridLayout == m_widget->layout());
+
+    AbstractFormEditor *core = formWindow()->core();
+    LayoutInfo::deleteLayout(core, m_widget);
     delete gridLayout;
-    QGridLayout *g = new QGridLayout(widget());
+    gridLayout = (QGridLayout*) core->widgetFactory()->createLayout(m_widget, 0, LayoutInfo::Grid);
 
     QHashIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
@@ -782,10 +736,7 @@ void QLayoutSupport::rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLay
 
         QRect info = it.value();
 
-        g->addItem(it.key(), info.y(), info.x(),
+        gridLayout->addItem(it.key(), info.y(), info.x(),
                 info.height(), info.width());
     }
-
-    g->invalidate();
-    qApp->processEvents();
 }

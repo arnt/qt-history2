@@ -36,7 +36,7 @@ class QT_FORMEDITOR_EXPORT QDesignerWidget : public QWidget
 public:
     QDesignerWidget(FormWindow* formWindow, QWidget *parent = 0);
     virtual ~QDesignerWidget();
-    
+
     inline FormWindow* formWindow() const
     { return m_formWindow; }
 
@@ -58,34 +58,34 @@ class QT_FORMEDITOR_EXPORT QLayoutSupport: public QObject
 public:
     QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QLayoutSupport();
-          
+
     inline QWidget *widget() const
     { return m_widget; }
-    
+
     inline QLayout *layout() const
     { return widget()->layout(); }
-    
+
     inline FormWindow *formWindow() const
     { return m_formWindow; }
 
-    int findItemAt(const QPoint &pos) const;    
+    int findItemAt(const QPoint &pos) const;
     QRect itemInfo(int index) const;
     int indexOf(QWidget *widget) const;
 
     void adjustIndicator(const QPoint &pos, int index);
-    
+
     void insertWidget(QWidget *widget);
     void removeWidget(QWidget *widget);
 
     QList<QWidget*> widgets(QLayout *layout);
-    
+
     void insertRow(QGridLayout *gridLayout, int row);
     void insertColumn(QGridLayout *gridLayout, int column);
-    
+
     static void createEmptyCells(QGridLayout *gridLayout);
     void computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *layout);
-    void rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLayoutItem*, QRect> &layout);
-    
+    void rebuildGridLayout(QGridLayout *&gridLayout, const QHash<QLayoutItem*, QRect> &layout);
+
 private:
     FormWindow *m_formWindow;
     QPointer<QWidget> m_widget;
@@ -102,7 +102,7 @@ class QT_FORMEDITOR_EXPORT QLayoutWidget : public QWidget
     Q_PROPERTY(int spacing READ layoutSpacing WRITE setLayoutSpacing DESIGNABLE true)
 public:
     QLayoutWidget(FormWindow *formWindow, QWidget *parent = 0);
-          
+
     QSizePolicy sizePolicy() const;
     void updateSizePolicy();
 
@@ -114,46 +114,46 @@ public:
 
     inline FormWindow *formWindow() const
     { return m_formWindow; }
-    
+
     inline int findItemAt(const QPoint &pos) const
     { return m_support.findItemAt(pos); }
-    
+
     inline QRect itemInfo(int index) const
     { return m_support.itemInfo(index); }
 
     inline void adjustIndicator(const QPoint &pos, int index)
     { m_support.adjustIndicator(pos, index); }
-    
+
     inline void insertWidget(QWidget *widget)
     { m_support.insertWidget(widget); }
-    
+
     inline void removeWidget(QWidget *widget)
     { m_support.removeWidget(widget); }
 
 protected:
     virtual bool event(QEvent *e);
     virtual void paintEvent(QPaintEvent *e);
-    
+
     void updateMargin();
-    
+
     inline QList<QWidget*> widgets(QLayout *layout)
     { return m_support.widgets(layout); }
-    
+
     inline void insertRow(QGridLayout *gridLayout, int row)
     { m_support.insertRow(gridLayout, row); }
-    
+
     inline void insertColumn(QGridLayout *gridLayout, int column)
     { m_support.insertColumn(gridLayout, column); }
-    
+
     inline void computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *layout)
     { m_support.computeGridLayout(gridLayout, layout); }
-    
+
     inline void rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLayoutItem*, QRect> &layout)
     { m_support.rebuildGridLayout(gridLayout, layout); }
-    
+
 private:
     FormWindow *m_formWindow;
-    QSizePolicy sp;    
+    QSizePolicy sp;
     QLayoutSupport m_support;
 };
 
