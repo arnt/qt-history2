@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#4 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#5 $
 **
 ** Definition of QThumbWheel class
 **
@@ -40,6 +40,7 @@
 #ifndef QT_NO_THUMBWHEEL
 #include <qpainter.h>
 #include <qdrawutil.h>
+#include <qpixmap.h>
 #include <math.h>
 
 static const double m_pi = 3.14159265358979323846;
@@ -102,8 +103,7 @@ void QThumbWheel::setValue( int value )
 
 void QThumbWheel::valueChange()
 {
-//    update();
-    repaint();
+    repaint( FALSE );
     emit valueChanged(value());
 }
 
@@ -224,6 +224,12 @@ void QThumbWheel::focusOutEvent( QFocusEvent *e )
 void QThumbWheel::drawContents( QPainter *p )
 {
     QRect cr = contentsRect();
+    // double buffer
+    QPixmap pix( width(), height() );
+    QPainter pt( &pix );
+    QBrush brush = backgroundPixmap() ?
+		QBrush( backgroundColor(), *backgroundPixmap() ) : QBrush( backgroundColor() );
+    pt.fillRect( cr, brush );
 
     const int n = 11;
     const double delta = m_pi / double(n);
@@ -240,10 +246,10 @@ void QThumbWheel::drawContents( QPainter *p )
 	int y1 = cr.bottom()-1;
 	for ( int i = 0; i < n; i++ ) {
 	    int x = cr.x() + int((1-cos(delta*double(i)+alpha))*r);
-	    p->setPen( pen0 );
-	    p->drawLine( x, y0, x, y1 );
-	    p->setPen( pen1 );
-	    p->drawLine( x+1, y0, x+1, y1 );
+	    pt.setPen( pen0 );
+	    pt.drawLine( x, y0, x, y1 );
+	    pt.setPen( pen1 );
+	    pt.drawLine( x+1, y0, x+1, y1 );
 	}
     } else {
 	// vertical orientation
@@ -252,13 +258,16 @@ void QThumbWheel::drawContents( QPainter *p )
 	int x1 = cr.right()-1;
 	for ( int i = 0; i < n; i++ ) {
 	    int y = cr.y() + int((1-cos(delta*double(i)+alpha))*r);
-	    p->setPen( pen0 );
-	    p->drawLine( x0, y, x1, y );
-	    p->setPen( pen1 );
-	    p->drawLine( x0, y+1, x1, y+1 );
+	    pt.setPen( pen0 );
+	    pt.drawLine( x0, y, x1, y );
+	    pt.setPen( pen1 );
+	    pt.drawLine( x0, y+1, x1, y+1 );
 	}
     }
-    qDrawShadePanel( p, cr, colorGroup());
+    qDrawShadePanel( &pt, cr, colorGroup());
+
+    pt.end();
+    p->drawPixmap( 0, 0, pix );
 }
 
 int QThumbWheel::valueFromPosition( const QPoint &p )
