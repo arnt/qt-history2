@@ -6092,7 +6092,8 @@ static void sm_dieCallback( SmcConn smcConn, SmPointer /* clientData  */)
     if (smcConn != smcConnection )
 	return;
     resetSmState();
-    qApp->quit();
+    QEvent quitEvent(QEvent::Quit);
+    QApplication::sendEvent(qApp, &quitEvent);
 }
 
 static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer /* clientData */)

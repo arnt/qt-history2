@@ -2489,6 +2489,9 @@ bool QApplication::event( QEvent *e )
 	}
 	if(ce->isAccepted())
 	    return TRUE;
+    } else if (e->type() == QEvent::Quit) {
+	quit();
+	return TRUE;
     }
     return QObject::event(e);
 }
