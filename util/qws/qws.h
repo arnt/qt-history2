@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qtfb.h#1 $
+** $Id: //depot/qt/main/util/qws/qws.h#1 $
 **
 ** Definition of Qt/FB central server classes
 **
