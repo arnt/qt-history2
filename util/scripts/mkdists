@@ -325,8 +325,8 @@ if [ -e  "$qgif" ]; then
 fi
 
 # changes files
-[ ! -f "$DISTDIR/qt/dist/changes-$BRANCH" ] && status "Warning: qt/dist/changes-$BRANCH does not exist"
-for a in `find $DISTDIR/qt/dist/ -name 'changes-$(echo $BRANCH | sed "s,^\([0-9\.]\)*,\1,")*'`; do
+[ ! -f "$DISTDIR/qt/dist/changes-$REL_VERSION" ] && status "Warning: qt/dist/changes-$REL_VERSION does not exist"
+for a in `find $DISTDIR/qt/dist/ -name "changes-$REL_VERSION"`; do
     mv $a $DISTDIR/qt/`basename $a`
 done
 
@@ -623,8 +623,8 @@ for plat in mac win x11 qws; do
 	fi
 
 	status "*** Packing $edition... *****" "1"
-	PLATNAME=qt-${plat}-${edition}-${REL_VERSION}${TYPE}
-	[ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-%Y%m%d"`
+	PLATNAME=qt-${plat}-${edition}-${REL_VERSION}
+	[ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
 	PLATDIR=$DISTDIR/$PLATNAME
 
 	#copy the tree
