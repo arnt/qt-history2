@@ -88,14 +88,16 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     hb->addWidget( quit );
     vb->addLayout( hb );
 
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    int x = settings.readNumEntry( "/qDocGUI/geometry/x", 0 );
-    int y = settings.readNumEntry( "/qDocGUI/geometry/y", 0 );
-    int width = settings.readNumEntry( "/qDocGUI/geometry/width", 200 );
-    int height = settings.readNumEntry( "/qDocGUI/geometry/height", 200 );
-    setGeometry( x, y, width, height );
-    findText = settings.readEntry("/qDocGUI/find");
+    {
+	QSettings settings;
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	int x = settings.readNumEntry( "/qDocGUI/geometry/x", 0 );
+	int y = settings.readNumEntry( "/qDocGUI/geometry/y", 0 );
+	int width = settings.readNumEntry( "/qDocGUI/geometry/width", 200 );
+	int height = settings.readNumEntry( "/qDocGUI/geometry/height", 200 );
+	setGeometry( x, y, width, height );
+	findText = settings.readEntry("/qDocGUI/find");
+    }
 
     updateTitle();
     setEditor();
