@@ -164,8 +164,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
-    while ( firstWidget.tagName() != "widget" )
+    while ( firstWidget.tagName() != "widget" ) {
+	if ( firstWidget.tagName() == "variable" )
+	    widgetFactory->variables << firstWidget.firstChild().toText().data();
 	firstWidget = firstWidget.nextSibling().toElement();
+    }
 
     QDomElement connections = firstWidget;
     while ( connections.tagName() != "connections" && !connections.isNull() )
@@ -271,8 +274,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		InterpreterInterface *interpreterInterface = (InterpreterInterface*)interpreterInterfaceManager->queryInterface( *lit );
 		if ( eventInterface && interpreterInterface ) {
 		    QMap<QString, Functions*>::Iterator fit = widgetFactory->languageFunctions.find( *lit );
-		    if ( fit != widgetFactory->languageFunctions.end() )
-			interpreterInterface->exec( widgetFactory->toplevel, (*fit)->functions );
+		    if ( fit != widgetFactory->languageFunctions.end() ) {
+			QString funcs = (*fit)->functions;
+			funcs += "\n";
+			for ( QStringList::Iterator vit = widgetFactory->variables.begin(); vit != widgetFactory->variables.end(); ++vit )
+			    funcs += *vit + "\n";
+			funcs += "init();\n";
+			interpreterInterface->exec( widgetFactory->toplevel, funcs );
+		    }
 		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
 			  it != widgetFactory->eventMap.end(); ++it ) {
 			QStringList::Iterator eit, fit;

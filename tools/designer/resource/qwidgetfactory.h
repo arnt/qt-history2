@@ -129,6 +129,7 @@ private:
     QMap<QObject *, EventFunction> eventMap;
     QMap<QString, QString> languageSlots;
     QMap<QString, Functions*> languageFunctions;
+    QStringList variables;
 
 };
 
