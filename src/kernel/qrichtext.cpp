@@ -4094,6 +4094,10 @@ void QTextParag::join( QTextParag *s )
 	    QTextCustomItem * item = s->str->at( i ).customItem();
 	    str->at( i + start ).setCustomItem( item );
 	    s->str->at( i ).loseCustomItem();
+	    if ( hasdoc ) {
+		document()->unregisterCustomItem( item, s );
+		document()->registerCustomItem( item, this );
+	    }
 	}
 	if ( s->str->at( i ).isAnchor() ) {
 	    str->at( i + start ).setAnchor( s->str->at( i ).anchorName(),
