@@ -646,6 +646,8 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 }
 
 
+static bool qt_mac_no_native_menubar = false;
+void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //backdoor to disable menubars
 static QHash<QWidget *, QMenuBar *> *menubars = 0;
 /*!
   \internal
@@ -655,23 +657,24 @@ void QMenuBar::macCreateNativeMenubar()
 {
     macDirtyNativeMenubar();
     QWidget *p = parentWidget();
-    if(!p && !fallbackMenuBar) {
+    mac_eaten_menubar = false;
+    if(qt_mac_no_native_menubar) {
+	//do nothing..
+    } else if(!p && !fallbackMenuBar) {
 	fallbackMenuBar = this;
-	mac_eaten_menubar = 1;
+	mac_eaten_menubar = true;
 	if(!mac_d)
 	    mac_d = new MacPrivate;
     } else if(p && (!menubars || !menubars->find(topLevelWidget())) &&
        (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) ||
 	p->inherits("QToolBar") ||
 	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
-	mac_eaten_menubar = 1;
+	mac_eaten_menubar = true;
 	if(!menubars)
 	    menubars = new QHash<QWidget *, QMenuBar *>();
 	menubars->insert(topLevelWidget(), this);
 	if(!mac_d)
 	    mac_d = new MacPrivate;
-    } else {
-	mac_eaten_menubar = 0;
     }
 }
 void QMenuBar::macRemoveNativeMenubar()
@@ -724,6 +727,9 @@ void QMenuBar::cleanup()
 */
 bool QMenuBar::macUpdateMenuBar()
 {
+    if(!qt_mac_no_native_menubar) //nothing to be done..
+	return true; 
+
     QMenuBar *mb = 0;
     bool fall_back_to_empty = false;
     //find a menubar
