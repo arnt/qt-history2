@@ -180,7 +180,7 @@ typedef void (*ForeignEventProc)(XEvent*);
 extern XtEventDispatchProc
  qt_np_cascade_event_handler[LASTEvent];      // defined in qnpsupport.cpp
 void            qt_reset_color_avail();       // defined in qcolor_x11.cpp
-void            qt_activate_timers();         // defined in qapplication_x11.cpp
+int             qt_activate_timers();         // defined in qapplication_x11.cpp
 timeval        *qt_wait_timer();              // defined in qapplication_x11.cpp
 void		qt_x11SendPostedEvents();     // defined in qapplication_x11.cpp
 Boolean  qt_event_handler( XEvent* event );   // defined in qnpsupport.cpp

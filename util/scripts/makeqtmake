@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/util/scripts/makeqtmake#2 $
+# $Id: //depot/qt/main/util/scripts/makeqtmake#3 $
 #
 # Makes Qt makefiles and a project file - internal Troll Tech tool.
 #

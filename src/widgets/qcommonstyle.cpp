@@ -108,6 +108,12 @@ void QCommonStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
 void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
     QRect r = pushButtonContentsRect( btn );
+    if ( btn->isDown() || btn->isOn() ){
+	int sx = 0;
+	int sy = 0;
+	getButtonShift(sx, sy);
+	r.moveBy( sx, sy );
+    }
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
     if ( btn->isMenuButton() ) {
@@ -289,14 +295,7 @@ QRect QStyle::pushButtonContentsRect( QPushButton* btn )
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
 
-    QRect r = buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
-    if ( btn->isDown() || btn->isOn() ){
-	int sx = 0;
-	int sy = 0;
-	getButtonShift(sx, sy);
-	r.moveBy( sx, sy );
-    }
-    return r;
+    return buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
 }
 
 void QStyle::drawToolButton( QToolButton* btn, QPainter *p)

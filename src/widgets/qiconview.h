@@ -89,13 +89,31 @@ private:
  *
  *****************************************************************************/
 
+#if defined(_CC_MSVC_)
+// Disable useless MSVC++ warning:
+// 'items' : class 'QValueList<class QIconDrag::Item>' needs to have
+// dll-interface to be used by clients of class 'QIconDrag'
+#pragma warning(disable: 4251)
+#endif
+
 class Q_EXPORT QIconDrag : public QDragObject
 {
     Q_OBJECT
-    friend class QIconView;
-    friend class QIconViewPrivate;
+public:
+    QIconDrag( QWidget * dragSource, const char* name = 0 );
+    virtual ~QIconDrag();
+
+    void append( const QIconDragItem &item, const QRect &pr, const QRect &tr );
+
+    virtual const char* format( int i ) const;
+    static bool canDecode( QMimeSource* e );
+    virtual QByteArray encodedData( const char* mime ) const;
 
 private:
+    // Do not delete the two lines below, instead #ifdef them out appropriately.
+    struct Item; // ### Needed by SunPro. Possibly breaks MipsPro.
+    friend struct Item; // ### Needed by ISO C++, SunPro and MipsPro.
+
     struct IconDragItem
     {
 	IconDragItem();
@@ -123,26 +141,13 @@ private:
 #endif
     };
 
-    friend struct Item;
-
-public:
-    QIconDrag( QWidget * dragSource, const char* name = 0 );
-    virtual ~QIconDrag();
-
-    void append( const QIconDragItem &item, const QRect &pr, const QRect &tr );
-
-    virtual const char* format( int i ) const;
-    static bool canDecode( QMimeSource* e );
-    virtual QByteArray encodedData( const char* mime ) const;
-
-private:
-    static bool decode( QMimeSource* e, QValueList<Item> &lst );
-
     QValueList<Item> items;
+    static bool decode( QMimeSource* e, QValueList<Item> &lst );
     QChar endMark;
 
+    friend class QIconView;
+    friend class QIconViewPrivate;
 };
-
 
 /*****************************************************************************
  *
@@ -231,14 +236,13 @@ protected:
     virtual void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
     virtual void dragEntered();
     virtual void dragLeft();
-    virtual void init( QIconViewItem *after = 0 );
-    void setView( QIconView* v );
     void setItemRect( const QRect &r );
     void setTextRect( const QRect &r );
     void setPixmapRect( const QRect &r );
     void calcTmpText();
 
 private:
+    void init( QIconViewItem *after = 0 );
     void renameItem();
     void cancelRenameItem();
     void checkRect();
@@ -466,6 +470,7 @@ protected:
 private:
     virtual void drawDragShapes( const QPoint &pnt );
     virtual void initDragEnter( QDropEvent *e );
+    void drawContents( QPainter* );
     void findItemByName( const QString &text );
     void handleItemChange( QIconViewItem *old, bool shift, bool control );
 

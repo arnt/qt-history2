@@ -108,10 +108,16 @@ static const uchar Ss3 = 0x8f;	// Single Shift 3
 
 #define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
 
+/*!
+  Construct a QEucJpCodec.
+*/
 QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
 {
 }
 
+/*!
+  Returns 18.
+*/
 int QEucJpCodec::mibEnum() const
 {
     /*
@@ -133,6 +139,9 @@ int QEucJpCodec::mibEnum() const
     return 18;
 }
 
+/*!
+  \reimp
+*/
 QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
@@ -173,6 +182,9 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
     return rstr;
 }
 
+/*!
+  \reimp
+*/
 QString QEucJpCodec::toUnicode(const char* chars, int len) const
 {
     QString result;
@@ -239,11 +251,17 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
     return result;
 }
 
+/*!
+  \reimp
+*/
 const char* QEucJpCodec::name() const
 {
     return "eucJP";
 }
 
+/*!
+  \reimp
+*/
 int QEucJpCodec::heuristicNameMatch(const char* hint) const
 {
     int score = 0;
@@ -280,6 +298,9 @@ int QEucJpCodec::heuristicNameMatch(const char* hint) const
     return QTextCodec::heuristicNameMatch(hint);
 }
 
+/*!
+  \reimp
+*/
 int QEucJpCodec::heuristicContentMatch(const char* chars, int len) const
 {
     int score = 0;

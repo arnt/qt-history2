@@ -15,7 +15,6 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/util/scripts/makeqtmake.bat#1 $
 #
 # Makes Qt makefiles and a project file - internal Troll Tech tool.
 #
@@ -54,7 +53,6 @@ $project || die "No project name specified";
 
 $win32make =
 "#############################################################################
-# \$Id: //depot/qt/main/util/scripts/makeqtmake.bat#1 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -69,7 +67,6 @@ $libtarget
 
 $unixmake =
 "#############################################################################
-# \$Id: //depot/qt/main/util/scripts/makeqtmake.bat#1 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

@@ -100,12 +100,12 @@ static const char Esc_JISX0201_Kana[]	= {Esc, '(', 'I', 0 };
 static const char Esc_JISX0208_1978[]	= {Esc, '$', '@', 0 };
 static const char Esc_JISX0208_1983[]	= {Esc, '$', 'B', 0 };
 static const char Esc_JISX0212[]	= {Esc, '$', '(', 'D', 0 };
-static const char *Esc_SEQ[] = { Esc_Ascii,
-				 Esc_JISX0201_Latin,
-				 Esc_JISX0201_Kana,
-				 Esc_JISX0208_1978,
-				 Esc_JISX0208_1983,
-				 Esc_JISX0212 };
+static const char * const Esc_SEQ[] = { Esc_Ascii,
+					Esc_JISX0201_Latin,
+					Esc_JISX0201_Kana,
+					Esc_JISX0208_1978,
+					Esc_JISX0208_1983,
+					Esc_JISX0212 };
 
 /*! \internal */
 QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))

@@ -78,7 +78,7 @@ struct QStoredDragData {
 // These pixmaps approximate the images in the Windows User Interface Guidelines.
 
 /* XPM */
-static const char * move_xpm[] = {
+static const char * const move_xpm[] = {
 "11 20 3 1",
 ".	c None",
 #if defined(_WS_WIN_)
@@ -110,7 +110,7 @@ static const char * move_xpm[] = {
 "........  ."};
 
 /* XPM */
-static const char * copy_xpm[] = {
+static const char * const copy_xpm[] = {
 "24 30 3 1",
 ".	c None",
 " 	c #000000",
@@ -170,7 +170,7 @@ static const char * copy_xpm[] = {
 ".............           "};
 
 /* XPM */
-static const char * link_xpm[] = {
+static const char * const link_xpm[] = {
 "24 30 3 1",
 ".	c None",
 " 	c #000000",

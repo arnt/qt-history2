@@ -363,5 +363,8 @@ Qt Toolkit - Drag and Drop
   written prior permission.  Daniel Dardailler makes no representations
   about the suitability of this software for any purpose.  It is
   provided "as is" without express or implied warranty.
+
+  Modifications Copyright 1999 Matt Koss, under the same license as
+  above.
 */ // NOTE: That notice is from qmotifdnd_x11.cpp.
 

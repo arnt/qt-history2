@@ -300,12 +300,10 @@ void QtFileIconDrag::append( const QIconDragItem &item, const QRect &pr,
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-    // set parent 0 => don't arrange in grid yet, as aour metrics is not correct yet
-    : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
+    : QIconViewItem( parent, fi->fileName() ), itemFileName( fi->filePath() ),
       itemFileInfo( fi ), checkSetText( FALSE )
 {
     vm = QtFileIconView::Large;
-    setView( parent );
 
     if ( itemFileInfo->isDir() )
 	itemType = Dir;
@@ -324,9 +322,6 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 
     QObject::connect( &timer, SIGNAL( timeout() ),
 		      iconView(), SLOT( openFolder() ) );
-
-    // now do init stuff, to arrange in grid and so on
-    init();
 }
 
 void QtFileIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
@@ -385,14 +380,18 @@ QtFileIconViewItem::~QtFileIconViewItem()
 
 void QtFileIconViewItem::setText( const QString &text )
 {
-    QIconViewItem::setText( text );
-
     if ( checkSetText ) {
+	if ( text == "." || text == "." || text.isEmpty() )
+	    return;
 	QDir dir( itemFileInfo->dir() );
-	dir.rename( itemFileInfo->fileName(), text );
-	itemFileName = itemFileInfo->dirPath( TRUE ) + "/" + text;
-	delete itemFileInfo;
-	itemFileInfo = new QFileInfo( itemFileName );
+	if ( dir.rename( itemFileInfo->fileName(), text ) ) {
+	    itemFileName = itemFileInfo->dirPath( TRUE ) + "/" + text;
+	    delete itemFileInfo;
+	    itemFileInfo = new QFileInfo( itemFileName );
+	    QIconViewItem::setText( text );
+	}
+    } else {
+	QIconViewItem::setText( text );
     }
 }
 
@@ -467,22 +466,22 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 	qAddPostRoutine( cleanup );
 	QWMatrix m;
 	m.scale( 0.6, 0.6 );
-	QPixmap pix( folder_locked_icon );
-	iconFolderLockedLarge = new QPixmap( pix );
-	pix = pix.xForm( m );
-	iconFolderLockedSmall = new QPixmap( pix );
-	pix = QPixmap( folder_icon );
-	iconFolderLarge = new QPixmap( pix );
-	pix = pix.xForm( m );
-	iconFolderSmall = new QPixmap( pix );
-	pix = QPixmap( file_icon );
-	iconFileLarge = new QPixmap( pix );
-	pix = pix.xForm( m );
-	iconFileSmall = new QPixmap( pix );
-	pix = QPixmap( link_icon );
-	iconLinkLarge = new QPixmap( pix );
-	pix = pix.xForm( m );
-	iconLinkSmall = new QPixmap( pix );
+	QPixmap iconpix( folder_locked_icon );
+	iconFolderLockedLarge = new QPixmap( folder_locked_icon );
+	iconpix = iconpix.xForm( m );
+	iconFolderLockedSmall = new QPixmap( iconpix );
+	iconpix = QPixmap( folder_icon );
+	iconFolderLarge = new QPixmap( folder_icon );
+	iconpix = iconpix.xForm( m );
+	iconFolderSmall = new QPixmap( iconpix );
+	iconpix = QPixmap( file_icon );
+	iconFileLarge = new QPixmap( file_icon );
+	iconpix = iconpix.xForm( m );
+	iconFileSmall = new QPixmap( iconpix );
+	iconpix = QPixmap( link_icon );
+	iconLinkLarge = new QPixmap( link_icon );
+	iconpix = iconpix.xForm( m );
+	iconLinkSmall = new QPixmap( iconpix );
     }
 
     vm = Large;
@@ -557,10 +556,37 @@ QDir QtFileIconView::currentDir()
     return viewDir;
 }
 
+static bool isRoot( const QString &s )
+{
+#if defined(UNIX)
+    if ( s == "/" )
+	return TRUE;
+#elif defined(_OS_WIN32_)
+    QString p = s;
+    if ( p.length() == 3 &&
+	 p.right( 2 ) == ":/" )
+	return TRUE;
+    if ( p[ 0 ] == '/' && p[ 1 ] == '/' ) {
+	int slashes = p.contains( '/' );
+	if ( slashes <= 3 )
+	    return TRUE;
+	if ( slashes == 4 && p[ (int)p.length() - 1 ] == '/' )
+	    return TRUE;
+    }
+#endif
+
+    return FALSE;
+}
+
 void QtFileIconView::readDir( const QDir &dir )
 {
     if ( !dir.isReadable() )
 	return;
+
+    if ( isRoot( dir.absPath() ) )
+	emit disableUp();
+    else
+	emit enableUp();
 
     clear();
 
@@ -596,6 +622,12 @@ void QtFileIconView::readDir( const QDir &dir )
 	}
 	item->setRenameEnabled( allowRename );
     }
+
+    if ( !QFileInfo( dir.absPath() ).isWritable() )
+	emit disableMkdir();
+    else
+	emit enableMkdir();
+
     emit readDirDone();
 }
 

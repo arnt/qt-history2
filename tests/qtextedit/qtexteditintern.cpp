@@ -275,14 +275,30 @@ void QTextEditCursor::gotoDown()
 
 void QTextEditCursor::gotoLineEnd()
 {
-    tmpIndex = -1;
-    idx = string->length() - 1;
+    int indexOfLineStart;
+    int line;
+    QTextEditString::Char *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
+    if ( !c )
+	return;
+
+    if ( line == string->lines() - 1 ) {
+	idx = string->length() - 1;
+    } else {
+	c = string->lineStartOfLine( ++line, &indexOfLineStart );
+	indexOfLineStart--;
+	idx = indexOfLineStart;
+    }
 }
 
 void QTextEditCursor::gotoLineStart()
 {
-    tmpIndex = -1;
-    idx = 0;
+    int indexOfLineStart;
+    int line;
+    QTextEditString::Char *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
+    if ( !c )
+	return;
+
+    idx = indexOfLineStart;
 }
 
 void QTextEditCursor::gotoHome()
@@ -405,10 +421,16 @@ bool QTextEditCursor::atParagEnd()
 void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 {
     tmpIndex = -1;
+    QTextEditFormat *f = 0;
+    if ( !doc->syntaxHighlighter() )
+	f = string->at( idx )->format;
+
     if ( atParagStart() ) {
 	QTextEditParag *p = string->prev();
 	QTextEditParag *s = new QTextEditParag( doc, p, string, updateIds );
 	s->append( " " );
+	if ( f )
+	    s->setFormat( 0, 1, f, TRUE );
 	s->setType( string->type() );
 	s->setListDepth( string->listDepth() );
 	s->setAlignment( string->alignment() );
@@ -422,6 +444,8 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	QTextEditParag *n = string->next();
 	QTextEditParag *s = new QTextEditParag( doc, string, n, updateIds );
 	s->append( " " );
+	if ( f )
+	    s->setFormat( 0, 1, f, TRUE );
 	s->setType( string->type() );
 	s->setListDepth( string->listDepth() );
 	s->setAlignment( string->alignment() );
@@ -443,6 +467,8 @@ void QTextEditCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
 	s->setListDepth( string->listDepth() );
 	s->setAlignment( string->alignment() );
 	s->append( str );
+	if ( f )
+	    s->setFormat( 0, str.length(), f, TRUE );
 	if ( ind ) {
 	    int oi, ni;
 	    s->indent( &oi, &ni );
@@ -637,8 +663,7 @@ aussi:
 
 const int QTextEditDocument::numSelections = 4; // Don't count the Temp one!
 
-QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
-    : filename( fn )
+QTextEditDocument::QTextEditDocument()
 {
     syntaxHighlighte = 0;
     pFormatter = 0;
@@ -647,17 +672,13 @@ QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     completion = FALSE;
     fCollection = new QTextEditFormatCollection;
     fParag = 0;
+    txtFormat = Qt::AutoText;
+    preferRichText = FALSE;
+    filename = QString::null;
+    ls = ps = 0;
 
-    if ( !filename.isEmpty() ) {
-	QFileInfo fi( filename );
-	if ( fi.extension().lower().contains( "htm" ) )
-	    loadRichText( filename );
-	else
-	    loadPlainText( fn, tabify );
-    } else {
-	lParag = fParag = new QTextEditParag( this, 0, 0 );
-	lParag->append( " " );
-    }
+    lParag = fParag = new QTextEditParag( this, 0, 0 );
+    lParag->append( " " );
 				
     cx = 2;
     cy = 2;
@@ -674,7 +695,7 @@ QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     commandHistory = new QTextEditCommandHistory( 100 ); // ### max undo/redo steps should be configurable
 }
 
-void QTextEditDocument::loadPlainText( const QString &fn, bool tabify )
+void QTextEditDocument::setPlainText( const QString &text, bool tabify )
 {
     if ( fParag ) {
 	QTextEditParag *p = 0;
@@ -685,18 +706,18 @@ void QTextEditDocument::loadPlainText( const QString &fn, bool tabify )
 	}
 	fParag = 0;
     }
+    preferRichText = FALSE;
 
-    QFile file( fn );
-    file.open( IO_ReadOnly );
-    QTextStream ts( &file );
+    ls = ps = 0;
 
     QString s;
     lParag = 0;
-    while ( !ts.atEnd() ) {
+    QStringList lst = QStringList::split( '\n', text, TRUE );
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	lParag = new QTextEditParag( this, lParag, 0 );
 	if ( !fParag )
 	    fParag = lParag;
-	QString s = ts.readLine();
+	s = *it;
 	if ( !s.isEmpty() ) {
 	    QChar c;
 	    int i = 0;
@@ -726,9 +747,14 @@ void QTextEditDocument::loadPlainText( const QString &fn, bool tabify )
 	    lParag->append( " " );
 	}
     }
+
+    if ( !lParag ) {
+	lParag = fParag = new QTextEditParag( this, 0, 0 );
+	lParag->append( " " );
+    }
 }
 
-void QTextEditDocument::loadRichText( const QString &fn )
+void QTextEditDocument::setRichText( const QString &text )
 {
     if ( fParag ) {
 	QTextEditParag *p = 0;
@@ -739,12 +765,14 @@ void QTextEditDocument::loadRichText( const QString &fn )
 	}
 	fParag = 0;
     }
+    preferRichText = TRUE;
 
-    QFile file( fn );
-    file.open( IO_ReadOnly );
-    QTextStream ts( &file );
-    QRichText *rt = new QRichText( ts.read(), fCollection->defaultFormat()->font(),
-				   QFileInfo( fn ).absFilePath(), 8, QMimeSourceFactory::defaultFactory(),
+    ps = 8;
+    ls = 1;
+
+    QRichText *rt = new QRichText( text, fCollection->defaultFormat()->font(),
+				   QFileInfo( filename ).absFilePath(), 8,
+				   QMimeSourceFactory::defaultFactory(),
 				   QStyleSheet::defaultSheet() );
     QRichTextIterator it( *rt );
     lParag = 0;
@@ -792,44 +820,125 @@ void QTextEditDocument::loadRichText( const QString &fn )
 #endif
 
     delete rt;
+
+    if ( !lParag ) {
+	setPlainText( text );
+    }
 }
 
-void QTextEditDocument::setText( const QString &text )
+void QTextEditDocument::load( const QString &fn, bool tabify )
 {
-    if ( fParag ) {
-	QTextEditParag *p = 0;
-	while ( fParag ) {
-	    p = fParag->next();
-	    delete fParag;
-	    fParag = p;
-	}
-	fParag = 0;
-    }
+    filename = fn;
+    QFile file( fn );
+    file.open( IO_ReadOnly );
+    QTextStream ts( &file );
+    QString txt = ts.read();
+    file.close();
+    setText( txt, tabify );
+}
 
-    lParag = 0;
-    QStringList lst = QStringList::split( '\n', text );
-    QStringList::Iterator it = lst.begin();
-    for ( ; it != lst.end(); ++it ) {
-	lParag = new QTextEditParag( this, lParag, 0 );
-	if ( !fParag )
-	    fParag = lParag;
-	lParag->append( *it + " " );
+void QTextEditDocument::setText( const QString &text, bool tabify )
+{
+    if ( txtFormat == Qt::AutoText && QStyleSheet::mightBeRichText( text ) ||
+	 txtFormat == Qt::RichText )
+	setRichText( text );
+    else
+	setPlainText( text, tabify );
+}
+
+QString QTextEditDocument::plainText( QTextEditParag *p, bool formatted ) const
+{
+    if ( !p ) {
+	QString buffer;
+	QString s;
+	QTextEditParag *p = fParag;
+	while ( p ) {
+	    s = p->string()->toString();
+	    s += "\n";
+	    buffer += s;
+	    p = p->next();
+	}
+	return buffer;
+    } else {
+	if ( !formatted )
+	    return p->string()->toString();
+
+	// ##### TODO: return formatted string
+	return p->string()->toString();
+    }
+}
+
+QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
+{
+    if ( !p ) {
+	// #### very poor implementation!
+	QString text = "<html><head></head><body bgcolor=\"#ffffff\">\n";
+	p = fParag;
+	QTextEditFormat *lastFormat = 0;
+	QTextEditString::Char *c = 0;
+	bool listDepth = 0;
+	bool inList = FALSE;
+	while ( p ) {
+	    QString s;
+	    if ( inList && p->type() != QTextEditParag::BulletList ) {
+		text += "</ul>\n";
+		inList = FALSE;
+	    }
+	    if ( !inList && p->type() == QTextEditParag::BulletList ) {
+		text += "<ul>\n";
+		listDepth = p->listDepth();
+		inList = TRUE;
+	    }
+
+	    if ( inList ) {
+		s = "<li>";
+	    } else {
+		s = "<p align=\"";
+		if ( p->alignment() & Qt::AlignRight )
+		    s += "right";
+		else if ( p->alignment() & Qt::AlignCenter )
+		    s += "center";
+		else
+		    s += "left";
+		s += "\">";
+	    }
+	
+	    int len = 0;
+	    for ( int i = 0; i < p->length(); ++i ) {
+		c = &p->string()->at( i );
+		if ( !lastFormat || ( lastFormat->key() != c->format->key() && c->c != ' ' ) ) {
+		    s += c->format->makeFormatChangeTags( lastFormat );
+		    lastFormat = c->format;
+		}
+		if ( c->c == '<' )
+		    s += "&lt;";
+		else if ( c->c == '>' )
+		    s += "&gt;";
+		else
+		    s += c->c;
+		len += c->c != ' ' ? 1 : 0;
+	    }
+	    if ( !inList )
+		text += s + lastFormat->makeFormatEndTags() + "</p>\n";
+	    else if ( len > 0 )
+		text += s + lastFormat->makeFormatEndTags() + "\n";
+	    lastFormat = 0;
+	    p = p->next();
+	}
+	text += "</body></html>\n";
+	return text;
+    } else {
+	// #### TODO return really rich text
+	return plainText( p, formatted );
     }
 }
 
 QString QTextEditDocument::text() const
 {
-    QString buffer;
-    QString s;
-    QTextEditParag *p = fParag;
-    while ( p ) {
-	s = p->string()->toString();
-	s += "\n";
-	buffer += s;
-	p = p->next();
-    }
-
-    return buffer;
+    if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
+	return richText();
+    else
+	return plainText();
 }
 
 QString QTextEditDocument::text( int parag, bool formatted ) const
@@ -837,11 +946,11 @@ QString QTextEditDocument::text( int parag, bool formatted ) const
     QTextEditParag *p = paragAt( parag );
     if ( !p )
 	return QString::null;
-    if ( !formatted )
-	return p->string()->toString();
 
-    // ##### TODO: return formatted string
-    return p->string()->toString();
+    if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
+	return richText( p, formatted );
+    else
+	return plainText( p, formatted );
 }
 
 void QTextEditDocument::invalidate()
@@ -861,17 +970,10 @@ void QTextEditDocument::save( const QString &fn )
 	QFile file( filename );
 	file.open( IO_WriteOnly );
 	QTextStream ts( &file );
-
-	QTextEditParag *s = fParag;
-	while ( s ) {
-	    QString line = s->string()->toString();
-	    if ( line.right( 1 ) == " " )
-		line.remove( line.length() - 1, 1 );
-	    ts << line;
-	    ts << "\n";
-	    s = s->next();
-	}
+	ts << text();
 	file.close();
+    } else {
+	qWarning( "QTextEditDocument::save(): couldn't save - no filename specified!" );
     }
 }
 
@@ -888,6 +990,19 @@ void QTextEditDocument::selectionStart( int id, int &paragId, int &index )
     Selection &sel = *it;
     paragId = QMIN( sel.startParag->paragId(), sel.endParag->paragId() );
     index = sel.startIndex;
+}
+
+void QTextEditDocument::selectionEnd( int id, int &paragId, int &index )
+{
+    QMap<int, Selection>::Iterator it = selections.find( id );
+    if ( it == selections.end() )
+	return;
+    Selection &sel = *it;
+    paragId = QMAX( sel.startParag->paragId(), sel.endParag->paragId() );
+    if ( paragId == sel.startParag->paragId() )
+	index = sel.startParag->selectionEnd( id );
+    else
+	index = sel.endParag->selectionEnd( id );
 }
 
 QTextEditParag *QTextEditDocument::selectionStart( int id )
@@ -975,6 +1090,7 @@ bool QTextEditDocument::setSelectionEnd( int id, QTextEditCursor *cursor )
 	    p->setChanged( TRUE );
 	while ( p && p != sel.endParag ) {
 	    p->setSelection( id, 0, p->length() - 1 );
+	    p->setChanged( TRUE );
 	    p = p->next();
 	}
 	sel.endParag->setSelection( id, 0, end );
@@ -1039,6 +1155,7 @@ bool QTextEditDocument::removeSelection( int id )
 
 QString QTextEditDocument::selectedText( int id ) const
 {
+    // ######## TODO: look at textFormat() and return rich text or plain text (like the text() method!)
     QMap<int, Selection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return QString::null;
@@ -1086,8 +1203,10 @@ void QTextEditDocument::setFormat( int id, QTextEditFormat *f, int flags )
 
     QTextEditParag *p = startParag;
     while ( p ) {
-	p->setFormat( p->selectionStart( id ),
-		      p->selectionEnd( id ) - p->selectionStart( id ),
+	int end = p->selectionEnd( id );
+	if ( end == p->length() - 1 )
+	    end++;
+	p->setFormat( p->selectionStart( id ), end - p->selectionStart( id ),
 		      f, TRUE, flags );
 	if ( p == endParag )
 	    break;
@@ -1289,6 +1408,26 @@ bool QTextEditDocument::find( const QString &expr, bool cs, bool wo, bool forwar
     return FALSE;
 }
 
+void QTextEditDocument::setTextFormat( Qt::TextFormat f )
+{
+    txtFormat = f;
+}
+
+Qt::TextFormat QTextEditDocument::textFormat() const
+{
+    return txtFormat;
+}
+
+void QTextEditDocument::setParagSpacing( int s )
+{
+    ps = s;
+}
+
+void QTextEditDocument::setLineSpacing( int s )
+{
+    ls = s;
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextEditString::QTextEditString( QTextEditParag *p )
@@ -1307,7 +1446,7 @@ void QTextEditString::insert( int index, const QString &s, QTextEditFormat *f )
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
-#ifdef _WS_X11_
+#if defined(_WS_X11_)
 	//### workaround for broken courier fonts on X11
 	if ( s[ i ] == QChar( 0x00a0U ) )
 	    data[ (int)index + i ].c = ' ';
@@ -1680,7 +1819,10 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	    } else {
 		hasASelection = TRUE;
 		selectionStarts[ i ] = selectionStart( i );
-		selectionEnds[ i ] = selectionEnd( i );
+		int end = selectionEnd( i );
+		if ( end == length() - 1 && n && n->hasSelection( i ) )
+		    end++;
+		selectionEnds[ i ] = end;
 	    }
 	}
 	if ( !hasASelection )
@@ -1704,7 +1846,7 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	// draw bullet list items
 	if ( line == 0 && type() == QTextEditParag::BulletList ) {
 	    int ext = QMIN( doc->listIndent( 0 ), h );
-	    ext -= 8;
+	    ext -= 10;
 	
 	    // ######## use pixmaps for drawing that stuff - this way it's very slow when having long lists!
 	    switch ( doc->bullet( listDepth() ) ) {
@@ -1773,7 +1915,7 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	lastBaseLine = baseLine;
     }
 	
-    // if we are through thge parag, but still have some stuff left to draw, draw it now
+    // if we are through thg parag, but still have some stuff left to draw, draw it now
     if ( !buffer.isEmpty() ) {
 	bool selectionChange = FALSE;
 	if ( drawSelections ) {
@@ -1873,7 +2015,7 @@ int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
 	
 	if ( x + ww > left + w ) {
 	    x = left;
-	    y += h;
+	    y += h + doc->lineSpacing();
 	    h = c->format->height();
 	    lineStart = new QTextEditParag::LineStart( y, 0, 0 );
 	    parag->lineStartList().insert( i, lineStart );
@@ -1890,7 +2032,7 @@ int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
 	x += ww;
     }
 
-    y += h;
+    y += h + doc->paragSpacing( parag );
     return y;
 }
 
@@ -1948,7 +2090,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 		    lineStart->h = h;
 		}
 		x = left;
-		y += h;
+		y += h + doc->lineSpacing();
 		tmph = c->format->height();
 		h = 0;
 		lineStart = new QTextEditParag::LineStart( y, 0, 0 );
@@ -1961,7 +2103,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 	    } else {
 		i = lastSpace;
 		x = left;
-		y += h;
+		y += h + doc->lineSpacing();
 		tmph = c->format->height();
 		h = tmph;
 		lineStart = new QTextEditParag::LineStart( y, 0, 0 );
@@ -2013,7 +2155,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 	}
     }
 
-    y += h;
+    y += h + doc->paragSpacing( parag );
     return y;
 }
 
@@ -2232,4 +2374,70 @@ void QTextEditFormat::setColor( const QColor &c )
     if ( c == col )
 	return;
     col = c;
+}
+
+static int makeLogicFontSize( int s )
+{
+    int defSize = QApplication::font().pointSize();
+    if ( s < defSize - 4 )
+	return 1;
+    if ( s < defSize )
+	return 2;
+    if ( s < defSize + 4 )
+	return 3;
+    if ( s < defSize + 8 )
+	return 4;
+    if ( s < defSize + 12 )
+	return 5;
+    if (s < defSize + 16 )
+	return 6;
+    return 7;
+}
+
+QString QTextEditFormat::makeFormatChangeTags( QTextEditFormat *f ) const
+{
+    QString tag;
+    if ( !f ) {
+	if ( fn.bold() )
+	    tag += "<b>";
+	if ( fn.italic() )
+	    tag += "<i>";
+	if ( fn.underline() )
+	    tag += "<u>";
+	tag += "<font color=\"" + col.name() + "\" face=\"" + fn.family() + "\" size=\"" +
+	       QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\">";
+	return tag;
+    }
+
+    tag += "</font>";
+    if ( f->font().underline() )
+	tag += "</u>";
+    if ( f->font().italic() )
+	tag += "</i>";
+    if ( f->font().bold() )
+	tag += "</b>";
+
+    if ( fn.bold() )
+	tag += "<b>";
+    if ( fn.italic() )
+	tag += "<i>";
+    if ( fn.underline() )
+	tag += "<u>";
+    tag += "<font color=\"" + col.name() + "\" face=\"" + fn.family() + "\" size=\"" +
+	   QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\">";
+
+    return tag;
+}
+
+QString QTextEditFormat::makeFormatEndTags() const
+{
+    QString tag;
+    tag += "</font>";
+    if ( fn.underline() )
+	tag += "</u>";
+    if ( fn.italic() )
+	tag += "</i>";
+    if ( fn.bold() )
+	tag += "</b>";
+    return tag;
 }

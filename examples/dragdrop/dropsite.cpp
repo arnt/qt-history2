@@ -126,22 +126,22 @@ void DragMoviePlayer::updatePixmap( const QRect& )
 
 void DropSite::mousePressEvent( QMouseEvent * /*e*/ )
 {
-    QDragObject *d;
+    QDragObject *drobj;
     if ( pixmap() ) {
-	d = new QImageDrag( pixmap()->convertToImage(), this );
+	drobj = new QImageDrag( pixmap()->convertToImage(), this );
 #if 1
 	QPixmap pm;
 	pm.convertFromImage(pixmap()->convertToImage().smoothScale(
 	    pixmap()->width()/3,pixmap()->height()/3));
-	d->setPixmap(pm,QPoint(-5,-7));
+	drobj->setPixmap(pm,QPoint(-5,-7));
 #else
 	// Try it.
-	(void)new DragMoviePlayer(d);
+	(void)new DragMoviePlayer(drobj);
 #endif
     } else {
-	d = new QTextDrag( text(), this );
+	drobj = new QTextDrag( text(), this );
     }
-    d->dragCopy();
+    drobj->dragCopy();
 }
 
 

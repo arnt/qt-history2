@@ -476,7 +476,7 @@ void QProgressDialog::reset()
 	if ( d->creator )
 	    d->creator->setCursor( d->parentCursor );
     }
-    if ( isVisible() && ( d->autoClose || d->forceHide ) )
+    if ( d->autoClose || d->forceHide )
 	hide();
     bar()->reset();
     d->cancellation_flag = FALSE;
@@ -574,8 +574,6 @@ void QProgressDialog::setProgress( int progress )
 
     if ( progress == bar()->totalSteps() && d->autoReset )
 	reset();
-
-    return;
 }
 
 
@@ -750,4 +748,16 @@ void QProgressDialog::setAutoClose( bool b )
 bool QProgressDialog::autoClose() const
 {
     return d->autoClose;
+}
+
+/*!
+  \reimp
+*/
+
+void QProgressDialog::showEvent( QShowEvent *e )
+{
+    QSemiModal::showEvent( e );
+    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    resize( w, h );
 }

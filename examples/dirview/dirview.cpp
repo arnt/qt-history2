@@ -172,9 +172,9 @@ Directory::Directory( QListView * parent, const QString& filename )
 }
 
 
-void Directory::setPixmap( QPixmap *p )
+void Directory::setPixmap( QPixmap *px )
 {
-    pix = p;
+    pix = px;
     setup();
     widthChanged( 0 );
     invalidateHeight();
@@ -209,22 +209,22 @@ void Directory::setOpen( bool o )
 	const QFileInfoList * files = thisDir.entryInfoList();
 	if ( files ) {
 	    QFileInfoListIterator it( *files );
-	    QFileInfo * f;
-	    while( (f=it.current()) != 0 ) {
+	    QFileInfo * fi;
+	    while( (fi=it.current()) != 0 ) {
 		++it;
-		if ( f->fileName() == "." || f->fileName() == ".." )
+		if ( fi->fileName() == "." || fi->fileName() == ".." )
 		    ; // nothing
-		else if ( f->isSymLink() && !showDirsOnly ) {
-		    FileItem *item = new FileItem( this, f->fileName(),
+		else if ( fi->isSymLink() && !showDirsOnly ) {
+		    FileItem *item = new FileItem( this, fi->fileName(),
 						     "Symbolic Link" );
 		    item->setPixmap( fileNormal );
 		}
-		else if ( f->isDir() )
-		    (void)new Directory( this, f->fileName() );
+		else if ( fi->isDir() )
+		    (void)new Directory( this, fi->fileName() );
 		else if ( !showDirsOnly ) {
 		    FileItem *item
-			= new FileItem( this, f->fileName(),
-					     f->isFile()?"File":"Special" );
+			= new FileItem( this, fi->fileName(),
+					     fi->isFile()?"File":"Special" );
 		    item->setPixmap( fileNormal );
 		}
 	    }
@@ -457,9 +457,9 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 	if ( item ) {
 	    QString source = fullPath(item);
 	    if ( QFile::exists(source) ) {
-		QUriDrag* d = new QUriDrag(viewport());
-		d->setUnicodeUris( source );
-		if ( d->drag() )
+		QUriDrag* ud = new QUriDrag(viewport());
+		ud->setUnicodeUris( source );
+		if ( ud->drag() )
 		    QMessageBox::information( this, "Drag source",
 					      QString("Delete ")+source, "Not implemented" );
 	    }

@@ -17,6 +17,7 @@
 #include <qclipboard.h>
 #include <qcolordialog.h>
 #include <qfontdialog.h>
+#include <qstylesheet.h>
 
 QPixmap *QTextEdit::bufferPixmap( const QSize &s )
 {
@@ -32,18 +33,10 @@ QPixmap *QTextEdit::bufferPixmap( const QSize &s )
     return buf_pixmap;
 }
 
-QTextEdit::QTextEdit( QWidget *parent, const QString &fn, bool tabify )
-    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ),
-      doc( new QTextEditDocument( fn, tabify ) ), undoRedoInfo( doc )
+QTextEdit::QTextEdit( QWidget *parent, const char *name )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
+      doc( new QTextEditDocument ), undoRedoInfo( doc )
 {
-    init();
-}
-
-QTextEdit::QTextEdit( QWidget *parent, const QString &text )
-    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ),
-      doc( new QTextEditDocument( QString::null, FALSE ) ), undoRedoInfo( doc )
-{
-    setText( text );
     init();
 }
 
@@ -61,11 +54,13 @@ void QTextEdit::init()
     drawAll = TRUE;
     mousePressed = FALSE;
     inDoubleClick = FALSE;
+    readOnly = FALSE;
+    modified = FALSE;
 
     doc->setFormatter( new QTextEditFormatterBreakWords( doc ) );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignLeft;
-    currentParagType = QTextEditParag::Normal;
+    currentParagType = Normal;
 
     viewport()->setBackgroundMode( PaletteBase );
     resizeContents( 0, doc->lastParag() ?
@@ -113,6 +108,9 @@ void QTextEdit::init()
 
     blinkCursorVisible = FALSE;
     blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+
+    connect( this, SIGNAL( textChanged() ),
+	     this, SLOT( setModified() ) );
 }
 
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
@@ -123,8 +121,10 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     QTextEditParag *parag = doc->firstParag();
     QSize s( doc->firstParag()->rect().size() );
 
-    p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
-		 colorGroup().color( QColorGroup::Base ) );
+    if ( contentsY() == 0 ) {
+	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
+		     colorGroup().color( QColorGroup::Base ) );
+    }
 
     if ( !doubleBuffer ) {
 	doubleBuffer = bufferPixmap( s );
@@ -142,8 +142,10 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    parag->format();
 	
 	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
-	    if ( parag->rect().y() > cy + ch )
+	    if ( parag->rect().y() > cy + ch ) {
+		cursorVisible = TRUE;
 		return;
+	    }
 	    parag = parag->next();
 	    continue;
 	}
@@ -180,6 +182,8 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	p->fillRect( 0, parag->rect().y() + parag->rect().height(), contentsWidth(),
 		     visibleHeight() - ( parag->rect().y() + parag->rect().height() ),
 		     colorGroup().brush( QColorGroup::Base ) );
+
+    cursorVisible = TRUE;
 }
 
 void QTextEdit::keyPressEvent( QKeyEvent *e )
@@ -273,7 +277,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		
 		if ( cursor->parag()->type() != QTextEditParag::BulletList &&
 		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
-		    setParagType( (int)QTextEditParag::BulletList );
+		    setParagType( BulletList );
 		} else {
 		    insert( e->text(), TRUE );
 		}
@@ -335,9 +339,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		} break;
 		case Key_L: {
 		    if ( cursor->parag()->type() != QTextEditParag::BulletList )
-			setParagType( (int)QTextEditParag::BulletList );
+			setParagType( BulletList );
 		    else
-			setParagType( (int)QTextEditParag::Normal );
+			setParagType( Normal );
 		} break;
 		case Key_Q:
 		    setAlignment( Qt::AlignLeft );
@@ -365,6 +369,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
 void QTextEdit::doKeyboardAction( int action )
 {
+    if ( readOnly )
+	return;
+
     lastFormatted = cursor->parag();
     drawCursor( FALSE );
 	
@@ -382,10 +389,13 @@ void QTextEdit::doKeyboardAction( int action )
 	break;
     case ActionBackspace:
 	if ( cursor->parag()->type() != QTextEditParag::Normal && cursor->index() == 0 ) {
-	    if ( cursor->parag()->listDepth() > 0 )
+	    if ( cursor->parag()->listDepth() > 0 ) {
 		cursor->parag()->setListDepth( cursor->parag()->listDepth() - 1 );
-	    else
+	    } else {
 		cursor->parag()->setType( QTextEditParag::Normal );
+		currentParagType = Normal;
+		emit currentParagTypeChanged( currentParagType );
+	    }
 	    lastFormatted = cursor->parag();
 	    repaintChanged();
 	    drawCursor( TRUE );
@@ -428,10 +438,14 @@ void QTextEdit::doKeyboardAction( int action )
     drawCursor( TRUE );
 
     updateCurrentFormat();
+    emit textChanged();
 }
 
 void QTextEdit::removeSelectedText()
 {
+    if ( readOnly )
+	return;
+
     drawCursor( FALSE );
     checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
     if ( !undoRedoInfo.valid() ) {
@@ -447,6 +461,7 @@ void QTextEdit::removeSelectedText()
     ensureCursorVisible();
     drawCursor( TRUE );
     undoRedoInfo.clear();
+    emit textChanged();
 }
 
 void QTextEdit::moveCursor( int direction, bool shift, bool control )
@@ -583,13 +598,18 @@ void QTextEdit::drawCursor( bool visible )
 
     bool fill = TRUE;
     for ( int i = 0; i < doc->numSelections; ++i ) {
-	if ( cursor->parag()->hasSelection( i ) &&
-	     ( cursor->parag()->selectionStart( i ) <= cursor->index() &&
-	       cursor->parag()->selectionEnd( i ) > cursor->index() ) ) {
-	    if ( doc->invertSelectionText( i ) )
-		painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
-	    painter.fillRect( chr->x, y, cw, h, doc->selectionColor( i ) );
-	    fill = FALSE;
+	if ( cursor->parag()->hasSelection( i ) ) {
+	    int start = cursor->parag()->selectionStart( i );
+	    int end = cursor->parag()->selectionEnd( i );
+	    if ( end == cursor->parag()->length() - 1 && cursor->parag()->next() &&
+		 cursor->parag()->next()->hasSelection( i ) )
+		end++;
+	    if ( start <= cursor->index() && end > cursor->index() ) {
+		if ( doc->invertSelectionText( i ) )
+		    painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
+		painter.fillRect( chr->x, y, cw, h, doc->selectionColor( i ) );
+		fill = FALSE;
+	    }
 	}
     }
 	
@@ -676,6 +696,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 	repaintChanged();
     }
     updateCurrentFormat();
+    inDoubleClick = FALSE;
 }
 
 void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
@@ -954,6 +975,9 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 
 void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
 {
+    if ( readOnly )
+	return;
+
     drawCursor( FALSE );
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
@@ -984,10 +1008,15 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
     ensureCursorVisible();
     drawCursor( TRUE );
     undoRedoInfo.text += text;
+
+    emit textChanged();
 }
 
 void QTextEdit::undo()
 {
+    if ( readOnly )
+	return;
+
     undoRedoInfo.clear();
     drawCursor( FALSE );
     QTextEditCursor *c = doc->undo( cursor );
@@ -998,10 +1027,14 @@ void QTextEdit::undo()
     ensureCursorVisible();
     repaintChanged();
     drawCursor( TRUE );
+    emit textChanged();
 }
 
 void QTextEdit::redo()
 {
+    if ( readOnly )
+	return;
+
     undoRedoInfo.clear();
     drawCursor( FALSE );
     QTextEditCursor *c = doc->redo( cursor );
@@ -1013,10 +1046,14 @@ void QTextEdit::redo()
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
+    emit textChanged();
 }
 
 void QTextEdit::paste()
 {
+    if ( readOnly )
+	return;
+
     QString s = QApplication::clipboard()->text();
     if ( !s.isEmpty() )
 	insert( s, FALSE, TRUE );
@@ -1038,6 +1075,9 @@ void QTextEdit::repaintChanged()
 
 void QTextEdit::cut()
 {
+    if ( readOnly )
+	return;
+
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	doc->copySelectedText( QTextEditDocument::Standard );
 	removeSelectedText();
@@ -1052,10 +1092,14 @@ void QTextEdit::copy()
 
 void QTextEdit::indent()
 {
+    if ( readOnly )
+	return;
+
     drawCursor( FALSE );
     cursor->indent();
     repaintChanged();
     drawCursor( TRUE );
+    emit textChanged();
 }
 
 bool QTextEdit::focusNextPrevChild( bool )
@@ -1065,6 +1109,9 @@ bool QTextEdit::focusNextPrevChild( bool )
 
 void QTextEdit::setFormat( QTextEditFormat *f, int flags )
 {
+    if ( readOnly )
+	return;
+
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	drawCursor( FALSE );
 	doc->setFormat( QTextEditDocument::Standard, f, flags );
@@ -1080,8 +1127,61 @@ void QTextEdit::setFormat( QTextEditFormat *f, int flags )
     }
 }
 
-void QTextEdit::setParagType( int t )
+void QTextEdit::setFormat( QStyleSheetItem *f )
 {
+    if ( readOnly )
+	return;
+
+    if ( !f )
+	return;
+
+    QTextEditFormat fm( *currentFormat );
+    int flags = 0;
+    if ( f->fontWeight() != -1 ) {
+	flags |= QTextEditFormat::Bold;
+	fm.setBold( f->fontWeight() == QFont::Bold );
+    }
+    if ( f->definesFontItalic() ) {
+	flags |= QTextEditFormat::Italic;
+	fm.setItalic( f->fontItalic() );
+    }
+    if ( f->definesFontUnderline() ) {
+	flags |= QTextEditFormat::Underline;
+	fm.setUnderline( f->fontUnderline() );
+    }
+    if ( f->fontSize() != -1 ) {
+	flags |= QTextEditFormat::Size;
+	fm.setPointSize( f->fontSize() );
+    } else if ( f->logicalFontSize() != -1 ) {
+	flags |= QTextEditFormat::Size;
+	QFont fn( fm.font() );
+	f->styleSheet()->scaleFont( fn, f->logicalFontSize() );
+	fm.setPointSize( fn.pointSize() );
+    }
+    if ( !f->fontFamily().isEmpty() ) {
+	flags |= QTextEditFormat::Family;
+	fm.setFamily( f->fontFamily() );
+    }
+    if ( f->color().isValid() ) {
+	flags |= QTextEditFormat::Color;
+	fm.setColor( f->color() );
+    }
+    setFormat( &fm, flags );
+
+    if ( f->alignment() != -1 )
+	setAlignment( f->alignment() );
+    if ( f->displayMode() == QStyleSheetItem::DisplayListItem )
+	setParagType( BulletList );
+    else
+	setParagType( Normal );
+
+}
+
+void QTextEdit::setParagType( ParagType t )
+{
+    if ( readOnly )
+	return;
+
     QTextEditParag::Type type = (QTextEditParag::Type)t;
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextEditDocument::Standard ) ) {
@@ -1111,6 +1211,9 @@ void QTextEdit::setParagType( int t )
 
 void QTextEdit::setAlignment( int a )
 {
+    if ( readOnly )
+	return;
+
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextEditDocument::Standard ) ) {
 	cursor->parag()->setAlignment( a );
@@ -1153,8 +1256,8 @@ void QTextEdit::updateCurrentFormat()
 	emit currentAlignmentChanged( currentAlignment );
     }
 
-    if ( currentParagType != (int)cursor->parag()->type() ) {
-	currentParagType = (int)cursor->parag()->type();
+    if ( currentParagType != (ParagType)cursor->parag()->type() ) {
+	currentParagType = (ParagType)cursor->parag()->type();
 	emit currentParagTypeChanged( currentParagType );
     }
 }
@@ -1218,12 +1321,32 @@ QString QTextEdit::text( int parag, bool formatted ) const
     return doc->text( parag, formatted );
 }
 
-void QTextEdit::setText( const QString &txt )
+void QTextEdit::setText( const QString &txt, bool tabify )
 {
-    doc->setText( txt );
+    doc->setText( txt, tabify );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
+    emit textChanged();
+}
+
+QString QTextEdit::fileName() const
+{
+    return doc->fileName();
+}
+
+void QTextEdit::load( const QString &fn, bool tabify )
+{
+    doc->load( fn, tabify );
+    cursor->setParag( doc->firstParag() );
+    cursor->setIndex( 0 );
+    viewport()->repaint( FALSE );
+    emit textChanged();
+}
+
+void QTextEdit::save( const QString &fn )
+{
+    doc->save( fn );
 }
 
 bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
@@ -1247,6 +1370,195 @@ void QTextEdit::blinkCursor()
     blinkCursorVisible = !blinkCursorVisible;
     drawCursor( blinkCursorVisible );
     cursorVisible = cv;
+}
+
+void QTextEdit::setCursorPosition( int parag, int index )
+{
+    QTextEditParag *p = doc->paragAt( parag );
+    if ( !p )
+	return;
+
+    if ( index > p->length() - 1 )
+	index = p->length() - 1;
+
+    drawCursor( FALSE );
+    cursor->setParag( p );
+    cursor->setIndex( index );
+    ensureCursorVisible();
+    drawCursor( TRUE );
+}
+
+void QTextEdit::cursorPosition( int &parag, int &index )
+{
+    parag = cursor->parag()->paragId();
+    index = cursor->index();
+}
+
+void QTextEdit::setSelection( int parag_from, int index_from,
+			      int parag_to, int index_to )
+{
+    QTextEditParag *p1 = doc->paragAt( parag_from );
+    if ( !p1 )
+	return;
+    QTextEditParag *p2 = doc->paragAt( parag_to );
+    if ( !p2 )
+	return;
+
+    if ( index_from > p1->length() - 1 )
+	index_from = p1->length() - 1;
+    if ( index_to > p2->length() - 1 )
+	index_to = p2->length() - 1;
+
+    drawCursor( FALSE );
+    QTextEditCursor c = *cursor;
+    c.setParag( p1 );
+    c.setIndex( index_from );
+    cursor->setParag( p2 );
+    cursor->setIndex( index_to );
+    doc->setSelectionStart( QTextEditDocument::Standard, &c );
+    doc->setSelectionEnd( QTextEditDocument::Standard, cursor );
+    repaintChanged();
+    ensureCursorVisible();
+    drawCursor( TRUE );
+}
+
+void QTextEdit::selection( int &parag_from, int &index_from,
+			   int &parag_to, int &index_to )
+{
+    if ( !doc->hasSelection( QTextEditDocument::Standard ) ) {
+	parag_from = -1;
+	index_from = -1;
+	parag_to = -1;
+	index_to = -1;
+	return;
+    }
+
+    doc->selectionStart( QTextEditDocument::Standard, parag_from, index_from );
+    doc->selectionEnd( QTextEditDocument::Standard, parag_from, index_from );
+}
+
+void QTextEdit::setTextFormat( Qt::TextFormat f )
+{
+    doc->setTextFormat( f );
+}
+
+Qt::TextFormat QTextEdit::textFormat() const
+{
+    return doc->textFormat();
+}
+
+int QTextEdit::paragraphs() const
+{
+    return doc->lastParag()->paragId() + 1;
+}
+
+int QTextEdit::linesOfParagraph( int parag ) const
+{
+    QTextEditParag *p = doc->paragAt( parag );
+    if ( !p )
+	return -1;
+    return p->lines();
+}
+
+int QTextEdit::lines() const
+{
+    qWarning( "WARNING: QTextEdit::lines() is slow - will be improved later..." );
+    QTextEditParag *p = doc->firstParag();
+    int l = 0;
+    while ( p ) {
+	l += p->lines();
+	p = p->next();
+    }
+
+    return l;
+}
+
+int QTextEdit::lineOfChar( int parag, int chr )
+{
+    QTextEditParag *p = doc->paragAt( parag );
+    if ( !p )
+	return -1;
+
+    int idx, line;
+    QTextEditString::Char *c = p->lineStartOfChar( chr, &idx, &line );
+    if ( !c )
+	return -1;
+
+    return line;
+}
+
+void QTextEdit::setReadOnly( bool ro )
+{
+    if ( ro == readOnly )
+	return;
+    readOnly = ro;
+}
+
+void QTextEdit::setModified( bool m )
+{
+    modified = m;
+    if ( modified ) {
+	disconnect( this, SIGNAL( textChanged() ),
+		    this, SLOT( setModified() ) );
+    } else {
+	connect( this, SIGNAL( textChanged() ),
+		 this, SLOT( setModified() ) );
+    }
+}
+
+bool QTextEdit::isModified() const
+{
+    return modified;
+}
+
+void QTextEdit::setModified()
+{
+    setModified( TRUE );
+}
+
+bool QTextEdit::italic() const
+{
+    return currentFormat->font().italic();
+}
+
+bool QTextEdit::bold() const
+{
+    return currentFormat->font().bold();
+}
+
+bool QTextEdit::underline() const
+{
+    return currentFormat->font().underline();
+}
+
+QString QTextEdit::family() const
+{
+    return currentFormat->font().family();
+}
+
+int QTextEdit::pointSize() const
+{
+    return currentFormat->font().pointSize();
+}
+
+QColor QTextEdit::color() const
+{
+    return currentFormat->color();
+}
+
+QFont QTextEdit::font() const
+{
+    return currentFormat->font();
+}
+
+QTextEdit::ParagType QTextEdit::paragType() const
+{
+    return currentParagType;
+}
+
+int QTextEdit::alignment() const
+{
+    return currentAlignment;
 }
 
 void QTextEdit::UndoRedoInfo::clear()

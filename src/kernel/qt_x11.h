@@ -89,9 +89,8 @@ typedef char *XPointer;
 // broken in Xlib up to what version of AIX?
 #define NO_XIM
 #elif defined(_OS_SOLARIS_)
-// broken in Xlib up to and including Solaris 7; crashes hard under a C locale
-// enabled again, workaround applied (change "C" to "en_US")
-// #define NO_XIM
+// XRegisterIMInstantiateCallback broken under "C" locale on Solaris
+#define NO_XIM
 #elif defined(NO_DEBUG) && defined(_OS_IRIX_) && defined(_CC_EDG_)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define NO_XIM

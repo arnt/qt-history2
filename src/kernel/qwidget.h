@@ -713,7 +713,7 @@ struct QTLWExtra {
 #if defined(_WS_X11_)
     WId	     parentWinId;			// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
-    uint     wmstate: 2;			// wmstate trigger
+    uint     reserved: 2;			// reserved
     uint     dnd : 1; 				// DND properties installed
     uint     uspos : 1;                         // User defined position
     uint     ussize : 1;                        // User defined size

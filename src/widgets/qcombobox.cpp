@@ -1930,7 +1930,7 @@ void QComboBox::clearEdit()
   user's editing and entering the change in the combo only when the
   user presses enter.
 
-  \sa clearEditText() insertItem()
+  \sa clearEdit() insertItem()
 */
 
 void QComboBox::setEditText( const QString &newText )

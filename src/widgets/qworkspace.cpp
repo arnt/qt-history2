@@ -97,7 +97,7 @@ const bool win32 = TRUE;
 */
 
 
-static const char * close_xpm[] = {
+static const char * const close_xpm[] = {
 "16 16 2 1",
 "# c #000000",
 ". c None",
@@ -118,7 +118,7 @@ static const char * close_xpm[] = {
 "................",
 "................"};
 
-static const char*maximize_xpm[]={
+static const char * const maximize_xpm[]={
 "16 16 2 1",
 "# c #000000",
 ". c None",
@@ -140,7 +140,7 @@ static const char*maximize_xpm[]={
 "................"};
 
 
-static const char * minimize_xpm[] = {
+static const char * const minimize_xpm[] = {
 "16 16 2 1",
 "# c #000000",
 ". c None",
@@ -161,7 +161,7 @@ static const char * minimize_xpm[] = {
 "................",
 "................"};
 
-static const char * normalize_xpm[] = {
+static const char * const normalize_xpm[] = {
 "16 16 2 1",
 "# c #000000",
 ". c None",
@@ -194,7 +194,7 @@ const bool win32 = FALSE;
 #define RANGE 16
 #define OFFSET 20
 
-static const char * close_xpm[] = {
+static const char * const close_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
 ".      c #ffffff",
@@ -216,7 +216,7 @@ static const char * close_xpm[] = {
 "                ",
 "                "};
 
-static const char * maximize_xpm[] = {
+static const char * const maximize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
 ".      c #ffffff",
@@ -239,7 +239,7 @@ static const char * maximize_xpm[] = {
 "                "};
 
 
-static const char * minimize_xpm[] = {
+static const char * const minimize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
 ".      c #ffffff",
@@ -261,7 +261,7 @@ static const char * minimize_xpm[] = {
 "                ",
 "                "};
 
-static const char * normalize_xpm[] = {
+static const char * const normalize_xpm[] = {
 "16 16 3 1",
 " 	s None	c None",
 ".	c #ffffff",
@@ -1327,7 +1327,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     if ( !hasBeenResize ) {
 	QSize cs = childWidget->sizeHint();
 	QSize s( cs.width() + 2*frameWidth() + 2*BORDER,
-		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION + 
+		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION +
 		 2*BORDER );
 	resize( s );
     } else {
@@ -1427,7 +1427,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    if ( re->size() != windowSize ){
 		int th = titlebar->sizeHint().height();
 		QSize s( re->size().width() + 2*frameWidth() + 2*BORDER,
-			 re->size().height() + 3*frameWidth() + th + 
+			 re->size().height() + 3*frameWidth() + th +
 			 TITLEBAR_SEPARATION+2*BORDER );
 		resize( s );
 	    }
@@ -1509,7 +1509,7 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 		  childWidget->minimumWidth()) + 2 * BORDER + 2 * frameWidth();
     int mh = QMAX(childWidget->minimumSizeHint().height(),
 		  childWidget->minimumHeight())
-	     + 2 * BORDER +  2 * frameWidth() + TITLEBAR_SEPARATION 
+	     + 2 * BORDER +  2 * frameWidth() + TITLEBAR_SEPARATION
 	     + titlebar->sizeHint().height();
 
     QSize mpsize( geometry().right() - pp.x() + 1,

@@ -29,12 +29,8 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     file->setCheckable( TRUE );
     file->insertItem( "Render Pixmap", this, 
 		      SLOT(makePixmap()) );
-    file->insertItem( "Render Pixmap Manually", this, 
-		      SLOT(makePixmapManually()) );
     file->insertItem( "Render Pixmap Hidden", this, 
 		      SLOT(makePixmapHidden()) );
-    file->insertItem( "Render Pixmap Hidden and Manually", this, 
-		      SLOT(makePixmapHiddenManually()) );
     file->insertSeparator();
     fixMenuItemId = file->insertItem( "Use Fixed Pixmap Size", this, 
 				      SLOT(useFixedPixmapSize()) );
@@ -126,40 +122,6 @@ void GLObjectWindow::makePixmap()
 }
 
 
-void GLObjectWindow::makePixmapManually()
-{
-    // Make a pixmap to be rendered on by the QGLWidget
-    QPixmap pm( pmSz.isValid() ? pmSz : c1->size() );
-
-    // Store the QGLWidget's current context, for later restoration
-    QGLContext* origCx = (QGLContext*)c1->context();
-
-    // Make a gl context to draw on our pixmap
-    QGLContext* pcx = new QGLContext( QGLFormat(), &pm );
-
-    // Make the QGLwidget use our pixmap-context,
-    // without deleting the old context, which we are storing
-    // It will share GL display lists with the old context, if possible
-    c1->setContext( pcx, 0, FALSE );
-    
-    if ( c1->isValid() ) {
-
-	// Make the QGLWidget draw itself, i.e. render the pixmap
-	c1->updateGL();
-
-	// Present the pixmap to the user
-	drawOnPixmap( &pm );
-        lb->setPixmap( pm );
-    }
-    else {
-	lb->setText( "Failed to render Pixmap." );
-    }
-    // Restore the old context to the QGLWidget, 
-    // so it will continue to work as before
-    c1->setContext( origCx );	// Will delete pcx
-}
-
-
 void GLObjectWindow::makePixmapHidden()
 {
     // Make a QGLWidget to draw the pixmap. This widget will not be shown.
@@ -191,38 +153,6 @@ void GLObjectWindow::makePixmapHidden()
 	lb->setText( "Failed to render Pixmap." );
     }
     delete w;
-}
-
-
-void GLObjectWindow::makePixmapHiddenManually()
-{
-    // Make a QGLWidget to draw the pixmap. This widget will not be shown.    
-    GLBox* w = new GLBox( this, "temporary glwidget", c1 );
-
-    // Make a pixmap to be rendered
-    QPixmap pm( pmSz.isValid() ? pmSz : c1->size() );
-
-    // Make a gl context to draw on this pixmap
-    QGLContext* pcx = new QGLContext( QGLFormat(), &pm );
-
-    // Make our widget use this context
-    w->setContext( pcx );
-
-    if ( w->isValid() ) {
-	// Set the current rotation
-	w->copyRotation( *c1 );
-
-	// Make the QGLWidget draw itself, i.e. render the pixmap
-	w->updateGL();
-
-	// Present the pixmap to the user
-	drawOnPixmap( &pm );
-	lb->setPixmap( pm );
-    }
-    else {
-	lb->setText( "Failed to render Pixmap." );
-    }
-    delete w;	// Will delete pcx
 }
 
 

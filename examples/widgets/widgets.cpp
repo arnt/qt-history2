@@ -182,10 +182,10 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     popup->insertItem( "&Quit", qApp, SLOT(quit()), CTRL+Key_Q );
 
 
-    popup = new QPopupMenu( this );
+    textStylePopup = popup = new QPopupMenu( this );
     menuBar()->insertItem( "&Edit", popup );
 
-    id = popup->insertItem( "&Plain" );
+    plainStyleID = id = popup->insertItem( "&Plain" );
     popup->setAccel( CTRL+Key_T, id );
 
     popup->insertSeparator();
@@ -205,7 +205,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     f = font();
     f.setStrikeOut( TRUE );
     id = popup->insertItem( new MyMenuItem( "&Strike", f ) );
-
+    connect( textStylePopup, SIGNAL(activated(int)), 
+	     this, SLOT(popupSelected(int)) );
+    
     // Create an analog and a digital clock
     AnalogClock  *aclock = new AnalogClock( central );
     aclock->setAutoMask( TRUE );
@@ -551,6 +553,18 @@ void WidgetView::movieStatus( int s )
     }
 }
 
+
+void WidgetView::popupSelected( int selectedId )
+{
+    if ( selectedId == plainStyleID ) {
+	for ( int i = 0; i < int(textStylePopup->count()); i++ ) {
+	    int id = textStylePopup->idAt( i );
+	    textStylePopup->setItemChecked( id, FALSE);
+	}    
+    } else {
+	textStylePopup->setItemChecked( selectedId, TRUE );
+    }
+}
 
 void WidgetView::checkBoxClicked( int id )
 {

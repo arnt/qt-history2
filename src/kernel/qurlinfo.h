@@ -85,13 +85,10 @@ public:
     static bool equal( const QUrlInfo &i1, const QUrlInfo &i2,
 		       int sortBy );
 
+    bool operator==( const QUrlInfo &i ) const;
 private:
     QUrlInfoPrivate *d;
 
 };
-
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool operator== ( const QUrlInfo&, const QUrlInfo& );
-#endif
 
 #endif

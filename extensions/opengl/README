@@ -20,16 +20,16 @@ OpenGL Extension library by giving the command 'make' in the
 qt/extensions/opengl/src directory. The resulting library will be
 placed in the same directory as the main Qt library (i.e. qt/lib).
 
-The default configuration specifies using the Mesa libraries on
-platforms that typically do not have native OpenGL libraries
-(e.g. Linux). If you are using one of these systems, but you have
-native OpenGL libraries, you will typically want to use these instead
-of Mesa. To do this, edit the SYSCONF_LIBS_OPENGL line in the config
-file you are using (qt/configs/*), changing "-lMesaGL -lMesaGLU" to
-"-lGL -lGLU"; then run "configure" again. Note: Mesa version 3.1
-(released 1999/12/14) and newer has changed the naming scheme of the
-libraries, so if you are using this version, you will also need to do
-this change.
+The building process requires an OpenGL library and OpenGL header
+files to be already installed on your system.
+
+Note about using Mesa: Mesa versions earlier than 3.1 would use the
+name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
+"GLU". If you want to use a pre-3.1 version of Mesa, you must change
+the Makefiles to use these library names instead. The easiest way to
+do this edit the SYSCONF_LIBS_OPENGL line in the config file you are
+using (qt/configs/*), changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU";
+then run "configure" again.
 
 
 		    Using the Qt OpenGL Extension

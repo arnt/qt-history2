@@ -23,6 +23,7 @@
 **
 *****************************************************************************/
 
+
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidget.h"
@@ -676,8 +677,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
     if ( isTopLevel() ) {
-	//setWState( WState_ForceHide );  WWA: This severely breaks reparent().
-
+	setWState( WState_ForceHide );
 	if ( testWFlags( WType_Modal ) )
 	    setWState( WState_Modal ); // default for modal windows is to be modal
 	QFocusData *fd = focusData( TRUE );
@@ -887,7 +887,6 @@ void QWidget::createTLExtra()
 	x->normalGeometry = QRect(0,0,-1,-1);
 	x->embedded = 0;
 	x->parentWinId = 0;
-	x->wmstate = 0;
 	x->dnd = 0;
 	x->uspos = 0;
 	x->ussize = 0;
@@ -1262,10 +1261,10 @@ void QWidget::enabledChange( bool )
   \fn QRect QWidget::frameGeometry() const
   Returns the geometry of the widget, relative to its parent and
   including the window frame.
-  
+
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
-  
+
   \sa geometry(), x(), y(), pos()
 */
 
@@ -1283,7 +1282,7 @@ QRect QWidget::frameGeometry() const
 
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
-  
+
   \sa frameGeometry(), size(), rect()
 */
 
@@ -1329,17 +1328,17 @@ QRect QWidget::frameGeometry() const
 /*!
   \fn int QWidget::width() const
   Returns the width of the widget, excluding the window frame.
-  
+
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
-  
+
   \sa geometry(), height(), size()
 */
 
 /*!
   \fn int QWidget::height() const
   Returns the height of the widget, excluding the window frame.
-  
+
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
 
@@ -1350,10 +1349,10 @@ QRect QWidget::frameGeometry() const
   \fn QRect QWidget::rect() const
   Returns the the internal geometry of the widget, excluding the window frame.
   rect() equals QRect(0,0,width(),height()).
-  
+
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
-  
+
   \sa size()
 */
 
@@ -2842,7 +2841,7 @@ void QWidget::setCRect( const QRect &r )
 
   See the \link geometry.html Window Geometry documentation\endlink
   for an overview of geometry issues with top-level widgets.
-  
+
   \sa pos(), resize(), setGeometry(), moveEvent()
 */
 
@@ -3074,7 +3073,8 @@ bool qt_modal_state();				// --- "" ---
   change some settings before a widget is shown, use showEvent()
   instead. If you need to do some delayed initialization use polish().
 
-  \sa showEvent, hide(), showMinimized(), isVisible(), polish()
+  \sa showEvent(), hide(), showMinimized(), showMaximized(), showNormal(),
+  isVisible(), polish()
 */
 
 void QWidget::show()

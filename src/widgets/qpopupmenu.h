@@ -130,7 +130,7 @@ private:
     uint accelDisabled : 1;
     uint checkable : 1;
     uint connectModalRecursionSafety : 1;
-    uint tearedOff : 1;
+    uint tornOff : 1;
     int maxPMWidth;
     int ncols;
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );

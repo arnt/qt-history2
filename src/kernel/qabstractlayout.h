@@ -215,6 +215,7 @@ protected:
     void deleteAllItems();
 
     void setSupportsMargin( bool );
+    QRect alignmentRect( const QRect& ) const;
 private:
     void setWidgetLayout( QWidget *, QLayout * );
     void init();

@@ -92,7 +92,7 @@ public:
     Commands type() { return End; };
 };
 
-static const char *arrow[] = {
+static const char * const arrow_xpm[] = {
     "     8     8        2            1",
     ". c None",
     "# c #000000",
@@ -172,6 +172,7 @@ struct QMultiLineData
 	    chartable[--i] = 0;
     }
     QPixmap arrow;
+    QPoint dnd_startpos;
 };
 
 
@@ -1890,6 +1891,7 @@ void QMultiLineEdit::end( bool mark )
 void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 {
     stopAutoScroll();
+    d->dnd_startpos = e->pos();
 
     if ( e->button() == RightButton ) {
 	d->popup->setItemEnabled( this->d->id[ 0 ],
@@ -2023,7 +2025,10 @@ void QMultiLineEdit::stopAutoScroll()
 */
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( d->dnd_primed ) {
+    killTimer(d->dnd_timer);
+    d->dnd_timer = 0;
+    if ( d->dnd_primed &&
+	 ( d->dnd_startpos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	doDrag();
 	return;
     }
@@ -3394,7 +3399,7 @@ void QMultiLineEdit::setWordWrap( WordWrap mode )
     d->wordwrap = mode;
 
     if ( BREAK_WITHIN_WORDS  ) {
-	d->arrow = QPixmap( arrow );
+	d->arrow = QPixmap( arrow_xpm );
 	d->marg_extra = 8;
 	if ( DYNAMIC_WRAP )
 	    clearTableFlags( Tbl_autoHScrollBar );
@@ -3656,8 +3661,9 @@ void QMultiLineEdit::processCmd( QMultiLineEditCommand* cmd, bool undo)
  */
 void QMultiLineEdit::undo()
 {
-    if (d->undoList.isEmpty())
+    if ( d->undoList.isEmpty() || isReadOnly() )
 	return;
+    textDirty = FALSE;
     int macroLevel = 0;
     bool before = d->undo;
     d->undo = FALSE;
@@ -3672,6 +3678,9 @@ void QMultiLineEdit::undo()
 	addRedoCmd( command );
     } while (macroLevel != 0);
     d->undo = before;
+    if ( textDirty )
+	emit textChanged();
+    textDirty = FALSE;
 }
 
 /*!
@@ -3679,8 +3688,9 @@ void QMultiLineEdit::undo()
  */
 void QMultiLineEdit::redo()
 {
-    if (d->redoList.isEmpty())
+    if ( d->redoList.isEmpty() || isReadOnly() )
 	return;
+    textDirty = FALSE;
     int macroLevel = 0;
     bool before = d->undo;
     d->undo = FALSE;
@@ -3697,6 +3707,9 @@ void QMultiLineEdit::redo()
 	d->undoList.append( command );
     } while (macroLevel != 0);
     d->undo = before;
+    if ( textDirty )
+	emit textChanged();
+    textDirty = FALSE;
 }
 
 /*!

@@ -70,7 +70,7 @@ public:
   sets its own geometry to the top of the parent widget and changes it
   appropriately whenever the parent is resized.
 
-  \important insertItem removeItem clear insertSeparator() setItemEnabled isItemEnabled
+  \important insertItem removeItem clear insertSeparator setItemEnabled isItemEnabled
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 

@@ -255,14 +255,22 @@ static void free_gc( Display *dpy, GC gc, bool privateGC = FALSE )
 
 
 /*****************************************************************************
-  QPainter internal GC (Graphics Context) cache for solid pens and brushes.
+  QPainter internal GC (Graphics Context) cache for solid pens and
+  brushes.
 
-  The GC cache makes a significant contribution to speeding up drawing.
-  Setting new pen and brush colors will make the painter look for another
-  GC with the same color instead of changing the color value of the GC
-  currently in use. The cache structure is optimized for fast lookup.
-  Only solid line pens with line width 0 and solid brushes are cached.
- *****************************************************************************/
+  The GC cache makes a significant contribution to speeding up
+  drawing.  Setting new pen and brush colors will make the painter
+  look for another GC with the same color instead of changing the
+  color value of the GC currently in use. The cache structure is
+  optimized for fast lookup.  Only solid line pens with line width 0
+  and solid brushes are cached.
+  
+  In addition, stored GCs may have an implicit clipping region
+  set. This prevents any drawing outside paint events. Both
+  updatePen() and updateBrush() keep track of the validity of this
+  clipping region by storing the clip_serial number in the cache.
+   
+*****************************************************************************/
 
 struct QGCC					// cached GC
 {
@@ -602,7 +610,7 @@ void QPainter::updatePen()
 	    if ( penRef &&((QGCC*)penRef)->clip_serial < gc_cache_clip_serial ) {
 		XSetRegion( dpy, gc, paintEventClipRegion->handle() );
 		((QGCC*)penRef)->clip_serial = gc_cache_clip_serial;
-	    } else {
+	    } else if ( !penRef ) {
 		XSetRegion( dpy, gc, paintEventClipRegion->handle() );
 	    }
 	} else if (penRef && ((QGCC*)penRef)->clip_serial ) {
@@ -770,7 +778,7 @@ static uchar *pat_tbl[] = {
 	    if ( brushRef &&((QGCC*)brushRef)->clip_serial < gc_cache_clip_serial ) {
 		XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
 		((QGCC*)brushRef)->clip_serial = gc_cache_clip_serial;
-	    } else {
+	    } else if ( !brushRef ){
 		XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
 	    }
 	} else if (brushRef && ((QGCC*)brushRef)->clip_serial ) {
@@ -2384,7 +2392,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     QBitmap *mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
     
-    if ( mask && !hasClipping() ) {
+    if ( mask && !hasClipping() && pdev != paintEventDevice ) {
 	if ( mono ) {				// needs GCs pen color
 	    bool selfmask = pixmap.data->selfmask;
 	    if ( selfmask ) {
@@ -2414,12 +2422,17 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     QRegion rgn = crgn;
-    if ( mask && pdev == paintEventDevice ) // implies that clipping is on
-	rgn = rgn.intersect( *paintEventClipRegion );
 
     if ( mask ) {				// pixmap has clip mask
-	// Implies that clipping is on
+	// Implies that clipping is on, either explicit or implicit
 	// Create a new mask that combines the mask with the clip region
+	
+	if ( pdev == paintEventDevice ) {
+	    if ( hasClipping() )
+		rgn = rgn.intersect( *paintEventClipRegion );
+	    else
+		rgn = *paintEventClipRegion;
+	}
 
 	QBitmap *comb = new QBitmap( sw, sh );
 	comb->detach();

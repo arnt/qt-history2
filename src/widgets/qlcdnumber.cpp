@@ -643,7 +643,6 @@ void QLCDNumber::internalSetString( const QString& s )
     QString buffer;
     int i;
     int len = s.length();
-    QPainter p( this );
     QBitArray newPoints(ndigits);
 
     if ( !smallPoint ) {
@@ -697,10 +696,13 @@ void QLCDNumber::internalSetString( const QString& s )
 	    points = newPoints;
 	repaint( contentsRect() );
     }
-    else if ( !smallPoint )
-	drawString( buffer, p );
-    else
-	drawString( buffer, p, &newPoints );
+    else {
+	QPainter p( this );
+	if ( !smallPoint )
+	    drawString( buffer, p );
+	else
+	    drawString( buffer, p, &newPoints );
+    }
 }
 
 /*!

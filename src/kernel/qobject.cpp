@@ -80,7 +80,7 @@
   temporarily block signals with blockSignals(). The protected
   functions connectNotify() and disconnectNotify() make it possible to
   track connections.
-  
+
   QObjects organize themselves in object trees. When you create a
   QObject with another object as parent, it will automatically do an
   insertChild() on the parent and thus show up in the parent's
@@ -90,11 +90,11 @@
   existing. With queryList(), you can query all children and
   children's children of an object for certain criteria, such as their
   class or object name.
-  
+
   Every object has an object name() and can report its className() and
   whether it inherits() another class in the QObject inheritance
   hierarchy.
-  
+
   When an object is deleted, it emits a destroyed() signal. You can
   catch this signal to avoid dangling references to QObjects. The
   QGuardedPtr class provides an elegant way to utilize this feature.
@@ -103,7 +103,7 @@
   other objects. See installEventFilter() and eventFilter() for
   details. A convenience handler childEvent() can be reimplemented to
   catch child events.
-  
+
   Last but not least, QObject provides the basic timer support in Qt,
   see startTimer() and timerEvent() for details.
 
@@ -2204,8 +2204,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 		    }
 		}
 	    }
-	} else { 
-	    if ( value.type() != QVariant::String && value.type() != QVariant::CString )
+	} else {
+	    if ( value.type() != QVariant::String &&
+		 value.type() != QVariant::CString )
 		return FALSE;
 	    QCString s = value.toCString();
 	    for( uint i = p->enumData->count; TRUE; --i ) {
@@ -2237,316 +2238,291 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoImage m = (ProtoImage)p->set;
 	    (this->*m)( (QImage)(value.toImage()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoImage m = (RProtoImage)p->set;
 	    (this->*m)( value.toImage() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Point:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPoint m = (ProtoPoint)p->set;
 	    (this->*m)( value.toPoint() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPoint m = (RProtoPoint)p->set;
 	    (this->*m)( value.toPoint() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
-	
+
     case QVariant::StringList:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoStringList m = (ProtoStringList)p->set;
 	    (this->*m)( (QStringList)value.toStringList() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoStringList m = (RProtoStringList)p->set;
 	    (this->*m)( value.toStringList() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::String:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoString m = (ProtoString)p->set;
 	    (this->*m)( (QString)(value.toString()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoString m = (RProtoString)p->set;
 	    (this->*m)( value.toString() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::CString:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCString m = (ProtoCString)p->set;
 	    (this->*m)( (QCString)(value.toCString()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoCString m = (RProtoCString)p->set;
 	    (this->*m)( value.toCString() );
-	}
-	else if ( p->sspec == QMetaProperty::ConstCharStar ) {
+	} else if ( p->sspec == QMetaProperty::ConstCharStar ) {
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->set;
 	    (this->*m)( value.toCString().data() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Font:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoFont m = (ProtoFont)p->set;
 	    (this->*m)( (QFont)(value.toFont()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoFont m = (RProtoFont)p->set;
 	    (this->*m)( value.toFont() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Pixmap:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPixmap m = (ProtoPixmap)p->set;
 	    (this->*m)( (QPixmap)(value.toPixmap()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPixmap m = (RProtoPixmap)p->set;
 	    (this->*m)( value.toPixmap() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Brush:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBrush m = (ProtoBrush)p->set;
 	    (this->*m)( (QBrush)(value.toBrush()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoBrush m = (RProtoBrush)p->set;
 	    (this->*m)( value.toBrush() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Rect:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoRect m = (ProtoRect)p->set;
 	    (this->*m)( value.toRect() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoRect m = (RProtoRect)p->set;
 	    (this->*m)( value.toRect() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Size:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoSize m = (ProtoSize)p->set;
 	    (this->*m)( value.toSize() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoSize m = (RProtoSize)p->set;
 	    (this->*m)( value.toSize() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Color:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColor m = (ProtoColor)p->set;
 	    (this->*m)( (QColor)(value.toColor()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoColor m = (RProtoColor)p->set;
 	    (this->*m)( value.toColor() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Palette:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPalette m = (ProtoPalette)p->set;
 	    (this->*m)( (QPalette)(value.toPalette()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoPalette m = (RProtoPalette)p->set;
 	    (this->*m)( value.toPalette() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::ColorGroup:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m = (ProtoColorGroup)p->set;
-	    (this->*m)( value.toColorGroup() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
-	    RProtoColorGroup m = (RProtoColorGroup)p->set;
 	    (this->*m)( (QColorGroup)(value.toColorGroup()) );
-	}
-	else
+	} else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoColorGroup m = (RProtoColorGroup)p->set;
+	    (this->*m)( value.toColorGroup() );
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Bitmap:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBitmap m = (ProtoBitmap)p->set;
-	    (this->*m)( value.toBitmap() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference )  {
-	    RProtoBitmap m = (RProtoBitmap)p->set;
 	    (this->*m)( (QBitmap)(value.toBitmap()) );
-	}
-	else
+	} else if ( p->sspec == QMetaProperty::Reference )  {
+	    RProtoBitmap m = (RProtoBitmap)p->set;
+	    (this->*m)( value.toBitmap() );
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Region:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoRegion m = (ProtoRegion)p->set;
 	    (this->*m)( (QRegion)(value.toRegion()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference )  {
+	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoRegion m = (RProtoRegion)p->set;
 	    (this->*m)( value.toRegion() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::PointArray:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoPointArray m = (ProtoPointArray)p->set;
-	    (this->*m)( value.toPointArray() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference )  {
-	    RProtoPointArray m = (RProtoPointArray)p->set;
 	    (this->*m)( (QPointArray)(value.toPointArray()) );
-	}
-	else
+	} else if ( p->sspec == QMetaProperty::Reference )  {
+	    RProtoPointArray m = (RProtoPointArray)p->set;
+	    (this->*m)( value.toPointArray() );
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Cursor:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoCursor m = (ProtoCursor)p->set;
 	    (this->*m)( (QCursor)(value.toCursor()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference )  {
+	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoCursor m = (RProtoCursor)p->set;
 	    (this->*m)( value.toCursor() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::IconSet:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoIconSet m = (ProtoIconSet)p->set;
 	    (this->*m)( (QIconSet)(value.toIconSet()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference )  {
+	} else if ( p->sspec == QMetaProperty::Reference )  {
 	    RProtoIconSet m = (RProtoIconSet)p->set;
 	    (this->*m)( value.toIconSet() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Int:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoInt m = (ProtoInt)p->set;
 	    (this->*m)( value.toInt() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoInt m = (RProtoInt)p->set;
 	    (this->*m)( value.toInt() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::UInt:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoUInt m = (ProtoUInt)p->set;
 	    (this->*m)( value.toUInt() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoUInt m = (RProtoUInt)p->set;
 	    (this->*m)( value.toUInt() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Double:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoDouble m = (ProtoDouble)p->set;
 	    (this->*m)( value.toDouble() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoDouble m = (RProtoDouble)p->set;
 	    (this->*m)( value.toDouble() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Bool:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoBool m = (ProtoBool)p->set;
 	    (this->*m)( value.toBool() );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoBool m = (RProtoBool)p->set;
 	    (this->*m)( value.toBool() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::List:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoList m = (ProtoList)p->set;
 	    (this->*m)( (QValueList<QVariant>)(value.toList()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoList m = (RProtoList)p->set;
 	    (this->*m)( value.toList() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
 
     case QVariant::Map:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoMap m = (ProtoMap)p->set;
 	    (this->*m)( (QMap<QString, QVariant>)(value.toMap()) );
-	}
-	else if ( p->sspec == QMetaProperty::Reference ) {
+	} else if ( p->sspec == QMetaProperty::Reference ) {
 	    RProtoMap m = (RProtoMap)p->set;
 	    (this->*m)( value.toMap() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return TRUE;
     }
 
@@ -2713,323 +2689,291 @@ QVariant QObject::property( const char *name ) const
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoImage m = (ProtoImage)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoImage m = (RProtoImage)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoImage m = (PProtoImage)p->get;
 	    const QImage* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QImage() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Point:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoPoint m = (ProtoPoint)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoPoint m = (RProtoPoint)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoPoint m = (PProtoPoint)p->get;
 	    const QPoint* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QPoint() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
-	
+
     case QVariant::StringList:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoStringList m = (ProtoStringList)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoStringList m = (RProtoStringList)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoStringList m = (PProtoStringList)p->get;
 	    const QStringList* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QStringList() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::List:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoList m = (ProtoList)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoList m = (RProtoList)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoList m = (PProtoList)p->get;
 	    const QValueList<QVariant>* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QValueList<QVariant>() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::CString:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoCString m = (ProtoCString)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoCString m = (RProtoCString)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoCString m = (PProtoCString)p->get;
 	    const QCString* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QCString() );
-	}
-	else if ( p->gspec == QMetaProperty::ConstCharStar ) {
+	} else if ( p->gspec == QMetaProperty::ConstCharStar ) {
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->get;
 	    value = QVariant( QCString( (this->*m)() ) );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::String:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoString m = (ProtoString)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoString m = (RProtoString)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoString m = (PProtoString)p->get;
 	    const QString* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QString() );
-	}
-	else if ( p->gspec == QMetaProperty::ConstCharStar ) {
+	} else if ( p->gspec == QMetaProperty::ConstCharStar ) {
 	    ProtoConstCharStar m = (ProtoConstCharStar)p->get;
 	    value = QVariant( QCString( (this->*m)() ) );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Font:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoFont m = (ProtoFont)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoFont m = (RProtoFont)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoFont m = (PProtoFont)p->get;
 	    const QFont* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QFont() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Pixmap:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoPixmap m = (ProtoPixmap)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoPixmap m = (RProtoPixmap)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoPixmap m = (PProtoPixmap)p->get;
 	    const QPixmap* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QPixmap() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Brush:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBrush m = (ProtoBrush)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoBrush m = (RProtoBrush)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoBrush m = (PProtoBrush)p->get;
 	    const QBrush* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QBrush() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Rect:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoRect m = (ProtoRect)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoRect m = (RProtoRect)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoRect m = (PProtoRect)p->get;
 	    const QRect* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QRect() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Size:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoSize m = (ProtoSize)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoSize m = (RProtoSize)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoSize m = (PProtoSize)p->get;
 	    const QSize* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QSize() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Color:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColor m = (ProtoColor)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoColor m = (RProtoColor)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoColor m = (PProtoColor)p->get;
 	    const QColor* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QColor() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Palette:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoPalette m = (ProtoPalette)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoPalette m = (RProtoPalette)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoPalette m = (PProtoPalette)p->get;
 	    const QPalette* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QPalette() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::ColorGroup:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoColorGroup m = (ProtoColorGroup)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoColorGroup m = (RProtoColorGroup)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoColorGroup m = (PProtoColorGroup)p->get;
 	    const QColorGroup* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QColorGroup() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Bitmap:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBitmap m = (ProtoBitmap)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoBitmap m = (RProtoBitmap)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoBitmap m = (PProtoBitmap)p->get;
 	    const QBitmap* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QBitmap() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::PointArray:
@@ -3037,189 +2981,168 @@ QVariant QObject::property( const char *name ) const
 	    ProtoPointArray m;
 	    m = (ProtoPointArray)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoPointArray m = (RProtoPointArray)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoPointArray m = (PProtoPointArray)p->get;
 	    const QPointArray* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QPointArray() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Region:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoRegion m = (ProtoRegion)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoRegion m = (RProtoRegion)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoRegion m = (PProtoRegion)p->get;
 	    const QRegion* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QRegion() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Cursor:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoCursor m = (ProtoCursor)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoCursor m = (RProtoCursor)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoCursor m = (PProtoCursor)p->get;
 	    const QCursor* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QCursor() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::IconSet:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoIconSet m = (ProtoIconSet)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoIconSet m = (RProtoIconSet)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoIconSet m = (PProtoIconSet)p->get;
 	    const QIconSet* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QIconSet() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Int:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoInt m = (ProtoInt)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoInt m = (RProtoInt)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoInt m = (PProtoInt)p->get;
 	    const int *p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( 0 );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::UInt:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoUInt m = (ProtoUInt)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoUInt m = (RProtoUInt)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoUInt m = (PProtoUInt)p->get;
 	    const uint *p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( 0 );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Double:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoDouble m = (ProtoDouble)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoDouble m = (RProtoDouble)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoDouble m = (PProtoDouble)p->get;
 	    const double* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( 0.0 );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Bool:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBool m = (ProtoBool)p->get;
-	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	    value = QVariant( (this->*m)(), 42 /* dummy */ );
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoBool m = (RProtoBool)p->get;
-	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    value = QVariant( (this->*m)(), 42 /* dummy */ );
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoBool m = (PProtoBool)p->get;
 	    const bool* p = (this->*m)();
-	    if ( p )
-		value = QVariant( *p );
-	    else
-		value = QVariant( (bool)FALSE );
-	}
-	else
+	    value = QVariant( p ? *p : FALSE, 42 /* dummy */ );
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
 
     case QVariant::Map:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoMap m = (ProtoMap)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Reference ) {
+	} else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoMap m = (RProtoMap)p->get;
 	    value = QVariant( (this->*m)() );
-	}
-	else if ( p->gspec == QMetaProperty::Pointer ) {
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoMap m = (PProtoMap)p->get;
 	    const QMap<QString,QVariant>* p = (this->*m)();
 	    if ( p )
 		value = QVariant( *p );
 	    else
 		value = QVariant( QMap<QString,QVariant>() );
-	}
-	else
+	} else {
 	    ASSERT( 0 );
+	}
 	return value;
     }
     return value;

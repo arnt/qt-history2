@@ -233,19 +233,9 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     if ( initialDirectory && initialDirectory->left( 5 ) == "file:" )
 	initialDirectory->remove( 0, 5 );
     QFileInfo fi( *initialDirectory );
-    if ( !fi.exists() &&
-	 ( initialDirectory->right( 1 ) != "/" || initialDirectory->right( 1 ) != "\\") ) {
-	int i = initialDirectory->findRev( "\\" );
-	if ( i == -1 )
-	    i = initialDirectory->findRev( "/" );
-	if ( i != -1 ) {
-	    isel = initialDirectory->mid( i + 1, 0xFFFFFF );
-	    initialDirectory->remove( i, 0xFFFFFF );
-	    fi = QFileInfo( *initialDirectory );
-	}
-    }
-    if ( initialDirectory && fi.isFile() ) {
-	*initialDirectory = fi.absFilePath();
+
+    if ( initialDirectory && !fi.isDir() ) {
+	*initialDirectory = fi.dirPath( TRUE );
 	isel = fi.fileName();
     }
 
@@ -290,19 +280,9 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     if ( initialDirectory && initialDirectory->left( 5 ) == "file:" )
 	initialDirectory->remove( 0, 5 );
     QFileInfo fi( *initialDirectory );
-    if ( !fi.exists() &&
-	 ( initialDirectory->right( 1 ) != "/" || initialDirectory->right( 1 ) != "\\") ) {
-	int i = initialDirectory->findRev( "\\" );
-	if ( i == -1 )
-	    i = initialDirectory->findRev( "/" );
-	if ( i != -1 ) {
-	    isel = initialDirectory->mid( i + 1, 0xFFFFFF );
-	    initialDirectory->remove( i, 0xFFFFFF );
-	    fi = QFileInfo( *initialDirectory );
-	}
-    }
-    if ( initialDirectory && fi.isFile() ) {
-	*initialDirectory = fi.absFilePath();
+
+    if ( initialDirectory && !fi.isDir() ) {
+	*initialDirectory = fi.dirPath( TRUE );
 	isel = fi.fileName();
     }
 
@@ -349,25 +329,16 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     if ( initialDirectory && initialDirectory->left( 5 ) == "file:" )
 	initialDirectory->remove( 0, 5 );
     fi = QFileInfo( *initialDirectory );
-    if ( !fi.exists() &&
-	 ( initialDirectory->right( 1 ) != "/" || initialDirectory->right( 1 ) != "\\") ) {
-	int i = initialDirectory->findRev( "\\" );
-	if ( i == -1 )
-	    i = initialDirectory->findRev( "/" );
-	if ( i != -1 ) {
-	    initialDirectory->remove( i, 0xFFFFFF );
-	    fi = QFileInfo( *initialDirectory );
-	}
-    }
-    if ( initialDirectory && fi.isFile() ) {
-	*initialDirectory = fi.absFilePath();
+
+    if ( initialDirectory && !fi.isDir() ) {
+	*initialDirectory = fi.dirPath( TRUE );
     }
 
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
 				       *initialDirectory, tr("Open"),
-				       filter, ExistingFiles );
+				       winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileNameA( ofn ) ) {
 	    QCString fileOrDir = ofn->lpstrFile;
 	    int offset = fileOrDir.length() + 1;
@@ -397,7 +368,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
 				     *initialDirectory, tr("Open"),
-				     filter, ExistingFiles );
+				     winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileName( ofn ) ) {
 	    QString fileOrDir = qt_winQString( ofn->lpstrFile );
 	    int offset = fileOrDir.length() + 1;

@@ -134,7 +134,7 @@ public:
     QVariant( int );
     QVariant( uint );
     // ### Problems on some compilers ?
-    QVariant( bool );
+    QVariant( bool, int );
     QVariant( double );
     QVariant( void* custom, const QVariantTypeBase* type );
     QVariant( const QVariantValueBase& );
@@ -294,7 +294,7 @@ public:
 
     void* create() const { return new T; }
     void destroy( void* ptr ) const { delete (T*)ptr; }
-    void* copy( const void* ptr ) const 
+    void* copy( const void* ptr ) const
         { return new T( (const T&)*((const T*)ptr) ); }
     void save( const void* ptr, QDataStream& str ) const { str << *((T*)ptr); }
     void load( void* ptr, QDataStream& str ) const { str >> *((T*)ptr); }

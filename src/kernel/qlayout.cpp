@@ -411,7 +411,7 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 /*
   Modify total maximum (max) and total expansion (exp)
   when adding boxmax/boxexp.
-  
+
   Expansive boxes win over non-expansive boxes.
 */
 static inline void maxExpCalc( QCOORD & max, bool &exp,
@@ -969,14 +969,26 @@ QSize QGridLayout::minimumSize() const
 {
     return array->minimumSize( spacing() ) + QSize(2*margin(),2*margin());
 }
+
+
+static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
+static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
+
+
 /*!
   Returns the maximum size needed by this grid.
 */
 
 QSize QGridLayout::maximumSize() const
 {
-    return  array->maximumSize( spacing() ) + QSize(2*margin(),2*margin())
+    QSize s =   array->maximumSize( spacing() ) + QSize(2*margin(),2*margin())
 	.boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+    if ( alignment() & HorAlign )
+	s.setWidth( QWIDGETSIZE_MAX );
+    if ( alignment() & VerAlign )	
+	s.setHeight( QWIDGETSIZE_MAX );
+
+    return s;
 }
 
 
@@ -1027,8 +1039,9 @@ void QGridLayout::setGeometry( const QRect &r )
 {
     if ( array->isDirty() || r != geometry() ) {
 	QLayout::setGeometry( r );
-	QRect s( r.x()+margin(), r.y()+margin(), 
-		 r.width()-2*margin(), r.height()-2*margin() );
+	QRect cr = alignment() ? alignmentRect(r) : r; 
+	QRect s( cr.x()+margin(), cr.y()+margin(),
+		 cr.width()-2*margin(), cr.height()-2*margin() );
 	array->distribute( s, spacing() );
     }
 }
@@ -1353,7 +1366,7 @@ struct QBoxLayoutItem
 {
     QBoxLayoutItem( QLayoutItem *it, int stretch_ = 0)
 	: item(it), stretch(stretch_), magic(FALSE) {}
-
+    ~QBoxLayoutItem() { delete item; } 
     int hfw( int w ) {
 	if ( item->hasHeightForWidth() )
 	    return item->heightForWidth( w );
@@ -1368,8 +1381,10 @@ struct QBoxLayoutItem
 class QBoxLayoutData
 {
 public:
-    QBoxLayoutData() :geomArray(0), hfwWidth(-1),dirty(TRUE) {}
-
+    QBoxLayoutData() :geomArray(0), hfwWidth(-1),dirty(TRUE) {
+	list.setAutoDelete( TRUE );
+    }
+    ~QBoxLayoutData() { delete geomArray; }
     void setDirty() {
 	delete geomArray;
 	geomArray=0;
@@ -1410,10 +1425,12 @@ public:
 	QBoxLayoutItem *b = data->list.take( idx );
 	if ( b ) {
 	    item = b->item;
+	    b->item = 0;
 	    delete b;
 	}
 	return item;
     }
+
 private:
     QBoxLayoutData *data;
     int idx;
@@ -1471,17 +1488,24 @@ private:
 
   </ul>
 
-  Use insertItem() to insert a layout item at a specified position.
+  Use insertWidget(), insertSpacing(), insertStretch() or insertLayout()
+  to insert a box at a specified position in the layout.
 
-  QBoxLayout also includes two margin widths: The border width and the
-  inter-box width.  The border width is the width of the reserved
-  space along each of the QBoxLayout's four sides.  The intra-widget
-  width is the width of the automatically allocated spacing between
-  neighbouring boxes.  (You can use addSpacing() to get more space.)
+  QBoxLayout also includes two margin widths: <ul> 
+  
+  <li> setMargin() sets the width of the outer border. This is the width
+  of the reserved space along each of the QBoxLayout's four sides.
+  
+  <li> setSpacing() sets the inter-box width. This is the width of the
+  automatically allocated spacing between neighbouring boxes.  (You
+  can use addSpacing() to get more space at a .)
 
-  The border width defaults to 0, and the intra-widget width defaults
-  to the same as the border width.  Both are set using arguments to
-  the constructor.
+  </ul>
+  
+  The outer border width defaults to 0, and the intra-widget width defaults
+  to the same as the border width for a top-level layout, or to the
+  same as the parent layout otherwise.  Both can be set using
+  arguments to the constructor.
 
   You will almost always want to use the convenience classes for
   QBoxLayout: QVBoxLayout and QHBoxLayout, because of their simpler
@@ -1616,8 +1640,14 @@ QSize QBoxLayout::maximumSize() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    return (data->maxSize + QSize(2*margin(),2*margin()))
-	.boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+    QSize s =  (data->maxSize + QSize(2*margin(),2*margin()))
+	       .boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+    if ( alignment() & HorAlign )
+	s.setWidth( QWIDGETSIZE_MAX );
+    if ( alignment() & VerAlign )
+	s.setHeight( QWIDGETSIZE_MAX );
+
+    return s;
 }
 
 
@@ -1697,8 +1727,9 @@ void QBoxLayout::setGeometry( const QRect &r )
 	QLayout::setGeometry( r );
 	if ( !data->geomArray )
 	    setupGeom();
-	QRect s( r.x()+margin(), r.y()+margin(), 
-		 r.width()-2*margin(), r.height()-2*margin() );
+	QRect cr = alignment() ? alignmentRect(r) : r;
+	QRect s( cr.x()+margin(), cr.y()+margin(),
+		 cr.width()-2*margin(), cr.height()-2*margin() );
 
 	QArray<QLayoutStruct> a = *data->geomArray;
 	int pos = horz(dir) ? s.x() : s.y();
@@ -1744,8 +1775,6 @@ void QBoxLayout::setGeometry( const QRect &r )
 
 /*!
   Adds \a item to the end of this box layout.
-
-  \sa insertItem()
 */
 
 void QBoxLayout::addItem( QLayoutItem *item )
@@ -1759,8 +1788,11 @@ void QBoxLayout::addItem( QLayoutItem *item )
 
 /*!
   Inserts \a item in this box layout at index \a index.  If \a index
-  is negative, the space is added at the end.
+  is negative, the item is added at the end.
 
+  \warning does not call QLayout::insertChildLayout() if \a item is 
+  a QLayout.
+  
   \sa addItem(), findWidget()
 */
 
@@ -2132,8 +2164,8 @@ void QBoxLayout::setupGeom()
     int n = data->list.count();
     data->geomArray = new QArray<QLayoutStruct>( n );
     QArray<QLayoutStruct> &a = *data->geomArray;
-    
-    bool first = TRUE; 
+
+    bool first = TRUE;
     for ( int i = 0; i < n; i++ ) {
 	QBoxLayoutItem *box = data->list.at(i);	
 	QSize max = box->item->maximumSize();
@@ -2231,15 +2263,14 @@ int QBoxLayout::calcHfw( int w )
 /*!
   \fn QBoxLayout::Direction QBoxLayout::direction() const
 
-  Returns the (serial) direction of the box. addWidget(), addBox()
-  and addSpacing() works in this direction; the stretch stretches
-  in this direction.
+  Returns the (serial) direction of the box. addWidget() and addSpacing()
+  work in this direction; the stretch stretches in this direction.
 
   The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom
   and \c BottomToTop. For the last two, the shorter aliases \c Down and
   \c Up are also available.
 
-  \sa addWidget(), addBox(), addSpacing()
+  \sa addWidget(), addSpacing()
 */
 
 

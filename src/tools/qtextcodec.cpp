@@ -427,36 +427,36 @@ int QWindowsLocalCodec::heuristicContentMatch(const char* chars, int len) const
 #else
 
 /* locale names mostly copied from XFree86 */
-static const char * iso8859_2locales[] = {
+static const char * const iso8859_2locales[] = {
     "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
     "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
     "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
     "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
 
-static const char * iso8859_3locales[] = {
+static const char * const iso8859_3locales[] = {
     "eo", 0 };
 
-static const char * iso8859_5locales[] = {
+static const char * const iso8859_5locales[] = {
     "bg", "bg_BG", "bulgarian", "mk", "mk_MK",
     "sp", "sp_YU", 0 };
 
-static const char * iso8859_6locales[] = {
+static const char * const iso8859_6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
 
-static const char * iso8859_7locales[] = {
+static const char * const iso8859_7locales[] = {
     "el", "el_GR", "greek", 0 };
 
-static const char * iso8859_8locales[] = {
+static const char * const iso8859_8locales[] = {
     "hebrew", "iw", "iw_IL", 0 };
 
-static const char * iso8859_9locales[] = {
+static const char * const iso8859_9locales[] = {
     "tr", "tr_TR", "turkish", 0 };
 
-static const char * iso8859_15locales[] = {
+static const char * const iso8859_15locales[] = {
     "fr", "fi", "french", "finnish", 0 };
 
 
-static bool try_locale_list( const char * locale[], const char * lang )
+static bool try_locale_list( const char * const locale[], const char * lang )
 {
     int i;
     for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
@@ -475,7 +475,7 @@ static bool try_locale_list( const char * locale[], const char * lang )
 // The real bug is that some programs break if the user specifies
 // ru_RU.KOI8-R.
 
-static const char * probably_koi8_rlocales[] = {
+static const char * const probably_koi8_rlocales[] = {
     "ru", "ru_SU", "ru_RU", "russian", 0 };
 
 // this means ANY of these locale aliases. if they're aliases for

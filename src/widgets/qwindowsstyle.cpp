@@ -193,7 +193,7 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     if ( lineWidth == 2 ) {
 	if (sunken)
 	    drawWinShades( p, x, y, w, h,
-			   g.shadow(), g.light(), g.dark(), g.button(),
+			   g.dark(), g.light(), g.shadow(), g.midlight(),
 			   fill );
 	else
 	    drawWinShades( p, x, y, w, h,
@@ -225,10 +225,10 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QPointArray a;				// arrow polygon
     switch ( type ) {
     case UpArrow:
-	a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
+	a.setPoints( 7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2 );
 	break;
     case DownArrow:
-	a.setPoints( 7, -3,-1, 3,-1, -2,0, 2,0, -1,1, 1,1, 0,2 );
+	a.setPoints( 7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1 );
 	break;
     case LeftArrow:
 	a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
@@ -461,9 +461,21 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 		   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
 				      &g.brush( QColorGroup::Background )));
     // the special reversed left shadow panel ( slightly different from drawPanel() )
-    qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
+    //qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
+    // #### DO SUNKEN!
+    if ( sunken )
+	drawWinShades( p, w-2-16, 2, 16, h-4,
+		       g.dark(), g.dark(), g.button(), g.button(), 
+		       fill ? fill : &g.brush( QColorGroup::Button ) );
+    else
+	drawWinShades( p, w-2-16, 2, 16, h-4,
+		       g.midlight(), g.shadow(), g.light(), g.dark(), 
+		       fill ? fill : &g.brush( QColorGroup::Button ) );
+
+
     drawArrow( p, QStyle::DownArrow, sunken,
-	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill?fill:&g.brush( QColorGroup::Button ) );
+	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled,
+	       fill ? fill : &g.brush( QColorGroup::Button ) );
 
 }
 

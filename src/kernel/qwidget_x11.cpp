@@ -159,7 +159,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( modal )
 	setWFlags(WStyle_Dialog);
     bool desktop = testWFlags(WType_Desktop);
-    Window root_win = RootWindow(dpy,scr);
+    Window root_win = qt_xrootwin(); // ## should be in paintdevice, depends on x11Display and x11Screen
     Window parentw, destroyw = 0;
     WId	   id;
 
@@ -482,9 +482,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
     widget_flags = f;
-    clearWState( WState_Created | WState_Visible );
-    if ( extra && extra->topextra )
-	extra->topextra->wmstate = 0;
+    clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    if ( parent && parent->isVisible() )
+	setWState( WState_ForceHide );
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -1271,7 +1271,7 @@ void QWidget::showWindow()
 		XFree( (char *)h );
 	    topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
 	}
-	if ( topData()->wmstate == 2 ) {
+	if ( topData()->parentWinId && topData()->parentWinId != qt_xrootwin() ) {
 	    qt_deferred_map_add( this );
 	    return;
 	}
@@ -1292,11 +1292,8 @@ void QWidget::hideWindow()
     if ( isTopLevel() ) {
 	qt_deferred_map_take( this );
 	XWithdrawWindow( x11Display(), winId(), x11Screen() );
-	if ( topData()->wmstate ) // wm_state supported
-	    topData()->wmstate = 2; // waiting for wm_state change before next showWindow
 	fpos = crect.topLeft();
 	topData()->fsize = crect.size();
-	topData()->parentWinId = 0;
     }
     else
 	XUnmapWindow( x11Display(), winId() );
@@ -1539,7 +1536,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if ( isMove )
 	XMoveResizeWindow( dpy, winid, x, y, w, h );
-    else
+    else if ( isResize )
 	XResizeWindow( dpy, winid, w, h );
 
     if ( isVisible() ) {

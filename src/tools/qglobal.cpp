@@ -136,8 +136,6 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
   Debug output routines
  *****************************************************************************/
 
-static msg_handler handler = 0;			// pointer to debug handler
-
 /*!
   \fn void qDebug( const char *msg, ... )
 
@@ -165,6 +163,69 @@ static msg_handler handler = 0;			// pointer to debug handler
   \sa qWarning(), qFatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
 */
+
+/*!
+  \fn void qWarning( const char *msg, ... )
+
+  \relates QApplication
+  Prints a warning message, or calls the message handler (if it has been
+  installed).
+
+  This function takes a format string and a list of arguments, similar to
+  the C printf() function.
+
+  Example:
+  \code
+    void f( int c )
+    {
+	if ( c > 200 )
+	    qWarning( "f: bad argument, c == %d", c );
+    }
+  \endcode
+
+  Under X11, the text is printed to stderr.  Under Windows, the text is
+  sent to the debugger.
+
+  \warning The internal buffer is limited to 512 bytes (including the
+  0-terminator).
+
+  \sa qDebug(), qFatal(), qInstallMsgHandler(),
+  \link debug.html Debugging\endlink
+*/
+
+/*!
+  \fn void qFatal( const char *msg, ... )
+
+  \relates QApplication
+  Prints a fatal error message and exits, or calls the message handler (if it
+  has been installed).
+
+  This function takes a format string and a list of arguments, similar to
+  the C printf() function.
+
+  Example:
+  \code
+    int divide( int a, int b )
+    {
+	if ( b == 0 )				// program error
+	    qFatal( "divide: cannot divide by zero" );
+	return a/b;
+    }
+  \endcode
+
+  Under X11, the text is printed to stderr.  Under Windows, the text is
+  sent to the debugger.
+
+  \warning The internal buffer is limited to 512 bytes (including the
+  0-terminator).
+
+  \sa qDebug(), qWarning(), qInstallMsgHandler(),
+  \link debug.html Debugging\endlink
+*/
+
+
+static msg_handler handler = 0;			// pointer to debug handler
+
 
 #ifdef _OS_MAC_
 
@@ -311,6 +372,9 @@ void fatal( const char *msg, ... )
 Q_EXPORT
 void qDebug( const char *msg, ... )
 {
+#if defined (NO_DEBUG)
+    Q_UNUSED( msg );
+#else
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -323,12 +387,16 @@ void qDebug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
+#endif
 }
 
 // copied... this looks really bad.
 Q_EXPORT
 void debug( const char *msg, ... )
 {
+#if defined (NO_DEBUG)
+    Q_UNUSED( msg );
+#else
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -341,36 +409,8 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
+#endif
 }
-
-/*!
-  \fn void qWarning( const char *msg, ... )
-
-  \relates QApplication
-  Prints a warning message, or calls the message handler (if it has been
-  installed).
-
-  This function takes a format string and a list of arguments, similar to
-  the C printf() function.
-
-  Example:
-  \code
-    void f( int c )
-    {
-	if ( c > 200 )
-	    qWarning( "f: bad argument, c == %d", c );
-    }
-  \endcode
-
-  Under X11, the text is printed to stderr.  Under Windows, the text is
-  sent to the debugger.
-
-  \warning The internal buffer is limited to 512 bytes (including the
-  0-terminator).
-
-  \sa qDebug(), qFatal(), qInstallMsgHandler(),
-  \link debug.html Debugging\endlink
-*/
 
 Q_EXPORT
 void qWarning( const char *msg, ... )
@@ -407,36 +447,6 @@ void warning( const char *msg, ... )
 	fprintf( stderr, "\n" );		// add newline
     }
 }
-
-/*!
-  \fn void qFatal( const char *msg, ... )
-
-  \relates QApplication
-  Prints a fatal error message and exits, or calls the message handler (if it
-  has been installed).
-
-  This function takes a format string and a list of arguments, similar to
-  the C printf() function.
-
-  Example:
-  \code
-    int divide( int a, int b )
-    {
-	if ( b == 0 )				// program error
-	    qFatal( "divide: cannot divide by zero" );
-	return a/b;
-    }
-  \endcode
-
-  Under X11, the text is printed to stderr.  Under Windows, the text is
-  sent to the debugger.
-
-  \warning The internal buffer is limited to 512 bytes (including the
-  0-terminator).
-
-  \sa qDebug(), qWarning(), qInstallMsgHandler(),
-  \link debug.html Debugging\endlink
-*/
 
 Q_EXPORT
 void qFatal( const char *msg, ... )

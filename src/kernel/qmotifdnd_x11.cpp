@@ -24,8 +24,8 @@
 *****************************************************************************/
 
 /* The following copyright notice pertains to the code as contributed
-to Troll Tech, not to Troll Tech's modifications. It is replicated in
-qdragobject.cpp, where the documentation system can see it. */
+to Troll Tech, not to Troll Tech's modifications. It is replicated
+in doc/dnd.doc, where the documentation system can see it. */
 
 /* Copyright 1996 Daniel Dardailler.
 
@@ -38,6 +38,9 @@ qdragobject.cpp, where the documentation system can see it. */
    written prior permission.  Daniel Dardailler makes no representations
    about the suitability of this software for any purpose.  It is
    provided "as is" without express or implied warranty.
+
+   Modifications Copyright 1999 Matt Koss, under the same license as
+   above.
 ************************************************************/
 
 /***********************************************************/
@@ -309,10 +312,9 @@ static void InitAtoms(Display * dpy)
     Dnd_transfer_success = XInternAtom( qt_xdisplay(), "XmTRANSFER_SUCCESS", False);
     Dnd_transfer_failure = XInternAtom( qt_xdisplay(), "XmTRANSFER_FAILURE", False);
 
-    char my_dnd_selection_name[30] ;
-    sprintf(my_dnd_selection_name, "_MY_DND_SELECTION_%d", getpid());
+    char my_dnd_selection_name[30];  // 11-digit number should be enough
+    sprintf(my_dnd_selection_name, "_MY_DND_SELECTION_%d", (int)getpid());
     Dnd_selection = XInternAtom( qt_xdisplay(), my_dnd_selection_name, False);
-
 }
 
 static unsigned char DndByteOrder (void)

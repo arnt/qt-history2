@@ -10,6 +10,8 @@
     $project{"TMAKE_LFLAGS"} = "";
     $project{"TMAKE_LIBS"} = "";
 
+    Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
+
     if ( Config("qt") || Config("opengl") ) {
 	Project('CONFIG *= x11lib');
 	if ( Config("opengl") ) {
@@ -51,7 +53,6 @@
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_X11)');
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_X11)');
     }
-    Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
 
     ##### These may still need replacing
     if ( !Project("TMAKE_RUN_CC") ) {

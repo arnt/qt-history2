@@ -226,7 +226,7 @@ class QTextRichString
 	~Item() {
 	};
  	int base;
-	int width : 30;
+	int width;
 	uint newline : 1;
 	QTextCharFormat* format;
 	QString c;
@@ -257,7 +257,7 @@ public:
     QTextCustomItem* customItemAt( int index ) const;
 
     QTextFormatCollection* formats; // make private
-
+ 
 private:
     void setLength( int l );
 };

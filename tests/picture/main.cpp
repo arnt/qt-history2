@@ -144,7 +144,12 @@ void Streamer::paintAll( QPaintDevice* pd )
 
     p.translate( 0, 200 );
     p.setFont( QFont("Courier", 18, QFont::Bold, TRUE) );
-    p.setPen( QPen( blue, 3 ) );
+    QPen pen( blue, 3 );
+#if QT_VERSION >= 210
+    pen.setCapStyle( Qt::RoundCap );
+    pen.setJoinStyle( Qt::RoundJoin );
+#endif
+    p.setPen( pen );
     p.setBrush( QBrush( green, CrossPattern ) );
     p.setBackgroundMode( OpaqueMode );
     p.setBackgroundColor( yellow );
@@ -218,12 +223,9 @@ int main( int argc, char **argv )
     Streamer s;
 
     int off = 0;
-#if QT_VERSION >= 200
-    int ver = 2;
-#else
-    int ver = 1;
-#endif
 
+    QDataStream vs;
+    int ver = vs.version();
     if ( argc > 1 ) {
 	QString arg1( argv[1] );
 	if ( arg1 == "-v1" ) {
@@ -232,6 +234,10 @@ int main( int argc, char **argv )
 	}
 	else if ( arg1 == "-v2" ) {
 	    ver = 2;
+	    off = 1;
+	}
+	else if ( arg1 == "-v3" ) {
+	    ver = 3;
 	    off = 1;
 	}
     }
@@ -254,10 +260,10 @@ int main( int argc, char **argv )
 
 	if ( argc-off < 2 ) {
 	    // Write file
-	    QString fileName = "qpicture-";
+	    QString fileName = "qpicture-v";
 #if QT_VERSION >= 200
-	    QString verString( ver == 1 ? "v1-" : "v2-" );
-	    fileName += verString;
+	    fileName += QString::number( ver );
+	    fileName += "-";
 #endif
 	    fileName += QT_VERSION_STR;
 	    fileName += ".pic";

@@ -210,7 +210,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     popupActive	  = -1;
     tab = 0;
     checkable = 0;
-    tearedOff = 0;
+    tornOff = 0;
     maxPMWidth = 0;
 
     tab = 0;
@@ -284,8 +284,9 @@ bool QPopupMenu::isCheckable() const
 void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
+    updateAccel( 0 );
     if ( isVisible() ) {
-	if ( tearedOff )
+	if ( tornOff )
 	    return;
 	updateSize();
 	update();
@@ -389,8 +390,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     if ( y < 0 )
 	y = 0;
     move( x, y );
-    show();
     motion=0;
+    actItem = -1;
+    show();
 }
 
 /*!
@@ -1225,7 +1227,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Escape:
-	if ( tearedOff ) {
+	if ( tornOff ) {
 	    close();
 	    return;
 	}
@@ -1781,7 +1783,7 @@ int QPopupMenu::insertTearOffHandle( int id, int index )
  */
 void QPopupMenu::toggleTearOff()
 {
-    if ( active_popup_menu && active_popup_menu->tearedOff ) {
+    if ( active_popup_menu && active_popup_menu->tornOff ) {
 	active_popup_menu->close();
     } else  if (QMenuData::d->aWidget ) {
 	delete (QWidget*) QMenuData::d->aWidget; // delete the old one
@@ -1795,7 +1797,7 @@ void QPopupMenu::toggleTearOff()
 		     geometry().topLeft(), FALSE );
 	style().polishPopupMenu( p );
 	p->mitems->setAutoDelete( FALSE );
-	p->tearedOff = TRUE;
+	p->tornOff = TRUE;
 	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
 	    if ( it.current()->id() != QMenuData::d->aInt && !it.current()->widget() )
 		p->mitems->append( it.current() );

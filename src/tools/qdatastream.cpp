@@ -164,6 +164,10 @@
 static int  systemWordSize = 0;
 static bool systemBigEndian;
 
+static const int DefaultStreamVersion = 3;
+// 3 is default in Qt 2.1
+// 2 is the Qt 2.0.x format
+// 1 is the Qt 1.x format
 
 /*!
   Constructs a data stream that has no IO device.
@@ -179,7 +183,7 @@ QDataStream::QDataStream()
     owndev    = FALSE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
-    ver	      = 2;			        // 2 is default for Qt 2.0
+    ver	      = DefaultStreamVersion;
     noswap    = systemBigEndian;
 }
 
@@ -197,7 +201,7 @@ QDataStream::QDataStream( QIODevice *d )
     owndev    = FALSE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
-    ver	      = 2;
+    ver	      = DefaultStreamVersion;
     noswap    = systemBigEndian;
 }
 
@@ -227,7 +231,7 @@ QDataStream::QDataStream( QByteArray a, int mode )
     owndev    = TRUE;
     byteorder = BigEndian;			// default byte order
     printable = FALSE;
-    ver	      = 2;
+    ver	      = DefaultStreamVersion;
     noswap    = systemBigEndian;
 }
 
@@ -352,7 +356,7 @@ void QDataStream::setByteOrder( int bo )
 /*!
   \fn int QDataStream::version() const
   Returns the version number of the data serialization format.
-  In Qt 2.0, this number is 2.
+  In Qt 2.1, this number is by default 3.
   \sa setVersion()
 */
 
@@ -360,10 +364,17 @@ void QDataStream::setByteOrder( int bo )
   \fn void QDataStream::setVersion( int v )
   Sets the version number of the data serialization format.
 
-  In Qt 2.0, the datastream serialization format of QString
-  was changed. In order to read data that was created with the
-  QDatastream of Qt 1.x, call this function with the version number \v
-  set to 1.
+  In order to accomodate for new functionality, the datastream
+  serialization format of some Qt classes has changed in some versions of
+  Qt. If you want to read data that was created by an earlier version of
+  Qt, or write data that can be read by a program that was compiled with
+  an earlier version of Qt, use this function to modify the serialization
+  format of QDataStream.
+
+  For Qt 1.x compatibility, use \a v == 1.
+
+  For Qt 2.0.x compatibility, use \a v == 2 (Not required for reading in
+  Qt 2.1).
 
   \sa version()
 */

@@ -18,51 +18,101 @@ class QTextEditParag;
 class QTextEditFormat;
 class QFont;
 class QColor;
+class QStyleSheetItem;
 
 class QTextEdit : public QScrollView
 {
     Q_OBJECT
 
 public:
+    enum ParagType {
+	Normal = 0,
+	BulletList,
+	EnumList
+    };
+
     QTextEdit( QWidget *parent, const QString &fn, bool tabify = FALSE );
-    QTextEdit( QWidget *parent, const QString &text );
+    QTextEdit( QWidget *parent = 0, const char *name = 0 );
     virtual ~QTextEdit();
 
+#if defined(QTEXTEDIT_OPEN_API)
     QTextEditDocument *document() const;
-    void insert( const QString &text, bool indent = FALSE, bool checkNewLine = FALSE );
-
-    void undo();
-    void redo();
-
-    void cut();
-    void copy();
-    void paste();
-
-    void indent();
-
-    void setItalic( bool b );
-    void setBold( bool b );
-    void setUnderline( bool b );
-    void setFamily( const QString &f );
-    void setPointSize( int s );
-    void setColor( const QColor &c );
-    void setFont( const QFont &f );
-
-    void setParagType( int );
-    void setAlignment( int );
+#endif
 
     QString text() const;
     QString text( int parag, bool formatted = FALSE ) const;
-    virtual void setText( const QString &txt );
+    Qt::TextFormat textFormat() const;
+    QString fileName() const;
 
-    bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
-	       int *parag = 0, int *index = 0 );
+    void cursorPosition( int &parag, int &index );
+    void selection( int &parag_from, int &index_from,
+		    int &parag_to, int &index_to );
+    virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
+		       int *parag = 0, int *index = 0 );
+    void insert( const QString &text, bool indent = FALSE, bool checkNewLine = FALSE );
+
+    int paragraphs() const;
+    int lines() const;
+    int linesOfParagraph( int parag ) const;
+    int lineOfChar( int parag, int chr );
+
+    bool isReadOnly() const;
+    bool isModified() const;
+
+    bool italic() const;
+    bool bold() const;
+    bool underline() const;
+    QString family() const;
+    int pointSize() const;
+    QColor color() const;
+    QFont font() const;
+    ParagType paragType() const;
+    int alignment() const;
+
+public slots:
+    virtual void undo();
+    virtual void redo();
+
+    virtual void cut();
+    virtual void copy();
+    virtual void paste();
+
+    virtual void indent();
+
+    virtual void setItalic( bool b );
+    virtual void setBold( bool b );
+    virtual void setUnderline( bool b );
+    virtual void setFamily( const QString &f );
+    virtual void setPointSize( int s );
+    virtual void setColor( const QColor &c );
+    virtual void setFont( const QFont &f );
+    virtual void setFormat( QStyleSheetItem *f );
+
+    virtual void setParagType( ParagType t );
+    virtual void setAlignment( int );
+
+    virtual void setTextFormat( Qt::TextFormat f );
+    virtual void setText( const QString &txt ) { setText( txt, FALSE ); }
+    virtual void setText( const QString &txt, bool tabify );
+
+    virtual void load( const QString &fn ) { load( fn, FALSE ); }
+    virtual void load( const QString &fn, bool tabify );
+    virtual void save() { save( QString::null ); }
+    virtual void save( const QString &fn );
+
+    virtual void setCursorPosition( int parag, int index );
+    virtual void setSelection( int parag_from, int index_from,
+			       int parag_to, int index_to );
+
+    virtual void setReadOnly( bool ro );
+    virtual void setModified( bool m );
 
 signals:
     void currentFontChanged( const QFont &f );
     void currentColorChanged( const QColor &c );
     void currentAlignmentChanged( int );
-    void currentParagTypeChanged( int );
+    void currentParagTypeChanged( QTextEdit::ParagType );
+    void textChanged();
 
 protected:
     void setFormat( QTextEditFormat *f, int flags );
@@ -82,7 +132,8 @@ private slots:
     void doAutoScroll();
     void doChangeInterval();
     void blinkCursor();
-    
+    void setModified();
+
 private:
     enum MoveDirection {
 	MoveLeft,
@@ -115,6 +166,10 @@ private:
     };
 
 private:
+#if !defined(QTEXTEDIT_OPEN_API)
+    QTextEditDocument *document() const;
+#endif
+
     QPixmap *bufferPixmap( const QSize &s );
     void init();
     void ensureCursorVisible();
@@ -144,11 +199,13 @@ private:
     QTextEditFormat *currentFormat;
     QPainter painter;
     QPixmap *doubleBuffer;
-    int currentAlignment, currentParagType;
+    int currentAlignment;
+    ParagType currentParagType;
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
     QPixmap *buf_pixmap;
     bool cursorVisible, blinkCursorVisible;
+    bool readOnly, modified;
 
 };
 

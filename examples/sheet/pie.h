@@ -25,8 +25,6 @@ protected:
 private:
     int *nums;
     QString *strs;
-    int n;
-    int sum;
 };
 
 #endif

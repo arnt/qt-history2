@@ -55,6 +55,7 @@ public:
     QPixmap( const QString& fileName, const char *format,
 	     int conversion_flags );
     QPixmap( const char *xpm[] );
+    QPixmap( const char * const xpm[] );
     QPixmap( const QByteArray &data );
     QPixmap( const QPixmap & );
    ~QPixmap();

@@ -94,7 +94,7 @@
 
   \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
   QButton::setAccel() QLabel::setBuddy()
-  <a href="guibooks.html#fowler">GUI Design Handbook: Keyboard Shortcuts,</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Keyboard Shortcuts</a>.
 */
 
 

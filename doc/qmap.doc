@@ -453,6 +453,11 @@
 */
 
 /*!
+  \fn QMapIterator::QMapIterator (QMapNode<K, T> * p) 
+  Constructs an iterator starting at node \a p.
+*/
+
+/*!
   \fn QMapIterator::QMapIterator( const QMapIterator<K,T>& it )
   Constructs a copy of the iterator.
 */
@@ -566,7 +571,12 @@
 
 /*!
   \fn QMapConstIterator::QMapConstIterator()
-  Creates an uninitialized iterator.
+  Constructs an uninitialized iterator.
+*/
+
+/*!
+  \fn QMapConstIterator::QMapConstIterator (QMapNode<K, T> * p) 
+  Constructs an iterator starting at node \a p.
 */
 
 /*!

@@ -567,6 +567,7 @@ void QFontDialog::updateScripts()
 /*!  Update the contents of the "font style" list box.  This
   function can be reimplemented if you have special requirements.
 */
+
 void QFontDialog::updateStyles()
 {
     d->styleList->clear();
@@ -580,6 +581,10 @@ void QFontDialog::updateStyles()
     }
     d->styleList->insertStringList( styles );
 }
+
+/*!  Update the contents of the "font size" list box.  This
+  function can be reimplemented if you have special requirements.
+*/
 
 void QFontDialog::updateSizes()
 {

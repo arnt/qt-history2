@@ -106,12 +106,12 @@ void FileMainWindow::setup()
     QPixmap pix;
 
     pix = QPixmap( cdtoparent_xpm );
-    (void)new QToolButton( pix, "One directory up", QString::null,
-			   this, SLOT( cdUp() ), toolbar, "cd up" );
+    upButton = new QToolButton( pix, "One directory up", QString::null,
+				this, SLOT( cdUp() ), toolbar, "cd up" );
 
     pix = QPixmap( newfolder_xpm );
-    (void)new QToolButton( pix, "New Folder", QString::null,
-			   this, SLOT( newFolder() ), toolbar, "new folder" );
+    mkdirButton = new QToolButton( pix, "New Folder", QString::null,
+				   this, SLOT( newFolder() ), toolbar, "new folder" );
 
     connect( dirlist, SIGNAL( folderSelected( const QString & ) ),
 	     fileview, SLOT ( setDirectory( const QString & ) ) );
@@ -126,11 +126,20 @@ void FileMainWindow::setup()
 
     setDockEnabled( Left, FALSE );
     setDockEnabled( Right, FALSE );
-    
+
     label = new QLabel( statusBar() );
     statusBar()->addWidget( label, 2, TRUE );
     progress = new QProgressBar( statusBar() );
     statusBar()->addWidget( progress, 1, TRUE );
+
+    connect( fileview, SIGNAL( enableUp() ),
+	     this, SLOT( enableUp() ) );
+    connect( fileview, SIGNAL( disableUp() ),
+	     this, SLOT( disableUp() ) );
+    connect( fileview, SIGNAL( enableMkdir() ),
+	     this, SLOT( enableMkdir() ) );
+    connect( fileview, SIGNAL( disableMkdir() ),
+	     this, SLOT( disableMkdir() ) );
 }
 
 void FileMainWindow::setPathCombo()
@@ -197,4 +206,24 @@ void FileMainWindow::changePath( const QString &path )
 	fileview->setDirectory( path );
     else
 	setPathCombo();
+}
+
+void FileMainWindow::enableUp()
+{
+    upButton->setEnabled( TRUE );
+}
+
+void FileMainWindow::disableUp()
+{
+    upButton->setEnabled( FALSE );
+}
+
+void FileMainWindow::enableMkdir()
+{
+    mkdirButton->setEnabled( TRUE );
+}
+
+void FileMainWindow::disableMkdir()
+{
+    mkdirButton->setEnabled( FALSE );
 }

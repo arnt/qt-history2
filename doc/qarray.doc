@@ -40,7 +40,7 @@
   no constructors, destructors or virtual functions.  QArray uses
   bitwise operations to copy and compare array elements.
 
-  The QVector collection class is also a kind of array.  Like all
+  The QVector collection class is also a kind of array.  Like most
   \link collection.html collection classes\endlink, it has pointers to the
   contained items.
 
@@ -470,5 +470,5 @@
   The QByteArray class provides an explicitly shared array of
   bytes. It is useful for manipulating memory areas with custom
   data. QByteArray is implemented as QArray<char>. See the QArray
-  documentation for further information.  
+  documentation for further information.
 */

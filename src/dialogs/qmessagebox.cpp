@@ -36,7 +36,7 @@
 // using but a lot of people still use, is left out.
 
 /* XPM */
-static const char* information_xpm[]={
+static const char * const information_xpm[]={
 "32 32 5 1",
 ". c None",
 "c c #000000",
@@ -710,12 +710,12 @@ QString QMessageBox::text() const
 
 /*!
   Sets the message box text to be displayed.
-  
+
   \a text will be interpreted either as a plain text or as a rich
   text, depending on the text format setting; see setTextFormat(). The
   default setting is \c AutoText, i.e. the message box will try to
   auto-detect the format of \a text.
-  
+
   \sa text(), setTextFormat()
 */
 
@@ -766,19 +766,19 @@ void QMessageBox::setIcon( Icon icon )
 
 QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 {
-    const char **xpm_data;
+    const char * const * xpm_data;
     switch ( icon ) {
-	case Information:
-	    xpm_data = information_xpm;
-	    break;
-	case Warning:
-	    xpm_data = warning_xpm;
-	    break;
-	case Critical:
-	    xpm_data = critical_xpm;
-	    break;
-	default:
-	    xpm_data = 0;
+    case Information:
+	xpm_data = information_xpm;
+	break;
+    case Warning:
+	xpm_data = warning_xpm;
+	break;
+    case Critical:
+	xpm_data = critical_xpm;
+	break;
+    default:
+	xpm_data = 0;
     }
     QPixmap pm;
     if ( xpm_data ) {
@@ -787,22 +787,22 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 	    // All that colour looks ugly in Motif
 	    QColorGroup g = QApplication::palette().normal();
 	    switch ( icon ) {
-	      case Information:
+	    case Information:
 		image.setColor( 2, 0xff000000 | g.dark().rgb() );
 		image.setColor( 3, 0xff000000 | g.base().rgb() );
 		image.setColor( 4, 0xff000000 | g.text().rgb() );
 		break;
-	      case Warning:
+	    case Warning:
 		image.setColor( 1, 0xff000000 | g.base().rgb() );
 		image.setColor( 2, 0xff000000 | g.text().rgb() );
 		image.setColor( 3, 0xff000000 | g.dark().rgb() );
 		break;
-	      case Critical:
+	    case Critical:
 		image.setColor( 1, 0xff000000 | g.dark().rgb() );
 		image.setColor( 2, 0xff000000 | g.text().rgb() );
 		image.setColor( 3, 0xff000000 | g.base().rgb() );
 	        break;
-	      default:
+	    default:
 		; // Can't happen
 	    }
 	}
@@ -982,7 +982,7 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 	    pb->animateClick();
 	    e->accept();
 	    return;
-	} 
+	}
     }
     QDialog::keyPressEvent( e );
 }
@@ -1319,7 +1319,7 @@ static const char *textAboutQt =
 "multiplatform C++ GUI toolkit from Troll Tech. "
 "Qt provides single-source portability across Windows 95/98/NT/2000, "
 "Linux, Solaris, HP-UX and many other versions of Unix with X11.</p>"
-"<p>See <tt>http://www.troll.no/qt</tt> for more information.</p>";
+"<p>See <tt>http://www.trolltech.com/qt/</tt> for more information.</p>";
 void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
 
 

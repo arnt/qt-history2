@@ -618,7 +618,9 @@ bool QToolBar::isVerticalStretchable() const
 
 QSize QToolBar::minimumSize() const
 {
-    return QSize( 0, 0 );
+    if ( orientation() == Horizontal )
+	return QSize( 0, QWidget::minimumSize().height() );
+    return QSize( QWidget::minimumSize().width(), 0 );
 }
 
 /*!
@@ -627,7 +629,9 @@ QSize QToolBar::minimumSize() const
 
 QSize QToolBar::minimumSizeHint() const
 {
-    return QSize( 0, 0 );
+    if ( orientation() == Horizontal )
+	return QSize( 0, QWidget::minimumSizeHint().height() );
+    return QSize( QWidget::minimumSizeHint().width(), 0 );
 }
 
 /*!
@@ -866,13 +870,11 @@ void QToolBar::emulateButtonClicked()
 
 void QToolBar::paintToolBar()
 {
-    QPainter p( this );
-    p.fillRect( 1, 1, width() - 2, height() - 2,
-		colorGroup().brush( QColorGroup::Background ) );
-    if ( mw && !mw->toolBarsMovable() ) {
+    erase( 1, 1, width()-2, height()-2 );
+    if ( mw && !mw->toolBarsMovable() )
 	return;
-    }
-
+    
+    QPainter p( this );
     int w = width();
     int h = height();
     if ( orientation() == Horizontal && w < sizeHint().width() )

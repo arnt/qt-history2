@@ -282,7 +282,7 @@ QRichText::QRichText( const QString &doc, const QFont& font,
 		      const QString& context,
 		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
     :QTextParagraph( 0, new QTextFormatCollection(),
-		      QTextCharFormat( font, QColor() ), (base = new QStyleSheetItem(0,"") ) )
+		     QTextCharFormat( font, QColor() ), (base = new QStyleSheetItem(0,"") ) )
 {
     contxt = context;
 
@@ -377,6 +377,7 @@ QRichText::~QRichText()
 {
     delete base;
     delete flow_;
+    delete formats;
 }
 
 void QRichText::dump()
@@ -1206,18 +1207,6 @@ void QTextParagraph::invalidateLayout()
 	b->invalidateLayout();
 	b = b->next;
     }
-    if ( next && !next->dirty ) {
-	next->invalidateLayout();
-    }
-
-
-    if ( parent ) {
-	QTextParagraph* p = parent;
-	while ( p && !p->next && p->parent )
-	    p = p->parent;
-	if ( p->next && !p->next->dirty)
-	    p->next->invalidateLayout();
-    }
 }
 
 QStyleSheetItem::ListStyle QTextParagraph::listStyle()
@@ -1843,7 +1832,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	    if ( !only_partially_highlighted )
 		p->setPen( cg.highlightedText() );
 	}
-	
+
 	QTextCustomItem* custom = fmt->customItem();
 	if ( custom ) {
 	    int h = custom->height;
@@ -1858,7 +1847,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	    int l = c.length();
 	    while ( l>0 && ( c[l-1]=='\n' || c[l-1]=='\r' ) )
 		--l;
-	
+
 #ifdef _WS_X11_
 	    //### workaround for broken courier fonts on X11
  	    for ( int i = 0; i < l; i++ ) {
@@ -2120,7 +2109,7 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 	QChar lastc;
 	QTextRichString::Item* item = &paragraph->text.items[current];
 	QTextCustomItem* custom = item->format->customItem();
-	
+
 	if ( custom ) {
 	    if (!custom->placeInline() )
 		floatingItems.append( custom );
@@ -2787,7 +2776,7 @@ QTextCharFormat QTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 		format.font_.setPointSize( format.stdPointSize );
 		style->styleSheet()->scaleFont( format.font_, format.logicalFontSize );
 	    }
-	    else if ( style->logicalFontSizeStep() != QStyleSheetItem::Undefined ) {
+	    else if ( style->logicalFontSizeStep() ) {
 		format.logicalFontSize += style->logicalFontSizeStep();
 		format.font_.setPointSize( format.stdPointSize );
 		style->styleSheet()->scaleFont( format.font_, format.logicalFontSize );

@@ -48,7 +48,7 @@ struct QUrlInfoPrivate
 // NOT REVISED
 /*!
   \class QUrlInfo qurlinfo.h
-  
+
   \ingroup misc
 
   This class is just a container for storing information about a
@@ -439,4 +439,26 @@ bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,
     }
 
     return FALSE;
+}
+
+/*!
+  Compares this QUrlInfo with \a i and returns TRUE if they
+  are equal, else FALSE.
+*/
+
+bool QUrlInfo::operator==( const QUrlInfo &i ) const
+{
+    return ( d->name == i.d->name &&
+	     d->permissions == i.d->permissions &&
+	     d->owner == i.d->owner &&
+	     d->group == i.d->group &&
+	     d->size == i.d->size &&
+	     d->lastModified == i.d->lastModified &&
+	     d->lastRead == i.d->lastRead &&
+	     d->isDir == i.d->isDir &&
+	     d->isFile == i.d->isFile &&
+	     d->isSymLink == i.d->isSymLink &&
+	     d->isWritable == i.d->isWritable &&
+	     d->isReadable == i.d->isReadable &&
+	     d->isExecutable == i.d->isExecutable );
 }

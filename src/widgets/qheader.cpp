@@ -37,6 +37,39 @@ static const int QH_MARGIN = 4;
 
 struct QHeaderData
 {
+    QHeaderData(int n)
+    {
+	labels.setAutoDelete( TRUE );
+	iconsets.setAutoDelete( TRUE );
+	sizes.resize(n+1);
+	heights.resize(n+1);
+	labels.resize(n+1);
+	iconsets.resize(n+1);
+	a2l.resize(n+1);
+	l2a.resize(n+1);
+	clicks.resize(n+1);
+	resize.resize(n+1);
+	for ( int i = 0; i < n ; i ++ ) {
+	    sizes[i] = 88;
+	    // heights[i] = 10; set properly in QHeader::init()
+	    a2l[i] = i;
+	    l2a[i] = i;
+	}
+	clicks_default = TRUE;
+	resize_default = TRUE;
+	clicks.fill( clicks_default );
+	resize.fill( resize_default );
+	move = TRUE;
+	sortColumn = -1;
+	sortDirection = TRUE;
+
+	//### We use an extra dummy item at the end:
+	sizes[n] = 0;
+	heights[n] = 0;
+	a2l[n] = 0;
+	l2a[n] = 0;
+    }
+
     QArray<QCOORD>	sizes;
     QArray<QCOORD>	heights;
     QVector<QString>	labels;
@@ -47,6 +80,8 @@ struct QHeaderData
     QBitArray           clicks;
     QBitArray           resize;
     bool		move;
+    bool		clicks_default; // default value for new clicks bits
+    bool		resize_default; // default value for new resize bits
     int sortColumn;
     bool sortDirection;
 
@@ -214,7 +249,7 @@ int QHeader::count() const
   */
 
 /*!
-  What do you think it does?
+  Initializes with \a n columns.
  */
 void QHeader::init( int n )
 {
@@ -222,36 +257,11 @@ void QHeader::init( int n )
     offs = 0;
     cachedIdx = 0;
     cachedPos = 0;
-    data = new QHeaderData;
-
-    data->labels.setAutoDelete( TRUE );
-    data->iconsets.setAutoDelete( TRUE );
-    data->sizes.resize(n+1);
-    data->heights.resize(n+1);
-    data->labels.resize(n+1);
-    data->iconsets.resize(n+1);
-    data->a2l.resize(n+1);
-    data->l2a.resize(n+1);
-    data->clicks.resize(n+1);
-    data->resize.resize(n+1);
+    data = new QHeaderData(n);
     for ( int i = 0; i < n ; i ++ ) {
-	data->sizes[i] = 88;
 	data->heights[i] = fontMetrics().lineSpacing()+6;
-	data->a2l[i] = i;
-	data->l2a[i] = i;
     }
-    data->clicks.fill( TRUE );
-    data->resize.fill( TRUE );
-    data->move = TRUE;
-    data->sortColumn = -1;
-    data->sortDirection = TRUE;
-
     handleIdx = 0;
-    //### We use an extra dummy item at the end:
-    data->sizes[n] = 0;
-    data->heights[n] = 0;
-    data->a2l[n] = 0;
-    data->l2a[n] = 0;
 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
@@ -781,8 +791,8 @@ int QHeader::addLabel( const QString &s, int size )
     data->l2a[n-1] = n-1;
     data->clicks.resize(n+1);
     data->resize.resize(n+1);
-    data->clicks.setBit(n-1);
-    data->resize.setBit(n-1);
+    data->clicks.setBit(n-1,data->clicks_default);
+    data->resize.setBit(n-1,data->resize_default);
 #if 0
     //    recalc();
     if ( orient == Horizontal )
@@ -953,23 +963,26 @@ void QHeader::setCellSize( int i, int s )
 
 /*!
   Enable user resizing of logical section \a i if \a enable is TRUE,
-  disable otherwise.  If \a i is negative (as it is by default),
-  resizing is enabled/disabled for all sections.
+  disable otherwise.  If \a i is negative (as it is by default), resizing is
+  enabled/disabled for all current and new sections.
 
   \sa setMovingEnabled(), setClickEnabled()
 */
 
 void QHeader::setResizeEnabled( bool enable, int i )
 {
-    if ( i < 0 )
+    if ( i < 0 ) {
 	data->resize.fill( enable );
-    else if ( i < count() )
+	// and future ones...
+	data->clicks_default = enable;
+    } else if ( i < count() ) {
 	data->resize[i] = enable;
+    }
 }
 
 
 /*!
-  Enable the user to exchange  sections if \a enable is TRUE,
+  Enable the user to exchange sections if \a enable is TRUE,
   disable otherwise.
 
   \sa setClickEnabled(), setResizeEnabled()
@@ -984,7 +997,7 @@ void QHeader::setMovingEnabled( bool enable )
 /*!
   Enable clicking in logical section \a i if \a enable is TRUE, disable
   otherwise.  If \a i is negative (as it is by default), clicking is
-  enabled/disabled for all sectionss.
+  enabled/disabled for all current and new sections.
 
   If enabled, the sectionClicked() signal is emitted when the user clicks.
 
@@ -993,10 +1006,13 @@ void QHeader::setMovingEnabled( bool enable )
 
 void QHeader::setClickEnabled( bool enable, int i )
 {
-    if ( i < 0 )
+    if ( i < 0 ) {
 	data->clicks.fill( enable );
-    else if ( i < count() )
+	// and future ones...
+	data->clicks_default = enable;
+    } else if ( i < count() ) {
 	data->clicks[i] = enable;
+    }
 }
 
 
@@ -1044,30 +1060,31 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 
     p->drawText ( r, AlignLeft|AlignVCenter|SingleLine, s );
 
-    int arrowWidth = orient == Qt::Horizontal ? height() : width();
-    arrowWidth -= 6;
-    if ( data->sortColumn == logIdx && pw + 8 + p->fontMetrics().width( s ) + arrowWidth < fr.width() ) {
+    int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
+    int arrowHeight = fr.height() - 6;
+    int tw = p->fontMetrics().width( s ) + 16;
+    if ( data->sortColumn == logIdx && pw + tw + arrowWidth + 2 < fr.width() ) {
 	p->save();
 	if ( data->sortDirection ) {
 	    QPointArray pa( 3 );
-	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
+	    int x = fr.x() + pw + tw;
 	    p->setPen( colorGroup().light() );
-	    p->drawLine( x + arrowWidth, 4, x + arrowWidth / 2, fr.height() - 6 );
+	    p->drawLine( x + arrowWidth, 4, x + arrowWidth / 2, arrowHeight );
 	    p->setPen( colorGroup().dark() );
-	    pa.setPoint( 0, x + arrowWidth / 2, fr.height() - 6 );
+	    pa.setPoint( 0, x + arrowWidth / 2, arrowHeight );
 	    pa.setPoint( 1, x, 4 );
 	    pa.setPoint( 2, x + arrowWidth, 4 );
 	    p->drawPolyline( pa );
 	} else {
 	    QPointArray pa( 3 );
-	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
+	    int x = fr.x() + pw + tw;
 	    p->setPen( colorGroup().light() );
-	    pa.setPoint( 0, x, fr.height() - 6 );
-	    pa.setPoint( 1, x + arrowWidth, fr.height() - 6 );
+	    pa.setPoint( 0, x, arrowHeight );
+	    pa.setPoint( 1, x + arrowWidth, arrowHeight );
 	    pa.setPoint( 2, x + arrowWidth / 2, 4 );
 	    p->drawPolyline( pa );
 	    p->setPen( colorGroup().dark() );
-	    p->drawLine( x, fr.height() - 6, x + arrowWidth / 2, 4 );
+	    p->drawLine( x, arrowHeight, x + arrowWidth / 2, 4 );
 	}
 	p->restore();
     }

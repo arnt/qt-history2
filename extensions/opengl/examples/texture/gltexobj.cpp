@@ -80,7 +80,7 @@ void GLTexobj::initializeGL()
 {
     // Set up the lights
 
-    GLfloat white[4] = {2.0, 2.0, 2.0, 1.0};
+    GLfloat whiteDir[4] = {2.0, 2.0, 2.0, 1.0};
     GLfloat whiteAmb[4] = {1.0, 1.0, 1.0, 1.0};
     GLfloat lightPos[4] = {30.0, 30.0, 30.0, 1.0};
 
@@ -89,12 +89,12 @@ void GLTexobj::initializeGL()
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, whiteAmb);
 
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, white);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, whiteDir);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, whiteDir);
     glMaterialf(GL_FRONT, GL_SHININESS, 20.0);
 
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, white);	// enable diffuse
-    glLightfv(GL_LIGHT0, GL_SPECULAR, white);	// enable specular
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDir);		// enable diffuse
+    glLightfv(GL_LIGHT0, GL_SPECULAR, whiteDir);	// enable specular
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
     // Set up the textures

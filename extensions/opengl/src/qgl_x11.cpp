@@ -407,7 +407,7 @@ void *QGLContext::chooseVisual()
 	  
 /*
   <strong>X11 only</strong>: This virtual function chooses a visual
-  that matches the OpenGL \link setFormat() format\endlink. Reimplement this
+  that matches the OpenGL \link format() format\endlink. Reimplement this
   function in a subclass if you need a custom visual.
 
   \sa chooseContext()

@@ -1,6 +1,7 @@
 TEMPLATE	= lib
 CONFIG		= qt staticlib release opengl
-HEADERS		= ../../../include/qgl.h
+unix:HEADERS	= qgl.h
+win32:HEADERS	= ../../../include/qgl.h
 SOURCES		= qgl.cpp
 unix:SOURCES   += qgl_x11.cpp
 win32:SOURCES  += qgl_win.cpp

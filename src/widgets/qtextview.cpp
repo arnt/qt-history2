@@ -605,7 +605,6 @@ void QTextView::resizeEvent( QResizeEvent* e )
     setUpdatesEnabled( FALSE ); // to hinder qscrollview from showing/hiding scrollbars. Safe since we call resizeContents later!
     QScrollView::resizeEvent( e );
     setUpdatesEnabled( TRUE);
-    richText().invalidateLayout();
     richText().flow()->initialize( visibleWidth() );
     updateLayout();
     viewport()->repaint( FALSE );

@@ -27,8 +27,8 @@
 #define QGL_H
 
 
-#define QGL_VERSION	420
-#define QGL_VERSION_STR	"4.2"
+#define QGL_VERSION	430
+#define QGL_VERSION_STR	"4.3"
 
 const char *qGLVersion();
 
@@ -235,12 +235,16 @@ public:
     virtual void	swapBuffers();
 
     QGLFormat		format() const;
-    virtual void	setFormat( const QGLFormat& format );
+#ifndef QT_NO_COMPAT
+    virtual void	setFormat( const QGLFormat& format ); // OBSOLETE
+#endif
 
     const QGLContext*	context() const;
+#ifndef QT_NO_COMPAT
     virtual void	setContext( QGLContext* context,
 				    const QGLContext* shareContext = 0,
-				    bool deleteOldContext = TRUE );
+				    bool deleteOldContext = TRUE ); // OBSOLETE
+#endif
 
     virtual QPixmap	renderPixmap( int w = 0, int h = 0,
 				      bool useContext = FALSE );

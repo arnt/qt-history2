@@ -838,16 +838,6 @@ void QApplication::create_xim()
 	}
 	if ( qt_xim_style ) {
 #ifdef USE_X11R6_XIM
-// XIM segfaults on Solaris with C locale!
-// Let's hope the "en_US" locale is installed on all systems with a C locale,
-// otherwise we'll have to modify the source more extensively
-#if defined (_OS_SOLARIS_)
-	    const char* locale = ::setlocale( LC_ALL, 0 );
-	    if ( !locale || ::strcmp( locale, "C" ) == 0 ) {
-		locale = ::setlocale( LC_ALL, "en_US" );
-		ASSERT( ::strcmp( locale, "en_US" ) == 0 );
-	    }
-#endif
 	    XUnregisterIMInstantiateCallback(appDpy,0,0,0,
 					     (XIMProc )create_xim,0);
 #endif
@@ -1101,8 +1091,21 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		      FocusChangeMask | PropertyChangeMask
 		      );
     }
+// XIM segfaults on Solaris with C locale!
+// Let's hope the "en_US" locale is installed on all systems with a C locale,
+// otherwise we'll have to modify the source more extensively
+#if defined (_OS_SOLARIS_)
+    const char* locale = ::setlocale( LC_ALL, "" );
+    if ( !locale || ::strcmp( locale, "C" ) == 0 ) {
+	locale = ::setlocale( LC_ALL, "en_US" );
+	ASSERT( ::strcmp( locale, "en_US" ) == 0 );
+    }
+#else
     setlocale( LC_ALL, "" );		// use correct char set mapping
+#endif
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
+
+
     if ( qt_is_gui_used ) {
 #if !defined(NO_XIM)
 	qt_xim = 0;
@@ -2070,14 +2073,18 @@ bool QApplication::processNextEvent( bool canWait )
     if (qt_is_gui_used ) {
 	sendPostedEvents();
 
-	while ( XPending(appDpy) ) {		// also flushes output buffer
-	    if ( app_exit_loop )		// quit between events
-		return FALSE;
-	    XNextEvent( appDpy, &event );	// get next event
-	    nevents++;
+	// Two loops so that posted events accumulate
+	while ( XPending(appDpy) ) {
+	    while ( XPending(appDpy) ) {	// also flushes output buffer
+		if ( app_exit_loop )		// quit between events
+		    return FALSE;
+		XNextEvent( appDpy, &event );	// get next event
+		nevents++;
 
-	    if ( x11ProcessEvent( &event ) == 1 )
-		return TRUE;
+		if ( x11ProcessEvent( &event ) == 1 )
+		    return TRUE;
+	    }
+	    sendPostedEvents();
 	}
     }
     if ( app_exit_loop )			// break immediately
@@ -2302,13 +2309,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_desktop_properties();
 	    }
 	} else if ( widget ) { // widget properties
-	    if ( event->xproperty.atom == qt_wm_state ) {
-		widget->topData()->wmstate = 1;
-		if ( qt_deferred_map_contains( widget ) ) {
-		    qt_deferred_map_take( widget );
-		    XMapWindow( appDpy, widget->winId() );
-		}
-	    }
+	    // nothing yet
 	}
 	return 0;
     }
@@ -2451,18 +2452,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case UnmapNotify:			// window hidden
 	if ( widget->isTopLevel() && widget->isVisible() && !widget->isPopup() ) {
-	    if ( widget->topData()->wmstate ) {
-		widget->clearWState( WState_Visible );
-		QHideEvent e( TRUE );
-		QApplication::sendEvent( widget, &e );
-		widget->sendHideEventsToChildren( TRUE );
-	    }
+	    widget->clearWState( WState_Visible );
+	    QHideEvent e( TRUE );
+	    QApplication::sendEvent( widget, &e );
+	    widget->sendHideEventsToChildren( TRUE );
 	}
 	break;
 
     case MapNotify:				// window shown
 	if ( widget->isTopLevel() && !widget->isVisible() && !widget->isPopup() )  {
-	    if ( !widget->topData()->wmstate || widget->testWState( WState_ForceHide ) ) {
+	    if ( widget->testWState( WState_ForceHide ) ) {
 		// widget was not shown before. This cannot happen in
 		// normal applications but might happen with embedding
 		if ( widget->isTopLevel() )
@@ -2487,8 +2486,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 					event ) )
 	    ;	// skip old reparent events
 	if ( event->xreparent.parent == appRootWin ) {
-	    if ( widget->isTopLevel() )
-		widget->topData()->parentWinId = appRootWin;
+	    if ( widget->isTopLevel() ) {
+		widget->topData()->parentWinId = event->xreparent.parent;
+		if ( qt_deferred_map_contains( widget ) ) {
+		    qt_deferred_map_take( widget );
+		    XMapWindow( appDpy, widget->winId() );
+		}
+	    }
 	}
 	else if (!QWidget::find((WId)event->xreparent.parent) )
 	    {
@@ -4081,9 +4085,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
-	if (event->xconfigure.send_event ||
-	    ( topData()->parentWinId == None ||
-	      topData()->parentWinId == appRootWin ) ) {
+	bool trust =  topData()->parentWinId == None ||  topData()->parentWinId == appRootWin;
+	if (event->xconfigure.send_event || trust ) {
 	    /* if a ConfigureNotify comes from a true sendevent request, we can
 	   trust its values. */
 	    newCPos.rx() = event->xconfigure.x + event->xconfigure.border_width;
@@ -4098,7 +4101,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		break;
 	    newSize.setWidth( otherEvent.xconfigure.width );
 	    newSize.setHeight( otherEvent.xconfigure.height );
-	    if ( otherEvent.xconfigure.send_event ) {
+	    if ( otherEvent.xconfigure.send_event || trust ) {
 		newCPos.rx() = otherEvent.xconfigure.x + otherEvent.xconfigure.border_width;
 		newCPos.ry() = otherEvent.xconfigure.y + otherEvent.xconfigure.border_width;
 	    }

@@ -2902,7 +2902,7 @@ bool QPen::operator==( const QPen &p ) const
 
   The serialization format is:
   <ol>
-  <li> The pen style(s) (Q_UINT8 (v2) or Q_UINT16 (v3))
+  <li> The pen style(s) (Q_UINT8)
   <li> The pen width (Q_UINT8)
   <li> The pen color (QColor)
   </ol>
@@ -2913,7 +2913,7 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
     if ( s.version() < 3 )
 	return s << (Q_UINT8)p.style() << (Q_UINT8)p.width() << p.color();
     else
-	return s << (Q_UINT16)(p.style() | p.capStyle() | p.joinStyle())
+	return s << (Q_UINT8)( p.style() | p.capStyle() | p.joinStyle() )
 		 << (Q_UINT8)p.width() << p.color();
 }
 
@@ -2924,18 +2924,9 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
 {
-    Q_UINT8 ost, width;
+    UINT8 style, width;
     QColor color;
-    Q_UINT16 nst;
-    uint style = 0;
-    if ( s.version() < 3 ) {
-	s >> ost;
-	style = ost;
-    }
-    else {
-	s >> nst;
-	style = nst;
-    }
+    s >> style;
     s >> width;
     s >> color;
     p = QPen( color, (uint)width, (Qt::PenStyle)style );	// owl

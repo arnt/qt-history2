@@ -23,9 +23,7 @@
 **
 *****************************************************************************/
 
-extern "C" {
 #include <png.h>
-}
 #include "qimage.h"
 #include "qasyncimageio.h"
 #include "qiodevice.h"
@@ -33,20 +31,10 @@ extern "C" {
 
 
 /*
-  The following PNG Test Suite (October 1996) images do not load correctly,
-  with no apparent reason:
+  All PNG files load to the minimal QImage equivalent.
 
-    ct0n0g04.png
-    ct1n0g04.png
-    ctzn0g04.png
-    cm0n0g04.png
-    cm7n0g04.png
-    cm9n0g04.png
-
-  All others load apparently correctly, and to the minimal QImage equivalent.
-
-  All QImage formats output to reasonably efficient PNG equivalents.  Never
-  to greyscale.
+  All QImage formats output to reasonably efficient PNG equivalents.
+  Never to greyscale.
 */
 
 #if defined(Q_C_CALLBACKS)
@@ -90,42 +78,49 @@ void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 static
 void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 {
-    if (info_ptr->bit_depth == 16 )
-	png_set_strip_16(png_ptr);
-
     // 2.2 is a good guess for the screen gamma of a PC
     // monitor in a bright office or a dim room
-    if (info_ptr->valid & PNG_INFO_gAMA)
-	png_set_gamma(png_ptr, 2.2, info_ptr->gamma);
+    if ( info_ptr->valid & PNG_INFO_gAMA )
+	png_set_gamma( png_ptr, 2.2, info_ptr->gamma );
 
-    if (info_ptr->bit_depth < 8
-    && (info_ptr->bit_depth != 1
-     || info_ptr->channels != 1
-     || (info_ptr->color_type != PNG_COLOR_TYPE_GRAY
-      && info_ptr->color_type != PNG_COLOR_TYPE_PALETTE)))
-    {
-	png_set_packing(png_ptr);
-    }
-
-    bool noalpha = FALSE;
-
-    if (info_ptr->bit_depth == 1
-     && info_ptr->channels == 1
-     && info_ptr->color_type == PNG_COLOR_TYPE_GRAY)
-    {
-	// Black & White
-	png_set_invert_mono(png_ptr);
-	png_read_update_info(png_ptr, info_ptr);
-	image.create(info_ptr->width,info_ptr->height, 1, 2,
-	    QImage::BigEndian);
-	image.setColor(1, qRgb(0,0,0) );
-	image.setColor(0, qRgb(255,255,255) );
-    } else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE
+    if ( info_ptr->color_type == PNG_COLOR_TYPE_GRAY ) {
+	// Black & White or 8-bit greyscale
+	if ( info_ptr->bit_depth == 1 && info_ptr->channels == 1 ) {
+	    png_set_invert_mono( png_ptr );
+	    png_read_update_info( png_ptr, info_ptr );
+	    image.create(info_ptr->width,info_ptr->height, 1, 2,
+		QImage::BigEndian);
+	    image.setColor(1, qRgb(0,0,0) );
+	    image.setColor(0, qRgb(255,255,255) );
+	} else {
+	    if ( info_ptr->bit_depth == 16 )
+		png_set_strip_16(png_ptr);
+	    else if ( info_ptr->bit_depth < 8 )
+		png_set_packing(png_ptr);
+	    int ncols = info_ptr->bit_depth < 8
+	    	? 1 << info_ptr->bit_depth : 256;
+	    png_read_update_info(png_ptr, info_ptr);
+	    image.create(info_ptr->width,info_ptr->height,8,ncols);
+	    for (int i=0; i<ncols; i++) {
+		int c = i*255/(ncols-1);
+		image.setColor( i, qRgba(c,c,c,0xff) );
+	    }
+	    if ( info_ptr->valid & PNG_INFO_tRNS ) {
+		int g = info_ptr->trans_values.gray;
+		if ( info_ptr->bit_depth > 8 )
+		    g >>= (info_ptr->bit_depth-8);
+		image.setAlphaBuffer( TRUE );
+		image.setColor(g, RGB_MASK & image.color(g));
+	    }
+	}
+    } else if ( info_ptr->color_type == PNG_COLOR_TYPE_PALETTE
      && (info_ptr->valid & PNG_INFO_PLTE)
-     && info_ptr->num_palette <= 256)
+     && info_ptr->num_palette <= 256 )
     {
 	// 1-bit and 8-bit color
-	png_read_update_info(png_ptr, info_ptr);
+	if ( info_ptr->bit_depth != 1 )
+	    png_set_packing( png_ptr );
+	png_read_update_info( png_ptr, info_ptr );
 	image.create(
 	    info_ptr->width,
 	    info_ptr->height,
@@ -158,30 +153,17 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	    );
 	    i++;
 	}
-    } else if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY) {
-	// 8-bit greyscale
-	int ncols = info_ptr->bit_depth < 8 ? 1 << info_ptr->bit_depth : 256;
-	png_read_update_info(png_ptr, info_ptr);
-	image.create(info_ptr->width,info_ptr->height,8,ncols);
-	for (int i=0; i<ncols; i++) {
-	    int c = i*255/(ncols-1);
-	    image.setColor( i, qRgba(c,c,c,0xff) );
-	}
-	if ( info_ptr->valid & PNG_INFO_tRNS ) {
-	    int g = info_ptr->trans_values.gray;
-	    if ( info_ptr->bit_depth > 8 )
-	        g >>= (info_ptr->bit_depth-8);
-	    image.setAlphaBuffer( TRUE );
-	    image.setColor(g, RGB_MASK & image.color(g));
-	}
     } else {
 	// 32-bit
+	if ( info_ptr->bit_depth == 16 )
+	    png_set_strip_16(png_ptr);
+
 	png_set_expand(png_ptr);
 
-	if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
-	    info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+	if ( info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA )
 	    png_set_gray_to_rgb(png_ptr);
-	}
+
+	image.create(info_ptr->width,info_ptr->height,32);
 
 	// Only add filler if no alpha, or we can get 5 channel data.
 	if (!(info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
@@ -190,21 +172,15 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 		QImage::systemByteOrder() == QImage::BigEndian ?
 		    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
 	    // We want 4 bytes, but it isn't an alpha channel
-	    noalpha = TRUE;
+	} else {
+	    image.setAlphaBuffer(TRUE);
 	}
 
-	if ( QImage::systemByteOrder() == QImage::BigEndian &&
-	     info_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA ) {
+	if ( QImage::systemByteOrder() == QImage::BigEndian ) {
 	    png_set_swap_alpha(png_ptr);
 	}
 
 	png_read_update_info(png_ptr, info_ptr);
-	image.create(info_ptr->width,info_ptr->height,32);
-    }
-
-    if (!noalpha && (info_ptr->channels == 4 ||
-	(info_ptr->channels == 3 && (info_ptr->valid & PNG_INFO_tRNS)))) {
-	image.setAlphaBuffer(TRUE);
     }
 
     // Qt==ARGB==Big(ARGB)==Little(BGRA)
@@ -1035,7 +1011,4 @@ void qInitPngIO()
 	qAddPostRoutine( qCleanupPngIO );
     }
 }
-
-
-
 

@@ -136,18 +136,18 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
     painter.translate( width()-13, height()-13 ); // paint in the corner
     QPointArray a;
     a.setPoints( 3, 1,12, 12,1, 12,12 );
-    painter.setPen( colorGroup().dark() );
+    painter.setPen( QPen( colorGroup().dark(), 1 ) );
     painter.setBrush( colorGroup().dark() );
     painter.drawPolygon( a );
-    painter.setPen( colorGroup().light() );
-    painter.drawLine(  0, 12, 12,  0 );
-    painter.drawLine(  4, 12, 12,  4 );
-    painter.drawLine( 8, 12, 12, 8 );
-    painter.setPen( colorGroup().background() );
-    painter.drawLine(  3, 12, 12,  3 );
-    painter.drawLine(  7, 12, 12,  7 );
-    painter.drawLine(  11, 12, 12,  11 );
-    painter.drawLine(  12, 12, 12,  12 );
+    painter.setPen( QPen( colorGroup().light(), 1 ) );
+    painter.drawLine(  0, 12, 13,  -1 );
+    painter.drawLine(  4, 12, 13,  3 );
+    painter.drawLine( 8, 12, 13, 7 );
+    painter.setPen( QPen( colorGroup().background(), 1 ) );
+    painter.drawLine( 3, 12, 13, 2 );
+    painter.drawLine( 7, 12, 13, 6 );
+    painter.drawLine( 11, 12, 13, 10 );
+    painter.drawLine( 12, 12, 13, 11 );
 }
 
 /*!

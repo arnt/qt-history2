@@ -43,6 +43,10 @@ struct my_error_mgr : public jpeg_error_mgr {
     jmp_buf setjmp_buffer;
 };
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static
 void my_error_exit (j_common_ptr cinfo)
 {
@@ -52,6 +56,10 @@ void my_error_exit (j_common_ptr cinfo)
     qWarning(buffer);
     longjmp(myerr->setjmp_buffer, 1);
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 
 static const int max_buf = 4096;
@@ -127,14 +135,14 @@ void qt_term_source(j_decompress_ptr)
 #endif
 
 
-inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iio)
+inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iioptr)
 {
     jpeg_source_mgr::init_source = qt_init_source;
     jpeg_source_mgr::fill_input_buffer = qt_fill_input_buffer;
     jpeg_source_mgr::skip_input_data = qt_skip_input_data;
     jpeg_source_mgr::resync_to_restart = jpeg_resync_to_restart;
     jpeg_source_mgr::term_source = qt_term_source;
-    this->iio = iio;
+    iio = iioptr;
     bytes_in_buffer = 0;
     next_input_byte = buffer;
 }
@@ -202,66 +210,81 @@ void read_jpeg_image(QImageIO* iio)
 }
 
 
-
 struct my_jpeg_destination_mgr : public jpeg_destination_mgr {
     // Nothing dynamic - cannot rely on destruction over longjump
     QImageIO* iio;
     JOCTET buffer[max_buf];
 
 public:
-    my_jpeg_destination_mgr(QImageIO* iio)
-    {
-	jpeg_destination_mgr::init_destination = init_destination;
-	jpeg_destination_mgr::empty_output_buffer = empty_output_buffer;
-	jpeg_destination_mgr::term_destination = term_destination;
-	this->iio = iio;
-	next_output_byte = buffer;
-	free_in_buffer = max_buf;
-    }
-
-    static void init_destination(j_compress_ptr)
-    {
-    }
-
-    static void exit_on_error(j_compress_ptr cinfo, QIODevice* dev)
-    {
-	if (dev->status() == IO_Ok) {
-	    return;
-        } else {
-	    // cinfo->err->msg_code = JERR_FILE_WRITE;
-	    (*cinfo->err->error_exit)((j_common_ptr)cinfo);
-	}
-    }
-
-    static boolean empty_output_buffer(j_compress_ptr cinfo)
-    {
-	my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
-	QIODevice* dev = dest->iio->ioDevice();
-
-	if ( dev->writeBlock( (char*)dest->buffer, max_buf ) != max_buf )
-	    exit_on_error(cinfo, dev);
-
-	dest->next_output_byte = dest->buffer;
-	dest->free_in_buffer = max_buf;
-
-	return TRUE;
-    }
-
-    static void term_destination(j_compress_ptr cinfo)
-    {
-	my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
-	QIODevice* dev = dest->iio->ioDevice();
-	int n = max_buf - dest->free_in_buffer;
-
-	if ( dev->writeBlock( (char*)dest->buffer, n ) != n )
-	    exit_on_error(cinfo, dev);
-
-	dev->flush();
-
-	exit_on_error(cinfo, dev);
-    }
+    my_jpeg_destination_mgr(QImageIO*);
 };
 
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+static
+void qt_init_destination(j_compress_ptr)
+{
+}
+
+static
+void qt_exit_on_error(j_compress_ptr cinfo, QIODevice* dev)
+{
+    if (dev->status() == IO_Ok) {
+	return;
+    } else {
+	// cinfo->err->msg_code = JERR_FILE_WRITE;
+	(*cinfo->err->error_exit)((j_common_ptr)cinfo);
+    }
+}
+
+static
+boolean qt_empty_output_buffer(j_compress_ptr cinfo)
+{
+    my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
+    QIODevice* dev = dest->iio->ioDevice();
+
+    if ( dev->writeBlock( (char*)dest->buffer, max_buf ) != max_buf )
+	qt_exit_on_error(cinfo, dev);
+
+    dest->next_output_byte = dest->buffer;
+    dest->free_in_buffer = max_buf;
+
+    return TRUE;
+}
+
+static
+void qt_term_destination(j_compress_ptr cinfo)
+{
+    my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
+    QIODevice* dev = dest->iio->ioDevice();
+    int n = max_buf - dest->free_in_buffer;
+
+    if ( dev->writeBlock( (char*)dest->buffer, n ) != n )
+	qt_exit_on_error(cinfo, dev);
+
+    dev->flush();
+
+    qt_exit_on_error(cinfo, dev);
+}
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
+
+inline
+my_jpeg_destination_mgr::my_jpeg_destination_mgr(QImageIO* iioptr)
+{
+    jpeg_destination_mgr::init_destination = qt_init_destination;
+    jpeg_destination_mgr::empty_output_buffer = qt_empty_output_buffer;
+    jpeg_destination_mgr::term_destination = qt_term_destination;
+    iio = iioptr;
+    next_output_byte = buffer;
+    free_in_buffer = max_buf;
+}
 
 
 int qt_jpeg_quality = 75; // Global (no provision for parameters)

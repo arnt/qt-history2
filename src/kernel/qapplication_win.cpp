@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#371 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#372 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -487,7 +487,7 @@ static void qt_set_windows_resources()
 #if defined(DEBUG)
 void qt_init( int *argcptr, char **argv )
 #else
-void qt_init( int */*argcptr*/, char **/*argv*/ )
+void qt_init( int * /*argcptr*/, char ** /*argv*/ )
 #endif
 {
     // Detect the Windows version
@@ -2721,7 +2721,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	w->setFocus();
 	QFocusEvent::resetReason();
     }
-    
+
     // send the event to the widget or its ancestors
     if (w){
 	do {
@@ -2789,7 +2789,7 @@ bool QETWidget::translatePaintEvent( const MSG & )
     hdc = BeginPaint( winId(), &ps );
     if ( res != COMPLEXREGION )
 	rgn = QRect(QPoint(ps.rcPaint.left,ps.rcPaint.top),
-		    QPoint(ps.rcPaint.right,ps.rcPaint.bottom));
+		    QPoint(ps.rcPaint.right-1,ps.rcPaint.bottom-1));
     QPaintEvent e(rgn);
     QApplication::sendEvent( this, (QEvent*) &e );
     hdc = 0;

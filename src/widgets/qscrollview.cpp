@@ -265,8 +265,7 @@ size).
 To provide content for the widget, inherit from QScrollView and
 reimplement drawContents(), and use resizeContents() to set the size
 of the viewed area.  Use addChild() / moveChild() to position widgets
-on the view.  For large numbers of such child widgets, consider using
-packChildWidgets() to improve performance.
+on the view.
 
 To use QScrollView effectively, it is important to understand its
 widget structure in the three styles of usage: a single large child widget,
@@ -988,8 +987,8 @@ void QScrollView::removeChild(QObject* child)
   The position defaults to (0,0). If the child is already in the view,
   it is just moved.
 
-  You may want to call packChildWidgets() after a large number of
-  such additions is complete.
+  You may want to call enableClipper(TRUE) if you add a large number
+  of widgets.
 */
 void QScrollView::addChild(QWidget* child, int x, int y)
 {
@@ -2002,7 +2001,7 @@ bool QScrollView::focusNextPrevChild( bool next )
 {
     //  Makes sure that the new focus widget is on-screen, if
     //  necessary by scrolling the scroll view.
-    
+
     // first set things up for the scan
     QFocusData *f = focusData();
     QWidget *startingPoint = f->home();
@@ -2174,10 +2173,11 @@ QSize QScrollView::minimumSizeHint() const
 
 /*!
   \reimp
+
+  (Implemented to get rid of a compiler warning.)
 */
 void QScrollView::drawContents( QPainter * )
 {
-    //implemented to get rid of a compiler warning.
 }
 
 /*!

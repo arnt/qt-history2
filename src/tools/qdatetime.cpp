@@ -231,7 +231,7 @@ int QDate::dayOfYear() const
 /*!
   Returns the number of days in the month (28..31) for this date.
 
-  \sa day(), daysOfYear()
+  \sa day(), daysInYear()
 */
 
 int QDate::daysInMonth() const

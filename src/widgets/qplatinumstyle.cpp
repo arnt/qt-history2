@@ -444,25 +444,14 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
     else
 	fill = g.brush( QColorGroup::Button );
 
-//     if ( btn->isDefault() ) {
-// 	QPointArray a;
-// 	a.setPoints( 9,
-// 		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-// 		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-// 	p->setPen( g.shadow() );
-// 	p->drawPolyline( a );
-// 	x1 += 2;
-// 	y1 += 2;
-// 	x2 -= 2;
-// 	y2 -= 2;
-//     }
-
-    // small or square buttons as well as toggle buttons are bevel buttons (what a heuristic....)
+    // small or square image buttons as well as toggle buttons are
+    // bevel buttons (what a heuristic....)
     if ( btn->isToggleButton()
-	 || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )
+	 || ( btn->pixmap() && 
+	      (btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )) ){
 	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 			 &fill );
-    else {
+    } else {
 	int diw = buttonDefaultIndicatorWidth();
 	if (btn->isDefault() ) {
 	    x1 += 1;

@@ -255,7 +255,7 @@ int	  QApplication::cursor_flash_time = 1000;	// text caret flash time
 int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 bool	  qt_is_gui_used;
-static int drag_time = 250;
+static int drag_time = 500;
 static int drag_distance = 4;
 
 // Default application palettes and fonts (per widget type)
@@ -466,10 +466,10 @@ QApplication::QApplication( int &argc, char **argv )
   On Windows, currently the window system is always initialized,
   regardless of the value of GUIenabled. This may change in future
   versions of Qt.
-  
+
   The following example shows how to create an application that
   uses a graphical interface when available.
-\code  
+\code
   int main( int argc, char **argv )
   {
 #ifdef _WS_X11_
@@ -1789,7 +1789,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 #endif
 	return;
     }
-    
+
     if ( !receiver->pendEvent || !postedEvents )
 	return;
     QPostEventListIt it(*postedEvents);
@@ -1866,7 +1866,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    }
 	}
     }
-    
+
     receiver->pendEvent = receiver->pendEvent || pendEvent;
 }
 
@@ -2317,7 +2317,7 @@ void QApplication::setStartDragDistance( int l )
 
   The default value is set to 4 pixels.
 
-  \sa setStartDragDistance(), startDragDistance(), QPoint::manhattanLength()
+  \sa setStartDragDistance(), startDragTime(), QPoint::manhattanLength()
 */
 
 int QApplication::startDragDistance()

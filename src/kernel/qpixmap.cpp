@@ -239,9 +239,37 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 
 /*!
   Constructs a pixmap from \a xpm, which must be a valid XPM image.
+
+  This is the usual constructor used, but the <a href="squeeze">other
+  XPM constructor</a> allows defining XPMs like this:
+
+  \example
+    static const char * const start_xpm[]={
+        "16 15 8 1",
+        "a c #cec6bd",
+    ....
+  \endcode
+
+  The extra \c const makes the entire definition read-only, which is
+  slightly more efficient e.g. when the code is in a shared library,
+  and ROMable when the application is to be stored in ROM.
 */
 
 QPixmap::QPixmap( const char *xpm[] )
+    : QPaintDevice( QInternal::Pixmap )
+{
+    init( 0, 0, 0, FALSE, defOptim );
+    QImage image( xpm );
+    if ( !image.isNull() )
+	convertFromImage( image );
+}
+
+/*!
+  Constructs a pixmap from \a xpm, which must be a valid XPM image.
+  <a name="squeeze"></a>
+*/
+
+QPixmap::QPixmap( const char * const xpm[] )
     : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0, FALSE, defOptim );
@@ -853,7 +881,7 @@ static QPixmap grabChildWidgets( QWidget * w )
 		// to have a grandchild completely outside its
 		// grandparent, but partially inside its parent.  no
 		// point in optimizing for that.
-		
+
 		// make sure to evaluate pos() first - who knows what
 		// the paint event(s) inside grabChildWidgets() will do.
 		QPoint childpos = ((QWidget *)child)->pos();

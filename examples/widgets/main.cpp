@@ -56,10 +56,11 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
     QApplication::setStyle( new QWindowsStyle() );
 
-    MyWidgetView w;
-    a.setMainWidget( &w );
+    MyWidgetView* w = new MyWidgetView;
+    a.setMainWidget( w );
 
-//      w.showMaximized();
-    w.show();
-     return a.exec();
+    w->show();
+    int res = a.exec();
+    delete w;
+    return res;
 }

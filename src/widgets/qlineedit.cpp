@@ -60,7 +60,8 @@ struct QLineEditPrivate {
 	dragTimer( l, "QLineEdit drag timer" ),
 	dndTimer( l, "DnD Timer" ),
 	inDoubleClick( FALSE ), offsetDirty( FALSE ),
-	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ), mousePressed( FALSE ) {}
+	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ),
+	mousePressed( FALSE ), dnd_primed( FALSE ) {}
 
     bool frame;
     QLineEdit::EchoMode mode;
@@ -81,6 +82,8 @@ struct QLineEditPrivate {
     bool needundo;
     bool ignoreUndoWithDel;
     bool mousePressed;
+    QPoint dnd_startpos;
+    bool dnd_primed;
 };
 
 
@@ -750,19 +753,21 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
+    d->dnd_startpos = e->pos();
+    d->dnd_primed = FALSE;
     if ( e->button() == RightButton ) {
 	d->popup->setItemEnabled( this->d->id[0],
-		!this->d->readonly && !this->d->undoList.isEmpty() );
+				  !this->d->readonly && !this->d->undoList.isEmpty() );
 	d->popup->setItemEnabled( this->d->id[ 1 ],
-		!this->d->readonly && !this->d->redoList.isEmpty() );
+				  !this->d->readonly && !this->d->redoList.isEmpty() );
 	d->popup->setItemEnabled( this->d->id[ 2 ],
-		!this->d->readonly && !this->d->readonly && hasMarkedText() );
+				  !this->d->readonly && !this->d->readonly && hasMarkedText() );
 	d->popup->setItemEnabled( this->d->id[ 3 ], hasMarkedText() );
 	d->popup->setItemEnabled( this->d->id[ 4 ],
-		!this->d->readonly
-		&& (bool)QApplication::clipboard()->text().length() );
+				  !this->d->readonly
+				  && (bool)QApplication::clipboard()->text().length() );
 	d->popup->setItemEnabled( this->d->id[ 5 ],
-		!this->d->readonly && (bool)text().length() );
+				  !this->d->readonly && (bool)text().length() );
 	int allSelected = minMark() == 0 && maxMark() == (int)text().length();
 	d->popup->setItemEnabled( this->d->id[ 6 ],
 				  (bool)text().length() && !allSelected );
@@ -789,18 +794,24 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int newCP = xPosToCursorPos( e->pos().x() );
     int m1 = minMark();
     int m2 = maxMark();
-    if ( hasMarkedText() && echoMode() == Normal &&
+    if ( hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
 	 e->button() == LeftButton && m1 < newCP && m2 > newCP ) {
 	d->dndTimer.start( QApplication::startDragTime(), TRUE );
+	d->dnd_primed = TRUE;
 	return;
     }
 
     m1 = QMIN( m1, cursorPos );
     m2 = QMAX( m2, cursorPos );
-    markAnchor = newCP;
-    newMark( markAnchor, FALSE );
-    repaintArea( m1, m2 );
     dragScrolling = FALSE;
+    if ( e->state() & ShiftButton ) {
+	newMark( newCP, FALSE );
+    } else {
+	markDrag = newCP;
+	markAnchor = newCP;
+	newMark( newCP, FALSE );
+    }
+    repaintArea( m1, m2 );
     d->mousePressed = TRUE;
 }
 
@@ -810,6 +821,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
 void QLineEdit::doDrag()
 {
+    d->dnd_primed = FALSE;
     QTextDrag *tdo = new QTextDrag( markedText(), this );
     if ( tdo->drag() ) {
 	// ##### Delete original (but check if it went to me)
@@ -821,10 +833,16 @@ void QLineEdit::doDrag()
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( d->dndTimer.isActive() ) {
-	doDrag();
+	d->dndTimer.stop();
 	return;
     }
 
+    if ( d->dnd_primed ) {
+	if ( ( d->dnd_startpos - e->pos() ).manhattanLength() > QApplication::startDragDistance() )
+	    doDrag();
+	return;
+    }
+	
     if ( !(e->state() & LeftButton) )
 	return;
 
@@ -854,6 +872,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
     dragScrolling = FALSE;
+    d->dnd_primed = FALSE;
     if ( d->dndTimer.isActive() ) {
 	d->dndTimer.stop();
 	deselect();
@@ -1378,6 +1397,8 @@ void QLineEdit::dropEvent( QDropEvent *e )
 {
     QString str;
     if ( !d->readonly && QTextDrag::decode( e, str ) ) {
+	if ( e->source() == this && hasMarkedText() )
+	    deselect();
 	if ( !hasMarkedText() )
 	    setCursorPosition( e->pos().x() );
 	insert( str );

@@ -5,4 +5,5 @@ perl -0777 -i -p \
     -e "s/%VERSIONWIN%/$2/g;" \
     -e "s/%SPECIAL-$3([^%]*)%/\$1/g;" \
     -e "s/%SPECIAL-[^%]*%//g;" \
-	[A-Z]*
+    `find . -name '[A-Z]*' -maxdepth 1`
+# POSIX must die [A-Z]*

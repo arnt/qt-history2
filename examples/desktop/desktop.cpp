@@ -210,9 +210,9 @@ public:
 
     void dropEvent( QDropEvent * e )
     {
-	QPixmap pm;
-	if ( QImageDrag::decode( e, pm ) ) {
-	    setBackgroundPixmap( pm );
+	QPixmap pmp;
+	if ( QImageDrag::decode( e, pmp ) ) {
+	    setBackgroundPixmap( pmp );
 	    update();
 	}
     }

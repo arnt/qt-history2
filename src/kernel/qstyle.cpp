@@ -52,6 +52,7 @@ static QPtrDict<QStylePrivate> *d_ptr = 0;
 static void cleanup_d_ptr()
 {
     delete d_ptr;
+    d_ptr = 0;
 }
 static QStylePrivate* d( const QStyle* foo )
 {

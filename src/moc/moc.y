@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#170 $
+** $Id: //depot/qt/main/src/moc/moc.y#171 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -191,7 +191,7 @@ public:
   one, change both.
 */
 static const int ntypes = 25;
-static const char* type_map[ntypes] =
+static const char* const type_map[ntypes] =
 {
     0,
     "QMap<QString,QVariant>",
@@ -2397,7 +2397,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#170 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#171 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;

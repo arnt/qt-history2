@@ -1,4 +1,12 @@
 
+Changes from version 4.20 to version 4.30 (Qt 2.1)
+--------------------------------------------------
+
+Obsoleted QGLWidget::setFormat() and ::setContext(). Most systems
+cannot handle format changes on existing windows. To be portable,
+applications should simply delete the old GL widget and create a new
+one with the new format.
+
 Changes from version 4.10 to version 4.20 (Qt 2.0.2)
 ----------------------------------------------------
 

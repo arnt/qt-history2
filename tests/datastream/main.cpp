@@ -159,12 +159,14 @@ bool Streamer::writeOut( QIODevice* dev, int ver, bool printable  )
     s << d19;
 
 
-
-    QRegion d20( d19 );
+    QRegion d20( d18 );
     s << d20;
 
-
     QPen d15( blue, 3, DashDotLine );
+#if QT_VERSION >= 210
+    d15.setCapStyle( Qt::RoundCap );
+    d15.setJoinStyle( Qt::RoundJoin );
+#endif
     s << d15;
 
     QSize d21( 567, -568 );
@@ -177,6 +179,13 @@ bool Streamer::writeOut( QIODevice* dev, int ver, bool printable  )
 
     QWMatrix d23( 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 );
     s << d23;
+
+    QString d24; // null
+    s << d24;
+    QString d25=""; // empty
+    s << d25;
+    QString d26="nonempty";
+    s << d26;
 
     return TRUE;
 }
@@ -290,10 +299,16 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
     s >> d20;
     ASSERT( d20 == QRegion( d19 ) );
 
-
+    QPen origPen( blue, 3, DashDotLine );
+#if QT_VERSION >= 210
+    if ( ver > 2 ) {
+	origPen.setCapStyle( Qt::RoundCap );
+	origPen.setJoinStyle( Qt::RoundJoin );
+    }
+#endif
     QPen d15;
     s >> d15;
-    ASSERT( d15 == QPen( blue, 3, DashDotLine ) );
+    ASSERT( d15 == origPen );
 
     QSize d21;
     s >> d21;
@@ -317,11 +332,23 @@ bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
     ASSERT( QABS(d23.dx() - m.dx()) < 1e-6 );
     ASSERT( QABS(d23.dy() - m.dy()) < 1e-6 );
 
+    QString d24;
+    s >> d24;
+    ASSERT(d24.isNull());
+
+    QString d25;
+    s >> d25;
+    ASSERT(d25.isEmpty());
+
+    QString d26;
+    s >> d26;
+    ASSERT(d26=="nonempty");
+
     return TRUE;
 }
 
 
-//Usage: datastream [ -v1 | -v2 ] [-internal] [filename]
+//Usage: datastream [ -v1 | -v2 | -v3 ] [-internal] [filename]
 // If filename given, it is read, otherwise output is written to default file
 // If -internal is given, write and read to/from memory is done instead.
 
@@ -332,8 +359,8 @@ int main( int argc, char **argv )
 
     Streamer s;
 
-	
-    int ver = 2;
+    QDataStream vs;
+    int ver = vs.version();
     int off = 0;
     if ( argc > 1 ) {
 	QString arg1( argv[1] );
@@ -343,6 +370,10 @@ int main( int argc, char **argv )
 	}
 	else if ( arg1 == "-v2" ) {
 	    ver = 2;
+	    off++;
+	}
+	else if ( arg1 == "-v3" ) {
+	    ver = 3;
 	    off++;
 	}
     }
@@ -382,10 +413,10 @@ int main( int argc, char **argv )
 
     if ( argc-off < 2 ) {
 	// Write file
-	QString fileName = "qdatastream-";
+	QString fileName = "qdatastream-v";
 #if QT_VERSION >= 200
-	QString verString( ver == 1 ? "v1-" : "v2-" );
-	fileName += verString;
+	fileName += QString::number( ver );
+	fileName += "-";
 #endif
 	fileName += QT_VERSION_STR;
 	fileName += ".out";

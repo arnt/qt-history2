@@ -1517,7 +1517,8 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	    repaint( hScrollBar->x(), hScrollBar->y(),
 		     width() - hScrollBar->x(), hScrollBar->height() );
     }
-    updateFrameSize();
+    if ( update )
+	updateFrameSize();
 }
 
 
@@ -1555,7 +1556,8 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	    repaint( vScrollBar->x(), vScrollBar->y(),
 		     vScrollBar->width(), height() - vScrollBar->y() );
     }
-    updateFrameSize();
+    if ( update )
+	updateFrameSize();
 }
 
 
@@ -2050,9 +2052,9 @@ void QTableView::updateFrameSize()
 
     if ( autoUpdate() ) {
 	if ( rw != fw )
-	    repaint( QMIN(fw,rw) - frameWidth(), 0, frameWidth(), rh );
+	    update( QMIN(fw,rw) - frameWidth(), 0, frameWidth(), rh );
 	if ( rh != fh )
-	    repaint( 0, QMIN(fh,rh) - frameWidth(), rw, frameWidth() );
+	    update( 0, QMIN(fh,rh) - frameWidth(), rw, frameWidth() );
     }
 }
 

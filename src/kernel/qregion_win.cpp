@@ -339,7 +339,7 @@ QRect QRegion::boundingRect() const
     if ( result == 0 || result == NULLREGION )
 	return QRect(0,0,0,0);
     else
-	return QRect(r.left, r.top, r.right-r.left+1, r.bottom-r.top+1);
+	return QRect(r.left, r.top, r.right-r.left, r.bottom-r.top);
 }
 
 

@@ -2,450 +2,779 @@
 #
 # Creates a new Qt source distribution
 #
-# Copyright 1996-2000 Troll Tech AS.  All rights reserved.
+# Copyright 2000 Troll Tech AS.  All rights reserved.
 #
 # ----------------------------------------------------------------
 #
 # Usage:
-#	mkdist.generic [options] {version}
+#	mkdists [options] {version}
 #
 # Options:
 #	-nodoc	Don't generate documentation
-#	-local	Copy local distribution from $QTDIR, don't use p4
-#	-LOCAL	Copy local distribution from $QTDIR, don't use p4, don't check
-#	-noch	Ignore the fact that the changes file doesn't exist
-#       -msonly Build Microsoft Visual C++ makefiles only (in win-mode)
-#
-
-#
-# Yes, this code used to be a shell script.
 #
 
 use File::Find;
+use File::Copy;
+$/ = undef;
 
-while ( defined($ARGV[0]) && $ARGV[0] =~ /^-/ ) {
-    if ( $ARGV[0] eq "-nodoc" ) {
-        $nodoc=1; shift;
-    } elsif ( $ARGV[0] eq "-noch" ) {
-        $noch=1; shift;
-    } elsif ( $ARGV[0] eq "-local" ) {
-        $local=1; shift;
-    } elsif ( $ARGV[0] eq "-LOCAL" ) {
-        $local=2; shift;
-    } elsif ( $ARGV[0] eq "-msonly" ) {
-        $msonly=1; shift;
-    } else {
-        last;
+($j,$j,$j,$j,$j,$year,$j,$j,$j) = localtime (time);
+
+# option parsing.
+
+$doc = 1;
+
+if ( $ARGV[0] eq "-nodoc" ) {
+    $doc = undef;
+    print "Will not generate documentation.\n";
+    shift;
+}
+
+# okay, figure out what version of Qt to look at, and make a directory
+
+$version = $ARGV[0] || 0;
+if ( $version =~ /(.*)\.\d+/ ) {
+    $branch = $1;
+} else {
+    die "could not figure out what branch to use, stopped";
+}
+$label = "qt/$version";
+$version_digits = $version;
+$version_digits =~ s/\.//g;
+$version_digits =~ s/(\d\d\d).*/$1/;
+
+$name = getlogin() || getpwuid($<) || "sexybaby";
+
+$distdir="/tmp/qt-$version-$name";
+mkdir $distdir, 0755 unless ( -d $distdir );
+sub deletefiles {
+    unless ( -d $_ ) {
+	unlink $_;
+	$deleted++;
+    } 
+}
+find( \&deletefiles, $distdir );
+print "Deleted $deleted files from last time\n" if ( $deleted );
+
+# at this point, we have a directory structure, possibly full of empty
+# directories.  let's fill it.
+
+print "Checking out Qt $version and tmake\n";
+
+open( I, "p4 fstat //depot/qt/$branch/doc.conf |" ) ||
+  die "could not run p4 fstat, stopped";
+$_ = <I>;
+close I;
+die "//depot/qt/$branch/... is not in the depot, stopped"
+  unless ( $_ =~ / depotFile /s );
+
+open( I, "p4 labels |" ) || die "could not run p4 labels, stopped";
+$_ = "\n" . <I>;
+close I;
+die "Label $label does not exist, stopped" unless ( $_ =~ /\nLabel $label /s );
+
+print "Exporting the entire Qt and tmake depots\n";
+
+$tmpclient="qt-release-tmp-$name-$$";
+open( I, "p4 client -t qt-release -o $tmpclient |" ) ||
+  die "could not run p4 client, stopped";
+$client = <I>;
+close I;
+$client =~ s@\nRoot:[^\n]*@\nRoot: $distdir@s;
+$client =~ s@/qt/X.Y/@/qt/$branch/@gs;
+$client =~ s@(\nClient: )[^\n]*@$1qt-release-tmp-$$@s;
+$client =~ s@\bnomodtime\b@modtime@s;
+
+open O, "| p4 -s client -i | egrep -v '^(info|exit):'";
+print O $client;
+close O;
+open( I1, "p4 -s -c $tmpclient sync $distdir/qt/... | grep -v '^info:' |" )
+  || die "could not sync qt, stopped";
+open( I2, "p4 -s -c $tmpclient sync $distdir/tmake/... | grep -v '^info:' |" )
+  || die "could not sync tmake, stopped";
+$_ = "\n" . <I1> . <I2>;
+s/\nexit: [^\n]*//g;
+close I1;
+close I2;
+
+open( I, "p4 -s client -d $tmpclient |" )
+  || die "could not run p4 client -d $tmpclient, stopped";
+$_ = "\n" . <I>;
+close I;
+s/\ninfo: [^\n]*//g;
+s/\nexit: [^\n]*//g;
+
+$qtdir = "$distdir/qt";
+$ENV{ "QTDIR" } = $qtdir;
+
+# fixify qglobal's version number
+
+$qglobal = "$distdir/qt/src/tools/qglobal.h";
+open( I, "< $qglobal" ) || die "cannot open $qglobal, stopped";
+$_ = <I>;
+close I;
+s/(\n\#define\s+QT_VERSION\s+)\d+/$1$version_digits/;
+s/(\n\#define\s+QT_VERSION_STR\s+\")([\d\.]+)/$1$version/;
+open( O, "> $qglobal.new" ) || die "cannot open $qglobal, stopped";
+print O $_;
+close O;
+unlink( $qglobal );
+rename( "$qglobal.new", $qglobal );
+# and fetch the remainder of QT_VERSION_STR
+if ( /\n\#define\s+QT_VERSION_STR\s+\"[\d\.]+(-[^\"]+)/ ) {
+    $type = $1;
+    if ( $type ne "-snapshot" && $type !~ /^-beta\d*$/ ) {
+	die "The qt version is $version$type, which confuses me terribly";
     }
+} else {
+    $type = "";
 }
 
-$VERSION=$ARGV[0] || 0;
-($BRANCH)=$VERSION =~ /(.*)\.\d+/;
-$LABEL="qt/$VERSION";
+print "Marking \$", "Id...\$\n";
 
-
-$DISTDIR="/tmp/qt-$VERSION-".`whoami`;
-chomp $DISTDIR;
-$scriptdir="$DISTDIR/qt/util/scripts";
-
-print "\nCreating new Qt distributions:\n";
-
-if ( !$VERSION ) {
-  print STDERR "Usage: mkdist.generic version\n";
-  exit 1;
-}
-
-$T=`p4 fstat //depot/qt/$BRANCH/doc.conf | awk '/ depotFile / { print \$3 }'`;
-if ( $T eq "" ) {
-    print STDERR qq{"//depot/qt/$BRANCH/..." is not in the depot.\n"};
-    print STDERR "Branch it, then restart:\n";
-    print STDERR "      p4 integrate //depot/qt/main/... //depot/qt/$BRANCH/...\n";
-    print STDERR "      p4 submit\n";
-    exit 1;
-}
-if ( !`p4 labels | grep "^Label $LABEL "` ) {
-    print STDERR "Label $LABEL does not exist. Create it, using the previous\n";
-    print STDERR "label as a template.  Current labels can be listed with 'p4 laberls'\n";
-    exit 1;
-}
-
-print "Deleting current $DISTDIR ...\n";
-system("rm -rf $DISTDIR");
-
-if ( $local ) {
-    $localqt=`p4 fstat //depot/qt/$BRANCH/doc.conf`;
-    $localtmake=`p4 fstat //depot/tmake/main/README`;
-    if ( $localqt=~ s{.*clientFile ([^\n]*)/doc.conf.*}{$1}s
-      && $localtmake=~ s{.*clientFile ([^\n]*)/README.*}{$1}s )
-    {
-	print "Duplicating your local depots...\n";
-	print "  Qt:    ($localqt)\n";
-	print "  tmake: ($localtmake)\n";
-	print "WARNING: this will not exclude all appropriate files!\n";
-	if ( $local < 2 ) {
-	    $p4sync=`p4 sync -n //depot/qt/$BRANCH/... //depot/tmake/main/... 2>&1`;
-	    $p4sync=~ s/.*up-to-date.\n//g;
-	    $p4opened=`p4 opened //depot/qt/$BRANCH/... //depot/tmake/main/... 2>&1`;
-	    $p4opened=~ s/.*not opened on this client.\n//g;
-	    if ( $p4sync || $p4opened ) {
-		print STDERR "You must submit and sync your changes first (or run with -LOCAL)\n";
-		exit 1;
+sub idify {
+    if ( -f $_ && ! -l $_ && -T $_ && open( I, "< $_" ) ) {
+	my $f = <I>;
+	my $o;
+	close I;
+	if ( defined( $f ) && $f =~ /\$Id(?::[^\$\n]*)?\$/s ) {
+	    my ( $mday, $mon, $year, $d );
+	    ($j,$j,$j,$mday,$mon,$year,$j,$j,$j) = localtime ( (stat($_))[9] );
+	    $d = $File::Find::dir;
+	    $d =~ s/^$qtdir/qt/;
+	    $d = sprintf( "%s/%s   %s%s   edited %04d-%02d-%02d",
+			  $d, $_, $version, $type, $year+1900, $mon+1, $mday );
+	    $o = $f;
+	    $f =~ s@\$Id(?::[^\$\n]*)?\$@\$Id\: $d \$@gsi;
+	    if ( $f ne $o ) {
+		my $x = ( -x $_ );
+		chmod 0644, $_;
+		open( O, "> $_" ) || die "could not write $File::Find::dir/$_";
+		print O $f;
+		close O;
+		if ( $x ) {
+		    chmod 0555, $_;
+		} else {
+		    chmod 0444, $_;
+		}
 	    }
 	}
-	mkdir $DISTDIR,0777;
-	system("cp -r $localqt $DISTDIR/qt");
-	system("cp -r $localtmake $DISTDIR/tmake");
-    } else {
-	print STDERR "Cannot find qt/$BRANCH and/or tmake/main in your workspace\n";
-	exit 1;
     }
-} else {
-    print "Exporting the entire Qt and tmake depots...\n";
-
-    $TMPCLIENT="qt-release-tmp-$$";
-    $client = `p4 client -t qt-release -o $TMPCLIENT`;
-    $client =~ s{(\nRoot:).*}{$1 $DISTDIR};
-    $client =~ s{/qt/X.Y/}{/qt/$BRANCH/}g;
-    open P4CLIENT, "| p4 -s client -i | egrep -v '^(info|exit):'";
-    print P4CLIENT $client;
-    close P4CLIENT;
-    system("p4 -s -c $TMPCLIENT sync $DISTDIR/...\@$LABEL 2>\&1 |
-	    egrep -v '^(info|exit):'");
-    system("p4 -s client -d $TMPCLIENT  2>\&1 | egrep -v '^(info|exit):'");
 }
 
-$ENV{TMAKEDIR}="$DISTDIR/tmake";
-$ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/linux-g++";
-$ENV{PATH}="$ENV{TMAKEDIR}/bin:$ENV{PATH}";
+find( \&idify, "$qtdir" );
 
+print "Making temporary include files\n";
 
-# At this point, $DISTDIR is a clean checkout
+mkdir "$qtdir/include",0777;
+open( I, "$qtdir/bin/syncqt -show |" ) || die "could not run syncqt, stopped";
+@includefiles = split( /\n/, <I> );
+close I;
 
-chdir "$DISTDIR/qt/src";
+foreach $fullname ( @includefiles ) {
+    $_ = $fullname;
+    s-.*/--;
+    symlink( "../$fullname", "$qtdir/include/$_" );
+}
+
+# time to run qdoc.  maybe.
+
+mkdir( "$distdir/qt/doc/html", 0777 );
+mkdir( "$distdir/qt/doc/man", 0777 );
+mkdir( "$distdir/qt/doc/man/man1", 0777 );
+mkdir( "$distdir/qt/doc/man/man3", 0777 );
+# and do the moc.1 hack here
+rename( "$distdir/qt/src/moc/moc.1", "$distdir/qt/doc/man/man1" );
+
+if ( $doc ) {
+    print "Running qdoc\n";
+    open( I, "$distdir/qt/util/qdoc/qdoc $distdir/qt |" )
+      || die "could not run qdoc, stopped";
+    $_ = <I>;
+    close I;
+    open( I, "$distdir/qt/util/qdoc/man $distdir/qt |" )
+      || die "could not run util/qdoc/man, stopped";
+    $_ = <I>;
+    close I;
+
+    sub moveimages {
+	if ( -f $_ && ( /\.png$/ || /\.jpg$/ ) ) {
+	    move( $_, "$distdir/qt/doc/html/$_" );
+	}
+    }
+
+    find( \&moveimages, "$qtdir/gif" );
+}
+
+print "Transmogrifying various files\n";
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
-$NSDIR="$DISTDIR/qt/extensions/nsplugin/src";
-opendir NSPLUGIN, $NSDIR;
-for $i ( readdir NSPLUGIN ) {
-    next unless $i =~ /^(np|jri)/;
-    unlink "$NSDIR/$i";
-    open NSFILE, ">$NSDIR/$i";
-    print NSFILE qq{#error "This file is provided by Netscape.  Please see documentation."\n};
-    close NSFILE;
-}
 
-#
-# We should just insert the version parameter into the qglobal.h, and have
-# qglobal.h use $Id: //depot/qt/main/util/scripts/mkdists#4 $ or something for purely internal use.
-#
-$qglobalfile="$DISTDIR/qt/src/tools/qglobal.h";
-open QGLOBAL, $qglobalfile;
-$qglobal=join "",<QGLOBAL>;
-if ( $qglobal =~ /#define\s+QT_VERSION_STR\s+"([^"]*)"/ ) {
-    $SRC_VERSION=$1;
-} else {
-    die "Cannot extract version from qglobal.h";
-}
-close QGLOBAL;
-
-($VERSIONMAJOR)=$SRC_VERSION=~ /(.*)\.\d+/;
-die "qglobal.h does not match branch $BRANCH" if $VERSIONMAJOR != $BRANCH;
-
-if ( $SRC_VERSION =~ /(.*)-(snapshot)/ ) {
-    $SRC_VERSION_N=$1;
-    $SPECIAL=$2;
-    $N="${SRC_VERSION_N}-".`date +\%Y\%m\%d`;
-    chomp $N;
-    $qglobal =~ s/$SRC_VERSION/$N/;
-    open QGLOBAL, ">$qglobalfile";
-    print QGLOBAL "$qglobal";
-    close QGLOBAL;
-} elsif ( $SRC_VERSION =~ /(.*)-(beta)/ ) {
-    $SRC_VERSION_N=$1;
-    $SPECIAL=$2;
-} else {
-    $SPECIAL="stable";
-    $SRC_VERSION_N=$SRC_VERSION;
-}
-if ( "$VERSION" ne "$SRC_VERSION_N" ) {
-    print STDERR "Version mismatch:   qglobal.h: $SRC_VERSION   argument: $VERSION\n";
-    exit 1;
-}
-$VERSIONWIN=$SRC_VERSION; $VERSIONWIN =~ s/[-.]//g;
-
-if ( !$noch && ! -f "$DISTDIR/qt/dist/changes-$VERSION" ) {
-    print STDERR "You must create qt/dist/changes-$VERSION first (or run with -noch)\n";
-    print STDERR "Find the logs:    p4 ???? ???? # ./changelog dd/mm/yyyy-previous-release-date >changes-$VERSION\n";
-    print STDERR "Print the logs:   p4 ???? ???? # aprint -w80 -4 changes-$VERSION\n";
-    exit 1;
-}
-
-$QTDIR="$DISTDIR/qt";
-$ENV{QTDIR}=$QTDIR;
-
-print "Create symlinks for Qt header files...\n";
-mkdir "$QTDIR/include",0777;
-system("$QTDIR/bin/syncqt | grep -v '^symlink created'");
-###${scriptdir}/make_qt_dot_h > ${QTDIR}/include/qt.h
-unlink "$QTDIR/include/qt.h";
-
-if ( $nodoc ) {
-    print "Documentation NOT generated...\n";
-    system("mv -f $DISTDIR/qt/doc $DISTDIR/qt/src");
-} else {
-    print "Generating documentation...\n";
-    mkdir "$DISTDIR/qt/doc", 0777;
-    mkdir "$DISTDIR/qt/doc/html", 0777;
-    system("$DISTDIR/qt/util/qdoc/qdoc $DISTDIR/qt");
-    mkdir "$DISTDIR/qt/doc/man", 0777;
-    mkdir "$DISTDIR/qt/doc/man/man1", 0777;
-    mkdir "$DISTDIR/qt/doc/man/man3", 0777;
-    system("$DISTDIR/qt/util/qdoc/man");
-    system("mv $DISTDIR/qt/doc/man $DISTDIR/qt");
-    system("mv $DISTDIR/qt/src/moc/moc.1 $DISTDIR/qt/man/man1");
-    system("mv $DISTDIR/qt/doc/html $DISTDIR/qt");
-    chdir $DISTDIR;
-    system("mv -f $DISTDIR/qt/gif/*.png $DISTDIR/qt/html");
-    system("mv -f $DISTDIR/qt/gif/*.jpg $DISTDIR/qt/html");
-  #   system("mv -f $DISTDIR/qt/doc/.qdoc-links $DISTDIR");
-    system("mv -f $DISTDIR/qt/doc $DISTDIR/qt/src");
-    system("mv -f $DISTDIR/qt/html $DISTDIR/qt/doc");
-}
-
-print "Removing local files...\n";
-chdir "$DISTDIR/qt/src";
-map { $x11only{"src/$_"}++ } split " ",`tmake qtinternal.pro -e "Expand('X11ONLY')"`;
-chdir $DISTDIR;
-chdir "qt/examples";
-system("rm -rf sheet");
-
-sub not_plat {
-    my ($f,$p) = @_;
-    return 0 if $f =~ /_$p\.c[pc]*$/;
-    return ($p ne "X11" && $x11only{$f})
-        || $f eq "bugs"
-        || $f eq "etc"
-        || $f eq "gif"
-        || $f eq "tests"
-        || $f eq "make.help"
-        || $f eq "variables"
-        || $f eq ".cvsignore"
-        || $f eq "doc.conf"
-        || $f eq "src/qtinternal.pro"
-        || $f eq "dist"
-        || $f eq "util"
-        || $f =~ /^bin\/syncqt/
-        || $f =~ /\/doc.conf$/
-	|| $f =~ /(_fb|_os2|_qws|_win|_x11|_mac)\.c[pc]*$/;
-}
-
-sub not_x11 {
-    my ($f) = @_;
-    if ( !defined($not_x11{$f}) ) {
-	$not_x11{$f}=
-	    $f =~ m{^src/mkfiles\b}
-	 || $f =~ m{^src/tmp\b}
-	 || $f =~ m{/qtmain.pro$}
-	 || $f =~ m{/Makefile.win32-dll$}
-	 || $f =~ m{\.bat$}
-	 || not_plat($f,"x11");
+sub fixnetscape {
+    if ( /^(np|jri)/ ) {
+	unlink $_;
+	open( O, "> $_" );
+	print O "#error \"$_ must be provided by Netscape.\n
+#error \"This file just a placeholder.  Please see the documentation\"
+#error \"to learn how to obtain the real file.\"
+";
+	close O;
     }
-    return $not_x11{$f};
+}
+find( \&fixnetscape, "$distdir/qt/extensions/nsplugin/src" );
+
+# changelogs?
+
+print "Warning: qt/dist/changes-$version does not exist\n"
+  unless ( -f "$distdir/qt/dist/changes-$version" );
+
+# qt.h
+
+unlink "$distdir/qt/include/qt.h";
+if ( 0 ) { ### left out for now
+    open( I, "$distdir/qt/util/scripts/make_qt_dot_h |" )
+      || die "could not run make_qt_dot_h, stopped";
+    $_ = <I>;
+    close I;
+    open( O, "> $distdir/qt/include/qt.h" )
+      || die "could not write to include/qt.h, stopped";
+    print O $_;
+    close O;
 }
 
-sub not_win {
-    my ($f) = @_;
-    if ( !defined($not_win{$f}) ) {
-	$not_win{$f}=
-	    $f =~ m{^extensions/xt$}
-	 || $f =~ m{/qtmain.pro$}
-	 || $f =~ m{^configs$}
-	 || $f =~ m{/Makefile.in$}
-	 || not_plat($f,"win");
+# qt/src/moc stuff
+
+open( I, "make -C $distdir/qt/src/moc -o moc.pro -o GNUmakefile mocgen.cpp |" )
+  || die "could not run make, stopped";
+$_ = <I>; # do anything with the input?  no?
+close I;
+open( I, "< $distdir/qt/src/moc/lex.yy.c" )
+  || die "could not read lex.yy.c, stopped";
+$_ = "/* Automatically generated at Troll Tech by mkdists, Qt $version */\n"
+  . <I>;
+close I;
+s/\n\#include\s+\<unistd\.h\>[^\n]*/\n\#if !defined(_OS_WIN32_)$&\n\#endif/g;
+open( O, "> $distdir/qt/src/moc/lex.yy.c" )
+  || die "could not write lex.yy.c, stopped";
+print O $_;
+close O;
+
+#  qgif.h
+
+$qgif = "$qtdir/src/kernel/qgif.h";
+
+open( I, "< $qgif" )
+    || die "could not read $qgif, stopped";
+$_ = <I>;
+close I;
+s/(\n\#define QT_BUILTIN_GIF_READER\s+)\S+/$1 0/g;
+open( O, "> $qgif.new" ) || die "could not write $qgif.new, stopped";
+print O $_;
+close O;
+unlink( $qgif );
+rename( "$qgif.new", $qgif );
+
+# changes files
+
+$major = $version;
+$major =~ s/^(\d+\.\d+).*/$1/;
+opendir( D, "$distdir/qt/dist" );
+foreach ( readdir( D ) ) {
+    move( "$distdir/qt/dist/$_", "$distdir/qt/$_" ) if ( /^changes-$major\./ ||
+						         0 );
+}
+closedir( D );
+
+# doc -> src/doc
+
+&rmrf( "$qtdir/src/doc" );
+rename( "$qtdir/doc", "$qtdir/src/doc" );
+
+# tmake common stuff
+
+$ENV{"TMAKEDIR"}="$distdir/tmake";
+$ENV{"PATH"}="$ENV{TMAKEDIR}/bin:$ENV{PATH}";
+
+# copy the tree to new platform-specific trees
+
+for $platform ( "x11", "windows" ) {
+    print "Making $distdir/$platform\n";
+    mkdir "$distdir/$platform", 0777;
+    $newdir = "$distdir/$platform/qt";
+    $newdir = "$distdir/$platform/qt-$version$type"
+      if ( $platform eq "x11" );
+    mkdir $newdir, 0777;
+    $files = 0;
+    sub populate {
+	$outfile = "$File::Find::dir/$_";
+	$outfile =~ s@^$qtdir/@@;
+	$outfile =~ s-/\./-/-g;
+	if ( -l $_ ) {
+	    # skip all symlinks
+	} elsif ( -f $_ && public( $outfile ) ) {
+	    my $d;
+	    $d = "$newdir/$outfile";
+	    $d =~ s-/[^/]*$--;
+	    &mkdir_steroids( $d );
+	    $files++;
+	    link( $_, "$newdir/$outfile" );
+	}
     }
-    return $not_win{$f};
+    find( \&populate, "$distdir/qt" );
+    print "  ($files files)\n";
+    if ( $undecideds ) {
+	print "Could not decide whether to kill or keep$undecideds\n";
+	die;
+    }
 }
 
-print "Generate lex and yacc files for moc...\n";
-chdir "$DISTDIR/qt/src/moc";
-chmod 0644,"GNUmakefile";
-system("make mocgen.cpp");
+# X11 stuff.
 
-print "Removing internal makefiles\n";
-chdir "$DISTDIR/qt";
-system("find . -name GNUmakefile -o -name Makefile | xargs rm -f");
-system("rm -f GNUmakefile.inc Makefile.inc");
+print "Processing X11 ($distdir/x11)\n";
 
-chdir "$DISTDIR/qt/src/moc";
-$lexyyc=`cat lex.yy.c`;
-$lexyyc=~ s{^(#include \<unistd\.h\>)$}{#if !defined(_OS_WIN32_)\n$1\n#endif};
-open T, ">lex.yy.c";
-print T $lexyyc;
-close T;
+$qtdir = "$distdir/x11/qt-$version$type";
 
-chdir "$DISTDIR/qt";
-mkdir "mkfiles",0777;
+$ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
+$ENV{ "QTDIR" } = $qtdir;
 
-# Convince tmake to use the right DLL library and set right DLL lib Makefile
-mkdir "lib",0777 if ! -d "lib";
-$DLLVER=`tmake src/qt.pro -e "Expand('VERSION')"`;
-chomp $DLLVER;
-$DLLVER =~ 's/\.//g';
-open T, ">lib/qt$DLLVER.lib";
-close T;
-system("mv src/Makefile.win32-dll src/Makefile");
-
-if (0) {
-if ( !$msonly ) {
-    print "Build DLL Makefiles for Borland C++...\n";
-    $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-borland";
-    system("$scriptdir/buildmakefiles -win32 -dll");
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland_dll.zip});
+sub justx11files {
+    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_x11.cpp$/ && !/_unix.cpp$/ ) ||
+		   ( /qt_[a-z]*.h$/ && !/^qt_x11.h$/ ) );
 }
+find( \&justx11files, $qtdir );
 
-print "Build DLL Makefiles for Microsoft Visual C++...\n";
-$ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-msvc";
-system("$scriptdir/buildmakefiles -win32 -dll");
-system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc_dll.zip});
+# copy the dist things into a supplemental directory
+mkdir "$distdir/x-free/", 0777;
+mkdir "$distdir/x-free/qt-$version$type", 0777;
+mkdir "$distdir/x-pro/", 0777;
+mkdir "$distdir/x-pro/qt-$version$type", 0777;
 
-# Clean up after DLL library makefiles have been created
-unlink "lib/qt$DLLVER.lib";
-unlink "src/Makefile";
-unlink "src/qtdll.mak";
-unlink "src/qtmain.mak";
-
-if ( !$msonly ) {
-    print "Build Makefiles for Borland C++...\n";
-    $ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-borland";
-    system("$scriptdir/buildmakefiles -win32");
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-    system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/borland.zip});
+opendir( D, "$distdir/qt/dist/commercial" );
+foreach ( readdir( D ) ) {
+    &copy_version( "$distdir/qt/dist/commercial/$_",
+		   "$distdir/x-pro/qt-$version$type/$_" );
 }
+closedir( D );
 
-print "Build Makefiles for Microsoft Visual C++...\n";
-$ENV{TMAKEPATH}="$ENV{TMAKEDIR}/lib/win32-msvc";
-system("$scriptdir/buildmakefiles -win32");
-system(qq{find . -name Makefile -o -name "qt*.mak" | xargs ${scriptdir}/unix_to_dos});
-system(qq{find . -name Makefile -o -name "qt*.mak" | xargs zip -r mkfiles/msvc.zip});
+opendir( D, "$distdir/qt/dist/free" );
+foreach ( readdir( D ) ) {
+    &copy_version( "$distdir/qt/dist/free/$_",
+		   "$distdir/x-free/qt-$version$type/$_" );
+}
+closedir( D );
+
+opendir( D, "$distdir/qt/dist/x11" );
+foreach ( readdir( D ) ) {
+    &copy_version( "$distdir/qt/dist/x11/$_",
+		   "$distdir/x-free/qt-$version$type/$_" );
+    &copy_version( "$distdir/qt/dist/x11/$_",
+		   "$distdir/x-pro/qt-$version$type/$_" );
+}
+closedir( D );
+
+link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
+
+# move the doc back
+
+mkdir "$qtdir/doc", 0777;
+rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
+rename( "$qtdir/src/doc/man", "$qtdir/doc/man" );
 
 # Generate makefiles
-system("$QTDIR/util/scripts/makeunixmake -v");
-# Copy template files into qt/configs
-system("cp $QTDIR/tmake/*.t $QTDIR/configs");
-chdir "$QTDIR/configs";
-system("rm -f propagate.t subdirs.t");
+
+open( I, "$qtdir/util/scripts/makeunixmake -v 2>&1 |" )
+  || die "could not run makeunixmake, stopped";
+$_ = <I>; # what do we do with it? nothing for now...
+close I;
+
+# copy the templates into configs, and lose tmake
+opendir( D, "$qtdir/tmake" );
+foreach ( readdir( D ) ) {
+    move( $_, "$qtdir/configs" ) if ( /\.t$/ &&
+				      $_ ne "propagate.t" &&
+				      $_ ne "subdirs.t" );
+}
+closedir( D );
+rmrf( "$qtdir/tmake" );
+rmrf( "$qtdir/makefiles" );
+
+# make symlinks
+
+mkdir "$qtdir/include", 0777;
+foreach $fullname ( @includefiles ) {
+    $_ = $fullname;
+    s-.*/--;
+    symlink( "../$fullname", "$qtdir/include/$_" );
 }
 
-print "Copying the README, LICENSE etc. files...\n";
-chdir "$DISTDIR/qt/dist";
-system("cp [A-Z]* .. 2> /dev/null");
-system("cp -f changes-${VERSIONMAJOR}[.0-9]* ..") unless $noch;
+# lose util well and truly
 
-print "Removing distribution-building files...\n";
-system("rm -rf qt/tmake qt/makefiles tmake");
+&rmrf( "$qtdir/util" );
 
-print "Finally packing the distributions ...\n";
+# lose empty directories
 
+&prune( "qtdir" );
 
-sub cpdist {
-    my ($disttype,$platform) = @_;
-    my @files = ();
-    opendir DIR, "dist/$disttype";
-    my @dfiles =
+# tar up the two supplementals
 
-    # Silly hack for README required because commercial/README is x11
-    # while win/README is Windows.
-    grep { !/^\./ && ($platform ne "win" || $_ ne "README") } readdir DIR;
+chdir( "$distdir/x-free" );
+system( "tar cf ../qt-x11-$version$type.tar ." );
+chdir( "$distdir/x-pro" );
+system( "tar cf ../qt-x11-$version$type-commercial.tar ." );
 
-    for (@dfiles) { push(@files, "dist/$disttype/$_") }
-    opendir DIR, "dist/$platform";
-    my @pfiles = grep { !/^\./ } readdir DIR;
-    for (@pfiles) { push(@files, "dist/$platform/$_") }
-    system("cp -a ".(join " ",@files)." .");
-    system("util/scripts/versionize $SRC_VERSION $VERSIONWIN $SPECIAL [A-Z]*");
-    return (@dfiles,@pfiles);
+# then run tar for real, on the x11 tree.
+chdir( "$distdir/x11" );
+open( TAR1, "tar rf ../qt-x11-$version$type.tar . |" );
+open( TAR2, "tar rf ../qt-x11-$version$type-commercial.tar . |" );
+# those will run in the background, accessing the same files at the
+# same time, mostly.  later, we'll compress.
+
+# windows stuff
+
+print "Processing Windows ($distdir/x11)\n";
+
+$qtdir = "$distdir/windows/qt";
+$ENV{ "QTDIR" } = $qtdir;
+
+sub justwinfiles {
+    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_win.cpp$/ ) ||
+		   ( /^qt_[a-z]*.h$/ && !/^qt_windows.h$/ ) );
+}
+find( \&justwinfiles, $qtdir );
+
+# move the files into include
+
+mkdir "$qtdir/include", 0777 unless ( -d "$qtdir/include" );
+foreach $fullname ( @includefiles ) {
+    $_ = $fullname;
+    s-.*/--;
+    move( "$qtdir/$fullname", "$qtdir/include/$_" );
 }
 
-print "X11...\n";
+# delete the xt estension
 
-$qt="qt-${SRC_VERSION}";
-rename "$DISTDIR/qt", "$DISTDIR/$qt";
+&rmrf( "$qtdir/extensions/xt" );
 
-for $free ( 0,1 ) {
-    print $free ? "  Free...\n" : "  Commercial...\n";
+# Generate makefiles
 
-    chdir $DISTDIR;
-    open X11, "| tar cfz $qt".($free?"":"-commercial").".tar.gz --files-from - $qt";
-    chdir $qt;
-    @files=cpdist($free ? "free" : "commercial", "x11");
+mkdir "$qtdir/lib",0777 unless ( -d "$qtdir/lib" );
+mkdir "$qtdir/mkfiles",0777 unless ( -d "$qtdir/mkfiles" );
 
-    # $File::Find::dir=""; $File::Find::prune=0; # Shut up perl
+$ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
 
-    find ( sub {
-	my $f = "$File::Find::dir/$_";
-	#$f =~ s{^\./}{};
-	$f =~ s/^\.\///;
-	if ( -d $_ ) {
-	    $File::Find::prune=1 if not_x11($f);
-	} else {
-	    print X11 "$qt/$f\n" unless not_x11($f);
+mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
+#foreach $buildtype ( "" ) {
+#    foreach $compiler ( "msvc" ) {
+foreach $buildtype ( "", "-dll" ) {
+    foreach $compiler ( "borland", "msvc" ) {
+	print "  Building $compiler$buildtype Makefiles\n";
+	open( O, "> $qtdir/lib/qt$version_digits.lib" ) || die;
+	close O;
+	copy( "$distdir/qt/src/Makefile.win32-dll", "$qtdir/src/Makefile" )
+	  if ( $buildtype eq "-dll" );
+	$ENV{"TMAKEPATH"} = $ENV{"TMAKEDIR"} . "/lib/win32-$compiler";
+	open( I, "$qtdir/util/scripts/buildmakefiles -win32 $buildtype 2>&1|" )
+	  || die "could not run buildmakefiles, stopped";
+	$_ = <I>;
+	close I;
+
+	chdir $qtdir;
+	open( I, "find . -name Makefile -o -name \"qt*.mak\" | xargs zip -rml9 $qtdir/mkfiles/$compiler$buildtype.zip |" )
+	  || die "could not run zip, stopped";
+	$_ = <I>;
+	close I;
+
+	foreach ( "lib/qt$version_digits.lib", "src/Makefile", "src/qtdll.mak",
+		  "src/qtmain.mak", "src/Makefile.win32-dll" ) {
+	    unlink $_ if ( -f $_ );
 	}
-    }, "." );
-    close X11;
-
-    system "rm -rf ".join(" ",@files);
-}
-chdir $DISTDIR;
-
-system("tar cfz $qt-doconly.tar.gz $qt/doc");
-
-rename "qt-${SRC_VERSION}", "qt";
-
-
-# Now we move stuff around...
-print "Windows...\n";
-
-# Replace symlinks with real files
-chdir "$DISTDIR/qt/src";
-print "  Moving header files...\n";
-system("mv ../include/qt.h .") if -f "../include/qt.h";
-system("rm -f ../include/*.h");
-system("mv */q*.h ../include");
-system("mv qt.h ../include") if -f "qt.h";
-chdir "$DISTDIR/qt";
-system("mv extensions/opengl/src/q*.h include");
-system("mv extensions/nsplugin/src/q*.h include");
-
-cpdist("commercial", "win");
-
-print "  Converting Unix text files to DOS...\n";
-chdir $DISTDIR;
-unlink "qt/MANIFEST";
-system(q{find qt -type f -print | fmt -1 | \
-	egrep -v '\.(dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)$'}
-	." | xargs ${scriptdir}/unix_to_dos");
-
-print "  Packing...\n";
-open WINCOMM, "| zip -\@ -q -9 qtwin${VERSIONWIN}.zip";
-chdir "$DISTDIR/qt";
-find ( sub {
-    my $f = "$File::Find::dir/$_";
-    $f =~ s/^\.\///;
-    if ( -d $_ ) {
-	$File::Find::prune=1 if not_win($f);
-    } else {
-	print WINCOMM "qt/$f\n" unless not_win($f);
     }
-}, "." );
-close WINCOMM;
+}
 
-chdir "$DISTDIR";
-system("zip -r -q -9 qt${VERSIONWIN}-doconly.zip qt/doc");
+# copy Windows dist/* stuff
 
-print "Cleaning up...\n";
+opendir( D, "$distdir/qt/dist/commercial" );
+foreach ( readdir( D ) ) {
+    &copy_version( "$distdir/qt/dist/commercial/$_", "$qtdir/$_" );
+}
+closedir( D );
 
-system("rm -rf $DISTDIR/qt $DISTDIR/tmake"); # It's full of junk, remove it.
+opendir( D, "$distdir/qt/dist/win/" );
+foreach ( readdir( D ) ) {
+    &copy_version( "$distdir/qt/dist/win/$_", "$qtdir/$_" );
+}
+closedir( D );
 
-print "Done, see ${DISTDIR}\n";
+mkdir "$qtdir/bin", 0777 unless( -d "$qtdir/bin" );
+opendir( D, "$distdir/qt/dist/win/bin" );
+foreach ( readdir( D ) ) {
+    copy( "$distdir/qt/dist/win/bin/$_", "$qtdir/bin/$_" );
+}
+closedir( D );
+
+# lose the man pages and util
+
+&rmrf( "$qtdir/src/doc/man" );
+&rmrf( "$qtdir/util" );
+&rmrf( "$qtdir/tmake" );
+unlink( "$qtdir/src/qtinternal.pro" );
+
+# move the doc from doc/html/* to doc/*
+
+mkdir "$qtdir/doc", 0777;
+rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
+
+# make a lib/dummy
+mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
+open( O, "> $qtdir/lib/README" ) || die;
+print O "If this directory is empty, you forgot to build the Qt library\n";
+close O;
+
+# install one set of makefiles, and zip up the thing
+
+open( I, "unzip -aq -d $qtdir $qtdir/mkfiles/msvc.zip |" )
+  || die "could not unzip msvc makefiles, stopped";
+$_ = <I>;
+close I;
+
+print "unzip said:\n$_\n" if ( defined( $_ ) && $_ ne "" );
+
+# lose empty directories
+
+&prune( "qtdir" );
+
+@binaryfiles = undef;
+@textfiles = undef;
+
+sub addfile {
+    my $s = $_;
+    $s =~ s/.*\.//;
+    my $f = "$File::Find::dir/$_";
+    $f =~ s@^$qtdir/@qt/@;
+    if ( $s eq "dll" || $s eq "gif" || $s eq "png" || $s eq "jpg" ||
+	 $s eq "bmp" || $s eq "any" || $s eq "pic" || $s eq "ppm" || 
+	 $s eq "exe" || $s eq "zip" || $s eq "qm" ) {
+	push @binaryfiles, "$f";
+	#print "$f is binary\n";
+    } else {
+	push @textfiles, "$f";
+    }
+}
+
+find( \&addfile, $qtdir );
+
+chdir( "$distdir/windows" );
+open( O, "| zip -r9q@ $distdir/qtwin$version_digits$type.zip" )
+  || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
+foreach $_ ( @binaryfiles ) {
+    print O "$_\n" if ( defined( $_ ) && -f $_ );
+}
+close O;
+open( O, "| zip -r9ql@ $distdir/qtwin$version_digits$type.zip" )
+  || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
+foreach $_ ( @textfiles ) {
+    print O "$_\n" if ( defined( $_ ) && -f $_ );
+}
+close O;
+
+# back to x11 - close the tars, and compress the results after the
+# thing is done
+
+close TAR1;
+close TAR2;
+
+system( "gzip -9 $distdir/qt-x11-$version$type.tar" );
+system( "gzip -9 $distdir/qt-x11-$version$type-commercial.tar" );
+
+
+sub rmrfhelper {
+    if ( -d $_ ) {
+	rmdir $_;
+    } else {
+	unlink $_;
+    }
+}
+
+sub rmrf {
+    finddepth( \&rmrfhelper, $_[0] ) if ( -d $_[0] );
+}
+
+
+sub mkdir_steroids {
+    my $d = $_[0];
+    if ( ! -d $d ) {
+	my $p;
+	$p = $d;
+	$p =~ s-/[^/]+$--;
+	mkdir_steroids( $p ) if ( $p ne $d );
+	mkdir $d, 0777;
+    }
+}
+
+
+# Function killInternalFiles
+# Identifies and kills internal files and folders.
+#
+# Usage: killInternalFiles( path )
+#
+
+sub public {
+    my $file  = $_[0];
+
+    my ( $keep, $kill );
+
+    my $basename;
+    $basename = $file;
+    $basename =~ s-.*/--;
+
+    $keep = (
+	     # the scripts, for now
+	     $file =~ /^util\/scripts\//
+
+	     # everything in the subdirectories of src/doc/
+	     || ( $file =~ /^src\/doc\// && $basename ne "Makefile" )
+
+	     # all c++ files under .../src/
+	     || $file =~ /(^|\/)src\/.*\.((cpp)|h|c|(pro))$/
+
+	     # include (empty)
+	     || $file eq "include"
+
+	     # all doc files
+	     || $basename =~ /.*\.doc$/
+
+	     # the changes files
+	     || $file =~ /^changes-/
+
+	     # /configure
+	     || $file eq "configure"
+
+	     # the tutorials
+	     ||  $file =~ /^tutorial\/t[0-9]*\/$/
+	     # all c++ and pro files under tutorial
+	     || $file =~ /^tutorial\/.*\.((cpp)|h|(pro))$/
+	     # the examples
+	     || $file =~ /^examples\/.*\/$/
+	     # all c++, pro, qm, po and xpm files under examples
+	     || $file =~ /^examples\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any))$/
+
+	     # the extensions
+	     || $file =~ /^extensions\/.*\/$/
+	     # all c++, pro, qm, po and xpm files under extensions
+	     || $file =~ /^extensions\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any)|c)$/
+
+	     # READMEs, NOTICE and such
+	     || $file =~ /^src\/((.*\/)|)[A-Z]+$/
+	     || $file =~ /^src\/((.*\/)|)[A-Z]+$/
+	     || $file =~ /^examples\/((.*\/)|)[A-Z]+$/
+	     || $file =~ /^tutorial\/((.*\/)|)[A-Z]+$/
+	     || $file =~ /^extensions\/((.*\/)|)[A-Z]+$/
+	     || $file =~ /^extensions\/.*\/README\..*$/
+
+	     # the moc
+	     || $file =~ /^src\/moc\/.*\.(1|l|t|y)$/
+
+	     # All of tmake
+	     || $file =~/^tmake\//
+
+	     # 3rdparty
+	     || $file =~/src\/3rdparty\/$/
+	     || $file =~/src\/3rdparty\/.*README$/
+	     || $file =~/src\/3rdparty\/libpng\//
+	     || ( $file =~/src\/3rdparty\/zlib\// &&
+		  not $basename eq "Makefile" )
+	     # More  of nsplugin example
+	     || $file =~/extensions\/nsplugin\/examples\/.*\.((def)|(rc)|(cgi)|(g1n))$/
+
+	     # some bins
+	     || $file =~/bin\/$/
+	     || $file =~/bin\/findtr$/
+	     || $file =~/bin\/qt20fix$/
+	     || $file =~/bin\/qtrename140$/
+
+	    );
+
+    $kill = (
+	     # no qdoc conf
+	     $basename eq "doc.conf"
+
+	     # no make.help
+	     || $basename eq "make.help"
+
+	     # Everything under dist
+	     || $file =~/^dist\//
+
+	     # no tests conf
+	     || $file =~/.*\/tests\//
+
+	     # no tests
+	     || $file =~ /^tests\//
+
+	     # utils, except scripts
+	     || ( $file =~ /^util\// && $file !~ /^util\/scripts\// )
+
+	     # no ~ files
+	     || $basename =~/.*~$/
+
+	     # no gif
+	     || $file =~/gif\//
+
+	     # no configs
+	     || $file =~/configs\//
+
+	     # no makefiles
+	     || $basename eq "GNUmakefile"
+	     || $basename eq "Makefile"
+	     || $file =~ /src\/Makefile\..*/
+
+	     # no mak files
+	     || ( $basename =~/.*\.mak$/  && not $file =~ /.*\/libpng\// )
+
+	     # no *.inc files
+	     || $basename =~/.*\.inc$/
+
+	     # some bins
+	     || $file =~ /bin\/.*_make_.*$/
+	     || $file =~ /bin\/syncqt.*$/
+
+	    );
+    if ( $keep == $kill ) {
+	$undecideds .= "\n  $file ($keep)";
+	$keep = undef;
+    }
+    $keep;
+}
+
+
+sub copy_version {
+    my( $in, $out ) = @_;
+    local $_;
+
+    unlink $out if ( -f $out );
+    if ( -f $in && ! -e $out ) {
+	open( I, "< $in" ) || die "could not open $in, stopped";
+	$_ = <I>;
+	close I;
+	s/%YEAR%/$year/g;
+	s/%VERSION%/$version/g;
+	s/%VERSIONWIN%/$version_digits/g;
+	if ( $type eq "-snapshot" ) {
+	    s/%SNAPSHOTONLY([^%]*)%/$1/g; 
+	    s/%STABLEONLY[^%]*%//g;
+	} else {
+	    s/%SNAPSHOTONLY[^%]*%//g; 
+	    s/%STABLEONLY([^%]*)%/$1/g;
+	}
+	open( O, "> $out" ) || die "could not open $out, stopped";
+	print O $_;
+	close I;
+    }
+}
+
+
+sub prunehelp {
+    rmdir $_ if ( -d $_ );
+}
+
+sub prune {
+    finddepth( \&prunehelp, $_[0] ) if ( -d $_[0] );
+}

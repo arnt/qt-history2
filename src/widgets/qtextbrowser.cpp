@@ -141,7 +141,6 @@ QTextBrowser::~QTextBrowser()
 */
 void QTextBrowser::setSource(const QString& name)
 {
-    qDebug("QTextBrowser::setSource %s (context is %s)", name.latin1(), context().latin1() );
     if ( isVisible() )
 	qApp->setOverrideCursor( waitCursor );
     QString source = name;
@@ -156,7 +155,6 @@ void QTextBrowser::setSource(const QString& name)
 	source = source.mid(6);
 
     QString url = mimeSourceFactory()->makeAbsolute( source, context() );
-    qDebug("url is %s", url.latin1());
     QString txt;
     bool dosettext = FALSE;
 

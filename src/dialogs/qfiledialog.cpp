@@ -77,7 +77,7 @@ static QFileIconProvider * fileIconProvider = 0;
 
 
 /* XPM */
-static const char * start_xpm[]={
+static const char * const start_xpm[]={
     "16 15 8 1",
     "a c #cec6bd",
     "# c #000000",
@@ -104,7 +104,7 @@ static const char * start_xpm[]={
     "................"};
 
 /* XPM */
-static const char *end_xpm[]={
+static const char * const end_xpm[]={
     "16 15 9 1",
     "d c #a0a0a0",
     "c c #c3c3c3",
@@ -132,7 +132,7 @@ static const char *end_xpm[]={
     "aaaaaaaaaaaaaaaa"};
 
 /* XPM */
-static const char* open_xpm[]={
+static const char* const open_xpm[]={
     "16 16 6 1",
     ". c None",
     "b c #ffff00",
@@ -158,7 +158,7 @@ static const char* open_xpm[]={
     "................"};
 
 /* XPM */
-static const char *link_dir_xpm[]={
+static const char * const link_dir_xpm[]={
     "16 16 10 1",
     "h c #808080",
     "g c #a0a0a0",
@@ -188,7 +188,7 @@ static const char *link_dir_xpm[]={
     "................"};
 
 /* XPM */
-static const char *link_file_xpm[]={
+static const char * const link_file_xpm[]={
     "16 16 10 1",
     "h c #808080",
     "g c #a0a0a0",
@@ -218,7 +218,7 @@ static const char *link_file_xpm[]={
     "ccccccccccccc###"};
 
 /* XPM */
-static const char* file_xpm[]={
+static const char* const file_xpm[]={
     "16 16 5 1",
     ". c #7f7f7f",
     "# c None",
@@ -243,7 +243,7 @@ static const char* file_xpm[]={
     "ccccccccccccc###"};
 
 /* XPM */
-static const char* closed_xpm[]={
+static const char * const closed_xpm[]={
     "16 16 6 1",
     ". c None",
     "b c #ffff00",
@@ -270,7 +270,7 @@ static const char* closed_xpm[]={
 
 
 /* XPM */
-static const char* cdtoparent_xpm[]={
+static const char* const cdtoparent_xpm[]={
     "15 13 3 1",
     ". c None",
     "* c #000000",
@@ -291,7 +291,7 @@ static const char* cdtoparent_xpm[]={
 
 
 /* XPM */
-static const char* newfolder_xpm[] = {
+static const char* const newfolder_xpm[] = {
     "15 14 4 1",
     " 	c None",
     ".	c #000000",
@@ -313,7 +313,7 @@ static const char* newfolder_xpm[] = {
     "...........    "};
 
 /* XPM */
-static const char* detailedview_xpm[]={
+static const char* const detailedview_xpm[]={
     "14 11 3 1",
     ". c None",
     "* c #000000",
@@ -331,7 +331,7 @@ static const char* detailedview_xpm[]={
     ".****.***.***."};
 
 /* XPM */
-static const char* previewinfoview_xpm[]={
+static const char* const previewinfoview_xpm[]={
     "13 13 4 1",
     ". c #00007f",
     "a c black",
@@ -352,7 +352,7 @@ static const char* previewinfoview_xpm[]={
     "...####aaaaaa"};
 
 /* XPM */
-static const char* previewcontentsview_xpm[]={
+static const char* const previewcontentsview_xpm[]={
     "14 13 5 1",
     ". c #00007f",
     "a c black",
@@ -374,7 +374,7 @@ static const char* previewcontentsview_xpm[]={
     "...####aaaaaaa"};
 
 /* XPM */
-static const char* mclistview_xpm[]={
+static const char* const mclistview_xpm[]={
     "15 11 4 1",
     "* c None",
     "b c #000000",
@@ -393,7 +393,7 @@ static const char* mclistview_xpm[]={
     "...*****...****"};
 
 /* XPM */
-static const char * back_xpm [] = {
+static const char * const back_xpm [] = {
     "13 11 3 1",
     "a c #00ffff",
     "# c #000000",
@@ -1267,7 +1267,7 @@ void QFileListBox::startRename( bool check )
     int w = item( i )->width( this ) - bdr;
     int h = QMAX( lined->height() + 2, r.height() );
     y = y + r.height() / 2 - h / 2;
-    
+
     lined->parentWidget()->setGeometry( x, y, w + 6, h );
     lined->setFocus();
     lined->setText( item( i )->text() );
@@ -2474,10 +2474,10 @@ QString QFileDialog::selectedFilter() const
   Returns a list of selected files. This is only useful,
   if the mode of the filedialog is ExistingFiles. Else
   the list will only contain one entry, which is the
-  the selecedFile. If no files were selected, this list
+  the selectedFile. If no files were selected, this list
   is empty.
 
-  \sa QFileDialog::selecedFile(), QStringList::isEmpty()
+  \sa QFileDialog::selectedFile(), QValueList::isEmpty()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -4259,6 +4259,9 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 
 
 
+/*!
+  \reimp
+*/
 bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
@@ -4569,26 +4572,26 @@ QUrl QFileDialog::url() const
 static bool isRoot( const QUrl &u )
 {
 #if defined(UNIX)
-	if ( u.path() == "/" )
-	    return TRUE;
+    if ( u.path() == "/" )
+	return TRUE;
 #elif defined(_OS_WIN32_)
-	QString p = u.path();
-	if ( p.length() == 3 &&
-	     p.right( 2 ) == ":/" )
+    QString p = u.path();
+    if ( p.length() == 3 &&
+	 p.right( 2 ) == ":/" )
+	return TRUE;
+    if ( p[ 0 ] == '/' && p[ 1 ] == '/' ) {
+	int slashes = p.contains( '/' );
+	if ( slashes <= 3 )
 	    return TRUE;
-	if ( p[ 0 ] == '/' && p[ 1 ] == '/' ) {
-	    int slashes = p.contains( '/' );
-	    if ( slashes <= 3 )
-		return TRUE;
-	    if ( slashes == 4 && p[ (int)p.length() - 1 ] == '/' )
-		return TRUE;
-	}
+	if ( slashes == 4 && p[ (int)p.length() - 1 ] == '/' )
+	    return TRUE;
+    }
 #endif
 
-	if ( !u.isLocalFile() && u.path() == "/" )
-	    return TRUE;
+    if ( !u.isLocalFile() && u.path() == "/" )
+	return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 void QFileDialog::urlStart( QNetworkOperation *op )
@@ -4621,7 +4624,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
-	
+
 	if ( d->goBack && d->history.last() != d->url.toString() ) {
 	    d->history.append( d->url.toString() );
 	    if ( d->history.count() > 1 )

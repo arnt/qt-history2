@@ -1190,7 +1190,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example scribble/main.cpp
 
-  <h1 align=center>Simple HTML Browser</h1><br clear="all">
+  <h1 align=center>Simple Painting Application</h1><br clear="all">
 
   This example implements the famous scribble example. You can draw around
   in the canvas with different pens and save the result as picture.

@@ -15,7 +15,7 @@ msgstr "&Datei"
 
 #: mywidget.cpp:29
 msgid "MyWidget::Ctrl+Q"
-msgstr "Strng+E"
+msgstr "Strg+E"
 
 #: mywidget.cpp:28
 msgid "MyWidget::E&xit"

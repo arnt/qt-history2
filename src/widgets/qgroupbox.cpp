@@ -435,10 +435,10 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     }
     grid = new QGridLayout( nRows, nCols, 5 );
     row = col = 0;
-
+    grid->setAlignment( AlignTop );
     vbox->addLayout( grid );
-    vbox->addStretch( 1 );
-
+    
+    
     // Add all children
     const QObjectList *list = children();
     if ( list )

@@ -1715,3 +1715,42 @@ void QLayout::setSupportsMargin( bool b )
 {
     marginImpl = b;
 }
+
+
+/*!
+  Returns the rectangle that should be covered when the geometry of
+  this layout is set to \a r, if this layout supports setAlignment().
+  
+  The result is calculated from sizeHint() and expanding(). It is
+  never larger than \a r.
+ */
+
+QRect QLayout::alignmentRect( const QRect &r ) const
+{
+    QSize s = sizeHint();
+    int align = alignment();
+    if ( expanding() & QSizePolicy::Horizontal || !(align & HorAlign ) ) {
+	s.setWidth( r.width() );
+    }
+    if ( expanding() & QSizePolicy::Vertical || !(align & VerAlign )) {
+	s.setHeight( r.height() );
+    } else if ( hasHeightForWidth() ) {
+	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
+    }
+        
+    int x = r.x();
+    int y = r.y();
+    
+    if ( align & Qt::AlignRight )
+	x = x + ( r.width() - s.width() );
+    else if ( !(align & Qt::AlignLeft) )
+	x = x + ( r.width() - s.width() ) / 2;
+
+    if ( align & Qt::AlignBottom )
+	y = y + ( r.height() - s.height() );
+    else if ( !(align & Qt::AlignTop) )
+	y = y + ( r.height() - s.height() ) / 2;
+
+    return QRect( x, y, s.width(), s.height() );
+	 
+}

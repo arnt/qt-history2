@@ -321,7 +321,7 @@
 
   Equivalent to the [] operator.
 
-  \sa operator[]
+  \sa operator[]()
 */
 
 /*!

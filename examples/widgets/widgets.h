@@ -21,7 +21,7 @@ class QProgressBar;
 class QTabWidget;
 class QGroupBox;
 class QMultiLineEdit;
-
+class QPopupMenu;
 
 class MyListView : public QListView
 {
@@ -86,7 +86,8 @@ private slots:
     void	movieStatus( int );
     void	movieUpdate( const QRect& );
     void	spinBoxValueChanged( const QString& );
-
+    void	popupSelected( int );
+    
     void	open();
     void	dummy();
     void	showProperties();
@@ -103,6 +104,8 @@ private:
     int progress;
     QTabWidget* tabs;
     QMultiLineEdit* edit;
+    QPopupMenu *textStylePopup;
+    int plainStyleID;
 };
 
 #endif

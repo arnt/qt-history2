@@ -745,7 +745,7 @@ void QFocusEvent::setReason( Reason reason )
   Resets the reason for all future focus events to the value before
   the last setReason() call.
 
-  \sa reason(), resetReason()
+  \sa reason(), setReason()
  */
 void QFocusEvent::resetReason()
 {

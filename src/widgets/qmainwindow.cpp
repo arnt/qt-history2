@@ -299,24 +299,24 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
     QMainWindowPrivate::ToolBarDock *l;
     QMainWindowPrivate::ToolBar *tb = findToolbar( t, l );
     if ( tb && l ) {
-	int pos = l->findRef( tb );
+	int p = l->findRef( tb );
 	if ( remember ) {
-	    if ( pos < (int)l->count() - 1 && !l->at( pos + 1 )->nl ) {
-		l->at( pos + 1 )->hiddenBefore = tb;
+	    if ( p < (int)l->count() - 1 && !l->at( p + 1 )->nl ) {
+		l->at( p + 1 )->hiddenBefore = tb;
 #ifdef QMAINWINDOW_DEBUG
 		qDebug( "remember toolbar before me" );
 #endif
-	    } else if ( pos > 0 && !tb->nl ) {
-		l->at( pos - 1 )->hiddenAfter = tb;
+	    } else if ( p > 0 && !tb->nl ) {
+		l->at( p - 1 )->hiddenAfter = tb;
 #ifdef QMAINWINDOW_DEBUG
 		qDebug( "remember toolbar after me" );
 #endif
 	    }
-	    if ( pos < (int)l->count() - 1 && tb->nl )
-		l->at( pos + 1 )->nl = TRUE;
-	    tb->oldIndex = pos;
+	    if ( p < (int)l->count() - 1 && tb->nl )
+		l->at( p + 1 )->nl = TRUE;
+	    tb->oldIndex = p;
 	}	
-	return l->take( pos );
+	return l->take( p );
     }
     return 0;
 }
@@ -670,8 +670,8 @@ QSize QMainWindowLayout::minimumSize() const
 	h = QMAX( h, right->minimumSize().height() );
     }
     if ( central ) {
-	w = QMAX( w, central->minimumSize().width() );
-	h = QMAX( h, central->minimumSize().height() );
+	w = QMAX( w, QMAX( central->minimumSize().width(), central->minimumSizeHint().width() ) );
+	h = QMAX( h, QMAX( central->minimumSize().height(), central->minimumSizeHint().height() ) );
     }
 
     return QSize( w, h );
@@ -1841,7 +1841,9 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    if ( found ) {
 		triggerLayout();
 		// update, so that the line below the menubar may be drawn/earsed
+#if 0
 		update();
+#endif
 		emit toolBarPositionChanged( toolBar );
 		return;
 	    }
@@ -1943,7 +1945,9 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 
     triggerLayout();
     // update, so that the line below the menubar may be drawn/earsed
+#if 0
     update();
+#endif
     emit toolBarPositionChanged( toolBar );
 }
 
@@ -2084,20 +2088,22 @@ void QMainWindow::setUpLayout()
 		visibles++;
 	    tb->t->resize( 0, 0 );
 	    tb->t->move( -tb->t->width() - 2, -tb->t->height() - 2 );
+	    d->hideDock->raise();
+	    if ( d->mb )
+		d->mb->raise();
 	}
 	if ( !visibles ) {
 	    d->hideDock->hide();
 	} else {
 	    d->hideDock->repaint( TRUE );
+#if 0
 	    update();
+#endif
 	}
     } else {
 	d->hideDock->hide();
     }
-    if ( d->hideDock->isVisible() && space && style() == WindowsStyle )
-	d->tll->addSpacing( 2 );
     d->tll->addWidget( d->hideDock );
-    d->tll->addSpacing( 1 );
 
     d->lTop = new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
 
@@ -2107,8 +2113,7 @@ void QMainWindow::setUpLayout()
     d->lLeft = new QToolLayout( mwl, d->left, QBoxLayout::LeftToRight, d->justify );
     mwl->setLeftDock( d->lLeft );
 
-    if ( centralWidget() &&
-	 !centralWidget()->testWState(Qt::WState_ForceHide) )
+    if ( centralWidget() )
 	mwl->setCentralWidget( centralWidget() );
     d->lRight = new QToolLayout( mwl, d->right, QBoxLayout::LeftToRight, d->justify );
     mwl->setRightDock( d->lRight );
@@ -2152,7 +2157,6 @@ QSize QMainWindow::minimumSizeHint() const
     return d->tll->totalMinimumSize();
 }
 
-
 /*!  Sets the central widget for this window to \a w.  The central
   widget is the one around which the toolbars etc. are arranged.
 */
@@ -2162,7 +2166,10 @@ void QMainWindow::setCentralWidget( QWidget * w )
     if ( d->mc )
 	d->mc->removeEventFilter( this );
     d->mc = w;
-    d->mc->installEventFilter( this );
+    if ( d->mc ) {
+	d->mc->show();
+	d->mc->installEventFilter( this );
+    }
     triggerLayout();
 }
 
@@ -2184,12 +2191,14 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-    if ( style() == WindowsStyle && d->mb && 
+#if 0 // ### have to look deeper into that, made some painting errors
+    if ( style() == WindowsStyle && d->mb &&
 	 ( ( d->top && !d->top->isEmpty() ) || ( d->hidden && !d->hidden->isEmpty() ) ) ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
 	style().drawSeparator( &p, 0, y, width(), y, colorGroup() );
     }
+#endif
 }
 
 
@@ -2264,6 +2273,11 @@ void QMainWindow::childEvent( QChildEvent* e)
 
 bool QMainWindow::event( QEvent * e ) //### remove 3.0
 {
+    if ( e->type() == QEvent::ChildRemoved && ( (QChildEvent*)e )->child() == d->mc ) {
+	d->mc->removeEventFilter( this );
+	d->mc = 0;
+    }
+	
     return QWidget::event( e );
 }
 
@@ -2420,12 +2434,17 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 		    visibles++;
 		tb->t->resize( 0, 0 );
 		tb->t->move( -tb->t->width() - 2, -tb->t->height() - 2 );
+		d->hideDock->raise();
+		if ( d->mb )
+		    d->mb->raise();
 	    }
 	    if ( !visibles ) {
 		d->hideDock->hide();
 	    } else {
 		d->hideDock->repaint( TRUE );
+#if 0
 		update();
+#endif
 	    }
 	} else {
 	    d->hideDock->hide();
@@ -2662,7 +2681,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->inMovement = TRUE;
 
 	// don't allow repaints of the central widget as this may be a problem for our rects
-	if ( d->mc ) {
+	if ( d->mc && !d->opaque ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
 		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( FALSE );
 	    else
@@ -2771,7 +2790,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	}
 
 	// allow repaints in central widget again
-	if ( d->mc ) {
+	if ( d->mc && !d->opaque ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
 		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( TRUE );
 	    else

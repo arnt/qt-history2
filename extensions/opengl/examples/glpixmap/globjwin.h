@@ -25,9 +25,7 @@ public:
 protected slots:
 
     void		makePixmap();
-    void		makePixmapManually();
     void		makePixmapHidden();
-    void		makePixmapHiddenManually();
     void		makePixmapForMenu();
     void		useFixedPixmapSize();
 

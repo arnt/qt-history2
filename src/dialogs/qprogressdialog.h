@@ -66,7 +66,7 @@ public:
     QSize	sizeHint() const;
 
     QString     labelText() const;
-    
+
     void setAutoReset( bool b );
     bool autoReset() const;
     void setAutoClose( bool b );
@@ -91,7 +91,8 @@ protected:
     void	resizeEvent( QResizeEvent * );
     void	closeEvent( QCloseEvent * );
     void	styleChange( QStyle& );
-
+    void	showEvent( QShowEvent *e );
+    
 private:
     void	   init( QWidget *creator, const QString& lbl, const QString &canc,
 		         int totstps);

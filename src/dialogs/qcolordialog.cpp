@@ -664,7 +664,7 @@ void QColorShowLabel::mouseReleaseEvent( QMouseEvent * )
 QColorShower::QColorShower( QWidget *parent, const char *name )
     :QWidget( parent, name)
 {
-    curCol = qRgb( 0,0,0 );
+    curCol = qRgb( -1, -1, -1 );
     QColIntValidator *val256 = new QColIntValidator( 0, 255, this );
     QColIntValidator *val360 = new QColIntValidator( 0, 360, this );
 
@@ -1074,7 +1074,7 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 
 /*!
   Returns the color currently selected in the dialog.
-  
+
   \sa setColor()
 */
 
@@ -1096,7 +1096,7 @@ QColorDialog::~QColorDialog()
 
 /*!
   Sets the color shown in the dialog to \a c.
-  
+
   \sa color()
 */
 

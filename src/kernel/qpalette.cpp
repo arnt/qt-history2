@@ -216,18 +216,18 @@ Such long lists of arguments are rather error-prone.
 
 /*!\obsolete
 
-  Constructs a color group with the specified colors. The background
-  color will be set to the button color.
+  Constructs a color group with the specified colors. The button
+  color will be set to the background color.
 */
 
-QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
+QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
 			  const QColor &light, const QColor &dark,
 			  const QColor &mid,
 			  const QColor &text, const QColor &base )
 {
     br = new QBrush[NColorRoles];
     br[Foreground]      = QBrush(foreground);
-    br[Button]          = QBrush(button);
+    br[Button]          = QBrush(background);
     br[Light]           = QBrush(light);
     br[Dark]            = QBrush(dark);
     br[Mid]             = QBrush(mid);
@@ -235,7 +235,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
     br[BrightText]      = br[Light];
     br[ButtonText]      = br[Text];
     br[Base]            = QBrush(base);
-    br[Background]      = QBrush(button);
+    br[Background]      = QBrush(background);
     br[Midlight]        = QBrush(br[Button].color().light(115));
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;

@@ -344,7 +344,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QString capt= caption();
     widget_flags = f;
-    clearWState( WState_Created | WState_Visible );
+    clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    if ( parent && parent->isVisible() )
+	setWState( WState_ForceHide );
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children

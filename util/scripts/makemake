@@ -44,8 +44,8 @@ all: $SYMLINKS moc src util tutorial examples
 
 moc: .buildopts FORCE
 	cd src/moc; \$(MAKE)
-	mkdir -p bin
-	-rm bin/moc
+	-mkdir bin
+	-rm -f bin/moc
 	cp src/moc/moc bin/moc
 
 util: mergetr msg2qm

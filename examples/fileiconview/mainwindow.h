@@ -18,6 +18,7 @@ class DirectoryView;
 class QProgressBar;
 class QLabel;
 class QComboBox;
+class QToolButton;
 
 class FileMainWindow : public QMainWindow
 {
@@ -40,6 +41,7 @@ protected:
     QProgressBar *progress;
     QLabel *label;
     QComboBox *pathCombo;
+    QToolButton *upButton, *mkdirButton;
 
 protected slots:
     void directoryChanged( const QString & );
@@ -49,6 +51,10 @@ protected slots:
     void cdUp();
     void newFolder();
     void changePath( const QString &path );
+    void enableUp();
+    void disableUp();
+    void enableMkdir();
+    void disableMkdir();
 
 };
 

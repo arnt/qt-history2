@@ -154,9 +154,10 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    QWidget *f = new ExampleWidget;
-    a.setMainWidget(f);
-    f->show();
+    ExampleWidget f;
+    a.setMainWidget(&f);
+    f.show();
 
     return a.exec();
+
 }

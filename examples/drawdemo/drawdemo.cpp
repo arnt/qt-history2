@@ -99,56 +99,6 @@ void drawShapes( QPainter *p )
 }
 
 
-//
-// This function draws a text that follows a (Bezier) curve.
-// Notice that this function does not support the general case.
-// It should be rewritten to calculate the real dx/dy.
-//
-
-void drawPathText( QPainter *p )
-{
-    p->setWindow( 0, 0, 400, 300 );
-
-    QPointArray a( 4 );
-    a.setPoint( 0, 100,200 );
-    a.setPoint( 1, 150,75 );
-    a.setPoint( 2, 250,75 );
-    a.setPoint( 3, 300,200 );
-    a = a.quadBezier();				// Bezier curve
-
-    p->setPen( Qt::lightGray );
-    p->drawPolyline( a );
-
-    p->setFont( QFont( "Times", 24 ) );		// fast font
-    p->setPen( Qt::black );
-
-    const char *text = "Troll Tech";
-
-    int len = strlen(text);
-    if ( len == 0 )
-        return;
-    int ipos = (a.size()-3)/(len-1); // obviously len > 1
-    int cpos = ipos/2;
-
-    for ( int i=0; i<len; i++ ) {		// for each char in text...
-        QPoint p1 = a.point( cpos-1 );
-        QPoint p2 = a.point( cpos+1 );
-        QPoint pt = a.point(cpos);
-        float dx = (float)(p2.x() - p1.x());
-        float dy = (float)(p2.y() - p1.y());
-        float angle = (float)atan(dy/dx);	// way too simple
-        angle *= 180.0F/3.14F;
-        QWMatrix m;				// setup world matrix
-        m.translate( (float)pt.x(), (float)pt.y() );
-        m.rotate( angle );
-        p->setWorldMatrix( m );
-        p->drawText( 0,0, &text[i], 1 );
-        cpos += ipos;
-    }
-
-}
-
-
 typedef void (*draw_func)(QPainter*);
 
 struct DrawThing {
@@ -165,7 +115,6 @@ DrawThing ourDrawFunctions[] = {
     { drawColorWheel,	"Draw color wheel" },
     { drawFonts,	"Draw fonts" },
     { drawShapes,	"Draw shapes" },
-    { drawPathText,	"Draw path text" },
     { 0,		0 } };
 
 

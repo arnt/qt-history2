@@ -104,7 +104,8 @@ public:
 
     QListBoxItem *pressedItem;
     bool select;
-
+    bool pressedSelected;
+    
     QRect *rubber;
     QPtrDict<bool> selectable;
 
@@ -615,8 +616,8 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   or insert a sorted QStringList().
 
   By default, vertical and horizontal scroll bars are added and
-  removed as necessary.	 setAutoScrollBar() can be used to force a
-  specific policy.
+  removed as necessary. setHScrollBarMode() and setVScrollBarMode()
+  can be used to change this policy.
 
   If you need to insert other types than texts and pixmaps, you must
   define new classes which inherit QListBoxItem.
@@ -1590,8 +1591,9 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	 && !( e->state() & ControlButton ) )
 	clearSelection();
 
-    d->select = isMultiSelection() ? ( i ? !i->selected() : FALSE ) : TRUE;
-
+    d->select = d->selectionMode == Multi ? ( i ? !i->selected() : FALSE ) : TRUE;
+    d->pressedSelected = i && i->s;
+    
     if ( i ) {
 	switch( selectionMode() ) {
 	default:
@@ -1616,11 +1618,13 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		    setSelected( i, TRUE );
 		} else if ( e->state() & ControlButton ) {
 		    setSelected( i, !i->selected() );
+		    d->pressedSelected = FALSE;
 		} else if ( e->state() & ShiftButton ) {
+		    d->pressedSelected = FALSE;
 		    QListBoxItem *oldCurrent = item( currentItem() );
 		    bool down = itemRect( oldCurrent ).y() < itemRect( i ).y();
 		    QListBoxItem *lit = down ? oldCurrent : i;
-		    bool select = !i->selected();
+		    bool select = d->select;
 		    bool blocked = signalsBlocked();
 		    blockSignals( TRUE );
 		    for ( ;; lit = lit->n ) {
@@ -1726,6 +1730,18 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     delete d->scrollTimer;
     d->scrollTimer = 0;
     d->ignoreMoves = FALSE;
+
+    if ( d->selectionMode == Extended &&
+	 d->current == d->pressedItem &&
+	 d->pressedSelected && d->current ) {
+	bool block = signalsBlocked();
+	blockSignals( TRUE );
+	clearSelection();
+	blockSignals( block );
+	d->current->s = TRUE;
+	emit selectionChanged();
+    }
+    
     QListBoxItem * i = itemAt( e->pos() );
     bool emitClicked = d->mousePressColumn != -1 && d->mousePressRow != -1 || !d->pressedItem;
     emitClicked = emitClicked && d->pressedItem == i;
@@ -1886,27 +1902,39 @@ void QListBox::updateSelection()
 	    if ( i )
 		setCurrentItem( i );
 	} else {
-	    int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
-	    int r = QMIN( d->mouseMoveRow, d->mousePressRow );
-	    int c2 = QMAX( d->mouseMoveColumn, d->mousePressColumn );
-	    int r2 = QMAX( d->mouseMoveRow, d->mousePressRow );
-	    bool changed = FALSE;
-	    while( c <= c2 ) {
-		QListBoxItem * i = item( c*numRows()+r );
-		while( i && r <= r2 ) {
-		    if ( (bool)i->s != d->select && i->isSelectable() ) {
-			i->s = d->select;
-			i->dirty = TRUE;
-			changed = TRUE;
-		    }
-		    i = i->n;
-		    r++;
-		}
-		c++;
-	    }
-	    if ( changed ) {
+	    if ( d->selectionMode == Extended && 
+		 d->current == d->pressedItem && d->pressedSelected ) {
+		d->pressedItem = 0;
+		bool block = signalsBlocked();
+		blockSignals( TRUE );
+		clearSelection();
+		i->s = TRUE;
+		blockSignals( block );
 		emit selectionChanged();
 		triggerUpdate( FALSE );
+	    } else {
+		int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
+		int r = QMIN( d->mouseMoveRow, d->mousePressRow );
+		int c2 = QMAX( d->mouseMoveColumn, d->mousePressColumn );
+		int r2 = QMAX( d->mouseMoveRow, d->mousePressRow );
+		bool changed = FALSE;
+		while( c <= c2 ) {
+		    QListBoxItem * i = item( c*numRows()+r );
+		    while( i && r <= r2 ) {
+			if ( (bool)i->s != d->select && i->isSelectable() ) {
+			    i->s = d->select;
+			    i->dirty = TRUE;
+			    changed = TRUE;
+			}
+			i = i->n;
+			r++;
+		    }
+		    c++;
+		}
+		if ( changed ) {
+		    emit selectionChanged();
+		    triggerUpdate( FALSE );
+		}
 	    }
 	    if ( i )
 		setCurrentItem( i );
@@ -2142,10 +2170,11 @@ void QListBox::updateItem( QListBoxItem * i )
 }
 
 
-/*!  Sets the list box to selection mode \a mode, which may be one of
-\c Single (the default), \a Extended and \c Multi.
+/*!
+  Sets the list box to selection mode \a mode, which may be one of
+  \c Single (the default), \c Extended, \c Multi or \c NoSelection.
 
-\sa selectionMode()
+  \sa selectionMode()
 */
 
 void QListBox::setSelectionMode( SelectionMode mode )
@@ -2158,10 +2187,10 @@ void QListBox::setSelectionMode( SelectionMode mode )
 }
 
 
-/*!  Returns the selection mode of the list box.  The initial mode is
-\c Single.
+/*!
+  Returns the selection mode of the list box.  The initial mode is \c Single.
 
-\sa setSelectionMode()
+  \sa setSelectionMode()
 */
 
 QListBox::SelectionMode QListBox::selectionMode() const
@@ -2170,7 +2199,7 @@ QListBox::SelectionMode QListBox::selectionMode() const
 }
 
 
-/*!  
+/*!
   \obsolete
   Consider using selectionMode() instead of this method.
 
@@ -2186,10 +2215,10 @@ bool QListBox::isMultiSelection() const
     return selectionMode() == Multi || selectionMode() == Extended;
 }
 
-/*!  
+/*!
   \obsolete
   Consider using setSelectionMode() instead of this method.
-  
+
   Sets the list box to multi-selection mode if \a enable is TRUE, and
   to single-selection mode if \a enable is FALSE.  We recommend using
   setSelectionMode() instead; that function also offers two other modes.
@@ -3809,7 +3838,7 @@ void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
 	// nothing
     } else if ( d->selectionMode == Extended ) {
 	if ( control ) {
-	    // nothing 
+	    // nothing
 	} else if ( shift ) {
 	    selectRange( old, d->current, FALSE, TRUE );
 	} else {
@@ -3840,7 +3869,7 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 	if ( !includeFirst )
 	    from = from->next();
     }
-    
+
     bool changed = FALSE;
     for ( QListBoxItem *i = from; i; i = i->next() ) {
 	if ( !invert ) {
@@ -3851,7 +3880,7 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 	    }
 	} else {
 	    bool sel = !i->s;
-	    if ( i->s != sel && sel && i->isSelectable() || !sel ) {
+	    if ( (bool)i->s != sel && sel && i->isSelectable() || !sel ) {
 		i->s = sel;
 		changed = TRUE;
 		updateItem( i );

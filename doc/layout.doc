@@ -92,7 +92,7 @@ the children.
 <h2>QLayout</h2>
 
 If you need more control over the layout, use a \link QLayout QLayout\endlink
- subclass. The layout classes included in Qt 2.0 are \link QGridLayout
+ subclass. The layout classes included in Qt 2.1 are \link QGridLayout
  QGridLayout\endlink and \link QBoxLayout QBoxLayout\endlink.
 (\link QHBoxLayout  QHBoxLayout\endlink and
 \link QVBoxLayout  QVBoxLayout\endlink are trivial subclasses of QBoxLayout,

@@ -49,7 +49,7 @@
 // Note: stripHeader() constrains the postscript used in this prolog.
 // only function/variable declarations are currently allowed, and
 // stripHeader knows a bit about the names of some functions.
-static const char *ps_header[] = {
+static const char * const ps_header[] = {
 "/d  /def load def",
 "/D  {bind d} bind d",
 "/ED {exch d} D",
@@ -1834,7 +1834,7 @@ static void makeFixedStrings()
     qAddPostRoutine( cleanup );
 
     fixed_ps_header = new QString;
-    const char** headerLine = ps_header;
+    const char * const * headerLine = ps_header;
     while ( *headerLine ) {
 	fixed_ps_header->append( QString::fromLatin1(*headerLine++) );
 	fixed_ps_header->append( '\n' );

@@ -134,7 +134,6 @@ public:
     void addLayout( QLayout *layout, int stretch = 0 );
     void addStrut( int );
 
-    void insertItem( int index, QLayoutItem * );
     void insertSpacing( int index, int size );
     void insertStretch( int index, int stretch = 0 );
     void insertWidget( int index, QWidget *widget, int stretch = 0,
@@ -158,6 +157,8 @@ public:
     void setGeometry( const QRect& );
 
     int findWidget( QWidget* w );
+protected:
+    void insertItem( int index, QLayoutItem * );
 
 private:
     void setupGeom();

@@ -9,7 +9,7 @@
 #include <qurl.h>
 #include <qlabel.h>
 #include <qpixmap.h>
-#include "qnetwork.h"
+//#include "qnetwork.h"
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qpixmap.h>
@@ -116,6 +116,14 @@ Main::Main(QWidget* parent, const char* name, int f) :
 
 void Main::bang()
 {
+    if ( !initEd->text().isEmpty() ) {
+	QFileInfo fi( initEd->text() );
+	qDebug( "str:\"%s\" path:\"%s\" abs:\"%s\" dir:%d",
+		initEd->text().latin1(),
+		fi.dirPath( TRUE ).latin1(),
+		fi.absFilePath().latin1()
+		, fi.isDir() );
+    }
     QString s = QFileDialog::getOpenFileName( initEd->text(),
                                               filtEd->text() );
     if ( s.isEmpty() )
@@ -241,7 +249,7 @@ void Main::tusch()
 main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    qInitNetworkProtocols();
+    //qInitNetworkProtocols();
 
     QFileDialog::setIconProvider( new ImageIconProvider );
 

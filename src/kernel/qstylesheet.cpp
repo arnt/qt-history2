@@ -800,8 +800,6 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- A larger font size.
     <li>\c &lt;small&gt;...&lt;/small&gt;
 	- A smaller font size.
-    <li>\c &lt;large&gt;...&lt;/large&gt;
-	- Large font size.
     <li>\c &lt;code&gt;...&lt;/code&gt;
 	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter). For
 	larger junks of code, use the block-tag \c pre.
@@ -951,6 +949,8 @@ void QStyleSheet::init()
     style->setFontItalic( TRUE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("big") );
+    style->setLogicalFontSizeStep( 1 );
+    style = new QStyleSheetItem( this, QString::fromLatin1("large") ); // compatibility
     style->setLogicalFontSizeStep( 1 );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("small") );
@@ -1198,6 +1198,8 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 	    rich +="&lt;";
 	else if ( plain[i] == '>' )
 	    rich +="&gt;";
+	else if ( plain[i] == '&' )
+	    rich +="&amp;";
 	else
 	    rich += plain[i];
 	++col;

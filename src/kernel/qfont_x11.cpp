@@ -613,7 +613,7 @@ QString QFont::lastResortFamily() const
     return QString::fromLatin1("helvetica");
 }
 
-static const char *tryFonts[] = {
+static const char * const tryFonts[] = {
     "6x13",
     "7x13",
     "8x13",
@@ -743,7 +743,7 @@ void QFont::load() const
 #if defined(CHECK_STATE)
 	qFatal( "QFont: Must construct a QApplication before a QFont" );
 #endif
-	
+
 	return;
     }
 
@@ -2023,7 +2023,7 @@ void QFontInternal::computeLineWidth()
     bool ok;
     xres = tmp.toInt( &ok );
     if ( !ok || xres == 0 )
-	xres = QPaintDevice::x11AppDpiX();		
+	xres = QPaintDevice::x11AppDpiX();
     int score = pSize*weight;		// ad hoc algorithm
     lw = ( score ) / 700;
     if ( lw < 2 && score >= 1050 )	// looks better with thicker line

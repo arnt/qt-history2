@@ -166,7 +166,7 @@ each option:
     -gif ............... Compile in GIF reading support. See src/kernel/qgif.h
 
  *  -no-sm ............. Do not support X Session Management.
-    -sm ................ Support X Session Management, links in -lXSM -lICE.
+    -sm ................ Support X Session Management, links in -lSM -lICE.
 
  *  -no-thread ......... Do not compile with Threading Support
     -thread ............ Compile with Threading Support(links in -lpthread)
@@ -388,12 +388,12 @@ QT_CXX=""
 QT_LIBS=""
 QT_PNG=""
 QT_ZLIB=""
-[ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lICE -lSM"
+[ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lSM -lICE"
 [ "x$THREAD" = "xyes" ] && QT_LIBS="${QT_LIBS} -lpthread"
-[ "x$ZLIB" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
 [ "x$LIBPNG" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
-[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
+[ "x$ZLIB" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
+[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$JPEG" = "xyes" ] && QT_LIBS="${QT_LIBS} -ljpeg"
 [ "x$NAS_SOUND" = "xyes" ] && QT_LIBS="${QT_LIBS} -laudio -lXt" # Xt junk in audio library
 QT_LIBS="$L_FLAGS $QT_LIBS $l_FLAGS"
@@ -431,11 +431,11 @@ echo "GIF supports:  $GIF"
 echo
 echo Creating makefiles...
 
-sepath=`echo $relpath | sed -e's/\\./\\\\./g'`
+sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 
-for a in `find $relpath -follow -name Makefile.in -print | sort` ; do
+for a in `find $relpath -name Makefile.in -print | sort` ; do
     buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
-    test -d $buildpath || mkdir -p $buildpath
+    test -d $buildpath || mkdir $buildpath
     N=$buildpath/Makefile
     M=$a
     cat > $N <<EOF

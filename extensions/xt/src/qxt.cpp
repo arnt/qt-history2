@@ -62,10 +62,10 @@ typedef void (*ForeignEventProc)(XEvent*);
 extern XtEventDispatchProc
  qt_np_cascade_event_handler[LASTEvent];      // defined in qnpsupport.cpp
 void            qt_reset_color_avail();       // defined in qcolor_x11.cpp
-void            qt_activate_timers();         // defined in qapplication_x11.cpp
+int             qt_activate_timers();         // defined in qapplication_x11.cpp
 timeval        *qt_wait_timer();              // defined in qapplication_x11.cpp
 void		qt_x11SendPostedEvents();     // defined in qapplication_x11.cpp
-Boolean  qt_event_handler( XEvent* event );   // defined in qnpsupport.cpp
+int	qt_event_handler( XEvent* event );    // defined in qnpsupport.cpp
 extern int      qt_np_count;                  // defined in qnpsupport.cpp
 void qt_np_timeout( void* p, void* id );      // defined in qnpsupport.cpp
 void qt_np_add_timeoutcb(
@@ -151,7 +151,7 @@ static
 QWidgetClassRec qwidgetClassRec = {
   { /* core fields */
     /* superclass		*/	(WidgetClass) &widgetClassRec,
-    /* class_name		*/	"QWidget",
+    /* class_name		*/	(char*)"QWidget",
     /* widget_size		*/	sizeof(QWidgetRec),
     /* class_initialize		*/	0,
     /* class_part_initialize	*/	0,
@@ -194,13 +194,19 @@ static QXtApplication* qxtapp = 0;
 static XtAppContext appcon;
 
 static
+Boolean qt_event_handler_wrapper( XEvent* event )
+{
+	return (Boolean)qt_event_handler( event );
+}
+
+static
 void installXtEventFilters()
 {
     if (filters_installed) return;
     // Get Xt out of our face - install filter on every event type
     for (int et=2; et < LASTEvent; et++) {
 	qt_np_cascade_event_handler[et] = XtSetEventDispatcher(
-	    qt_xdisplay(), et, qt_event_handler );
+	    qt_xdisplay(), et, qt_event_handler_wrapper );
     }
     filters_installed = TRUE;
 }

@@ -50,7 +50,7 @@
  */
 
 /* Perl script to generate (run perl -x tools/qstring.cpp)
-   
+
 #!perl
 
 sub numberize
@@ -157,7 +157,7 @@ while (<IN2>) {
 # Build pages...
 #
 $rowtable_txt =
-    "static const Q_UINT8 *unicode_info [256] = {";
+    "static const Q_UINT8 * const unicode_info[256] = {";
 for $row ( 0..255 ) {
     $nonzero=0;
     $txt = "";
@@ -194,9 +194,9 @@ print "// $size bytes\n\n";
 # Build decomposition tables
 #
 $rowtable_txt =
-    "static const Q_UINT16 *decomposition_info [256] = {";
+    "static const Q_UINT16 * const decomposition_info[256] = {";
 $table_txt =
-    "static const Q_UINT16 decomposition_map [] = {\n    0,\n";
+    "static const Q_UINT16 decomposition_map[] = {\n    0,\n";
 for $row ( 0..255 ) {
     $nonzero=0;
     $txt = "";
@@ -241,9 +241,9 @@ print "// $size bytes\n\n";
 $size = 0;
 $position = 1;
 $rowtable_txt =
-    "static const Q_UINT16 *ligature_info [256] = {";
+    "static const Q_UINT16 * const ligature_info[256] = {";
 $table_txt =
-    "static const Q_UINT16 ligature_map [] = {\n    0,\n";
+    "static const Q_UINT16 ligature_map[] = {\n    0,\n";
 for $lig_row ( 0..255 ) {
     $nonzero=0;
     $txt = "";
@@ -303,7 +303,7 @@ print "// $size bytes\n\n";
 # Build direction/joining/mirrored pages...
 #
 $rowtable_txt =
-    "static const Q_UINT8 *direction_info [256] = {";
+    "static const Q_UINT8 * const direction_info[256] = {";
 for $dir_row ( 0..255 ) {
     $nonzero=0;
     $txt = "";
@@ -2347,7 +2347,7 @@ static const Q_UINT8 ui_FF[] = {
     0, 11, 11, 11, 30, 30, 0, 0,
 };
 
-static const Q_UINT8 *unicode_info [256] = {
+static const Q_UINT8 * const unicode_info[256] = {
     ui_00, ui_01, ui_02, ui_03, ui_04, ui_05, ui_06, ui_07,
     ui_08, ui_09, ui_0A, ui_0B, ui_0C, ui_0D, ui_0E, ui_0F,
     ui_10, ui_11, ui_12, ui_13, ui_14, ui_15, ui_16, ui_17,
@@ -7131,7 +7131,7 @@ static const Q_UINT16 di_FF[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static const Q_UINT16 *decomposition_info [256] = {
+static const Q_UINT16 * const decomposition_info[256] = {
     di_00, di_01, di_02, di_03, di_04, di_05, di_06, di_07,
     di_07, di_09, di_0A, di_0B, di_0C, di_0D, di_0E, di_0F,
     di_10, di_07, di_07, di_07, di_07, di_07, di_07, di_07,
@@ -8395,7 +8395,7 @@ static const Q_UINT16 li_FB[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static const Q_UINT16 *ligature_info [256] = {
+static const Q_UINT16 * const ligature_info[256] = {
     li_00, li_01, li_02, li_03, li_04, li_05, li_06, li_07,
     li_07, li_09, li_0A, li_0B, li_0C, li_0D, li_07, li_0F,
     li_10, li_07, li_07, li_07, li_07, li_07, li_07, li_07,
@@ -9761,7 +9761,7 @@ static const Q_UINT8 dir_FF[] = {
     0, 18, 18, 18, 10, 10, 0, 0,
 };
 
-static const Q_UINT8 *direction_info [256] = {
+static const Q_UINT8 * const direction_info[256] = {
     dir_00, dir_01, dir_02, dir_03, dir_04, dir_05, dir_06, dir_07,
     dir_01, dir_09, dir_0A, dir_0B, dir_0C, dir_0D, dir_0E, dir_0F,
     dir_10, dir_01, dir_01, dir_01, dir_01, dir_01, dir_16, dir_17,
@@ -10255,7 +10255,7 @@ static const Q_UINT16 case_ff [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static const Q_UINT16 *case_info [256] = {
+static const Q_UINT16 * const case_info[256] = {
 
     case_0, case_1, case_2, case_3, case_4, case_5, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -10606,7 +10606,7 @@ static const Q_INT8 num_ff [] = {
     -1, -1, -1, -1, -1, -1, -1, -1,
 };
 
-static const Q_INT8 *decimal_info [256] = {
+static const Q_INT8 * const decimal_info[256] = {
      num_0, 0, 0, 0, 0, 0, num_6, 0,
      0, num_9, num_9, num_b, num_9, num_d, num_e, num_f,
      0, 0, 0, 0, 0, 0, 0, 0,
@@ -10721,7 +10721,7 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
   Most of the QChar member functions also exist in QCharRef.  However,
   they are not explicitly documented here.
 
-  \sa QString::operator[] QString::at() QChar
+  \sa QString::operator[]() QString::at() QChar
 */
 
 /*! \class QChar qstring.h
@@ -11071,7 +11071,7 @@ QChar::Category QChar::category() const
 /*!
   Returns the characters directionality.
 
-  \sa
+  \sa Direction
 */
 QChar::Direction QChar::direction() const
 {
@@ -14687,7 +14687,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
     }
     else {
 	const char* ub = (const char*)str.unicode();
-	if ( ub ) {
+	if ( ub || s.version() < 3 ) {
 	    if ( QChar::networkOrdered() ==
 		    (s.byteOrder()==QDataStream::BigEndian) ) {
 		s.writeBytes( ub, sizeof(QChar)*str.length() );

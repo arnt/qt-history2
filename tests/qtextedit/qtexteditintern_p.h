@@ -169,11 +169,15 @@ public:
 	OutlinedSquare
     };
 
-    QTextEditDocument( const QString &fn, bool tabify );
+    QTextEditDocument();
 
-    void loadPlainText( const QString &fn, bool tabify = FALSE );
-    void loadRichText( const QString &fn );
-    void setText( const QString &text );
+    void setText( const QString &text, bool tabify = FALSE );
+    void load( const QString &fn, bool tabify = FALSE );
+
+    void save( const QString &fn = QString::null );
+    QString fileName() const;
+    QString text() const;
+    QString text( int parag, bool formatted ) const;
 
     int x() const;
     int y() const;
@@ -206,19 +210,14 @@ public:
     bool setSelectionEnd( int id, QTextEditCursor *cursor );
     bool removeSelection( int id );
     void selectionStart( int id, int &paragId, int &index );
+    void selectionEnd( int id, int &paragId, int &index );
     void setFormat( int id, QTextEditFormat *f, int flags );
     QTextEditParag *selectionStart( int id );
     QTextEditParag *selectionEnd( int id );
 
-    void save( const QString &fn = QString::null );
-    QString fileName() const;
-
     QString selectedText( int id ) const;
     void copySelectedText( int id );
     void removeSelectedText( int id, QTextEditCursor *cursor );
-
-    QString text() const;
-    QString text( int parag, bool formatted ) const;
 
     void setCompletionEnabled( bool b );
     bool isCompletionEnabled() const;
@@ -241,6 +240,20 @@ public:
 
     bool find( const QString &expr, bool cs, bool wo, bool forward, int *parag, int *index, QTextEditCursor *cursor );
 
+    void setTextFormat( Qt::TextFormat f );
+    Qt::TextFormat textFormat() const;
+
+    void setParagSpacing( int s );
+    void setLineSpacing( int s );
+    int paragSpacing( QTextEditParag *p = 0 ) const;
+    int lineSpacing() const;
+
+private:
+    void setPlainText( const QString &text, bool tabify = FALSE );
+    void setRichText( const QString &text );
+    QString richText( QTextEditParag *p = 0, bool formatted = FALSE ) const;
+    QString plainText( QTextEditParag *p = 0, bool formatted = FALSE ) const;
+
 private:
     struct Selection {
 	QTextEditParag *startParag, *endParag;
@@ -259,6 +272,9 @@ private:
     QTextEditFormatter *pFormatter;
     QTextEditIndent *indenter;
     QTextEditFormatCollection *fCollection;
+    Qt::TextFormat txtFormat;
+    bool preferRichText;
+    int ls, ps;
 
 };
 
@@ -325,7 +341,7 @@ public:
     typedef QValueList<Paren> ParenList;
 
     enum Type {
-	Normal,
+	Normal = 0,
 	BulletList,
 	EnumList
     };
@@ -551,6 +567,9 @@ public:
 
     void addRef();
     void removeRef();
+
+    QString makeFormatChangeTags( QTextEditFormat *f ) const;
+    QString makeFormatEndTags() const;
 
 private:
     void update();
@@ -795,6 +814,21 @@ inline QTextEditDocument::Bullet QTextEditDocument::bullet( int depth ) const
 	return OutlinedSquare;
     else
 	return FilledCircle;
+}
+
+inline int QTextEditDocument::paragSpacing( QTextEditParag *p ) const
+{
+    if ( !p )
+	return ps;
+    if ( p->next() && p->next()->type() == p->type() &&
+	 ( p->type() == QTextEditParag::BulletList || p->type() == QTextEditParag::EnumList ) )
+	return ls;
+    return ps;
+}
+
+inline int QTextEditDocument::lineSpacing() const
+{
+    return ls;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1059,7 +1093,7 @@ inline bool QTextEditParag::hasSelection( int id ) const
     QMap<int, Selection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return FALSE;
-    return ( *it ).start != ( *it ).end;
+    return ( *it ).start != ( *it ).end || length() == 1;
 }
 
 inline bool QTextEditParag::hasAnySelection() const
@@ -1216,8 +1250,11 @@ inline QTextEditParag::Type QTextEditParag::type() const
 
 inline void QTextEditParag::setType( Type t )
 {
-    if ( t != typ )
+    if ( t != typ ) {
 	invalidate( 0 );
+	if ( p  && p->type() == typ )
+	    p->invalidate( 0 );
+    }
     typ = t;
     if ( t == Normal )
 	left = 0;

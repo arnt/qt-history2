@@ -78,6 +78,10 @@ signals:
     void startReadDir( int dirs );
     void readNextDir();
     void readDirDone();
+    void enableUp();
+    void disableUp();
+    void enableMkdir();
+    void disableMkdir();
 
 protected slots:
     void itemDoubleClicked( QIconViewItem *i );

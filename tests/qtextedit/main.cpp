@@ -10,11 +10,18 @@
 #include <qcolordialog.h>
 #include <qlineedit.h>
 
+//#define CPP_EDITOR
+
+#if defined(CPP_EDITOR)
+#define QTEXTEDIT_OPEN_API
+#endif
+
 #include "qtextedit.h"
+
+#if defined(QTEXTEDIT_OPEN_API)
 #include "qtexteditintern_p.h"
 #include "qcppsyntaxhighlighter.h"
-
-//#define CPP_EDITOR
+#endif
 
 class MainWindow : public QMainWindow
 {
@@ -103,6 +110,10 @@ public:
 	pix.fill( black );
 	color->setPixmap( pix );
 	lock = FALSE;
+	
+	save = new QPushButton( "Save HTML", tb );
+	connect( save, SIGNAL( clicked() ),
+		 this, SLOT( saveClicked() ) );
 #else
 	tb = 0;
 #endif
@@ -117,8 +128,8 @@ public:
 		 this, SLOT( colorChanged( const QColor & ) ) );
 	connect( edit, SIGNAL( currentAlignmentChanged( int ) ),
 		 this, SLOT( alignChanged( int ) ) );
-	connect( edit, SIGNAL( currentParagTypeChanged( int ) ),
-		 this, SLOT( paragTypeChanged( int ) ) );
+	connect( edit, SIGNAL( currentParagTypeChanged( QTextEdit::ParagType ) ),
+		 this, SLOT( paragTypeChanged( QTextEdit::ParagType ) ) );
     }
 
 private slots:
@@ -199,9 +210,9 @@ private slots:
 	    return;
 	lock = TRUE;
 	if ( i == 0 )
-	    edit->setParagType( QTextEditParag::Normal );
+	    edit->setParagType( QTextEdit::Normal );
 	else if ( i == 1 )
-	    edit->setParagType( QTextEditParag::BulletList );
+	    edit->setParagType( QTextEdit::BulletList );
 	lock = FALSE;
 	edit->viewport()->setFocus();
     }
@@ -235,21 +246,26 @@ private slots:
 	lock = FALSE;
     }
 
-    void paragTypeChanged( int t ) {
+    void paragTypeChanged( QTextEdit::ParagType t ) {
 	if ( lock )
 	    return;
 	lock = TRUE;
-	if ( t == QTextEditParag::Normal )
+	if ( t == QTextEdit::Normal )
 	    styleCombo->setCurrentItem( 0 );
-	else if ( t == QTextEditParag::BulletList )
+	else if ( t == QTextEdit::BulletList )
 	    styleCombo->setCurrentItem( 1 );
 	lock = FALSE;
+    }
+
+    void saveClicked() {
+	edit->setTextFormat( Qt::RichText );
+	edit->save( "test.html" );
     }
 
 private:
     QToolBar *tb;
     QComboBox *fontCombo, *sizeCombo, *styleCombo;
-    QPushButton *bold, *italic, *underline, *color, *left, *center, *right;
+    QPushButton *bold, *italic, *underline, *color, *left, *center, *right, *save;
     QTextEdit *edit;
     bool lock;
 
@@ -268,11 +284,13 @@ int main( int argc, char ** argv )
     MainWindow mw;
 
 #ifndef CPP_EDITOR
-    QTextEdit ed( &mw, fn, FALSE );
+    QTextEdit ed( &mw );
+    ed.load( fn );
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
 #else
-    QTextEdit ed( &mw, fn, TRUE );
+    QTextEdit ed( &mw );
+    ed.load( fn, TRUE );
     ed.document()->setSyntaxHighlighter( new QCppSyntaxHighlighter( ed.document() ) );
     ed.document()->setIndent( new QCppIndent( ed.document() ) );
     ed.document()->setParenCheckingEnabled( TRUE );
@@ -284,7 +302,7 @@ int main( int argc, char ** argv )
     ed.viewport()->setFocus();
 
     a.setMainWidget( &mw );
-    mw.resize( 600, 800 );
+    mw.resize( 650, 700 );
     mw.show();
 
     return a.exec();

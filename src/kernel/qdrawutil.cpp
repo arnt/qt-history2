@@ -492,10 +492,10 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       g.dark(), g.light(), g.shadow(), g.midlight(), fill );
+			g.dark(), g.light(), g.shadow(), g.midlight(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.background(), g.shadow(), g.light(), g.dark(), fill );
+			g.midlight(), g.shadow(), g.light(), g.dark(), fill );
 }
 
 
