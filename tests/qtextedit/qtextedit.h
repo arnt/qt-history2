@@ -49,6 +49,12 @@ public:
     void setParagType( int );
     void setAlignment( int );
 
+signals:
+    void currentFontChanged( const QFont &f );
+    void currentColorChanged( const QColor &c );
+    void currentAlignmentChanged( int );
+    void currentParagTypeChanged( int );
+    
 protected:
     void setFormat( QTextEditFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -125,7 +131,8 @@ private:
     QTextEditFormat *currentFormat;
     QPainter painter;
     QPixmap *doubleBuffer;
-
+    int currentAlignment, currentParagType;
+    
 };
 
 inline QTextEditDocument *QTextEdit::document() const

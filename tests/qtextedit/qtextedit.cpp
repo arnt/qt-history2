@@ -40,7 +40,9 @@ QTextEdit::QTextEdit( QWidget *parent, QTextEditDocument *d )
     doubleBuffer = 0;
     doc->setFormatter( new QTextEditFormatterBreakWords( d ) );
     currentFormat = doc->formatCollection()->defaultFormat();
-
+    currentAlignment = Qt::AlignLeft;
+    currentParagType = QTextEditParag::Normal;
+    
     viewport()->setBackgroundMode( PaletteBase );
     resizeContents( 0, doc->lastParag() ?
 		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
@@ -1125,6 +1127,8 @@ void QTextEdit::setFormat( QTextEditFormat *f, int flags )
     if ( currentFormat && currentFormat->key() != f->key() ) {
 	currentFormat->removeRef();
 	currentFormat = doc->formatCollection()->format( f );
+	emit currentFontChanged( currentFormat->font() );
+	emit currentColorChanged( currentFormat->color() );
     }
 }
 
@@ -1151,6 +1155,10 @@ void QTextEdit::setParagType( int t )
 	formatMore();
     }
     drawCursor( TRUE );
+    if ( currentParagType != t ) {
+	currentParagType = t;
+	emit currentParagTypeChanged( currentParagType );
+    }
 }
 
 void QTextEdit::setAlignment( int a )
@@ -1173,6 +1181,10 @@ void QTextEdit::setAlignment( int a )
 	formatMore();
     }
     drawCursor( TRUE );
+    if ( currentAlignment != a ) {
+	currentAlignment = a;
+	emit currentAlignmentChanged( currentAlignment );
+    }
 }
 
 void QTextEdit::updateCurrentFormat()
@@ -1184,6 +1196,18 @@ void QTextEdit::updateCurrentFormat()
 	if ( currentFormat )
 	    currentFormat->removeRef();
 	currentFormat = doc->formatCollection()->format( cursor->parag()->at( i )->format );
+	emit currentFontChanged( currentFormat->font() );
+	emit currentColorChanged( currentFormat->color() );
+    }
+    
+    if ( currentAlignment != cursor->parag()->alignment() ) {
+	currentAlignment = cursor->parag()->alignment();
+	emit currentAlignmentChanged( currentAlignment );
+    }
+
+    if ( currentParagType != (int)cursor->parag()->type() ) {
+	currentParagType = (int)cursor->parag()->type();
+	emit currentParagTypeChanged( currentParagType );
     }
 }
 
