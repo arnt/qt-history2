@@ -1044,15 +1044,18 @@ bool QSettings::sync()
 
 	file.close();
 
-	if ( success &&
-	     ! QFileInfo( file ).dir( TRUE ).rename( file.name(), filename, TRUE ) ) {
+	if ( success ) {
+	    QDir dir( QFileInfo( file ).dir( TRUE ) );
+	    if ( ! dir.remove( filename ) ||
+		 ! dir.rename( file.name(), filename, TRUE ) ) {
 
 #ifdef QT_CHECK_STATE
-	    qWarning( "QSettings::sync: error writing file '%s'",
-		      QFile::encodeName( filename ).data() );
+		qWarning( "QSettings::sync: error writing file '%s'",
+			  QFile::encodeName( filename ).data() );
 #endif // QT_CHECK_STATE
 
-	    success = FALSE;
+		success = FALSE;
+	    }
 	}
 
 	// remove temporary file
