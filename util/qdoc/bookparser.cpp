@@ -1138,7 +1138,7 @@ void HtmlSynthetizer::processLink( const QString& name,
 	    namex = analyzer()->fileSuffixForTarget( name.mid(1) );
 	    if ( !namex.isNull() ) {
 		namex.prepend( outFileBase() );
-		namex.append( QString(".html#") + name );
+		namex.append( QString(".html") + name );
 	    }
 	} else {
 	    Section *s = analyzer()->resolveSection( name );

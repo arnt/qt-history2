@@ -348,9 +348,9 @@ public:
     const QString& readFunction() const { return read; }
     const QString& writeFunction() const { return write; }
     bool stored() const { return fromTrool( store, storedDefault() ); }
-    bool storedDefault() const { return true; }
+    bool storedDefault() const { return TRUE; }
     bool designable() const { return fromTrool( design, designableDefault() ); }
-    bool designableDefault() const { return !read.isEmpty(); }
+    bool designableDefault() const { return !write.isEmpty(); }
     const QString& resetFunction() const { return reset; }
 
     virtual void printHtmlShort( HtmlWriter& out ) const;
