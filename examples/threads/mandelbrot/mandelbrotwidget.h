@@ -23,7 +23,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
-    void drawRenderedImage(const QImage &image);
+    void updatePixmap(const QImage &image, double scaleFactor);
 
 private:
     void zoom(double zoomFactor);
@@ -31,7 +31,7 @@ private:
 
     RenderThread thread;
     QPixmap pixmap;
-    QPointF pixmapOffset;
+    QPoint pixmapOffset;
     QPoint lastDragPos;
     double centerX;
     double centerY;

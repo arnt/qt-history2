@@ -21,8 +21,8 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     curScale = DefaultScale;
 
     qRegisterMetaType<QImage>("QImage");
-    connect(&thread, SIGNAL(renderedImage(const QImage &)),
-            this, SLOT(drawRenderedImage(const QImage &)));
+    connect(&thread, SIGNAL(renderedImage(const QImage &, double)),
+            this, SLOT(updatePixmap(const QImage &, double)));
 
     setWindowTitle(tr("Mandelbrot"));
     setCursor(Qt::CrossCursor);
@@ -44,21 +44,17 @@ void MandelbrotWidget::paintEvent(QPaintEvent * /* event */)
     if (curScale == pixmapScale) {
         painter.drawPixmap(pixmapOffset, pixmap);
     } else {
-        double scaleFactor = curScale / pixmapScale;
+        double scaleFactor = pixmapScale / curScale;
         int newWidth = int(pixmap.width() * scaleFactor);
         int newHeight = int(pixmap.height() * scaleFactor);
-        int newStartX = (width() - newWidth) / 2;
-        int newStartY = (height() - newHeight) / 2;
+        int newX = pixmapOffset.x() + (pixmap.width() - newWidth) / 2;
+        int newY = pixmapOffset.y() + (pixmap.height() - newHeight) / 2;
 
-        QPixmap newPixmap(newWidth, newHeight);
-        newPixmap.fill(Qt::black);
-
-        QPainter newPainter(&newPixmap);
-        newPainter.drawPixmap(0, 0, pixmap, newStartX, newStartY,
-                              newWidth, newHeight);
-        newPainter.end();
-
-        painter.drawPixmap(pixmapOffset, newPixmap.scale(pixmap.size()));
+        painter.save();
+        painter.translate(newX, newY);
+        painter.scale(scaleFactor, scaleFactor);
+        painter.drawPixmap(0, 0, pixmap);
+        painter.restore();
     }
 
     QString text = tr("Use mouse wheel to zoom. "
@@ -68,17 +64,15 @@ void MandelbrotWidget::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(0, 0, 0, 127));
-    painter.drawRect(width() / 2 - textWidth / 2 - 5, 0, textWidth + 10,
+    painter.drawRect((width() - textWidth) / 2 - 5, 0, textWidth + 10,
                      metrics.lineSpacing() + 5);
     painter.setPen(Qt::white);
-    painter.drawText(width() / 2 - textWidth / 2,
+    painter.drawText((width() - textWidth) / 2,
                      metrics.leading() + metrics.ascent(), text);
 }
 
-void MandelbrotWidget::resizeEvent(QResizeEvent *event)
+void MandelbrotWidget::resizeEvent(QResizeEvent * /* event */)
 {
-    QSize diff = size() - event->oldSize();
-    pixmapOffset += QPointF(0.5 * diff.width(), 0.5 * diff.height());
     thread.render(centerX, centerY, curScale, size());
 }
 
@@ -136,21 +130,21 @@ void MandelbrotWidget::mouseReleaseEvent(QMouseEvent *event)
         pixmapOffset += event->pos() - lastDragPos;
         lastDragPos = QPoint();
 
-        int deltaX = (width() - pixmap.width()) / 2 - int(pixmapOffset.x());
-        int deltaY = (height() - pixmap.height()) / 2 - int(pixmapOffset.y());
+        int deltaX = (width() - pixmap.width()) / 2 - pixmapOffset.x();
+        int deltaY = (height() - pixmap.height()) / 2 - pixmapOffset.y();
         scroll(deltaX, deltaY);
     }
 }
 
-void MandelbrotWidget::drawRenderedImage(const QImage &image)
+void MandelbrotWidget::updatePixmap(const QImage &image, double scaleFactor)
 {
     if (!lastDragPos.isNull())
         return;
 
     pixmap = image;
-    pixmapOffset = QPointF();
+    pixmapOffset = QPoint();
     lastDragPos = QPoint();
-    pixmapScale = curScale;
+    pixmapScale = scaleFactor;
     update();
 }
 

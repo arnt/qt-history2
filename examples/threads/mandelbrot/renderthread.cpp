@@ -56,10 +56,12 @@ void RenderThread::run()
         int halfHeight = resultSize.height() / 2;
         QImage image(resultSize, 32);
 
-        int limit = 4;
-
-        for (int pass = 0; pass < 8; ++pass) {
-            const int MaxPrecision = (1 << (2 * pass + 6)) + 32;
+        const int NumPasses = 8;
+        int pass = 0;
+        while (pass < NumPasses) {
+            const int MaxIterations = (1 << (2 * pass + 6)) + 32;
+            const int Limit = 4;
+            bool allBlack = true;
 
             for (int y = -halfHeight; y < halfHeight; ++y) {
                 if (restart)
@@ -69,30 +71,44 @@ void RenderThread::run()
 
                 uint *scanLine =
                         reinterpret_cast<uint *>(image.scanLine(y + halfHeight));
+                double ay = centerY + (y * scaleFactor);
+
                 for (int x = -halfWidth; x < halfWidth; ++x) {
                     double ax = centerX + (x * scaleFactor);
-                    double ay = centerY + (y * scaleFactor);
                     double a1 = ax;
                     double b1 = ay;
-                    int numPasses = 0;
+                    int numIterations = 0;
 
                     do {
-                        ++numPasses;
+                        ++numIterations;
                         double a2 = (a1 * a1) - (b1 * b1) + ax;
                         double b2 = (2 * a1 * b1) + ay;
-                        a1 = a2;
-                        b1 = b2;
-                    } while (numPasses < MaxPrecision
-                             && (a1 * a1) + (b1 * b1) <= limit);
+                        if ((a2 * a2) + (b2 * b2) > Limit)
+                            break;
 
-                    if (numPasses == MaxPrecision)
+                        ++numIterations;
+                        a1 = (a2 * a2) - (b2 * b2) + ax;
+                        b1 = (2 * a2 * b2) + ay;
+                        if ((a1 * a1) + (b1 * b1) > Limit)
+                            break;
+                    } while (numIterations < MaxIterations);
+
+                    if (numIterations < MaxIterations) {
+                        *scanLine++ = colormap[numIterations % ColormapSize];
+                        allBlack = false;
+                    } else {
                         *scanLine++ = qRgb(0, 0, 0);
-                    else
-                        *scanLine++ = colormap[numPasses % ColormapSize];
+                    }
                 }
             }
-            if (!restart)
-                emit renderedImage(image);
+
+            if (allBlack && pass == 0) {
+                pass = 4;
+            } else {
+                if (!restart)
+                    emit renderedImage(image, scaleFactor);
+                ++pass;
+            }
         }
 
         mutex.lock();
