@@ -79,6 +79,7 @@ public:
     inline QFontEngine() {
         ref = 0;
         cache_count = 0;
+        script_cache = 0;
         _scale = 1;
     }
     virtual ~QFontEngine();
