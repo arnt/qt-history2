@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#1 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -939,6 +939,7 @@ void QtIconView::orderItemsInGrid()
 {
     int w = 0, h = 0;
 
+    resizeContents( viewport()->width(), viewport()->height() );
     QtIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next ) {
         insertInGrid( item );
@@ -946,13 +947,12 @@ void QtIconView::orderItemsInGrid()
         h = QMAX( h, item->y() + item->height() );
     }
 
-    resizeContents( w + 5, h + 5 );
+    resizeContents( w /*+ 5*/, h /*+ 5*/ );
 }
 
 void QtIconView::show()
 {
     QScrollView::show();
-    resizeContents( viewport()->width(), viewport()->height() );
     orderItemsInGrid();
 }
 
@@ -1488,11 +1488,12 @@ void QtIconView::insertInGrid( QtIconViewItem *item )
             xpos = ( fact + 1 ) * d->rastX;
         else
             xpos = fact * d->rastX;
+        xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
         if ( xpos + item->width() >= contentsWidth() ) {
             xpos = d->spacing;
             nextRow = TRUE;
+            xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
         }
-        xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
     }
 
     if ( d->rastY == -1 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/main.cpp#1 $
+** $Id: //depot/qt/main/examples/qiconview/main.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -54,7 +54,7 @@ int main( int argc, char **argv )
     QtIconView qiconview;
     qiconview.setSelectionMode( QtIconView::Multi );
     qiconview.setViewMode( QIconSet::Large );
-    qiconview.resize( 640, 480 );
+    qiconview.resize( 600, 480 );
 
     for ( unsigned int i = 0; i < 350; i++ )
         ( void )new QtIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
