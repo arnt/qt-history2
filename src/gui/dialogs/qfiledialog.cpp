@@ -289,7 +289,7 @@ public:
           model(0), lview(0), tview(0),
           viewMode(QFileDialog::Detail),
           fileMode(QFileDialog::AnyFile),
-          acceptMode(QFileDialog::Open),
+          acceptMode(QFileDialog::AcceptOpen),
           frame(0), lookIn(0), fileName(0), fileType(0),
           openAction(0), renameAction(0), deleteAction(0),
           reloadAction(0), sortByNameAction(0), sortBySizeAction(0),
@@ -850,8 +850,8 @@ QFileDialog::FileMode QFileDialog::fileMode() const
 void QFileDialog::setAcceptMode(AcceptMode mode)
 {
     d->acceptMode = mode;
-    d->openAction->setText(mode == Open ? tr("&Open") : tr("&Save"));
-    d->acceptButton->setText(mode == Open ? tr("Open") : tr("Save"));
+    d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
+    d->acceptButton->setText(mode == AcceptOpen ? tr("Open") : tr("Save"));
 }
 
 /*!
@@ -896,16 +896,24 @@ void QFileDialog::accept()
             QDialog::accept();
         }
         return;
-    case AnyFile:
-        if (!QFileInfo(files.first()).isDir())
+    case AnyFile: {
+        QString fn = files.first();
+        QFileInfo info(fn);
+        if (info.isDir())
+            return;
+        if (!info.exists())
             QDialog::accept();
-        return;
+        else if (QMessageBox::warning(this, windowTitle(),
+                                      fn + tr(" already exists.\nDo you want to replace it?"),
+                                      QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes)
+            QDialog::accept();
+        return;}
     case ExistingFile:
     case ExistingFiles:
         for (int i = 0; i < files.count(); ++i) {
             QFileInfo info(files.at(i));
             if (!info.exists()) {
-                QString message = "\nFile not found.\nPlease verify the correct file name was given";
+                QString message = tr("\nFile not found.\nPlease verify the correct file name was given");
                 QMessageBox::warning(this, d->acceptButton->text(), info.fileName() + message);
                 return;
             }
@@ -1081,8 +1089,9 @@ void QFileDialog::deletePressed(const QModelIndex &index)
     from \a index to \a current.
 */
 
-void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
+void QFileDialog::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    Q_UNUSED(previous);
     if (!d->fileName->hasFocus() && current.isValid()) {
         QString text = d->model->data(current, QAbstractItemModel::DisplayRole).toString();
         d->fileName->setText(text);
@@ -1941,7 +1950,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                        initialSelection,
                                        QFileDialog::AnyFile);
     dlg->setModal(true);
-    dlg->setAcceptMode(QFileDialog::Save);
+    dlg->setAcceptMode(QFileDialog::AcceptSave);
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {

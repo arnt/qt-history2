@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
 public:
     enum ViewMode { Detail, List };
     enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
-    enum AcceptMode { Open, Save };
+    enum AcceptMode { AcceptOpen, AcceptSave };
 
     enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
     Q_DECLARE_FLAGS(Options, Option);
@@ -169,7 +169,7 @@ protected slots:
     void doubleClicked(const QModelIndex &index);
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void deletePressed(const QModelIndex &index);
-    void currentChanged(const QModelIndex &old, const QModelIndex &current);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
     void fileNameChanged(const QString &text);
     void lookInChanged(const QString &text);
     void useFilter(const QString &filter);
