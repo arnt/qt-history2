@@ -18,7 +18,7 @@ QDict<P4Info> *P4Info::files()
 {
     if ( !P4Info::_files ) {
 	P4Info::_files = new QDict<P4Info>(53);
-	_files->setAutoDelete( TRUE );
+//	_files->setAutoDelete( TRUE );
     }
 
     return P4Info::_files;
@@ -123,6 +123,7 @@ void P4FStat::processExited()
     if ( old ) {
 	wasIgnore = old->ignoreEdit;
 	P4Info::files()->remove( fileName() );
+	delete old;
     }
 
     P4Info* p4i = new P4Info;
@@ -168,6 +169,18 @@ void P4FStat::processExited()
 			}
 
 			p4i->uptodate = !(haverev < headrev);
+		    }
+		} else  {
+		    QStringList actionEntry = entries.grep( "... action" );
+		    if ( actionEntry.count() ) {
+			QString act = QStringList::split( ' ', actionEntry[0] )[2];	    // Get current action
+			act.contains( "edit", FALSE );
+			if ( act.stripWhiteSpace() == "add" ) {
+			    p4i->action = P4Info::Add;
+			    p4i->controlled = TRUE;
+			    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
+			    p4i->depotFile = p4i->depotFile.stripWhiteSpace();
+			}
 		    }
 		}
 	    }
