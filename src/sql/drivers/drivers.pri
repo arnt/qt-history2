@@ -149,7 +149,6 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/printf.c \
                                 ../3rdparty/sqlite/random.c \
                                 ../3rdparty/sqlite/select.c \
-                                ../3rdparty/sqlite/shell.c \
                                 ../3rdparty/sqlite/table.c \
                                 ../3rdparty/sqlite/tokenize.c \
                                 ../3rdparty/sqlite/trigger.c \
