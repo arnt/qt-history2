@@ -50,25 +50,37 @@ AsciiValidator::~AsciiValidator()
 QValidator::State AsciiValidator::validate( QString &s, int & ) const
 {
     bool inParen = FALSE;
-    if ( !s.isEmpty() && s[0].row() == 0 && s[0].cell() >= '0' && s[0].cell() <= '9' ) {
+    bool outParen = FALSE;
+    if ( !s.isEmpty() && s[0].row() == 0 && s[0].cell() >= '0' && s[0].cell() <= '9' )
 	s[0] = '_';
-    }
-    for ( int i = 0; i < (int) s.length(); i++ ) {
+    for ( int i = 0, j = 0; i < (int) s.length(); i++ ) {
 	uchar r = s[i].row();
 	uchar c = s[i].cell();
-	if ( functionName && inParen ) {
-	    if ( c != ')' )
-		continue;
-	    s.truncate( i + 1 );
-	    return QValidator::Acceptable;
+
+	if ( outParen ) { // check if we have 'const' or 'volatile'
+	    static const QString con = " const";
+	    static const QString vol = " volatile";
+	    QString mid = s.mid( j );
+	    if ( !( con.startsWith( mid ) || vol.startsWith( mid ) ) )
+		return QValidator::Invalid;
 	}
+
+	if ( inParen && c != ')' )
+	    continue;
+
 	if ( r == 0 && ( ( c >= '0' && c <= '9' ) ||
 			 ( c >= 'a' && c <= 'z' ) ||
 			 ( c >= 'A' && c <= 'Z' ) ) )
 	    continue;
+	
 	if ( functionName ) {
 	    if ( c == '(' ) {
 		inParen = TRUE;
+		continue;
+	    }
+	    if ( c == ')' ) {
+		outParen = TRUE;
+		j = i + 1;
 		continue;
 	    }
 	}
