@@ -32,8 +32,9 @@ class ClientSocket : public QSocket
     Q_OBJECT
 public:
     ClientSocket( int sock, QObject *parent=0, const char *name=0 ) :
-	QSocket( parent, name )
+	QSocket( parent )
     {
+        setObjectName(name);
 	line = 0;
 	connect( this, SIGNAL(readyRead()),
 		SLOT(readClient()) );
@@ -119,7 +120,7 @@ public:
 		"Connect with the client now."
 		);
 	QLabel *lb = new QLabel( itext, this );
-	lb->setAlignment( AlignHCenter );
+	lb->setAlignment( Qt::AlignHCenter );
 	infoText = new QTextView( this );
 	QPushButton *quit = new QPushButton( tr("Quit") , this );
 
