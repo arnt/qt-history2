@@ -1,3 +1,13 @@
 #!/bin/sh
 
-exit 1
+cd $QTDIR/config.tests/unix
+$QTDIR/bin/qmake -nocache -spec $1 stltest.pro -o Makefile >/dev/null 2>&1
+echo "Testing STL support"
+if [ "$2" = "yes" ]; then
+  make
+  ./stltest 
+else
+  make >/dev/null 2>&1
+  ./stltest >/dev/null 2>/dev/null
+fi
+
