@@ -280,6 +280,12 @@ QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, int mib )
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
     xlfd_transformations = XlfdTrUnknown;
+
+    // Hummingbird's Exceed X server will substitute 'fixed' for any
+    // known fonts, and it doesn't seem to support transformations, so
+    // we should never try to use xlfd transformations with it
+    if (strstr(ServerVendor(QPaintDevice::x11AppDisplay()), "Hummingbird"))
+	xlfd_transformations = XlfdTrUnsupported;
 }
 
 QFontEngineXLFD::~QFontEngineXLFD()
