@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#15 $
+** $Id: //depot/qt/main/src/tools/qarray.h#16 $
 **
 ** Definition of QArray template/macro class
 **
@@ -74,8 +74,6 @@ public:									      \
 	{ return QGArray::contains((char*)&d,sizeof(type)); }		      \
     type& operator[]( int i ) const					      \
 	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }	      \
-    type& operator[]( uint i ) const					      \
-	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }	      \
     type& at( uint i ) const						      \
 	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }	      \
 	 operator const type*() const { return (const type *)QGArray::data();}\
@@ -134,8 +132,6 @@ public:
     int	 contains( const type &d ) const
 	{ return QGArray::contains((char*)&d,sizeof(type)); }
     type& operator[]( int i ) const
-	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }
-    type& operator[]( uint i ) const
 	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }
     type& at( uint i ) const
 	{ return (type &)(*(type *)QGArray::at(i*sizeof(type))); }
