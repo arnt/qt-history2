@@ -5156,6 +5156,56 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 }
 
 
+struct qt_auto_repeat_data
+{
+    // match the window and keycode with timestamp delta of 10ms
+    Window window;
+    KeyCode keycode;
+    Time timestamp;
+
+    // queue scanner state
+    bool release;
+    bool error;
+};
+
+static Bool qt_keypress_scanner(Display *, XEvent *event, XPointer arg)
+{
+    if (event->type != XKeyPress && event->type != XKeyRelease)
+        return FALSE;
+
+    qt_auto_repeat_data *d = (qt_auto_repeat_data *) arg;
+    if (d->error ||
+        event->xkey.window  != d->window ||
+        event->xkey.keycode != d->keycode)
+        return FALSE;
+
+    if (event->type == XKeyPress) {
+        d->error = (! d->release || event->xkey.time - d->timestamp > 10);
+        return (! d->error);
+    }
+
+    // must be XKeyRelease event
+    if (d->release) {
+        // found a second release
+        d->error = TRUE;
+        return FALSE;
+    }
+
+    // found a single release
+    d->release = TRUE;
+    d->timestamp = event->xkey.time;
+
+    return FALSE;
+}
+
+static Bool qt_keyrelease_scanner(Display *, XEvent *event, XPointer arg)
+{
+    const qt_auto_repeat_data *d = (const qt_auto_repeat_data *) arg;
+    return (event->type == XKeyRelease &&
+            event->xkey.window  == d->window &&
+            event->xkey.keycode == d->keycode);
+}
+
 bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
     int	   code = -1;
@@ -5251,8 +5301,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		text += textIntern;
 		count += countIntern;
 	    } else {
-		XPutBackEvent(dpy, &evRelease);
 		XPutBackEvent(dpy, &evPress);
+		XPutBackEvent(dpy, &evRelease);
 		break;
 	    }
 	}
@@ -5262,6 +5312,11 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	qt_mode_switch_remove_mask = save;
 
     // was this the last auto-repeater?
+    qt_auto_repeat_data auto_repeat_data;
+    auto_repeat_data.window = event->xkey.window;
+    auto_repeat_data.keycode = event->xkey.keycode;
+    auto_repeat_data.timestamp = event->xkey.time;
+
     static uint curr_autorep = 0;
     if ( event->type == XKeyPress ) {
 	if ( curr_autorep == event->xkey.keycode ) {
@@ -5270,12 +5325,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
     } else {
 	// look ahead for auto-repeat
-	XEvent nextpress;
-	if ( XCheckTypedWindowEvent(dpy,event->xkey.window,
-				    XKeyPress,&nextpress) ) {
-	    // check for event pairs with delta t <= 10 msec.
-	    autor = ( nextpress.xkey.keycode == event->xkey.keycode &&
-		      (nextpress.xkey.time - event->xkey.time) <= 10 );
+        XEvent nextpress;
+
+        auto_repeat_data.release = TRUE;
+        auto_repeat_data.error = FALSE;
+        if (XCheckIfEvent(dpy, &nextpress, &qt_keypress_scanner,
+                          (XPointer) &auto_repeat_data)) {
+            autor = TRUE;
 
 	    // Put it back... we COULD send the event now and not need
 	    // the static curr_autorep variable.
@@ -5287,28 +5343,18 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // autorepeat compression makes sense for all widgets (Windows
     // does it automatically .... )
     if ( event->type == XKeyPress && text.length() <= 1 ) {
-	XEvent evPress = *event;
-	XEvent evRelease;
-	for (;;) {
-	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,
-					&evRelease) )
-		break;
-	    if (evRelease.xkey.keycode != event->xkey.keycode ) {
-		XPutBackEvent(dpy, &evRelease);
-		break;
-	    }
-	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,
-					&evPress)) {
-		XPutBackEvent(dpy, &evRelease);
-		break;
-	    }
-	    if ( evPress.xkey.keycode != event->xkey.keycode ||
-		 evRelease.xkey.keycode != event->xkey.keycode ||
-		 (evPress.xkey.time - evRelease.xkey.time) > 10){
-		XPutBackEvent(dpy, &evRelease);
-		XPutBackEvent(dpy, &evPress);
-		break;
-	    }
+	XEvent dummy;
+
+        for (;;) {
+            auto_repeat_data.release = FALSE;
+            auto_repeat_data.error = FALSE;
+            if (! XCheckIfEvent(dpy, &dummy, &qt_keypress_scanner,
+                                (XPointer) &auto_repeat_data))
+                break;
+            if (! XCheckIfEvent(dpy, &dummy, &qt_keyrelease_scanner,
+                                (XPointer) &auto_repeat_data))
+                break;
+
 	    count++;
 	    if (!text.isEmpty())
 		text += text[0];
