@@ -264,7 +264,7 @@ int QFontEngine::ascent() const
 
 int QFontEngine::descent() const
 {
-    return memorymanager->fontDescent(handle());
+    return memorymanager->fontDescent(handle()) + 1;
 }
 
 int QFontEngine::leading() const
