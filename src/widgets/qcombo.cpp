@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#5 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -11,13 +11,14 @@
 ***********************************************************************/
 
 #include "qcombo.h"
+#include "qpopmenu.h"
 #include "qpainter.h"
 #include "qkeycode.h"
 #include "qstrlist.h"
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#5 $";
 #endif
 
 /*! \class QComboBox qcombo.h
@@ -29,8 +30,6 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#4 $";
   href=http://www.troll.no/>home page</a> contains a pointer to the
   current version of Qt. */
 
-
-#include <qpopmenu.h>
 
 struct QComboData 
 {
