@@ -663,7 +663,6 @@ const char * QTextDrag::format(int i) const
     return d->fmt[i];
 }
 
-static
 QTextCodec* findcharset(const QCString& mimetype)
 {
     int i=mimetype.find("charset=");

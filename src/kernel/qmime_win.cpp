@@ -38,6 +38,8 @@
 #include "qbuffer.h"
 #include "qt_windows.h"
 #include "qapplication_p.h"
+#include "qtextcodec.h"
+#include "qregexp.h"
 #include <shlobj.h>
 
 #if defined(__MINGW32__)
@@ -344,7 +346,9 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
     return r;
 }
 
-QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mime*/, int cf )
+extern QTextCodec* findcharset(const QCString& mimetype);
+
+QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
 {
     if ( cf == CF_TEXT ) {
 	// Anticipate required space for CRLFs at 1/40
@@ -374,6 +378,38 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* /*mim
 	    }
 	}
 	o[j]=0;
+	return r;
+    } else if ( cf == CF_UNICODETEXT ) {
+	QTextCodec *codec = findcharset(mime);
+	QString str = codec->toUnicode( data );
+	const QChar *u = str.unicode();
+	QString res;
+	const int s = str.length();
+	int maxsize = s + s/40 + 3;
+	res.setLength( maxsize );
+	int ri = 0;
+	bool cr = FALSE;
+	for ( int i=0; i < s; ++i ) {
+	    if ( *u == '\r' )
+		cr = TRUE;
+	    else {
+		if ( *u == '\n' && !cr )
+		    res[ri++] = QChar('\r');
+		cr = FALSE;
+	    }
+	    res[ri++] = *u;
+	    if ( ri+3 >= maxsize ) {
+		maxsize += maxsize/4;
+		res.setLength( maxsize );
+	    }
+	    ++u;
+	}
+	res.truncate( ri );
+	const int byteLength = res.length()*2;
+	QByteArray r( byteLength + 2 );
+	memcpy( r.data(), res.unicode(), byteLength );
+	r[byteLength] = 0;
+	r[byteLength+1] = 0;
 	return r;
     }
 
