@@ -373,29 +373,41 @@ QString QLibrary::library() const
     if ( filename.lastIndexOf( '.' ) <= filename.lastIndexOf( '/' ) )
 	filename += ".dll";
 #else
+    QStringList filters = "";
 #ifdef Q_OS_MACX
-    QString filter = ".dylib";
+    filters << ".so";
+    filters << ".bundle";
+    filters << ".dylib"; //the last one is also the default one..
 #elif defined(Q_OS_HPUX)
-    QString filter = ".sl";
+    filters << ".sl";
 #else
-    QString filter = ".so";
+    filters << ".so";
 #endif
-    if ( filename.indexOf(filter) == -1 ) {
+    for(QStringList::Iterator it = filters.begin(); TRUE; ) {
+	QString filter = (*it);
+	++it;
+
 	if(QFile::exists(filename + filter)) {
 	    filename += filter;
-	} else {
-	    const int x = filename.lastIndexOf( "/" );
+	    break;
+	} else if(!filter.isEmpty()) {
+	    QString tmpfilename = filename;
+	    const int x = tmpfilename.lastIndexOf( "/" );
 	    if ( x != -1 ) {
-		QString path = filename.left( x + 1 );
-		QString file = filename.right( filename.length() - x - 1 );
-		filename = QString( "%1lib%2%3" ).arg( path ).arg( file ).arg( filter );
+		QString path = tmpfilename.left( x + 1 );
+		QString file = tmpfilename.right( tmpfilename.length() - x - 1 );
+		tmpfilename = QString( "%1lib%2" ).arg( path ).arg( file );
 	    } else {
-		filename = QString( "lib%1%2" ).arg( filename ).arg( filter );
+		tmpfilename = QString( "lib%1" ).arg( filename );
+	    }
+	    tmpfilename += filter;
+	    if(QFile::exists(tmpfilename) || it == filters.end()) {
+		filename = tmpfilename;
+		break;
 	    }
 	}
     }
 #endif
-
     return filename;
 }
 #endif //QT_NO_LIBRARY
