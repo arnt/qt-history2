@@ -127,10 +127,12 @@ with their calculated property set to TRUE, and by reimplementing
   \index rollback
   \index transactions
 
-Database drivers can be asked about the features they support,
-including whether they support query size reporting and transations.
-The \Func transaction(), \Func commit() and \Func rollback()
-functions can be used if the underlying database supports
+Database drivers usually supply data in string form, regardless of the
+actual datatype; Qt handles such data seamlessly using the \Class
+QVariant class. Database drivers can be asked about the features they
+support, including whether they support query size reporting and
+transations. The \Func transaction(), \Func commit() and \Func
+rollback() functions can be used if the underlying database supports
 transactions.
 
 \section1 Data-aware Widgets
