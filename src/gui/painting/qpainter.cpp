@@ -202,7 +202,6 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     p.end();
 
-    Q_Q(QPainter);
     engine->updateMatrix(QMatrix());
     QPixmap pm;
     pm.fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
@@ -3038,34 +3037,33 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
     // alpha channel, which is copied elsewhere) from the source to
     // the target device if it is a pixmap
     // ################ PIXMAP
-    if (d->device->devType() == QInternal::Pixmap && /* pm.mask() &&*/ !pm.hasAlphaChannel()) {
+    // shouldn't all of this go away?
+    if (d->device->devType() == QInternal::Pixmap && !pm.hasAlphaChannel()) {
+        QBitmap pm_mask = pm.mask();
+        if (pm_mask.isNull())
+            return;
         if (mode == Qt::CopyPixmap) {
             QPixmap *p = static_cast<QPixmap *>(d->device);
             QBitmap bitmap(p->width(), p->height());
             bitmap.fill(Qt::color0);
             QPainter pt(&bitmap);
             pt.setPen(Qt::color1);
-            QBitmap mask = pm.mask();
             //Q_ASSERT(!mask->mask());
-            pt.drawPixmap(r, mask, sr);
+            pt.drawPixmap(r, pm_mask, sr);
             pt.end();
             p->setMask(bitmap);
         } else if (mode == Qt::ComposePixmap) {
             QPixmap *p = static_cast<QPixmap *>(d->device);
-            QBitmap bitmap;
-#if 0
-            // ################# PIXMAP
-            if (p->mask()) {
-                bitmap = *p->mask();
+            QBitmap bitmap = p->mask();
+            if (!bitmap.isNull()) {
                 QPainter pt(&bitmap);
                 //Q_ASSERT(!pm.mask()->mask());
                 pt.drawPixmap(qRound(x), qRound(y), qRound(w), qRound(h),
-                              *pm.mask(), qRound(sx), qRound(sy), qRound(sw),
+                              pm_mask, qRound(sx), qRound(sy), qRound(sw),
                               qRound(sh));
                 pt.end();
                 p->setMask(bitmap);
             }
-#endif
         }
     }
 }

@@ -1521,11 +1521,10 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
-#if 0
-    // ############## PIXMAP
-    QBitmap *mask = 0;
+    // ################### PIXMAP: should be able to do this better...
+    QBitmap mask;
     if(mode != Qt::CopyPixmapNoMask && !pixmap.hasAlphaChannel())
-        mask = const_cast<QBitmap *>(pixmap.mask());
+        mask = pixmap.mask();
     bool mono_src = pixmap.depth() == 1;
     // bool mono_dst = d->pdev->depth() == 1;
 
@@ -1534,7 +1533,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         return;
     }
 
-    if (mask && !hasClipping() && systemClip().isEmpty()) {
+    if (!mask.isNull() && !hasClipping() && systemClip().isEmpty()) {
         if (mono_src) {                           // needs GCs pen // color
             bool selfmask = pixmap.data->selfmask;
             if (selfmask) {
@@ -1543,7 +1542,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             } else {
                 XSetFillStyle(d->dpy, d->gc, FillOpaqueStippled);
                 XSetStipple(d->dpy, d->gc, pixmap.handle());
-                XSetClipMask(d->dpy, d->gc, mask->handle());
+                XSetClipMask(d->dpy, d->gc, mask.handle());
                 XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
             }
             XSetTSOrigin(d->dpy, d->gc, x-sx, y-sy);
@@ -1569,7 +1568,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     }
 
 
-    if (mask) { // pixmap has clip mask
+    if (!mask.isNull()) { // pixmap has clip mask
         // Implies that clipping is on, either explicit or implicit
         // Create a new mask that combines the mask with the clip region
 
@@ -1582,24 +1581,23 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                 rgn = sysClip;
         }
 
-        QBitmap *comb = new QBitmap(sw, sh);
-        comb->detach();
-        GC cgc = XCreateGC(d->dpy, comb->handle(), 0, 0);
+        QBitmap comb(sw, sh);
+        GC cgc = XCreateGC(d->dpy, comb.handle(), 0, 0);
         XSetForeground(d->dpy, cgc, 0);
-        XFillRectangle(d->dpy, comb->handle(), cgc, 0, 0, sw, sh);
+        XFillRectangle(d->dpy, comb.handle(), cgc, 0, 0, sw, sh);
         XSetBackground(d->dpy, cgc, 0);
         XSetForeground(d->dpy, cgc, 1);
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(rgn, num);
         XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
         XSetFillStyle(d->dpy, cgc, FillOpaqueStippled);
-        XSetStipple(d->dpy, cgc, mask->handle());
+        XSetStipple(d->dpy, cgc, mask.handle());
         XSetTSOrigin(d->dpy, cgc, -sx, -sy);
-        XFillRectangle(d->dpy, comb->handle(), cgc, 0, 0, sw, sh);
+        XFillRectangle(d->dpy, comb.handle(), cgc, 0, 0, sw, sh);
         XFreeGC(d->dpy, cgc);
         mask = comb;                            // it's deleted below
 
-        XSetClipMask(d->dpy, d->gc, mask->handle());
+        XSetClipMask(d->dpy, d->gc, mask.handle());
         XSetClipOrigin(d->dpy, d->gc, x, y);
     }
     /* if (mono_src && mono_dst) {
@@ -1645,7 +1643,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             }
     }
 
-    if (mask) { // restore clipping
+    if (!mask.isNull()) { // restore clipping
         XSetClipOrigin(d->dpy, d->gc, 0, 0);
         int num;
         XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
@@ -1653,9 +1651,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XSetClipMask(d->dpy, d->gc, XNone);
         else
             XSetClipRectangles(d->dpy, d->gc, 0, 0, rects, num, Unsorted);
-        delete mask;                            // delete comb, created above
     }
-#endif
 }
 
 void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
