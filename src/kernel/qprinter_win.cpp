@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#17 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#17 $");
 
 
 // QPrinter states
@@ -158,8 +158,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		StretchBlt( hdc, pos.x(), pos.y(),
 			    QROUND(w*m.m11()), QROUND(h*m.m22()),
 			    hdcMem, 0, 0, w, h, SRCCOPY );
-	    }
-	    else {
+	    } else {
 		BitBlt( hdc, pos.x(), pos.y(), pm->width(), pm->height(),
 			hdcMem, 0, 0, SRCCOPY );
 	    }
