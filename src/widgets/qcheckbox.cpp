@@ -251,7 +251,8 @@ void QCheckBox::drawButton( QPainter *paint )
     if ( use_pm ) {
 	pm = new QPixmap( sz );			// create new pixmap
 	Q_CHECK_PTR( pm );
-	pmpaint.begin( pm );
+	pm->fill( g.background() );
+	pmpaint.begin( pm );	
 	p = &pmpaint;				// draw in pixmap
 	wx=x;  wy=y;				// save x,y coords
 	x = y = 0;
