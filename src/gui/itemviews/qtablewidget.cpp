@@ -50,7 +50,8 @@ public:
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
-    bool isEditable(const QModelIndex &index) const;
+
+    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const {  return (row * c) + column; }
@@ -257,9 +258,15 @@ bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
     return true;
 }
 
-bool QTableModel::isEditable(const QModelIndex &index) const
+QAbstractItemModel::ItemFlags QTableModel::flags(const QModelIndex &index) const
 {
-    return isValid(index);
+    QTableWidgetItem *itm = item(index);
+    if (itm)
+        return itm->flags();
+    return QAbstractItemModel::ItemIsEditable
+        |QAbstractItemModel::ItemIsSelectable
+        |QAbstractItemModel::ItemIsCheckable
+        |QAbstractItemModel::ItemIsEnabled;
 }
 
 bool QTableModel::isValid(const QModelIndex &index) const

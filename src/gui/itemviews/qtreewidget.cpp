@@ -427,7 +427,10 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
-    : view(0), par(0)
+    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsEditable
+                                 |QAbstractItemModel::ItemIsSelectable
+                                 |QAbstractItemModel::ItemIsCheckable
+                                 |QAbstractItemModel::ItemIsEnabled)
 {
 }
 
