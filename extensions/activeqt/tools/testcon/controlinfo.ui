@@ -88,7 +88,7 @@
             </spacer>
           </item>
           <item>
-            <widget class="QPushButton" name="PushButton1" >
+            <widget class="QPushButton" name="buttonClose" >
               <property name="objectName" >
                 <string notr="true" >PushButton1</string>
               </property>
@@ -102,5 +102,4 @@
     </layout>
   </widget>
   <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
 </ui>
