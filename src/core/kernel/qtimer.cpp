@@ -229,6 +229,7 @@ bool QTimer::event(QEvent *e)
 class QSingleShotTimer : public QObject
 {
     Q_OBJECT
+    int timerId;
 public:
     ~QSingleShotTimer();
     QSingleShotTimer(int msec, QObject *r, const char * m);
@@ -242,24 +243,22 @@ QSingleShotTimer::QSingleShotTimer(int msec, QObject *receiver, const char *memb
     : QObject(QAbstractEventDispatcher::instance())
 {
     connect(this, SIGNAL(timeout()), receiver, member);
-    startTimer(msec);
+    timerId = startTimer(msec);
 }
 
 QSingleShotTimer::~QSingleShotTimer()
 {
-    QAbstractEventDispatcher *eventDispather = QAbstractEventDispatcher::instance(thread());
-    if (eventDispather)
-        eventDispather->unregisterTimers(this);
-    
+    if (timerId > 0)
+        killTimer(timerId);
 }
 
 void QSingleShotTimer::timerEvent(QTimerEvent *)
 {
-    // need to unregister the timer _before_ we emit timeout() in case the slot connected
-    // to timeout calls processEvents()
-    QAbstractEventDispatcher *eventDispather = QAbstractEventDispatcher::instance(thread());
-    if (eventDispather)
-        eventDispather->unregisterTimers(this);
+    // need to kill the timer _before_ we emit timeout() in case the
+    // slot connected to timeout calls processEvents()
+    if (timerId > 0)
+        killTimer(timerId);
+    timerId = -1;
     emit timeout();
     delete this;
 }
