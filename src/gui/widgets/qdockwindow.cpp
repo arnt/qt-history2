@@ -13,6 +13,7 @@
 #include <qtoolbutton.h>
 
 #include <private/qframe_p.h>
+#include <private/qwidgetresizehandler_p.h>
 #include "qmainwindowlayout_p.h"
 #include "qdockwindowlayout_p.h"
 #define d d_func()
@@ -412,7 +413,7 @@ public:
     inline QDockWindowPrivate(QMainWindow *parent)
 	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
           area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
-          top(0), box(0), title(0)
+          top(0), box(0), title(0), resizer(0)
     { }
 
     void init();
@@ -428,6 +429,8 @@ public:
 
     QBoxLayout *top, *box;
     QDockWindowTitle *title;
+
+    QWidgetResizeHandler *resizer;
 };
 
 void QDockWindowPrivate::init() {
@@ -441,6 +444,10 @@ void QDockWindowPrivate::init() {
     d->top->addWidget(d->title);
 
     d->box = new QVBoxLayout(d->top);
+
+    d->resizer = new QWidgetResizeHandler(q);
+    d->resizer->setMovingEnabled(false);
+    d->resizer->setActive(false);
 }
 
 void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
@@ -475,8 +482,8 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 */
 
 /*!
-    Constructs a QDockWindow with parent \a parent with widget flags
-    \a flags.  The dock window will be placed in the left dock window
+    Constructs a QDockWindow with parent \a parent and widget flags \a
+    flags.  The dock window will be placed in the left dock window
     area.
 */
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
@@ -590,6 +597,8 @@ void QDockWindow::setFloated(bool floated, const QPoint &pos)
     } else {
         setArea(d->area);
     }
+
+    d->resizer->setActive(floated);
 
     if (visible)
         show();
@@ -719,6 +728,7 @@ void QDockWindow::changeEvent(QEvent *event)
     default:
         break;
     }
+    QFrame::changeEvent(event);
 }
 
 /*! \reimp */
