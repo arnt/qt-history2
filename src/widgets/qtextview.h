@@ -35,7 +35,6 @@
 
 class QRichText;
 class QTextViewData;
-class QTextContainer;
 class QStyleSheet;
 class QMimeSourceFactory;
 
@@ -134,7 +133,6 @@ private:
     void clearSelection();
     void doSelection( const QPoint& );
 };
-
 
 
 #endif
