@@ -81,7 +81,7 @@ public:
         int row = QListView::currentIndex().row();
         return row < 0 ? QString() : model()->lst.at(row);
     }
-    void currentChanged(const QModelIndex &, const QModelIndex &current) {
+    void currentChanged(const QModelIndex &current, const QModelIndex &) {
         emit highlighted(current.row());
     }
     QString text(int i) const {
