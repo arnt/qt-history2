@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#51 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -357,7 +357,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
-    if ( !c->inserted() || !c->child()->isWidgetType() )
+    if ( !grid || !c->inserted() || !c->child()->isWidgetType() )
         return;
     QWidget *w = (QWidget*)c->child();
     if ( row >= nRows || col >= nCols )
@@ -365,6 +365,7 @@ void QGroupBox::childEvent( QChildEvent *c )
     grid->addWidget( w, row, col );
     skip();
 }
+
 
 void QGroupBox::skip()
 {
