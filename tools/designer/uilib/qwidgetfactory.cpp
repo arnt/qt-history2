@@ -135,8 +135,9 @@ static void setupWidgetListAndMap()
 			   << "QListBox" << "QListView" << "QLineEdit" << "QSpinBox"
 			   << "QMultiLineEdit" << "QLabel" << "TextLabel" << "PixmapLabel"
 			   << "QLayoutWidget" << "QTabWidget" << "QComboBox"
-			   << "QWidget" << "QDialog" << "QWizard" << "QLCDNumber"
-			   << "QProgressBar" << "QTextView" << "QTextBrowser"
+			   << "QWidget" << "QDialog" << "QWizard" << "QLCDNumber";
+    // put less stress on the compiler by limiting the template nesting depth
+    (*availableWidgetList) << "QProgressBar" << "QTextView" << "QTextBrowser"
 			   << "QDial" << "QSlider" << "QFrame" << "Line" << "QTextEdit"
 			   << "QDateEdit" << "QTimeEdit" << "QDateTimeEdit" << "QScrollBar"
 			   << "QPopupMenu" << "QWidgetStack" << "QMainWindow"
