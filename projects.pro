@@ -15,11 +15,7 @@ unix {
   confclean.commands += $(DEL_FILE) .qmake.cache
   QMAKE_EXTRA_UNIX_TARGETS += confclean
 }
-CONFIG -= qt #don't need the qt.prf, but do it last
-
-
-
-
+CONFIG -= qt 
 
 ### installations ####
 
@@ -31,6 +27,18 @@ INSTALLS += htmldocs
 #translations
 translations.files = $$QT_BUILD_TREE/translations/*.qm
 INSTALLS += translations
+
+
+#qmake
+qmake.path=$$bins.path
+qmake.files=$$QT_BUILD_TREE/bin/qmake #exe itself
+INSTALLS += qmake
+
+#mkspecs
+mkspecs.path=$$data.path
+mkspecs.files=$$QT_BUILD_TREE/.qt.config $$QT_SOURCE_TREE/mkspecs
+mkspecs.commands = $(SYMLINK) $$QMAKESPEC $$mkspecs.path/mkspecs/default
+INSTALLS += mkspecs
 
 macx { #mac install location
     macdocs.files = $$htmldocs.files

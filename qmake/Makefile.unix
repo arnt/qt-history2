@@ -41,19 +41,11 @@ CXXFLAGS= @QMAKE_CFLAGS@ \
 	-DQT_NO_COMPRESS -I@QMAKESPEC@ -DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QOBJECT
 LFLAGS=@QMAKE_LFLAGS@
 
-first all: qmake
+first all: @BUILD_PATH@/bin/qmake
+qmake: @BUILD_PATH@/bin/qmake
 
-qmake: $(OBJS) $(QOBJS)
+@BUILD_PATH@/bin/qmake: $(OBJS) $(QOBJS)
 	$(CXX) -o $@ $(OBJS) $(QOBJS) $(LFLAGS)
-	rm -f @BUILD_PATH@/bin/$@
-	ln -s ../qmake/$@ @BUILD_PATH@/bin/$@
-
-install: qmake
-	[ -d @QT_INSTALL_BINS@ ] || mkdir -p @QT_INSTALL_BINS@
-	-cp -f @BUILD_PATH@/bin/qmake @QT_INSTALL_BINS@
-	[ -d @QT_INSTALL_DATA@ ] || mkdir -p @QT_INSTALL_DATA@
-	-cp -R -f @SOURCE_PATH@/mkspecs @QT_INSTALL_DATA@
-	-ln -s -f @QMAKESPEC@ @QT_INSTALL_DATA@/mkspecs/default
 
 clean::
 	rm -f $(OBJS) $(QOBJS)

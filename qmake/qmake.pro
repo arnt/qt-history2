@@ -22,11 +22,3 @@ INCPATH += generators generators/unix generators/win32 generators/mac \
            $$QT_SOURCE_TREE/qmake
 include(qmake.pri)
 
-#installation
-target.path=$$bins.path
-INSTALLS        += target
-
-mkspecs.path=$$data.path/mkspecs
-mkspecs.files=$$QT_SOURCE_TREE/mkspecs
-INSTALLS        += mkspecs
-
