@@ -118,8 +118,8 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     chosen may not have a 32 bit depth buffer, even if there is a
     format available with a 32 bit depth buffer. The main reason for
     this is how the system dependant picking algorithms work on the
-    different platforms, and format options may have higher precedence
-    than others.
+    different platforms, and some format options may have higher
+    precedence than others.
     
     You create and tell a QGLFormat object what rendering options you
     want from an OpenGL
