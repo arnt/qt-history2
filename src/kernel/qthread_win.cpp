@@ -168,7 +168,6 @@ void QThreadPrivate::internalRun( QThread* that )
     dictSection()->leave();
 
     that->run();
-    d->finished = TRUE;
     d->running = FALSE;
 
     dictSection()->enter();
@@ -180,6 +179,8 @@ void QThreadPrivate::internalRun( QThread* that )
 
     if ( d->deleted )
 	delete d;
+    else
+	d->finished = TRUE;
 }
 
 /*
