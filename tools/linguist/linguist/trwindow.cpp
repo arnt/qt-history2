@@ -263,6 +263,7 @@ TrWindow::TrWindow()
 TrWindow::~TrWindow()
 {
     writeConfig();
+    cmdl->clearContextList();
     delete stats;
 }
 

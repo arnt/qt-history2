@@ -17,7 +17,7 @@
 
 MessageItem::MessageItem(const MetaTranslatorMessage &message,
                          const QString &text, const QString &comment, ContextItem *ctxtI)
-                         : QObject(ctxtI), m(message), tx(text), com(comment), cntxtItem(ctxtI)
+                         : m(message), tx(text), com(comment), cntxtItem(ctxtI)
 {
     if (m.translation().isEmpty()) {
         QString t = "";

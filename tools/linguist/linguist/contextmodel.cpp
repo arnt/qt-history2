@@ -21,11 +21,20 @@ static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
 ContextItem::ContextItem(QString c)
-: QObject(0), sortColumn(-1), com(""), ctxt(c)
+: sortColumn(-1), com(""), ctxt(c)
 {
     unfinishedCount = 0;
     dangerCount   = 0;
     obsoleteCount = 0;
+}
+
+ContextItem::~ContextItem()
+{
+    // delete all the message items
+    for (int i=0; i<msgItemList.count(); ++i)
+    {
+        delete msgItemList[i];
+    }
 }
 
 void ContextItem::appendToComment(const QString& x)

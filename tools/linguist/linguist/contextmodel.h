@@ -22,10 +22,11 @@
 class MessageModel;
 class ContextModel;
 
-class ContextItem : public QObject
+class ContextItem
 {
 public:
     ContextItem(QString c);
+    ~ContextItem();
 
     inline bool danger() const {return dangerCount > 0;}
 

@@ -20,7 +20,7 @@
 
 class ContextItem;
 
-class MessageItem : public QObject
+class MessageItem
 {
 public:
     MessageItem(const MetaTranslatorMessage &message,
