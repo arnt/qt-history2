@@ -9,6 +9,8 @@
 
 #include <stdlib.h>
 
+// #define FONTENGINE_DEBUG
+
 // returns TRUE if the character doesn't exist (ie. zero bounding box)
 static inline bool charNonExistent(const XCharStruct *xcs)
 {
@@ -138,6 +140,17 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
 	XSetFont(dpy, gc, _fs->fid);
 	fid_last = _fs->fid;
     }
+#ifdef FONTENGINE_DEBUG
+    p->save();
+    p->setBrush( Qt::white );
+    QGlyphInfo ci = boundingBox( glyphs, offsets, numGlyphs );
+    p->drawRect( x + ci.x, y + ci.y, ci.width, ci.height );
+    p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
+     qDebug("bounding rect=%d %d (%d/%d)", ci.x, ci.y, ci.width, ci.height );
+    p->restore();
+    int xp = x;
+    int yp = y;
+#endif
 
     if ( _fs->max_byte1 ) {
 	XChar2b ch[256];
@@ -174,6 +187,23 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
 	if ( numGlyphs > 255 )
 	    free( chars );
     }
+#ifdef FONTENGINE_DEBUG
+    x = xp;
+    y = yp;
+    p->save();
+    p->setPen( Qt::red );
+    for ( int i = 0; i < numGlyphs; i++ ) {
+	QGlyphInfo ci = boundingBox( glyphs[i] );
+	x += offsets[i].x;
+	y += offsets[i].y;
+	p->drawRect( x + ci.x, y + 50 + ci.y, ci.width, ci.height );
+	qDebug("bounding ci[%d]=%d %d (%d/%d) / %d %d   offset=(%d/%d)", i, ci.x, ci.y, ci.width, ci.height,
+	       ci.xoff, ci.yoff, offsets[i].x, offsets[i].y );
+	x += ci.xoff;
+	y += ci.yoff;
+    }
+    p->restore();
+#endif
 }
 
 Offset FontEngineXLFD::advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
@@ -208,7 +238,7 @@ QGlyphInfo FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *
 	overall.yoff += offsets[i].y;
 	if (xcs) {
 	    overall.x = QMIN( overall.x, overall.xoff + xcs->lbearing );
-	    overall.y = QMAX( overall.y, overall.yoff - xcs->ascent );
+	    overall.y = QMIN( overall.y, overall.yoff - xcs->ascent );
 	    xmax = QMAX( xmax, overall.xoff + xcs->rbearing );
 	    ymax = QMAX( ymax, overall.yoff + xcs->descent );
 	    overall.xoff += xcs->width;
@@ -237,7 +267,7 @@ QGlyphInfo FontEngineXLFD::boundingBox( GlyphIndex glyph )
 {
     XCharStruct *xcs = charStruct( _fs, glyph );
     if (xcs) {
-	return QGlyphInfo( xcs->lbearing, xcs->ascent, xcs->rbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
+	return QGlyphInfo( xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
     }
     int size = ascent();
     return QGlyphInfo( 0, size, size, size, size, 0 );
