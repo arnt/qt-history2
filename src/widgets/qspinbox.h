@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#1 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#2 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -9,8 +9,8 @@
 **
 *****************************************************************************/
 
-#ifndef QSPINBT_H
-#define QSPINBT_H
+#ifndef QSPINBOX_H
+#define QSPINBOX_H
 
 #include "qframe.h"
 
