@@ -837,12 +837,14 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
     QModelIndexList::ConstIterator it = indexes.begin();
     for (; it != indexes.end(); ++it) {
         QMap<int, QVariant> data = itemData(*it);
-        stream << data.count();
+        stream << data.count(); // roles
         QMap<int, QVariant>::ConstIterator it2 = data.begin();
         for (; it2 != data.end(); ++it2) {
             stream << it2.key();
             stream << it2.value();
         }
+        stream << rowCount(*it); // children
+        stream << columnCount(*it); // children
     }
 
     QMimeData *data = new QMimeData();
@@ -870,21 +872,24 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
-    int count, role;
+    int count, role, rows, columns;
     QVariant value;
     QModelIndex idx;
+    QVector<QModelIndex> parents;
     while (!stream.atEnd()) {
         insertRows(row, parent, 1);
         int column = 0;
         while (!stream.atEnd() && column < columnCount(parent)) {
             idx = index(row, column, parent); // only insert in col 0
-            stream >> count;
+            stream >> count; // roles
             for (int i = 0; i < count; ++i) {
                 stream >> role;
                 stream >> value;
                 setData(idx, role, value);
             }
             ++column;
+            stream >> rows; // children
+            stream >> columns; // children
         }
         ++row;
     }

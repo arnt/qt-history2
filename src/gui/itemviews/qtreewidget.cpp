@@ -250,6 +250,8 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 int QTreeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
+        if (parent.column() != 0)
+            return 0;
         QTreeWidgetItem *parentItem = item(parent);
         if (parentItem)
             return parentItem->childCount();
@@ -350,9 +352,10 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
 QStringList QTreeModel::mimeTypes() const
 {
-    QStringList types;
-    types << "application/x-qtreemodeldatalist";
-    return types;
+    return QAbstractItemModel::mimeTypes();
+//     QStringList types;
+//     types << "application/x-qtreemodeldatalist";
+//     return types;
 }
 
 QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
@@ -367,7 +370,6 @@ bool QTreeModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
     // FIXME: just do copy for now
     if (action == QDrag::MoveAction)
         qWarning("QDrag::MoveAction is not supported yet");
-//    qDebug() << "dropping data in row" << row << "action" << action;
     return QAbstractItemModel::dropMimeData(data, action, row, parent);
 }
 

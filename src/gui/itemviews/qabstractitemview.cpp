@@ -1843,6 +1843,8 @@ void QAbstractItemView::startDrag()
                                 rects.at(j).size());
             itemDelegate()->paint(&painter, option, indexes.at(j));
         }
+        painter.setPen(Qt::black);
+        painter.drawRect(0, 0, rect.width() - 1, rect.height() - 1);
         painter.end();
         // create drag object
         QDrag *drag = new QDrag(this);
