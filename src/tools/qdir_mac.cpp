@@ -102,6 +102,24 @@ bool QDir::rename(const QString& name,const QString& newName,
 bool QDir::setCurrent(const QString& path)
 {
     qt_cwd=path;
+    FSSpec myspec;
+    char bigbuf[257];
+    const char * wingle=
+           (const char *)QFile::encodeName(filePath(dirname,
+						    acceptAbsPath));
+    strcpy(bigbuf+1,wingle);
+    bigbuf[0]=strlen(wingle);
+    OSErr ret;
+    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
+    if(ret!=noErr) {
+	qWarning("Make FS spec in setCurrent error %d",ret);
+	return false;
+    }
+    ret=HSetVol(0,myspec.vRefNum,myspec.parID);
+    if(ret!=noErr) {
+	qWarning("HSetVol error in setCurrent %d\n",ret);
+	return false;
+    }
     return true;
 }
 
