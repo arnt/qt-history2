@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_gif.h#2 $
+** $Id: //depot/qt/main/src/kernel/qt_gif.h#3 $
 **
 ** To enable built-in reading of GIF images in Qt, change the definition
 ** below to "#define QT_BUILTIN_GIF_READER 1".
@@ -8,11 +8,9 @@
 ** below to "#define QT_BUILTIN_GIF_READER 0".
 **
 ** WARNING:
-**	Enabling this software to read GIF files, and hence allowing any
-**	software using this software using the GIF format may require you
-**	to make licensing arrangements with Unisys Corporation.
-**	By making modifications to this file, you acknowledge that you
-**	understand the consequences of those modifications.
+**      A separate license from Unisys may be required to use the gif
+**      reader. See http://corp2.unisys.com/LeadStory/lzwfaq.html
+**      for information from Unisys
 **
 *****************************************************************************/
 
