@@ -2,50 +2,30 @@
 #define QT_CLEAN_NAMESPACE
 #endif
 
-#include <qimageformatinterface.h>
+#include <qimageformatplugin.h>
 
 #ifdef QT_NO_IMAGEIO_MNG
 #undef QT_NO_IMAGEIO_MNG
 #endif
 #include "../../../../src/kernel/qmngio.cpp"
 
-class MNGFormat : public QImageFormatInterface
+class MNGFormat : public QImageFormatPlugin
 {
 public:
     MNGFormat();
-    Q_REFCOUNT;
-    QRESULT queryInterface( const QUuid &, QUnknownInterface ** );
 
-    QStringList featureList() const;
-
-
-    QRESULT loadImage( const QString &format, const QString &filename, QImage *image );
-    QRESULT saveImage( const QString &format, const QString &filename, const QImage &image );
-
-    QRESULT installIOHandler( const QString & );
+    QStringList keys() const;
+    bool loadImage( const QString &format, const QString &filename, QImage *image );
+    bool saveImage( const QString &format, const QString &filename, const QImage &image );
+    bool installIOHandler( const QString & );
 };
 
 MNGFormat::MNGFormat()
 {
 }
 
-QRESULT MNGFormat::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
-{
-    *iface = 0;
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QImageFormat )
-	*iface = (QImageFormatInterface*)this;
-    else
-	return QE_NOINTERFACE;
 
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList MNGFormat::featureList() const
+QStringList MNGFormat::keys() const
 {
     QStringList list;
     list << "MNG";
@@ -53,26 +33,23 @@ QStringList MNGFormat::featureList() const
     return list;
 }
 
-QRESULT MNGFormat::loadImage( const QString &, const QString &, QImage * )
+bool MNGFormat::loadImage( const QString &, const QString &, QImage * )
 {
-    return QE_NOTIMPL;
+    return FALSE;
 }
 
-QRESULT MNGFormat::saveImage( const QString &, const QString &, const QImage& )
+bool MNGFormat::saveImage( const QString &, const QString &, const QImage& )
 {
-    return QE_NOTIMPL;
+    return FALSE;
 }
 
-QRESULT MNGFormat::installIOHandler( const QString &name )
+bool MNGFormat::installIOHandler( const QString &name )
 {
     if ( name != "MNG" )
-	return QE_INVALIDARG;
+	return FALSE;
 
     qInitMngIO();
-    return QS_OK;
+    return TRUE;
 }
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( MNGFormat )
-}
+Q_EXPORT_PLUGIN( MNGFormat )
