@@ -2196,7 +2196,6 @@ QString QDateTime::toString(Qt::DateFormat f) const
         buf += QLatin1Char(' ');
         buf += QString::number(d->date.day());
 #else
-        QString buf;
         QString winstr;
         QT_WA({
             TCHAR out[255];
