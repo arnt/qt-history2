@@ -7,3 +7,27 @@
 } else {
    LIBS += -lQAxContainer
 }
+
+isEmpty(QMAKE_DUMPCPP) {
+    win32:QMAKE_DUMPCPP = $(QTDIR)\bin\dumpcpp.exe
+}
+
+dumpcpp_decl.commands = $$QMAKE_DUMPCPP ${QMAKE_FILE_IN} -o ${QMAKE_FILE_BASE}
+dumpcpp_decl.output = ${QMAKE_FILE_BASE}.h
+dumpcpp_decl.input = TYPELIBS
+dumpcpp_decl.variable_out = HEADERS
+dumpcpp_decl.name = DUMPCPP Decl ${QMAKE_FILE_IN}
+dumpcpp_decl.CONFIG += no_link
+dumpcpp_decl.depends = $$QMAKE_DUMPCPP
+
+QMAKE_EXTRA_COMPILERS += dumpcpp_decl
+
+
+dumpcpp_impl.commands = $$QMAKE_DUMPCPP -donothing
+dumpcpp_impl.output = ${QMAKE_FILE_BASE}.cpp
+dumpcpp_impl.input = TYPELIBS
+dumpcpp_impl.variable_out = SOURCES
+dumpcpp_impl.name = DUMPCPP Impl ${QMAKE_FILE_IN}
+dumpcpp_impl.depends = $$QMAKE_DUMPCPP ${QMAKE_FILE_BASE}.h
+
+QMAKE_EXTRA_COMPILERS += dumpcpp_impl
