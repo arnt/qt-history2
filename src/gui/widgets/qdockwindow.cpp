@@ -100,6 +100,7 @@ public:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
     void paintEvent(QPaintEvent *event);
 
     void updateButtons();
@@ -374,6 +375,14 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 
     delete state;
     state = 0;
+}
+
+void QDockWindowTitle::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (state)
+        event->accept();
+    else
+        QWidget::contextMenuEvent(event);
 }
 
 void QDockWindowTitle::paintEvent(QPaintEvent *)
