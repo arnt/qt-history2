@@ -1,10 +1,10 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** This is a utility program for merging findtr msgfiles
 **
 **
-** Copyright (C) 1998 by Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2001 Trolltech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include <qfile.h>
