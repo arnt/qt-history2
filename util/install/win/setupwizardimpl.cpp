@@ -1051,6 +1051,22 @@ void SetupWizardImpl::saveSet( QListView* list )
 
 void SetupWizardImpl::showPage( QWidget* newPage )
 {
+    if ( newPage == foldersPage ) {
+	if ( globalInformation.sysId()==GlobalInformation::Borland && optionsPage->installPath->text().find('-')!=-1 ) {
+	    int ret = QMessageBox::warning( this,
+		    tr("Invalid choice"),
+		    tr("Due to a limitation in the Borland linker,\n"
+			"it is not possible to install Qt to a directory\n"
+			"that contains a '-' in its name.\n"
+			"Please correct your selection before going on."),
+		    tr("Ok"),
+		    tr("Continue anyway")
+		    );
+	    if ( ret == 0 )
+		return;
+	}
+    }
+
     QWizard::showPage( newPage );
     setInstallStep( indexOf(newPage) + 1 );
 
