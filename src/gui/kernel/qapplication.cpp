@@ -3475,15 +3475,15 @@ void QSessionManager::requestPhase2()
 */
 
 /*!
-    \fn ColorMode QApplication::colorMode()
+    \fn QApplication::ColorMode QApplication::colorMode()
 
-    Use ColorMode(colorSpec()) instead.
+    Use colorSpec() instead, and use ColorSpec as the enum type.
 */
 
 /*!
     \fn void QApplication::setColorMode(ColorMode mode)
 
-    Use setColorSpec(ColorSpec(mode)) instead.
+    Use setColorSpec() instead, and pass a ColorSpec value instead.
 */
 
 /*!
