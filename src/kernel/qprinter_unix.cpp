@@ -165,6 +165,30 @@ bool QPrinter::setup( QWidget * /*parent*/ )
     return QPrintDialog::getPrinterSetup( this );
 }
 
+static void closeAllOpenFds()
+{
+    // hack time... getting the maximum number of open
+    // files, if possible.  if not we assume it's the
+    // larger of 256 and the fd we got
+    int i;
+#if defined(Q_OS_OS2EMX)
+    LONG req_count = 0;
+    ULONG rc, handle_count;
+    rc = DosSetRelMaxFH (&req_count, &handle_count);
+    /* if (rc != NO_ERROR) ... */
+    i = (int)handle_count;
+#elif defined(_SC_OPEN_MAX)
+    i = (int)sysconf( _SC_OPEN_MAX );
+#elif defined(_POSIX_OPEN_MAX)
+    i = (int)_POSIX_OPEN_MAX;
+#elif defined(OPEN_MAX)
+    i = (int)OPEN_MAX;
+#else
+    i = QMAX( 256, fds[0] );
+#endif // Q_OS_OS2EMX 		// ways-to-set i
+    while( --i > 0 )
+	::close( i );
+}
 
 /*!
   \internal
@@ -229,32 +253,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    // if possible, exit quickly, so the actual lp/lpr
 		    // becomes a child of init, and ::waitpid() is
 		    // guaranteed not to wait.
-		    if ( fork() > 0 )
+		    if ( fork() > 0 ) {
+			closeAllOpenFds();
 			exit( 0 );
+		    }
 		    dup2( fds[0], 0 );
 
-		    // hack time... getting the maximum number of open
-		    // files, if possible.  if not we assume it's the
-		    // larger of 256 and the fd we got
-		    int i;
-#if defined(Q_OS_OS2EMX)
-		    LONG req_count = 0;
-		    ULONG rc, handle_count;
-		    rc = DosSetRelMaxFH (&req_count, &handle_count);
-		    /* if (rc != NO_ERROR) ... */
-		    i = (int)handle_count;
-#elif defined(_SC_OPEN_MAX)
-		    i = (int)sysconf( _SC_OPEN_MAX );
-#elif defined(_POSIX_OPEN_MAX)
-		    i = (int)_POSIX_OPEN_MAX;
-#elif defined(OPEN_MAX)
-		    i = (int)OPEN_MAX;
-#else
-		    i = QMAX( 256, fds[0] );
-#endif // Q_OS_OS2EMX 		// ways-to-set i
-		    while( --i > 0 )
-			::close( i );
-
+		    closeAllOpenFds();
+		    
 		    if ( print_prog ) {
 			pr.prepend( option_string ? option_string :
 				    QString::fromLatin1( "-P" ) );
