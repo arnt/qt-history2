@@ -580,7 +580,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 #if defined(Q_WS_WIN)
     if ( checkNewLine ) {
 	int i = 0;
-	while ( ( i = s.find( '\\r', i ) ) != -1 )
+	while ( ( i = s.find( '\r', i ) ) != -1 )
 	    s.remove( i ,1 );
     }
 #endif
