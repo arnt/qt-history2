@@ -1470,7 +1470,8 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
     const QSize oldSize = sizeUsed();
 
     QTextFrame *root = document()->rootFrame();
-    d->layoutFrame(root, from, from + length);
+    if(data(root)->sizeDirty)
+        d->layoutFrame(root, from, from + length);
     data(root)->layoutDirty = false;
 
     const QSize newSize = sizeUsed();
