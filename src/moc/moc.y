@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#44 $
+** $Id: //depot/qt/main/src/moc/moc.y#45 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#45 $";
 #endif
 
 
@@ -716,7 +716,7 @@ opt_identifier:		  /* empty */
 
 %%
 
-#if defined(_OS_MSDOS_)
+#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined_OS_OS2_)
 extern "C" int read( int, void *, uint );
 #if defined(_CC_MSC_)
 extern "C" int fileno( FILE *stream );
