@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#61 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#61 $")
 
 
 /*----------------------------------------------------------------------------
@@ -30,52 +30,6 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#60 $")
   A default push button in a dialog emits the clicked signal if the user
   presses the Enter key.
  ----------------------------------------------------------------------------*/
-
-
-const int extraMacWidth = 6;			// extra size for def button
-const int extraMacHeight = 6;
-const int extraPMWidth = 2;
-const int extraPMHeight = 2;
-const int extraMotifWidth = 10;
-const int extraMotifHeight = 10;
-
-
-static bool extraSize( const QPushButton *b, int &wx, int &hx,
-		       bool onlyWhenDefault )
-{
-    if ( onlyWhenDefault && !b->isDefault() ) {
-	wx = hx = 0;
-	return FALSE;
-    }
-    switch ( b->style() ) {
-	case MacStyle:				// larger def Mac buttons
-	    wx = extraMacWidth;
-	    hx = extraMacHeight;
-	    break;
-	case MotifStyle:			// larger def Motif buttons
-	    wx = extraMotifWidth;
-	    hx = extraMotifHeight;
-	    break;
-	default:
-	    wx = hx = 0;
-	    return FALSE;
-    }
-    return TRUE;
-}
-
-static void resizeDefButton( QPushButton *b )
-{
-    int wx, hx;
-    if ( !extraSize( b, wx, hx, FALSE ) )
-	return;
-    if ( !b->isDefault() ) {			// not default -> shrink
-	wx = -wx;
-	hx = -hx;
-    }
-    QRect r = b->geometry();
-    b->QWidget::setGeometry( r.x()-wx/2, r.y()-hx/2,
-			     r.width()+wx, r.height()+hx );
-}
 
 
 /*----------------------------------------------------------------------------
@@ -209,13 +163,8 @@ void QPushButton::setDefault( bool enable )
     defButton = enable;
     if ( defButton )
 	((QDialog*)p)->setDefault( this );
-    int gs = style();
-    if ( gs != MacStyle && gs != MotifStyle ) {
-	if ( isVisible() )
-	    repaint( FALSE );
-    }
-    else
-	resizeDefButton( (QPushButton*)this );
+    if ( isVisible() )
+	repaint( FALSE );
 }
 
 
@@ -248,67 +197,6 @@ void QPushButton::adjustSize()
 	resize( w, h );
     else
 	repaint(TRUE);
-}
-
-
-/*----------------------------------------------------------------------------
-  Reimplements QWidget::move() for internal purposes.
- ----------------------------------------------------------------------------*/
-
-void QPushButton::move( int x, int y )
-{
-    int wx, hx;
-    extraSize( this, wx, hx, TRUE );
-    QWidget::move( x-wx/2, y-hx/2 );
-}
-
-/*----------------------------------------------------------------------------
-  Reimplements QWidget::move() for internal purposes.
- ----------------------------------------------------------------------------*/
-
-void QPushButton::move( const QPoint &p )
-{
-    move( p.x(), p.y() );
-}
-
-/*----------------------------------------------------------------------------
-  Reimplements QWidget::resize() for internal purposes.
- ----------------------------------------------------------------------------*/
-
-void QPushButton::resize( int w, int h )
-{
-    int wx, hx;
-    extraSize( this, wx, hx, TRUE );
-    QWidget::resize( w+wx, h+hx );
-}
-
-/*----------------------------------------------------------------------------
-  Reimplements QWidget::resize() for internal purposes.
- ----------------------------------------------------------------------------*/
-
-void QPushButton::resize( const QSize &s )
-{
-    resize( s.width(), s.height() );
-}
-
-/*----------------------------------------------------------------------------
-  Reimplements QWidget::setGeometry() for internal purposes.
- ----------------------------------------------------------------------------*/
-
-void QPushButton::setGeometry( int x, int y, int w, int h )
-{
-    int wx, hx;
-    extraSize( this, wx, hx, TRUE );
-    QWidget::setGeometry( x-wx/2, y-hx/2, w+wx, h+hx );
-}
-
-/*----------------------------------------------------------------------------
-  Reimplements QWidget::setGeometry() for internal purposes.
- ----------------------------------------------------------------------------*/
-
-void QPushButton::setGeometry( const QRect &r )
-{
-    setGeometry( r.x(), r.y(), r.width(), r.height() );
 }
 
 
@@ -365,27 +253,9 @@ void QPushButton::drawButton( QPainter *paint )
 
     p->setPen( g.foreground() );
     p->setBrush( QBrush(fillcol,NoBrush) );
-    if ( gs == MacStyle ) {			// Macintosh push button
-	if ( defButton ) {
-	    p->setPen( QPen(g.foreground(), 3) );
-	    x1++; y1++; x2--; y2--;
-	    p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 25, 25 );
-	    x1 += extraMacWidth/2;
-	    y1 += extraMacHeight/2;
-	    x2 -= extraMacWidth/2;
-	    y2 -= extraMacHeight/2;
-	    p->setPen( g.foreground() );
-	}
-	if ( updated ) {			// fill
-	    if ( isDown() )
-		p->setBrush( g.foreground() );
-	    else
-		p->setBrush( fillcol );
-	}
-	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
-    }
-    else if ( gs == WindowsStyle ) {		// Windows push button
-	if ( isDown() || isOn() ) {
+
+    if ( gs == WindowsStyle ) {		// Windows push button
+	if ( isDown() ) {
 	    if ( defButton ) {
 		p->setPen( black );
 		p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
@@ -394,75 +264,38 @@ void QPushButton::drawButton( QPainter *paint )
 	    }
 	    else
 		qDrawWinButton( p, x1, y1, w, h, g, TRUE );
-	}
-	else {
+	} else {
 	    if ( defButton ) {
 		p->setPen( black );
 		p->drawRect( x1, y1, w, h );
 		x1++; y1++;
 		x2--; y2--;
 	    }
-	    qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE );
+	    if ( isToggleButton() && isOn() ) {
+		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
+		if ( updated ) {
+		    p->setPen( NoPen );
+		    p->setBrush( g.mid() );
+		    p->drawRect( x1+1, y1+1, x2-x1-2, y2-y1-2 );
+		    updated = FALSE;
+		}
+	    } else {
+		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE );
+	    }
 	}
 	if ( updated )
-	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
-    }
-    else if ( gs == Win3Style ) {		// Windows 3.x push button
-	QPointArray a;
-	a.setPoints( 8, x1+1,y1, x2-1,y1, x1+1,y2, x2-1,y2,
-			x1,y1+1, x1,y2-1, x2,y1+1, x2,y2-1 );
-	p->drawLineSegments( a );		// draw frame
-	x1++; y1++;
-	x2--; y2--;
-	if ( defButton || (autoDefButton & isDown()) ) {
-	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-	    x1++; y1++;
-	    x2--; y2--;
-	}
-	int lw = isDown() ? 1 : 2;
-	QBrush fill( fillcol );
-	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), lw,
-			 updated ? &fill : 0 );
-    }
-    else if ( gs == PMStyle ) {			// PM push button
-	p->setPen( g.dark() );
-	if ( updated )				// fill
-	    p->setBrush( fillcol );
-	p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-	if ( !defButton ) {
-	    p->setPen( g.background() );
-	    p->drawPoint( x1, y1 );
-	    p->drawPoint( x1, y2 );
-	    p->drawPoint( x2, y1 );
-	    p->drawPoint( x2, y2 );
-	    p->setPen( g.dark() );
-	}
-	x1++; y1++;
-	x2--; y2--;
-	QPointArray atop, abottom;
-	atop.setPoints( 3, x1,y2-1, x1,y1, x2,y1 );
-	abottom.setPoints( 3, x1,y2, x2,y2, x2,y1+1 );
-	QColor tc, bc;
-	if ( isDown() ) {
-	    tc = g.dark();
-	    bc = g.light();
-	}
-	else {
-	    tc = g.light();
-	    bc = g.dark();
-	}
-	p->setPen( tc );
-	p->drawPolyline( atop );
-	p->setPen( bc );
-	p->drawPolyline( abottom );
+	    p->fillRect( x1+1, y1+1, x2-x1-1, y2-y1-1, g.background() );
     }
     else if ( gs == MotifStyle ) {		// Motif push button
 	if ( defButton ) {			// default Motif button
-	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
-	    x1 += extraMotifWidth/2;
-	    y1 += extraMotifHeight/2;
-	    x2 -= extraMotifWidth/2;
-	    y2 -= extraMotifHeight/2;
+	    p->setPen( black );
+	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+	    p->setPen( g.dark() );
+	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
+	    x1 += 1;
+	    y1 += 1;
+	    x2 -= 1;
+	    y2 -= 1;
 	}
 	QBrush fill( fillcol );
 	if ( isDown() ) {
@@ -509,19 +342,14 @@ void QPushButton::drawButtonLabel( QPainter *paint )
     QColorGroup g  = colorGroup();
     int		dt = 0;
     switch ( gs ) {
-	case MacStyle:
-	    p->setPen( isDown() ? white : g.text() );
-	    break;
-	case Win3Style:
-	    dt = 2;
-	    break;
 	case WindowsStyle:
 	    dt = 1;
 	    break;
-	case PMStyle:
 	case MotifStyle:
 	    p->setPen( g.text() );
 	    break;
+	default:
+	    ;
     }
     QRect r = rect();
     int x, y, w, h;
@@ -538,7 +366,6 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	if ( gs == WindowsStyle && !isDown() && isOn() ) {
 	     if ( pm->depth() == 1 )
 		 p->setBackgroundColor( g.background().light() );
-	     // ### do proper dithering.. this kindaworks for metis
 	} else {
 	    p->setBackgroundColor( g.background() );
 	}

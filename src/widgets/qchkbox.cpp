@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#43 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -34,13 +34,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#42 $")
 static void getSizeOfBitmap( int gs, int *w, int *h )
 {
     switch ( gs ) {				// calculate coords
-	case MacStyle:
 	case WindowsStyle:
-	case Win3Style:
 	    *w = *h = 13;
-	    break;
-	case PMStyle:
-	    *w = *h = 16;
 	    break;
 	case MotifStyle:
 	    *w = *h = 10;
@@ -95,9 +90,7 @@ QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 
 static int extraWidth( int gs )
 {
-    if ( gs == MacStyle || gs == Win3Style )
-	return 7;
-    else if ( gs == MotifStyle )
+    if ( gs == MotifStyle )
 	return 8;
     else
 	return 6;
@@ -172,18 +165,7 @@ void QCheckBox::drawButton( QPainter *paint )
     }
 #endif
 
-    if ( gs == MacStyle || gs == Win3Style ){	// Mac/Windows 3.x check box
-	p->eraseRect( x, y, w, h );
-	p->setPen( g.foreground() );
-	p->drawRect( x, y, w, h );
-	if ( isDown() )				// extra fat rectangle
-	    p->drawRect( x+1, y+1, w-2, h-2 );
-	if ( isOn() ) {
-	    p->drawLine( x, y, x+w-1, y+h-1 );	// draw cross
-	    p->drawLine( x, y+h-1, x+w-1, y );
-	}
-    }
-    else if ( gs == WindowsStyle ) {		// Windows check box
+    if ( gs == WindowsStyle ) {			// Windows check box
 	QBrush fill( g.base() );
 	qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
 	if ( isOn() ) {
@@ -206,59 +188,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	    p->drawLineSegments( a );
 	}
     }
-    else if ( gs == PMStyle ) {			// PM check box
-	p->setPen( g.dark() );
-	p->setBrush( g.background() );
-	p->drawRect( x, y, w, h );
-	p->setBrush( NoBrush );
-	int x1 = x+1, y1=y+1, x2=x+w-2, y2=y+h-2;
-	QPointArray atop, abottom;
-	atop.setPoints( 3, x1,y2-1, x1,y1, x2,y1 );
-	abottom.setPoints( 3, x1,y2, x2,y2, x2,y1+1 );
-	QColor tc, bc;
-	if ( isDown() ) {
-	    tc = g.dark();
-	    bc = g.light();
-	}
-	else {
-	    tc = g.light();
-	    bc = g.dark();
-	}
-	p->setPen( tc );
-	p->drawPolyline( atop );
-	p->setPen( bc );
-	p->drawPolyline( abottom );
-	p->setPen( g.background() );
-	p->drawPoint( x1, y2 );
-	p->drawPoint( x2, y1 );
-	static QCOORD check_mark[] = {
-	    3,5, 5,5,  4,6, 5,6,  5,7, 6,7,  5,8, 6,8,	6,9, 9,9,
-	    6,10, 8,10,	 7,11, 8,11,  7,12, 7,12,  8,8, 9,8,  8,7, 10,7,
-	    9,6, 10,6,	9,5, 11,5,  10,4, 11,4,	 10,3, 12,3,
-	    11,2, 12,2,	 11,1, 13,1,  12,0, 13,0 };
-	static QCOORD check_mark_pix[] = {
-	    3,6, 6,6, 4,7, 7,8, 5,9, 6,11, 8,12, 9,10, 10,8, 8,6,
-	    11,6, 9,4, 12,4, 10,2, 13,2 };
-	if ( isOn() ) {				// draw complex check mark
-	    x1 = x;
-	    y1 = y;
-	    if ( isDown() ) {			// shift check mark
-		x1++;
-		y1++;
-	    }
-	    QPointArray amark( sizeof(check_mark)/(sizeof(QCOORD)*2),
-			       check_mark );
-	    amark.translate( x1, y1 );
-	    p->setPen( g.foreground() );
-	    p->drawLineSegments( amark );
-	    p->setPen( g.dark() );
-	    for ( int i=0; i<(int)(sizeof(check_mark_pix)/sizeof(QCOORD));
-			   i+=2 )
-		p->drawPoint( x1 + check_mark_pix[i],
-			      y1 + check_mark_pix[i+1] );
-	}
-    }
-    else if ( gs == MotifStyle ) {		// Motif check box
+    if ( gs == MotifStyle ) {			// Motif check box
 	bool showUp = !(isDown() ^ isOn());
 	QBrush fill( showUp ? g.background() : g.mid() );
 	qDrawShadePanel( p, x, y, w, h, g, !showUp, 2, &fill );

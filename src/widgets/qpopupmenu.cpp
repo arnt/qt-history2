@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#67 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,18 +19,8 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#67 $")
 
-
-// Mac style parameters
-
-static const macPopupFrame	= 1;		// popup frame width
-static const macItemFrame	= 2;		// menu item frame width
-static const macSepHeight	= 2;		// separator item height
-static const macItemHMargin	= 3;		// menu item hor text margin
-static const macItemVMargin	= 8;		// menu item ver text margin
-static const macArrowHMargin	= 6;		// arrow horizontal margin
-static const macArrowVMargin	= 4;		// arrow horizontal margin
 
 // Windows style parameters
 
@@ -42,16 +32,6 @@ static const winItemVMargin	= 8;		// menu item ver text margin
 static const winArrowHMargin	= 6;		// arrow horizontal margin
 static const winArrowVMargin	= 4;		// arrow horizontal margin
 
-// PM style parameters
-
-static const pmPopupFrame	= 2;		// popup frame width
-static const pmItemFrame	= 2;		// menu item frame width
-static const pmSepHeight	= 2;		// separator item height
-static const pmItemHMargin	= 3;		// menu item hor text margin
-static const pmItemVMargin	= 8;		// menu item ver text margin
-static const pmArrowHMargin	= 6;		// arrow horizontal margin
-static const pmArrowVMargin	= 4;		// arrow horizontal margin
-
 // Motif style parameters
 
 static const motifPopupFrame	= 2;		// popup frame width
@@ -62,10 +42,6 @@ static const motifItemVMargin	= 2;		// menu item ver text margin
 static const motifArrowHMargin	= 6;		// arrow horizontal margin
 static const motifArrowVMargin	= 2;		// arrow horizontal margin
 static const motifTabSpacing	= 12;		// space between text and tab
-
-/* static char sizePopupFrame[] =
-    { macPopupFrame, winPopupFrame, pmPopupFrame, motifPopupFrame };
-*/   // commented out 7/5-95 EE ###
 
 /*
 
@@ -764,27 +740,17 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	p->drawText( x, m, cellw, cellh-2*m, text_flags, s );
     }
     if ( mi->popup() ) {			// draw sub menu arrow
-	int dim = (cellh-2*motifItemFrame);
-	if ( gs == MacStyle ) {
-	    QPointArray a;
-	    a.setPoints( 3, 0,-dim/2, 0,dim/2, dim/2,0 );
-	    a.translate( cellw - motifArrowHMargin - dim, cellh/2-dim/2 );
-	    p->setBrush( g.foreground() );
-	    p->setPen( NoPen );
-	    p->drawPolygon( a );
+	int dim = (cellh-2*motifItemFrame) / 2;
+	dim /= 2;
+	if ( gs == WindowsStyle && row == actItem ) {
+	    if ( !dis )
+		discol = white;
+	    g = QColorGroup( discol, darkBlue, white, white, white,
+			     discol, white );
 	}
-	else {
-	    dim /= 2;
-	    if ( gs == WindowsStyle && row == actItem ) {
-		if ( !dis )
-		    discol = white;
-		g = QColorGroup( discol, darkBlue, white, white, white,
-				 discol, white );
-	    }
-	    qDrawArrow( p, RightArrow, gs, row == actItem,
-			cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
-			dim, dim, g );
-	}
+	qDrawArrow( p, RightArrow, gs, row == actItem,
+		    cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
+		    dim, dim, g );
     }
     mi->setDirty( FALSE );
 }
@@ -876,9 +842,9 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
-	if ( popup && style() != MacStyle )
+	if ( popup ) {
 	    popup->setFirstItemActive();
-	else {					// normal menu item
+	} else {				// normal menu item
 	    hideAllPopups();			// hide all popup
 	    byeMenuBar();			// deactivate menu bar
 	    if ( !mi->isDisabled() ) {
