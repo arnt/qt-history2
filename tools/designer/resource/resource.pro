@@ -14,7 +14,7 @@ sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database.h
 
 TARGET		= qresource
-INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared ../util ../../../src/3rdparty/zlib/
 DESTDIR		= ../../../lib
 VERSION		= 1.0.0
 DEFINES		+= RESOURCE

@@ -99,7 +99,7 @@ SOURCES	= command.cpp \
 		  sourcefile.cpp
 
 TARGET	= designer
-INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/
+INCLUDEPATH	+= ../shared ../util ../resource ../../../src/3rdparty/zlib/
 unix:LIBS	+= -lqutil -L$(QTDIR)/lib -lqresource
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qresource.lib
 DEFINES	+= DESIGNER
