@@ -908,9 +908,11 @@ HierarchyView::HierarchyView( QWidget *parent )
     editor = 0;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     listview = new HierarchyList( this, formWindow() );
-    addTab( listview, tr( "Widgets" ) );
+    addTab( listview, tr( "Objects" ) );
+    setTabToolTip( listview, tr( "List of all widgets and objects of the current form in hierarchical order" ) );
     fView = new FormDefinitionView( this, formWindow() );
-    addTab( fView, tr( "Source" ) );
+    addTab( fView, tr( "Members" ) );
+    setTabToolTip( fView, tr( "List of all members of the current form" ) );
 
     if ( !classBrowserInterfaceManager ) {
 	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser, QApplication::libraryPaths(), "/designer" );
@@ -923,7 +925,8 @@ HierarchyView::HierarchyView( QWidget *parent )
 	classBrowserInterfaceManager->queryInterface( *it, &ciface );
 	if ( ciface ) {
 	    ClassBrowser cb( ciface->createClassBrowser( this ), ciface );
-	    addTab( cb.lv, *it + tr( " Classes" ) );
+	    addTab( cb.lv, tr( "Class Declarations" ) );
+	    setTabToolTip( cb.lv, tr( "List of all classes and its declarations of the current source file" ) );
 	    ciface->onClick( this, SLOT( jumpTo( const QString &, const QString &, int ) ) );
 	    classBrowsers->insert( *it, cb );
 	    setTabEnabled( cb.lv, FALSE );
