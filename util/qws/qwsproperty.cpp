@@ -41,7 +41,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
     if ( !hasProperty( winId, property ) )
 	return FALSE;
     char *key = createKey( winId, property );
-    
+
     switch ( mode ) {
     case PropReplace: {
 	char *d = qstrdup( data );
@@ -61,6 +61,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 	if ( orig )
 	    memcpy( &d[ 0 ], orig->data, origLen );
 	memcpy( &d[ origLen ], data, len );
+	prop->data = d;
 	properties.replace( key, prop );
     } break;
     case PropPrepend: {
@@ -74,13 +75,14 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 	memcpy( &d[ 0 ], data, len );
 	if ( orig )
 	    memcpy( &d[ len ], orig->data, origLen );
+	prop->data = d;
 	properties.replace( key, prop );
     } break;
     }
-    
-    qDebug( "QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key, 
+
+    qDebug( "QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key,
 	    properties.find( key )->data );
-    
+
     delete [] key;
 
     return TRUE;
@@ -126,6 +128,6 @@ char *QWSPropertyManager::createKey( int winId, int property ) const
     sprintf( key, "%010d%010d", winId, property );
     key[ 20 ] = '\0';
     qDebug( "QWSPropertyManager::createKey: %s", key );
-    
+
     return key;
 }
