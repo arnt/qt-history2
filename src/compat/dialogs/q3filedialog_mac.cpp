@@ -390,7 +390,7 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
     QString workingDir;
     QString initialSelection;
     if (!start.isEmpty()) {
-        QUrlOperator u(encodeFileName(start));
+        Q3UrlOperator u(encodeFileName(start));
         if (u.isLocalFile() && QFileInfo(u.path()).isDir()) {
             workingDir = start;
         } else {
