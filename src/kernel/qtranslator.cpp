@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#22 $
 **
 ** Localization database support.
 **
@@ -492,13 +492,13 @@ QString QTranslator::find( uint h, const char* scope, const char* message ) cons
 
 uint QTranslator::hash( const char * scope, const char * name )
 {
-    const char *k;
+    const uchar *k;
     uint h = 0;
     uint g;
 
     // scope
     if ( scope ) {
-	k = scope;
+	k = (const uchar*)scope;
 	while ( *k ) {
 	    h = (h<<4) + *k++;
 	    if ( (g = h & 0xf0000000) )
@@ -515,7 +515,7 @@ uint QTranslator::hash( const char * scope, const char * name )
 
     // name
     if ( name ) {
-	k = name;
+	k = (const uchar*)name;
 	while ( *k ) {
 	    h = (h<<4) + *k++;
 	    if ( (g = h & 0xf0000000) )
@@ -747,7 +747,7 @@ void QTranslator::unsqueeze()
 /*!  Returns TRUE if this message file contains a message with hash
   value \a h, and FALSE if it does not.
 
-  (This is is a one-liner than calls find().)
+  (This is is a one-liner that calls find().)
 */
 
 bool QTranslator::contains( const char* scope, const char* key ) const
