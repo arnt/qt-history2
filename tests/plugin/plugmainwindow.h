@@ -21,6 +21,7 @@ class PlugMainWindow : public QMainWindow
     Q_OBJECT
 public:
     PlugMainWindow( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+    ~PlugMainWindow();
 
 public slots:
     void fileOpen();

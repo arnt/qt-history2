@@ -3,19 +3,19 @@
 
 #include <qdict.h>
 #include <qdir.h>
-#include <qapplication.h>
 
 typedef QDict<QPlugIn> QPlugInDict;
 
 template<class Type>
-class QPlugInManager : private QObject
+class QPlugInManager
 {
 public:
     QPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
 	QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
-	: QObject( qApp, path ), defPol( pol )
+	: defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
+	defFunction = fn;
 	libDict.setAutoDelete( TRUE );
 	plugDict.setAutoDelete( FALSE );
 	if ( !path.isEmpty() )
