@@ -898,6 +898,7 @@ void QTextCursor::gotoDown()
 
 void QTextCursor::gotoLineEnd()
 {
+    tmpIndex = -1;
     int indexOfLineStart;
     int line;
     QTextStringChar *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
@@ -915,6 +916,7 @@ void QTextCursor::gotoLineEnd()
 
 void QTextCursor::gotoLineStart()
 {
+    tmpIndex = -1;
     int indexOfLineStart;
     int line;
     QTextStringChar *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
