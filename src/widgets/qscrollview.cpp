@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#41 $
 **
 ** Implementation of QScrollView class
 **
@@ -603,7 +603,7 @@ void QScrollView::moveChild(QWidget* child, int x, int y)
     addChild(child,x,y);
 }
 
-/*
+/*!
   Returns the X position of the given child widget.
   Use this rather than QWidget::x() for widgets added to the view.
 */
@@ -612,7 +612,7 @@ int QScrollView::childX(QWidget* child)
     return d->rec(child)->x;
 }
 
-/*
+/*!
   Returns the Y position of the given child widget.
   Use this rather than QWidget::y() for widgets added to the view.
 */
@@ -621,7 +621,7 @@ int QScrollView::childY(QWidget* child)
     return d->rec(child)->y;
 }
 
-/*
+/*!
   Returns TRUE if \a child is visible.
   Use this rather than QWidget::isVisible() for widgets added to the view.
 */
@@ -630,7 +630,7 @@ bool QScrollView::childIsVisible(QWidget* child)
     return d->rec(child)->wantshown;
 }
 
-/*
+/*!
   Sets the visibility of \a child.
   Use this rather than QWidget::show() or QWidget::hide()
   for widgets added to the view.

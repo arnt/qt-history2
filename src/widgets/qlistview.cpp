@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#98 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#98 $");
 
 
 const int Unsorted = 16383;
@@ -1981,7 +1981,7 @@ QListViewItem* QListViewItem::parent () const
 }
 
 
-/*! \fn const QListViewItem* QListViewItem::nextSibling () const
+/*! \fn QListViewItem* QListViewItem::nextSibling () const
 
   Returns a pointer to the next sibling (below this one) of this
   item.
@@ -1991,7 +1991,7 @@ QListViewItem* QListViewItem::parent () const
   greatest degree possible, in order to keep the user interface
   snappy.
 
-  \sa fistChild()
+  \sa firstChild()
 */
 
 /*! \fn int QListViewItem::children () const
