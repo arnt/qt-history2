@@ -427,7 +427,7 @@ myexpr () {
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
 TYPE=$SET_TYPE
 if [ "$TYPE" = "auto" ]; then
-    TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*-\(.*\)",\1,'`
+    TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*-*\(.*\)",\1,'`
 fi
 [ ! -z "$TYPE" ] && TYPE="-${TYPE}"
 if [ -z "$TYPE" ] || echo $REL_VERSION | grep $TYPE >/dev/null 2>&1; then
