@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#54 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#55 $
 **
 ** Implementation of Windows-like style class
 **
@@ -165,7 +165,11 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	    if (a.isNull())
 		return;
 
-	    QPen savePen = p->pen();                    // save current pen
+	    p->save();
+	    if ( flags & PStyle_Sunken )
+		p->translate( pixelMetric( PM_ButtonShiftHorizontal, 0 ),
+			      pixelMetric( PM_ButtonShiftVertical ) );
+	    
 	    if ( flags & PStyle_Enabled ) {
 		a.translate( r.x() + r.width() / 2, r.y() + r.height() / 2 );
 		p->setPen( cg.buttonText() );
@@ -181,7 +185,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 		p->drawLineSegments( a, 0, 3 );         // draw arrow
 		p->drawPoint( a[6] );
 	    }
-	    p->setPen( savePen );                       // restore pen
+	    p->restore();
 	} else
 	    QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
     }
@@ -1852,8 +1856,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter * p,
             if ( sub != SC_None ) {
                 drawSubControl( sub, p, w, r, cg, flags, subActive, data );
             } else {
-                drawSubControl( SC_ComboBoxButton, p, w, r, cg, flags,
-                                subActive, data );
                 drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags,
                                 subActive, data );
                 drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
@@ -1915,16 +1917,13 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
 	break;
 
-    case SC_ComboBoxButton: {
+    case SC_ComboBoxArrow: {	
+	PFlags flags = PStyle_Default;
+	
 	qDrawWinPanel( p, r, cg, TRUE, w->isEnabled() ?
 		       &cg.brush( QColorGroup::Base ):
 		       &cg.brush( QColorGroup::Background ) );
-	break; }
-	
-    case SC_ComboBoxArrow: {	
-	int xpos = r.x();
-	if ( !QApplication::reverseLayout() )
-	    xpos += r.width() - 2 - 16;
+
 	QRect ar = querySubControlMetrics( CC_ComboBox, w,
 					   SC_ComboBoxArrow );
 	if ( subActive & PStyle_Sunken ) {
@@ -1940,7 +1939,6 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    flags |= PStyle_Enabled;
 	
 	if ( subActive & PStyle_Sunken ) {
-	    flags |= PStyle_On;
 	    flags |= PStyle_Sunken;
 	}
 	drawPrimitive( PO_ArrowDown, p, ra, cg, flags );

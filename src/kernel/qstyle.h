@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#97 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#98 $
 **
 ** Definition of QStyle class
 **
@@ -231,10 +231,9 @@ public:
 	SC_SpinWidgetEditField =	0x00000008,
 	SC_SpinWidgetButtonField =	0x00000010,
 
-	SC_ComboBoxButton =	0x00000020,
-	SC_ComboBoxEditField =	0x00000021,
-	SC_ComboBoxArrow =	0x00000022,
-	SC_ComboBoxFocusRect =	0x00000024
+	SC_ComboBoxEditField =		0x00000020,
+	SC_ComboBoxArrow =		0x00000021,
+	SC_ComboBoxFocusRect =		0x00000022
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,

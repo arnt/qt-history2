@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#45 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#46 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -758,9 +758,6 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    xpos += wi - 2 - 16;
 
 	switch ( sc ) {
-	case SC_ComboBoxButton:
-	    rect.setRect(0, 0, wi, he);
-	    break;
 	case SC_ComboBoxArrow:
 	    rect.setRect(xpos, y+2, 16, he-4);
 	    break;
