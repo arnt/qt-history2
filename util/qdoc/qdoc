@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#18 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#19 $
 #
 # this is a massive hack, written very quickly
 #
@@ -11,6 +11,11 @@
 # escapes:
 #
 # "\e word" emphasises that word
+#
+# \< -> <
+# \> -> >
+# \& -> &
+# in code examples, \/ becomes //
 #
 # \arg, \capt, \name, \return and \todo all use the text until the next
 # blank line to do, respectively, describe an argument, set a caption
@@ -23,6 +28,15 @@
 #
 # "\class name header" documents the class "name" which is defined in
 # header file "<header>".  It too must be the first escape
+#
+# "\code ... \endcode" makes a code example.  If the first two characters
+# on a line in the block are space characters (not white space, ascii 32)
+# they will be removed.
+#
+# "\link name text text text \endlink" makes "text text text" into a link
+# "name" which must be a member of this class or fully qualified.
+#
+# "\page filename.html" directs the rest of the file to that filename.
 
 sub urlencode {
     local($_) = @_;
@@ -38,7 +52,6 @@ sub html {
     s/</&lt;/gs;
     s/>/&gt;/gs;
 # "
-
     $_;
 }
 
@@ -51,6 +64,7 @@ sub processcode {
     s/\s+$/\n/s;
     s/\n\s*\n/\n<br>\n/gs;
     s!\\/(.*?\n)!//$1!gs;
+    s/\n  /\n/gs;
 
     join($_, "<blockquote><pre>\n", "</pre></blockquote>\n");
 }
@@ -62,7 +76,7 @@ sub findlink {
 
     if (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
 	sprintf("<a href=%s>%s</a>", $anchor{$_}, $_);
-    } elsif (($ismethod ne "") && 
+    } elsif ((($ismethod ne "") || (/^[A-Z]/)) && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
 	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, $_);
     } elsif (($ismethod ne "") && (defined($inheritance{$class})) &&
@@ -93,7 +107,16 @@ sub processdocs {
 	$class = $name{$url};
 	$class =~ s/::.*/::/;
 
+	if ($type{$url} eq "class") {
+	    $anchor{$class . "::" . $1} = $class . "#" . $1
+		while($def{$url} =~ /\benum\s*(\w+)\b/s);
+	}
+
 	$doc = $doc{$url};
+
+	$doc =~ s/\\\&/&amp;/gs;
+	$doc =~ s/\\</&lt;/gs;
+	$doc =~ s/\\>/&gt;/gs;
 
 	$capt{$url} = $1 
 	    if ($doc =~ s/\\capt\s+(.*?)
@@ -105,6 +128,20 @@ sub processdocs {
 	$doc =~ s/^\s*//s;
 
 	$doc =~ s/\\internal\s.*//s if (!$internal);
+
+	$doc =~ s-\\link\s+(\S+)\s*(.+?)\s*\\endlink-
+	    if (defined($anchor{$1})) {
+		sprintf("<a href=%s>%s</a>", $anchor{$1}, $2);
+	    } else {
+		if (defined($class . "::" . $anchor{$1})) {
+		    sprintf("<a href=%s>%s</a>", 
+			    $anchor{$class . "::" . $1}, $2);
+		} else {
+		    print "No link to '", $1, "' for '", $2, "'\n";
+		    sprintf("%s", %2);
+		}
+	    }
+	-egsx;
 
 	$doc .= "<p>Returns: " . $1
 	    if ($doc =~ s/\s*\\returns?\s+(.*?)
@@ -127,7 +164,7 @@ sub processdocs {
 
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
-	$doc =~ s!\\code\s*\{\{(.*?)\}\}!&processcode($1)!esg;
+	$doc =~ s!\\code\s+(.*?)\\endcode!&processcode($1)!esg;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 
@@ -139,16 +176,18 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:(\s+)((?:(?:operator\S{1,3})|(?:\w+)))(\s*\()?)|(<.*?>))-
-	    if ($4 eq "") {
-		if (!defined($word{$2})) {
-		    $word{$2}++;
-		    sprintf("%s%s%s", $1, &findlink($2, $class, $url, $3), $3);
+	$doc =~ s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})|(?:\w+)))(\()?)|(<.*?>))-
+	    if ($3 eq "") {
+		if (!defined($word{$1})) {
+		    my ($tmp);
+		    $tmp = &findlink($1, $class, $url, $2);
+		    $word{$1}++ if ($tmp ne $1);
+		    sprintf("%s%s", $tmp, $2);
 		} else {
-		    sprintf("%s%s%s", $1, $2, $3);
+		    sprintf("%s%s", $1, $2);
 		}
 	    } else {
-		sprintf("%s", $4);
+		sprintf("%s", $3);
 	    }
 	-egsx;
 
@@ -203,6 +242,10 @@ sub manglefn {
 	s/\s+/-/g;
 	s/-+$//;
 	s/^-+//;
+#	while ($def{$class} =~ /\benum\s+(\w+)/s) {
+#	    print "sex ", $1, "\n";
+#	    s/$1/$class::$1/gs;
+#	}
 # finally add it to the url
 	$url = join($d, $url, $_);
 	$d = ",";
@@ -296,14 +339,14 @@ sub readc {
     study $c;
 
 # find all the defined functions
-    while ($c =~ m-
-	   (?:/\*\!\s*	      (?# documentation prologue 
+    while ($c =~ m;
+	   (?:/\*\![-\s]*      (?# documentation prologue 
 			       )
 	   ((?:[^\*]|(?:\*[^/]))*) (?# documentation
 			       )
            \*/)\s*            (?# comment end 
 			       )
-	   \n\s*((?:\w+\b\s*)*[\*\&\s])*(?# return type 
+	   \n\s*((?:[\w:]+\s*)*[\*\&\s])*(?# return type 
 			       )
 	   (?:(\w+)\s*::\s*)? (?# class name and :: 
 			       )
@@ -322,6 +365,7 @@ sub readc {
 	     (?:\!)|
 	     (?:\<)|
 	     (?:\>)|
+	     (?:\=\=)|
 	     (?:\+\=)|
 	     (?:\-\=)|
 	     (?:\*\=)|
@@ -350,7 +394,7 @@ sub readc {
 	     (?:\s+delete))))\s*
 	   \(\s*([^\)]*?)\s*\) (?# arg list
 			       )
-           \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b-gsx) {
+           \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b;gsx) {
         my ($doc, $type, $class, $name, $args, $const);
 	$doc = $1;
 	$type = $2;
@@ -370,14 +414,15 @@ sub readc {
 		print "url: ", $url, "\n" if ($debug);
 		$doc{$url} = $doc;
 		$class .= "::" if ($class ne "");
-		$def{$url} = $type." ".$class.$name."(".$args.")";
+		$const = " " . const if ($const ne "");
+		$def{$url} = $type." ".$class.$name."(".$args.")".$const;
 	    }
 	}
     }
 
 # find all class documentation entries
-    while ($c =~ m-
-	   /\*\!\s*	      (?# documentation prologue
+    while ($c =~ m;
+	   /\*\![-\s]*	      (?# documentation prologue
 			       )
 	   \\class\s+         (?# class keyword
 			       )
@@ -385,7 +430,7 @@ sub readc {
 			       )
            (.*?)              (?# actual documentation
 			       )
-           \*/-gsx) {           # comment end
+           \*/;gsx) {           # comment end
 	my ($class, $hfile, $doc);
 	my ($url);
 	$class = $1;
@@ -404,8 +449,8 @@ sub readc {
     }
 
 # and function documentation
-    while ($c =~ m-
-	   /\*\!\s*	      (?# documentation prologue
+    while ($c =~ m@
+	   /\*\![-\s]*	      (?# documentation prologue
 			       )
 	   \\fn\s+         (?# fn keyword
 			       )
@@ -416,7 +461,7 @@ sub readc {
 						)
            (.*?)              (?# actual documentation
 			       )
-           \*/-gsx) {           # comment end
+           \*/@gsx) {           # comment end
 	my ($type, $class, $name, $args, $const, $doc);
 	my ($url);
 	$type = $1;
@@ -433,6 +478,25 @@ sub readc {
 	$doc{$url} = $doc;
 	$class .= "::" if ($class ne "");
 	$def{$url} = $type." ".$class.$name."(".$args.")";
+    }
+
+# find all extra pages
+    while ($c =~ m;
+	   /\*\![-\s]*	      (?# documentation prologue
+			       )
+	   \\page\s+         (?# page keyword
+			       )
+           (\w+)\s+  (?# file name and optional link trigger
+			       )
+           (.*?)              (?# file contents
+			       )
+           \*/;gsx) {           # comment end
+	my ($page, $doc);
+	my ($url);
+	$page = $1;
+	$doc = $3;
+	$doc = &html($doc);
+	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
     }
 }
 
@@ -608,7 +672,7 @@ sub printout {
 
 	    print O "<p>\n<h2>Description</h2>\n", $doc{$url}, "\n";
 	    if (defined($members{$url})) {
-		my (%m, $mode);
+		my (%m, $mode, %enums);
 		undef %m;
 		$mode = "private";
 		foreach (split(/;/, $members{$url})) {
@@ -625,6 +689,8 @@ sub printout {
 		    } else {
 			$m{$mode} .= $_ . ";";
 		    }
+		    $enums{$1}++
+			if (/^\s*enum\s+(\w+)/);
 		}
 		foreach $mode ('public', 'static public',
 			       'signals', 'slots',
@@ -648,12 +714,18 @@ sub printout {
 			    ((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
 								   )
 			    \s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
-			    my ($u,$t,$f,$a,$c);
-			    $t = $1;
+			    my ($u,$t,$mt,$f,$a,$ma,$c, $enum);
+			    $t = $mt = $1;
 			    $f = $2;
-			    $a = $3;
+			    $a = $ma = $3;
 			    $c = $4;
-			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
+
+			    foreach $enum ( sort keys %enums ) {
+				$mt =~ s/^$enum\b/$name{$url}:\:$enum/gs;
+				$ma =~ s/(?:(?:\b)|(?:(^)))$enum\b/$name{$url}:\:$enum/gs;
+			    }
+
+			    $u = &manglefn($mt, $name{$url}, $f, $ma, $c);
 			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
 			    next unless ($internal || 
 					 ($mode =~ /public/) ||
@@ -671,8 +743,16 @@ sub printout {
 			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
 				if (defined($capt{$u}));
 			} else {
-			    $_ = &html($_);
-			    s;(\w+[^:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
+			    if (/^\s*enum\s+(\w*)/ && 
+				   defined($anchor{$name{$url} . "#" . $1})) {
+				my($name);
+				$name = $anchor{$name{$url} . "#" . $1};
+				$_ = &html($_);
+				s;(\w+[^:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+			    } else {
+				$_ = &html($_);
+				s;(\w+[^:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
+			    }
 			}
 			print O "<li>", $_, "\n";
 		    }
