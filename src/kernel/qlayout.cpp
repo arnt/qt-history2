@@ -43,6 +43,7 @@
 #include "qwidget.h"
 #include "qptrlist.h"
 #include "qsizepolicy.h"
+#include "qvector.h"
 
 #include "qlayoutengine_p.h"
 
@@ -171,13 +172,13 @@ private:
 
     int rr;
     int cc;
-    QMemArray<QLayoutStruct> rowData;
-    QMemArray<QLayoutStruct> colData;
-    QMemArray<QLayoutStruct> *hfwData;
-    QMemArray<int> rStretch;
-    QMemArray<int> cStretch;
-    QMemArray<int> rSpacing;
-    QMemArray<int> cSpacing;
+    QVector<QLayoutStruct> rowData;
+    QVector<QLayoutStruct> colData;
+    QVector<QLayoutStruct> *hfwData;
+    QVector<int> rStretch;
+    QVector<int> cStretch;
+    QVector<int> rSpacing;
+    QVector<int> cSpacing;
     QPtrList<QGridBox> things;
     QPtrList<QGridMultiBox> *multi;
 
@@ -255,9 +256,9 @@ void QGridLayoutData::recalcHFW( int w, int spacing )
       and put the results in hfw_rowData.
     */
     if ( !hfwData )
-	hfwData = new QMemArray<QLayoutStruct>( rr );
+	hfwData = new QVector<QLayoutStruct>( rr );
     setupHfwLayoutData( spacing );
-    QMemArray<QLayoutStruct> &rData = *hfwData;
+    QVector<QLayoutStruct> &rData = *hfwData;
 
     int h = 0;
     int mh = 0;
@@ -546,10 +547,10 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
     }
 }
 
-static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
+static void distributeMultiBox( QVector<QLayoutStruct> &chain, int spacing,
 				int start, int end,
 				int minSize, int sizeHint,
-				QMemArray<int> &stretchArray, int stretch )
+				QVector<int> &stretchArray, int stretch )
 {
     int i;
     int w = 0;
@@ -677,7 +678,7 @@ void QGridLayoutData::setupLayoutData( int spacing )
 
 void QGridLayoutData::addHfwData( QGridBox *box, int width )
 {
-    QMemArray<QLayoutStruct> &rData = *hfwData;
+    QVector<QLayoutStruct> &rData = *hfwData;
     if ( box->hasHeightForWidth() ) {
 	int hint = box->heightForWidth( width );
 	rData[box->row].sizeHint = QMAX( hint, rData[box->row].sizeHint );
@@ -699,7 +700,7 @@ void QGridLayoutData::addHfwData( QGridBox *box, int width )
 */
 void QGridLayoutData::setupHfwLayoutData( int spacing )
 {
-    QMemArray<QLayoutStruct> &rData = *hfwData;
+    QVector<QLayoutStruct> &rData = *hfwData;
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rData[i] = rowData[i];
@@ -754,7 +755,7 @@ void QGridLayoutData::distribute( QRect r, int spacing )
     setupLayoutData( spacing );
 
     qGeomCalc( colData, 0, cc, r.x(), r.width(), spacing );
-    QMemArray<QLayoutStruct> *rDataPtr;
+    QVector<QLayoutStruct> *rDataPtr;
     if ( has_hfw ) {
 	recalcHFW( r.width(), spacing );
 	qGeomCalc( *hfwData, 0, rr, r.y(), r.height(), spacing );
@@ -763,7 +764,7 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	qGeomCalc( rowData, 0, rr, r.y(), r.height(), spacing );
 	rDataPtr = &rowData;
     }
-    QMemArray<QLayoutStruct> &rData = *rDataPtr;
+    QVector<QLayoutStruct> &rData = *rDataPtr;
 
     QPtrListIterator<QGridBox> it( things );
     QGridBox * box;
@@ -813,7 +814,7 @@ QRect QGridLayoutData::cellGeometry( int row, int col ) const
     if ( row < 0 || row >= rr || col < 0 || col >= cc )
 	return QRect();
 
-    const QMemArray<QLayoutStruct> *rDataPtr;
+    const QVector<QLayoutStruct> *rDataPtr;
     if ( has_hfw )
 	rDataPtr = hfwData;
     else
@@ -1571,7 +1572,7 @@ public:
     }
 
     QPtrList<QBoxLayoutItem> list;
-    QMemArray<QLayoutStruct> *geomArray;
+    QVector<QLayoutStruct> *geomArray;
     int hfwWidth;
     int hfwHeight;
     int hfwMinHeight;
@@ -1902,7 +1903,7 @@ void QBoxLayout::setGeometry( const QRect &r )
 	QRect s( cr.x() + margin(), cr.y() + margin(),
 		 cr.width() - 2 * margin(), cr.height() - 2 * margin() );
 
-	QMemArray<QLayoutStruct> a = *data->geomArray;
+	QVector<QLayoutStruct> a = *data->geomArray;
 	int pos = horz( dir ) ? s.x() : s.y();
 	int space = horz( dir ) ? s.width() : s.height();
 	int n = a.count();
@@ -2355,8 +2356,8 @@ void QBoxLayout::setupGeom()
 
     delete data->geomArray;
     int n = data->list.count();
-    data->geomArray = new QMemArray<QLayoutStruct>( n );
-    QMemArray<QLayoutStruct>& a = *data->geomArray;
+    data->geomArray = new QVector<QLayoutStruct>( n );
+    QVector<QLayoutStruct>& a = *data->geomArray;
 
     bool first = TRUE;
     for ( int i = 0; i < n; i++ ) {
@@ -2433,7 +2434,7 @@ void QBoxLayout::calcHfw( int w )
     int mh = 0;
 
     if ( horz(dir) ) {
-	QMemArray<QLayoutStruct> &a = *data->geomArray;
+	QVector<QLayoutStruct> &a = *data->geomArray;
 	int n = a.count();
 	qGeomCalc( a, 0, n, 0, w, spacing() );
 	for ( int i = 0; i < n; i++ ) {

@@ -62,6 +62,8 @@
 
 #ifndef QT_NO_LAYOUT
 
+template <typename T> class QVector;
+
 struct QLayoutStruct
 {
     inline void init( int stretchFactor = 0, int spacing = 0 ) {
@@ -93,7 +95,7 @@ struct QLayoutStruct
 };
 
 
-Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
+Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer );
 Q_EXPORT QSize qSmartMinSize( const QWidgetItem *i );
 Q_EXPORT QSize qSmartMinSize( QWidget *w );

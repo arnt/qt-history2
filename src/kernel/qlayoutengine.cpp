@@ -38,6 +38,8 @@
 #include "qlayout.h"
 #include "private/qlayoutengine_p.h"
 
+#include "qvector.h"
+
 #ifndef QT_NO_LAYOUT
 
 static inline int toFixed( int i ) { return i * 256; }
@@ -60,7 +62,7 @@ static inline int fRound( int i ) {
   count is the count of items in the chain; pos and space give the
   interval (relative to parentWidget topLeft).
 */
-Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
+Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer )
 {
     typedef int fixed;
