@@ -13,6 +13,7 @@ public slots:
     void bang();
     void bop();
     void ratatatat();
+    void whoosh();
 private:
     QLabel *lab;
     QLineEdit* initEd;

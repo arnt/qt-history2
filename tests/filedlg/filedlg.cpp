@@ -26,6 +26,9 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QPushButton *but3 = new QPushButton( "Get &Multiple Opens!", this );
     lay->addWidget( but3 );
     connect( but3, SIGNAL(clicked()), this, SLOT(ratatatat()) );
+    QPushButton *but4 = new QPushButton( "Open &Dir!", this );
+    lay->addWidget( but4 );
+    connect( but4, SIGNAL(clicked()), this, SLOT(whoosh()) );
 }
 
 void Main::bang()
@@ -67,6 +70,18 @@ void Main::ratatatat()
 	    s.append( l[i] );
 	    s.append( "\n" );
 	}
+	lab->setText( s );
+    }
+}
+
+
+void Main::whoosh()
+{
+    QString s = QFileDialog::getExistingDirectory( initEd->text() );
+    if ( s.isEmpty() )
+	lab->setText( "Open Dir: No luck!" );
+    else {
+	s.prepend( "Open Dir: " );
 	lab->setText( s );
     }
 }
