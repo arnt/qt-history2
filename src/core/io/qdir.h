@@ -94,14 +94,12 @@ public:
     QString canonicalPath() const;
 
     QString dirName() const;
-    QString filePath(const QString &fileName,
-                     bool acceptAbsPath = true) const;
-    QString absoluteFilePath(const QString &fileName,
-                             bool acceptAbsPath = true) const;
+    QString filePath(const QString &fileName) const;
+    QString absoluteFilePath(const QString &fileName) const;
 
     static QString convertSeparators(const QString &pathName);
 
-    bool cd(const QString &dirName, bool acceptAbsPath = true);
+    bool cd(const QString &dirName);
     bool cdUp();
 
     QStringList nameFilters() const;
@@ -126,8 +124,8 @@ public:
                                 SortFlags sort = NoSort) const;
 
     enum Recursion { Recursive = 0, NonRecursive = 1 };
-    bool mkdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
-    bool rmdir(const QString &dirName, Recursion recurse=NonRecursive, bool acceptAbsPath=true) const;
+    bool mkdir(const QString &dirName, Recursion recurse = NonRecursive) const;
+    bool rmdir(const QString &dirName, Recursion recurse = NonRecursive) const;
 
     bool isReadable() const;
     bool exists() const;
@@ -142,9 +140,9 @@ public:
     bool operator==(const QDir &dir) const;
     inline bool operator!=(const QDir &dir) const {  return !operator==(dir); }
 
-    bool remove(const QString &fileName, bool acceptAbsPath = true);
-    bool rename(const QString &oldName, const QString &newName, bool acceptAbsPaths = true);
-    bool exists(const QString &name, bool acceptAbsPath = true) const;
+    bool remove(const QString &fileName);
+    bool rename(const QString &oldName, const QString &newName);
+    bool exists(const QString &name) const;
 
     static QFileInfoList drives();
 
@@ -172,7 +170,7 @@ public:
     typedef SortFlags SortSpec;
     inline QT_COMPAT QString absPath() const { return absolutePath(); }
     inline QT_COMPAT QString absFilePath(const QString &fileName, bool acceptAbsPath = true) const
-       { return absoluteFilePath(fileName, acceptAbsPath); }
+       { Q_UNUSED(acceptAbsPath); return absoluteFilePath(fileName); }
     inline QT_COMPAT bool matchAllDirs() const
         { return filter() & AllDirs; }
     inline QT_COMPAT void setMatchAllDirs(bool on)
@@ -194,9 +192,9 @@ public:
     QT_COMPAT void setNameFilter(const QString &nameFilter);
 
     inline QT_COMPAT bool mkdir(const QString &dirName, bool acceptAbsPath) const
-        { return mkdir(dirName, NonRecursive, acceptAbsPath); }
+        { Q_UNUSED(acceptAbsPath); return mkdir(dirName, NonRecursive); }
     inline QT_COMPAT bool rmdir(const QString &dirName, bool acceptAbsPath) const
-        { return rmdir(dirName, NonRecursive, acceptAbsPath); }
+        { Q_UNUSED(acceptAbsPath); return rmdir(dirName, NonRecursive); }
 
     inline QT_COMPAT void convertToAbs() { makeAbsolute(); }
     inline QT_COMPAT static QString currentDirPath() { return currentPath(); }

@@ -581,10 +581,10 @@ QString QDir::dirName() const
     \sa dirName() absoluteFilePath(), isRelative(), canonicalPath()
 */
 
-QString QDir::filePath(const QString &fileName, bool acceptAbsPath) const
+QString QDir::filePath(const QString &fileName) const
 {
     Q_D(const QDir);
-    if (acceptAbsPath && isAbsolutePath(fileName))
+    if (isAbsolutePath(fileName))
         return QString(fileName);
 
     QString ret = d->data->path;
@@ -610,10 +610,10 @@ QString QDir::filePath(const QString &fileName, bool acceptAbsPath) const
     \sa filePath() canonicalPath()
 */
 
-QString QDir::absoluteFilePath(const QString &fileName, bool acceptAbsPath) const
+QString QDir::absoluteFilePath(const QString &fileName) const
 {
     Q_D(const QDir);
-    if (acceptAbsPath && isAbsolutePath(fileName))
+    if (isAbsolutePath(fileName))
         return fileName;
     if(!d->data->fileEngine)
         return fileName;
@@ -678,14 +678,14 @@ QString QDir::convertSeparators(const QString &pathName)
     \sa cdUp(), isReadable(), exists(), path()
 */
 
-bool QDir::cd(const QString &dirName, bool acceptAbsPath)
+bool QDir::cd(const QString &dirName)
 {
     Q_D(QDir);
 
     if (dirName.isEmpty() || dirName == QLatin1String("."))
         return true;
     QString newPath = d->data->path;
-    if (acceptAbsPath && isAbsolutePath(dirName)) {
+    if (isAbsolutePath(dirName)) {
         newPath = cleanPath(dirName);
     } else {
         if (isRoot()) {
@@ -1005,7 +1005,7 @@ QFileInfoList QDir::entryInfoList(QDir::Filters filters, QDir::SortFlags sort) c
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
 
-QStringList QDir::entryList(const QStringList &nameFilters, QDir::Filters filters, 
+QStringList QDir::entryList(const QStringList &nameFilters, QDir::Filters filters,
                             QDir::SortFlags sort) const
 {
     Q_D(const QDir);
@@ -1039,7 +1039,7 @@ QStringList QDir::entryList(const QStringList &nameFilters, QDir::Filters filter
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, QDir::Filters filters, 
+QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, QDir::Filters filters,
                                   QDir::SortFlags sort) const
 {
     Q_D(const QDir);
@@ -1076,7 +1076,7 @@ QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, QDir::Filters 
     \sa rmdir()
 */
 
-bool QDir::mkdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) const
+bool QDir::mkdir(const QString &dirName, Recursion recurse) const
 {
     Q_D(const QDir);
 
@@ -1087,7 +1087,7 @@ bool QDir::mkdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) 
     if(!d->data->fileEngine)
         return false;
 
-    QString fn = filePath(dirName, acceptAbsPath);
+    QString fn = filePath(dirName);
     return d->data->fileEngine->mkdir(fn, recurse);
 }
 
@@ -1111,7 +1111,7 @@ bool QDir::mkdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) 
     \sa mkdir()
 */
 
-bool QDir::rmdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) const
+bool QDir::rmdir(const QString &dirName, Recursion recurse) const
 {
     Q_D(const QDir);
 
@@ -1122,7 +1122,7 @@ bool QDir::rmdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) 
     if(!d->data->fileEngine)
         return false;
 
-    QString fn = filePath(dirName, acceptAbsPath);
+    QString fn = filePath(dirName);
     return d->data->fileEngine->rmdir(fn, recurse);
 }
 
@@ -1363,13 +1363,13 @@ QDir &QDir::operator=(const QString &path)
     returns false.
 */
 
-bool QDir::remove(const QString &fileName, bool acceptAbsPath)
+bool QDir::remove(const QString &fileName)
 {
     if (fileName.isEmpty()) {
         qWarning("QDir::remove: Empty or null file name");
         return false;
     }
-    QString p = filePath(fileName, acceptAbsPath);
+    QString p = filePath(fileName);
     return QFile::remove(p);
 }
 
@@ -1391,7 +1391,7 @@ bool QDir::remove(const QString &fileName, bool acceptAbsPath)
     \a newName points to an open file.
 */
 
-bool QDir::rename(const QString &oldName, const QString &newName, bool acceptAbsPaths)
+bool QDir::rename(const QString &oldName, const QString &newName)
 {
     Q_D(QDir);
 
@@ -1402,10 +1402,10 @@ bool QDir::rename(const QString &oldName, const QString &newName, bool acceptAbs
     if(!d->data->fileEngine)
         return false;
 
-    QFile file(filePath(oldName, acceptAbsPaths));
+    QFile file(filePath(oldName));
     if(!file.exists())
         return false;
-    return file.rename(filePath(newName, acceptAbsPaths));
+    return file.rename(filePath(newName));
 }
 
 /*!
@@ -1420,13 +1420,13 @@ bool QDir::rename(const QString &oldName, const QString &newName, bool acceptAbs
     \sa QFileInfo::exists(), QFile::exists()
 */
 
-bool QDir::exists(const QString &name, bool acceptAbsPath) const
+bool QDir::exists(const QString &name) const
 {
     if (name.isEmpty()) {
         qWarning("QDir::exists: Empty or null file name");
         return false;
     }
-    QString tmp = filePath(name, acceptAbsPath);
+    QString tmp = filePath(name);
     return QFile::exists(tmp);
 }
 

@@ -51,7 +51,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
 
     for (int i = 0; i < paths.count(); ++i) {
         QString path = paths.at(i) + suffix;
-        if (!QDir(path).exists(QLatin1String("."), true))
+        if (!QDir(path).exists(QLatin1String(".")))
             continue;
         QStringList plugins = QDir(path).entryList(filters);
         QLibraryPrivate *library = 0;
