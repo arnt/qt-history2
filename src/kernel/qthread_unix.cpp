@@ -351,7 +351,7 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 
 // helper function to do thread sleeps, since usleep()/nanosleep() aren't reliable
 // enough (in terms of behavior and availability)
-static void thread_sleep(timespec *ti)
+static void thread_sleep(struct timespec *ti)
 {
 #ifdef    Q_OS_SOLARIS
     mutex_t mtx;
@@ -391,7 +391,7 @@ void QThread::sleep( unsigned long secs )
 {
     struct timeval tv;
     gettimeofday(&tv, 0);
-    timespec ti;
+    struct timespec ti;
     ti.tv_sec = tv.tv_sec + secs;
     ti.tv_nsec = 0;
     thread_sleep(&ti);
@@ -406,7 +406,7 @@ void QThread::msleep( unsigned long msecs )
 {
     struct timeval tv;
     gettimeofday(&tv, 0);
-    timespec ti;
+    struct timespec ti;
     ti.tv_sec = tv.tv_sec + (msecs / 1000);
     ti.tv_nsec = (tv.tv_usec * 1000) + (msecs % 1000) * 1000000;
     thread_sleep(&ti);
@@ -421,7 +421,7 @@ void QThread::usleep( unsigned long usecs )
 {
     struct timeval tv;
     gettimeofday(&tv, 0);
-    timespec ti;
+    struct timespec ti;
     ti.tv_sec = tv.tv_sec + (usecs / 1000000);
     ti.tv_nsec = (tv.tv_usec * 1000) + (usecs % 1000000) * 1000;
     thread_sleep(&ti);
