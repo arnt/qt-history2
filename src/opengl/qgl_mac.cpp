@@ -174,29 +174,36 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     }
     if(d->glFormat.alpha()) {
         attribs[cnt++] = AGL_ALPHA_SIZE;
-        attribs[cnt++] = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
+        attribs[cnt++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
     }
     if(d->glFormat.stencil()) {
         attribs[cnt++] = AGL_STENCIL_SIZE;
-        attribs[cnt++] = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
+        attribs[cnt++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
     }
     if(d->glFormat.depth()) {
         attribs[cnt++] = AGL_DEPTH_SIZE;
-        attribs[cnt++] = d->glFormat.depthBufferSize() == 1 ? 32 : d->glFormat.depthBufferSize();
+        attribs[cnt++] = d->glFormat.depthBufferSize() == -1 ? 32 : d->glFormat.depthBufferSize();
     }
     if(d->glFormat.accum()) {
         attribs[cnt++] = AGL_ACCUM_RED_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
         attribs[cnt++] = AGL_ACCUM_BLUE_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
         attribs[cnt++] = AGL_ACCUM_GREEN_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
         attribs[cnt++] = AGL_ACCUM_ALPHA_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
     }
     {
         attribs[cnt++] = AGL_LEVEL;
         attribs[cnt++] = d->glFormat.plane();
+    }
+
+    if(d->glFormat.sampleBuffers()) {
+        attribs[cnt++] = AGL_SAMPLE_BUFFERS;
+        attribs[cnt++] = 1;
+        attribs[cnt++] = AGL_SAMPLES;
+        attribs[cnt++] = d->glFormat.samples() == -1 ? 4 : d->glFormat.samples();
     }
 
     if(deviceIsPixmap()) {

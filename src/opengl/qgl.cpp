@@ -198,7 +198,7 @@ QGLFormat::QGLFormat()
     d = new QGLFormatPrivate;
     d->opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
     d->pln = 0;
-    d->depthSize = d->alphaSize = d->stencilSize = d->accumSize = 1;
+    d->depthSize = d->alphaSize = d->stencilSize = d->accumSize = -1;
     d->numSamples = -1;
 }
 

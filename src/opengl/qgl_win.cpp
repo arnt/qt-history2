@@ -770,7 +770,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	}
 	if (d->glFormat.depth()) {
 	    iAttributes[i++] = WGL_DEPTH_BITS_ARB;
-	    iAttributes[i++] = d->glFormat.depthBufferSize() == 1 ? 24 : d->glFormat.depthBufferSize();
+	    iAttributes[i++] = d->glFormat.depthBufferSize() == -1 ? 24 : d->glFormat.depthBufferSize();
 	}
 	iAttributes[i++] = WGL_PIXEL_TYPE_ARB;
 	if (d->glFormat.rgba())
@@ -779,15 +779,15 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    iAttributes[i++] = WGL_TYPE_RGBA_ARB;
 	if (d->glFormat.alpha()) {
 	    iAttributes[i++] = WGL_ALPHA_BITS_ARB;
-	    iAttributes[i++] = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
+	    iAttributes[i++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
 	}
-// 	if (d->glFormat.accum()) {
-// 	    iAttributes[i++] = WGL_ACCUM_BITS_ARB;
-// 	    iAttributes[i++] = d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
-// 	}
+ 	if (d->glFormat.accum()) {
+ 	    iAttributes[i++] = WGL_ACCUM_BITS_ARB;
+ 	    iAttributes[i++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
+ 	}
 	if (d->glFormat.stencil()) {
 	    iAttributes[i++] = WGL_STENCIL_BITS_ARB;
-	    iAttributes[i++] = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
+	    iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
 	}
 	if (d->glFormat.sampleBuffers()) {
 	    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB;
@@ -822,7 +822,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	if (d->glFormat.stereo())
 	    p->dwFlags |= PFD_STEREO;
 	if (d->glFormat.depth() && !deviceIsPixmap())
-	    p->cDepthBits = d->glFormat.depthBufferSize() == 1 ? 32 : d->glFormat.depthBufferSize();
+	    p->cDepthBits = d->glFormat.depthBufferSize() == -1 ? 32 : d->glFormat.depthBufferSize();
 	else
 	    p->dwFlags |= PFD_DEPTH_DONTCARE;
 	if (d->glFormat.rgba()) {
@@ -836,13 +836,13 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	    p->cColorBits = 8;
 	}
 	if (d->glFormat.alpha())
-	    p->cAlphaBits = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
+	    p->cAlphaBits = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
 	if (d->glFormat.accum()) {
 	    p->cAccumRedBits = p->cAccumGreenBits = p->cAccumBlueBits = p->cAccumAlphaBits =
-			       d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+			       d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
 	}
 	if (d->glFormat.stencil())
-	    p->cStencilBits = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
+	    p->cStencilBits = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
 	p->iLayerType = PFD_MAIN_PLANE;
 	chosenPfi = ChoosePixelFormat(pdc, p);
 

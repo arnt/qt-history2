@@ -37,6 +37,11 @@
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 
+#ifndef GLX_ARB_multisample
+#define GLX_SAMPLE_BUFFERS_ARB  100000
+#define GLX_SAMPLES_ARB         100001
+#endif
+
 /*
   The choose_cmap function is internal and used by QGLWidget::setContext()
   and GLX (not Windows).  If the application can't find any sharable
@@ -482,14 +487,14 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
         spec[i++] = GLX_DOUBLEBUFFER;
     if (f.depth()) {
         spec[i++] = GLX_DEPTH_SIZE;
-        spec[i++] = f.depthBufferSize();
+        spec[i++] = f.depthBufferSize() == -1 ? 1 : f.depthBufferSize();
     }
     if (f.stereo()) {
         spec[i++] = GLX_STEREO;
     }
     if (f.stencil()) {
         spec[i++] = GLX_STENCIL_SIZE;
-        spec[i++] = f.stencilBufferSize();
+        spec[i++] = f.stencilBufferSize() == -1 ? 1 : f.stencilBufferSize();
     }
     if (f.rgba()) {
         spec[i++] = GLX_RGBA;
@@ -501,24 +506,29 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
         spec[i++] = 1;
         if (f.alpha()) {
             spec[i++] = GLX_ALPHA_SIZE;
-            spec[i++] = f.alphaBufferSize();
+            spec[i++] = f.alphaBufferSize() == -1 ? 1 : f.alphaBufferSize();
         }
         if (f.accum()) {
             spec[i++] = GLX_ACCUM_RED_SIZE;
-            spec[i++] = f.accumBufferSize();
+            spec[i++] = f.accumBufferSize() == -1 ? 1 : f.accumBufferSize();
             spec[i++] = GLX_ACCUM_GREEN_SIZE;
-            spec[i++] = f.accumBufferSize();
+            spec[i++] = f.accumBufferSize() == -1 ? 1 : f.accumBufferSize();
             spec[i++] = GLX_ACCUM_BLUE_SIZE;
-            spec[i++] = f.accumBufferSize();
+            spec[i++] = f.accumBufferSize() == -1 ? 1 : f.accumBufferSize();
             if (f.alpha()) {
                 spec[i++] = GLX_ACCUM_ALPHA_SIZE;
-                spec[i++] = f.accumBufferSize();
+                spec[i++] = f.accumBufferSize() == -1 ? 1 : f.accumBufferSize();
             }
         }
-    }
-    else {
+    } else {
         spec[i++] = GLX_BUFFER_SIZE;
         spec[i++] = bufDepth;
+    }
+    if (f.sampleBuffers()) {
+        spec[i++] = GLX_SAMPLE_BUFFERS_ARB;
+        spec[i++] = 1;
+        spec[i++] = GLX_SAMPLES_ARB;
+        spec[i++] = f.samples() == -1 ? 4 : f.samples();
     }
 
     spec[i] = XNone;
