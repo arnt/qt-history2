@@ -1175,6 +1175,7 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
             p->drawRect(opt->rect.x() + 4, opt->rect.y() + 4,
                     opt->rect.width() - 8, opt->rect.height() - 8);
         }
+        break;
     default:
         p->fillRect(opt->rect, Qt::color1);
     }
