@@ -62,6 +62,8 @@ $file = shift;
 # Handle # and @ notation (only for numeric changes and revisions).
 $change = $1 if $file =~ s/@(\d+)//;
 $head = $1 if $file =~ s/#(\d+)//;
+# 2002-08-06: hgb@linpro.no.  See other comment.
+$oldest = $1 if $file =~ s/\+(\d+)//;
 
 # Check that the file specification maps to exactly one file.
 @list = command qq(p4 files $file);
@@ -91,6 +93,11 @@ for (@history) {
 	# later revisions.
 	next if $change && $change < $2;
 	next if $head && $head < $1;
+	# 2002-08-06 - hgb@linpro.no: 
+	# Skip this change if it is _older_ than revision number $older.
+	# $older is set by giving filename as filename+XX where XX is the
+	# revision number.
+	next if $oldest && $oldest > $1;
 	$change{$1} = $2;
 	$author{$1} = $3;
 	$head = $1 if !$head;
