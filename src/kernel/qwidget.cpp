@@ -1450,8 +1450,10 @@ void QWidget::setEnabled( bool enable )
 	}
     } else {
 	if ( !testWState(WState_Disabled) ) {
-	    if ( focusWidget() == this )
-		focusNextPrevChild( TRUE );
+	    if ( focusWidget() == this ) {
+		if ( !focusNextPrevChild( TRUE ) )
+		    clearFocus();
+	    }
 	    setWState( WState_Disabled );
 	    setBackgroundFromMode();
 	    enabledChange( !enable );
