@@ -63,8 +63,6 @@ protected:
 private slots:
     void internalSetSloppyAction();
     void internalDelayedPopup();
-    void internalActionActivated();
-    void internalActionHighlighted();
 
 private:
     friend class Q4MenuBar;
@@ -113,8 +111,6 @@ protected:
     bool event(QEvent *);
 
 private slots:
-    void internalActionActivated();
-    void internalActionHighlighted();
     void internalShortcutActivated(int);
 
 private:

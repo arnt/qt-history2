@@ -256,7 +256,7 @@ void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, int popup, bool activ
 	sloppyRegion = QRegion();
     currentAction = action;
     if(action && !action->action->isSeparator()) {
-	action->action->activate(QAction::Hover);
+	activateAction(action->action, QAction::Hover);
 	if(popup != -1)
 	    popupAction(d->currentAction, popup, activateFirst);
 	q->update(actionRect(action));
@@ -431,6 +431,40 @@ bool Q4MenuPrivate::mouseEventTaken(QMouseEvent *e)
 	caused = next_widget;
     }
     return false;
+}
+
+void Q4MenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
+{
+    if(!action)
+	return;
+    action->activate(action_e);
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if(action_e == QAction::Hover) {
+	int actionID = indexOf(action);
+	QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
+	QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
+    }
+#endif
+
+    for(QWidget *caused = q; caused; ) {
+	if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
+	    if(action_e == QAction::Trigger) 
+		emit mb->activated(action);
+	    else if(action_e == QAction::Hover)
+		emit mb->highlighted(action);
+	    caused = 0;
+	} else if(Q4Menu *m = qt_cast<Q4Menu*>(caused)) {
+	    caused = m->d->causedPopup;
+	    if(action_e == QAction::Trigger) 
+		emit m->activated(action);
+	    else if(action_e == QAction::Hover)
+		emit m->highlighted(action);
+	} else {
+	    qWarning("not possible..");
+	    caused = 0;
+	}
+    }
 }
 
 Q4Menu::Q4Menu(QWidget *parent) : QWidget(*new Q4MenuPrivate, parent, WType_TopLevel|WType_Popup)
@@ -814,7 +848,7 @@ void Q4Menu::mouseReleaseEvent(QMouseEvent *e)
 	if(action->action->menu()) {
 	    action->action->menu()->d->setFirstActionActive();
 	} else {
-	    action->action->activate(QAction::Trigger);
+	    d->activateAction(action->action, QAction::Trigger);
 	    d->hideUpToMenuBar();
 	}
     }
@@ -1007,7 +1041,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 	    if(d->currentAction->action->menu()) {
 		d->popupAction(d->currentAction, 20, true);
 	    } else {
-		d->currentAction->action->activate(QAction::Trigger);
+		d->activateAction(d->currentAction->action, QAction::Trigger);
 		d->hideUpToMenuBar();
 	    }
 	    key_consumed = true;
@@ -1073,7 +1107,7 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 	    if(next_action) {
 		d->setCurrentAction(next_action, 20, true);
 		if(!next_action->action->menu()) {
-		    next_action->action->activate(QAction::Trigger);
+		    d->activateAction(next_action->action, QAction::Trigger);
 		    d->hideUpToMenuBar();
 		}
 	    }
@@ -1136,13 +1170,6 @@ Q4Menu::timerEvent(QTimerEvent *e)
 
 void Q4Menu::actionEvent(QActionEvent *e)
 {
-    if(e->type() == QEvent::ActionAdded) {
-	QObject::connect(e->action(), SIGNAL(triggered()), this, SLOT(internalActionActivated()));
-	QObject::connect(e->action(), SIGNAL(hovered()), this, SLOT(internalActionHighlighted()));
-    } else if(e->type() == QEvent::ActionRemoved) {
-	QObject::disconnect(e->action(), SIGNAL(triggered()), this, SLOT(internalActionActivated()));
-	QObject::disconnect(e->action(), SIGNAL(hovered()), this, SLOT(internalActionHighlighted()));
-    }
     if(d->tornPopup)
 	d->tornPopup->syncWithMenu(this, e);
     d->itemsDirty = 1;
@@ -1212,57 +1239,6 @@ void Q4Menu::internalDelayedPopup()
 
     //do the popup
     d->activeMenu->popup(pos);
-}
-
-void Q4Menu::internalActionActivated()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-	qWarning("not possible..");
-    emit activated(action);
-
-    QWidget *caused = d->causedPopup;
-    while(caused) {
-	if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
-	    emit mb->activated(action);
-	    caused = 0;
-	} else if(Q4Menu *m = qt_cast<Q4Menu*>(caused)) {
-	    caused = m->d->causedPopup;
-	    emit m->activated(action);
-	} else {
-	    qWarning("not possible..");
-	    caused = 0;
-	}
-    }
-}
-
-void Q4Menu::internalActionHighlighted()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-	qWarning("not possible..");
-    emit highlighted(action);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    {
-	int actionID = d->indexOf(action);
-	QAccessible::updateAccessibility(this, actionID, QAccessible::Focus);
-	QAccessible::updateAccessibility(this, actionID, QAccessible::Selection);
-    }
-#endif
-
-    QWidget *caused = d->causedPopup;
-    while(caused) {
-	if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
-	    emit mb->highlighted(action);
-	    caused = 0;
-	} else if(Q4Menu *m = qt_cast<Q4Menu*>(caused)) {
-	    caused = m->d->causedPopup;
-	    emit m->highlighted(action);
-	} else {
-	    qWarning("not possible..");
-	    caused = 0;
-	}
-    }
 }
 
 /* Q4Menubar code */
@@ -1363,7 +1339,7 @@ void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool a
     popupState = popup;
     currentAction = action;
     if(action) {
-	action->action->activate(QAction::Hover);
+	activateAction(action->action, QAction::Hover);
 	if(popup)
 	    popupAction(action, activateFirst);
 	q->update(actionRect(action));
@@ -1452,6 +1428,17 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 	x += item->rect.width() + itemSpacing;
     }
     return ret;
+}
+
+void Q4MenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
+{
+    if(!action)
+	return;
+    action->activate(action_e);
+    if(action_e == QAction::Trigger)
+	emit q->activated(action);
+    else if(action_e == QAction::Hover)
+	emit q->highlighted(action);
 }
 
 Q4MenuBar::Q4MenuBar(QWidget *parent) : QWidget(*new Q4MenuBarPrivate, parent, 0)
@@ -1551,8 +1538,7 @@ void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
     d->mouseDown = false;
     Q4MenuAction *action = d->actionAt(e->pos());
     if((d->closePopupMode && action == d->currentAction) || !action || !action->action->menu()) {
-	if(action)
-	    action->action->activate(QAction::Trigger);
+	d->activateAction(action->action, QAction::Trigger);
 	d->setCurrentAction(action, false);
     }
     d->closePopupMode = 0;
@@ -1582,7 +1568,7 @@ void Q4MenuBar::keyPressEvent(QKeyEvent *e)
 	if(d->currentAction->action->menu()) {
 	    d->popupAction(d->currentAction, true);
 	} else if(key == Key_Enter || key == Key_Return || key == Key_Space) {
-	    d->currentAction->action->activate(QAction::Trigger);
+	    d->activateAction(d->currentAction->action, QAction::Trigger);
 	    d->setCurrentAction(d->currentAction, false);
 	}
 	key_consumed = true;
@@ -1679,15 +1665,8 @@ void Q4MenuBar::leaveEvent(QEvent *)
 	d->setCurrentAction(0);
 }
 
-void Q4MenuBar::actionEvent(QActionEvent *e)
+void Q4MenuBar::actionEvent(QActionEvent *)
 {
-    if(e->type() == QEvent::ActionAdded) {
-	QObject::connect(e->action(), SIGNAL(triggered()), this, SLOT(internalActionActivated()));
-	QObject::connect(e->action(), SIGNAL(hovered()), this, SLOT(internalActionHighlighted()));
-    } else if(e->type() == QEvent::ActionRemoved) {
-	QObject::disconnect(e->action(), SIGNAL(triggered()), this, SLOT(internalActionActivated()));
-	QObject::disconnect(e->action(), SIGNAL(hovered()), this, SLOT(internalActionHighlighted()));
-    }
     d->itemsDirty = 1;
     update();
 }
@@ -1865,19 +1844,3 @@ void Q4MenuBar::internalShortcutActivated(int id)
     }
 #endif
 }
-void Q4MenuBar::internalActionActivated()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-	qWarning("not possible..");
-    emit activated(action);
-}
-
-void Q4MenuBar::internalActionHighlighted()
-{
-    QAction *action = qt_cast<QAction*>(sender());
-    if(!action)
-	qWarning("not possible..");
-    emit highlighted(action);
-}
-

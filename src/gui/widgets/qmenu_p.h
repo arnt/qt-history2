@@ -81,6 +81,9 @@ public:
     //sloppy selection
     Q4MenuAction *sloppyAction;
     QRegion sloppyRegion;
+
+    //firing of events
+    void activateAction(QAction *, QAction::ActionEvent);
 };
 
 class Q4MenuBarPrivate : public QWidgetPrivate
@@ -121,6 +124,9 @@ public:
     void setKeyboardMode(bool);
     uint keyboardState : 1, altPressed : 1;
     QPointer<QWidget> keyboardFocusWidget;
+
+    //firing of events
+    void activateAction(QAction *, QAction::ActionEvent);
 };
 
 
