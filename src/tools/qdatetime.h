@@ -96,8 +96,9 @@ public:
     bool   operator>=( const QDate &d ) const { return jd >= d.jd; }
 
     static QDate currentDate();
+#ifndef QT_NO_DATESTRING
     static QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
-
+#endif
     static bool	 isValid( int y, int m, int d );
     static bool	 leapYear( int year );
 
@@ -106,7 +107,7 @@ public:
 private:
     uint	 jd;
     friend class QDateTime;
-#ifndef QT_NO_DATESTRING
+#ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QDate & );
 #endif
@@ -151,7 +152,9 @@ public:
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
     static QTime currentTime();
+#ifndef QT_NO_DATESTRING
     static QTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
+#endif
     static bool	 isValid( int h, int m, int s, int ms=0 );
 
     void   start();
@@ -210,8 +213,9 @@ public:
     bool   operator>=( const QDateTime &dt ) const;
 
     static QDateTime currentDateTime();
+#ifndef QT_NO_DATESTRING
     static QDateTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
-
+#endif
 private:
     QDate  d;
     QTime  t;

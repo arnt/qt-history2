@@ -972,7 +972,7 @@ QDate QDate::currentDate()
 
 #endif
 }
-
+#ifndef QT_NO_DATESTRING
 /*!
   Returns the QDate represented by the string \a s, using the format \a
   f, or an invalid date if this is not possible.
@@ -1039,6 +1039,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
     }
     return QDate();
 }
+#endif //QT_NO_DATESTRING
 
 /*!
     \overload
@@ -1527,6 +1528,8 @@ QTime QTime::currentTime()
     currentTime( &ct );
     return ct;
 }
+
+#ifndef QT_NO_DATESTRING
 /*!
   Returns the representation \a s as a QTime using the format \a f, or
   an invalid time if this is not possible.
@@ -1548,6 +1551,7 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
     int msec( s.mid( 9, 3 ).toInt() );
     return QTime( hour, minute, second, msec );
 }
+#endif
 
 /*!
   \internal
@@ -2186,6 +2190,7 @@ QDateTime QDateTime::currentDateTime()
     return QDateTime( cd, ct );
 }
 
+#ifndef QT_NO_DATESTRING
 /*!
   Returns the QDateTime represented by the string \a s, using the format
   \a f, or an invalid datetime if this is not possible.
@@ -2251,7 +2256,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 #endif //QT_NO_REGEXP
     return QDateTime();
 }
-
+#endif //QT_NO_DATESTRING
 
 
 /*****************************************************************************

@@ -138,14 +138,14 @@ SeeAlso: ???
 
 Feature: TEXTDATE
 Section: Data structures
-Requires: STRINGLIST
+Requires: STRINGLIST DATESTRING
 Name: Month and day names in dates
 SeeAlso: ???
 
-Feature DATESTRING
+Feature: DATESTRING
 Section: Data structures
 Requires: 
-Name: QDate/QTime/QDateTime toString()
+Name: QDate/QTime/QDateTime toString() and fromString()
 SeeAlso: ???
 
 Feature: ICONSET
@@ -715,7 +715,7 @@ SeeAlso: ???
 
 Feature: PRINTER
 Section: Painting
-Requires: TEXTSTREAM STRINGLIST SPRINTF
+Requires: TEXTSTREAM STRINGLIST SPRINTF DATESTRING
 Name: Printing
 SeeAlso: ???
 
@@ -1171,7 +1171,7 @@ SeeAlso: ???
 
 Feature: FILEDIALOG
 Section: Widgets
-Requires: MESSAGEBOX LISTVIEW NETWORKPROTOCOL COMBOBOX SEMIMODAL REGEXP_CAPTURE TOOLBUTTON BUTTONGROUP VBOX SPLITTER PROGRESSBAR WIDGETSTACK
+Requires: MESSAGEBOX LISTVIEW NETWORKPROTOCOL COMBOBOX SEMIMODAL REGEXP_CAPTURE TOOLBUTTON BUTTONGROUP VBOX SPLITTER PROGRESSBAR WIDGETSTACK DATESTRING
 Name: QFileDialog
 SeeAlso: ???
 
@@ -1213,7 +1213,7 @@ SeeAlso: ???
 
 Feature: DATETIMEEDIT
 Section: Widgets
-Requires: RICHTEXT
+Requires: RICHTEXT DATESTRING
 Name: QDateTimeEdit
 SeeAlso: ???
 

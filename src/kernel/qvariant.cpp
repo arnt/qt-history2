@@ -1496,7 +1496,7 @@ const QString QVariant::toString() const
 	return QString::number( toUInt() );
     if ( d->typ == Double )
 	return QString::number( toDouble() );
-#ifndef QT_NO_SPRINTF
+#if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
     if ( d->typ == Date )
 	return toDate().toString( Qt::ISODate );
     if ( d->typ == Time )
@@ -1828,8 +1828,10 @@ const QDate QVariant::toDate() const
 	return *((QDate*)d->value.ptr);
     if ( d->typ == DateTime )
 	return ((QDateTime*)d->value.ptr)->date();
+#ifndef QT_NO_DATESTRING
     if ( d->typ == String )
 	return QDate::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+#endif
     return QDate();
 }
 
@@ -1848,8 +1850,10 @@ const QTime QVariant::toTime() const
 	return *((QTime*)d->value.ptr);
     if ( d->typ == DateTime )
 	return ((QDateTime*)d->value.ptr)->time();
+#ifndef QT_NO_DATESTRING
     if ( d->typ == String )
 	return QTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+#endif
     return QTime();
 }
 
@@ -1867,8 +1871,10 @@ const QDateTime QVariant::toDateTime() const
 {
     if ( d->typ == DateTime )
 	return *((QDateTime*)d->value.ptr);
+#ifndef QT_NO_DATESTRING
     if ( d->typ == String )
 	return QDateTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+#endif
     if ( d->typ == Date )
 	return QDateTime( *((QDate*)d->value.ptr) );
     return QDateTime();

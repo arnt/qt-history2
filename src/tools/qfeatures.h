@@ -20,6 +20,9 @@
 // QDataStream
 //#define QT_NO_DATASTREAM
 
+// QDate/QTime/QDateTime toString() and fromString()
+//#define QT_NO_DATESTRING
+
 // Dialogs
 //#define QT_NO_DIALOG
 
@@ -148,9 +151,6 @@
 
 // Character set conversions
 //#define QT_NO_TEXTCODEC
-
-// QDate/QTime/QDateTime toString()
-//#define QT_NO_TEXTDATE
 
 // QTextStream
 //#define QT_NO_TEXTSTREAM
@@ -405,6 +405,11 @@
 #define QT_NO_TEMPLATE_VARIANT
 #endif
 
+// Month and day names in dates
+#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_DATESTRING))
+#define QT_NO_TEXTDATE
+#endif
+
 // XPM image I/O
 #if !defined(QT_NO_IMAGEIO_XPM) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_SPRINTF) || defined(QT_NO_TEXTSTREAM))
 #define QT_NO_IMAGEIO_XPM
@@ -413,11 +418,6 @@
 // Animated images
 #if !defined(QT_NO_MOVIE) && (defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO))
 #define QT_NO_MOVIE
-#endif
-
-// Printing
-#if !defined(QT_NO_PRINTER) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST) || defined(QT_NO_SPRINTF))
-#define QT_NO_PRINTER
 #endif
 
 // Persistent application settings
@@ -448,6 +448,11 @@
 // MIME
 #if !defined(QT_NO_MIME) && (defined(QT_NO_DIR) || defined(QT_NO_IMAGEIO) || defined(QT_NO_TEXTCODEC))
 #define QT_NO_MIME
+#endif
+
+// Printing
+#if !defined(QT_NO_PRINTER) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST) || defined(QT_NO_SPRINTF) || defined(QT_NO_DATESTRING))
+#define QT_NO_PRINTER
 #endif
 
 // QSizeGrip
@@ -600,11 +605,6 @@
 #define QT_NO_COMPLEXTEXT
 #endif
 
-// QDateTimeEdit
-#if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_RICHTEXT))
-#define QT_NO_DATETIMEEDIT
-#endif
-
 // Horizontal group boxes
 #if !defined(QT_NO_HGROUPBOX) && (defined(QT_NO_GROUPBOX))
 #define QT_NO_HGROUPBOX
@@ -650,6 +650,11 @@
 #define QT_NO_COMPONENT
 #endif
 
+// QDateTimeEdit
+#if !defined(QT_NO_DATETIMEEDIT) && (defined(QT_NO_RICHTEXT) || defined(QT_NO_DATESTRING))
+#define QT_NO_DATETIMEEDIT
+#endif
+
 // HTTP file access
 #if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
 #define QT_NO_NETWORKPROTOCOL_HTTP
@@ -678,11 +683,6 @@
 // QHeader
 #if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICONSET))
 #define QT_NO_HEADER
-#endif
-
-// FTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
-#define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
 // QWidgetPlugin
@@ -728,6 +728,11 @@
 // Document Object Model
 #if !defined(QT_NO_DOM) && (defined(QT_NO_XML) || defined(QT_NO_MIME))
 #define QT_NO_DOM
+#endif
+
+// FTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
+#define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
 // Scrollable view widgets
@@ -911,7 +916,7 @@
 #endif
 
 // QFileDialog
-#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_MESSAGEBOX) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_VBOX) || defined(QT_NO_SPLITTER) || defined(QT_NO_PROGRESSBAR) || defined(QT_NO_WIDGETSTACK))
+#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_MESSAGEBOX) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_SEMIMODAL) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP) || defined(QT_NO_VBOX) || defined(QT_NO_SPLITTER) || defined(QT_NO_PROGRESSBAR) || defined(QT_NO_WIDGETSTACK) || defined(QT_NO_DATESTRING))
 #define QT_NO_FILEDIALOG
 #endif
 
