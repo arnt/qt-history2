@@ -46,7 +46,7 @@
   Global cursors
  *****************************************************************************/
 
-static QCursor cursorTable[LastCursor+1];
+static QCursor cursorTable[Qt::LastCursor+1];
 static const int arrowCursorIdx = 0;
 QT_STATIC_CONST_IMPL QCursor & Qt::arrowCursor = cursorTable[0];
 QT_STATIC_CONST_IMPL QCursor & Qt::upArrowCursor = cursorTable[1];
