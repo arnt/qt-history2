@@ -139,9 +139,13 @@ private:
 };
 #endif
 
+class QLayoutPrivate;
+
 class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QLayout)
+
     Q_ENUMS(ResizeMode)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
@@ -153,34 +157,24 @@ public:
     QLayout(QWidget *parent);
     QLayout(QLayout *parentLayout);
     QLayout();
-#ifdef QT_COMPAT
-    explicit QT_COMPAT QLayout(QWidget *parent, int margin, int spacing = -1,
-                             const char *name = 0);
-    explicit QT_COMPAT QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
-    explicit QT_COMPAT QLayout(int spacing, const char *name = 0);
-#endif
     ~QLayout();
 
-    int margin() const { return outsideBorder; }
-    int spacing() const { return insideSpacing; }
+    int margin() const;
+    int spacing() const;
 
     virtual void setMargin(int);
     virtual void setSpacing(int);
-
-    int defaultBorder() const { return insideSpacing; }
-    void freeze(int w, int h);
-    void freeze() { setResizeMode(Fixed); }
 
     void setResizeMode(ResizeMode);
     ResizeMode resizeMode() const;
 
 #ifndef QT_NO_MENUBAR
     virtual void setMenuBar(QMenuBar *w);
-    QMenuBar *menuBar() const { return menubar; }
+    QMenuBar *menuBar() const;
 #endif
 
     QWidget *parentWidget() const;
-    bool isTopLevel() const { return topLevel; }
+    bool isTopLevel() const;
 
     void invalidate();
     QRect geometry() const;
@@ -210,6 +204,7 @@ public:
     void setEnabled(bool);
     bool isEnabled() const;
 
+    void freeze(int w=0, int h=0);
 
 protected:
     void widgetEvent(QEvent *);
@@ -219,25 +214,12 @@ protected:
     void deleteAllItems();
 
     QRect alignmentRect(const QRect&) const;
+protected:
+    QLayout(QLayoutPrivate &d, QLayout*, QWidget*);
 
 private:
     friend class QApplication;
-    void init();
     static void activateRecursiveHelper(QLayoutItem *item);
-    int insideSpacing;
-    int outsideBorder;
-    uint topLevel : 1;
-    uint enabled : 1;
-    uint frozen : 1;
-    uint activated : 1;
-    uint reserved1 : 1;
-    uint autoMinimum : 1;
-    uint autoResizeMode : 1;
-    uint autoNewChild : 1;
-    QRect rect;
-#ifndef QT_NO_MENUBAR
-    QMenuBar *menubar;
-#endif
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -248,13 +230,20 @@ private:
     static void propagateSpacing(QLayout *layout);
 #ifdef QT_COMPAT
 public:
+    explicit QT_COMPAT QLayout(QWidget *parent, int margin, int spacing = -1,
+                             const char *name = 0);
+    explicit QT_COMPAT QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    explicit QT_COMPAT QLayout(int spacing, const char *name = 0);
     inline QT_COMPAT QWidget *mainWidget() const { return parentWidget(); }
     inline QT_COMPAT void remove(QWidget *w) { removeWidget(w); }
     inline QT_COMPAT void add(QWidget *w) { addWidget(w); }
 
-    inline QT_COMPAT void setAutoAdd(bool a) { autoNewChild = a; }
-    inline QT_COMPAT bool autoAdd() const { return autoNewChild; }
+    QT_COMPAT void setAutoAdd(bool a);
+    QT_COMPAT bool autoAdd() const;
     inline QT_COMPAT QLayoutIterator iterator() { return QLayoutIterator(this,true); }
+
+
+    inline QT_COMPAT int defaultBorder() const { return spacing(); }
 #endif
 };
 

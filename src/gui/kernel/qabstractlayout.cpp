@@ -21,6 +21,7 @@
 #include "qevent.h"
 #include "qtoolbar.h"
 #include "qwidget_p.h"
+#include "qlayout_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -372,7 +373,7 @@ QRect QWidgetItem::geometry() const
 */
 QRect QLayout::geometry() const
 {
-    return rect;
+    return d->rect;
 }
 
 /*!
@@ -576,9 +577,8 @@ bool QWidgetItem::isEmpty() const
     returned by QWidget::layout()
 */
 QLayout::QLayout(QWidget *parent)
-    : QObject(parent)
+    : QObject(*new QLayoutPrivate, parent)
 {
-    init();
     if (parent) {
         if (parent->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
@@ -586,7 +586,7 @@ QLayout::QLayout(QWidget *parent)
                       parent->objectName().local8Bit());
             parent->layout()->setParent(0);
         } else {
-            topLevel = true;
+            d->topLevel = true;
             parent->d->layout = this;
             invalidate();
         }
@@ -600,11 +600,10 @@ QLayout::QLayout(QWidget *parent)
     addItem().
 */
 QLayout::QLayout(QLayout *parentLayout)
-    : QObject(parentLayout)
-
+    : QObject(*new QLayoutPrivate,parentLayout)
 {
-    init();
-    parentLayout->addItem(this);
+    if (parentLayout)
+        parentLayout->addItem(this);
 }
 
 /*!
@@ -614,27 +613,42 @@ QLayout::QLayout(QLayout *parentLayout)
     management will work.
 */
 QLayout::QLayout()
+    : QObject(*new QLayoutPrivate, 0)
 {
-    init();
 }
 
 
-
-void QLayout::init()
+/*! \internal
+ */
+QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
+    : QObject(dd, lay ? static_cast<QObject*>(lay) : static_cast<QObject*>(w))
 {
-    insideSpacing = 0;
-    outsideBorder = 0;
-    topLevel = false;
-    enabled = true;
-    autoNewChild = false;
-    frozen = false;
-    activated = true;
-    autoMinimum = false;
-    autoResizeMode = true;
+    if (lay) {
+        lay->addItem(this);
+    } else if (w) {
+        if (w->layout()) {
+            qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
+                      " layout", QObject::objectName().local8Bit(), w->metaObject()->className(),
+                      w->objectName().local8Bit());
+            w->layout()->setParent(0);
+        } else {
+            d->topLevel = true;
+            w->d->layout = this;
+            invalidate();
+        }
+    }
+}
+
+QLayoutPrivate::QLayoutPrivate()
+    : QObjectPrivate(), insideSpacing(0), outsideBorder(0), topLevel(false), enabled(true), frozen(false),
+      activated(true), autoMinimum(false), autoResizeMode(true), autoNewChild(false)
 #ifndef QT_NO_MENUBAR
-    menubar = 0;
+      , menubar(0)
 #endif
+{
 }
+
+
 
 
 #ifdef QT_COMPAT
@@ -652,14 +666,14 @@ void QLayout::init()
     returned by QWidget::layout()
 */
 QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
-    : QObject(parent, name)
+    : QObject(*new QLayoutPrivate,parent)
 {
-    init();
-    outsideBorder = margin;
+    setObjectName(name);
+    d->outsideBorder = margin;
     if (spacing < 0)
-        insideSpacing = margin;
+        d->insideSpacing = margin;
     else
-        insideSpacing = spacing;
+        d->insideSpacing = spacing;
     if (parent) {
         if (parent->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
@@ -667,7 +681,7 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
                       parent->objectName().local8Bit());
             parent->layout()->setParent(0);
         } else {
-            topLevel = true;
+            d->topLevel = true;
             parent->d->layout = this;
             invalidate();
         }
@@ -683,11 +697,11 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
     spacing(), otherwise the value of \a spacing is used.
 */
 QLayout::QLayout(QLayout *parentLayout, int spacing, const char *name)
-    : QObject(parentLayout, name)
+    : QObject(*new QLayoutPrivate,parentLayout)
 
 {
-    init();
-    insideSpacing = spacing < 0 ? parentLayout->insideSpacing : spacing;
+    setObjectName(name);
+    d->insideSpacing = spacing < 0 ? parentLayout->d->insideSpacing : spacing;
     parentLayout->addItem(this);
 }
 
@@ -700,11 +714,14 @@ QLayout::QLayout(QLayout *parentLayout, int spacing, const char *name)
     management will work.
 */
 QLayout::QLayout(int spacing, const char *name)
-    : QObject(0, name)
+    : QObject(*new QLayoutPrivate, 0)
 {
-    init();
-    insideSpacing = spacing;
+    setObjectName(name);
+    d->insideSpacing = spacing;
 }
+
+void QLayout::setAutoAdd(bool a) { d->autoNewChild = a; }
+bool QLayout::autoAdd() const { return d->autoNewChild; }
 #endif
 
 
@@ -757,15 +774,48 @@ void QLayout::addWidget(QWidget *w)
 
     \sa margin
 */
+
+
+int QLayout::margin() const
+{
+    return d->outsideBorder;
+}
+
+int QLayout::spacing() const
+{
+    return d->insideSpacing;
+}
+
+#ifndef QT_NO_MENUBAR
+QMenuBar *QLayout::menuBar() const
+{
+    return d->menubar;
+}
+#endif
+
+bool QLayout::isTopLevel() const
+{
+    return d->topLevel;
+}
+
 void QLayout::setMargin(int margin)
 {
-    outsideBorder = margin;
+    d->outsideBorder = margin;
     invalidate();
 }
 
+
+//########## Fix margin/spacing inheritance
 void QLayout::setSpacing(int spacing)
 {
-    insideSpacing = spacing;
+    if (spacing < 0) {
+        if (d->topLevel)
+            d->insideSpacing = d->outsideBorder;
+        else
+            d->insideSpacing = static_cast<QLayout*>(parent())->d->insideSpacing;
+    } else {
+        d->insideSpacing = spacing;
+    }
     if (spacing >= 0)
         propagateSpacing(this);
     invalidate();
@@ -777,7 +827,7 @@ void QLayout::setSpacing(int spacing)
 */
 QWidget *QLayout::parentWidget() const
 {
-    if (!topLevel) {
+    if (!d->topLevel) {
         if (parent()) {
             QLayout *parentLayout = ::qt_cast<QLayout*>(parent());
             Q_ASSERT(parentLayout);
@@ -808,7 +858,7 @@ bool QLayout::isEmpty() const
 */
 void QLayout::setGeometry(const QRect &r)
 {
-    rect = r;
+    d->rect = r;
 }
 
 /*!
@@ -816,7 +866,7 @@ void QLayout::setGeometry(const QRect &r)
 */
 void QLayout::invalidate()
 {
-    rect = QRect();
+    d->rect = QRect();
     update();
 }
 
@@ -849,16 +899,16 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w)
 */
 void QLayout::widgetEvent(QEvent *e)
 {
-    if (!enabled)
+    if (!d->enabled)
         return;
 
     switch (e->type()) {
     case QEvent::Resize:
-        if (activated) {
+        if (d->activated) {
             QResizeEvent *r = (QResizeEvent *)e;
             int mbh = 0;
 #ifndef QT_NO_MENUBAR
-            mbh = menuBarHeightForWidth(menubar, r->size().width());
+            mbh = menuBarHeightForWidth(d->menubar, r->size().width());
 #endif
             QWidget *mw = parentWidget();
             QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
@@ -874,8 +924,8 @@ void QLayout::widgetEvent(QEvent *e)
             if (c->child()->isWidgetType()) {
                 QWidget *w = (QWidget *)c->child();
 #ifndef QT_NO_MENUBAR
-                if (w == menubar)
-                    menubar = 0;
+                if (w == d->menubar)
+                    d->menubar = 0;
 #endif
                 removeWidgetRecursively(this, w);
             }
@@ -883,14 +933,14 @@ void QLayout::widgetEvent(QEvent *e)
         break;
 #ifdef QT_COMPAT
     case QEvent::ChildInserted:
-        if (topLevel && autoNewChild) {
+        if (d->topLevel && d->autoNewChild) {
             QChildEvent *c = (QChildEvent *)e;
             if (c->child()->isWidgetType()) {
                 QWidget *w = (QWidget *)c->child();
                 if (!w->isTopLevel()) {
 #if !defined(QT_NO_MENUBAR) && !defined(QT_NO_TOOLBAR)
                     if (qt_cast<QMenuBar*>(w) && !::qt_cast<QToolBar*>(w->parentWidget())) {
-                        menubar = (QMenuBar *)w;
+                        d->menubar = (QMenuBar *)w;
                         invalidate();
                     } else
 #endif
@@ -900,7 +950,7 @@ void QLayout::widgetEvent(QEvent *e)
         }
         break;
     case QEvent::LayoutHint:
-        activated = false;
+        d->activated = false;
         // fall through
 #endif
     case QEvent::LayoutRequest:
@@ -916,7 +966,7 @@ void QLayout::widgetEvent(QEvent *e)
 */
 void QLayout::childEvent(QChildEvent *e)
 {
-    if (!enabled)
+    if (!d->enabled)
         return;
 
     if (e->type() == QEvent::ChildRemoved) {
@@ -942,17 +992,17 @@ void QLayout::childEvent(QChildEvent *e)
 */
 int QLayout::totalHeightForWidth(int w) const
 {
-    if (topLevel)
+    if (d->topLevel)
         parent()->ensurePolished();
     int side=0, top=0;
-    if (topLevel) {
+    if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
     }
     int h = heightForWidth(w - side) + top;
 #ifndef QT_NO_MENUBAR
-    h += menuBarHeightForWidth(menubar, w);
+    h += menuBarHeightForWidth(d->menubar, w);
 #endif
     return h;
 }
@@ -963,10 +1013,10 @@ int QLayout::totalHeightForWidth(int w) const
 */
 QSize QLayout::totalMinimumSize() const
 {
-    if (topLevel)
+    if (d->topLevel)
         parent()->ensurePolished();
     int side=0, top=0;
-    if (topLevel) {
+    if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
@@ -974,7 +1024,7 @@ QSize QLayout::totalMinimumSize() const
 
     QSize s = minimumSize();
 #ifndef QT_NO_MENUBAR
-    top += menuBarHeightForWidth(menubar, s.width() + side);
+    top += menuBarHeightForWidth(d->menubar, s.width() + side);
 #endif
     return s + QSize(side, top);
 }
@@ -985,10 +1035,10 @@ QSize QLayout::totalMinimumSize() const
 */
 QSize QLayout::totalSizeHint() const
 {
-    if (topLevel)
+    if (d->topLevel)
         parent()->ensurePolished();
     int side=0, top=0;
-    if (topLevel) {
+    if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
@@ -998,7 +1048,7 @@ QSize QLayout::totalSizeHint() const
     if (hasHeightForWidth())
         s.setHeight(heightForWidth(s.width() + side));
 #ifndef QT_NO_MENUBAR
-    top += menuBarHeightForWidth(menubar, s.width());
+    top += menuBarHeightForWidth(d->menubar, s.width());
 #endif
     return s + QSize(side, top);
 }
@@ -1009,10 +1059,10 @@ QSize QLayout::totalSizeHint() const
 */
 QSize QLayout::totalMaximumSize() const
 {
-    if (topLevel)
+    if (d->topLevel)
         parent()->ensurePolished();
     int side=0, top=0;
-    if (topLevel) {
+    if (d->topLevel) {
         QWidgetPrivate *wd = parentWidget()->d;
         side += wd->leftmargin + wd->rightmargin;
         top += wd->topmargin + wd->bottommargin;
@@ -1020,7 +1070,7 @@ QSize QLayout::totalMaximumSize() const
 
     QSize s = maximumSize();
 #ifndef QT_NO_MENUBAR
-    top += menuBarHeightForWidth(menubar, s.width());
+    top += menuBarHeightForWidth(d->menubar, s.width());
 #endif
 
     if (isTopLevel())
@@ -1069,8 +1119,8 @@ void QLayout::addChildLayout(QLayout *l)
         return;
     }
     l->setParent(this);
-    if (l->insideSpacing < 0) {
-        l->insideSpacing = insideSpacing;
+    if (l->d->insideSpacing < 0) {
+        l->d->insideSpacing = d->insideSpacing;
         propagateSpacing(l);
     }
 }
@@ -1103,33 +1153,35 @@ void QLayout::addChildWidget(QWidget *w)
 }
 
 
-/*! \fn int QLayout::defaultBorder() const
-
-  \internal
-*/
-
-/*! \fn void QLayout::freeze()
-
-  \internal
-*/
-
 /*!
-  \internal
-  Fixes the size of the main widget and distributes the available
-  space to the child widgets. For widgets which should not be
-  resizable, but where a QLayout subclass is used to set up the initial
-  geometry.
 
-  As a special case, freeze(0, 0) is equivalent to setResizeMode(Fixed).
+  Sets this layout's parent widget to a fixed size with width \a w and
+  height \h, stopping the user form resizing it, and also preventss the
+  layout from resizing it, even if the layout's size hint should
+  change. Does nothing if this is not a toplevel layout (isTopLevel()
+  returns true).
+
+  As a special case, if both \a w and \a h are 0, then the layout's
+  current sizeHint() is used.
+
+  Use \c setResizeMode(Fixed) to stop the widget from being resized by
+  the user, while still allowing the layout to resize it when the sizeHint() changes.
+
+  Use \c setResizeMode(FreeResize) to allow the user to resize the
+  widget, while preventing the layout from resizing it.
+
 */
 void QLayout::freeze(int w, int h)
 {
+    if (!d->topLevel)
+        return;
     if (w <= 0 || h <= 0) {
-        setResizeMode(Fixed);
-    } else {
-        setResizeMode(FreeResize); // layout will not change min/max size
-        parentWidget()->setFixedSize(w, h);
+        QSize s = totalSizeHint();
+        w = s.width();
+        h = s.height();
     }
+    setResizeMode(FreeResize); // layout will not change min/max size
+    parentWidget()->setFixedSize(w, h);
 }
 
 #ifndef QT_NO_MENUBAR
@@ -1143,7 +1195,7 @@ void QLayout::freeze(int w, int h)
 */
 void QLayout::setMenuBar(QMenuBar *w)
 {
-    menubar = w;
+    d->menubar = w;
 }
 
 #endif
@@ -1196,7 +1248,7 @@ void QLayout::activateRecursiveHelper(QLayoutItem *item)
         int i=0;
         while ((child = layout->itemAt(i++)))
             activateRecursiveHelper(child);
-        layout->activated = true;
+        layout->d->activated = true;
     }
 }
 
@@ -1212,9 +1264,9 @@ void QLayout::activateRecursiveHelper(QLayoutItem *item)
 void QLayout::update()
 {
     QLayout *layout = this;
-    while (layout && layout->activated) {
-        layout->activated = false;
-        if (layout->topLevel) {
+    while (layout && layout->d->activated) {
+        layout->d->activated = false;
+        if (layout->d->topLevel) {
             Q_ASSERT(layout->parent()->isWidgetType());
             QWidget *mw = static_cast<QWidget*>(layout->parent());
             if (mw->isVisible())
@@ -1237,9 +1289,9 @@ bool QLayout::activate()
 {
     if (!parent())
         return false;
-    if (!topLevel)
+    if (!d->topLevel)
         return static_cast<QLayout*>(parent())->activate();
-    if (activated)
+    if (d->activated)
         return false;
     QWidget *mw = static_cast<QWidget*>(parent());
     if (mw == 0) {
@@ -1252,17 +1304,17 @@ bool QLayout::activate()
     QSize ms;
     int mbh = 0;
 #ifndef QT_NO_MENUBAR
-    mbh = menuBarHeightForWidth(menubar, s.width());
+    mbh = menuBarHeightForWidth(d->menubar, s.width());
 #endif
     QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
     rect.rTop() += mbh;
     setGeometry(rect);
-    if (frozen) {
+    if (d->frozen) {
         // will trigger resize
         mw->setFixedSize(totalSizeHint());
-    } else if (autoMinimum) {
+    } else if (d->autoMinimum) {
         ms = totalMinimumSize();
-    } else if (autoResizeMode && mw->isTopLevel()) {
+    } else if (d->autoResizeMode && mw->isTopLevel()) {
         ms = totalMinimumSize();
         if (hasHeightForWidth()) {
             int h = minimumHeightForWidth(ms.width());
@@ -1647,32 +1699,32 @@ void QLayout::setResizeMode(ResizeMode mode)
 
     switch (mode) {
     case Auto:
-        frozen = false;
-        autoMinimum = false;
-        autoResizeMode = true;
+        d->frozen = false;
+        d->autoMinimum = false;
+        d->autoResizeMode = true;
         break;
     case Fixed:
-        frozen = true;
-        autoMinimum = false;
-        autoResizeMode = false;
+        d->frozen = true;
+        d->autoMinimum = false;
+        d->autoResizeMode = false;
         break;
     case FreeResize:
-        frozen = false;
-        autoMinimum = false;
-        autoResizeMode = false;
+        d->frozen = false;
+        d->autoMinimum = false;
+        d->autoResizeMode = false;
         break;
     case Minimum:
-        frozen = false;
-        autoMinimum = true;
-        autoResizeMode = false;
+        d->frozen = false;
+        d->autoMinimum = true;
+        d->autoResizeMode = false;
     }
     invalidate();
 }
 
 QLayout::ResizeMode QLayout::resizeMode() const
 {
-    return (autoResizeMode ? Auto :
-             (frozen ? Fixed : (autoMinimum ? Minimum : FreeResize)));
+    return (d->autoResizeMode ? Auto :
+             (d->frozen ? Fixed : (d->autoMinimum ? Minimum : FreeResize)));
 }
 
 /*!
@@ -1784,7 +1836,7 @@ void QLayout::removeItem(QLayoutItem *item)
 */
 void QLayout::setEnabled(bool enable)
 {
-    enabled = enable;
+    d->enabled = enable;
 }
 
 /*!
@@ -1794,7 +1846,7 @@ void QLayout::setEnabled(bool enable)
 */
 bool QLayout::isEnabled() const
 {
-    return enabled;
+    return d->enabled;
 }
 
 void QLayout::propagateSpacing(QLayout *parent)
@@ -1803,8 +1855,8 @@ void QLayout::propagateSpacing(QLayout *parent)
     QLayoutItem *child;
     while ((child = parent->itemAt(i))) {
         QLayout *childLayout = child->layout();
-        if (childLayout && childLayout->insideSpacing < 0) {
-            childLayout->insideSpacing = parent->insideSpacing;
+        if (childLayout && childLayout->d->insideSpacing < 0) {
+            childLayout->d->insideSpacing = parent->d->insideSpacing;
             propagateSpacing(childLayout);
         }
         ++i;
