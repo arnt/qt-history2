@@ -397,7 +397,7 @@ void VcprojGenerator::init()
     precomph     = Option::fixPathToTargetOS(project->first("PRECOMPH"));
     precompcpp   = Option::fixPathToTargetOS(project->first("PRECOMPCPP"));
     pch          = QString(precomph).replace(".h", ".pch");
-    usePCH       = !precomph.isEmpty();
+    usePCH       = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
     deletePCHcpp = precompcpp.isEmpty();
     // Change name for generated PCH cpp file
     if(usePCH && deletePCHcpp)

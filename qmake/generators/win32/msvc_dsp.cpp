@@ -73,7 +73,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     if ( project->variables()["PRECOMPILED_SOURCE"].size() > 1 )
 	warn_msg(WarnLogic, "dsp generator doesn't support multiple files in PRECOMPILED_SOURCE, only first one used" );
     QString pch = QString(precomph).replace(".h", ".pch");
-    bool usePCH = !precomph.isEmpty();
+    bool usePCH = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
     bool deletePCHcpp = precompcpp.isEmpty();
     if (usePCH && deletePCHcpp) {
 	precompcpp = project->first("TARGET");

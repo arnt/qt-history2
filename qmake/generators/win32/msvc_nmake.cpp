@@ -67,7 +67,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     precomph = Option::fixPathToTargetOS(project->first("PRECOMPILED_HEADER"));
     precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPILED_SOURCE"));
     pch = QString(precomph).replace(".h", ".pch");
-    usePCH = !precomph.isEmpty();
+    usePCH = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
     deletePCHcpp = precompcpp.isEmpty();
     if (usePCH) {
 	// Add PCH to cleanup
