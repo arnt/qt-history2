@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#94 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -163,7 +163,7 @@ static QWidget * qt_xdnd_current_widget;
 static QPoint qt_xdnd_current_position;
 // time of this drop, as type Atom to save on casts
 static Atom qt_xdnd_source_current_time;
-static Atom qt_xdnd_target_current_time;
+//NOTUSED static Atom qt_xdnd_target_current_time;
 
 // dict of payload data, sorted by type atom
 QIntDict<QByteArray> * qt_xdnd_target_data = 0;
@@ -568,7 +568,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 	    if ( c->acceptDrops() ) {
 		qt_xdnd_current_widget = c;
 		qt_xdnd_current_position = p;
-		qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
+		//NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
 		QDragEnterEvent de( p );
 		QApplication::sendEvent( c, &de );
@@ -591,7 +591,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 	} else if ( xdndaction_to_qtaction(l[4]) < QDropEvent::Private ) {
 	    qt_xdnd_current_widget = c;
 	    qt_xdnd_current_position = p;
-	    qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
+	    //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
 	    QApplication::sendEvent( c, &me );
 	    qt_xdnd_target_answerwas = me.isAccepted();
