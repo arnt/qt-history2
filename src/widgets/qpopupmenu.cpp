@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#271 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#272 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -96,45 +96,49 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   \brief The QPopupMenu class provides a popup menu widget.
 
   \ingroup realwidgets
-  
+
   A popup menu ( or pulldown menu) consists of a list of menu items.
   You add items with insertItem().  An item is either a string, a
   pixmap or a custom item that provides its own drawing function (see
   QCustomMenuItem). In addition, items can have an optional icon drawn
   on the very left side and an accelerator key, like "Ctrl-X".
-  
+
   There are three kind of menu items: seperators, those that perform
   an action and those that show a submenu.  Separators are inserted
   with insertSeparator(). For submenus, you pass a pointer to a
   QPopupMenu in your call to insertItem().  All other items are
-  considered action items. 
-  
+  considered action items.
+
   When inserting actions items, you usually specify a receiver and a
   slot. The receiver will be notifed whenever the item was
   selected. In addition, QPopupMenu provides two signals activated()
   and highlighted() that signal the identifier of the respective menu
   item.
-  
-  You clear a popup menu with clear() and remove single items with 
+
+  You clear a popup menu with clear() and remove single items with
   removeItem() or removeItemAt().
-  
+
   A popup menu can display check marks for certain items when enabled
   with setCheckable(TRUE). You check or uncheck items with
   setItemChecked().
-  
+
   Items are either enabled or disabled. You toggle their state with
   setItemEnabled().  Just before a popup menu becomes visible, it
   emits the aboutToShow() signal. You can use this signal to set the
   correct enabled/disabled states of all menu items before the user
   sees it.
   
+  You can provide What's This? help for single menu items with
+  setWhatsThis(). See QWhatsThis for general information about this
+  kind of light-weight online help.
+
   For ultimate flexibility, you can also add entire widgets as items
   into a popup menu, for example a color selector.
-  
+
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
-  \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator 
-  changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled 
+  \important insertItem removeItem removeItemAt clear text pixmap iconSet  insertSeparator
+  changeItem whatsThis setWhatsThis accel setAccel setItemEnabled isItemEnabled
   setItemChecked isItemChecked connectItem disconnectItem setItemParameter itemParameter
 
   <img src=qpopmenu-m.png> <img src=qpopmenu-w.png>
@@ -632,7 +636,7 @@ void QPopupMenu::updateSize()
 		QSize s ( mi->custom()->sizeHint() );
 		w += s.width();
 	    }
-	    
+	
 	    if ( !mi->text().isNull() && !mi->isSeparator() ) {
 		QString s = mi->text();
 		int t;
