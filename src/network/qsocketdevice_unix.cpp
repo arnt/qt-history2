@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#30 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#31 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -50,17 +50,9 @@
 #  include <strings.h>
 #endif
 
-// ### FIONREAD and ioctl() hackery.
-// ### We need this hackery because we're including the wrong files on
-// ### modern XPG4v2 systems.  Maybe we should include XPG4v2 style
-// ### header <stropts.h> instead of <sys/ioctl.h>, except for BSDs.
-// ### Also we should be using I_NREAD instead of FIONREAD. Oh well...
-// ### ioctl() and I_NREAD live in <stropts.h> according to SUS/XPG4v2.
-// ### Seen on HP-UX 10.20, Solaris 2.5.1, 7, 8, Irix 6.3, Tru64 4.0F,
-// ### Tru64 5.0A, AIX 4.3.3.
-
 #include <unistd.h>
 #include <sys/param.h>
+#include <sys/socket.h>
 #if defined(Q_OS_AIX)
 // OK, I'm phasing this out because there is no evidence that it is
 // needed on AIX 4.3.3:
@@ -70,16 +62,15 @@
 // you just define _BSD for AIX.
 #endif
 #include <sys/types.h>
-#include <sys/socket.h>
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// FIONREAD is defined in <sys/filio.h>.
-// <sys/ioctl.h> includes <sys/filio.h> if BSD_COMP is defined.
-// Seen on Solaris 2.5.1, 7, and 8.
-#  define BSD_COMP
-#endif
-#include <sys/ioctl.h>
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-#  undef BSD_COMP
+#if defined(BSD4_4)
+// BSDs use <sys/ioctl.h> and FIONREAD.
+#  include <sys/ioctl.h>
+#  define QT_NREAD FIONREAD
+#else
+// XPG4v2 use <stropts.h> and I_NREAD.
+// ### Caution, this may not work on pre-XPG4v2 systems.
+#  include <stropts.h>
+#  define QT_NREAD I_NREAD
 #endif
 #include <sys/file.h>
 #include <sys/time.h>
@@ -754,7 +745,7 @@ int QSocketDevice::bytesAvailable() const
 	return -1;
     // gives shorter than true amounts on Unix domain sockets.
     int nbytes = 0;
-    if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
+    if ( ::ioctl(fd, QT_NREAD, (char*)&nbytes) < 0 )
 	return -1;
     return nbytes;
 }

@@ -102,44 +102,15 @@
 // ### Caution, this may not work on pre-XPG4v2 systems.
 #include <strings.h>
 
-// ### FIONREAD and ioctl() hackery.
-// ### We need this hackery because we're including the wrong files on
-// ### modern XPG4v2 systems.  Maybe we should include XPG4v2 style
-// ### header <stropts.h> instead of <sys/ioctl.h>, except for BSDs.
-// ### Also we should be using I_NREAD instead of FIONREAD. Oh well...
-// ### ioctl() and I_NREAD live in <stropts.h> according to SUS/XPG4v2.
-// ### Seen on HP-UX 10.20, Solaris 2.5.1, 7, 8, Irix 6.3, Tru64 4.0F,
-// ### Tru64 5.0A, AIX 4.3.3.
-
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-// Needed for FIONREAD.
-// FIONREAD is #defined in <sys/filio.h>.
-// Have <sys/ioctl.h> include <sys/filio.h>.
-#  define BSD_COMP
-#endif
-#if defined(Q_OS_HPUX)
-// Needed for ioctl() and FIONREAD on HP-UX 10.20.
-// SUSv2 documents ioctl() to live in <stropts.h> so we should probably
-// just include <stropts.h> instead of defining _HPUX_SOURCE. But then
-// remains the case of FIONREAD. Will have to check that...
-#  define _HPUX_SOURCE
-#endif
-#include <sys/ioctl.h>
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_UNIXWARE7)
-#  undef BSD_COMP
-#endif
-#if defined(Q_OS_HPUX)
-#  undef _HPUX_SOURCE
-#endif
-
-#if defined(Q_OS_SCO)
-// Needed for FIONREAD on SCO OpenServer 5.0.x.
-#  include <sys/socket.h>
-#endif
-
-#if defined(Q_OS_DYNIX)
-// Needed for FIONREAD on SCO Dynix 4.x.
-#  include <sys/sockio.h>
+#if defined(BSD4_4)
+// BSDs use <sys/ioctl.h> and FIONREAD.
+#  include <sys/ioctl.h>
+#  define QT_NREAD FIONREAD
+#else
+// XPG4v2 use <stropts.h> and I_NREAD.
+// ### Caution, this may not work on pre-XPG4v2 systems.
+#  include <stropts.h>
+#  define QT_NREAD I_NREAD
 #endif
 
 static int qt_thread_pipe[2];
@@ -3302,7 +3273,7 @@ void QApplication::wakeUpGuiThread()
 #  if defined(Q_OS_UNIX)
     char c = 0;
     int nbytes;
-    if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+    if ( ::ioctl(qt_thread_pipe[0], QT_NREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
 #  endif
