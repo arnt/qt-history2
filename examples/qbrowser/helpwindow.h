@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#4 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -10,8 +10,11 @@
 
 #ifndef HELPWINDOW_H
 #define HELPWINDOW_H
+
 #include <qtextbrowser.h>
 #include <qmainwindow.h>
+#include <qstringlist.h>
+#include <qdir.h>
 
 class QComboBox;
 
@@ -36,12 +39,16 @@ private slots:
     void newWindow();
 
     void pathSelected( const QString & );
-    
+
 private:
+    bool eventFilter( QObject * o, QEvent * e );
+
     QTextBrowser* browser;
     QComboBox *pathCombo;
     int backwardId, forwardId;
     QString selectedURL;
+    QDir path;
+    QStringList fileList;
     
 };
 
