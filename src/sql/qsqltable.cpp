@@ -54,7 +54,7 @@ public:
     bool         haveAllRows;
     bool         continuousEdit;
     bool         ro;
-    QSqlEditorFactory* editorFactory;
+    QEditorFactory* editorFactory;
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
@@ -104,7 +104,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 {
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
-    d->editorFactory = new QSqlEditorFactory( this, "qt_default_qsqleditorfactory");
+    d->editorFactory = new QEditorFactory( this, "qt_default_qsqleditorfactory");
     d->propertyMap = new QSqlPropertyMap();
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
@@ -235,7 +235,7 @@ bool QSqlTable::confirmCancels() const
   For an editable table, creates an editor suitable for the data type
   in \a row and \a col.
 
-  \sa QSqlEditorFactory QSqlPropertyMap
+  \sa QEditorFactory QSqlPropertyMap
 
 */
 
@@ -1453,10 +1453,10 @@ void QSqlTable::refresh( QSqlIndex idx )
   QSqlTable takes ownership of this pointer, and will delete it when
   it is no longer needed or when installEditorFactory() is called again.
 
-  \sa QSqlEditorFactory
+  \sa QEditorFactory
 */
 
-void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
+void QSqlTable::installEditorFactory( QEditorFactory * f )
 {
     if( f ) {
 	delete d->editorFactory;

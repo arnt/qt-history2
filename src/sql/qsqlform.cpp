@@ -4,6 +4,9 @@
 #include "qsqlform.h"
 #include "qsqlview.h"
 #include "qsqlresult.h"
+#include "qeditorfactory.h"
+#include "qlabel.h"
+#include "qlayout.h"
 
 #ifndef QT_NO_SQL
 
@@ -31,32 +34,33 @@ QSqlPropertyMap::QSqlPropertyMap()
     propertyMap["QComboBox"]    = "currentItem";
     propertyMap["QDateEdit"]    = "date";
     propertyMap["QTimeEdit"]    = "time";
+    propertyMap["QLabel"]       = "pixmap";
 }
 
 /*!
 
-  Returns the QVariant which is a property of \a object.
+  Returns the QVariant which is a property of \a widget.
 */
-QVariant QSqlPropertyMap::property( QObject * object )
+QVariant QSqlPropertyMap::property( QWidget * widget )
 {
-    if( !object ) return QVariant();
+    if( !widget ) return QVariant();
 #ifdef CHECK_RANGE
-    if ( !propertyMap.contains( QString(object->metaObject()->className()) ) )
-	qWarning("QSqlPropertyMap::property: %s does not exist", object->metaObject()->className() );
+    if ( !propertyMap.contains( QString(widget->metaObject()->className()) ) )
+	qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className() );
 #endif
-    return object->property( propertyMap[ object->metaObject()->className() ] );
+    return widget->property( propertyMap[ widget->metaObject()->className() ] );
 }
 
 /*!
 
-  Sets the property associated with \a object to \a value.
+  Sets the property associated with \a widget to \a value.
 */
-void QSqlPropertyMap::setProperty( QObject * object, const QVariant & value )
+void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 {
-    if( !object ) return;
+    if( !widget ) return;
 
-    //    qDebug("setting property for " + QString(object->name()) + " to value of type:" + QString(value.typeName()) + " of value:" + value.toString() );
-    object->setProperty( propertyMap[ object->metaObject()->className() ],
+    //    qDebug("setting property for " + QString(widget->name()) + " to value of type:" + QString(value.typeName()) + " of value:" + value.toString() );
+    widget->setProperty( propertyMap[ widget->metaObject()->className() ],
 			 value );
 }
 
@@ -118,6 +122,8 @@ QSqlFormMap::~QSqlFormMap()
   create your own custom editor widgets. NB! QSqlFormMap takes
   possession of the \a map, and \a map is deleted when the object goes
   out of scope.
+
+  \sa installEditorFactory()
 */
 void QSqlFormMap::installPropertyMap( QSqlPropertyMap * pmap )
 {
@@ -149,6 +155,19 @@ void QSqlFormMap::remove( QWidget * widget )
     map.remove( widget );
 }
 
+/*!
+
+  Clears the values of all fields in the map.
+*/
+void QSqlFormMap::clear()
+{
+    QMap< QWidget *, QSqlField * >::Iterator it;
+    for( it = map.begin(); it != map.end(); ++it ){
+	(*it)->clear();
+    }
+    syncWidgets();
+}
+
 
 /*!
 
@@ -160,6 +179,33 @@ QSqlField * QSqlFormMap::whichField( QWidget * widget ) const
 	return map[widget];
     else
 	return 0;
+}
+
+/*!
+
+  Returns the number of widgets in the map.
+*/
+uint QSqlFormMap::count() const
+{
+    return map.count();
+}
+
+/*!
+
+  Returns the i'th widget in the map to. Useful for traversing the
+  map.
+*/
+QWidget * QSqlFormMap::widget( uint i ) const
+{
+    QMap< QWidget *, QSqlField * >::ConstIterator it;
+    uint cnt = 0;
+    
+    if( i > map.count() ) return 0;
+    for( it = map.begin(); it != map.end(); ++it ){
+	if( cnt++ == i )
+	    return it.key();
+    }
+    return 0;
 }
 
 /*!
@@ -223,29 +269,29 @@ void QSqlFormMap::syncFields()
   to perform its operations.
   Some sample code to initialize a form successfully:
   \code
-     QSqlForm form;
-     QSqlEditorFactory factory;
-     QWidget * w;
+  QSqlForm form;
+  QSqlEditorFactory factory;
+  QWidget * w;
 
-     // Set the view the form should operate on
-     form.setView( &myView );
+  // Set the view the form should operate on
+  form.setView( &myView );
 
-     // Create an appropriate widget for displaying/editing
-     // field 0 in myView.
-     w = factory.createEditor( &form, myView.field( 0 ) );
+  // Create an appropriate widget for displaying/editing
+  // field 0 in myView.
+  w = factory.createEditor( &form, myView.field( 0 ) );
 
-     // Associate the newly created widget with field 0 in myView
-     form.associate( w, myView.field( 0 ) );
+  // Associate the newly created widget with field 0 in myView
+  form.associate( w, myView.field( 0 ) );
 
-     // Now, update the contents of the form from the fields in the form.
-     form.syncWidgets();
+  // Now, update the contents of the form from the fields in the form.
+  form.syncWidgets();
   \endcode
 
   If you want to use custom editors for displaying/editing data fields,
   you will have to install a custom QSqlPropertyMap. The form uses this
   object to get or set the value of a widget (ie. the text in a QLineEdit,
   the index in a QComboBox).
-  You will also have use the Q_PROPERTY macro in the class definition,
+  You will also have to use the Q_PROPERTY macro in the class definition,
   and define a pair of functions that can get or set the value of the
   widget.
 */
@@ -255,12 +301,31 @@ void QSqlFormMap::syncFields()
   Constructs a SQL form.
 */
 QSqlForm::QSqlForm( QWidget * parent, const char * name )
-    : QWidget( parent, name )
+    : QWidget( parent, name ),
+      readOnly( FALSE ),
+      v( 0 )
 {
-    v = 0;
     map = new QSqlFormMap();
 }
+
 /*!
+
+  Constructs a SQL form. This version of the constructor
+  automatically creates a form, spread across \a columns
+  number of columns.
+*/
+QSqlForm::QSqlForm( QSqlView * view, uint columns = 1, QWidget * parent,
+		    const char * name )
+    : QWidget( parent, name ),
+      readOnly( FALSE ),
+      v( view )
+{
+    map = new QSqlFormMap();
+    populate( view, columns );
+}
+
+/*!
+  
   Destructs the form.
 */
 QSqlForm::~QSqlForm()
@@ -298,6 +363,17 @@ QSqlView * QSqlForm::view() const
 }
 
 /*!
+  
+  Installs a custom QEditorFactory. This is used in the populate()
+  function to automatically create the widgets in the form.
+  
+  \sa installPropertyMap()
+ */
+void QSqlForm::installEditorFactory( QEditorFactory * )
+{
+}
+
+/*!
  Installs a custom QSqlPropertyMap. Used together with custom
  field editors. Please note that the QSqlForm class will
  take ownership of the propery map, so don't delete it!
@@ -305,6 +381,30 @@ QSqlView * QSqlForm::view() const
 void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
 {
     map->installPropertyMap( m );
+}
+
+/*!
+  
+  Sets the form state.
+ */
+void QSqlForm::setReadOnly( bool state )
+{
+    if( map->count() ){
+	for( uint i = 0; i < map->count(); i++ ){
+	    QWidget * w = map->widget( i );
+	    if( w ) w->setEnabled( !state );
+	}
+	readOnly = state;
+    }
+}
+
+/*!
+  
+  Returns the form state.
+ */
+bool QSqlForm::isReadOnly() const
+{
+    return readOnly;
 }
 
 /*!
@@ -332,6 +432,16 @@ void QSqlForm::syncFields()
 	map->syncFields();
     else
 	qWarning( "QSqlForm: No view associated with this form." );
+}
+
+/*!
+
+  Clears the form, i.e. all fields are set to be empty.
+*/
+void QSqlForm::clear()
+{
+    map->clear();
+    syncWidgets();
 }
 
 /*!
@@ -389,11 +499,12 @@ void QSqlForm::previous()
 
 /*!
 
-  Insert a new record in the associated view.
+  Insert a new record in the associated view. This function will most
+  likely have to be re-implementet by the user.
 */
 bool QSqlForm::insert()
 {
-    if( v ){
+    if( !readOnly && v ){
 	syncFields();
 	v->insert();
 	return TRUE;
@@ -403,11 +514,12 @@ bool QSqlForm::insert()
 
 /*!
 
-  Update the current record in the associated view.
+  Update the current record in the associated view. This function will
+  most likely have to be re-implementet by the user.
 */
 bool QSqlForm::update()
 {
-    if( v ){
+    if( !readOnly && v ){
 	syncFields();
 	if( v->update( v->primaryIndex() ) )
 	    return TRUE;
@@ -417,11 +529,12 @@ bool QSqlForm::update()
 
 /*!
 
-  Delete the current record from the associated view.
+  Delete the current record from the associated view. This function
+  will most likely have to be re-implementet by the user.
 */
 bool QSqlForm::del()
 {
-    if( v && v->del( v->primaryIndex() ) ){
+    if( !readOnly && v && v->del( v->primaryIndex() ) ){
 	syncWidgets();
 	return TRUE;
     }
@@ -432,10 +545,95 @@ bool QSqlForm::del()
 
   Seek to the i'th record in the associated view.
 */
-void QSqlForm::seek( int i )
+void QSqlForm::seek( uint i )
 {
     if( v && v->seek( i ) ){
 	syncWidgets();
     }
 }
+
+/*!
+  
+  This is a convenience function used to quickly populate a form with
+  fields based on a QSqlView. The form will contain a name label and
+  an editor widget for each of the fields in the view. The widgets are
+  layed out vertically in a QVBoxLayout.
+  Example: \code
+  //
+  // This simple example will pop up a window containing
+  // all the fields in my_table
+  //
+  int main( int argc, char **argv )
+  {
+    QApplication a(argc, argv);
+    QSqlConnection::addDatabase( "QPSQL",     // driver name
+				 "test",      // database name
+				 "tk",	      // username
+				 "tk",        // password
+				 "myserver"); // hostname
+    
+    QSqlDatabase * db = QSqlConnection::database();
+    if( !db->isOpen() ) return 0;    // see if we can connect to the dbase
+    
+    QSqlView  view( "my_table" );
+
+    // select all records from 'my_table' - sort on 'my_field'
+    view.select( view.index( "my_field" ) ); 
+    if( !view.first() ) return 0; 
+
+    QSqlForm * form = new QSqlForm( &view );
+    a.setMainWidget( form );
+    form->show();
+    return a.exec();
+  }  
+  \endcode
+ */
+
+void QSqlForm::populate( QSqlView * view, uint columns )
+{
+    // ### Remember to remove the children before populating the form!
+    
+    if( !view ) return;
+    
+    QEditorFactory f( this );
+    QWidget * le;
+    QLabel * lb; 
+    QVBoxLayout * vb = new QVBoxLayout( this);
+    QGridLayout * g  = new QGridLayout( vb );
+    
+    g->setMargin( 5 );
+    g->setSpacing( 3 );
+    
+    QString pi = view->primaryIndex().toString();
+    
+    if( columns < 1 ) columns = 1;
+    int numPerColumn = view->count()/columns;
+    int col = 0, currentCol = 0;
+    
+    for(uint i = 0; i < view->count(); i++){
+	if( col >= numPerColumn ){
+	    col = 0;
+	    currentCol += 2;
+	} 
+	
+	// Do not show primary index fields in the form
+	QString name = view->field( i )->name();
+	if( name == pi ) continue;
+	
+	name[0] = name[0].upper(); // capitalize the first letter
+	lb = new QLabel( name, this );
+	
+	g->addWidget( lb, col, currentCol );
+	
+	le = f.createEditor( this, view->value( i ) );
+	g->addWidget( le, col, currentCol + 1 );
+	associate( le, view->field( i ) );
+	col++;
+    }
+    
+    setView( view );
+    syncWidgets();
+}
+
+
 #endif // QT_NO_SQL

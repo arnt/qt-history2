@@ -52,6 +52,11 @@ void QDateTimeEditBase::init()
     else
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
+
+    QPalette p = palette();    
+    p.setBrush( QPalette::Active, QColorGroup::Background,
+		palette().active().brush( QColorGroup::Base ) );
+    setPalette( p );
     
     ed[0] = new NumEdit( this, "Ed_1" );
     ed[1] = new NumEdit( this, "Ed_2" );
@@ -60,10 +65,12 @@ void QDateTimeEditBase::init()
     sep[0] = new QLabel( this );
     sep[1] = new QLabel( this );
 
+/*
     sep[0]->setBackgroundColor( ed[0]->backgroundColor() );
     sep[1]->setBackgroundColor( ed[0]->backgroundColor() );
     setBackgroundColor( ed[0]->backgroundColor() );
-
+*/
+    
     up   = new QPushButton( this );
     down = new QPushButton( this );
     up->setAutoRepeat( TRUE );
@@ -79,7 +86,28 @@ void QDateTimeEditBase::init()
     ed[1]->installEventFilter( this );
     ed[2]->installEventFilter( this );
         
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setFocusProxy( ed[0] );
+}
+
+QSize QDateTimeEditBase::sizeHint() const
+{
+    constPolish();
+    QFontMetrics fm = fontMetrics();
+    int h = fm.height();
+    if ( h < 12 ) 	// ensure enough space for the button pixmaps
+	h = 12;
+    int w = 35; 	// minimum width for the value
+    int wx = fm.width( ' ' )*2;
+    w = QMAX( w, fm.width( ed[0]->text()+ed[1]->text()+ed[2]->text() ) + wx );
+    QSize r( h // buttons AND frame both sides - see resizeevent()
+	     + 6 // right/left margins
+	     + w, // widest value
+	     frameWidth() * 2 // top/bottom frame
+	     + 4 // top/bottom margins
+	     + h // font height
+	     );
+    return r.expandedTo( QApplication::globalStrut() );
 }
 
 /*!
@@ -143,12 +171,18 @@ void QDateTimeEditBase::updateArrows()
  */
 void QDateTimeEditBase::stepUp()
 {
-    QWidget * f = focusWidget();
+    int i = 0;
+    int focus = -1;
 
-    if( f->inherits("QLineEdit") ){
-	NumEdit * e = (NumEdit *) f;
+    for( i = 0; i < 3; i++)
+	if( ed[i]->hasFocus() )
+	    focus = i;
+
+    if( focus != -1 ){
+	NumEdit * e = ed[focus];
 	QIntValidator * v = (QIntValidator *) e->validator();
-
+    
+	if( !v ) return;
 	int n = e->text().toInt();
 	n++;
 
@@ -156,7 +190,7 @@ void QDateTimeEditBase::stepUp()
 	    n = v->top();
 	else if( n < v->bottom() )
 	    n = v->bottom();
-
+    
 	e->setText( QString::number( n ) );
     }
 }
@@ -168,12 +202,18 @@ void QDateTimeEditBase::stepUp()
  */
 void QDateTimeEditBase::stepDown()
 {
-    QWidget * f = focusWidget();
+    int i = 0;
+    int focus = -1;
 
-    if( f->inherits("QLineEdit") ){
-	NumEdit * e = (NumEdit *) f;
+    for( i = 0; i < 3; i++)
+	if( ed[i]->hasFocus() )
+	    focus = i;
+    
+    if( focus != -1 ){
+	NumEdit * e = ed[focus];
 	QIntValidator * v = (QIntValidator *) e->validator();
 
+	if( !v ) return;
 	int n = e->text().toInt();
 	n--;
 
@@ -207,6 +247,10 @@ bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
 		return TRUE;
 	    }
 	}
+	if( (k->key() == Key_Up) )
+	    stepUp();
+	if( (k->key() == Key_Down) )
+	    stepDown();
     }
     
     if( e->type() == QEvent::FocusOut ){
@@ -228,33 +272,10 @@ bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
 
 /*!
   
-  Layout the different widgets.
+  Layout the arrow buttons.
  */
-void QDateTimeEditBase::layoutWidgets( int numDigits )
+void QDateTimeEditBase::layoutArrows()
 {
-    int mSize = 6;
-    int h     = height() - frameWidth()*2;
-    int numSize = (width() - 15) / numDigits;
-    int offset  = frameWidth();
-    
-    if( numDigits != 8 ){
-	ed[0]->resize( numSize*4, h );
-    } else {
-	ed[0]->resize( numSize*2, h );
-    }
-    ed[0]->move( offset, offset );
-    
-    ed[1]->resize( numSize*2, h );
-    ed[1]->move( ed[0]->x() + ed[0]->width() + mSize, offset );
-
-    ed[2]->resize( numSize*2, h );
-    ed[2]->move( ed[1]->x() + ed[1]->width() + mSize, offset );
-
-    sep[0]->resize( mSize, h - 2);
-    sep[1]->resize( mSize, h - 2);
-    sep[0]->move( ed[0]->x() + ed[0]->width() + 1, offset );
-    sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
-    
     QSize bs; 
     if ( style() == WindowsStyle )
 	bs.setHeight( height()/2 - frameWidth() );
@@ -341,11 +362,9 @@ QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
  */
 void QDateEdit::init()
 {
-    ed[0]->setRange( 1753, 3000 );
-    ed[1]->setRange( 1, 12 );
-    ed[2]->setRange( 1, 31 );
     sep[0]->setText( "-" );
     sep[1]->setText( "-" );
+    setOrder( "YMD" ); // ## ISO default?
 }
 
 
@@ -364,22 +383,22 @@ void QDateEdit::setDate( const QDate & d )
     v[1] = (QIntValidator *) ed[1]->validator();
     v[2] = (QIntValidator *) ed[2]->validator();
 
-    if( (yy > v[0]->top()) || (yy < v[0]->bottom()) || 
-	(mm > v[1]->top()) || (mm < v[1]->bottom()) || 
-	(dd > v[2]->top()) || (dd < v[2]->bottom()) )
+    if( (yy > v[yearPos]->top()) || (yy < v[yearPos]->bottom()) || 
+	(mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) || 
+	(dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) )
     {
 	// Date out of range - leave it blank
 	ed[0]->setText( "" );
 	ed[1]->setText( "" );
 	ed[2]->setText( "" );
     } else {
-	ed[0]->setText( QString::number( yy ) );
-	ed[1]->setText( QString::number( mm ) );
-	ed[2]->setText( QString::number( dd ) );
+	ed[yearPos]->setText( QString::number( yy ) );
+	ed[monthPos]->setText( QString::number( mm ) );
+	ed[dayPos]->setText( QString::number( dd ) );
     }
 
-    ed[0]->setFocus();
-    ed[0]->selectAll();
+//    ed[0]->setFocus();
+//    ed[0]->selectAll();
 }
 
 /*!
@@ -390,12 +409,56 @@ QDate QDateEdit::date() const
 {
     ((QDateEdit *) this)->fixup(); // Fix invalid dates
     
-    return QDate( ed[0]->text().toInt(), ed[1]->text().toInt(),
-		  ed[2]->text().toInt() );
+    return QDate( ed[yearPos]->text().toInt(), ed[monthPos]->text().toInt(),
+		  ed[dayPos]->text().toInt() );
 }
 
 /*!  
   
+  Set the order the date should appear in the edit box.
+
+  \sa order
+*/
+void QDateEdit::setOrder( const QString & fmt )
+{
+    QString tmp;
+    
+    if( fmt.length() > 3 ) return;
+    tmp = fmt.upper();
+    
+    if( !tmp.contains( 'Y' ) || !tmp.contains( 'M' ) || !tmp.contains( 'D' ) ) 
+	return;
+    
+    yearPos  = tmp.find( 'Y' );
+    monthPos = tmp.find( 'M' );
+    dayPos   = tmp.find( 'D' );
+    
+    ed[yearPos]->setRange( 1753, 3000 );
+    ed[monthPos]->setRange( 1, 12 );
+    ed[dayPos]->setRange( 1, 31 );
+    
+    format[yearPos]  = 'Y';
+    format[monthPos] = 'M';
+    format[dayPos]   = 'D';
+    format[3] = 0;
+}
+
+/*!  
+  
+  Returns a string that indicates in which order the date appears in
+  the editor. I.e, "YMD" means that the date appears in the year -
+  month - day order.
+  
+  \sa setOrder
+*/
+QString QDateEdit::order() const
+{
+    return format;
+}
+
+
+/*!  
+  \internal
   Post-process the edited date. This will guarantee that a date is
   valid.
 */
@@ -407,26 +470,26 @@ void QDateEdit::fixup()
     v[1] = (QIntValidator *) ed[1]->validator();
     v[2] = (QIntValidator *) ed[2]->validator();
 
-    yy = ed[0]->text().toInt();
-    mm = ed[1]->text().toInt();
-    dd = ed[2]->text().toInt();
+    yy = ed[yearPos]->text().toInt();
+    mm = ed[monthPos]->text().toInt();
+    dd = ed[dayPos]->text().toInt();
     
     if( !QDate::isValid( yy, mm, dd) ){
 	if( !QDate::isValid( yy, 1, 1 ) )
-	    if( yy > v[0]->top() ) yy = v[0]->top();
-	    else if( yy < v[0]->bottom() ) yy = v[0]->bottom();
+	    if( yy > v[yearPos]->top() ) yy = v[yearPos]->top();
+	    else if( yy < v[yearPos]->bottom() ) yy = v[yearPos]->bottom();
 	if( !QDate::isValid( yy, mm, 1 ) )
-	    if( mm > v[1]->top() ) mm = v[1]->top();
-	    else if( mm < v[1]->bottom() ) mm = v[1]->bottom();
-	if( dd > v[2]->top() ) dd = v[2]->top();
-	else if( dd < v[2]->bottom() ) dd = v[2]->bottom();
+	    if( mm > v[monthPos]->top() ) mm = v[monthPos]->top();
+	    else if( mm < v[monthPos]->bottom() ) mm = v[monthPos]->bottom();
+	if( dd > v[dayPos]->top() ) dd = v[dayPos]->top();
+	else if( dd < v[dayPos]->bottom() ) dd = v[dayPos]->bottom();
 	
 	while( !QDate::isValid( yy, mm, dd ) ){
 	    dd--;
 	}
-	ed[0]->setText( QString::number( yy ) );
-	ed[1]->setText( QString::number( mm ) );
-	ed[2]->setText( QString::number( dd ) );
+	ed[yearPos]->setText( QString::number( yy ) );
+	ed[monthPos]->setText( QString::number( mm ) );
+	ed[dayPos]->setText( QString::number( dd ) );
     }
 }
 
@@ -436,7 +499,25 @@ void QDateEdit::fixup()
 */
 void QDateEdit::resizeEvent( QResizeEvent * )
 {
-    layoutWidgets( 10 );
+    int mSize = 6;
+    int h     = height() - frameWidth()*2;
+    int numSize = (width() - 15) / 10;
+    int offset  = frameWidth();
+    
+    ed[yearPos]->resize( numSize*4, h );
+    ed[monthPos]->resize( numSize*2, h );
+    ed[dayPos]->resize( numSize*2, h );
+
+    ed[0]->move( offset, offset );
+    ed[1]->move( ed[0]->x() + ed[0]->width() + mSize, offset );
+    ed[2]->move( ed[1]->x() + ed[1]->width() + mSize, offset );
+
+    sep[0]->resize( mSize, h - 2);
+    sep[1]->resize( mSize, h - 2);
+    sep[0]->move( ed[0]->x() + ed[0]->width() + 1, offset );
+    sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
+
+    layoutArrows();
 }
 
 /*!
@@ -503,8 +584,8 @@ void QTimeEdit::setTime( const QTime & t )
     ed[1]->setText( QString::number( t.minute() ) );
     ed[2]->setText( QString::number( t.second() ) );
     
-    ed[0]->setFocus();
-    ed[0]->selectAll();
+//    ed[0]->setFocus();
+//    ed[0]->selectAll();
 }
 
 /*!
@@ -517,8 +598,29 @@ QTime QTimeEdit::time() const
 		  ed[2]->text().toInt() );
 }
 
+/*!
+  
+  Handle resizing.
+ */
 void QTimeEdit::resizeEvent( QResizeEvent * )
 {
-    layoutWidgets( 8 );
+    int mSize = 6;
+    int h     = height() - frameWidth()*2;
+    int numSize = (width() - 15) / 8;
+    int offset  = frameWidth();
+    
+    ed[0]->resize( numSize*2, h );
+    ed[1]->resize( numSize*2, h );
+    ed[2]->resize( numSize*2, h );
+
+    ed[0]->move( offset, offset );
+    ed[1]->move( ed[0]->x() + ed[0]->width() + mSize, offset );
+    ed[2]->move( ed[1]->x() + ed[1]->width() + mSize, offset );
+
+    sep[0]->resize( mSize, h - 2);
+    sep[1]->resize( mSize, h - 2);
+    sep[0]->move( ed[0]->x() + ed[0]->width() + 1, offset );
+    sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
+    layoutArrows();
 }
 #endif

@@ -11,13 +11,15 @@
 
 class QSqlField;
 class QSqlView;
+class QEditorFactory;
 
 class QSqlPropertyMap {
 public:
     QSqlPropertyMap();
     
-    QVariant property( QObject * object );
-    void     setProperty( QObject * object, const QVariant & value );   
+    QVariant property( QWidget * widget );
+    void     setProperty( QWidget * widget, const QVariant & value );   
+ 
     void     insert( const QString & classname, const QString & property );
     void     remove( const QString & classname );
     
@@ -33,10 +35,16 @@ public:
     
     void        insert( QWidget * widget, QSqlField * field );
     void        remove( QWidget * widget );
+    void        clear();
+    uint        count() const;
+    
+    QWidget *   widget( uint i ) const;
     QSqlField * whichField( QWidget * widget ) const;
     QWidget *   whichWidget( QSqlField * field ) const;
+
     void        syncWidgets();
     void        syncFields();
+
     void        installPropertyMap( QSqlPropertyMap * pmap );
     
 private:
@@ -49,16 +57,26 @@ class Q_EXPORT QSqlForm : public QWidget
     Q_OBJECT
 public:
     QSqlForm( QWidget * parent = 0, const char * name = 0 );
+    QSqlForm( QSqlView * view, uint columns = 1, QWidget * parent = 0,
+	      const char * name = 0 );
     ~QSqlForm();
     
     void       associate( QWidget * widget, QSqlField * field );
+    
     void       setView( QSqlView * view );
     QSqlView * view() const;
+    
+    void       setReadOnly( bool state );
+    bool       isReadOnly() const;
+    
+    void       installEditorFactory( QEditorFactory * f );
     void       installPropertyMap( QSqlPropertyMap * m );
-   
+    void       populate( QSqlView * view, uint columns = 1 );
+    
 public slots:
-    virtual void syncWidgets();
-    virtual void syncFields();
+    void syncWidgets();
+    void syncFields();   
+    void clear();
     
     virtual void first();    
     virtual void previous();
@@ -67,12 +85,13 @@ public slots:
     virtual bool insert();
     virtual bool update();
     virtual bool del();
-    virtual void seek( int i );
+    virtual void seek( uint i );
         
 signals:
-    void stateChanged( int i );
+    void stateChanged( uint i );
     
 private:
+    bool readOnly;
     QSqlView * v;
     QSqlFormMap * map;
 };

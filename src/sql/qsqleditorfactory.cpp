@@ -4,7 +4,7 @@
 #include <qspinbox.h>
 #include <qcombobox.h>
 
-#include "qsqleditorfactory.h"
+#include "qeditorfactory.h"
 #include "qdatetimeedit.h"
 
 #ifndef QT_NO_SQL
@@ -13,7 +13,7 @@
 
 */
 
-QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
+QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
     : QObject( parent, name )
 {
 
@@ -23,7 +23,7 @@ QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
 
 */
 
-QSqlEditorFactory::~QSqlEditorFactory()
+QEditorFactory::~QEditorFactory()
 {
 
 }
@@ -35,7 +35,7 @@ QSqlEditorFactory::~QSqlEditorFactory()
 
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )
+QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 {
     QWidget * w = 0;
     switch( v.type() ){
@@ -95,7 +95,7 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField & f )
+QWidget * QEditorFactory::createEditor( QWidget * parent, const QSqlField & f )
 {
     QVariant v = f.value();
     return createEditor( parent, v );

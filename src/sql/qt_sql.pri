@@ -13,7 +13,7 @@ sql {
 		    $$SQL_H/qsqlfield.h \
 		    $$SQL_H/qsqlview.h \
 		    $$SQL_H/qsqlform.h \
-		    $$SQL_H/qsqleditorfactory.h \
+		    $$SQL_H/qeditorfactory.h \
 		    $$SQL_H/qsqldriver.h \
 		    $$SQL_H/qsqldriverinterface.h \
 		    $$SQL_H/qsqldriverplugin.h \
@@ -29,7 +29,7 @@ sql {
 		    $$SQL_CPP/qsqlfield.cpp \
 		    $$SQL_CPP/qsqlform.cpp \
 		    $$SQL_CPP/qsqlview.cpp \
-		    $$SQL_CPP/qsqleditorfactory.cpp \
+		    $$SQL_CPP/qeditorfactory.cpp \
 		    $$SQL_CPP/qsqldriver.cpp \
 		    $$SQL_CPP/qsqldriverplugin.cpp \
 		    $$SQL_CPP/qsqlerror.cpp \

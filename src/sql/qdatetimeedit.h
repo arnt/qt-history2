@@ -21,6 +21,7 @@ class Q_EXPORT QDateTimeEditBase : public QFrame
 public:
     QDateTimeEditBase( QWidget * parent = 0, 
 		       const char * name = "QDateTimeEditBase" );
+    QSize sizeHint() const;
     
 public slots:
     void stepUp();
@@ -28,9 +29,9 @@ public slots:
 
 protected:
     void init();
-    void updateArrows();
     bool eventFilter( QObject *, QEvent * );
-    void layoutWidgets( int digits );
+    void updateArrows();
+    void layoutArrows();
     
     QPushButton * up, * down;
     NumEdit     * ed[3];
@@ -46,13 +47,17 @@ class Q_EXPORT QDateEdit : public QDateTimeEditBase
 public:
     QDateEdit( QWidget * parent = 0, const char * name = 0 );
     QDateEdit( const QDate & d, QWidget * parent = 0, const char * name = 0 );
-    void  setDate( const QDate & d );
-    QDate date() const;
-
+    void    setDate( const QDate & d );
+    QDate   date() const;    
+    void    setOrder( const QString & order );
+    QString order() const;
+    
 protected:
     void init();
     void fixup();
     void resizeEvent( QResizeEvent * );
+    int yearPos, monthPos, dayPos;
+    QString format;
 };
 
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase

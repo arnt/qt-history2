@@ -93,6 +93,13 @@ void QSqlField::setValue( const QVariant& value )
   Clears the value of the field.
 */
 
+void QSqlField::clear()
+{
+    QVariant v;	
+    v.cast( type() );
+    setValue( v );
+}
+
 /*! \fn void QSqlField::setName( const QString& name )
   Sets the name of the field to \a name,
 */
