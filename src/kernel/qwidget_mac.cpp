@@ -1243,29 +1243,16 @@ void QWidget::showNormal()
 {
     if(isDesktop()) //desktop is always visible
 	return;
-
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
+	if(topData()->fullscreen) {
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    setGeometry(topData()->normalGeometry);
 	    topData()->fullscreen = 0;
-	}
-	{
+	} else {
 	    Rect bounds;
 	    ZoomWindow( (WindowPtr)hd, inZoomIn, FALSE);
 	    GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
 	    qt_dirty_wndw_rgn("showNormal",this, &bounds);
-
-	    QRect orect(x(), y(), width(), height());
-	    if(isVisible()) {
-		dirtyClippedRegion(TRUE);
-
-		//issue a resize
-		QResizeEvent qre( size(), orect.size());
-		QApplication::sendEvent( this, &qre );
-		//issue a move
-		QMoveEvent qme( pos(), orect.topLeft());
-		QApplication::sendEvent( this, &qme );
-	    }
 	}
     }
     dirtyClippedRegion(TRUE);
@@ -1274,7 +1261,6 @@ void QWidget::showNormal()
     QApplication::sendEvent( this, &e );
     clearWState( WState_Minimized | WState_Maximized );
 }
-
 
 void QWidget::raise()
 {
