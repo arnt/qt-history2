@@ -62,7 +62,7 @@ TARGET	=	moc
 all: $(TARGET)
 
 $(TARGET): $(TOOLOBJ) $(OBJECTS)
-	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
+	$(CC) $(LFLAGS) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
 
 depend:
 	makedepend $(INCPATH) $(SOURCES) 2> /dev/null
