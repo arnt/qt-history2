@@ -784,82 +784,60 @@ bool QPixmap::hasAlphaChannel() const
     return data->alphapm != 0;
 }
 
-IconRef qt_mac_create_iconref(const QPixmap &px) {
+IconRef qt_mac_create_iconref(const QPixmap &px) 
+{
     QMacSavedPortInfo pi; //save the current state
-
     //create icon
     IconFamilyHandle iconFamily = (IconFamilyHandle)NewHandle(0);
     //create data
-    Rect r; SetRect(&r, 0, 0, px.width(), px.height());    
-#if 1
-    PicHandle pic = OpenPicture(&r);
     {
-	GWorldPtr world;
-	GDHandle handle;
-	GetGWorld(&world, &handle);
-	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()), 
-		 GetPortBitMapForCopyBits((GWorldPtr)world), &r, &r, srcCopy, 0);
-    }
-    ClosePicture();
-    SetIconFamilyData(iconFamily, 'PICT', (Handle)pic);
-    KillPicture(pic);
-#else
-    {
-	const int thw = 128;
-	Handle data = NewHandle(thw*thw);
-	HLock(data);
-	GWorldPtr offscreen;
-	Rect offr; SetRect(&offr, 0, 0, thw, thw);
-	NewGWorldFromPtr(&offscreen, 32, &offr, NULL, NULL, 0, *data, thw);
-	SetGWorld(offscreen, NULL);
-	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.handle()),
-		 GetPortBitMapForCopyBits(offscreen), &r, &offr, srcCopy, NULL);
-
-	qDebug("%d: %ld", __LINE__, SetIconFamilyData(iconFamily, kThumbnail32BitData, data));
-	DisposeGWorld(offscreen);
-	DisposeHandle(data);
-    }
-#endif
-    //create mask
-    if(0 && px.mask()) { 
-#if 1
-	const int thw = 128;
-	Handle mask = NewHandle(thw*thw);
-	GWorldPtr offscreen;
-	CTabHandle cTab = GetCTable(40);
-	Rect offr; SetRect(&offr, 0, 0, thw, thw);
-	NewGWorldFromPtr(&offscreen, 8, &offr, cTab, NULL, 0, *mask, thw);
-	SetGWorld(offscreen, NULL);
-	CopyBits(GetPortBitMapForCopyBits((GWorldPtr)px.mask()->handle()),
-		 GetPortBitMapForCopyBits(offscreen), &r, &offr, srcCopy, NULL);
-	{
-	    px.mask()->save("/Users/sam/orig.png", "PNG");
-	    QPixmap tmp(32, thw, thw);
-	    CopyBits(GetPortBitMapForCopyBits(offscreen), 
-		     GetPortBitMapForCopyBits((GWorldPtr)tmp.handle()), &offr, &offr, srcCopy, NULL);
-	    qDebug("%d", tmp.save("/Users/sam/foo.png", "PNG"));
+	struct {
+	    OSType mac_type;
+	    int width, height, depth;
+	    bool mask;
+	} images[] = {
+	    { kThumbnail32BitData, 128, 128, 32, FALSE },
+//	    { kHuge32BitData,       48,  48, 32, FALSE },
+//	    { kLarge32BitData,      32,  32, 32, FALSE },
+//	    { kSmall32BitData,      16,  16, 32, FALSE },
+	    //masks
+	    { kThumbnail8BitMask, 128, 128, 8, TRUE },
+//	    { kHuge1BitMask,       48,  48, 1, TRUE },
+//	    { kLarge1BitMask,      32,  32, 1, TRUE },
+//	    { kSmall1BitMask,      16, 16,  1, TRUE },
+	    { 0, 0, 0, 0, FALSE } };
+	for(int i = 0; images[i].mac_type; i++) {
+	    const QPixmap *in_pix = NULL;
+	    if(images[i].mask)
+		in_pix = px.mask();
+	    else
+		in_pix = &px;
+	    if(in_pix) {
+		//make the image
+		QImage im;
+		im = *in_pix;
+		im = im.smoothScale(images[i].width, images[i].height).convertDepth(images[i].depth);
+		//convert to Handle
+		int x_rows = im.width() * (images[i].depth/8), y_rows = im.height();
+		Handle hdl = NewHandle(x_rows*y_rows);
+		if(images[i].mac_type == kThumbnail8BitMask) {
+		    for(int y = 0, h = 0; y < im.height(); y++) {
+			for(int x = 0; x < im.width(); x++)
+			    *((*hdl)+(h++)) = im.pixel(x, y) ? 0 : 255;
+		    }
+		} else {
+		    for(int y = 0; y < y_rows; y++) 
+			memcpy((*hdl)+(y*x_rows), im.scanLine(y), x_rows);
+		}
+		OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
+		if(set != noErr)
+		    qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
+		DisposeHandle(hdl);
+	    }
 	}
-	{
-	    QPixmap tmp(32, thw, thw);
-	    QImage i;
-	    i = *px.mask();
-	    i = i.smoothScale(128, 128);
-	    QPixmap tmp2 = i;
-	    CopyBits(GetPortBitMapForCopyBits((GWorldPtr)tmp2.handle()), 
-		     GetPortBitMapForCopyBits((GWorldPtr)tmp.handle()), &offr, &offr, srcCopy, NULL);
-	    qDebug("%d", tmp.save("/Users/sam/directorig.png", "PNG"));
-	}
-	SetIconFamilyData(iconFamily, kThumbnail8BitMask, mask);
-	DisposeGWorld(offscreen);
-	DisposeHandle(mask);
-#else
-	QImage im;
-	im = *px.mask();
-	im = im.smoothScale(128, 128).convertDepth(8);
-	SetIconFamilyData(iconFamily, kThumbnail8BitMask, (Handle)im.bits());
-#endif
     }
 
+    //acquire and cleanup
     IconRef ret;
     const OSType kFakeCreator = 'CUTE', kFakeType = 'QICO';
     RegisterIconRefFromIconFamily(kFakeCreator, kFakeType, iconFamily, &ret);
