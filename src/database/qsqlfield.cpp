@@ -46,13 +46,22 @@ QSqlResultField::~QSqlResultField()
 }
 
 /*!
-  Returns a reference to the internal value of the field.
+  Returns the internal value of the field.
 
 */
 
-QVariant& QSqlResultField::value()
+QVariant QSqlResultField::value()
 {
     return val;
+}
+
+/*!
+  Sets the internal value of the field to \a value.
+
+*/
+void QSqlResultField::setValue( const QVariant& value )
+{
+    val = value;
 }
 
 /*! \fn void QSqlResultField::setName( const QString& name )
@@ -175,27 +184,55 @@ QSqlField::~QSqlField()
 
 */
 
+QSqlFieldList::QSqlFieldList()
+{
+    
+}
 
-/*!  Constructs a copy of \a l.
+/*!  Constructs a copy of \a other.
 
 */
 
-//template < class T > QSqlFields< T >::QSqlFields< T >( const QSqlFields< T >& l )
+QSqlFieldList::QSqlFieldList( const QSqlFieldList& other )
+    : fieldList( other.fieldList ), fieldListStr( other.fieldListStr ), posMap( other.posMap )
+{
+    
+}
+
+QSqlFieldList::QSqlFieldList( const QSqlField& t )
+{
+    append( t );
+}
+
+QSqlFieldList& QSqlFieldList::operator=( const QSqlFieldList& other )
+{
+    fieldList = other.fieldList;
+    fieldListStr = other.fieldListStr;
+    posMap = other.posMap;
+    return *this;
+}
 
 /*!
   Destroys the object and frees any allocated resources.
 
 */
 
-//template < class T > QSqlFields< T >::~QSqlFields< T >()
+QSqlFieldList::~QSqlFieldList()
+{
+    
+}
 
+   
 /*!
   Returns a reference to the field located at position \a i in the list.
   It is up to you to check wether this item really exists.
 
 */
 
-//template < class T > QVariant& QSqlFields< T >::operator[]( int i )
+QVariant& QSqlFieldList::operator[]( int i ) 
+{ 
+    return findField(i).val;
+}
 
 /*!
   Returns a reference to the field named \a name in the list.
@@ -203,39 +240,35 @@ QSqlField::~QSqlField()
 
 */
 
-//template < class T > QVariant& QSqlFields< T >::operator[]( const QString& name )
+QVariant& QSqlFieldList::operator[]( const QString& name )
+{ 
+    return findField( name ).val; 
+}
 
 /*!
-  Returns a reference to the field located at position \a i in the list.
+  Returns the value of the field located at position \a i in the list.
   It is up to you to check wether this item really exists.
 
 */
 
-//template < class T > QVariant& QSqlFields< T >::value( int i )
+QVariant  QSqlFieldList::value( int i ) 
+{ 
+    return findField(i).val; 
+}
 
 /*!
-  Returns a reference to the field named \a name in the list.
+  Returns the value of the field named \a name in the list.
   It is up to you to check wether this item really exists.
 
 */
 
-//template < class T > QVariant& QSqlFields< T >::value( const QString& name )
+QVariant  QSqlFieldList::value( const QString& name ) 
+{
+    return findField( name ).val;
+}
 
-/*!
-  Returns a reference to the value of the field located at position \a i in the list.
-  It is up to you to check wether this item really exists.
 
-*/
 
-//template < class T > T& QSqlFields< T >::field( int i )
-
-/*!
-  Returns a reference to the value of the field named \a name in the list.
-  It is up to you to check wether this item really exists.
-
-*/
-
-//template < class T > T& QSqlFields< T >::field( const QString& name )
 
 /*!
   Returns the position of the field named \a name within the list,
@@ -243,21 +276,60 @@ QSqlField::~QSqlField()
 
 */
 
-//template < class T > int QSqlFields< T >::position( const QString& name )
+int QSqlFieldList::position( const QString& name ) const
+{
+    if ( posMap.contains( name ) )
+	return posMap[ name ];
+    return -1;
+}
+
+QSqlField& QSqlFieldList::field( int i ) 
+{
+    return fieldList[ i ]; 
+}
+
+const QSqlField& QSqlFieldList::field( int i ) const 
+{ 
+    return fieldList[ i ]; 
+}
+
+QSqlField& QSqlFieldList::field( const QString& name ) 
+{ 
+    return fieldList[ position( name ) ]; 
+}
+
+const QSqlField& QSqlFieldList::field( const QString& name ) const 
+{
+    return fieldList[ position( name ) ]; 
+}
+
 
 /*!
   Appends the field \a field to the end of the list of fields.
 
 */
 
-//template < class T > void QSqlFields< T >::append( const T& field )
+void QSqlFieldList::append( const QSqlField& field )
+{
+    if ( fieldListStr.isNull() )
+	fieldListStr = field.name();
+    else
+	fieldListStr += ", " + field.name();
+    posMap[ field.name() ] = fieldList.count();
+    fieldList.append( field );
+}
 
 /*!
   Removes all fields from the list.
 
 */
 
-//template < class T > void QSqlFields< T >::clear()
+void QSqlFieldList::clear()
+{
+    fieldListStr = QString::null;
+    fieldList.clear();
+    posMap.clear();
+}
 
 /*!
   Returns a comma-separated list of field names as a string.  This
@@ -266,13 +338,59 @@ QSqlField::~QSqlField()
 
 */
 
-//template < class T > QString QSqlFields< T >::toString() const
+QString QSqlFieldList::toString( const QString& prefix = QString::null ) const
+{
+    if ( prefix.isNull() )
+	return fieldListStr;
+    QString pfix =  prefix + ".";
+    QString pflist = fieldListStr;
+    pflist = pfix + pflist.replace( QRegExp(", "), QString(", ") + pfix );
+    return pflist;
+}
+
 
 /*!
   Returns the number of fields in the list.
 
 */
 
-//template < class T > uint QSqlFields< T >::count() const
+uint QSqlFieldList::count() const 
+{
+    return fieldList.count(); 
+}
+
+/*!
+  \internal
+
+*/
+
+QSqlField& QSqlFieldList::findField( int i )
+{
+#ifdef CHECK_RANGE
+    static QSqlField dbg;
+    if( (unsigned int) i > fieldList.count() ){
+	qWarning( "QSqlFields warning: index out of range" );
+	return dbg;
+    }
+#endif // CHECK_RANGE
+    return fieldList[ i ];
+}
+
+/*!
+  \internal
+
+*/
+
+QSqlField& QSqlFieldList::findField( const QString& name )
+{
+#ifdef CHECK_RANGE
+    static QSqlField dbg;
+    if( (unsigned int) position( name ) > fieldList.count() ){
+	qWarning( "QSqlFields warning: index out of range" );
+	return dbg;
+    }
+#endif // CHECK_RANGE
+    return fieldList[ position( name ) ];
+}
 
 #endif
