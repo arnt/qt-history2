@@ -604,7 +604,13 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
 	         << typeString( node ) << " is part of the Qt 3 compatibility library."
 	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
 	         << " It is provided to keep old source code working. We strongly advise against "
-                 << "using it in new code." << Atom::ParaRight;
+                 << "using it in new code. See the "
+                 << Atom(Atom::Link, "porting4.html")
+                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+                 << Atom(Atom::String, "Porting Guide")
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+                 << " for more information."
+                 << Atom::ParaRight;
         }
     }
     generateText(text, node, marker);
