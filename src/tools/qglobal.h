@@ -165,6 +165,10 @@
 #define _CC_WAT_
 #elif defined(__GNUC__)
 #define _CC_GNU_
+#if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+#define Q_FULL_TEMPLATE_INSTANTIATION
+#define Q_TEMPLATE_NEEDS_CLASS_DECLARATION
+#endif
 #elif defined(__xlC__)
 #define _CC_XLC_
 #elif defined(como40)

@@ -26,12 +26,9 @@
 #ifndef QVARIANT_H
 #define QVARIANT_H
 
-#if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
-#if defined(QVALUELIST_H)
-#warning "This version of the GNU compiler will not let you include \
-qvaluelist.h before qvariant.h"
+#if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && defined(QVALUELIST_H)
+#warning "This compiler will not let you include qvaluelist.h before qvariant.h"
 #endif
-#endif // _CC_GNU_
 
 #ifndef QT_H
 #include "qstring.h"
@@ -214,8 +211,8 @@ Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
 
-#if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 Q_EXPORT bool operator== ( const QVariant&, const QVariant& );
-#endif // _CC_GNU_
+#endif
 
 #endif
