@@ -150,6 +150,8 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 {
     d = 0;
     setFocusPolicy( StrongFocus );
+    setVScrollBarMode(AlwaysOff);
+    setHScrollBarMode(AlwaysOff);
     viewport()->setBackgroundMode( PaletteBackground );
     setNumCols( 7 );
     setNumRows( 7 );
