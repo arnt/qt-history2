@@ -189,6 +189,12 @@ DspMakefileGenerator::init()
 	return;
     init_flag = TRUE;
 
+    /* this should probably not be here, but I'm using it to wrap the .t files */
+    if(project->variables()["TEMPLATE"].first() == "vcapp")
+	project->variables()["TMAKE_APP_FLAG"].append("1");
+    else if(project->variables()["TEMPLATE"].first() == "vclib")
+	project->variables()["TMAKE_LIB_FLAG"].append("1");
+
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");

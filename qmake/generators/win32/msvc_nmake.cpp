@@ -62,7 +62,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "CXX	=	" << var("TMAKE_CXX") << endl;
     t << "CFLAGS	=	" << var("TMAKE_CFLAGS") << " " <<  varGlue("DEFINES","-D"," -D","") << endl;
     t << " CXXFLAGS=	" << var("TMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "INCPATH	=	" << varGlue("INCLUDEPATH","-I"," -I","") << endl;
+    t << "INCPATH	=	" << varGlue("INCLUDEPATH","-I\"","\" -I\"","\"") << endl;
     if(!project->variables()["TMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("TMAKE_LINK") << endl;
 	t << "LFLAGS	=	" << var("TMAKE_LFLAGS") << endl;
@@ -102,11 +102,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
     t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
     if(!project->variables()["TMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << endl
-	  << "\n\t  " << "$(OBJECTS) $(OBJMOC) $(LIBS)";
+	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  " 
+	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
     } else {
-	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << endl
-	  << "\n\t  " << "$(OBJECTS) $(OBJMOC)";
+	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  " 
+	  << "$(OBJECTS) $(OBJMOC)";
     }
     t << endl << "<<" << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
@@ -148,8 +148,13 @@ NmakeMakefileGenerator::init()
 	return;
     init_flag = TRUE;
 
-    QStringList &configs = project->variables()["CONFIG"];
+    /* this should probably not be here, but I'm using it to wrap the .t files */
+    if(project->variables()["TEMPLATE"].first() == "app")
+	project->variables()["TMAKE_APP_FLAG"].append("1");
+    else if(project->variables()["TEMPLATE"].first() == "lib")
+	project->variables()["TMAKE_LIB_FLAG"].append("1");
 
+    QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {

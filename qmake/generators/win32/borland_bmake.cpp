@@ -204,7 +204,12 @@ BorlandMakefileGenerator::init()
 	return;
     init_flag = TRUE;
 
-    if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    /* this should probably not be here, but I'm using it to wrap the .t files */
+    if(project->variables()["TEMPLATE"].first() == "app")
+	project->variables()["TMAKE_APP_FLAG"].append("1");
+    else if(project->variables()["TEMPLATE"].first() == "lib")
+	project->variables()["TMAKE_LIB_FLAG"].append("1");
+    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
 	MakefileGenerator::init();
 	if(project->variables()["MAKEFILE"].isEmpty())
 	    project->variables()["MAKEFILE"].append("Makefile");
