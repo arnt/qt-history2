@@ -31,6 +31,7 @@ class QPalette;
 
 class Q_EXPORT_STYLE_PLATINUM QPlatinumStyle : public QWindowsStyle
 {
+    Q_OBJECT
 public:
     QPlatinumStyle();
     virtual ~QPlatinumStyle();
