@@ -244,6 +244,40 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
 // -----------------------------------------------------
 
+/* 
+   Arabic shaping obeys a number of rules according to the joining classes (see Unicode book, section on
+   arabic).
+   
+   Each unicode char has a joining class (right, dual (left&right), center (joincausing) or transparent).
+   transparent joining is not encoded in QChar::joining(), but applies to all combining marks and format marks.
+   
+   Right join-causing: dual + center
+   Left join-causing: dual + right + center
+   
+   Rules are as follows (for a string already in visual order, as we have it here):
+   
+   R1 Transparent characters do not affect joining behaviour.
+   R2 A right joining character, that has a right join-causing char on the right will get form XRight
+   (R3 A left joining character, that has a left join-causing char on the left will get form XLeft)
+   Note: the above rule is meaningless, as there are no pure left joining characters defined in Unicode
+   R4 A dual joining character, that has a left join-causing char on the left and a right join-causing char on
+             the right will get form XMedial
+   R5  A dual joining character, that has a right join causing char on the right, and no left join causing char on the left
+         will get form XRight
+   R6 A dual joining character, that has a  left join causing char on the left, and no right join causing char on the right
+         will get form XLeft
+   R7 Otherwise the character will get form XIsolated
+   
+   Additionally we have to do the minimal ligature support for lam-alef ligatures:
+   
+   L1 Transparent characters do not affect ligature behaviour.
+   L2 Any sequence of Alef(XRight) + Lam(XMedial) will form the ligature Alef.Lam(XLeft)
+   L3 Any sequence of Alef(XRight) + Lam(XLeft) will form the ligature Alef.Lam(XIsolated)
+
+   The two functions defined in this class do shaping in visual and logical order. For logical order just replace right with
+   previous and left with next in the above rules ;-)
+*/
+
 /*
   Two small helper functions for arabic shaping. They get the next shape causing character on either
   side of the char in question. Implements rule R1.
@@ -283,36 +317,6 @@ static inline bool rightChar( const QString &str, int pos)
     return FALSE;
 }
 
-/* 
-   Arabic shaping obeys a number of rules according to the joining classes (see Unicode book, section on
-   arabic).
-   
-   Each unicode char has a joining class (right, dual (left&right), center (joincausing) or transparent).
-   transparent joining is not encoded in QChar::joining(), but applies to all combining marks and format marks.
-   
-   Right join-causing: dual + center
-   Left join-causing: dual + right + center
-   
-   Rules are as follows (for a string already in visual order, as we have it here):
-   
-   R1 Transparent characters do not affect joining behaviour.
-   R2 A right joining character, that has a right join-causing char on the right will get form XRight
-   (R3 A left joining character, that has a left join-causing char on the left will get form XLeft)
-   Note: the above rule is meaningless, as there are no pure left joining characters defined in Unicode
-   R4 A dual joining character, that has a left join-causing char on the left and a right join-causing char on
-             the right will get form XMedial
-   R5  A dual joining character, that has a right join causing char on the right, and no left join causing char on the left
-         will get form XRight
-   R6 A dual joining character, that has a  left join causing char on the left, and no right join causing char on the right
-         will get form XLeft
-   R7 Otherwise the character will get form XIsolated
-   
-   Additionally we have to do the minimal ligature support for lam-alef ligatures:
-   
-   L1 Transparent characters do not affect ligature behaviour.
-   L2 Any sequence of Alef(XRight) + Lam(XMedial) will form the ligature Alef.Lam(XLeft)
-   L3 Any sequence of Alef(XRight) + Lam(XLeft) will form the ligature Alef.Lam(XIsolated)
-*/
 
 QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
 {
@@ -344,6 +348,73 @@ QArabicShaping::Shape QArabicShaping::glyphVariant( const QString &str, int pos)
     }
     return XIsolated;
 }
+
+/* and the same thing for logical ordering :)
+ */
+static inline bool leftCharL( const QString &str, int pos)
+{
+    //qDebug("leftChar: pos=%d", pos);
+    pos++;
+    int len = str.length();
+    while( pos < len ) {
+	const QChar &ch = str[pos];
+	//qDebug("leftChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
+	if( ch.isLetter() )
+	    return (	 ch.joining() != QChar::OtherJoining );
+	// assume it's a transparent char, this might not be 100% correct
+	pos++;
+    }
+    return FALSE;
+}
+
+static inline bool rightCharL( const QString &str, int pos)
+{
+    pos--;
+    while( pos > -1 ) {
+	const QChar &ch = str[pos];
+	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
+	if( ch.isLetter() ) {
+	    QChar::Joining join = ch.joining();
+	    return ( join == QChar::Dual || join == QChar::Center );
+	}
+	// assume it's a transparent char, this might not be 100% correct
+	pos--;
+    }
+    return FALSE;
+}
+
+
+QArabicShaping::Shape QArabicShaping::glyphVariantLogical( const QString &str, int pos)
+{
+    // ### ignores L1 - L3
+    QChar::Joining joining = str[pos].joining();
+    //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
+    switch ( joining ) {
+	case QChar::OtherJoining:
+	case QChar::Center:
+	    // these don't change shape
+	    return XIsolated;
+	case QChar::Right:
+	    // only rule R2 applies
+	    if( rightCharL( str, pos ) )
+		return XRight;
+	    return XIsolated;
+	case QChar::Dual:
+	    bool right = rightCharL( str, pos );
+	    bool left = leftCharL( str, pos );
+	    //qDebug("dual: right=%d, left=%d", right, left);
+	    if( right && left )
+		return XMedial;
+	    else if ( right )
+		return XRight;
+	    else if ( left )
+		return XLeft;
+	    else
+		return XIsolated;
+    }
+    return XIsolated;
+}
+
 
 // ---------------------------------------------------------------
 
@@ -514,6 +585,22 @@ QCString QFontArabic68Codec::fromUnicode(const QString& uc, int& lenInOut ) cons
 	ch++;
     }
     return result;
+}
+
+ushort QFontArabic68Codec::shapedGlyph( const QString &str, int pos )
+{
+    const QChar *ch = str.unicode() + pos;
+    if ( ch->row() == 0 && ch->cell() < 0x80 ) {
+	return ch->cell();
+    }
+    if ( ch->row() != 0x06 || ch->cell() > 0x6f )
+	return 0xff; // undefined char in iso8859-6.8x
+    else {
+	int shape = QArabicShaping::glyphVariantLogical( str, pos );
+	//qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabic68Mapping[ch->cell()][shape]);
+	return arabic68Mapping[ch->cell()][shape];
+    }
+    
 }
 
 #if 0

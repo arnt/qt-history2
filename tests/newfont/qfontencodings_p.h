@@ -124,12 +124,20 @@ public:
 	LaIsolated_Lam,
     };
     static Shape glyphVariant( const QString &str, int pos);
+    static Shape glyphVariantLogical( const QString &str, int pos);
 };
 
 // ------------------------------------------------------------------
 // the shaping codec for iso8859-6.8x fonts (see www.langbox.com)
 
-class QFontArabic68Codec : public QTextCodec
+class QShapingCodec : public QTextCodec
+{
+public:
+    // returns the shaped glyph variant for the char at position pos (str is assumed to be in logical order)
+    virtual ushort shapedGlyph( const QString &str, int pos ) = 0;
+};
+
+class QFontArabic68Codec : public QShapingCodec
 {
 public:
     QFontArabic68Codec();
@@ -148,6 +156,8 @@ public:
     // the length of the result in lenInOut.
 
     int heuristicContentMatch(const char *, int) const;
+
+    ushort shapedGlyph( const QString &str, int pos );
 };
 
 

@@ -2228,6 +2228,53 @@ int QFontMetrics::width(QChar ch) const
 }
 
 
+static
+XCharStruct* charStrShaped(const QTextCodec* codec, XFontStruct *f, const QString &str, int pos)
+{
+    // Optimized - inFont() is merged in here.
+    QChar ch;
+    
+    if (! f->per_char) {
+	return &f->max_bounds;
+    }
+
+    if (codec) {
+	QShapingCodec *c = (QShapingCodec *)codec;
+	ch = QChar( c->shapedGlyph(str, pos) );
+    } else
+	ch = str[pos];
+
+    if ( f->max_byte1 ) {
+	if (! (ch.cell() >= f->min_char_or_byte2 &&
+	       ch.cell() <= f->max_char_or_byte2 &&
+	       ch.row() >= f->min_byte1 &&
+	       ch.row() <= f->max_byte1)) {
+	    ch = QChar((ushort)f->default_char);
+	}
+
+	return f->per_char +
+	    ((ch.row() - f->min_byte1)
+	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
+	     + ch.cell() - f->min_char_or_byte2);
+    } else if ( ch.row() ) {
+	uint ch16 = ch.unicode();
+
+	if (! (ch16 >= f->min_char_or_byte2 &&
+	       ch16 <= f->max_char_or_byte2)) {
+	    ch16 = f->default_char;
+	}
+
+	return f->per_char + ch16;
+    }
+
+    if (! (ch.cell() >= f->min_char_or_byte2 &&
+	   ch.cell() <= f->max_char_or_byte2)) {
+	ch = QChar((uchar)f->default_char);
+    }
+
+    return f->per_char + ch.cell() - f->min_char_or_byte2;
+}
+
 /*!
   Returns the width in pixels of the first \e len characters of \e str.
 
@@ -2349,13 +2396,16 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     if (script == QFontPrivate::UnknownScript)
 	return 0;
-
     d->load(script);
     if (! d->x11data.fontstruct[script]) return 0;
 
-    XCharStruct *xcs =
-	charStr(d->x11data.fontstruct[script]->codec,
-		((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
+    XCharStruct *xcs;
+    if ( script == QFontPrivate::ARABIC ) {
+	xcs = charStrShaped(d->x11data.fontstruct[script]->codec,
+		      ((XFontStruct *) d->x11data.fontstruct[script]->handle), str, pos);
+    } else 
+	xcs = charStr(d->x11data.fontstruct[script]->codec,
+		      ((XFontStruct *) d->x11data.fontstruct[script]->handle), ch);
     return printerAdjusted(xcs ? xcs->width : 0);
     
 }
