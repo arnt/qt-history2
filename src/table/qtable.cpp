@@ -4711,7 +4711,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
     // no contents in the cell yet, so open the default editor
     if ( !e ) {
 	e = new QLineEdit( viewport(), "qt_lineeditor" );
-//	( (QLineEdit*)e )->setFrame( FALSE );
+	( (QLineEdit*)e )->setFrame( FALSE );
     }
 
     return e;
