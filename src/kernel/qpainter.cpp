@@ -1481,14 +1481,9 @@ void QPainter::updateXForm()
 
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
-    const double eps = 0.0; // ##### can we get away with this?
-//#define FZ(x) ((x)<eps&&(x)>-eps) ###nonsense if eps==0.0!!!
-#define FZ(x) ((x) == eps)
-    //#define FEQ(x,y) (((x)-(y))<eps&&((x)-(y))>-eps) ###nonsense if eps==0.0!
-#define FEQ(x,y) ((x)==(y))
-    if ( FZ(m12()) && FZ(m21()) && m11() >= -eps && m22() >= -eps ) {
-	if ( FEQ(m11(),1.0) && FEQ(m22(),1.0) ) {
-	    if ( !FZ(dx()) || !FZ(dy()) )
+    if ( m12()==0.0 && m21()==0.0 && m11() >= 0.0 && m22() >= 0.0 ) {
+	if ( m11()==1.0 && m22()==1.0 ) {
+	    if ( dx()!=0.0 || dy()!=0.0 )
 		txop = TxTranslate;
 	} else {
 	    txop = TxScale;
