@@ -4,3 +4,28 @@ General SQL TODO stuff:
 QSqlTable:
 suggestion for renaming:
 currentFieldSelection => currentRecord
+
+QDateTimeEdit:
+bool leadingZeros()
+setLeadingZeros(bool)
+QDate earliestDate()
+setEarliestDate(QDate)
+QDate latestDate()
+setLatestDate(QDate)
+QTime earliestTime()
+setEarliestTime(QTime)
+QTime latestTime()
+setLatestTime(QTime)
+QDateTime earliestDateTime()
+setEarliestDateTime(QDateTime)
+QDateTime latestDateTime()
+setLatestDateTime(QDateTime)
+// Enum { Time24hr, TimeAMPM }
+int timeFormat()
+setTimeFormat(int)
+
+Wizards:
+A descriptive label for every listbox... so I can write "in the
+Displayed Fields list" rather than "in the right hand listbox".
+
+
