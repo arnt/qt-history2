@@ -2379,7 +2379,6 @@ void QTable::paintCell( QPainter* p, int row, int col,
     QTableItem *itm = item( row, col );
     if ( itm ) {
 	p->save();
-	QColorGroup cg = colorGroup();
 	if ( !itm->isEnabled() )
 	    cg = palette().disabled();
 	itm->paint( p, cg, cr, selected );
