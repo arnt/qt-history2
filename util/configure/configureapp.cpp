@@ -698,7 +698,8 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "                         psql" << endl;
 	cout << "                         oci" << endl;
 	cout << "                         odbc" << endl;
-	cout << "                         tds" << endl << endl;
+	cout << "                         tds" << endl;
+	cout << "                         db2" << endl << endl;
 
 	cout << "-qt-style-*        * Build the specified style into Qt" << endl;
 	cout << "-plugin-style-*      Build the specified style into a plugin" << endl;
