@@ -979,12 +979,21 @@ void SetupWizardImpl::configDone()
 	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 
 	args << makeCmds[ globalInformation.sysId() ];
-#if !(defined(Q_OS_MACX) && (defined(EVAL) || defined(EDU)))
+#if !defined(EVAL) && !defined(EDU)
 	args << "sub-src";
 	args << "sub-plugins";
 	if ( optionsPage ) {
 	    if ( optionsPage->installTools->isChecked() )
 		args << "sub-tools";
+	    if ( optionsPage->installTutorials->isChecked() )
+		args << "sub-tutorial";
+	    if ( optionsPage->installExamples->isChecked() )
+		args << "sub-examples";
+	    if ( optionsPage->installExtensions->isChecked() )
+		args << "sub-extensions";
+	}
+#elif defined(Q_OS_WIN32)
+	if ( optionsPage ) {
 	    if ( optionsPage->installTutorials->isChecked() )
 		args << "sub-tutorial";
 	    if ( optionsPage->installExamples->isChecked() )
@@ -1153,10 +1162,18 @@ void SetupWizardImpl::showPageOptions()
 
 #if defined(EVAL) || defined(EDU)
     optionsPage->installDocs->setEnabled( FALSE );
+#  if defined(Q_OS_WIN32)
+    optionsPage->installExamples->setEnabled( TRUE );
+    optionsPage->installTutorials->setEnabled( TRUE );
+    optionsPage->installExtensions->setChecked( TRUE );
+    optionsPage->installExtensions->setEnabled( TRUE );
+    optionsPage->installTools->setEnabled( FALSE );
+#  else
     optionsPage->installExamples->setEnabled( FALSE );
     optionsPage->installTutorials->setEnabled( FALSE );
     optionsPage->installExtensions->setChecked( FALSE );
     optionsPage->installExtensions->setEnabled( FALSE );
+#  endif
     optionsPage->sysMsvcNet->setEnabled( FALSE );
     optionsPage->sysMsvc->setEnabled( FALSE );
     optionsPage->sysBorland->setEnabled( FALSE );
