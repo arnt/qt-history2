@@ -1440,29 +1440,34 @@ void QODBCDriver::close()
 void QODBCDriver::cleanup()
 {
     SQLRETURN r;
-    if ( (isOpen() || isOpenError()) && (d != 0)) {
-	if( d->hDbc ) {
-	    // Open statements/descriptors handles are automatically cleaned up by SQLDisconnect
+    if ( !d )
+	return;
+
+    if( d->hDbc ) {
+	// Open statements/descriptors handles are automatically cleaned up by SQLDisconnect
+	if ( isOpen() ) {
 	    r = SQLDisconnect( d->hDbc );
 #ifdef QT_CHECK_RANGE
 	    if ( r != SQL_SUCCESS )
 		qSqlWarning( "QODBCDriver::disconnect: Unable to disconnect datasource", d );
 #endif
-		r = SQLFreeHandle( SQL_HANDLE_DBC, d->hDbc );
+	}
+
+	r = SQLFreeHandle( SQL_HANDLE_DBC, d->hDbc );
 #ifdef QT_CHECK_RANGE
-		if ( r != SQL_SUCCESS )
-		    qSqlWarning( "QODBCDriver::cleanup: Unable to free connection handle", d );
+	if ( r != SQL_SUCCESS )
+	    qSqlWarning( "QODBCDriver::cleanup: Unable to free connection handle", d );
 #endif
-		    d->hDbc = 0;
-		}
-		if ( d->hEnv ) {
-		    r = SQLFreeHandle( SQL_HANDLE_ENV, d->hEnv );
+	d->hDbc = 0;
+    }
+
+    if ( d->hEnv ) {
+	r = SQLFreeHandle( SQL_HANDLE_ENV, d->hEnv );
 #ifdef QT_CHECK_RANGE
-		    if ( r != SQL_SUCCESS )
-			qSqlWarning( "QODBCDriver::cleanup: Unable to free environment handle", d );
+	if ( r != SQL_SUCCESS )
+	    qSqlWarning( "QODBCDriver::cleanup: Unable to free environment handle", d );
 #endif
-		    d->hEnv = 0;
-		}
+	d->hEnv = 0;
     }
 }
 
