@@ -2983,7 +2983,8 @@ void QFileDialog::setFilter( const QString & newFilter )
 	d->types->insertItem( newFilter );
     } else {
 	for ( int i = 0; i < d->types->count(); ++i ) {
-	    if ( d->types->text( i ).left( newFilter.length() ) == newFilter ) {
+	    if ( d->types->text( i ).left( newFilter.length() ) == newFilter || 
+		 d->types->text( i ).left( f.length() ) == f ) {
 		d->types->setCurrentItem( i );
 		break;
 	    }
