@@ -138,14 +138,20 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     char mode = true32b;
     SwapMMUMode(&mode);
+    int cnt;
+    qDebug("Starting conversion..");
     for(int yy=0;yy<image.height();yy++) {
+        cnt = 0;
 	drow = (long *)((char *)dptr + (yy * dbpr));
 	srow = (QRgb *)((char *)sptr + (yy * sbpr));
 	for(int xx=0;xx<image.width();xx++) {
 	    q = (srow + xx);
 	    *(drow + xx) = qRed(*q) << 16 | qGreen(*q) << 8 | qBlue(*q);
+            cnt += *(drow + xx);
 	}
+	qDebug("%d", q);
     }
+    qDebug("Ending conversion..");
     SwapMMUMode(&mode);
     data->uninit = FALSE;
 
