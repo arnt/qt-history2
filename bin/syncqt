@@ -9,6 +9,7 @@
 ############################################################################
 
 use File::Basename;
+use File::Path;
 use Config;
 use strict;
 
@@ -50,7 +51,7 @@ while($#ARGV >= 0) {
 $basedir =~ s=\\=/=g;
 $includedir =~ s=\\=/=g;
 
-mkdir $includedir, 0777;
+mkpath $includedir, 0777;
 
 my @ignore_headers = ();
 my @ignore_master_headers = ( "qt.h", "qpaintdevicedefs.h" );
@@ -162,7 +163,7 @@ foreach (keys %dirs) {
 	}
 	if($master_include) {
 	    my $master_dir = dirname($master_include);
-	    mkdir $master_dir, 0777;
+	    mkpath $master_dir, 0777;
 	    print "header (master) created for $lib\n";
 	    open MASTERINCLUDE, ">$master_include";
 	    print MASTERINCLUDE "$master_header_out";
@@ -266,7 +267,7 @@ sub sync_classnames {
 		    unless(-e "$header") {
 			print "SYMBOL: $symbol ($iheader)\n";
 			my $header_dir = dirname($header);
-			mkdir $header_dir, 0777;
+			mkpath $header_dir, 0777;
 
 			#write it
 			my $iheader_out = fix_paths($iheader, $header);
@@ -309,7 +310,7 @@ sub sync_header {
 		$headers_created++;
 
 		my $header_out_dir = dirname($header_out);
-		mkdir $header_out_dir, 0777;
+		mkpath $header_out_dir, 0777;
 
 		#write it
 		my $iheader_out = fix_paths($iheader, $header);
