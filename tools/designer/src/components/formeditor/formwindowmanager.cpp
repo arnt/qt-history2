@@ -713,6 +713,7 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list)
         p.fillRect(bitmap.rect(), Qt::color1);
         p.setPen(Qt::color0);
         p.drawPoint(deco->mapFromGlobal(pos));
+        p.end();
         deco->setMask(bitmap);
         deco->show();
     }

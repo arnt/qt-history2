@@ -66,6 +66,7 @@ static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEve
                 p.drawPoint(x, y);
             }
         }
+        p.end();
         grid.setMask(mask);
         QPixmapCache::insert(grid_name, grid);
     }
