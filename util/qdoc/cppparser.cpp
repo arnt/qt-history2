@@ -615,6 +615,7 @@ static bool matchDeclList( Decl *context )
 			 "Needless ';' after 'Q_OBJECT' in C++ source" );
 	    break;
 	case Tok_Q_ENUMS:
+	case Tok_Q_SETS:
 	    yyTok = getToken();
 	    while ( yyTok != Tok_RightParen && yyTok != Tok_Eoi )
 		yyTok = getToken();

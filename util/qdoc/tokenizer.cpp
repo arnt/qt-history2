@@ -22,7 +22,7 @@ static const char kwords[][16] = {
     "operator", "private", "protected", "public", "short", "signals", "signed",
     "slots", "static", "struct", "template", "typedef", "union", "unsigned",
     "virtual", "void", "volatile", "Q_ENUMS", "Q_OBJECT", "Q_OVERRIDE",
-    "Q_PROPERTY"
+    "Q_PROPERTY", "Q_SETS"
 };
 
 static const int KwordHashTableSize = 512;
