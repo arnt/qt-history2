@@ -303,6 +303,7 @@
 // __HP_aCC was not defined in first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
 #    define Q_CC_HPACC
+#    define Q_DELETING_VOID_UNDEFINED
 #  else
 #    define Q_CC_HP
 #    define Q_NO_BOOL_TYPE
