@@ -2,6 +2,7 @@
 #include <qeventloop.h>
 #include <qevent.h>
 #include <qvector.h>
+#include <qtextcodec.h>
 
 #ifdef QT_THREAD_SUPPORT
 # include <qmutex.h>
@@ -835,6 +836,20 @@ bool QKernelApplication::event( QEvent *e )
     return QObject::event(e);
 }
 
+/*! \enum QKernelApplication::Encoding
+
+  This enum type defines the 8-bit encoding of character string
+  arguments to translate():
+
+  \value DefaultCodec - the encoding specified by
+  QTextCodec::codecForTr() (Latin1 if none has been set)
+  \value UnicodeUTF8 - UTF-8
+
+  \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
+*/
+
+
+
 /*!
   Tells the application to exit with return code 0 (success).
   Equivalent to calling QApplication::exit( 0 ).
@@ -926,3 +941,135 @@ bool QKernelApplication::tryLock()
     return qt_mutex->tryLock();
 }
 #endif
+
+#ifndef QT_NO_TRANSLATION
+/*!
+  Adds the message file \a mf to the list of message files to be used
+  for translations.
+
+  Multiple message files can be installed. Translations are searched
+  for in the last installed message file, then the one from last, and
+  so on, back to the first installed message file. The search stops as
+  soon as a matching translation is found.
+
+  \sa removeTranslator() translate() QTranslator::load()
+*/
+
+void QKernelApplication::installTranslator( QTranslator * mf )
+{
+    if ( !mf )
+	return;
+
+    d->translators.prepend( mf );
+
+#ifndef QT_NO_TRANSLATION_BUILDER
+    if ( mf->isEmpty() )
+	return;
+#endif
+
+    QEvent ev(QEvent::LanguageChange);
+    QKernelApplication::sendEvent(this, &ev);
+}
+
+/*!
+  Removes the message file \a mf from the list of message files used by
+  this application. (It does not delete the message file from the file
+  system.)
+
+  \sa installTranslator() translate(), QObject::tr()
+*/
+
+void QKernelApplication::removeTranslator( QTranslator * mf )
+{
+    if (!mf)
+	return;
+
+    if ( d->translators.remove( mf ) && !self->closingDown() ) {
+	QEvent ev(QEvent::LanguageChange);
+	QKernelApplication::sendEvent(this, &ev);
+    }
+}
+
+/*! \reentrant
+  Returns the translation text for \a sourceText, by querying the
+  installed messages files. The message files are searched from the most
+  recently installed message file back to the first installed message
+  file.
+
+  QObject::tr() and QObject::trUtf8() provide this functionality more
+  conveniently.
+
+  \a context is typically a class name (e.g., "MyDialog") and
+  \a sourceText is either English text or a short identifying text, if
+  the output text will be very long (as for help texts).
+
+  \a comment is a disambiguating comment, for when the same \a
+  sourceText is used in different roles within the same context. By
+  default, it is null. \a encoding indicates the 8-bit encoding of
+  character stings
+
+  See the \l QTranslator documentation for more information about
+  contexts and comments.
+
+  If none of the message files contain a translation for \a
+  sourceText in \a context, this function returns a QString
+  equivalent of \a sourceText. The encoding of \a sourceText is
+  specified by \e encoding; it defaults to \c DefaultCodec.
+
+  This function is not virtual. You can use alternative translation
+  techniques by subclassing \l QTranslator.
+
+  \warning This method is reentrant only if all translators are
+  installed \e before calling this method.  Installing or removing
+  translators while performing translations is not supported.  Doing
+  so will most likely result in crashes or other undesirable behavior.
+
+  \sa QObject::tr() installTranslator() defaultCodec()
+*/
+
+QString QKernelApplication::translate( const char * context, const char * sourceText,
+				       const char * comment, Encoding encoding ) const
+{
+    if ( !sourceText )
+	return QString::null;
+
+    if (!d->translators.isEmpty()) {
+	QList<QTranslator*>::ConstIterator it;
+	QTranslator * mf;
+	QString result;
+	for ( it = d->translators.constBegin(); it != d->translators.constEnd(); ++it ) {
+	    mf = *it;
+	    result = mf->findMessage( context, sourceText, comment ).translation();
+	    if ( !result.isNull() )
+		return result;
+	}
+    }
+#ifndef QT_NO_TEXTCODEC
+    if ( encoding == UnicodeUTF8 )
+	return QString::fromUtf8( sourceText );
+    else if ( QTextCodec::codecForTr() != 0 )
+	return QTextCodec::codecForTr()->toUnicode( sourceText );
+    else
+#endif
+	return QString::fromLatin1( sourceText );
+}
+
+#ifndef QT_NO_TEXTCODEC
+/*! \obsolete
+  This is the same as QTextCodec::setCodecForTr().
+*/
+void QKernelApplication::setDefaultCodec( QTextCodec* codec )
+{
+    QTextCodec::setCodecForTr( codec );
+}
+
+/*! \obsolete
+  Returns QTextCodec::codecForTr().
+*/
+QTextCodec* QKernelApplication::defaultCodec() const
+{
+    return QTextCodec::codecForTr();
+}
+#endif //QT_NO_TEXTCODEC
+#endif //QT_NO_TRANSLATE
+

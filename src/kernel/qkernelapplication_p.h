@@ -3,6 +3,7 @@
 
 #include "qobject_p.h"
 #include "qkernelapplication.h"
+#include "qtranslator.h"
 
 class QKernelApplicationPrivate : public QObjectPrivate
 {
@@ -13,6 +14,7 @@ public:
 
     int &argc;
     char **argv;
+    QList<QTranslator*> translators;
 };
 
 

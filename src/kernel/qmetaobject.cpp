@@ -14,7 +14,8 @@
 
 #include "qmetaobject.h"
 #include "qobject.h"
-#include <qapplication.h>
+#include <qkernelapplication.h>
+#include <qstringlist.h>
 #include <qvariant.h>
 #include <ctype.h>
 
@@ -156,8 +157,8 @@ QObject *QMetaObject::cast(const QObject *obj) const
 */
 QString QMetaObject::tr(const char *s, const char *c) const
 {
-    if (qApp)
-	return qApp->translate(d.stringdata, s, c, QApplication::DefaultCodec);
+    if (QKernelApplication::instance())
+	return QKernelApplication::instance()->translate(d.stringdata, s, c, QKernelApplication::DefaultCodec);
     else
 	return QString::fromLatin1(s);
 }
@@ -167,8 +168,8 @@ QString QMetaObject::tr(const char *s, const char *c) const
 */
 QString QMetaObject::trUtf8(const char *s, const char *c) const
 {
-    if (qApp)
-	return qApp->translate(d.stringdata, s, c, QApplication::UnicodeUTF8);
+    if (QKernelApplication::instance())
+	return QKernelApplication::instance()->translate(d.stringdata, s, c, QKernelApplication::UnicodeUTF8);
     else
 	return QString::fromUtf8(s);
 }

@@ -86,7 +86,6 @@ public:
     bool is_session_restored;
 #endif
 
-    QList<QTranslator*> translators;
 #ifndef QT_NO_CURSOR
     QList<QCursor> cursor_list;
 #endif

@@ -32,9 +32,7 @@
 class QSessionManager;
 class QDesktopWidget;
 class QStyle;
-class QTranslator;
 class QEventLoop;
-class QTextCodec;
 template <typename T> class QList;
 #if defined(Q_WS_QWS)
 class QWSDecoration;
@@ -121,19 +119,6 @@ public:
 
     static void	     beep();
 
-#ifndef QT_NO_TRANSLATION
-# ifndef QT_NO_TEXTCODEC
-    void	     setDefaultCodec( QTextCodec * );
-    QTextCodec*	     defaultCodec() const;
-# endif
-    void	     installTranslator( QTranslator * );
-    void	     removeTranslator( QTranslator * );
-#endif
-    enum Encoding { DefaultCodec, UnicodeUTF8 };
-    QString	     translate( const char * context,
-				const char * key,
-				const char * comment = 0,
-				Encoding encoding = DefaultCodec ) const;
 #ifndef QT_NO_DIR
     QString   applicationDirPath();
     QString   applicationFilePath();
@@ -370,20 +355,6 @@ inline QSize QApplication::globalStrut()
 {
     return app_strut;
 }
-
-#ifdef QT_NO_TRANSLATION
-// Simple versions
-inline QString QApplication::translate( const char *, const char *sourceText,
-					const char *, Encoding encoding ) const
-{
-#ifndef QT_NO_TEXTCODEC
-    if ( encoding == UnicodeUTF8 )
-	return QString::fromUtf8( sourceText );
-    else
-#endif
-	return QString::fromLatin1( sourceText );
-}
-#endif
 
 inline Qt::Alignment QApplication::horizontalAlignment( Alignment align )
 {

@@ -32,7 +32,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qwidget.h"
 #include "qintdict.h"
 #include "qstring.h"
-#include "qapplication.h"
+#include "qkernelapplication.h"
 #include "qfile.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
@@ -331,13 +331,10 @@ QTranslator::QTranslator( QObject * parent, const char * name )
 
 QTranslator::~QTranslator()
 {
-    if ( qApp )
-	qApp->removeTranslator( this );
+    if ( QKernelApplication::instance() )
+	QKernelApplication::instance()->removeTranslator( this );
     clear();
 }
-
-
-extern bool qt_detectRTLLanguage();
 
 /*!
     Loads \a filename, which may be an absolute file name or relative
@@ -548,8 +545,10 @@ bool QTranslator::do_load( const uchar *data, int len )
     }
     array.resetRawData( (const char *) data, len );
 
-    if ( qApp && qApp->d->translators.contains(this) )
-	qApp->setReverseLayout( qt_detectRTLLanguage() );
+#if 0
+    QEvent ev(QEvent::LanguageChange);
+    QKernelApplication::sendEvent(QKernelApplication::instance(), &ev);
+#endif
     return ok;
 }
 
