@@ -89,7 +89,7 @@ public:
 #endif
 
 private:
-//    Q_DISABLE_COPY(QLCDNumber)
+    Q_DISABLE_COPY(QLCDNumber)
     Q_DECLARE_PRIVATE(QLCDNumber)
 };
 
