@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+
+
+%functions;
+
+@lines;
+$output = shift;
+
+$inproperties = 0;
+$classname;
+
+while ( <ARGV> ) {
+  if ( /^<title>Qt Toolkit - (.*) Class<\/title>.*/ ) {
+    $classname = $1;
+  }
+
+  if (/^<li><span class=\"fn\">.*<a href=\"(.*)\".*<b>(.*)<\/b>/g ) {
+    $functions{$2} = $1;
+  }
+
+  if ( /^<h2>Properties<\/h2>$/ ) {
+    $inproperties = 1;
+  }
+
+  if ( $inproperties ) {
+    if ( /^<\/table>$/ ) {
+      $inproperties = 0;
+    } else {
+      if ( /^<tr><td>.*<td>(.*)<td>.*<td>(.*)<td>.*/ ) {
+	push( @lines, "\"$classname/$1\" $ARGV$functions{$2}\n" );
+      }
+    }
+  }
+}
+  
+@lines = sort( @lines );
+open( INDEX, "> $output" );
+print INDEX @lines;
+close( INDEX );

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#227 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#228 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2630,12 +2630,14 @@ print "Documented ", $countdoc, " member functions, left out ",
 
 &post();
 
-#chdir( "$outputdir" );
-#print "Creating Index...\n";
-#system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
-#print "Creating Title Index...\n";
-#system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
-#print "Finished!\n";
+chdir( "$outputdir" );
+print "Creating Index...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
+print "Creating Title Index...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
+print "Creating Property Indes...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mkproperties propertyindex *.html" );
+print "Finished!\n";
 
 if ( open( O, "> " . $ENV{"HOME"} . "/.qdoc-cache" ) ) {
     foreach ( keys %cachable ) {

@@ -442,6 +442,8 @@ public:
 #ifndef QT_NO_COMPAT
     const char* data() const { return latin1(); }
 #endif
+    
+    bool startsWith( const QString& ) const; 
 
 private:
     QString( int size, bool dummy );		// allocate size incl. \0

@@ -14931,6 +14931,19 @@ QConstString::~QConstString()
   construction.
 */
 
+/*!
+  Returns whether the strings starts with \a s, or not.
+ */
+bool QString::startsWith( const QString& s ) const
+{
+    for ( int i =0; i < (int) s.length(); i++ ) {
+	if ( i >= (int) length() || d->unicode[i] != s[i] )
+	    return FALSE;
+    }
+    return TRUE;
+}
+
+
 
 #if defined(_OS_WIN32_)
 
@@ -15081,7 +15094,6 @@ QString qt_winMB2QString( const char* mb, int mblen )
 	delete [] wc;
     return s;
 }
-
 
 
 #endif // _OS_WIN32_
