@@ -842,9 +842,13 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 
     if ( e.tagName() == "pixmap" ) {
 	QPixmap pix = loadPixmap( e );
+	if ( pix.isNull() )
+	    return;
 	v = QVariant( pix );
     } else if ( e.tagName() == "iconset" ) {
 	QPixmap pix = loadPixmap( e );
+	if ( pix.isNull() )
+	    return;
 	v = QVariant( QIconSet( pix ) );
     } else if ( e.tagName() == "image" ) {
 	v = QVariant( loadFromCollection( v.toString() ) );
@@ -1202,7 +1206,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 		    txt = v.toString();
 		else if ( attrib == "pixmap" ) {
 		    pix = loadPixmap( n.firstChild().toElement().toElement() );
-		    hasPixmap = TRUE;
+		    hasPixmap = !pix.isNull();
 		} else if ( attrib == "clickable" )
 		    clickable = v.toBool();
 		else if ( attrib == "resizeable" )
@@ -1300,7 +1304,7 @@ void QWidgetFactory::loadItem( const QDomElement &e, QPixmap &pix, QString &txt,
 		txt = v.toString();
 	    else if ( attrib == "pixmap" ) {
 		pix = loadPixmap( n.firstChild().toElement() );
-		hasPixmap = TRUE;
+		hasPixmap = !pix.isNull();
 	    }
 	}
 	n = n.nextSibling().toElement();
