@@ -43,6 +43,8 @@
 #define XCOORD_MAX 32767
 #define WRECT_MAX 8191
 
+extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
+extern QRegion qt_mac_convert_mac_region(HIShapeRef shape);
 
 /*****************************************************************************
   QWidget debug facilities
