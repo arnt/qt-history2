@@ -1880,7 +1880,7 @@ static QStringList makeFiltersList( const QString &filter )
   <li> \c Info - Besides the view with the files a preview
   widget is shown shich shows infos of the currently selected file
   </ul>
-  
+
   Using setPreviewMode() this mode can be set to the file dialog.
 */
 
@@ -2155,7 +2155,7 @@ void QFileDialog::init()
     d->infoPreviewWidget = new QWidget( d->preview );
     d->contentsPreviewWidget = new QWidget( d->preview );
     d->infoPreviewer = d->contentsPreviewer = 0;
-    
+
     h = new QHBoxLayout( 0 );
     d->buttonLayout = h;
     d->topLevelLayout->addLayout( h );
@@ -3657,7 +3657,7 @@ QFileDialog::Mode QFileDialog::mode() const
 /*!
   Sets the viewmode of the filedialog. You can choose between
   Detail, List.
-  
+
   \sa setPreviewMode()
 */
 
@@ -3677,10 +3677,10 @@ void QFileDialog::setViewMode( ViewMode m )
 /*!
   Set the preview mode of the filedialog. You can choose between
   NoPreview, Info and Contents.
-  
+
   To be able to set a preview mode other than NoPreview you need
   to set the preview widget, and enable this preview mode.
-  
+
   \sa setInfoPreviewEnabled(), setContentsPreviewEnabled(),
   setInfoPreview(), setContentsPreview()
 */
@@ -3702,8 +3702,8 @@ void QFileDialog::setPreviewMode( PreviewMode m )
 }
 
 /*!
-  Returns the viewmode of the filedialog. 
-  
+  Returns the viewmode of the filedialog.
+
   \sa setViewMode()
 */
 
@@ -3716,8 +3716,8 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 }
 
 /*!
-  Returns the preview mode of the filedialog. 
-  
+  Returns the preview mode of the filedialog.
+
   \sa setPreviewMode()
 */
 
@@ -4507,8 +4507,8 @@ bool QFileDialog::isContentsPreviewEnabled() const
 /*!
   Specifies if the filedialog should offer the possibility
   to preview the information of the currently selected
-  file, if \a info is TRUE, else not. 
-  
+  file, if \a info is TRUE, else not.
+
   \sa setInfoPreview()
 */
 
@@ -4524,8 +4524,8 @@ void QFileDialog::setInfoPreviewEnabled( bool info )
 /*!
   Specifies if the filedialog should offer the possibility
   to preview the contents of the currently selected
-  file, if \a contents is TRUE, else not. 
-  
+  file, if \a contents is TRUE, else not.
+
   \sa setInfoPreview()
 */
 
@@ -4546,9 +4546,9 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
   a widget type class (which actually displays the preview) and
   from QFilePreview. So you will pass here two times the same pointer
   then.
-  
+
   A implementation of a preview class could look like this:
-  
+
   \code
   class MyPreview : public QWidget, public QFilePreview
   {
@@ -4562,9 +4562,9 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
       }
   }
   \endcode
-  
+
   Later you would use this...
-  
+
   \code
   MyPreview *preview = new MyPreview;
   fd.setInfoPreviewEnabled( TRUE );
@@ -4596,9 +4596,9 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
   a widget type class (which actually displays the preview) and
   from QFilePreview. So you will pass here two times the same pointer
   then.
-  
+
   A implementation of a preview class could look like this:
-  
+
   \code
   class MyPreview : public QWidget, public QFilePreview
   {
@@ -4612,9 +4612,9 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
       }
   }
   \endcode
-  
+
   Later you would use this...
-  
+
   \code
   MyPreview *preview = new MyPreview;
   fd.setInfoPreviewEnabled( TRUE );
@@ -4755,6 +4755,19 @@ void QFileDialog::doMimeTypeLookup()
 	files->viewport()->repaint( r, FALSE );
 
     d->mimeTypeTimer->start( 0 );
+}
+
+/*!
+  If you pass TRUE for \a b all files are selected, otherwise they
+  are de-selected. This only works in ExistingFiles mode.
+*/
+
+void QFileDialog::selectAll( bool b )
+{
+    if ( !d->mode != ExistingFiles )
+	return;
+    d->moreFiles->selectAll( b );
+    files->selectAll( b );
 }
 
 QFilePreview::QFilePreview()

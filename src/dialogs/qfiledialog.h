@@ -116,6 +116,8 @@ public:
     QString selectedFilter() const;
     void setSelection( const QString &);
 
+    void selectAll( bool b );
+    
     QStringList selectedFiles() const;
 
     QString dirPath() const;
