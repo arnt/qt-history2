@@ -1744,11 +1744,10 @@ QTextCursor *QTextDocument::redo( QTextCursor *c )
     return commandHistory->redo( c );
 }
 
-bool QTextDocument::find( const QString &expr, bool cs, bool /*wo*/, bool /*forward*/,
+bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 			      int *parag, int *index, QTextCursor *cursor )
 {
-    // #### wo and forward is ignored at the moment
-    QTextParag *p = fParag;
+    QTextParag *p = forward ? fParag : lParag;
     if ( parag )
 	p = paragAt( *parag );
     else if ( cursor )
@@ -1757,26 +1756,38 @@ bool QTextDocument::find( const QString &expr, bool cs, bool /*wo*/, bool /*forw
 
     while ( p ) {
 	QString s = p->string()->toString();
-	int start = 0;
+	s.remove( s.length() - 1, 1 ); // get rid of trailing space
+	int start = forward ? 0 : s.length() - 1;
 	if ( first && index )
 	    start = *index;
 	else if ( first )
 	    start = cursor->index();
 	first = FALSE;
-	int res = s.find( expr, start, cs );
+	int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
 	if ( res != -1 ) {
-	    cursor->setParag( p );
-	    cursor->setIndex( res );
-	    setSelectionStart( Standard, cursor );
-	    cursor->setIndex( res + expr.length() );
-	    setSelectionEnd( Standard, cursor );
-	    if ( parag )
-		*parag = p->paragId();
-	    if ( index )
-		*index = res;
-	    return TRUE;
+	    bool ok = TRUE;
+	    if ( wo ) {
+		int end = res + expr.length();
+		if ( ( res == 0 || s[ res ].isSpace() || s[ res ].isPunct() ) &&
+		     ( end == (int)s.length() - 1 || s[ end ].isSpace() || s[ end ].isPunct() ) )
+		    ok = TRUE;
+		else
+		    ok = FALSE;
+	    }
+	    if ( ok ) {
+		cursor->setParag( p );
+		cursor->setIndex( res );
+		setSelectionStart( Standard, cursor );
+		cursor->setIndex( res + expr.length() );
+		setSelectionEnd( Standard, cursor );
+		if ( parag )
+		    *parag = p->paragId();
+		if ( index )
+		    *index = res;
+		return TRUE;
+	    }
 	}
-	p = p->next();
+	p = forward ? p->next() : p->prev();
     }
 
     return FALSE;
