@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#154 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#153 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#154 $");
 
 
 /*!
@@ -192,30 +192,30 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#153 $");
 	testWFlags().
   </ul>
 
-  <strong>Constructor:</strong> Every widget's constructor accepts two or
-  three standard arguments:
+  Every widget's constructor accepts two or three standard arguments:
   <ul>
   <li><code>QWidget *parent = 0</code> is the parent of the new widget.
-  If it is 0, the new widget will be a top-level window.  If not, it will
-  be a child of \e parent, and be constrained by \e parent's geometry.
+  If it is 0 (the default), the new widget will be a top-level window.
+  If not, it will be a child of \e parent, and be constrained by \e
+  parent's geometry.
   <li><code>const char *name = 0</code> is the widget name of the new
   widget.  The widget name is little used at the moment - the
   dumpObjectTree() debugging function uses it, and you can access it using
   name().  It will become more important when our visual GUI builder is
   ready (you can name a a widget in the builder, and connect() to it by
-  name in your code).  <li><code>WFlags f = 0</code> (where available) sets
-  the <a href="#widgetflags">widget flags;</a> the default is good for
-  almost all widgets, but to get e.g. top-level widgets without a window
+  name in your code).
+  <li><code>WFlags f = 0</code> (where available) sets the <a
+  href="#widgetflags">widget flags;</a> the default is good for almost
+  all widgets, but to get e.g. top-level widgets without a window
   system frame you must use special flags.
   </ul>
 
-  <strong>Subclassing QWidget:</strong> The tictac/tictac.cpp example
-  program is good example of a simple widget.  It contains a few event
-  handlers (as all widgets must), a few custom routines that are
-  peculiar to it (as all useful widgets must), and has a few children
-  and connections.  Everything it does is done in response to an
-  event: This is by far the most common way to design GUI
-  applications.
+  The tictac/tictac.cpp example program is good example of a simple
+  widget.  It contains a few event handlers (as all widgets must), a
+  few custom routines that are peculiar to it (as all useful widgets
+  must), and has a few children and connections.  Everything it does
+  is done in response to an event: This is by far the most common way
+  to design GUI applications.
 
   You will need to supply the content for your widgets yourself, but
   here is a brief run-down of the events, starting with the most common
