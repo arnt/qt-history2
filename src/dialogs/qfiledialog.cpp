@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#153 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#154 $
 **
 ** Implementation of QFileDialog class
 **
@@ -618,15 +618,11 @@ void QFileDialogPrivate::MCList::mousePressEvent( QMouseEvent * e )
 
 void QFileDialogPrivate::MCList::mouseMoveEvent( QMouseEvent * e )
 {
-    if ( e )
-	setFocusToPoint( e->pos() );
 }
 
 
 void QFileDialogPrivate::MCList::mouseReleaseEvent( QMouseEvent * e )
 {
-    if ( e )
-	setFocusToPoint( e->pos() );
 }
 
 
