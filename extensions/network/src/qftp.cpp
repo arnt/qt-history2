@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#20 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#21 $
 **
 ** Implementation of Network Extension Library
 **
@@ -63,7 +63,7 @@ QFtp::~QFtp()
     delete dataSocket;
 }
 
-void QFtp::openConnection( QUrl *u )
+void QFtp::openConnection( QUrlOperator *u )
 {
     QNetworkProtocol::openConnection( u );
     connectionReady = FALSE;
@@ -72,7 +72,7 @@ void QFtp::openConnection( QUrl *u )
 	    dataSocket->close();
 	extraData = QString::null;
     } else {
-	emit error( QUrl::ErrHostNotFound, tr( "Host\n%1\nbot found!" ).arg( u->host() ) );
+	emit error( QUrlOperator::ErrHostNotFound, tr( "Host\n%1\nbot found!" ).arg( u->host() ) );
     }
 }
 
@@ -268,9 +268,9 @@ void QFtp::readyRead()
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
     } else if ( s.left( 3 ) == "530" ) { // Login incorrect
 	close();
-	emit error( QUrl::ErrLoginIncorrect, tr( "Login Incorrect" ) );
+	emit error( QUrlOperator::ErrLoginIncorrect, tr( "Login Incorrect" ) );
 	if ( url )
-	    url->emitError( QUrl::ErrLoginIncorrect, tr( "Login Incorrect" ) );
+	    url->emitError( QUrlOperator::ErrLoginIncorrect, tr( "Login Incorrect" ) );
     } else
 	;//qWarning( "unknown result: %s", s.data() );
 }
@@ -292,11 +292,11 @@ void QFtp::dataConnected()
 
 void QFtp::dataClosed()
 {
-    emit finished( QUrl::ActListDirectory );
+    emit finished( QUrlOperator::ActListDirectory );
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     passiveMode = FALSE;
     if ( url )
-	url->emitFinished( QUrl::ActListDirectory );
+	url->emitFinished( QUrlOperator::ActListDirectory );
 }
 
 void QFtp::dataReadyRead()

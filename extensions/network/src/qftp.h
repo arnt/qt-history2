@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#11 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#12 $
 **
 ** Implementation of Network Extension Library
 **
@@ -42,7 +42,7 @@ public:
     QFtp();
     virtual ~QFtp();
 
-    virtual void openConnection( QUrl *url );
+    virtual void openConnection( QUrlOperator *url );
     virtual bool isOpen();
     virtual void close();
     virtual void listEntries();
