@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#24 $
 **
 ** Implementation of QIconSet class
 **
@@ -90,14 +90,16 @@ struct QIconSetPrivate: public QShared
   The \c Active appearance is identical to the \c Normal appearance
   unless you use setPixmap() to set it to something special.
 
+  When scaling icons, QIconSet uses \link QImage::smoothScale
+  smooth scaling\endlink, which can partially blend the color component
+  of transparent images.  If the results look poor, the best solution
+  is to supply sizes that do not require scaling.
+
   QIconSet provides a function, isGenerated(), that indicates whether
   an icon was set by the application programmer or computed by
   QIconSet itself.
 
-  In Qt 1.41 only QToolButton uses QIconSet.  In Qt 2.0 we will use it
-  in more classes, including the menu system.
-
-  \sa QPixmap QLabel QToolButton
+  \sa QPixmap QLabel QToolButton QPopupMenu
   <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label,</a>
   <q href="http://www.microsoft.com/clipgallerylive/icons.asp">Microsoft
   Icon Gallery.</a>
