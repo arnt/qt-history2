@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#2 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#3 $
 **
 ** Global type declarations and definitions
 **
@@ -151,6 +151,11 @@ typedef short		INT16;			// 16 bit signed
 typedef unsigned short	UINT16;			// 16 bit unsigned
 typedef long		INT32;			// 32 bit signed
 typedef unsigned long	UINT32;			// 32 bit unsigned
+
+
+// Data stream functions is provided by many classes (defined in qdstream.h)
+
+class QDataStream;
 
 
 // System information
