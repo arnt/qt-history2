@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.10 1998/03/31 09:05:36 aavit Exp $
+** $Id: moc.doc,v 2.11 1998/04/30 13:53:32 eiriken Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -282,7 +282,8 @@ will not work in signals and slots. Here is an illegal example:
 <p>
 A #define without arguments works.
 
-<h3>Nested classes are not supported</h3>
+<h3>Nested classes cannot be in the signals or slots sections nor have
+signals or slots</h3>
 
 Here's an example:
 
@@ -291,12 +292,18 @@ Here's an example:
 	Q_OBJECT
     public:
         class B {
+	public slots:
+	    void b();       // Nested class with slot
 	[....]
         };
+    signals:
+        class B {
+	    void b();       // Nested class in signals:
+
+	[....]
+        }:
     };
 \endcode
-
-This bug will be fixed in a future release of Qt.
 
 <h3>Constructors can not be used in signals or slots sections</h3>
 
