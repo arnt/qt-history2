@@ -957,6 +957,12 @@ static QWidget *findChildWidget(const QWidget *p, const QPoint &pos)
     return 0;
 }
 
+QWidget *QApplication::topLevelAt(int x, int y)
+{
+    QWidget *c = widgetAt_sys(x, y);
+    return c ? c->topLevelWidget() : 0;
+}
+
 QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     POINT p;

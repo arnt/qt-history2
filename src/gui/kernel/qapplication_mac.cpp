@@ -1025,14 +1025,17 @@ QWidget *qt_recursive_match(QWidget *widget, int x, int y)
     return child ? QWidget::find((WId)child) : widget;
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+QWidget *QApplication::topLevelAt(int x, int y)
 {
     //find the tld
     QWidget *widget;
     qt_mac_window_at(x, y, &widget);
-    if(!widget)
-        return 0;
+    return widget;
+}
 
+QWidget *QApplication::widgetAt_sys(int x, int y)
+{
+    QWidget widget = topLevelAt(x, y);
     //find the child
     QPoint p = widget->mapFromGlobal(QPoint(x, y));
     widget = qt_recursive_match(widget, p.x(), p.y());
@@ -1563,7 +1566,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 bool just_show = false;
                 if(!qt_mac_is_macsheet(widget)
                    || ShowSheetWindow(window, qt_mac_window_for(widget->parentWidget())) != noErr) {
-                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(), 
+                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(),
                              widget->objectName().local8Bit());
                     just_show = true;
                 }

@@ -99,7 +99,7 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 {
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
-    int m = displaySpec.find("/dev/fb");
+    int m = displaySpec.indexOf("/dev/fb");
 
     QString dev = (m>=0) ? displaySpec.mid(m, len) : QString("/dev/fb0");
 

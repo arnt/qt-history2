@@ -197,7 +197,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
             QMouseEvent *me = (QMouseEvent *)e;
             if (me->state() & (Qt::LeftButton | Qt::MidButton | Qt::RightButton)) {
 
-                QWidget *cw = QApplication::widgetAt(me->globalPos(), true);
+                QWidget *cw = QApplication::widgetAt(me->globalPos());
 
                 // Fix for when we move mouse on to the deco widget
                 if (qt_qws_dnd_deco && cw == qt_qws_dnd_deco)

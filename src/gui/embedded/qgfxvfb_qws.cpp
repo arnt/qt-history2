@@ -379,7 +379,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
     screen_optype=&QVFb_dummy;
     screen_lastop=&QVFb_dummy;
 
-    if (displaySpec.find(":Gray") >= 0)
+    if (displaySpec.indexOf(":Gray") >= 0)
         grayscale = true;
 
     key_t key = ftok(QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b');

@@ -49,7 +49,7 @@ bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event); //in qapplication_qws
 #include <qmultilineedit.h>
 #include <qlineedit.h>
 
-void QInputContext::retrieveMarkedText(QWidget *w)
+void QInputContext::retrieveMarkedText(QWidget *)
 {
     QString s;
     //Only lineedit and multilineedit are IM-enabled anyway, so
@@ -69,9 +69,8 @@ void QInputContext::retrieveMarkedText(QWidget *w)
     }
 #endif
 */
-    QByteArray ba;
     int len =  s.length()*sizeof(QChar);
-    ba.duplicate((const char*)s.unicode(), len);
+    QByteArray ba((const char*)s.unicode(), len);
     QPaintDevice::qwsDisplay()->
         setProperty(0, QT_QWS_PROPERTY_MARKEDTEXT,
                      QWSPropertyManager::PropReplace, ba);

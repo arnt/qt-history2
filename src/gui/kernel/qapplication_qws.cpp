@@ -454,9 +454,8 @@ public:
                 create();
             waitForCreation();
         }
-        QList<int>::Iterator head = unused_identifiers.begin();
-        int i = *head;
-        unused_identifiers.remove(head);
+        int i = unused_identifiers.first();
+        unused_identifiers.removeFirst();
         return i;
     }
 
@@ -1241,7 +1240,7 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 void QWSDisplay::setWindowCaption(QWidget *w, const QString &c)
 {
     if (w->isTopLevel()) {
-        nameRegion(w->winId(), w->name(), c);
+        nameRegion(w->winId(), w->objectName(), c);
         ((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect(), true);
     }
 }
@@ -1398,17 +1397,17 @@ static void qt_set_qws_resources()
         if (appBGCol)
             bg = QColor(appBGCol);
         else
-            bg = qt_std_pal->active().background();
+            bg = qt_std_pal->color(QPalette::Background);
         if (appFGCol)
             fg = QColor(appFGCol);
         else
-            fg = qt_std_pal->active().foreground();
+            fg = qt_std_pal->color(QPalette::Foreground);
         if (appBTNCol)
             btn = QColor(appBTNCol);
         else
-            btn = qt_std_pal->active().button();
+            btn = qt_std_pal->color(QPalette::Button);
         int h,s,v;
-        fg.hsv(&h,&s,&v);
+        fg.getHsv(&h,&s,&v);
         QColor base = Qt::white;
         bool bright_mode = false;
         if (v >= 255-50) {
@@ -1432,7 +1431,7 @@ static void qt_set_qws_resources()
         pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
         pal.setColor(QPalette::Disabled, QPalette::Base, Qt::white);
         if (pal != *qt_std_pal && pal != QApplication::palette())
-            QApplication::setPalette(pal, true);
+            QApplication::setPalette(pal);
         *qt_std_pal = pal;
     }
 #endif // QT_NO_PALETTE
@@ -1471,7 +1470,7 @@ static void init_display()
     //##### incoming.setAutoDelete(true);
     //##### outgoing.setAutoDelete(true);
 
-    qApp->setName(appName);
+    qApp->setObjectName(appName);
 
     QFont f;
     f = QFont("helvetica", 10);
@@ -1879,7 +1878,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
-        w = widgetAt(*qt_last_x, *qt_last_y, false);
+        w = topLevelAt(*qt_last_x, *qt_last_y);
     if (!w)
         w = desktop();
     QPaintDevice::qwsDisplay()->selectCursor(w, (int)qApp->d->cursor_list.first().handle());
@@ -1893,7 +1892,7 @@ void QApplication::restoreOverrideCursor()
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
-        w = widgetAt(*qt_last_x, *qt_last_y, false);
+        w = topLevelAt(*qt_last_x, *qt_last_y);
     if (!w)
         w = desktop();
     int cursor_handle;
@@ -1946,24 +1945,28 @@ QWidget *QApplication::findChildWidget(const QWidget *p, const QPoint &pos)
     return findWidget(p->children(), pos, true);
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+QWidget *QApplication::topLevelAt(int x, int y)
 {
-    // XXX not a fast function...
     QWidgetList list = topLevelWidgets();
-
     QPoint pos(x,y);
 
     for (int i = list.size()-1; i >= 0; --i) {
         QWidget *w = (QWidget*)list[i];
         if (w != QApplication::desktop() &&
              w->isVisible() && w->geometry().contains(pos)
-             && w->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))) {
-            QWidget *c = findChildWidget(w, w->mapFromParent(pos));
-            return c ? c  : w;
-        }
-
+             && w->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height()))))
+            return w;
     }
     return 0;
+}
+
+QWidget *QApplication::widgetAt_sys(int x, int y)
+{
+    // XXX not a fast function...
+    QWidget *tlw = topLevelAt(x, y);
+    QPoint pos(x,y);
+    QWidget *c = findChildWidget(tlw, tlw->mapFromParent(pos));
+    return c ? c : tlw;
 }
 
 void QApplication::beep()
@@ -2390,7 +2393,7 @@ void qt_enter_modal(QWidget *widget)
 
 void qt_leave_modal(QWidget *widget)
 {
-    if (qt_modal_stack && qt_modal_stack->remove(widget)) {
+    if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
             delete qt_modal_stack;
             qt_modal_stack = 0;
@@ -2469,7 +2472,7 @@ void QApplication::closePopup(QWidget *popup)
     if (!popupWidgets)
         return;
 
-    popupWidgets->remove(popup);
+    popupWidgets->removeAll(popup);
     if (popup == popupOfPopupButtonFocus) {
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;
@@ -2829,7 +2832,7 @@ void QETWidget::updateRegion()
 {
     if (testWFlags(Qt::WType_Desktop))
        return;
-    if (d->extra && !d->extra->mask.isNull()) {
+    if (d->extra && !d->extra->mask.isEmpty()) {
        data->req_region = d->extra->mask;
        data->req_region.translate(data->crect.x(),data->crect.y());
        data->req_region &= data->crect;
