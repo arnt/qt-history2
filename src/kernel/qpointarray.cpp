@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#70 $
 **
 ** Implementation of QPointArray class
 **
@@ -801,7 +801,9 @@ static void polygonizeQBezier( double* acc, int& accsize,
 	acc[accsize++] = r[6];
 	acc[accsize++] = r[7];
 	return;
+#if defined(_OS_LINUX_)
 #warning "boundary error!"
+#endif
 	//    } else if (  ) {
     }
 
