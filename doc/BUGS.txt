@@ -74,3 +74,7 @@ QMainWindow/QToolBar
 
 QListView
     remove column produces debug output. (qt-bugs/arc-07/15037)
+
+QWidget
+    colorGroup should return the active colorgroup ONLY if the widget has the focus
+    This is done, but somehow the inactive colorgroup is completely bogus
