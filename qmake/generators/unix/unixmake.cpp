@@ -115,17 +115,6 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("x11lib") == -1) configs.append("x11lib");
 	if(configs.findIndex("x11inc") == -1) configs.append("x11inc");
     }
-    if ( project->isActiveConfig("thread") ) {
-	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
-	if ( !project->variables()["QMAKE_CFLAGS_THREAD"].isEmpty())
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
-	if( !project->variables()["QMAKE_CXXFLAGS_THREAD"].isEmpty())
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
-	if(!project->variables()["QMAKE_LFLAGS_THREAD"].isEmpty())
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
-    }
     if ( project->isActiveConfig("accessibility" ) ) {
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
     }
@@ -146,6 +135,17 @@ UnixMakefileGenerator::init()
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    }
 	}
+    }
+    if ( project->isActiveConfig("thread") ) {
+	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
+	if ( !project->variables()["QMAKE_CFLAGS_THREAD"].isEmpty())
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
+	if( !project->variables()["QMAKE_CXXFLAGS_THREAD"].isEmpty())
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
+	if(!project->variables()["QMAKE_LFLAGS_THREAD"].isEmpty())
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
     }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
