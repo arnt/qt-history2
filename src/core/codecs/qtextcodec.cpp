@@ -716,6 +716,8 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 
 QList<QByteArray> QTextCodec::availableCodecs()
 {
+    setup();
+
     QList<QByteArray> codecs;
     for (int i = 0; i < all->size(); ++i) {
         codecs += all->at(i)->name();
@@ -736,6 +738,8 @@ QList<QByteArray> QTextCodec::availableCodecs()
 
 QList<int> QTextCodec::availableMibs()
 {
+    setup();
+
     QList<int> codecs;
     for (int i = 0; i < all->size(); ++i)
         codecs += all->at(i)->mibEnum();
