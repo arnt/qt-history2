@@ -2478,8 +2478,8 @@ void FormWindow::setMainContainer( QWidget *w )
 	    if ( !MetaDataBase::hasFunction( this, "destroy()" ) )
 		MetaDataBase::addFunction( this, "destroy()", "", "private", "function",
 					   project()->language(), "void" );
-	    if ( !MetaDataBase::hasConnection( this, mainContainer(), "init()", mainContainer(), "init" ) )
-		MetaDataBase::addConnection( this, mainContainer(), "init()", mainContainer(), "init" );
+	    if ( !MetaDataBase::hasConnection( this, mainContainer(), "init()", mainContainer(), "shown" ) )
+		MetaDataBase::addConnection( this, mainContainer(), "init()", mainContainer(), "shown" );
 	    if ( !MetaDataBase::hasConnection( this, mainContainer(), "destroyed()", mainContainer(), "destroy"  ) )
 		MetaDataBase::addConnection( this, mainContainer(), "destroyed()",
 					     mainContainer(), "destroy" );
