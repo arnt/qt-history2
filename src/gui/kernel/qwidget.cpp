@@ -4011,7 +4011,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
             QApplication::sendSpontaneousEvent(q, &e);
         else
             QApplication::sendEvent(q, &e);
-        wasDeleted = (that == 0);
+        wasDeleted = that.isNull();
         if (!wasDeleted && !e.isAccepted()) {
             data.is_closing = 0;
             return false;
