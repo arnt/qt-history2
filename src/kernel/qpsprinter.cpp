@@ -3884,34 +3884,42 @@ static int nextinctr(int co, int /*ci*/, charproc_data* cd)
   return NOMOREINCTR;
 }
 
-static double intest(int co, int ci, charproc_data* cd)
+static double intest( int co, int ci, charproc_data *cd )
 {
-  int i, j, start, end;
-  double r1, r2, a;
-  FWord xi[3], yi[3];
+    int i, j, start, end;
+    double r1, r2;
+    FWord xi[3], yi[3];
 
-  j=start=(co==0)?0:(cd->epts_ctr[co-1]+1);
-  end=cd->epts_ctr[co];
-  i=(ci==0)?0:(cd->epts_ctr[ci-1]+1);
-  xi[0] = cd->xcoor[i];
-  yi[0] = cd->ycoor[i];
-  r1=sqr(cd->xcoor[start] - xi[0])
-     + sqr(cd->ycoor[start] - yi[0]);
+    j = start = ( co == 0 ) ? 0 : ( cd->epts_ctr[co - 1] + 1 );
+    end = cd->epts_ctr[co];
+    i = ( ci == 0 ) ? 0 : ( cd->epts_ctr[ci - 1] + 1 );
+    xi[0] = cd->xcoor[i];
+    yi[0] = cd->ycoor[i];
+    r1 = sqr( cd->xcoor[start] - xi[0] ) + sqr( cd->ycoor[start] - yi[0] );
 
-  for (i=start; i<=end; i++) {
-    r2 = sqr(cd->xcoor[i] - xi[0])+sqr(cd->ycoor[i] - yi[0]);
-    if (r2 < r1) {
-      r1=r2; j=i;
+    for ( i = start; i <= end; i++ ) {
+	r2 = sqr( cd->xcoor[i] - xi[0] ) + sqr( cd->ycoor[i] - yi[0] );
+	if ( r2 < r1 ) {
+	    r1 = r2;
+	    j = i;
+	}
     }
-  }
-  xi[1]=cd->xcoor[j-1]; yi[1]=cd->ycoor[j-1];
-  xi[2]=cd->xcoor[j+1]; yi[2]=cd->ycoor[j+1];
-  if (j==start) { xi[1]=cd->xcoor[end]; yi[1]=cd->ycoor[end]; }
-  if (j==end) { xi[2]=cd->xcoor[start]; yi[2]=cd->ycoor[start]; }
-  a=area(xi, yi, 3);
-
-  return a;
-} /* end of intest() */
+    if ( j == start ) {
+	xi[1] = cd->xcoor[end];
+	yi[1] = cd->ycoor[end];
+    } else {
+	xi[1] = cd->xcoor[j - 1];
+	yi[1] = cd->ycoor[j - 1];
+    }
+    if ( j == end ) {
+	xi[2] = cd->xcoor[start];
+	yi[2] = cd->ycoor[start];
+    } else {
+	xi[2] = cd->xcoor[j + 1];
+	yi[2] = cd->ycoor[j + 1];
+    }
+    return area( xi, yi, 3 );
+}
 
 /*
 ** find the nearest out contour to a specified in contour.
@@ -5234,8 +5242,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     : buffer( 0 ), outDevice( 0 ), fd( filedes ), pageBuffer( 0 ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
-      dirtypen( FALSE ), dirtybrush( FALSE ), dirtyBkColor( FALSE ), dirtyBkMode( FALSE ),
-      currentFontCodec( 0 ), fm( QFont() ), textY( 0 )
+      dirtypen( FALSE ), dirtybrush( FALSE ), dirtyBkColor( FALSE ), bkMode( Qt::OpaqueMode ),
+      dirtyBkMode( FALSE ), currentFontCodec( 0 ), fm( QFont() ), textY( 0 )
 {
     printer = prt;
     headerFontNames.setAutoDelete( TRUE );
@@ -6426,7 +6434,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case NewPage:
         d->flushPage();
         d->dirtyNewPage = TRUE;
-        //qDebug("new page");
         break;
     case AbortPrinting:
         break;
@@ -6435,6 +6442,5 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
     return TRUE;
 }
-
 
 #endif // QT_NO_PRINTER
