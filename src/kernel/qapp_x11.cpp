@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#167 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#166 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#167 $")
 
 
 #if !defined(XlibSpecificationRelease)
@@ -237,8 +237,9 @@ void qt_init( int *argcptr, char **argv )
   // Connect to X server
 
     if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
-	fatal( "%s: cannot connect to X server %s", appName,
-	       XDisplayName(appDpyName) );
+	warning( "%s: cannot connect to X server %s", appName,
+		 XDisplayName(appDpyName) );
+	exit( 1 );
     }
     app_Xfd = XConnectionNumber( appDpy );	// set X network socket
 
