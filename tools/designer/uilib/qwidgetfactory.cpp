@@ -1839,10 +1839,33 @@ QWidgetFactory::LayoutType QWidgetFactory::layoutType( QLayout *layout ) const
 void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 				  QVariant value )
 {
-    if ( obj->metaObject()->findProperty(prop, TRUE) != -1 ) {
+    int offset = obj->metaObject()->findProperty( prop, TRUE );
+
+    if ( offset != -1 ) {
 	if ( prop == "geometry" && obj == toplevel ) {
 	    toplevel->resize( value.toRect().size() );
 	} else {
+	    if ( value.type() == QVariant::String ||
+		 value.type() == QVariant::CString ) {
+		const QMetaProperty *metaProp =
+			obj->metaObject()->property( offset, TRUE );
+		if ( metaProp != 0 && metaProp->isEnumType() ) {
+		    if ( metaProp->isSetType() ) {
+			QStrList flagsCStr;
+			QStringList flagsStr =
+			    QStringList::split( '|', value.asString() );
+			QStringList::ConstIterator f = flagsStr.begin();
+			while ( f != flagsStr.end() ) {
+			    flagsCStr.append( *f );
+			    ++f;
+			}
+			value = QVariant( metaProp->keysToValue(flagsCStr) );
+		    } else {
+			QCString key = value.toCString();
+			value = QVariant( metaProp->keyToValue(key) );
+		    }
+		}
+	    }
 	    obj->setProperty( prop, value );
 	}
     } else {
