@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#276 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#277 $
 **
 ** Implementation of QApplication class
 **
@@ -480,6 +480,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 
 QApplication::QApplication( Display* dpy )
 {
+    is_gui_used = TRUE;
     init_precmdline();
     // ... no command line.
     qt_init( dpy );
