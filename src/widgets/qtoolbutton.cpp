@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#62 $
 **
 ** Implementation of QToolButton class
 **
@@ -45,6 +45,7 @@ class QToolButtonPrivate
 public:
     QPopupMenu* popup;
     QTimer* popupTimer;
+    int delay;
 };
 
 
@@ -80,6 +81,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 void QToolButton::init()
 {
     d = new QToolButtonPrivate;
+    d->delay = 600;
     d->popup = 0;
     d->popupTimer = 0;
     bpID = bp.serialNumber();
@@ -602,7 +604,7 @@ QPopupMenu* QToolButton::popup() const
 void QToolButton::popupPressed()
 {
     if ( d->popupTimer )
-	d->popupTimer->start(600, TRUE );
+	d->popupTimer->start( d->delay, TRUE );
 }
 
 void QToolButton::popupTimerDone()
@@ -642,4 +644,27 @@ void QToolButton::popupTimerDone()
 	}
 	setDown( FALSE );
     }
+}
+
+/*!
+  Sets the time delay between pressing the button and the appearance of
+  the associated popupmenu in milliseconds. Usually this is around 1/2 of
+  a second.
+  
+  \sa popupDelay(), setPopup()
+*/
+void QToolButton::setPopupDelay( int delay )
+{
+    d->delay = delay;
+}
+
+/*!
+  Returns the delay between pressing the button and the appearance of
+  the associated popupmenu in milliseconds.
+  
+  \sa setPopupDelay(), setPopup()
+*/
+int QToolButton::popupDelay() const
+{
+    return d->delay;
 }
