@@ -370,10 +370,13 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
     QStyle::CFlags flags = QStyle::CStyle_Default;
 
+    void *data[1];
+    data[0] = t;
+
     if ( selected )
 	flags |= QStyle::CStyle_Selected;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
-			 colorGroup(), flags );
+			 colorGroup(), flags, data );
 
     QRect r( t->r );
     p->setFont( font() );
