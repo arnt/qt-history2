@@ -1671,6 +1671,7 @@ void AddActionToPopupCommand::execute()
 	    QObject::connect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
 	}
     }
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddActionToPopupCommand::unexecute()
@@ -1695,6 +1696,7 @@ void AddActionToPopupCommand::unexecute()
 	    }
 	}
     }
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -1723,6 +1725,7 @@ void AddMenuCommand::execute()
     else
 	id = mainWindow->menuBar()->insertItem( name, popup, id, index );
     formWindow()->killAccels( formWindow() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddMenuCommand::unexecute()
@@ -1731,6 +1734,7 @@ void AddMenuCommand::unexecute()
 	return;
     menuBar->removeItem( id );
     formWindow()->killAccels( formWindow() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -1745,12 +1749,14 @@ void RenameMenuCommand::execute()
 {
     menuBar->changeItem( id, newName );
     formWindow()->killAccels( formWindow() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void RenameMenuCommand::unexecute()
 {
     menuBar->changeItem( id, oldName );
     formWindow()->killAccels( formWindow() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -1766,6 +1772,7 @@ void MoveMenuCommand::execute()
     menuBar->removeItem( menuBar->idAt( fromIdx ) );
     menuBar->insertItem( text, popup, -1, toIdx );
     formWindow()->killAccels( formWindow() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void MoveMenuCommand::unexecute()
@@ -1773,6 +1780,7 @@ void MoveMenuCommand::unexecute()
     menuBar->removeItem( menuBar->idAt( toIdx ) );
     menuBar->insertItem( text, popup, -1, fromIdx );
     formWindow()->killAccels( formWindow() );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------

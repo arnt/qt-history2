@@ -1163,6 +1163,8 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QAction";
     else if ( o->inherits( "QDesignerActionGroup" ) )
 	return "QActionGroup";
+    else if ( o->inherits( "QDesignerPopupMenu" ) )
+	return "QPopupMenu";
 #ifndef QT_NO_SQL
     else if ( o->inherits( "QDesignerDataBrowser" ) )
 	return "QDataBrowser";
