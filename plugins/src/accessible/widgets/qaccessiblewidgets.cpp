@@ -306,21 +306,18 @@ QRect QAccessibleSpinWidget::rect(int child) const
 int QAccessibleSpinWidget::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
-    switch (rel) {
-    case Child:
-	return entry;
+    if (entry) switch (rel) {
     case QAccessible::Below:
-	if (entry > 1)
-	    return -1;
-	return entry + 1;
+	return entry < childCount() ? entry + 1 : -1;
     case QAccessible::Above:
-	if (entry < 1)
-	    return -1;
-	return entry - 1;
+	return entry > 1 ? entry - 1 : -1;
+    case QAccessible::Left:
+	return -1;
+    case QAccessible::Right:
+	return -1;
     default:
 	break;
     }
-
     return QAccessibleRangeControl::navigate(rel, entry, target);
 }
 
@@ -480,36 +477,6 @@ QRect QAccessibleScrollBar::rect(int child) const
 }
 
 /*! \reimp */
-int QAccessibleScrollBar::navigate(Relation rel, int entry, QAccessibleInterface **target) const
-{
-    *target = 0;
-    switch (rel) {
-    case Child:
-	return entry;
-    case Below:
-	if (scrollBar()->orientation() == Horizontal || entry >= childCount())
-	    return -1;
-	return entry + 1;
-    case QAccessible::Right:
-	if (scrollBar()->orientation() == Vertical || entry >= childCount())
-	    return -1;
-	return entry + 1;
-    case Above:
-	if (scrollBar()->orientation() == Horizontal || entry < 2)
-	    return -1;
-	return entry - 1;
-    case QAccessible::Left:
-	if (scrollBar()->orientation() == Vertical || entry < 2)
-	    return -1;
-	return entry - 1;
-    default:
-	break;
-    }
-
-    return QAccessibleRangeControl::navigate(rel, entry, target);
-}
-
-/*! \reimp */
 int QAccessibleScrollBar::childCount() const
 {
     return 5;
@@ -642,34 +609,6 @@ QRect QAccessibleSlider::rect(int child) const
 int QAccessibleSlider::relationTo(int child, const QAccessibleInterface *other, int otherChild)
 {
     return QAccessibleRangeControl::relationTo(child, other, otherChild);
-}
-
-/*! \reimp */
-int QAccessibleSlider::navigate(Relation rel, int entry, QAccessibleInterface **target) const
-{
-    *target = 0;
-    switch (rel) {
-    case Child:
-	return entry;
-    case QAccessible::Below:
-	if (slider()->orientation() == Horizontal || entry >= childCount())
-	    return -1;
-	return entry + 1;
-    case QAccessible::Right:
-	if (slider()->orientation() == Vertical || entry >= childCount())
-	    return -1;
-	return entry + 1;
-    case QAccessible::Above:
-	if (slider()->orientation() == Horizontal || entry < 2)
-	    return -1;
-	return entry - 1;
-    case QAccessible::Left:
-	if (slider()->orientation() == Vertical || entry < 2)
-	    return -1;
-	return entry - 1;
-    }
-
-    return QAccessibleRangeControl::navigate(rel, entry, target);
 }
 
 /*! \reimp */
@@ -889,35 +828,6 @@ QRect QAccessibleHeader::rect(int child) const
 }
 
 /*! \reimp */
-int QAccessibleHeader::navigate(Relation rel, int entry, QAccessibleInterface **target) const
-{
-    *target = 0;
-    switch (rel) {
-    case Child:
-	return entry;
-    case QAccessible::Left:
-	if (header()->orientation() == Vertical || entry < 2)
-	    return -1;
-	return entry - 1;
-    case QAccessible::Right:
-	if (header()->orientation() == Vertical || entry >= childCount())
-	    return -1;
-	return entry + 1;
-    case Above:
-	if (header()->orientation() == Horizontal || entry < 2)
-	    return -1;
-	return entry - 1;
-    case Below:
-	if (header()->orientation() == Horizontal || entry >= childCount())
-	    return -1;
-	return entry + 1;
-    default:
-	break;
-    }
-    return QAccessibleWidget::navigate(rel, entry, target);
-}
-
-/*! \reimp */
 int QAccessibleHeader::childCount() const
 {
     return header()->count();
@@ -984,13 +894,8 @@ QRect QAccessibleTabBar::rect(int child) const
 	return QAccessibleWidget::rect(0);
 
     if (child > tabBar()->count()) {
-	QAccessibleInterface *iface = 0;
-	QAccessibleWidget::navigate(Child, child - tabBar()->count(), &iface);
+	// get buttonLeft/buttonRight
 	QRect r;
-	if (iface) {
-	    r = iface->rect(0);
-	    iface->release();
-	}
 	return r;
     }
 
@@ -999,23 +904,6 @@ QRect QAccessibleTabBar::rect(int child) const
     QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
     QRect rec = tab->rect();
     return QRect(tp.x() + rec.x(), tp.y() + rec.y(), rec.width(), rec.height());
-}
-
-/*! \reimp */
-int QAccessibleTabBar::navigate(Relation rel, int entry, QAccessibleInterface **target) const
-{
-    *target = 0;
-    switch (rel) {
-    case Child:
-	return entry;
-    case QAccessible::Right:
-	return entry + 1 > childCount() ? -1 : entry + 1;
-    case QAccessible::Left:
-	return entry -1 < 1 ? -1 : entry - 1;
-    default:
-	break;
-    }
-    return QAccessibleWidget::navigate(rel, entry, target);;
 }
 
 /*! \reimp */
@@ -1202,13 +1090,15 @@ QRect QAccessibleComboBox::rect(int child) const
 int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
-    switch (rel) {
-    case Child:
-	return entry;
-    case QAccessible::Right:
-	return entry + 1 > childCount() ? -1 : entry + 1;
+    if (entry) switch (rel) {
     case QAccessible::Left:
-	return entry -1 < 1 ? -1 : entry - 1;
+	return entry > 1 ? entry - 1 : -1;
+    case QAccessible::Right:
+	return entry < childCount() ? entry + 1 : -1;
+    case QAccessible::Above:
+	return -1;
+    case QAccessible::Below:
+	return -1;
     default:
 	break;
     }

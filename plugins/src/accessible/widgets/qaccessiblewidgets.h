@@ -87,7 +87,6 @@ public:
 	QString defAction = QString(), QString accelerator = QString());
 
     int		childCount() const;
-    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
@@ -108,8 +107,6 @@ public:
 
     int		childCount() const;
     int		relationTo(int child, const QAccessibleInterface *other, int otherChild);
-
-    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
@@ -151,7 +148,6 @@ public:
 	QString defAction = QString(), QString accelerator = QString());
 
     int		childCount() const;
-    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
@@ -170,7 +166,6 @@ public:
 	QString defAction = QString(), QString accelerator = QString());
 
     int		childCount() const;
-    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
