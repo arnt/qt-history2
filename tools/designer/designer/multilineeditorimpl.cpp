@@ -275,7 +275,7 @@ void MultiLineEditor::insertTags( const QString &tag )
     if ( textEdit->hasSelectedText() ) {
 	textEdit->getSelection( &pfrom, &ifrom, &pto, &ito );
 	QString buf = textEdit->selectedText();
-	buf = QString( "<%1>%2</%3>" ).arg( tag ).arg( buf ).arg( tagend );
+	buf = QString( "<%1>%2</%3>" ).arg( tag ).arg( tagend ).arg( buf );
 	textEdit->removeSelectedText();
 	textEdit->insertAt( buf, pfrom, ifrom );
 	textEdit->setCursorPosition( pto, ito + 2 + tag.length() );
