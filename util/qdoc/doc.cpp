@@ -179,7 +179,7 @@ static void skipSpacesOrNL( const QString& in, int& pos )
 	    if ( firstNL == -1 ) {
 		firstNL = pos;
 	    } else {
-		pos = firstNL + 1; // ### ???
+		pos = firstNL;
 		break;
 	    }
 	}
@@ -405,6 +405,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     while ( yyPos < yyLen ) {
 	QChar ch = yyIn[yyPos++];
 	metNL = ( ch == '\n' );
+	if ( metNL )
+	    stopPreOutput();
 
 	if ( ch == '\\' ) {
 	    QString command;
@@ -847,21 +849,18 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipto( substr, location() );
-		startPreOutput();
 		yyOut += QString( "\\skipto " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 8 ):
 		consume( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipline( substr, location() );
-		startPreOutput();
 		yyOut += QString( "\\skipline " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 9 ):
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipuntil( substr, location() );
-		startPreOutput();
 		yyOut += QString( "\\skipuntil " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 't', 5 ):
@@ -954,7 +953,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    while ( yyPos < yyLen && yyIn[yyPos].isSpace() ) {
 		ch = yyIn[yyPos++];
 		if ( metNL && ch == QChar('\n') && !somethingAhead() ) {
-		    stopPreOutput();
 		    if ( inValue ) {
 			yyOut += QString( "</ul>" );
 			inValue = FALSE;
@@ -1813,6 +1811,8 @@ void Doc::printHtml( HtmlWriter& out ) const
 
 QString Doc::finalHtml() const
 {
+printf( "%s", html.latin1() ); // ###
+
     QMap<QString, int> offsetMap;
 
     QString yyOut;
