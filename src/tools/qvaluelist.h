@@ -81,12 +81,12 @@ class Q_EXPORT QValueListIterator
     typedef std::bidirectional_iterator_tag  iterator_category;
 #endif
     typedef T        value_type;
+    typedef size_t size_type;
 #ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
 #else
     typedef int difference_type;
 #endif
-    typedef size_t size_type;
     typedef T*   pointer;
     typedef T& reference;
 
@@ -144,12 +144,12 @@ class Q_EXPORT QValueListConstIterator
     typedef std::bidirectional_iterator_tag  iterator_category;
 #endif
     typedef T        value_type;
+    typedef size_t size_type;
 #ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
 #else
     typedef int difference_type;
 #endif
-    typedef size_t size_type;
     typedef const T*   pointer;
     typedef const T& reference;
 
@@ -336,7 +336,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 # ifndef QT_NO_DEBUG
-#  define QT_CHECK_INVALID_LIST_ELEMENT if ( isEmpty() ) qWarning( "QValueList: Warning invalid element" )
+#  define QT_CHECK_INVALID_LIST_ELEMENT if ( empty() ) qWarning( "QValueList: Warning invalid element" )
 #  define QT_CHECK_INVALID_LIST_ELEMENT_FATAL Q_ASSERT( !empty() );
 # else
 #  define QT_CHECK_INVALID_LIST_ELEMENT
@@ -400,7 +400,12 @@ public:
     {
 	if ( size() != l.size() )
 	    return FALSE;
-	return qEqual( begin(), end(), l.begin() );
+	const_iterator it2 = begin();
+	std::list<T>::iterator it = l.begin();
+	for ( ; it2 != end(); ++it2, ++it )
+	if ( !((*it2) == (*it)) )
+	    return FALSE;
+	return TRUE;
     }
 #endif
     bool operator== ( const QValueList<T>& l ) const
@@ -431,9 +436,7 @@ public:
     }
 
     size_type size() const { return sh->nodes; }
-    size_type max_size() const { return size_type( -1 ); }
     bool empty() const { return sh->nodes == 0; }
-    void swap( QValueList<T>& x ) { qSwap( *this, x ); }
     void push_front( const T& x ) { detach(); sh->insert( begin(), x ); }
     void push_back( const T& x ) { detach(); sh->insert( end(), x ); }
     iterator erase( iterator pos ) { detach(); return sh->remove( pos ); }
@@ -494,18 +497,18 @@ public:
     T& last() { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->node->prev->data; }
     const T& last() const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->node->prev->data; }
 
-    T& operator[] ( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->at(i)->data; }
-    const T& operator[] ( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->at(i)->data; }
-    iterator at( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return iterator( sh->at(i) ); }
-    const_iterator at( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return const_iterator( sh->at(i) ); }
+    T& operator[] ( size_type i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->at(i)->data; }
+    const T& operator[] ( size_type i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->at(i)->data; }
+    iterator at( size_type i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return iterator( sh->at(i) ); }
+    const_iterator at( size_type i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return const_iterator( sh->at(i) ); }
     iterator find ( const T& x ) { detach(); return iterator( sh->find( sh->node->next, x) ); }
     const_iterator find ( const T& x ) const { return const_iterator( sh->find( sh->node->next, x) ); }
     iterator find ( iterator it, const T& x ) { detach(); return iterator( sh->find( it.node, x ) ); }
     const_iterator find ( const_iterator it, const T& x ) const { return const_iterator( sh->find( it.node, x ) ); }
     int findIndex( const T& x ) const { return sh->findIndex( sh->node->next, x) ; }
-    uint contains( const T& x ) const { return sh->contains( x ); }
+    size_type contains( const T& x ) const { return sh->contains( x ); }
 
-    uint count() const { return sh->nodes; }
+    size_type count() const { return sh->nodes; }
 
     QValueList<T>& operator+= ( const T& x )
     {

@@ -243,10 +243,7 @@
 /*! \enum QValueList::const_reference 
 	The const reference to T type. */
 /*! \enum QValueList::size_type 
-	An unsigned integral type. */
-/*! \enum QValueList::difference_type 
-	A signed integral type. */
-
+	An unsigned integral type, used to represent various sizes. */
 /*!
   \fn QValueList::QValueList()
   Constructs an empty list.
@@ -381,16 +378,8 @@
   Returns the number of elements in the list.
 */
 
-/*! \fn size_type QValueList::max_size() const
-  Returns the maximum possible size for the list.
-*/
-
 /*! \fn bool QValueList::empty() const
   Returns TRUE if and only if the list's size is zero.
-*/
-
-/*! \fn void QValueList::swap( QValueList<T>& x )
-  Swaps the contents of this list with the contents of \a x.
 */
 
 /*! \fn void QValueList::push_front( const T& x )
@@ -801,8 +790,6 @@
 
 /*! \enum  QValueListIterator::value_type
 	The type of value, T. */
-/*! \enum  QValueListIterator::difference_type
-	A signed integral type.*/
 /*! \enum  QValueListIterator::pointer
 	Pointer to value_type. */
 /*! \enum  QValueListIterator::reference
@@ -915,8 +902,6 @@
 
 /*! \enum  QValueListConstIterator::value_type
 	The type of value. */
-/*! \enum  QValueListConstIterator::difference_type
-	A signed integral type.*/
 /*! \enum  QValueListConstIterator::pointer
 	Pointer to value_type. */
 /*! \enum  QValueListConstIterator::reference

@@ -236,9 +236,7 @@
 /*! \enum  QMap::const_reference 
 	Const reference to value_type.*/
 /*! \enum  QMap::size_type 
-	An unsigned integral type, \c size_t.*/
-/*! \enum  QMap::difference_type 
-	A signed integral type, \c ptrdiff_t.*/
+	An unsigned integral type, used to represent various sizes. */
 /*! \enum  QMap::iterator 
 	The map's iterator type.*/
 /*! \enum  QMap::const_iterator 
@@ -388,16 +386,8 @@
   Returns the number of elements in the map.
 */
 
-/*! \fn size_type QMap::max_size() const
-  Returns the maximum possible size for the map.
-*/
-
 /*! \fn bool QMap::empty() const
   Returns TRUE if and only if the map's size is zero.
-*/
-
-/*! \fn void QMap::swap( QMap<Key,T>& x )
-  Swaps the contents of this map with the contents of \a x.
 */
 
 /*! \fn QPair<iterator,bool> QMap::insert( const value_type& x )
@@ -585,8 +575,6 @@
 	The type of iterator category, \c std::bidirectional_iterator_tag. */
 /*! \enum  QMapIterator::value_type
 	The type of value. */
-/*! \enum  QMapIterator::difference_type
-	A signed integral type.*/
 /*! \enum  QMapIterator::pointer
 	Pointer to value_type. */
 /*! \enum  QMapIterator::reference
@@ -713,8 +701,6 @@
 	The type of iterator category, \c std::bidirectional_iterator_tag. */
 /*! \enum  QMapConstIterator::value_type
 	The type of const value. */
-/*! \enum  QMapConstIterator::difference_type
-	A signed integral type, \c ptrdiff_t.*/
 /*! \enum  QMapConstIterator::pointer
 	Const pointer to value_type. */
 /*! \enum  QMapConstIterator::reference

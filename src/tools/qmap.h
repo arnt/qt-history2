@@ -42,6 +42,7 @@
 #include "qshared.h"
 #include "qdatastream.h"
 #include "qpair.h"
+#include "qtl.h"
 #endif // QT_H
 
 #ifndef QT_NO_STL
@@ -526,7 +527,7 @@ protected:
 
 #ifdef QT_CHECK_RANGE
 # ifndef QT_NO_DEBUG
-#  define QT_CHECK_INVALID_MAP_ELEMENT if ( isEmpty() ) qWarning( "QMap: Warning invalid element" )
+#  define QT_CHECK_INVALID_MAP_ELEMENT if ( empty() ) qWarning( "QMap: Warning invalid element" )
 #  define QT_CHECK_INVALID_MAP_ELEMENT_FATAL Q_ASSERT( !empty() );
 # else
 #  define QT_CHECK_INVALID_MAP_ELEMENT
@@ -544,28 +545,33 @@ public:
     /**
      * Typedefs
      */
-    typedef Key              key_type;
-    typedef T                mapped_type;
+    typedef Key key_type;
+    typedef T mapped_type;
     typedef QPair<const key_type, mapped_type> value_type;
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
     typedef value_type& reference;
     typedef const value_type& const_reference;
-    typedef size_t      size_type;
 #ifndef QT_NO_STL
     typedef ptrdiff_t difference_type;
 #else
     typedef int difference_type;
 #endif
-
+    typedef size_t      size_type;
     typedef QMapIterator<Key,T> iterator;
     typedef QMapConstIterator<Key,T> const_iterator;
 
     /**
      * API
      */
-    QMap() { sh = new QMapPrivate< Key, T >; }
-    QMap( const QMap<Key,T>& m ) { sh = m.sh; sh->ref(); }
+    QMap()
+    {
+	sh = new QMapPrivate< Key, T >;
+    }
+    QMap( const QMap<Key,T>& m )
+    {
+	sh = m.sh; sh->ref();
+    }
 
 #ifndef QT_NO_STL
     QMap( const std::map<Key,T>& m )
@@ -573,12 +579,16 @@ public:
 	sh = new QMapPrivate<Key,T>;
 	std::map<Key,T>::const_iterator it = m.begin();
 	for ( ; it != m.end(); ++it ) {
-	    QPair<const Key,T> p( (*it).first, (*it).second );
+	    value_type p( (*it).first, (*it).second );
 	    insert( p );
 	}
     }
 #endif
-    ~QMap() { if ( sh->deref() ) delete sh; }
+    ~QMap()
+    {
+	if ( sh->deref() )
+	    delete sh;
+    }
     QMap<Key,T>& operator= ( const QMap<Key,T>& m )
     {
 	m.sh->ref();
@@ -593,31 +603,49 @@ public:
 	clear();
 	std::map<Key,T>::const_iterator it = m.begin();
 	for ( ; it != m.end(); ++it ) {
-	    QPair<const Key,T> p( (*it).first, (*it).second );
+	    value_type p( (*it).first, (*it).second );
 	    insert( p );
 	}
 	return *this;
     }
 #endif
 
-    iterator begin() { detach(); return sh->begin(); }
-    iterator end() { detach(); return sh->end(); }
-    const_iterator begin() const { return ((const Priv*)sh)->begin(); }
-    const_iterator end() const { return ((const Priv*)sh)->end(); }
-
-    iterator replace( const Key& k, const T& v ) {
+    iterator begin()
+    {
+	detach();
+	return sh->begin();
+    }
+    iterator end()
+    {
+	detach();
+	return sh->end();
+    }
+    const_iterator begin() const
+    {
+	return ((const Priv*)sh)->begin();
+    }
+    const_iterator end() const
+    {
+	return ((const Priv*)sh)->end();
+    }
+    iterator replace( const Key& k, const T& v )
+    {
 	remove( k );
 	return insert( k, v );
     }
 
-    size_type size() const { return sh->node_count; }
-    size_type max_size() const { return size_type(-1); }
-    bool empty() const { return sh->node_count == 0; }
-    void swap( QMap<Key,T>& x ) { qSwap( *this, x ); }
+    size_type size() const
+    {
+	return sh->node_count;
+    }
+    bool empty() const
+    {
+	return sh->node_count == 0;
+    }
     QPair<iterator,bool> insert( const value_type& x )
     {
 	detach();
-	uint n = size();
+	size_type n = size();
 	iterator it = sh->insertSingle( x.first );
 	bool inserted = FALSE;
 	if ( n < size() ) {
@@ -689,14 +717,14 @@ public:
 	{ return find( k ) != end(); }
 	//{ return sh->find( k ) != ((const Priv*)sh)->end(); }
 
-    uint count() const { return sh->node_count; }
+    size_type count() const { return sh->node_count; }
 
     bool isEmpty() const { return sh->node_count == 0; }
 
 
     iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
 	detach();
-	uint n = size();
+	size_type n = size();
 	iterator it = sh->insertSingle( key );
 	if ( overwrite || n < size() )
 	    it.data() = value;

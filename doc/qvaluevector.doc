@@ -301,9 +301,9 @@
 /*! \enum QValueVector::const_reference 
 	The const reference to T type. */
 /*! \enum QValueVector::size_type 
-	An unsigned integral type, \c size_t. */
+	An unsigned integral type, used to represent various sizes. */
 /*! \enum QValueVector::difference_type 
-	A signed integral type, \c ptrdiff_t. */
+	A signed integral type used to represent the distance between two iterators. */
 
 
 /*! \fn QValueVector::QValueVector()
@@ -343,10 +343,6 @@
 
 /*! \fn size_type QValueVector::size() const
   Returns the number of elements in the vector.
-*/
-
-/*! \fn size_type QValueVector::max_size() const
-  Returns the maximum number of elements possible.
 */
 
 /*! \fn bool QValueVector::empty() const
@@ -422,11 +418,6 @@
 /*! \fn const_reference QValueVector::back() const
   Returns a const reference to the last element in the vector.  If there is
   no last element, this function has undefined behavior.  
-*/
-
-/*! \fn void QValueVector::swap( QValueVector<T>& x )
-  Swaps the contents of this vector with the contents of \a x.  All
-  iterators to this vector are invalidated.
 */
 
 /*! \fn void QValueVector::push_back( const T& x )

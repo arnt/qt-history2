@@ -280,11 +280,6 @@ public:
 	return sh->size();
     }
 
-    size_type max_size() const
-    {
-	return size_type( -1 ) / sizeof( T );
-    }
-
     bool empty() const
     {
 	return sh->empty();
@@ -375,12 +370,6 @@ public:
     {
 	Q_ASSERT( !empty() );
 	return *( end() - 1 );
-    }
-
-    void swap( QValueVector<T>& x )
-    {
-	detach();
-	qSwap( *this, x );
     }
 
     void push_back( const T& x )
