@@ -121,7 +121,7 @@ private:
 #endif
 
     Q_DECLARE_PRIVATE(QSocket);
-    Q_PRIVATE_SLOT(void tryConnecting(const QResolver::HostInfo &))
+    Q_PRIVATE_SLOT(void tryConnecting(const QResolverHostInfo &))
     Q_PRIVATE_SLOT(void emitErrorConnectionRefused())
 
     QIODevicePrivate *d_ptr;

@@ -1,114 +1,82 @@
 #include "qresolver_p.h"
-#include <qsocketdevice.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
-/*****************************************************************
- *
- * QResolverManager
- *
- *****************************************************************/
-uint QResolverManager::winMsg = 0;
+//#define QRESOLVER_DEBUG
 
-QResolverManager::QResolverManager()
-    : QWidget( 0, "DNS manager" ),
-#if !defined(QT_NO_IPV6)
-      resolverThread(0),
-#endif
-      requestHandle(0),
-      buf(0)
+#include <qtimer.h>
+
+void QResolverAgent::run()
 {
-    QSocketDevice dev; // ### hack to make sure that WSAStartup() was called
-}
-
-QResolverManager::~QResolverManager()
-{
-#if !defined(QT_NO_IPV6)
-    if ( resolverThread ) {
-	if ( resolverThread->isRunning() ) {
-	    resolverThread->terminate();
-	    resolverThread->wait();
-	}
-	delete resolverThread;
-    }
-#endif
-    delete[] buf;
-}
-
-void QResolverManager::startNextQuery()
-{
-    QResolverDispatcher *dispatcher = queries.first();
-    if ( dispatcher ) {
-#if !defined(QT_NO_IPV6)
-	if ( QSysInfo::WindowsVersion == WV_XP ) {
-	    if ( !resolverThread )
-		resolverThread = new QResolverSync;
-	    resolverThread->hostName = dispatcher->hostName;
-#  ifdef QT_THREAD_SUPPORT
-	    resolverThread->start();
-#  else
-	    resolverThread->run();
-#  endif
-	    return;
-	}
-#endif
-
-	if ( !winMsg )
-	    winMsg = RegisterWindowMessageA( "QtGetHostByNameEvent" );
-	if ( !buf )
-	    buf = new char[MAXGETHOSTSTRUCT];
-	requestHandle = WSAAsyncGetHostByName( winId(), winMsg, dispatcher->hostName.latin1(), buf, MAXGETHOSTSTRUCT );
-	if ( requestHandle == 0 ) {
-	    QResolver::HostInfo resData;
-	    resData.error = QResolver::UnknownError;
-	    resData.errorString = tr( "Starting host name lookup failed" );
-	    emit dispatcher->resultsReady( resData );
-	    queries.removeFirst();
-	    startNextQuery();
-	    return;
-	}
-    }
-}
-
-bool QResolverManager::winEvent( MSG *msg )
-{
-    // ### The windows event handling could be rather done in qapplication like
-    // for socket notifiers. This means that the same widget as for socket
-    // notifiers could be used and that the QResolverManager does not need
-    // to be a QWidget subclass.
-
 #if defined(QRESOLVER_DEBUG)
-    qDebug( "QResolverManager::winEvent( %p %p ): event of type %d (%d)", this, msg, msg->message, winMsg );
+    qDebug("QResolverAgent::run(%p): start DNS lookup", this);
 #endif
-    if ( winMsg && msg->message == winMsg && (HANDLE)msg->wParam == requestHandle ) {
-	QResolver::HostInfo hostInfo;
-	if ( WSAGETASYNCERROR( msg->lParam ) == 0 ) {
-	    char **p;
-	    for ( p = ((hostent*)buf)->h_addr_list; *p!=0; p++ ) {
-		long *ip4Addr = (long*)*p;
-		hostInfo.addresses << QHostAddress( ntohl( *ip4Addr ) );
+    struct addrinfo *res;
+    int err = getaddrinfo(hostName.latin1(), 0, 0, &res);
+    QResolverHostInfo results;
+
+    if (err) {
+	switch ( err ) {
+            case EAI_NONAME:
+	        results.error = QResolver::HostNotFound;
+	        break;
+	    default:
+		results.error = QResolver::UnknownError;
+		break;
+	}
+#if defined(Q_OS_WIN32)
+	QT_WA( {
+            results.errorString = QString::fromUtf16((ushort *) gai_strerrorW(err));
+	} , {
+            results.errorString = QString::fromLocal8Bit(gai_strerrorA(err));
+	} );
+#else
+	results.errorString = QString::fromLocal8Bit(gai_strerror(err));
+#endif
 #if defined(QRESOLVER_DEBUG)
-		qDebug( "QResolverSync::run( %p ): found IP4 address %s",
-			this, hostInfo.addresses.last().toString().latin1() );
+	qDebug("QResolverAgent::run(%p): error %d: %s",
+		this, err, results.errorString.latin1());
 #endif
+    } else {
+	QHostAddress *newAddress = 0;
+	for (struct addrinfo *p=res; p != 0; p = p->ai_next) {
+	    switch (p->ai_family) {
+		case AF_INET:
+		    newAddress = new QHostAddress(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
+#if defined(QRESOLVER_DEBUG)
+		    qDebug("QResolverAgent::run(%p): found IP4 address %s",
+			    this, newAddress->toString().latin1());
+#endif
+		    break;
+		case AF_INET6:
+		    newAddress = new QHostAddress(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
+#if defined(QRESOLVER_DEBUG)
+		    qDebug("QResolverAgent::run( %p ): found IP6 address %s",
+			    this, newAddress->toString().latin1());
+#endif
+		    break;
+		default:
+		    results.error = QResolver::UnknownError;
+		    results.errorString = "Unknown address type";
+		    break;
 	    }
-	} else {
-	    if ( WSAGETASYNCERROR( msg->lParam ) == WSAHOST_NOT_FOUND ) {
-		hostInfo.error = QResolver::HostNotFound;
-		hostInfo.errorString = tr( "Host not found" );
-	    } else {
-		hostInfo.error = QResolver::UnknownError;
-		hostInfo.errorString = tr( "Unknown error" );
+
+	    if (newAddress) {
+		if (!results.addresses.contains(*newAddress))
+		    results.addresses << *newAddress;
+		delete newAddress;
+		newAddress = 0;
 	    }
 	}
-	QResolverDispatcher *dispatcher = queries.first();
-	if ( dispatcher ) {
-	    emit dispatcher->resultsReady( hostInfo );
-	    queries.removeFirst();
-	    startNextQuery();
-	    return TRUE;
-	}
+	freeaddrinfo(res);
     }
-#if defined(QRESOLVER_DEBUG)
-    qDebug( "QResolverManager::winEvent( %p %p ): event not recognized, pass it to QObject::event()", this, msg );
+
+    emit resultsReady(results);
+
+#if !defined QT_NO_THREAD
+    connect(this, SIGNAL(terminated()), SLOT(deleteLater()));
+#else
+    deleteLater();
 #endif
-    return QWidget::winEvent( msg );
 }
+

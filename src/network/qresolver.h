@@ -10,21 +10,18 @@ class Q_NETWORK_EXPORT QResolver
 public:
     enum Error { NoError, HostNotFound, UnknownError };
 
-    struct HostInfo
-    {
-	HostInfo() : error( QResolver::NoError ), errorString( "Unknown error" )
-	{}
+    static void getHostByName(const QString &name,
+                              const QObject *receiver, const char *resultsReady );
+};
 
-	HostInfo( const HostInfo &d ) : error( d.error ), errorString( d.errorString ), addresses( d.addresses )
-	{}
+struct QResolverHostInfo
+{
+    QResolverHostInfo();
+    QResolverHostInfo(const QResolverHostInfo &d);
 
-	Error error;
-	QString errorString;
-	QList<QHostAddress> addresses;
-    };
-
-
-    static void getHostByName( const QString& name, const QObject * receiver, const char * resultsReady );
+    QResolver::Error error;
+    QString errorString;
+    QList<QHostAddress> addresses;
 };
 
 #endif // QRESOLVER_H

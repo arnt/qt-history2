@@ -124,7 +124,7 @@ public:
     void tryConnection();
     void setSocket(int socket);
 
-    void tryConnecting(const QResolver::HostInfo &);
+    void tryConnecting(const QResolverHostInfo &);
     void emitErrorConnectionRefused();
 
     QSocket::State state;                           // connection state
@@ -314,7 +314,7 @@ void QSocketPrivate::setSocket(int socket)
 /*
     Continues the connection process where connectToHost() leaves off.
 */
-void QSocketPrivate::tryConnecting(const QResolver::HostInfo &hostInfo)
+void QSocketPrivate::tryConnecting(const QResolverHostInfo &hostInfo)
 {
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s)::tryConnecting()", q->name());
@@ -588,13 +588,13 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     QHostAddress hostAddr;
     if (hostAddr.setAddress(host)) {
 	// try if the address is already available (for faster connecting)
-	QResolver::HostInfo h;
+	QResolverHostInfo h;
 	h.addresses.append(hostAddr);
 	d->tryConnecting(h);
     }
 
     if (d->state == HostLookup)
-	QResolver::getHostByName(host, this, SLOT(tryConnecting(const QResolver::HostInfo &)));
+	QResolver::getHostByName(host, this, SLOT(tryConnecting(QResolverHostInfo)));
 }
 
 #endif
