@@ -1381,8 +1381,10 @@ void AddActionToToolBarCommand::execute()
 	toolBar->insertAction( ( (QDesignerAction*)action )->widget(), action );
 	( (QDesignerAction*)action )->widget()->installEventFilter( toolBar );
     } else if ( action->inherits( "QDesignerActionGroup" ) ) {
-	toolBar->insertAction( ( (QDesignerActionGroup*)action )->widget(), action );
-	( (QDesignerActionGroup*)action )->widget()->installEventFilter( toolBar );
+	if ( ( (QDesignerActionGroup*)action )->usesDropDown() ) {
+	    toolBar->insertAction( ( (QDesignerActionGroup*)action )->widget(), action );
+	    ( (QDesignerActionGroup*)action )->widget()->installEventFilter( toolBar );
+	}
     } else if ( action->inherits( "QSeparatorAction" ) ) {
 	toolBar->insertAction( ( (QSeparatorAction*)action )->widget(), action );
 	( (QSeparatorAction*)action )->widget()->installEventFilter( toolBar );
@@ -1432,8 +1434,10 @@ void AddActionToToolBarCommand::unexecute()
 	    ++it;
 	    if ( !o->inherits( "QAction" ) )
 		continue;
-	    if ( o->inherits( "QDesignerAction" ) )
+	    if ( o->inherits( "QDesignerAction" ) ) {
 		o->removeEventFilter( toolBar );
+		toolBar->removeAction( (QAction*)o );
+	    }
 	}
     }
 }
@@ -1489,8 +1493,10 @@ void AddActionToPopupCommand::unexecute()
 	    ++it;
 	    if ( !o->inherits( "QAction" ) )
 		continue;
-	    if ( o->inherits( "QDesignerAction" ) )
+	    if ( o->inherits( "QDesignerAction" ) ) {
 		o->removeEventFilter( popup );
+		popup->removeAction( (QAction*)o );
+	    }
 	}
     }
 }
