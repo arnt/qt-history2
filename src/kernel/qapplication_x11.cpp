@@ -5385,6 +5385,15 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    case 13: // Thai
 		mib = 2259; break;
 	    case 14: // Korean, no mapping
+		break;
+	    case 0x20:
+		// special hack for the Euro
+		if ( key == 0x20ac ) {
+		    mib = -1; // manual conversion
+		    mapper = 0;
+		    converted = (uint)key;
+		}
+		break;
 	    default:
 		break;
 	    }
