@@ -207,11 +207,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     QDomElement variables = firstWidget;
     while ( variables.tagName() != "variables" && !variables.isNull() )
 	variables = variables.nextSibling().toElement();
-    
+
     QDomElement slots = firstWidget;
     while ( slots.tagName() != "slots" && !slots.isNull() )
 	slots = slots.nextSibling().toElement();
-    
+
     QDomElement connections = firstWidget;
     while ( connections.tagName() != "connections" && !connections.isNull() )
 	connections = connections.nextSibling().toElement();
@@ -241,7 +241,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	functions = functions.nextSibling().toElement();
 
     while ( firstWidget.tagName() != "widget" ) {
-	
+
 	if ( firstWidget.tagName() == "variable" ) { // compatibility with old betas
 	    widgetFactory->variables << firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
@@ -275,7 +275,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		widgetFactory->languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language" ) );
 	    }
     }
-	
+
     if ( !actions.isNull() )
 	widgetFactory->loadActions( actions );
     if ( !toolbars.isNull() )
@@ -290,11 +290,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadConnections( connections, connector );
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
-    
-    
+
+
     if ( !functions.isNull() ) // compatibiliy with early 3.0 betas
 	widgetFactory->loadFunctions( functions );
-    
+
 
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language );
@@ -1641,7 +1641,7 @@ void QWidgetFactory::loadExtraSource()
     QString lang = *qwf_language;
     LanguageInterface *iface = 0;
     languageInterfaceManager->queryInterface( lang, &iface );
-    if ( !iface || iface->StoreFormCodeSeperate )
+    if ( !iface )
 	return;
 
     QValueList<LanguageInterface::Function> functions;
