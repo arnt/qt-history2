@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#10 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#11 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -109,7 +109,7 @@ private:
     QSVGDevicePrivate *d;
 };
 
-QRect QSVGDevice::boundingRect() const
+inline QRect QSVGDevice::boundingRect() const
 {
     return brect;
 }
