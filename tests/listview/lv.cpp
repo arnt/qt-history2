@@ -27,7 +27,7 @@ int main( int argc, char **argv )
 
     QListView * roo = lb;
     
-
+    int i;
     for ( int j = 0; j < 2; j++ ) {
 	QListViewItem * root= new QListViewItem( roo, "a", "b", "c", "d" );
 
@@ -35,7 +35,7 @@ int main( int argc, char **argv )
 
 	QListViewItem *hurfu = 0;
 
-	for ( int i=35; i<45; i++ ) {
+	for ( i=35; i<45; i++ ) {
 	    QString str;
 	    str.sprintf( "%d item", i );
 	    QListViewItem* h= new QListViewItem( root, str, "test", "hei", "hopp", 0 );
@@ -46,7 +46,7 @@ int main( int argc, char **argv )
 
 	QListViewItem *gruff = 0;
 
-	for ( int i=4; i>0; i-- ) {
+	for ( i=4; i>0; i-- ) {
 	    QString str;
 	    str.sprintf( "Haba %d", i );
 	    QListViewItem *h = new QListViewItem( hurfu, "SUBB", (const char*)str, 

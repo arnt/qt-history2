@@ -1,49 +1,10 @@
-####### This section is automatically generated from
-#######    /home/agulbra/qt/examples/Makefile
-
-INCDIR	= ${QTDIR}/include
-CFLAGS	= -O -g -fno-strength-reduce -W -Wtemplate-debugging -Wparentheses -Wuninitialized -Wchar-subscripts -Wformat -Wtrigraphs -Wcomment -Wswitch -Wunused -Wreturn-type -Wimplicit -Wpointer-arith -Wsynth -Wconversion -Wno-overloaded-virtual
-LFLAGS	= -lqt
-CC	= gcc
-MOC	= moc
-
-####### End of automatically generated section
+#############################################################################
+# $Id: makeqtmake,v 1.1 1998/02/25 18:12:02 hanord Exp  Win32 Makefile, requires Microsoft nmake.
 #
-# $Source: /tmp/cvs/qt/tests/well/Makefile,v $
+# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
+#############################################################################
 
-####### Files
+PROJECT = well
 
-SOURCES	=	well.cpp
-OBJECTS	=	well.o
-TARGET	=	well
-MOCFILES=	well.moc
-####### Implicit rules
-
-.SUFFIXES:
-.SUFFIXES: .cpp $(SUFFIXES)
-
-.cpp.o:
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
-
-####### Build rules
-
-all: $(TARGET)
-
-$(TARGET): $(MOCFILES) $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET) $(LFLAGS)
-
-well.moc: well.cpp
-	moc -o well.moc well.cpp
-
-depend:
-	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
-
-showfiles:
-	@echo $(SOURCES) $(HEADERS) Makefile
-
-clean:
-	-rm -f *.o *.bak *~ *% "#*"
-	-rm -f $(TARGET) $(MOCFILES)
-
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+!INCLUDE $(QTDIR)\Makefile.inc

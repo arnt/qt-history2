@@ -1,5 +1,5 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on debug
-SOURCES	    =	pops.cpp
-HEADERS	    =	pops.h
-TARGET      =	pops
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= pops.h
+SOURCES		= pops.cpp
+TARGET		= pops

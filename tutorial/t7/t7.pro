@@ -1,7 +1,6 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on release
-HEADERS     =	lcdrange.h
-SOURCES     =	lcdrange.cpp \
-		main.cpp
-unix:LIBS   =	-lm
-TARGET      =	t7
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= lcdrange.h
+SOURCES		= lcdrange.cpp \
+		  main.cpp
+TARGET		= t7

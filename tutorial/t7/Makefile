@@ -1,58 +1,10 @@
-####### This section was automatically generated from
-#######    /home/hanord/qt/tutorial/Makefile for building on
-#######     on Tue Apr  1 19:27:48 MET DST 1997
-
-INCDIR = $(QTDIR)/include
-CFLAGS =  -O2 -fno-strength-reduce -Wall -W
-LIBCFLAGS = -fPIC
-YACCCFLAGS = -Wno-unused -Wno-parentheses
-LFLAGS = -L$(QTDIR)/lib -lqt
-CC = gcc
-MOC = moc
-SHELL =	/bin/sh
-
-####### End of automatically generated section
+#############################################################################
+# $Id: makeqtmake,v 1.1 1998/02/25 18:12:02 hanord Exp  Win32 Makefile, requires Microsoft nmake.
 #
-# $Source: /tmp/cvs/qt/tutorial/t7/Makefile,v $
+# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
+#############################################################################
 
-####### Files
+PROJECT = t7
 
-HEADERS =	lcdrange.h
-SOURCES =	lcdrange.cpp	main.cpp
-OBJECTS =	lcdrange.o	main.o
-SRCMETA =	mlcdrang.cpp
-OBJMETA =	mlcdrang.o
-TARGET	=	t7
-
-####### Implicit rules
-
-.SUFFIXES: .cpp
-
-.cpp.o:
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
-
-####### Build rules
-
-all: $(TARGET)
-
-$(TARGET): $(OBJECTS) $(OBJMETA)
-	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS) -lm
-
-depend:
-	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
-
-showfiles:
-	@echo $(HEADERS) $(SOURCES) Makefile
-
-clean:
-	rm -f *.o *.bak *~ *% #*
-	rm -f $(SRCMETA) $(TARGET)
-
-####### Meta classes
-
-mlcdrang.cpp: lcdrange.h
-	$(MOC) -o $@ lcdrange.h
-
-
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+!INCLUDE $(QTDIR)\Makefile.inc

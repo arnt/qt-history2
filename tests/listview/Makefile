@@ -1,52 +1,10 @@
-####### This section is automatically generated from
-#######    /home/hanord/qt/examples/Makefile
-
-INCDIR	=	$(QTDIR)/include
-CFLAGS	=	-O -g -W -Wall
-LFLAGS	=	-L$(QTDIR)/lib -lqt
-CC	=	gcc
-MOC	=	moc
-
-####### End of automatically generated section
+#############################################################################
+# $Id: makeqtmake,v 1.1 1998/02/25 18:12:02 hanord Exp  Win32 Makefile, requires Microsoft nmake.
 #
-# $Source: /tmp/cvs/qt/tests/listview/Makefile,v $
+# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
+#############################################################################
 
-####### Files
+PROJECT = listview
 
-SOURCES	=	lv.cpp
-OBJECTS	=	lv.o	
-SRCMETA	=	lv.moc	
-TARGET	=	lv
-
-####### Implicit rules
-
-.SUFFIXES:
-.SUFFIXES: .cpp $(SUFFIXES)
-
-.cpp.o:
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
-
-####### Build rules
-
-all: $(TARGET)
-
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET) $(LFLAGS)
-
-depend:
-	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
-
-showfiles:
-	@echo widgets.cpp Makefile
-
-clean:
-	-rm -f *.o *.bak *~ *% #*
-	-rm -f $(SRCMETA) $(TARGET)
-
-####### Meta objects
-
-lv.moc: lv.cpp
-	$(MOC) lv.cpp -o lv.moc
-
-# DO NOT DELETE THIS LINE -- make depend depends on it.
+!INCLUDE $(QTDIR)\Makefile.inc

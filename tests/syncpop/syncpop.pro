@@ -1,5 +1,5 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on release
-SOURCES	    =	syncpop.cpp
-HEADERS	    =	syncpop.h
-TARGET      =	syncpop
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= syncpop.h
+SOURCES		= syncpop.cpp
+TARGET		= syncpop

@@ -1,6 +1,5 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on release
-HEADERS     =	
-SOURCES     =	main.cpp
-unix:LIBS   =	-lm
-TARGET      =	t2
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= *.h
+SOURCES		= main.cpp
+TARGET		= t2

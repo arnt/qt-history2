@@ -1,5 +1,5 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on release
-SOURCES	    =	2000.cpp
-HEADERS	    =	2000.h
-TARGET      =	2000
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= 2000.h
+SOURCES		= 2000.cpp
+TARGET		= 2000

@@ -1,5 +1,5 @@
-TEMPLATE    =	app
-CONFIG      =	qt warn_on release
-SOURCES	    =	widgetstack.cpp
-HEADERS	    =	widgetstack.h
-TARGET      =	widgetstack
+TEMPLATE	= app
+CONFIG		= qt warn_on release
+HEADERS		= widgetstack.h
+SOURCES		= widgetstack.cpp
+TARGET		= widgetstack
