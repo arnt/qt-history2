@@ -299,6 +299,8 @@ public:
     bool isRowReadOnly( int row ) const;
     bool isColumnReadOnly( int col ) const;
 
+    void setEnabled( bool b );
+
 public slots:
     virtual void setNumRows( int r );
     virtual void setNumCols( int r );

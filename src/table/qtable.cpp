@@ -4741,6 +4741,18 @@ void QTable::windowActivationChange( bool )
 	viewport()->update();
 }
 
+/*! \reimp */
+void QTable::setEnabled( bool b )
+{
+    if ( !b ) {
+	// editor will lose focus, causing a crash deep in setEnabled(),
+	// so we'll end the edit early.
+	endEdit( editRow, editCol, TRUE, edMode != Editing );
+    }
+    QScrollView::setEnabled(b);
+}
+
+
 /* \class QTableHeader qtable.h
   module table
 
