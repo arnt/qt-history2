@@ -150,11 +150,6 @@ extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switchin
 extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 
-//special case popup handlers - look where these are used, they are very hacky,
-//and very special case, if you plan on using these variables be VERY careful!!
-static bool qt_closed_popup = FALSE;
-EventRef qt_replay_event = NULL;
-
 /* Unicode input entry magic */
 class QTSMDocumentWrapper
 {
@@ -1585,12 +1580,25 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	}
 	//figure out which widget to send it to
-	if(ekind != kEventMouseDown && qt_button_down)
-	    widget = qt_button_down;
-	else if(mac_mouse_grabber)
-	    widget = mac_mouse_grabber;
-	else
-	    widget = QApplication::widgetAt(where.h, where.v, true);
+	if(app->inPopupMode()) {
+	    QWidget *clt;
+	    qt_mac_find_window(where.h, where.v, &clt);
+	    if(clt && clt->isPopup())
+		widget = clt;
+	    if(!widget)
+		widget = activePopupWidget();
+	    QMacSavedPortInfo savedInfo(widget);
+	    Point gp = where;
+	    GlobalToLocal(&gp); //now map it to the window
+	    widget = qt_recursive_match(widget, gp.h, gp.v);
+	} else {
+	    if(ekind != kEventMouseDown && qt_button_down)
+		widget = qt_button_down;
+	    else if(mac_mouse_grabber)
+		widget = mac_mouse_grabber;
+	    else
+		widget = QApplication::widgetAt(where.h, where.v, true);
+	}
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
 	    const QCursor *n = NULL;
 	    if(widget) { //only over the app, do we set a cursor..
@@ -1623,58 +1631,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
 #endif
 	    break;
-	}
-
-	//handle popup's first
-	QWidget *popupwidget = NULL;
-	if(app->inPopupMode()) {
-	    QWidget *clt;
-	    qt_mac_find_window(where.h, where.v, &clt);
-	    if(clt && clt->isPopup())
-		popupwidget = clt;
-	    if(!popupwidget)
-		popupwidget = activePopupWidget();
-	    QMacSavedPortInfo savedInfo(popupwidget);
-	    Point gp = where;
-	    GlobalToLocal(&gp); //now map it to the window
-	    popupwidget = qt_recursive_match(popupwidget, gp.h, gp.v);
-	}
-	bool special_close = FALSE;
-	if(popupwidget) {
-	    qt_closed_popup = FALSE;
-	    QPoint p(where.h, where.v);
-	    QPoint plocal(popupwidget->mapFromGlobal(p));
-	    bool was_context = FALSE;
-	    if(ekind == kEventMouseDown &&
-	       ((button == QMouseEvent::RightButton) ||
-		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
-		QApplication::sendSpontaneousEvent(popupwidget, &cme);
-		was_context = cme.isAccepted();
-	    }
-	    if(!was_context) {
-		if(wheel_delta) {
-		    QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
-		    QApplication::sendSpontaneousEvent(popupwidget, &qwe);
-		} else {
-		    QMouseEvent qme(etype, plocal, p, button, state | keys);
-		    QApplication::sendSpontaneousEvent(popupwidget, &qme);
-		}
-		if(app->activePopupWidget() != popupwidget && qt_closed_popup)
-		    special_close = TRUE;
-	    }
-	    if(special_close) { 	    //We will resend this event later, so just return
-		if(widget != popupwidget) { // We've already sent the event to the correct widget
-		    qt_replay_event = CopyEvent(event);
-		} else {
-		    mouse_button_state = after_state;
-#ifdef DEBUG_MOUSE_MAPS
-		    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__,
-			   mouse_button_state);
-#endif
-		}
-		break;
-	    }
 	}
 
 	if(ekind == kEventMouseDown) {
@@ -1736,11 +1692,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 
 	//finally send the event to the widget if its not the popup
-	if(widget && widget != popupwidget) {
+	if(widget) {
 	    if(ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) {
-		if(popupwidget) //guess we close the popup...
-		    popupwidget->close();
-
 		QWidget* w = widget;
 		while(w->focusProxy())
 		    w = w->focusProxy();
@@ -2476,7 +2429,6 @@ void QApplication::closePopup(QWidget *popup)
 	return;
 
     popupWidgets->removeRef(popup);
-    qt_closed_popup = !popup->geometry().contains(QCursor::pos());
     if(popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
