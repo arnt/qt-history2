@@ -3,14 +3,16 @@ isEmpty(QMAKE_RCC) {
     else:QMAKE_RCC = $(QTDIR)/bin/rcc
 }
 
-isEmpty(RCC_PREFIX):RCC_PREFIX = /tmp/
+isEmpty(RCC_DIR):RCC_DIR = .
+isEmpty(QMAKE_RESOURCE_PREFIX):QMAKE_RESOURCE_PREFIX = /tmp/
+
 !no_single_resource {
-    rcc.CONFIG += combine
-    rcc.output  = resources.cpp
+   rcc.CONFIG += combine
+   rcc.output  = resources.cpp
 } else {
-   rcc.output  = resource_${QMAKE_FILE_BASE}.cpp
+   rcc.output  = $$RCC_DIR/resource_${QMAKE_FILE_BASE}.cpp
 }
-rcc.commands = $$QMAKE_RCC -prefix $$RCC_PREFIX ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+rcc.commands = $$QMAKE_RCC -prefix $$QMAKE_RESOURCE_PREFIX ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 rcc.depends = $$QMAKE_RCC
 rcc.input = RESOURCES
 rcc.variable_out = SOURCES
