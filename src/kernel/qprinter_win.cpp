@@ -638,10 +638,10 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
-	    if ( !appcolcopies ) 	    
-		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
-	    else
+	    if ( appcolcopies ) 	    
 		pd.Flags |= PD_NOPAGENUMS;
+	    else
+		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -711,10 +711,12 @@ bool QPrinter::setup( QWidget *parent )
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
-	    if ( !appcolcopies ) 
-                pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
-	    else
+	    if ( appcolcopies ) 
 		pd.Flags |= PD_NOPAGENUMS;
+	    else
+                pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
+	    if ( usercolcopies )
+		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
