@@ -322,7 +322,10 @@ DspMakefileGenerator::init()
 		project->variables()["MSVCDSP_DLLBASE"].append("/base:\"0x39D00000\"");
 	    }
 	} else {
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	    if(project->isActiveConfig("thread"))
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
+	    else
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
 		if(hver != -1) {

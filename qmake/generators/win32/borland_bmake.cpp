@@ -274,13 +274,15 @@ BorlandMakefileGenerator::init()
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];
 	    }
 	} else {
-	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	    if(project->isActiveConfig("thread"))
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
+	    else
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		int hver = findHighestVersion(project->variables()["QMAKE_LIBDIR_QT"].first(), "qt");
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%d.lib", hver);
-
+		    ver.sprintf("qt%d%s.lib", hver, (project->isActiveConfig("thread") ? "-mt" : ""));
     		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt\\.lib"), ver);

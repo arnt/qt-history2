@@ -59,6 +59,7 @@ QMAKE_LIBS_RTMT         = cw32mti.lib
 QMAKE_LIBS_CONSOLE	=
 QMAKE_LIBS_WINDOWS      =
 QMAKE_LIBS_QT		= $(QTDIR)\lib\qt.lib
+QMAKE_LIBS_QT_THREAD    = $(QTDIR)\lib\qt-mt.lib
 QMAKE_LIBS_QT_DLL	= $(QTDIR)\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	=
