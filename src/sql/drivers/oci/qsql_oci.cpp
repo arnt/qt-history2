@@ -363,10 +363,8 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	type = QVariant::CString;
     else if ( ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID" || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB" )
 	type = QVariant::ByteArray;
-    else if ( ocitype == "DATE" )
+    else if ( ocitype == "DATE" ||  ocitype.startsWith( "TIME" ) )
 	type = QVariant::DateTime;
-    else if ( ocitype.mid(0,4) == "TIME" )
-	type = QVariant::Time;
     else if ( ocitype == "UNDEFINED" )
 	type = QVariant::Invalid;
     if ( type == QVariant::Int ) {
@@ -420,6 +418,9 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	break;
     case SQLT_DAT:
     case SQLT_ODT:
+    case SQLT_TIMESTAMP:
+    case SQLT_TIMESTAMP_TZ:
+    case SQLT_TIMESTAMP_LTZ:
 	type = QVariant::DateTime;
 	break;
     default:
@@ -845,7 +846,7 @@ public:
 	    if ( amount > 0 ) {
 		QByteArray * buf;
 		if ( res.value( i ).type() == QVariant::CString ) {
-		    buf = new QCString( amount );
+		    buf = new QCString( amount + 1 ); // including terminating zero
 		} else {
 		    buf = new QByteArray( amount  );
 		}
@@ -2169,7 +2170,6 @@ QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 	return datestring;
 	break;
     }
-	// ### what about the Time only type??
     case QVariant::Date: {
 	QDate date = field->value().toDate();
 	QString datestring;
