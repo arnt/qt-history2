@@ -70,6 +70,10 @@ QMakeProperty::value(QString v, bool just_check)
 	return qmake_mkspec_paths().join(":");
     } else if(v == "QMAKE_VERSION") {
 	return qmake_version();
+#ifdef QT_VERSION_STR
+    } else if(v == "QT_VERSION") {
+	return QT_VERSION_STR;
+#endif
     }
 
     if(initSettings()) {
