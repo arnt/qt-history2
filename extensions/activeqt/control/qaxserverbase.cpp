@@ -2954,8 +2954,8 @@ HRESULT QAxServerBase::internalActivate()
 
 	    if ( m_spInPlaceFrame ) {
 		hr = m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
-		if ( !FAILED(hr) && !qax_disable_inplaceframe ) {
-		    menuBar = qt.widget ? (QMenuBar*)qt.widget->child( 0, "QMenuBar" ) : 0;
+		if ( !FAILED(hr) ) {
+		    menuBar = ( qt.widget && !qax_disable_inplaceframe ) ? (QMenuBar*)qt.widget->child( 0, "QMenuBar" ) : 0;
 		    if ( menuBar ) {
 			createMenu( menuBar );
 			menuBar->hide();
