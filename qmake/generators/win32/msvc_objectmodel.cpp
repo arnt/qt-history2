@@ -1125,9 +1125,9 @@ bool VCLinkerTool::parseOption( const char* option )
     case 0x06f4bf4: // /DELAYLOAD:dllname
 	DelayLoadDLLs += option+11;
 	break;
-    // case 0x003390c: // /DLL
-    // This option is not used for vcproj files
-    //	break;
+    case 0x003390c: // /DLL
+	// This option is not used for vcproj files
+    	break;
     case 0x33a3979: // /ENTRY:function
 	EntryPointSymbol = option+7;
 	break;
@@ -1816,7 +1816,7 @@ void VCFilter::generateMOC( QTextStream &strm, QString str ) const
 	str = Project->findMocSource( mocOutput );
     }
 
-    for ( uint i = 0; i < Config->count(); i++ ) {
+    for ( int i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
@@ -1874,7 +1874,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     if ( mocDir.isEmpty() )
 	mocDir = pname;
 
-    for ( uint i = 0; i < Config->count(); i++ ) {
+    for ( int i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
@@ -1916,7 +1916,7 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 	    
 	    int newLevels = newDirs.count();
 	    int equalLevels = 0;
-	    for (int i = 0; i<currentLevels; i++, equalLevels++ )
+	    for (int i = 0; (i<currentLevels) && (i<newLevels); i++, equalLevels++ )
 		if (currentDirs[i] != newDirs[i])
 		    break;
 	    int closeFilters = currentLevels - equalLevels;
@@ -1980,7 +1980,7 @@ QTextStream &operator<<( QTextStream &strm, const VCProject &tool )
     strm << "/>";
     strm << _endPlatforms;
     strm << _begConfigurations;
-    for ( uint i = 0; i < tool.Configuration.count(); i++ ) 
+    for ( int i = 0; i < tool.Configuration.count(); i++ ) 
 	strm << tool.Configuration[i];
     strm << _endConfigurations;
     strm << _begFiles;
