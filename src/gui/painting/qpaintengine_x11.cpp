@@ -1361,7 +1361,7 @@ void QX11PaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         bool smooth_edges = renderHints() & QPainter::LineAntialiasing;
-        if (d->cbrush.style() != Qt::NoBrush &&
+        if (X11->use_xrender && d->cbrush.style() != Qt::NoBrush &&
             (smooth_edges || d->cbrush.color().alpha() != 255
              || d->cbrush.style() == Qt::LinearGradientPattern))
         {

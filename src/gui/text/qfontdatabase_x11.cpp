@@ -809,7 +809,7 @@ static int getFCWeight(int fc_weight)
 
 static void loadXft()
 {
-    if (!X11->has_xft && !X11->use_xrender)
+    if (!X11->has_xft)
         return;
 
     FcFontSet  *fonts;
@@ -973,7 +973,7 @@ static void loadXft()
 
 static void load(const QString &family = QString::null, int script = -1)
 {
-    if (X11->has_xft && X11->use_xrender)
+    if (X11->has_xft)
         return;
 
 #ifdef QFONTDATABASE_DEBUG
@@ -1072,7 +1072,7 @@ static void initializeDb()
 
 #ifdef QFONTDATABASE_DEBUG
 #ifndef QT_NO_XFT
-    if (!X11->has_xft || !X11->use_xrender)
+    if (!X11->has_xft)
 #endif
         // load everything at startup in debug mode.
         loadXlfds(0,  -1);
@@ -1178,7 +1178,7 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
 	FcPatternAddInteger(pattern, FC_WIDTH, stretch);
 #endif
     } else if ((request.stretch > 0 && request.stretch != 100) ||
-        (key.oblique && fakeOblique)) {
+               (key.oblique && fakeOblique)) {
         FcMatrix matrix;
         FcMatrixInit(&matrix);
 
@@ -1190,9 +1190,12 @@ static double addPatternProps(FcPattern *pattern, const QtFontStyle::Key &key, b
         FcPatternAddMatrix(pattern, FC_MATRIX, &matrix);
     }
 
-    if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
+    if (QX11Info::appDepth(fp->screen) <= 8) {
+        // Xft can't do antialiasing on 8bpp
+        FcPatternAddBool(pattern, FC_ANTIALIAS, false);
+    } else if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
         FcPatternAddBool(pattern, FC_ANTIALIAS,
-                          !(request.styleStrategy & QFont::NoAntialias));
+                         !(request.styleStrategy & QFont::NoAntialias));
     }
 
     if (script != QFont::Unicode) {
@@ -1235,7 +1238,7 @@ QFontEngine *loadEngine(QFont::Script script,
     }
 
 #ifndef QT_NO_XFT
-    if (X11->has_xft && X11->use_xrender && encoding->encoding == -1) {
+    if (X11->has_xft && encoding->encoding == -1) {
 
         FM_DEBUG("    using Xft");
 
@@ -1249,7 +1252,6 @@ QFontEngine *loadEngine(QFont::Script script,
 
         if (!family->rawName.isEmpty())
             FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family->rawName.utf8());
-
 
         char pitch_value = (encoding->pitch == 'c' ? FC_CHARCELL :
                              (encoding->pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
@@ -1398,7 +1400,7 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
 
 static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
-    if (!X11->has_xft || !X11->use_xrender)
+    if (!X11->has_xft)
 	return 0;
 
     QStringList family_list;

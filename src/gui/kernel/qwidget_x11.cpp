@@ -1403,7 +1403,7 @@ static void qt_discard_double_buffer(QX11DoubleBuffer **db)
 
     XFreePixmap(QX11Info::display(), (*db)->hd);
 #ifndef QT_NO_XFT
-    if (X11->use_xrender && X11->has_xft)
+    if (X11->has_xft)
         XftDrawDestroy((XftDraw *) (*db)->xft_hd);
 #endif
     delete *db;
@@ -1429,7 +1429,7 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
     db->hd = XCreatePixmap(QX11Info::display(), hd, width, height, depth);
     db->xft_hd = 0;
 #ifndef QT_NO_XFT
-    if (X11->use_xrender && X11->has_xft) {
+    if (X11->has_xft) {
         db->xft_hd =
             (Qt::HANDLE) XftDrawCreate(QX11Info::display(),
                                        db->hd,
