@@ -386,8 +386,8 @@ QSqlFieldList QPSQLResult::fields()
 	QString name = PQfname( d->result, i );
 	QVariant::Type type = qDecodePSQLType( PQftype( d->result, i ) );
 	QSqlField rf( name, i, type );
-	if ( isActive() && isValid() )
-	    rf.value() = data( i );
+	if ( isActive() && isValid() ) 
+	    rf.setValue( data( i ) );
 	fil.append( rf );
     }
     return fil;
