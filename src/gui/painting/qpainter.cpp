@@ -4535,7 +4535,11 @@ static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
     if (src->devType() == QInternal::Pixmap) {
         const QPixmap *pixmap = static_cast<const QPixmap *>(src);
         QPainter pt(dst);
-        pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::CopyPixmapNoMask : Qt::CopyPixmap);
+        if (dst->devType() == QInternal::Pixmap)
+            pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::CopyPixmapNoMask : Qt::CopyPixmap);
+        else
+            pt.drawPixmap(dp, *pixmap, sr, Qt::ComposePixmap);
+
     } else {
         qWarning("::bitBlt only works when source is of type pixmap");
     }
