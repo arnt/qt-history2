@@ -461,15 +461,49 @@ static int qt_x_errhandler(Display *dpy, XErrorEvent *err)
     }
 
     char errstr[256];
-    XGetErrorText(dpy, err->error_code, errstr, 256);
-    qWarning("X Error: %s %d\n"
-              "  Major opcode:  %d\n"
-              "  Minor opcode:  %d\n"
-              "  Resource id:  0x%lx",
-              errstr, err->error_code,
-              err->request_code,
-              err->minor_code,
-              err->resourceid);
+    XGetErrorText( dpy, err->error_code, errstr, 256 );
+    char buffer[256];
+    char request_str[256];
+    sprintf(buffer, "%d", err->request_code);
+    XGetErrorDatabaseText(dpy, "XRequest", buffer, "", request_str, 256);
+    if (err->request_code < 128) {
+        // X error for a normal protocol request
+        qWarning( "X Error: %s %d\n"
+                  "  Major opcode: %d (%s)\n"
+                  "  Resource id:  0x%lx",
+                  errstr, err->error_code,
+                  err->request_code,
+                  request_str,
+                  err->resourceid );
+    } else {
+        // X error for an extension request
+        const char *extensionName = 0;
+        if (err->request_code == X11->xrender_major)
+            extensionName = "RENDER";
+        else if (err->request_code == X11->xrandr_major)
+            extensionName = "RANDR";
+        else if (err->request_code == X11->xinput_major)
+            extensionName = "XInputExtension";
+
+        char minor_str[256];
+        if (extensionName) {
+            sprintf(buffer, "%s.%d", extensionName, err->minor_code);
+            XGetErrorDatabaseText(dpy, "XRequest", buffer, "", minor_str, 256);
+        } else {
+            extensionName = "Uknown extension";
+            sprintf(minor_str, "Unknown request");
+        }
+        qWarning( "X Error: %s %d\n"
+                  "  Extension:    %d (%s)\n"
+                  "  Minor opcode: %d (%s)\n"
+                  "  Resource id:  0x%lx",
+                  errstr, err->error_code,
+                  err->request_code,
+                  extensionName,
+                  err->minor_code,
+                  minor_str,
+                  err->resourceid );
+    }
 
     // ### we really should distinguish between severe, non-severe and
     // ### application specific errors
@@ -1175,13 +1209,12 @@ static void qt_check_focus_model()
 }
 
 #ifndef QT_NO_TABLET_SUPPORT
-static bool isXInputSupported(Display *dpy, int *event_base)
+static bool isXInputSupported(Display *dpy)
 {
     Bool exists;
-    int opcode, error_base;
     XExtensionVersion *version;
-    exists = XQueryExtension(dpy, "XInputExtension",
-                             &opcode, event_base, &error_base);
+    exists = XQueryExtension(dpy, "XInputExtension", &X11->xinput_major,
+                             &X11->xinput_eventbase, &X11->xinput_errorbase);
     if (!exists)
         return false;
     version = XGetExtensionVersion(dpy, "XInputExtension");
@@ -1214,8 +1247,25 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->displayName = 0;
     X11->foreignDisplay = (display != 0);
     X11->focus_model = -1;
+
+    // RANDR
     X11->use_xrandr = false;
+    X11->xrandr_major = 0;
+    X11->xrandr_eventbase = 0;
+    X11->xrandr_errorbase = 0;
+
+    // RENDER
     X11->use_xrender = false;
+    X11->xrender_major = 0;
+    X11->xrender_eventbase = 0;
+    X11->xrender_errorbase = 0;
+
+    // XInputExtension
+    X11->use_xinput = false;
+    X11->xinput_major = 0;
+    X11->xinput_eventbase = 0;
+    X11->xinput_errorbase = 0;
+
     X11->has_xft = false;
     X11->xftDone = false;
     X11->sip_serial = 0;
@@ -1453,8 +1503,9 @@ void qt_init(QApplicationPrivate *priv, int,
 
 #ifndef QT_NO_XRANDR
         // See if XRandR is supported on the connected display
-        int xrandr_errorbase;
-        if (XRRQueryExtension(X11->display, &X11->xrandr_eventbase, &xrandr_errorbase)) {
+        if (XQueryExtension(X11->display, "RANDR", &X11->xrandr_major,
+                            &X11->xrandr_eventbase, &X11->xrandr_errorbase)
+            && XRRQueryExtension(X11->display, &X11->xrandr_eventbase, &X11->xrandr_errorbase)) {
             // XRandR is supported
             X11->use_xrandr = true;
         }
@@ -1462,12 +1513,15 @@ void qt_init(QApplicationPrivate *priv, int,
 
 #ifndef QT_NO_XRENDER
         // See if XRender is supported on the connected display
-        int xrender_eventbase, xrender_errorbase;
-        if (XRenderQueryExtension(X11->display, &xrender_eventbase, &xrender_errorbase)) {
+        if (XQueryExtension(X11->display, "RENDER", &X11->xrender_major,
+                            &X11->xrender_eventbase, &X11->xrender_errorbase)
+            && XRenderQueryExtension(X11->display, &X11->xrender_eventbase,
+                                     &X11->xrender_errorbase)) {
             // XRender is supported, let's see if we have a PictFormat for the
             // default visual
             XRenderPictFormat *format =
-                XRenderFindVisualFormat(X11->display, (Visual *) QX11Info::appVisual(X11->defaultScreen));
+                XRenderFindVisualFormat(X11->display,
+                                        (Visual *) QX11Info::appVisual(X11->defaultScreen));
             // Check the version as well - we need v0.4 or higher
             int major = 0;
             int minor = 0;
@@ -1608,8 +1662,7 @@ void qt_init(QApplicationPrivate *priv, int,
         }
 
 #if !defined (QT_NO_TABLET_SUPPORT)
-        int event_base;
-        if (isXInputSupported(X11->display, &event_base)) {
+        if (isXInputSupported(X11->display)) {
             int ndev,
                 i,
                 j;

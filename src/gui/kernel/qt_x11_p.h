@@ -291,11 +291,26 @@ struct QX11Data
         FM_PointerRoot = 1
     };
     int focus_model;
-    // true if Qt is compiled w/ XRandR support and XRandR exists on the connected Display
+
+    // true if Qt is compiled w/ RANDR support and RANDR is supported on the connected Display
     bool use_xrandr;
+    int xrandr_major;
     int xrandr_eventbase;
-    // true if Qt is compiled w/ XRender support and XRender exists on the connected Display
+    int xrandr_errorbase;
+
+    // true if Qt is compiled w/ RENDER support and RENDER is supported on the connected Display
     bool use_xrender;
+    int xrender_major;
+    int xrender_eventbase;
+    int xrender_errorbase;
+
+#if !defined (QT_NO_TABLET_SUPPORT)
+    bool use_xinput;
+    int xinput_major;
+    int xinput_eventbase;
+    int xinput_errorbase;
+#endif
+
     bool has_xft;
     bool xftDone;
     QList<QWidget *> deferred_map;
