@@ -1219,8 +1219,10 @@ void SetupWizardImpl::configDone()
 		args << "sub-tutorial";
 	    if ( optionsPage->installExamples->isChecked() )
 		args << "sub-examples";
+#if !defined(NON_COMMERCIAL)
 	    if ( optionsPage->installExtensions->isChecked() )
 		args << "sub-extensions";
+#endif
 	}
 	if ( args.count() == 1 ) {
 	    make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
@@ -1396,8 +1398,12 @@ void SetupWizardImpl::showPageOptions()
 #  if defined(Q_OS_WIN32)
     optionsPage->installExamples->setEnabled( TRUE );
     optionsPage->installTutorials->setEnabled( TRUE );
+#    if defined(NON_COMMERCIAL)
+    optionsPage->installExtensions->hide();
+#    else
     optionsPage->installExtensions->setChecked( TRUE );
     optionsPage->installExtensions->setEnabled( TRUE );
+#    endif
     optionsPage->installTools->setEnabled( FALSE );
 #  else
     optionsPage->installExamples->setEnabled( FALSE );
