@@ -1432,16 +1432,20 @@ png_handle_unknown(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
 
 #if defined(PNG_USER_CHUNK_SUPPORTED)
    /* Call user-supplied callback function for unknown chunks.  Note that
-    * we have already ensured that the chunk does not invalidate the PNG
-    * stream - the chunk name is of the correct form, and not critical.
+    * we ensure that the chunk does not invalidate the PNG stream - the
+    * chunk name is of the correct form and the CRC is correct - before
+    * calling the user-supplied function.
     */
    if ( png_ptr->user_chunk_fn != NULL ) {
+      int ok = 0;
       png_bytep data = png_malloc(png_ptr, length);
       png_size_t slength = (png_size_t)length;
       png_crc_read(png_ptr, data, slength);
       if ( png_crc_finish(png_ptr, 0) == 0 )
-         if ((*(png_ptr->user_chunk_fn))(png_ptr, info_ptr, data, length))
-	    return;
+         ok = (*(png_ptr->user_chunk_fn))(png_ptr, info_ptr, data, length);
+      png_free(png_ptr, data);
+      if ( ok )
+	 return;
    }
 #else
    png_crc_finish(png_ptr, length);
