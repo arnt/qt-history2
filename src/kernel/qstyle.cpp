@@ -895,25 +895,23 @@ are drawn.</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the toolbutton is enabled.</td>
 <td valign=top>data[0]</td>
-<td valign=top>bool *</td>
-<td valign=top>if the tool button has auto-raise enabled, this bool is TRUE when
-the mouse is over the tool button, FALSE otherwise.</td>
+<td valign=top>ArrowType *</td>
+<td valign=top>when the tool button only contains an arrow, this is the
+    arrow's type. Otherwise, data is 0.</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the toolbutton has input focus.</td>
-<td valign=top>data[1]</td>
-<td valign=top>bool *</td>
-<td valign=top>this bool TRUE is when the tool button only contains an arrow, FALSE
-    otherwise.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_Down</td>
 <td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
-<td valign=top>data[2]</td>
-<td valign=top>ArrowType *</td>
-<td valign=top>when the tool button only contains an arrow, this is the
-    arrow's type.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_On</td>
@@ -1252,25 +1250,23 @@ the mouse is over the tool button, FALSE otherwise.</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the toolbutton is enabled.</td>
 <td valign=top>data[0]</td>
-<td valign=top>bool *</td>
-<td valign=top>if the tool button has auto-raise enabled, this bool is TRUE when
-the mouse is over the tool button, FALSE otherwise.</td>
+<td valign=top>ArrowType *</td>
+<td valign=top>when the tool button only contains an arrow, this is the
+    arrow's type. Otherwise, data is 0.</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
 <td valign=top>set if the toolbutton has input focus.</td>
-<td valign=top>data[1]</td>
-<td valign=top>bool *</td>
-<td valign=top>this bool TRUE is when the tool button only contains an arrow, FALSE
-    otherwise.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_Down</td>
 <td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
-<td valign=top>data[2]</td>
-<td valign=top>ArrowType *</td>
-<td valign=top>when the tool button only contains an arrow, this is the
-    arrow's type.</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_On</td>

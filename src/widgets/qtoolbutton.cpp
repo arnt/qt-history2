@@ -53,9 +53,6 @@
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
 
-static QToolButton * threeDeeButton = 0;
-
-
 class QToolButtonPrivate
 {
     // ### add tool tip magic here
@@ -252,7 +249,6 @@ QToolButton::~QToolButton()
 #endif
     delete d;
     delete s;
-    threeDeeButton = 0;
 }
 
 
@@ -405,13 +401,9 @@ void QToolButton::drawButton( QPainter * p )
     QStyle::SCFlags controls = QStyle::SC_ToolButton;
     QStyle::SCFlags active = QStyle::SC_None;
 
-    bool use3d = uses3D();
-    bool drawarrow = hasArrow;
     Qt::ArrowType arrowtype = d->arrow;
-    void *data[3];
-    data[0] = (void *) &use3d;
-    data[1] = (void *) &drawarrow;
-    data[2] = (void *) &arrowtype;
+    void *data[1];
+    data[0] = (void *) &arrowtype;
 
     if (isDown())
 	active |= QStyle::SC_ToolButton;
@@ -435,7 +427,7 @@ void QToolButton::drawButton( QPainter * p )
 	flags |= QStyle::Style_On;
     if (autoRaise()) {
 	flags |= QStyle::Style_AutoRaise;
-	if (use3d) {
+	if (uses3D()) {
 	    flags |= QStyle::Style_MouseOver;
 	    if (! isOn() && ! isDown())
 		flags |= QStyle::Style_Raised;
@@ -444,7 +436,7 @@ void QToolButton::drawButton( QPainter * p )
 	flags |= QStyle::Style_Raised;
 
     style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), colorGroup(),
-			       flags, controls, active, data);
+			       flags, controls, active, hasArrow ? data : 0);
     drawButtonLabel(p);
 }
 
@@ -455,13 +447,9 @@ void QToolButton::drawButtonLabel(QPainter *p)
     QRect r =
 	QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, this), this);
 
-    bool use3d = uses3D();
-    bool drawarrow = hasArrow;
     Qt::ArrowType arrowtype = d->arrow;
-    void *data[3];
-    data[0] = (void *) &use3d;
-    data[1] = (void *) &drawarrow;
-    data[2] = (void *) &arrowtype;
+    void *data[1];
+    data[0] = (void *) &arrowtype;
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -474,7 +462,7 @@ void QToolButton::drawButtonLabel(QPainter *p)
 	flags |= QStyle::Style_On;
     if (autoRaise()) {
 	flags |= QStyle::Style_AutoRaise;
-	if (use3d) {
+	if (uses3D()) {
 	    flags |= QStyle::Style_MouseOver;
 	    if (! isOn() && ! isDown())
 		flags |= QStyle::Style_Raised;
@@ -483,7 +471,7 @@ void QToolButton::drawButtonLabel(QPainter *p)
 	flags |= QStyle::Style_Raised;
 
     style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
-			colorGroup(), flags, data);
+			colorGroup(), flags, hasArrow ? data : 0);
 }
 
 
@@ -491,11 +479,9 @@ void QToolButton::drawButtonLabel(QPainter *p)
  */
 void QToolButton::enterEvent( QEvent * e )
 {
-    if ( autoRaise() ) {
-	threeDeeButton = this;
-	if ( isEnabled() )
-	    repaint(FALSE);
-    }
+    if ( autoRaise() && isEnabled() )
+	repaint(FALSE);
+
     QButton::enterEvent( e );
 }
 
@@ -504,12 +490,9 @@ void QToolButton::enterEvent( QEvent * e )
  */
 void QToolButton::leaveEvent( QEvent * e )
 {
-    if ( autoRaise() ) {
-	QToolButton * o = threeDeeButton;
-	threeDeeButton = 0;
-	if ( o && o->isEnabled() )
-	    o->repaint(FALSE);
-    }
+    if ( autoRaise() && isEnabled() )
+	repaint(FALSE);
+
     QButton::leaveEvent( e );
 }
 
@@ -578,7 +561,7 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 
 bool QToolButton::uses3D() const
 {
-    return !autoRaise() || ( threeDeeButton == this && isEnabled() )
+    return !autoRaise() || ( hasMouse() && isEnabled() )
 #ifndef QT_NO_POPUPMENU
 	|| ( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup
 #endif

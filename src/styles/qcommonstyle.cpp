@@ -766,25 +766,16 @@ void QCommonStyle::drawControl( ControlElement element,
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 	    QRect rect = r;
-#if 0 // ### not used?
-	    bool use3d = FALSE;
-#endif
-	    bool drawarrow = FALSE;
 	    Qt::ArrowType arrowType = Qt::DownArrow;
 
-	    if (data) {
-#if 0 // ### not used?
-		use3d      = *((bool *) data[0]);
-#endif
-		drawarrow  = *((bool *) data[1]);
-		arrowType  = *((Qt::ArrowType *) data[2]);
-	    }
+	    if (data)
+		arrowType  = *((Qt::ArrowType *) data[0]);
 
 	    if (flags & (Style_Down | Style_On))
 		rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 			    pixelMetric(PM_ButtonShiftVertical, widget));
 
-	    if (drawarrow) {
+	    if (data) {
 		PrimitiveElement pe;
 		switch (arrowType) {
 		case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
@@ -1228,20 +1219,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QRect button, menuarea;
 	    button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
 	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
-
-#if 0 // ### not used?
-	    bool use3d = FALSE;
-#endif
-	    bool drawarrow = FALSE;
-	    Qt::ArrowType arrowType = Qt::DownArrow;
-
-	    if (data) {
-#if 0 // ### not used?
-		use3d      = *((bool *) data[0]);
-#endif
-		drawarrow  = *((bool *) data[1]);
-		arrowType  = *((Qt::ArrowType *) data[2]);
-	    }
 
 	    SFlags bflags = flags,
 		   mflags = flags;
