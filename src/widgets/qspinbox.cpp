@@ -713,6 +713,7 @@ void QSpinBox::updateDisplay()
 
     d->controls->setUpEnabled( upEnabled );
     d->controls->setDownEnabled( downEnabled );
+    vi->setEnabled( isEnabled() );
     repaint( FALSE );
 }
 
