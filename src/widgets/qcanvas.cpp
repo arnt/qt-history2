@@ -3344,7 +3344,7 @@ QPointArray QCanvasEllipse::areaPoints() const
 {
     QPointArray r;
     // ##### makeArc is not a very pretty ellipse
-    r.makeArc(x()-w/2-1,y()-h/2-1,w+2,h+3,a1,a2);
+    r.makeArc(int(x()-w/2.0-1),int(y()-h/2.0-1),w+2,h+3,a1,a2);
     return r;
 }
 
@@ -3358,11 +3358,9 @@ void QCanvasEllipse::drawShape(QPainter & p)
 {
     p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     if ( !a1 && a2 == 360*16 ) {
-	p.drawEllipse(QRect(QPoint(x()-w/2,y()-h/2),
-			QPoint(x()+(w+1)/2, y()+(w+1)/2)));
+	p.drawEllipse(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h);
     } else {
-	p.drawPie(QRect(QPoint(x()-w/2,y()-h/2),
-			QPoint(x()+(w+1)/2, y()+(w+1)/2)), a1, a2);
+	p.drawPie(int(x()-w/2.0+0.5), int(y()-h/2.0+0.5), w, h, a1, a2);
     }
 }
 
