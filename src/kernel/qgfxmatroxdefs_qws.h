@@ -53,6 +53,11 @@
 #define BCOL 0x1c20
 #define FXBNDRY 0x1c84
 #define SGN 0x1c58
+#define SHIFT 0x1c50
+#define SRC0 0x1c30
+#define SRC1 0x1c34
+#define SRC2 0x1c38
+#define SRC3 0x1c3c
 
 #define AR0 0x1c60
 #define AR1 0x1c64

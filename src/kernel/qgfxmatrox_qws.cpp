@@ -173,7 +173,7 @@ inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
       matrox_regw(CXRIGHT,r.right());
     }
     if(tmp->clipbottom!=r.bottom()) {
-      tmp->clipbottom=r.bottom(); 
+      tmp->clipbottom=r.bottom();
       matrox_regw(YBOT,r.bottom()*t);
     }
 }
@@ -381,81 +381,97 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 template<const int depth,const int type>
 void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
-  if(ncliprect<1 || cpen.style()!=SolidLine) {
-    QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
-    return;
-  }
-
-  unsigned int tmprop=getRop(myrop) << 16; 
-
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
-  QWSDisplay::grab( TRUE );
-#endif
-
-  setDest();
-
-  (*gfx_optype)=1;
-  (*gfx_lastop)=LASTOP_LINE;
-
-  x1+=xoffs;
-  y1+=yoffs;
-  x2+=xoffs;
-  y2+=yoffs;
-
-  int dx,dy;
-  dx=abs(x2-x1);
-  dy=abs(y2-y1);
-
-  GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
-
-  int loopc;
-
-  int b=dy<dx ? dy : dx;   // min
-  int a=dy<dx ? dx : dy;   // max
-
-  unsigned int sgn=0;
-
-  if(dx>dy) {
-    sgn |= 0x1;
-  }
-  if(x2<x1) {
-    sgn |= 0x2;
-  }
-  if(y2<y1) {	    sgn |= 0x4;
-  }
-
-  for(loopc=0;loopc<ncliprect;loopc++) {
-    do_scissors(cliprect[loopc]);
-    QColor tmp=cpen.color();
-    QScreen * tmpscreen=qt_screen;
-    qt_screen=gfx_screen;
-    unsigned int tmp2=tmp.alloc();
-    qt_screen=tmpscreen;
-
-    if(((QLinuxFb_Shared *)shared_data)->forecol!=tmp2) {
-      matrox_regw(FCOL,tmp2);
-      ((QLinuxFb_Shared *)shared_data)->forecol=tmp2;
+    if(ncliprect<1) {
+	return;
     }
 
-    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_SHIFTZERO | 
-		DWG_SOLID | DWG_BFCOL);
-    matrox_regw(AR0,b*2);
-    matrox_regw(AR1,(b*2)-a-(y2-y1));
-    matrox_regw(AR2,(b*2)-(a*2));
-    matrox_regw(SGN,sgn);
-    matrox_regw(XDST,x1);
-    int p=y1;
-    int t=linestep();
-    t=(t*8)/depth;
-    //t&=0x1f;
-    p*=(t >> 5);
-    matrox_regw(YDST,p);
-    matrox_regw(LEN | EXEC,a);  // Vector length
-  }
+    unsigned int tmprop=getRop(myrop) << 16;
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+    QWSDisplay::grab( TRUE );
+#endif
 
-  GFX_END
+    setDest();
+
+    (*gfx_optype)=1;
+    (*gfx_lastop)=LASTOP_LINE;
+
+    x1+=xoffs;
+    y1+=yoffs;
+    x2+=xoffs;
+    y2+=yoffs;
+
+    int dx,dy;
+    dx=abs(x2-x1);
+    dy=abs(y2-y1);
+
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+
+    int loopc;
+
+    int b=dy<dx ? dy : dx;   // min
+    int a=dy<dx ? dx : dy;   // max
+
+    unsigned int sgn=0;
+
+    if(dx>dy) {
+	sgn |= 0x1;
+    }
+    if(x2<x1) {
+	sgn |= 0x2;
+    }
+    if(y2<y1) {	    sgn |= 0x4;
+    }
+
+    for(loopc=0;loopc<ncliprect;loopc++) {
+	do_scissors(cliprect[loopc]);
+	QColor tmp=cpen.color();
+	QScreen * tmpscreen=qt_screen;
+	qt_screen=gfx_screen;
+	unsigned int tmp2=tmp.alloc();
+	qt_screen=tmpscreen;
+
+	if(((QLinuxFb_Shared *)shared_data)->forecol!=tmp2) {
+	    matrox_regw(FCOL,tmp2);
+	    ((QLinuxFb_Shared *)shared_data)->forecol=tmp2;
+	}
+
+	if(dashedLines) {
+	    unsigned int tmp=0;
+	    for(int loopc=0;loopc<numDashes;loopc++) {
+		// Fill unsigned int with up to 32 bits
+		tmp &= dashes[loopc] << ((loopc % 4) * 8);
+		if((loopc % 4)==3) {
+		    // When 4th byte is filled, fill SRC1-3
+		    // with it (these registers are contiguous and
+		    // 4 bytes apart)
+		    matrox_regw(SRC0+(loopc-3),tmp);
+		    tmp=0;
+		}
+	    }
+	    matrox_regw(SHIFT,((numDashes*8)-1) << 16);
+	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_BFCOL);	    
+	} else {
+	    matrox_regw(DWGCTL,DWG_LINE_CLOSE | tmprop | DWG_SHIFTZERO |
+		    DWG_SOLID | DWG_BFCOL);
+	}
+	
+	matrox_regw(AR0,b*2);
+	matrox_regw(AR1,(b*2)-a-(y2-y1));
+	matrox_regw(AR2,(b*2)-(a*2));
+	matrox_regw(SGN,sgn);
+	matrox_regw(XDST,x1);
+	int p=y1;
+	int t=linestep();
+	t=(t*8)/depth;
+	//t&=0x1f;
+	p*=(t >> 5);
+	matrox_regw(YDST,p);
+	matrox_regw(LEN | EXEC,a);  // Vector length
+    }
+
+    GFX_END
     QWSDisplay::ungrab();
-  return;
+    return;
 }
 
 template<const int depth,const int type>
@@ -848,10 +864,6 @@ void QMatroxCursor::set(const QImage& image,int hx,int hy)
 	}
     }
 
-    // Write the cursor data in the image into the weird format
-    // that Voodoo3 expects for cursors, which is some truly weird
-    // planar format (hence the two inner loops)
-    // We assume cursors are multiples of 8 pixels wide
     for(loopc=0;loopc<cursor->height();loopc++) {
 	tmp=fb_start+offset+(loopc*16);
 	int count=1;
