@@ -41,6 +41,7 @@
 
 Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
+#if !defined(QT_NO_COMPONENT)
 typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
 static PtrGetNamedSecurityInfoW ptrGetNamedSecurityInfoW = 0;
 typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrLookupAccountSidW)(LPCWSTR, PSID, LPWSTR, LPDWORD, LPWSTR, LPDWORD, PSID_NAME_USE);
@@ -55,8 +56,8 @@ typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclW)(PACL, PTRUSTEE_W, OUT PACC
 static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0;
 typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
-
 static TRUSTEE_W currentUserTrusteeW;
+#endif
 
 static void resolveLibs()
 {
@@ -66,6 +67,7 @@ static void resolveLibs()
         // need to resolve the security info functions
 
         // protect initialization
+#ifdef QT_THREAD_SUPPORT
         QMutexLocker locker(qt_global_mutexpool ?
             qt_global_mutexpool->get(&triedResolve) : 0);
         // check triedResolve again, since another thread may have already
@@ -75,6 +77,7 @@ static void resolveLibs()
             // so we shouldn't do it again.
             return;
         }
+#endif
 
         triedResolve = true;
         if(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
@@ -861,6 +864,7 @@ QFSFileEnginePrivate::getPermissions() const
 {
     QFileEngine::FileFlags ret = 0;
 
+#if !defined(QT_NO_COMPONENT)
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;
 	PSID pGroup = 0;
@@ -870,7 +874,6 @@ QFSFileEnginePrivate::getPermissions() const
 
         enum { ReadMask = 0x00000001, WriteMask = 0x00000002, ExecMask = 0x00000020 };
         resolveLibs();
-
         if(ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid) {
             DWORD res = ptrGetNamedSecurityInfoW((wchar_t*)file.utf16(), SE_FILE_OBJECT,
 						 OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
@@ -930,7 +933,9 @@ QFSFileEnginePrivate::getPermissions() const
                 LocalFree(pSD);
             }
         }
-    } else {
+    } else 
+#endif
+           {
 	//### what to do with permissions if we don't use ntfs or are not on a NT system
 	// for now just add all permissions and what about exe missions ??
 	// also qt_ntfs_permission_lookup is now not set by defualt ... should it ?
@@ -1112,6 +1117,7 @@ QFSFileEngine::ownerId(FileOwner /*own*/) const
 QString
 QFSFileEngine::owner(FileOwner own) const
 {
+#if !defined(QT_NO_COMPONENT)
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
@@ -1140,6 +1146,7 @@ QFSFileEngine::owner(FileOwner own) const
 	}
 	return name;
     }
+#endif
     return QString("");
 }
 

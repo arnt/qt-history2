@@ -46,20 +46,6 @@ private:
 
 extern Q_CORE_EXPORT QMutexPool *qt_global_mutexpool;
 
-#else // QT_NO_THREAD
-
-class QMutexPool
-{
-public:
-    inline QMutexPool(bool = false, int = 128)
-    { }
-
-    static inline QMutex *get(const void *)
-    { return 0; }
-};
-
-static QMutexPool *qt_global_mutexpool = 0;
-
 #endif // QT_NO_THREAD
 
 #endif // QMUTEXPOOL_P_H

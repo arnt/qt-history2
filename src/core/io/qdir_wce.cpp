@@ -178,8 +178,10 @@ bool QDir::rename(const QString &oldName, const QString &newName,
 
 bool QDir::setCurrent(const QString &path)
 {
+#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker(qt_global_mutexpool ?
                          qt_global_mutexpool->get(&theCWD) : 0);
+#endif
 
     DWORD res = GetFileAttributes((TCHAR*)path.ucs2());
     if (0xFFFFFFFF == res)
@@ -203,8 +205,11 @@ bool QDir::setCurrent(const QString &path)
 */
 QString QDir::currentDirPath()
 {
+#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker(qt_global_mutexpool ?
                          qt_global_mutexpool->get(&theCWD) : 0);
+#endif
+
     if (! theCWD)
         setCurrent("/");
     Q_ASSERT(theCWD != 0);

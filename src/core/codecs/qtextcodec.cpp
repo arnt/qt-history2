@@ -428,9 +428,11 @@ static void setup()
 {
     if (all) return;
 
+#ifdef QT_THREAD_SUPPORT
     QMutexLocker locker(qt_global_mutexpool ?
                          qt_global_mutexpool->get(&all) : 0);
     if (all) return;
+#endif
 
     if (destroying_is_ok)
         qWarning("QTextCodec: Creating new codec during codec cleanup");
