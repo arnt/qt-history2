@@ -114,6 +114,7 @@ else
   mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt
   cd ${DISTDIR}
   mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
+  mv ${DISTDIR}/qt/doc/.qdoc-links ${DISTDIR}
 fi
 
 echo "Removing local files..." >&2
