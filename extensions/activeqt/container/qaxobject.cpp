@@ -67,7 +67,7 @@ QAxObject::QAxObject( QObject *parent, const char *name )
     \sa setControl()
 */
 QAxObject::QAxObject( const QString &c, QObject *parent, const char *name )
-: QObject( parent, name ? name : c.latin1() )
+: QObject( parent, name )
 {
     setControl( c );
 }

@@ -812,7 +812,8 @@ QAxBase::~QAxBase()
     ctrl->setControl("DOMAIN/user:password@server/{8E27C92B-1264-101C-8A2F-040224009C02}:LicenseKey");
     \endcode
 
-    The control's read function always returns the control's UUID.
+    The control's read function always returns the control's UUID, if provided including the license
+    key, and the name of the server, but not including the username, the domain or the password.
 */
 bool QAxBase::setControl( const QString &c )
 {
@@ -1102,6 +1103,10 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
 	clsid = clsid.left(at);
     }
 
+    ctrl = server + "/" + clsid;
+    if (!key.isEmpty())
+	ctrl = ctrl + ":" + key;
+
     COAUTHIDENTITY authIdentity;
     authIdentity.User = (ushort*)user.ucs2();
     authIdentity.UserLength = user.length();
@@ -1116,7 +1121,7 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
     authInfo.dwAuthzSvc = RPC_C_AUTHZ_NONE;
     authInfo.pwszServerPrincName = 0;
     authInfo.dwAuthnLevel = RPC_C_AUTHN_LEVEL_DEFAULT;
-    authInfo.dwImpersonationLevel = RPC_C_IMP_LEVEL_IMPERSONATE;
+    authInfo.dwImpersonationLevel = RPC_C_IMP_LEVEL_IDENTIFY;
     authInfo.pAuthIdentityData = &authIdentity;
     authInfo.dwCapabilities = 0;
 
@@ -3297,6 +3302,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 
     int id = -1;
     if ( function.contains( '(' ) ) {
+	disptype = DISPATCH_METHOD;
 	id = metaObject()->findSlot( qt_rmWS(function), TRUE );
 	if ( id >= 0 ) {
 	    const QMetaData *slot = metaObject()->slot( id, TRUE );
@@ -3321,21 +3327,12 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 		VariantInit( arg + (varc-i-1) );
 		QVariantToVARIANT( vars[i], arg[varc-i-1], param );
 	    }
-	    disptype = DISPATCH_METHOD;
 	} else {
-#ifdef QT_CHECK_STATE
-	    const char *coclass = metaObject()->classInfo( "CoClass" );
-	    qWarning( "QAxBase::internalInvoke: %s: No such method in %s [%s].", (const char*)name, control().latin1(),
-		coclass ? coclass: "unknown" );
-
 	    function = function.left(function.find('('));
-	    for (int i = 0; i < metaObject()->numSlots(TRUE); ++i) {
-		const QMetaData *slot = metaObject()->slot(i, TRUE);
-		if (QString(slot->name).startsWith(function))
-		    qWarning("\tDid you mean %s?", slot->name);
+	    for ( int i = 0; i < varc; ++i ) {
+		VariantInit( arg + (varc-i-1) );
+		QVariantToVARIANT( vars[i], arg[varc-i-1], "QVariant" );
 	    }
-#endif
-	    return FALSE;
 	}
     } else {
 	id = metaObject()->findProperty( name, TRUE );
@@ -3351,12 +3348,15 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 		disptype = DISPATCH_PROPERTYGET;
 	    }
 	} else {
-#ifdef QT_CHECK_STATE
-	    const char *coclass = metaObject()->classInfo( "CoClass" );
-	    qWarning( "QAxBase::internalInvoke: %s: No such property in %s [%s]", (const char*)name, control().latin1(),
-		coclass ? coclass: "unknown" );
-#endif
-	    return FALSE;
+	    function = name;
+	    if ( varc ) {
+		varc = 1;
+		QVariantToVARIANT( vars[0], arg[0], "QVariant" );
+		res = 0;
+		disptype = DISPATCH_PROPERTYPUT;
+	    } else {
+		disptype = DISPATCH_PROPERTYGET;
+	    }
 	}
     }
 
@@ -3375,6 +3375,14 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	const char *coclass = metaObject()->classInfo( "CoClass" );
 	qWarning( "QAxBase::internalInvoke: %s: No such method or property in %s [%s]", (const char*)name, control().latin1(),
 	    coclass ? coclass: "unknown" );
+
+	if (disptype == DISPATCH_METHOD) {
+	    for (int i = 0; i < metaObject()->numSlots(TRUE); ++i) {
+		const QMetaData *slot = metaObject()->slot(i, TRUE);
+		if (QString(slot->name).startsWith(function))
+		    qWarning("\tDid you mean %s?", slot->name);
+	    }
+	}
 #endif
 	return FALSE;
     }

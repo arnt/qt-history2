@@ -1354,7 +1354,7 @@ QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
     \sa setControl()
 */
 QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name ? name : c.latin1(), f ), container( 0 )
+: QWidget( parent, name, f ), container( 0 )
 {
     setControl( c );
 }
