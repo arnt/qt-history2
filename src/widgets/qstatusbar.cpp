@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#12 $
 **
 ** Implementation of QStatusBar class
 **
@@ -43,11 +43,11 @@
   </ul>
 
   QStatusBar lets you display all three sorts of messages.
-  
+
   To display a temporary message, you can call message(), or connect a
   suitable signal to it.  To remove a temporary message, you can call
   clear(), or connect a signal to it.
-  
+
   There are two variants of message(), one which displays the message
   until the next clear() or mesage(), and one which also has a time limit.
 
@@ -310,7 +310,7 @@ void QStatusBar::message( const char * message, int ms )
 }
 
 
-/*!  Removes any remporary message being shown.
+/*!  Removes any temporary message being shown.
 
   \sa message()
 */

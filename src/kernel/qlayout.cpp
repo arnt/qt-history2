@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#34 $
 **
 ** Implementation of layout classes
 **
@@ -19,7 +19,7 @@
   \ingroup geomanagement
 
   This is an abstract base class. The concrete layout managers
-  QBoxLayout and QGidLayout inherit from this one and make QLayout's
+  QBoxLayout and QGridLayout inherit from this one and make QLayout's
   functionality avaialble in friendly APIs.
 
   Most users of Q*Layout are likely to use some of the basic functions
@@ -256,7 +256,7 @@ void QLayout::setMenuBar( QMenuBar *w )
 
   \brief The QBoxLayout class lines up child widgets horizontally or
   vertically.
-  
+
   \ingroup geomanagement
 
   QBoxLayout takes the space it gets (from its parent layout or from
@@ -467,7 +467,7 @@ QChain * QBoxLayout::mainHorizontalChain()
   Adds a non-stretchable space with size \a size.  QBoxLayout gives
   default border and spacing. This function adds additional space.
 
-  \sa addStretch
+  \sa addStretch()
 */
 void QBoxLayout::addSpacing( int size )
 {
@@ -485,7 +485,7 @@ void QBoxLayout::addSpacing( int size )
   Adds a stretchable space with zero minimum size
   and stretch factor \a stretch.
 
-  \sa addSpacing
+  \sa addSpacing()
 */
 //###... Should perhaps replace default space?
 void QBoxLayout::addStretch( int stretch )
@@ -504,8 +504,6 @@ void QBoxLayout::addStretch( int stretch )
   Limits the perpendicular dimension of the box (e.g. height if the
   box is LeftToRight) to a minimum of \a size. Other constraints may
   increase the limit.
-
-  \sa addMaxStrut()
 */
 
 void QBoxLayout::addStrut( int size )
@@ -519,19 +517,6 @@ void QBoxLayout::addStrut( int size )
     }
     basicManager()->addSpacing( parChain, size );
 }
-
-/*
-  Limits the perpendicular dimension of the box (e.g. height if
-  the box is LeftToRight) to a maximum of \a size. Other constraints
-  may decrease the limit.
-
-  \sa addMinStrut()
-
-void QBoxLayout::addMaxStrut( int size)
-{
-    gm->QGManager::addSpacing( parChain, 0, 0, size );
-}
-*/
 
 /*!
   Adds \a widget to the box, with stretch factor \a stretch and
@@ -647,7 +632,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
   This class provides an easier way to construct horizontal box layout
   objects.  See \l QBoxLayout for more details.
-  
+
   The simplest way to use this class is:
 
   \code
@@ -700,7 +685,7 @@ QHBoxLayout::~QHBoxLayout()
 
   This class provides an easier way to construct vertical box layout
   objects.  See \l QBoxLayout for more details.
-  
+
   The simplest way to use this class is:
 
   \code
@@ -709,7 +694,7 @@ QHBoxLayout::~QHBoxLayout()
      l->addWidget( anotherWidget );
      l->activate()
   \endcode
-  
+
   \sa QHBoxLayout QGridLayout
 */
 
@@ -753,7 +738,7 @@ QVBoxLayout::~QVBoxLayout()
 
   Columns and rows behave identically; we will discuss columns but
   there are eqivalent functions for rows.
-  
+
   Each column has a minimum width and a stretch factor.  The minimum
   width is the greatest of that set using addRowSpacing() and the
   minimum width of each widget in that column.  The stretch factor is
@@ -796,7 +781,7 @@ QVBoxLayout::~QVBoxLayout()
   Once you have done that, you can start putting widgets and other
   layouts in the cells of your grid layout using addWidget(),
   addLayout() and addMultiCellWidget().
-  
+
   Finally, if the grid is the top-level layout, you activate() it.
 
   QGridLayout also includes two margin widths: The border width and

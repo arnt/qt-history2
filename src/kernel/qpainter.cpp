@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#135 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -131,10 +131,8 @@ QPainter::QPainter()
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-	QPainter p;
-	p.begin( this );
+	QPainter p( this );
 	p.drawLine( ... );	// drawing code
-	p.end();
     }
   \endcode
 
@@ -753,8 +751,7 @@ QRect QPainter::window() const
       int width, height;
       ...
       QPixmap icon( width, height );
-      QPainter p;
-      p.begin( icon );
+      QPainter p( icon );
       p.setWindow( 0, 0, 100, 100 );
       p.drawLine( 50, 0, 50, 100 );		// draw center line
   \endcode
@@ -763,8 +760,7 @@ QRect QPainter::window() const
   setViewport(), as in this example:
 
   \code
-      QPainter p;
-      p.begin( myWidget );
+      QPainter p( myWidget );
       p.setWindow( 0, 0, 1000, 2000 );
       p.setViewport( 100,100, 200,200 );
       p.drawPoint( 500, 500 );			// draws pixel at (150,125)
@@ -832,8 +828,7 @@ QRect QPainter::viewport() const		// get viewport
       QPrinter page;
       int margin, pageWidth, pageHeight;
       ...
-      QPainter p;
-      p.begin( page );
+      QPainter p( page );
       p.setViewPort( margin, margin, pageWidth - margin, pageHeight - margin );
       p.drawLine( 0, 0, pageWidth - 2*margin, pageHeight - 2*margin );
   \endcode
@@ -842,8 +837,7 @@ QRect QPainter::viewport() const		// get viewport
   setWindow(), as in this example:
 
   \code
-      QPainter p;
-      p.begin( myWidget );
+      QPainter p( myWidget );
       p.setWindow( 0, 0, 1000, 2000 );
       p.setViewport( 100,100, 200,200 );
       p.drawPoint( 500, 500 );			// draws pixel at (150,125)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#48 $
 **
 ** Implementation of QRegExp class
 **
@@ -35,8 +35,8 @@
   <li><dfn>\n</dfn> matches newline (10)
   <li><dfn>\r</dfn> matches return (13)
   <li><dfn>\s</dfn> matches white space (9,10,11,12,13,32)
-  <li><dfn>\x12</dfn> matches the character hex 12.
-  <li><dfn>\022</dfn> matches the character octal 22.
+  <li><dfn>\x12</dfn> matches the character 0x12 (18 decimal, 12 hexadecimal).
+  <li><dfn>\022</dfn> matches the character 022 (18 decimal, 22 octal).
   </ul>
 
   In wildcard mode, it only knows three primitives:
