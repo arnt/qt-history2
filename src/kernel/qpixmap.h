@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#5 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#6 $
 **
 ** Definition of QPixMap class
 **
@@ -38,6 +38,7 @@ public:
 
 protected:
     QPixMap( int w, int h, const char *data );
+    long   metric( int ) const;			// get metric information
     QSize  sz;					// size of pixmap
     int	   bitPlanes;				// # bit planes
     bool   dirty;				// dirty/needs reconfig
