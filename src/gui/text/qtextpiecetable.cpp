@@ -8,7 +8,6 @@
 #include "qtextlistmanager_p.h"
 #include "qtexttablemanager_p.h"
 #include "qtextcursor.h"
-#include "qtextobjectmanager_p.h"
 #include "qtextimagehandler_p.h"
 #include "qtextcursor_p.h"
 #include "qtextdocumentlayout_p.h"
@@ -71,10 +70,8 @@ QTextPieceTable::QTextPieceTable()
 
     lists = new QTextListManager(this);
     tables = new QTextTableManager(this);
-    objects = new QTextObjectManager(this);
+    // ##### should be handled by the document
     lout = new QTextDocumentLayout(this);
-    // ### temporary
-    objects->registerHandler(QTextFormat::ImageFormat, new QTextImageHandler(this));
 }
 
 QTextPieceTable::~QTextPieceTable()
@@ -105,7 +102,7 @@ void QTextPieceTable::insertWithoutUndo(int pos, uint strPos, uint length, int f
     }
     Q_ASSERT(blocks.length() == fragments.length());
 
-    emit textChanged(pos, length, op);
+    emit textChanged(pos, length);
     for (int i = 0; i < cursors.size(); ++i)
 	cursors.at(i)->adjustPosition(pos, length, op);
     emit contentsChanged();
@@ -125,7 +122,7 @@ void QTextPieceTable::insertBlock(int pos)
     }
     uint x = blocks.insert_single(pos, size);
     Q_ASSERT(blocks.length() == fragments.length());
-    emit blockChanged(blocks.key(x), true /*added*/);
+    emit blockChanged(blocks.key(x), QText::Insert);
 }
 
 void QTextPieceTable::removeBlocks(int pos, int length)
@@ -141,7 +138,7 @@ void QTextPieceTable::removeBlocks(int pos, int length)
     for (BlockMap::ConstIterator bit = blocks.find(pos); bit != end; ++bit) {
 	int key = bit.key();
 	if (key >= pos)
-	    emit blockChanged(key, false /*removed*/);
+	    emit blockChanged(key, QText::Remove);
     }
 
     int b = blocks.findNode(pos);
@@ -192,6 +189,9 @@ void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
 
     appendUndoItem(c);
     Q_ASSERT(undoPosition == undoStack.size());
+
+    if (!undoBlock)
+	lout->documentChange(pos, 0, 1);
 }
 
 void QTextPieceTable::insert(int pos, const QString &str, int format)
@@ -227,6 +227,9 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
 
     appendUndoItem(c);
     Q_ASSERT(undoPosition == undoStack.size());
+
+    if (!undoBlock)
+	lout->documentChange(pos, 0, strLength);
 }
 
 void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
@@ -270,10 +273,13 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    emit textChanged(pos, -length, op);
+    emit textChanged(pos, -length);
     for (int i = 0; i < cursors.size(); ++i)
 	cursors.at(i)->adjustPosition(pos, -length, op);
     emit contentsChanged();
+
+    if (!undoBlock)
+	lout->documentChange(pos, length, 0);
 }
 
 void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newFormat, FormatChangeMode mode)
@@ -497,6 +503,10 @@ void QTextPieceTable::endUndoBlock()
 	return;
 
     undoStack[undoPosition - 1].block = false;
+
+    // #### cache the changed region so the layouter doesn't do too much work.
+    if (!undoBlock)
+	lout->documentChange(0, length(), length());
 }
 
 QString QTextPieceTable::plainText() const
@@ -544,7 +554,7 @@ QTextLayout *QTextPieceTable::BlockIterator::layout() const
     if (!b->layout) {
 	b->layout = new QTextLayout();
 	b->layout->setFormatCollection(const_cast<QTextPieceTable *>(pt)->formatCollection());
-	b->layout->setInlineObjectInterface(pt->objectManager());
+	b->layout->setDocumentLayout(pt->layout());
     }
     if (b->textDirty) {
 	QString text = blockText();

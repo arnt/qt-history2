@@ -35,7 +35,7 @@ class QString;
 class QOpenType;
 class QPainter;
 
-class QTextInlineObjectInterface;
+class QAbstractTextDocumentLayout;
 
 enum q26Dot6 { F26Dot6 };
 
@@ -322,7 +322,7 @@ public:
 
     void setText(const QString &str);
     void setFormatCollection(const QTextFormatCollection *fmts) { formats = fmts; }
-    void setInlineObjectInterface(QTextInlineObjectInterface *iface) { inlineObjectIface = iface; }
+    void setDocumentLayout(QAbstractTextDocumentLayout *layout) { docLayout = layout; }
 
     enum Mode {
 	Full = 0x00,
@@ -403,7 +403,7 @@ public:
     unsigned int reserved : 24;
     unsigned int textFlags;
     QPalette *pal;
-    QTextInlineObjectInterface *inlineObjectIface;
+    QAbstractTextDocumentLayout *docLayout;
 
     int allocated;
     void **memory;

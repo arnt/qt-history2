@@ -23,7 +23,7 @@ public:
     QTextList *list(int listIdx) const;
 
 private slots:
-    void blockChanged(int blockPosition, bool added);
+    void blockChanged(int blockPosition, QText::ChangeOperation);
     void formatChanged(int position, int length);
     void listDestroyed(QObject *obj);
 

@@ -4,6 +4,7 @@
 #include "qtextpiecetable_p.h"
 #include "qtextlistmanager_p.h"
 #include "qtexttablemanager_p.h"
+#include "qtextimagehandler_p.h"
 #include "qtexttable.h"
 #include "qtextlist.h"
 
@@ -13,10 +14,47 @@
 #include <qpalette.h>
 
 QTextDocumentLayout::QTextDocumentLayout(QTextPieceTable *parent)
-    : QObject(parent)
+    : QAbstractTextDocumentLayout(parent)
 {
+    registerHandler(QTextFormat::ImageFormat, new QTextImageHandler(this));
     recreateAllBlocks();
 }
+
+
+void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
+{
+    QTextPieceTable::BlockIterator it = pieceTable()->blocksBegin();
+    for (; it != pieceTable()->blocksEnd(); ++it)
+	drawBlock(painter, context, it);
+}
+
+void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
+{
+    qDebug("recreating layout");
+    recreateAllBlocks();
+}
+
+int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
+{
+    QTextPieceTable::BlockIterator it = pieceTable()->blocksBegin();
+    for (; it != pieceTable()->blocksEnd(); ++it) {
+	QRect r = (*it)->rect;
+	if (r.contains(point))
+	    return hitTest(it, point, accuracy);
+    }
+
+    if (accuracy == QText::FuzzyHit && pieceTable()->numBlocks()) {
+	it = pieceTable()->blocksEnd();
+	--it;
+	QRect r = (*it)->rect;
+	QPoint relative(point.x(), r.bottom() - 1);
+
+	return hitTest(it, relative, accuracy);
+    }
+    return -1;
+}
+
+
 
 QTextListFormat QTextDocumentLayout::listFormat(QTextPieceTable::BlockIterator bl) const
 {
@@ -38,7 +76,7 @@ int QTextDocumentLayout::indent(QTextPieceTable::BlockIterator bl) const
     return indent * pieceTable()->config()->indentValue;
 }
 
-void QTextDocumentLayout::drawListItem(QTextPaintContext &context, QTextPieceTable::BlockIterator bl, const QTextLayout::Selection &selection)
+void QTextDocumentLayout::drawListItem(QPainter *painter, const PaintContext &context, QTextPieceTable::BlockIterator bl, const QTextLayout::Selection &selection)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
     QFontMetrics fontMetrics(blockFormat.font());
@@ -77,14 +115,12 @@ void QTextDocumentLayout::drawListItem(QTextPaintContext &context, QTextPieceTab
 
     r.moveBy(-fontMetrics.width(" "), 0);
 
-    QPainter &p = context.painter;
-
     if (selection.type() == QTextLayout::Highlight
 	&& (selection.from() + selection.length() > 0)
 	&& (selection.from() < 1)) {
-	p.setPen(context.palette.highlightedText());
+	painter->setPen(context.palette.highlightedText());
 
-	p.fillRect(r, context.palette.highlight());
+	painter->fillRect(r, context.palette.highlight());
     }
 
     QBrush brush = context.palette.brush(QPalette::Text);
@@ -93,18 +129,18 @@ void QTextDocumentLayout::drawListItem(QTextPaintContext &context, QTextPieceTab
 	case QTextListFormat::ListDecimal:
 	case QTextListFormat::ListLowerAlpha:
 	case QTextListFormat::ListUpperAlpha:
-	    p.drawText(r.left(), r.top() + fontMetrics.height() - fontMetrics.descent(), itemText);
+	    painter->drawText(r.left(), r.top() + fontMetrics.height() - fontMetrics.descent(), itemText);
 	    break;
 	case QTextListFormat::ListSquare:
-	    p.fillRect(r, brush);
+	    painter->fillRect(r, brush);
 	    break;
 	case QTextListFormat::ListCircle:
-	    p.drawEllipse(r);
+	    painter->drawEllipse(r);
 	    break;
 	case QTextListFormat::ListDisc:
-	    p.setBrush(brush);
-	    p.drawEllipse(r);
-	    p.setBrush(Qt::NoBrush);
+	    painter->setBrush(brush);
+	    painter->drawEllipse(r);
+	    painter->setBrush(Qt::NoBrush);
 	    break;
 	case QTextListFormat::ListStyleUndefined:
 	    return;
@@ -112,7 +148,7 @@ void QTextDocumentLayout::drawListItem(QTextPaintContext &context, QTextPieceTab
     }
 }
 
-void QTextDocumentLayout::drawBlock(QTextPaintContext &context, QTextPieceTable::BlockIterator bl)
+void QTextDocumentLayout::drawBlock(QPainter *painter, const PaintContext &context, QTextPieceTable::BlockIterator bl)
 {
     const QTextLayout *tl = bl.layout();
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -128,7 +164,7 @@ void QTextDocumentLayout::drawBlock(QTextPaintContext &context, QTextPieceTable:
 
     QColor bgCol = blockFormat.backgroundColor();
     if (bgCol.isValid())
-	context.painter.fillRect((*bl)->rect, bgCol);
+	painter->fillRect((*bl)->rect, bgCol);
 
     QTextLayout::Selection s;
     int nSel = 0;
@@ -141,7 +177,7 @@ void QTextDocumentLayout::drawBlock(QTextPaintContext &context, QTextPieceTable:
     }
 
     if (listFormat(bl).style() != QTextListFormat::ListStyleUndefined)
-	drawListItem(context, bl, s);
+	drawListItem(painter, context, bl, s);
 
     if (tl->numLines() == 0) {
 
@@ -149,21 +185,14 @@ void QTextDocumentLayout::drawBlock(QTextPaintContext &context, QTextPieceTable:
 	pos.ry() += blockFormat.topMargin();
 
 	if (cursor != -1)
-	    context.painter.drawLine(pos.x(), pos.y(),
+	    painter->drawLine(pos.x(), pos.y(),
 				     pos.x(), pos.y() + QFontMetrics(blockFormat.font()).height());
 	return;
     }
 
     const_cast<QTextLayout *>(tl)->setPalette(context.palette);
 
-    tl->draw(&context.painter, pos, cursor, &s, nSel, context.clipRect);
-}
-
-void QTextDocumentLayout::draw(QTextPaintContext &context)
-{
-    QTextPieceTable::BlockIterator it = pieceTable()->blocksBegin();
-    for (; it != pieceTable()->blocksEnd(); ++it)
-	drawBlock(context, it);
+    tl->draw(painter, pos, cursor, &s, nSel, painter->clipRegion().boundingRect());
 }
 
 int QTextDocumentLayout::totalHeight() const
@@ -180,28 +209,29 @@ void QTextDocumentLayout::recreateAllBlocks()
 {
     QPoint pos(0, 0);
     QTextPieceTable::BlockIterator it = pieceTable()->blocksBegin();
+    int width = pageSize().width();
     while (!it.atEnd()) {
 	(*it)->layoutDirty = true;
 
 	// check if we are at a table
 	QTextBlockFormat fmt = it.blockFormat();
 	if (fmt.tableFormatIndex() != -1) {
-	    it = layoutTable(it, &pos);
+	    it = layoutTable(it, &pos, width);
 	} else {
-	    layoutBlock(it, pos);
+	    layoutBlock(it, pos, width);
 	    pos.setY((*it)->rect.bottom());
 	    ++it;
 	}
     }
 }
 
-QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::BlockIterator it, QPoint *pos)
+QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::BlockIterator it, QPoint *pos, int width)
 {
     const int tableIdx = it.blockFormat().tableFormatIndex();
 //     qDebug() << "layoutCell at" << it.key() << "tableIdx" << tableIdx;
 
     (*it)->layoutDirty = true;
-    layoutBlock(it, *pos);
+    layoutBlock(it, *pos, width);
     pos->setY((*it)->rect.bottom());
     ++it;
 
@@ -218,16 +248,16 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::
 	}
 
 	if (fmt.tableFormatIndex() != -1) {
-	    it = layoutTable(it, pos);
+	    it = layoutTable(it, pos, width);
 	} else {
-	    layoutBlock(it, *pos);
+	    layoutBlock(it, *pos, width);
 	    pos->setY((*it)->rect.bottom());
 	    ++it;
 	}
     }
 }
 
-QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable::BlockIterator it, QPoint *pos)
+QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable::BlockIterator it, QPoint *pos, int width)
 {
     const int tableIdx = it.blockFormat().tableFormatIndex();
     Q_ASSERT(tableIdx != -1);
@@ -239,10 +269,9 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
     int cols = table->cols();
     Q_ASSERT(rows > 0 && cols > 0); // also avoid division by zero later
 
-    QSize ps = pgSize;
+    QSize ps = pageSize();
 
-    int width = (ps.width()-5)/cols;
-    pgSize.setWidth(width);
+    int cellWidth = (width-5)/cols;
     int y = 0;
 
     for (int i = 0; i < rows; ++i) {
@@ -254,7 +283,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 	    Q_ASSERT(!fmt.tableCellEndOfRow());
 
 	    QPoint point = QPoint(j*width, y) + *pos;
-	    it = layoutCell(it, &point);
+	    it = layoutCell(it, &point, cellWidth);
 
 	    rowHeight = qMax(rowHeight, point.y() - pos->y() - y);
 	    rowHeight = qMax(rowHeight, QFontMetrics(fmt.font()).height());
@@ -267,20 +296,19 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 
 	(*it)->layoutDirty = true;
 	QPoint point = QPoint(cols*width, y) + *pos;
-	layoutBlock(it, point);
+	layoutBlock(it, point, cellWidth);
 	++it;
 
 	y += rowHeight;
     }
 //     qDebug() << "end layoutTable";
-    pgSize = ps;
     pos->setY(pos->y() + y);
 
     return it;
 }
 
 
-void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const QPoint &p)
+void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const QPoint &p, int width)
 {
     if (!(*bl)->layoutDirty) {
 	(*bl)->rect = QRect(p.x(), p.y(), (*bl)->rect.width(), (*bl)->rect.height());
@@ -297,7 +325,7 @@ void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const Q
     int x = blockFormat.leftMargin() + indent(bl);
     int y = blockFormat.topMargin();
 
-    const int lw = pageSize().width() - blockFormat.rightMargin() - x;
+    const int lw = width - blockFormat.rightMargin() - x;
 
     int from = 0;
     int len = tl->text().length();
@@ -315,26 +343,6 @@ void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const Q
 
     (*bl)->rect = QRect(p.x(), p.y(), lw, y);
     (*bl)->layoutDirty = false;
-}
-
-int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
-{
-    QTextPieceTable::BlockIterator it = pieceTable()->blocksBegin();
-    for (; it != pieceTable()->blocksEnd(); ++it) {
-	QRect r = (*it)->rect;
-	if (r.contains(point))
-	    return hitTest(it, point, accuracy);
-    }
-
-    if (accuracy == QText::FuzzyHit && pieceTable()->numBlocks()) {
-	it = pieceTable()->blocksEnd();
-	--it;
-	QRect r = (*it)->rect;
-	QPoint relative(point.x(), r.bottom() - 1);
-
-	return hitTest(it, relative, accuracy);
-    }
-    return -1;
 }
 
 int QTextDocumentLayout::hitTest(QTextPieceTable::BlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const

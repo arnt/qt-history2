@@ -13,6 +13,7 @@
 #include "qtextformat.h"
 #include "qtextformat_p.h"
 #include "qtextengine_p.h"
+#include "qabstracttextdocumentlayout.h"
 #include "qtextlayout.h"
 
 #include <qvarlengtharray.h>
@@ -822,7 +823,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 static void init(QTextEngine *e)
 {
     e->formats = 0;
-    e->inlineObjectIface = 0;
+    e->docLayout = 0;
     e->allocated = 0;
     e->memory = 0;
     e->num_glyphs = 0;
@@ -952,10 +953,10 @@ void QTextEngine::setBoundary(int strPos)
 void QTextEngine::shape( int item ) const
 {
     if (items[item].isObject) {
-	if (inlineObjectIface && formats) {
+	if (docLayout && formats) {
 	    QTextFormat format = formats->format(items[item].format);
 	    // ##### const cast
-	    inlineObjectIface->layoutObject(QTextObject(item, const_cast<QTextEngine *>(this)), format);
+	    docLayout->layoutObject(QTextObject(item, const_cast<QTextEngine *>(this)), format);
 	}
     } else {
 	shapeText(item);

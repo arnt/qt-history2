@@ -1,21 +1,27 @@
-#ifndef Q_RTDOCUMENT_H
-#define Q_RTDOCUMENT_H
+#ifndef Q_TEXTDOCUMENT_H
+#define Q_TEXTDOCUMENT_H
 
 #ifndef QT_H
 #include <qobject.h>
 #include <qshareddatapointer.h>
-#include <private/qtextpiecetable_p.h>
 #endif // QT_H
 
 class QTextFormatCollection;
 class QTextListManager;
 class QTextTableManager;
 class QTextListFormat;
+class QTextPieceTable;
 class QSize;
 class QRect;
 class QPainter;
 
 typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
+
+namespace QText
+{
+    enum HitTestAccuracy { ExactHit, FuzzyHit };
+    enum ChangeOperation { Insert, Remove };
+}
 
 class QAbstractUndoItem
 {
@@ -57,7 +63,6 @@ public:
     QSize pageSize() const;
 
     int numPages() const;
-    QRect pageRect(int page) const;
 
     void draw(int page, QPainter *p, const QRect &rect);
 

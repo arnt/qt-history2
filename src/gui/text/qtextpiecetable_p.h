@@ -10,6 +10,7 @@
 #include "qfragmentmap_p.h"
 #include <qtextlayout.h>
 #include <private/qtextformat_p.h>
+#include <qtextdocument.h>
 #include <qshareddatapointer.h>
 
 #include "qtextglobal_p.h"
@@ -25,9 +26,8 @@ class QTextFormat;
 class QTextListManager;
 class QTextTableManager;
 class QTextBlockFormat;
-class QTextObjectManager;
 class QTextCursorPrivate;
-class QTextDocumentLayout;
+class QAbstractTextDocumentLayout;
 
 class QTextFragment : public QFragment
 {
@@ -150,8 +150,7 @@ public:
     inline const QTextFormatCollection *formatCollection() const { return &formats; }
     inline QTextListManager *listManager() const { return lists; }
     inline QTextTableManager *tableManager() const { return tables; }
-    inline QTextObjectManager *objectManager() const { return objects; }
-    inline QTextDocumentLayout *layout() const { return lout; }
+    inline QAbstractTextDocumentLayout *layout() const { return lout; }
 
     inline FragmentIterator find(int pos) const { return fragments.find(pos); }
     inline FragmentIterator begin() const { return fragments.begin(); }
@@ -170,9 +169,9 @@ public:
 
 signals:
     void contentsChanged();
-    void textChanged(int positionOfChange, int charsAddedOrRemoved, UndoCommand::Operation op);
+    void textChanged(int positionOfChange, int charsAddedOrRemoved);
     void formatChanged(int position, int length);
-    void blockChanged(int blockPosition, bool blockAdded);
+    void blockChanged(int blockPosition, QText::ChangeOperation);
 
 private:
     bool split(int pos);
@@ -203,8 +202,7 @@ private:
     QTextFormatCollection formats;
     QTextListManager *lists;
     QTextTableManager *tables;
-    QTextObjectManager *objects;
-    QTextDocumentLayout *lout;
+    QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;
     BlockMap blocks;
 

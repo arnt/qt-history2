@@ -18,6 +18,7 @@
 #include <qpainter.h>
 #include <qvarlengtharray.h>
 #include <qtextformat.h>
+#include <qabstracttextdocumentlayout.h>
 #include "qtextformat_p.h"
 
 #include "qfontengine_p.h"
@@ -121,9 +122,9 @@ QString QTextLayout::text() const
     return d->string;
 }
 
-void QTextLayout::setInlineObjectInterface(QTextInlineObjectInterface *iface)
+void QTextLayout::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 {
-    d->setInlineObjectInterface(iface);
+    d->setDocumentLayout(layout);
 }
 
 void QTextLayout::setFormat(int from, int length, int format)
@@ -577,7 +578,7 @@ void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
 	int item = visualOrder[i]+firstItem;
 	QScriptItem &si = eng->items[item];
 
-	if (si.isObject && eng->inlineObjectIface && eng->formats) {
+	if (si.isObject && eng->docLayout && eng->formats) {
 	    QTextFormat format = eng->formats->format(si.format);
 
 	    QTextLayout::SelectionType selType = QTextLayout::NoSelection;
@@ -585,7 +586,7 @@ void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
 		// ###
 		selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
-	    eng->inlineObjectIface->drawObject(p, QPoint(x.toInt(), y.toInt()), QTextObject(item, eng), format, selType);
+	    eng->docLayout->drawObject(p, QPoint(x.toInt(), y.toInt()), QTextObject(item, eng), format, selType);
 	}
 
 	if ( si.isTab || si.isObject ) {

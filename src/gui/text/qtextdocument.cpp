@@ -95,8 +95,3 @@ int QTextDocument::numPages() const
 {
     return pieceTable->layout()->numPages();
 }
-
-QRect QTextDocument::pageRect(int page) const
-{
-    return pieceTable->layout()->pageRect(page);
-}

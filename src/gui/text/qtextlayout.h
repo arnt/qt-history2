@@ -64,8 +64,8 @@ private:
 class QPainter;
 class QTextFormatCollection;
 class QTextFormat;
-class QTextInlineObjectInterface;
 class QTextLine;
+class QAbstractTextDocumentLayout;
 
 class Q_GUI_EXPORT QTextLayout
 {
@@ -81,7 +81,7 @@ public:
     void setFormatCollection(const QTextFormatCollection *formats);
     void setText( const QString& string);
     QString text() const;
-    void setInlineObjectInterface(QTextInlineObjectInterface *iface);
+    void setDocumentLayout(QAbstractTextDocumentLayout *layout);
 
     enum LineBreakStrategy {
 	AtWordBoundaries,
@@ -164,14 +164,6 @@ private:
     friend class QPSPrinter;
     QTextEngine *d;
 };
-
-class QTextInlineObjectInterface
-{
-public:
-    virtual void layoutObject(QTextObject object, const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QPoint &position, QTextObject object, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
-};
-Q_DECLARE_INTERFACE(QTextInlineObjectInterface)
 
 class QTextLine
 {

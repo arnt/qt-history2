@@ -17,6 +17,7 @@ HEADERS += \
 	text/qtextpiecetable_p.h \
 	text/qtextdocument.h \
 	text/qtexthtmlparser_p.h \
+	text/qabstracttextdocumentlayout.h \
 	text/qtextdocumentlayout_p.h \
 	text/qtextcursor.h \
 	text/qtextcursor_p.h \
@@ -24,7 +25,6 @@ HEADERS += \
 	text/qtexttablemanager_p.h \
 	text/qtextdocumentfragment.h \
 	text/qtextdocumentfragment_p.h \
-	text/qtextobjectmanager_p.h \
 	text/qtextimagehandler_p.h \
 	text/qtexttable.h \
 	text/qtextlist.h \
@@ -41,12 +41,12 @@ SOURCES += \
 	text/qtextpiecetable.cpp \
 	text/qtextdocument.cpp \
 	text/qtexthtmlparser.cpp \
+	text/qabstracttextdocumentlayout.cpp \
 	text/qtextdocumentlayout.cpp \
 	text/qtextcursor.cpp \
 	text/qtextlistmanager.cpp \
 	text/qtexttablemanager.cpp \
 	text/qtextdocumentfragment.cpp \
-	text/qtextobjectmanager.cpp \
 	text/qtextimagehandler.cpp \
 	text/qtexttable.cpp \
 	text/qtextlist.cpp

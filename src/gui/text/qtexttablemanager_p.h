@@ -29,7 +29,7 @@ public:
     QTextTable *createTable(const QTextCursor &cursor, int rows, int cols, const QTextTableFormat &format);
 
 private slots:
-    void blockChanged(int blockPosition, bool added);
+    void blockChanged(int blockPosition, QText::ChangeOperation op);
     void formatChanged(int position, int length);
 
 private:

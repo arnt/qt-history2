@@ -16,7 +16,7 @@ QTextTableManager::QTextTableManager(QTextPieceTable *table)
 {
     pieceTable = table;
 
-    connect(table, SIGNAL(blockChanged(int, bool)), this, SLOT(blockChanged(int, bool)));
+    connect(table, SIGNAL(blockChanged(int, QText::ChangeOperation)), this, SLOT(blockChanged(int, QText::ChangeOperation)));
     connect(table, SIGNAL(formatChanged(int, int)), this, SLOT(formatChanged(int, int)));
 }
 
@@ -89,7 +89,7 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
 }
 
 
-void QTextTableManager::blockChanged(int blockPosition, bool added)
+void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation op)
 {
     QTextPieceTable::BlockIterator blockIt = pieceTable->blocksFind(blockPosition);
     if (blockIt.atEnd())
@@ -107,7 +107,7 @@ void QTextTableManager::blockChanged(int blockPosition, bool added)
 	tables.insert(tableIdx, table);
     }
 
-    if (added) {
+    if (op == QText::Insert) {
 	table->d->addCell(blockIt);
     } else {
 	table->d->removeCell(blockIt);

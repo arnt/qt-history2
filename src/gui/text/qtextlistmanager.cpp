@@ -10,7 +10,7 @@
 QTextListManager::QTextListManager(QTextPieceTable *_table)
     : QObject(_table), table(_table)
 {
-    connect(table, SIGNAL(blockChanged(int, bool)), this, SLOT(blockChanged(int, bool)));
+    connect(table, SIGNAL(blockChanged(int, QText::ChangeOperation)), this, SLOT(blockChanged(int, QText::ChangeOperation)));
     connect(table, SIGNAL(formatChanged(int, int)), this, SLOT(formatChanged(int, int)));
 }
 
@@ -24,7 +24,7 @@ QTextList *QTextListManager::list(int listIdx) const
     return lists.value(listIdx);
 }
 
-void QTextListManager::blockChanged(int blockPosition, bool added)
+void QTextListManager::blockChanged(int blockPosition, QText::ChangeOperation op)
 {
     QTextPieceTable::BlockIterator blockIt = table->blocksFind(blockPosition);
     if (blockIt.atEnd())
@@ -45,7 +45,7 @@ void QTextListManager::blockChanged(int blockPosition, bool added)
     if (listIdx == -1)
 	return;
 
-    if (added)
+    if (op == QText::Insert)
 	addListEntry(listIdx, blockIt);
     else
 	removeListEntry(listIdx, blockIt);
@@ -69,7 +69,7 @@ void QTextListManager::formatChanged(int position, int length)
 	// already gone
 	removeListEntry(-1, blockIt);
 
-	blockChanged(blockIt.key(), true /*added new block*/);
+	blockChanged(blockIt.key(), QText::Insert);
     }
 }
 

@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qtextlayout.h>
+#include <qabstracttextdocumentlayout.h>
 
 #include "qtextglobal_p.h"
 #endif // QT_H
