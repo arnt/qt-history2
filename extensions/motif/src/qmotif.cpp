@@ -243,14 +243,14 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	}
     }
 
-    if ( QApplication::activeModalWidget() ) {
+    if ( ! grabbed && QApplication::activeModalWidget() ) {
 	if ( qMotif ) {
 	    // send event through Qt modality handling...
 	    if ( !qt_try_modal( qMotif, event ) ) {
 		// qDebug( "Qt: active modal widget discarded event" );
 		return True;
 	    }
-	} else if ( !grabbed ) {
+	} else {
 	    // we could have a pure Xt shell as a child of the active
 	    // modal widget
 	    QWidget *qw = 0;
