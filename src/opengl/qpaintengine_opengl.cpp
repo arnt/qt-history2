@@ -446,8 +446,10 @@ QMap<int, GLuint> tx_cache;
 static void cleanup_texture_cache()
 {
     GLuint *textures = new GLuint[tx_cache.size()];
-    for(int i = 0; i < tx_cache.size(); ++i)
-	textures[i] = tx_cache.value(i);
+    QMap<int, GLuint>::ConstIterator it;
+    int i = 0;
+    for(it = tx_cache.constBegin(); it != tx_cache.constEnd(); ++it)
+	textures[i++] = *it;
     glDeleteTextures(tx_cache.size(), textures);
     tx_cache.clear();
     delete textures;
@@ -455,6 +457,9 @@ static void cleanup_texture_cache()
 
 static void bind_texture_from_cache(const QPixmap &pm)
 {
+    if (tx_cache.size() > 25)
+	cleanup_texture_cache();
+
     if (tx_cache.contains(pm.serialNumber())) {
 	glBindTexture(GL_TEXTURE_2D, tx_cache.value(pm.serialNumber()));
     } else {
