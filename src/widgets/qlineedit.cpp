@@ -240,7 +240,7 @@ struct QLineEditPrivate {
 };
 
 
-/* IGNORE!
+/*!
     \class QLineEdit
 
     \brief The QLineEdit widget is a one-line text editor.
@@ -323,7 +323,7 @@ struct QLineEditPrivate {
 */
 
 
-/* IGNORE!
+/*!
     \enum QLineEdit::EchoMode
 
     This enum type describes how a line edit should display its
@@ -341,14 +341,14 @@ struct QLineEditPrivate {
 */
 
 
-/* IGNORE!
+/*!
     \fn void QLineEdit::textChanged( const QString& )
 
     This signal is emitted whenever the text changes. The argument is
     the new text.
 */
 
-/* IGNORE!
+/*!
     \fn void QLineEdit::selectionChanged()
 
     This signal is emitted whenever the selection changes.
@@ -389,7 +389,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
 }
 
 
-/* IGNORE!
+/*!
     Constructs a line edit containing the text \a contents.
 
     The cursor position is set to the end of the line and the maximum
@@ -409,7 +409,7 @@ QLineEdit::QLineEdit( const QString & contents,
     setText( contents );
 }
 
-/* IGNORE!
+/*!
   Constructs a  line edit with an input \a mask and the text \a contents.
 
   The cursor position is set to the end of the line and the maximum
@@ -430,7 +430,7 @@ QLineEdit::QLineEdit( const QString & mask, const QString & contents,
     setText( contents );
 }
 
-/* IGNORE!
+/*!
     Destroys the line edit.
 */
 
@@ -439,7 +439,7 @@ QLineEdit::~QLineEdit()
     delete d;
 }
 
-/* IGNORE!
+/*!
     \internal
 
     Sets the password character to \a c.
@@ -452,7 +452,7 @@ void QLineEdit::setPasswordChar( QChar c )
     d->passwordChar = c;
 }
 
-/* IGNORE!
+/*!
     \internal
 
     Returns the password character.
@@ -529,7 +529,7 @@ void QLineEdit::setText( const QString &text )
 }
 
 
-/* IGNORE!
+/*!
     Selects all the text (i.e. highlights it) and moves the cursor to
     the end. This is useful when a default value has been inserted
     because if the user types before clicking on the widget, the
@@ -550,7 +550,7 @@ void QLineEdit::selectAll()
 
 
 
-/* IGNORE!
+/*!
     De-selects all text (i.e. removes highlighting) and leaves the
     cursor at the current position.
 
@@ -565,7 +565,7 @@ void QLineEdit::deselect()
 }
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::text
     \brief the line edit's text
 
@@ -586,7 +586,7 @@ QString QLineEdit::text() const
 
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::displayText
     \brief the displayed text
 
@@ -605,7 +605,7 @@ QString QLineEdit::displayText() const
 
 
 
-/* IGNORE!
+/*!
     \obsolete
     \property QLineEdit::hasMarkedText
     \brief whether part of the text has been selected by the user (e.g.
@@ -614,7 +614,7 @@ QString QLineEdit::displayText() const
   \sa selectedText()
 */
 
-/* IGNORE!
+/*!
     \property QLineEdit::hasSelectedText
     \brief whether there is any text selected
 
@@ -631,7 +631,7 @@ bool QLineEdit::hasSelectedText() const
     return hasSelectedText( TRUE );
 }
 
-/* IGNORE!
+/*!
     \obsolete
     \property QLineEdit::markedText
     \brief the text selected by the user (e.g. by clicking and
@@ -640,7 +640,7 @@ bool QLineEdit::hasSelectedText() const
   \sa hasSelectedText()
 */
 
-/* IGNORE!
+/*!
     \property QLineEdit::selectedText
     \brief the selected text
 
@@ -656,7 +656,7 @@ QString QLineEdit::selectedText() const
     return selectedText( TRUE );
 }
 
-/* IGNORE!
+/*!
     \property QLineEdit::maxLength
     \brief the maximum permitted length of the text
 
@@ -686,7 +686,7 @@ void QLineEdit::setMaxLength( int m )
     update();
 }
 
-/* IGNORE!
+/*!
     \fn void  QLineEdit::returnPressed()
 
     This signal is emitted when the Return or Enter key is pressed.
@@ -696,7 +696,7 @@ void QLineEdit::setMaxLength( int m )
 */
 
 
-/* IGNORE!
+/*!
     Converts key press event \a e into a line edit action.
 
     If Return or Enter is pressed and the current text is valid (or
@@ -956,7 +956,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 }
 
 
-/* IGNORE! \reimp
+/*! \reimp
  */
 void QLineEdit::imStartEvent( QIMEvent *e )
 {
@@ -976,7 +976,7 @@ void QLineEdit::imStartEvent( QIMEvent *e )
 }
 
 
-/* IGNORE! \reimp
+/*! \reimp
  */
 void QLineEdit::imComposeEvent( QIMEvent *e )
 {
@@ -1014,7 +1014,7 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
 }
 
 
-/* IGNORE! \reimp
+/*! \reimp
  */
 void QLineEdit::imEndEvent( QIMEvent *e )
 {
@@ -1038,7 +1038,7 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 }
 
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 
 void QLineEdit::focusInEvent( QFocusEvent * e)
@@ -1053,7 +1053,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 }
 
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
@@ -1071,7 +1071,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     emit lostFocus();
 }
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 
 void QLineEdit::drawContents( QPainter *painter )
@@ -1140,7 +1140,7 @@ void QLineEdit::drawContents( QPainter *painter )
 }
 
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 
 void QLineEdit::resizeEvent( QResizeEvent *e )
@@ -1149,7 +1149,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 }
 
 
-/* IGNORE! \reimp
+/*! \reimp
 */
 bool QLineEdit::event( QEvent * e )
 {
@@ -1219,7 +1219,7 @@ static bool inSelection( int x, QTextParagraph *p )
 	     x <= p->at( p->selectionEnd( QTextDocument::Standard ) )->x );
 }
 
-/* IGNORE! \reimp
+/*! \reimp
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
@@ -1305,7 +1305,7 @@ void QLineEdit::doDrag()
 
 #endif // QT_NO_DRAGANDDROP
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
@@ -1387,7 +1387,7 @@ void QLineEdit::dragSlot()
 	d->dragTimer.start( 100, TRUE );
 }
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
@@ -1445,7 +1445,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 }
 
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -1488,7 +1488,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
     update();
 }
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
 {
@@ -1531,7 +1531,7 @@ void QLineEdit::popupActivated( int r )
 }
 
 
-/* IGNORE!
+/*!
   \obsolete
   \fn void QLineEdit::cursorRight( bool, int )
 
@@ -1540,7 +1540,7 @@ void QLineEdit::popupActivated( int r )
   \sa cursorForward()
 */
 
-/* IGNORE!
+/*!
   \obsolete
   \fn void QLineEdit::cursorLeft( bool, int )
   For compatibilty with older applications only. Use cursorBackward()
@@ -1548,7 +1548,7 @@ void QLineEdit::popupActivated( int r )
   \sa cursorBackward()
 */
 
-/* IGNORE!
+/*!
     Moves the cursor back \a steps characters. If \a mark is TRUE each
     character moved over is added to the selection; if \a mark is
     FALSE the selection is cleared.
@@ -1560,7 +1560,7 @@ void QLineEdit::cursorBackward( bool mark, int steps )
     cursorForward( mark, -steps );
 }
 
-/* IGNORE!
+/*!
     Moves the cursor forward \a steps characters. If \a mark is TRUE
     each character moved over is added to the selection; if \a mark is
     FALSE the selection is cleared.
@@ -1618,7 +1618,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
     update();
 }
 
-/* IGNORE!
+/*!
     Deletes the character to the left of the text cursor and moves the
     cursor one position to the left. If any text has been selected by
     the user (e.g. by clicking and dragging), the cursor will be put
@@ -1632,7 +1632,7 @@ void QLineEdit::backspace()
     delOrBackspace( TRUE );
 }
 
-/* IGNORE!
+/*!
     Deletes the character to the right of the text cursor. If any text
     has been selected by the user (e.g. by clicking and dragging), the
     cursor will be put at the beginning of the selected text and the
@@ -1646,7 +1646,7 @@ void QLineEdit::del()
     delOrBackspace( FALSE );
 }
 
-/* IGNORE!
+/*!
     Moves the text cursor to the beginning of the line. If \a mark is
     TRUE, text is selected towards the first position; otherwise, any
     selected text is unselected if the cursor is moved.
@@ -1670,7 +1670,7 @@ void QLineEdit::home( bool mark )
     update();
 }
 
-/* IGNORE!
+/*!
     Moves the text cursor to the end of the line. If \a mark is TRUE,
     text is selected towards the last position; otherwise, any
     selected text is unselected if the cursor is moved.
@@ -1696,7 +1696,7 @@ void QLineEdit::end( bool mark )
 
 #ifndef QT_NO_CLIPBOARD
 
-/* IGNORE!
+/*!
     Copies the selected text to the clipboard, if there is any, and if
     echoMode() is \c Normal.
 
@@ -1714,7 +1714,7 @@ void QLineEdit::copy() const
     }
 }
 
-/* IGNORE!
+/*!
     Inserts the clipboard's text at the cursor position, deleting any
     selected text.
 
@@ -1732,7 +1732,7 @@ void QLineEdit::paste()
 	updateOverwriteSelection();
 }
 
-/* IGNORE!
+/*!
     Copies the selected text to the clipboard and deletes it, if there
     is any, and if echoMode() is \c Normal.
 
@@ -1768,7 +1768,7 @@ void QLineEdit::setAlignment( int flag )
     update();
 }
 
-/* IGNORE!
+/*!
     \property QLineEdit::alignment
     \brief the alignment of the line edit
 
@@ -1806,7 +1806,7 @@ void QLineEdit::setFrame( bool enable )
 }
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::frame
     \brief whether the line edit draws itself with a frame
 
@@ -1830,7 +1830,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
 }
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::echoMode
     \brief the line edit's echo mode
 
@@ -1849,7 +1849,7 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 }
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::readOnly
     \brief whether the line edit is read only.
 
@@ -1875,7 +1875,7 @@ bool QLineEdit::isReadOnly() const
     return d->readonly;
 }
 
-/* IGNORE!
+/*!
     Returns a recommended size for the widget.
 
     The width returned, in pixels, is usually enough for about 15 to
@@ -1894,7 +1894,7 @@ QSize QLineEdit::sizeHint() const
 
 
 
-/* IGNORE!
+/*!
     Returns a minimum size for the line edit.
 
     The width returned is enough for at least one character.
@@ -1910,7 +1910,7 @@ QSize QLineEdit::minimumSizeHint() const
 }
 
 
-/* IGNORE!
+/*!
     Sets this line edit to only accept input that the validator, \a v,
     will accept. This allows you to place any arbitrary constraints on
     the text which may be entered.
@@ -1933,7 +1933,7 @@ void QLineEdit::setValidator( const QValidator * v )
 	         this, SLOT( clearValidator() ) );
 }
 
-/* IGNORE!
+/*!
     Returns a pointer to the current input validator, or 0 if no
     validator has been set.
 
@@ -1946,7 +1946,7 @@ const QValidator * QLineEdit::validator() const
 }
 
 
-/* IGNORE!
+/*!
     This slot is equivalent to setValidator( 0 ).
 */
 
@@ -1957,7 +1957,7 @@ void QLineEdit::clearValidator()
 
 #ifndef QT_NO_DRAGANDDROP
 
-/* IGNORE! \reimp
+/*! \reimp
 */
 void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
@@ -1968,7 +1968,7 @@ void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
     d->cursorOn = TRUE;
 }
 
-/* IGNORE! \reimp
+/*! \reimp
 */
 void QLineEdit::dragLeaveEvent( QDragLeaveEvent * )
 {
@@ -1976,7 +1976,7 @@ void QLineEdit::dragLeaveEvent( QDragLeaveEvent * )
     update();
 }
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 
 void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
@@ -1990,7 +1990,7 @@ void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
     update();
 }
 
-/* IGNORE!\reimp
+/*!\reimp
 */
 void QLineEdit::dropEvent( QDropEvent *e )
 {
@@ -2044,7 +2044,7 @@ void QLineEdit::blinkSlot()
 
 
 
-/* IGNORE!
+/*!
     Validates and perhaps sets this line edit to contain \a newText
     with the cursor at position \a newPos, with selected text from \a
     newMarkAnchor to \a newMarkDrag. Returns TRUE if it changes the
@@ -2064,7 +2064,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 }
 
 
-/* IGNORE!
+/*!
     Removes any selected text, inserts \a newText, and validates the
     result. If it is valid, it sets it as the new contents of the line
     edit.
@@ -2075,7 +2075,7 @@ void QLineEdit::insert( const QString &newText )
 }
 
 
-/* IGNORE!
+/*!
   \obsolete
   \fn void QLineEdit::repaintArea( int from, int to )
   Repaints all characters from \a from to \a to. If cursorPos is
@@ -2083,7 +2083,7 @@ void QLineEdit::insert( const QString &newText )
 */
 
 
-/* IGNORE! \reimp */
+/*! \reimp */
 
 void QLineEdit::setFont( const QFont & f )
 {
@@ -2091,7 +2091,7 @@ void QLineEdit::setFont( const QFont & f )
 }
 
 
-/* IGNORE!
+/*!
     Clears the contents of the editor. This is equivalent to setText("").
 */
 
@@ -2104,7 +2104,7 @@ void QLineEdit::clear()
 }
 
 
-/* IGNORE!
+/*!
     Sets the selected area of this line edit to start at position \a
     start and be \a length characters long.
 
@@ -2128,7 +2128,7 @@ void QLineEdit::setCursorPosition( int newPos )
 }
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::cursorPosition
     \brief the current cursor position for this line edit
 
@@ -2141,7 +2141,7 @@ int QLineEdit::cursorPosition() const
 }
 
 
-/* IGNORE! \reimp */
+/*! \reimp */
 
 void QLineEdit::setPalette( const QPalette & p )
 {
@@ -2155,7 +2155,7 @@ void QLineEdit::setEdited( bool on )
 }
 
 
-/* IGNORE!
+/*!
     \property QLineEdit::edited
     \brief whether the line edit has been edited
 
@@ -2177,7 +2177,7 @@ bool QLineEdit::edited() const
     return d->ed;
 }
 
-/* IGNORE!
+/*!
     Moves the cursor one word forward. If \a mark is TRUE, the word is
     also selected.
 
@@ -2200,7 +2200,7 @@ void QLineEdit::cursorWordForward( bool mark )
 }
 
 
-/* IGNORE!
+/*!
     Moves the cursor one word backward. If \a mark is TRUE, the word
     is also selected.
 
@@ -2329,7 +2329,7 @@ void QLineEdit::removeSelectedText()
 }
 
 
-/* IGNORE!
+/*!
     Undoes the last operation.
 
     If a mask has been set, undo is disabled.
@@ -2349,7 +2349,7 @@ void QLineEdit::undo()
 }
 
 
-/* IGNORE!
+/*!
     Redoes the last operation.
 
     If a mask has been set, undo is disabled.
@@ -2368,7 +2368,7 @@ void QLineEdit::redo()
     update();
 }
 
-/* IGNORE!
+/*!
     This function is called to create the popup menu which is shown
     when the user clicks on the line edit with the right mouse button.
     If you want to create a custom popup menu, reimplement this
@@ -2425,7 +2425,7 @@ void QLineEdit::setDragEnabled( bool b )
     d->dragEnabled = b;
 }
 
-/* IGNORE!
+/*!
     \property QLineEdit::dragEnabled
     \brief whether the lineedit starts a drag if the user presses and
     moves the mouse on some selected text
@@ -2436,7 +2436,7 @@ bool QLineEdit::dragEnabled() const
     return d->dragEnabled;
 }
 
-/* IGNORE!
+/*!
     This function sets \a *start to the position in the text where
     the selection starts and \a *end to the position where the
     selection ends. Returns TRUE if both \a start and \a end are not 0
@@ -2450,7 +2450,7 @@ bool QLineEdit::getSelection( int *start, int *end )
     return getSelection( start, end, TRUE );
 }
 
-/* IGNORE! \reimp */
+/*! \reimp */
 void QLineEdit::windowActivationChange( bool )
 {
     if ( !isVisible() )
@@ -2460,7 +2460,7 @@ void QLineEdit::windowActivationChange( bool )
 	update();
 }
 
-/* IGNORE!
+/*!
     Returns the index position of the character which is at \a xpos
     (in logical coordinates from the left). If \a chr is not 0, \a
     *chr is populated with the character at this position.
@@ -2477,7 +2477,7 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
     return c.index();
 }
 
-/* IGNORE!
+/*!
     \property QLineEdit::undoAvailable
     \brief whether undo is available
 */
@@ -2489,7 +2489,7 @@ bool QLineEdit::isUndoAvailable() const
 	return d->parag->commands()->isUndoAvailable();
 }
 
-/* IGNORE!
+/*!
     \property QLineEdit::redoAvailable
     \brief whether redo is available
 */
@@ -2501,7 +2501,7 @@ bool QLineEdit::isRedoAvailable() const
 	return d->parag->commands()->isRedoAvailable();
 }
 
-/* IGNORE!
+/*!
   Sets the mask for this QLineEdit.
 
   Unset the mask and return to normal QLineEdit operation by
@@ -2547,7 +2547,7 @@ void QLineEdit::setMask( const QString &mask )
     parseMaskFields( mask );
 }
 
-/* IGNORE!
+/*!
   Returns TRUE if a mask has been set, FALSE otherwise.
 */
 bool QLineEdit::hasMask() const
@@ -2555,7 +2555,7 @@ bool QLineEdit::hasMask() const
     return !d->mask.isEmpty();
 }
 
-/* IGNORE!
+/*!
   Clears the set mask.
   Convenience function, same as calling setMask() with an empty string.
 
@@ -2567,7 +2567,7 @@ void QLineEdit::clearMask()
 }
 
 
-/* IGNORE!
+/*!
   Returns the set mask. Return a nullstring if there is no mask set.
 
   \sa setMask() hasMask()
@@ -2581,7 +2581,7 @@ QString QLineEdit::mask() const
 }
 
 
-/* IGNORE!
+/*!
   Checks the content of the QLineEdit compared to the set mask
   and returns TRUE if the input fits with the mask. The validator (if set)
   is also checked and needs to be Acceptable for this function to return TRUE.

@@ -38,10 +38,6 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
-#ifndef TRISTATE_CHECKLIST
-#define TRISTATE_CHECKLIST
-#endif // TRISTATE_CHECKLIST
-
 #ifndef QT_H
 #include "qscrollview.h"
 #endif // QT_H
@@ -373,6 +369,7 @@ signals:
     void pressed( QListViewItem *, const QPoint &, int );
 
     void doubleClicked( QListViewItem * );
+    void doubleClicked( QListViewItem *, const QPoint&, int );
     void returnPressed( QListViewItem * );
     void spacePressed( QListViewItem * );
     void rightButtonClicked( QListViewItem *, const QPoint&, int );

@@ -38,10 +38,6 @@
 #ifndef QLINEEDIT_H
 #define QLINEEDIT_H
 
-#ifndef MASK_EDIT
-#define MASK_EDIT
-#endif // MASK_EDIT
-
 struct QLineEditPrivate;
 
 class QValidator;

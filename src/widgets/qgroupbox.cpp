@@ -53,7 +53,7 @@
 #endif
 
 
-/* IGNORE!
+/*!
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
@@ -105,7 +105,7 @@ public:
 
 
 
-/* IGNORE!
+/*!
   Constructs a group box widget with no title.
 
   The \a parent and \a name arguments are passed to the QWidget constructor.
@@ -119,7 +119,7 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
     init();
 }
 
-/* IGNORE!
+/*!
   Constructs a group box with the title \a title.
 
   The \a parent and \a name arguments are passed to the QWidget constructor.
@@ -134,7 +134,7 @@ QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
     setTitle( title );
 }
 
-/* IGNORE!
+/*!
   Constructs a group box with no title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
@@ -149,7 +149,7 @@ QGroupBox::QGroupBox( int strips, Orientation orientation,
     setColumnLayout( strips, orientation );
 }
 
-/* IGNORE!
+/*!
   Constructs a group box titled \a title. Child widgets will be arranged
   in \a strips rows or columns (depending on \a orientation).
 
@@ -257,7 +257,7 @@ void QGroupBox::setTitle( const QString &title )
 #endif
 }
 
-/* IGNORE!
+/*!
   \property QGroupBox::title
   \brief the group box title text.
 
@@ -274,7 +274,7 @@ void QGroupBox::setTitle( const QString &title )
 
 */
 
-/* IGNORE!
+/*!
   \property QGroupBox::alignment
   \brief the alignment of the group box title.
 
@@ -301,7 +301,7 @@ void QGroupBox::setAlignment( int alignment )
     update();
 }
 
-/* IGNORE! \reimp
+/*! \reimp
 */
 void QGroupBox::resizeEvent( QResizeEvent *e )
 {
@@ -312,7 +312,7 @@ void QGroupBox::resizeEvent( QResizeEvent *e )
     calculateFrame();
 }
 
-/* IGNORE! \reimp
+/*! \reimp
 
   \internal
   overrides QFrame::paintEvent
@@ -369,7 +369,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 }
 
 
-/* IGNORE!
+/*!
   Adds an empty cell at the next free position. If \a size is greater
   than 0, the empty cell has a fixed height or width.
   If the group box is oriented horizontally, the empty cell has a fixed
@@ -403,7 +403,7 @@ void QGroupBox::addSpace( int size )
     skip();
 }
 
-/* IGNORE!
+/*!
   \property QGroupBox::columns
   \brief the number of columns or rows (depending on \l QGroupBox::orientation) in the group box
 
@@ -423,7 +423,7 @@ void QGroupBox::setColumns( int c )
     setColumnLayout( c, dir );
 }
 
-/* IGNORE!
+/*!
   Returns the width of the blank spacing between the items in the group
   and the frame of the group.
 
@@ -438,7 +438,7 @@ int QGroupBox::insideMargin() const
     return marg;
 }
 
-/* IGNORE!
+/*!
   Returns the width of the blank spacing between each of the items in the
   group.
 
@@ -453,7 +453,7 @@ int QGroupBox::insideSpacing() const
     return spac;
 }
 
-/* IGNORE!
+/*!
   Sets the the width of the blank spacing between each of the items in the
   group to \a m pixels.
 
@@ -465,7 +465,7 @@ void QGroupBox::setInsideMargin( int m )
     setColumnLayout( columns(), dir );
 }
 
-/* IGNORE!
+/*!
   Sets the width of the blank spacing between each of the items in the
   group to \a s pixels.
 */
@@ -475,7 +475,7 @@ void QGroupBox::setInsideSpacing( int s )
     setColumnLayout( columns(), dir );
 }
 
-/* IGNORE!
+/*!
   \property QGroupBox::orientation
   \brief the current orientation of the group box.
 
@@ -492,7 +492,7 @@ void QGroupBox::setOrientation( Qt::Orientation o )
     setColumnLayout( columns(), o );
 }
 
-/* IGNORE!
+/*!
   Changes the layout of the group box. This function is useful only in
   combination with the default constructor that does not take any
   layout information. This function will put all existing children in
@@ -563,7 +563,7 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 }
 
 
-/* IGNORE! \reimp  */
+/*! \reimp  */
 bool QGroupBox::event( QEvent * e )
 {
     if ( e->type() == QEvent::LayoutHint && layout() )
@@ -571,7 +571,7 @@ bool QGroupBox::event( QEvent * e )
     return QFrame::event( e );
 }
 
-/* IGNORE!\reimp */
+/*!\reimp */
 void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
@@ -617,7 +617,7 @@ void QGroupBox::skip()
 }
 
 
-/* IGNORE!  This private slot finds a widget in this group box that can
+/*!  This private slot finds a widget in this group box that can
 accept focus, and gives the focus to that widget.
 */
 
@@ -657,7 +657,7 @@ void QGroupBox::fixFocus()
 }
 
 
-/* IGNORE!
+/*!
   Sets the right framerect depending on the title. Also calculates the
   visible part of the title.
  */
@@ -700,7 +700,7 @@ void QGroupBox::calculateFrame()
 
 
 
-/* IGNORE! \reimp
+/*! \reimp
  */
 void QGroupBox::focusInEvent( QFocusEvent * )
 { // note no call to super
@@ -708,7 +708,7 @@ void QGroupBox::focusInEvent( QFocusEvent * )
 }
 
 
-/* IGNORE!\reimp
+/*!\reimp
  */
 void QGroupBox::fontChange( const QFont & oldFont )
 {
@@ -722,7 +722,7 @@ void QGroupBox::fontChange( const QFont & oldFont )
     setTextSpacer();
 }
 
-/* IGNORE!
+/*!
   \reimp
 */
 
@@ -753,7 +753,7 @@ QSize QGroupBox::sizeHint() const
     }
 }
 
-/* IGNORE!
+/*!
   \property QGroupBox::flat
   \brief whether the group box is painted flat or has a frame around it.
 
@@ -777,7 +777,7 @@ void QGroupBox::setFlat( bool b )
 }
 
 
-/* IGNORE!
+/*!
   Sets whether the group box has a checkbox as the title or not.
   If TRUE the checkbox is checked by default and the children are enabled.
 
@@ -809,7 +809,7 @@ void QGroupBox::setCheckable( bool b )
 }
 
 
-/* IGNORE!
+/*!
   Returns TRUE if the group box has a checkbox as the title.
 
   \sa setCheckable
@@ -819,7 +819,7 @@ bool QGroupBox::isCheckable() const
     return ( d->checkbox != 0 );
 }
 
-/* IGNORE!
+/*!
    Returns the checked state of the title checkbox. If the group box has no checkbox
    (meaning the group box is not checkable) isChecked returns FALSE.
 
@@ -833,7 +833,7 @@ bool QGroupBox::isChecked() const
 	return FALSE;
 }
 
-/* IGNORE!
+/*!
    Sets the title checkbox to checked \ b and enables or disables the
    children accordingly.
 */
