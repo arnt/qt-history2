@@ -653,63 +653,6 @@ QPointArray QPointArray::cubicBezier() const
 }
 #endif //QT_NO_BEZIER
 
-struct QShortPoint {                        // Binary compatible with XPoint
-    short x, y;
-};
-
-static int splen = 0;
-static void *sp = 0;                        // Really a QShortPoint *
-
-/*!
-  \internal
-  \nonreentrant
-
-  Converts the point coords to short (16bit) size, compatible with
-  X11's XPoint structure. The pointer returned points to a static
-  array, so its contents will be overwritten the next time this
-  function is called.
-*/
-
-void* QPointArray::shortPoints(int index, int nPoints) const
-{
-
-    if (isEmpty() || !nPoints)
-        return 0;
-    const QPoint* p = constData();
-    p += index;
-    int i = nPoints < 0 ? size() : nPoints;
-    if (splen < i) {
-        if (sp)
-            delete[] ((QShortPoint*)sp);
-        sp = new QShortPoint[i];
-        splen = i;
-    }
-    QShortPoint* ps = (QShortPoint*)sp;
-    while (i--) {
-        ps->x = (short)p->x();
-        ps->y = (short)p->y();
-        ++p;
-        ++ps;
-    }
-    return sp;
-}
-
-
-/*!
-  \internal
-  \nonreentrant
-
-  Deallocates the internal buffer used by shortPoints().
-*/
-
-void QPointArray::cleanBuffers()
-{
-    if (sp)
-        delete[] ((QShortPoint*)sp);
-    sp = 0;
-    splen = 0;
-}
-
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QPointArray &a)
 {

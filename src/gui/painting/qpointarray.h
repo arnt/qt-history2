@@ -58,8 +58,6 @@ public:
 #ifndef QT_NO_BEZIER
     QPointArray cubicBezier() const;
 #endif
-    void *shortPoints(int index = 0, int nPoints = -1) const;
-    static void cleanBuffers();
 };
 
 #ifndef QT_NO_DEBUG

@@ -454,9 +454,7 @@ void qt_erase_background(QPaintDevice *pd, int screen,
         XSetForeground(dpy, gc, pixel);
     }
 
-    if (brush.texture().isNull()) {
-        XFillRectangle(dpy, hd, gc, x, y, w, h);
-    } else {
+    if (!brush.texture().isNull()) {
         XSetTile(dpy, gc, brush.texture().handle());
         XSetFillStyle(dpy, gc, FillTiled);
         XSetTSOrigin(dpy, gc, x-xoff, y-yoff);
@@ -898,7 +896,6 @@ void QX11PaintEngine::cleanup()
 {
     cleanup_gc_cache();
     cleanup_gc_array(QX11Info::display());
-    QPointArray::cleanBuffers();
 }
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
