@@ -31,12 +31,10 @@ void writeFile( QFileInfo* fi, QDataStream& outStream )
     int deflateCode;
     bool continueCompressing;
 
-    MEMORYSTATUS memstat1,memstat2;
-
     if( inFile.open( IO_ReadOnly ) ) {
 	if( inBuffer = (unsigned char*)malloc( BUFFERSIZE ) ) {
 	    if( outBuffer = (unsigned char*)malloc( BUFFERSIZE ) ) {
-//	        printf( "Deflating %s... ", fi->absFilePath().latin1() );
+	        printf( "Deflating %s... ", fi->absFilePath().latin1() );
 		ztream.next_out = outBuffer;
 		ztream.avail_out = BUFFERSIZE;
 		ztream.total_out = 0;
@@ -82,7 +80,7 @@ void writeFile( QFileInfo* fi, QDataStream& outStream )
 		    }
 		}
 
-//		printf( "done. %d => %d (%.1f%%)\n", ztream.total_in, totalOut, float( float( totalOut ) / float( ztream.total_in ) * 100 ) );
+		printf( "done. %d => %d (%.1f%%)\n", ztream.total_in, totalOut, float( float( totalOut ) / float( ztream.total_in ) * 100 ) );
 		deflateEnd( &ztream );
 		// Now write the compressed data to the output
 		outStream << totalOut;
@@ -92,6 +90,7 @@ void writeFile( QFileInfo* fi, QDataStream& outStream )
 		    zBuffer.remove( tmpOut );
 		    delete tmpOut;
 		}
+		free( outBuffer );
 	    }
 	    free( inBuffer );
 	}
