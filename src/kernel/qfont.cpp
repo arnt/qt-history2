@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#18 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#18 $";
 #endif
 
 
@@ -896,16 +896,13 @@ bool QFontInfo::exactMatch() const
 // QFontMetrics member functions
 //
 
-/*!
-\class QFontMetrics qfontmet.h
+/*! \class QFontMetrics qfontmet.h
 
-    \brief QFontMetrics gives size information for a font.
+  \brief QFontMetrics gives size information for a font.
 
 */
 
-  /*!
-  
-  */
+  /*! Returns the pixel width of a \e ch.  */
 
 int QFontMetrics::width( char ch ) const
 {
@@ -915,6 +912,10 @@ int QFontMetrics::width( char ch ) const
     return width( tmp, 1 );
 }
 
+/*! Returns the bounding rectangle of \e ch.  Note that the bounding
+  rectangle may extend to the left of (0,0) and that the text output
+  may cover \e all pixels in the bounding rectangle. */
+
 QRect QFontMetrics::boundingRect( char ch ) const
 {
     char tmp[2];
@@ -923,10 +924,14 @@ QRect QFontMetrics::boundingRect( char ch ) const
     return boundingRect( tmp, 1 );
 }
 
+/*! Returns the font this object operates on. */
+
 const QFont &QFontMetrics::font() const
 {
     return f;
 }
+
+/*! Sets the font this object operates on. */
 
 void QFontMetrics::setFont( const QFont &font )
 {
