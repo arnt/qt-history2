@@ -256,12 +256,8 @@ static void clear(QCoreVariant::Private *d)
     case QCoreVariant::Bool:
         break;
     default:
-        if (QMetaType::isRegistered(d->type)) {
-            QMetaType::destroy(d->type, d->data.shared->ptr);
-            delete d->data.shared;
-        } else {
-            qFatal("QCoreVariant::clear: type %d unknown to QCoreVariant.", d->type);
-        }
+        QMetaType::destroy(d->type, d->data.shared->ptr);
+        delete d->data.shared;
         break;
     }
 
