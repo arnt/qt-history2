@@ -40,6 +40,7 @@ class Q_EXPORT QMessageBox : public QDialog
     Q_PROPERTY( QString, "text", text, setText )
     Q_PROPERTY( Icon, "icon", icon, setIcon )
     Q_PROPERTY( QPixmap, "iconPixmap", iconPixmap, setIconPixmap )
+    // #### Add Qt::TextFormat
 
 public:
     enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
@@ -121,6 +122,9 @@ public:
 
     static QPixmap standardIcon( Icon icon, GUIStyle style );
 
+    Qt::TextFormat textFormat() const;
+    void 	 setTextFormat( Qt::TextFormat );
+    
 protected:
     void	resizeEvent( QResizeEvent * );
     void	keyPressEvent( QKeyEvent * );

@@ -243,7 +243,12 @@ static const char *qtlogo_xpm[] = {
   The text part of all message box messages can be either rich text or
   plain text. If you specify a rich text formatted string, it will be
   rendered using the default stylesheet. See
-  QStyleSheet::defaultSheet() for details.
+  QStyleSheet::defaultSheet() for details. With certain strings that
+  contain XML meta characters , the auto-rich text detection may fail,
+  interpreting plain text falsely as rich text. In these rare cases,
+  use QStyleSheet::convertFromPlainText() to convert your plain text
+  string to a visually equivalent rich text string or set the text
+  format explicitly with setTextFormat().
 
   Here are some examples of how to use the static member functions.
   After these examples you will find an overview of the non-static
@@ -682,7 +687,7 @@ void QMessageBox::resizeButtons()
   Returns the message box text currently set, or a
   \link QString::operator!() null string\endlink
   if no text has been set.
-  \sa setText()
+  \sa setText(), textFormat()
 */
 
 QString QMessageBox::text() const
@@ -692,7 +697,13 @@ QString QMessageBox::text() const
 
 /*!
   Sets the message box text to be displayed.
-  \sa text()
+  
+  \a text will be interpreted either as a plain text or as a rich
+  text, depending on the text format setting; see setTextFormat(). The
+  default setting is \c AutoText, i.e. the message box will try to
+  auto-detect the format of \a text.
+  
+  \sa text(), setTextFormat()
 */
 
 void QMessageBox::setText( const QString &text )
@@ -897,7 +908,6 @@ void QMessageBox::adjustSize()
 	polish();
     resizeButtons();
     QSize labelSize( label->sizeHint() );
-
     QSize smax = mbd->buttonSize;
     int border = smax.height()/2;
     if ( border == 0 )
@@ -919,20 +929,7 @@ void QMessageBox::adjustSize()
 	if ( h < mbd->iconLabel.pixmap()->height() + 3*border + smax.height() )
 	    h = mbd->iconLabel.pixmap()->height() + 3*border + smax.height();
     }
-
-    // if the box is a bit wider than its parent, and can be narrowed
-    // down without trouble, do that.
-    if ( parentWidget() && parentWidget()->width() < w &&
-	 parentWidget()->width() > bw &&
-	 parentWidget()->width() > (w-labelSize.width()/3) ) {
-	int lw = labelSize.width() - ( w - parentWidget()->width() );
-	int lh = label->heightForWidth( lw );
-	w = parentWidget()->width();
-	h = h + lh - labelSize.height();
-	labelSize = QSize( lw, lh );
-    }
     label->resize( labelSize );
-
     resize( w, h );
 }
 
@@ -1372,6 +1369,32 @@ void QMessageBox::setIcon( const QPixmap &pix )
 {
     //reimplemented to avoid compiler warning.
     QDialog::setIcon( pix );
+}
+
+
+/*!
+  Returns the current text format.
+
+  \sa setTextFormat()
+*/
+
+Qt::TextFormat QMessageBox::textFormat() const
+{
+    return label->textFormat();
+}
+
+/*!
+  Sets the text format to \a format. See the Qt::TextFormat enum for
+  an explanation of the possible options.
+
+  The default format is \c AutoText.
+
+  \sa textFormat(), setText()
+*/
+
+void QMessageBox::setTextFormat( Qt::TextFormat format )
+{
+    label->setTextFormat( format );
 }
 
 
