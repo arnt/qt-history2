@@ -445,8 +445,7 @@ QWidget * Q3Workspace::addWindow(QWidget *w, Qt::WFlags flags)
     if (hasPos)
         child->move(x, y);
 
-    if (hasBeenHidden)
-        w->hide();
+    w->setHidden(hasBeenHidden);
 
     if (wasMaximized)
         w->showMaximized();
