@@ -8,7 +8,7 @@ QT = core
 # Qt network module
 
 !contains(QT_CONFIG, ipv6):DEFINES *= QT_NO_IPV6
-!contains(QT_CONFIG, getaddrinfo):DEFINES *= QT_NO_GETADDRINFO
+unix:!contains(QT_CONFIG, getaddrinfo):DEFINES *= QT_NO_GETADDRINFO
 PRECOMPILED_HEADER = ../core/global/qt_pch.h
 HEADERS += qftp.h \
            qhttp.h \
