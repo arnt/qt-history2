@@ -299,7 +299,6 @@ protected:
 
     void		paintEvent( QPaintEvent* );
     void		resizeEvent( QResizeEvent* );
-    void                moveEvent( QMoveEvent *);
 
     virtual void	glInit();
     virtual void	glDraw();
@@ -317,6 +316,7 @@ private:
     QGLOverlayWidget*	olw;
     friend class QGLOverlayWidget;
 #elif defined(Q_WS_MAC)
+    QWidget *gl_pix;
     QGLContext*		olcx;
 #endif
 
