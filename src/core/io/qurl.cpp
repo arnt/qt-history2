@@ -1178,9 +1178,9 @@ QByteArray QUrlPrivate::toEncoded() const
 	url += "//";
 
         if (!userName.isEmpty()) {
-            url += QUrl::toPercentEncoding(userName, ":");
+            url += QUrl::toPercentEncoding(userName, ":@#?/");
             if (!password.isEmpty())
-                url += ":" + QUrl::toPercentEncoding(password, ":");
+                url += ":" + QUrl::toPercentEncoding(password, ":@#?/");
             url += "@";
         }
 
@@ -1205,7 +1205,7 @@ QByteArray QUrlPrivate::toEncoded() const
     // check if we need to insert a slash
     if (!authority().isEmpty() && !path.isEmpty() && path.at(0) != QLatin1Char('/'))
 	url += '/';
-    url += QUrl::toPercentEncoding(path, " \t");
+    url += QUrl::toPercentEncoding(path, ":#? \t");
 
     if (!query.isEmpty())
         url += "?" + query;
