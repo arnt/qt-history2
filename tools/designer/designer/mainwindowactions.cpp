@@ -1236,7 +1236,6 @@ bool MainWindow::fileSaveForm()
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->object() == formWindow() || e == qWorkspace()->activeWindow() ) {
 	    e->save();
-	    e->setModified( FALSE );
 	}
 	if ( e->sourceFile() && e == qWorkspace()->activeWindow() )
 	    sourceFile()->save();

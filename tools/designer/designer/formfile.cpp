@@ -349,12 +349,12 @@ void FormFile::showFormWindow()
 
 void FormFile::showEditor()
 {
+    showFormWindow();
     bool modify = FALSE;
     if ( !hasFormCode() ) {
 	createFormCode();
 	modify = TRUE;
     }
-    showFormWindow();
     MainWindow::self->editSource();
     if ( modify )
 	setModified( TRUE );
@@ -414,8 +414,10 @@ void FormFile::createFormCode()
 bool FormFile::loadCode()
 {
     QFile f( pro->makeAbsolute( codeFile() ) );
-    if ( !f.open( IO_ReadOnly ) )
+    if ( !f.open( IO_ReadOnly ) ) {
+	cod = "";
 	return FALSE;
+    }
     QTextStream ts( &f );
     cod = ts.read();
     parseCode( cod );
