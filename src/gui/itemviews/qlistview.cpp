@@ -815,14 +815,18 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
 
     d->viewport->repaint(oldRect|newRect);
 
-    QModelIndex item = itemAt(pos.x(), pos.y());
-    if (item.isValid())
-        if (model()->isDropEnabled(item))
-            e->accept();
-        else
-            e->ignore();
-    else
+    // check if we allow drops here
+    QModelIndex index = itemAt(pos.x(), pos.y());
+    if (!index.isValid()) {
         e->accept();
+    } else if (e->source() == this && d->draggedItems.contains(index)) {
+        e->accept();
+    } else if (model()->isDropEnabled(index)) {
+        setCurrentItem(index);
+        e->accept();
+    } else {
+        e->ignore();
+    }
 }
 
 /*!
