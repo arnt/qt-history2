@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#1 $
+# $Id: //depot/qt/main/GNUmakefile.inc#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -78,7 +78,7 @@ depend:
 
 clean: GNUmakefile.debug
 	$(MAKE) -f GNUmakefile.debug clean
-	-rm -f $(PROJECT).pro GNUmakefile.debug GNUmakefile.release $(MOREDEP) $(MORECLEAN)
+	-rm -f GNUmakefile.debug GNUmakefile.release $(MOREDEP) $(MORECLEAN)
 	-rm -f core *~
 	-rm -r -f .obj
 
