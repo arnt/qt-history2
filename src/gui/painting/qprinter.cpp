@@ -195,23 +195,23 @@
     \value A1 594 x 841 mm
     \value A2 420 x 594 mm
     \value A3 297 x 420 mm
-    \value A4 210 x 297 mm, 8.26 x 11.69 inches
+    \value A4 210 x 297 mm, 8.27 x 11.69 inches
     \value A5 148 x 210 mm
     \value A6 105 x 148 mm
     \value A7 74 x 105 mm
     \value A8 52 x 74 mm
     \value A9 37 x 52 mm
-    \value B0 1030 x 1456 mm
-    \value B1 728 x 1030 mm
-    \value B10 32 x 45 mm
-    \value B2 515 x 728 mm
-    \value B3 364 x 515 mm
-    \value B4 257 x 364 mm
-    \value B5 182 x 257 mm, 7.17 x 10.13 inches
-    \value B6 128 x 182 mm
-    \value B7 91 x 128 mm
-    \value B8 64 x 91 mm
-    \value B9 45 x 64 mm
+    \value B0 1000 x 1414 mm
+    \value B1 707 x 1000 mm
+    \value B2 500 x 707 mm
+    \value B3 353 x 500 mm
+    \value B4 250 x 353 mm
+    \value B5 176 x 250 mm, 6.93 x 9.84 inches
+    \value B6 125 x 176 mm
+    \value B7 88 x 125 mm
+    \value B8 62 x 88 mm
+    \value B9 44 x 62 mm
+    \value B10 31 x 44 mm
     \value C5E 163 x 229 mm
     \value Comm10E 105 x 241 mm, US Common #10 Envelope
     \value DLE 110 x 220 mm
