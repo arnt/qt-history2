@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#215 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#216 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -38,8 +38,6 @@
 
 // Motif style parameters
 
-#define motifPopupFrame	style().defaultFrameWidth()  // popup frame width
-//#define motifItemFrame	style().defaultFrameWidth()	// menu item frame width
 static const int motifItemFrame		= 2;	// menu item frame width
 static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
@@ -121,83 +119,6 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
   \sa setItemEnabled() setItemChecked() insertItem() removeItem()
 */
 
-
-// size of checkmark image
-
-static void getSizeOfBitmap( int gs, int *w, int *h )
-{
-	if ( gs == Qt::WindowsStyle )
-	    *w = *h = 7;
-	else
-	    *w = *h = 6;
-}
-
-
-int QPopupMenu::getWidthOfCheckCol() const
-{
-    int pmw = maxPMWidth;
-    int cmw = 7;   // check mark width
-    int w = cmw > pmw ? cmw : pmw;
-    if ( style() == MotifStyle )
-	w += 2;
-    w += motifItemFrame + 2 * motifCheckMarkHMargin;
-    return w;
-}
-
-// Checkmark drawing -- temporarily here...
-//##### belongs into QStyle
-static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
-			    const QColorGroup &g, QStyle& style,
-			    bool act, bool dis )
-{
-    int markW, markH;
-    getSizeOfBitmap( style.guiStyle(), &markW, &markH );
-    int posX = x + ( w - markW )/2 - 1;
-    int posY = y + ( h - markH )/2;
-
-    if ( style == Qt::WindowsStyle || style.defaultFrameWidth() < 2) {
-	// Could do with some optimizing/caching...
-	QPointArray a( 7*2 );
-	int i, xx, yy;
-	xx = posX;
-	yy = 3 + posY;
-	for ( i=0; i<3; i++ ) {
-	    a.setPoint( 2*i,   xx, yy );
-	    a.setPoint( 2*i+1, xx, yy+2 );
-	    xx++; yy++;
-	}
-	yy -= 2;
-	for ( i=3; i<7; i++ ) {
-	    a.setPoint( 2*i,   xx, yy );
-	    a.setPoint( 2*i+1, xx, yy+2 );
-	    xx++; yy--;
-	}
-	if ( dis && !act ) {
-	    uint pnt;
-	    p->setPen( g.highlightedText() );
-	    QPoint offset(1,1);
-	    for ( pnt = 0; pnt < a.size(); pnt++ )
-		a[pnt] += offset;
-	    p->drawLineSegments( a );
-	    for ( pnt = 0; pnt < a.size(); pnt++ )
-		a[pnt] -= offset;
-	}
-#if 0
-	p->setPen( act && !dis ? white : g.text() );
-#endif
-	p->setPen( g.text() );
-	p->drawLineSegments( a );
-	
-	if (style == QStyle::MotifStyle)
-	    qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE,
-			     style.defaultFrameWidth());
-    }
-    else {
-	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE,
-		    style.defaultFrameWidth(), &g.brush( QColorGroup::Mid ) );
-    }
-
-}
 
 
 //
@@ -344,21 +265,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     setTabMark( 0 );
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
-    switch ( style() ) {
-	case WindowsStyle:
-	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	    setMouseTracking( TRUE );
-	    setCheckableFlag( TRUE );		
-	    break;
-	case MotifStyle:
-	    setFrameStyle( QFrame::Panel | QFrame::Raised );
-	    setLineWidth( motifPopupFrame );
-	    setCheckableFlag( FALSE );		
-	    break;
-	default:
-	    setFrameStyle( QFrame::Panel | QFrame::Plain );
-	    setLineWidth( 1 );
-    }
+    style().polishPopupMenu( this );
+    setCheckableFlag( style() != WindowsStyle );
     setBackgroundMode( PaletteButton );
 }
 
@@ -837,7 +745,7 @@ void QPopupMenu::updateSize()
     max_width  += 2*motifItemHMargin;
 
     if ( isCheckable() )
-	max_width += getWidthOfCheckCol() + motifItemFrame;
+	max_width += style().widthOfPopupCheckColumn( maxPMWidth ) + motifItemFrame;
     else
 	max_width += 2*motifItemFrame;
 
@@ -1049,9 +957,9 @@ int QPopupMenu::cellWidth( int col )
 {
     if ( isCheckable() ) {
 	if ( col == 0 )
-	    return getWidthOfCheckCol();
+	    return style().widthOfPopupCheckColumn( maxPMWidth );
 	else
-	    return width() - (2*frameWidth()+getWidthOfCheckCol());
+	    return width() - (2*frameWidth()+style().widthOfPopupCheckColumn( maxPMWidth ) );
     }	
     else
 	return width() - 2*frameWidth();	
@@ -1172,8 +1080,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    int mw = cellw - ( 2*motifCheckMarkHMargin + motifItemFrame );
 	    int mh = cellh - 2*motifItemFrame;
 	    if ( mi->isChecked() ) {
-		qDrawCheckMark( p, motifItemFrame + motifCheckMarkHMargin,
-				motifItemFrame, mw, mh, itemg, style(), act, dis );
+		style().drawPopupCheckMark( p, motifItemFrame + motifCheckMarkHMargin,
+				motifItemFrame, mw, mh, itemg, act, dis );
 	    }
 	    return;
 	}
@@ -1619,21 +1527,8 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 */
 void  QPopupMenu::styleChange( GUIStyle )
 {
-    switch ( style() ) {
-	case WindowsStyle:
-	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	    setMouseTracking( TRUE );
-	    setCheckableFlag( TRUE );		
-	    break;
-	case MotifStyle:
-	    setFrameStyle( QFrame::Panel | QFrame::Raised );
-	    setLineWidth( motifPopupFrame );
-	    setCheckableFlag( FALSE );		
-	    break;
-	default:
-	    setFrameStyle( QFrame::Panel | QFrame::Plain );
-	    setLineWidth( 1 );
-    }
+    style().polishPopupMenu( this );
+    setCheckableFlag( style() != WindowsStyle );
 }
 
 
