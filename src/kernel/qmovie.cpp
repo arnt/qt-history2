@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#28 $
 **
 ** Implementation of movie classes
 **
@@ -52,6 +52,10 @@
   supports interlaced images, transparency, looping, image-restore
   disposal, local color maps, and background colors.  The Netscape looping
   extension is obeyed.
+
+  Archives of animated GIFs and tools for building them can be found
+  at <a href=http://www.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/>
+  Yahoo!</a>.
 
   We are required to state: The Graphics Interchange Format(c) is the
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
@@ -426,6 +430,11 @@ void QMoviePrivate::pause()
 
 void QMoviePrivate::refresh()
 {
+    if (!decoder) {
+	frametimer->stop();
+	return;
+    }
+
     if (frameperiod < 0 && loop == -1) {
 	// Only show changes if probably not an animation
 	showChanges();
@@ -816,7 +825,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.27 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.28 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
