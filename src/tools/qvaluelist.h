@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#15 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#16 $
 **
 ** Definition of QValueList class
 **
@@ -168,6 +168,16 @@ public:
     Iterator i( node );
     while( b != e )
       insert( i, *b++ );
+  }
+
+  ~QValueListPrivate() {
+    NodePtr p = node->next;
+    while( p != node ) {
+      NodePtr x = p->next;
+      delete p;
+      p = x;
+    }
+    delete node;
   }
 
   Iterator insert( Iterator it, const T& x ) {
