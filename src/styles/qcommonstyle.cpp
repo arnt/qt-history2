@@ -1549,7 +1549,8 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
     switch (control) {
     case CC_ListView: {
 #ifndef QT_NO_LISTVIEW
-	if(pos.x() >= 0 && pos.x() < ((QListViewItem *)data)->listView()->treeStepSize())
+	if(pos.x() >= 0 && pos.x() <
+	   ((QListViewItem *) data[0])->listView()->treeStepSize())
 	    ret = SC_ListViewExpand;
 #endif
 	break; }
@@ -1830,5 +1831,15 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
 
     return ret;
 }
+
+
+/*!
+  Returns a style pixmap.
+*/
+QPixmap QCommonStyle::stylePixmap(StylePixmap sp, const QWidget *, void **) const
+{
+    return QPixmap();
+}
+
 
 #endif // QT_NO_STYLE

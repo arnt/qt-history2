@@ -153,9 +153,8 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_FocusRect: {
-	void **sdata = (void **) data;
-	if (sdata)
-	    p->drawWinFocusRect(r, *((const QColor *) sdata[0]));
+	if (data)
+	    p->drawWinFocusRect(r, *((const QColor *) data[0]));
 	else
 	    p->drawWinFocusRect(r);
 	break; }
@@ -332,10 +331,9 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 
     case PO_Panel:
     case PO_PanelPopup: {
-	void **sdata = (void **) data;
 	int lw = pixelMetric(PM_DefaultFrameWidth);
-	if (sdata)
-	    lw = *((int *) sdata[0]);
+	if (data)
+	    lw = *((int *) data[0]);
 
 	if (lw == 2)
 	    qDrawWinPanel(p, r, cg, flags & PStyle_Sunken);
@@ -555,10 +553,9 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    break;
 
 	QPopupMenu *popupmenu = (QPopupMenu *) widget;
-	void **sdata = (void **) data;
-	QMenuItem *mi = (QMenuItem *) sdata[0];
-	int tab = *((int *) sdata[1]);
-	int maxpmw = *((int *) sdata[2]);
+	QMenuItem *mi = (QMenuItem *) data[0];
+	int tab = *((int *) data[1]);
+	int maxpmw = *((int *) data[2]);
 	bool dis = ! mi->isEnabled();
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & CStyle_Selected;
@@ -1135,7 +1132,8 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->setBrush( cg.brush( QColorGroup::Button ) );
 		p->drawRect( subline );
 	    } else
-		drawPrimitive(PO_ButtonBevel, p, subline, cg, PStyle_Enabled);
+		drawPrimitive(PO_ButtonBevel, p, subline, cg,
+			      PStyle_Enabled | PStyle_Raised);
 
 	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			   PO_ArrowLeft : PO_ArrowUp),
@@ -1151,7 +1149,8 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->setBrush( cg.brush( QColorGroup::Button ) );
 		p->drawRect( addline );
 	    } else
-		drawPrimitive(PO_ButtonBevel, p, addline, cg, PStyle_Enabled);
+		drawPrimitive(PO_ButtonBevel, p, addline, cg,
+			      PStyle_Enabled | PStyle_Raised);
 
 	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			   PO_ArrowRight : PO_ArrowDown),
@@ -1192,7 +1191,8 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		if ( !maxedOut ) {
 		    QPoint bo = p->brushOrigin();
 		    p->setBrushOrigin(slider.topLeft());
-		    drawPrimitive(PO_ButtonBevel, p, slider, cg, FALSE);
+		    drawPrimitive(PO_ButtonBevel, p, slider, cg,
+				  PStyle_Enabled | PStyle_Raised);
 		    p->setBrushOrigin(bo);
 		}
 	    }
@@ -1209,7 +1209,12 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
     case CC_ListView: {
 #ifndef QT_NO_LISTVIEW
-	QListViewItem *item = (QListViewItem*)data, *child = item->firstChild();
+	if (! data)
+	    break;
+
+	QListViewItem *item = (QListViewItem *) data[0],
+		     *child = item->firstChild();
+
 	int linetop = 0, linebot = 0, y = r.y();
 	// each branch needs at most two lines, ie. four end points
 	int dotoffset = (item->itemPos() + item->height() - y) %2;

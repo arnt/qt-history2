@@ -115,6 +115,10 @@ public:
 			   const QWidget *w = 0,
 			   void ***returnData = 0 ) const;
 
+    virtual QPixmap stylePixmap( StylePixmap sp,
+				 const QWidget * = 0,
+				 void ** = 0 ) const;
+
 
 private:
     // Disabled copy constructor and operator=

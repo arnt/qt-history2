@@ -1248,7 +1248,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     int section = mapToSection( index );
     if ( section < 0 ) {
 	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup() );
+			       colorGroup(), QStyle::PStyle_Raised );
 	return;
     }
 
@@ -1256,7 +1256,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
 	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), down ? QStyle::PStyle_Sunken : QStyle::PStyle_Default );
+			       colorGroup(), down ? QStyle::PStyle_Sunken : QStyle::PStyle_Raised );
     } else {
 	// ##### should be somhow styled in 3.0
 	if ( orientation() == Horizontal ) {
@@ -1264,9 +1264,9 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawPrimitive( QStyle::PO_HeaderSection, p, 
+	    style().drawPrimitive( QStyle::PO_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), down ? QStyle::PStyle_Sunken : QStyle::PStyle_Default );
+				   colorGroup(), down ? QStyle::PStyle_Sunken : QStyle::PStyle_Raised );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1285,9 +1285,9 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawPrimitive( QStyle::PO_HeaderSection, p, 
+	    style().drawPrimitive( QStyle::PO_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), down ? QStyle::PStyle_Sunken : QStyle::PStyle_Default );
+				   colorGroup(), down ? QStyle::PStyle_Sunken : QStyle::PStyle_Raised );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x() + width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1326,7 +1326,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     else
 	s = tr("%1").arg(section);
 
-    QRect r( fr.x() + QH_MARGIN+style().pixelMetric(QStyle::PM_ButtonShiftVertical, this), 
+    QRect r( fr.x() + QH_MARGIN+style().pixelMetric(QStyle::PM_ButtonShiftVertical, this),
 	     fr.y() + 2+style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this),
 	     fr.width() - 6, fr.height() - 4 );
 
