@@ -2,9 +2,14 @@
 $USAGE='
  Examine differences between two Qt versions.
 
- Usage:  qtlibdiff $QTOLDDIR $QTDIR
+ Usage:  qtlibdiff [-s] $QTOLDDIR $QTDIR
    directories must contain include/ and lib/ of Qt release.
 ';
+
+if ( $ARGV[0] eq "-s" ) {
+    $symbols_only=1;
+    shift;
+}
 
 die "$USAGE" if $#ARGV != 1;
 
@@ -13,23 +18,33 @@ $NEW=$ARGV[1];
 $OLDLIB="$OLD/lib/libqt.so";
 $NEWLIB="$NEW/lib/libqt.so";
 
+#open OUT, "| cat";
 open OUT, "| c++filt";
 
 open OSYMS, "nm --size-sort $OLDLIB | sort +2 |";
 while (<OSYMS>) {
     ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(\S+)/;
-    $osize{$symbol} = $size if $type =~ /[A-Z]/;
+    next if $symbol =~ /^__thunk_/; # my c++filt crashes on multi-param thunks
+#print OUT "OLD: ",'($size,$type,$symbol)'," = ($size,$type,$symbol)\n";
+    if ( $type =~ /[A-Z]/ && $symbol !~ /^__thunk_/ ) {
+	$osize{$symbol} = $size;
+	$otype{$symbol} = $type;
+    }
 }
 
 open NSYMS, "nm --size-sort $NEWLIB | sort +2 |";
 while (<NSYMS>) {
     ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(\S+)/;
-    $nsize{$symbol} = $size if $type =~ /[A-Z]/;
+    if ( $type =~ /[A-Z]/ && $symbol !~ /^__thunk_/ ) {
+			# my c++filt crashes on multi-param thunks
+	$nsize{$symbol} = $size;
+	$ntype{$symbol} = $type;
+    }
 }
 
 for $symbol ( keys %osize ) {
     if ( defined($nsize{$symbol}) ) {
-# print "OK: $symbol\n";
+ #print OUT "OK: $symbol\n";
 	if ( $symbol =~ /^_vt\.\d+([^\.]*)/ ) {
 	    $classname = $1;
 	    if ( $nsize{$symbol} ne $osize{$symbol} ) {
@@ -40,15 +55,17 @@ for $symbol ( keys %osize ) {
 	} elsif ( $symbol =~ /^__(\d+)([^\.]*)/ ) {
 	    $classname = substr $2, 0, $1;
 	    $classes{$classname}=1;
-	}
+	}#
     } else {
 	push @gone, $symbol;
-	print OUT "REMOVED: $symbol\n";
+	print OUT "REMOVED ($otype{$symbol}): $symbol\n";
     }
 }
 for $symbol ( keys %nsize ) {
-    print OUT "NEW: $symbol\n" if !defined($osize{$symbol});
+    print OUT "NEW ($ntype{$symbol}): $symbol\n" if !defined($osize{$symbol});
 }
+
+exit 0 if $symbols_only;
 
 sub sizes
 {
