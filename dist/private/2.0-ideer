@@ -43,7 +43,9 @@ Provide auto-expanding(?):
     type& QArray::operator[](int) 
     (for RHS)
     const type& QArray::operator[](int) const
-
+Honour more brush settings in drawText.  Currently we do all the necessary
+ work anyway in order to implement GrayText.
+Implement a QDict<KeyType,StoredType>, as per support/1171.
 
 GERMAN THINGS:
 --------------
