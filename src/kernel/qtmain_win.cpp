@@ -40,7 +40,7 @@
   initializes Qt.
 */
 
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QArray<pchar> &);
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
 
 #if defined(NEEDS_QMAIN)
 int qMain( int, char ** );
@@ -77,7 +77,7 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 	cmdp = new char[ qstrlen( cmdParam ) + 1 ];
 	qstrcpy( cmdp, cmdParam );
     }
-    QArray<pchar> argv( 8 );
+    QMemArray<pchar> argv( 8 );
     qWinMain( instance, prevInstance, cmdp, cmdShow, argc, argv );
     int result = main( argc, argv.data() );
     if ( cmdp ) delete [] cmdp;

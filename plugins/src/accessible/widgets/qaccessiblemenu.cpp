@@ -126,7 +126,7 @@ QAccessible::State QAccessiblePopup::state( int control ) const
     if ( !item )
 	return (State)s;
 
-    if ( popupMenu()->style() == WindowsStyle )
+    if ( popupMenu()->style().guiStyle() == WindowsStyle )
 	s |= HotTracked;
     if ( item->isSeparator() || !item->isEnabled() )
 	s |= Unavailable;
@@ -284,7 +284,7 @@ QAccessible::State QAccessibleMenuBar::state( int control ) const
     if ( !item )
 	return (State)s;
 
-    if ( menuBar()->style() == WindowsStyle )
+    if ( menuBar()->style().guiStyle() == WindowsStyle )
 	s |= HotTracked;
     if ( item->isSeparator() || !item->isEnabled() )
 	s |= Unavailable;

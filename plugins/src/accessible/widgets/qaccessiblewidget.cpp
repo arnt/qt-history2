@@ -2232,12 +2232,12 @@ QAccessible::State QAccessibleListBox::state( int control ) const
 	    state |= ExtSelectable;
 	else if ( listBox()->selectionMode() == QListBox::Single )
 	    state |= Selectable;
-	if ( item->selected() )
+	if ( item->isSelected() )
 	    state |= Selected;
     }
     if ( listBox()->focusPolicy() != QWidget::NoFocus ) {
 	state |= Focusable;
-	if ( item->current() )
+	if ( item->isCurrent() )
 	    state |= Focused;
     }
     if ( !listBox()->itemVisible( item ) )
