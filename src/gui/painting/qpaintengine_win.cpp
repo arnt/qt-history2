@@ -394,6 +394,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     d->forceGdiplus = false;
     d->forceGdi = false;
+    d->ellipseHack = false;
+    d->advancedMode = false;
 
     setActive(true);
 
@@ -443,8 +445,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     setDirty(QPaintEngine::DirtyBackground);
     setDirty(QPaintEngine::DirtyBrush);
-
-    d->ellipseHack = false;
 
     // force a call to switch advanced mode on/off
     d->setNativeMatrix(QMatrix());
@@ -689,7 +689,10 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
     // Ellipse sizes differ depending on whether we have been in ADVANCED mode or not
     // so make sure it is the case.
     if (!d->ellipseHack) {
+        QPainterPrivate::TransformationCodes txop = d->txop;
+        d->txop = QPainterPrivate::TxScale;
         d->setNativeMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+        d->txop = txop;
         d->setNativeMatrix(QMatrix());
         d->ellipseHack = true;
     }
