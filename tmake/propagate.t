@@ -29,8 +29,8 @@
 	    }
 	}
 	if ( Project("TARGET") eq "qt" ) {
-	    $project("PNG_OBJECTS") = &Objects($project{"PNG_SOURCES"});
-	    $project("ZLIB_OBJECTS") = &Objects($project{"ZLIB_SOURCES"});
+	    $project{"PNG_OBJECTS"} = &Objects($project{"PNG_SOURCES"});
+	    $project{"ZLIB_OBJECTS"} = &Objects($project{"ZLIB_SOURCES"});
 	} else {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
 	    Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT)');
