@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/res">
+   <file>bg1.jpg</file>
+   <file>qtlogo.png</file>
+   <file>cubelogo.png</file>
+   <file>chux.png</file>
+   <file>pathexample.png</file>
+   <file>diagonalGradient.png</file>
+   <file>alphafill.png</file>
+   <file>antialiased.png</file>
+   <file>text.html</file>
+</qresource>
+</RCC>

@@ -12,7 +12,7 @@ resource_split {
    rcc.CONFIG += combine
    rcc.output  = $$RCC_DIR/resources.cpp
 }
-!contains(QMAKE_RESOURCE_FLAGS, -prefix):!isEmpty(QMAKE_RESOURCE_PREFIX):QMAKE_RESOURCE_FLAGS += -prefix $$QMAKE_RESOURCE_PREFIX
+!contains(QMAKE_RESOURCE_FLAGS, -root):!isEmpty(QMAKE_RESOURCE_ROOT):QMAKE_RESOURCE_FLAGS += -root $$QMAKE_RESOURCE_ROOT
 !contains(QMAKE_RESOURCE_FLAGS, -name) {
     isEmpty(QMAKE_RESOURCE_NAME):!isEmpty(TARGET):QMAKE_RESOURCE_NAME = $$TARGET
     !isEmpty(QMAKE_RESOURCE_NAME):QMAKE_RESOURCE_FLAGS += -name $$QMAKE_RESOURCE_NAME

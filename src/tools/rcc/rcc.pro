@@ -3,7 +3,7 @@ CONFIG += console
 DESTDIR = ../../../bin
 mac:CONFIG -= resource_fork
 
-DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_UNICODETABLES QT_NODLL QT_BUILD_RCC QT_NO_THREAD
+DEFINES += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NO_UNICODETABLES QT_NODLL QT_BUILD_RCC QT_NO_THREAD
 CONFIG -= qt
 QT = 
 
@@ -29,7 +29,7 @@ contains(QT_CONFIG, zlib) {
 
 #qt files (bootstrap)
 INCLUDEPATH += $$QT_BUILD_TREE/src/core/arch/generic \
-               $$QT_BUILD_TREE/include/QtCore
+               $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml
 SOURCES += \
            #tools
            ../../core/tools/qbytearray.cpp ../../core/tools/qdatetime.cpp \
@@ -43,6 +43,10 @@ SOURCES += \
            ../../core/io/qfile.cpp ../../core/io/qdir.cpp ../../core/io/qfileinfo.cpp \
            ../../core/io/qfileengine.cpp ../../core/io/qdatastream.cpp ../../core/io/qbuffer.cpp \
            ../../core/io/qiodevice.cpp ../../core/io/qtextstream.cpp ../../core/io/qtemporaryfile.cpp \
+           #xml
+           ../../xml/qxml.cpp ../../xml/qdom.cpp \
+           #codecs
+           ../../core/codecs/qtextcodec.cpp ../../core/codecs/qutfcodec.cpp \
            #global
            ../../core/global/qglobal.cpp
 #platform specific

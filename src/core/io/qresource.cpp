@@ -13,6 +13,7 @@
 
 #include "qresource.h"
 #include <qdir.h>
+#include <qlocale.h>
 #include <qbytearray.h>
 
 #define d d_func()
@@ -59,6 +60,7 @@ private:
     uint container : 1;
     uint size;
     const uchar *data;
+
     QResource *parent;
     QString name;
     QList<QResource*> children;
@@ -100,7 +102,7 @@ QResource *QResourcePrivate::locateResource(const QString &resource)
   \internal
 
   Constructs a null QResource. Never attempt to create a QResource,
-  instead they are created internally and access via QResource::find.
+  instead they are created internally and accessed via QResource::find.
 
   \sa find
 */
@@ -305,9 +307,17 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
     resource += 4;
 
     if(resource[0] == 0x01) { //version 1
+        int off = 1;
+
+        //lang
+        uchar lang = resource[off++];
+        uchar country = resource[off++];
+        if(lang != QLocale::C || country)
+            return;
+
         //flags
-        uchar flags = resource[1];
-        int off = 2;
+        uchar flags = resource[off];
+        off++;
 
         //name
         QString name;
