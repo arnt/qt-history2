@@ -118,8 +118,6 @@ protected slots:
     void viewRight();
     void flowEast();
     void flowSouth();
-    void singleClick();
-    void doubleClick();
     void sortAscending();
     void sortDescending();
     void alignItemsInGrid() {

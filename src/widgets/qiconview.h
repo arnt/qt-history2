@@ -302,12 +302,6 @@ public:
     virtual void setSelectionMode( SelectionMode m );
     SelectionMode selectionMode() const;
 
-    virtual void setSingleClickEnabled( bool enable, bool underline = TRUE, bool highlighte = TRUE,
-					const QCursor &cursor = pointingHandCursor,
-					int interval = -1 );
-    bool isSingleClickEnabled( bool *underline = 0, bool *highlighte = 0, QCursor *cursor = 0, int *interval = 0) const;
-			
-
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     virtual void selectAll( bool select );
@@ -402,7 +396,6 @@ protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
     virtual void slotUpdate();
-    virtual void selectHighlightedItem();
 
 private slots:
     void clearInputString();
@@ -447,7 +440,7 @@ private:
     void updateItemContainer( QIconViewItem *item );
     void appendItemContainer();
     void rebuildContainers();
-    
+
     QIconViewPrivate *d;
 
 };

@@ -110,7 +110,7 @@ struct QIconViewPrivate
     QIconViewItem *currentItem, *tmpCurrentItem, *highlightedItem;
     QRect *rubber;
     QTimer *scrollTimer, *adjustTimer, *updateTimer, *inputTimer,
-	*singleClickSelectTimer, *fullRedrawTimer;
+	*fullRedrawTimer;
     int rastX, rastY, spacing;
     bool cleared, dropped, clearing;
     int dragItems;
@@ -139,9 +139,6 @@ struct QIconViewPrivate
     QPoint dragStartPos;
     QFontMetrics *fm;
     int minLeftBearing, minRightBearing;
-    bool singleClick, scUnderline, scHighlighte;
-    QCursor scCursor;
-    int scInterval;
     bool containerUpdateLocked;
 
     struct ItemContainer {
@@ -1414,21 +1411,12 @@ void QIconViewItem::calcRect( const QString &text_ )
 void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &font )
 {
     p->save();
-    if ( !view->d->singleClick || ( view->d->singleClick && !view->d->scUnderline ) ) {
-	p->setFont( font );
-    } else {
-	QFont f( font );
-	f.setUnderline( TRUE );
-	p->setFont( f );
-    }
+    p->setFont( font );
 
     if ( isSelected() ) {
 	p->setPen( cg.highlightedText() );
     } else {
-	if ( view->d->singleClick && view->d->scHighlighte && view->d->highlightedItem == this )
-	    p->setPen( cg.highlight() );
-	else
-	    p->setPen( cg.text() );
+	p->setPen( cg.text() );
     }
 
     calcTmpText();
@@ -1610,10 +1598,7 @@ void QIconViewItem::calcTmpText()
   \brief The QIconView class
 
   The QIconView provides a widget which can contain lots of iconview items which can
-  be selected, dragged and so on. The iconview can be used in double click mode
-  (default) or single click mode (behaves like a web page). For the programmer which
-  uses the iconview these modes are transparent, this means the iconview does all the
-  work for that. See setSingleClickEnabled() for further details.
+  be selected, dragged and so on. 
 
   Items can be inserted in a grid and can flow from top to bottom (South) or from
   left to right (East). The text can be either displayed at the bottom of the icons
@@ -1797,10 +1782,7 @@ void QIconViewItem::calcTmpText()
 */
 
 /*! \fn void  QIconView::doubleClicked (QIconViewItem * item)
-  This signal is emitted, if the user doubleclicked on the item \a item in double click mode,
-  or if the user clicked on the \a item in single click mode.
-
-  \sa setSingleClickEnabled()
+  This signal is emitted, if the user doubleclicked on the item \a item.
 */
 
 /*! \fn void  QIconView::returnPressed (QIconViewItem * item)
@@ -1830,12 +1812,6 @@ void QIconViewItem::calcTmpText()
 /*! \fn void  QIconView::selectionChanged ()
   This signal is emitted when the selection has been changed. It's emitted
   in each selection mode.
-*/
-
-/*! \fn void  QIconView::selectionChanged (int numItems)
-  This signal is emitted when the selection has been changed.
-  \a numItems specifies the number of selected items. This
-  signals is only emitted in multi- and extended selection mode.
 */
 
 /*! \fn void  QIconView::selectionChanged( QIconViewItem *item )
@@ -1977,7 +1953,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->itemTextPos = Bottom;
     d->reorderItemsWhenInsert = TRUE;
     d->oldCursor = Qt::arrowCursor;
-    d->singleClickSelectTimer = new QTimer( this );
     d->resortItemsWhenInsert = FALSE;
     d->sortDirection = TRUE;
     d->wordWrapIconText = TRUE;
@@ -1992,7 +1967,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->fm = new QFontMetrics( fo );
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
-    d->singleClick = FALSE;
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
 
@@ -2005,8 +1979,6 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT( slotUpdate() ) );
     connect( d->inputTimer, SIGNAL( timeout() ),
 	     this, SLOT( clearInputString() ) );
-    connect( d->singleClickSelectTimer, SIGNAL( timeout() ),
-	     this, SLOT( selectHighlightedItem() ) );
     connect( d->fullRedrawTimer, SIGNAL( timeout() ),
 	     this, SLOT( updateContents() ) );
 
@@ -2763,52 +2735,6 @@ void QIconView::setSelectionMode( SelectionMode m )
 QIconView::SelectionMode QIconView::selectionMode() const
 {
     return d->selectionMode;
-}
-
-/*!
-  Switches the iconview to single click mode, if \a enable is TRUE, else to the
-  normal double click mode. If \a enable is TRUE, \a underline specifies of all
-  item textes should be underlined, \a highlighte specifies if the text of the item over which
-  the mouse cursor is, should be drawn with QColorGroup::highlight() instead of QColorGroup::text(),
-  \a cursor specifies the mouse cursor which should be used of the mouse is over an item and
-  \a interval specifies the time in ms, after which an item should get the current, if the mouse
-  stays on it (-1 disables this feature).
-
-  If you switch to single click mode, the signal doubleClicked() is emitted if the user only
-  does a single click on an item (this signal is emitted in the mouse release event then). Using that
-  it's transparent for you if you use the class in single click or double click mode.
-*/
-
-void QIconView::setSingleClickEnabled( bool enable, bool underline, bool highlighte,
-				       const QCursor &cursor, int interval )
-{
-    d->singleClick = enable;
-    d->scUnderline = underline;
-    d->scHighlighte = highlighte;
-    d->scCursor = cursor;
-    d->scInterval = interval;
-
-    viewport()->repaint( FALSE );
-}
-
-/*!
-  Returns TRUE, if the iconview is in single click mode or FALSE if it is in
-  double click mode. If you specify valid pointers as arguments, these values
-  are set to the values you specified in setSingleClickEnabled()
-*/
-
-bool QIconView::isSingleClickEnabled( bool *underline, bool *highlighte,
-				      QCursor *cursor, int *interval ) const
-{
-    if ( underline )
-	*underline = d->scUnderline;
-    if ( highlighte )
-	*highlighte = d->scHighlighte;
-    if ( cursor )
-	*cursor = d->scCursor;
-    if ( interval )
-	*interval = d->scInterval;
-    return d->singleClick;
 }
 
 /*!
@@ -3583,7 +3509,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 	delete d->rubber;
 	d->rubber = 0;
-    } else if ( !d->startDrag && d->singleClick ) {
+    } else if ( !d->startDrag ) {
 	if ( item && !item->renameBox ) {
 	    if ( e->button() == LeftButton &&
 		 !( e->state() & ControlButton ) && !( e->state() & ShiftButton ) )
@@ -3619,46 +3545,13 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 {
-    if ( d->singleClick ) {
-	if ( ( d->currentItem && d->currentItem->renameBox ) || d->rubber ) {
-	    if ( d->singleClickSelectTimer->isActive() )
-		d->singleClickSelectTimer->stop();
-	} else {
-	    QIconViewItem *item = findItem( e->pos() );
-	    if ( item ) {
-		if ( item != d->highlightedItem ) {
-		    if ( d->singleClickSelectTimer->isActive() )
-			d->singleClickSelectTimer->stop();
-
-		    QIconViewItem *old = d->highlightedItem;
-		    d->highlightedItem = item;
-		    emit onItem( item );
-		    viewport()->setCursor( d->scCursor );
-		    repaintItem( old );
-		    repaintItem( d->highlightedItem );
-		    if ( d->scInterval >= 0 )
-			d->singleClickSelectTimer->start( d->scInterval, TRUE );
-		}
-	    } else if ( d->highlightedItem ) {
-		if ( d->singleClickSelectTimer->isActive() )
-		    d->singleClickSelectTimer->stop();
-
-		viewport()->setCursor( d->oldCursor );
-		QIconViewItem *old = d->highlightedItem;
-		d->highlightedItem = 0;
-		repaintItem( old );
-		emit onViewport();
-	    }
-	}
-    } else {
-	QIconViewItem *item = findItem( e->pos() );
-	if ( d->highlightedItem != item ) {
-	    if ( item )
-		emit onItem( item );
-	    else
-		emit onViewport();
-	    d->highlightedItem = item;
-	}
+    QIconViewItem *item = findItem( e->pos() );
+    if ( d->highlightedItem != item ) {
+	if ( item )
+	    emit onItem( item );
+	else
+	    emit onViewport();
+	d->highlightedItem = item;
     }
 
     if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
@@ -4780,21 +4673,6 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
 {
     // #### todo
     return d->firstItem;
-}
-
-/*!
-  This slot selects the currentle highlighed item (if there is one).
-  This is used in the single click mode.
-
-  \sa QIconView::setSingleClickEnabled()
-*/
-
-void QIconView::selectHighlightedItem()
-{
-    if ( d->highlightedItem ) {
-	setCurrentItem( d->highlightedItem );
-	d->highlightedItem->setSelected( TRUE );
-    }
 }
 
 static int cmpIconViewItems( const void *n1, const void *n2 )

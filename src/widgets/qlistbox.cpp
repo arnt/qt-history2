@@ -37,7 +37,7 @@ class QListBoxPrivate
 {
 public:
     QListBoxPrivate( QListBox *lb ):
-	head( 0 ), current( 0 ),
+	head( 0 ), current( 0 ), highlighted( 0 ),
 	layoutDirty( TRUE ),
 	mustPaintAll( TRUE ),
 	dragging( FALSE ),
@@ -59,7 +59,7 @@ public:
     ~QListBoxPrivate();
 
     QListBoxItem * head;
-    QListBoxItem * current;
+    QListBoxItem * current, *highlighted;
     bool layoutDirty;
     bool mustPaintAll;
     bool dragging;
@@ -644,6 +644,16 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   set.
 */
 
+/*! \fn void  QListBox::onItem( QListBoxItem *i )
+  This signal is emitted, when the user moves the mouse cursor onto an item.
+  It´s only emitted once per item.
+*/
+
+/*! \fn void  QListBox::onViewport()
+  This signal is emitted, when the user moves the mouse cursor, which was
+  on an item away from the item onto the viewport.
+*/
+
 
 /*!
   Constructs a list box.  The arguments are passed directly to the
@@ -659,6 +669,10 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->visibleTimer = new QTimer( this, "listbox visible timer" );
     d->inputTimer = new QTimer( this, "listbox input timer" );
     d->clearing = FALSE;
+    
+    setMouseTracking( TRUE );
+    viewport()->setMouseTracking( TRUE );
+    
     connect( d->updateTimer, SIGNAL(timeout()),
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
@@ -1612,6 +1626,16 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
+    QListBoxItem * i = itemAt( e->pos() );
+    if ( i != d->highlighted ) {
+	if ( i ) {
+	    emit onItem( i );
+	} else {
+	    emit onViewport();
+	}
+	d->highlighted = i;
+    }
+
     if ( ( (e->state() & ( RightButton | LeftButton | MidButton ) ) == 0 ) ||
 	 d->ignoreMoves )
 	return;

@@ -274,6 +274,9 @@ signals:
     void rightButtonClicked( QListViewItem *, const QPoint&, int );
     void rightButtonPressed( QListViewItem *, const QPoint&, int );
 
+    void onItem( QListViewItem *item );
+    void onViewport();
+
 protected:
     void contentsMousePressEvent( QMouseEvent * e );
     void contentsMouseReleaseEvent( QMouseEvent * e );

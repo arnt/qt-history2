@@ -109,7 +109,7 @@ public:
     QListBoxItem *item( int index ) const;
     int index( const QListBoxItem * ) const;
     QListBoxItem *findItem( const QString &text ) const;
-    
+
     void triggerUpdate( bool doLayout );
 
     bool itemVisible( int index );
@@ -194,6 +194,9 @@ signals:
     void returnPressed( QListBoxItem * );
     void rightButtonClicked( QListBoxItem *, const QPoint & );
     void rightButtonPressed( QListBoxItem *, const QPoint & );
+
+    void onItem( QListBoxItem *item );
+    void onViewport();
 
 protected:
     void viewportMousePressEvent( QMouseEvent * );

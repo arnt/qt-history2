@@ -127,7 +127,7 @@ struct QListViewPrivate
     int margin;
 
     QListViewItem * currentSelected;
-    QListViewItem * focusItem;
+    QListViewItem * focusItem, *highlighted;
 
     QTimer * timer;
     QTimer * dirtyItemTimer;
@@ -1517,6 +1517,16 @@ void QListViewPrivate::Root::setup()
 }
 
 
+/*! \fn void  QListView::onItem( QListViewItem *i )
+  This signal is emitted, when the user moves the mouse cursor onto an item.
+  It´s only emitted once per item.
+*/
+
+/*! \fn void  QListView::onViewport()
+  This signal is emitted, when the user moves the mouse cursor, which was
+  on an item away from the item onto the viewport.
+*/
+
 /*! \enum QListView::SelectionMode
 
   This enumerated type is used by QListView to indicate how it reacts
@@ -1695,6 +1705,10 @@ QListView::QListView( QWidget * parent, const char *name )
     d->minLeftBearing = fontMetrics().minLeftBearing();
     d->minRightBearing = fontMetrics().minRightBearing();
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
+    d->highlighted = 0;
+
+    setMouseTracking( TRUE );
+    viewport()->setMouseTracking( TRUE );
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -3090,13 +3104,26 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 {
-    if ( !e || !d->buttonDown )
+    if ( !e )
 	return;
 
     bool needAutoScroll = FALSE;
 
     QPoint vp = contentsToViewport(e->pos());
 
+    QListViewItem * i = itemAt( vp );
+    if ( i != d->highlighted ) {
+	if ( i ) {
+	    emit onItem( i );
+	} else {
+	    emit onViewport();
+	}
+	d->highlighted = i;
+    }
+    
+    if ( !d->buttonDown )
+	return;
+    
     // check, if we need to scroll
     if ( vp.y() > visibleHeight() || vp.y() < 0 )
 	needAutoScroll = TRUE;

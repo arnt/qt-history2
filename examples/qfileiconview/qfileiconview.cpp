@@ -862,16 +862,6 @@ void QtFileIconView::flowSouth()
     setAlignMode( South );
 }
 
-void QtFileIconView::doubleClick()
-{
-    setSingleClickEnabled( FALSE );
-}
-
-void QtFileIconView::singleClick()
-{
-    setSingleClickEnabled( TRUE, TRUE, TRUE, pointingHandCursor, 1000 );
-}
-
 void QtFileIconView::sortAscending()
 {
     sort( TRUE );
@@ -916,9 +906,6 @@ void QtFileIconView::slotViewportRightClicked()
     menu->insertSeparator();
     menu->insertItem( "Items flow to the &East", this, SLOT( flowEast() ) );
     menu->insertItem( "Items flor to the &South", this, SLOT( flowSouth() ) );
-    menu->insertSeparator();
-    menu->insertItem( "Use &Single clicks", this, SLOT( singleClick() ) );
-    menu->insertItem( "Use &Double clicks", this, SLOT( doubleClick() ) );
     menu->insertSeparator();
     menu->insertItem( "Align Items in &Grid", this, SLOT( alignItemsInGrid() ) );
     menu->insertSeparator();
