@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#9 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#9 $";
 #endif
 
 
@@ -24,6 +24,7 @@ QWidget *QApplication::main_widget = 0;		// main application widget
 
 QFont    QApplication::appFont;			// default application font
 QCursor  QApplication::appCursor;		// default application cursor
+bool	 QApplication::appCursorDefined = FALSE;// application cursor defined
 
 #if defined(_WS_MAC_)
 GUIStyle QApplication::appStyle = MacStyle;	// default style for Mac
