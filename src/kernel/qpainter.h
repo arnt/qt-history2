@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#97 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#98 $
 **
 ** Definition of QPainter class
 **
@@ -229,6 +229,7 @@ private:
     void	setf( ushort b )	{ flags |= b; }
     void	setf( ushort b, bool v );
     void	clearf( ushort b )	{ flags &= (ushort)(~b); }
+    void	fix_neg_rect( int *x, int *y, int *w, int *h );
 
     QPaintDevice *pdev;
     QColor	bg_col;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdta.h#28 $
+** $Id: //depot/qt/main/src/kernel/qfontdta.h#29 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -35,6 +35,7 @@ struct QFontDef {				// font definition
     uint	hintSetByUser	: 1;
     uint	rawMode		: 1;
     uint	dirty		: 1;
+    short	rbearing;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#74 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#74 $");
 
 
 /*!
@@ -108,6 +108,7 @@ void QFont::init()
     d->req.hintSetByUser = FALSE;
     d->req.rawMode	 = FALSE;
     d->req.dirty	 = TRUE;
+    d->req.rbearing	 = -1;
     d->exactMatch	 = FALSE;
 }
 

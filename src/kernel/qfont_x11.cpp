@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#87 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -17,13 +17,14 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #define GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#87 $");
 
 
 static const int fontFields = 14;
@@ -404,6 +405,7 @@ static void resetFontDef( QFontDef *def )	// used by initFontInfo()
     def->strikeOut     = FALSE;
     def->fixedPitch    = FALSE;
     def->hintSetByUser = FALSE;
+    def->rbearing      = -1;
 }
 
 /*!
@@ -959,6 +961,88 @@ int QFontMetrics::descent() const
     return FS->max_bounds.descent - 1;
 }
 
+/*!
+  Returns TRUE if \a ch is a valid character in the font.
+*/
+bool QFontMetrics::inFont(char ch) const
+{
+    XFontStruct *f = FS;
+    return (uint)ch >= f->min_char_or_byte2
+        && (uint)ch <= f->max_char_or_byte2;
+}
+
+/*!
+  Returns the maximum left bearing of character \a ch in the font.
+
+  The left bearing of the font is the distance of the left-most pixel
+  of the character from the 0 position.  This is often a negative value.
+
+  \sa leftBearing(), rightBearing(char)
+*/
+int QFontMetrics::leftBearing(char ch) const
+{
+    if ( !inFont(ch) )
+	ch = FS->default_char;
+    return FS->per_char[ch].lbearing;
+}
+
+/*!
+  Returns the maximum right bearing of character \a ch in the font.
+
+  The right bearing of the font is the distance of the right-most pixel
+  of the character from the 0 position.  This is often a negative value.
+
+  \sa rightBearing(), leftBearing(char)
+*/
+int QFontMetrics::rightBearing(char ch) const
+{
+    if ( !inFont(ch) )
+	ch = FS->default_char;
+    return FS->per_char[ch].rbearing;
+}
+
+/*!
+  Returns the maximum left bearing of the font.
+
+  The left bearing of the font is the smallest leftBearing(char)
+  of all characters in the font.
+
+  \sa rightBearing(), leftBearing(char)
+*/
+int QFontMetrics::leftBearing() const
+{
+    return FS->min_bounds.lbearing;
+}
+
+/*!
+  Returns the maximum right bearing of the font.
+
+  The right bearing of the font is the smallest rightBearing(char)
+  of all characters in the font.
+
+  \sa leftBearing(), rightBearing(char)
+*/
+int QFontMetrics::rightBearing() const
+{
+    // Safely cast away const, as we cache rbearing there.
+    QFontDef* def = (QFontDef*)spec();
+
+    if ( def->rbearing < 0 ) {
+	XFontStruct *f = FS;
+	XCharStruct *c = f->per_char;
+	int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
+	int mx = c->rbearing - c->width;
+	if (!def->fixedPitch) {
+	    for ( int i=1; i < nc; i++ ) {
+		mx = QMAX(mx, c[i].rbearing - c[i].width);
+	    }
+	}
+	def->rbearing = mx;
+    }
+
+    return def->rbearing;
+}
+
 
 /*!
   Returns the height of the font.
@@ -1030,7 +1114,8 @@ int QFontMetrics::width( const char *str, int len ) const
 
 
 /*!
-  Returns the bounding rectangle of the first \e len characters of \e str.
+  Returns the bounding rectangle of the first \e len characters of \e str,
+  which is the set of pixels the text would cover if drawn at (0,0).
 
   If \e len is negative (default value), the whole string is used.
 
@@ -1038,7 +1123,13 @@ int QFontMetrics::width( const char *str, int len ) const
   e.g. for italicized fonts, and that the text output may cover \e all
   pixels in the bounding rectangle.
 
-  \sa width() */
+  Newline characters are processed as regular characters, \e not as
+  linebreaks.
+
+  Due to the different actual character heights, the height of the
+  bounding rectangle of "Yes" and "yes" may be different.
+
+  \sa extent(), width(), QPainter::boundingRect() */
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
