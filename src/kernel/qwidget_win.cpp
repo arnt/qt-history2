@@ -1250,7 +1250,7 @@ void QWidget::setBaseSize( int w, int h )
 
 extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
 
-void QWidgetPrivate::erase_helper(const QRegion &rgn, const QPoint &dboff)
+void QWidgetPrivate::erase_helper(const QRegion &rgn)
 {
     bool tmphdc = !q->hdc;
     HDC lhdc = tmphdc ? GetDC(q->winId()) : q->hdc;
@@ -1293,8 +1293,6 @@ void QWidgetPrivate::erase_helper(const QRegion &rgn, const QPoint &dboff)
 	ReleaseDC( q->winId(), lhdc );
 	q->hdc = 0;
     }
-
-
 }
 
 

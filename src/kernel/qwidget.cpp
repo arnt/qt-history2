@@ -1171,8 +1171,8 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 #else
 
 #if defined(Q_WS_WIN)
-    extern void qt_erase_background(HDC, int int, int int, const QBrush &, int, int);
-    qt_erase_background(hd, 0, 0, width(), height(), brush, offset.x(), offset.y());
+    extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, int);
+    qt_erase_background(handle(), 0, 0, width(), height(), brush, offset.x(), offset.y());
 #elif defined(Q_WS_X11)
     extern void qt_erase_background(Qt::HANDLE, int screen, int x, int y, int width, int height,
 				    const QBrush &brush, int offx, int offy);
