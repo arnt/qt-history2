@@ -53,13 +53,8 @@ records which are defined in the
 tested with PostgreSQL 6. You may need to modify the SQL in this file to
 recreate the example database on your own system. 
 <example><title>Schema <literal>CREATE TABLE</> Statements</><programlisting>
-\scan eg/book.sql !TABLE\s*author! !TABLE\s*format!
+\scan eg/book.sql /CREATE TABLE\s*author/ /CREATE TABLE\s*format/
 </programlisting></example>
-<!--
-CREATE TABLE author (id int primary key, forename varchar(40), surname varchar(40));
-CREATE TABLE book (id int primary key, title varchar(40), price float, authorid int, formatid int);
-CREATE TABLE format (id int primary key, name varchar(20));
--->
 The book table is simplified for the purposes of example. It can only
 relate a book to a single author (authorid) and lacks an ISBN field.
 The format table is used to store 'paperpack', 'hardback', etc.
