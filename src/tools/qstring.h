@@ -103,7 +103,8 @@ public:
 
     enum Direction
     {
-	DirL, DirR, DirEN, DirES, DirET, DirAN, DirCS, DirB, DirS, DirWS, DirON
+	DirL, DirR, DirEN, DirES, DirET, DirAN, DirCS, DirB, DirS, DirWS, DirON,
+	DirLRE, DirLRO, DirAL, DirRLE, DirRLO, DirPDF, DirNSM, DirBN
     };
 
     enum Decomposition
@@ -115,7 +116,7 @@ public:
 
     enum Joining
     {
-	OtherJoining, Dual, Right, Center, Unknown
+	OtherJoining, Dual, Right, Center
     };
 
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
@@ -138,6 +139,7 @@ public:
     Direction direction() const;
     Joining joining() const;
     bool mirrored() const;
+    QChar mirroredChar() const;
     QString decomposition() const;
     Decomposition decompositionTag() const;
 
@@ -500,6 +502,7 @@ public:
     QChar::Direction direction() const { return s.constref(p).direction(); }
     QChar::Joining joining() const { return s.constref(p).joining(); }
     bool mirrored() const { return s.constref(p).mirrored(); }
+    QChar mirroredChar() const { return s.constref(p).mirroredChar(); }
     QString decomposition() const { return s.constref(p).decomposition(); }
     QChar::Decomposition decompositionTag() const { return s.constref(p).decompositionTag(); }
 
