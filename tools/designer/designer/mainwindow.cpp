@@ -421,6 +421,12 @@ int MainWindow::currentTool() const
 
 QObjectList *MainWindow::runProject()
 {
+    static QWidget *invisibleGroupLeader = 0;
+    if ( !invisibleGroupLeader ) {
+	invisibleGroupLeader = new QWidget( 0, "designer_invisible_group_leader", WGroupLeader );
+	invisibleGroupLeader->hide();
+    }
+
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	e->save();
 	e->saveBreakPoints();
@@ -448,7 +454,7 @@ QObjectList *MainWindow::runProject()
 
     QStringList forms = currentProject->uiFiles();
     for ( QStringList::Iterator it = forms.begin(); it != forms.end(); ++it ) {
-	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it ) );
+	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it ), 0, invisibleGroupLeader );
 
 	if ( w ) {
 	    w->hide();
@@ -538,7 +544,7 @@ QObjectList *MainWindow::runProject()
 	    iiface->exec( 0, "main" );
 
 	for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
-	    QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ) );
+	    QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ), 0, invisibleGroupLeader );
 	    if ( w ) {
 		l->append( w );
 		w->hide();
