@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qcompactstyle.h>
 #include <qlayout.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
@@ -99,120 +100,12 @@ public:
     Background()
 	:QWidget( 0, 0, WStyle_Tool | WStyle_Customize )
     {
-	QVBoxLayout *vbox = new QVBoxLayout( this );
-
-	QMimeSourceFactory::defaultFactory()
-	    ->setImage("qtlogo",QImage("qtlogo.png"));
-	QMimeSourceFactory::defaultFactory()
-	    ->setImage("face",QImage("face.png"));
-
-	vbox->addSpacing(8);
-	QLabel *heading = new QLabel(this);
-	heading->setText("<center><img src=qtlogo><img src=face></center>");
-	heading->setBackgroundColor(white);
-	heading->setFixedSize(heading->sizeHint());
-	vbox->addWidget( heading );
-
-	info = new QLabel(this);
-	info->setMargin(8);
-	info->setFont(QFont("helvetica",8));
-	info->setBackgroundColor(white);
-	info->setAlignment(AlignTop);
-	nextInfo();
-	QTimer* infotimer = new QTimer(this);
-	connect(infotimer,SIGNAL(timeout()),this,SLOT(nextInfo()));
-	infotimer->start(20000);
-	setBackgroundColor(white);
-	vbox->addWidget( info );
+	if ( QPixmap::defaultDepth() < 12 ) {
+	    setBackgroundColor(QColor(0x20, 0xb0, 0x50));
+	} else {
+	    setBackgroundPixmap(QPixmap("bg.xpm"));
+	}
     }	    
-private slots:
-    void nextInfo()
-    {
-	static int i = 0;
-	static const char* infotext[] = {
-	"<b><font size=+2>Qt/Embedded - What is it?</font></b><br>
-
-	The Qt/Embedded product provides you with all you need to
-	create stunning graphical user interfaces for embedded devices.
-	Qt/Embedded installs and runs with a very small memory footprint on any
-	device running embedded Linux - without using X11.  ",
-
-	"<b><font size=+2>Qt/Embedded - Trust the promises</font></b><br>
-
-	Qt/Embedded features the same API as the excellent
-	Qt/Windows and Qt/X11 versions. Imagine writing your Qt application in
-	your favourite desktop environment and just recompiling to move it to
-	your embedded device. It saves you heaps of development effort and
-	allows you to work productively in your favorite programming
-	environment from day one. You can start today.  ",
-
-	"<b><font size=+2>Qt/Embedded - Less is more</font></b><br>
-
-	Qt/Embedded is modular and scalable. You can assemble the
-	Qt features you really need and leave the others out. Since Qt/Embedded
-	is not based on X11 it has substantially lower memory requirements than
-	X11. By picking and choosing features, the memory demands of
-	Qt/Embedded can be tuned from 1 Mb to 3 Mb in ROM (Intel x86).
-	Furthermore,applications written with Qt are known to have a small
-	memory footprint compared to applications written with other toolkits.
-	Qt scales from the smallest embedded device to high-end workstations.  ",
-
-	"<b><font size=+2>Qt/Embedded - Use the source</font></b><br>
-
-	You know the value of source code availability. All Qt
-	releases are delivered with source code. Qt/Embedded is no exception.
-	You get a better understanding of how Qt works and it helps you debug
-	and tune your code. Customer feedback allows us to continually improve
-	the source code for better usability and performance.  ",
-
-	"<b><font size=+2>Qt/Embedded - Add your touch</font></b><br>
-
-	Qt's clean object oriented design makes it easy to extend and
-	enhance the standard widgets. You can create specialized widgets for the
-	limited space offered by embedded screen devices. You can benefit from the
-	wealth of available third-party Qt software. It is easy to add the killer
-	feature you need.",
-
-	"<b><font size=+2>Qt/Embedded - The beauty of it</font></b><br>
-
-	Qt/Embedded features some great additional functionality compared
-	to X11. You will be stunned by the beauty of anti-aliased text and alpha
-	blended pixmaps. These new features could add an additional touch of class to a
-	user interface. Forget about embedded graphics which looks more like old
-	alphanumeric terminals. Qt/Embedded can utilize hardware graphics acceleration
-	and it is well suited for multimedia and web applications. Let Qt/Embedded
-	impress you and your customers.",
-
-	"<b><font size=+2>Qt/Embedded - Getting there faster</font></b><br>
-
-	Qt is one of the most popular GUI toolkits in the world.
-	Programmers like the compact code,the powerful API,the ease of use, and the
-	excellent support. It is easy to find existing developer skills with Qt and a
-	lot of quality Qt based code has already been written. Qt/Embedded allows you
-	and your programmers to move seamlessly into the exciting field of embedded
-	systems. Your Qt experts don't need to be retrained. Our customers tell us that
-	even programmers without Qt experience get up to speed sooner with Qt than with
-	other toolkits.",
-
-	"<b><font size=+2>Qt/Embedded - We support you</font></b><br>
-
-	Embedded devices have other requirements than conventional
-	computers. The Qt/Embedded team at Trolltech is dedicated to support you with
-	new features and widgets. We can offer training, partnerships and first class
-	support. It is straightforward to port Qt/Embedded to new hardware. We can
-	offer you a port to your special device or the embedded operating system of
-	your choice. We look forward to working closely with you to help you succeed.",
-
-	0
-	};
-	QString t=infotext[i];
-	info->setText(t);
-	i++;
-	if (!infotext[i]) i=0;
-    }
-private:
-    QLabel* info;
-
 };
 
 class TaskBar : public QFrame {
@@ -264,77 +157,67 @@ static const char * const tri_xpm[]={
 
 /* XPM */
 static const char * const kb_xpm[]={
-"32 17 2 1",
+"28 13 2 1",
 "# c #303030",
 "  c None",
-" ############################## ",
-" #   #   #   #   #   #   #    # ",
-" #   #   #   #   #   #   #    # ",
-" #   #   #   #   #   #   #    # ",
-" ############################## ",
-" #     #   #   #   #   #      # ",
-" #     #   #   #   #   #      # ",
-" #     #   #   #   #   #      # ",
-" ############################## ",
-" #      #   #   #   #   #     # ",
-" #      #   #   #   #   #     # ",
-" #      #   #   #   #   #     # ",
-" ############################## ",
-" #    #                  #    # ",
-" #    #                  #    # ",
-" #    #                  #    # ",
-" ############################## "};
+" ########################## ",
+" #   #   #   #   #   #    # ",
+" #   #   #   #   #   #    # ",
+" ########################## ",
+" #     #   #   #   #      # ",
+" #     #   #   #   #      # ",
+" ########################## ",
+" #      #   #   #   #     # ",
+" #      #   #   #   #     # ",
+" ########################## ",
+" #    #              #    # ",
+" #    #              #    # ",
+" ########################## "};
 
 
 
 /* XPM */
 static const char * const pen_xpm[] = {
-"32 16 4 1",
+"28 13 4 1",
 "       c None",
 ".      c #000000",
 "+      c #FFFFFF",
 "@      c #808080",
-"                                ",
-"                                ",
-"                             .  ",
-"                            .+. ",
-"                           ..@@.",
-"                          .+@.. ",
-"        ....             .+@@.  ",
-"      .......           .+@@.   ",
-"     ..     ..         .+@@.    ",
-"    ..       ..       .@.@.     ",
-"    ..       ..       .@@.      ",
-"    ..       ..      ....       ",
-"   ..         .....  ..         ",
-"               .....            ",
-"                                ",
-"                                "};
+"                            ",
+"                         .  ",
+"                        .+. ",
+"                       ..@@.",
+"                      .+@.. ",
+"      ...            .+@@.  ",
+"    .......         .+@@.   ",
+"   ..     ..       .@.@.    ",
+"   ..     ..       .@@.     ",
+"   ..     ..      ....      ",
+"  ..       ...  ....        ",
+"            ......          ",
+"                            "};
 
 
 
 
 /* XPM */
 static const char * const uni_xpm[]={
-"32 16 2 1",
+"28 13 2 1",
 "# c #000000",
 ". c None",
-"................................",
-"...####.....#####.......####....",
-"...####.....######......####....",
-"...####.....#######.............",
-"...####.....########....####....",
-"...####.....#########...####....",
-"...####.....####.#####..####....",
-"...####.....####..#####.####....",
-"...####.....####...#########....",
-"...####.....####....########....",
-"...####.....####.....#######....",
-"...#####...#####......######....",
-"....###########........#####....",
-".....#########..........####....",
-".......######............###....",
-"................................"};
+"............................",
+"...####....#####.....####...",
+"...####....######....####...",
+"...####....#######..........",
+"...####....########..####...",
+"...####....####.####.####...",
+"...####....####..########...",
+"...####....####...#######...",
+"...####....####....######...",
+"...#####..#####.....#####...",
+"....##########.......####...",
+"......######..........###...",
+"............................"};
 
 
 
@@ -344,8 +227,8 @@ TaskBar::TaskBar()
 {
     keyMode = Key;
     keyboard = 0;
-    setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    QHBoxLayout *hbox = new QHBoxLayout( this, 2, 0 );
+    //setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    QHBoxLayout *hbox = new QHBoxLayout( this, 0, 0 );
     launchButton = new QPushButton( "Launch", this );
     hbox->addWidget( launchButton );
     connect( launchButton, SIGNAL(clicked()), this, SLOT(launch()) );
@@ -355,7 +238,7 @@ TaskBar::TaskBar()
 	launchMenu->insertItem( command[i].label, i );
     }
 
-    hbox->addSpacing( 2 );
+    // hbox->addSpacing( 2 );
     
     connect( launchMenu, SIGNAL(activated(int)), this, SLOT(execute(int)));
 
@@ -537,9 +420,9 @@ main(int argc, char** argv)
 
     QApplication app(argc,argv, QApplication::GuiServer );
  
-    qInstallMsgHandler(silent);
+    //qInstallMsgHandler(silent);
 
-    app.setFont(QFont("helvetica",12));
+    app.setFont(QFont("helvetica",10));
     
 /*
     signal(SIGINT, handleSignal);
