@@ -47,9 +47,11 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qcheckbox.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+
 
 /* IGNORE!
   \class QGroupBox qgroupbox.h
@@ -87,6 +89,19 @@
 
   \sa QButtonGroup
 */
+
+
+struct QGroupBoxPrivate
+{
+    QGroupBoxPrivate():
+	spacer( 0 ),
+	checkbox( 0 ) {}
+
+    QSpacerItem *spacer;
+    QCheckBox *checkbox;
+};
+
+
 
 
 /* IGNORE!
@@ -159,7 +174,7 @@ void QGroupBox::init()
 #endif
     vbox = 0;
     grid = 0;
-    d = 0;	//we use d directly to store a QSpacerItem
+    d = new QGroupBoxPrivate();
     lenvisible = 0;
     nCols = nRows = 0;
     dir = Horizontal;
@@ -170,23 +185,28 @@ void QGroupBox::init()
 
 void QGroupBox::setTextSpacer()
 {
-    QSpacerItem *spacer = (QSpacerItem*)d;
-    if ( !spacer )
+    if ( !d->spacer )
 	return;
     int h = 0;
     int w = 0;
-    if ( lenvisible ) {
+    if ( isCheckable() || lenvisible ) {
 	QFontMetrics fm = fontMetrics();
 	int fh = fm.height();
-	w = fm.width( str, lenvisible ) + 2*fm.width( "xx" );
+	if ( isCheckable() ) {
+	    fh = d->checkbox->sizeHint().height() + 2;
+	    w = d->checkbox->sizeHint().width() + 2*fm.width( "xx" );
+	} else {
+	    fh = fm.height();
+	    w = fm.width( str, lenvisible ) + 2*fm.width( "xx" );
+	}
 	h = frameRect().y();
 	if ( layout() ) {
- 	    int m = layout()->margin();
+	    int m = layout()->margin();
 	    int sp = layout()->spacing();
 	    // do we have a child layout?
 	    for ( QLayoutIterator it = layout()->iterator(); it.current(); ++it ) {
 		if ( it.current()->layout() ) {
- 		    m += it.current()->layout()->margin();
+		    m += it.current()->layout()->margin();
 		    sp = QMAX( sp, it.current()->layout()->spacing() );
 		    break;
 		}
@@ -195,7 +215,7 @@ void QGroupBox::setTextSpacer()
 	    h += QMAX( sp - (h+m - fh), 0 );
 	}
     }
-    spacer->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
+    d->spacer->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 
 
@@ -215,6 +235,10 @@ void QGroupBox::setTitle( const QString &title )
 			    this, SLOT(fixFocus()) );
     }
 #endif
+    if ( isCheckable() ) {
+	d->checkbox->setText( str );
+	updateCheckBoxGeometry();
+    }
     calculateFrame();
     setTextSpacer();
     if ( layout() ) {
@@ -272,6 +296,7 @@ void QGroupBox::setTitle( const QString &title )
 void QGroupBox::setAlignment( int alignment )
 {
     align = alignment;
+    updateCheckBoxGeometry();
     update();
 }
 
@@ -280,6 +305,9 @@ void QGroupBox::setAlignment( int alignment )
 void QGroupBox::resizeEvent( QResizeEvent *e )
 {
     QFrame::resizeEvent(e);
+    if ( align & AlignRight || align & AlignCenter ||
+	 ( QApplication::reverseLayout() && !(align & AlignLeft) ) )
+	updateCheckBoxGeometry();
     calculateFrame();
 }
 
@@ -293,7 +321,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 {
     QPainter paint( this );
 
-    if ( lenvisible ) {					// draw title
+    if ( lenvisible && !isCheckable() ) {	// draw title
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
 	int tw = fm.width( str, lenvisible ) + fm.width(QChar(' '));
@@ -318,6 +346,12 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
 			  isEnabled(), 0, str );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
+    } else if ( isCheckable() ) {
+	QRect cbClip = d->checkbox->geometry();
+	QFontMetrics fm = paint.fontMetrics();
+	cbClip.setX( cbClip.x() - fm.width(QChar(' ')) );
+	cbClip.setWidth( cbClip.width() + fm.width(QChar(' ')) );
+	paint.setClipRegion( event->region().subtract( cbClip ) );
     }
     if ( bFlat ) {
 	    QRect fr = frameRect();
@@ -468,8 +502,11 @@ void QGroupBox::setOrientation( Qt::Orientation o )
  */
 void QGroupBox::setColumnLayout(int strips, Orientation direction)
 {
-    if ( layout() )
-      delete layout();
+    if ( layout() ) {
+	if ( d->spacer )
+	    delete d->spacer;
+	delete layout();
+    }
     vbox = 0;
     grid = 0;
 
@@ -478,11 +515,11 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 
     vbox = new QVBoxLayout( this, marg, 0 );
 
-    QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
-					   QSizePolicy::Fixed );
-    d = (QGroupBoxPrivate*) spacer;
+    d->spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
+				 QSizePolicy::Fixed );
+
     setTextSpacer();
-    vbox->addItem( spacer );
+    vbox->addItem( d->spacer );
 
     nCols = 0;
     nRows = 0;
@@ -517,7 +554,7 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
-	    if ( w->isWidgetType() )
+	    if ( w->isWidgetType() && w->name() != QString( "qt_groupbox_checkbox" ) )
 		insertWid( w );
 	}
     }
@@ -536,7 +573,13 @@ bool QGroupBox::event( QEvent * e )
 void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
-    if ( !grid || !c->inserted() || !c->child()->isWidgetType() )
+    if ( !c->inserted() || !c->child()->isWidgetType() ||
+	 qstrcmp(c->child()->name(), "qt_groupbox_checkbox") == 0 )
+	return;
+    if ( isCheckable() ) {
+	((QWidget*)c->child())->setEnabled( isChecked() );
+    }
+    if ( !grid )
 	return;
     insertWid( (QWidget*)c->child() );
 }
@@ -620,7 +663,7 @@ void QGroupBox::calculateFrame()
 {
     lenvisible = str.length();
 
-    if ( lenvisible ) { // do we have a label?
+    if ( lenvisible && !isCheckable() ) { // do we have a label?
 	QFontMetrics fm = fontMetrics();
 	while ( lenvisible ) {
 	    int tw = fm.width( str, lenvisible ) + 4*fm.width(QChar(' '));
@@ -638,6 +681,15 @@ void QGroupBox::calculateFrame()
 	    setFrameRect( r );			//   smaller than client rect
 	    return;
 	}
+    } else if ( isCheckable() ) {
+	QRect r = rect();
+	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
+	if( va & AlignVCenter )
+	    r.setTop( d->checkbox->rect().height()/2 );
+	else if( va & AlignTop )
+	    r.setTop( fontMetrics().ascent() );
+	setFrameRect( r );
+	return;
     }
 
     // no visible label
@@ -658,9 +710,14 @@ void QGroupBox::focusInEvent( QFocusEvent * )
  */
 void QGroupBox::fontChange( const QFont & oldFont )
 {
+    QWidget::fontChange( oldFont );
+    if ( isCheckable() ) {
+	// make sure checkbox gets the right font as its font change is called too late
+	d->checkbox->setFont( font() );
+	updateCheckBoxGeometry();
+    }
     calculateFrame();
     setTextSpacer();
-    QWidget::fontChange( oldFont );
 }
 
 /* IGNORE!
@@ -670,7 +727,14 @@ void QGroupBox::fontChange( const QFont & oldFont )
 QSize QGroupBox::sizeHint() const
 {
     QFontMetrics fm( font() );
-    int tw = fm.width( title() ) + 2 * fm.width( "xx" );
+    int tw, th;
+    if ( isCheckable() ) {
+	tw = d->checkbox->sizeHint().width() + 2*fm.width( "xx" );
+	th = d->checkbox->sizeHint().height() + fm.width( QChar(' ') );
+    } else {
+	tw = fm.width( title() ) + 2 * fm.width( "xx" );
+	th = fm.height() + fm.width( QChar(' ') );
+    }
 
     QSize s;
     if ( layout() ) {
@@ -679,7 +743,7 @@ QSize QGroupBox::sizeHint() const
     } else {
 	QRect r = childrenRect();
 	QSize s( 100, 50 );
-	s = s.expandedTo( QSize( tw, 0 ) );
+	s = s.expandedTo( QSize( tw, th ) );
 	if ( r.isNull() )
 	    return s;
 
@@ -709,5 +773,121 @@ void QGroupBox::setFlat( bool b )
     bFlat = b;
     update();
 }
+
+
+/* IGNORE!
+  Sets whether the group box has a checkbox as the title or not.
+  If TRUE the checkbox is checked by default and the children are enabled.
+
+  \sa isCheckable
+*/
+void QGroupBox::setCheckable( bool b )
+{
+    if ( isCheckable() == b )
+	return;
+
+    if ( b ) {
+	if ( !d->checkbox ) {
+	    d->checkbox = new QCheckBox( title(), this, "qt_groupbox_checkbox" );
+	    setChecked( TRUE );
+	    setChildrenEnabled( TRUE );
+	    connect( d->checkbox, SIGNAL( toggled( bool ) ),
+		     this, SLOT( setChildrenEnabled( bool ) ) );
+	    updateCheckBoxGeometry();
+	}
+	d->checkbox->show();
+    } else {
+	setChildrenEnabled( TRUE );
+	delete d->checkbox;
+	d->checkbox = 0;
+    }
+    calculateFrame();
+    setTextSpacer();
+    update();
+}
+
+
+/* IGNORE!
+  Returns TRUE if the group box has a checkbox as the title.
+
+  \sa setCheckable
+*/
+bool QGroupBox::isCheckable() const
+{
+    return ( d->checkbox != 0 );
+}
+
+/* IGNORE!
+   Returns the checked state of the title checkbox. If the group box has no checkbox
+   (meaning the group box is not checkable) isChecked returns FALSE.
+
+   \sa setChecked isCheckable
+*/
+bool QGroupBox::isChecked() const
+{
+    if ( isCheckable() )
+	return d->checkbox->isChecked();
+    else
+	return FALSE;
+}
+
+/* IGNORE!
+   Sets the title checkbox to checked \ b and enables or disables the
+   children accordingly.
+*/
+void QGroupBox::setChecked( bool b )
+{
+    if ( isCheckable() )
+	d->checkbox->setChecked( b );
+}
+
+/*
+  sets all children of the group box except the qt_groupbox_checkbox
+  to either disabled/enabled
+*/
+void QGroupBox::setChildrenEnabled( bool b )
+{
+    if ( children() ) {
+	QObjectListIt it( *children() );
+	while( it.current() ) {
+	    if ( it.current()->isWidgetType() &&
+		 it.current()->name() != QString( "qt_groupbox_checkbox" ) )
+		((QWidget*)it.current())->setEnabled( b );
+	    ++it;
+	}
+    }
+}
+
+
+/*
+  recalculates and sets the checkbox setGeometry
+*/
+void QGroupBox::updateCheckBoxGeometry()
+{
+    if ( isCheckable() ) {
+	QSize cbSize = d->checkbox->sizeHint();
+	QRect cbRect( 0, 0, cbSize.width(), cbSize.height() );
+
+	int marg = bFlat ? 2 : 8;
+	marg += fontMetrics().width( QChar(' ') );
+
+	if ( align & AlignHCenter ) {
+	    cbRect.moveCenter( frameRect().center() );
+	    cbRect.moveTop( 0 );
+	} else if ( align & AlignRight ) {
+	    cbRect.moveRight( frameRect().right() - marg );
+	} else if ( align & AlignLeft ) {
+	    cbRect.moveLeft( frameRect().left() + marg );
+	} else { // auto align
+	    if( QApplication::reverseLayout() )
+		cbRect.moveRight( frameRect().right() - marg );
+	    else
+		cbRect.moveLeft( frameRect().left() + marg );
+	}
+
+	d->checkbox->setGeometry( cbRect );
+    }
+}
+
 
 #endif
