@@ -47,10 +47,8 @@ public:
         target = 3.7;
     }
 
-    QRect eraseArea;
     QPolygon lines;
     double target;
-    uint eraseAreaValid : 1;
     uint showNotches : 1;
     uint onlyOutside : 1;
     uint wrapping : 1;
@@ -63,7 +61,7 @@ public:
     int calcBigLineSize() const;
     void calcLines();
     void init();
-    void repaintScreen(const QRect &cr = QRect());
+    void repaintScreen();
 };
 
 #define d d_func()
@@ -71,7 +69,6 @@ public:
 
 void QDialPrivate::init()
 {
-    eraseAreaValid = false;
     showNotches = false;
     onlyOutside = false;
     q->setFocusPolicy(Qt::WheelFocus);
@@ -82,12 +79,11 @@ void QDialPrivate::init()
 #endif
 }
 
-void QDialPrivate::repaintScreen(const QRect &cr)
+void QDialPrivate::repaintScreen()
 {
     QPainter p;
     p.begin(q);
 
-    bool resetClipping = false;
     int width = q->width();
     int height = q->height();
     QRect br(calcDial());
@@ -95,30 +91,6 @@ void QDialPrivate::repaintScreen(const QRect &cr)
     te.setWidth(te.width() + 2);
     te.setHeight(te.height() + 2);
 
-    // calculate clip-region for erasing background
-    if (!cr.isEmpty()) {
-        p.setClipRect(cr);
-    } else if (!onlyOutside && eraseAreaValid) {
-        QRegion reg = eraseArea;
-        double a;
-        reg = reg.subtract(calcArrow(a));
-        p.setClipRegion(reg);
-        resetClipping = true;
-    } else if (onlyOutside) {
-        QRegion eraseReg(0, 0, width, height);
-        eraseReg = eraseReg.subtract(QRegion(te, QRegion::Ellipse));
-        p.setClipRegion(eraseReg);
-        resetClipping = true;
-    }
-
-    p.eraseRect(te);
-
-    if (resetClipping) {
-        if (!cr.isEmpty())
-            p.setClipRect(cr);
-        else
-            p.setClipRect(QRect(0, 0, width, height));
-    }
     QPalette pal = q->palette();
     // draw notches
     if (showNotches) {
@@ -135,9 +107,6 @@ void QDialPrivate::repaintScreen(const QRect &cr)
 
     double a;
     QPolygon arrow(calcArrow(a));
-    QRect ea(arrow.boundingRect());
-    d->eraseArea = ea;
-    d->eraseAreaValid = true;
 
     p.setPen(Qt::NoPen);
     p.setBrush(pal.brush(QPalette::Button));
@@ -176,7 +145,6 @@ void QDialPrivate::repaintScreen(const QRect &cr)
 
     // draw focus rect around the dial
     if (q->hasFocus()) {
-        p.setClipping(false);
         br.setWidth(br.width() + 2);
         br.setHeight(br.height() + 2);
         if (d->showNotches) {
@@ -185,18 +153,9 @@ void QDialPrivate::repaintScreen(const QRect &cr)
             br.setWidth(br.width() + r / 3);
             br.setHeight(br.height() + r / 3);
         }
-        // strange, but else we get redraw errors on Windows
-        p.end();
-        p.begin(q);
-        p.save();
-        p.setPen(QPen(pal.background().color()));
-        p.setBrush(Qt::NoBrush);
-        p.drawRect(br);
-        p.restore();
         QStyleOptionFocusRect opt;
+        opt.init(q);
         opt.rect = br;
-        opt.palette = pal;
-        opt.state = QStyle::State_None;
         q->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, q);
     }
     p.end();
@@ -461,9 +420,9 @@ void QDial::resizeEvent(QResizeEvent *e)
   \reimp
 */
 
-void QDial::paintEvent(QPaintEvent *e)
+void QDial::paintEvent(QPaintEvent *)
 {
-    d->repaintScreen(e->rect());
+    d->repaintScreen();
 }
 
 /*!
@@ -517,28 +476,6 @@ void QDial::mouseMoveEvent(QMouseEvent * e)
     d->doNotEmit = false;
 }
 
-/*!
-  \reimp
-*/
-
-void QDial::focusInEvent(QFocusEvent *)
-{
-    d->onlyOutside = true;
-    repaint();
-    d->onlyOutside = false;
-}
-
-
-/*!
-  \reimp
-*/
-
-void QDial::focusOutEvent(QFocusEvent *)
-{
-    d->onlyOutside = true;
-    repaint();
-    d->onlyOutside = false;
-}
 
 /*!
     \reimp
@@ -553,7 +490,7 @@ void QDial::sliderChange(SliderChange change)
 {
     if (change == SliderRangeChange || change == SliderValueChange) {
         d->lines.clear();
-        repaint();
+        update();
         if (change == SliderValueChange && (d->tracking || !d->doNotEmit)) {
             emit valueChanged(d->value);
 #ifndef QT_NO_ACCESSIBILITY
@@ -569,7 +506,6 @@ void QDial::setWrapping(bool enable)
         return;
     d->lines.clear();
     d->wrapping = enable;
-    d->eraseAreaValid = false;
     update();
 }
 
@@ -627,10 +563,7 @@ void QDial::setNotchTarget(double target)
 {
     d->lines.resize(0);
     d->target = target;
-    d->eraseAreaValid = false;
-    d->onlyOutside = true;
-    repaint();
-    d->onlyOutside = false;
+   update();
 }
 
 /*!
@@ -651,10 +584,7 @@ double QDial::notchTarget() const
 void QDial::setNotchesVisible(bool visible)
 {
     d->showNotches = visible;
-    d->eraseAreaValid = false;
-    d->onlyOutside = true;
-    repaint();
-    d->onlyOutside = false;
+    update();
 }
 
 /*!

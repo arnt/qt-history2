@@ -57,9 +57,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *me);
     void mouseMoveEvent(QMouseEvent *me);
 
-    void focusInEvent(QFocusEvent *fe);
-    void focusOutEvent(QFocusEvent *fe);
-
     void sliderChange(SliderChange change);
 
 #ifdef QT3_SUPPORT
