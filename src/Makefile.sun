@@ -8,16 +8,29 @@ SUNAOUTCFLAGS	=
 SUNELFCFLAGS	= -fPIC
 
 sun:
-	make lib 'CFLAGS=$(CFLAGS) $(SUNELFCFLAGS)' 'OBJDIR=obj/elf'
-	/bin/rm -f $(ELFTARGET)
-	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lc
+	make -f Makefile.sun sunelf
 
 sunaout:
-	make lib 'CFLAGS=$(CFLAGS) $(SUNAOUTCFLAGS)' 'OBJDIR=obj/aout'
+	make lib "CFLAGS=$(CFLAGS) $(SUNAOUTCFLAGS)" "OBJDIR=obj/aout"
 	/bin/rm -f $(AOUTTARGET)
 	ar q $(AOUTTARGET) obj/aout/*/*.o
 
+sunaoutdbg:
+	make lib "CFLAGS=$(CDBGFLAGS) $(SUNAOUTCFLAGS)" "OBJDIR=obj/aoutdbg"
+	/bin/rm -f $(AOUTTARGET)
+	ar q $(AOUTTARGET) obj/aoutdbg/*/*.o
+
 sunelf:
-	make lib 'CFLAGS=$(CFLAGS) $(SUNELFCFLAGS)' 'OBJDIR=obj/elf'
+	make lib "CFLAGS=$(CFLAGS) $(SUNELFCFLAGS)" "OBJDIR=obj/elf"
 	/bin/rm -f $(ELFTARGET)
 	$(CC) -shared -o $(ELFTARGET) obj/elf/*/*.o -lX11 -lc
+
+sunelfdbg:
+	make lib "CFLAGS=$(CDBGFLAGS) $(SUNELFCFLAGS)" "OBJDIR=obj/elfdbg"
+	/bin/rm -f $(ELFTARGET)
+	$(CC) -shared -o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lc
+
+purifylib:
+	make lib "CFLAGS=-gstabs" "OBJDIR=obj/purifylib"
+	/bin/rm -f $(AOUTTARGET)
+	ar q $(AOUTTARGET) obj/purifylib/*/*.o
