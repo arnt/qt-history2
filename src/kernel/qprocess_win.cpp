@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#19 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -364,8 +364,8 @@ uint QProcess::readStddev( HANDLE dev, char *buf, uint bytes )
 {
     if ( bytes > 0 ) {
 	ulong r;
-	ReadFile( dev, buf, bytes, &r, 0 );
-	return r;
+	if ( ReadFile( dev, buf, bytes, &r, 0 ) )
+	    return r;
     }
     return 0;
 }
