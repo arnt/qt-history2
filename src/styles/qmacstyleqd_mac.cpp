@@ -377,6 +377,7 @@ void QMacStyleQD::polish(QWidget* w)
         QLabel *label = (QLabel*)w;
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
+	label->setWindowOpacity(0.95);
     } else if ((popup = ::qt_cast<QPopupMenu*>(w)) != 0) {
 	popup->setMargin(0);
 	popup->setLineWidth(0);
