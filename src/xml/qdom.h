@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#10 $
+** $Id: //depot/qt/main/src/xml/qdom.h#11 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -51,8 +51,6 @@
 #endif
 
 #ifndef QT_NO_DOM
-class QWidget;
-class QLayout;
 class QIODevice;
 class QTextStream;
 
