@@ -477,8 +477,6 @@ void QPixmap::deref()
 
         if(data->hd && qApp) {
             UnlockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-            CGContextRelease((CGContextRef)data->cg_hd);
-            data->cg_hd = 0;
             DisposeGWorld(static_cast<GWorldPtr>(data->hd));
             data->hd = 0;
         }
@@ -590,7 +588,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data = new QPixmapData;
     data->cgimage = 0;
     data->hd = 0;
-    data->cg_hd = 0;
     memset(data, 0, sizeof(QPixmapData));
     data->count=1;
     data->uninit=true;
@@ -632,7 +629,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     /* error? */
     if(e != noErr) {
         data->w = data->h = 0;
-        data->cg_hd = data->hd = 0; //just to be sure
+        data->hd = 0; //just to be sure
         qDebug("Qt: internal: QPixmap::init error (%d) (%d %d %d %d)", e, rect.left, rect.top, rect.right, rect.bottom);
     } else {
         bool locked = LockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
