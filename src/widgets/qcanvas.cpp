@@ -646,6 +646,26 @@ void QCanvas::retune(int chunksze, int mxclusters)
 */
 
 /*!
+  \fn bool QCanvas::onCanvas( int x, int y ) const
+  Returns whether the pixel position (\a x, \a y) is on the canvas.
+*/
+
+/*!
+  \fn bool QCanvas::onCanvas( const QPoint& p ) const
+  Returns whether the pixel position \a p is on the canvas.
+*/
+
+/*!
+  \fn bool QCanvas::validChunk( int x, int y ) const
+  Returns whether the chunk position (\a x, \a y) is on the canvas.
+*/
+
+/*!
+  \fn bool QCanvas::validChunk( const QPoint& p ) const
+  Returns whether the chunk position \a p is on the canvas.
+*/
+
+/*!
   \fn int QCanvas::chunkSize() const
   Returns the chunk size of the canvas as set at construction.
   \sa retune()
@@ -999,7 +1019,7 @@ instead.
 */
 void QCanvas::setChangedChunk(int x, int y)
 {
-    if (x>=0 && x<chwidth && y>=0 && y<chheight) {
+    if (validChunk(x,y)) {
 	QCanvasChunk& ch=chunk(x,y);
 	ch.change();
     }
@@ -1031,7 +1051,7 @@ and SetChangedChunkContaining, this method marks the chunk as `dirty'.
 */
 void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 {
-    if (x>=0 && x<chwidth && y>=0 && y<chheight) {
+    if (validChunk(x,y)) {
 	chunk(x,y).add(g);
     }
 }
@@ -1044,7 +1064,7 @@ and SetChangedChunkContaining, this method marks the chunk as `dirty'.
 */
 void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
 {
-    if (x>=0 && x<chwidth && y>=0 && y<chheight) {
+    if (validChunk(x,y)) {
 	chunk(x,y).remove(g);
     }
 }
@@ -1962,7 +1982,7 @@ QCanvasItemList QCanvasItem::collisions(bool exact) const
   Returns a list of items which intersect with the point \a p,
   sorted from shallowest to deepest.
 */
-QCanvasItemList QCanvas::collisions(QPoint p) const
+QCanvasItemList QCanvas::collisions(const QPoint& p) const
 {
     return collisions(QRect(p,QSize(1,1)));
 }
@@ -1971,7 +1991,7 @@ QCanvasItemList QCanvas::collisions(QPoint p) const
   Returns a list of items which intersect with the rectangle \a r,
   sorted from shallowest to deepest.
 */
-QCanvasItemList QCanvas::collisions(QRect r) const
+QCanvasItemList QCanvas::collisions(const QRect& r) const
 {
     QCanvasRectangle i(r,(QCanvas*)this);
     QCanvasItemList l = i.collisions(TRUE);
@@ -1989,7 +2009,7 @@ QCanvasItemList QCanvas::collisions(QRect r) const
   This is a utility function mainly used to implement the simpler
   QCanvasItem::collisions() function.
 */
-QCanvasItemList QCanvas::collisions(QPointArray chunks,
+QCanvasItemList QCanvas::collisions(const QPointArray& chunks,
 	    const QCanvasItem* item, bool exact) const
 {
     QPtrDict<void> seen;
@@ -1997,13 +2017,15 @@ QCanvasItemList QCanvas::collisions(QPointArray chunks,
     for (int i=0; i<(int)chunks.count(); i++) {
 	int x = chunks[i].x();
 	int y = chunks[i].y();
-	const QCanvasItemList* l = chunk(x,y).listPtr();
-	for (QCanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
-	    QCanvasItem *g=*it;
-	    if ( g != item ) {
-		if ( !seen.find(g) && (!exact || item->collidesWith(g)) ) {
-		    seen.replace(g,(void*)1);
-		    result.append(g);
+	if ( validChunk(x,y) ) {
+	    const QCanvasItemList* l = chunk(x,y).listPtr();
+	    for (QCanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
+		QCanvasItem *g=*it;
+		if ( g != item ) {
+		    if ( !seen.find(g) && (!exact || item->collidesWith(g)) ) {
+			seen.replace(g,(void*)1);
+			result.append(g);
+		    }
 		}
 	    }
 	}

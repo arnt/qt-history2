@@ -177,6 +177,10 @@ public:
     int width() const { return awidth; }
     int height() const { return aheight; }
     QSize size() const { return QSize(awidth,aheight); }
+    bool onCanvas( int x, int y ) const { return x>=0 && y>=0 && x<awidth && y<aheight; }
+    bool onCanvas( const QPoint& p ) const { return onCanvas(p.x(),p.y()); }
+    bool validChunk( int x, int y ) const { return x>=0 && y>=0 && x<chwidth && y<chheight; }
+    bool validChunk( const QPoint& p ) const { return validChunk(p.x(),p.y()); }
 
     int chunkSize() const { return chunksize; }
     void retune(int chunksize, int maxclusters=100);
@@ -195,9 +199,9 @@ public:
     void removeItemFromChunkContaining(QCanvasItem*, int x, int y);
 
     QCanvasItemList allItems();
-    QCanvasItemList collisions(QPoint) const;
-    QCanvasItemList collisions(QRect) const;
-    QCanvasItemList collisions(QPointArray pa, const QCanvasItem* item, bool exact) const;
+    QCanvasItemList collisions(const QPoint&) const;
+    QCanvasItemList collisions(const QRect&) const;
+    QCanvasItemList collisions(const QPointArray& pa, const QCanvasItem* item, bool exact) const;
 
     // These are for QCanvasView to call
     virtual void addView(QCanvasView*);
