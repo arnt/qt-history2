@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#22 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#22 $");
 
 
 /*!
@@ -250,19 +250,19 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 /*!
   \class QBoxLayout qlayout.h
-  \brief QBoxLayout is the base class of QHBoxLayout and QVBoxLayout
+  \brief The QBoxLayout class specifies child widget geometry. More... 
 
   Contents are arranged serially, either horizontal or vertical.
   The contents fill the available space.
 
   A QBoxLayout can contain widgets or other layouts.
 
-  QHBoxLayout and QVBoxLayout are convenience classes which are
-  easier to use.
+  QHBoxLayout and QVBoxLayout are convenience classes.
 
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.  */
+  delete the layout manager first. 
+ */
 
 static inline bool horz( QGManager::Direction dir )
 {
@@ -481,10 +481,6 @@ void QBoxLayout::addMaxStrut( int size)
   Adds \a widget to the box, with stretch factor \a stretch and
   alignment \a align.
 
-  \warning QHBoxLayout::add() or QVBoxLayout::add() are recommended
-  for application programmers. They are easier to use, and contain
-  heuristics for setting maximum and minimum sizes.
-
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
   widgets in this QBoxLayout.  Widgets and boxes with higher stretch
@@ -539,14 +535,6 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 	return;
     }
 
-#if defined(CHECK_STATE)
-    if ( inherits( "QHBoxLayout" ) )
-	warning( "QBoxLayout::addWidget() obsolete, use QHBoxLayout::add()" );
-    else if ( inherits( "QVBoxLayout" ) )
-	warning( "QBoxLayout::addWidget() obsolete, use QVBoxLayout::add()" );
-#endif
-
-
     const int first = AlignLeft | AlignTop;
     const int last  = AlignRight | AlignBottom;
 
@@ -572,6 +560,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     pristine = FALSE;
 }
 
+
 /*!
   \fn QBoxLayout::Direction QBoxLayout::direction() const
 
@@ -595,11 +584,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   \brief The QHBoxLayout class provides a horizontal layout box
 
   The contents are arranged left to right, they will stretch to fill
-  the available space.
-
-  Use add() to add widgets or other layouts.
-
-  \important addStretch() addSpacing()
+  the available space. 
 
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
@@ -635,60 +620,6 @@ QHBoxLayout::~QHBoxLayout()
 {
 }
 
-/*!
-  Adds the widget \a w to the hbox, with horizontal stretch factor \a
-  stretch. The vertical alignment is given by \a alignment.
-
-  An \a alignment of 0 (the default) lets the widget fill the height
-  of the box (will center if the box is taller than the maximum height
-  of the widget).
-
-  The other possible values for \a alignment are
-  <ul>
-  <li> \c AlignCenter centers vertically in the box.
-  <li> \c AlignTop aligns to the top border of the box.
-  <li> \c AlignBottom aligns to the bottom border of the box.
-  </ul>
-
-  To center horizontally, use addStretch().
-
-  If \a w does not have a QWidget::minimumSize(), suitable maximum and
-  minimum sizes will be chosen heuristically based on \a stretch, \a
-  alignment and QWidget::sizeHint(). To disable the heuristics, set
-  a nonzero minimum size.
- */
-void QHBoxLayout::add( QWidget *w, int stretch, 
-			     int alignment )
-{
-    bool noMinSize = ( w->minimumSize().isNull() );
-    if ( noMinSize ) {
-	QSize hint = w->sizeHint();
-
-	if ( hint.width() > 0 ) {
-	    w->setMinimumWidth( hint.width() );
-	    if ( stretch == 0 )
-		w->setMaximumWidth( hint.width() );
-	}
-
-	if ( hint.height() > 0 ) {
-	    w->setMinimumHeight( hint.height() );
-	    if ( alignment != 0 )
-		w->setMaximumHeight( hint.height() );
-	}
-    }
-    if ( !alignment )
-	alignment = AlignCenter;
-    QBoxLayout::addWidget( w, stretch, alignment );
-}
-
-/*!
-  Adds the layout  \a layout inside this layout with horizontal
-  stretch factor \a stretch.
- */
-void QHBoxLayout::add( QLayout *layout, int stretch )
-{
-    QBoxLayout::addLayout( layout, stretch );
-}
 
 
 /*!
@@ -698,9 +629,6 @@ void QHBoxLayout::add( QLayout *layout, int stretch )
   The contents are arranged top to bottom, they will stretch to fill
   the available space.
 
-  Use add() to add widgets or other layouts.
-
-  \important addStretch() addSpacing()
 
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
@@ -733,65 +661,6 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
-
-/*!
-  Adds the widget \a w to the vbox, with vertical stretch factor \a
-  stretch. The vertical alignment is given by \a alignment.
-
-  An \a alignment of 0 (the default) lets the widget fill the width
-  of the box (will center if the box is wider than the maximum width
-  of the widget).
-
-  The other possible values for \a alignment are
-  <ul>
-  <li> \c AlignCenter centers horizontally in the box.
-  <li> \c AlignLeft aligns to the left border of the box.
-  <li> \c AlignRight aligns to the right border of the box.
-  </ul>
-
-  To center vertically, use addStretch().
-
-  If \a w does not have a QWidget::minimumSize(), suitable maximum and
-  minimum sizes will be chosen heuristically based on \a stretch, \a
-  alignment and QWidget::sizeHint(). To disable the heuristics, set
-  a nonzero minimum size.
- */
-void QVBoxLayout::add( QWidget *w, int stretch, 
-			     int alignment )
-{
-    bool noMinSize = ( w->minimumSize().isNull() );
-    if ( noMinSize ) {
-	QSize hint = w->sizeHint();
-
-	if ( hint.height() > 0 ) {
-	    w->setMinimumHeight( hint.height() );
-	    if ( stretch == 0 )
-		w->setMaximumHeight( hint.height() );
-	}
-
-	if ( hint.width() > 0 ) {
-	    w->setMinimumWidth( hint.width() );
-	    if ( alignment != 0 )
-		w->setMaximumWidth( hint.width() );
-	}
-    }
-    if ( !alignment )
-	alignment = AlignCenter;
-    QBoxLayout::addWidget( w, stretch, alignment );
-}
-
-/*!
-  Adds the layout  \a layout inside this layout with vertical
-  stretch factor \a stretch.
- */
-void QVBoxLayout::add( QLayout *layout, int stretch )
-{
-    QBoxLayout::addLayout( layout, stretch );
-}
-
-
-
-
 
 /*!
   \class QGridLayout qlayout.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#10 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#11 $
 **
 ** Definition of layout classes
 **
@@ -77,11 +77,11 @@ public:
 		const char *name=0 );
 
     ~QBoxLayout();
-    void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
+
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
+    void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
     void addLayout( QLayout *layout, int stretch = 0 );
-
     Direction direction() const { return (Direction)dir; }
 
     void addStrut( int );
@@ -114,8 +114,6 @@ public:
     QHBoxLayout( int autoBorder = -1, const char *name=0 );
 
     ~QHBoxLayout();
-    void add( QWidget *, int stretch = 0, int alignment = 0 );
-    void add( QLayout *layout, int stretch = 0 );
 };
 
 
@@ -129,8 +127,6 @@ public:
     QVBoxLayout( int autoBorder = -1, const char *name=0 );
 
     ~QVBoxLayout();
-    void add( QWidget *, int stretch = 0, int alignment = 0 );
-    void add( QLayout *layout, int stretch = 0 );
 };
 
 
