@@ -101,6 +101,7 @@ const Q_UINT16 mfhdr_min = 0; // minor version #
     \i \a formatVersion == 3 is binary compatible with Qt 2.1.x and later.
     \i \a formatVersion == 4 is binary compatible with Qt 3.0.x and later.
     \i \a formatVersion == 5 is binary compatible with Qt 3.1.x and later.
+    \i \a formatVersion == 6 is binary compatible with Qt 4.0.
     \endlist
 
     Note that the default formatVersion is -1 which signifies the
