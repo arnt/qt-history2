@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QTextCodec class
 **
 ** Created : 981015
 **
-** Copyright (C)1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C)1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #ifndef QRTLCODEC_H
 #define QRTLCODEC_H
 
@@ -49,6 +50,9 @@ public:
     const char* name() const;
     const char* mimeName() const;
 
+#if defined(Q_USING)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
 

@@ -1695,6 +1695,9 @@ public:
     ~QSimpleTextCodec();
 
     QString toUnicode(const char* chars, int len) const;
+#if defined(Q_USING)
+    using QTextCodec::fromUnicode;
+#endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -1705,6 +1708,9 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 
     int heuristicNameMatch(const char* hint) const;
+#if defined(Q_USING)
+    using QTextCodec::canEncode;
+#endif
     bool canEncode( QChar ch ) const;
 
 private:
