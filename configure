@@ -1595,6 +1595,8 @@ CACHEFILE=$outpath/.qmake.cache
 cat >>$CACHEFILE <<EOF
 CONFIG += $QMAKE_CONFIG dylib
 QMAKESPEC = $XPLATFORM
+QT_SOURCE_TREE = $relpath
+QT_BUILD_TREE = $outpath
 EOF
 #cmdline args
 quoted=no
