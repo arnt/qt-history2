@@ -1693,7 +1693,11 @@ void QWidgetFactory::loadExtraSource()
 	    for ( QValueList<LanguageInterface::Function>::Iterator fit2 = functions.begin();
 		  fit2 != functions.end(); ++fit2 ) {
 		languageSlots.insert( (*fit2).name.left( (*fit2).name.find( '(' ) ), lang );
-		QString s = interpreterInterface->createFunctionDeclaration( (*fit2).name, (*fit2).body );
+		QString s;
+		QString comments = (*fit2).comments;
+		if ( !comments.isEmpty() )
+		    s += comments + "\n";
+		 s += interpreterInterface->createFunctionDeclaration( (*fit2).name, (*fit2).body );
 		funcs->functions += s;
 		if ( !qwf_functions )
 		    qwf_functions = new QMap<QWidget*, QString>;
