@@ -199,7 +199,7 @@ void QRadioButton::drawButton( QPainter *paint )
 
     QTextOStream os(&pmkey);
     os << "$qt_radio_" << style().className() << "_"
-       << palette().serialNumber() << "_" << kf;
+       << palette().serialNumber() << "_" << irect.width() << "x" << irect.height() << "_" << kf;
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	drawButtonLabel( p );
@@ -213,7 +213,8 @@ void QRadioButton::drawButton( QPainter *paint )
 	pm = new QPixmap( irect.size() );	// create new pixmap
 	Q_CHECK_PTR( pm );
 	pm->fill(cg.background());
-	pmpaint.begin( pm );
+	QPainter::redirect(this, pm);
+	pmpaint.begin(this);
 	p = &pmpaint;				// draw in pixmap
 	wx = irect.x();				// save x,y coords
 	wy = irect.y();
@@ -241,6 +242,7 @@ void QRadioButton::drawButton( QPainter *paint )
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
+	QPainter::redirect(this, NULL);
 	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
