@@ -3096,9 +3096,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	return 0;
     }
 
-    if ( event->type == XKeyPress || event->type == XKeyRelease )
-	widget = keywidget;
-
     if ( !widget ) {				// don't know this windows
 	QWidget* popup = QApplication::activePopupWidget();
 	if ( popup ) {
@@ -3126,6 +3123,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	return -1;
     }
+
+    if ( event->type == XKeyPress || event->type == XKeyRelease )
+	widget = keywidget; // send XKeyEvents through keywidget->x11Event()
 
     if ( app_do_modal )				// modal event handling
 	if ( !qt_try_modal(widget, event) ) {
