@@ -142,18 +142,15 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	      << "</pre>\n";
 	break;
     case Atom::CodeNew:
-        out() << "<tr valign=\"top\" bgcolor=\"#e0e0e0\"><td>New&nbsp;style:&nbsp;</td><td>" 
-              << formattingLeftMap()[ATOM_FORMATTING_TELETYPE] << protect(plainCode(atom->string()))
-              << formattingRightMap()[ATOM_FORMATTING_TELETYPE]
-              << "</td></tr>\n</table>\n";
+        out() << "<p>you can rewrite it as</p>\n"
+              << "<pre>" << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+              << "</pre>\n";
         break;
     case Atom::CodeOld:
-        out() << "<table border=\"0\" cellpadding=\"2\" cellspacing=\"1\" width=\"100%\">\n"
-              << "<tr valign=\"top\"  bgcolor=\"#f0f0f0\">"
-              << "<td width=\"1%\">Old&nbsp;style:&nbsp;</td><td>"
-              << formattingLeftMap()[ATOM_FORMATTING_TELETYPE] << protect(plainCode(atom->string()))
-              << formattingRightMap()[ATOM_FORMATTING_TELETYPE]
-              << "</td></tr>\n";
+        out() << "<p>For example, if you have code like</p>\n"
+              << "<pre><font color=\"darkgray\""
+	      << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
+              << "</font></pre>\n";
         break;
     case Atom::FootnoteLeft:
 	break;
