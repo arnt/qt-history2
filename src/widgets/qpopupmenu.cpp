@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#218 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#219 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -129,17 +129,18 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 QString QPopupMenu::accelString( int k )
 {
     QString s;
-    if ( (k & SHIFT) == SHIFT )
-	s = tr( "Shift" );
     if ( (k & CTRL) == CTRL ) {
-	if ( !s.isEmpty() )
-	    s += tr( "+" );
 	s += tr( "Ctrl" );
     }
     if ( (k & ALT) == ALT ) {
 	if ( !s.isEmpty() )
 	    s += tr( "+" );
 	s += tr( "Alt" );
+    }
+    if ( (k & SHIFT) == SHIFT ) {
+	if ( !s.isEmpty() )
+	    s += tr( "+" );
+	s = tr( "Shift" );
     }
     k &= ~(SHIFT | CTRL | ALT);
     QString p;
