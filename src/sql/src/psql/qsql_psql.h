@@ -69,7 +69,12 @@ private:
 class QPSQLDriver : public QSqlDriver
 {
 public:
-    QPSQLDriver( QObject * parent=0, const char * name=0 );
+    enum Protocol {
+	Version6 = 6,
+	Version7 = 7
+    };
+    
+    QPSQLDriver( Protocol protocol, QObject * parent=0, const char * name=0 );
     ~QPSQLDriver();
     bool    	        hasTransactionSupport() const;
     bool                hasQuerySizeSupport() const;
@@ -84,14 +89,16 @@ public:
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
+    
+    Protocol            protocol() const { return pro; }
 protected:
     bool    		beginTransaction();
     bool    		commitTransaction();
     bool    		rollbackTransaction();
 private:
     void		init();
+    Protocol            pro;
     QPSQLPrivate* 	d;
 };
-
 
 #endif
