@@ -35,6 +35,7 @@
 #include "qwidget.h"
 #include "qapplication_p.h"
 #include "qdnd_p.h"
+#include "qdebug.h"
 
 #include <qthread.h>
 #include <private/qthread_p.h>
@@ -53,6 +54,8 @@ extern void qt_call_post_routines();
 #define d d_func()
 #define q q_func()
 
+
+static QString *qt_style_override = 0;
 
 QApplication::Type qt_appType=QApplication::Tty;
 
@@ -556,7 +559,9 @@ void QApplication::process_cmdline()
         }
 #ifndef QT_NO_STYLE
         if (!s.isEmpty()) {
-            setStyle(s);
+            if (!qt_style_override)
+                qt_style_override = new QString;
+            *qt_style_override = s;
         }
 #endif
     }
@@ -1047,8 +1052,6 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 
 #ifndef QT_NO_STYLE
 
-static QString *qt_style_override = 0;
-
 /*!
   Returns the application's style object.
 
@@ -1094,19 +1097,16 @@ QStyle *QApplication::style()
             style = "Compact";                // default style for small devices
 #endif
         }
-        QApplicationPrivate::app_style = QStyleFactory::create(style);
-        if (!QApplicationPrivate::app_style &&  // platform default style not available, try alternatives
-            !(QApplicationPrivate::app_style = QStyleFactory::create("Windows")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("Platinum")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("MotifPlus")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("Motif")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("CDE")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("Mac")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("SGI")) &&
-            !(QApplicationPrivate::app_style = QStyleFactory::create("Compact"))
-            && (QStyleFactory::keys().isEmpty() ||
-                !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys()[0])))
-       )
+        if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)) // platform default style not available, try alternatives
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("Windows"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("Platinum"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("MotifPlus"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("Motif"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("CDE"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("Mac"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("SGI"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("Compact"))
+            && (QStyleFactory::keys().isEmpty() || !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys().first()))))
             qFatal("No %s style available!", style.toLatin1().constData());
     }
 
@@ -1230,13 +1230,6 @@ QStyle* QApplication::setStyle(const QString& style)
     qt_explicit_app_style = true;
 #endif // Q_WS_X11
 
-    if (startingUp()) {
-        if(qt_style_override)
-            *qt_style_override = style;
-        else
-            qt_style_override = new QString(style);
-        return 0;
-    }
     QStyle *s = QStyleFactory::create(style);
     if (!s)
         return 0;
