@@ -245,6 +245,8 @@ public slots:
 
 void QAquaStylePrivate::objDestroyed(QObject *o)
 {
+    if(o == buttonState.stop_pulse)
+	buttonState.stop_pulse = NULL;
     if(o == defaultButton)
 	defaultButton = NULL;
 }
@@ -469,7 +471,9 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	d->defaultButton = NULL;
     } else if( (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) &&
 	       o->inherits("QPushButton") ) {
-	d->buttonState.stop_pulse = (e->type() == QEvent::MouseButtonPress) ? (QPushButton*)o : NULL;
+	QMouseEvent *me = (QMouseEvent*)e;
+	d->buttonState.stop_pulse = me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton ? 
+				    (QPushButton*)o : NULL;
     } else if( o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
 	       o->inherits("QPushButton") ) {
 	QPushButton *btn = (QPushButton *)o;
@@ -1088,7 +1092,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	}
 
 	QString hstr = QString::number( h - y );
-	if( (!d->buttonState.stop_pulse || d->buttonState.stop_pulse == btn) &&
+	if( (!d->buttonState.stop_pulse || d->buttonState.stop_pulse == btn || !d->buttonState.stop_pulse->isDown()) &&
 	    (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
 	    int & alt = d->buttonState.frame;
 	    int & dir = d->buttonState.dir;
