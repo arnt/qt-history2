@@ -93,12 +93,16 @@ Win32MakefileGenerator::findLibraries(const QString &where)
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
+                QString suffix;
+                if(!project->isEmpty("QMAKE_" + lib + "_SUFFIX"))
+                    suffix = project->first("QMAKE_" + lib + "_SUFFIX");
                 for(QList<QMakeLocalFileName>::Iterator it = dirs.begin();
                     it != dirs.end(); ++it) {
                     QString extension;
                     int ver = findHighestVersion((*it).local(), lib);
                     if(ver > 0)
                         extension += QString::number(ver);
+                    extension += suffix;
                     extension += ".lib";
                     if(QMakeMetaInfo::libExists((*it).local() + Option::dir_sep + lib) ||
                        exists((*it).local() + Option::dir_sep + lib + extension)) {
@@ -124,8 +128,11 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             if(file.endsWith(".lib")) {
                 file = file.left(file.length() - 4);
                 if(!file.at(file.length()-1).isNumber()) {
+                    QString suffix;
+                    if(!project->isEmpty("QMAKE_" + file.section(Option::dir_sep, -1) + "_SUFFIX"))
+                        suffix = project->first("QMAKE_" + file.section(Option::dir_sep, -1) + "_SUFFIX");
                     for(QList<QMakeLocalFileName>::Iterator dep_it = lib_dirs.begin(); dep_it != lib_dirs.end(); ++dep_it) {
-                        QString lib_tmpl(file + "%1.lib");
+                        QString lib_tmpl(file + "%1" + suffix + ".lib");
                         int ver = findHighestVersion((*dep_it).local(), file);
                         if(ver != -1) {
                             if(ver)
@@ -228,7 +235,7 @@ void Win32MakefileGenerator::processVars()
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     if (!project->variables()["QMAKE_INCDIR"].isEmpty())
         project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    
+
     if (!project->variables()["VERSION"].isEmpty()) {
         QStringList l = project->first("VERSION").split('.');
         project->variables()["VER_MAJ"].append(l[0]);
@@ -237,9 +244,9 @@ void Win32MakefileGenerator::processVars()
 
     // TARGET_VERSION_EXT will be used to add a version number onto the target name
     if (project->variables()["TARGET_VERSION_EXT"].isEmpty()
-        && !project->variables()["VER_MAJ"].isEmpty()) 
+        && !project->variables()["VER_MAJ"].isEmpty())
         project->variables()["TARGET_VERSION_EXT"].append(project->variables()["VER_MAJ"].first());
-    
+
     if(project->isEmpty("QMAKE_COPY_FILE"))
         project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
     if(project->isEmpty("QMAKE_COPY_DIR"))
@@ -281,19 +288,19 @@ void Win32MakefileGenerator::fixTargetExt()
 void Win32MakefileGenerator::processRcFileVar()
 {
     if ((!project->variables()["VERSION"].isEmpty())
-        && project->variables()["RC_FILE"].isEmpty() 
+        && project->variables()["RC_FILE"].isEmpty()
         && project->variables()["RES_FILE"].isEmpty()
         && !project->isActiveConfig("no_generated_target_info")
         && (project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty())) {
 
         QByteArray rcString;
         QTextStream ts(&rcString, QFile::WriteOnly);
-        
+
         QStringList vers = project->variables()["VERSION"].first().split(".");
         for (int i = vers.size(); i < 4; i++)
             vers += "0";
         QString versionString = vers.join(".");
-        
+
         QString companyName;
         if (!project->variables()["QMAKE_TARGET_COMPANY"].isEmpty())
             companyName = project->variables()["QMAKE_TARGET_COMPANY"].join(" ");
@@ -301,7 +308,7 @@ void Win32MakefileGenerator::processRcFileVar()
         QString description;
         if (!project->variables()["QMAKE_TARGET_DESCRIPTION"].isEmpty())
             description = project->variables()["QMAKE_TARGET_DESCRIPTION"].join(" ");
-        
+
         QString copyright;
         if (!project->variables()["QMAKE_TARGET_COPYRIGHT"].isEmpty())
             copyright = project->variables()["QMAKE_TARGET_COPYRIGHT"].join(" ");
@@ -311,7 +318,7 @@ void Win32MakefileGenerator::processRcFileVar()
             productName = project->variables()["QMAKE_TARGET_PRODUCT"].join(" ");
         else
             productName = project->variables()["TARGET"].first();
-        
+
         QString originalName = project->variables()["TARGET"].first() + project->variables()["TARGET_EXT"].first();
 
         ts << "#ifndef Q_CC_BOR" << endl;
@@ -345,7 +352,7 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "\t\t\t\tVALUE \"CompanyName\", \"" << companyName << "\\0\"" << endl;
         ts << "\t\t\t\tVALUE \"FileDescription\", \"" <<  description << "\\0\"" << endl;
         ts << "\t\t\t\tVALUE \"FileVersion\", \"" << versionString << "\\0\"" << endl;
-        ts << "\t\t\t\tVALUE \"LegalCopyright\", \"" << copyright << "\\0\"" << endl; 
+        ts << "\t\t\t\tVALUE \"LegalCopyright\", \"" << copyright << "\\0\"" << endl;
         ts << "\t\t\t\tVALUE \"OriginalFilename\", \"" << originalName << "\\0\"" << endl;
         ts << "\t\t\t\tVALUE \"ProductName\", \"" << productName << "\\0\"" << endl;
         ts << "\t\t\tEND" << endl;
@@ -353,10 +360,10 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "\tEND" << endl;
         ts << "/* End of Version info */" << endl;
         ts << endl;
-        
+
         ts.flush();
 
-        
+
         QFile rcFile(project->variables()["TARGET"].first() + "_resource" + ".rc");
         bool writeRcFile = true;
         if (rcFile.exists() && rcFile.open(QFile::ReadOnly)) {
@@ -367,7 +374,7 @@ void Win32MakefileGenerator::processRcFileVar()
             rcFile.write(rcString);
             rcFile.close();
         }
-        project->variables()["RC_FILE"].insert(0, Option::fixPathToTargetOS(rcFile.fileName(), false, false)); 
+        project->variables()["RC_FILE"].insert(0, Option::fixPathToTargetOS(rcFile.fileName(), false, false));
     }
     if (!project->variables()["RC_FILE"].isEmpty()) {
         if (!project->variables()["RES_FILE"].isEmpty()) {

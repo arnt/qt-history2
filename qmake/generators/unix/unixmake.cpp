@@ -368,10 +368,13 @@ UnixMakefileGenerator::findLibraries()
     for(int i = 0; !lflags[i].isNull(); i++) {
         QStringList &l = project->variables()[lflags[i]];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+            bool do_suffix = true;
             QString stub, dir, extn, opt = (*it).trimmed();
             if(opt.startsWith("-")) {
                 if(opt.startsWith("-L")) {
                     libdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
+                } else if(opt.startsWith("-l")) {
+                    stub = opt.mid(2);
                 } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
                     frameworkdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
                 } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
@@ -381,6 +384,7 @@ UnixMakefileGenerator::findLibraries()
                         ++it;
                         opt = (*it);
                     }
+                    do_suffix = false;
                     extn = "";
                     dir = "/System/Library/Frameworks/" + opt + ".framework/";
                     stub = opt;
@@ -400,6 +404,8 @@ UnixMakefileGenerator::findLibraries()
                 }
             }
             if(!stub.isEmpty()) {
+                if(do_suffix && !project->isEmpty("QMAKE_" + stub + "_SUFFIX"))
+                    stub += project->first("QMAKE_" + stub + "_SUFFIX");
                 bool found = false;
                 QStringList extens;
                 if(!extn.isNull())
@@ -483,6 +489,8 @@ UnixMakefileGenerator::processPrlFiles()
                             }
 
                             QString prl = (*dep_it).local() + Option::dir_sep + "lib" + lib;
+                            if(!project->isEmpty("QMAKE_" + lib + "_SUFFIX"))
+                                prl += project->first("QMAKE_" + lib + "_SUFFIX");
                             if(processPrlFile(prl)) {
                                 if(prl.startsWith((*dep_it).local()))
                                     prl.replace(0, (*dep_it).local().length(), (*dep_it).real());
