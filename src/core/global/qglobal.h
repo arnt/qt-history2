@@ -27,6 +27,10 @@
  */
 #define QT_VERSION 0x040000
 
+#if !defined(QT_BUILD_MOC)
+#include "qconfig.h"
+#endif
+
 
 /*
    The operating system, must be one of: (Q_OS_x)
@@ -825,32 +829,6 @@ inline ushort qMax(uchar a, ushort b) { return (b < a) ? a : b; }
 //
 
 class QDataStream;
-
-
-//
-// Feature subsetting
-//
-// Note that disabling some features will produce a libqt that is not
-// compatible with other libqt builds. Such modifications are only
-// supported on Qt/Embedded where reducing the library size is important
-// and where the application-suite is often a fixed set.
-//
-
-#if !defined(QT_BUILD_MOC)
-#if defined(QCONFIG_LOCAL)
-#include "qconfig-local.h"
-#elif defined(QCONFIG_MINIMAL)
-#include "qconfig-minimal.h"
-#elif defined(QCONFIG_SMALL)
-#include "qconfig-small.h"
-#elif defined(QCONFIG_MEDIUM)
-#include "qconfig-medium.h"
-#elif defined(QCONFIG_LARGE)
-#include "qconfig-large.h"
-#else // everything...
-#include "qconfig.h"
-#endif
-#endif
 
 #ifdef Q_OS_DARWIN
 #  ifdef MAC_OS_X_VERSION_MIN_REQUIRED
