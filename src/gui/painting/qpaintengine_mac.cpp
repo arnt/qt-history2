@@ -283,7 +283,7 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
 
     Rect rect;
     SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy,
-            qRound(r.right())+d->offx, qRound(r.bottom())+d->offy);
+            qRound(r.x() + r.width())+d->offx, qRound(r.y() + r.height())+d->offy);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
         if(d->current.brush.style() == Qt::SolidPattern) {
@@ -315,7 +315,7 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
+                drawTiledPixmap(r, *pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -371,7 +371,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
 
     Rect mac_r;
     SetRect(&mac_r, qRound(r.x()) + d->offx, qRound(r.y()) + d->offy,
-            qRound(r.right()) + d->offx, qRound(r.bottom()) + d->offy);
+            qRound(r.x() + r.width()) + d->offx, qRound(r.y() + r.height()) + d->offy);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
         if(d->current.brush.style() == Qt::SolidPattern) {
@@ -403,7 +403,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, *pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
+                drawTiledPixmap(r, *pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -546,16 +546,18 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, c
 				       Qt::PixmapDrawingMode mode)
 {
     int yPos=qRound(r.y()), xPos, drawH, drawW, yOff=qRound(p.y()), xOff;
-    while(yPos < r.bottom()) {
+    int rBottom = qRound(r.y() + r.height());
+    int rRight = qRound(r.x() + r.width());
+    while(yPos < rBottom) {
         drawH = pixmap.height() - yOff;    // Cropping first row
-        if(yPos + drawH > r.bottom())        // Cropping last row
-            drawH = qRound(r.bottom()) - yPos;
+        if(yPos + drawH > rBottom)        // Cropping last row
+            drawH = rBottom - yPos;
         xPos = qRound(r.x());
         xOff = qRound(p.x());
-        while(xPos < r.right()) {
+        while(xPos < rRight) {
             drawW = pixmap.width() - xOff; // Cropping first column
-            if(xPos + drawW > r.right())    // Cropping last column
-                drawW = qRound(r.right()) - xPos;
+            if(xPos + drawW > rRight)    // Cropping last column
+                drawW = rRight - xPos;
             drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
                        mode);
             xPos += drawW;
