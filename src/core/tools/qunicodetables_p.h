@@ -80,8 +80,8 @@ namespace QUnicodeTables {
         NormalizationMode_KD,
         NormalizationMode_KC
     };
-    QString normalize(const QString &str, QUnicodeTables::NormalizationMode mode);
-    QString normalize(const QString &str, QUnicodeTables::NormalizationMode mode, QChar::UnicodeVersion version);
+    Q_CORE_EXPORT QString normalize(const QString &str, QUnicodeTables::NormalizationMode mode);
+    Q_CORE_EXPORT QString normalize(const QString &str, QUnicodeTables::NormalizationMode mode, QChar::UnicodeVersion version);
 };
 
 
