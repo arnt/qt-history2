@@ -637,7 +637,7 @@ void FunctionList::objectClicked( QListViewItem *i )
 
 void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
-    QListViewItem *i = itemAt( e->pos() );
+    QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( !i || i->parent() )
 	return;
     if ( i->text( 0 ) == tr( "Functions" ) )

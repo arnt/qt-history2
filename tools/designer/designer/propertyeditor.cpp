@@ -3103,7 +3103,7 @@ extern QListViewItem *newItem;
 
 void EventList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 {
-    QListViewItem *i = itemAt( e->pos() );
+    QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( !i || i->parent() )
 	return;
     QString s;
