@@ -116,7 +116,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
     QSql pIdxs = driver->createResult();
     pIdxs.setQuery( pIdx.arg( tablename ).arg( fieldname ) );
     if ( pIdxs.next() )
-	ispIdx = pIdxs[0].toInt();
+	ispIdx = pIdxs.value(0).toInt();
     return ispIdx;
 }
 
@@ -133,7 +133,7 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
     QSql fi = driver->createResult();
     fi.setQuery( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
-	QSqlField f( fieldname, 0, qDecodePSQLType(fi[0].toInt()) );
+	QSqlField f( fieldname, 0, qDecodePSQLType(fi.value(0).toInt()) );
 	f.setPrimaryIndex( qIsPrimaryIndex( driver, tablename, fieldname ) );
 	return f;
     }
@@ -519,7 +519,7 @@ QStringList QPSQLDriver::tables( const QString& user ) const
     t.setQuery( stmt.arg( user ) );
     QStringList tl;
     while ( t.isActive() && t.next() )
-	tl.append( t[0].toString() );
+	tl.append( t.value(0).toString() );
     return tl;
 }
 
@@ -533,7 +533,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 		  "and a.attrelid = c2.oid;");
     i.setQuery( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
-	QSqlField f = qMakeField( this, tablename,  i[0].toString() );
+	QSqlField f = qMakeField( this, tablename,  i.value(0).toString() );
 	f.setFieldNumber( i.at() );
 	idx.append( f );
     }
@@ -553,7 +553,7 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
     QSql fi = createResult();
     fi.setQuery( stmt.arg( tablename ) );
     while ( fi.next() ) {
-	QSqlField f = qMakeField( this, tablename, fi[0].toString() );
+	QSqlField f = qMakeField( this, tablename, fi.value(0).toString() );
 	f.setFieldNumber( fi.at() );
 	fil.append( f );
     }
