@@ -3108,7 +3108,11 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	if ( isSelected( tmpRow, tmpCol, FALSE ) ) {
 	    shouldClearSelection = TRUE;
 	} else {
+	    bool b = signalsBlocked();
+	    if ( selMode != NoSelection )
+		blockSignals( TRUE );
 	    clearSelection();
+	    blockSignals( b );
 	    if ( selMode != NoSelection ) {
 		currentSel = new QTableSelection();
 		selections.append( currentSel );
@@ -3601,7 +3605,10 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		    bool hasOldSel = FALSE;
 		    QTableSelection oldSelection;
 		    if ( selectionMode() == MultiRow ) {
+			bool b = signalsBlocked();
+			blockSignals( TRUE );
 			clearSelection();
+			blockSignals( b );
 		    } else {
 			if ( currentSel ) {
 			    oldSelection = *currentSel;
@@ -3615,6 +3622,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		    currentSel->init( tmpRow, 0 );
 		    currentSel->expandTo( tmpRow, numCols() - 1 );
 		    repaintSelections( hasOldSel ? &oldSelection : 0, currentSel, !hasOldSel );
+		    emit selectionChanged();
 		}
 	    }
 	}
