@@ -1454,10 +1454,10 @@ void QFileDialogPrivate::setup(const QString &directory,
     showHiddenAction->setCheckable(true);
 
     // connect signals
-    QObject::connect(lview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
-                     q, SLOT(populateContextMenu(QMenu*, const QModelIndex&)));
-    QObject::connect(tview, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
-                     q, SLOT(populateContextMenu(QMenu*, const QModelIndex&)));
+    QObject::connect(lview, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
+                     q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
+    QObject::connect(tview, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
+                     q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
     QObject::connect(openAction, SIGNAL(triggered()), q, SLOT(accept()));
     QObject::connect(renameAction, SIGNAL(triggered()), q, SLOT(renameCurrent()));
     QObject::connect(deleteAction, SIGNAL(triggered()), q, SLOT(deleteCurrent()));
@@ -1468,17 +1468,17 @@ void QFileDialogPrivate::setup(const QString &directory,
     QObject::connect(unsortedAction, SIGNAL(triggered()), q, SLOT(setUnsorted()));
     QObject::connect(showHiddenAction, SIGNAL(triggered()), q, SLOT(showHidden()));
 
-    QObject::connect(lview, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
-                     q, SLOT(doubleClicked(const QModelIndex&)));
-    QObject::connect(tview, SIGNAL(doubleClicked(const QModelIndex&, Qt::ButtonState)),
-                     q, SLOT(doubleClicked(const QModelIndex&)));
-    QObject::connect(selections, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                     q, SLOT(currentChanged(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(lview, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
-                     q, SLOT(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
-    QObject::connect(tview, SIGNAL(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)),
-                     q, SLOT(keyPressed(const QModelIndex&, Qt::Key, Qt::ButtonState)));
-    QObject::connect(tview->header(), SIGNAL(sectionPressed(int, Qt::ButtonState)),
+    QObject::connect(lview, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
+                     q, SLOT(doubleClicked(QModelIndex)));
+    QObject::connect(tview, SIGNAL(doubleClicked(QModelIndex,ButtonState)),
+                     q, SLOT(doubleClicked(QModelIndex)));
+    QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(currentChanged(QModelIndex,QModelIndex)));
+    QObject::connect(lview, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
+                     q, SLOT(keyPressed(QModelIndex,Key,ButtonState)));
+    QObject::connect(tview, SIGNAL(keyPressed(QModelIndex,Key,ButtonState)),
+                     q, SLOT(keyPressed(QModelIndex,Key,ButtonState)));
+    QObject::connect(tview->header(), SIGNAL(sectionPressed(int,ButtonState)),
                      q, SLOT(headerPressed(int)));
 
     // labels
@@ -1515,19 +1515,19 @@ void QFileDialogPrivate::setup(const QString &directory,
     lookIn->insertItem(model->icon(current), directory);
     int c = lookIn->findItem(directory, QAbstractItemModel::MatchExactly);
     lookIn->setCurrentItem(c >= 0 ? c : 0);
-    QObject::connect(lookIn, SIGNAL(activated(const QString&)),
-                     q, SLOT(setCurrentDir(const QString&)));
+    QObject::connect(lookIn, SIGNAL(activated(QString)),
+                     q, SLOT(setCurrentDir(QString)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
 
     lookInEdit = new QFileDialogLineEdit(lookIn);
-    QObject::connect(lookInEdit, SIGNAL(textChanged(const QString&)),
-                     q, SLOT(lookInChanged(const QString&)));
+    QObject::connect(lookInEdit, SIGNAL(textChanged(QString)),
+                     q, SLOT(lookInChanged(QString)));
     QObject::connect(lookInEdit, SIGNAL(returnPressed()), q, SLOT(lookIn()));
     lookIn->setLineEdit(lookInEdit); // FIXME: this will crash if done before the connects above!!!
 
     fileName = new QFileDialogLineEdit(q);
-    QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
-                     q, SLOT(fileNameChanged(const QString&)));
+    QObject::connect(fileName, SIGNAL(textChanged(QString)),
+                     q, SLOT(fileNameChanged(QString)));
     grid->addWidget(fileName, 2, 2, 1, 3);
 
     fileType = new QComboBox(q);
@@ -1538,8 +1538,8 @@ void QFileDialogPrivate::setup(const QString &directory,
     } else {
         fileType->insertStringList(nameFilter);
     }
-    QObject::connect(fileType, SIGNAL(activated(const QString&)),
-                     q, SLOT(useFilter(const QString&)));
+    QObject::connect(fileType, SIGNAL(activated(QString)),
+                     q, SLOT(useFilter(QString)));
     grid->addWidget(fileType, 3, 2, 1, 3);
 
     // tool buttons
