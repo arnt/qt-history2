@@ -118,7 +118,8 @@ void parse( const QString &fileName, bool local=TRUE )
 void runIt()					// starts hunting #includes
 {
     QStrListIterator i(*flist);
-    while ( i )
+    int n = i.count();				// NOTE: files will be added
+    while ( n-- )
 	parse( i() );
 }
 
