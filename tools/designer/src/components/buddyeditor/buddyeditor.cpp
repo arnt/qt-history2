@@ -23,6 +23,7 @@
 #include <qtundo.h>
 #include <qdesigner_command.h>
 #include <qdesigner_widget.h>
+#include <qlayout_widget.h>
 
 /*******************************************************************************
 ** BuddyConnection
@@ -76,12 +77,29 @@ BuddyEditor::BuddyEditor(AbstractFormWindow *form, QWidget *parent)
     m_formWindow = form;
 }
 
+static bool canBeBuddy(QWidget *w, AbstractFormWindow *form)
+{
+    if (qobject_cast<QLayoutWidget*>(w)
+            || w == form->mainContainer()
+            || w->isExplicitlyHidden())
+        return false;
+
+    QExtensionManager *ext = form->core()->extensionManager();
+    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(ext, w)) {
+        int index = sheet->indexOf("focusPolicy");
+        if (index != -1) {
+            bool ok = false;
+            Qt::FocusPolicy q = (Qt::FocusPolicy) Utils::valueOf(sheet->property(index), &ok);
+            return ok && q != Qt::NoFocus;
+        }
+    }
+
+    return false;
+}
+
 QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *w = ConnectionEdit::widgetAt(pos);
-
-    if (w == m_formWindow->mainContainer())
-        return 0;
 
     if (state() == Editing) {
         QDesignerLabel *label = qobject_cast<QDesignerLabel*>(w);
@@ -93,6 +111,9 @@ QWidget *BuddyEditor::widgetAt(const QPoint &pos) const
             if (con->widget(EndPoint::Source) == w)
                 return 0;
         }
+    } else {
+        if (!canBeBuddy(w, m_formWindow))
+            return 0;
     }
 
     return w;
