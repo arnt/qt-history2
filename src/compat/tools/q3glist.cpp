@@ -19,7 +19,6 @@
 /*!
   \class Q3LNode qglist.h
   \reentrant
-  \ingroup collection
   \brief The Q3LNode class is an internal class for the Q3PtrList template collection.
 
   \internal
@@ -49,7 +48,6 @@
 /*!
   \class Q3GList qglist.h
   \reentrant
-  \ingroup collection
   \brief The Q3GList class is an internal class for implementing Qt collection classes.
 
   \internal
@@ -1056,7 +1054,6 @@ Q3LNode* Q3GList::erase( Q3LNode* it )
 /*!
   \class Q3GListIterator qglist.h
   \reentrant
-  \ingroup collection
   \brief The Q3GListIterator class is an internal class for implementing Q3PtrListIterator.
 
   \internal

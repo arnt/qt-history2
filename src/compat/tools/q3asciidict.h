@@ -18,8 +18,8 @@
 
 template<class type>
 class Q3AsciiDict
-#ifdef Q_QDOC
-	: public QPtrCollection
+#ifdef qdoc
+	: public Q3PtrCollection
 #else
 	: public Q3GDict
 #endif
@@ -50,10 +50,10 @@ public:
     void  resize(uint n)		{ Q3GDict::resize(n); }
     void  statistics() const		{ Q3GDict::statistics(); }
 
-#ifdef Q_QDOC
+#ifdef qdoc
 protected:
-    virtual QDataStream& read(QDataStream &, QPtrCollection::Item &);
-    virtual QDataStream& write(QDataStream &, QPtrCollection::Item) const;
+    virtual QDataStream& read(QDataStream &, Q3PtrCollection::Item &);
+    virtual QDataStream& write(QDataStream &, Q3PtrCollection::Item) const;
 #endif
 
 private:

@@ -45,7 +45,6 @@
 /*!
   \class Q3GVector
   \reentrant
-  \ingroup collection
 
   \brief The Q3GVector class is an internal class for implementing Qt
   collection classes.

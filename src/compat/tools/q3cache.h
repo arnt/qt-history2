@@ -18,8 +18,8 @@
 
 template<class type>
 class Q3Cache
-#ifdef Q_QDOC
-        : public QPtrCollection
+#ifdef qdoc
+        : public Q3PtrCollection
 #else
         : public Q3GCache
 #endif

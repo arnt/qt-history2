@@ -20,7 +20,6 @@
 /*!
   \class Q3GDict
   \reentrant
-  \ingroup collection
   \brief The Q3GDict class is an internal class for implementing QDict template classes.
 
   \internal
@@ -972,7 +971,6 @@ QDataStream& Q3GDict::write(QDataStream &s) const
 /*!
   \class Q3GDictIterator qgdict.h
   \reentrant
-  \ingroup collection
   \brief The Q3GDictIterator class is an internal class for implementing QDictIterator and QIntDictIterator.
 
   \internal
