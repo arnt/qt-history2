@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#11 $
 **
 ** Implementation of QScrollView class
 **
@@ -330,7 +330,7 @@ QWidget* QScrollView::cornerWidget() const
 
   Passing 0 shows no widget in the corner.
 
-  Any previous widget is hidden.
+  Any previous corner widget is hidden.
 
   You may call setCornerWidget() with the same widget at different times.
 
@@ -384,6 +384,8 @@ void QScrollView::view(QWidget* w)
     if ( w ) {
 	if ( w->parentWidget() != &d->viewport ) {
 	    w->recreate( &d->viewport, 0, QPoint(0,0), isVisible() );
+	} else {
+	    w->show();
 	}
 	w->installEventFilter( this );
     }
