@@ -104,8 +104,8 @@ qtextstream.obj: ..\src\core\io\qtextstream.cpp
 qiodevice.obj: ..\src\core\io\qiodevice.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qiodevice.cpp
 
-qglobal.obj: ..\src\core\base\qglobal.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\base\qglobal.cpp
+qglobal.obj: ..\src\core\global\qglobal.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\global\qglobal.cpp
 
 qhash.obj: ..\src\core\tools\qhash.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qhash.cpp
@@ -158,11 +158,11 @@ qbitarray.obj: ..\src\core\tools\qbitarray.cpp
 qdir.obj: ..\src\core\io\qdir.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir.cpp
 
-qsettings.obj: ..\src\core\other\qsettings.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\other\qsettings.cpp
+qsettings.obj: ..\src\core\io\qsettings.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
 
-qsettings_win.obj: ..\src\core\other\qsettings_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\other\qsettings_win.cpp
+qsettings_win.obj: ..\src\core\io\qsettings_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
 
 qfileinfo_win.obj: ..\src\core\io\qfileinfo_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo_win.cpp
