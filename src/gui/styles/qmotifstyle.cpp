@@ -64,7 +64,7 @@ static const int motifCheckMarkSpace    = 12;
     Most of the functions are documented in the base classes,
     \l{QCommonStyle} and \l{QStyle}, but the functions overloaded by
     QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
-    querySubControlMetrics(), setUseHighlightColors(),
+    subControlRect(), setUseHighlightColors(),
     sizeFromContents(), subRect(), and useHighlightColors(), are
     documented here.
 */
@@ -239,24 +239,24 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ButtonTool:
     case PE_HeaderSection: {
         QBrush fill;
-        if (flags & Style_Down)
+        if (flags & State_Down)
             fill = pal.brush(QPalette::Mid);
-        else if (flags & Style_On)
+        else if (flags & State_On)
             fill = QBrush(pal.mid(), Qt::Dense4Pattern);
         else
             fill = pal.brush(QPalette::Button);
-        qDrawShadePanel(p, r, pal, bool(flags & (Style_Down | Style_On)),
+        qDrawShadePanel(p, r, pal, bool(flags & (State_Down | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break;
     }
 
     case PE_Indicator: {
 #ifndef QT_NO_BUTTON
-        bool on = flags & Style_On;
-        bool down = flags & Style_Down;
+        bool on = flags & State_On;
+        bool down = flags & State_Down;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || flags & Style_NoChange ? pal.brush(QPalette::Button) : pal.brush(QPalette::Mid);
-        if (flags & Style_NoChange) {
+        QBrush fill = showUp || flags & State_NoChange ? pal.brush(QPalette::Button) : pal.brush(QPalette::Mid);
+        if (flags & State_NoChange) {
             qDrawPlainRect(p, r, pal.text(),
                             1, &fill);
             p->drawLine(r.x() + r.width() - 1, r.y(),
@@ -299,8 +299,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 r.width()/2,r.height()-3,
                 r.width()-3,r.height()/2
             };
-            bool on = flags & Style_On;
-            bool down = flags & Style_Down;
+            bool on = flags & State_On;
+            bool down = flags & State_Down;
             bool showUp = !(down ^ on);
             QPolygon a(INTARRLEN(inner_pts), inner_pts);
             p->setPen(Qt::NoPen);
@@ -428,7 +428,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                     bTop.translate(rect.width() - 1, rect.height() - 1);
                     bBot.translate(rect.width() - 1, rect.height() - 1);
                 }
-                if (flags & Style_Down)
+                if (flags & State_Down)
                     colspec = horizontal ? 0x2334 : 0x2343;
                 else
                     colspec = horizontal ? 0x1443 : 0x1434;
@@ -443,7 +443,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                     bTop.translate(rect.width() - 1, 0);
                     bBot.translate(rect.width() - 1, 0);
                 }
-                if (flags & Style_Down)
+                if (flags & State_Down)
                     colspec = horizontal ? 0x2443 : 0x2434;
                 else
                     colspec = horizontal ? 0x1334 : 0x1343;
@@ -454,7 +454,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             bBot.translate(rect.x(), rect.y());
 
             const QColor *cols[5];
-            if (flags & Style_Enabled) {
+            if (flags & State_Enabled) {
                 cols[0] = 0;
                 cols[1] = &pal.button().color();
                 cols[2] = &pal.mid().color();
@@ -476,7 +476,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             QPen savePen = p->pen();
             QBrush saveBrush = p->brush();
             QPen pen(Qt::NoPen);
-            QBrush brush = pal.brush(flags & Style_Enabled ? QPalette::Button :
+            QBrush brush = pal.brush(flags & State_Enabled ? QPalette::Button :
                                      QPalette::Mid);
             p->setPen(pen);
             p->setBrush(brush);
@@ -508,7 +508,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
                         r.height() - fw*2);
 
-            if (flags & Style_Sunken)
+            if (flags & State_Sunken)
                 p->fillRect(r, pal.brush(QPalette::Dark));
             else
                 p->fillRect(r, pal.brush(QPalette::Button));
@@ -545,7 +545,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             QRect br;
             br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
                         r.height() - fw*2);
-            if (flags & Style_Sunken)
+            if (flags & State_Sunken)
                 p->fillRect(br, pal.brush(QPalette::Mid));
             else
                 p->fillRect(br, pal.brush(QPalette::Button));
@@ -569,7 +569,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                 a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
             int bsx = 0;
             int bsy = 0;
-            if (flags & Style_Sunken) {
+            if (flags & State_Sunken) {
                 bsx = pixelMetric(PM_ButtonShiftHorizontal);
                 bsy = pixelMetric(PM_ButtonShiftVertical);
             }
@@ -589,10 +589,10 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             QColor dark(pal.dark());
             QColor light(pal.light());
             int i;
-            if (flags & Style_Horizontal) {
+            if (flags & State_Horizontal) {
                 int h = r.height();
                 if (h > 6) {
-                    if (flags & Style_On)
+                    if (flags & State_On)
                         p->fillRect(1, 1, 8, h - 2, pal.highlight());
                     QPolygon a(2 * ((h-6)/3));
                     int y = 3 + (h%3)/2;
@@ -619,7 +619,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             } else {
                 int w = r.width();
                 if (w > 6) {
-                    if (flags & Style_On)
+                    if (flags & State_On)
                         p->fillRect(1, 1, w - 2, 9, pal.highlight());
                     QPolygon a(2 * ((w-6)/3));
 
@@ -650,17 +650,17 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
         }
 
     case PE_Splitter:
-        if (flags & Style_Horizontal)
-            flags &= ~Style_Horizontal;
+        if (flags & State_Horizontal)
+            flags &= ~State_Horizontal;
         else
-            flags |= Style_Horizontal;
+            flags |= State_Horizontal;
         // fall through intended
 
     case PE_DockWindowResizeHandle:
         {
             const int motifOffset = 10;
             int sw = pixelMetric(PM_SplitterWidth);
-            if (flags & Style_Horizontal) {
+            if (flags & State_Horizontal) {
                 int yPos = r.y() + r.height() / 2;
                 int kPos = r.width() - motifOffset - sw;
                 int kSize = sw - 2;
@@ -707,7 +707,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                     a.setPoint(2*i+1, xx, yy+2);
                     xx++; yy--;
                 }
-                if (! (flags & Style_Enabled) && ! (flags & Style_On)) {
+                if (! (flags & State_Enabled) && ! (flags & State_On)) {
                     int pnt;
                     p->setPen(pal.highlightedText());
                     QPoint offset(1,1);
@@ -729,13 +729,13 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
         }
 
     case PE_ScrollBarSubLine:
-        drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
-                      p, r, pal, Style_Enabled | flags);
+        drawPrimitive(((flags & State_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
+                      p, r, pal, State_Enabled | flags);
         break;
 
     case PE_ScrollBarAddLine:
-        drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
-                      p, r, pal, Style_Enabled | flags);
+        drawPrimitive(((flags & State_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
+                      p, r, pal, State_Enabled | flags);
         break;
 
     case PE_ScrollBarSubPage:
@@ -745,7 +745,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
     case PE_ScrollBarSlider:
         drawPrimitive(PE_ButtonBevel, p, r, pal,
-                      (flags | Style_Raised) & ~Style_Down);
+                      (flags | State_Raised) & ~State_Down);
         break;
 
     case PE_ProgressBarChunk:
@@ -810,11 +810,11 @@ void QMotifStyle::drawControl(ControlElement element,
             }
             if (!btn->isFlat() || btn->isOn() || btn->isDown()) {
                 QRect tmp(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                SFlags flags = Style_Default;
+                SFlags flags = State_Default;
                 if (btn->isOn())
-                    flags |= Style_On;
+                    flags |= State_On;
                 if (btn->isDown())
-                    flags |= Style_Down;
+                    flags |= State_Down;
                 p->setBrushOrigin(p->brushOrigin());
                 drawPrimitive(PE_ButtonCommand, p, tmp, pal, flags);
             }
@@ -832,7 +832,7 @@ void QMotifStyle::drawControl(ControlElement element,
             const QTab * t = opt.tab();
 
             int dfw = pixelMetric(PM_DefaultFrameWidth, tb);
-            bool selected = flags & Style_Selected;
+            bool selected = flags & State_Selected;
             int o =  dfw > 1 ? 1 : 0;
             bool lastTab = false;
 
@@ -982,7 +982,7 @@ void QMotifStyle::drawControl(ControlElement element,
 
 #ifndef QT_NO_MENU
     case CE_MenuTearoff: {
-        if(flags & Style_Active) {
+        if(flags & State_Active) {
             if(pixelMetric(PM_MenuFrameWidth) > 1)
                 qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(), pal, false, motifItemFrame,
                                  &pal.brush(QPalette::Button));
@@ -1008,9 +1008,9 @@ void QMotifStyle::drawControl(ControlElement element,
 
         int tab = opt.tabWidth();
         int maxpmw = opt.maxIconWidth();
-        bool dis = ! (flags & Style_Enabled);
+        bool dis = ! (flags & State_Enabled);
         bool checkable = menu->isCheckable();
-        bool act = flags & Style_Active;
+        bool act = flags & State_Active;
 
         int x, y, w, h;
         r.rect(&x, &y, &w, &h);
@@ -1075,11 +1075,11 @@ void QMotifStyle::drawControl(ControlElement element,
             int mw = checkcol;
             int mh = h - 2*motifItemFrame;
             if (mi->isChecked()) {
-                SFlags cflags = Style_Default;
+                SFlags cflags = State_Default;
                 if (! dis)
-                    cflags |= Style_Enabled;
+                    cflags |= State_Enabled;
                 if (act)
-                    cflags |= Style_On;
+                    cflags |= State_On;
 
                 drawPrimitive(PE_CheckMark, p,
                               QRect(xvis, y+motifItemFrame, mw, mh),
@@ -1122,9 +1122,9 @@ void QMotifStyle::drawControl(ControlElement element,
             QRect vr = visualRect(QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
                                          y+h/2-dim/2, dim, dim), r);
             if (act)
-                drawPrimitive(arrow, p, vr, pal, (Style_Down | (dis ? Style_Default : Style_Enabled)));
+                drawPrimitive(arrow, p, vr, pal, (State_Down | (dis ? State_Default : State_Enabled)));
             else
-                drawPrimitive(arrow, p, vr, pal, (dis ? Style_Default : Style_Enabled));
+                drawPrimitive(arrow, p, vr, pal, (dis ? State_Default : State_Enabled));
         }
 
         break;  }
@@ -1145,9 +1145,9 @@ void QMotifStyle::drawControl(ControlElement element,
 
             int tab = opt.tabWidth();
             int maxpmw = opt.maxIconWidth();
-            bool dis = ! (flags & Style_Enabled);
+            bool dis = ! (flags & State_Enabled);
             bool checkable = popupmenu->isCheckable();
-            bool act = flags & Style_Active;
+            bool act = flags & State_Active;
             int x, y, w, h;
 
             r.rect(&x, &y, &w, &h);
@@ -1214,11 +1214,11 @@ void QMotifStyle::drawControl(ControlElement element,
                 int mw = checkcol;
                 int mh = h - 2*motifItemFrame;
                 if (mi->isChecked()) {
-                    SFlags cflags = Style_Default;
+                    SFlags cflags = State_Default;
                     if (! dis)
-                        cflags |= Style_Enabled;
+                        cflags |= State_Enabled;
                     if (act)
-                        cflags |= Style_On;
+                        cflags |= State_On;
 
                     drawPrimitive(PE_CheckMark, p,
                                   QRect(xvis, y+motifItemFrame, mw, mh),
@@ -1275,11 +1275,11 @@ void QMotifStyle::drawControl(ControlElement element,
                                         y+h/2-dim/2, dim, dim), r);
                 if (act)
                     drawPrimitive(arrow, p, vr, pal,
-                                  (Style_Down |
-                                  (dis ? Style_Default : Style_Enabled)));
+                                  (State_Down |
+                                  (dis ? State_Default : State_Enabled)));
                 else
                     drawPrimitive(arrow, p, vr, pal,
-                                  (dis ? Style_Default : Style_Enabled));
+                                  (dis ? State_Default : State_Enabled));
             }
 
             break;
@@ -1289,7 +1289,7 @@ void QMotifStyle::drawControl(ControlElement element,
 
     case CE_MenuBarItem:
         {
-            if (flags & Style_Active)  // active item
+            if (flags & State_Active)  // active item
                 qDrawShadePanel(p, r, pal, false, motifItemFrame,
                                  &pal.brush(QPalette::Button));
             else  // other item
@@ -1301,7 +1301,7 @@ void QMotifStyle::drawControl(ControlElement element,
 #ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
         {
-            if (flags & Style_Active)  // active item
+            if (flags & State_Active)  // active item
                 qDrawShadePanel(p, r, pal, false, motifItemFrame,
                                  &pal.brush(QPalette::Button));
             else  // other item
@@ -1404,12 +1404,12 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
 #ifndef QT_NO_SLIDER
             const QSlider * slider = static_cast<const QSlider *>(widget);
 
-            QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove, opt),
-                  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle, opt);
+            QRect groove = subControlRect(CC_Slider, widget, SC_SliderGroove, opt),
+                  handle = subControlRect(CC_Slider, widget, SC_SliderHandle, opt);
 
             if ((sub & SC_SliderGroove) && groove.isValid()) {
                 qDrawShadePanel(p, groove, pal, true, 2, &pal.brush(QPalette::Mid));
-                if (flags & Style_HasFocus) {
+                if (flags & State_HasFocus) {
                     QRect fr = subRect(SR_SliderFocusRect, widget);
                     drawPrimitive(PE_FocusRect, p, fr, pal);
                 }
@@ -1445,9 +1445,9 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
             int fw = pixelMetric(PM_DefaultFrameWidth, cb);
 
             drawPrimitive(PE_ButtonCommand, p, r, pal, flags);
-            QRect ar = QStyle::visualRect(querySubControlMetrics(CC_ComboBox, cb, SC_ComboBoxArrow,
+            QRect ar = QStyle::visualRect(subControlRect(CC_ComboBox, cb, SC_ComboBoxArrow,
                                                                    opt), cb);
-            drawPrimitive(PE_ArrowDown, p, ar, pal, flags | Style_Enabled);
+            drawPrimitive(PE_ArrowDown, p, ar, pal, flags | State_Enabled);
 
             QRect tr = r;
             tr.addCoords(fw, fw, -fw, -fw);
@@ -1470,7 +1470,7 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
         if (sub & SC_ComboBoxEditField) {
             QComboBox * cb = (QComboBox *) widget;
             if (cb->editable()) {
-                QRect er = QStyle::visualRect(querySubControlMetrics(CC_ComboBox, cb,
+                QRect er = QStyle::visualRect(subControlRect(CC_ComboBox, cb,
                                                                        SC_ComboBoxEditField), cb);
                 er.addCoords(-1, -1, 1, 1);
                 qDrawShadePanel(p, er, pal, true, 1,
@@ -1699,10 +1699,10 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 /*!
     \reimp
 */
-QRect QMotifStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                                  SubControl sc, const QWidget *widget) const
 /*
-QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
+QRect QMotifStyle::subControlRect(ComplexControl control,
                                            const QWidget *widget,
                                            SubControl sc,
                                            const Q3StyleOption& opt) const
@@ -1878,7 +1878,7 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
 #endif
     default: break;
     }
-    return QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
+    return QCommonStyle::subControlRect(control, widget, sc, opt);
 }
 
 /*!

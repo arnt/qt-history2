@@ -40,7 +40,7 @@
     Most of the functions are documented in the base classes
     \l{QWindowsStyle}, \l{QCommonStyle}, and \l{QStyle}, but the
     QPlatinumStyle overloads of drawComplexControl(), drawControl(),
-    drawPrimitive(), querySubControlMetrics(), and subRect(), are
+    drawPrimitive(), subControlRect(), and subRect(), are
     documented here.
 
     \sa QMacStyle
@@ -79,8 +79,8 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
         {
             // adjust the sunken flag, otherwise headers are drawn
             // sunken...
-            if (flags & Style_Sunken)
-                flags ^= Style_Sunken;
+            if (flags & State_Sunken)
+                flags ^= State_Sunken;
             drawPrimitive(PE_ButtonBevel, p, r, pal, flags, opt);
             break;
         }
@@ -93,8 +93,8 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
 
             // quick trick to make sure toolbuttons drawn sunken
             // when they are activated...
-            if (flags & Style_On)
-                flags |= Style_Sunken;
+            if (flags & State_On)
+                flags |= State_Sunken;
 
             fill = pal2.brush(QPalette::Button);
             pal2.setBrush(QPalette::Mid, fill);
@@ -114,7 +114,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                  qAbs(w - h) > 10) {
                 // small buttons
 
-                if (!(flags & (Style_Sunken | Style_Down))) {
+                if (!(flags & (State_Sunken | State_Down))) {
                     p->fillRect(x + 2, y + 2, w - 4, h - 4,
                                  pal.brush(QPalette::Button));
                     // the bright side
@@ -173,7 +173,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 }
             } else {
                 // big ones
-                if (!(flags & (Style_Sunken | Style_Down))) {
+                if (!(flags & (State_Sunken | State_Down))) {
                     p->fillRect(x + 3, y + 3, w - 6,
                                  h - 6,
                                  pal.brush(QPalette::Button));
@@ -295,7 +295,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 h;
             r.rect(&x, &y, &w, &h);
 
-            if (!(flags & (Style_Down | Style_On))) {
+            if (!(flags & (State_Down | State_On))) {
                 p->fillRect(x+3, y+3, w-6, h-6,
                              pal.brush(QPalette::Button));
                 // the bright side
@@ -445,22 +445,22 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 6,10, 8,10, 7,11, 8,11,  7,12, 7,12,  8,8, 9,8,  8,7, 10,7,
                 9,6, 10,6, 9,5, 11,5,  10,4, 11,4,  10,3, 12,3,
                 11,2, 12,2, 11,1, 13,1,  12,0, 13,0 };
-            if (!(flags & Style_Off)) {
+            if (!(flags & State_Off)) {
                 QPen oldPen = p->pen();
                 int x1 = r.x();
                 int y1 = r.y();
-                if (flags & Style_Down) {
+                if (flags & State_Down) {
                     x1++;
                     y1++;
                 }
                 QPolygon amark;
-                if (flags & Style_On) {
+                if (flags & State_On) {
                     amark = QPolygon(sizeof(check_mark)/(sizeof(int)*2),
                                          check_mark);
                     // ### KLUDGE!!
-                    flags ^= Style_On;
-                    flags ^= Style_Down;
-                } else if (flags & Style_NoChange) {
+                    flags ^= State_On;
+                    flags ^= State_Down;
+                } else if (flags & State_NoChange) {
                     amark = QPolygon(sizeof(nochange_mark)
                                          / (sizeof(int) * 2),
                                          nochange_mark);
@@ -484,7 +484,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                 h;
             r.rect(&x, &y, &w, &h);
             p->fillRect(x, y, w - 2, h, Qt::color1);
-            if (flags & Style_Off) {
+            if (flags & State_Off) {
                 QPen oldPen = p->pen();
                 p->setPen (QPen(Qt::color1, 2));
                 p->drawLine(x + 2, y + h / 2 - 1,
@@ -498,8 +498,8 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
     case PE_ExclusiveIndicator:
         {
 #define INTARRLEN(x) sizeof(x) / (sizeof(int) * 2)
-            bool down = flags & Style_Down;
-            bool on = flags & Style_On;
+            bool down = flags & State_Down;
+            bool on = flags & State_On;
 
             static const int pts1[] = {                // normal circle
                 5,0, 8,0, 9,1, 10,1, 11,2, 12,3, 12,4, 13,5,
@@ -587,12 +587,12 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
     case PE_ScrollBarAddLine:
         {
             drawPrimitive(PE_ButtonBevel, p, r, pal,
-                           (flags & Style_Enabled) | ((flags & Style_Down)
-                                                      ? Style_Sunken
-                                                      : Style_Raised));
+                           (flags & State_Enabled) | ((flags & State_Down)
+                                                      ? State_Sunken
+                                                      : State_Raised));
             p->setPen(pal.shadow());
             p->drawRect(r);
-            drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight
+            drawPrimitive(((flags & State_Horizontal) ? PE_ArrowRight
                             : PE_ArrowDown), p, QRect(r.x() + 2,
                                                       r.y() + 2,
                                                       r.width() - 4,
@@ -603,12 +603,12 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
     case PE_ScrollBarSubLine:
         {
             drawPrimitive(PE_ButtonBevel, p, r, pal,
-                           (flags & Style_Enabled) | ((flags & Style_Down)
-                                                      ? Style_Sunken
-                                                      : Style_Raised));
+                           (flags & State_Enabled) | ((flags & State_Down)
+                                                      ? State_Sunken
+                                                      : State_Raised));
             p->setPen(pal.shadow());
             p->drawRect(r);
-            drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft
+            drawPrimitive(((flags & State_Horizontal) ? PE_ArrowLeft
                             : PE_ArrowUp), p, QRect(r.x() + 2,
                                                      r.y() + 2,
                                                      r.width() - 4,
@@ -631,7 +631,7 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
                     w,
                     h;
                 r.rect(&x, &y, &w, &h);
-                if (flags & Style_Horizontal) {
+                if (flags & State_Horizontal) {
                     p->fillRect(x + 2, y + 2, w - 2,
                                  h - 4,
                                  pal.brush(QPalette::Mid));
@@ -695,13 +695,13 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt,
         {
             QPoint bo = p->brushOrigin();
             p->setBrushOrigin(r.topLeft());
-            drawPrimitive(PE_ButtonBevel, p, r, pal, Style_Raised);
+            drawPrimitive(PE_ButtonBevel, p, r, pal, State_Raised);
             p->setBrushOrigin(bo);
             drawRiffles(p, r.x(), r.y(), r.width(), r.height(), pal,
-                         flags & Style_Horizontal);
+                         flags & State_Horizontal);
             p->setPen(pal.shadow());
             p->drawRect(r);
-            if (flags & Style_HasFocus) {
+            if (flags & State_HasFocus) {
                 drawPrimitive(PE_FocusRect, p, QRect(r.x() + 2, r.y() + 2,
                                                       r.width() - 5,
                                                       r.height() - 5),
@@ -740,20 +740,20 @@ void QPlatinumStyle::drawControl(ControlElement element,
             int x1, y1, x2, y2;
             bool useBevelButton;
             SFlags flags;
-            flags = Style_Default;
+            flags = State_Default;
             btn = (const QPushButton*)widget;
 
             // take care of the flags based on what we know...
             if (btn->isDown())
-                flags |= Style_Down;
+                flags |= State_Down;
             if (btn->isChecked())
-                flags |= Style_On;
+                flags |= State_On;
             if (btn->isEnabled())
-                flags |= Style_Enabled;
+                flags |= State_Enabled;
             if (btn->isDefault())
-                flags |= Style_Default;
-            if (! btn->isFlat() && !(flags & Style_Down))
-                flags |= Style_Raised;
+                flags |= State_Default;
+            if (! btn->isFlat() && !(flags & State_Down))
+                flags |= State_Raised;
 
             r.coords(&x1, &y1, &x2, &y2);
 
@@ -791,10 +791,10 @@ void QPlatinumStyle::drawControl(ControlElement element,
 
                 SFlags myFlags = flags;
                 // don't draw the default button sunken, unless it's necessary.
-                if (myFlags & Style_Down)
-                    myFlags ^= Style_Down;
-                if (myFlags & Style_Sunken)
-                    myFlags ^= Style_Sunken;
+                if (myFlags & State_Down)
+                    myFlags ^= State_Down;
+                if (myFlags & State_Sunken)
+                    myFlags ^= State_Sunken;
                 if (useBevelButton) {
                     drawPrimitive(PE_ButtonBevel, p, QRect(x1, y1,
                                                              x2 - x1 + 1,
@@ -818,8 +818,8 @@ void QPlatinumStyle::drawControl(ControlElement element,
             if (!btn->isFlat() || btn->isChecked() || btn->isDown()) {
                 if (useBevelButton) {
                     // fix for toggle buttons...
-                    if (flags & (Style_Down | Style_On))
-                        flags |= Style_Sunken;
+                    if (flags & (State_Down | State_On))
+                        flags |= State_Sunken;
                     drawPrimitive(PE_ButtonBevel, p, QRect(x1, y1,
                                                              x2 - x1 + 1,
                                                              y2 - y1 + 1),
@@ -846,7 +846,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
             bool on;
             int x, y, w, h;
             SFlags flags;
-            flags = Style_Default;
+            flags = State_Default;
             btn = (const QPushButton*)widget;
             on = btn->isDown() || btn->isChecked();
             r.rect(&x, &y, &w, &h);
@@ -866,7 +866,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
                     p->drawLine(xx + 2, yy + 2, xx + 2, yy + hh - 2);
                 }
                 if (btn->isEnabled())
-                    flags |= Style_Enabled;
+                    flags |= State_Enabled;
                 drawPrimitive(PE_ArrowDown, p, QRect(x + w - dx - 1, y + 2,
                                                       dx, h - 4),
                                pal, flags, opt);
@@ -889,10 +889,10 @@ void QPlatinumStyle::drawControl(ControlElement element,
                 w -= pixw + 4;
             }
 #endif
-            drawItem(p, QRect(x, y, w, h),
+            drawItemText(p, QRect(x, y, w, h),
                       Qt::AlignCenter | Qt::TextShowMnemonic,
                       btn->palette(), btn->isEnabled(),
-                      QPixmap(), btn->text(), -1,
+                      btn->text(), -1,
                       on ? &btn->palette().brightText().color()
                       : &btn->palette().buttonText().color());
             if (btn->hasFocus())
@@ -995,7 +995,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
             p->drawPoint(x + w - 3, y + h - 3);
 
             if (sub & SC_ComboBoxArrow) {
-                QRect rTmp = querySubControlMetrics(CC_ComboBox, widget,
+                QRect rTmp = subControlRect(CC_ComboBox, widget,
                                                      SC_ComboBoxArrow, opt);
                 int xx = rTmp.x(),
                     yy = rTmp.y(),
@@ -1068,7 +1068,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                 // sadly this is pretty much the windows code, except
                 // for the first fillRect call...
                 QRect re =
-                    QStyle::visualRect(querySubControlMetrics(CC_ComboBox,
+                    QStyle::visualRect(subControlRect(CC_ComboBox,
                                                                 widget,
                                                                 SC_ComboBoxEditField),
                                         widget);
@@ -1091,7 +1091,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                                                      cmb),
                                             widget);
                     drawPrimitive(PE_FocusRect, p, re, pal,
-                                   Style_FocusAtBorder,
+                                   State_FocusAtBorder,
                                    Q3StyleOption(pal.highlight()));
                 }
                 if (cmb->editable()) {
@@ -1118,9 +1118,9 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
             int len = pixelMetric(PM_SliderLength, widget);
             int ticks = slider->tickmarks();
 
-            QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
+            QRect groove = subControlRect(CC_Slider, widget, SC_SliderGroove,
                                                   opt),
-                  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
+                  handle = subControlRect(CC_Slider, widget, SC_SliderHandle,
                                                   opt);
 
             if ((sub & SC_SliderGroove) && groove.isValid()) {
@@ -1193,7 +1193,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                 p->drawPoint(x + w - 3, y + h - 3);
                 // ### end slider groove
 
-                if (how & Style_HasFocus)
+                if (how & State_HasFocus)
                     drawPrimitive(PE_FocusRect, p, groove, pal);
             }
 
@@ -1306,10 +1306,10 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 /*!
     \reimp
 */
-QRect QPlatinumStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+QRect QPlatinumStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                                              SubControl sc, const QWidget *widget) const
 /*
-QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
+QRect QPlatinumStyle::subControlRect(ComplexControl control,
                                              const QWidget *widget,
                                              SubControl sc,
                                              const Q3StyleOption& opt) const
@@ -1427,7 +1427,7 @@ QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
     default:
         break;
     }
-    return QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
+    return QWindowsStyle::subControlRect(control, widget, sc, opt);
 }
 
 

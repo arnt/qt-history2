@@ -107,7 +107,7 @@ void QCDEStyle::drawControl(ControlElement element,
     switch(element) {
     case CE_MenuBarItem:
         {
-            if (how & Style_Active)  // active item
+            if (how & State_Active)  // active item
                 qDrawShadePanel(p, r, pal, true, 1,
                                  &pal.brush(QPalette::Button));
             else  // other item
@@ -118,7 +118,7 @@ void QCDEStyle::drawControl(ControlElement element,
 #ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
         {
-            if (how & Style_Active)  // active item
+            if (how & State_Active)  // active item
                 qDrawShadePanel(p, r, pal, true, 1,
                                  &pal.brush(QPalette::Button));
             else  // other item
@@ -151,13 +151,13 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
     switch(pe) {
     case PE_Indicator: {
 #ifndef QT_NO_BUTTON
-        bool down = flags & Style_Down;
-        bool on = flags & Style_On;
+        bool down = flags & State_Down;
+        bool on = flags & State_On;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || flags & Style_NoChange ? pal.brush(QPalette::Button) : pal.brush(QPalette::Mid);
+        QBrush fill = showUp || flags & State_NoChange ? pal.brush(QPalette::Button) : pal.brush(QPalette::Mid);
         qDrawShadePanel(p, r, pal, !showUp, pixelMetric(PM_DefaultFrameWidth), &pal.brush(QPalette::Button));
 
-        if (!(flags & Style_Off)) {
+        if (!(flags & State_Off)) {
             QPolygon a(7 * 2);
             int i, xx, yy;
             xx = r.x() + 3;
@@ -173,7 +173,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 a.setPoint(2 * i + 1, xx, yy + 2);
                 xx++; yy--;
             }
-            if (flags & Style_NoChange)
+            if (flags & State_NoChange)
                 p->setPen(pal.dark());
             else
                 p->setPen(pal.foreground());
@@ -192,8 +192,8 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 11,4, 10,3, 10,2 };
             static const int pts5[] = {              // inner fill
                 4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-            bool down = flags & Style_Down;
-            bool on = flags & Style_On;
+            bool down = flags & State_Down;
+            bool on = flags & State_On;
             QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
             p->setPen((down || on) ? pal.dark() : pal.light());
@@ -292,7 +292,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 matrix.translate(rect.width() - 1, rect.height() - 1);
                 matrix.rotate(180);
             }
-            if (flags & Style_Down)
+            if (flags & State_Down)
                 colspec = horizontal ? 0x2334 : 0x2343;
             else
                 colspec = horizontal ? 0x1443 : 0x1434;
@@ -302,14 +302,14 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                 matrix.translate(rect.width()-1, 0);
                 matrix.rotate(90);
             }
-            if (flags & Style_Down)
+            if (flags & State_Down)
                 colspec = horizontal ? 0x2443 : 0x2434;
             else
                 colspec = horizontal ? 0x1334 : 0x1343;
         }
 
         const QColor *cols[5];
-        if (flags & Style_Enabled) {
+        if (flags & State_Enabled) {
             cols[0] = 0;
             cols[1] = &pal.button().color();
             cols[2] = &pal.mid().color();
@@ -332,7 +332,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe,
         QBrush   saveBrush = p->brush();            // save current brush
         QMatrix wxm = p->worldMatrix();
         QPen     pen(Qt::NoPen);
-        QBrush brush = pal.brush(flags & Style_Enabled ? QPalette::Button :
+        QBrush brush = pal.brush(flags & State_Enabled ? QPalette::Button :
                                   QPalette::Mid);
 
         p->setPen(pen);

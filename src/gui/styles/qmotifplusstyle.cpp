@@ -112,7 +112,7 @@ static void drawMotifPlusShade(QPainter *p, const QRect &r,
     Most of the functions are documented in the base classes,
     \l{QMotifStyle}, \l{QCommonStyle}, and \l{QStyle}, but
     QMotifPlusStyle overloads of drawComplexControl(), drawControl(),
-    drawPrimitive(), querySubControlMetrics(), and subRect() are
+    drawPrimitive(), subControlRect(), and subRect() are
     documented here.
 */
 
@@ -261,10 +261,10 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:
-        if (flags & (Style_Down | Style_On | Style_Raised | Style_Sunken))
-            drawMotifPlusShade(p, r, pal, bool(flags & (Style_Down | Style_On)),
-                                bool(flags & Style_MouseOver));
-        else if (flags & Style_MouseOver)
+        if (flags & (State_Down | State_On | State_Raised | State_Sunken))
+            drawMotifPlusShade(p, r, pal, bool(flags & (State_Down | State_On)),
+                                bool(flags & State_MouseOver));
+        else if (flags & State_MouseOver)
             p->fillRect(r, pal.brush(QPalette::Midlight));
         else
             p->fillRect(r, pal.brush(QPalette::Button));
@@ -277,8 +277,8 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
     case PE_PanelMenuBar:
     case PE_PanelDockWindow:
         if (opt.lineWidth())
-            drawMotifPlusShade(p, r, pal, (flags & Style_Sunken), (flags & Style_MouseOver));
-        else if (flags & Style_MouseOver)
+            drawMotifPlusShade(p, r, pal, (flags & State_Sunken), (flags & State_MouseOver));
+        else if (flags & State_MouseOver)
             p->fillRect(r, pal.brush(QPalette::Midlight));
         else
             p->fillRect(r, pal.brush(QPalette::Button));
@@ -295,19 +295,19 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
     case PE_Indicator:
         {
             QBrush fill;
-            if (flags & Style_On)
+            if (flags & State_On)
                 fill = pal.brush(QPalette::Mid);
-            else if (flags & Style_MouseOver)
+            else if (flags & State_MouseOver)
                 fill = pal.brush(QPalette::Midlight);
             else
                 fill = pal.brush(QPalette::Button);
 
-            if (flags & Style_NoChange) {
+            if (flags & State_NoChange) {
                 qDrawPlainRect(p, r, pal.text(), 1, &fill);
                 p->drawLine(r.topRight(), r.bottomLeft());
             } else
-                drawMotifPlusShade(p, r, pal, (flags & Style_On),
-                                   (flags & Style_MouseOver), &fill);
+                drawMotifPlusShade(p, r, pal, (flags & State_On),
+                                   (flags & State_MouseOver), &fill);
             break;
         }
 
@@ -316,8 +316,8 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
             QPen oldpen =  p->pen();
             QPolygon thick(8);
             QPolygon thin(4);
-            QColor button = ((flags & Style_MouseOver) ? pal.midlight() : pal.button());
-            QBrush brush = ((flags & Style_MouseOver) ?
+            QColor button = ((flags & State_MouseOver) ? pal.midlight() : pal.button());
+            QBrush brush = ((flags & State_MouseOver) ?
                             pal.brush(QPalette::Midlight) :
                             pal.brush(QPalette::Button));
             int x, y, w, h;
@@ -326,7 +326,7 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
             p->fillRect(x, y, w, h, brush);
 
 
-            if (flags & Style_On) {
+            if (flags & State_On) {
                 thick.setPoint(0, x, y + (h / 2));
                 thick.setPoint(1, x + (w / 2), y);
                 thick.setPoint(2, x + 1, y + (h / 2));
@@ -414,8 +414,8 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
             QPen oldpen = p->pen();
             QBrush oldbrush = p->brush();
             QPolygon poly(3);
-            QColor button = (flags & Style_MouseOver) ? pal.midlight() : pal.button();
-            bool down = (flags & Style_Down);
+            QColor button = (flags & State_MouseOver) ? pal.midlight() : pal.button();
+            bool down = (flags & State_Down);
             int x, y, w, h;
             r.rect(&x, &y, &w, &h);
 
@@ -636,7 +636,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                                   */
 {
     if (widget == singleton->hoverWidget)
-        flags |= Style_MouseOver;
+        flags |= State_MouseOver;
 
     switch (element) {
     case CE_PushButton:
@@ -657,7 +657,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                              br.bottom() - dbi);
             }
 
-            if (flags & Style_HasFocus)
+            if (flags & State_HasFocus)
                 br.addCoords(1, 1, -1, -1);
             p->save();
             drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
@@ -671,7 +671,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 #ifndef QT_NO_CHECKBOX
             const QCheckBox *checkbox = (const QCheckBox *) widget;
 
-            if (flags & Style_MouseOver) {
+            if (flags & State_MouseOver) {
                 QRegion r(checkbox->rect());
                 r -= visualRect(subRect(SR_CheckBoxIndicator, widget), widget);
                 p->setClipRegion(r);
@@ -680,12 +680,14 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             }
 
             int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
-            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
-                     flags & Style_Enabled,
-                     !checkbox->icon().isNull() ? checkbox->icon().pixmap(Qt::SmallIconSize,
-                                                                          QIcon::Normal)
-                                                : QPixmap(),
-                     checkbox->text());
+            if (!checkbox->icon.isNull()) {
+                drawItemPixmap(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
+                               flags & State_Enabled,
+                               checkbox->icon().pixmap(Qt::SmallIconSize, QIcon::Normal));
+            } else {
+                drawItemText(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
+                             flags & State_Enabled, checkbox->text());
+            }
 
             if (checkbox->hasFocus()) {
                 QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
@@ -700,7 +702,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 #ifndef QT_NO_RADIOBUTTON
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
-            if (flags & Style_MouseOver) {
+            if (flags & State_MouseOver) {
                 QRegion r(radiobutton->rect());
                 r -= visualRect(subRect(SR_RadioButtonIndicator, widget), widget);
                 p->setClipRegion(r);
@@ -709,12 +711,14 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             }
 
             int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
-            drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
-                     flags & Style_Enabled,
-                    !radiobutton->icon().isNull() ? radiobutton->icon().pixmap(Qt::SmallIconSize,
-                                                                               QIcon::Normal)
-                                                  : QPixmap(),
-                     radiobutton->text());
+            if (!radiobutton->icon.isNull()) {
+                drawItemPixmap(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
+                               flags & State_Enabled,
+                               radiobutton->icon().pixmap(Qt::SmallIconSize, QIcon::Normal));
+            } else {
+                drawItemText(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
+                             flags & State_Enabled, radiobutton->text());
+            }
 
             if (radiobutton->hasFocus()) {
                 QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
@@ -730,16 +734,23 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             if (opt.isDefault())
                 break;
 
-            if ((flags & Style_Enabled) && (flags & Style_Active))
+            if ((flags & State_Enabled) && (flags & State_Active))
                 drawMotifPlusShade(p, r, pal, false, true);
             else
                 p->fillRect(r, pal.button());
 
             QAction *mi = opt.action();
             QPixmap pix = mi->icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
-            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                     pal, flags & Style_Enabled, pix, mi->text(), -1,
-                     &pal.buttonText().color());
+            if (!pix.isNull()) {
+                drawItemPixmap(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
+                         pal, flags & State_Enabled, pix, -1,
+                         &pal.buttonText().color());
+            } else {
+                drawItemText(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
+
+                         pal, flags & State_Enabled, text, -1,
+                         &pal.buttonText().color());
+            }
 #endif
             break;
         }
@@ -752,14 +763,20 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 break;
 
             Q3MenuItem *mi = opt.menuItem();
-            if ((flags & Style_Enabled) && (flags & Style_Active))
+            if ((flags & State_Enabled) && (flags & State_Active))
                 drawMotifPlusShade(p, r, pal, false, true);
             else
                 p->fillRect(r, pal.button());
 
-            drawItem(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                     pal, flags & Style_Enabled, *mi->pixmap(), mi->text(), -1,
-                     &pal.buttonText().color());
+            if (mi->pixmap && !*mi->pixamp.isNull()) {
+                drawItemPixmap(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
+                         pal, flags & State_Enabled, *mi->pixmap(), -1,
+                         &pal.buttonText().color());
+            } else {
+                drawItemText(p, r, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
+                         pal, flags & State_Enabled, *mi->pixmap(), -1,
+                         &pal.buttonText().color());
+            }
 #endif
             break;
         }
@@ -778,9 +795,9 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             int tab = opt.tabWidth();
             int maxpmw = opt.maxIconWidth();
-            bool dis = ! (flags & Style_Enabled);
+            bool dis = ! (flags & State_Enabled);
             bool checkable = menu->isCheckable();
-            bool act = flags & Style_Active;
+            bool act = flags & State_Active;
             int x, y, w, h;
 
             r.rect(&x, &y, &w, &h);
@@ -838,11 +855,11 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             } else if (checkable) {
                 if (mi->isChecked()) {
-                    SFlags cflags = Style_Default;
+                    SFlags cflags = State_Default;
                     if (! dis)
-                        cflags |= Style_Enabled;
+                        cflags |= State_Enabled;
                     if (act)
-                        cflags |= Style_On;
+                        cflags |= State_On;
 
                     drawPrimitive(PE_CheckMark, p, vrect, pal, cflags);
                 }
@@ -880,7 +897,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
                 vrect = visualRect(QRect(x + w - hh - 6, y + (hh / 2), hh, hh), r);
                 drawPrimitive(arrow, p, vrect, pal,
-                              ((act && !dis) ? Style_Down : Style_Default) | ((!dis) ? Style_Enabled : Style_Default));
+                              ((act && !dis) ? State_Down : State_Default) | ((!dis) ? State_Enabled : State_Default));
             }
             break;
         }
@@ -900,9 +917,9 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             int tab = opt.tabWidth();
             int maxpmw = opt.maxIconWidth();
-            bool dis = ! (flags & Style_Enabled);
+            bool dis = ! (flags & State_Enabled);
             bool checkable = popupmenu->isCheckable();
-            bool act = flags & Style_Active;
+            bool act = flags & State_Active;
             int x, y, w, h;
 
             r.rect(&x, &y, &w, &h);
@@ -963,11 +980,11 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 
             } else if (checkable) {
                 if (mi->isChecked()) {
-                    SFlags cflags = Style_Default;
+                    SFlags cflags = State_Default;
                     if (! dis)
-                        cflags |= Style_Enabled;
+                        cflags |= State_Enabled;
                     if (act)
-                        cflags |= Style_On;
+                        cflags |= State_On;
 
                     drawPrimitive(PE_CheckMark, p, vrect, pal, cflags);
                 }
@@ -1020,8 +1037,8 @@ void QMotifPlusStyle::drawControl(ControlElement element,
                 drawPrimitive(arrow, p,
                               vrect, pal,
                               ((act && !dis) ?
-                               Style_Down : Style_Default) |
-                              ((!dis) ? Style_Enabled : Style_Default));
+                               State_Down : State_Default) |
+                              ((!dis) ? State_Enabled : State_Default));
             }
             break;
         }
@@ -1032,7 +1049,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
         {
 #ifndef QT_NO_TABBAR
             const QTabBar *tabbar = (const QTabBar *) widget;
-            bool selected = flags & Style_Selected;
+            bool selected = flags & State_Selected;
 
             QPen oldpen = p->pen();
             QRect fr(r);
@@ -1187,7 +1204,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget
             const QComboBox *combobox = (const QComboBox *) widget;
 
             if (combobox->editable()) {
-                rect = querySubControlMetrics(CC_ComboBox, widget,
+                rect = subControlRect(CC_ComboBox, widget,
                                               SC_ComboBoxEditField);
                 rect.addCoords(-3, -3, 3, 3);
             } else
@@ -1248,7 +1265,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                                          */
 {
     if (widget == singleton->hoverWidget)
-        flags |= Style_MouseOver;
+        flags |= State_MouseOver;
 
     switch (control) {
     case CC_ScrollBar:
@@ -1258,13 +1275,13 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
             QRect addline, subline, addpage, subpage, slider, first, last;
             bool maxedOut = (scrollbar->minimum() == scrollbar->maximum());
 
-            subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, opt);
-            addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, opt);
-            subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, opt);
-            addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, opt);
-            slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  opt);
-            first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   opt);
-            last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    opt);
+            subline = subControlRect(control, widget, SC_ScrollBarSubLine, opt);
+            addline = subControlRect(control, widget, SC_ScrollBarAddLine, opt);
+            subpage = subControlRect(control, widget, SC_ScrollBarSubPage, opt);
+            addpage = subControlRect(control, widget, SC_ScrollBarAddPage, opt);
+            slider  = subControlRect(control, widget, SC_ScrollBarSlider,  opt);
+            first   = subControlRect(control, widget, SC_ScrollBarFirst,   opt);
+            last    = subControlRect(control, widget, SC_ScrollBarLast,    opt);
 
             if (singleton->hovering) {
                 if (addline.contains(singleton->mousePos)) {
@@ -1289,64 +1306,64 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                 drawPrimitive(PE_ScrollBarSubLine, p, subline, pal,
                               ((active == SC_ScrollBarSubLine ||
                                 singleton->scrollbarElement == SC_ScrollBarSubLine) ?
-                               Style_MouseOver: Style_Default) |
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                               State_MouseOver: State_Default) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((active == SC_ScrollBarSubLine) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
             if ((controls & SC_ScrollBarAddLine) && addline.isValid())
                 drawPrimitive(PE_ScrollBarAddLine, p, addline, pal,
                               ((active == SC_ScrollBarAddLine ||
                                 singleton->scrollbarElement == SC_ScrollBarAddLine) ?
-                               Style_MouseOver: Style_Default) |
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                               State_MouseOver: State_Default) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((active == SC_ScrollBarAddLine) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
             if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
                 drawPrimitive(PE_ScrollBarSubPage, p, subpage, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((active == SC_ScrollBarSubPage) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
             if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
                 drawPrimitive(PE_ScrollBarAddPage, p, addpage, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((active == SC_ScrollBarAddPage) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
             if ((controls & SC_ScrollBarFirst) && first.isValid())
                 drawPrimitive(PE_ScrollBarFirst, p, first, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((active == SC_ScrollBarFirst) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
             if ((controls & SC_ScrollBarLast) && last.isValid())
                 drawPrimitive(PE_ScrollBarLast, p, last, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((active == SC_ScrollBarLast) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
             if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
                 drawPrimitive(PE_ScrollBarSlider, p, slider, pal,
                               ((active == SC_ScrollBarSlider ||
                                 singleton->scrollbarElement == SC_ScrollBarSlider) ?
-                               Style_MouseOver: Style_Default) |
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                               State_MouseOver: State_Default) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : Style_Default));
+                               State_Horizontal : State_Default));
 
                 // ### perhaps this should not be able to accept focus if maxedOut?
                 if (scrollbar->hasFocus()) {
                     QRect fr(slider.x() + 2, slider.y() + 2,
                              slider.width() - 5, slider.height() - 5);
-                    drawPrimitive(PE_FocusRect, p, fr, pal, Style_Default);
+                    drawPrimitive(PE_FocusRect, p, fr, pal, State_Default);
                 }
             }
 #endif
@@ -1360,12 +1377,12 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
             QRect editfield, arrow;
             editfield =
-                visualRect(querySubControlMetrics(CC_ComboBox,
+                visualRect(subControlRect(CC_ComboBox,
                                                   combobox,
                                                   SC_ComboBoxEditField,
                                                   opt), widget);
             arrow =
-                visualRect(querySubControlMetrics(CC_ComboBox,
+                visualRect(subControlRect(CC_ComboBox,
                                                   combobox,
                                                   SC_ComboBoxArrow,
                                                   opt), widget);
@@ -1383,13 +1400,13 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
                 if (controls & SC_ComboBoxArrow && arrow.isValid()) {
                     drawMotifPlusShade(p, arrow, pal, (active == SC_ComboBoxArrow),
-                                       (flags & Style_MouseOver));
+                                       (flags & State_MouseOver));
 
                     int space = (r.height() - 13) / 2;
                     arrow.addCoords(space, space, -space, -space);
 
                     if (active == SC_ComboBoxArrow)
-                        flags |= Style_Sunken;
+                        flags |= State_Sunken;
                     drawPrimitive(PE_ArrowDown, p, arrow, pal, flags);
                 }
             } else {
@@ -1398,11 +1415,11 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                     if (combobox->hasFocus())
                         editfield.addCoords(1, 1, -1, -1);
                     drawMotifPlusShade(p, editfield, pal, false,
-                                       (flags & Style_MouseOver));
+                                       (flags & State_MouseOver));
                 }
 
                 if (controls & SC_ComboBoxArrow && arrow.isValid())
-                    drawMotifPlusShade(p, arrow, pal, false, (flags & Style_MouseOver));
+                    drawMotifPlusShade(p, arrow, pal, false, (flags & State_MouseOver));
             }
 
             if (combobox->hasFocus() ||
@@ -1418,15 +1435,15 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
         {
 #ifndef QT_NO_SPINWIDGET
             const QSpinWidget * sw = (const QSpinWidget *) widget;
-            SFlags flags = Style_Default;
+            SFlags flags = State_Default;
 
             if (controls & SC_SpinBoxFrame)
                 drawMotifPlusShade(p, r, pal, true, false, &pal.brush(QPalette::Base));
 
             if (controls & SC_SpinBoxUp) {
-                flags = Style_Enabled;
+                flags = State_Enabled;
                 if (active == SC_SpinBoxUp)
-                    flags |= Style_Down;
+                    flags |= State_Down;
 
                 PrimitiveElement pe;
                 if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
@@ -1442,9 +1459,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
             }
 
             if (controls & SC_SpinBoxDown) {
-                flags = Style_Enabled;
+                flags = State_Enabled;
                 if (active == SC_SpinBoxDown)
-                    flags |= Style_Down;
+                    flags |= State_Down;
 
                 PrimitiveElement pe;
                 if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
@@ -1466,18 +1483,18 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
         {
 #ifndef QT_NO_SLIDER
             const QSlider *slider = (const QSlider *) widget;
-            bool mouseover = (flags & Style_MouseOver);
+            bool mouseover = (flags & State_MouseOver);
 
-            QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
+            QRect groove = subControlRect(CC_Slider, widget, SC_SliderGroove,
                                                   opt),
-                  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
+                  handle = subControlRect(CC_Slider, widget, SC_SliderHandle,
                                                   opt);
 
             if ((controls & SC_SliderGroove) && groove.isValid()) {
                 drawMotifPlusShade(p, groove, pal, true, false,
                                    &pal.brush(QPalette::Mid));
 
-                if (flags & Style_HasFocus) {
+                if (flags & State_HasFocus) {
                     QRect fr = subRect(SR_SliderFocusRect, widget);
                     drawPrimitive(PE_FocusRect, p, fr, pal, flags);
                 }
@@ -1486,10 +1503,10 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
             if ((controls & SC_SliderHandle) && handle.isValid()) {
                 if ((mouseover && handle.contains(singleton->mousePos)) ||
                     singleton->sliderActive)
-                    flags |= Style_MouseOver;
+                    flags |= State_MouseOver;
                 else
-                    flags &= ~Style_MouseOver;
-                drawPrimitive(PE_ButtonBevel, p, handle, pal, flags | Style_Raised);
+                    flags &= ~State_MouseOver;
+                drawPrimitive(PE_ButtonBevel, p, handle, pal, flags | State_Raised);
 
                 if (slider->orientation() == Qt::Horizontal) {
                     int mid = handle.x() + handle.width() / 2;
@@ -1521,10 +1538,10 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 /*!
     \reimp
 */
-QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+QRect QMotifPlusStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                                  SubControl sc, const QWidget *widget) const
 /*
-QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
+QRect QMotifPlusStyle::subControlRect(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl subcontrol,
                                               const Q3StyleOption& opt) const
@@ -1619,7 +1636,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 #endif
     default: break;
     }
-    return QMotifStyle::querySubControlMetrics(control, widget, subcontrol, opt);
+    return QMotifStyle::subControlRect(control, widget, subcontrol, opt);
 }
 
 

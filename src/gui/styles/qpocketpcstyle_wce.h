@@ -42,7 +42,7 @@ public:
     void drawControl(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QPalette &pal, SFlags how = Style_Default, const QStyleOption& = QStyleOption::Default) const;
     void drawComplexControl(ComplexControl control, QPainter* p, const QWidget* widget, const QRect& r, const QPalette& pal, SFlags how = Style_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, const QStyleOption& = QStyleOption::Default) const;
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0, const QWidget *widget = 0) const;
-    QRect querySubControlMetrics(ComplexControl control, const QWidget *widget, SubControl sc, const QStyleOption& = QStyleOption::Default) const;
+    QRect subControlRect(ComplexControl control, const QWidget *widget, SubControl sc, const QStyleOption& = QStyleOption::Default) const;
     QSize sizeFromContents(ContentsType contents, const QWidget *widget, const QSize &contentsSize, const QStyleOption& = QStyleOption::Default) const;
     QPixmap stylePixmap(StylePixmap stylepixmap, const QWidget *widget = 0, const QStyleOption& = QStyleOption::Default) const;
     QPixmap stylePixmap(PixmapType pixmapType, const QPixmap &pix, const QPalette &pal, const QStyleOption& = QStyleOption::Default) const;
@@ -50,7 +50,7 @@ public:
     void drawControlMask(ControlElement,QPainter *,const QWidget *,const QRect &,const QStyleOption &) const;
     QRect subRect(SubRect,const QWidget *) const;
     void drawComplexControlMask(ComplexControl,QPainter *,const QWidget *,const QRect &,const QStyleOption &) const;
-    SubControl querySubControl(ComplexControl,const QWidget *,const QPoint &,const QStyleOption &) const;
+    SubControl hitTestComplexControl(ComplexControl,const QWidget *,const QPoint &,const QStyleOption &) const;
     int styleHint(StyleHint,const QWidget *,const QStyleOption &,QStyleHintReturn *) const;
 
 private:

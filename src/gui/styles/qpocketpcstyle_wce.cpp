@@ -671,7 +671,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric pixelmetric, const QStyleOption * /*
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
-        if (widget && (widget->testWFlags(Qt::WStyle_Tool) || ::qt_cast<QDockWindow*>(widget))) {
+        if (widget && (widget->testWFlags(Qt::WState_Tool) || ::qt_cast<QDockWindow*>(widget))) {
             // MS always use one less than they say
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
         } else {
@@ -1164,7 +1164,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
 #endif // QT_NO_PROGRESSBAR
 
     case SR_ToolButtonContents:
-        rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
+        rect = subControlRect(CC_ToolButton, widget, SC_ToolButton);
         break;
 
     default:
@@ -1357,7 +1357,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType           contents,
 }
 
 
-QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
+QStyle::SubControl QPocketPCStyle::hitTestComplexControl(ComplexControl      complex,
                                                    const QWidget      *widget,
                                                    const QPoint              &point,
                                                    const QStyleOption &opt) const
@@ -1383,7 +1383,7 @@ QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
 
             // we can do this because subcontrols were designed to be masks as well...
             while (ret == SC_None && ctrl <= SC_ScrollBarGroove) {
-                r = querySubControlMetrics(complex, widget,
+                r = subControlRect(complex, widget,
                                            (QStyle::SubControl) ctrl, opt);
                 if (r.isValid() && r.contains(point))
                     ret = (QStyle::SubControl) ctrl;
@@ -1404,19 +1404,19 @@ QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
 
             // we can do this because subcontrols were designed to be masks as well...
             while (ret == SC_None && ctrl <= SC_TitleBarUnshadeButton) {
-                r = visualRect(querySubControlMetrics(complex, widget, (QStyle::SubControl) ctrl, opt), widget);
+                r = visualRect(subControlRect(complex, widget, (QStyle::SubControl) ctrl, opt), widget);
                 if (r.isValid() && r.contains(point))
                     ret = (QStyle::SubControl) ctrl;
 
                 ctrl <<= 1;
             }
             if (titlebar->window()) {
-                if (ret == SC_TitleBarMaxButton && titlebar->testWFlags(Qt::WStyle_Tool)) {
+                if (ret == SC_TitleBarMaxButton && titlebar->testWFlags(Qt::WState_Tool)) {
                     if (titlebar->window()->isMinimized())
                         ret = SC_TitleBarUnshadeButton;
                     else
                         ret = SC_TitleBarShadeButton;
-                } else if (ret == SC_TitleBarMinButton && !titlebar->testWFlags(Qt::WStyle_Tool)) {
+                } else if (ret == SC_TitleBarMinButton && !titlebar->testWFlags(Qt::WState_Tool)) {
                     if (titlebar->window()->isMinimized())
                         ret = QStyle::SC_TitleBarNormalButton;
                 }
@@ -1425,20 +1425,20 @@ QStyle::SubControl QPocketPCStyle::querySubControl(ComplexControl      complex,
         }
 #endif
     default:
-        qDebug("*** Not Implemented Yet ***  querySubControl(control[0x%08x], w, point, opt[0x%08x])", complex, opt);
+        qDebug("*** Not Implemented Yet ***  hitTestComplexControl(control[0x%08x], w, point, opt[0x%08x])", complex, opt);
     }
     return ret;
 }
 
 
-QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
+QRect QPocketPCStyle::subControlRect(ComplexControl         complex,
                                              const QWidget        *widget,
                                              SubControl                 sc,
                                              const QStyleOption &opt) const
 {
 #if defined(QT_CHECK_STATE)
     if (! widget) {
-        qWarning("QPocketPCStyle::querySubControlMetrics: widget parameter cannot be zero!");
+        qWarning("QPocketPCStyle::subControlRect: widget parameter cannot be zero!");
         return QRect();
     }
 #endif
@@ -1623,17 +1623,17 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
             case SC_TitleBarLabel: {
                 const QTitleBar *titlebar = (QTitleBar*)widget;
                 QRect ir(0, 0, titlebar->width(), titlebar->height());
-                if (titlebar->testWFlags(Qt::WStyle_Tool)) {
-                    if (titlebar->testWFlags(Qt::WStyle_SysMenu))
+                if (titlebar->testWFlags(Qt::WState_Tool)) {
+                    if (titlebar->testWFlags(Qt::WState_SysMenu))
                         ir.addCoords(0, 0, -controlHeight-3, 0);
-                    if (titlebar->testWFlags(Qt::WStyle_MinMax))
+                    if (titlebar->testWFlags(Qt::WState_MinMax))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
                 } else {
-                    if (titlebar->testWFlags(Qt::WStyle_SysMenu))
+                    if (titlebar->testWFlags(Qt::WState_SysMenu))
                         ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
-                    if (titlebar->testWFlags(Qt::WStyle_Minimize))
+                    if (titlebar->testWFlags(Qt::WState_Minimize))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
-                    if (titlebar->testWFlags(Qt::WStyle_Maximize))
+                    if (titlebar->testWFlags(Qt::WState_Maximize))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
                 }
                 return ir; }
@@ -1651,7 +1651,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
             case SC_TitleBarMinButton:
             case SC_TitleBarNormalButton: {
                 int offset = controlHeight + controlTop;
-                if (!titlebar->testWFlags(Qt::WStyle_Maximize))
+                if (!titlebar->testWFlags(Qt::WState_Maximize))
                     offset *= 2;
                 else
                     offset *= 3;
@@ -1669,7 +1669,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
     default:
         // This debug message is only here to make sure we handle the complete style properly
         // We might remove this debug message before a full release
-        qDebug("*** Not Implemented Yet ***  querySubControlMetrics(complex[0x%08x], w, subcontrol[0x%08x], opt[0x%08x])", complex, sc, opt);
+        qDebug("*** Not Implemented Yet ***  subControlRect(complex[0x%08x], w, subcontrol[0x%08x], opt[0x%08x])", complex, sc, opt);
     }
 
     return QRect();
@@ -1710,7 +1710,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_Splitter:
     case PE_DockWindowResizeHandle:
         {
-            p->setBrush((flags & Style_Down) ? pal.foreground() : pal.background());
+            p->setBrush((flags & State_Down) ? pal.foreground() : pal.background());
             p->setPen(pal.foreground());
             p->drawRect(r);
             break;
@@ -1720,7 +1720,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
         {
             p->fillRect(r, pal.background());
             p->setPen(pal.mid());
-            if (flags & Style_Horizontal) {
+            if (flags & State_Horizontal) {
                 p->drawLine(1, 2, 1, r.height() - 3);
                 p->drawLine(3, 2, 3, r.height() - 3);
             } else {
@@ -1735,7 +1735,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             p->setPen(pal.background());
             p->drawLine(r.topLeft(), r.bottomRight());
             p->setPen(pal.dark());
-            if (flags & Style_Horizontal)
+            if (flags & State_Horizontal)
                 p->drawLine(0, 4, 0, r.height() - 5);
             else
                 p->drawLine(4, 0, r.width() - 5, 0);
@@ -1783,13 +1783,13 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 
     case PE_HeaderSection:
         {
-            const QColor &back = (flags & Style_Down) ? pal.dark() : pal.background();
-            const QColor &frnt = (flags & Style_Down) ? pal.light() : pal.foreground();
+            const QColor &back = (flags & State_Down) ? pal.dark() : pal.background();
+            const QColor &frnt = (flags & State_Down) ? pal.light() : pal.foreground();
             p->setBrush(back);
             p->setPen(frnt);
             p->drawRect(r);
             p->setPen(back);
-            if (flags & Style_Horizontal)
+            if (flags & State_Horizontal)
                 p->drawLine(r.topLeft()+=QPoint(0,1), r.bottomLeft()+=QPoint(0,-1));
             else
                 p->drawLine(r.topLeft()+=QPoint(1,0), r.topRight()+=QPoint(-1,0));
@@ -1799,7 +1799,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
     case PE_PanelTabWidget:
     case PE_WindowFrame:
         {
-            qDrawShadePanel(p, r, pal, (flags & Style_Sunken), opt.isDefault() ? PM_DEFAULTFRAMEWIDTH : opt.lineWidth()); // pixelMetric(PM_DefaultFrameWidth)
+            qDrawShadePanel(p, r, pal, (flags & State_Sunken), opt.isDefault() ? PM_DEFAULTFRAMEWIDTH : opt.lineWidth()); // pixelMetric(PM_DefaultFrameWidth)
             break;
         }
 
@@ -1861,7 +1861,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             p->setBrush(pal.base());
             p->setPen(pal.foreground());
             p->drawRect(r);                                        // Draw the box around the control
-            if (flags & Style_On)
+            if (flags & State_On)
                 p->drawPolyline(CreateQPolygon(tick));   // Draw the tick if it is on
             break;
         }
@@ -1870,22 +1870,22 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
         {
             p->setPen(pal.foreground());
             p->drawPolyline(CreateQPolygon(radioOutline));
-            if (flags & Style_On)                                    // Radio button dot shown when it is selected
+            if (flags & State_On)                                    // Radio button dot shown when it is selected
                 p->drawPolyline(CreateQPolygon(radioDot));
             break;
         }
 
     case PE_ScrollBarSubLine:
         {
-            drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & Style_Enabled) | ((flags & Style_Down) ? Style_Down : Style_Raised));
-            drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp), p, r, pal, flags);
+            drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & State_Enabled) | ((flags & State_Down) ? State_Down : State_Raised));
+            drawPrimitive(((flags & State_Horizontal) ? PE_ArrowLeft : PE_ArrowUp), p, r, pal, flags);
             break;
         }
 
     case PE_ScrollBarAddLine:
         {
-            drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & Style_Enabled) | ((flags & Style_Down) ? Style_Down : Style_Raised));
-            drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown), p, r, pal, flags);
+            drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & State_Enabled) | ((flags & State_Down) ? State_Down : State_Raised));
+            drawPrimitive(((flags & State_Horizontal) ? PE_ArrowRight : PE_ArrowDown), p, r, pal, flags);
             break;
         }
 
@@ -1904,7 +1904,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             p->setPen(pal.foreground());
             p->drawRect(r);
             // The 3 little lines on the slider button
-            if (flags & Style_Horizontal) {
+            if (flags & State_Horizontal) {
                 int midx = r.x() + r.width() / 2;
                 p->drawLine(midx - 2, r.y() + 3, midx - 2, r.y() + r.height() - 4);
                 p->drawLine(midx + 0, r.y() + 3, midx + 0, r.y() + r.height() - 4);
@@ -1928,14 +1928,14 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
         {
             QPolygon a(8, arrows[arrow]);
             a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
-            p->setPen((flags & Style_Down) ? pal.base() : pal.foreground());
+            p->setPen((flags & State_Down) ? pal.base() : pal.foreground());
             p->drawLineSegments(a);         // draw arrow
             break;
         }
     case PE_HeaderArrow:
 	{
 	    p->save();
-	    if (flags & Style_Up) { // invert logic to follow Windows style guide
+	    if (flags & State_Up) { // invert logic to follow Windows style guide
 		QPolygon pa(3);
 		p->setPen(pal.light());
 		p->drawLine(r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height());
@@ -1967,17 +1967,17 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 
     case PE_CheckListIndicator:
         {
-            if (flags & Style_Enabled)
+            if (flags & State_Enabled)
                 p->setPen(QPen(pal.text(), 1));
             else
                 p->setPen(QPen(pal.dark(), 1));
 
-            if (flags & Style_NoChange)
+            if (flags & State_NoChange)
                 p->setBrush(pal.brush(QPalette::Button));
 
             p->drawRect(r.x()+1, r.y()+1, 11, 11);
 
-            if (! (flags & Style_Off)) {
+            if (! (flags & State_Off)) {
                 QPolygon a(7*2);
                 int i, xx, yy;
                 xx = r.x() + 3;
@@ -2025,7 +2025,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             static const int pts3[] = { 2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };            // background lines
             static const int pts4[] = { 2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7, 11,4, 10,3, 10,2 }; // white lines
 
-            if (flags & Style_Enabled)
+            if (flags & State_Enabled)
                 p->setPen(pal.text());
             else
                 p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
@@ -2041,7 +2041,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             a.setPoints(INTARRLEN(pts4), pts4);
             a.translate(x, y);
             p->drawPolyline(a);
-            if (flags & Style_On) {
+            if (flags & State_On) {
                 p->setPen(Qt::NoPen);
                 p->setBrush(pal.text());
                 p->drawRect(x+5, y+4, 2, 4);
@@ -2168,7 +2168,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
                 a.setPoint(2*i+1, xx, yy+2);
                 xx++; yy--;
             }
-            if (!(flags & Style_Enabled) && !(flags & Style_On)) {
+            if (!(flags & State_Enabled) && !(flags & State_On)) {
                 int pnt;
                 p->setPen(pal.highlightedText());
                 QPoint offset(1,1);
@@ -2189,8 +2189,8 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             if (opt.isDefault())
                 break;
             int lwidth = opt.lineWidth(), mlwidth = opt.midLineWidth();
-            if (flags & (Style_Sunken|Style_Raised))
-                qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(), pal, flags & Style_Sunken, lwidth, mlwidth);
+            if (flags & (State_Sunken|State_Raised))
+                qDrawShadeRect(p, r.x(), r.y(), r.width(), r.height(), pal, flags & State_Sunken, lwidth, mlwidth);
             else
                 qDrawPlainRect(p, r.x(), r.y(), r.width(), r.height(), pal.foreground(), lwidth);
             break;
@@ -2247,15 +2247,15 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             const QPushButton *button = (const QPushButton *) widget;
             QRect br = r;
 
-            SFlags flags = Style_Default;
+            SFlags flags = State_Default;
             if (button->isEnabled())
-                flags |= Style_Enabled;
+                flags |= State_Enabled;
             if (button->isDown())
-                flags |= Style_Down;
+                flags |= State_Down;
             if (button->isOn())
-                flags |= Style_On;
-            if (! button->isFlat() && ! (flags & Style_Down))
-                flags |= Style_Raised;
+                flags |= State_On;
+            if (! button->isFlat() && ! (flags & State_Down))
+                flags |= State_Raised;
 
             if (button->isDefault()) {
                 drawPrimitive(PE_ButtonDefault, p, br, pal, flags);
@@ -2274,7 +2274,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             const int current   = tb->currentTab();
 
             p->setPen(pal.foreground());
-            if (flags & Style_Selected) {
+            if (flags & State_Selected) {
                 // Draw full rect
                 p->setBrush(pal.base());
                 p->drawRect(r);
@@ -2282,7 +2282,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 p->setPen(pal.base());
                 QPoint from = r.topLeft();
                 QPoint   to = r.topRight();
-                if (flags & Style_Top) {
+                if (flags & State_Top) {
                     from = r.bottomLeft();
                     to = r.bottomRight();
                 }
@@ -2299,7 +2299,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 p->setPen(p->brush().color());
                 QPoint from = r.topLeft();
                 QPoint   to = r.bottomLeft();
-                if (flags & Style_Top) {
+                if (flags & State_Top) {
                     from += QPoint(0, 1);
                 } else {
                     to   += QPoint(0,-1);
@@ -2346,7 +2346,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             int maxpmw = opt.maxIconWidth();
             bool dis = ! mi->isEnabled();
             bool checkable = popupmenu->isCheckable();
-            bool act = flags & Style_Selected;
+            bool act = flags & State_Selected;
             int x, y, w, h;
 
             r.rect(&x, &y, &w, &h);
@@ -2416,11 +2416,11 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 if (mi->isChecked()) {
                     int xp = xpos + CE_ITEMFRAME;
 
-                    SFlags cflags = Style_Default;
+                    SFlags cflags = State_Default;
                     if (! dis)
-                        cflags |= Style_Enabled;
+                        cflags |= State_Enabled;
                     if (act)
-                        cflags |= Style_On;
+                        cflags |= State_On;
 
                     drawPrimitive(PE_CheckMark, p,
                                   QRect(xp, y + CE_ITEMFRAME,
@@ -2498,10 +2498,10 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                                     discol, white);
 
                     drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-                                  g2, Style_Enabled);
+                                  g2, State_Enabled);
                 } else {
                     drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-                                  pal, mi->isEnabled() ? Style_Enabled : Style_Default);
+                                  pal, mi->isEnabled() ? State_Enabled : State_Default);
                 }
             }
 
@@ -2511,9 +2511,9 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
     case CE_MenuBarItem:
         {
-            bool active = flags & Style_Active;
-            bool hasFocus = flags & Style_HasFocus;
-            bool down = flags & Style_Down;
+            bool active = flags & State_Active;
+            bool hasFocus = flags & State_HasFocus;
+            bool down = flags & State_Down;
             QRect pr = r;
 
             //p->fillRect(r, pal.brush(QPalette::Button));
@@ -2546,9 +2546,9 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 #ifdef QT_COMPAT
     case CE_Q3MenuBarItem:
         {
-            bool active = flags & Style_Active;
-            bool hasFocus = flags & Style_HasFocus;
-            bool down = flags & Style_Down;
+            bool active = flags & State_Active;
+            bool hasFocus = flags & State_HasFocus;
+            bool down = flags & State_Down;
             QRect pr = r;
 
             //p->fillRect(r, pal.brush(QPalette::Button));
@@ -2594,13 +2594,13 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             const QCheckBox *checkbox = (const QCheckBox *) widget;
 
             if (checkbox->isDown())
-                flags |= Style_Down;
+                flags |= State_Down;
             if (checkbox->state() == QButton::On)
-                flags |= Style_On;
+                flags |= State_On;
             else if (checkbox->state() == QButton::Off)
-                flags |= Style_Off;
+                flags |= State_Off;
             else if (checkbox->state() == QButton::NoChange)
-                flags |= Style_NoChange;
+                flags |= State_NoChange;
 
             drawPrimitive(PE_Indicator, p, ir, pal, flags, opt);
             break;
@@ -2612,7 +2612,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
             int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
-                     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
+                     flags & State_Enabled, checkbox->pixmap(), checkbox->text());
 
             if (checkbox->hasFocus()) {
                 QRect fr = subRect(SR_CheckBoxFocusRect, widget);
@@ -2637,11 +2637,11 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
             if (radiobutton->isDown())
-                flags |= Style_Down;
+                flags |= State_Down;
             if (radiobutton->state() == QButton::On)
-                flags |= Style_On;
+                flags |= State_On;
             else if (radiobutton->state() == QButton::Off)
-                flags |= Style_Off;
+                flags |= State_Off;
 
             drawPrimitive(PE_ExclusiveIndicator, p, ir, pal, flags, opt);
             break;
@@ -2653,7 +2653,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
             int alignment = QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft;
             drawItem(p, r, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
-                     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
+                     flags & State_Enabled, radiobutton->pixmap(), radiobutton->text());
 
             if (radiobutton->hasFocus()) {
                 QRect fr = subRect(SR_RadioButtonFocusRect, widget);
@@ -2706,7 +2706,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 for (int i=0; i<nu; i++) {
                     drawPrimitive(PE_ProgressBarChunk, p,
                                    QRect(x0+x, r.y(), unit_width, r.height()),
-                                   pal, Style_Default, opt);
+                                   pal, State_Default, opt);
                     x += reverse ? -unit_width: unit_width;
                 }
             }
@@ -2750,7 +2750,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             QRect ir = r;
 
             if (button->isDown() || button->isOn()) {
-                flags |= Style_Sunken;
+                flags |= State_Sunken;
                 ir.moveBy(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget)
                           PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
             }
@@ -2795,10 +2795,10 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 #endif //QT_NO_ICON
                 tf |= Qt::AlignHCenter;
             drawItem(p, ir, tf, pal,
-                     flags & Style_Enabled, button->pixmap(), button->text(),
-                     button->text().length(), (flags & Style_Sunken) ? &(pal.color(QPalette::Base)) : &(pal.color(QPalette::ButtonText)));
+                     flags & State_Enabled, button->pixmap(), button->text(),
+                     button->text().length(), (flags & State_Sunken) ? &(pal.color(QPalette::Base)) : &(pal.color(QPalette::ButtonText)));
 
-            if (flags & Style_HasFocus)
+            if (flags & State_HasFocus)
                 drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
                               pal, flags, QStyleOption(pal.foreground()));
             break;
@@ -2813,7 +2813,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
             Qt::ArrowType arrowType = opt.isDefault()
                         ? Qt::DownArrow : opt.arrowType();
 
-            if (flags & (Style_Down | Style_On))
+            if (flags & (State_Down | State_On))
                 rect.moveBy(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget)
                             PM_BUTTONSHIFTVERTICAL);  // pixelMetric(PM_ButtonShiftVertical, widget));
 
@@ -2835,7 +2835,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                     ! toolbutton->text().isNull() &&
                     ! toolbutton->usesTextLabel()) {
                     drawItem(p, rect, Qt::AlignCenter | Qt::TextShowMnemonic, pal,
-                             flags & Style_Enabled, 0, toolbutton->text(),
+                             flags & State_Enabled, 0, toolbutton->text(),
                              toolbutton->text().length(), &btext);
                 } else {
                     QPixmap pm;
@@ -2846,7 +2846,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                     QIcon::Mode mode;
                     if (! toolbutton->isEnabled())
                         mode = QIcon::Disabled;
-                    else if (flags & (Style_Down | Style_On | Style_Raised))
+                    else if (flags & (State_Down | State_On | State_Raised))
                         mode = QIcon::Active;
                     else
                         mode = QIcon::Normal;
@@ -2862,7 +2862,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                             tr.addCoords(0, pr.bottom(), 0, -3);
                             drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
                             drawItem(p, tr, Qt::AlignCenter | Qt::TextShowMnemonic, pal,
-                                      flags & Style_Enabled, 0, toolbutton->textLabel(),
+                                      flags & State_Enabled, 0, toolbutton->textLabel(),
                                       toolbutton->textLabel().length(), &btext);
                         } else {
                             p->setFont(toolbutton->font());
@@ -2872,7 +2872,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                             tr.addCoords(pr.right(), 0, 0, 0);
                             drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
                             drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
-                                      flags & Style_Enabled, 0, toolbutton->textLabel(),
+                                      flags & State_Enabled, 0, toolbutton->textLabel(),
                                       toolbutton->textLabel().length(), &btext);
                         }
                     } else {
@@ -2895,7 +2895,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
                 QIcon* icon = header->iconSet(section);
                 if (icon) {
                     QPixmap pixmap = icon->pixmap(Qt::SmallIconSize,
-                                                flags & Style_Enabled ?
+                                                flags & State_Enabled ?
                                                 QIcon::Normal : QIcon::Disabled);
                     int pixw = pixmap.width();
                     int pixh = pixmap.height();
@@ -2903,12 +2903,12 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
                     QRect pixRect = rect;
                     pixRect.setY(rect.center().y() - (pixh - 1) / 2);
-                    drawItem (p, pixRect, Qt::AlignVCenter, pal, flags & Style_Enabled,
+                    drawItem (p, pixRect, Qt::AlignVCenter, pal, flags & State_Enabled,
                             &pixmap, QString::null);
                     rect.setLeft(rect.left() + pixw + 2);
                 }
 
-                drawItem (p, rect, Qt::AlignVCenter, pal, flags & Style_Enabled,
+                drawItem (p, rect, Qt::AlignVCenter, pal, flags & State_Enabled,
                         0, header->label(section), -1, &(pal.color(QPalette::ButtonText)));
                 break;
             }
@@ -2964,15 +2964,15 @@ void QPocketPCStyle::drawControlMask(ControlElement         control,
     // ### Not optimized yet...
 
     case CE_PushButton:
-        drawPrimitive(PE_ButtonCommand, p, r, pal, Style_Default, opt);
+        drawPrimitive(PE_ButtonCommand, p, r, pal, State_Default, opt);
         break;
 
     case CE_CheckBox:
-        drawPrimitive(PE_IndicatorMask, p, r, pal, Style_Default, opt);
+        drawPrimitive(PE_IndicatorMask, p, r, pal, State_Default, opt);
         break;
 
     case CE_RadioButton:
-        drawPrimitive(PE_ExclusiveIndicatorMask, p, r, pal, Style_Default, opt);
+        drawPrimitive(PE_ExclusiveIndicatorMask, p, r, pal, State_Default, opt);
         break;
 
     // --- Catch unknown elements ---
@@ -3013,7 +3013,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             }
 
             if (sub & SC_SpinBoxUp) {
-                flags = Style_Default | Style_Enabled;
+                flags = State_Default | State_Enabled;
                 // Which button symbol?
                 pe = sw->buttonSymbols() == QSpinWidget::PlusMinus
                         ? PE_SpinBoxPlus : PE_ArrowUp;
@@ -3021,7 +3021,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 QRect re = sw->upRect();
                 // Button Up pressed?
                 if (subActive == SC_SpinBoxUp) {
-                    flags |= Style_Down;
+                    flags |= State_Down;
                     p->fillRect(re, pal.foreground());
                 } else {
                     p->fillRect(re, pal.base());
@@ -3040,7 +3040,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             }
 
             if (sub & SC_SpinBoxDown) {
-                flags = Style_Default | Style_Enabled;
+                flags = State_Default | State_Enabled;
                 // Which button symbol?
                 pe = sw->buttonSymbols() == QSpinWidget::PlusMinus
                         ? PE_SpinBoxMinus : PE_ArrowDown;
@@ -3048,7 +3048,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 QRect re = sw->downRect();
                 // Button Down pressed?
                 if (subActive == SC_SpinBoxDown) {
-                    flags |= Style_Down;
+                    flags |= State_Down;
                     p->fillRect(re, pal.foreground());
                 } else {
                     p->fillRect(re, pal.base());
@@ -3073,17 +3073,17 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
     case CC_ComboBox:
         {
             if (sub & SC_ComboBoxArrow) {
-                SFlags flags = Style_Default;
+                SFlags flags = State_Default;
 
                 p->setBrush(pal.base());
                 p->setPen(pal.foreground());
                 p->drawRect(r);
 
                 if (widget->isEnabled())
-                    flags |= Style_Enabled;
+                    flags |= State_Enabled;
 
-                if (subActive & Style_Sunken)
-                    flags |= Style_Sunken;
+                if (subActive & State_Sunken)
+                    flags |= State_Sunken;
 
                 drawPrimitive(PE_ArrowDown, p, QRect(r.width() - 13, 0, 13, r.height()), pal, flags);
             }
@@ -3345,7 +3345,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 bool tickAbove     = sl->tickmarks() == QSlider::Above;
                 bool tickBelow     = sl->tickmarks() == QSlider::Below;
 
-                QRect re = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle, opt);
+                QRect re = subControlRect(CC_Slider, widget, SC_SliderHandle, opt);
                 int x1 = re.x(),     y1 = re.y(),
                     wi = re.width(), he = re.height();
                 int x2 = x1 + wi - 1;
@@ -3540,69 +3540,69 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             QRect addline, subline, addpage, subpage, slider, first, last;
             bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
-            subline = querySubControlMetrics(complex, widget, SC_ScrollBarSubLine, opt);
-            addline = querySubControlMetrics(complex, widget, SC_ScrollBarAddLine, opt);
-            subpage = querySubControlMetrics(complex, widget, SC_ScrollBarSubPage, opt);
-            addpage = querySubControlMetrics(complex, widget, SC_ScrollBarAddPage, opt);
-            slider  = querySubControlMetrics(complex, widget, SC_ScrollBarSlider,  opt);
-            first   = querySubControlMetrics(complex, widget, SC_ScrollBarFirst,   opt);
-            last    = querySubControlMetrics(complex, widget, SC_ScrollBarLast,    opt);
+            subline = subControlRect(complex, widget, SC_ScrollBarSubLine, opt);
+            addline = subControlRect(complex, widget, SC_ScrollBarAddLine, opt);
+            subpage = subControlRect(complex, widget, SC_ScrollBarSubPage, opt);
+            addpage = subControlRect(complex, widget, SC_ScrollBarAddPage, opt);
+            slider  = subControlRect(complex, widget, SC_ScrollBarSlider,  opt);
+            first   = subControlRect(complex, widget, SC_ScrollBarFirst,   opt);
+            last    = subControlRect(complex, widget, SC_ScrollBarLast,    opt);
 
             if ((sub & SC_ScrollBarSubLine) && subline.isValid())
                 drawPrimitive(PE_ScrollBarSubLine, p, subline, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarSubLine) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
             if ((sub & SC_ScrollBarAddLine) && addline.isValid())
                 drawPrimitive(PE_ScrollBarAddLine, p, addline, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarAddLine) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
             if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
                 drawPrimitive(PE_ScrollBarSubPage, p, subpage, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarSubPage) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
             if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
                 drawPrimitive(PE_ScrollBarAddPage, p, addpage, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarAddPage) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
             if ((sub & SC_ScrollBarFirst) && first.isValid())
                 drawPrimitive(PE_ScrollBarFirst, p, first, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarFirst) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
             if ((sub & SC_ScrollBarLast) && last.isValid())
                 drawPrimitive(PE_ScrollBarLast, p, last, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarLast) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
             if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
                 drawPrimitive(PE_ScrollBarSlider, p, slider, pal,
-                              ((maxedOut) ? Style_Default : Style_Enabled) |
+                              ((maxedOut) ? State_Default : State_Enabled) |
                               ((subActive == SC_ScrollBarSlider) ?
-                               Style_Down : Style_Default) |
+                               State_Down : State_Default) |
                               ((scrollbar->orientation() == Qt::Horizontal) ?
-                               Style_Horizontal : 0));
+                               State_Horizontal : 0));
 
                 // ### perhaps this should not be able to accept focus if maxedOut?
                 if (scrollbar->hasFocus()) {
                     QRect fr(slider.x() + 2, slider.y() + 2,
                              slider.width() - 5, slider.height() - 5);
-                    drawPrimitive(PE_FocusRect, p, fr, pal, Style_Default);
+                    drawPrimitive(PE_FocusRect, p, fr, pal, State_Default);
                 }
             }
 
@@ -3620,16 +3620,16 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 //c.setBrush(QPalette::Button,
                             //toolbutton->palette().color(QPalette::Background));
             QRect button, menuarea;
-            button   = visualRect(querySubControlMetrics(complex, widget, SC_ToolButton, opt), widget);
-            menuarea = visualRect(querySubControlMetrics(complex, widget, SC_ToolButtonMenu, opt), widget);
+            button   = visualRect(subControlRect(complex, widget, SC_ToolButton, opt), widget);
+            menuarea = visualRect(subControlRect(complex, widget, SC_ToolButtonMenu, opt), widget);
 
             SFlags bflags = flags,
                    mflags = flags;
 
             if (subActive & SC_ToolButton)
-                bflags |= Style_Down;
+                bflags |= State_Down;
             if (subActive & SC_ToolButtonMenu)
-                mflags |= Style_Down;
+                mflags |= State_Down;
 
             if (sub & SC_ToolButton) {
                 QToolBar *tb = ::qt_cast<QToolBar*>(toolbutton->parentWidget());
@@ -3651,7 +3651,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     }
                 }
 
-                if (bflags & (Style_Down | Style_On | Style_Raised)) {
+                if (bflags & (State_Down | State_On | State_Raised)) {
                     drawPrimitive(PE_ButtonTool, p, button, c, bflags, opt);
                 }
                 /*
@@ -3667,7 +3667,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             }
 
             if (sub & SC_ToolButtonMenu) {
-                if (mflags & (Style_Down | Style_On | Style_Raised))
+                if (mflags & (State_Down | State_On | State_Raised))
                     drawPrimitive(PE_ButtonDropDown, p, menuarea, c, mflags, opt);
                 drawPrimitive(PE_ArrowDown, p, menuarea, c, mflags, opt);
             }
@@ -3713,7 +3713,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     p->fillRect(titlebar->rect(), left);
                 }
 
-                QRect ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarLabel), widget);
+                QRect ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarLabel), widget);
 
                 p->setPen(titlePal.highlightedText());
                 p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
@@ -3725,9 +3725,9 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             QPixmap pm;
 
             if (sub & SC_TitleBarCloseButton) {
-                ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarCloseButton), widget);
+                ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarCloseButton), widget);
                 down = subActive & SC_TitleBarCloseButton;
-                if (widget->testWFlags(Qt::WStyle_Tool)
+                if (widget->testWFlags(Qt::WState_Tool)
 #ifndef QT_NO_MAINWINDOW
                      || ::qt_cast<QDockWindow*>(widget)
 #endif
@@ -3736,7 +3736,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 else
                     pm = stylePixmap(SP_TitleBarCloseButton, widget);
                 drawPrimitive(PE_ButtonTool, p, ir, titlebar->palette(),
-                              down ? Style_Down : Style_Raised);
+                              down ? State_Down : State_Raised);
 
                 p->save();
                 if(down)
@@ -3748,12 +3748,12 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
             if (titlebar->window()) {
                 if (sub & SC_TitleBarMaxButton) {
-                    ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarMaxButton), widget);
+                    ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarMaxButton), widget);
 
                     down = subActive & SC_TitleBarMaxButton;
                     pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
                     drawPrimitive(PE_ButtonTool, p, ir, titlebar->palette(),
-                                  down ? Style_Down : Style_Raised);
+                                  down ? State_Down : State_Raised);
 
                     p->save();
                     if(down)
@@ -3764,7 +3764,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 }
 
                 if (sub & SC_TitleBarNormalButton || sub & SC_TitleBarMinButton) {
-                    ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarMinButton), widget);
+                    ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarMinButton), widget);
                     QStyle::SubControl ctrl = (complex & SC_TitleBarNormalButton ?
                                                SC_TitleBarNormalButton :
                                                SC_TitleBarMinButton);
@@ -3774,7 +3774,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                     down = subActive & ctrl;
                     pm = QPixmap(stylePixmap(spixmap, widget));
                     drawPrimitive(PE_ButtonTool, p, ir, titlebar->palette(),
-                                  down ? Style_Down : Style_Raised);
+                                  down ? State_Down : State_Raised);
 
                     p->save();
                     if(down)
@@ -3785,12 +3785,12 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 }
 
                 if (sub & SC_TitleBarShadeButton) {
-                    ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarShadeButton), widget);
+                    ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarShadeButton), widget);
 
                     down = subActive & SC_TitleBarShadeButton;
                     pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, widget));
                     drawPrimitive(PE_ButtonTool, p, ir, titlebar->palette(),
-                                  down ? Style_Down : Style_Raised);
+                                  down ? State_Down : State_Raised);
                     p->save();
                     if(down)
                         p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
@@ -3800,12 +3800,12 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 }
 
                 if (sub & SC_TitleBarUnshadeButton) {
-                    ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarUnshadeButton), widget);
+                    ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarUnshadeButton), widget);
 
                     down = subActive & SC_TitleBarUnshadeButton;
                     pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, widget));
                     drawPrimitive(PE_ButtonTool, p, ir, titlebar->palette(),
-                                  down ? Style_Down : Style_Raised);
+                                  down ? State_Down : State_Raised);
                     p->save();
                     if(down)
                         p->translate(PM_BUTTONSHIFTHORIZONTAL, // pixelMetric(PM_ButtonShiftHorizontal, widget),
@@ -3817,7 +3817,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 #ifndef QT_NO_WIDGET_TOPEXTRA
             if (sub & SC_TitleBarSysMenu) {
                 if (!titlebar->windowIcon().isNull()) {
-                    ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarSysMenu), widget);
+                    ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarSysMenu), widget);
                     drawItem(p, ir, Qt::AlignCenter, titlebar->palette(), true, &(titlebar->windowIcon()), QString::null);
                 }
             }

@@ -42,8 +42,8 @@ public:
      void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                              const QWidget *widget = 0) const;
 
-     QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
-                                  SubControl sc, const QWidget *widget = 0) const;
+     QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
+                          SubControl sc, const QWidget *widget = 0) const;
 
      int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,
                      const QWidget *widget = 0) const;
