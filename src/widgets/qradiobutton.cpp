@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#33 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#33 $";
 #endif
 
 
@@ -131,7 +131,11 @@ void QRadioButton::adjustSize()
     getSizeOfBitmap( style(), &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
-    resize( w+wbm+6, h );
+    w += wbm+6;
+    if ( w!=width() || h!=height() )
+	resize( w, h );
+    else
+	repaint(TRUE);
 }
 
 

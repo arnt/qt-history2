@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#44 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#44 $";
 #endif
 
 
@@ -202,7 +202,10 @@ void QPushButton::adjustSize()
 	w += w/8 + 16;
 	h += h/8 + 8;
     }
-    resize( w, h );
+    if ( w!=width() || h!=height() )
+	resize( w, h );
+    else
+	repaint(TRUE);
 }
 
 
