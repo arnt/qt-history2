@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#29 $
 **
 ** Implementation of date and time classes
 **
@@ -26,7 +26,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#29 $";
 #endif
 
 
@@ -687,7 +687,7 @@ bool QTime::currentTime( QTime *ct )			// get current time
 #elif defined(UNIX)
 
     struct timeval tv;
-#if defined(_OS_SUN_)
+#if defined(_OS_SUN_) && !defined(__SVR4)
     gettimeofday( &tv );
 #else
     gettimeofday( &tv, 0 );
