@@ -6,7 +6,7 @@ open header, ">encodings.h"
 open out, ">encodings.gperf"
   or die "Can't open out\n";
 
-print out "struct encodings {\n    const char *name;\n    FontMapper mapper;\n};\n%%\n";
+print out "struct encodings {\n    const char *name;\n    int mib;\n};\n%%\n";
 
 $num = 0;
 while (<IN>) {
@@ -16,8 +16,9 @@ while (<IN>) {
 
     $up = uc($attr);
     push(@a, "    \"$up\",");
-    $up =~ s/-/_/;
-    $up =~ s/\./_/;
+    $up =~ s/-/_/g;
+    $up =~ s/\./_/g;
+    $up =~ s/\*/_/g;
     print out $attr . ", ENC_" . $up . "\n";
 
     print header "#define ENC_" . $up . " 0\n";

@@ -11,88 +11,74 @@
 
 // #define FONTENGINE_DEBUG
 
-#define ENC_BIG5_0 0
-#define ENC_BIG5HKSCS_0 0
-#define ENC_HKSCS_1 0
-#define ENC_GB18030_0 0
-#define ENC_GB18030_2000_0 0
-#define ENC_GBK_0 0
-#define ENC_GB2312_1980_0 0
-#define ENC_ISO10646_1 0
-#define ENC_ISO8859_1 0
-#define ENC_ISO8859_2 0
-#define ENC_ISO8859_3 0
-#define ENC_ISO8859_4 0
-#define ENC_ISO8859_5 0
-#define ENC_ISO8859_6 0
-#define ENC_ISO8859_7 0
-#define ENC_ISO8859_8 0
-#define ENC_ISO8859_9 0
-#define ENC_ISO8859_10 0
-#define ENC_ISO8859_11 0
-#define ENC_ISO8859_13 0
-#define ENC_ISO8859_14 0
-#define ENC_ISO8859_15 0
-#define ENC_JISX0201_1976_0 0
-#define ENC_JISX0208_1997_0 0
-#define ENC_JISX0208_1990_0 0
-#define ENC_JISX0208_1983_0 0
-#define ENC_KOI8_R 0
-#define ENC_KOI8_RU 0
-#define ENC_KOI8_U 0
-#define ENC_MICROSOFT_CP1251 0
-#define ENC_KSC5601_1987_0 0
-#define ENC_MULELAO_1 0
-#define ENC_TIS620_2533_0 0
-#define ENC_TIS620_0 0
-#define ENC_TSCII_0 0
-#define ENC_TSCII_1 0
-
+#define ENC_GB18030_0 -114
+#define ENC_GB18030_2000_0 -113
+#define ENC_GBK_0 -113
+#define ENC_GB2312_1980_0 57
+#define ENC_JISX0208_1997_0 63
+#define ENC_JISX0208_1990_0 63
+#define ENC_JISX0208_1983_0 63
+#define ENC_KSC5601_1987_0 36
+#define ENC_BIG5HKSCS_0 -2101
+#define ENC_HKSCS_1 -2101
+#define ENC_BIG5___ -2026
+#define ENC_BIG5_0 -2026
+#define ENC_ISO8859_7 10
+#define ENC_ISO8859_5 8
+#define ENC_MICROSOFT_CP1251 2251
+#define ENC_ISO8859_8 85
+#define ENC_ISO8859_6 82
+#define ENC_TSCII__ 2028
+#define ENC_TIS620__0 2259
+#define ENC_ISO8859_11 2259
+#define ENC_ISO8859_2 5
+#define ENC_ISO8859_3 6
+#define ENC_ISO8859_4 7
+#define ENC_ISO8859_14 110
+#define ENC_ISO8859_15 111
+#define ENC_JISX0201__0 15
+#define ENC_MULELAO_1 -4242
+#define ENC_KOI8_RU 2084
+#define ENC_KOI8_U 2088
+#define ENC_KOI8_R 2084
 
 struct encodings {
     const char *name;
-    FontMapper mapper;
+    int mib;
 };
-/* maximum key range = 175, duplicates = 0 */
+/* maximum key range = 94, duplicates = 0 */
 
-#ifdef __GNUC__
-__inline
-#else
-#ifdef __cplusplus
-inline
-#endif
-#endif
-static unsigned int
+static inline unsigned int
 hash_encoding (register const char *str, register unsigned int len)
 {
   static const unsigned char asso_values[] =
     {
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181,   0,   0, 181,   0,  20,
-       30,   5,  45,  25,  10,  15,   0,  50, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181,   0,   5,   0,
-      181,   0,   0,   0,   5,   0,   0,   0,   0,   0,
-      181,   0,   0, 181,   5,   0,   0,   0, 181, 181,
-        0, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
-      181, 181, 181, 181, 181, 181
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99,  0, 99, 99,  0,  0, 99,  0,  0,
+      40,  5, 15, 20, 35, 10,  0,  0, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99,  0,  0,  0,
+      99,  0,  0,  0,  5,  0,  0,  0,  0,  0,
+      99,  0,  0, 99, 10,  0,  0,  0, 99, 99,
+       0, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+      99, 99, 99, 99, 99, 99
     };
   register int hval = len;
 
@@ -141,68 +127,57 @@ findEncoding (register const char *str, register unsigned int len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 36,
+      TOTAL_KEYWORDS = 30,
       MIN_WORD_LENGTH = 5,
       MAX_WORD_LENGTH = 16,
-      MIN_HASH_VALUE = 6,
-      MAX_HASH_VALUE = 180
+      MIN_HASH_VALUE = 5,
+      MAX_HASH_VALUE = 98
     };
 
   static const struct encodings wordlist_encoding[] =
     {
-      {"koi8-u", ENC_KOI8_U},
-      {"tscii-0", ENC_TSCII_0},
       {"gbk-0", ENC_GBK_0},
-      {"koi8-r", ENC_KOI8_R},
-      {"koi8-ru", ENC_KOI8_RU},
-      {"tscii-1", ENC_TSCII_1},
+      {"koi8-u", ENC_KOI8_U},
+      {"tscii-*", ENC_TSCII__},
       {"mulelao-1", ENC_MULELAO_1},
       {"hkscs-1", ENC_HKSCS_1},
-      {"big5-0", ENC_BIG5_0},
       {"gb18030-0", ENC_GB18030_0},
-      {"big5hkscs-0", ENC_BIG5HKSCS_0},
-      {"tis620-0", ENC_TIS620_0},
-      {"gb18030.2000-0", ENC_GB18030_2000_0},
+      {"koi8-r", ENC_KOI8_R},
+      {"koi8-ru", ENC_KOI8_RU},
+      {"big5-0", ENC_BIG5_0},
+      {"big5*-*", ENC_BIG5___},
       {"iso8859-8", ENC_ISO8859_8},
-      {"iso8859-3", ENC_ISO8859_3},
-      {"iso8859-6", ENC_ISO8859_6},
-      {"iso8859-7", ENC_ISO8859_7},
-      {"iso8859-1", ENC_ISO8859_1},
-      {"iso8859-10", ENC_ISO8859_10},
-      {"iso8859-5", ENC_ISO8859_5},
-      {"iso8859-13", ENC_ISO8859_13},
-      {"iso8859-2", ENC_ISO8859_2},
-      {"iso10646-1", ENC_ISO10646_1},
-      {"microsoft-cp1251", ENC_MICROSOFT_CP1251},
-      {"tis620.2533-0", ENC_TIS620_2533_0},
-      {"jisx0208.1983-0", ENC_JISX0208_1983_0},
       {"iso8859-11", ENC_ISO8859_11},
+      {"iso8859-3", ENC_ISO8859_3},
+      {"big5hkscs-0", ENC_BIG5HKSCS_0},
+      {"iso8859-7", ENC_ISO8859_7},
       {"iso8859-4", ENC_ISO8859_4},
-      {"iso8859-15", ENC_ISO8859_15},
-      {"iso8859-9", ENC_ISO8859_9},
       {"iso8859-14", ENC_ISO8859_14},
-      {"ksc5601.1987-0", ENC_KSC5601_1987_0},
-      {"jisx0201.1976-0", ENC_JISX0201_1976_0},
+      {"iso8859-5", ENC_ISO8859_5},
+      {"iso8859-15", ENC_ISO8859_15},
+      {"jisx0201*-0", ENC_JISX0201__0},
       {"jisx0208.1990-0", ENC_JISX0208_1990_0},
-      {"gb2312.1980-0", ENC_GB2312_1980_0},
-      {"jisx0208.1997-0", ENC_JISX0208_1997_0}
+      {"gb18030.2000-0", ENC_GB18030_2000_0},
+      {"jisx0208.1983-0", ENC_JISX0208_1983_0},
+      {"iso8859-6", ENC_ISO8859_6},
+      {"jisx0208.1997-0", ENC_JISX0208_1997_0},
+      {"iso8859-2", ENC_ISO8859_2},
+      {"ksc5601.1987-0", ENC_KSC5601_1987_0},
+      {"tis620*-0", ENC_TIS620__0},
+      {"microsoft-cp1251", ENC_MICROSOFT_CP1251},
+      {"gb2312.1980-0", ENC_GB2312_1980_0}
     };
 
   static const signed char lookup[] =
     {
-      -1, -1, -1, -1, -1, -1,  0,  1, -1, -1,  2,  3,  4, -1,
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  5,
-      -1,  6, -1, -1,  7, -1, -1, -1,  8, -1, -1,  9, -1, -1,
-      -1, -1, -1, -1, 10, -1, 11, -1, -1, -1, -1, -1, -1, -1,
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      -1, -1, -1, -1, 12, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-      13, -1, -1, -1, -1, 14, -1, -1, -1, -1, 15, -1, -1, -1,
-      -1, 16, -1, -1, -1, -1, 17, 18, -1, -1, -1, 19, 20, -1,
-      -1, -1, 21, 22, 23, -1, 24, -1, 25, -1, -1, -1, -1, 26,
-      -1, -1, -1, 27, 28, -1, -1, -1, 29, -1, -1, -1, -1, -1,
-      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 30, -1, -1, -1,
-      31, -1, -1, -1, -1, -1, 32, -1, -1, -1, -1, 33, -1, -1,
-      -1, -1, -1, -1, -1, 34, -1, -1, -1, -1, -1, -1, 35
+      -1, -1, -1, -1, -1,  0,  1,  2, -1,  3, -1, -1,  4, -1,
+       5, -1,  6,  7, -1, -1, -1, -1, -1, -1, -1, -1,  8,  9,
+      -1, 10, 11, -1, -1, -1, 12, -1, 13, -1, -1, 14, -1, -1,
+      -1, -1, 15, 16, -1, -1, -1, 17, 18, 19, -1, -1, -1, 20,
+      -1, -1, -1, 21, 22, -1, -1, -1, 23, 24, -1, -1, -1, 25,
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, 26, -1, -1, -1, -1,
+      27, -1, 28, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+      29
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
@@ -225,13 +200,7 @@ findEncoding (register const char *str, register unsigned int len)
   return 0;
 }
 
-static inline FontMapper getMapper( const char *encoding )
-{
-    struct encodings *e = getMapper( encoding, strlen( encoding ) );
-    if ( e )
-	return e->mapper;
-    return 0;
-}
+
 
 // returns TRUE if the character doesn't exist (ie. zero bounding box)
 static inline bool charNonExistent(const XCharStruct *xcs)
@@ -293,9 +262,11 @@ static inline XCharStruct *charStruct( XFontStruct *xfs, int ch )
 
 
 FontEngineXLFD::FontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap )
-    : _fs( fs ), _name( name ), _scale( 1. ), _cmap( cmap )
+    : _fs( fs ), _name( name ), _codec( 0 ), _scale( 1. ), _cmap( cmap )
 {
-    fontMapper = getMapper( encoding );
+    const struct encodings *enc = findEncoding( encoding, strlen( encoding ) );
+    if ( enc )
+	_codec = QTextCodec::codecForMib( enc->mib );
 }
 
 FontEngineXLFD::~FontEngineXLFD()
@@ -311,8 +282,8 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
 	return OutOfMemory;
     }
 
-    if ( fontMapper ) {
-	fontMapper( str, glyphs, len );
+    if ( _codec ) {
+	_codec->fromUnicode( str, glyphs, len );
     } else {
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i] = str[i].unicode();
