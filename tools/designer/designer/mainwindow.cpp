@@ -965,8 +965,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		( (QKeyEvent*)e )->accept();
 		return TRUE;
 	    }
-	    break;
 	}
+	break;
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;
