@@ -448,7 +448,8 @@ void qmotif_widget_shell_change_managed( Widget w )
 	     widget->d->shell->core.height ),
 	d = widget->geometry();
     if ( d != r ) {
-	if ( ! widget->isTopLevel() && widget->layout() != 0 ) {
+	if ( ! widget->isTopLevel() && widget->parentWidget() &&
+	     widget->parentWidget()->layout() != 0 ) {
 	    // the widget is most likely resized by a layout
 	    XtMoveWidget( w, d.x(), d.y() );
 	    XtResizeWidget( w, d.width(), d.height(), 0 );
