@@ -11,6 +11,15 @@
 **
 ****************************************************************************/
 
+// BIND system header files are a mess!
+// <resolv.h> includes <arpa/nameser.h>. <arpa/nameser.h> is using
+// 'u_char' and includes <sys/types.h>. Now the problem with GNU libc
+// is that <sys/types.h> defines 'u_char' only if __USE_BSD is defined.
+// __USE_BSD is defined by <features.h> if _BSD_SOURCE is defined.
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif
+
 #include "qplatformdefs.h"
 #include <qapplication.h>
 
