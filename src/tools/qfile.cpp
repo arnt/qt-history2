@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#16 $
 **
 ** Implementation of QFile class
 **
@@ -13,11 +13,11 @@
 #include "qfile.h"
 #include "qfileinf.h"
 #include "qdir.h"
-#include "qfildefs.h"
+#include "qfiledef.h"
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#16 $";
 #endif
 
   /*! \class QFile qfile.h

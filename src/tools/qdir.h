@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#4 $
+** $Id: //depot/qt/main/src/tools/qdir.h#5 $
 **
 ** Definition of QDir class
 **
@@ -51,8 +51,8 @@ public:
 
     QDir();
     QDir( const char *path );
-    QDir( const char *path, const char *nameFilt, int sortSpec = Name,
-         int filterSpec = All );
+    QDir( const char *path, const char *nameFilt, 
+          int sortSpec = Name | IgnoreCase, int filterSpec = All );
     QDir( const QDir & );
    ~QDir();
 
@@ -62,10 +62,12 @@ public:
     QString     absolutePath() const;
 
     QString     dirName() const;
-    QString     pathName( const char *fileName ) const;
-    QString     fullPathName( const char *fileName ) const;
+    QString     pathName( const char *fileName, 
+                          bool acceptAbsolutePath = TRUE ) const;
+    QString     fullPathName( const char *fileName,
+                              bool acceptAbsolutePath = TRUE ) const;
 
-    bool        cd( const char *dirName);
+    bool        cd( const char *dirName, bool acceptAbsolutePath = TRUE );
     bool        cdUp();
 
     const char *nameFilter() const;
@@ -85,28 +87,35 @@ public:
                              int sortSpec   = DefaultSort   ) const;
 
     const QFileInfoList *entryInfos( int filterSpec = DefaultFilter, 
-                             int sortSpec   = DefaultSort  ) const;
+                                     int sortSpec   = DefaultSort  ) const;
     const QFileInfoList *entryInfos( const char *nameFilter,
-                             int filterSpec = DefaultFilter, 
-                             int sortSpec   = DefaultSort   ) const;
+                                     int filterSpec = DefaultFilter, 
+                                     int sortSpec   = DefaultSort   ) const;
 
-    bool        mkdir( const char *dirName );
-    bool        rmdir( const char *dirName );
+    bool        mkdir( const char *dirName,
+                              bool acceptAbsolutePath = TRUE ) const;
+    bool        rmdir( const char *dirName,
+                              bool acceptAbsolutePath = TRUE ) const;
 
     bool        isReadable() const;
     bool        exists()   const;
     bool	isRoot()   const;
 
+    bool        isRelative() const;
+
     QDir       &operator=( const QDir & );
-    QDir       &operator=( const char * );
+    QDir       &operator=( const char * relativeOrAbsolutePath );
     bool        operator==( const QDir & );
     bool        operator!=( const QDir & );
 
     bool        setToCurrent() const;
 
-    bool        remove( const char *fileName );
-    bool        rename( const char *name, const char *newName  );
-    bool        exists( const char *name );
+    bool        remove( const char *fileName,
+                              bool acceptAbsolutePath = TRUE );
+    bool        rename( const char *name, const char *newName,
+                              bool acceptAbsolutePaths = TRUE  );
+    bool        exists( const char *name,
+                              bool acceptAbsolutePath = TRUE );
 
     static char separator();
 
@@ -122,10 +131,6 @@ public:
     static QString cleanPathName( const char *pathName );
     static bool isRelativePath( const char *path );
 
-/*    static bool remove( const QDir &, const char *fileName );
-    static bool rename( const QDir &,const char *name, const char *newName  );
-    static bool exists( const Dir &,const char *name );
-*/
 private:
     void	init();
     bool        readDirEntries( const QString &nameFilter,

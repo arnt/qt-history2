@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#3 $
 **
 ** Implementation of QFileInfo class
 **
@@ -11,7 +11,7 @@
 *****************************************************************************/
 
 #include "qfileinf.h"
-#include "qfildefs.h"
+#include "qfiledef.h"
 #include "qdatetm.h"
 #include "qdir.h"
 
@@ -20,61 +20,128 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#3 $";
 #endif
-
-static bool getStat( const char *fn, struct STATBUF *st )
-{
-#if defined(_OS_MAC_)
-    return FALSE;
-#else
-    if ( !fn )				// no filename specified
-	return FALSE;
-    return STAT( fn, st )==0 ? TRUE : FALSE;
-#endif
-}
 
 struct QFileInfoCache 
 {
     struct STATBUF st;
 };
 
+  /*! \class QFileInfo qfileinf.h
 
-/*! \class QFileInfo qfileinf.h
-
-  \brief The QFile class provides system-independent file information and
-  related functions.
+  \brief The QFile class provides system-independent file information.
 
   \ingroup tools
 
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  QFileInfo provides information about a files name and position (path) in
+  the filesystem, its access rights and whether it is a directory or a
+  symbolic link. Its size and last modified/read times are also available.
+
+  To speed up performance QFileInfo caches information about the file. Since
+  files can be changed by other users or programs, or even by other parts of
+  the same program there is a function that refreshes the file information; 
+  refresh(). If you would rather like QFileInfo to access the file system
+  every time you request information from it, you can call the function
+  setCaching( FALSE ).
+  
+  A QFileInfo can point to a file using either a relative or an absolute
+  file path. Absolute file paths begin with the directory separator
+  (e.g. '/' under UNIX) or a drive specification (not applicable to UNIX).
+  Relative file names begin with a directory name or a file name and specify
+  a path relative to the current directory. You can use the function
+  isRelative() to check if a QFileInfo is using a relative or an absolute
+  file path. You can call the function useAbsolutePath() to fix the file
+  pointer to 
+
+  \code
+  #include <qdir.h>
+  #include <qfileinf.h>
+
+  void test() {
+                                  // expands to "/liver/aorta" under UNIX:
+      const char *absolute = Q_SEPARATOR "liver" Q_SEPARATOR "aorta";
+      const char *relative = "liver" Q_SEPARATOR "aorta";
+      QFileInfo fi1( absolute );
+      QFileInfo fi2( relative );
+  
+      QDir::setCurrent( QDir::rootDirString() );
+                              // fi1 and fi2 now point to the same file
+      QDir::setCurrent( Q_SEPARATOR "tmp" );
+                              // fi1 now points to "/liver/aorta",
+                              // while fi2 points "/tmp/liver/aorta"
+  }
+  \endcode
+
+  If you need to read and traverse directories, see QDir.
+  */
 
 
+  /*!
+  Constructs a new empty QFileInfo.
+  */
 QFileInfo::QFileInfo()
 {
     fic = 0;
 }
 
+  /*!
+  Constructs a new QFileInfo that is a copy of \e fi.
+  */
 QFileInfo::QFileInfo( const QFileInfo &fi )
 {
     fn  = fi.fn;
     fic = fi.fic;
 }
 
+  /*!
+  Constructs a new QFileInfo that gives information about \e file.
+  */
 QFileInfo::QFileInfo( const QFile &file )
 {
     fn  = file.name();
     fic = 0;
 }
 
+  /*!
+  Constructs a new QFileInfo that  gives information about the file
+  named \e fileName in the directory \e d.
+  */
 QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
 {
     fn  = QDir::cleanPathName( d.fullPathName( fileName ) );
     fic = 0;    
 }
 
+  /*!
+  Constructs a new QFileInfo that gives information about the given file.
+  The string given can be an absolute or a relative file path. Absolute file
+  paths begin with the directory separator (e.g. '/' under UNIX) or a drive
+  specification (not applicable to UNIX). Relative file names begin with a
+  directory name or a file name and specify a path relative to the current
+  directory. You can use QDir::isRelativePath() to check if a string is a
+  relative or an absolute file path.
+
+  \code
+  #include <qdir.h>
+  #include <qfileinf.h>
+
+  void test() {
+                                  // expands to "/liver/aorta" under UNIX:
+      const char *absolute = Q_SEPARATOR "liver" Q_SEPARATOR "aorta";
+      const char *relative = "liver" Q_SEPARATOR "aorta";
+      QFileInfo fi1( absolute );
+      QFileInfo fi2( relative );
+  
+      QDir::setCurrent( QDir::rootDirString() );
+                              // fi1 and fi2 now point to the same file
+      QDir::setCurrent( Q_SEPARATOR "tmp" );
+                              // fi1 now points to "/liver/aorta",
+                              // while fi2 points "/tmp/liver/aorta"
+  }
+  \endcode
+  \sa isRelative(), QDir::setCurrent, QDir::isRelativePath
+  */
 QFileInfo::QFileInfo( const char *relativeOrAbsoluteFileName )
 {
     fn  = QDir::cleanPathName( relativeOrAbsoluteFileName );
@@ -86,6 +153,9 @@ QFileInfo::~QFileInfo()
     delete fic;
 }
 
+  /*!
+  Returns TRUE if the file pointed to exists.
+  */
 bool QFileInfo::exists() const
 {
     if ( !fn.isNull() )
@@ -94,6 +164,10 @@ bool QFileInfo::exists() const
         return FALSE;
 }
 
+  /*!
+  Refresh the information about the file, i.e. read in information from the
+  file system.
+  */
 void QFileInfo::refresh() const
 {
     QFileInfo *This = ((QFileInfo*)this);
