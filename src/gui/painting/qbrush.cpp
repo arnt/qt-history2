@@ -80,11 +80,9 @@ struct QTexturedBrushData : public QBrushData
     QPixmap pixmap;
 };
 
-struct QLinGradBrushData : public QBrushData
+struct QGradientBrushData : public QBrushData
 {
-    QColor color2;
-    QPointF p1;
-    QPointF p2;
+    QGradient gradient;
 };
 
 
@@ -147,7 +145,9 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
         static_cast<QTexturedBrushData *>(d)->pixmap = QPixmap();
         break;
     case Qt::LinearGradientPattern:
-        d = new QLinGradBrushData;
+    case Qt::RadialGradientPattern:
+    case Qt::ConicalGradientPattern:
+        d = new QGradientBrushData;
         break;
     default:
         d = new QBrushData;
@@ -277,12 +277,25 @@ QBrush::QBrush(const QBrush &b)
 QBrush::QBrush(const QPointF &p1, const QColor &col1, const QPointF &p2, const QColor &col2)
 {
     init(col1, Qt::LinearGradientPattern);
-    QLinGradBrushData *lgd = static_cast<QLinGradBrushData*>(d);
-    lgd->color2 = col2;
-    lgd->p1 = p1;
-    lgd->p2 = p2;
+    QGradientBrushData *grad = static_cast<QGradientBrushData*>(d);
+    QLinearGradient lg(p1, p2);
+    lg.appendStop(0, col1);
+    lg.appendStop(1, col2);
+    grad->gradient = lg;
 }
 
+QBrush::QBrush(const QGradient &gradient)
+{
+    const Qt::BrushStyle enum_table[] = {
+        Qt::LinearGradientPattern,
+        Qt::RadialGradientPattern,
+        Qt::ConicalGradientPattern
+    };
+
+    init(QColor(), enum_table[gradient.type()]);
+    QGradientBrushData *grad = static_cast<QGradientBrushData *>(d);
+    grad->gradient = gradient;
+}
 
 /*!
     Destroys the brush.
@@ -301,7 +314,9 @@ void QBrush::cleanUp(QBrushData *x)
         delete static_cast<QTexturedBrushData*>(x);
         break;
     case Qt::LinearGradientPattern:
-        delete static_cast<QLinGradBrushData*>(x);
+    case Qt::RadialGradientPattern:
+    case Qt::ConicalGradientPattern:
+        delete static_cast<QGradientBrushData*>(x);
         break;
     default:
         delete x;
@@ -322,7 +337,11 @@ void QBrush::detach(Qt::BrushStyle newStyle)
             d->style == Qt::TexturePattern ? static_cast<QTexturedBrushData *>(d)->pixmap : QPixmap();
         break;
     case Qt::LinearGradientPattern:
-        x = new QLinGradBrushData;
+    case Qt::RadialGradientPattern:
+    case Qt::ConicalGradientPattern:
+        x = new QGradientBrushData;
+        static_cast<QGradientBrushData *>(x)->gradient =
+            static_cast<QGradientBrushData *>(d)->gradient;
         break;
     default:
         x = new QBrushData;
@@ -509,7 +528,7 @@ void QBrush::setTexture(const QPixmap &pixmap)
 QColor QBrush::gradientColor() const
 {
     return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QLinGradBrushData*>(d)->color2
+                     ? static_cast<const QGradientBrushData*>(d)->gradient.stops().at(1).second
                      : QColor();
 }
 
@@ -522,9 +541,7 @@ QColor QBrush::gradientColor() const
 */
 QPointF QBrush::gradientStart() const
 {
-    return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QLinGradBrushData*>(d)->p1
-                     : QPointF();
+    return d->style == Qt::LinearGradientPattern ? static_cast<const QLinearGradient *>(&static_cast<const QGradientBrushData*>(d)->gradient)->start() : QPointF();
 }
 
 /*!
@@ -536,11 +553,22 @@ QPointF QBrush::gradientStart() const
 */
 QPointF QBrush::gradientStop() const
 {
-    return d->style == Qt::LinearGradientPattern
-                     ? static_cast<const QLinGradBrushData*>(d)->p2
-                     : QPointF();
+    return d->style == Qt::LinearGradientPattern ? static_cast<const QLinearGradient *>(&static_cast<const QGradientBrushData*>(d)->gradient)->finalStop() : QPointF();
 }
 
+
+/*!
+    Returns the gradient describing this brush.
+*/
+const QGradient *QBrush::gradient() const
+{
+    if (d->style == Qt::LinearGradientPattern
+        || d->style == Qt::RadialGradientPattern
+        || d->style == Qt::ConicalGradientPattern) {
+        return &static_cast<const QGradientBrushData *>(d)->gradient;
+    }
+    return 0;
+}
 
 
 /*!
@@ -576,13 +604,14 @@ bool QBrush::operator==(const QBrush &b) const
             QPixmap them = static_cast<QTexturedBrushData *>(b.d)->pixmap;
             return ((us.isNull() && them.isNull()) || us.serialNumber() == them.serialNumber());
         }
-        case Qt::LinearGradientPattern: {
-            QLinGradBrushData *d1 = static_cast<QLinGradBrushData *>(d);
-            QLinGradBrushData *d2 = static_cast<QLinGradBrushData *>(b.d);
-            return d1->color2 == d2->color2
-                    && d1->p1 == d2->p1
-                    && d1->p2 == d2->p2;
-        }
+        case Qt::LinearGradientPattern:
+        case Qt::RadialGradientPattern:
+        case Qt::ConicalGradientPattern:
+            {
+                QGradientBrushData *d1 = static_cast<QGradientBrushData *>(d);
+                QGradientBrushData *d2 = static_cast<QGradientBrushData *>(b.d);
+                return d1->gradient == d2->gradient;
+            }
         default:
             return true;
         }
@@ -642,10 +671,24 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
 #else
         qWarning("No Image Brush I/O");
 #endif
-    } else if (b.style() == Qt::LinearGradientPattern) {
-        s << b.gradientColor();
-        s << b.gradientStart();
-        s << b.gradientStop();
+    } else if (b.style() == Qt::LinearGradientPattern
+               || b.style() == Qt::RadialGradientPattern
+               || b.style() == Qt::ConicalGradientPattern) {
+        const QGradient *gradient = b.gradient();
+        s << gradient->type();
+        s << gradient->stops();
+
+        if (gradient->type() == QGradient::LinearGradient) {
+            s << static_cast<const QLinearGradient *>(gradient)->start();
+            s << static_cast<const QLinearGradient *>(gradient)->finalStop();
+        } else if (gradient->type() == QGradient::RadialGradient) {
+            s << static_cast<const QRadialGradient *>(gradient)->center();
+            s << static_cast<const QRadialGradient *>(gradient)->focalPoint();
+            s << static_cast<const QRadialGradient *>(gradient)->radius();
+        } else { // type == Conical
+            s << static_cast<const QConicalGradient *>(gradient)->center();
+            s << static_cast<const QConicalGradient *>(gradient)->angle();
+        }
     }
     return s;
 }
@@ -673,13 +716,44 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 #else
         qWarning("No Image Brush I/O");
 #endif
-    } else if (style == Qt::LinearGradientPattern) {
-        QColor gradientColor;
-        QPointF gradientStart, gradientStop;
-        s >> gradientColor;
-        s >> gradientStart;
-        s >> gradientStop;
-        b = QBrush(gradientStart, color, gradientStop, gradientColor);
+    } else if (style == Qt::LinearGradientPattern
+               || style == Qt::RadialGradientPattern
+               || style == Qt::ConicalGradientPattern) {
+
+        int type_as_int;
+        QGradient::Type type;
+        QGradientStops stops;
+
+        s >> type_as_int;
+        type = QGradient::Type(type_as_int);
+        s >> stops;
+
+        if (type == QGradient::LinearGradient) {
+            QPointF p1, p2;
+            s >> p1;
+            s >> p2;
+            QLinearGradient lg(p1, p2);
+            lg.setStops(stops);
+            b = QBrush(lg);
+        } else if (type == QGradient::RadialGradient) {
+            QPointF center, focal;
+            qreal radius;
+            s >> center;
+            s >> focal;
+            s >> radius;
+            QRadialGradient rg(center, radius, focal);
+            rg.setStops(stops);
+            b = QBrush(rg);
+        } else { // type == QGradient::ConicalGradient
+            QPointF center;
+            qreal angle;
+            s >> center;
+            s >> angle;
+            QConicalGradient cg(center, angle);
+            cg.setStops(stops);
+            b = QBrush(cg);
+        }
+
     } else {
         b = QBrush(color, (Qt::BrushStyle)style);
     }
@@ -687,7 +761,6 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
 }
 #endif // QT_NO_DATASTREAM
 
-#if 1
 /*******************************************************************************
  * QGradient implementations
  */
@@ -855,6 +928,37 @@ QGradientStops QGradient::stops() const
 
 
 /*!
+    \internal
+*/
+bool QGradient::operator==(const QGradient &gradient)
+{
+    if (gradient.m_type != m_type || gradient.m_spread != m_spread) return false;
+
+    if (m_type == LinearGradient) {
+        if (m_data.linear.x1 != gradient.m_data.linear.x1
+            || m_data.linear.y1 != gradient.m_data.linear.y1
+            || m_data.linear.x2 != gradient.m_data.linear.x2
+            || m_data.linear.y2 != gradient.m_data.linear.y2)
+            return false;
+    } else if (m_type == RadialGradient) {
+        if (m_data.radial.cx != gradient.m_data.radial.cx
+            || m_data.radial.cy != gradient.m_data.radial.cy
+            || m_data.radial.fx != gradient.m_data.radial.fx
+            || m_data.radial.fy != gradient.m_data.radial.fy
+            || m_data.radial.radius != gradient.m_data.radial.radius)
+            return false;
+    } else { // m_type == ConicalGradient
+        if (m_data.conical.cx != gradient.m_data.conical.cx
+            || m_data.conical.cy != gradient.m_data.conical.cy
+            || m_data.conical.angle != gradient.m_data.conical.angle)
+            return false;
+    }
+
+    return m_stops == gradient.m_stops;
+}
+
+
+/*!
     \class QLinearGradient qbrush.h
 
     \brief The QLinearGradient class is used in combination with QBrush to
@@ -900,7 +1004,7 @@ QPointF QLinearGradient::start() const
 QPointF QLinearGradient::finalStop() const
 {
     Q_ASSERT(m_type == LinearGradient);
-    return QPointF(m_data.linear.x1, m_data.linear.y1);
+    return QPointF(m_data.linear.x2, m_data.linear.y2);
 }
 
 
@@ -1012,5 +1116,3 @@ qreal QConicalGradient::angle() const
     Q_ASSERT(m_type == ConicalGradient);
     return m_data.conical.angle;
 }
-
-#endif

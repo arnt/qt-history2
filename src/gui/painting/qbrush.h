@@ -20,9 +20,8 @@
 #include "QtGui/qcolor.h"
 
 struct QBrushData;
-struct QTexturedBrushData;
-struct QLinGradBrushData;
 class QPixmap;
+class QGradient;
 
 class Q_GUI_EXPORT QBrush
 {
@@ -39,6 +38,7 @@ public:
     QBrush(const QBrush &brush);
 
     QBrush(const QPointF &p1, const QColor &col1, const QPointF &p2, const QColor &col2);
+    QBrush(const QGradient &gradient);
 
     ~QBrush();
     QBrush &operator=(const QBrush &brush);
@@ -56,6 +56,8 @@ public:
     QColor gradientColor() const;
     QPointF gradientStart() const;
     QPointF gradientStop() const;
+
+    const QGradient *gradient() const;
 
     bool operator==(const QBrush &b) const;
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
@@ -111,7 +113,6 @@ inline QBrush::operator const QColor&() const { return d->color; }
 #endif
 
 
-#if 1
 /*******************************************************************************
  * QGradients
  */
@@ -135,6 +136,8 @@ public:
         RepeatSpread
     };
 
+    QGradient();
+
     Type type() const { return m_type; }
 
     void setSpread(Spread spread) { m_spread = spread; }
@@ -146,12 +149,12 @@ public:
     void setStops(const QGradientStops &stops);
     QGradientStops stops() const;
 
+    bool operator==(const QGradient &gradient);
+
 private:
     friend class QLinearGradient;
     friend class QRadialGradient;
     friend class QConicalGradient;
-
-    QGradient();
 
     Type m_type;
     Spread m_spread;
@@ -200,7 +203,5 @@ public:
     QPointF center() const;
     qreal angle() const;
 };
-
-#endif
 
 #endif // QBRUSH_H
