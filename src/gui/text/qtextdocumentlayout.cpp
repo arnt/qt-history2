@@ -838,7 +838,14 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                             break;
                     }
                     // ### colspans
-                    td->maxWidths[i] = qMin(td->maxWidths.at(i), layoutStruct.maximumWidth);
+                    int maxW = td->maxWidths.at(i);
+                    if (layoutStruct.maximumWidth != INT_MAX) {
+                        if (maxW == INT_MAX)
+                            maxW = layoutStruct.maximumWidth;
+                        else
+                            maxW = qMax(maxW, layoutStruct.maximumWidth);
+                    }
+                    td->maxWidths[i] = qMax(td->minWidths.at(i), maxW);
                 }
                 td->widths[i] = td->minWidths.at(i);
                 totalWidth -= td->minWidths.at(i);
