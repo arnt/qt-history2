@@ -257,6 +257,8 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
                 const QMainWindowLayout * const layout,
                 POSITION pos)
 {
+    const Qt::DockWindowArea area = static_cast<Qt::DockWindowArea>(areaForPosition(pos));
+
     const struct
     {
         Qt::Corner corner1, corner2;
@@ -292,31 +294,32 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
         }
     };
 
-    if (layout->layout_info[pos].item) {
-        if ((layout->corners[order[pos].corner1] != Qt::DockWindowArea(pos)
-             || !layout->layout_info[order[pos].perp1].item)
-            && (layout->corners[order[pos].corner2] != Qt::DockWindowArea(pos)
-                || !layout->layout_info[order[pos].perp2].item)) {
-            ls[1].minimumSize = qMax(pick_perp(pos, layout->layout_info[pos].item->minimumSize()),
-                                     ls[1].minimumSize);
-            ls[1].maximumSize = qMin(pick_perp(pos, layout->layout_info[pos].item->maximumSize()),
-                                     ls[1].maximumSize);
-        } else {
-            const int min = pick_perp(pos, layout->layout_info[pos].item->minimumSize()),
-                      dis = min / 2;
-            if (layout->layout_info[order[pos].perp1].item) {
-                if (layout->corners[order[pos].corner1] == Qt::DockWindowArea(pos)
-                    && layout->corners[order[pos].corner2] != Qt::DockWindowArea(pos)) {
-                    ls[0].minimumSize = qMax(ls[0].minimumSize, dis);
-                    ls[1].minimumSize = qMax(ls[1].minimumSize, min - dis);
-                }
-            } else if (layout->layout_info[order[pos].perp2].item) {
-                if (layout->corners[order[pos].corner2] == Qt::DockWindowArea(pos)
-                    && layout->corners[order[pos].corner1] != Qt::DockWindowArea(pos)) {
-                    ls[2].minimumSize = qMax(ls[2].minimumSize, dis);
-                    ls[1].minimumSize = qMax(ls[1].minimumSize, min - dis);
-                }
-            }
+    if (!layout->layout_info[pos].item)
+        return;
+
+    if ((layout->corners[order[pos].corner1] != area
+         || !layout->layout_info[order[pos].perp1].item)
+        && (layout->corners[order[pos].corner2] != area
+            || !layout->layout_info[order[pos].perp2].item)) {
+        // if the area does not occupy any corner, we constrain the
+        // minimum size of the center to the minimum size of the area
+        ls[1].minimumSize = qMax(pick_perp(pos, layout->layout_info[pos].item->minimumSize()),
+                                 ls[1].minimumSize);
+        ls[1].maximumSize = qMin(pick_perp(pos, layout->layout_info[pos].item->maximumSize()),
+                                 ls[1].maximumSize);
+    } else {
+        // if the area occupies only a single corner, then we
+        // distribute the minimum size of the area across the center
+        // and opposite side equally
+        const int min = pick_perp(pos, layout->layout_info[pos].item->minimumSize());
+        if (layout->layout_info[order[pos].perp1].item
+            && layout->corners[order[pos].corner1] == area
+            && layout->corners[order[pos].corner2] != area) {
+            ls[1].minimumSize = qMax(ls[1].minimumSize, min - ls[0].minimumSize);
+        } else if (layout->layout_info[order[pos].perp2].item
+                   && layout->corners[order[pos].corner2] == area
+                   && layout->corners[order[pos].corner1] != area) {
+            ls[1].minimumSize = qMax(ls[1].minimumSize, min - ls[2].minimumSize);
         }
     }
 }
