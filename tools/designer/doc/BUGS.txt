@@ -1,6 +1,5 @@
 Critical
 --------
-Connections to forms which have a custom widget as base class (template) are not saved
 
 Severe
 ------
