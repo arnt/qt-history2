@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#8 $
 **
 ** Implementation of something useful
 **
@@ -16,7 +16,7 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#8 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -727,3 +727,46 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     }
     return QScrollView::eventFilter( o, e );
 }
+
+
+/*! \fn bool QListViewItem::isOpen () const
+
+  Returns TRUE if it wants to.
+*/
+
+/*! \fn const QListViewItem* QListViewItem::firstChild () const
+
+  Returns a pointer to the first (top) child of this item. \sa
+  nextSibling()
+*/
+
+/*! \fn const QListViewItem* QListViewItem::nextSibling () const
+
+  Returns a pointer to the next sibling (below this one) of this
+  item. \sa nextSibling()
+*/
+
+/*! \fn int QListViewItem::children () const
+
+  Returns the number of children of this item.
+*/
+
+/*! \fn int QListViewItem::height () const
+
+  Returns the height of this item in pixels.  This does not include
+  the height of any children; totalHeight() returns that.
+*/
+
+/*! \fn virtual int QListViewItem::compare (int column, const QListViewItem * with) const
+
+  Defined to return less than 0, 0 or greater than 0 depending on
+  whether this item is lexicograpically before, the same as, or after
+  \a with when sorted by column \a column.
+*/
+
+/*! \fn void QListView::sizeChanged () 
+
+  This signal is emitted when the list view changes width (or height?
+  not at present).
+*/
+
