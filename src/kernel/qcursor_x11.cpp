@@ -358,17 +358,14 @@ Qt::HANDLE QCursor::handle() const
 }
 
 /*!
+  \fn QCursor::QCursor( HCURSOR handle )
+
   Creates a cursor with the specified window system handle \a handle.
 
   \warning
   Portable in principle, but if you use it you are probably about to do
   something non-portable. Be careful.
 */
-QCursor::QCursor( HANDLE handle )
-{
-    data = new QCursorData;
-    data->hcurs = handle;
-}
 
 /*!
   Returns the position of the cursor (hot spot) in global screen

@@ -90,10 +90,8 @@ public:
     QCursor( HCURSOR );
 #elif defined(Q_WS_X11)
     HANDLE	  handle()  const;
-    QCursor( HANDLE );
 #elif defined(Q_WS_MAC)
     HANDLE handle() const;
-    QCursor( HANDLE );
 #elif defined(Q_WS_QWS)
     HANDLE	  handle()  const;
 #endif
@@ -107,7 +105,7 @@ public:
 
 #if defined(Q_WS_X11)
     static int 	  x11Screen();
-#endif    
+#endif
 private:
     void	  setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 				 int hotX, int hotY );
