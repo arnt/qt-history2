@@ -4,7 +4,8 @@
 
 \raw html
 <object ID="QTetrax" width=550 height=370
-    CLASSID="CLSID:852558AD-CBD6-4f07-844C-D1E8983CD6FC">
+    CLASSID="CLSID:852558AD-CBD6-4f07-844C-D1E8983CD6FC"
+    CODEBASE=http://www.trolltech.com/demos/tetrax.cab>
     <PARAM NAME="score" VALUE="0">
 [Object not available! Did you forget to build and register the server?] 
 </object>
