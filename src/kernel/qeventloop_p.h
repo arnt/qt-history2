@@ -56,7 +56,6 @@ struct QSockNot
     int fd;
     fd_set *queue;
 #ifdef Q_OS_MAC
-    ~QSockNot();
     QMacSockNotPrivate *mac_d;
 #endif
 };

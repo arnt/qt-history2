@@ -85,8 +85,10 @@ void qt_remove_postselect_handler(VFPTR handler)
  *****************************************************************************/
 class QMacSockNotPrivate {
 public:
-    CFSocketRef socknot;
-    CFRunLoopSourceRef event_source;
+    union {
+	CFReadStreamRef read_not;
+	CFWriteStreamRef write_not;
+    };
 };
 QSockNotType::QSockNotType()
 {
@@ -96,14 +98,11 @@ QSockNotType::QSockNotType()
     FD_ZERO(&pending_fds);
 }
 
-QSockNot::~QSockNot()
+QSockNotType::~QSockNotType()
 {
-    if(mac_d) {
-	if(mac_d->socknot)
-	    CFRelease(mac_d->socknot);
-	if(mac_d->event_source)
-	    CFRelease(mac_d->event_source);
-    }
+    if(list)
+	delete list;
+    list = 0;
 }
 
 /*****************************************************************************
@@ -516,8 +515,6 @@ QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 	qt_event_request_select(eloop);
     }
 }
-/* This function just exists so that I can have the function as a friend, and not have to put all the types
-   that go into the real callback into qwindowdefs.h  --Sam */
 void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
 {
 #if 0
@@ -545,18 +542,23 @@ void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
      qt_mac_select_timer_callbk(0, eloop);
 #endif
 }
-static void qt_mac_select_callbk(CFSocketRef s, CFSocketCallBackType t, CFDataRef, const void *, void *me)
+static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType type, void *me)
 {
-    int in_type = 0;
-    if(t == kCFSocketReadCallBack) {
-	in_type = QSocketNotifier::Read;
-    } else if(t == kCFSocketWriteCallBack) {
-	in_type = QSocketNotifier::Write;
-    } else {
-	qWarning("Qt: internal: %s:%d This can't happen!", __FILE__, __LINE__);
+    if(type != kCFStreamEventHasBytesAvailable)
 	return;
-    }
-    qt_mac_internal_select_callbk(CFSocketGetNative(s), in_type, (QEventLoop*)me);
+    int in_sock;
+    const CFDataRef data = (const CFDataRef)CFReadStreamCopyProperty(stream, kCFStreamPropertySocketNativeHandle);
+    CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QEventLoop*)me);
+}
+static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventType type, void *me)
+{
+    if(type != kCFStreamEventCanAcceptBytes)
+	return;
+    int in_sock;
+    const CFDataRef data = (const CFDataRef)CFWriteStreamCopyProperty(stream, kCFStreamPropertySocketNativeHandle);
+    CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QEventLoop*)me);
 }
 
 int QEventLoop::macHandleSelect(timeval *tm)
@@ -663,21 +665,27 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     FD_SET(sockfd, fds);
     d->sn_highest = QMAX(d->sn_highest, sockfd);
     if(qt_is_gui_used) {
-	if(type == QSocketNotifier::Read || type == QSocketNotifier::Write) {
-	    CFSocketContext context;
-	    memset(&context, '\0', sizeof(context));
-	    context.info = this;
+	if(type == QSocketNotifier::Read) {
 	    sn->mac_d = new QMacSockNotPrivate;
-	    sn->mac_d->socknot = CFSocketCreateWithNative(NULL, sockfd, kCFSocketReadCallBack|kCFSocketWriteCallBack,
-							  qt_mac_select_callbk, &context);
-	    if(!sn->mac_d->socknot) {
-		delete sn->mac_d;
-		sn->mac_d = NULL;
-	    } else {
-		sn->mac_d->event_source = CFSocketCreateRunLoopSource(NULL, sn->mac_d->socknot, 0);
-		CFRunLoopAddSource(CFRunLoopGetCurrent(), sn->mac_d->event_source, kCFRunLoopCommonModes);
-	    }
-	} 
+	    CFStreamCreatePairWithSocket(kCFAllocatorDefault, sockfd, &sn->mac_d->read_not, NULL);
+	    CFStreamClientContext ctx;
+	    memset(&ctx, '\0', sizeof(ctx));
+	    ctx.info = this;
+	    CFReadStreamSetClient(sn->mac_d->read_not, kCFStreamEventOpenCompleted|kCFStreamEventHasBytesAvailable, 
+				  qt_mac_select_read_callbk, &ctx);
+	    CFReadStreamScheduleWithRunLoop(sn->mac_d->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
+	    CFReadStreamOpen(sn->mac_d->read_not);
+	} else if(type == QSocketNotifier::Write) {
+	    sn->mac_d = new QMacSockNotPrivate;
+	    CFStreamCreatePairWithSocket(kCFAllocatorDefault, sockfd, NULL, &sn->mac_d->write_not);
+	    CFStreamClientContext ctx;
+	    memset(&ctx, '\0', sizeof(ctx));
+	    ctx.info = this;
+	    CFWriteStreamSetClient(sn->mac_d->write_not, kCFStreamEventOpenCompleted|kCFStreamEventCanAcceptBytes, 
+				   qt_mac_select_write_callbk, &ctx);
+	    CFWriteStreamScheduleWithRunLoop(sn->mac_d->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
+	    CFWriteStreamOpen(sn->mac_d->write_not);
+	}
 	if(!d->select_timer) {
 	    if(!mac_select_timerUPP) {
 		mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
@@ -703,15 +711,22 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     QList<QSockNot *> &list = d->sn_vec[type].list;
     fd_set *fds = &d->sn_vec[type].enabled_fds;
 
-    QSockNot *sn;
-    int i;
-    for (i = 0; i < list.size(); ++i) {
+    QSockNot *sn = NULL;
+    for (int i = 0; i < list.size(); ++i) {
 	sn = list.at(i);
 	if(sn->obj == notifier && sn->fd == sockfd)
 	    break;
     }
-    if(i == list.size()) // not found
+    if(!sn) // not found
 	return;
+    if(sn->mac_d) {
+	if(notifier->type() == QSocketNotifier::Read) 
+	    CFRelease(sn->mac_d->read_not);
+	else if(notifier->type() == QSocketNotifier::Write)
+	    CFRelease(sn->mac_d->write_not);
+	delete sn->mac_d;
+	sn->mac_d = NULL;
+    }
 
     FD_CLR(sockfd, fds);			// clear fd bit
     FD_CLR(sockfd, sn->queue);
@@ -744,11 +759,6 @@ int QEventLoop::activateSocketNotifiers()
     while (!d->sn_pending_list.isEmpty()) {
 	QSockNot *sn = d->sn_pending_list.takeAt(0);
 	if(FD_ISSET(sn->fd, sn->queue)) {
-	    if(sn->obj->type() == QSocketNotifier::Read && sn->mac_d) {
-		//we manually re-enable when we send so that we can be sure we want the next read (otherwise
-		//we'll get it from the timer) and we don't drive up CPU usage
-		CFSocketEnableCallBacks(sn->mac_d->socknot, kCFSocketReadCallBack);
-	    }
 	    FD_CLR(sn->fd, sn->queue);
 	    QApplication::sendEvent(sn->obj, &event);
 	    n_act++;
