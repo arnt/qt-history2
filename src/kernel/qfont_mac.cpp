@@ -261,3 +261,7 @@ QString QFontPrivate::lastResortFont() const
     return QString::fromLatin1("arial");
 }
 
+QRect QFontPrivate::boundingRect( const QChar &ch )
+{
+    return QRect(0, 0, 1204, 768); //take that
+}
