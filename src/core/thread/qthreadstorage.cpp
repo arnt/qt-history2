@@ -14,7 +14,6 @@
 
 #include "qthread.h"
 #include "qthread_p.h"
-#include "qspinlock_p.h"
 
 #include <string.h>
 
@@ -29,7 +28,7 @@
 // 256 maximum + 1 used in QRegExp
 static const int MAX_THREAD_STORAGE = 257;
 
-static QStaticSpinLock spinlock = 0;
+static QStaticMutex spinlock = 0;
 
 static bool thread_storage_init = false;
 static struct {
@@ -41,7 +40,7 @@ static struct {
 QThreadStorageData::QThreadStorageData(void (*func)(void *))
     : id(0), constructed(true)
 {
-    QSpinLockLocker locker(::spinlock);
+    QMutexLocker locker(::spinlock);
 
     // make sure things are initialized
     if (! thread_storage_init)
@@ -62,7 +61,7 @@ QThreadStorageData::QThreadStorageData(void (*func)(void *))
 
 QThreadStorageData::~QThreadStorageData()
 {
-    QSpinLockLocker locker(::spinlock);
+    QMutexLocker locker(::spinlock);
 
     // thread_storage_usage[id].used = false;
     thread_storage_usage[id].func = 0;
@@ -133,7 +132,7 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
         id = 0;
         constructed = true;
 
-        QSpinLockLocker locker(::spinlock);
+        QMutexLocker locker(::spinlock);
 
         // make sure things are initialized
         if (! thread_storage_init)
