@@ -549,6 +549,8 @@ void QAxHostWindow::releaseAll()
     m_spInPlaceObject = 0;
     if (m_spInPlaceActiveObject) m_spInPlaceActiveObject->Release();
     m_spInPlaceActiveObject = 0;
+
+    inPlaceObjectWindowless = false;
 }
 
 void QAxHostWindow::deactivate()
@@ -862,6 +864,8 @@ HRESULT WINAPI QAxHostWindow::OnInPlaceDeactivate()
     if (m_spInPlaceObject)
         m_spInPlaceObject->Release();
     m_spInPlaceObject = 0;
+    inPlaceObjectWindowless = false;
+    
     return S_OK;
 }
 
@@ -1280,7 +1284,8 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
 bool QAxHostWidget::winEvent(MSG *msg)
 {
     if (axhost->inPlaceObjectWindowless) {
-        IOleInPlaceObjectWindowless *windowless = (IOleInPlaceObjectWindowless*)axhost->m_spInPlaceActiveObject;
+        Q_ASSERT(axhost->m_spInPlaceObject);
+        IOleInPlaceObjectWindowless *windowless = (IOleInPlaceObjectWindowless*)axhost->m_spInPlaceObject;
         Q_ASSERT(windowless);
         LRESULT lres;
         HRESULT hres = windowless->OnWindowMessage(msg->message, msg->wParam, msg->lParam, &lres);
