@@ -18,9 +18,10 @@ static QTextFormat cloneFormat(const QTextFormat &fmt)
     return result;
 }
 
-QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollection *collection, const QList<int> &formatIndices)
+QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices)
 {
-    Q_FOREACH(int formatIdx, formatIndices) {
+    for (int i = 0; i < formatIndices.size(); ++i) {
+        const int formatIdx = formatIndices[i];
         QTextFormat format = collection->format(formatIdx);
 
         QTextFormatGroup *group = format.group();
@@ -79,8 +80,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
     const QString originalText = pieceTable->buffer();
 
-    // ## varlengtharray
-    QList<int> usedFormats;
+    QVarLengthArray<int> usedFormats;
 
     int pos = startPos;
     QTextBlockIterator currentBlock = pieceTable->blocksFind(pos);
@@ -407,13 +407,9 @@ void QTextHTMLImporter::import()
             ++indent;
             listFmt.setIndent(indent);
 
-            const int idx = listReferences.size();
-            listReferences.resize(idx + 1);
-            listReferences[idx] = formats.indexForGroup(formats.createGroup(listFmt));
+            listReferences.append(formats.indexForGroup(formats.createGroup(listFmt)));
         } else if (node->tag == QLatin1String("table")) {
-            const int idx = tableIndices.size();
-            tableIndices.resize(tableIndices.size() + 1);
-            tableIndices[idx] = formats.indexForGroup(formats.createGroup(QTextTableFormat()));
+            tableIndices.append(formats.indexForGroup(formats.createGroup(QTextTableFormat())));
         } else if (node->isTableCell) {
             Q_ASSERT(!tableIndices.isEmpty());
 
@@ -510,19 +506,19 @@ void QTextHTMLImporter::import()
     if (listReferences.size() || tableIndices.size())
         closeTag(count() - 1);
 
-    QList<int> usedFormats;
+    QVarLengthArray<int> usedFormats;
 
     Q_FOREACH(const QTextDocumentFragmentPrivate::Block &b, d->blocks) {
 
         if (b.blockFormat != -1)
-            usedFormats << b.blockFormat;
+            usedFormats.append(b.blockFormat);
 
         if (b.charFormat != -1)
-            usedFormats << b.charFormat;
+            usedFormats.append(b.charFormat);
 
         Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, b.fragments)
             if (f.format != -1)
-                usedFormats << f.format;
+                usedFormats.append(f.format);
     }
 
     d->formats = QTextFormatCollectionState(&formats, usedFormats);

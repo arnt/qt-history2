@@ -18,7 +18,7 @@ class QTextFormatCollectionState
 public:
     QTextFormatCollectionState() {}
     QTextFormatCollectionState(QDataStream &stream);
-    QTextFormatCollectionState(const QTextFormatCollection *collection, const QList<int> &formatIndices);
+    QTextFormatCollectionState(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices);
 
     QMap<int, int> insertIntoOtherCollection(QTextFormatCollection *collection) const;
 
