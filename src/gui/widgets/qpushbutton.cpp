@@ -271,11 +271,11 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
 {
     QStyleOptionButton opt(0);
     opt.init(q);
-    opt.extras = QStyleOptionButton::None;
+    opt.features = QStyleOptionButton::None;
     if (flat)
-        opt.extras |= QStyleOptionButton::Flat;
+        opt.features |= QStyleOptionButton::Flat;
     if (menu)
-        opt.extras |= QStyleOptionButton::HasMenu;
+        opt.features |= QStyleOptionButton::HasMenu;
     if (down)
         opt.state |= QStyle::Style_Down;
     if (checked)

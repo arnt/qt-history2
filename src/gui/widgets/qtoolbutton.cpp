@@ -240,17 +240,17 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         if (instantPopup || down)
             opt.activeParts |= QStyle::SC_ToolButtonMenu;
     }
-    opt.extras = QStyleOptionToolButton::None;
+    opt.features = QStyleOptionToolButton::None;
     if (usesTextLabel)
-        opt.extras |= QStyleOptionToolButton::TextLabel;
+        opt.features |= QStyleOptionToolButton::TextLabel;
     if (hasArrow)
-        opt.extras |= QStyleOptionToolButton::Arrow;
+        opt.features |= QStyleOptionToolButton::Arrow;
     if (menu)
-        opt.extras |= QStyleOptionToolButton::Menu;
+        opt.features |= QStyleOptionToolButton::Menu;
     if (delay)
-        opt.extras |= QStyleOptionToolButton::PopupDelay;
+        opt.features |= QStyleOptionToolButton::PopupDelay;
     if (usesBigPixmap)
-        opt.extras |= QStyleOptionToolButton::BigPixmap;
+        opt.features |= QStyleOptionToolButton::BigPixmap;
     opt.bgRole = q->backgroundRole();
     const QWidget *w = q->parentWidget();
     if (w) {

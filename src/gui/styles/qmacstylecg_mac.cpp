@@ -839,7 +839,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             if (btn->state & Style_ButtonDefault)
                 bdi.adornment = kThemeAdornmentDefault;
             bdi.value = kThemeButtonOff;
-            if (btn->extras != QStyleOptionButton::None)
+            if (btn->features != QStyleOptionButton::None)
                 bdi.kind = kThemeBevelButton;
             else
                 bdi.kind = kThemePushButton;
@@ -852,7 +852,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             }
             HIThemeDrawButton(&newRect, &bdi, cg,
                               kHIThemeOrientationNormal, 0);
-            if (btn->extras & QStyleOptionButton::HasMenu) {
+            if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, w);
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
@@ -1175,7 +1175,7 @@ QRect QMacStyleCG::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
-            if (btn->extras & QStyleOptionButton::None)
+            if (btn->features & QStyleOptionButton::None)
                 bdi.kind = kThemePushButton;
             else
                 bdi.kind = kThemeBevelButton;
@@ -1278,7 +1278,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 for (int i = 1; i < lv->items.size() && y < h; ++i) {
                     QStyleOptionListViewItem item = lv->items.at(i);
                     if (y + item.height > 0 && (item.childCount > 0
-                        || item.extras & QStyleOptionListViewItem::Expandable)) {
+                        || item.features & QStyleOptionListViewItem::Expandable)) {
                         QStyleOption treeOpt(0);
                         treeOpt.rect.setRect(x, y + item.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;

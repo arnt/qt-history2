@@ -79,7 +79,7 @@
 */
 
 QStyleOption::QStyleOption(int optionversion, int optiontype)
-    : version(optionversion), type(optiontype)
+    : version(optionversion), type(optiontype), state(QStyle::Style_Default)
 {
 }
 

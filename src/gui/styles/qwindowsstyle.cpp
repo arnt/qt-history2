@@ -1791,9 +1791,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     // paint stuff in the magical area
                     while (i < lv->items.size() && y < lv->rect.height()) {
                         QStyleOptionListViewItem child = lv->items.at(i);
-                        if (child.extras & QStyleOptionListViewItem::Visible) {
+                        if (child.features & QStyleOptionListViewItem::Visible) {
                             int lh;
-                            if (!(item.extras & QStyleOptionListViewItem::MultiLine))
+                            if (!(item.features & QStyleOptionListViewItem::MultiLine))
                                 lh = child.height;
                             else
                                 lh = p->fontMetrics().height() + 2 * lv->itemMargin;
@@ -1801,7 +1801,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                             if (lh % 2 > 0)
                                 ++lh;
                             linebot = y + lh / 2;
-                            if (child.extras & QStyleOptionListViewItem::Expandable
+                            if (child.features & QStyleOptionListViewItem::Expandable
                                 || child.childCount > 0 && child.height > 0) {
                                 // needs a box
                                 p->setPen(lv->palette.mid());

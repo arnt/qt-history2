@@ -209,13 +209,13 @@ static QStyleOptionProgressBar getStyleOption(const QProgressBar *pb)
     opt.totalSteps = pb->totalSteps();
     opt.progress = pb->progress();
     opt.progressString = pb->progressString();
-    opt.extras = QStyleOptionProgressBar::None;
+    opt.features = QStyleOptionProgressBar::None;
     if (pb->centerIndicator())
-        opt.extras |= QStyleOptionProgressBar::CenterIndicator;
+        opt.features |= QStyleOptionProgressBar::CenterIndicator;
     if (pb->percentageVisible())
-        opt.extras |= QStyleOptionProgressBar::PercentageVisible;
+        opt.features |= QStyleOptionProgressBar::PercentageVisible;
     if (pb->indicatorFollowsStyle())
-        opt.extras |= QStyleOptionProgressBar::IndicatorFollowsStyle;
+        opt.features |= QStyleOptionProgressBar::IndicatorFollowsStyle;
     return opt;
 }
 

@@ -327,7 +327,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text), 2));
             if (opt->state & Style_Selected && !lv->rootIsDecorated
-                && !(item.extras & QStyleOptionListViewItem::ParentControl)) {
+                && !(item.features & QStyleOptionListViewItem::ParentControl)) {
                 p->fillRect(0, 0, x + marg + w + 4, item.height,
                             lv->palette.brush(QPalette::Highlight));
                 if (item.state & Style_Enabled)
@@ -655,13 +655,13 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 drawPrimitive(PE_ButtonDefault, opt, p, widget);
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
             }
-            if (!(btn->extras & QStyleOptionButton::Flat)
+            if (!(btn->features & QStyleOptionButton::Flat)
                 || btn->state & (Style_Down | Style_On)) {
                 QStyleOptionButton tmpBtn = *btn;
                 tmpBtn.rect = br;
                 drawPrimitive(PE_ButtonCommand, &tmpBtn, p, widget);
             }
-            if (btn->extras & QStyleOptionButton::HasMenu) {
+            if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
                 QRect ir = btn->rect;
                 QStyleOptionButton newBtn = *btn;
@@ -765,8 +765,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             QColor penColor = pb->palette.highlightedText();
             QColor *pColor = 0;
-            if (pb->extras & QStyleOptionProgressBar::CenterIndicator
-                && !(pb->extras & QStyleOptionProgressBar::IndicatorFollowsStyle)
+            if (pb->features & QStyleOptionProgressBar::CenterIndicator
+                && !(pb->features & QStyleOptionProgressBar::IndicatorFollowsStyle)
                 && pb->progress * 2 >= pb->totalSteps)
                 pColor = &penColor;
             drawItem(p, pb->rect, Qt::AlignCenter | Qt::SingleLine, opt->palette,
@@ -875,7 +875,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 shiftX = pixelMetric(PM_ButtonShiftHorizontal, widget);
                 shiftY = pixelMetric(PM_ButtonShiftVertical, widget);
             }
-            if (tb->extras & QStyleOptionToolButton::Arrow) {
+            if (tb->features & QStyleOptionToolButton::Arrow) {
                 PrimitiveElement pe;
                 switch (tb->arrowType) {
                 case Qt::LeftArrow:
@@ -901,7 +901,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QColor btext = tb->palette.foreground();
 
                 if (tb->icon.isNull() && !tb->text.isEmpty()
-                        && !(tb->extras & QStyleOptionToolButton::TextLabel)) {
+                        && !(tb->features & QStyleOptionToolButton::TextLabel)) {
                     int alignment = Qt::AlignCenter | Qt::ShowPrefix;
                     if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
                         alignment |= Qt::NoAccel;
@@ -911,7 +911,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 } else {
                     QPixmap pm;
                     QIconSet::Size size =
-                        tb->extras & QStyleOptionToolButton::BigPixmap ? QIconSet::Large
+                        tb->features & QStyleOptionToolButton::BigPixmap ? QIconSet::Large
                                                                         : QIconSet::Small;
                     QIconSet::State state =
                         tb->state & Style_On ? QIconSet::On : QIconSet::Off;
@@ -925,7 +925,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         mode = QIconSet::Normal;
                     pm = tb->icon.pixmap(size, mode, state);
 
-                    if (tb->extras & QStyleOptionToolButton::TextLabel) {
+                    if (tb->features & QStyleOptionToolButton::TextLabel) {
                         p->setFont(tb->font);
                         QRect pr = rect,
                         tr = rect;
@@ -1207,11 +1207,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             QFontMetrics fm(w ? w->fontMetrics() : QApplication::fontMetrics());
             int textw = 0;
-            if (pb->extras & QStyleOptionProgressBar::PercentageVisible)
+            if (pb->features & QStyleOptionProgressBar::PercentageVisible)
                 textw = fm.width("100%") + 6;
 
-            if (pb->extras & QStyleOptionProgressBar::IndicatorFollowsStyle
-                || !(pb->extras & QStyleOptionProgressBar::CenterIndicator)) {
+            if (pb->features & QStyleOptionProgressBar::IndicatorFollowsStyle
+                || !(pb->features & QStyleOptionProgressBar::CenterIndicator)) {
                 if (sr != SR_ProgressBarLabel)
                     r.setCoords(pb->rect.left(), pb->rect.top(),
                                 pb->rect.right() - textw, pb->rect.bottom());
@@ -1943,13 +1943,13 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             ret = tb->rect;
             switch (sc) {
             case SC_ToolButton:
-                if ((tb->extras
+                if ((tb->features
                      & (QStyleOptionToolButton::Menu | QStyleOptionToolButton::PopupDelay))
                     == QStyleOptionToolButton::Menu)
                     ret.addCoords(0, 0, -mbi, 0);
                 break;
             case SC_ToolButtonMenu:
-                if ((tb->extras
+                if ((tb->features
                      & (QStyleOptionToolButton::Menu | QStyleOptionToolButton::PopupDelay))
                     == QStyleOptionToolButton::Menu)
                     ret.addCoords(ret.width() - mbi, 0, 0, 0);

@@ -1954,21 +1954,21 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
         lvi.totalHeight = item->totalHeight();
         lvi.itemY = item->itemPos();
         lvi.childCount = item->childCount();
-        lvi.extras = QStyleOptionListViewItem::None;
+        lvi.features = QStyleOptionListViewItem::None;
         lvi.state = QStyle::Style_Default;
         if (item->isEnabled())
             lvi.state |= QStyle::Style_Enabled;
         if (item->isOpen())
             lvi.state |= QStyle::Style_Open;
         if (item->isExpandable())
-            lvi.extras |= QStyleOptionListViewItem::Expandable;
+            lvi.features |= QStyleOptionListViewItem::Expandable;
         if (item->multiLinesEnabled())
-            lvi.extras |= QStyleOptionListViewItem::MultiLine;
+            lvi.features |= QStyleOptionListViewItem::MultiLine;
         if (item->isVisible())
-            lvi.extras |= QStyleOptionListViewItem::Visible;
+            lvi.features |= QStyleOptionListViewItem::Visible;
         if (item->parent() && item->parent()->rtti() == 1
             && static_cast<QCheckListItem *>(item->parent())->type() == QCheckListItem::Controller)
-            lvi.extras |= QStyleOptionListViewItem::ParentControl;
+            lvi.features |= QStyleOptionListViewItem::ParentControl;
         opt.items.append(lvi);
         if (!firstItem) {
             item = item->nextSibling();
