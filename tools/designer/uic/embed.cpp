@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -25,7 +25,6 @@
 #include <qdatetime.h>
 #include <qfileinfo.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 
 // on embedded, we do not compress image data. Rationale: by mapping
@@ -102,7 +101,7 @@ static void embedData( QTextStream& out, const QRgb* input, int n )
     const QRgb *v = input;
     for ( int i=0; i<n; i++ ) {
 	if ( (i%14) == 0  )
-	    out << endl << "    ";
+	    out << "\n    ";
 	out << "0x";
 	out << hex << *v++;
 	if ( i < n-1 )
@@ -117,23 +116,24 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     QString cProject = convertToCIdentifier( project );
 
     QStringList::ConstIterator it;
-    out << "/****************************************************************************" << endl;
-    out << "** Image collection for project '" << project << "'." << endl;
-    out << "**" << endl;
-    out << "** Generated from reading image files: " << endl;
+    out << "/****************************************************************************\n";
+    out << "** Image collection for project '" << project << "'.\n";
+    out << "**\n";
+    out << "** Generated from reading image files: \n";
     for ( it = images.begin(); it != images.end(); ++it )
-	out << "**      " << *it << endl;
-    out << "**" << endl;
-    out << "** Created: " << QDateTime::currentDateTime().toString() << endl;
-    out << "**      by: The User Interface Compiler ($Id: $)" << endl;
-    out << "**" << endl;
-    out << "** WARNING! All changes made in this file will be lost!" << endl;
-    out << "****************************************************************************/" << endl << endl;
+	out << "**      " << *it << "\n";
+    out << "**\n";
+    out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
+    out << "**      by: The User Interface Compiler ($Id: $)\n";
+    out << "**\n";
+    out << "** WARNING! All changes made in this file will be lost!\n";
+    out << "****************************************************************************/\n";
+    out << "\n";
 
-    out << "#include <qimage.h>" << endl;
-    out << "#include <qdict.h>" << endl;
-    out << "#include <qmime.h>" << endl;
-    out << "#include <qdragobject.h>" << endl;
+    out << "#include <qimage.h>\n";
+    out << "#include <qdict.h>\n";
+    out << "#include <qmime.h>\n";
+    out << "#include <qdragobject.h>\n";
 
     QPtrList<EmbedImage> list_image;
     int image_count = 0;
@@ -155,7 +155,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	e->name = fi.fileName();
 	e->cname = QString("image_%1").arg( image_count++);
 	list_image.append( e );
-	out << "// " << *it << endl;
+	out << "// " << *it << "\n";
 	QString s;
 	if ( e->depth == 1 )
 	    img = img.convertBitOrder(QImage::BigEndian);
@@ -250,47 +250,48 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "    return QImage();\n"
 	    "}\n\n";
 
-	out << "class MimeSourceFactory_" << cProject << " : public QMimeSourceFactory" << endl;
-	out << "{" << endl;
-	out << "public:" << endl;
-	out << "    MimeSourceFactory_" << cProject << "() {}" << endl;
-	out << "    ~MimeSourceFactory_" << cProject << "() {}" << endl;
-	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
-	out << "\tconst QMimeSource* d = QMimeSourceFactory::data( abs_name );" << endl;
-	out << "\tif ( d || abs_name.isNull() ) return d;" << endl;
-	out << "\tQImage img = uic_findImage( abs_name );" << endl;
-	out << "\tif ( !img.isNull() )" << endl;
-	out << "\t    ((QMimeSourceFactory*)this)->setImage( abs_name, img );" << endl;
-	out << "\treturn QMimeSourceFactory::data( abs_name );" << endl;
-	out << "    };" << endl;
-	out << "};" << endl;
+	out << "class MimeSourceFactory_" << cProject << " : public QMimeSourceFactory\n";
+	out << "{\n";
+	out << "public:\n";
+	out << "    MimeSourceFactory_" << cProject << "() {}\n";
+	out << "    ~MimeSourceFactory_" << cProject << "() {}\n";
+	out << "    const QMimeSource* data( const QString& abs_name ) const {\n";
+	out << "\tconst QMimeSource* d = QMimeSourceFactory::data( abs_name );\n";
+	out << "\tif ( d || abs_name.isNull() ) return d;\n";
+	out << "\tQImage img = uic_findImage( abs_name );\n";
+	out << "\tif ( !img.isNull() )\n";
+	out << "\t    ((QMimeSourceFactory*)this)->setImage( abs_name, img );\n";
+	out << "\treturn QMimeSourceFactory::data( abs_name );\n";
+	out << "    };\n";
+	out << "};\n\n";
 
-	out << "static QMimeSourceFactory* factory = 0;" << endl;
+	out << "static QMimeSourceFactory* factory = 0;\n";
+	out << "\n";
 
-	out << "void qInitImages_" << cProject << "()" << endl;
-	out << "{" << endl;
-	out << "    if ( !factory ) {" << endl;
-	out << "\tfactory = new MimeSourceFactory_" << cProject << ";" << endl;
-	out << "\tQMimeSourceFactory::defaultFactory()->addFactory( factory );" << endl;
-	out << "    }" <<  endl;
-	out << "}" << endl;
+	out << "void qInitImages_" << cProject << "()\n";
+	out << "{\n";
+	out << "    if ( !factory ) {\n";
+	out << "\tfactory = new MimeSourceFactory_" << cProject << ";\n";
+	out << "\tQMimeSourceFactory::defaultFactory()->addFactory( factory );\n";
+	out << "    }\n";
+	out << "}\n\n";
 
-	out << "void qCleanupImages_" << cProject << "()" << endl;
-	out << "{" << endl;
-	out << "    if ( factory ) {" << endl;
-	out << "\tQMimeSourceFactory::defaultFactory()->removeFactory( factory );" << endl;
-	out << "\tdelete factory;" << endl;
-	out << "\tfactory = 0;" << endl;
-	out << "    }" <<  endl;
-	out << "}" << endl;
+	out << "void qCleanupImages_" << cProject << "()\n";
+	out << "{\n";
+	out << "    if ( factory ) {\n";
+	out << "\tQMimeSourceFactory::defaultFactory()->removeFactory( factory );\n";
+	out << "\tdelete factory;\n";
+	out << "\tfactory = 0;\n";
+	out << "    }\n";
+	out << "}\n\n";
 
-	out << "class StaticInitImages_" << cProject << endl;
-	out << "{" << endl;
-	out << "public:" << endl;
-	out << "    StaticInitImages_" << cProject << "() { qInitImages_" << cProject << "(); }" << endl;
-	out << "    ~StaticInitImages_" << cProject << "() { qCleanupImages_" << cProject << "(); }" << endl;
-	out << "};" << endl;
+	out << "class StaticInitImages_" << cProject << "\n";
+	out << "{\n";
+	out << "public:\n";
+	out << "    StaticInitImages_" << cProject << "() { qInitImages_" << cProject << "(); }\n";
+	out << "    ~StaticInitImages_" << cProject << "() { qCleanupImages_" << cProject << "(); }\n";
+	out << "};\n\n";
 
-	out << "static StaticInitImages_" << cProject << " staticImages;" << endl;
+	out << "static StaticInitImages_" << cProject << " staticImages;\n";
     }
 }
