@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#20 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#20 $";
 #endif
 
 
@@ -190,9 +190,9 @@ void QFont::setPointSize( int pointSize )
   <p>
 
   First an available font family is found. If the requested is not
-  available the \link setStyleHint() style hint \endlink is used to
-  select a replacement family. If the style hint has not been set, 
-  "helvetica" will be used (this is not optimal and a table of
+  available the \link QFont::setStyleHint() style hint \endlink is
+  used to select a replacement family. If the style hint has not been
+  set, "helvetica" will be used (this is not optimal and a table of
   common font types will be built into Qt before the 1.0 release).
 
   <p>
@@ -216,11 +216,11 @@ void QFont::setPointSize( int pointSize )
   <p>
 
   <dl>
-  <dt> \link setCharSet() character set \endlink <dd>
-  <dt> \link setFixedPitch() pitch \endlink <dd>
-  <dt> \link setPointSize() point size \endlink <dd>
-  <dt> \link setWeight() weight \endlink <dd>
-  <dt> \link setItalic() italic \endlink <dd>
+  <dt> \link QFont::setCharSet() character set \endlink <dd>
+  <dt> \link QFont::setFixedPitch() pitch \endlink <dd>
+  <dt> \link QFont::setPointSize() point size \endlink <dd>
+  <dt> \link QFont::setWeight() weight \endlink <dd>
+  <dt> \link QFont::setItalic() italic \endlink <dd>
   </dl>
   
   <p>
@@ -241,8 +241,7 @@ void QFont::setPointSize( int pointSize )
   using the correct character set. We are not certain if this should
   be reversed and might do so in the 1.0 release. If you have opinions 
   about this please <a href=mailto:qt-bugs@troll.no>mail us</a>!
-
-  */
+*/
 
 
   /*! -------------------------------------------------------------------------
