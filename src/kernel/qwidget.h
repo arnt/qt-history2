@@ -366,7 +366,7 @@ public slots:
     virtual void	resize( int w, int h );
     void		resize( const QSize & );
     virtual void	setGeometry( int x, int y, int w, int h );
-    virtual void	setGeometry( const QRect & );
+    virtual void	setGeometry( const QRect & ); // ### make non virtual in Qt 4?
 
 public:
     virtual bool	close( bool alsoDelete );
@@ -1006,4 +1006,5 @@ struct Q_EXPORT QWExtra {
 
 #define Q_DEFINED_QWIDGET
 #include "qwinexport.h"
+
 #endif // QWIDGET_H
