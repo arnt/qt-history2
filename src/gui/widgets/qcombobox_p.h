@@ -228,7 +228,6 @@ public:
         : QWidgetPrivate(),
           model(0),
           lineEdit(0),
-          delegate(0),
           container(0),
           insertionPolicy(QComboBox::AtBottom),
           autoCompletion(true),
@@ -252,7 +251,6 @@ public:
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
-    QAbstractItemDelegate *delegate;
     ListViewContainer *container;
     QComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
