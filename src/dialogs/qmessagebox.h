@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QMessageBox class
 **
 ** Created : 950503
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qdialog.h"
+#include <stdlib.h>
 #endif // QT_H
 
 #ifndef QT_NO_MESSAGEBOX
@@ -200,7 +201,7 @@ QString sq=QString::fromLatin1(qVersion()); if ( (sq.section('.',0,0).toInt()<<1
 QApplication(argc,argv);} QMessageBox::critical( 0, QApplication::tr(\
 "Incompatible Qt Library Error" ), QApplication::tr("Executable '%1' requires Qt "\
  "%2, found Qt %3").arg(QString::fromLatin1(qAppName())).arg(QString::fromLatin1(\
-str)).arg(QString::fromLatin1(qVersion()) ), QMessageBox::Abort,0 ); exit(1); }}
+str)).arg(QString::fromLatin1(qVersion()) ), QMessageBox::Abort,0 ); exit(EXIT_FAILURE); }}
 
 
 #endif // QT_NO_MESSAGEBOX
