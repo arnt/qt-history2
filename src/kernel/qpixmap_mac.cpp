@@ -4,7 +4,8 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qwmatrix.h"
-#include <stdio.h>
+#include <stdio>
+#include "macincludes.h"
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )

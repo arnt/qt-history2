@@ -1,6 +1,6 @@
 #include "qpaintdevice.h"
-#include "qpaintdevicedefs.h"
-#include <stdio.h>
+#include "qpaintdevicemetrics.h"
+#include "macincludes.h"
 
 QPaintDevice::QPaintDevice(uint devflags)
 {
@@ -45,11 +45,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 {
   printf("%s %d\n",__FILE__,__LINE__);
   printf("  Blitting %d %d %d %d %d %d\n",dx,dy,sx,sy,sw,sh);
-  if(dx+sw>dst->metric(PDM_WIDTH)) {
-    sw=dst->metric(PDM_WIDTH)-dx;
+  if(dx+sw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
+    sw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
   }
-  if(dy+sh>dst->metric(PDM_HEIGHT)) {
-    sh=dst->metric(PDM_HEIGHT)-dy;
+  if(dy+sh>dst->metric(QPaintDeviceMetrics::PdmHeight)) {
+    sh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
   }
   Rect r;
   SetRect(&r,sx,sy,sx+sw,sy+sh);
