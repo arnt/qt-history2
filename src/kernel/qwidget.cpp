@@ -264,7 +264,7 @@
   ready (you can name a a widget in the builder, and connect() to it by
   name in your code).
   <li><code>WFlags f = 0</code> (where available) sets the <a
-  href="qt#WidgetFlags">widget flags;</a> the default is good for almost
+  href="qt.html#WidgetFlags">widget flags</a>; the default is good for almost
   all widgets, but to get e.g. top-level widgets without a window
   system frame you must use special flags.
   </ul>
