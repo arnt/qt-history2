@@ -779,11 +779,12 @@ void QGroupBox::setFlat( bool b )
     \property QGroupBox::checkable
     \brief Whether the group box has a checkbox in its title.
 
-    If the group box does have a checkbox, and the checkbox is checked
-    (which is the default), the group box's children are enabled.
+    If this property is TRUE, the group box has a checkbox. If the
+    checkbox is checked (which is the default), the group box's
+    children are enabled.
 
     setCheckable() controls whether or not the group box has a
-    checkbox, and isCheckable() controls whether this checkbox is
+    checkbox, and isCheckable() controls whether the checkbox is
     checked or not.
 */
 void QGroupBox::setCheckable( bool b )

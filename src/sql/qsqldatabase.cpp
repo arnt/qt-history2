@@ -253,7 +253,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
     is available or not.
 
     The returned QSqlDatabase object is owned by the framework and
-    must not be deleted. If you want to explicitely remove the connection,
+    must not be deleted. If you want to explicitly remove the connection,
     use removeDatabase()
 
     \sa QSqlDatabase database()
@@ -292,7 +292,7 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
     Removes the database connection \a db from the SQL connection
     manager. The QSqlDatabase object is destroyed when it is removed
     from the manager.
-    
+
     \warning The \a db pointer is not valid after this function has
     been called.
 */
@@ -342,7 +342,7 @@ public:
 /*!
     \class QSqlDatabase qsqldatabase.h
     \brief The QSqlDatabase class is used to create SQL database
-    connections and provide transaction handling.
+    connections and to provide transaction handling.
 
     \ingroup database
     \mainclass
@@ -489,16 +489,18 @@ QStringList QSqlDatabase::drivers()
 }
 
 /*!
-    This function registers a new SQL driver within the framework
-    called \a name. This is useful if you have a custom SQL driver and
-    don't want to compile it as a plugin. Example usage:
-    
+    This function registers a new SQL driver called \a name, within
+    the SQL framework. This is useful if you have a custom SQL driver
+    and don't want to compile it as a plugin.
+
+    Example usage:
+
     \code
     QSqlDatabase::registerSqlDriver( "MYDRIVER", new QSqlDriverCreator<MySqlDriver> );
     QSqlDatabase* db = QSqlDatabase::addDatabase( "MYDRIVER" );
     ...
     \endcode
-    
+
     \warning The framework takes ownership of the \a creator pointer,
     so it should not be deleted.
 */
@@ -522,23 +524,26 @@ bool QSqlDatabase::contains( const QString& connectionName )
 
 /*!
     Creates a QSqlDatabase connection called \a name that uses the
-    driver referred to by \a driver, with the parent \a parent and the
-    object name \a objname. If the \a driver is not recognized, the
+    driver referred to by \a type, with the parent \a parent and the
+    object name \a objname. If the \a type is not recognized, the
     database connection will have no functionality.
 
     The currently available drivers are:
 
-    \list
-    \i QODBC3 - ODBC (Open Database Connectivity) Driver
-    \i QOCI8 - Oracle Call Interface Driver
-    \i QPSQL7 - PostgreSQL v6.x and v7.x Driver
-    \i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
-    \i QMYSQL3 - MySQL Driver
-    \i QDB2 - IBM DB2, v7.1 and higher
-    \endlist
+    \table
+    \header \i Driver Type \i Description
+    \row \i QODBC3 \i ODBC (Open Database Connectivity) Driver
+    \row \i QOCI8 \i Oracle Call Interface Driver
+    \row \i QPSQL7 \i PostgreSQL v6.x and v7.x Driver
+    \row \i QTDS7 \i Sybase Adaptive Server and Microsoft SQL Server Driver
+    \row \i QMYSQL3 \i MySQL Driver
+    \row \i QDB2 \i IBM DB2, v7.1 and higher
+    \endtable
 
     Note that additional 3<sup>rd</sup> party drivers can be loaded
     dynamically.
+
+    \sa registerSqlDriver()
 */
 
 QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
@@ -550,8 +555,9 @@ QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * 
 
 /*! \overload
 
-     Creates a database connection using the driver \a driver.
-     
+     Creates a database connection using the driver \a driver, with
+     the parent \a parent and the object name \a objname.
+
      \warning The framework takes ownership of the \a driver pointer,
      so it should not be deleted.
 */
@@ -787,13 +793,13 @@ bool QSqlDatabase::rollback()
 
     Note that the database name is the TNS Service Name for the QOCI8
     (Oracle) driver.
-    
+
     For the QODBC3 driver it can either be a DSN, a DSN filename (the
-    file has to have a .dsn extension), or a connection string. MS
+    file must have a .dsn extension), or a connection string. MS
     Access users can for example use the following connection string
     to open a .mdb file directly, instead of having to create a DSN
     entry in the ODBC manager:
-    
+
     \code
     ...
     db = QSqlDatabase::addDatabase( "QODBC3" );
@@ -947,7 +953,7 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 
 /*!
     Returns a QSqlRecord populated with the names of all the fields in
-    the table (or view) named \a tablename. The order in which the
+    the table (or view) called \a tablename. The order in which the
     fields are returned is undefined. If no such table (or view)
     exists, an empty record is returned.
 
@@ -1005,11 +1011,10 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 /*!
     \property QSqlDatabase::connectOptions
     \brief the database connect options
-    
 
     The format of the options string is a semicolon separated list of
     options or option = value pairs.
-    
+
     The options supported depend on the database client used:
 
     \table
@@ -1019,8 +1024,8 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     \i
     \list
     \i SQL_ATTR_ACCESS_MODE
-    \i SQL_ATTR_CONNECTION_TIMEOUT
     \i SQL_ATTR_LOGIN_TIMEOUT
+    \i SQL_ATTR_CONNECTION_TIMEOUT
     \i SQL_ATTR_CURRENT_CATALOG
     \i SQL_ATTR_METADATA_ID
     \i SQL_ATTR_PACKET_SIZE
@@ -1092,9 +1097,9 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 
     Please refer to the client library documentation for more
     information about the different options. The options will be set
-    prior to opening the actual database connection. Setting new
-    options without re-opening the connection does nothing.
-    
+    prior to opening the database connection. Setting new options
+    without re-opening the connection does nothing.
+
     \sa connectOptions()
 */
 
@@ -1103,21 +1108,15 @@ void QSqlDatabase::setConnectOptions( const QString& options )
     d->connOptions = options;
 }
 
-/*!
-    Returns the connect options string.
-    
-    \sa setConnectOptions()
-*/
-
 QString QSqlDatabase::connectOptions() const
 {
     return d->connOptions;
 }
 
 /*!
-    Returns TRUE if a driver called \a name is available, otherwise
-    FALSE.
-    
+    Returns TRUE if a driver called \a name is available; otherwise
+    returns FALSE.
+
     \sa drivers()
 */
 
@@ -1133,22 +1132,23 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
 }
 
 /*! \overload
-  
+
     This function is useful if you need to set up the database
     connection and instantiate the driver yourself. If you do this, it
     is recommended that you include the driver code in your own
     application. For example, setting up a custom PostgreSQL
     connection and instantiating the QPSQL7 driver can be done the
     following way:
-    
+
     \code
-    #include "<your Qt dir>/src/sql/drivers/psql/qsql_psql.cpp"
+    #include "qtdir/src/sql/drivers/psql/qsql_psql.cpp"
     \endcode
+    (We assume that \c qtdir is the directory where Qt is installed.)
     This will pull in the code that is needed to use the PostgreSQL
     client library and to instantiate a QPSQLDriver object, assuming
-    you have the PostgreSQL headers somewhere in your include search
-    path.
-    
+    that you have the PostgreSQL headers somewhere in your include
+    search path.
+
     \code
     PGconn* con = PQconnectdb( "host=server user=bart password=simpson dbname=springfield" );
     QPSQLDriver* drv =  new QPSQLDriver( con );
@@ -1157,54 +1157,74 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
     q.exec( "SELECT * FROM persons" );
     ...
     \endcode
-    
-    The code above sets up a PostgreSQL connection and instantiates a
+
+    The above code sets up a PostgreSQL connection and instantiates a
     QPSQLDriver object. Next, addDatabase() is called to add the
     connection to the known connections so that it can be used by the
     Qt SQL classes. When a driver is instantiated with a connection
-    handle (or set of handles), it is assumed that this database
-    connection is already opened by the user. Remember that you have
-    to link your application against the database client library as
-    well. The simplest way to do that is to add something like the
-    lines below to your .pro file:
-    
+    handle (or set of handles), Qt assumes that you have already
+    opened the database connection.
+
+    Remember that you must link your application against the database
+    client library as well. The simplest way to do that is to add
+    something similar to the following lines to your \c .pro file:
+
     \code
     unix:LIBS += -lpq
     win32:LIBS += libpqdll.lib
     \endcode
-    
-    You will need to have the client library in your linker search path.
-    
+
+    You will need to have the client library in your linker's search
+    path.
+
     The method described above will work for all the drivers, the only
     difference is the arguments the driver constructors take. Below is
     an overview of the drivers and their constructor arguments.
-    
+
     \table
     \header \i Driver \i Class name \i Constructor arguments \i File to include
     \row
-    \i QPSQL7 \i QPSQLDriver \i PGconn* connection \i qsql_psql.cpp
+    \i QPSQL7
+    \i QPSQLDriver
+    \i PGconn* connection
+    \i \c qsql_psql.cpp
     \row
-    \i QMYSQL3 \i QMYSQLDriver \i MYSQL* connection \i qsql_mysql.cpp
+    \i QMYSQL3
+    \i QMYSQLDriver
+    \i MYSQL* connection
+    \i \c qsql_mysql.cpp
     \row
-    \i QOCI8 \i QOCIDriver \i OCIEnv* environment, OCIError* error, OCISvcCtx* serviceContext \i qsql_oci.cpp
+    \i QOCI8
+    \i QOCIDriver
+    \i OCIEnv* environment, OCIError* error, OCISvcCtx* serviceContext
+    \i \c qsql_oci.cpp
     \row
-    \i QODBC3 \i QODBCDriver \i SQLHANDLE environment, SQLHANDLE connection \i qsql_odbc.cpp
+    \i QODBC3
+    \i QODBCDriver
+    \i SQLHANDLE environment, SQLHANDLE connection
+    \i \c qsql_odbc.cpp
     \row
-    \i QDB2 \i QDB2 \i SQLHANDLE environment, SQLHANDLE connection \i qsql_db2.cpp
+    \i QDB2
+    \i QDB2
+    \i SQLHANDLE environment, SQLHANDLE connection
+    \i \c qsql_db2.cpp
     \row
-    \i QTDS7 \i QTDSDriver \i LOGINREC* loginRecord, DBPROCESS* dbProcess, const QString& hostName \i qsql_tds.cpp
+    \i QTDS7
+    \i QTDSDriver
+    \i LOGINREC* loginRecord, DBPROCESS* dbProcess, const QString& hostName
+    \i \c qsql_tds.cpp
     \endtable
-    
-    NOTE: The host name (or service name) is needed when constructing
+
+    Note: The host name (or service name) is needed when constructing
     the QTDSDriver for creating new connections for internal
     queries. This is to prevent the simultaneous usage of several
-    QSqlQuery/QSqlCursor objects from blocking each other.
-    
+    QSqlQuery/\l{QSqlCursor} objects from blocking each other.
+
     \warning The framework takes ownership of the \a driver pointer,
     and it should not be deleted. The returned QSqlDatabase object is
     owned by the framework and must not be deleted. If you want to
-    explicitely remove the connection, use removeDatabase()
-    
+    explicitly remove the connection, use removeDatabase()
+
     \sa drivers()
 */
 

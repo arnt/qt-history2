@@ -5772,7 +5772,7 @@ struct QCheckListItemPrivate
 
     \value RadioButton
     \value CheckBox
-    \value Controller \obsolete (use RadioButtonController)
+    \value Controller \e obsolete (use \c RadioButtonController instead)
     \value RadioButtonController
     \value CheckBoxController
 */
@@ -5971,9 +5971,10 @@ QCheckListItem::~QCheckListItem()
 */
 
 /*!
-   Sets tristate to \a b if the Type is either a CheckBoxController or CheckBox.
+   Sets tristate to \a b if the \c Type is either a \c CheckBoxController or
+   a \c CheckBox.
 
-   Note that CheckBoxControllers by default have tristate enabled.
+   CheckBoxControllers are tristate by default.
 
    \sa state() isTristate()
 */
@@ -5988,7 +5989,7 @@ void QCheckListItem::setTristate( bool b )
 }
 
 /*!
-   Returns TRUE if the item is set to tristate.
+   Returns TRUE if the item is tristate; otherwise returns FALSE.
 
    \sa setTristate()
 */

@@ -147,93 +147,112 @@ static const char * const qtlogo_xpm[] = {
 
 
 /*!
-  \class QMessageBox
-  \brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
-  \ingroup dialogs
-  \mainclass
+    \class QMessageBox
+    \brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
+    \ingroup dialogs
+    \mainclass
 
-Message boxes are used to provide informative messages and to ask
-simple questions.
+    Message boxes are used to provide informative messages and to ask
+    simple questions.
 
-QMessageBox provides a range of different messages, arranged roughly
-along two axes: severity and complexity.
+    QMessageBox provides a range of different messages, arranged
+    roughly along two axes: severity and complexity.
 
-Severity is
-\table
-\row
-    \i <img src="qmessagebox-info.png">
+    Severity is
+    \table
+    \row
+    \i \img qmessagebox-quest.png
+    \i Question
+    \i for message boxes that ask a question as part of normal operation
+    \row
+    \i \img qmessagebox-info.png
     \i Information
     \i for message boxes that are part of normal operation
-\row
-    \i<img src="qmessagebox-warn.png">
+    \row
+    \i \img qmessagebox-warn.png
     \i Warning
     \i for message boxes that tell the user about unusual errors
-\row
-    \i <img src="qmessagebox-crit.png">
+    \row
+    \i \img qmessagebox-crit.png
     \i Critical
     \i for message boxes that tell the user about critical errors
-\endtable
+    \endtable
 
-The message box has a different icon for each of the severity levels.
+    The message box has a different icon for each of the severity levels.
 
-Complexity is one button (OK) for a simple messages, or two or even
-three buttons for questions.
+    Complexity is one button (OK) for a simple messages, or two or even
+    three buttons for questions.
 
-There are static functions for common cases.
+    There are static functions for common cases.
 
-Examples:
+    Examples:
 
-If a program is unable to find a supporting file, but can do perfectly
-well without it:
+    If a program is unable to find a supporting file, but can do perfectly
+    well without it:
 
-\code
-QMessageBox::information( this, "Application name",
+    \code
+    QMessageBox::information( this, "Application name",
     "Unable to find the user preferences file.\n"
     "The factory default will be used instead." );
-\endcode
+    \endcode
 
-warning() can be used to tell the user about unusual errors, or
-errors which can't be easily fixed:
+    question() is useful for simple yes/no questions:
 
-\code
-switch( QMessageBox::warning( this, "Application name",
-        "Could not connect to the <mumble> server.\n"
-        "This program can't function correctly "
-        "without the server.\n\n",
-        "Retry",
-        "Quit", 0, 0, 1 ) )
+    \code
+    if ( QFile::exists( filename ) &&
+	QMessageBox::question(
+	    this,
+	    tr("Overwrite File? -- Application Name"),
+	    tr("A file called %1 already exists."
+		"Do you want to overwrite it?")
+		.arg( filename ),
+	    tr("&Yes"), tr("&No"),
+	    QString::null, 0, 1 ) )
+	return false;
+    \endcode
+
+    warning() can be used to tell the user about unusual errors, or
+    errors which can't be easily fixed:
+
+    \code
+    switch( QMessageBox::warning( this, "Application name",
+	"Could not connect to the <mumble> server.\n"
+	"This program can't function correctly "
+	"without the server.\n\n",
+	"Retry",
+	"Quit", 0, 0, 1 ) )
     case 0: // The user clicked the Retry again button or pressed Enter
 	// try again
 	break;
     case 1: // The user clicked the Quit or pressed Escape
 	// exit
 	break;
-}
-\endcode
+    }
+    \endcode
 
-  The text part of all message box messages can be either rich text or
-  plain text. If you specify a rich text formatted string, it will be
-  rendered using the default stylesheet. See
-  QStyleSheet::defaultSheet() for details. With certain strings that
-  contain XML meta characters, the auto-rich text detection may fail,
-  interpreting plain text incorrectly as rich text. In these rare
-  cases, use QStyleSheet::convertFromPlainText() to convert your plain
-  text string to a visually equivalent rich text string or set the
-  text format explicitly with setTextFormat().
+    The text part of all message box messages can be either rich text
+    or plain text. If you specify a rich text formatted string, it
+    will be rendered using the default stylesheet. See
+    QStyleSheet::defaultSheet() for details. With certain strings that
+    contain XML meta characters, the auto-rich text detection may
+    fail, interpreting plain text incorrectly as rich text. In these
+    rare cases, use QStyleSheet::convertFromPlainText() to convert
+    your plain text string to a visually equivalent rich text string
+    or set the text format explicitly with setTextFormat().
 
-  Note that the Microsoft Windows User Interface Guidelines strongly
-  recommend using the application name as the window's caption.
+    Note that the Microsoft Windows User Interface Guidelines
+    recommend using the application name as the window's caption.
 
-  Below are more examples of how to use the static member functions.
-  After these examples you will find an overview of the non-static
-  member functions.
+    Below are more examples of how to use the static member functions.
+    After these examples you will find an overview of the non-static
+    member functions.
 
-  Exiting a program is part of its normal operation. If there is
-  unsaved data the user probably should be asked if they want to save
-  the data. For example:
+    Exiting a program is part of its normal operation. If there is
+    unsaved data the user probably should be asked if they want to
+    save the data. For example:
 
-\code
-switch( QMessageBox::information( this, "Application name here",
+    \code
+    switch( QMessageBox::information( this, "Application name here",
 	"The document contains unsaved changes\n"
 	"Do you want to save the changes before exiting?",
 	"&Save", "&Discard", "Cancel",
@@ -248,20 +267,20 @@ switch( QMessageBox::information( this, "Application name here",
     case 2: // Cancel clicked or Alt+C pressed or Escape pressed
 	// don't exit
 	break;
-}
-\endcode
+    }
+    \endcode
 
-  The application name is used as the window caption in accordance with
-  the Microsoft recommendation.  The Escape button cancels the entire
-  exit operation, and pressing Enter causes the changes to be saved
-  before the exit occurs.
+    The application name is used as the window caption in accordance with
+    the Microsoft recommendation.  The Escape button cancels the entire
+    exit operation, and pressing Enter causes the changes to be saved
+    before the exit occurs.
 
-  Disk full errors are unusual (in a perfect world, they are) and they
-  certainly can be hard to correct.  This example uses predefined buttons
-  instead of hard-coded button texts:
+    Disk full errors are unusual (in a perfect world, they are) and they
+    certainly can be hard to correct.  This example uses predefined buttons
+    instead of hard-coded button texts:
 
-\code
-switch( QMessageBox::warning( this, "Application name here",
+    \code
+    switch( QMessageBox::warning( this, "Application name here",
 	"Could not save the user preferences,\n"
 	"because the disk is full.  You can delete\n"
 	"some files and press Retry, or you can\n"
@@ -274,56 +293,56 @@ switch( QMessageBox::warning( this, "Application name here",
     case QMessageBox::Abort: // Abort clicked or Escape pressed
 	// abort
 	break;
-}
-\endcode
+    }
+    \endcode
 
-  The critical() function should be reserved for critical errors.  In
-  this example errorDetails is a QString or const char*, and QString
-  is used to concatenate several strings:
+    The critical() function should be reserved for critical errors.  In
+    this example errorDetails is a QString or const char*, and QString
+    is used to concatenate several strings:
 
-\code
-QMessageBox::critical( 0, "Application name here",
+    \code
+    QMessageBox::critical( 0, "Application name here",
 	QString("An internal error occurred. Please ") +
 	"call technical support at 123456789 and report\n"+
 	"these numbers:\n\n" + errorDetails +
 	"\n\n<Application> will now exit." );
-\endcode
+    \endcode
 
-  In this example an OK button is displayed.
+    In this example an OK button is displayed.
 
-  QMessageBox provides a very simple About box, which displays an
-  appropriate icon and the string you provide:
+    QMessageBox provides a very simple About box, which displays an
+    appropriate icon and the string you provide:
 
-\code
-QMessageBox::about( this, "About <Application>",
+    \code
+    QMessageBox::about( this, "About <Application>",
 	"<Application> is a <one-paragraph blurb>\n\n"
-	"Copyright 1951-2002 Such-and-such.  "
+	"Copyright 1951-2003 Such-and-such.  "
 	"<License words here.>\n\n"
 	"For technical support, call 123456789 or see\n"
 	"http://www.such-and-such.com/Application/\n" );
-\endcode
+    \endcode
 
-  See about() for more information.
+    See about() for more information.
 
-  If you want your users to know that the application is built using
-  Qt (so that they know you use high quality tools:) you might like to
-  add an "About Qt" menu option under the Help menu to invoke
-  aboutQt().
+    If you want your users to know that the application is built using
+    Qt (so that they know you use high quality tools:) you might like to
+    add an "About Qt" menu option under the Help menu to invoke
+    aboutQt().
 
-  If none of the standard message boxes is suitable, you can create a
-  QMessageBox from scratch and with custom button texts:
+    If none of the standard message boxes is suitable, you can create a
+    QMessageBox from scratch and with custom button texts:
 
-\code
-QMessageBox mb( "Application name here",
+    \code
+    QMessageBox mb( "Application name here",
 	"Saving the file will overwrite the original file on the disk.\n"
 	"Do you really want to save?",
 	QMessageBox::Information,
 	QMessageBox::Yes | QMessageBox::Default,
 	QMessageBox::No,
 	QMessageBox::Cancel | QMessageBox::Escape );
-mb.setButtonText( QMessageBox::Yes, "Save" );
-mb.setButtonText( QMessageBox::No, "Discard" );
-switch( mb.exec() ) {
+    mb.setButtonText( QMessageBox::Yes, "Save" );
+    mb.setButtonText( QMessageBox::No, "Discard" );
+    switch( mb.exec() ) {
     case QMessageBox::Yes:
 	// save and exit
 	break;
@@ -333,53 +352,53 @@ switch( mb.exec() ) {
     case QMessageBox::Cancel:
 	// don't save and don't exit
 	break;
-}
-\endcode
+    }
+    \endcode
 
-  QMessageBox defines two enum types: Icon and an unnamed button type.
-  Icon defines the \c Information, \c Warning, and \c Critical icons for
-  each GUI style.  It is used by the constructor and by the static
-  member functions information(), warning() and critical(). A function
-  called standardIcon() gives you access to the various icons.
+    QMessageBox defines two enum types: Icon and an unnamed button type.
+    Icon defines the \c Information, \c Warning, and \c Critical icons for
+    each GUI style.  It is used by the constructor and by the static
+    member functions information(), warning() and critical(). A function
+    called standardIcon() gives you access to the various icons.
 
-  The button types are:
-  \list
-  \i Ok - the default for single-button message boxes
-  \i Cancel - note that this is \e not automatically Escape
-  \i Yes
-  \i No
-  \i Abort
-  \i Retry
-  \i Ignore
-  \i YesAll
-  \i NoAll
-  \endlist
+    The button types are:
+    \list
+    \i Ok - the default for single-button message boxes
+    \i Cancel - note that this is \e not automatically Escape
+    \i Yes
+    \i No
+    \i Abort
+    \i Retry
+    \i Ignore
+    \i YesAll
+    \i NoAll
+    \endlist
 
-  Button types can be combined with two modifiers by using OR, '|':
-  \list
-  \i Default - makes pressing Enter equivalent to
-  clicking this button. Normally used with Ok, Yes or similar.
-  \i Escape - makes pressing Escape equivalent to clicking this button.
-  Normally used with Abort, Cancel or similar.
-  \endlist
+    Button types can be combined with two modifiers by using OR, '|':
+    \list
+    \i Default - makes pressing Enter equivalent to
+    clicking this button. Normally used with Ok, Yes or similar.
+    \i Escape - makes pressing Escape equivalent to clicking this button.
+    Normally used with Abort, Cancel or similar.
+    \endlist
 
-  The text(), icon() and iconPixmap() functions provide access to the
-  current text and pixmap of the message box. The setText(), setIcon()
-  and setIconPixmap() let you change it. The difference between
-  setIcon() and setIconPixmap() is that the former accepts a
-  QMessageBox::Icon and can be used to set standard icons, whereas the
-  latter accepts a QPixmap and can be used to set custom icons.
+    The text(), icon() and iconPixmap() functions provide access to the
+    current text and pixmap of the message box. The setText(), setIcon()
+    and setIconPixmap() let you change it. The difference between
+    setIcon() and setIconPixmap() is that the former accepts a
+    QMessageBox::Icon and can be used to set standard icons, whereas the
+    latter accepts a QPixmap and can be used to set custom icons.
 
-  setButtonText() and buttonText() provide access to the buttons.
+    setButtonText() and buttonText() provide access to the buttons.
 
-  QMessageBox has no signals or slots.
+    QMessageBox has no signals or slots.
 
-  <img src=qmsgbox-m.png> <img src=qmsgbox-w.png>
+    <img src=qmsgbox-m.png> <img src=qmsgbox-w.png>
 
-  \sa QDialog,
-      \link http://www.iarchitect.com/errormsg.htm
+    \sa QDialog,
+	\link http://www.iarchitect.com/errormsg.htm
 	    Isys on error messages \endlink,
-      \link guibooks.html#fowler GUI Design Handbook: Message Box \endlink
+	\link guibooks.html#fowler GUI Design Handbook: Message Box \endlink
 */
 
 
@@ -465,6 +484,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   The \a icon must be one of the following:
   \list
   \i QMessageBox::NoIcon
+  \i QMessageBox::Question
   \i QMessageBox::Information
   \i QMessageBox::Warning
   \i QMessageBox::Critical
@@ -499,7 +519,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 \code
 QMessageBox mb( "Application Name",
 	"Hardware failure.\n\nDisk error detected\nDo you want to stop?",
-	QMessageBox::NoIcon,
+	QMessageBox::Question,
 	QMessageBox::Yes | QMessageBox::Default,
 	QMessageBox::No  | QMessageBox::Escape
 	QMessageBox::NoButton );
@@ -719,6 +739,7 @@ void QMessageBox::setText( const QString &text )
   The icon of the message box can be one of the following predefined icons:
   \list
   \i QMessageBox::NoIcon
+  \i QMessageBox::Question
   \i QMessageBox::Information
   \i QMessageBox::Warning
   \i QMessageBox::Critical
@@ -764,8 +785,9 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style)
 /*!
   Returns the pixmap used for a standard icon.  This
   allows the pixmaps to be used in more complex message boxes.
-  \a icon specifies the required icon, e.g. QMessageBox::Information,
-  QMessageBox::Warning or QMessageBox::Critical.
+  \a icon specifies the required icon, e.g. QMessageBox::Question,
+  QMessageBox::Information, QMessageBox::Warning or
+  QMessageBox::Critical.
 */
 
 QPixmap QMessageBox::standardIcon( Icon icon )
@@ -1051,7 +1073,7 @@ int QMessageBox::information( QWidget *parent,
 }
 
 /*!
-  Opens an question message box with the caption \a caption and the
+  Opens a question message box with the caption \a caption and the
   text \a text. The dialog may have up to three buttons. Each of the
   buttons, \a button0, \a button1 and \a button2 may be set to
   one of the following values:
@@ -1072,11 +1094,11 @@ int QMessageBox::information( QWidget *parent,
   If you don't want all three buttons, set the last button, or last two
   buttons to QMessageBox::NoButton.
 
-  Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.) of
+  Returns the identity (QMessageBox::Yes, or QMessageBox::No, etc.) of
   the button that was clicked.
 
   If \a parent is 0, the message box becomes an application-global
-  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal dialog box. If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
   \sa information(), warning(), critical()
@@ -1325,7 +1347,7 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
 
 /*!
     \overload
-  Displays an question message box with caption \a caption, text \a
+  Displays a question message box with caption \a caption, text \a
   text and one, two or three buttons. Returns the index of the button
   that was clicked (0, 1 or 2).
 
