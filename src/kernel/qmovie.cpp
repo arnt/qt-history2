@@ -124,8 +124,7 @@
     \value SpeedChanged
 */
 
-class QMoviePrivate : public QObject, public QShared,
-		      private QDataSink, private QImageConsumer
+class QMoviePrivate : public QObject, public QShared, private QImageConsumer
 {
     Q_OBJECT
 
@@ -135,7 +134,7 @@ public: // for QMovie
     QMoviePrivate();
 
     // NOTE:  The ownership of the QDataSource is transferred to the Private
-    QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize);
+    QMoviePrivate(QIODevice* src, QMovie* movie, int bufsize);
 
     virtual ~QMoviePrivate();
 
@@ -159,10 +158,8 @@ public: // for QMovie
     void setFramePeriod(int milliseconds);
     void setSize(int w, int h);
 
-    // This as QDataSink
-    int readyToReceive();
+    int  bufferSpace();
     void receive(const uchar* b, int bytecount);
-    void eof();
     void pause();
 
 signals:
@@ -171,6 +168,7 @@ signals:
     void dataStatus(int);
 
 public slots:
+    void pollForData();
     void refresh();
 
 public:
@@ -180,24 +178,22 @@ public:
     QImageDecoder *decoder;
 
     // Cyclic buffer
-    int buf_size;
+    int buf_size, buf_usage;
     uchar *buffer;
-    int buf_r, buf_w, buf_usage;
 
     int framenumber;
     int frameperiod;
     int speed;
-    QTimer *frametimer;
+    QTimer *frametimer, *polltimer;
     int lasttimerinterval;
     int loop;
     bool movie_ended;
-    bool dirty_cache;
     bool waitingForFrameTick;
     int stepping;
+    QString movie_name;
     QRect changed_area;
     QRect valid_area;
-    QDataPump *pump;
-    QDataSource *source;
+    QIODevice *source;
     QPixmap mypixmap;
     QBitmap mymask;
     QColor bg;
@@ -214,25 +210,25 @@ public:
 
 QMoviePrivate::QMoviePrivate()
 {
-    dirty_cache = FALSE;
     buffer = 0;
-    pump = 0;
     source = 0;
     decoder = 0;
     display_widget=0;
     buf_size = 0;
+    polltimer = 0;
     init(FALSE);
 }
 
 // NOTE:  The ownership of the QDataSource is transferred to the Private
-QMoviePrivate::QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize) :
-    that(movie),
-    buf_size(bufsize)
+QMoviePrivate::QMoviePrivate(QIODevice* src, QMovie* movie, int bufsize) :
+    that(movie), buf_size(bufsize)
 {
+    static int movie_cntr = 0;
+    movie_name = QString("qt_movie%1_frame_%2").arg(movie_cntr++);
+    polltimer = new QTimer(this);
+    QObject::connect(polltimer, SIGNAL(timeout()), this, SLOT(pollForData()));
     frametimer = new QTimer(this);
-    pump = src ? new QDataPump(src, this) : 0;
     QObject::connect(frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
-    dirty_cache = FALSE;
     source = src;
     buffer = 0;
     decoder = 0;
@@ -245,13 +241,8 @@ QMoviePrivate::~QMoviePrivate()
 {
     if ( buffer )				// Avoid purify complaint
 	delete [] buffer;
-    delete pump;
     delete decoder;
     delete source;
-
-    // Too bad.. but better be safe than sorry
-    if ( dirty_cache )
-        QPixmapCache::clear();
 }
 
 bool QMoviePrivate::isNull() const
@@ -268,7 +259,7 @@ void QMoviePrivate::init(bool fully)
     image_number = 0;
 #endif
 
-    buf_usage = buf_r = buf_w = 0;
+    buf_usage = 0;
     if ( buffer )				// Avoid purify complaint
 	delete [] buffer;
     buffer = fully ? new uchar[buf_size] : 0;
@@ -287,7 +278,10 @@ void QMoviePrivate::init(bool fully)
     stepping = -1;
     framenumber = 0;
     frameperiod = -1;
-    if (fully) frametimer->stop();
+    if (fully)
+	polltimer->start(0);
+    if (fully)
+	frametimer->stop();
     lasttimerinterval = -1;
     changed_area.setRect(0,0,-1,-1);
     valid_area = changed_area;
@@ -299,9 +293,9 @@ void QMoviePrivate::init(bool fully)
 
 void QMoviePrivate::flushBuffer()
 {
-    while (buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
-	int used = decoder->decode(buffer + buf_r,
-			QMIN(buf_usage, buf_size - buf_r));
+    int off = 0;
+    while (off < buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
+	int used = decoder->decode(buffer + off, buf_usage-off);
 	if (used<=0) {
 	    if ( used < 0 ) {
 		error = 1;
@@ -309,21 +303,25 @@ void QMoviePrivate::flushBuffer()
 	    }
 	    break;
 	}
-	buf_r = (buf_r + used)%buf_size;
-	buf_usage -= used;
+	off += used;
+    }
+    if(off) {
+	buf_usage -= off;
+	if(buf_usage)
+	    memcpy(buffer, buffer + off, buf_usage);
     }
 
     // Some formats, like MNG can make stuff happen without any extra data.
-    int used = decoder->decode(buffer + buf_r,0);
-    if (used<=0) {
+    int used = decoder->decode(buffer, 0);
+    if (used <= 0) {
 	if ( used < 0 ) {
 	    error = 1;
 	    emit dataStatus(QMovie::UnrecognizedFormat);
 	}
     }
 
-    if(error) frametimer->stop();
-    maybeReady();
+    if(error) 
+	frametimer->stop();
 }
 
 void QMoviePrivate::updatePixmapFromImage()
@@ -367,23 +365,18 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
 	mypixmap.setMask(QBitmap()); // Remove reference to my mask
     }
 
-    // Convert to pixmap and paste that onto myself
+    // Convert to pixmap and bitBlt that onto myself
     QPixmap lines;
 
-#ifndef QT_NO_SPRINTF
     if (!(frameperiod < 0 && loop == -1)) {
         // its an animation, lets see if we converted
         // this frame already.
-        QString key;
-        key.sprintf( "%08lx:%04d", ( long )this, framenumber );
+        QString key = movie_name.arg(framenumber);
         if ( !QPixmapCache::find( key, lines ) ) {
             lines.convertFromImage(img);
             QPixmapCache::insert( key, lines );
-            dirty_cache = TRUE;
         }
-    } else
-#endif
-    {
+    } else {
         lines.convertFromImage( img );
     }
 
@@ -487,15 +480,8 @@ void QMoviePrivate::restartTimer()
 
 void QMoviePrivate::setLooping(int nloops)
 {
-    if (loop == -1) { // Only if we don't already know how many loops!
-	if (source->rewindable()) {
-	    source->enableRewind(TRUE);
-	    loop = nloops;
-	} else {
-	    // Cannot loop from this source
-	    loop = -2;
-	}
-    }
+    if (loop == -1) // Only if we don't already know how many loops!
+	loop = nloops;
 }
 
 void QMoviePrivate::setFramePeriod(int milliseconds)
@@ -513,16 +499,6 @@ void QMoviePrivate::setSize(int w, int h)
     }
 }
 
-
-// Private as QDataSink
-
-int QMoviePrivate::readyToReceive()
-{
-    // Could pre-fill buffer, but more efficient to just leave the
-    // data back at the source.
-    return (waitingForFrameTick || !stepping || buf_usage || error)
-	? 0 : buf_size;
-}
 
 void QMoviePrivate::receive(const uchar* b, int bytecount)
 {
@@ -542,47 +518,60 @@ void QMoviePrivate::receive(const uchar* b, int bytecount)
     }
 
     // Append unused to buffer
-    while (bytecount--) {
-	buffer[buf_w] = *b++;
-	buf_w = (buf_w+1)%buf_size;
-	buf_usage++;
-    }
+    int buffer_end = buf_usage;
+    buf_usage += bytecount;
+    Q_ASSERT(bytecount < buf_size);
+    memcpy(buffer + buffer_end, b, bytecount);
 }
 
-void QMoviePrivate::eof()
+int QMoviePrivate::bufferSpace()
 {
-    if ( !movie_ended )
+    return QMIN(buf_size, (int)(source->size()-source->at()));
+}
+
+void QMoviePrivate::pollForData()
+{
+    if(waitingForFrameTick || !stepping || buf_usage || error ||
+       source->status() != IO_Ok || !(source->state() & IO_Open))
 	return;
 
-    if ( empty )
-	emit dataStatus(QMovie::SourceEmpty);
+    if(!bufferSpace()) { //EOF
+	if ( !movie_ended )
+	    return;
+	if ( empty )
+	    emit dataStatus(QMovie::SourceEmpty);
 
 #ifdef QT_SAVE_MOVIE_HACK
-    save_image = FALSE;
+	save_image = FALSE;
 #endif
+	emit dataStatus(QMovie::EndOfLoop);
 
-    emit dataStatus(QMovie::EndOfLoop);
-
-    if (loop >= 0) {
-	if (loop) {
-	    loop--;
-	    if (!loop) return;
-	}
-	delete decoder;
-	decoder = new QImageDecoder(this);
-	source->rewind();
-	framenumber = 0;
-    } else {
-	delete decoder;
-	decoder = 0;
-	if ( buffer )				// Avoid purify complaint
-	    delete [] buffer;
-	buffer = 0;
-	emit dataStatus(QMovie::EndOfMovie);
+	if (loop >= 0) {
+	    if (loop) {
+		loop--;
+		if (!loop) 
+		    return;
+	    }
+	    delete decoder;
+	    decoder = new QImageDecoder(this);
+	    source->reset();
+	    framenumber = 0;
+	} else {
+	    delete decoder;
+	    decoder = 0;
+	    if ( buffer )				// Avoid purify complaint
+		delete [] buffer;
+	    buffer = 0;
+	    emit dataStatus(QMovie::EndOfMovie);
 #ifdef AVOID_OPEN_FDS
-	if ( source )
-	    source->close();
+	    if ( source )
+		source->close();
 #endif
+	}
+    } else if(int space = bufferSpace()) {
+	int avail = source->readBlock((char*)buffer, space);
+	if(avail > 0)
+	   receive(buffer, avail);
     }
 }
 
@@ -602,15 +591,10 @@ void QMoviePrivate::refresh()
 	return;
     }
 
-    if (frameperiod < 0 && loop == -1) {
-	// Only show changes if probably not an animation
+    if (frameperiod < 0 && loop == -1) // Only show changes if probably not an animation
 	showChanges();
-    }
-
-    if (!buf_usage) {
+    if (!buf_usage)
 	frametimer->stop();
-    }
-
     waitingForFrameTick = FALSE;
     flushBuffer();
 }
@@ -657,7 +641,7 @@ QMovie::QMovie(int bufsize)
 */
 int QMovie::pushSpace() const
 {
-    return d->readyToReceive();
+    return d->bufferSpace();
 }
 
 /*!
@@ -693,7 +677,7 @@ void QMovie::setDisplayWidget(QWidget * w)
     other event processing, but the slower the overall processing will
     be.
 */
-QMovie::QMovie(QDataSource* src, int bufsize)
+QMovie::QMovie(QIODevice* src, int bufsize)
 {
     d = new QMoviePrivate(src, this, bufsize);
 }
@@ -713,7 +697,7 @@ QMovie::QMovie(const QString &fileName, int bufsize)
     QFile* file = new QFile(fileName);
     if ( !fileName.isEmpty() )
  	file->open(IO_ReadOnly);
-    d = new QMoviePrivate(new QIODeviceSource(file), this, bufsize);
+    d = new QMoviePrivate(file, this, bufsize);
 }
 
 /*!
@@ -912,16 +896,13 @@ void QMovie::restart()
 {
     if (d->isNull())
 	return;
-    if (d->source->rewindable()) {
-	d->source->enableRewind(TRUE);
-	d->source->rewind();
-	int s = d->stepping;
-	d->init(TRUE);
-	if ( s>0 )
-	    step(s);
-	else if ( s==0 )
-	    pause();
-    }
+    d->source->reset();
+    int s = d->stepping;
+    d->init(TRUE);
+    if ( s>0 )
+	step(s);
+    else if ( s==0 )
+	pause();
 }
 
 /*!

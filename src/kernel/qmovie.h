@@ -44,7 +44,7 @@
 
 #ifndef QT_NO_MOVIE
 
-class QDataSource;
+class QIODevice;
 class QObject;
 class QMoviePrivate;
 
@@ -52,7 +52,7 @@ class Q_EXPORT QMovie {
 public:
     QMovie();
     QMovie(int bufsize);
-    QMovie(QDataSource*, int bufsize=1024);
+    QMovie(QIODevice*, int bufsize=1024);
     QMovie(const QString &fileName, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();
