@@ -2571,7 +2571,7 @@ void QTextParag::format( int start, bool doMove )
 	delete *it;
 
     QTextString::Char *c = 0;
-    if ( lineStarts.count() == 1 && doc->flow()->isEmpty() ) {
+    if ( lineStarts.count() == 1 && doc->flow()->isEmpty() && !string()->isBidi() ) {
 	c = &str->at( str->length() - 1 );
 	r.setWidth( c->x + c->format()->width( c->c ) );
     }
@@ -2737,8 +2737,6 @@ void QTextParag::indent( int *oldIndent, int *newIndent )
 void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor, bool drawSelections,
 			int clipx, int clipy, int clipw, int cliph )
 {
-
-
     QTextString::Char *chr = at( 0 );
     int i = 0;
     int h = 0;
@@ -3718,7 +3716,7 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords( QTextDocument *d )
 {
 }
 
-int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts )
+int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> & )
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
@@ -3820,7 +3818,7 @@ QTextFormatterBreakWords::QTextFormatterBreakWords( QTextDocument *d )
 {
 }
 
-int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts )
+int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> & )
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
