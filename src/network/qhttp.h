@@ -18,13 +18,6 @@
 #include "qstringlist.h"
 #include "qmap.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_HTTP
-#define QM_TEMPLATE_EXTERN_HTTP
-#else
-#define QM_EXPORT_HTTP Q_NETWORK_EXPORT
-#endif
-
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
 class QTcpSocket;
@@ -35,7 +28,7 @@ class QIODevice;
 class QHttpPrivate;
 class QHttpRequest;
 
-class QM_EXPORT_HTTP QHttpHeader
+class Q_NETWORK_EXPORT QHttpHeader
 {
 public:
     QHttpHeader();
@@ -76,7 +69,7 @@ private:
     bool valid;
 };
 
-class QM_EXPORT_HTTP QHttpResponseHeader : public QHttpHeader
+class Q_NETWORK_EXPORT QHttpResponseHeader : public QHttpHeader
 {
 private:
     QHttpResponseHeader(int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1);
@@ -108,7 +101,7 @@ private:
     friend class QHttp;
 };
 
-class QM_EXPORT_HTTP QHttpRequestHeader : public QHttpHeader
+class Q_NETWORK_EXPORT QHttpRequestHeader : public QHttpHeader
 {
 public:
     QHttpRequestHeader();
@@ -136,7 +129,7 @@ private:
     int minVer;
 };
 
-class QM_EXPORT_HTTP QHttp : public QObject
+class Q_NETWORK_EXPORT QHttp : public QObject
 {
     Q_OBJECT
 
@@ -147,7 +140,15 @@ public:
 
     int supportedOperations() const;
 
-    enum State { Unconnected, HostLookup, Connecting, Sending, Reading, Connected, Closing };
+    enum State {
+        Unconnected,
+        HostLookup,
+        Connecting,
+        Sending,
+        Reading,
+        Connected,
+        Closing
+    };
     enum Error {
         NoError,
         UnknownError,
@@ -161,12 +162,11 @@ public:
 
     int setHost(const QString &hostname, Q_UINT16 port=80);
     int setSocket(QTcpSocket *socket);
-    int setUser(const QString &username,
-                const QString &password = QString::null);
+    int setUser(const QString &username, const QString &password = QString());
 
     int setProxy(const QString &host, int port,
-                 const QString &username = QString::null,
-                 const QString &password = QString::null);
+                 const QString &username = QString(),
+                 const QString &password = QString());
 
     int get(const QString& path, QIODevice* to=0);
     int post(const QString& path, QIODevice* data, QIODevice* to=0 );

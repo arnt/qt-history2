@@ -18,26 +18,16 @@
 #include "qurlinfo.h"
 #include "qobject.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_FTP
-#else
-#define QM_EXPORT_FTP Q_NETWORK_EXPORT
-#endif
-
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
 class QFtpPrivate;
 
-class QM_EXPORT_FTP QFtp : public QObject
+class Q_NETWORK_EXPORT QFtp : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QFtp)
 
 public:
     QFtp(QObject *parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QFtp(QObject *parent, const char *name);
-#endif
     virtual ~QFtp();
 
     enum State {
@@ -127,6 +117,11 @@ signals:
     void commandFinished(int, bool);
     void done(bool);
 
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QFtp(QObject *parent, const char *name);
+#endif
+
 private slots:
     void startNextCommand();
     void piFinished(const QString&);
@@ -136,6 +131,7 @@ private slots:
 
 private:
     Q_DISABLE_COPY(QFtp)
+    Q_DECLARE_PRIVATE(QFtp)
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

@@ -17,19 +17,12 @@
 #include <qabstractsocket.h>
 #include <qhostaddress.h>
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
-#endif
-
 class QTcpServerPrivate;
 class QTcpSocket;
 
-class QM_EXPORT_NETWORK QTcpServer : public QObject
+class Q_NETWORK_EXPORT QTcpServer : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTcpServer)
 public:
     QTcpServer(QObject *parent = 0);
     virtual ~QTcpServer();
@@ -65,6 +58,7 @@ signals:
 private:
     Q_PRIVATE_SLOT(d, void processIncomingConnection(int))
     Q_DISABLE_COPY(QTcpServer)
+    Q_DECLARE_PRIVATE(QTcpServer)
 };
 
 #endif

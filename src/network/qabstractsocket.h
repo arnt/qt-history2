@@ -40,16 +40,10 @@ namespace Qt {
 #include <qiodevice.h>
 #include <qobject.h>
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
-#endif
-
 class QHostAddress;
 class QAbstractSocketPrivate;
 
-class QM_EXPORT_NETWORK QAbstractSocket : public QIODevice
+class Q_NETWORK_EXPORT QAbstractSocket : public QIODevice
 {
     Q_OBJECT
 public:
@@ -78,8 +72,7 @@ public:
     void abort();
 
     int socketDescriptor() const;
-    bool setSocketDescriptor(int socketDescriptor,
-                             Qt::SocketState state = Qt::ConnectedState);
+    bool setSocketDescriptor(int socketDescriptor, Qt::SocketState state = Qt::ConnectedState);
 
     Qt::SocketType socketType() const;
     Qt::SocketState socketState() const;
@@ -108,14 +101,14 @@ signals:
     void error(int);
 
 protected:
-    QAbstractSocket(Qt::SocketType socketType,
-                    QAbstractSocketPrivate &p, QObject *parent);
-
     Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);
     Q_LONGLONG writeData(const char *data, Q_LONGLONG len);
 
     void setSocketState(Qt::SocketState state);
     void setSocketError(Qt::SocketError socketError);
+
+protected:
+    QAbstractSocket(Qt::SocketType socketType, QAbstractSocketPrivate &p, QObject *parent);
 
 private:
     inline int state() {return 0;} //to help catch programming errors: socketState() is the function you want

@@ -17,15 +17,9 @@
 #include "qstring.h"
 #include "qabstractsocket.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_NETWORK
-#else
-#define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
-#endif
-
 class QHostAddressPrivate;
 
-class QIPv6Address
+class Q_NETWORK_EXPORT QIPv6Address
 {
 public:
     inline Q_UINT8 &operator [](int index) { return c[index]; }
@@ -35,7 +29,7 @@ public:
 
 typedef QIPv6Address Q_IPV6ADDR;
 
-class QM_EXPORT_NETWORK QHostAddress
+class Q_NETWORK_EXPORT QHostAddress
 {
 public:
     enum SpecialAddress {
@@ -63,14 +57,6 @@ public:
     void setAddress(const Q_IPV6ADDR &ip6Addr);
     bool setAddress(const QString &address);
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
-    inline QT_COMPAT bool isIp4Addr() const { return protocol() == Qt::IPv4Protocol; }
-    inline QT_COMPAT bool isIPv4Address() const { return protocol() == Qt::IPv4Protocol
-                                                      || protocol() == Qt::UnknownNetworkLayerProtocol; }
-    inline QT_COMPAT bool isIPv6Address() const { return protocol() == Qt::IPv6Protocol; }
-#endif
-
     Qt::NetworkLayerProtocol protocol() const;
     Q_UINT32 toIPv4Address() const;
     Q_IPV6ADDR toIPv6Address() const;
@@ -81,6 +67,14 @@ public:
     bool operator ==(SpecialAddress address) const;
     bool isNull() const;
     void clear();
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
+    inline QT_COMPAT bool isIp4Addr() const { return protocol() == Qt::IPv4Protocol; }
+    inline QT_COMPAT bool isIPv4Address() const { return protocol() == Qt::IPv4Protocol
+                                                      || protocol() == Qt::UnknownNetworkLayerProtocol; }
+    inline QT_COMPAT bool isIPv6Address() const { return protocol() == Qt::IPv6Protocol; }
+#endif
 
 private:
     QHostAddressPrivate *d;
