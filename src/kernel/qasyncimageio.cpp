@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#24 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -337,6 +337,7 @@ QGIFDecoder::QGIFDecoder()
 {
     globalcmap_hold = 0;
     disposal = NoDisposal;
+    out_of_bounds = FALSE;
     disposed = TRUE;
     frame = -1;
     state = Header;
@@ -524,6 +525,8 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		state=ExtensionLabel;
 		break;
 	      case ';':
+		if ( out_of_bounds ) // flush anything that survived
+		    digress = !consumer->changed(QRect(0,0,swidth,sheight));
 		if (consumer) digress = !consumer->end();
 		state=Done;
 		break;
@@ -626,7 +629,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		bitcount = 0;
 		sp = stack;
 		needfirst = FALSE;
-		out_of_bounds = FALSE;
+		out_of_bounds = left>=swidth || y>=sheight;
 	    }
 	    break;
 	  case TableImageLZWSize: {
