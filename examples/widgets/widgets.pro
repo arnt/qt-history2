@@ -3,6 +3,7 @@ SUBDIRS       = analogclock \
                 charactermap \
                 configwidget \
                 digitalclock \
+                transformations \
                 groupbox \
                 lineedits \
                 sliders \
