@@ -617,11 +617,11 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 
 bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString fieldList = toString( d->nm );
+    QString fieldList = toString("a"); // our table synonym
     if ( fieldList.isEmpty() )
-	return FALSE;
-    QString str= "select " + fieldList;
-    str += " from " + d->nm;
+        return FALSE;
+    QString str = "select " + fieldList + " from " + d->nm + " a";
+
     if ( !filter.isEmpty() ) {
 	d->ftr = filter;
 	str += " where " + filter;

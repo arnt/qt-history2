@@ -57,7 +57,7 @@ class QODBCPrivate
 {
 public:
     QODBCPrivate()
-    : hEnv(0), hDbc(0), hStmt(0)
+    : hEnv(0), hDbc(0), hStmt(0), useSchema(FALSE)
     {
 	sql_char_type = sql_varchar_type = sql_longvarchar_type = QVariant::CString;
 	unicode = FALSE;
@@ -68,6 +68,7 @@ public:
     SQLHANDLE hStmt;
 
     bool unicode;
+    bool useSchema;
     QVariant::Type sql_char_type;
     QVariant::Type sql_varchar_type;
     QVariant::Type sql_longvarchar_type;
@@ -76,6 +77,9 @@ public:
 
     bool checkDriver() const;
     void checkUnicode();
+    void checkSchemaUsage();
+    void splitTableQualifier(const QString &qualifier, QString &catalog,
+			     QString &schema, QString &table);
 };
 
 class QODBCPreparedExtension : public QSqlExtension
@@ -473,32 +477,34 @@ static QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
     			  (int)colType );
 }
 
-static void qSplitTableQualifier( const QString & qualifier, QString * catalog,
-				  QString * schema, QString * table )
+void QODBCPrivate::splitTableQualifier(const QString & qualifier, QString &catalog,
+				       QString &schema, QString &table)
 {
-    if ( !catalog || !schema || !table )
+    if (!useSchema) {
+	table = qualifier;
 	return;
+    }
     QStringList l = QStringList::split( ".", qualifier, TRUE );
     if ( l.count() > 3 )
 	return; // can't possibly be a valid table qualifier
     int i = 0, n = l.count();
     if ( n == 1 ) {
-	*table = qualifier;
+	table = qualifier;
     } else {
 	for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 	    if ( n == 3 ) {
 		if ( i == 0 ) {
-		    *catalog = *it;
+		    catalog = *it;
 		} else if ( i == 1 ) {
-		    *schema = *it;
+		    schema = *it;
 		} else if ( i == 2 ) {
-		    *table = *it;
+		    table = *it;
 		}
 	    } else if ( n == 2 ) {
 		if ( i == 0 ) {
-		    *schema = *it;
+		    schema = *it;
 		} else if ( i == 1 ) {
-		    *table = *it;
+		    table = *it;
 		}
 	    }
 	    i++;
@@ -1424,6 +1430,7 @@ bool QODBCDriver::open( const QString & db,
     }
 
     d->checkUnicode();
+    d->checkSchemaUsage();
 
     setOpen( TRUE );
     setOpenError( FALSE );
@@ -1577,6 +1584,20 @@ bool QODBCPrivate::checkDriver() const
 #endif //ODBC_CHECK_DRIVER
 
     return TRUE;
+}
+
+void QODBCPrivate::checkSchemaUsage()
+{
+    SQLRETURN   r;
+    SQLUINTEGER val;
+
+    r = SQLGetInfo(hDbc, 
+		   SQL_SCHEMA_USAGE,
+		   (SQLPOINTER) &val,
+		   sizeof(val),
+		   NULL);
+    if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
+	useSchema = (val != 0);
 }
 
 QSqlQuery QODBCDriver::createQuery() const
@@ -1741,7 +1762,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 	return index;
     }
     QString catalog, schema, table;
-    qSplitTableQualifier( tablename, &catalog, &schema, &table );
+    d->splitTableQualifier( tablename, catalog, schema, table );
     r = SQLSetStmtAttr( hStmt,
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
@@ -1847,8 +1868,7 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
 
     SQLHANDLE hStmt;
     QString catalog, schema, table;
-    qSplitTableQualifier( tablename, &catalog, &schema, &table );
-
+    d->splitTableQualifier( tablename, catalog, schema, table );
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
 				  &hStmt );
