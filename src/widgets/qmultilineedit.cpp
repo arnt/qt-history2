@@ -409,7 +409,7 @@ void QMultiLineEdit::setAlignment( int flag )
 	return;
     QTextParag *p = document()->firstParag();
     while ( p ) {
-	p->setAlignment( flags );
+	p->setAlignment( flag );
 	p = p->next();
     }
 }
@@ -440,9 +440,6 @@ void QMultiLineEdit::setEdited( bool e )
 {
     setModified( e );
 }
-
-/*!  Returns the edited flag of the line edit.  If this returns FALSE,
-
 
 /*!  Returns the edited flag of the editor.  If this returns FALSE, the
 editor's contents have not been changed since the construction of the
