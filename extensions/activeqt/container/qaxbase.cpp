@@ -650,6 +650,11 @@ public:
     \i const QByteArray&
     \i QByteArray&
     \row
+    \i SAFEARRAY(BSTR)
+    \i QStringList
+    \i const QStringList&
+    \i QStringList&
+    \row
     \i VARIANT
     \i type-dependent
     \i const QVariant&
@@ -1302,6 +1307,8 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 		str += "&";
 	    else if ( str == "QByteArray" )
 		str += "&";
+	    else if ( str == "QStringList" )
+		str += "&";
 	    else if ( str == "QVariant" )
 		str = "const QVariant&";
 	    else if ( !str.isEmpty() && enumlist[str] )
@@ -1313,6 +1320,9 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
     case VT_SAFEARRAY:
 	if ( tdesc.lpadesc->tdescElem.vt == VT_UI1 ) {
 	    str = "QByteArray";
+	    break;
+	} else if (tdesc.lpadesc->tdescElem.vt == VT_BSTR) {
+	    str = "QStringList";
 	    break;
 	}
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
@@ -1360,6 +1370,8 @@ static inline QString constRefify( const QString& type )
 	crtype = "const QValueList<QVariant>&";
     else if ( type == "QByteArray" )
 	crtype = "const QByteArray&";
+    else if ( type == "QStringList" )
+	crtype = "const QStringList&";
     else
 	crtype = type;
 
@@ -1418,6 +1430,9 @@ static inline void QStringToQUType( const QString& fulltype, QUParameter *param,
     } else if ( type == "QByteArray" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new char(QVariant::ByteArray);
+    } else if ( type == "QStringList" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new char(QVariant::StringList);
     } else if ( enumDict[type] ) {
 	QMetaEnum *enumData = enumDict[type];
 	param->type = &static_QUType_enum;
