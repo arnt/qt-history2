@@ -1,0 +1,369 @@
+<!DOCTYPE UI><UI>
+<class>QSqlRecordNavigatorBase</class>
+<widget>
+    <class>QWidget</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>QSqlRecordNavigatorBase</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>342</width>
+            <height>31</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>Record navigation</string>
+    </property>
+    <property stdset="1">
+        <name>sizePolicy</name>
+        <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>0</vsizetype>
+        </sizepolicy>
+    </property>
+    <property>
+        <name>layoutMargin</name>
+    </property>
+    <property>
+        <name>layoutSpacing</name>
+    </property>
+    <grid>
+        <property stdset="1">
+            <name>margin</name>
+            <number>0</number>
+        </property>
+        <property stdset="1">
+            <name>spacing</name>
+            <number>0</number>
+        </property>
+        <widget row="0"  column="0" >
+            <class>QFrame</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Frame5</cstring>
+            </property>
+            <property stdset="1">
+                <name>frameShadow</name>
+                <enum>Raised</enum>
+            </property>
+            <property stdset="1">
+                <name>frameShape</name>
+                <enum>StyledPanel</enum>
+            </property>
+            <property>
+                <name>layoutMargin</name>
+            </property>
+            <property>
+                <name>layoutSpacing</name>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>3</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>2</number>
+                </property>
+                <widget>
+                    <class>QLabel</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>TextLabel3</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>Record#</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QLineEdit</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>recordNumber</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>sizePolicy</name>
+                        <sizepolicy>
+                            <hsizetype>3</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property stdset="1">
+                        <name>enabled</name>
+                        <bool>true</bool>
+                    </property>
+                    <property stdset="1">
+                        <name>alignment</name>
+                        <set>AlignAuto|AlignRight</set>
+                    </property>
+                    <property>
+                        <name>hAlign</name>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton1</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image0</pixmap>
+                    </property>
+                    <property stdset="1">
+                        <name>sizePolicy</name>
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>First record</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton2</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image1</pixmap>
+                    </property>
+                    <property stdset="1">
+                        <name>sizePolicy</name>
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>Previous record</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton3</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image2</pixmap>
+                    </property>
+                    <property stdset="1">
+                        <name>sizePolicy</name>
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>Next record</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton4</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image3</pixmap>
+                    </property>
+                    <property stdset="1">
+                        <name>sizePolicy</name>
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>Last record</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton77</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image4</pixmap>
+                    </property>
+                    <property stdset="1">
+                        <name>sizePolicy</name>
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>Update record</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton7</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image5</pixmap>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>Insert</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QToolButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>ToolButton6</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string></string>
+                    </property>
+                    <property stdset="1">
+                        <name>pixmap</name>
+                        <pixmap>image6</pixmap>
+                    </property>
+                    <property>
+                        <name>toolTip</name>
+                        <string>Delete</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<images>
+    <image>
+        <name>image0</name>
+        <data format="XPM.GZ" length="2029">789c85d4594fdc301007f0773ec58a7943d5bfb113db89aa3ef43ea11c3d68ab3ef8483897e5586869d5ef5eef8c8904a290dd979f3cf13133cec395c9f6faea64e5e1d2d9dccff7e224eefad3c94a3a9f4e2fbfff78fc676959d949feb7ed442f3f585ade984fe2646d76d42f009f41153fecbad8546661ba287695e3f179f1500d3c1ec5aa552d8fbf28ee54c7d6c55145f646715289df3f2fee15ef870ec5bad635bbaca71bddb04f8aadb6ec6971d232df5971af65be543c68de2f1a719e9e934107c54d2df3ef179be2e3e2b6e6f3d1aed844c3e7a120b6ca72fee8b4386f907d54ecace44f899d728a6d8a7300c7cfc46d7e789cd84ae787c7f7c4e37e7bb173f23e3eb2ebe0028fe39d385641ceffa55845a9f767b6896d94f72bb6cdf1923fe90fe7ad97f9b6c5f9f85c1fbc1d2de36db18f725ea947dbe4876dc52104195f6777633e3a71d041f6b7c9f657fd812d76749d93fe92fe4b57f5c637f610bb729e4fe2e492ccc7f552957186d7a7411cda92afaf6c35becffda0741d6be9df99d87446d6bf64dbd8483e88eba55ca87c6083dd5d192fd961acdf0e3b4657eaf17c619d0b60653d274e31c9feb89fb5b2f961f3feb56e5423f9e37ed5d6f446f2f19eed628ab23eafa75bdb5b19e7fba7c3987fee5f1d6db0127f507c15ff86dda73a49fc2ff6309afbbdce1396faf27dad6b9b2cdf4f7c58b8e9727e257fbf17363e7f0ee4fd55f690ba24e36b0b5b937cf26cee7717c6f9f93eb898fb59de7fb5706772fa243fafd92eb707df1ffc2cb6bde493bf1f5dd7d7659cefb76ff27d90fbf74cdcb7bdf84971eae53cfc7df46d1ca2dc2ffe7e799faad26f4f178e66c83ff9f8defdbb3d06745b0c3cfc181110ef8e41428fe1ae18ec60177bd8ff7f0c0e7088298e30c3314e708ab31b31739ce3023ff10b97f88d27788a67788e17d7625ee2155ee30ddee21dde63156bf880756c5c8bd9c4163ee2133ee30bb6f115df5041415f8ba9d1c0c0c2a1454720224f81e2cd3d53a29e06daa15ddaa37d3aa0c3dbce4e533aa2191ddf9d433aa1533abbaf1634a7f3fb6b4a17f7c7dce88dbf8f96fe01ea49e2cc</data>
+    </image>
+    <image>
+        <name>image1</name>
+        <data format="XPM.GZ" length="1949">789c85d4c96edc381006e0bb9fa261de8cc16f5122290a410ed9576f599d0ce6c045f2da5edb499c60de7da8bf9446b6b1ddeec3872e9155aca2d6d766bbdb1bb3b5f595cb45581ca459da0f17b3b57c359f5ffffdcfdd6f2babdacdcabf6f66f5ea5f2bab3b8b599a6d9e9ef423d47981aaaa2a56913e989caa449f8ab5d79e56e25ad79a0e939bba198d6a725bb7b49e1ceac0f8fdc9a996f5cf260ff5400fe2c63486cf4ffb35b6b1fcfd446c5ac3f5d55c6c6bcbe2d4f164671d7d38d95be68f7a72b699bf47b1d3aea27b71599efbab23b1ef7cc7e72f695dcae77ed8127faf57ed894bbe92ff2b716803f3c133711ca29c3fe8ba1d5a1a1fc59de9e43cdf8a4b3b981f1ed0cdf2bcb769a3a366ffd088430c92ef3bda269324ded16df491e7890fe2d424f6136f689ffac47ea1a3bbd04df94bbf436987acf7908ecbf34fe290833cff944ea94b320fefe93ef924fb4b3f87d6b5b2fe6b713689fd811dadab6cb2d47f41d7cb7e7e1697f564fdddc96132fb5fda11ace4b32376dec9f3ecbf36dfe70983d8462be7d9d236f4533d9b74d7d94ef27f2e5eeecffa757095cc130c1db39ff2e7fdd2c9960fedc55107f182eecbf8cafabc7f7565a291fb99699d5d9279e1fdad07979c3ccffbd4e8a539cf8d73c6c93c7e1a6daaecb2f80bdd94fec8bc3ca14df95df6bf4fbb710068de375ba798e47c5ed026b759eadfa06daea67a5f8e762e9781a0997fabc31078dff1881ecf57eae1fdf1e338cb3c5ed14daca3dc37de47efcbfc4affae4777aef7bd98ef97e073ca52ff637ae86d2ff5f0fd10eb65fcbdc9e58ffe3a3ae9c10c465e96377ffe1403755b0c02e2cd3148c8e86f8ac1803dece3e0ff637088231c638e139ce20ce7b8c0e5cf3158e0aa447cc2677cc135bee21eeee3c18f31788847788c27788a67788e1778890d6c62eba7986dece0155ee30ddee21dde63171ff011d52f7b69d4686060e1d0c2a35350ead79c555051259555af06b557befbeae0f7da4bd4a13a52c7379f61899aab93db7aa14ed5d9ed3d55e7b7c7fc361bffde59f90f6b52d7a0</data>
+    </image>
+    <image>
+        <name>image2</name>
+        <data format="XPM.GZ" length="1789">789c8dd4c752dc401006e0fb3e858ab951ae4623694652b97c20079333b87c9824e21297e8f2bb7bd4bf163018b0c4e52b35ad0eb31a1b4d76579792d1b1def5c00c8e5ce20ecd5532ea6ffafd871f3fbffdea8d489dc4bf324fb2912fbd91b541e292e5f3b3d0421c448894afd6b4ddb94e6bb6ed1c52c40fdda40d3f57b05452b18f3a57b262d79d8d34ec0067f1626bb8c88b9c2d3a5705fe7f0b5656597e3fc1da6bcfcfd760ebac63af770e96eba5b9ce4de70c769993ec8a2d87f58906cecbbce4e7253b934e22ff315c9802f106d6b9463fabb09316f391ecdc96b6e078c756aa52e86f1e768543ffc85796b2e4fa848763fbd8cf2c3c8c17986715c78f7e56d8c629877a1e3a574eb377d856c58bbdcc0e2e66646f746e1cf675cd6e54a9308fbcb54c9f9ea76c695383fdf0fe64e1b5c37e0a7619e78ff87d766582c1f91a67d7c3fdd2091ce789796cc2d6607eb4c776c618d433cdf6b11eece77beb2c8be3457f33ec221e0fbc7f8a6d7cdad577c6b6bad6a8e78aedebbcc6fb4f5be7a9761af90fd9b1810af9faecfce93c7ab8b215fa59621b9f79ec8fcf5721eba6c6f938672ba30df6b3c02e633f38aff7ecdae71efb7c641b5f7bf4cfe7a9702637a877b2b5cabdf2f02ebbb4da22ff656bddf8e091ffae75e97cbcd9edc741d495371efd5db09b50079cd7dbd6c684aa337f3fac8e3f37f47bc376313de631d1daa9e002f22fb2abd084061fa38fefb73124fe23c690fd34c691a7f0494c43077448476f63e8984ee894fa7446e774419774f51cf514734d03ba89f72dddd13d3dd063cc155ec58cd3044dd2144dd30ccdd21ccdd3027d47f52f6216698996698556698dd6698336698bb6ff8ad9a15ddaa37d4a49524639153142bd7a97a6922aaaa916240415c208fb7eefc2094f5bc2beedfd454c787ecbbb310d2afd30e6e0f39dfee36cfcfedafb03e7f7bc4c</data>
+    </image>
+    <image>
+        <name>image3</name>
+        <data format="XPM.GZ" length="1805">789c8dd4c76edc301006e0bb9f42b06e46f05b94444a4290837b5df71ee4c026afcbbaae6b90770f39231bc8ba45f2c11ff42fc599e1eee44472b0d14b2626c76e877a786213dbd737c984bb1b0c9e7efefaf17b6c5ca824fc5565928f7f1b1bdf1c263659bbbcf01108f124cde8221f74969924f73a375943369d7d469f4f5de7366be979c51652f0e74f3bd7a2a67cda590b4dcf5b761e2e72cd2e8bb22077f9b22ee9f3d8674b230dada7d9ca2947cfb7d9c61a4bdee9ec0dd7bbd4b9ed5cb26d6e05ad07b278d95fda6717555151be21e7c20a5eff8c5dea92f3dccf5c158aebd9625b61b83f05b930952929efc952d692eb5b66dbd272fd5c5f55898af7c7fdaa42f93caf45f64b3e3d26d7a1fd94c726595b69793fcf9d6babc8876423c345de207b1b5624ef766e2dcf6b486e6525b91f325a64afcf73b23099e6f9d07911a55396e7a3c855e83fe705b9d65ef3f99a26372ff3c5393bf493fbb1c7369afb878c6cb5d6bc9f79b20bfbe1f9ac46e779682fd7b7402ec3f1e0f7cf91b5cbbafd5d928d6a14efe796ec9aa2e1f70fa28b4c59c5eb9f90430135af77412e5ecfa367d7a6e67ad6c9dae58ee747f32a45d3367c3eaec8522bcdf3592157a11e3eaf4fe4c6158ee73945d6ae715c3f7d1f4bab0bcdfb9d8d9685938e7d44ae8c32bcfe4db46a9d77bcfe6374655db8c977d14dedb4e3faaec9ad6f3c9fd78768ad7ddd99be2f4685af1bd77b4fb66179eec74cb495de7a5e7f8d5cfbd6b7fce3f4f9fd3683f43f321ae6f57ffb41c6c1a37dc9c4d43b9963f47182d3b7199ce11c035ce01257b8c60d6e636a2433c41deec3fd80473ce1195361ad7624338d19cc620ef358c02296b08c15aca2379259c33a36b0892d6c6307bbd8c33e0efec91ce208190472142821a142a21a79578d26451a2f9d1aa8d4a6eee3da539fb6d88f894f32c7f12d9ff730eda3f7e52cecd7337de76cfcf93ef617b9f4bb14</data>
+    </image>
+    <image>
+        <name>image4</name>
+        <data format="XPM.GZ" length="530">789c8dd0bd0e823010c0f1bd4fd1f43662f8580c89f111348e26c6a15c29655013c5c118dfdddeb545240e1202fc7f14682932b9df6d645688dba0871e253a7d9599b99f4e8fc371fd14aa5a4ada2b59a98550b944b9bd9c5bba067f0d256f943d653da60d59c7d4296b4e478925c6bb4d4ae43494d6a65775210928316518dca6b4966738d900f2fc0f835fa6f3b941033383306c620018868de60511347c9e65314027affc27598c69b5318816d83a87a4bd3f5817cd75acce7971c0e65fc71a64fc2e6994c9fcbc06f95a07a4f5a8d74abc0191eb7284</data>
+    </image>
+    <image>
+        <name>image5</name>
+        <data format="XPM.GZ" length="469">789c55d0bd0ac2301007f03d4f117a5b917e2c2a888fa0380ae270b926e85005ad8388efeedd2529f1d221ff5f2f1fa4adedf1b0b3756b9e134e57b274c187ad87d738be4fe7edc754fdd2f2b7b27db5305563c9eeef372f73e039745a120789eb397a89d4518a4e6208f92fc6180269a41c43d053b4009a548521244ee69888877234c74652ca6ace396e8bc4a8d7e55263e082b45fdc2de26c34a34f5610423c175017e96ec90015fefac06b43ecf3796d5644b9573e37335fbf7c0361cf54586427eff2dd981fdd64740d</data>
+    </image>
+    <image>
+        <name>image6</name>
+        <data format="XPM.GZ" length="414">789c5d8fcf0ac2300cc6ef7d8ad0dc86740e4411f111148f8278c81a871ea6a0f320e2bbdbf48f197ea121df8fa469eb0af6bb0d54b5790c345c3cf833dda1e267dfbf0ec7f5dbd8660ecd0c42b213631d78d8deae27a931d4388d124b62179d84582f96971262596c17949adb62bbd8ec92103115ca309f1143cd859541548698a132a4d62b8c8cb02569a41143f454a6d97166518c42d88d18f9d0c785a54192fb58f7e2ef31fa3eca5bfffeabb29f95f902c38e521d</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>ToolButton1</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>first()</slot>
+    </connection>
+    <connection>
+        <sender>ToolButton2</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>previous()</slot>
+    </connection>
+    <connection>
+        <sender>recordNumber</sender>
+        <signal>returnPressed()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>gotoRecord()</slot>
+    </connection>
+    <connection>
+        <sender>ToolButton3</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>next()</slot>
+    </connection>
+    <connection>
+        <sender>ToolButton4</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>last()</slot>
+    </connection>
+    <connection>
+        <sender>ToolButton77</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>update()</slot>
+    </connection>
+    <connection>
+        <sender>ToolButton7</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>insert()</slot>
+    </connection>
+    <connection>
+        <sender>ToolButton6</sender>
+        <signal>clicked()</signal>
+        <receiver>QSqlRecordNavigatorBase</receiver>
+        <slot>del()</slot>
+    </connection>
+    <slot access="public">first()</slot>
+    <slot access="public">gotoRecord()</slot>
+    <slot access="public">insert()</slot>
+    <slot access="public">last()</slot>
+    <slot access="public">del()</slot>
+    <slot access="public">next()</slot>
+    <slot access="public">previous()</slot>
+    <slot access="public">update()</slot>
+</connections>
+</UI>
