@@ -2870,6 +2870,38 @@ QFontCache::QFontCache()
 
 QFontCache::~QFontCache()
 {
+    {
+	EngineDataCache::Iterator it = engineDataCache.begin(),
+				 end = engineDataCache.end();
+	while ( it != end ) {
+	    if ( it.data()->count == 0 )
+		delete it.data();
+#ifdef QFONTCACHE_DEBUG
+	    else
+		qDebug("QFontCache::~QFontCache: engineData %p still has refcount %d", it.data(), it.data()->count);
+#endif
+	    ++it;
+	}
+    }
+    EngineCache::Iterator it = engineCache.begin(),
+			 end = engineCache.end();
+    while ( it != end ) {
+	if ( it.data().data->count == 0 ) {
+	    if ( --it.data().data->cache_count == 0 ) {
+#ifdef QFONTCACHE_DEBUG
+		qDebug("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
+		       it.data().data, it.key().script, it.key().def.pointSize,
+		       it.key().def.pixelSize, it.key().def.weight, it.key().def.italic, it.key().def.fixedPitch);
+#endif
+		delete it.data().data;
+	    }
+	}
+#ifdef QFONTCACHE_DEBUG
+	else
+		qDebug("QFontCache::~QFontCache: engine = %p still has refcount %d", it.data().data, it.data().data->count);
+#endif
+	++it;
+    }
     instance = 0;
 }
 
@@ -2886,7 +2918,7 @@ QFontEngineData *QFontCache::findEngineData( const Key &key ) const
 void QFontCache::insertEngineData( const Key &key, QFontEngineData *engineData )
 {
 #ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: inserting new engine data" );
+    qDebug( "QFontCache: inserting new engine data %p", engineData );
 #endif // QFONTCACHE_DEBUG
 
     engineDataCache.insert( key, engineData );
@@ -2917,7 +2949,7 @@ QFontEngine *QFontCache::findEngine( const Key &key )
 void QFontCache::insertEngine( const Key &key, QFontEngine *engine )
 {
 #ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: inserting new engine" );
+    qDebug( "QFontCache: inserting new engine %p", engine );
 #endif // QFONTCACHE_DEBUG
 
     Engine data( engine );
