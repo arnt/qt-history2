@@ -223,7 +223,7 @@ Create the following consts:
 
 <<no tick pixmap -- use QCheckTableItems instead>>
 
-Create the init() function, the clear() function and the populate()
+Create the init() function, the clearData() function and the populate()
 function. Also colorSwatch(), isWebColor(), .
 
 (Create main.cpp)

@@ -721,4 +721,405 @@ menu items automatically stay in sync.
 
 \section1 Creating the Main Widget
 
+Most main-window style applications consist of a menu bar, a toolbar,
+a status bar and a central widget. We've already created a menu bar
+and toolbar, and since we've created a \Class QMainWindow (via the
+main window wizard), we also have a status bar. Widgets commonly used
+as an application's main widget are \Class QListView (which provides a
+tree view), \Class QTable and \Class QTextEdit. Since we want to
+provide our users with two different views of the same data, we'll use
+a \Class QWidgetStack as our main widget. The \Class QWidgetStack has
+no visual representation of its own; you place one or more widgets on
+each \Class QWidgetStack "page", as if each page was a form in its own
+right, and then provide the user with some mechanism for switching
+between pages. (This is similar in principle to using a \Class
+QTabWidget.) We want to provide our users with two views: a tabular
+view that lists colours and their names, and an icon-based view that
+shows color swatches. In our example we only place a single widget on
+each \Class QWidgetStack page; but this merely reflects the
+application's design -- we could have placed any number of widgets on
+each page.
+
+Click the Toolbox's Containers item, then click WidgetStack. Click
+roughly in the middle of the form to place the widget stack. Change
+the WidgetStack's \Property{name} property to "WidgetStack".
+
+\sidebar Widget Placement
+
+When placing widgets on forms using \QD, you only need to place things
+in \e approximately the right place. And there is no need to worry
+about the size of the widgets placed. If, for example, you place a
+label and then change its text so that the text doesn't fit, this
+doesn't matter. The reason we don't have to care about precise
+positions and sizes is that \QD uses Qt's layout classes to lay out
+forms automatically: we just have to select sets of widgets and tell
+\QD how they should be laid out in relation to each other, e.g. 
+vertically, one above the other, or horizontally, side by side, or in
+a grid, and \QD will lay them out and size them appropriately.
+
+In this chapter we only make the most minimal use of \QD's layout
+facilities, we make more use of them and provide more information
+in chapter two, where we create several dialogs.
+\endsidebar
+
+Click the form itself, then click the \Button{Lay Out Vertically}
+toolbar button. The WidgetStack now fills the entire form. We're now
+ready to populate the WidgetStack's pages with widgets.
+
+Click the Toolbox's Views item. Click Table, then click roughly in the
+middle of the WidgetStack. Change the table's \Property{name} property
+to "colorTable", change its \Property{numRows} property to "0", and
+its \Property{readOnly} property to "True". 
+
+If you right click a widget to pop up its context menu, in most cases
+the first item will be an "Edit" option. The Table widget is no
+different in this respect, and its "Edit" option leads to a dialog
+through which columns and rows can have their titles changed, etc.
+
+Right click the table, then click \Menu{Edit...} to invoke the
+\Widget{Edit Table} dialog. Change the Label for column 1 to "Name".
+Click "2" in the Columns list so that column 2's label is shown in the
+Label line edit. Change column 2's label to "Hex". In the same way
+change column 3's label to "Web". (The reference section provides full
+information on this dialog.) Click \OK to close the dialog.
+
+Click the WidgetStack, then click the \Button{Lay Out Vertically}
+toolbar button. The table now fits inside the WidgetStack, and will
+resize with the WidgetStack (which in turn will resize with the form:
+try clicking \Key Ctrl+T to preview and resize the previewed form).
+
+Click the "page" object in Object Explorer. Change its name to
+"tablePage".
+
+We're now ready to create the next page. Right click the WidgetStack,
+then click \Menu{Add Page} on the context menu. The table has
+"disappeared", or rather the new WidgetStack page obscures the
+first WidgetStack page which contains the table. Click IconView in the
+Toolbox, then click roughly in the middle of the WidgetStack. Change
+the IconView's \Property{name} property to "colorIconView" and change
+its \Property{resizeMode} property to "Adjust".
+
+It is often useful to create IconView items during design, but it
+isn't appropriate for our application. Right click the IconView to
+popup its context menu, then click \Menu{Edit...} to invoke the
+\Widget{Edit IconView} dialog. Click \Button{Delete Item} to delete
+the default item, then click \OK. 
+
+Click the WidgetStack, then click the \Button{Lay Out Vertically}
+toolbar button. The icon view now fits inside the WidgetStack. 
+
+Click the "page" object in Object Explorer. Change its name to
+"iconsPage".
+
+Right click the WidgetStack, then click \Menu{Previous Page}.
+
+That completes the user interface design for our application's main
+window. Note that if you preview the form clicking the "View" menu
+options and toolbar buttons has no effect. Indeed, none of the menu
+options and toolbar buttons does anything useful yet. We'll write the
+underlying code in the next section.
+
+\section1 Writing the Code
+
+There are two approaches that can be taken when it comes to writing
+code for forms designed with \QD. The original approach is to create a
+subclass of every form you create and put all your code in the
+subclass. Since Qt 3.0, \QD has provided an alternative: you can write
+your code directly in \QD using the code editor. See \l{The Designer
+Approach} for a comparative review. For this example we will write all
+the code inside \QD; for an example of the subclassing approach see
+\l{Subclassing and Dynamic Dialogs}.
+
+Before we launch into writing code we need to create some form
+variables. For example, we need to keep track of whether a view needs
+updating (because the user loaded a new set of colors, or added or
+deleted colors in the other view).
+
+\section2 Adding Member Variables
+
+Click Object Explorer's Members tab. Right click "Class Variables"
+(towards the bottom), then click \Menu{Edit}. The \Widget{Edit Class
+Variables} dialog appears. Click the \Button{Add} button, and type in
+"QMap\<QString,QColor\> m_colors". We will use this map to relate
+user color names to colors. Click the \Button{Add} button again, and
+type in "bool m_changed". We'll use this variable to keep track of
+whether the data has changed or not; this is useful for offering the
+user a prompt to save unsaved changes when they exit or open a new
+file, for example. 
+
+In the same way add "QString m_filename;" so that we can keep track of
+the file the user has open. Add "bool m_table_dirty" and "bool
+m_icons_dirty". If the user adds a color when viewing the table we'll
+mark the icons as 'dirty' so that the icon view will be updated if the
+user changes to view the icons, and vice versa. Add "bool m_show_web;"
+-- we'll use this to record whether or not the user wants a column in
+the table to indicate which colors are web colors. Add "int
+m_clip_as;" -- we'll use this to choose what to put on the clipboard
+when the user clicks \Menu{File|Copy}. We'll keep a pointer to the
+global clipboard, so add "QClipboard *clipboard;". Finally add
+"QStringList m_comments;". This is used for loading and saving color
+files and is explained later.
+
+Press \Key Enter, to confirm the last variable, then click
+\Button{Close} to close the dialog. All the variables now appear in
+Object Explorer's Members tab.
+
+\section3 Adding Forward Declarations
+
+Some of the variables we've created are of classes that need forward
+declarations. Right click Forward Declarations (in Object Explorer's
+Members tab), then click \Menu{Edit}. This pops up the \Widget{Edit
+Forward Declarations} dialog. This dialog works in exactly the same
+way as the \Widget{Edit Class Variables} dialog that we've just used.
+Add the following forward declarations: "class QString;" and "class
+QColor;". Close the dialog and the forward declarations appear in
+Object Explorer.
+
+\section3 Adding Includes
+
+Our form will also need some included files. Includes may be added in
+the declaration, or (for preference) in the implementation. Right
+click "Includes (in Implementation)", then click \Menu{Edit}. Use the
+dialog that pops up to enter "qcolor.h" and "qstring.h". Since we're
+going to use the clipboard we'll need access to the global clipboard
+object via \Class QApplication, so also add "qapplication.h" and
+"qclipboard.h". We'll also be doing some drawing (e.g. the color
+swatches), so add "qpainter.h" too, then close the dialog. 
+
+When entering include files you can include double quotes or angle
+brackets if you wish; if you don't use either \QD will put in double
+quotes automatically.
+
+\section2 Signals and Slots Connections
+
+Most of the signals and slots connections were created automatically
+by the main window wizard when we created the main form. We have added
+some new actions since then, and we need to ensure that they are
+connected to slots so that we can code their behaviour.
+
+\img qd-connections1-dlg.png View and Edit Connections dialog
+
+\sidebar Creating Signals and Slots Connections
+
+Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialog.
+
+The use of this dialog usually follows the same pattern. We click
+\Button{New} to create a new connection, then we select the Sender
+widget, the sender's Signal and the Receiver (usually the form). If we
+want to use a pre-defined slot, we select that slot; otherwise we
+click \Button{Edit Slots...} create a new slot on-the-fly, and select
+the newly created slot. (The old method of clicking and dragging to
+create connections is still supported, but the new method is a lot
+faster and easier, especially for creating lots of connections in one
+go.)
+\endsidebar
+
+We want to update the status bar so that the user can see information
+about the color they're on.
+
+Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialog.
+
+Click \Button{New} to create a new connection. Change the Sender to
+"colorTable" and the Signal to "currentChanged(int,int)". Change the
+Receiver to "MainForm". We want to connect to our own custom slot
+which we haven't yet created. Click the \Button{Edit Slots...} button
+to invoke the \Widget{Edit Functions} dialog. Change the slot name
+(which defaults to "newSlot") to "changedTableColor(int,int)". Click
+\OK to close the dialog. Now change the Slot in the \Widget{View and
+Edit Connections} dialog to our newly created
+"changedTableColor(int,int)" slot.
+
+Click \Button{New} to create a new connection. Change the Sender to
+"colorIconView" and the Signal to "currentChanged(QIconViewItem*)".
+Change the Receiver to "MainForm". Click the \Button{Edit Slots...}
+button to invoke the \Widget{Edit Functions} dialog. Change the slot
+name to "changedIconColor(QIconViewItem*)". Click \OK to close the
+dialog. Now change the Slot in the \Widget{View and Edit Connections}
+dialog to "changedIconColor(QIconViewItem*)".
+
+Now we can implement our \Func{changedTableColor()} and
+\Func{changedIconColor()} slots to update the status bar with details
+about the current color.
+
+We also want to ensure that when the user changes view, the colors
+shown in the view are correct. For example, if the user deleted a
+color in the table view and changed to the icon view, we must ensure
+that the icon view does not show the deleted color.
+
+Click \Button{New} to create a new connection. Change the Sender to
+"WidgetStack", the Signal to "aboutToShow(int)", and the Receiver to
+"MainForm". Create a new slot called "aboutToShow()" and make this the
+Slot that the WidgetStack's "aboutToShow(int)" signal connects to. The
+signal includes the ID of the widget that is about to be shown; but we
+don't need it so we create a slot that doesn't take any parameters.
+
+Once crucial piece of functionality is to allow the user to switch
+between views. We could connect each of the view actions separately,
+but it is more convenient (and easier to extend) if we connect the
+action group as a whole.
+
+Create a new connection with the "viewActionGroup" as the Sender.
+Change the Signal to "selected(QAction*)" and change the Receiver to
+"MainForm". Create a slot called "changeView(QAction*)" and make this
+the slot that the signal connects to.
+
+Click \OK to close the \Widget{View and Edit Connections} dialog.
+We are now ready to write the code.
+
+\img qd-connections2-dlg.png View and Edit Connections dialog
+
+\section2 Editing the Code
+
+There is quite a lot of code to include in the application, but this
+does not mean that a lot of typing is required! All the code is
+reproduced here so, if you're reading an electronic copy, you can
+simply cut and paste. If you're reading a print copy, all the code is
+provided in \c{qt/tools/designer/examples/colortool}; simply open the
+relevant \c{.ui.h} files and copy and paste from there into your own
+version of the project. If you are comfortable with Qt programming and
+simply want to use this manual to learn about designing with \QD, you
+can skip to \l{Creating main.cpp}, and once you've created
+\c{main.cpp} you can skip to the next section. Just copy
+\c{mainform.ui.h} from the examples directory into the directory where
+you've created your version of the \c{colortool} project and you'll
+have all the code instantly.
+
+Click \c{mainform.ui.h} in the Project Overview window. A code editor
+window showing the empty slots appears.
+
+Unfortunately all the slots are called "Form1::"... instead of
+"MainForm::".... This is easily remedied. Click
+\Menu{Search|Replace...}, to invoke the \Widget{Replace Text} dialog.
+Enter "Form1" as the Find text and "MainForm" as the Replace text,
+then click \Button{Replace All}. Click \Button{Close}.
+
+
+\section3 Adding Constants
+
+\quotefile colortool/mainform.ui.h
+\skipto CLIP_AS_HEX
+\printuntil ColorTool
+
+We define some useful constants for our form since it's easier to
+remember "CLIP_AS_RGB" than "2". The two \Class{QString}s are used by
+\Class QSettings when we come to load and save user preferences;
+they're explained when we cover \Func{loadOptions()} and
+\Func{saveOptions()}. Note that we can insert any valid C++ into a
+\c{.ui.h} file including constant declarations as we've done here and
+\c{#include}s, etc.
+
+Since we're not subclassing if we want to have code executed during
+construction we must create an \Func{init()} function; this will be
+called at the end of the form's constructor.
+
+\section3 init() 
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::init
+\printuntil clearData
+\printuntil }
+
+The first thing we do is take a pointer to the global clipboard
+object. The \Func{setSelectionMode()} call ensures that the clipboard
+works as expected on all all platforms. The "findForm" and
+"loadSettings()" lines will be covered later; if you're entering the
+code, comment them out for now. We set the filename to be empty
+because the user hasn't opened a file. We set changed to false since
+no changes have taken place yet. But we mark both the table and the
+icon view as dirty since we want these to be drawn straight away. We
+call the \Func{clearData()} function that we'll write next; this
+function clears all the color data, and if called with "TRUE", it
+creates new colors with default values.
+
+\section3 clearData() 
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::clearData
+\printuntil populate
+\printuntil }
+
+This function is used when we start the application and when the user
+creates a new file or loads an existing file. It clears out the data
+and optionally inserts default colors. We set the application's
+caption because when we load and save files we add the filename to the
+caption, so when we clear we need to remove any filename from the
+caption. We clear the colors map and the comments string list, then
+optionally fill the colors map with some standard colors. Finally we
+call \Func{populate()} which is the function we'll create next to fill
+the table and icon view with data.
+
+\section3 populate() 
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::populate
+\printuntil icons_dirty = FALSE;
+\printuntil }
+\printuntil }
+
+This function is at the heart of the application. It visually presents
+the data to the user. If the table is "dirty" (e.g. if the user has
+added or deleted colors in the icon view, or has opened a color file)
+we will populate the table. We start by deleting the contents of every
+cell. Next we change the number of rows to equal the number of colors
+in the colors map. For each color we want to display a little square
+that shows the color, so we create a pixmap of the required size. 
+
+We now create a iterator for our color map, and iterate over every
+color. The color map has the user's color names as its keys, and
+\Class QColor instances as values. We retrieve the color and fill our
+pixmap with that color. We then set the "Name" column (column
+\c{COL_NAME}), to have the color's name (\c{it.key()}) and the pixmap
+we've just filled with that color. \Class{QColor}'s \Func{name()}
+function returns a string that is the hex representation of a color,
+e.g. "#12AB2F"; we retrieve this and set the second ("Hex") column to
+this value.
+
+If the user wants to see if which colors are web colors we create a
+\Class QCheckTableItem, and check it if it is a web color. (We'll
+cover \Func{isWebColor()} shortly.) We then insert this \Class
+QCheckTableItem into the "Web" column.
+
+Having populated the table we call \Func{adjustColumn()} to ensure
+that each column is just wide enough to show its widest entry, and
+show or hide the "Web" column depending on the user's preference.
+
+Finally we set \c{m_table_dirty} to "FALSE", since it is now
+up-to-date.
+
+If the icon view is "dirty" we \Func{clear()} it of any existing data.
+We then iterate over each color in our color map. For each color we
+create a new \Class QIconViewItem; we label the item with the user's
+color name and provide a pixmap (generated by \Func{colorSwatch()},
+covered shortly) in the relevant color. Finally we set
+\c{m_icons_dirty} to "FALSE", since it is now up-to-date.
+
+\section3 isWebColor()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::isWebColor
+\printuntil }
+
+The 216 web colors are those colors whose RGB (Red, Green, Blue)
+values are all in the set (0, 51, 102, 153, 204, 255). 
+
+\section3 colorSwatch()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::colorSwatch
+\printuntil }
+
+We create a pixmap of a suitable size and fill it with white. We then
+create a \Class QPainter which we'll use to paint on the pixmap. We
+don't want a pen because we don't want an outline around the shape we
+draw. We draw an ellipse (which will be circular since we draw in an
+80 x 80 pixel square). We return the resultant pixmap.
+
+[[Create main.cpp and make and run the application]]
+
+
+[[DON'T FORGET TO TELL 'EM TO UNCOMMENT findForm and loadSettings in init() WHEN THEY ARE READY]]
+[[MAKE SURE I'VE COVERED EVERY FUNCTION]]
+
 
