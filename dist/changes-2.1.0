@@ -1,0 +1,35 @@
+Changes in Qt 2.1.0
+-------------------
+
+Qt 2.1.0 is a minor release, backward compatible with all Qt 2.x releases.
+This release has additional features and bugfixes. Some bugfixes may cause
+differences in runtime behaviour - such fixes are marked with a "*".  
+
+
+New features
+------------
+
+None.
+
+
+General improvements
+--------------------
+
+None.
+
+
+Windows-specific fixes
+----------------------
+
+None.
+
+
+X11-specific fixes
+------------------
+
+* QPainter::drawPolygon() no longer draws an outline in brush color if
+NoPen is specified.  This matches the behaviour on Windows and ensures
+that the area painted in this case is the same pixels defined by
+a QRegion made from a polygon. To get the old behaviour, you can call
+painter.setPen(painter.brush()) prior to painting (which will also work
+on Windows).
