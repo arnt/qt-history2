@@ -35,6 +35,8 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
     Q_OVERRIDE( bool readOnly DESIGNABLE false SCRIPTABLE false )
     Q_OVERRIDE( bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false )
 
+    friend class QTextEdit;
+
 public:
     QTextBrowser( QWidget* parent=0, const char* name=0 );
     ~QTextBrowser();
