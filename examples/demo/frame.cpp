@@ -159,8 +159,10 @@ void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const
 	categories->setCurrentItem( item );
 	clickedCategory( item );
     }
+#if 0
     if ( i < 3 && categories->height() < 3 * item->height( categories ) )
 	categories->setMinimumHeight( 3 * item->height( categories ) );
+#endif
 
     QValueList<int> sizes;
     sizes << ( categories->contentsWidth() + 2 * categories->frameWidth() );
