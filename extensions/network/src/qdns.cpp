@@ -1610,7 +1610,7 @@ static void doResInit()
     RegCloseKey( k );
 
     nameServer = nameServer.simplifyWhiteSpace();
-    uint first, last;
+    int first, last;
     first = 0;
     do {
 	last = nameServer.find( ' ', first );
@@ -1622,7 +1622,7 @@ static void doResInit()
 	while( i )
 	    ns->append( new QHostAddress(address[--i]) );
 	first = last+1;
-    } while( first < nameServer.length() );
+    } while( first < (int)nameServer.length() );
 
     searchList = searchList + " " + domainName;
     searchList = searchList.simplifyWhiteSpace().lower();
@@ -1633,7 +1633,7 @@ static void doResInit()
 	    last = searchList.length();
 	domains->append( qstrdup( searchList.mid( first, last-first ) ) );
 	first = last+1;
-    } while( first < nameServer.length() );
+    } while( first < (int)searchList.length() );
 }
 
 #endif
