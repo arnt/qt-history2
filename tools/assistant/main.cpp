@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <qtextcodec.h>
 
-#define INDEX_CHECK( text ) if( i+1 >= argc ) { printf( text "\n" ); return 1; }
+#define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
 
 static bool allowFirstRun = TRUE;
 
@@ -189,7 +189,7 @@ int main( int argc, char ** argv )
 		INDEX_CHECK( "Missing resource directory argument!" );
 		resourceDir = QString( argv[++i] );
 	    } else {
-		printf( "Wrong options! Try -help to get help.\n" );
+		fprintf( stderr, "Wrong options! Try -help to get help.\n" );
 		exit( 1 );
 	    }
 	}
@@ -198,7 +198,7 @@ int main( int argc, char ** argv )
     if( resourceDir.isNull() )
 	resourceDir = qInstallPath() + QString( "/translations/" );
     if( !QFile::exists( resourceDir ) ) {
-	printf( "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
+	fprintf( stderr, "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
     }
 
     QTranslator translator( 0 );
