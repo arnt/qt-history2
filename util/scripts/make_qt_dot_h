@@ -43,10 +43,14 @@ use File::Find;
     qwindow.h
     qtranslatordialog.h
     qsmartptr.h
+    qatomic_sun.h
+    qt_x11_p.h
+    qkeyboard_qws.h
 };
 
 @IGNORE_RE = qw {
     qconfig.*\.h
+    .*_qnx.*\.h
 };
 
 $IGNORE=join "|", (@IGNORE_RE, map { "\Q$_" } @IGNORE);
@@ -77,7 +81,7 @@ map {
     map {
 	if ( m/\.h$/ &&
 	    !m/^$IGNORE$/ &&
-	    ! -f "$ENV{QTDIR}/src/compat/$_"  &&
+	   ########## ! -f "$ENV{QTDIR}/src/compat/$_"  &&
 	    ! -f "$ENV{QTDIR}/src/attic/$_" )
 	{
 	    $p="$dir/$_";
@@ -208,8 +212,9 @@ sub do_headers
 	    if ( $printpath ) {
 		$path = $dir{$h};
 		if ( $path ) {
-		    $path =~ s{.*/}{../};
-		    $path .= "/";
+		    ###$path =~ s{.*/}{../};
+		    ###$path .= "/";
+		    $path = "private/"
 		} else {
 		    $path = "";
 		}
