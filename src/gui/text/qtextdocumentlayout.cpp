@@ -708,8 +708,8 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
         QTextFrameData *cd = data(c);
-        QRect oldBr = cd->boundingRect;
         if (cd->dirty) {
+            QRect oldBr = cd->boundingRect;
             layoutFrame(c, layoutFrom, layoutTo);
             // removes all floats that need repositioning
             if (0 /*!cd->position == QTextFrameFormat::Absolute*/) {
