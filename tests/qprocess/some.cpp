@@ -149,6 +149,12 @@ void Some::procInit( bool start, int com, QStringList *env )
 	proc->addArgument( "arg .;\\\"" );
 	proc->addArgument( "arg .;.\\\"\\ text" );
 	proc->addArgument( "arg .;.\\\"\\" );
+	proc->addArgument( "" );
+	proc->addArgument( "no quotes should occur" );
+	proc->addArgument( "-mail" );
+	proc->addArgument( "" );
+	proc->addArgument( "the argument should be quoted" );
+	proc->addArgument( "\"-mail\"" );
 	hideAfterExit = FALSE;
 	break;
     default:

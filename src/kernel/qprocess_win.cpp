@@ -241,17 +241,21 @@ bool QProcess::start( QStringList *env )
     for ( ; it != _arguments.end(); ++it ) {
 	QString tmp = *it;
 	// escape a single " because the arguments will be parsed
-	tmp.replace( "\"", "\\\"" );
-	// The argument must not end with a \ since this would be interpreted
-	// as escaping the quote -- rather put the \ behind the quote: e.g.
-	// rather use "foo"\ than "foo\"
-	QString endQuote( "\"" );
-	uint i = tmp.length();
-	while ( i>=0 && tmp.at( i-1 ) == '\\' ) {
-	    --i;
-	    endQuote += "\\";
+	tmp.replace( QRegExp("\""), "\\\"" );
+	if ( tmp.isEmpty() || tmp.contains( ' ' ) || tmp.contains( '\t' ) ) {
+	    // The argument must not end with a \ since this would be interpreted
+	    // as escaping the quote -- rather put the \ behind the quote: e.g.
+	    // rather use "foo"\ than "foo\"
+	    QString endQuote( "\"" );
+	    uint i = tmp.length();
+	    while ( i>=0 && tmp.at( i-1 ) == '\\' ) {
+		--i;
+		endQuote += "\\";
+	    }
+	    args += QString( " \"" ) + tmp.left( i ) + endQuote;
+	} else {
+	    args += QString( " " ) + tmp;
 	}
-	args += QString( " \"" ) + tmp.left( i ) + endQuote;
     }
 
     // CreateProcess()
