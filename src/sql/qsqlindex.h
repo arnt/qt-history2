@@ -55,12 +55,12 @@ template class Q_EXPORT QValueList<bool>;
 class Q_EXPORT QSqlIndex : public QSqlRecord
 {
 public:
-    QSqlIndex( const QString& tablename = QString::null, const QString& name = QString::null );
+    QSqlIndex( const QString& cursorName = QString::null, const QString& name = QString::null );
     QSqlIndex( const QSqlIndex& other );
     ~QSqlIndex();
     QSqlIndex&       operator=( const QSqlIndex& other );
-    QString          tableName() const { return table; }
-    void             setTableName( const QString& tableName ) { table = tableName; }
+    QString          cursorName() const { return cursor; }
+    void             setCursorName( const QString& cursorName ) { cursor = cursorName; }
     void             setName( const QString& name );
     QString          name() const;
 
@@ -73,7 +73,7 @@ public:
     QString          toString( const QString& prefix = QString::null ) const;
 
 private:
-    QString          table;
+    QString          cursor;
     QString          nm;
     QValueList<bool> sorts;
 };

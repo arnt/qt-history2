@@ -62,8 +62,8 @@
 
 */
 
-QSqlIndex::QSqlIndex( const QString& tablename, const QString& name )
-    : QSqlRecord(), table(tablename), nm(name)
+QSqlIndex::QSqlIndex( const QString& cursorname, const QString& name )
+    : QSqlRecord(), cursor(cursorname), nm(name)
 {
 
 }
@@ -73,13 +73,13 @@ QSqlIndex::QSqlIndex( const QString& tablename, const QString& name )
 */
 
 QSqlIndex::QSqlIndex( const QSqlIndex& other )
-    : QSqlRecord(other), table(other.table), nm(other.nm), sorts(other.sorts)
+    : QSqlRecord(other), cursor(other.cursor), nm(other.nm), sorts(other.sorts)
 {
 }
 
 QSqlIndex& QSqlIndex::operator=( const QSqlIndex& other )
 {
-    table = other.table;
+    cursor = other.cursor;
     nm = other.nm;
     sorts = other.sorts;
     QSqlRecord::operator=( other );
@@ -183,5 +183,13 @@ QString QSqlIndex::toString( const QString& prefix ) const
     }
     return s;
 }
+
+/*! \fn QString QSqlIndex::cursorName() const
+  Returns the name of the cursor which the index is associated with.
+*/
+
+/*! \fn void QSqlIndex::setCursorName( const QString& cursorName )
+  Sets the name of the cursor that the index is associated with to \a cursorName.
+*/
 
 #endif

@@ -1249,7 +1249,7 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 	if ( !d->cursor )
 	    return;
 	QSqlIndex lastSort = d->cursor->sort();
-	QSqlIndex newSort( lastSort.tableName() );
+	QSqlIndex newSort( lastSort.cursorName(), "newSort" );
 	newSort.append( *d->cursor->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );

@@ -659,13 +659,13 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
-    QSqlIndex idx;
+    QSqlIndex idx( tablename );
     QSqlQuery i = createQuery();
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
     case QPSQLDriver::Version7:
-	stmt = "select a.attname from pg_attribute a, pg_class c1,"
+	stmt = "select a.attname, c2.relname from pg_attribute a, pg_class c1,"
 		  "pg_class c2, pg_index i where c1.relname = '%1' "
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;";
@@ -675,6 +675,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     while ( i.isActive() && i.next() ) {
 	QSqlField f = qMakeField( pro, this, tablename,  i.value(0).toString() );
 	idx.append( f );
+	idx.setName( i.value(1).toString() );
     }
     return idx;
 }

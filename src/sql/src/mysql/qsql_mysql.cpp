@@ -347,6 +347,8 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
 	if ( i.value(2).toString() == "PRIMARY" ) {
 	    QSqlRecord fil = record( tablename );
 	    idx.append( *fil.field( i.value(3).toInt()-1 ) );
+	    idx.setCursorName( i.value(0).toString() );
+	    idx.setName( i.value(2).toString() );
 	    break;
 	}
     }

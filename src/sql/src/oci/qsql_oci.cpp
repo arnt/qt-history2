@@ -985,7 +985,7 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlQuery t = createQuery();
-    QString stmt ("select b.column_name, b.data_type "
+    QString stmt ("select b.column_name, b.data_type, c.index_name "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "
 		  "and a.table_name = '%1' "
@@ -995,8 +995,9 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     t.exec( stmt.arg( tablename.upper() ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
-	QSqlField f(t.value(0).toString(), qDecodeOCIType(t.value(1).toInt()) );
+	QSqlField f( t.value(0).toString(), qDecodeOCIType(t.value(1).toInt()) );
 	idx.append( f );
+	idx.setName( t.value(2).toString() );
     }
     return idx;
     return QSqlIndex();

@@ -1030,7 +1030,7 @@ QStringList QODBCDriver::tables( const QString& user ) const
 
 QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 {
-    QSqlIndex index;
+    QSqlIndex index( tablename );
     SQLHANDLE hStmt;
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
@@ -1084,6 +1084,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 	QString fieldVal = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
 	QSqlField f = qMakeField( d, tablename, fieldVal );
 	index.append( f );
+	index.setName( qGetStringData( hStmt, 5, lengthIndicator, isNull ) ); // pk index name
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
