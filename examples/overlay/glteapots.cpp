@@ -81,6 +81,7 @@ GLTeapots::GLTeapots( QWidget* parent, const char* name )
 
 GLTeapots::~GLTeapots()
 {
+    makeCurrent();
     glDeleteLists( teapotList, 1 );
 }
 

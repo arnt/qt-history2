@@ -42,6 +42,7 @@ GLBox::GLBox( QWidget* parent, const char* name )
 
 GLBox::~GLBox()
 {
+    makeCurrent();
     glDeleteLists( object, 1 );
 }
 

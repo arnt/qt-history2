@@ -52,6 +52,7 @@ GLTexobj::GLTexobj( QWidget* parent, const char* name )
 
 GLTexobj::~GLTexobj()
 {
+    makeCurrent();
     glDeleteLists( object, 1 );
 }
 
