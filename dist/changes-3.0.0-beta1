@@ -911,6 +911,8 @@ Obsolete functions:
 
 Removed functions:
 	QRegExp::find( const QString& str, int index ) const; - has been renamed QRegExp::search()
+	QFont::charSet() const, not needed anymore
+	QFont::setCharSet( QFont::CharSet ), not needed anymore
 
 Removed preprocessor directives:
 	qcstring.h no longer contains the following defines:
