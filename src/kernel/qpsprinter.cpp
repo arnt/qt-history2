@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#82 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -422,7 +422,6 @@ static const char *ps_header[] = {
 "/BF {",				// brush fill
 "    BSt 9 ge BSt 14 le and",		// valid brush pattern?
 "    {",
-"     BFDict begin",
 "     GS",
 "     WFi { clip } { eoclip } ifelse",
 "     defM SM",
@@ -2456,7 +2455,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_SETROP:
 #if defined(DEBUG)
-	    if ( p[0].ival != CopyROP )
+	    if ( p[0].ival != Qt::CopyROP )
 		debug( "QPrinter: Raster operation setting not supported" );
 #endif
 	    break;
