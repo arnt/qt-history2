@@ -1110,6 +1110,9 @@ QFont::StyleHint QFont::styleHint() const
     If these aren't set explicitly the style hint will default to
     \c AnyStyle and the style strategy to \c PreferDefault.
 
+    Qt does not support style hints on X11 since this information
+    is not provided by the window system.
+
     \sa StyleHint, styleHint(), StyleStrategy, styleStrategy(), QFontInfo
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
