@@ -6,6 +6,7 @@
 #include <qheader.h>
 #include <qlistbox.h>
 #include <qlineedit.h>
+#include "pixmapchooser.h"
 
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
@@ -141,6 +142,8 @@ void TableEditor::newRowClicked()
 
 void TableEditor::okClicked()
 {
+    applyClicked();
+    accept();
 }
 
 void TableEditor::rowDownClicked()
@@ -188,18 +191,52 @@ void TableEditor::applyClicked()
 
 void TableEditor::chooseRowPixmapClicked()
 {
+    if ( listRows->currentItem() == -1 )
+	return;
+    QPixmap pix;
+    if ( listRows->item( listRows->currentItem() )->pixmap() )
+	pix = qChoosePixmap( this, formWindow, *listRows->item( listRows->currentItem() )->pixmap() );
+    else
+	pix = qChoosePixmap( this, formWindow, QPixmap() );
+
+    if ( pix.isNull() )
+	return;
+
+    table->verticalHeader()->setLabel( listRows->currentItem(), pix, table->verticalHeader()->label( listRows->currentItem() ) );
+    listRows->changeItem( pix, listRows->currentText(), listRows->currentItem() );
 }
 
 void TableEditor::deleteRowPixmapClicked()
 {
+    if ( listRows->currentItem() == -1 )
+	return;
+    table->verticalHeader()->setLabel( listRows->currentItem(), QPixmap(), table->verticalHeader()->label( listRows->currentItem() ) );
+    listRows->changeItem( listRows->currentText(), listRows->currentItem() );
 }
 
 void TableEditor::chooseColPixmapClicked()
 {
+    if ( listColumns->currentItem() == -1 )
+	return;
+    QPixmap pix;
+    if ( listColumns->item( listColumns->currentItem() )->pixmap() )
+	pix = qChoosePixmap( this, formWindow, *listColumns->item( listColumns->currentItem() )->pixmap() );
+    else
+	pix = qChoosePixmap( this, formWindow, QPixmap() );
+
+    if ( pix.isNull() )
+	return;
+
+    table->horizontalHeader()->setLabel( listColumns->currentItem(), pix, table->horizontalHeader()->label( listColumns->currentItem() ) );
+    listColumns->changeItem( pix, listColumns->currentText(), listColumns->currentItem() );
 }
 
 void TableEditor::deleteColPixmapClicked()
 {
+    if ( listColumns->currentItem() == -1 )
+	return;
+    table->horizontalHeader()->setLabel( listColumns->currentItem(), QPixmap(), table->horizontalHeader()->label( listColumns->currentItem() ) );
+    listColumns->changeItem( listColumns->currentText(), listColumns->currentItem() );
 }
 
 void TableEditor::readFromTable()

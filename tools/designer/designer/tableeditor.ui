@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>619</width>
-            <height>351</height>
+            <width>611</width>
+            <height>347</height>
         </rect>
     </property>
     <property name="caption">
@@ -693,16 +693,22 @@
         <slot>deleteColPixmapClicked()</slot>
     </connection>
     <connection>
-        <sender>buttonChooseColPixmap</sender>
-        <signal>pressed()</signal>
-        <receiver>TableEditorBase</receiver>
-        <slot>chooseColPixmapClicked()</slot>
-    </connection>
-    <connection>
         <sender>editRowText</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>TableEditorBase</receiver>
         <slot>rowTextChanged( const QString &amp; )</slot>
+    </connection>
+    <connection>
+        <sender>buttonCancel</sender>
+        <signal>clicked()</signal>
+        <receiver>TableEditorBase</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>buttonChooseColPixmap</sender>
+        <signal>clicked()</signal>
+        <receiver>TableEditorBase</receiver>
+        <slot>chooseColPixmapClicked()</slot>
     </connection>
     <slot access="protected">applyClicked()</slot>
     <slot access="protected">chooseRowPixmapClicked()</slot>
