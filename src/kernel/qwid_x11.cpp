@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#60 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#59 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#60 $";
 #endif
 
 
@@ -203,6 +203,15 @@ bool QWidget::destroy()				// destroy widget
 }
 
 
+/*! This function is provided in case a widget should feel \e really
+  bad, regret that it was even born.
+
+  It gives the widget a fresh start, new \e parent, new widget flags
+  (\e f but as usual, use 0) at a new position in its new parent (\e p).
+
+  If \e showIt is TRUE, show() is called once the widget has been
+  recreated. */
+
 void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
@@ -344,18 +353,18 @@ void QWidget::setFont( const QFont &font )	// set font
 
 
 /*! Returns the cursor in use; the QCursor class lists the
-  cursors. \sa QCursor and setcursor().*/
+  cursors. \sa QCursor and setCursor().*/
 QCursor QWidget::cursor() const			// get cursor
 {
     return curs;
 }
 
-/*! Set the cursor shape.  The mouse cursor will assume this shape
+/*! Sets the cursor shape.  The mouse cursor will assume this shape
   when it's over this widget.  The available shapes are listed in the
   QCursor documentation.
 
   \code
-  setcursor( QCursor::hourGlassCursor );
+  setCursor( QCursor::hourGlassCursor );
   \endcode
 
   \sa QCursor, cursor().  */
@@ -369,7 +378,7 @@ void QWidget::setCursor( const QCursor &cursor )// set cursor
 }
 
 
-/*! Grab the mouse.  The focus will remain in the widget, even if the
+/*! Grabs the mouse.  The focus will remain in the widget, even if the
   mouse is moved outside the widget's limits. \sa releaseMouse(),
   grabKeyboard(), releaseKeyboard(). */
 
@@ -385,7 +394,7 @@ void QWidget::grabMouse()
     }
 }
 
-/*! Grab the mouse and change the cursor appearance.  The cursor will
+/*! Grabs the mouse and change the cursor appearance.  The cursor will
   assume shape \e cursor (for as long as the mouse focus is grabbed)
   and the focus will remain in the widget, even if the mouse is moved
   outside the widget's limits. \sa releaseMouse(), grabKeyboard(),
@@ -403,7 +412,7 @@ void QWidget::grabMouse( const QCursor &cursor )
     }
 }
 
-/*! Release the mouse.  The focus will leave the widget when the mouse
+/*! Releases the mouse.  The focus will leave the widget when the mouse
   moves beyond the widget's limits.  \sa grabMouse(), grabKeyboard(),
   releaseMouse(). */
 
@@ -415,7 +424,7 @@ void QWidget::releaseMouse()
     }
 }
 
-/*! Grab the keyboard focus.  This widget will receive all keyboard
+/*! Grabs the keyboard focus.  This widget will receive all keyboard
   events, no matter where the mouse cursor is.  \sa releaseKeyboard(),
   grabMouse(), releaseMouse(). */
 
@@ -428,7 +437,7 @@ void QWidget::grabKeyboard()
     }
 }
 
-/*! Release the keyboard focus.  The keyboard events will follow their
+/*! Releases the keyboard focus.  The keyboard events will follow their
   natural inclination (generally towards the widget the mouse is
   pointing at). \sa grabKeyboard(), grabMouse(), releaseMouse(). */
 
@@ -610,6 +619,11 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
     XSetNormalHints( dpy, ident, s );
 }
 
+/*! Moves the widget.  \e x and \e y, I do believe, are relative to the
+  widget's arent.  If necessary, the window manager is told about the
+  change. A \link QWidget::moveEvent move event \endlink is sent at
+  once. \sa resize(), setGeometry(), QWidget::moveEvent().*/
+
 void QWidget::move( int x, int y )		// move widget
 {
     QPoint p(x,y);
@@ -627,8 +641,19 @@ void QWidget::move( int x, int y )		// move widget
     }
     XMoveWindow( dpy, ident, x, y );
     QMoveEvent e( r.topLeft() );
-    QApplication::sendEvent( this, &e );	// send move event immediatly
+    QApplication::sendEvent( this, &e );	// send move event immediately
 }
+
+/*! \fn void QWidget::move( const QPoint &p )
+
+  Moves the widget to position \e p, which is relative to the widget's
+  arent.  If necessary, the window manager is told about the
+  change.  A \link moveEvent move event \endlink is sent at
+  once. \sa resize(), setGeometry(), moveEvent(). */
+
+/*! Resizes the widget to size \e w pixels by \e h.  If necessary, the
+  window manager is told about the change.  A resize event is sent at
+  once. \sa move(), setGeometry(), resizeEvent(). */
 
 void QWidget::resize( int w, int h )		// resize widget
 {
@@ -653,6 +678,29 @@ void QWidget::resize( int w, int h )		// resize widget
     QResizeEvent e( s );
     QApplication::sendEvent( this, &e );	// send resize event immediatly
 }
+
+/*! \fn void QWidget::resize(const QSize & p)
+
+  Resizes the widget to size \e p.  If necessary, the window manager
+  is told about the change.  A resize event is sent at once. \sa
+  move(), setGeometry(), resizeEvent(). */
+
+/*! \fn void QWidget::setGeometry( const QRect &r )
+
+  Changes the widget geometry to \e r, relative to its parent
+  widget.  If necessary, the window manager is informed.  First a
+  resize and then a move event is sent to the widget itself.  \sa
+  move(), resize(). */
+
+/*! Changes the widget geometry to \e x pixels by \e y, positioned at
+  \e w,h in its parent widget.  If necessary, the window manager is
+  informed.  First a resize and then a move event is sent to the widget
+  itself.
+
+  This function is virtual, and all other overloaded setGeometry()
+  implementations call it.
+
+  \sa move(), resize(). */
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {						// move and resize widget
@@ -731,11 +779,24 @@ void QWidget::setSizeIncrement( int w, int h )
     }
 }
 
+/*! Clears the widget on-screen.  Child widgets are not disturbed, and
+  repaint events are \e not generated. */
 
 void QWidget::erase()				// erase widget contents
 {
     XClearArea( dpy, ident, 0, 0, 0, 0, FALSE );
 }
+
+/*! Move the contents of the widget \e dx pixels rightwards and \e dy
+  pixels downwards.  If \e dx/dy is negative, the move is
+  leftwards/upwards.  Child widgets are moved accordingly.
+
+  The leftmost/top/rightmost/bottom (you know where) part of the
+  widget is cleared, and repaint events will eventually be generated
+  for it.  It's better, though, to redraw at once, if you wait for
+  repaint() the screen may flicker.
+
+  \sa setBackgroundColor(), setBackgroundPixmap(). */
 
 void QWidget::scroll( int dx, int dy )		// scroll widget contents
 {
@@ -785,6 +846,17 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
     }
 }
 
+/*! \fn void QWidget::drawText( const QPoint &p, const char *s )
+
+  Writes \e s to position \e p.  The y position is the base line, not
+  the top or bottom of the text.  The text is drawn in the current
+  font and so on.  \sa setFont(), FontMetrics(),
+  QPainter::drawText. */
+
+/*! Writes \e str to position \e x,y.  The y position is the base
+  line, not the top or bottom of the text.  The text is drawn in the
+  current font and so on.  \sa setFont(), FontMetrics(),
+  QPainter::drawText. */
 
 void QWidget::drawText( int x, int y, const char *str )
 {						// draw text in widget
@@ -796,6 +868,17 @@ void QWidget::drawText( int x, int y, const char *str )
     }
 }
 
+
+/*! Returns any of several widget metrics.  This may be of use
+  e.g. for selecting monochrome or color appearance in a widget, but
+  application programmers are best advised to forget that metric()
+  exists.
+
+  The metric commands are defined in qpaintdc.h.  At the time of
+  writing, <code>PDM_WIDTH, PDM_HEIGHT, PDM_WIDTHMM, PDM_HEIGHTMM,
+  PDM_NUMCOLORS</code> and \c PDM_NUMPLANES are supported.  \c
+  PDM_NUMCOLORS returns the number of actual colors, not the number of
+  possible colors, use \e PDM_NUMPLANES if that's what you want. */
 
 long QWidget::metric( int m ) const		// get metric information
 {
@@ -810,7 +893,7 @@ long QWidget::metric( int m ) const		// get metric information
 	int scr = qt_xscreen();
 	switch ( m ) {
 	    case PDM_WIDTHMM:
-	        val = ((long)DisplayWidthMM(dpy,scr)*crect.width())/
+		val = ((long)DisplayWidthMM(dpy,scr)*crect.width())/
 		      DisplayWidth(dpy,scr);
 		break;
 	    case PDM_HEIGHTMM:
