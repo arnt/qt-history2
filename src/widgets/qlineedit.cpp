@@ -1027,7 +1027,7 @@ void QLineEdit::drawContents( QPainter *painter )
     if ( paletteBackgroundPixmap() )
 	bg = QBrush( g.background(), *paletteBackgroundPixmap() );
     else if ( !isEnabled() )
-	g.brush( QColorGroup::Background );
+	bg = g.brush( QColorGroup::Background );
 
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
