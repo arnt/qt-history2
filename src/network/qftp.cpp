@@ -2196,6 +2196,7 @@ void QFtp::npDone( bool err )
 {
     QFtpPrivate *d = ::d( this );
 
+    bool emitFinishedSignal = FALSE;
     QNetworkOperation *op = operationInProgress();
     if ( op ) {
 	if ( err ) {
@@ -2225,7 +2226,7 @@ void QFtp::npDone( bool err )
 			break;
 		}
 	    }
-	    emit finished( op );
+	    emitFinishedSignal = TRUE;
 	} else if ( !d->npWaitForLoginDone ) {
 	    switch ( op->operation() ) {
 		case OpRemove:
@@ -2246,7 +2247,7 @@ void QFtp::npDone( bool err )
 		    break;
 	    }
 	    op->setState( StDone );
-	    emit finished( op );
+	    emitFinishedSignal = TRUE;
 	}
     }
     d->npWaitForLoginDone = FALSE;
@@ -2263,6 +2264,10 @@ void QFtp::npDone( bool err )
 	disconnect( this, SIGNAL(readyRead()),
 		    this, SLOT(npReadyRead()) );
     }
+
+    // emit the finished() signal at the very end to avoid reentrance problems
+    if ( emitFinishedSignal )
+	emit finished( op );
 }
 
 void QFtp::npStateChanged( int state )
