@@ -707,8 +707,9 @@ QStringList QFileDialog::filters() const
 
 void QFileDialog::selectFilter(const QString &filter)
 {
-    d->fileType->setCurrentText(filter);
-    setFilter(filter);
+    int i = d->fileType->findItem(filter, QAbstractItemModel::MatchExactly);
+    if (i >= 0)
+        d->fileType->setCurrentItem(i);
 }
 
 /*!
@@ -749,25 +750,25 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 void QFileDialog::setFileMode(FileMode mode)
 {
     d->fileMode = mode;
-    QDir::FilterSpec spec;
+    int spec = QDir::AllDirs|QDir::Drives;
     switch (mode) {
     case DirectoryOnly:
         d->fileType->clear();
         d->fileType->insertItem(QFileDialog::tr("Directories"));
         d->fileType->setEnabled(false);
         d->setSelectionMode(QAbstractItemView::SingleSelection);
-        spec = QDir::Dirs;
+        spec |= QDir::Dirs;
         break;
     case Directory:
     case AnyFile:
     case ExistingFile:
         d->setSelectionMode(QAbstractItemView::SingleSelection);
-        spec = QDir::All;
+        spec |= QDir::All;
         break;
     case ExistingFiles:
     default:
         d->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        spec = QDir::All;
+        spec |= QDir::All;
     }
     d->model->setFilter(spec);
 }
@@ -1657,10 +1658,10 @@ static QFileDialog *qt_create_file_dialog(QWidget *parent,
     dlg->setDirectory(dir);
     dlg->setModal(true);
     dlg->setWindowTitle(caption);
-    if (filter != QString())
+    if (!filter.isEmpty())
         dlg->setFilters(qt_make_filter_list(filter));
-    if (selectedFilter)
-        dlg->selectFilter(*selectedFilter);
+//     if (selectedFilter)
+//         dlg->selectFilter(*selectedFilter);
     if (!initialSelection.isEmpty())
         dlg->selectFile(initialSelection);
     return dlg;
