@@ -114,6 +114,96 @@ ushort QUnicodeTables::ligature(ushort u1, ushort u2)
     return 0;
 }
 
+static QString decompose(const QString &str, bool canonical)
+{
+    QString s = str;
+
+    const unsigned short *utf16 = s.utf16();
+    const unsigned short *uc = utf16 + s.length();
+    while (uc != utf16) {
+        uint ucs4 = *(--uc);
+        if (ucs4 >= 0xd800 && ucs4 < 0xdc00 && uc != utf16) {
+            ushort low = *(uc - 1);
+            if (low >= 0xdc00 && low < 0xe000) {
+                --uc;
+                ucs4 = (ucs4 - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+            }
+        }
+        const unsigned short index = GET_DECOMPOSITION_INDEX(ucs4);
+        if (index == 0xffff)
+            continue;
+        const unsigned short *decomposition = uc_decomposition_map+index;
+        if (canonical && ((*decomposition) & 0xff) != QChar::Canonical)
+            continue;
+
+        uint length = (*decomposition) >> 8;
+        s.replace(uc - utf16, ucs4 > 0x10000 ? 2 : 1, (const QChar *)(decomposition+1), length);
+        // since the insert invalidates the pointers and we do decomposition recursive
+        int pos = uc - utf16;
+        utf16 = s.utf16();
+        uc = utf16 + pos + length;
+    }
+
+    return s;
+}
+
+static QString compose(const QString &str)
+{
+    QString s = str;
+
+    // the loop can ignore high Unicode as all ligatures are in the BMP
+    const unsigned short *uc = s.utf16();
+    const unsigned short *end = uc + s.length();
+    ushort last = *(uc++);
+    while (uc != end) {
+        ushort utf16 = *uc;
+        const unsigned short index = GET_LIGATURE_INDEX(utf16);
+        if (index != 0xffff) {
+            const unsigned short *ligatures = uc_ligature_map+index;
+            ushort length = *ligatures;
+            ++ligatures;
+            // ### use bsearch
+            for (uint i = 0; i < length; ++i) {
+                if (ligatures[2*i] == last) {
+                    QChar ligature = ligatures[2*i+1];
+                    int pos = uc - s.utf16() - 1;
+                    s.replace(pos, 2, &ligature, 1);
+                    // since the insert invalidates the pointers and we do decomposition recursive
+                    uc = s.utf16() + pos;
+                    end = s.utf16() + s.length();
+                    utf16 = ligature.unicode();
+                    break;
+                }
+            }
+        }
+        last = utf16;
+        uc++;
+    }
+    return s;
+}
+
+
+static QString canonicalOrder(const QString &str)
+{
+    // #####
+    return str;
+}
+
+QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::NormalizationMode mode)
+{
+    // first decomposition
+    QString s = decompose(str, mode < QUnicodeTables::NormalizationMode_KD);
+
+    // now canonical ordering
+    s = canonicalOrder(s);
+
+    if (mode == QUnicodeTables::NormalizationMode_D || mode == QUnicodeTables::NormalizationMode_KD)
+        return s;
+
+    // last composition
+    return compose(s);
+}
+
 enum Script {
     // European Alphabetic Scripts
     Latin,
