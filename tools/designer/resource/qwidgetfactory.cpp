@@ -284,6 +284,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 				eventInterface->setEventHandler( it.key(), widgetFactory->toplevel, *eit, func );
 			}
 		    }
+		    eventInterface->release();
+		    interpreterInterface->release();
 		}
 	    }
 	}
