@@ -688,6 +688,7 @@ void TrWindow::openFile( const QString& name )
 #ifdef notyet
 		replaceAct->setEnabled( TRUE );
 #endif
+		lv->setCurrentItem( lv->firstChild() );
 	    }
 	    addRecentlyOpenedFile( name, recentFiles );
 	} else {
@@ -1815,6 +1816,9 @@ void TrWindow::setupMenuBar()
 			       this, SLOT(toggleGuessing()) );
     doGuessesAct->setToggleAction( TRUE );
     doGuessesAct->setOn( TRUE );
+    viewp->insertSeparator();
+    viewp->insertItem( tr("Vie&ws"), createDockWindowMenu( NoToolBars ) );
+    viewp->insertItem( tr("&Toolbars"), createDockWindowMenu( OnlyToolBars ) );
 
     // Help
     manualAct = new Action( helpp, tr("&Manual..."), this, SLOT(manual()),
@@ -2257,10 +2261,10 @@ void TrWindow::menuAboutToShow()
     
     QDockWindow * sourceDock = (QDockWindow *) slv->parent();
     QDockWindow * phraseDock = (QDockWindow *) plv->parent()->parent();
-    int id = menu->insertItem( "Source text", sourceDock,
+    int id = menu->insertItem( tr("Source text"), sourceDock,
 			       SLOT( toggleVisible() ), 0, -1, 1 );
     menu->setItemChecked( id, sourceDock->isVisible() );
-    id = menu->insertItem( "Phrases", phraseDock, SLOT( toggleVisible() ),
+    id = menu->insertItem( tr("Phrases"), phraseDock, SLOT( toggleVisible() ),
 			   0, -1, 2 );
     menu->setItemChecked( id, phraseDock->isVisible() );
 }
