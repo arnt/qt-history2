@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#29 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#30 $
 **
 ** Definition of QFileDialog class
 **
@@ -68,6 +68,10 @@ public:
     static QString getExistingDirectory( const char *dir = 0,
 					 QWidget *parent = 0,
 					 const char *name = 0 );
+    static QStrList getOpenFileNames( const char *filter= 0,
+				      const char * dir = 0,
+				      QWidget *parent = 0,
+				      const char *name = 0);
 
     // other static functions
 
@@ -86,7 +90,7 @@ public:
 
     void rereadDir();
 
-    enum Mode { AnyFile, ExistingFile, Directory };
+    enum Mode { AnyFile, ExistingFile, Directory, ExistingFiles };
     void setMode( Mode );
     Mode mode() const;
 

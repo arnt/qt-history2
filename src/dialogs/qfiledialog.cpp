@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#112 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#113 $
 **
 ** Implementation of QFileDialog class
 **
@@ -634,7 +634,7 @@ void QFileDialogPrivate::MCList::keyPressEvent( QKeyEvent * e )
 	update();
 	return;
     default:
-	if ( e->ascii() ) {
+	if ( e->ascii() > 32 && e->ascii() < 127 ) {
 	    QListViewItem * oldFile = lv->currentItem();
 	    QApplication::sendEvent( lv, e );
 	    QListViewItem * newFile = lv->currentItem();
@@ -1014,11 +1014,8 @@ void QFileDialog::setFilter( const char * newFilter )
 
 void QFileDialog::setDir( const char *pathstr )
 {
-    if ( strcmp(cwd.path(),pathstr) == 0 )
-	return;
-    cwd.setPath( pathstr );
-    cwd.convertToAbs();
-    rereadDir();
+    QDir tmp( pathstr );
+    setDir( tmp );
 }
 
 /*!
@@ -1038,10 +1035,15 @@ const QDir *QFileDialog::dir() const
 
 void QFileDialog::setDir( const QDir &dir )
 {
+    if ( !dir.exists() ||
+	 dir.absPath() == cwd.absPath() )
+	return;
     cwd = dir;
     cwd.convertToAbs();
     cwd.setMatchAllDirs( TRUE );
     cwd.setSorting( cwd.sorting() );
+    QFileInfo i( cwd, nameEdit->text() );
+    trySetSelection( i, FALSE );
     rereadDir();
 }
 
@@ -1087,6 +1089,8 @@ void QFileDialog::rereadDir()
 	    return;
 	}
 	if ( !filist ) {
+	    QString tmp( cwd.absPath() );
+	
 	    // change to parent, reread
 	    // ...
 
@@ -1102,8 +1106,12 @@ void QFileDialog::rereadDir()
     while ( (fi = it.current()) != 0 ) {
 	++it;
 	if ( fi->fileName() != "." &&
-	     ( !cwd.isRoot() || fi->fileName() != ".." ) )
-	    (void) new QFileDialogPrivate::File( fi, files, itemHeight );
+	     ( !cwd.isRoot() || fi->fileName() != ".." ) ) {
+	    QListViewItem * i 
+		= new QFileDialogPrivate::File( fi, files, itemHeight );
+	    if ( mode() == ExistingFiles && fi->isDir() )
+		i->setSelectable( FALSE );
+	}
     }
     d->moreFiles->clear();
     d->moreFiles->repaint();
@@ -1480,6 +1488,8 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	    d->currentFileName = info.absFilePath();
 	else
 	    d->currentFileName = 0;
+    } else if ( info.isFile() && mode() == ExistingFiles ) {
+	d->currentFileName = info.absFilePath();
     } else if ( info.isFile() || (mode() == AnyFile && !info.isDir()) ) {
 	d->currentFileName = info.absFilePath();
     } else {
@@ -1495,6 +1505,8 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	okB->setEnabled( TRUE );
 	if ( d->currentFileName.isNull() && info.isDir() )
 	    okB->setText(tr("Open"));
+	else if ( mode() == ExistingFiles && info.isFile() )
+	    okB->setText(tr("Select"));
 	else
 	    okB->setText(tr("OK")); // ### Or "Save"...
     } else {
@@ -1603,7 +1615,16 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
     if ( !newItem )
 	return;
 
-    if ( files->isSelected(newItem) ) {
+    if ( mode() == ExistingFiles ) {
+	bool ok = files->isSelected( newItem );
+	QListViewItem * i = files->firstChild();
+	while( i && !ok ) {
+	    ok = i->isSelected();
+	    i = i->nextSibling();
+	}
+	okB->setText( tr( "OK" ) );
+	okB->setEnabled( ok );
+    } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 	trySetSelection( i->info, TRUE );
     }
@@ -1636,8 +1657,10 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    trySetSelection( f, TRUE );
 	}
     } else if ( trySetSelection( i->info, TRUE ) ) {
-	emit fileSelected( d->currentFileName );
-	accept();
+	if ( mode() != Directory ) {
+	    emit fileSelected( d->currentFileName );
+	    accept();
+	}
     }
 }
 
@@ -1750,14 +1773,17 @@ QString QFileDialog::getExistingDirectory( const char *dir,
 void QFileDialog::setMode( Mode newMode )
 {
     if ( d->mode != newMode ) {
+	cwd.setFilter( QDir::All );
 	d->mode = newMode;
 	QString sel = d->currentFileName;
 	if ( newMode == Directory ) {
-	    cwd.setFilter( QDir::Dirs | QDir::Drives );
+	    files->setMultiSelection( FALSE );
 	    if ( sel.isNull() )
 		sel = ".";
+	} else if ( newMode == ExistingFiles ) {
+	    files->setMultiSelection( TRUE );
 	} else {
-	    cwd.setFilter( QDir::All );
+	    files->setMultiSelection( FALSE );
 	}
 	rereadDir();
 	QFileInfo f ( cwd, sel );
@@ -1819,16 +1845,44 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 {
     if ( ke && ( ke->key() == Key_Enter ||
 		 ke->key() == Key_Return ) ) {
-	if ( focusWidget() == d->paths ||
-	     focusWidget() == d->types ) {
+	if ( d->paths->hasFocus() ) {
 	    ke->accept();
+	    if ( cwd.absPath() == d->paths->currentText() )
+		nameEdit->setFocus();
+	} else if ( d->types->hasFocus() ) {
+	    ke->accept();
+	    // ### is there a suitable condition for this?  only valid
+	    // wildcards?
+	    nameEdit->setFocus();
 	} else if ( focusWidget() == nameEdit ) {
 	    if ( d->currentFileName.isNull() ) {
 		// maybe change directory
 		QFileInfo i( cwd, nameEdit->text() );
 		if ( i.isDir() ) {
-		    setDir( i.filePath() );
 		    nameEdit->setText( "" );
+		    setDir( i.filePath() );
+		}
+		ke->accept();
+	    } else if ( mode() == ExistingFiles ) {
+		QString tmp( nameEdit->text() );
+		if ( !tmp.isEmpty() && !tmp.contains( "/" ) ) {
+		    QFileInfo fi1( cwd, tmp );
+		    if ( fi1.isFile() ) {
+			QListViewItem * i = files->firstChild();
+			while( i ) {
+			    if ( tmp == i->text( 0 ) ) {
+				files->setSelected( i, TRUE );
+				files->ensureItemVisible( i );
+				i = i->nextSibling();
+				if ( i ) {
+				    files->setCurrentItem( i );
+				    i = 0;
+				}
+			    } else {
+				i = i->nextSibling();
+			    }
+			}
+		    }
 		}
 		ke->accept();
 	    }
@@ -1916,24 +1970,21 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return TRUE;
     if ( o == files && e->type() == Event_FocusOut &&
-	 files->currentItem() ) {
+	 files->currentItem() && mode() != ExistingFiles ) {
 	files->setSelected( files->currentItem(), FALSE );
     } else if ( o == nameEdit && e->type() == Event_KeyPress ) {
 	// ### hack.  after 1.40, we need to merge the completion code
 	// ### here, in QListView and QComboBox.
-	if ( !files->currentItem() )
-	    files->setCurrentItem( files->firstChild() );
 	if ( files->currentItem() && isprint(((QKeyEvent *)e)->ascii()) ) {
-	    files->blockSignals( TRUE );
-	    QApplication::sendEvent( files, e );
-	    files->blockSignals( FALSE );
 	    QString nt( nameEdit->text() );;
 	    nt.detach();
 	    nt.truncate( nameEdit->cursorPosition() );
 	    nt += (char)(((QKeyEvent *)e)->ascii());
-	    if ( !qstrncmp( nt, files->currentItem()->text( 0 ),
-			    nt.length() ) ) {
-		nt = files->currentItem()->text( 0 );
+	    QListViewItem * i = files->firstChild();
+	    while( i && qstrncmp( i->text( 0 ), nt, nt.length() ) )
+		i = i->nextSibling();
+	    if ( i ) {
+		nt = i->text( 0 );
 		int cp = nameEdit->cursorPosition()+1;
 		nameEdit->validateAndSet( nt, cp, cp, nt.length() );
 		return TRUE;
@@ -2001,3 +2052,57 @@ void QFileDialog::modeButtonsDestroyed()
     if ( d )
 	d->modeButtons = 0;
 }
+
+
+/*!  Lets the user select N files from a single directory, and returns
+  a list of the files.
+
+  \a filter is the default glob pattern (which the user can change).
+  The default is all files.  \a dir is the starting directory.  If \a
+  dir is not supplied, QFileDialog picks something presumably useful
+  (such as the directory where the user selected something last, or
+  the current working directory).
+  
+  \a parent is a widget over which the dialog should be positioned and
+  \a name is the object name of the temporary QFileDialog object.
+*/
+
+QStrList QFileDialog::getOpenFileNames( const char *filter,
+					const char * dir,
+					QWidget *parent,
+					const char *name )
+{
+    makeVariables();
+
+    if ( workingDirectory->isNull() )
+	*workingDirectory = QDir::currentDirPath();
+
+    QFileInfo tmp( QDir::root(), dir );
+    if ( !tmp.isDir() ) {
+	tmp.setFile( QDir::root(), *workingDirectory );
+	while( !tmp.isDir() )
+	    tmp.setFile( tmp.dirPath( TRUE ) );
+    }
+    
+    *workingDirectory = tmp.absFilePath();
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
+					parent, name, TRUE );
+    CHECK_PTR( dlg );
+    dlg->setCaption( dlg->tr("Open") );
+    dlg->setMode( QFileDialog::ExistingFiles );
+    QString result;
+    QStrList s;
+    s.setAutoDelete( FALSE );
+    if ( dlg->exec() == QDialog::Accepted ) {
+	QListViewItem * i = dlg->files->firstChild();
+	while( i ) {
+	    if ( i->isSelected() )
+		s.append( ((QFileDialogPrivate::File*)i)->info.absFilePath() );
+	    i = i->nextSibling();
+	}
+	*workingDirectory = dlg->dirPath();
+    }
+    delete dlg;
+    return s;
+}
+
