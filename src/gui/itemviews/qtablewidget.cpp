@@ -962,7 +962,7 @@ public:
     void emitKeyPressed(const QModelIndex &index, Qt::Key key,
                         Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -999,9 +999,10 @@ void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
     emit q->returnPressed(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+                                                 const QModelIndex &previous)
 {
-    emit q->currentChanged(model()->item(current), model()->item(previous));
+    emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
 void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
@@ -1629,10 +1630,10 @@ void QTableWidget::setup()
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(selectionChanged()));
+            this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }

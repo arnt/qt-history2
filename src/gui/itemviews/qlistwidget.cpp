@@ -622,7 +622,7 @@ public:
                            Qt::KeyboardModifiers modifiers);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -658,11 +658,11 @@ void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
     emit q->returnPressed(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current,
-                                            const QModelIndex &previous)
+void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+                                                const QModelIndex &previous)
 {
     QListWidgetItem *currentItem = model()->at(current.row());
-    emit q->currentChanged(currentItem, model()->at(previous.row()));
+    emit q->currentItemChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
 }
 
@@ -735,7 +735,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
     The current item in the list can be found with currentItem(), and changed
     with setCurrentItem(). The user can also change the current item by
     navigating with the keyboard or clicking on a different item. When the
-    current item changes, the currentChanged() signal is emitted with the
+    current item changes, the currentItemChanged() signal is emitted with the
     new current item and the item that was previously current.
 
     \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
@@ -810,7 +810,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QListWidget::currentChanged(QListWidgetItem *current, QListWidgetItem *previous)
+    \fn void QListWidget::currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 
     This signal is emitted whenever the current item changes. The \a
     previous item is the item that previously had the focus, \a
@@ -818,7 +818,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-    \fn void QListWidget::selectionChanged()
+    \fn void QListWidget::itemSelectionChanged()
 
     This signal is emitted whenever the selection changes.
 
@@ -1037,7 +1037,9 @@ bool QListWidget::isSelected(const QListWidgetItem *item) const
 void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+    selectionModel()->select(index, select
+                             ? QItemSelectionModel::Select
+                             : QItemSelectionModel::Deselect);
 }
 
 /*!
@@ -1142,10 +1144,10 @@ void QListWidget::setup()
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(selectionChanged()));
+            this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }

@@ -95,8 +95,7 @@ public:
 
     inline QTreeWidgetItem *parent() const { return par; }
     inline QTreeWidgetItem *child(int index) const
-        { if (index < 0 || index >= children.size()) return 0;
-          return children.at(index); }
+        { if (index < 0 || index >= children.size()) return 0; return children.at(index); }
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
     inline int indexOfChild(QTreeWidgetItem *child) const { return children.indexOf(child); }

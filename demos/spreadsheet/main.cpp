@@ -239,11 +239,11 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     setCentralWidget(table);
 
     statusBar();
-    connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
+    connect(table, SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
-    connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
+    connect(table, SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)),
             this, SLOT(updateColor(QTableWidgetItem*)));
-    connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
+    connect(table, SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)),
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
