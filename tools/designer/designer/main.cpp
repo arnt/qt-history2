@@ -31,6 +31,11 @@
 
 #include <stdlib.h>
 #include <signal.h>
+
+#if defined(Q_OS_SCO) && defined(raise)
+#  undef raise // fix for broken headers on SCO OpenServer 5.0.5
+#endif
+
 #if defined(Q_WS_WIN)
 #include <qt_windows.h>
 #include <process.h>
@@ -129,7 +134,7 @@ int main( int argc, char *argv[] )
 #endif
 
     QApplication::setColorSpec( QApplication::ManyColor );
-	
+
 #if defined(HAVE_KDE)
     DesignerApplication a( argc, argv, "Qt Designer" );
 #else
@@ -160,7 +165,7 @@ int main( int argc, char *argv[] )
 		else
 		    return 0;
 #elif defined(Q_OS_WIN32)
-		if ( !GetProcessVersion( pidStr.toUInt() ) ) {		
+		if ( !GetProcessVersion( pidStr.toUInt() ) ) {
 		    creatPid = TRUE;
 		} else {
 		    if ( a.winVersion() & Qt::WV_NT_based )

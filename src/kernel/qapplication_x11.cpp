@@ -105,6 +105,7 @@
 #endif
 
 #if defined(Q_OS_SCO)
+#  include <strings.h>    // for strcasecmp
 #  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
 #endif
 
@@ -843,7 +844,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	if ( !font )
 	    fnt.setCharSet( QFont::charSetForLocale() );
 #endif // Q_SUPERFONT
-	
+
 	if ( fnt != QApplication::font() )
 	    QApplication::setFont( fnt, TRUE );
     }
@@ -1341,18 +1342,18 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_set_input_encoding();
 
 	// pick default character set (now that we have done setlocale stuff)
-	
+
 #ifndef Q_SUPERFONT
 	QFont::locale_init();
 #endif // Q_SUPERFONT
-	
+
 	QFont f;
 	f = QFont( "Helvetica", (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
-	
+
 #ifndef Q_SUPERFONT
 	f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
 #endif // Q_SUPERFONT
-	
+
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
