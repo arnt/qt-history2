@@ -3985,6 +3985,7 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
   QCanvasItem::move() and QCanvasItem::moveBy(), or by setting coordinates
   with QCanvasItem::setX(), QCanvasItem::setY() and QCanvasItem::setZ().
 
+  Note: QCanvasPolygon does not use the pen.
 */
 
 /*!
@@ -4511,6 +4512,8 @@ void QCanvasRectangle::drawShape(QPainter & p)
 
   Like any other canvas item ellipses can be moved with move() and
   moveBy(), or by setting coordinates with setX(), setY() and setZ().
+
+  Note: QCanvasEllipse does not use the pen.
 */
 
 /*!
