@@ -15,9 +15,9 @@
 
 QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, { 0 } };
 
-int QListData::grow(int size)
+static int grow(int size)
 {
-    return qAllocMore(size * sizeof(void*), sizeof(DataHeader)) / sizeof(void*);
+    return qAllocMore(size * sizeof(void *), sizeof(QListData::DataHeader)) / sizeof(void *);
 }
 
 QListData::Data *QListData::detach()
@@ -220,6 +220,16 @@ void **QListData::erase(void **xi)
        use QVector.
     \endlist
 
+    Internally, QList\<T\> is represented as an array of pointers to
+    items. (Exceptionally, if T is a pointer type, a basic type of
+    the size of a pointer, or one of Qt's \l{shared classes},
+    QList\<T\> stores the item directly in the pointer.) For lists
+    under a thousand items, this representation allows for very fast
+    insertions in the middle, in addition to instantaneous
+    index-based access. Furthermore, operations like prepend() and
+    append() are very fast, because QList preallocates memory on both
+    sides of its internal array.
+
     Here's an example of a QList that stores integers and
     a QList that stores QDate values:
 
@@ -258,7 +268,9 @@ void **QListData::erase(void **xi)
             list[0] = "Robert";
     \endcode
 
-    For read-only access, an alternative syntax is to use at():
+    Because QList is implemented as an array of pointers, this
+    operation is very fast (\l{constant time}). For read-only access,
+    an alternative syntax is to use at():
 
     \code
         for (int i = 0; i < list.size(); ++i) {
@@ -267,7 +279,8 @@ void **QListData::erase(void **xi)
         }
     \endcode
 
-    For read-only access, at() is slightly faster than operator[]().
+    at() can be faster than operator[](), because it never causes a
+    \l{deep copy} to occur.
 
     A common requirement is to remove an item from a list and do
     something with it. For this, QList provides take(), takeFirst(),
@@ -419,6 +432,8 @@ void **QListData::erase(void **xi)
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
+    This function is very fast (\l{constant time}).
+
     \sa value(), operator[]()
 */
 
@@ -428,6 +443,8 @@ void **QListData::erase(void **xi)
 
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
+
+    This function is very fast (\l{constant time}).
 
     \sa at(), value()
 */

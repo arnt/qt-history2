@@ -97,7 +97,8 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
         }
     \endcode
 
-    For read-only access, at() is slightly faster than operator[]().
+    at() can be faster than operator[](), because it never causes a
+    \l{deep copy} to occur.
 
     Another way to access the data stored in a QVector is to call
     data(). The function returns a pointer to the first item in the

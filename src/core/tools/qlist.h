@@ -21,7 +21,6 @@ struct Q_CORE_EXPORT QListData {
     void realloc(int alloc);
     static Data shared_null;
     Data *d;
-    static int grow(int size);
     void **erase(void **xi);
     void **append();
     void **append(const QListData &l);
