@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#15 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#16 $
 **
 ** Implementation of QFileDialog class
 **
@@ -19,10 +19,16 @@
 #include "qmsgbox.h"
 #include "qapp.h"
 #if defined(_WS_WIN_)
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
+#include <windows.h>
+#define bool int
+#else
 #include <windows.h>
 #endif
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#16 $")
 
 
 /*----------------------------------------------------------------------------

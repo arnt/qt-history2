@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#41 $
 **
 ** Implementation of date and time classes
 **
@@ -18,7 +18,13 @@
 #include <stdio.h>
 #include <time.h>
 #if defined(_OS_WIN32_)
+#if defined(_CC_BOOL_DEF_)
+#undef  bool
 #include <windows.h>
+#define bool int
+#else
+#include <windows.h>
+#endif
 #elif defined(_OS_MSDOS_)
 #include <dos.h>
 #elif defined(_OS_OS2_)
@@ -30,7 +36,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#41 $")
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
