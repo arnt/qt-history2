@@ -838,10 +838,10 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 		      cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36 ) )
 		cmb = QChar::Combining_Above;
 	    //below-right
-	    else if ( cmb == 103 )
+	    else if ( cmb == 103 || cmb == 118 )
 		cmb = QChar::Combining_BelowRight;
 	    // above-right
-	    else if ( cmb == 24 || cmb == 107 )
+	    else if ( cmb == 24 || cmb == 107 || cmb == 122 )
 		cmb = QChar::Combining_AboveRight;
 	    else if ( cmb == 25 )
 		cmb = QChar::Combining_AboveLeft;
