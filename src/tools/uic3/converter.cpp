@@ -279,22 +279,30 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
     }
 }
 
+QString Ui3Reader::fixClassName(const QString &className) const
+{
+    if (className == QLatin1String("QLayoutWidget"))
+        return QLatin1String("QWidget");
+    else if (className == QLatin1String("QButtonGroup"))
+        return QLatin1String("Q3ButtonGroup");
+    else if (className == QLatin1String("QTextEdit"))
+        return QLatin1String("Q3TextEdit");
+    else if (className == QLatin1String("QMainWindow"))
+        return QLatin1String("Q3MainWindow");
+
+    return className;
+}
+
 DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetClass)
 {
     DomWidget *ui_widget = new DomWidget;
+
     QString className = widgetClass;
     if (className.isEmpty())
         className = w.attribute("class");
-    if (className == QLatin1String("QLayoutWidget"))
-        className = QLatin1String("QWidget");
-    else if (className == QLatin1String("QButtonGroup"))
-        className = QLatin1String("Q3ButtonGroup");
-    else if (className == QLatin1String("QTextEdit"))
-        className = QLatin1String("Q3TextEdit");
-    else if (className == QLatin1String("QMainWindow"))
-        className = QLatin1String("Q3MainWindow");
+    className = fixClassName(className);
 
-    bool isMenuBar = className == QLatin1String("QMenuBar");
+    bool isMenuBar = (className == QLatin1String("QMenuBar"));
 
     ui_widget->setAttributeClass(className);
 

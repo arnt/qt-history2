@@ -88,6 +88,8 @@ private:
     DomProperty *readProperty(const QDomElement &e);
     void fixActionGroup(DomActionGroup *g);
 
+    QString fixClassName(const QString &className) const;
+
     QTextStream &out;
     QTextOStream trout;
     QString languageChangeBody;

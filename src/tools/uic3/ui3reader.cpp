@@ -286,11 +286,12 @@ QString Ui3Reader::getFormClassName(const QDomElement& e)
 QString Ui3Reader::getClassName(const QDomElement& e)
 {
     QString s = e.attribute("class");
-    if (s.isEmpty() && e.tagName() == "toolbar")
-        s = "QToolBar";
-    else if (s.isEmpty() && e.tagName() == "menubar")
-        s = "QMenuBar";
-    return s;
+    if (s.isEmpty() && e.tagName() == QLatin1String("toolbar"))
+        s = QLatin1String("QToolBar");
+    else if (s.isEmpty() && e.tagName() == QLatin1String("menubar"))
+        s = QLatin1String("QMenuBar");
+
+    return fixClassName(s);
 }
 
 /*! Returns true if database framework code is generated, else false.
