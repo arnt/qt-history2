@@ -564,11 +564,7 @@ void qDebug(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg);                        // use variable arg list
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
+    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
     if (handler) {
         (*handler)(QtDebugMsg, buf);
@@ -622,11 +618,7 @@ void qWarning(const char *msg, ...)
     va_list ap;
     va_start(ap, msg); // use variable arg list
     bool fatalWarnings = (qgetenv("QT_FATAL_WARNINGS") != 0);
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
+    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
     if (handler) {
         (*handler)(QtWarningMsg, buf);
@@ -691,11 +683,7 @@ void qCritical(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg); // use variable arg list
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
+    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
 
     if (handler) {
@@ -721,11 +709,7 @@ void qErrnoWarning(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg);
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
+    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
 
     qCritical("%s (%s)", buf, qt_error_string(-1).local8Bit());
@@ -736,11 +720,7 @@ void qErrnoWarning(int code, const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg);
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
+    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
 
     qCritical("%s (%s)", buf, qt_error_string(code).local8Bit());
@@ -786,11 +766,7 @@ void qFatal(const char *msg, ...)
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start(ap, msg); // use variable arg list
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
+    qvsnprintf(buf, QT_BUFFER_LENGTH, msg, ap);
     va_end(ap);
     if (handler) {
         (*handler)(QtFatalMsg, buf);
