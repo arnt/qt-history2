@@ -813,6 +813,8 @@ int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
 
 bool QSplitter::collapsible( QSplitterLayoutStruct *s )
 {
+    if (pick(qSmartMinSize(s->wid)) == 1)
+        return false;
     if ( s->collapsible != Default ) {
 	return (bool) s->collapsible;
     } else {
