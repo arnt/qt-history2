@@ -41,8 +41,6 @@
 void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
-    QDomNodeList nl;
-    int i;
     QStringList::Iterator it, it2, it3;
 
     QString objClass = getClassName( e );
@@ -73,37 +71,38 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QMap<QString, QString> functionImpls;
-    nl = e.parentNode().toElement().elementsByTagName( "slot" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
-	n = nl.item(i).toElement();
-	if ( n.attribute( "language", "C++" ) != "C++" )
-	    continue;
-	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data();
-	QString specifier = n.attribute( "specifier" );
-	QString access = n.attribute( "access" );
-	if ( access == "protected" ) {
-	    protectedSlots += slotName;
-	    protectedSlotTypes += returnType;
-	    protectedSlotSpecifier += specifier;
-	} else if ( access == "private" ) {
-	    privateSlots += slotName;
-	    privateSlotTypes += returnType;
-	    privateSlotSpecifier += specifier;
-	} else {
-	    publicSlots += slotName;
-	    publicSlotTypes += returnType;
-	    publicSlotSpecifier += specifier;
-	}  
-    }
-
-    // compatibility with early 3.0 betas
-    nl = e.parentNode().toElement().elementsByTagName( "function" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
-	n = nl.item(i).toElement();
-	QString fname = n.attribute( "name" );
-	fname = Parser::cleanArgs( fname );
-	functionImpls.insert( fname, n.firstChild().toText().data() );
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "slots" || n.tagName()  == "connections" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "slot" ) {
+		    QString returnType = n2.attribute( "returnType", "void" );
+		    QString slotName = n2.firstChild().toText().data();
+		    QString specifier = n2.attribute( "specifier" );
+		    QString access = n2.attribute( "access" );
+		    if ( access == "protected" ) {
+			protectedSlots += slotName;
+			protectedSlotTypes += returnType;
+			protectedSlotSpecifier += specifier;
+		    } else if ( access == "private" ) {
+			privateSlots += slotName;
+			privateSlotTypes += returnType;
+			privateSlotSpecifier += specifier;
+		    } else {
+			publicSlots += slotName;
+			publicSlotTypes += returnType;
+			publicSlotSpecifier += specifier;
+		    }
+		}
+	    }
+	} else if ( n.tagName() == "functions" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "function" ) {
+		    QString fname = n2.attribute( "name" );
+		    fname = Parser::cleanArgs( fname );
+		    functionImpls.insert( fname, n2.firstChild().toText().data() );
+		}
+	    }
+	}
     }
 
     // create public additional slots
@@ -169,8 +168,6 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
-    QDomNodeList nl;
-    int i;
     QStringList::Iterator it, it2, it3;
 
     QString objClass = getClassName( e );
@@ -215,37 +212,40 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QMap<QString, QString> functionImpls;
-    nl = e.parentNode().toElement().elementsByTagName( "slot" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
-	n = nl.item(i).toElement();
-	if ( n.attribute( "language", "C++" ) != "C++" )
-	    continue;
-	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data();
-	QString specifier = n.attribute( "specifier" );
-	QString access = n.attribute( "access" );
-	if ( access == "protected" ) {
-	    protectedSlots += slotName;
-	    protectedSlotTypes += returnType;
-	    protectedSlotSpecifier += specifier;
-	} else if ( access == "private" ) {
-	    privateSlots += slotName;
-	    privateSlotTypes += returnType;
-	    privateSlotSpecifier += specifier;
-	} else {
-	    publicSlots += slotName;
-	    publicSlotTypes += returnType;
-	    publicSlotSpecifier += specifier;
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "slots" || n.tagName()  == "connections" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "slot" ) {
+		    if ( n2.attribute( "language", "C++" ) != "C++" )
+			continue;
+		    QString returnType = n2.attribute( "returnType", "void" );
+		    QString slotName = n2.firstChild().toText().data();
+		    QString specifier = n2.attribute( "specifier" );
+		    QString access = n2.attribute( "access" );
+		    if ( access == "protected" ) {
+			protectedSlots += slotName;
+			protectedSlotTypes += returnType;
+			protectedSlotSpecifier += specifier;
+		    } else if ( access == "private" ) {
+			privateSlots += slotName;
+			privateSlotTypes += returnType;
+			privateSlotSpecifier += specifier;
+		    } else {
+			publicSlots += slotName;
+			publicSlotTypes += returnType;
+			publicSlotSpecifier += specifier;
+		    }
+		}
+	    }
+	} else if ( n.tagName() == "functions" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "function" ) {
+		    QString fname = n2.attribute( "name" );
+		    fname = Parser::cleanArgs( fname );
+		    functionImpls.insert( fname, n2.firstChild().toText().data() );
+		}
+	    }
 	}
-    }
-
-    
-    // compatibility with early 3.0 betas
-    nl = e.parentNode().toElement().elementsByTagName( "function" );
-    for ( i = 0; i < (int) nl.length(); i++ ) {
-	QString fname = n.attribute( "name" );
-	fname = Parser::cleanArgs( fname );
-	functionImpls.insert( fname, n.firstChild().toText().data() );
     }
 
     // create stubs for public additional slots
