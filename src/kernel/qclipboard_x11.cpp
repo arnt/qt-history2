@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#16 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#16 $");
 
 
 /*****************************************************************************
@@ -221,8 +221,9 @@ void *QClipboard::data( const char *format ) const
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None )
 	return 0;
 
-    Atom prop = XInternAtom( dpy, "QT_SELECTION", FALSE );
-    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, prop, win, CurrentTime );
+    extern Atom qt_selection_id; // from qapp_x11.cpp
+    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, qt_selection_id, win,
+		       CurrentTime );
 
     XFlush( dpy );
 
@@ -240,7 +241,7 @@ void *QClipboard::data( const char *format ) const
 	}
     }
 
-    prop = xevent.xselection.property;
+    Atom prop = xevent.xselection.property;
     win	 = xevent.xselection.requestor;
 
     static QByteArray buf( 256 );

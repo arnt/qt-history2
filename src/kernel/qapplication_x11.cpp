@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#276 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#277 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#276 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#277 $");
 
 
 /*****************************************************************************
@@ -126,6 +126,9 @@ static QWidget *desktopWidget	= 0;		// root window widget
 static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
+static Atom	qt_xsetroot_id;
+Atom		qt_selection_id;
+static Atom	qt_wm_state;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -372,12 +375,32 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
   // Support protocols
 
-    qt_wm_protocols = XInternAtom( appDpy, "WM_PROTOCOLS", FALSE );
-    qt_wm_delete_window = XInternAtom( appDpy, "WM_DELETE_WINDOW", FALSE );
+    static const int atomCount = 6;
+    static Atom atomValues[atomCount];
+    static char * atomNames[atomCount] = {
+	"WM_PROTOCOLS",
+	"WM_DELETE_WINDOW",
+	"QT_SCROLL_DONE",
+	"_XSETROOT_ID",
+	"QT_SELECTION",
+	"WM_STATE"
+    };
+
+    // ### ignore return value, as Xt does
+    XInternAtoms( appDpy, atomNames, atomCount, FALSE, atomValues );
+
+    qt_wm_protocols = atomValues[0];
+    qt_wm_delete_window = atomValues[1];
 
   // Internal protocols
 
-    qt_qt_scrolldone = XInternAtom( appDpy, "QT_SCROLL_DONE", TRUE );
+    qt_qt_scrolldone = atomValues[2];
+
+  // Stuff for other functions
+
+    qt_xsetroot_id = atomValues[3];
+    qt_selection_id = atomValues[4];
+    qt_wm_state = atomValues[5];
 
   // Misc. initialization
 
@@ -491,23 +514,22 @@ void qt_cleanup()
 
 void qt_save_rootinfo()				// save new root info
 {
-    Atom prop, type;
-    int	 format;
+    Atom type;
+    int format;
     unsigned long length, after;
     unsigned char *data;
 
-    prop = XInternAtom( appDpy, "_XSETROOT_ID", TRUE );
-    if ( prop != None ) {			// kill old pixmap
-	if ( XGetWindowProperty( appDpy, appRootWin, prop, 0, 1, TRUE,
-				 AnyPropertyType, &type, &format, &length,
-				 &after, &data ) == Success ) {
+    if ( qt_xsetroot_id != None ) {			// kill old pixmap
+	if ( XGetWindowProperty( appDpy, appRootWin, qt_xsetroot_id, 0, 1,
+				 TRUE, AnyPropertyType, &type, &format,
+				 &length, &after, &data ) == Success ) {
 	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
 		 after == 0 && data ) {
 		XKillClient( appDpy, *((Pixmap*)data) );
 		XFree( (char *)data );
 	    }
 	    Pixmap dummy = XCreatePixmap( appDpy, appRootWin, 1, 1, 1 );
-	    XChangeProperty( appDpy, appRootWin, prop, XA_PIXMAP, 32,
+	    XChangeProperty( appDpy, appRootWin, qt_xsetroot_id, XA_PIXMAP, 32,
 			     PropModeReplace, (uchar *)&dummy, 1 );
 	    XSetCloseDownMode( appDpy, RetainPermanent );
 	}
@@ -980,12 +1002,11 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	if ( c )
 	    return c;
     }
-    static Atom WM_STATE = 0;
-    if ( WM_STATE == 0 )
-	WM_STATE = XInternAtom( appDpy, "WM_STATE", TRUE );
-    if ( !WM_STATE )
+
+    // ### is it okay to force the creation of WM_STATE?
+    if ( !qt_wm_state )
 	return w;
-    target = findClientWindow( target, WM_STATE, TRUE );
+    target = findClientWindow( target, qt_wm_state, TRUE );
     c = QWidget::find( target );
     if ( !c ) {
 	if ( !w ) {
