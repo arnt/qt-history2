@@ -48,14 +48,12 @@ QRegion::QRegion(const QRect &r, RegionType t)
         d = new QRegionData;
         d->ref.init(1);
         if (t == Rectangle)
-            d->rgn = CreateRectRgn(r.left(), r.top(),
-                                   r.right() + 1,
-                                   r.bottom() + 1);
+            d->rgn = CreateRectRgn(r.left(), r.top(), r.x() + r.width(), r.y() + r.height());
 #ifndef Q_OS_TEMP
-        else if (t == Ellipse)
-            d->rgn = CreateEllipticRgn(r.left(), r.top(),
-                                       r.right() + 1,
-                                       r.bottom() + 1);
+        else if (t == Ellipse) {
+            // need to add 1 to width/height for the ellipse to have correct boundingrect.
+            d->rgn = CreateEllipticRgn(r.x(), r.y(), r.x() + r.width() + 1, r.y() + r.height() + 1);
+        }
 #endif
     }
 }
