@@ -128,6 +128,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qkoi8codec.h \
 		  $$TOOLS_H/qlist.h \
+		  $$TOOLS_H/qsortedlist.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
 		  $$TOOLS_H/qregexp.h \
