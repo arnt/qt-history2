@@ -643,8 +643,10 @@ public:
 	iterator it( sh->find( k ).node );
 	if ( it != end() ) {
 	    size_type c = 1;
-	    while ( ++it && it != end() )
+	    while ( it != end() ) {
+		++it;
 		++c;
+	    }
 	    return c;
 	}
 	return 0;
