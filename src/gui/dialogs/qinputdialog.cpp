@@ -191,6 +191,7 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
 {
     d->init(label, type);
     setModal(modal);
+    setObjectName(name);
 }
 #endif
 

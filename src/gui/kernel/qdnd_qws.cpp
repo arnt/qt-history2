@@ -52,7 +52,7 @@ class QShapedPixmapWidget : public QWidget {
     QPixmap pixmap;
 public:
     QShapedPixmapWidget() :
-        QWidget(0,0,Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WStyle_NoBorder | Qt::WX11BypassWM)
+        QWidget(0,Qt::WStyle_Customize | Qt::WStyle_Tool | Qt::WStyle_NoBorder | Qt::WX11BypassWM)
     {
     }
 

@@ -41,7 +41,7 @@ public:
 };
 
 QAuServerQWS::QAuServerQWS(QObject* parent) :
-    QAuServer(parent,0)
+    QAuServer(parent)
 {
 }
 

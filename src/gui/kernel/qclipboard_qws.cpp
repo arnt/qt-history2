@@ -88,7 +88,8 @@ void setupOwner()
 {
     if (owner)
         return;
-    owner = new QWidget(0, "internal clibpoard owner");
+    owner = new QWidget(0);
+    owner->setObjectName("internal clibpoard owner");
     qAddPostRoutine(cleanup);
 }
 

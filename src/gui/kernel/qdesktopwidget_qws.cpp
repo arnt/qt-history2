@@ -36,9 +36,10 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 }
 
 QDesktopWidget::QDesktopWidget()
-: QWidget(0, "desktop", Qt::WType_Desktop)
+: QWidget(0, Qt::WType_Desktop)
 {
     d = new QDesktopWidgetPrivate;
+    setObjectName("desktop");
 }
 
 QDesktopWidget::~QDesktopWidget()

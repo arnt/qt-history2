@@ -241,8 +241,9 @@ class QWSSoundServerPrivate : public QObject {
 
 public:
     QWSSoundServerPrivate(QObject* parent=0, const char* name=0) :
-        QObject(parent, name)
+        QObject(parent)
     {
+        setObjectName(name);
 #ifndef QT_NO_QWS_SOUNDSERVER
         server = new QWSSoundServerSocket(this);
         connect(server, SIGNAL(playFile(QString)),

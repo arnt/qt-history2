@@ -68,10 +68,11 @@ public:
 */
 
 QCopChannel::QCopChannel(const QByteArray& channel, QObject* parent, const char* name) :
-    QObject(parent, name)
+    QObject(parent)
 {
     d = new QCopChannelPrivate;
     d->channel = channel;
+    setObjectName(name);
 
     if (!qt_fbdpy) {
         qFatal("QCopChannel: Must construct a QApplication "
