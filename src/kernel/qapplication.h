@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#13 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#14 $
 **
 ** Definition of QApplication class
 **
@@ -30,11 +30,11 @@ public:
     static GUIStyle style()	{ return appStyle; }
     static void	    setStyle( GUIStyle );
 
-    static QCursor  cursor()    { return appCursor; }
+    static QCursor *cursor();			// get/set application cursor
     static void	    setCursor( const QCursor & );
     static void	    restoreCursor();
 
-    static QFont    font()	{ return appFont; }
+    static QFont   *font();			// get/set application font
     static void	    setFont( const QFont & );
 
     int		    exec( QWidget *mainWidget );// start event handing
@@ -61,9 +61,8 @@ private:
     bool     	    quit_now;			// quit flags
     int	     	    quit_code;
     static GUIStyle appStyle;			// application GUI style
-    static QFont    appFont;			// application font
-    static QCursor  appCursor;			// application cursor
-    static bool	    appCursorDefined;		// application cursor defined
+    static QFont   *appFont;			// application font
+    static QCursor *appCursor;			// application cursor
 
 public:
 #if defined(_WS_MAC_)
