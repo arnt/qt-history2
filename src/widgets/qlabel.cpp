@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#109 $
 **
 ** Implementation of QLabel widget class
 **
@@ -864,7 +864,12 @@ int QLabel::heightForWidth(int w) const
   The label resizes itself if auto-resizing is enabled. Nothing
   happens if \e qml is the same as the current label.
 
-  \sa text(), setText(), setPixmap(), setAutoResize()
+  Note that a QLabel is only useful for rather small QML documents
+  with one or maximal two lines of text.  If you need to display
+  larger documents, a QMLView is the widget of choice. It will flicker
+  less on resize and can also provide a scrollbar if necessary.
+  
+  \sa text(), setText(), setPixmap(), setAutoResize(), QMLView
 */
 void QLabel::setQML( const QString & qml )
 {

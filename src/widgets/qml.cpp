@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#8 $
 **
 ** Implementation of QML classes
 **
@@ -655,76 +655,77 @@ public:
   \class QMLStyleSheet qml.h
   \brief A collection of styles and a generator of tags.
 
-  By \link QMLStyleSheet::insert() inserting\endlink QStyle objects
+  By \link QMLStyleSheet::insert() inserting\endlink QMLStyle objects
   into a style sheet, you build a definition of a set of tags.  This
-  definition will be used by the internal QML features to parse
-  and display QML documents to which the style sheet applies.
+  definition will be used by the internal QML features to parse and
+  display QML documents to which the style sheet applies. QML is
+  normally visualized in a QMLView or a QMLBrowser. But also QLabel
+  and QWhatsThis support QML contents.
 
   The default QMLStyleSheet object has the following style bindings:
 
   <ul>
-    <li>&lt;qml&gt;...&lt;/qml&gt;
-	A QML document. It understands the following attributes
+    <li>\c &lt;qml&gt;...&lt;/qml&gt;
+	- A QML document. It understands the following attributes
 	<ul>
-	<li> type
-	The type of the document. The default type is "page". It indicates that
+	<li> \c type
+	- The type of the document. The default type is "page". It indicates that
 	the document is displayed in a page of its own. Another style is "detail".
 	It can be used to explain certain expressions more detailed in a few
-	sentences. The QMLBrowser will then keep the curren page and display the
+	sentences. The QMLBrowser will then keep the currentx page and display the
 	new document in a small popup similar to QWhatsThis. Note that links
 	will not work in documents with &lt;qml type="detail" &gt;...&lt;/qml&gt;
-	<li> bgcolor
-	The background color, for example bgcolor="yellow" or bgcolor="#0000FF"
-	<li> bgpixmap
-	The background pixmap, for example bgpixmap="granit.xpm". The pixmap name
+	<li> \c bgcolor
+	- The background color, for example bgcolor="yellow" or bgcolor="#0000FF"
+	<li> \c bgpixmap
+	- The background pixmap, for example bgpixmap="granit.xpm". The pixmap name
 	will be resolved by the default QMLProvider.
-	<li> text
-	The default text color, for example text="red"
-	<li>
+	<li> \c text
+	- The default text color, for example text="red"
 	</ul>
 
-    <li>&lt;a&gt;...&lt;/a&gt;
-	An anchor or link. The reference target is defined in the
+    <li>\c &lt;a&gt;...&lt;/a&gt;
+	- An anchor or link. The reference target is defined in the
 	href attribute of the tag as in 	&lt;a href="target.qml"&gt;...&lt;/a&gt;.
 
-    <li>&lt;em&gt;...&lt;/em&gt;
-	Emphasized.
+    <li>\c &lt;em&gt;...&lt;/em&gt;
+	- Emphasized.
 
-    <li>&lt;large&gt;...&lt;/large&gt;
-	Large font size.
+    <li>\c &lt;large&gt;...&lt;/large&gt;
+	- Large font size.
 
-    <li>&lt;b&gt;...&lt;/b&gt;
-    style->setFontWeight( QFont::Bold);
+    <li>\c &lt;b&gt;...&lt;/b&gt;
+    - style->setFontWeight( QFont::Bold);
 	Bold font style.
 
-    <li>&lt;h1&gt;...&lt;/h1&gt;
-	A top-level heading.
+    <li>\c &lt;h1&gt;...&lt;/h1&gt;
+	- A top-level heading.
 
-    <li>&lt;p&gt;...&lt;/p&gt;
-	A paragraph.
+    <li>\c &lt;p&gt;...&lt;/p&gt;
+	- A paragraph.
 
-    <li>&lt;center&gt;...&lt;/center&gt;
-	A centered paragraph.
+    <li>\c &lt;center&gt;...&lt;/center&gt;
+	- A centered paragraph.
 
-    <li>&lt;twocolumn&gt;...&lt;/twocolumn&gt;
-	Two-column display.
+    <li>\c &lt;twocolumn&gt;...&lt;/twocolumn&gt;
+	- Two-column display.
 
-    <li>&lt;ul&gt;...&lt;/ul&gt;
-	An un-ordered list. You can also pass a type argument to
-	define the bullet style. The default is type="disc",  other
-	types are "circle" and "square".
+    <li>\c &lt;ul&gt;...&lt;/ul&gt;
+	- An un-ordered list. You can also pass a type argument to
+	define the bullet style. The default is \c ype="disc",  other
+	types are \c "circle" and \c "square".
 
-    <li>&lt;ol&gt;...&lt;/ol&gt;
-	An ordered list. You can also pass a type argument to define
-	the enumeration label style. The default is type="1", other
-	types are "a" and "A".
+    <li>\c &lt;ol&gt;...&lt;/ol&gt;
+	- An ordered list. You can also pass a type argument to define
+	the enumeration label style. The default is \c type="1", other
+	types are \c "a" and \c "A".
 
-    <li>&lt;li&gt;...&lt;/li&gt;
-	A list item.
+    <li>\c &lt;li&gt;...&lt;/li&gt;
+	- A list item.
 
-    <li>&lt;img&gt;
+    <li>\c &lt;img&gt;
 	An image. The image name for the provider is given in the
-	source attribute, for example <li>&lt;img source="qt.xpm" &gt;
+	source attribute, for example \c &lt;img source="qt.xpm" &gt;
 
   </ul>
 */
@@ -3262,7 +3263,7 @@ const QBrush& QMLView::paper()
 }
 
 /*!
-  \override
+  \reimp
 */
 void QMLView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
@@ -3284,7 +3285,7 @@ void QMLView::drawContentsOffset(QPainter* p, int ox, int oy,
 }
 
 /*!
-  \override
+  \reimp
 */
 void QMLView::viewportResizeEvent(QResizeEvent* )
 {
@@ -3297,21 +3298,21 @@ void QMLView::viewportResizeEvent(QResizeEvent* )
 }
 
 /*!
-  \override
+  \reimp
 */
 void QMLView::viewportMousePressEvent( QMouseEvent* )
 {
 }
 
 /*!
-  \override
+  \reimp
 */
 void QMLView::viewportMouseReleaseEvent( QMouseEvent* )
 {
 }
 
 /*!
-  \override
+  \reimp
 */
 void QMLView::viewportMouseMoveEvent( QMouseEvent* )
 {
@@ -3349,7 +3350,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 }
 
 /*!
-  \override
+  \reimp
 */
 void QMLView::paletteChange( const QPalette & )
 {
