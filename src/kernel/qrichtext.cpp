@@ -1009,7 +1009,7 @@ void QTextCursor::gotoLineStart()
 void QTextCursor::gotoHome()
 {
     if ( topParagraph()->document() )
-	gotoPosition( topParagraph() );
+	gotoPosition( topParagraph()->document()->firstParagraph() );
 }
 
 void QTextCursor::gotoEnd()
