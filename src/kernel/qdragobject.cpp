@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#82 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -546,7 +546,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
   Returns TRUE if the information in \a e can be decoded into a QString.
   \sa decode()
 */
-bool QTextDrag::canDecode( QMimeSource* e )
+bool QTextDrag::canDecode( const QMimeSource* e )
 {
     for ( int i=0; text_formats[i]; i++ )
 	if ( e->provides( text_formats[i] ) )
@@ -560,7 +560,7 @@ bool QTextDrag::canDecode( QMimeSource* e )
 
   \sa decode()
 */
-bool QTextDrag::decode( QMimeSource* e, QString& str )
+bool QTextDrag::decode( const QMimeSource* e, QString& str )
 {
     QTextCodec* codec = 0;
     QByteArray payload;
@@ -568,8 +568,11 @@ bool QTextDrag::decode( QMimeSource* e, QString& str )
 	payload = e->encodedData(text_formats[i]);
 	if ( payload.size() ) {
 	    if ( !text_formats[i+1] ) {
-		// text/plain
-		str = QString::fromLocal8Bit(payload);
+		// text/plain is NUL terminated, or payload.size().
+		int l = 0;
+		while ( l < payload.size() && payload[l] )
+		    l++;
+		str = QString::fromLocal8Bit(payload,l);
 		return TRUE;
 	    }
 	    const char* subtype = text_formats[i]+5; // 5="text/"
@@ -581,6 +584,16 @@ bool QTextDrag::decode( QMimeSource* e, QString& str )
     str = codec->toUnicode(payload);
     return TRUE;
 }
+
+
+/*
+  QImageDrag could use an internal MIME type for communicating QPixmaps
+  and QImages rather than always converting to raw data.  This is available
+  for that purpose and others.  It is not currently used.
+*/
+class QImageDragData {
+public:
+};
 
 
 /*! \class QImageDrag qdragobject.h
@@ -597,13 +610,13 @@ bool QTextDrag::decode( QMimeSource* e, QString& str )
   For detailed information about drag-and-drop, see the QDragObject class.
 */
 
-
 /*!  Creates an image drag object and sets it to \a image.  \a dragSource
   must be the drag source, \a name is the object name. */
 
 QImageDrag::QImageDrag( QImage image,
 			QWidget * dragSource, const char * name )
-    : QDragObject( dragSource, name )
+    : QDragObject( dragSource, name ),
+	d(0)
 {
     setImage( image );
 }
@@ -613,7 +626,8 @@ QImageDrag::QImageDrag( QImage image,
 */
 
 QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
-    : QDragObject( dragSource, name )
+    : QDragObject( dragSource, name ),
+	d(0)
 {
 }
 
@@ -681,7 +695,7 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
   Returns TRUE if the information in \a e can be decoded into an image.
   \sa decode()
 */
-bool QImageDrag::canDecode( QMimeSource* e )
+bool QImageDrag::canDecode( const QMimeSource* e )
 {
     return e->provides( "image/png" )
         || e->provides( "image/ppm" )
@@ -696,7 +710,7 @@ bool QImageDrag::canDecode( QMimeSource* e )
 
   \sa canDecode()
 */
-bool QImageDrag::decode( QMimeSource* e, QImage& img )
+bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 {
     QByteArray payload = e->encodedData( "image/ppm" );
     if ( payload.isEmpty() )
@@ -722,7 +736,7 @@ bool QImageDrag::decode( QMimeSource* e, QImage& img )
 
   \sa canDecode()
 */
-bool QImageDrag::decode( QMimeSource* e, QPixmap& pm )
+bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 {
     QImage img;
     if ( decode( e, img ) )
@@ -863,7 +877,7 @@ void QUrlDrag::setUrls( QStrList urls )
 /*!
   Returns TRUE if decode() would be able to decode \a e.
 */
-bool QUrlDrag::canDecode( QMimeSource* e )
+bool QUrlDrag::canDecode( const QMimeSource* e )
 {
     return e->provides( "text/uri-list" );
 }
@@ -873,7 +887,7 @@ bool QUrlDrag::canDecode( QMimeSource* e )
 
   Returns TRUE if the event contained a valid list of URLs.
 */
-bool QUrlDrag::decode( QMimeSource* e, QStrList& l )
+bool QUrlDrag::decode( const QMimeSource* e, QStrList& l )
 {
     QByteArray payload = e->encodedData( "text/uri-list" );
     if ( payload.size() ) {
@@ -949,7 +963,7 @@ QString QUrlDrag::urlToLocalFile(const char* url)
   Returns TRUE if the event contained a valid list of URLs.
   The list will be empty if no URLs were local files.
 */
-bool QUrlDrag::decodeLocalFiles( QMimeSource* e, QStringList& l )
+bool QUrlDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
 {
     QStrList u;
     if ( !decode( e, u ) )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#37 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#38 $
 **
 ** Definition of QDragObject
 **
@@ -93,15 +93,17 @@ public:
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canDecode( QMimeSource* e );
-    static bool decode( QMimeSource* e, QString& s );
+    static bool canDecode( const QMimeSource* e );
+    static bool decode( const QMimeSource* e, QString& s );
 };
 
+class QImageDragData;
 
 class Q_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     QImage img;
     QStrList ofmts;
+    QImageDragData* d;
 
 public:
     QImageDrag( QImage image,
@@ -114,9 +116,9 @@ public:
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canDecode( QMimeSource* e );
-    static bool decode( QMimeSource* e, QImage& i );
-    static bool decode( QMimeSource* e, QPixmap& i );
+    static bool canDecode( const QMimeSource* e );
+    static bool decode( const QMimeSource* e, QImage& i );
+    static bool decode( const QMimeSource* e, QPixmap& i );
 };
 
 
@@ -132,9 +134,9 @@ public:
     virtual void setUrls( QStrList urls );
 
     static QString urlToLocalFile(const char*);
-    static bool canDecode( QMimeSource* e );
-    static bool decode( QMimeSource* e, QStrList& i );
-    static bool decodeLocalFiles( QMimeSource* e, QStringList& i );
+    static bool canDecode( const QMimeSource* e );
+    static bool decode( const QMimeSource* e, QStrList& i );
+    static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
 };
 
 
