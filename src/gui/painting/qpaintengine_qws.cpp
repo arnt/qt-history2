@@ -473,9 +473,8 @@ void QWSPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 
 }
 
-void draw_pixmap_helper(QGfx *gfx,
-                        const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
-                        Qt::PixmapDrawingMode mode, bool hasAlpha)
+void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
+                                Qt::PixmapDrawingMode mode)
 {
     int x = int(r.x());
     int y = int(r.y());
@@ -487,44 +486,47 @@ void draw_pixmap_helper(QGfx *gfx,
     int sw = int(sr.width());
     int sh = int(sr.height());
 
+    bool hasAlpha = pixmap.data->hasAlpha;
+    bool hasMask = pixmap.mask();
+
     if ((w != sw || h != sh) && (sx != 0 || sy != 0))
         qDebug("QWSPaintEngine::drawPixmap offset stretch not implemented");
 
-    gfx->setSource(&pixmap);
-    if(mode == Qt::ComposePixmap && pixmap.mask()) {
+    if (hasAlpha && hasMask) {
+        // convert the mask to alpha 0, since gfx doesn't yet support both mask and alpha
+        QImage img = pixmap.toImage();
+        QPixmap no_mask = img;
+        d->gfx->setSource(&no_mask);
+        hasMask = false;
+    } else {
+        d->gfx->setSource(&pixmap);
+    }
+
+    if(mode == Qt::ComposePixmap && hasMask) {
         QBitmap * mymask=((QBitmap *)pixmap.mask());
         unsigned char * thebits=mymask->scanLine(0);
         int ls=mymask->bytesPerLine();
-        gfx->setAlphaType(QGfx::LittleEndianMask);
-        gfx->setAlphaSource(thebits,ls);
-    } else if (mode == Qt::CopyPixmapNoMask || mode == Qt::CopyPixmap) {
-        gfx->setAlphaType(QGfx::IgnoreAlpha);
-    } else if (hasAlpha){
-        gfx->setAlphaType(QGfx::InlineAlpha);
+        d->gfx->setAlphaType(QGfx::LittleEndianMask);
+        d->gfx->setAlphaSource(thebits,ls);
     } else {
-        gfx->setAlphaType(QGfx::IgnoreAlpha);
+        QGfx::AlphaType alphaType = QGfx::IgnoreAlpha;
+        if (mode != Qt::CopyPixmapNoMask && mode != Qt::CopyPixmap) {
+            if (hasAlpha)
+                alphaType = QGfx::InlineAlpha;
+#if 0 //source-over-destination blending not supported for beta1
+            if (d->pdev->devType() == QInternal::Pixmap) {
+                QPixmap *p = static_cast<QPixmap*>(d->pdev);
+                if (p->data->hasAlpha)
+                    alphaType = QGfx::DestinationAlpha;
+            }
+#endif
+        }
+        d->gfx->setAlphaType(alphaType);
     }
     if (sw == w && sh == h)
-        gfx->blt(x,y,sw,sh,sx,sy);
+        d->gfx->blt(x,y,sw,sh,sx,sy);
     else
-        gfx->stretchBlt(x,y,w,h,sw,sh);
-}
-
-
-void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
-                                Qt::PixmapDrawingMode mode)
-{
-    // convert the mask to alpha 0
-    if (state->txop > QPainterPrivate::TxTranslate
-        && pixmap.data->hasAlpha && pixmap.mask()) {
-        QImage img = pixmap.toImage();
-        QPixmap no_mask = img;
-
-        draw_pixmap_helper(d->gfx, r, no_mask, sr, mode, no_mask.data->hasAlpha);
-        return;
-    }
-
-    draw_pixmap_helper(d->gfx, r, pixmap, sr, mode, pixmap.data->hasAlpha);
+        d->gfx->stretchBlt(x,y,w,h,sw,sh);
 }
 
 
