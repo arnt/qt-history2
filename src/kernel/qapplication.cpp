@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#186 $
 **
 ** Implementation of QApplication class
 **
@@ -1260,7 +1260,7 @@ QString QApplication::translate( const char * scope, const char * key ) const
 		return result;
 	}
     }
-    emit couldNotTranslate( scope, key );
+    qApp->couldNotTranslate( scope, key ); //avoid const warning
     return key;
 }
 
