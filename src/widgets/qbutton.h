@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#29 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#30 $
 **
 ** Definition of QButton widget class
 **
@@ -32,18 +32,17 @@ public:
     void	setPixmap( const QPixmap & );
 
 public:
-    bool	toggleButton()	const	{ return toggleBt; }
+    bool	isToggleButton() const	{ return toggleBt; }
 
     bool	isDown()	const	{ return buttonDown; }
     bool	isOn()		const	{ return buttonOn; }
 
-#if !defined(OBSOLETE)
-    bool	isUp()		const;
-    bool	isOff()		const;
-#endif
-
     bool	autoResize()	const	{ return autoresize; }
     void	setAutoResize( bool );
+
+#if defined(OBSOLETE)
+    bool	toggleButton()	const	{ return isToggleButton(); }
+#endif
 
 signals:
     void	pressed();
@@ -52,10 +51,6 @@ signals:
     void	toggled( bool );
 
 protected:
-#if !defined(OBSOLETE)
-    void	switchOn();
-    void	switchOff();
-#endif
     void	setToggleButton( bool );
     void	setOn( bool );
 
