@@ -2873,6 +2873,12 @@ void QApplication::removePostedEvents( QObject *receiver )
 	l->remove();
     }
     delete l;
+
+#ifdef QT_THREAD_SUPPORT
+    // implemented in qthread_*.cpp
+    extern void qthread_removePostedEvents( QObject *receiver );
+    qthread_removePostedEvents( receiver );
+#endif // QT_THREAD_SUPPORT
 }
 
 
