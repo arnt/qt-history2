@@ -6,4 +6,4 @@ SOURCES += main.cpp
 
 QT = core
 CONFIG += warn_on console
-mac:CONFIG -= resource_fork
+mac:CONFIG -= app_bundle

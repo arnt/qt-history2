@@ -2,7 +2,7 @@ TARGET = rcc
 CONFIG += console
 QT = xml core
 DESTDIR = ../../../bin
-mac:CONFIG -= resource_fork
+mac:CONFIG -= app_bundle
 build_all:CONFIG += release
 
 unix:!contains(QT_CONFIG, zlib):LIBS        += -lz

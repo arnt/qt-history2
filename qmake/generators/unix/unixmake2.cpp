@@ -585,7 +585,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
           << (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4))
           << "\" >" << pkginfo << endl;
     }
-    if(project->isActiveConfig("resource_fork") && !project->isEmpty("QMAKE_INFO_PLIST")) {
+    if(project->isActiveConfig("app_bundle") && !project->isEmpty("QMAKE_INFO_PLIST")) {
         //copy the plist
         QString icon = fileFixify(var("ICON"));
         QString info_plist = fileFixify(project->first("QMAKE_INFO_PLIST")),
@@ -736,7 +736,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
         destdir += Option::dir_sep;
     t << "distclean: " << "clean\n";
-    if(project->first("TEMPLATE") == "app" && project->isActiveConfig("resource_fork"))
+    if(project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle"))
         t << "\t-$(DEL_FILE) -r " << destdir.section(Option::dir_sep, 0, -4) << endl;
     else if(project->isActiveConfig("compile_libtool"))
         t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << endl;

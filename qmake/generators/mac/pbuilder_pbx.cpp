@@ -1013,7 +1013,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "isa = PBXFileReference;" << "\n";
     if(project->first("TEMPLATE") == "app") {
         QString targ = project->first("QMAKE_ORIG_TARGET");
-        if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+        if(project->isActiveConfig("app_bundle")) {
             targ += ".app";
             t << "\t\t\t" << "explicitFileType = wrapper.application;" << "\n";
         } else {

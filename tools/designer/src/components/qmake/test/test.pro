@@ -1,4 +1,4 @@
-mac:CONFIG -= resource_fork
+mac:CONFIG -= app_bundle
 CONFIG += qt
 CONFIG += debug console
 QT = core

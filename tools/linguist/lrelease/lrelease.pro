@@ -1,6 +1,6 @@
 TEMPLATE        = app
 CONFIG          += qt warn_on console
-CONFIG          -= resource_fork
+CONFIG          -= app_bundle
 HEADERS         = ../shared/metatranslator.h \
                   ../shared/proparser.h
 SOURCES         = main.cpp \

@@ -1,6 +1,6 @@
 TEMPLATE = app
 CONFIG += console qt_no_compat_warning
-CONFIG -= resource_fork
+CONFIG -= app_bundle
 build_all:CONFIG += release
 
 QT += xml qt3support

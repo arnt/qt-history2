@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG -= moc
 CONFIG += console
-CONFIG -= resource_fork
+CONFIG -= app_bundle
 DEPENDPATH += .
 TARGET =qt3to4
 DESTDIR = ../../../bin

@@ -4,7 +4,7 @@
 
 TEMPLATE = app
 CONFIG -= moc
-mac:CONFIG -= resource_fork
+mac:CONFIG -= app_bundle
 INCLUDEPATH += .
 
 # Input

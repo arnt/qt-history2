@@ -4,7 +4,7 @@
 #platform than either of the generic makefiles
 
 CONFIG += console bootstrap
-CONFIG -= qt shared resource_fork uic
+CONFIG -= qt shared app_bundle uic
 DEFINES += QT_BUILD_QMAKE
 DESTDIR = ../bin/
 

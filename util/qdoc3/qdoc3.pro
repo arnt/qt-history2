@@ -1,7 +1,7 @@
 DEFINES += QDOC2_COMPAT
 QT = core
 CONFIG += console 
-CONFIG -= resource_fork
+mac:CONFIG -= app_bundle
 HEADERS += apigenerator.h \
            archiveextractor.h \
 	   atom.h \

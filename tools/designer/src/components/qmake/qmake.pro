@@ -1,6 +1,6 @@
 TEMPLATE = lib
 CONFIG += console debug dll
-CONFIG -= qt resource_fork uic
+CONFIG -= qt app_bundle uic
 DEFINES += QT_BUILD_QMAKE_LIBRARY
 DESTDIR = $(QTDIR)/lib
 

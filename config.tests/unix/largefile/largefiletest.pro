@@ -1,5 +1,5 @@
 TARGET=largefiletest
 CONFIG-=qt dylib
-mac:CONFIG -= resource_fork
+mac:CONFIG -= app_bundle
 TEMPLATE=app
 SOURCES=largefiletest.cpp
