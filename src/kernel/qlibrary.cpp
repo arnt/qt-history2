@@ -401,7 +401,7 @@ bool QLibrary::QLibraryPrivate::freeLibrary()
 void* QLibrary::QLibraryPrivate::resolveSymbol( const char* f )
 {
     if ( !pHnd )
-	return FALSE;
+	return 0;
 
     void* address = dlsym( pHnd, f );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
