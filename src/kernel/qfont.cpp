@@ -188,39 +188,79 @@
   QFont::CharSet QFont::Weight
 */
 
-/*! \enum QFont::CharSet
+/*! \enum QFont::Script
+  The QFont::Script enum represents a Unicode allocated script.
 
-  The following character set encodings are available:
-  \value ISO_8859_1  Latin1 , common in much of Europe
-  \value ISO_8859_2  Latin2, Central and Eastern European character set
-  \value ISO_8859_3  Latin3, less common European character set
-  \value ISO_8859_4  Latin4, less common European character set
-  \value ISO_8859_5  Cyrillic
-  \value ISO_8859_6  Arabic
-  \value ISO_8859_7  Greek
-  \value ISO_8859_8  Hebrew
-  \value ISO_8859_9  Turkish
-  \value ISO_8859_10 (other ISO 8859 characters sets)
-  \value ISO_8859_11 (other ISO 8859 characters sets)
-  \value ISO_8859_12 (other ISO 8859 characters sets)
-  \value ISO_8859_13 (other ISO 8859 characters sets)
-  \value ISO_8859_14 (other ISO 8859 characters sets)
-  \value ISO_8859_15 (other ISO 8859 characters sets)
-  \value KOI8R  KOI8-R, Cyrillic, defined in
-       <a href="ftp://ftp.nordu.net/rfc/rfc1489.txt">RFC 1489.</a>
-  \value KOI8U  KOI8-U, Cyrillic/Ukrainian, defined in
-       <a href="ftp://ftp.nordu.net/rfc/rfc2319.txt">RFC 2319.</a>
-  \value AnyCharSet  whatever is handiest.
-  \value Set_Ja Japanese
-  \value Set_Ko Korean
-  \value Set_Th_TH
-  \value Set_Zh
-  \value Set_Zh_TW
-  \value Unicode Unicode character set
-  \value Set_GBK
-  \value Set_Big5
+  European Alphabetic Scripts:
 
+  \value Latin
+  \value Greek
+  \value Cyrillic
+  \value Armenian
+  \value Georgian
+  \value Runic
+  \value Ogham
+  \value SpacingModifiers
+  \value CombiningMarks
+
+  Middle Eastern Scripts:
+
+  \value Hebrew
+  \value Arabic
+  \value Syriac
+  \value Thaana
+
+  South and Southeast Asian Scripts:
+
+  \value Devanagari
+  \value Bengali
+  \value Gurmukhi
+  \value Gujarati
+  \value Oriya
+  \value Tamil
+  \value Telugu
+  \value Kannada
+  \value Malayalam
+  \value Sinhala
+  \value Thai
+  \value Lao
+  \value Tibetan
+  \value Myanmar
+  \value Khmer
+
+  East Asian Scripts:
+
+  \value Han
+  \value Hiragana
+  \value Katakana
+  \value Hangul
+  \value Bopomofo
+  \value Yi
+
+  Additional Scripts:
+
+  \value Ethiopic
+  \value Cherokee
+  \value CanadianAboriginal
+  \value Mongolian
+
+  Symbols:
+
+  \value CurrencySymbols
+  \value LetterlikeSymbols
+  \value NumberForms
+  \value MathematicalOperators
+  \value TechnicalSymbols
+  \value GeometricSymbols
+  \value MiscellaneousSymbols
+  \value EnclosedAndSquare
+  \value Braille
+
+  Unicode:
+
+  \value Unicode includes all the above scripts.
 */
+
 
 
 /*!
@@ -966,7 +1006,7 @@ static void initFontSubst()
 
     if (fontSubst) return;
 
-    fontSubst = new QFontSubst();
+    fontSubst = new QFontSubst(17, FALSE);
     Q_CHECK_PTR( fontSubst );
     fontSubst->setAutoDelete( TRUE );
     qfont_cleanup_fontsubst.add(fontSubst);
@@ -978,10 +1018,10 @@ static void initFontSubst()
 
 
 /*!
-  Returns the font family name to be used whenever \e familyName is
+  Returns the first family name to be used whenever \a familyName is
   specified. The lookup is case insensitive.
 
-  If there is no substitution for \e familyName, then \e familyName is
+  If there is no substitution for \a familyName, then \a familyName is
   returned.
 
   Example:
@@ -1004,16 +1044,15 @@ QString QFont::substitute( const QString &familyName )
     initFontSubst();
 
     QStringList *list = fontSubst->find(familyName);
-    if (list && list->count() > 0) {
+    if (list && list->count() > 0)
 	return *(list->at(0));
-    }
 
     return familyName;
 }
 
 
 /*!
-  Returns a list of fonts to be used whenever \e familyName is
+  Returns a list of family names to be used whenever \e familyName is
   specified.  The lookup is case insensitive.
 
   If there is no substitution for \e familyName, then an empty
@@ -1024,43 +1063,43 @@ QStringList QFont::substitutes(const QString &familyName)
     initFontSubst();
 
     QStringList ret, *list = fontSubst->find(familyName);
-    if (list) ret += *list;
+    if (list)
+	ret += *list;
     return ret;
 }
 
 
 /*!
-  Inserts a new font family name substitution in the family substitution
-  table.
+  Inserts the family name \a substitutionName into the substitution
+  table for \a familyName.  The search for \a familyName is case insensitive.
 
-  If \e familyName already exists in the substitution table, it will
-  be replaced with this new substitution.
+  The family name \a substituteName will be appended to the substitution list
+  for \a familyName if it already exists in the substitution table.
 
   \sa insertSubstitutions(), removeSubstitution(), substitutions(), substitute()
 */
 void QFont::insertSubstitution(const QString &familyName,
-				const QString &substituteName)
+			       const QString &substituteName)
 {
     initFontSubst();
 
     QStringList *list = fontSubst->find(familyName);
-    if (list) {
-	list->remove(substituteName);
-    } else {
+    if (! list) {
 	list = new QStringList;
 	fontSubst->insert(familyName, list);
-    }
+    } else
+	list->remove(substituteName);
 
     list->prepend(substituteName);
 }
 
 
 /*!
-  Inserts the list of families in \a substituteNames into the substitution
-  table for \a familyName.
+  Inserts the list of families \a substituteNames into the substitution
+  table for \a familyName.  The search for \a familyName is case insensitive.
 
-  If \a familyName already exists in the substitution table, it will be
-  replaced with this new substitution.
+  The list \a substituteNames will be appended to the substitution list for
+  \a familyName if it already exists in the substitution table.
 
   \sa insertSubstitution, removeSubstitution, substitutions(), substitute()
 */
@@ -1080,8 +1119,8 @@ void QFont::insertSubstitutions(const QString &familyName,
 
 
 /*!
-  Removes a font family name substitution from the family substitution
-  table.
+  Removes the family substitution list from the substitution table for
+  \a familyName.  The search for \a familyName is case insensitive.
 
   \sa insertSubstitution(), substitutions(), substitute()
 */
@@ -2239,9 +2278,7 @@ QString QFontPrivate::key() const
     if (request.rawMode)
 	return request.family.lower();
 
-    QString family = request.family.lower();
-
-    int len = (family.length() * 2) +
+    int len = (request.family.length() * 2) +
 	      2 +  // point size
 	      1 +  // font bits
 	      1 +  // weight
@@ -2250,9 +2287,10 @@ QString QFontPrivate::key() const
     QByteArray buf(len);
     uchar *p = (uchar *) buf.data();
 
-    memcpy((char *) p, (char *) family.unicode(), (family.length() * 2));
+    memcpy((char *) p, (char *) request.family.unicode(),
+	   (request.family.length() * 2));
 
-    p += family.length()*2;
+    p += request.family.length()*2;
 
     *((Q_UINT16 *) p) = request.pointSize; p += 2;
     *p++ = get_font_bits( request );
@@ -2266,14 +2304,16 @@ QString QFontPrivate::key() const
 QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 {
     uchar row = c.row();
+    uchar cell = c.cell();
 
-    // Thankfully BASICLATIN is more or less == ISO 8859-1
-    if (! row) return QFont::BasicLatin;
+    // Thankfully LatinBasic is more or less == ISO-8859-1
+    if (! row)
+	return QFont::LatinBasic;
 
     switch ( row ) {
     case 0x01:
 	// There are no typos here... really...
-	switch (c.cell()) {
+	switch (cell) {
 	case 0x00: return QFont::LatinExtendedA_4;
 	case 0x01: return QFont::LatinExtendedA_4;
 	case 0x02: return QFont::LatinExtendedA_2;
@@ -2391,83 +2431,77 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 	case 0x7D: return QFont::LatinExtendedA_2;
 	case 0x7E: return QFont::LatinExtendedA_2;
 	}
+	return QFont::Latin;
 
-	return QFont::LatinExtendedB;
-
-	// TODO: support for Latin Extended-B
     case 0x02:
-	if (c.cell() <= 0x4f)
-	    return QFont::LatinExtendedB;
-	if (c.cell() <= 0xaf)
-	    return QFont::IPAExtensions;
-	break;
+	if (cell <= 0xaf)
+	    return QFont::Latin;
+	return QFont::SpacingModifiers;
 
     case 0x03:
-	if (c.cell() <= 0x6f)
-	    return QFont::Diacritical;
+	if (cell <= 0x6f)
+	    return QFont::CombiningMarks;
 	return QFont::Greek;
 
     case 0x04:
-	// Cyrillic (Russian/Ukrainian)
-	if (c.cell() >= 0x8c)
-	    return QFont::CyrillicExtended;
-	if (c.cell() >= 0x60)
-	    return QFont::CyrillicHistoric;
 	return QFont::Cyrillic;
 
     case 0x05:
-	if( c.cell() >= 0x90 )
-	    return QFont::Hebrew;
-	return QFont::Armenian;
+	if (cell <= 0x2f)
+	    break;
+	if (cell <= 0x8f)
+	    return QFont::Armenian;
+	return QFont::Hebrew;
 
     case 0x06:
-	// probably won't work like this because of shaping...
 	return QFont::Arabic;
 
     case 0x07:
-	if (c.cell() <= 0x4f)
+	if (cell <= 0x4f)
 	    return QFont::Syriac;
-	if (c.cell() >= 0x80 && c.cell() <= 0xbf)
+	if (cell <= 0x7f)
+	    break;
+	if (cell <= 0xbf)
 	    return QFont::Thaana;
 	break;
 
     case 0x09:
-	if (c.cell() <= 0x80)
-	    return QFont::Bengali;
-	return QFont::Devanagari;
+	if (cell <= 0x7f)
+	    return QFont::Devanagari;
+	return QFont::Bengali;
 
     case 0x0a:
-	if (c.cell() <= 0x80)
+	if (cell <= 0x7f)
 	    return QFont::Gurmukhi;
 	return QFont::Gujarati;
 
     case 0x0b:
-	if ( c.cell() >= 0x80 )
-	    return QFont::Tamil;
-	return QFont::Oriya;
+	if ( cell <= 0x7f )
+	    return QFont::Oriya;
+	return QFont::Tamil;
 
     case 0x0c:
-	if (c.cell() >= 0x80)
-	    return QFont::Kannada;
-	return QFont::Telugu;
+	if (cell <= 0x7f)
+	    return QFont::Telugu;
+	return QFont::Kannada;
 
     case 0x0d:
-	if (c.cell() >= 0x80)
-	    return QFont::Sinhala;
-	return QFont::Malayalam;
+	if (cell <= 0x7f)
+	    return QFont::Malayalam;
+	return QFont::Sinhala;
 
     case 0x0e:
-	if (c.cell() >= 0x80)
-	    return QFont::Lao;
-	return QFont::Thai;
+	if (cell <= 0x7f)
+	    return QFont::Thai;
+	return QFont::Lao;
 
     case 0x0f:
-	if (c.cell() <= 0xbf)
+	if (cell <= 0xbf)
 	    return QFont::Tibetan;
 	break;
 
     case 0x10:
-	if (c.cell() <= 0x9f)
+	if (cell <= 0x9f)
 	    return QFont::Myanmar;
 	return QFont::Georgian;
 
@@ -2478,26 +2512,108 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 	return QFont::Ethiopic;
 
     case 0x13:
-	if (c.cell() <= 0x7f)
+	if (cell <= 0x7f)
 	    return QFont::Ethiopic;
+	if (cell <= 0x8f)
+	    break;
+	return QFont::Cherokee;
+
+    case 0x14:
+    case 0x15:
+	return QFont::CanadianAboriginal;
+
+    case 0x16:
+	if (cell <= 0x7f)
+	    return QFont::CanadianAboriginal;
+	if (cell <= 0x9f)
+	    return QFont::Ogham;
+	if (cell <= 0xf0)
+	    return QFont::Runic;
 	break;
 
     case 0x17:
-	if (c.cell() >= 0x80)
-	    return QFont::Khmer;
+	if (cell <= 0x7f)
+	    break;
+	return QFont::Khmer;
+
+    case 0x18:
+	if (cell <= 0xaf)
+	    return QFont::Mongolian;
 	break;
 
     case 0x1e:
-	return QFont::LatinExtendedAdditional;
+	return QFont::Latin;
 
     case 0x1f:
-	return QFont::GreekExtended;
+	return QFont::Greek;
+
+    case 0x20:
+	if (cell <= 0x6f)
+	    break;
+	if (cell <= 0x9f)
+	    return QFont::NumberForms;
+	if (cell <= 0xcf)
+	    return QFont::CurrencySymbols;
+	return QFont::CombiningMarks;
+
+    case 0x21:
+	if (cell <= 0x4f)
+	    return QFont::LetterlikeSymbols;
+	if (cell <= 0x8f)
+	    return QFont::NumberForms;
+	return QFont::MathematicalOperators;
+
+    case 0x22:
+	return QFont::MathematicalOperators;
+
+    case 0x23:
+	return QFont::TechnicalSymbols;
+
+    case 0x24:
+	if (cell <= 0x5f)
+	    return QFont::TechnicalSymbols;
+	return QFont::EnclosedAndSquare;
+
+    case 0x25:
+	return QFont::GeometricSymbols;
+
+    case 0x26:
+    case 0x27:
+	return QFont::MiscellaneousSymbols;
+
+    case 0x28:
+	return QFont::Braille;
+
+    case 0x2e:
+	if (cell <= 0x7f)
+	    break;
+#ifdef Q_WS_X11
+	return hanHack( c );
+#else
+	return QFont::UnifiedHan;
+#endif
+
+    case 0x2f:
+	if (cell <= 0xd5)
+#ifdef Q_WS_X11
+	    return hanHack( c );
+#else
+	return QFont::UnifiedHan;
+#endif
+	if (cell <= 0xef)
+	    break;
+#ifdef Q_WS_X11
+	return hanHack( c );
+#else
+	return QFont::UnifiedHan;
+#endif
 
     case 0x30:
-	if (c.cell() >= 0xa0)
-	    return QFont::Katakana;
-	if (c.cell() >= 0x40)
+	if (cell <= 0x3f)
+	    break;
+	if (cell <= 0x9f)
 	    return QFont::Hiragana;
+	return QFont::Katakana;
 
 	// Unified Han Symbols and Punctuation
 #ifdef Q_WS_X11
@@ -2506,40 +2622,70 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 	return QFont::UnifiedHan;
 #endif
     case 0x31:
-	if (c.cell() <= 0x2f)
+	if (cell <= 0x2f)
 	    return QFont::Bopomofo;
 
 	// Hangul Compatibility Jamo
-	if (c.cell() <= 0x8f)
+	if (cell <= 0x8f)
 	    return QFont::Hangul;
+	if (cell <= 0x9f)
+#ifdef Q_WS_X11
+	    return hanHack( c );
+#else
+	return QFont::UnifiedHan;
+#endif
+	break;
+
+    case 0x32:
+    case 0x33:
+	return QFont::EnclosedAndSquare;
+
+    case 0xa0:
+    case 0xa1:
+    case 0xa2:
+    case 0xa3:
+	return QFont::Yi;
+    case 0xa4:
+	if (cell <= 0xcf)
+	    return QFont::Yi;
 	break;
 
     case 0xfb:
-	if (c.cell() >= 0x50)
-	    //	    return QFont::ArabicPresentationA;
-	    return QFont::Arabic;
-	break;
+	if (cell <= 0x06)
+	    return QFont::Latin;
+	if (cell <= 0x1c)
+	    break;
+	if (cell <= 0x4f)
+	    return QFont::Hebrew;
+	return QFont::Arabic;
+
+    case 0xfc:
+    case 0xfd:
+	return QFont::Arabic;
 
     case 0xfe:
-	if (c.cell() >= 0x70)
-	    return QFont::Arabic;
-	//	    return QFont::ArabicPresentationB;
-	break;
+	if (cell <= 0x1f)
+	    break;
+	if (cell <= 0x2f)
+	    return QFont::CombiningMarks;
+	if (cell <= 0x6f)
+	    break;
+	return QFont::Arabic;
 
     case 0xff:
 	// Hiragana half/full width forms block
-	if (c.cell() <= 0xef)
+	if (cell <= 0xef)
 	    return QFont::Hiragana;
 	break;
     }
 
     // Canadian Aboriginal Syllabics
-    if (row >= 0x14 && (row < 0x16 || (row == 0x16 && c.cell() <= 0x7f))) {
+    if (row >= 0x14 && (row < 0x16 || (row == 0x16 && cell <= 0x7f))) {
 	return QFont::CanadianAboriginal;
     }
 
     // Hangul Syllables
-    if (row >= 0xac && (row < 0xd7 || (row == 0xd7 && c.cell() <= 0xa3))) {
+    if (row >= 0xac && (row < 0xd7 || (row == 0xd7 && cell <= 0xa3))) {
 	return QFont::Hangul;
     }
 
@@ -2555,7 +2701,6 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #endif
     }
 
-    // qDebug("QFP::scriptForChar: unknown character U+%04x", c.unicode());
     // return QFont::UnknownScript;
     return QFont::Unicode;
 }

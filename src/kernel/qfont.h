@@ -166,36 +166,26 @@ public:
     void qwsRenderToDisk(bool all=TRUE);
 #endif
 
+
     enum Script {
-	// Basic Latin with Latin-1 Supplement
-	BasicLatin,
-
-	LatinExtendedA,
-	LatinExtendedB, // TODO
-	IPAExtensions,
-	LatinExtendedAdditional,
-	LatinLigatures,
-
-	Diacritical,
-
+	// European Alphabetic Scripts
+	Latin,
 	Greek,
-	GreekExtended,
 	Cyrillic,
-	CyrillicHistoric,
-	CyrillicExtended,
 	Armenian,
 	Georgian,
 	Runic,
 	Ogham,
+	SpacingModifiers,
+	CombiningMarks,
 
+	// Middle Eastern Scripts
 	Hebrew,
-	HebrewPresentation,
 	Arabic,
-	ArabicPresentationA,
-	ArabicPresentationB,
 	Syriac,
 	Thaana,
 
+	// South and Southeast Asian Scripts
 	Devanagari,
 	Bengali,
 	Gurmukhi,
@@ -212,33 +202,30 @@ public:
 	Myanmar,
 	Khmer,
 
-	UnifiedHan,
+	// East Asian Scripts
+	Han,
 	Hiragana,
 	Katakana,
 	Hangul,
 	Bopomofo,
 	Yi,
 
+	// Additional Scripts
 	Ethiopic,
 	Cherokee,
 	CanadianAboriginal,
 	Mongolian,
 
-	// this one is only used on X11 to get some char displayed for all of
-	// the Han area.
-	UnifiedHanX11,
-
-	// To get Latin Extended-A characters from various ISO-8859-* encodings
-	// Extended Latin from ISO-8859-2
-	LatinExtendedA_2 = LatinExtendedA,
-	// Extended Latin from ISO-8859-3
-	LatinExtendedA_3 = UnifiedHanX11 + 1,
-	// Extended Latin from ISO-8859-4
-	LatinExtendedA_4,
-	// Extended Latin from ISO-8859-14
-	LatinExtendedA_14,
-	// Extended Latin from ISO-8859-15
-	LatinExtendedA_15,
+	// Symbols
+	CurrencySymbols,
+	LetterlikeSymbols,
+	NumberForms,
+	MathematicalOperators,
+	TechnicalSymbols,
+	GeometricSymbols,
+	MiscellaneousSymbols,
+	EnclosedAndSquare,
+	Braille,
 
 	Unicode,
 
@@ -246,7 +233,23 @@ public:
 	NScripts,
 	UnknownScript = NScripts,
 
-	NoScript
+	NoScript,
+
+	// ----------------------------------------
+	// Dear User, you can see values > Unicode,
+	// but they are internal - do not touch.
+
+       	// only used on X11 to get some char displayed for all of the Han area.
+	HanX11,
+
+	LatinBasic = Latin,             // from ISO-8859-1
+	LatinExtendedA_2 = HanX11 + 1,  // from ISO-8859-2
+	LatinExtendedA_3,               // from ISO-8859-3
+	LatinExtendedA_4,               // from ISO-8859-4
+	LatinExtendedA_14,              // from ISO-8859-14
+	LatinExtendedA_15,              // from ISO-8859-15
+
+	LastPrivateScript
     };
 
 

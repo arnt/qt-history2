@@ -1642,35 +1642,14 @@ QString QFontDatabase::scriptName(QFont::Script script)
     const char *name = 0;
 
     switch (script) {
-    case QFont::BasicLatin:
-	name = "Basic Latin";
-	break;
-    case QFont::LatinExtendedA:
-	name = "Latin Extended-A";
-	break;
-    case QFont::LatinExtendedB:
-	name = "Latin Extended-B";
-	break;
-    case QFont::IPAExtensions:
-	name = "IPA Extentions";
-	break;
-    case QFont::LatinExtendedAdditional:
-	name = "Latin Extended Additional";
+    case QFont::Latin:
+	name = "Latin";
 	break;
     case QFont::Greek:
 	name = "Greek";
 	break;
-    case QFont::GreekExtended:
-	name = "Greek Extended";
-	break;
     case QFont::Cyrillic:
 	name = "Cyrillic";
-	break;
-    case QFont::CyrillicHistoric:
-	name = "Cyrillic Historic";
-	break;
-    case QFont::CyrillicExtended:
-	name = "Cyrillic Extended";
 	break;
     case QFont::Armenian:
 	name = "Armenian";
@@ -1686,7 +1665,6 @@ QString QFontDatabase::scriptName(QFont::Script script)
 	break;
     case QFont::Hebrew:
 	name = "Hebrew";
-	break;
 	break;
     case QFont::Arabic:
 	name = "Arabic";
@@ -1742,8 +1720,8 @@ QString QFontDatabase::scriptName(QFont::Script script)
     case QFont::Khmer:
 	name = "Khmer";
 	break;
-    case QFont::UnifiedHan:
-	name = "Unified Han";
+    case QFont::Han:
+	name = "Han";
 	break;
     case QFont::Hiragana:
 	name = "Hiragana";
@@ -1772,9 +1750,47 @@ QString QFontDatabase::scriptName(QFont::Script script)
     case QFont::Mongolian:
 	name = "Mongolian";
 	break;
+
+    case QFont::CurrencySymbols:
+	name = "Currency Symbols";
+	break;
+
+    case QFont::LetterlikeSymbols:
+	name = "Letterlike Symbols";
+	break;
+
+    case QFont::NumberForms:
+	name = "Number Forms";
+	break;
+
+    case QFont::MathematicalOperators:
+	name = "Mathematical Operators";
+	break;
+
+    case QFont::TechnicalSymbols:
+	name = "Technical Symbols";
+	break;
+
+    case QFont::GeometricSymbols:
+	name = "Geometric Symbols";
+	break;
+
+    case QFont::MiscellaneousSymbols:
+	name = "Miscellaneous Symbols";
+	break;
+
+    case QFont::EnclosedAndSquare:
+	name = "Enclosed and Square";
+	break;
+
+    case QFont::Braille:
+	name = "Braille";
+	break;
+
     case QFont::Unicode:
 	name = "Unicode";
 	break;
+
     default:
 	name = "";
 	break;
@@ -1792,34 +1808,12 @@ QString QFontDatabase::scriptSample(QFont::Script script)
     QString sample = "AaBb";
 
     switch (script) {
-    case QFont::BasicLatin:
+    case QFont::Latin:
+	// This is cheating... we only show latin-1 characters so that we don't
+	// end up loading lots of fonts - at least on X11...
 	sample += QChar(0x00C3);
 	sample += QChar(0x00E1);
 	sample += "Zz";
-	break;
-    case QFont::LatinExtendedA:
-	sample += QChar(0x0102);
-	sample += QChar(0x011c);
-	sample += QChar(0x0174);
-	sample += QChar(0x0152);
-	break;
-    case QFont::LatinExtendedB:
-	sample += QChar(0x018f);
-	sample += QChar(0x019b);
-	sample += QChar(0x020f);
-	sample += QChar(0x0233);
-	break;
-    case QFont::IPAExtensions:
-	sample += QChar(0x025f);
-	sample += QChar(0x026f);
-	sample += QChar(0x027f);
-	sample += QChar(0x028f);
-	break;
-    case QFont::LatinExtendedAdditional:
-	sample += QChar(0x1e0f);
-	sample += QChar(0x1e4f);
-	sample += QChar(0x1e8f);
-	sample += QChar(0x1ecf);
 	break;
     case QFont::Greek:
 	sample += QChar(0x0393);
@@ -1827,29 +1821,11 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0x03A9);
 	sample += QChar(0x03C9);
 	break;
-    case QFont::GreekExtended:
-	sample += QChar(0x1f00);
-	sample += QChar(0x1f10);
-	sample += QChar(0x1f20);
-	sample += QChar(0x1f30);
-	break;
     case QFont::Cyrillic:
 	sample += QChar(0x0414);
 	sample += QChar(0x0434);
 	sample += QChar(0x0436);
 	sample += QChar(0x0402);
-	break;
-    case QFont::CyrillicHistoric:
-	sample += QChar(0x0464);
-	sample += QChar(0x0474);
-	sample += QChar(0x0466);
-	sample += QChar(0x0472);
-	break;
-    case QFont::CyrillicExtended:
-	sample += QChar(0x04a0);
-	sample += QChar(0x04b0);
-	sample += QChar(0x04c0);
-	sample += QChar(0x04d0);
 	break;
     case QFont::Armenian:
 	sample += QChar(0x053f);
@@ -1875,6 +1851,9 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0x1693);
 	sample += QChar(0x168d);
 	break;
+
+
+
     case QFont::Hebrew:
         sample += QChar(0x05D0);
         sample += QChar(0x05D1);
@@ -1899,6 +1878,9 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0x078c);
 	sample += QChar(0x078d);
 	break;
+
+
+
     case QFont::Devanagari:
 	sample += QChar(0x0905);
 	sample += QChar(0x0915);
@@ -1989,7 +1971,10 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0x17b0);
 	sample += QChar(0x17c0);
 	break;
-    case QFont::UnifiedHan:
+
+
+
+    case QFont::Han:
 	sample += QChar(0x6f84);
 	sample += QChar(0x820a);
 	sample += QChar(0x61a9);
@@ -2025,6 +2010,9 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0xa200);
 	sample += QChar(0xa280);
 	break;
+
+
+
     case QFont::Ethiopic:
 	sample += QChar(0x1200);
 	sample += QChar(0x1240);
@@ -2049,6 +2037,20 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0x1860);
 	sample += QChar(0x1880);
 	break;
+
+
+    case QFont::CurrencySymbols:
+    case QFont::LetterlikeSymbols:
+    case QFont::NumberForms:
+    case QFont::MathematicalOperators:
+    case QFont::TechnicalSymbols:
+    case QFont::GeometricSymbols:
+    case QFont::MiscellaneousSymbols:
+    case QFont::EnclosedAndSquare:
+    case QFont::Braille:
+	break;
+
+
     case QFont::Unicode:
 	sample += QChar(0x0174);
 	sample += QChar(0x0628);
@@ -2058,6 +2060,9 @@ QString QFontDatabase::scriptSample(QFont::Script script)
 	sample += QChar(0x61a9);
 	sample += QChar(0xac2f);
 	break;
+
+
+
     default:
 	sample += QChar(0xfffd);
 	sample += QChar(0xfffd);

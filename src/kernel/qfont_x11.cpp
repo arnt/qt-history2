@@ -79,38 +79,22 @@
 
 // This array must be kept in sync with the QFontPrivate::Script enum in
 // qfontdata_p.h
-static const char *qt_x11encodings[][QFont::NScripts + 1] = {
-    { "iso8859-1"        , 0 }, // BasicLatin
-
-    { "iso8859-2"        , 0 }, // LatinExtendedA
-    // TODO: Latin Extended-B
-    { 0                      }, // LatinExtendedB
-    { 0                      }, // IPAExtensions
-    { 0                      }, // LatinExtendedAdditional
-    { 0                      }, // LatinLigatures
-
-    { 0                      }, // Diacritical
-
+static const char *qt_x11encodings[][QFont::LastPrivateScript + 1] = {
+    { "iso8859-1"        , 0 }, // Latin
     { "iso8859-7"        , 0 }, // Greek
-    { 0                      }, // GreekExtended
     { "iso8859-5",
       "koi8-r",
       "koi8-ru"          , 0 }, // Cyrillic
-    { 0                      }, // CyrillicHistoric
-    { 0                      }, // CyrillicExtended
     { 0                      }, // Armenian
     { 0                      }, // Georgian
     { 0                      }, // Runic
     { 0                      }, // Ogham
+    { 0                      }, // SpacingModifiers
+    { 0                      }, // CombiningMarks
 
-    { "iso8859-8-i"        , 0 }, // Hebrew
-    { 0                      }, // HebrewPresentation
-
-    { "iso8859-6.8x"     , 0 }, // // Arabic
+    { "iso8859-8-i"      , 0 }, // Hebrew
+    { "iso8859-6.8x"     , 0 }, // Arabic
     // "iso8859-6" - commented for now since arabic doesn't work at all for iso8859-6
-
-    { 0                      }, // ArabicPresentationA
-    { 0                      }, // ArabicPresentationB
     { 0                      }, // Syriac
     { 0                      }, // Thaana
 
@@ -134,7 +118,7 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { "jisx0208.1983-0",
       "gb2312.1980-0",
       "big5*-*",
-      "ksc5601.1987-0",    0 }, // UnifiedHan
+      "ksc5601.1987-0",    0 }, // Han
     { "jisx0208.1983-0",   0 }, // Hiragana
     { "jisx0208.1983-0"  , 0 }, // Katakana
     { "ksc5601.1987-0"   , 0 }, // Hangul
@@ -146,46 +130,48 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // CanadianAboriginal
     { 0                      }, // Mongolian
 
-    { "big5*-*"          , 0 }, // UnifiedHanX11
+    { 0                      }, // CurrencySymbols
+    { 0                      }, // LetterlikeSymbols
+    { 0                      }, // NumberForms
+    { 0                      }, // MathematicalOperators
+    { 0                      }, // TechnicalSymbols
+    { 0                      }, // GeometricSymbols
+    { 0                      }, // MiscellaneousSymbols
+    { 0                      }, // EnclosedAndSquare
+    { 0                      }, // Braille
 
+    { "iso10646-1",
+      "unicode-*"        , 0 }, // Unicode == ISO-10646-1 (for now)
+
+    { "*-*"              , 0 }, // UnknownScript
+    { 0                  , 0 }, // NoScript
+
+    { "big5*-*"          , 0 }, // HanX11
+
+    // LatinBasic == Latin
+    { "iso8859-2"        , 0 }, // LatinExtendedA_2
     { "iso8859-3"        , 0 }, // LatinExtendedA_3
     { "iso8859-4"        , 0 }, // LatinExtendedA_4
     { "iso8859-14"       , 0 }, // LatinExtendedA_14
     { "iso8859-15"       , 0 }, // LatinExtendedA_15
 
-    { "iso10646-1",
-      "unicode-*"        , 0 }, // UNICODE == ISO-10646-1 (for now)
-
-    { "*-*"              , 0 } // UnknownScript
+    { 0                      }  // LastPrivateScript
 };
 
 
-static int qt_x11indices[QFont::NScripts + 1] = {
-    0, // BasicLatin
-
-    0, // LatinExtendedA
-    0, // LatinExtendedB
-    0, // IPAExtensions
-    0, // LatinExtendedAdditional
-    0, // LatinLigatures
-
-    0, // Diacritical
-
+static int qt_x11indices[QFont::LastPrivateScript + 1] = {
+    0, // Latin
     0, // Greek
-    0, // GreekExtended
     0, // Cyrillic
-    0, // CyrillicHistoric
-    0, // CyrillicExtended
     0, // Armenian
     0, // Georgian
     0, // Runic
     0, // Ogham
+    0, // SpacingModifiers
+    0, // CombiningMarks
 
     0, // Hebrew
-    0, // HebrewPresentation
     0, // Arabic
-    0, // ArabicPresentationA
-    0, // ArabicPresentationB
     0, // Syriac
     0, // Thaana
 
@@ -205,7 +191,7 @@ static int qt_x11indices[QFont::NScripts + 1] = {
     0, // Myanmar
     0, // Khmer
 
-    0, // UnifiedHan
+    0, // Han
     0, // Hiragana
     0, // Katakana
     0, // Hangul
@@ -217,17 +203,31 @@ static int qt_x11indices[QFont::NScripts + 1] = {
     0, // CanadianAboriginal
     0, // Mongolian
 
-    0, // HanHack
+    0, // CurrencySymbols
+    0, // LetterlikeSymbols
+    0, // NumberForms
+    0, // MathematicalOperators
+    0, // TechnicalSymbols
+    0, // GeometricSymbols
+    0, // MiscellaneousSymbols
+    0, // EnclosedAndSquare
+    0, // Braille
 
-    // LatinExtendedA_2 is LatinExtendedA
+    0, // Unicode
+
+    0, // UnknownScript
+    0, // NoScript
+
+    0, // HanX11
+
+    // LatinBasic == Latin
+    0, // LatinExtendedA_2
     0, // LatinExtendedA_3
     0, // LatinExtendedA_4
     0, // LatinExtendedA_14
     0, // LatinExtendedA_15
 
-    0, // Unicode
-
-    0, // NScripts
+    0, // LastPrivateScript
 };
 
 
@@ -1085,7 +1085,8 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 	XftFontStruct *xftfs = 0;
 #endif // QT_NO_XFTFREETYPE
 
-    	if ( cache->script < QFont::NScripts && qfs && qfs != (QFontStruct *) -1 ) {
+    	if ( cache->script < QFont::LastPrivateScript &&
+	     qfs && qfs != (QFontStruct *) -1 ) {
 	    xfs = (XFontStruct *) qfs->handle;
 
 #ifndef QT_NO_XFTFREETYPE
@@ -1788,8 +1789,8 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     // on the foundry, family and charset now
 
     char pitch = tolower( tokens[Spacing][0] );
-    if ( script >= QFont::UnifiedHan && script <= QFont::Yi ||
-	 script == QFont::UnifiedHanX11 ) {
+    if ( script >= QFont::Han && script <= QFont::Yi ||
+	 script == QFont::HanX11 ) {
 	// basically we treat cell spaced and proportional fonts the same for asian.
 	// Proportional ones put a heavy load on the server, so we make them less
 	// favorable.
@@ -1931,11 +1932,11 @@ QFont::Script QFontPrivate::hanHack( const QChar &c )
 {
     QFontStruct *f;
 
-    load( QFont::UnifiedHan, TRUE );
-    if ( (f = x11data.fontstruct[QFont::UnifiedHan]) != (QFontStruct *) -1 ) {
+    load( QFont::Han, TRUE );
+    if ( (f = x11data.fontstruct[QFont::Han]) != (QFontStruct *) -1 ) {
 	Q_ASSERT( f != 0 );
 	if ( !f->codec || f->codec->canEncode( c ) )
-	    return QFont::UnifiedHan;
+	    return QFont::Han;
     }
     // Han didn't do it, let's try the other ones...
 
@@ -1964,13 +1965,13 @@ QFont::Script QFontPrivate::hanHack( const QChar &c )
     }
 
     // simplified chinese
-    load( QFont::UnifiedHanX11, FALSE );
-    if ( (f = x11data.fontstruct[QFont::UnifiedHanX11]) != (QFontStruct *) -1 ) {
+    load( QFont::HanX11, FALSE );
+    if ( (f = x11data.fontstruct[QFont::HanX11]) != (QFontStruct *) -1 ) {
 	Q_ASSERT( f != 0 );
 	if ( !f->codec || f->codec->canEncode( c ) )
-	    return QFont::UnifiedHanX11;
+	    return QFont::HanX11;
     }
-    return QFont::UnifiedHan;
+    return QFont::Han;
 }
 
 
@@ -1988,110 +1989,66 @@ static QChar sampleCharacter(QFont::Script script)
     uchar row, cell;
 
     switch (script) {
-    case QFont::BasicLatin:
-	row = 0x00; cell = 0x30; break;
-    case QFont::LatinExtendedA:
-	row = 0x01; cell = 0x02; break;
-    case QFont::LatinExtendedB:
-	row = 0x01; cell = 0x80; break;
-    case QFont::IPAExtensions:
-	row = 0x02; cell = 0x50; break;
-    case QFont::LatinExtendedAdditional:
-	row = 0x1e; cell = 0x00; break;
-    case QFont::LatinLigatures:
-	row = 0xfb; cell = 0x00; break;
-    case QFont::Diacritical:
-	row = 0x03; cell = 0x00; break;
-    case QFont::Greek:
-	row = 0x03; cell = 0x90; break;
-    case QFont::GreekExtended:
-	row = 0x1f; cell = 0x00; break;
-    case QFont::Cyrillic:
-	row = 0x04; cell = 0x10; break;
-    case QFont::CyrillicHistoric:
-	row = 0x04; cell = 0x60; break;
-    case QFont::CyrillicExtended:
-	row = 0x04; cell = 0xa0; break;
-    case QFont::Armenian:
-	row = 0x05; cell = 0x40; break;
-    case QFont::Georgian:
-	row = 0x10; cell = 0xa0; break;
-    case QFont::Runic:
-	row = 0x16; cell = 0xa0; break;
-    case QFont::Ogham:
-	row = 0x16; cell = 0x80; break;
-    case QFont::Hebrew:
-	row = 0x05; cell = 0xd0; break;
-    case QFont::HebrewPresentation:
-	row = 0xfb; cell = 0x20; break;
-    case QFont::Arabic:
-	row = 0x06; cell = 0x30; break;
-    case QFont::ArabicPresentationA:
-	row = 0xfb; cell = 0x50; break;
-    case QFont::ArabicPresentationB:
-	row = 0xfe; cell = 0x70; break;
-    case QFont::Syriac:
-	row = 0x07; cell = 0x10; break;
-    case QFont::Thaana:
-	row = 0x07; cell = 0x80; break;
-    case QFont::Devanagari:
-	row = 0x09; cell = 0x10; break;
-    case QFont::Bengali:
-	row = 0x09; cell = 0x90; break;
-    case QFont::Gurmukhi:
-	row = 0xa0; cell = 0x10; break;
-    case QFont::Gujarati:
-	row = 0x0a; cell = 0x90; break;
-    case QFont::Oriya:
-	row = 0x0b; cell = 0x10; break;
-    case QFont::Tamil:
-	row = 0x0b; cell = 0x90; break;
-    case QFont::Telugu:
-	row = 0x0c; cell = 0x10; break;
-    case QFont::Kannada:
-	row = 0x0c; cell = 0x90; break;
-    case QFont::Malayalam:
-	row = 0x0d; cell = 0x10; break;
-    case QFont::Sinhala:
-	row = 0x0d; cell = 0x90; break;
-    case QFont::Thai:
-	row = 0x0e; cell = 0x10; break;
-    case QFont::Lao:
-	row = 0xe0; cell = 0x81; break;
-    case QFont::Tibetan:
-	row = 0x0f; cell = 0x00; break;
-    case QFont::Myanmar:
-	row = 0x10; cell = 0x00; break;
-    case QFont::Khmer:
-	row = 0x17; cell = 0x80; break;
-    case QFont::UnifiedHan:
-	row = 0x4e; cell = 0x00; break;
-    case QFont::Hiragana:
-	row = 0x30; cell = 0x50; break;
-    case QFont::Katakana:
-	row = 0x30; cell = 0xb0; break;
-    case QFont::Hangul:
-	row = 0xac; cell = 0x00; break;
-    case QFont::Bopomofo:
-	row = 0x31; cell = 0x10; break;
-    case QFont::Yi:
-	row = 0xa0; cell = 0x00; break;
-    case QFont::Ethiopic:
-	row = 0x12; cell = 0x00; break;
-    case QFont::Cherokee:
-	row = 0x13; cell = 0xa0; break;
-    case QFont::CanadianAboriginal:
-	row = 0x14; cell = 0x10; break;
-    case QFont::LatinExtendedA_3:
-	row = 0x01; cell = 0x08; break;
-    case QFont::LatinExtendedA_4:
-	row = 0x01; cell = 0x00; break;
-    case QFont::LatinExtendedA_14:
-	row = 0x01; cell = 0x74; break;
-    case QFont::LatinExtendedA_15:
-	row = 0x01; cell = 0x52; break;
+    case QFont::Latin:                     row = 0x00; cell = 0x30; break;
+    case QFont::Greek:                     row = 0x03; cell = 0x90; break;
+    case QFont::Cyrillic:                  row = 0x04; cell = 0x10; break;
+    case QFont::Armenian:                  row = 0x05; cell = 0x40; break;
+    case QFont::Georgian:                  row = 0x10; cell = 0xa0; break;
+    case QFont::Runic:                     row = 0x16; cell = 0xa0; break;
+    case QFont::Ogham:                     row = 0x16; cell = 0x80; break;
+    case QFont::CombiningMarks:            row = 0x03; cell = 0x00; break;
+
+    case QFont::Hebrew:                    row = 0x05; cell = 0xd0; break;
+    case QFont::Arabic:                    row = 0x06; cell = 0x30; break;
+    case QFont::Syriac:                    row = 0x07; cell = 0x10; break;
+    case QFont::Thaana:                    row = 0x07; cell = 0x80; break;
+
+    case QFont::Devanagari:                row = 0x09; cell = 0x10; break;
+    case QFont::Bengali:                   row = 0x09; cell = 0x90; break;
+    case QFont::Gurmukhi:                  row = 0xa0; cell = 0x10; break;
+    case QFont::Gujarati:                  row = 0x0a; cell = 0x90; break;
+    case QFont::Oriya:                     row = 0x0b; cell = 0x10; break;
+    case QFont::Tamil:                     row = 0x0b; cell = 0x90; break;
+    case QFont::Telugu:                    row = 0x0c; cell = 0x10; break;
+    case QFont::Kannada:                   row = 0x0c; cell = 0x90; break;
+    case QFont::Malayalam:                 row = 0x0d; cell = 0x10; break;
+    case QFont::Sinhala:                   row = 0x0d; cell = 0x90; break;
+    case QFont::Thai:                      row = 0x0e; cell = 0x10; break;
+    case QFont::Lao:                       row = 0xe0; cell = 0x81; break;
+    case QFont::Tibetan:                   row = 0x0f; cell = 0x00; break;
+    case QFont::Myanmar:                   row = 0x10; cell = 0x00; break;
+    case QFont::Khmer:                     row = 0x17; cell = 0x80; break;
+
+    case QFont::Han:                       row = 0x4e; cell = 0x00; break;
+    case QFont::Hiragana:                  row = 0x30; cell = 0x50; break;
+    case QFont::Katakana:                  row = 0x30; cell = 0xb0; break;
+    case QFont::Hangul:                    row = 0xac; cell = 0x00; break;
+    case QFont::Bopomofo:                  row = 0x31; cell = 0x10; break;
+    case QFont::Yi:                        row = 0xa0; cell = 0x00; break;
+
+    case QFont::Ethiopic:                  row = 0x12; cell = 0x00; break;
+    case QFont::Cherokee:                  row = 0x13; cell = 0xa0; break;
+    case QFont::CanadianAboriginal:        row = 0x14; cell = 0x10; break;
+    case QFont::Mongolian:                 row = 0x18; cell = 0x00; break;
+
+    case QFont::CurrencySymbols:           row = 0x20; cell = 0xa0; break;
+    case QFont::LetterlikeSymbols:         row = 0x21; cell = 0x00; break;
+    case QFont::NumberForms:               row = 0x21; cell = 0x60; break;
+    case QFont::MathematicalOperators:     row = 0x22; cell = 0x2b; break;
+    case QFont::TechnicalSymbols:          row = 0x24; cell = 0x40; break;
+    case QFont::GeometricSymbols:          row = 0x25; cell = 0x00; break;
+    case QFont::MiscellaneousSymbols:      row = 0x26; cell = 0x00; break;
+    case QFont::EnclosedAndSquare:         row = 0x24; cell = 0x60; break;
+    case QFont::Braille:                   row = 0x28; cell = 0x00; break;
+
+    case QFont::LatinExtendedA_2:          row = 0x01; cell = 0x02; break;
+    case QFont::LatinExtendedA_3:          row = 0x01; cell = 0x08; break;
+    case QFont::LatinExtendedA_4:          row = 0x01; cell = 0x00; break;
+    case QFont::LatinExtendedA_14:         row = 0x01; cell = 0x74; break;
+    case QFont::LatinExtendedA_15:         row = 0x01; cell = 0x52; break;
+
     default:
-	row = cell = 0;
+ 	row = cell = 0;
     }
 
     ch.cell() = cell;
@@ -2188,7 +2145,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     if (script == QFont::NoScript)
 	script = defaultScript;
 
-    if (script > QFont::Unicode)
+    if (script > QFont::LastPrivateScript)
 	qFatal("QFontLoader: script %d is out of range", script);
 
     if (x11data.fontstruct[script] && ! request.dirty)
@@ -2530,7 +2487,7 @@ void QFont::initialize()
     Q_CHECK_PTR(QFontPrivate::fontCache);
     cleanup_fontcache.add(QFontPrivate::fontCache);
 
-    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
+    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size(), FALSE);
     Q_CHECK_PTR(fontNameDict);
     fontNameDict->setAutoDelete(TRUE);
     cleanup_fontnamedict.add(fontNameDict);
@@ -2720,11 +2677,15 @@ void QFont::setPixelSizeFloat( float pixelSize )
 */
 int QFontMetrics::ascent() const
 {
-    d->load(QFontPrivate::defaultScript);
+    QFontPrivate *D = d;
+    if (painter)
+	D = painter->cfont.d;
 
-    QFontStruct *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
+    D->load(QFontPrivate::defaultScript);
+
+    QFontStruct *qfs = D->x11data.fontstruct[QFontPrivate::defaultScript];
     if (! qfs || qfs == (QFontStruct *) -1) {
-	return d->request.pixelSize * 3 / 4;
+	return D->request.pixelSize * 3 / 4;
     }
 
 #ifndef QT_NO_XFTFREETYPE
@@ -3242,7 +3203,7 @@ int QFontMetrics::maxWidth() const
     QFontStruct *qfs;
     int w = 0, ww;
 
-    for (int i = 0; i < QFont::NScripts - 1; i++) {
+    for (int i = 0; i < QFont::LastPrivateScript - 1; i++) {
 	if (! d->x11data.fontstruct[i]) {
 	    continue;
 	}

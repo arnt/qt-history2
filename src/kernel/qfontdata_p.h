@@ -380,11 +380,11 @@ public:
     class QFontX11Data {
     public:
 	// X fontstruct handles for each character set
-	QFontStruct *fontstruct[QFont::NScripts];
+	QFontStruct *fontstruct[QFont::LastPrivateScript];
 
 	QFontX11Data()
 	{
-	    for (int i = 0; i < QFont::NScripts; i++) {
+	    for (int i = 0; i < QFont::LastPrivateScript; i++) {
 		fontstruct[i] = 0;
 	    }
 	}
@@ -393,7 +393,7 @@ public:
 	{
 	    QFontStruct *qfs;
 
-	    for (int i = 0; i < QFont::NScripts; i++) {
+	    for (int i = 0; i < QFont::LastPrivateScript; i++) {
 		qfs = fontstruct[i];
 		fontstruct[i] = 0;
 
