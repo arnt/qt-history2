@@ -32,7 +32,6 @@
 
 #include "qlist.h"
 #include "qobject.h"
-#include "qptrvector.h"
 
 struct QObjectPrivate
 {
@@ -45,7 +44,7 @@ struct QObjectPrivate
 #endif
 	}
 #ifndef QT_NO_USERDATA
-    QPtrVector<QObjectUserData> userData; // #### use new container
+    QList<QObjectUserData *> userData;
 #endif
 
     // signal connections

@@ -2072,8 +2072,6 @@ QObjectUserData::~QObjectUserData()
  */
 void QObject::setUserData( uint id, QObjectUserData* data)
 {
-    if (id >= d->userData.size())
-	d->userData.resize(id+1);
     d->userData.insert(id, data);
 }
 
@@ -2081,7 +2079,7 @@ void QObject::setUserData( uint id, QObjectUserData* data)
  */
 QObjectUserData* QObject::userData( uint id ) const
 {
-    if (id < d->userData.size())
+    if ((int)id < d->userData.size())
 	return d->userData.at(id);
     return 0;
 }
