@@ -37,6 +37,7 @@
 
 #include "private/qlibrary_p.h"
 
+#ifndef QT_NO_LIBRARY
 /*
   The platform dependent implementations of
   - loadLibrary
@@ -142,5 +143,5 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 #endif
     return address;
 }
-
+#endif // QT_NO_LIBRARY
 #endif // POSIX

@@ -75,10 +75,12 @@ public:
     static QString longMonthName( int month );
     static QString longDayName( int weekday );
 #endif //QT_NO_TEXTDATE
+#ifndef QT_NO_TEXTSTRING
 #if !defined(QT_NO_SPRINTF) 
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 #endif
     QString toString( const QString& format ) const;
+#endif
     bool   setYMD( int y, int m, int d );
 
     QDate  addDays( int days )		const;
@@ -104,7 +106,7 @@ public:
 private:
     uint	 jd;
     friend class QDateTime;
-#ifndef QT_NO_DATASTREAM
+#ifndef QT_NO_DATESTRING
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QDate & );
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QDate & );
 #endif
@@ -128,12 +130,12 @@ public:
     int	   minute()	 const;			// 0..59
     int	   second()	 const;			// 0..59
     int	   msec()	 const;			// 0..999
-
+#ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 #endif
     QString toString( const QString& format ) const;
-
+#endif
     bool   setHMS( int h, int m, int s, int ms=0 );
 
     QTime  addSecs( int secs )		const;
@@ -187,12 +189,12 @@ public:
     void   setDate( const QDate &date ) { d=date; }
     void   setTime( const QTime &time ) { t=time; }
     void   setTime_t( uint secsSince1Jan1970UTC );
-
+#ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	const;
 #endif
     QString toString( const QString& format ) const;
-
+#endif
     QDateTime addDays( int days )	const;
     QDateTime addMonths( int months )   const;
     QDateTime addYears( int years )     const;

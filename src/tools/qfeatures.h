@@ -149,6 +149,9 @@
 // Character set conversions
 //#define QT_NO_TEXTCODEC
 
+// QDate/QTime/QDateTime toString()
+//#define QT_NO_TEXTDATE
+
 // QTextStream
 //#define QT_NO_TEXTSTREAM
 
@@ -230,6 +233,11 @@
 // Image file text strings
 #if !defined(QT_NO_IMAGE_TEXT) && (defined(QT_NO_STRINGLIST))
 #define QT_NO_IMAGE_TEXT
+#endif
+
+// Shared library wrapper
+#if !defined(QT_NO_LIBRARY) && (defined(QT_NO_REGEXP))
+#define QT_NO_LIBRARY
 #endif
 
 // Pixmap transformations
@@ -340,11 +348,6 @@
 // Session management
 #if !defined(QT_NO_SESSIONMANAGER) && (defined(QT_NO_STRINGLIST))
 #define QT_NO_SESSIONMANAGER
-#endif
-
-// Month and day names in dates
-#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_TEXTDATE
 #endif
 
 // Scaling and rotation
@@ -552,11 +555,6 @@
 #define QT_NO_CLIPBOARD
 #endif
 
-// Dynamic module linking
-#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_SETTINGS))
-#define QT_NO_COMPONENT
-#endif
-
 // Grid layout widgets
 #if !defined(QT_NO_GRID) && (defined(QT_NO_LAYOUT) || defined(QT_NO_FRAME))
 #define QT_NO_GRID
@@ -642,19 +640,14 @@
 #define QT_NO_VBOX
 #endif
 
-// QWidgetPlugin
-#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT))
-#define QT_NO_WIDGETPLUGIN
-#endif
-
 // Button groups
 #if !defined(QT_NO_BUTTONGROUP) && (defined(QT_NO_GROUPBOX) || defined(QT_NO_BUTTON))
 #define QT_NO_BUTTONGROUP
 #endif
 
-// QImageFormatPlugin
-#if !defined(QT_NO_IMAGEFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_IMAGEIO))
-#define QT_NO_IMAGEFORMATPLUGIN
+// Dynamic module linking
+#if !defined(QT_NO_COMPONENT) && (defined(QT_NO_QUUID_STRING) || defined(QT_NO_SETTINGS) || defined(QT_NO_LIBRARY))
+#define QT_NO_COMPONENT
 #endif
 
 // HTTP file access
@@ -672,11 +665,6 @@
 #define QT_NO_STYLE_AQUA
 #endif
 
-// QTextCodecPlugin
-#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_TEXTCODEC))
-#define QT_NO_TEXTCODECPLUGIN
-#endif
-
 // Vertical group boxes
 #if !defined(QT_NO_VGROUPBOX) && (defined(QT_NO_HGROUPBOX))
 #define QT_NO_VGROUPBOX
@@ -692,6 +680,16 @@
 #define QT_NO_HEADER
 #endif
 
+// FTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
+#define QT_NO_NETWORKPROTOCOL_FTP
+#endif
+
+// QWidgetPlugin
+#if !defined(QT_NO_WIDGETPLUGIN) && (defined(QT_NO_COMPONENT))
+#define QT_NO_WIDGETPLUGIN
+#endif
+
 // Hebrew Codec
 #if !defined(QT_NO_CODEC_HEBREW) && (defined(QT_NO_CODECS) || defined(QT_NO_COMPLEXTEXT))
 #define QT_NO_CODEC_HEBREW
@@ -702,9 +700,14 @@
 #define QT_NO_DRAGANDDROP
 #endif
 
-// FTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
-#define QT_NO_NETWORKPROTOCOL_FTP
+// QImageFormatPlugin
+#if !defined(QT_NO_IMAGEFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_IMAGEIO))
+#define QT_NO_IMAGEFORMATPLUGIN
+#endif
+
+// QTextCodecPlugin
+#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_TEXTCODEC))
+#define QT_NO_TEXTCODECPLUGIN
 #endif
 
 // Tool-buttons

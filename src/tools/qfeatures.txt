@@ -142,6 +142,12 @@ Requires: STRINGLIST
 Name: Month and day names in dates
 SeeAlso: ???
 
+Feature DATESTRING
+Section: Data structures
+Requires: 
+Name: QDate/QTime/QDateTime toString()
+SeeAlso: ???
+
 Feature: ICONSET
 Section: Images
 Requires: IMAGEIO IMAGE_SMOOTHSCALE PALETTE IMAGE_HEURISTIC_MASK
@@ -172,9 +178,15 @@ Requires:
 Name: QDataStream
 SeeAlso: ???
 
+Feature: LIBRARY
+Section: File I/O
+Requires: REGEXP
+Name: Shared library wrapper
+SeeAlso: ???
+
 Feature: COMPONENT
 Section: File I/O
-Requires: QUUID_STRING SETTINGS
+Requires: QUUID_STRING SETTINGS LIBRARY
 Name: Dynamic module linking
 SeeAlso: ???
 

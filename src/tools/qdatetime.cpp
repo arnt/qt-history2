@@ -71,7 +71,7 @@ static const char * const qt_shortMonthNames[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-
+#ifndef QT_NO_DATESTRING
 /*****************************************************************************
   Some static function used by QDate, QTime and QDateTime
  *****************************************************************************/
@@ -188,6 +188,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 
     return buf;
 }
+#endif // QT_NO_DATESTRING
 
 /*****************************************************************************
   QDate member functions
@@ -623,6 +624,8 @@ QString QDate::longDayName( int weekday )
 }
 #endif //QT_NO_TEXTDATE
 
+#ifndef QT_NO_DATESTRING
+
 #if !defined(QT_NO_SPRINTF)
 /*!
     \overload
@@ -643,7 +646,6 @@ QString QDate::longDayName( int weekday )
 
   \sa shortDayName(), shortMonthName()
 */
-
 QString QDate::toString( Qt::DateFormat f ) const
 {
     int y, m, d;
@@ -785,7 +787,7 @@ QString QDate::toString( const QString& format ) const
 {
     return fmtDateTime( format, 0, this );
 }
-
+#endif //QT_NO_DATESTRING
 
 /*!
   Sets the date's year \a y, month \a m and day \a d.
@@ -1263,7 +1265,7 @@ int QTime::msec() const
     return ds % 1000;
 }
 
-
+#ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
 /*!
     \overload
@@ -1367,7 +1369,7 @@ QString QTime::toString( const QString& format ) const
 {
     return fmtDateTime( format, this, 0 );
 }
-
+#endif //QT_NO_DATESTRING
 /*!
   Sets the time to hour \a h, minute \a m, seconds \a s and
   milliseconds \a ms.
@@ -1856,6 +1858,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 	    1000*tM->tm_sec;
 }
 
+#ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
 /*!
     \overload
@@ -1988,6 +1991,7 @@ QString QDateTime::toString( const QString& format ) const
 {
     return fmtDateTime( format, &t, &d );
 }
+#endif //QT_NO_DATESTRING
 
 /*!
   Returns a QDateTime object containing a datetime \a ndays days later

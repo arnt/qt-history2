@@ -74,7 +74,7 @@
 
 #define QT_NO_IMAGEIO
 
-#define QT_NO_VARIANT
+//#define QT_NO_VARIANT //needed for signals/slots
 
 #define QT_NO_RANGECONTROL
 #define QT_NO_QUUID_STRING
@@ -89,3 +89,9 @@
 #define QT_NO_IMAGE_DITHER_TO_1
 #define QT_NO_IMAGE_HEURISTIC_MASK
 #define QT_NO_IMAGE_MIRROR
+
+#ifndef QT_NO_STL
+# define QT_NO_STL
+#endif
+
+#define QT_NO_DATESTRING
