@@ -614,6 +614,7 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, QString::null, QString::null, QString::null );
 	item->setRenameEnabled( 0, TRUE );
 	setCurrentItem( item );
+	ensureItemVisible( item );
 	qApp->processEvents();
 	newItem = item;
 	item->startRename( 0 );
