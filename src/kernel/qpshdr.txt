@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#7 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#8 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -7,12 +7,6 @@
 % Created : 940920
 %
 % Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
-%
-
-%
-% Substitutions: (will be implemented in genpshdr.pl later)
-% SUBSTITUTE(QtStroke,QtS)
-% SUBSTITUTE(QtFill,QtF)
 %
 
 /D  {bind def} bind def
@@ -48,7 +42,7 @@
 /nS 0 def			% number of saved painter states
 
 
-/QtStroke {
+/QS {
     PSt 0 ne			% != NO_PEN
     { LWi SW			% set line width
       GS
@@ -62,7 +56,7 @@
     } if
 } D
 
-/QtFill {
+/QF {
     GS
     BSt 2 ge BSt 8 le and	% dense pattern?
     { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if
@@ -96,7 +90,7 @@ end
 } D
 
 
-/QtInit {
+/QI {
     GS
     /Courier findfont [ 12 0 0 -12 0 0 ] makefont setfont
     clippath pathbbox
@@ -112,7 +106,7 @@ end
     /defM matrix CM def		% default transformation matrix
 } D
 
-/QtFinish {
+/QP {				% show page
     GR
     showpage
 } D
@@ -138,7 +132,7 @@ end
     Cx Cy MT
     /Cy ED /Cx ED
     Cx Cy LT
-    QtStroke
+    QS
 } D
 
 /DL {				% PDC_DRAWLINE [x0 y0 x1 y1]
@@ -146,7 +140,7 @@ end
     NP
     MT
     LT
-    QtStroke
+    QS
 } D
 
 /RDict 4 dict def
@@ -159,8 +153,8 @@ end
     w 0 RL
     0 h neg RL
     CP
-    QtFill
-    QtStroke
+    QF
+    QS
     end
 } D
 
@@ -184,8 +178,8 @@ end
 	 x		 y h add ry2 sub rx2 ry2 270 -90 ARC
 	 x		 y		 rx2 ry2 180 -90 ARC
 	 CP
-	 QtFill
-	 QtStroke
+	 QF
+	 QS
 	} ifelse
     } ifelse
     end
@@ -205,8 +199,8 @@ end
     NP
     0 0 w 2 div 0 360 arc
     tmp SM
-    QtFill
-    QtStroke
+    QF
+    QS
     end
 } D
 
@@ -215,7 +209,7 @@ end
     16 div exch 16 div exch
     NP
     ARC
-    QtStroke
+    QS
 } D
 
 
@@ -227,8 +221,8 @@ end
     x w 2 div add y h 2 div add MT
     x y w h ang1 16 div ang2 16 div ARC
     CP
-    QtFill
-    QtStroke
+    QF
+    QS
     end
 } D
 
@@ -237,8 +231,14 @@ end
     NP
     ARC
     CP
-    QtFill
-    QtStroke
+    QF
+    QS
+} D
+
+
+/BZ {				% PDC_DRAWBEZIER [3 points]
+    curveto
+    QS
 } D
 
 
@@ -322,22 +322,22 @@ end
      } if
      BCol SC
      0.3 SW
-     BSt 9 eq BSt 11 eq or	% horiz or cross pattern
-     { 0 4 h			% draw horiz lines !!! alignment
+     BSt 9 eq BSt 11 eq or		% horiz or cross pattern
+     { 0 4 h				% draw horiz lines !!! alignment
        { NP dup 0 exch MT w exch LT S } for
      } if
-     BSt 10 eq BSt 11 eq or	% vert or cross pattern
-     { 0 4 w			% draw vert lines !!! alignment
+     BSt 10 eq BSt 11 eq or		% vert or cross pattern
+     { 0 4 w				% draw vert lines !!! alignment
        { NP dup 0 MT h LT S } for
      } if
-     BSt 12 eq BSt 14 eq or	% F-diag or diag cross
+     BSt 12 eq BSt 14 eq or		% F-diag or diag cross
      { w h gt
        { 0 6 w h add
 	{ NP dup h MT h sub 0 LT S } for }
        { 0 6 w h add
 	 { NP dup w exch MT w add 0 exch LT S } for } ifelse
      } if
-     BSt 13 eq BSt 14 eq or	% B-diag or diag cross
+     BSt 13 eq BSt 14 eq or		% B-diag or diag cross
      { w h gt
        { 0 6 w h add
 	 { NP dup 0 MT h sub h LT S } for }
@@ -366,6 +366,6 @@ end
     { [] } ifelse				% out of range => solid line
 } D
 
-QtInit
+QI
 
 %%EndProlog
