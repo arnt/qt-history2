@@ -362,6 +362,7 @@ QCoreVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_AFC:
     case SQLT_VCS:
     case SQLT_AVC:
+    case SQLT_RDD:
     case SQLT_LNG: //???
 #ifdef SQLT_INTERVAL_YM
     case SQLT_INTERVAL_YM:
@@ -391,7 +392,6 @@ QCoreVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_LVB:
     case SQLT_BLOB:
     case SQLT_FILE:
-    case SQLT_RDD:
     case SQLT_NTY:
     case SQLT_REF:
     case SQLT_RID:
@@ -631,15 +631,17 @@ QOCIResultPrivate::QOCIResultPrivate( int size, QOCIPrivate* dp )
 
     while ( parmStatus == OCI_SUCCESS ) {
 	OraFieldInfo ofi = qMakeOraField( d, param );
+        if (ofi.oraType == SQLT_RDD)
+            dataSize = 50;
 #ifdef SQLT_INTERVAL_YM
 #ifdef SQLT_INTERVAL_DS
-	if ( ofi.oraType == SQLT_INTERVAL_YM || ofi.oraType == SQLT_INTERVAL_DS )
+        else if ( ofi.oraType == SQLT_INTERVAL_YM || ofi.oraType == SQLT_INTERVAL_DS )
 	    // since we are binding interval datatype as string,
 	    // we are not interested in the number of bytes but characters.
 	    dataSize = 50;  // magic number
-	else
 #endif //SQLT_INTERVAL_DS
 #endif //SQLT_INTERVAL_YM
+        else
 	    dataSize = ofi.oraLength;
 	QCoreVariant::Type type = ofi.type;
 	fieldInf[count-1].typ = type;
