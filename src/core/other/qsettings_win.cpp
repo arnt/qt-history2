@@ -268,7 +268,7 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
 	} );
 
 	if ( res != ERROR_SUCCESS ) {
-	    qSystemWarning( "Couldn't write value " + key );
+	    qSystemWarning( QString("Couldn't write value " + key).latin1() );
 	    return FALSE;
 	}
     }
@@ -558,7 +558,7 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     } );
 
     if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
-	qSystemWarning( "Error deleting value " + key );
+	qSystemWarning( QString("Error deleting value " + key).latin1() );
 	return FALSE;
     }
     char vname[2];
