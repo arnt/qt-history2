@@ -57,8 +57,6 @@ bool QLibraryPrivate::loadLibrary()
 	return TRUE;
 
     QString filename = library->library();
-    if ( filename.find( ".so" ) == -1 )
-	filename = QString( "lib%1.so" ).arg( filename );
 
     pHnd = (void*)shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
@@ -105,8 +103,6 @@ bool QLibraryPrivate::loadLibrary()
 	return TRUE;
 
     QString filename = library->library();
-    if ( filename.find( ".so" ) == -1 )
-	filename = QString( "lib%1.so" ).arg( filename );
 
     pHnd = dlopen( filename.latin1() , RTLD_LAZY );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)

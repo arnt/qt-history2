@@ -35,9 +35,9 @@
 **
 **********************************************************************/
 
-#ifndef QT_NO_COMPONENT
-
 #include "private/qlibrary_p.h"
+
+#ifndef QT_NO_COMPONENT
 
 #ifndef QT_H
 #include "qwindowdefs.h"
@@ -61,8 +61,6 @@ bool QLibraryPrivate::loadLibrary()
 	return TRUE;
 
     QString filename = library->library();
-    if ( filename.find( ".dll" ) == -1 )
-	filename += ".dll";
 
 #ifdef Q_OS_TEMP
 	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
@@ -112,54 +110,6 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
 #endif
 
-    return address;
-}
-
-#elif defined(Q_OS_HPUX)
-// for HP-UX < 11.x and 32 bit
-#include <dl.h>
-
-bool QLibraryPrivate::loadLibrary()
-{
-    if ( pHnd )
-	return TRUE;
-
-    QString filename = library->library();
-    if ( filename.find( ".so" ) == -1 )
-	filename = QString( "lib%1.so" ).arg( filename );
-
-    pHnd = (void*)shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !pHnd )
-	qDebug( "Failed to load library %s!", filename.latin1() );
-#endif
-    return pHnd != 0;
-}
-
-bool QLibraryPrivate::freeLibrary()
-{
-    if ( !pHnd )
-	return TRUE;
-
-    if ( !shl_unload( (shl_t)pHnd ) ) {
-	pHnd = 0;
-	return TRUE;
-    }
-    return FALSE;
-}
-
-void* QLibraryPrivate::resolveSymbol( const char* symbol )
-{
-    if ( !pHnd )
-	return 0;
-
-    void* address = 0;
-    if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
-#endif
-	return 0;
-    }
     return address;
 }
 

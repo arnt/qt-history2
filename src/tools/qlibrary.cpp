@@ -60,6 +60,8 @@
   \brief The QLibrary class provides a wrapper for handling shared libraries.
   \preliminary
   \ingroup componentmodel
+
+  
 */
 
 /*!
@@ -70,16 +72,29 @@
 
   The \e policy can be:
 
-  \value Delayed  The library get's loaded as soon as needed
-  \value Immediately  The library is loaded immediately
-  \value Manual  The library has to be unloaded manually
+  \value Delayed  The library get's loaded as soon as needed and unloaded in the destructor
+  \value Immediately  The library is loaded immediately and unloaded in the destructor
+  \value Manual  Like delayed, and library has to be unloaded manually
 */
 
 /*!
   Creates a QLibrary object for the shared library \a filename.
   The library get's loaded if \a pol is Immediately.
 
-  Note that \a filename must not include the (platform specific) file extension.
+  Note that \a filename does not need to include the (platform specific) 
+  file extension, so calling 
+
+  \code
+  QLibrary lib( "mylib" );
+  \endcode
+
+  would be equivalent to 
+
+  \code
+  QLibrary lib( "mylib.dll" );
+  \endcode
+
+  on Windows. Yet \e "mylib.dll" will obviously not work on other platforms.
 
   \sa setPolicy(), unload()
 */
@@ -120,7 +135,7 @@ void QLibrary::createInstanceInternal()
 
     if ( d->pHnd && !entry ) {
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-	qDebug( "%s has been loaded.", libfile.latin1() );
+	qDebug( "%s has been loaded.", library().latin1() );
 #endif
 #ifndef QT_LITE_COMPONENT
 #  ifdef Q_CC_BOR
@@ -146,7 +161,7 @@ void QLibrary::createInstanceInternal()
 	    if ( d->libIface ) {
 		if ( !d->libIface->init() ) {
 #if defined(QT_DEBUG_COMPONENT)
-		    qDebug( "%s: QLibraryInterface::init() failed.", libfile.latin1() );
+		    qDebug( "%s: QLibraryInterface::init() failed.", library().latin1() );
 #endif
 		    unload();
 		    return;
@@ -158,7 +173,7 @@ void QLibrary::createInstanceInternal()
 	    }
 	} else {
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONTENT == 2
-	    qDebug( "%s: No interface implemented.", libfile.latin1() );
+	    qDebug( "%s: No interface implemented.", library().latin1() );
 #endif
 	    unload();
 	}
@@ -257,7 +272,7 @@ bool QLibrary::unload( bool force )
 
 	if ( entry->release() ) {
 #if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
-	    qDebug( "%s is still in use!", libfile.latin1() );
+	    qDebug( "%s is still in use!", library().latin1() );
 #endif
 	    if ( force ) {
 		delete entry;
@@ -277,14 +292,14 @@ bool QLibrary::unload( bool force )
     if ( !d->freeLibrary() ) {
 #endif
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-	qDebug( "%s could not be unloaded.", libfile.latin1() );
+	qDebug( "%s could not be unloaded.", library().latin1() );
 #endif
 	return FALSE;
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     }
 
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-    qDebug( "%s has been unloaded.", libfile.latin1() );
+    qDebug( "%s has been unloaded.", library().latin1() );
 #endif
 
     d->pHnd = 0;
@@ -317,11 +332,34 @@ QLibrary::Policy QLibrary::policy() const
 }
 
 /*!
-  Returns the filename of the shared library this QLibrary object handles.
+  Returns the filename of the shared library this QLibrary object handles,
+  including the platform specific file extension.
+
+  \code
+  QLibrary lib( "mylib" );
+  QString str = lib.library();
+  \endcode
+
+  will set \e str to "mylib.dll" on Windows, and "libmylib.so" on Linux.
 */
 QString QLibrary::library() const
 {
-    return libfile;
+    if ( libfile.isEmpty() )
+	return libfile;
+
+    QString filename = libfile;
+#if defined(Q_WS_WIN)
+    if ( filename.find( ".dll" ) == -1 )
+	filename += ".dll";
+#elif defined(Q_OS_MACX)
+    if ( filename.find( ".dylib" ) == -1 )
+	filename += ".dylib";
+#else
+    if ( filename.find( ".so" ) == -1 )
+	filename = QString( "lib%1.so" ).arg( filename );
+#endif
+
+    return filename;
 }
 
 /*!
