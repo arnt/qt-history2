@@ -225,38 +225,6 @@ static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr
     }
 }
 
-
-/*! \internal
-
-*/
-static inline Qt::NetworkLayerProtocol qt_socket_getProtocol(int socketDescriptor)
-{
-
-    if (socketDescriptor != -1) {
-	WSAPROTOCOL_INFOW info;
-	memset(&info, 0, sizeof(info));
-
-	QT_SOCKLEN_T valueSize = sizeof(info);
-
-	if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_PROTOCOL_INFO, (char *) &info, &valueSize) != 0) {
-	    WS_ERROR_DEBUG
-	} else {
-	    switch (info.iAddressFamily) {
-                case AF_INET:
-                    return Qt::IPv4Protocol;
-                case AF_INET6:
-                    return Qt::IPv6Protocol;
-                default:
-                    return Qt::UnknownNetworkLayerProtocol;
-            }
-
-	}
-    }
-
-    return Qt::UnknownNetworkLayerProtocol;
-}
-
-
 /*! \internal
 
 */
@@ -440,6 +408,20 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     memset(&sa, 0, sizeof(sa));
     if (::getsockname(socketDescriptor, pSa, &sz) == 0) {
         qt_socket_getPortAndAddress(socketDescriptor, pSa, &localPort, &localAddress);
+        // Determine protocol family
+        switch (pSa->sa_family) {
+        case AF_INET:
+            socketProtocol = Qt::IPv4Protocol;
+            break;
+#if !defined (QT_NO_IPV6)
+        case AF_INET6:
+            socketProtocol = Qt::IPv6Protocol;
+            break;
+#endif
+        default:
+            socketProtocol = Qt::UnknownNetworkLayerProtocol;
+            break;
+        }
     } else {
 	WS_ERROR_DEBUG
 	if (WSAGetLastError() == WSAENOTSOCK) {
@@ -454,8 +436,6 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     } else {
 	WS_ERROR_DEBUG
     }
-
-    socketProtocol = qt_socket_getProtocol(socketDescriptor);
 
     socketType = qt_socket_getType(socketDescriptor);
 
