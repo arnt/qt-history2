@@ -4982,7 +4982,6 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     QString key = ff.xfontname;
 
     key += '/' + toString(fe->fontDef.pixelSize);
-    qDebug("pixelSize = %d", fe->fontDef.pixelSize);
     QString tmp;
     if (!buffer)
         tmp = pageFontNames.value(key, QString::null);
