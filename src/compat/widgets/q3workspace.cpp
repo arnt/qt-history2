@@ -1242,7 +1242,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
         d->maxcontrols->setFixedSize(d->maxcontrols->minimumSizeHint());
     }
 
-//    b->setRightWidget(d->maxcontrols);
+    b->setCornerWidget(d->maxcontrols);
     d->maxcontrols->show();
     if (!d->active && d->becomeActive) {
         d->active = (Q3WorkspaceChild*)d->becomeActive->parentWidget();
@@ -1271,7 +1271,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
             pm.setMask(pm.createHeuristicMask());
             d->maxtools->setPixmap(pm);
         }
-//        b->setLeftWidget(d->maxtools);
+        b->setCornerWidget(d->maxtools, Qt::TopLeftCorner);
         d->maxtools->show();
     }
 #endif
