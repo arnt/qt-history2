@@ -75,13 +75,28 @@ my @ignore_files = ( "qconfig.h", "qmodules.h", "qttableview.h", "qtmultilineedi
 opendir SRC, "$basedir/src";
 my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
 closedir SRC;
+
+
+my $p;
+my @subdirs;
+foreach $p ( @dirs ) {
+    if ( -d "$basedir/$p" ) {
+      if( $p ne "src/.." && $p ne "src/3rdparty" ) {
+	opendir SRC, "$basedir/$p";
+	my @d = map { -d "$basedir/$p/$_" ? "$p/$_" : () } readdir(SRC);
+	closedir SRC;
+	@subdirs = ( @subdirs, @d );
+      }
+    }
+  }
+
 @dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "extensions/activeqt/control", "extensions/activeqt/container", "extensions/motif/src", "tools/designer/uilib", "tools/assistant/lib" );
+@dirs = ( @dirs, @subdirs );
 
 push @dirs, "mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"}; 
 
 my @files;
 my @pfiles;
-my $p;
 foreach $p ( @dirs ) {
     if ( -d "$basedir/$p" ) {
 	chdir "$basedir/$p";
