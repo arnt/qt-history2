@@ -1089,11 +1089,10 @@ DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
             outdir = file.fileName() + QDir::separator();
     }
     if(!outdir.isEmpty() || file.fileName().isEmpty())
-        file.setFileName(outdir + project->first("TARGET") + project->first("DSP_EXTENSION"));
+        file.setFileName(outdir + project->first("QMAKE_ORIG_TARGET") + project->first("DSP_EXTENSION"));
     if(QDir::isRelativePath(file.fileName())) {
-        QString ofile;
-        ofile = file.fileName();
-        int slashfind = ofile.lastIndexOf('\\');
+        QString ofile = Option::fixPathToLocalOS(file.fileName());
+        int slashfind = ofile.lastIndexOf(Option::dir_sep);
         if(slashfind == -1) {
             ofile = ofile.replace(QRegExp("-"), "_");
         } else {

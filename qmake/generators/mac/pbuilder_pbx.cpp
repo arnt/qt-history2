@@ -1319,7 +1319,7 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file, const QString &build) c
             output += QDir::separator();
         if(!output.endsWith(projectSuffix())) {
             if(file.fileName().isEmpty() || fi.isDir())
-                output += project->first("TARGET");
+                output += project->first("QMAKE_ORIG_TARGET");
             output += projectSuffix() + QDir::separator();
         } else if(output[(int)output.length() - 1] != QDir::separator()) {
             output += QDir::separator();

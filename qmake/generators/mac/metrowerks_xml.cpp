@@ -790,6 +790,6 @@ MetrowerksMakefileGenerator::openOutput(QFile &file, const QString &build) const
             outdir = file.fileName() + QDir::separator();
     }
     if(!outdir.isEmpty() || file.fileName().isEmpty())
-        file.setFileName(outdir + project->first("TARGET") + ".xml");
+        file.setFileName(outdir + project->first("QMAKE_ORIG_TARGET") + ".xml");
     return MakefileGenerator::openOutput(file, build);
 }
