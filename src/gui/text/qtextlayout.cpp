@@ -944,12 +944,13 @@ int QTextLine::textWidth() const
 /*!
     Lays out the line with the given \a width. The line is filled from
     it's starting position with as many characters as will fit into
-    the line depending on the break \a mode.
+    the line. Depending on the specified \a unit the width is either
+    interpreted in pixels (default) or in number of visible glyphs.
 */
-void QTextLine::layout(int width, BreakMode mode)
+void QTextLine::layout(int width, LineWidthUnit unit)
 {
     int maxGlyphs = INT_MAX;
-    if (mode == BreakAtGlyphs) {
+    if (unit == UnitIsGlpyhs) {
         maxGlyphs = width;
         width = INT_MAX >> 6;
     }
