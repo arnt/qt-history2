@@ -3653,7 +3653,8 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 
     if ( drawSelections ) {
 	const int nSels = doc ? doc->numSelections() : 1;
-	for ( int j = 0; j < nSels; ++j ) {
+	const int startSel = painter.device()->devType() != QInternal::Printer ? 0 : 1;
+	for ( int j = startSel; j < nSels; ++j ) {
 	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
 		if ( !doc || doc->invertSelectionText( j ) )
 		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
@@ -4805,7 +4806,7 @@ QTextFormatCollection::~QTextFormatCollection()
 
 QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 {
-    if ( f->parent() == this ) {
+    if ( f->parent() == this || f == defFormat ) {
 #ifdef DEBUG_COLLECTION
 	qDebug( "need '%s', best case!", f->key().latin1() );
 #endif
