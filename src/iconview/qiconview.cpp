@@ -283,62 +283,69 @@ public:
 public:
 
     /* finds the containers that intersect with \a searchRect in the direction \a dir relative to \a relativeTo */
-    QPtrList<QIconViewPrivate::ItemContainer>* findContainers(
+    QPtrList<ItemContainer>* findContainers(
+	QIconView:: Direction dir,
+	const QPoint &relativeTo,
+	const QRect &searchRect ) const;
+    //    friend int cmpIconViewItems( const void *n1, const void *n2 );
+};
+
+
+QPtrList<QIconViewPrivate::ItemContainer>* QIconViewPrivate::findContainers(
 	QIconView:: Direction dir,
 	const QPoint &relativeTo,
 	const QRect &searchRect ) const
-	{
+{
 
-	    QPtrList<QIconViewPrivate::ItemContainer>* list =
-		new QPtrList<QIconViewPrivate::ItemContainer>();
+    QPtrList<QIconViewPrivate::ItemContainer>* list =
+	new QPtrList<QIconViewPrivate::ItemContainer>();
 
-	    if ( arrangement == QIconView::LeftToRight ) {
-		if ( dir == QIconView::DirLeft || dir == QIconView::DirRight ) {
-		    ItemContainer *c = firstContainer;
-		    for ( ; c; c = c->n )
-			if ( c->rect.intersects( searchRect ) )
-			    list->append( c );
-		} else {
-		    if ( dir == QIconView::DirDown ) {
-			ItemContainer *c = firstContainer;
-			for ( ; c; c = c->n )
-			    if ( c->rect.intersects( searchRect ) &&
-				 c->rect.bottom() >= relativeTo.y() )
-				list->append( c );
-		    } else {
-			ItemContainer *c = lastContainer;
-			for ( ; c; c = c->p )
-			    if ( c->rect.intersects( searchRect ) &&
-				 c->rect.top() <= relativeTo.y() )
-				list->append( c );
-		    }
-		}
+    if ( arrangement == QIconView::LeftToRight ) {
+	if ( dir == QIconView::DirLeft || dir == QIconView::DirRight ) {
+	    ItemContainer *c = firstContainer;
+	    for ( ; c; c = c->n )
+		if ( c->rect.intersects( searchRect ) )
+		    list->append( c );
+	} else {
+	    if ( dir == QIconView::DirDown ) {
+		ItemContainer *c = firstContainer;
+		for ( ; c; c = c->n )
+		    if ( c->rect.intersects( searchRect ) &&
+			 c->rect.bottom() >= relativeTo.y() )
+			list->append( c );
 	    } else {
-		if ( dir == QIconView::DirUp || dir == QIconView::DirDown ) {
-		    ItemContainer *c = firstContainer;
-		    for ( ; c; c = c->n )
-			if ( c->rect.intersects( searchRect ) )
-			    list->append( c );
-		} else {
-		    if ( dir == QIconView::DirRight ) {
-			ItemContainer *c = firstContainer;
-			for ( ; c; c = c->n )
-			    if ( c->rect.intersects( searchRect ) &&
-				 c->rect.right() >= relativeTo.x() )
-				list->append( c );
-		    } else {
-			ItemContainer *c = lastContainer;
-			for ( ; c; c = c->p )
-			    if ( c->rect.intersects( searchRect ) &&
-				 c->rect.left() <= relativeTo.x() )
-				list->append( c );
-		    }
-		}
+		ItemContainer *c = lastContainer;
+		for ( ; c; c = c->p )
+		    if ( c->rect.intersects( searchRect ) &&
+			 c->rect.top() <= relativeTo.y() )
+			list->append( c );
 	    }
-	    return list;
 	}
-    //    friend int cmpIconViewItems( const void *n1, const void *n2 );
-};
+    } else {
+	if ( dir == QIconView::DirUp || dir == QIconView::DirDown ) {
+	    ItemContainer *c = firstContainer;
+	    for ( ; c; c = c->n )
+		if ( c->rect.intersects( searchRect ) )
+		    list->append( c );
+	} else {
+	    if ( dir == QIconView::DirRight ) {
+		ItemContainer *c = firstContainer;
+		for ( ; c; c = c->n )
+		    if ( c->rect.intersects( searchRect ) &&
+			 c->rect.right() >= relativeTo.x() )
+			list->append( c );
+	    } else {
+		ItemContainer *c = lastContainer;
+		for ( ; c; c = c->p )
+		    if ( c->rect.intersects( searchRect ) &&
+			 c->rect.left() <= relativeTo.x() )
+			list->append( c );
+	    }
+	}
+    }
+    return list;
+}
+
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
