@@ -28,6 +28,7 @@
 #include "project.h"
 #include "pixmapcollection.h"
 #include "sourcefile.h"
+#include "sourceeditor.h"
 
 #include <qheader.h>
 #include <qdragobject.h>
@@ -406,6 +407,21 @@ void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
 void FormList::activeFormChanged( FormWindow *fw )
 {
     FormListItem *i = findItem( fw );
+    if ( i ) {
+	setCurrentItem( i );
+	setSelected( i, TRUE );
+    }
+}
+
+void FormList::activeEditorChanged( SourceEditor *se )
+{
+    if ( !se->object() )
+	return;
+    if ( se->object()->inherits( "FormWindow" ) ) {
+	activeFormChanged( (FormWindow*)se->object() );
+	return;
+    }
+    FormListItem *i = findItem( (SourceFile*)se->object() );
     if ( i ) {
 	setCurrentItem( i );
 	setSelected( i, TRUE );

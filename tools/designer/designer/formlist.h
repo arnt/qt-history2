@@ -33,6 +33,7 @@ class MainWindow;
 class Project;
 class SourceFile;
 class QCompletionEdit;
+class SourceEditor;
 
 class FormListItem : public QListViewItem
 {
@@ -96,6 +97,7 @@ public slots:
     void modificationChanged( bool m, QObject *obj );
     void fileNameChanged( const QString &s, FormWindow *fw );
     void activeFormChanged( FormWindow *fw );
+    void activeEditorChanged( SourceEditor *se );
     void nameChanged( FormWindow *fw );
 
 protected:

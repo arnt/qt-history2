@@ -1396,6 +1396,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		}
 	    }
 	}
+	formlist()->activeEditorChanged( (SourceEditor*)w );
     } else {
 	actionSearchFind->setEnabled( FALSE );
 	actionSearchIncremetal->setEnabled( FALSE );
