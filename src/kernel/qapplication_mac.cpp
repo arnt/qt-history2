@@ -436,6 +436,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
 
 void QApplication::beep()
 {
+    SysBeep(0);
 }
 
 
