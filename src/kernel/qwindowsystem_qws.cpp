@@ -1268,11 +1268,11 @@ void QWSServer::syncRegions( QWSWindow *active )
     dirtyBackground = QRegion();
 }
 
-MouseHandler::MouseHandler()
+QMouseHandler::QMouseHandler()
 {
 }
 
-MouseHandler::~MouseHandler()
+QMouseHandler::~QMouseHandler()
 {
 }
 
@@ -1298,7 +1298,7 @@ void QWSServer::openMouse()
     closeMouse();
     QStringList mouse = QStringList::split(" ",mice);
     for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
-	MouseHandler* mh = newMouseHandler(*m);
+	QMouseHandler* mh = newMouseHandler(*m);
 	connect(mh, SIGNAL(mouseChanged(const QPoint&,int)),
 	    this, SLOT(setMouse(const QPoint&,int)));
 	mousehandlers.append(mh);

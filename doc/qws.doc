@@ -14,53 +14,33 @@ to be modified for other platforms.
 <h3>  Unpack the archive if you have not done so already:</h3>
 <pre>
 	cd &lt;anywhere&gt;
-	gunzip qt-embedded.tar.gz    # uncompress the archive
-	tar xf qt-embedded.tar       # unpack it
+	gunzip qt-qws-<i>version</i>.tar.gz    # uncompress the archive
+	tar xf qt-qws-<i>version</i>.tar       # unpack it
 </pre>
 
-  This document assumes that the archive is installed as <tt>~/qt-embedded</tt>.
-</p>
-
-<h3>  Install tmake</h3>
-
-You need the newest tmake. (including linux-qws-g++) 
-This should be available at the same place as the qt-embedded archive.
-
-<p>
-  This document assumes that tmake is installed as <tt>~/tmake</tt>.
-</p>
-
-<h3>  Set some environment variables </h3>
-
-<pre>
-	QTDIR			- wherever you installed Qt
-	PATH			- to locate moc, tmake and so on
-	LD_LIBRARY_PATH		- for the shared Qt library
-	TMAKEDIR
-	TMAKEPATH
-</pre>
-    for example...
-<pre>
-	export QTDIR=$HOME/qt-embedded
-	export TMAKEDIR=$HOME/tmake
-
-	export PATH=$QTDIR/bin:$PATH:$TMAKEDIR/bin
-	export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-	export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
-</pre>
-
-  
-<p>
-  Remember to re-source environment files, if necessary.
+  This document assumes that the archive is installed as <tt>~/qt-<i>version</i></tt>.
 </p>
 
 
 <h3> Compile the Qt/Embedded library and examples</h3>
 
 <pre>
-	cd ~/qt-embedded
+	cd ~/qt-<i>version</i>
+	./configure
 	make
 </pre>
+
+<p>
+For platforms other than Linux/x86, you may need to to add options
+to <tt>configure</tt> to specify the platform to build <i>on</i> and the
+platform to build <i>for</i>. To build on Linux/x86 for the Linux/MIPSEL
+target, you would use:
+<pre>
+	./configure -platform linux-x86-g++ -xplatform linux-mips-g++
+</pre>
+<p>
+Only a small number of configurations are predefined. Porting to new
+Linux platforms is a trivial matter - see the files in <tt>configs/</tt>.
 
 <h3> Enable framebuffer support</h3>
 
@@ -95,6 +75,7 @@ This should be available at the same place as the qt-embedded archive.
    driver.
 </p>
 
+
 <h3> Change permissions</h3>
 
 <p>
@@ -115,7 +96,7 @@ This should be available at the same place as the qt-embedded archive.
    Log into a virtual console and do:
 
 <pre>
-	cd ~/qt-embedded/
+	cd ~/qt-<i>version</i>/
    	./start-demo
 </pre>
   
@@ -278,7 +259,7 @@ Unicode font uses over 1Mb of memory.
 <h2>The font definition file</h2>
 
 When Qt/Embedded applications run, they look for a file called
-<tt>$QWSDIR/etc/fonts/fontdir</tt> or
+<tt>$QTDIR/etc/fonts/fontdir</tt> or
 <tt>/usr/local/qt-embedded/etc/fonts/fontdir</tt>. This file defines the
 fonts available to the application. It has the following format:
 
@@ -412,9 +393,51 @@ Not much to do. Just don't use x11Event(), winEvent(), etc.
 
 <h1>Qt/Embedded Pointer Handling</h1>
 
-(not documented yet)
-Using gpm.
-Making a new mouse/pen driver.
+Pointer handling in Qt/Embedded works for any mouse-like device such as
+a touchpanel, a trackball, or real mouse.
+
+<h2>Mouse Protocols</h2>
+
+Qt/Embedded uses the environment variable QWS_MOUSE_PROTO to determine
+which mouse to use. This environment variable should be set to:
+<blockquote>
+    <i>&lt;protocol&gt;</i><tt>:</tt><i>&lt;device&gt;</i>
+</blockquote>
+where <i>&lt;protocol&gt;</i> is one of:
+<ul>
+ <li>MouseMan
+ <li>IntelliMouse
+ <li>Microsoft
+</ul>
+and <i>&lt;device&gt;</i> is the mouse device, often <tt>/dev/mouse</tt>.
+If no such variable is specified, the built-in default
+is <tt>MouseMan:/dev/mouse</tt>.
+<p>
+If you require support for a mouse other than these, you can use GPM
+to translate the mouse protocol as an interim solution. To do this, run:
+<pre>
+    gpm -t help
+</pre>
+choose a protocol from the list and run:
+<pre>
+    gpm -R ps2 -t <i>&lt;protocol&gt;</i>
+</pre>
+
+<p>
+In Qt/Embedded 2.2.0 no attempt is made to auto-detect the mouse type,
+on the assumption that an embedded device will support a single mouse
+protocol. Such auto-detection may be available in a future release.
+
+<p>
+To add another protocol, new subclasses of QMouseHandler can be written
+in <tt>kernel/qwsmouse_qws.cpp</tt>.
+
+<h2>Vr Touch Panel</h2>
+
+Qt/Embedded ships with rudimentary support for the NEC Vr41XX touchpanel.
+Like an additional mouse protocol, this is implemented by subclassing
+QMouseHandler in <tt>kernel/qwsmouse_qws.cpp</tt>.
+
 */
 
 

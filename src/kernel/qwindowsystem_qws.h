@@ -82,11 +82,11 @@ private:
     int last_focus_time;
 };
 
-class MouseHandler : public QObject {
+class QMouseHandler : public QObject {
     Q_OBJECT
 public:
-    MouseHandler();
-    virtual ~MouseHandler();
+    QMouseHandler();
+    virtual ~QMouseHandler();
 signals:
     void mouseChanged(const QPoint& pos, int bstate);
 };
@@ -202,7 +202,7 @@ private:
     void invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client );
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
 
-    MouseHandler* newMouseHandler(const QString& spec);
+    QMouseHandler* newMouseHandler(const QString& spec);
     QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
 
     void openDisplay();
@@ -253,7 +253,7 @@ private:
     QRegion serverRegion;
     QRegion dirtyBackground;
     bool disablePainting;
-    QList<MouseHandler> mousehandlers;
+    QList<QMouseHandler> mousehandlers;
     QList<QWSKeyboardHandler> keyboardhandlers;
     QImage bgImage;
 

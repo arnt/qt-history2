@@ -80,11 +80,11 @@ static const MouseData mouseData[] = {
 };
 
 
-class MouseHandlerPrivate : public MouseHandler {
+class QMouseHandlerPrivate : public QMouseHandler {
     Q_OBJECT
 public:
-    MouseHandlerPrivate( MouseProtocol protocol, QString mouseDev=QString::null );
-    ~MouseHandlerPrivate();
+    QMouseHandlerPrivate( MouseProtocol protocol, QString mouseDev );
+    ~QMouseHandlerPrivate();
 
 private:
     int mouseFD;
@@ -114,7 +114,7 @@ static void limitToScreen( QPoint &pt )
     pt.setY( QMIN( h-1, QMAX( 0, pt.y() )));
 }
 
-void MouseHandlerPrivate::readMouseData()
+void QMouseHandlerPrivate::readMouseData()
 {
     int n;
     do {
@@ -129,7 +129,7 @@ void MouseHandlerPrivate::readMouseData()
 /*
 */
 
-void MouseHandlerPrivate::handleMouseData()
+void QMouseHandlerPrivate::handleMouseData()
 {
     static const int accel_limit = 5;
     static const int accel = 2;
@@ -203,7 +203,7 @@ void MouseHandlerPrivate::handleMouseData()
 		
 		break;
 	    default:
-		qWarning( "Unknown mouse protocol in MouseHandlerPrivate" );
+		qWarning( "Unknown mouse protocol in QMouseHandlerPrivate" );
 		break;
 	}
 	if (sendEvent) {
@@ -238,7 +238,7 @@ void MouseHandlerPrivate::handleMouseData()
 }
 
 
-MouseHandlerPrivate::MouseHandlerPrivate( MouseProtocol protocol,
+QMouseHandlerPrivate::QMouseHandlerPrivate( MouseProtocol protocol,
 					  QString mouseDev )
 {
     mouseProtocol = protocol;
@@ -323,7 +323,7 @@ MouseHandlerPrivate::MouseHandlerPrivate( MouseProtocol protocol,
     }
 }
 
-MouseHandlerPrivate::~MouseHandlerPrivate()
+QMouseHandlerPrivate::~QMouseHandlerPrivate()
 {
     if (mouseFD >= 0)
 	close(mouseFD);
@@ -343,11 +343,11 @@ static int addx=400;
 static int addy=400;
 #endif
 
-class TPanelHandlerPrivate : public MouseHandler {
+class QVrTPanelHandlerPrivate : public QMouseHandler {
     Q_OBJECT
 public:
-    TPanelHandlerPrivate(MouseProtocol, QString dev);
-    ~TPanelHandlerPrivate();
+    QVrTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QVrTPanelHandlerPrivate();
 
 private:
     int mouseFD;
@@ -359,7 +359,7 @@ private:
     QTimer *rtimer;
 };
 
-TPanelHandlerPrivate::TPanelHandlerPrivate( MouseProtocol, QString dev)
+QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev)
 {
 #ifdef QWS_TOUCHPANEL
     if ( dev.isEmpty() )
@@ -389,18 +389,18 @@ TPanelHandlerPrivate::TPanelHandlerPrivate( MouseProtocol, QString dev)
 #endif
 }
 
-TPanelHandlerPrivate::~TPanelHandlerPrivate()
+QVrTPanelHandlerPrivate::~QVrTPanelHandlerPrivate()
 {
     if (mouseFD >= 0)
 	close(mouseFD);
 }
 
-void TPanelHandlerPrivate::sendRelease()
+void QVrTPanelHandlerPrivate::sendRelease()
 {
     emit mouseChanged(mousePos, 0);
 }
 
-void TPanelHandlerPrivate::readMouseData()
+void QVrTPanelHandlerPrivate::readMouseData()
 {
 #ifdef QWS_TOUCHPANEL
     if(!qt_screen)
@@ -489,7 +489,7 @@ void TPanelHandlerPrivate::readMouseData()
 #include "qvfbhdr_qws.h"
 #endif
 
-class QVFbMouseHandlerPrivate : public MouseHandler {
+class QVFbMouseHandlerPrivate : public QMouseHandler {
     Q_OBJECT
 public:
     QVFbMouseHandlerPrivate(MouseProtocol, QString dev);
@@ -574,10 +574,10 @@ void QVFbMouseHandlerPrivate::readMouseData()
 }
 
 /*
- * return a MouseHandler that supports /a spec.
+ * return a QMouseHandler that supports /a spec.
  */
 
-MouseHandler* QWSServer::newMouseHandler(const QString& spec)
+QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 {
     int c = spec.find(':');
     QString mouseProto;
@@ -599,13 +599,13 @@ MouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	idx++;
     }
 
-    MouseHandler *handler = 0;
+    QMouseHandler *handler = 0;
 
     switch ( mouseProtocol ) {
 	case MouseMan:
 	case IntelliMouse:
 	case Microsoft:
-	    handler = new MouseHandlerPrivate( mouseProtocol, mouseDev );
+	    handler = new QMouseHandlerPrivate( mouseProtocol, mouseDev );
 	    break;
 	
 	case QVFBMouse:
@@ -618,7 +618,7 @@ MouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	    break;
 	
 	case TPanel:
-	    handler = new TPanelHandlerPrivate( mouseProtocol, mouseDev );
+	    handler = new QVrTPanelHandlerPrivate( mouseProtocol, mouseDev );
 	    break;
 
 	default:
