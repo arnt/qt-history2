@@ -290,7 +290,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     switch(rop) {
     default:
     case Qt::CopyROP:   copymode = srcCopy; break;
-    case Qt::OrROP:     copymode = srcOr; break;
+    case Qt::OrROP:     copymode = notSrcBic; break;
     case Qt::XorROP:    copymode = srcXor; break;
     case Qt::NotAndROP: copymode = srcBic; break;
     case Qt::NotCopyROP:copymode = notSrcCopy; break;
