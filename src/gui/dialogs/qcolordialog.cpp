@@ -1463,17 +1463,14 @@ QColor QColorDialog::getColor(const QColor& initial, QWidget *parent,
     return macGetColor(initial, parent, name);
 #endif
 
-    int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog(parent, name, true);  //modal
     dlg->setWindowTitle(QColorDialog::tr("Select color"));
     dlg->setColor(initial);
     dlg->selectColor(initial);
     int resultCode = dlg->exec();
-    QColor::leaveAllocContext();
     QColor result;
     if (resultCode == QDialog::Accepted)
         result = dlg->color();
-    QColor::destroyAllocContext(allocContext);
     delete dlg;
     return result;
 }
@@ -1498,7 +1495,6 @@ QRgb QColorDialog::getRgba(QRgb initial, bool *ok,
     return macGetRgba(initial, ok, parent, name);
 #endif
 
-    int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog(parent, name, true);  //modal
 
     dlg->setWindowTitle(QColorDialog::tr("Select color"));
@@ -1506,7 +1502,6 @@ QRgb QColorDialog::getRgba(QRgb initial, bool *ok,
     dlg->selectColor(initial);
     dlg->setSelectedAlpha(qAlpha(initial));
     int resultCode = dlg->exec();
-    QColor::leaveAllocContext();
     QRgb result = initial;
     if (resultCode == QDialog::Accepted) {
         QRgb c = dlg->color().rgb();
@@ -1516,7 +1511,6 @@ QRgb QColorDialog::getRgba(QRgb initial, bool *ok,
     if (ok)
         *ok = resultCode == QDialog::Accepted;
 
-    QColor::destroyAllocContext(allocContext);
     delete dlg;
     return result;
 }
