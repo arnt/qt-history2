@@ -155,11 +155,12 @@ void QTextBrowser::setSource(const QString& name)
 	source = source.mid(6);
 
     QString url = mimeSourceFactory()->makeAbsolute( source, context() );
+    QString txt;
+    bool dosettext = FALSE;
 
     if ( !source.isEmpty() && url != d->curmain ) {
 	const QMimeSource* m =
 		    mimeSourceFactory()->data( source, context() );
-	QString txt;
 	if ( !m ){
 	    qWarning("QTextBrowser: no mimesource for %s", source.latin1() );
 	}
@@ -183,9 +184,9 @@ void QTextBrowser::setSource(const QString& name)
  	}
 
 	d->curmain = url;
-	setText( txt, url );
+	dosettext = TRUE;
     }
-
+    
     d->curmark = mark;
 
     if ( !mark.isEmpty() ) {
@@ -208,6 +209,9 @@ void QTextBrowser::setSource(const QString& name)
 	stackCount--;
     emit forwardAvailable( stackCount > 0 );
 
+    if ( dosettext )
+	setText( txt, url );
+    
     if ( isVisible() && !mark.isEmpty() )
 	scrollToAnchor( mark );
     else
