@@ -75,6 +75,9 @@
             <property name="editable">
                 <bool>true</bool>
             </property>
+            <property name="duplicatesEnabled">
+                <bool>false</bool>
+            </property>
         </widget>
         <widget class="QLabel" row="0" column="0">
             <property name="name">
@@ -249,8 +252,8 @@
     <function type="slot" access="private">downloadFile()</function>
     <function type="slot" access="private">removeFile()</function>
     <function type="slot" access="private">connectToHost()</function>
-    <function type="slot" access="private">changePath( const QString &amp; )</function>
-    <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; )</function>
+    <function type="slot" access="private">changePath( const QString &amp; newPath )</function>
+    <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; i )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
