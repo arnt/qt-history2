@@ -51,7 +51,7 @@ public:
     static  QPixmap    *find( const QString &key );
     static  bool	find( const QString &key, QPixmap& );
     static  bool	insert( const QString &key, QPixmap * );
-    static  void	insert( const QString &key, const QPixmap& );
+    static  bool	insert( const QString &key, const QPixmap& );
     static  void	clear();
 };
 

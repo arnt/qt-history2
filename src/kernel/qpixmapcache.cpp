@@ -264,15 +264,18 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
   \sa setCacheLimit().
 */
 
-void QPixmapCache::insert( const QString &key, const QPixmap& pm )
+bool QPixmapCache::insert( const QString &key, const QPixmap& pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
 	CHECK_PTR( pm_cache );
     }
     QPixmap *p = new QPixmap(pm);
-    if ( !pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 ) )
+    bool rt = pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 );
+    if ( !rt )
 	delete p;
+
+    return rt;
 }
 
 /*!
