@@ -267,8 +267,9 @@ QIntValidator::~QIntValidator()
 
 QValidator::State QIntValidator::validate( QString & input, int & ) const
 {
-    QString stripped = input.trimmed();
-    if ( stripped.isEmpty() || (b < 0 && stripped == "-") )
+    if (input.contains(' '))
+	return Invalid;
+    if (input.isEmpty() || (b < 0 && input == "-"))
 	return Intermediate;
     bool ok;
     long entered = input.toLong( &ok );
@@ -397,9 +398,10 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
-    QRegExp empty( QString::fromLatin1(" *-?\\.? *") );
-    if ( b >= 0 &&
-	 input.trimmed().startsWith(QString::fromLatin1("-")) )
+    QRegExp empty(QString::fromLatin1("-?\\.?"));
+    if (input.contains(' '))
+	return Invalid;
+    if ( b >= 0 && input.startsWith(QString::fromLatin1("-")) )
 	return Invalid;
     if ( empty.exactMatch(input) )
 	return Intermediate;
@@ -409,13 +411,13 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
     if ( !ok ) {
 	// explicit exponent regexp
 	QRegExp expexpexp( QString::fromLatin1("[Ee][+-]?\\d*$") );
-	int eeePos = expexpexp.search( input );
-	if ( eeePos > 0 && nume == 1 ) {
-	    QString mantissa = input.left( eeePos );
+	int eePos = expexpexp.search( input );
+	if ( eePos > 0 && nume == 1 ) {
+	    QString mantissa = input.left( eePos );
 	    entered = mantissa.toDouble( &ok );
 	    if ( !ok )
 		return Invalid;
-	} else if ( eeePos == 0 ) {
+	} else if ( eePos == 0 ) {
 	    return Intermediate;
 	} else {
 	    return Invalid;
