@@ -945,6 +945,11 @@ void QWin32PaintEngine::drawCubicBezier(const QPointArray &a, int index)
 
 void QWin32PaintEngine::drawPath(const QPainterPath &p)
 {
+    if (d->tryGdiplus()) {
+        d->gdiplusEngine->drawPath(p);
+        return;
+    }
+
     const QPainterPathPrivate *pd = p.d;
 
     if (!BeginPath(d->hdc))
@@ -1875,6 +1880,7 @@ typedef int (__stdcall *PtrGdipDeletePath) (QtGpPath *path);
 typedef int (__stdcall *PtrGdipAddPathLine) (QtGpPath *path, float x1, float y1, float x2, float y2);
 typedef int (__stdcall *PtrGdipAddPathArc) (QtGpPath *path, float x, float y, float w, float h,
                                             float startAngle, float sweepAngle);
+typedef int (__stdcall *PtrGdipAddPathBezierI)(QtGpPath *path, int, int, int, int, int, int, int, int);
 typedef int (__stdcall *PtrGdipClosePathFigure) (QtGpPath *path);
 
 typedef int (__stdcall *PtrGdipCreateBitmapFromHBITMAP)(HBITMAP, HPALETTE, QtGpBitmap **);
@@ -1927,6 +1933,7 @@ static PtrGdipCreatePath GdipCreatePath = 0;                 // Path::Path(fillM
 static PtrGdipDeletePath GdipDeletePath = 0;                 // Path::~Path()
 static PtrGdipAddPathLine GdipAddPathLine = 0;               // Path::AddLine(x1, y1, x2, y2)
 static PtrGdipAddPathArc GdipAddPathArc = 0;                 // Path::AddArc(x, y, w, h, start, sweep)
+static PtrGdipAddPathBezierI GdipAddPathBezierI = 0;         // Path::AddPathBezier(x1, y1, ... x4, y4)
 static PtrGdipClosePathFigure GdipClosePathFigure = 0;       // Path::CloseFigure()
 
 static PtrGdipCreateBitmapFromHBITMAP GdipCreateBitmapFromHBITMAP = 0;  // Bitmap::Bitmap(hbm, hpalette)
@@ -2000,6 +2007,7 @@ static void qt_resolve_gdiplus()
     GdipDeletePath               = (PtrGdipDeletePath)         lib.resolve("GdipDeletePath");
     GdipAddPathLine              = (PtrGdipAddPathLine)        lib.resolve("GdipAddPathLine");
     GdipAddPathArc               = (PtrGdipAddPathArc)         lib.resolve("GdipAddPathArc");
+    GdipAddPathBezierI           = (PtrGdipAddPathBezierI)     lib.resolve("GdipAddPathBezierI");
     GdipClosePathFigure          = (PtrGdipClosePathFigure)    lib.resolve("GdipClosePathFigure");
 
     // Bitmap functions
@@ -2047,6 +2055,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipDeletePath);
     Q_ASSERT(GdipAddPathLine);
     Q_ASSERT(GdipAddPathArc);
+    Q_ASSERT(GdipAddPathBezierI);
     Q_ASSERT(GdipClosePathFigure);
     Q_ASSERT(GdipCreateBitmapFromHBITMAP);
     Q_ASSERT(GdipCreateBitmapFromScan0);
@@ -2528,6 +2537,57 @@ void QGdiplusPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 //     }
 }
 #endif
+
+void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
+{
+    QtGpPath *path = 0;
+    GdipCreatePath(0, &path);
+
+    const QPainterPathPrivate *pd = p.d;
+
+    // Drawing the subpaths
+    for (int i=0; i<pd->subpaths.size(); ++i) {
+        const QPainterSubpath &sub = pd->subpaths.at(i);
+        if (sub.elements.isEmpty())
+            continue;
+        for (int j=0; j<sub.elements.size(); ++j) {
+            const QPainterPathElement &elm = sub.elements.at(j);
+            switch (elm.type) {
+            case QPainterPathElement::Line: {
+                GdipAddPathLine(path,
+                                elm.lineData.x1, elm.lineData.y1,
+                                elm.lineData.x2, elm.lineData.y2);
+                break;
+            }
+            case QPainterPathElement::Bezier: {
+                GdipAddPathBezierI(path,
+                                   elm.bezierData.x1, elm.bezierData.y1,
+                                   elm.bezierData.x2, elm.bezierData.y2,
+                                   elm.bezierData.x3, elm.bezierData.y3,
+                                   elm.bezierData.x4, elm.bezierData.y4);
+                break;
+            }
+            case QPainterPathElement::Arc: {
+                GdipAddPathArc(path,
+                               elm.arcData.x, elm.arcData.y,
+                               elm.arcData.w, elm.arcData.h,
+                               elm.arcData.start/16.0, elm.arcData.length/16.0);
+                break;
+            }
+            default:
+                qFatal("QWin32PaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
+            }
+        }
+        GdipClosePathFigure(path);
+    }
+
+    if (d->brush)
+        GdipFillPath(d->graphics, d->brush, path);
+    if (d->usePen)
+        GdipDrawPath(d->graphics, d->pen, path);
+
+    GdipDeletePath(path);
+}
 
 void QGdiplusPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {

@@ -123,6 +123,8 @@ public:
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
 
+    void drawPath(const QPainterPath &p);
+
     Type type() const { return Gdiplus; }
 
 #ifndef QT_NO_BEZIER
