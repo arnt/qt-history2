@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#31 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -281,7 +281,6 @@ QTextDrag::~QTextDrag()
   Sets the text to be dragged.  You will need to call this if you did
   not pass the text during construction.
 */
-
 void QTextDrag::setText( const char * text )
 {
     int l = qstrlen(text);
@@ -290,17 +289,27 @@ void QTextDrag::setText( const char * text )
     setEncodedData( tmp );
 }
 
-bool QTextDrag::canConvert( QDragMoveEvent* e )
+/*!
+  Returns TRUE if the information in \a e can be decoded into a QString.
+  \sa decode()
+*/
+bool QTextDrag::canDecode( QDragMoveEvent* e )
 {
     return e->provides( "text/plain" );
 }
 
-bool QTextDrag::convert( QDropEvent* e, QString& s )
+/*!
+  Attempts to decode the dropped information in \a e 
+  into \a str, returning TRUE if successful.
+
+  \sa decode()
+*/
+bool QTextDrag::decode( QDropEvent* e, QString& str )
 {
     QByteArray payload = e->data( "text/plain" );
     if ( payload.size() ) {
 	e->accept();
-	s = QString( payload.data(), payload.size()+1 );
+	str = QString( payload.data(), payload.size()+1 );
 	return TRUE;
     }
     return FALSE;
@@ -399,7 +408,11 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
     }
 }
 
-bool QImageDrag::canConvert( QDragMoveEvent* e )
+/*!
+  Returns TRUE if the information in \a e can be decoded into an image.
+  \sa decode()
+*/
+bool QImageDrag::canDecode( QDragMoveEvent* e )
 {
     return e->provides( "image/bmp" )
         || e->provides( "image/ppm" )
@@ -407,7 +420,13 @@ bool QImageDrag::canConvert( QDragMoveEvent* e )
     // ### more Qt images types
 }
 
-bool QImageDrag::convert( QDropEvent* e, QImage& i )
+/*!
+  Attempts to decode the dropped information in \a e 
+  into \a img, returning TRUE if successful.
+
+  \sa canDecode()
+*/
+bool QImageDrag::decode( QDropEvent* e, QImage& img )
 {
     QByteArray payload = e->data( "image/bmp" );
     if ( payload.isEmpty() )
@@ -418,8 +437,25 @@ bool QImageDrag::convert( QDropEvent* e, QImage& i )
     if ( payload.isEmpty() )
 	return FALSE;
 
-    i.loadFromData(payload);
-    return !i.isNull();
+    img.loadFromData(payload);
+    return !img.isNull();
+}
+
+/*!
+  Attempts to decode the dropped information in \a e 
+  into \a pm, returning TRUE if successful.
+
+  This is a convenience function that converts
+  to \a pm via a QImage.
+
+  \sa canDecode()
+*/
+bool QImageDrag::decode( QDropEvent* e, QPixmap& pm )
+{
+    QImage img;
+    if ( decode( e, img ) )
+	return pm.convertFromImage( img ); 
+    return TRUE;
 }
 
 

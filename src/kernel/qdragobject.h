@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#17 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#18 $
 **
 ** Definition of QDragObject
 **
@@ -74,8 +74,8 @@ public:
 
     void setText( const char * );
 
-    static bool canConvert( QDragMoveEvent* e );
-    static bool convert( QDropEvent* e, QString& s );
+    static bool canDecode( QDragMoveEvent* e );
+    static bool decode( QDropEvent* e, QString& s );
 };
 
 
@@ -95,8 +95,9 @@ public:
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canConvert( QDragMoveEvent* e );
-    static bool convert( QDropEvent* e, QImage& i );
+    static bool canDecode( QDragMoveEvent* e );
+    static bool decode( QDropEvent* e, QImage& i );
+    static bool decode( QDropEvent* e, QPixmap& i );
 };
 
 

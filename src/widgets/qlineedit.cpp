@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#141 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#142 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -674,7 +674,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
 	QTextDrag * tdo = new QTextDrag( this );
 	tdo->setText( markedText() );
-	tdo->startDrag();
+	tdo->dragCopy();
 	return;
     }
 
@@ -1217,7 +1217,7 @@ bool QLineEdit::event( QEvent * e )
     } else if ( e->type() == Event_Drop ) {
 	QDropEvent * de = (QDropEvent *) e;
 	QString str;
-	if ( QTextDrag::convert( de, str ) ) {
+	if ( QTextDrag::decode( de, str ) ) {
 	    if ( !hasMarkedText() ) {
 		int margin = frame() ? 2 : 0;
 		setCursorPosition( xPosToCursorPos( &tbuf[(int)offset],
