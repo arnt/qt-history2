@@ -466,13 +466,13 @@ void QPrinter::readPdlgA( void* pdv )
     ncopies = pd->nCopies;
     if ( pd->Flags & PD_COLLATE )
         usercolcopies = TRUE;
+    else
+	usercolcopies = FALSE;
     if ( hdc ) {
        DeleteDC( hdc );
        viewOffsetDone = FALSE;
     }
     hdc	= pd->hDC;
-    if ( pd->Flags & PD_COLLATE )
-        usercolcopies = TRUE;
     if ( pd->hDevMode ) {
 	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
 	if ( dm ) {
@@ -481,10 +481,17 @@ void QPrinter::readPdlgA( void* pdv )
 	    else
 		setOrientation( Landscape );
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+            setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
             	ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
                 usercolcopies = TRUE;
+	    else
+		usercolcopies = FALSE;
+	    if ( dm->dmColor == DMCOLOR_COLOR )
+		color_mode = Color;
+	    else
+		color_mode = GrayScale;
         }
         GlobalUnlock( pd->hDevMode );
     }
