@@ -73,7 +73,8 @@ template <typename T>
 inline static const T *v_cast(const QCoreVariant::Private *d)
 {
     if (QTypeInfo<T>::isLarge)
-        return static_cast<const T*>(d->data.shared->value.ptr);
+        // this is really a static_cast, but gcc 2.95 complains about it.
+        return reinterpret_cast<const T*>(d->data.shared->value.ptr);
     return reinterpret_cast<const T*>(&d->data.ptr);
 }
 
