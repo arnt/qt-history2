@@ -21,6 +21,10 @@ class QString;
 
 class QByteArray;
 
+#ifndef Q_MOC_OUTPUT_REVISION
+#define Q_MOC_OUTPUT_REVISION 45
+#endif
+
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
 

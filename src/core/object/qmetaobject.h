@@ -19,10 +19,6 @@
 #include "qobjectdefs.h"
 #endif // QT_H
 
-#ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 45
-#endif
-
 class QCoreVariant;
 
 class Q_CORE_EXPORT QMetaMember
