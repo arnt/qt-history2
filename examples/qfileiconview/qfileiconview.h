@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#11 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#12 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -98,11 +98,11 @@ public:
 
     virtual ~QtFileIconViewItem();
 
-    ItemType type()
+    ItemType type() const
     { return itemType; }
-    QString filename() { return itemFileName; }
+    QString filename() const { return itemFileName; }
 
-    virtual bool acceptDrop( QMimeSource *e );
+    virtual bool acceptDrop( const QMimeSource *e ) const;
 
     virtual void setText( const QString &text );
 

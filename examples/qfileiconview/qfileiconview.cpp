@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#21 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#22 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -483,7 +483,7 @@ void QtFileIconViewItem::setText( const QString &text )
     }
 }
 
-bool QtFileIconViewItem::acceptDrop( QMimeSource *e )
+bool QtFileIconViewItem::acceptDrop( const QMimeSource *e ) const
 {
     if ( type() == Dir && e->provides( "text/uri-list" ) &&
 	 allowDrop() )

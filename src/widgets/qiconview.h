@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#22 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#23 $
 **
 ** Definition of QIconView widget class
 **
@@ -140,24 +140,24 @@ public:
     virtual void setAllowDrag( bool allow );
     virtual void setAllowDrop( bool allow );
 
-    virtual QString text();
-    virtual QIconSet icon();
+    virtual QString text() const;
+    virtual QIconSet icon() const;
 
-    virtual bool allowRename();
-    virtual bool allowDrag();
-    virtual bool allowDrop();
+    virtual bool allowRename() const;
+    virtual bool allowDrag() const;
+    virtual bool allowDrop() const;
 
-    virtual QIconView *iconView()  const;
-    virtual QIconViewItem *prevItem()  const;
-    virtual QIconViewItem *nextItem()  const;
+    virtual QIconView *iconView() const;
+    virtual QIconViewItem *prevItem() const;
+    virtual QIconViewItem *nextItem() const;
 
-    virtual int index();
+    virtual int index() const;
 
     virtual void setSelected( bool s, bool cb = FALSE );
     virtual void setSelectable( bool s );
 
-    virtual bool isSelected();
-    virtual bool isSelectable();
+    virtual bool isSelected() const;
+    virtual bool isSelectable() const;
 
     virtual void repaint();
 
@@ -166,24 +166,24 @@ public:
     virtual void move( const QPoint &pnt );
     virtual void moveBy( const QPoint &pnt );
 
-    virtual QRect rect();
-    virtual int x();
-    virtual int y();
-    virtual int width();
-    virtual int height();
-    virtual QSize size();
-    virtual QPoint pos();
-    virtual QRect textRect( bool relative = TRUE );
-    virtual QRect iconRect( bool relative = TRUE );
-    virtual bool contains( QPoint pnt );
-    virtual bool intersects( QRect r );
+    virtual QRect rect() const;
+    virtual int x() const;
+    virtual int y() const;
+    virtual int width() const;
+    virtual int height() const;
+    virtual QSize size() const;
+    virtual QPoint pos() const;
+    virtual QRect textRect( bool relative = TRUE ) const;
+    virtual QRect iconRect( bool relative = TRUE ) const;
+    virtual bool contains( QPoint pnt ) const;
+    virtual bool intersects( QRect r ) const;
 
     virtual void setFont( const QFont &font );
-    virtual QFont font();
+    virtual QFont font() const;
 
     virtual void setViewMode( QIconSet::Size mode );
 
-    virtual bool acceptDrop( QMimeSource *mime );
+    virtual bool acceptDrop( const QMimeSource *mime ) const;
 
     virtual void rename();
 
@@ -255,40 +255,40 @@ public:
     virtual void insertItem( QIconViewItem *item, QIconViewItem *after = 0L );
     virtual void removeItem( QIconViewItem *item );
 
-    virtual int index( QIconViewItem *item );
+    virtual int index( const QIconViewItem *item ) const;
 
-    virtual QIconViewItem *firstItem()	const;
+    virtual QIconViewItem *firstItem()	 const;
     virtual QIconViewItem *lastItem()  const;
     virtual QIconViewItem *currentItem()  const;
     virtual void setCurrentItem( QIconViewItem *item );
 
-    virtual unsigned int count();
+    virtual unsigned int count() const;
 
     virtual void setViewMode( QIconSet::Size mode );
-    virtual QIconSet::Size viewMode();
+    virtual QIconSet::Size viewMode() const;
 
     virtual void orderItemsInGrid();
     virtual void show();
 
     virtual void setSelectionMode( SelectionMode m );
-    virtual SelectionMode selectionMode();
+    virtual SelectionMode selectionMode() const;
 
-    virtual QIconViewItem *findItem( const QPoint &pos );
+    virtual QIconViewItem *findItem( const QPoint &pos ) const;
     virtual void selectAll( bool select );
 
     virtual void repaintItem( QIconViewItem *item );
 
     virtual void ensureItemVisible( QIconViewItem *item );
-    virtual QIconViewItem* findFirstVisibleItem();
-    
+    virtual QIconViewItem* findFirstVisibleItem() const;
+
     virtual void clear();
 
     virtual void setRastX( int rx );
     virtual void setRastY( int ry );
-    virtual int rastX();
-    virtual int rastY();
+    virtual int rastX() const;
+    virtual int rastY() const;
     virtual void setSpacing( int sp );
-    virtual int spacing();
+    virtual int spacing() const;
 
     virtual void setAlignMode( AlignMode am );
     virtual AlignMode alignMode() const;

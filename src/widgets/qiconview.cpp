@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#52 $
 **
 ** Definition of QIconView widget class
 **
@@ -556,7 +556,7 @@ void QIconViewItem::setAllowDrop( bool allow )
  Returns the text of the iconview item.
 */
 
-QString QIconViewItem::text()
+QString QIconViewItem::text() const
 {
     return itemText;
 }
@@ -565,7 +565,7 @@ QString QIconViewItem::text()
   Returns the icon of the iconview item.
 */
 
-QIconSet QIconViewItem::icon()
+QIconSet QIconViewItem::icon() const
 {
     return itemIcon;
 }
@@ -575,7 +575,7 @@ QIconSet QIconViewItem::icon()
   else FALSE.
 */
 
-bool QIconViewItem::allowRename()
+bool QIconViewItem::allowRename() const
 {
     return allow_rename;
 }
@@ -584,7 +584,7 @@ bool QIconViewItem::allowRename()
   Returns TRUE, if the user is allowed to drag the iconview item, else FALSE.
 */
 
-bool QIconViewItem::allowDrag()
+bool QIconViewItem::allowDrag() const
 {
     return allow_drag;
 }
@@ -593,7 +593,7 @@ bool QIconViewItem::allowDrag()
   Returns TRUE, if the user is allowed to drop something onto the item, else FALSE.
 */
 
-bool QIconViewItem::allowDrop()
+bool QIconViewItem::allowDrop() const
 {
     return allow_drop;
 }
@@ -631,7 +631,7 @@ QIconViewItem *QIconViewItem::nextItem() const
   Returns the index of this item in the iconview, of -1 if something went wrong.
 */
 
-int QIconViewItem::index()
+int QIconViewItem::index() const
 {
     if ( view )
 	return view->index( this );
@@ -684,7 +684,7 @@ void QIconViewItem::setSelectable( bool s )
   Returns TRUE, if the item is selected, else FALSE.
 */
 
-bool QIconViewItem::isSelected()
+bool QIconViewItem::isSelected() const
 {
     return selected;
 }
@@ -693,7 +693,7 @@ bool QIconViewItem::isSelected()
   Returns TRUE, of the item is selectable, else FALSE.
 */
 
-bool QIconViewItem::isSelectable()
+bool QIconViewItem::isSelectable() const
 {
     return selectable;
 }
@@ -748,7 +748,7 @@ void QIconViewItem::moveBy( const QPoint &pnt )
   Returns the bounding rect of the item (in contents coordinates).
 */
 
-QRect QIconViewItem::rect()
+QRect QIconViewItem::rect() const
 {
     return itemRect;
 }
@@ -757,7 +757,7 @@ QRect QIconViewItem::rect()
   Returns the X-Coordinate of the item (in contents coordinates).
 */
 
-int QIconViewItem::x()
+int QIconViewItem::x() const
 {
     return itemRect.x();
 }
@@ -766,7 +766,7 @@ int QIconViewItem::x()
   Returns the Y-Coordinate of the item (in contents coordinates).
 */
 
-int QIconViewItem::y()
+int QIconViewItem::y() const
 {
     return itemRect.y();
 }
@@ -775,7 +775,7 @@ int QIconViewItem::y()
   Returns the  width of the item.
 */
 
-int QIconViewItem::width()
+int QIconViewItem::width() const
 {
     return itemRect.width();
 }
@@ -784,7 +784,7 @@ int QIconViewItem::width()
   Returns the height of the item.
 */
 
-int QIconViewItem::height()
+int QIconViewItem::height() const
 {
     return itemRect.height();
 }
@@ -793,7 +793,7 @@ int QIconViewItem::height()
   Returns the size of the item.
 */
 
-QSize QIconViewItem::size()
+QSize QIconViewItem::size() const
 {
     return QSize( itemRect.width(), itemRect.height() );
 }
@@ -802,7 +802,7 @@ QSize QIconViewItem::size()
   Returns the position of the item (in contents coordinates).
 */
 
-QPoint QIconViewItem::pos()
+QPoint QIconViewItem::pos() const
 {
     return QPoint( itemRect.x(), itemRect.y() );
 }
@@ -813,7 +813,7 @@ QPoint QIconViewItem::pos()
   coordinate system, else the rectangle is relative to the origin of the item's rectangle
  */
 
-QRect QIconViewItem::textRect( bool relative )
+QRect QIconViewItem::textRect( bool relative ) const
 {
     if ( relative )
 	return itemTextRect;
@@ -827,7 +827,7 @@ QRect QIconViewItem::textRect( bool relative )
   coordinate system, else the rectangle is relative to the origin of the item's rectangle
  */
 
-QRect QIconViewItem::iconRect( bool relative )
+QRect QIconViewItem::iconRect( bool relative ) const
 {
     if ( relative )
 	return itemIconRect;
@@ -839,7 +839,7 @@ QRect QIconViewItem::iconRect( bool relative )
   Returns TRUE, if the item contains the point \a pnt (in contents coordinates).
 */
 
-bool QIconViewItem::contains( QPoint pnt )
+bool QIconViewItem::contains( QPoint pnt ) const
 {
     return ( textRect( FALSE ).contains( pnt ) ||
 	     iconRect( FALSE ).contains( pnt ) );
@@ -849,7 +849,7 @@ bool QIconViewItem::contains( QPoint pnt )
   Returns TRUE, if the item intersects the rectangle \a r (in contents coordinates).
 */
 
-bool QIconViewItem::intersects( QRect r )
+bool QIconViewItem::intersects( QRect r ) const
 {
     return ( textRect( FALSE ).intersects( r ) ||
 	     iconRect( FALSE ).intersects( r ) );
@@ -876,7 +876,7 @@ void QIconViewItem::setFont( const QFont &font )
   Returns the font of this item.
 */
 
-QFont QIconViewItem::font()
+QFont QIconViewItem::font() const
 {
     return f;
 }
@@ -904,7 +904,7 @@ void QIconViewItem::setViewMode( QIconSet::Size mode )
   \sa QFileIconViewItem::acceptDrop()
 */
 
-bool QIconViewItem::acceptDrop( QMimeSource *mime )
+bool QIconViewItem::acceptDrop( const QMimeSource *mime ) const
 {
     if ( mime )
 	;
@@ -1395,7 +1395,7 @@ void QIconView::removeItem( QIconViewItem *item )
   Returns the index of \a item or -1 if there is something wrong.
 */
 
-int QIconView::index( QIconViewItem *item )
+int QIconView::index( const QIconViewItem *item ) const
 {
     if ( !item )
 	return -1;
@@ -1462,7 +1462,7 @@ void QIconView::setCurrentItem( QIconViewItem *item )
   Returns the number of inserted items.
 */
 
-unsigned int QIconView::count()
+unsigned int QIconView::count() const
 {
     return d->count;
 }
@@ -1490,7 +1490,7 @@ void QIconView::setViewMode( QIconSet::Size mode )
   Returns the viewmode of the iconview.
 */
 
-QIconSet::Size QIconView::viewMode()
+QIconSet::Size QIconView::viewMode() const
 {
     return d->mode;
 }
@@ -1627,7 +1627,7 @@ void QIconView::setSelectionMode( SelectionMode m )
   Returns the selection mode of the iconview.
 */
 
-QIconView::SelectionMode QIconView::selectionMode()
+QIconView::SelectionMode QIconView::selectionMode() const
 {
     return d->selectionMode;
 }
@@ -1637,7 +1637,7 @@ QIconView::SelectionMode QIconView::selectionMode()
   on contents coordinates.
 */
 
-QIconViewItem *QIconView::findItem( const QPoint &pos )
+QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 {
     if ( !d->firstItem )
 	return 0;
@@ -1693,7 +1693,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
   0 is returned.
 */
 
-QIconViewItem* QIconView::findFirstVisibleItem()
+QIconViewItem* QIconView::findFirstVisibleItem() const
 {
     QRect r( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
     QIconViewItem *item = d->firstItem, *i = 0;
@@ -1772,7 +1772,7 @@ void QIconView::setRastY( int ry )
   Returns the horizonal raster.
 */
 
-int QIconView::rastX()
+int QIconView::rastX() const
 {
     return d->rastX;
 }
@@ -1781,7 +1781,7 @@ int QIconView::rastX()
   Returns the vertical raster.
 */
 
-int QIconView::rastY()
+int QIconView::rastY() const
 {
     return d->rastY;
 }
@@ -1799,7 +1799,7 @@ void QIconView::setSpacing( int sp )
   Returns the spacing between iconview items.
 */
 
-int QIconView::spacing()
+int QIconView::spacing() const
 {
     return d->spacing;
 }
