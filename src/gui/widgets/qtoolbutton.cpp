@@ -61,12 +61,12 @@
     auto-raised because the mouse pointer is hovering over it.
 
     The button's look and dimension is adjustable with
-    setUsesBigPixmap() and setUsesTextLabel(). When used inside a
+    setToolButtonStyle() and setIconSize(). When used inside a
     QToolBar in a QMainWindow, the button automatically adjusts to
-    QMainWindow's settings (see QMainWindow::setUsesTextLabel() and
-    QMainWindow::setUsesBigPixmaps()). The pixmap set on a QToolButton
+    QMainWindow's settings (see QMainWindow::setToolButtonStyle() and
+    QMainWindow::setIconSize()). The pixmap set on a QToolButton
     will be set to 22x22 if it is bigger than this size. If
-    usesBigPixmap() is true, then the pixmap will be set to 32x32.
+    iconSize() is Qt::LargeIconSize, then the pixmap will be set to 32x32.
 
     A tool button can offer additional choices in a popup menu. The
     feature is sometimes used with the "Back" button in a web browser.
@@ -81,20 +81,6 @@
     \sa QPushButton QToolBar QMainWindow \link guibooks.html#fowler
     GUI Design Handbook: Push Button\endlink
 */
-
-/*!
-    \enum QToolButton::TextPosition
-
-    The position of the tool button's textLabel in relation to the
-    tool button's icon.
-
-    \value BesideIcon The text appears beside the icon.
-    \value BelowIcon The text appears below the icon.
-
-    \omitvalue Right
-    \omitvalue Under
-*/
-
 
 /*!
     Constructs an empty tool button with parent \a
@@ -334,26 +320,35 @@ QSize QToolButton::minimumSizeHint() const
     return sizeHint();
 }
 
-/*!
-    \property QToolButton::usesBigPixmap
-    \brief whether this toolbutton uses big pixmaps.
+ /*!
+    \enum Qt::ToolButtonStyle
 
-    QToolButton automatically connects this property to the relevant
-    signal in the QMainWindow in which it resides. We strongly
-    recommend that you use QMainWindow::setUsesBigPixmaps() instead.
+    The style of the tool button, describing how the button's text and
+    icon should be displayed.
 
-    This property's default is true.
-
-    \warning If you set some buttons (in a QMainWindow) to have big
-    pixmaps and others to have small pixmaps, QMainWindow may not get
-    the geometry right.
+    \value ToolButtonIconOnly Only display the icon.
+    \value ToolButtonTextOnly Only display the text.
+    \value ToolButtonTextBesideIcon The text appears beside the icon.
+    \value ToolButtonTextUnderIcon The text appears under the icon.
 */
 
 /*!
-    \property QToolButton::usesTextLabel
-    \brief whether the toolbutton displays a text label below the button pixmap.
+    \property QToolButton::iconSize
+    \brief the icon size used for this button.
 
-    The default is false.
+    QToolButton automatically connects this property to the relevant
+    signal in the QMainWindow in which it resides. We strongly
+    recommend that you use QMainWindow::iconSize() instead.
+
+    The default size is Qt::AutomaticIconSize.
+*/
+
+/*!
+    \property QToolButton::toolButtonStyle
+    \brief whether the tool button displays an icon only, text only,
+    or text beside/below the icon.
+
+    The default is Qt::ToolButtonIconOnly.
 
     QToolButton automatically connects this slot to the relevant
     signal in the QMainWindow in which is resides.
@@ -815,10 +810,6 @@ bool QToolButton::autoRaise() const
     return d->autoRaise;
 }
 
-/*!
-    \property QToolButton::textPosition
-    \brief the position of the text label of this button.
-*/
 
 /*! \internal
  */
@@ -876,6 +867,41 @@ QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
     Use menu() instead.
 */
 
+/*!
+    \fn TextPosition QToolButton::textPosition() const
+
+    Use toolButtonStyle() instead.
+*/
+
+/*!
+    \fn void QToolButton::setTextPosition(TextPosition pos)
+
+    Use setToolButtonStyle() instead.
+*/
+
+/*!
+    \fn bool QToolButton::usesBigPixmap() const
+
+    Use iconSize() instead.
+*/
+
+/*!
+    \fn void QToolButton::setUsesBigPixmap(bool enable)
+
+    Use setIconSize() instead.
+*/
+
+/*!
+    \fn bool QToolButton::usesTextLabel() const
+
+    Use toolButtonStyle() instead.
+*/
+
+/*!
+    \fn void QToolButton::setUsesTextLabel(bool enable)
+
+    Use setToolButtonStyle() instead.
+*/
 #include "moc_qtoolbutton.cpp"
 
 #endif
