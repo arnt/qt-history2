@@ -37,6 +37,17 @@ complete migration of a Motif based program to the Qt toolkit.
 
 \list
 
+\i QMotifWidget and QMotifDialog will use the same Visual, Colormap
+and color depth that QApplication uses.  When using CDE, the color
+scheme may be incorrect when using a Visual, Colormap and color depth
+that is not the default.  To work around this problem, add the
+following resource string to your startup files (for example,
+$HOME/.dt/sessions/current/dt.resources):
+
+\code
+    *userColorObj: false
+\endcode
+
 \i The X11 headers define some constants that conflict with the Qt
 headers.  The solution is to include all Qt headers first, followed by
 headers from this extension, and all Xt/Motif and X11 headers last.
