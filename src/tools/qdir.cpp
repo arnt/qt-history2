@@ -1127,13 +1127,13 @@ QString QDir::cleanDirPath( const QString &filePath )
     return newPath;
 }
 
-int cmp_si_sortSpec;
+int qt_cmp_si_sortSpec;
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
 
-int cmp_si( const void *n1, const void *n2 )
+int qt_cmp_si( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
 	return 0;
@@ -1141,12 +1141,12 @@ int cmp_si( const void *n1, const void *n2 )
     QDirSortItem* f1 = (QDirSortItem*)n1;
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
-    if ( cmp_si_sortSpec & QDir::DirsFirst )
+    if ( qt_cmp_si_sortSpec & QDir::DirsFirst )
 	if ( f1->item->isDir() != f2->item->isDir() )
 	    return f1->item->isDir() ? -1 : 1;
 
     int r = 0;
-    int sortBy = cmp_si_sortSpec & QDir::SortByMask;
+    int sortBy = qt_cmp_si_sortSpec & QDir::SortByMask;
 
     switch ( sortBy ) {
       case QDir::Time:
@@ -1161,7 +1161,7 @@ int cmp_si( const void *n1, const void *n2 )
 
     if ( r == 0 && sortBy != QDir::Unsorted ) {
 	// Still not sorted - sort by name
-	bool ic = cmp_si_sortSpec & QDir::IgnoreCase;
+	bool ic = qt_cmp_si_sortSpec & QDir::IgnoreCase;
 
 	if ( f1->filename_cache.isNull() )
 	    f1->filename_cache = ic ? f1->item->fileName().lower()
@@ -1178,7 +1178,7 @@ int cmp_si( const void *n1, const void *n2 )
 	r = (char*)n1 - (char*)n2;
     }
 
-    if ( cmp_si_sortSpec & QDir::Reversed )
+    if ( qt_cmp_si_sortSpec & QDir::Reversed )
 	return -r;
     else
 	return r;

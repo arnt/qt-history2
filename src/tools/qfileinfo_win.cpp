@@ -41,11 +41,6 @@
 #include <tchar.h>
 
 
-struct QFileInfoCache
-{
-    STATBUF st;
-    bool isSymLink;
-};
 
 void QFileInfo::slashify( QString &s )
 {

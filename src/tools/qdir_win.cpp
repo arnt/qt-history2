@@ -56,7 +56,7 @@ extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 
-QStringList makeFilterList( const QString &filter )
+QStringList makeFilterList( const QString &filter );
     
 void QDir::slashify( QString& n )
 {
@@ -322,6 +322,10 @@ bool QDir::isRelativePath( const QString &path )
     return path[i] != '/' && path[i] != '\\';
 }
 
+extern int qt_cmp_si_sortSpec;
+
+extern int qt_cmp_si( const void *, const void * );
+
 /*!
   \internal
   Reads directory entries.
@@ -478,8 +482,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	i=0;
 	for (itm = fiList->first(); itm; itm = fiList->next())
 	    si[i++].item = itm;
-	cmp_si_sortSpec = sortSpec;
-	qsort( si, i, sizeof(si[0]), cmp_si );
+	qt_cmp_si_sortSpec = sortSpec;
+	qsort( si, i, sizeof(si[0]), qt_cmp_si );
 	// put them back in the list
 	fiList->setAutoDelete( FALSE );
 	fiList->clear();
