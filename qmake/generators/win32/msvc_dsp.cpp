@@ -460,7 +460,7 @@ DspMakefileGenerator::init()
     if ( project->variables()["QMAKESPEC"].isEmpty() )
 	project->variables()["QMAKESPEC"].append( getenv("QMAKESPEC") );
 
-    bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qt-mt");
+    bool is_qt = (project->first("TARGET") == "qt"QTDLL_POSTFIX || project->first("TARGET") == "qt-mt"QTDLL_POSTFIX);
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     
     QStringList &configs = project->variables()["CONFIG"];
@@ -526,7 +526,7 @@ DspMakefileGenerator::init()
 		int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
 		if(hver != -1) {
 		    QString ver;
-		    ver.sprintf("qt%s%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
+		    ver.sprintf("qt%s" QTDLL_POSTFIX "%d.lib", (project->isActiveConfig("thread") ? "-mt" : ""), hver);
 		    QStringList &libs = project->variables()["QMAKE_LIBS"];
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);

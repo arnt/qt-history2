@@ -299,7 +299,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    if(!project->isEmpty("SKIP_DEPENDS")) {
 		bool found = FALSE;
 		QStringList &nodeplist = project->values("SKIP_DEPENDS");
-		for(QStringList::Iterator it = nodeplist.begin(); 
+		for(QStringList::Iterator it = nodeplist.begin();
 		    it != nodeplist.end(); ++it) {
 		    QRegExp regx((*it));
 		    if(regx.match(inc) != -1) {
@@ -1536,7 +1536,7 @@ MakefileGenerator::specdir()
     const char *d = getenv("QTDIR");
     if(d) {
 	QString qdir = Option::fixPathToTargetOS(QString(d));
-	if(qdir.right(1) == QDir::separator())
+	if(qdir.right(1) == QString( QChar( QDir::separator() ) ))
 	    qdir.truncate(qdir.length()-1);
 	//fix path
 	QFileInfo fi(spec);
