@@ -21,7 +21,12 @@ set -e
 # Use this if something mysterious exits
 #set -x
 
-release=HEAD
+disttype=$1
+platform=$2
+
+VERSION=$3
+BRANCH=${VERSION%.*}
+LABEL="qt/$VERSION"
 
 while true ; do
   case "$1" in
@@ -29,14 +34,11 @@ while true ; do
     "-local") local="yes"; shift;;
     "-noch")  noch="yes"; shift;;
     "-msonly") msonly="yes"; shift;;
-    "-r") release=$2; shift; shift;;
     *) break;;
   esac
 done
 
-disttype=$1
-platform=$2
-VERSION=$3
+DISTDIR=/tmp/mkdist-$$
 
 unset LANG || true
 unset goodparam1 || true
@@ -46,8 +48,6 @@ curdir=`/bin/pwd`
 
 echo >&2
 echo "Creating a new Qt distribution:" >&2
-
-  echo "  CVS tag ............." ${release} >&2
 
 if [ "${disttype}" = "free" -o "${disttype}" = "commercial" ]; then
   goodparam1=yes
@@ -70,9 +70,6 @@ if [ "${disttype}" = "free" -a "${platform}" != "x11" ]; then
   exit
 fi
 
-BRANCH=${VERSION%.*}
-LABEL="qt/$VERSION"
-DISTDIR=/tmp/mkdist-$$
 T=`p4 fstat //depot/qt/$BRANCH/doc.conf | awk '/ depotFile / { print $3 }'`
 if [ -z "$T" ]
 then
@@ -93,6 +90,7 @@ fi
 
 echo "Exporting the entire Qt and tmake depots..." >&2
 
+set +e
 TMPCLIENT=qt-release-tmp-$$
 p4 client -t qt-release-$disttype-$platform -o $TMPCLIENT |
     perl -p -e "
@@ -102,6 +100,7 @@ s{/qt/main/}{/qt/$BRANCH/};
 p4 -s -c $TMPCLIENT sync $DISTDIR/...@$LABEL 2>&1 |
 	egrep -v '^(info|exit):'
 p4 -s client -d $TMPCLIENT  2>&1 | egrep -v '^(info|exit):'
+set -e
 
 # echo "Removing and creating new client repository..." >&2
 # rm -rf ${DISTDIR} || ( echo unable to remove ${DISTDIR} ; exit 1 )
@@ -129,27 +128,30 @@ done
 SRC_VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo ${SRC_VERSION} | sed -e 's/\..*$//'`
 case "$SRC_VERSION" in
-  *-snapshot|*-somethingelse)
+  *-snapshot)
     SPECIAL=${SRC_VERSION##*-}
 
-    N=${SRC_VERSION%-$SPECIAL}-$(date +%Y%m%d)
+    SRC_VERSION_N=${SRC_VERSION%-$SPECIAL}
+    N=${SRC_VERSION_N}-$(date +%Y%m%d)
     perl -i -p -e "s/$SRC_VERSION/$N/" ${DISTDIR}/qt/src/tools/qglobal.h
-    SRC_VERSION=${N}
+;;*-beta*)
+    SPECIAL=${SRC_VERSION##*-}
+    SRC_VERSION_N=${SRC_VERSION%-$SPECIAL}
 ;; *)
     SPECIAL=stable
+    SRC_VERSION_N=$SRC_VERSION
 esac
-if [ "$VERSION" != "$SRC_VERSION" ]
+if [ "$VERSION" != "$SRC_VERSION_N" ]
 then
     echo "Version mismatch:   qglobal.h: $SRC_VERSION   argument: $VERSION"
     exit 1
 fi
-VERSION_SHORT=`echo ${VERSION} | sed -e 's/\.\(.\).*/.\1/'`
-VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//g'`
+VERSION_SHORT=`echo ${SRC_VERSION} | sed -e 's/\.\(.\).*/.\1/'`
+VERSIONWIN=`echo ${SRC_VERSION} | sed -e 's/\.//g'`
 
 if [ -z "$noch" -a ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
 then
     echo "You must create qt/dist/changes-$VERSION first (or run with -noch)"
-    V=`sed -e s/[^0-9]//g`
     echo "Find the logs:    p4 ???? ???? # ./changelog dd/mm/yyyy-previous-release-date >changes-$VERSION"
     echo "Print the logs:   p4 ???? ???? # aprint -w80 -4 changes-$VERSION"
     exit 1
@@ -321,7 +323,7 @@ rm -rf qt/dist qt/util qt/tmake qt/makefiles
 
 echo "Including version-specific information..." >&2
 cd ${DISTDIR}/qt
-${curdir}/versionize $VERSION $VERSIONWIN $SPECIAL [A-Z]*
+${curdir}/versionize $SRC_VERSION $VERSIONWIN $SPECIAL [A-Z]*
 
 echo "Finally packing the distribution, see ${DISTDIR} ..." >&2
 
@@ -333,13 +335,13 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}
-  mv qt qt-${VERSION}
+  mv qt qt-${SRC_VERSION}
   if [ "${disttype}" = "commercial" ]; then
-    tar cf qt-${VERSION}-commercial.tar qt-${VERSION}
-    gzip -9 qt-${VERSION}-commercial.tar
+    tar cf qt-${SRC_VERSION}-commercial.tar qt-${SRC_VERSION}
+    gzip -9 qt-${SRC_VERSION}-commercial.tar
   else
-    tar cf qt-${VERSION}.tar qt-${VERSION}
-    gzip -9 qt-${VERSION}.tar
+    tar cf qt-${SRC_VERSION}.tar qt-${SRC_VERSION}
+    gzip -9 qt-${SRC_VERSION}.tar
   fi
 fi
 
