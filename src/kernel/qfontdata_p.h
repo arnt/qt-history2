@@ -105,7 +105,7 @@ class QFontStruct : public QShared
 {
 public:
     QFontStruct(Qt::HANDLE h, QCString n, QTextCodec *c, int a) :
-	handle(h), name(n), codec(c), cache_cost(a)
+	QShared(), handle(h), name(n), codec(c), cache_cost(a)
     { ; }
 
     ~QFontStruct();
