@@ -27,4 +27,7 @@ TARGET		= editor
 DESTDIR		= ../../../lib
 DLLDESTDIR	= ../../../bin
 VERSION		= 1.0.0
-INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces
+
+isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
+
+INCLUDEPATH	+= $$QT_SOURCE_TREE/src/kernel $$QT_SOURCE_TREE/tools/designer/interfaces
