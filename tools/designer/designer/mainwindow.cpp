@@ -172,7 +172,7 @@ MainWindow::MainWindow( bool asClient )
     setupHierarchyView();
     setupFormList();
     setupActionEditor();
-    
+
     setupActionManager();
     setupHelpActions();
     setupRMBMenus();
@@ -1062,6 +1062,7 @@ void MainWindow::setupFormList()
 void MainWindow::setupActionEditor()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::OutsideDock, this, 0 );
+    addDockWindow( dw, Qt::TornOff );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     actionEditor = new ActionEditor( dw );
