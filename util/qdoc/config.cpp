@@ -461,7 +461,7 @@ void Config::showHelpShort()
 
 void Config::showVersion()
 {
-    // $\lim_{t \rightarrow \infty} {\it qdoc\_version}(t) = 2$
-    printf( "qdoc version 1.95\n" );
+    // $\lim_{t\rightarrow\infty} {\it qdoc\_version}(t) = 2$
+    printf( "qdoc version 1.96\n" );
     exit( EXIT_SUCCESS );
 }

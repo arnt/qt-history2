@@ -156,9 +156,10 @@
     \link #code \\code ... \\endcode \endlink, expects raw code:
     <pre>
     /*!
-      QPainter is declared in \\c <u>&lt;qpainter.h&gt;</u>.
+      QPainter is declared in \\c <u>\<qpainter.h\></u>.
     *&#47;</pre>
-    (Not "\\c \\\<qpainter.h\\\>", nor "\\c \&lt;qpainter.h\&gt;".)
+    (Not "\\\<qpainter.h\\\>" nor "\&lt;qpainter.h\&gt;", only
+    "\<qpainter.h\>".)
 
     Like \link #a \\a \endlink and \link #e \\e \endlink, \\c supports
     the brace syntax. However, qdoc is smart enough to balance all
@@ -429,21 +430,21 @@
       <u>\\code</u>
 	QString s = "\<r";
 	s.insert( 1, 'b' ); // s == "\<br"
-	s.insert( 3, '\>');  // s == "\<br\>"
+	s.insert( 3, '\>' ); // s == "\<br\>"
       <u>\\endcode</u>
     *&#47;</pre>
     This will be rendered as
     <pre>
-    \link #fnord QString \endlink s = "\<r";
-    s.\link #fnord insert \endlink( 1, 'b' ); // s == "\<br"
-    s.\link #fnord insert \endlink( 3, '\>');  // s == "\<br\>"</pre>
+    <a href="#fnord">QString</a> s = "\<r";
+    s.<a href="#fnord">insert</a>( 1, 'b' ); // s == "\<br"
+    s.<a href="#fnord">insert</a>( 3, '\>' ); // s == "\<br\>"</pre>
 
     Theoreticians have shown that C-style comments cannot appear in
     example code.
 
     The \link #walkthrough \\walkthrough \endlink commands may be used
     to include code snippets directly from C++ example files. This is
-    much more maintainable than duplicating the code.
+    more maintainable than duplicating the code.
 
    <p><li><a name="internal"></a>
     <b>\\internal</b> indicates that the function is not part of the
@@ -485,6 +486,7 @@
     {
 	fprintf( stderr, msg, ... );
     }</pre>
+    Otherwise, the documentation would end nowhere.
 
    <p><li><a name="important"></a>
     <b>\\important</b> allows you to inherit documentation from a
@@ -525,13 +527,13 @@
     <b>\\page</b> starts a documentation parcel that will end up in
     its own HTML file:
     <pre>
-    /*! <u>\page</u> mouse.html
+    /*! <u>\\page</u> mouse.html
 
-      <u>\title</u> Mouses or mice?
+      <u>\\title</u> Mouses or mice?
 
-      Some people use the term \e mouses to refer to
+      Some people use the term \\e mouses to refer to
       multiple pointing devices individually known as a
-      \e mouse. Others call these \e mice.
+      \\e mouse. Others call these \\e mice.
 
       Have you noticed that over half of linguistic
       papers has a title of the form "X or Y?"?
@@ -569,13 +571,13 @@
     *&#47;</pre>
     You may use dedicated tools (such as mimencode) to generate the
     base64-encoded data, or you may use your email client cleverly.
-    If your PNG files don't start with "iVBOR", try another email
-    client.
+    If your encoded PNG files don't start with "iVBOR", try another
+    email client.
 
    <p><li><a name="plainpage"></a>
     <b>\\plainpage</b> embeds plain text files in C++ files.
     <pre>
-    /*! <u>\plainpage</u> graph.g1n
+    /*! <u>\\plainpage</u> graph.g1n
 
       num label
       10 A
@@ -586,6 +588,9 @@
       15 F
       19 G
     *&#47;</pre>
+
+    The above comment makes qdoc generate a file called graph.g1n
+    containing "num label 10 A ... 19 G".
 
    <p><li><a name="defgroup"></a>
     <b>\\defgroup</b> defines a group of related classes:
@@ -680,7 +685,7 @@
     /*! <u>\\header</u> \<qglobal.h\> *&#47;</pre>
     will be rendered as
     <pre>
-    #include &lt;\link #fnord qglobal.h \endlink&gt;</pre>
+    #include \<<a href="#fnord">qglobal.h</a>\></pre>
     in the generated documentation.
 
     Do not confuse this command with \link #heading \\heading \endlink
@@ -787,7 +792,7 @@
     <b>\\mustquote</b> records the rest of the comment (excluding the
     optional "see also" section) as licensing stuff:
     <pre>
-    /*! \fn void QPainter::drawCubicBezier( const QPointArray& a,
+    /*! \\fn void QPainter::drawCubicBezier( const QPointArray& a,
 					    int index )
       Draws a cubic Bezier curve.
 
@@ -908,10 +913,10 @@
     of \link #l \\l&nbsp;(ell) \endlink, but allows arbitrary
     user-visible text.
     <pre>
-    /*! \fn void QButton::stateChanged( int state )
+    /*! \\fn void QButton::stateChanged( int state )
 
       This signal is emitted whenever a toggle button
-      changes status. The \a state is 2 if the button is on,
+      changes status. The \\a state is 2 if the button is on,
       1 if it's in the \\link <u>QCheckBox::setTriState()</u>
       <u>'no change' state</u> \\endlink or 0 if the button is
       off.
@@ -924,7 +929,7 @@
     have to click to see what setTriState() is called. In the manpage
     and paper versions, they cannot see it at all. Instead, it is
     best to fit setTriState() (or triState()) into the sentence: "1 if
-    the triState() is 'no change'".
+    the \link #fnord triState() \endlink is 'no change'".
 
     In the old days, there was no \link #l \\l&nbsp;(ell) \endlink
     command. Change horrors like
@@ -1313,7 +1318,7 @@
 
     Try this option now. You should get the following message:
     <pre>
-    qdoc version 1.94</pre>
+    qdoc version 1.96</pre>
     If you have version 2.53, get
     \link mailto:jasmin@trolltech.com somebody \endlink to update this
     manual.

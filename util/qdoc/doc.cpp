@@ -1084,7 +1084,6 @@ static int xunique = 1;
 void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
 				  StringSet *thruwalked )
 {
-    // this function is often called for nothing
     if ( walk.scoreMap().isEmpty() )
 	return;
 
@@ -1098,8 +1097,10 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
     ScoreMap::ConstIterator score = walk.scoreMap().begin();
     while ( score != walk.scoreMap().end() ) {
 	// score.key() is qaction.html#setWhatsThis, (*score) is a HighScore
-	if ( ((*score).inInclude() && !alreadyIncluded) ||
-	     (!(*score).inInclude() && !alreadyThruwalked) ) {
+	if ( (*score).inInclude() && alreadyIncluded ) {
+	    warning( 2, location(), "Example file '%s' included twice",
+		     walk.fileName().latin1() );
+	} else if ( (*score).inInclude() || !alreadyThruwalked ) {
 	    if ( (*score).inInclude() )
 		numIncludes++;
 	    else
@@ -1363,6 +1364,9 @@ void Doc::printHtmlIncludeHeader( HtmlWriter& out, const QString& fileName )
 
 QString Doc::href( const QString& name, const QString& text )
 {
+    static QRegExp allProtos( QString("(?:f(?:ile|tp)|http|mailto):.*") );
+    static QRegExp uglyProtos( QString("(?:file|mailto):(.*)") );
+
     QString t = text;
     QString y = res->href( name, t );
     if ( t.isEmpty() )
@@ -1371,25 +1375,29 @@ QString Doc::href( const QString& name, const QString& text )
 	return y;
 
     // try a keyword
-    QString k = keywordLinks[t];
-    // try without the plural
-    if ( k.isEmpty() && t.right(1) == QChar('s') )
-	k = keywordLinks[t.left(t.length() - 1)]; 
-    // try a URL
+    QString k = keywordLinks[name];
     if ( k.isEmpty() ) {
-	if ( name.startsWith(QString("file:")) ||
-	     name.startsWith(QString("ftp:")) ||
-	     name.startsWith(QString("http:")) ||
-	     name.startsWith(QString("mailto:")) ) {
-	    k = name;
-
-	    // chop the protocol
-	    if ( t == name && !t.startsWith(QString("http:")) )
-		t = name.mid( name.find(QChar(':')) + 1 );
+	// try without the plural
+	if ( name.right(1) == QChar('s') )
+	    k = keywordLinks[name.left(t.length() - 1)]; 
+	if ( k.isEmpty() ) {
+	    // try an example file
+	    k = includedExampleLinks[name];
+	    if ( k.isEmpty() ) {
+		k = thruwalkedExampleLinks[name];
+		if ( k.isEmpty() ) {
+		    // try a URL
+		    if ( allProtos.exactMatch(name) ) {
+			k = name;
+			if ( t == name && uglyProtos.exactMatch(t) )
+			    t = uglyProtos.cap( 1 );
+		    }
+		    if ( k.isEmpty() && name.startsWith(QChar('#')) )
+			k = name;
+		}
+	    }
 	}
     }
-    if ( k.isEmpty() && name[0] == QChar('#') )
-	k = name;
 
     if ( k.isEmpty() )
 	return t;
