@@ -60,7 +60,7 @@ public:
                     mi.setPixel(x, y, !(bi.pixel(x, y) && mi.pixel(x, y)));
             }
             QBitmap mask;
-            mask = mi;
+            mask = QPixmap::fromImage(mi);
             setMask(mask);
         }
     ~QMacCursorWidget() { }
