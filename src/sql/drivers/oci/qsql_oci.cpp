@@ -55,7 +55,9 @@ class QOCIPrivate
 public:
     QOCIPrivate()
 	: env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1)
-    {}
+    {
+	rowCache.setAutoDelete( TRUE );
+    }
     OCIEnv           *env;
     OCIError         *err;
     OCISvcCtx        *svc;
@@ -63,6 +65,10 @@ public:
     bool             transaction;
     int		     serverVersion;
     QString          user;
+    
+    typedef QPtrVector<QSqlField> RowCache;
+    typedef QPtrVector<RowCache> RowsetCache;
+    RowsetCache rowCache;
 
     int bindValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
     {
@@ -1094,7 +1100,15 @@ bool QOCIResult::cacheNext()
 		fs.setNull( i );
 	    }
 	    if ( !isForwardOnly() ) {
-		rowCache[currentRecord][i] = *fs.field( i );
+		if ( (int) d->rowCache.size() < currentRecord + 1 ) {
+		    d->rowCache.resize( currentRecord + 1 );
+		    d->rowCache.insert( currentRecord, new QOCIPrivate::RowCache );
+		    d->rowCache[currentRecord]->setAutoDelete( TRUE );
+		}
+		if ( (int) d->rowCache[currentRecord]->size() < cols->size() ) {
+		    d->rowCache[currentRecord]->resize( cols->size() );
+		}
+		d->rowCache[currentRecord]->insert( i, new QSqlField( *fs.field( i ) ) );
 	    }
 	}
     } else {
@@ -1106,7 +1120,7 @@ bool QOCIResult::cacheNext()
 
 bool QOCIResult::fetchNext()
 {
-    if ( !isForwardOnly() && rowCache.contains( at() + 1 ) ) {
+    if ( !isForwardOnly() && ((int)(d->rowCache.count()-1) >=  at() + 1) ) {
 	setAt( at() + 1 );
 	return TRUE;
     }
@@ -1119,13 +1133,13 @@ bool QOCIResult::fetchNext()
 
 bool QOCIResult::fetch( int i )
 {
-    if ( !isForwardOnly() && rowCache.contains( i ) ) {
+    if ( !isForwardOnly() && ((int)(d->rowCache.count()-1) >= i) ) {
 	setAt( i );
 	return TRUE;
     }
     if ( isForwardOnly() && at() > i )
 	return FALSE;
-    setAt( rowCache.size() - 1 );
+    setAt( d->rowCache.size() - 1 );
     while ( at() < i ) {
 	if ( !cacheNext() )
 	    return FALSE;
@@ -1141,7 +1155,7 @@ bool QOCIResult::fetchFirst()
 {
     if ( isForwardOnly() && at() != QSql::BeforeFirst )
 	return FALSE;
-    if ( !isForwardOnly() && rowCache.contains( 0 ) ) {
+    if ( !isForwardOnly() && (d->rowCache.count() > 0) ) {
 	setAt( 0 );
 	return TRUE;
     }
@@ -1154,8 +1168,8 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    if ( !isForwardOnly() && at() == QSql::AfterLast && rowCache.count() > 0 ) {
-	setAt( rowCache.count() - 1 );
+    if ( !isForwardOnly() && at() == QSql::AfterLast && d->rowCache.count() > 0 ) {
+	setAt( d->rowCache.count() - 1 );
 	return TRUE;
     }
     if ( at() >= QSql::BeforeFirst ) {
@@ -1165,7 +1179,7 @@ bool QOCIResult::fetchLast()
 	    setAt( at() - 1 );
 	    return TRUE;
 	} else
-	    return fetch( rowCache.count() - 1 );
+	    return fetch( d->rowCache.count() - 1 );
     }
     return FALSE;
 }
@@ -1175,7 +1189,7 @@ QVariant QOCIResult::data( int field )
     if ( isForwardOnly() )
 	return fs.value( field );
     else
-	return rowCache[at()][field].value();
+	return d->rowCache[at()]->at(field)->value();
 }
 
 bool QOCIResult::isNull( int field )
@@ -1183,7 +1197,7 @@ bool QOCIResult::isNull( int field )
     if ( isForwardOnly() )
 	return fs.field( field )->isNull();
     else
-	return rowCache[at()][field].isNull();
+	return d->rowCache[at()]->at(field)->isNull();
 }
 
 int QOCIResult::size()
@@ -1211,7 +1225,7 @@ bool QOCIResult::prepare( const QString& query )
 	delete cols;
 	cols = 0;
     }
-    rowCache.clear();
+    d->rowCache.clear();
     fs.clear();
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );

@@ -81,12 +81,12 @@ protected:
     int         numRowsAffected();
 
 private:
-    typedef QMap< uint, QSqlField > RowCache;
-    typedef QMap< uint, RowCache > RowsetCache;
+    typedef QMap< uint, QSqlField > RowCache; // ### not used - remove in 4.0
+    typedef QMap< uint, RowCache > RowsetCache; // ### not used - remove in 4.0
 
     QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    RowsetCache	        rowCache;
+    RowsetCache	        rowCache; // ### not used - remove in 4.0
     QSqlRecord          fs;
     bool                cached;
     bool                cacheNext();
