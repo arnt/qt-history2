@@ -1579,9 +1579,9 @@ AIX:*:00????????00)
     case "$XPLATFORM" in
     aix-*-64)
         if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    64-bit IBM PowerPC (powerpc64)"
+            echo "    64-bit IBM PowerPC (powerpc)"
         fi
-        ARCH=powerpc64
+        ARCH=powerpc
 	;;
     *)
         if [ "$OPT_VERBOSE" = "yes" ]; then
