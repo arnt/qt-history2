@@ -193,6 +193,9 @@ typedef struct tagTRACKMOUSEEVENT {
     HWND  hwndTrack;
     DWORD dwHoverTime;
 } TRACKMOUSEEVENT, *LPTRACKMOUSEEVENT;
+#ifndef WM_MOUSELEAVE
+#define WM_MOUSELEAVE                   0x02A3
+#endif
 
 extern "C" WINUSERAPI BOOL WINAPI _TrackMouseEvent( IN OUT LPTRACKMOUSEEVENT lpEventTrack);
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
