@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#10 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#10 $";
 #endif
 
 
@@ -58,6 +58,8 @@ private:
 };
 
 QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
+
+QWidget *QWidget::activeWidget = 0;		// widget in focus
 
 
 QWidgetMapper::QWidgetMapper() : QIntDictM(QWidget)(WDictSize)
@@ -317,6 +319,11 @@ bool QWidget::event( QEvent *e )		// receive event
 	    mouseMoveEvent( (QMouseEvent*)e );
 	    break;
 	case Event_MouseButtonPress:
+	    if ( !testFlag(WState_FocusA) ) {
+		if ( focusInEvent( e ) ) {
+		    setFocus();
+		}
+	    }
 	    mousePressEvent( (QMouseEvent*)e );
 	    break;
 	case Event_MouseButtonRelease:
@@ -342,6 +349,18 @@ bool QWidget::event( QEvent *e )		// receive event
 		return parentObj->event( e );	//   pass event to parent
 #endif
 	    break;
+	case Event_FocusIn:
+	    setFlag( WState_FocusP );		// set focus pending flag
+	    if ( res = focusInEvent(e) )
+		setFocus();
+	    clearFlag( WState_FocusP );
+	    break;
+	case Event_FocusOut:
+	    if ( testFlag(WState_FocusA) ) {
+		clearFlag( WState_FocusA );
+		focusOutEvent( e );
+	    }
+	    break;
 	case Event_Move:
 	    moveEvent( (QMoveEvent*)e );
 	    break;
@@ -349,7 +368,7 @@ bool QWidget::event( QEvent *e )		// receive event
 	    resizeEvent( (QResizeEvent*)e );
 	    break;
 	case Event_Close:
-	    res = closeEvent( (QEvent*)e );
+	    res = closeEvent( e );
 	    break;
 	default:
 	    res = FALSE;
@@ -386,6 +405,15 @@ bool QWidget::keyPressEvent( QKeyEvent * )
 bool QWidget::keyReleaseEvent( QKeyEvent * )
 {
     return FALSE;
+}
+
+bool QWidget::focusInEvent( QEvent * )
+{
+    return FALSE;
+}
+
+void QWidget::focusOutEvent( QEvent * )
+{
 }
 
 void QWidget::paintEvent( QPaintEvent * )
