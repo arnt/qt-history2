@@ -783,7 +783,8 @@ bool Project::openDatabase( const QString &connection )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
 	return FALSE;
-    return conn->open();
+    bool b = conn->open();
+    return b;
 #else
     return FALSE;
 #endif

@@ -2090,10 +2090,9 @@ void MainWindow::editDatabaseConnection( const QString& name )
     if ( !fw )
 	return;
     DatabaseConnection* conn = fw->project()->databaseConnection( name );
-    qDebug("connection:" + conn->name() + " driver:" + conn->driver() );
     if ( conn ) {
 	DatabaseConnectionEditor dia( conn, this, 0 , TRUE );
-	dia.exec(); //## handle return code
+	dia.exec(); //## handle return code?
     }
 #endif
 }
@@ -2263,19 +2262,14 @@ QObjectList *MainWindow::runProject()
     oWindow->clearErrorMessages();
     oWindow->clearDebug();
 #ifndef QT_NO_SQL
-    bool ok = TRUE;
     QStringList conns = currentProject->databaseConnectionList();
     QStringList::Iterator cit;
     for ( cit = conns.begin(); cit != conns.end(); ++cit ) {
 	if ( !currentProject->openDatabase( *cit ) )
-	    ok = FALSE;
+	    editDatabaseConnection( *cit );
     }
-    if ( !ok )
-	editDatabaseConnections();
 
     QApplication::setOverrideCursor( WaitCursor );
-    for ( cit = conns.begin(); cit != conns.end(); ++cit )
-	currentProject->openDatabase( *cit );
 #endif
 
     delete qwf_functions;
@@ -2424,18 +2418,11 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     }
 
     if ( fw->project() ) {
-
 	QStringList::Iterator it;
 	for ( it = databases.begin(); it != databases.end(); ++it ) {
-	    if ( !fw->project()->openDatabase( *it ) ) {
+	    if ( !fw->project()->openDatabase( *it ) )
 		editDatabaseConnection( *it );
-	    }
 	}
-	// try again
-//	for ( it = databases.begin(); it != databases.end(); ++it ) {
-//	    if ( !fw->project()->openDatabase( *it ) )
-//		qDebug("unable to open database on second pass");
-//	}
     }
     QApplication::setOverrideCursor( WaitCursor );
 
