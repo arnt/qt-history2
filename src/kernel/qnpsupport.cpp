@@ -36,7 +36,6 @@
 **********************************************************************/
 
 #include "qglobal.h"
-#ifndef Q_OS_MACX
 #include "qapplication.h"
 #include "qcolor_p.h"
 #define	 GC GC_QQQ
@@ -207,4 +206,3 @@ void qt_np_remove_event_proc( ForeignEventProc fep )
     }
 }
 
-#endif
