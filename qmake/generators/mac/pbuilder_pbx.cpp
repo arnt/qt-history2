@@ -57,7 +57,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
 {
     if(project->isActiveConfig("generate_pbxbuild_makefile")) {
         QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"),
-                                    QDir::currentPath());
+                                    qmake_getpwd());
         QFile mkwrapf(mkwrap);
         if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());
@@ -76,7 +76,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
 
     //SUBDIRS
     QStringList subdirs = project->variables()["SUBDIRS"];
-    QString oldpwd = QDir::currentPath();
+    QString oldpwd = qmake_getpwd();
     QMap<QString, QStringList> groups;
     for(int subdir = 0; subdir < subdirs.count(); subdir++) {
         QFileInfo fi(Option::fixPathToLocalOS(subdirs[subdir], true));
@@ -91,7 +91,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                 QMakeProject tmp_proj;
                 QString dir = fi.path(), fn = fi.fileName();
                 if(!dir.isEmpty()) {
-                    if(!QDir::setCurrent(dir))
+                    if(!qmake_setpwd(dir))
                         fprintf(stderr, "Cannot find directory: %s\n", dir.toLatin1().constData());
                 }
                 if(tmp_proj.read(fn)) {
@@ -107,7 +107,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                     if(tmp_proj.first("TEMPLATE") == "subdirs") {
                         subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
                     } else if(tmp_proj.first("TEMPLATE") == "app" || tmp_proj.first("TEMPLATE") == "lib") {
-                        QString pbxproj = QDir::currentPath() + Option::dir_sep + tmp_proj.first("TARGET") + projectSuffix();
+                        QString pbxproj = qmake_getpwd() + Option::dir_sep + tmp_proj.first("TARGET") + projectSuffix();
                         if(!QFile::exists(pbxproj)) {
                             warn_msg(WarnLogic, "Ignored (not found) '%s'", pbxproj.toLatin1().constData());
                             goto nextfile; // # Dirty!
@@ -117,7 +117,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                         //PROJECTREF
                         {
                             bool in_root = true;
-                            QString name = QDir::currentPath();
+                            QString name = qmake_getpwd();
                             if(project->isActiveConfig("flat")) {
                                 QString flat_file = fileFixify(name, oldpwd, Option::output_dir, FileFixifyRelative);
                                 if(flat_file.indexOf(Option::dir_sep) != -1) {
@@ -211,7 +211,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                     }
                 }
 nextfile:
-                QDir::setCurrent(oldpwd);
+                qmake_setpwd(oldpwd);
             }
         }
     }
@@ -397,7 +397,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             mkf.close();
         }
         QString phase_key = keyFor("QMAKE_PBX_MAKEQMAKE_BUILDPHASE");
-        mkfile = fileFixify(mkfile, QDir::currentPath());
+        mkfile = fileFixify(mkfile, qmake_getpwd());
         project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
         t << "\t\t" << phase_key << " = {" << "\n"
           << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
@@ -410,7 +410,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << "neededFileNames = (" << "\n"
           << "\t\t\t" << ");" << "\n"
           << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
-          << "\t\t\t" << "shellScript = \"make -C " << QDir::currentPath() <<
+          << "\t\t\t" << "shellScript = \"make -C " << qmake_getpwd() <<
             " -f " << mkfile << "\";" << "\n"
           << "\t\t" << "};" << "\n";
     }
@@ -458,13 +458,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             bool in_root = true;
             QString src_key = keyFor(file), name = file;
             if(project->isActiveConfig("flat")) {
-                QString flat_file = fileFixify(file, QDir::currentPath(), Option::output_dir, FileFixifyRelative);
+                QString flat_file = fileFixify(file, qmake_getpwd(), Option::output_dir, FileFixifyRelative);
                 if(flat_file.indexOf(Option::dir_sep) != -1) {
                     QStringList dirs = flat_file.split(Option::dir_sep);
                     name = dirs.back();
                 }
             } else {
-                QString flat_file = fileFixify(file, QDir::currentPath(), Option::output_dir, FileFixifyRelative);
+                QString flat_file = fileFixify(file, qmake_getpwd(), Option::output_dir, FileFixifyRelative);
                 if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
                     QString last_grp("QMAKE_PBX_" + sources.at(source).groupName() + "_HEIR_GROUP");
                     QStringList dirs = flat_file.split(Option::dir_sep);
@@ -573,7 +573,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 << varGlue("DEFINES","-D"," -D","") << endl;
             mkt << "INCPATH       = " << "-I" << specdir();
             if(!project->isActiveConfig("no_include_pwd")) {
-                QString pwd = fileFixify(QDir::currentPath());
+                QString pwd = fileFixify(qmake_getpwd());
                 if(pwd.isEmpty())
                     pwd = ".";
                 mkt << " -I" << pwd;
@@ -639,7 +639,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             }
             mkf.close();
         }
-        mkfile = fileFixify(mkfile, QDir::currentPath());
+        mkfile = fileFixify(mkfile, qmake_getpwd());
         QString phase_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
 //        project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
         project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
@@ -656,7 +656,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << varGlue("QMAKE_PBX_OBJ", "\t\t\t\t", ",\n\t\t\t\t", "\n")
           << "\t\t\t" << ");" << "\n"
           << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
-          << "\t\t\t" << "shellScript = \"make -C " << QDir::currentPath() <<
+          << "\t\t\t" << "shellScript = \"make -C " << qmake_getpwd() <<
             " -f " << mkfile << "\";" << "\n"
           << "\t\t" << "};" << "\n";
    }
@@ -805,7 +805,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             mkf.close();
         }
         QString phase_key = keyFor("QMAKE_PBX_SUBLIBS_BUILDPHASE");
-        mkfile = fileFixify(mkfile, QDir::currentPath());
+        mkfile = fileFixify(mkfile, qmake_getpwd());
         project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
         t << "\t\t" << phase_key << " = {" << "\n"
           << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
@@ -818,7 +818,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << "neededFileNames = (" << "\n"
           << "\t\t\t" << ");" << "\n"
           << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
-          << "\t\t\t" << "shellScript = \"make -C " << QDir::currentPath() <<
+          << "\t\t\t" << "shellScript = \"make -C " << qmake_getpwd() <<
             " -f " << mkfile << "\";" << "\n"
           << "\t\t" << "};" << "\n";
     }
@@ -1007,7 +1007,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "\t\t\t" << "explicitFileType  = wrapper.executable;" << "\n";
         }
         QString app = (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") :
-                       QDir::currentPath()) + Option::dir_sep + targ;
+                       qmake_getpwd()) + Option::dir_sep + targ;
         t << "\t\t\t" << "path = \"" << targ << "\";" << "\n";
     } else {
         QString lib = project->first("QMAKE_ORIG_TARGET");
@@ -1100,7 +1100,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         }
     }
 #if 1
-    t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentPath() << "\";" << "\n";
+    t << "\t\t\t\t" << "BUILD_ROOT = \"" << qmake_getpwd() << "\";" << "\n";
 #endif
     if(!project->isActiveConfig("staticlib"))
         t << "\t\t\t\t" << "OTHER_LDFLAGS = \"" << fixListForOutput("SUBLIBS") << " " <<
@@ -1109,7 +1109,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("DESTDIR")) {
         QString dir = project->first("DESTDIR");
         if (QDir::isRelativePath(dir))
-            dir.prepend(QDir::currentPath() + Option::dir_sep);
+            dir.prepend(qmake_getpwd() + Option::dir_sep);
         t << "\t\t\t\t" << "INSTALL_DIR = \"" << dir << "\";" << "\n";
     }
     if (project->first("TEMPLATE") == "lib") {
@@ -1135,7 +1135,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("DESTDIR"))
         t << "\t\t\t\t" << "SYMROOT = \"" << project->first("DESTDIR") << "\";" << "\n";
     else
-        t << "\t\t\t\t" << "SYMROOT = \"" << QDir::currentPath() << "\";" << "\n";
+        t << "\t\t\t\t" << "SYMROOT = \"" << qmake_getpwd() << "\";" << "\n";
 #endif
     if(project->first("TEMPLATE") == "app") {
         if(ideType() == MAC_PBUILDER && !project->isActiveConfig("console"))
@@ -1295,7 +1295,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(project->isActiveConfig("generate_pbxbuild_makefile")) {
         QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"),
-                                    QDir::currentPath());
+                                    qmake_getpwd());
         QFile mkwrapf(mkwrap);
         if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());

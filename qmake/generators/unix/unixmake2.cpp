@@ -98,7 +98,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH       = " << "-I" << specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(QDir::currentPath());
+        QString pwd = fileFixify(qmake_getpwd());
         if(pwd.isEmpty())
             pwd = ".";
         t << " -I" << pwd;
@@ -375,7 +375,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 } else {
                     if(!incr_objs.isEmpty())
                         incr_objs += " ";
-                    incr_objs += "-L" + QDir::currentPath();
+                    incr_objs += "-L" + qmake_getpwd();
                 }
                 if(!incr_objs.isEmpty())
                     incr_objs += " ";
@@ -739,7 +739,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             QString dir;
             if(fi.path() != ".")
                 dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
+            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
             if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
                 dir += Option::dir_sep;
             clean << (dir + fi.completeBaseName() + Option::yacc_mod + Option::cpp_ext.first());
@@ -759,7 +759,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             QString dir;
             if(fi.path() != ".")
                 dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
+            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
             if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
                 dir += Option::dir_sep;
             clean << (dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first());
@@ -1088,7 +1088,7 @@ UnixMakefileGenerator::libtoolFileName()
     ret += Option::libtool_ext;
     if(!project->isEmpty("DESTDIR")) {
         ret.prepend(var("DESTDIR"));
-        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentPath(), Option::output_dir));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
     }
     return ret;
 }
@@ -1177,7 +1177,7 @@ UnixMakefileGenerator::pkgConfigFileName()
     ret += Option::pkgcfg_ext;
     if(!project->isEmpty("DESTDIR")) {
         ret.prepend(var("DESTDIR"));
-        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentPath(), Option::output_dir));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, qmake_getpwd(), Option::output_dir));
     }
     return ret;
 }

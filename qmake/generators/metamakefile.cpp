@@ -99,7 +99,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
             if(!(Option::output.isOpen())) {
                 if(Option::output.fileName() == "-") {
                     Option::output.setFileName("");
-                    Option::output_dir = QDir::currentPath();
+                    Option::output_dir = qmake_getpwd();
                     Option::output.open(QIODevice::WriteOnly | QIODevice::Text, stdout);
                     using_stdout = true;
                 } else {

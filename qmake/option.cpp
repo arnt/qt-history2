@@ -306,7 +306,7 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                 || exe.indexOf('\\') != -1
 #endif
                    ) && QFile::exists(exe)) {
-                exe.prepend(QDir::currentPath() + "/");
+                exe.prepend(qmake_getpwd() + "/");
             } else if(char *path = qgetenv("PATH")) {
 #ifdef Q_OS_WIN
                 QStringList paths = QString(path).split(';');
@@ -465,7 +465,7 @@ Option::init(int argc, char **argv)
 
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
-            QString pwd = QDir::currentPath(),
+            QString pwd = qmake_getpwd(),
                    proj = pwd + "/" + pwd.right(pwd.length() - (pwd.lastIndexOf('/') + 1)) + Option::pro_ext;
             if(QFile::exists(proj)) {
                 Option::mkfile::project_files.append(proj);

@@ -30,14 +30,33 @@
 #ifdef Q_OS_MAC
 #endif
 
+/* This is to work around lame implementation on Darwin. It has been noted that the getpwd(3) function
+   is much too slow, and called much too often inside of Qt (every fileFixify). With this we use a locally
+   cached copy because I can control all the times it is set (because Qt never sets the pwd under me).
+*/
+static QString pwd;
+QString qmake_getpwd() 
+{
+    if(pwd.isNull())
+        pwd = QDir::currentPath();
+    return pwd;
+}
+bool qmake_setpwd(const QString &p)
+{
+    if(QDir::setCurrent(p)) {
+        pwd = p;
+        return true;
+    }
+    return false;
+}
+
 int main(int argc, char **argv)
 {
     // parse command line
     if(!Option::init(argc, argv))
         return 0;
 
-    QDir sunworkshop42workaround = QDir::current();
-    QString oldpwd = sunworkshop42workaround.currentPath();
+    QString oldpwd = qmake_getpwd();
 #ifdef Q_WS_WIN
     if(!(oldpwd.length() == 3 && oldpwd[0].isLetter() && oldpwd.endsWith(":/")))
 #endif
@@ -87,11 +106,11 @@ int main(int argc, char **argv)
 
             //setup pwd properly
             debug_msg(1, "Resetting dir to: %s", oldpwd.toLatin1().constData());
-            QDir::setCurrent(oldpwd); //reset the old pwd
+            qmake_setpwd(oldpwd); //reset the old pwd
             int di = fn.lastIndexOf(Option::dir_sep);
             if(di != -1) {
                 debug_msg(1, "Changing dir to: %s", fn.left(di).toLatin1().constData());
-                if(!QDir::setCurrent(fn.left(di)))
+                if(!qmake_setpwd(fn.left(di)))
                     fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).toLatin1().constData());
                 fn = fn.right(fn.length() - di - 1);
             }

@@ -294,7 +294,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                 if(arg == "INCLUDEPATH") {
                     list = project->variables()[arg];
                     list << Option::mkfile::qmakespec;
-                    list << QDir::current().currentPath();
+                    list << qmake_getpwd();
 
                     QStringList &l = project->variables()["QMAKE_LIBS_PATH"];
                     for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -543,7 +543,7 @@ MetrowerksMakefileGenerator::init()
         project->variables()["UICS"].append(uicfile + ".uics");
     }
     if(project->isEmpty("DESTDIR"))
-        project->variables()["DESTDIR"].append(QDir::currentPath());
+        project->variables()["DESTDIR"].append(qmake_getpwd());
     MakefileGenerator::init();
 
     if (project->isActiveConfig("opengl")) {

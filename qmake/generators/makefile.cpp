@@ -131,7 +131,7 @@ MakefileGenerator::initOutPaths()
             v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
     }
 
-    QString currentDir = QDir::currentPath(); //just to go back to
+    QString currentDir = qmake_getpwd(); //just to go back to
 
     //some builtin directories
     QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"),
@@ -179,7 +179,7 @@ MakefileGenerator::initOutPaths()
                 if(slash != -1) {
                     path = path.left(slash);
                     if(path != "." &&
-                       !createDir(fileFixify(path, QDir::currentPath(), Option::output_dir)))
+                       !createDir(fileFixify(path, qmake_getpwd(), Option::output_dir)))
                         warn_msg(WarnLogic, "%s: Cannot access directory '%s'",
                                  (*it).toLatin1().constData(), path.toLatin1().constData());
                 }
@@ -377,7 +377,7 @@ MakefileGenerator::init()
                 for(int val_it = 0; val_it < l.count(); val_it++) {
                     QString &val = l[val_it];
                     if(!val.isEmpty()) {
-                        QString file = fileFixify(val, QDir::currentPath(), 
+                        QString file = fileFixify(val, qmake_getpwd(), 
                                                   Option::output_dir);
                         if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
                             file = file.mid(1, file.length() - 2);
@@ -410,7 +410,7 @@ MakefileGenerator::init()
                             if(regex.lastIndexOf(Option::dir_sep) != -1) {
                                 dir = regex.left(regex.lastIndexOf(Option::dir_sep) + 1);
                                 real_dir = fileFixify(Option::fixPathToLocalOS(dir),
-                                                      QDir::currentPath(), Option::output_dir);
+                                                      qmake_getpwd(), Option::output_dir);
                                 regex = regex.right(regex.length() - dir.length());
                             }
                             if(real_dir.isEmpty() || QFile::exists(real_dir)) {
@@ -510,7 +510,7 @@ MakefileGenerator::init()
             QFileInfo fi((*it));
             if(fi.path() != ".")
                 dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
+            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
             if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
                 dir += Option::dir_sep;
             QString impl = dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first();
@@ -541,7 +541,7 @@ MakefileGenerator::init()
             QFileInfo fi((*it));
             if(fi.path() != ".")
                 dir = fi.path() + Option::dir_sep;
-            dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
+            dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
             if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
                 dir += Option::dir_sep;
             QString impl = dir + fi.completeBaseName() + Option::yacc_mod + Option::cpp_ext.first();
@@ -585,7 +585,7 @@ MakefileGenerator::init()
         }
     }
 
-    if(Option::output_dir != QDir::currentPath())
+    if(Option::output_dir != qmake_getpwd())
         project->variables()["INCLUDEPATH"].append(fileFixify(Option::output_dir, Option::output_dir,
                                                               Option::output_dir));
 
@@ -679,7 +679,7 @@ MakefileGenerator::processPrlFile(QString &file)
     if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].indexOf(QMakeMetaInfo::findLib(meta_file)) != -1) {
         ret = true;
     } else if(!meta_file.isEmpty()) {
-        QString f = fileFixify(real_meta_file, QDir::currentPath(), Option::output_dir);
+        QString f = fileFixify(real_meta_file, qmake_getpwd(), Option::output_dir);
         if(QMakeMetaInfo::libExists(f)) {
             QMakeMetaInfo libinfo;
             debug_msg(1, "Processing PRL file: %s", real_meta_file.toLatin1().constData());
@@ -777,7 +777,7 @@ MakefileGenerator::writePrlFile(QTextStream &t)
         target = target.right(target.length() - slsh - 1);
     QString bdir = Option::output_dir;
     if(bdir.isEmpty())
-        bdir = QDir::currentPath();
+        bdir = qmake_getpwd();
     t << "QMAKE_PRL_BUILD_DIR = " << bdir << endl;
 
     if(!project->projectFile().isEmpty() && project->projectFile() != "-")
@@ -887,7 +887,7 @@ MakefileGenerator::writePrlFile()
 	prl += Option::prl_ext;
 	if(!project->isEmpty("DESTDIR"))
 	    prl.prepend(var("DESTDIR"));
-	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, QDir::currentPath(), Option::output_dir));
+	QString local_prl = Option::fixPathToLocalOS(fileFixify(prl, qmake_getpwd(), Option::output_dir));
 	QFile ft(local_prl);
 	if(ft.open(QIODevice::WriteOnly)) {
 	    project->variables()["ALL_DEPS"].append(prl);
@@ -1072,7 +1072,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
         QString dir;
         if(fi.path() != ".")
             dir = fi.path() + Option::dir_sep;
-        dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
+        dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
         if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
             dir += Option::dir_sep;
 
@@ -1118,7 +1118,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
         QString dir;
         if(fi.path() != ".")
             dir = fi.path() + Option::dir_sep;
-        dir = fileFixify(dir, QDir::currentPath(), Option::output_dir);
+        dir = fileFixify(dir, qmake_getpwd(), Option::output_dir);
         if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
             dir += Option::dir_sep;
         QString impl = dir + fi.completeBaseName() + Option::lex_mod + Option::cpp_ext.first();
@@ -1188,7 +1188,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
             do_default = false;
             for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
                 QString wild = Option::fixPathToLocalOS((*wild_it), false, false);
-                QString dirstr = QDir::currentPath(), filestr = wild;
+                QString dirstr = qmake_getpwd(), filestr = wild;
                 int slsh = filestr.lastIndexOf(Option::dir_sep);
                 if(slsh != -1) {
                     dirstr = filestr.left(slsh+1);
@@ -2132,14 +2132,14 @@ struct FileFixifyCacheKey
     FileFixifyCacheKey(const QString &f, const QString &od, const QString &id,
                    MakefileGenerator::FileFixifyType ft, bool c)
     {
-        pwd = QDir::currentPath();
+        pwd = qmake_getpwd();
         file = f;
         if(od.isNull())
             out_d = Option::output_dir;
         else
             out_d = od;
         if(id.isNull())
-            in_d = QDir::currentPath();
+            in_d = qmake_getpwd();
         else
             in_d = id;
         fixType = ft;
@@ -2194,7 +2194,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
         return cache->value(cacheKey);
 
     //do the fixin'
-    const QString pwd = QDir::currentPath() + "/";
+    const QString pwd = qmake_getpwd() + "/";
     QString orig_file = ret;
     if(fix == FileFixifyAbsolute || (fix == FileFixifyDefault && project->isActiveConfig("no_fixpath"))) {
         if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
@@ -2309,7 +2309,7 @@ QMakeLocalFileName
 MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file, bool forOpen)
 {
     if(forOpen)
-        return QMakeLocalFileName(fileFixify(file.real(), QDir::currentPath(), Option::output_dir));
+        return QMakeLocalFileName(fileFixify(file.real(), qmake_getpwd(), Option::output_dir));
     return QMakeLocalFileName(fileFixify(file.real()));
 }
 
@@ -2352,11 +2352,11 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
         if(depHeuristics.contains(dep.real()))
             return depHeuristics[dep.real()];
 
-        if(Option::output_dir != QDir::currentPath()
+        if(Option::output_dir != qmake_getpwd()
            && QDir::isRelativePath(dep.real())) { //is it from the shadow tree
             QList<QMakeLocalFileName> depdirs = QMakeSourceFileInfo::dependencyPaths();
             depdirs.prepend(QFileInfo(file.real()).absoluteDir().path());
-            QString pwd = QDir::currentPath();
+            QString pwd = qmake_getpwd();
             if(pwd.at(pwd.length()-1) != '/')
                 pwd += '/';
             for(int i = 0; i < depdirs.count(); i++) {
@@ -2398,7 +2398,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                         if(out == dep.real() || out.endsWith("/" + dep.real())) {
-                            ret = QMakeLocalFileName(fileFixify(out, QDir::currentPath(), Option::output_dir));
+                            ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;
                         }
                     }
@@ -2421,7 +2421,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
                         d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
                     if(s == lhs) {
                         QString ret_name = d + dep.real();
-                        ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
+                        ret_name = fileFixify(ret_name, qmake_getpwd(), Option::output_dir);
                         ret = QMakeLocalFileName(ret_name);
                         goto found_dep_from_heuristic;
                     }
@@ -2444,7 +2444,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
                         d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
                     if(s == lhs) {
                         QString ret_name = d + dep.local();
-                        ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
+                        ret_name = fileFixify(ret_name, qmake_getpwd(), Option::output_dir);
                         ret = QMakeLocalFileName(ret_name);
                         goto found_dep_from_heuristic;
                     }
@@ -2459,7 +2459,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
                 const QString moc = createMocFileName((*it));
                 QString fixed_moc = Option::fixPathToTargetOS(moc);
                 if(fixed_moc.section(Option::dir_sep, -(dep.local().count('/')+1)) == dep.local()) {
-                    QString ret_name = fileFixify(moc, QDir::currentPath(), Option::output_dir);
+                    QString ret_name = fileFixify(moc, qmake_getpwd(), Option::output_dir);
                     ret = QMakeLocalFileName(ret_name);
                     goto found_dep_from_heuristic;
                 }

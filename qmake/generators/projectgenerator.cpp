@@ -65,7 +65,7 @@ ProjectGenerator::init()
         if(Option::projfile::do_pwd) {
             if(!v["INCLUDEPATH"].contains("."))
                 v["INCLUDEPATH"] += ".";
-            dirs.prepend(QDir::currentPath());
+            dirs.prepend(qmake_getpwd());
         }
 
         for(int i = 0; i < dirs.count(); ++i) {
@@ -124,7 +124,7 @@ ProjectGenerator::init()
             }
             if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
                 QFileInfo fi(dir);
-                if(fi.absoluteFilePath() != QDir::currentPath())
+                if(fi.absoluteFilePath() != qmake_getpwd())
                     v["DEPENDPATH"] += fileFixify(dir);
             }
         }
@@ -367,7 +367,7 @@ ProjectGenerator::addConfig(const QString &cfg, bool add)
 bool
 ProjectGenerator::addFile(QString file)
 {
-    file = fileFixify(file, QDir::currentPath());
+    file = fileFixify(file, qmake_getpwd());
     QString dir;
     int s = file.lastIndexOf(Option::dir_sep);
     if(s != -1)
@@ -461,7 +461,7 @@ ProjectGenerator::openOutput(QFile &file, const QString &build) const
             outdir = fi.path() + QDir::separator();
     }
     if(!outdir.isEmpty() || file.fileName().isEmpty()) {
-        QString dir = QDir::currentPath();
+        QString dir = qmake_getpwd();
         int s = dir.lastIndexOf('/');
         if(s != -1)
             dir = dir.right(dir.length() - (s + 1));

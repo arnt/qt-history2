@@ -1383,8 +1383,8 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
             if(pfilewd.isEmpty())
                 include_roots << pfilewd;
         }
-        if(Option::output_dir != QDir::currentPath())
-            include_roots << QDir::currentPath();
+        if(Option::output_dir != qmake_getpwd())
+            include_roots << qmake_getpwd();
         for(int root = 0; root < include_roots.size(); ++root) {
             if(QFile::exists(include_roots[root] + QDir::separator() + file)) {
                 file = include_roots[root] + QDir::separator() + file;
@@ -1401,10 +1401,9 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     debug_msg(1, "Project Parser: %s'ing file %s.", feature ? "load" : "include", file.toLatin1().constData());
     QString orig_file = file;
     int di = file.lastIndexOf(Option::dir_sep);
-    QDir sunworkshop42workaround = QDir::current();
-    QString oldpwd = sunworkshop42workaround.currentPath();
+    QString oldpwd = qmake_getpwd();
     if(di != -1) {
-        if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
+        if(!qmake_setpwd(file.left(file.lastIndexOf(Option::dir_sep)))) {
             fprintf(stderr, "Cannot find directory: %s\n", file.left(di).toLatin1().constData());
             return IncludeFailure;
         }
@@ -1427,7 +1426,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                  pi.file.toLatin1().constData(), pi.line_no, orig_file.toLatin1().constData());
     parser = pi;
     scope_blocks = sc;
-    QDir::setCurrent(oldpwd);
+    qmake_setpwd(oldpwd);
     if(!parsed)
         return IncludeParseFailure;
     return IncludeSuccess;
@@ -1787,7 +1786,7 @@ QMakeProject::doProjectExpand(const QString &func, QStringList args,
                 dirs.append(r.left(slash));
                 r = r.mid(slash+1);
             } else {
-                dirs.append(QDir::currentPath());
+                dirs.append(qmake_getpwd());
             }
 
             const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
@@ -1881,7 +1880,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         if(QFile::exists(file))
             return true;
         //regular expression I guess
-        QString dirstr = QDir::currentPath();
+        QString dirstr = qmake_getpwd();
         int slsh = file.lastIndexOf(Option::dir_sep);
         if(slsh != -1) {
             dirstr = file.left(slsh+1);
@@ -2000,10 +1999,9 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         QString file = args[0];
         fixEnvVariables(file);
         int di = file.lastIndexOf(Option::dir_sep);
-        QDir sunworkshop42workaround = QDir::current();
-        QString oldpwd = sunworkshop42workaround.currentPath();
+        QString oldpwd = qmake_getpwd();
         if(di != -1) {
-            if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
+            if(!qmake_setpwd(file.left(file.lastIndexOf(Option::dir_sep)))) {
                 fprintf(stderr, "Cannot find directory: %s\n", file.left(di).toLatin1().constData());
                 return false;
             }
@@ -2014,7 +2012,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         parser = pi;
         if(ret) {
             fprintf(stderr, "Error processing project file: %s\n", file.toLatin1().constData());
-            QDir::setCurrent(oldpwd);
+            qmake_setpwd(oldpwd);
             return false;
         }
         if(args.count() == 2) {
@@ -2029,7 +2027,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                 }
             }
         }
-        QDir::setCurrent(oldpwd);
+        qmake_setpwd(oldpwd);
         return ret;
     } else if(func == "count") {
         if(args.count() != 2) {
@@ -2259,7 +2257,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                     } else if(var == QLatin1String("LITERAL_HASH")) { //a real # 
                         replacement = "#";
                     } else if(var == QLatin1String("PWD")) { //current working dir (of _FILE_)
-                        replacement = QDir::currentPath();
+                        replacement = qmake_getpwd();
                     } else if(var == QLatin1String("DIR_SEPARATOR")) {
                         replacement = Option::dir_sep;
                     } else if(var == QLatin1String("_LINE_")) { //parser line number

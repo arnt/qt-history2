@@ -24,6 +24,10 @@
 #define QMAKE_VERSION_PATCH 0
 const char *qmake_version();
 
+QString qmake_getpwd();
+bool qmake_setpwd(const QString &p
+);
+
 void fixEnvVariables(QString &x);
 #define debug_msg if(Option::debug_level) debug_msg_internal
 void debug_msg_internal(int level, const char *fmt, ...); //don't call directly, use debug_msg
