@@ -603,6 +603,19 @@ QRegion QMatrix::map(const QRegion &r) const
     return result;
 }
 
+QPainterPath QMatrix::map(const QPainterPath &p) const
+{
+    QPainterPath copy = p;
+    // some defines to inline some code
+
+    for (int i=0; i<p.elementCount(); ++i) {
+        QPainterPath::Element &e = copy.elements[i];
+        e.x = float(_m11*e.x + _m21*e.y + _dx);
+        e.y = float(_m12*e.x + _m22*e.y + _dy);
+    }
+    return copy;
+}
+
 /*!
     \fn QRegion QMatrix::mapToRegion(const QRect &rect) const
 

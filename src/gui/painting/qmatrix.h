@@ -15,13 +15,13 @@
 #define QMATRIX_H
 
 #include "qline.h"
+#include "qpainterpath.h"
 #include "qpoint.h"
 #include "qpointarray.h"
 #include "qpolygon.h"
 #include "qrect.h"
 #include "qregion.h"
 #include "qwindowdefs.h"
-
 #ifndef QT_NO_MATRIX
 
 class Q_GUI_EXPORT QMatrix // 2D transform matrix
@@ -53,6 +53,7 @@ public:
     QPolygon map(const QPolygon &a) const;
     QPointArray map(const QPointArray &a) const;
     QRegion map(const QRegion &r) const;
+    QPainterPath map(const QPainterPath &p) const;
     QRegion mapToRegion(const QRect &r) const;
     QPointArray mapToPolygon(const QRect &r) const;
 
@@ -100,7 +101,8 @@ inline Q_GUI_EXPORT QPolygon operator *(const QPolygon &a, const QMatrix &m)
 { return m.map(a); }
 inline Q_GUI_EXPORT QRegion operator *(const QRegion &r, const QMatrix &m)
 { return m.map(r); }
-
+inline Q_GUI_EXPORT QPainterPath operator *(const QPainterPath &p, const QMatrix &m)
+{ return m.map(p); }
 
 inline bool QMatrix::isIdentity() const
 {

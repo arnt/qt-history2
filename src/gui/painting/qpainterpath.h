@@ -90,12 +90,12 @@ public:
     int elementCount() const { return elements.size(); }
     const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }
 
-
 private:
     QPainterPathPrivate *d_ptr;
     QVector<Element> elements;
 
     friend class QPainterPathStroker;
+    friend class QMatrix;
 };
 
 class Q_GUI_EXPORT QPainterPathStroker
