@@ -1754,7 +1754,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 		t <<  fileFixify(Option::mkfile::cachefile) << " ";
 	    if(!specdir().isEmpty()) 
 		t << specdir() << Option::dir_sep + "qmake.conf" << " ";
-	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
+	    t << fileFixify(project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"]).join(" \\\n\t\t") << "\n\t"
 	      << qmake <<endl;
 	}
 	if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
