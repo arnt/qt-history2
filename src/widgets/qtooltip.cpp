@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#43 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#43 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.37 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.38 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -337,8 +337,11 @@ void QTipManager::removeFromGroup( QToolTipGroup *g )
 
 bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 {
-    // avoid dumping core in case of application madness
-    if ( !tips || !e || !obj || !obj->isWidgetType() )
+    // avoid dumping core in case of application madness, and return
+    // quickly for some common but irrelevant events
+    if ( !tips || !e || !obj || !obj->isWidgetType() ||
+	 e->type() == Event_Timer || e->type() == Event_Paint ||
+	 e->type() == Event_SockAct )
 	return FALSE;
     QWidget *w = (QWidget *)obj;
 
@@ -359,10 +362,6 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     // with that out of the way, let's get down to action
 
     switch( e->type() ) {
-    case Event_Timer: // fall through
-    case Event_Paint:
-	// no processing at all
-	break;
     case Event_MouseButtonPress:
     case Event_MouseButtonRelease:
     case Event_MouseButtonDblClick:
