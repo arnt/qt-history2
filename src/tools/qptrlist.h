@@ -91,15 +91,9 @@ private:
     void  deleteItem( QPtrCollection::Item d );
 };
 
-#if defined(Q_DELETING_VOID_UNDEFINED)
-template<> inline void QPtrList<void>::deleteItem( QPtrCollection::Item )
-{
-}
-#endif
-
 template<class type> inline void QPtrList<type>::deleteItem( QPtrCollection::Item d )
 {
-    if ( del_item ) delete (type *)d;
+    if ( del_item ) operator delete( (type *)d );
 }
 
 

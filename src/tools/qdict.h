@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#37 $
+** $Id: //depot/qt/main/src/tools/qdict.h#38 $
 **
 ** Definition of QDict template class
 **
@@ -74,15 +74,9 @@ private:
     void  deleteItem( Item d );
 };
 
-#if defined(Q_DELETING_VOID_UNDEFINED)
-template<> inline void QDict<void>::deleteItem( Item )
-{
-}
-#endif
-
 template<class type> inline void QDict<type>::deleteItem( QPtrCollection::Item d )
 {
-    if ( del_item ) delete (type *)d;
+    if ( del_item ) operator delete( (type *)d );
 }
 
 
