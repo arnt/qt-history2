@@ -86,7 +86,9 @@ void TableEditor::columnTextChanged( const QString &s )
 {
     if ( listColumns->currentItem() == -1 )
 	return;
+    listColumns->blockSignals( TRUE );
     listColumns->changeItem( s, listColumns->currentItem() );
+    listColumns->blockSignals( FALSE );
 #ifndef QT_NO_TABLE
     if ( table->horizontalHeader()->iconSet( listColumns->currentItem() ) )
 	table->horizontalHeader()->setLabel( listColumns->currentItem(),
