@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#74 $
 **
 ** Implementation of QFrame widget class
 **
@@ -293,54 +293,54 @@ void QFrame::updateFrameWidth()
 
     switch ( type ) {
 
-	case NoFrame:
-	    fwidth = 0;
-	    break;
+    case NoFrame:
+	fwidth = 0;
+	break;
 
-	case Box:
-	    switch ( style ) {
-		case Plain:
-		    fwidth = lwidth;
-		    break;
-		case Raised:
-		case Sunken:
-		    fwidth = (short)(lwidth*2 + midLineWidth() );
-		    break;
-	    }
+    case Box:
+	switch ( style ) {
+	case Plain:
+	    fwidth = lwidth;
 	    break;
+	case Raised:
+	case Sunken:
+	    fwidth = (short)(lwidth*2 + midLineWidth() );
+	    break;
+	}
+	break;
 
-	case Panel:
-	    switch ( style ) {
-		case Plain:
-		case Raised:
-		case Sunken:
-		    fwidth = lwidth;
-		    break;
-	    }
+    case Panel:
+	switch ( style ) {
+	case Plain:
+	case Raised:
+	case Sunken:
+	    fwidth = lwidth;
 	    break;
+	}
+	break;
 
-	case WinPanel:
-	    switch ( style ) {
-		case Plain:
-		case Raised:
-		case Sunken:
-		    fwidth = lwidth = 2;
-		    break;
-	    }
+    case WinPanel:
+	switch ( style ) {
+	case Plain:
+	case Raised:
+	case Sunken:
+	    fwidth = lwidth = 2;
 	    break;
+	}
+	break;
 
-	case HLine:
-	case VLine:
-	    switch ( style ) {
-		case Plain:
-		    fwidth = lwidth;
-		    break;
-		case Raised:
-		case Sunken:
-		    fwidth = (short)(lwidth*2 + midLineWidth());
-		    break;
-	    }
+    case HLine:
+    case VLine:
+	switch ( style ) {
+	case Plain:
+	    fwidth = lwidth;
 	    break;
+	case Raised:
+	case Sunken:
+	    fwidth = (short)(lwidth*2 + midLineWidth());
+	    break;
+	}
+	break;
     }
 
     if ( fwidth == -1 )				// invalid style
@@ -419,11 +419,11 @@ QRect QFrame::contentsRect() const
 QSize QFrame::sizeHint() const
 {
     switch (fstyle & MShape) {
-      case HLine:
+    case HLine:
 	return QSize(-1,3);
-      case VLine:
+    case VLine:
 	return QSize(3,-1);
-      default:
+    default:
 	return QWidget::sizeHint();
     }
 }
@@ -439,10 +439,10 @@ QSize QFrame::sizeHint() const
 QSizePolicy QFrame::sizePolicy() const
 {
     switch (fstyle & MShape) {
-      case HLine:
-	  return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
-      case VLine:
-	  return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
+    case HLine:
+	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    case VLine:
+	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
     default:
 	return QWidget::sizePolicy();
     }
@@ -530,48 +530,48 @@ void QFrame::drawFrame( QPainter *p )
 
     switch ( type ) {
 
-	case Box:
-	    if ( style == Plain )
-		qDrawPlainRect( p, r, g.foreground(), lwidth );
-	    else
-		qDrawShadeRect( p, r, g, style == Sunken, lwidth,
-				midLineWidth() );
-	    break;
+    case Box:
+	if ( style == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawShadeRect( p, r, g, style == Sunken, lwidth,
+			    midLineWidth() );
+	break;
 
-	case Panel:
-	    if ( style == Plain )
-		qDrawPlainRect( p, r, g.foreground(), lwidth );
-	    else
-		qDrawShadePanel( p, r, g, style == Sunken, lwidth );
-	    break;
+    case Panel:
+	if ( style == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawShadePanel( p, r, g, style == Sunken, lwidth );
+	break;
 
-	case WinPanel:
-	    if ( style == Plain )
-		qDrawPlainRect( p, r, g.foreground(), lwidth );
-	    else
-		qDrawWinPanel( p, r, g, style == Sunken );
-	    break;
+    case WinPanel:
+	if ( style == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawWinPanel( p, r, g, style == Sunken );
+	break;
 
-	case HLine:
-	case VLine:
-	    if ( type == HLine ) {
-		p1 = QPoint( r.x(), r.height()/2 );
-		p2 = QPoint( r.x()+r.width(), p1.y() );
-	    }
-	    else {
-		p1 = QPoint( r.x()+r.width()/2, 0 );
-		p2 = QPoint( p1.x(), r.height() );
-	    }
-	    if ( style == Plain ) {
-		QPen oldPen = p->pen();
-		p->setPen( QPen(g.foreground(),lwidth) );
-		p->drawLine( p1, p2 );
-		p->setPen( oldPen );
-	    }
-	    else
-		qDrawShadeLine( p, p1, p2, g, style == Sunken,
-				lwidth, midLineWidth() );
-	    break;
+    case HLine:
+    case VLine:
+	if ( type == HLine ) {
+	    p1 = QPoint( r.x(), r.height()/2 );
+	    p2 = QPoint( r.x()+r.width(), p1.y() );
+	}
+	else {
+	    p1 = QPoint( r.x()+r.width()/2, 0 );
+	    p2 = QPoint( p1.x(), r.height() );
+	}
+	if ( style == Plain ) {
+	    QPen oldPen = p->pen();
+	    p->setPen( QPen(g.foreground(),lwidth) );
+	    p->drawLine( p1, p2 );
+	    p->setPen( oldPen );
+	}
+	else
+	    qDrawShadeLine( p, p1, p2, g, style == Sunken,
+			    lwidth, midLineWidth() );
+	break;
     }
 }
 
@@ -625,14 +625,12 @@ void QFrame::updateMask()
 {
     QBitmap bm( size() );
     bm.fill( color0 );
-
-    {
-	QPainter p( &bm, this );
-	p.setPen( color1 );
-	p.setBrush( color1 );
-	drawFrameMask( &p );
-	drawContentsMask( &p );
-    }
+    QPainter p( &bm, this );
+    p.setPen( color1 );
+    p.setBrush( color1 );
+    drawFrameMask( &p );
+    drawContentsMask( &p );
+    p.end();
     setMask( bm );
 }
 
@@ -658,48 +656,48 @@ void QFrame::drawFrameMask( QPainter* p )
 
     switch ( type ) {
 
-	case Box:
-	    if ( style == Plain )
-		qDrawPlainRect( p, r, g.foreground(), lwidth );
-	    else
-		qDrawShadeRect( p, r, g, style == Sunken, lwidth,
-				midLineWidth() );
-	    break;
+    case Box:
+	if ( style == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawShadeRect( p, r, g, style == Sunken, lwidth,
+			    midLineWidth() );
+	break;
 
-	case Panel:
-	    if ( style == Plain )
-		qDrawPlainRect( p, r, g.foreground(), lwidth );
-	    else
-		qDrawShadePanel( p, r, g, style == Sunken, lwidth );
-	    break;
+    case Panel:
+	if ( style == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawShadePanel( p, r, g, style == Sunken, lwidth );
+	break;
 
-	case WinPanel:
-	    if ( style == Plain )
-		qDrawPlainRect( p, r, g.foreground(), lwidth );
-	    else
-		qDrawWinPanel( p, r, g, style == Sunken );
-	    break;
+    case WinPanel:
+	if ( style == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawWinPanel( p, r, g, style == Sunken );
+	break;
 
-	case HLine:
-	case VLine:
-	    if ( type == HLine ) {
-		p1 = QPoint( r.x(), r.height()/2 );
-		p2 = QPoint( r.x()+r.width(), p1.y() );
-	    }
-	    else {
-		p1 = QPoint( r.x()+r.width()/2, 0 );
-		p2 = QPoint( p1.x(), r.height() );
-	    }
-	    if ( style == Plain ) {
-		QPen oldPen = p->pen();
-		p->setPen( QPen(g.foreground(),lwidth) );
-		p->drawLine( p1, p2 );
-		p->setPen( oldPen );
-	    }
-	    else
-		qDrawShadeLine( p, p1, p2, g, style == Sunken,
-				lwidth, midLineWidth() );
-	    break;
+    case HLine:
+    case VLine:
+	if ( type == HLine ) {
+	    p1 = QPoint( r.x(), r.height()/2 );
+	    p2 = QPoint( r.x()+r.width(), p1.y() );
+	}
+	else {
+	    p1 = QPoint( r.x()+r.width()/2, 0 );
+	    p2 = QPoint( p1.x(), r.height() );
+	}
+	if ( style == Plain ) {
+	    QPen oldPen = p->pen();
+	    p->setPen( QPen(g.foreground(),lwidth) );
+	    p->drawLine( p1, p2 );
+	    p->setPen( oldPen );
+	}
+	else
+	    qDrawShadeLine( p, p1, p2, g, style == Sunken,
+			    lwidth, midLineWidth() );
+	break;
     }
 }
 
