@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#92 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#93 $
 **
 ** Definition of QPainter class
 **
@@ -141,9 +141,10 @@ public:
     void	drawRect( const QRect & );
     void	drawWinFocusRect( int x, int y, int w, int h );
     void	drawWinFocusRect( int x, int y, int w, int h,
-				  const QColor &penColor );
+				  const QColor &bgColor );
     void	drawWinFocusRect( const QRect & );
-    void	drawWinFocusRect( const QRect &, const QColor &penColor );
+    void	drawWinFocusRect( const QRect &, 
+				  const QColor &bgColor );
     void	drawRoundRect( int x, int y, int w, int h, int, int );
     void	drawRoundRect( const QRect &, int, int );
     void	drawEllipse( int x, int y, int w, int h );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#223 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#222 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#223 $");
 
 
 /*****************************************************************************
@@ -1795,14 +1795,34 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
     drawWinFocusRect( x, y, w, h, TRUE, color0 );
 }
 
+/*!
+  Draws a Windows focus rectangle with upper left corner at \e (x,y) and with
+  width \e w and height \e h using a pen color that contrasts with \e bgColor.
+
+  This function draws a stippled rectangle (XOR is not used) that is used
+  to indicate keyboard focus (when the \link QApplication::style() GUI
+  style\endlink is \c WindowStyle).
+
+  The pen color used to draw the rectangle is either white or black
+  depending on the grayness of \e bgColor (see QColor::gray()).
+
+  \warning This function draws nothing if the coordinate system has been
+  \link rotate() rotated\endlink or \link shear() sheared\endlink.
+
+  \sa drawRect(), QApplication::style()
+*/
 void QPainter::drawWinFocusRect( int x, int y, int w, int h, 
-				 const QColor &penColor )
+				 const QColor &bgColor )
 {
-    drawWinFocusRect( x, y, w, h, FALSE, penColor );
+    drawWinFocusRect( x, y, w, h, FALSE, bgColor );
 }
 
+
+/*!
+  \internal
+ */
 void QPainter::drawWinFocusRect( int x, int y, int w, int h,
-				 bool xorPaint, const QColor &penColor )
+				 bool xorPaint, const QColor &bgColor )
 {
     if ( !isActive() || txop == TxRotShear )
 	return;
@@ -1818,7 +1838,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 	    setPen( white );
 	setRasterOp( XorROP );
     } else {
-	if ( qGray( penColor.rgb() ) < 128 )
+	if ( qGray( bgColor.rgb() ) < 128 )
 	    setPen( white );
 	else
 	    setPen( black );
