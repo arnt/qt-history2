@@ -14,16 +14,15 @@
 
 #include "qapplication.h"
 #ifndef QT_NO_EFFECTS
-#include "qdesktopwidget.h"
-#include "qevent.h"
-#include "qeffects_p.h"
-#include "qpixmap.h"
-#include "qpainter.h"
-#include "qimage.h"
-#include "qtimer.h"
 #include "qdatetime.h"
-#include "qpointer.h"
+#include "qdesktopwidget.h"
+#include "qeffects_p.h"
+#include "qevent.h"
+#include "qimage.h"
 #include "qpainter.h"
+#include "qpixmap.h"
+#include "qpointer.h"
+#include "qtimer.h"
 
 /*
   Internal class to get access to protected QWidget-members
