@@ -16,7 +16,8 @@
 #include "qplatformdefs.h"
 #endif
 
-#include "qcolor.h"
+#include "qrgb.h"
+#include "qstringlist.h"
 
 static int hex2int( QChar hexchar )
 {
@@ -781,13 +782,12 @@ uint qt_get_rgb_val( const char *name )
     return r;
 }
 #ifndef QT_NO_STRINGLIST
-QStringList QColor::colorNames()
+QStringList qt_get_colornames()
 {
     int i = 0;
     QStringList lst;
     for ( i = 0; i < rgbTblSize; i++ )
 	lst << rgbTbl[i].name;
-
     return lst;
 }
 #endif
@@ -803,7 +803,7 @@ uint qt_get_rgb_val( const char * )
     return 0;
 }
 #ifndef QT_NO_STRINGLIST
-QStringList QColor::colorNames()
+QStringList qt_get_colornames()
 {
     return QStringList();
 }

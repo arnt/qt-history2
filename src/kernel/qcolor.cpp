@@ -771,9 +771,12 @@ uint QColor::pixel() const
 }
 
 /*!
-    \fn QStringList QColor::colorNames()
     Returns a QStringList containing the color names Qt knows about.
 */
+QStringList QColor::colorNames()
+{
+    return qt_get_colornames();
+}
 
 /*****************************************************************************
   QColor stream functions
