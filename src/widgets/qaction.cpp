@@ -1107,8 +1107,11 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     and make it a toggle action. We create center and right align
     actions in exactly the same way.
 
+    \omit
     A QActionGroup emits an activated() signal when one of its actions
-    is activated. The actions in an action group emit their activated()
+    is activated.
+    \endomit
+    The actions in an action group emit their activated()
     (and for toggle actions, toggled()) signals as usual.
 
     The setExclusive() function is used to ensure that only one action

@@ -892,7 +892,8 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 }
 
 /*!
-    Returns TRUE if remote control access is enabled for the application.
+    Returns TRUE if remote control access is enabled for the
+    application; otherwise returns FALSE.
 */
 bool QApplication::remoteControlEnabled() const
 {
