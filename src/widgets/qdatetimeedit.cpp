@@ -493,6 +493,7 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
     }
     const QColorGroup & cg = colorGroup();
     QPainter p( d->pixmap() );
+    p.setFont( font() );
     p.setPen( colorGroup().text() );
     QBrush bg = cg.brush( QColorGroup::Base );
     p.fillRect( 0, 0, width(), height(), bg );
