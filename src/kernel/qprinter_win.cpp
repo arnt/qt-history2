@@ -144,9 +144,12 @@ QPrinter::QPrinter( PrinterMode m )
     }
 #endif
     switch ( m ) {
-        case ScreenResolution:
-            res = 96; // ### is this true in all cases?
-            break;
+	case ScreenResolution: 
+	{
+	    HDC dc = GetDC( 0 );
+	    res = GetDeviceCaps( dc, LOGPIXELSY );
+	    break;
+	}
         case Compatible:
             devFlags |= QInternal::CompatibilityMode;
         case PrinterResolution:
