@@ -1,5 +1,5 @@
 #qmake code
-OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o
+OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o projectgenerator.o
 
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
@@ -123,6 +123,9 @@ msvc_nmake.o: generators/win32/msvc_nmake.cpp
 
 msvc_dsp.o: generators/win32/msvc_dsp.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/win32/msvc_dsp.cpp
+
+projectgenerator.o: generators/projectgenerator.cpp
+	$(CXX) -c -o $@ $(CFLAGS) generators/projectgenerator.cpp
 
 #default rules
 .c.o: 

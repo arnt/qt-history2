@@ -89,7 +89,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "CXXFLAGS = " << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH  = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << Option::qmakepath << endl;
+    t << "INCPATH  = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << Option::mkfile::qmakepath << endl;
     if(!project->isActiveConfig("staticlib")) {
 	t << "LINK     = " << var("QMAKE_LINK") << endl;
 	t << "LFLAGS   = " << var("QMAKE_LFLAGS") << endl;
@@ -728,8 +728,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     ret = QString("$(COPY) ") + Option::fixPathToTargetOS(destdir + target, FALSE) + " " + targetdir;
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
-	    if(Option::mode == Option::WIN_MODE || Option::mode == Option::MAC9_MODE) {
-	    } else if(Option::mode == Option::UNIX_MODE || Option::mode == Option::MACX_MODE) {
+	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
+	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
 		QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)

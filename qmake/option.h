@@ -47,6 +47,7 @@ void debug_msg(int level, const char *fmt, ...);
 
 struct Option
 {
+    //simply global convenience
     static QString ui_ext;
     static QString h_ext;
     static QString moc_ext;
@@ -56,25 +57,38 @@ struct Option
     static QString lex_mod;
     static QString yacc_mod;
     static QString dir_sep;
-
-    static int debug_level;
-    enum QMODE { UNIX_MODE, WIN_MODE, MACX_MODE, MAC9_MODE };
-    static QMODE mode;
-    static bool do_cache;
-    static bool do_deps;
-    static bool do_dep_heuristics;
-    static QString user_template;
-    static QStringList user_vars;
-    static QString cachefile;
-    static QString qmakepath;
-    static QFile output;
-    static QString output_dir;
-    
-    static QStringList project_files;
-
+    //and convenience functions
     static bool parseCommandLine(int argc, char **argv);
     static QString fixPathToLocalOS(QString in);
     static QString fixPathToTargetOS(QString in, bool fix_env=TRUE);
+
+    //global qmake mode, can only be in one mode per invocation!
+    enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE };
+    static QMAKE_MODE qmake_mode;
+
+    //all modes
+    static QFile output;
+    static QString output_dir;
+    static int debug_level;
+    static QStringList user_vars;
+    enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE };
+    static TARG_MODE target_mode;
+
+    //QMAKE_GENERATE_PROJECT options
+    struct projfile {
+	static QStringList project_dirs;
+    };
+
+    //QMAKE_GENERATE_MAKEFILE options
+    struct mkfile {
+	static QString qmakepath;
+	static bool do_cache;
+	static bool do_deps;
+	static bool do_dep_heuristics;
+	static QString user_template;
+	static QString cachefile;
+	static QStringList project_files;
+    };
 };
 
 

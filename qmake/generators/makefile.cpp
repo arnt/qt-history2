@@ -251,9 +251,9 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	    if(!stat(fndir + inc, &fst))
 		fqn = fndir + inc;
 	    else {
-		if((Option::mode == Option::MAC9_MODE && inc.find(':')) ||
-		   (Option::mode == Option::WIN_MODE && inc[1] != ':') ||
-		   ((Option::mode == Option::UNIX_MODE || Option::mode == Option::MACX_MODE) && inc[0] != '/')) {
+		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
+		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
+		   ((Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) && inc[0] != '/')) {
 		    bool found = FALSE;
 		    for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
 			QString dep = (*it) + QDir::separator() + inc;
@@ -267,7 +267,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		//however these can be turned off at runtime, I'm not sure how
 		//reliable these will be, most likely when problems arise turn it off
 		//and see if they go away..
-		if(Option::do_dep_heuristics) { //some heuristics..
+		if(Option::mkfile::do_dep_heuristics) { //some heuristics..
 		    //is it a file from a .ui?
 		    int extn = inc.findRev('.');
 		    if(extn != -1) {
@@ -281,7 +281,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 			}
 		    }
 		}
-		if(!Option::do_dep_heuristics || fqn.isEmpty()) //I give up
+		if(!Option::mkfile::do_dep_heuristics || fqn.isEmpty()) //I give up
 		    continue;
 	    }
 
@@ -543,7 +543,7 @@ MakefileGenerator::init()
     /* get deps and mocables */
     {
 	QStringList incDirs;
-	if(Option::do_deps) {
+	if(Option::mkfile::do_deps) {
 	    QString dirs[] = { QString("QMAKE_ABSOLUTE_SOURCE_PATH"),
 				   QString("INCLUDEPATH"), QString("DEPENDPATH"), QString::null };
 	    for(int y = 0; dirs[y] != QString::null; y++) {
@@ -569,7 +569,7 @@ MakefileGenerator::init()
 	    QStringList &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		if(!(*val_it).isEmpty()) {
-		    if(Option::do_deps)
+		    if(Option::mkfile::do_deps)
 			generateDependancies(incDirs, (*val_it));
 		    if(mocAware()) {
 			if(!generateMocList((*val_it))) {
@@ -819,8 +819,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	//masks
 	tmp = project->variables()[(*it) + ".files"];
 	if(!tmp.isEmpty()) {
-	    if(Option::mode == Option::WIN_MODE || Option::mode == Option::MAC9_MODE) {
-	    } else if(Option::mode == Option::UNIX_MODE || Option::mode == Option::MACX_MODE) {
+	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
+	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
 		target += QString("$(COPY) -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
 	    }
 	}
@@ -954,8 +954,8 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	qmake_path = "qmake"; //hope its in your path
     if(!ofile.isEmpty()) {
 	t << ofile << ": " << pfile << " ";
-	if(Option::do_cache)
-	    t << Option::cachefile << " ";
+	if(Option::mkfile::do_cache)
+	    t << Option::mkfile::cachefile << " ";
 	t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	  << qmake_path << " " << args << " " << pfile <<  " -o " << ofile << endl;
     }

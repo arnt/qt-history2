@@ -42,11 +42,7 @@
 
 class MakefileGenerator
 {
-    QString cleanFilePath(const QString &file) const;
-    bool generateDependancies(QStringList &dirs, QString x);
-    bool generateMocList(QString fn);
     bool init_already, moc_aware;
-
     QStringList createObjectList(const QString &var);
     void writeObj(QTextStream &, const QString &obj, const QString &src);
     void writeUicSrc(QTextStream &, const QString &ui);
@@ -61,6 +57,10 @@ protected:
 
     QMakeProject *project;
     QMap<QString, QStringList> depends;
+
+    QString cleanFilePath(const QString &file) const;
+    bool generateDependancies(QStringList &dirs, QString x);
+    bool generateMocList(QString fn);
 
     inline QString findMocSource(const QString &moc_file) const { return mocablesFromMOC[cleanFilePath(moc_file)]; }
     inline QString findMocDestination(const QString &src_file) const { return mocablesToMOC[cleanFilePath(src_file)]; }

@@ -41,6 +41,7 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
+#include "projectgenerator.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -71,86 +72,131 @@ int main(int argc, char **argv)
 
     QMakeProject proj;
     int exit_val = 0;
-    for(QStringList::Iterator pfile = Option::project_files.begin();
-	pfile != Option::project_files.end(); pfile++) {
-	QString fn = (*pfile);
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+	for(QStringList::Iterator pfile = Option::mkfile::project_files.begin();
+	    pfile != Option::mkfile::project_files.end(); pfile++) {
+	    QString fn = (*pfile);
 
-	//setup pwd properly
-	debug_msg(1, "Resetting dir to: %s", oldpwd.latin1());
-	QDir::setCurrent(oldpwd); //reset the old pwd
-	int di = fn.findRev(Option::dir_sep);
-	if(di != -1) {
-	    debug_msg(1, "Changing dir to: %s", fn.left(di).latin1());
-	    if(!QDir::setCurrent(fn.left(fn.findRev(Option::dir_sep))))
-		fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).latin1());
-	    fn = fn.right(fn.length() - di - 1);
+	    //setup pwd properly
+	    debug_msg(1, "Resetting dir to: %s", oldpwd.latin1());
+	    QDir::setCurrent(oldpwd); //reset the old pwd
+	    int di = fn.findRev(Option::dir_sep);
+	    if(di != -1) {
+		debug_msg(1, "Changing dir to: %s", fn.left(di).latin1());
+		if(!QDir::setCurrent(fn.left(fn.findRev(Option::dir_sep))))
+		    fprintf(stderr, "Cannot find directory: %s\n", fn.left(di).latin1());
+		fn = fn.right(fn.length() - di - 1);
 
-	}
-
-	/* read project.. */
-	if(!proj.read(fn, oldpwd)) {
-	    fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
-	    exit_val = 2;
-	    continue;
-	}
-
-	/* figure out generator */
-	MakefileGenerator *mkfile = NULL;
-	QString gen = proj.variables()["MAKEFILE_GENERATOR"].first(), def_mkfile;
-	if(gen.isEmpty()) {
-	    fprintf(stderr, "No generator specified in config file: %s\n", fn.latin1());
-	    exit_val = 3;
-	} else if(gen == "UNIX") {
-	    mkfile = new UnixMakefileGenerator(&proj);
-	} else if(gen == "MSVC") {
-	    if(proj.variables()["TEMPLATE"].first().find(QRegExp("^vc.*")) != -1) {
-		def_mkfile = proj.variables()["QMAKE_TARGET"].first() + ".dsp";
-		mkfile = new DspMakefileGenerator(&proj);
-	    } else {
-		mkfile = new NmakeMakefileGenerator(&proj);
 	    }
-	} else if(gen == "BMAKE") {
-	    mkfile = new BorlandMakefileGenerator(&proj);
-	} else {
-	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
-	    exit_val = 4;
-	}
 
-	if(mkfile) {
-	    /* open make file */
-	    bool using_stdout = FALSE;
-	    if(!(Option::output.state() & IO_Open)) {
-		if(Option::output.name().isEmpty()) {
-		    if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) 
-			Option::output.setName(proj.variables()["QMAKE_MAKEFILE"].first());
-		    else if(!def_mkfile.isEmpty()) 
-			Option::output.setName(def_mkfile);
-		    else
-			Option::output.setName("Makefile");
-		}
-		if(Option::output.name().isEmpty() || Option::output.name() == "-") {
-		    Option::output.setName("");
-		    Option::output.open(IO_WriteOnly | IO_Translate, stdout);
-		    using_stdout = TRUE;
+	    /* read project.. */
+	    if(!proj.read(fn, oldpwd)) {
+		fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
+		exit_val = 2;
+		continue;
+	    }
+
+	    /* figure out generator */
+	    MakefileGenerator *mkfile = NULL;
+	    QString gen = proj.variables()["MAKEFILE_GENERATOR"].first(), def_mkfile;
+	    if(gen.isEmpty()) {
+		fprintf(stderr, "No generator specified in config file: %s\n", fn.latin1());
+		exit_val = 3;
+	    } else if(gen == "UNIX") {
+		mkfile = new UnixMakefileGenerator(&proj);
+	    } else if(gen == "MSVC") {
+		if(proj.variables()["TEMPLATE"].first().find(QRegExp("^vc.*")) != -1) {
+		    def_mkfile = proj.variables()["QMAKE_TARGET"].first() + ".dsp";
+		    mkfile = new DspMakefileGenerator(&proj);
 		} else {
-		    if(QDir::isRelativePath(Option::output.name()))
-			Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
+		    mkfile = new NmakeMakefileGenerator(&proj);
+		}
+	    } else if(gen == "BMAKE") {
+		mkfile = new BorlandMakefileGenerator(&proj);
+	    } else {
+		fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
+		exit_val = 4;
+	    }
 
-		    QFileInfo fi(Option::output);
-		    Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
-		    if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
-			fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
-			return 5;
+	    if(mkfile) {
+		/* open make file */
+		bool using_stdout = FALSE;
+		if(!(Option::output.state() & IO_Open)) {
+		    if(Option::output.name().isEmpty()) {
+			if(!proj.variables()["QMAKE_MAKEFILE"].isEmpty()) 
+			    Option::output.setName(proj.variables()["QMAKE_MAKEFILE"].first());
+			else if(!def_mkfile.isEmpty()) 
+			    Option::output.setName(def_mkfile);
+			else
+			    Option::output.setName("Makefile");
+		    }
+		    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
+			Option::output.setName("");
+			Option::output.open(IO_WriteOnly | IO_Translate, stdout);
+			using_stdout = TRUE;
+		    } else {
+			if(QDir::isRelativePath(Option::output.name()))
+			    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
+
+			QFileInfo fi(Option::output);
+			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
+			if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
+			    fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
+			    return 5;
+			}
 		    }
 		}
+		if(!mkfile->write()) {
+		    fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
+		    if(!using_stdout)
+			QFile::remove(Option::output.name());
+		    exit_val = 6;
+		}
+		delete mkfile;
 	    }
-	    if(!mkfile->write()) {
-		fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
-		if(!using_stdout)
-		    QFile::remove(Option::output.name());
-		exit_val = 6;
+
+	    /* debugging */
+	    if(Option::debug_level) {
+		QMap<QString, QStringList> &vars = proj.variables();
+		for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
+		    debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" ").latin1());
+		}
 	    }
-	    delete mkfile;
+	}
+    } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
+	/* open project file */
+	bool using_stdout = FALSE;
+	if(!(Option::output.state() & IO_Open)) {
+	    if(Option::output.name().isEmpty()) {
+		QString dir = QDir::currentDirPath();
+		int s = dir.findRev(QDir::separator());
+		if(s != -1)
+		    dir = dir.right(dir.length() - (s + 1));
+		Option::output.setName(dir + ".pro");
+	    }
+	    if(Option::output.name().isEmpty() || Option::output.name() == "-") {
+		Option::output.setName("");
+		Option::output.open(IO_WriteOnly | IO_Translate, stdout);
+		using_stdout = TRUE;
+	    } else {
+		if(QDir::isRelativePath(Option::output.name()))
+		    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
+
+		QFileInfo fi(Option::output);
+		Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
+		if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
+		    fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
+		    return 5;
+		}
+	    }
+	}
+
+	ProjectGenerator mkfile(&proj);
+	if(!mkfile.write()) {
+	    fprintf(stderr, "Unable to generate project file\n");
+	    if(!using_stdout)
+		QFile::remove(Option::output.name());
+	    exit_val = 6;
 	}
 
 	/* debugging */

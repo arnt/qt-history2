@@ -282,8 +282,8 @@ QMakeProject::read(QString project, QString pwd)
     QString cachefile;
     if(cfile.isEmpty()) {
 	/* parse the cache */
-	if(Option::do_cache) {
-	    cachefile = Option::cachefile;
+	if(Option::mkfile::do_cache) {
+	    cachefile = Option::mkfile::cachefile;
 	    if(cachefile.find(QDir::separator()) == -1) {
 		/* find the cache file, otherwise return false */
 		QString start_dir;
@@ -300,7 +300,7 @@ QMakeProject::read(QString project, QString pwd)
 			dir.prepend(QDir::convertSeparators(start_dir));
 		}
 
-		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::cachefile))) {
+		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::mkfile::cachefile))) {
 		    dir = dir.left(dir.findRev(QDir::separator()));
 			if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
 			cachefile = "";
@@ -308,30 +308,30 @@ QMakeProject::read(QString project, QString pwd)
 		    }
 		}
 	    }
-	    Option::cachefile = cachefile;
+	    Option::mkfile::cachefile = cachefile;
 	    if(!cachefile.isEmpty()) {
 		read(cachefile, cache);
-		if(Option::qmakepath.isEmpty() && !cache["QMAKEPATH"].isEmpty())
-		    Option::qmakepath = cache["QMAKEPATH"].first();
+		if(Option::mkfile::qmakepath.isEmpty() && !cache["QMAKEPATH"].isEmpty())
+		    Option::mkfile::qmakepath = cache["QMAKEPATH"].first();
 	    }
 	}
 
 	/* parse mkspec */
-	if(Option::qmakepath.isNull() || Option::qmakepath.isEmpty()) {
+	if(Option::mkfile::qmakepath.isNull() || Option::mkfile::qmakepath.isEmpty()) {
 	    if(!getenv("QMAKEPATH")) {
 		fprintf(stderr, "QMAKEPATH has not been set, so configuration cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::qmakepath = getenv("QMAKEPATH");
+	    Option::mkfile::qmakepath = getenv("QMAKEPATH");
 	}
-	if(QDir::isRelativePath(Option::qmakepath)) {
+	if(QDir::isRelativePath(Option::mkfile::qmakepath)) {
 	    if(!getenv("QTDIR")) {
 		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
-	    Option::qmakepath.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
+	    Option::mkfile::qmakepath.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
 	}
-	QString spec = Option::qmakepath + QDir::separator() + "qmake.conf";
+	QString spec = Option::mkfile::qmakepath + QDir::separator() + "qmake.conf";
 	debug_msg(1, "QMAKEPATH conf: reading %s", spec.latin1());
 
 	if(!read(spec, base_vars)) {
@@ -364,13 +364,13 @@ QMakeProject::read(QString project, QString pwd)
 	return FALSE;
 
     /* now let the user override the template from an option.. */
-    if(!Option::user_template.isEmpty()) {
-	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), Option::user_template.latin1());
+    if(!Option::mkfile::user_template.isEmpty()) {
+	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), Option::mkfile::user_template.latin1());
 	vars["TEMPLATE"].clear();
-	vars["TEMPLATE"].append(Option::user_template);
+	vars["TEMPLATE"].append(Option::mkfile::user_template);
     }
 
-    if(Option::user_template.isEmpty())
+    if(Option::mkfile::user_template.isEmpty())
 	vars["TEMPLATE"].append("app");
     else
 	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
@@ -389,13 +389,13 @@ QMakeProject::isActiveConfig(const QString &x)
     if(x.isEmpty())
 	return TRUE;
 	
-    if((Option::mode == Option::MACX_MODE || Option::mode == Option::UNIX_MODE) && x == "unix")
+    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
 	return TRUE;
-    else if((Option::mode == Option::MAC9_MODE || Option::mode == Option::MACX_MODE) && x == "mac")
+    else if((Option::target_mode == Option::TARG_MAC9_MODE || Option::target_mode == Option::TARG_MACX_MODE) && x == "mac")
 	return TRUE;
-    else if(Option::mode == Option::WIN_MODE && x == "win32")
+    else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32")
 	return TRUE;
-    else if(Option::qmakepath.right(x.length()) == x)
+    else if(Option::mkfile::qmakepath.right(x.length()) == x)
 	return TRUE;
 
     return ( vars["CONFIG"].findIndex(x) != -1 );
@@ -480,9 +480,6 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 void
 QMakeProject::doProjectCheckReqs(const QStringList &deps)
 {
-    if(!Option::do_cache)
-	return;
-
     QStringList &configs = vars["CONFIG"];
     for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
 	if((*it).isEmpty())

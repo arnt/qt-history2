@@ -42,6 +42,7 @@
 #include <qregexp.h>
 #include <stdarg.h>
 
+//convenience
 QString Option::ui_ext;
 QString Option::h_ext;
 QString Option::moc_ext;
@@ -51,27 +52,36 @@ QString Option::dir_sep;
 QString Option::moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
-#if defined(Q_OS_WIN32)
-Option::QMODE Option::mode = Option::WIN_MODE;
-#elif defined(Q_OS_MAC9)
-Option::QMODE Option::mode = Option::MAC9_MODE;
-#elif defined(Q_OS_MACX)
-Option::QMODE Option::mode = Option::MACX_MODE;
-#else
-Option::QMODE Option::mode = Option::UNIX_MODE;
-#endif
-bool Option::do_deps = TRUE;
-bool Option::do_dep_heuristics = TRUE;
-bool Option::do_cache = TRUE;
-int Option::debug_level = 0;
 
-QString Option::user_template;
-QString Option::qmakepath;
-QString Option::cachefile;
-QStringList Option::user_vars;
+//mode
+Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
+
+//all modes
+int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;
-QStringList Option::project_files;
+QStringList Option::user_vars;
+#if defined(Q_OS_WIN32)
+Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
+#elif defined(Q_OS_MAC9)
+Option::TARG_MODE Option::target_mode = Option::TARG_MAC9_MODE;
+#elif defined(Q_OS_MACX)
+Option::TARG_MODE Option::target_mode = Option::TARG_MACX_MODE;
+#else
+Option::TARG_MODE Option::target_mode = Option::TARG_UNIX_MODE;
+#endif
+
+//QMAKE_GENERATE_PROJECT stuff
+QStringList Option::projfile::project_dirs;
+
+//QMAKE_GENERATE_MAKEFILE stuff
+QString Option::mkfile::qmakepath;
+bool Option::mkfile::do_deps = TRUE;
+bool Option::mkfile::do_dep_heuristics = TRUE;
+bool Option::mkfile::do_cache = TRUE;
+QString Option::mkfile::user_template;
+QString Option::mkfile::cachefile;
+QStringList Option::mkfile::project_files;
 
 
 bool usage(const char *a0)
@@ -98,46 +108,81 @@ Option::parseCommandLine(int argc, char **argv)
     for(int x = 1; x < argc; x++) {
 	if(*argv[x] == '-') { /* options */
 	    QString opt = argv[x] + 1;
-	    if(opt == "nodepend") {
-		Option::do_deps = FALSE;
-	    } else if(opt == "nocache") {
-		Option::do_cache = FALSE;
-	    } else if(opt == "nodependheuristics") {
-		Option::do_dep_heuristics = FALSE;
-	    } else if(opt == "mkcache") {
-		Option::cachefile = argv[++x];
-	    } else if(opt == "t" || opt == "template") {
-		Option::user_template = argv[++x];
-	    } else if(opt == "o" || opt == "output") {
+
+	    //first param is a mode, or we default
+	    if(x == 1) {
+		if(opt == "project")
+		    Option::qmake_mode = Option::QMAKE_GENERATE_PROJECT;
+		else
+		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;		
+		if(opt == "project" || opt == "makefile")
+		    continue;
+	    }
+	    //all modes
+	    if(opt == "o" || opt == "output") {
 		Option::output.setName(argv[++x]);
 	    } else if(opt == "mac9") {
-		Option::mode = MAC9_MODE;
+		Option::target_mode = TARG_MAC9_MODE;
 	    } else if(opt == "macx") {
-		Option::mode = MACX_MODE;
+		Option::target_mode = TARG_MACX_MODE;
 	    } else if(opt == "unix") {
-		Option::mode = UNIX_MODE;
+		Option::target_mode = TARG_UNIX_MODE;
 	    } else if(opt == "win32") {
-		Option::mode = WIN_MODE;
-	    } else if(opt == "path") {
-		Option::qmakepath = argv[++x];
-	    }  else if(opt == "v" || opt == "d") {
+		Option::target_mode = TARG_WIN_MODE;
+	    } else if(opt == "v" || opt == "d") {
 		Option::debug_level++;
-	    } else {
+	    } else if(opt == "h" || opt == "help") {
 		return usage(argv[0]);
+	    } else {
+		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+		    if(opt == "nodepend") {
+			Option::mkfile::do_deps = FALSE;
+		    } else if(opt == "nocache") {
+			Option::mkfile::do_cache = FALSE;
+		    } else if(opt == "nodependheuristics") {
+			Option::mkfile::do_dep_heuristics = FALSE;
+		    } else if(opt == "mkcache") {
+			Option::mkfile::cachefile = argv[++x];
+		    } else if(opt == "t" || opt == "template") {
+			Option::mkfile::user_template = argv[++x];
+		    } else if(opt == "path") {
+			Option::mkfile::qmakepath = argv[++x];
+		    } else {
+			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
+			return usage(argv[0]);
+		    }
+		} else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
+		    fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
+		    return usage(argv[0]);
+		}
 	    }
 	}
 	else {
+	    if(x == 1)
+		Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
+
 	    QString arg = argv[x];
 	    if(arg.find('=') != -1) {
 		Option::user_vars.append(arg);
 	    } else {
-		Option::project_files.append(arg);
+		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
+		    Option::mkfile::project_files.append(arg);
+		else
+		    Option::projfile::project_dirs.append(arg);
 	    }
 	}
     }
-    if(Option::cachefile.isNull() || Option::cachefile.isEmpty())
-	Option::cachefile = ".qmake.cache";
+    
+    //last chance for defaults
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+	if(Option::mkfile::cachefile.isNull() || Option::mkfile::cachefile.isEmpty())
+	    Option::mkfile::cachefile = ".qmake.cache";
+    } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
+	if(Option::projfile::project_dirs.isEmpty())
+	    Option::projfile::project_dirs.append("*.cpp; *.ui; *.c");
+    }
 
+    //defaults for globals
     Option::moc_mod = "moc_";
     Option::lex_mod = "_lex";
     Option::yacc_mod = "_yacc";
@@ -145,11 +190,11 @@ Option::parseCommandLine(int argc, char **argv)
     Option::h_ext = ".h";
     Option::moc_ext = ".moc";
     Option::cpp_ext = ".cpp";
-    if(Option::mode == Option::WIN_MODE) {
+    if(Option::target_mode == Option::TARG_WIN_MODE) {
 	Option::dir_sep = "\\";
 	Option::obj_ext =  ".obj";
     } else {
-	if(Option::mode == Option::MAC9_MODE)
+	if(Option::target_mode == Option::TARG_MAC9_MODE)
 	    Option::dir_sep = ":";
 	else
 	    Option::dir_sep = "/";
@@ -173,11 +218,11 @@ Option::fixPathToTargetOS(QString in, bool fix_env)
 	fixEnvVariables(in);
     in = QDir::cleanDirPath(in);
     QString rep;
-    if(Option::mode == UNIX_MODE || Option::mode == MACX_MODE)
+    if(Option::target_mode == TARG_UNIX_MODE || Option::target_mode == TARG_MACX_MODE)
 	rep = "[\\\\]";
-    else if(Option::mode == MAC9_MODE)
+    else if(Option::target_mode == TARG_MAC9_MODE)
 	rep = "[/\\\\]";
-    else if(Option::mode == WIN_MODE)
+    else if(Option::target_mode == TARG_WIN_MODE)
 	rep = "[/]";
     return in.replace(QRegExp(rep), Option::dir_sep);
 }
