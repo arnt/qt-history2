@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QHeader widget class (table header)
 **
 ** Created : 961105
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -1506,13 +1506,11 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     QRect r( fr.x() + QH_MARGIN + dx, fr.y() + 2 + dy, fr.width() - 6,
 	     fr.height() - 4 );
 
-    int pw = 0;
     if ( d->iconsets[section] ) {
 	QIconSet::Mode mode = isEnabled() ? QIconSet::Normal
 			      : QIconSet::Disabled;
 	QPixmap pixmap = d->iconsets[section]->pixmap( QIconSet::Small, mode );
 	int pixw = pixmap.width();
-	pw = pixw;
 	int pixh = pixmap.height();
 	// "pixh - 1" because of tricky integer division
 	p->drawPixmap( r.left(), r.center().y() - (pixh - 1) / 2, pixmap );
