@@ -87,7 +87,8 @@ private:
 	QPaintEngine *paintEngine;
     } *d;
 
-        enum PDevCmd {
+    friend QPicturePrivate;
+    enum PDevCmd {
 	PdcNOP = 0, //  <void>
 	PdcDrawPoint = 1, // point
 	PdcDrawFirst = PdcDrawPoint,
@@ -112,9 +113,9 @@ private:
 	PdcDrawText2Formatted = 20, // rect,ival,str
 	PdcDrawTextItem = 21,
 	PdcDrawLast = PdcDrawTextItem,
-
+    
 	// no painting commands below PdcDrawLast.
-
+    
 	PdcBegin = 30, //  <void>
 	PdcEnd = 31, //  <void>
 	PdcSave = 32, //  <void>
@@ -139,7 +140,7 @@ private:
 	PdcRestoreWMatrix = 57,
 	PdcSetClip = 60, // ival
 	PdcSetClipRegion = 61, // rgn
-
+    
 	PdcReservedStart = 0, // codes 0-199 are reserved
 	PdcReservedStop = 199 //   for Qt
     };
