@@ -52,3 +52,10 @@ Qt 1.x-based program to Qt 2.0.
     QSessionManager - safe state when system shuts down
 
 
+****************************************************************************
+* 	              Major changes in existing classes			   *
+****************************************************************************
+
+QString is now 16-bit Unicode. 
+
+QPoint, QPointArray, QSize and QRect now have 32-bit coordinates.
