@@ -47,11 +47,12 @@
 #ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
 #endif
+#include <ctype.h>
+#include <locale.h>
+#include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <limits.h>
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -10594,7 +10595,7 @@ static const Q_UINT16 case_5 [] = {
     0x538, 0x539, 0x53a, 0x53b, 0x53c, 0x53d, 0x53e, 0x53f,
     0x540, 0x541, 0x542, 0x543, 0x544, 0x545, 0x546, 0x547,
     0x548, 0x549, 0x54a, 0x54b, 0x54c, 0x54d, 0x54e, 0x54f,
-    0x550, 0x551, 0x552, 0x553, 0x554, 0x555, 0x556, 0x0,
+    0x550, 0x551, 0x552, 0x553, 0x554, 0x555, 0x556, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -11372,7 +11373,7 @@ the characters, and upper() and lower() will do case changes when the
 character has a well-defined upper/lower-case equivalent. There is no
 provision for locale-dependent case folding rules or comparison; these
 functions are meant to be fast so they can be used unambiguously in
-data structures.
+data structures. (See QString::localeAwareCompare() though.)
 
 The conversion functions include unicode() (to a scalar), latin1() (to
 scalar, but converts all non-Latin1 characters to 0), row() (gives the
@@ -12797,13 +12798,9 @@ QString &QString::operator=( const char *str )
   If \a newLen is less than the length of the string, then the string
   is truncated at position \a newLen.  Otherwise nothing will happen.
 
-  In Qt 1.x, it was possible to "truncate" a string to a longer
-  length.  This is no longer possible; use setLength() if you need to
-  extend the length of a string.
-
   \code
-    QString s = "truncate this string";
-    s.truncate( 5 );                            // s == "trunc"
+    QString s = "truncate me";
+    s.truncate( 5 );            // s == "trunc"
   \endcode
 
   \sa setLength()
@@ -13120,16 +13117,20 @@ QString &QString::sprintf( const char* cformat, ... )
     int pos;
     int len = 0;
 
+    // for ::sprintf()
+    const char *locale = setlocale( LC_ALL, (const char *) 0 );
+    setlocale( LC_ALL, "C" );
+
     for (;;) {
 	pos = escape->search( format, last );
 	len = escape->matchedLength();
 	// Non-escaped text
 	if ( pos > (int)last )
-	    result += format.mid(last,pos-last);
+	    result += format.mid( last, pos - last );
 	if ( pos < 0 ) {
 	    // The rest
 	    if ( last < format.length() )
-		result += format.mid(last);
+		result += format.mid( last );
 	    break;
 	}
 	last = pos + len + 1;
@@ -13156,7 +13157,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	     format[pos + len] == 'c' )
 	{
 	    bool rightjust = ( f.find('-') < 0 );
-	    // Yes, %-5s really means left adjust in sprintf
+	    // %-5s really means left adjust in sprintf
 
 	    if ( wpos < 0 ) {
 		QRegExp num( fromLatin1("[0-9]+") );
@@ -13202,30 +13203,59 @@ QString &QString::sprintf( const char* cformat, ... )
 	    char fch = format[pos+len].latin1();
 	    in[f.length()] = fch;
 	    switch ( fch ) {
-	      case 'd': case 'i': case 'o': case 'u': case 'x': case 'X': {
-		int value = va_arg(ap, int);
-		switch (params) {
-		  case 0: ::sprintf( out, in, value ); break;
-		  case 1: ::sprintf( out, in, width, value ); break;
-		  case 2: ::sprintf( out, in, width, decimals, value ); break;
+	    case 'd':
+	    case 'i':
+	    case 'o':
+	    case 'u':
+	    case 'x':
+	    case 'X':
+		{
+		    int value = va_arg( ap, int );
+		    switch ( params ) {
+		    case 0:
+			::sprintf( out, in, value );
+			break;
+		    case 1:
+			::sprintf( out, in, width, value );
+			break;
+		    case 2:
+			::sprintf( out, in, width, decimals, value );
+		    }
 		}
-	      } break;
-	      case 'e': case 'E': case 'f': case 'g': case 'G': {
-		double value = va_arg(ap, double);
-		switch (params) {
-		case 0: ::sprintf( out, in, value ); break;
-		case 1: ::sprintf( out, in, width, value ); break;
-		case 2: ::sprintf( out, in, width, decimals, value ); break;
+		break;
+	    case 'e':
+	    case 'E':
+	    case 'f':
+	    case 'g':
+	    case 'G':
+		{
+		    double value = va_arg( ap, double );
+		    switch ( params ) {
+		    case 0:
+			::sprintf( out, in, value );
+			break;
+		    case 1:
+			::sprintf( out, in, width, value );
+			break;
+		    case 2:
+			::sprintf( out, in, width, decimals, value );
+		    }
 		}
-	      } break;
-	      case 'p': {
-		void* value = va_arg(ap, void*);
-		switch ( params ) {
-		case 0: ::sprintf( out, in, value ); break;
-		case 1: ::sprintf( out, in, width, value ); break;
-		case 2: ::sprintf( out, in, width, decimals, value ); break;
+		break;
+	    case 'p':
+		{
+		    void* value = va_arg( ap, void * );
+		    switch ( params ) {
+		    case 0:
+			::sprintf( out, in, value );
+			break;
+		    case 1:
+			::sprintf( out, in, width, value );
+			break;
+		    case 2:
+			::sprintf( out, in, width, decimals, value );
+		    }
 		}
-	      } break;
 	    }
 	    replacement = fromLatin1( out );
 	}
@@ -13234,6 +13264,7 @@ QString &QString::sprintf( const char* cformat, ... )
     *this = result;
 
     va_end( ap );
+    setlocale( LC_ALL, locale );
     return *this;
 }
 #endif
@@ -13292,7 +13323,7 @@ int QString::find( QChar c, int index, bool cs ) const
 {
     if ( index < 0 )
 	index += length();
-    if ( (uint)index >= length() )              // index outside string
+    if ( (uint)index >= length() )
 	return -1;
     register const QChar *uc;
     uc = unicode()+index;
@@ -13857,11 +13888,11 @@ int QString::contains( QChar c, bool cs ) const
     if ( !uc )
 	return 0;
     int n = length();
-    if ( cs ) {                                 // case sensitive
+    if ( cs ) {
 	while ( n-- )
 	    if ( *uc++ == c )
 		count++;
-    } else {                                    // case insensitive
+    } else {
 	c = c.lower();
 	while ( n-- ) {
 	    if ( uc->lower() == c )
@@ -13927,7 +13958,7 @@ int QString::contains( const QString &str, bool cs ) const
 	return 0;
     int len = str.length();
     int n = length();
-    while ( n-- ) {                             // counts overlapping strings
+    while ( n-- ) { // counts overlapping strings
 	// ### Doesn't account for length of this - searches over "end"
 	if ( cs ) {
 	    if ( ucstrncmp( uc, str.unicode(), len ) == 0 )
@@ -14206,9 +14237,8 @@ QString QString::stripWhiteSpace() const
     int end = length() - 1;
     while ( start<=end && s[start].isSpace() )  // skip white space from start
 	start++;
-    if ( start > end ) {                        // only white space
+    if ( start > end )                          // only white space
 	return result;
-    }
     while ( end && s[end].isSpace() )           // skip white space from end
 	end--;
     int l = end - start + 1;
@@ -14238,7 +14268,7 @@ QString QString::stripWhiteSpace() const
 
 QString QString::simplifyWhiteSpace() const
 {
-    if ( isEmpty() )                            // nothing to do
+    if ( isEmpty() )
 	return *this;
     QString result;
     result.setLength( length() );
@@ -14310,17 +14340,17 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     }
 
     if ( index >= olen ) {                      // insert after end of string
-	setLength( len+index );
-	int n = index-olen;
+	setLength( len + index );
+	int n = index - olen;
 	QChar* uc = d->unicode+olen;
 	while (n--)
 	    *uc++ = ' ';
 	memcpy( d->unicode+index, s, sizeof(QChar)*len );
     } else {                                    // normal insert
 	setLength( nlen );
-	memmove( d->unicode+index+len, unicode()+index,
-		 sizeof(QChar)*(olen-index) );
-	memcpy( d->unicode+index, s, sizeof(QChar)*len );
+	memmove( d->unicode + index + len, unicode() + index,
+		 sizeof(QChar) * (olen - index) );
+	memcpy( d->unicode + index, s, sizeof(QChar) * len );
     }
     return *this;
 }
@@ -14808,10 +14838,15 @@ double QString::toDouble( bool *ok ) const
 {
     char *end;
 
+    // for strtod()
+    const char *locale = setlocale( LC_ALL, (const char *) 0 );
+    setlocale( LC_ALL, "C" );
+
     QCString a = latin1();
     double val = strtod( a.data() ? a.data() : "", &end );
     if ( ok )
 	*ok = ( a && *a && (end == 0 || at(end - a.data()) == QChar('\0')) );
+    setlocale( LC_ALL, locale );
     return val;
 }
 
@@ -14964,11 +14999,9 @@ QString &QString::setNum( double n, char f, int prec )
     }
 #endif
     char format[20];
-    char buf[512];                              // hope this is large enough
-    char *fs = format;                          // generate format string
-    *fs++ = '%';                                //   "%.<prec>l<f>"
+    char *fs = format; // generate format string: %.<prec>l<f>
     if ( prec >= 0 ) {
-	if ( prec > 99 )                        // buf big enough for precision?
+	if ( prec > 99 ) // rather than crash in sprintf()
 	    prec = 99;
 	*fs++ = '.';
 	if ( prec >= 10 ) {
@@ -14981,8 +15014,8 @@ QString &QString::setNum( double n, char f, int prec )
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
-    ::sprintf( buf, format, n );	// snprintf is unfortunately not portable
-    return setLatin1(buf);
+    sprintf( format, n );
+    return *this;
 }
 
 /*! \fn QString &QString::setNum( float n, char f, int prec )
@@ -16400,13 +16433,10 @@ QString qt_winMB2QString( const char* mb, int mblen )
     }
     if ( len <= 0 )
 	return QString::null;
-    QString s( (QChar*)wc, len-1 ); // len-1: we don't want terminator
+    QString s( (QChar*)wc, len - 1 ); // len - 1: we don't want terminator
     if ( wc != wc_auto )
 	delete [] wc;
     return s;
 }
-
-
-
 
 #endif // Q_OS_WIN32
