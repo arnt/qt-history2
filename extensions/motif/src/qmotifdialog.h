@@ -22,12 +22,12 @@
 #undef Bool
 #undef Int
 
-class QMotifWidget;
 class QMotifDialogPrivate;
 
 class QMotifDialog : public QDialog
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QMotifDialog);
 
 public:
     // obsolete
@@ -76,8 +76,6 @@ protected:
     bool event( QEvent * );
 
 private:
-    QMotifDialogPrivate *d;
-
     void init( Widget parent = NULL, ArgList args = NULL, Cardinal argcount = 0);
 
     void realize( Widget w );

@@ -15,6 +15,9 @@
 #include <qapplication.h>
 #include <qevent.h>
 
+#include <qdialog.h>
+#include <private/qdialog_p.h>
+
 #include <qx11info_x11.h>
 
 #include "qmotif.h"
@@ -30,7 +33,7 @@
 #include <Xm/FileSB.h>
 #include <Xm/Command.h>
 
-#include <qx11info_x11.h>
+#define d d_func()
 
 
 XtGeometryResult qmotif_dialog_geometry_manger( Widget,
@@ -146,8 +149,10 @@ externaldef(qmotifdialogwidgetclass)
     WidgetClass qmotifDialogWidgetClass = (WidgetClass)&qmotifDialogClassRec;
 
 
-class QMotifDialogPrivate
+class QMotifDialogPrivate : public QDialogPrivate
 {
+    Q_DECLARE_PUBLIC(QMotifDialog);
+
 public:
     QMotifDialogPrivate() : shell( NULL ), dialog( NULL ) { }
 
@@ -399,8 +404,6 @@ QMotifDialog::QMotifDialog( QWidget *parent, const char *name,
 */
 void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 {
-    d = new QMotifDialogPrivate;
-
     Arg *realargs = new Arg[ argcount + 3 ];
     memcpy( realargs, args, argcount * sizeof(Arg) );
     int screen = x11Info()->screen();
@@ -438,8 +441,6 @@ QMotifDialog::~QMotifDialog()
     QMotif::unregisterWidget( this );
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = 0;
     XtDestroyWidget( d->shell );
-
-    delete d;
 
     // make sure we don't have any pending requests for the window we
     // are about to destroy
@@ -567,13 +568,14 @@ void QMotifDialog::realize( Widget w )
 
 	XtSetMappedWhenManaged( d->shell, False );
 
-	// save the caption
+	// save the window title
 	QString wtitle = windowTitle();
 	if (wtitle.isEmpty()) {
  	    char *t;
  	    XtVaGetValues(w, XtNtitle, &t, NULL);
  	    wtitle = QString::fromLocal8Bit(t);
 	}
+        d->topData()->caption = QString::null; // make sure the
 
 	Window newid = XtWindow(w);
 	QObjectList list = children();
@@ -588,7 +590,7 @@ void QMotifDialog::realize( Widget w )
 
 	create( newid, TRUE, TRUE );
 
-	// restore the caption
+	// restore the window title
  	if (!wtitle.isEmpty())
 	    setWindowTitle(wtitle);
 

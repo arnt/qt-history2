@@ -27,6 +27,7 @@ class QKeyEvent;
 class QMotifWidget : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QMotifWidget);
 
 public:
     QMotifWidget( QWidget *, WidgetClass, ArgList = NULL, Cardinal = 0,
@@ -43,8 +44,6 @@ protected:
     bool eventFilter( QObject *object, QEvent *event );
 
 private:
-    QMotifWidgetPrivate *d;
-
     void realize( Widget );
 
     friend void qmotif_widget_shell_realize( Widget, XtValueMask *,

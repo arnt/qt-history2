@@ -14,6 +14,7 @@
 
 #include <qapplication.h>
 #include <qevent.h>
+
 #include <qwidget.h>
 #include <private/qwidget_p.h>
 
@@ -27,7 +28,7 @@
 #include <X11/ShellP.h>
 #include <X11/Xatom.h>
 
-#include <qx11info_x11.h>
+#define d d_func()
 
 const int XFocusOut = FocusOut;
 const int XFocusIn = FocusIn;
@@ -247,8 +248,10 @@ externaldef(qapplicationshellwidgetclass)
     WidgetClass qapplicationShellWidgetClass = (WidgetClass)&qapplicationShellClassRec;
 
 
-class QMotifWidgetPrivate
+class QMotifWidgetPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QMotifWidget);
+
 public:
     QMotifWidgetPrivate() : widget( NULL ), shell( NULL ) { }
 
@@ -311,10 +314,9 @@ public:
 QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 			    ArgList args, Cardinal argcount,
 			    const char *name, WFlags flags )
-    : QWidget( parent, name, flags )
+    : QWidget( *(new QMotifWidgetPrivate), parent, flags )
 {
     setFocusPolicy( StrongFocus );
-    d = new QMotifWidgetPrivate;
 
     Widget motifparent = NULL;
     if ( parent ) {
@@ -392,7 +394,6 @@ QMotifWidget::~QMotifWidget()
 	}
 	XtDestroyWidget( d->shell );
     }
-    delete d;
 
     // make sure we don't have any pending requests for the window we
     // are about to destroy
@@ -467,13 +468,14 @@ void QMotifWidget::realize( Widget w )
 	// geometry we want
 	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
 
-	// save the wi
+	// save the window title
 	QString wtitle = windowTitle();
 	if (wtitle.isEmpty()) {
 	    char *t;
 	    XtVaGetValues(w, XtNtitle, &t, NULL);
 	    wtitle = QString::fromLocal8Bit(t);
 	}
+        d_func()->topData()->caption = QString::null; // make sure setWindowTitle() works below
 
 	Window newid = XtWindow( w );
 	QObjectList list = children();
@@ -490,7 +492,7 @@ void QMotifWidget::realize( Widget w )
 	// screen, so we need to restore it below
 	create( newid, TRUE, TRUE );
 
-	// restore the caption
+	// restore the window title
 	if (!wtitle.isEmpty())
 	    setWindowTitle(wtitle);
 
@@ -582,8 +584,8 @@ void qmotif_widget_shell_change_managed( Widget w )
 	     widget->d->shell->core.y,
 	     widget->d->shell->core.width,
 	     widget->d->shell->core.height ),
-	d = widget->geometry();
-    if ( d != r ) {
+	x = widget->geometry();
+    if ( x != r ) {
 	// ### perhaps this should be a property that says "the
 	// ### initial size of the QMotifWidget should be taken from
 	// ### the motif widget, otherwise use the size from the
@@ -591,9 +593,9 @@ void qmotif_widget_shell_change_managed( Widget w )
 	if ((! widget->isTopLevel() && widget->parentWidget() && widget->parentWidget()->layout())
 	    || widget->testAttribute(QWidget::WA_Resized)) {
 	    // the widget is most likely resized a) by a layout or b) explicitly
-	    XtMoveWidget( w, d.x(), d.y() );
-	    XtResizeWidget( w, d.width(), d.height(), 0 );
-	    widget->setGeometry( d );
+	    XtMoveWidget( w, x.x(), x.y() );
+	    XtResizeWidget( w, x.width(), x.height(), 0 );
+	    widget->setGeometry( x );
 	} else {
 	    // take the size from the motif widget
 	    widget->setGeometry( r );
