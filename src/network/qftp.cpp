@@ -18,6 +18,7 @@
 
 #include "qcoreapplication.h"
 #include "qsocket.h"
+#include "qsocketdevice.h"
 #include "qurlinfo.h"
 #include "qstringlist.h"
 #include "qregexp.h"
@@ -564,6 +565,15 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
 
 void QFtpDTP::socketConnected()
 {
+#if !defined (Q_WS_QWS)
+    // Use a large send buffer to reduce the number
+    // of writeBlocks when download and uploading files.
+    // The actual size used here (128k) is default on most
+    // Unixes.
+    socket.socketDevice()->setSendBufferSize(128 * 1024);
+    socket.socketDevice()->setReceiveBufferSize(128 * 1024);
+#endif
+
     bytesDone = 0;
 #if defined(QFTPDTP_DEBUG)
     qDebug("QFtpDTP::connectState(CsConnected)");
