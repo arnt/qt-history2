@@ -31,6 +31,36 @@
 #include "qx11info_x11.h"
 #endif
 
+//#define QT_NO_PIXMAP_RETAIN
+#ifndef QT_NO_PIXMAP_RETAIN
+#include <qcache.h>
+#include <qfileinfo.h>
+#include <qdatetime.h>
+class QRetainedPixmap : public QPixmap
+{
+public:
+    QRetainedPixmap(const QPixmap &p) : QPixmap(p) { }
+    virtual bool isOutOfDate() { return false; } //never goes out of date by default
+};
+Q_DECLARE_SHARED(QRetainedPixmap)
+
+class QRetainedPixmapFile : public QRetainedPixmap
+{
+    QString file;
+    QDateTime mtime;
+public:
+    QRetainedPixmapFile(const QString &f, const QPixmap &p) : QRetainedPixmap(p), file(f) {
+        mtime = QFileInfo(file).lastModified();
+    }
+    virtual bool isOutOfDate() {
+        return mtime != QFileInfo(file).lastModified();
+    }
+};
+
+typedef QCache<QString, QRetainedPixmap> QRetainedPixmapCache;
+Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024))
+#endif
+
 /*!
     \class QPixmap qpixmap.h
     \brief The QPixmap class is an off-screen, pixel-based paint device.
@@ -265,10 +295,11 @@ QPixmap::QPixmap(const QSize &size, int depth, Optimization optimization)
     \sa Qt::ImageConversionFlags isNull(), load(), loadFromData(), save(), imageFormat()
 */
 
-QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
+QPixmap::QPixmap(const QString& fileName, const char *format, 
+                 Qt::ImageConversionFlags flags, Optimization optimization)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(0, 0, 0, false, defOptim);
+    init(0, 0, 0, false, optimization);
     load(fileName, format, flags);
 }
 #endif //QT_NO_IMAGEIO
@@ -710,12 +741,34 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
-    //###read from cache
+#ifndef QT_NO_PIXMAP_RETAIN
+    const QString retain_key = QString("load_filename_") + fileName;
+    if(QRetainedPixmap *retain = qt_retained_pixmaps()->find(retain_key)) {
+        if(retain->isOutOfDate()) {
+            qt_retained_pixmaps()->remove(retain_key);
+        } else {
+            *this = *retain;
+            return true;
+        }
+    }
+#endif
     QImageIO io(fileName, format);
     bool result = io.read();
     if (result) {
         result = fromImage(io.image(), flags);
-        //###cache
+#ifndef QT_NO_PIXMAP_RETAIN
+        if(result) {
+            QRetainedPixmap *keeper = 0;
+            if(fileName[0] != QLatin1Char(':'))
+                keeper = new QRetainedPixmapFile(fileName, *this);
+            if(!keeper)
+                keeper = new QRetainedPixmap(*this);
+            int cost = width()*height()*depth()/8;
+            if(data->optim == LoadOptim)
+                cost /= 4;
+            qt_retained_pixmaps()->insert(retain_key, keeper, cost);
+        }
+#endif
     }
     return result;
 }

@@ -30,14 +30,15 @@ class Q_GUI_EXPORT QPixmap : public QPaintDevice
 {
 public:
     enum Optimization { DefaultOptim, NoOptim, MemoryOptim=NoOptim,
-                        NormalOptim, BestOptim };
+                        NormalOptim, BestOptim, LoadOptim };
 
     QPixmap();
     QPixmap(const QImage& image);
     QPixmap(int w, int h, int depth = -1, Optimization = DefaultOptim);
     QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
-    QPixmap(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
+    QPixmap(const QString& fileName, const char *format = 0, 
+            Qt::ImageConversionFlags flags = Qt::AutoColor, Optimization = DefaultOptim);
 #endif
     QPixmap(const QPixmap &);
     ~QPixmap();
@@ -185,7 +186,7 @@ private:
     friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
-Q_DECLARE_SHARED(QPixmap);
+Q_DECLARE_SHARED(QPixmap)
 
 inline void QPixmap::fill(const QWidget *w, int x, int y)
 {
