@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#30 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#31 $
 **
 ** Definition of QDragObject
 **
@@ -78,8 +78,9 @@ public:
     virtual QByteArray encodedData(const char*) const;
 };
 
-class Q_EXPORT QTextDrag: public QStoredDrag {
+class Q_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
+    QString txt;
 public:
     QTextDrag( const QString &,
 	       QWidget * dragSource = 0, const char * name = 0 );
@@ -87,6 +88,9 @@ public:
     ~QTextDrag();
 
     virtual void setText( const QString &);
+
+    const char * format(int i) const;
+    virtual QByteArray encodedData(const char*) const;
 
     static bool canDecode( QDragMoveEvent* e );
     static bool decode( QDropEvent* e, QString& s );

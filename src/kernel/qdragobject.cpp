@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#60 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -19,6 +19,7 @@
 **
 *****************************************************************************/
 
+#include "qtextcodec.h"
 #include "qdragobject.h"
 #include "qapplication.h"
 #include "qcursor.h"
@@ -418,9 +419,11 @@ QWidget * QDragObject::source()
 
   Support for specific media types is provided by subclasses of
   QDragObject.
-  For example, QTextDrag provides
-  support for the "<tt>text/plain</tt>" MIME type (ordinary unformatted
-  text), QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
+  For example,
+  QTextDrag provides support for
+   the "<tt>text/plain</tt>" MIME type (ordinary unformatted text), and
+   the Unicode formats "<tt>text/utf8</tt>" and "<tt>text/utf16</tt>";
+  QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
   where <tt>*</tt>
   is all the \link QImageIO image formats that Qt supports\endlink,
   and the QUrlDrag subclass provides "<tt>url/url</tt>",
@@ -452,8 +455,7 @@ QWidget * QDragObject::source()
 
   Subclasses of QStoredDrag provide a set-method to encode
   the media data and static members canDecode()
-  and decode() to decode incoming data.  QTextDrag
-  in Qt 1.x is an example of such a class in Qt.
+  and decode() to decode incoming data.
 
   <h3>Inter-operating with existing applications</h3>
   On X11, the public 
@@ -471,15 +473,13 @@ QWidget * QDragObject::source()
 /*! \class QTextDrag qdragobject.h
 
   \brief The QTextDrag provides a drag-and-drop object for
-  transferring plain text.
+	      transferring plain and Unicode text.
 
   \ingroup kernel
 
-  Plain text is defined as single- or multi-line US-ASCII or an
-  unspecified 8-bit character set.
+  Plain text is single- or multi-line 8-bit text in the local encoding.
 
-  Qt provides no built-in mechanism for delivering only single-line
-  or only US-ASCII text.
+  Qt provides no built-in mechanism for delivering only single-line.
 
   Drag&Drop text does \e not have a NUL terminator when it
   is dropped onto the target.
@@ -493,7 +493,7 @@ QWidget * QDragObject::source()
 
 QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
-    : QStoredDrag( "text/plain", dragSource, name )
+    : QDragObject( dragSource, name )
 {
     setText( text );
 }
@@ -504,7 +504,7 @@ QTextDrag::QTextDrag( const QString &text,
 */
 
 QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
-    : QStoredDrag( "text/plain", dragSource, name )
+    : QDragObject( dragSource, name )
 {
 }
 
@@ -524,14 +524,45 @@ QTextDrag::~QTextDrag()
 */
 void QTextDrag::setText( const QString &text )
 {
-    // ##### No Unicode yet - XDND needs charset info,
-    // ##### or we could use "text/plain; Charset=Unicode-1-1..."
-    // ##### Soon though, we will use "text/utf16" and damn the torpedoes.
+    txt = text;
+}
 
-    int l = qstrlen(text);
-    QByteArray tmp(l);
-    memcpy(tmp.data(),text,l);
-    setEncodedData( tmp );
+static const char* text_formats[] = { // All must start with "text/"
+	"text/utf16",
+	"text/utf8",
+	"text/plain", // LAST
+	0
+    };
+
+const char * QTextDrag::format(int i) const
+{
+    for (int j=0; i>=0 && text_formats[j]; j++) {
+	const char* fmt = text_formats[j]+5;
+	QTextCodec *codec = QTextCodec::codecForName(fmt);
+	if ( codec || !text_formats[j+1] ) {
+	    if ( !i )
+		return text_formats[j];
+	    i--;
+	}
+    }
+
+    return 0;
+}
+
+QByteArray QTextDrag::encodedData(const char* mime) const
+{
+    QByteArray r;
+    if ( 0==strnicmp(mime,"text/",5) ) {
+	QTextCodec *codec = QTextCodec::codecForName(mime+5);
+	if (codec) {
+	    int l;
+	    char* b = codec->fromUnicode(txt,l);
+	    r.setRawData( b, (uint)l );
+	} else if ( 0==stricmp(mime,"text/plain") ) {
+	    r = Q1String(txt.ascii());
+	}
+    }
+    return r;
 }
 
 /*!
@@ -540,7 +571,10 @@ void QTextDrag::setText( const QString &text )
 */
 bool QTextDrag::canDecode( QDragMoveEvent* e )
 {
-    return e->provides( "text/plain" );
+    for ( int i=0; text_formats[i]; i++ )
+	if ( e->provides( text_formats[i] ) )
+	    return TRUE;
+    return FALSE;
 }
 
 /*!
@@ -551,13 +585,23 @@ bool QTextDrag::canDecode( QDragMoveEvent* e )
 */
 bool QTextDrag::decode( QDropEvent* e, QString& str )
 {
-    QByteArray payload = e->data( "text/plain" );
-    if ( payload.size() ) {
-	e->accept();
-	str = QString( payload );
-	return TRUE;
+    QTextCodec* codec = 0;
+    QByteArray payload;
+    for ( int i=0; !codec && text_formats[i]; i++ ) {
+	payload = e->data(text_formats[i]);
+	if ( payload.size() ) {
+	    codec = QTextCodec::codecForName(text_formats[i]+5); // 5="text/"
+	    if ( !codec && !text_formats[i+1] ) {
+		// text/plain
+		str = payload;
+		return TRUE;
+	    }
+	}
     }
-    return FALSE;
+    if ( !codec )
+	return FALSE;
+    str = codec->toUnicode(payload);
+    return TRUE;
 }
 
 

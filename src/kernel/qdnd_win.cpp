@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#34 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -267,7 +267,7 @@ public:
 
 int QWindowsMimeText::countCf()
 {
-    return 1 /* 2 with unicode */;
+    return 2;
 }
 
 const char* QWindowsMimeText::convertorName()
@@ -277,14 +277,15 @@ const char* QWindowsMimeText::convertorName()
 
 int QWindowsMimeText::cf(int index)
 {
-    return CF_TEXT;
-    // return index ? CF_TEXT : CF_UNICODETEXT;  // Note UNICODE first.
+    return index ? CF_UNICODETEXT : CF_TEXT;  // Note UNICODE first.
 }
 
 int QWindowsMimeText::cfFor(const char* mime)
 {
     if ( 0==qstricmp( mime, "text/plain" ) )
 	return CF_TEXT;
+    else if ( 0==qstricmp( mime, "text/utf16" ) )
+	return CF_UNICODETEXT;
     else
 	return 0;
 }
@@ -293,34 +294,129 @@ const char* QWindowsMimeText::mimeFor(int cf)
 {
     if ( cf == CF_TEXT )
 	return "text/plain";
+    else if ( cf == CF_UNICODETEXT )
+	return "text/utf16";
     else
 	return 0;
 }
 
 bool QWindowsMimeText::canConvert( const char* mime, int cf )
 {
-    return cf == CF_TEXT && qstrnicmp(mime,"text/",5)==0;
+    return cfFor(mime) == cf;
 }
 
-QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* , int )
+QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* mime, int cf )
 {
-    if ( data[(int)data.size()-1] ) {
-	// Strip nul
-	QByteArray r(data.size()-1);
-	memcpy(r.data(),data.data(),r.size());
+    if ( cf == CF_TEXT ) {
+	if ( data[(int)data.size()-1] ) {
+	    // Strip nul
+	    QByteArray r(data.size()-1);
+	    memcpy(r.data(),data.data(),r.size());
+	    return r;
+	} else {
+	    // Not nul-terminated
+	    return data;
+	}
+    }
+
+#if 1
+    // Windows uses un-marked byte-swapped Unicode (ie. NOT Unicode)
+    QByteArray r(data.size()+2);
+    r[0]=char(0xff);
+    r[1]=char(0xfe);
+    memcpy(r.data()+2,data.data(),data.size());
+    return r;
+#else
+    // Windows uses un-marked network-order Unicode
+    return data;
+#endif
+}
+
+QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
+{
+    if ( cf == CF_TEXT ) {
+	QByteArray r(data.size()+1);
+	memcpy(r.data(),data.data(),data.size());
+	r[(int)data.size()]='\0';
+	return r;
+    }
+
+#if 1
+    if (data.size() < 2)
+	return QByteArray();
+
+    // Windows expects nul-terminated un-marked byte-swapped Unicode (ie. NOT Unicode)
+    if ( data[0] == char(0xff) && data[1] == char(0xfe) )
+    {
+	// Right way - but skip header and add nul
+	QByteArray r(data.size());
+	memcpy(r.data(),data.data()+2,data.size()-2);
+	r[(int)data.size()-2] = 0;
+	r[(int)data.size()-1] = 0;
 	return r;
     } else {
-	// Not nul-terminated
+	// Wrong way - reorder.
+	int s = data.size();
+	if ( s&1 ) {
+	    // Odd byte - drop last
+	    s--;
+	}
+	char* i = data.data();
+	if ( i[0] == char(0xfe) && i[1] == char(0xff) ) {
+	    i += 2;
+	    s -= 2;
+	}
+	QByteArray r(s+2);
+	char* o = r.data();
+	while (s) {
+	    o[0] = i[1];
+	    o[1] = i[0];
+	    i += 2;
+	    o += 2;
+	    s -= 2;
+	}
+	r[(int)r.size()-2] = 0;
+	r[(int)r.size()-1] = 0;
+	return r;
+    }
+#else
+    if (data.size() < 2)
+	return QByteArray();
+
+    // Windows expects un-marked network-ordered Unicode
+    if ( data.size() >= 2 && data[0] == 0xff && data[1] == 0xfe )
+    {
+	// Wrong way - reorder.
+	int s = data.size();
+	if ( s&1 ) {
+	    // Odd byte - drop last
+	    s--;
+	}
+	QByteArray r(s);
+	char* i = data.data();
+	if ( i[0] == 0xfe && i[1] == 0xff ) {
+	    i += 2;
+	    s -= 2;
+	}
+	char* o = r.data();
+	while (s) {
+	    o[0] = i[1];
+	    o[1] = i[0];
+	    i += 2;
+	    o += 2;
+	    s -= 2;
+	}
+	return r;
+    } else if ( data.size() >= 2 && data[1] == 0xff && data[0] == 0xfe ) {
+	// Right way - but skip header
+	QByteArray r(data.size()-2);
+	memcpy(r.data(),data.data()+2,data.size()-2);
+	return r;
+    } else {
+	// Right way, no header
 	return data;
     }
-}
-
-QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* , int )
-{
-    QByteArray r(data.size()+1);
-    memcpy(r.data(),data.data(),data.size());
-    r[(int)data.size()]='\0';
-    return r;
+#endif
 }
 
 
