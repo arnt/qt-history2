@@ -34,7 +34,7 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/library/qlibrary_win.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
 
-INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/tools/
+INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/core/arch/generic
 INTERFACES=
 TARGET=configure
 DESTDIR=../../dist/win/bin

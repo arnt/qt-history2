@@ -24,7 +24,7 @@ BCB = $(MAKEDIR)\..
 CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -w-use -O1 \
-		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\arch\generic -I..\include -I..\src\tools \
+		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\src\core\arch\generic -I..\include -I..\src\tools \
 		-I..\mkspecs\win32-borland \
 		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE \
 		-DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE
