@@ -1135,7 +1135,7 @@ void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 	i->setRenameEnabled( 0, FALSE );
 	QString varName = i->text( 0 );
 	varName = varName.simplifyWhiteSpace();
-	if ( varName[varName.length() - 1] != ';' )
+	if ( varName[(int)varName.length() - 1] != ';' )
 	    varName += ";";
 	if ( MetaDataBase::hasVariable( formWindow, varName ) ) {
 	    QMessageBox::information( this, tr( "Edit Variables" ),
