@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#237 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#238 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1614,8 +1614,10 @@ static void dispatchTimer( uint timerId, MSG *msg )
 	HWND newWin = WindowFromPoint(p);
 	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
 	    QWidget *curWidget = QWidget::find(curWin);
-	    QEvent leave( QEvent::Leave );
-	    QApplication::sendEvent( curWidget, &leave );
+	    if ( curWidget ) {
+		QEvent leave( QEvent::Leave );
+		QApplication::sendEvent( curWidget, &leave );
+	    }
 	    curWin = 0;
 	}
     }
