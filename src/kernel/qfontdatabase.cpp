@@ -8,6 +8,7 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qapplication.h"
+#include "qpainter.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -65,8 +66,21 @@ static QString getCharSetName( const char * registry, const char *encoding );
 static QString getCharSetName( QFont::CharSet cs );
 #endif
 
+#ifdef _WS_WIN_
+#include "qt_windows.h"
+
+extern int qFontGetWeight( const QCString &weightString,
+			   bool adjustscore = FALSE )
+{
+    //cowabunga
+    return 0;
+}
+
+#endif
+
 static QFont::CharSet getCharSet( const QString &name );
 
+void newWinFont( void * p );
 
 class QtFontCharSet;
 class QtFontFamily;
@@ -130,6 +144,7 @@ private:
     QValueList<int> sizeList;
 
     friend void QFontDatabase::createDatabase();
+    friend void newWinFont( void * p );
 };
 
 class QtFontCharSet {
@@ -192,6 +207,7 @@ private:
     QStringList styleNames;
 
     friend void QFontDatabase::createDatabase();
+    friend void newWinFont( void * p );
 };
 
 class QtFontFamily
@@ -242,6 +258,7 @@ private:
     bool supportsLocale;
 
     friend void QFontDatabase::createDatabase();
+    friend void newWinFont( void * p );
 };
 
 class QtFontFoundry
@@ -266,6 +283,7 @@ private:
 	{ familyDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
+    friend void newWinFont( void * p );
 };
 
 class QFontDatabasePrivate {
@@ -296,6 +314,7 @@ private:
 	{ foundryDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
+    friend void newWinFont( void * p );
 };
 
 QFont QtFontStyle::font( const QString & family, int pointSize ) const
@@ -570,7 +589,9 @@ const QStringList &QtFontFamily::charSets( bool onlyForLocale ) const
 
 QString localCharSet()
 {
-    return getCharSetName( QFont::charSetForLocale() );
+#ifdef _WS_WIN_
+    return "cowabunga";
+#endif
 }
 
 const QtFontCharSet *QtFontFamily::charSet( const QString &n ) const
@@ -795,7 +816,9 @@ const QtFontFoundry *QFontDatabasePrivate::foundry( const QString foundryName ) 
     return foundryDict.find( foundryName );
 }
 
+static QFontDatabasePrivate *db=0;
 
+#ifdef _WS_X11_
 char ** readFontDump( const char *fileName, int *xFontCount )
 {
     QFile f( fileName );
@@ -820,12 +843,6 @@ char ** readFontDump( const char *fileName, int *xFontCount )
 	return 0;
     }
 }
-
-
-static QFontDatabasePrivate *db=0;
-
-
-#ifdef _WS_X11_
 
 void QFontDatabase::createDatabase()
 {
@@ -918,44 +935,135 @@ void QFontDatabase::createDatabase()
     }
 }
 
+void newWinFont( void * p )
+{
+}
 #endif
 
 
 #ifdef _WS_WIN_
 
-static int CALLBACK
+extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+
+int CALLBACK
 storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int type, LPARAM p )
 {
     QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
 
-    TCHAR* tc = f->elfLogFont.lfFaceName;
-    QString name;
-    if ( qt_winver == Qt::WV_NT ) {
-	name = qt_winQString(tc);
-    } else {
-	name = QString((const char*)tc);
-    }
-    d->families.append(name);
+    newWinFont( (void*) f );
     return 1; // Keep enumerating.
 }
 
-void QFontDatabasePrivate::createDatabase()
+QString winGetCharSetName( BYTE chset )
 {
-    QWidget dummy;
+    return "iso 8859-1"; // cowabunga
+}
+
+void newWinFont( void * p )
+{
+    ENUMLOGFONTEX* f = (ENUMLOGFONTEX*)p;
+
+    static QtFontFoundry *foundry = 0;
+
+    if ( !foundry ) {
+	foundry = new QtFontFoundry( "MS" ); // One foundry on Windows
+    }
+
+    const TCHAR* tc = f->elfLogFont.lfFaceName;
+    
+    QString familyName;
     if ( qt_winver == Qt::WV_NT ) {
+	familyName = qt_winQString((void*)tc);
+    } else {
+	familyName = QString((const char*)tc);
+    }
+
+    QtFontFamily *family = foundry->familyDict.find( familyName );
+    if ( !family ) {
+	//qWarning( "New font family [%s][%s]",
+	// (const char*) familyName, (const char*) foundryName );
+	family = new QtFontFamily( foundry, familyName );
+	CHECK_PTR(family);
+	foundry->addFamily( family );
+    }
+    QString charSetName = winGetCharSetName( f->elfLogFont.lfCharSet );
+    QtFontCharSet *charSet = family->charSetDict.find( charSetName );
+    if ( !charSet ) {
+	//qWarning( "New charset[%s] for family [%s][%s]",
+	// (const char*)charSetName, (const char *)familyName,
+	// (const char *)foundryName );
+	charSet = new QtFontCharSet( family, charSetName );
+	CHECK_PTR(charSet);
+	family->addCharSet( charSet );
+    }
+    bool italic = f->elfLogFont.lfItalic;;
+    bool lesserItalic = FALSE;
+    QString weightString;
+    int weight = f->elfLogFont.lfWeight;
+    weightString.setNum( weight );
+
+#if 0
+    tc = ((NEWLOGFONT*)&f->elfLogFont)->lfStyle; // cowabunga, only works
+                // for true type fonts, don't know how to check for them
+    
+    QString styleName;
+    if ( qt_winver == Qt::WV_NT ) {
+	styleName = qt_winQString((void*)tc);
+    } else {
+	styleName = QString((const char*)tc);
+    }
+#else
+    QString styleName = "Normal";
+#endif
+    QtFontStyle *style = charSet->styleDict.find( styleName );
+    if ( !style ) {
+	//qWarning( "New style[%s] for [%s][%s][%s]",
+	// (const char*)styleName, (const char*)charSetName,
+	// (const char*)familyName, (const char *)foundryName );
+	style = new QtFontStyle( charSet, styleName );
+	CHECK_PTR( style );
+	style->ital         = italic;
+	style->lesserItal   = lesserItalic;
+	style->weightString = weightString;
+	style->weightVal    = weight;
+	style->weightDirty  = FALSE;
+	charSet->addStyle( style );
+    }
+    style->setSmoothlyScalable();  // cowabunga
+}
+
+void QFontDatabase::createDatabase()
+{
+    if ( db ) return;
+
+    db = new QFontDatabasePrivate;
+
+    QWidget dummy;
+    QPainter p( &dummy );
+    qWarning("Kaller dingsen");
+    if ( qt_winver == Qt::WV_NT ) {
+	qWarning("NT");
 	LOGFONT lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	lf.lfFaceName[0] = 0;
 	lf.lfPitchAndFamily = 0;
+	qWarning( "Handle = %i", (int) dummy.handle() );
+
+#if 1
 	EnumFontFamiliesEx( dummy.handle(), &lf,
-	    (FONTENUMPROC)storeFont, (LPARAM)this, 0 );
+	    (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
+#else
+	EnumFontFamilies( dummy.handle(), (LPTSTR) 0,
+	    (FONTENUMPROC)storeFont, (LPARAM)db );
+#endif
     } else {
+	qWarning("95/98");
 	LOGFONTA lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	lf.lfFaceName[0] = 0;
 	lf.lfPitchAndFamily = 0;
 	EnumFontFamiliesExA( dummy.handle(), &lf,
-	    (FONTENUMPROCA)storeFont, (LPARAM)this, 0 );
+	    (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
     }
 }
 
@@ -1255,7 +1363,7 @@ QString QFontDatabase::styleString( const QFont &f )  // ### fttb
     return result;
 }
 
-
+#ifdef _WS_X11_
 static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 {
     char slant0	= tolower( tokens[Slant][0] );
@@ -1307,11 +1415,15 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
     return nm;
 }
 
+#endif
+
 static QStringList emptyList;
 
 QFontDatabase::QFontDatabase()
 {
+    qWarning( "Lagern" );
     createDatabase();
+    qWarning( "Ferdig" );
     d = db;
 }
 
@@ -1406,6 +1518,12 @@ QFont QFontDatabase::font( const QString family, const QString &style,
 			   int pointSize, const QString charSet )
 {
     const QtFontStyle *sty = getStyle( d, family, style, charSet );
+    if ( !sty ) {
+	qWarning( "QFontDatabase::font: Style not found for\n"
+		  "%s, %s, %s", (const char*)family,
+		  (const char*)style, (const char*)charSet );
+	return QFont();
+    }
     return sty->font( family, pointSize );
 }
 
@@ -1459,3 +1577,10 @@ const QStringList QFontDatabase::charSets( const QString &family,
     const QtFontFamily *fam = d->family( family );
     return fam ? fam->charSets( onlyForLocale ) : emptyList;
 }
+
+
+
+
+
+
+

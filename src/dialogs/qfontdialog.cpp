@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#36 $
 **
 ** Implementation of QFontDialog
 **
@@ -23,7 +23,6 @@
 **
 *****************************************************************************/
 #include "qwindowdefs.h"
-#ifndef _WS_WIN_
 
 #include "qfontdialog.h"
 
@@ -59,8 +58,9 @@
   on the underlying window system.
 */
 
-struct QFontDialogPrivate
+class QFontDialogPrivate
 {
+public:
     QFontDialogPrivate(){};
     QLabel * familyAccel;
     QLineEdit * familyEdit;
@@ -775,4 +775,3 @@ void QFontDialog::emitSelectedFont()
     emit fontSelected(font());
 }
 
-#endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#15 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#16 $
 **
 ** Definition of QFontDialog
 **
@@ -27,7 +27,6 @@
 #define QFONTDIALOG_H
 
 #include "qwindowdefs.h"
-#ifndef _WS_WIN_
 
 //
 //  W A R N I N G
@@ -46,7 +45,7 @@
 
 class  QListBox;
 class  QComboBox;
-struct QFontDialogPrivate;
+class QFontDialogPrivate;
 
 
 class Q_EXPORT QFontDialog: public QDialog
@@ -112,7 +111,5 @@ private:
     QFontDialogPrivate * d;
     friend class QFontDialogPrivate;
 };
-
-#endif
 
 #endif // QFONTDIALOG_H

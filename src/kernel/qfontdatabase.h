@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#7 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#8 $
 **
 ** Definition of the QFontDatabase class
 **
@@ -27,7 +27,6 @@
 #define QFONTDATABASE_H
 
 #include "qwindowdefs.h"
-#ifndef _WS_WIN_
 
 //
 //  W A R N I N G
@@ -121,5 +120,4 @@ private:
     friend class QFontDialogPrivate;
 };
 
-#endif
 #endif // QFONTDATABASE_H
