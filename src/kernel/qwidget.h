@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#24 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#25 $
 **
 ** Definition of QWidget class
 **
@@ -27,6 +27,7 @@ class QWidget : public QObject, public QPaintDevice
 {						// base class for UI objects
 friend class QApplication;
 friend class QPainter;
+friend void  QFont::updateSubscribers();
     Q_OBJECT
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
@@ -179,6 +180,7 @@ protected:
     void    setNCRect( const QRect & );		// set ncrect, update rect
     long    metric( int ) const;		// get metric information
     static  ulong nWidgets();			// get number of widgets
+    const QFont  &fontRef() const {return fnt;}
 
 #if defined(_WS_PM_)
     int	    convertYPos( int );
@@ -189,7 +191,6 @@ protected:
 #endif
 
 private:
-    const QFont  &fontRef() const {return fnt;} // used by QPainter
     void    set_id( WId );			// set widget id
     bool    create();				// create widget
     bool    destroy();				// destroy widget
