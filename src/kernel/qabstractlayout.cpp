@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#57 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -127,7 +127,7 @@ void QLayoutItem::setAlignment( int a )
 /*!
   Changes this spacer item to have preferred width \a w, preferred height
   \a h, horizontal size policy \a hData and vertical size policy
-  \a vData.  
+  \a vData.
 
   The default values gives a gap that is able to stretch,
   if nothing else wants the space.
@@ -136,7 +136,7 @@ void QSpacerItem::changeSize( int w, int h, QSizePolicy::SizeType hData,
 			      QSizePolicy::SizeType vData )
 {
     width = w;
-    height = h; 
+    height = h;
     sizeP = QSizePolicy( hData, vData );
 }
 
@@ -473,10 +473,16 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    if ( isEmpty() )
+    if ( isEmpty() || align&HorAlign && align&VerAlign )
 	return QSizePolicy::NoDirection;
-    return wid->layout() ? wid->layout()->expanding()
-	: wid->sizePolicy().expanding();
+    int e =  wid->layout() ? wid->layout()->expanding()
+	     : wid->sizePolicy().expanding();
+    if ( align&HorAlign )
+	e = e & ~QSizePolicy::Horizontal;
+    else if  ( align&VerAlign )
+	e = e & ~QSizePolicy::Vertical;
+
+    return (QSizePolicy::ExpandData)e;
 }
 
 /*!
@@ -777,6 +783,7 @@ QLayout::QLayout( int space, const char *name )
 void QLayout::setMargin( int border )
 {
     outsideBorder = border;
+    invalidate();
     if ( mainWidget() ) {
 	QEvent *lh = new QEvent( QEvent::LayoutHint );
 	QApplication::postEvent( mainWidget(), lh );
@@ -793,6 +800,7 @@ void QLayout::setMargin( int border )
 void QLayout::setSpacing( int space )
 {
     insideSpacing = space;
+    invalidate();
     if ( mainWidget() ) {
 	QEvent *lh = new QEvent( QEvent::LayoutHint );
 	QApplication::postEvent( mainWidget(), lh );
@@ -1060,6 +1068,7 @@ void QLayout::addChildLayout( QLayout *l )
 
 /*!
   \overload void QLayout::freeze()
+
 
   Fixes the main widget at its minimum size.
   The recommended way is to call setResizeMode( \c Fixed )

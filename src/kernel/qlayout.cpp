@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#107 $
 **
 ** Implementation of layout classes
 **
@@ -90,7 +90,7 @@ public:
     QSize minimumSize( int ) const;
     QSize maximumSize( int ) const;
 
-    QSizePolicy::ExpandData expanding();
+    QSizePolicy::ExpandData expanding( int spacing);
 
     void distribute( QRect, int );
     int numRows() const { return rr; }
@@ -103,7 +103,7 @@ public:
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
     bool isDirty() const { return needRecalc; }
-    bool hasHeightForWidth();
+    bool hasHeightForWidth( int space );
     int heightForWidth( int, int defB );
 
     bool findWidget( QWidget* w, int *row, int *col );
@@ -118,8 +118,8 @@ private:
     QSize findSize( QCOORD QLayoutStruct::*, int ) const;
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
     void setSize( int rows, int cols );
-    void setupLayoutData();
-    void setupHfwLayoutData();
+    void setupLayoutData( int space );
+    void setupHfwLayoutData( int space );
     int rr;
     int cc;
     bool hReversed;
@@ -179,9 +179,9 @@ void QLayoutArray::init()
     things.setAutoDelete(TRUE);
 }
 
-bool QLayoutArray::hasHeightForWidth()
+bool QLayoutArray::hasHeightForWidth( int spacing )
 {
-    setupLayoutData();
+    setupLayoutData( spacing );
     return has_hfw;
 }
 
@@ -194,7 +194,7 @@ void QLayoutArray::recalcHFW( int w, int spacing )
     //and put the results in hfw_rowData
     if ( !hfwData )
 	hfwData = new QArray<QLayoutStruct>( rr );
-    setupHfwLayoutData();
+    setupHfwLayoutData( spacing );
     QArray<QLayoutStruct> &rData = *hfwData;
 
     int h = 0;
@@ -214,7 +214,7 @@ void QLayoutArray::recalcHFW( int w, int spacing )
 
 int QLayoutArray::heightForWidth( int w, int spacing )
 {
-    setupLayoutData();
+    setupLayoutData( spacing );
     if ( has_hfw && w != hfw_width ) {
 	qGeomCalc( colData, 0, cc, 0, w, spacing );
 	recalcHFW( w, spacing );
@@ -261,7 +261,8 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
     QLayoutArray *This = (QLayoutArray*)this;
-    This->setupLayoutData(); //###A very clever optimizer could cause trouble
+    This->setupLayoutData( spacer ); 
+            //###A very clever optimizer could cause trouble
     int w = 0;
     int h = 0;
     int n = 0;
@@ -286,9 +287,9 @@ QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
     return QSize(w,h);
 }
 
-QSizePolicy::ExpandData QLayoutArray::expanding()
+QSizePolicy::ExpandData QLayoutArray::expanding( int spacing )
 {
-    setupLayoutData();
+    setupLayoutData( spacing );
     bool hExp = FALSE;
     bool vExp = FALSE;
 
@@ -452,44 +453,41 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 }
 
 
-static void distributeMultiBox( QArray<QLayoutStruct> &chain,
+static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 				int start, int end,
-				int minSize, int /*sizeHint*/ )
+				int minSize, int sizeHint )
 {
     //distribute the sizes somehow.
-    //####we ignore sizeHint, for now
+
     int i;
     int w = 0;
+    int wh = 0;
     bool exp = FALSE;
     bool stretch = FALSE;
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
+	wh += chain[i].sizeHint;
 	exp = exp || chain[i].expansive;
 	stretch = stretch || chain[i].stretch == 0;
 	chain[i].empty = FALSE;
     }
+    w += spacing * (end-start);
+    wh += spacing * (end-start);
+
     if ( w < minSize ) {
 	//debug( "Big multicell" );
-	int stretch = 0;
-	int n = 0;
-	int diff = minSize - w;
+	qGeomCalc( chain, start, end-start+1, 0, minSize, spacing );
 	for ( i = start; i <= end; i++ ) {
-	    if ( chain[i].maximumSize > chain[i].minimumSize
-		 && ( chain[i].stretch || chain[i].expansive || !exp ) ) {
-		stretch += chain[i].stretch;
-		n++;
-	    }
-	}
+	    if ( chain[i].minimumSize < chain[i].size )
+		chain[i].minimumSize = chain[i].size;
+	}	
+    }
+    
+    if ( wh < sizeHint ) {
+        qGeomCalc( chain, start, end-start+1, 0, sizeHint, spacing );
 	for ( i = start; i <= end; i++ ) {
-	    if ( chain[i].maximumSize > chain[i].minimumSize
-		 && ( chain[i].stretch || chain[i].expansive || !exp ) ) {
-		if ( stretch > 0 )
-		    chain[i].minimumSize += (diff*chain[i].stretch)/stretch;
-		else
-		    chain[i].minimumSize += diff/n;
-		if ( chain[i].sizeHint < chain[i].minimumSize )
-		     chain[i].sizeHint = chain[i].minimumSize;
-	    }
+	    if ( chain[i].sizeHint < chain[i].size )
+		chain[i].sizeHint = chain[i].size;
 	}
     }
 }
@@ -497,7 +495,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 
 //#define QT_LAYOUT_DISABLE_CACHING
 
-void QLayoutArray::setupLayoutData()
+void QLayoutArray::setupLayoutData( int spacing )
 {
 #ifndef QT_LAYOUT_DISABLE_CACHING
     if ( !needRecalc )
@@ -539,13 +537,13 @@ void QLayoutArray::setupLayoutData()
             if ( r1 == r2 ) {
                 addData( box, TRUE, FALSE );
             } else {
-                distributeMultiBox( rowData, r1, r2,
+                distributeMultiBox( rowData, spacing, r1, r2,
                                     min.height(), hint.height() );
             }
             if ( c1 == c2 ) {
                 addData( box, FALSE, TRUE );
             } else {
-                distributeMultiBox( colData, c1, c2,
+                distributeMultiBox( colData, spacing, c1, c2,
                                     min.width(), hint.width() );
             }
         }
@@ -591,7 +589,7 @@ void QLayoutArray::addHfwData ( QLayoutBox *box )
   heightForWidth( colData ) instead of sizeHint
   assumes that setupLayoutData and qGeomCalc( colData ) has been called
  */
-void QLayoutArray::setupHfwLayoutData()
+void QLayoutArray::setupHfwLayoutData( int spacing )
 {
     QArray<QLayoutStruct> &rData = *hfwData;
     int i;
@@ -625,7 +623,7 @@ void QLayoutArray::setupHfwLayoutData()
 	    if ( r1 == r2 ) {
 		addHfwData( box );
 	    } else {
-		distributeMultiBox( rData, r1, r2,
+		distributeMultiBox( rData, r1, r2, spacing, 
 				    min.height(), hint.height() );
 	    }
 	}
@@ -637,7 +635,7 @@ void QLayoutArray::setupHfwLayoutData()
 
 void QLayoutArray::distribute( QRect r, int spacing )
 {
-    setupLayoutData();
+    setupLayoutData( spacing );
 
     qGeomCalc( colData, 0, cc, r.x(), r.width(), spacing );
     QArray<QLayoutStruct> *rDataPtr;
@@ -681,7 +679,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	    int x = colData[box->col].pos;
 	    int y = rData[box->row].pos;
 	    int x2p = colData[c2].pos + colData[c2].size; // x2+1
-	    int y2p = rData[r2].pos + rData[r2].size;    // y2+1 
+	    int y2p = rData[r2].pos + rData[r2].size;    // y2+1
 	    int w = x2p - x;
 	    int h = y2p - y;
 	    // this code is copied from above:
@@ -953,7 +951,7 @@ QSize QGridLayout::maximumSize() const
 
 bool QGridLayout::hasHeightForWidth() const
 {
-    return ((QGridLayout*)this)->array->hasHeightForWidth();
+    return ((QGridLayout*)this)->array->hasHeightForWidth( spacing() );
 }
 
 
@@ -1214,7 +1212,7 @@ void QGridLayout::addColSpacing( int col, int minsize )
 
 QSizePolicy::ExpandData QGridLayout::expanding() const
 {
-    return array->expanding();
+    return array->expanding( spacing() );
 }
 
 /*!
@@ -1423,7 +1421,7 @@ QSize QBoxLayout::maximumSize() const
 
 bool QBoxLayout::hasHeightForWidth() const
 {
-    return ((QBoxLayout*)this)->data->hasHeightForWidth();
+    return ((QBoxLayout*)this)->data->hasHeightForWidth( spacing() );
 }
 
 
@@ -1463,7 +1461,7 @@ QLayoutIterator QBoxLayout::iterator()
 
 QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
-    return data->expanding();
+    return data->expanding( spacing() );
 }
 
 /*!
