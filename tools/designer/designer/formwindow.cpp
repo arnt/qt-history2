@@ -2395,9 +2395,8 @@ bool FormWindow::isDatabaseWidgetUsed() const
     QPtrDictIterator<QWidget> it( insertedWidgets );
     for ( ; it.current(); ++it ) {
 	QString c( it.current()->className() );
-	if ( dbClasses.contains( c ) > 0 ) {
+	if (dbClasses.contains(c))
 	    return TRUE;
-	}
     }
 #endif
     return FALSE;
