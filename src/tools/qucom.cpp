@@ -355,7 +355,7 @@ bool QUType_uint::canConvertFrom( QUObject *o, QUType *t )
     return t->canConvertTo( o, this );
 }
 
-bool QUType_uint::canConvertTo( QUObject * /*o*/, QUType */*t*/ )
+bool QUType_uint::canConvertTo( QUObject * /*o*/, QUType * /*t*/ )
 {
     return FALSE;
 }
@@ -365,7 +365,7 @@ bool QUType_uint::convertFrom( QUObject *o, QUType *t )
     return t->convertTo( o, this );
 }
 
-bool QUType_uint::convertTo( QUObject */*o*/, QUType */*t*/ )
+bool QUType_uint::convertTo( QUObject * /*o*/, QUType * /*t*/ )
 {
     return FALSE;
 }

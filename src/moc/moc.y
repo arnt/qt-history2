@@ -2913,7 +2913,6 @@ void generateClass()		      // generate C++ source code for a class
 		 " this version of Qt.\"\n#error \"(The moc has changed too"
 		 " much.)\"\n", QT_VERSION_STR );
 	fprintf( out, "#endif\n\n" );
-	fprintf( out, "extern const int qt_variant_types[];\n" );
     } else {
 	fprintf( out, "\n\n" );
     }

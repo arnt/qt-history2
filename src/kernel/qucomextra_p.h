@@ -44,6 +44,7 @@
 
 
 class QVariant;
+extern Q_EXPORT const int qt_variant_types[];
 
 #ifndef  QT_NO_VARIANT
 // 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
