@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#20 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#20 $");
 
 
 /*****************************************************************************
@@ -169,6 +169,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			pr = "lp";
 		    }
 		    pr.insert( 0, "-P" );
+#if defined(_OS_WIN32_)
+		    // Not implemented
+		    //   lpr needs -Sserver argument
+#else
 		    if ( fork() == 0 ) {	// child process
 			if ( execlp(print_prog.data(), print_prog.data(), 
 				    pr.data(), output->name(), 0) == -1 ) {
@@ -176,6 +180,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			}
 			exit( 0 );		// exit print job
 		    }
+#endif
 		}
 		output->close();
 		delete output;
