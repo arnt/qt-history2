@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#39 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -217,13 +217,24 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		d = image.depth();
 	    }
 
-	    int dw = w;
-	    int dh = h;
-	    if ( paint && paint->hasWorldXForm() ) {
-		QWMatrix m = paint->worldMatrix();
-		dw = qRound(dw*m.m11());
-		dh = qRound(dh*m.m22());
+	    double xs = 1.0;
+	    double ys = 1.0;
+	    if ( paint ) {
+		if ( paint->hasWorldXForm() ) {
+		    QWMatrix m = paint->worldMatrix();
+		    xs = m.m11();
+		    ys = m.m22();
+		}
+		if ( paint->hasViewXForm() ) {
+		    QRect vr = paint->viewport();
+		    QRect wr = paint->window();
+		    xs = xs * vr.width() / wr.width();
+		    ys = ys * vr.height() / wr.height();
+		}
 	    }
+	    int dw = qRound( xs * w );
+	    int dh = qRound( ys * h );
+
 	    BITMAPINFO *bmi = getWindowsBITMAPINFO( w, h, d,TRUE);
 	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
 	    uchar *bits = new uchar[bmh->biSizeImage];
