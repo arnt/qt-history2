@@ -56,15 +56,15 @@
 
 // mingw defines NAN and INFINITY to 0/0 and x/0
 #if defined (Q_WS_WIN) && defined(Q_CC_GNU)
-#   undef NAN
-#   undef INFINITY
+#      undef NAN
+#      undef INFINITY
 #endif
 
 #if defined (Q_OS_SOLARIS)
 #   include <ieeefp.h>
 #endif
 
-#if defined (Q_OS_OSF)
+#if defined (Q_OS_OSF) && (defined(__DECC) || defined(__DECCXX))
 #   define INFINITY DBL_INFINITY
 #   define NAN DBL_QNAN
 #endif
@@ -125,7 +125,7 @@ static inline double nan()
 
 #ifndef QT_QLOCALE_USES_FCVT
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
-                int *sign, char **rve, char **digits_str);
+                        int *sign, char **rve, char **digits_str);
 static double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
 static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
@@ -2905,13 +2905,13 @@ static QString qlltoa(Q_LLONG l, int base, const QLocalePrivate &locale)
 }
 
 enum PrecisionMode {
-    PMDecimalDigits =       0x01,
+    PMDecimalDigits =             0x01,
     PMSignificantDigits =   0x02,
     PMChopTrailingZeros =   0x03
 };
 
 static QString &decimalForm(QString &digits, int decpt, uint precision,
-                                PrecisionMode pm,
+                            PrecisionMode pm,
                             bool always_show_decpt,
                             bool thousands_group,
                             const QLocalePrivate &locale)
@@ -2953,7 +2953,7 @@ static QString &decimalForm(QString &digits, int decpt, uint precision,
 }
 
 static QString &exponentForm(QString &digits, int decpt, uint precision,
-                                    PrecisionMode pm,
+                                PrecisionMode pm,
                                 bool always_show_decpt,
                                 const QLocalePrivate &locale)
 {
@@ -2975,16 +2975,16 @@ static QString &exponentForm(QString &digits, int decpt, uint precision,
 
     digits.append(locale.exponential());
     digits.append(locale.longLongToString(exp, 2, 10,
-                                -1, QLocalePrivate::AlwaysShowSign));
+                    -1, QLocalePrivate::AlwaysShowSign));
 
     return digits;
 }
 
 QString QLocalePrivate::doubleToString(double d,
-            int precision,
-            DoubleForm form,
-            int width,
-            unsigned flags) const
+                                        int precision,
+                                        DoubleForm form,
+                                        int width,
+                                        unsigned flags) const
 {
     if (precision == -1)
         precision = 6;
@@ -3000,7 +3000,7 @@ QString QLocalePrivate::doubleToString(double d,
     // Comparing directly to INFINITY gives weird results on some systems.
     double tmp_infinity = INFINITY;
 
-   // Detect special numbers (nan, +/-inf)
+    // Detect special numbers (nan, +/-inf)
     if (d == tmp_infinity || d == -tmp_infinity) {
         num_str = infinity();
         special_number = true;
@@ -3072,12 +3072,12 @@ QString QLocalePrivate::doubleToString(double d,
         switch (form) {
             case DFExponent: {
                 num_str = exponentForm(digits, decpt, precision, PMDecimalDigits,
-                                            always_show_decpt, *this);
+                                                    always_show_decpt, *this);
                 break;
             }
             case DFDecimal: {
                 num_str = decimalForm(digits, decpt, precision, PMDecimalDigits,
-                                            always_show_decpt, flags & ThousandsGroup,
+                                        always_show_decpt, flags & ThousandsGroup,
                                         *this);
                 break;
             }
@@ -3087,10 +3087,10 @@ QString QLocalePrivate::doubleToString(double d,
 
                 if (decpt != (int)digits.length() && (decpt <= -4 || decpt > (int)precision))
                     num_str = exponentForm(digits, decpt, precision, mode,
-                                                always_show_decpt, *this);
+                                                    always_show_decpt, *this);
                 else
                     num_str = decimalForm(digits, decpt, precision, mode,
-                                                always_show_decpt, flags & ThousandsGroup,
+                                            always_show_decpt, flags & ThousandsGroup,
                                             *this);
                 break;
             }
@@ -3130,8 +3130,8 @@ QString QLocalePrivate::doubleToString(double d,
 }
 
 QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
-                                    int base, int width,
-                                unsigned flags) const
+                                            int base, int width,
+                                            unsigned flags) const
 {
     bool precision_not_specified = false;
     if (precision == -1) {
@@ -3166,14 +3166,13 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
 
     if (flags & Alternate
             && base == 8
-            && (num_str.isEmpty()
-                    || num_str[0].unicode() != '0'))
+            && (num_str.isEmpty() || num_str[0].unicode() != '0'))
         num_str.prepend('0');
 
     // LeftAdjusted overrides this flag ZeroPadded. sprintf only padds
     // when precision is not specified in the format string
     bool zero_padded = flags & ZeroPadded
-                            && !(flags & LeftAdjusted)
+                        && !(flags & LeftAdjusted)
                         && precision_not_specified;
 
     if (zero_padded) {
@@ -3215,8 +3214,8 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
 }
 
 QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
-                                    int base, int width,
-                                unsigned flags) const
+                                            int base, int width,
+                                            unsigned flags) const
 {
     bool precision_not_specified = false;
     if (precision == -1) {
@@ -3239,15 +3238,14 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
 
     if (flags & Alternate
             && base == 8
-            && (num_str.isEmpty()
-                    || num_str[0].unicode() != '0'))
+            && (num_str.isEmpty() || num_str[0].unicode() != '0'))
         num_str.prepend('0');
 
     // LeftAdjusted overrides this flag ZeroPadded. sprintf only padds
     // when precision is not specified in the format string
     bool zero_padded = flags & ZeroPadded
-                            && !(flags & LeftAdjusted)
-                            && precision_not_specified;
+                        && !(flags & LeftAdjusted)
+                        && precision_not_specified;
 
     if (zero_padded) {
         int num_pad_chars = width - (int)num_str.length();
@@ -3348,7 +3346,7 @@ static bool removeGroupSeparators(QByteArray &num)
 static bool compareNoCase(const QChar *uc1, const QString &s)
 {
     const QChar *uc2 = s.unicode();
-    
+
     for (; uc1->unicode() != 0 && uc2->unicode() != 0; ++uc1, ++uc2) {
         if (*uc1 == *uc2)
             continue;
@@ -3361,7 +3359,7 @@ static bool compareNoCase(const QChar *uc1, const QString &s)
 
 // Converts a number in locale to its representation in the C locale.
 QByteArray QLocalePrivate::numberToCLocale(const QString &num,
-                          GroupSeparatorMode group_sep_mode) const
+                                            GroupSeparatorMode group_sep_mode) const
 {
     const QChar *uc = num.unicode();
     int l = num.length();
@@ -3372,7 +3370,7 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &num,
         ++idx;
     if (idx == l)
         return QByteArray();
-    
+
     if (compareNoCase(uc + idx, nan()))
         return QByteArray("nan");
 
@@ -3442,7 +3440,7 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &num,
 }
 
 double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
-                                GroupSeparatorMode group_sep_mode) const
+                                        GroupSeparatorMode group_sep_mode) const
 {
     QByteArray num = numberToCLocale(number, group_sep_mode);
     if (num.isNull()) {
@@ -3455,7 +3453,7 @@ double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
 }
 
 Q_LLONG QLocalePrivate::stringToLongLong(const QString &number, int base,
-                                    bool *ok, GroupSeparatorMode group_sep_mode) const
+                                            bool *ok, GroupSeparatorMode group_sep_mode) const
 {
     QByteArray num = numberToCLocale(number, group_sep_mode);
     if (num.isNull()) {
@@ -3468,7 +3466,7 @@ Q_LLONG QLocalePrivate::stringToLongLong(const QString &number, int base,
 }
 
 Q_ULLONG QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
-                                    bool *ok, GroupSeparatorMode group_sep_mode) const
+                                                bool *ok, GroupSeparatorMode group_sep_mode) const
 {
     QByteArray num = numberToCLocale(number, group_sep_mode);
     if (num.isNull()) {
@@ -3490,7 +3488,7 @@ double QLocalePrivate::bytearrayToDouble(QByteArray num, bool *ok)
         return NAN;
 
     if (num == "+inf"
-        || num == "inf")
+                || num == "inf")
         return INFINITY;
 
     if (num == "-inf")
@@ -3890,53 +3888,62 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #error Exactly one of IEEE_BIG_OR_LITTLE_ENDIAN, VAX, or IBM should be defined.
 #endif
 
+inline ULong getWord0(double x)
+{
+    uchar *ptr = (uchar *)&x;
+    if (ByteOrder == BigEndian) {
+        return (ptr[0]<<24) + (ptr[1]<<16) + (ptr[2]<<8) + ptr[3];
+    } else {
+        return (ptr[7]<<24) + (ptr[6]<<16) + (ptr[5]<<8) + ptr[4];
+    }
+}
 
-#define word0(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 0 : 1]
-#define word1(x) ((volatile ULong *)&x)[ByteOrder == BigEndian ? 1 : 0]
+inline void setWord0(double *x, ULong l)
+{
+    uchar *ptr = (uchar *)x;
+    if (ByteOrder == BigEndian) {
+        ptr[0] = (uchar)(l>>24);
+        ptr[1] = (uchar)(l>>16);
+        ptr[2] = (uchar)(l>>8);
+        ptr[3] = (uchar)l;
+    } else {
+        ptr[7] = (uchar)(l>>24);
+        ptr[6] = (uchar)(l>>16);
+        ptr[5] = (uchar)(l>>8);
+        ptr[4] = (uchar)l;
+    }
+}
 
-
-/* The following definition of Storeinc is appropriate for MIPS processors.
- * An alternative that might be better on some machines is
- * #define Storeinc(a,b,c) (*a++ = b << 16 | c & 0xffff)
- */
-
-/*
-#if defined(IEEE_LITTLE_ENDIAN) + defined(VAX) + defined(__arm32__)
-#define Storeinc(a,b,c) (((unsigned short *)a)[1] = (unsigned short)b, \
-((unsigned short *)a)[0] = (unsigned short)c, a++)
-#else
-#define Storeinc(a,b,c) (((unsigned short *)a)[0] = (unsigned short)b, \
-((unsigned short *)a)[1] = (unsigned short)c, a++)
-#endif
-*/
+inline ULong getWord1(double x)
+{
+    uchar *ptr = (uchar *)&x;
+    if (ByteOrder == BigEndian) {
+        return (ptr[4]<<24) + (ptr[5]<<16) + (ptr[6]<<8) + ptr[7];
+    } else {
+        return (ptr[3]<<24) + (ptr[2]<<16) + (ptr[1]<<8) + ptr[0];
+    }
+}
+inline void setWord1(double *x, ULong l)
+{
+    uchar *ptr = (uchar *)x;
+    if (ByteOrder == BigEndian) {
+        ptr[4] = (uchar)(l>>24);
+        ptr[5] = (uchar)(l>>16);
+        ptr[6] = (uchar)(l>>8);
+        ptr[7] = (uchar)l;
+    } else {
+        ptr[3] = (uchar)(l>>24);
+        ptr[2] = (uchar)(l>>16);
+        ptr[1] = (uchar)(l>>8);
+        ptr[0] = (uchar)l;
+    }
+}
 
 static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 {
 
-#   if defined(VAX) + defined(__arm32__)
-#           define USE_LITTLE_ENDIAN 1
-#   else
-#           define USE_LITTLE_ENDIAN 0
-#   endif
-
-#   if defined(IEEE_BIG_OR_LITTLE_ENDIAN)
-#           define USE_IEEE 1
-#   else
-#           define USE_IEEE 0
-#   endif
-
-    if (ByteOrder == LittleEndian && USE_IEEE || USE_LITTLE_ENDIAN) {
-        ((unsigned short *)a)[1] = (unsigned short)b;
-        ((unsigned short *)a)[0] = (unsigned short)c;
-    } else {
-        ((unsigned short *)a)[0] = (unsigned short)b;
-        ((unsigned short *)a)[1] = (unsigned short)c;
-    }
-
+    *a = (((unsigned short)b) << 16) | ((unsigned short)c);
     ++a;
-
-#   undef USE_LITTLE_ENDIAN
-#   undef USE_IEEE
 }
 
 /* #define P DBL_MANT_DIG */
@@ -3971,7 +3978,7 @@ static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 #define Tiny1 1
 #define Quick_max 14
 #define Int_max 14
-#define Infinite(x) (word0(x) == 0x7ff00000) /* sufficient test for here */
+#define Infinite(x) (getWord0(x) == 0x7ff00000) /* sufficient test for here */
 #else
 #undef  Sudden_Underflow
 #define Sudden_Underflow
@@ -4033,11 +4040,7 @@ static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 #ifdef RND_PRODQUOT
 #define rounded_product(a,b) a = rnd_prod(a, b)
 #define rounded_quotient(a,b) a = rnd_quot(a, b)
-#ifdef KR_headers
-extern double rnd_prod(), rnd_quot();
-#else
 extern double rnd_prod(double, double), rnd_quot(double, double);
-#endif
 #else
 #define rounded_product(a,b) a *= b
 #define rounded_quotient(a,b) a /= b
@@ -4516,32 +4519,32 @@ static Bigint *diff(Bigint *a, Bigint *b)
     return c;
 }
 
-static double ulp(volatile double x)
+static double ulp(double x)
 {
     Long L;
     double a;
 
-    L = (word0(x) & Exp_mask) - (P-1)*Exp_msk1;
+    L = (getWord0(x) & Exp_mask) - (P-1)*Exp_msk1;
 #ifndef Sudden_Underflow
     if (L > 0) {
 #endif
 #ifdef IBM
         L |= Exp_msk1 >> 4;
 #endif
-        word0(a) = L;
-        word1(a) = 0;
+        setWord0(&a, L);
+        setWord1(&a, 0);
 #ifndef Sudden_Underflow
     }
     else {
         L = -L >> Exp_shift;
         if (L < Exp_shift) {
-            word0(a) = 0x80000 >> L;
-            word1(a) = 0;
+            setWord0(&a, 0x80000 >> L);
+            setWord1(&a, 0);
         }
         else {
-            word0(a) = 0;
+            setWord0(&a, 0);
             L -= Exp_shift;
-            word1(a) = (L >= 31 ? 1U : 1U << (31 - L));
+            setWord1(&a, L >= 31 ? 1U : 1U << (31 - L));
         }
     }
 #endif
@@ -4553,12 +4556,6 @@ static double b2d(Bigint *a, int *e)
     ULong *xa, *xa0, w, y, z;
     int k;
     double d;
-#ifdef VAX
-    ULong d0, d1;
-#else
-#define d0 word0(d)
-#define d1 word1(d)
-#endif
 
     xa0 = a->x;
     xa = xa0 + a->wds;
@@ -4570,45 +4567,38 @@ static double b2d(Bigint *a, int *e)
     *e = 32 - k;
 #ifdef Pack_32
     if (k < Ebits) {
-        d0 = Exp_1 | y >> (Ebits - k);
+        setWord0(&d, Exp_1 | y >> (Ebits - k));
         w = xa > xa0 ? *--xa : 0;
-        d1 = y << ((32-Ebits) + k) | w >> (Ebits - k);
+        setWord1(&d, y << ((32-Ebits) + k) | w >> (Ebits - k));
         goto ret_d;
     }
     z = xa > xa0 ? *--xa : 0;
     if (k -= Ebits) {
-        d0 = Exp_1 | y << k | z >> (32 - k);
+        setWord0(&d, Exp_1 | y << k | z >> (32 - k));
         y = xa > xa0 ? *--xa : 0;
-        d1 = z << k | y >> (32 - k);
+        setWord1(&d, z << k | y >> (32 - k));
     }
     else {
-        d0 = Exp_1 | y;
-        d1 = z;
+        setWord0(&d, Exp_1 | y);
+        setWord1(&d, z);
     }
 #else
     if (k < Ebits + 16) {
         z = xa > xa0 ? *--xa : 0;
-        d0 = Exp_1 | y << k - Ebits | z >> Ebits + 16 - k;
+        setWord0(&d, Exp_1 | y << k - Ebits | z >> Ebits + 16 - k);
         w = xa > xa0 ? *--xa : 0;
         y = xa > xa0 ? *--xa : 0;
-        d1 = z << k + 16 - Ebits | w << k - Ebits | y >> 16 + Ebits - k;
+        setWord1(&d, z << k + 16 - Ebits | w << k - Ebits | y >> 16 + Ebits - k);
         goto ret_d;
     }
     z = xa > xa0 ? *--xa : 0;
     w = xa > xa0 ? *--xa : 0;
     k -= Ebits + 16;
-    d0 = Exp_1 | y << k + 16 | z << k | w >> 16 - k;
+    setWord0(&d, Exp_1 | y << k + 16 | z << k | w >> 16 - k);
     y = xa > xa0 ? *--xa : 0;
-    d1 = w << k + 16 | y << k;
+    setWord1(&d, w << k + 16 | y << k);
 #endif
  ret_d:
-#ifdef VAX
-    word0(d) = d0 >> 16 | d0 << 16;
-    word1(d) = d1 >> 16 | d1 << 16;
-#else
-#undef d0
-#undef d1
-#endif
     return d;
 }
 
@@ -4617,14 +4607,6 @@ static Bigint *d2b(double d, int *e, int *bits)
     Bigint *b;
     int de, i, k;
     ULong *x, y, z;
-#ifdef VAX
-    ULong d0, d1;
-    d0 = word0(d) >> 16 | word0(d) << 16;
-    d1 = word1(d) >> 16 | word1(d) << 16;
-#else
-#define d0 word0(d)
-#define d1 word1(d)
-#endif
 
 #ifdef Pack_32
     b = Balloc(1);
@@ -4633,19 +4615,19 @@ static Bigint *d2b(double d, int *e, int *bits)
 #endif
     x = b->x;
 
-    z = d0 & Frac_mask;
-    d0 &= 0x7fffffff;        /* clear sign bit, which we ignore */
+    z = getWord0(d) & Frac_mask;
+    setWord0(&d, getWord0(d) & 0x7fffffff);        /* clear sign bit, which we ignore */
 #ifdef Sudden_Underflow
-    de = (int)(d0 >> Exp_shift);
+    de = (int)(getWord0(d) >> Exp_shift);
 #ifndef IBM
     z |= Exp_msk11;
 #endif
 #else
-    if ((de = (int)(d0 >> Exp_shift)) != 0)
+    if ((de = (int)(getWord0(d) >> Exp_shift)) != 0)
         z |= Exp_msk1;
 #endif
 #ifdef Pack_32
-    if ((y = d1) != 0) {
+    if ((y = getWord1(d)) != 0) {
         if ((k = lo0bits(&y)) != 0) {
             x[0] = y | z << (32 - k);
             z >>= k;
@@ -4665,7 +4647,7 @@ static Bigint *d2b(double d, int *e, int *bits)
         k += 32;
     }
 #else
-    if (y = d1) {
+    if (y = getWord1(d)) {
         if (k = lo0bits(&y))
             if (k >= 16) {
                 x[0] = y | z << 32 - k & 0xffff;
@@ -4714,7 +4696,7 @@ static Bigint *d2b(double d, int *e, int *bits)
 #endif
 #ifdef IBM
         *e = (de - Bias - (P-1) << 2) + k;
-        *bits = 4*P + 8 - k - hi0bits(word0(d) & Frac_mask);
+        *bits = 4*P + 8 - k - hi0bits(getWord0(d) & Frac_mask);
 #else
         *e = de - Bias - (P-1) + k;
         *bits = P - k;
@@ -4732,8 +4714,6 @@ static Bigint *d2b(double d, int *e, int *bits)
 #endif
     return b;
 }
-#undef d0
-#undef d1
 
 static double ratio(Bigint *a, Bigint *b)
 {
@@ -4749,22 +4729,22 @@ static double ratio(Bigint *a, Bigint *b)
 #endif
 #ifdef IBM
     if (k > 0) {
-        word0(da) += (k >> 2)*Exp_msk1;
+        setWord0(&da, getWord0(da) + (k >> 2)*Exp_msk1);
         if (k &= 3)
             da *= 1 << k;
     }
     else {
         k = -k;
-        word0(db) += (k >> 2)*Exp_msk1;
+        setWord0(&db, getWord0(db) + (k >> 2)*Exp_msk1);
         if (k &= 3)
             db *= 1 << k;
     }
 #else
     if (k > 0)
-        word0(da) += k*Exp_msk1;
+        setWord0(&da, getWord0(da) + k*Exp_msk1);
     else {
         k = -k;
-        word0(db) += k*Exp_msk1;
+        setWord0(&db, getWord0(db) + k*Exp_msk1);
     }
 #endif
     return da / db;
@@ -4954,7 +4934,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 #ifndef RND_PRODQUOT
         && FLT_ROUNDS == 1
 #endif
-       ) {
+        ) {
         if (!e)
             goto ret;
         if (e > 0) {
@@ -4978,12 +4958,12 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
                  * worry about overflow here...
                  */
             vax_ovfl_check:
-                word0(rv) -= P*Exp_msk1;
+                setWord0(&rv, getWord0(rv) - P*Exp_msk1);
                 /* rv = */ rounded_product(rv, tens[e]);
-                if ((word0(rv) & Exp_mask)
+                if ((getWord0(rv) & Exp_mask)
                     > Exp_msk1*(DBL_MAX_EXP+Bias-1-P))
                     goto ovfl;
-                word0(rv) += P*Exp_msk1;
+                setWord0(&rv, getWord0(rv) + P*Exp_msk1);
 #else
                 /* rv = */ rounded_product(rv, tens[e]);
 #endif
@@ -5015,11 +4995,11 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 #else
                 /* Can't trust HUGE_VAL */
 #ifdef IEEE_Arith
-                word0(rv) = Exp_mask;
-                word1(rv) = 0;
+                setWord0(&rv, Exp_mask);
+                setWord1(&rv, 0);
 #else
-                word0(rv) = Big0;
-                word1(rv) = Big1;
+                setWord0(&rv, Big0);
+                setWord1(&rv, Big1);
 #endif
 #endif
                 if (bd0)
@@ -5031,19 +5011,19 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
                     if (e1 & 1)
                         rv *= bigtens[j];
                 /* The last multiplication could overflow. */
-                word0(rv) -= P*Exp_msk1;
+                setWord0(&rv, getWord0(rv) - P*Exp_msk1);
                 rv *= bigtens[j];
-                if ((z = word0(rv) & Exp_mask)
+                if ((z = getWord0(rv) & Exp_mask)
                     > Exp_msk1*(DBL_MAX_EXP+Bias-P))
                     goto ovfl;
                 if (z > Exp_msk1*(DBL_MAX_EXP+Bias-1-P)) {
                     /* set to largest number */
                     /* (Can't trust DBL_MAX) */
-                    word0(rv) = Big0;
-                    word1(rv) = Big1;
+                    setWord0(&rv, Big0);
+                    setWord1(&rv, Big1);
                 }
                 else
-                    word0(rv) += P*Exp_msk1;
+                    setWord0(&rv, getWord0(rv) + P*Exp_msk1);
             }
 
         }
@@ -5077,8 +5057,8 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
                                 goto retfree;
                             goto ret;
                         }
-                    word0(rv) = Tiny0;
-                    word1(rv) = Tiny1;
+                    setWord0(&rv, Tiny0);
+                    setWord1(&rv, Tiny1);
                     /* The refinement below will clean
                      * this approximation up.
                      */
@@ -5156,7 +5136,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
             /* Error is less than half an ulp -- check for
              * special case of mantissa a power of two.
              */
-            if (dsign || word1(rv) || word0(rv) & Bndry_mask)
+            if (dsign || getWord1(rv) || getWord0(rv) & Bndry_mask)
                 break;
             delta = lshift(delta,Log2P);
             if (cmp(delta, bs) > 0)
@@ -5166,24 +5146,24 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
         if (i == 0) {
             /* exactly half-way between */
             if (dsign) {
-                if ((word0(rv) & Bndry_mask1) == Bndry_mask1
-                    &&  word1(rv) == 0xffffffff) {
+                if ((getWord0(rv) & Bndry_mask1) == Bndry_mask1
+                    &&  getWord1(rv) == 0xffffffff) {
                     /*boundary case -- increment exponent*/
-                    word0(rv) = (word0(rv) & Exp_mask)
+                    setWord0(&rv, (getWord0(rv) & Exp_mask)
                                 + Exp_msk1
 #ifdef IBM
                                 | Exp_msk1 >> 4
 #endif
-                                ;
-                    word1(rv) = 0;
+                                );
+                    setWord1(&rv, 0);
                     break;
                 }
             }
-            else if (!(word0(rv) & Bndry_mask) && !word1(rv)) {
+            else if (!(getWord0(rv) & Bndry_mask) && !getWord1(rv)) {
             drop_down:
                 /* boundary case -- decrement exponent */
 #ifdef Sudden_Underflow
-                L = word0(rv) & Exp_mask;
+                L = getWord0(rv) & Exp_mask;
 #ifdef IBM
                 if (L <  Exp_msk1)
 #else
@@ -5192,10 +5172,10 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
                         goto undfl;
                 L -= Exp_msk1;
 #else
-                L = (word0(rv) & Exp_mask) - Exp_msk1;
+                L = (getWord0(rv) & Exp_mask) - Exp_msk1;
 #endif
-                word0(rv) = L | Bndry_mask1;
-                word1(rv) = 0xffffffff;
+                setWord0(&rv, L | Bndry_mask1);
+                setWord1(&rv, 0xffffffff);
 #ifdef IBM
                 goto cont;
 #else
@@ -5203,7 +5183,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 #endif
             }
 #ifndef ROUND_BIASED
-            if (!(word1(rv) & LSB))
+            if (!(getWord1(rv) & LSB))
                 break;
 #endif
             if (dsign)
@@ -5222,9 +5202,9 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
         if ((aadj = ratio(delta, bs)) <= 2.) {
             if (dsign)
                 aadj = aadj1 = 1.;
-            else if (word1(rv) || word0(rv) & Bndry_mask) {
+            else if (getWord1(rv) || getWord0(rv) & Bndry_mask) {
 #ifndef Sudden_Underflow
-                if (word1(rv) == Tiny1 && !word0(rv))
+                if (getWord1(rv) == Tiny1 && !getWord0(rv))
                     goto undfl;
 #endif
                 aadj = 1.;
@@ -5258,48 +5238,48 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
                 aadj1 += 0.5;
 #endif
         }
-        y = word0(rv) & Exp_mask;
+        y = getWord0(rv) & Exp_mask;
 
         /* Check for overflow */
 
         if (y == Exp_msk1*(DBL_MAX_EXP+Bias-1)) {
             rv0 = rv;
-            word0(rv) -= P*Exp_msk1;
+            setWord0(&rv, getWord0(rv) - P*Exp_msk1);
             adj = aadj1 * ulp(rv);
             rv += adj;
-            if ((word0(rv) & Exp_mask) >=
+            if ((getWord0(rv) & Exp_mask) >=
                 Exp_msk1*(DBL_MAX_EXP+Bias-P)) {
-                if (word0(rv0) == Big0 && word1(rv0) == Big1)
+                if (getWord0(rv0) == Big0 && getWord1(rv0) == Big1)
                     goto ovfl;
-                word0(rv) = Big0;
-                word1(rv) = Big1;
+                setWord0(&rv, Big0);
+                setWord1(&rv, Big1);
                 goto cont;
             }
             else
-                word0(rv) += P*Exp_msk1;
+                setWord0(&rv, getWord0(rv) + P*Exp_msk1);
         }
         else {
 #ifdef Sudden_Underflow
-            if ((word0(rv) & Exp_mask) <= P*Exp_msk1) {
+            if ((getWord0(rv) & Exp_mask) <= P*Exp_msk1) {
                 rv0 = rv;
-                word0(rv) += P*Exp_msk1;
+                setWord0(&rv, getWord0(rv) + P*Exp_msk1);
                 adj = aadj1 * ulp(rv);
                 rv += adj;
 #ifdef IBM
-                if ((word0(rv) & Exp_mask) <  P*Exp_msk1)
+                if ((getWord0(rv) & Exp_mask) <  P*Exp_msk1)
 #else
-                    if ((word0(rv) & Exp_mask) <= P*Exp_msk1)
+                    if ((getWord0(rv) & Exp_mask) <= P*Exp_msk1)
 #endif
                         {
-                            if (word0(rv0) == Tiny0
-                                && word1(rv0) == Tiny1)
+                            if (getWord0(rv0) == Tiny0
+                                && getWord1(rv0) == Tiny1)
                                 goto undfl;
-                            word0(rv) = Tiny0;
-                            word1(rv) = Tiny1;
+                            setWord0(&rv, Tiny0);
+                            setWord1(&rv, Tiny1);
                             goto cont;
                         }
                     else
-                        word0(rv) -= P*Exp_msk1;
+                        setWord0(&rv, getWord0(rv) - P*Exp_msk1);
             }
             else {
                 adj = aadj1 * ulp(rv);
@@ -5322,13 +5302,13 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
             rv += adj;
 #endif
         }
-        z = word0(rv) & Exp_mask;
+        z = getWord0(rv) & Exp_mask;
         if (y == z) {
             /* Can we stop now? */
             L = (Long) aadj;
             aadj -= L;
             /* The tolerances below are conservative. */
-            if (dsign || word1(rv) || word0(rv) & Bndry_mask) {
+            if (dsign || getWord1(rv) || getWord0(rv) & Bndry_mask) {
                 if (aadj < .4999999 || aadj > .5000001)
                     break;
             }
@@ -5491,7 +5471,7 @@ static int quorem(Bigint *b, Bigint *S)
 /* This actually sometimes returns a pointer to a string literal
    cast to a char*. Do NOT try to modify the return value. */
 
-static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
+static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
     /*
       Arguments ndigits, decpt, sign are similar to those
@@ -5539,30 +5519,30 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
 #endif
     Bigint *b, *b1, *delta, *mhi, *S;
     Bigint *mlo = NULL; /* pacify gcc */
-    volatile double d2;
+    double d2;
     double ds, eps;
     char *s, *s0;
 
-    if (word0(d) & Sign_bit) {
+    if (getWord0(d) & Sign_bit) {
         /* set sign for everything, including 0's and NaNs */
         *sign = 1;
-        word0(d) &= ~Sign_bit;        /* clear sign bit */
+        setWord0(&d, getWord0(d) & ~Sign_bit);        /* clear sign bit */
     }
     else
         *sign = 0;
 
 #if defined(IEEE_Arith) + defined(VAX)
 #ifdef IEEE_Arith
-    if ((word0(d) & Exp_mask) == Exp_mask)
+    if ((getWord0(d) & Exp_mask) == Exp_mask)
 #else
-        if (word0(d)  == 0x8000)
+        if (getWord0(d)  == 0x8000)
 #endif
             {
                 /* Infinity or NaN */
                 *decpt = 9999;
                 s =
 #ifdef IEEE_Arith
-                    !word1(d) && !(word0(d) & 0xfffff) ? (char*)"Infinity" :
+                    !getWord1(d) && !(getWord0(d) & 0xfffff) ? (char*)"Infinity" :
 #endif
                     (char*)"NaN";
                 if (rve)
@@ -5588,15 +5568,15 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
 
     b = d2b(d, &be, &bbits);
 #ifdef Sudden_Underflow
-    i = (int)(word0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1));
+    i = (int)(getWord0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1));
 #else
-    if ((i = (int)(word0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1))) != 0) {
+    if ((i = (int)(getWord0(d) >> Exp_shift1 & (Exp_mask>>Exp_shift1))) != 0) {
 #endif
         d2 = d;
-        word0(d2) &= Frac_mask1;
-        word0(d2) |= Exp_11;
+        setWord0(&d2, getWord0(d2) & Frac_mask1);
+        setWord0(&d2, getWord0(d2) | Exp_11);
 #ifdef IBM
-        if (j = 11 - hi0bits(word0(d2) & Frac_mask))
+        if (j = 11 - hi0bits(getWord0(d2) & Frac_mask))
             d2 /= 1 << j;
 #endif
 
@@ -5608,7 +5588,7 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
          * This suggests computing an approximation k to log10(d) by
          *
          * k = (i - Bias)*0.301029995663981
-         *        + ((d2-1.5)*0.289529654602168 + 0.176091259055681);
+         *        + ( (d2-1.5)*0.289529654602168 + 0.176091259055681 );
          *
          * We want k to be too large rather than too small.
          * The error in the first-order Taylor series approximation
@@ -5634,10 +5614,10 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
         /* d is denormalized */
 
         i = bbits + be + (Bias + (P-1) - 1);
-        x = i > 32  ? word0(d) << (64 - i) | word1(d) >> (i - 32)
-            : word1(d) << (32 - i);
+        x = i > 32  ? getWord0(d) << (64 - i) | getWord1(d) >> (i - 32)
+            : getWord1(d) << (32 - i);
         d2 = x;
-        word0(d2) -= 31*Exp_msk1; /* adjust exponent */
+        setWord0(&d2, getWord0(d2) - 31*Exp_msk1); /* adjust exponent */
         i -= (Bias + (P-1) - 1) + 1;
         denorm = 1;
     }
@@ -5749,7 +5729,7 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
             ieps++;
         }
         eps = ieps*d + 7.;
-        word0(eps) -= (P-1)*Exp_msk1;
+        setWord0(&eps, getWord0(eps) - (P-1)*Exp_msk1);
         if (ilim == 0) {
             S = mhi = 0;
             d -= 5.;
@@ -5910,11 +5890,11 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
     /* Check for special case that d is a normalized power of 2. */
 
     if (mode < 2) {
-        if (!word1(d) && !(word0(d) & Bndry_mask)
+        if (!getWord1(d) && !(getWord0(d) & Bndry_mask)
 #ifndef Sudden_Underflow
-            && word0(d) & Exp_mask
+            && getWord0(d) & Exp_mask
 #endif
-           ) {
+            ) {
             /* The special case */
             b2 += Log2P;
             s2 += Log2P;
@@ -6000,7 +5980,7 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
             j1 = delta->sign ? 1 : cmp(b, delta);
             Bfree(delta);
 #ifndef ROUND_BIASED
-            if (j1 == 0 && !mode && !(word1(d) & 1)) {
+            if (j1 == 0 && !mode && !(getWord1(d) & 1)) {
                 if (dig == '9')
                     goto round_9_up;
                 if (j > 0)
@@ -6011,7 +5991,7 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
 #endif
             if (j < 0 || (j == 0 && !mode
 #ifndef ROUND_BIASED
-                          && !(word1(d) & 1)
+                          && !(getWord1(d) & 1)
 #endif
                           )) {
                 if (j1 > 0) {
@@ -6092,4 +6072,3 @@ static char *qdtoa (volatile double d, int mode, int ndigits, int *decpt, int *s
 }
 
 #endif // QT_QLOCALE_USES_FCVT
-
