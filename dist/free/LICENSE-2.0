@@ -144,6 +144,27 @@ special, incidental or consequential damages, even if they have been
 advised of the possibility of such damages.  
 
 <h2 align=center>
+				  Definitions
+</h2>
+
+<dl>
+<dt><b>
+  Source code
+</b><dd>
+     The source code for a software item is the machine-readable
+     preferred form of the work for making modifications to it.  
+
+<dt><b>
+  Patch
+</b><dd>
+     A patch is a machine readable description of the difference
+     between the original and a modified version of the source code of
+     a software item, on a format that can be mechanically applied to
+     the original by a publicly available program to produce the
+     modified version.  
+</dl>
+
+<h2 align=center>
 				  No Warranty
 </h2>
 
