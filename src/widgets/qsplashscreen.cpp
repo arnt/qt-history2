@@ -228,6 +228,6 @@ void QSplashScreen::drawContents( QPainter *painter )
 {
     painter->setPen( d->currColor );
     QRect r = rect();
-    r.setRect( r.x() + 10, r.y() + 10, r.width() - 20, r.height() - 20 );
+    r.setRect( r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10 );
     painter->drawText( r, d->currAlign, d->currStatus );
 }
