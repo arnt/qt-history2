@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#94 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#94 $");
 
 
 const int Unsorted = 16383;
@@ -1553,11 +1553,7 @@ void QListView::show()
 	    v->setBackgroundMode( NoBackground );
 
 	reconfigureItems();
-
-	QSize s( d->h->sizeHint() );
-	resizeContents( QMIN(20,s.width()), d->r->totalHeight() );
-	d->h->setGeometry( viewport()->x(), viewport()->y()-s.height(),
-			   viewport()->width(), s.height() );
+	updateGeometries();
     }
     QScrollView::show();
 }
@@ -1644,6 +1640,9 @@ void QListView::enabledChange( bool )
 
 void QListView::triggerUpdate()
 {
+    if ( !isVisible() )
+	return; // it will update when shown.
+
     if ( d && d->drawables ) {
 	delete d->drawables;
 	d->drawables = 0;
