@@ -259,8 +259,8 @@ private:
     QPixmap *pix;
 };
 
-static const int pWidth = 200;
-static const int pHeight = 200;
+static int pWidth = 200;
+static int pHeight = 200;
 
 class QColorLuminancePicker : public QWidget
 {
@@ -395,9 +395,9 @@ void QColorLuminancePicker::setCol( int h, int s , int v )
 QPoint QColorPicker::colPt()
 { return QPoint( (360-hue)*(pWidth-1)/360, (255-sat)*(pHeight-1)/255 ); }
 int QColorPicker::huePt( const QPoint &pt )
-{ return 360 - pt.x()*360/(pHeight-1); }
+{ return 360 - pt.x()*360/(pWidth-1); }
 int QColorPicker::satPt( const QPoint &pt )
-{ return 255 - pt.y()*255/(pWidth-1) ; }
+{ return 255 - pt.y()*255/(pHeight-1) ; }
 void QColorPicker::setCol( const QPoint &pt )
 { setCol( huePt(pt), satPt(pt) ); }
 
@@ -406,7 +406,7 @@ QColorPicker::QColorPicker(QWidget* parent, const char* name )
 {
     setCol( 150, 255 );
 
-    QImage img( pHeight, pWidth, 32 );
+    QImage img( pWidth, pHeight, 32 );
     int x,y;
     for ( y = 0; y < pHeight; y++ )
 	for ( x = 0; x < pWidth; x++ ) {
@@ -426,7 +426,7 @@ QColorPicker::~QColorPicker()
 
 QSize QColorPicker::sizeHint() const
 {
-    return QSize( pHeight + 2*frameWidth(), pWidth + 2*frameWidth() );
+    return QSize( pWidth + 2*frameWidth(), pHeight + 2*frameWidth() );
 }
 
 QSizePolicy QColorPicker::sizePolicy() const
@@ -855,7 +855,7 @@ private:
     QWellArray *standard;
     QColorShower *cs;
     int nextCust;
-
+    bool compact;
 };
 
 //sets all widgets to display h,s,v
@@ -899,51 +899,56 @@ void QColorDialogPrivate::newStandard( int r, int c )
 QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     QObject(dialog)
 {
+    compact = FALSE;
+    // small displays (e.g. PDAs cannot fit the full color dialog,
+    // so just use the color picker.
+    if ( qApp->desktop()->width() < 480 || qApp->desktop()->height() < 350 )
+	compact = TRUE;
+
     nextCust = 0;
     const int lumSpace = 3;
-    QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
-    QVBoxLayout *leftLay = new QVBoxLayout( topLay );
+    int border = 12;
+    if ( compact )
+	border = 6;
+    QHBoxLayout *topLay = new QHBoxLayout( dialog, border, 6 );
+    QVBoxLayout *leftLay = 0;
+
+    if ( !compact )
+	leftLay = new QVBoxLayout( topLay );
 
     initRGB();
 
+    if ( !compact ) {
+	standard = new QColorWell( dialog, 6, 8, stdrgb );
+	standard->setCellSize( 28, 24 );
+	QLabel * lab = new QLabel( standard,
+				QColorDialog::tr( "&Basic colors"), dialog );
+	connect( standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
+	leftLay->addWidget( lab );
+	leftLay->addWidget( standard );
 
-    standard = new QColorWell( dialog, 6, 8, stdrgb );
-    standard->setCellSize( 28, 24 );
-    QLabel * lab = new QLabel( standard,
-			    QColorDialog::tr( "&Basic colors"), dialog );
-    connect( standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
-    leftLay->addWidget( lab );
-    leftLay->addWidget( standard );
 
+	leftLay->addStretch();
 
-    leftLay->addStretch();
+	custom = new QColorWell( dialog, 2, 8, cusrgb );
+	custom->setCellSize( 28, 24 );
+	custom->setAcceptDrops( TRUE );
 
-    custom = new QColorWell( dialog, 2, 8, cusrgb );
-    custom->setCellSize( 28, 24 );
-    custom->setAcceptDrops( TRUE );
+	connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
+	lab = new QLabel( custom, QColorDialog::tr( "&Custom colors") , dialog );
+	leftLay->addWidget( lab );
+	leftLay->addWidget( custom );
 
-    connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
-    lab = new QLabel( custom, QColorDialog::tr( "&Custom colors") , dialog );
-    leftLay->addWidget( lab );
-    leftLay->addWidget( custom );
-
-    QPushButton *custbut =
-	new QPushButton( QColorDialog::tr("&Define Custom Colors >>"),
-					    dialog );
-    custbut->setEnabled( FALSE );
-    leftLay->addWidget( custbut );
-
-    QHBoxLayout *buttons = new QHBoxLayout( leftLay );
-
-    QPushButton *ok, *cancel;
-    ok = new QPushButton( QColorDialog::tr("OK"), dialog );
-    connect( ok, SIGNAL(clicked()), dialog, SLOT(accept()) );
-    ok->setDefault(TRUE);
-    cancel = new QPushButton( QColorDialog::tr("Cancel"), dialog );
-    connect( cancel, SIGNAL(clicked()), dialog, SLOT(reject()) );
-    buttons->addWidget( ok );
-    buttons->addWidget( cancel );
-    buttons->addStretch();
+	QPushButton *custbut =
+	    new QPushButton( QColorDialog::tr("&Define Custom Colors >>"),
+						dialog );
+	custbut->setEnabled( FALSE );
+	leftLay->addWidget( custbut );
+    } else {
+	// better color picker size for small displays
+	pWidth = 150;
+	pHeight = 100;
+    }
 
     QVBoxLayout *rightLay = new QVBoxLayout( topLay );
 
@@ -970,12 +975,29 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     connect( cs, SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
     rightLay->addWidget( cs );
 
+    QHBoxLayout *buttons;
+    if ( compact )
+	buttons = new QHBoxLayout( rightLay );
+    else
+	buttons = new QHBoxLayout( leftLay );
 
-    QPushButton *addCusBt = new QPushButton(
-				    QColorDialog::tr("&Add To Custom Colors"),
-					     dialog );
-    rightLay->addWidget( addCusBt );
-    connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );
+    QPushButton *ok, *cancel;
+    ok = new QPushButton( QColorDialog::tr("OK"), dialog );
+    connect( ok, SIGNAL(clicked()), dialog, SLOT(accept()) );
+    ok->setDefault(TRUE);
+    cancel = new QPushButton( QColorDialog::tr("Cancel"), dialog );
+    connect( cancel, SIGNAL(clicked()), dialog, SLOT(reject()) );
+    buttons->addWidget( ok );
+    buttons->addWidget( cancel );
+    buttons->addStretch();
+
+    if ( !compact ) {
+	QPushButton *addCusBt = new QPushButton(
+					QColorDialog::tr("&Add To Custom Colors"),
+						 dialog );
+	rightLay->addWidget( addCusBt );
+	connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );
+    }
 }
 
 void QColorDialogPrivate::addCustom()
@@ -1022,7 +1044,6 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 }
 
 
-
 /*!
   Pops up a modal color dialog letting the user choose a color and returns
   that color. The color is initially set to \a initial. Returns an  \link QColor::isValid() invalid\endlink color if the user cancels
@@ -1046,8 +1067,6 @@ QColor QColorDialog::getColor( QColor initial, QWidget *parent,
     delete dlg;
     return result;
 }
-
-
 
 
 /*!
