@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#82 $
 **
 ** Implementation of QColor class
 **
@@ -70,6 +70,30 @@
   color and save it in the internal table.
   </ol>
 
+  Since many people don't know the HSV color model very well, we'll
+  cover it briefly here.
+
+  The RGB model is hardware-oriented.  Its representation is close to
+  what most monitors show.  In contrast, HSV represents color in a way
+  more suited to traditional human perception of color.  For example,
+  the relationships "stronger than", "darker than", "the opposite of"
+  are easily expressed in HSV, but are much harder to express in RGB.
+
+  HSV, like RGB, has three components.  They are: <ul> <li> H, for
+  hue, is either 0-360 if the color is chromatic (not gray), or
+  meaningless if it is gray.  It represents degrees on the color wheel
+  familiar to most people.  Red is 0 (degrees), green is 120 and blue
+  is 240. <li> S, for saturation, is 0-255 and the bigger it is, the
+  stronger the color is.  Grayish colors have saturation near 0, very
+  strong colors have saturation near 255. <li> V, for value, is 0-255
+  and represents lightness or brightness of the color.  0 is black,
+  255 is far from black as possible. </ul>
+
+  Here are some examples: Pure red is H=0, S=255, V=255.  A dark red,
+  moving slightly towards the magenta, could be H=350 (equvalent to
+  -10), S=255, V=180.  A grayish light red could have H about 0 (say
+  350-359 or 0-10), S about 50-100, and S=255.
+  
   \sa QPalette, QColorGroup, QApplication::setColorSpec(),
   <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ.</a>
 */
@@ -127,7 +151,7 @@ bool QColor::lazy_alloc = TRUE;			// lazy color allocation
   \code
      QColor myColor = red;			// will initialize red etc.
 
-     int mai n( int argc, char **argc )
+     int main( int argc, char **argc )
      {
      }
   \endcode
