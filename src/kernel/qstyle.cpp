@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QStyle class
 **
@@ -96,7 +96,7 @@ public:
   coordinates into screen coordinates for drawing.
 
   In Qt versions prior to 3.0 if you wanted a low level route into
-  changng the appearance of a widget you would reimplement polish().
+  changing the appearance of a widget you would reimplement polish().
   With the new 3.0 style engine the recommended approach is to
   reimplement the draw functions, for example drawItem(),
   drawPrimitive(), drawControl(), drawControlMask(),
@@ -1199,8 +1199,8 @@ the mouse is over the tool button, FALSE otherwise.</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the spinwidget is enabled.</td>
 <td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top></td>
-<td rowspan=2 valign=top></td>
+<td rowspan=2 valign=top>&nbsp;</td>
+<td rowspan=2 valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
@@ -1541,57 +1541,57 @@ the mouse is over the tool button, FALSE otherwise.</td>
       <td valign=top><b>CT_PushButton</b></td>
       <td valign=top>const QPushButton *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_CheckBox</b></td>
       <td valign=top>const QCheckBox *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CT_RadioButton</b></td>
       <td valign=top>const QRadioButton *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_ToolButton</b></td>
       <td valign=top>const QToolButton *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CT_ComboBox</b></td>
       <td valign=top>const QComboBox *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_Splitter</b></td>
       <td valign=top>const QSplitter *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CT_DockWindow</b></td>
       <td valign=top>const QDockWindow *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CT_ProgressBar</b></td>
       <td valign=top>const QProgressBar *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CT_PopupMenuItem</b></td>
