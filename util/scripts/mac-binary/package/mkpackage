@@ -1,0 +1,313 @@
+#!/bin/sh 
+
+#options
+USE_SEPARATE=no
+OUTPUT_DIR=`pwd`/outputs
+TMP_DIR=/tmp/qt-stuff
+PACKAGE_DIR=`(cd ../install && pwd)`
+PACKAGE_OPTIONS=
+PACKAGES=
+COMMAND_PAX=/System/Library/PrivateFrameworks/Installation.framework/Resources/pax #yes that pax, don't ask!
+MAKE_META=
+MAKE_IMAGE=no
+
+#versioning
+QT_MAJOR_VERSION=4
+QT_MINOR_VERSION=0
+QT_PATCH_VERSION=0
+
+#QTDIR stuff
+BINARY_DIR=
+SOURCE_DIR=
+SOURCE_PACKAGE=
+
+doStringReplace()
+{
+    sed -e "s,\\\$VERSION_MAJOR\\\$,$QT_MAJOR_VERSION,g" -e "s,\\\$VERSION_MINOR\\\$,$QT_MINOR_VERSION,g" \
+	-e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >tmp.out
+    mv tmp.out "$2"
+}
+
+while [ -n "$1" ]; do
+   CACHE_1="$1"
+   OPTION=
+   ARG=
+   case $1 in
+   -*=*) #gnu style
+     OPTION=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\1,'`
+     ARG=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\2,'`
+     ;;
+   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage) #second arg style
+     OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
+     shift
+     ARG=$1
+     ;;          
+   -no-*) #no style
+     OPTION=`echo $1 | sed 's,-no-\([^=]*\),\1,'`
+     ARG=no
+     ;;
+   -*) #yes style
+     OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
+     ARG=yes
+     ;;
+   *) #other
+     OPTION=package
+     ARG="$1"
+     ;;
+   esac
+   shift
+   case "$OPTION" in
+   all) USE_SEPARATE="$VAL" ;;
+   qtpackage) SOURCE_PACKAGE="$ARG" ;;
+   qtsrcs) SOURCE_DIR="$ARG" ;;
+   qtbins|qtdir) BINARY_DIR="$ARG" ;;
+   output) OUTPUT_DIR="$ARG" ;;
+   packages) PACKAGE_DIR="$ARG" ;;
+   meta) MAKE_META="$ARG" ;;
+   package) PACKAGES="$PACKAGES $ARG" ;;
+   image) MAKE_IMAGE="$ARG" ;;
+   help|*)
+       [ "$OPTION" = "help" ] || echo "Unknown option $CACHE_1!" 
+       echo "Help!!"
+       exit 888;
+       ;;
+   esac  
+done
+
+#get the QTDIR setup
+[ -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ] && BINARY_DIR="$QTDIR"
+if [ ! -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ]; then
+    if [ -z "$SOURCE_DIR" ]; then
+        if [ -e "$BINARY_DIR/.qmake.cache" ]; then
+	    SOURCE_DIR=`grep QT_SOURCE_TREE $BINARY_DIR/.qmake.cache | head -1 | cut -d'=' -f2- | awk '{ print $1; }'`
+        else
+	    SOURCE_DIR="$BINARY_DIR"
+        fi
+    fi
+elif [ ! -z "$SOURCE_PACKAGE" ]; then
+    mkdir -p "$TMP_DIR/source"
+    TAR_COMMANDS="xfvz"
+    PACKAGE_NAME=`echo $SOURCE_PACKAGE | sed -e 's,.*\(qt-mac.*\),\1,'`
+    EXTENSION=`echo $PACKAGE_NAME | sed -e 's,.*\.tar\.\(.*\),\1,'`
+    PACKAGE_DEST=`echo $PACKAGE_NAME | sed -e 's,\(.*\)\.tar.*,\1,'`
+    if [ "$EXTENSION" == "bz2" ]; then
+        TAR_COMMANDS="xfvj"
+    fi
+    QTDIR=$TMP_DIR/source/$PACKAGE_DEST
+    DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
+    if (cd "$TMP_DIR/source" && tar $TAR_COMMANDS "$SOURCE_PACKAGE" && cd "$PACKAGE_DEST" && ./configure -qt-imgfmt-jpeg -qt-imgfmt-png -qt-gif -shared -confirm-license -framework && make); then
+          SOURCE_DIR="$QTDIR"
+          BINARY_DIR="$SOURCE_DIR"
+    else
+         rm -rf "$TMP_DIR"
+         exit 1
+    fi
+else
+   echo "Only a source package or a source/binary directory can be specified!"
+   exit 1   
+fi
+
+#just do all the packages
+if [ -z "$PACKAGES" ]; then
+    [ -z "$MAKE_META" ] && MAKE_META=yes
+    for a in $PACKAGE_DIR/*; do
+	if [ -d "$a" ]; then
+	    package=`basename $a`
+	    [ "$USE_SEPARATE" = "no" ] && [ -e "$a/.build_separate" ] && continue
+            PACKAGES="$PACKAGES $package"
+        fi
+    done
+fi
+
+#setup some default package options
+[ -z "$SOURCE_PACKAGE" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtpackage=${SOURCE_PACKAGE}"
+[ -z "$SOURCE_DIR" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtsrc=${SOURCE_DIR}"
+[ -z "$BINARY_DIR" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtbin=${BINARY_DIR}"
+
+mkdir -p "$TMP_DIR"
+find .. -name '*~' -exec rm {} \; #just get rid of these before they end up in my package
+
+#create the packages
+PKG_CREATED=
+for package in $PACKAGES; do
+    [ "$package" = "none" ] && continue
+    if [ !  -e "$PACKAGE_DIR/$package/Info.plist" ]; then
+	echo "$package is not a valid package!!"
+	continue
+    fi
+    rm -rf "$TMP_DIR/package" #cleanup
+
+    #create files
+    echo "Creating package [$package].."
+    mkdir -p "$TMP_DIR/package"
+    if [ -x "$PACKAGE_DIR/$package/create_package.sh" ]; then
+	if (cd $PACKAGE_DIR/$package/ && VERSION_MAJOR="$QT_MAJOR_VERSION" VERSION_MINOR="$QT_MINOR_VERSION" VERSION_PATCH="$QT_PATCH_VERSION" "$PACKAGE_DIR/$package/create_package.sh" $PACKAGE_OPTIONS --outdir="$TMP_DIR/package"); then
+              true
+         else
+              echo "  Package failed"
+              continue
+         fi
+    fi
+    #(cd $TMP_DIR/package && /bin/bash)
+
+    #create .pkg
+    package_dir="$OUTPUT_DIR/packages/Qt_${package}.pkg"
+    rm -rf "$package_dir"
+    echo "  Creating installation.. ($package_dir)"
+    mkdir -p "$package_dir/Contents"
+    doStringReplace "$PACKAGE_DIR/$package/Info.plist" "$package_dir/Contents/Info.plist"
+    (cd "$TMP_DIR/package" && $COMMAND_PAX -w -x cpio -f "$package_dir/Contents/Archive.pax" "." >/dev/null 2>&1)
+    gzip "$package_dir/Contents/Archive.pax"
+    echo "pmkrpkg1" >"$package_dir/Contents/PkgInfo"
+    mkbom "$TMP_DIR/package" "$package_dir/Contents/Archive.bom"
+    mkdir -p "$package_dir/Contents/Resources"
+    #link the files (for compat)
+    ln -sf "../Archive.bom" "$package_dir/Contents/Resources"
+    ln -sf "../Archive.pax.gz" "$package_dir/Contents/Resources"
+    #merge resources
+    cp -r Resources/* "$package_dir/Contents/Resources"
+    cp -r $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
+    for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
+	[ -e "$a" ] && doStringReplace "$a" "$a"
+    done
+    if [ -e "$package_dir/Contents/Resources/$package.info" ]; then
+         mv "$package_dir/Contents/Resources/$package.info" "$package_dir/Contents/Resources/Qt_${package}.info"
+    fi
+    for a in $package_dir/Contents/Resources/*flight; do
+        [ -e "$a" ] && chmod a+x $a #exe
+    done
+    for a in $package_dir/Contents/Resources/*Check; do
+        if [ -e "$a" ]; then
+	    chmod a+x "$a"
+	    if [ -e "${a}.strings" ]; then
+		for lang in English Norwegian French; do
+		    mkdir "$package_dir/Contents/Resources/${lang}.lproj"
+		    cp "${a}.strings" "$package_dir/Contents/Resources/${lang}.lproj"
+                done
+            fi
+        fi
+    done
+    PKG_CREATED="$PKG_CREATED $package_dir"
+done
+if [ -z "$PKG_CREATED" ] && [ "$PACKAGES" = " none" ]; then
+   if [ "$MAKE_META" = "yes" ] || [ "$MAKE_IMAGE" = "yes" ]; then
+       PKG_CREATED=$OUTPUT_DIR/packages/*.pkg
+       [ -z "$MAKE_META" ] && MAKE_META=yes
+   fi
+fi
+
+#create meta package
+if [ "$MAKE_META" = "yes" ]; then
+    echo "Creating meta package.."
+    rm -rf "$OUTPUT_DIR/Qt.mpkg/"
+    mkdir -p "$OUTPUT_DIR/Qt.mpkg/"
+    cp -r "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
+    mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+    cp -r Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+    for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
+	doStringReplace "$a" "$a"
+    done
+
+    PACKAGE_DICT="$TMP_DIR/pkg.dict"
+    rm -f "$PACKAGE_DICT"
+    for package in $PKG_CREATED; do
+	package_name=`basename $package`
+	package_type=selected
+	if [ "$package_name" = "Qt_libraries.pkg" ] || [ "$package_name" = "Qt_tools.pkg" ]; then
+	    package_type=required
+	fi
+	cat >"${PACKAGE_DICT}.tmp" <<EOF
+           <dict>
+              <key>IFPkgFlagPackageLocation</key>
+              <string>${package_name}</string>
+              <key>IFPkgFlagPackageSelection</key>
+              <string>${package_type}</string>
+           </dict>
+EOF
+	if [ "$package_type" = "required" ]; then
+	     cat "${PACKAGE_DICT}.tmp" "$PACKAGE_DICT" >"$TMP_DIR/dict.combined"
+	     mv "$TMP_DIR/dict.combined" "$PACKAGE_DICT"
+        else
+	    cat "${PACKAGE_DICT}.tmp" >>"$PACKAGE_DICT"
+        fi
+        rm -f "${PACKAGE_DICT}.tmp"
+    done
+    sed "/PACKAGE_DICT/r $PACKAGE_DICT" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist" >"${TMP_DIR}/Info.plist"
+    mv "${TMP_DIR}/Info.plist" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
+
+    PKG_CREATED="$PKG_CREATED $OUTPUT_DIR/Qt.mpkg"
+fi
+
+#create disk image
+if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
+    echo "Creating disk image.."
+    IMAGE_NAME="Qt Packages"
+    IMAGE="$OUTPUT_DIR/QtPackages.dmg"
+    rm -f "$IMAGE" #remove old
+
+    #mount
+    SIZE=0
+    for package in $PKG_CREATED; do
+	[ -z "$package" ] && continue
+	PACKAGESIZE=`/usr/bin/du -s -k $package 2>/dev/null | awk '{print $1}'`
+	echo "  $package == $PACKAGESIZE"
+	SIZE=$((SIZE + `/usr/bin/du -s -k $package 2>/dev/null | awk '{print $1}'`))
+    done
+    SIZE=$(((SIZE * 2) + 10000));  #some fudge...
+    SIZE=$((SIZE / 1000)) #bytes
+    hdiutil create "${IMAGE}.sparseimage" -volname "$IMAGE_NAME" -megabytes $SIZE -type SPARSE -fs HFS+ >/dev/null 2>&1
+    MOUNTPOINT=`hdid ${IMAGE}.sparseimage 2>&1 | grep "$IMAGE_NAME" | awk '{print $1}'`
+    echo "  Mounted $MOUNTPOINT [$SIZE]"
+
+    #copy
+    echo -n "  Copying..."
+    for package in $PKG_CREATED; do 
+	[ -z "$package" ] && continue
+	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,/Volumes/$IMAGE_NAME/,"`
+	mkdir -p "`dirname "$OUT_PACKAGE"`"
+	cp -r "$package" "$OUT_PACKAGE"
+    done
+    echo " done!"
+
+    #do evilness
+    echo -n "  Setting up..."
+    osascript -e "tell application \"Finder\"" \
+              -e "    set mountedDiskImage to disk \"${IMAGE_NAME}\"" \
+              -e "    open mountedDiskImage" \
+              -e "    tell container window of mountedDiskImage" \
+              -e "        set toolbar visible to false" \
+              -e "        set current view to icon view" \
+              -e "        set position of file \"Qt.mpkg\" to {10, 5}" \
+              -e "        set position of folder \"packages\" to {220, 5}" \
+              -e "        set bounds to {220, 180, 380, 400 }" \
+              -e "    end tell" \
+              -e "    set icon size of icon view options of container window of mountedDiskImage to 128" \
+              -e "end tell" \
+              > /dev/null
+    #set background color of icon view options of container window of mountedDiskImage to { 155*65545, 196*65565, 40*65535 } 
+    echo " done!"
+
+    #unmount
+    echo -n "  Unmounting..."
+    hdiutil detach $MOUNTPOINT >/dev/null 2>&1
+    rm -rf "/Volumes/$IMAGE_NAME/" >/dev/null 2>&1
+    echo " done!"
+
+    #compress
+    echo -n "  Compressing.."
+    hdiutil convert ${IMAGE}.sparseimage -format UDZO -o "$IMAGE" -imagekey zlib-devel=9 >/dev/null 2>&1
+    echo " done!"
+
+    #cleanup
+    rm ${IMAGE}.sparseimage
+
+    #license
+    echo -n "  Licensing..."
+    hdiutil unflatten "$IMAGE" >/dev/null 2>&1
+    /Developer/Tools/Rez /Developer/Headers/FlatCarbon/*.r dmg_license.r -a -o "$IMAGE"
+    hdiutil flatten "$IMAGE" >/dev/null 2>&1
+    echo " done!"
+fi
+
+#cleanup
+rm -rf "$TMP_DIR"

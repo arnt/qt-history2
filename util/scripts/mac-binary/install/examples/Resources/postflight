@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cat > "$2/Developer/Examples/Qt/.qmake.cache" << EOF
+#nothing anymore...
+EOF
+
+for pro in `find "$2/Developer/Examples/Qt" -name '*.pro'`; do
+    cd `dirname $pro`
+    /usr/bin/qmake -spec macx-g++
+    /usr/bin/qmake -spec macx-xcode
+    for file in `find .`; do
+         chgrp admin "$file"
+         if [ -d "$file" ] || [ -x "$file" ]; then
+	     chmod 775 "$file"
+         elif [ -x "$file" ]; then
+             chmod 664 "$file"
+         fi
+    done
+done

@@ -1,0 +1,69 @@
+#!/bin/sh
+
+
+PACKAGE_DIR=`(cd ../install && pwd)`
+PACKAGES=
+
+while [ -n "$1" ]; do
+   OPTION=
+   ARG=
+   case $1 in
+   -*=*) #gnu style
+     OPTION=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\1,'`
+     ARG=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\2,'`
+     ;;
+   -packages) #second arg style
+     OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
+     shift
+     ARG=$1
+     ;;          
+   -no-*) #no style
+     OPTION=`echo $1 | sed 's,-no-\([^=]*\),\1,'`
+     ARG=no
+     ;;
+   -*) #yes style
+     OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
+     ARG=yes
+     ;;
+   *) #other
+     OPTION=package
+     ARG="$1"
+     ;;
+   esac
+   shift
+   case "$OPTION" in
+   packages) PACKAGES_DIR="$ARG" ;;
+   package) PACKAGES="$PACKAGES $ARG" ;;
+   help|*)
+       [ "$OPTION" = "help" ] || echo "Unknown option -${OPTION}=${ARG}!" 
+       echo "Help!!"
+       exit 888;
+       ;;
+   esac  
+done
+
+if [ -z "$PACKAGES" ]; then
+    for a in $PACKAGE_DIR/*; do
+	[ -d "$a" ] && PACKAGES="$PACKAGES `basename $a`"
+    done
+fi
+
+for package in $PACKAGES; do
+     receipt="/Library/Receipts/Qt_${package}.pkg"
+     if [ -d "$receipt" ]; then
+         echo "Removing $package..."
+         for file in `lsbom -f "$receipt/Contents/Resources/Archive.bom"`; do
+             file=`echo $file | sed 's,^\\.,,'`
+             [ -z "$file" ] && continue
+             [ -e "$file" ] && rm -f "$file"
+         done
+	 rm -rf "$receipt"
+         [ "$package" = "libraries" ] && rm -rf /Library/Frameworks/Qt*.framework >/dev/null
+	 [ "$package" = "tools" ] && rm -f /bin/moc /bin/rcc /bin/uic /bin/uic3 /bin/qmake >/dev/null #links
+	 [ "$package" = "headers" ] && rm -f rm -rf /Library/Frameworks/Qt*.framework/Headers /Library/Frameworks/Qt*.framework/PrivateHeaders >/dev/null #links
+     else
+        echo "$package not installed!"
+     fi
+done
+
+rmdir /Developer/Examples/Qt /Developers/Applications/Qt /usr/local/mkspecs /Developer/Documentation/Qt >/dev/null 2>&1
