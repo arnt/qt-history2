@@ -21,7 +21,7 @@ internal {
 	CONFIG -= opengl
 	CONFIG -= canvas
 	# Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
-	CONFIG += jpeg
+	unix:CONFIG += jpeg
 #	LIBS += -lpng -lz
 #	CONFIG += mng
 }
