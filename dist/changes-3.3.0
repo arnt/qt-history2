@@ -64,3 +64,6 @@ Sun CC 5.0.
 	Qt supports toggeling of the accelerator underlines using the Alt-key
 	on Windows 98, 2000 and later. On other platforms this change is not
 	having any effect.
+
+- QSound
+	Windows: Support loop related APIs
