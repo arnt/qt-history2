@@ -288,6 +288,7 @@ QMNGFormat::QMNGFormat()
 */
 QMNGFormat::~QMNGFormat()
 {
+    mng_cleanup(&handle);
 }
 
 
