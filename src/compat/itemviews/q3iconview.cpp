@@ -42,6 +42,7 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
+#include "q3strlist.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -5509,7 +5510,7 @@ void Q3IconView::initDragEnter(QDropEvent *e)
         Q3IconDragPrivate::decode(e, d->iconDragData);
         d->isIconDrag = true;
     } else if (Q3UriDrag::canDecode(e)) {
-        QList<QByteArray> lst;
+        Q3StrList lst;
         Q3UriDrag::decode(e, lst);
         d->numDragItems = lst.count();
     } else {

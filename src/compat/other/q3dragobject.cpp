@@ -31,6 +31,8 @@
 #include "qdrag.h"
 #include <ctype.h>
 #include "qdrag.h"
+#include "q3strlist.h"
+#include "q3cstring.h"
 
 #include <private/qobject_p.h>
 
@@ -1094,28 +1096,26 @@ bool Q3UriDrag::canDecode(const QMimeSource* e)
     Returns true if the MIME \a source contained a valid list of URIs;
     otherwise returns false.
 */
-bool Q3UriDrag::decode(const QMimeSource* e, QList<QByteArray>& l)
+bool Q3UriDrag::decode(const QMimeSource* e, Q3StrList& l)
 {
     QByteArray payload = e->encodedData("text/uri-list");
     if (payload.size()) {
         l.clear();
-        int c=0;
-        const char* data = payload;
-        while (c < payload.size() && data[c]) {
+        l.setAutoDelete(TRUE);
+        uint c=0;
+        const char* data = payload.data();
+        while ((int)c < payload.size() && data[c]) {
             uint f = c;
             // Find line end
-            while (c < payload.size() && data[c] && data[c]!='\r'
-                    && data[c] != '\n')
+            while ((int)c < payload.size() && data[c] && data[c]!='\r'
+                   && data[c] != '\n')
                 c++;
-
-            if (c - f > 0 && data[f] != '#') {
-                QByteArray s(data+f, c-f);
+            Q3CString s(data+f,c-f+1);
+            if (s[0] != '#') // non-comment?
                 l.append(s);
-            }
-
             // Skip junk
-            while (c < payload.size() && data[c] &&
-                    (data[c]=='\n' || data[c]=='\r'))
+            while ((int)c < payload.size() && data[c] &&
+                   (data[c]=='\n' || data[c]=='\r'))
                 c++;
         }
         return true;
@@ -1382,12 +1382,12 @@ QString Q3UriDrag::uriToLocalFile(const char* uri)
 */
 bool Q3UriDrag::decodeLocalFiles(const QMimeSource* e, QStringList& l)
 {
-    QList<QByteArray> u;
+    Q3StrList u;
     if (!decode(e, u))
         return false;
 
     l.clear();
-    for (int i = 0; i < u.count(); ++i) {
+    for (uint i = 0; i < u.count(); ++i) {
         QString lf = uriToLocalFile(u.at(i));
         if (!lf.isEmpty())
             l.append(lf);
@@ -1407,12 +1407,12 @@ bool Q3UriDrag::decodeLocalFiles(const QMimeSource* e, QStringList& l)
 */
 bool Q3UriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 {
-    QList<QByteArray> u;
+    Q3StrList u;
     if (!decode(e, u))
         return false;
 
     l.clear();
-    for (int i = 0; i < u.count(); ++i)
+    for (uint i = 0; i < u.count(); ++i)
         l.append(uriToUnicodeUri(u.at(i)));
 
     return true;

@@ -17,6 +17,7 @@
 #include "qstring.h"
 #include "q3ptrlist.h"
 #include "qdatastream.h"
+#include "qlist.h"
 
 #if defined(Q_QDOC)
 class Q3StrListIterator : public Q3PtrListIterator<char>
@@ -33,6 +34,17 @@ public:
     Q3StrList( const Q3StrList & );
     ~Q3StrList()			{ clear(); }
     Q3StrList& operator=( const Q3StrList & );
+    Q3StrList(const QList<QByteArray> &list) {
+        for (int i = 0; i < list.size(); ++i)
+            append(list.at(i));
+    }
+
+    operator QList<QByteArray>() const {
+        QList<QByteArray> list;
+        for (Q3PtrListStdIterator<char> it = begin(); it != end(); ++it)
+            list.append(QByteArray(*it));
+        return list;
+    }
 
 private:
     Q3PtrCollection::Item newItem( Q3PtrCollection::Item d ) { return dc ? qstrdup( (const char*)d ) : d; }

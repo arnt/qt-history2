@@ -1352,7 +1352,7 @@ void QFileListBox::viewportDropEvent(QDropEvent *e)
         return;
     }
 
-    QList<QByteArray> l;
+    Q3StrList l;
     Q3UriDrag::decode(e, l);
 
     bool move = e->action() == QDropEvent::Move;
@@ -1364,7 +1364,7 @@ void QFileListBox::viewportDropEvent(QDropEvent *e)
     else
         dest = filedialog->d->url;
     QStringList lst;
-    for (int i = 0; i < l.count(); ++i) {
+    for (uint i = 0; i < l.count(); ++i) {
         lst << l.at(i);
     }
 
