@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#37 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -492,9 +492,9 @@ QString QMultiLineEdit::markedText() const
 	    tmp += "\n";
 	    tmp += *(contents->at( i ));
 	}
+	tmp += "\n";
 
 	if ( markEndX != 0 ) {
-	    tmp += "\n";
 	    tmp += lastS->left( markEndX  );
 	}
 	return tmp;
@@ -542,24 +542,29 @@ QString QMultiLineEdit::text() const
 
 
 /*!
-  Selects all text (unimplemented)
+  Selects all text without moving the cursor.
 */
 
 void QMultiLineEdit::selectAll()
 {
-    
+    markAnchorX    = 0;
+    markAnchorY    = 0;
+    markDragY = numLines() - 1;
+    markDragX = lineLength( cursorY );
+    markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+    repaint( TRUE );
 }
 
 
 
 /*!
   Deselects all text (i.e. removes marking) and leaves the cursor at the
-  current position (not implemented yet).
+  current position.
 */
 
 void QMultiLineEdit::deselect()
 {
-
+    turnMarkOff();
 }
 
 
@@ -808,6 +813,8 @@ void QMultiLineEdit::pageDown( bool mark )
 	repaint( FALSE );
     else
 	updateCell( oldY, 0, FALSE );
+    if ( !mark )
+	turnMarkOff();
 }
 
 
@@ -851,6 +858,8 @@ void QMultiLineEdit::pageUp( bool mark )
 	repaint( FALSE );
     else
 	updateCell( oldY, 0, FALSE );
+    if ( !mark )
+	turnMarkOff();
 }
 
 
@@ -861,7 +870,11 @@ void QMultiLineEdit::pageUp( bool mark )
   Inserts \a txt at line number \a line, after character number \a col
   in the line. 
   If \a txt contains newline characters, new lines are inserted.
-*/
+
+  The cursor position is adjusted. If the insertion position is equal to
+  the cursor poition, the cursor is placed after the end of the new text.
+
+ */
 
 void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 {
@@ -879,18 +892,27 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 
     int from = 0;
 
+    bool cursorAfter = atEnd() || cursorY > line 
+		       || cursorY == line && cursorX >= col;
+    bool onLineAfter = cursorY == line && cursorX >= col;
+
     int to = t.find( '\n' );
     if ( to < 0 ) { //just one line
 	oldLine->insert( col, t );
 	int w = textWidth( oldLine );
 	setWidth( QMAX( cellWidth(), w ) );
+	if ( onLineAfter )
+	    cursorX += t.length();
     } else { //multiline
 	bool aupd = autoUpdate();
 	setAutoUpdate( FALSE );
 	QString newString = oldLine->mid( col, oldLine->length() );
 	oldLine->remove( col, oldLine->length() );
+	if ( onLineAfter )
+	    cursorX -= oldLine->length();
 	*oldLine += t.left( to );
 	line++;
+	cursorY++;
 	if ( line >= numLines() ) {
 	    insertLine( "", numLines() );
 	}
@@ -898,8 +920,12 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 	while ( (to = t.find( '\n', from )) > 0 ) {
 	    insertLine( t.mid( from, to - from ), line++ );
 	    from = to + 1;
+	    if ( cursorAfter )
+		cursorY++;
 	}
 	int lastLen = t.length() - from;
+	if ( onLineAfter )
+	    cursorX += lastLen;
 	newString.prepend( t.right( lastLen ) );
 	insertLine( newString, line );
 	updateCellWidth();
@@ -919,6 +945,8 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
   Inserts \a s at line number \a line. If \a line is less than zero, or
   larger than the number of rows, the new text is put at the end.
   If \a s contains newline characters, several lines are inserted.
+
+  The cursor position is not changed.
 */
 
 void QMultiLineEdit::insertLine( const char *txt, int line )
@@ -1632,16 +1660,16 @@ void QMultiLineEdit::paste()
 	if ( hasMarkedText() )
 	    turnMarkOff();
 
-
 	uchar *p = (uchar *) t.data();
 	while ( *p ) {		// unprintable becomes space
-	    if ( *p < 32 && *p != '\n')
+	    if ( *p < 32 && *p != '\n' && *p != '\t' )
 		*p = 32;
 	    p++;
 	}
 	insertAt( t, cursorY, cursorX );
 	markIsOn = FALSE;
 	curXPos  = 0;
+	makeVisible();
     }
 }
 
@@ -1774,13 +1802,22 @@ void QMultiLineEdit::setWidth( int w )
 /*!
   Sets the cursor position to character number \a col in line number \a line.
   The parameters are adjusted to lie within the legal range.
+
+  If \a mark is FALSE, the selection is cleared. otherwise it is extended
 */
 
-void QMultiLineEdit::setCursorPosition( int line, int col )
+void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 {
+    int oldY = cursorY;
     cursorY = QMAX( QMIN( line, numLines() - 1), 0 );
     cursorX = QMAX( QMIN( col,  lineLength( cursorY )), 0 );
     curXPos = 0;
+    makeVisible();
+    updateCell( oldY, 0, FALSE );
+    if ( mark )
+	newMark( cursorX, cursorY, FALSE );
+    else
+	turnMarkOff();
 }
 
 

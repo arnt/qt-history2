@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#23 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#24 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -38,7 +38,7 @@ public:
     virtual void insertAt( const char *s, int line, int col );
     virtual void removeLine( int line );
 
-    void	setCursorPosition( int line, int col );
+    void	setCursorPosition( int line, int col, bool mark = FALSE );
     void	getCursorPosition( int *line, int *col );
     bool	atBeginning() const;
     bool	atEnd() const;
@@ -131,9 +131,9 @@ private:
     void	makeVisible();
     void	setBottomCell( int row );
 
+    // SHOULD THESE BECOME PROTECTED:
     void	paste();
 
-    // SHOULD THESE BECOME PROTECTED:
     void	newMark( int posx, int posy, bool copy=TRUE );
     void	turnMarkOff();
     void	markWord( int posx, int posy );
