@@ -42,6 +42,7 @@
 #include "qlibrary.h"
 #include "qcleanuphandler.h"
 #include "qsettings.h"
+#include "qfile.h"
 
 /*!
   \class QComponentFactory qcomponentfactory.h
@@ -68,26 +69,31 @@
 */
 
 /*!
-  Searches for the component identifier \a cid in the system registry,
-  loads the corresponding component server and queries for the interface \a
-  iid. The parameter \a outer is a pointer to the outer interface used
+  Searches for the component identifier \a cid in the system component database,
+  loads the corresponding component server and queries for the interface \a iid. 
+  \a iface is set to the resulting interface pointer.
+
+  The parameter \a outer is a pointer to the outer interface used
   for containment and aggregation and is propagated to the \link
   QComponentFactoryInterface::createInstance() createInstance \endlink
-  implementation of the QComponentFactoryInterface provided by the
-  component server if provided.
-  Returns the retrieved interface pointer, or NULL if there was an error.
+  implementation of the QComponentFactoryInterface in the component server if 
+  provided.
+
+  Returns QS_OK if the interface was successfully instantiated, QE_NOINTERFACE if
+  the component does not provide an interface \a iid, or QE_NOCOMPONENT if there was 
+  an error loading the component.
 
   Example:
   \code
-  MyInterface *iface = (MyInterface*)QComponentFactory::createInstance( IID_MyInterface, CID_MyComponent );
-  if ( iface ) {
+  MyInterface *iface;
+  if ( QComponentFactory::createInstance( IID_MyInterface, CID_MyComponent, (QUnknownInterface**)&iface ) == QS_OK )
       ...
       iface->release();
   }
   \endcode
 */
 
-QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer )
+QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** iface, QUnknownInterface *outer )
 {
     QSettings settings;
     bool ok;
@@ -101,17 +107,19 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
     QString ext = file.right( file.length() - dot );
     if ( ext == ".dll" || ext == ".so" || ext == ".dylib" )
 	file = file.left( dot );
+    if ( !QFile::exists( file ) )
+	return QE_NOCOMPONENT;
 
     QLibrary *library = new QLibrary( file );
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
     if ( cfIface ) {
-	QRESULT res = cfIface->createInstance( cid, iid, instance, outer );
+	QRESULT res = cfIface->createInstance( cid, iid, iface, outer );
 	cfIface->release();
 	return res;
     }
-    return library->queryInterface( iid, instance );
+    return library->queryInterface( iid, iface );
 }
 
 /*!
