@@ -1526,6 +1526,7 @@ void AddMenuCommand::execute()
 	id = mainWindow->menuBar()->insertItem( name, popup );
     else
 	id = mainWindow->menuBar()->insertItem( name, popup, id, index );
+    formWindow()->killAccels( formWindow() );
 }
 
 void AddMenuCommand::unexecute()
@@ -1533,6 +1534,7 @@ void AddMenuCommand::unexecute()
     if ( !popup || !menuBar )
 	return;
     menuBar->removeItem( id );
+    formWindow()->killAccels( formWindow() );
 }
 
 // ------------------------------------------------------------
@@ -1546,11 +1548,13 @@ RenameMenuCommand::RenameMenuCommand( const QString &n, FormWindow *fw, QDesigne
 void RenameMenuCommand::execute()
 {
     menuBar->changeItem( id, newName );
+    formWindow()->killAccels( formWindow() );
 }
 
 void RenameMenuCommand::unexecute()
 {
     menuBar->changeItem( id, oldName );
+    formWindow()->killAccels( formWindow() );
 }
 
 // ------------------------------------------------------------
@@ -1565,12 +1569,14 @@ void MoveMenuCommand::execute()
 {
     menuBar->removeItem( menuBar->idAt( fromIdx ) );
     menuBar->insertItem( text, popup, -1, toIdx );
+    formWindow()->killAccels( formWindow() );
 }
 
 void MoveMenuCommand::unexecute()
 {
     menuBar->removeItem( menuBar->idAt( toIdx ) );
     menuBar->insertItem( text, popup, -1, fromIdx );
+    formWindow()->killAccels( formWindow() );
 }
 
 // ------------------------------------------------------------

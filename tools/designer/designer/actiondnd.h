@@ -19,7 +19,7 @@ class QDesignerActionGroup : public QActionGroup
 
 public:
     QDesignerActionGroup( QObject *parent )
-	: QActionGroup( parent ), wid( 0 ), idx( -1 ) {}
+	: QActionGroup( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ) {}
 
     QWidget *widget() const { return wid; }
     QWidget *widget( QAction *a ) const { return *widgets.find( a ); }
@@ -49,9 +49,9 @@ class QDesignerAction : public QAction
 
 public:
     QDesignerAction( QObject *parent )
-	: QAction( parent ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) {}
+	: QAction( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) {}
     QDesignerAction( QWidget *w, QObject *parent )
-	: QAction( parent ), wid( 0 ), idx( -1 ), widgetToInsert( w ) {}
+	: QAction( !parent || parent->inherits( "QActionGroup" ) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( w ) {}
 
     QWidget *widget() const { return wid; }
     int index() const { return idx; }
