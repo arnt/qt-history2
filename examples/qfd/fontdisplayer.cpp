@@ -29,14 +29,13 @@ FontRowTable::FontRowTable( QWidget* parent, const char* name ) :
 {
     setBackgroundMode(PaletteBase);
     setFrameStyle(Panel|Sunken);
-    setMargin(8);
     setRow(0);
     tablefont = QApplication::font();
 }
 
 QSize FontRowTable::sizeHint() const
 {
-    return 24*cellSize()+QSize(2,2)*(margin()+frameWidth());
+    return 24*cellSize()+QSize(2,2)*(frameWidth()+8);
 }
 
 QSize FontRowTable::cellSize() const
@@ -52,9 +51,9 @@ void FontRowTable::paintEvent( QPaintEvent* e )
     p.setClipRegion(e->region());
     QRect r = e->rect();
     QFontMetrics fm = fontMetrics();
-    int ml = frameWidth()+margin() + 1 + QMAX(0,-fm.minLeftBearing());
-    int mt = frameWidth()+margin();
-    QSize cell((width()-15-ml)/16,(height()-15-mt)/16);
+    int ml = frameWidth() + 8 + 1 + QMAX(0,-fm.minLeftBearing());
+    int mt = frameWidth() + 8;
+    QSize cell((width()-2*mt)/16,(height()-2*mt)/16);
 
     if ( !cell.width() || !cell.height() )
 	return;
