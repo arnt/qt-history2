@@ -957,9 +957,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         }
     }
     if(project->first("TEMPLATE") == "app") {
-	QString file = Option::mkfile::qmakespec + Option::dir_sep + "Info.plist.app";
-	if(QFile::exists(file)) {
-	    QFile plist_in_file(file);
+        QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
+        if(plist.isEmpty())
+            plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
+	if(QFile::exists(plist)) {
+	    QFile plist_in_file(plist);
 	    if(plist_in_file.open(IO_ReadOnly)) {
 		QTextStream plist_in(&plist_in_file);
 		QString plist_in_text = plist_in.read();
@@ -1045,45 +1047,58 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(ideType() == MAC_XCODE)
         t << "\t\t\t" << "isa = PBXNativeTarget;" << "\n";
     if(project->first("TEMPLATE") == "app") {
-        if(project->isActiveConfig("console")) {
-            if(ideType() == MAC_XCODE)
-                t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
-            else
-                t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
-        } else {
-            if(ideType() == MAC_XCODE)
-                t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
-            else
-                t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
-            t << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version="
-              << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
-              << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/"
-              << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
-              << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
-              << "\t\t\t\t" << "<dict>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
-              << "\t\t\t\t\t" << "<string>English</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
-              << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
-              << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
-              << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
-              << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
-                //Although the output below looks strange it is to avoid the trigraph ??<
-              << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
-              << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
-              << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
-              << "\t\t\t\t\t" << "<true/>" << "\n"
-              << "\t\t\t\t" << "</dict>" << "\n"
-              << "\t\t\t\t" << "</plist>" << "\";" << "\n";
-
-        }
-        t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
-          << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
+	if(project->isActiveConfig("console")) {
+	    if(ideType() == MAC_XCODE) 
+		t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
+	    else
+		t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
+	} else {
+	    if(ideType() == MAC_XCODE)
+		t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
+	    else
+		t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
+	    t << "\t\t\t" << "productSettingsXML = \"";
+            bool read_plist = false;
+            if(QFile::exists("Info.plist")) {
+                QFile plist("Info.plist");
+                if(plist.open(IO_ReadOnly)) {
+                    read_plist = true;
+                    QTextStream stream(&plist);
+                    while(!stream.eof()) 
+                        t << stream.readLine().replace('"', "\\\"") << endl;
+                }
+            }
+            if(!read_plist) {
+                t << "<?xml version=" 
+                  << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
+                  << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
+                  << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
+                  << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
+                  << "\t\t\t\t" << "<dict>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
+                  << "\t\t\t\t\t" << "<string>English</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
+                  << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
+                  << "\t\t\t\t\t" << "<string>" << var("RC_FILE").section(Option::dir_sep, -1) << "</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
+                  << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
+                  << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
+                    //Although the output below looks strange it is to avoid the trigraph ??<
+                  << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
+                  << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
+                  << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
+                  << "\t\t\t\t\t" << "<true/>" << "\n"
+                  << "\t\t\t\t" << "</dict>" << "\n"
+                  << "\t\t\t\t" << "</plist>";
+            }
+	}
+        t << "\";" << "\n";
+	t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
+	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
         QString lib = project->first("QMAKE_ORIG_TARGET");
         if(!project->isActiveConfig("frameworklib") && !project->isActiveConfig("staticlib"))
