@@ -20,7 +20,7 @@ $initstr =
 Troll Tech AS
 .sp 2
 .sz 36
-Qt 1.0
+Qt 1.2
 .sz 24
 Tutorial and Reference
 .sz 18
@@ -56,9 +56,9 @@ five-line hello-world and builds gradually, introducing one or a few
 concepts at a time, into a simple, 650-line game which consists of
 several reusable components.
 .pp
-To compile and run the tutorial programs, you need the Qt
-toolkit, gcc version 2.7 or later, and X11R6.  You do not need
-libg++ or libstdc++.
+To compile and run the tutorial programs, you need the Qt toolkit, a
+C++ compiler, and X11R4 or later.  You do not need libg++ or
+libstdc++.
 .pp
 You also need a basic knowledge of C++ and makefiles.  O'Reilly
 Associates (for example) publishes good books on both:
@@ -217,7 +217,7 @@ sub parseclassfile {
     local ($title );
     
     # strip head and tail
-    s/^.*?<body[&>]*>\s*//s;
+    s/^.*?<body[^>]*>\s*//s;
     s/<hr><p>\s+This file is part of the.*$//s;
 
     # paragraphs, lines
@@ -269,9 +269,10 @@ sub parsetutfile {
 
     local ($title );
 
-    # strip head and tail
-    s/^.*?<body>\s*//s;
+    # strip head, tail and centering
+    s/^.*?<body[^>]*>\s*//s;
     s/<p>\s*You may now go on to.*$//gs;
+    s-<center>\s*(.*?)</center>-\1-gs;
 
     # paragraphs, lines
     s/\s*<p>\s*/\n\n.pp\n/gs;
@@ -342,40 +343,40 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-1.0.me" ) || die;
+open( O, "> /tmp/qtdoc-1.2.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.0.me\n";
+print "/tmp/qtdoc-1.2.me\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.0-a4.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.2-a4.ps" ) || die;
 print O $a4, $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.0-a4.ps\n";
+print "/tmp/qtdoc-1.2-a4.ps\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.0-letter.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.2-letter.ps" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.0-letter.ps\n";
+print "/tmp/qtdoc-1.2-letter.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.0-a4.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.2-a4.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-1.0-a4-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.2-a4-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.0-a4-2.ps\n";
+print "/tmp/qtdoc-1.2-a4-2.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.0-letter.ps |" )
+open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.2-letter.ps |" )
     || die;
 $_ = <I>;
 close I;
 s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-1.0-letter-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.2-letter-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.0-letter-2.ps\n";
+print "/tmp/qtdoc-1.2-letter-2.ps\n";
 
 foreach ( keys %delete ) {
     unlink $_ if ( -f $_ );
