@@ -1555,16 +1555,16 @@ void QLineEdit::imComposeEvent(QIMEvent *e)
 {
     if (d->readOnly) {
         e->ignore();
-    } else if (!e->text().isEmpty()) {
-        d->text.replace(d->imstart, d->imend - d->imstart, e->text());
-        d->imend = d->imstart + e->text().length();
-        d->imselstart = d->imstart + e->cursorPos();
-        d->imselend = d->imselstart + e->selectionLength();
-        d->cursor = e->selectionLength() ? d->imend : d->imselend;
-        d->updateTextLayout();
-        update();
-        d->emitCursorPositionChanged();
+	return;
     }
+    d->text.replace(d->imstart, d->imend - d->imstart, e->text());
+    d->imend = d->imstart + e->text().length();
+    d->imselstart = d->imstart + e->cursorPos();
+    d->imselend = d->imselstart + e->selectionLength();
+    d->cursor = e->selectionLength() ? d->imend : d->imselend;
+    d->updateTextLayout();
+    update();
+    d->emitCursorPositionChanged();
 }
 
 /*! \reimp
@@ -1573,12 +1573,12 @@ void QLineEdit::imEndEvent(QIMEvent *e)
 {
     if (d->readOnly) {
         e->ignore();
-    } else if (!e->text().isEmpty()) {
-        d->text.remove(d->imstart, d->imend - d->imstart);
-        d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
-        d->textDirty = true;
-        insert(e->text());
+	return;
     }
+    d->text.remove(d->imstart, d->imend - d->imstart);
+    d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
+    d->textDirty = true;
+    insert(e->text());
 }
 
 /*!\reimp
