@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#135 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#134 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#135 $");
 
 
 /*!
@@ -1961,6 +1961,9 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
     GIF, BMP, XBM and PNM.
   The different PNM formats are: PBM (P1), PGM (P2), PPM (P3), PBMRAW (P4),
   PGMRAW (P5) and PPMRAW (P6).
+
+  Additional formats are available with the
+  <a href=http://www.troll.no/imageio/>Qt Image IO Extension</a> package.
 
   PBM, PGM, and PPM format output is only supported in PPMRAW format.
 
