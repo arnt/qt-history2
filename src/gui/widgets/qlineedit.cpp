@@ -39,7 +39,7 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 #ifndef QT_NO_IM
 #include "qinputcontext.h"
 #include "qlist.h"
@@ -1625,7 +1625,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
 bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 {
     // ##### currently X11 only
-#if defined Q_WS_X11 && !defined QT_NO_IM
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined QT_NO_IM
     if ( composeMode() ) {
 	int cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
 	int mousePos = cursor - d->cursor;
@@ -2008,15 +2008,13 @@ QMenu *QLineEdit::createStandardContextMenu()
     popup->addAction(d->actions[QLineEditPrivate::ClearAct]);
     popup->addSeparator();
     popup->addAction(d->actions[QLineEditPrivate::SelectAllAct]);
-#ifdef Q_WS_X11
-#ifndef QT_NO_IM
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
     QInputContext *qic = inputContext();
     if (qic) {
         QList<QAction *> imActions = qic->actions();
         for (int i = 0; i < imActions.size(); ++i)
             popup->addAction(imActions.at(i));
     }
-#endif
 #endif
     return popup;
 #else

@@ -40,6 +40,10 @@
 #include <qx11info_x11.h>
 #endif
 
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#include <qinputcontext.h>
+#endif
+
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
 //  - top-level widgets have extra extra data to reduce cost further
@@ -181,9 +185,12 @@ public:
     bool compositeEvent(QEvent *e);
     void setWindowIcon_sys(const QPixmap &pixmap);
 
-#if defined(Q_WS_X11)
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS))
     void focusInputContext();
     void unfocusInputContext();
+#endif
+
+#if defined(Q_WS_X11)
     void checkChildrenDnd();
     void removePendingPaintEvents();
     QRegion invalidated_region;
@@ -255,7 +262,7 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
-#if defined(Q_WS_X11) && !defined(QT_NO_IM)
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
     QPointer<QInputContext> ic;
 #endif
     static QWidgetMapper *mapper;

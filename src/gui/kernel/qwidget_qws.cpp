@@ -22,7 +22,7 @@
 #include "qlayout.h"
 #include "qtextcodec.h"
 #include "qcursor.h"
-#include "qinputcontext_p.h"
+#include "qinputcontext.h"
 #include "qdesktopwidget.h"
 #include "qcleanuphandler.h"
 
@@ -30,7 +30,6 @@
 #include "qscreen_qws.h"
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
-#include "qinputcontext_p.h"
 
 #include <private/qpaintengine_qws_p.h>
 
@@ -1782,12 +1781,51 @@ int QWidget::qwsBytesPerLine() const
     return qt_screen->linestep();
 }
 
+//copied from qwidget_x11.cpp
+void QWidgetPrivate::focusInputContext()
+{
+#ifndef QT_NO_IM
+    QInputContext *qic = q->inputContext();
+    if (qic) {
+	if(qic->focusWidget() != q)
+	    qic->setFocusWidget(q);
+    }
+#endif // QT_NO_IM
+}
+
+//copied from qwidget_x11.cpp
+void QWidgetPrivate::unfocusInputContext()
+{
+#ifndef QT_NO_IM
+    QInputContext *qic = q->inputContext();
+    if ( qic ) {
+	qic->setFocusWidget( 0 );
+    }
+#endif // QT_NO_IM
+}
+
+
+//copied from qwidget_x11.cpp
+QInputContext *QWidget::inputContext()
+{
+    if (!testAttribute(Qt::WA_InputMethodEnabled))
+        return 0;
+
+    if (d->ic)
+        return d->ic;
+    return qApp->inputContext();
+}
+
+
+
 void QWidget::resetInputContext()
 {
     if (!hasFocus())
         return;
-#ifndef QT_NO_QWS_IM
-    QInputContext::reset();
+#ifndef QT_NO_IM
+    QInputContext *qic = inputContext();
+    if( qic )
+	qic->reset();
 #endif
 }
 

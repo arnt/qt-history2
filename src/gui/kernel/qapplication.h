@@ -35,7 +35,7 @@ class QDesktopWidget;
 class QStyle;
 class QEventLoop;
 template <typename T> class QList;
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 class QInputContext;
 #endif
 #if defined(Q_WS_QWS)
@@ -201,6 +201,9 @@ public:
     static QString defaultInputMethod();
 
     static bool x11_apply_settings();
+#elif  defined(Q_WS_QWS)
+    void setInputContext(QInputContext *);
+    QInputContext *inputContext() const;
 #endif
 
     static int exec();

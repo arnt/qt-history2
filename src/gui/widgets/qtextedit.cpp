@@ -36,7 +36,7 @@
 #include <qvariant.h>
 #include <qurl.h>
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 #include <qinputcontext.h>
 #endif
 
@@ -1612,7 +1612,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
                 return;
             }
 
-#ifdef Q_WS_X11
+#if (defined(Q_WS_X11) || defined(Q_WS_QWS)) && !defined(QT_NO_IM)
             QTextLayout *layout = d->cursor.block().layout();
             if (!layout->preeditAreaText().isEmpty()) {
                 inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);

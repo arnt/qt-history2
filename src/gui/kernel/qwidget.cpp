@@ -45,6 +45,7 @@
 #endif
 #if defined(Q_WS_QWS)
 #include "qwsmanager_qws.h"
+#include "qinputcontext.h"
 #endif
 #include "qpainter.h"
 #include "qtooltip.h"
@@ -3175,10 +3176,10 @@ void QWidget::setFocus(Qt::FocusReason reason)
 	    // unfocusInputContext(). See 'Preedit preservation' section of
 	    // QInputContext.
             if (prev != f) {
-#ifndef Q_WS_X11
-		prev->resetInputContext();
-#else
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
 		prev->d_func()->unfocusInputContext();
+#else
+		prev->resetInputContext();
 #endif
 	    }
         }
@@ -3188,7 +3189,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
         }
 #endif
         qApp->setFocusWidget(f);
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
         f->d_func()->focusInputContext();
 #endif
 
@@ -3240,7 +3241,7 @@ void QWidget::clearFocus()
         w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
         Q_D(QWidget);
 	d->unfocusInputContext();
 #endif
@@ -6446,7 +6447,7 @@ void QWidget::setShortcutEnabled(int id, bool enable)
 
 void QWidget::updateMicroFocus()
 {
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     QInputContext *ic = inputContext();
     if (ic)
         ic->update();

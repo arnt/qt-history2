@@ -45,15 +45,12 @@
 #include "qwindowsystem_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qcursor.h"
-#include "qinputcontext_p.h"
+#include "qinputcontext.h"
 #include "qfile.h"
 #include "qhash.h"
 #include "qdesktopwidget.h"
 #include "qcolormap.h"
 #include <private/qcursor_p.h>
-
-//### convert interlace style
-//#include "qinterlacestyle.h"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -98,6 +95,8 @@ static bool servermaxrect=false; // set to true once.
 
 extern QApplication::Type qt_appType;
 extern void qwsUpdateActivePainters();
+
+QInputContext *QApplicationPrivate::inputContext;
 
 //these used to be environment variables, they are initialized from
 //environment variables in
@@ -248,6 +247,7 @@ public:
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
     bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
     bool translateWheelEvent(const QWSMouseEvent *me);
+    bool translateIMEvent(const QWSIMEvent *);
     void repaintHierarchy(QRegion r, bool post);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
@@ -266,6 +266,22 @@ void QApplicationPrivate::createEventDispatcher()
     eventDispatcher = (q->type() != QApplication::Tty
                        ? new QEventDispatcherQWS(q)
                        : new QEventDispatcherUNIX(q));
+}
+
+
+
+// IM stuff
+
+void QApplication::setInputContext(QInputContext *ic)
+{
+    if (d->inputContext)
+        delete d->inputContext;
+    d->inputContext = ic;
+}
+
+QInputContext *QApplication::inputContext() const
+{
+    return d->inputContext;
 }
 
 
@@ -1380,6 +1396,72 @@ void QWSDisplay::setTransformation(int t)
 }
 #endif
 
+
+
+
+#ifndef QT_NO_QWS_IM
+// Talking to the QWS input manager, maybe this should be in qinputcontext_qws.cpp instead?
+
+class QWSInputContext : public QInputContext
+{
+//    Q_OBJECT
+public:
+    explicit QWSInputContext(QObject* parent = 0);
+    ~QWSInputContext() {}
+
+
+    QString identifierName() { return QString(); }
+    QString language() { return QString(); }
+
+    void reset();
+    void update();
+    void mouseHandler( int x, QMouseEvent *event);
+
+    bool isComposing() const { return false; } // ### should be removed
+};
+
+QWSInputContext::QWSInputContext(QObject *parent)
+    :QInputContext(parent)
+{
+}
+
+void QWSInputContext::reset()
+{
+    QPaintDevice::qwsDisplay()->resetIM();
+}
+
+void QWSInputContext::update()
+{
+    QWidget *w = focusWidget();
+    if (!w)
+        return;
+
+    QPoint p = w->inputMethodQuery(Qt::ImMicroFocus).toRect().bottomLeft();
+
+    QWidget *tlw = w->topLevelWidget();
+    int winid = tlw->winId();
+    QPoint gp = w->mapToGlobal( p );
+
+    QRect r = QRect( w->mapToGlobal( QPoint(0,0) ),
+                     w->size() );
+
+    r.setBottom( tlw->geometry().bottom() );
+
+    //qDebug( "QWidget::setMicroFocusHint %d %d %d %d", r.x(),
+    //	r.y(),  r.width(), r.height() );
+
+    QPaintDevice::qwsDisplay()->setIMInfo( winid, gp.x(), gp.y(), r);
+
+}
+
+void QWSInputContext::mouseHandler( int x, QMouseEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease)
+        QPaintDevice::qwsDisplay()->sendIMMouseEvent( x, event->type() == QEvent::MouseButtonPress );
+}
+
+#endif // QT_NO_QWS_IM
+
 static bool        qt_try_modal(QWidget *, QWSEvent *);
 
 // Paint event clipping magic
@@ -1624,6 +1706,9 @@ void qt_init(QApplicationPrivate *priv, int type)
 #ifndef QT_NO_QWS_MANAGER
         qws_decoration = QApplication::qwsSetDecoration(
             decoration.isEmpty()?QString::fromLatin1("default"):decoration);
+#endif
+#ifndef QT_NO_QWS_IM
+        qApp->setInputContext(new QWSInputContext);
 #endif
     }
 
@@ -2243,7 +2328,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #ifndef QT_NO_QWS_IM
     case QWSEvent::IMEvent:
         if (keywidget) // should always exist
-            QInputContext::translateIMEvent(static_cast<QWSIMEvent*>(event), keywidget);
+            keywidget->translateIMEvent(static_cast<QWSIMEvent*>(event));
         break;
 #endif
 
@@ -2613,6 +2698,40 @@ void QApplication::closePopup(QWidget *popup)
 // Needed for QCursor::pos
 
 static const int AnyButton = (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
+
+
+#ifndef QT_NO_QWS_IM
+bool QETWidget::translateIMEvent(const QWSIMEvent *e)
+{
+    QString txt(e->text, e->simpleData.textLen);
+    QInputContext *qic = inputContext();
+    Q_ASSERT(qic);
+
+    if (e->simpleData.type == QWSServer::InputMethodCompose) {
+        const int cpos = qMax(0, qMin(e->simpleData.cpos, int(txt.length())));
+        const int selLen = qMin(e->simpleData.selLen, int(txt.length())-cpos);
+
+        QList<QInputMethodEvent::Attribute> attrs;
+        if (cpos > 0)
+            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, cpos,
+                                                  qic->standardFormat(QInputContext::PreeditFormat));
+        if (selLen)
+            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, cpos, selLen,
+                                                  qic->standardFormat(QInputContext::SelectionFormat));
+        if (cpos + selLen < txt.length())
+            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                  cpos + selLen, txt.length() - cpos - selLen,
+                                                  qic->standardFormat(QInputContext::PreeditFormat));
+
+        QInputMethodEvent ime(txt, attrs);
+        qt_sendSpontaneousEvent(this, &ime);
+    } else if (e->simpleData.type == QWSServer::InputMethodEnd) {
+        QInputMethodEvent ime;
+        ime.setCommitString(txt);
+        qt_sendSpontaneousEvent(this, &ime);
+    }
+}
+#endif //QT_NO_QWS_IM
 
 //
 // Wheel event translation
