@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#69 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#70 $
 **
 ** Definition of QFont class
 **
@@ -127,6 +127,8 @@ public:
 
 #if defined(_WS_WIN_)
     HFONT	handle() const;
+#elif defined(_WS_MAC)
+    HANDLE      handle() const;
 #elif defined(_WS_X11_)
     HANDLE	handle() const;
 #endif
@@ -165,6 +167,9 @@ private:
     void	detach();
     void	initFontInfo() const;
     void	load() const;
+#if defined(_WS_MAC_)
+    void        macSetFont(void *);
+#endif
 #if defined(_WS_WIN_)
     HFONT	create( bool *, HDC=0, bool=FALSE ) const;
     void       *textMetric() const;

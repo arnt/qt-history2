@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#239 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#240 $
 **
 ** Definition of QWidget class
 **
@@ -345,6 +345,11 @@ protected:
 
 #if defined(_WS_MAC_)
     virtual bool macEvent( MSG * );		// Macintosh event
+    QWidget * mytop;                            // This widget's top-level widg
+    int back_type;                              // Type of background
+    QPixmap * bg_pix;
+    virtual void fixport();
+    virtual void propagateUpdates(int x,int y,int x2,int y2);
 #elif defined(_WS_WIN_)
     virtual bool winEvent( MSG * );		// Windows event
 #elif defined(_WS_X11_)

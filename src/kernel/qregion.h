@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#53 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#54 $
 **
 ** Definition of QRegion class
 **
@@ -82,6 +82,8 @@ public:
     HRGN    handle() const { return data->rgn; }
 #elif defined(_WS_X11_)
     Region  handle() const { return data->rgn; }
+#elif defined(_WS_MAC_)
+    void *  handle() const { return data->rgn; }
 #endif
 
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
@@ -100,6 +102,8 @@ private:
 	HRGN   rgn;
 #elif defined(_WS_X11_)
 	Region rgn;
+#elif defined(_WS_MAC_)
+        void * rgn;
 #endif
 	bool   is_null;
     } *data;

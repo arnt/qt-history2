@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#128 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#129 $
 **
 ** Definition of QApplication class
 **
@@ -155,7 +155,9 @@ public:
 #endif
 
 #if defined(_WS_MAC_)
+    void do_mouse_down(void *);
     virtual bool     macEventFilter( MSG * );
+    int              macProcessEvent( MSG * );
 #elif defined(_WS_WIN_)
     virtual bool     winEventFilter( MSG * );
 #elif defined(_WS_X11_)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#38 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#39 $
 **
 ** Definition of QCursor class
 **
@@ -60,6 +60,8 @@ public:
     HCURSOR	  handle()  const;
 #elif defined(_WS_X11_)
     HANDLE	  handle()  const;
+#elif defined(_WS_MAC_)
+    void * handle() const;
 #endif
 
     static QPoint pos();

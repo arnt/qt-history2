@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#72 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
 ** Definition of QPaintDevice class
 **
@@ -75,6 +75,8 @@ public:
     HDC		handle() const;
 #elif defined(_WS_X11_)
     HANDLE	handle() const;
+#elif defined(_WS_MAC_)
+    HANDLE      handle() const;
 #endif
 
 #if defined(_WS_X11_)
@@ -167,6 +169,9 @@ protected:
     void		 copyX11Data( const QPaintDevice * );
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
+#elif defined(_WS_MAC_)
+    void * hd;
+    virtual void fixport();
 #endif
 
     virtual bool cmd( int, QPainter *, QPDevCmdParam * );
