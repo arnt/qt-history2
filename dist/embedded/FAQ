@@ -80,6 +80,16 @@ A. Qt is highly portable, and Trolltech offers expert porting services
    to those with special requirements.
 
 
+Q. Will KDE applications run on Qt/Embedded?
+A. The KDE libraries have a small amount of X11-specific code in them,
+   as do a small number of applications. We have done some tests to
+   confirm that it is possible to run KDE programs under Qt/Embedded (we
+   just removed all the X11-specific code and found that many programs
+   worked unchanged). An additional issue is the size of the KDE
+   libraries. The KDE libraries add many very powerful features on top
+   of Qt, and this takes quite a lot of code.
+
+
 Q. Is Qt/Embedded designed to replace X for general desktop usage?
 A. This is not its design goal. Qt/Embedded is targeted towards
    usage in embedded systems. It is however a full implementation of Qt,
