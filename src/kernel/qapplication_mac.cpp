@@ -891,7 +891,7 @@ bool QApplication::processNextEvent( bool canWait )
 
 		//wtf^4: That's right kids, apple is that lame!
 		UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
-		if(eclass == kEventClassMouse && ekind == kEventMouseDown) {
+		if(0 && eclass == kEventClassMouse && ekind == kEventMouseDown) {
 		    EventRecord event_hack;
 		    if(WaitNextEvent(mDownMask, &event_hack, 0, NULL))
 			nevents++;
