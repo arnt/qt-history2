@@ -4350,7 +4350,7 @@ void QFileDialog::setMode( Mode newMode )
 	okt = tr("Save");
 	d->fileL->setText( tr("File &name:") );
 	if ( d->types->count() == 1 ) {
-	    d->types->setCurrentItem( 1 );
+	    d->types->setCurrentItem( 0 );
 	    if ( d->types->currentText() == "Directories" ) {
 		changeFilters = TRUE;
 	    }
@@ -4366,7 +4366,7 @@ void QFileDialog::setMode( Mode newMode )
 	okt = tr("Open");
 	d->fileL->setText( tr("File &name:") );
 	if ( d->types->count() == 1 ) {
-	    d->types->setCurrentItem( 1 );
+	    d->types->setCurrentItem( 0 );
 	    if ( d->types->currentText() == "Directories" ) {
 		changeFilters = TRUE;
 	    }
