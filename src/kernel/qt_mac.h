@@ -29,7 +29,7 @@ inline QMacSavedPortInfo::QMacSavedPortInfo()
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
-    SetGWorld(world,handle);
+    SetGWorld(world,handle); //always do this one first
     SetClip(clip);
     DisposeRgn(clip);
     SetPenState(&pen);
