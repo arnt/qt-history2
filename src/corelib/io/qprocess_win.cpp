@@ -273,6 +273,8 @@ static QString qt_create_commandline(const QString &program, const QStringList &
     args = programName + " ";
     for (int i=0; i<arguments.size(); ++i) {
         QString tmp = arguments.at(i);
+        // in the case of \" already being in the string the \ must also be escaped
+        tmp.replace( "\\\"", "\\\\\"" );
         // escape a single " because the arguments will be parsed
         tmp.replace( "\"", "\\\"" );
         if (tmp.isEmpty() || tmp.contains(' ') || tmp.contains('\t')) {
@@ -290,7 +292,6 @@ static QString qt_create_commandline(const QString &program, const QStringList &
             args += ' ' + tmp;
         }
     }
-
     return args;
 }
 
