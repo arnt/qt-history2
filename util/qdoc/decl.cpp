@@ -979,7 +979,7 @@ void ClassDecl::fillInDocsThis()
 	FunctionDecl *canonical = 0;
 	if ( badness == NumCandidateLists ) {
 	    if ( scapeGoat != 0 ) {
-		warning( 3, scapeGoat->location(),
+		warning( 2, scapeGoat->location(),
 			 "All documented versions of this function are"
 			 " '\\overload'" );
 		scapeGoat->setOverloads( FALSE );
