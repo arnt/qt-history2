@@ -332,11 +332,11 @@ QWorkspacePrivate::init()
                     q, SLOT(activateNextWindow()));
 
     a->connectItem(a->insertItem(CTRL + SHIFT + Key_F6),
-                    q, SLOT(activatePreviouWindow()));
+                    q, SLOT(activatePreviousWindow()));
     a->connectItem(a->insertItem(CTRL + SHIFT + Key_Tab),
                     q, SLOT(activatePreviousWindow()));
     a->connectItem(a->insertItem(Key_Back),
-                    q, SLOT(activatePreviouWindow()));
+                    q, SLOT(activatePreviousWindow()));
 
     a->connectItem(a->insertItem(CTRL + Key_F4),
                     q, SLOT(closeActiveWindow()));
