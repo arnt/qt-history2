@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#7 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#8 $
 
 #$quiet=1;
 
@@ -112,7 +112,7 @@ done
 
 # Generate and check-in X11 Makefiles
 cd $base/head/qt
-for B in `util/scripts/makeunixmake -p`
+for B in Makefile `util/scripts/makeunixmake -p`
 do
   ci -mnone -t-'' -u \$B $base/cvs/qt/\$B,v
 done
