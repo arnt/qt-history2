@@ -20,7 +20,7 @@ $initstr =
 Troll Tech AS
 .sp 2
 .sz 36
-Qt 1.40
+Qt 2.0
 .sz 24
 Tutorial and Reference
 .sz 18
@@ -347,44 +347,44 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-1.40.me" ) || die;
+open( O, "> /tmp/qtdoc-2,0.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.40.me\n";
+print "/tmp/qtdoc-2.0.me\n";
 
-open( O, "| sed 's/^\.PSPIC.*/\\fB[Image Omitted]\\fP/' | groff -Tascii -me | col -b > /tmp/qtdoc-1.40.txt" )
+open( O, "| sed 's/^\.PSPIC.*/\\fB[Image Omitted]\\fP/' | groff -Tascii -me | col -b > /tmp/qtdoc-2.0.txt" )
   || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.40.txt\n";
+print "/tmp/qtdoc-2.0.txt\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.40-a4.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-2.0-a4.ps" ) || die;
 print O $a4, $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.40-a4.ps\n";
+print "/tmp/qtdoc-2.0-a4.ps\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.40-letter.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-2.0-letter.ps" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.40-letter.ps\n";
+print "/tmp/qtdoc-2.0-letter.ps\n";
 
-open( I, "psnup -I -N -p 2 /tmp/qtdoc-1.40-a4.ps |" )
+open( I, "psnup -q -nup 2 /tmp/qtdoc-2.0-a4.ps |" )
     || die;
 $_ = <I>;
 close I;
-open( O, "> /tmp/qtdoc-1.40-a4-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-2.0-a4-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.40-a4-2.ps\n";
+print "/tmp/qtdoc-2.0-a4-2.ps\n";
 
-open( I, "psnup -I -N -p 2 /tmp/qtdoc-1.40-letter.ps |" )
+open( I, "psnup -q -pletter -nup 2 /tmp/qtdoc-2.0-letter.ps |" )
     || die;
 $_ = <I>;
 close I;
-open( O, "> /tmp/qtdoc-1.40-letter-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-2.0-letter-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.40-letter-2.ps\n";
+print "/tmp/qtdoc-2.0-letter-2.ps\n";
 
 foreach ( keys %delete ) {
     unlink $_ if ( -f $_ );
