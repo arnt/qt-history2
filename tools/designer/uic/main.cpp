@@ -43,13 +43,13 @@ int main( int argc, char * argv[] )
     const char* fileName = 0;
     const char* className = 0;
     const char* headerFile = 0;
-    QCString outputFile;
-    QCString image_tmpfile;
+    QByteArray outputFile;
+    QByteArray image_tmpfile;
     const char* projectName = 0;
     const char* trmacro = 0;
     bool nofwd = FALSE;
     bool fix = FALSE;
-    QCString pchFile;
+    QByteArray pchFile;
     QApplication app(argc, argv, FALSE);
 
     QString keybase( "/Qt Designer/" + 
@@ -61,9 +61,9 @@ int main( int argc, char * argv[] )
 	QApplication::setLibraryPaths(pluginPaths);
 
     for ( int n = 1; n < argc && error == 0; n++ ) {
-	QCString arg = argv[n];
+	QByteArray arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
-	    QCString opt = arg.data() + 1;
+	    QByteArray opt = arg.data() + 1;
 	    if ( opt[0] == 'o' ) {		// output redirection
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {

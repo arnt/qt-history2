@@ -61,7 +61,7 @@ remove it from here and from moc
 #  endif
 #endif
 
-QCString combinePath( const char *infile, const char *outfile )
+QByteArray combinePath( const char *infile, const char *outfile )
 {
     QFileInfo inFileInfo( QDir::current(), QFile::decodeName(infile) );
     QFileInfo outFileInfo( QDir::current(), QFile::decodeName(outfile) );

@@ -61,7 +61,7 @@ QString Uic::fixString( const QString &str, bool encode )
 	s.replace( "\r", "" );
 	s.replace( "\n", "\\n\"\n\"" );
     } else {
-	QCString utf8 = str.utf8();
+	QByteArray utf8 = str.utf8();
 	const int l = utf8.length();
 	for ( int i = 0; i < l; ++i )
 	    s += "\\x" + QString::number( (uchar)utf8[i], 16 );

@@ -84,7 +84,7 @@ private:
     QTextStream& out;
     QTextOStream trout;
     QString languageChangeBody;
-    QCString outputFileName;
+    QByteArray outputFileName;
     QStringList objectNames;
     QMap<QString,QString> objectMapper;
     QString indent;
