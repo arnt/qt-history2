@@ -154,7 +154,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 }
 
 /*!  Returns a pointer to the database connection with name \a name.  If \a open
-  is TRUE, the database connection is opened.  If \name does not exist in the
+  is TRUE, the database connection is opened.  If \a name does not exist in the
   list of managed databases, 0 is returned.
 
 */
@@ -194,7 +194,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
 
 
 /*!  Adds a database to the SQL connection manager.  The database
-  connection is referred to by \name.  A pointer to the newly added
+  connection is referred to by \a name.  A pointer to the newly added
   database connection is returned.
 
   \sa QSqlDatabase database()
@@ -242,13 +242,15 @@ public:
 
 /*!
     \class QSqlDatabase qsqldatabase.h
-    \brief Class used for accessing SQL databases
+    \brief Class used to create SQL database connections and provide transaction handling
 
     \module database
 
-     This class is used to access SQL databases.  QSqlDatabase
-     provides an abstract interface for accessing many types of
-     database backend.
+    This class is used to create connections to SQL databases. It also
+    provides transaction handling functions for those database drivers
+    that support transactions. The QSqlDatabase class
+    itself provides an abstract interface for accessing many types of
+    database backend.
 
      Database-specific drivers are used internally to actually access
      and manipulate data, (see QSqlDriver). Result set objects provide
@@ -258,7 +260,7 @@ public:
 */
 
 /*!  Adds a database to the list of database connections.  The
-  database connection is referred to by \name.  A pointer to the newly added
+  database connection is referred to by \a name.  A pointer to the newly added
   database connection is returned.  This pointer is owned by QSqlDatabase and
   will be deleted on program exit or when removeDatabase() is called.
 
@@ -273,7 +275,7 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& nam
 /*! Returns a pointer to the database connection named \a name.  The database
   connection must have been previously added with database().  If \a open is TRUE
   (the default) and the database connection is not already open it is
-  opened now.  If \name does not exist in the list of database, 0 is
+  opened now.  If \a name does not exist in the list of database, 0 is
   returned.  The pointer returned is owned by QSqlDatabase and should
   not be deleted.
 
