@@ -1158,10 +1158,10 @@ void QTextEngine::justify(const QScriptLine &line)
     if ((option.alignment() & Qt::AlignHorizontal_Mask) != Qt::AlignJustify)
         return;
 
+    itemize();
+
     if (line.from + (int)line.length == layoutData->string.length())
         return;
-
-    itemize();
 
     // justify line
     int maxJustify = 0;
