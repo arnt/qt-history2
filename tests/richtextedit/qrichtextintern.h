@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#7 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#8 $
 **
 ** Internal rich text classes
 **
@@ -30,7 +30,6 @@
 #include "qformatstuff.h"
 
 class QtTextContainer;
-class QtTextBox;
 class QtTextIterator;
 class QtRichText;
 class QtTextRow;
@@ -130,6 +129,7 @@ public:
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
     void setWidth (QPainter* p, QFontMetrics& fm, int newWidth, bool forceResize = FALSE);
 
+
     QtBox* parent;
     QtTextFormatCollection* formats;
     QtTextCharFormat format;
@@ -137,9 +137,13 @@ public:
     const QStyleSheetItem* style;
     QMap<QString, QString> attributes_;
     QtBox* child;
+    QtBox* prev;
     QtBox* next;
+    
+    QtBox* nextInDocument();
+    QtBox* prevInDocument();
 
-    QList<QtTextRow> rows;
+    QtTextRow* rows;
 
     inline QMap<QString, QString> attributes()  const
     {
@@ -149,7 +153,10 @@ public:
     int width;
     int widthUsed;
     int height;
+    
+    void locate( QPainter* p, int index, int offset, int &lx, int &ly, int &lheight );
 
+    
     inline int margin(QStyleSheetItem::Margin m) const
     {
 	if (style->margin(m) != QStyleSheetItem::Undefined)
@@ -172,36 +179,39 @@ public:
 	    return style->alignment();
 	return parent?parent->alignment():QStyleSheetItem::AlignLeft;
     }
+    int x;
+    int y;
 
 };
 
 
 
 
-// internal class for qmlbox, also used in qmlcursor.
+// internal class for QtBox
 class QtTextRow
 {
 public:
     QtTextRow();
-    QtTextRow( QPainter* p, QFontMetrics &fm,
+    QtTextRow( QPainter* p,  QtTextRow* row, QFontMetrics &fm,
 	       QtBox* b, int w, int& min, int align);
-    QtTextRow( QPainter* p, QFontMetrics &fm,
+    QtTextRow( QPainter* p,  QtTextRow* row, QFontMetrics &fm,
 	       const QtTextRichString* t, int &index, int w, int& min, int align);
     ~QtTextRow();
-    int x;
-    int y;
+    
+    void move( int nx, int ny );
+    inline int x() const;
+    inline int y() const;
     int width;
     int height;
     int base;
     int fill;
-    bool intersects(int xr, int yr, int wr, int hr);
+    inline bool intersects(int xr, int yr, int wr, int hr);
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions&,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-//     QtTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
-
-
-//     bool locate(QPainter* p, QtTextNode* node, int &lx, int &ly, int &lh);
+    
+    void locate(QPainter* p, int index, int offset, int &lx, int &ly, int &lh);
+    void indexAt(QPainter* p, int xpos, int &index, int& offset );
 
     bool dirty;
 
@@ -209,13 +219,28 @@ public:
     const QtTextRichString* text;
     int first;
     int last;
+    
+    QtTextRow* next;
+    QtTextRow* prev;
+private:
+    int x_;
+    int y_;
 };
+
+inline int QtTextRow::x() const
+{
+    return x_;
+}
+inline int QtTextRow::y() const
+{
+    return y_;
+}
 
 
 inline bool QtTextRow::intersects(int xr, int yr, int wr, int hr)
 {
-    return ( QMAX( x, xr ) <= QMIN( x+width, xr+wr ) &&
-	     QMAX( y, yr ) <= QMIN( y+height, yr+hr ) );
+    return ( QMAX( x_, xr ) <= QMIN( x_+width, xr+wr ) &&
+	     QMAX( y_, yr ) <= QMIN( y_+height, yr+hr ) );
 
 }
 
@@ -257,13 +282,14 @@ class QtTextCustomItem : public Qt
 {
 public:
     QtTextCustomItem()
-	: reg(0),width(0), height(0)
+	: width(0), height(0)
     {}
     virtual ~QtTextCustomItem() {}
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
-    QRegion* reg;
+    
+    virtual bool expandsHorizontally() { return FALSE;  }
     int width;
     int height;
 };
@@ -278,7 +304,70 @@ public:
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
 private:
+    QRegion* reg;
     QPixmap pm;
+};
+
+class QtTextHorizontalLine : public QtTextCustomItem
+{
+public:
+    QtTextHorizontalLine();
+    ~QtTextHorizontalLine();
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+    bool expandsHorizontally() { return TRUE; }
+private:
+};
+
+
+class QtTextCursor{
+public:
+    QtTextCursor(QtRichText& doc);
+    ~QtTextCursor();
+    void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
+
+    QtRichText* document;
+
+    int x;
+    int y;
+    int height;
+
+    int width() { return 1; }
+    QtBox* box;
+    int index;
+    int offset;
+
+    /*    
+    bool hasSelection;
+    bool selectionDirty;
+    void clearSelection();
+
+    void insert(QPainter* p, const QString& s);
+    void enter(QPainter* p);
+    void del(QPainter* p, int c = 1);
+    void backSpace(QPainter* p, int c = 1);
+    */
+
+    void right(QPainter* p, bool select = FALSE);
+    void left(QPainter* p, bool select = FALSE);
+    
+    /*
+    void up(QPainter* p, bool select = FALSE);
+    void down(QPainter* p, bool select = FALSE);
+    void home(QPainter* p, bool select = FALSE);
+    void last(QPainter* p, bool select = FALSE);
+    */
+    void goTo(QPainter* p, int xarg, int yarg, bool select = FALSE);
+
+    void goTo(QtBox* b, bool select = FALSE);
+    void calculatePosition(QPainter* p);
+
+    int xline;
+    int yline;
+    bool ylineOffsetClean;
+
+private:
 };
 
 

@@ -10,7 +10,7 @@ int main( int argc, char* argv[]  )
     // Many HTML files omit the </p> or </li>, so we add this for efficiency:
     QStyleSheet::defaultSheet()->item("p")->setSelfNesting( FALSE );
     QStyleSheet::defaultSheet()->item("i")->setSelfNesting( FALSE );
-    QtTextView v;
+    QtTextEdit v;
     //v.setFont( QFont("times", 12 ) );
     v.resize( 800, 1000 );
     QBrush paper;

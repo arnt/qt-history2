@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#5 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#6 $
 **
 ** Implementation of the QtTextView class
 **
@@ -481,10 +481,16 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 			   *paper().pixmap(), ox, oy);
     else
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
-
+    
     qApp->syncX();
 
     p->setClipping( FALSE );
+    int pagesize = 600;
+    for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
+	p->setPen( DotLine );
+	p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page* pagesize - oy );
+    }
+
 }
 
 /*!
@@ -652,8 +658,7 @@ QtTextEdit::QtTextEdit(QWidget *parent, const char *name)
     cursorTimer = new QTimer( this );
     cursorTimer->start(200, TRUE);
     connect( cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
-
-//     cursor = 0;
+    cursor = 0;
 
 }
 
@@ -669,8 +674,8 @@ QtTextEdit::~QtTextEdit()
 void QtTextEdit::setText( const QString& text, const QString& context  )
 {
     QtTextView::setText( text, context );
-//     delete cursor;
-//     cursor = new QtTextCursor(richText());
+    delete cursor;
+    cursor = new QtTextCursor(richText());
 }
 
 /*!
@@ -682,8 +687,23 @@ QString QtTextEdit::text()
     return "not yet implemented";
 }
 
-void QtTextEdit::keyPressEvent( QKeyEvent * )
+void QtTextEdit::keyPressEvent( QKeyEvent * e )
 {
+
+    bool select = e->state() & Qt::ShiftButton;
+    hideCursor();
+    QPainter p( viewport() );
+    switch (e->key()) {
+    case Key_Right:
+	cursor->right(&p, select);
+	break;
+    case Key_Left:
+	cursor->left(&p, select);
+	break;
+    };
+    p.end();
+    ensureVisible(cursor->x, cursor->y);
+    showCursor();
 
 //     if (e->key() == Key_Plus)
 // 	exit(2); // profiling
@@ -851,16 +871,16 @@ void QtTextEdit::updateSelection(int oldY, int newY)
 //     cursor->selectionDirty = FALSE;
 }
 
-void QtTextEdit::viewportMousePressEvent( QMouseEvent * )
+void QtTextEdit::viewportMousePressEvent( QMouseEvent * e )
 {
-//     hideCursor();
-//     cursor->clearSelection();
-//     updateSelection();
-//     {
-// 	QPainter p( viewport() );
-// 	cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
-//     }
-//     showCursor();
+     hideCursor();
+//      cursor->clearSelection();
+//      updateSelection();
+     {
+ 	QPainter p( viewport() );
+ 	cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+     }
+     showCursor();
 }
 
 void QtTextEdit::viewportMouseReleaseEvent( QMouseEvent * )
@@ -895,41 +915,43 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QtTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
-//     if (!cursor_hidden)
-// 	cursor->draw(p, ox, oy, cx, cy, cw, ch);
+    if (!cursor_hidden)
+ 	cursor->draw(p, ox, oy, cx, cy, cw, ch);
 }
 
 void QtTextEdit::cursorTimerDone()
 {
-//     if (cursor_hidden) {
-// 	if (QtTextEdit::hasFocus())
-// 	    showCursor();
-// 	else
-// 	    cursorTimer->start(400, TRUE);
-//     }
-//     else {
-// 	hideCursor();
-//     }
+    if ( !cursor )
+	return;
+     if (cursor_hidden) {
+ 	if (QtTextEdit::hasFocus())
+ 	    showCursor();
+ 	else
+ 	    cursorTimer->start(400, TRUE);
+     }
+     else {
+ 	hideCursor();
+     }
 }
 
 void QtTextEdit::showCursor()
 {
-//     cursor_hidden = FALSE;
-//     QPainter p( viewport() );
-//     cursor->draw(&p, contentsX(), contentsY(),
-// 		 contentsX(), contentsY(),
-// 		 viewport()->width(), viewport()->height());
-//     cursorTimer->start(400, TRUE);
+    cursor_hidden = FALSE;
+    QPainter p( viewport() );
+    cursor->draw(&p, contentsX(), contentsY(),
+ 		 contentsX(), contentsY(),
+ 		 viewport()->width(), viewport()->height());
+    cursorTimer->start(400, TRUE);
 }
 
 void QtTextEdit::hideCursor()
 {
-//     if (cursor_hidden)
-// 	return;
-//     cursor_hidden = TRUE;
-//     repaintContents(cursor->x, cursor->y,
-// 		    cursor->width(), cursor->height);
-//     cursorTimer->start(300, TRUE);
+    if (cursor_hidden)
+ 	return;
+    cursor_hidden = TRUE;
+    repaintContents(cursor->x, cursor->y,
+ 		    cursor->width(), cursor->height);
+    cursorTimer->start(300, TRUE);
 }
 
 
@@ -955,7 +977,7 @@ void QtTextEdit::updateScreen()
     }
     showCursor();
     resizeContents( QMAX( richText().widthUsed, richText().width ), richText().height );
-//     ensureVisible(cursor->x, cursor->y);
+    ensureVisible(cursor->x, cursor->y);
 }
 
 void QtTextEdit::viewportResizeEvent(QResizeEvent* e)
@@ -963,7 +985,7 @@ void QtTextEdit::viewportResizeEvent(QResizeEvent* e)
     QtTextView::viewportResizeEvent(e);
     {
 	QPainter p( this );
-// 	cursor->calculatePosition(&p);
+ 	cursor->calculatePosition(&p);
     }
 }
 

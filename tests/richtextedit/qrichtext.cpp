@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#8 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#9 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -44,7 +44,6 @@
 
 QtTextImage::QtTextImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory)
-    : QtTextCustomItem()
 {
     if ( attr.contains("width") )
 	width = attr["width"].toInt();
@@ -102,7 +101,7 @@ QtTextImage::~QtTextImage()
 
 void QtTextImage::draw(QPainter* p, int x, int y,
 		    int ox, int oy, int , int , int , int ,
-		    QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+		       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& /*to*/)
 {
     if ( pm.isNull() ) {
 	p->fillRect( x-ox , y-oy, width, height,  cg.dark() );
@@ -116,9 +115,8 @@ void QtTextImage::draw(QPainter* p, int x, int y,
     p->drawPixmap( x-ox , y-oy, pm );
 }
 
-/*
 
-QtTextHorizontalLine::QtTextHorizontalLine(const QMap<QString, QString> &, const QMimeSourceFactory&)
+QtTextHorizontalLine::QtTextHorizontalLine()
 {
     height = 8;
     width = 200;
@@ -149,26 +147,34 @@ void QtTextHorizontalLine::draw(QPainter* p, int x, int y,
     p->drawLine( r.left()-1, y-oy+4, r.right()+1, y-oy+4) ;
 }
 
-*/
 //************************************************************************
 
 QtTextRow::QtTextRow()
 {
-    x = y = width = height = base = 0;
+    x_ = y_ = width = height = base = 0;
     fill = 0;
     first = last = 0;
     box = 0;
+    text = 0;
     dirty = TRUE;
+    next = prev = 0;
 }
 
 
-QtTextRow::QtTextRow( QPainter* p, QFontMetrics & fm,
+QtTextRow::QtTextRow( QPainter* p, QtTextRow* row, QFontMetrics & fm,
 		      QtBox* b, int w, int& min, int /*align*/)
 {
-    x = y = width = height = base = 0;
-    dirty = TRUE;
-    text = 0;
+    next = 0;
+    prev = row;
+    if ( prev )
+	prev->next = this;
+    
+    x_ = y_ = width = height = base = 0;
+    fill = 0;
+    first = last = 0;
     box = b;
+    text = 0;
+    dirty = TRUE;
 
     width = w;
 
@@ -176,14 +182,19 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics & fm,
     width = QMAX( box->widthUsed, width );
     height = box->height;
     base = height;
-    last = first;
     min = box->widthUsed;
 }
 
-QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
+
+QtTextRow::QtTextRow( QPainter* p, QtTextRow* row, QFontMetrics &fm,
 		    const QtTextRichString* t, int &index, int w, int& min, int align)
 {
-    x = y = width = height = base = 0;
+    next = 0;
+    prev = row;
+    if ( prev )
+	prev->next = this;
+    
+    x_ = y_ = width = height = base = 0;
     dirty = TRUE;
 
     width = w;
@@ -219,8 +230,6 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 
     while ( index < text->length() ) {
 	int h,a,d;
-
-	// TODO custom nodes
 	
 	if ( !text->haveSameFormat( fmt_index, index ) ) {
 	    fmt = text->formatAt( index );
@@ -235,8 +244,9 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	QtTextRichString::Item* item = &text->items[index];
 	QString c;
 	QChar lastc;
-	
-	if ( !item->format->customItem() ) {
+
+	QtTextCustomItem* custom = item->format->customItem();
+	if ( !custom ) {
 	    c = item->c;
 	    lastc = c[c.length()-1];
 	    if ( item->width < 0 )
@@ -248,22 +258,21 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	    d = h-a;
 	} else {
 	    // custom item
-	    tx += item->format->customItem()->width;
-	    h = item->format->customItem()->height;
+	    if ( custom->expandsHorizontally() )
+		custom->width = width + fm.minRightBearing() - fm.width(' ');
+	    tx += custom->width;
+	    h = custom->height;
 	    a = h;
 	    d = 0;
+	    if ( tx > width - space_width + minRightBearing && index > first ) {
+		noSpaceFound = TRUE;
+		lastc = '\n'; // fake newline
+		--index;
+		tx -= custom->width;
+		h = a = d = 0;
+	    }
 	}
 
-	/* custom nodes
-	    if ( c->expandsHorizontally() ) {
-		c->width = width + fm.minRightBearing() - fm.width(' ');
-	    }
-	    tx +=c->width;
-	    h = c->height;
-	    a = h;
-	    d = 0;
-	*/
-	
 	if ( tx > width - space_width + minRightBearing && !noSpaceFound )
 	    break;
 
@@ -276,9 +285,9 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 	
 	++index;
 	
-	// break (a) after a space, (b) before a box, (c) if we have
-	// to or (d) at the end of a box.
-	if ( lastc == ' ' || lastc == '\n' || index == text->length() ){
+	// word break is possible (a) after a space, (b) after a
+	// newline, (c) before expandable item  or (d) at the end of the box.
+	if ( noSpaceFound || lastc == ' ' || lastc == '\n' || index == text->length() ){
 	    lastSpace = index - 1;
 	    lastHeight = rh;
 	    lastAsc = rasc;
@@ -323,8 +332,25 @@ QtTextRow::QtTextRow( QPainter* p, QFontMetrics &fm,
 
 
 
+void QtTextRow::move( int nx, int ny )
+{
+    x_ = nx;
+    y_ = ny;
+    if ( box ) {
+	box->x = nx;
+	box->y = ny;
+    }
+}
+
 QtTextRow::~QtTextRow()
 {
+    QtTextRow* tmp = next;
+    while ( next ) {
+	tmp = next;
+	next = tmp->next;
+	tmp->next = 0;
+	delete tmp;
+    }
 }
 
 
@@ -342,13 +368,13 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 
     if ( box ) {
 	//we have to draw the box
-	box->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch,
+	box->draw(p, obx+x_, oby+y_, ox, oy, cx, cy, cw, ch,
 		  backgroundRegion, cg, to, dirty?FALSE:onlyDirty, onlySelection);
 	dirty = FALSE;
 	return;
     }
 
-    QRegion r(x+obx-ox, y+oby-oy, width, height);
+    QRegion r(x_+obx-ox, y_+oby-oy, width, height);
 
     backgroundRegion = backgroundRegion.subtract(r);
 
@@ -361,12 +387,12 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 
     if (TRUE ) { //!onlyDirty && !onlySelection && to.paper) {
 	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap(x+obx-ox, y+oby-oy, width, height, *to.paper->pixmap(), x+obx, y+oby);
+	    p->drawTiledPixmap(x_+obx-ox, y_+oby-oy, width, height, *to.paper->pixmap(), x_+obx, y_+oby);
 	else
-	    p->fillRect(x+obx-ox, y+oby-oy, width, height, *to.paper);
+	    p->fillRect(x_+obx-ox, y_+oby-oy, width, height, *to.paper);
     }
 
-    int tx = x;
+    int tx = x_;
 
     if ( fill > 0 )
 	tx += fill;
@@ -390,17 +416,94 @@ void QtTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int
 	
 	if ( format->customItem() ) {
 	    int h = format->customItem()->height;
-	    format->customItem()->draw(p, tx+obx, y+oby+base-h, ox, oy,
+	    format->customItem()->draw(p, tx+obx, y_+oby+base-h, ox, oy,
 				       cx, cy, cw, ch, backgroundRegion, cg, to );
 	    tx += format->customItem()->width;
 	}
 	else {
 	    c = text->charAt( index );
-	    p->drawText(tx+obx-ox, y+oby-oy+base, c, c.length());
+	    p->drawText(tx+obx-ox, y_+oby-oy+base, c, c.length());
 	    tx += fm.width( c );
 	}
     }
 
+}
+
+/*!
+  \xpos is in the coordinate system of the row's box
+ */
+void QtTextRow::indexAt(QPainter* p, int xpos, int &index, int& offset )
+{
+    index = offset = 0;
+    if ( !text )
+	return;
+    QFontMetrics fm( p->fontMetrics() );
+    int tx = x_;
+    if ( fill > 0 )
+	tx += fill;
+    int i = first;
+    while ( 1 ) {
+	QtTextCharFormat *format  = text->formatAt( i );
+	p->setFont( format->font() );
+	QString c = text->charAt( i );
+	if ( format->customItem() )
+	    tx += format->customItem()->width;
+	else
+	    tx += fm.width( c );
+	if ( tx > xpos ) {
+	    if ( !c.isNull() ) {
+		tx -= fm.width( c );
+		while ( offset < int(c.length())-1 && tx + fm.width( c, offset+1 ) < xpos )
+		    offset++;
+	    }
+	    break;
+	} 
+	
+	if ( i == last ) {
+	    offset = c.length()-1;
+	    break;
+	}
+	++i;
+    }
+    index = i;
+}
+
+
+
+void QtTextRow::locate(QPainter* p, int index, int offset, int &lx, int &ly, int &lh)
+{
+    QFontMetrics fm( p->fontMetrics() );
+    QString c;
+    int tx = x_;
+    if ( fill > 0 )
+	tx += fill;
+    lx = tx;
+    lh = fm.lineSpacing();
+
+    int cursor_ascent = base;
+    for ( int i = first; i <= index; ++i ) {
+	QtTextCharFormat *format  = text->formatAt( i );
+	p->setFont( format->font() );
+	
+	if ( format->customItem() ) {
+	    lh = format->customItem()->height;
+	    cursor_ascent = lh;
+	    lx = tx;
+	    tx += format->customItem()->width;
+	    c = QString::null;
+	}
+	else {
+	    lh = fm.lineSpacing();
+	    cursor_ascent = fm.ascent();
+	    c = text->charAt( i );
+	    lx = tx;
+	    tx += fm.width( c );
+	}
+    }
+    if ( !c.isNull() && offset > 0 ) {
+	lx += fm.width( c, offset );
+    }
+    ly = y_ + base - cursor_ascent;
 }
 
 
@@ -440,7 +543,7 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
     base->setLogicalFontSize( 3 );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
-    nullstyle = new QStyleSheetItem( sheet_, QString::fromLatin1(""));
+    nullstyle = new QStyleSheetItem( (QtStyleSheet*)sheet_, QString::fromLatin1(""));
 
     valid = TRUE;
     int pos = 0;
@@ -492,7 +595,6 @@ bool QtRichText::parse (QtBox* current, const QStyleSheetItem* curstyle, QtBox* 
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
-		// TODO insert final space at the end if end of box!
 		return TRUE;
 	    }
 	    QMap<QString, QString> attr;
@@ -518,7 +620,6 @@ bool QtRichText::parse (QtBox* current, const QStyleSheetItem* curstyle, QtBox* 
 	    if ( !nstyle )
 		nstyle = nullstyle;
 	
-	    // TODO QtStyleSheet::tagEx
 	    QtTextCustomItem* custom = sheet_->tagEx( tagname, attr, contxt, *factory_ , emptyTag );
 	    if ( custom ) {
 		if ( current->child && !dummy ) {
@@ -527,6 +628,7 @@ bool QtRichText::parse (QtBox* current, const QStyleSheetItem* curstyle, QtBox* 
 		    while ( it->next )
 			it = it->next;
 		    it->next = dummy;
+		    dummy->prev = it;
 		}
 		(dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
 	    }
@@ -548,9 +650,13 @@ bool QtRichText::parse (QtBox* current, const QStyleSheetItem* curstyle, QtBox* 
 		    while ( it->next )
 			it = it->next;
 		    it->next = subbox;
+		    subbox->prev = it;
 		}
 		dummy = 0;
 		if (parse( subbox, nstyle, 0, fmt.makeTextFormat( nstyle, attr ), doc, pos) ) {
+		    if ( !subbox->child ) {
+			subbox->text.append( " ", subbox->format );
+		    }
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -598,12 +704,10 @@ bool QtRichText::parse (QtBox* current, const QStyleSheetItem* curstyle, QtBox* 
 		    while ( it->next )
 			it = it->next;
 		    it->next = dummy;
+		    dummy->prev = it;
 	    }
  	    QString word = parsePlainText( doc, pos, pre, TRUE );
  	    if (valid){
-//  		for (int i = 0; i < int(word.length()); i++){
-//  		    (dummy?dummy:current)->text.append( word[i], fmt );
-// 		}
 		(dummy?dummy:current)->text.append( word, fmt );
 		if (!pre && doc[pos] == '<')
 		    (void) eatSpace(doc, pos);
@@ -891,7 +995,7 @@ QtTextCustomItem* QtStyleSheet::tagEx( const QString& name,
 				     const QMap<QString, QString> &attr,
 				     const QString& context,
 				     const QMimeSourceFactory& factory,
-				     bool emptyTag) const
+				       bool /* emptyTag */) const
 {
     static QString s_img = QString::fromLatin1("img");
     static QString s_hr = QString::fromLatin1("hr");
@@ -901,8 +1005,12 @@ QtTextCustomItem* QtStyleSheet::tagEx( const QString& name,
 
     const QStyleSheetItem* style = item( name );
     // first some known  tags
-    if ( style && style->name() == s_img )
+    if ( !style )
+	return 0;
+    if ( style->name() == s_img )
 	return new QtTextImage(attr, context, factory);
+    if ( style->name() == s_hr )
+	return new QtTextHorizontalLine();
    return 0; //TODO
 }
 
@@ -915,19 +1023,19 @@ void QtBox::draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, 
 // 	return;
 //     isSelectionDirty = 0;
 
-    if ( !onlySelection && style->displayMode() == QStyleSheetItem::DisplayListItem && rows.first()) {
+    if ( !onlySelection && style->displayMode() == QStyleSheetItem::DisplayListItem && rows ) {
 	p->setFont( format.font() );
 	QFontMetrics fm( p->fontMetrics() );
 	int itemsize = fm.width('x');
 	
-	QtTextRow* row = rows.first();
-	int rowy = row->y;
+	QtTextRow* row = rows;
+	int rowy = row->y();
 	int rowh = row->height;
 	if ( row->box ) {
-	    rowy += row->box->rows.first()->y;
-	    rowh = row->box->rows.first()->height;
+	    rowy += row->box->rows->y();
+	    rowh = row->box->rows->height;
 	}
-	QRect r (obx-ox + row->x - 4*itemsize, oby-oy + rowy, 4*itemsize, rowh); //#### label width
+	QRect r (obx-ox + row->x() - 4*itemsize, oby-oy + rowy, 4*itemsize, rowh); //#### label width
 	if ( to.paper ) {
  	    if ( to.paper->pixmap() )
  		p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
@@ -994,11 +1102,28 @@ void QtBox::draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, 
 	backgroundRegion = backgroundRegion.subtract( r );
     }
 
-    for (QtTextRow* row = rows.first(); row; row = rows.next()) {
+    for (QtTextRow* row = rows; row; row = row->next ) {
 	row->draw(p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to, onlyDirty, onlySelection);
     }
 
 }
+
+void QtBox::locate( QPainter* p, int index, int offset, int &lx, int &ly, int &lheight )
+{
+    for (QtTextRow* row = rows; row; row = row->next) {
+	if ( index >= row->first && index <= row->last ) {
+	    row->locate( p, index, offset, lx, ly, lheight );
+	    QtBox* b = this; // TODO qtbox needs mapToParent, mapFromGlobal, etc. #####
+	    while ( b ) {
+		lx += b->x;
+		ly += b->y;
+		b = b->parent;
+	    }
+	    return;
+	}
+    }
+}
+
 
 void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceResize )
 {
@@ -1009,16 +1134,31 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
 	height = 0;
 	return;
     }
+    
+    // page crap
+    int pagesize = 600;
+    int pagemargin = 20;
+    QtBox* b = this;
+    int gx = 0;
+    int gy = 0;
+    while ( b ) {
+	gx += b->x;
+	gy += b->y;
+	b = b->parent;
+    }
 
-    QList<QtTextRow> oldRows;
+
+    QtTextRow* oldRows = 0;
     if ( newWidth == width ){
 	// reduce flicker by storing the old rows.
 	oldRows = rows;
-	rows.setAutoDelete( FALSE );
-	oldRows.setAutoDelete( TRUE );
+	rows = 0;
     }
-    rows.clear();
-    rows.setAutoDelete( TRUE );
+    else {
+	delete rows;
+	rows = 0;
+    }
+	
 
     width = newWidth;
     widthUsed = 0;
@@ -1034,13 +1174,14 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
     if (colwidth < 10)
 	colwidth = 10;
 
-    QtTextRow* row;
+    QtTextRow* row = 0;
 
     int margintop = margin( QStyleSheetItem::MarginTop );
     int marginbottom = margin( QStyleSheetItem::MarginBottom );
     int marginleft = margin( QStyleSheetItem::MarginLeft );
     int marginright = margin( QStyleSheetItem::MarginRight );
     int marginhorizontal = marginright + marginleft;
+
     int h = margintop;
 
     // two different kind of boxes, one has subboxes, the other has text
@@ -1048,12 +1189,14 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
     if ( child ) {
 	int min = 0;
 	for ( QtBox* it = child; it; it = it->next ) {
-	    row = new QtTextRow( p, fm, it,
-				colwidth-marginhorizontal - label_offset, min,
-				alignment() );
-	    rows.append( row );
-	    row->x = marginleft + label_offset;
-	    row->y = h;
+	    it->x = marginleft + label_offset; // TODO
+	    it->y = h;
+	    row = new QtTextRow( p, row, fm, it,
+				 colwidth-marginhorizontal - label_offset, min,
+				 alignment() );
+	    if ( !rows )
+		rows = row;
+	    row->move (marginleft + label_offset, h );
 	    h += row->height;
 	    widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
 	}
@@ -1061,12 +1204,21 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
 	int index = 0;
 	int min;
 	while ( index < text.length() ) {
-	    row = new QtTextRow( p, fm, &text, index,
+	    row = new QtTextRow( p, row, fm, &text, index,
 				 colwidth-marginhorizontal - label_offset, min,
 				 alignment() );
-	    rows.append(row);
-	    row->x = marginleft + label_offset;
-	    row->y = h;
+	    if ( !rows )
+		rows = row;
+	    
+	    
+	    // page crap
+	    int yinpage = (gy + h ) % pagesize;
+	    if ( yinpage < pagemargin )
+		h = ( (gy+h)/pagesize) * pagesize + pagemargin - gy;
+	    else  if ( yinpage + row->height  > pagesize - pagemargin )
+		h = ( (gy+h)/pagesize) * pagesize + pagesize + pagemargin - gy;
+	    
+	    row->move (marginleft + label_offset, h );
 	    h += row->height;
 	    widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
 	}
@@ -1080,19 +1232,19 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
     if (colwidth < 10)
  	colwidth = 10;
 
-    if (!oldRows.isEmpty() || ncols > 1 ) {
+    if ( oldRows || ncols > 1 ) {
 	// do multi columns if required. Also check with the old rows to
 	// optimize the refresh
 
-	row = rows.first();
-	QtTextRow* old = oldRows.first();
+	row = rows;
+	QtTextRow* old = oldRows;
 	height = 0;
 	h /= ncols;
 	for (int col = 0; col < ncols; col++) {
 	    int colheight = margintop;
-	    for (; row && colheight < h; row = rows.next()) {
-		row->x = col  * colwidth + marginleft + label_offset;
-		row->y = colheight;
+	    for (; row && colheight < h; row = row->next ) {
+		row->move ( col  * colwidth + marginleft + label_offset,
+			    colheight );
 		
 		colheight += row->height;
 		
@@ -1102,25 +1254,25 @@ void QtBox::setWidth( QPainter* p, QFontMetrics& fm,  int newWidth, bool forceRe
 			if ( old->first == row->first &&
 			     old->last == row->last &&
 			     old->width == old->width &&
-			     old->x == row->x &&
-			     old->y == row->y ) {
+			     old->x() == row->x() &&
+			     old->y() == row->y() )
 			    row->dirty = old->dirty;
-			}
 		    } else if ( old->first == row->first &&
 				old->last == row->last &&
 				old->height == row->height &&
 				old->width == old->width &&
-				old->x == row->x &&
-				old->y == row->y ) {
+				old->x() == row->x() &&
+				old->y() == row->y() )
 			row->dirty = old->dirty;
-		    }
-		    old = oldRows.next();
+		    old = old->next;
 		}
 	    }
 	    height = QMAX( height, colheight );
 	}
     }
 
+    delete oldRows;
+    
     // collapse the bottom margin
     if ( !next && parent ) {
 	// ignore bottom margin
@@ -1177,9 +1329,9 @@ QtBox::QtBox( QtBox* p, QtTextFormatCollection* formatCol, const QtTextCharForma
     : parent( p ), formats( formatCol ), format( fmt ), text( formatCol ), style ( stl ), attributes_( attr )
 {
     formats->registerFormat( format );
-    child = next = 0;
-    rows.setAutoDelete( TRUE );
-    width = widthUsed = height = 0;
+    child = next = prev = 0;
+    rows = 0;
+    width = widthUsed = height = x = y = 0;
 };
 
 
@@ -1188,9 +1340,9 @@ QtBox::QtBox( QtBox* p, QtTextFormatCollection* formatCol, const QtTextCharForma
     : parent( p ), formats( formatCol ), format( fmt ), text( formats ), style ( stl )
 {
     formats->registerFormat( format );
-    child = next = 0;
-    rows.setAutoDelete( TRUE );
-    width = widthUsed = height = 0;
+    child = next = prev = 0;
+    rows = 0;
+    width = widthUsed = height = x = y = 0;
 };
 
 QtBox::~QtBox()
@@ -1202,9 +1354,155 @@ QtBox::~QtBox()
 	child = child->next;
 	delete tmp;
     }
+    delete rows;
+}
+
+QtBox* QtBox::nextInDocument()
+{
+    if ( next ) {
+	QtBox* b = next;
+	while ( b->child )
+	    b = b->child;
+	return b;
+    }
+    if ( parent ) {
+	return parent->nextInDocument();
+    }
+    return 0;
+}
+
+QtBox* QtBox::prevInDocument()
+{
+    if ( prev ){
+	QtBox* b = prev;
+	while ( b->child )
+	    b = b->child;
+	return b;
+    }
+    if ( parent ) {
+	return parent->prevInDocument();
+    }
+    return 0;
 }
 
 
+QtTextCursor::QtTextCursor(QtRichText& doc)
+{
+    document = &doc;
+    box = document;
+    while ( box->child )
+	box = box->child;
+    index = 0;
+    offset = 0;
+
+    x = y = height = 0;
+    
+    xline = 0;
+    yline = 0;
+    ylineOffsetClean = FALSE;
+}
+
+QtTextCursor::~QtTextCursor()
+{
+}
+
+void QtTextCursor::right(QPainter* p, bool select )
+{
+    qDebug("cursor right ");
+    QString s;
+    if ( index < int(box->text.length()) )
+	s =  box->text.charAt( index );
+    if ( offset  < int(s.length()) - 1 ) {
+	offset++;
+	qDebug("cursor right in item ");
+    }
+    else if ( index < box->text.length() - 1 ) {
+	index++;
+	offset = 0;
+	qDebug("cursor right in box ");
+    } else if ( box->nextInDocument() ) {
+	index = 0;
+	offset = 0;
+	qDebug("cursor next  box ");
+	box = box->nextInDocument();
+    }
+    calculatePosition( p );
+}
+
+void QtTextCursor::left(QPainter* p, bool select )
+{
+    qDebug("cursor left ");
+    QString s;
+    if ( index > 0 && index < int(box->text.length()) )
+	s =  box->text.charAt( index );
+    if ( offset  > 0  ) {
+	offset--;
+	qDebug("cursor left ");
+    }
+    else if ( index > 0 ) {
+	index--;
+	s =  box->text.charAt( index );
+	offset = s.length()-1;
+	qDebug("cursor left in box ");
+    } else if ( box->prevInDocument() ) {
+	box = box->prevInDocument();
+	index = box->text.length()-1;
+	s =  box->text.charAt( index );
+	offset = s.length()-1;
+	qDebug("cursor prev  box ");
+    }
+    calculatePosition( p );
+}
+
+void QtTextCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch)
+{
+    if ( QMAX( x, cx ) <= QMIN( x+width(), cx+cw ) &&
+	 QMAX( y, cy ) <= QMIN( y+height, cy+ch ) ) {
+	p->drawLine(x-ox, y-oy, x-ox, y-oy+height-1);
+	// warwick says two-pixels cursor are ugly
+	//	p->drawLine(x+1-ox, y-oy, x+1-ox, y-oy+height-1);
+    }
+}
+
+
+
+void QtTextCursor::calculatePosition( QPainter* p )
+{
+    box->locate(p, index, offset, x, y, height );
+    xline = x;
+    yline = y;
+    ylineOffsetClean = FALSE;
+    qDebug("cursor position %d %d  ( %p, %d, %d)", x, y, box, index, offset );
+}
+
+
+void QtTextCursor::goTo(QPainter* p, int xarg, int yarg, bool select )
+{
+    if ( !document->rows )
+	return;
+    QtTextRow* row = document->rows;
+    int obx = document->x;
+    int oby = document->y;
+    QtBox* b = document;
+    do {
+	while ( row && !row->intersects( xarg-obx, yarg-oby, 0, 0 ) ) 
+	    row = row->next;
+	if ( !row )
+	    break;
+	if ( row->box ) {
+	    b = row->box;
+	    obx += b->x;
+	    oby += b->y;
+	    row = b->rows;
+	} else {
+	    box = b;
+	    row->indexAt( p, xarg - obx, index, offset );
+	    break ;
+	}
+    } while ( 1 );
+	
+    calculatePosition( p );
+}
 
 QtTextRichString::QtTextRichString( QtTextFormatCollection* fmt )
     : format( fmt )
