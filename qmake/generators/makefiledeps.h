@@ -36,7 +36,7 @@ class QMakeSourceFileInfo
 {
 private:
     //quick project lookups
-    SourceFiles *files;
+    SourceFiles *files, *includes;
     bool files_changed;
     QList<QMakeLocalFileName> depdirs;
 

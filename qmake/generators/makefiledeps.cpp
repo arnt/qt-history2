@@ -133,7 +133,7 @@ int SourceFiles::hash(const char *file)
 
 SourceFile *SourceFiles::lookupFile(const char *file)
 {
-    int h = hash(file) % num_nodes;
+    int len=0, h = hash(file) % num_nodes;
     for(SourceFileNode *p = nodes[h]; p; p = p->next) {
         if(!strcmp(p->key, file))
             return p->file;
@@ -220,7 +220,7 @@ QMakeSourceFileInfo::QMakeSourceFileInfo(const QString &cf)
     dep_mode = Recursive;
 
     //quick project lookups
-    files = 0;
+    includes = files = 0;
     files_changed = false;
 
     //buffer
@@ -510,55 +510,58 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         }
 
         if(inc) {
-            bool exists = false;
-            QMakeLocalFileName lfn(inc);
-            if(QDir::isRelativePath(lfn.real())) {
-                if(try_local) {
-                    QString dir = findFileInfo(file->file).path();
-                    if(QDir::isRelativePath(dir))
-                        dir.prepend(qmake_getpwd() + "/");
-                    if(!dir.endsWith("/"))
-                        dir += "/";
-                    QMakeLocalFileName f(dir + lfn.local());
-                    if(findFileInfo(f).exists()) {
-                        lfn = fixPathForFile(f);
-                        exists = true;
-                    }
-                }
-                if(!exists) { //path lookup
-                    for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
-                        QMakeLocalFileName f((*it).real() + Option::dir_sep + lfn.real());
-                        QFileInfo fi(findFileInfo(f));
-                        if(fi.exists() && !fi.isDir()) {
+            if(!includes)
+                includes = new SourceFiles;
+            SourceFile *dep = includes->lookupFile(inc);
+            if(!dep) {
+                bool exists = false;
+                QMakeLocalFileName lfn(inc);
+                if(QDir::isRelativePath(lfn.real())) {
+                    if(try_local) {
+                        QString dir = findFileInfo(file->file).path();
+                        if(QDir::isRelativePath(dir))
+                            dir.prepend(qmake_getpwd() + "/");
+                        if(!dir.endsWith("/"))
+                            dir += "/";
+                        QMakeLocalFileName f(dir + lfn.local());
+                        if(findFileInfo(f).exists()) {
                             lfn = fixPathForFile(f);
                             exists = true;
-                            break;
                         }
                     }
-                }
-                if(!exists) { //heuristic lookup
-                    lfn = findFileForDep(QMakeLocalFileName(inc), file->file);
-                    if((exists = !lfn.isNull()))
-                        lfn = fixPathForFile(lfn);
-                }
-            } else {
-                exists = QFile::exists(lfn.real());
-            }
-            if(!lfn.isNull()) {
-                SourceFile *dep = files->lookupFile(lfn);
-                if(!dep) {
-                    dep = new SourceFile;
-                    dep->file = lfn;
-                    dep->exists = exists;
-                    dep->type = QMakeSourceFileInfo::TYPE_C;
-                    files->addFile(dep);
+                    if(!exists) { //path lookup
+                        for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
+                            QMakeLocalFileName f((*it).real() + Option::dir_sep + lfn.real());
+                            QFileInfo fi(findFileInfo(f));
+                            if(fi.exists() && !fi.isDir()) {
+                                lfn = fixPathForFile(f);
+                                exists = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(!exists) { //heuristic lookup
+                        lfn = findFileForDep(QMakeLocalFileName(inc), file->file);
+                        if((exists = !lfn.isNull()))
+                            lfn = fixPathForFile(lfn);
+                    }
                 } else {
-                    dep->exists = exists;
-#if 0
-                    warn_msg(WarnLogic, "%s is found to exist after not existing before!",
-                             lfn.local().toLatin1());
-#endif
+                    exists = QFile::exists(lfn.real());
                 }
+                if(!lfn.isNull()) {
+                    dep = files->lookupFile(lfn);
+                    if(!dep) {
+                        dep = new SourceFile;
+                        dep->file = lfn;
+                        dep->type = QMakeSourceFileInfo::TYPE_C;
+                        files->addFile(dep);
+                        includes->addFile(dep, inc);
+                    } else {
+                        dep->exists = exists;
+                    }
+                }
+            }
+            if(dep) {
                 dep->included_count++;
                 if(dep->exists) {
                     debug_msg(5, "%s:%d Found dependency to %s", file->file.real().toLatin1().constData(),
