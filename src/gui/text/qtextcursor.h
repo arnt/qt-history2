@@ -2,22 +2,21 @@
 #define QTEXTCURSOR_H
 
 #include <qstring.h>
-
-#include <qtextlayout.h>
 #include <qshareddata.h>
-#include "qtextlist.h"
 
 class QTextDocument;
-class QTextLayout;
 class QTextCursorPrivate;
 class QTextDocumentFragment;
 class QTextCharFormat;
 class QTextBlockFormat;
 class QTextListFormat;
 class QTextTableFormat;
+class QTextFrameFormat;
 class QTextImageFormat;
 class QTextPieceTable;
+class QTextList;
 class QTextTable;
+class QTextFrame;
 class QTextBlockIterator;
 
 class Q_GUI_EXPORT QTextCursor

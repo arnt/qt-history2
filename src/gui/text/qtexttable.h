@@ -5,12 +5,11 @@
 #include <qglobal.h>
 #include <qshareddata.h>
 #include <qobject.h>
-#include "qtextcursor.h"
 #include "qtextformat.h"
 #endif // QT_H
 
+class QTextCursor;
 class QTextTablePrivate;
-class QTextPieceTable;
 
 class Q_GUI_EXPORT QTextTableCell
 {
@@ -82,9 +81,6 @@ public:
     QTextTableFormat format() const { return QTextObject::format().toTableFormat(); }
 
 private:
-    friend class QTextCursor;
-    friend class QTextCursorPrivate;
-
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);
     QTextTable & operator =(const QTextTable &o);

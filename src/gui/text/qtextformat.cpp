@@ -1,11 +1,11 @@
 #include "qtextformat.h"
 #include "qtextformat_p.h"
+#include "qtextcursor.h"
+#include "qtextblockiterator.h"
+#include "qtextdocument.h"
 #include "qtextpiecetable_p.h"
-#include <qtextblockiterator.h>
-#include <qtextlist.h>
-#include <qtexttable.h>
-#include <qdatastream.h>
 
+#include <qdatastream.h>
 #include <qstring.h>
 #include <qfontmetrics.h>
 #include <qdebug.h>

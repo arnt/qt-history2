@@ -448,21 +448,19 @@ class Q_GUI_EXPORT QTextObject : public QObject
 {
     Q_DECLARE_PRIVATE(QTextObject)
     Q_OBJECT
+    friend class QTextPieceTable;
+
 protected:
     QTextObject(QTextDocument *doc);
     ~QTextObject();
     QTextObject(QTextObjectPrivate &p, QTextDocument *doc);
+
 public:
     int formatType() const;
     QTextFormat format() const;
     void setFormat(const QTextFormat &format);
 
     int objectIndex() const;
-
-private:
-    friend class QTextPieceTable;
-    friend class QTextFormatCollection;
-    friend class QTextFormat;
 };
 
 class QTextBlockGroupPrivate;
@@ -472,6 +470,7 @@ class QTextBlockGroup : public QTextObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextBlockGroup)
     friend class QTextPieceTable;
+
 protected:
     QTextBlockGroup(QTextDocument *doc);
     QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc);
@@ -495,9 +494,7 @@ class QTextFrame : public QTextObject
 {
     Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
-    friend class QTextCursor;
     friend class QTextPieceTable;
-    friend class QTextFormatCollection;
 
 public:
     QTextFrame(QTextDocument *doc);

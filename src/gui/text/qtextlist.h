@@ -2,13 +2,11 @@
 #define QTEXTLIST_H
 
 #ifndef QT_H
-#include <qshareddata.h>
 #include <qtextformat.h>
 #include <qobject.h>
 #endif // QT_H
 
 class QTextListPrivate;
-class QTextPieceTable;
 class QTextCursor;
 
 class Q_GUI_EXPORT QTextList : public QTextBlockGroup
@@ -16,6 +14,9 @@ class Q_GUI_EXPORT QTextList : public QTextBlockGroup
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextList)
 public:
+    QTextList(QTextDocument *doc);
+    ~QTextList();
+
     int count() const;
 
     inline bool isEmpty() const
@@ -30,9 +31,6 @@ public:
 
     void setFormat(const QTextListFormat &format) { QTextObject::setFormat(format); }
     QTextListFormat format() const { return QTextObject::format().toListFormat(); }
-
-    QTextList(QTextDocument *doc);
-    ~QTextList();
 
 private:
 #if defined(Q_DISABLE_COPY)
