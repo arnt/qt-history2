@@ -3405,6 +3405,9 @@ const char *QImageIO::imageFormat( QIODevice *d )
     int pos   = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
 
+    if ( rdlen != buflen )
+	return 0;
+
     const char* format;
 #ifndef QT_NO_ASYNC_IMAGE_IO
     // Try asynchronous loaders first (before we 0->1 the header),
@@ -3782,7 +3785,8 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	uchar rgb[4];
 	int   rgb_len = t == BMP_OLD ? 3 : 4;
 	for ( int i=0; i<ncols; i++ ) {
-	    d->readBlock( (char *)rgb, rgb_len );
+	    if ( d->readBlock( (char *)rgb, rgb_len ) != rgb_len )
+		return FALSE;
 	    image.setColor( i, qRgb(rgb[2],rgb[1],rgb[0]) );
 	    if ( d->atEnd() )			// truncated file
 		return FALSE;
@@ -3896,7 +3900,8 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 			    p = line[h-y-1] + x;
 			    break;
 			default:		// absolute mode
-			    d->readBlock( (char *)p, b );
+			    if ( d->readBlock( (char *)p, b ) != b )
+				return FALSE;
 			    if ( (b & 1) == 1 )
 				d->getch();	// align on word boundary
 			    x += b;
@@ -4138,7 +4143,8 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     bool	raw;
     QImage	image;
 
-    d->readBlock( buf, 3 );			// read P[1-6]<white-space>
+    if ( d->readBlock( buf, 3 ) != 3 )			// read P[1-6]<white-space>
+	return;
     if ( !(buf[0] == 'P' && isdigit(buf[1]) && isspace(buf[2])) )
 	return;
     switch ( (type=buf[1]) ) {
@@ -4183,7 +4189,10 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	    QRgb  *p;
 	    QRgb  *end;
 	    for ( y=0; y<h; y++ ) {
-		d->readBlock( (char *)buf24, pbm_bpl );
+		if ( d->readBlock( (char *)buf24, pbm_bpl ) != pbm_bpl ) {
+		    delete[] buf24;
+		    return;
+		}
 		p = (QRgb *)image.scanLine( y );
 		end = p + w;
 		b = buf24;
@@ -4194,8 +4203,11 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	    }
 	    delete[] buf24;
 	} else {				// type 4,5
-	    for ( y=0; y<h; y++ )
-		d->readBlock( (char *)image.scanLine(y), pbm_bpl );
+	    for ( y=0; y<h; y++ ) {
+		if ( d->readBlock( (char *)image.scanLine(y), pbm_bpl )
+			!= pbm_bpl )
+		    return;
+	    }
 	}
     } else {					// read ascii data
 	register uchar *p;
