@@ -26,11 +26,8 @@
 #include "qpainter.h"
 #include "qaccel.h"
 
-/*! \file wizard/wizard.cpp */
-/*! \file wizard/wizard.h */
-
 /*!
-    \class QWizard qwizard.h
+    \class QWizard
     \brief The QWizard class provides a framework for wizard dialogs.
 
     \compat
