@@ -1914,6 +1914,10 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
 	QTextCursor cStart = doc->selectionStartCursor( QTextDocument::Standard );
 	QTextCursor cEnd = doc->selectionEndCursor( QTextDocument::Standard );
 	bool redraw = doc->removeSelection( QTextDocument::Standard );
+	if (redraw && action == MoveDown)
+	    *cursor = cEnd;
+	else if (redraw && action == MoveUp)
+	    *cursor = cStart;
 	if (redraw && action == MoveForward)
 	    *cursor = cEnd;
 	else if (redraw && action == MoveBackward)
