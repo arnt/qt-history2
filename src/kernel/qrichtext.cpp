@@ -4097,7 +4097,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int tw = 0;
 #endif
 
-    QString qstr = str->toString( TRUE );
+    QString qstr = str->toString( !FALSE );
 
     const int nSels = doc ? doc->numSelections() : 1;
     QMemArray<int> selectionStarts( nSels );

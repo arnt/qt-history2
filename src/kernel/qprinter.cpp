@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPrinter class
 **
 ** Created : 941003
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -766,6 +766,8 @@ printer selection option.
 
 If the printer selection option is changed while the printer is
 active, the current print job may or may not be affected.
+
+\sa printerSelectionOption()
 */
 
 void QPrinter::setPrinterSelectionOption( const QString & option )

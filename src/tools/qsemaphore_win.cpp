@@ -180,4 +180,17 @@ int QSemaphore::operator +=(int s)
     return c;
 }
 
+bool QSemaphore::tryAccess( int n )
+{
+    d->protect.enter();
+    if ( available() < n ) {
+	d->protect.leave();
+	return FALSE;
+    }
+    d->protect.leave();
+    operator+=( n );
+
+    return TRUE;
+}
+
 #endif
