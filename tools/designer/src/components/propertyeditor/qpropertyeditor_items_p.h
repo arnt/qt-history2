@@ -33,7 +33,7 @@ namespace I
     enum PropertyKind
     {
         Property_Normal,
-        Property_Group,
+        Property_Group
 
         // ### more
     };
