@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#7 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#8 $
 **
 ** Definition of QIconView widget class
 **
@@ -102,23 +102,6 @@ protected:
     QString startText;
 
 };
-
-/*****************************************************************************
- *
- * Class QIconViewBackground
- *
- *****************************************************************************/
-
-class QIconViewBackground
-{
-public:
-    QIconViewBackground();
-    
-    virtual void paint( QPainter *p, const QRect &rect, int xOffset, int yOffset,
-                        const QSize &size ) = 0;
-    
-};
-
 
 /*****************************************************************************
  *
@@ -303,9 +286,6 @@ public:
     virtual void setResizeMode( ResizeMode am );
     virtual ResizeMode resizeMode() const;
 
-    virtual void setBackground( QIconViewBackground *bg, bool deleteOld = TRUE );
-    virtual QIconViewBackground* background() const;
-
 signals:
     void dropped( QDropEvent *e );
     void moved();
@@ -340,7 +320,8 @@ protected:
     virtual void insertInGrid( QIconViewItem *item );
     virtual void drawDragShape( const QPoint &pnt );
     virtual int dragItems( QDropEvent *e );
-
+    virtual void drawBackground( QPainter *p, const QRect &r );
+    
     void emitSelectionChanged();
     void emitNewSelectionNumber();
 
