@@ -1762,13 +1762,11 @@ void qt_init_internal( int *argcptr, char **argv,
 	qApp->setName( appName );
 
 	XSelectInput( appDpy, appRootWin,
-		      KeyPressMask | KeyReleaseMask |
 		      KeymapStateMask |
 		      EnterWindowMask | LeaveWindowMask |
-		      FocusChangeMask | PropertyChangeMask
+		      PropertyChangeMask
 		      );
     }
-
 
     // XIM segfaults on Solaris with "C" locale!
     // The idea was that the "en_US" locale is maybe installed on all systems
