@@ -670,6 +670,34 @@ QStringList QAxScript::functions(FunctionFlags flags) const
 }
 
 /*!
+    Calls \a function, passing the parameters \a var1, \a var1, 
+    \a var2, \a var3, \a var4, \a var5, \a var6, \a var7 and \a var8
+    as arguments and returns the value returned by the function, or an 
+    invalid QVariant if the function does not return a value or when 
+    the function call failed.
+
+    See QAxScriptManager::call() for more information about how to call
+    script functions.
+*/
+QVariant QAxScript::call(const QString &function, const QVariant &var1,
+						  const QVariant &var2,
+						  const QVariant &var3,
+						  const QVariant &var4,
+						  const QVariant &var5,
+						  const QVariant &var6,
+						  const QVariant &var7,
+						  const QVariant &var8)
+{
+    if (!script_engine)
+	return QVariant();
+
+    return script_engine->dynamicCall(function.latin1(), 
+	var1, var2, var3, var4, var5, var6, var7, var8);
+}
+
+/*!
+    \overload
+
     Calls \a function passing \a arguments as parameters, and returns
     the result. Returns when the script's execution has finished.
 
@@ -970,8 +998,12 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
 }
 
 /*!
-    Calls \a function passing \a arguments as parameters, and returns
-    the result. Returns when the script's execution has finished.
+    Calls \a function, passing the parameters \a var1, \a var1, 
+    \a var2, \a var3, \a var4, \a var5, \a var6, \a var7 and \a var8
+    as arguments and returns the value returned by the function, or an 
+    invalid QVariant if the function does not return a value or when 
+    the function call failed. The call returns when the script's
+    execution has finished.
 
     In most script engines the only supported parameter type is "const
     QVariant&", for example, to call a JavaScript function
@@ -1002,6 +1034,32 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
     Note that calling this function can be significantely slower than
     using call() on the respective QAxScript directly.
 */
+QVariant QAxScriptManager::call(const QString &function, const QVariant &var1,
+							 const QVariant &var2,
+							 const QVariant &var3,
+							 const QVariant &var4,
+							 const QVariant &var5,
+							 const QVariant &var6,
+							 const QVariant &var7,
+							 const QVariant &var8)
+{
+    QAxScript *s = script(function);
+    if (!s) {
+#ifdef QT_CHECK_STATE
+	qWarning("QAxScriptManager::call(%s): No script provides this function, or the function\n"
+	         "\tis provided through an engine that does not support introspection.", function.latin1());
+#endif
+	return QVariant();
+    }
+
+    return s->call(function, var1, var2, var3, var4, var5, var6, var7, var8);
+}
+
+/*! \overload
+
+    Calls \a function passing \a arguments as parameters, and returns
+    the result. Returns when the script's execution has finished.
+*/
 QVariant QAxScriptManager::call(const QString &function, QValueList<QVariant> &arguments)
 {
     QAxScript *s = script(function);
@@ -1014,7 +1072,7 @@ QVariant QAxScriptManager::call(const QString &function, QValueList<QVariant> &a
     }
 
     QValueList<QVariant> args(arguments);
-    return s->call(function.latin1(), args);
+    return s->call(function, args);
 }
 
 /*!

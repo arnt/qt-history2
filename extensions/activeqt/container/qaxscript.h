@@ -69,7 +69,15 @@ public:
     QString scriptName() const;
     QAxScriptEngine *scriptEngine() const;
 
-    QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
+    QVariant call(const QString &function, const QVariant &v1 = QVariant(), 
+					   const QVariant &v2 = QVariant(),
+					   const QVariant &v3 = QVariant(),
+					   const QVariant &v4 = QVariant(),
+					   const QVariant &v5 = QVariant(),
+					   const QVariant &v6 = QVariant(),
+					   const QVariant &v7 = QVariant(),
+					   const QVariant &v8 = QVariant());
+    QVariant call(const QString &function, QValueList<QVariant> &arguments);
 
 signals:
     void entered();
@@ -111,7 +119,15 @@ public:
     QAxScript* load(const QString &code, const QString &name, const QString &language);
     QAxScript* load(const QString &file, const QString &name);
 
-    QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
+    QVariant call(const QString &function, const QVariant &v1 = QVariant(), 
+					   const QVariant &v2 = QVariant(),
+					   const QVariant &v3 = QVariant(),
+					   const QVariant &v4 = QVariant(),
+					   const QVariant &v5 = QVariant(),
+					   const QVariant &v6 = QVariant(),
+					   const QVariant &v7 = QVariant(),
+					   const QVariant &v8 = QVariant());
+    QVariant call(const QString &function, QValueList<QVariant> &arguments);
 
     static bool registerEngine(const QString &name, const QString &extension, const QString &code = QString());
     static QString scriptFileFilter();
