@@ -879,9 +879,16 @@ void QWorkspace::hideMaximizeControls()
 
 void QWorkspace::closeActiveWindow()
 {
+    bool isMax = ( d->maxWindow != 0);
+
     QWidget* w = activeWindow();
     if ( w )
 	w->close();
+
+    activateNextWindow();
+
+    if (d->active && isMax && !d->active->testWState( WState_ForceHide ))
+	d->active->showMaximized();
 }
 
 void QWorkspace::normalizeActiveWindow()

@@ -30,7 +30,7 @@
 
 <h1 align=center>Debugging Techniques</h1><br clear="all">
 
-Here we present some useful methods for debugging your Qt-based software.
+Here we present some useful hints to debugging your Qt-based software.
 
 <h2>Command Line Options</h2>
 
@@ -69,6 +69,10 @@ output under Unix/X11 and to the debugger under Windows.  You can
 take over these functions by installing a message handler;
 \link ::qInstallMsgHandler() qInstallMsgHandler()\endlink.
 
+The debugging functions \l QObject::dumpObjectTree() and \l
+QObject::dumpObjectInfo() are often useful when an application looks
+or acts strangely.  More useful if you use object names than not, but
+often useful even without names.
 
 <hr>
 <h2>Debugging Macros</h2>

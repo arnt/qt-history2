@@ -855,6 +855,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    p.fillRect( QRect( r.left() + ( r.width() -w ) / 2 - 4,
 				   r.top() + ( r.height()-h ) / 2 - 1,
 			       w + 2, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
+	    style().drawTab( &p, this, t, TRUE );
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
 				   w, h ), t, FALSE );

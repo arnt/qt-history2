@@ -1471,7 +1471,9 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
 /*!
   Returns the bounding rectangle of the first \e len characters of \e str,
-  which is the set of pixels the text would cover if drawn at (0,0).
+  which is the set of pixels the text would cover if drawn at (0,0). The
+  drawing, and hence the bounding rectangle, is constrained to the rectangle
+  \a (x,y,w,h).
 
   If \a len is negative (default value), the whole string is used.
 

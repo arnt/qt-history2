@@ -223,7 +223,7 @@ When using Qt without a window manager on Unix/X11, you will very
 likely experience focus problems. Without a window manager, there is
 no focus handling on X11, and no concept of an active window
 either. If you want your application to work in such an environment,
-you have to explicitely mark a window as active \e after showing it:
+you have to explicitly mark a window as active \e after showing it:
 
 \code
  yourWindow->show();
@@ -233,7 +233,7 @@ you have to explicitely mark a window as active \e after showing it:
 Note that setActiveWindow() won't work if the widget does not become
 phyiscally visible during this event cycle. However, without a window
 manager running, this is guaranteed to happen. For the curious reader:
-setActiveWindow() emulates a window manager by explicitely setting the
+setActiveWindow() emulates a window manager by explicitly setting the
 X Input Focus to a widget's toplevel window.
 
 */

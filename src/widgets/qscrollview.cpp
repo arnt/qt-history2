@@ -408,7 +408,7 @@ To enable drag-and-drop, you would setAcceptDrops(TRUE) on the
 QScrollView (since drag-and-drop events propagate to the parent), but
 to work out what logical position in the view, you would need to map
 the drop co-ordinate from being relative to the QScrollView to being
-relative to the contents - use the function mapToContents() for this.
+relative to the contents - use the function viewportToContents() for this.
 
 To handle mouse events on the scrolling area, subclass scrollview as
 you would subclass other widgets, but rather than overriding

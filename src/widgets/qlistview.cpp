@@ -621,6 +621,8 @@ void QListViewItem::takeItem( QListViewItem * item )
 	    }
 	}
 
+	item->setSelected( FALSE );
+
 #if 0
 	// ##### do we really want that???
 	if ( lv->selectedItem() ) {
@@ -3132,8 +3134,11 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     }
     i->activate();
     activatedByClick = FALSE;
-
-    setCurrentItem( i );
+    
+    if ( i != d->focusItem )
+	setCurrentItem( i );
+    else
+	repaintItem( i );
 
     d->pressedSelected = i && i->isSelected();
 

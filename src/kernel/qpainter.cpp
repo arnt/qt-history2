@@ -2704,9 +2704,32 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   characters from \a str).  The drawing, and hence the bounding
   rectangle, is constrained to the rectangle \a (x,y,w,h).
 
-  The \a tf text formatting is really a Qt::AlignmentFlags variable.
+  If \a len is negative (default value), the whole string is used.
 
-  \sa drawText(), fontMetrics()
+  The \a tf argument is
+  the bitwise OR of the following flags:  <ul>
+  <li> \c AlignLeft aligns to the left border.
+  <li> \c AlignRight aligns to the right border.
+  <li> \c AlignHCenter aligns horizontally centered.
+  <li> \c AlignTop aligns to the top border.
+  <li> \c AlignBottom aligns to the bottom border.
+  <li> \c AlignVCenter aligns vertically centered
+  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+  <li> \c SingleLine ignores newline characters in the text.
+  <li> \c ExpandTabs expands tabulators.
+  <li> \c ShowPrefix interprets "&x" as "x" underlined.
+  <li> \c WordBreak breaks the text to fit the rectangle.
+  </ul>
+
+  Horizontal alignment defaults to AlignLeft and vertical alignment
+  defaults to AlignTop.
+
+  If several of the horizontal or several of the vertical alignment flags
+  are set, the resulting alignment is undefined.
+
+  These flags are defined in qnamespace.h.
+
+  \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::AlignmentFlags
 */
 
 QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,

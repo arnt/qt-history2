@@ -1840,7 +1840,6 @@ void QComboBox::setListBox( QListBox * newListBox )
     newListBox->reparent( 0, WType_Popup, QPoint(0,0), FALSE );
     d->setListBox( newListBox );
     d->listBox()->setFont( font() );
-
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );
     d->listBox()->setAutoBottomScrollBar( FALSE );

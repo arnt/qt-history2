@@ -468,6 +468,10 @@ static void cleanup() {
     endCopyIcon = 0;
     delete goBackIcon;
     goBackIcon = 0;
+#if defined (_WS_WIN_)
+    delete fileIconProvider;
+    fileIconProvider = 0;
+#endif
 }
 
 #if defined(_WS_WIN_)
@@ -3172,7 +3176,10 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
     if ( updatelined && !d->currentFileName.isEmpty() ) {
 	// If the selection is valid, or if its a directory, allow OK.
 	if ( !d->currentFileName.isNull() || isDir ) {
-	    nameEdit->setText( u.fileName() );
+	    if ( u.fileName() != ".." )
+		nameEdit->setText( u.fileName() );
+	    else
+		nameEdit->setText("");
 	} else
 	    nameEdit->setText( QString::fromLatin1("") );
     }
@@ -3418,7 +3425,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	d->currentFileName = d->url;
 	accept();
     }
-    if ( !oldName.isEmpty() )
+    if ( !oldName.isEmpty() && mode() != Directory )
 	nameEdit->setText( oldName );
 }
 
@@ -4720,6 +4727,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	return;
 
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	d->mimeTypeTimer->stop();
 	qApp->processEvents();
 	d->sortedList.clear();
 	d->pendingItems.clear();
@@ -5115,6 +5123,9 @@ void QFileDialog::setContentsPreview( QWidget *w, QFilePreview *preview )
 
 void QFileDialog::resortDir()
 {
+    d->mimeTypeTimer->stop();
+    d->pendingItems.clear();
+
     QFileDialogPrivate::File *item = 0;
     QFileDialogPrivate::MCItem *item2 = 0;
 
@@ -5205,6 +5216,8 @@ void QFileDialog::doMimeTypeLookup()
 	    qApp->processEvents();
 	    files->setUpdatesEnabled( FALSE );
 	    files->viewport()->setUpdatesEnabled( FALSE );
+	    if ( item != d->pendingItems.first() )
+		return;
 	    item->setPixmap( 0, *p );
 	    qApp->processEvents();
 	    files->setUpdatesEnabled( TRUE );
@@ -5222,7 +5235,8 @@ void QFileDialog::doMimeTypeLookup()
 		}
 	    }
 	}
-	d->pendingItems.removeFirst();
+	if ( d->pendingItems.count() )
+	    d->pendingItems.removeFirst();
     }
 
     if ( d->moreFiles->isVisible() ) {
@@ -5231,7 +5245,8 @@ void QFileDialog::doMimeTypeLookup()
 	files->viewport()->repaint( r, FALSE );
     }
 
-    d->mimeTypeTimer->start( 0 );
+    if ( d->pendingItems.count() )
+	d->mimeTypeTimer->start( 0 );
 }
 
 /*!

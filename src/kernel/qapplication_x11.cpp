@@ -157,6 +157,43 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
+#if defined(_OS_AIX_) && !defined(bzero)
+// For FD_ZERO, which the X11 libraries define to use bzero(), even
+// though the system libraries don't have that function.
+#define bzero( s, n ) memset( (s), 0, (n) )
+#endif
+
+// Fix old X libraries
+#ifndef XK_KP_Home
+#define XK_KP_Home              0xFF95
+#endif
+#ifndef XK_KP_Left
+#define XK_KP_Left              0xFF96
+#endif
+#ifndef XK_KP_Up
+#define XK_KP_Up                0xFF97
+#endif
+#ifndef XK_KP_Right
+#define XK_KP_Right             0xFF98
+#endif
+#ifndef XK_KP_Down
+#define XK_KP_Down              0xFF99
+#endif
+#ifndef XK_KP_Prior
+#define XK_KP_Prior             0xFF9A
+#endif
+#ifndef XK_KP_Next
+#define XK_KP_Next              0xFF9B
+#endif
+#ifndef XK_KP_End
+#define XK_KP_End               0xFF9C
+#endif
+#ifndef XK_KP_Insert
+#define XK_KP_Insert            0xFF9E
+#endif
+#ifndef XK_KP_Delete
+#define XK_KP_Delete            0xFF9F
+#endif
 
 /*****************************************************************************
   Internal variables and functions
@@ -197,24 +234,24 @@ static GC	app_gc_ro	= 0;		// read-only GC
 static GC	app_gc_tmp	= 0;		// temporary GC
 static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
-Atom		qt_wm_protocols;		// window manager protocols
-Atom		qt_wm_delete_window;		// delete window protocol
-Atom 		qt_wm_take_focus;		// take focus window protocol
-static Atom	qt_qt_scrolldone;		// scroll synchronization
-Atom	qt_net_wm_context_help; 	// context help
+Atom		qt_wm_protocols		= 0;	// window manager protocols
+Atom		qt_wm_delete_window	= 0;	// delete window protocol
+Atom 		qt_wm_take_focus	= 0;	// take focus window protocol
+static Atom	qt_qt_scrolldone 	= 0;	// scroll synchronization
+Atom		qt_net_wm_context_help	= 0;	// context help
 
-static Atom	qt_xsetroot_id;
-Atom		qt_selection_property;
-Atom		qt_selection_sentinel;
-Atom		qt_wm_state;
-static Atom 	qt_desktop_properties;   	// Qt desktop properties
-static Atom 	qt_resource_manager;		// X11 Resource manager
-Atom 		qt_sizegrip;			// sizegrip
-Atom 		qt_wm_client_leader;
-Atom 		qt_window_role;
-Atom 		qt_sm_client_id;
-Atom 		qt_xa_motif_wm_hints;
-Atom 		qt_x_incr;
+static Atom	qt_xsetroot_id		= 0;
+Atom		qt_selection_property	= 0;
+Atom		qt_selection_sentinel	= 0;
+Atom		qt_wm_state		= 0;
+static Atom 	qt_desktop_properties	= 0;	// Qt desktop properties
+static Atom 	qt_resource_manager	= 0;	// X11 Resource manager
+Atom 		qt_sizegrip		= 0;	// sizegrip
+Atom 		qt_wm_client_leader	= 0;
+Atom 		qt_window_role		= 0;
+Atom 		qt_sm_client_id		= 0;
+Atom 		qt_xa_motif_wm_hints	= 0;
+Atom 		qt_x_incr		= 0;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed

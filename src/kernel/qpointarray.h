@@ -40,6 +40,7 @@ class Q_EXPORT QPointArray : public QArray<QPoint>
 {
 public:
     QPointArray() {}
+    ~QPointArray() {}
     QPointArray( int size ) : QArray<QPoint>( size ) {}
     QPointArray( const QPointArray &a ) : QArray<QPoint>( a ) {}
     QPointArray( const QRect &r, bool closed=FALSE );

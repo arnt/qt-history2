@@ -10978,7 +10978,7 @@ Constructs a QChar for the character with Unicode code point \a rc.
 
 /*!
   Returns whether the character is a printable character.  This is
-  and character of category Cc or Cn.  Note that this gives no indication
+  any character not of category Cc or Cn.  Note that this gives no indication
   of whether the character is available in some font.
 */
 bool QChar::isPrint() const
@@ -12724,7 +12724,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	    int* n = va_arg(ap, int*);
 	    *n = result.length();
 	} else {
-	    char in[64], out[128];
+	    char in[64], out[330];
 	    strncpy(in,f.latin1(),63);
 	    char fch = format[pos+len].latin1();
 	    in[f.length()] = fch;

@@ -738,7 +738,7 @@ void QSplitter::recalc( bool update )
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
 		mint = QMAX( mint, trans( minS ));
-		int tm = pick( s->wid->maximumSize() );
+		int tm = trans( s->wid->maximumSize() );
 		if ( tm > 0 )
 		    maxt = QMIN( maxt, tm );
 	    }

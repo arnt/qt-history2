@@ -255,7 +255,7 @@ generated).
 the file name of qt #include files in the generated code.
 </dl>
 
-<p>You can explicitely tell the moc to not parse parts of a header
+<p>You can explicitly tell the moc to not parse parts of a header
 file. It recognizes any C++ comment (//) that contains the substrings
 MOC_SKIP_BEGIN or MOC_SKIP_END. They work as you would expect and you
 can have several levels of them. The net result as seen by the moc is

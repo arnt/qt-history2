@@ -31,21 +31,23 @@
 
 <h1 align=center>Qt Template Library</h1><br clear="all">
 
-In contrast to the containers based on \l QCollection, the Qt template
-library implements a value-based approach comparable to the C++
-Standard Template Library (STL).
+Thq Qt Template Library is a set of templates within Qt dealing with
+containers of objects.  It provides a list of objects, a stack of
+objects, a map (or dictionary) from one type to another, and
+associated iterators and algorithms.
 
-It currently provides the containers \l QMap, \l QValueList and \l
-QValueStack plus a set of iterators and algorithms operating on these
-classes. For convenience, it also includes a predefined class \l
-QStringList that stores a list of unicode string with useful
-string-specific functions such as QStringList::grep(),
-QStringList::split(), and QStringList::join().
+Qt also contains similar classes that deal with pointers to objects;
+\l QValueList vs. \l QList, etc.  Compared to the pointer-based
+templates, the QTL offers easy copying of the container, real support
+for classes that e.g. require constructors, expand to much more object
+code, can often be a bit faster, require that the objects stored can
+be copied, and finally, have a worse record of compiler problems.
 
-While QCollection and friends store pointers to objects, these classes
-store copies of the actual objects,
-i.e. values. Both concepts have their specific pros and cons,
-depending on the kind of data you want to store.
+Compared to the STL, the QTL contains only the most important features
+of the STL, has more regular funcion naming, has no platform
+differences, is often a little slower and often expands to less object
+code.
+
 
 If you can not make copies of the objects you want to store you are
 better off with QCollection and friends. They were designed to handle
