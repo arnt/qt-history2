@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#21 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#21 $";
 #endif
 
 
@@ -227,10 +227,10 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   abstraction of the C style zero-terminated char array.  QString
   inherits QByteArray, which is defined as QArray\<char\>.
 
-  Note that for the QString methods that take a <var>const char
-  *</var> parameter, the results are undefined if the data buffer
-  pointed to is not zero-terminated.  It is legal for the <var>const
-  char *</var> parameter to be 0.
+  Note that for the QString methods that take a <var>const char *</var>
+  parameter the results are undefined if the QString is not
+  zero-terminated.  It is legal for the <var>const char *</var>
+  parameter to be 0.
 
   A QString that has not been assigned to anything is <em>void</em>,
   i.e.  both the length and data pointer is 0.  A QString that
@@ -251,8 +251,8 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     \/ s.length() is still 17
   \endcode
 
-  See <a href=hndlclass.html>handle classes</a> for information about how to
-  use handle classes. */
+  See <a href=handleclasses.html>handle classes</a> for information
+  about handle classes. */
 
 
 /*! \fn QString::QString() 
