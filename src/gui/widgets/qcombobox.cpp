@@ -206,8 +206,25 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 }
 
 /*!
-    Constructs a non-editable combobox widget with parent \a parent
-    using a default model.
+    \enum QComboBox::InsertionPolicy
+
+    This enum specifies what the QComboBox should do when a new string is
+    entered by the user.
+
+    \value NoInsertion    The string will not be inserted into the combo box.
+    \value AtTop          The string will be inserted as the first item in the
+                          combo box.
+    \value AtCurrent      The current item will be \e replaced by the string.
+    \value AtBottom       The string will be inserted after the last item
+                          in the combo box.
+    \value AfterCurrent   The string is inserted after the current item in the
+                          combo box.
+    \value BeforeCurrent  The string is inserted before the current item in
+                          the combo box.
+*/
+
+/*!
+    Constructs a combo box with the given \a parent, using the default model.
 */
 QComboBox::QComboBox(QWidget *parent) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
@@ -331,8 +348,8 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
 */
 
 /*!
-    Constructs a non-editable combobox widget with parent \a parent
-    using the item model \a model.
+    Constructs a non-editable combobox widget with the given \a parent that
+    uses the item \a model specified.
 */
 QComboBox::QComboBox(QAbstractItemModel *model, QWidget *parent) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
@@ -500,6 +517,7 @@ QComboBox::~QComboBox()
 
 /*!
     \property QComboBox::sizeLimit
+    \brief the maximum allowed size on screen of the combo box
 */
 
 int QComboBox::sizeLimit() const
@@ -515,6 +533,7 @@ void QComboBox::setSizeLimit(int limit)
 
 /*!
     \property QComboBox::count
+    \brief the number of items in the combo box
 */
 
 int QComboBox::count() const
@@ -524,6 +543,7 @@ int QComboBox::count() const
 
 /*!
     \property QComboBox::maxCount
+    \brief the maximum number of items allowed in the combo box
 */
 
 void QComboBox::setMaxCount(int max)
@@ -541,6 +561,9 @@ int QComboBox::maxCount() const
 
 /*!
     \property QComboBox::autoCompletion
+    \brief whether the combo box provides auto-completion for editable items
+
+    \sa editable
 */
 
 bool QComboBox::autoCompletion() const
@@ -554,7 +577,8 @@ void QComboBox::setAutoCompletion(bool enable)
 }
 
 /*!
-    \duplicatesEnabled
+    \property QComboBox::duplicatesEnabled
+    \brief whether the combo box can contain duplicate items
 */
 
 bool QComboBox::duplicatesEnabled() const
@@ -568,7 +592,7 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 }
 
 /*!
-  Returns true if any item in the combo box model matches \a text.
+  Returns true if any item in the combo box matches the given \a text.
 */
 bool QComboBox::contains(const QString &text) const
 {
@@ -579,7 +603,7 @@ bool QComboBox::contains(const QString &text) const
 }
 
 /*!
-  Returns the index of the item if it is found; otherwise -1;
+  Returns the index of the item if it is found; otherwise returns -1.
 */
 int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags) const
 {
@@ -593,6 +617,13 @@ int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags
 
 /*!
     \property QComboBox::insertionPolicy
+    \brief the policy used to determine where user-inserted items should
+    appear in the combo box
+
+    The default value is \c AtBottom, indicating that new items will appear
+    at the bottom of the list of items.
+
+    \sa InsertionPolicy
 */
 
 QComboBox::InsertionPolicy QComboBox::insertionPolicy() const
@@ -607,6 +638,7 @@ void QComboBox::setInsertionPolicy(InsertionPolicy policy)
 
 /*!
     \property QComboBox::editable
+    \brief whether the combo box can be edited by the user
 */
 
 bool QComboBox::isEditable() const
@@ -665,9 +697,10 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 }
 
 /*!
-    Returns the line edit, or 0 if there is no line edit.
+    Returns the line edit used to edit items in the combo box, or 0 if there
+    is no line edit.
 
-    Only editable listboxes have a line editor.
+    Only editable combo boxes have a line edit.
 */
 QLineEdit *QComboBox::lineEdit() const
 {
@@ -685,7 +718,10 @@ void QComboBox::setValidator(const QValidator *v)
 }
 
 /*!
-    \internal
+    Returns the validator that is used to constrain text input for the
+    combo box.
+
+    \sa editable
 */
 
 const QValidator *QComboBox::validator() const
@@ -736,6 +772,9 @@ QAbstractItemModel *QComboBox::model() const
 
 /*!
     \internal
+
+    Returns the root model item index for the items in the combo box.
+
 */
 
 QModelIndex QComboBox::root() const
@@ -796,7 +835,7 @@ void QComboBox::setCurrentText(const QString& text)
 }
 
 /*!
-    \internal
+    Returns the text for the given \a row in the combo box.
 */
 
 QString QComboBox::text(int row) const
@@ -806,7 +845,7 @@ QString QComboBox::text(int row) const
 }
 
 /*!
-    \internal
+    Returns the pixmap for the given \a row in the combo box.
 */
 
 QPixmap QComboBox::pixmap(int row) const
@@ -816,7 +855,8 @@ QPixmap QComboBox::pixmap(int row) const
 }
 
 /*!
-    \internal
+    Inserts the strings from the \a list into the combo box as separate items,
+    starting at the \a row specified.
 */
 
 void QComboBox::insertStringList(const QStringList &list, int row)
@@ -839,7 +879,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
 }
 
 /*!
-    \internal
+    Inserts the \a text into the combo box at the given \a row.
 */
 
 void QComboBox::insertItem(const QString &text, int row)
@@ -858,7 +898,7 @@ void QComboBox::insertItem(const QString &text, int row)
 }
 
 /*!
-    \internal
+    Inserts the \a icon into the combo box at the given \a row.
 */
 
 void QComboBox::insertItem(const QIconSet &icon, int row)
@@ -877,7 +917,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
 }
 
 /*!
-    \internal
+    Inserts the \a icon and \a text into the combo box at the given \a row.
 */
 
 void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
@@ -948,6 +988,9 @@ void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
 
 /*!
     \internal
+
+    Returns the list view used to display the combo box.
+
 */
 
 QGenericListView *QComboBox::listView() const
@@ -996,7 +1039,8 @@ QSize QComboBox::sizeHint() const
 }
 
 /*!
-    \internal
+    Displays the list of items in the combo box. If the list is empty then
+    no items will be shown.
 */
 
 void QComboBox::popup()
@@ -1041,6 +1085,8 @@ void QComboBox::popup()
 
 /*!
     \internal
+
+    Clears the combo box, removing all items.
 */
 
 void QComboBox::clear()
@@ -1050,6 +1096,8 @@ void QComboBox::clear()
 
 /*!
     \internal
+
+    Clears (removes) the validator used to check user input for the line edit.
 */
 
 void QComboBox::clearValidator()
@@ -1060,6 +1108,8 @@ void QComboBox::clearValidator()
 
 /*!
     \internal
+
+    Clears the contents of the line edit used for editing.
 */
 
 void QComboBox::clearEdit()
@@ -1079,7 +1129,12 @@ void QComboBox::setEditText(const QString &text)
 }
 
 /*!
+    \fn void QComboBox::currentChanged(const QModelIndex &old, const QModelIndex &current)
+
     \internal
+
+    Changes the current model item from the \a old index to the newly
+    specified \a current index.
 */
 
 void QComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
@@ -1091,7 +1146,7 @@ void QComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
 }
 
 /*!
-    \internal
+    \reimp
 */
 
 void QComboBox::focusInEvent(QFocusEvent *)
@@ -1100,7 +1155,7 @@ void QComboBox::focusInEvent(QFocusEvent *)
 }
 
 /*!
-    \internal
+    \reimp
 */
 
 void QComboBox::focusOutEvent(QFocusEvent *)
@@ -1151,7 +1206,7 @@ void QComboBox::resizeEvent(QResizeEvent *)
 }
 
 /*!
-    \internal
+    \reimp
 */
 
 void QComboBox::paintEvent(QPaintEvent *)
@@ -1184,7 +1239,7 @@ void QComboBox::paintEvent(QPaintEvent *)
 }
 
 /*!
-    \internal
+    \reimp
 */
 
 void QComboBox::mousePressEvent(QMouseEvent *e)
@@ -1200,7 +1255,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
 }
 
 /*!
-    \internal
+    \reimp
 */
 
 void QComboBox::keyPressEvent(QKeyEvent *e)
