@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#151 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1469,7 +1469,7 @@ void QLineEdit::repaintArea( int from, int to )
 }
 
 
-/*!  \reimplemented */
+/*!  \reimp */
 
 void QLineEdit::setEnabled( bool e )
 {
@@ -1478,7 +1478,7 @@ void QLineEdit::setEnabled( bool e )
 }
 
 
-/*! \reimplemented */
+/*! \reimp */
 
 void QLineEdit::setFont( const QFont & f )
 {
