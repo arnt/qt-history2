@@ -63,7 +63,7 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
     for(int x = 0; dirs[x] != QString::null; x++) {
 	QString &path = project->variables()[dirs[x]].first();
 	path = Option::fixPathToTargetOS(path);
-	if (!path.isEmpty() && !QFile::exists( path ) ) {
+	if (!path.isEmpty() ) {
 	    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 		path += Option::dir_sep;
 
