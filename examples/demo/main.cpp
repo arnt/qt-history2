@@ -360,7 +360,9 @@ int main( int argc, char **argv )
     categories.append( new WidgetCategory( frame.widgetStack() ) );
     categories.append( new DatabaseCategory( frame.widgetStack() ) );
     categories.append( new CanvasCategory( frame.widgetStack() ) );
+#if defined(QT_MODULE_OPENGL)
     categories.append( new OpenGLCategory( frame.widgetStack() ) );
+#endif
     categories.append( new TextCategory( frame.widgetStack() ) );
     categories.append( new I18NCategory( frame.widgetStack() ) );
     categories.append( new GameCategory( frame.widgetStack() ) );
