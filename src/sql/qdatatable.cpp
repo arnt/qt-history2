@@ -1124,7 +1124,6 @@ bool QDataTable::updateCurrent()
 	} else {
 	    emit cursorChanged( QSql::Update );
 	    refresh();
-	    QSqlIndex idx = sqlCursor()->primaryIndex();
 	    endUpdate();
 	}
 	break;
