@@ -946,6 +946,8 @@ QMakeProject::read(uchar cmd)
         }
         if(cmd & ReadConf) {             // parse mkspec
             QStringList mkspec_roots = qmake_mkspec_paths();
+            debug_msg(2, "Looking for mkspec %s in (%s)", Option::mkfile::qmakespec.latin1(),
+                      mkspec_roots.join("::").latin1());
             if(Option::mkfile::qmakespec.isEmpty()) {
                 for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + "default";
@@ -963,8 +965,6 @@ QMakeProject::read(uchar cmd)
 
             if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
                 bool found_mkspec = false;
-                debug_msg(2, "Looking for mkspec %s in (%s)", Option::mkfile::qmakespec.latin1(),
-                          mkspec_roots.join("::").latin1());
                 for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + Option::mkfile::qmakespec;
                     if(QFile::exists(mkspec)) {
