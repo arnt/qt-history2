@@ -42,15 +42,15 @@
 #include "../../qsqlfield.h"
 #include "../../qsqlindex.h"
 
-class QMySQLPrivate;
-class QMySQLDriver;
+class QMYSQLPrivate;
+class QMYSQLDriver;
 
-class QMySQLResult : public QSqlResult
+class QMYSQLResult : public QSqlResult
 {
-    friend class QMySQLDriver;
+    friend class QMYSQLDriver;
 public:
-    QMySQLResult( const QMySQLDriver* db );
-    ~QMySQLResult();
+    QMYSQLResult( const QMYSQLDriver* db );
+    ~QMYSQLResult();
 protected:
     void 		cleanup();
     bool 		fetch( int i );
@@ -62,15 +62,15 @@ protected:
     int                 size();
     int                 numRowsAffected();
 private:
-    QMySQLPrivate* 	d;
+    QMYSQLPrivate* 	d;
 };
 
-class QMySQLDriver : public QSqlDriver
+class QMYSQLDriver : public QSqlDriver
 {
-    friend class QMySQLResult;
+    friend class QMYSQLResult;
 public:
-    QMySQLDriver( QObject * parent=0, const char * name=0 );
-    ~QMySQLDriver();
+    QMYSQLDriver( QObject * parent=0, const char * name=0 );
+    ~QMYSQLDriver();
     bool    	          hasTransactionSupport() const;
     bool                  hasQuerySizeSupport() const;
     bool                  canEditBinaryFields() const;
@@ -86,7 +86,7 @@ public:
     QSqlRecord          record( const QSqlQuery& query ) const;
 private:
     void		init();
-    QMySQLPrivate* 	d;
+    QMYSQLPrivate* 	d;
 };
 
 

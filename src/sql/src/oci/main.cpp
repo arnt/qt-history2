@@ -41,7 +41,9 @@
 class QOCIDriverInterface : public QSqlDriverInterface
 {
 public:
-    QOCIDriverInterface(){}
+    QOCIDriverInterface( QUnknownInterface * parent = 0,
+			 const char * name = 0 )
+	: QSqlDriverInterface( parent, name ){}
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
@@ -49,9 +51,7 @@ public:
 
 QSqlDriver* QOCIDriverInterface::create( const QString &name )
 {
-    qDebug("QOCIDriverInterface::create( const QString &name )");
     if ( name == "QOCI" ) {
-	qDebug("Returning new QOCIDriver();");
 	return new QOCIDriver();
     }
     return 0;
@@ -65,14 +65,23 @@ QStringList QOCIDriverInterface::featureList() const
 }
 
 
-class QOCIDriverPlugIn : public QPlugInInterface
+class QOCIDriverPlugIn : public QComponentInterface
 {
 public:
-    QStringList interfaceList() const;
-    QUnknownInterface* queryInterface( const QString& request );
+    QOCIDriverPlugIn();
+    QStringList interfaceList( bool recursive = TRUE ) const;
+    QUnknownInterface* queryInterface( const QString& request, 
+				       bool recursive = TRUE, 
+				       bool regexp = TRUE ) const;
 };
 
-QStringList QOCIDriverPlugIn::interfaceList() const
+QOCIDriverPlugIn::QOCIDriverPlugIn()
+    : QComponentInterface( "QOCIDriverPlugIn" )
+{
+    new QOCIDriverInterface( this, "QOCIDriverInterface" );
+}
+
+QStringList QOCIDriverPlugIn::interfaceList( bool ) const
 {
     QStringList list;
 
@@ -81,7 +90,8 @@ QStringList QOCIDriverPlugIn::interfaceList() const
     return list;
 }
 
-QUnknownInterface* QOCIDriverPlugIn::queryInterface( const QString& request )
+QUnknownInterface* QOCIDriverPlugIn::queryInterface( const QString& request,
+						     bool, bool ) const
 {
     if ( request == "QOCIDriverInterface" )
 	return new QOCIDriverInterface;

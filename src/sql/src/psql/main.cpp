@@ -41,7 +41,9 @@
 class QPSQLDriverInterface : public QSqlDriverInterface
 {
 public:
-    QPSQLDriverInterface(){}
+    QPSQLDriverInterface( QUnknownInterface * parent = 0,
+			  const char * name = 0 )
+	: QSqlDriverInterface( parent, name ){}
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
@@ -49,35 +51,47 @@ public:
 
 QSqlDriver* QPSQLDriverInterface::create( const QString &name )
 {
-    if ( name == "QPSQL" )
-	return new QPSQLDriver();
+    if ( name == "QPSQL6" )
+	return new QPSQLDriver( QPSQLDriver::Version6 );
+    if ( name == "QPSQL7" )
+	return new QPSQLDriver( QPSQLDriver::Version7 );
     return 0;
 }
 
 QStringList QPSQLDriverInterface::featureList() const
 {
     QStringList l;
-    l.append("QPSQL");
+    l.append("QPSQL6");
+    l.append("QPSQL7");
     return l;
 }
 
-class QPSQLDriverPlugIn : public QPlugInInterface
+class QPSQLDriverPlugIn : public QComponentInterface
 {
 public:
-    QStringList interfaceList() const;
-    QUnknownInterface* queryInterface( const QString& request );
+    QPSQLDriverPlugIn();
+    QStringList interfaceList( bool recursive = TRUE ) const;
+    QUnknownInterface* queryInterface( const QString& request, 
+				       bool recursive = TRUE, 
+				       bool regexp = TRUE ) const;
 };
 
-QStringList QPSQLDriverPlugIn::interfaceList() const
+QPSQLDriverPlugIn::QPSQLDriverPlugIn()
+    : QComponentInterface( "QPSQLDriverPlugIn" )
+{
+    new QPSQLDriverInterface( this, "QPSQLDriverInterface" );
+}
+
+QStringList QPSQLDriverPlugIn::interfaceList( bool ) const
 {
     QStringList list;
 
     list << "QPSQLDriverInterface";
-
     return list;
 }
 
-QUnknownInterface* QPSQLDriverPlugIn::queryInterface( const QString& request )
+QUnknownInterface* QPSQLDriverPlugIn::queryInterface( const QString& request,
+						      bool, bool ) const
 {
     if ( request == "QPSQLDriverInterface" )
 	return new QPSQLDriverInterface;

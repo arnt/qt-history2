@@ -47,11 +47,18 @@ class QSqlDriver;
 class Q_EXPORT QSqlDriverInterface : public QUnknownInterface
 {
 public:
-    QSqlDriverInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
-    QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "QSqlDriverInterface" ); }
+    QSqlDriverInterface( QUnknownInterface *parent = 0, const char * name = 0) 
+	: QUnknownInterface( parent, name ) {}
 
+    QString interfaceId() const 
+    { 
+	return createId( QUnknownInterface::interfaceId(), "QSqlDriverInterface" );
+    }
+    virtual QStringList featureList() const 
+    { 
+	return QStringList(); 
+    }
     virtual QSqlDriver* create( const QString& name ) = 0;
-    virtual QStringList featureList() const { return QStringList(); }
 };
 
 #endif // QT_NO_SQL

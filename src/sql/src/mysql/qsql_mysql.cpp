@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of MySQL driver classes
+** Implementation of MYSQL driver classes
 **
 ** Created : 001103
 **
@@ -47,16 +47,16 @@
 
 #define QMYSQL_DRIVER_NAME "QMYSQL"
 
-class QMySQLPrivate
+class QMYSQLPrivate
 {
 public:
-    QMySQLPrivate() : result(0), mysql(0) {}
+    QMYSQLPrivate() : result(0), mysql(0) {}
     MYSQL_RES* result;
     MYSQL_ROW  row;
     MYSQL*     mysql;
 };
 
-QSqlError qMakeError( const QString& err, int type, const QMySQLPrivate* p )
+QSqlError qMakeError( const QString& err, int type, const QMYSQLPrivate* p )
 {
     return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error( p->mysql )), type);
 }
@@ -112,20 +112,20 @@ QSqlField qMakeField( const MYSQL_FIELD* f, int fieldNumber )
     return QSqlField( QString(c), fieldNumber, qDecodeMYSQLType(f->type) );
 }
 
-QMySQLResult::QMySQLResult( const QMySQLDriver* db )
+QMYSQLResult::QMYSQLResult( const QMYSQLDriver* db )
 : QSqlResult( db )
 {
-    d =   new QMySQLPrivate();
+    d =   new QMYSQLPrivate();
     (*d) = (*db->d);
 }
 
-QMySQLResult::~QMySQLResult()
+QMYSQLResult::~QMYSQLResult()
 {
     cleanup();
     delete d;
 }
 
-void QMySQLResult::cleanup()
+void QMYSQLResult::cleanup()
 {
     if ( d->result ) {
 	mysql_free_result( d->result );
@@ -136,7 +136,7 @@ void QMySQLResult::cleanup()
     setActive( FALSE );
 }
 
-bool QMySQLResult::fetch( int i )
+bool QMYSQLResult::fetch( int i )
 {
     if ( at() == i )
         return TRUE;
@@ -148,17 +148,17 @@ bool QMySQLResult::fetch( int i )
     return TRUE;
 }
 
-bool QMySQLResult::fetchLast()
+bool QMYSQLResult::fetchLast()
 {
     return fetch( mysql_num_rows( d->result ) - 1 );
 }
 
-bool QMySQLResult::fetchFirst()
+bool QMYSQLResult::fetchFirst()
 {
     return fetch( 0 );
 }
 
-QVariant QMySQLResult::data( int field )
+QVariant QMYSQLResult::data( int field )
 {
     if ( d->row[field] ) {
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
@@ -198,19 +198,19 @@ QVariant QMySQLResult::data( int field )
 	}
     }
 #ifdef QT_CHECK_RANGE
-    qWarning("QMySQLResult::data: unknown data type");
+    qWarning("QMYSQLResult::data: unknown data type");
 #endif
     return QVariant();
 }
 
-bool QMySQLResult::isNull( int field )
+bool QMYSQLResult::isNull( int field )
 {
     if ( d->row[field] == NULL )
 	return TRUE;
     return FALSE;
 }
 
-bool QMySQLResult::reset ( const QString& query )
+bool QMYSQLResult::reset ( const QString& query )
 {
     if ( !driver() )
         return FALSE;
@@ -230,50 +230,50 @@ bool QMySQLResult::reset ( const QString& query )
     return TRUE;
 }
 
-int QMySQLResult::size()
+int QMYSQLResult::size()
 {
     return (int)mysql_num_rows( d->result );
 }
 
-int QMySQLResult::numRowsAffected()
+int QMYSQLResult::numRowsAffected()
 {
     return (int)mysql_affected_rows( d->mysql );
 }
 
 /////////////////////////////////////////////////////////
 
-QMySQLDriver::QMySQLDriver( QObject * parent, const char * name )
+QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
 : QSqlDriver(parent, name ? name : QMYSQL_DRIVER_NAME)
 {
     init();
 }
 
-void QMySQLDriver::init()
+void QMYSQLDriver::init()
 {
-    d = new QMySQLPrivate();
+    d = new QMYSQLPrivate();
 }
 
-QMySQLDriver::~QMySQLDriver()
+QMYSQLDriver::~QMYSQLDriver()
 {
     delete d;
 }
 
-bool QMySQLDriver::hasTransactionSupport() const
+bool QMYSQLDriver::hasTransactionSupport() const
 {
     return FALSE;
 }
 
-bool QMySQLDriver::hasQuerySizeSupport() const
+bool QMYSQLDriver::hasQuerySizeSupport() const
 {
     return TRUE;
 }
 
-bool QMySQLDriver::canEditBinaryFields() const
+bool QMYSQLDriver::canEditBinaryFields() const
 {
     return TRUE;
 }
 
-bool QMySQLDriver::open( const QString & db,
+bool QMYSQLDriver::open( const QString & db,
     			const QString & user,
 			const QString & password,
 			const QString & host)
@@ -305,7 +305,7 @@ bool QMySQLDriver::open( const QString & db,
     return TRUE;
 }
 
-void QMySQLDriver::close()
+void QMYSQLDriver::close()
 {
     if ( isOpen() ) {
         mysql_close( d->mysql );
@@ -314,12 +314,12 @@ void QMySQLDriver::close()
     }
 }
 
-QSqlQuery QMySQLDriver::createQuery() const
+QSqlQuery QMYSQLDriver::createQuery() const
 {
-    return QSqlQuery(new QMySQLResult( this ) );
+    return QSqlQuery(new QMYSQLResult( this ) );
 }
 
-QStringList QMySQLDriver::tables( const QString& ) const
+QStringList QMYSQLDriver::tables( const QString& ) const
 {
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
     MYSQL_ROW 	row;
@@ -337,7 +337,7 @@ QStringList QMySQLDriver::tables( const QString& ) const
     return tl;
 }
 
-QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
+QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx;
     QSqlQuery i = createQuery();
@@ -353,7 +353,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     return idx;
 }
 
-QSqlRecord QMySQLDriver::record( const QString& tablename ) const
+QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
     QString fieldStmt( "show columns from %1;");
@@ -366,12 +366,12 @@ QSqlRecord QMySQLDriver::record( const QString& tablename ) const
     return fil;
 }
 
-QSqlRecord QMySQLDriver::record( const QSqlQuery& query ) const
+QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
     if ( query.isActive() && query.driver() == this ) {
-	QMySQLResult* result =  (QMySQLResult*)query.result();
-	QMySQLPrivate* p = result->d;
+	QMYSQLResult* result =  (QMYSQLResult*)query.result();
+	QMYSQLPrivate* p = result->d;
 	if ( !mysql_errno( p->mysql ) ) {
 	    int count = 0;
 	    for ( ;; ) {

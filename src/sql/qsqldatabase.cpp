@@ -289,12 +289,14 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
     d = new QSqlDatabasePrivate();
 #ifndef QT_NO_PLUGIN
-
-    // ### re-enable plugins  here
-
-    //    d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
-    //	  QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
-    //    d->driver = iface ? iface->create( type ) : 0;
+    d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
+    
+//     QStringList sl = d->plugIns->featureList();
+//     for( QStringList::Iterator it = sl.begin(); it != sl.end(); ++it ){
+//  	qDebug("QSqlDatabase::init() -> Feature: " + (*it) );
+//     }
+    QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+    d->driver = iface ? iface->create( type ) : 0;
 #endif
 
     if ( !d->driver ) {

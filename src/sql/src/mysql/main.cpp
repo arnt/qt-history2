@@ -38,50 +38,62 @@
 #include "qsql_mysql.h"
 #include <qstringlist.h>
 
-class QMySQLDriverInterface : public QSqlDriverInterface
+class QMYSQLDriverInterface : public QSqlDriverInterface
 {
 public:
-    QMySQLDriverInterface(){}
+    QMYSQLDriverInterface( QUnknownInterface * parent = 0,
+ 			   const char * name = 0 )
+	: QSqlDriverInterface( parent, name ){}
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
 };
 
-QSqlDriver* QMySQLDriverInterface::create( const QString &name )
+QSqlDriver* QMYSQLDriverInterface::create( const QString &name )
 {
     if ( name == "QMYSQL" )
-	return new QMySQLDriver();
+	return new QMYSQLDriver();
     return 0;
 }
 
-QStringList QMySQLDriverInterface::featureList() const
+QStringList QMYSQLDriverInterface::featureList() const
 {
     QStringList l;
     l.append("QMYSQL");
     return l;
 }
 
-class QMySQLDriverPlugIn : public QPlugInInterface
+class QMYSQLDriverPlugIn : public QComponentInterface
 {
 public:
-    QStringList interfaceList() const;
-    QUnknownInterface* queryInterface( const QString& request );
+    QMYSQLDriverPlugIn();
+    QStringList interfaceList( bool recursive = TRUE ) const;
+    QUnknownInterface* queryInterface( const QString& request, 
+				       bool recursive = TRUE, 
+				       bool regexp = TRUE ) const;
 };
 
-QStringList QMySQLDriverPlugIn::interfaceList() const
+QMYSQLDriverPlugIn::QMYSQLDriverPlugIn()
+    : QComponentInterface( "QMYSQLDriverPlugIn" )
+{
+    new QMYSQLDriverInterface( this, "QMYSQLDriverInterface" );
+}
+
+QStringList QMYSQLDriverPlugIn::interfaceList( bool ) const
 {
     QStringList list;
 
-    list << "QMySQLDriverInterface";
+    list << "QMYSQLDriverInterface";
 
     return list;
 }
 
-QUnknownInterface* QMySQLDriverPlugIn::queryInterface( const QString& request )
+QUnknownInterface* QMYSQLDriverPlugIn::queryInterface( const QString& request, 
+						       bool, bool ) const
 {
-    if ( request == "QMySQLDriverInterface" )
-	return new QMySQLDriverInterface;
+    if ( request == "QMYSQLDriverInterface" )
+	return new QMYSQLDriverInterface;
     return 0;
 }
 
-Q_EXPORT_INTERFACE(QMySQLDriverPlugIn)
+Q_EXPORT_INTERFACE(QMYSQLDriverPlugIn)
