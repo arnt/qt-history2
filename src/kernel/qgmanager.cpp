@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#21 $
 **
 ** Implementation of QGGeometry class
 **
@@ -14,7 +14,7 @@
 #include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#21 $");
 
 
 
@@ -806,7 +806,7 @@ void QGManager::resizeAll()
      
     // size may not be set yet
     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
-    int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
+    int hh;
  
     int mbh = menuBar ? ((QMenuBar *)menuBar)->heightForWidth( ww ) : 0;
 
@@ -819,7 +819,6 @@ void QGManager::resizeAll()
     }
     ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
-
     
     xC->distribute( lookupTable, border, ww - 2*border );
     yC->distribute( lookupTable, mbh + border, hh - 2*border - mbh );

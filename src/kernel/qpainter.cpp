@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#99 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#99 $");
 
 
 /*!
@@ -1683,8 +1683,9 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
 
 #if !defined(_WS_X11_)
 // The doc and X implementation of this functions is in qptr_x11.cpp
-
-void QPainter::drawWinFocusRect( int x, int y, int w, int h,
-				 bool xorPaint, const QColor &penColor ){}
-                       // do nothing, only called from X11 specific functions
+void QPainter::drawWinFocusRect( int, int, int, int,
+				 bool, const QColor & )
+{
+    // do nothing, only called from X11 specific functions
+}
 #endif

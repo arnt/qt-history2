@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#120 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#120 $");
 
 
 /*****************************************************************************
@@ -1847,8 +1847,7 @@ static void store_key_rec( int code, int ascii )
     key_rec[nrecs++] = KeyRec(code,ascii);
 }
 
-static
-int asciiToKeycode(char a, int state)
+static int asciiToKeycode(char a, int state)
 {
     if ( a >= 'a' && a <= 'z' )
 	a = toupper( a );
@@ -1859,9 +1858,9 @@ int asciiToKeycode(char a, int state)
     return a;
 }
 
+
 void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 {
-    int ascii = 0;
     int state = 0;
 
     if ( GetKeyState(VK_SHIFT) < 0 )
