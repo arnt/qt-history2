@@ -2709,6 +2709,10 @@ QString QTextEdit::text( int para ) const
 
 void QTextEdit::setText( const QString &text, const QString &context )
 {
+    QString oldText = this->text();	
+    if ( this->text() == text && this->context() == context )
+	return;
+
     emit undoAvailable( FALSE );
     emit redoAvailable( FALSE );
     undoRedoInfo.clear();
