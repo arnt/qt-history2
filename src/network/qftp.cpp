@@ -1436,8 +1436,8 @@ int QFtp::cd( const QString &dir )
 
   If \a dev is not 0, the data is stored to the device \a dev. Make sure that
   the \a dev pointer is valid throughout the whole pending operation (it is
-  safe to emit it when the commandFinished() is emitted). In this case the
-  readyRead() signal is never emitted and you can't read data with the
+  safe to delete it when the commandFinished() signal is emitted). In this case
+  the readyRead() signal is never emitted and you can't read data with the
   readBlcok or readAll() function.
 
   If you don't read the data immediately when it is available, i.e. when the
@@ -1643,29 +1643,30 @@ QByteArray QFtp::readAll()
 }
 
 /*!
-  Aborts the current command and deletes all scheduled commands.
+    Aborts the current command and deletes all scheduled commands.
 
-  If there is a started but not finished command (i.e. a command for which the
-  commandStarted() signal was already emitted, but no commandFinished()
-  signal is emitted yet), this function sends an \c ABORT command to the
-  server. When the server replies that the command is aborted, the
-  commandFinished() signal with \c FALSE is emitted for that command. Due to
-  timing issues, it is possible that the command is already finished before the
-  abort request arrives at the server. In this case, the commandFinished()
-  signal is emitted.
+    If there is a started but not finished command (i.e. a command for which
+    the commandStarted() signal was already emitted, but no commandFinished()
+    signal is emitted yet), this function sends an \c ABORT command to the
+    server. When the server replies that the command is aborted, the
+    commandFinished() signal with the \c error argument \c TRUE is emitted for
+    that command. Due to timing issues, it is possible that the command is
+    already finished before the abort request arrives at the server. In this
+    case, the commandFinished() signal is emitted with the \c error argument \c
+    FALSE.
 
-  For all other commands that are affected by the abort(), no signals are
-  emitted.
+    For all other commands that are affected by the abort(), no signals are
+    emitted.
 
-  If you don't start further FTP commands directly after the abort(), there
-  won't be any scheduled commands and the done() signal is emitted.
+    If you don't start further FTP commands directly after the abort(), there
+    won't be any scheduled commands and the done() signal is emitted.
 
-  \warning We experienced that some FTP servers, namely the BSD FTP daemon
-  (version 0.3), wrongly return a positive reply in the case that the abort was
-  successful and as a result the commandFinished() signal is emitted, although
-  the command was aborted.
+    \warning We experienced that some FTP servers, namely the BSD FTP daemon
+    (version 0.3), wrongly return a positive reply in the case that the abort
+    was successful and as a result the commandFinished() signal is emitted,
+    although the command was aborted.
 
-  \sa clearPendingCommands()
+    \sa clearPendingCommands()
 */
 void QFtp::abort()
 {
@@ -1754,7 +1755,7 @@ QFtp::State QFtp::state() const
 /*!
     Returns the last error that occurred. This is useful to find out details
     about the failure when receiving a commandFinished() or a done() signal
-    with the \c error argument \c FALSE.
+    with the \c error argument \c TRUE.
 
     If you start a new command, the error status is reset to \c NoError.
 */
@@ -1767,7 +1768,7 @@ QFtp::Error QFtp::error() const
 /*!
     Returns a human-readable description of the last error that occurred. This
     is useful to present a error message to the user when receiving a
-    commandFinished() or a done() signal with the \c error argument \c FALSE.
+    commandFinished() or a done() signal with the \c error argument \c TRUE.
 
     The error string is often (but not always) the reply from the server. In
     such a case, it is not possible to translate the string. If the message

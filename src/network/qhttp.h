@@ -186,7 +186,8 @@ public:
 	ConnectionRefused,
 	UnexpectedClose,
 	InvalidResponseHeader,
-	WrongContentLength
+	WrongContentLength,
+	Aborted
     };
 
     int setHost(const QString &hostname, Q_UINT16 port=80 );

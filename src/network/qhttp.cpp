@@ -1198,6 +1198,7 @@ QHttp::~QHttp()
     \value InvalidResponseHeader The server sent an invalid response header.
     \value WrongContentLength The client could not read the content correctly
     because an error in respect to the content length occurred.
+    \value Aborted The request was aborted with abort().
 
     \sa error()
 */
@@ -1298,10 +1299,24 @@ QHttp::~QHttp()
 */
 
 /*!
-    Aborts a running request and clears all pending requests.
+    Aborts the current request and deletes all scheduled requests.
+
+    For the current request, the requestFinished() signal with the \c error
+    argument \c TRUE is emitted. For all other requests that are affected by
+    the abort(), no signals are emitted.
+
+    Since this slot also delete the scheduled requests, there are no requests
+    left and the done() signal is emitted (with the \c error argument \c TRUE).
+
+    \sa clearPendingRequests()
 */
 void QHttp::abort()
 {
+    QHttpRequest *r = d->pending.getFirst();
+    if ( r == 0 )
+	return;
+
+    finishedWithError( tr("Request aborted"), Aborted );
     clearPendingRequests();
     d->socket.clearPendingData();
     close();
@@ -1311,7 +1326,7 @@ void QHttp::abort()
     Returns the number of bytes that can be read from the response content at
     the moment.
 
-    \sa request() readyRead() readBlock() readAll()
+    \sa get() post() request() readyRead() readBlock() readAll()
 */
 Q_ULONG QHttp::bytesAvailable() const
 {
@@ -1325,7 +1340,8 @@ Q_ULONG QHttp::bytesAvailable() const
     Reads \a maxlen bytes from the response content into \a data and returns
     the number of bytes read. Returns -1 if an error occurred.
 
-    \sa request() readyRead() bytesAvailable() readAll()
+    \sa get() post() request() readyRead() bytesAvailable() readAll()
+
 */
 Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 {
@@ -1371,9 +1387,9 @@ Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
 }
 
 /*!
-    Reads all bytes from the response contentt and returns it.
+    Reads all bytes from the response content and returns it.
 
-    \sa request() readyRead() bytesAvailable() readBlock()
+    \sa get() post() request() readyRead() bytesAvailable() readBlock()
 */
 QByteArray QHttp::readAll()
 {
@@ -1454,7 +1470,7 @@ void QHttp::clearPendingRequests()
     requestStarted() signal is emitted and when it is finished, the
     requestFinished() signal is emitted.
 
-    \sa request() requestStarted() requestFinished() done()
+    \sa get() post() head() request() requestStarted() requestFinished() done()
 */
 int QHttp::setHost(const QString &hostname, Q_UINT16 port )
 {
@@ -1471,6 +1487,10 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
     If the IO device \a to is not 0, the content data of the response is
     written to it. Otherwise the readyRead() signal is emitted every time new
     content data is available to read.
+
+    Make sure that the \a to pointer is valid throughout the whole pending
+    operation (it is safe to delete it when the requestFinished() signal is
+    emitted).
 
     This function returns immediately and does not wait for the request to
     finish; it is rather append to the queue of pending requests. It returns a
@@ -1500,6 +1520,10 @@ int QHttp::get( const QString& path, QIODevice* to )
     If the IO device \a to is not 0, the content data of the response is
     written to it. Otherwise the readyRead() signal is emitted every time new
     content data is available to read.
+
+    Make sure that the \a data and \a to pointers are valid throughout the
+    whole pending operation (it is safe to delete them when the
+    requestFinished() signal is emitted).
 
     This function returns immediately and does not wait for the request to
     finish; it is rather append to the queue of pending requests. It returns a
@@ -1554,11 +1578,15 @@ int QHttp::head( const QString& path )
     responsible for setting up a header that is appropriate for your request.
 
     The content data is read from the device \a data. If \a data is 0, no
-    content data is used.
+    content data is used for the request.
 
     If the IO device \a to is not 0, the content data of the response is
     written to it. Otherwise the readyRead() signal is emitted every time new
     content data is available to read.
+
+    Make sure that the \a data and \a to pointers are valid throughout the
+    whole pending operation (it is safe to delete them when the
+    requestFinished() signal is emitted).
 
     This function returns immediately and does not wait for the request to
     finish; it is rather append to the queue of pending requests. It returns a
@@ -1582,8 +1610,13 @@ int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QI
 }
 
 /*!
-    Tries to close the connection; this is useful if you have a keep-alive
-    connection and want to close it.
+    Closes the connection; this is useful if you have a keep-alive connection
+    and want to close it.
+
+    For the requests issued with get(), post() and head(), QHttp sets the
+    connection to be keep-alive. You can do that as well in the header you pass
+    to the request() function. QHttp only closes the connection to the HTTP
+    server, if the response header requires this.
 
     This function returns immediately and does not wait for the request to
     finish; it is rather append to the queue of pending requests. It returns a
@@ -1678,9 +1711,6 @@ void QHttp::finishedWithError( const QString& detail, int errorCode )
 	readAll(); // clear the data
 }
 
-/*!
-    Some cleanup if the connection got closed.
-*/
 void QHttp::slotClosed()
 {
     if ( d->state == Closing )
@@ -1938,7 +1968,10 @@ void QHttp::slotReadyRead()
 }
 
 /*!
-    Returns the state of the HTTP client.
+    Returns the current state of the object. When the state changes, the
+    stateChanged() signal is emitted.
+
+    \sa State stateChanged()
 */
 QHttp::State QHttp::state() const
 {
@@ -1948,7 +1981,7 @@ QHttp::State QHttp::state() const
 /*!
     Returns the last error that occurred. This is useful to find out details
     about the failure when receiving a requestFinished() or a done() signal
-    with the \c error argument \c FALSE.
+    with the \c error argument \c TRUE.
 
     If you start a new request, the error status is reset to \c NoError.
 */
@@ -1960,7 +1993,7 @@ QHttp::Error QHttp::error() const
 /*!
     Returns a human-readable description of the last error that occurred. This
     is useful to present a error message to the user when receiving a
-    requestFinished() or a done() signal with the \c error argument \c FALSE.
+    requestFinished() or a done() signal with the \c error argument \c TRUE.
 */
 QString QHttp::errorString() const
 {
