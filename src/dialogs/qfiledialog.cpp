@@ -3226,7 +3226,11 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 {
     QString nf = d->url.nameFilter();
 
-    d->url = QUrl( d->url, url.toString( FALSE, FALSE ) );
+    if ( QUrl::isRelativeUrl( operatorPath ) ) {
+	d->url = QUrl( d->url, operatorPath );
+    } else {
+	d->url = url;
+    }
     d->url.setNameFilter( nf );
 
     d->checkForFilter = TRUE;
