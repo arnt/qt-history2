@@ -246,13 +246,25 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	family->fixedPitch = fixed;
 	
 	bool hasScript = false;
-	if ( type & TRUETYPE_FONTTYPE ) {
+	if ( !family->scriptCheck && type & TRUETYPE_FONTTYPE ) {
 	    FONTSIGNATURE signature;
 #ifndef Q_OS_TEMP
 	    QT_WA( {
 		signature = textmetric->ntmFontSig;
 	    }, {
-		signature = ((NEWTEXTMETRICEXA *)textmetric)->ntmFontSig;
+		// the textmetric structure we get from EnumFontFamiliesEx on Win9x has 
+		// a FONTSIGNATURE, but that one is uninitialized and doesn't work. Have to go
+		// the hard way and load the font to find out.
+		HDC hdc = GetDC( 0 );
+		LOGFONTA lf;
+		memset( &lf, 0, sizeof( LOGFONTA ) );
+		QCString lfam = familyName.local8Bit();
+		memcpy( lf.lfFaceName, familyName.local8Bit(), QMIN( LF_FACESIZE, familyName.local8Bit().length() ) );
+		HFONT hfont = CreateFontIndirectA( &lf );
+		HGDIOBJ oldobj = SelectObject( hdc, hfont );
+		GetTextCharsetInfo( hdc, &signature, 0 );
+		SelectObject( hdc, oldobj );
+		DeleteObject( hfont );
 	    } );
 #else
 	    CHARSETINFO csi;
@@ -262,7 +274,6 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 #endif
 
 	    int i;
-	    //qDebug("family %s:", familyName.latin1() );
 	    for( i = 0; i < QFont::Unicode; i++ ) {
 		int bit = requiredUnicodeBits[i][0];
 		int index = bit/32;
@@ -275,7 +286,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		    if ( bit == 127 || signature.fsUsb[index] & flag ) {
 			family->scripts[i] = TRUE;
 			hasScript = true;
-			//qDebug( "i=%d, flag=%8x font supports script %d", index, flag, i );
+			//qDebug( "font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i );
 		    }
 		}
 	    }
@@ -291,6 +302,8 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		family->scripts[QFont::Han_Japanese] = TRUE;
 		//qDebug("font %s supports Japanese", familyName.latin1() );
 	    }
+	    family->scriptCheck = true;
+	    //qDebug( "usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1() );
 	}
 	if( !hasScript )
 	    family->scripts[QFont::Unicode] = TRUE;

@@ -240,8 +240,14 @@ struct QtFontFamily
 			UnSupported_Xft= 2, UnSupported_Xlfd = 4, UnSupported = 6 };
 
     QtFontFamily(const QString &n )
-	: fixedPitch( TRUE ), hasXft( FALSE ), xftScriptCheck( FALSE ),
-	  xlfdLoaded( FALSE ), fullyLoaded( FALSE ),
+	: fixedPitch( TRUE ), 
+#ifdef Q_WS_X11
+	hasXft( FALSE ), xftScriptCheck( FALSE ), xlfdLoaded( FALSE ), 
+#endif
+#ifdef Q_WS_WIN
+	scriptCheck( false ),
+#endif
+	fullyLoaded( FALSE ),
 	  name( n ), count( 0 ), foundries( 0 ) {
 	memset( scripts, 0, sizeof( scripts ) );
     }
@@ -252,9 +258,14 @@ struct QtFontFamily
     }
 
     bool fixedPitch : 1;
+#ifdef Q_WS_X11
     bool hasXft : 1;
     bool xftScriptCheck : 1;
     bool xlfdLoaded : 1;
+#endif
+#ifdef Q_WS_WIN
+    bool scriptCheck : 1;
+#endif
     bool fullyLoaded : 1;
     QString name;
 #ifdef Q_WS_X11
