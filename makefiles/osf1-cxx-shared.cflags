@@ -1,5 +1,5 @@
 CC="cxx"
-CFLAGS="-O2 -x cxx -w0"
+CFLAGS="-O2 -x cxx -w"
 LFLAGS="-lqt"
 SHELL="/bin/sh"
 LIBCFLAGS=""

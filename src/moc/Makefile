@@ -13,11 +13,11 @@ LIBDIR	=	$(BASEDIR)/lib
 CFLAGS	=	-O2
 CC	=	gcc
 
-# $Source: /tmp/cvs/qt/src/moc/Makefile,v $
-
 ####### Extra flags for yacc-written code
 
 YACCCFLAGS = -Wno-unused -Wno-parentheses
+
+# $Source: /tmp/cvs/qt/src/moc/Makefile,v $
 
 ####### Lex and yacc
 
