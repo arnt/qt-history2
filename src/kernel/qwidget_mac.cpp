@@ -904,6 +904,9 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt)
 {
+    if(isVisible() && !isTopLevel()) 
+	qt_dirty_wndw_rgn("reparent1", parentWidget() ? parentWidget() : this, 
+			  mac_rect(posInWindow(this), geometry().size()));
     dirtyClippedRegion(TRUE);
 
     QCursor oldcurs;
