@@ -1337,10 +1337,6 @@ void MetaObjectGenerator::readClassInfo()
     if ( disp && !typeinfo )
 	disp->GetTypeInfo( index, LOCALE_USER_DEFAULT, &typeinfo );
 
-    if ( !typeinfo ) {
-	QSettings controls;
-	controls.readEntry( "/Classes/" + that->control() + "/CLSID/Default" );
-    }
     if ( typeinfo && !typelib )
 	typeinfo->GetContainingTypeLib( &typelib, &index );
 
