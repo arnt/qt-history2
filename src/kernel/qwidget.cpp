@@ -2992,6 +2992,11 @@ void QWidget::setFRect( const QRect &r )
 void QWidget::setCRect( const QRect &r )
 {
     crect = r;
+    if (extra && extra->topextra)
+	extra->topextra->fsize = QSize(crect.width() + fstrut.left + fstrut.right,
+				       crect.height() + fstrut.top + fstrut.bottom);
+    else
+	fstrut.left = fstrut.right = fstrut.top = fstrut.bottom = 0;
 }
 
 
