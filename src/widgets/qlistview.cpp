@@ -1149,7 +1149,6 @@ void QListViewItem::takeItem( QListViewItem * item )
     }
     bool was_selected = FALSE;
     bool emit_changed = FALSE;
-    QListViewItem *oldCurrent = 0;
     if ( lv && !lv->d->clearing ) {
 	if ( lv->d->oldFocusItem == this )
 	    lv->d->oldFocusItem = 0;
@@ -1208,7 +1207,6 @@ void QListViewItem::takeItem( QListViewItem * item )
 		else
 		    lv->d->focusItem = 0;
 		emit_changed = TRUE;
-		oldCurrent = lv->d->focusItem;
 	    }
 	}
 
