@@ -176,12 +176,16 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString fname = (*it);
 		    fname.replace(QRegExp("\\.ui"), "");
 
-
+		    QString mocFile;
+		    if(!project->variables()["MOC_DIR"].isEmpty())
+			mocFile = project->variables()["MOC_DIR"].first();
+		    else
+			mocFile = "./"; //fn_target.left(dir_pos+1);
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
 		     " -o " + fname + ".h \\\n" "\t" + uicpath  + (*it) +
 		     " -i " + fname + ".h -o " + fname + ".cpp \\\n"
-		     "\t%QTDIR%\\bin\\moc " + fname + ".h -o moc_" + fname + ".cpp \\\n\n"
+		     "\t%QTDIR%\\bin\\moc " + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
 		     "\"" + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 		     "\t$(BuildCmds)\n\n"
 		     "\"" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
