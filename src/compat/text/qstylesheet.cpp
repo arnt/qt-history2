@@ -1327,50 +1327,7 @@ const QStyleSheetItem* QStyleSheet::item(const QString& name) const
 */
 QString QStyleSheet::convertFromPlainText(const QString& plain, QStyleSheetItem::WhiteSpaceMode mode)
 {
-    int col = 0;
-    QString rich;
-    rich += "<p>";
-    for (int i = 0; i < int(plain.length()); ++i) {
-        if (plain[i] == '\n'){
-            int c = 1;
-            while (i+1 < int(plain.length()) && plain[i+1] == '\n') {
-                i++;
-                c++;
-            }
-            if (c == 1)
-                rich += "<br>\n";
-            else {
-                rich += "</p>\n";
-                while (--c > 1)
-                    rich += "<br>\n";
-                rich += "<p>";
-            }
-            col = 0;
-        } else {
-            if (mode == QStyleSheetItem::WhiteSpacePre && plain[i] == '\t'){
-                rich += 0x00a0U;
-                ++col;
-                while (col % 8) {
-                    rich += 0x00a0U;
-                    ++col;
-                }
-            }
-            else if (mode == QStyleSheetItem::WhiteSpacePre && plain[i].isSpace())
-                rich += 0x00a0U;
-            else if (plain[i] == '<')
-                rich +="&lt;";
-            else if (plain[i] == '>')
-                rich +="&gt;";
-            else if (plain[i] == '&')
-                rich +="&amp;";
-            else
-                rich += plain[i];
-            ++col;
-        }
-    }
-    if (col != 0)
-        rich += "</p>";
-    return rich;
+    return QText::convertFromPlainText(plain, QText::WhiteSpaceMode(mode));
 }
 
 /*!
