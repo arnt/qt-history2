@@ -1,8 +1,12 @@
-// Copyright (c) 2000 Brad Hughes <bhughes@trolltech.com>
-//
-// Use, modification and distribution is allowed without limitation,
-// warranty, or liability of any kind.
-//
+/****************************************************************************
+** $Id$
+**
+** Copyright (C) 2000 Brad Hughes <bhughes@trolltech.com>.
+**
+** Use, modification and distribution is allowed without limitation,
+** warranty, or liability of any kind.
+**
+*****************************************************************************/
 
 #ifndef __colorbutton_h
 #define __colorbutton_h
