@@ -194,7 +194,6 @@ protected:
     void dropEvent( QDropEvent * );
 #endif
     void contextMenuEvent( QContextMenuEvent * );
-    void timerEvent( QTimerEvent* );
     virtual QPopupMenu *createPopupMenu();
     void windowActivationChange( bool );
 #ifndef QT_NO_COMPAT

@@ -1260,6 +1260,19 @@ bool QLineEdit::event( QEvent * e )
 		break;
 	    }
 	}
+    } else if ( e->type() == QEvent::Timer ) {
+	// should be timerEvent, is here for binary compatibility
+	int timerId = ((QTimerEvent*)e)->timerId();
+	if ( timerId == d->cursorTimer ) {
+	d->setCursorVisible( !d->cursorVisible );
+#ifndef QT_NO_DRAGANDDROP
+	} else if ( timerId == d->dndTimer ) {
+	    d->drag();
+#endif
+	} else if ( timerId == d->tripleClickTimer ) {
+	    killTimer( d->tripleClickTimer );
+	    d->tripleClickTimer = 0;
+	}
     }
     return QWidget::event( e );
 }
@@ -2015,20 +2028,6 @@ QChar QLineEdit::passwordChar() const
 
 void QLineEdit::clipboardChanged()
 {
-}
-
-void QLineEdit::timerEvent( QTimerEvent* e )
-{
-    if ( e->timerId() == d->cursorTimer ) {
-	d->setCursorVisible( !d->cursorVisible );
-#ifndef QT_NO_DRAGANDDROP
-    } else if ( e->timerId() == d->dndTimer ) {
-	d->drag();
-#endif
-    } else if ( e->timerId() == d->tripleClickTimer ) {
-	killTimer( d->tripleClickTimer );
-	d->tripleClickTimer = 0;
-    }
 }
 
 void QLineEditPrivate::init( const QString& txt )
