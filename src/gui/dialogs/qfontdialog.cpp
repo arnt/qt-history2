@@ -31,7 +31,7 @@
 #include <private/qfontdata_p.h>
 #include <qvalidator.h>
 #include <qabstractitemmodel.h>
-#include <qtreeview.h>
+#include <qlistview.h>
 #include <qheaderview.h>
 
 class QFontListModel : public QAbstractListModel
@@ -62,23 +62,23 @@ QVariant QFontListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-class QFontListView : public QTreeView
+class QFontListView : public QListView
 {
     Q_OBJECT
 public:
     QFontListView(QWidget *parent);
-    inline QFontListModel *model() const { return static_cast<QFontListModel *>(QTreeView::model()); }
+    inline QFontListModel *model() const { return static_cast<QFontListModel *>(QListView::model()); }
     inline void setCurrentItem(int item) {
-        QTreeView::setCurrentIndex(static_cast<QAbstractItemModel*>(model())->index(item, 0));
+        QListView::setCurrentIndex(static_cast<QAbstractItemModel*>(model())->index(item, 0));
     }
     inline int currentItem() const {
-        return QTreeView::currentIndex().row();
+        return QListView::currentIndex().row();
     }
     inline int count() const {
         return model()->rowCount();
     }
     inline QString currentText() const {
-        int row = QTreeView::currentIndex().row();
+        int row = QListView::currentIndex().row();
         return row < 0 ? QString() : model()->lst.at(row);
     }
     void currentChanged(const QModelIndex &, const QModelIndex &current) {
@@ -92,13 +92,9 @@ signals:
 };
 
 QFontListView::QFontListView(QWidget *parent)
-    : QTreeView(parent)
+    : QListView(parent)
 {
     setModel(new QFontListModel(parent));
-    setRootIsDecorated(false);
-    QHeaderView *h = header();
-    h->setResizeMode(QHeaderView::Stretch, 0);
-    h->hide();
 }
 
 /*!
