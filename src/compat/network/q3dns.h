@@ -22,19 +22,13 @@
 #include "q3valuelist.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
-#define QM_EXPORT_DNS
-#else
-#define QM_EXPORT_DNS Q_COMPAT_EXPORT
-#endif
-
 #ifndef QT_NO_DNS
 
 //#define Q_DNS_SYNCHRONOUS
 
 class Q3DnsPrivate;
 
-class QM_EXPORT_DNS Q3Dns: public QObject {
+class Q_COMPAT_EXPORT Q3Dns: public QObject {
     Q_OBJECT
 public:
     enum RecordType {
@@ -65,7 +59,7 @@ public:
     // to query for replies
     Q3ValueList<QHostAddress> addresses() const;
 
-    class QM_EXPORT_DNS MailServer {
+    class Q_COMPAT_EXPORT MailServer {
     public:
 	MailServer( const QString & n=QString::null, Q_UINT16 p=0 )
 	    :name(n), priority(p) {}
@@ -75,7 +69,7 @@ public:
     };
     Q3ValueList<MailServer> mailServers() const;
 
-    class QM_EXPORT_DNS Server {
+    class Q_COMPAT_EXPORT Server {
     public:
 	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
 	    : name(n), priority(p), weight(w), port(po) {}
