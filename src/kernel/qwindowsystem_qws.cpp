@@ -1675,6 +1675,7 @@ void QWSServer::setFocus( QWSWindow* changingw, bool gain )
 	    if ( focusw ) focusw->focus(0);
 	    focusw = changingw;
 	    focusw->focus(1);
+	    emit windowEvent( focusw, Active );
 	}
     } else if ( focusw == changingw ) {
 	changingw->focus(0);
@@ -1693,6 +1694,7 @@ void QWSServer::setFocus( QWSWindow* changingw, bool gain )
 	focusw = bestw;
 	if ( focusw )
 	    focusw->focus(1);
+	emit windowEvent( focusw, Active );
     }
 }
 

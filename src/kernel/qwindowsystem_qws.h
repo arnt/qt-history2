@@ -282,7 +282,7 @@ public:
 #endif
 
     enum WindowEvent { Create=0x01, Destroy=0x02, Hide=0x04, Show=0x08,
-		       Raise=0x10, Lower=0x20, Geometry=0x40 };
+		       Raise=0x10, Lower=0x20, Geometry=0x40, Active = 0x80 };
 
 signals:
     void windowEvent( QWSWindow *w, QWSServer::WindowEvent e );
