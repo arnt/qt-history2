@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#25 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#26 $
 **
 ** Definition of QWidget class
 **
@@ -85,7 +85,7 @@ public:
 
   // Keyboard focus functions
 
-    bool    hasFocus() const { return testFlag(WState_FocusA); }
+    bool    hasFocus() const { return testFlag(WState_Focus); }
     void    setFocus();				// set keyboard focus
     static QWidget *widgetInFocus();		// get widget in focus
 
@@ -99,6 +99,7 @@ public:
 
   // Update/refresh functions
 
+    bool    enableUpdates( bool enable );	// enable widget update/repaint
     void    update();				// update widget
     void    update( int x, int y, int w, int h);// update part of widget
     void    repaint( bool erase=TRUE );		// repaint widget
@@ -169,7 +170,7 @@ public:
     static QWidgetMapper *wmapper()	{ return mapper; }
 
 #if defined(_WS_X11_)
-    GC	    getGC()  const { return gc; }
+    GC	    getGC()  		 const	{ return gc; }
 #endif
 
 protected:
@@ -178,9 +179,8 @@ protected:
     void    clearFlag( WFlags n )	{ flags &= ~n; }
     void    setRect( const QRect & );		// set rect, update ncrect
     void    setNCRect( const QRect & );		// set ncrect, update rect
-    long    metric( int ) const;		// get metric information
-    static  ulong nWidgets();			// get number of widgets
-    const QFont  &fontRef() const {return fnt;}
+    long    metric( int )	 const;		// get metric information
+    const QFont &fontRef() 	 const  { return fnt; }
 
 #if defined(_WS_PM_)
     int	    convertYPos( int );
