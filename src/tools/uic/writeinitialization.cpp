@@ -729,7 +729,7 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
                        << trCall(p->elementString(), className) << ");\n";
 
             if (p->attributeName() == QLatin1String("pixmap"))
-                output << option.indent << itemName << "->setText(" << i << ", "
+                output << option.indent << itemName << "->setPixmap(" << i << ", "
                        << pixCall(p->elementPixmap()) << ");\n";
         }
 
@@ -743,7 +743,7 @@ QString WriteInitialization::pixCall(const QString &pix) const
 {
     QString s = pix;
 
-    if (m_externPixmap || m_pixmapFunction.size()) {
+    if (s.isEmpty() || m_externPixmap || m_pixmapFunction.size()) {
         if (m_externPixmap)
             s = "\"" + s + "\"";
 
