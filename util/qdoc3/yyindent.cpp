@@ -1097,7 +1097,7 @@ static QString fileContents( const QString& fileName )
     QFile f( fileName );
     if ( !f.open(QFile::ReadOnly) ) {
         qWarning( "yyindent error: Cannot open file '%s' for reading: %s",
-                  fileName.latin1(), strerror(errno) );
+                  fileName.toLatin1().data(), strerror(errno) );
         return QString();
     }
 
@@ -1105,7 +1105,7 @@ static QString fileContents( const QString& fileName )
     QString contents = t.read();
     f.close();
     if ( contents.isEmpty() )
-        qWarning( "yyindent error: File '%s' is empty", fileName.latin1() );
+        qWarning( "yyindent error: File '%s' is empty", fileName.toLatin1().data() );
     return contents;
 }
 
@@ -1145,7 +1145,7 @@ int main( int argc, char **argv )
     while ( out.endsWith("\n") )
         out.truncate( out.length() - 1 );
 
-    printf( "%s\n", out.latin1() );
+    printf( "%s\n", out.toLatin1().data() );
     return 0;
 }
 #endif

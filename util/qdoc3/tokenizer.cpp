@@ -354,7 +354,7 @@ int Tokenizer::getToken()
 		return Tok_Tilde;
 	    default:
 		yyTokLoc.warning( tr("Hostile character 0x%1 in C++ source")
-				  .arg(yyCh, 2, 16) );
+				  .arg((uchar)yyCh, 1, 16) );
 		yyCh = getChar();
 	    }
 	}
@@ -397,15 +397,15 @@ void Tokenizer::initialize(const Config &config)
     tokens.append("typename");
 
     foreach (QString t, tokens) {
-	ignoredTokensAndDirectives->insert(QByteArray(t.ascii(), t.length()), false);
-	insertKwordIntoHash(t.ascii(), -1);
+	ignoredTokensAndDirectives->insert(t.toAscii(), false);
+	insertKwordIntoHash(t.toAscii().data(), -1);
     }
 
     QStringList directives = config.getStringList(LANGUAGE_CPP + Config::dot
                                                   + CONFIG_IGNOREDIRECTIVES);
     foreach (QString d, directives) {
-	ignoredTokensAndDirectives->insert(QByteArray(d.ascii(), d.length()), true);
-	insertKwordIntoHash(d.ascii(), -1);
+	ignoredTokensAndDirectives->insert(d.toAscii(), true);
+	insertKwordIntoHash(d.toAscii().data(), -1);
     }
 }
 

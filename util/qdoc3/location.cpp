@@ -202,7 +202,7 @@ void Location::terminate()
 
 void Location::information( const QString& message )
 {
-    printf( "%s\n", message.latin1() );
+    printf( "%s\n", message.toLatin1().data() );
     fflush( stdout );
 }
 
@@ -228,7 +228,7 @@ void Location::emitMessage( MessageType type, const QString& message,
     if ( type == Warning )
 	result.prepend( tr("warning: ") );
     result.prepend( toString() );
-    printf( "%s\n", result.latin1() );
+    printf( "%s\n", result.toLatin1().data() );
     fflush( stdout );
 }
 

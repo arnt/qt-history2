@@ -606,7 +606,7 @@ void Config::load( Location location, const QString& fileName )
 			    SKIP_CHAR();
 			}
 			if ( !var.isEmpty() ) {
-			    char *val = getenv( var.latin1() );
+			    char *val = getenv( var.toLatin1().data() );
 			    if ( val == 0 ) {
 				location.fatal(tr("Environment variable '%1' undefined").arg(var));
 			    } else {

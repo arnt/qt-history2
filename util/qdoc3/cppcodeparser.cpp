@@ -1134,8 +1134,8 @@ bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *paren
     int outerTok = tok;
 
     Location loc;
-    StringTokenizer stringTokenizer( loc, synopsis.latin1(),
-				     synopsis.length() );
+    QByteArray latin1 = synopsis.toLatin1();
+    StringTokenizer stringTokenizer(loc, latin1.data(), latin1.size());
     tokenizer = &stringTokenizer;
     readToken();
 
@@ -1177,7 +1177,8 @@ void CppCodeParser::instantiateIteratorMacro(const QString &container, const QSt
     resultingCode.replace(QRegExp("\\s*##\\s*"), "");
 
     Location loc(includeFile);   // hack to get the include file for free
-    StringTokenizer stringTokenizer(loc, resultingCode.latin1(), resultingCode.length());
+    QByteArray latin1 = resultingCode.toLatin1();
+    StringTokenizer stringTokenizer(loc, latin1.data(), latin1.size());
     tokenizer = &stringTokenizer;
     readToken();
     matchDeclList(tre->root());
@@ -1223,6 +1224,5 @@ void CppCodeParser::createExampleFileNodes(FakeNode *fake)
     }
 
     foreach (QString exampleFile, exampleFiles)
-        FakeNode *fileNode = new FakeNode(fake, exampleFile.mid(sizeOfBoringPartOfName),
-                                          FakeNode::File);
+        (void) new FakeNode(fake, exampleFile.mid(sizeOfBoringPartOfName), FakeNode::File);
 }

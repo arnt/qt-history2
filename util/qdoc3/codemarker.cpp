@@ -93,7 +93,7 @@ CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
 const Node *CodeMarker::nodeForString( const QString& string )
 {
     void *ptr = 0;
-    sscanf( string.latin1(), "%p", &ptr );
+    sscanf( string.toLatin1().data(), "%p", &ptr );
     return (const Node *) ptr;
 }
 
