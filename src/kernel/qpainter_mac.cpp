@@ -1966,7 +1966,7 @@ void QPainter::initPaintDevice(bool force) {
     }
     if(remade_clip || d->cache.crgn_dirty) { 	//update clipped region
 	remade_clip = TRUE;
-	if(testf(ClipOn) && !crgn.isNull()) {
+	if(!d->cache.clippedreg.isEmpty() && testf(ClipOn) && !crgn.isNull()) {
 	    d->cache.paintreg = crgn;
 	    d->cache.paintreg.translate(d->offx, d->offy);
 	    if(!d->cache.clippedreg.isNull())
