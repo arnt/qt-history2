@@ -18,27 +18,27 @@ CC	=	gcc
 HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qframe.h	qgrpbox.h	qiconbt.h	qlabel.h      \
 		qlcdnum.h	qlined.h	qlistbox.h	qmenubar.h    \
-		qmenudta.h	qpopmenu.h	qpushbt.h     \
+		qmenudta.h	qpopmenu.h	qpushbt.h	qicon.h \
 		qradiobt.h	qrangect.h	qscrbar.h	qtablew.h
 SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qframe.cpp	qgrpbox.cpp	qiconbt.cpp	qlabel.cpp    \
 		qlcdnum.cpp	qlined.cpp	qlistbox.cpp	qmenubar.cpp  \
-		qmenudta.cpp	qpopmenu.cpp	qpushbt.cpp   \
+		qmenudta.cpp	qpopmenu.cpp	qpushbt.cpp	qicon.cpp \
 		qradiobt.cpp	qrangect.cpp	qscrbar.cpp	qtablew.cpp
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qiconbt.o	qlabel.o      \
 		qlcdnum.o	qlined.o	qlistbox.o	qmenubar.o    \
-		qmenudta.o	qpopmenu.o	qpushbt.o     \
+		qmenudta.o	qpopmenu.o	qpushbt.o	qicon.o \
 		qradiobt.o	qrangect.o	qscrbar.o	qtablew.o  
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	miconbt.cpp	mlabel.cpp    \
 		mlcdnum.cpp	mlined.cpp	mlistbox.cpp	mmenubar.cpp  \
-		mpopmenu.cpp	mpushbt.cpp	mradiobt.cpp  \
+		mpopmenu.cpp	mpushbt.cpp	mradiobt.cpp	micon.cpp \
 		mscrbar.cpp	mtablew.cpp
 OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mframe.o	mgrpbox.o	miconbt.o	mlabel.o      \
 		mlcdnum.o	mlined.o	mlistbox.o	mmenubar.o    \
-		mpopmenu.o	mpushbt.o	mradiobt.o    \
+		mpopmenu.o	mpushbt.o	mradiobt.o	micon.o \
 		mscrbar.o	mtablew.o
 TARGET = $(LIBDIR)/libqwidgets.a
 
@@ -147,6 +147,9 @@ mscrbar.cpp: qscrbar.h
 
 mtablew.cpp: qtablew.h
 	$(QTDIR)/bin/moc qtablew.h -o mtablew.cpp
+
+micon.cpp: qicon.h
+	$(QTDIR)/bin/moc qicon.h -o micon.cpp
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
