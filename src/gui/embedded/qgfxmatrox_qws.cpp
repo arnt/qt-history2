@@ -88,8 +88,6 @@ public:
 
 private:
 
-    unsigned int getRop(RasterOp);
-
     // Convert colour into what the hardware needs
     unsigned int get_color(unsigned int);
 
@@ -100,47 +98,6 @@ private:
     unsigned int src_pixel_offset;
 
 };
-
-template<const int depth,const int type>
-inline unsigned int QGfxMatrox<depth,type>::getRop(RasterOp r)
-{
-  if(r==CopyROP) {
-    return 0xc;
-  } else if(r==OrROP) {
-    return 0xe;
-  } else if(r==XorROP) {
-    return 0x6;
-  } else if(r==NotAndROP) {
-    return 0x4;
-  } else if(r==NotCopyROP) {
-    return 0x3;
-  } else if(r==NotOrROP) {
-    return 0xd;
-  } else if(r==NotXorROP) {
-    return 0x9;
-  } else if(r==AndROP) {
-    return 0x8;
-  } else if(r==NotROP) {
-    return 0x5;
-  } else if(r==ClearROP) {
-    return 0x0;
-  } else if(r==SetROP) {
-    return 0xf;
-  } else if(r==NopROP) {
-    return 0xa;
-  } else if(r==AndNotROP) {
-    return 0x2;
-  } else if(r==OrNotROP) {
-    return 0xb;
-  } else if(r==NandROP) {
-    return 0x7;
-  } else if(r==NorROP) {
-    return 0x1;
-  } else {
-    qFatal("Unknown ROP!");
-    return 0;
-  }
-}
 
 template<const int depth,const int type>
 inline void QGfxMatrox<depth,type>::do_scissors(QRect & r)
@@ -296,18 +253,11 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     QColor tmp=cbrush.color();
 
-#ifndef QT_NO_QWS_REPEATER
-    QScreen * tmp2=qt_screen;
-    qt_screen=gfx_screen;
-#endif
-    int tmpcol=tmp.pixel();
+    int tmpcol=brushPixel;
     if(((QLinuxFb_Shared *)shared_data)->forecol!=tmpcol) {
         matrox_regw(FCOL,get_color(tmpcol));
         ((QLinuxFb_Shared *)shared_data)->forecol=tmpcol;
     }
-#ifndef QT_NO_QWS_REPEATER
-    qt_screen=tmp2;
-#endif
 
     (*gfx_optype)=1;
 
@@ -316,7 +266,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     // Last in 1d00-1dff range
 
-    unsigned int tmprop=getRop(myrop) << 16;
+    unsigned int tmprop= DWG_REPLACE;
 
     if(cbrush.style()!=Qt::NoBrush) {
         int p=ncliprect;
@@ -352,7 +302,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
         return;
     }
 
-    unsigned int tmprop=getRop(myrop) << 16;
+    unsigned int tmprop= DWG_REPLACE;
 
     int dx,dy;
     dx=abs(x2-x1);
@@ -389,10 +339,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     for(loopc=0;loopc<ncliprect;loopc++) {
         do_scissors(cliprect[loopc]);
         QColor tmp=cpen.color();
-        QScreen * tmpscreen=qt_screen;
-        qt_screen=gfx_screen;
-        int tmp2=tmp.pixel();
-        qt_screen=tmpscreen;
+        int tmp2=penPixel;
 
         if(((QLinuxFb_Shared *)shared_data)->forecol!=tmp2) {
             matrox_regw(FCOL,tmp2);
@@ -469,7 +416,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 
     if(checkSourceDest()) {
 
-        unsigned int tmprop=getRop(myrop) << 16;
+        unsigned int tmprop= DWG_REPLACE;
         int xp2=srcwidgetoffs.x() + sx;
         int yp2=srcwidgetoffs.y() + sy;
 

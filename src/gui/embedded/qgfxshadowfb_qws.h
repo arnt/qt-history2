@@ -73,8 +73,11 @@ public:
     explicit QShadowTimerHandler(QShadowFbScreen *);
     virtual void timerEvent(QTimerEvent *);
 
-private:
+    void start();
+    void stop();
 
+private:
+    int timerId;
     QShadowFbScreen * screen;
 
 };

@@ -408,7 +408,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
         return;
 
     // Only handle 'normal' lines
-    if (cpen.style() != Qt::SolidLine || myrop!=CopyROP) {
+    if (cpen.style() != Qt::SolidLine) {
         QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
         return;
     }
@@ -466,15 +466,8 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
     wait_for_fifo(1);
 
-#ifndef QT_NO_QWS_REPEATER
-    QScreen * tmp=qt_screen;
-    qt_screen=gfx_screen;
-#endif
     QColor c=cpen.color();
-    unsigned int tmpcol=c.alloc();
-#ifndef QT_NO_QWS_REPEATER
-    qt_screen=tmp;
-#endif
+    unsigned int tmpcol=penPixel;
 
     regw(DP_FRGD_CLR,tmpcol);
 
@@ -541,11 +534,6 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
         return;
     }
 
-    if(myrop!=CopyROP) {
-        QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-        return;
-    }
-
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
     setDest();
 
@@ -585,14 +573,7 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
     QColor tmp=cbrush.color();
     wait_for_fifo(1);
 
-#ifndef QT_NO_QWS_REPEATER
-    QScreen * tmp2=qt_screen;
-    qt_screen=gfx_screen;
-#endif
-    regw(DP_FRGD_CLR,tmp.alloc());
-#ifndef QT_NO_QWS_REPEATER
-    qt_screen=tmp2;
-#endif
+    regw(DP_FRGD_CLR,brushPixel);
 
     if(cbrush.style()!=Qt::NoBrush) {
         int p=ncliprect;
@@ -646,7 +627,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
     // We have no provision for cacheing these things in graphics card
     // memory at the moment
     if(alphatype==BigEndianMask || alphatype==LittleEndianMask ||
-       alphatype==SeparateAlpha || srctype==SourcePen || (myrop!=CopyROP)) {
+       alphatype==SeparateAlpha || srctype==SourcePen) {
         QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 
@@ -778,14 +759,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
                 QColor tmp=cpen.color();
                 wait_for_fifo(8);
                 regw(DP_WRITE_MASK,0xffffffff);
-#ifndef QT_NO_QWS_REPEATER
-                QScreen * tmp2=qt_screen;
-                qt_screen=gfx_screen;
-#endif
-                regw(DP_FRGD_CLR,tmp.alloc());
-#ifndef QT_NO_QWS_REPEATER
-                qt_screen=tmp2;
-#endif
+                regw(DP_FRGD_CLR,penPixel);
                 regw(DP_MIX,0x00070003);
                 regw(DP_SRC,0x00030100);
                 regw(CLR_CMP_CNTL,0x00000000);
@@ -1044,14 +1018,7 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
             regw(SRC_CNTL,0x00000001);
             regw(DP_WRITE_MASK,0xffffffff);
             QColor tmp=cpen.color();
-#ifndef QT_NO_QWS_REPEATER
-            QScreen * tmp2=qt_screen;
-            qt_screen=gfx_screen;
-#endif
-            regw(DP_FRGD_CLR,tmp.alloc());
-#ifndef QT_NO_QWS_REPEATER
-            qt_screen=tmp2;
-#endif
+            regw(DP_FRGD_CLR,penPixel);
             regw(DP_MIX,0x00070003);
             regw(DP_SRC,0x00030100);
             regw(CLR_CMP_CNTL,0x00000000);
@@ -1072,8 +1039,8 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     int loopc;
     for(loopc=0;loopc<ncliprect;loopc++) {
-        xp2=srcwidgetoffs.x() + brushoffs.x();
-        yp2=srcwidgetoffs.y() + brushoffs.y();
+        xp2=srcwidgetoffs.x() + rx - brushorig.x();
+        yp2=srcwidgetoffs.y() + ry - brushorig.y();
 
         QRect r=cliprect[loopc];
         int myxp=xp > r.left() ? xp : r.left();

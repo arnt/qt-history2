@@ -78,7 +78,7 @@ void QGfxShadow<depth,type>::drawPoints(const QPolygon &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.moveBy(xoffs, yoffs);
+    r.translate(xoffs, yoffs);
     qt_screen->setDirty(r & clipbounds);
     SHADOWFB_RASTER_PARENT ::drawPoints(pa, x, y);
     QWSDisplay::ungrab();
@@ -109,7 +109,7 @@ void QGfxShadow<depth,type>::drawPolyline(const QPolygon &pa,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.moveBy(xoffs, yoffs);
+    r.translate(xoffs, yoffs);
     qt_screen->setDirty(r & clipbounds);
     SHADOWFB_RASTER_PARENT ::drawPolyline(pa, x, y);
     QWSDisplay::ungrab();
@@ -120,7 +120,7 @@ void QGfxShadow<depth,type>::drawPolygon(const QPolygon &pa,bool w,int x,int y)
 {
     QWSDisplay::grab(true);
     QRect r = pa.boundingRect();
-    r.moveBy(xoffs, yoffs);
+    r.translate(xoffs, yoffs);
     qt_screen->setDirty(r & clipbounds);
     SHADOWFB_RASTER_PARENT ::drawPolygon(pa, w, x, y);
     QWSDisplay::ungrab();
@@ -168,16 +168,28 @@ void QGfxShadow<depth,type>::tiledBlt(int x,int y,int w,int h)
 }
 
 QShadowTimerHandler::QShadowTimerHandler(QShadowFbScreen * s)
-    : QObject(0,0)
 {
     screen=s;
-    startTimer(QT_SHADOWFB_TIMER_INTERVAL);
+    start();
 }
 
 void QShadowTimerHandler::timerEvent(QTimerEvent *)
 {
     screen->doUpdate();
 }
+
+void QShadowTimerHandler::start()
+{
+    timerId = startTimer(QT_SHADOWFB_TIMER_INTERVAL);
+}
+void QShadowTimerHandler::stop()
+{
+    if (timerId)
+        killTimer(timerId);
+    timerId = 0;
+}
+
+
 
 QShadowFbScreen::QShadowFbScreen(int display_id)
     : SHADOWFB_SCREEN_PARENT (display_id)
@@ -303,7 +315,7 @@ void QShadowFbScreen::setDirty(const QRect& r)
 
 void QShadowFbScreen::doUpdate()
 {
-    QArray<QRect> rectlist=to_update.rects();
+    QVector<QRect> rectlist=to_update.rects();
     QRect screen(0,0,w,h);
 #ifdef SHADOWFB_USE_QGFX
     // This is here to allow accelerated shadowfb copies
@@ -347,13 +359,13 @@ int QShadowFbScreen::memoryNeeded(const QString &displaySpec)
 
     // Check for explicitly specified device
     const int len = 8; // "/dev/fbx"
-    int m = displaySpec.find("/dev/fb");
+    int m = displaySpec.indexOf("/dev/fb");
 
-    QString dev = (m>=0) ? displaySpec.mid(m, len) : QString("/dev/fb0");
+    QByteArray dev = (m>=0) ? displaySpec.mid(m, len).toLatin1() : QByteArray("/dev/fb0");
 
-    myfd=open(dev.latin1(), O_RDWR);
+    myfd=open(dev.constData(), O_RDWR);
     if (myfd<0) {
-        qWarning("Can't open framebuffer device %s",dev.latin1());
+        qWarning("Can't open framebuffer device %s",dev.constData());
         return false;
     }
 
@@ -396,12 +408,12 @@ int QShadowFbScreen::sharedRamSize(void * end)
 
 void QShadowFbScreen::haltUpdates()
 {
-    timer->killTimers();
+    timer->stop();
 }
 
 void QShadowFbScreen::resumeUpdates()
 {
-    timer->startTimer(QT_SHADOWFB_TIMER_INTERVAL);
+    timer->start();
 }
 
 #endif

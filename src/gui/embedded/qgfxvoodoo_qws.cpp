@@ -84,6 +84,8 @@ private:
 
 };
 
+static const unsigned int copyRop = 0xcc << 24;
+
 // Read a 32-bit graphics card register from 2d engine register block
 template<const int depth,const int type>
 inline unsigned int QGfxVoodoo<depth,type>::regr(volatile unsigned int
@@ -299,21 +301,14 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
         // With the Voodoo 3 you write the command code into COMMAND
         // and then write parameters (usually x/y coordinates of some sort)
         // into LAUNCHAREA to kick off the operation
-        regw(COMMAND,0x5 | (getRop(myrop) << 24));
+        regw(COMMAND,0x5 | copyRop);
     }
 
     (*gfx_optype)=1;
     (*gfx_lastop)=LASTOP_RECT;
 
-#ifndef QT_NO_QWS_REPEATER
-    QScreen * tmp=qt_screen;
-    qt_screen=gfx_screen;
-#endif
     QColor c=cbrush.color();
-    srccol=c.alloc();
-#ifndef QT_NO_QWS_REPEATER
-    qt_screen=tmp;
-#endif
+    srccol=brushPixel;
 
     if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
         wait_for_fifo(1);
@@ -545,7 +540,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
         (*gfx_lastop)=LASTOP_STRETCHBLT;
 
         wait_for_fifo(4);
-        regw(COMMAND,0x2 | (getRop(myrop) << 24));
+        regw(COMMAND,0x2 | copyRop);
         regw(SRCSIZE,sw | (sh << 16));
         regw(DSTSIZE,w | (h << 16));
         regw(DSTXY,xp | (yp << 16));
@@ -613,7 +608,7 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 
     wait_for_fifo(1);
-    regw(COMMAND,0x6 | getRop(myrop));
+    regw(COMMAND,0x6 | copyRop);
 
     for(loopc=0;loopc<ncliprect;loopc++) {
       do_scissors(cliprect[loopc]);

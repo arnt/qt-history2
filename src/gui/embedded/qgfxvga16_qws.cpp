@@ -305,15 +305,15 @@ class QGfxVga16 : public QGfxRasterBase , private QWSPolygonScanner
         void drawrect_4(unsigned int x1, unsigned int y1,
             unsigned int x2, unsigned int y2, unsigned char col);
         unsigned int get_pixel_4_32(unsigned int x, unsigned int y);
-        void himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse = false);
+        void himageline_4(unsigned int y, unsigned int x1, unsigned int x2, const unsigned char *srcdata, bool reverse = false);
 
         Q_GFX_INLINE unsigned int get_value_32(int sdepth, unsigned char **srcdata, bool reverse = false);
         Q_GFX_INLINE void calcPacking(void * m,int x1,int x2, int & frontadd,int & backadd,int & count);
         Q_GFX_INLINE void hline(int x1,int x2,int y);
-        Q_GFX_INLINE void hAlphaLineUnclipped(int x1,int x2,unsigned int y,unsigned char *srcdata,unsigned char *alphas);
+        Q_GFX_INLINE void hAlphaLineUnclipped(int x1,int x2,unsigned int y,const unsigned char *srcdata,unsigned char *alphas);
         void processSpans(int n, QPoint* point, int* width);
 //        void paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos);
-        void buildSourceClut(QRgb * cols,int numcols);
+        void buildSourceClut(const QRgb * cols,int numcols);
 
 };
 
@@ -695,7 +695,7 @@ static void vga16_blt16BitBufToScr(int dst_x, int dst_y, unsigned short *srcdata
 }
 
 
-static void vga16_blt8BitBufToScr(int dst_x, int dst_y, unsigned char *src_data, int w, int h)
+static void vga16_blt8BitBufToScr(int dst_x, int dst_y, const unsigned char *src_data, int w, int h)
 {
     BEGIN_PROFILING
 
@@ -801,7 +801,7 @@ void QGfxVga16::drawrect_4(unsigned int x1, unsigned int y1,
 }
 
 
-void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, unsigned char *srcdata, bool reverse)
+void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, const unsigned char *srcdata, bool reverse)
 {
     BEGIN_PROFILING
 
@@ -873,7 +873,7 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
 
         if (!ismasking) {
             while (w--) {
-                unsigned int val = get_value_32(srcdepth,&srcdata,reverse);
+                unsigned int val = get_value_32(srcdepth,(uchar**)&srcdata,reverse);
                 unsigned int r, g, b;
                 r = (val & 0x00FF0000) >> 16;
                 g = (val & 0x0000FF00) >>  8;
@@ -884,7 +884,7 @@ void QGfxVga16::himageline_4(unsigned int y, unsigned int x1, unsigned int x2, u
         } else {
             while (w--) {
                 if (srctype==SourceImage) {
-                    unsigned int val = get_value_32(srcdepth,&srcdata,reverse);
+                    unsigned int val = get_value_32(srcdepth,(uchar**)&srcdata,reverse);
                     unsigned int r, g, b;
                     r = (val & 0x00FF0000) >> 16;
                     g = (val & 0x0000FF00) >>  8;
@@ -1056,7 +1056,7 @@ void QGfxVga16::setSource(const QImage * i)
         buildSourceClut(i->colorTable(),i->numColors());
 }
 
-void QGfxVga16::buildSourceClut(QRgb * cols,int numcols)
+void QGfxVga16::buildSourceClut(const QRgb * cols,int numcols)
 {
     BEGIN_PROFILING
 
@@ -1335,14 +1335,14 @@ Q_GFX_INLINE void QGfxVga16::hline(int x1,int x2,int y)
 
 Q_GFX_INLINE void QGfxVga16::hAlphaLineUnclipped(int x1,int x2,
                                                     unsigned int y,
-                                                    unsigned char * srcdata,
+                                                    const unsigned char * srcdata,
                                                     unsigned char * alphas)
 {
     BEGIN_PROFILING
 
     // First read in the destination line
     unsigned char *avp = alphas;
-    unsigned char *srcptr = srcdata;
+    const unsigned char *srcptr = srcdata;
     unsigned char srcval4 = 0;
     unsigned int srcval32 = 0;
     unsigned int av;
@@ -1353,7 +1353,7 @@ Q_GFX_INLINE void QGfxVga16::hAlphaLineUnclipped(int x1,int x2,
     if (srctype == SourceImage) {
         for (int loopc = 0, i = x1; i <= x2; loopc++, i++) {
 
-            srcval32 = get_value_32(srcdepth,&srcptr);
+            srcval32 = get_value_32(srcdepth,(uchar**)&srcptr);
 
             if (alphatype == InlineAlpha)
                 av = srcval32 >> 24;
@@ -1481,14 +1481,13 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
     }
 #endif // QWS_EXPERIMENTAL_FASTPATH
 
-    if((cbrush.style()!=QBrush::NoBrush) &&
-        (cbrush.style()!=QBrush::SolidPattern)) {
-        Q_ASSERT(cbrushpixmap != 0);
+    if((cbrush.style()!=Qt::NoBrush) &&
+        (cbrush.style()!=Qt::SolidPattern)) {
         srcwidth=cbrushpixmap.width();
         srcheight=cbrushpixmap.height();
         if(cbrushpixmap.depth()==1) {
             if(opaque) {
-                setSource(cbrushpixmap);
+                setSource(&cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
                 pixel = brushPixel;
                 srcclut[0]=clut[pixel]; // pixel
@@ -1506,7 +1505,7 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
                                cbrushpixmap.bytesPerLine());
             }
         } else {
-            setSource(cbrushpixmap);
+            setSource(&cbrushpixmap);
             setAlphaType(IgnoreAlpha);
         }
         tiledBlt(rx,ry,w,h);
@@ -1560,7 +1559,7 @@ void QGfxVga16::drawPolygon(const QPolygon &pa, bool winding, int index, int npo
 
     pixel = brushPixel;
     VGA16_GFX_START(clipbounds)
-    if (cbrush.style()!=QBrush::NoBrush)
+    if (cbrush.style()!=Qt::NoBrush)
         scan(pa,winding,index,npoints);
     drawPolyline(pa, index, npoints);
     if (pa[index] != pa[index+npoints-1]) {
@@ -1665,7 +1664,7 @@ void QGfxVga16::blt(int rx,int ry,int w,int h,int sx,int sy)
         tj = h;
     }
 
-    unsigned char *srcline = srcScanLine(j+sy);
+    const unsigned char *srcline = srcScanLine(j+sy);
 
     if (alphatype == InlineAlpha || alphatype == SolidAlpha ||
          alphatype == SeparateAlpha) {
@@ -1700,7 +1699,7 @@ void QGfxVga16::blt(int rx,int ry,int w,int h,int sx,int sy)
 
                 } else {
 
-                    unsigned char *srcptr = srcline;
+                    const unsigned char *srcptr = srcline;
                     if (srctype == SourceImage) {
                         if (srcdepth == 1) {
                             srcptr=find_pointer(srcbits,(x-rx)+sx,
@@ -1783,8 +1782,8 @@ void QGfxVga16::tiledBlt(int rx,int ry,int w,int h)
     pixel = brushPixel;
     unsigned char * savealphabits=alphabits;
 
-    int offx = brushoffs.x();
-    int offy = brushoffs.y();
+    int offx = srcwidgetoffs.x() + rx - brushorig.x();
+    int offy = srcwidgetoffs.y() + ry - brushorig.y();
 
     // from qpainter_qws.cpp
     if (offx < 0)
@@ -1841,12 +1840,12 @@ bool QVga16Screen::connect(const QString &displaySpec)
 
     fb_fix_screeninfo finfo;
     QRegExp r(QString::fromLatin1("/dev/fb[0-9]+"));
-    int len;
-    int m = r.match(displaySpec, 0, &len);
+    int m = r.indexIn(displaySpec);
+    int len = r.matchedLength();
 
     QString dev = (m>=0) ? displaySpec.mid(m, len) : QString("/dev/fb0");
 
-    int fd = open(dev, O_RDWR);
+    int fd = open(dev.toLatin1().constData(), O_RDWR);
     int res = ioctl(fd, FBIOGET_FSCREENINFO, &finfo);
     close(fd);
     if (res || finfo.type != FB_TYPE_VGA_PLANES)
