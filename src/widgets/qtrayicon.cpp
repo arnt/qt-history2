@@ -41,9 +41,9 @@ QTrayIcon::~QTrayIcon()
   Sets the context menu to \a popup. The context menu will pop up when the
   user clicks the system tray entry with the right mouse button.
 */
-void QTrayIcon::setPopup( QPopupMenu* p )
+void QTrayIcon::setPopup( QPopupMenu* popup )
 {
-    pop = p;
+    pop = popup;
 }
 
 /*!
@@ -76,7 +76,7 @@ QPixmap QTrayIcon::icon() const
 }
 
 /*!
-  Sets the tooltip for the system tray entry to \a tip. On some systems, 
+  Sets the tooltip for the system tray entry to \a tooltip. On some systems, 
   the tooltip's length is limited and will be truncated as necessary.
 */
 void QTrayIcon::setToolTip( const QString &tooltip )
