@@ -5,7 +5,7 @@
 FORCEDEP=FORCE
 CONTINUEONERROR=-k
 
-all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples sub-extensions
+all: src-qmake sub-src sub-tools sub-tutorial sub-examples sub-extensions
 	@echo
 	@echo "The Qt library is now built in ./lib"
 	@echo "The Qt examples are built in the directories in ./examples"
@@ -14,19 +14,12 @@ all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples sub-
 	@echo "Enjoy!   - the Trolltech team"
 	@echo
 
-symlinks: .qmake.cache
-#	syncqt
-
-#moc
-src-moc: src-qmake $(FORCEDEP)
-#	cd src/moc && $(MAKE)
-
 #Qt
-sub-src: src-moc .qmake.cache $(FORCEDEP)
+sub-src: src-qmake .qmake.cache $(FORCEDEP)
 	cd src && $(MAKE) && $(MAKE) -f Makefile.main
 
 #qmake
-src-qmake: symlinks $(FORCEDEP)
+src-qmake: $(FORCEDEP)
 	cd qmake && $(MAKE) -f Makefile.win32-g++
 
 #tools
@@ -34,7 +27,7 @@ sub-tools: sub-plugins $(FORCEDEP)
 	cd tools && $(MAKE)
 
 #plugins
-sub-plugins: sub-src .qmake.cache $(FORCEDEP)
+sub-plugins: sub-src $(FORCEDEP)
 	cd plugins/src && $(MAKE)
 
 #tutorials
@@ -65,4 +58,6 @@ distclean: clean
 	@echo '  Qt must first be configured using the "configure" script.'
 	@echo
 
+	
 FORCE:
+
