@@ -70,7 +70,6 @@ SOURCES	+= command.cpp \
 		qcompletionedit.cpp \
 		timestamp.cpp \
 		formfile.cpp \
-		qcategorywidget.cpp \
 		widgetaction.cpp \
 		propertyobject.cpp \
 		startdialogimpl.cpp \
@@ -136,7 +135,6 @@ HEADERS	+= command.h \
 		qcompletionedit.h \
 		timestamp.h \
 		formfile.h \
-		qcategorywidget.h \
 		widgetaction.h \
 		propertyobject.h \
 		startdialogimpl.h \

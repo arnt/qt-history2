@@ -46,7 +46,7 @@
 #include "pixmapcollection.h"
 #include "qcompletionedit.h"
 #include "sourcefile.h"
-#include "qcategorywidget.h"
+#include <qcategorybar.h>
 #include "widgetaction.h"
 #include "propertyobject.h"
 #include "popupmenueditor.h"
@@ -431,7 +431,7 @@ void MainWindow::setupToolbox()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
-    toolBox = new QCategoryWidget( dw );
+    toolBox = new QCategoryBar( dw );
     dw->setWidget( toolBox );
     dw->setFixedExtentWidth( 160 );
     dw->setCaption( tr( "Toolbox" ) );
@@ -905,7 +905,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 
 	return QMainWindow::eventFilter( o, e );
     }
-    
+
     if ( !o || !e || !o->isWidgetType() )
 	return QMainWindow::eventFilter( o, e );
 
@@ -2038,7 +2038,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentlyFiles, ',' );
     config.writeEntry( keybase + "RecentlyOpenedProjects", recentlyProjects, ',' );
     config.writeEntry( keybase + "DatabaseAutoEdit", databaseAutoEdit );
-    
+
     config.writeEntry( keybase + "AutoSave/Enabled", autoSaveEnabled );
     config.writeEntry( keybase + "AutoSave/Interval", autoSaveInterval );
 

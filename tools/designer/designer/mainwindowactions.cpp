@@ -65,7 +65,7 @@
 #include "dbconnectionimpl.h"
 #endif
 #include "widgetaction.h"
-#include "qcategorywidget.h"
+#include <qcategorybar.h>
 #include "startdialogimpl.h"
 #include "designerappiface.h"
 #include "connectiondialog.h"

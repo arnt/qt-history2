@@ -45,7 +45,7 @@ class QCategoryButton;
 class QCategoryBarPrivate;
 class QWidgetList;
 
-class QCategoryBar : public QWidget
+class Q_EXPORT QCategoryBar : public QWidget
 {
     Q_OBJECT
 

@@ -41,7 +41,7 @@
 #include <private/qpluginmanager_p.h>
 #include <qobjectlist.h>
 
-class QCategoryWidget;
+class QCategoryBar;
 class PropertyEditor;
 class QWorkspace;
 class QMenuBar;
@@ -445,7 +445,7 @@ private:
     QPopupMenu *projectMenu;
     QString menuHelpFile;
     bool singleProject;
-    QCategoryWidget *toolBox;
+    QCategoryBar *toolBox;
     int toolsMenuId, toolsMenuIndex;
     uint guiStuffVisible : 1;
     uint editorsReadOnly : 1;
