@@ -12,9 +12,10 @@ class Q_EXPORT QGuardedCleanupHandler
 public:
     ~QGuardedCleanupHandler() { clear(); }
 
-    void add( Type* object )
+    Type* add( Type* object )
     {
 	cleanupObjects.insert( 0, new QGuardedPtr<Type>(object) );
+	return object;
     }
 
     void remove( Type *object )
@@ -67,12 +68,13 @@ public:
     {}
     ~QCleanupHandler() { clear(); }
 
-    void add( Type* object )
+    Type* add( Type* object )
     {
 	if ( !cleanupObjects ) {
 	    cleanupObjects = new QList<Type>;
 	}
 	cleanupObjects->insert( 0, object );
+	return object;
     }
 
     void remove( Type *object )
