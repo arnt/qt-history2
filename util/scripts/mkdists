@@ -402,13 +402,13 @@ fi
 #qgif.h
 qgif="$DISTDIR/src/kernel/qgif.h"
 if [ -e  "$qgif" ]; then
-    sed "s,\(\#define QT_BUILTIN_GIF_READ[ ]*\)$,\1 0,g" $qgif >${TMP_FILE}
+    sed "s,\(\#define QT_BUILTIN_GIF_READER[ ]*\)$,\1 0,g" $qgif >${TMP_FILE}
     mv ${TMP_FILE} $qgif
 fi
 #qgif.h
 qgif="$DISTDIR/include/qgif.h"
 if [ -e  "$qgif" ]; then
-    sed "s,\(\#define QT_BUILTIN_GIF_READ[ ]*\)$,\1 0,g" $qgif >${TMP_FILE}
+    sed "s,\(\#define QT_BUILTIN_GIF_READER[ ]*\)$,\1 0,g" $qgif >${TMP_FILE}
     mv ${TMP_FILE} $qgif
 fi
 
