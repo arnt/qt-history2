@@ -324,6 +324,7 @@ CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`
 # parse the arguments, setting things to "yes" or "no"
 while [ "$#" -gt 0 ]; do
     CURRENT_OPT="$1"
+    UNKNOWN_ARG=no
     case $1 in
     #Autoconf style options
     --enable-*)
@@ -362,7 +363,17 @@ while [ "$#" -gt 0 ]; do
 	VAL=yes
 	;;
     #Qt style options that pass an argument
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-depths|-make|-nomake|-qconfig|-platform|-xplatform|-buildkey)
+    -qconfig)
+	if [ "$PLATFORM_QWS" = "yes" ]; then
+	    CFG_QCONFIG="$VAL"
+	    VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
+	    shift
+	    VAL=$1
+	else
+	    UNKNOWN_ARG=yes
+	fi
+	;;
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	shift
 	VAL=$1
@@ -437,13 +448,17 @@ while [ "$#" -gt 0 ]; do
 	VAL=`echo $1 | sed 's,-l,,'`
 	;;
     *)
-	echo "${1}: unknown argument"
+	UNKNOWN_ARG=yes
+	;;
+    esac
+    if [ "$UNKNOWN_ARG" = "yes" ]; then
+	echo "$1: unknown argument"
 	OPT_HELP=yes
 	ERROR=yes
 	shift
 	continue
-    esac
-    shift #advance
+     fi
+    shift
 
     UNKNOWN_OPT=no
     case $VAR in
@@ -479,7 +494,7 @@ while [ "$#" -gt 0 ]; do
 	QT_INSTALL_SYSCONF="$VAL"
 	;;
     qconfig)
-	CFG_QCONFIG=$VAL
+	CFG_QCONFIG="$VAL"
 	;;
     bindir)
 	QT_INSTALL_BINS="$VAL"
@@ -516,9 +531,6 @@ while [ "$#" -gt 0 ]; do
 	else
 	    UNKNOWN_OPT=yes
         fi
-	;;
-    qconfig)
-	CFG_QCONFIG="$VAL"
 	;;
     nomake)
 	QMAKE_IGNORE_PROJECTS="$QMAKE_IGNORE_PROJECTS $VAL"
