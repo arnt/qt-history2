@@ -180,6 +180,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
     Q_PROPERTY( int childCount READ childCount )
     Q_PROPERTY( bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus )
+    Q_PROPERTY( bool showSortIndicator READ showSortIndicator WRITE setShowSortIndicator )
     Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
 
