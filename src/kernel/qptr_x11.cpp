@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#47 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#47 $";
 #endif
 
 
@@ -2122,16 +2122,14 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		setBrush( oldBrush );
 	    }
 	    bool do_clip = hasClipping();
-	    uint tmpf = flags;
-	    flags = IsActive;
 	    QBitMap *draw_bm;
 	    if ( do_clip ) {			// clipping enabled
 		int ww = wx_bm->size().width();
 		int hh = wx_bm->size().height();
 		draw_bm = new QBitMap( ww, hh );
+		draw_bm->fill( falseColor );
 		QPainter paint;
 		paint.begin( draw_bm );
-		paint.eraseRect( 0, 0, ww, hh );
 		QRegion rgn = crgn.copy();
 		rgn.move( -x, -y );
 		paint.setClipRegion( rgn );
@@ -2143,7 +2141,6 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
 	    if ( cfont.underline() || cfont.strikeOut() ) {
-		QFontMetrics fm( cfont );
 		int lw = fm.lineWidth();
 		int tw = fm.width( str, len );
 		QPen   save_pen   = cpen;
@@ -2157,6 +2154,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		setPen( save_pen );
 		setBrush( save_brush );
 	    }
+	    uint tmpf = flags;
+	    flags = IsActive;
 	    drawPixMap( x, y, *draw_bm );	// draw bitmap!
 	    flags = tmpf;
 	    XSetClipOrigin( dpy, gc, 0, 0 );
