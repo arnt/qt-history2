@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#30 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#30 $";
 #endif
 
 
@@ -129,8 +129,6 @@ QWidget::~QWidget()
     }
     destroy();					// platform-dependent cleanup
     delete extra;
-//    if ( mapper && mapper->count() == 0 )       // no more widgets left
-//	QApplication::quit();
 }
 
 
