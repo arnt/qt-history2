@@ -166,7 +166,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
 void *QGLContext::chooseMacVisual(GDHandle device)
 {
-    GLint attribs[20], cnt=0;
+    GLint attribs[40], cnt=0;
     if(deviceIsPixmap()) {
         attribs[cnt++] = AGL_PIXEL_SIZE;
         attribs[cnt++] = ((QPixmap*)d->paintDevice)->depth();
@@ -221,6 +221,9 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     }
 
     attribs[cnt] = AGL_NONE;
+
+    Q_ASSERT(cnt < 40); // resize buffer above if too small
+
     AGLPixelFormat fmt;
     if(deviceIsPixmap() || !device)
         fmt = aglChoosePixelFormat(NULL, 0, attribs);
@@ -663,7 +666,22 @@ void QGLExtensions::init()
 	return;
     init_done = true;
 
-    // ### stuff will be added here
+    GLint attribs[] = { AGL_RGBA, AGL_NONE };
+    AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attribs);
+    if (!fmt) {
+        qDebug("QGLExtensions: couldn't find any RGB visuals.");
+        return;
+    }
+    AGLContext ctx = aglCreateContext(fmt, NULL);
+    if (!ctx) {
+        qDebug("QGLExtensions: unable to create context.");
+    } else {
+        aglSetCurrentContext(ctx);
+        init_extensions();
+        aglSetCurrentContext(NULL);
+        aglDestroyContext(ctx);
+    }
+    aglDestroyPixelFormat(fmt);
 }
 
 #endif
