@@ -27,6 +27,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <qbuffer.h>
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+#include <share.h>
+#endif
 
 #if 1
 #define qmake_endOfLine(c) (c == '\r' || c == '\n')
@@ -325,7 +328,14 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     char *buffer = 0;
     int buffer_len = 0;
     {
-        int fd = open(fixPathForFile(file->file, true).local().toLatin1().constData(), O_RDONLY);
+        int fd;
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+        if (_sopen_s(fixPathForFile(file->file, true).local().toLatin1().constData(),
+            _O_RDONLY, _SH_DENYRW, _S_IREAD, &fd) != 0)
+            fd = -1;        
+#else
+        fd = open(fixPathForFile(file->file, true).local().toLatin1().constData(), O_RDONLY);
+#endif
         if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
             return false;
         buffer = getBuffer(fst.st_size);
@@ -591,7 +601,14 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     char *buffer = 0;
     {
         struct stat fst;
-        int fd = open(fixPathForFile(file->file, true).local().toLocal8Bit().constData(), O_RDONLY);
+        int fd;
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+        if (_sopen_s(fixPathForFile(file->file, true).local().toLocal8Bit().constData(),
+            _O_RDONLY, _SH_DENYRW, _S_IREAD, &fd) != 0)
+            fd = -1;        
+#else
+        fd = open(fixPathForFile(file->file, true).local().toLocal8Bit().constData(), O_RDONLY);
+#endif
         if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
             return false; //shouldn't happen
         buffer = getBuffer(fst.st_size);
