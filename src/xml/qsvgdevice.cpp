@@ -959,11 +959,13 @@ double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
     QString u = reg.cap( 2 );
     if ( !u.isEmpty() && u != "px" ) {
 	QPaintDeviceMetrics m( pt->device() );
-	if ( u == "em" )
-	    d *= pt->font().pixelSize();
-	else if ( u == "ex" )
-	    d *= 0.5 * pt->font().pixelSize();
-	else if ( u == "%" )
+	if ( u == "em" ) {
+	    QFontInfo fi( pt->font() );
+	    d *= fi.pixelSize();
+	} else if ( u == "ex" ) {
+	    QFontInfo fi( pt->font() );
+	    d *= 0.5 * fi.pixelSize();
+	} else if ( u == "%" )
 	    d *= (horiz ? pt->window().width() : pt->window().height())/100.0;
 	else if ( u == "cm" )
 	    d *= m.logicalDpiX() / 2.54;
