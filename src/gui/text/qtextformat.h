@@ -300,9 +300,9 @@ public:
     { return static_cast<Direction>(intProperty(BlockDirection, AutoDirection)); }
 
     inline void setAlignment(Qt::Alignment alignment)
-    { setProperty(BlockAlignment, int(alignment)); }
+    { setProperty(BlockAlignment, int(alignment), Qt::AlignAuto); }
     inline Qt::Alignment alignment() const
-    { return QFlag(intProperty(BlockAlignment)); }
+    { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
 
     inline void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }
@@ -474,9 +474,9 @@ public:
     { setProperty(TableCellSpacing, spacing, 0); }
 
     inline void setAlignment(Qt::Alignment alignment)
-    { setProperty(BlockAlignment, int(alignment)); }
+    { setProperty(BlockAlignment, int(alignment), Qt::AlignAuto); }
     inline Qt::Alignment alignment() const
-    { return QFlag(intProperty(BlockAlignment)); }
+    { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
 };
 
 #endif
