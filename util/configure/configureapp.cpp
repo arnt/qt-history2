@@ -63,6 +63,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "QMAKESPEC" ]	    = getenv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ]  = "no";
     dictionary[ "LEAN" ]	    = "no";
+    dictionary[ "FAST" ]            = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "yes";
     dictionary[ "EXCEPTIONS" ]	    = "no";
@@ -492,6 +493,9 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-lean" )
 	    dictionary[ "LEAN" ] = "yes";
 
+        else if (configCmdLine.at(i) == "-fast" )
+            dictionary[ "FAST" ] = "yes";
+
 	else if( configCmdLine.at(i) == "-stl" )
 	    dictionary[ "STL" ] = "yes";
 	else if( configCmdLine.at(i) == "-no-stl" )
@@ -736,6 +740,8 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
 	cout << "                     (src directory)." << endl << endl;
+        cout << "-fast                Configure Qt quickly by generating wrapper"
+             << "                     Makefiles which will run qmake later." << endl << endl;
 
 	cout << "-D <define>          Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>     Add <includepath> to the include searchpath." << endl;
@@ -1604,7 +1610,7 @@ void Configure::generateMakefiles()
 		QString makefileName = dirPath + it->target;
 		QStringList args;
 
-		args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
+ 		args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
 		args << projectName;
 		args << dictionary[ "QMAKE_ALL_ARGS" ];
 
@@ -1626,9 +1632,24 @@ void Configure::generateMakefiles()
 		args << dictionary[ "QMAKESPEC" ];
 
 		QDir::setCurrent( QDir::convertSeparators( dirPath ) );
-		if( int r = system( args.join( " " ).latin1() ) ) {
-		    cout << "Qmake failed, return code " << r  << endl << endl;
-		    dictionary[ "DONE" ] = "error";
+
+                if (dictionary["FAST"] == "yes") {
+                    QFile file(makefileName);
+                    if (!file.open(QFile::WriteOnly)) {
+                        printf("failed on dirPath=%s, makefile=%s\n",
+                               dirPath.latin1(), makefileName.latin1());
+                        continue;
+                    }
+                    QTextStream txt(&file);
+                    txt << "all:\n";
+                    txt << "\t" << args.join(" ") << "\n";
+                    txt << "\tnmake -f " << makefileName << "\n";
+                    txt << "first: all\n";
+                } else {
+                    if( int r = system( args.join( " " ).latin1() ) ) {
+                        cout << "Qmake failed, return code " << r  << endl << endl;
+                        dictionary[ "DONE" ] = "error";
+                    }
 		}
 	    }
 	}
