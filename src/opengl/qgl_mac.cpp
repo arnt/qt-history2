@@ -5,7 +5,7 @@
 **
 ** Created : 970112
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the opengl module of the Qt GUI Toolkit.
 **
@@ -546,7 +546,7 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 	    if(children()) {
 		QRect myrect(rect());
 		register QObject *obj;
-		for(QObjectListIt it(*children()); (obj = it.current()); ++it) {
+		for(QObjectListIterator it(*children()); (obj = it.current()); ++it) {
 		    if(obj->isWidgetType()) {
 			QWidget *w = (QWidget*)obj;
 			if(w->isVisible() && !w->isTopLevel() && myrect.intersects(QRect(w->pos(), w->size()))) {

@@ -5,7 +5,7 @@
 **
 ** Created : 930418
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -160,7 +160,7 @@ public:
     Some QObject functions, e.g. children(), objectTrees() and
     queryList() return a QObjectList. A QObjectList is a QPtrList of
     QObjects. QObjectLists support the same operations as QPtrLists
-    and have an iterator class, QObjectListIt.
+    and have an iterator class, QObjectListIterator.
 */
 
 

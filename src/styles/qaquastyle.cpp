@@ -5,7 +5,7 @@
 **
 ** Created : 001129
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -1686,7 +1686,7 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    if(bar->orientation() == Qt::Vertical)
 			mod += "v";
 		    QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
-		    QObjectListIt it(*l);
+		    QObjectListIterator it(*l);
 		    if(it.toFirst() == toolbutton)
 			mod += "left";
 		    else if(it.toLast() == toolbutton && !toolbutton->popup())
@@ -1718,7 +1718,7 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		if(bar->orientation() == Qt::Vertical)
 		    mod += "v";
 		QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
-		QObjectListIt it(*l);
+		QObjectListIterator it(*l);
 		if(it.toFirst() == toolbutton) {
 		    if(bar->orientation() == Qt::Horizontal)
 			mod += "left";

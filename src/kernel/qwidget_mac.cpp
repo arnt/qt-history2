@@ -216,7 +216,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
 	return FALSE;
 
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
-	QObjectListIt it(*childObjects);
+	QObjectListIterator it(*childObjects);
 	for(it.toLast(); it.current(); --it) {
 	    if((*it)->isWidgetType()) {
 		QWidget *w = (QWidget *)(*it);
@@ -964,7 +964,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 	    qt_dirty_wndw_rgn("destroy",this, mac_rect(posInWindow(this), geometry().size()));
         clearWState(WState_Created);
         if(children()) {
-            QObjectListIt it(*children());
+            QObjectListIterator it(*children());
             register QObject *obj;
             while((obj=it.current())) {      // destroy all widget children
                 ++it;
@@ -1063,8 +1063,8 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
 
     //reparent children
-    if(QObjectList	*chldn = queryList()) {
-	QObjectListIt it(*chldn);
+    if(QObjectList *chldn = queryList()) {
+	QObjectListIterator it(*chldn);
 	for(QObject *obj; (obj=it.current()); ++it) {
 	    if(obj->inherits("QAccel"))
 		((QAccel*)obj)->repairEventFilter();
@@ -1968,7 +1968,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	QPoint pd(dx, dy);
 	QWidgetList moved;
 	register QObject *o;
-	for(QObjectListIt it(*children()); (o=it.current()); ++it) { //first move all children
+	for(QObjectListIterator it(*children()); (o=it.current()); ++it) { //first move all children
 	    if(o->isWidgetType()) {
 		QWidget *w = (QWidget*)o;
 		w->crect = QRect(w->pos() + pd, w->size());
@@ -2217,7 +2217,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	}
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
-	    QObjectListIt it(*chldn);
+	    QObjectListIterator it(*chldn);
 	    for(QObject *obj; (obj = it.current()); ++it) {
 		if(obj->isWidgetType() && !obj->wasDeleted) {
 		    QWidget *w = (QWidget *)(*it);
@@ -2250,7 +2250,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	widg->setRegionDirty(FALSE);
 
 	if(const QObjectList *chldn = widg->children()) {
-	    for(QObjectListIt it(*chldn); it.current() && it.current() != last; ++it) {
+	    for(QObjectListIterator it(*chldn); it.current() && it.current() != last; ++it) {
 		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 		    w = (QWidget *)(*it);
 		    if(!w->isTopLevel() && w->isVisible() && 
@@ -2265,7 +2265,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
 			    w->setRegionDirty(TRUE);
 			    if(QObjectList *chldn2 = w->queryList()) {
-				QObjectListIt it2(*chldn2);
+				QObjectListIterator it2(*chldn2);
 				for(QObject *obj; (obj = it2.current()); ++it2) {
 				    if(obj->isWidgetType() && !obj->wasDeleted) {
 					QWidget *w = (QWidget *)(*it2);
@@ -2421,7 +2421,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	if(!no_children) {
 	    const QObjectList *chldnlst=children();
 	    QRect sr(vis_x, vis_y, vis_width, vis_height);
-	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
+	    for(QObjectListIterator it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 		    QWidget *cw = (QWidget *)(*it);
 		    if(cw->isVisible() && !cw->isTopLevel() && sr.intersects(cw->geometry())) {
@@ -2452,7 +2452,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	if(!isTopLevel() && parentWidget() && (vis_width || vis_height)) {
 	    if(const QObjectList *siblst = parentWidget()->children()) {
 		QPoint tmp;
-		QObjectListIt it(*siblst);
+		QObjectListIterator it(*siblst);
 		//loop to this because its in zorder, and i don't care about people behind me
 		for(it.toLast(); it.current() && it.current() != this; --it) {
 		    if((*it)->isWidgetType() && !(*it)->wasDeleted) {

@@ -5,7 +5,7 @@
 **
 ** Created : 001018
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -918,7 +918,7 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
     if(!objl) // No children
 	return widg;
 
-    QObjectListIt it(*objl);
+    QObjectListIterator it(*objl);
     for(it.toLast(); it.current(); --it) {
 	if((*it)->isWidgetType()) {
 	    QWidget *curwidg=(QWidget *)(*it);
@@ -1203,7 +1203,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inToolbarButton: { //hide toolbars thing
 	if(const QObjectList *chldrn = widget->children()) {
 	    int h = 0;
-	    for(QObjectListIt it(*chldrn); it.current(); ++it) {
+	    for(QObjectListIterator it(*chldrn); it.current(); ++it) {
 		if(it.current()->isWidgetType() && it.current()->inherits("QDockArea")) {
 		    QWidget *w = (QWidget *)it.current();
 #ifndef QT_NO_MAINWINDOW

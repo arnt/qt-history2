@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Aqua-style guidelines functions
 **
 ** Created : 001129
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -362,7 +362,7 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 	QPushButton *btn = (QPushButton *)o;
 	// Find the correct button to use as default button
 	QObjectList *list = btn->topLevelWidget()->queryList("QPushButton");
-	QObjectListIt it(*list);
+	QObjectListIterator it(*list);
 	QPushButton * pb;
 	while((pb = (QPushButton*)it.current())) {
 	    ++it;
