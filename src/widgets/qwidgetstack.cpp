@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#25 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -156,7 +156,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	if ( i )
 	    emit aboutToShow( i );
     }
-    w->show();
 
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
@@ -166,14 +165,15 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( f && f->parent() == this ) {
 	if ( !focusWidgets )
 	    focusWidgets = new QPtrDict<QWidget>( 17 );
-	focusWidgets->replace( f, w->focusWidget() );
+	focusWidgets->replace( f, f->focusWidget() );
+	f->focusWidget()->clearFocus();
 	if ( w->focusPolicy() != QWidget::NoFocus ) {
-	    w->setFocus();
+	    f = w;
 	} else {
 	    // look for the best focus widget we can find
 	    // best == what we had (which may be deleted)
-	    QWidget * fw = focusWidgets->find( w );
-	    if ( fw )
+	    f = focusWidgets->find( w );
+	    if ( f )
 		focusWidgets->take( w );
 	    // second best == selected button from button group
 	    QWidget * fb = 0;
@@ -187,14 +187,12 @@ void QWidgetStack::raiseWidget( QWidget * w )
 		while( !done && (wc=it.current()) != 0 ) {
 		    ++it;
 		    if ( wc->isWidgetType() ) {
-			f = (QWidget *)wc;
-			if ( f == fw ) {
-			    fw->setFocus();
+			if ( f == wc ) {
 			    done = TRUE;
-			} else if ( f->focusPolicy() == QWidget::StrongFocus ||
-				    f->focusPolicy() == QWidget::TabFocus ) {
-			    QButton * b = (QButton *)f;
-			    if ( f->inherits( "QButton" ) &&
+			} else if ( ((QWidget *)wc)->focusPolicy() == QWidget::StrongFocus ||
+				    ((QWidget *)wc)->focusPolicy() == QWidget::TabFocus ) {
+			    QButton * b = (QButton *)wc;
+			    if ( wc->inherits( "QButton" ) &&
 				 b->group() && b->isOn() &&
 				 b->group()->isExclusive() &&
 				 ( fc == 0 ||
@@ -206,11 +204,14 @@ void QWidgetStack::raiseWidget( QWidget * w )
 			}
 		    }
 		}
+		// f exists iff done
 		if ( !done ) {
 		    if ( fb )
-			fb->setFocus();
+			f = fb;
 		    else if ( fc )
-			fc->setFocus();
+			f = fc;
+		    else
+			f = 0;
 		}
 	    }
 	}
@@ -225,6 +226,9 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	if ( o->isWidgetType() && o != w )
 	    ((QWidget *)o)->hide();
     }
+    w->show();
+    if ( f )
+	f->setFocus();
 }
 
 
