@@ -2199,8 +2199,8 @@ void QFtp::npDone( bool err )
     QFtpPrivate *d = ::d( this );
 
     QNetworkOperation *op = operationInProgress();
-    if ( err ) {
-	if ( op ) {
+    if ( op ) {
+	if ( err ) {
 	    op->setProtocolDetail( errorString() );
 	    op->setState( StFailed );
 	    if ( error() == HostNotFound ) {
@@ -2228,28 +2228,28 @@ void QFtp::npDone( bool err )
 		}
 	    }
 	    emit finished( op );
+	} else if ( !d->npWaitForLoginDone ) {
+	    switch ( op->operation() ) {
+		case OpRemove:
+		    emit removed( op );
+		    break;
+		case OpMkDir:
+		    {
+			QUrlInfo inf( op->arg( 0 ), 0, "", "", 0, QDateTime(),
+				QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
+			emit newChild( inf, op );
+			emit createdDirectory( inf, op );
+		    }
+		    break;
+		case OpRename:
+		    emit itemChanged( operationInProgress() );
+		    break;
+		default:
+		    break;
+	    }
+	    op->setState( StDone );
+	    emit finished( op );
 	}
-    } else if ( !d->npWaitForLoginDone ) {
-	switch ( op->operation() ) {
-	    case OpRemove:
-		emit removed( op );
-		break;
-	    case OpMkDir:
-		{
-		    QUrlInfo inf( op->arg( 0 ), 0, "", "", 0, QDateTime(),
-			    QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
-		    emit newChild( inf, op );
-		    emit createdDirectory( inf, op );
-		}
-		break;
-	    case OpRename:
-		emit itemChanged( operationInProgress() );
-		break;
-	    default:
-		break;
-	}
-	op->setState( StDone );
-	emit finished( op );
     }
     if ( d->npWaitForLoginDone ) {
 	d->npWaitForLoginDone = FALSE;
