@@ -148,7 +148,9 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     if ( !single )
 	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
+#ifndef Q_WS_MACX
     setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
+#endif
 
     actionGroupTools = 0;
     prefDia = 0;
