@@ -1,7 +1,8 @@
 #!
 #! This is a custom template for creating a Makefile for the moc.
 #!
-#$ IncludeTemplate("app.t");
+#$ IncludeTemplate("propagate.t") if $is_unix;
+#$ IncludeTemplate("app.t") unless $is_unix;
 
 ####### Lex/yacc programs and options
 
