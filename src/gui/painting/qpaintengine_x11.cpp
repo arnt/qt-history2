@@ -516,7 +516,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_features()
         | QPaintEngine::AlphaBlend
         | QPaintEngine::PainterPaths;
 
-    if (!X11->use_xrender)
+    if (X11->use_xrender)
         features |= QPaintEngine::Antialiasing;
 
     return features;
@@ -572,6 +572,11 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
     d->use_path_fallback = false;
     d->matrix = QMatrix();
+    d->render_hints = 0;
+    d->bg_mode = Qt::TransparentMode;
+    d->bg_col = Qt::white;
+    d->txop = QPainterPrivate::TxNone;
+    d->has_clipping = false;
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
