@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#199 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#200 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -11289,8 +11289,8 @@ ok_in_base( QChar c, int base )
     if ( base <= 10 )
 	return ucisdigit(c) && c.digitValue() < base;
     else
-	return ucisdigit(c) || (c >= 'a' && c < 'a'+base-10)
-	                    || (c >= 'A' && c < 'A'+base-10);
+	return ucisdigit(c) || (c >= 'a' && c < char('a'+base-10))
+	                    || (c >= 'A' && c < char('A'+base-10));
 }
 
 /*!
