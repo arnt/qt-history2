@@ -144,7 +144,7 @@ SeeAlso: ???
 
 Feature: SPRINTF
 Section: Data structures
-Requires:
+Requires: REGEXP
 Name: QString::sprintf()
 SeeAlso: ???
 
@@ -174,7 +174,7 @@ SeeAlso: ???
 
 Feature: DIR
 Section: File I/O
-Requires: STRINGLIST
+Requires: STRINGLIST REGEXP
 Name: QDir
 SeeAlso: ???
 
@@ -415,7 +415,7 @@ SeeAlso: ???
 
 Feature: NETWORKPROTOCOL
 Section: Networking
-Requires: URL
+Requires: TEXTCODEC URL
 Name: Network file access
 SeeAlso: ???
 
@@ -433,7 +433,7 @@ SeeAlso: ???
 
 Feature: PROCESS
 Section: File I/O
-Requires: STRINGLIST
+Requires: STRINGLIST REGEXP
 Name: External process invocation.
 SeeAlso: ???
 
@@ -991,7 +991,7 @@ SeeAlso: ???
 
 Feature: TEXTEDIT
 Section: Widgets
-Requires: RICHTEXT SCROLLVIEW DATASTREAM
+Requires: RICHTEXT SCROLLVIEW
 Name: Rich text edit
 SeeAlso: ???
 
