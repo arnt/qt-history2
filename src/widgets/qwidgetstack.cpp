@@ -51,7 +51,7 @@ public:
     public:
 	Invisible( QWidgetStack * parent ): QWidget( parent, "qt_invisible_widgetstack" )
 	{
-	    setBackgroundMode( NoBackground );
+	    setBackgroundMode( PaletteBackground );//NoBackground );
 	}
 	const char * className() const
 	{
