@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#68 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -242,7 +242,7 @@ QCollection::Item QGDict::look( const char *key, Item d, int op )
     register QBucket *n;
     int	 index;
     if ( triv ) {				// key is a long/ptr
-	index = (int)(long(key) % vlen);	// simple hash
+	index = (int)((unsigned long)(key) % vlen);	// simple hash
 	if ( op == op_find ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
 		if ( n->getKey() == key )
@@ -403,7 +403,7 @@ bool QGDict::removeItem( const char *key, Item item )
 	deleteItem( n->getData() );
 	delete n;				// delete bucket
     }
-    return n != 0;    
+    return n != 0;
 }
 
 /*!
