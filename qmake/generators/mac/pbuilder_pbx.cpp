@@ -273,13 +273,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    tmp = project->variables()[libs[i]];
 	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 		bool remove = FALSE;
-		QString library, name;
-		if((*it).left(2) == "-L") {
-		    QString r = (*it).right((*it).length() - 2);
+		QString library, name, opt = (*it).stripWhiteSpace();
+		if(opt.left(2) == "-L") {
+		    QString r = opt.right(opt.length() - 2);
 		    fixEnvVariables(r);
 		    libdirs.append(r);
-		} else if((*it).left(2) == "-l") {
-		    name = (*it).right((*it).length() - 2);
+		} else if(opt.left(2) == "-l") {
+		    name = opt.right(opt.length() - 2);
 		    QString lib("lib" + name  + ".");
 		    for(QStringList::Iterator lit = libdirs.begin(); lit != libdirs.end(); ++lit) {
 			QString extns[] = { "dylib", "so", "a", QString::null };
@@ -293,7 +293,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			    }
 			}
 		    }
-		} else if((*it) == "-framework") {
+		} else if(opt == "-framework") {
 		    ++it;
 		    if(it == tmp.end())
 			break;
@@ -309,9 +309,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			    break;
 			}
 		    }
-		} else if((*it).left(1) != "-") {
+		} else if(opt.left(1) != "-") {
 		    remove = TRUE;
-		    library = (*it);
+		    library = opt;
 		}
 		if(!library.isEmpty()) {
 		    if(name.isEmpty()) {
