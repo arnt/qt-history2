@@ -442,6 +442,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
 	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
+	    if (d->maxWindow == e->child())
+		d->maxWindow = 0;
 	    updateWorkspace();
 	}
     }
