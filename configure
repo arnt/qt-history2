@@ -8,7 +8,8 @@
 # To remove the need for the first test, do this:
 # QTDIR=`pwd` export QTDIR
 
-QMAKE_ARGS=""
+QMAKE_SWITCHES=""
+QMAKE_VARS=""
 QMAKE_CONFIG=""
 relpath=`dirname $0`
 relpath=`(cd $relpath; pwd)`
@@ -358,13 +359,13 @@ while [ -n "$1" ]; do
        CONFIG=`echo $1 | sed -e "s/-with-//"`
        VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
        VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
-       QMAKE_ARGS="$QMAKE_ARGS \"$VAR+=$VAL\""
+       QMAKE_VARS="$QMAKE_VARS \"$VAR+=$VAL\""
        ;;
     -without-*-*-*)
        CONFIG=`echo $1 | sed -e "s/-without-//"`
        VAR=`echo $CONFIG | sed -e "s/-[^-]*$//"`
        VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
-       QMAKE_ARGS="$QMAKE_ARGS \"$VAR-=$VAL\""
+       QMAKE_VARS="$QMAKE_VARS \"$VAR-=$VAL\""
        ;;
     -internal)
        QMAKE_CONFIG="$QMAKE_CONFIG internal"
@@ -373,7 +374,7 @@ while [ -n "$1" ]; do
        HELP=yes
 	;;
    -v)
-       [ "x$VERBOSE" = "xyes" ] && QMAKE_ARGS="$QMAKE_ARGS -d"
+       [ "x$VERBOSE" = "xyes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
        VERBOSE=yes
         ;;
    -j?*)
@@ -798,20 +799,20 @@ fi
 if [ '!' "x$EMBEDDED" = "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
-    QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
-    QMAKE_ARGS="$QMAKE_ARGS \"DEFINES+=QWS\""
+    QMAKE_VARS="$QMAKE_VARS \"DEFINES+=QWS\""
 #    case $EMBEDDED in
 #    mips)
-#	QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=-fnonnull-objects -fshort-enums -fshared-data -fno-vtable-thunks\""
+#	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fnonnull-objects -fshort-enums -fshared-data -fno-vtable-thunks\""
 #	;;
 #    arm)
-#	QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=-fshort-enums -fshared-data\""
+#	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fshort-enums -fshared-data\""
 #	;;
 #    *) ;;
 #    esac
 fi
-QMAKE_ARGS="$QMAKE_ARGS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
+QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
 [ "x$SHARED" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG dll"
 [ "x$SHARED" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
@@ -825,16 +826,16 @@ QMAKE_ARGS="$QMAKE_ARGS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort | sed 's-/\./-/-'`
 
-[ ! -z "$D_FLAGS" ] && QMAKE_ARGS="$QMAKE_ARGS \"DEFINES+=$D_FLAGS\""
+[ ! -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
 if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
 then
-    QMAKE_ARGS="$QMAKE_ARGS \"LIBS+=$L_FLAGS $l_FLAGS\""
+    QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
-[ ! -z $R_FLAGS ] && QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_LFLAGS+=$R_FLAGS\""
+[ ! -z $R_FLAGS ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
 if [ ! -z $I_FLAGS ]
 then
-    QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CFLAGS+=$I_FLAGS\""
-    QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
 fi
 
 #do modules.h
@@ -865,7 +866,7 @@ fi
 
 # Create the .qmake.cache file
 [ -f .qmake.cache ] && rm -f .qmake.cache
-for a in $QMAKE_ARGS; do
+for a in $QMAKE_VARS; do
     echo $a | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache
 done
 cat >>.qmake.cache <<EOF
@@ -893,7 +894,8 @@ fi
 
 if [ -n "$VERBOSE" ]
 then
-    echo "QMake args....... $QMAKE_ARGS"
+    echo "QMake vars....... $QMAKE_VARS"
+    echo "QMake swtiches... $QMAKE_SWITCHES"
 fi
 
 if [ ! "x$CONCURRENT" = "x0" ]
@@ -918,7 +920,7 @@ then
     (cd qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
-QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_ARGS"
+QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
 echo Creating makefiles...
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
