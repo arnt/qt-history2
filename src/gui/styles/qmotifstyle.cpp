@@ -16,9 +16,6 @@
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
 #include "qmenu.h"
-#ifdef QT_COMPAT
-# include "q3popupmenu.h"
-#endif
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -51,31 +48,31 @@ static const int motifCheckMarkSpace    = 12;
 
 
 /*!
-    \class QMotifStyle qmotifstyle.h
-    \brief The QMotifStyle class provides Motif look and feel.
+  \class QMotifStyle qmotifstyle.h
+  \brief The QMotifStyle class provides Motif look and feel.
 
-    \ingroup appearance
+  \ingroup appearance
 
-    This class implements the Motif look and feel. It closely
-    resembles the original Motif look as defined by the Open Group,
-    but with some minor improvements. The Motif style is Qt's default
-    GUI style on UNIX platforms.
+  This class implements the Motif look and feel. It closely
+  resembles the original Motif look as defined by the Open Group,
+  but with some minor improvements. The Motif style is Qt's default
+  GUI style on UNIX platforms.
 
-    Most of the functions are documented in the base classes,
-    \l{QCommonStyle} and \l{QStyle}, but the functions overloaded by
-    QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
-    subControlRect(), setUseHighlightColors(),
-    sizeFromContents(), subRect(), and useHighlightColors(), are
-    documented here.
+  Most of the functions are documented in the base classes,
+  \l{QCommonStyle} and \l{QStyle}, but the functions overloaded by
+  QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
+  subControlRect(), setUseHighlightColors(),
+  sizeFromContents(), subRect(), and useHighlightColors(), are
+  documented here.
 */
 
 /*!
-    Constructs a QMotifStyle.
+  Constructs a QMotifStyle.
 
-    If \a useHighlightCols is false (the default), the style will
-    polish the application's color palette to emulate the Motif way of
-    highlighting, which is a simple inversion between the base and the
-    text color.
+  If \a useHighlightCols is false (the default), the style will
+  polish the application's color palette to emulate the Motif way of
+  highlighting, which is a simple inversion between the base and the
+  text color.
 */
 QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
 {
@@ -83,24 +80,24 @@ QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
 }
 
 /*!
-    \overload
+  \overload
 
-    Destroys the style.
+  Destroys the style.
 */
 QMotifStyle::~QMotifStyle()
 {
 }
 
 /*!
-    If \a arg is false, the style will polish the application's color
-    palette to emulate the Motif way of highlighting, which is a
-    simple inversion between the base and the text color.
+  If \a arg is false, the style will polish the application's color
+  palette to emulate the Motif way of highlighting, which is a
+  simple inversion between the base and the text color.
 
-    The effect will show up the next time an application palette is
-    set via QApplication::setPalette(). The current color palette of
-    the application remains unchanged.
+  The effect will show up the next time an application palette is
+  set via QApplication::setPalette(). The current color palette of
+  the application remains unchanged.
 
-    \sa QStyle::polish()
+  \sa QStyle::polish()
 */
 void QMotifStyle::setUseHighlightColors(bool arg)
 {
@@ -108,10 +105,10 @@ void QMotifStyle::setUseHighlightColors(bool arg)
 }
 
 /*!
-    Returns true if the style treats the highlight colors of the
-    palette in a Motif-like manner, which is a simple inversion
-    between the base and the text color; otherwise returns false. The
-    default is false.
+  Returns true if the style treats the highlight colors of the
+  palette in a Motif-like manner, which is a simple inversion
+  between the base and the text color; otherwise returns false. The
+  default is false.
 */
 bool QMotifStyle::useHighlightColors() const
 {
@@ -134,23 +131,23 @@ void QMotifStyle::polish(QPalette& pal)
 
     // force the ugly motif way of highlighting *sigh*
     pal.setColor(QPalette::Active, QPalette::Highlight,
-                  pal.color(QPalette::Active, QPalette::Text));
+                 pal.color(QPalette::Active, QPalette::Text));
     pal.setColor(QPalette::Active, QPalette::HighlightedText,
-                  pal.color(QPalette::Active, QPalette::Base));
+                 pal.color(QPalette::Active, QPalette::Base));
     pal.setColor(QPalette::Disabled, QPalette::Highlight,
-                  pal.color(QPalette::Disabled, QPalette::Text));
+                 pal.color(QPalette::Disabled, QPalette::Text));
     pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                  pal.color(QPalette::Disabled, QPalette::Base));
+                 pal.color(QPalette::Disabled, QPalette::Base));
     pal.setColor(QPalette::Inactive, QPalette::Highlight,
-                  pal.color(QPalette::Active, QPalette::Text));
+                 pal.color(QPalette::Active, QPalette::Text));
     pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
-                  pal.color(QPalette::Active, QPalette::Base));
+                 pal.color(QPalette::Active, QPalette::Base));
 }
 
 /*!
- \reimp
- \internal
- Keep QStyle::polish() visible.
+  \reimp
+  \internal
+  Keep QStyle::polish() visible.
 */
 void QMotifStyle::polish(QWidget* w)
 {
@@ -160,9 +157,9 @@ void QMotifStyle::polish(QWidget* w)
 }
 
 /*!
- \reimp
- \internal
- Keep QStyle::polish() visible.
+  \reimp
+  \internal
+  Keep QStyle::polish() visible.
 */
 void QMotifStyle::polish(QApplication* a)
 {
@@ -174,9 +171,9 @@ static void rot(QPolygon& a, int n)
     QPolygon r(a.size());
     for (int i = 0; i < (int)a.size(); i++) {
         switch (n) {
-            case 1: r.setPoint(i,-a[i].y(),a[i].x()); break;
-            case 2: r.setPoint(i,-a[i].x(),-a[i].y()); break;
-            case 3: r.setPoint(i,a[i].y(),-a[i].x()); break;
+        case 1: r.setPoint(i,-a[i].y(),a[i].x()); break;
+        case 2: r.setPoint(i,-a[i].x(),-a[i].y()); break;
+        case 3: r.setPoint(i,a[i].y(),-a[i].x()); break;
         }
     }
     a = r;
@@ -184,36 +181,29 @@ static void rot(QPolygon& a, int n)
 
 
 /*!
-    \reimp
+  \reimp
 */
 void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                 const QWidget *w) const
-/*
-void QMotifStyle::drawPrimitive(PrimitiveElement pe,
-                                 QPainter *p,
-                                 const QRect &r,
-                                 const QPalette &pal,
-                                 SFlags flags,
-                                 const Q3StyleOption& opt) const
-                                 */
 {
     switch(pe) {
+#if 0
 #ifndef QT_NO_LISTVIEW
-    case PE_CheckListExclusiveIndicator: {
+    case PE_Q3CheckListExclusiveIndicator: {
         QCheckListItem *item = opt.checkListItem();
         QListView *lv = item->listView();
         if(!item)
             return;
 
         if (item->isEnabled())
-            p->setPen(QPen(pal.text()));
+            p->setPen(QPen(opt->palette.text()));
         else
             p->setPen(QPen(lv->palette().color(QPalette::Disabled, QPalette::Text)));
         QPolygon a;
 
-        int cx = r.width()/2 - 1;
-        int cy = r.height()/2;
-        int e = r.width()/2 - 1;
+        int cx = opt->rect.width()/2 - 1;
+        int cy = opt->rect.height()/2;
+        int e = opt->rect.width()/2 - 1;
         for (int i = 0; i < 3; i++) { //penWidth 2 doesn't quite work
             a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
             p->drawPolygon(a);
@@ -221,12 +211,12 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
         }
         if (item->isOn()) {
             if (item->isEnabled())
-                p->setPen(QPen(pal.text()));
+                p->setPen(QPen(opt->palette.text()));
             else
                 p->setPen(QPen(item->listView()->palette().color(QPalette::Disabled,
-                                                                    QPalette::Text)));
+                                                                 QPalette::Text)));
             QBrush saveBrush = p->brush();
-            p->setBrush(pal.text());
+            p->setBrush(opt->palette.text());
             e = e - 2;
             a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
             p->drawPolygon(a);
@@ -234,1085 +224,877 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
         }
         break; }
 #endif
-    case PE_ButtonCommand:
-    case PE_ButtonBevel:
-    case PE_ButtonTool:
-    case PE_HeaderSection: {
+#endif
+    case PE_IndicatorToolBarHandle:
+    {
+        p->save();
+        p->translate(opt->rect.x(), opt->rect.y());
+
+        QColor dark(opt->palette.dark().color());
+        QColor light(opt->palette.light().color());
+        int i;
+        if (opt->state & State_Horizontal) {
+            int h = opt->rect.height();
+            if (h > 6) {
+                if (opt->state & State_On)
+                    p->fillRect(1, 1, 8, h - 2, opt->palette.highlight());
+                QPolygon a(2 * ((h-6)/3));
+                int y = 3 + (h%3)/2;
+                p->setPen(dark);
+                p->drawLine(8, 1, 8, h-2);
+                for(i=0; 2*i < a.size(); i ++) {
+                    a.setPoint(2*i, 5, y+1+3*i);
+                    a.setPoint(2*i+1, 2, y+2+3*i);
+                }
+                p->drawPoints(a);
+                p->setPen(light);
+                p->drawLine(9, 1, 9, h-2);
+                for(i=0; 2*i < a.size(); i++) {
+                    a.setPoint(2*i, 4, y+3*i);
+                    a.setPoint(2*i+1, 1, y+1+3*i);
+                }
+                p->drawPoints(a);
+                // if (drawBorder) {
+                // p->setPen(QPen(Qt::darkGray));
+                // p->drawLine(0, opt->rect.height() - 1,
+                // tbExtent, opt->rect.height() - 1);
+                // }
+            }
+        } else {
+            int w = opt->rect.width();
+            if (w > 6) {
+                if (opt->state & State_On)
+                    p->fillRect(1, 1, w - 2, 9, opt->palette.highlight());
+                QPolygon a(2 * ((w-6)/3));
+
+                int x = 3 + (w%3)/2;
+                p->setPen(dark);
+                p->drawLine(1, 8, w-2, 8);
+                for(i=0; 2*i < a.size(); i ++) {
+                    a.setPoint(2*i, x+1+3*i, 6);
+                    a.setPoint(2*i+1, x+2+3*i, 3);
+                }
+                p->drawPoints(a);
+                p->setPen(light);
+                p->drawLine(1, 9, w-2, 9);
+                for(i=0; 2*i < a.size(); i++) {
+                    a.setPoint(2*i, x+3*i, 5);
+                    a.setPoint(2*i+1, x+1+3*i, 2);
+                }
+                p->drawPoints(a);
+                // if (drawBorder) {
+                // p->setPen(QPen(Qt::darkGray));
+                // p->drawLine(opt->rect.width() - 1, 0,
+                // opt->rect.width() - 1, tbExtent);
+                // }
+            }
+        }
+        p->restore();
+        break;
+    }
+
+    case PE_PanelButtonCommand:
+    case PE_PanelButtonBevel:
+    case PE_PanelButtonTool:
+    case PE_PanelHeader: {
         QBrush fill;
-        if (flags & State_Down)
-            fill = pal.brush(QPalette::Mid);
-        else if (flags & State_On)
-            fill = QBrush(pal.mid(), Qt::Dense4Pattern);
+        if (opt->state & State_Down)
+            fill = opt->palette.brush(QPalette::Mid);
+        else if (opt->state & State_On)
+            fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
-            fill = pal.brush(QPalette::Button);
-        qDrawShadePanel(p, r, pal, bool(flags & (State_Down | State_On)),
+            fill = opt->palette.brush(QPalette::Button);
+        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Down | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break;
     }
 
-    case PE_Indicator: {
+    case PE_IndicatorCheckBox: {
 #ifndef QT_NO_BUTTON
-        bool on = flags & State_On;
-        bool down = flags & State_Down;
+        bool on = opt->state & State_On;
+        bool down = opt->state & State_Down;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || flags & State_NoChange ? pal.brush(QPalette::Button) : pal.brush(QPalette::Mid);
-        if (flags & State_NoChange) {
-            qDrawPlainRect(p, r, pal.text(),
-                            1, &fill);
-            p->drawLine(r.x() + r.width() - 1, r.y(),
-                         r.x(), r.y() + r.height() - 1);
+        QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
+        if (opt->state & State_NoChange) {
+            qDrawPlainRect(p, opt->rect, opt->palette.text().color(),
+                           1, &fill);
+            p->drawLine(opt->rect.x() + opt->rect.width() - 1, opt->rect.y(),
+                        opt->rect.x(), opt->rect.y() + opt->rect.height() - 1);
         } else
-            qDrawShadePanel(p, r, pal, !showUp,
-                             pixelMetric(PM_DefaultFrameWidth), &fill);
+            qDrawShadePanel(p, opt->rect, opt->palette, !showUp,
+                            pixelMetric(PM_DefaultFrameWidth), &fill);
 #endif
         break;
     }
 
-    case PE_ExclusiveIndicator:
-        {
+    case PE_IndicatorRadioButton:
+    {
 #define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
-            int inner_pts[] = { // used for filling diamond
-                2,r.height()/2,
-                r.width()/2,2,
-                r.width()-3,r.height()/2,
-                r.width()/2,r.height()-3
-            };
-            int top_pts[] = { // top (^) of diamond
-                0,r.height()/2,
-                r.width()/2,0,
-                r.width()-2,r.height()/2-1,
-                r.width()-3,r.height()/2-1,
-                r.width()/2,1,
-                1,r.height()/2,
-                2,r.height()/2,
-                r.width()/2,2,
-                r.width()-4,r.height()/2-1
-            };
-            int bottom_pts[] = { // bottom (v) of diamond
-                1,r.height()/2+1,
-                r.width()/2,r.height()-1,
-                r.width()-1,r.height()/2,
-                r.width()-2,r.height()/2,
-                r.width()/2,r.height()-2,
-                2,r.height()/2+1,
-                3,r.height()/2+1,
-                r.width()/2,r.height()-3,
-                r.width()-3,r.height()/2
-            };
-            bool on = flags & State_On;
-            bool down = flags & State_Down;
-            bool showUp = !(down ^ on);
-            QPolygon a(INTARRLEN(inner_pts), inner_pts);
-            p->setPen(Qt::NoPen);
-            p->setBrush(showUp ? pal.brush(QPalette::Button) :
-                         pal.brush(QPalette::Mid));
-            a.translate(r.x(), r.y());
-            p->drawPolygon(a);
-            p->setPen(showUp ? pal.light() : pal.dark());
-            p->setBrush(Qt::NoBrush);
-            a.setPoints(INTARRLEN(top_pts), top_pts);
-            a.translate(r.x(), r.y());
-            p->drawPolyline(a);
-            p->setPen(showUp ? pal.dark() : pal.light());
-            a.setPoints(INTARRLEN(bottom_pts), bottom_pts);
-            a.translate(r.x(), r.y());
-            p->drawPolyline(a);
+        int inner_pts[] = { // used for filling diamond
+            2,opt->rect.height()/2,
+            opt->rect.width()/2,2,
+            opt->rect.width()-3,opt->rect.height()/2,
+            opt->rect.width()/2,opt->rect.height()-3
+        };
+        int top_pts[] = { // top (^) of diamond
+            0,opt->rect.height()/2,
+            opt->rect.width()/2,0,
+            opt->rect.width()-2,opt->rect.height()/2-1,
+            opt->rect.width()-3,opt->rect.height()/2-1,
+            opt->rect.width()/2,1,
+            1,opt->rect.height()/2,
+            2,opt->rect.height()/2,
+            opt->rect.width()/2,2,
+            opt->rect.width()-4,opt->rect.height()/2-1
+        };
+        int bottom_pts[] = { // bottom (v) of diamond
+            1,opt->rect.height()/2+1,
+            opt->rect.width()/2,opt->rect.height()-1,
+            opt->rect.width()-1,opt->rect.height()/2,
+            opt->rect.width()-2,opt->rect.height()/2,
+            opt->rect.width()/2,opt->rect.height()-2,
+            2,opt->rect.height()/2+1,
+            3,opt->rect.height()/2+1,
+            opt->rect.width()/2,opt->rect.height()-3,
+            opt->rect.width()-3,opt->rect.height()/2
+        };
+        bool on = opt->state & State_On;
+        bool down = opt->state & State_Down;
+        bool showUp = !(down ^ on);
+        QPolygon a(INTARRLEN(inner_pts), inner_pts);
+        p->setPen(Qt::NoPen);
+        p->setBrush(showUp ? opt->palette.brush(QPalette::Button) :
+                    opt->palette.brush(QPalette::Mid));
+        a.translate(opt->rect.x(), opt->rect.y());
+        p->drawPolygon(a);
+        p->setPen(showUp ? opt->palette.light().color() : opt->palette.dark().color());
+        p->setBrush(Qt::NoBrush);
+        a.setPoints(INTARRLEN(top_pts), top_pts);
+        a.translate(opt->rect.x(), opt->rect.y());
+        p->drawPolyline(a);
+        p->setPen(showUp ? opt->palette.dark().color() : opt->palette.light().color());
+        a.setPoints(INTARRLEN(bottom_pts), bottom_pts);
+        a.translate(opt->rect.x(), opt->rect.y());
+        p->drawPolyline(a);
 
+        break;
+    }
+
+    case PE_IndicatorRadioButtonMask:
+    {
+        static int inner_pts[] = { // used for filling diamond
+            0,opt->rect.height()/2,
+            opt->rect.width()/2,0,
+            opt->rect.width()-1,opt->rect.height()/2,
+            opt->rect.width()/2,opt->rect.height()-1
+        };
+        QPolygon a(INTARRLEN(inner_pts), inner_pts);
+        p->setPen(Qt::color1);
+        p->setBrush(Qt::color1);
+        a.translate(opt->rect.x(), opt->rect.y());
+        p->drawPolygon(a);
+        break;
+    }
+
+    case PE_IndicatorArrowUp:
+    case PE_IndicatorArrowDown:
+    case PE_IndicatorArrowRight:
+    case PE_IndicatorArrowLeft:
+    {
+        QRect rect = opt->rect;
+        QPolygon bFill;
+        QPolygon bTop;
+        QPolygon bBot;
+        QPolygon bLeft;
+        bool vertical = pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowDown;
+        bool horizontal = !vertical;
+        int dim = rect.width() < rect.height() ? rect.width() : rect.height();
+        int colspec = 0x0000;
+
+        if (dim < 2)
             break;
+
+        // adjust size and center (to fix rotation below)
+        if (rect.width() > dim) {
+            rect.setX(rect.x() + ((rect.width() - dim) / 2));
+            rect.setWidth(dim);
+        }
+        if (rect.height() > dim) {
+            rect.setY(rect.y() + ((rect.height() - dim) / 2));
+            rect.setHeight(dim);
         }
 
-    case PE_ExclusiveIndicatorMask:
-        {
-            static int inner_pts[] = { // used for filling diamond
-                0,r.height()/2,
-                r.width()/2,0,
-                r.width()-1,r.height()/2,
-                r.width()/2,r.height()-1
-            };
-            QPolygon a(INTARRLEN(inner_pts), inner_pts);
-            p->setPen(Qt::color1);
-            p->setBrush(Qt::color1);
-            a.translate(r.x(), r.y());
-            p->drawPolygon(a);
-            break;
+        if (dim > 3) {
+            if (dim > 6)
+                bFill.resize(dim & 1 ? 3 : 4);
+            bTop.resize((dim/2)*2);
+            bBot.resize(dim & 1 ? dim + 1 : dim);
+            bLeft.resize(dim > 4 ? 4 : 2);
+            bLeft.putPoints(0, 2, 0,0, 0,dim-1);
+            if (dim > 4)
+                bLeft.putPoints(2, 2, 1,2, 1,dim-3);
+            bTop.putPoints(0, 4, 1,0, 1,1, 2,1, 3,1);
+            bBot.putPoints(0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2);
+
+            for(int i=0; i<dim/2-2 ; i++) {
+                bTop.putPoints(i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i);
+                bBot.putPoints(i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i);
+            }
+            if (dim & 1)                          // odd number size: extra line
+                bBot.putPoints(dim-1, 2, dim-3,dim/2, dim-1,dim/2);
+            if (dim > 6) {                        // dim>6: must fill interior
+                bFill.putPoints(0, 2, 1,dim-3, 1,2);
+                if (dim & 1)                      // if size is an odd number
+                    bFill.setPoint(2, dim - 3, dim / 2);
+                else
+                    bFill.putPoints(2, 2, dim-4,dim/2-1, dim-4,dim/2);
+            }
+        }
+        else {
+            if (dim == 3) {                       // 3x3 arrow pattern
+                bLeft.setPoints(4, 0,0, 0,2, 1,1, 1,1);
+                bTop .setPoints(2, 1,0, 1,0);
+                bBot .setPoints(2, 1,2, 2,1);
+            }
+            else {                                  // 2x2 arrow pattern
+                bLeft.setPoints(2, 0,0, 0,1);
+                bTop .setPoints(2, 1,0, 1,0);
+                bBot .setPoints(2, 1,1, 1,1);
+            }
         }
 
-    case PE_ArrowUp:
-    case PE_ArrowDown:
-    case PE_ArrowRight:
-    case PE_ArrowLeft:
-        {
-            QRect rect = r;
-            QPolygon bFill;
-            QPolygon bTop;
-            QPolygon bBot;
-            QPolygon bLeft;
-            bool vertical = pe == PE_ArrowUp || pe == PE_ArrowDown;
-            bool horizontal = !vertical;
-            int dim = rect.width() < rect.height() ? rect.width() : rect.height();
-            int colspec = 0x0000;
+        // We use rot() and translate() as it is more efficient that
+        // matrix transformations on the painter, and because it still
+        // works with QT_NO_TRANSFORMATIONS defined.
 
-            if (dim < 2)
-                break;
-
-            // adjust size and center (to fix rotation below)
-            if (rect.width() > dim) {
-                rect.setX(rect.x() + ((rect.width() - dim) / 2));
-                rect.setWidth(dim);
-            }
-            if (rect.height() > dim) {
-                rect.setY(rect.y() + ((rect.height() - dim) / 2));
-                rect.setHeight(dim);
-            }
-
-            if (dim > 3) {
-                if (dim > 6)
-                    bFill.resize(dim & 1 ? 3 : 4);
-                bTop.resize((dim/2)*2);
-                bBot.resize(dim & 1 ? dim + 1 : dim);
-                bLeft.resize(dim > 4 ? 4 : 2);
-                bLeft.putPoints(0, 2, 0,0, 0,dim-1);
-                if (dim > 4)
-                    bLeft.putPoints(2, 2, 1,2, 1,dim-3);
-                bTop.putPoints(0, 4, 1,0, 1,1, 2,1, 3,1);
-                bBot.putPoints(0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2);
-
-                for(int i=0; i<dim/2-2 ; i++) {
-                    bTop.putPoints(i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i);
-                    bBot.putPoints(i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i);
-                }
-                if (dim & 1)                          // odd number size: extra line
-                    bBot.putPoints(dim-1, 2, dim-3,dim/2, dim-1,dim/2);
-                if (dim > 6) {                        // dim>6: must fill interior
-                    bFill.putPoints(0, 2, 1,dim-3, 1,2);
-                    if (dim & 1)                      // if size is an odd number
-                        bFill.setPoint(2, dim - 3, dim / 2);
-                    else
-                        bFill.putPoints(2, 2, dim-4,dim/2-1, dim-4,dim/2);
-                }
-            }
-            else {
-                if (dim == 3) {                       // 3x3 arrow pattern
-                    bLeft.setPoints(4, 0,0, 0,2, 1,1, 1,1);
-                    bTop .setPoints(2, 1,0, 1,0);
-                    bBot .setPoints(2, 1,2, 2,1);
-                }
-                else {                                  // 2x2 arrow pattern
-                    bLeft.setPoints(2, 0,0, 0,1);
-                    bTop .setPoints(2, 1,0, 1,0);
-                    bBot .setPoints(2, 1,1, 1,1);
-                }
-            }
-
-            // We use rot() and translate() as it is more efficient that
-            // matrix transformations on the painter, and because it still
-            // works with QT_NO_TRANSFORMATIONS defined.
-
-            if (pe == PE_ArrowUp || pe == PE_ArrowLeft) {
-                if (vertical) {
-                    rot(bFill,3);
-                    rot(bLeft,3);
-                    rot(bTop,3);
-                    rot(bBot,3);
-                    bFill.translate(0, rect.height() - 1);
-                    bLeft.translate(0, rect.height() - 1);
-                    bTop.translate(0, rect.height() - 1);
-                    bBot.translate(0, rect.height() - 1);
-                } else {
-                    rot(bFill,2);
-                    rot(bLeft,2);
-                    rot(bTop,2);
-                    rot(bBot,2);
-                    bFill.translate(rect.width() - 1, rect.height() - 1);
-                    bLeft.translate(rect.width() - 1, rect.height() - 1);
-                    bTop.translate(rect.width() - 1, rect.height() - 1);
-                    bBot.translate(rect.width() - 1, rect.height() - 1);
-                }
-                if (flags & State_Down)
-                    colspec = horizontal ? 0x2334 : 0x2343;
-                else
-                    colspec = horizontal ? 0x1443 : 0x1434;
+        if (pe == PE_IndicatorArrowUp || pe == PE_IndicatorArrowLeft) {
+            if (vertical) {
+                rot(bFill,3);
+                rot(bLeft,3);
+                rot(bTop,3);
+                rot(bBot,3);
+                bFill.translate(0, rect.height() - 1);
+                bLeft.translate(0, rect.height() - 1);
+                bTop.translate(0, rect.height() - 1);
+                bBot.translate(0, rect.height() - 1);
             } else {
-                if (vertical) {
-                    rot(bFill,1);
-                    rot(bLeft,1);
-                    rot(bTop,1);
-                    rot(bBot,1);
-                    bFill.translate(rect.width() - 1, 0);
-                    bLeft.translate(rect.width() - 1, 0);
-                    bTop.translate(rect.width() - 1, 0);
-                    bBot.translate(rect.width() - 1, 0);
-                }
-                if (flags & State_Down)
-                    colspec = horizontal ? 0x2443 : 0x2434;
-                else
-                    colspec = horizontal ? 0x1334 : 0x1343;
+                rot(bFill,2);
+                rot(bLeft,2);
+                rot(bTop,2);
+                rot(bBot,2);
+                bFill.translate(rect.width() - 1, rect.height() - 1);
+                bLeft.translate(rect.width() - 1, rect.height() - 1);
+                bTop.translate(rect.width() - 1, rect.height() - 1);
+                bBot.translate(rect.width() - 1, rect.height() - 1);
             }
-            bFill.translate(rect.x(), rect.y());
-            bLeft.translate(rect.x(), rect.y());
-            bTop.translate(rect.x(), rect.y());
-            bBot.translate(rect.x(), rect.y());
+            if (opt->state & State_Down)
+                colspec = horizontal ? 0x2334 : 0x2343;
+            else
+                colspec = horizontal ? 0x1443 : 0x1434;
+        } else {
+            if (vertical) {
+                rot(bFill,1);
+                rot(bLeft,1);
+                rot(bTop,1);
+                rot(bBot,1);
+                bFill.translate(rect.width() - 1, 0);
+                bLeft.translate(rect.width() - 1, 0);
+                bTop.translate(rect.width() - 1, 0);
+                bBot.translate(rect.width() - 1, 0);
+            }
+            if (opt->state & State_Down)
+                colspec = horizontal ? 0x2443 : 0x2434;
+            else
+                colspec = horizontal ? 0x1334 : 0x1343;
+        }
+        bFill.translate(rect.x(), rect.y());
+        bLeft.translate(rect.x(), rect.y());
+        bTop.translate(rect.x(), rect.y());
+        bBot.translate(rect.x(), rect.y());
 
-            const QColor *cols[5];
-            if (flags & State_Enabled) {
-                cols[0] = 0;
-                cols[1] = &pal.button().color();
-                cols[2] = &pal.mid().color();
-                cols[3] = &pal.light().color();
-                cols[4] = &pal.dark().color();
-            } else {
-                cols[0] = 0;
-                cols[1] = &pal.button().color();
-                cols[2] = &pal.button().color();
-                cols[3] = &pal.button().color();
-                cols[4] = &pal.button().color();
-            }
+        const QColor *cols[5];
+        if (opt->state & State_Enabled) {
+            cols[0] = 0;
+            cols[1] = &opt->palette.button().color();
+            cols[2] = &opt->palette.mid().color();
+            cols[3] = &opt->palette.light().color();
+            cols[4] = &opt->palette.dark().color();
+        } else {
+            cols[0] = 0;
+            cols[1] = &opt->palette.button().color();
+            cols[2] = &opt->palette.button().color();
+            cols[3] = &opt->palette.button().color();
+            cols[4] = &opt->palette.button().color();
+        }
 
 #define CMID *cols[(colspec>>12) & 0xf]
 #define CLEFT *cols[(colspec>>8) & 0xf]
 #define CTOP *cols[(colspec>>4) & 0xf]
 #define CBOT *cols[colspec & 0xf]
 
-            QPen savePen = p->pen();
-            QBrush saveBrush = p->brush();
-            QPen pen(Qt::NoPen);
-            QBrush brush = pal.brush(flags & State_Enabled ? QPalette::Button :
-                                     QPalette::Mid);
-            p->setPen(pen);
-            p->setBrush(brush);
-            p->drawPolygon(bFill);
-            p->setBrush(Qt::NoBrush);
+        QPen savePen = p->pen();
+        QBrush saveBrush = p->brush();
+        QPen pen(Qt::NoPen);
+        QBrush brush = opt->palette.brush(opt->state & State_Enabled ? QPalette::Button :
+                                          QPalette::Mid);
+        p->setPen(pen);
+        p->setBrush(brush);
+        p->drawPolygon(bFill);
+        p->setBrush(Qt::NoBrush);
 
-            p->setPen(CLEFT);
-            p->drawLineSegments(bLeft);
-            p->setPen(CTOP);
-            p->drawLineSegments(bTop);
-            p->setPen(CBOT);
-            p->drawLineSegments(bBot);
+        p->setPen(CLEFT);
+        p->drawPolyline(bLeft);
+        p->setPen(CTOP);
+        p->drawPolyline(bTop);
+        p->setPen(CBOT);
+        p->drawPolyline(bBot);
 
-            p->setBrush(saveBrush);
-            p->setPen(savePen);
+        p->setBrush(saveBrush);
+        p->setPen(savePen);
 #undef CMID
 #undef CLEFT
 #undef CTOP
 #undef CBOT
-            break;
-        }
+        break;
+    }
 
-    case PE_SpinBoxPlus:
-    case PE_SpinBoxMinus:
-        {
-            p->save();
-            int fw = pixelMetric(PM_DefaultFrameWidth);
-            QRect br;
-            br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
-                        r.height() - fw*2);
+    case PE_IndicatorSpinPlus:
+    case PE_IndicatorSpinMinus:
+    {
+        p->save();
+        int fw = pixelMetric(PM_DefaultFrameWidth);
+        QRect br;
+        br.setRect(opt->rect.x() + fw, opt->rect.y() + fw, opt->rect.width() - fw*2,
+                   opt->rect.height() - fw*2);
 
-            if (flags & State_Sunken)
-                p->fillRect(r, pal.brush(QPalette::Dark));
-            else
-                p->fillRect(r, pal.brush(QPalette::Button));
-
-            p->setPen(pal.buttonText());
-            p->setBrush(pal.buttonText());
-
-            int length;
-            int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-            if (w <= 8 || h <= 6)
-                length = qMin(w-2, h-2);
-            else
-                length = qMin(2*w / 3, 2*h / 3);
-
-            if (!(length & 1))
-                length -=1;
-            int xmarg = (w - length) / 2;
-            int ymarg = (h - length) / 2;
-
-            p->drawLine(x + xmarg, (y + h / 2 - 1),
-                         x + xmarg + length - 1, (y + h / 2 - 1));
-            if (pe == PE_SpinBoxPlus)
-                p->drawLine((x+w / 2) - 1, y + ymarg,
-                             (x+w / 2) - 1, y + ymarg + length - 1);
-            p->restore();
-            break;
-        }
-
-    case PE_SpinBoxUp:
-    case PE_SpinBoxDown:
-        {
-            p->save();
-            int fw = pixelMetric(PM_DefaultFrameWidth);
-            QRect br;
-            br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
-                        r.height() - fw*2);
-            if (flags & State_Sunken)
-                p->fillRect(br, pal.brush(QPalette::Mid));
-            else
-                p->fillRect(br, pal.brush(QPalette::Button));
-
-            int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-            int sw = w-4;
-            if (sw < 3)
-                return;
-            else if (!(sw & 1))
-                sw--;
-            sw -= (sw / 7) * 2;        // Empty border
-            int sh = sw/2 + 2;      // Must have empty row at foot of arrow
-
-            int sx = x + w / 2 - sw / 2 - 1;
-            int sy = y + h / 2 - sh / 2 - 1;
-
-            QPolygon a;
-            if (pe == PE_SpinBoxDown)
-                a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
-            else
-                a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
-            int bsx = 0;
-            int bsy = 0;
-            if (flags & State_Sunken) {
-                bsx = pixelMetric(PM_ButtonShiftHorizontal);
-                bsy = pixelMetric(PM_ButtonShiftVertical);
-            }
-            p->translate(sx + bsx, sy + bsy);
-            p->setPen(pal.buttonText());
-            p->setBrush(pal.buttonText());
-            p->drawPolygon(a);
-            p->restore();
-            break;
-        }
-
-    case PE_DockWindowHandle:
-        {
-            p->save();
-            p->translate(r.x(), r.y());
-
-            QColor dark(pal.dark());
-            QColor light(pal.light());
-            int i;
-            if (flags & State_Horizontal) {
-                int h = r.height();
-                if (h > 6) {
-                    if (flags & State_On)
-                        p->fillRect(1, 1, 8, h - 2, pal.highlight());
-                    QPolygon a(2 * ((h-6)/3));
-                    int y = 3 + (h%3)/2;
-                    p->setPen(dark);
-                    p->drawLine(8, 1, 8, h-2);
-                    for(i=0; 2*i < a.size(); i ++) {
-                        a.setPoint(2*i, 5, y+1+3*i);
-                        a.setPoint(2*i+1, 2, y+2+3*i);
-                    }
-                    p->drawPoints(a);
-                    p->setPen(light);
-                    p->drawLine(9, 1, 9, h-2);
-                    for(i=0; 2*i < a.size(); i++) {
-                        a.setPoint(2*i, 4, y+3*i);
-                        a.setPoint(2*i+1, 1, y+1+3*i);
-                    }
-                    p->drawPoints(a);
-                    // if (drawBorder) {
-                    // p->setPen(QPen(Qt::darkGray));
-                    // p->drawLine(0, r.height() - 1,
-                    // tbExtent, r.height() - 1);
-                    // }
-                }
-            } else {
-                int w = r.width();
-                if (w > 6) {
-                    if (flags & State_On)
-                        p->fillRect(1, 1, w - 2, 9, pal.highlight());
-                    QPolygon a(2 * ((w-6)/3));
-
-                    int x = 3 + (w%3)/2;
-                    p->setPen(dark);
-                    p->drawLine(1, 8, w-2, 8);
-                    for(i=0; 2*i < a.size(); i ++) {
-                        a.setPoint(2*i, x+1+3*i, 6);
-                        a.setPoint(2*i+1, x+2+3*i, 3);
-                    }
-                    p->drawPoints(a);
-                    p->setPen(light);
-                    p->drawLine(1, 9, w-2, 9);
-                    for(i=0; 2*i < a.size(); i++) {
-                        a.setPoint(2*i, x+3*i, 5);
-                        a.setPoint(2*i+1, x+1+3*i, 2);
-                    }
-                    p->drawPoints(a);
-                    // if (drawBorder) {
-                    // p->setPen(QPen(Qt::darkGray));
-                    // p->drawLine(r.width() - 1, 0,
-                    // r.width() - 1, tbExtent);
-                    // }
-                }
-            }
-            p->restore();
-            break;
-        }
-
-    case PE_Splitter:
-        if (flags & State_Horizontal)
-            flags &= ~State_Horizontal;
+        if (opt->state & State_Sunken)
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Dark));
         else
-            flags |= State_Horizontal;
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+
+        p->setPen(opt->palette.buttonText().color());
+        p->setBrush(opt->palette.buttonText());
+
+        int length;
+        int x = opt->rect.x(), y = opt->rect.y(), w = opt->rect.width(), h = opt->rect.height();
+        if (w <= 8 || h <= 6)
+            length = qMin(w-2, h-2);
+        else
+            length = qMin(2*w / 3, 2*h / 3);
+
+        if (!(length & 1))
+            length -=1;
+        int xmarg = (w - length) / 2;
+        int ymarg = (h - length) / 2;
+
+        p->drawLine(x + xmarg, (y + h / 2 - 1),
+                    x + xmarg + length - 1, (y + h / 2 - 1));
+        if (pe == PE_IndicatorSpinPlus)
+            p->drawLine((x+w / 2) - 1, y + ymarg,
+                        (x+w / 2) - 1, y + ymarg + length - 1);
+        p->restore();
+        break;
+    }
+
+    case PE_IndicatorSpinUp:
+    case PE_IndicatorSpinDown:
+    {
+        p->save();
+        int fw = pixelMetric(PM_DefaultFrameWidth);
+        QRect br;
+        br.setRect(opt->rect.x() + fw, opt->rect.y() + fw, opt->rect.width() - fw*2,
+                   opt->rect.height() - fw*2);
+        if (opt->state & State_Sunken)
+            p->fillRect(br, opt->palette.brush(QPalette::Mid));
+        else
+            p->fillRect(br, opt->palette.brush(QPalette::Button));
+
+        int x = opt->rect.x(), y = opt->rect.y(), w = opt->rect.width(), h = opt->rect.height();
+        int sw = w-4;
+        if (sw < 3)
+            return;
+        else if (!(sw & 1))
+            sw--;
+        sw -= (sw / 7) * 2;        // Empty border
+        int sh = sw/2 + 2;      // Must have empty row at foot of arrow
+
+        int sx = x + w / 2 - sw / 2 - 1;
+        int sy = y + h / 2 - sh / 2 - 1;
+
+        QPolygon a;
+        if (pe == PE_IndicatorSpinDown)
+            a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
+        else
+            a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
+        int bsx = 0;
+        int bsy = 0;
+        if (opt->state & State_Sunken) {
+            bsx = pixelMetric(PM_ButtonShiftHorizontal);
+            bsy = pixelMetric(PM_ButtonShiftVertical);
+        }
+        p->translate(sx + bsx, sy + bsy);
+        p->setPen(opt->palette.buttonText().color());
+        p->setBrush(opt->palette.buttonText());
+        p->drawPolygon(a);
+        p->restore();
+        break;
+    }
+
+#if 0 //MOVE TO drawControl --sdm
+    case PE_Splitter:
+        if (opt->state & State_Horizontal)
+            opt->state &= ~State_Horizontal;
+        else
+            opt->state |= State_Horizontal;
         // fall through intended
+#endif
 
-    case PE_DockWindowResizeHandle:
-        {
-            const int motifOffset = 10;
-            int sw = pixelMetric(PM_SplitterWidth);
-            if (flags & State_Horizontal) {
-                int yPos = r.y() + r.height() / 2;
-                int kPos = r.width() - motifOffset - sw;
-                int kSize = sw - 2;
+    case PE_IndicatorDockWindowResizeHandle:
+    {
+        const int motifOffset = 10;
+        int sw = pixelMetric(PM_SplitterWidth);
+        if (opt->state & State_Horizontal) {
+            int yPos = opt->rect.y() + opt->rect.height() / 2;
+            int kPos = opt->rect.width() - motifOffset - sw;
+            int kSize = sw - 2;
 
-                qDrawShadeLine(p, 0, yPos, kPos, yPos, pal);
-                qDrawShadePanel(p, kPos, yPos - sw / 2 + 1, kSize, kSize,
-                                 pal, false, 1, &pal.brush(QPalette::Button));
-                qDrawShadeLine(p, kPos + kSize - 1, yPos, r.width(), yPos, pal);
-            } else {
-                int xPos = r.x() + r.width() / 2;
-                int kPos = motifOffset;
-                int kSize = sw - 2;
+            qDrawShadeLine(p, 0, yPos, kPos, yPos, opt->palette);
+            qDrawShadePanel(p, kPos, yPos - sw / 2 + 1, kSize, kSize,
+                            opt->palette, false, 1, &opt->palette.brush(QPalette::Button));
+            qDrawShadeLine(p, kPos + kSize - 1, yPos, opt->rect.width(), yPos, opt->palette);
+        } else {
+            int xPos = opt->rect.x() + opt->rect.width() / 2;
+            int kPos = motifOffset;
+            int kSize = sw - 2;
 
-                qDrawShadeLine(p, xPos, kPos + kSize - 1, xPos, r.height(), pal);
-                qDrawShadePanel(p, xPos - sw / 2 + 1, kPos, kSize, kSize, pal,
-                                 false, 1, &pal.brush(QPalette::Button));
-                qDrawShadeLine(p, xPos, 0, xPos, kPos, pal);
+            qDrawShadeLine(p, xPos, kPos + kSize - 1, xPos, opt->rect.height(), opt->palette);
+            qDrawShadePanel(p, xPos - sw / 2 + 1, kPos, kSize, kSize, opt->palette,
+                            false, 1, &opt->palette.brush(QPalette::Button));
+            qDrawShadeLine(p, xPos, 0, xPos, kPos, opt->palette);
+        }
+        break;
+    }
+
+    case PE_IndicatorMenuCheckMark:
+    {
+        const int markW = 6;
+        const int markH = 6;
+        int posX = opt->rect.x() + (opt->rect.width()  - markW) / 2 - 1;
+        int posY = opt->rect.y() + (opt->rect.height() - markH) / 2;
+        int dfw = pixelMetric(PM_DefaultFrameWidth);
+
+        if (dfw < 2) {
+            // Could do with some optimizing/caching...
+            QPolygon a(7*2);
+            int i, xx, yy;
+            xx = posX;
+            yy = 3 + posY;
+            for (i=0; i<3; i++) {
+                a.setPoint(2*i,   xx, yy);
+                a.setPoint(2*i+1, xx, yy+2);
+                xx++; yy++;
             }
-            break;
-        }
+            yy -= 2;
+            for (i=3; i<7; i++) {
+                a.setPoint(2*i,   xx, yy);
+                a.setPoint(2*i+1, xx, yy+2);
+                xx++; yy--;
+            }
+            if (! (opt->state & State_Enabled) && ! (opt->state & State_On)) {
+                int pnt;
+                p->setPen(opt->palette.highlightedText().color());
+                QPoint offset(1,1);
+                for (pnt = 0; pnt < (int)a.size(); pnt++)
+                    a[pnt] += offset;
+                p->drawPolyline(a);
+                for (pnt = 0; pnt < (int)a.size(); pnt++)
+                    a[pnt] -= offset;
+            }
+            p->setPen(opt->palette.text().color());
+            p->drawPolyline(a);
 
-    case PE_CheckMark:
-        {
-            const int markW = 6;
-            const int markH = 6;
-            int posX = r.x() + (r.width()  - markW) / 2 - 1;
-            int posY = r.y() + (r.height() - markH) / 2;
-            int dfw = pixelMetric(PM_DefaultFrameWidth);
+            qDrawShadePanel(p, posX-2, posY-2, markW+4, markH+6, opt->palette, true, dfw);
+        } else
+            qDrawShadePanel(p, posX, posY, markW, markH, opt->palette, true, dfw,
+                            &opt->palette.brush(QPalette::Mid));
 
-            if (dfw < 2) {
-                // Could do with some optimizing/caching...
-                QPolygon a(7*2);
-                int i, xx, yy;
-                xx = posX;
-                yy = 3 + posY;
-                for (i=0; i<3; i++) {
-                    a.setPoint(2*i,   xx, yy);
-                    a.setPoint(2*i+1, xx, yy+2);
-                    xx++; yy++;
-                }
-                yy -= 2;
-                for (i=3; i<7; i++) {
-                    a.setPoint(2*i,   xx, yy);
-                    a.setPoint(2*i+1, xx, yy+2);
-                    xx++; yy--;
-                }
-                if (! (flags & State_Enabled) && ! (flags & State_On)) {
-                    int pnt;
-                    p->setPen(pal.highlightedText());
-                    QPoint offset(1,1);
-                    for (pnt = 0; pnt < (int)a.size(); pnt++)
-                        a[pnt] += offset;
-                    p->drawLineSegments(a);
-                    for (pnt = 0; pnt < (int)a.size(); pnt++)
-                        a[pnt] -= offset;
-                }
-                p->setPen(pal.text());
-                p->drawLineSegments(a);
+        break;
+    }
 
-                qDrawShadePanel(p, posX-2, posY-2, markW+4, markH+6, pal, true, dfw);
-            } else
-                qDrawShadePanel(p, posX, posY, markW, markH, pal, true, dfw,
-                                 &pal.brush(QPalette::Mid));
-
-            break;
-        }
-
+#if 0 //move to drawControl --sdm
     case PE_ScrollBarSubLine:
-        drawPrimitive(((flags & State_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
-                      p, r, pal, State_Enabled | flags);
+        drawPrimitive(((opt->state & State_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
+                      p, opt->rect, opt->palette, State_Enabled | opt->state);
         break;
 
     case PE_ScrollBarAddLine:
-        drawPrimitive(((flags & State_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
-                      p, r, pal, State_Enabled | flags);
+        drawPrimitive(((opt->state & State_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
+                      p, opt->rect, opt->palette, State_Enabled | opt->state);
         break;
 
     case PE_ScrollBarSubPage:
     case PE_ScrollBarAddPage:
-        p->fillRect(r, pal.brush(QPalette::Mid));
+        p->fillRect(opt->rect, opt->palette.brush(QPalette::Mid));
         break;
 
     case PE_ScrollBarSlider:
-        drawPrimitive(PE_ButtonBevel, p, r, pal,
-                      (flags | State_Raised) & ~State_Down);
+        drawPrimitive(PE_ButtonBevel, p, opt->rect, opt->palette,
+                      (opt->state | State_Raised) & ~State_Down);
         break;
+#endif
 
-    case PE_ProgressBarChunk:
-        p->fillRect(r.x(), r.y() + 2, r.width() - 2,
-                     r.height() - 4, pal.brush(QPalette::Highlight));
+    case PE_IndicatorProgressChunk:
+        p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width() - 2,
+                    opt->rect.height() - 4, opt->palette.brush(QPalette::Highlight));
         break;
 
     default:
-        QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
+        QCommonStyle::drawPrimitive(pe, opt, p, w);
         break;
     }
 }
 
 
 /*!
-    \reimp
+  \reimp
 */
 void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
-                              const QWidget *w) const
-/*
-void QMotifStyle::drawControl(ControlElement element,
-                               QPainter *p,
-                               const QWidget *widget,
-                               const QRect &r,
-                               const QPalette &pal,
-                               SFlags flags,
-                               const Q3StyleOption& opt) const
-                               */
+                              const QWidget *widget) const
 {
     switch(element) {
     case CE_PushButton:
-        {
-#ifndef QT_NO_PUSHBUTTON
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int diw, x1, y1, x2, y2;
-            const QPushButton *btn;
-            btn = (const QPushButton *)widget;
-            p->setPen(pal.foreground());
-            p->setBrush(QBrush(pal.button(), Qt::NoBrush));
+            p->setPen(opt->palette.foreground().color());
+            p->setBrush(QBrush(opt->palette.button().color(), Qt::NoBrush));
             diw = pixelMetric(PM_ButtonDefaultIndicator);
-            r.coords(&x1, &y1, &x2, &y2);
-            if (btn->isDefault() || btn->autoDefault()) {
+            opt->rect.getCoords(&x1, &y1, &x2, &y2);
+            if (btn->features & (QStyleOptionButton::AutoDefaultButton|QStyleOptionButton::DefaultButton)) {
                 x1 += diw;
                 y1 += diw;
                 x2 -= diw;
                 y2 -= diw;
             }
-            if (btn->isDefault()) {
+            if (btn->features & QStyleOptionButton::DefaultButton) {
                 if (diw == 0) {
                     QPolygon a;
                     a.setPoints(9,
-                                 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-                                 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1);
-                    p->setPen(pal.shadow());
+                                x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+                                x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1);
+                    p->setPen(opt->palette.shadow().color());
                     p->drawPolygon(a);
                     x1 += 2;
                     y1 += 2;
                     x2 -= 2;
                     y2 -= 2;
                 } else {
-                    qDrawShadePanel(p, r, pal, true);
+                    qDrawShadePanel(p, opt->rect, opt->palette, true);
                 }
             }
-            if (!btn->isFlat() || btn->isOn() || btn->isDown()) {
-                QRect tmp(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                SFlags flags = State_Default;
-                if (btn->isOn())
-                    flags |= State_On;
-                if (btn->isDown())
-                    flags |= State_Down;
+            if (!(btn->features & QStyleOptionButton::Flat) ||
+                (btn->state & (State_Down|State_On))) {
+                QStyleOption newOpt = *opt;
+                newOpt.rect = QRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
                 p->setBrushOrigin(p->brushOrigin());
-                drawPrimitive(PE_ButtonCommand, p, tmp, pal, flags);
+                drawPrimitive(PE_PanelButtonCommand, &newOpt, p, widget);
             }
-#endif
             break;
         }
 
     case CE_TabBarTab:
-        {
-#ifndef QT_NO_TABBAR
-            if (!widget || !opt.tab())
-                break;
-
-            const QTabBar * tb = (const QTabBar *) widget;
-            const QTab * t = opt.tab();
-
-            int dfw = pixelMetric(PM_DefaultFrameWidth, tb);
-            bool selected = flags & State_Selected;
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+            int dfw = pixelMetric(PM_DefaultFrameWidth, tab, widget);
+            bool selected = opt->state & State_Selected;
             int o =  dfw > 1 ? 1 : 0;
             bool lastTab = false;
 
-            QRect r2(r);
-            if (tb->shape() == QTabBar::RoundedAbove) {
-                if (styleHint(SH_TabBar_Alignment, tb) == Qt::AlignRight &&
-                     tb->indexOf(t->identifier()) == tb->count()-1)
+            QRect r2(opt->rect);
+            if (tab->shape == QTabBar::RoundedAbove) {
+                if (styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight &&
+                    tab->position == QStyleOptionTab::End)
                     lastTab = true;
 
                 if (o) {
-                    p->setPen(tb->palette().light());
+                    p->setPen(opt->palette.light().color());
                     p->drawLine(r2.left(), r2.bottom(), r2.right(), r2.bottom());
-                    p->setPen(tb->palette().light());
+                    p->setPen(opt->palette.light().color());
                     p->drawLine(r2.left(), r2.bottom()-1, r2.right(), r2.bottom()-1);
                     if (r2.left() == 0)
-                        p->drawPoint(tb->rect().bottomLeft());
+                        p->drawPoint(opt->rect.bottomLeft());
                 }
                 else {
-                    p->setPen(tb->palette().light());
+                    p->setPen(opt->palette.light().color());
                     p->drawLine(r2.left(), r2.bottom(), r2.right(), r2.bottom());
                 }
 
                 if (selected) {
                     p->fillRect(QRect(r2.left()+1, r2.bottom()-o, r2.width()-3, 2),
-                                 tb->palette().brush(QPalette::Active, QPalette::Background));
-                    p->setPen(tb->palette().background());
+                                tab->palette.brush(QPalette::Active, QPalette::Background));
+                    p->setPen(tab->palette.background().color());
                     // p->drawLine(r2.left()+1, r2.bottom(), r2.right()-2, r2.bottom());
                     // if (o)
                     // p->drawLine(r2.left()+1, r2.bottom()-1, r2.right()-2, r2.bottom()-1);
                     p->drawLine(r2.left()+1, r2.bottom(), r2.left()+1, r2.top()+2);
-                    p->setPen(tb->palette().light());
+                    p->setPen(tab->palette.light().color());
                 } else {
-                    p->setPen(tb->palette().light());
+                    p->setPen(tab->palette.light().color());
                     r2.setRect(r2.left() + 2, r2.top() + 2,
-                                r2.width() - 4, r2.height() - 2);
+                               r2.width() - 4, r2.height() - 2);
                 }
 
                 p->drawLine(r2.left(), r2.bottom()-1, r2.left(), r2.top() + 2);
                 p->drawPoint(r2.left()+1, r2.top() + 1);
                 p->drawLine(r2.left()+2, r2.top(),
-                             r2.right() - 2, r2.top());
+                            r2.right() - 2, r2.top());
                 p->drawPoint(r2.left(), r2.bottom());
 
                 if (o) {
                     p->drawLine(r2.left()+1, r2.bottom(), r2.left()+1, r2.top() + 2);
                     p->drawLine(r2.left()+2, r2.top()+1,
-                                 r2.right() - 2, r2.top()+1);
+                                r2.right() - 2, r2.top()+1);
                 }
 
-                p->setPen(tb->palette().dark());
+                p->setPen(tab->palette.dark().color());
                 p->drawLine(r2.right() - 1, r2.top() + 2,
-                             r2.right() - 1, r2.bottom() - 1 + (selected ? o : -o));
+                            r2.right() - 1, r2.bottom() - 1 + (selected ? o : -o));
                 if (o) {
                     p->drawPoint(r2.right() - 1, r2.top() + 1);
                     p->drawLine(r2.right(), r2.top() + 2, r2.right(),
-                                 r2.bottom() -
-                                 (selected ? (lastTab ? 0:1):1+o));
+                                r2.bottom() -
+                                (selected ? (lastTab ? 0:1):1+o));
                     p->drawPoint(r2.right() - 1, r2.top() + 1);
                 }
-            } else if (tb->shape()  == QTabBar::RoundedBelow) {
-                if (styleHint(SH_TabBar_Alignment, tb) == Qt::AlignLeft &&
-                     tb->indexOf(t->identifier()) == tb->count()-1)
+            } else if (tab->shape  == QTabBar::RoundedBelow) {
+                if (styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignLeft &&
+                    tab->position == QStyleOptionTab::End)
                     lastTab = true;
                 if (selected) {
                     p->fillRect(QRect(r2.left()+1, r2.top(), r2.width()-3, 1),
-                                 tb->palette().brush(QPalette::Active, QPalette::Background));
-                    p->setPen(tb->palette().background());
+                                tab->palette.brush(QPalette::Active, QPalette::Background));
+                    p->setPen(tab->palette.background().color());
                     // p->drawLine(r2.left()+1, r2.top(), r2.right()-2, r2.top());
                     p->drawLine(r2.left()+1, r2.top(), r2.left()+1, r2.bottom()-2);
-                    p->setPen(tb->palette().dark());
+                    p->setPen(tab->palette.dark().color());
                 } else {
-                    p->setPen(tb->palette().dark());
+                    p->setPen(tab->palette.dark().color());
                     p->drawLine(r2.left(), r2.top(), r2.right(), r2.top());
                     p->drawLine(r2.left() + 1, r2.top() + 1,
-                                 r2.right() - (lastTab ? 0 : 2),
-                                 r2.top() + 1);
+                                r2.right() - (lastTab ? 0 : 2),
+                                r2.top() + 1);
                     r2.setRect(r2.left() + 2, r2.top(),
-                                r2.width() - 4, r2.height() - 2);
+                               r2.width() - 4, r2.height() - 2);
                 }
 
                 p->drawLine(r2.right() - 1, r2.top(),
-                             r2.right() - 1, r2.bottom() - 2);
+                            r2.right() - 1, r2.bottom() - 2);
                 p->drawPoint(r2.right() - 2, r2.bottom() - 2);
                 p->drawLine(r2.right() - 2, r2.bottom() - 1,
-                             r2.left() + 1, r2.bottom() - 1);
+                            r2.left() + 1, r2.bottom() - 1);
                 p->drawPoint(r2.left() + 1, r2.bottom() - 2);
 
                 if (dfw > 1) {
                     p->drawLine(r2.right(), r2.top(),
-                                 r2.right(), r2.bottom() - 1);
+                                r2.right(), r2.bottom() - 1);
                     p->drawPoint(r2.right() - 1, r2.bottom() - 1);
                     p->drawLine(r2.right() - 1, r2.bottom(),
-                                 r2.left() + 2, r2.bottom());
+                                r2.left() + 2, r2.bottom());
                 }
 
-                p->setPen(tb->palette().light());
+                p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.top() + (selected ? 0 : 2),
-                             r2.left(), r2.bottom() - 2);
+                            r2.left(), r2.bottom() - 2);
                 p->drawLine(r2.left() + 1, r2.top() + (selected ? 0 : 2),
-                             r2.left() + 1, r2.bottom() - 3);
+                            r2.left() + 1, r2.bottom() - 3);
 
             } else {
-                QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
+                QCommonStyle::drawControl(element, opt, p, widget);
             }
-#endif
-            break;
-        }
-
+            break; }
     case CE_ProgressBarGroove:
-        qDrawShadePanel(p, r, pal, true, 2);
+        qDrawShadePanel(p, opt->rect, opt->palette, true, 2);
         break;
 
     case CE_ProgressBarLabel:
-        {
-#ifndef QT_NO_PROGRESSBAR
-            const QProgressBar * pb = (const QProgressBar *) widget;
-            const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb);
-            int u = r.width() / unit_width;
-            int p_v = pb->progress();
-            int t_s = pb->totalSteps();
-            if (u > 0 && pb->progress() >= INT_MAX / u && t_s >= u) {
+        if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
+            const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, opt, widget);
+            int u = opt->rect.width() / unit_width;
+            int p_v = pb->progress;
+            int t_s = pb->minimum - pb->maximum;
+            if (u > 0 && pb->progress >= INT_MAX / u && t_s >= u) {
                 // scale down to something usable.
                 p_v /= u;
                 t_s /= u;
             }
-            if (pb->percentageVisible() && pb->totalSteps()) {
+            if (pb->textVisible && pb->minimum - pb->maximum) {
                 int nu = (u * p_v + t_s/2) / t_s;
                 int x = unit_width * nu;
-                if (pb->indicatorFollowsStyle() || pb->centerIndicator()) {
-                    p->setPen(pal.highlightedText());
-                    p->setClipRect(r.x(), r.y(), x, r.height());
-                    p->drawText(r, Qt::AlignCenter | Qt::TextSingleLine, pb->progressString());
+                if (pb->textAlignment == Qt::AlignAuto || pb->textAlignment == Qt::AlignCenter) {
+                    p->setPen(opt->palette.highlightedText().color());
+                    p->setClipRect(opt->rect.x(), opt->rect.y(), x, opt->rect.height());
+                    p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
 
-                    if (pb->progress() != pb->totalSteps()) {
-                        p->setClipRect(r.x() + x, r.y(), r.width() - x, r.height());
-                        p->setPen(pal.highlight());
-                        p->drawText(r, Qt::AlignCenter | Qt::TextSingleLine, pb->progressString());
+                    if (pb->progress != pb->maximum) {
+                        p->setClipRect(opt->rect.x() + x, opt->rect.y(), opt->rect.width() - x, opt->rect.height());
+                        p->setPen(opt->palette.highlight().color());
+                        p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
                     }
                 } else {
-                    p->setPen(pal.text());
-                    p->drawText(r, Qt::AlignCenter | Qt::TextSingleLine, pb->progressString());
+                    p->setPen(opt->palette.text().color());
+                    p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
                 }
             }
-#endif
             break;
         }
 
-#ifndef QT_NO_MENU
     case CE_MenuTearoff: {
-        if(flags & State_Active) {
-            if(pixelMetric(PM_MenuFrameWidth) > 1)
-                qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(), pal, false, motifItemFrame,
-                                 &pal.brush(QPalette::Button));
+        if(opt->state & State_Active) {
+            if(pixelMetric(PM_MenuPanelWidth, opt, widget) > 1)
+                qDrawShadePanel(p, opt->rect.x(), opt->rect.y(), opt->rect.width(),
+                                opt->rect.height(), opt->palette, false, motifItemFrame,
+                                &opt->palette.brush(QPalette::Button));
             else
-                qDrawShadePanel(p, r.x()+1, r.y()+1, r.width()-2, r.height()-2, pal, true, 1, &pal.brush(QPalette::Button));
+                qDrawShadePanel(p, opt->rect.x()+1, opt->rect.y()+1, opt->rect.width()-2,
+                                opt->rect.height()-2, opt->palette, true, 1, &opt->palette.brush(QPalette::Button));
         } else {
-            p->fillRect(r, pal.brush(QPalette::Button));
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
         }
-        p->setPen(QPen(pal.dark(), 1, Qt::DashLine));
-        p->drawLine(r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1);
-        p->setPen(QPen(pal.light(), 1, Qt::DashLine));
-        p->drawLine(r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2);
+        p->setPen(QPen(opt->palette.dark().color(), 1, Qt::DashLine));
+        p->drawLine(opt->rect.x()+2, opt->rect.y()+opt->rect.height()/2-1, opt->rect.x()+opt->rect.width()-4,
+                    opt->rect.y()+opt->rect.height()/2-1);
+        p->setPen(QPen(opt->palette.light().color(), 1, Qt::DashLine));
+        p->drawLine(opt->rect.x()+2, opt->rect.y()+opt->rect.height()/2, opt->rect.x()+opt->rect.width()-4,
+                    opt->rect.y()+opt->rect.height()/2);
         break; }
 
-    case CE_MenuItem: {
-        if (!widget || opt.isDefault())
-            break;
-
-        const QMenu *menu = (const QMenu *) widget;
-        QAction *mi = opt.action();
-        if(!mi)
-            break;
-
-        int tab = opt.tabWidth();
-        int maxpmw = opt.maxIconWidth();
-        bool dis = ! (flags & State_Enabled);
-        bool checkable = menu->isCheckable();
-        bool act = flags & State_Active;
-
-        int x, y, w, h;
-        r.rect(&x, &y, &w, &h);
-
-        if(checkable)
-            maxpmw = qMax(maxpmw, motifCheckMarkSpace);
-
-        int checkcol = maxpmw;
-        if(mi && mi->isSeparator()) {                    // draw separator
-            p->setPen(pal.dark());
-            p->drawLine(x, y, x+w, y);
-            p->setPen(pal.light());
-            p->drawLine(x, y+1, x+w, y+1);
-            return;
-        }
-
-        int pw = motifItemFrame;
-        if(act && !dis) {                        // active item frame
-            if(pixelMetric(PM_MenuFrameWidth) > 1)
-                qDrawShadePanel(p, x, y, w, h, pal, false, pw,
-                                 &pal.brush(QPalette::Button));
-            else
-                qDrawShadePanel(p, x+1, y+1, w-2, h-2, pal, true, 1,
-                                 &pal.brush(QPalette::Button));
-        } else  {                               // incognito frame
-            p->fillRect(x, y, w, h, pal.brush(QPalette::Button));
-        }
-
-        if (!mi)
-            return;
-
-        QIcon is = mi->icon();
-        QRect vrect = visualRect(QRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame), r);
-        int xvis = vrect.x();
-        if (mi->isChecked()) {
-            if(!is.isNull())
-                qDrawShadePanel(p, xvis, y+motifItemFrame, checkcol, h-2*motifItemFrame,
-                                 pal, true, 1, &pal.brush(QPalette::Midlight));
-        } else if (!act) {
-            p->fillRect(xvis, y+motifItemFrame, checkcol, h-2*motifItemFrame,
-                        pal.brush(QPalette::Button));
-        }
-
-        if(!is.isNull()) {              // draw icon
-            QIcon::Mode mode = QIcon::Normal; // no disabled icons in Motif
-            if (act && !dis)
-                mode = QIcon::Active;
-            QPixmap pixmap;
-            if (checkable && mi->isChecked())
-                pixmap = is.pixmap(Qt::SmallIconSize, mode, QIcon::On);
-            else
-                pixmap = is.pixmap(Qt::SmallIconSize, mode);
-
-            int pixw = pixmap.width();
-            int pixh = pixmap.height();
-            QRect pmr(0, 0, pixw, pixh);
-            pmr.moveCenter(vrect.center());
-            p->setPen(pal.text());
-            p->drawPixmap(pmr.topLeft(), pixmap);
-
-        } else  if (checkable) {  // just "checking"...
-            int mw = checkcol;
-            int mh = h - 2*motifItemFrame;
-            if (mi->isChecked()) {
-                SFlags cflags = State_Default;
-                if (! dis)
-                    cflags |= State_Enabled;
-                if (act)
-                    cflags |= State_On;
-
-                drawPrimitive(PE_CheckMark, p,
-                              QRect(xvis, y+motifItemFrame, mw, mh),
-                              pal, cflags);
-            }
-        }
-
-
-        p->setPen(pal.buttonText());
-
-        QColor discol;
-        if (dis) {
-            discol = pal.text();
-            p->setPen(discol);
-        }
-
-        int xm = motifItemFrame + checkcol + motifItemHMargin;
-
-        vrect = visualRect(QRect(x+xm, y+motifItemVMargin, w-xm-tab, h-2*motifItemVMargin), r);
-        xvis = vrect.x();
-
-        QString s = mi->text();
-        if (!s.isNull()) {                        // draw text
-            int t = s.indexOf('\t');
-            int m = motifItemVMargin;
-            int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
-            text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
-            if (t >= 0) {                         // draw tab text
-                QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
-                                              y+motifItemVMargin, tab, h-2*motifItemVMargin), r);
-                int xv = vr.x();
-                p->drawText(xv, y+m, tab, h-2*m, text_flags, s.mid(t+1));
-                s = s.left(t);
-            }
-            p->drawText(xvis, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
-        }
-        if (mi->menu()) {                        // draw sub menu arrow
-            int dim = (h-2*motifItemFrame) / 2;
-            QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
-            QRect vr = visualRect(QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
-                                         y+h/2-dim/2, dim, dim), r);
-            if (act)
-                drawPrimitive(arrow, p, vr, pal, (State_Down | (dis ? State_Default : State_Enabled)));
-            else
-                drawPrimitive(arrow, p, vr, pal, (dis ? State_Default : State_Enabled));
-        }
-
-        break;  }
-#endif // QT_NO_MENU
-
-
-#ifdef QT_COMPAT
-#ifndef QT_NO_POPUPMENU
-    case CE_Q3PopupMenuItem:
-        {
-            if (! widget || opt.isDefault())
-                break;
-
-            const Q3PopupMenu *popupmenu = (const Q3PopupMenu *) widget;
-            Q3MenuItem *mi = opt.menuItem();
-            if (!mi)
-                break;
-
-            int tab = opt.tabWidth();
-            int maxpmw = opt.maxIconWidth();
-            bool dis = ! (flags & State_Enabled);
-            bool checkable = popupmenu->isCheckable();
-            bool act = flags & State_Active;
-            int x, y, w, h;
-
-            r.rect(&x, &y, &w, &h);
-
-            if (checkable)
+    case CE_MenuItem:
+        if (const QStyleOptionMenuItem *menuitem = qt_cast<const QStyleOptionMenuItem *>(opt)) {
+            int maxpmw = menuitem->maxIconWidth;
+            if(menuitem->checkType != QStyleOptionMenuItem::NotCheckable)
                 maxpmw = qMax(maxpmw, motifCheckMarkSpace);
 
-            int checkcol = maxpmw;
+            int x, y, w, h;
+            opt->rect.getRect(&x, &y, &w, &h);
 
-            if (mi && mi->isSeparator()) {                    // draw separator
-                p->setPen(pal.dark());
+            if(menuitem->menuItemType == QStyleOptionMenuItem::Separator) {  // draw separator
+                p->setPen(opt->palette.dark().color());
                 p->drawLine(x, y, x+w, y);
-                p->setPen(pal.light());
+                p->setPen(opt->palette.light().color());
                 p->drawLine(x, y+1, x+w, y+1);
                 return;
             }
 
             int pw = motifItemFrame;
-
-            if (act && !dis) {                        // active item frame
-                if (pixelMetric(PM_DefaultFrameWidth) > 1)
-                    qDrawShadePanel(p, x, y, w, h, pal, false, pw,
-                                     &pal.brush(QPalette::Button));
+            if((opt->state & State_Active) && (opt->state & State_Enabled)) {  // active item frame
+                if(pixelMetric(PM_MenuPanelWidth, opt) > 1)
+                    qDrawShadePanel(p, x, y, w, h, opt->palette, false, pw,
+                                    &opt->palette.brush(QPalette::Button));
                 else
-                    qDrawShadePanel(p, x+1, y+1, w-2, h-2, pal, true, 1,
-                                     &pal.brush(QPalette::Button));
+                    qDrawShadePanel(p, x+1, y+1, w-2, h-2, opt->palette, true, 1,
+                                    &opt->palette.brush(QPalette::Button));
+            } else  {                               // incognito frame
+                p->fillRect(x, y, w, h, opt->palette.brush(QPalette::Button));
             }
-            else                                // incognito frame
-                p->fillRect(x, y, w, h, pal.brush(QPalette::Button));
 
-            if (!mi)
-                return;
-
-            QRect vrect = visualRect(QRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame), r);
+            QRect vrect = visualRect(opt->direction,
+                                     QRect(x+motifItemFrame, y+motifItemFrame, maxpmw, h-2*motifItemFrame),
+                                     opt->rect);
             int xvis = vrect.x();
-            if (mi->isChecked()) {
-                if (mi->iconSet()) {
-                    qDrawShadePanel(p, xvis, y+motifItemFrame, checkcol, h-2*motifItemFrame,
-                                     pal, true, 1, &pal.brush(QPalette::Midlight));
-                }
-            } else if (!act) {
-                p->fillRect(xvis, y+motifItemFrame, checkcol, h-2*motifItemFrame,
-                            pal.brush(QPalette::Button));
+            if (menuitem->checked) {
+                if(!menuitem->icon.isNull())
+                    qDrawShadePanel(p, xvis, y+motifItemFrame, maxpmw, h-2*motifItemFrame,
+                                    opt->palette, true, 1, &opt->palette.brush(QPalette::Midlight));
+            } else if (!(opt->state & State_Active)) {
+                p->fillRect(xvis, y+motifItemFrame, maxpmw, h-2*motifItemFrame,
+                            opt->palette.brush(QPalette::Button));
             }
 
-            if (mi->iconSet()) {              // draw icon
+            if(!menuitem->icon.isNull()) {              // draw icon
                 QIcon::Mode mode = QIcon::Normal; // no disabled icons in Motif
-                if (act && !dis)
+                if ((opt->state & State_Active) && !!(opt->state & State_Enabled))
                     mode = QIcon::Active;
                 QPixmap pixmap;
-                if (checkable && mi->isChecked())
-                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode, QIcon::On);
+                if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable && menuitem->checked)
+                    pixmap = menuitem->icon.pixmap(Qt::SmallIconSize, mode, QIcon::On);
                 else
-                    pixmap = mi->iconSet()->pixmap(Qt::SmallIconSize, mode);
+                    pixmap = menuitem->icon.pixmap(Qt::SmallIconSize, mode);
 
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 QRect pmr(0, 0, pixw, pixh);
                 pmr.moveCenter(vrect.center());
-                p->setPen(pal.text());
+                p->setPen(opt->palette.text().color());
                 p->drawPixmap(pmr.topLeft(), pixmap);
 
-            } else  if (checkable) {  // just "checking"...
-                int mw = checkcol;
+            } else  if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable) {  // just "checking"...
+                int mw = maxpmw;
                 int mh = h - 2*motifItemFrame;
-                if (mi->isChecked()) {
-                    SFlags cflags = State_Default;
-                    if (! dis)
-                        cflags |= State_Enabled;
-                    if (act)
-                        cflags |= State_On;
-
-                    drawPrimitive(PE_CheckMark, p,
-                                  QRect(xvis, y+motifItemFrame, mw, mh),
-                                  pal, cflags);
+                if (menuitem->checked) {
+                    QStyleOptionMenuItem newMenuItem = *menuitem;
+                    newMenuItem.state = State_Default;
+                    if ((opt->state & State_Enabled))
+                        newMenuItem.state |= State_Enabled;
+                    if ((opt->state & State_Active))
+                        newMenuItem.state |= State_On;
+                    newMenuItem.rect = QRect(xvis, y+motifItemFrame, mw, mh);
+                    drawPrimitive(PE_IndicatorMenuCheckMark, &newMenuItem, p, widget);
                 }
             }
 
-
-            p->setPen(pal.buttonText());
+            p->setPen(opt->palette.buttonText().color());
 
             QColor discol;
-            if (dis) {
-                discol = pal.text();
+            if (!(opt->state & State_Enabled)) {
+                discol = opt->palette.text().color();
                 p->setPen(discol);
             }
 
-            int xm = motifItemFrame + checkcol + motifItemHMargin;
+            int xm = motifItemFrame + maxpmw + motifItemHMargin;
 
-            vrect = visualRect(QRect(x+xm, y+motifItemVMargin, w-xm-tab, h-2*motifItemVMargin), r);
+            vrect = visualRect(opt->direction,
+                               QRect(x+xm, y+motifItemVMargin, w-xm-menuitem->tabWidth, h-2*motifItemVMargin), opt->rect);
             xvis = vrect.x();
-            if (mi->custom()) {
-                int m = motifItemVMargin;
-                p->save();
-                mi->custom()->paint(p, pal, act, !dis,
-                                     xvis, y+m, w-xm-tab+1, h-2*m);
-                p->restore();
-            }
-            QString s = mi->text();
+
+            QString s = menuitem->text;
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int m = motifItemVMargin;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= (QApplication::isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {                         // draw tab text
-                    QRect vr = visualRect(QRect(x+w-tab-motifItemHMargin-motifItemFrame,
-                                                  y+motifItemVMargin, tab, h-2*motifItemVMargin), r);
+                    QRect vr = visualRect(opt->direction,
+                                          QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
+                                                y+motifItemVMargin, menuitem->tabWidth, h-2*motifItemVMargin), opt->rect);
                     int xv = vr.x();
-                    p->drawText(xv, y+m, tab, h-2*m, text_flags, s.mid(t+1));
+                    p->drawText(xv, y+m, menuitem->tabWidth, h-2*m, text_flags, s.mid(t+1));
                     s = s.left(t);
                 }
-                p->drawText(xvis, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
-            } else if (mi->pixmap()) {                        // draw pixmap
-                QPixmap *pixmap = mi->pixmap();
-                if (pixmap->depth() == 1)
-                    p->setBackgroundMode(Qt::OpaqueMode);
-                p->drawPixmap(xvis, y+motifItemFrame, *pixmap);
-                if (pixmap->depth() == 1)
-                    p->setBackgroundMode(Qt::TransparentMode);
+                p->drawText(xvis, y+m, w - xm - menuitem->tabWidth + 1, h-2*m, text_flags, s.left(t));
             }
-            if (mi->popup()) {                        // draw sub menu arrow
+            if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {           // draw sub menu arrow
                 int dim = (h-2*motifItemFrame) / 2;
-                QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_ArrowLeft : PE_ArrowRight);
-                QRect vr = visualRect(QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
-                                        y+h/2-dim/2, dim, dim), r);
-                if (act)
-                    drawPrimitive(arrow, p, vr, pal,
-                                  (State_Down |
-                                  (dis ? State_Default : State_Enabled)));
+                QStyle::PrimitiveElement arrow = (QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight);
+                QStyleOption arrowOpt = *opt;
+                arrowOpt.rect = visualRect(opt->direction, QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
+                                                                 y+h/2-dim/2, dim, dim), opt->rect);
+                if ((opt->state & State_Active))
+                    arrowOpt.state = (State_Down | ((opt->state & State_Enabled) ? State_Enabled : State_Default));
                 else
-                    drawPrimitive(arrow, p, vr, pal,
-                                  (dis ? State_Default : State_Enabled));
+                    arrowOpt.state = ((opt->state & State_Enabled) ? State_Enabled : State_Default);
+                drawPrimitive(arrow, &arrowOpt, p, widget);
             }
+            break; }
 
-            break;
-        }
-#endif // QT_NO_POPUPMENU
-#endif
-
-    case CE_MenuBarItem:
-        {
-            if (flags & State_Active)  // active item
-                qDrawShadePanel(p, r, pal, false, motifItemFrame,
-                                 &pal.brush(QPalette::Button));
-            else  // other item
-                p->fillRect(r, pal.brush(QPalette::Button));
-            QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
-            break;
-        }
-
-#ifdef QT_COMPAT
-    case CE_Q3MenuBarItem:
-        {
-            if (flags & State_Active)  // active item
-                qDrawShadePanel(p, r, pal, false, motifItemFrame,
-                                 &pal.brush(QPalette::Button));
-            else  // other item
-                p->fillRect(r, pal.brush(QPalette::Button));
-            QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
-            break;
-        }
-#endif
+    case CE_MenuBarItem: {
+        if (opt->state & State_Active)  // active item
+            qDrawShadePanel(p, opt->rect, opt->palette, false, motifItemFrame,
+                            &opt->palette.brush(QPalette::Button));
+        else  // other item
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
+        QCommonStyle::drawControl(element, opt, p, widget);
+        break;  }
 
     default:
-        QCommonStyle::drawControl(element, p, widget, r, pal, flags, opt);
+        QCommonStyle::drawControl(element, opt, p, widget);
         break;
     }
 }
@@ -1341,9 +1123,9 @@ static int get_combo_extra_width(int h, int w, int *return_awh=0)
 }
 
 static void get_combo_parameters(const QRect &r,
-                                  int &ew, int &awh, int &ax,
-                                  int &ay, int &sh, int &dh,
-                                  int &sy)
+                                 int &ew, int &awh, int &ax,
+                                 int &ay, int &sh, int &dh,
+                                 int &sy)
 {
     ew = get_combo_extra_width(r.height(), r.width(), &awh);
 
@@ -1365,220 +1147,207 @@ static void get_combo_parameters(const QRect &r,
 }
 
 /*!
-    \reimp
+  \reimp
 */
 void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
-                                    const QWidget *w) const
-        /*
-void QMotifStyle::drawComplexControl(ComplexControl control,
-                                     QPainter *p,
-                                     const QWidget *widget,
-                                     const QRect &r,
-                                     const QPalette &pal,
-                                     SFlags flags,
-                                     SCFlags sub,
-                                     SCFlags subActive,
-                                     const Q3StyleOption& opt) const
-                                     */
+                                     const QWidget *widget) const
 {
-    switch (control) {
+    switch (cc) {
     case CC_SpinBox: {
-        SCFlags drawSub = SC_None;
-        if (sub & SC_SpinBoxFrame)
-            qDrawShadePanel(p, r, pal, true,
-                             pixelMetric(PM_DefaultFrameWidth));
+        SubControls drawSub = SC_None;
+        if (opt->subControls & SC_SpinBoxFrame)
+            qDrawShadePanel(p, opt->rect, opt->palette, true,
+                            pixelMetric(PM_DefaultFrameWidth));
 
-        if (sub & SC_SpinBoxUp || sub & SC_SpinBoxDown) {
-            if (sub & SC_SpinBoxUp)
-                drawSub |= SC_SpinBoxUp;
-            if (sub & SC_SpinBoxDown)
-                drawSub |= SC_SpinBoxDown;
-
-            QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags,
-                                              drawSub, subActive, opt);
+        if (opt->subControls & SC_SpinBoxUp || opt->subControls & SC_SpinBoxDown) {
+            QStyleOptionComplex boxOpt = *opt;
+            boxOpt.subControls = SC_None;
+            if (opt->subControls & SC_SpinBoxUp)
+                boxOpt.subControls |= SC_SpinBoxUp;
+            if (opt->subControls & SC_SpinBoxDown)
+                boxOpt.subControls |= SC_SpinBoxDown;
+            QCommonStyle::drawComplexControl(cc, &boxOpt, p, widget);
         }
         break; }
 
     case CC_Slider:
-        {
-#ifndef QT_NO_SLIDER
-            const QSlider * slider = static_cast<const QSlider *>(widget);
+        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
+            QRect groove = subControlRect(CC_Slider, opt, SC_SliderGroove, widget),
+                  handle = subControlRect(CC_Slider, opt, SC_SliderHandle, widget);
 
-            QRect groove = subControlRect(CC_Slider, widget, SC_SliderGroove, opt),
-                  handle = subControlRect(CC_Slider, widget, SC_SliderHandle, opt);
-
-            if ((sub & SC_SliderGroove) && groove.isValid()) {
-                qDrawShadePanel(p, groove, pal, true, 2, &pal.brush(QPalette::Mid));
-                if (flags & State_HasFocus) {
-                    QRect fr = subRect(SR_SliderFocusRect, widget);
-                    drawPrimitive(PE_FocusRect, p, fr, pal);
+            if ((opt->subControls & SC_SliderGroove) && groove.isValid()) {
+                qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Mid));
+                if (opt->state & State_HasFocus) {
+                    QStyleOption focusOpt = *opt;
+                    focusOpt.rect = subRect(SR_SliderFocusRect, opt, widget);
+                    drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
                 }
             }
 
-            if ((sub & SC_SliderHandle) && handle.isValid()) {
-                drawPrimitive(PE_ButtonBevel, p, handle, pal);
+            if ((opt->subControls & SC_SliderHandle) && handle.isValid()) {
+                QStyleOption bevelOpt = *opt;
+                bevelOpt.rect = handle;
+                drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
 
-                if (slider->orientation() == Qt::Horizontal) {
+                if (slider->orientation == Qt::Horizontal) {
                     int mid = handle.x() + handle.width() / 2;
                     qDrawShadeLine(p, mid, handle.y(), mid, handle.y() + handle.height() - 2,
-                                   pal, true, 1);
+                                   opt->palette, true, 1);
                 } else {
                     int mid = handle.y() + handle.height() / 2;
-                    qDrawShadeLine(p, handle.x(), mid, handle.x() + handle.width() - 2, mid, pal,
+                    qDrawShadeLine(p, handle.x(), mid, handle.x() + handle.width() - 2, mid, opt->palette,
                                    true, 1);
                 }
             }
 
-            if (sub & SC_SliderTickmarks)
-                QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags,
-                                                 SC_SliderTickmarks, subActive,
-                                                 opt);
-#endif
-            break;
-        }
-
-    case CC_ComboBox:
-#ifndef QT_NO_COMBOBOX
-        if (sub & SC_ComboBoxArrow) {
-            const QComboBox * cb = (const QComboBox *) widget;
-            int awh, ax, ay, sh, sy, dh, ew;
-            int fw = pixelMetric(PM_DefaultFrameWidth, cb);
-
-            drawPrimitive(PE_ButtonCommand, p, r, pal, flags);
-            QRect ar = QStyle::visualRect(subControlRect(CC_ComboBox, cb, SC_ComboBoxArrow,
-                                                                   opt), cb);
-            drawPrimitive(PE_ArrowDown, p, ar, pal, flags | State_Enabled);
-
-            QRect tr = r;
-            tr.addCoords(fw, fw, -fw, -fw);
-            get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
-
-            // draws the shaded line under the arrow
-            p->setPen(pal.light());
-            p->drawLine(ar.x(), sy, ar.x()+awh-1, sy);
-            p->drawLine(ar.x(), sy, ar.x(), sy+sh-1);
-            p->setPen(pal.dark());
-            p->drawLine(ar.x()+1, sy+sh-1, ar.x()+awh-1, sy+sh-1);
-            p->drawLine(ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1);
-
-            if (cb->hasFocus()) {
-                QRect re = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cb), cb);
-                drawPrimitive(PE_FocusRect, p, re, pal);
+            if (opt->subControls & SC_SliderTickmarks) {
+                QStyleOptionComplex tickOpt = *opt;
+                tickOpt.subControls = SC_SliderTickmarks;
+                QCommonStyle::drawComplexControl(cc, &tickOpt, p, widget);
             }
         }
-
-        if (sub & SC_ComboBoxEditField) {
-            QComboBox * cb = (QComboBox *) widget;
-            if (cb->editable()) {
-                QRect er = QStyle::visualRect(subControlRect(CC_ComboBox, cb,
-                                                                       SC_ComboBoxEditField), cb);
-                er.addCoords(-1, -1, 1, 1);
-                qDrawShadePanel(p, er, pal, true, 1,
-                                 &pal.brush(QPalette::Button));
-            }
-        }
-#endif
-        p->setPen(pal.buttonText());
         break;
 
-    case CC_ScrollBar:
-        {
-            if (sub & SC_ScrollBarGroove)
-                qDrawShadePanel(p, widget->rect(), pal, true,
-                               pixelMetric(PM_DefaultFrameWidth, widget),
-                               &pal.brush(QPalette::Mid));
-            QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags, sub,
-                                             subActive, opt);
-            break;
-        }
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            if (opt->subControls & SC_ComboBoxArrow) {
+                int awh, ax, ay, sh, sy, dh, ew;
+                int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
 
-#ifndef QT_NO_LISTVIEW
-    case CC_ListView:
-        {
-            if (sub & SC_ListView) {
-                QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags, sub, subActive, opt);
+                drawPrimitive(PE_PanelButtonCommand, opt, p, widget);
+
+                QRect ar = QStyle::visualRect(opt->direction,
+                                              subControlRect(CC_ComboBox, opt, SC_ComboBoxArrow, widget), opt->rect);
+
+                QStyleOption arrowOpt = *opt;
+                arrowOpt.rect = ar;
+                arrowOpt.state |= State_Enabled;
+                drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, p, widget);
+
+                QRect tr = opt->rect;
+                tr.addCoords(fw, fw, -fw, -fw);
+                get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
+
+                // draws the shaded line under the arrow
+                p->setPen(opt->palette.light().color());
+                p->drawLine(ar.x(), sy, ar.x()+awh-1, sy);
+                p->drawLine(ar.x(), sy, ar.x(), sy+sh-1);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(ar.x()+1, sy+sh-1, ar.x()+awh-1, sy+sh-1);
+                p->drawLine(ar.x()+awh-1, sy+1, ar.x()+awh-1, sy+sh-1);
+
+                if (cb->state & State_HasFocus) {
+                    QStyleOption focusOpt = *opt;
+                    focusOpt.rect = QStyle::visualRect(opt->direction, subRect(SR_ComboBoxFocusRect, opt, widget), opt->rect);
+                    drawPrimitive(PE_FrameFocusRect, &focusOpt, p, widget);
+                }
             }
-            if (sub & (SC_ListViewBranch | SC_ListViewExpand)) {
-                if (opt.isDefault())
-                    break;
 
-                QListViewItem *item = opt.listViewItem();
-                QListViewItem *child = item->firstChild();
+            if (opt->subControls & SC_ComboBoxEditField) {
+                if (cb->editable) {
+                    QRect er = QStyle::visualRect(opt->direction,
+                                                  subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget), opt->rect);
+                    er.addCoords(-1, -1, 1, 1);
+                    qDrawShadePanel(p, er, opt->palette, true, 1,
+                                    &opt->palette.brush(QPalette::Button));
+                }
+            }
+            p->setPen(opt->palette.buttonText().color());
+            }
+        break;
 
-                int y = r.y();
+    case CC_ScrollBar: {
+        if (opt->subControls & SC_ScrollBarGroove)
+            qDrawShadePanel(p, opt->rect, opt->palette, true,
+                            pixelMetric(PM_DefaultFrameWidth, opt, widget),
+                            &opt->palette.brush(QPalette::Mid));
+        QCommonStyle::drawComplexControl(cc, opt, p, widget);
+        break; }
+
+
+    case CC_Q3ListView:
+        if (opt->subControls & (SC_Q3ListViewBranch | SC_Q3ListViewExpand)) {
+            int i;
+            if (opt->subControls & SC_Q3ListView)
+                QCommonStyle::drawComplexControl(cc, opt, p, widget);
+            if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(lv)) {
+                QStyleOptionQ3ListViewItem item = lv->items.at(0);
+                int y = opt->rect.y();
                 int c;
                 QPolygon dotlines;
-                if (subActive == SC_All && sub == SC_ListViewExpand) {
+                if ((opt->activeSubControls & SC_All) && (opt->subControls & SC_Q3ListViewExpand)) {
                     c = 2;
                     dotlines.resize(2);
-                    dotlines[0] = QPoint(r.right(), r.top());
-                    dotlines[1] = QPoint(r.right(), r.bottom());
+                    dotlines[0] = QPoint(opt->rect.right(), opt->rect.top());
+                    dotlines[1] = QPoint(opt->rect.right(), opt->rect.bottom());
                 } else {
                     int linetop = 0, linebot = 0;
                     // each branch needs at most two lines, ie. four end points
-                    dotlines.resize(item->childCount() * 4);
+                    dotlines.resize(item.childCount * 4);
                     c = 0;
 
                     // skip the stuff above the exposed rectangle
-                    while (child && y + child->height() <= 0) {
-                        y += child->totalHeight();
-                        child = child->nextSibling();
+                    for (i = 1; i < lv->items.size(); ++i) {
+                        QStyleOptionQ3ListViewItem child = lv->items.at(i);
+                        if (child.height + y > 0)
+                            break;
+                        y += child.totalHeight;
                     }
 
-                    int bx = r.width() / 2;
+                    int bx = opt->rect.width() / 2;
 
                     // paint stuff in the magical area
-                    QListView* v = item->listView();
-                    while (child && y < r.height()) {
-                        if (child->isVisible()) {
+                    while (i < lv->items.size() && y < lv->rect.height()) {
+                        QStyleOptionQ3ListViewItem child = lv->items.at(i);
+                        if (child.features & QStyleOptionQ3ListViewItem::Visible) {
                             int lh;
-                            if (!item->multiLinesEnabled())
-                                lh = child->height();
+                            if (!(item.features & QStyleOptionQ3ListViewItem::MultiLine))
+                                lh = child.height;
                             else
-                                lh = p->fontMetrics().height() + 2 * v->itemMargin();
+                                lh = p->fontMetrics().height() + 2 * lv->itemMargin;
                             lh = qMax(lh, QApplication::globalStrut().height());
                             if (lh % 2 > 0)
                                 lh++;
                             linebot = y + lh/2;
-                            if ((child->isExpandable() || child->childCount()) &&
-                                 (child->height() > 0)) {
+                            if ((child.features & QStyleOptionQ3ListViewItem::Expandable || child.childCount > 0) &&
+                                child.height > 0) {
                                 // needs a box
-                                p->setPen(pal.text());
+                                p->setPen(opt->palette.text().color());
                                 p->drawRect(bx-4, linebot-4, 9, 9);
                                 QPolygon a;
-                                if (child->isOpen())
+                                if ((child.state & State_Open))
                                     a.setPoints(3, bx-2, linebot-2,
-                                                 bx, linebot+2,
-                                                 bx+2, linebot-2); //Qt::RightArrow
+                                                bx, linebot+2,
+                                                bx+2, linebot-2); //Qt::RightArrow
                                 else
                                     a.setPoints(3, bx-2, linebot-2,
-                                                 bx+2, linebot,
-                                                 bx-2, linebot+2); //Qt::DownArrow
-                                p->setBrush(pal.text());
+                                                bx+2, linebot,
+                                                bx-2, linebot+2); //Qt::DownArrow
+                                p->setBrush(opt->palette.text());
                                 p->drawPolygon(a);
                                 p->setBrush(Qt::NoBrush);
                                 // dotlinery
                                 dotlines[c++] = QPoint(bx, linetop);
                                 dotlines[c++] = QPoint(bx, linebot - 5);
                                 dotlines[c++] = QPoint(bx + 5, linebot);
-                                dotlines[c++] = QPoint(r.width(), linebot);
+                                dotlines[c++] = QPoint(opt->rect.width(), linebot);
                                 linetop = linebot + 5;
                             } else {
                                 // just dotlinery
                                 dotlines[c++] = QPoint(bx+1, linebot);
-                                dotlines[c++] = QPoint(r.width(), linebot);
+                                dotlines[c++] = QPoint(opt->rect.width(), linebot);
                             }
-                            y += child->totalHeight();
+                            y += child.totalHeight;
                         }
-                        child = child->nextSibling();
+                        ++i;
                     }
 
                     // Expand line height to edge of rectangle if there's any
                     // visible child below
-                    while (child && child->height() <= 0)
-                        child = child->nextSibling();
-                    if (child)
-                        linebot = r.height();
+                    while (i < lv->items.size() && lv->items.at(i).height <= 0)
+                        ++i;
+                    if (i < lv->items.size())
+                        linebot = opt->rect.height();
 
                     if (linetop < linebot) {
                         dotlines[c++] = QPoint(bx, linetop);
@@ -1587,35 +1356,28 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                 }
 
                 int line; // index into dotlines
-                p->setPen(pal.text());
-                if (sub & SC_ListViewBranch) for(line = 0; line < c; line += 2) {
+                p->setPen(opt->palette.text().color());
+                if (opt->subControls & SC_Q3ListViewBranch) for(line = 0; line < c; line += 2) {
                     p->drawLine(dotlines[line].x(), dotlines[line].y(),
-                                 dotlines[line+1].x(), dotlines[line+1].y());
+                                dotlines[line+1].x(), dotlines[line+1].y());
                 }
             }
-
-            break;
-        }
-#endif // QT_NO_LISTVIEW
+            break; }
 
     default:
-        QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags,
-                                          sub, subActive, opt);
+        QCommonStyle::drawComplexControl(cc, opt, p, widget);
+        break;
     }
 }
 
 
 /*! \reimp */
-int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *option,
+int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
                              const QWidget *widget) const
-/*
-int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
-                             const QWidget *widget) const
-                             */
 {
-     int ret;
+    int ret;
 
-    switch(metric) {
+    switch(pm) {
     case PM_ButtonDefaultIndicator:
         ret = 3;
         break;
@@ -1638,15 +1400,14 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         break;
 
     case PM_SliderControlThickness:
-        {
-#ifndef QT_NO_SLIDER
-            const QSlider * sl = (const QSlider *) widget;
-            int space = (sl->orientation() == Qt::Horizontal) ? sl->height()
-                        : sl->width();
-            int ticks = sl->tickmarks();
+        if (const QStyleOptionSlider *sl = qt_cast<const QStyleOptionSlider *>(opt)) {
+            int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height() : sl->rect.width();
+            int ticks = sl->tickPosition;
             int n = 0;
-            if (ticks & QSlider::Above) n++;
-            if (ticks & QSlider::Below) n++;
+            if (ticks & QSlider::Above)
+                n++;
+            if (ticks & QSlider::Below)
+                n++;
             if (!n) {
                 ret = space;
                 break;
@@ -1659,21 +1420,17 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
             if (space > 0)
                 thick += (space * 2) / (n + 2);
             ret = thick;
-#endif
-            break;
         }
+        break;
 
     case PM_SliderSpaceAvailable:
-        {
-#ifndef QT_NO_SLIDER
-            const QSlider * sl = (const QSlider *) widget;
-            if (sl->orientation() == Qt::Horizontal)
-                ret = sl->width() - pixelMetric(PM_SliderLength, sl) - 6;
+        if (const QStyleOptionSlider *sl = qt_cast<const QStyleOptionSlider *>(opt)) {
+            if (sl->orientation == Qt::Horizontal)
+                ret = sl->rect.width() - pixelMetric(PM_SliderLength, opt, widget) - 6;
             else
-                ret = sl->height() - pixelMetric(PM_SliderLength, sl) - 6;
-#endif
-            break;
+                ret = sl->rect.height() - pixelMetric(PM_SliderLength, opt, widget) - 6;
         }
+        break;
 
     case PM_DockWindowHandleExtent:
         ret = 9;
@@ -1689,7 +1446,7 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         break;
 
     default:
-        ret =  QCommonStyle::pixelMetric(metric, option, widget);
+        ret =  QCommonStyle::pixelMetric(pm, opt, widget);
         break;
     }
     return ret;
@@ -1697,18 +1454,12 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 
 
 /*!
-    \reimp
+  \reimp
 */
 QRect QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
-                                 SubControl sc, const QWidget *widget) const
-/*
-QRect QMotifStyle::subControlRect(ComplexControl control,
-                                           const QWidget *widget,
-                                           SubControl sc,
-                                           const Q3StyleOption& opt) const
-                                           */
+                                  SubControl sc, const QWidget *widget) const
 {
-    switch (control) {
+    switch (cc) {
     case CC_SpinBox: {
         if (!widget)
             return QRect();
@@ -1735,137 +1486,129 @@ QRect QMotifStyle::subControlRect(ComplexControl control,
             return QRect(lx, fw, rx, widget->height() - 2*fw);
         case SC_SpinBoxFrame:
             return QRect(0, 0,
-                          widget->width() - bs.width(), widget->height());
+                         widget->width() - bs.width(), widget->height());
         default:
             break;
         }
         break; }
 
-#ifndef QT_NO_SLIDER
-    case CC_Slider: {
-        if (sc == SC_SliderHandle) {
-            const QSlider *sl = static_cast<const QSlider *>(widget);
-            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
-            int thickness = pixelMetric(PM_SliderControlThickness, sl);
-            bool horizontal = sl->orientation() == Qt::Horizontal;
-            int len = pixelMetric(PM_SliderLength, sl);
-            int motifBorder = 3;
-            int sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
-                                              horizontal ? sl->width() - len - 2 * motifBorder
-                                                         : sl->height() - len - 2 * motifBorder,
-                                              (!horizontal == !sl->invertedAppearance()));
-            if (horizontal)
-                return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
-                             thickness - 2 * motifBorder);
-            return QRect(tickOffset + motifBorder, sliderPos + motifBorder,
-                         thickness - 2 * motifBorder, len);
+    case CC_Slider:
+        if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
+            if (sc == SC_SliderHandle) {
+                int tickOffset = pixelMetric(PM_SliderTickmarkOffset, opt, widget);
+                int thickness = pixelMetric(PM_SliderControlThickness, opt, widget);
+                bool horizontal = slider->orientation == Qt::Horizontal;
+                int len = pixelMetric(PM_SliderLength, opt, widget);
+                int motifBorder = 3;
+                int sliderPos = sliderPositionFromValue(slider->minimum, slider->maximum, slider->sliderPosition,
+                                                        horizontal ? slider->rect.width() - len - 2 * motifBorder
+                                                        : slider->rect.height() - len - 2 * motifBorder,
+                                                        (!horizontal == !slider->upsideDown));
+                if (horizontal)
+                    return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
+                                 thickness - 2 * motifBorder);
+                return QRect(tickOffset + motifBorder, sliderPos + motifBorder,
+                             thickness - 2 * motifBorder, len);
+            }
         }
-        break; }
-#endif
+        break;
 
-#ifndef QT_NO_SCROLLBAR
-    case CC_ScrollBar: {
-        if (! widget)
-            return QRect();
+    case CC_ScrollBar:
+        if (const QStyleOptionSlider *scrollbar = qt_cast<const QStyleOptionSlider *>(opt)) {
+            int sbextent = pixelMetric(PM_ScrollBarExtent, opt, widget);
+            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            int buttonw = sbextent - (fw * 2);
+            int buttonh = sbextent - (fw * 2);
+            int maxlen = ((scrollbar->orientation == Qt::Horizontal) ?
+                          scrollbar->rect.width() : scrollbar->rect.height()) -
+                         (buttonw * 2) - (fw * 2);
+            int sliderlen;
 
-        const QScrollBar *scrollbar = (const QScrollBar *) widget;
-        int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
-        int fw = pixelMetric(PM_DefaultFrameWidth, widget);
-        int buttonw = sbextent - (fw * 2);
-        int buttonh = sbextent - (fw * 2);
-        int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
-                      scrollbar->width() : scrollbar->height()) -
-                     (buttonw * 2) - (fw * 2);
-        int sliderlen;
+            // calculate slider length
+            if (scrollbar->maximum != scrollbar->minimum) {
+                uint range = scrollbar->maximum - scrollbar->minimum;
+                sliderlen = (scrollbar->pageStep * maxlen) /
+                            (range + scrollbar->pageStep);
 
-        // calculate slider length
-        if (scrollbar->maximum() != scrollbar->minimum()) {
-            uint range = scrollbar->maximum() - scrollbar->minimum();
-            sliderlen = (scrollbar->pageStep() * maxlen) /
-                        (range + scrollbar->pageStep());
-
-            if (sliderlen < 9 || range > INT_MAX/2)
-                sliderlen = 9;
-            if (sliderlen > maxlen)
+                if (sliderlen < 9 || range > INT_MAX/2)
+                    sliderlen = 9;
+                if (sliderlen > maxlen)
+                    sliderlen = maxlen;
+            } else {
                 sliderlen = maxlen;
-        } else
-            sliderlen = maxlen;
-
-        int sliderstart = sbextent + positionFromValue(scrollbar->minimum(), scrollbar->maximum(),
-                                                       scrollbar->sliderPosition(),
-                                                       maxlen - sliderlen,
-                                                       scrollbar->invertedAppearance());
-
-        switch (sc) {
-        case SC_ScrollBarSubLine:
-            // top/left button
-            if (scrollbar->orientation() == Qt::Horizontal) {
-                if (scrollbar->width()/2 < sbextent)
-                    buttonw = scrollbar->width()/2 - (fw*2);
-                return QRect(fw, fw, buttonw, buttonh);
-            } else {
-                if (scrollbar->height()/2 < sbextent)
-                    buttonh = scrollbar->height()/2 - (fw*2);
-                return QRect(fw, fw, buttonw, buttonh);
             }
-        case SC_ScrollBarAddLine:
-            // bottom/right button
-            if (scrollbar->orientation() == Qt::Horizontal) {
-                if (scrollbar->width()/2 < sbextent)
-                    buttonw = scrollbar->width()/2 - (fw*2);
-                return QRect(scrollbar->width() - buttonw - fw, fw,
-                             buttonw, buttonh);
-            } else {
-                if (scrollbar->height()/2 < sbextent)
-                    buttonh = scrollbar->height()/2 - (fw*2);
-                return QRect(fw, scrollbar->height() - buttonh - fw,
-                             buttonw, buttonh);
+
+            int sliderstart = sbextent + sliderPositionFromValue(scrollbar->minimum, scrollbar->maximum,
+                                                                 scrollbar->sliderPosition,
+                                                                 maxlen - sliderlen,
+                                                                 scrollbar->upsideDown);
+
+            switch (sc) {
+            case SC_ScrollBarSubLine:
+                // top/left button
+                if (scrollbar->orientation == Qt::Horizontal) {
+                    if (scrollbar->rect.width()/2 < sbextent)
+                        buttonw = scrollbar->rect.width()/2 - (fw*2);
+                    return QRect(fw, fw, buttonw, buttonh);
+                } else {
+                    if (scrollbar->rect.height()/2 < sbextent)
+                        buttonh = scrollbar->rect.height()/2 - (fw*2);
+                    return QRect(fw, fw, buttonw, buttonh);
+                }
+            case SC_ScrollBarAddLine:
+                // bottom/right button
+                if (scrollbar->orientation == Qt::Horizontal) {
+                    if (scrollbar->rect.width()/2 < sbextent)
+                        buttonw = scrollbar->rect.width()/2 - (fw*2);
+                    return QRect(scrollbar->rect.width() - buttonw - fw, fw,
+                                 buttonw, buttonh);
+                } else {
+                    if (scrollbar->rect.height()/2 < sbextent)
+                        buttonh = scrollbar->rect.height()/2 - (fw*2);
+                    return QRect(fw, scrollbar->rect.height() - buttonh - fw,
+                                 buttonw, buttonh);
+                }
+            case SC_ScrollBarSubPage:
+                if (scrollbar->orientation == Qt::Horizontal)
+                    return QRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
+                return QRect(fw, buttonw + fw, buttonw, sliderstart - buttonw - fw);
+
+            case SC_ScrollBarAddPage:
+                if (scrollbar->orientation == Qt::Horizontal)
+                    return QRect(sliderstart + sliderlen, fw,
+                                 maxlen - sliderstart - sliderlen + buttonw + fw, buttonw);
+                return QRect(fw, sliderstart + sliderlen, buttonw,
+                             maxlen - sliderstart - sliderlen + buttonw + fw);
+
+            case SC_ScrollBarGroove:
+                if (scrollbar->orientation == Qt::Horizontal)
+                    return QRect(buttonw + fw, fw, maxlen, buttonw);
+                return QRect(fw, buttonw + fw, buttonw, maxlen);
+
+            case SC_ScrollBarSlider:
+                if (scrollbar->orientation == Qt::Horizontal)
+                    return QRect(sliderstart, fw, sliderlen, buttonw);
+                return QRect(fw, sliderstart, buttonw, sliderlen);
+
+            default:
+                break;
             }
-        case SC_ScrollBarSubPage:
-            if (scrollbar->orientation() == Qt::Horizontal)
-                return QRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
-            return QRect(fw, buttonw + fw, buttonw, sliderstart - buttonw - fw);
-
-        case SC_ScrollBarAddPage:
-            if (scrollbar->orientation() == Qt::Horizontal)
-                return QRect(sliderstart + sliderlen, fw,
-                             maxlen - sliderstart - sliderlen + buttonw + fw, buttonw);
-            return QRect(fw, sliderstart + sliderlen, buttonw,
-                         maxlen - sliderstart - sliderlen + buttonw + fw);
-
-        case SC_ScrollBarGroove:
-            if (scrollbar->orientation() == Qt::Horizontal)
-                return QRect(buttonw + fw, fw, maxlen, buttonw);
-            return QRect(fw, buttonw + fw, buttonw, maxlen);
-
-        case SC_ScrollBarSlider:
-            if (scrollbar->orientation() == Qt::Horizontal)
-                return QRect(sliderstart, fw, sliderlen, buttonw);
-            return QRect(fw, sliderstart, buttonw, sliderlen);
-
-        default:
-            break;
         }
-        break; }
-#endif
+        break;
 
-#ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
-
         switch (sc) {
         case SC_ComboBoxArrow: {
-            const QComboBox * cb = (const QComboBox *) widget;
             int ew, awh, sh, dh, ax, ay, sy;
-            int fw = pixelMetric(PM_DefaultFrameWidth, cb);
-            QRect cr = cb->rect();
+            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            QRect cr = opt->rect;
             cr.addCoords(fw, fw, -fw, -fw);
             get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
             return QRect(ax, ay, awh, awh); }
 
         case SC_ComboBoxEditField: {
-            const QComboBox * cb = (const QComboBox *) widget;
-            int fw = pixelMetric(PM_DefaultFrameWidth, cb);
-            QRect rect = cb->rect();
+            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            QRect rect = opt->rect;
             rect.addCoords(fw, fw, -fw, -fw);
             int ew = get_combo_extra_width(rect.height(), rect.width());
             rect.addCoords(1, 1, -1-ew, -1);
@@ -1875,38 +1618,29 @@ QRect QMotifStyle::subControlRect(ComplexControl control,
             break;
         }
         break;
-#endif
-    default: break;
+    default:
+        break;
     }
-    return QCommonStyle::subControlRect(control, widget, sc, opt);
+    return QCommonStyle::subControlRect(cc, opt, sc, widget);
 }
 
 /*!
-    \reimp
+  \reimp
 */
 QSize QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
-                           const QSize &contentsSize, const QWidget *widget) const
-/*
-QSize QMotifStyle::sizeFromContents(ContentsType contents,
-                                     const QWidget *widget,
-                                     const QSize &contentsSize,
-                                     const Q3StyleOption& opt) const
-                                     */
+                                    const QSize &contentsSize, const QWidget *widget) const
 {
     QSize sz(contentsSize);
 
-    switch(contents) {
+    switch(ct) {
     case CT_PushButton:
-        {
-#ifndef QT_NO_PUSHBUTTON
-            const QPushButton *button = (const QPushButton *) widget;
-            sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
-            if ((button->isDefault() || button->autoDefault()) &&
-                sz.width() < 80 && ! button->pixmap())
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            sz = QCommonStyle::sizeFromContents(ct, opt, contentsSize, widget);
+            if ((btn->features & (QStyleOptionButton::AutoDefaultButton|QStyleOptionButton::DefaultButton)) &&
+                sz.width() < 80 && !btn->icon.isNull())
                 sz.setWidth(80);
-#endif
-            break;
         }
+        break;
 
     case CT_MenuBarItem: {
         if(!sz.isEmpty())
@@ -1914,106 +1648,45 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
         break; }
 
     case CT_MenuItem:
-        {
-#ifndef QT_NO_MENU
-            if(!widget || opt.isDefault())
-                break;
-
-            const QMenu *menu = (QMenu *) widget;
-            bool checkable = menu->isCheckable();
-            QAction *mi = opt.action();
-            int maxpmw = opt.maxIconWidth();
+        if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width(), h = sz.height();
 
-            if (mi->isSeparator()) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 w = 10;
                 h = motifSepHeight;
-            } else if (!mi->icon().isNull() || !mi->text().isNull()) {
+            } else if (!mi->icon.isNull() || !mi->text.isNull()) {
                 h += 2*motifItemVMargin + 2*motifItemFrame;
             }
 
             // a little bit of border can never harm
             w += 2*motifItemHMargin + 2*motifItemFrame;
 
-            if (!mi->text().isNull() && mi->text().indexOf('\t') >= 0)
+            if (!mi->text.isNull() && mi->text.indexOf('\t') >= 0)
                 // string contains tab
                 w += motifTabSpacing;
-            else if (mi->menu())
+            else if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
                 // submenu indicator needs some room if we don't have a tab column
                 w += motifArrowHMargin + 4*motifItemFrame;
 
-            if (checkable && maxpmw <= 0)
+            if (mi->checkType != QStyleOptionMenuItem::NotCheckable && mi->maxIconWidth <= 0)
                 // if we are checkable and have no icons, add space for a checkmark
                 w += motifCheckMarkSpace;
-            else if (checkable && maxpmw < motifCheckMarkSpace)
+            else if (mi->checkType != QStyleOptionMenuItem::NotCheckable && mi->maxIconWidth < motifCheckMarkSpace)
                 // make sure the check-column is wide enough if we have icons
-                w += (motifCheckMarkSpace - maxpmw);
+                w += (motifCheckMarkSpace - mi->maxIconWidth);
 
             // if we have a check-column (icons of checkmarks), add space
             // to separate the columns
-            if (maxpmw > 0 || checkable)
+            if (mi->maxIconWidth > 0 || mi->checkType != QStyleOptionMenuItem::NotCheckable)
                 w += motifCheckMarkHMargin;
 
             sz = QSize(w, h);
-#endif
-            break;
         }
+        break;
 
-#ifdef QT_COMPAT
-    case CT_Q3PopupMenuItem:
-        {
-#ifndef QT_NO_POPUPMENU
-            if (! widget || opt.isDefault())
-                break;
-
-            const Q3PopupMenu *popup = (Q3PopupMenu *) widget;
-            bool checkable = popup->isCheckable();
-            Q3MenuItem *mi = opt.menuItem();
-            int maxpmw = opt.maxIconWidth();
-            int w = sz.width(), h = sz.height();
-
-            if (mi->custom()) {
-                w = mi->custom()->sizeHint().width();
-                h = mi->custom()->sizeHint().height();
-                if (! mi->custom()->fullSpan())
-                    h += 2*motifItemVMargin + 2*motifItemFrame;
-            } else if (mi->widget()) {
-            } else if (mi->isSeparator()) {
-                w = 10;
-                h = motifSepHeight;
-            } else if (mi->pixmap() || ! mi->text().isNull())
-                h += 2*motifItemVMargin + 2*motifItemFrame;
-
-            // a little bit of border can never harm
-            w += 2*motifItemHMargin + 2*motifItemFrame;
-
-            if (!mi->text().isNull() && mi->text().indexOf('\t') >= 0)
-                // string contains tab
-                w += motifTabSpacing;
-            else if (mi->popup())
-                // submenu indicator needs some room if we don't have a tab column
-                w += motifArrowHMargin + 4*motifItemFrame;
-
-            if (checkable && maxpmw <= 0)
-                // if we are checkable and have no icons, add space for a checkmark
-                w += motifCheckMarkSpace;
-            else if (checkable && maxpmw < motifCheckMarkSpace)
-                // make sure the check-column is wide enough if we have icons
-                w += (motifCheckMarkSpace - maxpmw);
-
-            // if we have a check-column (icons of checkmarks), add space
-            // to separate the columns
-            if (maxpmw > 0 || checkable)
-                w += motifCheckMarkHMargin;
-
-            sz = QSize(w, h);
-#endif
-            break;
-        }
-#endif
 
     default:
-        sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
+        sz = QCommonStyle::sizeFromContents(ct, opt, contentsSize, widget);
         break;
     }
 
@@ -2021,252 +1694,217 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
 }
 
 /*!
-    \reimp
+  \reimp
 */
-QRect QMotifStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget *widget) const
-//QRect QMotifStyle::subRect(SubRect r, const QWidget *widget) const
+QRect QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget) const
 {
     QRect rect;
-    QRect wrect = widget->rect();
 
-    switch (r) {
+    switch (sr) {
     case SR_SliderFocusRect:
-        rect = QCommonStyle::subRect(r, widget);
+        rect = QCommonStyle::subRect(sr, opt, widget);
         rect.addCoords(2, 2, -2, -2);
         break;
 
     case SR_ComboBoxFocusRect:
-        {
-            int awh, ax, ay, sh, sy, dh, ew;
-            int fw = pixelMetric(PM_DefaultFrameWidth, widget);
-            QRect tr = wrect;
+    {
+        int awh, ax, ay, sh, sy, dh, ew;
+        int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+        QRect tr = opt->rect;
 
-            tr.addCoords(fw, fw, -fw, -fw);
-            get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
-            rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
-            break;
-        }
+        tr.addCoords(fw, fw, -fw, -fw);
+        get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
+        rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
+        break;
+    }
 
-    case SR_DockWindowHandleRect:
-        {
-#ifndef QT_NO_MAINWINDOW
-            if (!widget || !widget->parent())
-                break;
-
-            const QDockWindow * dw = (const QDockWindow *) widget->parent();
-            if (!dw->area() || !dw->isCloseEnabled())
+    case SR_Q3DockWindowHandleRect:
+        if (const QStyleOptionQ3DockWindow *dw = qt_cast<const QStyleOptionQ3DockWindow *>(opt)) {
+            if (!dw->docked || !dw->closeEnabled)
                 rect.setRect(0, 0, widget->width(), widget->height());
             else {
-                if (dw->area()->orientation() == Qt::Horizontal)
+                if (dw->state == State_Horizontal)
                     rect.setRect(2, 15, widget->width()-2, widget->height() - 15);
                 else
                     rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
             }
-#endif
-            break;
         }
-
-    case SR_ProgressBarGroove:
-    case SR_ProgressBarContents:
-        {
-#ifndef QT_NO_PROGRESSBAR
-            QFontMetrics fm((widget ? widget->fontMetrics() :
-                               QApplication::fontMetrics()));
-            const QProgressBar *progressbar = (const QProgressBar *) widget;
-            int textw = 0;
-            if (progressbar->percentageVisible())
-                textw = fm.width("100%") + 6;
-
-            if (progressbar->indicatorFollowsStyle() ||
-                progressbar->centerIndicator())
-                rect = wrect;
-            else
-                rect.setCoords(wrect.left(), wrect.top(),
-                               wrect.right() - textw, wrect.bottom());
-#endif
-            break;
-        }
+        break;
 
     case SR_ProgressBarLabel:
-        {
-#ifndef QT_NO_PROGRESSBAR
-            QFontMetrics fm((widget ? widget->fontMetrics() :
-                               QApplication::fontMetrics()));
-            const QProgressBar *progressbar = (const QProgressBar *) widget;
+    case SR_ProgressBarGroove:
+    case SR_ProgressBarContents:
+        if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
-            if (progressbar->percentageVisible())
-                textw = fm.width("100%") + 6;
+            if (pb->textVisible)
+                textw = pb->fontMetrics.width("100%") + 6;
 
-            if (progressbar->indicatorFollowsStyle() ||
-                progressbar->centerIndicator())
-                rect = wrect;
-            else
-                rect.setCoords(wrect.right() - textw, wrect.top(),
-                               wrect.right(), wrect.bottom());
-#endif
-            break;
+            if (pb->textAlignment == Qt::AlignAuto || pb->textAlignment == Qt::AlignCenter) {
+                rect = opt->rect;
+            } else {
+                if(sr == SR_ProgressBarLabel)
+                    rect.setCoords(opt->rect.right() - textw, opt->rect.top(),
+                                   opt->rect.right(), opt->rect.bottom());
+                else
+                    rect.setCoords(opt->rect.left(), opt->rect.top(),
+                                   opt->rect.right() - textw, opt->rect.bottom());
+            }
         }
+        break;
 
-    case SR_CheckBoxContents:
-        {
-#ifndef QT_NO_CHECKBOX
-            QRect ir = subRect(SR_CheckBoxIndicator, widget);
-            rect.setRect(ir.right() + 10, wrect.y(),
-                         wrect.width() - ir.width() - 10, wrect.height());
-#endif
-            break;
-        }
+    case SR_CheckBoxContents: {
+        QRect ir = subRect(SR_CheckBoxIndicator, opt, widget);
+        rect.setRect(ir.right() + 10, opt->rect.y(),
+                     opt->rect.width() - ir.width() - 10, opt->rect.height());
+        break; }
 
-    case SR_RadioButtonContents:
-        {
-            QRect ir = subRect(SR_RadioButtonIndicator, widget);
-            rect.setRect(ir.right() + 10, wrect.y(),
-                         wrect.width() - ir.width() - 10, wrect.height());
-            break;
-        }
+    case SR_RadioButtonContents: {
+        QRect ir = subRect(SR_RadioButtonIndicator, opt, widget);
+        rect.setRect(ir.right() + 10, opt->rect.y(),
+                     opt->rect.width() - ir.width() - 10, opt->rect.height());
+        break; }
 
     default:
-        rect = QCommonStyle::subRect(r, widget);
+        rect = QCommonStyle::subRect(sr, opt, widget);
     }
-
     return rect;
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
 static const char * const qt_close_xpm[] = {
-"12 12 2 1",
-"       s None  c None",
-".      c black",
-"            ",
-"            ",
-"   .    .   ",
-"  ...  ...  ",
-"   ......   ",
-"    ....    ",
-"    ....    ",
-"   ......   ",
-"  ...  ...  ",
-"   .    .   ",
-"            ",
-"            "};
+    "12 12 2 1",
+    "       s None  c None",
+    ".      c black",
+    "            ",
+    "            ",
+    "   .    .   ",
+    "  ...  ...  ",
+    "   ......   ",
+    "    ....    ",
+    "    ....    ",
+    "   ......   ",
+    "  ...  ...  ",
+    "   .    .   ",
+    "            ",
+    "            "};
 
 static const char * const qt_maximize_xpm[] = {
-"12 12 2 1",
-"       s None  c None",
-".      c black",
-"            ",
-"            ",
-"            ",
-"     .      ",
-"    ...     ",
-"   .....    ",
-"  .......   ",
-" .........  ",
-"            ",
-"            ",
-"            ",
-"            "};
+    "12 12 2 1",
+    "       s None  c None",
+    ".      c black",
+    "            ",
+    "            ",
+    "            ",
+    "     .      ",
+    "    ...     ",
+    "   .....    ",
+    "  .......   ",
+    " .........  ",
+    "            ",
+    "            ",
+    "            ",
+    "            "};
 
 static const char * const qt_minimize_xpm[] = {
-"12 12 2 1",
-"       s None  c None",
-".      c black",
-"            ",
-"            ",
-"            ",
-"            ",
-" .........  ",
-"  .......   ",
-"   .....    ",
-"    ...     ",
-"     .      ",
-"            ",
-"            ",
-"            "};
+    "12 12 2 1",
+    "       s None  c None",
+    ".      c black",
+    "            ",
+    "            ",
+    "            ",
+    "            ",
+    " .........  ",
+    "  .......   ",
+    "   .....    ",
+    "    ...     ",
+    "     .      ",
+    "            ",
+    "            ",
+    "            "};
 
 #if 0 // ### not used???
 static const char * const qt_normalize_xpm[] = {
-"12 12 2 1",
-"       s None  c None",
-".      c black",
-"            ",
-"            ",
-"  .         ",
-"  ..        ",
-"  ...       ",
-"  ....      ",
-"  .....     ",
-"  ......    ",
-"  .......   ",
-"            ",
-"            ",
-"            "};
+    "12 12 2 1",
+    "       s None  c None",
+    ".      c black",
+    "            ",
+    "            ",
+    "  .         ",
+    "  ..        ",
+    "  ...       ",
+    "  ....      ",
+    "  .....     ",
+    "  ......    ",
+    "  .......   ",
+    "            ",
+    "            ",
+    "            "};
 #endif
 
 static const char * const qt_normalizeup_xpm[] = {
-"12 12 2 1",
-"       s None  c None",
-".      c black",
-"            ",
-"            ",
-"            ",
-"  .......   ",
-"   ......   ",
-"    .....   ",
-"     ....   ",
-"      ...   ",
-"       ..   ",
-"        .   ",
-"            ",
-"            "};
+    "12 12 2 1",
+    "       s None  c None",
+    ".      c black",
+    "            ",
+    "            ",
+    "            ",
+    "  .......   ",
+    "   ......   ",
+    "    .....   ",
+    "     ....   ",
+    "      ...   ",
+    "       ..   ",
+    "        .   ",
+    "            ",
+    "            "};
 
 static const char * const qt_shade_xpm[] = {
-"12 12 2 1", "# c #000000",
-". c None",
-"............",
-"............",
-".#########..",
-".#########..",
-"............",
-"............",
-"............",
-"............",
-"............",
-"............",
-"............",
-"............"};
+    "12 12 2 1", "# c #000000",
+    ". c None",
+    "............",
+    "............",
+    ".#########..",
+    ".#########..",
+    "............",
+    "............",
+    "............",
+    "............",
+    "............",
+    "............",
+    "............",
+    "............"};
 
 
 static const char * const qt_unshade_xpm[] = {
-"12 12 2 1",
-"# c #000000",
-". c None",
-"............",
-"............",
-".#########..",
-".#########..",
-".#.......#..",
-".#.......#..",
-".#.......#..",
-".#.......#..",
-".#.......#..",
-".#########..",
-"............",
-"............"};
+    "12 12 2 1",
+    "# c #000000",
+    ". c None",
+    "............",
+    "............",
+    ".#########..",
+    ".#########..",
+    ".#.......#..",
+    ".#.......#..",
+    ".#.......#..",
+    ".#.......#..",
+    ".#.......#..",
+    ".#########..",
+    "............",
+    "............"};
 
 
 static const char * dock_window_close_xpm[] = {
-"8 8 2 1",
-"# c #000000",
-". c None",
-"##....##",
-".##..##.",
-"..####..",
-"...##...",
-"..####..",
-".##..##.",
-"##....##",
-"........"};
+    "8 8 2 1",
+    "# c #000000",
+    ". c None",
+    "##....##",
+    ".##..##.",
+    "..####..",
+    "...##...",
+    "..####..",
+    ".##..##.",
+    "##....##",
+    "........"};
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -2275,178 +1913,173 @@ static const char * dock_window_close_xpm[] = {
 // them duplicated.
 /* XPM */
 static const char * const information_xpm[]={
-"32 32 5 1",
-". c None",
-"c c #000000",
-"* c #999999",
-"a c #ffffff",
-"b c #0000ff",
-"...........********.............",
-"........***aaaaaaaa***..........",
-"......**aaaaaaaaaaaaaa**........",
-".....*aaaaaaaaaaaaaaaaaa*.......",
-"....*aaaaaaaabbbbaaaaaaaac......",
-"...*aaaaaaaabbbbbbaaaaaaaac.....",
-"..*aaaaaaaaabbbbbbaaaaaaaaac....",
-".*aaaaaaaaaaabbbbaaaaaaaaaaac...",
-".*aaaaaaaaaaaaaaaaaaaaaaaaaac*..",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac*.",
-"*aaaaaaaaaabbbbbbbaaaaaaaaaaac*.",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
-".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
-".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
-"..*aaaaaaaaaabbbbbaaaaaaaaac***.",
-"...caaaaaaabbbbbbbbbaaaaaac****.",
-"....caaaaaaaaaaaaaaaaaaaac****..",
-".....caaaaaaaaaaaaaaaaaac****...",
-"......ccaaaaaaaaaaaaaacc****....",
-".......*cccaaaaaaaaccc*****.....",
-"........***cccaaaac*******......",
-"..........****caaac*****........",
-".............*caaac**...........",
-"...............caac**...........",
-"................cac**...........",
-".................cc**...........",
-"..................***...........",
-"...................**..........."};
+    "32 32 5 1",
+    ". c None",
+    "c c #000000",
+    "* c #999999",
+    "a c #ffffff",
+    "b c #0000ff",
+    "...........********.............",
+    "........***aaaaaaaa***..........",
+    "......**aaaaaaaaaaaaaa**........",
+    ".....*aaaaaaaaaaaaaaaaaa*.......",
+    "....*aaaaaaaabbbbaaaaaaaac......",
+    "...*aaaaaaaabbbbbbaaaaaaaac.....",
+    "..*aaaaaaaaabbbbbbaaaaaaaaac....",
+    ".*aaaaaaaaaaabbbbaaaaaaaaaaac...",
+    ".*aaaaaaaaaaaaaaaaaaaaaaaaaac*..",
+    "*aaaaaaaaaaaaaaaaaaaaaaaaaaaac*.",
+    "*aaaaaaaaaabbbbbbbaaaaaaaaaaac*.",
+    "*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+    "*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+    "*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+    "*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+    "*aaaaaaaaaaaabbbbbaaaaaaaaaaac**",
+    ".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
+    ".*aaaaaaaaaaabbbbbaaaaaaaaaac***",
+    "..*aaaaaaaaaabbbbbaaaaaaaaac***.",
+    "...caaaaaaabbbbbbbbbaaaaaac****.",
+    "....caaaaaaaaaaaaaaaaaaaac****..",
+    ".....caaaaaaaaaaaaaaaaaac****...",
+    "......ccaaaaaaaaaaaaaacc****....",
+    ".......*cccaaaaaaaaccc*****.....",
+    "........***cccaaaac*******......",
+    "..........****caaac*****........",
+    ".............*caaac**...........",
+    "...............caac**...........",
+    "................cac**...........",
+    ".................cc**...........",
+    "..................***...........",
+    "...................**..........."};
 /* XPM */
 static const char* const warning_xpm[]={
-"32 32 4 1",
-". c None",
-"a c #ffff00",
-"* c #000000",
-"b c #999999",
-".............***................",
-"............*aaa*...............",
-"...........*aaaaa*b.............",
-"...........*aaaaa*bb............",
-"..........*aaaaaaa*bb...........",
-"..........*aaaaaaa*bb...........",
-".........*aaaaaaaaa*bb..........",
-".........*aaaaaaaaa*bb..........",
-"........*aaaaaaaaaaa*bb.........",
-"........*aaaa***aaaa*bb.........",
-".......*aaaa*****aaaa*bb........",
-".......*aaaa*****aaaa*bb........",
-"......*aaaaa*****aaaaa*bb.......",
-"......*aaaaa*****aaaaa*bb.......",
-".....*aaaaaa*****aaaaaa*bb......",
-".....*aaaaaa*****aaaaaa*bb......",
-"....*aaaaaaaa***aaaaaaaa*bb.....",
-"....*aaaaaaaa***aaaaaaaa*bb.....",
-"...*aaaaaaaaa***aaaaaaaaa*bb....",
-"...*aaaaaaaaaa*aaaaaaaaaa*bb....",
-"..*aaaaaaaaaaa*aaaaaaaaaaa*bb...",
-"..*aaaaaaaaaaaaaaaaaaaaaaa*bb...",
-".*aaaaaaaaaaaa**aaaaaaaaaaa*bb..",
-".*aaaaaaaaaaa****aaaaaaaaaa*bb..",
-"*aaaaaaaaaaaa****aaaaaaaaaaa*bb.",
-"*aaaaaaaaaaaaa**aaaaaaaaaaaa*bb.",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
-".*aaaaaaaaaaaaaaaaaaaaaaaaa*bbbb",
-"..*************************bbbbb",
-"....bbbbbbbbbbbbbbbbbbbbbbbbbbb.",
-".....bbbbbbbbbbbbbbbbbbbbbbbbb.."};
+    "32 32 4 1",
+    ". c None",
+    "a c #ffff00",
+    "* c #000000",
+    "b c #999999",
+    ".............***................",
+    "............*aaa*...............",
+    "...........*aaaaa*b.............",
+    "...........*aaaaa*bb............",
+    "..........*aaaaaaa*bb...........",
+    "..........*aaaaaaa*bb...........",
+    ".........*aaaaaaaaa*bb..........",
+    ".........*aaaaaaaaa*bb..........",
+    "........*aaaaaaaaaaa*bb.........",
+    "........*aaaa***aaaa*bb.........",
+    ".......*aaaa*****aaaa*bb........",
+    ".......*aaaa*****aaaa*bb........",
+    "......*aaaaa*****aaaaa*bb.......",
+    "......*aaaaa*****aaaaa*bb.......",
+    ".....*aaaaaa*****aaaaaa*bb......",
+    ".....*aaaaaa*****aaaaaa*bb......",
+    "....*aaaaaaaa***aaaaaaaa*bb.....",
+    "....*aaaaaaaa***aaaaaaaa*bb.....",
+    "...*aaaaaaaaa***aaaaaaaaa*bb....",
+    "...*aaaaaaaaaa*aaaaaaaaaa*bb....",
+    "..*aaaaaaaaaaa*aaaaaaaaaaa*bb...",
+    "..*aaaaaaaaaaaaaaaaaaaaaaa*bb...",
+    ".*aaaaaaaaaaaa**aaaaaaaaaaa*bb..",
+    ".*aaaaaaaaaaa****aaaaaaaaaa*bb..",
+    "*aaaaaaaaaaaa****aaaaaaaaaaa*bb.",
+    "*aaaaaaaaaaaaa**aaaaaaaaaaaa*bb.",
+    "*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
+    "*aaaaaaaaaaaaaaaaaaaaaaaaaaa*bbb",
+    ".*aaaaaaaaaaaaaaaaaaaaaaaaa*bbbb",
+    "..*************************bbbbb",
+    "....bbbbbbbbbbbbbbbbbbbbbbbbbbb.",
+    ".....bbbbbbbbbbbbbbbbbbbbbbbbb.."};
 /* XPM */
 static const char* const critical_xpm[]={
-"32 32 4 1",
-". c None",
-"a c #999999",
-"* c #ff0000",
-"b c #ffffff",
-"...........********.............",
-".........************...........",
-".......****************.........",
-"......******************........",
-".....********************a......",
-"....**********************a.....",
-"...************************a....",
-"..*******b**********b*******a...",
-"..******bbb********bbb******a...",
-".******bbbbb******bbbbb******a..",
-".*******bbbbb****bbbbb*******a..",
-"*********bbbbb**bbbbb*********a.",
-"**********bbbbbbbbbb**********a.",
-"***********bbbbbbbb***********aa",
-"************bbbbbb************aa",
-"************bbbbbb************aa",
-"***********bbbbbbbb***********aa",
-"**********bbbbbbbbbb**********aa",
-"*********bbbbb**bbbbb*********aa",
-".*******bbbbb****bbbbb*******aa.",
-".******bbbbb******bbbbb******aa.",
-"..******bbb********bbb******aaa.",
-"..*******b**********b*******aa..",
-"...************************aaa..",
-"....**********************aaa...",
-"....a********************aaa....",
-".....a******************aaa.....",
-"......a****************aaa......",
-".......aa************aaaa.......",
-".........aa********aaaaa........",
-"...........aaaaaaaaaaa..........",
-".............aaaaaaa............"};
+    "32 32 4 1",
+    ". c None",
+    "a c #999999",
+    "* c #ff0000",
+    "b c #ffffff",
+    "...........********.............",
+    ".........************...........",
+    ".......****************.........",
+    "......******************........",
+    ".....********************a......",
+    "....**********************a.....",
+    "...************************a....",
+    "..*******b**********b*******a...",
+    "..******bbb********bbb******a...",
+    ".******bbbbb******bbbbb******a..",
+    ".*******bbbbb****bbbbb*******a..",
+    "*********bbbbb**bbbbb*********a.",
+    "**********bbbbbbbbbb**********a.",
+    "***********bbbbbbbb***********aa",
+    "************bbbbbb************aa",
+    "************bbbbbb************aa",
+    "***********bbbbbbbb***********aa",
+    "**********bbbbbbbbbb**********aa",
+    "*********bbbbb**bbbbb*********aa",
+    ".*******bbbbb****bbbbb*******aa.",
+    ".******bbbbb******bbbbb******aa.",
+    "..******bbb********bbb******aaa.",
+    "..*******b**********b*******aa..",
+    "...************************aaa..",
+    "....**********************aaa...",
+    "....a********************aaa....",
+    ".....a******************aaa.....",
+    "......a****************aaa......",
+    ".......aa************aaaa.......",
+    ".........aa********aaaaa........",
+    "...........aaaaaaaaaaa..........",
+    ".............aaaaaaa............"};
 /* XPM */
 static const char *const question_xpm[] = {
-"32 32 5 1",
-". c None",
-"c c #000000",
-"* c #999999",
-"a c #ffffff",
-"b c #0000ff",
-"...........********.............",
-"........***aaaaaaaa***..........",
-"......**aaaaaaaaaaaaaa**........",
-".....*aaaaaaaaaaaaaaaaaa*.......",
-"....*aaaaaaaaaaaaaaaaaaaac......",
-"...*aaaaaaaabbbbbbaaaaaaaac.....",
-"..*aaaaaaaabaaabbbbaaaaaaaac....",
-".*aaaaaaaabbaaaabbbbaaaaaaaac...",
-".*aaaaaaaabbbbaabbbbaaaaaaaac*..",
-"*aaaaaaaaabbbbaabbbbaaaaaaaaac*.",
-"*aaaaaaaaaabbaabbbbaaaaaaaaaac*.",
-"*aaaaaaaaaaaaabbbbaaaaaaaaaaac**",
-"*aaaaaaaaaaaaabbbaaaaaaaaaaaac**",
-"*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
-"*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
-"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac**",
-".*aaaaaaaaaaaabbaaaaaaaaaaaac***",
-".*aaaaaaaaaaabbbbaaaaaaaaaaac***",
-"..*aaaaaaaaaabbbbaaaaaaaaaac***.",
-"...caaaaaaaaaabbaaaaaaaaaac****.",
-"....caaaaaaaaaaaaaaaaaaaac****..",
-".....caaaaaaaaaaaaaaaaaac****...",
-"......ccaaaaaaaaaaaaaacc****....",
-".......*cccaaaaaaaaccc*****.....",
-"........***cccaaaac*******......",
-"..........****caaac*****........",
-".............*caaac**...........",
-"...............caac**...........",
-"................cac**...........",
-".................cc**...........",
-"..................***...........",
-"...................**...........",
+    "32 32 5 1",
+    ". c None",
+    "c c #000000",
+    "* c #999999",
+    "a c #ffffff",
+    "b c #0000ff",
+    "...........********.............",
+    "........***aaaaaaaa***..........",
+    "......**aaaaaaaaaaaaaa**........",
+    ".....*aaaaaaaaaaaaaaaaaa*.......",
+    "....*aaaaaaaaaaaaaaaaaaaac......",
+    "...*aaaaaaaabbbbbbaaaaaaaac.....",
+    "..*aaaaaaaabaaabbbbaaaaaaaac....",
+    ".*aaaaaaaabbaaaabbbbaaaaaaaac...",
+    ".*aaaaaaaabbbbaabbbbaaaaaaaac*..",
+    "*aaaaaaaaabbbbaabbbbaaaaaaaaac*.",
+    "*aaaaaaaaaabbaabbbbaaaaaaaaaac*.",
+    "*aaaaaaaaaaaaabbbbaaaaaaaaaaac**",
+    "*aaaaaaaaaaaaabbbaaaaaaaaaaaac**",
+    "*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
+    "*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
+    "*aaaaaaaaaaaaaaaaaaaaaaaaaaaac**",
+    ".*aaaaaaaaaaaabbaaaaaaaaaaaac***",
+    ".*aaaaaaaaaaabbbbaaaaaaaaaaac***",
+    "..*aaaaaaaaaabbbbaaaaaaaaaac***.",
+    "...caaaaaaaaaabbaaaaaaaaaac****.",
+    "....caaaaaaaaaaaaaaaaaaaac****..",
+    ".....caaaaaaaaaaaaaaaaaac****...",
+    "......ccaaaaaaaaaaaaaacc****....",
+    ".......*cccaaaaaaaaccc*****.....",
+    "........***cccaaaac*******......",
+    "..........****caaac*****........",
+    ".............*caaac**...........",
+    "...............caac**...........",
+    "................cac**...........",
+    ".................cc**...........",
+    "..................***...........",
+    "...................**...........",
 };
 #endif
 
 /*!
- \reimp
- */
+  \reimp
+*/
 QPixmap QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
-                           const QWidget *widget) const
-/*
-QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
-                                 const QWidget *widget,
-                                 const Q3StyleOption& opt) const
-                                 */
+                                    const QWidget *widget) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
-    switch (sp) {
+    switch (standardPixmap) {
     case SP_TitleBarShadeButton:
         return QPixmap((const char **)qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
@@ -2466,82 +2099,76 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
     case SP_MessageBoxWarning:
     case SP_MessageBoxCritical:
     case SP_MessageBoxQuestion:
-        {
-            const char * const * xpm_data;
-            switch (sp) {
+    {
+        const char * const * xpm_data;
+        switch (standardPixmap) {
+        case SP_MessageBoxInformation:
+            xpm_data = information_xpm;
+            break;
+        case SP_MessageBoxWarning:
+            xpm_data = warning_xpm;
+            break;
+        case SP_MessageBoxCritical:
+            xpm_data = critical_xpm;
+            break;
+        case SP_MessageBoxQuestion:
+            xpm_data = question_xpm;
+            break;
+        default:
+            xpm_data = 0;
+            break;
+        }
+        QPixmap pm;
+        if (xpm_data) {
+            QImage image((const char **) xpm_data);
+            // All that color looks ugly in Motif
+            const QPalette &pal = QApplication::palette();
+            switch (standardPixmap) {
             case SP_MessageBoxInformation:
-                xpm_data = information_xpm;
+            case SP_MessageBoxQuestion:
+                image.setColor(2, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Dark).rgb());
+                image.setColor(3, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Base).rgb());
+                image.setColor(4, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Text).rgb());
                 break;
             case SP_MessageBoxWarning:
-                xpm_data = warning_xpm;
+                image.setColor(1, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Base).rgb());
+                image.setColor(2, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Text).rgb());
+                image.setColor(3, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Dark).rgb());
                 break;
             case SP_MessageBoxCritical:
-                xpm_data = critical_xpm;
-                break;
-            case SP_MessageBoxQuestion:
-                xpm_data = question_xpm;
+                image.setColor(1, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Dark).rgb());
+                image.setColor(2, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Text).rgb());
+                image.setColor(3, 0xff000000 |
+                               pal.color(QPalette::Active, QPalette::Base).rgb());
                 break;
             default:
-                xpm_data = 0;
                 break;
             }
-            QPixmap pm;
-            if (xpm_data) {
-                QImage image((const char **) xpm_data);
-                // All that color looks ugly in Motif
-                const QPalette &pal = QApplication::palette();
-                switch (sp) {
-                case SP_MessageBoxInformation:
-                case SP_MessageBoxQuestion:
-                    image.setColor(2, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Dark).rgb());
-                    image.setColor(3, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Base).rgb());
-                    image.setColor(4, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Text).rgb());
-                    break;
-                case SP_MessageBoxWarning:
-                    image.setColor(1, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Base).rgb());
-                    image.setColor(2, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Text).rgb());
-                    image.setColor(3, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Dark).rgb());
-                    break;
-                case SP_MessageBoxCritical:
-                    image.setColor(1, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Dark).rgb());
-                    image.setColor(2, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Text).rgb());
-                    image.setColor(3, 0xff000000 |
-                                    pal.color(QPalette::Active, QPalette::Base).rgb());
-                    break;
-                default:
-                    break;
-                }
-                pm.convertFromImage(image);
-            }
-            return pm;
+            image = pm.toImage();
         }
+        return pm;
+    }
 
     default:
         break;
     }
 #endif
 
-    return QCommonStyle::stylePixmap(sp, widget, opt);
+    return QCommonStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
 
 /*! \reimp */
 int QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
-                  QStyleHintReturn *returnData) const
-/*
-int QMotifStyle::styleHint(StyleHint hint,
-                           const QWidget *widget,
-                           const Q3StyleOption &opt,
                            QStyleHintReturn *returnData) const
-                           */
 {
     int ret;
 
@@ -2555,11 +2182,11 @@ int QMotifStyle::styleHint(StyleHint hint,
         ret = true;
         break;
 
-    // #ifndef QT_NO_PALETTE
-    // case SH_ScrollBar_BackgroundRole:
-    //     ret = QPalette::Mid;
-    //     break;
-    // #endif
+        // #ifndef QT_NO_PALETTE
+        // case SH_ScrollBar_BackgroundRole:
+        //     ret = QPalette::Mid;
+        //     break;
+        // #endif
 
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     case SH_Slider_SloppyKeyEvents:
@@ -2594,7 +2221,7 @@ int QMotifStyle::styleHint(StyleHint hint,
         break;
 
     default:
-        ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
+        ret = QCommonStyle::styleHint(hint, opt, widget, returnData);
         break;
     }
 
