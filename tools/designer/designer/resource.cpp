@@ -3149,6 +3149,7 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
 		i->setName( name );
 		MetaDataBase::addEntry( i );
 		loadPopupMenu( i->subMenu(), n );
+	    }
 	} else if ( n.tagName() == "separator" ) {
 	    a = new QSeparatorAction( 0 );
 	    p->insert( a );
