@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#35 $
 **
 ** Definition of QIconView widget class
 **
@@ -1231,7 +1231,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->numDragItems = 0;
     d->updateTimer = new QTimer( this );
     d->cachedW = d->cachedH = 0;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -1324,14 +1324,14 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 void QIconView::slotUpdate()
 {
     d->updateTimer->stop();
-    
+
     resizeContents( QMAX( contentsWidth(), d->cachedW ),
 		    QMAX( contentsHeight(), d->cachedH ) );
 
     viewport()->repaint( FALSE );
-    
+
     d->cachedW = d->cachedH = 0;
-}    
+}
 
 /*!
   Removes the iconview item \a item from the iconview. You should never
@@ -1758,6 +1758,19 @@ void QIconView::setAlignMode( AlignMode am )
     if ( d->alignMode == am )
 	return;
 
+    if ( d->resizeMode != Adjust ) {
+	setHScrollBarMode( Auto );
+	setVScrollBarMode( Auto );
+    } else {
+	if ( d->alignMode == East ) { 
+	    setHScrollBarMode( AlwaysOff );
+	    setVScrollBarMode( Auto );
+	} else {
+	    setVScrollBarMode( AlwaysOff );
+	    setHScrollBarMode( Auto );
+	}		    
+    }
+
     d->alignMode = am;
     resizeContents( viewport()->width(), viewport()->height() );
     orderItemsInGrid();
@@ -1785,6 +1798,19 @@ void QIconView::setResizeMode( ResizeMode rm )
 	return;
 
     d->resizeMode = rm;
+
+    if ( d->resizeMode != Adjust ) {
+	setHScrollBarMode( Auto );
+	setVScrollBarMode( Auto );
+    } else {
+	if ( d->alignMode == East ) { 
+	    setHScrollBarMode( AlwaysOff );
+	    setVScrollBarMode( Auto );
+	} else {
+	    setVScrollBarMode( AlwaysOff );
+	    setHScrollBarMode( Auto );
+	}		    
+    }
 }
 
 /*!
