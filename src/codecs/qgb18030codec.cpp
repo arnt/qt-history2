@@ -184,6 +184,29 @@ QCString QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
+	} else if (ch.unicode() & 0xd8 == 0xd8) {
+	    unsigned short high = ch.unicode();
+	    // surrogates area. check for correct encoding
+	    // we need at least one more character, first the high surrogate, then the low one
+	    if (i == l-1 || high >= 0xdc00)
+		*cursor++ = '?';
+	    else {
+		unsigned short low = uc[i+1].unicode();
+		if (low >= 0xdc00 && low <= 0xdfff) {
+		    // valid surrogate pair
+		    ++i;
+		    uint u = (high-0xd800)*0x400+(low-0xdc00)+0x10000;
+		    len = qt_UnicodeToGb18030(u, buf);
+		    if (len >= 2) {
+			for (int j=0; j<len; j++)
+			    *cursor++ = buf[j];
+		    } else {
+			*cursor++ = '?';
+		    }
+		} else {
+		    *cursor++ = '?';
+		}
+	    }
 	} else if ( (len = qt_UnicodeToGb18030(ch.unicode(), buf)) >= 2 ) {
 	    for (int j=0; j<len; j++)
 		*cursor++ = buf[j];
@@ -218,7 +241,16 @@ QString QGb18030Codec::toUnicode(const char* chars, int len) const
 	    uint u = qt_Gb18030ToUnicode( (const uchar*)(chars + i), clen );
 
 	    if (clen == 2 || clen == 4) {
-		result += QValidChar(u);
+		if (u < 0x10000)
+		    result += QValidChar(u);
+		else {
+		    // encode into surrogate pair
+		    u -= 0x10000;
+		    unsigned short high = u/0x400 + 0xd800;
+		    unsigned short low = u%0x400 + 0xdc00;
+		    result += QChar(high);
+		    result += QChar(low);
+		}
 		i += clen;
 	    } else if (i < len) {
 		result += QChar::replacement;

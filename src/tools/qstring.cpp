@@ -5258,15 +5258,28 @@ QCString QString::utf8() const
     QCString rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     const QChar *ch = d->unicode;
-    for (int i=0; i<l; i++) {
-	ushort u = ch->unicode();
+    for (int i=0; i < l; i++) {
+	uint u = ch->unicode();
  	if ( u < 0x80 ) {
  	    *cursor++ = (uchar)u;
  	} else {
  	    if ( u < 0x0800 ) {
 		*cursor++ = 0xc0 | ((uchar) (u >> 6));
  	    } else {
- 		*cursor++ = 0xe0 | ((uchar) (u >> 12));
+		if (u >= 0xd800 && u < 0xdc00 && i < l-1) {
+		    unsigned short low = ch[1].unicode();
+		    if (low >= 0xdc00 && low < 0xe000) {
+			++ch;
+			++i;
+			u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+		    }
+		}
+		if (u > 0xffff) {
+		    *cursor++ = 0xf0 | ((uchar) (u >> 18));
+		    *cursor++ = 0x80 | ( ((uchar) (u >> 12)) & 0x3f);
+		} else {
+		    *cursor++ = 0xe0 | ((uchar) (u >> 12));
+		}
  		*cursor++ = 0x80 | ( ((uchar) (u >> 6)) & 0x3f);
  	    }
  	    *cursor++ = 0x80 | ((uchar) (u&0x3f));
@@ -5300,7 +5313,7 @@ QString QString::fromUtf8( const char* utf8, int len )
     QString result;
     result.setLength( len ); // worst case
     QChar *qch = (QChar *)result.unicode();
-    ushort uc = 0;
+    uint uc = 0;
     int need = 0;
     uchar ch;
     for (int i=0; i<len; i++) {
@@ -5309,8 +5322,18 @@ QString QString::fromUtf8( const char* utf8, int len )
 	    if ( (ch&0xc0) == 0x80 ) {
 		uc = (uc << 6) | (ch & 0x3f);
 		need--;
-		if ( !need )
-		    *qch++ = uc;
+		if ( !need ) {
+		    if (uc > 0xffff) {
+			// surrogate pair
+			uc -= 0x10000;
+			unsigned short high = uc/0x400 + 0xd800;
+			unsigned short low = uc%0x400 + 0xdc00;
+			*qch++ = QChar(high);
+			*qch++ = QChar(low);
+		    } else {
+			*qch++ = uc;
+		    }
+		}
 	    } else {
 		// error
 		*qch++ = QChar::replacement;
@@ -5319,12 +5342,15 @@ QString QString::fromUtf8( const char* utf8, int len )
 	} else {
 	    if ( ch < 128 ) {
 		*qch++ = ch;
-	    } else if ( (ch&0xe0) == 0xc0 ) {
-		uc = ch &0x1f;
+	    } else if ((ch & 0xe0) == 0xc0) {
+		uc = ch & 0x1f;
 		need = 1;
-	    } else if ( (ch&0xf0) == 0xe0 ) {
-		uc = ch &0x0f;
+	    } else if ((ch & 0xf0) == 0xe0) {
+		uc = ch & 0x0f;
 		need = 2;
+	    } else if ((ch&0xf8) == 0xf0) {
+		uc = ch & 0x07;
+		need = 3;
 	    }
 	}
     }

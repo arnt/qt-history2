@@ -46,24 +46,40 @@ int QUtf8Codec::mibEnum() const
 
 QCString QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
-    int l = QMIN((int)uc.length(),lenInOut);
+    int l = uc.length();
+    if (lenInOut > 0)
+	l = QMIN(l, lenInOut);
     int rlen = l*3+1;
     QCString rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
-    for (int i=0; i<l; i++) {
-	QChar ch = uc[i];
-	if ( !ch.row() && ch.cell() < 0x80 ) {
-	    *cursor++ = ch.cell();
-	} else {
-	    uchar b = (ch.row() << 2) | (ch.cell() >> 6);
-	    if ( ch.row() < 0x08 ) {
-		*cursor++ = 0xc0 | b;
-	    } else {
-		*cursor++ = 0xe0 | (ch.row() >> 4);
-		*cursor++ = 0x80 | (b&0x3f);
-	    }
-	    *cursor++ = 0x80 | (ch.cell()&0x3f);
-	}
+    const QChar *ch = uc.unicode();
+    for (int i=0; i < l; i++) {
+	uint u = ch->unicode();
+ 	if ( u < 0x80 ) {
+ 	    *cursor++ = (uchar)u;
+ 	} else {
+ 	    if ( u < 0x0800 ) {
+		*cursor++ = 0xc0 | ((uchar) (u >> 6));
+ 	    } else {
+		if (u >= 0xd800 && u < 0xdc00 && i < l-1) {
+		    unsigned short low = ch[1].unicode();
+		    if (low >= 0xdc00 && low < 0xe000) {
+			++ch;
+			++i;
+			u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+		    }
+		}
+		if (u > 0xffff) {
+		    *cursor++ = 0xf0 | ((uchar) (u >> 18));
+		    *cursor++ = 0x80 | ( ((uchar) (u >> 12)) & 0x3f);
+		} else {
+		    *cursor++ = 0xe0 | ((uchar) (u >> 12));
+		}
+ 		*cursor++ = 0x80 | ( ((uchar) (u >> 6)) & 0x3f);
+ 	    }
+ 	    *cursor++ = 0x80 | ((uchar) (u&0x3f));
+ 	}
+ 	ch++;
     }
     *cursor = 0;
     lenInOut = cursor - (uchar*)rstr.data();
@@ -145,7 +161,16 @@ public:
 		    uc = (uc << 6) | (ch & 0x3f);
 		    need--;
 		    if ( !need ) {
-			*qch++ = uc;
+			if (uc > 0xffff) {
+			    // surrogate pair
+			    uc -= 0x10000;
+			    unsigned short high = uc/0x400 + 0xd800;
+			    unsigned short low = uc%0x400 + 0xdc00;
+			    *qch++ = QChar(high);
+			    *qch++ = QChar(low);
+			} else {
+			    *qch++ = uc;
+			}
 		    }
 		} else {
 		    // error
@@ -155,12 +180,15 @@ public:
 	    } else {
 		if ( ch < 128 ) {
 		    *qch++ = ch;
-		} else if ( (ch&0xe0) == 0xc0 ) {
-		    uc = ch &0x1f;
+		} else if ((ch & 0xe0) == 0xc0) {
+		    uc = ch & 0x1f;
 		    need = 1;
-		} else if ( (ch&0xf0) == 0xe0 ) {
-		    uc = ch &0x0f;
+		} else if ((ch & 0xf0) == 0xe0) {
+		    uc = ch & 0x0f;
 		    need = 2;
+		} else if ((ch&0xf8) == 0xf0) {
+		    uc = ch & 0x07;
+		    need = 3;
 		}
 	    }
 	}

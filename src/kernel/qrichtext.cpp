@@ -3935,7 +3935,7 @@ int QTextString::width( int idx ) const
 #endif
      {
 	 int r = c->c.row();
-	 if( r < 0x06 || r > 0x1f ) {
+	 if (r < 0x06 || (r > 0x1f && !(r > 0xd7 && r < 0xe0))) {
 	     w = c->format()->width( c->c );
 	 } else {
 	     // complex text. We need some hacks to get the right metric here
