@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#8 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#9 $
 **
 ** Definition of the QtTextView class
 **
@@ -93,6 +93,8 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
         format.font_.setWeight( item->fontWeight() );
     if ( item->fontSize() != QStyleSheetItem::Undefined )
         format.font_.setPointSize( item->fontSize() );
+    else if ( item->logicalFontSize() != QStyleSheetItem::Undefined )
+        item->styleSheet()->scaleFont( format.font_, item->logicalFontSize() );
     if ( !item->fontFamily().isEmpty() )
         format.font_.setFamily( item->fontFamily() );
     if ( item->color().isValid() )
