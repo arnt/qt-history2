@@ -1327,6 +1327,9 @@ int QApplication::macProcessEvent(MSG * m)
 	else
 	    button = QMouseEvent::LeftButton;
 		
+	//mousedown's will effect stuff outside InContent as well
+	bool special_case = (er->what == mouseUp || do_mouse_down( er ));
+
 	if(er->what == mouseDown) {
 	    //check if this is the second click, there must be a way to make the
 	    //mac do this for us, FIXME!!
@@ -1346,7 +1349,8 @@ int QApplication::macProcessEvent(MSG * m)
 		qt_last_mouse_down.x = er->where.h;
 		qt_last_mouse_down.y = er->where.v;
 	    }
-	    mouse_button_state = button;
+	    if(special_case)
+		mouse_button_state = button;
 	} else {
 	    etype = QEvent::MouseButtonRelease;
 	    state = mouse_button_state;
@@ -1371,9 +1375,8 @@ int QApplication::macProcessEvent(MSG * m)
 			     state | (keys & Qt::ControlButton) );
 	    QApplication::sendEvent( popupwidget, &qme );
 	}
-	
-	//mousedown's will effect stuff outside InContent as well
-	if(er->what == mouseUp || do_mouse_down( er )) {
+
+	if(special_case) {
 
 	    //figure out which widget to send it to
 	    if( er->what == mouseUp && qt_button_down )
