@@ -41,6 +41,7 @@
 #include "qmime.h"
 #include "qdragobject.h"
 #include "qclipboard.h"
+#include "qdragobject.h"
 
 
 
@@ -94,6 +95,8 @@ public:
     QColor paplinkcol;
     bool linkunderline;
     QTimer* resizeTimer;
+    QTimer* dragTimer;
+    QTimer* scrollTimer;
     Qt::TextFormat textformat;
     QTextCursor* fcresize;
     QTextCursor* cursor;
@@ -158,6 +161,10 @@ void QTextView::init()
 
     d->resizeTimer = new QTimer( this );
     connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
+    d->dragTimer = new QTimer( this );
+    connect( d->dragTimer, SIGNAL( timeout() ), this, SLOT( doStartDrag() ));
+    d->scrollTimer = new QTimer( this );
+    connect( d->scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ));
 }
 
 /*!
@@ -584,6 +591,7 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 	clearSelection();
 	d->dragSelection = TRUE;
     } else {
+	d->dragTimer->start( QApplication::startDragTime(), TRUE );
     }
 }
 
@@ -592,8 +600,8 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 */
 void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 {
-    if ( d->dragSelection && e->button() == LeftButton ) {
-	//### TODO put selection into clipboard
+    if ( e->button() == LeftButton ) {
+	if ( d->dragSelection ) {
 #if defined(_WS_X11_)
 	copy();
 #else
@@ -601,9 +609,32 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 	    copy();
 #endif
 	d->dragSelection = FALSE;
+	} else {
+	    clearSelection();
+	}
     }
 }
 
+
+
+/*!  Returns TRUE if there is any text selected, FALSE otherwise.
+  
+  \sa selectedText()
+*/
+bool QTextView::hasSelectedText() const
+{
+    return d->selection;
+}
+
+/*!  Returns a copy of the selected text in plain text format.
+  
+  \sa hasSelectedText()
+ */
+QString QTextView::selectedText() const
+{
+    return richText().selectedText();
+}
+    
 
 /*!
   Copies the marked text to the clipboard.
@@ -631,7 +662,12 @@ void QTextView::copy()
 */
 void QTextView::selectAll()
 {
-    //#####
+    richText().selectAll();
+    viewport()->repaint( FALSE );
+    d->selection = TRUE;
+#if defined(_WS_X11_)
+    copy();
+#endif
 }
 
 /*!
@@ -640,56 +676,16 @@ void QTextView::selectAll()
 void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 {
 
-     if (e->state() & LeftButton && d->dragSelection ) {
-	 if ( !d->cursor )
-	     return;
-	QPainter p(viewport());
- 	d->cursor->split();
-	QTextCursor oldc( *d->cursor );
-	d->cursor->goTo( &p, e->pos().x() + contentsX(),
-			 e->pos().y() + contentsY() );
-  	if ( d->cursor->split() ) {
-	    if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
-		oldc.current++;
-		oldc.update( &p );
-	    }
- 	}
-	int oldy = oldc.y();
-	int oldx = oldc.x();
-	int oldh = oldc.height;
-	int newy = d->cursor->y();
-	int newx = d->cursor->x();
-	int newh = d->cursor->height;
-
-	QTextCursor start( richText() ), end( richText() );
-
-	bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
-	if ( oldIsFirst ) {
-	    start = oldc;
-	    end = *d->cursor;
-	} else {
-	    start = *d->cursor;
-	    end = oldc;
+    if (e->state() & LeftButton ) {
+	if ( !d->cursor )
+	    return;
+	if (d->dragSelection ) {
+	    doSelection( e->pos() );
+	} else if ( d->dragTimer->isActive() ) {
+	    d->dragTimer->stop();
+	    doStartDrag();
 	}
-
-	while ( start.paragraph != end.paragraph ) {
- 	    start.setSelected( !start.isSelected() );
-	    start.rightOneItem( &p );
-	    d->selection = TRUE;
-	}
-	while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
- 	    start.setSelected( !start.isSelected() );
-	    start.rightOneItem( &p );
-	    d->selection = TRUE;
-	}
-	p.end();
-	repaintContents( 0, QMIN(oldy, newy),
-			 contentsWidth(),
-			 QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
-			 FALSE);
-	QRect geom ( d->cursor->caretGeometry() );
-	ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
-     }
+    } 
 }
 
 /*!
@@ -829,6 +825,7 @@ void QTextView::showEvent( QShowEvent* )
 
 void QTextView::clearSelection()
 {
+    d->dragTimer->stop();
     if ( !d->selection )
 	return; // nothing to do
 
@@ -837,6 +834,73 @@ void QTextView::clearSelection()
     repaintContents( richText().flow()->updateRect(), FALSE );
     richText().flow()->validateRect();
 }
+
+void QTextView::doStartDrag()
+{
+    QTextDrag* drag = new QTextDrag( selectedText(), this ) ;
+    drag->drag();
+}
+
+void QTextView::doAutoScroll()
+{
+    doSelection( viewport()->mapFromGlobal(QCursor::pos()) );
+}
+
+void QTextView::doSelection( const QPoint& pos ) 
+{
+    QPainter p(viewport());
+    d->cursor->split();
+    QTextCursor oldc( *d->cursor );
+    d->cursor->goTo( &p, pos.x() + contentsX(),
+		     pos.y() + contentsY() );
+    if ( d->cursor->split() ) {
+	if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
+	    oldc.current++;
+	    oldc.update( &p );
+	}
+    }
+    int oldy = oldc.y();
+    int oldx = oldc.x();
+    int oldh = oldc.height;
+    int newy = d->cursor->y();
+    int newx = d->cursor->x();
+    int newh = d->cursor->height;
+
+    QTextCursor start( richText() ), end( richText() );
+
+    bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
+    if ( oldIsFirst ) {
+	start = oldc;
+	end = *d->cursor;
+    } else {
+	start = *d->cursor;
+	end = oldc;
+    }
+
+    while ( start.paragraph != end.paragraph ) {
+	start.setSelected( !start.isSelected() );
+	start.rightOneItem( &p );
+	d->selection = TRUE;
+    }
+    while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
+	start.setSelected( !start.isSelected() );
+	start.rightOneItem( &p );
+	d->selection = TRUE;
+    }
+    p.end();
+    repaintContents( 0, QMIN(oldy, newy),
+		     contentsWidth(),
+		     QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
+		     FALSE);
+    QRect geom ( d->cursor->caretGeometry() );
+	    
+    if ( pos.y() < 0 || pos.y() > visibleHeight() )
+	d->scrollTimer->start( 100, FALSE );
+    else
+	d->scrollTimer->stop();
+	    
+    ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
+}    
 
 void QTextView::clipboardChanged()
 {

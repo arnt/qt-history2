@@ -171,6 +171,8 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	QString s( *it );
 	if ( s.find( "::" ) != -1 )
 	    continue;
+	if ( s[1] == '~' )
+	    continue;	
 	int from = s.find( "\"" );
 	if ( from == -1 )
 	    continue;
@@ -357,6 +359,11 @@ bool HelpNavigation::eventFilter( QObject * o, QEvent * e )
 		indexEdit->blockSignals( FALSE );
 	    }
 	    return TRUE;
+	} else if ( ke->key() == Key_Next || ke->key() == Key_Prior ) {
+	    QApplication::sendEvent( indexList, e);
+	    indexEdit->blockSignals( TRUE );
+	    indexEdit->setText( indexList->currentText() );
+	    indexEdit->blockSignals( FALSE );
 	} else if ( ke->key() == Key_Enter ||
 		    ke->key() == Key_Return ) {
 	    showTopic( indexList->item( indexList->currentItem() ) );

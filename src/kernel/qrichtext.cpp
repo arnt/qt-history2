@@ -1055,6 +1055,18 @@ QString QRichText::selectedText()
     return result;
 }
 
+void QRichText::selectAll()
+{
+    QTextParagraph* b = this;
+    while ( b->child )
+	b = b->child;
+    while ( b ) {
+	for (int i = 0; i < b->text.length(); i++ )
+	    b->text.setSelected( i, TRUE );
+	b = b->nextInDocument();
+    }
+}
+
 
 void QTextParagraph::invalidateLayout()
 {

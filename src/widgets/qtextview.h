@@ -82,6 +82,9 @@ public:
 
     void append( const QString& text );
 
+    bool hasSelectedText() const;
+    QString selectedText() const;
+
 public slots:
    void copy();
    void selectAll();
@@ -106,6 +109,8 @@ protected:
 private slots:
     void doResize();
     void clipboardChanged(); 
+    void doStartDrag();
+    void doAutoScroll();
 
 private:
     void init();
@@ -114,6 +119,7 @@ private:
     QTextViewData* d;
     void updateLayout();
     void clearSelection();
+    void doSelection( const QPoint& );
 };
 
 

@@ -262,10 +262,12 @@ void HelpMainWindow::slotFilePrint()
 
 void HelpMainWindow::slotEditCopy()
 {
+    viewer->copy();
 }
 
 void HelpMainWindow::slotEditSelectAll()
 {
+    viewer->selectAll();
 }
 
 void HelpMainWindow::slotEditFind()

@@ -252,7 +252,6 @@ public:
     bool isSelected( int index ) const;
     void clearSelection();
     bool isSelected() const;
-
     void setBold( int index, bool b );
     bool bold( int index ) const;
 
@@ -546,6 +545,7 @@ public:
     QString anchorAt( QPainter* p, int x, int y ) const;
     bool clearSelection();
     QString selectedText();
+    void selectAll();
 
     void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
 
