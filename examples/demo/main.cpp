@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#24 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#25 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -16,6 +16,8 @@
 #include "textdrawing/textedit.h"
 #include "textdrawing/helpwindow.h"
 
+#include <qmodules.h>
+
 #if defined(QT_MODULE_OPENGL)
 #include "opengl/glworkspace.h"
 #include "opengl/gllandscapeviewer.h"
@@ -29,6 +31,11 @@
 #include <qtabwidget.h>
 #include <qfont.h>
 #include <qworkspace.h>
+
+#if defined(QT_MODULE_SQL)
+#include <qsqldatabase.h>
+#include "sql/book.h"
+#endif
 
 int main( int argc, char **argv )
 {
@@ -56,11 +63,13 @@ int main( int argc, char **argv )
     tab->addTab( w, "Widget" );
     frame.addCategory( tab, widgetpix, widgetpix_sel, "Widgets" );
 
-    // example 2
+#if defined(QT_MODULE_SQL)
+    // Database
     tab = new QTabWidget();
-    w = new QWidget( tab );
+    w = new BookForm( tab );
     tab->addTab( w, "Database" );
     frame.addCategory( tab, dbpix, dbpix_sel, "Database" );
+#endif
 
     // 2D Graphics
     tab = new QTabWidget();
@@ -69,7 +78,7 @@ int main( int argc, char **argv )
     tab->addTab( new DisplayWidget(), "Display" );
     frame.addCategory( tab, twodpix, twodpix_sel, "2D Graphics" );
 
-#if defined(QT_MODULE_OPENGL)
+#if !defined(QT_MODULE_OPENGL)
     // 3D Graphics
     tab = new QTabWidget();
     w = new GLWorkspace( tab );
@@ -78,6 +87,7 @@ int main( int argc, char **argv )
     tab->addTab( w, "Fractal landscape" );
     frame.addCategory( tab, threedpix, threedpix_sel, "3D Graphics" );
 #endif
+
     // example 4
     tab = new QTabWidget();
     w = new TextEdit( tab );

@@ -1,5 +1,6 @@
 TEMPLATE 	= app
 CONFIG		+= qt warn_on
+CONFIG -= opengl
 HEADERS		= frame.h \
 		  graph.h \
                   display.h \
@@ -29,6 +30,12 @@ opengl:SOURCES += opengl/glworkspace.cpp \
 
 opengl:INTERFACES += opengl/printpreview.ui \
 		     opengl/gllandscapeviewer.ui
+
+sql {
+	INTERFACES += sql/book.ui \
+		      sql/editbook.ui \
+		      sql/connect.ui
+}
 
 TARGET		= demo
 INCLUDEPATH	+= .
