@@ -103,7 +103,7 @@ header (which displays the field name).
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page. 
 
-\img qd-datatablewzdsqlpage4.png
+\img qd-datatablewzdpage4.png
 
 \section2 SQL
 
@@ -207,7 +207,7 @@ connected to the \Func QDataBrowser::beforeInsert() signal.
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page.
 
-\img qd-databrowserwzdsqlpage4.png
+\img qd-databrowserwzdpage4.png
 
 \section2 SQL
 
