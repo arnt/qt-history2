@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#3 $
 **
 ** Implementation of QWidget and QView classes for Windows + NT
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#3 $";
 #endif
 
 
@@ -89,11 +89,8 @@ bool QWidget::create()				// create widget
 	style |= WS_VSCROLL;
     if ( testFlag(WStyle_HScroll) )
 	style |= WS_HSCROLL;
-    if ( testFlag(WStyle_Title) ) {
-	title = text();
-	if ( !title )
-	    title = qAppName();
-    }
+    if ( testFlag(WStyle_Title) )
+	title = qAppName();
 
     if ( overlap ) {				// create overlapped widget
 	id = CreateWindow( qWidgetClassName, title, style,

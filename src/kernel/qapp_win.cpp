@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#4 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#4 $";
 #endif
 
 
@@ -569,7 +569,7 @@ int qStartTimer( long interval, QObject *obj )	// start timer
     t->obj = obj;
     t->zero = interval == 0;
     if ( t->zero ) {				// add zero timer
-	t->id = 50000 + ind;			// unique, high id
+	t->id = (uint)50000 + ind;		// unique, high id
 	numZeroTimers++;
     }
     else {
@@ -666,8 +666,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     int	   button;
     int	   state;
 
-    pos.x() = LOWORD(msg.lParam);		// get position
-    pos.y() = HIWORD(msg.lParam);
+    pos.rx() = LOWORD(msg.lParam);		// get position
+    pos.ry() = HIWORD(msg.lParam);
     for ( int i=0; mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 ) ;
     if ( !mouseTbl[i] )
 	return FALSE;
