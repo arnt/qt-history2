@@ -378,24 +378,13 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 	    m_spOleObject->SetClientSite( this );
 	
 	IViewObject *spViewObject = 0;
-	DWORD dwViewObjectType = 0;
-	hr = m_spOleObject->QueryInterface(IID_IViewObjectEx, (void**) &spViewObject);
-	if ( FAILED(hr) ) {
-	    hr = m_spOleObject->QueryInterface(IID_IViewObject2, (void**) &spViewObject);
-	    dwViewObjectType = 3;
-	} else {
-	    dwViewObjectType = 7;
-	}
-	if ( FAILED(hr) ) {
-	    hr = m_spOleObject->QueryInterface(IID_IViewObject, (void**) &spViewObject);
-	    dwViewObjectType = 1;
-	}
+	m_spOleObject->QueryInterface(IID_IViewObject, (void**) &spViewObject);
 	
 	m_spOleObject->Advise( this, &m_dwOleObject );
 	IAdviseSink *spAdviseSink = 0;
 	QueryInterface( IID_IAdviseSink, (void**)&spAdviseSink );	
 	if ( spAdviseSink && spViewObject ) {
-	    if ( dwViewObjectType )
+	    if ( spViewObject )
 		spViewObject->SetAdvise( DVASPECT_CONTENT, 0, spAdviseSink );
 	    spAdviseSink->Release();
 	}
