@@ -45,7 +45,6 @@
 #include "qmime.h"
 #endif // QT_H
 
-
 class Q_EXPORT QEvent: public Qt		// event base class
 {
 public:
@@ -214,40 +213,75 @@ protected:
 #endif
 
 // events from the Wacom Stylus...
+struct Q_EXPORT QTabletDeviceId
+{
+    int miType;
+    int miPhyId;
+    bool operator==( const QTabletDeviceId &tId )
+    {
+        return ( miType == tId.miType && miPhyId == tId.miPhyId );
+    }
+    bool operator<( const QTabletDeviceId &tId )
+    {
+        return (miType <= tId.miType && miPhyId < tId.miPhyId );
+    }
+    bool operator<=( const QTabletDeviceId &tId )
+    {
+        return ( miType <= tId.miType && miPhyId <= tId.miPhyId );
+    }
+    bool operator>=(const QTabletDeviceId &tId )
+    {
+        return !(*this < tId);
+    }
+    bool operator>( const QTabletDeviceId &tId )
+    {
+        return !(*this <= tId );
+    }
+    QTabletDeviceId& operator=( const QTabletDeviceId &tId )
+    {
+        miType = tId.miType;
+        miPhyId = tId.miPhyId;
+        return *this;
+    }
+};
+
 class Q_EXPORT QTabletEvent : public QEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
-    QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
-	: QEvent( Tablet ), p( pos ), dev( device ), press( pressure ),
-	  xT( xTilt ), yT( yTilt )
-     {};
+    QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, 
+                  int yTilt, const QTabletDeviceId &uId )
+	: QEvent( Tablet ), mPos( pos ), mDev( device ), mPress( pressure ),
+	  mXT( xTilt ), mYT( yTilt ), mId( uId )
+     {}
     QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device,
-		  int pressure, int xTilt, int yTilt )
-	: QEvent( Tablet ), p( pos ), g( globalPos ), dev( device ),
-	  press( pressure ), xT( xTilt ), yT( yTilt )
-    {};
-    int pressure()	const { return press; };
-    int xTilt()		const { return xT; };
-    int yTilt()		const { return yT; };
-    const QPoint &pos()	const { return p; };
-    const QPoint &globalPos() const { return g; };
-    int x()		const { return p.x(); };
-    int y()		const { return p.y(); };
-    int globalX()	const { return g.x(); };
-    int globalY()	const { return g.y(); };
-    TabletDevice device() 	const { return TabletDevice(dev); };
-    int isAccepted() const { return accpt; };
-    void accept() { accpt = TRUE; };
-    void ignore() { accpt = FALSE; };
+		  int pressure, int xTilt, int yTilt, const QTabletDeviceId &uId )
+	: QEvent( Tablet ), mPos( pos ), mGPos( globalPos ), mDev( device ),
+	  mPress( pressure ), mXT( xTilt ), mYT( yTilt ), mId( uId )
+    {}
+    int pressure()	const { return mPress; }
+    int xTilt()		const { return mXT; }
+    int yTilt()		const { return mYT; }
+    const QPoint &pos()	const { return mPos; }
+    const QPoint &globalPos() const { return mGPos; }
+    int x()		const { return mPos.x(); }
+    int y()		const { return mPos.y(); }
+    int globalX()	const { return mGPos.x(); }
+    int globalY()	const { return mGPos.y(); }
+    TabletDevice device() 	const { return TabletDevice(mDev); }
+    int isAccepted() const { return mbAcc; }
+    void accept() { mbAcc = TRUE; }
+    void ignore() { mbAcc = FALSE; }
+    QTabletDeviceId uniqueId() { return mId; }
 protected:
-    QPoint p;
-    QPoint g;
-    int dev;
-    int press;
-    int xT;
-    int yT;
-    bool accpt;
+    QPoint mPos;
+    QPoint mGPos;
+    int mDev;
+    int mPress;
+    int mXT;
+    int mYT;
+    bool mbAcc;
+    QTabletDeviceId mId;
 };
 
 class Q_EXPORT QKeyEvent : public QEvent

@@ -2047,7 +2047,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		t = ev;
 		ev = new QTabletEvent( t->pos() + w->pos(), t->globalPos(),
 				       t->device(), t->pressure(), t->xTilt(),
-				       t->yTilt() );
+				       t->yTilt(), t->uniqueId() );
 		if ( t != tablet )
 		    delete t;
 		w = w->parentWidget();

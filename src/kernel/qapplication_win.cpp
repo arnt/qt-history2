@@ -59,6 +59,11 @@
 		      PK_ORIENTATION | PK_CURSOR )
 #define PACKETMODE  0
 
+// Wacom isn't being nice by not providing updated headers for this. so
+// define it here so we can do things correctly according to their
+// software implementation guide, and make it somewhat standard.
+#define CSR_TYPE ( ( UINT ) 20 )
+
 #include <wintab.h>
 #include <pktdef.h>
 #include <math.h>
@@ -2928,8 +2933,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	return FALSE;
     type   = (QEvent::Type)mouseTbl[++i];	// event type
     button = mouseTbl[++i];			// which button
-    state  = translateButtonState( msg.wParam, type, button ); // button state
-
+    state  = translateButtonState( msg.wParam, type, button ); // button state    
     if ( type == QEvent::MouseMove ) {
 	if ( !(state & (LeftButton | MidButton | RightButton) ) )
 	    qt_button_down = 0;
@@ -3678,8 +3682,15 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    tiltX = degX * ( 180 / PI );
 	    tiltY = -degY * ( 180 / PI );
 	}
-
-	QTabletEvent e( localPos, localPos, dev, prsNew, tiltX, tiltY );
+        // get the unique ID of the device...
+        int csr_type,
+	    csr_physid;
+	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type );
+	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid );
+	QTabletDeviceId llId;
+	llId.miType = csr_type;
+	llId.miPhyId = csr_physid;        
+	QTabletEvent e( localPos, localPos, dev, prsNew, tiltX, tiltY, llId );
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
     }
     return sendEvent;
