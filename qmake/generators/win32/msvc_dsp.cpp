@@ -703,6 +703,7 @@ DspMakefileGenerator::init()
 
     project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
 
+    findLibraries();
     processPrlFiles();
     processLibsVar();
 
