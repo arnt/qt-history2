@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#14 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#14 $")
 
 
 // --------------------------------------------------------------------------
@@ -678,11 +678,15 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 
 	case WM_KEYDOWN:			// keyboard event
 	case WM_KEYUP:
-	case WM_CHAR:
-	    if ( qApp->focusWidget() )
+	case WM_CHAR: {
+	    QWidget *w = QWidget::keyboardGrabber();
+	    if ( w )
+		widget = (QETWidget*)w;
+	    else if ( qApp->focusWidget() )
 		widget = (QETWidget*)qApp->focusWidget();
 	    if ( !widget->isDisabled() )
 		widget->translateKeyEvent( msg );
+	    }
 	    break;
 
 	case WM_PAINT:				// paint event
@@ -718,26 +722,6 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	case WM_SIZE:				// resize window
 	    result = widget->translateConfigEvent( msg );
 	    break;
-
-#if 0
-  // hanord!!! not required after QWidget::show() was changed for popups
-	case WM_SETFOCUS:			// got focus
-	    if ( widget->testWFlags(WType_Popup) ) {
-		result = TRUE;
-		SetFocus( (HWND)wParam );
-	    }
-	    break;
-	case WM_KILLFOCUS:			// lost focus
-	    if ( !widget->testWFlags(WType_Popup) ) {
-		debug( "Kill focus" );
-		QWidget *w = QWidget::find( (HANDLE)wParam );
-		if ( w && w->testWFlags(WType_Popup) ) {
-		    result = TRUE;
-		    SetFocus( (HWND)wParam );
-		}
-	    }
-	    break;
-#endif
 
 	case WM_ACTIVATE:
 	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
@@ -1337,15 +1321,14 @@ static ushort KeyTbl[] = {			// keyboard mapping table
 
 static int translateKeyCode( int key )		// get Key_... code
 {
-    int code = 0;
-    if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') ) {
-	debug( "wait for WM_CHAR" );
-	return 0;				// wait for WM_CHAR instead
-    }
+    int code;
+    if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') )
+	code = 0;				// wait for WM_CHAR instead
     else if ( key >= VK_F1 && key <= VK_F24 )	// function keys
 	code = Key_F1 + (key - VK_F1);		// assumes contiguous codes!
     else {
 	int i = 0;				// any other keys
+	code = 0;
 	while ( KeyTbl[i] && code == 0 ) {
 	    if ( key == (int)KeyTbl[i] )
 		code = KeyTbl[i+1];

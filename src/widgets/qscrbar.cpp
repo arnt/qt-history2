@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#42 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#41 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#42 $")
 
 
 /*----------------------------------------------------------------------------
@@ -709,11 +709,10 @@ static void initWinArrows()
 }
 
 
-static void qDrawWinArrow( QPainter *p, ArrowType type, bool /* down */,
+static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 			   int x, int y, int w, int h,
-			   const QColorGroup & /* g */ )
+			   const QColorGroup &g )
 {
-//    int	 dim = QMIN(w,h);       not used, removed by EE 27/9-95 ###
     if ( !win_u_arrow )
 	initWinArrows();
     QPixmap *a = 0;
@@ -731,13 +730,19 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool /* down */,
 	    a = win_r_arrow;
 	    break;
     }
-
     if ( !a )
 	return;
+    if ( down ) {
+	x += 2;
+	y += 2;
+    }
+    QPen   oldPen = p->pen();
     BGMode m = p->backgroundMode();
+    p->setPen( g.foreground() );
     p->setBackgroundMode( TransparentMode );
     p->drawPixmap( x+w/2-4, y+h/2-4, *a );
     p->setBackgroundMode( m );
+    p->setPen( oldPen );
 }
 
 
@@ -778,11 +783,11 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
 	    bTop.putPoints( i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i );
 	    bBot.putPoints( i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i );
 	}
-	if ( dim & 1 )		// extra line if size is an odd number
+	if ( dim & 1 )				// odd number size: extra line
 	    bBot.putPoints( dim-1, 2, dim-3,dim/2, dim-1,dim/2 );
-	if ( dim > 6 ) {	// must fill interior if dim > 6
+	if ( dim > 6 ) {			// dim>6: must fill interior
 	    bFill.putPoints( 0, 2, 1,dim-3, 1,2 );
-	    if ( dim & 1 )	// if size is an odd number
+	    if ( dim & 1 )			// if size is an odd number
 		bFill.setPoint( 2, dim - 3, dim / 2 );
 	    else
 		bFill.putPoints( 2, 2, dim-4,dim/2-1, dim-4,dim/2 );

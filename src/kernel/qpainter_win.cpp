@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#19 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#19 $")
 
 
 static HANDLE stock_nullPen;
@@ -1264,7 +1264,16 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     bool tmp_dc = pm->handle() == 0;
     if ( tmp_dc )
 	pm->allocMemDC();
-    BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
+    if ( pm->depth() == 1 && bg_mode == TransparentMode )
+	MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, pm->hbm(),
+		 sx, sy, 0xccaa0000 );
+#if 0
+	SetBkColor( pm->handle(), RGB(255,255,255) );
+	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, MERGEPAINT );
+	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCPAINT );
+#endif
+    else
+	BitBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, SRCCOPY );
     if ( tmp_dc )
 	pm->freeMemDC();
 }
@@ -1347,7 +1356,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( len > 150 && !decode ) {		// need to alloc code array
 	codelen = len + len/2;
-	codes	= new ushort[codelen];
+	codes	= (ushort *)malloc( codelen*sizeof(ushort) );
 	code_alloc = TRUE;
     }
 
@@ -1564,7 +1573,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & DontPrint) != 0 ) {		// don't print any text
 	if ( code_alloc )
-	    delete [] codes;
+	    free( codes );
 	return;
     }
 
@@ -1698,7 +1707,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( p_alloc )
 	delete [] p;
     if ( code_alloc )
-	delete [] codes;
+	free( codes );
 }
 
 
