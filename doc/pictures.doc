@@ -19,6 +19,13 @@ Most of these widgets are shown in either Motif or Windows style.
 All widgets are supported in both styles (and other \link QStyle
 styles\endlink), but for clarity we just present a selection.
 
+Qt provides more widgets than the selection shown below. And extra Qt
+widgets are available from third parties, and as add-ons to Qt; see
+\link http://www.trolltech.com/products/solutions/index.html Qt
+Solutions\endlink, and \link
+http://www.trolltech.com/freesoftware/index.html User contributed Qt
+additions\endlink.
+
 \omit
 Below is a screen shot of the demo example running under Linux. It
 shows off many of Qt's widgets. (The source is in \c{examples/demo}.

@@ -908,13 +908,13 @@ pages provide information about how to secure your server.
 
 This is not a comprehensive list of books, there are many other
 books worth buying. Here we mention just a few GUI/UI books that don't
-gather dust in our shelves.
+gather dust on our shelves.
 
-<b>Programming with Qt</b> by Kalle Dalheimer, ISBN 1-56592-588-2
-is a simple introduction to programming with Qt.  For those wanting
-something more than our short tutorials, this is it.
-\link http://www.amazon.com/exec/obidos/ASIN/1565925882/trolltech/t 
-(Read more or buy it.)\endlink
+<b>C++ GUI Programming with Qt 3</b> by Jasmin Blanchette and Mark
+Summerfield, ISBN 0-13-124072-2. This is the Official Qt book written
+by two veteran Trolls.
+\link http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/
+(Read more about it or buy it.)\endlink
 
 <b>The Design of Everyday Things</b> by Donald Norman,
 ISBN 0-38526774-6, is one of the classics of human interface design.
@@ -923,7 +923,7 @@ designed, and everyone should read it who will design a dialog box,
 write an error message, or design just about anything else humans are
 supposed to use.
 \link http://www.amazon.com/exec/obidos/ASIN/0385267746/trolltech/t 
-(Read more or buy it.)\endlink
+(Read more about it or buy it.)\endlink
 
 \target fowler
 <b>GUI Design Handbook</b> by Susan Fowler, ISBN 0-07-059274-8, is an
@@ -935,7 +935,7 @@ problems, comparison with other widgets that can serve some of the
 same roles as this one, etc.
 
 \link http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t 
-(Read more or buy it.)\endlink
+(Read more about it or buy it.)\endlink
 
 <b>Macintosh Human Interface Guidelines</b>, second edition, ISBN
 0-201-62216-5, is worth buying for the \e {don't}s alone.  Even
@@ -943,7 +943,7 @@ though you're not writing Macintosh software, avoiding most of what it
 advises against will produce more easily comprehensible software.
 Doing what it tells you to \e do helps, too.
 \link http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t 
-(Read more or buy it.)\endlink
+(Read more about it or buy it.)\endlink
 
 This book is now available
 \link http://developer.apple.com/techpubs/mac/HIGuidelines/HIGuidelines-2.html 
@@ -955,7 +955,7 @@ OS 8 addendum.\endlink
 is Microsoft's look and feel Bible.  Indispensable for everyone who
 has customers that worship Microsoft, and it's quite good, too.
 \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t 
-(Read more or buy it.)\endlink
+(Read more about it or buy it.)\endlink
 
 Microsoft's guidelines are often available on the web, but have
 occasionally been hidden in an impenetrable maze of javascript.
@@ -969,7 +969,7 @@ book explains these goals from scratch and how to reach them, both
 with single icons and icon families.  Some 500 examples are scattered
 throughout the text, generally in groups of four or five.
 \link http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t 
-(Read more or buy it.)\endlink
+(Read more about it or buy it.)\endlink
 
 \section1 <nobr>Buying these books from</nobr>
 \link http://www.amazon.com/text/ Amazon.com.\endlink
