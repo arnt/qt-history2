@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#16 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -103,7 +103,7 @@ static Atom qt_xdnd_source_current_time;
 static Atom qt_xdnd_target_current_time;
 
 // dict of payload data, sorted by type atom
-QIntDict<QByteArray> qt_xdnd_target_data;
+QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
@@ -604,9 +604,12 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
     Atom * a = qt_xdnd_atom_numbers.find( format );
     if ( !a || !*a )
 	return result;
+    
+    if ( !qt_xdnd_target_data )
+	qt_xdnd_target_data = new QIntDict<QByteArray>( 17 );
 
-    if ( qt_xdnd_target_data.find( (int)*a ) ) {
-	result = *qt_xdnd_target_data.find( (int)*a );
+    if ( qt_xdnd_target_data->find( (int)*a ) ) {
+	result = *(qt_xdnd_target_data->find( (int)*a ));
     } else {
 	if ( XGetSelectionOwner( qt_xdnd_current_widget->x11Display(),
 				 qt_xdnd_selection ) == None )
@@ -640,7 +643,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 		//debug( "Qt clipboard: unknown atom %ld", type);
 	    }
 	}
-	qt_xdnd_target_data.insert( (int)a, new QByteArray( result ) );
+	qt_xdnd_target_data->insert( (int)a, new QByteArray( result ) );
     }
 	
     return result;
