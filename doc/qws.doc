@@ -51,6 +51,9 @@ Linux platforms is a trivial matter - see the files in <tt>configs/</tt>.
    For Matrox G100/G200/G400 use the matrox frame buffer driver.
 
 <p>
+   For NVidia TNT cards use the nvidia frame buffer driver.
+
+<p>
    For Mach64 and most other cards, use the vesafb driver.
 
 
