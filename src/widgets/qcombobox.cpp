@@ -1491,8 +1491,19 @@ void QComboBox::popup()
 		connect( p, SIGNAL(highlighted(int)), SLOT(internalHighlight(int)) );
 	    }
 	    d->popup()->clear();
-	    for(unsigned int i = 0; i < d->listBox()->count(); i++)
-		d->popup()->insertItem(new QComboBoxPopupItem(d->listBox()->item(i)), i, i);
+	    for(unsigned int i = 0; i < d->listBox()->count(); i++) {
+		QListBoxItem *item = d->listBox()->item(i);
+		if(item->rtti() == QListBoxText::RTTI) {
+		    d->popup()->insertItem(item->text());
+		} else if(item->rtti() == QListBoxPixmap::RTTI) {
+		    if(item->pixmap())
+			d->popup()->insertItem(QIconSet(*item->pixmap()), item->text());
+		    else
+			d->popup()->insertItem(item->text());
+		} else {
+		    d->popup()->insertItem(new QComboBoxPopupItem(item), i, i);
+		}
+	    }
 	}
 	d->popup()->installEventFilter( this );
 	if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
