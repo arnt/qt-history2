@@ -555,6 +555,8 @@ QObjectList *MainWindow::runProject()
 	}
 
 	LanguageInterface *liface = MetaDataBase::languageInterface( lang );
+	if ( iiface )
+	    iiface->init();
 	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
 	    for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
 		  sources.current(); ++sources ) {

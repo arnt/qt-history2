@@ -382,6 +382,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		InterpreterInterface *interpreterInterface = 0;
 		interpreterInterfaceManager->queryInterface( *lit, &interpreterInterface );
 		if ( eventInterface && interpreterInterface ) {
+		    interpreterInterface->init();
 		    QMap<QString, Functions*>::Iterator fit = widgetFactory->languageFunctions.find( *lit );
 		    if ( fit != widgetFactory->languageFunctions.end() ) {
 			QString funcs = (*fit)->functions;
