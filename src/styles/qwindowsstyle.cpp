@@ -1380,7 +1380,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			    // dotlinery
 			    p->setPen( cg.mid() );
 			    dotlines[c++] = QPoint( bx, linetop );
-			    dotlines[c++] = QPoint( bx, linebot - 5 );
+			    dotlines[c++] = QPoint( bx, linebot - 4 );
 			    dotlines[c++] = QPoint( bx + 5, linebot );
 			    dotlines[c++] = QPoint( r.width(), linebot );
 			    linetop = linebot + 5;
