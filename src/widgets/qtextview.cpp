@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#15 $
 **
 ** Implementation of the QTextView class
 **
@@ -55,7 +55,9 @@
 
   The rendering style and available tags are defined by a
   styleSheet(). Currently, a small XML/CSS1 subset including embedded
-  images is supported. See QStyleSheet for details.
+  images is supported. See QStyleSheet for details. Possible images
+  within the text document are resolved by using a QMimeSourceFactory.
+  See setMimeSourceFactory() for details.
 
   Using QTextView is quite similar to QLabel. It's mainly a call to
   setText() to set the contents. Setting the background color is

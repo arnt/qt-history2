@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#3 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -34,7 +34,17 @@
   This class encapsulates simple richt text usage where a string is
   interpretted as richt text and can be drawn. This is in particular
   useful if you want to display some rich text in a custom widget.
-
+  
+  Once created, the rich text object can be queried for its width(),
+  height() and the actual width used ( see widthUsed() ). And, most
+  certainly, it can be drawn on any given QPainter with draw().  By
+  using anchor(), it is possible to use QSimpleRichText to implement
+  some kind of hypertext or active text facilities as well.
+  
+  Changes other than resizing with setWidth() cannot be made. If the
+  contents is supposed to change, just throw the rich text object away
+  and make a new one with the new contents.
+  
   For large documents, see QTextView or QTextBrowser.
 */
 
@@ -61,16 +71,16 @@ public:
   \a context is the optional context of the document. This becomes
   important if \a text contains relative references, for example
   within image tags. QSimpleRichText always uses the default mime
-  source factory ( see QMimeSourceFactory::defaultFactory() ) to
-  resolve references. The context will then be used to calculate the
-  absolute path. See QMimeSourceFactory::makeAbsolute() for details.
-  
-  \a s is an optional stylesheet. If it is 0, the default style sheet
-  will be used ( see QStyleSheet::defaultSheet() ).
+  source factory (see QMimeSourceFactory::defaultFactory() ) to
+  resolve those references. The context will then be used to calculate
+  the absolute path. See QMimeSourceFactory::makeAbsolute() for
+  details.
 
-  Once created, changes cannot be made (just throw it away and make
-  a new one with the new contents).  */
-QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt, 
+  \a s is an optional stylesheet. If it is 0, the default style sheet
+  will be used (see QStyleSheet::defaultSheet() ).
+
+*/
+QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context, const QStyleSheet* s)
 {
     d  = new QSimpleRichTextData;
@@ -88,7 +98,7 @@ QSimpleRichText::~QSimpleRichText()
 
 /*!
   Sets the width of the document to \a w pixels, recalculating the layout
-  as if it were to be drawn with \a p.  ####### QPaintDevice
+  as if it were to be drawn with \a p. 
 
   \sa height()
 */
@@ -161,8 +171,8 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
 }
 
 
-/*! 
-  Returns the context of the rich text document. If no context has been specified 
+/*!
+  Returns the context of the rich text document. If no context has been specified
   in the constructor, a null string is returned.
 */
 QString QSimpleRichText::context() const

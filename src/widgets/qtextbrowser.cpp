@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#9 $
 **
 ** Implementation of the QTextView class
 **
@@ -47,16 +47,35 @@
   \brief A rich text  browser with simple navigation.
   \ingroup realwidgets
 
-  This class is the same as the QTextView it inherits, with the addition
-  that it provides basic navigation features to follow links in hypertext
-  documents that link to other rich text documents.
+  This class is the same as the QTextView it inherits, with the
+  addition that it provides basic navigation features to follow links
+  in hypertext documents that link to other rich text documents. While
+  QTextView only allows to set its contents with setText(),
+  QTextBrowser has an additional function setSource(), that makes it
+  possible to set documents by name. These names are looked up in the
+  text view's mime source factory. If a document name ends with an
+  anchor, for example "\c #anchor", the text browser will
+  automatically scroll accordingly ( using scrollToAnchor() ). When
+  the user clicks on a hyperlink, the browser will call setSource()
+  itself, with the link's \c href value as argument.
 
-  This class doesn't provide actual Back and Forward buttons, but it
-  has backward() and forward() slots that implement the functionality.
+  QTextBrowser doesn't provide actual Back and Forward buttons, but it
+  has backward() and forward() slots that implement the
+  functionality. The home() slots brings it back to its very first
+  document displayed.
 
   By using QTextView::setMimeSourceFactory(), you can provide your own
-  subclass of QMimeSourceFactory, to access data from anywhere you
-  need to.
+  subclass of QMimeSourceFactory. This makes it possible to access
+  data from anywhere you need to, may it be the network or a
+  database. See QMimeSourceFactory::data() for details.
+  
+  If you intend to use the mime factory to read the data directly from
+  the file system, you may have to specify the encoding for the file
+  extension you are using. For example
+  \code
+  mimeSourceFactory()->setExtensionType("qml", "text/utf8");
+  \endcode
+  Otherwise, the factory will not be able to resolve the document names.
 
   For simpler richt text use, see QLabel, QTextView or QSimpleRichText.
 */
@@ -104,7 +123,7 @@ QTextBrowser::~QTextBrowser()
   In addition to the factory lookup, this functions also checks for
   optional anchors and scrolls the document accordingly.
 
-  If the first tag in the document is \c &lt;qt \ctype=detail&gt;, it is
+  If the first tag in the document is \c &lt;qt \c type=detail&gt;, it is
   displayed as a popup rather than as new document in the browser
   window itself. Otherwise, the document is set normally via
   setText(), with \a name as new context.
@@ -113,7 +132,7 @@ QTextBrowser::~QTextBrowser()
   source factory, you have to ensure that the factory knows about the
   encoding of specified text files, otherwise no data will be
   available. The default factory handles a couple of common file
-  extensions such as \c *.html, \c *.txt with reasonable defaults. See
+  extensions such as \c *.html and \c *.txt with reasonable defaults. See
   QMimeSourceFactory::data() for details.
 
 */

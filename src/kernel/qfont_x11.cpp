@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#169 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -247,7 +247,7 @@ static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
                                                 // default character set:
-QFont::CharSet QFont::defaultCharSet = QFont::AnyCharSet; 
+QFont::CharSet QFont::defaultCharSet = QFont::AnyCharSet;
 
 //
 // This function returns the X font struct for a QFontData.
@@ -300,11 +300,11 @@ static struct {
 };
 
 
-/*!  
+/*!
   Internal function that uses locale information to find the preferred
   character set of loaded fonts.
 
-  \internal 
+  \internal
   Uses QTextCodec::codecForLocale() to find the character set name.
 */
 void QFont::locale_init()
@@ -406,7 +406,7 @@ HANDLE QFont::handle() const
     return last;
 }
 
-/*  
+/*
   Fills in a font definition (QFontDef) from an XLFD (X Logical Font
   Description). Returns TRUE if the the given xlfd is valid. If the xlfd
   is valid the encoding name (charset registry + "-" + charset encoding)
@@ -485,7 +485,7 @@ bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
 
 #if 1
     //qWarning( "Resolution = %s", tokens[ResolutionY] );
-    
+
     if ( strcmp(tokens[ResolutionY], "75") != 0 ) { // if not 75 dpi
 	//int fett = fd->pointSize;
 	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY]) + 75)
@@ -503,11 +503,13 @@ bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
 }
 
 /*!
-  Returns the name of the font within the underlying system.
+  Returns the name of the font within the underlying window system.
+  On Windows, this is usually just the family name of a true type
+  font. Under X, it is  a rather complex  XLFD (X Logical Font Description).  
   <em>Using the return value of this function is usually not
   portable.</em>
 
-  \sa setRawMode(), rawMode()
+  \sa setRawName()
 */
 QString QFont::rawName() const
 {
@@ -516,12 +518,34 @@ QString QFont::rawName() const
     return QString::fromLatin1(d->fin->name());
 }
 
+/*!
+  Sets a font by its system specific name. The function is in
+  particular useful under X, where system font settings ( for example
+  X resources) are usually available as XLFD (X Logical Font
+  Description) only. You can pass an XLFD as \a name to this function.
+  
+  The big advantage over Qt-1.x' concept of raw fonts is, that a font
+  after setRawName() is still a full-featured QFont. It can be queried
+  (for example with italic()) or modified (for example with
+  setItalic() ) and is therefore also suitable as a basis font for
+  rendering rich text.
+  
+  If Qt's internal font database cannot resolve the raw name, the font
+  becomes a raw font with \a name as family.
+  
+  \bug Doesn't handle wildcards in XLFDs well, only complete
+  descriptions.  Aliases ( file \c fonts.alias in the font directory
+  on X11) are not supported.
+  
+  \sa rawName(), setRawMode(), setFamily()
+*/
 void QFont::setRawName( const QString &name )
 {
     detach();
     bool validXLFD = fillFontDef( name.latin1(), &d->req, 0 );
     d->req.dirty = TRUE;
     if ( !validXLFD ) {
+	qWarning("QFront: invalid X font description '%s'", name.latin1() );
 	setFamily( name );
 	setRawMode( TRUE );
     }
@@ -1080,7 +1104,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     QCString bestName;
     char *tokens[fontFields];
 
-    if ( bestScalable.score == exactScore || 
+    if ( bestScalable.score == exactScore ||
 	 ( bestScalable.score > best.score ||
 	   bestScalable.score == best.score &&
 	   ( best.pointDiff != 0 ||
@@ -1163,7 +1187,7 @@ QCString QFont_Private::findFont( bool *exact )
     }
 
     QString foundry;
-    
+
     if ( familyName.contains('-') ) {
 	int i = familyName.find('-');
 	foundry = familyName.left( i );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#502 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#503 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -914,9 +914,6 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		  FocusChangeMask | PropertyChangeMask
 		  );
 
-    qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
-
-
 #if !defined(NO_XIM)
     qt_xim = 0;
     setlocale( LC_ALL, "" );		// use correct char set mapping
@@ -995,6 +992,8 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     QFont f( "Helvetica", 12 ); // default font
     f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
     QApplication::setFont( f );
+    
+    qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 }
 
 void qt_init( int *argcptr, char **argv )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#126 $
 **
 ** Implementation of QLabel widget class
 **
@@ -224,7 +224,10 @@ void QLabel::init()
 
   \a text may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the label autodetects the format from \a text.
+  i.e. the label autodetects the format from \a text. If the format is
+  \c RichText, the label uses the default mime source factory to
+  resolve references to images. See
+  QMimeSourceFactory::defaultFactory() for details.
 
   Note that a label is only useful for rather small documents with one
   or maximal two lines of text.  If you need to display larger

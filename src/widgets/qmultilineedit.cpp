@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#50 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -445,9 +445,9 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 	    // TODO: set it other times, eg. when scrollbar moves view
 	    QWMatrix wm = painter->worldMatrix();
-	    setMicroFocusHint( int(wm.dx()+cXPos),
-			       int (wm.dy()+cYPos),
-			       1, fm.ascent() );
+ 	    setMicroFocusHint( int(wm.dx()+cXPos),
+ 			       int (wm.dy()+cYPos),
+ 			       1, fm.ascent() );
 	}
     }
     p.end();
@@ -1120,6 +1120,9 @@ static QString getOneLine( const QString &txt, uint& offset )
 
 void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark )
 {
+    killTimer( blinkTimer );
+    cursorOn = TRUE;
+    
     line = QMAX( QMIN( line, numLines() - 1), 0 );
     col = QMAX( QMIN( col,  lineLength( line )), 0 );
 
@@ -1224,6 +1227,7 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
     textDirty = TRUE;
     mlData->edited = TRUE;
     makeVisible();
+    blinkTimer = startTimer(  QApplication::cursorFlashTime() / 2  );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#114 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -196,7 +196,7 @@ static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
                                                 // default character set:
 // ### Not used until we have support for for codecs on Windows 95/98
-QFont::CharSet     QFont::defaultCharSet = QFont::AnyCharSet; 
+QFont::CharSet     QFont::defaultCharSet = QFont::AnyCharSet;
 
 /*****************************************************************************
   QFont member functions
@@ -267,6 +267,11 @@ HFONT QFont::handle() const
 QString QFont::rawName() const
 {
     return family();
+}
+
+void QFont::setRawName( const QString &name )
+{
+    setFamily( name );
 }
 
 
@@ -569,7 +574,7 @@ int QFontMetrics::descent() const
 
 
 bool QFontMetrics::inFont(QChar ch) const
-{ 
+{
 #ifdef UNICODE
     if ( qt_winver == Qt::WV_NT ) {
 	TEXTMETRICW *f = TMW;
