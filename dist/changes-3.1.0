@@ -1,8 +1,62 @@
 
+Qt 3.1 introduces new features as well as many improvements over the
+3.0.x series. This file gives an overview of the main changes since
+version 3.0.5.  For further detail see the online documentation which
+is included in this distribution, and also available on
+http://doc.trolltech.com/
+
+The Qt version 3.1 series is binary compatible with the 3.0.x series -
+applications compiled for 3.0 will continue to run with 3.1.
+
 ****************************************************************************
 *			    General					   *
 ****************************************************************************
 
+Qt 3.1 is prepared for the creation of scriptable
+applications. Increasingly often, application resellers and end-users
+desire an easy-to-use script interface to the application, to be used
+for creating and performing custom operations. With Qt Script for
+Applications (QSA) (to be relased after 3.1), such script interfaces
+can easily be added to Qt-based applications. QSA consists of a script
+engine, a script IDE, and script bindings to the Qt API.
+
+The visual GUI builder, Qt Designer, has improved usability in several
+aspects. The earlier, somewhat cluttered toolbars have been cleaned
+up. The property editor can operate on multiple widgets
+simultaneously. Designer now also offers proper WYSIWYG support for
+using QWidgetStacks in the created GUIs.
+
+Qt Assistant, the Qt help documentation browser, got support for
+adding custom documentation sets. This makes it easy to use it as the
+help browser for customer applications.
+
+As the industry is phasing out Motif, more and more companies are
+finding themselves in a situation where they need a gradual migration
+path over to Qt. Instead of holding up releases for a longer time
+while the whole legacy code base is being ported, companies naturally
+desire to do the porting work module by module, and release hybrid
+applications during the process. To meet this demand, Qt 3.1
+introduces powerful support for Qt and Motif coexistence in the same
+application (this obsoletes the earlier, rudimentary Qt Xt/Motif
+Extension).
+
+On the MS Windows platform, there is a strong demand to use the Qt and
+ActiveX technologies together. People are also requesting clean and
+simple Qt APIs to replace the native APIs for dealing with COM and
+ActiveX. Qt 3.1 introduces the ActiveQt module, which contains both
+support for hosting ActiveX controls in a Qt application, as well as
+support for building ActiveX controls with Qt (e.g. Internet Explorer
+plugins).
+
+Qt/Mac, the Mac OS X version of Qt, was an instant success when it was
+introduced with version 3.0. In 3.1, many improvements have been added
+to further integrate Qt with the Mac OS X environment, e.g. Appearance
+Manager, anitaliased text drawing, and user settings. The Qt OpenGL
+support is greatly improved, and uses the hardware-accellerated
+drivers.
+
+Last, but not least: As all major Qt releases, the 3.1 release adds
+hundreds of minor improvements in the existing class library.
 
 
 ****************************************************************************
@@ -10,7 +64,7 @@
 ****************************************************************************
 
 - QScrollBar
-	Emit the nextLine(), prevLine(), nextPage(), prevPage() and 
+	Emit the nextLine(), prevLine(), nextPage(), prevPage() and
 	valueChanged() signals after the value has been changed.
 
 
