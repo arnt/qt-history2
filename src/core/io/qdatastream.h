@@ -23,9 +23,22 @@ template<class Key, class T> class QHash;
 template<class Key, class T> class QMap;
 
 #ifndef QT_NO_DATASTREAM
-class Q_CORE_EXPORT QDataStream                                // data stream class
+class Q_CORE_EXPORT QDataStream
 {
 public:
+    enum Version {
+        Qt_1_0 = 1,
+        Qt_2_0 = 2,
+        Qt_2_1 = 3,
+        Qt_3_0 = 4,
+        Qt_3_1 = 5,
+        Qt_3_3 = 6,
+        Qt_4_0 = 7 
+#if QT_VERSION >= 0x040100
+#error "Add Qt_4_1 = Qt_4_0"
+#endif
+    };
+
     QDataStream();
     QDataStream(QIODevice *);
     QDataStream(QByteArray *, int mode);
