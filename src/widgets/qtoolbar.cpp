@@ -290,9 +290,9 @@ void QToolBar::setOrientation( Orientation newOrientation )
 
 void QToolBar::show()
 {
+    QWidget::show();
     if ( mw )
 	mw->triggerLayout();
-    QWidget::show();
 }
 
 
@@ -302,9 +302,9 @@ void QToolBar::show()
 
 void QToolBar::hide()
 {
+    QWidget::hide();
     if ( mw )
 	mw->triggerLayout();
-    QWidget::hide();
 }
 
 void QToolBar::setUpGM()

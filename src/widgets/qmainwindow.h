@@ -65,7 +65,7 @@ public:
     virtual void setCentralWidget( QWidget * );
     QWidget * centralWidget() const;
 
-    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Hidden };
+    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
 
     virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
@@ -116,7 +116,7 @@ signals:
     void startMovingToolBar( QToolBar * );
     void endMovingToolBar( QToolBar * );
     void toolBarPositionChanged( QToolBar * );
-    
+
 protected slots:
     virtual void setUpLayout();
 
@@ -134,7 +134,7 @@ private:
     void triggerLayout( bool deleteLayout = TRUE);
     void moveToolBar( QToolBar *, QMouseEvent * );
     void rightMouseButtonMenu( const QPoint &p );
-
+    
     virtual void setMenuBar( QMenuBar * );
     virtual void setStatusBar( QStatusBar * );
     virtual void setToolTipGroup( QToolTipGroup * );

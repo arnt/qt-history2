@@ -161,7 +161,7 @@ public:
 	dockable[ (int)QMainWindow::Top ] = TRUE;
 	dockable[ (int)QMainWindow::Bottom ] = TRUE;
 	dockable[ (int)QMainWindow::Unmanaged ] = TRUE;
-	dockable[ (int)QMainWindow::Hidden ] = TRUE;
+	dockable[ (int)QMainWindow::Minimized ] = TRUE;
 	dockable[ (int)QMainWindow::TornOff ] = TRUE;
 	lLeft = lRight = lTop = lBottom = 0;
 	lastTopHeight = -1;
@@ -694,7 +694,7 @@ QLayoutIterator QMainWindowLayout::iterator()
 }
 
 //************************************************************************************************
-// --------------------------------- Hidden Dock -----------------------
+// --------------------------------- Minimized Dock -----------------------
 //************************************************************************************************
 
 
@@ -732,6 +732,8 @@ protected:
 	int x = 0;
 	int i = 0;
 	for ( tb = d->hidden->first(); tb; tb = d->hidden->next(), ++i ) {
+	    if ( !tb->t->isVisible() )
+		continue;
 	    style().drawToolBarHandle( &p, QRect( x, 0, 30, 10 ), Qt::Vertical,
 				       i == pressedHandle, colorGroup(), TRUE );
 	    x += 30;
@@ -744,43 +746,47 @@ protected:
 	    return;
 	mouseMoveEvent( e );
 
-	if ( e->button() == RightButton && pressedHandle != -1 && win->isDockMenuEnabled() ) {
-	    QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
-	    QPopupMenu menu( this );
-	    int left = menu.insertItem( QMainWindow::tr( "&Left" ) );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Left )
-				 && win->isDockEnabled( tb->t, QMainWindow::Left ) );
-	    int right = menu.insertItem( QMainWindow::tr( "&Right" ) );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Right )
-				 && win->isDockEnabled( tb->t, QMainWindow::Right ) );
-	    int top = menu.insertItem( QMainWindow::tr( "&Top" ) );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Top )
-				 && win->isDockEnabled( tb->t, QMainWindow::Top ) );
-	    int bottom = menu.insertItem( QMainWindow::tr( "&Bottom" ) );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Bottom )
-				 && win->isDockEnabled( tb->t, QMainWindow::Bottom ) );
-	    menu.insertSeparator();
-	    int hide = menu.insertItem( QMainWindow::tr( "R&estore" ) );
-	    QMainWindow::ToolBarDock dock = tb->oldDock;
-	    menu.setItemEnabled( left, win->isDockEnabled( dock )
-				 && win->isDockEnabled( tb->t, dock ) );
-	    int res = menu.exec( e->globalPos() );
-	    pressed = FALSE;
-	    pressedHandle = -1;
-	    repaint( TRUE );
-	    if ( res == left )
-		win->moveToolBar( tb->t, QMainWindow::Left );
-	    else if ( res == right )
-		win->moveToolBar( tb->t, QMainWindow::Right );
-	    else if ( res == top )
-		win->moveToolBar( tb->t, QMainWindow::Top );
-	    else if ( res == bottom )
-		win->moveToolBar( tb->t, QMainWindow::Bottom );
-	    else if ( res == hide )
-		win->moveToolBar( tb->t,  dock );
-	    else
-		return;
-	    tb->t->show();
+	if ( e->button() == RightButton && win->isDockMenuEnabled() ) {
+	    if ( pressedHandle != -1 ) {
+		QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
+		QPopupMenu menu( this );
+		int left = menu.insertItem( QMainWindow::tr( "&Left" ) );
+		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Left )
+				     && win->isDockEnabled( tb->t, QMainWindow::Left ) );
+		int right = menu.insertItem( QMainWindow::tr( "&Right" ) );
+		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Right )
+				     && win->isDockEnabled( tb->t, QMainWindow::Right ) );
+		int top = menu.insertItem( QMainWindow::tr( "&Top" ) );
+		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Top )
+				     && win->isDockEnabled( tb->t, QMainWindow::Top ) );
+		int bottom = menu.insertItem( QMainWindow::tr( "&Bottom" ) );
+		menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Bottom )
+				     && win->isDockEnabled( tb->t, QMainWindow::Bottom ) );
+		menu.insertSeparator();
+		int hide = menu.insertItem( QMainWindow::tr( "R&estore" ) );
+		QMainWindow::ToolBarDock dock = tb->oldDock;
+		menu.setItemEnabled( left, win->isDockEnabled( dock )
+				     && win->isDockEnabled( tb->t, dock ) );
+		int res = menu.exec( e->globalPos() );
+		pressed = FALSE;
+		pressedHandle = -1;
+		repaint( TRUE );
+		if ( res == left )
+		    win->moveToolBar( tb->t, QMainWindow::Left );
+		else if ( res == right )
+		    win->moveToolBar( tb->t, QMainWindow::Right );
+		else if ( res == top )
+		    win->moveToolBar( tb->t, QMainWindow::Top );
+		else if ( res == bottom )
+		    win->moveToolBar( tb->t, QMainWindow::Bottom );
+		else if ( res == hide )
+		    win->moveToolBar( tb->t,  dock );
+		else
+		    return;
+		tb->t->show();
+	    } else {
+		win->rightMouseButtonMenu( e->globalPos() );
+	    }
 	}
     }
 
@@ -794,6 +800,8 @@ protected:
 	int i = 0;
 	if ( e->y() >= 0 && e->y() <= height() ) {
 	    for ( tb = d->hidden->first(); tb; tb = d->hidden->next(), ++i ) {
+		if ( !tb->t->isVisible() )
+		    continue;
 		if ( e->x() >= x && e->x() <= x + 30 ) {
 		    int old = pressedHandle;
 		    pressedHandle = i;
@@ -812,11 +820,9 @@ protected:
 
     void mouseReleaseEvent( QMouseEvent *e ) {
 	pressed = FALSE;
-	if ( pressedHandle == -1 ) {
-	    win->rightMouseButtonMenu( e->globalPos() );
+	if ( pressedHandle == -1 )
 	    return;
-	}
-	if ( !d->hidden || d->hidden->isEmpty() )
+       	if ( !d->hidden || d->hidden->isEmpty() )
 	    return;
 	if ( e->button() == LeftButton ) {
 	    if ( e->y() >= 0 && e->y() <= height() ) {
@@ -852,6 +858,8 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     int x = 0;
     int i = 0;
     for ( tb = dock->d->hidden->first(); tb; tb = dock->d->hidden->next(), ++i ) {
+	if ( !tb->t->isVisible() )
+	    continue;
 	if ( pos.x() >= x && pos.x() <= x + 30 ) {
 	    if ( !tb->t->label().isEmpty() )
 		tip( QRect( x, 0, 30, dock->height() ), tb->t->label() );
@@ -902,7 +910,7 @@ static void saveToolLayout( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock
     case QMainWindow::Unmanaged:
 	dl = d->unmanaged;
 	break;
-    case QMainWindow::Hidden:
+    case QMainWindow::Minimized:
 	dl = d->hidden;
 	break;
     case QMainWindow::TornOff:
@@ -956,7 +964,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     case QMainWindow::Unmanaged:
 	dl = d->unmanaged;
 	break;
-    case QMainWindow::Hidden:
+    case QMainWindow::Minimized:
 	dl = d->hidden;
 	break;
     case QMainWindow::TornOff:
@@ -1197,7 +1205,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   The QMainWindow allows by default toolbars in all docking areas.
   You can use setDockEnabled() to enable and disable docking areas
   for toolbars. Currently, only \c Top, \c Left, \c Right, \c Bottom
-  and \c Hidden are meaningful.
+  and \c Minimized are meaningful.
 
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
@@ -1215,9 +1223,9 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   Toolbars can be dragged by the user into each enabled docking area
   and inside each docking area to change the order of the toolbars
   there. This feature can be enabled and disabled using setToolBarsMovable().
-  By default this feature is enabled. If the \c Hidden dock is enabled the user
-  can hide/show a toolbar with a click on the toolbar handle. The handles of
-  all hidden toolbars are drawn below the menu bar in one row, and if the user
+  By default this feature is enabled. If the \c Minimized dock is enabled the user
+  can hide(minimize)/show a toolbar with a click on the toolbar handle. The handles of
+  all minimized toolbars are drawn below the menu bar in one row, and if the user
   moves the mouse cursor onto such a handle, the label of the toolbar
   is displayed in a tool tip (see QToolBar::label()).
 
@@ -1264,7 +1272,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     <li>\c Bottom - below the central widget, above the status bar.
     <li>\c Left - to the left of the central widget.
     <li>\c Right - to the left of the central widget.
-    <li>\c Hidden - the toolbar is not shown - all handles of hidden toolbars
+    <li>\c Minimized - the toolbar is not shown - all handles of minimized toolbars
     are drawn in one row below the menu bar.
   </ul>
 
@@ -1467,7 +1475,7 @@ void QMainWindow::setDockEnabled( ToolBarDock dock, bool enable )
 	    if ( !d->unmanaged )
 		d->unmanaged = new QMainWindowPrivate::ToolBarDock();
 	    break;
-	case Hidden:
+	case Minimized:
 	    if ( !d->hidden )
 		d->hidden = new QMainWindowPrivate::ToolBarDock();
 	    break;
@@ -1499,7 +1507,7 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 	return d->dockable[ (int)dock ];
     case Unmanaged:
 	return d->dockable[ (int)dock ];
-    case Hidden:
+    case Minimized:
 	return d->dockable[ (int)dock ];
     }
     return FALSE; // for illegal values of dock
@@ -1589,7 +1597,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar,
 	dl = d->tornOff;
     } else if ( edge == Unmanaged ) {
 	dl = d->unmanaged;
-    } else if ( edge == Hidden ) {
+    } else if ( edge == Minimized ) {
 	dl = d->hidden;
     }
 
@@ -1598,7 +1606,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar,
 
     QMainWindowPrivate::ToolBar *tb = new QMainWindowPrivate::ToolBar( toolBar, newLine );
     dl->append( tb );
-    if ( tb && edge != Hidden ) {
+    if ( tb && edge != Minimized ) {
 	tb->oldDock = edge;
 	tb->oldIndex = dl->findRef( tb );
     }
@@ -1692,12 +1700,12 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    dl = d->tornOff;
 	} else if ( edge == Unmanaged ) {
 	    dl = d->unmanaged;
-	} else if ( edge == Hidden ) {
+	} else if ( edge == Minimized ) {
 	    dl = d->hidden;
 	}
 
 	if ( !dl ) {
-	    if ( edge != Hidden ) {
+	    if ( edge != Minimized ) {
 		ct->oldDock = edge;
 		ct->oldIndex = dl->findRef( ct );
 	    } else
@@ -1771,7 +1779,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 		}
 	    }
 	}
-	if ( edge != Hidden ) {
+	if ( edge != Minimized ) {
 	    ct->oldDock = edge;
 	    ct->oldIndex = dl->findRef( ct );
 	} else
@@ -1782,7 +1790,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar, dummy );
 	if ( tb )
 	    tb->disabledDocks = dd;
-	if ( tb && edge != Hidden ) {
+	if ( tb && edge != Minimized ) {
 	    tb->oldDock = edge;
 	    tb->oldIndex = 0;
 	}
@@ -1832,7 +1840,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
     case Unmanaged:
 	dl = d->unmanaged;
 	break;
-    case Hidden:
+    case Minimized:
 	dl = d->hidden;
 	break;
     case TornOff:
@@ -1912,13 +1920,21 @@ void QMainWindow::setUpLayout()
     d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
     d->tll->addSpacing( 1 );
     if ( d->hidden && !d->hidden->isEmpty() ) {
+	int visibles = 0;
 	d->hideDock->show();
 	QMainWindowPrivate::ToolBar *tb;
 	for ( tb = d->hidden->first(); tb; tb = d->hidden->next() ) {
 	    if ( tb->t->isVisible() )
-		tb->t->QWidget::hide();
+		visibles++;
+	    tb->t->resize( 0, 0 );
+	    tb->t->move( -tb->t->width() - 2, -tb->t->height() - 2 );
 	}
-	d->hideDock->repaint( TRUE );
+	if ( !visibles ) {
+	    d->hideDock->hide();
+	} else {
+	    d->hideDock->repaint( TRUE );
+	    repaint( TRUE );
+	}
     } else {
 	d->hideDock->hide();
     }
@@ -2229,11 +2245,21 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 {
     if ( !deleteLayout ) {
 	if ( d->hidden && !d->hidden->isEmpty() ) {
+	    int visibles = 0;
 	    d->hideDock->show();
 	    QMainWindowPrivate::ToolBar *tb;
-	    for ( tb = d->hidden->first(); tb; tb = d->hidden->next() )
-		tb->t->hide();
-	    d->hideDock->repaint( TRUE );
+	    for ( tb = d->hidden->first(); tb; tb = d->hidden->next() ) {
+		if ( tb->t->isVisible() )
+		    visibles++;
+		tb->t->resize( 0, 0 );
+		tb->t->move( -tb->t->width() - 2, -tb->t->height() - 2 );
+	    }
+	    if ( !visibles ) {
+		d->hideDock->hide();
+	    } else {
+		d->hideDock->repaint( TRUE );
+		repaint( TRUE );
+	    }
 	} else {
 	    d->hideDock->hide();
 	}
@@ -2436,7 +2462,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    menu.setItemEnabled( left, isDockEnabled( Bottom ) && isDockEnabled( t, Bottom ) );
 	    menu.insertSeparator();
 	    int hide = menu.insertItem( tr( "&Hide" ) );
-	    menu.setItemEnabled( left, isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) );
+	    menu.setItemEnabled( left, isDockEnabled( Minimized ) && isDockEnabled( t, Minimized ) );
 	    int res = menu.exec( e->globalPos() );
 	    if ( res == left )
 		moveToolBar( t, Left );
@@ -2447,7 +2473,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    else if ( res == bottom )
 		moveToolBar( t, Bottom );
 	    else if ( res == hide )
-		moveToolBar( t,  Hidden );
+		moveToolBar( t,  Minimized );
 	    emit endMovingToolBar( t );
 	    d->inMovement = FALSE;
 	    return;
@@ -2541,8 +2567,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		}
 	    }
 	} else { // ... or hide it if it was only a click
-	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
-		moveToolBar( t, Hidden );
+	    if ( isDockEnabled( Minimized ) && isDockEnabled( t, Minimized ) )
+		moveToolBar( t, Minimized );
 	}
 
 	// delete the rect painter
@@ -2690,7 +2716,7 @@ bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool
     else if ( td == d->tornOff )
 	dock = TornOff;
     else if ( td == d->hidden )
-	dock = Hidden;
+	dock = Minimized;
 
     index = td->findRef( t );
     nl = t->nl;
@@ -2723,7 +2749,7 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
     case Unmanaged:
 	tdock = d->unmanaged;
 	break;
-    case Hidden:
+    case Minimized:
 	tdock = d->hidden;
 	break;
     case TornOff:
@@ -2876,8 +2902,8 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
     } else if ( ids.find( id ) ) {
 	QMainWindowPrivate::ToolBar *t = ids[ id ];
 	if ( m.isItemChecked( id ) ) {
-	    if ( isDockEnabled( Hidden ) && isDockEnabled( t->t, Hidden ) )
-		moveToolBar( t->t, Hidden );
+	    if ( isDockEnabled( Minimized ) && isDockEnabled( t->t, Minimized ) )
+		moveToolBar( t->t, Minimized );
 	} else {
 	    t->t->show();
 	    moveToolBar( t->t, t->oldDock, t->nl, t->oldIndex, t->extraOffset );
