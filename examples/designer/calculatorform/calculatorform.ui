@@ -16,7 +16,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Form</string>
+   <string>Calculator Form</string>
   </property>
   <layout class="QGridLayout" >
    <property name="objectName" >
