@@ -9,12 +9,8 @@
 *****************************************************************************/
 
 #include <qapplication.h>
+#include <qstylefactory.h>
 #include "widgets.h"
-#include <qmotifstyle.h>
-#include <qcdestyle.h>
-#include <qwindowsstyle.h>
-#include <qplatinumstyle.h>
-#include <qsgistyle.h>
 
 class MyWidgetView : public WidgetView
 {
@@ -22,29 +18,16 @@ class MyWidgetView : public WidgetView
 public:
     MyWidgetView( QWidget *parent=0, const char *name=0 )
 	:WidgetView(parent, name), s(0)
-	{
-	    setToolBarsMovable( true );
-	}
+    {
+	setToolBarsMovable( true );
+    }
 
-    void button1Clicked() {
-	s++;
-	switch (s%5){
-	case 0:
-	    qApp->setStyle(new QMotifStyle);
-	    break;
-	case 1:
-	    qApp->setStyle(new QCDEStyle);
-	    break;
-	case 2:
-	    qApp->setStyle(new QWindowsStyle);
-	    break;
-	case 3:
-	    qApp->setStyle(new QPlatinumStyle);
-	    break;
-	case 4:
-	    qApp->setStyle(new QSGIStyle);
-	    break;
-	}
+    void button1Clicked() 
+    {
+	QStringList styles = QStyleFactory::styles();
+
+	s = (++s)%styles.count();
+	qApp->setStyle( styles[ s] );
 	WidgetView::button1Clicked();
     }
 };
