@@ -158,8 +158,8 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
 
 void HelpDialog::initialize()
 {
-    connect(tabWidget, SIGNAL(selected(const QString&)),
-             this, SLOT(currentTabChanged(const QString&)));
+    connect(tabWidget, SIGNAL(currentChanged(int)),
+             this, SLOT(currentTabChanged(int)));
     connect(listContents, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint &, int)),
              this, SLOT(showTopic(int,QListViewItem*, const QPoint &)));
     connect(listContents, SIGNAL(currentChanged(QListViewItem*)),
@@ -522,8 +522,9 @@ void HelpDialog::buildContentDict()
     }
 }
 
-void HelpDialog::currentTabChanged(const QString &s)
+void HelpDialog::currentTabChanged(int index)
 {
+    QString s = tabWidget->tabText(index);
     if (stripAmpersand(s).contains(tr("Index")))
         QTimer::singleShot(0, this, SLOT(loadIndexFile()));
     else if (stripAmpersand(s).contains(tr("Bookmarks")))

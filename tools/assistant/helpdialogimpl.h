@@ -86,7 +86,7 @@ protected slots:
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();
-    void currentTabChanged( const QString &s );
+    void currentTabChanged(int index);
     void currentIndexChanged( QListBoxItem *i );
     void showTopic();
     void searchInIndex( const QString &s );

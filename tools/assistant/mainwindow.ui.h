@@ -100,11 +100,11 @@ void MainWindow::setup()
     statusBar()->message(tr( "Initializing Qt Assistant..." ));
     setupCompleted = true;
     helpDock->initialize();
-    connect(actionGoPrevious, SIGNAL(activated()), tabs, SLOT(backward()));
-    connect(actionGoNext, SIGNAL(activated()), tabs, SLOT(forward()));
-    connect(actionEditCopy, SIGNAL(activated()), tabs, SLOT(copy()));
-    connect(actionFileExit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
-    connect(actionAddBookmark, SIGNAL(activated()),
+    connect(actionGoPrevious, SIGNAL(triggered()), tabs, SLOT(backward()));
+    connect(actionGoNext, SIGNAL(triggered()), tabs, SLOT(forward()));
+    connect(actionEditCopy, SIGNAL(triggered()), tabs, SLOT(copy()));
+    connect(actionFileExit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
+    connect(actionAddBookmark, SIGNAL(triggered()),
              helpDock, SLOT(addBookmark()));
     connect(helpDock, SIGNAL(showLink(const QString&)),
              this, SLOT(showLink(const QString&)));
@@ -113,20 +113,20 @@ void MainWindow::setup()
 
     connect(bookmarkMenu, SIGNAL(activated(int)),
              this, SLOT(showBookmark(int)));
-    connect(actionZoomIn, SIGNAL(activated()), tabs, SLOT(zoomIn()));
-    connect(actionZoomOut, SIGNAL(activated()), tabs, SLOT(zoomOut()));
+    connect(actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
+    connect(actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
 
-    connect(actionOpenPage, SIGNAL(activated()), tabs, SLOT(newTab()));
-    connect(actionClosePage, SIGNAL(activated()), tabs, SLOT(closeTab()));
-    connect(actionNextPage, SIGNAL(activated()), tabs, SLOT(nextTab()));
-    connect(actionPrevPage, SIGNAL(activated()), tabs, SLOT(previousTab()));
+    connect(actionOpenPage, SIGNAL(triggered()), tabs, SLOT(newTab()));
+    connect(actionClosePage, SIGNAL(triggered()), tabs, SLOT(closeTab()));
+    connect(actionNextPage, SIGNAL(triggered()), tabs, SLOT(nextTab()));
+    connect(actionPrevPage, SIGNAL(triggered()), tabs, SLOT(previousTab()));
 
 
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
     QAccel *acc = new QAccel(this);
 //     acc->connectItem(acc->insertItem(Key_F5), browser, SLOT(reload()));
-    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), actionZoomIn, SIGNAL(activated()));
+    acc->connectItem(acc->insertItem(QKeySequence("SHIFT+CTRL+=")), actionZoomIn, SIGNAL(triggered()));
 #endif
 
     QAccel *a = new QAccel(this, dw);
@@ -181,7 +181,7 @@ void MainWindow::setupGoActions()
             goActionToolbar->addAction(action);
             goActions.append(action);
             goActionDocFiles->insert(action, config->indexPage(title));
-            connect(action, SIGNAL(activated()),
+            connect(action, SIGNAL(triggered()),
                      this, SLOT(showGoActionLink()));
             ++addCount;
         }
