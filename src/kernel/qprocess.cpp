@@ -159,8 +159,17 @@
     readyReadStdout() and readyReadStderr() signals and read the data
     as soon as it becomes available.
 
-    Note: Under Windows there are certain problems starting 16-bit applications
-    and capture their output. Microsoft recommends to use an intermediate
+    \section1 Notes for Windows users
+
+    Some Windows commands, for example, \c dir, are not provided by
+    separate applications, but by the command interpreter.
+    If you attempt to use QProcess to execute these commands directly
+    it won't work. One possible solution is to execute the command
+    interpreter itself (\c cmd.exe on some Windows systems), and ask
+    the interpreter to execute the desired command.
+
+    Under Windows there are certain problems starting 16-bit applications
+    and capturing their output. Microsoft recommends using an intermediate
     application to start 16-bit applications. See Knowledge Base article \link
     http://support.microsoft.com/default.aspx?scid=KB;en-us;q150956 Q150956
     \endlink for details on this and example code for an intermediate
