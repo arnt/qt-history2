@@ -4449,10 +4449,12 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::FocusIn:
+        qDebug() << "FocusIn on " << this << (QFocusEvent*)e;
         focusInEvent((QFocusEvent*)e);
         break;
 
     case QEvent::FocusOut:
+        qDebug() << "FocusOut on " << this << (QFocusEvent*)e;
         focusOutEvent((QFocusEvent*)e);
         break;
 
@@ -5918,6 +5920,10 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_ContentsPropagated:
         if (isVisible())
             d->updatePropagatedBackground();
+    case Qt::WA_KeyboardAccessibilityHints:
+        if (!style()->styleHint(QStyle::SH_KeyboardAccessibilityHints)) {
+            //### issue update() over all children
+        }
     default:
         break;
     }

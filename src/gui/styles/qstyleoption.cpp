@@ -168,6 +168,9 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_HasFocus;
     if (widget->window()->testAttribute(Qt::WA_KeyboardFocusChange))
         state |= QStyle::State_KeyboardFocusChange;
+    if (widget->window()->testAttribute(Qt::WA_KeyboardAcessibilityHints) 
+        || widget->style()->styleHint(QStyle::SH_AlwaysShowKeyboardAccessibilityHints)
+        state |= QStyle::State_KeyboardAccessibilityHints;
     if (widget->underMouse())
         state |= QStyle::State_MouseOver;
     if (widget->window()->isActiveWindow())

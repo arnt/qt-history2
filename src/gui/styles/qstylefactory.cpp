@@ -149,7 +149,7 @@ QStringList QStyleFactory::keys()
         list << "Windows";
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
-    if (!list.contains("WindowsXP") && QWindowsXPStyle::resolveSymbols())
+    if (!list.contains("WindowsXP"))
         list << "WindowsXP";
 #endif
 #ifndef QT_NO_STYLE_MOTIF
