@@ -33,6 +33,7 @@
 #include <qdict.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qcleanuphandler.h>
 
 #include <qmodules.h>
 
@@ -50,6 +51,7 @@ static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static WidgetPlugInManager *widgetPluginManager = 0;
 
+QCleanUpHandler<WidgetPlugInManager> cleanup_manager;
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
 {
@@ -680,7 +682,9 @@ WidgetPlugInManager *widgetManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    if ( !widgetPluginManager )
+    if ( !widgetPluginManager ) {
 	widgetPluginManager = new WidgetPlugInManager( dir );
+	cleanup_manager.addCleanUp( widgetPluginManager );
+    }
     return widgetPluginManager;
 }
