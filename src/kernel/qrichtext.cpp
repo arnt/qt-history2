@@ -5091,6 +5091,13 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
 #endif
     int start = (startChar - &string->at(0));
     int last = (lastChar - &string->at(0) );
+
+    // This line is to fix problems with right aligned asian text,
+    // where lines don't necessarily end in a space, as they can be
+    // broken after every char.
+    if ( !lastChar->c.isSpace() )
+	space -= lastChar->format()->width( lastChar->c );
+
     // do alignment Auto == Left in this case
     if ( align & Qt::AlignHCenter || align & Qt::AlignRight ) {
 	if ( align & Qt::AlignHCenter )
