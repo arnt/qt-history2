@@ -80,8 +80,19 @@ if [ "$OPENGL" = "yes" ]; then
 	F=
 	for INCDIR in $INCDIRS; do
 	    if [ -f $INCDIR/$I ]; then
-		F=yes
-		[ "$VERBOSE" = "yes" ] && echo "  Found $I in $INCDIR"
+                if [ $I = "GL/glu.h" ]; then
+                    GLU_VERSION_1_2=`grep "#[	 ]*define[	]*GLU_VERSION_1_2" $INCDIR/$I | head -n 1`
+                    if [ -n "$GLU_VERSION_1_2" ]; then
+			F=yes
+		    else
+			[ "$VERBOSE" = "yes" ] && \
+			    echo "  Required GLU version 1.2 not found."
+		    fi
+                else
+		    F=yes
+                fi
+		[ "$F" = "yes" -a "$VERBOSE" = "yes" ] && \
+		    echo "  Found $I in $INCDIR"
 		break
 	    fi
 	done
