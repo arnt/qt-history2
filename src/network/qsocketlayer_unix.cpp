@@ -670,11 +670,11 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     if (socketType == Qt::TcpSocket) socketTypeStr = "TcpSocket";
     else if (socketType == Qt::UdpSocket) socketTypeStr = "UdpSocket";
 
-    qDebug("QSocketLayerPrivate::fetchConnectionParameters() localAddress == %s,"
-           " localPort = %i, peerAddress == %s, peerPort = %i, socketProtocol == %s,"
-           " socketType == %s", localAddress.toString().latin1(), localPort,
-           peerAddress.toString().latin1(), peerPort, socketProtocolStr.latin1(),
-           socketTypeStr.latin1());
+    qDebug("QSocketLayerPrivate::fetchConnectionParameters() local == %s:%i,"
+           " peer == %s:%i, socket == %s - %s",
+           localAddress.toString().latin1(), localPort,
+           peerAddress.toString().latin1(), peerPort,socketTypeStr.latin1(),
+           socketProtocolStr.latin1());
 #endif
     return true;
 }
@@ -720,8 +720,8 @@ Q_LLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LLONG len)
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeWrite(%p \"%s\", %llu) == %i",
-           data, qt_prettyDebug(data, qMin((int) writtenBytes, 16),
-                                (int) writtenBytes).data(), len, (int) writtenBytes);
+           data, qt_prettyDebug(data, qMin((int) len, 16),
+                                (int) len).data(), len, (int) writtenBytes);
 #endif
 
     return (Q_LLONG) writtenBytes;
@@ -759,7 +759,8 @@ Q_LLONG QSocketLayerPrivate::nativeRead(char *data, Q_LLONG maxLength)
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeRead(%p \"%s\", %llu) == %i",
-           data, qt_prettyDebug(data, qMin(r, 16), r).data(), maxLength, r);
+           data, qt_prettyDebug(data, qMin(r, 16), r).data(),
+           maxLength, r);
 #endif
 
     return r;

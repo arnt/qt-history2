@@ -279,9 +279,42 @@
 #include <time.h>
 
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
-//#define QABSTRACTSOCKET_BUFFERSIZE 10
 
 //#define QABSTRACTSOCKET_DEBUG
+
+#if defined QABSTRACTSOCKET_DEBUG
+#include <qstring.h>
+#include <ctype.h>
+
+/*
+    Returns a human readable representation of the first \a len
+    characters in \a data.
+*/
+static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
+{
+    if (!data) return "(null)";
+    QByteArray out;
+    for (int i = 0; i < len; ++i) {
+        char c = data[i];
+        if (isprint(c)) {
+            out += c;
+        } else switch (c) {
+        case '\n': out += "\\n"; break;
+        case '\r': out += "\\r"; break;
+        case '\t': out += "\\t"; break;
+        default:
+            QString tmp;
+            tmp.sprintf("\\%o", c);
+            out += tmp.toLatin1();
+        }
+    }
+
+    if (len < maxLength)
+        out += "...";
+
+    return out;
+}
+#endif
 
 #define d d_func()
 #define q q_func()
@@ -774,18 +807,22 @@ void QAbstractSocketPrivate::canReadNotification(int)
 */
 void QAbstractSocketPrivate::canWriteNotification(int)
 {
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::canWriteNotification()");
-#endif
-    // Prevent the write socket notifier from being called more times
+   // Prevent the write socket notifier from being called more times
     writeSocketNotifier->setEnabled(false);
 
     // If in connecting state, check if the connection has been
     // established, otherwise flush pending data.
-    if (state == Qt::ConnectingState)
+    if (state == Qt::ConnectingState) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocketPrivate::canWriteNotification() testing connection");
+#endif
         testConnection();
-    else
+    } else {
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocketPrivate::canWriteNotification() flushing");
+#endif
         flush();
+    }
 }
 
 /*! \internal
@@ -824,8 +861,10 @@ void QAbstractSocketPrivate::flush()
             socketErrorString = socketLayer.errorString();
             emit q->error(socketError);
             // an unexpected error so close the socket.
-            if (state != Qt::ClosingState)
-                q->abort();
+#if defined (QABSTRACTSOCKET_DEBUG)
+            qDebug("QAbstractSocketPrivate::flush() write error, aborting.");
+#endif
+            q->abort();
             break;
         }
 
@@ -861,14 +900,13 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
     addresses = hostInfo.addresses();
 
 #if defined(QABSTRACTSOCKET_DEBUG)
-    QString s;
+    QString s = "{";
     for (int i = 0; i < addresses.count(); ++i) {
         if (i != 0) s += ", ";
         s += addresses.at(i).toString();
     }
-    if (addresses.count() > 1)
-        s = "{" + s + "}";
-    qDebug("QAbstractSocketPrivate::startConnecting(%s)", s.latin1());
+    s += "}";
+    qDebug("QAbstractSocketPrivate::startConnecting(hostInfo == %s)", s.latin1());
 #endif
 
     // If there are no addresses in the host list, report this to the
@@ -908,10 +946,6 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
 */
 void QAbstractSocketPrivate::connectToNextAddress()
 {
-#if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocketPrivate::connectToNextAddress()");
-#endif
-
     do {
         // Check for more pending addresses
         if (addresses.isEmpty()) {
@@ -1121,7 +1155,9 @@ QAbstractSocket::QAbstractSocket(Qt::SocketType socketType,
     : QObject(parent), QIODevice(p)
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::QAbstractSocket(%p, %p)", &p, parent);
+    qDebug("QAbstractSocket::QAbstractSocket(Qt::%sSocket, QAbstractSocketPrivate == %p, parent == %p)",
+           socketType == Qt::TcpSocket ? "Tcp" : socketType == Qt::UdpSocket
+           ? "Udp" : "Unknown", &p, parent);
 #endif
     // The d_ptr member variable is necessary because we have two base
     // classes with a variable called d_ptr.
@@ -1153,7 +1189,8 @@ QAbstractSocket::~QAbstractSocket()
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::~QAbstractSocket()");
 #endif
-    abort();
+    if (d->state != Qt::UnconnectedState)
+        abort();
 }
 
 /*!
@@ -1207,8 +1244,10 @@ bool QAbstractSocket::connectToHost(const QString &hostName, Q_UINT16 port)
 
 
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::connectToHost(\"%s\", %i) == %s", hostName.latin1(), port,
-           d->state == Qt::ConnectedState ? "true" : "false");
+    qDebug("QAbstractSocket::connectToHost(\"%s\", %i) == %s%s", hostName.latin1(), port,
+           (d->state == Qt::ConnectedState) ? "true" : "false",
+           (d->state == Qt::ConnectingState || d->state == Qt::HostLookupState)
+           ? " (connection in progress)" : "");
 #endif
     return (d->state == Qt::ConnectedState);
 }
@@ -1525,6 +1564,9 @@ void QAbstractSocket::abort()
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::abort()");
 #endif
+    if (d->state == Qt::UnconnectedState)
+        return;
+
     d->writeBuffer.clear();
     close();
 }
@@ -1726,9 +1768,6 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
 */
 Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
 {
-#if defined (QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::write(%p, %lli)", data, length);
-#endif
     if (!isValid()) {
         qWarning("QAbstractSocket::write: Invalid socket");
         return -1;
@@ -1737,6 +1776,12 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
     if (!d->isBuffered) {
         Q_LLONG written = d->socketLayer.write(data, length);
         emit bytesWritten(written);
+
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::write(%p \"%s\", %lli) == %lli", data,
+           qt_prettyDebug(data, qMin((int) length, 16), length).data(),
+           length, written);
+#endif
         return written;
     }
 
@@ -1750,13 +1795,25 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
     if (d->isBlocking) {
         flush();
         // check if something happened in the flush
-        if (!isValid())
+        if (!isValid()) {
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::write(%p \"%s\", %lli) == -1 (%s)", data,
+           qt_prettyDebug(data, qMin(length, 16), length).data(), length,
+           d->socketErrorString.latin1());
+#endif
             return -1;
+        }
         written -= d->writeBuffer.size();
     }
 
     if (d->writeSocketNotifier)
         d->writeSocketNotifier->setEnabled(true);
+
+#if defined (QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::write(%p \"%s\", %lli) == %lli", data,
+           qt_prettyDebug(data, qMin((int) length, 16), length).data(),
+           length, written);
+#endif
     return written;
 }
 
@@ -1772,13 +1829,9 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
 */
 void QAbstractSocket::close()
 {
-#if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close() %p", this);
-#endif
-
     if (d->state == Qt::UnconnectedState) {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close() on an unconnected socket");
+        qDebug("QAbstractSocket::close() on an unconnected socket");
 #endif
         return;
     }
@@ -1794,11 +1847,14 @@ void QAbstractSocket::close()
     // Perhaps emit closing()
     if (d->state != Qt::ClosingState) {
         d->state = Qt::ClosingState;
+#if defined(QABSTRACTSOCKET_DEBUG)
+        qDebug("QAbstractSocket::close() emits stateChanged(), then closing()");
+#endif
         emit stateChanged(d->state);
         emit closing();
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close() return from delayed close");
+        qDebug("QAbstractSocket::close() return from delayed close");
 #endif
     }
 
@@ -1814,13 +1870,13 @@ void QAbstractSocket::close()
                 d->writeSocketNotifier->setEnabled(true);
 
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close() delaying close");
+            qDebug("QAbstractSocket::close() delaying close");
 #endif
             return;
         }
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close() closing immediately");
+        qDebug("QAbstractSocket::close() closing immediately");
 #endif
     }
 
@@ -1836,6 +1892,9 @@ void QAbstractSocket::close()
     d->state = Qt::UnconnectedState;
     setFlags(flags() & ~(Open | ReadWrite));
 
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::close() emits stateChanged(), then closed()");
+#endif
     emit stateChanged(d->state);
     emit closed();
 }
