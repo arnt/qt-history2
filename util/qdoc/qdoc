@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#211 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#212 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1966,7 +1966,7 @@ sub importants {
 		$p = $y . "::" . $i;
 		my $fn;
 		foreach $fn ( sort { $def{$a} cmp $def{$b} } keys %doc ) {
-		    next unless ( $type{$fn} eq "fn"  && 
+		    next unless ( $type{$fn} eq "fn"  &&
 				  $def{$fn} =~ /\b$p\b/ );
 		    # uglest hack in qdoc.  possibly.
 		    next if ($doc{$fn} =~ /^<b>This function is obsolete./si );
@@ -2002,7 +2002,7 @@ sub classlist {
     $prefix_length = length $prefix;
 
 
-    
+
 
     # find out where each column starts
 
@@ -2015,12 +2015,12 @@ sub classlist {
 		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
     $colindex[$i++] = $tmp+1;
 
-    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/4-1); # end of next column 
+    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/4-1); # end of next column
     $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
 		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
     $colindex[$i++] = $tmp+1;
 
-    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/3-1); # end of next column 
+    $tmp = sprintf("%d",$tmp+($#classurls-$tmp)/3-1); # end of next column
     $tmp++ while( substr( $classurls[$tmp  ], $prefix_length, 1 ) eq
 		  substr( $classurls[$tmp+1], $prefix_length, 1 ) );
     $colindex[$i++] = $tmp+1;
@@ -2048,7 +2048,7 @@ sub classlist {
 			    uc substr( $classurls[$j], $prefix_length, 1 ),
 			    "</b>" )
 	      if ( $j < $colindex[$col+1] &&
-		   ( $j == 0 || 
+		   ( $j == 0 ||
 		     ( substr( $classurls[$j-1], $prefix_length, 1 ) ne
 		       substr( $classurls[$j], $prefix_length, 1 ) ) ) );
 	    $result = join( "", $result, "</td>\n<td>" );
@@ -2515,3 +2515,10 @@ print "Documented ", $countdoc, " member functions, left out ",
     ") private or non-function members\n";
 
 &post();
+
+chdir( "$outputdir" );
+print "Creating Index...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
+print "Creating Title Index..\n.";
+system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
+print "Finished!\n";
