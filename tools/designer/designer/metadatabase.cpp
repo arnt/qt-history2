@@ -251,6 +251,10 @@ QString MetaDataBase::propertyComment( QObject *o, const QString &property )
 void MetaDataBase::setFakeProperty( QObject *o, const QString &property, const QVariant& value )
 {
     setupDataBase();
+    if ( o->isA( "PropertyObject" ) ) {
+	( (PropertyObject*)o )->mdSetFakeProperty( property, value );
+	return;
+    }
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",

@@ -24,6 +24,7 @@ public:
     bool mdIsPropertyChanged( const QString &property );
     void mdSetPropertyComment( const QString &property, const QString &comment );
     QString mdPropertyComment( const QString &property );
+    void mdSetFakeProperty( const QString &property, const QVariant &value );
     QVariant mdFakeProperty( const QString &property );
     void mdSetCursor( const QCursor &c );
     QCursor mdCursor();

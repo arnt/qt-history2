@@ -85,6 +85,12 @@ QString PropertyObject::mdPropertyComment( const QString &property )
     return MetaDataBase::propertyComment( objects.first(), property );
 }
 
+void PropertyObject::mdSetFakeProperty( const QString &property, const QVariant &value )
+{
+    for ( QObject *o = objects.first(); o; o = objects.next() )
+	MetaDataBase::setFakeProperty( o, property, value );
+}
+
 QVariant PropertyObject::mdFakeProperty( const QString &property )
 {
     return MetaDataBase::fakeProperty( objects.first(), property );
