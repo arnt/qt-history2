@@ -223,11 +223,13 @@ kernel {
 		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
 		  $$KERNEL_CPP/qgplugin.cpp \
-		  $$KERNEL_CPP/qsimplerichtext.cpp \
-		  $$KERNEL_CPP/qsharedmemory.cpp 
+		  $$KERNEL_CPP/qsimplerichtext.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
+
+	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory.cpp
+
 
 	accessibility {
 	      HEADERS += $$KERNEL_H/qaccessible.h
