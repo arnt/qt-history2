@@ -13,9 +13,6 @@
 #include <qprinter.h>
 #include <qpaintdevicemetrics.h>
 
-#include "qtextbrowser.h"
-#include "qtextview.h"
-
 //#define CPP_EDITOR
 //#define SPELL_CHECKER
 #define TEST_BIDI
@@ -24,6 +21,8 @@
 #define QTEXTEDIT_OPEN_API
 #endif
 
+#include "qtextbrowser.h"
+#include "qtextview.h"
 #include "qtextedit.h"
 #include "qsimplerichtext.h"
 
@@ -394,7 +393,7 @@ int main( int argc, char ** argv )
     ed.setText( text );
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
-#else    
+#else
     QString fn = "qtextedit.cpp";
     if ( argc > 1 )
 	fn = argv[ 1 ];
