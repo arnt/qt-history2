@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#4 $
+** $Id: //depot/qt/main/src/moc/moc.y#5 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -47,6 +47,8 @@ enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
 
 struct Argument					// single arg meta data
 {
+    Argument( char *name, char *ptr )
+    	{ typeName=name; ptrType=ptr; }
     QString typeName;
     QString ptrType;
 };
@@ -55,7 +57,7 @@ declare(QList,Argument);
 
 class ArgList : public QList(Argument) {	// member function arg list
 public:
-    ArgList() { autoDelete(FALSE); }
+    ArgList() { autoDelete(TRUE); }
 };
 
 
@@ -77,8 +79,8 @@ public:
 };
 
 
-ArgList *addArg( Argument * );			// add arg to current member
-void	 addMember( QString, Function *, char );// add member to current class
+ArgList *addArg( Argument * );			// add arg to tmpArgList
+void	 addMember( QString, char );		// add tmpFunc to current class
 
 char    *strnew( char * );			// returns a new string (copy)
 char	*stradd( char *, char * );		// add two strings
@@ -88,9 +90,8 @@ int	 lexdebug;
 int	 lineNo;				// current line number
 bool	 errorControl;				// controlled errors
 
-Argument tmpArg;				// current argument
-ArgList	*tmpArgList;				// current argument list
-Function tmpFunc;				// current member function
+ArgList	 *tmpArgList;				// current argument list
+Function *tmpFunc;				// current member function
 
 %}
 
@@ -289,21 +290,13 @@ arg_declaration_list:	  arg_declaration_list
 			| argument_declaration	{ $$ = addArg($1); }
 
 argument_declaration:	  decl_specifiers declarator
-						{ tmpArg.typeName = strdup($1);
-						  tmpArg.ptrType = strdup($2);
-						  $$ = &tmpArg; }
+						{ $$ = new Argument($1,$2); }
 			| decl_specifiers declarator '=' expression
-						{ tmpArg.typeName = strdup($1);
-						  tmpArg.ptrType = strdup($2);
-						  $$ = &tmpArg; }
+						{ $$ = new Argument($1,$2); }
 			| decl_specifiers abstract_decl_opt
-						{ tmpArg.typeName = strdup($1);
-						  tmpArg.ptrType = strdup($2);
-						  $$ = &tmpArg; }
+						{ $$ = new Argument($1,$2); }
 			| decl_specifiers abstract_decl_opt '=' expression
-						{ tmpArg.typeName = strdup($1);
-						  tmpArg.ptrType = strdup($2);
-						  $$ = &tmpArg; }
+						{ $$ = new Argument($1,$2); }
 			;
 
 abstract_decl_opt:	  /* empty */		{ $$ = ""; }
@@ -329,21 +322,21 @@ fct_decl:		  fct_name_decl
 			  ')'
 			  cv_qualifier_list_opt
 			  fct_body_opt
-						{ tmpFunc.args = $3;
-						  $$ = &tmpFunc; }
+						{ tmpFunc->args = $3;
+						  $$ = tmpFunc; }
 			;
 
 fct_name:		  IDENTIFIER		/* NOTE: simplified! */
 			;
 
-fct_name_decl:		  fct_name		{ tmpFunc.name = $1;
-						  tmpFunc.ptrType  = "";
-					      	  $$ = &tmpFunc; }
+fct_name_decl:		  fct_name		{ tmpFunc->name = $1;
+						  tmpFunc->ptrType  = "";
+					      	  $$ = tmpFunc; }
 			| ptr_operator fct_name_decl
-						{ tmpFunc.name = $2->name;
-						  tmpFunc.ptrType =
+						{ tmpFunc->name = $2->name;
+						  tmpFunc->ptrType =
 						    stradd($1,$2->ptrType);
-						  $$ = &tmpFunc; }
+						  $$ = tmpFunc; }
 
 ptr_operator:		  '*' cv_qualifier_list_opt { $$="*"; }
 			| '&' cv_qualifier_list_opt { $$="&"; }
@@ -420,7 +413,7 @@ method_declarations:	  method_declarations method_declaration
 			;
 
 method_declaration:	  decl_specifiers fct_decl optional_semicolon
-						{ addMember($1,$2,'m'); }
+						{ addMember($1,'m'); }
 		 	| error ';'		{ yyerrok; }
 			;
 
@@ -433,7 +426,7 @@ signal_declarations:	  signal_declarations signal_declaration
 			;
 
 signal_declaration:	  decl_specifiers fct_decl optional_semicolon
-						{ addMember($1,$2,'s'); }
+						{ addMember($1,'s'); }
 			;
 
 opt_slot_declarations:		/* empty */
@@ -445,7 +438,7 @@ slot_declarations:	  slot_declarations slot_declaration
 			;
 
 slot_declaration:	  decl_specifiers fct_decl optional_semicolon
-						{ addMember($1,$2,'t'); }
+						{ addMember($1,'t'); }
 			;
 
 optional_semicolon:	  	/* empty */
@@ -527,7 +520,7 @@ void init()					// initialize
     slots.autoDelete( TRUE );
 
     tmpArgList = new ArgList;
-    tmpArgList->autoDelete( FALSE );
+    tmpFunc = new Function;
 }
 
 void yyerror( char *msg )			// print yacc error message
@@ -759,26 +752,27 @@ void generate()					// generate C++ source code
 
 ArgList *addArg( Argument *a )			// add argument to list
 {
-    Argument *n = new Argument;
-    n->typeName = a->typeName;
-    n->ptrType = a->ptrType;
-    tmpArgList->append( n );
+    tmpArgList->append( a );
     return tmpArgList;
 }
 
-void addMember( QString type, Function *f, char m )
+void addMember( QString type, char m )
 {
+/*
     Function *n = new Function;
     n->name = f->name;
     n->type = type;
     n->ptrType = f->ptrType;
     n->lineNo = f->lineNo;
     n->args = tmpArgList;
+*/
+    tmpFunc->type = type;
+    tmpFunc->args = tmpArgList;
     tmpArgList = new ArgList;
-    tmpArgList->autoDelete( FALSE );
     switch( m ) {
-	case 'm': methods.append( n ); break;
-	case 's': signals.append( n ); break;
-	case 't': slots.  append( n ); break;
+	case 'm': methods.append( tmpFunc ); break;
+	case 's': signals.append( tmpFunc ); break;
+	case 't': slots.  append( tmpFunc ); break;
     }
+    tmpFunc = new Function;
 }
