@@ -101,7 +101,7 @@ public:
 
     bool addSection(QList<SectionNode> &list, Section ds, int pos) const;
     int findMonth(const QString &str1, int index = 1) const;
-    int findAmPm(const QString &str1, Section s) const;
+    int findAmPm(QString &str1, Section s) const;
     int maxChange(QDateTimeEditPrivate::Section s) const;
     int potentialValue(const QString &str, int min, int max, Section s) const;
     int potentialValueHelper(const QString &str, int min, int max, int length) const;
@@ -2097,6 +2097,9 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
                 QDTEDEBUGN("This should never happen (findAmPm returned %d", ampm);
                 break;
             }
+            if (state != QValidator::Invalid) {
+                text.replace(index, size, st);
+            }
             break;
         }
         case MonthShortNameSection: {
@@ -2353,7 +2356,7 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int index) const
 
 */
 
-int QDateTimeEditPrivate::findAmPm(const QString &str, QDateTimeEditPrivate::Section s) const
+int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s) const
 {
     Q_Q(const QDateTimeEdit);
     const int size = sectionSize(AmPmSection);
@@ -2369,9 +2372,11 @@ int QDateTimeEditPrivate::findAmPm(const QString &str, QDateTimeEditPrivate::Sec
         ampm << q->tr("am");
         ampm << q->tr("pm");
     }
-    if (str == ampm.at(amindex)) {
+    if (str.indexOf(ampm.at(amindex), 0, Qt::CaseInsensitive) == 0) {
+        str = ampm.at(amindex);
         return 0;
-    } else if (str == ampm.at(pmindex)) {
+    } else if (str.indexOf(ampm.at(pmindex), 0, Qt::CaseInsensitive) == 0) {
+        str = ampm.at(pmindex);
         return 1;
     } else if (str.count(space) == 0) {
         return -1;
@@ -2384,12 +2389,21 @@ int QDateTimeEditPrivate::findAmPm(const QString &str, QDateTimeEditPrivate::Sec
                 if (!broken[j]) {
                     int index = ampm.at(j).indexOf(str.at(i));
                     if (index == -1) {
-                        broken[j] = true;
-                        if (broken[amindex] && broken[pmindex])
-                            return -1;
-                    } else {
-                        ampm[j].remove(index, 1);
+                        if (str.at(i).category() == QChar::Letter_Uppercase) {
+                            index = ampm.at(j).indexOf(str.at(i).toLower());
+                        } else if (str.at(i).category() == QChar::Letter_Lowercase) {
+                            index = ampm.at(j).indexOf(str.at(i).toUpper());
+                        }
+                        if (index == -1) {
+                            broken[j] = true;
+                            if (broken[amindex] && broken[pmindex])
+                                return -1;
+                            continue;
+                        } else {
+                            str[i] = ampm.at(j).at(index); // fix case
+                        }
                     }
+                    ampm[j].remove(index, 1);
                 }
             }
         }
