@@ -1826,7 +1826,6 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
         // painting in the next paint event is too late (because of scrolling)
         d->viewport->repaint(rect);
         // if we are editing, commit the data and close the editor
-        qDebug() << state();
         //if (state() == EditingState) { // FIXME: the state got changed to NoState
         QModelIndex buddy = model()->buddy(previous);
         QWidget *editor = d->editors.value(buddy);
