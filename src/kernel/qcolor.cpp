@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#45 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -272,7 +272,7 @@ void QColor::hsv( int *h, int *s, int *v ) const
     if ( (uint)b < min ) min = b;
     int delta = max-min;
     *v = max;					// calc value
-    *s = max ? (int)((long)(510L*delta+max)/(2L*max)) : 0;
+    *s = max ? (510*delta+max)/(2*max) : 0;
     if ( *s == 0 )
 	*h = -1;				// undefined hue
     else {
@@ -325,17 +325,17 @@ void QColor::setHsv( int h, int s, int v )
 	    h %= 360;
 	uint f = h%60;
 	h /= 60;
-	uint p = (uint)((ulong)(2L*v*(255L-s)+255L)/510L);
+	uint p = (uint)(2*v*(255-s)+255)/510;
 	uint q, t;
 	if ( h&1 ) {
-	    q = (uint)((ulong)(2L*v*(15300L-s*f)+15300L)/30600L);
+	    q = (uint)(2*v*(15300-s*f)+15300)/30600;
 	    switch( h ) {
 		case 1: r=(int)q; g=(int)v, b=(int)p; break;
 		case 3: r=(int)p; g=(int)q, b=(int)v; break;
 		case 5: r=(int)v; g=(int)p, b=(int)q; break;
 	    }
 	} else {
-	    t = (uint)((ulong)(2L*v*(15300L-(s*(60L-f)))+15300L)/30600L);
+	    t = (uint)(2*v*(15300-(s*(60-f)))+15300)/30600;
 	    switch( h ) {
 		case 0: r=(int)v; g=(int)t, b=(int)p; break;
 		case 2: r=(int)p; g=(int)v, b=(int)t; break;
@@ -423,9 +423,9 @@ QColor QColor::light( int factor ) const
 	return dark( 10000/factor );
     int h, s, v;
     hsv( &h, &s, &v );
-    v = (int)(((long)factor*v)/100L);
+    v = (factor*v)/100;
     if ( v > 255 ) {				// overflow
-	s -= (int)(((long)factor*106L)/100L);	// adjust saturation
+	s -= (factor*106)/100;			// adjust saturation
 	if ( s < 0 )
 	    s = 0;
 	v = 255;
