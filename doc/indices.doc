@@ -269,7 +269,11 @@ including menus, toolbars, workspace, etc.
 
 \row 
 \i \link misc.html   Miscellaneous \endlink
-\i Various other useful classes
+\i Various other useful classes.
+
+\row
+\i \link model-view.html Model-View-Controller \endlink
+\i Classes that follow the Model-View-Controller design pattern.
 
 \row
 \i \link multimedia.html Multimedia\endlink
@@ -792,9 +796,9 @@ These classes are relevant to text processing. See also the
 
 /*! \defgroup model-view
 
-\title Model View Classes
+\title Model-View-Controller Classes
 
-These classes follow the Model/View/Controller design pattern
+These classes follow the Model-View-Controller design pattern
 in which the underlying data (in the Model) is kept separate
 from both the way it is presented to the user (in the View) and
 the way it is manipulated (by the Controller).
