@@ -535,10 +535,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	}
     }
 
-    if ( p.isNull() )
-	resize( s );
-    else
-	setGeometry( p.x(), p.y(), s.width(), s.height() );
+    setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
