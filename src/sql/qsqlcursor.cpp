@@ -326,7 +326,7 @@ QSqlIndex QSqlCursor::sort() const
     specify a filter.
 
     The filter is a SQL \c WHERE clause without the keyword 'WHERE',
-    e.g. \c{name='Dave'}.
+    e.g. \c{name='Dave'} which will be processed by the DBMS.
 */
 void QSqlCursor::setFilter( const QString& filter )
 {
