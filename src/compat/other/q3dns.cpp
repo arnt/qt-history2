@@ -2545,8 +2545,11 @@ void Q3Dns::doResInit()
         qdns_res_init();
         int i;
         // find the name servers to use
-        for(i=0; i < MAXNS && i < _res.nscount; i++)
-            ns->append(new QHostAddress(ntohl(_res.nsaddr_list[i].sin_addr.s_addr)));
+        for(i=0; i < MAXNS && i < _res.nscount; i++) {
+	    QHostAddress *addr = new QHostAddress;
+	    addr->setAddress(ntohl(_res.nsaddr_list[i].sin_addr.s_addr));
+            ns->append(addr);
+	}
 #  if defined(MAXDFLSRCH)
         for(i=0; i < MAXDFLSRCH; i++) {
             if (_res.dnsrch[i] && *(_res.dnsrch[i]))
