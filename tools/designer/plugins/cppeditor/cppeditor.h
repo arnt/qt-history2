@@ -27,6 +27,7 @@
 class EditorCompletion;
 class EditorBrowser;
 struct DesignerInterface;
+class CIndent;
 
 class  CppEditor : public Editor
 {
@@ -58,6 +59,7 @@ protected:
     EditorCompletion *completion;
     EditorBrowser *browser;
     DesignerInterface *dIface;
+    CIndent *indent;
 
 };
 

@@ -2,9 +2,12 @@
 #include "qregexp.h"
 
 extern int indentForBottomLine( const QStringList& program, QChar typedIn );
+extern void setTabSize( int s );
+extern void setIndentSize( int s );
 
 CIndent::CIndent()
-    : QTextIndent()
+    : QTextIndent(), tabSize( 8 ), indentSize( 4 ),
+      autoIndent( TRUE ), keepTabs( TRUE )
 {
 }
 
@@ -27,8 +30,10 @@ static int indentation( const QString &s )
     return ind;
 }
 
-static void tabify( QString &s )
+void CIndent::tabify( QString &s )
 {
+    if ( !keepTabs )
+	return;
     int i = 0;
     for ( ;; ) {
 	for ( int j = i; j < (int)s.length(); ++j ) {
@@ -37,10 +42,10 @@ static void tabify( QString &s )
 		    QString t  = s.mid( i, j - i );
 		    int spaces = 0;
 		    for ( int k = 0; k < (int)t.length(); ++k )
-			spaces += ( t[ k ] == ' ' ? 1 : 8 );
+			spaces += ( t[ k ] == ' ' ? 1 : tabSize );
 		    s.remove( i, t.length() );
-		    int tabs = spaces / 8;
-		    spaces = spaces - ( 8 * tabs );
+		    int tabs = spaces / tabSize;
+		    spaces = spaces - ( tabSize * tabs );
 		    QString tmp;
 		    tmp.fill( ' ', spaces );
 		    if ( spaces > 0 )
@@ -59,7 +64,7 @@ static void tabify( QString &s )
     }
 }
 
-static void indentLine( QTextParag *p, int &oldIndent, int &newIndent )
+void CIndent::indentLine( QTextParag *p, int &oldIndent, int &newIndent )
 {
     QString indentString;
     indentString.fill( ' ', newIndent );
@@ -92,6 +97,7 @@ void CIndent::indent( QTextDocument *doc, QTextParag *p, int *oldIndent, int *ne
     }
 
     int ind = indentForBottomLine( code, QChar::null );
+    ind = ( ind / 4 ) * indentSize;
     indentLine( p, oi, ind );
     if ( oldIndent )
 	*oldIndent = oi;
@@ -99,3 +105,21 @@ void CIndent::indent( QTextDocument *doc, QTextParag *p, int *oldIndent, int *ne
 	*newIndent = ind;
 }
 
+void CIndent::reindent()
+{
+    // #### TODO
+}
+
+void CIndent::setTabSize( int ts )
+{
+    tabSize = ts;
+    ::setTabSize( ts );
+    reindent();
+}
+
+void CIndent::setIndentSize( int is )
+{
+    indentSize = is;
+    ::setIndentSize( is );
+    reindent();
+}

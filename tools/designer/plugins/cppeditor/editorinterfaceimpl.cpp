@@ -198,7 +198,7 @@ void EditorInterfaceImpl::indent()
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (CppEditor*)viewManager->currentView() )->indent();
+    ( (CppEditor*)viewManager->currentView() )->QTextEdit::indent();
 }
 
 void EditorInterfaceImpl::splitView()

@@ -82,10 +82,12 @@ static const int BigRoof = 400;
     * ppCommentOffset is the indentation within a C-style comment,
       when it cannot be picked up.
 */
-static const int ppHardwareTabSize = 8;
-static const int ppIndentSize = 4;
-static const int ppContinuationIndentSize = 8;
+static int ppHardwareTabSize = 8;
+static int ppIndentSize = 4;
+static int ppContinuationIndentSize = 8;
 static const int ppCommentOffset = 2;
+void setTabSize( int s ) { ppHardwareTabSize = ppContinuationIndentSize = s; }
+void setIndentSize( int s ) { ppIndentSize = s; }
 
 static QRegExp *literal = 0;
 static QRegExp *label = 0;

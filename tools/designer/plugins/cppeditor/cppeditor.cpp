@@ -36,7 +36,7 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
     if ( dIface )
 	dIface->addRef();
     document()->setPreProcessor( new SyntaxHighlighter_CPP );
-    document()->setIndent( new CIndent );
+    document()->setIndent( (indent = new CIndent) );
     completion = new CppEditorCompletion( this );
     browser = new CppEditorBrowser( this );
     int j = 0;
@@ -54,14 +54,15 @@ CppEditor::~CppEditor()
 
 void CppEditor::configChanged()
 {
-    QMap<QString, ConfigStyle> styles = Config::readStyles( "/Trolltech/CppEditor/" );
+    QString path = "/Trolltech/CppEditor/";
+    QMap<QString, ConfigStyle> styles = Config::readStyles( path );
     config()->styles = styles;
     ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->updateStyles( config()->styles );
-    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * 8 );
+    document()->setTabStops( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( QTextPreProcessor::Standard )->width( 'x' ) * Config::indentTabSize( path ) );
 
-    completion->setEnabled( Config::completion( "/Trolltech/CppEditor/" ) );
-    parenMatcher->setEnabled( Config::parenMatching( "/Trolltech/CppEditor/" ) );
-    if ( Config::wordWrap( "/Trolltech/CppEditor/" ) ) {
+    completion->setEnabled( Config::completion( path ) );
+    parenMatcher->setEnabled( Config::parenMatching( path ) );
+    if ( Config::wordWrap( path ) ) {
 	if ( hScrollBarMode() != AlwaysOff ) {
 	    document()->setFormatter( new QTextFormatterBreakInWords );
 	    setHScrollBarMode( AlwaysOff );
@@ -76,6 +77,16 @@ void CppEditor::configChanged()
     }
 
     setFont( ( (SyntaxHighlighter_CPP*)document()->preProcessor() )->format( 0 )->font() );
+
+    indent->setTabSize( Config::indentTabSize( path ) );
+    indent->setIndentSize( Config::indentIndentSize( path ) );
+    indent->setKeepTabs( Config::indentKeepTabs( path ) );
+    indent->setAutoIndent( Config::indentAutoIndent( path ) );
+    if ( !Config::indentAutoIndent( path ) )
+	document()->setIndent( 0 );
+    else
+	document()->setIndent( indent );
+
     Editor::configChanged();
 }
 

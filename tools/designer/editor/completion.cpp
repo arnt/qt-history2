@@ -314,16 +314,20 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	    QString s = curEditor->textCursor()->parag()->string()->toString().
 			left( curEditor->textCursor()->index() );
 	    if ( s.simplifyWhiteSpace().isEmpty() ) {
-		curEditor->indent();
-		int i = 0;
-		for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
-		    if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&
-			 curEditor->textCursor()->parag()->at( i )->c != '\t' )
-			break;
+		if ( curEditor->document()->indent() ) {
+		    curEditor->indent();
+		    int i = 0;
+		    for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
+			if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&
+			     curEditor->textCursor()->parag()->at( i )->c != '\t' )
+			    break;
+		    }
+		    curEditor->drawCursor( FALSE );
+		    curEditor->textCursor()->setIndex( i );
+		    curEditor->drawCursor( TRUE );
+		} else {
+		    curEditor->insert( "\t" );
 		}
-		curEditor->drawCursor( FALSE );
-		curEditor->textCursor()->setIndex( i );
-		curEditor->drawCursor( TRUE );
 		return TRUE;
 	    }
 	}
