@@ -74,25 +74,26 @@
 //   UNIX	- Any UNIX BSD/SYSV system
 //
 // On UNIX we sometimes need to explictly specify recent system interfaces
-// because they are not specified by default.  HP-UX, Tru64 and Solaris are
-// examples of such platforms.  On the other hand other platforms sometimes
-// specified recent interfaces by default in <unistd.h>.  Such is the case
-// of Linux and AIX.
-// Note that X/Open specifications are SYSV-related.  BSD systems have more
-// stable interfaces...
+// because they are not specified by default.  Solaris is an example of
+// such a platform.  On the other hand other platforms sometimes specify
+// recent interfaces by default in <unistd.h>.  Such is the case of Linux
+// and AIX.  The situation is not that clear as sometimes native compilers
+// import recent interfaces while the GNU compiler does not.
+// Note that X/Open specifications are SYSV-related.
+// BSD systems have more stable interfaces...
 //
 // The idea for configuring X/Open systems is:
 //
 // 1) Ask for most recent X/Open specification available.
-//    Either this is done explicitly by defining
+//    This is preferably done implictly by defining
+//    	_HPUX_SOURCE on HP-UX
+//    	_SGI_SOURCE  on Irix
+//    	_GNU_SOURCE  on GNU systems
+//    and can also be done explicitly by defining
 //    	_XOPEN_SOURCE          to 600 for XPG6
 //    	_XOPEN_SOURCE          to 500 for SUSv2/XPG5
 //    	_XOPEN_SOURCE_EXTENDED to 1   for SUS/XPG4v2
 //    	_XOPEN_SOURCE          to 1   for plain XPG4
-//    or this is sometimes done implictly by defining
-//    	_HPUX_SOURCE on HP-UX
-//    	_SGI_SOURCE  on Irix
-//    	_GNU_SOURCE  on GNU systems (imports draft X/Open interfaces)
 //
 // 2) Draft POSIX standards and X/Open specifcations more recent than the
 //    current X/Open specification are often available before they are
@@ -102,7 +103,6 @@
 //    	_POSIX_C_SOURCE   to 199309L for IEEE Std 1003.1b (1993) / POSIX.1b
 //    	_POSIX_C_SOURCE   to 1       for IEEE Std 1003.1  (1990) / POSIX.1
 //    	_FILE_OFFSET_BITS to 64      for X/Open Large File Support (draft 8)
-//    	                             		(large file aware mode)
 //
 // 3) Some functions are neither in the current X/Open specification nor
 //    in any current POSIX standard.  However they are still made available
@@ -198,29 +198,63 @@
 #  define Q_OS_MAC
 #endif
 
-#if defined(Q_OS_MAC9) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN32)
+#if defined(Q_OS_MAC9) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
 #  undef Q_OS_UNIX
 #elif !defined(Q_OS_UNIX)
 #  define Q_OS_UNIX
 #endif
 
 #if defined(Q_OS_UNIX)
-#  if defined(Q_OS_IRIX) && !defined(_SGI_SOURCE)
-// Irix specifies the more recent system interfaces by default.
-// No need to specify anything.  Actually asking for an X/Open
-// specification breaks havoc.  Some non-X/Open extensions we are
-// using such as the DNS are not available or are only partly
-// imported.
-// See <standards.h> for more details. 
-#    define _SGI_SOURCE
+#  if defined(BSD4_4)
+// If everything were stable and easy like the BSD interfaces....
+#  elif defined(Q_OS_IRIX)
+// Do not specify X/Open interfaces on Irix! Only use the most general
+// _SGI_SOURCE feature test macro which will import the most recent
+// specifications automatically.  Directly specifying X/Open will hide
+// extensions such as some non-standard DNS details we actually use in Qt.
+// The MIPSpro compiler defines _SGI_SOURCE automatically.  Maybe GCC
+// is as smart but let's redefine it.  See <standards.h> for more details.
+#    if !defined(_SGI_SOURCE)
+#      define _SGI_SOURCE
+#    endif
+#  elif defined(Q_OS_AIX)
+// No need to specify X/Open interfaces on AIX.  AIX will do that for you
+// and will always import most recent ones automatically.
+#  elif defined(Q_OS_LINUX) || defined(Q_OS_GNU)
+// No need to specify X/Open interfaces on GNU platforms.  The GNU C library
+// will do that for you and will always import most recent ones automatically.
+// It shouldn't be necessary to define _GNU_SOURCE. Setting _POSIX_C_SOURCE
+// to 199506L shouldn't be necessary either.
+#  elif defined(Q_OS_HPUX)
+// Still the same issue.  There's a nice and clear explanation in the
+// stdsyms(5) page of the online manuals.
+#    if !defined(_HPUX_SOURCE)
+#      define _HPUX_SOURCE
+#      define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
+#    endif
+#  elif defined(Q_OS_OSF)
+// There is an _OSF_SOURCE macro on Tru64 systems but it does not import
+// most recent X/Open interfaces.  Instead you must explicitly specify
+// them.  _OSF_SOURCE may be defined to import additional proprietary
+// interfaces.  This is covered by the standards(5) page of the online
+// manuals.
+/*
+#    if !defined(_OSF_SOURCE)
+#      define _OSF_SOURCE
+#    endif
+*/
+#    define _XOPEN_SOURCE 500          // import SUSv2/XPG5
+#    define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
+#    define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
+#  else
+#    define _XOPEN_SOURCE 500          // import SUSv2/XPG5
+#    define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
+#    define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
 #  endif
-#else
-#  define _XOPEN_SOURCE 500          // import SUSv2/XPG5
-#  define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
-#  define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
-/* ### implement 3.0
+/* ### implement in 3.0
 #endif
-#  define _FILE_OFFSET_BITS 64       // X/Open Large File Support (draft 8)
+// In any case try to .
+#  define _FILE_OFFSET_BITS 64   // X/Open Large File Support (draft 8)
 */
 #endif
 
