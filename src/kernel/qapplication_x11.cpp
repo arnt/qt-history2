@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#591 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#592 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3284,6 +3284,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	return TRUE;
 
     if ( event->type == MotionNotify ) { // mouse move
+	XMotionEvent lastMotion = event->xmotion;
 	while( XPending( appDpy ) )  { // compres mouse moves
 	    XNextEvent( appDpy, &nextEvent );
 	    if ( nextEvent.type == ConfigureNotify
@@ -3299,16 +3300,16 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    }
 	    if ( !qApp->x11EventFilter(&nextEvent)
 		 && !x11Event( &nextEvent ) ) // send event through filter
-		event = &nextEvent;
+		lastMotion = nextEvent.xmotion;
 	    else
 		break;
 	}
 	type = QEvent::MouseMove;
-	pos.rx() = event->xmotion.x;
-	pos.ry() = event->xmotion.y;
-	globalPos.rx() = event->xmotion.x_root;
-	globalPos.ry() = event->xmotion.y_root;
-	state = translateButtonState( event->xmotion.state );
+	pos.rx() = lastMotion.x;
+	pos.ry() = lastMotion.y;
+	globalPos.rx() = lastMotion.x_root;
+	globalPos.ry() = lastMotion.y_root;
+	state = translateButtonState( lastMotion.state );
 	if ( qt_button_down && (state & (LeftButton |
 					 MidButton |
 					 RightButton ) ) == 0 )
