@@ -1,6 +1,8 @@
 #include <qapplication.h>
 #include <qpainter.h>
 
+#include "qfontdatabase.h"
+
 #include "qrtstring.h"
 #include "qtextlayout.h"
 
@@ -129,7 +131,7 @@ int MyWidget::getCursorPosition( int _x )
 // Syriac
 // const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
 
-// Hindi
+// Devanagari
 // const char *s = "रूस के राष्ट्रपति व्लादिमीर पुतिन ने बीजिंग पहुँचकर चीन के राष्ट्रपति जियांग ज़ेमिन से बातचीत की. बातचीत के बाद संयुक्त घोषणा में रूस और चीन ने उत्तर कोरिया, इराक़ और द्विपक्षीय मामलों पर अपना पक्ष रखा.";
 
 
@@ -147,6 +149,39 @@ const char *s = "";
 int main( int argc, char **argv )
 {
     QApplication a(argc, argv);
+
+#if 0
+    // QFontDatabase test
+    QFontDatabase fdb;
+
+    QStringList list1, list2;
+    QStringList::const_iterator it1, end1, it2, end2;
+
+    list1 = fdb.families();
+    qDebug( "%d families", list1.count() );
+
+    // each family
+    for ( it1 = list1.begin(), end1 = list1.end(); it1 != end1; ++it1 ) {
+	list2 = fdb.styles( *it1 );
+	qDebug( "\n\nfamily '%s', fixed: %d, styles:",
+		(*it1).latin1(), fdb.isFixedPitch( *it1, QString::null ) );
+
+	// each style
+	for ( it2 = list2.begin(), end2 = list2.end(); it2 != end2; ++it2 ) {
+	    qDebug( "  %s:\n    scalable %d (smooth %d bitmap %d)",
+		    (*it2).latin1(),
+		    fdb.isScalable( *it1, *it2 ),
+		    fdb.isSmoothlyScalable( *it1, *it2 ),
+		    fdb.isBitmapScalable( *it1, *it2 ) );
+
+	    qDebug( "    point sizes %d\n    smooth sizes %d",
+		    fdb.pointSizes( *it1, *it2 ).count(),
+		    fdb.smoothSizes( *it1, *it2 ).count() );
+	}
+    }
+
+    return 0;
+#endif
 
     QFont f( family );
     f.setPointSize( 38 );
