@@ -49,6 +49,7 @@
 #include "qpaintdevice.h"
 #include "qt_mac.h"
 #include <qstack.h>
+#include <qtextcodec.h>
 
 const int TxNone=0;
 const int TxTranslate=1;
