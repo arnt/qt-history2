@@ -27,6 +27,8 @@ styles {
 
 !mac:DEFINES += QT_NO_STYLE_AQUA
 mac {
-	HEADERS +=$$STYLES_H/qaquastyle.h
-	SOURCES +=$$STYLES_CPP/qaquastyle.cpp
+	HEADERS +=$$STYLES_H/qaquastyle.h \
+	          $$STYLES_H/qmacstyle_mac.h
+	SOURCES +=$$STYLES_CPP/qaquastyle.cpp \
+	          $$STYLES_CPP/qmacstyle_mac.cpp
 }
