@@ -649,6 +649,7 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 	project->fakeFormFor( wi->object )->setFocus();
 	mainWindow->propertyeditor()->setWidget( wi->object, project->fakeFormFor( wi->object ) );
 	mainWindow->objectHierarchy()->setFormWindow( project->fakeFormFor( wi->object ), wi->object );
+	project->fakeFormFor( wi->object )->formFile()->showEditor();
 	break;
     }
 }
@@ -690,7 +691,8 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     if ( !i )
 	return;
     WorkspaceItem* wi = (WorkspaceItem*)i;
-    enum { OPEN_SOURCE, REMOVE_SOURCE, OPEN_FORM, REMOVE_FORM, OPEN_FORM_SOURCE };
+    enum { OPEN_SOURCE, REMOVE_SOURCE, OPEN_FORM, REMOVE_FORM,
+	   OPEN_FORM_SOURCE, OPEN_OBJECT_SOURCE };
     QPopupMenu menu( this );
     switch ( wi->type() ) {
     case WorkspaceItem::SourceFileType:
@@ -714,6 +716,9 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case WorkspaceItem::ProjectType:
 	MainWindow::self->popupProjectMenu( pos );
 	return;
+    case WorkspaceItem::ObjectType:
+	menu.insertItem( tr( "&Open source..." ), OPEN_OBJECT_SOURCE );
+	break;
     }
     switch ( menu.exec( pos ) ) {
     case REMOVE_SOURCE:
@@ -729,6 +734,9 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	itemClicked( LeftButton, i, pos );
 	break;
     case OPEN_FORM_SOURCE:
+	itemClicked( LeftButton, i, pos );
+	break;
+    case OPEN_OBJECT_SOURCE:
 	itemClicked( LeftButton, i, pos );
 	break;
     }
