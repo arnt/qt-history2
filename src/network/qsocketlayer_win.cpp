@@ -94,7 +94,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
         default:
             QString tmp;
             tmp.sprintf("\\%o", c);
-            out += tmp.latin1();
+            out += tmp.toLatin1().constData();
         }
     }
 
@@ -449,7 +449,7 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     if (socketType == QAbstractSocket::TcpSocket) socketTypeStr = "TcpSocket";
     else if (socketType == QAbstractSocket::UdpSocket) socketTypeStr = "UdpSocket";
 
-    qDebug("QSocketLayerPrivate::fetchConnectionParameters() localAddress == %s, localPort = %i, peerAddress == %s, peerPort = %i, socketProtocol == %s, socketType == %s", localAddress.toString().latin1(), localPort, peerAddress.toString().latin1(), peerPort, socketProtocolStr.latin1(), socketTypeStr.latin1());
+    qDebug("QSocketLayerPrivate::fetchConnectionParameters() localAddress == %s, localPort = %i, peerAddress == %s, peerPort = %i, socketProtocol == %s, socketType == %s", localAddress.toString().toLatin1().constData(), localPort, peerAddress.toString().toLatin1().constData(), peerPort, socketProtocolStr.toLatin1().constData(), socketTypeStr.toLatin1().constData());
 #endif
 
     return true;
@@ -505,9 +505,9 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, Q_UINT16 po
         if (socketState != QAbstractSocket::ConnectedState) {
 #if defined (QSOCKETLAYER_DEBUG)
             qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
-                   address.toString().latin1(), port,
+                   address.toString().toLatin1().constData(), port,
                    socketState == QAbstractSocket::ConnectingState
-                   ? "Connection in progress" : socketErrorString.latin1());
+                   ? "Connection in progress" : socketErrorString.toLatin1().constData());
 #endif
             return false;
         }
@@ -515,7 +515,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, Q_UINT16 po
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == true",
-           address.toString().latin1(), port);
+           address.toString().toLatin1().constData(), port);
 #endif
 
     socketState = QAbstractSocket::ConnectedState;
@@ -556,7 +556,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
 
 #if defined (QSOCKETLAYER_DEBUG)
         qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == false (%s)",
-               address.toString().latin1(), port, socketErrorString.latin1());
+               address.toString().toLatin1().constData(), port, socketErrorString.toLatin1().constData());
 #endif
 
         return false;
@@ -564,7 +564,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == true",
-           address.toString().latin1(), port);
+           address.toString().toLatin1().constData(), port);
 #endif
     socketState = QAbstractSocket::BoundState;
     return true;
@@ -589,7 +589,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
 
 #if defined (QSOCKETLAYER_DEBUG)
         qDebug("QSocketLayerPrivate::nativeListen(%i) == false (%s)",
-               backlog, socketErrorString.latin1());
+               backlog, socketErrorString.toLatin1().constData());
 #endif
         return false;
     }
@@ -766,7 +766,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeReceiveDatagram(%p \"%s\", %li, %s, %i) == %li",
            data, qt_prettyDebug(data, qMin(ret, 16), ret).data(), maxLength,
-           address ? address->toString().latin1() : "(nil)",
+           address ? address->toString().toLatin1().constData() : "(nil)",
            port ? *port : 0, ret);
 #endif
 
@@ -807,7 +807,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeSendDatagram(%p \"%s\", %li, \"%s\", %i) == %li", data,
-           qt_prettyDebug(data, qMin(len, 16), len).data(), 0, address.toString().latin1(),
+           qt_prettyDebug(data, qMin(len, 16), len).data(), 0, address.toString().toLatin1().constData(),
            port, ret);
 #endif
 
