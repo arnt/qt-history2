@@ -24,8 +24,8 @@ public:
     void remove( Type *object ) {
 	if ( !cleanupObjects )
 	    return;
-	if ( object )
-	    cleanupObjects->removeRef( object );
+	if ( cleanupObjects->findRef( object ) >= 0 )
+	    (void) cleanupObjects->take();
     }
 
     bool isEmpty() const {
