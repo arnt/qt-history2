@@ -114,15 +114,13 @@ public:
     QString      filter() const;
     QStringList  sort() const;
 
-    void setCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
+    void setCursor( QSqlCursor* cursor ) { setSqlCursor( cursor, FALSE, FALSE ); }
+    void setCursor( QSqlCursor* cursor = 0,
+			bool autoPopulate = FALSE,
+			bool autoDelete = FALSE )
+    { setSqlCursor( cursor, autoPopulate, autoDelete ); }
     virtual void setSqlCursor( QSqlCursor* cursor = 0,
-			       bool autoPopulate = FALSE,
-			       bool autoDelete = FALSE )
-    { setCursor( cursor, autoPopulate, autoDelete ); }
-    virtual void setSqlCursor( QSqlCursor* cursor )
-    { setCursor( cursor, FALSE, FALSE ); }
-    virtual void setCursor( QSqlCursor* cursor,
-			    bool autoPopulate, bool autoDelete = FALSE );
+			    bool autoPopulate = FALSE, bool autoDelete = FALSE );
     QSqlCursor* sqlCursor() const;
 
     virtual void setNullText( const QString& nullText );

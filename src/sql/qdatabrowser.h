@@ -88,8 +88,8 @@ public:
     QStringList  sort() const;
     void setFilter( const QString& filter );
     QString filter() const;
-    virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
-    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
+    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
+    virtual void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
     QSqlCursor* sqlCursor() const;
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();

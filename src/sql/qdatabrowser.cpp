@@ -73,7 +73,7 @@ public:
     A QDataBrowser is used to associate a dataset with a form in much
     the same way as a QDataTable associates a dataset with a table. Once
     the data browser has been constructed it can be associated with a
-    dataset with setCursor() (or setSqlCursor()), and with a form with
+    dataset with setSqlCursor(), and with a form with
     setForm(). Boundary checking, sorting and filtering can be set with
     setBoundaryChecking(), setSort() and setFilter(), respectively.
 
@@ -291,15 +291,15 @@ QString QDataBrowser::filter() const
 /*! Sets the default cursor used by the data browser to \a cursor.  If \a
   autoDelete is TRUE (the default is FALSE), the data browser takes
   ownership of the \a cursor pointer, which will be deleted when the
-  browser is destroyed, or when setCursor() is called again. To
+  browser is destroyed, or when setSqlCursor() is called again. To
   activate the \a cursor use refresh().  The cursor's edit buffer is
   used in the default form to browse and edit records.
 
-  \sa cursor() form() setForm()
+  \sa sqlCursor() form() setForm()
 
 */
 
-void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
+void QDataBrowser::setSqlCursor( QSqlCursor* cursor, bool autoDelete )
 {
     if ( !cursor )
 	return;
@@ -310,24 +310,23 @@ void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
 }
 
 
-/*! Sets the default cursor used by the data browser to \a cursor. If \a
-   autoDelete is TRUE, the browser will take ownership of the \a
-   cursor and delete it when appropriate.  This function is a wrapper
-   for setCursor() and is provided purely for consistency with
-   sqlCursor(). We recommend using setCursor() directly.
+/*! \obsolete
+
+  This function is obsolete and will be removed in Qt 3 final.
+  Please use setSqlCursor() instead.
 
   \sa sqlCursor()
 */
 
-void QDataBrowser::setSqlCursor( QSqlCursor* cursor, bool autoDelete )
+void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
 {
-    setCursor( cursor, autoDelete );
+    setSqlCursor( cursor, autoDelete );
 }
 
 /*! Returns a pointer to the default cursor used for navigation, or 0
   if there is no default cursor.
 
-  \sa setCursor()
+  \sa setSqlCursor()
 
 */
 

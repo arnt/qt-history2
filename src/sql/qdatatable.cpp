@@ -145,7 +145,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   usage.
 
   QDataTable inherits QTable's API and extends it with functions to
-  sort and filter the data and sort columns. See setCursor(),
+  sort and filter the data and sort columns. See setSqlCursor(),
   setFilter(), setSort(), setSorting(), sortColumn() and refresh().
 
   When displaying editable cursors, cell editing will be enabled. (For
@@ -193,12 +193,12 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     current record respectively.
 
   Columns in the table can be created automatically based on the
-  cursor (see setCursor()). Columns can be manipulated manually using
+  cursor (see setSqlCursor()). Columns can be manipulated manually using
   addColumn(), removeColumn() and setColumn().
 
   The table automatically copies many of the properties of the cursor to
   format the display of data within cells (alignment, visibility, etc.).
-  The cursor can be changed with setCursor().
+  The cursor can be changed with setSqlCursor().
   The filter (see setFilter()) and sort defined within the table
   are used instead of the filter and sort set on the cursor. For sorting
   options see setSort(), sortColumn(), sortAscending() and
@@ -246,7 +246,7 @@ QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent
     : QTable( parent, name )
 {
     init();
-    setCursor( cursor, autoPopulate );
+    setSqlCursor( cursor, autoPopulate );
 }
 
 /*! \internal
@@ -282,11 +282,11 @@ QDataTable::~QDataTable()
   iconset.
 
   If \a label is specified, it is used as the column's header label,
-  otherwise the field's display label is used when setCursor() is
+  otherwise the field's display label is used when setSqlCursor() is
   called. The \a iconset is used to set the icon used by the column
   header; by default there is no icon.
 
-  \sa setCursor() refresh()
+  \sa setSqlCursor() refresh()
 
 */
 
@@ -305,11 +305,11 @@ void QDataTable::addColumn( const QString& fieldName,
   column label \a label, width \a width and iconset \a iconset.
 
   If \a label is specified, it is used as the column's header label,
-  otherwise the field's display label is used when setCursor() is
+  otherwise the field's display label is used when setSqlCursor() is
   called. The \a iconset is used to set the icon used by the column
   header; by default there is no icon.
 
-  \sa setCursor() refresh()
+  \sa setSqlCursor() refresh()
 
 */
 
@@ -1217,7 +1217,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 
 /*!  Resets the table so that it displays no data.
 
-  \sa setCursor()
+  \sa setSqlCursor()
 
 */
 
@@ -1269,7 +1269,7 @@ int QDataTable::indexOf( uint i ) const
 }
 
 /*! Returns TRUE if the table will automatically delete the cursor
-  specified by setCursor(), otherwise returns FALSE.
+  specified by setSqlCursor(), otherwise returns FALSE.
 */
 
 bool QDataTable::autoDelete() const
@@ -1279,7 +1279,7 @@ bool QDataTable::autoDelete() const
 
 /*! Sets the cursor auto-delete flag to \a enable.  If \a enable is
  TRUE, the table will automatically delete the cursor specified by
- setCursor(). Otherwise, (the default), the cursor will not be deleted.
+ setSqlCursor(). Otherwise, (the default), the cursor will not be deleted.
 */
 
 void QDataTable::setAutoDelete( bool enable )
@@ -1399,7 +1399,7 @@ int QDataTable::numRows() const
 /*!  \reimp
 
   The number of rows in the table will be determined by the cursor
-  (see setCursor()), so normally this function should never be called.
+  (see setSqlCursor()), so normally this function should never be called.
   It is included for completeness.
 */
 
@@ -1675,34 +1675,19 @@ void QDataTable::setSize( QSqlCursor* sql )
 }
 
 /*!
-    \fn virtual void QDataTable::setSqlCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE )
+    \fn virtual void QDataTable::setCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE )
 
-    This is an alias for setCursor(); it is only required if you have
-    a conflict with the QWidget::setCursor() function.
+    \obsolete
 
-    Sets \a cursor as the data source for the table.
-    Does not automatically create columns based on the fields
-    (\a autoPopulate is FALSE). The data table does not take ownership of
-    the cursor (\a autoDelete is FALSE).
-*/
-
-/*!
-    \fn virtual void QDataTable::setSqlCursor( QSqlCursor* cursor )
-    \overload
-    This is an alias for setCursor(); it is only required if you have
-    a conflict with the QWidget::setCursor() function.
-
+    Use setSqlCursor() instead
 */
 
 /*!
     \fn void QDataTable::setCursor( QSqlCursor* cursor )
-    \overload
 
-    Sets \a cursor as the data source for the table.
-    Does not automatically create columns based on the fields
-    (autoPopulate is FALSE). The data table does not take ownership of
-    the cursor (autoDelete is FALSE).
+    \obsolete
 
+    Use setSqlCursor() instead
 */
 
 /*!  Sets \a cursor as the data source for the table.  To force the
@@ -1718,7 +1703,7 @@ void QDataTable::setSize( QSqlCursor* sql )
 
 */
 
-void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
+void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
 {
     setUpdatesEnabled( FALSE );
     d->cur.setCursor( 0 );
@@ -1898,10 +1883,10 @@ void QDataTable::sortDescending( int col )
 /*!
     \overload void QDataTable::refresh( Refresh mode )
     Refreshes the table.  If there is no currently defined cursor (see
-  setCursor()), nothing happens. The \a mode parameter determines which
+  setSqlCursor()), nothing happens. The \a mode parameter determines which
   type of refresh will take place.
 
-  \sa Refresh setCursor() addColumn()
+  \sa Refresh setSqlCursor() addColumn()
 */
 
 void QDataTable::refresh( QDataTable::Refresh mode )
