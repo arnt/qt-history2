@@ -1067,6 +1067,27 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
 
 QActionGroup::~QActionGroup()
 {
+    QListIterator<QActionGroupPrivate::MenuItem> mit( d->menuitems );
+    while ( mit.current() ) {
+	QActionGroupPrivate::MenuItem *mi = mit.current();
+	++mit;
+	if ( mi->popup )
+	    mi->popup->disconnect( SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+    }
+
+    QListIterator<QComboBox> cbit( d->comboboxes );
+    while ( cbit.current() ) {
+	QComboBox *cb = cbit.current();
+	++cbit;
+	cb->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+    }
+    QListIterator<QToolButton> mbit( d->menubuttons ); 
+    while ( mbit.current() ) {
+	QToolButton *mb = mbit.current();
+	++mbit;
+	mb->disconnect(  SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
+    }
+
     delete d->separatorAction;
     d->menubuttons.setAutoDelete( TRUE );
     d->comboboxes.setAutoDelete( TRUE );
