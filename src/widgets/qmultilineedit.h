@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#20 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#21 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -233,6 +233,7 @@ private:
 
     void 	newMark( int posx, int posy, bool copy=TRUE );
     void 	markWord( int posx, int posy );
+    void	extendSelectionWord( int &newX, int&newY);
     int 	charClass( QChar );
     void	turnMarkOff();
     bool	inMark( int posx, int posy ) const;

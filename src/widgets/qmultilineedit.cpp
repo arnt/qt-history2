@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#80 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -934,6 +934,13 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Down:
 	    cursorDown( e->state() & ShiftButton );
 	    break;
+	case Key_Home:
+	    setCursorPosition(0,0, e->state() & ShiftButton );
+	    break;
+	case Key_End:
+	    setCursorPosition( numLines()-1, lineLength( numLines()-1 ),
+			       e->state() & ShiftButton );
+	    break;
 	case Key_F:
 	    cursorRight( e->state() & ShiftButton );
 	    break;
@@ -1698,6 +1705,14 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 
     int newX, newY;
     pixelPosToCursorPos( m->pos(), &newX, &newY );
+
+    if ( m->state() & ShiftButton ) {
+	wordMark = FALSE;
+	dragMarking    = TRUE;
+	setCursorPosition( newY, newX, TRUE);
+	return;
+    }
+    
     if (
 	inMark(newX, newY)		// Click on highlighted text
 	&& echoMode() == Normal		// No DnD of passwords, etc.
@@ -1797,6 +1812,19 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
     pixelPosToCursorPos(e->pos(), &newX, &newY);
 
     if ( wordMark ) {
+	extendSelectionWord( newX, newY);
+    }
+
+    if ( markDragX == newX && markDragY == newY )
+	return;
+    int oldY = markDragY;
+    newMark( newX, newY, FALSE );
+    for ( int i = QMIN(oldY,newY); i <= QMAX(oldY,newY); i++ )
+	updateCell( i, 0, FALSE );
+}
+
+void QMultiLineEdit::extendSelectionWord( int &newX, int&newY)
+{
 	QString s = stringShown( newY );
 	int lim = s.length();
 	if ( newX >= 0 && newX < lim ) {
@@ -1815,15 +1843,9 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	    }
 	    newX = i;
 	}
-    }
-
-    if ( markDragX == newX && markDragY == newY )
-	return;
-    int oldY = markDragY;
-    newMark( newX, newY, FALSE );
-    for ( int i = QMIN(oldY,newY); i <= QMAX(oldY,newY); i++ )
-	updateCell( i, 0, FALSE );
 }
+
+
 
 
 /*!
@@ -1874,10 +1896,18 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 {
     if ( m->button() == LeftButton ) {
+	if ( m->state() & ShiftButton ) {
+	    int newX = cursorX;
+	    int newY = cursorY;
+	    extendSelectionWord( newX, newY);
+	    newMark( newX, newY, FALSE );
+	} else {
+	    markWord( cursorX, cursorY );
+	}
 	dragMarking    = TRUE;
-	markWord( cursorX, cursorY );
 	wordMark = TRUE;
 	updateCell( cursorY, 0, FALSE );
+
     }
 }
 
@@ -2355,11 +2385,14 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
     cursorX = QMAX( QMIN( col,  lineLength( cursorY )), 0 );
     curXPos = 0;
     makeVisible();
-    updateCell( oldY, 0, FALSE );
-    if ( mark )
+    if ( mark ) {
 	newMark( cursorX, cursorY, FALSE );
-    else
+	for ( int i = QMIN(oldY,cursorY); i <= QMAX(oldY,cursorY); i++ )
+	    updateCell( i, 0, FALSE );
+    } else {
+	updateCell( oldY, 0, FALSE );
 	turnMarkOff();
+    }
 }
 
 
