@@ -1294,7 +1294,7 @@ then
     cat <<EOF
 Usage:  $relconf [-prefix dir] \\
 	[-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir] \\
-	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-st] \\
+	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-stl] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-no-nis] [-nis] \\
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>] \\
