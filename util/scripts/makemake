@@ -47,7 +47,7 @@ moc: variables FORCE
 	cp src/moc/moc bin/moc
 
 symlinks:
-	cd include; rm q*.h; ln -s ../src/*/q*.h .
+	@cd include; rm -f q*.h; ln -s ../src/*/q*.h .
 
 src: moc variables FORCE
 	cd \$@; \$(MAKE)
