@@ -53,7 +53,7 @@ public:
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
-    
+
     virtual bool contains(const QString &text) const;
     virtual int findItem(const QString &text, QAbstractItemModel::MatchFlag flags) const;
 
@@ -146,6 +146,7 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void paintEvent(QPaintEvent *e);
     void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
 
 private:
@@ -153,6 +154,7 @@ private:
     Q_PRIVATE_SLOT(void emitHighlighted(const QModelIndex&))
     Q_PRIVATE_SLOT(void returnPressed())
     Q_PRIVATE_SLOT(void complete())
+    Q_PRIVATE_SLOT(void resetButton())
 };
 
 #endif // QCOMBOBOX_H

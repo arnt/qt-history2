@@ -1964,6 +1964,13 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl cc, const QStyleO
 
         }
         break;
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            sc = QWindowsStyle::querySubControl(cc, cmb, pt, widget);
+            if (!cmb->editable && sc != SC_None)
+                sc = SC_ComboBoxArrow;  // A bit of a lie, but what we want
+        }
+        break;
 /*
     I don't know why, but we only get kWindowContentRgn here, which isn't what we want at all.
     It would be very nice if this would work.

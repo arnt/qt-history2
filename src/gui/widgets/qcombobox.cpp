@@ -192,6 +192,15 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
     }
 }
 
+
+/*!
+    \internal
+*/
+void ListViewContainer::hideEvent(QHideEvent *)
+{
+    emit containerDisappearing();
+}
+
 /*!
     \internal
 */
@@ -449,6 +458,12 @@ void QComboBoxPrivate::init()
     QObject::connect(q->listView()->selectionModel(),
                      SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
                      q, SLOT(emitHighlighted(const QModelIndex &)));
+    QObject::connect(container, SIGNAL(containerDisappearing()), q, SLOT(resetButton()));
+}
+
+void QComboBoxPrivate::resetButton()
+{
+    arrowDown = false;
 }
 
 QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
@@ -456,10 +471,10 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
     QStyleOptionComboBox opt(0);
     opt.init(q);
     opt.parts = QStyle::SC_All;
-//     if (arrowDown)
-    opt.activeParts = QStyle::SC_ComboBoxArrow;
-//     else
-//         opt.activeParts = QStyle::SC_None;
+     if (arrowDown)
+         opt.activeParts = QStyle::SC_ComboBoxArrow;
+     else
+         opt.activeParts = QStyle::SC_None;
     opt.editable = q->isEditable();
     return opt;
 }
@@ -1326,13 +1341,22 @@ void QComboBox::paintEvent(QPaintEvent *)
 void QComboBox::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionComboBox opt = d->getStyleOption();
-    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
-                                                     QStyle::SC_ComboBoxArrow, this);
-
-    if (arrowRect.contains(e->pos()) && !d->container->isVisible()
-        && !d->container->ignoreNextMousePress())
+    QStyle::SubControl sc = style().querySubControl(QStyle::CC_ComboBox, &opt, e->pos(), this);
+    if ((sc == QStyle::SC_ComboBoxArrow || (sc == QStyle::SC_ComboBoxEditField && !isEditable()))
+        && !d->container->isVisible() && !d->container->ignoreNextMousePress()) {
+        if (sc == QStyle::SC_ComboBoxArrow)
+            d->arrowDown = true;
         popup();
+    }
     QWidget::mousePressEvent(e);
+}
+
+void QComboBox::mouseReleaseEvent(QMouseEvent *e)
+{
+    d->arrowDown = false;
+    QStyleOptionComboBox opt = d->getStyleOption();
+    update(style().querySubControlMetrics(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow));
+    QWidget::mouseReleaseEvent(e);
 }
 
 /*!

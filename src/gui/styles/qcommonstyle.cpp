@@ -1872,6 +1872,21 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
             }
         }
         break;
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            QRect r;
+            uint ctrl = SC_ComboBoxArrow;  // Start here and go down.
+            while (ctrl > 0) {
+                r = visualRect(querySubControlMetrics(cc, cmb, QStyle::SubControl(ctrl), widget),
+                                                      widget);
+                if (r.isValid() && r.contains(pt)) {
+                    sc = QStyle::SubControl(ctrl);
+                    break;
+                }
+                ctrl >>= 1;
+            }
+        }
+        break;
     default:
         qWarning("QCommonStyle::querySubControl case not handled %d", cc);
     }

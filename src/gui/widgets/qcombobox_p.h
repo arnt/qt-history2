@@ -86,9 +86,11 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void mousePressEvent(QMouseEvent *e);
+    void hideEvent(QHideEvent *e);
 
 signals:
     void itemSelected(const QModelIndex &);
+    void containerDisappearing();
 
 private:
     bool ignoreMousePress;
@@ -222,6 +224,7 @@ public:
           insertionPolicy(QComboBox::AtBottom),
           autoCompletion(true),
           duplicatesEnabled(false),
+          arrowDown(false),
           sizeLimit(10),
           maxCount(INT_MAX),
           ignoreMousePressEvent(false),
@@ -236,6 +239,7 @@ public:
     bool contains(const QString &text, int role);
     void emitActivated(const QModelIndex&);
     void emitHighlighted(const QModelIndex&);
+    void resetButton();
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
@@ -244,6 +248,7 @@ public:
     QComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
     bool duplicatesEnabled;
+    bool arrowDown;
     int sizeLimit;
     int maxCount;
     bool ignoreMousePressEvent;
