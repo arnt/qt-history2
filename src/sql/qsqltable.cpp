@@ -1408,7 +1408,7 @@ void QSqlTable::takeItem ( QTableItem * )
 
 }
 
-void QSqlTable::refresh( bool seekPrimary = FALSE )
+void QSqlTable::refresh( bool seekPrimary )
 {
     if ( d->view )
 	refresh( d->view, seekPrimary );
