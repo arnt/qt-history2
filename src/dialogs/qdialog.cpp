@@ -834,8 +834,7 @@ void QDialog::setExtension( QWidget* extension )
 
     if ( extension->parentWidget() != this )
 	extension->reparent( this, QPoint(0,0) );
-    else
-	extension->hide();
+    extension->hide();
 }
 
 /*!
