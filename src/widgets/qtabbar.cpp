@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#85 $
 **
 ** Implementation of QTabBar class
 **
@@ -73,15 +73,11 @@ struct QTabPrivate {
   and emits a signal when one is selected.  It can be subclassed to
   tailor the look and feel.
 
-  The four possible shapes are <ul> <li> \c RoundedAbove - (the
-  default) rounded tabs to be located above the pages.  <li> \c
-  RoundedBelow - rounded tabs to be located below the pages. <li> \c
-  TriangularAbove - triangular tabs to be located above the pages
-  (very unusual, included for completeness). <li> \c TriangularBelow
-  - triangular tabs to be located below the pages. </ul>
+  QTabBar itself support four possible shapes, described in the
+  QTabBar::Shape documentation.
 
   The choice of tab shape is still a matter of taste, to a large
-  degree.  Tab dialogs (preferences and the like) invariable use \c
+  degree.  Tab dialogs (preferences and the like) invariably use \c
   RoundedAbove and nobody uses \c TriangularAbove.  Tab controls in
   windows other than dialogs almost always either \c RoundedBelow or
   \c TriangularBelow.  Many spreadsheets and other tab controls where
@@ -107,6 +103,22 @@ struct QTabPrivate {
   decides which, if any, tab the user selects with the mouse. </ul>
 
   <img src=qtabbar-m.png> <img src=qtabbar-w.png>
+*/
+
+/*! \enum QTabBar::Shape
+  This enum type lists the built-in shapes supported by QTabBar:<ul>
+
+  <li> \c RoundedAbove - the normal rounded look, above the pages
+
+  <li> \c RoundedBelow - the normal rounded look, below the pages
+
+  <li> \c TriangularAbove - triangular tabs, above the pages (very
+  unusual, included for completeness)
+  
+  <li> \c TriangularBelow - triangular tabs, similar to those used in
+  e.g. the spreadsheet Excel
+
+  </ul>
 */
 
 /*!

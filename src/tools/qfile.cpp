@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#96 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#97 $
 **
 ** Implementation of QFile class
 **
@@ -751,16 +751,19 @@ int QFile::readBlock( char *p, uint len )
     return nread;
 }
 
+/*! \overload int writeBlock( const QByteArray& data )
+*/
 
-/*!
+/*! \reimp
+
   Writes \e len bytes from \e p to the file and returns the number of
   bytes actually written.
 
   Returns -1 if a serious error occurred.
 
-  <strong>Important:</strong> When working with buffered files, data may
-  not be written to the file at once. Call \link flush() flush\endlink
-  to make sure the data is really written.
+  \warning When working with buffered files, data may not be written
+  to the file at once. Call flush() to make sure the data is really
+  written.
 
   \sa readBlock()
 */
