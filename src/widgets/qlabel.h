@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#3 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#4 $
 **
 ** Definition of QLabel class
 **
@@ -37,9 +37,9 @@ private:
     QString t;
 };
 
-    inline void QLabel::setText( int   i ) { setText( (long)  i ); }
+inline void QLabel::setText( int   i ) { setText( (long)  i ); }
 
-    inline void QLabel::setText( float f ) { setText( (double) f ); }
+inline void QLabel::setText( float f ) { setText( (double)f ); }
 
 
-#endif // QLINED_H
+#endif // QLABEL_H
