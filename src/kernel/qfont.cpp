@@ -1023,6 +1023,25 @@ void QFont::setStyleStrategy( StyleStrategy s )
     d->request.mask |= QFontDef::StyleStrategy;
 }
 
+
+/*!
+    \enum QFont::Stretch
+
+    Predefined stretch values that follow the CSS naming convention.
+
+    \value UltraCondensed 50
+    \value ExtraCondensed 62
+    \value Condensed 75
+    \value SemiCondensed 87
+    \value Unstretched 100
+    \value SemiExpanded 112
+    \value Expanded 125
+    \value ExtraExpanded 150
+    \value UltraExpanded 200
+
+    \sa setStretch() stretch()
+*/
+
 /*!
     Returns the stretch factor for the font.
 
@@ -1037,9 +1056,10 @@ int QFont::stretch() const
     Sets the stretch factor for the font.
 
     The stretch factor changes the width of all characters in the font
-    by \a factor percent.  Setting \a factor to 150 results in all
-    characters in the font being 1.5 time ( ie. 150% ) wider.  The
-    default stretch factor is 100.
+    by \a factor percent.  For example, setting \a factor to 150
+    results in all characters in the font being 1.5 times ( ie. 150% )
+    wider.  The default stretch factor is 100.  The minimum stretch
+    factor is 1, and the maximum stretch factor is 4000.
 
     The stretch factor is only applied to outline fonts.  The stretch
     factor is ignored for bitmap fonts.
@@ -1052,7 +1072,7 @@ int QFont::stretch() const
 */
 void QFont::setStretch( int factor )
 {
-    if ( factor <= 0 || factor > 4000 ) {
+    if ( factor < 1 || factor > 4000 ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QFont::setStretch(): parameter '%d' out of range", factor );
 #endif // QT_CHECK_RANGE
