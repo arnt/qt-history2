@@ -89,7 +89,7 @@ inline HKEY QSettingsPrivate::openFolder( const QString &f )
     if ( local ) {
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
-	    res = RegCreateKeyExW( local, (const unsigned short*)qt_winTchar( f, TRUE ), 0, (unsigned short*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	else
 #endif
 	    res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
@@ -100,7 +100,7 @@ inline HKEY QSettingsPrivate::openFolder( const QString &f )
     if ( !handle && user ) {
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
-	    res = RegCreateKeyExW( user, (const unsigned short*)qt_winTchar( f, TRUE ), 0, (unsigned short*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	else
 #endif
 	    res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
@@ -122,10 +122,10 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
 
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
-	res = RegSetValueExW( handle, (const unsigned short*)qt_winTchar( e, TRUE ), 0, type, (const unsigned char*)value.data(), value.size() );
+	res = RegSetValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
     else
 #endif
-	res = RegSetValueExA( handle, e.local8Bit(), 0, type, (const unsigned char*)value.data(), value.size() );
+	res = RegSetValueExA( handle, e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
 
     if ( res != ERROR_SUCCESS ) {
 	qSystemWarning( "Couldn't write value " + key, res );
@@ -140,8 +140,8 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
 {
     HKEY handle = 0;
     long res;
-    unsigned long size = 0;
-    unsigned long type = 0;
+    ulong size = 0;
+    ulong type = 0;
 
     QString f = folder( key );
     QString e = entry( key );
@@ -149,7 +149,7 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
     if ( user ) {
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
-	    res = RegOpenKeyExW( user, (const unsigned short*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
+	    res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
 	else
 #endif
 	    res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_READ, &handle );
@@ -157,7 +157,7 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
 	if ( res == ERROR_SUCCESS ) {
 #if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based )
-		res = RegQueryValueExW( handle, (const unsigned short*)qt_winTchar( e, TRUE ), NULL, &type, NULL, &size );
+		res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, &type, NULL, &size );
 	    else
 #endif
 		res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
@@ -170,7 +170,7 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
     if ( !size && local ) {
 #if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based )
-	    res = RegOpenKeyExW( local, (const unsigned short*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
+	    res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
 	else
 #endif
 	    res = RegOpenKeyExA( local, f, 0, KEY_READ, &handle );
@@ -178,7 +178,7 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
 	if ( res == ERROR_SUCCESS ) {
 #if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based )
-		res = RegQueryValueExW( handle, (const unsigned short*)qt_winTchar( e, TRUE ), NULL, &type, NULL, &size );
+		res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, &type, NULL, &size );
 	    else
 #endif
 		res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
@@ -190,10 +190,10 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
     if ( !size || type != t )
 	return QByteArray();
 
-    LPBYTE data = new uchar[ size ];
+    uchar* data = new uchar[ size ];
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
-	RegQueryValueExW( handle, (const unsigned short*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
+	RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
     else
 #endif
 	RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, data, &size );
