@@ -41,7 +41,7 @@ void ResultWindow::newSelection( const QSqlRecord* fields )
     QString cap;
     for ( uint i = 0; i < fields->count(); ++i ) {
 	const QSqlField * f  = fields->field(i);
-	cap += f->displayLabel().leftJustify(20) + ":" +
+	cap += fields->displayLabel( f->name() ).leftJustify(20) + ":" +
 	       f->value().toString().rightJustify(30) + "\n";
     }
     currentRecordEdit->setText( cap );
