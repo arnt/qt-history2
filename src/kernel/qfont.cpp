@@ -2592,7 +2592,7 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #ifdef Q_WS_X11
 	return hanHack( c );
 #else
-	return QFont::UnifiedHan;
+	return QFont::Han;
 #endif
 
     case 0x2f:
@@ -2600,14 +2600,14 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #ifdef Q_WS_X11
 	    return hanHack( c );
 #else
-	return QFont::UnifiedHan;
+	return QFont::Han;
 #endif
 	if (cell <= 0xef)
 	    break;
 #ifdef Q_WS_X11
 	return hanHack( c );
 #else
-	return QFont::UnifiedHan;
+	return QFont::Han;
 #endif
 
     case 0x30:
@@ -2621,7 +2621,7 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #ifdef Q_WS_X11
 	return hanHack( c );
 #else
-	return QFont::UnifiedHan;
+	return QFont::Han;
 #endif
     case 0x31:
 	if (cell <= 0x2f)
@@ -2634,7 +2634,7 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #ifdef Q_WS_X11
 	    return hanHack( c );
 #else
-	return QFont::UnifiedHan;
+	return QFont::Han;
 #endif
 	break;
 
@@ -2699,7 +2699,7 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 #ifdef Q_WS_X11
 	return hanHack( c );
 #else
-	return QFont::UnifiedHan;
+	return QFont::Han;
 #endif
     }
 
