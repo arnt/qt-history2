@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#14 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -273,7 +273,7 @@ QPNGImageWriter::QPNGImageWriter(QIODevice* iod) :
     frames_written(0),
     disposal(Unspecified),
     looping(-1),
-    ms_delay(0)
+    ms_delay(-1)
 {
 }
 
