@@ -202,8 +202,12 @@ void qt_mac_unicode_reset_input(QWidget *w) {
 static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
     if(msg == kDMNotifyEvent) {
-	if(QDesktopWidget *dw = qApp->desktop())
+	if(QDesktopWidget *dw = qApp->desktop()) {
+	    // ### why post the event?
 	    QApplication::postEvent(dw, new QResizeEvent(dw->size(), dw->size()));
+	    // ### need to send the right screen number
+	    emit desktop()->resized( 0 );
+	}
     }
 }
 
@@ -381,11 +385,11 @@ void qt_mac_update_os_settings()
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
 	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") && pal != apppal) { //special
-		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText, 
+		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText,
 			     pal.color(QPalette::Disabled, QColorGroup::Text));
-		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText, 
+		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText,
 			     pal.color(QPalette::Inactive, QColorGroup::Text));
-		pal.setColor(QPalette::Active, QColorGroup::ButtonText, 
+		pal.setColor(QPalette::Active, QColorGroup::ButtonText,
 			     pal.color(QPalette::Active, QColorGroup::Text));
 	    }
 	    bool set_palette = TRUE;
@@ -393,7 +397,7 @@ void qt_mac_update_os_settings()
 		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class))
 		    set_palette = !(pal == *oldpal);
 	    }
-	    if(set_palette && pal != apppal) 
+	    if(set_palette && pal != apppal)
 		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
 	}
     }
@@ -1836,13 +1840,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length / sizeof(UniChar)),
 						 (fixed_length - text.length()) / sizeof(UniChar));
 				QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
-				if(imstart.isAccepted()) 
+				if(imstart.isAccepted())
 				    handled_event = TRUE;
 			    }
 			} else {
 			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
 			    QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
-			    if(imcompose.isAccepted()) 
+			    if(imcompose.isAccepted())
 				handled_event = TRUE;
 			}
 		    }
@@ -1960,7 +1964,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	qDebug("------------ Mapping modifiers and key -----------");
 #endif
 	if(modifiers & (Qt::AltButton | Qt::ControlButton)) {
-	    if(chr & (1 << 7)) 
+	    if(chr & (1 << 7))
 		chr = 0;
 	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
@@ -2186,7 +2190,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    bool just_send_event = FALSE;
 		    {
 			WindowActivationScope scope;
-			if(GetWindowActivationScope((WindowRef)wid, &scope) == noErr && 
+			if(GetWindowActivationScope((WindowRef)wid, &scope) == noErr &&
 			   scope == kWindowActivationScopeIndependent) {
 			    if(GetFrontWindowOfClass(kAllWindowClasses, true) != wid)
 				just_send_event = TRUE;

@@ -73,6 +73,9 @@ public:
 
     void insertChild( QObject * );
 
+signals:
+    void resized( int );
+
 protected:
     void resizeEvent( QResizeEvent *e );
 

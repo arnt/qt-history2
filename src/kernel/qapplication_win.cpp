@@ -1532,6 +1532,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    y = GetSystemMetrics( 79 );
 	    QResizeEvent re( QSize(x, y), qt_desktopWidget->size() );
 	    QApplication::sendEvent( qt_desktopWidget, &re );
+	    // ### how do we get the screen number?
+	    emit desktop()->resize( 0 );
 	}
 	break;
 #endif
@@ -1926,7 +1928,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		{
 		    const QWidget *tlw = widget->topLevelWidget();
 		    // Do not change activation if the clicked widget is inside a floating dock window
-		    if ( tlw->inherits( "QDockWindow" ) && qApp->activeWindow() 
+		    if ( tlw->inherits( "QDockWindow" ) && qApp->activeWindow()
 			 && !qApp->activeWindow()->inherits("QDockWindow") )
 			RETURN(MA_NOACTIVATE);
 		}
@@ -2154,7 +2156,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    break;
 
-	case WM_CANCELMODE: 
+	case WM_CANCELMODE:
 	    if ( qApp->focusWidget() ) {
 		QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 		QFocusEvent e( QEvent::FocusOut );
@@ -2467,7 +2469,7 @@ static int translateButtonState( int s, int type, int button )
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= Qt::AltButton;
 
-    if ( (GetKeyState(VK_LWIN) < 0) || 
+    if ( (GetKeyState(VK_LWIN) < 0) ||
 	 (GetKeyState(VK_RWIN) < 0) )
  	bst |= Qt::MetaButton;
 
@@ -2910,7 +2912,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	state |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= Qt::AltButton;
-    if ( (GetKeyState(VK_LWIN) < 0) || 
+    if ( (GetKeyState(VK_LWIN) < 0) ||
 	 (GetKeyState(VK_RWIN) < 0) )
  	state |= Qt::MetaButton;
     //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
@@ -3147,7 +3149,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	state |= Qt::ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= Qt::AltButton;
-    if ( (GetKeyState(VK_LWIN) < 0) || 
+    if ( (GetKeyState(VK_LWIN) < 0) ||
 	 (GetKeyState(VK_RWIN) < 0) )
  	state |= Qt::MetaButton;
 

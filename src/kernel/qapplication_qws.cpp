@@ -1251,7 +1251,9 @@ void QWSDisplay::setTransformation( int t )
 
     QSize olds = qApp->desktop()->size();
     qApp->desktop()->resize( qt_screen->width(), qt_screen->height() );
+    // ## why post the resize event?
     qApp->postEvent( qApp->desktop(), new QResizeEvent(qApp->desktop()->size(), olds) );
+    emit QApplication::desktop()->resized( 0 );
 
     QWidgetList  *list = QApplication::topLevelWidgets();
     if ( list ) {

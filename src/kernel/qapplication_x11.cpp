@@ -3448,6 +3448,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( w->size() != oldSize ) {
 	    QResizeEvent e( w->size(), oldSize );
 	    QApplication::sendEvent( w, &e );
+	    emit desktop()->resized( scr );
 	}
     }
 #endif // QT_NO_XRANDR
