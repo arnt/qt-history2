@@ -659,7 +659,9 @@ void QSpinBox::valueChange()
 void QSpinBox::rangeChange()
 {
 #if QT_VERSION >= 300
+#if defined(_CC_GNU_)
 #warning "Use a virtual function - but what?"
+#endif
 #endif
     if ( validate->inherits( "QIntValidator" ) )
 	((QIntValidator*)validate)->setRange( minValue(), maxValue() );

@@ -763,7 +763,7 @@ void QScrollView::updateScrollBars()
     // Position the scrollbars, viewport, and corner widget.
     int bottom;
     bool reverse = QApplication::reverseLayout();
-    int xoffset = ( reverse && (showv || cornerWidget() )) ? vsbExt : 0; 
+    int xoffset = ( reverse && (showv || cornerWidget() )) ? vsbExt : 0;
     int xpos = reverse ? 0 : w - vsbExt;
     if( style() == WindowsStyle ) {
 	if ( reverse )
@@ -1741,12 +1741,16 @@ void QScrollView::moveContents(int x, int y)
 }
 
 #if QT_VERSION >= 300
+#if defined(_CC_GNU_)
 #warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
+#endif
 // Because it's the viewport rectangle that is "moving", not the contents.
 #endif
 
 #if QT_VERSION >= 300
+#if defined(_CC_GNU_)
 #warning "Should rename contents{X,Y,Width,Height} to viewport{...}"
+#endif
 // Because it's the viewport rectangle that is "moving", not the contents.
 #endif
 
