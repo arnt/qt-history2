@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -342,9 +342,9 @@ public:
 /*!
   \class QWorkspace qworkspace.h
 
-  \brief A workspace that can contain decorated windows as opposed to
-  frameless child widgets.  QWorkspace makes it easy to implement a
-  multidocument interface (MDI).
+  \brief The QWorkspace widget provides a workspace that can contain
+  decorated windows as opposed to frameless child widgets.  QWorkspace
+  makes it easy to implement a multidocument interface (MDI).
 
   \ingroup realwidgets
 
@@ -365,9 +365,9 @@ public:
   requires specific toolbars or statusbars for them. The only special
   thing about them is that you create them with the workspace as
   parent widget. The rest of the magic happens behind the scenes. All
-  you have to do is call QWidget::show() (as you would do with normal
-  toplevel window) and the document window appears as MDI window
-  inside the workspace.
+  you have to do is call QWidget::show() or QWidget::showMaximized()
+  (as you would do with normal toplevel windows) and the document
+  window appears as MDI window inside the workspace.
 
   In addition to show, QWidget::hide(), QWidget::showMaximized(),
   QWidget::showNormal(), QWidget::showMinimized() also work as
@@ -381,13 +381,12 @@ public:
   The convenience function clientList() returns a list of all document
   windows. This is especially useful to create a popup menu "&Windows"
   on the fly.
-  
+
   If the user clicks on the frame of an MDI window, this window
-  becomes active, i.e. it gets the focus. For that reason, all
+  becomes active, i.e. it gets the focus. For that reason, all direct
   children of a QWorkspace have to be focus enabled. If your MDI
-  window does not handle focus itself, use QWidget::setFocusProxy(
-  otherWidget), with \c otherWidget being a child of your MDI window
-  that is focus enabled.
+  window does not handle focus itself, use QWidget::setFocusProxy() to
+  install a focus-enabled child widget as focus proxy.
 
   In general, modern GUI applications should be document-centric
   rather then application-centric. A single document interface (SDI)
@@ -398,7 +397,7 @@ public:
   wordprocessors. Although most wordprocessors were MDI applications
   in the past, user interface studies showed that many users never
   really understood the model.
-  
+
   If an application is supposed to be used mostly by experienced
   users, a multiple document interface may neverthless make sense.  A
   typical example is an integrated development environment (IDE). With
@@ -410,7 +409,7 @@ public:
   crystal-clear which subdocuments belong together. Furthermore, the
   user effort for window management tasks such as positioning,
   stacking and sizing is significantly reduced.
-  
+
   An alternative to MDI with QWorkspace is a multipane structure. This
   can be achived by tiling the main window into separate panes with a
   \l QSplitter.
