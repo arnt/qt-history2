@@ -119,6 +119,7 @@ public:
     uint toggleaction : 1;
     uint on : 1;
     uint forceDisabled : 1;
+    uint forceInvisible : 1;
 #ifndef QT_NO_TOOLTIP
     QToolTipGroup tipGroup;
 #endif
@@ -156,7 +157,7 @@ Q3ActionPrivate::Q3ActionPrivate(Q3Action *act)
       key(0), accel(0), accelid(0),
 #endif
       enabled(true), visible(true), toggleaction(false), on(false),
-      forceDisabled(false)
+      forceDisabled(false), forceInvisible(false)
 #ifndef QT_NO_TOOLTIP
       , tipGroup(0)
 #endif
@@ -920,8 +921,11 @@ void Q3Action::setDisabled(bool disable)
 */
 void Q3Action::setVisible(bool visible)
 {
+    d->forceInvisible = !visible;
+
     if ((bool)d->visible == visible)
         return;
+
     d->visible = visible;
     d->update(Q3ActionPrivate::Visibility);
 }
@@ -1293,7 +1297,12 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
             (*it)->setEnabled(false);
             (*it)->d->forceDisabled = false;
         }
-        (*it)->setVisible(that->isVisible());
+	if (that->isVisible() && !(*it)->d->forceInvisible) {
+	    (*it)->setVisible(true);
+	} else if (!that->isVisible() && (*it)->isVisible()) {
+	    (*it)->setVisible(false);
+	    (*it)->d->forceInvisible = false;
+	}
     }
     for (QList<QComboBox*>::Iterator cb(comboboxes.begin()); cb != comboboxes.end(); ++cb) {
         QComboBox *combobox = *cb;
@@ -1571,7 +1580,10 @@ void Q3ActionGroup::add(Q3Action* action)
         action->setWhatsThis(whatsThis());
     if (action->toolTip().isNull())
         action->setToolTip(toolTip());
-    action->setEnabled(isEnabled());
+    if (!action->d->forceDisabled)
+	action->d->enabled = isEnabled();
+    if (!action->d->forceInvisible)
+	action->d->visible = isVisible();
 
     connect(action, SIGNAL(destroyed()), this, SLOT(childDestroyed()));
     connect(action, SIGNAL(activated()), this, SIGNAL(activated()));
@@ -1690,7 +1702,6 @@ bool Q3ActionGroup::addTo(QWidget* w)
                 if (whatsThis().size())
                     QWhatsThis::add(box, whatsThis());
 #endif
-
                 int onIndex = 0;
                 bool foundOn = false;
                 for (QList<Q3Action*>::Iterator it(d->actions.begin()); it != d->actions.end(); ++it) {
