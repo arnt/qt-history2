@@ -2253,8 +2253,8 @@ bool qt_detectRTLLanguage()
 {
     return qApp->tr( "QT_LAYOUT_DIRECTION",
 	    "Translate this string to the string 'LTR' in left-to-right"
-	    " languages or to 'RTL' in right-to-left languages (such as Arabic"
-	    " and Hebrew) to get proper widget layout." ) == "RTL";
+	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
+	    " and Arabic) to get proper widget layout." ) == "RTL";
 }
 
 /*!
