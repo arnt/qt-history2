@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#42 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#42 $";
 #endif
 
 
@@ -142,6 +142,15 @@ QFontData::QFontData()
 QFontData::~QFontData()
 {
   // Font data is cleaned up by font cache and font dict
+}
+
+QFontData &QFontData::operator=( const QFontData &d )
+{
+    req = d.req;
+    act = d.act;
+    exactMatch = d.exactMatch;
+    lineW = d.lineW;
+    xfd = d.xfd;				// safe to copy
 }
 
 
