@@ -30,6 +30,7 @@
 #include <qt_windows.h>
 #include <uxtheme.h>
 #include <tmschema.h>
+#include <limits.h>
 
 static ulong ref = 0;
 static bool use_xp  = FALSE;
