@@ -102,17 +102,39 @@ QString QDir::homeDirPath()
 
 QString QDir::canonicalPath() const
 {
-    QString r;
-    TCHAR cur[PATH_MAX];
-    ::_wgetcwd( cur, PATH_MAX );
-    if ( ::_wchdir( (TCHAR*)dPath.ucs2() ) >= 0 ) {
-	TCHAR tmp[PATH_MAX];
-	if ( ::_wgetcwd( tmp, PATH_MAX ) )
-	    r = QString::fromUcs2( (ushort*)tmp );
+    QString aPath = dPath.copy();
+    if ( aPath.length() && aPath[0] == '.' )
+	aPath.prepend( QDir::currentDirPath() );
+    slashify( aPath );
+
+    QStringList aList = QStringList::split( '/', aPath );
+    QStringList::Iterator it = aList.begin();
+    uint elm = aList.size(), len = elm;
+
+    // Create new canonical path at the end
+    // of the current string list, by pushing
+    // and popping to the back
+    while ( len-- ) {
+        if ( (*it) == "." ) {
+	    ++it;
+	    continue;
+	} else if ( (*it) == ".." &&
+	    aList.size() > elm ) {
+	    aList.pop_back();
+	} else {
+	    aList.push_back( (*it) );
+	}
+	++it;
     }
-    ::_wchdir( cur );
-    slashify( r );
-    return r;
+
+    // Remove all the original elements, so
+    // we are left with only the canonical.
+    len = elm;
+    while ( len-- )
+	aList.pop_front();
+
+    aPath = aList.join( "/" );
+    return aPath.prepend( '/' );
 }
 
 /*!
