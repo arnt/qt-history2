@@ -1124,11 +1124,11 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 */
 void QPainter::drawRect(const QRect &r)
 {
-    if (!isActive() || r.isEmpty())
+    QRect rect = r.normalize();
+
+    if (!isActive() || rect.isEmpty())
         return;
     d->engine->updateState(d->state);
-
-    QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
         && !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
