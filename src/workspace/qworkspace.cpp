@@ -457,6 +457,9 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     // Then activate the new one, so the focus is stored correctly
     d->active->setActive( TRUE );
 
+    if (!d->active)
+	return;
+
     if ( d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
 	 d->active->windowWidget()->testWFlags( WStyle_MinMax ) &&
 	 !d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
