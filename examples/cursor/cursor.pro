@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, small-config)"
 HEADERS		=
 SOURCES		= cursor.cpp
 
+QT	+= compat
