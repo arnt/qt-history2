@@ -32,11 +32,11 @@ public:
     ~RArray();
 
     Z &operator[](int);
-    int size() const { return _size; }
+    int size() const { return sz; }
 
 private:
-    int _size;
-    Z *_data;
+    int sz;
+    Z *d;
 };
 
 struct NETRootInfoPrivate {

@@ -74,48 +74,52 @@ static Bool atoms_created            = False;
 
 
 static char *nstrdup(const char *s1) {
-   if (! s1) return (char *) 0;
+    if (! s1) return (char *) 0;
 
-  int l = strlen(s1) + 1;
-  char *s2 = new char[l];
-  strncpy(s2, s1, l);
-  return s2;
+    int l = strlen(s1) + 1;
+    char *s2 = new char[l];
+    strncpy(s2, s1, l);
+    return s2;
 }
 
 
 static char *nstrndup(const char *s1, int l) {
-  if (! s1) return (char *) 0;
+    if (! s1) return (char *) 0;
 
-  char *s2 = new char[l];
-  strncpy(s2, s1, l);
-  return s2;
+    char *s2 = new char[l];
+    strncpy(s2, s1, l);
+    return s2;
 }
 
 
 static Window *nwindup(Window *w1, int n) {
-  if (! w1) return (Window *) 0;
+    if (! w1) return (Window *) 0;
 
-  Window *w2 = new Window[n];
-  while (n--) w2[n] = w1[n];
-  return w2;
+    Window *w2 = new Window[n];
+    while (n--) w2[n] = w1[n];
+    return w2;
 }
 
 
 static void refdec_nri(NETRootInfoPrivate *p) {
 #ifdef    DEBUG
-  fprintf(stderr, "decrementing NETRootInfoPrivate::ref (%d)\n", p->ref - 1);
+    fprintf(stderr, "decrementing NETRootInfoPrivate::ref (%d)\n", p->ref - 1);
 #endif
 
-  if (! --p->ref) {
+    if (! --p->ref) {
 #ifdef    DEBUG
-    fprintf(stderr, "  no more references, deleting\n");
+	fprintf(stderr, "  no more references, deleting\n");
 #endif
 
-    if (p->name) delete [] p->name;
-    if (p->stacking) delete [] p->stacking;
-    if (p->clients) delete [] p->clients;
-    if (p->virtual_roots) delete [] p->virtual_roots;
-  }
+	if (p->name) delete [] p->name;
+	if (p->stacking) delete [] p->stacking;
+	if (p->clients) delete [] p->clients;
+	if (p->virtual_roots) delete [] p->virtual_roots;
+    
+	int i;
+	for (i = 0; i < p->desktop_names.size(); i++)
+	    if (p->desktop_names[i]) delete [] p->desktop_names[i];
+    }
 }
 
 
@@ -124,28 +128,33 @@ static void refdec_nwi(NETWinInfoPrivate *p) {
     fprintf(stderr, "decrementing NETWinInfoPrivate::ref (%d)\n", p->ref - 1);
 #endif
 
-    if (! --p->ref)
+    if (! --p->ref) {
 	if (p->name) delete [] p->name;
+	
+	int i;
+	for (i = 0; i < p->icons.size(); i++)
+	    if (p->icons[i].data) delete [] p->icons[i].data;
+    }
 }
 
 
 static void windowSort(Window *wins, int num) {
-  int i, j, swaps;
+    int i, j, swaps;
 
-  // bubble sort:
-  for (i = num; i >= 1; i--) {
-    swaps = 0;
+    // bubble sort:
+    for (i = num; i >= 1; i--) {
+	swaps = 0;
 
-    for (j = 2; j <= i; j++)
-      if (wins[j - 1] > wins[j]) {
-	Window s = wins[j - 1];
-	wins[j - 1] = wins[j];
-	wins[j] = s;
-	swaps++;
-      }
+	for (j = 2; j <= i; j++)
+	    if (wins[j - 1] > wins[j]) {
+		Window s = wins[j - 1];
+		wins[j - 1] = wins[j];
+		wins[j] = s;
+		swaps++;
+	    }
 
-    if (swaps == 0) break;
-  }
+	if (swaps == 0) break;
+    }
 }
 
 
@@ -276,47 +285,91 @@ static void create_atoms(Display *d) {
 
 
 static void readIcon(NETWinInfoPrivate *p) {
+    Atom type_ret;
+    int format_ret;
+    unsigned long nitems_ret, after_ret;
+    unsigned char *data_ret;
     
+    int ret =
+	XGetWindowProperty(p->display, p->window, net_wm_icon, 0l, 1l, False,
+			   XA_CARDINAL, &type_ret, &format_ret, &nitems_ret,
+			   &after_ret, &data_ret);
+        
+    if (data_ret) XFree(data_ret);
+
+    if (ret != Success || nitems_ret < 3 || type_ret != XA_CARDINAL ||
+	format_ret != 32)
+	// either we didn't get the property, or the property has less than
+	// 3 elements in it
+	// NOTE: 3 is the ABSOLUTE minimum:
+	//     width = 1, height = 1, length(data) = 1 (width * height)
+	return;
     
-#warning TODO: re-read icon property on change   
+    // allocate space after_ret (bytes remaining in property) + 4
+    // (the single 32bit quantity we just read)
+    unsigned long proplen = after_ret + 4;
+    unsigned char *buffer = new unsigned char[proplen];
+    unsigned long offset = 0, buffer_offset = 0;
     
+    while (after_ret >0) {
+	XGetWindowProperty(p->display, p->window, net_wm_icon, offset,
+			   (long) BUFSIZE, False, XA_CARDINAL, &type_ret,
+			   &format_ret, &nitems_ret, &after_ret, &data_ret);
+	memcpy((buffer + buffer_offset), data_ret, nitems_ret * 4);
+	buffer_offset += nitems_ret * 4;
+ 	offset += nitems_ret;
+	XFree(data_ret);
+    }
     
+    unsigned long i, j;
+    CARD32 *d = (CARD32 *) buffer;
+    for (i = 0, j = 0; i < proplen - 3; i++) {
+	p->icons[j].size.width = *d++;
+	p->icons[j].size.height = *d++;
+	
+	unsigned long s = (p->icons[j].size.width *
+			   p->icons[j].size.height * 4);
+	if (p->icons[j].data) delete [] p->icons[j].data;
+	memcpy(p->icons[j].data, d, s);
+	d += s;
+	j++;
+    }
 }
 
 
 template <class Z>
 RArray<Z>::RArray() {
-  _size = 0;
-  _data = (Z *) 0;
+  sz = 0;
+  d = 0;
 }
 
 
 template <class Z>
 RArray<Z>::~RArray() {
-  if (_data) delete [] _data;
+  if (d) delete [] d;
 }
 
 
 template <class Z>
 Z &RArray<Z>::operator[](int index) {
-    if (! _data) _data = new Z[index + 1];
-    else if (index >= _size) {
+    if (! d) d = new Z[index + 1];
+    else if (index >= sz) {
 	// allocate space for the new data
 	Z *newdata = new Z[index + 1];
 
 	// move the old data into the new array
 	int i;
-	for (i = 0; i < _size; i++)
-	    newdata[i] = _data[i];
+	for (i = 0; i < sz; i++)
+	    newdata[i] = d[i];
 
-	_size = index + 1;
+	sz = index + 1;
 
 	// delete old data and reassign
-	delete _data;
-	_data = newdata;
+	delete d;
+	d = newdata;
     }
 
-    return _data[index];
+    return d[index];
 }
 
 
@@ -674,7 +727,7 @@ void NETRootInfo::setSupported(unsigned long pr) {
     XChangeProperty(p->display, p->root, net_supported, XA_ATOM, 32,
 		    PropModeReplace, (unsigned char *) atoms, pnum);
     XChangeProperty(p->display, p->root, net_supporting_wm_check, XA_WINDOW, 32,
-		    PropModeReplace, (unsigned char *) &(p->supportwindow), 1);
+	 	    PropModeReplace, (unsigned char *) &(p->supportwindow), 1);
 
 #ifdef    DEBUG
     fprintf(stderr,
@@ -1164,10 +1217,10 @@ void NETWinInfo::setIcon(NETIcon icon, Bool replace) {
 	    p->icons[i].size.width = 0;
 	    p->icons[i].size.height = 0;
 	}
-	
+
 	p->icon_count = 0;
     }
-    
+
     p->icons[p->icon_count++] = icon;
 
     int proplen, i;
@@ -1509,7 +1562,7 @@ void NETWinInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
-    
+
     if (dirty & WMWindowType)
 	if (XGetWindowProperty(p->display, p->window, net_wm_window_type, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
@@ -1518,10 +1571,10 @@ void NETWinInfo::update(unsigned long dirty) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 1)
 		    p->type = (WindowType) *((CARD32 *) data_ret);
-		    
+
 		XFree(data_ret);
 	    }
-    
+
     if (dirty & WMStrut)
 	if (XGetWindowProperty(p->display, p->window, net_wm_strut, 0l, 4l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
@@ -1535,13 +1588,13 @@ void NETWinInfo::update(unsigned long dirty) {
 		    p->strut.top    = d[2];
 		    p->strut.bottom = d[3];
 		}
-		
+
 		XFree(data_ret);
 	    }
-    
+
     if (dirty & WMIconGeometry)
 	if (XGetWindowProperty(p->display, p->window, net_wm_icon_geometry, 0l, 4l,
-			       False, XA_CARDINAL, &type_ret, &format_ret, 
+			       False, XA_CARDINAL, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret))
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
@@ -1552,10 +1605,10 @@ void NETWinInfo::update(unsigned long dirty) {
 		    p->icon_geom.size.width  = d[2];
 		    p->icon_geom.size.height = d[3];
 		}
-		
+
 		XFree(data_ret);
 	    }
-    
+
     if (dirty & WMIcon)
 	readIcon(p);
 }
