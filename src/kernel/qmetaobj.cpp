@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#7 $
 **
 ** Implementation of QMetaObject class
 **
@@ -15,13 +15,15 @@
 #include "qstrlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#7 $";
 #endif
 
 /*! \class QMetaObject qmetaobj.h
 
   \brief The QMetaObject class is an internal class used for the meta
   object system.
+
+  \internal
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
