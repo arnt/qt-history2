@@ -5459,8 +5459,13 @@ void QListView::setSorting( int column, bool ascending )
 
 void QListView::changeSortColumn( int column )
 {
-    if ( isRenaming() )
-	currentItem()->cancelRename( currentItem()->renameCol );
+    if ( isRenaming() ) {
+	if ( d->defRenameAction == QListView::Reject ) {
+	    currentItem()->cancelRename( currentItem()->renameCol );
+	} else {
+	    currentItem()->okRename( currentItem()->renameCol );
+	}
+    }
     if ( d->sortcolumn != Unsorted ) {
 	int lcol = d->h->mapToLogical( column );
 	setSorting( lcol, d->sortcolumn == lcol ? !d->ascending : TRUE);
