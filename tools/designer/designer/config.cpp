@@ -40,8 +40,8 @@ void Config::setGroup( const QString &gname )
 {
     QMap< QString, ConfigGroup>::Iterator it = groups.find( gname );
     if ( it == groups.end() ) {
-	ConfigGroup *grp = new ConfigGroup;
-	git = groups.insert( gname, *grp );
+	ConfigGroup grp;
+	git = groups.insert( gname, grp );
 	return;
     }
     git = it;
@@ -188,8 +188,8 @@ void Config::parse( const QString &l )
 	gname = gname.remove( 0, 1 );
 	if ( gname[ (int)gname.length() - 1 ] == QChar( ']' ) )
 	    gname = gname.remove( gname.length() - 1, 1 );
-	ConfigGroup *grp = new ConfigGroup;
-	git = groups.insert( gname, *grp );
+	ConfigGroup grp;
+	git = groups.insert( gname, grp );
     } else {
 	if ( git == groups.end() ) {
 	    qWarning( "line `%s' out of group", line.latin1() );
