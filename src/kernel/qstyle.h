@@ -193,7 +193,10 @@ public:
 	PE_ScrollBarFirst,
 	PE_ScrollBarLast,
 
-	PE_ProgressBarChunk
+	PE_ProgressBarChunk,
+
+	// do not add any values below/greater this
+	PE_CustomBase =			0xf000000
     };
 
     enum StyleFlags {
@@ -247,7 +250,10 @@ public:
 	CE_PopupMenuItem,
 	CE_MenuBarItem,
 
-	CE_ToolButtonLabel
+	CE_ToolButtonLabel,
+
+	// do not add any values below/greater than this
+	CE_CustomBase =		0xf0000000
     };
 
     virtual void drawControl( ControlElement element,
@@ -285,7 +291,10 @@ public:
 	SR_ProgressBarContents,
 	SR_ProgressBarLabel,
 
-	SR_ToolButtonContents
+	SR_ToolButtonContents,
+
+	// do not add any values below/greater than this
+	SR_CustomBase =		0xf0000000
     };
 
     virtual QRect subRect( SubRect r, const QWidget *widget ) const = 0;
@@ -298,7 +307,10 @@ public:
 	CC_Slider,
 	CC_ToolButton,
 	CC_TitleBar,
-	CC_ListView
+	CC_ListView,
+
+	// do not add any values below/greater than this
+	CC_CustomBase =		0xf0000000
     };
 
     enum SubControl {
@@ -414,7 +426,10 @@ public:
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
 	PM_ExclusiveIndicatorWidth,
-	PM_ExclusiveIndicatorHeight
+	PM_ExclusiveIndicatorHeight,
+
+	// do not add any values below/greater than this
+	PM_CustomBase =		0xf0000000
     };
 
     virtual int pixelMetric( PixelMetric metric,
@@ -430,7 +445,10 @@ public:
 	CT_Splitter,
 	CT_DockWindow,
 	CT_ProgressBar,
-	CT_PopupMenuItem
+	CT_PopupMenuItem,
+
+	// do not add any values below/greater than this
+	CT_CustomBase =		0xf0000000
     };
 
     virtual QSize sizeFromContents( ContentsType contents,
@@ -522,13 +540,16 @@ public:
 	SH_Widget_ShareActivation,
 
 	// bool - workspace should just maximize the client area
-	SH_Workspace_FillSpaceOnMaximize
+	SH_Workspace_FillSpaceOnMaximize,
+
+	// do not add any values below/greater than this
+	SH_CustomBase =		0xf0000000
     };
 
     virtual int styleHint( StyleHint stylehint,
 			   const QWidget *widget = 0,
-			    QStyleHintReturn* returnData = 0
-			) const = 0;
+			   QStyleHintReturn* returnData = 0
+			   ) const = 0;
 
 
     enum StylePixmap {
@@ -541,7 +562,10 @@ public:
 	SP_DockWindowCloseButton,
 	SP_MessageBoxInformation,
 	SP_MessageBoxWarning,
-	SP_MessageBoxCritical
+	SP_MessageBoxCritical,
+
+	// do not add any values below/greater than this
+	SP_CustomBase =		0xf0000000
     };
 
     virtual QPixmap stylePixmap( StylePixmap stylepixmap,

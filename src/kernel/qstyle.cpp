@@ -651,6 +651,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PE_ProgressBarChunk  section of a progress bar indicator; see
   also QProgressBar.
 
+
+  \value PE_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
+
   \sa drawPrimitive()
 */
 /*! \enum QStyle::SFlags
@@ -810,6 +816,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CE_MenuBarItem  a menu item in a QMenuBar.
 
   \value CE_ToolButtonLabel a tool button's label.
+
+
+  \value CE_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
 
   \sa drawControl()
 */
@@ -1013,6 +1025,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value SR_ToolButtonContents area for the tool button's label.
 
+
+
+  \value SR_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
+
   \sa subRect()
 */
 
@@ -1071,6 +1090,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CC_ToolButton
   \value CC_TitleBar
   \value CC_ListView
+
+
+  \value CC_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
 
   \sa SubControl drawComplexControl()
 */
@@ -1347,6 +1372,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
   \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 
+
+  \value PM_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
+
   \sa pixelMetric()
 */
 
@@ -1389,6 +1420,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CT_DockWindow
   \value CT_ProgressBar
   \value CT_PopupMenuItem
+
+
+  \value CT_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
 
   \sa sizeFromContents()
 */
@@ -1519,6 +1556,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_Workspace_FillSpaceOnMaximize the workspace should
     maximize the client area.
 
+
+    \value SH_CustomBase  base value for custom ControlElements.  All values above
+           this are reserved for custom use.  Therefore, custom values must be
+	   greater than this value.
+
+
   \sa styleHint()
 */
 
@@ -1552,6 +1595,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value SP_DockWindowCloseButton  close button on dock windows;  see also QDockWindow.
+
+
+  \value SP_CustomBase  base value for custom ControlElements.  All values above
+         this are reserved for custom use.  Therefore, custom values must be
+	 greater than this value.
+
 
   \sa stylePixmap()
 */
