@@ -394,8 +394,10 @@ class PropertyPixmapItem : public QObject,
     Q_OBJECT
 
 public:
+    enum Type { Pixmap, IconSet, Image };
+
     PropertyPixmapItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
-			const QString &propName, bool isIconSet = FALSE );
+			const QString &propName, Type t );
     ~PropertyPixmapItem();
 
     virtual void showEditor();
@@ -413,7 +415,7 @@ private:
     QGuardedPtr<QHBox> box;
     QGuardedPtr<QLabel> pixPrev;
     QPushButton *button;
-    bool iconSet;
+    Type type;
 
 };
 

@@ -1609,8 +1609,8 @@ void PropertyCoordItem::childValueChanged( PropertyItem *child )
 // --------------------------------------------------------------
 
 PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, PropertyItem *prop,
-				      const QString &propName, bool isIconSet )
-    : PropertyItem( l, after, prop, propName ), iconSet( isIconSet )
+					const QString &propName, Type t )
+    : PropertyItem( l, after, prop, propName ), type( t )
 {
     box = new QHBox( listview->viewport() );
     box->hide();
@@ -1627,6 +1627,7 @@ PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, Pr
     connect( button, SIGNAL( clicked() ),
 	     this, SLOT( getPixmap() ) );
 }
+
 PropertyPixmapItem::~PropertyPixmapItem()
 {
     delete (QHBox*)box;
@@ -1651,10 +1652,12 @@ void PropertyPixmapItem::hideEditor()
 void PropertyPixmapItem::setValue( const QVariant &v )
 {
     QString s;
-    if ( !iconSet )
+    if ( type == Pixmap )
 	pixPrev->setPixmap( v.toPixmap() );
-    else
+    else if ( type == IconSet )
 	pixPrev->setPixmap( v.toIconSet().pixmap() );
+    else
+	pixPrev->setPixmap( v.toImage() );
     PropertyItem::setValue( v );
     repaint();
 }
@@ -1663,10 +1666,13 @@ void PropertyPixmapItem::getPixmap()
 {
     QPixmap pix = qChoosePixmap( listview, listview->propertyEditor()->formWindow(), value().toPixmap() );
     if ( !pix.isNull() ) {
-	if ( !iconSet )
+	if ( type == Pixmap )
 	    setValue( pix );
-	else
+	else if ( type == IconSet )
 	    setValue( QIconSet( pix ) );
+	else
+	    setValue( pix.convertToImage() );
+
 	notifyValueChange();
     }
 }
@@ -1678,7 +1684,14 @@ bool PropertyPixmapItem::hasCustomContents() const
 
 void PropertyPixmapItem::drawCustomContents( QPainter *p, const QRect &r )
 {
-    QPixmap pix( (!iconSet ? value().toPixmap() : value().toIconSet().pixmap()) );
+    QPixmap pix;
+    if ( type == Pixmap )
+	pix = value().toPixmap();
+    else if ( type == IconSet )
+	pix = value().toIconSet().pixmap();
+    else
+	pix = value().toImage();
+
     if ( !pix.isNull() ) {
 	p->save();
 	p->setClipRect( QRect( QPoint( (int)(p->worldMatrix().dx() + r.x()),
@@ -3375,8 +3388,13 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	item = new PropertyColorItem( this, item, 0, name, TRUE );
 	break;
     case QVariant::Pixmap:
+	item = new PropertyPixmapItem( this, item, 0, name, PropertyPixmapItem::Pixmap );
+	break;
     case QVariant::IconSet:
-	item = new PropertyPixmapItem( this, item, 0, name, t == QVariant::IconSet );
+	item = new PropertyPixmapItem( this, item, 0, name, PropertyPixmapItem::IconSet );
+	break;
+    case QVariant::Image:
+	item = new PropertyPixmapItem( this, item, 0, name, PropertyPixmapItem::Image );
 	break;
     case QVariant::SizePolicy:
 	item = new PropertySizePolicyItem( this, item, 0, name );
