@@ -4557,6 +4557,13 @@ bool QWidget::event( QEvent *e )
 	    return false;
 	break;
 
+    case QEvent::EmbeddingControl:
+	d->topData()->ftop = 0;
+	d->topData()->fright = 0;
+	d->topData()->fleft = 0;
+	d->topData()->fbottom = 0;
+	break;
+
     default:
 	return QObject::event( e );
     }
