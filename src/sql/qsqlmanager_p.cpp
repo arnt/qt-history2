@@ -42,11 +42,17 @@
 #include "qsqlcursor.h"
 #include "qsqlform.h"
 #include "qsqldriver.h"
+#include "qstring.h"
+#include "qmessagebox.h"
+#include "qbitarray.h"
+
 
 class QSqlCursorManager::QSqlCursorManagerPrivate
 {
 public:
-    QSqlCursorManagerPrivate() : cur( 0 ), autoDelete( FALSE ) {}
+    QSqlCursorManagerPrivate()
+	: cur( 0 ), autoDelete( FALSE )
+    {}
     QString ftr;
     QStringList srt;
     QSqlCursor* cur;
@@ -133,6 +139,29 @@ void QSqlCursorManager::setFilter( const QString& filter )
 QString QSqlCursorManager::filter() const
 {
     return d->ftr;
+}
+
+/*! Sets auto-delete to \a enable.  If TRUE, the default cursor will
+  be deleted when necessary.
+
+  \sa autoDelete()
+*/
+
+void QSqlCursorManager::setAutoDelete( bool enable )
+{
+    d->autoDelete = enable;
+}
+
+
+/*! Returns TRUE if auto-deletion is enabled, otherwise FALSE.
+
+  \sa setAutoDelete()
+
+*/
+
+bool QSqlCursorManager::autoDelete() const
+{
+    return d->autoDelete;
 }
 
 /*! Sets the default cursor used by the manager to \a cursor.  If \a
@@ -496,6 +525,209 @@ void QSqlFormManager::writeFields()
 {
     if ( d->frm )
 	d->frm->writeFields();
+}
+
+class QDataManager::QDataManagerPrivate
+{
+public:
+    QDataManagerPrivate()
+	: mode( QDataManager::None ), autoEd( TRUE ), confEdits( 3 ),
+	  confCancs( FALSE ) {}
+    QSqlNamespace::Op mode;
+    bool autoEd;
+    QBitArray confEdits;
+    bool confCancs;
+
+};
+
+/*!
+  \class QDataManager qdatahandler.h
+
+  \brief The QDataManager class is an internal class for implementing
+  the data-aware widgets.
+
+  QDataManager is a strictly internal class that acts as a base class
+  for other data-aware widgets.
+
+*/
+
+
+/*!  \internal
+
+  Constructs an empty data handler
+
+*/
+
+QDataManager::QDataManager()
+{
+    d = new QDataManagerPrivate();
+}
+
+
+/*! \internal
+
+  Destroys the object and frees any allocated resources.
+
+*/
+
+QDataManager::~QDataManager()
+{
+    delete d;
+}
+
+
+/*!  \internal
+
+  Virtual function which is called when an error has occurred The
+  default implementation displays a warning message to the user with
+  information about the error.
+
+*/
+void QDataManager::handleError( const QSqlError& e )
+{
+    QMessageBox::warning ( 0, "Warning", e.driverText() + "\n" + e.databaseText(),
+			   0, 0 );
+}
+
+
+/*! \internal
+
+  Sets the internal mode to \a m.
+
+*/
+
+void QDataManager::setMode( QSqlNamespace::Op m )
+{
+    d->mode = m;
+}
+
+
+/*! Returns the current mode.
+
+*/
+
+QSqlNamespace::Op QDataManager::mode() const
+{
+    return d->mode;
+}
+
+
+/*! Sets the auto-edit mode to \a auto.
+
+*/
+
+void QDataManager::setAutoEdit( bool autoEdit )
+{
+    d->autoEd = autoEdit;
+}
+
+
+
+/*! Returns TRUE if auto-edit mode is enabled, otherwise FALSE is
+  returned.
+
+*/
+
+bool QDataManager::autoEdit() const
+{
+    return d->autoEd;
+}
+
+/*! If \a confirm is TRUE, all edit operations (inserts, updates and
+  deletes) will be confirmed by the user.  If \a confirm is FALSE (the
+  default), all edits are posted to the database immediately.
+
+*/
+void QDataManager::setConfirmEdits( bool confirm )
+{
+    d->confEdits.fill( confirm );
+}
+
+/*! If \a confirm is TRUE, all inserts will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QDataManager::setConfirmInsert( bool confirm )
+{
+    d->confEdits[ Insert ] = confirm;
+}
+
+/*! If \a confirm is TRUE, all updates will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QDataManager::setConfirmUpdate( bool confirm )
+{
+    d->confEdits[ Update ] = confirm;
+}
+
+/*! If \a confirm is TRUE, all deletes will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QDataManager::setConfirmDelete( bool confirm )
+{
+    d->confEdits[ Delete ] = confirm;
+}
+
+/*! Returns TRUE if the table confirms all edit operations (inserts,
+  updates and deletes), otherwise returns FALSE.
+*/
+
+bool QDataManager::confirmEdits() const
+{
+    return ( confirmInsert() && confirmUpdate() && confirmDelete() );
+}
+
+/*! Returns TRUE if the table confirms inserts, otherwise returns
+  FALSE.
+*/
+
+bool QDataManager::confirmInsert() const
+{
+    return ( d->confEdits[ Insert ] );
+}
+
+/*! Returns TRUE if the table confirms updates, otherwise returns
+  FALSE.
+*/
+
+bool QDataManager::confirmUpdate() const
+{
+    return ( d->confEdits[ Update ] );
+}
+
+/*! Returns TRUE if the table confirms deletes, otherwise returns
+  FALSE.
+*/
+
+bool QDataManager::confirmDelete() const
+{
+    return ( d->confEdits[ Delete ] );
+}
+
+/*! If \a confirm is TRUE, all cancels will be confirmed by the user
+  through a message box.  If \a confirm is FALSE (the default), all
+  cancels occur immediately.
+*/
+
+void QDataManager::setConfirmCancels( bool confirm )
+{
+    d->confCancs = confirm;
+}
+
+/*! Returns TRUE if the table confirms cancels, otherwise returns FALSE.
+*/
+
+bool QDataManager::confirmCancels() const
+{
+    return d->confCancs;
 }
 
 #endif

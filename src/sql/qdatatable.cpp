@@ -41,24 +41,13 @@
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
 #include "qsqlpropertymap.h"
-#include "qsqlnavigator.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qpopupmenu.h"
-#include "qmessagebox.h"
-#include "qbitarray.h"
 #include "qvaluelist.h"
-
-
-// void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
-// {
-//     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-//     qDebug(msg);
-//     for ( uint j = 0; j < cursor->count(); ++j ) {
-//	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
-//     }
-// }
+#include "qmessagebox.h"
+#include "qsqlmanager_p.h"
 
 class QDataTablePrivate
 {
@@ -68,16 +57,12 @@ public:
 	  continuousEdit( FALSE ),
 	  editorFactory( 0 ),
 	  propertyMap( 0 ),
-	  mode( QDataTable::None ),
 	  editRow( -1 ),
 	  editCol( -1 ),
 	  insertRowLast( -1 ),
 	  insertPreRows( -1 ),
 	  editBuffer( 0 ),
-	  confEdits( 3 ),
-	  confCancs( FALSE ),
-	  cancelMode( FALSE ),
-	  autoDelete( FALSE )
+	  cancelMode( FALSE )
     {}
     ~QDataTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -90,23 +75,21 @@ public:
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
-    QDataTable::Mode mode;
     int editRow;
     int editCol;
     int insertRowLast;
     QString insertHeaderLabelLast;
     int insertPreRows;
     QSqlRecord* editBuffer;
-    QBitArray confEdits;
-    bool confCancs;
     bool cancelMode;
-    bool autoDelete;
     int lastAt;
     QString ftr;
     QStringList srt;
     QStringList fld;
     QStringList fldLabel;
     QValueList< QIconSet > fldIcon;
+    QSqlCursorManager cur;
+    QDataManager dat;
 };
 
 /*! \enum QDataTable::Confirm
@@ -122,19 +105,6 @@ public:
   </ul>
 */
 
-/*! \enum QDataTable::Mode
-
-  This enum type describes table editing modes.
-
-  The currently defined values are:
-
-  <ul>
-  <li> \c None
-  <li> \c Insert
-  <li> \c Update
-  <li> \c Delete
-  </ul>
-*/
 
 /*!
   \class QDataTable qdatatable.h
@@ -190,7 +160,7 @@ public:
 */
 
 QDataTable::QDataTable ( QWidget * parent, const char * name )
-    : QTable( parent, name ), QSqlCursorNavigator()
+    : QTable( parent, name )
 {
     init();
 }
@@ -206,7 +176,7 @@ QDataTable::QDataTable ( QWidget * parent, const char * name )
 */
 
 QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
-    : QTable( parent, name ), QSqlCursorNavigator()
+    : QTable( parent, name )
 {
     init();
     setCursor( cursor, autoPopulate );
@@ -236,8 +206,6 @@ void QDataTable::init()
 
 QDataTable::~QDataTable()
 {
-    if ( d->autoDelete )
-	delete sqlCursor();
     delete d;
 }
 
@@ -297,7 +265,7 @@ void QDataTable::removeColumn( uint col )
 
 QString QDataTable::filter() const
 {
-    return QSqlCursorNavigator::filter();
+    return d->cur.filter();
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
@@ -310,7 +278,7 @@ QString QDataTable::filter() const
 
 void QDataTable::setFilter( const QString& filter )
 {
-    QSqlCursorNavigator::setFilter( filter );
+    d->cur.setFilter( filter );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -336,7 +304,7 @@ void QDataTable::setFilter( const QString& filter )
 
 void QDataTable::setSort( const QStringList& sort )
 {
-    QSqlCursorNavigator::setSort( sort );
+    d->cur.setSort( sort );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -349,7 +317,7 @@ void QDataTable::setSort( const QStringList& sort )
 
 void QDataTable::setSort( const QSqlIndex& sort )
 {
-    QSqlCursorNavigator::setSort( sort );
+    d->cur.setSort( sort );
 }
 
 
@@ -367,7 +335,12 @@ void QDataTable::setSort( const QSqlIndex& sort )
 
 QStringList QDataTable::sort() const
 {
-    return QSqlCursorNavigator::sort();
+    return d->cur.sort();
+}
+
+QSqlCursor* QDataTable::sqlCursor() const
+{
+    return d->cur.cursor();
 }
 
 /*! If \a confirm is TRUE, all edit operations (inserts, updates and
@@ -377,7 +350,7 @@ QStringList QDataTable::sort() const
 */
 void QDataTable::setConfirmEdits( bool confirm )
 {
-    d->confEdits.fill( confirm );
+    d->dat.setConfirmEdits( confirm );
 }
 
 /*! If \a confirm is TRUE, all inserts will be confirmed by the user.
@@ -388,7 +361,7 @@ void QDataTable::setConfirmEdits( bool confirm )
 
 void QDataTable::setConfirmInsert( bool confirm )
 {
-    d->confEdits[ Insert ] = confirm;
+    d->dat.setConfirmInsert( confirm );
 }
 
 /*! If \a confirm is TRUE, all updates will be confirmed by the user.
@@ -399,7 +372,7 @@ void QDataTable::setConfirmInsert( bool confirm )
 
 void QDataTable::setConfirmUpdate( bool confirm )
 {
-    d->confEdits[ Update ] = confirm;
+    d->dat.setConfirmUpdate( confirm );
 }
 
 /*! If \a confirm is TRUE, all deletes will be confirmed by the user.
@@ -410,7 +383,7 @@ void QDataTable::setConfirmUpdate( bool confirm )
 
 void QDataTable::setConfirmDelete( bool confirm )
 {
-    d->confEdits[ Delete ] = confirm;
+    d->dat.setConfirmDelete( confirm );
 }
 
 /*! Returns TRUE if the table confirms all edit operations (inserts,
@@ -419,7 +392,7 @@ void QDataTable::setConfirmDelete( bool confirm )
 
 bool QDataTable::confirmEdits() const
 {
-    return ( confirmInsert() && confirmUpdate() && confirmDelete() );
+    return ( d->dat.confirmEdits() );
 }
 
 /*! Returns TRUE if the table confirms inserts, otherwise returns
@@ -428,7 +401,7 @@ bool QDataTable::confirmEdits() const
 
 bool QDataTable::confirmInsert() const
 {
-    return ( d->confEdits[ Insert ] );
+    return ( d->dat.confirmInsert() );
 }
 
 /*! Returns TRUE if the table confirms updates, otherwise returns
@@ -437,7 +410,7 @@ bool QDataTable::confirmInsert() const
 
 bool QDataTable::confirmUpdate() const
 {
-    return ( d->confEdits[ Update ] );
+    return ( d->dat.confirmUpdate() );
 }
 
 /*! Returns TRUE if the table confirms deletes, otherwise returns
@@ -446,7 +419,7 @@ bool QDataTable::confirmUpdate() const
 
 bool QDataTable::confirmDelete() const
 {
-    return ( d->confEdits[ Delete ] );
+    return ( d->dat.confirmDelete() );
 }
 
 /*! If \a confirm is TRUE, all cancels will be confirmed by the user
@@ -456,7 +429,7 @@ bool QDataTable::confirmDelete() const
 
 void QDataTable::setConfirmCancels( bool confirm )
 {
-    d->confCancs = confirm;
+    d->dat.setConfirmCancels( confirm );
 }
 
 /*! Returns TRUE if the table confirms cancels, otherwise returns FALSE.
@@ -464,7 +437,7 @@ void QDataTable::setConfirmCancels( bool confirm )
 
 bool QDataTable::confirmCancels() const
 {
-    return d->confCancs;
+    return d->dat.confirmCancels();
 }
 
 /*!  \reimp
@@ -482,7 +455,7 @@ bool QDataTable::confirmCancels() const
 
 QWidget * QDataTable::createEditor( int , int col, bool initFromCell ) const
 {
-    if ( d->mode == QDataTable::None )
+    if ( d->dat.mode() == None )
 	return 0;
 
     QSqlEditorFactory * f = (d->editorFactory == 0) ?
@@ -514,7 +487,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     int r = currentRow();
     int c = currentColumn();
 
-    if ( d->mode != QDataTable::None ) {
+    if ( d->dat.mode() != None ) {
 	r = d->editRow;
 	c = d->editCol;
     }
@@ -525,9 +498,9 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::KeyPress: {
 	int conf = Yes;
 	QKeyEvent *ke = (QKeyEvent*)e;
-	if ( ke->key() == Key_Escape && d->mode == QDataTable::Insert ){
+	if ( ke->key() == Key_Escape && d->dat.mode() == Insert ){
 	    if ( confirmCancels() && !d->cancelMode )
-		conf = confirmCancel( QDataTable::Insert );
+		conf = confirmCancel( Insert );
 	    if ( conf == Yes ) {
 		insertCancelled = TRUE;
 		endInsert(); // ### What happens to the keyboard focus?
@@ -537,9 +510,9 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	}
-	if ( ke->key() == Key_Escape && d->mode == QDataTable::Update ) {
+	if ( ke->key() == Key_Escape && d->dat.mode() == Update ) {
 	    if ( confirmCancels() && !d->cancelMode )
-		conf = confirmCancel( QDataTable::Update );
+		conf = confirmCancel( Update );
 	    if ( conf == Yes ){
 		endUpdate();
 	    } else {
@@ -548,15 +521,15 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	}
-	if ( ke->key() == Key_Insert && d->mode == QDataTable::None ) {
+	if ( ke->key() == Key_Insert && d->dat.mode() == None ) {
 	    beginInsert();
 	    return TRUE;
 	}
-	if ( ke->key() == Key_Delete && d->mode == QDataTable::None ) {
+	if ( ke->key() == Key_Delete && d->dat.mode() == None ) {
 	    deleteCurrent();
 	    return TRUE;
 	}
-	if ( d->mode != QDataTable::None ) {
+	if ( d->dat.mode() != None ) {
 	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) ) {
 		d->continuousEdit = TRUE;
 	    } else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) ) {
@@ -569,7 +542,8 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     }
     case QEvent::FocusOut:
 	repaintCell( currentRow(), currentColumn() );
-	if ( !d->cancelMode && editorWidget && o == editorWidget && (d->mode == QDataTable::Insert) && !d->continuousEdit) {
+	if ( !d->cancelMode && editorWidget && o == editorWidget &&
+	     ( d->dat.mode() == Insert) && !d->continuousEdit) {
 	    setCurrentCell( r, c );
 	    endEdit( r, c, TRUE, FALSE );
 	    return TRUE;
@@ -606,14 +580,14 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
-    if ( d->mode != QDataTable::None ) {
+    if ( d->dat.mode() != None ) {
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
     }
     if ( !sqlCursor() ) {
 	QTable::contentsMousePressEvent( e );
 	return;
     }
-    if ( e->button() == RightButton && d->mode == QDataTable::None ) {
+    if ( e->button() == RightButton && d->dat.mode() == None ) {
 	if ( isReadOnly() )
 	    return;
 	enum {
@@ -646,7 +620,7 @@ void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 	    deleteCurrent();
 	return;
     }
-    if ( d->mode == QDataTable::None )
+    if ( d->dat.mode() == None )
 	QTable::contentsMousePressEvent( e );
 
 }
@@ -660,9 +634,9 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
     d->editCol = -1;
     if ( !sqlCursor() )
 	return 0;
-    if ( d->mode == QDataTable::Insert && !sqlCursor()->canInsert() )
+    if ( d->dat.mode() == Insert && !sqlCursor()->canInsert() )
 	return 0;
-    if ( d->mode == QDataTable::Update && !sqlCursor()->canUpdate() )
+    if ( d->dat.mode() == Update && !sqlCursor()->canUpdate() )
 	return 0;
     d->editRow = row;
     d->editCol = col;
@@ -670,7 +644,7 @@ QWidget* QDataTable::beginEdit ( int row, int col, bool replace )
 	QWidget* w = QTable::beginEdit( row, col, replace );
 	return w;
     }
-    if ( d->mode == QDataTable::None && sqlCursor()->canUpdate() && sqlCursor()->primaryIndex().count() > 0 )
+    if ( d->dat.mode() == None && sqlCursor()->canUpdate() && sqlCursor()->primaryIndex().count() > 0 )
 	return beginUpdate( row, col, replace );
     return 0;
 }
@@ -691,17 +665,17 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
 	updateCell( row, col );
 	return;
     }
-    if ( d->mode != QDataTable::None && d->editBuffer ) {
+    if ( d->dat.mode() != None && d->editBuffer ) {
 	QSqlPropertyMap * m = (d->propertyMap == 0) ?
 			      QSqlPropertyMap::defaultMap() : d->propertyMap;
 	d->editBuffer->setValue( indexOf( col ),  m->property( editor ) );
 	clearCellWidget( row, col );
 	if ( !d->continuousEdit ) {
-	    switch ( d->mode ) {
-	    case QDataTable::Insert:
+	    switch ( d->dat.mode() ) {
+	    case Insert:
 		insertCurrent();
 		break;
-	    case QDataTable::Update:
+	    case Update:
 		updateCurrent();
 		break;
 	    default:
@@ -711,7 +685,7 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
     } else {
 	setEditMode( NotEditing, -1, -1 );
     }
-    if ( d->mode == QDataTable::None ) {
+    if ( d->dat.mode() == None ) {
 	viewport()->setFocus();
     }
     updateCell( row, col );
@@ -722,7 +696,7 @@ void QDataTable::endEdit( int row, int col, bool accept, bool )
 */
 void QDataTable::activateNextCell()
 {
-    if ( d->mode == QDataTable::None )
+    if ( d->dat.mode() == None )
 	QTable::activateNextCell();
 }
 
@@ -731,7 +705,7 @@ void QDataTable::activateNextCell()
 
 void QDataTable::endInsert()
 {
-    d->mode = QDataTable::None;
+    d->dat.setMode( None );
     int i;
     d->editBuffer = 0;
     for ( i = d->editRow; i <= d->insertRowLast; ++i )
@@ -750,7 +724,7 @@ void QDataTable::endInsert()
 
 void QDataTable::endUpdate()
 {
-    d->mode = QDataTable::None;
+    d->dat.setMode( None );
     d->editBuffer = 0;
     updateRow( d->editRow );
     d->editRow = -1;
@@ -784,7 +758,7 @@ bool QDataTable::beginInsert()
     setCurrentCell( row, 0 );
     d->editBuffer = sqlCursor()->primeInsert();
     emit primeInsert( d->editBuffer );
-    d->mode = QDataTable::Insert;
+    d->dat.setMode( Insert );
     int lastRow = row;
     int lastY = contentsY() + visibleHeight();
     for ( i = row; i < numRows() ; ++i ) {
@@ -827,7 +801,7 @@ QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
     if ( !sqlCursor() || isReadOnly() )
 	return 0;
     setCurrentCell( row, col );
-    d->mode = QDataTable::Update;
+    d->dat.setMode( Update );
     if ( sqlCursor()->seek( row ) ) {
 	d->editBuffer = sqlCursor()->primeUpdate();
 	emit primeUpdate( d->editBuffer );
@@ -847,7 +821,7 @@ QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
 
 void QDataTable::insertCurrent()
 {
-    if ( d->mode != QDataTable::Insert || ! numCols() )
+    if ( d->dat.mode() != Insert || ! numCols() )
 	return;
     if ( !sqlCursor()->canInsert() ) {
 #ifdef QT_CHECK_RANGE
@@ -859,7 +833,7 @@ void QDataTable::insertCurrent()
     int b = 0;
     int conf = Yes;
     if ( confirmEdits() || confirmInsert() )
-	conf = confirmEdit( QDataTable::Insert );
+	conf = confirmEdit( Insert );
     switch ( conf ) {
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
@@ -875,7 +849,7 @@ void QDataTable::insertCurrent()
 	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
 	    refresh();
 	    findBuffer( idx, d->lastAt );
-	    emit cursorChanged( QSqlCursor::Insert );
+	    emit cursorChanged( Insert );
 	    endInsert();
 	    setEditMode( NotEditing, -1, -1 );
 	    setCurrentCell( currentRow(), currentColumn() );
@@ -917,7 +891,7 @@ void QDataTable::updateRow( int row )
 
 void QDataTable::updateCurrent()
 {
-    if ( d->mode != QDataTable::Update )
+    if ( d->dat.mode() != Update )
 	return;
     if ( sqlCursor()->primaryIndex().count() == 0 ) {
 #ifdef QT_CHECK_RANGE
@@ -936,7 +910,7 @@ void QDataTable::updateCurrent()
     int b = 0;
     int conf = Yes;
     if ( confirmEdits() || confirmUpdate() )
-	conf = confirmEdit( QDataTable::Update );
+	conf = confirmEdit( Update );
     switch ( conf ) {
     case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
@@ -953,7 +927,7 @@ void QDataTable::updateCurrent()
 	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
 	    refresh();
 	    findBuffer( idx, d->lastAt );
-	    emit cursorChanged( QSqlCursor::Update );
+	    emit cursorChanged( Update );
 	    endUpdate();
 	    setCurrentCell( currentRow(), currentColumn() );
 	}
@@ -1001,7 +975,7 @@ void QDataTable::deleteCurrent()
     int b = 0;
     int conf = Yes;
     if ( confirmEdits() || confirmDelete() )
-	conf = confirmEdit( QDataTable::Delete );
+	conf = confirmEdit( Delete );
 
     // Have to have this here - the confirmEdit() might pop up a
     // dialog that causes a repaint -> moves the cursor to the
@@ -1019,7 +993,7 @@ void QDataTable::deleteCurrent()
 	if ( !b )
 	    handleError( sqlCursor()->lastError() );
 	refresh();
-	emit cursorChanged( QSqlCursor::Delete );
+	emit cursorChanged( Delete );
 	setCurrentCell( currentRow(), currentColumn() );
 	updateRow( currentRow() );
 	}
@@ -1039,7 +1013,7 @@ void QDataTable::deleteCurrent()
 
 */
 
-QDataTable::Confirm QDataTable::confirmEdit( QDataTable::Mode m )
+QDataTable::Confirm QDataTable::confirmEdit( QSqlNamespace::Op m )
 {
     QString cap;
     switch ( m ) {
@@ -1079,7 +1053,7 @@ QDataTable::Confirm QDataTable::confirmEdit( QDataTable::Mode m )
 
 */
 
-QDataTable::Confirm  QDataTable::confirmCancel( QDataTable::Mode )
+QDataTable::Confirm  QDataTable::confirmCancel( QSqlNamespace::Op )
 {
     d->cancelMode = TRUE;
     QDataTable::Confirm conf =  (QDataTable::Confirm)QMessageBox::information ( this, tr( "Confirm" ),
@@ -1176,7 +1150,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 void QDataTable::reset()
 {
     clearCellWidget( currentRow(), currentColumn() );
-    switch ( d->mode ) {
+    switch ( d->dat.mode() ) {
     case Insert:
 	endInsert();
 	break;
@@ -1192,7 +1166,7 @@ void QDataTable::reset()
 
     d->haveAllRows = FALSE;
     d->continuousEdit = FALSE;
-    d->mode =  QDataTable::None;
+    d->dat.setMode( None );
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
@@ -1225,7 +1199,7 @@ int QDataTable::indexOf( uint i ) const
 
 bool QDataTable::autoDelete() const
 {
-    return d->autoDelete;
+    return d->cur.autoDelete();
 }
 
 /*! Sets the auto-delete flag to \a enable.  If \a enable is TRUE, the
@@ -1235,7 +1209,7 @@ bool QDataTable::autoDelete() const
 
 void QDataTable::setAutoDelete( bool enable )
 {
-    d->autoDelete = enable;
+    d->cur.setAutoDelete( enable );
 }
 
 /*!  Sets the text to be displayed when a NULL value is encountered in
@@ -1485,11 +1459,11 @@ void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     if ( !sqlCursor() )
 	return;
 
-    if ( d->mode != QDataTable::None ) {
+    if ( d->dat.mode() != None ) {
 	if ( row == d->editRow && d->editBuffer ) {
 	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr,
 			selected );
-	} else if ( row > d->editRow && d->mode == QDataTable::Insert ) {
+	} else if ( row > d->editRow && d->dat.mode() == Insert ) {
 	    if ( sqlCursor()->seek( row - 1 ) )
 		paintField( p, sqlCursor()->field( indexOf( col ) ), cr,
 			    selected );
@@ -1593,10 +1567,9 @@ void QDataTable::setSize( QSqlCursor* sql )
 void QDataTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete )
 {
     setUpdatesEnabled( FALSE );
-    if ( d->autoDelete )
-	delete sqlCursor();
+    d->cur.setCursor( 0 );
     if ( cursor ) {
-	QSqlCursorNavigator::setCursor( cursor );
+	d->cur.setCursor( cursor, autoDelete );
 	if ( autoPopulate ) {
 	    d->fld.clear();
 	    d->fldLabel.clear();
@@ -1778,7 +1751,7 @@ void QDataTable::refresh( bool refreshCursor )
     d->haveAllRows = FALSE;
     d->colIndex.clear();
     if ( refreshCursor )
-	QSqlCursorNavigator::refresh();
+	d->cur.refresh();
     if ( d->fld.count() ) {
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
@@ -1830,7 +1803,7 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return FALSE;
-    bool found = QSqlCursorNavigator::findBuffer( idx, atHint );
+    bool found = d->cur.findBuffer( idx, atHint );
     if ( found )
 	setCurrentCell( cur->at(), currentColumn() );
     return found;
@@ -1879,9 +1852,18 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
   The \a buf parameter points to the record buffer being deleted.
 */
 
-/*! \fn void QDataTable::cursorChanged( QSqlCursor::Mode mode )
+/*! \fn void QDataTable::cursorChanged( Op mode )
   This signal is emitted whenever the cursor record was changed due to an edit.
   The \a mode parameter is the edit that just took place.
 */
 
 #endif
+
+// void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
+// {
+//     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//     qDebug(msg);
+//     for ( uint j = 0; j < cursor->count(); ++j ) {
+//	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
+//     }
+// }

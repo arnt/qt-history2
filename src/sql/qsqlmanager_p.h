@@ -57,6 +57,7 @@
 #include "qglobal.h"
 #include "qstring.h"
 #include "qstringlist.h"
+#include "qsqlnamespace.h"
 #include "qsqlerror.h"
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
@@ -78,6 +79,9 @@ public:
     QString filter() const;
     virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
     QSqlCursor* cursor() const;
+
+    virtual void setAutoDelete( bool enable );
+    bool autoDelete() const;
 
     virtual void refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
@@ -105,6 +109,35 @@ public:
 private:
     class QSqlFormManagerPrivate;
     QSqlFormManagerPrivate* d;
+};
+
+class Q_EXPORT QDataManager : public QSqlNamespace
+{
+public:
+    QDataManager();
+    virtual ~QDataManager();
+
+    virtual void handleError( const QSqlError& error );
+    void setMode( Op m );
+    Op mode() const;
+    void setAutoEdit( bool autoEdit );
+    bool autoEdit() const;
+
+    void setConfirmEdits( bool confirm );
+    void setConfirmInsert( bool confirm );
+    void setConfirmUpdate( bool confirm );
+    void setConfirmDelete( bool confirm );
+    void setConfirmCancels( bool confirm );
+
+    bool confirmEdits() const;
+    bool confirmInsert() const;
+    bool confirmUpdate() const;
+    bool confirmDelete() const;
+    bool confirmCancels() const;
+
+private:
+    class QDataManagerPrivate;
+    QDataManagerPrivate* d;
 };
 
 

@@ -45,10 +45,10 @@
 #include "qstring.h"
 #include "qvariant.h"
 #include "qtable.h"
+#include "qsqlnamespace.h"
 #include "qsqlcursor.h"
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
-#include "qsqlnavigator.h"
 #include "qiconset.h"
 #endif // QT_H
 
@@ -57,7 +57,7 @@ class QSqlField;
 class QSqlPropertyMap;
 class QDataTablePrivate;
 
-class Q_EXPORT QDataTable : public QTable, public QSqlCursorNavigator
+class Q_EXPORT QDataTable : public QTable, public QSqlNamespace
 {
     Q_OBJECT
 
@@ -101,7 +101,7 @@ public:
     virtual void setSqlCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE ) { setCursor( cursor, autoPopulate, autoDelete ); }
     virtual void setSqlCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
     virtual void setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelete = FALSE );
-    QSqlCursor* sqlCursor() const { return QSqlCursorNavigator::cursor(); }
+    QSqlCursor* sqlCursor() const;
 
     virtual void setNullText( const QString& nullText );
     virtual void setTrueText( const QString& trueText );
@@ -140,7 +140,7 @@ signals:
     void         beforeInsert( QSqlRecord* buf );
     void         beforeUpdate( QSqlRecord* buf );
     void         beforeDelete( QSqlRecord* buf );
-    void         cursorChanged( QSqlCursor::Mode mode );
+    void         cursorChanged( Op mode );
 
 public slots:
     virtual void find( const QString & str, bool caseSensitive,
@@ -155,21 +155,14 @@ protected slots:
     virtual void deleteCurrent();
 
 protected:
-    friend class QDataTablePrivate;
-    enum Mode {
-	None = -1,
-	Insert = 0,
-	Update = 1,
-	Delete = 2
-    };
     enum Confirm {
 	Yes = 0,
 	No = 1,
 	Cancel = 2
     };
 
-    virtual Confirm confirmEdit( QDataTable::Mode m );
-    virtual Confirm confirmCancel( QDataTable::Mode m );
+    virtual Confirm confirmEdit( Op m );
+    virtual Confirm confirmCancel( Op m );
 
     virtual void handleError( const QSqlError& e );
 

@@ -42,14 +42,18 @@
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
-#include "qdatahandler.h"
 #include "qwidget.h"
-#include "qsqlnavigator.h"
 #include "qstring.h"
 #include "qstringlist.h"
+#include "qsqlnamespace.h"
+#include "qsqlindex.h"
+#include "qsqlcursor.h"
+#include "qsqlerror.h"
 #endif // QT_H
 
-class Q_EXPORT QDataBrowser : public QWidget, public QDataHandler
+class QSqlForm;
+
+class Q_EXPORT QDataBrowser : public QWidget, public QSqlNamespace
 {
     Q_OBJECT
     Q_PROPERTY( bool boundryChecking READ boundryChecking WRITE setBoundryChecking )
@@ -121,6 +125,8 @@ protected:
     virtual bool updateCurrent();
     virtual bool deleteCurrent();
     virtual bool currentEdited();
+
+    virtual void handleError( const QSqlError& error );
 
 private:
     void updateBoundry();

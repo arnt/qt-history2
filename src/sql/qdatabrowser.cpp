@@ -48,6 +48,7 @@ public:
     QDataBrowserPrivate() : boundryCheck( TRUE ) {}
     QSqlCursorManager cur;
     QSqlFormManager frm;
+    QDataManager dat;
     bool boundryCheck;
 };
 
@@ -100,10 +101,10 @@ public:
 */
 
 QDataBrowser::QDataBrowser( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, fl ), QDataHandler()
+    : QWidget( parent, name, fl )
 {
     d = new QDataBrowserPrivate();
-    setMode( Update );
+    d->dat.setMode( Update );
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -269,7 +270,7 @@ QSqlCursor* QDataBrowser::sqlCursor() const
 }
 
 
-/*!
+/*!  ###
 
 */
 
@@ -279,7 +280,7 @@ void QDataBrowser::setForm( QSqlForm* form )
 }
 
 
-/*!
+/*! ###
 
 */
 
@@ -296,7 +297,7 @@ QSqlForm* QDataBrowser::form()
 
 void QDataBrowser::setAutoEdit( bool autoEdit )
 {
-    setAutoEditMode( autoEdit );
+    d->dat.setAutoEdit( autoEdit );
 }
 
 
@@ -307,7 +308,7 @@ void QDataBrowser::setAutoEdit( bool autoEdit )
 
 bool QDataBrowser::autoEdit() const
 {
-    return autoEditMode();
+    return d->dat.autoEdit();
 }
 
 
@@ -443,7 +444,7 @@ void QDataBrowser::insert()
     if ( !buf || !cur )
 	return;
     bool doIns = TRUE;
-    switch ( mode() ) {
+    switch ( d->dat.mode() ) {
     case Insert:
 	if ( autoEdit() && !insertCurrent() )
 	    doIns = FALSE;
@@ -456,7 +457,7 @@ void QDataBrowser::insert()
 	break;
     }
     if ( doIns ) {
-	setMode( Insert );
+	d->dat.setMode( Insert );
 	sqlCursor()->primeInsert();
 	emit primeInsert( d->frm.record() );
 	readFields();
@@ -482,7 +483,7 @@ void QDataBrowser::update()
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
 	return;
-    switch ( mode() ){
+    switch ( d->dat.mode() ){
     case Insert:
 	insertCurrent();
 	break;
@@ -490,7 +491,7 @@ void QDataBrowser::update()
 	updateCurrent();
 	break;
     }
-    setMode( Update );
+    d->dat.setMode( Update );
 }
 
 
@@ -512,7 +513,7 @@ void QDataBrowser::del()
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
 	return;
-    switch ( mode() ){
+    switch ( d->dat.mode() ){
     case Insert:
 	cur->editBuffer( TRUE ); /* restore from cursor */
 	readFields();
@@ -521,7 +522,7 @@ void QDataBrowser::del()
 	deleteCurrent();
 	break;
     }
-    setMode( Update );
+    d->dat.setMode( Update );
 }
 
 
@@ -815,6 +816,11 @@ void QDataBrowser::updateBoundry()
 	    break;
 	}
     }
+}
+
+void QDataBrowser::handleError( const QSqlError& error )
+{
+    d->dat.handleError( error );
 }
 
 #endif
