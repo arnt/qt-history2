@@ -773,6 +773,7 @@ public:
     }
 
 protected:
+#ifndef QT_NO_WHEELEVENT
     void wheelEvent( QWheelEvent *e )
     {
 	QDateTimeEditor *editor = (QDateTimeEditor*)editWidget()->qt_cast( "QDateTimeEditor" );
@@ -787,6 +788,7 @@ protected:
 	    return;
 	QSpinWidget::wheelEvent( e );
     }
+#endif
 };
 
 class QDateEditPrivate
