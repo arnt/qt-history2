@@ -1114,6 +1114,9 @@ QStyle& QApplication::style()
 */
 void QApplication::setStyle( QStyle *style )
 {
+    if ( !style )
+	return;
+
     QStyle* old = app_style;
     app_style = style;
 #ifdef Q_WS_X11
