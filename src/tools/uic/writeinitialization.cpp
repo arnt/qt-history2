@@ -98,6 +98,9 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     output << option.indent << "retranslateUi(" << varName << ");\n";
 
+    if (node->elementConnections())
+        acceptConnections(node->elementConnections());
+
     if (option.autoConnection)
         output << "\n" << option.indent << "QMetaObject::connectSlotsByName(" << varName << ");\n";
 
@@ -1111,5 +1114,22 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &/*parentWi
 QString WriteInitialization::trCall(const DomString *str, const QString &className) const
 {
     return trCall(toString(str), className);
+}
+
+void WriteInitialization::acceptConnection(DomConnection *connection)
+{
+    if (!m_registeredWidgets.contains(connection->elementSender())
+            || !m_registeredWidgets.contains(connection->elementReceiver()))
+        return;
+
+    output << option.indent << "QObject::connect("
+        << connection->elementSender()
+        << ", "
+        << "SIGNAL(" << connection->elementSignal() << ")"
+        << ", "
+        << connection->elementReceiver()
+        << ", "
+        << "SLOT(" << connection->elementSlot() << ")"
+        << ");\n";
 }
 

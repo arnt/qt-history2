@@ -48,6 +48,10 @@ class DomString;
 class DomResourcePixmap;
 class DomResources;
 class DomResource;
+class DomConnections;
+class DomConnection;
+class DomConnectionHints;
+class DomConnectionHint;
 
 struct TreeWalker
 {
@@ -82,7 +86,10 @@ struct TreeWalker
     virtual void acceptAction(DomAction *action);
     virtual void acceptActionGroup(DomActionGroup *actionGroup);
     virtual void acceptActionRef(DomActionRef *actionRef);
-
+    virtual void acceptConnections(DomConnections *connections);
+    virtual void acceptConnection(DomConnection *connection);
+    virtual void acceptConnectionHints(DomConnectionHints *connectionHints);
+    virtual void acceptConnectionHint(DomConnectionHint *connectionHint);
 };
 
 

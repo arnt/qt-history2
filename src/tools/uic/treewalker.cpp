@@ -229,3 +229,25 @@ void TreeWalker::acceptInclude(DomInclude *incl)
 {
     Q_UNUSED(incl);
 }
+
+void TreeWalker::acceptConnections(DomConnections *connections)
+{
+    for (int i=0; i<connections->elementConnection().size(); ++i)
+        acceptConnection(connections->elementConnection().at(i));
+}
+
+void TreeWalker::acceptConnection(DomConnection *connection)
+{
+    acceptConnectionHints(connection->elementHints());
+}
+
+void TreeWalker::acceptConnectionHints(DomConnectionHints *connectionHints)
+{
+    for (int i=0; i<connectionHints->elementHint().size(); ++i)
+        acceptConnectionHint(connectionHints->elementHint().at(i));
+}
+
+void TreeWalker::acceptConnectionHint(DomConnectionHint *connectionHint)
+{
+    Q_UNUSED(connectionHint);
+}

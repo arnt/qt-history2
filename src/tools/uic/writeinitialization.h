@@ -61,6 +61,11 @@ struct WriteInitialization : public TreeWalker
 //
     void acceptLayoutDefault(DomLayoutDefault *node);
 
+//
+// signal/slot connections
+//    
+    void acceptConnection(DomConnection *connection);
+
 private:
     static QString domColor2QString(DomColor *c);
 
