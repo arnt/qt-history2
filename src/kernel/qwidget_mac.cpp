@@ -772,9 +772,8 @@ void QWidget::erase( const QRegion& reg )
     int xoff = 0;
     int yoff = 0;
     if ( !isTopLevel() && backgroundOrigin() == QWidget::ParentOrigin ) {
-	QPoint mp(posInWindow(this));
-	xoff = mp.x();
-	yoff = mp.y();
+	xoff = x();
+	yoff = y();
     }
 
     QPainter p;
