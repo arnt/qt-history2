@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#91 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#91 $");
 
 
 // Motif style parameters
@@ -1073,6 +1073,16 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Escape:
 	hideAllPopups();
 	byeMenuBar();
+	break;
+
+    case Key_Left:
+	if ( parentMenu && parentMenu->isPopupMenu ) {
+	    ((QPopupMenu *)parentMenu)->hidePopups();
+	    killTimers();
+	    startTimer( 20 );
+	} else {
+	    ok_key = FALSE;
+	}
 	break;
 
     case Key_Right:
