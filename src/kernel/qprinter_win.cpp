@@ -985,9 +985,9 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 	// some windows printer drivers can't handle 32 bit DIBs, so we have to use 
 	// 24 bits here.
 	// the pixmap.isNull() case should not happen here, as all 32 bit images should get converted to pixmaps.
-	if ( !pixmap.isNull() )
-	    d = 24;
-	else
+// 	if ( !pixmap.isNull() )
+// 	    d = 24;
+// 	else
 	    d = 32;
         ncols = 0;
     }
@@ -1177,10 +1177,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
 	    // some drivers don't like 32 bit DIBs, so we convert to a pixmap and
 	    // use 24 bit there.
-	    if ( image.depth() == 32 ) {
-		pixmap = image;
-		image = QImage();
-	    }
+// 	    if ( image.depth() == 32 ) {
+// 		pixmap = image;
+// 		image = QImage();
+// 	    }
 
             int dw = qRound( xs * rect.width() );
             int dh = qRound( ys * rect.height() );
