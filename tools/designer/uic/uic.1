@@ -49,19 +49,19 @@ can also generate declaration or implementation stubs for subclasses.
 .PP
 Generate subclass declaration:
 .br
-.I "\fB	uic  [options] -subdecl \fI<classname> <headerfile> <file>"
+.I "\fB	uic  [options] -subdecl \fI<subclassname> <baseclassheaderfile> <file>"
 .br
-        \fI<classname>\fP:     name of the subclass to generate
+        \fI<subclassname>\fP:     name of the subclass to generate
 .br
-        \fI<headerfile>\fP:    declaration file of the baseclass
+        \fI<baseclassheaderfile>\fP:    declaration file of the baseclass
 .PP
 Generate subclass implementation:
 .br
-.I "\fB	uic  [options] -subimpl \fI<classname> <headerfile> <file>"
+.I "\fB	uic  [options] -subimpl \fI<subclassname> <subclassheaderfile> <file>"
 .br
-        \fI<classname>\fP:     name of the subclass to generate
+        \fI<subclassname>\fP:     name of the subclass to generate
 .br
-        \fI<headerfile>\fP:    declaration file of the subclass
+        \fI<subclassheaderfile>\fP:    declaration file of the subclass
 
 .SH GENERAL OPTIONS
 .TP
