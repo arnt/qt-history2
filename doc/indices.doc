@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.8 1997/10/07 16:45:36 agulbra Exp $
+** $Id: indices.doc,v 2.9 1997/11/15 22:16:20 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.8 1997/10/07 16:45:36 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.9 1997/11/15 22:16:20 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -21,49 +21,63 @@ static char ident[] = "$Id: indices.doc,v 2.8 1997/10/07 16:45:36 agulbra Exp $"
 On-Line Qt Documentation
 </h1>
 
-<p>
+<br clear="all"><table border=0><tr>
 
-Main index pages:
-<ul>
+<td width="50%" valign="top">
+
+<strong>Main index pages:</strong><ul>
 <li><a href="hierarchy.html">Class overview</a>
 <li><a href="classes.html">Alphabetical list</a>
 <li><a href="annotated.html">Annotated list</a>
+<li><a href="functions.html">Functions (long)</a>
 </ul>
 
-<p>
+<td width="50%" valign="top">
 
-Tutorial and other documentation:
-<ul>
+<strong>Tutorial and other documentation:</strong><ul>
 <li><a href="tutorial.html">Tutorial</a>
 <li><a href="metaobjects.html">Signals and slots</a>
 <li><a href="debug.html">Debugging aids</a>
-<li><a href="http://www.troll.no/opengl/">OpenGL support for Qt</a>
-<li><a href="http://www.troll.no/imageio/">Image file format extensions</a>
-<li><a href="http://www.troll.no/nsplugin/">Writing Netscape plugins with Qt</a>
 <li><a href="headers.html">Header files</a>
-<li><a href="functions.html">Functions (long)</a>
 <li><a href="topicals.html">Other index pages</a>
 </ul>
 
-<p>
+</td></tr><tr><td width="50%" valign="top">
 
-Some additional information:
-<ul>
+<strong>Some additional information:</strong><ul>
 <li><a href="http://www.troll.no/faq/">FAQs</a>
+<li><a href="http://www.troll.no/qt-interest/">Qt user mailing list and
+archive</a>
 <li><a href="credits.html">Thank you!</a>
 <li><a href="http://www.troll.no/troll.html">Contact Troll Tech</a>
 <li><a href="license.html">License statement for Qt</a>
 </ul>
 
-<p>
+<td width="50%" valign="top">
 
-There is a mailing list for Qt users,
-<a href="http://www.troll.no/qt-interest/">qt-interest</a>, with
-several hundred subscribers and 5-20 messages per day. If you just
-want to be notified of new releases, send a message containing just
-"subscribe" to
+<strong>Add-ons for Qt:</strong><ul>
+<li><a href="http://www.troll.no/opengl/">OpenGL support for Qt</a>
+<li><a href="http://www.troll.no/imageio/">Image file format extensions</a>
+<li><a href="http://www.troll.no/nsplugin/">Writing Netscape plugins
+with Qt</a>
+</ul>
+
+</tr></table>
+
+<p>If you want to be notified about new versions of Qt and add-ons for
+Qt, click the button below.  (This mailing list not sold or used for
+any other purpose.)
+
+<center>
+<form enctype="text/plain" action="mailto:qt-announce-request@troll.no">
+<input type=hidden name="magic" value="subscribe">
+<input type=submit value="Subscribe to Qt Announcement Mailing List"></form>
+</center>
+
+<p>You can also subscribe by sending just "subscribe" or "subscribe
+your@email.address" (without the quotes) to
 <a href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
-and you will be added to the Qt-announce mailing list.
+
 
 */
 
