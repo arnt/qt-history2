@@ -336,15 +336,9 @@ static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengt
 		if ( lengthIndicator == SQL_NO_TOTAL ) { // size cannot be determined
 		    rSize = colSize;
 		}
-		// NB! This is not a memleak - the mem will be deleted by QByteArray when
-		// no longer ref'd
-		char * tmp = (char *) malloc( rSize + fieldVal.size() );
-		if ( fieldVal.size() ) {
-		    memcpy( tmp, fieldVal.data(), fieldVal.size() );
-		}
-		memcpy( tmp + fieldVal.size(), buf, rSize );
-		fieldVal = fieldVal.assign( tmp, fieldVal.size() + rSize );
-
+		QByteArray tmp( buf, rSize );
+		fieldVal.append( tmp );
+		
 		if ( r == SQL_SUCCESS ) { // the whole field was read in one chunk
 		    break;
 		}
@@ -586,9 +580,9 @@ bool QODBCResult::reset ( const QString& query )
 		       (SQLWCHAR*) query.unicode(),
 		       (SQLINTEGER) query.length() );
 #else
-    QCString query8 = query.local8Bit();
+    QByteArray query8( query.local8Bit() );
     r = SQLExecDirect( d->hStmt,
-                       (SQLCHAR*) query8.data(),
+                       (SQLCHAR*) query8.detach(),
                        (SQLINTEGER) query8.length() );
 #endif
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
@@ -908,9 +902,9 @@ bool QODBCResult::prepare( const QString& query )
 		    (SQLWCHAR*) query.unicode(),
 		    (SQLINTEGER) query.length() );
 #else
-    QCString query8 = query.local8Bit();
+    QByteArray query8( query.local8Bit() );
     r = SQLPrepare( d->hStmt,
-		    (SQLCHAR*) query8.data(),
+		    (SQLCHAR*) query8.detach(),
 		    (SQLINTEGER) query8.length() );
 #endif
 
@@ -1080,7 +1074,7 @@ bool QODBCResult::exec()
 		    }
 		    // fall through
 	        default: {
-		    QCString * str = new QCString( val.asString().local8Bit() );
+		    QByteArray * str = new QByteArray( val.asString().local8Bit() );
 		    tmpStorage.append( qAutoDeleter(str) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
@@ -1089,7 +1083,7 @@ bool QODBCResult::exec()
 					  SQL_VARCHAR,
   					  str->length() + 1,
 					  0,
-					  (void *) str->data(),
+					  (void *) str->detach(),
 					  str->length() + 1,
 					  ind );
 		    break; }
@@ -1945,7 +1939,7 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	QByteArray ba = field->value().toByteArray();
 	QString res;
 	static const char hexchars[] = "0123456789abcdef";
-	for ( uint i = 0; i < ba.size(); ++i ) {
+	for ( uint i = 0; i < (uint)ba.size(); ++i ) {
 	    uchar s = (uchar) ba[(int)i];
 	    res += hexchars[s >> 4];
 	    res += hexchars[s & 0x0f];
