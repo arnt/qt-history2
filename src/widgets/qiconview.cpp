@@ -774,7 +774,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 }
 
 /*!
-  Constructs an iconview item using \a text as text and a \icon as icon,
+  Constructs an iconview item using \a text as text and \a icon as icon,
   and inserts it into the iconview \a parent.
 */
 
@@ -788,7 +788,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
 }
 
 /*!
-  Constructs an iconview item using \a text as text and a \icon as icon,
+  Constructs an iconview item using \a text as text and \a icon as icon,
   and inserts it into the iconview \a parent after the iconview item \a
   after.
 */
