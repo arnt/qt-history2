@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#328 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#329 $
 **
 ** Implementation of QWidget class
 **
@@ -2503,6 +2503,93 @@ void QWidget::setCRect( const QRect &r )
 	fpos = r.topLeft();
     }
     crect = r;
+}
+
+
+/*!
+  \overload void QWidget::move( const QPoint & )
+*/
+
+/*!
+  Moves the widget to the position \e (x,y) relative to the parent widget.
+
+  A \link moveEvent() move event\endlink is generated immediately if
+  the widget is visible. If the widget is invisible, the move event
+  is generated when show() is called.
+
+  This function is virtual, and all other overloaded move()
+  implementations call it.
+
+  \warning If you call move() or setGeometry() from moveEvent(), you
+  may see infinite recursion.
+
+  \sa pos(), resize(), setGeometry(), moveEvent()
+*/
+
+void QWidget::move( int x, int y )
+{
+    internalSetGeometry( x, y, width(), height(), TRUE );
+}
+
+
+
+/*!
+  \overload void QWidget::resize( const QSize & )
+*/
+
+/*!
+  Resizes the widget to size \e w by \e h pixels.
+
+  A \link resizeEvent() resize event\endlink is generated immediately if
+  the widget is visible. If the widget is invisible, the resize event
+  is generated when show() is called.
+
+  The size is adjusted if it is outside the \link setMinimumSize()
+  minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
+
+  This function is virtual, and all other overloaded resize()
+  implementations call it.
+
+  \warning If you call resize() or setGeometry() from resizeEvent(),
+  you may see infinite recursion.
+
+  \sa size(), move(), setGeometry(), resizeEvent(),
+  minimumSize(),  maximumSize()
+*/
+void QWidget::resize( int w, int h )
+{
+    internalSetGeometry( x(), y(), w, h, FALSE );
+}
+
+
+/*!
+  \overload void QWidget::setGeometry( const QRect & )
+*/
+
+/*!
+  Sets the widget geometry to \e w by \e h, positioned at \e x,y in its
+  parent widget.
+
+  A \link resizeEvent() resize event\endlink and a \link moveEvent() move
+  event\endlink are generated immediately if the widget is visible. If the
+  widget is invisible, the events are generated when show() is called.
+
+  The size is adjusted if it is outside the \link setMinimumSize()
+  minimum\endlink or \link setMaximumSize() maximum\endlink widget size.
+
+  This function is virtual, and all other overloaded setGeometry()
+  implementations call it.
+
+  \warning If you call setGeometry() from resizeEvent() or moveEvent(),
+  you may see infinite recursion.
+
+  \sa geometry(), move(), resize(), moveEvent(), resizeEvent(),
+  minimumSize(), maximumSize()
+*/
+
+void QWidget::setGeometry( int x, int y, int w, int h )
+{
+    internalSetGeometry( x, y, w, h, TRUE );
 }
 
 

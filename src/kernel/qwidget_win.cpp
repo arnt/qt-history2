@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#163 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -767,82 +767,8 @@ void QWidget::lower()
 //
 void qWinRequestConfig( WId, int, int, int, int, int );
 
-void QWidget::move( int x, int y )
-{
-    QPoint oldp( pos() );
-    if ( oldp.x() == x && oldp.y() == y )
-	return;	
-    if ( testWFlags(WState_ConfigPending) ) {		// processing config event
-	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
-    } else {
-	setFRect( QRect(QPoint(x,y),frameSize()) );
-	internalMove( x, y );
-    }
-}
 
-
-void QWidget::internalMove( int x, int y )
-{
-    setWFlags( WState_ConfigPending );
-    QSize fs = frameSize();
-    MoveWindow( winId(), x, y, fs.width(), fs.height(), TRUE );
-    clearWFlags( WState_ConfigPending );
-}
-
-void QWidget::resize( int w, int h )
-{
-    if ( w == width() && h == height() )
-	return;
-#ifndef QT_NO_LAYOUT_COMPAT
-    if ( w <= 1 && h <= 1 && layout() ) {
-	QSize s = layout()->sizeHint();
-	w = s.width();
-	h = s.height();
-    }
-#endif
-    if ( extra ) {				// any size restrictions?
-	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);
-	w = QMAX(w,extra->minw);
-	h = QMAX(h,extra->minh);
-    }
-    if ( w < 1 )				// invalid size
-	w = 1;
-    if ( h < 1 )
-	h = 1;
-    if ( testWFlags(WState_ConfigPending) ) {		// processing config event
-	qWinRequestConfig( winId(), 1, 0, 0, w, h );
-    } else {
-	QSize olds( size() );
-	int x = fpos.x();
-	int y = fpos.y();
-	if ( extra && extra->topextra ) {
-	    // They might be different
-	    QSize fs = frameSize();
-	    w += fs.width()  - crect.width();
-	    h += fs.height() - crect.height();
-	}
-	setFRect( QRect(x,y,w,h) );
-	internalResize( width(), height() );
-    }
-}
-
-
-void QWidget::internalResize( int w, int h )
-{
-    setWFlags( WState_ConfigPending );
-    if ( extra && extra->topextra ) {
-	// They might be different
-	QSize fs = frameSize();
-	w += fs.width()  - crect.width();
-	h += fs.height() - crect.height();
-    }
-    MoveWindow( winId(), fpos.x(), fpos.y(), w, h, TRUE );
-    clearWFlags( WState_ConfigPending );
-}
-
-
-void QWidget::setGeometry( int x, int y, int w, int h )
+void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
@@ -856,9 +782,9 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	h = 1;
     QPoint oldp( pos() );
     QSize  olds( size() );
-    if ( oldp.x()==x && oldp.y()==y && olds.width()==w && olds.height()==h )
+    if ( isMove == FALSE && olds.width()==w && olds.height()==h )
 	return;
-    if ( testWFlags(WState_ConfigPending) ) {		// processing config event
+    if ( testWFlags(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
 	if ( extra && extra->topextra ) {
@@ -869,23 +795,19 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	}
 	setFRect( QRect(x,y,w,h) );
 	setWFlags( WState_ConfigPending );
-	internalSetGeometry( x, y, width(), height() );
+#warning "next few lines have been removed - please look at that"
+#if 0
+	if ( extra && extra->topextra ) {
+	    // They might be different
+	    QSize fs = frameSize();
+	    w += fs.width()  - crect.width();
+	    h += fs.height() - crect.height();
+	}
+#endif
+	MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWFlags( WState_ConfigPending );
     }
-}
 
-
-void QWidget::internalSetGeometry( int x, int y, int w, int h )
-{
-    setWFlags( WState_ConfigPending );
-    if ( extra && extra->topextra ) {
-	// They might be different
-	QSize fs = frameSize();
-	w += fs.width()  - crect.width();
-	h += fs.height() - crect.height();
-    }
-    MoveWindow( winId(), x, y, w, h, TRUE );
-    clearWFlags( WState_ConfigPending );
 }
 
 
