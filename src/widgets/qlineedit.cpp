@@ -346,7 +346,9 @@ void QLineEdit::deselect()
 
 QString QLineEdit::text() const
 {
-    return d->parag->string()->toString();
+    QString s = d->parag->string()->toString();
+    s.remove( s.length() - 1, 1 ); // remove trailing space
+    return s;
 }
 
 
