@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#3 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#3 $";
 #endif
 
 
@@ -462,7 +462,12 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     pdev->devFlags |= PDF_PAINTACTIVE;
     if ( extPDev ) {
 	gc = 0;
-	pdev->cmd( PDC_BEGIN, 0 );
+	if ( !pdev->cmd( PDC_BEGIN, 0 ) ) {	// could not begin painting
+	    isActive = FALSE;
+	    pdev->devFlags &= ~PDF_PAINTACTIVE;
+	    pdev = 0;
+	    return FALSE;
+	}
     }
     else
 	gc = XCreateGC( dpy, hd, 0, 0 );
