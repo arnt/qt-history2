@@ -2,6 +2,9 @@
 $Id$
 */  
 
+#ifndef STRUCTUREPARSER_H
+#define STRUCTUREPARSER_H   
+
 #include <qxml.h>
 #include <qstack.h>
 
@@ -23,3 +26,5 @@ private:
     QStack<QListViewItem> stack;
     QListView * table;
 };                   
+
+#endif
