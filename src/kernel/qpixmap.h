@@ -20,7 +20,7 @@
 #include "qnamespace.h"
 #include "qpaintdevice.h"
 #include "qstring.h" // char*->QString conversion
-# ifndef QT_INCLUDE_COMPAT
+# ifdef QT_INCLUDE_COMPAT
 #  include "qimage.h"
 # endif
 #endif // QT_H
