@@ -1577,12 +1577,12 @@ struct QForeachMemory {
 template<typename T>
 QForeachContainer<T> qForeachSizeofContainerHelper(const T &);
 
-template <typename T>
-inline QForeachContainer<T> *qForeachContainer(const T &, QForeachMemory<sizeof(QForeachContainer<T>)> &memory)
+template <typename T, typename U>
+inline QForeachContainer<T> *qForeachContainer(const T &, U &memory)
 { return reinterpret_cast<QForeachContainer<T>*>(memory.padding); }
 
-template <typename T>
-inline void *qForeachContainerNew(const T& t, QForeachMemory<sizeof(QForeachContainer<T>)> &memory)
+template <typename T, typename U>
+inline void *qForeachContainerNew(const T& t, U &memory)
 { return new (memory.padding) QForeachContainer<T>(t); }
 
 #define Q_FOREACH(variable, container) \
