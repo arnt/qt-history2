@@ -119,7 +119,7 @@ public:
     void resizeToContents();
 
     void showCurrentItemMenu();
-    void hideCurrentItemMenu();
+    void hideCurrentItemMenu();y
     void focusCurrentItemMenu();
 
     FormWindow * formWindow();
@@ -144,6 +144,7 @@ protected:
     void dragMoveEvent( QDragMoveEvent * e );
     void dropEvent( QDropEvent * e );
     void keyPressEvent( QKeyEvent * e );
+    void focusOutEvent( QFocusEvent * e );
 
     void drawPopup( QPainter & p );
     void drawItems( QPainter & p );

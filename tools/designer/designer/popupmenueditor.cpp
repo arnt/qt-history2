@@ -1206,6 +1206,16 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
     update();
 }
 
+void PopupMenuEditor::focusOutEvent( QFocusEvent * e )
+{
+    QWidget * w = qApp->focusWidget();
+    if ( ! ( w->inherits( "PopupMenuEditor" ) || w->inherits( "MenuBarEditor" ) ) ) {
+	hideCurrentItemMenu();
+	hide();
+    }
+	
+}
+
 int PopupMenuEditor::drawAction( QPainter & p, QAction * a, int x, int y )
 {
     QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
