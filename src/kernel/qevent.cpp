@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of event classes
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -1624,7 +1624,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \class QTabletDeviceId
-  \brief QTabletDeviceId will give you the unique id of a Wacom(c) tablet device.
+  \brief The QTabletDeviceId class is the unique id of a Wacom(c) tablet device.
 
   Since multiple devices can be used on a tablet, it is helpful to have a way of
   determining which device generates which event.  This is basically a 64 bit value.
@@ -1682,7 +1682,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
+  \fn QTabletEvent::QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt, const QTabletDeviceId &uId )
 
   Constructs a tablet event object.
 
@@ -1697,7 +1697,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt )
+  \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QTabletDeviceId &uId )
 
   Constructs a tablet event object.  The position when the event
   occurred is is given in \a pos and \a globalPos.  \a device contains
