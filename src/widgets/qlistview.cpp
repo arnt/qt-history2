@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#135 $
 **
 ** Implementation of QListView widget class
 **
@@ -163,8 +163,8 @@ struct QListViewPrivate
 
   A list viev item is a multi-column object capable of displaying
   itself.  Its design has the following main goals: <ul> <li> Work
-  quickly and well for \e large sets of data. <li> Have a low usage
-  threshold for simple use. </ul>
+  quickly and well for \e large sets of data. <li> Be easy to use in
+  the simple case. </ul>
 
   The simplest way to use QListViewItem is to construct one with a few
   constant strings.  This creates an item which is a child of \e
@@ -179,7 +179,7 @@ struct QListViewPrivate
   QObject QObjects. \endlink
 
   The parent is either another QListViewItem or a QListView.  If the
-  parent is a QListView, this item is a top-level item within than
+  parent is a QListView, this item is a top-level item within that
   QListView.  If the parent is another QListViewItem, this item
   becomes a child of the parent item.
 
@@ -187,6 +187,8 @@ struct QListViewPrivate
   setText(), add pixmaps using setPixmap(), change its mode using
   setSelectable(), setSelected(), setOpen() and setExpandable(),
   change its height using setHeight(), and do much tree traversal.
+  The set* functions in QListView also affect QListViewItem, of
+  course.
 
   You can traverse the tree as if it were a doubly linked list using
   itemAbove() and itemBelow(); they return pointers to the items
@@ -233,7 +235,7 @@ struct QListViewPrivate
   <img src="listview.gif" width="518" height="82" alt="Example List View">
 
   The next example shows a fraction of the dirview example.  Again,
-  the Direcotory/Symbolic Link column is computed on the fly.  None of
+  the Directory/Symbolic Link column is computed on the fly.  None of
   the items are root items; the \e usr item is a child of the root and
   the \e X11 item is a child of the \e usr item.
 
@@ -675,6 +677,9 @@ void QListViewItem::setSelectable( bool enable )
   of the directory and inserts items accordingly.  This strategy means
   that dirview can display the entire file system without reading very
   much at start-up.
+
+  Note that root items are not expandable by the user unless
+  QListView::setRootIsDecorated() is set to TRUE.
 
   \sa setSelectable()
 */
