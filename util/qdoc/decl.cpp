@@ -118,8 +118,21 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		out.printfMeta( ">%s</a>.\n", className.latin1() );
 	    }
 
-	    const QValueList<Decl *>& by = (*m)->reimplementedBy();
+	    QValueList<Decl *> by = (*m)->reimplementedBy();
 	    if ( !by.isEmpty() ) {
+		// we don't want totally uninteresting
+		// reimplementations in this list.
+		QValueList<Decl *>::ConstIterator r;
+		r = by.begin();
+		while( r != by.end() ) {
+		    Decl * d = *r;
+		    ++r;
+		    if ( d->internal() )
+			by.remove( d );
+		}
+	    }
+	    if ( !by.isEmpty() ) {
+		// ... so we probably never get here.
 		QValueList<Decl *>::ConstIterator r;
 		QValueStack<QString> seps = separators( by.count(),
 							QString(".\n") );
