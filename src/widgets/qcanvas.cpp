@@ -556,6 +556,13 @@ void QCanvas::resize(int w, int h)
 }
 
 /*!
+  \fn void QCanvas::resized()
+
+  This signal is emitted whenever the canvas is resized.  Each QCanvasView
+  connects to this signal to keep the scrollview size correct.
+*/
+
+/*!
 Change the efficiency tuning parameters.  This is a slow operation.
 
 Internally, a canvas uses a low-resolution "chunk matrix" to keep track of
