@@ -481,8 +481,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	d->scroll.topScrollableIndex = d->scroll.scrollableSize = 0;
 	badSize = TRUE;
     }
-    if ( badSize )
-	updateSize();
+    updateSize();
 
     QPoint mouse = QCursor::pos();
     snapToMouse = pos == mouse;
@@ -1321,8 +1320,7 @@ void QPopupMenu::show()
     else
 	supressAboutToShow = FALSE;
     performDelayedChanges();
-    if ( badSize )
-	updateSize();
+    updateSize();
     QWidget::show();
     popupActive = -1;
     if(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this))
@@ -2329,6 +2327,7 @@ void QPopupMenu::updateRow( int row )
 	update();
 	return;
     }
+    updateSize();
     QRect r = itemGeometry( row );
     if ( !r.isNull() ) // can happen via the scroller
 	repaint( r );
