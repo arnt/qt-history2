@@ -10,6 +10,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 #include <xdb/xbase.h>
+#include <xdb/xbexcept.h>
 
 //#define DEBUG_XBASE 1
 //#define VERBOSE_DEBUG_XBASE
@@ -117,10 +118,10 @@ bool FileDriver::create( const qdb::List& data )
     env->output() << "FileDriver::create..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "internal error:FileDriver::create: no name specified" );
+	ERROR_RETURN( "No table name specified" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::create: no fields defined" );
+	ERROR_RETURN( "No fields defined, nothing to create" );
     }
     QArray<xbSchema> xbrec( data.count()+1 ); /* one extra for null entry */
     xbSchema x;
@@ -128,7 +129,7 @@ bool FileDriver::create( const qdb::List& data )
     for ( i = 0; i < data.count(); ++i ) {
 	qdb::List fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
-	    ERROR_RETURN( "internal error:FileDriver::create: bad field description" );
+	    ERROR_RETURN( "Internal error: Bad field description" );
 	}
 	QString name = fieldDescription[0].toString();
 	int namelen = QMAX( name.length(), 11 );
@@ -155,18 +156,18 @@ bool FileDriver::create( const qdb::List& data )
 	    break;
 	}
 	if ( !x.Type ) {
-	    ERROR_RETURN( "internal error:FileDriver::create: unknown type for field:" + name );
+	    ERROR_RETURN( "Internal error: Unknown type for field:" + name );
 	}
 	xbrec[i] = x;
     }
     memset( &x, 0, sizeof(xbSchema) );
     xbrec[ data.count() ] = x;
     d->file.SetVersion( 4 );   /* create dbase IV style files */
-    xbShort rc;
-    if ( ( rc = d->file.CreateDatabase( name().latin1(), xbrec.data(), XB_OVERLAY ) )
-	 != XB_NO_ERROR ) {
-	ERROR_RETURN( "internal error:FileDriver::create: error creating database" );
+    xbShort rc = d->file.CreateDatabase( name().latin1(), xbrec.data(), XB_OVERLAY );
+    if ( rc != XB_NO_ERROR ) {
+	ERROR_RETURN( xbStrError( rc ) );
     }
+
     d->file.CloseDatabase();   /* Close database and associated indexes */
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
@@ -180,10 +181,11 @@ bool FileDriver::open()
     env->output() << "FileDriver::open..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "internal error:FileDriver::open: no file name" );
+	ERROR_RETURN( "No table name specified" );
     }
-    if ( d->file.OpenDatabase( name().latin1() ) != XB_NO_ERROR ) {
-	ERROR_RETURN( "internal error:FileDriver::open: unable to open " + name() );
+    xbShort rc = d->file.OpenDatabase( name().latin1() );
+    if ( rc != XB_NO_ERROR ) {
+	ERROR_RETURN( xbStrError( rc ) );
     }
 #ifdef DEBUG_XBASE
     env->output() << name().latin1() << " opened..." << flush;
@@ -197,9 +199,10 @@ bool FileDriver::open()
     d->indexes.resize( indexList.count() );
     for ( uint i = 0; i < indexList.count(); ++i ) {
 	xbNdx* idx = new xbNdx( &d->file );
-	if ( idx->OpenIndex( indexList[i].latin1() ) != XB_NO_ERROR ) {
+	rc = idx->OpenIndex( indexList[i].latin1() );
+	if ( rc != XB_NO_ERROR ) {
 	    delete idx;
-	    ERROR_RETURN( "internal error:FileDriver::open: unable to open index " + indexList[i] );
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
 #ifdef DEBUG_XBASE
 	env->output() << indexList[i].latin1() << " index opened..." << flush;
@@ -268,20 +271,23 @@ bool FileDriver::close()
 
 bool FileDriver::insert( const qdb::List& data )
 {
+#ifdef DEBUG_XBASE
+    env->output() << "FileDriver::insert..." << flush;
+#endif
     if ( !isOpen() )
 	return FALSE;
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::insert: no values");
+	ERROR_RETURN( "No values to insert" );
     }
     if ( (int)data.count() > d->file.FieldCount() ) {
-	ERROR_RETURN( "internal error:FileDriver::insert: too many values");
+	ERROR_RETURN( "Too many values" );
     }
     d->file.BlankRecord();
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
 	qdb::List insertData = data[i].toList();
 	if ( !insertData.count() ) {
-	    ERROR_RETURN( "internal error:FileDriver::insert: no insert data" );
+	    ERROR_RETURN( "Internal error: No insert data" );
 	}
 	QString name;
 	int pos;
@@ -293,10 +299,10 @@ bool FileDriver::insert( const qdb::List& data )
 	    name = d->file.GetFieldName( pos );
 	}
 	if ( pos == -1 ) {
-	    ERROR_RETURN( "internal error:FileDriver::insert: unknown field: " + name );
+	    ERROR_RETURN( "Unknown field: " + name );
 	}
 	if ( !name.length() ) {
-	    ERROR_RETURN( "internal error:FileDriver::insert: unknown field number:" + QString::number(pos) );
+	    ERROR_RETURN( "Unknown field number:" + QString::number(pos) );
 	}
 	QVariant val = insertData[1];
 	if ( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) == QVariant::Date ) {
@@ -308,13 +314,22 @@ bool FileDriver::insert( const qdb::List& data )
 			   QString::number( d.month() ).rightJustify( 2, '0' ) +
 			   QString::number( d.day() ).rightJustify( 2, '0' ) );
 	}
-	if ( d->file.PutField( pos, val.toString().latin1() ) != XB_NO_ERROR ) {
-	    ERROR_RETURN( "internal error:FileDriver::insert: invalid field number or data");
+	xbShort rc = d->file.PutField( pos, val.toString().latin1() );
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
     }
-    if ( d->file.AppendRecord() != XB_NO_ERROR ) {
-	ERROR_RETURN( "internal error:FileDriver::insert: unable to append record" );
+    xbShort rc = d->file.AppendRecord();
+    switch( rc ) {
+    case XB_NO_ERROR:
+	break;
+    default:
+	ERROR_RETURN( xbStrError( rc ) );
+	break;
     }
+#ifdef DEBUG_XBASE
+    env->output() << "success" << endl;
+#endif
     return TRUE;
 }
 
@@ -324,7 +339,7 @@ bool FileDriver::next()
     env->output() << "FileDriver::next..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::next: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     xbShort rc = XB_NO_ERROR;
     if ( d->file.GetCurRecNo() == 0 ) {
@@ -361,11 +376,13 @@ bool FileDriver::deleteMarked()
     if ( !d->marked.count() )
 	return TRUE;
     for ( uint i = 0; i < d->marked.count(); ++i ) {
-	if ( d->file.GetRecord( d->marked[i] ) != XB_NO_ERROR ) {
-	    ERROR_RETURN( "internal error:FileDriver::deleteMarked: unable to retrieve marked record" );
+	xbShort rc = d->file.GetRecord( d->marked[i] );
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( QString( xbStrError( rc  ) ) );
 	}
-	if ( d->file.DeleteRecord() != XB_NO_ERROR ) {
-	    ERROR_RETURN( "internal error:FileDriver::deleteMarked: unable to delete marked record" );
+	rc = d->file.DeleteRecord();
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( QString( xbStrError( rc  ) ) );
 	}
     }
 #ifdef DEBUG_XBASE
@@ -380,7 +397,7 @@ bool FileDriver::commit()
     env->output() << "FileDriver::commit..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::commit: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     d->file.PackDatabase( F_SETLKW );
 #ifdef VERBOSE_DEBUG_XBASE
@@ -394,10 +411,10 @@ bool FileDriver::field( uint i, QVariant& v )
     if ( !isOpen() )
 	return FALSE;
     if ( d->file.GetCurRecNo() < 0 ) {
-	ERROR_RETURN( "internal error:FileDriver::field: not on valid record" );
+	ERROR_RETURN( "Internal error: Not on valid record" );
     }
     if ( (int)i > d->file.FieldCount()-1 ) {
-	ERROR_RETURN( "internal error:FileDriver::field: field does not exist" );
+	ERROR_RETURN( "Internal error: Field does not exist" );
     }
     int len = d->file.GetFieldLen( i );
     char buf[ len ];
@@ -436,7 +453,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     if ( !isOpen() )
 	return FALSE;
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
-	ERROR_RETURN( "internal error:FileDriver::fieldDescription: field does not exist" );
+	ERROR_RETURN( "Internal error: Field does not exist" );
     }
     qdb::List field;
     QString name = d->file.GetFieldName( i );
@@ -457,44 +474,47 @@ bool FileDriver::updateMarked( const qdb::List& data )
     env->output() << "FileDriver::updateMarked..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::updateMarked: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     if ( !d->marked.count() )
 	return TRUE;
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::updateMarked: no fields defined" );
+	ERROR_RETURN( "Internal error: No fields defined" );
     }
     if ( (int)data.count() > d->file.FieldCount() ) {
-	ERROR_RETURN( "internal error:FileDriver::updateMarked: too many fields" );
+	ERROR_RETURN( "Internal error: Too many fields" );
     }
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
 	qdb::List updateData = data[i].toList();
 	if ( !updateData.count() ) {
-	    ERROR_RETURN( "internal error:FileDriver::updateMarked: no update data" );
+	    ERROR_RETURN( "Internal error: No update data" );
 	}
 	xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "internal error:FileDriver::updateMarked: field not found:" + updateData[0].toString() );
+	    ERROR_RETURN( "Internal error: Field not found:" + updateData[0].toString() );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( updateData[1].type() ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::updateMarked: bad type:" + updateData[0].toString() );
+	    ERROR_RETURN( "Internal error: Bad type:" + updateData[0].toString() );
 	}
     }
     for ( i = 0; i < d->marked.count(); ++i ) {
-	if ( d->file.GetRecord( d->marked[i] ) != XB_NO_ERROR ) {
-	    ERROR_RETURN( "internal error:FileDriver::updateMarked: unable to retrieve marked record" );
+	xbShort rc = d->file.GetRecord( d->marked[i] );
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
 	uint j = 0;
 	for ( j = 0; j < data.count(); ++j ) {
 	    qdb::List updateData = data[i].toList();
 	    xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
-	    if ( d->file.PutField( fieldnum, updateData[1].toString().latin1() ) != XB_NO_ERROR ) {
-		ERROR_RETURN( "internal error:FileDriver::updateMarked: invalid field number or data");
+	    xbShort rc = d->file.PutField( fieldnum, updateData[1].toString().latin1() );
+	    if ( rc != XB_NO_ERROR ) {
+		ERROR_RETURN( xbStrError( rc ) );
 	    }
 	}
-	if ( d->file.PutRecord() != XB_NO_ERROR ) {
-	    ERROR_RETURN( "internal error:FileDriver::updateMarked: unable to put record" );
+	rc = d->file.PutRecord();
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
     }
 #ifdef DEBUG_XBASE
@@ -515,7 +535,7 @@ bool FileDriver::nextMarked()
     env->output() << "FileDriver::nextMarked..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::nextMarked: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     int next = markedAt() + 1;
     if ( next > (int)d->marked.count() )
@@ -535,17 +555,18 @@ bool FileDriver::update( const qdb::List& data )
     env->output() << "FileDriver::update..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::update: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     if ( d->file.GetCurRecNo() == 0 ) {
-	ERROR_RETURN( "internal error:FileDriver::update: not positioned on valid record" );
+	ERROR_RETURN( "Internal error: Not positioned on valid record" );
     }
     if ( (int)data.count() != d->file.FieldCount() ) {
-	ERROR_RETURN( "internal error:FileDriver::update: incorrect number of fields" );
+	ERROR_RETURN( "Internal error: Incorrect number of fields" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::update: no update data");
+	ERROR_RETURN( "Internal error: No update data");
     }
+    xbShort rc;
     uint i = 0;
     for ( ;  i < data.count(); ++i ) {
 	QString name;
@@ -558,22 +579,23 @@ bool FileDriver::update( const qdb::List& data )
 	    name = d->file.GetFieldName( pos );
 	}
 	if ( pos == -1 ) {
-	    ERROR_RETURN( "internal error:FileDriver::update: field not found:" + name );
+	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( !name.length() ) {
-	    ERROR_RETURN( "internal error:FileDriver::update: unknown field number:" + QString::number(pos) );
+	    ERROR_RETURN( "Internal error: Unknown field number:" + QString::number(pos) );
 	}
 	if ( variantToXbaseType( data[1].type() ) != d->file.GetFieldType( pos ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::update: invalid field type:" +
-			  QString(data[1].typeName()) );
+	    ERROR_RETURN( "Internal error: Invalid field type:" + QString(data[1].typeName()) );
 	}
-	if ( d->file.PutField( pos, data[1].toString().latin1() ) != XB_NO_ERROR ) {
-	    ERROR_RETURN( "internal error:FileDriver::update: invalid field number or data:" + name);
+	rc = d->file.PutField( pos, data[1].toString().latin1() );
+	if ( rc != XB_NO_ERROR ) {
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
 
     }
-    if ( d->file.PutRecord() != XB_NO_ERROR ) {
-	ERROR_RETURN( "internal error:FileDriver::update: unable to put record" );
+    rc = d->file.PutRecord();
+    if ( rc != XB_NO_ERROR ) {
+	ERROR_RETURN( xbStrError( rc ) );
     }
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
@@ -587,10 +609,10 @@ bool FileDriver::rangeMark( const qdb::List& data )
     env->output() << "FileDriver::rangeMark..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::rangeMark: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::rangeMark: no fields defined");
+	ERROR_RETURN( "Internal error: No fields defined");
     }
     d->marked.clear();
     bool forceScan = TRUE;
@@ -600,17 +622,16 @@ bool FileDriver::rangeMark( const qdb::List& data )
     for ( i = 0; i < data.count(); ++i ) {
 	qdb::List rangeMarkFieldData = data[i].toList();
 	if ( rangeMarkFieldData.count() != 4 ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeMarkFieldData: bad field description");
+	    ERROR_RETURN( "Internal error: Bad field description");
 	}
 	QString name = rangeMarkFieldData[0].toString();
 	QVariant value = data[++i];
 	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeMark: field not found:" + name );
+	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( value.type() ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeMark: bad field type:" +
-			  QString( value.typeName() ) );
+	    ERROR_RETURN( "Internal error: Bad field type:" + QString( value.typeName() ) );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +
 		     name;
@@ -710,28 +731,37 @@ bool FileDriver::createIndex( const qdb::List& data, bool unique )
     env->output() << "FileDriver::createIndex..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::createIndex: file not open" );
+	ERROR_RETURN( "Internal error: File not open" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::createIndex: no fields defined");
+	ERROR_RETURN( "Internal error: No fields defined");
     }
     uint i = 0;
     xbShort rc;
     QString indexDesc;
+    QVariant::Type indexType = QVariant::Invalid;
     for ( ; i < data.count(); ++i ) {
 	qdb::List createIndexData = data[i].toList();
 	if ( createIndexData.count() != 4 ) {
-	    ERROR_RETURN( "internal error:FileDriver::createIndex: bad index data");
+	    ERROR_RETURN( "Internal error: Bad index data");
 	}
 	QString name = createIndexData[0].toString();
 	QVariant::Type type = (QVariant::Type)createIndexData[1].toInt();
+	if ( indexType == QVariant::Invalid )
+	    indexType = type;
+	if ( type != indexType ) {
+	    QVariant v; v.cast( indexType );
+	    QVariant b; b.cast( type );
+	    ERROR_RETURN( "Unable to create index with conflicting "
+			  "types: '" + QString( v.typeName() ) + "', '" + QString( b.typeName() ) + "'" );
+	}
 	/* create the index description string */
 	xbShort fieldnum = d->file.GetFieldNo( name );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "internal error:FileDriver::createIndex: field not found:" + name );
+	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( type ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::createIndex: bad field type:" + name );
+	    ERROR_RETURN( "Internal error: Bad field type:" + name );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;
     }
@@ -770,15 +800,16 @@ bool FileDriver::createIndex( const qdb::List& data, bool unique )
 	    fi.setFile( indexName + QString::number(i) + ".ndx" );
 	}
 	indexName = fi.fileName();
-	if ( ( rc = idx->CreateIndex( indexName.latin1(), indexDesc.latin1(),
-				      unique ? XB_UNIQUE : XB_NOT_UNIQUE, XB_OVERLAY ) ) != XB_NO_ERROR ) {
+	rc = idx->CreateIndex( indexName.latin1(), indexDesc.latin1(),
+				       unique ? XB_UNIQUE : XB_NOT_UNIQUE, XB_OVERLAY );
+	if ( rc != XB_NO_ERROR ) {
 	    QFile::remove( indexName );
-	    ERROR_RETURN( "internal error:FileDriver::createIndex: could not create index:" + indexName + ":" + indexDesc );
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
 	/* build index */
 	if ( ( rc = idx->ReIndex() ) != XB_NO_ERROR ) {
 	    QFile::remove( indexName );
-	    ERROR_RETURN( "internal error:FileDriver::createIndex: could not build index:" + indexName + ":" + indexDesc );
+	    ERROR_RETURN( xbStrError( rc ) );
 	}
 
     }
@@ -794,7 +825,7 @@ bool FileDriver::drop()
     env->output() << "FileDriver::drop..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "internal error:FileDriver::drop: no file name" );
+	ERROR_RETURN( "Internal error: No file name" );
     }
     if ( isOpen() )
 	close();

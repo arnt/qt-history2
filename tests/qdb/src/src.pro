@@ -11,6 +11,7 @@ SOURCES		+= $$XBASE_PATH/dbf.cpp \
 		$$XBASE_PATH/exp.cpp\
 		$$XBASE_PATH/expproc.cpp\
 		$$XBASE_PATH/expfunc.cpp\
+		$$XBASE_PATH/xbexcept.cpp\
 		$$XBASE_PATH/xdate.cpp
 SOURCES	        += ../src/sqlinterpreter.cpp \
 		../src/filedriver_xbase.cpp \
