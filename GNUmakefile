@@ -60,7 +60,7 @@ sub-tutorial: sub-src FORCE
 sub-examples: sub-tools FORCE
 	cd examples && $(MAKE)
 
-clean uiclean mocclean:
+distclean clean uiclean mocclean:
 	cd qmake && $(MAKE) $@
 	cd tools && $(MAKE) $@
 	cd src/moc && $(MAKE) $@
@@ -68,9 +68,6 @@ clean uiclean mocclean:
 	cd tutorial && $(MAKE) $@
 	cd plugins/src && $(MAKE) $@
 	cd examples && $(MAKE) $@
-
-distclean: clean
-	-rm .qmake.cache
 
 doc: FORCE
 	qdoc util/qdoc/qdoc.conf
