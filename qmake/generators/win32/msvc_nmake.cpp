@@ -154,7 +154,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
 
 void
-NmakeMakefileGenerator::init(QTextStream &t)
+NmakeMakefileGenerator::init()
 {
     if(init_flag)
 	return;
@@ -271,7 +271,7 @@ NmakeMakefileGenerator::init(QTextStream &t)
 	}
     }
     if ( project->isActiveConfig("moc") ) {
-	moc_aware = TRUE;
+	setMocAware(TRUE);
     }
     project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
     project->variables()["TMAKE_FILETAGS"] += QStringList::split(
@@ -299,7 +299,7 @@ NmakeMakefileGenerator::init(QTextStream &t)
     if ( !project->variables()["RES_FILE"].isEmpty()) {
 	project->variables()["TMAKE_LIBS"] += project->variables()["RES_FILE"];
     }
-    MakefileGenerator::init(t);
+    MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {
 	QStringList l = QStringList::split('.', project->variables()["VERSION"].first(), ".");
 	project->variables()["VER_MAJ"].append(l[0]);

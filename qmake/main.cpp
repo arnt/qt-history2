@@ -41,10 +41,13 @@
 #include "borland_bmake.h"
 #include "msvc_nmake.h"
 #include "msvc_dsp.h"
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "option.h"
 
 extern int line_count;
 extern "C" void yyerror(const char *foo)
@@ -55,40 +58,52 @@ extern "C" void yyerror(const char *foo)
 int
 main(int argc, char **argv)
 {
+    /* parse command line */
+    if(!Option::parseCommandLine(argc, argv))
+	return 666;
+
     QMakeProject proj;
-    for(int x = 1; x < argc; x++) {
-	/* read in the project */
-	if(!proj.read(argv[x], NULL)) {
-	    printf("Error processing project file: %s\n", argv[x]);
+    for(QStringList::Iterator pfile = Option::project_files.begin(); 
+	pfile != Option::project_files.end(); pfile++) {
+	/* read project.. */
+	if(!proj.read((*pfile))) {
+	    fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
 	    continue;
 	}
 
-	MakefileGenerator *mkfile = NULL;
+	/* dump make file */
 	QString gen = proj.variables()["MAKEFILE_GENERATOR"].first();
 	if(gen.isEmpty()) {
 	    fprintf(stderr, "No generator specified in config file.\n");
 	    return 666;
 	}
-	else if(gen == "UNIX")
-	    mkfile = new UnixMakefileGenerator(&proj);
-	else if(gen == "DSP")
-	    mkfile = new DspMakefileGenerator(&proj);
-	else if(gen == "BMAKE")
-	    mkfile = new BorlandMakefileGenerator(&proj);
-	else if(gen == "NMAKE")
-	    mkfile = new NmakeMakefileGenerator(&proj);
+	else if(gen == "UNIX") {
+	    UnixMakefileGenerator mkfile(&proj);
+	    mkfile.write();
+	}
+	else if(gen == "DSP") {
+	    DspMakefileGenerator mkfile(&proj);
+	    mkfile.write();
+	}
+	else if(gen == "BMAKE") {
+	    BorlandMakefileGenerator mkfile(&proj);
+	    mkfile.write();
+	}
+	else if(gen == "NMAKE") {
+	    NmakeMakefileGenerator mkfile(&proj);
+	    mkfile.write();
+	}
 	else {
 	    fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
 	    return 666;
 	}
-	mkfile->write(NULL);
 
-#ifdef QMAKE_DEBUG
-	QMap<QString, QStringList> &vars = proj.variables();
-	for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
-	    printf("%s === %s\n", it.key().latin1(), it.data().join(" ").latin1());
-#endif
-
+	/* debugging */
+	if(Option::debug_level) {
+	    QMap<QString, QStringList> &vars = proj.variables();
+	    for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
+		printf("%s === %s\n", it.key().latin1(), it.data().join(" ").latin1());
+	}
     }
     return 0;
 }

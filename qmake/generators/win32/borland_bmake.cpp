@@ -153,7 +153,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 }
 
 void
-BorlandMakefileGenerator::init(QTextStream &t)
+BorlandMakefileGenerator::init()
 {
     if(init_flag)
 	return;
@@ -288,7 +288,7 @@ BorlandMakefileGenerator::init(QTextStream &t)
     }
     // starting again
     if ( project->isActiveConfig("moc") ) {
-	moc_aware = TRUE;
+	setMocAware(TRUE);
     }
     project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
     project->variables()["TMAKE_FILETAGS"] += QStringList::split(
@@ -316,7 +316,7 @@ BorlandMakefileGenerator::init(QTextStream &t)
     if ( !project->variables()["RES_FILE"].isEmpty()) {
 	project->variables()["TMAKE_LIBS"] += project->variables()["RES_FILE"];
     }
-    MakefileGenerator::init(t);
+    MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {
 	QStringList l = QStringList::split('.', project->variables()["VERSION"].first(), ".");
 	project->variables()["VER_MAJ"].append(l[0]);

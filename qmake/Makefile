@@ -1,8 +1,8 @@
-OBJS=y.tab.o scanner.o y.tab.o project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o
+OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o
 
 vpath %.cpp generators/:generators/win32:generators/unix
 
-CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include -g #-DQMAKE_DEBUG
+CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include -g 
 LFLAGS=-L$(QTDIR)/lib -lqt -lfl
 
 LEX=flex
@@ -24,15 +24,6 @@ distclean:: clean
 
 %.o: %.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
-
-scanner.o: scanner.c
-	$(CC) -c -o $@ $^
-
-scanner.c: scanner.l
-	$(LEX) -o$@ $^
-
-y.tab.c: parser.y
-	$(YACC) -d $<
 
 %.d: %.cpp
 	@[ -d .deps/ ] || mkdir -p .deps/

@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#include "option.h"
 #include "msvc_dsp.h"
 #include <time.h>
 #include <qdir.h>
@@ -81,7 +82,7 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
 
-		    if ( project->isActiveConfig("moc") && (*it).right(strlen(MOC_EXT)) == MOC_EXT) {
+		    if ( project->isActiveConfig("moc") && (*it).right(strlen(Option::moc_ext)) == Option::moc_ext) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -181,7 +182,7 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
 
 
 void
-DspMakefileGenerator::init(QTextStream &t)
+DspMakefileGenerator::init()
 {
     if(init_flag)
 	return;
@@ -280,7 +281,7 @@ DspMakefileGenerator::init(QTextStream &t)
     }
     project->variables()["TARGET"].first() += project->variables()["TARGET_EXT"].first();
     if ( project->isActiveConfig("moc") ) {
-	moc_aware = TRUE;
+	setMocAware(TRUE);
     }
     project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
     project->variables()["TMAKE_FILETAGS"] += QStringList::split(
@@ -291,7 +292,7 @@ DspMakefileGenerator::init(QTextStream &t)
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    QDir::cleanDirPath((*inner));
     }
-    MakefileGenerator::init(t);
+    MakefileGenerator::init();
 #if 0 //FIXME?
     tmake_use_win32_registry();
     $HKEY_CURRENT_USER->Open("Software\\Microsoft\\DevStudio\\5.0",$is_msvc5);

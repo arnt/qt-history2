@@ -40,22 +40,11 @@
 #include "project.h"
 #include <qtextstream.h>
 
-#define UI_EXT ".ui"
-#define MOC_EXT ".moc"
-#define H_EXT ".h"
-#define CPP_EXT ".cpp"
-#ifdef WIN32
-#define OBJ_EXT ".obj"
-#else
-#define OBJ_EXT ".o"
-#endif
-
-
 class MakefileGenerator
 {
     bool generateDependancies(QStringList &dirs, QString x);
     bool generateMocList(QString fn);
-    bool init_already;
+    bool init_already, moc_aware;
     QString mfile;
 
     QStringList createObjectList(const QString &var);
@@ -65,13 +54,16 @@ class MakefileGenerator
     void writeMocSrc(QTextStream &, const QString &src);
 
 protected:
-    bool moc_aware;
+
     QMakeProject *project;
     QMap<QString, QStringList> depends;
     QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
 
+    void setMocAware(bool o) { moc_aware = o; }
+    bool mocAware() const { return moc_aware; }
+
     virtual bool writeMakefile(QTextStream &);
-    virtual void init(QTextStream &);
+    virtual void init();
 
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
@@ -80,7 +72,7 @@ protected:
 public:
     MakefileGenerator(QMakeProject *p);
 
-    bool write(const char *file);
+    bool write();
     QString makeFile() const { return mfile; }
 };
 

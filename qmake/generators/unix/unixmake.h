@@ -45,10 +45,13 @@ class UnixMakefileGenerator : public MakefileGenerator
 {
     bool init_flag;
     void writeHeader(QTextStream &);	
+
     void writeMakeParts(QTextStream &);
+    void writeSubdirs(QTextStream &);
 
     bool writeMakefile(QTextStream &);
-    void init(QTextStream &);
+
+    void init();
 
 public:
     UnixMakefileGenerator(QMakeProject *p);

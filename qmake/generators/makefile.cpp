@@ -44,6 +44,7 @@
 #include <qdir.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include "option.h"
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already(FALSE), moc_aware(FALSE)
 {
@@ -70,13 +71,13 @@ MakefileGenerator::generateMocList(QString fn)
 		else
 		    mocFile = fi.dirPath() + "/";
 
-		if(fi.extension(FALSE) == CPP_EXT+1) {
-		    mocFile += fi.baseName() + MOC_EXT;
+		if(fi.extension(FALSE) == Option::cpp_ext+1) {
+		    mocFile += fi.baseName() + Option::moc_ext;
 		    project->variables()["_SRCMOC"].append(mocFile);
 		}
-		else if(fi.extension(FALSE) == H_EXT+1 && 
+		else if(fi.extension(FALSE) == Option::h_ext+1 && 
 			project->variables()["HEADERS"].findIndex(fn) != -1) {
-		    mocFile += "moc_" + fi.baseName() + CPP_EXT;
+		    mocFile += "moc_" + fi.baseName() + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
 		else break;
@@ -111,7 +112,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		continue;
 		
 	    QString fqn;
-	    if(inc.right(strlen(MOC_EXT)) == MOC_EXT) {
+	    if(inc.right(strlen(Option::moc_ext)) == Option::moc_ext) {
 //		fndeps.append(inc);
 		continue;
 	    }
@@ -141,66 +142,66 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		    fndeps.append((*it));
 	}
 
-#ifdef QMAKE_DEBUG
-	printf("Dependancies: %s -> %s\n", fn.latin1(), fndeps.join(" :: ").latin1());
-#endif
+	if(Option::debug_level >= 2)
+	    printf("Dependancies: %s -> %s\n", fn.latin1(), fndeps.join(" :: ").latin1());
+
 	return TRUE;
     }
     return FALSE;
 }
 
 void
-MakefileGenerator::init(QTextStream &t)
+MakefileGenerator::init()
 {
     if(init_already)
 	return;
     init_already = TRUE;
 
+    QMap<QString, QStringList> &v = project->variables();
     /* fix up dirs */
     {
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
-	    if ( !project->variables()[dirs[x]].isEmpty()) {
-		QDir::cleanDirPath(project->variables()[dirs[x]].first());
-		mkdir(project->variables()[dirs[x]].first().latin1(),0777);
+	    if ( !v[dirs[x]].isEmpty()) {
+		QDir::cleanDirPath(v[dirs[x]].first());
+		mkdir(v[dirs[x]].first().latin1(),0777);
 	    }
 	}
     }
 
     /* get deps and mocables */
     {
-	QMap<QString, QStringList> &v = project->variables();
-
-	QStringList incDirs;
-	QString dirs[] = { QString("DEPENDPATH"), QString("INCLUDEPATH"), QString::null };
-	for(int y = 0; dirs[y] != QString::null; y++) {
-	    QStringList &l = v[dirs[y]];
-	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
-	    {
-		//apparently tmake used colon separation...
-		QStringList damn = QStringList::split(':', (*val_it));
-		if(!damn.isEmpty())
-		    incDirs += damn;
-		else
-		    incDirs.append((*val_it));
+	if(Option::do_deps) {
+	    QStringList incDirs;
+	    QString dirs[] = { QString("DEPENDPATH"), QString("INCLUDEPATH"), QString::null };
+	    for(int y = 0; dirs[y] != QString::null; y++) {
+		QStringList &l = v[dirs[y]];
+		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
+		{
+		    //apparently tmake used colon separation...
+		    QStringList damn = QStringList::split(':', (*val_it));
+		    if(!damn.isEmpty())
+			incDirs += damn;
+		    else
+			incDirs.append((*val_it));
+		}
 	    }
-	}
-#ifdef QMAKE_DEBUG
-	printf("Dependancy Directories: %s\n", incDirs.join(" :: ").latin1());
-#endif
+	    if(Option::debug_level)
+		printf("Dependancy Directories: %s\n", incDirs.join(" :: ").latin1());
 
-	QString sources[] = { QString("HEADERS"), QString("SOURCES"), QString("INTERFACES"), QString::null };
-	printf("Generating dependancies.\n");
-	for(int x = 0; sources[x] != QString::null; x++) {
-	    QStringList &l = v[sources[x]];
-	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-		if(!(*val_it).isEmpty()) {
-		    generateDependancies(incDirs, (*val_it));
+
+	    QString sources[] = { QString("HEADERS"), QString("SOURCES"), QString("INTERFACES"), QString::null };
+	    for(int x = 0; sources[x] != QString::null; x++) {
+		QStringList &l = v[sources[x]];
+		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+		    if(!(*val_it).isEmpty()) {
+			generateDependancies(incDirs, (*val_it));
+		    }
 		}
 	    }
 	}
+
 	QString headers[] = { QString("HEADERS"), QString("INTERFACES"), QString::null };
-	printf("Generating mocables.\n");
 	for(int x = 0; headers[x] != QString::null; x++) {
 	    QStringList &l = v[headers[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -212,56 +213,41 @@ MakefileGenerator::init(QTextStream &t)
     }
 
     /* init variables */
-    project->variables()["OBJECTS"].clear();
-    project->variables()["OBJECTS"] += createObjectList("SOURCES");
+    v["OBJECTS"].clear();
+    v["OBJECTS"] += createObjectList("SOURCES");
 
 
     {
-	QStringList &decls = project->variables()["UICDECLS"], &impls = project->variables()["UICIMPLS"];
-	QStringList &l = project->variables()["INTERFACES"];
+	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
+	QStringList &l = v["INTERFACES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + "/" + fi.baseName() + CPP_EXT;
-	    QString decl = fi.dirPath() + "/" + fi.baseName() + H_EXT;
+	    QString impl = fi.dirPath() + "/" + fi.baseName() + Option::cpp_ext;
+	    QString decl = fi.dirPath() + "/" + fi.baseName() + Option::h_ext;
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
-	    if(!project->variables()["MOC_DIR"].isEmpty())
-		project->variables()["_UIMOC"].append(project->variables()["MOC_DIR"].first() + "/moc_" + 
-						      fi.baseName() + CPP_EXT);
+	    if(!v["MOC_DIR"].isEmpty())
+		v["_UIMOC"].append(v["MOC_DIR"].first() + "/moc_" + fi.baseName() + Option::cpp_ext);
 	    else
-		project->variables()["_UIMOC"].append(fi.dirPath() + "moc_" + fi.baseName() + CPP_EXT);
+		v["_UIMOC"].append(fi.dirPath() + "moc_" + fi.baseName() + Option::cpp_ext);
 	}
-	project->variables()["OBJECTS"] += project->variables()["UICOBJECTS"] = createObjectList("INTERFACES");
+	v["OBJECTS"] += v["UICOBJECTS"] = createObjectList("INTERFACES");
     }
 
-    if ( moc_aware ) {
-	project->variables()["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
-	project->variables()["SRCMOC"] = project->variables()["_HDRMOC"] + project->variables()["_SRCMOC"]
-					 + project->variables()["_UIMOC"];
+    if ( mocAware() ) {
+	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
+	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
     }
 }
 
 bool
-MakefileGenerator::write(const char *file)
+MakefileGenerator::write()
 {
-    QFile f;
-    if(file) {
-	f.setName(file);
-	if(!f.open(IO_WriteOnly))
-	    return FALSE;
-	mfile = file;
-    }
-    else {
-	if(!f.open(IO_WriteOnly, stdout))
-	    return FALSE;
-	mfile = "";
-    }
+    init();
 
-    QTextStream t(&f);
-    init(t);
+    QTextStream t(&Option::output);
     writeMakefile(t);
-    f.close();
 }
 
 void
@@ -280,7 +266,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	  << depends[(*sit)].join(" \\\n\t\t");
 
 	QString comp, cimp;
-	if((*sit).right(strlen(CPP_EXT)) == CPP_EXT) {
+	if((*sit).right(strlen(Option::cpp_ext)) == Option::cpp_ext) {
 	    comp = "TMAKE_RUN_CC";
 	    cimp = "TMAKE_RUN_CC_IMP";
 	} else {
@@ -295,20 +281,24 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 
 
 void
-MakefileGenerator::writeUicSrc(QTextStream &, const QString &ui)
+MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 {
 #if 0
-    my($f) = @_;
-    my(@v,$m,$o);
-    @v = split(/\s+/,$f);
-    foreach $m ( @v ) {
-	$decl = $m;
-	$decl =~ s/\.ui$/\.$uic_decl/;
-	$impl = $m;
-	$impl =~ s/\.ui$/\.$uic_impl/;
-	$text .= "$decl: $m\n\t$uic_cmd $m -o $decl\n\n";
+    QStringList &uil = project->variables()[obj];
+    for(QStringList::Iterator it = uil.begin(); it != uil.end(); it++) {
+	QFileInfo fi(*it);
+	QString decl = fi.dirPath() + QDir::
+	decl.replace(QRegExp("\\.ui$"), Option::h_ext);
+	QString impl = (*it);
+	impl.replace(QRegExp("\\.ui$"), Option::cpp_ext);
+
+	t << decl << ": " << (*it) << "\n\t"
+	  << "$(UIC) " << (*it) " -o " << decl << endl << endl;
+
+	QString declnopath = decl;
+
 	$fulldecl = $decl;
-	$decl =~ s/.*\///; # No path - use -I... to find it.
+	$decl =~ s,.*\\,,; # No path - use -I... to find it.
 	if ( ! ( $fulldecl eq $decl ) ) {
 	  $text .= "$decl: $m\n\t$uic_cmd $m -o $decl\n\n";
 	}
@@ -390,7 +380,7 @@ MakefileGenerator::createObjectList(const QString &var)
 	if((*it).isEmpty())
 	    continue;
 	QFileInfo fi((*it));
-	ret.append((dir.isEmpty() ? fi.dirPath() : dir) + "/" + fi.baseName() + OBJ_EXT);
+	ret.append((dir.isEmpty() ? fi.dirPath() : dir) + "/" + fi.baseName() + Option::obj_ext);
     }
     return ret;
 }

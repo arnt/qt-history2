@@ -44,9 +44,13 @@
 class QMakeProject
 {
     QString pfile, cfile;
-    QMap<QString, QStringList> vars;
+    QMap<QString, QStringList> vars, base_vars;
+    bool parse(QString text);
+
 public:
-    bool read(const char *project, const char *config = NULL);
+    QMakeProject();
+
+    bool read(const char *project);
     QString projectFile() { return pfile; }
     QString configFile() { return cfile; }
     QMap<QString, QStringList> &variables() { return vars; }

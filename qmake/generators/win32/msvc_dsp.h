@@ -49,7 +49,7 @@ class DspMakefileGenerator : public MakefileGenerator
 
     bool writeMakefile(QTextStream &);
     QString findTemplate(QString file);
-    void init(QTextStream &);
+    void init();
 
 public:
     DspMakefileGenerator(QMakeProject *p);

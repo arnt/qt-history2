@@ -48,7 +48,7 @@ class NmakeMakefileGenerator : public MakefileGenerator
     void writeNmakeParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);
-    void init(QTextStream &);
+    void init();
 
 public:
     NmakeMakefileGenerator(QMakeProject *p);

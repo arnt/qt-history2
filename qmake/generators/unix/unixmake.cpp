@@ -47,10 +47,17 @@ UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerato
 bool
 UnixMakefileGenerator::writeMakefile(QTextStream &t)
 {
-    /* write that.. */
     writeHeader(t);
-    writeMakeParts(t);
-    return MakefileGenerator::writeMakefile(t);
+    if(project->variables()["TEMPLATE"].first() == "app" || 
+       project->variables()["TEMPLATE"].first() == "lib") {
+	writeMakeParts(t);
+	return MakefileGenerator::writeMakefile(t);
+    }
+    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+	writeSubdirs(t);
+	return TRUE; 
+    }
+    return FALSE;
 }
 
 void 
@@ -135,8 +142,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(!project->variables()["TMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
-	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << endl << endl;
-	t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
+	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
+	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     }
     else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
@@ -226,11 +233,40 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	$text = $t;
 #endif
     }
-    }
+}
+
+void
+UnixMakefileGenerator::writeSubdirs(QTextStream &t)
+{
+    t << "MAKEFILE=	" << var("MAKEFILE") << endl;
+    t << "TMAKE =	" << var("TMAKE") << endl;
+    t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
+
+    t << "all: $(SUBDIRS)" << endl << endl;
+
+    t << "$(SUBDIRS): tmake_all FORCE" << "\n\t"
+      << "cd $@; $(MAKE)" << endl << endl;
+
+    t << "qmake: " << "\n\t"
+      << "qmake " << project->projectFile();
+    if (!makeFile().isEmpty())
+	t << " -o " << makeFile();
+    t << endl << endl;
+
+    t << "tmake_all:" << "\n\t"
+      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(TMAKE) $$i.pro -o $(MAKEFILE); "
+      << "grep \"TEMPLATE.*subdirs\" $$i.pro 2>/dev/null >/dev/null && "
+      << "$(MAKE) -f $(MAKEFILE) tmake_all || true; fi; ) ; done" << endl << endl;
+
+    t <<"clean release debug:" << "\n\t"
+      << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@; fi; ) ; done" << endl << endl;
+
+    t <<"FORCE:" << endl << endl;
+}
 
 
 void
-UnixMakefileGenerator::init(QTextStream &t)
+UnixMakefileGenerator::init()
 {
     if(init_flag)
 	return;
@@ -243,6 +279,15 @@ UnixMakefileGenerator::init(QTextStream &t)
 	project->variables()["TMAKE_APP_FLAG"].append("1");
     else if(project->variables()["TEMPLATE"].first() == "lib")
 	project->variables()["TMAKE_LIB_FLAG"].append("1");
+    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+	MakefileGenerator::init();
+	if(project->variables()["MAKEFILE"].isEmpty())
+	    project->variables()["MAKEFILE"].append("Makefile");
+	if(project->variables()["TMAKE"].isEmpty())
+	    project->variables()["TMAKE"].append("qmake");
+
+	return; /* subdirs is done */
+    }
 
     /* ported directly from generic.t */
     project->variables()["TMAKE_LIBS"] += project->variables()["LIBS"];
@@ -330,7 +375,7 @@ UnixMakefileGenerator::init(QTextStream &t)
 	project->variables()["TMAKE_LIBS"] += project->variables()["TMAKE_LIBS_X11"];
     }
     if ( project->isActiveConfig("moc") ) {
-	moc_aware = TRUE;
+	setMocAware(TRUE);
     }
     if ( project->variables()["TMAKE_RUN_CC"].isEmpty() ) {
 	project->variables()["TMAKE_RUN_CC"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $obj $src");
@@ -350,7 +395,7 @@ UnixMakefileGenerator::init(QTextStream &t)
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }
-    MakefileGenerator::init(t);
+    MakefileGenerator::init();
     if(project->variables()["VERSION"].isEmpty()) {
 	project->variables()["VERSION"].append("1.0.0");
 	project->variables()["VER_MAJ"].append("1");
@@ -442,3 +487,5 @@ UnixMakefileGenerator::init(QTextStream &t)
 	}
     }
 }
+
+
