@@ -20,9 +20,9 @@
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
 
 
-#define CORNER_GRAB        16
-#define BORDER_WIDTH        4
-#define BOTTOM_BORDER_WIDTH        2*BORDER_WIDTH
+#define CORNER_GRAB 16
+#define BORDER_WIDTH  4
+#define BOTTOM_BORDER_WIDTH BORDER_WIDTH
 
 
 class QDecorationDefault : public QDecoration
@@ -31,9 +31,8 @@ public:
     QDecorationDefault();
     virtual ~QDecorationDefault();
 
-    virtual QRegion region(const QWidget *widget, int decorationRegion);
-    virtual QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion); // ### Shouldn't be here!
-    virtual void paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
+    virtual QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion = All);
+    virtual bool paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
                        DecorationState state = Normal);
 
 protected:

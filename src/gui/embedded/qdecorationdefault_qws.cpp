@@ -315,16 +315,11 @@ int QDecorationDefault::getTitleHeight(const QWidget *)
     return 20;
 }
 
-QRegion QDecorationDefault::region(const QWidget *widget, int decorationRegion)
-{
-    QRect rect(widget->geometry());
-    return region(widget, rect, decorationRegion);
-}
-
 QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
     int titleHeight = getTitleHeight(widget);
     int bw = BORDER_WIDTH;
+    int bbw = BOTTOM_BORDER_WIDTH;
 
     QRegion region;
     switch (decorationRegion) {
@@ -337,7 +332,7 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
                     QRect r(rect.left() - bw,
                             rect.top() - titleHeight - bw,
                             rect.width() + 2 * bw,
-                            rect.height() + titleHeight + 2 * bw);
+                            rect.height() + titleHeight + bw + bbw);
                     region = r;
                 }
                 region -= rect;
@@ -492,15 +487,31 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
     return region;
 }
 
-void QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
                                DecorationState state)
 {
     if (decorationRegion == None)
-        return;
+        return false;
+
+    const QPalette pal = widget->palette();
+    int titleHeight = getTitleHeight(widget);
+    int titleWidth = getTitleWidth(widget);
 
     bool paintAll = (decorationRegion == All);
+    bool handled = false;
     if (paintAll || decorationRegion & Borders) {
-        qWarning("QDecorationDefault::paint(): Border - NYI!");
+        QRegion oldClip = painter->clipRegion();
+        painter->setClipRegion(oldClip - // reduce flicker
+                               QRect(titleHeight, -titleHeight,  titleWidth, titleHeight - 1));
+
+        QRect br = QDecoration::region(widget).boundingRect();
+        qDrawWinPanel(painter, br.x(), br.y(), br.width(),
+                    br.height(), pal, false,
+                    &pal.brush(QPalette::Background));
+
+        painter->setClipRegion(oldClip);
+
+        handled |= true;
     }
     if (paintAll || decorationRegion & Title) {
         qWarning("QDecorationDefault::paint(): Title - NYI!");
@@ -520,6 +531,7 @@ void QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     if (paintAll || decorationRegion & Close) {
         qWarning("QDecorationDefault::paint(): Close - NYI!");
     }
+    return handled;
 }
 
 #if 0

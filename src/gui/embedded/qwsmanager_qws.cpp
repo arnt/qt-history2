@@ -121,7 +121,7 @@ QWidget *QWSManager::grabbedMouse()
 
 QRegion QWSManager::region()
 {
-    return QApplication::qwsDecoration().region(d->managed);
+    return QApplication::qwsDecoration().region(d->managed, d->managed->geometry());
 }
 
 bool QWSManager::event(QEvent *e)
@@ -230,25 +230,49 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
+static inline Qt::CursorShape regionToShape(int region)
+{
+    if (region == QDecoration::None)
+        return Qt::ArrowCursor;
+
+    static struct {
+        int region;
+        Qt::CursorShape shape;
+    } r2s[] = {
+        { QDecoration::TopLeft,     Qt::SizeFDiagCursor },
+        { QDecoration::Top,         Qt::SizeVerCursor},
+        { QDecoration::TopRight,    Qt::SizeBDiagCursor},
+        { QDecoration::Left,        Qt::SizeHorCursor},
+        { QDecoration::Right,       Qt::SizeHorCursor},
+        { QDecoration::BottomLeft,  Qt::SizeBDiagCursor},
+        { QDecoration::Bottom,      Qt::SizeVerCursor},
+        { QDecoration::BottomRight, Qt::SizeFDiagCursor},
+        { QDecoration::Menu,        Qt::ArrowCursor},
+        { QDecoration::Title,       Qt::ArrowCursor},
+        { QDecoration::Help,        Qt::ArrowCursor},
+        { QDecoration::Minimize,    Qt::ArrowCursor},
+        { QDecoration::Maximize,    Qt::ArrowCursor},
+        { QDecoration::Close,       Qt::ArrowCursor},
+        { QDecoration::None,        Qt::ArrowCursor}
+    };
+
+    int i = 0;
+    while (region != r2s[i].region && r2s[i].region)
+        ++i;
+    return r2s[i].shape;
+}
+
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
 #ifndef QT_NO_CURSOR
-    static Qt::CursorShape shape[] = { Qt::ArrowCursor, Qt::ArrowCursor, Qt::ArrowCursor,
-                            Qt::SizeVerCursor, Qt::SizeVerCursor, Qt::SizeHorCursor,
-                            Qt::SizeHorCursor, Qt::SizeFDiagCursor, Qt::SizeBDiagCursor,
-                            Qt::SizeBDiagCursor, Qt::SizeFDiagCursor, Qt::ArrowCursor,
-                            Qt::ArrowCursor, Qt::ArrowCursor, Qt::ArrowCursor, Qt::ArrowCursor};
-
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    if (d->activeRegion == QDecoration::None)
-    {
-        if (!QWidget::mouseGrabber()) {
-            int r = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
-            qwsd->selectCursor(d->managed, shape[r]);
-        }
-    } else
-        qwsd->selectCursor(d->managed, shape[d->activeRegion]);
+
+    int reg = d->activeRegion;
+    if (d->activeRegion == QDecoration::None && !QWidget::mouseGrabber())
+        reg = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
+
+    qwsd->selectCursor(d->managed, regionToShape(reg));
 #endif //QT_NO_CURSOR
     // resize/move regions
 
@@ -395,15 +419,8 @@ void QWSManager::paintEvent(QPaintEvent *)
     }
     pe->setWidgetDeviceRegion(r);
 
-    painter.setClipRegion(dec.region(d->managed));
-    dec.paint(&painter, d->managed, QDecoration::Borders, QDecoration::Normal);
-//    dec.paint(&painter, d->managed);
-    painter.setClipRegion(dec.region(d->managed));
-//     dec.paintButton(&painter, d->managed, QDecoration::Help, d->menuBtn->state());
-//     dec.paintButton(&painter, d->managed, QDecoration::Menu, d->menuBtn->state());
-//     dec.paintButton(&painter, d->managed, QDecoration::Close, d->closeBtn->state());
-//     dec.paintButton(&painter, d->managed, QDecoration::Minimize, d->minimizeBtn->state());
-//     dec.paintButton(&painter, d->managed, QDecoration::Maximize, d->maximizeBtn->state());
+    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    dec.paint(&painter, d->managed);
     d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
@@ -548,7 +565,7 @@ void QWSManager::repaintButton(QWSButton *b)
     //### This isn't really inside a paint event
     //optimization instead of calling paintEvent()
     QPainter painter(d->managed);
-    painter.setClipRegion(dec.region(d->managed));
+    painter.setClipRegion(dec.region(d->managed, d->managed->geometry()));
 //    dec.paintButton(&painter, d->managed, b->type(), b->state());
     d->managed->clearWState(Qt::WState_InPaintEvent);
 }

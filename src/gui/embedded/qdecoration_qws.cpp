@@ -217,18 +217,28 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
     int regions[] = {
         TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight, // Borders first
         Menu, Title, Help, Minimize, Maximize, Close,                         // then buttons
-        None };
+        None
+    };
+
+//     char *regions_str[] = {
+//         "TopLeft", "Top", "TopRight", "Left", "Right", "BottomLeft", "Bottom", "BottomRight",
+//         "Menu", "Title", "Help", "Minimize", "Maximize", "Close",
+//         "None"
+//     };
 
     // First check to see if within all regions at all
-    QRegion reg = region(w, All);
-    if (!reg.contains(point))
+    QRegion reg = region(w, w->geometry(), All);
+    if (!reg.contains(point)) {
         return None;
+    }
 
     int i = 0;
     while (regions[i]) {
-        reg = region(w, regions[i]);
-        if (reg.contains(point))
+        reg = region(w, w->geometry(), regions[i]);
+        if (reg.contains(point)) {
+//            qDebug("In region %s", regions_str[i]);
             return regions[i];
+        }
         ++i;
     }
     return None;

@@ -15,6 +15,7 @@
 #define QDECORATION_QWS_H
 
 #include "qregion.h"
+#include "qwidget.h"
 
 class QPopupMenu;
 
@@ -56,14 +57,15 @@ public:
 
     enum DecorationState { Normal = 0x04, Disabled = 0x08, Hover = 0x01, Pressed = 0x02 };
 
-    virtual QRegion region(const QWidget *w, int decorationRegion = All ) = 0;
-    virtual QRegion region(const QWidget *w, const QRect &rect, int decorationRegion = All ) = 0; // #### Shouldn't be here!
+    virtual QRegion region(const QWidget *w, const QRect &rect, int decorationRegion = All ) = 0;
+    QRegion region(const QWidget *w, int decorationRegion = All )
+    { return region(w, w->rect(), decorationRegion); }
     virtual int regionAt(const QWidget *w, const QPoint &point);
     virtual void close(QWidget *w);
     virtual void minimize(QWidget *w);
     virtual void maximize(QWidget *w);
 
-    virtual void paint(QPainter *p, const QWidget *w, int decorationRegion = All,
+    virtual bool paint(QPainter *p, const QWidget *w, int decorationRegion = All,
                        DecorationState state = Normal) = 0;
 };
 
