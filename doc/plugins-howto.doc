@@ -7,6 +7,9 @@ Qt provides a simple plugin interface which makes it easy to create
 custom database drivers, image formats, text codecs, styles and
 widgets as stand-alone components.
 
+\warning Qt 3.1 will introduce changes into some aspects of plugins,
+in particular regarding path handling and library versions.
+
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
 
@@ -103,6 +106,13 @@ QSettings, for the application to read when it runs. The application
 can then call QApplication::addLibraryPath() with this path and your
 plugins will be available to the application. Note that the final part
 of the path, i.e. \c styles, \c widgets, etc. cannot be changed.
+
+The normal way to include a plugin with an application is either to 
+compile it in with the application, or to compile it into a \c DLL (or
+\c so or other platform specific library type) and use it like any
+other library. If you want the plugin to be loadable then one approach
+is to create a subdirectory under the application, e.g. \c
+appdir/plugins/designer, and place the plugin in that directory.
 
 \section1 Plugins and Threaded Applications
 
