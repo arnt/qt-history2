@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#5 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#6 $
 #
 # this is a massive hack, written very quickly
 #
@@ -98,12 +98,20 @@ sub processdocs {
 	    if ($doc =~ s/\s*\\returns?\s+(.*?)
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
 
-	$_ = "<p><strong>Arguments:</strong>\n<ul>\n";
-	$_ .= "<li>" . $1 . "\n" 
-	    while ($doc =~ s/\s*\\arg\s+(.*?)
-		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
-	$_ .= "</ul>\n";
-	$doc .= $_ if (/<li>/s);
+#	$_ = "<p><strong>Arguments:</strong>\n<ul>\n";
+#	$_ .= "<li>" . $1 . "\n" 
+#	    while ($doc =~ s/\s*\\arg\s+(.*?)
+#		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
+#	$_ .= "</ul>\n";
+#	$doc .= $_ if (/<li>/s);
+
+	if ($doc =~ /\n\\arg\s+/s) {
+	    $doc =~ s-\n\\arg\s+-
+		<p><strong>Arguments:</strong>\n<ul>\n\\arg -sx;
+	    $doc =~ s-\n\\arg\s+(.*?)(?=\n\s*\\arg\s+)-<li>$1-gs;
+	    $doc =~ s-\n\\arg\s+(.*?)
+		(?:(?:\n\s*?\n\s*)|(?:$ ))-<li>$1\n</ul>\n-sx;
+	}
 
 	$_ = "<strong>To do:</strong>\n<ul>\n";
 	$_ .= "<li>" . $1 . "\n" 
