@@ -295,10 +295,8 @@ const unsigned char * p_str(const char * c, int len=-1)
 
     if(len == -1)
 	len = qstrlen(c);
-    if(len > ret_len) {
-	delete ret;
-	ret = new unsigned char[ret_len = (len+2)];
-    }
+    if(len > ret_len)
+	ret = (unsigned char*)realloc( ret, ret_len = (len+2) );
     ret[0]=len;
     memcpy(((char *)ret)+1,c,len);
     ret[len+1] = '\0';
