@@ -1378,7 +1378,7 @@ void QTextEngine::addRequiredBoundaries() const
 
 bool QTextEngine::atWordSeparator(int position) const
 {
-    const QChar c = layoutData->string.at(position);;;;
+    const QChar c = layoutData->string.at(position);
     return c == '.'
         || c == ','
         || c == ':'
