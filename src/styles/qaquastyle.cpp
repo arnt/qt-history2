@@ -76,8 +76,8 @@ static const int aquaTabSpacing        = 12;   // space between text and tab
 static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
-static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 );
-static bool scrollbar_arrows_together = TRUE;
+static QColor highlightColor = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static bool scrollbar_arrows_together = FALSE; //whether scroll arrows go together
 
 class QAquaFocusWidget : public QWidget
 {
@@ -155,6 +155,7 @@ bool QAquaFocusWidget::eventFilter( QObject * o, QEvent * e )
     case QEvent::Resize: {
 	QResizeEvent *re = (QResizeEvent*)e;
 	resize( re->size().width() + 4, re->size().height() + 4 );
+	setMask( QRegion( rect() ) - QRegion( 5, 5, width() - 10, height() - 10 ) );  
 	break;
     }
     case QEvent::Reparent: {
@@ -1770,6 +1771,7 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) c
 #ifdef Q_WS_MAC
 void QAquaStyle::appearanceChanged()
 {
+    bool changed = FALSE;
     AquaMode m;
     {
 	Collection c=NewCollection();
@@ -1786,12 +1788,17 @@ void QAquaStyle::appearanceChanged()
 	} else {
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	}
+	if(m != aquaMode) {
+	    aquaMode = m;
+	    changed = TRUE;
+	}
 
 	RGBColor color;
 	s = sizeof(color);
 	if(!GetCollectionItem(c, kThemeHighlightColorTag, 0, &s, &color)) {
 	    QColor qc(color.red/256, color.green/256, color.blue/256);
 	    if(highlightColor != qc) {
+		changed = TRUE;
 		highlightColor = qc;
 		QPalette pal = qApp->palette();
 		pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
@@ -1803,14 +1810,19 @@ void QAquaStyle::appearanceChanged()
 
 	ThemeScrollBarArrowStyle arrows;
 	GetThemeScrollBarArrowStyle(&arrows);
-	scrollbar_arrows_together = (arrows == kThemeScrollBarArrowsSingle);
+	bool sat = (arrows == kThemeScrollBarArrowsLowerRight);
+	if(sat != scrollbar_arrows_together) {
+	    scrollbar_arrows_together = sat;
+	    changed = TRUE;
+	}
+
+	//cleanup
 	DisposeCollection(c);
     }
 #if 0
-    if(aquaMode != m && qApp && qApp->style().inherits("QAquaStyle"))
+    if(changed && qApp && qApp->style().inherits("QAquaStyle"))
 	qApp->setStyle(new QAquaStyle);
 #endif
-    aquaMode = m;
 }
 #endif
 
