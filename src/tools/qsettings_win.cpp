@@ -693,11 +693,19 @@ bool QSettings::removeEntry( const QString &key )
 
 QStringList QSettings::entryList( const QString &key ) const
 {
+#ifdef QT_CHECK_STATE
+    if ( key.isNull() || key.isEmpty() ) {
+	qWarning("QSettings::listSubkeys: invalid null/empty key.");
+
+	return QStringList();
+    }
+#endif // QT_CHECK_STATE
+
     QStringList result;
     
     HKEY handle = 0;
     for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
-	QString k = (*it).isEmpty() ? key : *it + "/" + key + "/fake";
+	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
 	handle = d->openKey( k, FALSE );
 	if ( handle )
 	    break;
@@ -768,8 +776,16 @@ QStringList QSettings::entryList( const QString &key ) const
 
 QStringList QSettings::subkeyList( const QString &key ) const
 {
+#ifdef QT_CHECK_STATE
+    if ( key.isNull() || key.isEmpty() ) {
+	qWarning( "QSettings::listSubkeys: invalid null/empty key." );
+
+	return QStringList();
+    }
+#endif // QT_CHECK_STATE
+
     QStringList result;
-    
+
     HKEY handle = 0;
     for ( QStringList::Iterator it = d->paths.fromLast(); it != d->paths.end(); --it ) {
 	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
