@@ -845,6 +845,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
 void QMainWindowLayout::addItem(QLayoutItem *item)
 {
+    Q_UNUSED(item);
     Q_ASSERT_X(item->layout(), "QMainWindowLayout::addItem", "internal error");
 }
 
@@ -1183,6 +1184,8 @@ int QMainWindowLayout::constrain(QDockWindowLayout *dock, int delta)
     int new_current = (pick(pos, info[pos].size)
                        + pick(pos, info[CENTER].size)
                        + pick(pos, info[order[pos]].size));
+    Q_UNUSED(current);
+    Q_UNUSED(new_current);
     Q_ASSERT(current == new_current);
 
     delta = info[pos].size == layout_info[pos].size ? 0 : 1;
