@@ -181,6 +181,7 @@ void QAssistantClient::openAssistant()
 {
     if ( proc->isRunning() )
 	return;
+    proc->clearArguments();
     proc->addArgument( assistantCommand );
     proc->addArgument( "-server" );
 
@@ -289,7 +290,7 @@ void QAssistantClient::readStdError()
 	errmsg += proc->readLineStderr();
 	errmsg += "\n";
     }
-    emit error( tr( errmsg ) );
+    emit error( tr( errmsg.simplifyWhiteSpace() ) );
 }
 
 /*!
