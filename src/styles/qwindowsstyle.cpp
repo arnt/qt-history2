@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#40 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#41 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1531,14 +1531,14 @@ void QWindowsStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 
     const QBrush *thefill = fill;
 #if defined(Q_WS_WIN)
-    if ( !thefill && on && !d->hotWidget && enabled &&
+    if ( !thefill && on && enabled &&
 	( qWinVersion() == WV_2000 ||
 	  qWinVersion() == WV_98 ||
 	  qWinVersion() == WV_XP ) )
 	thefill = &onfill;
 #else
     Q_UNUSED(enabled)
-    if ( !thefill && on && !d->hotWidget )
+    if ( !thefill && on )
 	thefill = &onfill;
 #endif
 
