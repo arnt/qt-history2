@@ -755,7 +755,6 @@ void QPainter::setClipping(bool enable)
     d->state->clipEnabled = enable;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyClip);
-    d->engine->updateState(d->state);
 }
 
 
@@ -815,13 +814,11 @@ void QPainter::setClipRegion(const QRegion &r)
         return;
     }
 
-    d->engine->updateState(d->state);
     d->state->clipRegion = r;
     d->state->clipRegionMatrix = d->state->matrix;
     d->state->clipEnabled = true;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyClip);
-    d->engine->updateState(d->state);
 }
 
 
@@ -890,7 +887,9 @@ void QPainter::setWindow(int x, int y, int w, int h)
     }
 
     // Must update clip before changing matrix.
-    d->engine->updateState(d->state);
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
+        d->engine->updateState(d->state);
 
     d->state->wx = x;
     d->state->wy = y;
@@ -946,7 +945,9 @@ void QPainter::setViewport(int x, int y, int w, int h)
     }
 
     // Must update clip before changing matrix.
-    d->engine->updateState(d->state);
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
+        d->engine->updateState(d->state);
 
     d->state->vx = x;
     d->state->vy = y;
@@ -987,7 +988,9 @@ void QPainter::setViewXForm(bool enable)
         return;
 
     // Must update clip before changing matrix.
-    d->engine->updateState(d->state);
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
+        d->engine->updateState(d->state);
 
     d->state->VxF = enable;
     updateXForm();
@@ -1050,7 +1053,8 @@ void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
     }
 
     // Must update clip before changing matrix.
-    if (d->state->clipEnabled)
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
         d->engine->updateState(d->state);
 
     if (combine)
@@ -1097,7 +1101,8 @@ void QPainter::setWorldXForm(bool enable)
         return;
 
     // Must update clip before changing matrix.
-    if (d->state->clipEnabled)
+    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
+        && d->engine->testDirty(QPaintEngine::DirtyClip))
         d->engine->updateState(d->state);
 
     d->state->WxF = enable;
