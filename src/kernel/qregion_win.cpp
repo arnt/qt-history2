@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#42 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -86,6 +86,112 @@ QRegion::QRegion( const QRegion &r )
     data = r.data;
     data->ref();
 }
+
+HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
+{
+    HRGN region=0;
+    QImage image = bitmap.convertToImage();
+    const int maxrect=256;
+    struct RData {
+	RGNDATAHEADER header;
+	RECT rect[maxrect];
+    };
+    RData data;
+
+#define FlushSpans \
+    { \
+		data.header.dwSize = sizeof(RGNDATAHEADER); \
+		data.header.iType = RDH_RECTANGLES; \
+		data.header.nCount = n; \
+		data.header.nRgnSize = 0; \
+		data.header.rcBound.bottom = y; \
+		HRGN r = ExtCreateRegion(0,sizeof(data),(RGNDATA*)&data); \
+		if ( region ) { \
+		    CombineRgn(region, region, r, RGN_OR); \
+		    DeleteObject( r ); \
+		} else { \
+		    region = r; \
+		} \
+		data.header.rcBound.top = y; \
+		n=0; \
+	}
+
+#define AddSpan \
+	{ \
+	    data.rect[n].left=prev1; \
+	    data.rect[n].top=y; \
+	    data.rect[n].right=x-1+1; \
+	    data.rect[n].bottom=y+1; \
+	    n++; \
+	    if ( n == maxrect ) { \
+		FlushSpans \
+	    } \
+	}
+
+    data.header.rcBound.top = 0;
+    data.header.rcBound.left = 0;
+    data.header.rcBound.right = image.width()-1;
+    int n=0;
+
+    // deal with 0<->1 problem (not on Windows anymore)
+    int zero=0x00; //(qGray(image.color(0)) < qGray(image.color(1))
+	    //? 0x00 : 0xff);
+
+    int x, y;
+    for (y=0; y<image.height(); y++) {
+	uchar *line = image.scanLine(y);
+	int w = image.width();
+	uchar all=zero;
+	int prev1 = -1;
+	for (x=0; x<w; ) {
+	    uchar byte = line[x/8];
+	    if ( x>w-8 || byte!=all ) {
+		for ( int b=8; b>0 && x<w; b-- ) {
+		    if ( !(byte&0x80) == !all ) {
+			// More of the same
+		    } else {
+			// A change.
+			if ( all!=zero ) {
+			    AddSpan;
+			    all = zero;
+			} else {
+			    prev1 = x;
+			    all = ~zero;
+			}
+		    }
+		    byte <<= 1;
+		    x++;
+		}
+	    } else {
+		x+=8;
+	    }
+	}
+	if ( all != zero ) {
+	    AddSpan;
+	}
+    }
+    if ( n ) {
+	FlushSpans;
+    }
+
+    if ( !region ) {
+	// Surely there is some better way.
+	region = CreateRectRgn(0,0,1,1);
+	CombineRgn(region, region, region, RGN_XOR);
+    }
+
+    return region;
+}
+
+
+QRegion::QRegion( const QBitmap & bm )
+{
+    data = new QRegionData;
+    CHECK_PTR( data );
+    data->is_null = FALSE;
+    data->rgn = qt_win_bitmapToRegion(bm);
+}
+
 
 QRegion::~QRegion()
 {

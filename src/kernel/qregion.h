@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#47 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#48 $
 **
 ** Definition of QRegion class
 **
@@ -43,6 +43,7 @@ public:
     QRegion( const QRect &, RegionType = Rectangle );
     QRegion( const QPointArray &, bool winding=FALSE );
     QRegion( const QRegion & );
+    QRegion( const QBitmap & );
    ~QRegion();
     QRegion &operator=( const QRegion & );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#45 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -26,6 +26,8 @@
 #include "qregion.h"
 #include "qpointarray.h"
 #include "qbuffer.h"
+#include "qimage.h"
+#include "qbitmap.h"
 #include "qt_x11.h"
 
 
@@ -125,6 +127,73 @@ QRegion::QRegion( const QRegion &r )
     data->ref();
 }
 
+Region qt_x11_bitmapToRegion(const QBitmap& bitmap)
+{
+    Region region = XCreateRegion();
+    QImage image = bitmap.convertToImage();
+
+    XRectangle xr;
+
+#define AddSpan \
+	{ \
+	    xr.x = prev1; \
+	    xr.y = y; \
+	    xr.width = x-prev1-1; \
+	    xr.height = 1; \
+	    XUnionRectWithRegion( &xr, region, region ); \
+	}
+
+    // deal with 0<->1 problem
+    int zero=0;//(qGray(image.color(0)) < qGray(image.color(1))
+	    //? 0x00 : 0xff);
+
+    int x, y;
+    for (y=0; y<image.height(); y++) {
+	uchar *line = image.scanLine(y);
+	int w = image.width();
+	uchar all=zero;
+	int prev1 = -1;
+	for (x=0; x<w; ) {
+	    uchar byte = line[x/8];
+	    if ( x>w-8 || byte!=all ) {
+		for ( int b=8; b>0 && x<w; b-- ) {
+		    if ( !(byte&0x80) == !all ) {
+			// More of the same
+		    } else {
+			// A change.
+			if ( all!=zero ) {
+			    AddSpan;
+			    all = zero;
+			} else {
+			    prev1 = x;
+			    all = ~zero;
+			}
+		    }
+		    byte <<= 1;
+		    x++;
+		}
+	    } else {
+		x+=8;
+	    }
+	}
+	if ( all != zero ) {
+	    AddSpan;
+	}
+    }
+
+    return region;
+}
+
+
+/*!
+  Constructs a region from a bitmap.
+
+  The pixels in \a bm that are color1 will be part of the
+  region as if each was a 1 by 1 rectangle.
+*/
+QRegion::QRegion( const QBitmap & bm )
+{
+}
 
 /*!
   Destroys the region.
