@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#15 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#15 $");
 
 
 /*!
@@ -191,7 +191,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	for ( i=0; i<lineWidth; i++ ) {		// draw top shadow
 	    p->drawLine( x1+j, y2-j, x1+j, y1+j );
 	    p->drawLine( x1+j, y1+j, x2-j, y1+j );
-	    p->drawLine( x1+t, y2-k, x2-k, y2-k );
+	    p->drawLine( x1+t/*k*/, y2-k, x2-k, y2-k );
 	    p->drawLine( x2-k, y2-k, x2-k, y1+k );
 	    j++;
 	    k++;
@@ -211,7 +211,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
 	    p->drawLine( x1+1+j,y2-j, x2-j, y2-j );
 	    p->drawLine( x2-j,	y2-j, x2-j, y1+j+1 );
-	    p->drawLine( x1+k,	y2-m, x1+k, y1+k );
+	    p->drawLine( x1+k,	y2-m/*k*/, x1+k, y1+k );
 	    p->drawLine( x1+k,	y1+k, x2-k, y1+k );
 	    j++;
 	    k++;
@@ -477,6 +477,39 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
     }
     p->setPen( oldPen );
     p->setBrush( oldBrush );
+}
+
+
+QRect qItemRect( QPainter *p, GUIStyle gs,
+		int x, int y, int w, int h,
+		int flags, 
+		bool enabled,
+		const QPixmap *pixmap,
+		const char *text, int len )
+{
+    QRect result;
+
+    if ( pixmap ) {
+	if ( (flags & AlignVCenter) == AlignVCenter )
+	    y += h/2 - pixmap->height()/2;
+	else if ( (flags & AlignBottom) == AlignBottom)
+	    y += h - pixmap->height();
+	if ( (flags & AlignRight) == AlignRight )
+	    x += w - pixmap->width();
+	else if ( (flags & AlignHCenter) == AlignHCenter )
+	    x += w/2 - pixmap->width()/2;
+	result = QRect(x, y, pixmap->width(), pixmap->height());
+    } else if ( text && p ) {
+	result = p->boundingRect( x, y, w, h, flags, text, len );
+	if ( gs == WindowsStyle && !enabled ) {
+	    result.setWidth(result.width()+1);
+	    result.setHeight(result.height()+1);
+	}
+    } else {
+	result = QRect(x, y, w, h);
+    }
+
+    return result;
 }
 
 
