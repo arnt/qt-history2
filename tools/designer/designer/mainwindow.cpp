@@ -617,7 +617,7 @@ QObjectList *MainWindow::runProject( bool execMain )
 		continue;
 	    FormWindow* fw = f->formWindow();
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
-	    if ( !bps.isEmpty() )
+	    if ( !bps.isEmpty() && isVisible() )
 		iiface->setBreakPoints( fw, bps );
 	}
 
@@ -625,7 +625,7 @@ QObjectList *MainWindow::runProject( bool execMain )
 	      sources.current(); ++sources ) {
 	    SourceFile* f = sources.current();
 	    QValueList<int> bps = MetaDataBase::breakPoints( f );
-	    if ( !bps.isEmpty() )
+	    if ( !bps.isEmpty() && isVisible() )
 		iiface->setBreakPoints( f, bps );
 	}
 
@@ -660,7 +660,7 @@ QObjectList *MainWindow::runProject( bool execMain )
 	    if ( !fw )
 		continue;
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
-	    if ( !bps.isEmpty() )
+	    if ( !bps.isEmpty() && isVisible() )
 		iiface->setBreakPoints( o, bps );
 	}
 
