@@ -121,9 +121,7 @@ public:
     void setFormat( QTextFormat *f );
     void setCustomItem( QTextCustomItem *i );
     QTextStringChar *clone() const;
-	
-private:
-    struct CustomData
+	    struct CustomData
     {
 	QTextFormat *format;
 	QTextCustomItem *custom;
@@ -148,11 +146,6 @@ private:
 	QChar ligature;
 	unsigned short nchars; // length of the ligature in decomposed form
     };
-	
-    QTextStringChar &operator=( const QTextStringChar & ) {
-	//abort();
-	return *this;
-    }
 
     union {
 	QTextFormat* format;
@@ -161,6 +154,12 @@ private:
 	ShapedData *shaped;
 	LigatureData *ligature;
     } d;
+
+private:	
+    QTextStringChar &operator=( const QTextStringChar & ) {
+	//abort();
+	return *this;
+    }
     friend class QComplexText;
     friend class QTextParag;
 };
