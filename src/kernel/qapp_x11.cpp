@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#141 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -16,7 +16,13 @@
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
+#if defined(_OS_WIN32_)
+#define HANDLE dummy
+#include <winsock.h>
+#undef	HANDLE
+#else
 #define gettimeofday	__hide_gettimeofday
+#endif
 #include <stdlib.h>
 #include <signal.h>
 #include <ctype.h>
@@ -39,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#140 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#141 $")
 
 
 /*****************************************************************************
@@ -67,9 +73,9 @@ static bool	app_save_rootinfo = FALSE;	// save root info
 static bool	app_do_modal	= FALSE;	// modal mode
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 static int	app_Xfd;			// X network socket
-static fd_set   app_readfds;			// fd set for reading
-static fd_set   app_writefds;			// fd set for writing
-static fd_set   app_exceptfds;			// fd set for exceptions
+static fd_set	app_readfds;			// fd set for reading
+static fd_set	app_writefds;			// fd set for writing
+static fd_set	app_exceptfds;			// fd set for exceptions
 
 static GC	app_gc_ro	= 0;		// read-only GC
 static GC	app_gc_tmp	= 0;		// temporary GC
@@ -86,7 +92,7 @@ static short	mouseXPos, mouseYPos;		// mouse position in act window
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets = 0;		// list of popup widgets
-static bool 	    popupCloseDownMode = FALSE;
+static bool	    popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
 typedef declare(QListM,void) QVFuncList;
@@ -123,7 +129,7 @@ public:
 
 #if defined(_OS_SUN_) || defined(_OS_HPUX_) || defined(_OS_LINUX_) ||  \
     defined(_OS_SOLARIS_) || defined(_OS_SCO_) || defined(_OS_OSF_) || \
-    defined(_OS_ULTRIX_)
+    defined(_OS_ULTRIX_) || defined(_OS_WIN32_)
 typedef void (*SIG_HANDLER)(int);
 #elif defined(_OS_IRIX_)
 // tested on irix 5.2
@@ -144,7 +150,9 @@ void qt_init( int *argcptr, char **argv )
 
   // Install default traps
 
+#if !defined(_OS_WIN32_)
     signal( SIGQUIT, (SIG_HANDLER)trapSignals );
+#endif
     signal( SIGINT, (SIG_HANDLER)trapSignals );
     XSetIOErrorHandler( trapIOErrors );
 
@@ -520,7 +528,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	if ( mwTitle )
 	    XStoreName( appDpy, main_widget->id(), mwTitle );
 	if ( mwGeometry ) {			// parse geometry
-	    int	x, y;
+	    int x, y;
 	    int w, h;
 	    int m = XParseGeometry( mwGeometry, &x, &y, (uint*)&w, (uint*)&h );
 	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
@@ -603,7 +611,7 @@ static QCursorList *cursorStack = 0;
   This cursor will be displayed in all application widgets until
   restoreCursor() or another setCursor() is called.
 
-  Application cursors are stored on an internal stack.  setCursor() pushes
+  Application cursors are stored on an internal stack.	setCursor() pushes
   the cursor onto the stack, and restoreCursor() pops the active cursor off
   the stack.  Every setCursor() must have an corresponding restoreCursor(),
   otherwise the stack will get out of sync.
@@ -642,10 +650,10 @@ void QApplication::setCursor( const QCursor &cursor )
   Restores the effect of setCursor().
 
   If setCursor() has been called twice, calling restoreCursor() will activate
-  the first cursor set.  Calling restoreCursor() a second time will give
+  the first cursor set.	 Calling restoreCursor() a second time will give
   the widgets their old cursors back.
 
-  Application cursors are stored on an internal stack.  setCursor() pushes
+  Application cursors are stored on an internal stack.	setCursor() pushes
   the cursor onto the stack, and restoreCursor() pops the active cursor
   off the stack.  Every setCursor() must have an corresponding
   restoreCursor(), otherwise the stack will get out of sync.  cursor()
@@ -666,7 +674,7 @@ void QApplication::restoreCursor()
 	if ( w->testWFlags(WCursorSet) )
 	    XDefineCursor( w->x11Display(), w->id(),
 			   app_cursor ? app_cursor->handle()
-			   	      : w->cursor().handle() );
+				      : w->cursor().handle() );
 	++it;
     }
     XFlush( appDpy );
@@ -955,21 +963,21 @@ typedef declare(QListM,QSockNot)	 QSNList;
 typedef declare(QListIteratorM,QSockNot) QSNListIt;
 
 static int	sn_highest = -1;
-static QSNList *sn_read   = 0;
+static QSNList *sn_read	  = 0;
 static QSNList *sn_write  = 0;
 static QSNList *sn_except = 0;
 
-static fd_set   sn_readfds;			// fd set for reading
-static fd_set   sn_writefds;			// fd set for writing
-static fd_set   sn_exceptfds;			// fd set for exceptions
+static fd_set	sn_readfds;			// fd set for reading
+static fd_set	sn_writefds;			// fd set for writing
+static fd_set	sn_exceptfds;			// fd set for exceptions
 
 static struct SN_Type {
     QSNList **list;
     fd_set   *fdspec;
     fd_set   *fdres;
 } sn_vec[3] = {
-    { &sn_read,   &sn_readfds,	 &app_readfds },
-    { &sn_write,  &sn_writefds,  &app_writefds },
+    { &sn_read,	  &sn_readfds,	 &app_readfds },
+    { &sn_write,  &sn_writefds,	 &app_writefds },
     { &sn_except, &sn_exceptfds, &app_exceptfds } };
 
 
@@ -997,7 +1005,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	sn = new QSockNot;
 	CHECK_PTR( sn );
 	sn->obj = obj;
-	sn->fd  = sockfd;
+	sn->fd	= sockfd;
 	if ( list->isEmpty() )
 	    list->insert( 0, sn );
 	else {					// sort list by fd, decreasing
@@ -1006,7 +1014,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 		p = list->next();
 #if defined(DEBUG)
 	    if ( p && p->fd == sockfd ) {
-	        static const char *t[] = { "read", "write", "exception" };
+		static const char *t[] = { "read", "write", "exception" };
 		warning( "QSocketNotifier: Multiple socket notifiers for "
 			 "same socket %d and type %s", sockfd, t[type] );
 	    }
@@ -1058,7 +1066,7 @@ static void sn_cleanup()
 // If a constant order is used and a peer early in the list can
 // saturate the IO, it might grab our attention completely.
 // Also, if we're using a straight list, the callback routines may
-// delete other entries from the list before those other entries are 
+// delete other entries from the list before those other entries are
 // processed.
 //
 
@@ -1165,7 +1173,7 @@ int QApplication::enter_loop()
 	    if ( !widget )			// don't know this window
 		continue;
 
-	    if ( widget->x11Event(&event) )     // send trough widget filter
+	    if ( widget->x11Event(&event) )	// send trough widget filter
 		continue;
 
 	    if ( app_do_modal )			// modal event handling
@@ -1282,7 +1290,7 @@ int QApplication::enter_loop()
 			a->y += a2.border_width;
 			widget->frect = QRect(QPoint(r->left() - a->x,
 						     r->top()  - a->y),
-					      QPoint(r->right()  + a->x,
+					      QPoint(r->right()	 + a->x,
 						     r->bottom() + a->x) );
 		    }
 		    break;
@@ -1318,11 +1326,11 @@ int QApplication::enter_loop()
 #else
 #define FDCAST
 #endif
-	
+
 	int nsel;
 	nsel = select( QMAX(app_Xfd,sn_highest)+1,
 		       FDCAST (&app_readfds),
-		       FDCAST (sn_write  ? &app_writefds  : 0),
+		       FDCAST (sn_write	 ? &app_writefds  : 0),
 		       FDCAST (sn_except ? &app_exceptfds : 0),
 		       tm );
 #undef FDCAST
@@ -1385,16 +1393,16 @@ bool QApplication::x11EventFilter( XEvent * )
   modal widget mechanism.
   A modal widget without a parent becomes application-modal.
   A modal widget with a parent becomes modal to its parent and grandparents..
- 
+
   qt_enter_modal()
- 	Enters modal state and returns when the widget is hidden/closed
- 	Arguments:
- 	    QWidget *widget	A modal widget
- 
+	Enters modal state and returns when the widget is hidden/closed
+	Arguments:
+	    QWidget *widget	A modal widget
+
   qt_leave_modal()
- 	Leaves modal state for a widget
- 	Arguments:
- 	    QWidget *widget	A modal widget
+	Leaves modal state for a widget
+	Arguments:
+	    QWidget *widget	A modal widget
  *****************************************************************************/
 
 bool qt_modal_state()				// application in modal state?
@@ -1468,16 +1476,16 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 
 /*****************************************************************************
   Popup widget mechanism
- 
+
   qt_open_popup()
- 	Adds a widget to the list of popup widgets
- 	Arguments:
- 	    QWidget *widget	The popup widget to be added
- 
+	Adds a widget to the list of popup widgets
+	Arguments:
+	    QWidget *widget	The popup widget to be added
+
   qt_close_popup()
- 	Removes a widget from the list of popup widgets
- 	Arguments:
- 	    QWidget *widget	The popup widget to be removed
+	Removes a widget from the list of popup widgets
+	Arguments:
+	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
 void qt_open_popup( QWidget *popup )		// add popup widget
@@ -1526,33 +1534,33 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 /*****************************************************************************
   Timer handling; Xlib has no application timer support so we'll have to
   make our own from scratch.
- 
+
   NOTE: These functions are for internal use. QObject::startTimer() and
- 	 QObject::killTimer() are for public use.
- 	 The QTimer class provides a high-level interface which translates
- 	 timer events into signals.
- 
+	 QObject::killTimer() are for public use.
+	 The QTimer class provides a high-level interface which translates
+	 timer events into signals.
+
   qStartTimer( interval, obj )
- 	Starts a timer which will run until it is killed with qKillTimer()
- 	Arguments:
- 	    long interval	timer interval in milliseconds
- 	    QObject *obj	where to send the timer event
- 	Returns:
- 	    int			timer identifier, or zero if not successful
- 
+	Starts a timer which will run until it is killed with qKillTimer()
+	Arguments:
+	    long interval	timer interval in milliseconds
+	    QObject *obj	where to send the timer event
+	Returns:
+	    int			timer identifier, or zero if not successful
+
   qKillTimer( timerId )
- 	Stops a timer specified by a timer identifier.
- 	Arguments:
- 	    int timerId		timer identifier
- 	Returns:
- 	    bool		TRUE if successful
- 
+	Stops a timer specified by a timer identifier.
+	Arguments:
+	    int timerId		timer identifier
+	Returns:
+	    bool		TRUE if successful
+
   qKillTimer( obj )
- 	Stops all timers that are sent to the specified object.
- 	Arguments:
- 	    QObject *obj	object receiving timer events
- 	Returns:
- 	    bool		TRUE if successful
+	Stops all timers that are sent to the specified object.
+	Arguments:
+	    QObject *obj	object receiving timer events
+	Returns:
+	    bool		TRUE if successful
  *****************************************************************************/
 
 //
@@ -2128,7 +2136,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.window = id();
     info.w	= width();
     info.h	= height();
-    info.check  = testWFlags(WType_Overlap);
+    info.check	= testWFlags(WType_Overlap);
     info.config = 0;
 
     while ( TRUE ) {
