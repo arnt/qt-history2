@@ -369,6 +369,8 @@
     in the list. If compareItems() is not reimplemented, it is more
     efficient to call removeRef().
 
+    If \a item is NULL then the current item is removed from the list.
+
     The item after the removed item becomes the new current list item
     if the removed item is not the last item in the list. If the last
     item is removed, the new last item becomes the current item. The
