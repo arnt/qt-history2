@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#150 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#151 $
 **
 ** Implementation of QFileDialog class
 **
@@ -44,12 +44,14 @@
 #include <time.h>
 #include <ctype.h>
 
+#if defined(UNIX)
 // getlogin()
-#include <unistd.h> 
+#include <unistd.h>
 
 // getpwnam()
 #include <sys/types.h>
 #include <pwd.h>
+#endif
 
 // see comment near use of this variable
 static const char * egcsWorkaround = "%x  %X";
@@ -1107,6 +1109,7 @@ void QFileDialog::setDir( const QString & pathstr )
 {
     QString d = pathstr;
 
+#if defined(UNIX)
     if ( d.length() && d[0] == '~' ) {
 	struct passwd *pw;
 	int i;
@@ -1121,6 +1124,7 @@ void QFileDialog::setDir( const QString & pathstr )
 	if ( pw )
 	    d.prepend( pw->pw_dir );
     }
+#endif
 
     QDir tmp( d );
     tmp.setFilter( cwd.filter() );
