@@ -892,17 +892,6 @@ bool QSqlQuery::prepare( const QString& query )
 #ifdef QT_DEBUG_SQL
     qDebug( "\n QSqlQuery: " + query );
 #endif
-    /*
-    int i = 0;
-	while ( (i = rx.search( q, i )) != -1 ) {
-	    if ( !rx.cap(1).isEmpty() )
-		d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
-	    i += rx.matchedLength();
-	}
-	return TRUE; // fake prepares should always succeed
-    }
-*/
-
     return d->sqlResult->savePrepare( query );
 }
 

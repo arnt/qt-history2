@@ -415,31 +415,30 @@ void QSqlResult::setForwardOnly( bool forward )
 
 bool QSqlResult::savePrepare( const QString& query )
 {
-    d->sql = query;
     if ( !driver() )
 	return FALSE;
+    d->clear();
+    d->sql = query;
     if ( !driver()->hasFeature( QSqlDriver::PreparedQueries ) )
-	return TRUE;
+	return prepare( query );
 
     if ( driver()->hasFeature( QSqlDriver::NamedPlaceholders ) )
 	d->positionalToNamedBinding();
     else
 	d->namedToPositionalBinding();
-    return TRUE;
+    return prepare( d->executedQuery );
 }
 
 bool QSqlResult::prepare( const QString& query )
 {
-    /*
-	int i = 0;
-	while ( (i = rx.search( q, i )) != -1 ) {
-	    if ( !rx.cap(1).isEmpty() )
-		d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
-	    i += rx.matchedLength();
-	}
-	return TRUE; // fake prepares should always succeed
-    */
-
+    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");    
+    int i = 0;
+    while ( (i = rx.search( query, i )) != -1 ) {
+	if ( !rx.cap(1).isEmpty() )
+	    d->holders.append( Holder( rx.cap(0), i ) );
+	i += rx.matchedLength();
+    }
+    d->sql = query;
     return TRUE; // fake prepares should always succeed
 }
 
