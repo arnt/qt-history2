@@ -597,15 +597,13 @@ static char *parseNsswitchPrintersEntry(QList<QPrinterDescription> *printers, ch
                 char status = tolower(line[k]);
                 char action = '?';
 
-                while (line[k] != '=' && line[k] != ']' &&
-                        line[k] != '\0')
+                while (line[k] != '=' && line[k] != ']' && line[k] != '\0')
                     k++;
                 if (line[k] == '=') {
                     k++;
                     skipSpaces();
                     action = tolower(line[k]);
-                    while (!isspace((uchar) line[k]) &&
-                            line[k] != ']')
+                    while (line[k] != '\0' && !isspace((uchar) line[k]) && line[k] != ']')
                         k++;
                 } else if (line[k] == ']') {
                     k++;
