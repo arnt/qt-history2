@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#14 $
 **
 ** Implementation of QImage class
 **
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#14 $";
 #endif
 
 
@@ -856,8 +856,10 @@ QImage::~QImage()
 
 QImage &QImage::operator=( const QPixMap &pixmap )
 {
-    if ( data->deref() )
+    if ( data->deref() ) {
+	delete data->pm;
 	delete data;
+    }
     data = new QImagePix;
     CHECK_PTR( data );
     data->pm = (QPixMap*)&pixmap;
@@ -867,8 +869,10 @@ QImage &QImage::operator=( const QPixMap &pixmap )
 QImage &QImage::operator=( const QImage &image )
 {
     image.data->ref();
-    if ( data->deref() )
+    if ( data->deref() ) {
+	delete data->pm;
 	delete data;
+    }
     data = image.data;
     return *this;
 }
