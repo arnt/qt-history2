@@ -1131,12 +1131,6 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 	    count++;
 	    if (count==expectcount) {
 		int loop = hold[0]+hold[1]*256;
-
-		// Why if the extension here, if it is supposed to only
-		// play through once?  We assume that the creator meant
-		// 0, which is infinite.
-		if (loop == 1) loop = 0;
-
 		if (consumer) consumer->setLooping(loop);
 		state=SkipBlockSize; // Ignore further blocks
 	    }
