@@ -148,7 +148,7 @@ QStyleOption::~QStyleOption()
 }
 
 /*!
-    Intializes the \l state, \l rect, and \l palette member variables
+    Initializes the \l state, \l rect, and \l palette member variables
     based on \a widget.
 
     This function is provided only for convenience. You can also
