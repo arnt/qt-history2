@@ -635,14 +635,17 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 {
     if ( e->state() & Qt::LeftButton ) {
 	if ( ( e->pos() - mousePressPos ).manhattanLength() > 3 ) {
+	    bool itemCreated = FALSE;
 	    draggedItem = item( findItem( mousePressPos ) );
 	    if ( draggedItem == &addItem ) {
-		draggedItem = createItem();		
+		draggedItem = createItem();
+		itemCreated = TRUE;
 	    } else if ( draggedItem == &addSeparator && !hasSeparator ) {
 		draggedItem = createItem();		
 		draggedItem->setSeparator( TRUE );
 		draggedItem->setMenuText( "separator" );
 		hasSeparator = TRUE;
+		itemCreated = TRUE;
 	    }
 	    MenuBarEditorItemPtrDrag * d =
 		new MenuBarEditorItemPtrDrag( draggedItem, this );
@@ -656,11 +659,15 @@ void MenuBarEditor::mouseMoveEvent( QMouseEvent * e )
 	    itemList.find( draggedItem );
 	    QLNode * node = itemList.currentNode();	    
 	    d->dragCopy(); // dragevents and stuff happens
-	    if ( draggedItem ) { // item was not dropped		
-		hideItem();
-		draggedItem->setVisible( TRUE );
-		draggedItem = 0;
-		showItem();
+	    if ( draggedItem ) { // item was not dropped
+		if ( itemCreated ) {
+		    removeItem( draggedItem );
+		} else {
+		    hideItem();
+		    draggedItem->setVisible( TRUE );
+		    draggedItem = 0;
+		    showItem();
+		}
 	    } else { // item was dropped
 		hideItem();
 		itemList.takeNode( node )->setVisible( TRUE );		
