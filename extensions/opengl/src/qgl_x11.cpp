@@ -569,13 +569,6 @@ QColor QGLContext::overlayTransparentColor() const
 }
 
 
-/*!
-  \internal
-
-  Finds a colormap index for the color c, in ColorIndex mode. Used by
-  qglColor() and qglClearColor().
-*/
-
 uint QGLContext::colorIndex( const QColor& c ) const
 {
     if ( isValid() ) {

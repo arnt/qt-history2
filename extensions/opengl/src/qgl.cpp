@@ -823,6 +823,15 @@ void QGLContext::setFormat( const QGLFormat &format )
 */
 
 /*!
+  \fn uint QGLContext::colorIndex( const QColor& c ) const
+  \internal
+
+  Finds a colormap index for the color c, in ColorIndex mode. Used by
+  qglColor() and qglClearColor().
+*/
+
+
+/*!
   \fn bool QGLContext::initialized() const
 
   Returns TRUE if this context has been initialized, i.e. if
