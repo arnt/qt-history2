@@ -5,6 +5,6 @@ FORMS	= mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui c
 TEMPLATE	=app
 CONFIG	+= qt warn_off release
 INCLUDEPATH	+= ../../container
-LIBS	+= $(QTDIR)/lib/qactivex.lib
+LIBS	+= $(QTDIR)/lib/qaxwidget.lib
 DBFILE	= testcon.db
 LANGUAGE	= C++

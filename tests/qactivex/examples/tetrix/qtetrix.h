@@ -44,13 +44,18 @@ private:
 class QTetrix : public QWidget, public QActiveQt
 {
     Q_OBJECT
+    Q_PROPERTY( int score READ score WRITE setScore )
 public:
     QTetrix( QWidget *parent=0, const char *name=0 );
-    void startGame() { board->startGame(); }
+    
+    int score() const { return showScore->intValue(); }
 
 public slots:
+    void startGame() { board->startGame(); }
     void gameOver();
     void quit();
+    void setScore( int score ) { showScore->display( score ); }
+
 private:
     void keyPressEvent( QKeyEvent *e ) { board->keyPressEvent(e); }
 

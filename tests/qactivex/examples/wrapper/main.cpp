@@ -110,14 +110,7 @@ int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
 
-    bool isActiveX = FALSE;
-    for ( int arg = 0; arg < argc; ++arg ) {
-	if ( !qstrcmp(argv[arg], "-activex") ) {
-	    isActiveX = TRUE;
-	    break;
-	}
-    }
-    if ( !isActiveX ) {
+    if ( !QActiveQt::isServer() ) {
 	QMessageBox::critical( 0, "Cannot Run stand alone!", "This executable is a server for ActiveX controls.\nIt cannot be run stand alone." );
 	return -1;
     }

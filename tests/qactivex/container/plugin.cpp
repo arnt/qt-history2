@@ -33,7 +33,7 @@
 #include <actioninterface.h>
 #include <designerinterface.h>
 
-#include "qactivex.h"
+#include "qaxwidget.h"
 #include "qactivexselect.h"
 
 /* XPM */
@@ -121,7 +121,7 @@ QStringList QActiveXPlugin::featureList() const
 {
     QStringList list;
 
-    list << "QActiveX";
+    list << "QAxWidget";
 
     return list;
 }
@@ -147,11 +147,11 @@ QWidget* QActiveXPlugin::create( const QString &key, QWidget* parent, const char
 {
     QWidget* w = 0;
 
-    if ( key == "QActiveX" ) {
-	w = new QActiveX( parent, name );
+    if ( key == "QAxWidget" ) {
+	w = new QAxWidget( parent, name );
 	if ( designer ) {
 	    QActiveXSelect *dialog = new QActiveXSelect( parent->topLevelWidget() );
-	    dialog->setActiveX( (QActiveX*)w );
+	    dialog->setActiveX( (QAxWidget*)w );
 	    dialog->setDesigner( designer );
 	    QTimer::singleShot( 100, dialog, SLOT(openLater()) );
 	}
@@ -162,35 +162,35 @@ QWidget* QActiveXPlugin::create( const QString &key, QWidget* parent, const char
 
 QString QActiveXPlugin::group( const QString& key ) const
 {
-    if ( key == "QActiveX" )
-	return "Views";
+    if ( key == "QAxWidget" )
+	return "Containers";
     return QString::null;
 }
 
 QIconSet QActiveXPlugin::iconSet( const QString &key ) const
 {
-    if ( key == "QActiveX" )
+    if ( key == "QAxWidget" )
 	return QIconSet( icon );
     return QIconSet();
 }
 
 QString QActiveXPlugin::includeFile( const QString& key ) const
 {
-    if ( key == "QActiveX" )
-        return "qactivex.h";
+    if ( key == "QAxWidget" )
+        return "qaxwidget.h";
     return QString::null;
 }
 
 QString QActiveXPlugin::toolTip( const QString& key ) const
 {
-    if ( key == "QActiveX" )
+    if ( key == "QAxWidget" )
 	return QT_TR_NOOP("ActiveX control");
     return QString::null;
 }
 
 QString QActiveXPlugin::whatsThis( const QString& key ) const
 {
-    if ( key == "QActiveX" )
+    if ( key == "QAxWidget" )
 	return "ActiveX control widget";
     return QString::null;
 }

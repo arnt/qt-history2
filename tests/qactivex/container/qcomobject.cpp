@@ -31,6 +31,8 @@
 #include <qdict.h>
 #include <qptrdict.h>
 #include <qsettings.h>
+#include <qmetaobject.h>
+
 #include <ctype.h>
 
 #include <atlbase.h>
@@ -65,6 +67,8 @@ static QMetaObject *tempMetaObj = 0;
 #define PropStored	0x00004000
 #define PropBindable	0x00008000
 #define PropRequesting	0x00010000
+
+
 
 #include "../shared/types.h"
 
@@ -823,11 +827,12 @@ QMetaObject *QComBase::metaObject() const
 			QString ptype;
 			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			ptype = typedescToQString( tdesc );
+			if ( ptype == "USERDEFINED" && function.endsWith( "Color" ) ) {
+			    ptype = "QColor";
+			} else if ( ptype == "USERDEFINED*" && function.endsWith( "Font" ) ) {
+			    ptype = "QFont";
+			}
 			unsupported = unsupported || UNSUPPORTED(ptype)
-#if 0 // fallback disabled
-			tdesc = funcdesc->lprgelemdescParam[p - 1].tdesc;
-			ptype = typedescToQString( tdesc );
-#endif
 			if ( funcdesc->invkind == INVOKE_FUNC )
 			    ptype = constRefify( ptype );
 
@@ -1610,6 +1615,16 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
     // get return value
     if ( pret )
 	VARIANTToQUObject( ret, _o );
+
+    // update out parameters
+    for ( p = 0; p < slotcount; ++p ) {
+	if ( slot->parameters && slot->parameters[p+1].inOut & QUParameter::Out ) {
+	    QUObject *obj = _o + p+1;
+	    arg = params.rgvarg[ slotcount - p-1 ];
+	    VARIANTToQUObject( arg, obj );
+	}
+    }
+
     // clean up
     for ( p = 0; p < slotcount; ++p ) {
 	if ( params.rgvarg[p].vt == VT_BSTR )
@@ -1646,12 +1661,14 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 	    return FALSE;
 
 	//  get the Dispatch ID of the function to be called
+	QString pname( prop->n );
+
 	DISPID dispid;
 	OLECHAR *names = (TCHAR*)qt_winTchar(prop->n, TRUE );
 	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
-	
+
 	switch ( _f ) {
 	case 0: // Set
 	    {
@@ -1682,8 +1699,17 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 
 		UINT argerr = 0;
 		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, 0, &argerr );
-		if ( arg.vt == VT_BSTR )
+		switch ( arg.vt )
+		{
+		case VT_BSTR:
 		    SysFreeString( arg.bstrVal );
+		    break;
+		case VT_DISPATCH:
+		    if ( arg.pdispVal && _v->type() == QVariant::Font )
+			arg.pdispVal->Release();
+		    break;
+		}
+		
 		return checkHRESULT( hres );
 	    }
 	case 1: // Get
@@ -1699,8 +1725,12 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 		if ( !checkHRESULT( hres ) )
 		    return FALSE;
 
+		if ( arg.vt == VT_UI4 && pname.endsWith( "Color" ) ) {
+		    arg.vt = VT_USERDEFINED;
+		}
+
 		// map result VARIANTARG to QVariant
-		*_v = VARIANTToQVariant( arg );;
+		*_v = VARIANTToQVariant( arg );
 		return ( _v->isValid() );
 	    }
 	case 2: // Reset
@@ -1719,30 +1749,15 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 }
 
 /*!
-    Calls the function \a id of the COM object passing the parameters \a var1 ... \a var8, 
-    and returns the value, or an invalid variant if the function does not return a value.
+    \overload
 
-    To get the ID of a function, use QMetaObject::findSlot( function, TRUE ).
+    Calls the function \a id of the COM object. To get the ID of a function, 
+    use QMetaObject::findSlot( function, TRUE ).
 
     \code
     int id = activeX->metaObject()->findSlot( "Navigate(const QString&)", TRUE );
     if ( id != -1 )
         activeX->dynamicCall( id, "www.trolltech.com" );
-    \endcode
-
-    It is only possible to call functions through dynamicCall that have parameters of
-    datatypes supported in QVariant. See the QComBase class documentation for a list of 
-    supported and unsupported datatypes. If you want to call functions that have
-    unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
-    COM interface and use the function directly.
-
-    \code
-    IWebBrowser2 *webBrowser = 0;
-    activeX->queryInterface( IID_IWebBrowser2, (void**)&webBrowser );
-    if ( webBrowser ) {
-        webBrowser->Navigate2( pvarURL );
-	webBrowser->Release();
-    }
     \endcode
 */
 QVariant QComBase::dynamicCall( int id, const QVariant &var1, 
@@ -1819,23 +1834,39 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
 #if defined(QT_CHECK_RANGE)
     else {
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %d: No such method in %s %s", id, control().latin1(), 
-	    coclass ? coclass: "(unknown)" );
+	qWarning( "QActiveX::dynamicCall: %d: No such method in %s [%s]", id, control().latin1(), 
+	    coclass ? coclass: "unknown" );
     }
 #endif
     return result;
 }
 
 /*!
-    \overload
+    Calls the function \a function of the COM object passing the parameters \a var1 ... \a var8, 
+    and returns the value, or an invalid QVariant if the function does not return a value.
 
-    Using this overload is more convenient, but slightly slower. For rapid calls to the
-    same function, get the function's ID using QMetaObject::findSlot( function, TRUE ) and
-    use the overload above.
     \a function has to be provided as the full prototype, like e.g. in QObject::connect().
 
     \code
     activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
+    \endcode
+
+    dynamicCall can not be used to read or write properties. Instead, use QObject::property()
+    and QObject::setProperty() respectively.
+
+    It is only possible to call functions through dynamicCall that have parameters of
+    datatypes supported in QVariant. See the QComBase class documentation for a list of 
+    supported and unsupported datatypes. If you want to call functions that have
+    unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
+    COM interface and use the function directly.
+
+    \code
+    IWebBrowser2 *webBrowser = 0;
+    activeX->queryInterface( IID_IWebBrowser2, (void**)&webBrowser );
+    if ( webBrowser ) {
+        webBrowser->Navigate2( pvarURL );
+	webBrowser->Release();
+    }
     \endcode
 */
 QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1, 
@@ -1853,8 +1884,8 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
 #if defined(QT_CHECK_RANGE)
     else {
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QActiveX::dynamicCall: %s: No such method in %s %s", (const char*)function, control().latin1(), 
-	    coclass ? coclass: "(unknown)" );
+	qWarning( "QActiveX::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
+	    coclass ? coclass: "unknown" );
     }
 #endif
     return QVariant();

@@ -27,6 +27,7 @@
 
 #include <qsettings.h>
 #include <qmap.h>
+#include <qapplication.h>
 
 #include <qt_windows.h>
 

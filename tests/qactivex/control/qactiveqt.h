@@ -30,7 +30,7 @@
 
 #include <qwidget.h>
 #include <quuid.h>
-#include <private/qwidgetinterface_p.h>
+#include <private/qcom_p.h>
 
 // {22B230F6-8722-4051-ADCB-E7C9CE872EB3}
 #ifndef IID_QActiveQtFactory
@@ -157,6 +157,8 @@ public:
     virtual QRESULT queryInterface( const QUuid&, void** );
     long addRef();
     long release();
+
+    static bool isServer();
 
 protected:
     bool requestPropertyChange( const char *property );

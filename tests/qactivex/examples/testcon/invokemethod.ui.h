@@ -46,8 +46,17 @@ void InvokeMethod::methodSelected( const QString &method )
 	if ( !param || (param->inOut == QUParameter::Out ) )
 	    continue;
 	QListViewItem *item = new QListViewItem( listParameters );
-	item->setText( 0, param->name ? param->name : "<unnamed>" );
-	item->setText( 1, param->type ? param->type->desc() : "<unknown type>" );
+	QString pname = param->name ? param->name : "<unnamed>";
+	item->setText( 0, pname );
+	QString ptype;
+	if ( param->type && !QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+	    ptype = param->type->desc();
+	} else if ( param->type ) {
+	    ptype = (const char*)param->typeExtra;
+	} else {
+	    ptype = "<unknown type>";
+	}
+	item->setText( 1, ptype );
     }
     if ( slot->count ) {
 	listParameters->setCurrentItem( listParameters->firstChild() );
@@ -80,7 +89,7 @@ void InvokeMethod::init()
     setControl( 0 );
 }
 
-void InvokeMethod::setControl( QActiveX *ax )
+void InvokeMethod::setControl( QAxWidget *ax )
 {
     activex = ax;
     bool hasControl = activex && !activex->isNull();

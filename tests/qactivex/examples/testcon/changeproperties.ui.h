@@ -36,34 +36,10 @@ private:
     
 };
 
-void ChangeProperties::setControl( QActiveX *ax )
+void ChangeProperties::setControl( QAxWidget *ax )
 {
     activex = ax;
-    bool hasControl = activex && !activex->isNull();
-    tabWidget->setEnabled( hasControl );
-     
-    listProperties->clear();
-    listEditRequests->clear();
-    if ( hasControl ) {
-	const QMetaObject *mo = activex->metaObject();
-	const int numprops = mo->numProperties( FALSE );
-	for ( int i = 0; i < numprops; ++i ) {
-	    const QMetaProperty *property = mo->property( i, FALSE );
-	    QListViewItem *item = new QListViewItem( listProperties );
-	    item->setText( 0, property->name() );
-	    item->setText( 1, property->type() );
-	    QVariant var = activex->property( property->name() );
-	    item->setText( 2, var.toString() );
- 
-	    if ( property->testFlags( PropRequesting ) ) {
-		CheckListItem *check = new CheckListItem( listEditRequests, property->name() );
-		check->setOn( activex->propertyWritable( property->name() ) );
-	    }
-	}
-	listProperties->setCurrentItem( listProperties->firstChild() );
-    } else {
-	editValue->clear();
-    }
+    updateProperties();
 }
 
 void ChangeProperties::propertySelected( QListViewItem *item )
@@ -103,6 +79,7 @@ void ChangeProperties::setValue()
 
 void ChangeProperties::init()
 {
+    activex = 0;
 }
 
 void ChangeProperties::editRequestChanged( QCheckListItem *item )
@@ -111,4 +88,34 @@ void ChangeProperties::editRequestChanged( QCheckListItem *item )
 	return;
     QString property = item->text();
     activex->setPropertyWritable( property.latin1(), item->isOn() );
+}
+
+
+void ChangeProperties::updateProperties()
+{
+    bool hasControl = activex && !activex->isNull();
+    tabWidget->setEnabled( hasControl );
+    
+    listProperties->clear();
+    listEditRequests->clear();
+    if ( hasControl ) {
+	const QMetaObject *mo = activex->metaObject();
+	const int numprops = mo->numProperties( FALSE );
+	for ( int i = 0; i < numprops; ++i ) {
+	    const QMetaProperty *property = mo->property( i, FALSE );
+	    QListViewItem *item = new QListViewItem( listProperties );
+	    item->setText( 0, property->name() );
+	    item->setText( 1, property->type() );
+	    QVariant var = activex->property( property->name() );
+	    item->setText( 2, var.toString() );
+ 
+	    if ( property->testFlags( PropRequesting ) ) {
+		CheckListItem *check = new CheckListItem( listEditRequests, property->name() );
+		check->setOn( activex->propertyWritable( property->name() ) );
+	    }
+	}
+	listProperties->setCurrentItem( listProperties->firstChild() );
+    } else {
+	editValue->clear();
+    }
 }

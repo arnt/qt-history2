@@ -167,6 +167,9 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
     board->revealNextPiece(TRUE);
 
     resize( 550, 370 );
+
+    if ( isServer() )
+	quitButton->hide();
 }
 
 void QTetrix::gameOver()

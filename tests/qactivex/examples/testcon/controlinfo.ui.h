@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 
-void ControlInfo::setControl( QActiveX *activex )
+void ControlInfo::setControl( QAxWidget *activex )
 {
     listInfo->clear();
 

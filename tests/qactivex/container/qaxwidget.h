@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Declaration of the QActiveX class
+** Declaration of the QAxWidget class
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,16 +25,15 @@
 **
 **********************************************************************/
 
-#ifndef QACTIVEX_H
-#define QACTIVEX_H
+#ifndef QAXWIDGET_H
+#define QAXWIDGET_H
 
-#include <qwidget.h>
 #include "qcomobject.h"
+#include <qwidget.h>
 
 struct IOleClientSite;
-class QHBoxLayout;
 
-class QCOM_EXPORT QActiveX : public QWidget, public QComBase
+class QCOM_EXPORT QAxWidget : public QWidget, public QComBase
 {
     friend class QClientSite;
 public:
@@ -46,9 +45,9 @@ public:
     bool qt_property( int, int, QVariant* );
     QObject* qObject() { return (QObject*)this; }
 
-    QActiveX( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
-    QActiveX( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    ~QActiveX();
+    QAxWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+    QAxWidget( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    ~QAxWidget();
 
     void clear();
 
@@ -68,16 +67,16 @@ protected:
     void paletteChange( const QPalette &old );
     void fontChange( const QFont &old );
     void windowActivationChange( bool old );
-
+    
+    void resizeEvent( QResizeEvent * );
 
 private:
     QMetaObject *parentMetaObject() const;
     void initContainer();
     QWidget *container;
-    QHBoxLayout *boxlayout;
     IOleClientSite *clientsite;
     IUnknown *host;
     QSize extent;
 };
 
-#endif //QACTIVEX_H
+#endif // QAXWIDGET_H

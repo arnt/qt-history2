@@ -45,7 +45,7 @@
                 <property name="spacing">
                     <number>0</number>
                 </property>
-                <widget class="QActiveX">
+                <widget class="QAxWidget">
                     <property name="name">
                         <cstring>WebBrowser</cstring>
                     </property>

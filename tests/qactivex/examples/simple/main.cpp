@@ -108,14 +108,7 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
     QWidget *w = 0;
 
-    bool isActiveX = FALSE;
-    for ( int arg = 0; arg < argc; ++arg ) {
-	if ( !qstrcmp(argv[arg], "-activex") ) {
-	    isActiveX = TRUE;
-	    break;
-	}
-    }
-    if ( !isActiveX ) {
+    if ( !QActiveQt::isServer() ) {
 	w = new QSimpleAX();
 	app.setMainWidget( w );
 	w->show();

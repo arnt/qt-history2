@@ -282,6 +282,8 @@ private:
 
     const IID IID_QAxClass;
 
+    bool internalCreate();
+
     LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     LRESULT ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
 };

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of the QActiveX class
+** Implementation of the QAxWidget class
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,7 +25,7 @@
 **
 **********************************************************************/
 
-#include "qactivex.h"
+#include "qaxwidget.h"
 
 #include <atlbase.h>
 extern CComModule _Module;
@@ -41,6 +41,8 @@ extern void moduleUnlock();
 #include <qobjectlist.h>
 #include <qstatusbar.h>
 #include <qlayout.h>
+#include <qmetaobject.h>
+
 #include "../shared/types.h"
 
 static HHOOK hhook = 0;
@@ -112,11 +114,11 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	if ( mouse || key ) {
 	    HWND hwnd = msg->hwnd;
 	    QWidget *widget = 0;
-	    QActiveX *ax = 0;
+	    QAxWidget *ax = 0;
 	    while ( !ax && hwnd ) {
 		widget = QWidget::find( hwnd );
 		if ( widget )
-		    ax = (QActiveX*)widget->qt_cast( "QActiveX" );
+		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
 		hwnd = ::GetParent( hwnd );
 	    }
 	    if ( ax && msg->hwnd != ax->winId() ) {
@@ -159,59 +161,37 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
 
-static IFontDisp *QFontToIFont( const QFont &font )
-{
-    FONTDESC fdesc;
-    memset( &fdesc, 0, sizeof(fdesc) );
-    fdesc.cbSizeofstruct = sizeof(FONTDESC);
-    fdesc.cySize.Lo = font.pointSize() * 10000;
-    fdesc.fItalic = font.italic();
-    fdesc.fStrikethrough = font.strikeOut();
-    fdesc.fUnderline = font.underline();
-    fdesc.lpstrName = QStringToBSTR( font.family() );
-    fdesc.sWeight = font.weight();
-    
-    IFontDisp *f;
-    OleCreateFontIndirect( &fdesc, IID_IFontDisp, (void**)&f );
-    return f;
-}
-
-static OLE_COLOR QColorToOLEColor( const QColor &col )
-{
-    return qRgb( col.blue(), col.green(), col.red() );
-}
-
 /*!
-    \class QActiveX qactivex.h
-    \brief The QActiveX class is a QWidget that wraps an ActiveX control.
+    \class QAxWidget qactivex.h
+    \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
 
-    A QActiveX can be instantiated as an empty object or with the name of the ActiveX control
+    A QAxWidget can be instantiated as an empty object or with the name of the ActiveX control
     it should wrap. The properties, methods and events of the ActiveX control become available as Qt properties, 
     slots and signals as long as only supported data types are used (see the \link QComBase QComBase class
     documentation \endlink for a list of supported and unsupported data types). The baseclass QComBase provides 
     an API to access the ActiveX directly through the IUnknown pointer.
 
-    QActiveX is a QWidget and can be used as such, e.g. it can be organized in a widget hierarchy, receive events 
+    QAxWidget is a QWidget and can be used as such, e.g. it can be organized in a widget hierarchy, receive events 
     or act as an event filter. Standard widget properties, e.g. \link QWidget::enabled \endlink enabled are supported,
     but it depends on the ActiveX control to implement support for ambient properties like e.g. palette or font. 
-    QActiveX tries to provide the necessary hints.
+    QAxWidget tries to provide the necessary hints.
 */
 
 /*!
-    Creates an empty QActiveX widget and propagates \a parent, \a name and \a f to the QWidget constructor. 
+    Creates an empty QAxWidget widget and propagates \a parent, \a name and \a f to the QWidget constructor. 
     To initialize a control, call \link QComBase::setControl() setControl \endlink.
 */
-QActiveX::QActiveX( QWidget *parent, const char *name, WFlags f )
+QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
 : QWidget( parent, name, f ), clientsite( 0 ), host( 0 )
 {
     initContainer();
 }
 
 /*!
-    Creates an QActiveX widget and initializes the ActiveX control \a c.
+    Creates an QAxWidget widget and initializes the ActiveX control \a c.
     \a parent, \a name and \a f are propagated to the QWidget contructor.
 */
-QActiveX::QActiveX( const QString &c, QWidget *parent, const char *name, WFlags f )
+QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlags f )
 : QWidget( parent, name, f ), clientsite( 0 ), host( 0 )
 {
     initContainer();
@@ -219,26 +199,25 @@ QActiveX::QActiveX( const QString &c, QWidget *parent, const char *name, WFlags 
     setControl( c );
 }
 
-void QActiveX::initContainer()
+void QAxWidget::initContainer()
 {
-    boxlayout = new QHBoxLayout( this );
     container = new QWidget( this );
-    container->show();
-    boxlayout->addWidget( container );
+    container->resize( size() );
+    container->show();    
 }
 
 /*!
-    Shuts down the ActiveX control and destroys the QActiveX widget, 
+    Shuts down the ActiveX control and destroys the QAxWidget widget, 
     cleaning up all allocated resources.
 
     \sa clear()
 */
-QActiveX::~QActiveX()
+QAxWidget::~QAxWidget()
 {
     clear();
 }
 
-static QActiveX *current = 0;
+static QAxWidget *current = 0;
 
 class QAxHostWindow : public CAxHostWindow
 {
@@ -265,13 +244,13 @@ public:
     }
 
 private:
-    QActiveX *activex;
+    QAxWidget *activex;
 };
 
 /*!
     \reimp
 */
-bool QActiveX::initialize( IUnknown **ptr )
+bool QAxWidget::initialize( IUnknown **ptr )
 {
     if ( *ptr || control().isEmpty() )
 	return FALSE;
@@ -368,7 +347,7 @@ bool QActiveX::initialize( IUnknown **ptr )
 
     Shuts down the ActiveX control.
 */
-void QActiveX::clear()
+void QAxWidget::clear()
 {
     if ( isNull() )
 	return;
@@ -383,8 +362,6 @@ void QActiveX::clear()
 
     delete container;
     container = 0;
-    delete boxlayout;
-    boxlayout = 0;
     initContainer();
 
     QComBase::clear();
@@ -401,22 +378,22 @@ void QActiveX::clear()
 }
 
 /*!
-    \fn QObject *QActiveX::qObject()
+    \fn QObject *QAxWidget::qObject()
     \reimp
 */
 
 /*!
     \reimp
 */
-const char *QActiveX::className() const
+const char *QAxWidget::className() const
 {
-    return "QActiveX";
+    return "QAxWidget";
 }
 
 /*!
     \reimp
 */
-QMetaObject *QActiveX::metaObject() const
+QMetaObject *QAxWidget::metaObject() const
 {
     return QComBase::metaObject();
 }
@@ -424,7 +401,7 @@ QMetaObject *QActiveX::metaObject() const
 /*!
     \reimp
 */
-QMetaObject *QActiveX::parentMetaObject() const
+QMetaObject *QAxWidget::parentMetaObject() const
 {
     return QWidget::staticMetaObject();
 }
@@ -432,9 +409,9 @@ QMetaObject *QActiveX::parentMetaObject() const
 /*!
     \reimp
 */
-void *QActiveX::qt_cast( const char *cname )
+void *QAxWidget::qt_cast( const char *cname )
 {
-    if ( !qstrcmp( cname, "QActiveX" ) ) return this;
+    if ( !qstrcmp( cname, "QAxWidget" ) ) return this;
     if ( !qstrcmp( cname, "QComBase" ) ) return (QComBase*)this;
     return QWidget::qt_cast( cname );
 }
@@ -443,7 +420,7 @@ void *QActiveX::qt_cast( const char *cname )
 /*!
     \reimp
 */
-bool QActiveX::qt_invoke( int _id, QUObject *_o )
+bool QAxWidget::qt_invoke( int _id, QUObject *_o )
 {
     if ( QComBase::qt_invoke( _id, _o ) )
 	return TRUE;
@@ -453,7 +430,7 @@ bool QActiveX::qt_invoke( int _id, QUObject *_o )
 /*!
     \reimp
 */
-bool QActiveX::qt_emit( int _id, QUObject* _o )
+bool QAxWidget::qt_emit( int _id, QUObject* _o )
 {
     const int index = _id - metaObject()->signalOffset();
     if ( !isNull() && index >= 0 ) {
@@ -470,7 +447,7 @@ bool QActiveX::qt_emit( int _id, QUObject* _o )
 /*!
     \reimp
 */
-bool QActiveX::qt_property( int _id, int _f, QVariant *_v )
+bool QAxWidget::qt_property( int _id, int _f, QVariant *_v )
 {
     if ( QComBase::qt_property( _id, _f, _v ) )
 	return TRUE;
@@ -480,7 +457,7 @@ bool QActiveX::qt_property( int _id, int _f, QVariant *_v )
 /*!
     \reimp
 */
-void QActiveX::enabledChange( bool old )
+void QAxWidget::enabledChange( bool old )
 {
     QWidget::enabledChange( old );
 
@@ -499,13 +476,13 @@ void QActiveX::enabledChange( bool old )
 /*!
     \reimp
 */
-QSize QActiveX::sizeHint() const
+QSize QAxWidget::sizeHint() const
 {
     if ( isNull() )
 	return QWidget::sizeHint();
 
     if ( !extent.isValid() ) {
-	QActiveX *that = (QActiveX*)this;
+	QAxWidget *that = (QAxWidget*)this;
 	CComPtr<IOleObject> ole;
 	queryInterface( IID_IOleObject, (void**)&ole );
 	if ( ole ) {
@@ -530,7 +507,7 @@ QSize QActiveX::sizeHint() const
 /*!
     \reimp
 */
-QSize QActiveX::minimumSizeHint() const
+QSize QAxWidget::minimumSizeHint() const
 {
     if ( isNull() )
 	return QWidget::minimumSizeHint();
@@ -554,7 +531,7 @@ QSize QActiveX::minimumSizeHint() const
 /*!
     \reimp
 */
-void QActiveX::fontChange( const QFont &old )
+void QAxWidget::fontChange( const QFont &old )
 {
     QWidget::fontChange( old );
     if ( isNull() )
@@ -574,7 +551,7 @@ void QActiveX::fontChange( const QFont &old )
 /*!
     \reimp
 */
-void QActiveX::paletteChange( const QPalette &old )
+void QAxWidget::paletteChange( const QPalette &old )
 {
     QWidget::paletteChange( old );
     if ( isNull() )
@@ -593,7 +570,7 @@ void QActiveX::paletteChange( const QPalette &old )
 /*!
     \reimp
 */
-void QActiveX::setUpdatesEnabled( bool on )
+void QAxWidget::setUpdatesEnabled( bool on )
 {
     if ( !isNull() ) {
 	CAxWindow ax = container->winId();
@@ -606,7 +583,7 @@ void QActiveX::setUpdatesEnabled( bool on )
 /*!
     \reimp
 */
-void QActiveX::windowActivationChange( bool old )
+void QAxWidget::windowActivationChange( bool old )
 {
     QWidget::windowActivationChange( old );
     if ( isNull() )
@@ -621,16 +598,19 @@ void QActiveX::windowActivationChange( bool old )
 /*!
     \reimp
 */
-void QActiveX::reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
+void QAxWidget::reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
 {
     QWidget::reparent( parent, f, p, showIt );
     QApplication::postEvent( this, new QEvent( QEvent::Reparent ) );
+
+    if ( container )
+	container->resize( size() );
 }
 
 /*!
     \reimp
 */
-bool QActiveX::event( QEvent *e )
+bool QAxWidget::event( QEvent *e )
 {
     switch( e->type() ) {
     case QEvent::Reparent:
@@ -645,4 +625,15 @@ bool QActiveX::event( QEvent *e )
     }
 
     return QWidget::event( e );
+}
+
+/*!
+    \reimp
+*/
+void QAxWidget::resizeEvent( QResizeEvent *e )
+{
+    if ( container )
+	container->resize( size() );
+
+    QWidget::resizeEvent( e );
 }

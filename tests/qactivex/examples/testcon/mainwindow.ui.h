@@ -14,21 +14,23 @@
 
 void MainWindow::changeProperties()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
 
-    if ( !dlgProperties )
+    if ( !dlgProperties ) {
 	dlgProperties = new ChangeProperties( this, 0, FALSE );
+	connect(container, SIGNAL(propertyChanged(const QString&)), dlgProperties, SLOT(updateProperties()) );
+    }
     dlgProperties->setControl( container );
     dlgProperties->show();
 }
 
 void MainWindow::clearControl()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
     if ( container )
 	container->clear();
     updateGUI();
@@ -45,9 +47,9 @@ void MainWindow::containerProperties()
 
 void MainWindow::invokeMethods()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
 
     if ( !dlgInvoke )
 	dlgInvoke = new InvokeMethod( this, 0, FALSE );
@@ -57,7 +59,7 @@ void MainWindow::invokeMethods()
 
 void MainWindow::logPropertyChanged( const QString &prop )
 {
-    QActiveX *container = (QActiveX*)((QObject*)sender())->qt_cast("QActiveX");
+    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_cast("QAxWidget");
     if ( !container )
 	return;
 
@@ -67,7 +69,7 @@ void MainWindow::logPropertyChanged( const QString &prop )
 
 void MainWindow::logSignal( const QString &signal, int argc, void *argv )
 {
-    QActiveX *container = (QActiveX*)((QObject*)sender())->qt_cast("QActiveX");
+    QAxWidget *container = (QAxWidget*)((QObject*)sender())->qt_cast("QAxWidget");
     if ( !container )
 	return;
 
@@ -90,9 +92,9 @@ void MainWindow::logSignal( const QString &signal, int argc, void *argv )
 
 void MainWindow::setControl()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
     if ( !container )
 	return;
 
@@ -131,9 +133,9 @@ void MainWindow::destroy()
 
 void MainWindow::controlInfo()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
     if ( !container )
 	return;
 
@@ -154,7 +156,7 @@ void MainWindow::fileLoad()
 	return;
     }
 
-    QActiveX *container = new QActiveX( workspace );
+    QAxWidget *container = new QAxWidget( workspace );
     
     QDataStream d( &file );
     d >> *container;
@@ -166,9 +168,9 @@ void MainWindow::fileLoad()
 
 void MainWindow::fileSave()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
     if ( !container )
 	return;
 
@@ -187,9 +189,9 @@ void MainWindow::fileSave()
 
 void MainWindow::updateGUI()
 {
-    QActiveX *container = 0;
+    QAxWidget *container = 0;
     if ( workspace->activeWindow() )
-	container = (QActiveX*)workspace->activeWindow()->qt_cast("QActiveX");
+	container = (QAxWidget*)workspace->activeWindow()->qt_cast("QAxWidget");
 
     bool hasControl = container && !container->isNull();
     actionFileNew->setEnabled( TRUE );
@@ -228,7 +230,7 @@ void MainWindow::fileNew()
 {
     QActiveXSelect select( this, 0, TRUE );
     if ( select.exec() ) {
-	QActiveX *container = new QActiveX( select.selectedControl(), workspace, 0, WDestructiveClose );
+	QAxWidget *container = new QAxWidget( select.selectedControl(), workspace, 0, WDestructiveClose );
 	container->show();	
     }
     updateGUI();

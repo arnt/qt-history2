@@ -274,6 +274,7 @@ QUuid QActiveQtFactory::appID() const
     If you use the IDC to generate an interface definition from your class declaration, use the QT_ACTIVEX 
     macro to declare the class and the identifiers of the interfaces implemented by your class:
 
+    \code
     QT_ACTIVEX( MyActiveX,				    // class
 		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // class ID
 		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // interface ID
@@ -281,6 +282,10 @@ QUuid QActiveQtFactory::appID() const
 		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // type library ID
 		"{01234567-89AB-CDEF-0123-456789ABCDEF}"    // application ID
 	      )
+    \endcode
+
+    The identifiers (provided by tools like guidgen) are used by COM to locate information
+    about the ActiveX control in the Windows registry.
 */
 
 /*!
@@ -427,6 +432,40 @@ long QActiveQt::release()
 {
     return activex->Release();
 }
+
+/*!
+    Returns TRUE if the application has been started as an ActiveX server,
+    otherwise returns FALSE.
+
+    The QApplication object has to be instantiated before calling this function.
+    
+    \code
+    int main( int argc, char**argv ) 
+    {
+	QApplication app( argc, argv );
+
+	if ( !QActiveQt::isServer() ) {
+	    // initialize for stand-alone execution
+	}
+
+	return app.exec() // standard event processing
+    }
+
+    \endcode
+*/
+bool QActiveQt::isServer()
+{
+    Q_ASSERT(qApp);
+    if ( !qApp )
+	return FALSE;
+
+    for ( int arg = 0; arg < qApp->argc(); ++arg ) {
+	if ( !qstrcmp(qApp->argv()[arg], "-activex") )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
 
 /*
     Helper class to enumerate all supported event interfaces.
@@ -697,6 +736,7 @@ QActiveQtBase::QActiveQtBase( IID QAxClass )
 
     points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
     points[_Module.factory()->eventsID(clsid)] = new QAxConnection( this, _Module.factory()->eventsID(clsid) );
+    internalCreate();
 }
 
 QActiveQtBase::~QActiveQtBase()
@@ -720,12 +760,12 @@ class HackWidget : public QWidget
     friend class QActiveQtBase;
 };
 
-LRESULT QActiveQtBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+bool QActiveQtBase::internalCreate()
 {
     activeqt = _Module.factory()->create( QUuid(IID_QAxClass) );
     Q_ASSERT(activeqt);
     if ( !activeqt )
-	return 0;
+	return FALSE;
     QActiveQt *aqt = (QActiveQt*)activeqt->qt_cast( "QActiveQt" );
     if ( aqt )
 	aqt->activex = this;
@@ -742,6 +782,13 @@ LRESULT QActiveQtBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	connectInternal( activeqt, isignal, this, 2, isignal );
     
     activeqt->installEventFilter( this );
+    return TRUE;
+}
+
+LRESULT QActiveQtBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    if ( !activeqt )
+	internalCreate();
     return 0;
 }
 
@@ -777,6 +824,9 @@ LRESULT QActiveQtBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, 
 
 void QActiveQtBase::readMetaData()
 {
+    if ( !activeqt )
+	return;
+
     if ( !slotlist ) {
 	slotlist = new QIntDict<QMetaData>;
 	signallist = new QMap<int,DISPID>;
@@ -1276,7 +1326,7 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
 	    QPalette pal = activeqt->palette();
 	    // OLE_COLOR is BGR
 	    pal.setColor( dispID == DISPID_AMBIENT_BACKCOLOR ? QColorGroup::Background : QColorGroup::Foreground, 
-		QColor( qBlue(var.lVal), qGreen(var.lVal), qRed(var.lVal) ) );
+		OLEColorToQColor( rgb ) );		
 	    activeqt->setPalette( pal );
 	}
 	break;
@@ -1295,28 +1345,8 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
 	    CComPtr<IFont> f;
 	    d->QueryInterface( IID_IFont, (void**)&f );
 	    if ( f ) {
-		BSTR name;
-		BOOL bold;
-		SHORT charset;
-		BOOL italic;
-		CY size;
-		BOOL strike;
-		BOOL underline;
-		SHORT weight;
-		f->get_Name( &name );
-		f->get_Bold( &bold );
-		f->get_Charset( &charset );
-		f->get_Italic( &italic );
-		f->get_Size( &size );
-		f->get_Strikethrough( &strike );
-		f->get_Underline( &underline );
-		f->get_Weight( &weight );
-		QFont font( BSTRToQString(name), size.Lo/10000, weight, italic );
-		font.setBold( bold );
-		font.setStrikeOut( strike );
-		font.setUnderline( underline );
-		activeqt->setFont( font );
-		SysFreeString(name);
+		QFont qfont = IFontToQFont( f );
+		activeqt->setFont( qfont );
 	    }
 	}
 	break;

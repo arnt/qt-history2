@@ -71,7 +71,7 @@ void QActiveXSelect::openLater()
     }
 }
 
-void QActiveXSelect::setActiveX( QActiveX *ax )
+void QActiveXSelect::setActiveX( QAxWidget *ax )
 {
     activex = ax;
 }
