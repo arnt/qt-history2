@@ -327,20 +327,6 @@ QPixmap::QPixmap( const char * const xpm[] )
     if ( !image.isNull() )
 	convertFromImage( image );
 }
-
-/*!
-    Constructs a pixmaps by loading from \a img_data. The data can be
-    in any image format supported by Qt.
-
-    \sa loadFromData()
-*/
-
-QPixmap::QPixmap( const QByteArray & img_data )
-    : QPaintDevice( QInternal::Pixmap )
-{
-    init( 0, 0, 0, FALSE, defOptim );
-    loadFromData( img_data );
-}
 #endif //QT_NO_IMAGEIO
 
 /*!

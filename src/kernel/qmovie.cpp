@@ -717,23 +717,6 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 }
 
 /*!
-    Constructs a QMovie that reads an image sequence from the byte
-    array, \a data.
-
-    The \a bufsize argument sets the maximum amount of data the movie
-    will transfer from the data source per event loop. The lower this
-    value, the better interleaved the movie playback will be with
-    other event processing, but the slower the overall processing will
-    be.
-*/
-QMovie::QMovie(QByteArray data, int bufsize)
-{
-    QBuffer* buffer = new QBuffer(data);
-    buffer->open(IO_ReadOnly);
-    d = new QMoviePrivate(new QIODeviceSource(buffer), this, bufsize);
-}
-
-/*!
     Constructs a movie that uses the same data as movie \a movie.
     QMovies use explicit sharing, so operations on the copy will
     affect both.

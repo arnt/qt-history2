@@ -54,7 +54,6 @@ public:
     QMovie(int bufsize);
     QMovie(QDataSource*, int bufsize=1024);
     QMovie(const QString &fileName, int bufsize=1024);
-    QMovie(QByteArray data, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();
 

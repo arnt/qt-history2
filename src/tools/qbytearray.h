@@ -65,7 +65,7 @@ class Q_EXPORT QByteArray
 {
 public:
     QByteArray();
-    explicit QByteArray(const char *);
+    QByteArray(const char *);
     QByteArray(const char*, int size);
 #ifdef QT_NO_COMPAT
     QByteArray(int size, char c);
