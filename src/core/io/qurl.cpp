@@ -2433,6 +2433,13 @@ void QUrl::detach()
     }
 }
 
+
+bool QUrl::isDetached() const
+{
+    return d->ref == 1;
+}
+
+
 /*!
     Returns a QUrl representation of \a localFile, interpreted as a
     local file.

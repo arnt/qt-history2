@@ -108,6 +108,7 @@ public:
     static QUrl fromEncoded(const QByteArray &url);
 
     void detach();
+    bool isDetached() const;
 
     bool operator <(const QUrl &url) const;
     bool operator ==(const QUrl &url) const;
