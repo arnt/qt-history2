@@ -69,7 +69,7 @@ QVariant::Type qDecodePSQLType( int t )
 	break;
     case INT8OID	:
     case INT2OID	:
-    case INT2VECTOROID  :
+	//    case INT2VECTOROID  : // 7.x
     case INT4OID        :
 	type = QVariant::Int;
 	break;
@@ -84,7 +84,7 @@ QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::Date;
 	break;
     case TIMEOID	:
-    case TIMETZOID      :
+	//    case TIMETZOID      : // 7.x
 	type = QVariant::Time;
 	break;
     case TIMESTAMPOID   :
@@ -99,8 +99,8 @@ QVariant::Type qDecodePSQLType( int t )
     case POLYGONOID     :
 	type = QVariant::PointArray;
 	break;
-    case ZPBITOID	:
-    case VARBITOID	:
+	//    case ZPBITOID	: // 7.x
+	//    case VARBITOID	: // 7.x
     case OIDOID         :
 	type = QVariant::ByteArray;
 	break;
@@ -108,12 +108,12 @@ QVariant::Type qDecodePSQLType( int t )
     case TIDOID         :
     case XIDOID         :
     case CIDOID         :
-    case OIDVECTOROID   :
+	//    case OIDVECTOROID   : // 7.x
     case UNKNOWNOID     :
     case CASHOID        : // deprecated
     case INETOID        :
     case CIDROID        :
-    case TINTERVALOID   :
+	//    case TINTERVALOID   : // 7.x
     case CIRCLEOID      :
     case PATHOID        :
     case LSEGOID        :
@@ -123,7 +123,7 @@ QVariant::Type qDecodePSQLType( int t )
     default:
     case CHAROID	:
     case BPCHAROID	:
-    case LZTEXTOID	:
+	//    case LZTEXTOID	: // 7.x
     case VARCHAROID	:
     case TEXTOID	:
     case NAMEOID	:
