@@ -605,7 +605,7 @@ QFileDialog::QFileDialog(QWidget *parent,
     setWindowTitle(caption);
     QStringList nameFilter = qt_make_filter_list(filter);
     d->fileMode = fileMode;
-    d->setup(dir, nameFilter.isEmpty() ? tr("All Files (*)") : nameFilter);
+    d->setup(dir, nameFilter.isEmpty() ? QStringList(tr("All Files (*)")) : nameFilter);
     if (!selectedFilter.isEmpty())
         selectFilter(selectedFilter); // slow
     if (!selectedFile.isEmpty())

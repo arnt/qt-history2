@@ -1,3 +1,4 @@
+//depot/qt/main/src/core/kernel/qprocess.cpp#9 - edit change 153389 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -172,6 +173,24 @@ QProcess::QProcess(QObject *parent)
     init();
 }
 
+/*!
+    Constructs a QProcess with \a arg0 as the command to be executed.
+    The \a parent parameter is passed to the QObject constructor.
+
+    The process is not started. You must call start() or launch() to
+    start the process.
+
+    \sa setArguments() addArgument() start()
+*/
+QProcess::QProcess(const QString& arg0, QObject *parent)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
+{
+    init();
+    addArgument(arg0);
+}
 
 /*!
     Constructs a QProcess with \a args as the arguments of the
@@ -214,6 +233,28 @@ QProcess::QProcess(QObject *parent, const char *name)
     init();
 }
 
+/*!
+  \obsolete
+
+    Constructs a QProcess with \a arg0 as the command to be executed.
+    The \a parent and \a name parameters are passed to the QObject
+    constructor.
+
+    The process is not started. You must call start() or launch() to
+    start the process.
+
+    \sa setArguments() addArgument() start()
+*/
+QProcess::QProcess(const QString& arg0, QObject *parent, const char *name)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
+{
+    setObjectName(QString::fromAscii(name));
+    init();
+    addArgument(arg0);
+}
 
 /*!
   \obsolete

@@ -717,7 +717,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
                 slst->append(list->at(i).toString());
         } else if (d->type == QCoreVariant::String) {
             QStringList *slst = static_cast<QStringList *>(result);
-            *slst = *v_cast<QString>(d);
+            *slst = QStringList(*v_cast<QString>(d));
         }
 #endif
         break;

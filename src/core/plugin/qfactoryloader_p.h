@@ -27,7 +27,7 @@ class Q_CORE_EXPORT QFactoryLoader : public QObject
 
 public:
     QFactoryLoader(const char *iid,
-                   const QStringList &paths = QString(),
+                   const QStringList &paths = QStringList(),
                    const QString &suffix = QString(),
                    Qt::CaseSensitivity = Qt::CaseSensitive,
                    QObject *parent = 0);

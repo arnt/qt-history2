@@ -1261,7 +1261,7 @@ void QFileListBox::viewportMouseMoveEvent(QMouseEvent *e)
             if (filedialog->mode() == Q3FileDialog::ExistingFiles)
                 files = filedialog->selectedFiles();
             else
-                files = filedialog->selectedFile();
+                files = QStringList(filedialog->selectedFile());
             drag->setFileNames(files);
 
             if (lined->parentWidget()->isVisible())
@@ -1678,7 +1678,7 @@ void Q3FileDialogQFileListView::viewportMouseMoveEvent(QMouseEvent *e)
             if (filedialog->mode() == Q3FileDialog::ExistingFiles)
                 files = filedialog->selectedFiles();
             else
-                files = filedialog->selectedFile();
+                files = QStringList(filedialog->selectedFile());
             drag->setFileNames(files);
 
             if (lined->isVisible())

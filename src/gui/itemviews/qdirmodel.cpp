@@ -267,7 +267,7 @@ QDirModel::QDirModel(const QString &path,
 {
     // the empty path means that we start with QDir::drives()
     if (path.isEmpty()) {
-        d->nameFilters = nameFilters.isEmpty() ? "*" : nameFilters;
+        d->nameFilters = nameFilters.isEmpty() ? QStringList("*") : nameFilters;
         d->filterSpec = filter;
         d->sortSpec = sorting;
         d->rootIsVirtual = true;

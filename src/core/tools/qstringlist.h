@@ -34,10 +34,7 @@ class QStringList : public QList<QString>
 {
 public:
     inline QStringList() { }
-    inline QStringList(const QString &i) { append(i); }
-#ifndef QT_NO_CAST_FROM_ASCII
-    inline QStringList(const char *i) { append(i); }
-#endif
+    inline Q_EXPLICIT QStringList(const QString &i) { append(i); }
     inline QStringList(const QStringList &l) : QList<QString>(l) { }
     inline QStringList(const QList<QString> &l) : QList<QString>(l) { }
 

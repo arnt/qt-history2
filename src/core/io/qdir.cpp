@@ -423,7 +423,7 @@ QDir::QDir(const QString &path, const QString &nameFilter,
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = QDir::nameFiltersFromString(nameFilter);
     if (d->data->nameFilters.isEmpty())
-        d->data->nameFilters = QString::fromLatin1("*");
+        d->data->nameFilters = QStringList(QString::fromLatin1("*"));
     d->data->sortSpec = sortSpec;
     d->data->filterSpec = filterSpec;
 }
