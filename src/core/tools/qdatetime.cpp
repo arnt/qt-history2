@@ -398,20 +398,37 @@ int QDate::daysInYear() const
 }
 
 /*!
-  Returns the week number (1 to 53), and stores the year in \a
-  *yearNumber unless \a yearNumber is null (the default).
+    Returns the week number (1 to 53), and stores the year in \a
+    *yearNumber unless \a yearNumber is null (the default).
 
-  Returns 0 if the date is invalid.
+    Returns 0 if the date is invalid.
 
-  In accordance with ISO 8601, weeks start on Monday and the first
-  Thursday of a year is always in week 1 of that year. Most years
-  have 52 weeks, but some have 53.
+    In accordance with ISO 8601, weeks start on Monday and the first
+    Thursday of a year is always in week 1 of that year. Most years
+    have 52 weeks, but some have 53.
 
-  \a *yearNumber is not always the same as year(). For example, 1
-  January 2000 has week number 52 in the year 1999, and 31 December
-  2002 has week number 1 in the year 2003.
+    \a *yearNumber is not always the same as year(). For example, 1
+    January 2000 has week number 52 in the year 1999, and 31 December
+    2002 has week number 1 in the year 2003.
 
-  \sa isValid()
+    \legalese
+
+    Copyright (c) 1989 The Regents of the University of California.
+    All rights reserved.
+
+    Redistribution and use in source and binary forms are permitted
+    provided that the above copyright notice and this paragraph are
+    duplicated in all such forms and that any documentation,
+    advertising materials, and other materials related to such
+    distribution and use acknowledge that the software was developed
+    by the University of California, Berkeley.  The name of the
+    University may not be used to endorse or promote products derived
+    from this software without specific prior written permission.
+    THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+    \sa isValid()
 */
 
 int QDate::weekNumber( int *yearNumber ) const
@@ -419,39 +436,47 @@ int QDate::weekNumber( int *yearNumber ) const
     if ( !isValid() )
 	return 0;
 
-    int dow = dayOfWeek();
-    int doy = dayOfYear();
-    int currYear = year();
-    int jan1WeekDay = QDate( currYear, 1, 1 ).dayOfWeek();
-    int yearNum;
-    int weekNum;
+    int	year = QDate::year();
+    int	yday = dayOfYear() - 1;
+    int	wday = dayOfWeek();
+    if (wday == 7)
+    	wday = 0;
+    int	w;
 
-    if ( doy <= (8 - jan1WeekDay) && jan1WeekDay > 4 ) {
-	yearNum = currYear - 1;
-	weekNum = 52;
-	if ( jan1WeekDay == 5 ||
-	     (jan1WeekDay == 6 && QDate::leapYear(yearNum)) )
-	    weekNum++;
-    } else {
-	int totalDays = 365;
-	if ( QDate::leapYear(currYear) )
-	    totalDays++;
+    for (;;) {
+	int len;
+	int bot;
+	int top;
 
-	if ( (totalDays - doy < 4 - dow)
-	     || (jan1WeekDay == 7 && totalDays - doy < 3) ) {
-	    yearNum = currYear + 1;
-	    weekNum = 1;
-	} else {
-	    int j = doy + ( 7 - dow ) + ( jan1WeekDay - 1 );
-	    yearNum = currYear;
-	    weekNum = j / 7;
-	    if ( jan1WeekDay > 4 )
-		weekNum--;
+	len = leapYear(year) ? 366 : 365;
+	/*
+	** What yday (-3 ... 3) does
+	** the ISO year begin on?
+	*/
+	bot = ((yday + 11 - wday) % 7) - 3;
+	/*
+	** What yday does the NEXT
+	** ISO year begin on?
+	*/
+	top = bot - (len % 7);
+	if (top < -3)
+    	    top += 7;
+	top += len;
+	if (yday >= top) {
+	    ++year;
+    	    w = 1;
+	    break;
 	}
+	if (yday >= bot) {
+	    w = 1 + ((yday - bot) / 7);
+	    break;
+	}
+	--year;
+	yday += leapYear(year) ? 366 : 365;
     }
-    if ( yearNumber )
-	*yearNumber = yearNum;
-    return weekNum;
+    if (yearNumber != 0)
+    	*yearNumber = year;
+    return w;
 }
 
 #ifndef QT_NO_TEXTDATE
