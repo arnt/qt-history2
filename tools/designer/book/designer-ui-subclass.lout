@@ -1,13 +1,13 @@
 @SysInclude { diag }
 @SysInclude { tbl }
-@Include { diagdoc.lout }
+@Include { diagdoc-ui-subclass.lout }
 # This file is the source of designer2.jpg, produced like this:
 # % lout -EPS designer-ui-subclass.lout > designer-ui-subclass.eps
 # % convert -crop 0x0 -quality 100 designer-ui-subclass.eps images/designer2.jpg
 # The png is produces similarly:
 # % convert -crop 0x0 designer-ui-subclass.eps images/designer2.png
 @Doc @Text @Begin
-#8c @High 13c @Wide 
+{} @Scale 
 @Diag 
     # Tool
     aoutline { ellipse }

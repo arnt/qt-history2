@@ -8,7 +8,8 @@
 # % convert -crop 0x0 designer-ui-h.eps images/designer3.png
 @Doc
 @Text @Begin
-8c @High 13c @Wide @Diag 
+8c @High 13c @Wide 
+@Diag 
     # Tool
     aoutline { ellipse }
     apaint { lightgreen }
