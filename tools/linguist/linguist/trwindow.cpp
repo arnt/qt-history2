@@ -443,17 +443,14 @@ bool Action::addToToolbar( QToolBar *tb, const QString& text,
 			   const char *xpmName )
 {
     Embed *ess = 0;
-    Embed *ell = 0;
 
     setText( text );
     ess = imageDict->find( QString("small/") + QString(xpmName) );
-    ell = imageDict->find( QString("large/") + QString(xpmName) );
-    if ( ess != 0 && ell != 0 ) {
-	QPixmap small, large;
+    if ( ess != 0 ) {
+	QPixmap small;
 	small.loadFromData( ess->data, ess->size );
-	large.loadFromData( ell->data, ell->size );
-	QIconSet s( small, large );
-	setIconSet( s );
+ 	QIconSet s( small );
+ 	setIconSet( s );
     }
     return QAction::addTo( tb );
 }
@@ -1137,33 +1134,25 @@ void TrWindow::about()
 
     QDialog about( this, 0, TRUE );
     about.setCaption( tr("Qt Linguist") );
-    about.resize( 447, 464 );
 
-    QLabel *splash = new QLabel( &about );
+    QLabel * splash = new QLabel( &about );
+    splash->setFrameStyle( QFrame::Panel | QFrame::Raised );
     splash->setPixmap( pixmap );
-    splash->setAlignment( QLabel::AlignCenter );
+    splash->setFixedSize( pixmap.width(), pixmap.height() );
 
-    QLabel *version = new QLabel( tr("Version pre1.0"), &about );
-    version->setAlignment( QLabel::AlignCenter );
-    QLabel *copyright = new QLabel( tr("Copyright (C) 2000 Trolltech AS"),
-				    &about );
+    QLabel * copyright = new QLabel( tr("Version 1.0\n"
+			     "Copyright (c) 2000-2001 Trolltech AS"), &about );
     copyright->setAlignment( QLabel::AlignCenter );
-    QPushButton *ok = new QPushButton( tr("OK"), &about, "ok about" );
+
+    QPushButton * ok = new QPushButton( tr("Ok"), &about, "ok about" );
     ok->setDefault( TRUE );
     about.setFocusProxy( ok );
     connect( ok, SIGNAL(clicked()), &about, SLOT(accept()) );
 
-    QVBoxLayout *vlay = new QVBoxLayout( &about, 11, 6 );
-    QHBoxLayout *hlay = new QHBoxLayout;
-
-    vlay->addWidget( splash );
-    vlay->add( version );
-    vlay->add( copyright );
-    vlay->addStretch( 1 );
-    vlay->addLayout( hlay );
-    hlay->addStretch( 1 );
-    hlay->add( ok );
-    hlay->addStretch( 1 );
+    QGridLayout * vlay = new QGridLayout( &about, 3, 3, 11, 6 );
+    vlay->addMultiCellWidget( splash, 0, 0, 0, 2 );
+    vlay->addMultiCellWidget( copyright, 1, 1, 0, 2 );
+    vlay->addWidget( ok, 2, 1 );
 
     about.exec();
 }
@@ -1847,14 +1836,7 @@ void TrWindow::setupMenuBar()
     // View menu
     revertSortingAct = new Action( viewp, tr("&Revert Sorting"),
 				   this, SLOT(revertSorting()) );
-    viewp->insertSeparator();
-    bigIconsAct = new Action( viewp, tr("&Large Icons"), 0, TRUE );
-    connect( bigIconsAct, SIGNAL(toggled(bool)),
-	     this, SLOT(setUsesBigPixmaps(bool)) );
-    textLabelsAct = new Action( viewp, tr("&Text Labels"), 0, TRUE );
-    connect( textLabelsAct, SIGNAL(toggled(bool)),
-	     this, SLOT(setUsesTextLabel(bool)) );
-
+    
     overviewAct = new Action( helpp, tr("&Overview..."),
 			      this, SLOT(overview()) );
     aboutAct = new Action( helpp, tr("&About..."), this, SLOT(about()),
@@ -1906,10 +1888,6 @@ void TrWindow::setupMenuBar()
 
     revertSortingAct->setWhatsThis( tr("Sort the items back in the same order"
 				       " as in the message file.") );
-    bigIconsAct->setWhatsThis( tr("Enable or disable use of large icons in"
-				  " toolbars.") );
-    textLabelsAct->setWhatsThis( tr("Enable or disable use of text labels in"
-				    " toolbars.") );
 
     overviewAct->setWhatsThis( tr("Display an introduction to %1.")
 			       .arg(tr("Qt Linguist")) );

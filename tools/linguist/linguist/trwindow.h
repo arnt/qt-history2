@@ -185,8 +185,6 @@ private:
     Action *endingPunctuationAct;
     Action *phraseMatchesAct;
     Action *revertSortingAct;
-    Action *bigIconsAct;
-    Action *textLabelsAct;
     Action *aboutAct;
     Action *aboutQtAct;
     Action *overviewAct;
