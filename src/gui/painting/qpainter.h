@@ -95,7 +95,6 @@ public:
     void setClipRect(const QRect &);
     void setClipRect(int x, int y, int w, int h);
     void setClipRegion(const QRegion &);
-    void setClipPath(const QPainterPath &path);
     void setClipping(bool enable);
     bool hasClipping() const;
 

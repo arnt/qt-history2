@@ -1179,14 +1179,6 @@ void QPainter::resetXForm()
 }
 
 /*!
-    \fn void QPainter::setClipPath(const QPainterPath &path)
-
-    \internal
-
-    Sets the painter's clipping path to \a path.
-*/
-
-/*!
     \fn void QPainter::translate(const QPoint &offset)
 
     \overload
