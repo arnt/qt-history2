@@ -16,7 +16,6 @@
 #include <qsqlrecord.h>
 #include <qdatetime.h>
 #include <qptrvector.h>
-#include <private/qsqlextension_p.h>
 #include <private/qinternal_p.h>
 
 #ifndef UNICODE
@@ -36,54 +35,6 @@ public:
     SQLHANDLE hDbc;
     QString user;
 };
-
-class QDB2PreparedExtension : public QSqlExtension
-{
-public:
-    QDB2PreparedExtension( QDB2Result * r )
-	: result( r ) {}
-
-    bool prepare( const QString& query )
-    {
-	return result->prepare( query );
-    }
-
-    bool exec()
-    {
-	return result->exec();
-    }
-    
-    QDB2Result * result;
-};
-
-QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
-
-class QDB2OpenExtension : public QSqlOpenExtension
-{
-public:
-    QDB2OpenExtension( QDB2Driver *dri )
-	: QSqlOpenExtension(), driver(dri) {}
-    ~QDB2OpenExtension() {}
-
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QString& connOpts );    
-private:
-    QDB2Driver *driver;
-};
-
-bool QDB2OpenExtension::open( const QString& db,
-			      const QString& user,
-			      const QString& password,
-			      const QString& host,
-			      int port,
-			      const QString& connOpts )
-{
-    return driver->open( db, user, password, host, port, connOpts );
-}
 
 class QDB2ResultPrivate
 {
@@ -532,7 +483,6 @@ QDB2Result::QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp )
     : QSqlResult( dr )
 {
     d = new QDB2ResultPrivate( dp );
-    setExtension( new QDB2PreparedExtension( this ) );
 }
 
 QDB2Result::~QDB2Result()
@@ -616,167 +566,164 @@ bool QDB2Result::exec()
         
     QPtrList<QVirtualDestructor> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
-
-    // bind parameters - only positional binding allowed
-    if ( extension()->index.count() > 0 ) {
-	QMap<int, QString>::Iterator it;
-	int para = 1;
-	QVariant val;
-	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
-	    val = extension()->values[ it.data() ].value;
-	    SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
-	    tmpStorage.append( qAutoDeleter(ind) );
-	    if ( val.isNull() ) {
-		*ind = SQL_NULL_DATA;
-	    }
-	    switch ( val.type() ) {
-		case QVariant::Date: {
-		    DATE_STRUCT * dt = new DATE_STRUCT;
-		    tmpStorage.append( qAutoDeleter(dt) );
-		    QDate qdt = val.toDate();
-		    dt->year = qdt.year();
-		    dt->month = qdt.month();
-		    dt->day = qdt.day();
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_DATE,
-					  SQL_DATE,
-					  0,
-					  0,
-					  (void *) dt,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-		case QVariant::Time: {
-		    TIME_STRUCT * dt = new TIME_STRUCT;
-		    tmpStorage.append( qAutoDeleter(dt) );
-		    QTime qdt = val.toTime();
-		    dt->hour = qdt.hour();
-		    dt->minute = qdt.minute();
-		    dt->second = qdt.second();
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_TIME,
-					  SQL_TIME,
-					  0,
-					  0,
-					  (void *) dt,
-					  0,
-	        			  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-		case QVariant::DateTime: {
-		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
-		    tmpStorage.append( qAutoDeleter(dt) );
-		    QDateTime qdt = val.toDateTime();
-		    dt->year = qdt.date().year();
-		    dt->month = qdt.date().month();
-		    dt->day = qdt.date().day();
-		    dt->hour = qdt.time().hour();
-		    dt->minute = qdt.time().minute();
-		    dt->second = qdt.time().second();
-		    dt->fraction = qdt.time().msec() * 1000000;
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_TIMESTAMP,
-					  SQL_TIMESTAMP,
-					  0,
-					  0,
-					  (void *) dt,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-	        case QVariant::Int: {
-		    int * v = new int( val.toInt() );
-		    tmpStorage.append( qAutoDeleter(v) );
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_SLONG,
-					  SQL_INTEGER,
-					  0,
-					  0,
-					  (void *) v,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-	        case QVariant::Double: {
-		    double * v = new double( val.toDouble() );
-		    tmpStorage.append( qAutoDeleter(v) );
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_DOUBLE,
-					  SQL_DOUBLE,
-					  0,
-					  0,
-					  (void *) v,
-					  0,
-					  *ind == SQL_NULL_DATA ? ind : NULL );
-		    break; }
-	        case QVariant::ByteArray: {
-		    if ( *ind != SQL_NULL_DATA ) {
-			*ind = val.asByteArray().size();
-		    }
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_BINARY,
-					  SQL_LONGVARBINARY,
-					  val.asByteArray().size(),
-					  0,
-					  (void *) val.asByteArray().data(),
-					  val.asByteArray().size(),
-					  ind );
-		    break; }
-	        case QVariant::String:
+    
+    QVector<QVariant>& values = boundValues();
+    int i;
+    for ( i = 0; i < values.count(); ++i ) {
+	// bind parameters - only positional binding allowed
+	QVariant val = values[i];
+	SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
+	tmpStorage.append( qAutoDeleter(ind) );
+	if ( val.isNull() )
+	    *ind = SQL_NULL_DATA;
+    
+	switch ( val.type() ) {
+	    case QVariant::Date: {
+		DATE_STRUCT * dt = new DATE_STRUCT;
+		tmpStorage.append( qAutoDeleter(dt) );
+		QDate qdt = val.toDate();
+		dt->year = qdt.year();
+		dt->month = qdt.month();
+		dt->day = qdt.day();
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_DATE,
+				      SQL_DATE,
+				      0,
+				      0,
+				      (void *) dt,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::Time: {
+		TIME_STRUCT * dt = new TIME_STRUCT;
+		tmpStorage.append( qAutoDeleter(dt) );
+		QTime qdt = val.toTime();
+		dt->hour = qdt.hour();
+		dt->minute = qdt.minute();
+		dt->second = qdt.second();
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_TIME,
+				      SQL_TIME,
+				      0,
+				      0,
+				      (void *) dt,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::DateTime: {
+		TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
+		tmpStorage.append( qAutoDeleter(dt) );
+		QDateTime qdt = val.toDateTime();
+		dt->year = qdt.date().year();
+		dt->month = qdt.date().month();
+		dt->day = qdt.date().day();
+		dt->hour = qdt.time().hour();
+		dt->minute = qdt.time().minute();
+		dt->second = qdt.time().second();
+		dt->fraction = qdt.time().msec() * 1000000;
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_TIMESTAMP,
+				      SQL_TIMESTAMP,
+				      0,
+				      0,
+				      (void *) dt,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::Int: {
+		int * v = new int( val.toInt() );
+		tmpStorage.append( qAutoDeleter(v) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_SLONG,
+				      SQL_INTEGER,
+				      0,
+				      0,
+				      (void *) v,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::Double: {
+		double * v = new double( val.toDouble() );
+		tmpStorage.append( qAutoDeleter(v) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_DOUBLE,
+				      SQL_DOUBLE,
+				      0,
+				      0,
+				      (void *) v,
+				      0,
+				      *ind == SQL_NULL_DATA ? ind : NULL );
+		break; }
+	    case QVariant::ByteArray: {
+		if ( *ind != SQL_NULL_DATA ) {
+		    *ind = val.asByteArray().size();
+		}
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_BINARY,
+				      SQL_LONGVARBINARY,
+				      val.asByteArray().size(),
+				      0,
+				      (void *) val.asByteArray().data(),
+				      val.asByteArray().size(),
+				      ind );
+		break; }
+	    case QVariant::String:
 #ifdef UNICODE
-		    {
-			QString * str = new QString( val.asString() );
-			str->ucs2();
-			int len = str->length()*2;
-			tmpStorage.append( qAutoDeleter(str) );
-			r = SQLBindParameter( d->hStmt,
-					      para,
-					      qParamType[ (int)extension()->values[ it.data() ].typ ],
-					      SQL_C_WCHAR,
-					      SQL_WVARCHAR,
-					      str->length(),
-					      0,
-					      (void *) str->unicode(),
-					      len,
-					      ind );
-			break;
-		    }
-#endif
-		    // fall through
-	        default: {
-		    QByteArray * str = new QByteArray( val.asString().local8Bit() );
-		    tmpStorage.append( qAutoDeleter(str) );
-		    r = SQLBindParameter( d->hStmt,
-					  para,
-					  qParamType[ (int)extension()->values[ it.data() ].typ ],
-					  SQL_C_CHAR,
-					  SQL_VARCHAR,
-					  str->length() + 1,
-					  0,
-					  (void *) str->data(),
-					  str->length() + 1,
-					  ind );
-		    break; }
+	    {
+		QString * str = new QString( val.asString() );
+		//str->ucs2();
+		int len = str->length()*2;
+		tmpStorage.append( qAutoDeleter(str) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_WCHAR,
+				      SQL_WVARCHAR,
+				      str->length(),
+				      0,
+				      (void *) str->unicode(),
+				      len,
+				      ind );
+		break;
 	    }
-	    para++;
-	    if ( r != SQL_SUCCESS ) {
+#endif
+	    // fall through
+	    default: {
+		QByteArray * str = new QByteArray( val.toString().local8Bit() );
+		tmpStorage.append( qAutoDeleter(str) );
+		r = SQLBindParameter( d->hStmt,
+				      i + 1,
+				      qParamType[ (int)bindValueType(i) ],
+				      SQL_C_CHAR,
+				      SQL_VARCHAR,
+				      str->length() + 1,
+				      0,
+				      (void *) str->data(),
+				      str->length() + 1,
+				      ind );
+		break; }
+	}
+	if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-		qWarning( "QDB2Result::exec: unable to bind variable: " + qDB2Warn( d ) );
+	    qWarning( "QDB2Result::exec: unable to bind variable: " + qDB2Warn( d ) );
 #endif
-		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
-		return FALSE;
-	    }
+	    setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
+	    return FALSE;
 	}
     }
+
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
@@ -798,52 +745,45 @@ bool QDB2Result::exec()
     setActive( TRUE );
     d->valueCache.resize( count );
 
-#if QT_VERSION >= 0x030200
     //get out parameters
-    if ( extension()->index.count() > 0 ) {
-	QMap<int, QString>::Iterator it;
-	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
-	
+    if ( hasOutValues() ) {
+	for ( i = 0; i < values.count(); ++i ) {    
 	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.getFirst() );
 	    if ( !indPtr )
 		return FALSE;
 	    bool isNull = (*indPtr == SQL_NULL_DATA);
 	    tmpStorage.removeFirst();
-	    
-	    if ( extension()->values[ it.data() ].typ & QSql::Out == QSql::Out ) {
-		tmpStorage.removeFirst();
-		continue;
-	    }
-	    
+
 	    if ( isNull ) {
 		QVariant v;
-		v.cast( extension()->values[ it.data() ].value.type() );
-		extension()->values[ it.data() ].value = v;
-		tmpStorage.removeFirst();
+		v.cast( values[ i ].type() );
+		values[ i ] = v;
+		if ( values[ i ].type() != QVariant::ByteArray )
+		    tmpStorage.removeFirst();
 		continue;
 	    }
 
-	    switch ( extension()->values[ it.data() ].value.type() ) {
+	    switch ( values[ i ].type() ) {
 		case QVariant::Date: {
 		    DATE_STRUCT * ds = qAutoDeleterData( (QAutoDeleter<DATE_STRUCT>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( QDate( ds->year, ds->month, ds->day ) );
+		    values[ i ] = QVariant( QDate( ds->year, ds->month, ds->day ) );
 		    break; }
 		case QVariant::Time: {
 		    TIME_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIME_STRUCT>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( QTime( dt->hour, dt->minute, dt->second ) );
+		     values[ i ] = QVariant( QTime( dt->hour, dt->minute, dt->second ) );
 		    break; }
 		case QVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
+		    values[ i ] = QVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
 								       QTime( dt->hour, dt->minute, dt->second ) ) );
 		    break; }
 	        case QVariant::Int: {
 		    int * v = qAutoDeleterData( (QAutoDeleter<int>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( *v );
+		    values[ i ] = QVariant( *v );
 		    break; }
 	        case QVariant::Double: {
 		    double * v = qAutoDeleterData( (QAutoDeleter<double>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( *v );
+		    values[ i ] = QVariant( *v );
 		    break; }
 	        case QVariant::ByteArray:
 		    break;
@@ -851,20 +791,20 @@ bool QDB2Result::exec()
 #ifdef UNICODE
 		    {
 			QString * str = qAutoDeleterData( (QAutoDeleter<QString>*)tmpStorage.getFirst() );
-			extension()->values[ it.data() ].value = QVariant( *str );
+			values[ i ] = QVariant( *str );
 			break;
 		    }
 #endif
 		    // fall through
 	        default: {
-		    QCString * str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
-		    extension()->values[ it.data() ].value = QVariant( *str );
+		    QByteArray * str = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
+		    values[ i ] = QVariant( *str );
 		    break; }
 	    }
-	    tmpStorage.removeFirst();
+	    if ( values[ i ].type() != QVariant::ByteArray )
+		tmpStorage.removeFirst();
 	}
     }
-#endif    
     return TRUE;
 }
 
@@ -1047,7 +987,6 @@ QVariant QDB2Result::data( int field )
 		v = new QVariant( qGetDoubleData( d->hStmt, field, isNull ) );
 	    break;
 	case QVariant::String:
-	case QVariant::CString:
 	default:
 	    v = new QVariant( qGetStringData( d->hStmt, field, info.length(), isNull ) );
 	    break;
@@ -1091,14 +1030,12 @@ int QDB2Result::size()
 QDB2Driver::QDB2Driver( QObject* parent, const char* name )
     : QSqlDriver( parent, name )
 {
-    qSqlOpenExtDict()->insert( this, new QDB2OpenExtension(this) );
     d = new QDB2DriverPrivate;
 }
 
 QDB2Driver::QDB2Driver( Qt::HANDLE env, Qt::HANDLE con, QObject* parent, const char* name )
     : QSqlDriver( parent, name )
 {
-    qSqlOpenExtDict()->insert( this, new QDB2OpenExtension(this) );
     d = new QDB2DriverPrivate;
     d->hEnv = (SQLHANDLE)env;
     d->hDbc = (SQLHANDLE)con;
@@ -1112,16 +1049,6 @@ QDB2Driver::~QDB2Driver()
 {
     close();
     delete d;
-    if ( !qSqlOpenExtDict()->isEmpty() ) {
-	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
-	delete ext;
-    }
-}
-
-bool QDB2Driver::open( const QString&, const QString&, const QString&, const QString&, int )
-{
-    qWarning( "QDB2Driver::open(): This version of open() is no longer supported." );
-    return FALSE;
 }
 
 bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int, 

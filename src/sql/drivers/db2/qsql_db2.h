@@ -60,7 +60,6 @@ public:
     QDB2Driver( HANDLE env, HANDLE con, QObject* parent = 0, const char* name = 0 );
     ~QDB2Driver();
     bool hasFeature( DriverFeature ) const;
-    bool open( const QString& db, const QString& user, const QString& passwd, const QString&, int );
     void close();
     QSqlRecord record( const QString& tableName ) const;
     QSqlRecord record( const QSqlQuery& query ) const;
@@ -75,8 +74,6 @@ public:
     QString formatValue( const QSqlField* field, bool trimStrings ) const;
     Qt::HANDLE environment();
     Qt::HANDLE connection();
-    
-    // ### remove me for 4.0
     bool open( const QString& db,
 	       const QString& user,
 	       const QString& password,
