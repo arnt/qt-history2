@@ -144,7 +144,8 @@ void TextEdit::setupTextActions()
     QMenu *menu = new QMenu(this);
     menuBar()->addMenu(tr("F&ormat"), menu);
 
-    comboStyle = new QComboBox(tb);
+    comboStyle = new QComboBox;
+    tb->addWidget(comboStyle);
     comboStyle->insertItem("Standard");
     comboStyle->insertItem("Bullet List (Disc)");
     comboStyle->insertItem("Bullet List (Circle)");
@@ -155,7 +156,8 @@ void TextEdit::setupTextActions()
     connect(comboStyle, SIGNAL(activated(int)),
             this, SLOT(textStyle(int)));
 
-    comboFont = new QComboBox(tb);
+    comboFont = new QComboBox;
+    tb->addWidget(comboFont);
     comboFont->setEditable(true);
     QFontDatabase db;
     comboFont->insertStringList(db.families());
@@ -163,7 +165,8 @@ void TextEdit::setupTextActions()
             this, SLOT(textFamily(const QString &)));
     comboFont->lineEdit()->setText(QApplication::font().family());
 
-    comboSize = new QComboBox(tb);
+    comboSize = new QComboBox;
+    tb->addWidget(comboSize);
     comboSize->setEditable(true);
 
     QList<int> sizes = db.standardSizes();
