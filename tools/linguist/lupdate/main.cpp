@@ -40,7 +40,7 @@ static void printUsage()
 {
     fprintf( stderr, "Usage:\n"
 	     "    lupdate [ options ] project-file\n"
-	     "    lupdate [ options ] source-files -ts ts-files\n"
+	     "    lupdate [ options ] source/project-files -ts ts-files\n"
 	     "Options:\n"
 	     "    -help  Display this information and exit\n"
 	     "    -noobsolete\n"
@@ -180,7 +180,29 @@ int main( int argc, char **argv )
 	    if ( metTsFlag ) {
 		tsFileNames.append( QString(argv[i]) );
 	    } else {
-		if ( fullText.find(QString("<!DOCTYPE UI>")) == -1 ) {
+		if ( QString(argv[i]).right(4).lower() == ".pro" ) {
+		    QMap<QString, QString> tagMap = proFileTagMap( fullText );
+		    QMap<QString, QString>::Iterator it;
+
+		    for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+        		QStringList toks = QStringList::split( QChar(' '), it.data() );
+			QStringList::Iterator t;
+
+        		for ( t = toks.begin(); t != toks.end(); ++t ) {
+			    if ( it.key() == QString("HEADERS") ||
+                		 it.key() == QString("SOURCES") ) {
+                		fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
+			    } else if ( it.key() == QString("INTERFACES") ||
+					it.key() == QString("FORMS") ) {
+                		fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
+				fetchtr_cpp( *t + QString(".h"), &fetchedTor,
+					     defaultContext, FALSE );
+			    } else if ( it.key() == QString("CODEC") ) {
+                		codec = (*t).latin1();
+			    }
+        		}
+		    }
+		} else if ( fullText.find(QString("<!DOCTYPE UI>")) == -1 ) {
         	    fetchtr_cpp( QString(argv[i]), &fetchedTor, defaultContext,
 				 TRUE );
 		} else {
