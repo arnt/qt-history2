@@ -1,5 +1,5 @@
 CONFIG   = console release flat precompile_header
-DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD QT4_TECH_PREVIEW
+DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD QT4_TECH_PREVIEW QT_NO_QFILE_QOBJECT
 
 PRECOMPILED_HEADER = configure_pch.h
 
@@ -14,13 +14,11 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/core/codecs/qtextcodec.h \
            $$QT_SOURCE_TREE/src/core/global/qglobal.h \
            $$QT_SOURCE_TREE/src/core/io/qbuffer.h \
-           $$QT_SOURCE_TREE/src/core/io/qsettings.h \
            $$QT_SOURCE_TREE/src/core/io/qdatastream.h \
            $$QT_SOURCE_TREE/src/core/io/qdir.h \
            $$QT_SOURCE_TREE/src/core/io/qfile.h \
            $$QT_SOURCE_TREE/src/core/io/qfileinfo.h \
            $$QT_SOURCE_TREE/src/core/io/qfileengine.h \
-           $$QT_SOURCE_TREE/src/core/io/qioengine.h \
            $$QT_SOURCE_TREE/src/core/io/qiodevice.h \
            $$QT_SOURCE_TREE/src/core/io/qtextstream.h \
            $$QT_SOURCE_TREE/src/core/io/qtemporaryfile.h \
@@ -44,15 +42,12 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/codecs/qtextcodec.cpp \
            $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
            $$QT_SOURCE_TREE/src/core/io/qbuffer.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qsettings_win.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qsettings.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfile.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfileinfo.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfileengine.cpp \
            $$QT_SOURCE_TREE/src/core/io/qfileengine_win.cpp \
-           $$QT_SOURCE_TREE/src/core/io/qioengine.cpp \
            $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/core/io/qtextstream.cpp \
            $$QT_SOURCE_TREE/src/core/io/qtemporaryfile.cpp \

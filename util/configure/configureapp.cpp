@@ -1154,9 +1154,9 @@ void Configure::generateConfigfiles()
 	if(dictionary["STYLE_MAC"] == "no")         qconfigList += "QT_NO_STYLE_MAC";
 
         if(dictionary["GIF"] == "yes")              qconfigList += "QT_BUILTIN_GIF_READER=1";
-        if(dictionary["PNG"] != "yes")              qconfigList += "QT_NO_IMAGEIO_PNG";
-        if(dictionary["JPEG"] != "yes")             qconfigList += "QT_NO_IMAGEIO_JPEG";
-        if(dictionary["MNG"] != "yes")              qconfigList += "QT_NO_IMAGEIO_MNG";
+        if(dictionary["PNG"] != "qt") qconfigList += "QT_NO_IMAGEIO_PNG";
+        if(dictionary["JPEG"] != "qt")             qconfigList += "QT_NO_IMAGEIO_JPEG";
+        if(dictionary["MNG"] != "qt")              qconfigList += "QT_NO_IMAGEIO_MNG";
         if(dictionary["ZLIB"] == "no")            { qconfigList += "QT_NO_ZLIB";
                                                     qconfigList += "QT_NO_COMPRESS"; }
         
