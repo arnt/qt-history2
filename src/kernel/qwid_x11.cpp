@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#228 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#229 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#228 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#229 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -884,8 +884,27 @@ bool QWidget::isActiveWindow() const
     Window win;
     int revert;
     XGetInputFocus( dpy, &win, &revert );
+
+    if ( win == None) return FALSE;
+
     QWidget *w = find( win );
-    return w && w->topLevelWidget() == topLevelWidget();
+    if ( w ) {
+	// We know that window
+	return w->topLevelWidget() == topLevelWidget();
+    } else {
+	// Window still may be a parent (if top-level is foreign window)
+	Window root, parent;
+	Window cursor = winId();
+	Window *ch;
+	unsigned int nch;
+	while ( XQueryTree(dpy, cursor, &root, &parent, &ch, &nch) ) {
+	    if (ch) XFree(ch);
+	    if ( parent == win ) return TRUE;
+	    if ( parent == root ) return FALSE;
+	    cursor = parent;
+	}
+	return FALSE;
+    }
 }
 
 
