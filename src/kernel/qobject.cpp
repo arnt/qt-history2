@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#62 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#62 $")
 
 
 /*----------------------------------------------------------------------------
@@ -251,10 +251,12 @@ QObject::QObject( QObject *parent, const char *name )
 
   All signals to and from the object are automatically disconnected.
 
-  \warning \e All child objects are deleted.  If any of these objects
-  are on the stack or global, your program will dump core.  If you have
-  a pointer to a child object and try to use it later, you will lose.
-  ----------------------------------------------------------------------------*/
+  \warning \e All child objects are deleted.  If any of these objects are
+  on the stack or global, your program will sooner or later crash.  We do
+  not recommend holding pointers to child objects from outside the parent.
+  If you still do, the QWidget::destroyed() signal gives you an
+  opportunity to detect when a widget is destroyed.
+ ----------------------------------------------------------------------------*/
 
 QObject::~QObject()
 {
@@ -322,7 +324,7 @@ QObject::~QObject()
 
   \warning If this function returns 0, the constructor probably forgot
   to call initMetaObject().
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Returns the class name of this object.
@@ -334,7 +336,7 @@ QObject::~QObject()
   constructor did not call initMetaObject() or if the class definition
   lacks the \c Q_OBJECT macro.
 
-  \sa name() inherits() isA() isWidgetType()
+  \sa name(), inherits(), isA(), isWidgetType()
  ----------------------------------------------------------------------------*/
 
 const char *QObject::className() const
@@ -354,7 +356,7 @@ const char *QObject::className() const
     t->isA("QObject");			// returns FALSE
   \endcode
 
-  \sa inherits() metaObject()
+  \sa inherits(), metaObject()
  ----------------------------------------------------------------------------*/
 
 bool QObject::isA( const char *clname ) const	// test if is-a class
@@ -400,7 +402,7 @@ bool QObject::inherits( const char *clname ) const
   The queryList() function searches the object tree for objects that
   matches a particular object name.
 
-  \sa setName(), className()
+  \sa setName(), className(), queryList()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -413,7 +415,7 @@ bool QObject::inherits( const char *clname ) const
   The queryList() function searches the object tree for objects that
   matches a particular object name.
 
-  \sa name(), queryList(), className()
+  \sa name(), className(), queryList()
  ----------------------------------------------------------------------------*/
 
 void QObject::setName( const char *name )
@@ -438,8 +440,6 @@ void QObject::setName( const char *name )
 
   High priority objects are placed first in list of children,
   on the assumption that they will be referenced very often.
-
-  Currently only QAccel objects are high priority.
  ----------------------------------------------------------------------------*/
 
 
@@ -746,6 +746,41 @@ void QObject::removeChild( QObject *obj )	// remove child object
   sent to this object via the eventFilter() function.
   The event filter returns TRUE if the event should be stopped, or
   FALSE if the event can be dispatched normally.
+
+  If multiple event filters are installed for a single object, the
+  filter last installed will be activated first.
+
+  Example:
+  \code
+    #include <qwidget.h>
+
+    class MyWidget : public QWidget
+    {
+    public:
+        MyWidget::MyWidget( QWidget *parent=0, const char *name=0 );
+    protected:
+        bool  eventFilter( QObject *, QEvent * );
+    };
+
+    MyWidget::MyWidget( QWidget *parent, const char *name )
+        : QWidget( parent, name )
+    {
+        if ( parent )				// has a child widget
+	    parent->installEventFilter( this ); // then install filter
+    }
+
+    bool MyWidget::eventFilter( QObject *, QEvent *e )
+    {
+        if ( e->type() == Event_KeyPress ) {	// key press
+	    QKeyEvent *k = (QKeyEvent*)e;
+	    debug( "Ate key press %d", k->key() );
+	    return TRUE;			// eat event
+        }
+        return FALSE;				// standard event processing
+    }
+  \endcode
+
+  The QAccel class was implemented using this technique.
 
   \sa removeEventFilter(), eventFilter(), event()
  ----------------------------------------------------------------------------*/
