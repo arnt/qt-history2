@@ -1031,6 +1031,8 @@ void QPopupMenu::updateSize()
 
     int dh = QApplication::desktop()->height();
     ncols = 1;
+    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
+	height += style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this) * 2;
 
     for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	mi = it2.current();
@@ -1113,8 +1115,8 @@ void QPopupMenu::updateSize()
 		if(height >= d->scroll.scrollableSize - scrheight) {
 		    height = d->scroll.scrollableSize - scrheight;
 		    break;
-	       }
-	    }
+		}
+	    } 
 	} else if( height + 2*frameWidth() >= dh ) {
 	    ncols++;
 	    max_height = QMAX(max_height, height - itemHeight);
