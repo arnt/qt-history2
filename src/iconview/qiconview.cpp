@@ -2196,7 +2196,7 @@ void QIconViewItem::checkRect()
     (QIconViewItems) can be added or deleted at any time; items can be
     moved within the QIconView. Single or multiple items can be
     selected. Items can be renamed in-place. QIconView also supports
-    drag and drop.
+    \link #draganddrop drag and drop\endlink.
 
     Each item contains a label string, a pixmap or picture (the icon
     itself) and optionally a sort key. The sort key is used for
@@ -2287,6 +2287,7 @@ void QIconViewItem::checkRect()
     selectionChanged(), currentChanged(), clicked(), moved() and
     itemRenamed().
 
+    \target draganddrop
     \section1 Drag and Drop
 
     QIconView supports the drag and drop of items within the QIconView

@@ -144,7 +144,9 @@ static bool block_set_alignment = FALSE;
 	 history so is faster and uses less memory); text() returns
 	 plain or rich text depending on the textFormat(). This mode
 	 can correctly display a large subset of HTML tags.
-    \row \i Log Viewer<sup>3.</sup> \i setTextFormat(LogText)
+    \row \i Log Viewer<sup>3.</sup> \i setTextFormat(LogText)<br>
+				       (automatically calls<br>
+				       setReadOnly(TRUE))
          \i Set text with append() (which has no undo
 	 history so is fast and uses less memory); text() returns
 	 plain text. It is possible to set text attributes (e.g.
@@ -322,6 +324,58 @@ static bool block_set_alignment = FALSE;
     the locations of files and images. It is passed to the
     mimeSourceFactory() when quering data. (See QTextEdit() and
     \l{context()}.)
+
+    \section1 Using QTextEdit as a Log Viewer
+
+    Call setTextFormat(LogText) to put the QTextEdit into log text
+    mode. This mode is is optimized (in terms of memory use and speed)
+    for very large amounts of text. In text log mode, editing and full
+    rich text support are disabled (the widget is automatically set to
+    \link setReadOnly() read-only\endlink mode).
+
+    In log text mode, QTextEdit recognises a small set of rich text
+    tags; additional tags can be specified using a style sheet. Log
+    text mode tags have the same HTML format used for rich text mode,
+    i.e. \c{<}, tag name, \c{>} for an opening tag and \c{</},
+    tagname, \c{>} for a closing tag. Tags may be nested, with the
+    order of closing matching the order of opening, e.g. \c{<b><u>bold
+    underlined</u></b>} is valid, but \c{<b><u>bold
+    underlined</b></u>} will produce an error message.
+
+    Tags can be used to set the color, bold, italic and
+    underline attributes of a piece of text. A color is specified
+    using the HTML font tag \c{<font color=colorname>}. The color
+    name can be one of the color names from the X11 color database (on
+    all Qt platforms), or an RGB hex value (e.g \c{#00ff00}). For
+    example, \c{<font color=red>red text</font>},
+    \c{<font color="light blue">light blue text</font>},
+    \c {<font color="#223344">blue-ish text</font>}. Bold, italic and
+    underline attributes are specified using \c {<b>bold</b>},
+    \c{<i>italic</i>} and \c{<u>underline</u>} respecively.
+
+    Stylesheets can also be used in log text mode. To create and use a
+    custom tag, you could do the following:
+    \code
+    QTextEdit *log = new QTextEdit( this );
+    log->setTextFormat( Qt::LogText );
+    QStyleSheetItem * item = new QStyleSheetItem( log->styleSheet(), "mytag" );
+    item->setColor( "red" );
+    item->setFontWeight( QFont::Bold );
+    item->setFontUnderline( TRUE );
+    log->append( "This is a <mytag>custom tag</mytag>!" );
+    \endcode
+    Only the color, bold, underline and italic attributes of a
+    QStyleSheetItem are used in log text mode.
+
+    There are a few things to be aware of when working in log text
+    mode:
+    \list
+    \i Functions that deal with rich text formatting will not work or
+    return anything valid.
+    \i Lines are equivalent to paragraphs.
+    \i Inserting lines is not supported. It is only possible to
+    append() lines.
+    \endlist
 
     \section1 Using QTextEdit as an Editor
 
