@@ -467,10 +467,11 @@ bool QSqlCachedResult::fetchLast()
 	return TRUE;
     }
     if ( at() >= QSql::BeforeFirst ) {
+	int i = at();
 	while ( fetchNext() )
-	    ; /* brute force */
+	    i++; /* brute force */
 	if ( isForwardOnly() && at() == QSql::AfterLast ) {
-	    setAt( at() - 1 );
+	    setAt( i );
 	    return TRUE;
 	} else
 	    return fetch( set->size() - 1 );

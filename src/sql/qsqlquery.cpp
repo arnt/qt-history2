@@ -476,6 +476,13 @@ bool QSqlQuery::seek( int i, bool relative )
 	}
     }
     // let drivers optimize
+    if ( isForwardOnly() && actualIdx < at() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query" );
+#endif
+	afterSeek();
+	return FALSE;
+    }
     if ( actualIdx == ( at() + 1 ) ) {
 	if ( !d->sqlResult->fetchNext() ) {
 	    d->sqlResult->setAt( QSql::AfterLast );
@@ -586,6 +593,13 @@ bool QSqlQuery::prev()
 {
     if ( !isSelect() || !isActive() )
 	return FALSE;
+    if ( isForwardOnly() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query" );
+#endif
+	return FALSE;
+    }
+
     beforeSeek();
     checkDetach();
     bool b = FALSE;
@@ -621,6 +635,12 @@ bool QSqlQuery::first()
 {
     if ( !isSelect() || !isActive() )
 	return FALSE;
+    if ( isForwardOnly() && at() > QSql::BeforeFirst ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query" );
+#endif
+	return FALSE;
+    }
     beforeSeek();
     checkDetach();
     bool b = FALSE;

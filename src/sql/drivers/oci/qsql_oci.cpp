@@ -1173,10 +1173,11 @@ bool QOCIResult::fetchLast()
 	return TRUE;
     }
     if ( at() >= QSql::BeforeFirst ) {
+	int i = at();
 	while ( fetchNext() )
-	    ; /* brute force */
+	    i++; /* brute force */
 	if ( isForwardOnly() && at() == QSql::AfterLast ) {
-	    setAt( at() - 1 );
+	    setAt( i );
 	    return TRUE;
 	} else
 	    return fetch( d->rowCache.count() - 1 );
@@ -1507,7 +1508,7 @@ bool QOCI9Result::fetchLast()
 		setAt( QSql::AfterLast );
 		return FALSE;
 	    }
-	    setAt( currentPos  );
+	    setAt( currentPos - 1 );
 	    return TRUE;
 	}
     }
