@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#44 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#44 $")
 
 
 /*!
@@ -1051,7 +1051,7 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
 */
 
 QImageIO::QImageIO( const char *fileName, const char *format )
-    : fname(fileName), frmt(format)
+    : frmt(format), fname(fileName)
 {
     iostat = 0;
     iodev  = 0;
