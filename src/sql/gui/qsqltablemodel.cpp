@@ -315,6 +315,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         }
         d->editBuffer.setValue(index.column(), value);
         d->editIndex = index.row();
+        emit dataChanged(index, index);
         break;
     case OnManualSubmit:
         if (!d->cache.contains(index.row())) {
@@ -325,6 +326,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         } else {
             d->cache[index.row()][index.column()] = value;
         }
+        emit dataChanged(index, index);
         break;
     }
     return true;
