@@ -1,6 +1,8 @@
 #include "simplewidgets.h"
 
+#include <qabstractbutton.h>
 #include <qaccel.h>
+#include <qbutton.h>
 #include <qcheckbox.h>
 #include <qpushbutton.h>
 #include <qprogressbar.h>
@@ -29,16 +31,16 @@ QAccessibleButton::QAccessibleButton(QWidget *w, Role role)
 : QAccessibleWidget(w, role)
 {
     Q_ASSERT(button());
-    if (button()->isToggleButton())
+    if (button()->isCheckable())
         addControllingSignal("toggled(bool)");
     else
         addControllingSignal("clicked()");
 }
 
 /*! Returns the button. */
-QButton *QAccessibleButton::button() const
+QAbstractButton *QAccessibleButton::button() const
 {
-    return qt_cast<QButton*>(object());
+    return qt_cast<QAbstractButton*>(object());
 }
 
 /*! \reimp */
@@ -58,15 +60,15 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
                 if (state(child) & Checked)
                     return QCheckBox::tr("Uncheck");
                 QCheckBox *cb = qt_cast<QCheckBox*>(object());
-                if (!cb || !cb->isTristate() || button()->state() == QButton::NoChange)
+                if (!cb || !cb->isTristate() || cb->state() == QButton::NoChange)
                     return QCheckBox::tr("Check");
                 return QCheckBox::tr("Toggle");
             }
             break;
         case RadioButton:
             return QRadioButton::tr("Check");
- 	default:
- 	    break;
+        default:
+            break;
         }
         break;
     }
@@ -84,8 +86,8 @@ bool QAccessibleButton::doAction(int action, int child, const QVariantList &para
     case Press:
         {
             QPushButton *pb = qt_cast<QPushButton*>(object());
-            if (pb && pb->popup())
-                pb->openPopup();
+            if (pb && pb->menu())
+                pb->popupMenu();
             else
                 button()->animateClick();
         }
@@ -125,10 +127,11 @@ int QAccessibleButton::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
 
-    QButton *b = button();
-    if (b->state() == QButton::On)
+    QAbstractButton *b = button();
+    QCheckBox *cb = qt_cast<QCheckBox *>(b);
+    if (b->isChecked())
         state |= Checked;
-    else if (b->state() == QButton::NoChange)
+    else if (cb && cb->state() == QButton::NoChange)
         state |= Mixed;
     if (b->isDown())
         state |= Pressed;
@@ -136,7 +139,7 @@ int QAccessibleButton::state(int child) const
     if (pb) {
         if (pb->isDefault())
             state |= DefaultButton;
-        if (pb->popup())
+        if (pb->menu())
             state |= HasPopup;
     }
 

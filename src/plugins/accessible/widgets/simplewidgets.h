@@ -3,7 +3,7 @@
 
 #include <qaccessiblewidget.h>
 
-class QButton;
+class QAbstractButton;
 class QLineEdit;
 class QToolButton;
 
@@ -19,7 +19,7 @@ public:
     bool        doAction(int action, int child, const QVariantList &params);
 
 protected:
-    QButton *button() const;
+    QAbstractButton *button() const;
 };
 
 class QAccessibleToolButton : public QAccessibleButton

@@ -103,9 +103,9 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QPushButton") {
         Role role = NoRole;
         QPushButton *pb = qt_cast<QPushButton*>(widget);
-        if (pb->popup())
+        if (pb->menu())
             role = ButtonMenu;
-        else if (pb->isToggleButton())
+        else if (pb->isCheckable())
             role = CheckBox;
         else
             role = PushButton;
