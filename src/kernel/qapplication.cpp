@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#210 $
 **
 ** Implementation of QApplication class
 **
@@ -1032,7 +1032,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	return FALSE;
     }
 
-    
+
     if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
 	// if this is a child remove event an the child insert hasn't been
 	// dispatched yet, kill that insert and return.
@@ -1047,13 +1047,12 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 		postedEvents->take( postedEvents->findRef( pe ) );
 		pe->event->posted = FALSE;
 		delete pe;
-		delete event;
 		return TRUE;
 	    }
 	}
     }
 
-    
+
     if ( eventFilters ) {
 	QObjectListIt it( *eventFilters );
 	register QObject *obj;
