@@ -1357,7 +1357,7 @@ QStringList DocParser::getStringList()
     bracy.setMinimal( TRUE );
 
     skipSpaces( yyIn, yyPos );
-    while ( TRUE ) {
+    for (;;) {
 	int begin = yyPos;
 	int end;
 

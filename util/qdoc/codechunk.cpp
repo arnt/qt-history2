@@ -155,7 +155,7 @@ void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
 	myhspot = s.length();
 
     int i = 0;
-    while ( TRUE ) {
+    for (;;) {
 	if ( i == myhspot ) {
 	    if ( !hotspotHtml.isEmpty() ) {
 		out.putsMeta( "&nbsp;" );

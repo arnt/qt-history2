@@ -193,7 +193,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    clearWFlags( WStyle_ContextHelp );
     }
     if ( !desktop ) {
-	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
+	// if ( !testWFlags( WPaintUnclipped ) ) 
+	// ### Commented out for now as it causes some problems, but 
+	// this should be correct anyway, so dig some more into this
+	    style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
 	if ( topLevel ) {
 #ifndef Q_OS_TEMP
 	    if ( testWFlags(WStyle_NormalBorder) )

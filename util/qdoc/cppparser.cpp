@@ -115,7 +115,7 @@ static bool matchDataType( CodeChunk *type, QString *var = 0 )
       This code is really hard to follow... sorry. The loop is there to match
       Alpha::Beta::Gamma::...::Omega.
     */
-    while ( TRUE ) {
+    for (;;) {
 	bool virgin = TRUE;
 
 	if ( yyTok != Tok_Ident ) {
@@ -379,7 +379,7 @@ static bool matchBaseSpecifier( ClassDecl *classDecl )
 
 static bool matchBaseList( ClassDecl *classDecl )
 {
-    while ( TRUE ) {
+    for (;;) {
 	if ( !matchBaseSpecifier(classDecl) )
 	    return FALSE;
 	if ( yyTok == Tok_LeftBrace )

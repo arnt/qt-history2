@@ -288,6 +288,8 @@ void TextEdit::filePrint()
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
+	// Check that there is a valid device to print to.
+	if ( !p.device() ) return;  	    
 	QPaintDeviceMetrics metrics( p.device() );
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();

@@ -65,7 +65,7 @@ int Tokenizer::getToken()
 	    } while ( isalnum(yyCh) || yyCh == '_' );
 
 	    int k = hashKword( yyLex, yyLexLen );
-	    while ( TRUE ) {
+	    for (;;) {
 		int i = kwordHashTable[k];
 		if ( i == 0 ) {
 		    if ( strcmp(yyLex, "inline") == 0 ||

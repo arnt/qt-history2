@@ -88,7 +88,7 @@ static void parseClass( DocEmitter *emitter )
     if ( !html.isEmpty() )
 	emitter->addHtmlChunk( yyFileName, HtmlChunk(html) );
 
-    while ( TRUE ) {
+    for (;;) {
 	skipUntil( QString("3 class=fn>") );
 	skipUntil( QString("<a name=\"") );
 	QString anchor = getBefore( QString("\">") );

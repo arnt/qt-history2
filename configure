@@ -179,17 +179,7 @@ else
 	if [ -f $HOME/.qt-license ]
 	then
 	    . $HOME/.qt-license >/dev/null 2>&1
-	    if echo $Products | grep >/dev/null 'qt-enterprise'
-	    then
-		Desc=Enterprise
-		Edition=ent
-	    else
-		Products=qt-professional
-		Desc=Professional
-		Edition=pro
-	    fi
-	    # example key: ProductKey=WXME-15483B4E-9BE1A581
-	    if [ -z "$ProductKey" ]
+	    if [ -z "$LicenseKey" ]
 	    then
 		echo 
 		echo "You are using an old license file."
@@ -198,30 +188,56 @@ else
 		echo "or install the Qt Free Edition if you intend to develop"
 		echo "free software."
 		exit 1
-	    else
-		plats=`echo $ProductKey | sed -e s,-.*$,,`
-		if ! echo $plats | grep >/dev/null 'X'
-		then
-		    echo
-		    echo "You are not licensed for the X11 platform."
- 		    echo
-		    echo "Please contact sales@trolltech.com to upgrade your license"
-		    echo "to include the X11 platform, or install the Qt Free Edition"
-		    echo "if you intend to develop free software."
-		    exit 1
-		fi
 	    fi
-        else
+	else
+	    if [ -z "$LicenseKey" ]
+	    then
+		echo
+		echo "Please insert your license key"
+		read LicenseKey
+	    fi
+	fi
+	keyTest=`echo $LicenseKey | sed -e s/....-....-....$//`
+	if [ -z "$keyTest" ]
+	then
+	    # get the first character of the key
+	    keyTest=`echo $LicenseKey | sed -e s/...-....-....$//`
+	    if [ "$keyTest" = "6" ] || [ "$keyTest" = "7" ] || [ "$keyTest" = "8" ] || [ "$keyTest" = "9" ] || [ "$keyTest" = "E" ] || [ "$keyTest" = "F" ] || [ "$keyTest" = "G" ] || [ "$keyTest" = "H" ]
+	    then
+		# Feature_Unix
+		echo
+	    else
+		echo
+		echo "You are not licensed for the X11 platform."
+		echo
+		echo "Please contact sales@trolltech.com to upgrade your license"
+		echo "to include the X11 platform, or install the Qt Free Edition"
+		echo "if you intend to develop free software."
+		exit 1
+	    fi
+	    if [ "$keyTest" = "4" ] || [ "$keyTest" = "5" ] || [ "$keyTest" = "8" ] || [ "$keyTest" = "9" ] || [ "$keyTest" = "C" ] || [ "$keyTest" = "D" ] || [ "$keyTest" = "G" ] || [ "$keyTest" = "H" ]
+	    then
+		# Feature_Enterprise
+		Desc=Enterprise
+		Edition=ent
+	    else
+		Products=qt-professional
+		Desc=Professional
+		Edition=pro
+	    fi
+	    if [ "$keyTest" = "3" ] || [ "$keyTest" = "5" ] || [ "$keyTest" = "7" ] || [ "$keyTest" = "9" ] || [ "$keyTest" = "B" ] || [ "$keyTest" = "D" ] || [ "$keyTest" = "F" ] || [ "$keyTest" = "H" ]
+	    then
+		# Feature_US
+		rm -f $relpath/LICENSE
+		mv -f $relpath/LICENSE-US $relpath/LICENSE
+	    else
+		rm -f $relpath/LICENSE-US
+	    fi
+	else
 	    echo
-	    echo "\"$HOME/.qt-license\" not found"
-	    echo
-	    echo "You have not installed a valid license file."
-	    echo
-	    echo "Please install the license file supplied by Trolltech,"
-	    echo "or install the Qt Free Edition if you intend to develop"
-	    echo "free software."
+	    echo "Invalid license key. Please check the license key."
 	    exit 1
-	 fi
+	fi
     else
 	echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
 	echo "this software has disappeared."
