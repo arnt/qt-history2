@@ -121,6 +121,19 @@
 */
 
 /*!
+    \enum QChar::UnicodeVersion
+
+    \value Unassigned
+    \value Unicode_1_1
+    \value Unicode_2_0
+    \value Unicode_2_1_2
+    \value Unicode_3_0
+    \value Unicode_3_1
+    \value Unicode_3_2
+    \value Unicode_4_0
+*/
+
+/*!
     \enum QChar::Category
 
     This enum maps the Unicode character categories.
@@ -239,6 +252,7 @@
     \link http://www.unicode.org/ the Unicode Standard\endlink for a
     description of the values.
 
+    \value NoDecomposition
     \value Canonical
     \value Circle
     \value Compat
@@ -250,7 +264,6 @@
     \value Medial
     \value Narrow
     \value NoBreak
-    \value Single
     \value Small
     \value Square
     \value Sub

@@ -34,9 +34,13 @@
 
     The purpose of a QMutex is to protect an object, data structure or
     section of code so that only one thread can access it at a time
-    (This is similar to the Java \c synchronized keyword). For
-    example, say there is a method which prints a message to the user
-    on two lines:
+    (This is similar to the Java \c synchronized keyword). It is
+    usually best to use a mutex with a QMutexLocker since this makes
+    it easy to ensure that locking and unlocking are performed
+    consistently.
+
+    For example, say there is a method which prints a message to the
+    user on two lines:
 
     \code
     int number = 6;

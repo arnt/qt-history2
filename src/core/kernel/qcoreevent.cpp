@@ -67,9 +67,6 @@
 
     \value None  Not an event.
 
-    \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
-    \value AccelAvailable internal.
-    \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
     \value Accessibility  Accessibility information is requested.
     \value ActionChanged An action has been changed.
     \value ActionAdded A new action has been added.
@@ -153,6 +150,7 @@
     \value ToolTip
     \value UpdateRequest The widget should be repainted.
     \value WhatsThis
+    \value WhatsThisClicked
     \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
     \value WindowActivate  Window was activated.
     \value WindowBlocked
@@ -219,7 +217,7 @@ QEvent::~QEvent()
     The event handler QObject::timerEvent() receives timer events.
 
     \sa QTimer, QObject::timerEvent(), QObject::startTimer(),
-    QObject::killTimer(), QObject::killTimers()
+    QObject::killTimer()
 */
 
 /*!
