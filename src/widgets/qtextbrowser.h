@@ -43,14 +43,14 @@
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"
-#include "qtextview.h"
+#include "qtextedit.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTBROWSER
 
 class QTextBrowserData;
 
-class Q_EXPORT QTextBrowser : public QTextView
+class Q_EXPORT QTextBrowser : public QTextEdit
 {
     Q_OBJECT
     Q_PROPERTY( QString source READ source WRITE setSource )

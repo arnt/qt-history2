@@ -119,7 +119,7 @@ public:
     name.
 */
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
-    : QTextView( parent, name )
+    : QTextEdit( parent, name )
 {
     setReadOnly( TRUE );
     d = new QTextBrowserData;
@@ -354,7 +354,7 @@ void QTextBrowser::keyPressEvent( QKeyEvent * e )
 	    return;
 	}
     }
-    QTextView::keyPressEvent(e);
+    QTextEdit::keyPressEvent(e);
 }
 
 class QTextDetailPopup : public QWidget
