@@ -527,21 +527,21 @@ The main types are
 widget, usually with a window-system frame and so on.
 
 \value WType_Dialog  indicates that this widget is a secondary
-top-level widget.  In combination with WShowModal, the dialog becomes
+top-level widget.  In combination with \c WShowModal, the dialog becomes
 a modal dialog ie. it prevents widgets in all other top-level widget
-from getting any input. \cWType_Dialog implies WType_TopLevel.
+from getting any input. \c WType_Dialog implies \c WType_TopLevel.
 
 \value WType_Popup  indicates that this widget is a popup top-level
 window, ie., that it is modal, but has a window system frame appropriate
-for popup menus.\cWType_Popup implies WType_TopLevel.
+for popup menus.\c WType_Popup implies WType_TopLevel.
 
 \value WType_Desktop  indicates that this widget is the desktop.
-See also \c WPaintDesktop below. \cWType_Desktop implies WType_TopLevel.
+See also \c WPaintDesktop below. \c WType_Desktop implies \c WType_TopLevel.
 
 There are also a number of flags to let you customize the appearance
 of top-level windows.  These have no effect on other windows:
 
-\value WStyle_Customize  indicates that the WStyle_* flags should be
+\value WStyle_Customize  indicates that the \c WStyle_* flags should be
 used to build the window instead of the default.
 
 \value WStyle_NormalBorder  gives the window a normal border. Cannot
@@ -556,14 +556,14 @@ Cannot be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder.
 On Windows, the flag works fine. On X11, it bypasses the window manager
 completely. This results in a borderless window, but also in a window that
 is not managed at all (i.e. for example no keyboard focus unless you call
-setActiveWindow() manually.) For compatibility, the flag was not changed
-for Qt-2.1. We suggest using WStyle_NoBorderEx instead.
+QWidget::setActiveWindow() manually.) For compatibility, the flag was not changed
+for Qt-2.1. We suggest using \c WStyle_NoBorderEx instead.
 
 \value WStyle_NoBorderEx  gives a borderless window.  Note that the user
 cannot move or resize a borderless window via the window system.  Cannot
 be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder. On X11,
 the result of the flag is depending on the window manager and its ability
-to understand MOTIF hints to some WStyle_DialogBorder. On X11 the result
+to understand MOTIF hints to some \c WStyle_DialogBorder. On X11 the result
 of the flag is depending on the window manager and its ability to
 understand MOTIF hints to some degree.  Most existing modern window
 managers do this. With \c WX11BypassWM, you can bypass the window manager
@@ -576,13 +576,13 @@ setActiveWindow() manually).
 \value WStyle_SysMenu  adds a window system menu.
 
 \value WStyle_Minimize  adds a minimize button.  Note that on Windows
-this has to be combined with WStyle_SysMenu for it to work.
+this has to be combined with \c WStyle_SysMenu for it to work.
 
 \value WStyle_Maximize  adds a maximize button.  Note that on Windows
-this has to be combined with WStyle_SysMenu for it to work.
+this has to be combined with \c WStyle_SysMenu for it to work.
 
 \value WStyle_MinMax  is equal to \c WStyle_Minimize|WStyle_Maximize.
-Note that on Windows this has to be combined with WStyle_SysMenu to work.
+Note that on Windows this has to be combined with \c WStyle_SysMenu to work.
 
 \value WStyle_ContextHelp  adds a context help button to dialogs.
 
@@ -590,7 +590,7 @@ Note that on Windows this has to be combined with WStyle_SysMenu to work.
 is a small window that lives for a short time, and it is typically used
 for creating popup windows.  It there is a parent, the tool window
 will always be kept on top of it.  If there isn't a parent, you may
-consider passing WStyle_StaysOnTop as well.  If the window system
+consider passing \c WStyle_StaysOnTop as well.  If the window system
 supports it, a tool window can be decorated with a somewhat lighter
 frame.  It can also be combined with \c WStyle_NoBorder.
 
