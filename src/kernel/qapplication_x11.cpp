@@ -3876,21 +3876,20 @@ void QApplication::openPopup( QWidget *popup )
 	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
-    if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse
-	int r = XGrabPointer( popup->x11Display(), popup->winId(), True,
+    
+    if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
+	int r = XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
+			       GrabModeSync, GrabModeAsync, CurrentTime );
+	if ( (popupGrabOk = (r == GrabSuccess)) ) {
+	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask | EnterWindowMask |
 				     LeaveWindowMask | PointerMotionMask),
 			      GrabModeSync, GrabModeAsync,
 			      None, None, CurrentTime );
-	if ( (popupGrabOk = (r == GrabSuccess)) ) {
-	    XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
-	}
-	if ( !active_window ) {
-	    QWidget *tlw = popup->topLevelWidget();
-	    XSetInputFocus( tlw->x11Display(), tlw->winId(), RevertToNone, CurrentTime );
-	} else {
-	    XSetInputFocus( active_window->x11Display(), active_window->winId(), RevertToNone, CurrentTime );
+	    
+	    if ( (popupGrabOk = (r == GrabSuccess)) )
+		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
 	}
     } else if ( popupGrabOk ) {
 	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
