@@ -212,17 +212,27 @@ void QDocMainWindow::populateListView()
 	if (proc->isRunning())
 	    proc->kill();
 	proc->setWorkingDirectory( dir );
+	qDebug("QTDIR=%s", qtdirenv.latin1());
+	qDebug("cwd=%s", dir.path().latin1());
+	QString command;
 	proc->clearArguments();
 	proc->addArgument( dir.path() + "/qdoc" );
+	command += dir.path() + "/qdoc ";
 	proc->addArgument( dir.path() + "/qdoc.conf" );
+	command += dir.path() + "/qdoc.conf ";
 	proc->addArgument( "--friendly" );
 	proc->addArgument( "-Wall" );
 	proc->addArgument( "-W4" );
+	command += "--friendly -Wall -W4";
 	for (QStringList::const_iterator it = _defines.constBegin();
-	     it != _defines.constEnd(); ++it)
+	     it != _defines.constEnd(); ++it) {
 	    proc->addArgument(*it);
-	if (commercial->isOn())
+	    command += QString(" %1").arg(*it);
+	}
+	if (commercial->isOn()) {
 	    proc->addArgument("-Dcommercial");
+	    command += " -Dcommercial";
+	}
 
 	statusBar->setText( QString("Running qdoc..."));
 	// qdoc relies on $QTDIR _as well as_ qdoc.conf
@@ -234,6 +244,8 @@ void QDocMainWindow::populateListView()
 	    statusBar->setText( msg );
 	    qDebug( msg );
 	}
+	else
+	    qDebug(command);
 	delete env;
     }
 }
