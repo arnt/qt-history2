@@ -3666,13 +3666,8 @@ void QWidget::hide_helper()
 
 	// next bit tries to move the focus if the focus widget is now
 	// hidden.
-	if (qApp) {
-	    QWidget *w = qApp->focusWidget();
-	    while (w && w != this)
-		w = w->parentWidget();
-	    if (w)
-		focusNextPrevChild(TRUE);
-	}
+	if ( qApp && qApp->focusWidget() == this )
+  	    focusNextPrevChild( TRUE );
     }
 
     QHideEvent hideEvent;
