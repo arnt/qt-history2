@@ -125,12 +125,14 @@ void QWindowsPipeWriter::run()
             if (!WriteFile(writePipe, ptrData + totalWritten, qMin(8192, maxlen - totalWritten), &written, 0)) {
                 if (GetLastError() == 0xE8 /*NT_STATUS_INVALID_USER_BUFFER*/) {
                     // give the os a rest
-                    qDebug("// give the os a rest");
                     sleep(100);
                     continue;
                 }
                 return;
             }
+#if defined QPROCESS_DEBUG
+            qDebug("QWindowsPipeWriter::run() wrote %d bytes", written);
+#endif
             totalWritten += written;
         }
         emit canWrite();
@@ -364,6 +366,9 @@ Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
 {
     DWORD bytesAvail = 0;
     PeekNamedPipe(standardReadPipe[0], 0, 0, 0, &bytesAvail, 0);
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::bytesAvailableFromStdout() == %d", bytesAvail);
+#endif
     return bytesAvail;
 }
 
@@ -371,6 +376,9 @@ Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
 {
     DWORD bytesAvail = 0;
     PeekNamedPipe(errorReadPipe[0], 0, 0, 0, &bytesAvail, 0);
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::bytesAvailableFromStderr() == %d", bytesAvail);
+#endif
     return bytesAvail;
 }
 
