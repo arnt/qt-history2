@@ -37,6 +37,8 @@ public:
 private slots:
     void on_newItemButton_clicked();
     void on_deleteItemButton_clicked();
+    void on_moveItemUpButton_clicked();
+    void on_moveItemDownButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
     void on_itemTextLineEdit_textChanged(const QString &text);
     void on_previewButton_clicked();

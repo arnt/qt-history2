@@ -81,6 +81,26 @@ void ListWidgetEditor::on_deleteItemButton_clicked()
         ui.listWidget->setCurrentRow(row);
 }
 
+void ListWidgetEditor::on_moveItemUpButton_clicked()
+{
+    int row = ui.listWidget->currentRow();
+    if (row <= 0)
+        return; // nothing to do
+
+    ui.listWidget->insertItem(row - 1, ui.listWidget->takeItem(row));
+    ui.listWidget->setCurrentRow(row - 1);
+}
+
+void ListWidgetEditor::on_moveItemDownButton_clicked()
+{
+    int row = ui.listWidget->currentRow();
+    if (row == -1 || row == ui.listWidget->count() - 1)
+        return; // nothing to do
+
+    ui.listWidget->insertItem(row + 1, ui.listWidget->takeItem(row));
+    ui.listWidget->setCurrentRow(row + 1);
+}
+
 void ListWidgetEditor::on_listWidget_currentRowChanged(int currentRow)
 {
     QString text;
