@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#36 $
 **
 ** Implementation of QDir class
 **
@@ -27,7 +27,7 @@
 #include <ctype.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#36 $");
 
 
 #if defined(_OS_FATFS_)
@@ -787,9 +787,9 @@ bool QDir::isReadable() const
 
 /*!
   Returns TRUE if the directory exists. (If a file with the same
-   name is found this function will of course return FALSE).
+  name is found this function will of course return FALSE).
 
-   \sa QFileInfo::exists(), QFile::exists()
+  \sa QFileInfo::exists(), QFile::exists()
 */
 
 bool QDir::exists() const
@@ -1139,6 +1139,9 @@ QString QDir::cleanDirPath( const char *filePath )
 	return name;
 
     convertSeparators( name.data() );
+#if defined(_OS_FATFS_)
+    return name;
+#endif
 
     bool addedSeparator;
     if ( isRelativePath(filePath) ) {
@@ -1154,15 +1157,15 @@ QString QDir::cleanDirPath( const char *filePath )
     upLevel = 0;
     int len;
 
-    while( pos && (pos = name.findRev( '/', --pos)) != -1 ) {
+    while ( pos && (pos = name.findRev('/',--pos)) != -1 ) {
 	len = ePos - pos - 1;
-	if ( len == 2 && name.at( pos + 1 ) == '.'
-		      && name.at( pos + 2 ) == '.' ) {
+	if ( len == 2 && name.at(pos + 1) == '.'
+		      && name.at(pos + 2) == '.' ) {
 	    upLevel++;
 	} else {
-	    if ( len != 0 && ( len != 1 || name.at( pos + 1 ) != '.' ) ) {
+	    if ( len != 0 && (len != 1 || name.at(pos + 1) != '.') ) {
 		if ( !upLevel )
-		    newPath = "/" + name.mid( pos + 1, len) + newPath;
+		    newPath = "/" + name.mid(pos + 1, len) + newPath;
 		else
 		    upLevel--;
 	    }
@@ -1170,7 +1173,7 @@ QString QDir::cleanDirPath( const char *filePath )
 	ePos = pos;
     }
     if ( addedSeparator ) {
-	while( upLevel-- )
+	while ( upLevel-- )
 	    newPath.insert( 0, "/.." );
 	if ( !newPath.isEmpty() )
 	    newPath.remove( 0, 1 );
