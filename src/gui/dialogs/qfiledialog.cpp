@@ -1357,6 +1357,7 @@ void QFileDialogPrivate::setup()
     lookIn->setDuplicatesEnabled(false);
     lookIn->setEditable(true);
     lookIn->setAutoCompletion(false);
+    lookIn->insertItem(model->icons(QModelIndex()), model->path(QModelIndex()));
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) {
         QModelIndex index = model->index(r, 0, QModelIndex()); 
         QString path = model->path(index);

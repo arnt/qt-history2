@@ -24,14 +24,16 @@ class Q_GUI_EXPORT QFileIconProvider
 public:
     QFileIconProvider();
     virtual ~QFileIconProvider();
+    virtual QIconSet computerIcons() const;
     virtual QIconSet icons(const QFileInfo &info) const;
     virtual QString type(const QFileInfo &info) const;
 protected:
     QIconSet file;
     QIconSet dir;
-    QIconSet disk;
-    QIconSet linkFile;
-    QIconSet linkDir;
+    QIconSet driveHD;
+    QIconSet computer;
+    QIconSet fileLink;
+    QIconSet dirLink;
 };
 
 class Q_GUI_EXPORT QDirModel : public QAbstractItemModel

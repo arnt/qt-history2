@@ -17,172 +17,9 @@
 #include <qdragobject.h>
 #include <qdatetime.h>
 #include <qevent.h>
+#include <qstyle.h>
+#include <qapplication.h>
 #include <private/qabstractitemmodel_p.h>
-
-/* XPM */
-static const char* const open_xpm[]={
-    "16 16 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "c c #cccccc",
-    "a c #ffffff",
-    "................",
-    "................",
-    "...*****........",
-    "..*aaaaa*.......",
-    ".*abcbcba******.",
-    ".*acbcbcaaaaaa*d",
-    ".*abcbcbcbcbcb*d",
-    "*************b*d",
-    "*aaaaaaaaaa**c*d",
-    "*abcbcbcbcbbd**d",
-    ".*abcbcbcbcbcd*d",
-    ".*acbcbcbcbcbd*d",
-    "..*acbcbcbcbb*dd",
-    "..*************d",
-    "...ddddddddddddd",
-    "................"};
-
-/* XPM */
-static const char * const closed_xpm[]={
-    "16 16 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "a c #cccccc",
-    "c c #ffffff",
-    "................",
-    "................",
-    "..*****.........",
-    ".*ababa*........",
-    "*abababa******..",
-    "*cccccccccccc*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "**************d.",
-    ".dddddddddddddd.",
-    "................"};
-
-/* XPM */
-static const char * const link_dir_xpm[]={
-    "16 16 10 1",
-    "h c #808080",
-    "g c #a0a0a0",
-    "d c #000000",
-    "b c #ffff00",
-    "f c #303030",
-    "# c #999999",
-    "a c #cccccc",
-    "e c #585858",
-    "c c #ffffff",
-    ". c None",
-    "................",
-    "................",
-    "..#####.........",
-    ".#ababa#........",
-    "#abababa######..",
-    "#cccccccccccc#d.",
-    "#cbababababab#d.",
-    "#cabababababa#d.",
-    "#cbababdddddddd.",
-    "#cababadccccccd.",
-    "#cbababdcececcd.",
-    "#cababadcefdfcd.",
-    "#cbababdccgdhcd.",
-    "#######dccchccd.",
-    ".dddddddddddddd.",
-    "................"};
-
-
-/* XPM */
-static const char* const file_xpm[]={
-    "16 16 5 1",
-    ". c #7f7f7f",
-    "# c None",
-    "c c #000000",
-    "b c #bfbfbf",
-    "a c #ffffff",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".bbbbbbbbbbbc###",
-    "ccccccccccccc###"};
-
-/* XPM */
-static const char * const link_file_xpm[]={
-    "16 16 10 1",
-    "h c #808080",
-    "g c #a0a0a0",
-    "d c #c3c3c3",
-    ". c #7f7f7f",
-    "c c #000000",
-    "b c #bfbfbf",
-    "f c #303030",
-    "e c #585858",
-    "a c #ffffff",
-    "# c None",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaadc###",
-    ".aaaaaaaaaadc###",
-    ".aaaacccccccc###",
-    ".aaaacaaaaaac###",
-    ".aaaacaeaeaac###",
-    ".aaaacaefcfac###",
-    ".aaaacaagchac###",
-    ".ddddcaaahaac###",
-    "ccccccccccccc###"};
-
-/* XPM */
-static char * disk_xpm[] = {
-"16 16 7 1",
-". c #000000",
-"a c #008000",
-"h c #808080",
-"g c #c0c0c0",
-"b c #00ff00",
-"f c #ffffff",
-"# c None",
-"################",
-"################",
-"################",
-"################",
-"##hhhhhhhhhhhhh#",
-"#hggggggggggggh.",
-"hffffffffffffgh.",
-"hgggggggggbaggh.",
-"hgggggggggggggh.",
-"hghhhhhhhhhhggh.",
-"hgffffffffffggh.",
-"hhhhhhhhhhhhhh.#",
-"#.............##",
-"################",
-"################",
-"################"};
 
 
 static bool qt_copy_file(const QString &from, const QString &to)
@@ -232,22 +69,18 @@ static bool qt_move_file(const QString &from, const QString &to)
 
 QFileIconProvider::QFileIconProvider()
 {
-    QPixmap filePixmap(file_xpm);
-    file.setPixmap(filePixmap, QIconSet::Small);
+    file.setPixmap(QApplication::style().stylePixmap(QStyle::SP_FileIcon), QIconSet::Small);
+    fileLink.setPixmap(QApplication::style().stylePixmap(QStyle::SP_FileLinkIcon), QIconSet::Small);
 
-    QPixmap openPixmap(open_xpm);
-    QPixmap closedPixmap(closed_xpm);
-    dir.setPixmap(openPixmap, QIconSet::Small, QIconSet::Normal, QIconSet::On);
-    dir.setPixmap(closedPixmap, QIconSet::Small, QIconSet::Normal, QIconSet::Off);
+    dir.setPixmap(QApplication::style().stylePixmap(QStyle::SP_DirOpenIcon),
+                  QIconSet::Small, QIconSet::Normal, QIconSet::On);
+    dir.setPixmap(QApplication::style().stylePixmap(QStyle::SP_DirClosedIcon), QIconSet::Small,
+                  QIconSet::Normal, QIconSet::Off);
+    dirLink.setPixmap(QApplication::style().stylePixmap(QStyle::SP_DirLinkIcon), QIconSet::Small,
+                      QIconSet::Normal, QIconSet::On);
 
-    QPixmap diskPixmap(disk_xpm);
-    disk.setPixmap(diskPixmap, QIconSet::Small);
-
-    QPixmap linkFilePixmap(link_file_xpm);
-    linkFile.setPixmap(linkFilePixmap, QIconSet::Small);
-
-    QPixmap linkDirPixmap(link_dir_xpm);
-    linkDir.setPixmap(linkDirPixmap, QIconSet::Small);
+    driveHD.setPixmap(QApplication::style().stylePixmap(QStyle::SP_DriveHDIcon), QIconSet::Small);
+    computer.setPixmap(QApplication::style().stylePixmap(QStyle::SP_ComputerIcon), QIconSet::Small);
 }
 
 /*!
@@ -261,17 +94,26 @@ QFileIconProvider::~QFileIconProvider()
 }
 
 /*!
+  Returns an icon set for the computer.
+*/
+
+QIconSet QFileIconProvider::computerIcons() const
+{
+    return computer;
+}
+
+/*!
   Returns an icon set for the file described by \a info.
 */
 
 QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 {
 //     if (info.isDrive())
-//         return disk;
+//         return drive;
     if (info.isFile())
-        return info.isSymLink() ? linkFile : file;
+        return info.isSymLink() ? fileLink : file;
     if (info.isDir())
-        return info.isSymLink() ? linkDir : dir;
+        return info.isSymLink() ? dirLink : dir;
     return QIconSet();
 }
 
@@ -282,7 +124,7 @@ QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
 //     if (info.isDrive())
-//         return "Disk";
+//         return "Drive";
     if (info.isFile())
         return info.suffix() + " File";
     if (info.isDir())
@@ -323,6 +165,8 @@ public:
         { return rootIsVirtual ? QString::null : root.info.absoluteFilePath(); }
     inline QString rootName() const
         { return rootIsVirtual ? QString::null : root.info.fileName(); }
+    inline QIconSet rootIcons() const
+        { return rootIsVirtual ? iconProvider->computerIcons() : iconProvider->icons(root.info); }
 
     mutable QDirNode root;
     bool rootIsVirtual;
@@ -1066,7 +910,7 @@ QString QDirModel::name(const QModelIndex &index) const
 QIconSet QDirModel::icons(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return QIconSet(); // FIXME: "My Computer" icon ?
+        return d->rootIcons();
     return d->iconProvider->icons(fileInfo(index));
 }
 

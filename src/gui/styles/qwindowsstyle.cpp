@@ -567,8 +567,170 @@ static const char *const question_xpm[] = {
 "................cac**...........",
 ".................cc**...........",
 "..................***...........",
-"...................**...........",
-};
+"...................**..........."};
+/* XPM */
+static const char* const dir_open_xpm[]={
+    "16 16 6 1",
+    ". c None",
+    "b c #ffff00",
+    "d c #000000",
+    "* c #999999",
+    "c c #cccccc",
+    "a c #ffffff",
+    "................",
+    "................",
+    "...*****........",
+    "..*aaaaa*.......",
+    ".*abcbcba******.",
+    ".*acbcbcaaaaaa*d",
+    ".*abcbcbcbcbcb*d",
+    "*************b*d",
+    "*aaaaaaaaaa**c*d",
+    "*abcbcbcbcbbd**d",
+    ".*abcbcbcbcbcd*d",
+    ".*acbcbcbcbcbd*d",
+    "..*acbcbcbcbb*dd",
+    "..*************d",
+    "...ddddddddddddd",
+    "................"};
+
+/* XPM */
+static const char * const dir_closed_xpm[]={
+    "16 16 6 1",
+    ". c None",
+    "b c #ffff00",
+    "d c #000000",
+    "* c #999999",
+    "a c #cccccc",
+    "c c #ffffff",
+    "................",
+    "................",
+    "..*****.........",
+    ".*ababa*........",
+    "*abababa******..",
+    "*cccccccccccc*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "**************d.",
+    ".dddddddddddddd.",
+    "................"};
+
+/* XPM */
+static const char * const dir_link_xpm[]={
+    "16 16 10 1",
+    "h c #808080",
+    "g c #a0a0a0",
+    "d c #000000",
+    "b c #ffff00",
+    "f c #303030",
+    "# c #999999",
+    "a c #cccccc",
+    "e c #585858",
+    "c c #ffffff",
+    ". c None",
+    "................",
+    "................",
+    "..#####.........",
+    ".#ababa#........",
+    "#abababa######..",
+    "#cccccccccccc#d.",
+    "#cbababababab#d.",
+    "#cabababababa#d.",
+    "#cbababdddddddd.",
+    "#cababadccccccd.",
+    "#cbababdcececcd.",
+    "#cababadcefdfcd.",
+    "#cbababdccgdhcd.",
+    "#######dccchccd.",
+    ".dddddddddddddd.",
+    "................"};
+/* XPM */
+static const char* const file_xpm[]={
+    "16 16 5 1",
+    ". c #7f7f7f",
+    "# c None",
+    "c c #000000",
+    "b c #bfbfbf",
+    "a c #ffffff",
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".bbbbbbbbbbbc###",
+    "ccccccccccccc###"};
+/* XPM */
+static const char * const file_link_xpm[]={
+    "16 16 10 1",
+    "h c #808080",
+    "g c #a0a0a0",
+    "d c #c3c3c3",
+    ". c #7f7f7f",
+    "c c #000000",
+    "b c #bfbfbf",
+    "f c #303030",
+    "e c #585858",
+    "a c #ffffff",
+    "# c None",
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaadc###",
+    ".aaaaaaaaaadc###",
+    ".aaaacccccccc###",
+    ".aaaacaaaaaac###",
+    ".aaaacaeaeaac###",
+    ".aaaacaefcfac###",
+    ".aaaacaagchac###",
+    ".ddddcaaahaac###",
+    "ccccccccccccc###"};
+
+
+/* XPM */
+static char * drive_hd_xpm[] = {
+"16 16 7 1",
+"# c #000000",
+"a c #008000",
+"h c #808080",
+"g c #c0c0c0",
+"b c #00ff00",
+"* c #ffffff",
+". c None",
+"................",
+"................",
+"................",
+"................",
+"..hhhhhhhhhhhhh.",
+".hggggggggggggh#",
+"h************gh#",
+"hgggggggggbaggh#",
+"hgggggggggggggh#",
+"hghhhhhhhhhhggh#",
+"hg**********ggh#",
+"hhhhhhhhhhhhhh#.",
+".#############..",
+"................",
+"................",
+"................"};
+
 #endif //QT_NO_IMAGEIO_XPM
 
 /*!
@@ -602,6 +764,26 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
         return QPixmap((const char **)critical_xpm);
     case SP_MessageBoxQuestion:
         return QPixmap((const char **)question_xpm);
+    case SP_DirOpenIcon:
+        return QPixmap((const char **)dir_open_xpm);
+    case SP_DirClosedIcon:
+        return QPixmap((const char **)dir_closed_xpm);
+    case SP_DirLinkIcon:
+        return QPixmap((const char **)dir_link_xpm);
+    case SP_FileIcon:
+        return QPixmap((const char **)file_xpm);
+    case SP_FileLinkIcon:
+        return QPixmap((const char **)file_link_xpm);
+    case SP_DriveHDIcon:
+        return QPixmap((const char **)drive_hd_xpm);
+    case SP_DriveFDIcon:
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+    case SP_DriveNetIcon:
+    case SP_ComputerIcon:
+    case SP_TrashIcon:
+    case SP_DesktopIcon:
+        return QPixmap();
     default:
         break;
     }

@@ -713,6 +713,19 @@ public:
         SP_MessageBoxWarning,
         SP_MessageBoxCritical,
         SP_MessageBoxQuestion,
+        SP_DesktopIcon,
+        SP_TrashIcon,
+        SP_ComputerIcon,
+        SP_DriveFDIcon,
+        SP_DriveHDIcon,
+        SP_DriveCDIcon,
+        SP_DriveDVDIcon,
+        SP_DriveNetIcon,
+        SP_DirOpenIcon,
+        SP_DirClosedIcon,
+        SP_DirLinkIcon,
+        SP_FileIcon,
+        SP_FileLinkIcon,
 
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
