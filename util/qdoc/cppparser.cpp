@@ -775,41 +775,45 @@ static void matchDocsAndStuff( Emitter *emitter )
 			     decl->fullName() );
 		    deleteDoc = FALSE;
 
-		    QMap<QString, QString> itemValues;
-		    StringSet itemNames;
-		    EnumDecl::ItemIterator ii;
+		    if ( decl->kind() == Decl::Enum ) {
+			QMap<QString, QString> itemValues;
+			StringSet itemNames;
+			EnumDecl::ItemIterator ii;
 
-		    ii = ((EnumDecl *) decl)->itemBegin();
-		    while ( ii != ((EnumDecl *) decl)->itemEnd() ) {
-			itemValues.insert( (*ii)->name(),
-					   (*ii)->value().toString() );
-			itemNames.insert( (*ii)->name() );
-			++ii;
-		    }
+			ii = ((EnumDecl *) decl)->itemBegin();
+			while ( ii != ((EnumDecl *) decl)->itemEnd() ) {
+			    itemValues.insert( (*ii)->name(),
+					       (*ii)->value().toString() );
+			    itemNames.insert( (*ii)->name() );
+			    ++ii;
+			}
 
-		    StringSet diff;
-		    StringSet::ConstIterator s;
+			StringSet diff;
+			StringSet::ConstIterator s;
 
-		    diff = difference( en->documentedValues(), itemNames );
-		    s = diff.begin();
-		    while ( s != diff.end() ) {
-			warning( 3, en->location(),
-				 "No such enum value '%s'", (*s).latin1() );
-			++s;
-		    }
-
-		    // the new syntax is not widely adopted yet
-		    if ( !en->documentedValues().isEmpty() ) {
-			diff = difference( itemNames, en->documentedValues() );
+			diff = difference( en->documentedValues(), itemNames );
 			s = diff.begin();
 			while ( s != diff.end() ) {
-			    // it's OK to have Foo = Bar and only Bar documented
-			    if ( !en->documentedValues()
-					 .contains(itemValues[*s]) )
-				warning( 3, en->location(),
-					 "Undocumented enum value '%s'",
-					 (*s).latin1() );
+			    warning( 3, en->location(),
+				     "No such enum value '%s'", (*s).latin1() );
 			    ++s;
+			}
+
+			// the new syntax is not widely adopted yet
+			if ( !en->documentedValues().isEmpty() ) {
+			    diff = difference( itemNames,
+					       en->documentedValues() );
+			    s = diff.begin();
+			    while ( s != diff.end() ) {
+				// it's OK to have Foo = Bar and only Bar
+				// documented
+				if ( !en->documentedValues()
+					     .contains(itemValues[*s]) )
+				    warning( 3, en->location(),
+					     "Undocumented enum value '%s'",
+					     (*s).latin1() );
+				++s;
+			    }
 			}
 		    }
 		} else {

@@ -1164,18 +1164,29 @@ QString Doc::href( const QString& name, const QString& text )
 {
     QString t = text;
     QString y = res->href( name, t );
-    if ( t.isEmpty() )
+    if ( t.isEmpty() ) {
 	t = name;
-    if ( y.length() == t.length() ) {
-	QString k = keywordLinks[t];
-	// remove the mark of the plural
-	if ( k.isEmpty() && t.right(1) == QChar('s') )
-	   k = keywordLinks[t.left(t.length() - 1)]; 
-
-	if ( !k.isEmpty() )
-	    return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( t );
+	if ( t.left(5) == QString("file:") )
+	    t = t.mid( 5 );
     }
-    return y;
+    if ( y.length() != t.length() )
+	return y;
+
+    // try a keyword
+    QString k = keywordLinks[t];
+    // try without the plural
+    if ( k.isEmpty() && t.right(1) == QChar('s') )
+	k = keywordLinks[t.left(t.length() - 1)]; 
+    // try a URL
+    if ( k.isEmpty() && (name.left(5) == QString("file:") ||
+			 name.left(5) == QString("http:") ||
+			 name.left(7) == QString("mailto:")) )
+	k = name;
+
+    if ( k.isEmpty() )
+	return t;
+    else
+	return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( t );
 }
 
 QString Doc::htmlQuoteList()
@@ -1903,8 +1914,8 @@ QString Doc::finalHtml() const
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();
 
 		/*
-		  Insert a href, but rule out two cases:  (1) The current link
-		  is foo.html and the '\keyword' entry is at foo.html#big-mice;
+		  Insert a href, but rule out two cases: (1) The current link is
+		  foo.html and the '\keyword' entry is at foo.html#big-mice;
 		  (2) The current doc and the entry are both at
 		  foo.html#printBar.
 		*/
@@ -1919,8 +1930,7 @@ QString Doc::finalHtml() const
 	}
     }
 
-    Doc* that = (Doc*)this;
-    that->setDependsOn( dependsOn );
+    ((Doc *) this)->setDependsOn( dependsOn );
 
     /*
       Complain before it's too late.
