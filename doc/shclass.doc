@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 1.9 1996/09/18 15:10:19 agulbra Exp $
+** $Id: shclass.doc,v 1.10 1996/09/20 10:55:41 paul Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -193,7 +193,7 @@ Example:
 
 In this example, \c p1 and \c p2 share data until QPainter::begin() is
 called for \c p2, because painting a pixmap will modify it.  The same
-happens also if anything is \link bitBlt() bitBlt()\endlink'ed into \c p2.
+happens also if anything is \link ::bitBlt() bitBlt()\endlink'ed into \c p2.
 
 */
 

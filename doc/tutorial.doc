@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.20 1996/09/19 17:50:30 hanord Exp $
+** $Id: tutorial.doc,v 1.21 1996/09/20 10:55:41 paul Exp $
 **
 ** Tutorial
 **
@@ -1032,7 +1032,7 @@ but choose not to.  If the arguments are illegal, we use Qt's warning()
 function to issue a warning to the user and return immediately.
 warning() is a printf-like function that by default sends its output
 to \c stderr. You can install your own
-\link qInstallMsgHandler() handler function\endlink if you want.
+\link ::qInstallMsgHandler() handler function\endlink if you want.
 
 
 <h3>\link t8-cannon-h.html cannon.h\endlink</h3>
@@ -2259,7 +2259,7 @@ with a black outline.
 This private function returns the enclosing rectangle of the target.
 Remember from newTarget() that the \c target point uses y coordinate 0 at
 the bottom of the widget.  We calculate the point in widget coordinates
-before we call \link QRect::setCenter() setCenter()\endlink.
+before we call \link QRect::moveCenter() moveCenter()\endlink.
 
 The reason we have chosen this coordinate mapping is to fix the distance
 between the target and the bottom of the widget.  Remember that the widget
