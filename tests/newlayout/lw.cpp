@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/newlayout/lw.cpp#2 $
+** $Id: //depot/qt/main/tests/newlayout/lw.cpp#3 $
 **
 ** QGridLayout example
 **
@@ -18,7 +18,7 @@
 #include <qhbox.h>
 #include <qvbox.h>
 
-RCSTAG("$Id: //depot/qt/main/tests/newlayout/lw.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/tests/newlayout/lw.cpp#3 $");
 
 
 #include "lw.moc"
@@ -26,39 +26,74 @@ RCSTAG("$Id: //depot/qt/main/tests/newlayout/lw.cpp#2 $");
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-    QWidget *f;
+    QWidget *g = new QGrid( 3 ); 
 
-     for ( int i = 0; i < 3; i++ ) {
-	  switch ( i ) {
-	  case 0: 
-	       f= new QHBox;
-	      break;
-	  case 1: 
-	      f = new QVBox;
-	      break;
-	  default:
-	      f = new QGrid( 2, 2 );
-	      break;
-	  }
-	  QLabel* l1 = new QLabel(f);
-	l1->setText("This is label 1.");
+
+
+
+    QLabel* l1 = new QLabel(g);
+    l1->setText("This is label 1.");
+    l1->setBackgroundColor( yellow );
+
+    QLabel* l2 = new QLabel(g);
+    l2->setText("This\nis\nlabel\ntoo.");
+    l2->setBackgroundColor( red );
+
+    QLabel* l3 = new QLabel(g);
+    l3->setText("This is label III.");
+    l3->setBackgroundColor( red );
+
+    QLabel* l = new QLabel(g);
+    l->setText("More label.");
+    l->setBackgroundColor( cyan );
+
+    QWidget *f = 0;
+
+    for ( int i = 0; i < 3; i++ ) {
+	switch ( i ) {
+	case 0: 
+	    f= new QHBox(g);
+	    break;
+	case 1: 
+	    f = new QVBox(g);
+	    break;
+	default:
+	    f = new QGrid( 2, QGrid::Horizontal, g );
+	    break;
+	}
+	QLabel* l1 = new QLabel(f);
+	l1->setText("small label 1.");
 	l1->setBackgroundColor( yellow );
 
 	QLabel* l2 = new QLabel(f);
-	l2->setText("This\nis\nlabel\ntoo.");
+	l2->setText("Small\ntoo.");
 	l2->setBackgroundColor( red );
 
 	QLabel* l3 = new QLabel(f);
-	l3->setText("This is label III.");
+	l3->setText("small III.");
 	l3->setBackgroundColor( red );
 
-	QLabel* l4 = new QLabel(f);
-	l4->setText("More label.");
-	l4->setBackgroundColor( cyan );
+	QLabel* l = new QLabel(f);
+	l->setText("More small.");
+	l->setBackgroundColor( cyan );
 
-	f->show();
     }
-    //    a.setMainWidget(f);
+
+
+    for ( int j = 0; j < 4; j++ ) {
+	QLabel* l = new QLabel(g);
+	l->setText("Even more label.");
+	l->setBackgroundColor( green );
+    }
+    
+
+
+
+
+
+
+    g->show();
+    a.setMainWidget(g);
     a.exec();
 }
 

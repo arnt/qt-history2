@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#2 $
 **
 ** Implementation of grid layout widget
 **
@@ -27,12 +27,18 @@
 /*!
   Constructs a \a rows x \a cols grid widget with parent \a parent and name \a name
  */
-QGrid::QGrid( int rows, int cols, QWidget *parent, const char *name )
+QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name )
     :QWidget( parent, name )
 {
-    lay = new QGridLayout( this, rows, cols, 5, -1, name ); //### border
-    nCols = cols;
-    nRows = rows;
+    if ( d == Horizontal ) {
+	nCols = n;
+	nRows = 1;
+    } else {
+	nCols = 1;
+	nRows = n;
+    }
+
+    lay = new QGridLayout( this, nRows, nCols, 5, -1, name ); //### border
     row = col = 0;
 }
 
@@ -47,13 +53,25 @@ void QGrid::childEvent( QChildEvent *c )
     QWidget *w = c->child();
     w->setAutoMinimumSize( TRUE );
     w->setMinimumSize( w->sizeHint() );
+
+    if ( row >= nRows || col >= nCols )
+	lay->expand( row+1, col+1 );
     lay->addWidget( w, row, col );
     //    debug( "adding %d,%d", row, col );
-    if ( col+1 < nCols ) {
-	col++;
-    } else if ( row+1 < nRows ) {
-	col = 0;
-	row++;
+    if ( dir == Horizontal ) {
+	if ( col+1 < nCols ) {
+	    col++;
+	} else {
+	    col = 0;
+	    row++;
+	}
+    } else {
+	if ( row+1 < nRows ) {
+	    row++;
+	} else {
+	    row = 0;
+	    col++;
+	}
     }
     if ( isVisible() )
 	lay->activate();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#28 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#28 $");
 
 
 /*!
@@ -716,6 +716,60 @@ QGridLayout::~QGridLayout()
     delete cols;
 }
 
+/*!
+  \fn int QGridLayout::numRows() const
+  Returns the number of rows in this grid.
+  */
+
+
+/*!
+  \fn int QGridLayout::numCols() const
+  Returns the number of columns in this grid.
+  */
+
+/*!
+  Expands this grid so that it will have \a nRows rows and \a nCols columns.
+  Will not shrink the grid.
+ */
+void QGridLayout::expand( int nRows, int nCols )
+{
+    int nr = QMAX( rr, nRows );
+    int nc = QMAX( cc, nCols );
+
+    if ( !rows )
+	rows = new QArray<QChain*> ( nr );
+    if ( !cols )
+	cols = new QArray<QChain*> ( nc );
+    
+    if ( rr == nr && cc == nc )
+	return;
+
+    if ( nr > rr ) {
+	rows->resize( nr );
+	for ( int i = rr; i < nr; i++ ) {
+	    if ( i != 0 )
+		basicManager()->addSpacing( verChain, defaultBorder(), 0,
+					    defaultBorder() );
+	    (*rows)[i] = basicManager()->newParChain( QGManager::Down );
+	    basicManager()->add( verChain, (*rows)[i] );
+	}
+    }
+
+
+    if ( nc > cc ) {
+	cols->resize( nc );
+	for ( int i = cc; i < nc; i++ ) {
+	    if ( i != 0 )
+		basicManager()->addSpacing( horChain, defaultBorder(), 0,
+					    defaultBorder() );
+	    (*cols)[i] = basicManager()->newParChain( QGManager::LeftToRight );
+	    basicManager()->add( horChain, (*cols)[i] );
+	}
+    }
+
+    rr = nr;
+    cc = nc;
+}
 
 /*!
   Initializes this grid.
@@ -735,25 +789,11 @@ void QGridLayout::initGM()
 
 void QGridLayout::init( int nRows, int nCols )
 {
-    rows = new QArray<QChain*> ( nRows );
-    cols = new QArray<QChain*> ( nCols );
-
-    int i;
-    for ( i = 0; i< nRows; i++ ) {
-	if ( i != 0 )
-	    basicManager()->addSpacing( verChain, defaultBorder(), 0,
-					defaultBorder() );
-	(*rows)[i] = basicManager()->newParChain( QGManager::Down );
-	basicManager()->add( verChain, (*rows)[i] );
-    }
-
-    for ( i = 0; i< nCols; i++ ) {
-	if ( i != 0 )
-	    basicManager()->addSpacing( horChain, defaultBorder(), 0,
-					defaultBorder() );
-	(*cols)[i] = basicManager()->newParChain( QGManager::LeftToRight );
-	basicManager()->add( horChain, (*cols)[i] );
-    }
+    rows = 0;
+    cols = 0;
+    rr = 0;
+    cc = 0;
+    expand( nRows, nCols );
 }
 
 

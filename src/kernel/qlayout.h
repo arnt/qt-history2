@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#15 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#16 $
 **
 ** Definition of layout classes
 **
@@ -153,6 +153,11 @@ public:
     void setColStretch( int col, int stretch );
     void addRowSpacing( int row, int minsize );
     void addColSpacing( int col, int minsize );
+
+    int numRows() const { return rr; }
+    int numCols() const { return cc; }
+
+    void expand( int rows, int cols );
 
 protected:
     QChain *mainVerticalChain() { return verChain; }
