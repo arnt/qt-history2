@@ -17,6 +17,7 @@
 #include <quuid.h>
 #include <qfactoryinterface.h>
 #include <qmetaobject.h>
+#include <qstringlist.h>
 
 class QWidget;
 struct QMetaObject;
