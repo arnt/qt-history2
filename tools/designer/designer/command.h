@@ -32,11 +32,11 @@
 
 #include <qstring.h>
 #include <qrect.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qvariant.h>
 #include <qobject.h>
 #include <qlistview.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qmap.h>
 #include <qiconset.h>
 
@@ -172,7 +172,7 @@ signals:
     void modificationChanged( bool m );
 
 private:
-    QPtrList<Command> history;
+    QList<Command*> history;
     int current, steps;
     bool modified;
     int savedAt;
@@ -216,8 +216,8 @@ class MoveCommand : public Command
 public:
     MoveCommand( const QString &n, FormWindow *fw,
 		 const QWidgetList &w,
-		 const QValueList<QPoint> op,
-		 const QValueList<QPoint> np,
+		 const QList<QPoint> op,
+		 const QList<QPoint> np,
 		 QWidget *opr, QWidget *npr );
     void execute();
     void unexecute();
@@ -227,7 +227,7 @@ public:
 
 private:
     QWidgetList widgets;
-    QValueList<QPoint> oldPos, newPos;
+    QList<QPoint> oldPos, newPos;
     QWidget *oldParent, *newParent;
 
 };
@@ -243,7 +243,7 @@ public:
 
 private:
     QWidgetList widgets;
-    QMap< QWidget*, QValueList<MetaDataBase::Connection> > connections;
+    QMap< QWidget*, QList<MetaDataBase::Connection> > connections;
 
 };
 
@@ -380,14 +380,14 @@ class MacroCommand : public Command
 {
 public:
     MacroCommand( const QString &n, FormWindow *fw,
-		  const QPtrList<Command> &cmds );
+		  const QList<Command*> &cmds );
 
     void execute();
     void unexecute();
     Type type() const { return Macro; }
 
 private:
-    QPtrList<Command> commands;
+    QList<Command*> commands;
 
 };
 
@@ -672,13 +672,13 @@ private:
 class SetVariablesCommand : public Command
 {
 public:
-    SetVariablesCommand( const QString &name, FormWindow *fw, QValueList<MetaDataBase::Variable> lst );
+    SetVariablesCommand( const QString &name, FormWindow *fw, QList<MetaDataBase::Variable> lst );
     void execute();
     void unexecute();
     Type type() const { return SetVariables; }
 
 private:
-    QValueList<MetaDataBase::Variable> oldList, newList;
+    QList<MetaDataBase::Variable> oldList, newList;
 };
 
 class RemoveVariableCommand : public Command
@@ -778,7 +778,7 @@ public:
     };
 
     PopulateListBoxCommand( const QString &n, FormWindow *fw,
-			    QListBox *lb, const QValueList<Item> &items );
+			    QListBox *lb, const QList<Item> &items );
     void execute();
     void unexecute();
     Type type() const { return PopulateListBox; }
@@ -786,7 +786,7 @@ public:
     bool operator==( const PopulateListBoxCommand & ) const;
 
 private:
-    QValueList<Item> oldItems, newItems;
+    QList<Item> oldItems, newItems;
     QListBox *listbox;
 
 };
@@ -802,7 +802,7 @@ public:
     };
 
     PopulateIconViewCommand( const QString &n, FormWindow *fw,
-			    QIconView *iv, const QValueList<Item> &items );
+			    QIconView *iv, const QList<Item> &items );
     void execute();
     void unexecute();
     Type type() const { return PopulateIconView; }
@@ -810,7 +810,7 @@ public:
     bool operator==( const PopulateIconViewCommand & ) const;
 
 private:
-    QValueList<Item> oldItems, newItems;
+    QList<Item> oldItems, newItems;
     QIconView *iconview;
 
 };
@@ -868,16 +868,16 @@ public:
     };
 
     PopulateTableCommand( const QString &n, FormWindow *fw, QTable *t,
-			  const QValueList<Row> &rows,
-			  const QValueList<Column> &columns );
+			  const QList<Row> &rows,
+			  const QList<Column> &columns );
 
     void execute();
     void unexecute();
     Type type() const { return PopulateTable; }
 
 private:
-    QValueList<Row> oldRows, newRows;
-    QValueList<Column> oldColumns, newColumns;
+    QList<Row> oldRows, newRows;
+    QList<Column> oldColumns, newColumns;
     QTable *table;
 
 };

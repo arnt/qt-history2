@@ -420,7 +420,7 @@ void FormWindow::insertWidget()
 
     if ( !lst.isEmpty() ) {
 	QWidget *pw = WidgetFactory::containerOfWidget( w );
-	QValueList<QPoint> op, np;
+	QList<QPoint> op, np;
 	for (int j = 0; j < lst.size(); ++j) {
 	    QWidget *i = lst.at(j);
 	    op.append( i->pos() );
@@ -438,7 +438,7 @@ void FormWindow::insertWidget()
 
 	InsertCommand *cmd = new InsertCommand( tr( "Insert %1" ).arg( w->name() ), this, w, r );
 
-	QPtrList<Command> commands;
+	QList<Command*> commands;
 	commands.append( mv );
 	commands.append( cmd );
 
@@ -978,7 +978,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 
 	make_move_command:
 	    QWidgetList widgets; // collect the widgets and its old and new positions which have been moved
-	    QValueList<QPoint> oldPos, newPos;
+	    QList<QPoint> oldPos, newPos;
 	    for ( it = moving.begin(); it != moving.end(); ++it ) {
 		widgets.append( (QWidget*)it.key() );
 		oldPos.append( *it );
@@ -1083,8 +1083,9 @@ void FormWindow::handleKeyPress( QKeyEvent *e, QWidget *w )
     if ( e->key() == Key_Left || e->key() == Key_Right ||
 	 e->key() == Key_Up || e->key() == Key_Down ) {
 	QWidgetList widgets;
-	QValueList<QPoint> oldPos, newPos;
-	for ( WidgetSelection *s = selections.first(); s; s = selections.next() ) {
+	QList<QPoint> oldPos, newPos;
+	for(QList<WidgetSelection*>::Iterator it = selections.begin(); it != selections.end(); ++it) {
+	    WidgetSelection *s = (*it);
 	    if ( s->isUsed() ) {
 		int dx = 0, dy = 0;
 		bool control = e->state() & ControlButton;
@@ -1185,16 +1186,15 @@ void FormWindow::selectWidget( QObject *o, bool select )
 	    repaintSelection( (QWidget*)opw );
 	if ( !isPropertyShowingBlocked() )
 	    emitShowProperties( propertyWidget );
-	WidgetSelection *s = usedSelections.find( w );
+	WidgetSelection *s = usedSelections.value( w );
 	if ( s ) {
 	    s->show();
 	    return;
 	}
 
-	for ( WidgetSelection *s2 = selections.first(); s2; s2 = selections.next() ) {
-	    if ( !s2->isUsed() ) {
-		s = s2;
-	    }
+	for(QList<WidgetSelection*>::Iterator it = selections.begin(); it != selections.end(); ++it) {
+	    if ( !(*it)->isUsed() ) 
+		s = (*it);
 	}
 
 	if ( !s ) {
@@ -1205,12 +1205,12 @@ void FormWindow::selectWidget( QObject *o, bool select )
 	s->setWidget( w );
 	emitSelectionChanged();
     } else {
-	WidgetSelection *s = usedSelections.find( w );
+	WidgetSelection *s = usedSelections.value( w );
 	if ( s )
 	    s->setWidget( 0 );
 	QObject *opw = propertyWidget;
 	if ( !usedSelections.isEmpty() )
-	    propertyWidget = QPtrDictIterator<WidgetSelection>( usedSelections ).current()->widget();
+	    propertyWidget = (*usedSelections.begin())->widget();
 	else
 	    propertyWidget = mainContainer();
 	if ( opw->isWidgetType() )
@@ -1230,7 +1230,7 @@ QPoint FormWindow::grid() const
 
 void FormWindow::updateSelection( QWidget *w )
 {
-    WidgetSelection *s = usedSelections.find( w );
+    WidgetSelection *s = usedSelections.value( w );
     if ( !w->isVisibleTo( this ) )
 	selectWidget( w, FALSE );
     else if ( s )
@@ -1239,23 +1239,22 @@ void FormWindow::updateSelection( QWidget *w )
 
 void FormWindow::raiseSelection( QWidget *w )
 {
-    WidgetSelection *s = usedSelections.find( w );
+    WidgetSelection *s = usedSelections.value( w );
     if ( s )
 	s->show();
 }
 
 void FormWindow::repaintSelection( QWidget *w )
 {
-    WidgetSelection *s = usedSelections.find( w );
+    WidgetSelection *s = usedSelections.value( w );
     if ( s )
 	s->update();
 }
 
 void FormWindow::clearSelection( bool changePropertyDisplay )
 {
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it )
-	it.current()->setWidget( 0, FALSE );
+    for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) 
+	it.value()->setWidget( 0, FALSE );
 
     usedSelections.clear();
     if ( changePropertyDisplay ) {
@@ -1341,7 +1340,7 @@ void FormWindow::selectWidgets()
     for (int i = 0; i < l.size(); ++i) {
 	QObject *o = l.at(i);
 	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets[ (void*)o ] ) {
+	     insertedWidgets[ (QWidget*)o ] ) {
 	    QPoint p = ( (QWidget*)o )->mapToGlobal( QPoint(0,0) );
 	    p = mapFromGlobal( p );
 	    QRect r( p, ( (QWidget*)o )->size() );
@@ -1355,15 +1354,14 @@ void FormWindow::selectWidgets()
 bool FormWindow::isWidgetSelected( QObject *w )
 {
     if ( w->isWidgetType() )
-	return usedSelections.find( (QWidget*)w ) != 0;
+	return usedSelections.value( (QWidget*)w ) != 0;
     return FALSE; // #### do stuff for QObjects
 }
 
 void FormWindow::moveSelectedWidgets( int dx, int dy )
 {
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it ) {
-	WidgetSelection *s = it.current();
+    for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) {
+	WidgetSelection *s = it.value();
 	QWidget *w = s->widget();
 	if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout )
 	    continue;
@@ -1394,10 +1392,10 @@ void FormWindow::raiseChildSelections( QWidget *w )
     if (l.isEmpty())
 	return;
 
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it ) {
-	if ( l.findIndex( it.current()->widget() ) != -1 )
-	    it.current()->show();
+    for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) {
+	WidgetSelection *w = it.value();
+	if ( l.findIndex( w->widget() ) != -1 )
+	    w->show();
     }
 }
 
@@ -1419,10 +1417,9 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
     QObjectList l = w->parentWidget()->queryList( "QWidget", 0, FALSE, FALSE );
     moving.clear();
     if ( !l.isEmpty() ) {
-	QPtrDictIterator<WidgetSelection> it( usedSelections );
-	WidgetSelection *sel;
-	while ( ( sel = it.current() ) != 0 ) {
-	    if ( it.current()->widget() == mainContainer() )
+	for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) {
+	    WidgetSelection *sel = it.value();
+	    if ( it.key() == mainContainer() )
 		continue;
 	    ++it;
 	    if ( l.findIndex( sel->widget() ) == -1 ) {
@@ -1444,13 +1441,13 @@ void FormWindow::deleteWidgets()
 {
     CHECK_MAINWINDOW;
     QWidgetList widgets;
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it ) {
+    for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) {
+	WidgetSelection *sel = it.value();
 	QWidget *tb = 0;
-	if ( !( tb = mainWindow()->isAToolBarChild( it.current()->widget() ) ) )
-	     widgets.append( it.current()->widget() );
+	if ( !( tb = mainWindow()->isAToolBarChild( sel->widget() ) ) )
+	     widgets.append( sel->widget() );
 	else
-	    ( (QDesignerToolBar*)tb )->removeWidget( it.current()->widget() );
+	    ( (QDesignerToolBar*)tb )->removeWidget( sel->widget() );
     }
 
     if ( widgets.isEmpty() )
@@ -1463,7 +1460,7 @@ void FormWindow::deleteWidgets()
 
 void FormWindow::editAdjustSize()
 {
-    QPtrList<Command> commands;
+    QList<Command*> commands;
     QWidgetList widgets = selectedWidgets();
     if ( widgets.isEmpty() ) {
 	QRect oldr = geometry();
@@ -1492,8 +1489,9 @@ void FormWindow::editAdjustSize()
 
     if ( commands.isEmpty() )
 	return;
-    for ( WidgetSelection *s = selections.first(); s; s = selections.next() )
-	s->updateGeometry();
+
+    for(QList<WidgetSelection*>::Iterator it = selections.begin(); it != selections.end(); ++it) 
+	(*it)->updateGeometry();
 
     MacroCommand *cmd = new MacroCommand( tr( "Adjust Size" ), this, commands );
     commandHistory()->addCommand( cmd );
@@ -1503,9 +1501,8 @@ void FormWindow::editAdjustSize()
 QWidgetList FormWindow::selectedWidgets() const
 {
     QWidgetList widgets;
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it )
-	widgets.append( it.current()->widget() );
+    for(QHash<QWidget *, WidgetSelection *>::ConstIterator it = usedSelections.begin(); it != usedSelections.end(); ++it) 
+	widgets.append( it.value()->widget() );
     return widgets;
 }
 
@@ -1584,7 +1581,7 @@ void FormWindow::windowsRepaintWorkaroundTimerTimeout()
 #endif
 }
 
-QPtrDict<QWidget> *FormWindow::widgets()
+QHash<QWidget*, QWidget*> *FormWindow::widgets()
 {
     return &insertedWidgets;
 }
@@ -1594,7 +1591,7 @@ QWidget *FormWindow::designerWidget( QObject *o ) const
     if ( !o || !o->isWidgetType() )
 	return 0;
     QWidget *w = (QWidget*)o;
-    while ( w && !isMainContainer( w ) && !insertedWidgets[ (void*)w ] || isCentralWidget( w ) )
+    while ( w && !isMainContainer( w ) && !insertedWidgets[ w ] || isCentralWidget( w ) )
 	w = (QWidget*)w->parent();
     return w;
 }
@@ -1738,7 +1735,7 @@ void FormWindow::showOrderIndicators()
     for (int i = 0; i < l.size(); ++i) {
 	QWidget* w = (QWidget*) l.at(i);
 	if ( w->isShown() &&
-	     insertedWidgets[ (void*)w ]  &&
+	     insertedWidgets[ w ]  &&
 	     w->focusPolicy() != NoFocus ) {
 	    OrderIndicator* ind = new OrderIndicator( order++, w, this );
 	    orderIndicators.append( ind );
@@ -1759,18 +1756,17 @@ void FormWindow::updateOrderIndicators()
     int order = 1;
     for (int i = 0; i < stackedWidgets.size(); ++i) {
 	QWidget *w = stackedWidgets.at(i);
-	for ( OrderIndicator* i = orderIndicators.first(); i; i = orderIndicators.next() )
-	    i->setOrder( order, w );
+	for(QList<OrderIndicator*>::Iterator it = orderIndicators.begin(); it != orderIndicators.end(); ++it) 
+	    (*it)->setOrder( order, w );
 	order++;
     }
 }
 
 void FormWindow::repositionOrderIndicators()
 {
-    for ( OrderIndicator* i = orderIndicators.first(); i; i = orderIndicators.next() )
-	i->reposition();
+    for(QList<OrderIndicator*>::Iterator it = orderIndicators.begin(); it != orderIndicators.end(); ++it) 
+	(*it)->reposition();
 }
-
 
 void FormWindow::updateUndoInfo()
 {
@@ -1780,10 +1776,9 @@ void FormWindow::updateUndoInfo()
 bool FormWindow::checkCustomWidgets()
 {
     QStringList missingCustomWidgets;
-    QPtrDictIterator<QWidget> it( insertedWidgets );
-    for ( ; it.current(); ++it ) {
-	if ( it.current()->isA( "CustomWidget" ) ) {
-	    QString className = WidgetFactory::classNameOf( it.current() );
+    for(QHash<QWidget *, QWidget *>::Iterator it = insertedWidgets.begin(); it != insertedWidgets.end(); ++it) {
+	if ( it.value()->isA( "CustomWidget" ) ) {
+	    QString className = WidgetFactory::classNameOf( it.value() );
 	    if ( !MetaDataBase::hasCustomWidget( className ) )
 		missingCustomWidgets << className;
 	}
@@ -1829,9 +1824,8 @@ QString FormWindow::copy()
 void FormWindow::lowerWidgets()
 {
     QWidgetList widgets;
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it )
-	widgets.append( it.current()->widget() );
+    for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) 
+	widgets.append( it.value()->widget() );
 
     LowerCommand *cmd = new LowerCommand( tr( "Lower" ), this, widgets );
     cmd->execute();
@@ -1866,7 +1860,7 @@ void FormWindow::checkAccels()
     for (int i = 0; i < l.size(); ++i) {
 	QObject* o = l.at(i);
 	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets[ (void*)o ] ) {
+	     insertedWidgets[ (QWidget*)o ] ) {
 	    QWidget *w = (QWidget*)o;
 	    QMetaProperty text =
 		w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
@@ -1916,9 +1910,8 @@ void FormWindow::checkAccels()
 void FormWindow::raiseWidgets()
 {
     QWidgetList widgets;
-    QPtrDictIterator<WidgetSelection> it( usedSelections );
-    for ( ; it.current(); ++it )
-	widgets.append( it.current()->widget() );
+    for(QHash<QWidget *, WidgetSelection *>::Iterator it = usedSelections.begin(); it != usedSelections.end(); ++it) 
+	widgets.append( it.value()->widget() );
 
     RaiseCommand *cmd = new RaiseCommand( tr( "Raise" ), this, widgets );
     cmd->execute();
@@ -1941,7 +1934,7 @@ void FormWindow::selectAll()
     for (int i = 0; i < l.size(); ++i) {
 	QObject* o = l.at(i);
 	if ( ( (QWidget*)o )->isVisibleTo( this ) &&
-	     insertedWidgets[ (void*)o ] ) {
+	     insertedWidgets[ (QWidget*)o ] ) {
 	    selectWidget( (QWidget*)o );
 	}
     }
@@ -2080,7 +2073,7 @@ void FormWindow::breakLayout( QWidget *w )
     if ( w == this )
 	w = mainContainer();
     w = WidgetFactory::containerOfWidget( w );
-    QPtrList<Command> commands;
+    QList<Command*> commands;
 
     for (;;) {
 	if ( !w || w == this )
@@ -2126,10 +2119,9 @@ BreakLayoutCommand *FormWindow::breakLayoutCommand( QWidget *w )
 
 int FormWindow::numVisibleWidgets() const
 {
-    QPtrDictIterator<QWidget> it( insertedWidgets );
     int visible = 0;
-    for ( ; it.current(); ++it ) {
-	if ( it.current()->isVisibleTo( (FormWindow*)this ) )
+    for(QHash<QWidget *, QWidget *>::ConstIterator it = insertedWidgets.begin(); it != insertedWidgets.end(); ++it) {
+	if ( it.value()->isVisibleTo( (FormWindow*)this ) )
 	    visible++;
     }
     return visible;
@@ -2317,23 +2309,21 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
     if ( !found ) {
 	QString orig = s;
 	int num  = 1;
-	QPtrDictIterator<QWidget> it( insertedWidgets );
-	for ( ; it.current();) {
-	    if ( it.current() != w &&
-		 qstrcmp( it.current()->name(), s.latin1() ) == 0 ) {
+	for(QHash<QWidget *, QWidget *>::Iterator it = insertedWidgets.begin(); it != insertedWidgets.end(); ) {
+	    if ( it.value() != w && qstrcmp( it.value()->name(), s.latin1() ) == 0 ) {
 		found = TRUE;
 		if ( !changeIt )
 		    break;
 		s = orig + "_" + QString::number( ++num );
-		it.toFirst();
+		it = insertedWidgets.begin();
 	    } else {
 		++it;
 	    }
 	}
 	if ( !found ) {
-	    QPtrList<QAction> al;
-	    QAction *a = 0;
-	    for ( a = actions.first(); a; a = actions.next() ) {
+	    QList<QAction*> al;
+	    for(QList<QAction*>::Iterator it = actions.begin(); it != actions.end(); ++it) {
+		QAction *a = (*it);
 		QObjectList l = a->queryList( "QAction" );
 		al.append( a );
 		for (int i = 0; i < l.size(); ++i) {
@@ -2341,9 +2331,9 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 		    al.append( (QAction*)ao );
 		}
 	    }
-	    for ( a = al.first(); a; a = al.next() ) {
-		if ( a != w &&
-		     qstrcmp( a->name(), s.latin1() ) == 0 ) {
+	    for(QList<QAction*>::Iterator it = al.begin(); it != al.end(); ++it) {
+		QAction *a = (*it);
+		if ( a != w && qstrcmp( a->name(), s.latin1() ) == 0 ) {
 		    found = TRUE;
 		    if ( !changeIt )
 			break;
@@ -2376,10 +2366,9 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 
 bool FormWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *w )
 {
-    QPtrDictIterator<QWidget> it( insertedWidgets );
-    for ( ; it.current(); ++it ) {
-	if ( it.current()->isA( "CustomWidget" ) ) {
-	    if ( qstrcmp( WidgetFactory::classNameOf( it.current() ), w->className.utf8() ) == 0 )
+    for(QHash<QWidget *, QWidget *>::Iterator it = insertedWidgets.begin(); it != insertedWidgets.end(); ++it) {
+	if ( it.value()->isA( "CustomWidget" ) ) {
+	    if ( qstrcmp( WidgetFactory::classNameOf( it.value() ), w->className.utf8() ) == 0 )
 		return TRUE;
 	}
     }
@@ -2392,9 +2381,8 @@ bool FormWindow::isDatabaseWidgetUsed() const
 #ifndef QT_NO_SQL
     QStringList dbClasses;
     dbClasses << "QDataTable"; // add more here
-    QPtrDictIterator<QWidget> it( insertedWidgets );
-    for ( ; it.current(); ++it ) {
-	QString c( it.current()->className() );
+    for(QHash<QWidget *, QWidget *>::ConstIterator it = insertedWidgets.begin(); it != insertedWidgets.end(); ++it) {
+	QString c( it.value()->className() );
 	if (dbClasses.contains(c))
 	    return TRUE;
     }
@@ -2464,7 +2452,6 @@ static bool isChildOf( QWidget *c, QWidget *p )
 
 QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
 {
-    QPtrDictIterator<QWidget> it( insertedWidgets );
     QWidget *container = 0;
     int depth = -1;
     QWidgetList selected = selectedWidgets();
@@ -2473,39 +2460,40 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
 	depth = widgetDepth( container );
     }
 
-    for ( ; it.current(); ++it ) {
-	if ( qt_cast<QLayoutWidget*>(it.current())
-	  || qt_cast<QSplitter*>(it.current()) )
+    for(QHash<QWidget *, QWidget *>::Iterator it = insertedWidgets.begin(); it != insertedWidgets.end(); ++it) {
+	QWidget *wit = it.value();
+	if ( qt_cast<QLayoutWidget*>(wit)
+	  || qt_cast<QSplitter*>(wit) )
 	    continue;
-	if ( !it.current()->isVisibleTo( this ) )
+	if ( !wit->isVisibleTo( this ) )
 	    continue;
-	if ( selected.indexOf( it.current() ) != -1 )
+	if ( selected.indexOf( wit ) != -1 )
 	    continue;
-	if ( !WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) ) &&
-	     it.current() != mainContainer() )
+	if ( !WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( wit ) ) ) &&
+	     wit != mainContainer() )
 	    continue;
 
 	// the rectangles of all ancestors of the container must contain the insert position
-	QWidget *w = it.current();
+	QWidget *w = wit;
 	while ( w && !w->isTopLevel() ) {
 	    if ( !w->rect().contains( ( w->mapFromGlobal( pos ) ) ) )
 		break;
 	    w = w->parentWidget();
 	}
-	if ( !( w == 0 || w->isTopLevel() ) ) continue; // we did not get through the full while loop
+	if ( !( w == 0 || w->isTopLevel() ) ) 
+	    continue; // we did not get through the full while loop
 
-	int wd = widgetDepth( it.current() );
+	int wd = widgetDepth( wit );
 	if ( wd == depth && container ) {
-	    if ( it.current()->parentWidget()->children().findIndex( it.current() ) >
+	    if ( wit->parentWidget()->children().findIndex( wit ) >
 		 container->parentWidget()->children().findIndex( container ) )
 		wd++;
 	}
-	if ( wd > depth && !isChildOf( it.current(), notParentOf ) ) {
+	if ( wd > depth && !isChildOf( wit, notParentOf ) ) {
 	    depth = wd;
-	    container = it.current();
+	    container = wit;
 	}
     }
-
     return container;
 }
 
@@ -2603,7 +2591,8 @@ Project *FormWindow::project() const
 
 QAction *FormWindow::findAction( const QString &name )
 {
-    for ( QAction *a = actionList().first(); a; a = actionList().next() ) {
+    for(QList<QAction*>::Iterator it = actionList().begin(); it != actionList().end(); ++it) {
+	QAction *a = (*it);
 	if ( QString( a->name() ) == name )
 	    return a;
 	QAction *ac = (QAction*)a->child( name.latin1(), "QAction" );

@@ -74,7 +74,7 @@ DesignerSourceFile *DesignerInterfaceImpl::currentSourceFile() const
     return 0;
 }
 
-QPtrList<DesignerProject> DesignerInterfaceImpl::projectList() const
+QList<DesignerProject*> DesignerInterfaceImpl::projectList() const
 {
     return mainWindow->projectList();
 }
@@ -165,9 +165,9 @@ DesignerProjectImpl::DesignerProjectImpl( Project *pr )
 {
 }
 
-QPtrList<DesignerFormWindow> DesignerProjectImpl::formList() const
+QList<DesignerFormWindow*> DesignerProjectImpl::formList() const
 {
-    QPtrList<DesignerFormWindow> list;
+    QList<DesignerFormWindow *> list;
     QObjectList *forms = project->formList();
     if ( !forms )
 	return list;
@@ -187,10 +187,10 @@ QPtrList<DesignerFormWindow> DesignerProjectImpl::formList() const
 
 QString DesignerProjectImpl::formFileName( const QString &form ) const
 {
-    for ( QPtrListIterator<FormFile> forms = project->formFiles();
-	  forms.current(); ++forms ) {
-	if ( QString( forms.current()->formName() ) == form )
-	    return forms.current()->fileName();
+    QList<FormFile*> forms = project->formFiles();
+    for(QList<FormFile*>::Iterator it = forms.begin(); it != forms.end(); ++it) {
+	if ( QString( (*it)->formName() ) == form )
+	    return (*it)->fileName();
     }
     return QString::null;
 }
@@ -198,9 +198,9 @@ QString DesignerProjectImpl::formFileName( const QString &form ) const
 QStringList DesignerProjectImpl::formNames() const
 {
     QStringList l;
-    for ( QPtrListIterator<FormFile> forms = project->formFiles();
-	  forms.current(); ++forms ) {
-	FormFile* f = forms.current();
+    QList<FormFile*> forms = project->formFiles();
+    for(QList<FormFile*>::Iterator it = forms.begin(); it != forms.end(); ++it) {
+	FormFile* f = (*it);
 	if ( f->isFake() )
 	    continue;
 	l << f->formName();
@@ -248,13 +248,13 @@ void DesignerProjectImpl::setupDatabases() const
     MainWindow::self->editDatabaseConnections();
 }
 
-QPtrList<DesignerDatabase> DesignerProjectImpl::databaseConnections() const
+QList<DesignerDatabase *> DesignerProjectImpl::databaseConnections() const
 {
-    QPtrList<DesignerDatabase> lst;
+    QList<DesignerDatabase*> lst;
 #ifndef QT_NO_SQL
-    QPtrList<DatabaseConnection> conns = project->databaseConnections();
-    for ( DatabaseConnection *d = conns.first(); d; d = conns.next() )
-	lst.append( d->iFace() );
+    QList<DatabaseConnection*> conns = project->databaseConnections();
+    for(QList<DatabaseConnection*>::Iterator it = conns.begin(); it != conns.end(); ++it) 
+	lst.append( (*it)->iFace() );
 #endif
     return lst;
 }
@@ -308,18 +308,18 @@ DesignerPixmapCollection *DesignerProjectImpl::pixmapCollection() const
     return project->pixmapCollection()->iFace();
 }
 
-void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<uint> > &bps ) const
+void DesignerProjectImpl::breakPoints( QMap<QString, QList<uint> > &bps ) const
 {
     MainWindow::self->saveAllBreakPoints();
-    for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
-	  sources.current(); ++sources ) {
-	SourceFile* f = sources.current();
+    QList<SourceFile*> sources = project->sourceFiles();
+    for(QList<SourceFile*>::Iterator it = sources.begin(); it != sources.end(); ++it) {
+	SourceFile* f = (*it);
 	bps.insert( project->makeRelative( f->fileName() ) + " <Source-File>", MetaDataBase::breakPoints( f ) );
     }
-    for ( QPtrListIterator<FormFile> forms = project->formFiles();
-	  forms.current(); ++forms ) {
-	if ( forms.current()->formWindow() )
-	    bps.insert( QString( forms.current()->formWindow()->name() ) + " <Form>", MetaDataBase::breakPoints( forms.current()->formWindow() ) );
+    QList<FormFile*> forms = project->formFiles();
+    for(QList<FormFile*>::Iterator it = forms.begin(); it != forms.end(); ++it) {
+	if ( (*it)->formWindow() )
+	    bps.insert( QString( (*it)->formWindow()->name() ) + " <Form>", MetaDataBase::breakPoints( (*it)->formWindow() ) );
     }
 }
 
@@ -335,16 +335,14 @@ void DesignerProjectImpl::setBreakPointCondition( QObject *o, int line, const QS
 
 void DesignerProjectImpl::clearAllBreakpoints() const
 {
-    QValueList<uint> empty;
-    for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
-	  sources.current(); ++sources ) {
-	SourceFile* f = sources.current();
-	MetaDataBase::setBreakPoints( f, empty );
-    }
-    for ( QPtrListIterator<FormFile> forms = project->formFiles();
-	  forms.current(); ++forms ) {
-	if ( forms.current()->formWindow() )
-	    MetaDataBase::setBreakPoints( forms.current()->formWindow(), empty );
+    QList<uint> empty;
+    QList<SourceFile*> sources = project->sourceFiles();
+    for(QList<SourceFile*>::Iterator it = sources.begin(); it != sources.end(); ++it) 
+	MetaDataBase::setBreakPoints( (*it), empty );
+    QList<FormFile*> forms = project->formFiles();
+    for(QList<FormFile*>::Iterator it = forms.begin(); it != forms.end(); ++it) {
+	if ( (*it)->formWindow() )
+	    MetaDataBase::setBreakPoints( (*it)->formWindow(), empty );
 	MainWindow::self->resetBreakPoints();
     }
 }
@@ -695,9 +693,9 @@ void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
 {
 }
 
-QPtrList<QAction> DesignerFormWindowImpl::actionList() const
+QList<QAction*> DesignerFormWindowImpl::actionList() const
 {
-    return QPtrList<QAction>();
+    return QList<QAction*>();
 }
 
 QAction *DesignerFormWindowImpl::createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
@@ -707,7 +705,7 @@ QAction *DesignerFormWindowImpl::createAction( const QString& text, const QIconS
     a->setName( name );
     a->setText( text );
     if ( !icon.isNull() && !icon.pixmap().isNull() )
-    a->setIconSet( icon );
+	a->setIconSet( icon );
     a->setMenuText( menuText );
     a->setAccel( accel );
     a->setToggleAction( toggle );
@@ -716,7 +714,7 @@ QAction *DesignerFormWindowImpl::createAction( const QString& text, const QIconS
 
 void DesignerFormWindowImpl::addAction( QAction *a )
 {
-    if ( formWindow->actionList().findRef( a ) != -1 )
+    if ( formWindow->actionList().findIndex( a ) != -1 )
 	return;
     formWindow->actionList().append( a );
     MetaDataBase::addEntry( a );
@@ -730,7 +728,7 @@ void DesignerFormWindowImpl::addAction( QAction *a )
 
 void DesignerFormWindowImpl::removeAction( QAction *a )
 {
-    formWindow->actionList().removeRef( a );
+    formWindow->actionList().remove( a );
 }
 
 void DesignerFormWindowImpl::preview() const
@@ -788,9 +786,9 @@ void DesignerFormWindowImpl::setColumnFields( QObject *o, const QMap<QString, QS
 
 QStringList DesignerFormWindowImpl::implementationIncludes() const
 {
-    QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formWindow );
+    QList<MetaDataBase::Include> includes = MetaDataBase::includes( formWindow );
     QStringList lst;
-    for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
+    for ( QList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
 	MetaDataBase::Include inc = *it;
 	if ( inc.implDecl != "in implementation" )
 	    continue;
@@ -809,9 +807,9 @@ QStringList DesignerFormWindowImpl::implementationIncludes() const
 
 QStringList DesignerFormWindowImpl::declarationIncludes() const
 {
-    QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formWindow );
+    QList<MetaDataBase::Include> includes = MetaDataBase::includes( formWindow );
     QStringList lst;
-    for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
+    for ( QList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
 	MetaDataBase::Include inc = *it;
 	if ( inc.implDecl == "in implementation" )
 	    continue;
@@ -830,9 +828,9 @@ QStringList DesignerFormWindowImpl::declarationIncludes() const
 
 void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 {
-    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );
-    QValueList<MetaDataBase::Include> includes;
-    for ( QValueList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
+    QList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );
+    QList<MetaDataBase::Include> includes;
+    for ( QList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
 	MetaDataBase::Include inc = *it;
 	if ( inc.implDecl == "in implementation" )
 	    continue;
@@ -872,9 +870,9 @@ void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 
 void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
 {
-    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );
-    QValueList<MetaDataBase::Include> includes;
-    for ( QValueList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
+    QList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );
+    QList<MetaDataBase::Include> includes;
+    for ( QList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
 	MetaDataBase::Include inc = *it;
 	if ( inc.implDecl == "in declaration" )
 	    continue;
@@ -1057,7 +1055,7 @@ void DesignerOutputDockImpl::appendError( const QString &s, int l )
 {
     QStringList ls;
     ls << s;
-    QValueList<uint> ll;
+    QList<uint> ll;
     ll << l;
     outWin->setErrorMessages( ls, ll, FALSE, QStringList(), QObjectList() );
 }

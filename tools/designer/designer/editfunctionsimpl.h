@@ -71,8 +71,8 @@ private:
     FormWindow *formWindow;
     QMap<QListViewItem*, int> functionIds;
     QStringList removedFunctions;
-    QValueList<MetaDataBase::Function> itemList;
-    QValueList<FunctItem> functList;
+    QList<MetaDataBase::Function> itemList;
+    QList<FunctItem> functList;
     int id;
     QString lastType;
 };

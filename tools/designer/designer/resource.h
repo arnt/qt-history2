@@ -16,7 +16,7 @@
 #include <qstring.h>
 #include <qtextstream.h>
 #include <qvariant.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qimage.h>
 #include "actiondnd.h"
 
@@ -80,7 +80,7 @@ private:
     void saveProperty( QObject *w, const QString &name, const QVariant &value, QVariant::Type t, QTextStream &ts, int indent );
     void saveProperty( const QVariant &value, QTextStream &ts, int indent );
     void saveItems( QObject *obj, QTextStream &ts, int indent );
-    void saveItem( const QStringList &text, const QPtrList<QPixmap> &pixmaps, QTextStream &ts, int indent );
+    void saveItem( const QStringList &text, const QList<QPixmap*> &pixmaps, QTextStream &ts, int indent );
     void saveItem( QListViewItem *i, QTextStream &ts, int indent );
     void saveConnections( QTextStream &ts, int indent );
     void saveCustomWidgets( QTextStream &ts, int indent );
@@ -91,7 +91,7 @@ private:
     void saveMetaInfoAfter( QTextStream &ts, int indent );
     void saveIncludeHints( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent, const QString &tagname = "pixmap" );
-    void saveActions( const QPtrList<QAction> &actions, QTextStream &ts, int indent );
+    void saveActions( const QList<QAction*> &actions, QTextStream &ts, int indent );
     void saveChildActions( QAction *a, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );
@@ -122,15 +122,15 @@ private:
     MainWindow *mainwindow;
     FormWindow *formwindow;
     QWidget* toplevel;
-    QValueList<Image> images;
+    QList<Image> images;
     bool copying, pasting;
     bool mainContainerSet;
     QStringList knownNames;
     QStringList usedCustomWidgets;
     QListViewItem *lastItem;
 
-    QValueList<MetaDataBase::Include> metaIncludes;
-    QValueList<MetaDataBase::Variable> metaVariables;
+    QList<MetaDataBase::Include> metaIncludes;
+    QList<MetaDataBase::Variable> metaVariables;
     QStringList metaForwards;
     QStringList metaSignals;
     MetaDataBase::MetaInfo metaInfo;
@@ -139,7 +139,7 @@ private:
     QMap<QString, QWidget*> widgets;
     QString exportMacro;
     bool hadGeometry;
-    QMap<QString, QValueList<MetaDataBase::Connection> > langConnections;
+    QMap<QString, QList<MetaDataBase::Connection> > langConnections;
     QString currFileName;
     LanguageInterface *langIface;
     bool hasFunctions;

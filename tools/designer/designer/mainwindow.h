@@ -123,7 +123,7 @@ public:
     QStringList sourceTemplates() const;
     SourceTemplateInterface* sourceTemplateInterface( const QString& templ );
     QUnknownInterface* designerInterface() const { return desInterface; }
-    QPtrList<DesignerProject> projectList() const;
+    QList<DesignerProject*> projectList() const;
     QStringList projectNames() const;
     QStringList projectFileNames() const;
     Project *findProject( const QString &projectName ) const;
@@ -327,11 +327,11 @@ private:
 
     void readConfig();
 
-    void setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w );
+    void setupRMBProperties( QList<uint> &ids, QMap<QString, int> &props, QWidget *w );
     void handleRMBProperties( int id, QMap<QString, int> &props, QWidget *w );
-    void setupRMBSpecialCommands( QValueList<uint> &ids, QMap<QString, int> &commands, QWidget *w );
+    void setupRMBSpecialCommands( QList<uint> &ids, QMap<QString, int> &commands, QWidget *w );
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, QWidget *w );
-    void setupRMBSpecialCommands( QValueList<uint> &ids, QMap<QString, int> &commands, FormWindow *w );
+    void setupRMBSpecialCommands( QList<uint> &ids, QMap<QString, int> &commands, FormWindow *w );
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, FormWindow *w );
     bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();
@@ -402,7 +402,7 @@ private:
     QPopupMenu *toolsMenu, *layoutMenu, *previewMenu;
     QToolBar *customWidgetToolBar, *layoutToolBar, *projectToolBar, *customWidgetToolBar2, *toolsToolBar;
     QToolBar *commonWidgetsToolBar;
-    QPtrList<QToolBar> widgetToolBars;
+    QList<QToolBar*> widgetToolBars;
 
     Preferences *prefDia;
     QMap<QString,QString> propertyDocumentation;
@@ -417,14 +417,14 @@ private:
     QPluginManager<PreferenceInterface> *preferencePluginManager;
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QPluginManager<SourceTemplateInterface> *sourceTemplatePluginManager;
-    QPtrList<SourceEditor> sourceEditors;
+    QList<SourceEditor*> sourceEditors;
     bool previewing;
     QUnknownInterface *desInterface;
     QStringList recentlyFiles;
     QStringList recentlyProjects;
     OutputWindow *oWindow;
-    QValueList<Tab> preferenceTabs;
-    QValueList<Tab> projectTabs;
+    QList<Tab> preferenceTabs;
+    QList<Tab> projectTabs;
     bool databaseAutoEdit;
     QTimer *updateFunctionsTimer;
     QTimer *autoSaveTimer;
@@ -454,8 +454,8 @@ private:
 
 public:
     QString lastSaveFilter;
-    QPtrList<QAction> toolActions;
-    QPtrList<QAction> commonWidgetsPage;
+    QList<QAction*> toolActions;
+    QList<QAction*> commonWidgetsPage;
 
 };
 

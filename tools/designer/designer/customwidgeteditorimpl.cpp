@@ -70,8 +70,9 @@ CustomWidgetEditor::CustomWidgetEditor( QWidget *parent, MainWindow *mw )
 
 void CustomWidgetEditor::setupDefinition()
 {
-    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
-    for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
+    QList<MetaDataBase::CustomWidget*> *lst = MetaDataBase::customWidgets();
+    for(QList<MetaDataBase::CustomWidget*>::Iterator it = lst->begin(); it != lst->end(); ++it) {
+	MetaDataBase::CustomWidget *w = (*it);
 	QListBoxItem *i;
 	if ( w->pixmap )
 	    i = new QListBoxPixmap( boxWidgets, *w->pixmap, w->className );
@@ -95,7 +96,7 @@ void CustomWidgetEditor::setupSignals()
     if ( !w )
 	return;
     listSignals->clear();
-    for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
+    for ( QList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 	listSignals->insertItem( QString( *it ) );
     if ( listSignals->firstItem() ) {
 	listSignals->setCurrentItem( listSignals->firstItem() );
@@ -113,7 +114,7 @@ void CustomWidgetEditor::setupSlots()
     if ( !w )
 	return;
     listSlots->clear();
-    for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
+    for ( QList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
 	(void)new QListViewItem( listSlots, (*it).function, (*it).access );
 
     if ( listSlots->firstChild() ) {
@@ -132,7 +133,7 @@ void CustomWidgetEditor::setupProperties()
     if ( !w )
 	return;
     listProperties->clear();
-    for ( QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
+    for ( QList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
 	(void)new QListViewItem( listProperties, (*it).property, (*it).type );
 
     if ( listProperties->firstChild() ) {
@@ -443,7 +444,7 @@ void CustomWidgetEditor::signalNameChanged( const QString &s )
     if ( !w || listSignals->currentItem() == -1 )
 	return;
 
-    QValueList<QCString>::Iterator it = w->lstSignals.find( listSignals->currentText().latin1() );
+    QList<QCString>::Iterator it = w->lstSignals.find( listSignals->currentText().latin1() );
     if ( it != w->lstSignals.end() )
 	w->lstSignals.remove( it );
     listSignals->blockSignals( TRUE );
@@ -461,7 +462,7 @@ void CustomWidgetEditor::slotAccessChanged( const QString &s )
     MetaDataBase::Function slot;
     slot.function = listSlots->currentItem()->text( 0 );
     slot.access = listSlots->currentItem()->text( 1 );
-    QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.find( slot );
+    QList<MetaDataBase::Function>::Iterator it = w->lstSlots.find( slot );
     if ( it != w->lstSlots.end() )
 	w->lstSlots.remove( it );
     listSlots->currentItem()->setText( 1, s );
@@ -479,7 +480,7 @@ void CustomWidgetEditor::slotNameChanged( const QString &s )
     MetaDataBase::Function slot;
     slot.function = listSlots->currentItem()->text( 0 );
     slot.access = listSlots->currentItem()->text( 1 );
-    QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.find( slot );
+    QList<MetaDataBase::Function>::Iterator it = w->lstSlots.find( slot );
     if ( it != w->lstSlots.end() )
 	w->lstSlots.remove( it );
     listSlots->currentItem()->setText( 0, s );
@@ -555,7 +556,7 @@ void CustomWidgetEditor::propertyTypeChanged( const QString &s )
     MetaDataBase::Property property;
     property.property = listProperties->currentItem()->text( 0 );
     property.type = listProperties->currentItem()->text( 1 );
-    QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.find( property );
+    QList<MetaDataBase::Property>::Iterator it = w->lstProperties.find( property );
     if ( it != w->lstProperties.end() )
 	w->lstProperties.remove( it );
     listProperties->currentItem()->setText( 1, s );
@@ -573,7 +574,7 @@ void CustomWidgetEditor::propertyNameChanged( const QString &s )
     MetaDataBase::Property property;
     property.property = listProperties->currentItem()->text( 0 );
     property.type = listProperties->currentItem()->text( 1 );
-    QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.find( property );
+    QList<MetaDataBase::Property>::Iterator it = w->lstProperties.find( property );
     if ( it != w->lstProperties.end() )
 	w->lstProperties.remove( it );
     listProperties->currentItem()->setText( 0, s );
@@ -681,8 +682,9 @@ void CustomWidgetEditor::saveDescription()
     ts << makeIndent2( indent ) << "<customwidgets>" << endl;
     indent++;
 
-    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
-    for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
+    QList<MetaDataBase::CustomWidget*> *lst = MetaDataBase::customWidgets();
+    for(QList<MetaDataBase::CustomWidget*>::Iterator it = lst->begin(); it != lst->end(); ++it) {
+	MetaDataBase::CustomWidget *w = (*it);
 	ts << makeIndent2( indent ) << "<customwidget>" << endl;
 	indent++;
 	ts << makeIndent2( indent ) << "<class>" << w->className << "</class>" << endl;
@@ -708,15 +710,15 @@ void CustomWidgetEditor::saveDescription()
 	indent--;
 	ts << makeIndent2( indent ) << "</pixmap>" << endl;
 	if ( !w->lstSignals.isEmpty() ) {
-	    for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
+	    for ( QList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 		ts << makeIndent2( indent ) << "<signal>" << entitize2( *it ) << "</signal>" << endl;
 	}
 	if ( !w->lstSlots.isEmpty() ) {
-	    for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
+	    for ( QList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
 		ts << makeIndent2( indent ) << "<slot access=\"" << (*it).access << "\">" << entitize2( (*it).function ) << "</slot>" << endl;
 	}
 	if ( !w->lstProperties.isEmpty() ) {
-	    for ( QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
+	    for ( QList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
 		ts << makeIndent2( indent ) << "<property type=\"" << (*it).type << "\">" << entitize2( (*it).property ) << "</property>" << endl;
 	}
 	indent--;

@@ -15,7 +15,7 @@
 
 #include <qfeatures.h>
 #include <qlistview.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qguardedptr.h>
 #include <qtabwidget.h>
 #include <qmodules.h>
@@ -114,7 +114,7 @@ private:
     bool open, changed;
     PropertyItem *property;
     QString propertyName;
-    QPtrList<PropertyItem> children;
+    QList<PropertyItem*> children;
     QColor backColor;
     QPushButton *resetButton;
 
@@ -564,8 +564,8 @@ class EnumPopup : public QFrame
 public:
     EnumPopup( QWidget *parent, const char *name, WFlags f=0 );
     ~EnumPopup();
-    void insertEnums( QValueList<EnumItem> lst );
-    QValueList<EnumItem> enumList() const;
+    void insertEnums( QList<EnumItem> lst );
+    QList<EnumItem> enumList() const;
     void closeWidget();
 
 signals:
@@ -576,8 +576,8 @@ protected:
     void keyPressEvent( QKeyEvent *e );
 
 private:
-    QValueList<EnumItem> itemList;
-    QPtrList<QCheckBox> checkBoxList;
+    QList<EnumItem> itemList;
+    QList<QCheckBox*> checkBoxList;
     QVBoxLayout *popLayout;
 };
 
@@ -589,8 +589,8 @@ public:
     EnumBox( QWidget *parent, const char *name = 0 );
     ~EnumBox() {}
     void setText( const QString &text );
-    void insertEnums( QValueList<EnumItem> lst );
-    QValueList<EnumItem> enumList() const;
+    void insertEnums( QList<EnumItem> lst );
+    QList<EnumItem> enumList() const;
 
 signals:
     void aboutToShowPopup();
@@ -637,7 +637,7 @@ private slots:
 
 private:
     QGuardedPtr<EnumBox> box;
-    QValueList<EnumItem> enumList;
+    QList<EnumItem> enumList;
     QString enumString;
 };
 

@@ -1341,7 +1341,8 @@ bool MainWindow::fileSave()
 
 bool MainWindow::fileSaveForm()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+    for(QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	SourceEditor *e = (*it);
 	if ( e->object() == formWindow() || e == qWorkspace()->activeWindow() ) {
 	    e->save();
 	}
@@ -1414,10 +1415,10 @@ void MainWindow::fileCreateTemplate()
 	}
     }
 
-    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
-    for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
-	if ( w->isContainer )
-	    dia.listClass->insertItem( w->className );
+    QList<MetaDataBase::CustomWidget *> *lst = MetaDataBase::customWidgets();
+    for(QList<MetaDataBase::CustomWidget*>::Iterator it = lst->begin(); it != lst->end(); ++it) {
+	if ( (*it)->isContainer )
+	    dia.listClass->insertItem( (*it)->className );
     }
 
     dia.editName->setText( tr( "NewTemplate" ) );
@@ -1750,7 +1751,8 @@ SourceEditor *MainWindow::openSourceEditor()
     }
 
     SourceEditor *editor = 0;
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+    for(QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	SourceEditor *e = (*it);
 	if ( e->language() == lang && e->object() == formWindow() ) {
 	    editor = e;
 	    break;
@@ -1880,7 +1882,7 @@ void MainWindow::editPreferences()
     dia->timeEditAutoSave->setTime( t );
 
     SenderObject *senderObject = new SenderObject( designerInterface() );
-    QValueList<Tab>::Iterator it;
+    QList<Tab>::Iterator it;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
 	dia->tabWidget->addTab( t.w, t.title );
@@ -1931,8 +1933,8 @@ void MainWindow::editPreferences()
 	t.w->reparent( 0, QPoint(0,0), FALSE );
     }
 
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	e->configChanged();
+    for(QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) 
+	(*it)->configChanged();
 
     delete dia;
     prefDia = 0;

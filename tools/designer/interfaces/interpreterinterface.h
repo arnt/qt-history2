@@ -37,7 +37,7 @@ class QObject;
 
 struct InterpreterInterface : public QUnknownInterface
 {
-    virtual void setBreakPoints( QObject *obj, const QValueList<uint> &lst ) = 0;
+    virtual void setBreakPoints( QObject *obj, const QList<uint> &lst ) = 0;
 };
 
 

@@ -14,8 +14,7 @@
 #define SIZEHANDLE_H
 
 #include <qwidget.h>
-#include <qintdict.h>
-#include <qptrdict.h>
+#include <qhash.h>
 
 class QMouseEvent;
 class FormWindow;
@@ -60,7 +59,7 @@ private:
 class WidgetSelection
 {
 public:
-    WidgetSelection( FormWindow *parent, QPtrDict<WidgetSelection> *selDict );
+    WidgetSelection( FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict );
 
     void setWidget( QWidget *w, bool updateDict = TRUE );
     bool isUsed() const;
@@ -73,10 +72,10 @@ public:
     QWidget *widget() const;
 
 protected:
-    QIntDict<SizeHandle> handles;
+    QHash<int, SizeHandle*> handles;
     QWidget *wid;
     FormWindow *formWindow;
-    QPtrDict<WidgetSelection> *selectionDict;
+    QHash<QWidget *, WidgetSelection *> *selectionDict;
 
 };
 

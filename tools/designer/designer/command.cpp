@@ -75,7 +75,7 @@ void CommandHistory::addCommand( Command *cmd, bool tryCompress )
 	if ( current < savedAt )
 	    savedAt = -2;
 
-	QPtrList<Command> commands;
+	QList<Command*> commands;
 	commands.setAutoDelete( FALSE );
 
 	for( int i = 0; i <= current; ++i ) {
@@ -176,7 +176,7 @@ void CommandHistory::checkCompressedCommand()
 	Command *c = compressedCommand;
 	compressedCommand = 0;
 	if ( !( (SetPropertyCommand*)c )->checkProperty() ) {
-	    history.remove( current );
+	    history.removeAt( current );
 	    --current;
 	    emitUndoRedo();
 	}
@@ -277,8 +277,8 @@ void InsertCommand::unexecute()
 
 MoveCommand::MoveCommand( const QString &n, FormWindow *fw,
 			  const QWidgetList &w,
-			  const QValueList<QPoint> op,
-			  const QValueList<QPoint> np,
+			  const QList<QPoint> op,
+			  const QList<QPoint> np,
 			  QWidget *opr, QWidget *npr )
     : Command( n, fw ), widgets( w ), oldPos( op ), newPos( np ),
       oldParent( opr ), newParent( npr )
@@ -375,9 +375,9 @@ void DeleteCommand::execute()
 	w->setName( s );
 	formWindow()->selectWidget( w, FALSE );
 	formWindow()->widgets()->remove( w );
-	QValueList<MetaDataBase::Connection> conns = MetaDataBase::connections( formWindow(), w );
+	QList<MetaDataBase::Connection> conns = MetaDataBase::connections( formWindow(), w );
 	connections.insert( w, conns );
-	QValueList<MetaDataBase::Connection>::Iterator it = conns.begin();
+	QList<MetaDataBase::Connection>::Iterator it = conns.begin();
 	for ( ; it != conns.end(); ++it ) {
 	    MetaDataBase::removeConnection( formWindow(), (*it).sender,
 					    (*it).signal, (*it).receiver, (*it).slot );
@@ -401,8 +401,8 @@ void DeleteCommand::unexecute()
 	w->setName( s );
 	formWindow()->widgets()->insert( w, w );
 	formWindow()->selectWidget( w );
-	QValueList<MetaDataBase::Connection> conns = *connections.find( w );
-	QValueList<MetaDataBase::Connection>::Iterator it = conns.begin();
+	QList<MetaDataBase::Connection> conns = *connections.find( w );
+	QList<MetaDataBase::Connection>::Iterator it = conns.begin();
 	for ( ; it != conns.end(); ++it ) {
 	    MetaDataBase::addConnection( formWindow(), (*it).sender,
 					 (*it).signal, (*it).receiver, (*it).slot );
@@ -480,7 +480,7 @@ bool SetPropertyCommand::canMerge( Command *c )
 	    MetaDataBase::CustomWidget *cw = ((CustomWidget*)(QObject*)widget)->customWidget();
 	    if ( !cw )
 		return FALSE;
-	    for ( QValueList<MetaDataBase::Property>::Iterator it = cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
+	    for ( QList<MetaDataBase::Property>::Iterator it = cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
 		if ( QString( (*it ).property ) == propName ) {
 		    if ( (*it).type == "String" || (*it).type == "CString" || (*it).type == "Int" || (*it).type == "UInt" )
 			return TRUE;
@@ -804,21 +804,21 @@ void BreakLayoutCommand::unexecute()
 // ------------------------------------------------------------
 
 MacroCommand::MacroCommand( const QString &n, FormWindow *fw,
-			    const QPtrList<Command> &cmds )
+			    const QList<Command *> &cmds )
     : Command( n, fw ), commands( cmds )
 {
 }
 
 void MacroCommand::execute()
 {
-    for ( Command *c = commands.first(); c; c = commands.next() )
-	c->execute();
+    for( QList<Command*>::Iterator it = commands.begin(); it != commands.end(); ++it)
+	(*it)->execute();
 }
 
 void MacroCommand::unexecute()
 {
-    for ( Command *c = commands.last(); c; c = commands.prev() )
-	c->unexecute();
+    for( QList<Command*>::Iterator it = commands.begin(); it != commands.end(); ++it)
+	(*it)->unexecute();
 }
 
 // ------------------------------------------------------------
@@ -1215,8 +1215,8 @@ RemoveFunctionCommand::RemoveFunctionCommand( const QString &name, FormWindow *f
       returnType( rt )
 {
     if ( spec.isNull() ) {
-	QValueList<MetaDataBase::Function> lst = MetaDataBase::functionList( fw );
-	for ( QValueList<MetaDataBase::Function>::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QList<MetaDataBase::Function> lst = MetaDataBase::functionList( fw );
+	for ( QList<MetaDataBase::Function>::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    if ( MetaDataBase::normalizeFunction( (*it).function ) ==
 		 MetaDataBase::normalizeFunction( function ) ) {
 		specifier = (*it).specifier;
@@ -1274,7 +1274,7 @@ void AddVariableCommand::unexecute()
 // ------------------------------------------------------------
 
 SetVariablesCommand::SetVariablesCommand( const QString &name, FormWindow *fw,
-    QValueList<MetaDataBase::Variable> lst )
+    QList<MetaDataBase::Variable> lst )
     : Command( name, fw ), newList( lst )
 {
     oldList = MetaDataBase::variables( formWindow() );
@@ -1301,8 +1301,8 @@ void SetVariablesCommand::unexecute()
 RemoveVariableCommand::RemoveVariableCommand( const QString &name, FormWindow *fw, const QString &vn )
     : Command( name, fw ), varName( vn )
 {
-    QValueList<MetaDataBase::Variable> lst = MetaDataBase::variables( fw );
-    for ( QValueList<MetaDataBase::Variable>::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+    QList<MetaDataBase::Variable> lst = MetaDataBase::variables( fw );
+    for ( QList<MetaDataBase::Variable>::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	if ( (*it).varName == varName ) {
 	    access = (*it).varAccess;
 	    break;
@@ -1467,7 +1467,7 @@ void TabOrderCommand::unexecute()
 // ------------------------------------------------------------
 
 PopulateListBoxCommand::PopulateListBoxCommand( const QString &n, FormWindow *fw,
-						QListBox *lb, const QValueList<Item> &items )
+						QListBox *lb, const QList<Item> &items )
     : Command( n, fw ), newItems( items ), listbox( lb )
 {
     QListBoxItem *i = 0;
@@ -1483,7 +1483,7 @@ PopulateListBoxCommand::PopulateListBoxCommand( const QString &n, FormWindow *fw
 void PopulateListBoxCommand::execute()
 {
     listbox->clear();
-    for ( QValueList<Item>::Iterator it = newItems.begin(); it != newItems.end(); ++it ) {
+    for ( QList<Item>::Iterator it = newItems.begin(); it != newItems.end(); ++it ) {
 	Item i = *it;
 	if ( !i.pix.isNull() )
 	    (void)new QListBoxPixmap( listbox, i.pix, i.text );
@@ -1496,7 +1496,7 @@ void PopulateListBoxCommand::execute()
 void PopulateListBoxCommand::unexecute()
 {
     listbox->clear();
-    for ( QValueList<Item>::Iterator it = oldItems.begin(); it != oldItems.end(); ++it ) {
+    for ( QList<Item>::Iterator it = oldItems.begin(); it != oldItems.end(); ++it ) {
 	Item i = *it;
 	if ( !i.pix.isNull() )
 	    (void)new QListBoxPixmap( listbox, i.pix, i.text );
@@ -1509,7 +1509,7 @@ void PopulateListBoxCommand::unexecute()
 // ------------------------------------------------------------
 
 PopulateIconViewCommand::PopulateIconViewCommand( const QString &n, FormWindow *fw,
-						  QIconView *iv, const QValueList<Item> &items )
+						  QIconView *iv, const QList<Item> &items )
     : Command( n, fw ), newItems( items ), iconview( iv )
 {
 #ifndef QT_NO_ICONVIEW
@@ -1528,7 +1528,7 @@ void PopulateIconViewCommand::execute()
 {
 #ifndef QT_NO_ICONVIEW
     iconview->clear();
-    for ( QValueList<Item>::Iterator it = newItems.begin(); it != newItems.end(); ++it ) {
+    for ( QList<Item>::Iterator it = newItems.begin(); it != newItems.end(); ++it ) {
 	Item i = *it;
 	(void)new QIconViewItem( iconview, i.text, i.pix );
     }
@@ -1539,7 +1539,7 @@ void PopulateIconViewCommand::unexecute()
 {
 #ifndef QT_NO_ICONVIEW
     iconview->clear();
-    for ( QValueList<Item>::Iterator it = oldItems.begin(); it != oldItems.end(); ++it ) {
+    for ( QList<Item>::Iterator it = oldItems.begin(); it != oldItems.end(); ++it ) {
 	Item i = *it;
 	(void)new QIconViewItem( iconview, i.text, i.pix );
     }
@@ -1691,8 +1691,8 @@ void PopulateMultiLineEditCommand::unexecute()
 // ------------------------------------------------------------
 
 PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QTable *t,
-					    const QValueList<Row> &rows,
-					    const QValueList<Column> &columns )
+					    const QList<Row> &rows,
+					    const QList<Column> &columns )
     : Command( n, fw ), newRows( rows ), newColumns( columns ), table( t )
 {
 #ifndef QT_NO_TABLE
@@ -1722,7 +1722,7 @@ void PopulateTableCommand::execute()
     QMap<QString, QString> columnFields;
     table->setNumCols( newColumns.count() );
     int i = 0;
-    for ( QValueList<Column>::Iterator cit = newColumns.begin(); cit != newColumns.end(); ++cit, ++i ) {
+    for ( QList<Column>::Iterator cit = newColumns.begin(); cit != newColumns.end(); ++cit, ++i ) {
 	table->horizontalHeader()->setLabel( i, (*cit).pix, (*cit).text );
 	if ( !(*cit).field.isEmpty() )
 	    columnFields.insert( (*cit).text, (*cit).field );
@@ -1730,7 +1730,7 @@ void PopulateTableCommand::execute()
     MetaDataBase::setColumnFields( table, columnFields );
     table->setNumRows( newRows.count() );
     i = 0;
-    for ( QValueList<Row>::Iterator rit = newRows.begin(); rit != newRows.end(); ++rit, ++i )
+    for ( QList<Row>::Iterator rit = newRows.begin(); rit != newRows.end(); ++rit, ++i )
 	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
 #endif
 }
@@ -1741,7 +1741,7 @@ void PopulateTableCommand::unexecute()
     QMap<QString, QString> columnFields;
     table->setNumCols( oldColumns.count() );
     int i = 0;
-    for ( QValueList<Column>::Iterator cit = oldColumns.begin(); cit != oldColumns.end(); ++cit, ++i ) {
+    for ( QList<Column>::Iterator cit = oldColumns.begin(); cit != oldColumns.end(); ++cit, ++i ) {
 	table->horizontalHeader()->setLabel( i, (*cit).pix, (*cit).text );
 	if ( !(*cit).field.isEmpty() )
 	    columnFields.insert( (*cit).text, (*cit).field );
@@ -1749,7 +1749,7 @@ void PopulateTableCommand::unexecute()
     MetaDataBase::setColumnFields( table, columnFields );
     table->setNumRows( oldRows.count() );
     i = 0;
-    for ( QValueList<Row>::Iterator rit = oldRows.begin(); rit != oldRows.end(); ++rit, ++i )
+    for ( QList<Row>::Iterator rit = oldRows.begin(); rit != oldRows.end(); ++rit, ++i )
 	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
 #endif
 }

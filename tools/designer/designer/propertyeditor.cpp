@@ -49,7 +49,7 @@
 #include <qapplication.h>
 #include <qheader.h>
 #include <qlineedit.h>
-#include <qstrlist.h>
+#include <qlist.h>
 #include <qmetaobject.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -2577,14 +2577,14 @@ EnumPopup::~EnumPopup()
 {
 }
 
-void EnumPopup::insertEnums( QValueList<EnumItem> lst )
+void EnumPopup::insertEnums( QList<EnumItem> lst )
 {
     while ( checkBoxList.count() )
 	checkBoxList.removeFirst();
 
     itemList = lst;
     QCheckBox *cb;
-    QValueListConstIterator<EnumItem> it = itemList.begin();
+    QList<EnumItem>::ConstIterator it = itemList.begin();
     for ( ; it != itemList.end(); ++it ) {
 	cb = new QCheckBox( this );
 	cb->setText( (*it).key );
@@ -2609,18 +2609,14 @@ void EnumPopup::keyPressEvent( QKeyEvent *e )
 
 void EnumPopup::closeWidget()
 {
-    QPtrListIterator<QCheckBox> it( checkBoxList );
     int i = 0;
-    while ( it.current() != 0 ) {
-	itemList[i].selected = (*it)->isChecked();
-	++it;
-	++i;
-    }
+    for(QList<QCheckBox*>::Iterator it = checkBoxList.begin(); it != checkBoxList.end(); ++it) 
+	itemList[i++].selected = (*it)->isChecked();
     close();
     emit closed();
 }
 
-QValueList<EnumItem> EnumPopup::enumList() const
+QList<EnumItem> EnumPopup::enumList() const
 {
     return itemList;
 }
@@ -2681,12 +2677,12 @@ void EnumBox::paintEvent( QPaintEvent * )
     }
 }
 
-void EnumBox::insertEnums( QValueList<EnumItem> lst )
+void EnumBox::insertEnums( QList<EnumItem> lst )
 {
     pop->insertEnums( lst );
 }
 
-QValueList<EnumItem> EnumBox::enumList() const
+QList<EnumItem> EnumBox::enumList() const
 {
     return pop->enumList();
 }
@@ -2809,7 +2805,7 @@ void PropertyEnumItem::setValue()
 {
     enumList = box->enumList();
     enumString = "";
-    QValueListConstIterator<EnumItem> it = enumList.begin();
+    QList<EnumItem>::ConstIterator it = enumList.begin();
     for ( ; it != enumList.end(); ++it ) {
 	if ( (*it).selected )
 	    enumString += "|" + (*it).key;
@@ -2826,7 +2822,7 @@ void PropertyEnumItem::setCurrentValues( const QString &values )
 {
     QStringList keys = QStringList::split('|', values);
     enumString ="";
-    QValueList<EnumItem>::Iterator eit = enumList.begin();
+    QList<EnumItem>::Iterator eit = enumList.begin();
     for ( ; eit != enumList.end(); ++eit ) {
 	(*eit).selected = FALSE;
 	if (keys.contains((*eit).key) ) {
@@ -3232,7 +3228,7 @@ void PropertyList::setupCusWidgetProperties( MetaDataBase::CustomWidget *cw,
     if ( !cw )
 	return;
 
-    for ( QValueList<MetaDataBase::Property>::Iterator it =
+    for ( QList<MetaDataBase::Property>::Iterator it =
 	  cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
 	if ( unique.contains( QString( (*it).property ) ) )
 	    continue;
@@ -3248,14 +3244,13 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 {
     if ( name == "buddy" ) {
 	PropertyListItem *itm = new PropertyListItem( this, item, 0, name, TRUE );
-	QPtrDict<QWidget> *widgets = editor->formWindow()->widgets();
-	QPtrDictIterator<QWidget> it( *widgets );
 	QStringList l;
 	l << "";
-	while ( it.current() ) {
-	    if ( editor->formWindow()->canBeBuddy( it.current() ) ) {
-		if ( l.find( it.current()->name() ) == l.end() )
-		    l << it.current()->name();
+	QHash<QWidget*, QWidget*> *widgets = editor->formWindow()->widgets();
+	for(QHash<QWidget *, QWidget *>::Iterator it = widgets->begin(); it != widgets->end(); ++it) {
+	    if ( editor->formWindow()->canBeBuddy( it.value() ) ) {
+		if ( l.find( it.value()->name() ) == l.end() )
+		    l << it.value()->name();
 	    }
 	    ++it;
 	}
@@ -3844,20 +3839,19 @@ void EventList::setup()
     if ( !formWindow )
 	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
-    QStrList sigs;
+    QList<char*> sigs;
     if ( iface )
 	sigs = iface->signalNames( editor->widget() );
-    QStrListIterator it( sigs );
-    while ( it.current() ) {
+    for(QList<char*>::Iterator it = sigs.begin(); it != sigs.end(); ++it) {
 	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, (HierarchyItem*)0,
-						      it.current(), QString::null, QString::null );
+						      (*it), QString::null, QString::null );
 	eventItem->setOpen( TRUE );
-	QValueList<MetaDataBase::Connection> conns =
+	QList<MetaDataBase::Connection> conns =
 	    MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
 	HierarchyItem *item = 0;
-	for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin();
+	for ( QList<MetaDataBase::Connection>::Iterator cit = conns.begin();
 	      cit != conns.end(); ++cit ) {
-	    QString s = it.current();
+	    QString s = QString((*it));
 	    if ( MetaDataBase::normalizeFunction( clean_arguments( QString( (*cit).signal ) ) ) !=
 		 MetaDataBase::normalizeFunction( clean_arguments( s ) ) )
 		continue;

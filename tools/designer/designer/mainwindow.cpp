@@ -282,7 +282,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
 
 MainWindow::~MainWindow()
 {
-    QValueList<Tab>::Iterator tit;
+    QList<Tab>::Iterator tit;
     for ( tit = preferenceTabs.begin(); tit != preferenceTabs.end(); ++tit ) {
 	Tab t = *tit;
 	delete t.w;
@@ -533,9 +533,9 @@ int MainWindow::currentTool() const
 
 void MainWindow::runProjectPrecondition()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	e->save();
-	e->saveBreakPoints();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	(*it)->save();
+	(*it)->saveBreakPoints();
     }
     fileSaveProject();
 
@@ -552,17 +552,17 @@ void MainWindow::runProjectPostcondition( QObjectList *l )
     inDebugMode = TRUE;
     debuggingForms = *l;
     enableAll( FALSE );
-    for ( SourceEditor *e2 = sourceEditors.first(); e2; e2 = sourceEditors.next() ) {
-	if ( e2->project() == currentProject )
-	    e2->editorInterface()->setMode( EditorInterface::Debugging );
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( (*it)->project() == currentProject )
+	    (*it)->editorInterface()->setMode( EditorInterface::Debugging );
     }
 }
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 {
     qwf_execute_code = FALSE;
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	e->save();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it)
+	(*it)->save();
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
 
@@ -571,12 +571,11 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	return 0;
 
     QStringList databases;
-    QPtrDictIterator<QWidget> wit( *fw->widgets() );
-    while ( wit.current() ) {
-	QStringList lst = MetaDataBase::fakeProperty( wit.current(), "database" ).toStringList();
+    QHash<QWidget *, QWidget *> *widgs = fw->widgets();
+    for(QHash<QWidget*, QWidget*>::Iterator wit = widgs->begin(); wit != widgs->end(); ++wit) {
+	QStringList lst = MetaDataBase::fakeProperty( (*wit), "database" ).toStringList();
 	if ( !lst.isEmpty() )
 	    databases << lst [ 0 ];
-	++wit;
     }
 
     if ( fw->project() ) {
@@ -591,7 +590,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     buffer.open( IO_WriteOnly );
     Resource resource( this );
     resource.setWidget( fw );
-    QValueList<Resource::Image> images;
+    QList<Resource::Image> images;
     resource.save( &buffer );
 
     buffer.close();
@@ -1305,9 +1304,9 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 					  idFromClassName( WidgetFactory::classNameOf( fw->mainContainer() ) ) );
     activeWindowChanged( fw );
     emit formWindowsChanged();
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == fw->project() )
-	    e->resetContext();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( (*it)->project() == fw->project() )
+	    (*it)->resetContext();
     }
 }
 
@@ -1343,11 +1342,11 @@ bool MainWindow::unregisterClient( FormWindow *w )
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
 
-    QPtrList<SourceEditor> waitingForDelete;
+    QList<SourceEditor*> waitingForDelete;
     waitingForDelete.setAutoDelete( TRUE );
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->object() == w )
-	    waitingForDelete.append( e );
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( (*it)->object() == w )
+	    waitingForDelete.append( (*it) );
     }
 
     if ( actionEditor->form() == w ) {
@@ -1508,7 +1507,7 @@ QWorkspace *MainWindow::qWorkspace() const
 
 void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
 {
-    QValueList<uint> ids;
+    QList<uint> ids;
     QMap<QString, int> commands;
 
     setupRMBSpecialCommands( ids, commands, fw );
@@ -1520,13 +1519,13 @@ void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
     handleRMBProperties( r, commands, fw );
     handleRMBSpecialCommands( r, commands, fw );
 
-    for ( QValueList<uint>::ConstIterator i = ids.begin(); i != ids.end(); ++i )
+    for ( QList<uint>::ConstIterator i = ids.begin(); i != ids.end(); ++i )
 	rmbFormWindow->removeItem( *i );
 }
 
 void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget * w)
 {
-    QValueList<uint> ids;
+    QList<uint> ids;
     QMap<QString, int> commands;
 
     setupRMBSpecialCommands( ids, commands, w );
@@ -1538,11 +1537,11 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
     handleRMBProperties( r, commands, w );
     handleRMBSpecialCommands( r, commands, w );
 
-    for ( QValueList<uint>::ConstIterator i = ids.begin(); i != ids.end(); ++i )
+    for ( QList<uint>::ConstIterator i = ids.begin(); i != ids.end(); ++i )
 	rmbWidgets->removeItem( *i );
 }
 
-void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w )
+void MainWindow::setupRMBProperties( QList<uint> &ids, QMap<QString, int> &props, QWidget *w )
 {
     QMetaProperty text = w->metaObject()->property(w->metaObject()->indexOfProperty("text" ));
     if ( qstrcmp( text.type(), "QString") != 0 )
@@ -1597,7 +1596,7 @@ static QWidgetContainerInterfacePrivate *containerWidgetInterface( QWidget *w )
     return iface2;
 }
 
-void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
+void MainWindow::setupRMBSpecialCommands( QList<uint> &ids,
 					  QMap<QString, int> &commands, QWidget *w )
 {
     int id;
@@ -1666,7 +1665,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
     }
 }
 
-void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids,
+void MainWindow::setupRMBSpecialCommands( QList<uint> &ids,
 					  QMap<QString, int> &commands, FormWindow *fw )
 {
     int id;
@@ -2185,11 +2184,12 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + mwlKey, mainWindowLayout );
 
 
-    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QList<MetaDataBase::CustomWidget*> *lst = MetaDataBase::customWidgets();
     config.writeEntry( keybase + "CustomWidgets/num", (int)lst->count() );
     int j = 0;
     QDir::home().mkdir( ".designer" );
-    for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
+    for( QList<MetaDataBase::CustomWidget*>::Iterator it = lst->begin(); it != lst->end(); ++it) {
+	MetaDataBase::CustomWidget *w = (*it);
 	QStringList l;
 	l << w->className;
 	l << w->includeFile;
@@ -2197,15 +2197,15 @@ void MainWindow::writeConfig()
 	l << QString::number( w->sizeHint.width() );
 	l << QString::number( w->sizeHint.height() );
 	l << QString::number( w->lstSignals.count() );
-	for ( QValueList<QCString>::ConstIterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
+	for ( QList<QCString>::ConstIterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 	    l << QString( fixArgs( *it ) );
 	l << QString::number( w->lstSlots.count() );
-	for ( QValueList<MetaDataBase::Function>::ConstIterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
+	for ( QList<MetaDataBase::Function>::ConstIterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
 	    l << fixArgs( (*it2).function );
 	    l << (*it2).access;
 	}
 	l << QString::number( w->lstProperties.count() );
-	for ( QValueList<MetaDataBase::Property>::ConstIterator it3 = w->lstProperties.begin(); it3 != w->lstProperties.end(); ++it3 ) {
+	for ( QList<MetaDataBase::Property>::ConstIterator it3 = w->lstProperties.begin(); it3 != w->lstProperties.end(); ++it3 ) {
 	    l << (*it3).property;
 	    l << (*it3).type;
 	}
@@ -2217,8 +2217,8 @@ void MainWindow::writeConfig()
     }
 
     QStringList l;
-    for ( QAction *a = commonWidgetsPage.first(); a; a = commonWidgetsPage.next() )
-	l << a->text();
+    for( QList<QAction*>::Iterator it = commonWidgetsPage.begin(); it != commonWidgetsPage.end(); ++it)
+	l << (*it)->text();
     config.writeEntry( keybase + "ToolBox/CommonWidgets", l );
 }
 
@@ -2391,12 +2391,12 @@ void MainWindow::readConfig()
 
     QStringList l = config.readListEntry( keybase + "ToolBox/CommonWidgets" );
     if ( !l.isEmpty() ) {
-	QPtrList<QAction> lst;
+	QList<QAction*> lst;
 	commonWidgetsPage.clear();
 	for ( QStringList::ConstIterator it = l.begin(); it != l.end(); ++it ) {
-	    for ( QAction *a = toolActions.first(); a; a = toolActions.next() ) {
-		if ( *it == a->text() ) {
-		    lst.append( a );
+	    for( QList<QAction*>::Iterator act_it = toolActions.begin(); act_it != toolActions.end(); ++act_it) {
+		if ( *it == (*act_it)->text() ) {
+		    lst.append( (*act_it) );
 		    break;
 		}
 	    }
@@ -2534,7 +2534,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	    QString s = QString( w->name() ) + "_" + defSignal;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( f->project()->language() );
 	    if ( iface ) {
-		QStrList sigs = iface->signalNames( w );
+		QList<char*> sigs = iface->signalNames( w );
 		QString fullSignal;
 		for ( int i = 0; i < (int)sigs.count(); ++i ) {
 		    QString sig = sigs.at( i );
@@ -2652,20 +2652,18 @@ void MainWindow::rebuildCustomWidgetGUI()
     customWidgetToolBar2->clear();
     int count = 0;
 
-    QPtrListIterator<QAction> it( toolActions );
-    QAction *action;
-    while ( ( action = it.current() ) ) {
-	++it;
+    for(QList<QAction*>::Iterator it = toolActions.begin(); it != toolActions.end(); ++it) {
+	QAction *action = (*it);
 	if ( ( (WidgetAction*)action )->group() == "Custom Widgets" )
 	    delete action;
     }
 
-    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
-
     actionToolsCustomWidget->addTo( customWidgetMenu );
     customWidgetMenu->insertSeparator();
 
-    for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
+    QList<MetaDataBase::CustomWidget *> *lst = MetaDataBase::customWidgets();
+    for(QList<MetaDataBase::CustomWidget *>::Iterator it = lst->begin(); it != lst->end(); ++it) {
+	MetaDataBase::CustomWidget *w = (*it);
 	WidgetAction* a = new WidgetAction( "Custom Widgets", actionGroupTools, QString::number( w->id ).latin1() );
 	a->setToggleAction( TRUE );
 	a->setText( w->className );
@@ -2697,8 +2695,8 @@ void MainWindow::rebuildCommonWidgetsToolBoxPage()
     toolBox->setUpdatesEnabled( FALSE );
     commonWidgetsToolBar->setUpdatesEnabled( FALSE );
     commonWidgetsToolBar->clear();
-    for ( QAction *a = commonWidgetsPage.first(); a; a = commonWidgetsPage.next() )
-	a->addTo( commonWidgetsToolBar );
+    for( QList<QAction*>::Iterator it = commonWidgetsPage.begin(); it != commonWidgetsPage.end(); ++it)
+	(*it)->addTo( commonWidgetsToolBar );
     QWidget *w;
     commonWidgetsToolBar->setStretchableWidget( ( w = new QWidget( commonWidgetsToolBar ) ) );
     w->setBackgroundMode( commonWidgetsToolBar->backgroundMode() );
@@ -2960,17 +2958,15 @@ void MainWindow::setupRecentlyProjectsMenu()
     }
 }
 
-QPtrList<DesignerProject> MainWindow::projectList() const
+QList<DesignerProject*> MainWindow::projectList() const
 {
-    QPtrList<DesignerProject> list;
+    QList<DesignerProject*> list;
     QMap<QAction*, Project*>::ConstIterator it = projects.begin();
-
     while( it != projects.end() ) {
 	Project *p = it.data();
 	++it;
 	list.append( p->iFace() );
     }
-
     return list;
 }
 
@@ -3168,7 +3164,7 @@ void MainWindow::setModified( bool b, QWidget *window )
 
 void MainWindow::editorClosed( SourceEditor *e )
 {
-    sourceEditors.take( sourceEditors.findRef( e ) );
+    sourceEditors.take( e );
 }
 
 void MainWindow::functionsChanged()
@@ -3178,8 +3174,8 @@ void MainWindow::functionsChanged()
 
 void MainWindow::doFunctionsChanged()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	e->refresh( FALSE );
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it)
+	(*it)->refresh( FALSE );
     hierarchyView->formDefinitionView()->refresh();
 }
 
@@ -3194,7 +3190,7 @@ void MainWindow::updateFunctionList()
 	LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
 	if ( !iface )
 	    return;
-	QValueList<LanguageInterface::Connection> conns;
+	QList<LanguageInterface::Connection> conns;
 	iface->connections( se->text(), &conns );
 	MetaDataBase::setupConnections( se->formWindow(), conns );
 	propertyEditor->eventList()->setup();
@@ -3208,8 +3204,8 @@ void MainWindow::updateWorkspace()
 
 void MainWindow::showDebugStep( QObject *o, int line )
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	e->clearStep();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it)
+	(*it)->clearStep();
     if ( !o || line == -1 )
 	return;
     showSourceLine( o, line, Step );
@@ -3226,7 +3222,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 {
     if ( o ) {
 	errorLine--; // ######
-	QValueList<uint> l;
+	QList<uint> l;
 	l << ( errorLine + 1 );
 	QStringList l2;
 	l2 << errorMessage;
@@ -3245,10 +3241,10 @@ void MainWindow::finishedRun()
     previewing = FALSE;
     debuggingForms.clear();
     enableAll( TRUE );
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == currentProject )
-	    e->editorInterface()->setMode( EditorInterface::Editing );
-	e->clearStackFrame();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( (*it)->project() == currentProject )
+	    (*it)->editorInterface()->setMode( EditorInterface::Editing );
+	(*it)->clearStackFrame();
     }
     outputWindow()->clearErrorMessages();
 }
@@ -3346,9 +3342,9 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
     }
 
     if ( ::qt_cast<SourceFile*>(o) ) {
-	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
-	      sources.current(); ++sources ) {
-	    SourceFile* f = sources.current();
+	QList<SourceFile*> srcs = currentProject->sourceFiles();
+	for( QList<SourceFile*>::Iterator it = srcs.begin(); it != srcs.end(); ++it) {
+	    SourceFile* f = (*it);
 	    if ( f == o ) {
 		SourceEditor *se = editSource( f );
 		if ( se ) {
@@ -3422,11 +3418,11 @@ QObject *MainWindow::findRealObject( QObject *o )
 
 void MainWindow::formNameChanged( FormWindow *fw )
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->object() == fw )
-	    e->refresh( TRUE );
-	if ( e->project() == fw->project() )
-	    e->resetContext();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( (*it)->object() == fw )
+	    (*it)->refresh( TRUE );
+	if ( (*it)->project() == fw->project() )
+	    (*it)->resetContext();
     }
 }
 
@@ -3468,10 +3464,10 @@ void MainWindow::breakPointsChanged()
 	}
     }
 
-    for ( e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->project() == currentProject && e->sourceFile() ) {
-	    QValueList<uint> bps = MetaDataBase::breakPoints( e->sourceFile() );
-	    iiface->setBreakPoints( e->object(), bps );
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( (*it)->project() == currentProject && e->sourceFile() ) {
+	    QList<uint> bps = MetaDataBase::breakPoints( (*it)->sourceFile() );
+	    iiface->setBreakPoints( (*it)->object(), bps );
 	}
     }
 
@@ -3494,24 +3490,24 @@ int MainWindow::currentLayoutDefaultMargin() const
 
 void MainWindow::saveAllBreakPoints()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	e->save();
-	e->saveBreakPoints();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	(*it)->save();
+	(*it)->saveBreakPoints();
     }
 }
 
 void MainWindow::resetBreakPoints()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	e->resetBreakPoints();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it)
+	(*it)->resetBreakPoints();
 }
 
 SourceFile *MainWindow::sourceFile()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( qworkspace->activeWindow() == e ) {
-	    if ( e->sourceFile() )
-		return e->sourceFile();
+    for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
+	if ( qworkspace->activeWindow() == (*it) ) {
+	    if ( (*it)->sourceFile() )
+		return (*it)->sourceFile();
 	}
     }
     return 0;
@@ -3521,7 +3517,7 @@ bool MainWindow::openProjectSettings( Project *pro )
 {
     ProjectSettings dia( pro, this, 0, TRUE );
     SenderObject *senderObject = new SenderObject( designerInterface() );
-    QValueList<Tab>::ConstIterator it;
+    QList<Tab>::ConstIterator it;
     for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
 	Tab t = *it;
 	if ( t.title != pro->language() )
@@ -3643,9 +3639,9 @@ void MainWindow::showGUIStuff( bool b )
     if ( !b ) {
 	setAppropriate( (QDockWindow*)toolBox->parentWidget(), FALSE );
 	toolBox->parentWidget()->hide();
-	for ( QToolBar *tb = widgetToolBars.first(); tb; tb = widgetToolBars.next() ) {
-	    tb->hide();
-	    setAppropriate( tb, FALSE );
+	for( QList<QToolBar*>::Iterator it = widgetToolBars.begin(); it != widgetToolBars.end(); ++it) {
+	    (*it)->hide();
+	    setAppropriate( (*it), FALSE );
 	}
 	propertyEditor->setPropertyEditorEnabled( FALSE );
 	setAppropriate( layoutToolBar, FALSE );
@@ -3680,9 +3676,9 @@ void MainWindow::showGUIStuff( bool b )
     } else {
 	setAppropriate( (QDockWindow*)toolBox->parentWidget(), TRUE );
 	toolBox->parentWidget()->show();
-	for ( QToolBar *tb = widgetToolBars.first(); tb; tb = widgetToolBars.next() ) {
-	    setAppropriate( tb, TRUE );
-	    tb->hide();
+	for( QList<QToolBar*>::Iterator it = widgetToolBars.begin(); it != widgetToolBars.end(); ++it) {
+	    setAppropriate( (*it), TRUE );
+	    (*it)->hide();
 	}
 	propertyEditor->setPropertyEditorEnabled( TRUE );
 	setAppropriate( layoutToolBar, TRUE );

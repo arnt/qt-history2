@@ -65,7 +65,7 @@ Layout::Layout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, 
 void Layout::setup()
 {
     startPoint = QPoint( 32767, 32767 );
-    QValueList<QWidgetList> lists;
+    QList<QWidgetList> lists;
     QWidget *lastParent = 0;
     QWidgetList *lastList = 0;
     QWidget *w = 0;
@@ -83,7 +83,7 @@ void Layout::setup()
 	if ( lastParent != w->parentWidget() ) {
 	    lastList = 0;
 	    lastParent = w->parentWidget();
-	    QValueList<QWidgetList>::Iterator it = lists.begin();
+	    QList<QWidgetList>::Iterator it = lists.begin();
 	    for ( ; it != lists.end(); ++it ) {
 		if ( ( *it ).first()->parentWidget() == w->parentWidget() )
 		    lastList = &( *it );
@@ -100,7 +100,7 @@ void Layout::setup()
 
     // So, now find the list with the most entries
     lastList = 0;
-    QValueList<QWidgetList>::Iterator it = lists.begin();
+    QList<QWidgetList>::Iterator it = lists.begin();
     for ( ; it != lists.end(); ++it ) {
 	if ( !lastList || ( *it ).count() > lastList->count() )
 	    lastList = &( *it );

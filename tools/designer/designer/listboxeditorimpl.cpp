@@ -132,7 +132,7 @@ void ListBoxEditor::cancelClicked()
 void ListBoxEditor::applyClicked()
 {
     QListBoxItem *i = 0;
-    QValueList<PopulateListBoxCommand::Item> items;
+    QList<PopulateListBoxCommand::Item> items;
     for ( i = preview->firstItem(); i; i = i->next() ) {
 	PopulateListBoxCommand::Item item;
 	if ( i->pixmap() )

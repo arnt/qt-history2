@@ -326,18 +326,15 @@ void Workspace::setCurrentProject( Project *pro )
 
     projectItem->setOpen( TRUE );
 
-    for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
-	  sources.current(); ++sources ) {
-	SourceFile* f = sources.current();
-	(void) new WorkspaceItem( projectItem, f );
-    }
+    QList<SourceFile*> srcs = project->sourceFiles();
+    for(QList<SourceFile*>::Iterator it = srcs.begin(); it != srcs.end(); ++it) 
+	(void) new WorkspaceItem( projectItem, (*it) );
 
-    for ( QPtrListIterator<FormFile> forms = project->formFiles();
-	  forms.current(); ++forms ) {
-	FormFile* f = forms.current();
+    QList<FormFile*> forms = project->formFiles();
+    for(QList<FormFile*>::Iterator it = forms.begin(); it != forms.end(); ++it) {
+	FormFile* f = (*it);
 	if ( f->isFake() )
 	    continue;
-
 	(void) new WorkspaceItem( projectItem, f );
     }
 

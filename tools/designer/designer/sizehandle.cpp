@@ -251,13 +251,12 @@ void SizeHandle::tryResize( QWidget *w, int width, int height )
 
 // ------------------------------------------------------------------------
 
-WidgetSelection::WidgetSelection( FormWindow *parent, QPtrDict<WidgetSelection> *selDict )
+WidgetSelection::WidgetSelection( FormWindow *parent, QHash<QWidget *, WidgetSelection*> *selDict )
     : selectionDict( selDict )
 {
     formWindow = parent;
-    for ( int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i ) {
+    for ( int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i ) 
 	handles.insert( i, new SizeHandle( formWindow, (SizeHandle::Direction)i, this ) );
-    }
     hide();
 }
 

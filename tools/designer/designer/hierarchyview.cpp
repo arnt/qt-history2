@@ -496,16 +496,14 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    insertObject( o, item );
 	}
     } else if ( qt_cast<QDesignerToolBar*>(o) || qt_cast<PopupMenuEditor*>(o) ) {
-	QPtrList<QAction> actions;
+	QList<QAction*> actions;
 	if ( qt_cast<QDesignerToolBar*>(o) )
 	    actions = ( (QDesignerToolBar*)o )->insertedActions();
 	else
 	    ( (PopupMenuEditor*)o )->insertedActions( actions );
 
-	QPtrListIterator<QAction> it( actions );
-	it.toLast();
-	while ( it.current() ) {
-	    QAction *a = it.current();
+	for(QList<QAction*>::Iterator it = actions.end(); it != actions.begin(); --it) {
+	    QAction *a = (*it);
 	    if ( qt_cast<QDesignerAction*>(a) ) {
 		QDesignerAction *da = (QDesignerAction*)a;
 		if ( da->supportsMenu() )
@@ -515,7 +513,6 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    } else if ( qt_cast<QDesignerActionGroup*>(a) ) {
 		insertObject( a, item );
 	    }
-	    --it;
 	}
     } else if ( qt_cast<QDesignerActionGroup*>(o) && !o->children().isEmpty() ) {
 	QObjectList l = o->children();
@@ -731,8 +728,8 @@ void FormDefinitionView::setupVariables()
     itemVarPubl = new HierarchyItem( HierarchyItem::VarPublic, itemVar, 0, tr( "public" ),
 				     QString::null, QString::null );
 
-    QValueList<MetaDataBase::Variable> varList = MetaDataBase::variables( formWindow );
-    QValueList<MetaDataBase::Variable>::Iterator it = --( varList.end() );
+    QList<MetaDataBase::Variable> varList = MetaDataBase::variables( formWindow );
+    QList<MetaDataBase::Variable>::Iterator it = --( varList.end() );
     if ( !varList.isEmpty() && itemVar ) {
 	for (;;) {
 	    QListViewItem *item = 0;
@@ -821,8 +818,8 @@ void FormDefinitionView::refresh()
     itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, 0, tr( "public" ),
 				    QString::null, QString::null );
 
-    QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
-    QValueList<MetaDataBase::Function>::Iterator it = --( functionList.end() );
+    QList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
+    QList<MetaDataBase::Function>::Iterator it = --( functionList.end() );
     if ( !functionList.isEmpty() && itemFunct ) {
 	for (;;) {
 	    QListViewItem *item = 0;

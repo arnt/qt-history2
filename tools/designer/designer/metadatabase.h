@@ -17,7 +17,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qsizepolicy.h>
 #include <qsize.h>
 #include <qcursor.h>
@@ -91,9 +91,9 @@ public:
 	QSize sizeHint;
 	QSizePolicy sizePolicy;
 	QPixmap *pixmap;
-	QValueList<QCString> lstSignals;
-	QValueList<Function> lstSlots;
-	QValueList<Property> lstProperties;
+	QList<QCString> lstSignals;
+	QList<Function> lstSlots;
+	QList<Property> lstProperties;
 	int id;
 	bool isContainer;
     };
@@ -157,10 +157,10 @@ public:
 				  QObject *receiver, const QCString &slot );
     static bool hasConnection( QObject *o, QObject *sender, const QCString &signal,
 			       QObject *receiver, const QCString &slot );
-    static void setupConnections( QObject *o, const QValueList<LanguageInterface::Connection> &conns );
-    static QValueList<Connection> connections( QObject *o );
-    static QValueList<Connection> connections( QObject *o, QObject *sender, QObject *receiver );
-    static QValueList<Connection> connections( QObject *o, QObject *object );
+    static void setupConnections( QObject *o, const QList<LanguageInterface::Connection> &conns );
+    static QList<Connection> connections( QObject *o );
+    static QList<Connection> connections( QObject *o, QObject *sender, QObject *receiver );
+    static QList<Connection> connections( QObject *o, QObject *object );
     static void doConnections( QObject *o );
 
     static void addFunction( QObject *o, const QCString &function, const QString &specifier,
@@ -170,8 +170,8 @@ public:
 				const QString &access, const QString &type, const QString &language,
 				const QString &returnType );
     static void removeFunction( QObject *o, const QString &function );
-    static QValueList<Function> functionList( QObject *o, bool onlyFunctions = FALSE );
-    static QValueList<Function> slotList( QObject *o );
+    static QList<Function> functionList( QObject *o, bool onlyFunctions = FALSE );
+    static QList<Function> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasFunction( QObject *o, const QCString &function, bool onlyCustom = FALSE );
     static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = FALSE );
@@ -182,12 +182,12 @@ public:
 				      const QString &type, const QString &language,
 				      const QString &returnType );
     static QString languageOfFunction( QObject *o, const QCString &function );
-    static void setFunctionList( QObject *o, const QValueList<Function> &functionList );
+    static void setFunctionList( QObject *o, const QList<Function> &functionList );
 
 
     static bool addCustomWidget( CustomWidget *w );
     static void removeCustomWidget( CustomWidget *w );
-    static QPtrList<CustomWidget> *customWidgets();
+    static QList<CustomWidget*> *customWidgets();
     static CustomWidget *customWidget( int id );
     static bool isWidgetNameUsed( CustomWidget *w );
     static bool hasCustomWidget( const QString &className );
@@ -195,16 +195,16 @@ public:
     static void setTabOrder( QWidget *w, const QWidgetList &order );
     static QWidgetList tabOrder( QWidget *w );
 
-    static void setIncludes( QObject *o, const QValueList<Include> &incs );
-    static QValueList<Include> includes( QObject *o );
+    static void setIncludes( QObject *o, const QList<Include> &incs );
+    static QList<Include> includes( QObject *o );
 
     static void setForwards( QObject *o, const QStringList &fwds );
     static QStringList forwards( QObject *o );
 
-    static void setVariables( QObject *o, const QValueList<Variable> &vars );
+    static void setVariables( QObject *o, const QList<Variable> &vars );
     static void addVariable( QObject *o, const QString &name, const QString &access );
     static void removeVariable( QObject *o, const QString &name );
-    static QValueList<Variable> variables( QObject *o );
+    static QList<Variable> variables( QObject *o );
     static bool hasVariable( QObject *o, const QString &name );
     static QString extractVariableName( const QString &name );
 
@@ -240,9 +240,9 @@ public:
 
     static void clear( QObject *o );
 
-    static void setBreakPoints( QObject *o, const QValueList<uint> &l );
+    static void setBreakPoints( QObject *o, const QList<uint> &l );
     static void setBreakPointCondition( QObject *o, int line, const QString &condition );
-    static QValueList<uint> breakPoints( QObject *o );
+    static QList<uint> breakPoints( QObject *o );
     static QString breakPointCondition( QObject *o, int line );
 
     static void setExportMacro( QObject *o, const QString &macro );

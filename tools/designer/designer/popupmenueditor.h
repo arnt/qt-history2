@@ -14,7 +14,7 @@
 #define POPUPMENUEDITOR_H
 
 #include <qaction.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qpopupmenu.h>
 
 class QMenuItem;
@@ -113,7 +113,7 @@ public:
     void copy( int index );
     void paste( int index );
 
-    void insertedActions( QPtrList<QAction> & list );
+    void insertedActions( QList<QAction*> & list );
 
     void show();
     void choosePixmap( int index = -1 );
@@ -123,7 +123,7 @@ public:
     FormWindow * formWindow() { return formWnd; }
     bool isCreatingAccelerator() { return ( currentField == 2 ); }
 
-    QPtrList<PopupMenuEditorItem> * items() { return &itemList; }
+    QList<PopupMenuEditorItem*> * items() { return &itemList; }
 
     QWidget * parentEditor() { return parentMenu; }
 
@@ -193,7 +193,7 @@ private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
     QWidget * dropLine;
-    QPtrList<PopupMenuEditorItem> itemList;
+    QList<PopupMenuEditorItem*> itemList;
     PopupMenuEditorItem addItem;
     PopupMenuEditorItem addSeparator;
     QWidget * parentMenu;

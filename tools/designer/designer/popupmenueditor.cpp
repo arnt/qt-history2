@@ -282,8 +282,8 @@ PopupMenuEditor::PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu,
       currentIndex( menu->currentIndex )
 {
     init();
-    PopupMenuEditorItem * i;
-    for ( i = menu->itemList.first(); i; i = menu->itemList.next() ) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = menu->itemList.begin(); it != menu->itemList.end(); ++it) {
+	PopupMenuEditorItem *i = (*it);
 	PopupMenuEditorItem * n = new PopupMenuEditorItem( i, this );
 	itemList.append( n );
     }
@@ -372,22 +372,22 @@ void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
 
 int PopupMenuEditor::find( const QAction * action )
 {
-    PopupMenuEditorItem * i = itemList.first();
-    while ( i ) {
+    for int index = 0;
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	if ( i->action() == action )
-	    return itemList.at();
-	i = itemList.next();
+	    return index;
     }
     return -1;
 }
 
 int PopupMenuEditor::find( PopupMenuEditor * menu )
 {
-    PopupMenuEditorItem * i = itemList.first();
-    while ( i ) {
+    for int index = 0;
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	if ( i->subMenu() == menu )
-	    return itemList.at();
-	i = itemList.next();
+	    return index;
     }
     return -1;
 }
@@ -465,16 +465,14 @@ void PopupMenuEditor::paste( int index )
     }
 }
 
-void PopupMenuEditor::insertedActions( QPtrList<QAction> & list )
+void PopupMenuEditor::insertedActions( QList<QAction*> & list )
 {
     QAction * a = 0;
-    PopupMenuEditorItem * i = itemList.first();
-
-    while ( i ) {
+    for(QList<QAction>::Iterator it = list.begin(); it != list.end(); ++it) {
+	PopupMenuEditorItem * i = (*it);
 	a = i->action();
 	if ( a )
 	    list.append( a );
-	i = itemList.next();
     }
 }
 
@@ -658,14 +656,13 @@ PopupMenuEditorItem * PopupMenuEditor::currentItem()
 
 PopupMenuEditorItem * PopupMenuEditor::itemAt( int y )
 {
-    PopupMenuEditorItem * i = itemList.first();
     int iy = 0;
 
-    while ( i ) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	iy += itemHeight( i );
 	if ( iy > y )
 	    return i;
-	i = itemList.next();
     }
     iy += itemHeight( &addItem );
     if ( iy > y )
@@ -680,13 +677,12 @@ void PopupMenuEditor::setFocusAt( const QPoint & pos )
 
     currentIndex = 0;
     int iy = 0;
-    PopupMenuEditorItem * i = itemList.first();
 
-    while ( i ) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	iy += itemHeight( i );
 	if ( iy > pos.y() )
 	    break;
-	i = itemList.next();
 	currentIndex++;
     }
 
@@ -1094,8 +1090,8 @@ void PopupMenuEditor::drawItems( QPainter * p )
     QRect focus;
     QRect rect( borderSize, borderSize, width() - borderSize * 2, 0 );
 
-    PopupMenuEditorItem * i = itemList.first();
-    while ( i ) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	if ( i->isVisible() ) {
 	    rect.setHeight( itemHeight( i ) );
 	    if ( idx == currentIndex )
@@ -1110,7 +1106,6 @@ void PopupMenuEditor::drawItems( QPainter * p )
 	    drawItem( p, i, rect, flags );
 	    rect.moveBy( 0, rect.height() );
 	}
-	i = itemList.next();
 	idx++;
     }
 
@@ -1143,7 +1138,8 @@ QSize PopupMenuEditor::contentsSize()
     int h = itemHeight( &addItem ) + itemHeight( &addSeparator );
     PopupMenuEditorItem * i = itemList.first();
     QAction * a = 0;
-    while ( i ) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	if ( i->isVisible() ) {
 	    if ( !i->isSeparator() ) {
 		a = i->action();
@@ -1157,7 +1153,6 @@ QSize PopupMenuEditor::contentsSize()
 	    }
 	    h += itemHeight( i );
 	}
-	i = itemList.next();
     }
 
     int width = iconWidth + textWidth + borderSize * 3 + accelWidth + arrowWidth;
@@ -1182,12 +1177,11 @@ int PopupMenuEditor::itemPos( const PopupMenuEditorItem * item ) const
 {
     PopupMenuEditor * that = ( PopupMenuEditor * ) this;
     int y = 0;
-    PopupMenuEditorItem * i = that->itemList.first();
-    while ( i ) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = that->itemList.begin(); it != that->itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
 	if ( i == item )
 	    return y;
 	y += itemHeight( i );
-	i = that->itemList.next();
     }
     return y;
 }
@@ -1197,14 +1191,12 @@ int PopupMenuEditor::snapToItem( int y )
     int iy = 0;
     int dy = 0;
 
-    PopupMenuEditorItem * i = itemList.first();
-
-    while ( i ) {
-	    dy = itemHeight( i );
-	    if ( iy + dy / 2 > y )
-		return iy;
-	    iy += dy;
-	i = itemList.next();
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
+	dy = itemHeight( i );
+	if ( iy + dy / 2 > y )
+	    return iy;
+	iy += dy;
     }
 
     return iy;
@@ -1216,15 +1208,13 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
     int dy = 0;
     int idx = 0;
 
-    PopupMenuEditorItem * n = itemList.first();
-
-    while ( n ) {
-	dy = itemHeight( n );
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+	PopupMenuEditorItem *i = (*it);
+	dy = itemHeight( i );
 	if ( iy + dy / 2 > y )
 	    break;
 	iy += dy;
 	idx++;
-	n = itemList.next();
     }
     int same = itemList.findRef( i );
     AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Drop Item", formWnd, this, i, idx );

@@ -17,13 +17,13 @@
 
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qptrlist.h>
+#include <qlist.h>
 #include <qmap.h>
 #include <private/qpluginmanager_p.h>
 #include "../interfaces/projectsettingsiface.h"
 #include "sourcefile.h"
 #include "formfile.h"
-#include <qptrdict.h>
+#include <qhash.h>
 #include <qlist.h>
 #include "formfile.h"
 
@@ -129,8 +129,8 @@ public:
     void save( bool onlyProjectFile = FALSE );
 
 #ifndef QT_NO_SQL
-    QPtrList<DatabaseConnection> databaseConnections() const;
-    void setDatabaseConnections( const QPtrList<DatabaseConnection> &lst );
+    QList<DatabaseConnection*> databaseConnections() const;
+    void setDatabaseConnections( const QList<DatabaseConnection*> &lst );
     void addDatabaseConnection( DatabaseConnection *conn );
     void removeDatabaseConnection( const QString &conn );
     DatabaseConnection *databaseConnection( const QString &name );
@@ -155,12 +155,12 @@ public:
 
     void setActive( bool b );
 
-    QPtrListIterator<SourceFile> sourceFiles() const { return QPtrListIterator<SourceFile>(sourcefiles); }
+    QList<SourceFile*> sourceFiles() const { return sourcefiles; }
     void addSourceFile( SourceFile *sf );
     bool removeSourceFile( SourceFile *sf );
     SourceFile* findSourceFile( const QString& filename, SourceFile *ignore = 0 ) const;
 
-    QPtrListIterator<FormFile> formFiles() const { return QPtrListIterator<FormFile>(formfiles); }
+    QList<FormFile*> formFiles() const { return formfiles; }
     void addFormFile( FormFile *ff );
     bool removeFormFile( FormFile *ff );
     FormFile* findFormFile( const QString& filename, FormFile *ignore = 0 ) const;
@@ -234,7 +234,7 @@ private:
     QString desc;
     QString dbFile;
 #ifndef QT_NO_SQL
-    QPtrList<DatabaseConnection> dbConnections;
+    QList<DatabaseConnection*> dbConnections;
 #endif
     QString lang;
     DesignerProject *iface;
@@ -242,14 +242,14 @@ private:
     QStringList csList;
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     PixmapCollection *pixCollection;
-    QPtrList<SourceFile> sourcefiles;
-    QPtrList<FormFile> formfiles;
+    QList<SourceFile*> sourcefiles;
+    QList<FormFile*> formfiles;
     QMap<QString, QString> inclPath, defs, lbs, cfg;
     QString templ;
     bool isDummyProject;
     bool modified;
     QObjectList objs;
-    QPtrDict<FormFile> fakeFormFiles;
+    QHash<QObject *, FormFile *> fakeFormFiles;
     QString singleProFileName;
     bool is_cpp;
 

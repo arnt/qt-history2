@@ -203,7 +203,9 @@ void ActionEditor::setFormWindow( FormWindow *fw )
 	setEnabled( FALSE );
     } else {
 	setEnabled( TRUE );
-	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) {
+	QList<QAction*> actions = formWindow->actionList();
+	for(QList<QAction*>::Iterator it = actions.begin(); it != actions.end(); ++it) {
+	    QAction *a = (*it);
 	    ActionItem *i = 0;
 	    if ( qt_cast<QAction*>(a->parent()) )
 		continue;
@@ -276,12 +278,10 @@ void ActionEditor::removeAction( QAction *a )
 {
     emit removing( a );
 
-    formWindow->actionList().removeRef( a );
+    formWindow->actionList().remove( a );
     // Remove all connections
-    QValueList<MetaDataBase::Connection> conns =
-	MetaDataBase::connections( formWindow, a );
-    for ( QValueList<MetaDataBase::Connection>::Iterator it2 = conns.begin();
-	  it2 != conns.end(); ++it2 )
+    QList<MetaDataBase::Connection> conns = MetaDataBase::connections( formWindow, a );
+    for ( QList<MetaDataBase::Connection>::Iterator it2 = conns.begin(); it2 != conns.end(); ++it2 )
 	MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 					(*it2).receiver, (*it2).slot );
     // If it's an actiongroup, do the same for its children

@@ -16,7 +16,7 @@
 #include "../interfaces/designerinterface.h"
 #include "project.h"
 #include <qmap.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 class FormWindow;
 class MainWindow;
@@ -32,7 +32,7 @@ public:
     DesignerProject *currentProject() const;
     DesignerFormWindow *currentForm() const;
     DesignerSourceFile *currentSourceFile() const;
-    QPtrList<DesignerProject> projectList() const;
+    QList<DesignerProject*> projectList() const;
     void showStatusMessage( const QString &, int ms = 0 ) const;
     DesignerDock *createDock() const;
     DesignerOutputDock *outputDock() const;
@@ -64,7 +64,7 @@ class DesignerProjectImpl: public DesignerProject
 public:
     DesignerProjectImpl( Project *pr );
 
-    QPtrList<DesignerFormWindow> formList() const;
+    QList<DesignerFormWindow*> formList() const;
     QStringList formNames() const;
     QString formFileName( const QString &form ) const;
     void addForm( DesignerFormWindow * );
@@ -76,7 +76,7 @@ public:
     QString databaseFile() const;
     void setDatabaseFile( const QString & );
     void setupDatabases() const;
-    QPtrList<DesignerDatabase> databaseConnections() const;
+    QList<DesignerDatabase*> databaseConnections() const;
     void addDatabase( DesignerDatabase * );
     void removeDatabase( DesignerDatabase * );
     void save() const;
@@ -85,7 +85,7 @@ public:
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
     DesignerPixmapCollection *pixmapCollection() const;
-    void breakPoints( QMap<QString, QValueList<uint> > &bps ) const;
+    void breakPoints( QMap<QString, QList<uint> > &bps ) const;
     QString breakPointCondition( QObject *o, int line ) const;
     void setBreakPointCondition( QObject *o, int line, const QString &condition );
     void clearAllBreakpoints() const;
@@ -191,7 +191,7 @@ public:
     QWidget *currentWidget() const;
     QWidget *form() const;
     void setCurrentWidget( QWidget * );
-    QPtrList<QAction> actionList() const;
+    QList<QAction*> actionList() const;
     QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
 			   QObject* parent, const char* name = 0, bool toggle = FALSE );
     void addAction( QAction * );

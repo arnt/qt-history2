@@ -104,7 +104,7 @@ void IconViewEditor::cancelClicked()
 void IconViewEditor::applyClicked()
 {
     QIconViewItem *i = 0;
-    QValueList<PopulateIconViewCommand::Item> items;
+    QList<PopulateIconViewCommand::Item> items;
     for ( i = preview->firstItem(); i; i = i->nextItem() ) {
 	PopulateIconViewCommand::Item item;
 	if ( i->pixmap() )
