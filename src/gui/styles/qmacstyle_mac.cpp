@@ -1851,16 +1851,15 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                     tpdi.adornment = kHIThemeTabPaneAdornmentNormal;
                 }
                 HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
-            }
-#else
-             else {
+            } else
+#endif
+            {
                 HIThemeGroupBoxDrawInfo gdi;
                 gdi.version = qt_mac_hitheme_version;
                 gdi.state = tds;
                 gdi.kind = kHIThemeGroupBoxKindSecondary;
                 HIThemeDrawGroupBox(&hirect, &gdi, cg, kHIThemeOrientationNormal);
             }
-#endif
         }
         break;
     case QStyle::PE_FrameTabBarBase:
