@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#13 $
 **
 ** Implementation of QPicture class
 **
@@ -19,7 +19,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#13 $";
 #endif
 
 
@@ -131,7 +131,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
     UINT8  tiny_len;				// 8-bit length descriptor
     INT32  len;					// 32-bit length descriptor
     INT16  i1_16, i2_16;			// parameters...
-    INT8   i_8, i1_8, i2_8;
+    INT8   i_8;
     UINT32 ul;
     long   strm_pos;
     char  *str;
