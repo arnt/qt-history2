@@ -16,9 +16,8 @@
 #define QSQL_TDS_H
 
 #include <qsqlresult.h>
-#include <qsqlfield.h>
 #include <qsqldriver.h>
-#include "../shared/qsql_result.h"
+#include "../cache/qsqlcachedresult.h"
 
 #ifdef Q_OS_WIN32
 #define DBNTWIN32 // indicates 32bit windows dblib
@@ -36,57 +35,60 @@
 #define Q_EXPORT_SQLDRIVER_TDS Q_EXPORT
 #endif
 
-class QTDSPrivate;
+class QTDSDriverPrivate;
+class QTDSResultPrivate;
 class QTDSDriver;
 
-class QTDSResult : public QSqlCachedResult
+class QTDSResult : public QtSqlCachedResult
 {
 public:
-    QTDSResult( const QTDSDriver* db, const QTDSPrivate* p );
+    QTDSResult(const QTDSDriver* db);
     ~QTDSResult();
+    DBPROCESS *dbprocess() const;
+
 protected:
-    void		cleanup();
-    bool		reset ( const QString& query );
-    int			size();
-    int			numRowsAffected();
-    bool		gotoNext();
+    void cleanup();
+    bool reset ( const QString& query );
+    int size();
+    int numRowsAffected();
+    bool gotoNext(QtSqlCachedResult::ValueCache &values, int index);
     QSqlRecord record() const;
 
 private:
-    QTDSPrivate*	d;
+    QTDSResultPrivate* d;
 };
 
 class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
+    friend class QTDSResult;
 public:
     QTDSDriver(QObject* parent = 0);
-    QTDSDriver(LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent = 0);
+    QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QObject* parent = 0);
     ~QTDSDriver();
-    bool		hasFeature( DriverFeature f ) const;
-    bool		open( const QString & db,
-			      const QString & user,
-			      const QString & password,
-			      const QString & host,
-			      int port,
-			      const QString& connOpts);
-    void		close();
-    QStringList         tables( const QString& user ) const;
-    QSqlQuery		createQuery() const;
-    QSqlRecord          record( const QString& tablename ) const;
-    QSqlIndex           primaryIndex( const QString& tablename ) const;
+    bool hasFeature( DriverFeature f ) const;
+    bool open( const QString & db,
+	       const QString & user,
+	       const QString & password,
+	       const QString & host,
+	       int port,
+	       const QString& connOpts);
+    void close();
+    QStringList tables( const QString& user ) const;
+    QSqlQuery createQuery() const;
+    QSqlRecord record( const QString& tablename ) const;
+    QSqlIndex primaryIndex( const QString& tablename ) const;
 
-    QString		formatValue( const QSqlField* field,
-				     bool trimStrings ) const;
-    LOGINREC*    	loginrec();
-    DBPROCESS*   	dbprocess();
+    QString formatValue( const QSqlField* field,
+			 bool trimStrings ) const;
+    LOGINREC* loginrec() const;
 
 protected:
-    bool		beginTransaction();
-    bool		commitTransaction();
-    bool		rollbackTransaction();
+    bool beginTransaction();
+    bool commitTransaction();
+    bool rollbackTransaction();
 private:
-    void		init();
-    QTDSPrivate*	d;
+    void init();
+    QTDSDriverPrivate *d;
 };
 
 #endif

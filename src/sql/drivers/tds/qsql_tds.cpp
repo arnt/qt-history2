@@ -22,10 +22,9 @@
 #endif
 
 #include "qsql_tds.h"
-//#include "../shared/qsql_result.cpp"
 
 #include <qapplication.h>
-#include <qptrdict.h>
+#include <qhash.h>
 #include <qstringlist.h>
 #include <qdatetime.h>
 #include <qregexp.h>
@@ -97,66 +96,34 @@ QSqlError qMakeError( const QString& err, int type, int errNo = -1 )
     return QSqlError( "QTDS: " + err, QString(), type, errNo );
 }
 
-class QTDSClientData: public QSqlClientData
+class QTDSDriverPrivate
 {
 public:
-    QVariant format( void* buf, int size, QVariant::Type type ) const
-    {
-	if ( type == QVariant::DateTime ) {
-	    DBDATETIME *bdt = (DBDATETIME*) buf;
-	    QDate date = QDate::fromString( "1900-01-01", Qt::ISODate );
-	    QTime time = QTime::fromString( "00:00:00", Qt::ISODate );
-	    return QVariant( QDateTime( date.addDays( bdt->dtdays ), time.addMSecs( int( bdt->dttime / 0.3 ) ) ) );
-	} else {
-	    return QSqlClientData::format( buf, size, type );
-        }
-    }
-
-    QSqlClientData* clone() { return new QTDSClientData(); }
+    QTDSDriverPrivate(): login(0) {}
+    LOGINREC* login;  // login information
+    QString hostName;
+    QString db;
 };
 
-class QTDSClientNullData: public QSqlClientNullData
+
+class QTDSResultPrivate
 {
 public:
-    QTDSClientNullData(): QSqlClientNullData(), nullInfo( 0 ) {}
-    QTDSClientNullData( QTDSClientNullData& other ): QSqlClientNullData(), nullInfo( other.nullInfo ) {}
-    bool isNull() const
-    {
-	if ( nullInfo == -1 )
-	    return TRUE;
-	return FALSE;
-    }
-    void* binder() const
-    {
-	return (void*)&nullInfo;
-    }
-    QSqlClientNullData* clone()
-    {
-	return new QTDSClientNullData( *this );
-    }
+    QTDSResultPrivate():login(0), dbproc(0) {}
+    LOGINREC* login;  // login information
+    DBPROCESS* dbproc; // connection from app to server
+    QSqlError lastError;
+    void addErrorMsg( QString& errMsg ) { errorMsgs.append( errMsg ); }
+    QString getErrorMsgs() { return errorMsgs.join("\n"); }
+    void clearErrorMsgs() { errorMsgs.clear(); }
+    QVector<void *> buffer;
+    QSqlRecord rec;
+    
 private:
-    DBINT nullInfo;
+    QStringList errorMsgs;
 };
 
-
-class QTDSPrivate
-{
-public:
-    QTDSPrivate():login(0), dbproc(0) {}
-    QTDSPrivate( const QTDSPrivate& other):login(other.login), dbproc(other.dbproc), errorMsgs(other.errorMsgs) {}
-    LOGINREC*    login;  // login information
-    DBPROCESS*   dbproc; // connection from app to server
-    QSqlError    lastError;
-    void         addErrorMsg( QString& errMsg ) { errorMsgs.append( errMsg ); }
-    QString      getErrorMsgs() { return errorMsgs.join("\n"); }
-    void         clearErrorMsgs() { errorMsgs.clear(); }
-    QString             hostName;
-
-private:
-    QStringList  errorMsgs;
-};
-
-static QPtrDict<QTDSPrivate> errs;
+static QHash<DBPROCESS*, QTDSResultPrivate*> errs;
 
 extern "C" {
 static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
@@ -164,16 +131,14 @@ static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
 			    int msgstate,
 			    int severity,
 			    char* msgtext,
-			    char* /*srvname*/,
+			    char* srvname,
 			    char* /*procname*/,
 			    int /*line*/)
 {
-    QTDSPrivate* p = errs.find( dbproc );
+    QTDSResultPrivate* p = errs.value( dbproc );
 
     if ( !p ) {
-#ifdef QT_RANGE_CHECK
-	qWarning( "QTDSDriver warning (%d): [%s] from server [%s]", msgstate, msgtext, srvname );
-#endif
+//	qWarning( "QTDSDriver warning (%d): [%s] from server [%s]", msgstate, msgtext, srvname );
 	return INT_CANCEL;
     }
 
@@ -192,11 +157,9 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
 				char* dberrstr,
 				char* oserrstr)
 {
-    QTDSPrivate* p = errs.find( dbproc );
+    QTDSResultPrivate* p = errs.value( dbproc );
     if ( !p ) {
-#ifdef QT_RANGE_CHECK
 	qWarning( "QTDSDriver error (%d): [%s] [%s]", dberr, dberrstr, oserrstr );
-#endif
 	return INT_CANCEL;
     }
     /*
@@ -204,9 +167,7 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
      * we are not in the middle of logging in...
      */
     if( (dbproc == NULL || DBDEAD( dbproc )) ) {
-#ifdef QT_RANGE_CHECK	
 	qWarning( "QTDSDriver error (%d): [%s] [%s]", dberr, dberrstr, oserrstr );
-#endif
 	return INT_CANCEL;
     }
 
@@ -271,38 +232,57 @@ QVariant::Type qDecodeTDSType( int type )
     return t;
 }
 
-QVariant::Type qFieldType( QTDSPrivate* d, int i )
+QVariant::Type qFieldType( QTDSResultPrivate* d, int i )
 {
     QVariant::Type type = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
     return type;
 }
 
 
-QTDSResult::QTDSResult( const QTDSDriver* db, const QTDSPrivate* p )
-    : QSqlCachedResult( db )
+QTDSResult::QTDSResult(const QTDSDriver* db)
+    : QtSqlCachedResult(db)
 {
-    d = new QTDSPrivate( *p );
+    d = new QTDSResultPrivate();
+    d->login = db->d->login;
+    
+    d->dbproc = dbopen(d->login, const_cast<char*>(db->d->hostName.latin1()));
+    if (!d->dbproc)
+	return;
+    if (dbuse(d->dbproc, const_cast<char*>(db->d->db.latin1())) == FAIL)
+	return;
+
     // insert d in error handler dict
-    errs.insert( (void*)d->dbproc, d );
-    QTDSClientData* tcd = new QTDSClientData();
-    buf->installDataFormat( tcd );
+    errs.insert(d->dbproc, d);
 }
 
 QTDSResult::~QTDSResult()
 {
     cleanup();
     dbclose( d->dbproc );
-    errs.remove( d->dbproc );
+    errs.erase( d->dbproc );
     delete d;
 }
 
 void QTDSResult::cleanup()
 {
     d->clearErrorMsgs();
-    QSqlCachedResult::cleanup();
+    d->rec.clear();
+    for (int i = 0; i < d->buffer.size() / 2; ++i)
+	free(d->buffer.at(i * 2));
+    d->buffer.clear();
+    // "can" stands for "cancel"... very clever.
+    dbcanquery( d->dbproc );
+    dbfreebuf( d->dbproc );
+
+    QtSqlCachedResult::cleanup();
 }
 
-bool QTDSResult::gotoNext()
+DBPROCESS *QTDSResult::dbprocess() const
+{
+    return d->dbproc;
+}
+
+bool QTDSResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
 {
     STATUS stat = dbnextrow( d->dbproc );
     if ( stat == NO_MORE_ROWS ) {
@@ -314,22 +294,66 @@ bool QTDSResult::gotoNext()
 	return FALSE;
     }
 
+    if (index < 0)
+	return TRUE;
+  
+    for (int i = 0; i < d->rec.count(); ++i) {
+	int idx = index + i;
+	switch (d->rec.field(i)->type()) {
+	    case QVariant::DateTime:
+		if ((DBINT)d->buffer.at(i * 2 + 1) == -1) {
+		    values[idx] = QVariant(QVariant::DateTime);
+		} else {
+		    DBDATETIME *bdt = (DBDATETIME*) d->buffer.at(i * 2);
+		    QDate date = QDate::fromString("1900-01-01", Qt::ISODate);
+		    QTime time = QTime::fromString("00:00:00", Qt::ISODate);
+		    values[idx] = QDateTime( date.addDays( bdt->dtdays ), time.addMSecs( int( bdt->dttime / 0.3 ) ) );		
+		    break;
+		}
+	    case QVariant::Int:
+		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+		    values[idx] = QVariant(QVariant::Int);
+		else
+		    values[idx] = *((int*)d->buffer.at(i * 2));
+		break;
+	    case QVariant::Double:
+		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+		    values[idx] = QVariant(QVariant::Double);
+		else
+		    values[idx] = *((double*)d->buffer.at(i * 2));
+		break;	    
+	    case QVariant::String:
+		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+		    values[idx] = QVariant(QVariant::String);
+		else
+		    values[idx] = QString::fromLocal8Bit((const char*)d->buffer.at(i * 2));
+		break;
+	    case QVariant::ByteArray: {
+		if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
+		    values[idx] = QVariant(QVariant::ByteArray);
+		else
+		    values[idx] = QByteArray((const char*)d->buffer.at(i * 2));
+		break;
+	    }
+	    default:
+		// should never happen, and we already fired
+		// a warning while binding.
+		values[idx] = QVariant();
+		break;
+	}	
+    }
+
     return TRUE;
 }
 
 bool QTDSResult::reset ( const QString& query )
 {
     cleanup();
-    if ( !driver() )
-	return FALSE;
-    if ( !driver()-> isOpen() || driver()->isOpenError() )
+    if (!driver() || !driver()-> isOpen() || driver()->isOpenError())
 	return FALSE;
     setActive( FALSE );
     setAt( QSql::BeforeFirst );
-    dbcanquery( d->dbproc );
-    dbfreebuf( d->dbproc );
-    QByteArray s( query.local8Bit() );
-    if ( dbcmd( d->dbproc , s.data() ) == FAIL ) {
+    if ( dbcmd( d->dbproc, const_cast<char*>(query.local8Bit()) ) == FAIL ) {
 	setLastError( d->lastError );
 	return FALSE;
     }
@@ -346,48 +370,52 @@ bool QTDSResult::reset ( const QString& query )
     }
 
     setSelect( (DBCMDROW( d->dbproc ) == SUCCEED) ); // decide whether or not we are dealing with a SELECT query
-    for ( int i = 0; i < dbnumcols( d->dbproc ) ; ++i ) {
+    int numCols = dbnumcols(d->dbproc);
+    if (numCols > 0) {
+	d->buffer.resize(numCols * 2);
+	init(numCols);
+    }
+    for ( int i = 0; i < numCols; ++i ) {
 	QVariant::Type vType = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
+	d->rec.append(QSqlField(dbcolname(d->dbproc, i+1), vType, -1, dbcollen( d->dbproc, i+1 )));
+	
 	RETCODE ret = -1;
 	void* p = 0;
-	QTDSClientNullData* nd = new QTDSClientNullData();
 	switch ( vType ) {
 	case QVariant::Int:	
-	    p = buf->append( 4, vType, nd );
-	    if ( p )
-		ret = dbbind( d->dbproc, i+1, INTBIND, (DBINT) 4, (unsigned char *)p );
+	    p = malloc(4);
+	    ret = dbbind(d->dbproc, i+1, INTBIND, (DBINT) 4, (unsigned char *)p);
 	    break;
 	case QVariant::Double:
 	    // use string binding to prevent loss of precision
-	    p = buf->append( 50, QVariant::CString, nd );
-	    if ( p )
-		ret = dbbind( d->dbproc, i+1, STRINGBIND, 50, (unsigned char *)p );
+	    p = malloc(50);
+	    ret = dbbind(d->dbproc, i+1, STRINGBIND, 50, (unsigned char *)p);
 	    break;
 	case QVariant::String:
-	    p = buf->append( dbcollen( d->dbproc, i+1 ) + 1, vType, nd );
-	    if ( p )
-		ret = dbbind( d->dbproc, i+1, STRINGBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p );
+	    p = malloc(dbcollen(d->dbproc, i+1) + 1);
+	    ret = dbbind(d->dbproc, i+1, STRINGBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p);
 	    break;
 	case QVariant::DateTime:
-	    p = buf->append( 8, vType, nd );
-	    if ( p )
-		ret = dbbind( d->dbproc, i+1, DATETIMEBIND, (DBINT) 8, (unsigned char *)p );
+	    p = malloc(8);
+	    ret = dbbind(d->dbproc, i+1, DATETIMEBIND, (DBINT) 8, (unsigned char *)p);
 	    break;
 	case QVariant::ByteArray:
-	    p = buf->append( dbcollen( d->dbproc, i+1 ) + 1, vType, nd );
-	    if ( p )
-		ret = dbbind( d->dbproc, i+1, BINARYBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p );
+	    p = malloc(dbcollen( d->dbproc, i+1 ) + 1);
+	    ret = dbbind( d->dbproc, i+1, BINARYBIND, DBINT(dbcollen( d->dbproc, i+1 ) + 1), (unsigned char *)p );
 	    break;
 	default: //don't bind the field since we do not support it
-	    delete nd;
-	    nd = 0;
 #ifdef QT_CHECK_RANGE
 	    qWarning( "QTDSResult::reset: Unsupported type for field \"%s\"", dbcolname( d->dbproc, i+1 ) );
 #endif
 	    break;
 	}
 	if ( ret == SUCCEED ) {
-	    ret = dbnullbind( d->dbproc, i+1, (DBINT*)buf->nullData( i )->binder() );
+	    d->buffer[i * 2] = p;
+	    ret = dbnullbind(d->dbproc, i+1, (DBINT*)(&d->buffer[i * 2 + 1]));
+	} else {
+	    d->buffer[i * 2] = 0;
+	    d->buffer[i * 2 + 1] = 0;
+	    free(p);
 	}
 	if ( ( ret != SUCCEED ) && ( ret != -1 ) ) {
 	    setLastError( d->lastError );
@@ -418,16 +446,7 @@ int QTDSResult::numRowsAffected()
 
 QSqlRecord QTDSResult::record() const
 {
-    QSqlRecord info;
-    if ( !isActive() || !isSelect() )
-	return info;
-    
-    int count = dbnumcols (d->dbproc);
-    for (int i = 0; i < count; ++i) {
-	info.append(QSqlField(dbcolname(d->dbproc, i+1), 
-			      qDecodeTDSType( dbcoltype(d->dbproc, i+1) ) ) );
-    }
-    return info;
+    return d->rec;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -438,32 +457,27 @@ QTDSDriver::QTDSDriver(QObject* parent)
     init();
 }
 
-QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent)
+QTDSDriver::QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QObject* parent)
     : QSqlDriver(parent)
 {
     init();    
     d->login = rec;
-    d->dbproc = proc;
     d->hostName = host;
-    if ( rec && proc ) {
+    d->db = db;
+    if ( rec ) {
 	setOpen( TRUE );
 	setOpenError( FALSE );
     }
 }
 
-LOGINREC* QTDSDriver::loginrec()
+LOGINREC* QTDSDriver::loginrec() const
 {
     return d->login;
 }
 
-DBPROCESS* QTDSDriver::dbprocess()
-{
-    return d->dbproc;
-}
-
 void QTDSDriver::init()
 {
-    d = new QTDSPrivate();
+    d = new QTDSDriverPrivate();
     // the following two code-lines will fail compilation on some FreeTDS versions
     // just comment them out if you have FreeTDS (you won't get any errors and warnings then)
     dberrhandle( (QERRHANDLE)qTdsErrHandler );
@@ -476,10 +490,6 @@ QTDSDriver::~QTDSDriver()
     dbmsghandle( 0 );
     // dbexit also calls dbclose if neccessary
     dbexit();
-    if ( ( d->dbproc ) && ( errs.find( d->dbproc ) ) ) {
-	// remove dbproc from error handling dict
-	errs.remove( d->dbproc );
-    }
     delete d;
 }
 
@@ -509,52 +519,27 @@ bool QTDSDriver::open( const QString & db,
     if ( isOpen() )
 	close();
     if ( !dbinit() ) {
-	setLastError( d->lastError );
 	setOpenError( TRUE );
 	return FALSE;
     }
     d->login = dblogin();
     if ( !d->login ) {
-	setLastError( d->lastError );
 	setOpenError( TRUE );
 	return FALSE;
     }
-    QByteArray s( password.local8Bit() );
-    DBSETLPWD( d->login, s.data() );
-    s = user.local8Bit();
-    DBSETLUSER( d->login, s.data() );
-//    DBSETLAPP( d->login, "QTDS7"); // we could set the name of the application here
+    DBSETLPWD(d->login, const_cast<char*>(password.local8Bit()));
+    DBSETLUSER(d->login, const_cast<char*>(user.local8Bit()));
 
-    s = host.local8Bit();
-    d->dbproc = dbopen( d->login, s.data() );
-    if ( !d->dbproc ) {
-	// we have to manually set the error here because the error handler won't fire when no dbproc exists
-	setLastError( QSqlError( QString(),
-				 qApp->translate( "QSql", "Could not open database connection" ),
-				 QSqlError::Connection ) );
-	setOpenError( TRUE );
-	return FALSE;
-    }
-    s = db.local8Bit();
-    if ( dbuse( d->dbproc, s.data() ) == FAIL ) {
-	setLastError( QSqlError( QString(),
-				 qApp->translate( "QSql", "Could not open database" ),
-				 QSqlError::Connection ) );
-	setOpenError( TRUE );
-	return FALSE;
-    }
     setOpen( TRUE );
     setOpenError( FALSE );
     d->hostName = host;
+    d->db = db;
     return TRUE;
 }
 
 void QTDSDriver::close()
 {
     if ( isOpen() ) {
-	dbclose( d->dbproc );
-	errs.remove ( d->dbproc );
-	d->dbproc = 0;
 #ifdef Q_USE_SYBASE
 	dbloginfree( d->login );
 #else
@@ -568,19 +553,7 @@ void QTDSDriver::close()
 
 QSqlQuery QTDSDriver::createQuery() const
 {
-    QTDSPrivate d2;
-    d2.login = d->login;
-
-    QByteArray s( d->hostName.local8Bit() );
-    d2.dbproc = dbopen( d2.login, s.data() );
-    if ( !d2.dbproc ) {
-	return QSqlQuery( (QSqlResult *) 0 );
-    }
-    if ( dbuse( d2.dbproc, dbname( d->dbproc ) ) == FAIL ) {
-	return QSqlQuery( (QSqlResult *) 0 );
-    }
-
-    return QSqlQuery( new QTDSResult( this, &d2 ) );
+    return QSqlQuery(new QTDSResult(this));
 }
 
 bool QTDSDriver::beginTransaction()
@@ -710,9 +683,8 @@ QStringList QTDSDriver::tables( const QString& typeName ) const
     QSqlQuery t = createQuery();
     t.setForwardOnly( TRUE );
     t.exec( "select name from sysobjects where " + typeFilter );
-    while ( t.next() ) {
+    while ( t.next() )
 	list.append( t.value(0).toString().simplified() );
-    }
 
     return list;
 }
