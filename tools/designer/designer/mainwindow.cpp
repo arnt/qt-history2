@@ -1298,7 +1298,8 @@ void MainWindow::createNewProject( const QString &lang )
 	return;
     }
 
-    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
+    QAction *a = new QAction( pro->makeRelative( pro->fileName() ),
+			      pro->makeRelative( pro->fileName() ), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     addRecentlyOpened( pro->makeAbsolute( pro->fileName() ), recentlyProjects );
     projectSelected( a );
