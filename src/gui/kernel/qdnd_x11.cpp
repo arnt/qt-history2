@@ -485,7 +485,8 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
 
         QRect answerRect(c->mapToGlobal(p), QSize(1,1));
 
-        possible_actions = qt_xdnd_source_object ? manager->dragPrivate()->possible_actions : xdndaction_to_qtaction(l[4]);
+        possible_actions = qt_xdnd_source_object ? manager->dragPrivate()->possible_actions
+                                                 : QDrag::DropActions(xdndaction_to_qtaction(l[4]));
         QDragMoveEvent me(p, possible_actions, dropData);
 
         QDrag::DropAction accepted_action = QDrag::IgnoreAction;
