@@ -74,16 +74,16 @@ int main( int argc, char **argv )
 				     .arg( service.isInstalled() ? "installed" : "not installed" )
 				     .arg( service.isRunning() ? "running" : "not running" );
 		qDebug( infostr.latin1() );
-	    } else if ( a == "-l" || a == "-launch" ) {
-		service.launch( argc - 2, &argv[2] );
+	    } else if ( a == "-e" || a == "-exec" ) {
+		service.exec( argc - 2, &argv[2] );
 	    } else if ( a == "-s" || a == "-stop" ) {
 		service.stop();
 	    } else {
 		qDebug( "<service> -[i|u|v]\n\n"
 			"\t-i(nstall)\t: Install the service\n"
 			"\t-u(ninstall)\t: Uninstall the service\n"
-			"\t-l(aunch)\t: Launch the service.\n"
-			"\t\t\t  If the service is not installed, start it as a regular program\n"
+			"\t-e(xec)\t\t: Execute the service.\n"
+			"\t\t\t  If the service is not installed, run it as a regular program\n"
 			"\t-s(top)\t\t: Stop the service.\n"
 			"\t-v(ersion)\t: Print version and status information\n" );
 	    }
@@ -92,7 +92,7 @@ int main( int argc, char **argv )
 		qDebug( "The service %s could not start", service.serviceName().latin1() );
 	}
     } else {
-	service.launch( argc, argv );
+	service.exec( argc, argv );
     }
 
     return 0;

@@ -17,7 +17,7 @@ public:
     virtual bool uninstall();
     virtual bool start();
 
-    void launch( int argc, char **argv );
+    void exec( int argc, char **argv );
     void stop();
 
     QString serviceName() const;

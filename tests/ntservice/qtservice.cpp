@@ -232,7 +232,7 @@ bool QtService::start()
     return res;
 }
 
-void QtService::launch( int argc, char **argv )
+void QtService::exec( int argc, char **argv )
 {
     if ( isInstalled() ) {
 	SC_HANDLE hSCM = ::OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS );
