@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#55 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#56 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#56 $");
 
 
 /*!
@@ -236,11 +236,11 @@ bool QFile::remove( const char *fileName )      // remove file
   The raw access mode is best when I/O is block-operated using 4kB block size
   or greater. Buffered access works better when reading small portions of
   data at a time.
-  
+
   <strong>Important:</strong> When working with buffered files, data may
   not be written to the file at once. Call \link flush() flush\endlink
   to make sure the data is really written.
-  
+
   \warning We have experienced problems with some C libraries when a buffered
   file is opened for both reading and writing. If a read operation takes place
   immediately after a write operation, the read buffer contains garbage data.
@@ -733,6 +733,7 @@ int QFile::readLine( char *p, uint maxlen )
 	    nread = strlen( p );
 	    index += nread;
 	} else {
+	    nread = -1;
 	    setStatus(IO_ReadError);
 	}
     }
