@@ -1,5 +1,7 @@
 #include "qsqlresult.h"
 
+#ifndef QT_NO_SQL
+
 /*! \class QSqlResult qsqlresult.h
   
   \brief QSqlResult provides an abstract interface for accessing data via SQL
@@ -173,3 +175,6 @@ bool QSqlResult::fetchPrevious()
 {
     return fetch( at() - 1 );
 }
+
+#endif // QT_NO_SQL
+

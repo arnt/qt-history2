@@ -1,4 +1,7 @@
 #include "qsql.h"
+
+#ifndef QT_NO_SQL
+
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 
@@ -365,3 +368,5 @@ bool QSql::isActive() const
 {
     return d->sqlResult->isActive();
 }
+
+#endif // QT_NO_SQL

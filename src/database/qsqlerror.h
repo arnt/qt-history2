@@ -1,11 +1,11 @@
 #ifndef QSQLERROR_H
 #define QSQLERROR_H
 
-//#if !defined(Q_NO_SQL)
-
 #ifndef QT_H
 #include "qstring.h"
 #endif // QT_H
+
+#if !defined(QT_NO_SQL)
 
 class QSqlError
 {
@@ -39,5 +39,5 @@ private:
     int 	errorNumber;
 };
 
-// #endif
+#endif // QT_NO_SQL
 #endif

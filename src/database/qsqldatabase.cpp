@@ -1,4 +1,7 @@
 #include "qsqldatabase.h"
+
+#ifndef QT_NO_SQL
+
 #include "qsqldriverplugin.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
@@ -419,3 +422,5 @@ QSqlTable::QSqlTable( const QString& name, const QSqlDriver* db )
 QSqlTable::~QSqlTable()
 {
 }
+
+#endif // QT_NO_SQL

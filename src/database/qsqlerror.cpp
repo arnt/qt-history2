@@ -1,5 +1,7 @@
 #include "qsqlerror.h"
 
+#ifndef QT_NO_SQL
+
 /*! \class QSqlError qsqlerror.h
   
     \brief Class used for reporting errors from a SQL database
@@ -134,3 +136,5 @@ void QSqlError::setNumber( int number )
 {
     errorNumber = number;
 }
+
+#endif // QT_NO_SQL

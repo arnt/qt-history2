@@ -1,14 +1,14 @@
 #ifndef QSQLRESULTINFO_H
 #define QSQLRESULTINFO_H
 
-//#if !defined(Q_NO_SQL)
-
 #ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
 #include "qvaluelist.h"
 #include "qshared.h"
 #endif // QT_H
+
+#if !defined(QT_NO_SQL)
 
 struct QSqlFieldInfo
 {
@@ -50,5 +50,5 @@ private:
     QSqlFieldInfoList fieldList;
 };
 
-//#endif
+#endif	// QT_NO_SQL
 #endif

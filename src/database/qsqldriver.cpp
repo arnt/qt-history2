@@ -1,5 +1,6 @@
 #include "qsqldriver.h"
 
+#ifndef QT_NO_SQL
 
 // database states
 #define DBState_Open	    	0x0001
@@ -240,3 +241,6 @@ QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
 {
     return view( "select * from " + name + " where 0=1;" );
 }
+
+#endif // QT_NO_SQL
+

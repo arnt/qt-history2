@@ -1,8 +1,6 @@
 #ifndef QSQLDATABASE_H
 #define QSQLDATABASE_H
 
-//#if !defined(Q_NO_SQL)
-
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
@@ -10,6 +8,8 @@
 #include "qsqlresultinfo.h"
 #include "qsql.h"
 #endif // QT_H
+
+#if !defined(QT_NO_SQL)
 
 class QSqlViewBase
 {
@@ -80,5 +80,5 @@ private:
     QSqlDatabasePrivate* d;
 };
 
-//#endif
+#endif // QT_NO_SQL
 #endif

@@ -1,8 +1,6 @@
 #ifndef QSQLDRIVER_H
 #define QSQLDRIVER_H
 
-//#if !defined(Q_NO_SQL)
-
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
@@ -10,6 +8,8 @@
 #include "qsql.h"
 #include "qsqlresultinfo.h"
 #endif // QT_H
+
+#if !defined(QT_NO_SQL)
 
 class QSqlDriver : public QObject
 {
@@ -49,5 +49,5 @@ private:
 #endif
 };
 
-//#endif
+#endif	// QT_NO_SQL
 #endif

@@ -1,14 +1,14 @@
 #ifndef QSQL_H
 #define QSQL_H
 
-//#if !defined(Q_NO_SQL)
-
 #ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
 #include "qvaluelist.h"
 #include "qsqlerror.h"
 #endif // QT_H
+
+#if !defined(QT_NO_SQL)
 
 class QSqlDriver;
 class QSqlResult;
@@ -72,5 +72,5 @@ private:
     QSqlResultShared* d;
 };
 
-//#endif
+#endif	// QT_NO_SQL
 #endif

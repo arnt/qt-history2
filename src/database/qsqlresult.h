@@ -1,13 +1,13 @@
 #ifndef QSQLRESULT_H
 #define QSQLRESULT_H
 
-//#if !defined(Q_NO_SQL)
-
 #ifndef QT_H
 #include "qstring.h"
 #include "qvariant.h"
 #include "qsqlerror.h"
 #endif // QT_H
+
+#if !defined(QT_NO_SQL)
 
 class QSqlDriver;
 class QSql;
@@ -52,5 +52,5 @@ private:
     QSqlResult &operator=( const QSqlResult & );
 };
 
-//#endif
+#endif	// QT_NO_SQL
 #endif

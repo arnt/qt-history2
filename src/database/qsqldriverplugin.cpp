@@ -1,5 +1,7 @@
 #include "qsqldriverplugin.h"
 
+#ifndef QT_NO_SQL
+
 /*!
   \class QSqlDriverPlugIn
 
@@ -59,3 +61,6 @@ QSqlDriverPlugInManager::QSqlDriverPlugInManager( const QString& path, const QSt
 : QPlugInManager<QSqlDriverPlugIn>( path, filter, pol, fn )
 {
 }
+
+#endif // QT_NO_SQL
+

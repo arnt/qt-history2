@@ -1,5 +1,7 @@
 #include "qsqlresultinfo.h"
 
+#ifndef QT_NO_SQL
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /*! \class QSqlResultInfo qsqlresultinfo.h
@@ -125,3 +127,5 @@ void QSqlResultInfo::setAffectedRows( int rows )
 {
     affRows = rows;
 }
+
+#endif // QT_NO_SQL

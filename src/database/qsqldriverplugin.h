@@ -7,6 +7,8 @@
 #include "qsqldriverinterface.h"
 #endif // QT_H
 
+#ifndef QT_NO_SQL
+
 class QSqlDriverPlugIn : public QSqlDriverInterface, public QPlugIn
 {
 public:
@@ -27,6 +29,8 @@ public:
 	qDebug("~QSqlDriverPlugInManager");
     }
 };
+
+#endif // QT_NO_SQL
 
 #endif
 
