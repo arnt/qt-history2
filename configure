@@ -56,7 +56,7 @@ else
 fi
 
 # Check licensed modules
-MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles"
+MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl styles"
 
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
@@ -345,7 +345,8 @@ while [ -n "$1" ]; do
 	;;
    -enable-*)
        MODULE=`echo $1 | sed "s/-enable-//"`
-       if [ -d "src/$MODULE" ] && ! echo $MODULES | grep $MODULE >/dev/null 2>&1
+       TMP="*${MODULE}*"
+       if [ -d "src/$MODULE" -a -n "${MODULES%%$TMP}" ]
        then
 	   MODULES="$MODULES $MODULE"
        fi
