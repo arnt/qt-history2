@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#28 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#29 $
 **
 ** Implementation of QDns class.
 **
@@ -1981,9 +1981,10 @@ QString QDns::canonicalName() const
 
 #include <resolv.h>
 
-#if defined (Q_OS_SOLARIS)
-// According to changelog 23685, this was introduced to fix a problem
-// under Solaris. Need to have a closer look at it...
+#if defined (Q_OS_SOLARIS) || defined (Q_OS_HPUX)
+// According to changelog 23685, this was introduced to fix a problem under
+// Solaris.  According to qt-bugs/arc-09/19264 it's needed for HPUX as well.
+// Need to have a closer look at it...
 extern "C" int res_init();
 #endif
 
@@ -2245,4 +2246,3 @@ static void doResInit()
 #endif
 
 #endif
-
