@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#224 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -994,12 +994,16 @@ void QWidget::erase( const QRegion& rgn )
 
 void QWidget::scroll( int dx, int dy )
 {
+    if ( testWState( WState_BlockUpdates ) )
+	return;
     ScrollWindow( winId(), dx, dy, 0, 0 );
     UpdateWindow( winId() );
 }
 
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
+    if ( testWState( WState_BlockUpdates ) )
+	return;
     RECT wr;
     wr.top = r.top();
     wr.left = r.left();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#386 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#387 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1720,6 +1720,8 @@ void QWidget::scroll( int dx, int dy )
 */
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
+    if ( testWState( WState_BlockUpdates ) )
+	return;
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
