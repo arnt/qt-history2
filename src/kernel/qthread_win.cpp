@@ -345,7 +345,7 @@ bool QMutex::locked()
     return d->locked();
 }
 
-bool QMutex::trylock()
+bool QMutex::tryLock()
 {
     return d->trylock();
 }

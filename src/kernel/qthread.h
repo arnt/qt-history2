@@ -62,7 +62,7 @@ public:
     void lock();
     void unlock();
     bool locked();
-    bool trylock();
+    bool tryLock();
 
 private:
     QMutexPrivate * d;

@@ -194,7 +194,7 @@ bool QMutex::locked()
 
   \sa lock(), unlock(), locked()
 */
-bool QMutex::trylock()
+bool QMutex::tryLock()
 {
     return d->trylock();
 }
@@ -896,7 +896,7 @@ int QSemaphore::total() const {
 */
 bool QSemaphore::tryAccess(int n)
 {
-    if (! d->mutex.trylock())
+    if (! d->mutex.tryLock())
 	return FALSE;
 
     if (d->value + n > d->max) {
