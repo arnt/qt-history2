@@ -36,7 +36,7 @@
 #  define FD_DEBUG if (FALSE) qDebug
 #endif
 
-// #define FONT_MATCH_DEBUG
+#define FONT_MATCH_DEBUG
 #ifdef FONT_MATCH_DEBUG
 #  define FM_DEBUG qDebug
 #else
@@ -752,8 +752,14 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    if ( encoding->encoding != QFontPrivate::defaultEncodingID )
 		this_score += 10;
 	}
+ 	if (pitch != '*') {
+ 	    if ( !( pitch == 'm' && encoding->pitch == 'c' ) && pitch != encoding->pitch )
+ 		this_score += 200;
+ 	}
+#else
 	if (pitch != '*') {
-	    if ( !( pitch == 'm' && encoding->pitch == 'c' ) && pitch != encoding->pitch )
+	    if ((pitch == 'm' && !family->fixedPitch)
+		|| (pitch == 'p' && family->fixedPitch))
 		this_score += 200;
 	}
 #endif
@@ -865,7 +871,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	      request.weight, request.italic, request.stretch, request.pixelSize, pitch );
 
 #ifdef QT_XFT2
-    if (family_name == "Sans Serif"
+    if (family_name.isEmpty()
+	|| family_name == "Sans Serif"
 	|| family_name == "Serif"
 	|| family_name == "Monospace") {
 	fe = loadFontConfigFont(fp, request, script);

@@ -341,39 +341,43 @@ void QFontPrivate::load( QFont::Script script )
     //    double scale = 1.0; // ### TODO: fix the scale calculations
 
     // list of families to try
-    QStringList family_list = QStringList::split( ',', req.family );
+    QStringList family_list;
 
-    // append the substitute list for each family in family_list
-    QStringList subs_list;
-    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-    for ( ; it != end; ++it )
-	subs_list += QFont::substitutes( *it );
-    family_list += subs_list;
+    if (!req.family.isEmpty()) {
+	family_list = QStringList::split( ',', req.family );
+
+	// append the substitute list for each family in family_list
+	QStringList subs_list;
+	QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+	for ( ; it != end; ++it )
+	    subs_list += QFont::substitutes( *it );
+	family_list += subs_list;
 
 #ifndef QT_XFT2
-    // with Xft2, we want to use fontconfig to determine better fallbacks,
-    // otherwise we might run into trouble with default fonts as "serif"
+	// with Xft2, we want to use fontconfig to determine better fallbacks,
+	// otherwise we might run into trouble with default fonts as "serif"
 
-    // append the default fallback font for the specified script
-    extern QString qt_fallback_font_family( QFont::Script );
-    QString fallback = qt_fallback_font_family( script );
-    if ( ! fallback.isEmpty() && ! family_list.contains( fallback ) )
-	family_list << fallback;
+	// append the default fallback font for the specified script
+	extern QString qt_fallback_font_family( QFont::Script );
+	QString fallback = qt_fallback_font_family( script );
+	if ( ! fallback.isEmpty() && ! family_list.contains( fallback ) )
+	    family_list << fallback;
 
-    // add the default family
-    QString defaultFamily = QApplication::font().family();
-    if ( ! family_list.contains( defaultFamily ) )
-	family_list << defaultFamily;
+	// add the default family
+	QString defaultFamily = QApplication::font().family();
+	if ( ! family_list.contains( defaultFamily ) )
+	    family_list << defaultFamily;
 
-    // add QFont::defaultFamily() to the list, for compatibility with
-    // previous versions
-    family_list << QApplication::font().defaultFamily();
+	// add QFont::defaultFamily() to the list, for compatibility with
+	// previous versions
+	family_list << QApplication::font().defaultFamily();
 #endif // QT_XFT2
+    }
 
     // null family means find the first font matching the specified script
     family_list << QString::null;
 
-    it = family_list.begin(), end = family_list.end();
+    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
     for ( ; ! engine && it != end; ++it ) {
 	req.family = *it;
 
