@@ -647,7 +647,7 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 
     // Determine the socket type (UDP/TCP)
     int value = 0;
-    QT_SOCKLEN_T valueSize;
+    QT_SOCKLEN_T valueSize = sizeof(int);
     if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_TYPE, &value, &valueSize) == 0) {
         if (value == SOCK_STREAM)
             socketType = Qt::TcpSocket;
