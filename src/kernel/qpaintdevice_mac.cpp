@@ -117,11 +117,11 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	return;
     }
     int srcoffx = 0, srcoffy = 0;
-    BitMap *srcbitmap=NULL;
+    const BitMap *srcbitmap=NULL;
     const QBitmap *srcbitmask=NULL;
     if(src->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)src;
-	srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+	srcbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
 	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 
 	QPoint p(posInWindow(w));
@@ -134,7 +134,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    sh = w->height();
     } else if(src->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)src;
-	srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+	srcbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
 	srcbitmask = pm->mask();
 
 	if(sw < 0)
@@ -173,7 +173,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	}
 
 	QWidget *w = (QWidget *)dst;
-	dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+	dstbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
 	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 
 	QPoint p(posInWindow(w));
@@ -183,9 +183,9 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     } else if(dst->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)dst;
 	pm->detach(); //must detach when we blt
-	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
     } else if(dst->devType() == QInternal::Printer ) {
-	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)dst->handle());
+	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)dst->handle());
     }
 
     if ( dst->paintingActive() && dst->isExtDev() ) {
@@ -267,7 +267,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
 	
     if(srcbitmask && !imask) {
-	BitMap *maskbits = (BitMap *)*GetGWorldPixMap((GWorldPtr)srcbitmask->handle());
+	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcbitmask->handle());
 	CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &r, &r2, copymode, 0);
     }
     else {
