@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#7 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#8 $
 **
 ** Definition of movie classes
 **
@@ -68,7 +68,7 @@ public:
     void disconnectStatus(QObject* receiver, const char* member=0);
 
 private:
-    friend QMoviePrivate;
+    friend class QMoviePrivate;
     QMoviePrivate *d;
 };
 
