@@ -432,8 +432,8 @@ void QTabBar::removeTab(QTab * t)
     if(d->pressed == t)
         d->pressed = 0;
     t->setTabBar(0);
-    d->l.remove(t);
-    d->lstatic.remove(t);
+    d->l.removeAll(t);
+    d->lstatic.removeAll(t);
     delete t;
     layoutTabs();
     updateArrowButtons();
@@ -492,7 +492,7 @@ void QTabBar::setTabEnabled(int id, bool enabled)
                     }
                     if (t->enabled) {
                         r = r.unite(t->r);
-                        d->l.append(d->l.takeAt(i));
+                        d->l.append(d->l.take(i));
                         emit selected(t->id);
                     }
                 }
@@ -836,7 +836,7 @@ void QTabBar::setCurrentTab(QTab * tab)
         QRect r = d->l.last()->r;
         int idx = d->l.indexOf(tab);
         if (idx >= 0)
-            d->l.append(d->l.takeAt(idx));
+            d->l.move(idx, d->l.size() - 1);
 
         d->focus = tab->id;
 

@@ -367,7 +367,7 @@ public:
 
     void remove(QCanvasItem* item)
     {
-        list.remove(item);
+        list.removeAll(item);
         changed = true;
     }
 
@@ -946,7 +946,7 @@ viewing this QCanvas. The QCanvasView class calls this.
 */
 void QCanvas::removeView(QCanvasView* view)
 {
-    d->viewList.remove(view);
+    d->viewList.removeAll(view);
 }
 
 /*!

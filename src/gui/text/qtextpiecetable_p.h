@@ -182,7 +182,7 @@ private:
 
 public:
     inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
-    inline void removeCursor(QTextCursorPrivate *c) { cursors.remove(c); }
+    inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); }
 
 private:
     QTextPieceTable(const QTextPieceTable& m);

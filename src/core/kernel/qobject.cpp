@@ -1214,7 +1214,7 @@ void QObject::setParent_helper(QObject *parent)
 {
     if (parent == d->parent)
         return;
-    if (d->parent && d->parent->d->children.remove(this)) {
+    if (d->parent && d->parent->d->children.removeAll(this)) {
         QChildEvent e(QEvent::ChildRemoved, this);
         QCoreApplication::sendEvent(d->parent, &e);
     }
@@ -1311,8 +1311,8 @@ void QObject::installEventFilter(const QObject *obj)
         return;
     QObject *o = const_cast<QObject *>(obj);
     // clean up unused items in the list
-    d->eventFilters.remove((QObject*)0);
-    d->eventFilters.remove(o);
+    d->eventFilters.removeAll((QObject*)0);
+    d->eventFilters.removeAll(o);
     d->eventFilters.prepend(o);
 }
 
@@ -1332,7 +1332,7 @@ void QObject::installEventFilter(const QObject *obj)
 void QObject::removeEventFilter(const QObject *obj)
 {
     QObject *o = const_cast<QObject *>(obj);
-    d->eventFilters.remove(o);
+    d->eventFilters.removeAll(o);
 }
 
 

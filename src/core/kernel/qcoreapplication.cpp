@@ -1014,7 +1014,7 @@ void QCoreApplication::removeTranslator(QTranslator * mf)
     if (!mf)
         return;
 
-    if (d->translators.remove(mf) && !self->closingDown()) {
+    if (d->translators.removeAll(mf) && !self->closingDown()) {
         QEvent ev(QEvent::LanguageChange);
         QCoreApplication::sendEvent(this, &ev);
     }
@@ -1396,7 +1396,6 @@ void QCoreApplication::removeLibraryPath(const QString &path)
     // make sure that library paths is initialized
     libraryPaths();
 
-    if (self->d->app_libpaths->contains(path))
-        self->d->app_libpaths->remove(path);
+    self->d->app_libpaths->removeAll(path);
 }
 #endif //QT_NO_COMPONENT

@@ -402,9 +402,8 @@ void QWorkspace::childEvent(QChildEvent * e)
 
         updateWorkspace();
     } else if (e->removed()) {
-        if (d->windows.contains((QWorkspaceChild*)e->child())) {
-            d->windows.remove((QWorkspaceChild*)e->child());
-            d->focus.remove((QWorkspaceChild*)e->child());
+        if (d->windows.removeAll((QWorkspaceChild*)e->child())) {
+            d->focus.removeAll((QWorkspaceChild*)e->child());
             if (d->maxWindow == e->child())
                 d->maxWindow = 0;
             updateWorkspace();
@@ -492,10 +491,9 @@ void QWorkspace::activateWindow(QWidget* w, bool change_focus)
     d->active->internalRaise();
 
     if (change_focus) {
-        if (d->focus.indexOf(d->active) >=0) {
-            d->focus.remove(d->active);
-            d->focus.append(d->active);
-        }
+	int from = d->focus.indexOf(d->active);
+        if (from >= 0)
+            d->focus.move(from, d->focus.size() - 1);
     }
 
     updateWorkspace();
@@ -676,10 +674,8 @@ void QWorkspace::insertIcon(QWidget* w)
 
 void QWorkspace::removeIcon(QWidget* w)
 {
-    if (!d->icons.contains(w))
-        return;
-    d->icons.remove(w);
-    w->hide();
+    if (d->icons.removeAll(w))
+        w->hide();
 }
 
 
@@ -1002,7 +998,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
                 }
             }
         }
-        d->focus.remove((QWorkspaceChild*)o);
+        d->focus.removeAll((QWorkspaceChild*)o);
         if (d->maxWindow == o && d->maxWindow->isHidden()) {
             d->maxWindow->setGeometry(d->maxRestore);
             d->maxWindow = 0;
@@ -1741,7 +1737,7 @@ QWorkspaceChild::~QWorkspaceChild()
 
     QWorkspace *workspace = qt_cast<QWorkspace*>(parentWidget());
     if (workspace) {
-        workspace->d->focus.remove(this);
+        workspace->d->focus.removeAll(this);
         if (workspace->d->active == this)
             workspace->activatePrevWindow();
         if (workspace->d->maxWindow == this) {

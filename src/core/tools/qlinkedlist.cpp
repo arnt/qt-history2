@@ -55,7 +55,7 @@ QLinkedListData QLinkedListData::shared_null = {
     first() or last(). If you want to remove an item from either end
     of the list, use removeFirst() or removeLast(). If you want to
     remove all occurrences of a given value in the list, use
-    remove().
+    removeAll().
 
     A common requirement is to remove the first or last item in the
     list and do something with it. For this, QLinkedList provides
@@ -72,7 +72,7 @@ QLinkedListData QLinkedListData::shared_null = {
     This covers most data types that are commonly used, but the
     compiler won't let you, for example, store a QWidget as a value;
     instead, store a QWidget *. A few functions have additional
-    requirements; for example, remove() and contains() expect the
+    requirements; for example, contains() and removeAll() expect the
     value type to support \c operator==(). These requirements are
     documented on a per-function basis.
 
@@ -172,7 +172,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
     Removes all items from the list.
 
-    \sa remove()
+    \sa removeAll()
 */
 
 /*! \fn void QLinkedList::append(const T &value)
@@ -211,7 +211,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa append(), insert()
 */
 
-/*! \fn int QLinkedList::remove(const T &value)
+/*! \fn int QLinkedList::removeAll(const T &value)
 
     Removes all occurrences of \a value in the list.
 
@@ -219,7 +219,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \code
         QList<QString> list;
         list << "sun" << "cloud" << "sun" << "rain";
-        list.remove("sun");
+        list.removeAll("sun");
         // list: ["cloud", "rain"]
     \endcode
 
@@ -383,18 +383,14 @@ QLinkedListData QLinkedListData::shared_null = {
 
     Removes the first item in the list and returns it.
 
-    This is the same as takeAt(0).
-
-    \sa takeLast(), takeAt(), removeFirst()
+    \sa takeLast(), removeFirst()
 */
 
 /*! \fn T QLinkedList::takeLast()
 
     Removes the last item in the list and returns it.
 
-    This is the same as takeAt(size() - 1).
-
-    \sa takeFirst(), takeAt(), removeLast()
+    \sa takeFirst(), removeLast()
 */
 
 /*! \fn void QLinkedList::push_back(const T &value)

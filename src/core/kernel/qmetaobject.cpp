@@ -970,7 +970,6 @@ int QMetaEnum::keysToValue(const char *keys) const
     if (!mobj)
         return -1;
     QStringList l = QString::fromLatin1(keys).split('|');
-    l.remove(QString());
     //#### TODO write proper code, do not use QStringList
     int value = 0;
     int count = mobj->d.data[handle + 2];

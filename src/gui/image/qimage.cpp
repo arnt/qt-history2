@@ -241,7 +241,7 @@ public:
         QStringList r;
         QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
         for (; it != text_lang.end(); ++it) {
-            r.remove(it.key().lang);
+            r.removeAll(it.key().lang);
             r.append(it.key().lang);
         }
         return r;
@@ -251,7 +251,7 @@ public:
         QStringList r;
         QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
         for (; it != text_lang.end(); ++it) {
-            r.remove(it.key().key);
+            r.removeAll(it.key().key);
             r.append(it.key().key);
         }
         return r;

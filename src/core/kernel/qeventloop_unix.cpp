@@ -328,7 +328,7 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 
     FD_CLR(sockfd, fds);                        // clear fd bit
     FD_CLR(sockfd, sn->queue);
-    d->sn_pending_list.remove(sn);                // remove from activation list
+    d->sn_pending_list.removeAll(sn);                // remove from activation list
     list.removeAt(i);                                // remove notifier found above
     delete sn;
 
@@ -474,7 +474,7 @@ int QEventLoop::activateSocketNotifiers()
     int n_act = 0;
     QEvent event(QEvent::SockAct);
     while (!d->sn_pending_list.isEmpty()) {
-        QSockNot *sn = d->sn_pending_list.takeAt(0);
+        QSockNot *sn = d->sn_pending_list.takeFirst();
         if (FD_ISSET(sn->fd, sn->queue)) {
             FD_CLR(sn->fd, sn->queue);
             QCoreApplication::sendEvent(sn->obj, &event);

@@ -357,7 +357,7 @@ QString Q3ActionPrivate::statusTip() const
  */
 static QString qt_stripMenuText(QString s)
 {
-    s.remove(QString::fromLatin1("..."));
+    s.remove(QLatin1String("..."));
     s.remove(QChar('&'));
     return s.trimmed();
 };
@@ -1158,7 +1158,7 @@ bool Q3Action::removeFrom(QWidget* w)
             btn = *it;
             ++it;
             if (btn->parentWidget() == w) {
-                d->toolbuttons.remove(btn);
+                d->toolbuttons.removeAll(btn);
                 disconnect(btn, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
                 delete btn;
                 // no need to disconnect from statusbar
@@ -1177,7 +1177,7 @@ bool Q3Action::removeFrom(QWidget* w)
                 disconnect(mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()));
                 disconnect(mi->popup, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
                 mi->popup->removeItem(mi->id);
-                d->menuitems.remove(mi);
+                d->menuitems.removeAll(mi);
                 delete mi;
             }
         }
@@ -1189,7 +1189,7 @@ bool Q3Action::removeFrom(QWidget* w)
             ++it;
             if (ci->combo == w) {
                 disconnect(ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
-                d->comboitems.remove(ci);
+                d->comboitems.removeAll(ci);
                 delete ci;
             }
         }
@@ -1211,7 +1211,7 @@ void Q3Action::objectDestroyed()
         mi = d->menuitems.at(i);
         ++i;
         if (mi->popup == obj) {
-            d->menuitems.remove(mi);
+            d->menuitems.removeAll(mi);
             delete mi;
         }
     }
@@ -1221,11 +1221,11 @@ void Q3Action::objectDestroyed()
         ci = *it2;
         ++it2;
         if (ci->combo == obj) {
-            d->comboitems.remove(ci);
+            d->comboitems.removeAll(ci);
             delete ci;
         }
     }
-    d->toolbuttons.remove((QToolButton*)obj);
+    d->toolbuttons.removeAll((QToolButton *)obj);
 }
 
 /*!
@@ -1642,7 +1642,7 @@ void Q3ActionGroup::addSeparator()
 
     \sa setExclusive() setUsesDropDown() removeFrom()
 */
-bool Q3ActionGroup::addTo(QWidget* w)
+bool Q3ActionGroup::addTo(QWidget * /* w */)
 {
 #if 0
 #ifndef QT_NO_TOOLBAR
@@ -1858,7 +1858,7 @@ void Q3ActionGroup::childActivated()
 */
 void Q3ActionGroup::childDestroyed()
 {
-    d->actions.remove((Q3Action*)sender());
+    d->actions.removeAll((Q3Action *)sender());
     if (d->selected == sender())
         d->selected = 0;
 }
@@ -2103,17 +2103,17 @@ void Q3ActionGroup::internalToggle(Q3Action *a)
 void Q3ActionGroup::objectDestroyed()
 {
     const QObject* obj = sender();
-    d->menubuttons.remove((QToolButton*)obj);
+    d->menubuttons.removeAll((QToolButton *)obj);
     for (QList<Q3ActionGroupPrivate::MenuItem *>::Iterator mi(d->menuitems.begin());
          mi != d->menuitems.end(); ++mi) {
         if ((*mi)->popup == obj) {
-            d->menuitems.remove(*mi);
+            d->menuitems.removeAll(*mi);
             delete *mi;
             break;
         }
     }
-    d->popupmenus.remove((Q3PopupMenu*)obj);
-    d->comboboxes.remove((QComboBox*)obj);
+    d->popupmenus.removeAll((Q3PopupMenu*)obj);
+    d->comboboxes.removeAll((QComboBox*)obj);
 }
 
 /*!

@@ -154,7 +154,7 @@ class QAccelManager : public Qt {
 public:
     static QAccelManager* self() { return self_ptr ? self_ptr : new QAccelManager; }
     void registerAccel(QAccelPrivate* a) { accels.append(a); }
-    void unregisterAccel(QAccelPrivate* a) { accels.remove(a); if (accels.isEmpty()) delete this; }
+    void unregisterAccel(QAccelPrivate* a) { accels.removeAll(a); if (accels.isEmpty()) delete this; }
     bool tryAccelEvent(QWidget* w, QKeyEvent* e);
     bool dispatchAccelEvent(QWidget* w, QKeyEvent* e);
     bool tryComposeUnicode(QWidget* w, QKeyEvent* e);
@@ -693,7 +693,7 @@ void QAccel::removeItem(int id)
     for (int i = 0; i < d->aitems.size(); ++i) {
         register QAccelItem *item = d->aitems.at(i);
         if (item->id == id) {
-            delete d->aitems.takeAt(i);
+            delete d->aitems.take(i);
             return;
         }
     }

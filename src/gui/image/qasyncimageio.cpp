@@ -28,7 +28,7 @@ extern void qt_init_image_plugins();
 #define Q_TRANSPARENT 0x00ffffff
 
 /*!
-    \class QImageConsumer qasyncimageio.h
+    \class QImageConsumer
     \brief The QImageConsumer class is an abstraction used by QImageDecoder.
 
     \ingroup images
@@ -131,7 +131,7 @@ extern void qt_init_image_plugins();
 
 
 /*!
-    \class QImageDecoder qasyncimageio.h
+    \class QImageDecoder
     \brief The QImageDecoder class is an incremental image decoder for all supported image formats.
 
     \ingroup images
@@ -485,11 +485,11 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
     if (!QImageDecoderPrivate::factories)
         return;
 
-    QImageDecoderPrivate::factories->remove(f);
+    QImageDecoderPrivate::factories->removeAll(f);
 }
 
 /*!
-    \class QImageFormat qasyncimageio.h
+    \class QImageFormat
     \brief The QImageFormat class is an incremental image decoder for a specific image format.
 
     \ingroup images
@@ -541,7 +541,7 @@ QImageFormat::~QImageFormat()
 */
 
 /*!
-    \class QImageFormatType qasyncimageio.h
+    \class QImageFormatType
     \brief The QImageFormatType class is a factory that makes QImageFormat objects.
 
     \ingroup images
@@ -621,7 +621,7 @@ bool qt_builtin_gif_reader()
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 
 /* -- NOTDOC
-  \class QGIFFormat qasyncimageio.h
+  \class QGIFFormat
   \brief Incremental image decoder for GIF image format.
 
   \ingroup images
@@ -660,7 +660,7 @@ QGIFFormat::~QGIFFormat()
 
 
 /* -- NOTDOC
-  \class QGIFFormatType qasyncimageio.h
+  \class QGIFFormatType
   \brief Incremental image decoder for GIF image format.
 
   \ingroup images

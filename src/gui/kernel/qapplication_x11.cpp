@@ -3348,7 +3348,7 @@ void qt_enter_modal(QWidget *widget)
 
 void qt_leave_modal(QWidget *widget)
 {
-    if (qt_modal_stack && qt_modal_stack->remove(widget)) {
+    if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
             delete qt_modal_stack;
             qt_modal_stack = 0;
@@ -3464,7 +3464,7 @@ void QApplication::closePopup(QWidget *popup)
 {
     if (!popupWidgets)
         return;
-    popupWidgets->remove(popup);
+    popupWidgets->removeAll(popup);
     if (popup == popupOfPopupButtonFocus) {
         popupButtonFocus = 0;
         popupOfPopupButtonFocus = 0;
@@ -4169,10 +4169,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             d->topData()->parentWinId = 0;
             // map the window if we were waiting for a transition to
             // withdrawn
-            if (X11->deferred_map.contains(this)) {
-                X11->deferred_map.remove(this);
+            if (X11->deferred_map.removeAll(this))
                 XMapWindow(X11->display, winId());
-            }
         } else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Info()->screen())) {
             // the window manager has changed the WM State property...
             // we are wanting to see if we are withdrawn so that we
@@ -4198,10 +4196,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     d->topData()->parentWinId = 0;
                     // map the window if we were waiting for a
                     // transition to withdrawn
-                    if (X11->deferred_map.contains(this)) {
-                        X11->deferred_map.remove(this);
+                    if (X11->deferred_map.removeAll(this))
                         XMapWindow(X11->display, winId());
-                    }
                     break;
 
                 case IconicState:

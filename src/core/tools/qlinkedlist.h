@@ -51,7 +51,7 @@ public:
     void prepend(const T &);
     T takeFirst();
     T takeLast();
-    int remove(const T &t);
+    int removeAll(const T &t);
     bool contains(const T &t) const;
     int count(const T &t) const;
 
@@ -279,7 +279,7 @@ void QLinkedList<T>::prepend(const T &t)
 }
 
 template <typename T>
-int QLinkedList<T>::remove(const T &t)
+int QLinkedList<T>::removeAll(const T &t)
 {
     detach();
     Node *i = e->n;

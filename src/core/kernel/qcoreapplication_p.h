@@ -37,7 +37,7 @@ class Q_CORE_EXPORT QTranslatorList : private QList<QTranslator*>
 {
 public:
     using QList<QTranslator*>::prepend;
-    using QList<QTranslator*>::remove;
+    using QList<QTranslator*>::removeAll;
     using QList<QTranslator*>::isEmpty;
     using QList<QTranslator*>::constBegin;
     using QList<QTranslator*>::constEnd;

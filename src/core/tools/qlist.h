@@ -77,9 +77,9 @@ public:
     void prepend(const T &t);
     void insert(int i, const T &t);
     void replace(int i, const T &t);
-    int remove(const T &t);
-    void removeAt(int i);
-    T takeAt(int i);
+    void removeAt(int i); // ###
+    int removeAll(const T &t);
+    T take(int i);
     T takeFirst();
     T takeLast();
     void move(int from, int to);
@@ -299,8 +299,8 @@ inline void QList<T>::removeAt(int i)
 { if(i >= 0 && i < p.size()) { detach();
  node_destruct((Node*) p.at(i)); p.remove(i); } }
 template <typename T>
-inline T QList<T>::takeAt(int i)
-{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::takeAt", "index out of range");
+inline T QList<T>::take(int i)
+{ Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::take", "index out of range");
  detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_destruct(n);
  p.remove(i); return t; }
 template <typename T>
@@ -411,7 +411,7 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::clear()
 }
 
 template <typename T>
-Q_OUTOFLINE_TEMPLATE int QList<T>::remove(const T &t)
+Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &t)
 {
     detach();
     int count=0, i=0;

@@ -91,8 +91,13 @@
 
 /*! \fn int QCache::totalCost() const
 
-    Returns the total cost of the items in the cache. This value is
-    always \<= maxCost().
+    Returns the total cost of the items in the cache.
+
+    This value is normally below maxCost(), but QCache makes an
+    exception for Qt's \l{implicitly shared} classes. If a cached
+    object shares its internal data with another instance, QCache may
+    keep the object lying around, possibly contributing to making
+    totalCost() larger than maxCost().
 
     \sa setMaxCost()
 */
@@ -128,7 +133,7 @@
 
     Inserts the item \a data into the cache with key \a key and
     associated cost \a cost. Any item with the same key already in
-    the cache will be deleted.
+    the cache will be removed.
 
     After this call, the object pointed to by \a data is owned by the
     QCache and may be deleted at any time.

@@ -68,12 +68,12 @@ void QDockAreaLayout::setGeometry(const QRect &r)
     layoutItems(r);
 }
 
-QLayoutItem *QDockAreaLayout::itemAt(int idx) const
+QLayoutItem *QDockAreaLayout::itemAt(int) const
 {
     return 0; //###
 }
 
-QLayoutItem *QDockAreaLayout::takeAt(int idx)
+QLayoutItem *QDockAreaLayout::takeAt(int)
 {
     return 0; //###
 }
@@ -376,7 +376,7 @@ int QDockAreaLayout::layoutItems(const QRect &rect, bool testonly)
     else
         lines.append(QRect(sectionpos, 0, linestrut, r.height()));
     if (lines.size() >= 2 && *(--lines.end()) == *(--(--lines.end())))
-        lines.remove(lines.at(lines.count() - 1));
+        lines.removeLast();
 
     bool hadResizable = false;
     for (int i = 0; i < dockWindows->size(); ++i) {
@@ -583,8 +583,8 @@ void QDockArea::moveDockWindow(QDockWindow *w, int index)
             if(vis)
                 w->show();
         }
-        if (index == - 1) {
-            dockWindows.remove(w);
+        if (index == -1) {
+            dockWindows.removeAll(w);
             dockWindows.append(w);
         }
     }
@@ -594,7 +594,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, int index)
     w->updateGui();
 
     if (index != -1 && index < (int)dockWindows.count()) {
-        dockWindows.remove(w);
+        dockWindows.removeAll(w);
         dockWindows.insert(index, w);
     }
 }
@@ -677,7 +677,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
                  && lineStarts.contains(dockWindows.at(dockWindowIndex + 1)))
                 || dockWindowIndex == dockWindows.count() - 1))
             wasAloneInLine = true;
-        dockWindow = dockWindows.takeAt(dockWindowIndex);
+        dockWindow = dockWindows.take(dockWindowIndex);
         if (!wasAloneInLine) { // only do the pre-layout if the widget isn't the only one in its line
             if (lineStarts.contains(dockWindow) && dockWindowIndex < dockWindows.count())
                 dockWindows.at(dockWindowIndex)->setNewLine(true);
@@ -1102,7 +1102,7 @@ bool QDockArea::isDockWindowAccepted(QDockWindow *dw)
 void QDockArea::setAcceptDockWindow(QDockWindow *dw, bool accept)
 {
     if (accept)
-        forbiddenWidgets.remove(dw);
+        forbiddenWidgets.removeAll(dw);
     else if (forbiddenWidgets.contains(dw))
         forbiddenWidgets.append(dw);
 }

@@ -113,7 +113,7 @@ public:
     bool hasHeightForWidth() const { return false; }
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutItem *itemAt(int idx) const { return 0; } //###
+    QLayoutItem *itemAt(int) const { return 0; } //###
     QLayoutItem *takeAt(int) { return 0; } //###
 
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
@@ -1108,7 +1108,7 @@ void QMainWindow::setDockEnabled(QDockWindow *dw, Dock dock, bool enable)
     QString s;
     s.sprintf("%p_%d", (void*)dw, (int)dock);
     if (enable)
-        d->disabledDocks.remove(s);
+        d->disabledDocks.removeAll(s);
     else if (!d->disabledDocks.contains(s))
         d->disabledDocks << s;
     switch (dock) {
@@ -1369,7 +1369,7 @@ void QMainWindow::removeDockWindow(QDockWindow * dockWindow)
 #endif
 
     dockWindow->hide();
-    d->dockWindows.remove(dockWindow);
+    d->dockWindows.removeAll(dockWindow);
     disconnect(dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
                 this, SLOT(slotPlaceChanged()));
     dockWindow->removeEventFilter(this);

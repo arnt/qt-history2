@@ -997,14 +997,14 @@ void QImageDrag::setImage(QImage image)
 {
     d->img = image; // ### detach?
     d->ofmts = QImage::outputFormats();
-    d->ofmts.remove("PBM"); // remove non-raw PPM
+    d->ofmts.removeAll("PBM"); // remove non-raw PPM
     if (image.depth()!=32) {
         // BMP better than PPM for paletted images
-        if (d->ofmts.remove("BMP")) // move to front
+        if (d->ofmts.removeAll("BMP")) // move to front
             d->ofmts.insert(0,"BMP");
     }
     // PNG is best of all
-    if (d->ofmts.remove("PNG")) // move to front
+    if (d->ofmts.removeAll("PNG")) // move to front
         d->ofmts.insert(0,"PNG");
 
     if(cacheType == QMimeSource::NoCache) { //cache it
@@ -1090,7 +1090,7 @@ bool QImageDrag::decode(const QMimeSource* e, QImage& img)
     QByteArray payload;
     QList<QByteArray> fileFormats = QImageIO::inputFormats();
     // PNG is best of all
-    if (fileFormats.remove("PNG")) // move to front
+    if (fileFormats.removeAll("PNG")) // move to front
         fileFormats.prepend("PNG");
     for (int i = 0; i < fileFormats.count(); ++i) {
         QByteArray type = "image/" + fileFormats.at(i).toLower();

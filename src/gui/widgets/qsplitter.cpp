@@ -450,7 +450,7 @@ void QSplitter::childEvent(QChildEvent *c)
                 d->list.erase(it);
                 if (prev && prev->isHandle) {
                     QWidget *w = prev->wid;
-                    d->list.remove(prev);
+                    d->list.removeAll(prev);
                     delete prev;
                     delete w; // will call childEvent()
                 }
@@ -1022,8 +1022,8 @@ void QSplitter::moveToFirst(QWidget *w)
             QSplitterLayoutStruct *s = *it;
             QSplitterLayoutStruct *p = *(--it);
             if (it != d->list.begin()) { // not already at first place
-                d->list.remove(p);
-                d->list.remove(s);
+                d->list.removeAll(p);
+                d->list.removeAll(s);
                 d->list.prepend(p);
                 d->list.prepend(s);
             }
@@ -1052,10 +1052,10 @@ void QSplitter::moveToLast(QWidget *w)
             QSplitterLayoutStruct *s = *it;
             QSplitterLayoutStruct *p = *(++it);
             if (it != d->list.end()) { // the splitter handle after s
-                d->list.remove(p);
+                d->list.removeAll(p);
                 d->list.append(p);
             }
-            d->list.remove(s);
+            d->list.removeAll(s);
             d->list.append(s);
             break;
         }

@@ -10,9 +10,10 @@ class QString;
 struct QLatin1Char
 {
 public:
-    inline explicit QLatin1Char(const char c) : ch(c) {}
+    inline explicit QLatin1Char(char c) : ch(c) {}
     inline char latin1() const { return ch; }
-    inline unsigned short unicode() const { return (ushort)ch; }
+    inline ushort unicode() const { return (ushort)ch; }
+
 private:
     const char ch;
 };
@@ -25,24 +26,20 @@ public:
     QChar(char c);
     QChar(uchar c);
 #endif
+    QChar(QLatin1Char ch);
     QChar(uchar c, uchar r);
-#ifdef Q_QDOC
-    QChar(const QChar& c);
-#endif
     inline QChar(ushort rc) : ucs(rc){}
     QChar(short rc);
     QChar(uint rc);
     QChar(int rc);
-    QChar(const QLatin1Char &ch);
-    enum SpecialChars {
+    enum SpecialChar {
         null = 0x0000,
         replacement = 0xfffd,
         byteOrderMark = 0xfeff,
         byteOrderSwapped = 0xfffe,
         nbsp = 0x00a0
     };
-    QChar(SpecialChars sc);
-
+    QChar(SpecialChar sc);
 
     // Unicode information
 
@@ -141,7 +138,10 @@ public:
     Category category() const;
     Direction direction() const;
     Joining joining() const;
-    bool mirrored() const;
+    bool hasMirrored() const;
+#ifdef QT_COMPAT
+    inline bool mirrored() const { return hasMirrored(); }
+#endif
     QChar mirroredChar() const;
     QString decomposition() const;
     Decomposition decompositionTag() const;
@@ -192,8 +192,8 @@ inline QChar::QChar(uchar c, uchar r) : ucs((r << 8) | c){}
 inline QChar::QChar(short rc) : ucs((ushort) rc){}
 inline QChar::QChar(uint rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(int rc) : ucs((ushort) (rc & 0xffff)){}
-inline QChar::QChar(QChar::SpecialChars s) : ucs((ushort) s) {}
-inline QChar::QChar(const QLatin1Char &ch) : ucs((ushort) ch.latin1()) {}
+inline QChar::QChar(SpecialChar s) : ucs((ushort) s) {}
+inline QChar::QChar(QLatin1Char ch) : ucs(ch.unicode()) {}
 
 inline bool operator==(QChar c1, QChar c2) { return c1.unicode() == c2.unicode(); }
 inline bool operator!=(QChar c1, QChar c2) { return c1.unicode() != c2.unicode(); }

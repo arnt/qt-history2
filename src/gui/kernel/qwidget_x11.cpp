@@ -739,7 +739,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if (keyboardGrb == this)
             releaseKeyboard();
         if (isTopLevel())
-            X11->deferred_map.remove(this);
+            X11->deferred_map.removeAll(this);
         if (testWFlags(WShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
         else if (testWFlags(WType_Popup))
@@ -1817,7 +1817,7 @@ void QWidget::hideWindow()
     clearWState(WState_Exposed);
     deactivateWidgetCleanup();
     if (isTopLevel()) {
-        X11->deferred_map.remove(this);
+        X11->deferred_map.removeAll(this);
         if (winId()) // in nsplugin, may be 0
             XWithdrawWindow(d->xinfo->display(), winId(), d->xinfo->screen());
 
@@ -1848,10 +1848,9 @@ void QWidget::hideWindow()
 void QWidget::raise()
 {
     QWidget *p = parentWidget();
-    if (p && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.append(this);
-    }
+    int from;
+    if (p && (from = p->d->children.indexOf(this)) >= 0)
+        p->d->children.move(from, p->d->children.size() - 1);
     XRaiseWindow(d->xinfo->display(), winId());
 }
 
@@ -1867,10 +1866,9 @@ void QWidget::raise()
 void QWidget::lower()
 {
     QWidget *p = parentWidget();
-    if (p && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.prepend(this);
-    }
+    int from;
+    if (p && (from = p->d->children.indexOf(this)) >= 0)
+        p->d->children.move(from, 0);
     XLowerWindow(d->xinfo->display(), winId());
 }
 
@@ -1885,12 +1883,12 @@ void QWidget::lower()
 void QWidget::stackUnder(QWidget* w)
 {
     QWidget *p = parentWidget();
+    int from;
+    int to;
     if (!w || isTopLevel() || p != w->parentWidget() || this == w)
         return;
-    if (p && p->d->children.indexOf(w) >= 0 && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.insert(p->d->children.indexOf(w), this);
-    }
+    if (p && (to = p->d->children.indexOf(w)) >= 0 && (from = p->d->children.indexOf(this)) >= 0)
+        p->d->children.move(from, to);
     Window stack[2];
     stack[0] = w->winId();;
     stack[1] = winId();

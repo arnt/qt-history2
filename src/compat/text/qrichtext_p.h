@@ -874,7 +874,7 @@ public:
 
     virtual Q3TextParagraph *createParagraph(Q3TextDocument *, Q3TextParagraph *pr = 0, Q3TextParagraph *nx = 0, bool updateIds = true);
     void insertChild(Q3TextDocument *dc) { childList.append(dc); }
-    void removeChild(Q3TextDocument *dc) { childList.remove(dc); }
+    void removeChild(Q3TextDocument *dc) { childList.removeAll(dc); }
     QList<Q3TextDocument *> children() const { return childList; }
 
     bool hasFocusParagraph() const;
@@ -1947,7 +1947,7 @@ inline void Q3TextParagraph::registerFloatingItem(Q3TextCustomItem *i)
 
 inline void Q3TextParagraph::unregisterFloatingItem(Q3TextCustomItem *i)
 {
-    floatingItems().remove(i);
+    floatingItems().removeAll(i);
 }
 #endif
 

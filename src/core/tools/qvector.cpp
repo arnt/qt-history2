@@ -498,7 +498,18 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa operator[](), remove()
 */
 
+/*! \fn void QVector::remove(int i)
+
+    \overload
+
+    Removes the element at index position \a i.
+
+    \sa insert(), replace(), fill()
+*/
+
 /*! \fn void QVector::remove(int i, int count)
+
+    \overload
 
     Removes \a count elements from the middle of the vector, starting at
     index position \a i.

@@ -1208,7 +1208,7 @@ void QListViewItem::takeItem(QListViewItem * item)
                 lv->d->dirtyItemTimer->stop();
                 lv->triggerUpdate();
             } else {
-                lv->d->dirtyItems.remove(item);
+                lv->d->dirtyItems.removeAll(item);
             }
         }
 
@@ -7302,7 +7302,7 @@ QListViewItemIterator::QListViewItemIterator(QListView *lv, int iteratorFlags)
 QListViewItemIterator &QListViewItemIterator::operator=(const QListViewItemIterator &it)
 {
     if (listView)
-        listView->d->iterators.remove(this);
+        listView->d->iterators.removeAll(this);
 
     listView = it.listView;
     curr = it.curr;
@@ -7324,7 +7324,7 @@ QListViewItemIterator &QListViewItemIterator::operator=(const QListViewItemItera
 QListViewItemIterator::~QListViewItemIterator()
 {
     if (listView)
-        listView->d->iterators.remove(this);
+        listView->d->iterators.removeAll(this);
 }
 
 /*!

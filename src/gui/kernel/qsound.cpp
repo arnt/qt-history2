@@ -32,7 +32,7 @@ QAuServer::QAuServer(QObject* parent, const char* name) :
 
 QAuServer::~QAuServer()
 {
-    servers->remove(this);
+    servers->removeAll(this);
     if (servers->count() == 0) {
         delete servers;
         servers = 0;

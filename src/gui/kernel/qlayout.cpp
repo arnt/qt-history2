@@ -147,13 +147,13 @@ public:
     inline QLayoutItem *takeAt(int idx) {
         QLayoutItem *item = 0;
         if (idx < things.count()) {
-            QGridBox *b = things.takeAt(idx);
+            QGridBox *b = things.take(idx);
             if (b) {
                 item = b->takeItem();
                 delete b;
             }
         } else if (idx - things.count() < multi.count()) {
-            QGridMultiBox *b = multi.takeAt(idx -things.count());
+            QGridMultiBox *b = multi.take(idx - things.count());
             if (b) {
                 item = b->takeItem();
                 delete b;
@@ -1691,7 +1691,7 @@ QLayoutItem *QBoxLayout::takeAt(int idx)
 {
     if (idx < 0 || idx >= data->list.count())
         return 0;
-    QBoxLayoutItem *b =  data->list.takeAt(idx);
+    QBoxLayoutItem *b = data->list.take(idx);
     QLayoutItem *item = b->item;
     b->item = 0;
     delete b;

@@ -379,7 +379,7 @@ const QLibrary* QGPluginManager::library(const QString& _feature) const
                         bestMatch = candidate;
                 }
                 if (bestMatch)
-                    that->addLibrary(same.takeAt(same.indexOf(bestMatch)));
+                    that->addLibrary(same.take(same.indexOf(bestMatch)));
                 while (!same.isEmpty())
                     delete same.takeFirst();
             }

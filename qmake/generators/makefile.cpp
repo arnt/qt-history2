@@ -892,7 +892,7 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
             createDir(decl_dir);
         }
         QStringList deps = findDependencies((*it));
-        deps.remove(decl); //avoid circular dependencies..
+        deps.removeAll(decl); //avoid circular dependencies..
         t << decl << ": " << (*it) << " " << deps.join(" \\\n\t\t") << "\n\t"
           << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
 

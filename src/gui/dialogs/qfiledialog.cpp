@@ -6247,8 +6247,8 @@ void QFileDialog::goBack()
 {
     if (!d->goBack || !d->goBack->isEnabled() || d->history.isEmpty())
         return;
-    d->history.remove(d->history.last());
-    if (d->history.count() < 2)
+    d->history.removeLast();
+    if (d->history.size() < 2)
         d->goBack->setEnabled(false);
     setUrl(d->history.last());
 }

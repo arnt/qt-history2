@@ -56,7 +56,7 @@
 
 static QList<QTextCodec*> *all = 0;
 static bool destroying_is_ok = false;
-static QTextCodec * localeMapper = 0;
+static QTextCodec *localeMapper = 0;
 
 class QTextCodecCleanup
 {
@@ -399,7 +399,7 @@ QTextCodec::~QTextCodec()
     if (!destroying_is_ok)
         qWarning("QTextCodec::~QTextCodec() called by application");
     if (all)
-        all->remove(this);
+        all->removeAll(this);
 }
 
 

@@ -93,7 +93,7 @@ UnixMakefileGenerator::init()
          (project->isActiveConfig("qt") &&  project->isActiveConfig("plugin"))) {
         if(configs.indexOf("dll") == -1) configs.append("dll");
     } else if(!project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll")) {
-        configs.remove("staticlib");
+        configs.removeAll("staticlib");
     }
     if(!project->isEmpty("QMAKE_INCREMENTAL"))
         project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_INCREMENTAL"];
@@ -262,7 +262,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
                     if(ret.indexOf((*it)) == -1)
                         ret.append((*it));
                 } else if((*it).startsWith("-l")) {
-                    ret.remove(*it);
+                    ret.removeAll(*it);
                     ret.append(*it);
                 } else if(project->isActiveConfig("macx") && (*it).startsWith("-framework")) {
                     int as_one = true;
@@ -310,7 +310,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
                     ret.append((*it));
                 }
             } else /*if(QFile::exists((*it)))*/ {
-                ret.remove(*it);
+                ret.removeAll(*it);
                 ret.append(*it);
             }
         }

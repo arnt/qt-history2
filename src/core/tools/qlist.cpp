@@ -244,7 +244,7 @@ void **QListData::erase(void **xi)
     \endcode
 
     QList provides these basic functions to add, move, and remove
-    items: insert(), replace(), removeAt(), move(), and swap(). In
+    items: insert(), replace(), remove(), move(), and swap(). In
     addition, it provides the following convenience functions:
     append(), prepend(), removeFirst(), and removeLast().
 
@@ -270,14 +270,10 @@ void **QListData::erase(void **xi)
     For read-only access, at() is slightly faster than operator[]().
 
     A common requirement is to remove an item from a list and do
-    something with it. For this, QList provides takeAt(),
-    takeFirst(), and takeLast(). Here's a loop that removes the items
-    from a list one at a time and calls \c delete on them:
-    \code
-        QList<QWidget *> list;
-        ...
-        while (!list.isEmpty())
-            delete list.takeFirst();
+    something with it. For this, QList provides take(), takeFirst(),
+    and takeLast(). Here's a loop that removes the items from a list
+    one at a time and calls \c delete on them: \code QList<QWidget *>
+    list; ... while (!list.isEmpty()) delete list.takeFirst();
     \endcode
 
     Inserting and removing items at either ends of the list is very
@@ -413,7 +409,7 @@ void **QListData::erase(void **xi)
 
     Removes all items from the list.
 
-    \sa remove()
+    \sa removeAll()
 */
 
 /*! \fn const T &QList::at(int i) const
@@ -502,7 +498,7 @@ void **QListData::erase(void **xi)
         // list: ["alpha", "beta", "gamma", "delta"]
     \endcode
 
-    \sa append(), prepend(), replace(), removeAt()
+    \sa append(), prepend(), replace(), remove()
 */
 
 /*! \fn QList::iterator QList::insert(iterator before, const T &value)
@@ -520,10 +516,10 @@ void **QListData::erase(void **xi)
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
-    \sa operator[](), removeAt()
+    \sa operator[](), remove()
 */
 
-/*! \fn int QList::remove(const T &value)
+/*! \fn int QList::removeAll(const T &value)
 
     Removes all occurrences of \a value in the list.
 
@@ -531,60 +527,60 @@ void **QListData::erase(void **xi)
     \code
         QList<QString> list;
         list << "sun" << "cloud" << "sun" << "rain";
-        list.remove("sun");
+        list.removeAll("sun");
         // list: ["cloud", "rain"]
     \endcode
 
     This function requires the value type to have an implementation of
     \c operator==().
 
-    \sa removeAt(), takeAt(), replace()
+    \sa remove(), take(), replace()
 */
 
-/*! \fn void QList::removeAt(int i)
+/*! \fn void QList::remove(int i)
 
     Removes the item at index position \a i.
 
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
-    \sa takeAt(), removeFirst(), removeLast()
+    \sa take(), removeFirst(), removeLast()
 */
 
-/*! \fn T QList::takeAt(int i)
+/*! \fn T QList::take(int i)
 
     Removes the item at index position \a i and returns it.
 
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
 
-    \sa removeAt(), takeFirst(), takeLast()
+    \sa remove(), takeFirst(), takeLast()
 */
 
 /*! \fn T QList::takeFirst()
 
     Removes the first item in the list and returns it.
 
-    This is the same as takeAt(0).
+    This is the same as take(0).
 
     This operation is very fast (\l{constant time}), because QList
     preallocates extra space on both sides of its internal buffer to
     allow for fast growth at both ends of the list.
 
-    \sa takeLast(), takeAt(), removeFirst()
+    \sa takeLast(), take(), removeFirst()
 */
 
 /*! \fn T QList::takeLast()
 
     Removes the last item in the list and returns it.
 
-    This is the same as takeAt(size() - 1).
+    This is the same as take(size() - 1).
 
     This operation is very fast (\l{constant time}), because QList
     preallocates extra space on both sides of its internal buffer to
     allow for fast growth at both ends of the list.
 
-    \sa takeFirst(), takeAt(), removeLast()
+    \sa takeFirst(), take(), removeLast()
 */
 
 /*! \fn void QList::move(int from, int to)
@@ -599,9 +595,9 @@ void **QListData::erase(void **xi)
         // list: ["A", "C", "D", "E", "B", "F"]
     \endcode
 
-    This is the same as insert(\a{to}, takeAt(\a{from})).
+    This is the same as insert(\a{to}, take(\a{from})).
 
-    \sa swap(), insert(), takeAt()
+    \sa swap(), insert(), take()
 */
 
 /*! \fn void QList::swap(int i, int j)
@@ -796,18 +792,18 @@ void **QListData::erase(void **xi)
 
     Removes the first item in the list.
 
-    This is the same as removeAt(0).
+    This is the same as remove(0).
 
-    \sa removeAt(), takeFirst()
+    \sa remove(), takeFirst()
 */
 
 /*! \fn void QList::removeLast()
 
     Removes the last item in the list.
 
-    This is the same as removeAt(size() - 1).
+    This is the same as remove(size() - 1).
 
-    \sa removeAt(), takeLast()
+    \sa remove(), takeLast()
 */
 
 /*! \fn T QList::value(int i) const

@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "qtoolbox.h"
 
 #ifndef QT_NO_TOOLBOX
@@ -460,7 +461,7 @@ void QToolBox::widgetDestroyed(QObject *object)
     delete c->button;
 
     bool removeCurrent = c == d->currentPage;
-    d->pageList.remove(*c);
+    d->pageList.removeAll(*c);
 
     if (!d->pageList.count()) {
         d->currentPage = 0;

@@ -96,7 +96,7 @@ public:
         if (iterator == i) {
             iterator = 0;
         } else if (list) {
-            list->remove(i);
+            list->removeAll(i);
             if (list->isEmpty()) {
                 delete list;
                 list = 0;

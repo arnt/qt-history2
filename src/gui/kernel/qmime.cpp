@@ -583,7 +583,7 @@ void QMimeSourceFactory::addFactory(QMimeSourceFactory *f)
 
 void QMimeSourceFactory::removeFactory(QMimeSourceFactory *f)
 {
-    QMimeSourceFactory::defaultFactory()->d->factories.remove(f);
+    QMimeSourceFactory::defaultFactory()->d->factories.removeAll(f);
 }
 
 #endif // QT_NO_MIME

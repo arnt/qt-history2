@@ -383,7 +383,7 @@ public:
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
     inline int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                                   const QKeySequence *accel, const QMenu *popup, int id, int index) {
+                                   const QKeySequence * /* accel */, const QMenu *popup, int id, int index) {
         verifyPlatformCanCastPointerToInt();
         if(id != -1)
             qWarning("QMenuBar: id cannot be passed into insertItem!");

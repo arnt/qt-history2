@@ -3386,7 +3386,7 @@ void QTable::removeSelection(const QTableSelection &s)
     for (int i = 0; i < selections.size(); ++i) {
         QTableSelection *sel = selections.at(i);
         if (s == *sel) {
-            selections.remove(sel);
+            selections.removeAll(sel);
             repaintSelections(sel, 0, true, true);
             if (sel == currentSel)
                 currentSel = 0;
@@ -3413,7 +3413,7 @@ void QTable::removeSelection(int num)
     QTableSelection *s = selections.at(num);
     if (s == currentSel)
         currentSel = 0;
-    selections.remove(s);
+    selections.removeAll(s);
     delete s;
     repaintContents();
 }
@@ -4124,7 +4124,7 @@ void QTable::keyPressEvent(QKeyEvent* e)
                         if (currentSel) {
                             oldSelection = *currentSel;
                             hasOldSel = true;
-                            selections.remove(currentSel);
+                            selections.removeAll(currentSel);
                             delete currentSel;
                             leftHeader->setSectionState(oldSelection.topRow(), QTableHeader::Normal);
                         }

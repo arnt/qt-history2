@@ -3038,9 +3038,9 @@ void QIconView::takeItem(QIconViewItem *item)
         return;
 
     if (item->d->container1)
-        item->d->container1->items.remove(item);
+        item->d->container1->items.removeAll(item);
     if (item->d->container2)
-        item->d->container2->items.remove(item);
+        item->d->container2->items.removeAll(item);
     item->d->container2 = 0;
     item->d->container1 = 0;
 
@@ -6001,19 +6001,19 @@ void QIconView::updateItemContainer(QIconViewItem *item)
         return;
 
     if (item->d->container1 && d->firstContainer) {
-        //Special-case to check if we can use removeLast otherwise use removeRef (slower)
+        //Special-case to check if we can use removeLast otherwise use removeAll (slower)
         if (item->d->container1->items.last() == item)
             item->d->container1->items.removeLast();
         else
-            item->d->container1->items.remove(item);
+            item->d->container1->items.removeAll(item);
     }
     item->d->container1 = 0;
     if (item->d->container2 && d->firstContainer) {
-        //Special-case to check if we can use removeLast otherwise use removeRef (slower)
+        //Special-case to check if we can use removeLast otherwise use removeAll (slower)
         if (item->d->container2->items.last() == item)
             item->d->container2->items.removeLast();
         else
-            item->d->container2->items.remove(item);
+            item->d->container2->items.removeAll(item);
     }
     item->d->container2 = 0;
 

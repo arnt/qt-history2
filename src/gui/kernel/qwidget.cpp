@@ -1665,7 +1665,7 @@ QWidget::insertAction(QAction *before, QAction *action)
         d->actions->append(action);
     } else {
         int before_int = d->actions->indexOf(before);
-        d->actions->remove(action);
+        d->actions->removeAll(action);
         d->actions->insert(before_int, action);
     }
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
@@ -1680,7 +1680,7 @@ QWidget::insertAction(QAction *before, QAction *action)
 void
 QWidget::removeAction(QAction *action)
 {
-    if(d->actions && d->actions->remove(action)) {
+    if (d->actions && d->actions->removeAll(action)) {
         QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
         QActionEvent e(QEvent::ActionRemoved, action);
         QApplication::sendEvent(this, &e);

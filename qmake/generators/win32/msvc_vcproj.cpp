@@ -495,8 +495,8 @@ void VcprojGenerator::initConfiguration()
     DConf.Name += (DConf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32");
 
     // Set definite values in both configurations
-    RConf.compiler.PreprocessorDefinitions.remove("_DEBUG");
-    DConf.compiler.PreprocessorDefinitions.remove("NDEBUG");
+    RConf.compiler.PreprocessorDefinitions.removeAll("_DEBUG");
+    DConf.compiler.PreprocessorDefinitions.removeAll("NDEBUG");
     RConf.compiler.PreprocessorDefinitions += "NDEBUG";
     DConf.compiler.PreprocessorDefinitions += "_DEBUG";
     RConf.linker.GenerateDebugInformation = _False;
@@ -543,10 +543,10 @@ void VcprojGenerator::initCompilerTool()
         RConf.compiler.ForcedIncludeFiles       = precompHFilename;
         // Minimal build option triggers an Internal Compiler Error
         // when used in conjunction with /FI and /Yu, so remove it
-        project->variables()["QMAKE_CFLAGS_DEBUG"].remove("-Gm");
-        project->variables()["QMAKE_CFLAGS_DEBUG"].remove("/Gm");
-        project->variables()["QMAKE_CXXFLAGS_DEBUG"].remove("-Gm");
-        project->variables()["QMAKE_CXXFLAGS_DEBUG"].remove("/Gm");
+        project->variables()["QMAKE_CFLAGS_DEBUG"].removeAll("-Gm");
+        project->variables()["QMAKE_CFLAGS_DEBUG"].removeAll("/Gm");
+        project->variables()["QMAKE_CXXFLAGS_DEBUG"].removeAll("-Gm");
+        project->variables()["QMAKE_CXXFLAGS_DEBUG"].removeAll("/Gm");
     }
 
     RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);

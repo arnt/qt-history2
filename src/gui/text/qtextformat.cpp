@@ -588,7 +588,7 @@ void QTextFormatGroup::insertBlock(const QTextBlockIterator &block)
 
 void QTextFormatGroup::removeBlock(const QTextBlockIterator &block)
 {
-    d->blocks.remove(block);
+    d->blocks.removeAll(block);
 }
 
 void QTextFormatGroup::blockFormatChanged(const QTextBlockIterator &)

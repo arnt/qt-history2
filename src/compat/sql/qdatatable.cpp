@@ -54,7 +54,7 @@ public:
 
     QString nullTxt;
     bool nullTxtChanged;
-    typedef QList< int > ColIndex;
+    typedef QList<int> ColIndex;
     ColIndex colIndex;
     bool haveAllRows;
     bool continuousEdit;
@@ -324,9 +324,9 @@ void QDataTable::setColumn(int col, const QString& fieldName,
 
 void QDataTable::removeColumn(int col)
 {
-    if (d->fld.begin() + (int)col != d->fld.end()) {
-        d->fld.remove(d->fld.at(col));
-        d->fldLabel.remove(d->fldLabel.at(col));
+    if (d->fld.begin() + col != d->fld.end()) {
+        d->fld.removeAt(col);
+        d->fldLabel.removeAt(col);
         d->fldIcon.removeAt(col);
         d->fldWidth.removeAt(col);
         d->fldHidden.removeAt(col);

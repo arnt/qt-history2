@@ -30,44 +30,54 @@
 #endif
 #endif
 
-/*!
-    \class QChar qchar.h
-    \reentrant
-    \brief The QChar class provides a lightweight Unicode character.
+/*! \class QLatin1Char
+    \brief The QLatin1Char class provides an 8-bit ASCII/Latin-1 character.
 
     \ingroup text
+*/
 
-    Unicode characters are (so far) 16-bit entities without any markup
-    or structure. This class represents such an entity. It is
-    lightweight, so it can be used everywhere. Most compilers treat it
-    like a "short int".  (In a few years it may be necessary to make
-    QChar 32-bit when more than 65536 Unicode code points have been
-    defined and come into use.)
+/*! \fn QLatin1Char::QLatin1Char(char ch)
+
+*/
+
+/*!
+    \class QChar
+    \brief The QChar class provides a 16-bit Unicode character.
+
+    \ingroup text
+    \reentrant
+
+    Unicode characters are (so far) 16-bit entities without any
+    markup or structure. This class represents such an entity. It is
+    lightweight, so it can be used everywhere. Most compilers treat
+    it like a "short int".  (In a few years, it may be necessary to
+    make QChar 32-bit when more than 65536 Unicode code points have
+    been defined and come into use.)
 
     QChar provides a full complement of testing/classification
     functions, converting to and from other formats, converting from
     composed to decomposed Unicode, and trying to compare and
     case-convert if you ask it to.
 
-    The classification functions include functions like those in
-    ctype.h, but operating on the full range of Unicode characters.
-    They all return true if the character is a certain type of
-    character; otherwise they return false. These classification
-    functions are isNull() (returns true if the character is U+0000),
-    isPrint() (true if the character is any sort of printable
-    character, including whitespace), isPunct() (any sort of
-    punctation), isMark() (Unicode Mark), isLetter (a letter),
-    isNumber() (any sort of numeric character), isLetterOrNumber(),
-    and isDigit() (decimal digits). All of these are wrappers around
-    category() which return the Unicode-defined category of each
-    character.
+    The classification functions include functions like those in the
+    standard C++ header \<cctype\> (formerly \<ctype.h\>), but
+    operating on the full range of Unicode characters. They all
+    return true if the character is a certain type of character;
+    otherwise they return false. These classification functions are
+    isNull() (returns true if the character is '\\0'), isPrint()
+    (true if the character is any sort of printable character,
+    including whitespace), isPunct() (any sort of punctation),
+    isMark() (Unicode Mark), isLetter() (a letter), isNumber() (any
+    sort of numeric character), isLetterOrNumber(), and isDigit()
+    (decimal digits). All of these are wrappers around category()
+    which return the Unicode-defined category of each character.
 
     QChar further provides direction(), which indicates the "natural"
     writing direction of this character. The joining() function
     indicates how the character joins with its neighbors (needed
-    mostly for Arabic) and finally mirrored(), which indicates whether
-    the character needs to be mirrored when it is printed in its
-    "unnatural" writing direction.
+    mostly for Arabic) and finally hasMirrored(), which indicates
+    whether the character needs to be mirrored when it is printed in
+    its "unnatural" writing direction.
 
     Composed Unicode characters (like &aring;) can be converted to
     decomposed Unicode ("a" followed by "ring above") by using
@@ -75,26 +85,32 @@
 
     In Unicode, comparison is not necessarily possible and case
     conversion is very difficult at best. Unicode, covering the
-    "entire" world, also includes most of the world's case and sorting
-    problems. Qt tries, but not very hard: operator==() and friends
-    will do comparison based purely on the numeric Unicode value (code
-    point) of the characters, and upper() and lower() will do case
-    changes when the character has a well-defined upper/lower-case
-    equivalent. There is no provision for locale-dependent case
-    folding rules or comparison; these functions are meant to be fast
-    so they can be used unambiguously in data structures. (See
-    QString::localeAwareCompare() though.)
+    "entire" world, also includes most of the world's case and
+    sorting problems. operator==() and friends will do comparison
+    based purely on the numeric Unicode value (code point) of the
+    characters, and toUpper() and toLower() will do case changes when
+    the character has a well-defined upper-/lower-case equivalent.
+    For locale-dependent comparisons, use
+    QString::localeAwareCompare().
 
-    The conversion functions include unicode() (to a scalar), latin1()
-    (to scalar, but converts all non-Latin1 characters to 0), row()
-    (gives the Unicode row), cell() (gives the Unicode cell),
-    digitValue() (gives the integer value of any of the numerous digit
-    characters), and a host of constructors.
+    The conversion functions include unicode() (to a scalar),
+    latin1() (to scalar, but converts all non-Latin-1 characters to
+    0), row() (gives the Unicode row), cell() (gives the Unicode
+    cell), digitValue() (gives the integer value of any of the
+    numerous digit characters), and a host of constructors.
+
+    QChar provides constructors and cast operators that make it easy
+    to convert to and from traditional 8-bit \c{char}s. If you
+    defined \c QT_NO_CAST_FROM_ASCII and \c QT_NO_CAST_TO_ASCII, as
+    explained in the QString documentation, you will need to
+    explicitly call fromAscii() or fromLatin1(), or use QLatin1Char,
+    to construct a QChar from an 8-bit \c char, and you will need to
+    call ascii() or latin1() to get the 8-bit value back.
 
     More information can be found in the document \link unicode.html
     About Unicode. \endlink
 
-    \sa QString QCharRef
+    \sa QString, QLatin1Char
 */
 
 /*!
@@ -186,6 +202,27 @@
 
     In order to conform to C/C++ naming conventions "Dir" is prepended
     to the codes used in the Unicode Standard.
+
+    \value DirAL
+    \value DirAN
+    \value DirB
+    \value DirBN
+    \value DirCS
+    \value DirEN
+    \value DirES
+    \value DirET
+    \value DirL
+    \value DirLRE
+    \value DirLRO
+    \value DirNSM
+    \value DirON
+    \value DirPDF
+    \value DirR
+    \value DirRLE
+    \value DirRLO
+    \value DirS
+    \value DirWS
+
 */
 
 /*!
@@ -194,6 +231,26 @@
     This enum type defines the Unicode decomposition attributes. See
     \link http://www.unicode.org/ the Unicode Standard\endlink for a
     description of the values.
+
+    \value Canonical
+    \value Circle
+    \value Compat
+    \value Final
+    \value Font
+    \value Fraction
+    \value Initial
+    \value Isolated
+    \value Medial
+    \value Narrow
+    \value NoBreak
+    \value Single
+    \value Small
+    \value Square
+    \value Sub
+    \value Super
+    \value Vertical
+    \value Wide
+
 */
 
 /*!
@@ -202,6 +259,12 @@
     This enum type defines the Unicode joining attributes. See \link
     http://www.unicode.org/ the Unicode Standard\endlink for a
     description of the values.
+
+    \value Center
+    \value Dual
+    \value OtherJoining
+    \value Right
+
 */
 
 /*!
@@ -210,10 +273,30 @@
     This enum type defines names for some of the Unicode combining
     classes. See \link http://www.unicode.org/ the Unicode
     Standard\endlink for a description of the values.
+
+    \value Combining_Above
+    \value Combining_AboveAttached
+    \value Combining_AboveLeft
+    \value Combining_AboveLeftAttached
+    \value Combining_AboveRight
+    \value Combining_AboveRightAttached
+    \value Combining_Below
+    \value Combining_BelowAttached
+    \value Combining_BelowLeft
+    \value Combining_BelowLeftAttached
+    \value Combining_BelowRight
+    \value Combining_BelowRightAttached
+    \value Combining_DoubleAbove
+    \value Combining_DoubleBelow
+    \value Combining_IotaSubscript
+    \value Combining_Left
+    \value Combining_LeftAttached
+    \value Combining_Right
+    \value Combining_RightAttached
 */
 
 /*!
-    \enum QChar::SpecialChars
+    \enum QChar::SpecialChar
 
     \value null Character 0x0000. A QChar with this value isNull().
     \value replacement
@@ -232,91 +315,92 @@
     \internal
 */
 
-
 /*!
     \fn QChar::QChar()
 
-    Constructs a null QChar (one that isNull()).
+    Constructs a null QChar ('\\0').
+
+    \sa isNull()
 */
 
+/*! \fn QChar::QChar(QLatin1Char ch)
+
+    Constructs a QChar corresponding to ASCII/Latin-1 character \a
+    ch.
+*/
 
 /*!
-    \fn QChar::QChar(SpecialChars s)
+    \fn QChar::QChar(SpecialChar ch)
 
-    Constructs a QChar that has one of the \l SpecialChars values, \a
-    s.
+    Constructs a QChar for the predefined character value \a ch.
 */
-
 
 /*!
-    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
+    Constructs a QChar corresponding to ASCII/Latin-1 character \a
+    ch.
 */
-QChar::QChar(char c)
+QChar::QChar(char ch)
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
         // #####
-        ucs =  QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
+        ucs =  QTextCodec::codecForCStrings()->toUnicode(&ch, 1).at(0).unicode();
     else
 #endif
-        ucs = (unsigned char)c;
+        ucs = (uchar)ch;
 }
 
 /*!
-    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
+    Constructs a QChar corresponding to ASCII/Latin-1 character \a ch.
 */
-QChar::QChar(uchar c)
+QChar::QChar(uchar ch)
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
         // #####
-        ucs =  QTextCodec::codecForCStrings()->toUnicode((char *)&c, 1).at(0).unicode();
+        ucs =  QTextCodec::codecForCStrings()->toUnicode((char *)&ch, 1).at(0).unicode();
     else
 #endif
-        ucs = (unsigned char)c;
+        ucs = ch;
 }
 
+/*!
+    \fn QChar::QChar(uchar cell, uchar row)
+
+    Constructs a QChar for Unicode cell \a cell in row \a row.
+
+    \sa cell(), row()
+*/
 
 /*!
-    \fn QChar::QChar(uchar c, uchar r)
+    \fn QChar::QChar(ushort code)
 
-    Constructs a QChar for Unicode cell \a c in row \a r.
+    Constructs a QChar for the character with Unicode code point \a
+    code.
 */
 
 
 /*!
-    \fn QChar::QChar(const QChar& c)
+    \fn QChar::QChar(short code)
 
-    Constructs a copy of \a c. This is a deep copy, if such a
-    lightweight object can be said to have deep copies.
+    Constructs a QChar for the character with Unicode code point \a
+    code.
 */
 
 
 /*!
-    \fn QChar::QChar(ushort rc)
+    \fn QChar::QChar(uint code)
 
-    Constructs a QChar for the character with Unicode code point \a rc.
+    Constructs a QChar for the character with Unicode code point \a
+    code.
 */
 
 
 /*!
-    \fn QChar::QChar(short rc)
+    \fn QChar::QChar(int code)
 
-    Constructs a QChar for the character with Unicode code point \a rc.
-*/
-
-
-/*!
-    \fn QChar::QChar(uint rc)
-
-    Constructs a QChar for the character with Unicode code point \a rc.
-*/
-
-
-/*!
-    \fn QChar::QChar(int rc)
-
-    Constructs a QChar for the character with Unicode code point \a rc.
+    Constructs a QChar for the character with Unicode code point \a
+    code.
 */
 
 
@@ -324,20 +408,22 @@ QChar::QChar(uchar c)
     \fn bool QChar::isNull() const
 
     Returns true if the character is the Unicode character 0x0000
-    (ASCII NUL); otherwise returns false.
+    ('\\0'); otherwise returns false.
 */
 
-/*!
-    \fn uchar QChar::cell () const
+/*! \fn uchar QChar::cell() const
 
     Returns the cell (least significant byte) of the Unicode
     character.
+
+    \sa row()
 */
 
-/*!
-    \fn uchar QChar::row () const
+/*! \fn uchar QChar::row() const
 
     Returns the row (most significant byte) of the Unicode character.
+
+    \sa cell()
 */
 
 /*!
@@ -345,12 +431,12 @@ QChar::QChar(uchar c)
     returns false. This is any character not of category Cc or Cn.
 
     Note that this gives no indication of whether the character is
-    available in a particular \link QFont font\endlink.
+    available in a particular font.
 */
 bool QChar::isPrint() const
 {
     Category c = ::category(*this);
-    return !(c == Other_Control || c == Other_NotAssigned);
+    return c != Other_Control && c != Other_NotAssigned;
 }
 
 /*!
@@ -457,19 +543,15 @@ int QChar::digitValue() const
 }
 
 /*!
-    Returns the character category.
-
-    \sa Category
+    Returns the character's \link Category category \endlink.
 */
 QChar::Category QChar::category() const
 {
-     return ::category(*this);
+    return ::category(*this);
 }
 
 /*!
-    Returns the character's direction.
-
-    \sa Direction
+    Returns the character's \link Direction direction \endlink.
 */
 QChar::Direction QChar::direction() const
 {
@@ -477,11 +559,10 @@ QChar::Direction QChar::direction() const
 }
 
 /*!
-    \warning This function is not supported (it may change to use
-    Unicode character classes).
+    \preliminary
 
     Returns information about the joining properties of the character
-    (needed for example, for Arabic).
+    (needed for certain languages such as Arabic).
 */
 QChar::Joining QChar::joining() const
 {
@@ -490,11 +571,12 @@ QChar::Joining QChar::joining() const
 
 
 /*!
-    Returns true if the character is a mirrored character (one that
-    should be reversed if the text direction is reversed); otherwise
-    returns false.
+    Returns true if the character should be reversed if the text
+    direction is reversed; otherwise returns false.
+
+    \sa mirroredChar()
 */
-bool QChar::mirrored() const
+bool QChar::hasMirrored() const
 {
     return ::mirrored(*this);
 }
@@ -502,6 +584,8 @@ bool QChar::mirrored() const
 /*!
     Returns the mirrored character if this character is a mirrored
     character, otherwise returns the character itself.
+
+    \sa hasMirrored()
 */
 QChar QChar::mirroredChar() const
 {
@@ -593,8 +677,9 @@ QChar QChar::toUpper() const
 */
 
 /*!
-    Returns the ascii character equivalent to the QChar, or 0. This
-    is mainly useful for non-internationalized software.
+    Returns the ASCII character value of the QChar, or 0 if the
+    character is not representable as ASCII (i.e., if unicode() \>=
+    128). This is mainly useful for non-internationalized software.
 
     \sa latin1(), unicode(), QTextCodec::codecForCStrings()
 */
@@ -611,15 +696,18 @@ char QChar::ascii() const
 /*!
     \fn QChar QChar::fromLatin1(char c)
 
-    Converts the Latin-1 character \a c to it's equivalent QChar. This
+    Converts the Latin-1 character \a c to its equivalent QChar. This
     is mainly useful for non-internationalized software.
 
     \sa fromAscii(), unicode(), QTextCodec::codecForCStrings()
 */
 
 /*!
-    Converts the ascii character \a c to it's equivalent QChar. This
+    Converts the ascii character \a c to its equivalent QChar. This
     is mainly useful for non-internationalized software.
+
+###
+    An alternative is to use QLatin1Char().
 
     \sa fromLatin1(), unicode(), QTextCodec::codecForCStrings()
 */
@@ -633,22 +721,14 @@ QChar QChar::fromAscii(char c)
     return QChar((ushort) c);
 }
 
-/*!
-    \fn ushort QChar::unicode() const
+/*! \fn ushort & QChar::unicode()
 
-    Returns the numeric Unicode value equal to the QChar. Normally,
-    you should use QChar objects as they are equivalent, but for some
-    low-level tasks (e.g. indexing into an array of Unicode
-    information), this function is useful.
+    Returns a reference to the numberic Unicode value of the QChar.
 */
 
-/*!
-    \fn ushort & QChar::unicode()
+/*! \fn ushort QChar::unicode() const
 
     \overload
-
-    Returns a reference to the numeric Unicode value equal to the
-    QChar.
 */
 
 /*****************************************************************************

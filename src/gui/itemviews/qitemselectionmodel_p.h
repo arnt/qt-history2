@@ -12,9 +12,9 @@ public:
 
     inline void remove(QList<QItemSelectionRange> &r)
     {
-        QList<QItemSelectionRange>::const_iterator it = r.begin();
-        for (; it != r.end(); ++it)
-            ranges.remove(*it);
+        QList<QItemSelectionRange>::const_iterator it = r.constBegin();
+        for (; it != r.constEnd(); ++it)
+            ranges.removeAll(*it);
     }
 
     QItemSelection expandRows(const QItemSelection &selection) const;

@@ -653,7 +653,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                op == "=" || op == "+=")
                 varlist.append((*valit));
             else if(op == "-=")
-                varlist.remove((*valit));
+                varlist.removeAll((*valit));
         }
     }
     if(var == "REQUIRES") /* special case to get communicated to backends! */

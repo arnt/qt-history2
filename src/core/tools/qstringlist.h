@@ -77,7 +77,7 @@ QStringList QStringList::split(const QString &sep, const QString &str, bool allo
         return s;
     s = str.split(sep);
     if (!allowEmptyEntries)
-        s.remove(QString());
+        s.removeAll(QString());
     return s;
 }
 
@@ -89,7 +89,7 @@ QStringList QStringList::split(const QChar &sep, const QString &str, bool allowE
         return s;
     s = str.split(sep);
     if (!allowEmptyEntries)
-        s.remove(QString());
+        s.removeAll(QString());
     return s;
 }
 
@@ -101,7 +101,7 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allo
         return s;
     s = str.split(sep);
     if (!allowEmptyEntries)
-        s.remove(QString());
+        s.removeAll(QString());
     return s;
 }
 #endif

@@ -83,7 +83,7 @@ QTextStream &operator>>( QTextStream &s, Element &element )
     int errors = 0;
     bool ok;
 
-    QStringList fields = QStringList::split( FIELD_SEP, data );
+    QStringList fields = data.split(FIELD_SEP);
     if ( fields.count() >= 4 ) {
 	double value = fields[0].toDouble( &ok );
 	if ( !ok )
@@ -97,7 +97,7 @@ QTextStream &operator>>( QTextStream &s, Element &element )
 	QColor labelColor = QColor( fields[3] );
 	if ( !labelColor.isValid() )
 	    errors++;
-	QStringList propoints = QStringList::split( PROPOINT_SEP, fields[4] );
+	QStringList propoints = fields[4].split(PROPOINT_SEP);
 	QString label = data.section( FIELD_SEP, 5 );
 
 	if ( !errors ) {
@@ -107,7 +107,7 @@ QTextStream &operator>>( QTextStream &s, Element &element )
 		i < Element::MAX_PROPOINTS && point != propoints.end();
 		++i, ++point ) {
 		errors = 0;
-		QStringList xy = QStringList::split( XY_SEP, *point );
+		QStringList xy = point->split(XY_SEP);
 		double x = xy[0].toDouble( &ok );
 		if ( !ok || x <= 0.0 || x >= 1.0 )
 		    errors++;

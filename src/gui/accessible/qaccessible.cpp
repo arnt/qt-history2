@@ -448,7 +448,7 @@ void QAccessible::installFactory(InterfaceFactory factory)
 void QAccessible::removeFactory(InterfaceFactory factory)
 {
     qAccessibleFactories.ensure_constructed();
-    qAccessibleFactories.remove(factory);
+    qAccessibleFactories.removeAll(factory);
 }
 
 /*!

@@ -425,7 +425,7 @@ bool QHttpHeader::parse(const QString& str)
         lst = str.trimmed().split("\r\n");
     else
         lst = str.trimmed().split("\n");
-    lst.remove(QString()); // No empties
+    lst.removeAll(QString()); // No empties
 
     if (lst.isEmpty())
         return true;

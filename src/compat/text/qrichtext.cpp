@@ -7446,8 +7446,8 @@ int Q3TextFlow::adjustFlow(int y, int /*w*/, int h)
 #ifndef QT_NO_TEXTCUSTOMITEM
 void Q3TextFlow::unregisterFloatingItem(Q3TextCustomItem* item)
 {
-    leftItems.remove(item);
-    rightItems.remove(item);
+    leftItems.removeAll(item);
+    rightItems.removeAll(item);
 }
 
 void Q3TextFlow::registerFloatingItem(Q3TextCustomItem* item)

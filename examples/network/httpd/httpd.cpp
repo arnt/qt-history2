@@ -61,7 +61,7 @@ private slots:
 	// document back.
 	QSocket* socket = (QSocket*)sender();
 	if ( socket->canReadLine() ) {
-	    QStringList tokens = QStringList::split( QRegExp("[ \r\n][ \r\n]*"), socket->readLine() );
+	    QStringList tokens = socket->readLine().split(QRegExp("[ \r\n]+"));
 	    if ( tokens[0] == "GET" ) {
 		QTextStream os( socket );
 		os.setEncoding( QTextStream::UnicodeUTF8 );

@@ -277,3 +277,61 @@
     \value DirectConnection
     \value QueuedConnection
 */
+
+/*!
+    \enum Qt::DateFormat
+
+    \value TextDate (default) Qt format
+    \value ISODate ISO 8601 extended format (YYYY-MM-DD, or with time,
+    YYYY-MM-DDTHH:MM:SS)
+    \value LocalDate locale dependent format
+*/
+
+
+/*!
+    \enum Qt::TimeSpec
+
+    \value LocalTime Locale dependent time (Timezones and Daylight Savings Time)
+    \value UTC Coordinated Universal Time, replaces Greenwich Time
+*/
+
+/*!
+    \enum Qt::DayOfWeek
+
+    \internal
+
+    \value Monday
+    \value Tuesday
+    \value Wednesday
+    \value Thursday
+    \value Friday
+    \value Saturday
+    \value Sunday
+*/
+
+/*! \enum Qt::ComparisonFlags
+
+    \internal
+*/
+
+/*! \enum Qt::StringComparisonMode
+
+    This enum type is used to set the string comparison mode when
+    searching for an item. It is used by QListBox, QListView and
+    QIconView, for example. We'll refer to the string being searched
+    as the 'target' string.
+
+    \value CaseSensitive The strings must match case sensitively.
+    \value ExactMatch The target and search strings must match exactly.
+    \value BeginsWith The target string begins with the search string.
+    \value EndsWith The target string ends with the search string.
+    \value Contains The target string contains the search string.
+
+    If you OR these flags together (excluding \c CaseSensitive), the
+    search criteria be applied in the following order: \c ExactMatch,
+    \c BeginsWith, \c EndsWith, \c Contains.
+
+    Matching is case-insensitive unless \c CaseSensitive is set. \c
+    CaseSensitive may be OR-ed with any combination of the other
+    flags.
+*/

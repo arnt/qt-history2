@@ -188,7 +188,7 @@ QSVChildRec* QScrollViewPrivate::addChildRec(QWidget* w, int x, int y)
 void QScrollViewPrivate::deleteChildRec(QSVChildRec* r)
 {
     childDict.remove(r->child);
-    children.remove(r);
+    children.removeAll(r);
     delete r;
 }
 

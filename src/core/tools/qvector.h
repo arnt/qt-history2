@@ -12,7 +12,7 @@ struct Q_CORE_EXPORT QVectorData
     QAtomic ref;
     int alloc, size;
     static QVectorData shared_null;
-    static QVectorData* malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init);
+    static QVectorData *malloc(int sizeofTypedData, int size, int sizeofT, QVectorData *init);
     static int grow(int sizeofTypedData, int size, int sizeofT, bool excessive);
 };
 
@@ -66,6 +66,7 @@ public:
     void insert(int i, const T &t);
     void insert(int i, int n, const T &t);
     void replace(int i, const T &t);
+    void remove(int i);
     void remove(int i, int n);
 
     QVector &fill(const T &t, int size = -1);
@@ -75,7 +76,7 @@ public:
     bool contains(const T &t) const;
     int count(const T &t) const;
 
-    // stl style
+    // STL-style
     typedef T* iterator;
     typedef const T* const_iterator;
     inline iterator begin() { detach(); return d->array; }
@@ -84,8 +85,8 @@ public:
     inline iterator end() { detach(); return d->array + d->size; }
     inline const_iterator end() const { return d->array + d->size; }
     inline const_iterator constEnd() const { return d->array + d->size; }
-    iterator insert(iterator before, int n, const T& x);
-    inline iterator insert(iterator before, const T& x) { return insert(before, 1, x); }
+    iterator insert(iterator before, int n, const T &x);
+    inline iterator insert(iterator before, const T &x) { return insert(before, 1, x); }
     iterator erase(iterator begin, iterator end);
     inline iterator erase(iterator pos) { return erase(pos, pos+1); }
 
@@ -99,7 +100,7 @@ public:
     T value(int i) const;
     T value(int i, const T &defaultValue) const;
 
-    // stl compatibility
+    // STL compatibility
     typedef T value_type;
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
@@ -123,10 +124,6 @@ public:
     inline const_reference front() const { return first(); }
     inline reference back() { return last(); }
     inline const_reference back() const { return last(); }
-
-#ifdef QT_COMPAT
-    // compatibility
-#endif
 
     //comfort
     QVector &operator+=(const QVector &l);
@@ -185,6 +182,10 @@ template <typename T>
 inline void QVector<T>::remove(int i, int n)
 { Q_ASSERT_X(i >= 0 && i + n <= d->size, "QVector<T>::remove", "index out of range");
   erase(begin() + i, begin() + i + n); }
+template <typename T>
+inline void QVector<T>::remove(int i)
+{ Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::remove", "index out of range");
+  erase(begin() + i, begin() + i + 1); }
 template <typename T>
 inline void QVector<T>::prepend(const T &t)
 { insert(begin(), 1, t); }

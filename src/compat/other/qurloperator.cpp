@@ -40,7 +40,7 @@ public:
         delete networkProtocol;
         while (!oldOps.isEmpty()) {
             oldOps.first()->free();
-            oldOps.takeAt(0);
+            oldOps.removeFirst();
         }
     }
 
@@ -1094,9 +1094,7 @@ void QUrlOperator::finishedCopy()
 
     if (d->waitingCopies.isEmpty())
         return;
-
-    QString cp = d->waitingCopies.first();
-    d->waitingCopies.remove(cp);
+    QString cp = d->waitingCopies.takeFirst();
     QPtrList<QNetworkOperation> lst = copy(cp, d->waitingCopiesDest, d->waitingCopiesMove);
     emit startedNextCopy(lst);
 }

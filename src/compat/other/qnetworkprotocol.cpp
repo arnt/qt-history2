@@ -51,12 +51,12 @@ public:
         removeTimer->stop();
         if (opInProgress) {
             if (!operationQueue.isEmpty() && opInProgress == operationQueue.first())
-                operationQueue.takeAt(0);
+                operationQueue.takeFirst();
             opInProgress->free();
         }
         while (!operationQueue.isEmpty()) {
             operationQueue.first()->free();
-            operationQueue.takeAt(0);
+            operationQueue.takeFirst();
         }
         while (!oldOps.isEmpty()) {
             oldOps.first()->free();
@@ -824,7 +824,7 @@ void QNetworkProtocol::processNextOperation(QNetworkOperation *old)
             d->opStartTimer->start(0, true);
         } else {
             if (!d->operationQueue.isEmpty())
-                d->operationQueue.takeAt(0);
+                d->operationQueue.takeFirst();
             clearOperationQueue();
             emit finished(op);
         }
@@ -834,7 +834,7 @@ void QNetworkProtocol::processNextOperation(QNetworkOperation *old)
 
     d->opInProgress = op;
     if (!d->operationQueue.isEmpty())
-        d->operationQueue.takeAt(0);
+        d->operationQueue.takeFirst();
     processOperation(op);
 }
 

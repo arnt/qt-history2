@@ -134,7 +134,7 @@ inline bool mirrored(const QChar &c)
 {
 #ifndef QT_NO_UNICODETABLES
     register int pos = QUnicodeTables::direction_info[c.row()];
-    return QUnicodeTables::direction_info[(pos<<8)+c.cell()] > 128;
+    return QUnicodeTables::direction_info[(pos<<8)+c.cell()] > 128; // ### >= 128?
 #else
     Q_UNUSED(c);
     return false;

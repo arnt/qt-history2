@@ -555,7 +555,7 @@ void Win32MakefileGenerator::processQtConfig()
 void Win32MakefileGenerator::processDllConfig()
 {
     if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-        project->variables()["CONFIG"].remove("staticlib");
+        project->variables()["CONFIG"].removeAll("staticlib");
         project->variables()["QMAKE_APP_OR_DLL"].append("1");
     } else {
         project->variables()["CONFIG"].append("staticlib");

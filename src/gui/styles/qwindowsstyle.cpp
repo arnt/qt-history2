@@ -153,8 +153,8 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
         break;
     case QEvent::Close:
         // Reset widget when closing
-        seenAlt.remove(widget);
-        seenAlt.remove(widget->topLevelWidget());
+        seenAlt.removeAll(widget);
+        seenAlt.removeAll(widget->topLevelWidget());
         break;
     case QEvent::Timer:
         {

@@ -167,7 +167,7 @@ public:
     inline QString &prepend(const QString &s) { return insert(0, s); }
     inline QString &prepend(const QLatin1String &s) { return insert(0, s); }
     inline QString &operator+=(QChar c) { return append(c); }
-    inline QString &operator+=(QChar::SpecialChars c) { return append(QChar(c)); }
+    inline QString &operator+=(QChar::SpecialChar c) { return append(QChar(c)); }
     inline QString &operator+=(const QString &s) { return append(s); }
     inline QString &operator+=(const QLatin1String &s) { return append(s); }
 
@@ -575,7 +575,6 @@ public:
     // most QChar operations repeated here
 
     // all this is not documented: We just say "like QChar" and let it be.
-#ifndef Q_QDOC
     inline operator QChar() const
         { return i < s.d->size ? s.d->data[i] : 0; }
     inline QCharRef &operator=(const QChar &c)
@@ -615,7 +614,10 @@ public:
     QChar::Category category() const { return ((QChar)*this).category(); }
     QChar::Direction direction() const { return ((QChar)*this).direction(); }
     QChar::Joining joining() const { return ((QChar)*this).joining(); }
-    bool mirrored() const { return ((QChar)*this).mirrored(); }
+    bool hasMirrored() const { return ((QChar)*this).hasMirrored(); }
+#ifdef QT_COMPAT
+    bool QT_COMPAT mirrored() const { return hasMirrored(); }
+#endif
     QChar mirroredChar() const { return ((QChar)*this).mirroredChar(); }
     QString decomposition() const { return ((QChar)*this).decomposition(); }
     QChar::Decomposition decompositionTag() const { return ((QChar)*this).decompositionTag(); }
@@ -629,7 +631,6 @@ public:
     char ascii() const { return ((QChar)*this).ascii(); }
     char latin1() const { return ((QChar)*this).latin1(); }
     ushort unicode() const { return ((QChar)*this).unicode(); }
-#endif
 };
 inline QCharRef QString::operator[](int i)
 { Q_ASSERT(i >= 0); return QCharRef(*this, i); }
@@ -758,7 +759,9 @@ class Q_CORE_EXPORT QConstString : public QString
 {
 public:
     QConstString(const QChar *unicode, int length);
-    QString string() { return *this; }
+#ifdef QT_COMPAT
+    inline QT_COMPAT const QString &string() const { return *this; }
+#endif
 };
 
 Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);

@@ -1131,39 +1131,32 @@ QByteArray::QByteArray(const char *str)
 }
 
 /*!
-    Constructs a byte array containing the first \a maxSize bytes of
+    Constructs a byte array containing the first \a size bytes of
     string \a str.
 
-    If \a str is 0 or is shorter than \a maxSize, \a maxSize is
-    ignored.
+    If \a str is 0, a null byte array is constructed.
 
     QByteArray makes a deep copy of the string data.
 */
 
-QByteArray::QByteArray(const char *str, int maxSize)
+QByteArray::QByteArray(const char *str, int size)
 {
     if (!str) {
         d = &shared_null;
-    } else if (maxSize <= 0) {
+    } else if (size <= 0) {
         d = &shared_empty;
     } else {
-        int len = 0;
-        if (maxSize < 0)
-            len = strlen(str);
-        else
-            while (len < maxSize && str[len])
-                ++len;
-        d = (Data *)qMalloc(sizeof(Data) + len);
+        d = (Data *)qMalloc(sizeof(Data) + size);
         if (!d) {
             d = &shared_null;
         } else {
             d->ref = 0;
-            d->alloc = d->size = len;
+            d->alloc = d->size = size;
             d->data = d->array;
-            memcpy(d->array, str, len);
-            d->array[len] = '\0';
+            memcpy(d->array, str, size);
+            d->array[size] = '\0';
         }
-     }
+    }
     ++d->ref;
 }
 
@@ -3369,12 +3362,12 @@ QByteArray QByteArray::number(double n, char f, int prec)
 
     To minimize copying, highly optimized applications can use
     QConstByteArray to create a QByteArray-compatible object from
-    existing byte data. It is then the programmer's responsability to
+    existing byte data. It is then the programmer's responsibility to
     ensure that the byte data exists for the entire lifetime of the
     QConstByteArray object.
 
     The resulting QConstByteArray object can be used as a const
-    QByteArray. Any attemps to modify copies of the QConstByteArray
+    QByteArray. Any attempts to modify copies of the QConstByteArray
     will cause it to create a deep copy of the data, ensuring that
     the raw data isn't modified. The QConstByteArray object itself
     should never be modified.
