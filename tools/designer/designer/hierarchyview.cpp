@@ -347,7 +347,7 @@ void HierarchyList::changeDatabaseOf( QObject *o, const QString &info )
 #endif
 }
 
-static QWidgetStack *lastWidgetStack = 0;
+static QPtrList<QWidgetStack> *widgetStacks = 0;
 
 void HierarchyList::setup()
 {
@@ -370,10 +370,11 @@ void HierarchyList::setup()
 	}
     }
 #endif
-    lastWidgetStack = 0;
+    if ( !widgetStacks )
+	widgetStacks = new QPtrList<QWidgetStack>;
     if ( w )
 	insertObject( w, 0 );
-    lastWidgetStack = 0;
+    widgetStacks->clear();
 }
 
 void HierarchyList::setOpen( QListViewItem *i, bool b )
@@ -454,7 +455,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	for ( ; it.current(); --it ) {
 	    if ( !it.current()->isWidgetType() || ( (QWidget*)it.current() )->isHidden() )
 		continue;
-	    if (  !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
+	    if ( !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
 		if ( it.current()->parent() &&
 		     it.current()->inherits( "QWidgetStack" ) ||
 		     it.current()->parent()->inherits( "QWidgetStack" ) ) {
@@ -470,9 +471,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 			stack = (QWidgetStack*)obj;
 		    else
 			stack = (QWidgetStack*)obj->parent();
-		    if ( lastWidgetStack == stack )
+		    if ( widgetStacks->findRef( stack ) != -1 )
 			continue;
-		    lastWidgetStack = stack;
+		    widgetStacks->append( stack );
 		    QObjectList *l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
 		    for ( obj = l2->last(); obj; obj = l2->prev() ) {
 			if ( qstrcmp( obj->className(),
