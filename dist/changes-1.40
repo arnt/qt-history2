@@ -1,39 +1,28 @@
-Here is a list of user-visible changes in Qt from 1.30 to 1.40.  As
+Here is a list of user-visible changes in Qt from 1.33 to 1.40.  As
 usual, we fixed some bugs, made some more speedups, and improved the
 documentation.
-
 
 
 ****************************************************************************
 * 			     New classes				   *
 ****************************************************************************
 
-* QListView displays a (hierarchical) list of multi-column lists.
-* QScrollView displays an large area or widget with scrollbars.
-* QHeader is a heading for table-like widgets.
-* QSpinBox is a field edit with increment/decrement.
-* QSplitter allows user control over spacing of subwidgets.
-* QWidgetStack is a stack of widgets, one of which is "on top".
-* QMainWindow encapsulates common style of windows.
-* QStatusBar encapsulates common style of status bar.
-* QToolBar is a self-arranging bar of QToolButtons
-* QToolButton is a variable-appearance icon to go in a QToolBar.
-* QGrid, QButtonRow, QHBox, QVBox, QLabelled are helpful layout widgets.
-* QIconSet handles a set of forms of the one pixmap.
-* QWellArray is a ...
+* QListView, QListViewItem
+
+* QHeader,...
 
 
 ****************************************************************************
-*		       Enhancements from 1.30 to 1.40			   *
+*		       Enhancements from 1.33 to 1.40			   *
 ****************************************************************************
 
-There is a new file dialog.
-
+The file and print dialogs are far better.
 
 ****************************************************************************
 *               Changes that might affect runtime behavior                 *
 ****************************************************************************
 
+None known.
  
 
 ****************************************************************************
