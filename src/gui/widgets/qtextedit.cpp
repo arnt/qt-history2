@@ -1373,8 +1373,7 @@ process:
                 && (d->autoFormatting & AutoBulletList)
                 && (!text.isEmpty())
                 && (text[0] == '-' || text[0] == '*')
-                && (!d->cursor.currentList())
-                && (d->textFormat != Qt::PlainText)) {
+                && (!d->cursor.currentList())) {
 
                 text.remove(0, 1);
                 d->createAutoBulletList();

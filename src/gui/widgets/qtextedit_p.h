@@ -17,7 +17,7 @@ public:
     inline QTextEditPrivate()
         : doc(0), cursorOn(false),
 	  imstart(0), imend(0), imselstart(0), imselend(0), readOnly(false),
-          autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false),
+          autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText)
     {}
