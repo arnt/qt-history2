@@ -859,67 +859,67 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			    --indent;
 			    ts << makeIndent( indent ) << "</widget>" << endl;
 			}
+			// Create a custom widget and then store it in the database
+			// so we can save the custom widgets.
+			MetaDataBase::CustomWidget *cw = new MetaDataBase::CustomWidget;
+			cw->className = className;
+			cw->includeFile =  WidgetDatabase::includeFile( classID );
+			QStrList lst = w->metaObject()->signalNames( TRUE );
+			for ( QPtrListIterator<char> it(lst); it.current(); ++it )
+			    cw->lstSignals.append(it.current());
+
+			int i;
+			int total = w->metaObject()->numProperties( TRUE );
+			for ( i = 0; i < total; i++ ) {
+			    const QMetaProperty *p = w->metaObject()->property( i, TRUE );
+			    if ( p->designable(w) ) {
+				MetaDataBase::Property prop;
+				prop.property = p->name();
+				QString pType = p->type();
+				// *sigh* designer types are not normal types
+				// Handle most cases, the ones it misses are
+				// probably too difficult to deal with anyway...
+				if ( pType.startsWith("Q") ) {
+				    pType = pType.right( pType.length() - 1 );
+				} else {
+				    pType[0] = pType[0].upper();
+				}
+				prop.type = pType;
+				cw->lstProperties.append( prop );
+			    }
+			}
+
+			total = w->metaObject()->numSlots( TRUE );
+			for ( i = 0; i < total; i++ ) {
+			    const QMetaData *md = w->metaObject()->slot( i, TRUE );
+			    MetaDataBase::Function funky;
+			    // Find out if we have a return type.
+			    if ( md->method->count > 0 ) {
+				const QUParameter p = md->method->parameters[0];
+				if ( p.inOut == QUParameter::InOut )
+				    funky.returnType = p.type->desc();
+			    }
+
+			    funky.function = md->name;
+			    funky.language = "C++";
+			    switch ( md->access ) {
+				case QMetaData::Public:
+				    funky.access = "public";
+				    break;
+				case QMetaData::Protected:
+				    funky.access = "protected";
+				    break;
+				case QMetaData::Private:
+				    funky.access = "private";
+				    break;
+			    }
+			    cw->lstSlots.append( funky );
+			}
+			MetaDataBase::addCustomWidget( cw );
 		    }
 		    iface2->release();
 		}
 		iface->release();
-		// Create a custom widget and then store it in the database
-		// so we can save the custom widgets.
-		MetaDataBase::CustomWidget *cw = new MetaDataBase::CustomWidget;
-		cw->className = className;
-		cw->includeFile =  WidgetDatabase::includeFile( classID );
-		QStrList lst = w->metaObject()->signalNames( TRUE );
-		for ( QPtrListIterator<char> it(lst); it.current(); ++it )
-		    cw->lstSignals.append(it.current());
-
-		int i;
-		int total = w->metaObject()->numProperties( TRUE );
-		for ( i = 0; i < total; i++ ) {
-		    const QMetaProperty *p = w->metaObject()->property( i, TRUE );
-		    if ( p->designable(w) ) {
-			MetaDataBase::Property prop;
-			prop.property = p->name();
-			QString pType = p->type();
-			// *sigh* designer types are not normal types
-			// Handle most cases, the ones it misses are
-			// probably too difficult to deal with anyway...
-			if ( pType.startsWith("Q") ) {
-			    pType = pType.right( pType.length() - 1 );
-			} else {
-			    pType[0] = pType[0].upper();
-			}
-			prop.type = pType;
-			cw->lstProperties.append( prop );
-		    }
-		}
-
-		total = w->metaObject()->numSlots( TRUE );
-		for ( i = 0; i < total; i++ ) {
-		    const QMetaData *md = w->metaObject()->slot( i, TRUE );
-		    MetaDataBase::Function funky;
-		    // Find out if we have a return type.
-		    if ( md->method->count > 0 ) {
-			const QUParameter p = md->method->parameters[0];
-			if ( p.inOut == QUParameter::InOut )
-			    funky.returnType = p.type->desc();
-		    }
-
-		    funky.function = md->name;
-		    funky.language = "C++";
-		    switch ( md->access ) {
-		    case QMetaData::Public:
-			funky.access = "public";
-			break;
-		    case QMetaData::Protected:
-			funky.access = "protected";
-			break;
-		    case QMetaData::Private:
-			funky.access = "private";
-			break;
-		    }
-		    cw->lstSlots.append( funky );
-		}
-		MetaDataBase::addCustomWidget( cw );
 	    }
 	}
 	if ( !saved )
