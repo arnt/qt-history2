@@ -110,7 +110,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
     connect(topLevelAction, SIGNAL(checked(bool)), floatableAction, SLOT(setDisabled(bool)));
     connect(movableAction, SIGNAL(checked(bool)), floatableAction, SLOT(setEnabled(bool)));
 
-    menu = new QMenu(this);
+    menu = new QMenu(colorName, this);
     menu->addAction(showHideAction);
     menu->addSeparator();
     menu->addAction(closableAction);

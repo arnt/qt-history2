@@ -57,12 +57,11 @@ static QPixmap genIcon(int number, const QColor &color)
 ToolBar::ToolBar(QMainWindow *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
 {
-    QAction *one = addAction(genIcon(1, Qt::white), "One");
-    menu = new QMenu(this);
+    menu = new QMenu("One", this);
+    menu->setIcon(genIcon(1, Qt::white));
     menu->addAction(genIcon("1.1", Qt::yellow), "One One");
     menu->addAction(genIcon("1.2", Qt::yellow), "One Two");
     menu->addAction(genIcon("1.3", Qt::yellow), "One Three");
-    one->setMenu(menu);
 
     QAction *two = addAction(genIcon(2, QColor(0, 0, 160)), "Two");
     QFont boldFont;
@@ -157,7 +156,7 @@ ToolBar::ToolBar(QMainWindow *parent)
 
     connect(movableAction, SIGNAL(checked(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
 
-    menu = new QMenu(this);
+    menu = new QMenu(tr("Tool Bar"), this);
     menu->addAction(showHideAction);
     menu->addSeparator();
     menu->addAction(orderAction);

@@ -17,13 +17,14 @@
 #include <qmainwindow.h>
 
 class ToolBar;
+class QMenu;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
     ToolBar *toolbar;
-    QAction *dockWindowActions;
+    QMenu *dockWindowMenu;
 
 public:
     MainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
@@ -32,7 +33,6 @@ public slots:
     void actionTriggered(QAction *action);
 
 private:
-    void setupActions();
     void setupToolBar();
     void setupMenuBar();
     void setupDockWindows();

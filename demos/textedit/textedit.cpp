@@ -68,8 +68,8 @@ void TextEdit::setupFileActions()
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("File Actions"));
 
-    QMenu *menu = new QMenu(this);
-    menuBar()->addMenu(tr("&File"), menu);
+    QMenu *menu = new QMenu(tr("&File"), this);
+    menuBar()->addMenu(menu);
 
     QAction *a;
 
@@ -119,8 +119,9 @@ void TextEdit::setupEditActions()
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("Edit Actions"));
 
-    QMenu *menu = new QMenu(this);
-    menuBar()->addMenu(tr("&Edit"), menu);
+    QMenu *menu = new QMenu(tr("&Edit"), this);
+    menuBar()->addMenu(menu);
+    menu->setTearOffEnabled(true);
 
     QAction *a;
     a = actionUndo = new QAction(QPixmap(":/images/editundo.png"), tr("&Undo"), this);
@@ -145,6 +146,12 @@ void TextEdit::setupEditActions()
     tb->addAction(a);
     menu->addAction(a);
     actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
+
+    QMenu *menu2 = new QMenu(tr("&Edit"), this);
+    menu->addMenu(menu2);
+    menu2->setTearOffEnabled(true);
+
+    menu2->addActions(menu->actions());
 }
 
 void TextEdit::setupTextActions()
@@ -152,8 +159,8 @@ void TextEdit::setupTextActions()
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("Format Actions"));
 
-    QMenu *menu = new QMenu(this);
-    menuBar()->addMenu(tr("F&ormat"), menu);
+    QMenu *menu = new QMenu(tr("F&ormat"), this);
+    menuBar()->addMenu(menu);
 
     comboStyle = new QComboBox(tb);
     tb->addWidget(comboStyle);

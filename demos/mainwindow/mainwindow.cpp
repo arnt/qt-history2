@@ -53,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
     setObjectName("MainWindow");
     setWindowTitle("Qt Main Window Demo");
 
-    setupActions();
     setupToolBar();
     setupMenuBar();
     setupDockWindows();
@@ -72,12 +71,6 @@ void MainWindow::actionTriggered(QAction *action)
     qDebug("action '%s' triggered", action->text().local8Bit());
 }
 
-
-void MainWindow::setupActions()
-{
-    dockWindowActions = new QAction(tr("Dock Windows"), this);
-}
-
 void MainWindow::setupToolBar()
 {
     toolbar = new ToolBar(this);
@@ -86,15 +79,11 @@ void MainWindow::setupToolBar()
 
 void MainWindow::setupMenuBar()
 {
-    QMenu *menu = new QMenu(this);
+    QMenu *menu = menuBar()->addMenu(tr("File"));
     menu->addAction(tr("Close"), this, SLOT(close()));
 
-    QMenu *dockWindowMenu = new QMenu(this);
-    dockWindowActions->setMenu(dockWindowMenu);
-
-    menuBar()->addMenu(tr("File"), menu);
-    menuBar()->addMenu(tr("Tool Bar"), toolbar->menu);
-    menuBar()->addAction(dockWindowActions);
+    menuBar()->addMenu(toolbar->menu);
+    dockWindowMenu = menuBar()->addMenu(tr("Dock Windows"));
 }
 
 void MainWindow::setupDockWindows()
@@ -136,6 +125,6 @@ void MainWindow::setupDockWindows()
         swatch->setFeatures(QDockWindow::DockWindowFeatures(sets[i].features));
         swatch->setArea(sets[i].area);
 
-        dockWindowActions->menu()->addMenu(tr(sets[i].name), swatch->menu);
+        dockWindowMenu->addMenu(swatch->menu);
     }
 }
