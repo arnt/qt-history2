@@ -263,26 +263,9 @@ public:
     }
 };
 
-/* Pop the top two elements from the stack.  If they are not equal,
- then jump to instruction P1.  Otherwise, continue to the next
- instruction.
-*/
-class Ne : public CompOp
-{
-public:
-    Ne( int trueLab, int falseLab )
-	: CompOp( trueLab, falseLab ) {}
-    QString name() const { return "ne"; }
-    bool pred( const QVariant& v1, const QVariant& v2 )
-    {
-	return v1 != v2;
-    }
-};
-
 /* Pop the top two elements from the stack.  If second element (next
  on stack) is less than the first (top of stack), then jump to
- instruction P1.  Otherwise, continue to the next instruction.  In
- other words, jump if NOS<TOS.
+ instruction P1.  Otherwise, continue to the next instruction.
 */
 class Lt : public CompOp
 {

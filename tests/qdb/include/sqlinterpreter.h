@@ -175,8 +175,11 @@ private:
     localsql::Program *yyProg;
     int yyNextLabel;
     bool yyOK;
+    QMap<QString, int> yyOpenedTables;
 
     void emitExpr( const QVariant& expr, int trueLab = 0, int falseLab = 0 );
+    int emitOpenTable( const QString& tableName );
+    void emitCloseTables();
     int emitConjunctiveClause( const QVariant& expr );
     bool isName( const QVariant& expr );
     bool isInNameEqualValueForm( const QVariant& expr );

@@ -88,6 +88,8 @@ bool Parser::parse( const QString& commands, localsql::Environment *env )
     yyProg = env->program();
     yyNextLabel = -1;
     yyOK = TRUE;
+    yyOpenedTables.clear();
+
     matchSql();
     return yyOK;
 }
@@ -533,44 +535,48 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	QValueList<QVariant>::ConstIterator v = expr.listBegin();
 	int tok = (*v).toInt();
 	localsql::Op *op = 0;
-	int driver;
+	int tableId;
 	QString field;
+	int nextCond;
 
 	switch ( tok ) {
 	case Tok_Name:
-	    driver = (*++v).toInt();
+	    tableId = (*++v).toInt();
 	    field = (*++v).toString();
-	    yyProg->append( new PushFieldDesc(driver, field) );
+	    // ### PushField
+	    yyProg->append( new PushFieldDesc(tableId, field) );
 	    break;
 	case Tok_and:
-	    emitExpr( *++v, yyNextLabel, falseLab );
-	    yyProg->appendLabel( yyNextLabel-- );
+	    nextCond = yyNextLabel--;
+	    emitExpr( *++v, nextCond, falseLab );
+	    yyProg->appendLabel( nextCond );
 	    emitExpr( *++v, trueLab, falseLab );
 	    break;
 	case Tok_not:
 	    emitExpr( *++v, falseLab, trueLab );
 	    break;
 	case Tok_or:
-	    emitExpr( *++v, trueLab, yyNextLabel );
-	    yyProg->appendLabel( yyNextLabel-- );
+	    nextCond = yyNextLabel--;
+	    emitExpr( *++v, nextCond, yyNextLabel );
+	    yyProg->appendLabel( nextCond );
 	    emitExpr( *++v, trueLab, falseLab );
 	    break;
 	default:
-	    emitExpr( *++v, 0, 0 );
-	    emitExpr( *++v, 0, 0 );
+	    emitExpr( *++v );
+	    emitExpr( *++v );
 
 	    switch ( tok ) {
 	    case Tok_Equal:
 		op = new Eq( trueLab, falseLab );
 		break;
 	    case Tok_NotEq:
-		op = new Ne( trueLab, falseLab );
+		op = new Eq( falseLab, trueLab );
 		break;
 	    case Tok_LessThan:
 		op = new Lt( trueLab, falseLab );
 		break;
-	    case Tok_LessEq:
-		op = new Le( trueLab, falseLab );
+	    case Tok_GreaterEq:
+		op = new Lt( falseLab, trueLab );
 		break;
 	    case Tok_Plus:
 		op = new Add;
@@ -589,6 +595,28 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
     } else {
 	yyProg->append( new Push(expr) );
     }
+}
+
+int Parser::emitOpenTable( const QString& tableName )
+{
+    QMap<QString, int>::ConstIterator t = yyOpenedTables.find( tableName );
+    if ( t == yyOpenedTables.end() ) {
+	int tableId = yyOpenedTables.count();
+	yyOpenedTables.insert( tableName, tableId );
+	return tableId;
+    } else {
+	return *t;
+    }
+}
+
+void Parser::emitCloseTables()
+{
+    int i = (int) yyOpenedTables.count() - 1;
+    while ( i >= 0 ) {
+	yyProg->append( new Close(i) );
+	i--;
+    }
+    yyOpenedTables.clear();
 }
 
 int Parser::emitConjunctiveClause( const QVariant& expr )
@@ -691,7 +719,7 @@ QVariant Parser::matchColumnRef()
 
     QValueList<QVariant> expr;
     expr.append( (int) Tok_Name );
-    expr.append( 0 ); // ### driver
+    expr.append( 0 ); // ### tableId
     expr.append( ref.join(QChar('.')) );
     return expr;
 }
@@ -724,7 +752,7 @@ QVariant Parser::matchPrimaryExpr()
 	yyTok = getToken();
 	right = matchScalarExpr();
 	matchOrInsert( Tok_RightParen, "')'" );
-	emitExpr( right, 0, 0 );
+	emitExpr( right );
 	break;
     case Tok_Name:
 	right = matchColumnRef();
@@ -856,7 +884,7 @@ QVariant Parser::matchPredicate()
     case Tok_Equal:
     case Tok_NotEq:
     case Tok_LessThan:
-    case Tok_LessEq:
+    case Tok_GreaterEq:
 	pred.append( yyTok );
 	yyTok = getToken();
 	pred.append( left );
@@ -868,9 +896,9 @@ QVariant Parser::matchPredicate()
 	pred.append( matchScalarExpr() );
 	pred.append( left );
 	break;
-    case Tok_GreaterEq:
+    case Tok_LessEq:
 	yyTok = getToken();
-	pred.append( (int) Tok_LessEq );
+	pred.append( (int) Tok_GreaterEq );
 	pred.append( matchScalarExpr() );
 	pred.append( left );
 	break;
@@ -946,15 +974,16 @@ QVariant Parser::matchPrimarySearchCondition()
 {
     if ( yyTok == Tok_LeftParen ) {
 	yyTok = getToken();
-	return matchSearchCondition();
+	QVariant expr = matchSearchCondition();
 	matchOrInsert( Tok_RightParen, "')'" );
+	return expr;
     } else if ( yyTok == Tok_not ) {
-	QValueList<QVariant> notExp;
+	QValueList<QVariant> notExpr;
 
-	notExp.append( yyTok );
+	notExpr.append( yyTok );
 	yyTok = getToken();
-	notExp.append( matchSearchCondition() );
-	return notExp;
+	notExpr.append( matchSearchCondition() );
+	return notExpr;
     } else {
 	return matchPredicate();
     }
@@ -992,7 +1021,7 @@ QVariant Parser::matchSearchCondition()
     return left;
 }
 
-void Parser::matchOptWhereClause( int driver )
+void Parser::matchOptWhereClause( int tableId )
 {
     QVariant clause;
 
@@ -1001,19 +1030,19 @@ void Parser::matchOptWhereClause( int driver )
 	clause = matchSearchCondition();
     }
 
-    if ( driver >= 0 && isInConjunctiveForm(clause) ) {
+    if ( tableId >= 0 && isInConjunctiveForm(clause) ) {
 	yyProg->append( new MakeList(emitConjunctiveClause(clause)) );
-	yyProg->append( new RangeMark(driver) );
+	yyProg->append( new RangeMark(tableId) );
     } else {
 	int nextRecord = yyNextLabel--;
 	int markRecord = yyNextLabel--;
 	int endRecords = yyNextLabel--;
 
 	yyProg->appendLabel( nextRecord );
-	yyProg->append( new Next(0, endRecords) );
+	yyProg->append( new Next(tableId, endRecords) );
 	emitExpr( clause, markRecord, nextRecord );
 	yyProg->appendLabel( markRecord );
-	yyProg->append( new Mark(0) );
+	yyProg->append( new Mark(tableId) );
 	yyProg->append( new Goto(nextRecord) );
 	yyProg->appendLabel( endRecords );
 	// yyProg->append( new Noop );
@@ -1156,6 +1185,7 @@ void Parser::matchCreateStatement()
     QStringList columns;
     QStringList::Iterator col;
     bool unique = FALSE;
+    int tableId;
 
     yyTok = getToken();
 
@@ -1173,7 +1203,7 @@ void Parser::matchCreateStatement()
 	    yyTok = getToken();
 	}
 	matchOrInsert( Tok_on, "'on'" );
-	yyProg->append( new Open(0, matchTable()) );
+	tableId = emitOpenTable( matchTable() );
 
 	matchOrInsert( Tok_LeftParen, "'('" );
 	columns = matchColumnList();
@@ -1181,12 +1211,11 @@ void Parser::matchCreateStatement()
 
 	col = columns.begin();
 	while ( col != columns.end() ) {
-	    yyProg->append( new PushFieldDesc(0, *col) );
+	    yyProg->append( new PushFieldDesc(tableId, *col) );
 	    ++col;
 	}
 	yyProg->append( new MakeList(columns.count()) );
-	yyProg->append( new CreateIndex(0, (int) unique) );
-	yyProg->append( new Close(0) );
+	yyProg->append( new CreateIndex(tableId, (int) unique) );
 	break;
     case Tok_table:
 	yyTok = getToken();
@@ -1258,7 +1287,7 @@ void Parser::matchInsertStatement()
 
     yyTok = getToken();
     matchOrInsert( Tok_into, "'into'" );
-    yyProg->append( new Open(0, matchTable()) );
+    int tableId = emitOpenTable( matchTable() );
 
     if ( yyTok == Tok_LeftParen ) {
 	yyTok = getToken();
@@ -1270,8 +1299,7 @@ void Parser::matchInsertStatement()
     matchInsertExprList( columns );
     matchOrInsert( Tok_RightParen, "')'" );
 
-    yyProg->append( new Insert(0) );
-    yyProg->append( new Close(0) );
+    yyProg->append( new Insert(tableId) );
 }
 
 void Parser::matchRollbackStatement()
@@ -1342,7 +1370,7 @@ void Parser::matchSelectStatement()
 void Parser::matchUpdateStatement()
 {
     yyTok = getToken();
-    yyProg->append( new Open(0, matchTable()) );
+    int tableId = emitOpenTable( matchTable() );
     matchOrInsert( Tok_set, "'set'" );
 
     QMap<QString, QVariant> assignments;
@@ -1365,27 +1393,26 @@ void Parser::matchUpdateStatement()
 	yyTok = getToken();
     }
 
-    matchOptWhereClause( 0 );
+    matchOptWhereClause( tableId );
 
     int nextMarkedRecord = yyNextLabel--;
     int endRecords = yyNextLabel--;
 
-    yyProg->append( new RewindMarked(0) );
+    yyProg->append( new RewindMarked(tableId) );
     yyProg->appendLabel( nextMarkedRecord );
-    yyProg->append( new NextMarked(0, endRecords) );
+    yyProg->append( new NextMarked(tableId, endRecords) );
 
     QMap<QString, QVariant>::ConstIterator as = assignments.begin();
     while ( as != assignments.end() ) {
-	yyProg->append( new PushFieldDesc(0, as.key()) );
+	yyProg->append( new PushFieldDesc(tableId, as.key()) );
 	emitExpr( *as );
 	yyProg->append( new MakeList(2) );
 	++as;
     }
     yyProg->append( new MakeList(assignments.count()) );
-    yyProg->append( new Update(0) );
+    yyProg->append( new Update(tableId) );
     yyProg->append( new Goto(nextMarkedRecord) );
     yyProg->appendLabel( endRecords );
-    yyProg->append( new Close(0) );
 }
 
 void Parser::matchManipulativeStatement()
@@ -1425,4 +1452,6 @@ void Parser::matchSql()
     }
     if ( yyTok != Tok_Eoi )
 	error( "Unexpected '%s' where ';' was expected", yyLex );
+
+    emitCloseTables();
 }
