@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#48 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#49 $
 **
 ** Implementation of Windows-like style class
 **
@@ -128,7 +128,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
     switch (op) {
     case PO_ButtonCommand:
     case PO_ButtonBevel:
-	drawButton(p, r, cg, flags & PStyle_Sunken);
+	qDrawWinButton(p, r, cg, flags & PStyle_Sunken);
 	break;
 
     case PO_FocusRect:
@@ -317,28 +317,22 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
     return sz;
 }
 
-
 /*!
- */
-void QWindowsStyle::drawButton( QPainter *p, const QRect &r, const QColorGroup &cg,
-				bool sunken) const
-{
-    if (sunken)
-        drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
-                       cg.shadow(), cg.light(), cg.dark(), cg.button(),
-                       &cg.brush( QColorGroup::Button ) );
-    else
-        drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
-                       cg.light(), cg.shadow(), cg.button(), cg.dark(),
-                       &cg.brush( QColorGroup::Button ) );
-}
+*/
+// void QWindowsStyle::drawButton( QPainter *p, const QRect &r, const QColorGroup &cg,
+// 				bool sunken) const
+// {
 
 
-/*!\reimp */
-int QWindowsStyle::buttonDefaultIndicatorWidth() const
-{
-    return 1;
-}
+//     if (sunken)
+//         drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
+//                        cg.shadow(), cg.light(), cg.dark(), cg.button(),
+//                        &cg.brush( QColorGroup::Button ) );
+//     else
+//         drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
+//                        cg.light(), cg.shadow(), cg.button(), cg.dark(),
+//                        &cg.brush( QColorGroup::Button ) );
+// }
 
 /*! \reimp */
 
@@ -415,52 +409,52 @@ void QWindowsStyle::drawFocusRect( QPainter* p,
     1 4 4 4 4 2
     2 2 2 2 2 2
 */
-void QWindowsStyle::drawWinShades( QPainter *p,
-                                   int x, int y, int w, int h,
-                                   const QColor &c1, const QColor &c2,
-                                   const QColor &c3, const QColor &c4,
-                                   const QBrush *fill ) const
-{
-    if ( w < 2 || h < 2 )                       // can't do anything with that
-        return;
-    bool reverse = QApplication::reverseLayout();
-    QPen oldPen = p->pen();
-    QPointArray a( 3 );
-    if ( reverse )
-        a.setPoints( 3, x+w-1, y+h-2, x+w-1, y, x+1, y );
-    else
-        a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
-    p->setPen( c1 );
-    p->drawPolyline( a );
-    if ( reverse )
-        a.setPoints( 3, x+w-1, y+h-1, x, y+h-1, x, y );
-    else
-        a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
-    p->setPen( c2 );
-    p->drawPolyline( a );
-    if ( w > 4 && h > 4 ) {
-        if ( reverse )
-            a.setPoints( 3, x+w-2, y+h-3, x+w-2, y+1, x+2, y+1 );
-        else
-            a.setPoints( 3, x+1, y+h-3, x+1, y+1, x+w-3, y+1 );
-        p->setPen( c3 );
-        p->drawPolyline( a );
-        if ( reverse )
-            a.setPoints( 3, x+w-2, y+h-2, x+1, y+h-2, x+1, y+1 );
-        else
-            a.setPoints( 3, x+1, y+h-2, x+w-2, y+h-2, x+w-2, y+1 );
-        p->setPen( c4 );
-        p->drawPolyline( a );
-        if ( fill ) {
-            QBrush oldBrush = p->brush();
-            p->setBrush( *fill );
-            p->setPen( Qt::NoPen );
-            p->drawRect( x+2, y+2, w-4, h-4 );
-            p->setBrush( oldBrush );
-        }
-    }
-    p->setPen( oldPen );
-}
+// void QWindowsStyle::drawWinShades( QPainter *p,
+//                                    int x, int y, int w, int h,
+//                                    const QColor &c1, const QColor &c2,
+//                                    const QColor &c3, const QColor &c4,
+//                                    const QBrush *fill ) const
+// {
+//     if ( w < 2 || h < 2 )                       // can't do anything with that
+//         return;
+//     bool reverse = QApplication::reverseLayout();
+//     QPen oldPen = p->pen();
+//     QPointArray a( 3 );
+//     if ( reverse )
+//         a.setPoints( 3, x+w-1, y+h-2, x+w-1, y, x+1, y );
+//     else
+//         a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
+//     p->setPen( c1 );
+//     p->drawPolyline( a );
+//     if ( reverse )
+//         a.setPoints( 3, x+w-1, y+h-1, x, y+h-1, x, y );
+//     else
+//         a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
+//     p->setPen( c2 );
+//     p->drawPolyline( a );
+//     if ( w > 4 && h > 4 ) {
+//         if ( reverse )
+//             a.setPoints( 3, x+w-2, y+h-3, x+w-2, y+1, x+2, y+1 );
+//         else
+//             a.setPoints( 3, x+1, y+h-3, x+1, y+1, x+w-3, y+1 );
+//         p->setPen( c3 );
+//         p->drawPolyline( a );
+//         if ( reverse )
+//             a.setPoints( 3, x+w-2, y+h-2, x+1, y+h-2, x+1, y+1 );
+//         else
+//             a.setPoints( 3, x+1, y+h-2, x+w-2, y+h-2, x+w-2, y+1 );
+//         p->setPen( c4 );
+//         p->drawPolyline( a );
+//         if ( fill ) {
+//             QBrush oldBrush = p->brush();
+//             p->setBrush( *fill );
+//             p->setPen( Qt::NoPen );
+//             p->drawRect( x+2, y+2, w-4, h-4 );
+//             p->setBrush( oldBrush );
+//         }
+//     }
+//     p->setPen( oldPen );
+// }
 
 
 /*! \reimp */
@@ -471,14 +465,14 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
                    int lineWidth, const QBrush* fill)
 {
     if ( lineWidth == 2 ) {
-        if (sunken)
-            drawWinShades( p, x, y, w, h,
-                           g.dark(), g.light(), g.shadow(), g.midlight(),
-                           fill );
-        else
-            drawWinShades( p, x, y, w, h,
-                           g.light(), g.shadow(), g.midlight(), g.dark(),
-                           fill );
+//         if (sunken)
+//             drawWinShades( p, x, y, w, h,
+//                            g.dark(), g.light(), g.shadow(), g.midlight(),
+//                            fill );
+//         else
+//             drawWinShades( p, x, y, w, h,
+//                            g.light(), g.shadow(), g.midlight(), g.dark(),
+//                            fill );
     }
     else
         QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
@@ -662,42 +656,6 @@ QWindowsStyle::exclusiveIndicatorSize() const
 }
 
 
-/*!
-  \reimp
-*/
-void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken, const QBrush *)
-{
-    drawButton(p, QRect(x, y, w, h), g, sunken);
-}
-
-
-/*!\reimp
- */
-void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken, const QBrush *)
-{
-    drawButton(p, QRect(x, y, w, h), g, sunken);
-}
-
-
-/*!
-  \reimp
-  */
-void QWindowsStyle::drawPushButton( QPushButton* , QPainter *)
-{
-
-}
-
-/*
-  !\reimp
-*/
-void QWindowsStyle::getButtonShift( int &x, int &y ) const
-{
-    x = y = 1;
-}
-
-
 /*!\reimp
  */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
@@ -707,8 +665,8 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
                                      const QBrush *fill )
 {
     qDrawWinPanel(p, x, y, w, h, g, TRUE,
-                   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
-                                      &g.brush( QColorGroup::Background )));
+		  fill?fill:(enabled?&g.brush( QColorGroup::Base ):
+			     &g.brush( QColorGroup::Background )));
     // the special reversed left shadow panel ( slightly different from drawPanel() )
     //qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     // #### DO SUNKEN!
@@ -716,14 +674,8 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     if( !QApplication::reverseLayout() )
         xpos += w - 2 - 16;
 
-    if ( sunken )
-        drawWinShades( p, xpos, y+2, 16, h-4,
-                       g.dark(), g.dark(), g.button(), g.button(),
-                       fill ? fill : &g.brush( QColorGroup::Button ) );
-    else
-        drawWinShades( p, xpos, y+2, 16, h-4,
-                       g.midlight(), g.shadow(), g.light(), g.dark(),
-                       fill ? fill : &g.brush( QColorGroup::Button ) );
+    qDrawWinPanel( p, xpos, y+2, 16, h-4, g, sunken,
+		   fill ? fill : &g.brush( QColorGroup::Button ) );
 
     drawArrow( p, QStyle::DownArrow, sunken,
                xpos + 2, y+2+ 2, 16- 4, h-4- 4, g, enabled,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#17 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#18 $
 **
 ** Definition of Windows-like style class
 **
@@ -79,9 +79,9 @@ public:
 			 CFlags flags = CStyle_Default,
 			 SCFlags subActive = SC_None,
 			 void* data = 0 ) const;
-    
-    // old stuff 
-    
+
+    // old stuff
+
     void polish( QWidget * );
     void unPolish( QWidget * );
 
@@ -109,20 +109,6 @@ public:
 			    const QWidget *w,
 			    const QSize &contentsSize,
 			    void *data ) const;
-
-    // convenience
-    void drawButton( QPainter *p, const QRect &r,
-                     const QColorGroup &g, bool sunken) const;
-
-    // old
-    void drawButton( QPainter *p, int x, int y, int w, int h,
-                     const QColorGroup &g, bool sunken = FALSE,
-                     const QBrush *fill = 0 );
-    void drawBevelButton( QPainter *p, int x, int y, int w, int h,
-                          const QColorGroup &g, bool sunken = FALSE,
-                          const QBrush *fill = 0 );
-    void drawPushButton( QPushButton* btn, QPainter *p);
-    void getButtonShift( int &x, int &y) const;
 
     void drawFocusRect( QPainter*,
 			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
@@ -206,7 +192,6 @@ public:
                           QMenuItem* mi, QColorGroup& g,
                           bool active, bool down, bool hasFocus = FALSE );
 
-    int buttonDefaultIndicatorWidth() const;
     int menuBarFrameWidth() const;
 
     int spinBoxFrameWidth() const;
@@ -222,13 +207,8 @@ public:
     // listview item
     void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );
 
-protected:
-    void drawWinShades( QPainter *p,
-                        int x, int y, int w, int h,
-                        const QColor &c1, const QColor &c2,
-                        const QColor &c3, const QColor &c4,
-                        const QBrush *fill ) const;
 
+protected:
     bool eventFilter( QObject *o, QEvent *e );
 
 
