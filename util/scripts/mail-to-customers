@@ -1,8 +1,16 @@
 #!/usr/bin/perl
 
+system("cd ~/troll; cvs update kunder.txt");
+
 #Set the variable $dryrun to 0 to actually send mail to all customers
 
 $dryrun="testrun";          # 0 for real, or file for test result
+
+if ($dryrun) {
+    open( MAIL, "> $dryrun" );
+    print MAIL "All this WOULD have been sent...\n\n";
+    close( MAIL );
+}
 
 if ( $#ARGV != 0 ) {
     die "Usage:  mail-to-customers mail-file\n";
