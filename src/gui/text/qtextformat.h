@@ -151,18 +151,6 @@ public:
         UserProperty = 0x10000
     };
 
-    enum PropertyType {
-        Undefined,
-        Bool,
-        Integer,
-        Float,
-        String,
-        FormatObject,
-        Color,
-        Length,
-        LengthVector
-    };
-
     enum ObjectTypes {
         NoObject,
         ImageObject,
