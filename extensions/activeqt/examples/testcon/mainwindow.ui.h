@@ -11,6 +11,7 @@
 
 #include <oaidl.h>
 #include "../../shared/types.h"
+#include <qtextbrowser.h>
 
 void MainWindow::changeProperties()
 {
@@ -279,8 +280,10 @@ void MainWindow::showDocumentation()
     if ( docu.isEmpty() )
 	return;
 
-    QTextEdit *te = new QTextEdit( docu, QString::null, workspace );
-    te->setCaption( container->caption() + " - Documentation" );
-    te->setText( docu );
-    te->show();
+    QTextBrowser *browser = new QTextBrowser( workspace );
+    browser->setSource( docu );
+    browser->setCaption( container->caption() + " - Documentation" );
+    browser->setText( docu );
+    browser->setLinkUnderline( TRUE );
+    browser->show();
 }
