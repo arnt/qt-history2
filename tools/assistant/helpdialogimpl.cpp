@@ -975,7 +975,7 @@ void HelpDialog::startSearch()
     terms.clear();
     bool isPhrase = FALSE;
     QString s = "";
-    for ( int i = 0; i < buf.length(); ++i ) {
+    for ( int i = 0; i < (int)buf.length(); ++i ) {
 	if ( buf[i] == '\"' ) {
 	    isPhrase = !isPhrase;
 	    s = s.simplifyWhiteSpace();
