@@ -2175,8 +2175,8 @@ void QWidget::setBackgroundFromMode()
   quick way to test is e.g. "./yourapp -bg paleblue".  On Windows, you
   have to use the control panel.)
 
-  \sa setBackgroundMode() backgroundMode() setBackgroundPixmap()
-  setBackgroundColor()
+  \sa QWidget::setBackgroundMode() QWidget::backgroundMode() QWidget::setBackgroundPixmap()
+  QWidget::setBackgroundColor()
 */
 
 /*! \property QWidget::backgroundMode
@@ -3838,7 +3838,10 @@ QSize QWidget::sizeHint() const
 
   The default implementation of minimumSizeHint() returns an invalid
   size if there is no layout for this widget, the layout's minimum
-  size otherwise.
+  size otherwise. Most built-in widgets reimplement minimumSizeHint().
+
+  \l QLayout will never resize a widget to a size smaller than
+  minimumSizeHint.
 
   \sa QSize::isValid(), resize(), setMinimumSize(), sizePolicy()
 */
