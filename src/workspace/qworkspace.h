@@ -46,7 +46,6 @@
 #ifndef QT_NO_WORKSPACE
 
 class QWorkspaceChild;
-class QWorkspaceData;
 class QShowEvent;
 
 
@@ -103,7 +102,8 @@ private:
     void normalizeWindow( QWidget* w);
 
     QPopupMenu* popup;
-    QWorkspaceData* d;
+    class Data;
+    Data* d;
 
     friend class QWorkspaceChild;
 

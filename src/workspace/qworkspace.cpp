@@ -191,7 +191,7 @@ private:
 
 };
 
-class QWorkspaceData {
+class QWorkspace::Data {
 public:
     QWorkspaceChild* active;
     QList<QWorkspaceChild> windows;
@@ -219,7 +219,7 @@ public:
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    d = new QWorkspaceData;
+    d = new QWorkspace::Data;
     d->maxcontrols = 0;
     d->active = 0;
     d->maxWindow = 0;
