@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#35 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#36 $
 **
 ** Definition of QColor class
 **
@@ -31,7 +31,7 @@ inline int qBlue( QRgb rgb )			// get blue part of RGB
 { return (int)((rgb >> 16) & 0xff); }
 
 inline QRgb qRgb( int r, int g, int b )		// set RGB value
-{ return (uchar)r | ((ushort)g << 8) | ((uint)b << 16); }
+{ return (uint)(r & 0xff) |((uint)(g & 0xff) << 8) |((uint)(b & 0xff) << 16); }
 
 inline int qGray( int r, int g, int b )		// convert R,G,B to gray 0..255
 { return (r*11+g*16+b*5)/32; }
