@@ -601,11 +601,11 @@ static bool QT_FASTCALL _IPLiteral(char **ptr, QByteArray *host)
     return true;
 }
 
-// reg-name    = 0*255( unreserved / pct-encoded / sub-delims )
+// reg-name    = *( unreserved / pct-encoded / sub-delims )
 static bool QT_FASTCALL _regName(char **ptr, QByteArray *host)
 {
     char pctTmp[4];
-    for (int i = 0; i < 255; ++i) {
+    for (;;) {
         char ch;
         if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch)) {
             if (!_pctEncoded(ptr, pctTmp))
