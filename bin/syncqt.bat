@@ -22,16 +22,20 @@ goto endofperl
 #
 ############################################################################
 
+use strict;
+
 die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
-$fast=0;
-$force_win=0;
+my $fast=0;
+my $force_win=0;
+my $force_relative=0;
+$force_relative=1 if ( -d "/System/Library/Frameworks" );
 
-$basedir = $ENV{"QTDIR"};
-$includedir = $basedir . "/include";
-$privatedir = $basedir . "/include/private";
+my $basedir = $ENV{"QTDIR"};
+my $includedir = $basedir . "/include";
+my $privatedir = $basedir . "/include/private";
 
-$showonly = undef;
-$showonlypriv = undef;
+my $showonly = undef;
+my $showonlypriv = undef;
 
 while ( $#ARGV >= 0 ) {
     if ( $ARGV[0] eq "-fast" ) {
@@ -51,6 +55,8 @@ while ( $#ARGV >= 0 ) {
 	$showonlypriv++;
     } elsif ( $ARGV[0] eq "-windows" ) {
 	$force_win=1;
+    } elsif ( $ARGV[0] eq "-relative" ) {
+        $force_relative=1;
     }
     shift;
 }
@@ -61,18 +67,19 @@ mkdir $includedir, 0777;
 mkdir $privatedir, 0777;
 
 opendir SRC, "$basedir/src";
-@dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
+my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
 closedir SRC;
-@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "tools/designer/uilib" );
+@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "extensions/motif/src/", "tools/designer/uilib" );
 
-$specdir = "mkspecs/" . $ENV{"MKSPEC"};
-@dirs = ( @dirs, $specdir );
+push @dirs, "mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"}; 
 
-foreach $p ( @dirs ) {
+my @files;
+my @pfiles;
+foreach my $p ( @dirs ) {
     if ( -d "$basedir/$p" ) {
 	chdir "$basedir/$p";
-	@ff = find_files( ".", "^[-a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
-	@pf = find_files( ".", "^[-a-z0-9]*[_][p]\\.h\$" , 0 );
+	my @ff = find_files( ".", "^[-a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
+	my @pf = find_files( ".", "^[-a-z0-9]*[_][p]\\.h\$" , 0 );
 	foreach ( @ff ) { $_ = "$p/$_"; }
 	foreach ( @pf ) { $_ = "$p/$_"; }
 	push @files, @ff;
@@ -95,37 +102,37 @@ if ( $showonlypriv ) {
 
 if ( check_unix() ) {
     chdir $includedir;
-    foreach $f ( @files ) {
-	$h = $f;
+    foreach my $f ( @files ) {
+	my $h = $f;
 	$h =~ s-.*/--g;
 	if ( -l $h && ! -f $h ) {
 	    unlink $h;
 	}
 	if ( ! -l $h ) {
-	    symlink($basedir . "/" . $f, $h);
-	    print "symlink created for $f\n";
+	    if (  $h eq "qconfig.h" || $h eq "qmodules.h" ) {
+	      ;
+	    } else {
+	        symlink_files($basedir . "/" . $f, $h);
+            }
 	}
     }
     chdir $privatedir;
-    foreach $f ( @pfiles ) {
-	$h = $f;
+    foreach my $f ( @pfiles ) {
+	my $h = $f;
 	$h =~ s-.*/--g;
 	if ( -l $h && ! -f $h ) {
 	    unlink $h;
 	}
-	if ( ! -l $h ) {
-	    symlink($basedir . "/" . $f, $h);
-	    print "symlink created for $f\n";
-	}
+	symlink_files($basedir . "/" . $f, $h) if ( ! -l $h );
     }
 } else {
-    foreach $f ( @files ) {
-	$h = $f;
+    foreach my $f ( @files ) {
+	my $h = $f;
 	$h =~ s-.*/--g;
 	sync_files("$basedir/$f", "$includedir/$h", $fast);
     }
-    foreach $f ( @pfiles ) {
-	$h = $f;
+    foreach my $f ( @pfiles ) {
+	my $h = $f;
 	$h =~ s-.*/--g;
 	sync_files("$basedir/$f", "$privatedir/$h", $fast);
     }
@@ -138,13 +145,36 @@ exit 0;
 
 
 #
+# symlink_files(file,ifile)
+#
+# file is symlinked to ifile
+#
+
+sub symlink_files
+{
+  my ($file, $ifile) = @_;
+  print "symlink created for $file ";
+  if ( $force_relative ) {
+    my $t = `pwd`; 
+    my $c = -1; 
+    my $p = "../";
+    $t =~ s-^$basedir/--;
+    $p .= "../" while( ($c = index( $t, "/", $c + 1)) != -1 );
+    $file =~ s-^$basedir/-$p-;
+    print " ($file)\n"
+  }
+  print "\n";
+  symlink($file, $ifile);
+}
+
+#
 # sync_files(file,ifile)
 #
 # If ifile does not exist, file is copied to ifile, otherwise
 # the newest file is copied over the older file.
 #
 
-sub sync_files()
+sub sync_files
 {
     my ($file,$ifile,$fast,$copy,$knowdiff,$filecontents,$ifilecontents) = @_;
 
