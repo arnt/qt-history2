@@ -93,18 +93,20 @@ public:
     void setItemText(const QString &text, int row);
     void setItemIcon(const QIconSet &icon, int row);
     void setItem(const QString &text, const QIconSet &icon, int row);
-#ifdef QT_COMPAT
-    QT_COMPAT void changeItem(const QString &text, int row) { setItemText(text, row); }
-    QT_COMPAT void changeItem(const QIconSet &icon, int row) { setItemIcon(icon, row); }
-    QT_COMPAT void changeItem(const QString &text, const QIconSet &icon, int row)
-        { setItem(text, icon, row); }
-#endif
 
     QGenericListView *listView() const;
 
     QSize sizeHint() const;
 
     virtual void popup();
+
+#ifdef QT_COMPAT
+    QT_COMPAT bool editable() const { return isEditable(); }
+    QT_COMPAT void changeItem(const QString &text, int row) { setItemText(text, row); }
+    QT_COMPAT void changeItem(const QIconSet &icon, int row) { setItemIcon(icon, row); }
+    QT_COMPAT void changeItem(const QString &text, const QIconSet &icon, int row)
+        { setItem(text, icon, row); }
+#endif
 
 public slots:
     void clear();
