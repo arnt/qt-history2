@@ -2013,10 +2013,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			c = QTextCodec::codecForName("Apple Roman");
 		    accel_str = c->toUnicode(&chr, 1);
 		}
-		QKeyEvent accel_ev(etype, mychar, chr, modifiers,
+		QKeyEvent accel_ev(QEvent::AccelOverride, mychar, chr, modifiers,
 				   accel_str, ekind == kEventRawKeyRepeat,
 				   QMAX(1, accel_str.length()));
-		if(qt_tryAccelEvent(widget, &accel_ev)) {
+		QApplication::sendSpontaneousEvent(widget, &accel_ev);
+		if(accel_ev.isAccepted()) {
+#ifdef DEBUG_KEY_MAPS
+		    qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
+			   widget ? widget->className() : "none", widget ? widget->name() : "",
+			   mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+#endif
+		} else if(qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
 			   widget ? widget->className() : "none", widget ? widget->name() : "",
