@@ -20,7 +20,8 @@ ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
     m_current_form = 0;
     setHeaderLabels(QStringList() << tr("Resources"));
     setRootIsDecorated(false);
-//    header()->hide();
+    header()->setStretchLastSection(true);
+    header()->hide();
 
     m_insert_action = new QAction(tr("Insert"), this);
     m_insert_action->setIcon(QIcon(QLatin1String(":/trolltech/formeditor/images/filenew.png")));
@@ -71,7 +72,6 @@ void ResourceEditor::updateTree()
         setCurrentItem(root);
     }
     
-    resizeColumnToContents(0);
     updateActions();
 }
 
@@ -220,7 +220,6 @@ void ResourceEditor::doDelete()
             idx = parent->childCount() - 1;
         fixItem(parent->child(idx));
     }
-    resizeColumnToContents(0);
 }
 
 void ResourceEditor::addResource()
@@ -247,8 +246,12 @@ void ResourceEditor::addResource()
         return;
     QString file_name = file_name_list.at(0);
 
-    if (form->resourceFiles().contains(file_name))
+    if (form->resourceFiles().contains(file_name)) {
+        QMessageBox::warning(this, tr("Resource error"),
+                                tr("\"%1\" is already in the list").arg(file_name),
+                                QMessageBox::Ok, QMessageBox::NoButton);
         return;
+    }
 
     if (!QFileInfo(file_name).exists()) {
         ResourceFile rf(file_name);
@@ -270,7 +273,6 @@ void ResourceEditor::addResource()
 
     form->addResourceFile(file_name);
     fixItem(new_item);
-    resizeColumnToContents(0);
 }
 
 void ResourceEditor::editPrefix()
@@ -322,7 +324,6 @@ void ResourceEditor::editPrefix()
     
     item->setText(0, prefix);
     fixItem(item);
-    resizeColumnToContents(0);
 }
 
 void ResourceEditor::addPrefix()
@@ -371,7 +372,6 @@ void ResourceEditor::addPrefix()
     QTreeWidgetItem *new_item = new QTreeWidgetItem(item);
     new_item->setText(0, prefix);
     fixItem(new_item);
-    resizeColumnToContents(0);
 }
 
 void ResourceEditor::addFile()
@@ -432,7 +432,6 @@ void ResourceEditor::addFile()
         fixItem(item);
     else
         fixItem(new_item);
-    resizeColumnToContents(0);
 }
 
 void ResourceEditor::mousePressEvent(QMouseEvent *e)
@@ -525,6 +524,7 @@ void ResourceEditor::fixItem(QTreeWidgetItem *item)
         expandItem(it);
         it = it->parent();
     }
+    updateActions();
     scrollToItem(item);
 }
 
