@@ -436,7 +436,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 #endif // Q_WS_X11 && !QT_NO_XFTFREETYPE
 	if ( !ignoreMask ) {
 #if defined(Q_WS_MAC)
-	    if(data->alphapm) 
+	    if(data->alphapm)
 		qt_mac_copy_alpha_pixmap(&pm, this);
 	    else
 #elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
@@ -1258,8 +1258,10 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     if ( x3 > xmax ) xmax = x3;
     if ( x4 > xmax ) xmax = x4;
 
-    xmin -= xmin/(xmax-xmin);
-    ymin -= ymin/(ymax-ymin);
+    if ( xmax-xmin > 1.0 )
+	xmin -= xmin/(xmax-xmin);
+    if ( ymax-ymin > 1.0 )
+	ymin -= ymin/(ymax-ymin);
 
     mat.setMatrix( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), -xmin, -ymin );
     return mat;
