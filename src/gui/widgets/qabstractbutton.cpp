@@ -391,11 +391,18 @@ void QAbstractButtonPrivate::click()
 
     down = false;
     blockRefresh = true;
+    QObject *guard = q;
+    QMetaObject::addGuard(&guard);
     q->nextCheckState();
+    if (!guard)
+        return;
     blockRefresh = false;
     refresh();
     emit q->released();
+    if (!guard)
+        return;
     emit q->clicked();
+    QMetaObject::removeGuard(&guard);
 }
 
 
