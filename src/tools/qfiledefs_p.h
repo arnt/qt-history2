@@ -53,7 +53,11 @@
 // Be sure to include qplatformdefs.h first!
 struct QFileInfoCache
 {
-    QT_STATBUF st;
+#if defined(QT_LARGE_FILE_SUPPORT)
+    struct stat64 st;
+#else
+    struct stat st;
+#endif
 };
 
 
