@@ -986,6 +986,7 @@ void QLabel::movieUpdated(const QRect& rect)
 
 void QLabel::movieResized( const QSize& size )
 {
+    d->valid_hints = -1;
     if ( autoresize )
 	adjustSize();
     movieUpdated( QRect( QPoint(0,0), size ) );
