@@ -587,11 +587,10 @@ const QStringList &QtFontFamily::charSets( bool onlyForLocale ) const
     return charSetNames;
 }
 
+static
 QString localCharSet()
 {
-#ifdef _WS_WIN_
-    return "cowabunga";
-#endif
+    return "iso10646-1";
 }
 
 const QtFontCharSet *QtFontFamily::charSet( const QString &n ) const
@@ -850,7 +849,7 @@ void QFontDatabase::createDatabase()
 
     db = new QFontDatabasePrivate;
 
-#if 1
+#if 0
     xFontList = readFontDump( "test.fonts", &xFontCount );
     if ( xFontList )
 	qWarning("Read font definitions from the file \"test.fonts\""
@@ -945,20 +944,23 @@ void newWinFont( void * p )
 
 extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
+static
 int CALLBACK
 storeFont( ENUMLOGFONTEX* f, TEXTMETRIC*, int type, LPARAM p )
 {
-    QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
+    //QFontDatabasePrivate* d = (QFontDatabasePrivate*)p;
 
     newWinFont( (void*) f );
     return 1; // Keep enumerating.
 }
 
+static
 QString winGetCharSetName( BYTE chset )
 {
-    return "iso 8859-1"; // cowabunga
+    return "Unicode";
 }
 
+static
 void newWinFont( void * p )
 {
     ENUMLOGFONTEX* f = (ENUMLOGFONTEX*)p;
@@ -967,6 +969,8 @@ void newWinFont( void * p )
 
     if ( !foundry ) {
 	foundry = new QtFontFoundry( "MS" ); // One foundry on Windows
+	// (and only one db)
+	db->addFoundry(foundry);
     }
 
     const TCHAR* tc = f->elfLogFont.lfFaceName;
@@ -975,7 +979,7 @@ void newWinFont( void * p )
     if ( qt_winver == Qt::WV_NT ) {
 	familyName = qt_winQString((void*)tc);
     } else {
-	familyName = QString((const char*)tc);
+	familyName = QString::fromLocal8Bit((const char*)tc);
     }
 
     QtFontFamily *family = foundry->familyDict.find( familyName );
@@ -1002,19 +1006,17 @@ void newWinFont( void * p )
     int weight = f->elfLogFont.lfWeight;
     weightString.setNum( weight );
 
-#if 0
-    tc = ((NEWLOGFONT*)&f->elfLogFont)->lfStyle; // cowabunga, only works
+    //tc = ((NEWLOGFONT*)&f->elfLogFont)->lfStyle; // cowabunga, only works
                 // for true type fonts, don't know how to check for them
+    tc = (TCHAR*)f->elfStyle;
     
     QString styleName;
     if ( qt_winver == Qt::WV_NT ) {
 	styleName = qt_winQString((void*)tc);
     } else {
-	styleName = QString((const char*)tc);
+	styleName = QString::fromLocal8Bit((const char*)tc);
     }
-#else
-    QString styleName = "Normal";
-#endif
+
     QtFontStyle *style = charSet->styleDict.find( styleName );
     if ( !style ) {
 	//qWarning( "New style[%s] for [%s][%s][%s]",
@@ -1040,14 +1042,11 @@ void QFontDatabase::createDatabase()
 
     QWidget dummy;
     QPainter p( &dummy );
-    qWarning("Kaller dingsen");
     if ( qt_winver == Qt::WV_NT ) {
-	qWarning("NT");
 	LOGFONT lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	lf.lfFaceName[0] = 0;
 	lf.lfPitchAndFamily = 0;
-	qWarning( "Handle = %i", (int) dummy.handle() );
 
 #if 1
 	EnumFontFamiliesEx( dummy.handle(), &lf,
@@ -1057,7 +1056,6 @@ void QFontDatabase::createDatabase()
 	    (FONTENUMPROC)storeFont, (LPARAM)db );
 #endif
     } else {
-	qWarning("95/98");
 	LOGFONTA lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	lf.lfFaceName[0] = 0;
@@ -1149,7 +1147,7 @@ static QFont::CharSet getCharSet( const QString &name )
 	return QFont::KOI8R;
     if ( name == "koi8-1" )
 	return QFont::KOI8R;
-    if ( name == "iso10646" )
+    if ( name == "iso10646-1" )
 	return QFont::Unicode;
     return QFont::AnyCharSet;
 }
@@ -1421,9 +1419,7 @@ static QStringList emptyList;
 
 QFontDatabase::QFontDatabase()
 {
-    qWarning( "Lagern" );
     createDatabase();
-    qWarning( "Ferdig" );
     d = db;
 }
 
