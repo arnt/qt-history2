@@ -12851,6 +12851,9 @@ void QString::truncate( uint newLen )
   If \a newLen is 0, then the string becomes empty, unless the string is
   null, in which case it remains null.
 
+  If it is not possible to allocate enough memory, the string remains
+  unchanged.
+
   This function always detaches the string from other references to
   the same data.
 
@@ -12883,11 +12886,13 @@ void QString::setLength( uint newLen )
 	Q2HELPER(stat_copy_on_write_size+=d->len)
 	uint newMax = computeNewMax( newLen );
 	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
-	uint len = QMIN( d->len, newLen );
-	if ( d->unicode )
-	    memcpy( nd, d->unicode, sizeof(QChar)*len );
-	deref();
-	d = new QStringData( nd, newLen, newMax );
+	if ( nd ) {
+	    uint len = QMIN( d->len, newLen );
+	    if ( d->unicode )
+		memcpy( nd, d->unicode, sizeof(QChar)*len );
+	    deref();
+	    d = new QStringData( nd, newLen, newMax );
+	}
     } else {
 	d->len = newLen;
 	d->setDirty();
