@@ -183,6 +183,7 @@ void MainWindow::setupGoActions()
         ui.goActionToolbar->removeAction(a);
     }
     qDeleteAll(goActions);
+    goActions.clear();
     goActionDocFiles->clear();
 
     int addCount = 0;
