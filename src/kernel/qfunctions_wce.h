@@ -96,7 +96,7 @@ FILETIME time_tToFt( time_t tt );
 #define _O_TRUNC		0x0010
 #define _O_APPEND		0x0020
 
-#define _S_IFMT			0x0100
+#define _S_IFMT			0x0600
 #define _S_IFDIR		0x0200
 #define _S_IFREG		0x0400
 
