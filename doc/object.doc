@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.13 1999/04/28 09:53:58 aavit Exp $
+** $Id: metaobjects.doc,v 2.13 1999/04/28 09:53:58 jasmin Exp $
 **
 ** Explanation of the Qt object model
 **
@@ -219,43 +219,49 @@ signals and slots.
 
 The \c Q_PROPERTY macro in a class declaration declares a
 property. Properties can only be declared in classes that inherit \l
-QObject. A second macro - \c Q_OVERRIDE - can be used to override some
+QObject. A second macro, \c Q_OVERRIDE, can be used to override some
 aspects of an inherited property in a subclass.
 
 To the outer world, a property appears quite similar to a data
 member. However, properties have several features that distinguish
 them from ordinary data members:
 
-<ul>
-<li> a read method.  This always exists.
+\list
+\i A read function.  This always exists.
 
-<li> a write method.  Optional: read-only properties like \l
+\i A write function.  Optional: read-only properties like \l
 QWidget::isDesktop() do not have this.
 
-<li> an attribute "stored" that indicates persistence.  Most
-properties are stored, but a few virtual properties like \l
+\i An attribute "stored" that indicates persistence.  Most properties
+are stored, but a few virtual properties like \l
 QWidget::minimumWidth() aren't: That property is just way of looking
 at \l QWidget::minimumSize(), it has no data of its own.
 
-<li> a reset method to set a property back to its context specific
+\i A reset function to set a property back to its context specific
 default value.  Very unusual, but e.g. \l QWidget::font() needs it:
 The default is to follow its surroundings, and no call to \l
 QWidget::setFont() can mean that.
 
-<li> an attribute "designable" that indicates whether a property is
-considered to be designable in a GUI Designer.  Most are, but e.g. \l
-QButton::isDown() can't be designed.  The user can press buttons, and
-the application programmer can make the program press its own buttons,
-but a GUI design tool can't press buttons.
+\i An attribute "designable" that indicates whether it makes sense to
+set that property in a GUI builder (e.g., Qt Designer). For most
+properties it does make sense, but not for \l QButton::isDown().  The
+user can press buttons, and the application programmer can make the
+program press its own buttons, but a GUI design tool can't press
+buttons.
 
-</ul>
+\endlist
+
+The read, write and reset functions can be about any member
+functions, inherited or not, virtual or not, with the exception of
+member functions inherited from parents other than the first in the
+case of multiple inheritance.
 
 Properties can be read and written through generic functions in
 QObject without knowing anything about class in use.  These two
 function calls are equivalent:
 
 \code
-    //QButton * b and QObject * o point to the same button
+    // QButton *b and QObject *o point to the same button
     b->setDown( TRUE );
     o->setProperty( "down", TRUE );
 \endcode
@@ -311,7 +317,7 @@ registered with the property system as well. This way it will be
 possible to set a value by name, like this:
 
 \code
-   obj->setProperty( "priority", "VeryHigh" ); 
+    obj->setProperty( "priority", "VeryHigh" );
 \endcode
 
 Enumeration types are registered with the \c Q_ENUMS macro.  Here's the
@@ -364,7 +370,7 @@ that can be used to attach additional name/value-pairs to a classes'
 meta object, for example:
 
 \code
-Q_CLASSINFO( "Status", "Very nice class" )
+    Q_CLASSINFO( "Status", "Very nice class" )
 \endcode
 
 Like other meta data, class information is accessible at runtime
