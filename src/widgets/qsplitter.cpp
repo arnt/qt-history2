@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#62 $
 **
 **  Splitter widget
 **
@@ -305,7 +305,10 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     s = new QSplitterLayoutStruct;
     s->mode = Stretch;
     s->wid = w;
-    s->sizer = pick( w->size() );
+    if ( !testWState( WState_Resized ) && w->sizeHint().isValid() )
+	s->sizer = pick( w->sizeHint() );
+    else
+	s->sizer = pick( w->size() );
     s->isSplitter = FALSE;
     if ( first )
 	data->list.insert( 0, s );
@@ -810,7 +813,8 @@ QSize QSplitter::sizeHint() const
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() ) {
+	    if ( o->isWidgetType() && 
+		 !((QWidget*)o)->testWState(WState_ForceHide) ) {
 		QSize s = ((QWidget*)o)->sizeHint();
 		if ( s.isValid() ) {
 		    l += pick( s );
@@ -821,6 +825,38 @@ QSize QSplitter::sizeHint() const
     }
     return orientation() == Horizontal ? QSize( l, t ) : QSize( t, l );
 }
+
+
+/*!
+\reimp
+*/
+
+QSize QSplitter::minimumSizeHint() const
+{
+    int l = 0;
+    int t = 0;
+    if ( children() ) {
+	const QObjectList * c = children();
+	QObjectListIt it( *c );
+	QObject * o;
+
+	while( (o=it.current()) != 0 ) {
+	    ++it;
+	    if ( o->isWidgetType() && 
+		 !((QWidget*)o)->testWState(WState_ForceHide) ) {
+		QSize s = ((QWidget*)o)->minimumSize();
+		if ( s.isValid() ) {
+		    l += pick( s );
+		    t = QMAX( t, trans( s ) );
+		}
+	    }
+	}
+    }
+    return orientation() == Horizontal ? QSize( l, t ) : QSize( t, l );    
+}
+
+
+
 /*!
   Says that this widget wants to grow in both height and width.
 */
@@ -968,3 +1004,4 @@ void QSplitter::styleChange( GUIStyle )
     }
     doResize();
 }
+

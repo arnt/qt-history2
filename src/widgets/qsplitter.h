@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#26 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#27 $
 **
 ** Defintion of  QSplitter class
 **
@@ -59,6 +59,7 @@ public:
 
     void refresh() { recalc( TRUE ); }
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
     QValueList<int> sizes() const;
