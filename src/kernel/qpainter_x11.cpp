@@ -2802,8 +2802,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		ty = -abbox.y();	// text position - off-by-one?
 		if ( aw == 0 || ah == 0 )
 		    return;
-		double rx = mat1.m11() * cfont.pointSizeFloat() / newSize;
-		double ry = mat1.m22() * cfont.pointSizeFloat() / newSize;
+		double rx = mat1.m11() * (double)w / (double)aw;
+		double ry = mat1.m22() * (double)h / (double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
 	    } else {
 		mat2 = QPixmap::trueMatrix( mat1, w, h );
