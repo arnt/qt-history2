@@ -6098,19 +6098,25 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
     int section = mapToSection( index );
     if ( section < 0 || cellSize( section ) <= 0 )
 	return;
-    QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
-    if(isClickEnabled()) {
-	if(sectionState(index) == Selected) {
-	    flags |= QStyle::Style_Down;
-	    if(!mousePressed)
-		flags |= QStyle::Style_Sunken;
-	}
-    }
-    if(!(flags & QStyle::Style_Down))
-	flags |= QStyle::Style_Raised;
-    style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			   colorGroup(), flags );
-    paintSectionLabel( p, index, fr );
+
+   if ( sectionState( index ) != Selected ||
+	 orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) {
+	QHeader::paintSection( p, index, fr );
+   } else {
+       QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+       if(isClickEnabled()) {
+	   if(sectionState(index) == Selected) {
+	       flags |= QStyle::Style_Down;
+	       if(!mousePressed)
+		   flags |= QStyle::Style_Sunken;
+	   }
+       }
+       if(!(flags & QStyle::Style_Down))
+	   flags |= QStyle::Style_Raised;
+       style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+			      colorGroup(), flags );
+       paintSectionLabel( p, index, fr );
+   }
 }
 
 static int real_pos( const QPoint &p, Qt::Orientation o )
