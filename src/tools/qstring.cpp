@@ -12438,7 +12438,7 @@ void QString::setLength( uint newLen )
 }
 
 /*!  Returns a string equal to this one, but with the lowest-numbered
-  occurence of \c %i (for a positive integer i) replaced by \a a.
+  occurrence of \c %i (for a positive integer i) replaced by \a a.
 
   \code
     label.setText( tr("Rename %1 to %2?").arg(oldName).arg(newName) );
@@ -12807,7 +12807,8 @@ void QString::fill( QChar c, int len )
 
 /*!
   Finds the first occurrence of the character \a c, starting at
-  position \a index.
+  position \a index. If \a index is -1, the search starts at the
+  last character; if -2, at the next to last character; etc.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive
   if \a cs is FALSE.
@@ -12817,6 +12818,8 @@ void QString::fill( QChar c, int len )
 
 int QString::find( QChar c, int index, bool cs ) const
 {
+    if ( index < 0 )
+	index += length();
     if ( (uint)index >= length() )		// index outside string
 	return -1;
     register const QChar *uc;
@@ -12837,34 +12840,72 @@ int QString::find( QChar c, int index, bool cs ) const
 
 /*!
   Finds the first occurrence of the string \a str, starting at position
-  \a index. If \a index is -1, the string is checked for at the end;
-  if -2, the string is checked for one character from the end then
-  at the end, etc.
+  \a index. If \a index is -1, the search starts at the last character;
+  if -2, at the next to last character; etc.
 
-  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
-  cs is FALSE.
+  The search is case sensitive if \a cs is TRUE, or case insensitive if
+  \a cs is FALSE.
 
   Returns the position of \a str, or -1 if \a str could not be found.
 */
 
 int QString::find( const QString& str, int index, bool cs ) const
 {
-    if ( (uint)index >= length() )		// index outside string
+    /*
+      We use some weird hashing for efficiency's sake.  Instead of
+      comparing strings, we compare the hash value of str with that of
+      a part of this QString.  Only if that matches, we call ucstrncmp
+      or ucstrnicmp.
+
+      The hash value of a string is the sum of the cells of its
+      QChars.
+    */
+    if ( index < 0 )
+	index += length();
+    int lstr = str.length();
+    int lthis = length() - index;
+    if ( (uint)lthis > length() )
 	return -1;
-    uint strl = str.length();
-    if ( index < 0 )				// neg index ==> start from end
-	index = length()-strl+index+1;
-    register const QChar *uc;
-    uc = unicode()+index;
-    uint n = length()-index+1;
+    int delta = lthis - lstr;
+    if ( delta < 0 )
+	return -1;
+
+    const QChar *uthis = unicode() + index;
+    const QChar *ustr = str.unicode();
+    uint hthis = 0;
+    uint hstr = 0;
+    int i;
     if ( cs ) {
-	while ( n-- > strl && ucstrncmp(uc,str.d->unicode,strl) )
-	    uc++;
+	for ( i = 0; i < lstr; i++ ) {
+	    hthis += uthis[i].cell();
+	    hstr += ustr[i].cell();
+	}
+	i = 0;
+	while ( TRUE ) {
+	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
+		return index + i;
+	    if ( i == delta )
+		return -1;
+	    hthis += uthis[i + lstr].cell();
+	    hthis -= uthis[i].cell();
+	    i++;
+	}
     } else {
-	while ( n-- > strl && ucstrnicmp(uc,str.d->unicode,strl) )
-	    uc++;
+	for ( i = 0; i < lstr; i++ ) {
+	    hthis += uthis[i].lower().cell();
+	    hstr += ustr[i].lower().cell();
+	}
+	i = 0;
+	while ( TRUE ) {
+	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
+		return index + i;
+	    if ( i == delta )
+		return -1;
+	    hthis += uthis[i + lstr].lower().cell();
+	    hthis -= uthis[i].lower().cell();
+	    i++;
+	}
     }
-    return uc - unicode() <= int(length()-strl) ? int(uc - unicode()) : -1;
 }
 
 /*!
@@ -12882,7 +12923,8 @@ int QString::find( const QString& str, int index, bool cs ) const
 /*!
   Finds the first occurrence of the character \a c, starting at
   position \a index and searching backwards. If \a index is -1,
-  the search starts at the end; -2 one character from the end, etc.
+  the search starts at the last character; if -2, at the next to
+  last character; etc.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
@@ -12899,7 +12941,8 @@ int QString::findRev( QChar c, int index, bool cs ) const
 /*!
   Finds the first occurrence of the string \a str, starting at
   position \a index and searching backwards. If \a index is -1,
-  the search starts at the end; -2 one character from the end, etc.
+  the search starts at the last character; -2, at the next to last
+  character; etc.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \e
   cs is FALSE.
@@ -12909,31 +12952,56 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
 int QString::findRev( const QString& str, int index, bool cs ) const
 {
-    uint slen = str.length();
-    if ( !slen )
-	return index;
-    if ( index < 0 )				// neg index ==> start from end
-	index = length()-slen+index+1;
-    else if ( (uint)index > length() )		// bad index
-	return -1;
-    else if ( (uint)index == length() )		// bad index, but accept it
-	index--;
-    else if ( (uint)(index + slen) > length() ) // str would be too long
-	index = length() - slen;
+    /*
+      See QString::find() for explanations.
+    */
+    int lthis = length();
     if ( index < 0 )
-	return -1;
+	index += lthis;
 
-    register const QChar *uc = unicode() + index;
-    if ( cs ) {					// case sensitive
-	for ( int i=index; i>=0; i-- )
-	    if ( ucstrncmp(uc--,str.unicode(),slen)==0 )
+    int lstr = str.length();
+    int delta = lthis - lstr;
+    if ( index < 0 || index > lthis || delta < 0 )
+	return -1;
+    if ( index > delta )
+	index = delta;
+
+    const QChar *uthis = unicode();
+    const QChar *ustr = str.unicode();
+    uint hthis = 0;
+    uint hstr = 0;
+    int i;
+    if ( cs ) {
+	for ( i = 0; i < lstr; i++ ) {
+	    hthis += uthis[index + i].cell();
+	    hstr += ustr[i].cell();
+	}
+	i = index;
+	while ( TRUE ) {
+	    if ( hthis == hstr && ucstrncmp(uthis + i, ustr, lstr) == 0 )
 		return i;
-    } else {					// case insensitive
-	for ( int i=index; i>=0; i-- )
-	    if ( ucstrnicmp(uc--,str.unicode(),slen)==0 )
+	    if ( i == 0 )
+		return -1;
+	    i--;
+	    hthis -= uthis[i + lstr].cell();
+	    hthis += uthis[i].cell();
+	}
+    } else {
+	for ( i = 0; i < lstr; i++ ) {
+	    hthis += uthis[index + i].lower().cell();
+	    hstr += ustr[i].lower().cell();
+	}
+	i = index;
+	while ( TRUE ) {
+	    if ( hthis == hstr && ucstrnicmp(uthis + i, ustr, lstr) == 0 )
 		return i;
+	    if ( i == 0 )
+		return -1;
+	    i--;
+	    hthis -= uthis[i + lstr].lower().cell();
+	    hthis += uthis[i].lower().cell();
+	}
     }
-    return -1;
 }
 
 
@@ -12941,7 +13009,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
   Returns the number of times the character \a c occurs in the string.
 
   The match is case sensitive if \a cs is TRUE, or case insensitive if \a cs
-  if FALSE.
+  is FALSE.
 */
 
 int QString::contains( QChar c, bool cs ) const
@@ -12992,7 +13060,7 @@ int QString::contains( const char* str, bool cs ) const
   Returns the number of times \a str occurs in the string.
 
   The match is case sensitive if \a cs is TRUE, or case insensitive if \e
-  cs if FALSE.
+  cs is FALSE.
 
   This function counts overlapping substrings, for example, "banana"
   contains two occurrences of "ana".
@@ -13098,8 +13166,8 @@ QString QString::right( uint len ) const
 
   Example:
   \code
-    QString s = "Two pineapples";
-    QString t = s.mid( 4, 4 );			// t == "pine"
+    QString s = "Five pineapples";
+    QString t = s.mid( 5, 4 );			// t == "pine"
   \endcode
 
   \sa left(), right()
@@ -13545,7 +13613,8 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
 /*!
   Finds the first occurrence of the regular expression \a rx, starting at
-  position \a index.
+  position \a index. If \a index is -1, the search starts at the last
+  character; if -2, at the next to last character; etc.
 
   Returns the position of the next match, or -1 if \a rx was not found.
 
@@ -13554,14 +13623,16 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 
 int QString::find( const QRegExp &rx, int index ) const
 {
+    if ( index < 0 )
+	index += length();
     return rx.match( *this, index );
 }
 
 /*!
   Finds the first occurrence of the regular expression \a rx, starting at
-  position \a index and searching backwards. If \a index is -1,
-  the search starts at the end of this string; -2 starts one character from
-  the end, etc.
+  position \a index and searching backwards. If \a index is -1, the
+  search starts at the last character; if -2, at the next to last
+  character; etc.
 
   Returns the position of the next match (backwards), or -1 if \a rx was not
   found.
@@ -13571,11 +13642,9 @@ int QString::find( const QRegExp &rx, int index ) const
 
 int QString::findRev( const QRegExp &rx, int index ) const
 {
-    if ( isEmpty() && index <= 0 )
-	return rx.match( *this );
     if ( index < 0 )				// neg index ==> start from end
-	index = length() + index;
-    else if ( (uint)index >= length() )		// bad index
+	index += length();
+    if ( (uint)index > length() )		// bad index
 	return -1;
     while( index >= 0 ) {
 	if ( rx.match( *this, index ) == index )
