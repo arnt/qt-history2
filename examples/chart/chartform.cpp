@@ -176,6 +176,8 @@ ChartForm::ChartForm( const QString& filename )
     optionsMenu->insertSeparator();
     optionsSetOptionsAction->addTo( optionsMenu );
 
+    menuBar()->insertSeparator();
+
     QPopupMenu *helpMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", helpMenu );
     helpMenu->insertItem( "&Help", this, SLOT(helpHelp()), Key_F1 );
@@ -268,7 +270,7 @@ void ChartForm::init()
 	double x = (double(i) / MAX_ELEMENTS) * 360;
 	int y = (int(x * 256) % 105) + 151;
 	int z = ((i * 17) % 105) + 151;
-	m_elements[i] = Element( Element::INVALID, QColor( x, y, z, QColor::Hsv ) );
+	m_elements[i] = Element( Element::INVALID, QColor( int(x), y, z, QColor::Hsv ) );
     }
 }
 

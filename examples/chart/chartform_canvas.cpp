@@ -61,7 +61,7 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
 {
     double width = m_canvas->width();
     double height = m_canvas->height();
-    double size = width > height ? height : width;
+    int size = int(width > height ? height : width);
     int x = int(width / 2);
     int y = int(height / 2);
     int angle = 0;
