@@ -256,7 +256,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 if (e->state() & (Qt::ControlButton | Qt::MetaButton))
                     op = QTextCursor::Start;
                 else if (e->state() & Qt::AltButton)
-                    op = QTextCursor::PreviousBlock;
+                    op = QTextCursor::StartOfBlock;
                 else
                     op = QTextCursor::Up;
             }
@@ -269,7 +269,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                 if (e->state() & (Qt::ControlButton | Qt::MetaButton))
                     op = QTextCursor::End;
                 else if (e->state() & Qt::AltButton)
-                    op = QTextCursor::StartOfBlock;
+                    op = QTextCursor::EndOfBlock;
                 else
                     op = QTextCursor::Down;
             }
