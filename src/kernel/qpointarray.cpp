@@ -39,6 +39,7 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   \brief The QPointArray class provides an array of points.
 
   \ingroup drawing
+  \ingroup shared
 
   \inherit QArray
 

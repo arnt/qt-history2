@@ -81,7 +81,7 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	    // ((QRegion*)value.ptr)->translate( 0, 0 );
 	    break;
 	case QVariant::PointArray:
-	    // PointArray is explicit shared
+	    // QPointArray is explicit shared
 	    value.ptr = new QPointArray( *((QPointArray*)d->value.ptr) );
 	    break;
 	case QVariant::String:
@@ -125,7 +125,6 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	    value.ptr = new QColor( *((QColor*)d->value.ptr) );
 	    break;
 	case QVariant::Palette:
-	    // QPalette is explicit shared
 	    value.ptr = new QPalette( *((QPalette*)d->value.ptr) );
 	    break;
 	case QVariant::ColorGroup:
@@ -271,11 +270,10 @@ void QVariantPrivate::clear()
   type that cannot be generated from the stored type, the result
   depends on the type, see the function documentation for details.
 
-  Note that some Qt data types are explicitly shared, including
-  QImage, QBrush, QPointArray, QRegion, QCString and QPalette, and in
-  these cases the toT() methods return a shallow copy.  In almost all
-  cases, you must make a deep copy of the returned values before
-  modifying them.
+  Note that three data types supported by QVariant are explicitly
+  shared, namely QImage, QPointArray, and QCString, and in these cases
+  the toT() methods return a shallow copy.  In almost all cases, you
+  must make a deep copy of the returned values before modifying them.
 
   The methods named asT() are not const. They do conversion like toT()
   methods, set the variant to hold the converted value, and return a
@@ -487,9 +485,6 @@ QVariant::QVariant( const QImage& val )
 
 /*!
   Constructs a new variant with a brush value.
-
-  Since QBrush is explicitly shared you may need to pass a deep copy
-  to the variant using QBrush::copy().
 */
 QVariant::QVariant( const QBrush& val )
 {
@@ -540,9 +535,6 @@ QVariant::QVariant( const QColor& val )
 
 /*!
   Constructs a new variant with a color palette value.
-
-  Since QPalette is explicitly shared you may need to pass a deep copy
-  to the variant using QPalette::copy().
 */
 QVariant::QVariant( const QPalette& val )
 {
@@ -573,9 +565,6 @@ QVariant::QVariant( const QIconSet& val )
 
 /*!
   Constructs a new variant with a region.
-
-  Since QRegion is explicitly shared you may need to pass a deep copy
-  to the variant using QRegion::copy().
 */
 QVariant::QVariant( const QRegion& val )
 {

@@ -118,7 +118,7 @@
   The scanlines are 32-bit aligned for all depths.
 
   The QImage class uses explicit \link shclass.html sharing\endlink,
-  similar to that of QArray and QString.
+  similar to that of QArray.
 
   \sa QImageIO, QPixmap, \link shclass.html Shared Classes\endlink
 */

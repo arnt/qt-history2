@@ -106,7 +106,7 @@ static int cmp_uint32_big( const void* target, const void* candidate )
 static int systemWordSize = 0;
 static bool systemBigEndian;
 
-static uint hash( const char * name )
+static uint elfHash( const char * name )
 {
     const uchar *k;
     uint h = 0;
@@ -149,7 +149,7 @@ public:
     QTranslatorPrivate() :
 	unmapPointer( 0 ), unmapLength( 0 ),
 	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 ),
-	messages( 0 ) {}
+	messages( 0 ) { }
     // note: QTranslator must finalize this before deallocating it.
 
     // for mmap'ed files, this is what needs to be unmapped.
@@ -640,7 +640,7 @@ void QTranslator::squeeze( SaveMode mode )
 	QIntDict<char> hDict( hTableSize );
 	QAsciiDictIterator<int> c = contextSet;
 	while ( c.current() != 0 ) {
-	    hDict.insert( (long) (::hash(c.currentKey()) % hTableSize),
+	    hDict.insert( (long) (elfHash(c.currentKey()) % hTableSize),
 			  c.currentKey() );
 	    ++c;
 	}
@@ -673,7 +673,7 @@ void QTranslator::squeeze( SaveMode mode )
 
 	t << hTableSize;
 	t.device()->at( 2 + (hTableSize << 1) );
-	t << (Q_UINT16) 0; // the entry at offset 0 cannot be used (c.f. Pascal)
+	t << (Q_UINT16) 0; // the entry at offset 0 cannot be used
 	uint upto = 2;
 
 	for ( int i = 0; i < hTableSize; i++ ) {
@@ -699,7 +699,7 @@ void QTranslator::squeeze( SaveMode mode )
 	t.device()->at( 2 );
 	for ( int j = 0; j < hTableSize; j++ )
 	    t << hTable[j];
-	delete hTable;
+	delete [] hTable;
 
 	if ( upto > 131072 ) {
 	    qWarning( "QTranslator::squeeze: Too many contexts" );
@@ -870,6 +870,13 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 					     const char* sourceText,
 					     const char* comment ) const
 {
+    if ( context == 0 )
+	context = "";
+    if ( sourceText == 0 )
+	sourceText = "";
+    if ( comment == 0 )
+	comment = "";
+
     if ( d->messages ) {
 	QMap<QTranslatorMessage, void *>::ConstIterator it
 	    = d->messages->find( QTranslatorMessage(context, sourceText,
@@ -887,10 +894,10 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
       installed, this step is necessary.
     */
     if ( d->contextArray ) {
-	Q_UINT16 hTableSize;
+	Q_UINT16 hTableSize = 0;
 	QDataStream t( *d->contextArray, IO_ReadOnly );
 	t >> hTableSize;
-	uint g = ::hash( context ) % hTableSize;
+	uint g = elfHash( context ) % hTableSize;
 	t.device()->at( 2 + (g << 1) );
 	Q_UINT16 off;
 	t >> off;
@@ -911,7 +918,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	}
     }
 
-    uint h = ::hash( QCString(sourceText) + comment );
+    uint h = elfHash( QCString(sourceText) + comment );
 
     Q_UINT32 rh;
     Q_UINT32 ro;
@@ -1014,7 +1021,7 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
 					const QString& translation )
     : cx( context ), st( sourceText ), cm( comment ), tn( translation )
 {
-    h = ::hash( st + cm );
+    h = elfHash( st + cm );
 }
 
 
@@ -1036,7 +1043,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 	    stream.readRawBytes( &tag, 1 );
 	switch( (Tag)tag ) {
 	case Tag_End:
-	    h = ::hash( st + cm );
+	    h = elfHash( st + cm );
 	    return;
 	case Tag_SourceText16:
 	    stream >> str16;

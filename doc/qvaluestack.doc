@@ -32,6 +32,7 @@
 
   \ingroup qtl
   \ingroup tools
+  \ingroup shared
 
   Define a template instance QValueStack\<X\> to create a stack of values which all
   have the class X. Please notice that QValueStack does not store pointers to the

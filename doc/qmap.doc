@@ -32,9 +32,10 @@
 
   \ingroup qtl
   \ingroup tools
+  \ingroup shared
 
   Define a template instance QMap\<Key,Data\> to create a dictionary
-  with keys of type X and values of type Y. QMap does not store
+  with keys of type Key and values of type Data. QMap does not store
   pointers to the members of the map. Instead, it holds a copy of
   every member. For that reason this kind of classes is called "value
   based" while QList and QDict are "reference based".

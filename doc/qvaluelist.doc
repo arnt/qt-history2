@@ -32,6 +32,7 @@
 
   \ingroup qtl
   \ingroup tools
+  \ingroup shared
 
   Define a template instance QValueList\<X\> to create a list of values which all
   have the class X. Please notice that QValueList does not store pointers to the

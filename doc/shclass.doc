@@ -26,14 +26,14 @@
 
 \title Shared Classes
 
-Many C++ classes in Qt utilize a data sharing mechanism to maximize
-resource usage and minimize copying of data. We use two techniques:
+Many C++ classes in Qt use data sharing mechanisms to maximize
+resource usage and minimize copying of data. We use two mechanisms:
 explicit and implicit sharing.
 
 
 <h2>Overview</h2>
 
-A shared class consists of a pointer to a shared data block that contains:
+A shared class consists of a pointer to a shared data block that contains
 <ul>
 <li> A reference count.
 <li> The data.
@@ -61,7 +61,7 @@ arguments and returned from functions.
 
 Qt implements two types of sharing: \e explicit and \e implicit sharing.
 Explicit sharing means that the programmer must be aware of the fact that
-objects share common data.  Implicite sharing means that the sharing
+objects share common data.  Implicit sharing means that the sharing
 mechanism takes place behind the scenes and the programmer does not need
 to worry about it.
 
@@ -120,7 +120,7 @@ An implicitly shared class has total control of its internal data.  In any
 member function that modify its data, it automatically detaches before
 modifying the data.
 
-The QPen class, which has implicit sharing, detaches from the shared data
+The QPen class, which uses implicit sharing, detaches from the shared data
 in all member functions that change the internal data.
 
 Code fragment:
@@ -142,10 +142,10 @@ This is clearly not possible for QByteArray, because the programmer can
 do the following:
 
 \code
-  QByteArray array(10);
-  array.fill('a');
+  QByteArray array( 10 );
+  array.fill( 'a' );
   array[0] = 'f';			// will modify array
-  *(array.data()+1) = 'i';		// will modify array
+  *( array.data() + 1 ) = 'i';		// will modify array
 \endcode
 
 If we should have monitored changes in a QByteArray, the QByteArray class
@@ -158,7 +158,6 @@ All classes that are instances of the QArray template class are explicitly
 shared:
 <ul>
 <li>\l QBitArray
-<li>\l QImage (does not inherit QArray)
 <li>\l QPointArray
 <li>\l QByteArray
 <li>Any other instantiation of \link QArray QArray\<type\>\endlink
@@ -168,22 +167,30 @@ These classes have a detach() function that can be called if you want your
 object to get a private copy of the shared data.  They also have a copy()
 function that returns a deep copy with reference count 1 of an object.
 
+The same is true for \l QImage, which does not inherit QArray.  \l QMovie
+is also explicitly shared, but it does not support detach() and copy().
+
 
 <h2>Implicitly Shared Classes</h2>
 
 The Qt classes that are implicitly shared are:
 <ul>
-<li>\link QBitmap QBitmap\endlink
-<li>\link QBrush QBrush\endlink
-<li>\link QCursor QCursor\endlink
-<li>\link QFont QFont\endlink
-<li>\link QFontInfo QFontInfo\endlink
-<li>\link QFontMetrics QFontMetrics\endlink
-<li>\link QPen QPen\endlink
-<li>\link QPalette QPalette\endlink
-<li>\link QPixmap QPixmap\endlink
-<li>\link QString QString\endlink
-<li>\link QRegion QRegion\endlink
+<li>\l QBitmap
+<li>\l QBrush
+<li>\l QCursor
+<li>\l QFont
+<li>\l QFontInfo
+<li>\l QFontMetrics
+<li>\l QIconSet
+<li>\l QMap
+<li>\l QPalette
+<li>\l QPen
+<li>\l QPixmap
+<li>\l QRegion
+<li>\l QString
+<li>\l QStringList
+<li>\l QValueList
+<li>\l QValueStack
 </ul>
 
 These classes automatically detach from common data if an object is about
@@ -209,13 +216,12 @@ In this example, \c p1 and \c p2 share data until QPainter::begin() is
 called for \c p2, because painting a pixmap will modify it.  The same
 happens also if anything is \link ::bitBlt() bitBlt()\endlink'ed into \c p2.
 
+
 <h2>QCString - implicit or explicit?</h2>
 
-\link QCString QCString\endlink is a mixture of implicit
-and explicit sharing - functions inherited from QByteArray, such as data(),
-employ explicit sharing, while those in QCString detach automatically.  Thus,
-QCString is somewhat an "expert only" class, provided mainly to ease porting
-from Qt 1.x to Qt 2.0. We recommend you use QString, which is purely
-implicitly shared.
+\l QCString is a mixture of implicit and explicit sharing - functions
+inherited from QByteArray, such as data(), employ explicit sharing, while
+those only in QCString detach automatically. Thus, QCString is somewhat an
+"expert only" class, provided mainly to ease porting from Qt 1.x to Qt 2.0.
+We recommend that you use \l QString, a purely implicitly shared class.
 */
-

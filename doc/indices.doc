@@ -349,7 +349,7 @@ These classes are used to customize an application's appearance.
 
 /*! \defgroup shared.html
 
-<h1 align="center">Implicitly Shared Classes</h1><br clear="all">
+<h1 align="center">Implicitly and Explicitly Shared Classes</h1><br clear="all">
 
 These classes are normally-heavy classes which in Qt have been
 optimized by the use of reference counter and common data so they can

@@ -44,6 +44,7 @@
 
   \ingroup drawing
   \ingroup appearance
+  \ingroup shared
 
   QFont, more precisely, is a collection of attributes of a font.
   When Qt needs to draw text, it will look up and load the closest
@@ -1410,6 +1411,7 @@ void QFontMetrics::reset( const QPainter *painter )
   \brief The QFontMetrics class provides font metrics information about fonts.
 
   \ingroup fonts
+  \ingroup shared
 
   QFontMetrics functions calculate size of characters and strings for
   a given font. There are three ways you can create a QFontMetrics object:
@@ -1750,6 +1752,7 @@ void QFontInfo::reset( const QPainter *painter )
   \brief The QFontInfo class provides general information about fonts.
 
   \ingroup fonts
+  \ingroup shared
 
   The QFontInfo class mirrors QFont exactly, but where QFont access
   functions returns set values, QFontInfo returns the values that
