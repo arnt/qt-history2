@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qcoreapplication.h"
-#include <Carbon/Carbon.h>
+#include "qcore_mac.h"
 
 /*****************************************************************************
   Internal variables and functions

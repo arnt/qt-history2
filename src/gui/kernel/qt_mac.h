@@ -15,7 +15,7 @@
 #ifndef QT_MAC_H
 #define QT_MAC_H
 
-#include "qkernel_mac.h"
+#include <qcore_mac.h>
 #include "qglobal.h"
 #include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 

@@ -79,7 +79,7 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 
 #if !defined(QWS) && defined(Q_OS_MAC)
 
-#include "qkernel_mac.h"
+#include "qcore_mac.h"
 #include "qnamespace.h"
 
 // This function has descended from Apple Source Code (FSpLocationFromFullPath),
