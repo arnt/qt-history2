@@ -87,7 +87,7 @@ public:
 #endif
 
 #ifndef Q_Q3PAINTER
-    QAbstractGC *gc() const { return deviceGC; }
+    virtual QAbstractGC *gc() const { return deviceGC; }
 #endif
 
 #if defined(Q_WS_X11)
