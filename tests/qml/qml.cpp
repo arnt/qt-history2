@@ -1858,6 +1858,8 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 			     && eatCloseTag(doc, pos, tagname) );
 		    if (!valid)
 			return;
+		    if ( tag->isBox ) // no whitespace between boxes
+			sep |= eatSpace(doc, pos);
 		}
 	    }
 	}
