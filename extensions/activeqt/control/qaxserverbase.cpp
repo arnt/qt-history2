@@ -2497,6 +2497,8 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
 	QCString propname;
 	QVariant value;
 	qtstream >> propname;
+	if (propname.isEmpty())
+	    break;
 	qtstream >> value;
 
 	int idx = mo->findProperty(propname, TRUE);
