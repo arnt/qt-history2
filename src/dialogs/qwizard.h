@@ -62,6 +62,7 @@ public:
     void setFont( const QFont & font );
 
     virtual void addPage( QWidget *, const QString & );
+    virtual void insertPage( QWidget*, const QString&, int );
     virtual void removePage( QWidget * );
 
     QString title( QWidget * ) const;
@@ -75,6 +76,7 @@ public:
 
     QWidget* page( int pos ) const;
     int pageCount() const;
+    int indexOf( QWidget* ) const;
 
     virtual bool appropriate( QWidget * ) const;
     virtual void setAppropriate( QWidget *, bool );

@@ -45,7 +45,7 @@
 #include "qlabel.h"
 #include "qwidgetstack.h"
 #include "qapplication.h"
-#include "qvector.h"
+#include "qlist.h"
 #include "qpainter.h"
 #include "qaccel.h"
 
@@ -88,7 +88,7 @@ public:
     QVBoxLayout * v;
     Page * current;
     QWidgetStack * ws;
-    QVector<Page> pages;
+    QList<Page> pages;
     QLabel * title;
     QPushButton * backButton;
     QPushButton * nextButton;
@@ -106,9 +106,9 @@ public:
     {
 	if ( !w )
 	    return 0;
-	int i = pages.size();
-	while( --i >= 0 && pages[i] && pages[i]->w != w ) { }
-	return i >= 0 ? pages[i] : 0;
+	int i = pages.count();
+	while( --i >= 0 && pages.at( i ) && pages.at( i )->w != w ) { }
+	return i >= 0 ? pages.at( i ) : 0;
     }
 
 };
@@ -182,7 +182,7 @@ void QWizard::show()
     if ( d->current )
 	showPage( d->current->w );
     else if ( pageCount() > 0 )
-	showPage( d->pages[0]->w );
+	showPage( d->pages.at( 0 )->w );
     else
 	showPage( 0 );
 
@@ -214,13 +214,40 @@ void QWizard::addPage( QWidget * page, const QString & title )
 #endif
 	return;
     }
-    int i = d->pages.size();
+    int i = d->pages.count();
     Private::Page * p = new Private::Page( page, title );
     p->backEnabled = ( i > 0 );
 
     d->ws->addWidget( page, i );
-    d->pages.resize( i+1 );
-    d->pages.insert( i, p );
+    d->pages.append( p );
+}
+
+/*!  Inserts \a page at index \a index to the wizard, titled \a title.
+     If index equals -1, the page will be appended to the end of the wizard.
+*/
+
+void QWizard::insertPage( QWidget * page, const QString & title, int index )
+{
+    if ( !page )
+	return;
+    if ( d->page( page ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QWizard::insertPage(): already added %s/%s to %s/%s",
+		  page->className(), page->name(),
+		  className(), name() );
+#endif
+	return;
+    }
+
+    if ( index < 0  || index > (int)d->pages.count() )
+        index = d->pages.count();
+
+    Private::Page * p = new Private::Page( page, title );
+    p->backEnabled = ( index > 0 );
+    p->nextEnabled = ( index < (int)d->pages.count() );
+
+    d->pages.insert( index, p );
+    d->ws->addWidget( page, index );
 }
 
 /*!
@@ -255,6 +282,18 @@ int QWizard::pageCount() const
     return d->pages.count();
 }
 
+/*!
+  Returns the page index of \a page in the wizard.
+  If the page is not part of the wizard -1 is returned.
+*/
+
+int QWizard::indexOf( QWidget* page ) const
+{
+    Private::Page * p = d->page( page );
+    if ( !p ) return -1;
+
+    return d->pages.find( p );
+}
 
 /*!
   Called when the user clicks the Back button; this function shows
@@ -274,19 +313,19 @@ void QWizard::back()
 void QWizard::next()
 {
     int i = 0;
-    while( i < (int)d->pages.size() && d->pages[i] &&
-	   d->current && d->pages[i]->w != d->current->w )
+    while( i < (int)d->pages.count() && d->pages.at( i ) &&
+	   d->current && d->pages.at( i )->w != d->current->w )
 	i++;
     i++;
-    while( i <= (int)d->pages.size()-1 &&
-	   ( !d->pages[i] || !appropriate( d->pages[i]->w ) ) )
+    while( i <= (int)d->pages.count()-1 &&
+	   ( !d->pages.at( i ) || !appropriate( d->pages.at( i )->w ) ) )
 	i++;
     // if we fell of the end of the world, step back
-    while ( i > 0 && (i >= (int)d->pages.size() || !d->pages[i] ) )
+    while ( i > 0 && (i >= (int)d->pages.count() || !d->pages.at( i ) ) )
 	i--;
     if ( d->pages.at( i ) ) {
-	d->pages[i]->back = d->current ? d->current->w : 0;
-	showPage( d->pages[i]->w );
+	d->pages.at( i )->back = d->current ? d->current->w : 0;
+	showPage( d->pages.at( i )->w );
     }
 }
 
@@ -570,15 +609,15 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
     bool hasHelp = FALSE;
     bool hasEarlyFinish = FALSE;
 
-    int i = d->pages.size() - 2;
+    int i = d->pages.count() - 2;
     while ( !hasEarlyFinish && i >= 0 ) {
-	if ( d->pages[i] && d->pages[i]->finishEnabled )
+	if ( d->pages.at( i ) && d->pages.at( i )->finishEnabled )
 	    hasEarlyFinish = TRUE;
 	i--;
     }
     i = 0;
-    while ( !hasHelp && i < (int)d->pages.size() ) {
-	if ( d->pages[i] && d->pages[i]->helpEnabled )
+    while ( !hasHelp && i < (int)d->pages.count() ) {
+	if ( d->pages.at( i ) && d->pages.at( i )->helpEnabled )
 	    hasHelp = TRUE;
 	i++;
     }
@@ -600,9 +639,9 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	h->addWidget( d->nextButton );
 	h->addSpacing( 12 );
 	h->addWidget( d->finishButton );
-    } else if ( d->pages.size() == 0 ||
+    } else if ( d->pages.count() == 0 ||
 		d->current->finishEnabled ||
-		d->current == d->pages[d->pages.size()-1] ) {
+		d->current == d->pages.at( d->pages.count()-1 ) ) {
 	d->nextButton->hide();
 	d->finishButton->show();
 	h->addWidget( d->finishButton );
@@ -696,18 +735,13 @@ void QWizard::removePage( QWidget * page )
     if ( !page )
 	return;
 
-    int i = d->pages.size();
-    while( --i >= 0 && d->pages[i] && d->pages[i]->w != page ) { }
+    int i = d->pages.count();
+    while( --i >= 0 && d->pages.at( i ) && d->pages.at( i )->w != page ) { }
     if ( i < 0 )
 	return;
-    Private::Page * p = d->pages[i];
+    Private::Page * p = d->pages.at( i );
+    d->pages.removeRef( p );
     delete p;
-    d->pages.remove( i );
-    for ( uint j = i; j < d->pages.size() - 1; ++j ) {
-	d->pages.insert( j, d->pages[ j + 1 ] );
-	d->pages.remove( j + 1 );
-    }
-    d->pages.resize( d->pages.size() - 1 );
     d->ws->removeWidget( page );
     if ( pageCount() > 0 )
 	showPage( QWizard::page( 0 ) );
@@ -724,7 +758,7 @@ QWidget* QWizard::page( int pos ) const
     if ( pos >= pageCount() || pos < 0 )
       return 0;
 
-    return d->pages[ pos ]->w;
+    return d->pages.at( pos )->w;
 }
 
 #endif // QT_NO_WIZARD
