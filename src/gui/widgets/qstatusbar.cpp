@@ -53,9 +53,6 @@ public:
     int savedStrut;
 };
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QStatusBar qstatusbar.h
     \brief The QStatusBar class provides a horizontal bar suitable for
@@ -124,6 +121,7 @@ public:
 QStatusBar::QStatusBar(QWidget * parent, const char *name)
     : QWidget(*new QStatusBarPrivate, parent, 0)
 {
+    Q_D(QStatusBar);
     setObjectName(name);
     d->box = 0;
     d->timer = 0;
@@ -145,6 +143,7 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
 QStatusBar::QStatusBar(QWidget * parent)
     : QWidget(*new QStatusBarPrivate, parent, 0)
 {
+    Q_D(QStatusBar);
     d->box = 0;
     d->timer = 0;
 
@@ -162,6 +161,7 @@ QStatusBar::QStatusBar(QWidget * parent)
 */
 QStatusBar::~QStatusBar()
 {
+    Q_D(QStatusBar);
     while (!d->items.isEmpty())
         delete d->items.takeFirst();
 }
@@ -200,6 +200,7 @@ void QStatusBar::addWidget(QWidget * widget, int stretch, bool permanent)
         widget->show();
     }
 
+    Q_D(QStatusBar);
     QStatusBarPrivate::SBItem* item
         = new QStatusBarPrivate::SBItem(widget, stretch, permanent);
 
@@ -231,6 +232,8 @@ void QStatusBar::removeWidget(QWidget* widget)
 {
     if (!widget)
         return;
+
+    Q_D(QStatusBar);
     bool found = false;
     QStatusBarPrivate::SBItem* item;
     for (int i=0; i<d->items.size(); ++i) {
@@ -266,6 +269,7 @@ bool QStatusBar::isSizeGripEnabled() const
 #ifdef QT_NO_SIZEGRIP
     return false;
 #else
+    Q_D(const QStatusBar);
     return !!d->resizer;
 #endif
 }
@@ -273,6 +277,7 @@ bool QStatusBar::isSizeGripEnabled() const
 void QStatusBar::setSizeGripEnabled(bool enabled)
 {
 #ifndef QT_NO_SIZEGRIP
+    Q_D(QStatusBar);
     if (!enabled != !d->resizer) {
         if (enabled) {
             d->resizer = new QSizeGrip(this);
@@ -295,6 +300,7 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 */
 void QStatusBar::reformat()
 {
+    Q_D(QStatusBar);
     if (d->box)
         delete d->box;
 
@@ -362,6 +368,7 @@ void QStatusBar::reformat()
 */
 void QStatusBar::message(const QString &message)
 {
+    Q_D(QStatusBar);
     if (d->tempItem == message)
         return;
     d->tempItem = message;
@@ -382,6 +389,7 @@ void QStatusBar::message(const QString &message)
 */
 void QStatusBar::message(const QString &message, int ms)
 {
+    Q_D(QStatusBar);
     d->tempItem = message;
 
     if (!d->timer) {
@@ -398,7 +406,6 @@ void QStatusBar::message(const QString &message, int ms)
     hideOrShow();
 }
 
-
 /*!
     Removes any temporary message being shown.
 
@@ -407,6 +414,7 @@ void QStatusBar::message(const QString &message, int ms)
 
 void QStatusBar::clear()
 {
+    Q_D(QStatusBar);
     if (d->tempItem.isEmpty())
         return;
     if (d->timer) {
@@ -433,6 +441,7 @@ void QStatusBar::clear()
 */
 void QStatusBar::hideOrShow()
 {
+    Q_D(QStatusBar);
     bool haveMessage = !d->tempItem.isEmpty();
 
     QStatusBarPrivate::SBItem* item = 0;
@@ -459,6 +468,7 @@ void QStatusBar::hideOrShow()
 */
 void QStatusBar::paintEvent(QPaintEvent *)
 {
+    Q_D(QStatusBar);
     bool haveMessage = !d->tempItem.isEmpty();
 
     QPainter p(this);
@@ -506,6 +516,8 @@ void QStatusBar::resizeEvent(QResizeEvent * e)
 
 bool QStatusBar::event(QEvent *e)
 {
+    Q_D(QStatusBar);
+
     if (e->type() == QEvent::LayoutRequest
 #ifdef QT_COMPAT
         || e->type() == QEvent::LayoutHint
