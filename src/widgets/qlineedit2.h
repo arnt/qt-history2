@@ -73,6 +73,8 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool undoAvailable READ isUndoAvailable )
     Q_PROPERTY( bool redoAvailable READ isRedoAvailable )
+    Q_PROPERTY( QString mask READ mask WRITE setMask )
+    Q_PROPERTY( bool hasMask READ hasMask )
 
 public:
     QLineEdit( QWidget* parent, const char* name=0 );
@@ -223,13 +225,13 @@ private:
     void delOrBackspace( bool backspace );
     // mask functions
     void parseMaskFields( const QString & );
-    int nextSeparator( uint pos );
-    int nextSeparator( uint pos, QChar sep );
-    int nextBlank( uint pos );
-    int prevBlank( uint pos );
+    int nextSeparator( uint pos ) const;
+    int nextSeparator( uint pos, QChar sep ) const;
+    int nextBlank( uint pos ) const;
+    int prevBlank( uint pos ) const;
     bool isValidInput( QChar key, QChar mask ) const;
-    QString maskString( uint pos, const QString &str, bool clear = FALSE );
-    QString clearString( uint pos, uint len );
+    QString maskString( uint pos, const QString &str, bool clear = FALSE ) const;
+    QString clearString( uint pos, uint len ) const;
     QString stripString( const QString &str ) const;
     QString text( bool strip ) const;
     void insert( const QString &newText, bool paste);
@@ -237,6 +239,8 @@ private:
     void updateOverwriteSelection();
     bool hasSelectedText( bool ignore ) const;
     bool hasOverWriteSelection() const;
+    QString selectedText(bool ignore) const;
+    bool getSelection( int *start, int *end, bool ignore );
 
     QLineEditPrivate * d;
 
