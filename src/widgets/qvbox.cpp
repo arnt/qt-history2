@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qvbox.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -19,6 +19,8 @@
 
   All its children will be placed vertically and sized
   according to their sizeHint()s.
+
+  <img src=qvbox-m.png>
 
   \sa QVBox and QHBox */
 

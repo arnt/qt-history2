@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#15 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -24,9 +24,10 @@
 
   Use setMargin() to add space around the edge, and use addSpacing to
   add space between the widgets.
+
+  <img src=qhbox-m.png>
   
   \sa QVBox and QGrid
-
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.15 1999/06/03 15:14:49 warwick Exp $
+** $Id: layout.doc,v 2.16 1999/06/03 16:40:52 warwick Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -59,18 +59,18 @@ complex layouts, you can nest layout widgets inside each other.
 <dl>
   <dt>\link QHBox QHBox\endlink
       <dd>A QHBox lays out its children in a horizontal row, left to right.
-	<br><img src="qhbox.png" alt="QHBox with five children.">
+	<br><img src="qhbox-m.png" alt="QHBox with five children.">
 
   <dt>\link QVBox QVBox\endlink
       <dd>A QVBox lays out its children in a vertical row, top to bottom.
-	<br><img src="qvbox.png" alt="QVBox with five children.">
+	<br><img src="qvbox-m.png" alt="QVBox with five children.">
   <dt>\link QGrid QGrid\endlink
       <dd>A QGrid lays out its children in a table. You specify how
 	many columns the table has, and it is filled left to right,
 	beginning a new row when the previous is filled up. The grid
 	is fixed; the children will not flow to other rows as the
 	widget is resized.
-	<br><img src="qgrid.png" alt="Two-column QGrid with five children.">
+	<br><img src="qgrid-m.png" alt="Two-column QGrid with five children.">
 </dl>
 
 The grid above can be produced by the following code:
