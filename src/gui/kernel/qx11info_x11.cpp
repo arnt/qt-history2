@@ -25,7 +25,7 @@
 */
 
 /*!
-*/
+    Constructs an information object to describe the X server's configuration.*/
 
 QX11Info::QX11Info()
     : x11data(0)
@@ -34,7 +34,7 @@ QX11Info::QX11Info()
 
 
 /*!
-*/
+    Copy constructor. Constructs a copy of the \a other instance.*/
 
 QX11Info::QX11Info(const QX11Info &other)
 {
@@ -56,7 +56,7 @@ QX11Info &QX11Info::operator=(const QX11Info &other)
 }
 
 /*!
-*/
+    Destroys the information object.*/
 
 QX11Info::~QX11Info()
 {
@@ -219,7 +219,7 @@ int QX11Info::appScreen()
 }
 
 /*!
-*/
+    Returns a handle for the application's color map on the given \a screen.*/
 
 Qt::HANDLE QX11Info::appColormap(int screen)
 {
@@ -235,7 +235,7 @@ void *QX11Info::appVisual(int screen)
 }
 
 /*!
-*/
+    Returns a handle for the applications root window on the given \a screen.*/
 
 Qt::HANDLE QX11Info::appRootWindow(int screen)
 {
@@ -256,13 +256,15 @@ int QX11Info::appCells(int screen)
 { return X11->screens[screen == -1 ? X11->defaultScreen : screen].cells; }
 
 /*!
-*/
+    Returns true if the application has a default color map on the given
+    \a screen; otherwise returns false.*/
 
 bool QX11Info::appDefaultColormap(int screen)
 { return X11->screens[screen == -1 ? X11->defaultScreen : screen].defaultColormap; }
 
 /*!
-*/
+    Returns true if the application has a default visual on the given \a screen;
+    otherwise returns false.*/
 
 bool QX11Info::appDefaultVisual(int screen)
 { return X11->screens[screen == -1 ? X11->defaultScreen : screen].defaultVisual; }
@@ -286,16 +288,13 @@ int QX11Info::cells() const
 { return x11data ? x11data->cells : QX11Info::appCells(); }
 
 /*!
-*/
+    Returns a handle for the color map.*/
 
 Qt::HANDLE QX11Info::colormap() const
 { return x11data ? x11data->colormap : QX11Info::appColormap(); }
 
 /*!
-*/
-
-/*!
-*/
+    Returns true if there is a default color map; otherwise returns false.*/
 
 bool QX11Info::defaultColormap() const
 { return x11data ? x11data->defaultColormap : QX11Info::appDefaultColormap(); }
@@ -307,7 +306,7 @@ void *QX11Info::visual() const
 { return x11data ? x11data->visual : QX11Info::appVisual(); }
 
 /*!
-*/
+    Returns true if there is a default visual; otherwise returns false.*/
 
 bool QX11Info::defaultVisual() const
 { return x11data ? x11data->defaultVisual : QX11Info::appDefaultVisual(); }
