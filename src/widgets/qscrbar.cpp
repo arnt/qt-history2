@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#66 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#66 $");
 
 
 /*!
@@ -228,6 +228,17 @@ void QScrollBar::setOrientation( Orientation orientation )
 
 
 /*!
+  Returns TRUE if the user has clicked the mouse on the slider
+  and is currenly dragging it, or FALSE if not.
+*/
+
+bool QScrollBar::draggingSlider() const
+{
+    return pressedControl == SLIDER;
+}
+
+
+/*!
   Reimplements the virtual function QWidget::setPalette().
 
   Sets the background color to the mid color for Motif style scroll bars.
@@ -238,6 +249,22 @@ void QScrollBar::setPalette( const QPalette &p )
     QWidget::setPalette( p );
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
+}
+
+
+/*!
+  Returns a size hint for this scroll bar.
+*/
+
+QSize QScrollBar::sizeHint() const
+{
+    QSize s( size() );
+    if ( orient == Horizontal ) {
+	s.setHeight( 16 );
+    } else {
+	s.setWidth( 16 );
+    }
+    return s;
 }
 
 
@@ -401,10 +428,10 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton || !clickedAt )
 	return;
     ScrollControl tmp = (ScrollControl) pressedControl;
-    clickedAt	      = FALSE;
+    clickedAt = FALSE;
     if ( isTiming )
 	killTimers();
     mouseMoveEvent( e );  // Might have moved since last mouse move event.
@@ -433,9 +460,12 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 
 void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !(e->state() & LeftButton) )
-	return;					// left mouse button is up
-
+    if ( !isVisible() ) {
+	clickedAt = FALSE;
+	return;
+    }
+    if ( !(e->state() & LeftButton) || !clickedAt )
+	return;
     int newSliderPos;
     if ( pressedControl == SLIDER ) {
 	int sliderMin, sliderMax;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#26 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#27 $
 **
 ** Definition of QScrollBar class
 **
@@ -33,7 +33,10 @@ public:
     void	setTracking( bool enable );
     bool	tracking() const;
 
-    virtual void setPalette( const QPalette & );
+    bool	draggingSlider() const;
+
+    void	setPalette( const QPalette & );
+    QSize	sizeHint() const;
 
 signals:
     void	valueChanged( int value );
