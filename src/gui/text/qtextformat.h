@@ -5,10 +5,10 @@
 #include <qcolor.h>
 #include <qshareddata.h>
 #include <qobject.h>
+#include <qfont.h>
 #endif // QT_H
 
 class QString;
-class QFont;
 
 class QTextFormatCollection;
 class QTextFormatProperty;
