@@ -146,7 +146,13 @@ platformKeep["embedded"] = [ new RegExp(".") ];
 editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
 
-editionRemove["opensource"] = [ new RegExp("GPL") ];
+editionRemove["opensource"] = [ new RegExp("^qmake/generators/win32/borland"),
+				new RegExp("^qmake/generators/win32/msvc"),
+				new RegExp("^qmake/GPL"),
+				new RegExp("^mkspecs/win32-borland"),
+				new RegExp("^mkspecs/win32-icc"),
+				new RegExp("^mkspecs/win32-msvc"),
+				new RegExp("^mkspecs/win32-msvc.net") ];
 editionKeep["opensource"] = [ new RegExp(".") ];
 
 editionRemove["preview"] = [ new RegExp("GPL") ];
