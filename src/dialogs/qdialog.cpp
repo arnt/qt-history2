@@ -659,8 +659,10 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     QRect desk;
     if ( w ) {
 	scrn = QApplication::desktop()->screenNumber( w );
-    } else {
+    } else if ( QApplication::desktop()->isVirtualDesktop() ) {
 	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
+    } else {
+	scrn = QApplication::desktop()->screenNumber( this );
     }
     desk = QApplication::desktop()->availableGeometry( scrn );
 
