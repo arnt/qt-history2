@@ -1007,7 +1007,8 @@ void SetupWizardImpl::doIDEIntegration()
 	    if ( copyFile( installDir.filePath("qmsdev.dll"), addinsDir.filePath("qmsdev.dll") ) ) {
 		installDir.remove( "qmsdev.dll" );
 	    }
-	} else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ){
+	} else if ( globalInformation.sysId() == GlobalInformation::MSVCNET 
+	            || globalInformation.sysId() == GlobalInformation::Intel){
 	    QString filepath = installDir.filePath("QMsNetSetup.msi");
 	    filepath = filepath.replace( '/', '\\' );
 

@@ -472,7 +472,7 @@
         <sender>sysIntel</sender>
         <signal>toggled(bool)</signal>
         <receiver>installIDEIntegration</receiver>
-        <slot>setDisabled(bool)</slot>
+        <slot>setEnabled(bool)</slot>
     </connection>
     <connection>
         <sender>skipBuild</sender>
