@@ -1,3 +1,14 @@
+#include "qinstallationwizard.h"
+#include "data.h"
+
+#include "interface/welcome.h"
+#include "interface/license.h"
+#include "interface/destination.h"
+#include "interface/configuration.h"
+#include "interface/customize.h"
+#include "interface/review.h"
+#include "interface/install.h"
+
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qpixmap.h>
@@ -15,18 +26,6 @@
 #include <qwidgetstack.h>
 #include <qfiledialog.h>
 
-#include "qinstallationwizard.h"
-#include "data.h"
-
-// Interfaces
-#include "interface/welcome.h"
-#include "interface/license.h"
-#include "interface/destination.h"
-#include "interface/configuration.h"
-#include "interface/customize.h"
-#include "interface/review.h"
-#include "interface/install.h"
-
 #if defined(Q_OS_WIN32)
 // ### Need to find out how to do this on windows
 #include <windows.h>
@@ -35,18 +34,20 @@
 #endif
 
 
-QString fileSizeToString( unsigned long long size )
+static QString fileSizeToString( unsigned long long size )
 {
-    QString suffix = "bytes"; // ### tr
+    QString suffix = "byte"; // ### tr
     if ( size > 10*1024*1024*1024*1024ULL ) {
 	size /= 1024*1024*1024*1024ULL;
-	suffix = "GBytes";
+	suffix = "GB";
     } else if ( size > 10*1024*1024 ) {
 	size /= 1024*1024;
-	suffix = "MBytes";
+	suffix = "MB";
     } else if ( size > 10*1024 ) {
 	size /= 1024;
-	suffix = "kBytes";
+	suffix = "kB";
+    } else if ( size > 1 ) {
+	suffix = "bytes";
     }
     QString sizeStr;
     sizeStr.sprintf("%lu %s", (unsigned long)size, suffix.latin1() );
@@ -54,7 +55,7 @@ QString fileSizeToString( unsigned long long size )
 }
 
 
-unsigned long long freeSpace( const QString& path )
+static unsigned long long freeSpace( const QString& path )
 {
 #if defined(Q_OS_WIN32)
     // ### Need to fill this in for Windows

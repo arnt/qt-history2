@@ -1,3 +1,8 @@
+#include "qinstallationwizard.h"
+#include "data.h" // Embedded setup configuration files, images...
+
+#include "interface/progressbarwidget.h"
+
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpixmap.h>
@@ -19,12 +24,6 @@
 #include <qxml.h>
 #include <qlayout.h>
 #include <qdom.h>
-
-// Embedded setup configuration files, images and installable files
-#include "data.h"
-#include "qinstallationwizard.h"
-
-#include "interface/progressbarwidget.h"
 
 
 /*

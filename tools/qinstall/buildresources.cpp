@@ -19,9 +19,10 @@
 #include <qstringlist.h>
 #include <qdom.h>
 #include <qdict.h>
+
+#include <zlib.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <zlib.h>
 
 struct Embed {
 	unsigned long uncompressedSize;

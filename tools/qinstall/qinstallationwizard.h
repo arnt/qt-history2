@@ -1,11 +1,12 @@
-#ifndef QINSTALLATION_WIZARD_H
-#define QINSTALLATION_WIZARD_H
+#ifndef QINSTALLATIONWIZARD_H
+#define QINSTALLATIONWIZARD_H
 
+
+#include "interface/installationwizard.h"
 
 #include <qstring.h>
 #include <qdom.h>
 #include <qlistview.h>
-#include "interface/installationwizard.h"
 
 
 enum WizardPages {
