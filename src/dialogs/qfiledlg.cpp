@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#26 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#27 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#27 $");
 
 
 /*!
@@ -288,6 +288,24 @@ void QFileDialog::rereadDir()
   Returns a \link QString::isNull() null string\endlink if the user cancelled
   the dialog.
 
+  This static function is less capable than the full QFileDialog object,
+  but is convenient and easy to use.
+
+  Example:
+  \code
+    // start at the current working directory and with *.cpp as filter
+    QString f = QFileDialog::getOpenFileDialog( 0, "*.cpp", this );
+    if ( !f.isEmpty() ) {
+        // the user selected a valid existing file
+    } else {
+        // the user cancelled the dialog
+    }
+  \endcode
+  
+  getSaveFileName() is another convenience function, equal to this one
+  except that it allows the user to specify the name of a nonexistent file
+  name.
+
   \sa getSaveFileName()
 */
 
@@ -348,6 +366,24 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
   Opens a modal file dialog and returns the name of the file to be saved.
   Returns a \link QString::isNull() null string\endlink if the user cancelled
   the dialog.
+
+  This static function is less capable than the full QFileDialog object,
+  but is convenient and easy to use.
+
+  Example:
+  \code
+    // start at the current working directory and with *.cpp as filter
+    QString f = QFileDialog::getSaveFileDialog( 0, "*.cpp", this );
+    if ( !f.isEmpty() ) {
+        // the user gave a file name
+    } else {
+        // the user cancelled the dialog
+    }
+  \endcode
+  
+  getOpenFileName() is another convenience function, equal to this one
+  except that it allows the user to specify the name of a nonexistent file
+  name.
 
   \sa getOpenFileName()
 */
