@@ -1,7 +1,7 @@
 README		Getting started with Qt
 INSTALL		How to install Qt
 PORTING		How to port Qt to a new platform
-CHANGES.0-98	List of changes from 0.96
+changes.0-98	List of changes from 0.96
 LICENCE		Licence statement
 README.QT	To be included with libraries using Qt
 ANNOUNCE	Qt overview, as posted to the net
