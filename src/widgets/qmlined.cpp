@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#80 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -547,7 +547,7 @@ QString QMultiLineEdit::markedText() const
 	QString tmp( len + 1 );
 	int idx = 0;
 
-	if ( firstS ) {
+	if ( firstS && firstS->data() ) {
 	    const char *p = firstS->data() + markBeginX;
 	    while (( tmp[idx++] = *p++ ))
 		;
