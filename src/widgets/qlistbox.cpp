@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#119 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#119 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -412,7 +412,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     QFontMetrics fm = fontMetrics();
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
-    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar | Tbl_snapToVGrid |
+    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar | //Tbl_snapToVGrid |
 		   Tbl_smoothVScrolling | Tbl_clipCellPainting  );
     switch ( style() ) {
 	case WindowsStyle:
