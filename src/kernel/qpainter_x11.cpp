@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#135 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#134 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#135 $")
 
 
 // --------------------------------------------------------------------------
@@ -763,7 +763,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
 
     bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
-    flags = 0;					// init flags
+    flags = DirtyFont;				// init flags
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
 	if ( !pdev )				// no
@@ -781,7 +781,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 
     
     dpy = pdev->dpy;				// get display variable
-    hd = pdev->hd;				// get handle to drawable
+    hd  = pdev->hd;				// get handle to drawable
 
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd(PDC_BEGIN,this,0) ) {	// could not begin painting
@@ -2534,7 +2534,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(ExtDev) ) {
+    if ( testf(DirtyFont|ExtDev) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
 	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
