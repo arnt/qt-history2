@@ -30,7 +30,7 @@ void LCDRange::init()
     sBar = new QScrollBar( 0, 99,		       	// range
 			   1, 10, 			// line/page steps
 			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// direction
+			   QScrollBar::Horizontal, 	// orientation
                            this, "scrollbar" );
     label  = new QLabel( this, "label"  );
     label->setAlignment( AlignCenter );

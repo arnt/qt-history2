@@ -17,7 +17,7 @@ LCDRange::LCDRange( QWidget *parent, const char *name )
     sBar = new QScrollBar( 0, 99,		       	// range
 			   1, 10, 			// line/page steps
 			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// direction
+			   QScrollBar::Horizontal, 	// orientation
                            this, "scrollbar" );
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
     connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );

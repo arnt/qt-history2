@@ -32,8 +32,6 @@ void CannonField::setForce( int newton )
 {
     if ( newton < 0 )
 	newton = 0;
-    if ( newton > 50 )
-	newton = 50;
     if ( f == newton )
 	return;
     f = newton;
@@ -55,10 +53,11 @@ const QRect barrel_rect(33, -4, 15, 8);
 
 void CannonField::paintCannon( QPainter *p )
 {
-    QPixmap  pix( cannonRect().size() );
+    QRect    cr = cannonRect();
+    QPixmap  pix( cr.size() );
     QPainter tmp;
 
-    pix.fill( backgroundColor() );
+    pix.fill( this, cr.topLeft() );
 
     tmp.begin( &pix );
     tmp.setBrush( blue );
@@ -67,10 +66,10 @@ void CannonField::paintCannon( QPainter *p )
     tmp.translate( 0, pix.height() - 1 );
     tmp.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
     tmp.rotate( -ang );
-    tmp.drawRect( QRect( barrel_rect ) );
+    tmp.drawRect( barrel_rect );
     tmp.end();
 
-    p->drawPixmap( 0, rect().bottom() - (pix.height() - 1), pix );
+    p->drawPixmap( cr.topLeft(), pix );
 }
 
 QRect CannonField::cannonRect() const
