@@ -2154,9 +2154,9 @@ void QScrollView::drawContents( QPainter * )
 void QScrollView::startDragAutoScroll()
 {
     if ( !d->autoscroll_timer.isActive() ) {
-        d->autoscroll_time = initialScrollTime;
-        d->autoscroll_accel = initialScrollAccel;
-        d->autoscroll_timer.start( d->autoscroll_time );
+	d->autoscroll_time = initialScrollTime;
+	d->autoscroll_accel = initialScrollAccel;
+	d->autoscroll_timer.start( d->autoscroll_time );
     }
 }
 
@@ -2178,27 +2178,27 @@ void QScrollView::doDragAutoScroll()
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     if ( d->autoscroll_accel-- <= 0 && d->autoscroll_time ) {
-        d->autoscroll_accel = initialScrollAccel;
-        d->autoscroll_time--;
-        d->autoscroll_timer.start( d->autoscroll_time );
+	d->autoscroll_accel = initialScrollAccel;
+	d->autoscroll_time--;
+	d->autoscroll_timer.start( d->autoscroll_time );
     }
     int l = QMAX( 1, ( initialScrollTime- d->autoscroll_time ) );
 
     int dx = 0, dy = 0;
     if ( p.y() < autoscroll_margin ) {
-        dy = -l;
+	dy = -l;
     } else if ( p.y() > visibleHeight() - autoscroll_margin ) {
-        dy = +l;
+	dy = +l;
     }
     if ( p.x() < autoscroll_margin ) {
-        dx = -l;
+	dx = -l;
     } else if ( p.x() > visibleWidth() - autoscroll_margin ) {
-        dx = +l;
+	dx = +l;
     }
     if ( dx || dy ) {
-        scrollBy(dx,dy);
+	scrollBy(dx,dy);
     } else {
-        stopDragAutoScroll();
+	stopDragAutoScroll();
     }
 }
 
@@ -2217,7 +2217,7 @@ void QScrollView::setDragAutoScroll( bool b )
 /*!
   Returns TRUE if autoscrolling in drag move events is enabled, else
   FALSE.
-  
+
   \sa setDragAutoScroll()
 */
 
