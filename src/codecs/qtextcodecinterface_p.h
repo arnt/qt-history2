@@ -36,7 +36,6 @@
 #ifndef QTEXTCODECINTERFACE_P_H
 #define QTEXTCODECINTERFACE_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -49,7 +48,6 @@
 // We mean it.
 //
 //
-
 
 #ifndef QT_H
 #include <private/qcom_p.h>

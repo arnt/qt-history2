@@ -5,7 +5,7 @@
 **
 ** Created : 990303
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -36,7 +36,7 @@
 **********************************************************************/
 
 /*
- * Copyright (c) 1999-2000 Mizi Research Inc., All rights reserved.
+ * Copyright (C) 1999-2000 Mizi Research Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QJpUnicodeConv class
 **
 ** Created : 990225
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -36,11 +36,11 @@
 **********************************************************************/
 
 // Most of the code here was originally written by Serika Kurusugawa
-// a.k.a. Junji Takagi, and is include in Qt with the author's permission,
+// a.k.a. Junji Takagi, and is included in Qt with the author's permission,
 // and the grateful thanks of the Trolltech team.
 
 /*
- * Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
+ * Copyright (C) 1999 Serika Kurusugawa, All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
