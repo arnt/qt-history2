@@ -48,6 +48,10 @@
 #include <qmainwindow.h>
 #include <qtimer.h>
 
+#ifdef Q_WS_MAC
+#define MAC_DRAG_HACK
+#endif
+
 static const char * close_xpm[] = {
 "8 8 2 1",
 "# c #000000",
@@ -118,7 +122,6 @@ void QDockWindowResizeHandle::setOrientation( Qt::Orientation o )
 	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Expanding ) );
     }
 }
-
 void QDockWindowResizeHandle::mousePressEvent( QMouseEvent *e )
 {
     e->ignore();
@@ -207,12 +210,17 @@ void QDockWindowResizeHandle::startLineDraw()
 {
     if ( unclippedPainter )
 	endLineDraw();
-    bool unclipped = QApplication::desktop()->testWFlags( WPaintUnclipped );
-    ( (QDockWindowResizeHandle*)QApplication::desktop() )->setWFlags( WPaintUnclipped );
+#ifdef MAC_DRAG_HACK    
+    QWidget *paint_on = topLevelWidget();
+#else
+    QWidget *paint_on = QApplication::desktop();
+#endif
+    bool unclipped = paint_on->testWFlags( WPaintUnclipped );
+    ( (QDockWindowResizeHandle*)paint_on )->setWFlags( WPaintUnclipped );
     unclippedPainter = new QPainter;
-    unclippedPainter->begin( QApplication::desktop() );
+    unclippedPainter->begin( paint_on );
     if ( !unclipped )
-	( (QDockWindowResizeHandle*)QApplication::desktop() )->clearWFlags( WPaintUnclipped );
+	( (QDockWindowResizeHandle*)paint_on )->clearWFlags( WPaintUnclipped );
     unclippedPainter->setPen( QPen( gray, orientation() == Horizontal ? height() : width() ) );
     unclippedPainter->setRasterOp( XorROP );
 }
@@ -227,18 +235,26 @@ void QDockWindowResizeHandle::endLineDraw()
 
 void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
 {
+#ifdef MAC_DRAG_HACK
+    QPoint start = mapTo(topLevelWidget(), QPoint(0, 0));
+    QPoint starta = dockWindow->area()->mapTo(topLevelWidget(), QPoint(0, 0));
+    QPoint end = globalPos - topLevelWidget()->pos();
+#else
     QPoint start = mapToGlobal( QPoint( 0, 0 ) );
     QPoint starta = dockWindow->area()->mapToGlobal( QPoint( 0, 0 ) );
+    QPoint end = globalPos;
+#endif
+
     if ( orientation() == Horizontal ) {
 	if ( orientation() == dockWindow->orientation() )
-	    unclippedPainter->drawLine( starta.x() , globalPos.y(), starta.x() + dockWindow->area()->width(), globalPos.y() );
+	    unclippedPainter->drawLine( starta.x() , end.y(), starta.x() + dockWindow->area()->width(), end.y() );
 	else
-	    unclippedPainter->drawLine( start.x(), globalPos.y(), start.x() + width(), globalPos.y() );
+	    unclippedPainter->drawLine( start.x(), end.y(), start.x() + width(), end.y() );
     } else {
 	if ( orientation() == dockWindow->orientation() )
-	    unclippedPainter->drawLine( globalPos.x(), starta.y(), globalPos.x(), starta.y() + dockWindow->area()->height() );
+	    unclippedPainter->drawLine( end.x(), starta.y(), end.x(), starta.y() + dockWindow->area()->height() );
 	else
-	    unclippedPainter->drawLine( globalPos.x(), start.y(), globalPos.x(), start.y() + height() );
+	    unclippedPainter->drawLine( end.x(), start.y(), end.x(), start.y() + height() );
     }
 }
 
@@ -735,8 +751,13 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     if ( !unclippedPainter )
 	return;
 
-    if ( drawRect )
-	unclippedPainter->drawRect( currRect );
+    if ( drawRect ) {
+	QRect dr(currRect);
+#ifdef MAC_DRAG_HACK
+	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+#endif
+	unclippedPainter->drawRect( dr );
+    }
     currRect = QRect( realWidgetPos( this ), size() );
     QWidget *w = areaAt( gp );
     QPoint offset( mapFromGlobal( pos ) );
@@ -746,7 +767,11 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	    swapRect( currRect, Horizontal, startOffset );
 	if ( drawRect ) {
 	    unclippedPainter->setPen( QPen( gray, 3 ) );
-	    unclippedPainter->drawRect( currRect );
+	    QRect dr(currRect);
+#ifdef MAC_DRAG_HACK
+	    dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+#endif
+	unclippedPainter->drawRect( dr );
 	}
 	state = OutsideDock;
 	return;
@@ -758,7 +783,11 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	    swapRect( currRect, orientation(), startOffset );
     if ( drawRect ) {
 	unclippedPainter->setPen( QPen( gray, 1 ) );
-	unclippedPainter->drawRect( currRect );
+	QRect dr(currRect);
+#ifdef MAC_DRAG_HACK
+	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+#endif
+	unclippedPainter->drawRect( dr );
     }
     tmpDockArea = area;
 }
@@ -929,18 +958,27 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
     state = place();
     if ( unclippedPainter )
 	endRectDraw( !opaque );
-    bool unclipped = QApplication::desktop()->testWFlags( WPaintUnclipped );
-    ( (QDockWindow*)QApplication::desktop() )->setWFlags( WPaintUnclipped );
+#ifdef MAC_DRAG_HACK    
+    QWidget *paint_on = topLevelWidget();
+#else
+    QWidget *paint_on = QApplication::desktop();
+#endif
+    bool unclipped = paint_on->testWFlags( WPaintUnclipped );
+    ( (QDockWindow*)paint_on)->setWFlags( WPaintUnclipped );
     unclippedPainter = new QPainter;
-    unclippedPainter->begin( QApplication::desktop() );
+    unclippedPainter->begin( paint_on );
     if ( !unclipped )
-	( (QDockWindow*)QApplication::desktop() )->clearWFlags( WPaintUnclipped );
+	( (QDockWindow*)paint_on)->clearWFlags( WPaintUnclipped );
     unclippedPainter->setPen( QPen( gray, 3 ) );
     unclippedPainter->setRasterOp( XorROP );
-
     currRect = QRect( realWidgetPos( this ), size() );
-    if ( drawRect )
-	unclippedPainter->drawRect( currRect );
+    if ( drawRect ) {
+	QRect dr(currRect);
+#ifdef MAC_DRAG_HACK
+	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+#endif
+	unclippedPainter->drawRect( dr );
+    }
     startRect = currRect;
     startOrientation = orientation();
     startOffset = so;
@@ -950,8 +988,13 @@ void QDockWindow::endRectDraw( bool drawRect )
 {
     if ( !unclippedPainter )
 	return;
-    if ( drawRect )
-	unclippedPainter->drawRect( currRect );
+    if ( drawRect ) {
+	QRect dr(currRect);
+#ifdef MAC_DRAG_HACK
+	dr.moveBy(-topLevelWidget()->x(), -topLevelWidget()->y());
+#endif
+	unclippedPainter->drawRect( dr );
+    }
     delete unclippedPainter;
     unclippedPainter = 0;
 }
