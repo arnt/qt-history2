@@ -12,3 +12,4 @@ SOURCES		= main.cpp \
 		  imagetexteditor.cpp \
 		  showimg.cpp \
 		  imagefip.cpp
+QT	+= compat

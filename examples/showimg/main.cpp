@@ -21,12 +21,12 @@ int main( int argc, char **argv )
 	QApplication::setColorSpec( QApplication::ManyColor );
 	argc--;
 	argv++;
-    } 
+    }
     else if ( argc > 1 && QString(argv[1]) == "-n" ) {
 	QApplication::setColorSpec( QApplication::NormalColor );
 	argc--;
 	argv++;
-    } 
+    }
     else {
 	QApplication::setColorSpec( QApplication::CustomColor );
     }
@@ -35,7 +35,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     ImageIconProvider iip;
-    QFileDialog::setIconProvider( &iip );
+    Q3FileDialog::setIconProvider( &iip );
 
     if ( argc <= 1 ) {
 	// Create a window which looks after its own existence.

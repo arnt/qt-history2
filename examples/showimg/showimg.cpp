@@ -22,6 +22,7 @@
 #include <qevent.h>
 #include <qclipboard.h>
 
+using namespace Qt;
 
 /*
   In the constructor, we just pass the standard parameters on to
@@ -30,7 +31,7 @@
   The menu uses a single slot to simplify the process of adding
   more items to the options menu.
 */
-ImageViewer::ImageViewer( QWidget *parent, const char *name, WFlags wFlags )
+ImageViewer::ImageViewer( QWidget *parent, const char *name, Qt::WFlags wFlags )
     : QWidget( parent, name, wFlags ),
       conversion_flags( PreferDither ),
       helpmsg( 0 )

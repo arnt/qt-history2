@@ -23,6 +23,7 @@
 #include <qlistbox.h>
 #include <qpushbutton.h>
 
+using namespace Qt;
 
 ImageTextEditor::ImageTextEditor( QImage& i, QWidget *parent, const char *name, WFlags f ) :
     QDialog(parent,name,TRUE,f),
@@ -31,7 +32,7 @@ ImageTextEditor::ImageTextEditor( QImage& i, QWidget *parent, const char *name, 
     QVBoxLayout* vbox = new QVBoxLayout(this,8);
     vbox->setAutoAdd(TRUE);
 
-    QGrid* controls = new QGrid(3,QGrid::Horizontal,this);
+    QGrid* controls = new QGrid(3,Qt::Horizontal,this);
     controls->setSpacing(8);
     QLabel* l;
     l=new QLabel("Language",controls); l->setAlignment(AlignCenter);

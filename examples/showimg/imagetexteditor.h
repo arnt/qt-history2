@@ -25,7 +25,7 @@ class ImageTextEditor : public QDialog
 {
     Q_OBJECT
 public:
-    ImageTextEditor( QImage& i, QWidget *parent=0, const char *name=0, WFlags f=0 );
+    ImageTextEditor( QImage& i, QWidget *parent=0, const char *name=0, Qt::WFlags f=0 );
     ~ImageTextEditor();
     void accept();
 public slots:

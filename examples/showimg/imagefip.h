@@ -13,10 +13,10 @@
 #ifndef IMAGEFIP_H
 #define IMAGEFIP_H
 
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qpixmap.h>
 
-class ImageIconProvider : public QFileIconProvider
+class ImageIconProvider : public Q3FileIconProvider
 {
     Q_OBJECT
     QList<QByteArray> fmts;

@@ -43,7 +43,7 @@ static const char *image_xpm[] = {
 };
 
 ImageIconProvider::ImageIconProvider( QWidget *parent, const char *name ) :
-    QFileIconProvider( parent, name ),
+    Q3FileIconProvider( parent, name ),
     imagepm(image_xpm)
 {
     fmts = QImage::inputFormats();
@@ -59,6 +59,6 @@ const QPixmap * ImageIconProvider::pixmap( const QFileInfo &fi )
     if ( fmts.contains(ext.toLocal8Bit()) ) {
 	return &imagepm;
     } else {
-	return QFileIconProvider::pixmap(fi);
+	return Q3FileIconProvider::pixmap(fi);
     }
 }
