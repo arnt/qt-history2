@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qpoint.h"
 #include "qshared.h"
+#include "qnamespace.h"			// Qt::CursorShape
 #endif // QT_H
 
 /*
@@ -68,7 +69,7 @@ struct QCursorData;
 class Q_EXPORT QCursor : public Qt
 {
 public:
-    QCursor();					// create default arrow cursor
+    QCursor();				// create default arrow cursor
     QCursor( int shape );
     QCursor( const QBitmap &bitmap, const QBitmap &mask,
 	     int hotX=-1, int hotY=-1 );
@@ -110,6 +111,10 @@ private:
     QCursor	 *find_cur(int);
 };
 
+
+#if !defined(QT_CLEAN_NAMESPACE)
+typedef Qt::CursorShape QCursorShape;
+#endif
 
 
 /*****************************************************************************
