@@ -39,6 +39,40 @@ inline void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
     return newval;
 }
 
+#define Q_HAVE_ATOMIC_INCDEC
+
+inline int q_atomic_increment(volatile int *ptr)
+{
+    unsigned char ret;
+    asm volatile("lock incl %0; sete %1"
+		 : "=m" (*ptr), "=qm" (ret)
+		 : "m" (*ptr)
+		 : "memory");
+    return ret != 0;
+}
+
+inline int q_atomic_decrement(volatile int *ptr)
+{
+    unsigned char ret;
+    asm volatile("lock decl %0; sete %1"
+		 : "=m" (*ptr), "=qm" (ret)
+		 : "m" (*ptr)
+		 : "memory");
+    return ret == 0;
+}
+
+#define Q_HAVE_ATOMIC_SETPOINTER
+
+inline void *q_atomic_set_pointer(void * volatile *ptr, void *newval)
+{
+    asm volatile("xchgl %0,%1"
+		 : "=r" (newval)
+		 : "m" (*ptr), "0" (newval)
+		 : "memory");
+    return newval;
+}
+
+
 #elif defined(Q_OS_WIN) && (defined(Q_CC_MSVC) || defined(Q_CC_INTEL))
 
 inline int q_cas_32(volatile int *pointer, int expected, int newval)

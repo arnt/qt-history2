@@ -20,27 +20,10 @@
 
 #include <arch/qatomic.h>
 
-template <typename T>
-inline T qAtomicSetPtr(volatile T *ptr, T newval)
+#ifndef Q_HAVE_ATOMIC_INCDEC
+inline bool q_atomic_increment(volatile int * const p)
 {
-    void *expected = static_cast<void *>(*ptr), *result;
-    for (;;) {
-        result = q_cas_ptr(reinterpret_cast<void * volatile *>(ptr), expected,
-			   static_cast<void *>(newval));
-        if (result == expected) break;
-
-        expected = result;
-    }
-    return static_cast<T>(result);
-}
-
-struct QAtomic {
-    int atomic;
-
-    inline bool operator++()
-    {
-	volatile int * const p = &atomic;
-        register int expected = *p, newval, result;
+	register int expected = *p, newval, result;
 	for (;;) {
             newval = expected + 1;
  	    result = q_cas_32((int *)p, expected, newval);
@@ -49,11 +32,10 @@ struct QAtomic {
 	    expected = result;
 	}
  	return result != 0;
-    }
+}
 
-    inline bool operator--()
-    {
-	volatile int * const p = &atomic;
+inline bool q_atomic_decrement(volatile int * const p)
+{
 	register int expected = *p, newval, result;
 	for (;;) {
             newval = expected - 1;
@@ -63,6 +45,40 @@ struct QAtomic {
 	    expected = result;
 	}
  	return result != 1;
+}
+#endif
+
+#ifndef Q_HAVE_ATOMIC_SETPOINTER
+inline void *q_atomic_set_pointer(void * volatile *ptr, void *newval)
+{
+    void *expected = static_cast<void *>(*ptr), *result;
+    for (;;) {
+        result = q_cas_ptr(ptr, expected, newval);
+        if (result == expected) break;
+
+        expected = result;
+    }
+    return result;
+}
+#endif
+
+template <typename T>
+inline T qAtomicSetPtr(volatile T *ptr, T newval)
+{
+    return static_cast<T>(q_atomic_set_pointer(reinterpret_cast<void * volatile *>(ptr), newval));
+}
+
+struct QAtomic {
+    int atomic;
+
+    inline bool operator++()
+    {
+	return q_atomic_increment(&atomic);
+    }
+
+    inline bool operator--()
+    {
+	return q_atomic_decrement(&atomic);
     }
 
     inline bool operator==(int x) const
