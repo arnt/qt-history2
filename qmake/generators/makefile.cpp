@@ -1154,6 +1154,15 @@ MakefileGenerator::init()
 		(*val_it) = Option::fixPathToTargetOS((*val_it), FALSE);
 	}
     }
+
+    QString fixpaths[] = { QString("PRE_TARGETDEPS"), QString("POST_TARGETDEPS"), QString::null };
+    for(int path = 0; !fixpaths[path].isNull(); path++) {
+	QStringList &l = v[fixpaths[path]];
+	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+	    if(!(*val_it).isEmpty())
+		(*val_it) = Option::fixPathToTargetOS((*val_it), FALSE);
+	}
+    }
 }
 
 bool
