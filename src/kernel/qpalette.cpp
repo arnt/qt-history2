@@ -457,7 +457,7 @@ QPalette::QPalette(const QColor &button)
 	   base,
 	   disfg;
     int h, s, v;
-    bg.hsv(&h, &s, &v);
+    bg.getHsv(&h, &s, &v);
     if(v > 128) {
 	fg   = Qt::black;
 	base = Qt::white;
@@ -521,7 +521,7 @@ QPalette::QPalette(const QColor &button, const QColor &background)
     init();
     QColor bg = background, btn = button, fg, base, disfg;
     int h, s, v;
-    bg.hsv(&h, &s, &v);
+    bg.getHsv(&h, &s, &v);
     if(v > 128) {
 	fg   = Qt::black;
 	base = Qt::white;

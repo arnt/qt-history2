@@ -181,7 +181,7 @@ QColor::QColor(Qt::GlobalColor color)
 #define QRGBA(r, g, b, a) \
     ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff)
 
-    static QRgb global_colors[] = {
+    static const QRgb global_colors[] = {
 #if defined Q_WS_X11
 	// HACK: we need a way to recognize color0 and color1 uniquely, so
 	// that we can use color0 and color1 with fixed pixel values on
@@ -314,7 +314,8 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 }
 
 
-/*!
+/*! \fn QColor::QColor( const QString& name )
+
     Constructs a named color in the same way as setNamedColor() using
     name \a name.
 
@@ -323,13 +324,9 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
     \sa setNamedColor()
 */
 
-QColor::QColor( const QString& name )
-{
-    setNamedColor( name );
-}
 
+/*! \fn QColor::QColor( const char *name )
 
-/*!
     Constructs a named color in the same way as setNamedColor() using
     name \a name.
 
@@ -338,35 +335,22 @@ QColor::QColor( const QString& name )
     \sa setNamedColor()
 */
 
-QColor::QColor( const char *name )
-{
-    setNamedColor( QString(name) );
-}
 
 
 
 /*!
+  \fn QColor::QColor( const QColor &c )
+
     Constructs a color that is a copy of \a c.
 */
 
-QColor::QColor( const QColor &c )
-{
-    d.argb = c.d.argb;
-    d.d32.pix = c.d.d32.pix;
-}
 
+/*! \fn QColor &QColor::operator=( const QColor &c )
 
-/*!
     Assigns a copy of the color \a c and returns a reference to this
     color.
 */
 
-QColor &QColor::operator=( const QColor &c )
-{
-    d.argb = c.d.argb;
-    d.d32.pix = c.d.d32.pix;
-    return *this;
-}
 
 /*!
     \overload
@@ -462,8 +446,12 @@ void QColor::setNamedColor( const QString& name )
   \obsolete
 */
 
-/*!  \fn void QColor::getHsv( int *h, int *s, int *v ) const
+/*!
+  \fn void QColor::hsv( int *h, int *s, int *v ) const
+  \obsolete Use getHsv() instead.
+ */
 
+/*!
     Returns the current RGB value as HSV. The contents of the \a h, \a
     s and \a v pointers are set to the HSV values. If any of the three
     pointers are null, the function does nothing.
@@ -476,10 +464,7 @@ void QColor::setNamedColor( const QString& name )
 
     \sa setHsv(), rgb()
 */
-
-/*! \obsolete Use getHsv() instead.
- */
-void QColor::hsv( int *h, int *s, int *v ) const
+void QColor::getHsv( int *h, int *s, int *v ) const
 {
     if ( !h || !s || !v )
 	return;
@@ -600,13 +585,10 @@ void QColor::setHsv( int h, int s, int v )
     \sa rgb(), setRgb(), getHsv()
 */
 
-/*! \obsolete Use getRgb() instead */
-void QColor::rgb( int *r, int *g, int *b ) const
-{
-    *r = qRed(d.argb);
-    *g = qGreen(d.argb);
-    *b = qBlue(d.argb);
-}
+/*! \fn void QColor::rgb( int *r, int *g, int *b ) const
+  \obsolete
+  Use getRgb() instead
+*/
 
 
 /*!
@@ -698,7 +680,7 @@ QColor QColor::light( int factor ) const
 	return dark( 10000/factor );
 
     int h, s, v;
-    hsv( &h, &s, &v );
+    getHsv( &h, &s, &v );
     v = (factor*v)/100;
     if ( v > 255 ) {				// overflow
 	s -= v-255;				// adjust saturation
@@ -737,7 +719,7 @@ QColor QColor::dark( int factor ) const
     else if ( factor < 100 )			// makes color lighter
 	return light( 10000/factor );
     int h, s, v;
-    hsv( &h, &s, &v );
+    getHsv( &h, &s, &v );
     v = (v*100)/factor;
     QColor c;
     c.setHsv( h, s, v );

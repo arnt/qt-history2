@@ -4698,8 +4698,8 @@ void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter,
 	    pal.color( QPalette::Highlight );
     if ( selection == QTextDocument::IMCompositionText ) {
 	int h1, s1, v1, h2, s2, v2;
-	pal.color( QPalette::Base ).hsv( &h1, &s1, &v1 );
-	pal.color( QPalette::Background ).hsv( &h2, &s2, &v2 );
+	pal.color( QPalette::Base ).getHsv( &h1, &s1, &v1 );
+	pal.color( QPalette::Background ).getHsv( &h2, &s2, &v2 );
 	color.setHsv( h1, s1, ( v1 + v2 ) / 2 );
 	painter.setPen( pal.color( QPalette::Text ) );
     } else if ( selection == QTextDocument::IMSelectionText ) {

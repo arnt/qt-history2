@@ -275,7 +275,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
 	if (bg) {
 	    int h, s, v;
-	    bg->hsv(&h, &s, &v);
+	    bg->getHsv(&h, &s, &v);
 	    if (v >= 128)
 		p->setPen(Qt::black);
 	    else

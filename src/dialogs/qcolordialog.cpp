@@ -467,7 +467,7 @@ static inline void rgb2hsv( QRgb rgb, int&h, int&s, int&v )
 {
     QColor c;
     c.setRgb( rgb );
-    c.getHsv(h,s,v);
+    c.getHsv(&h, &s, &v);
 }
 
 class QColorWell : public QWellArray

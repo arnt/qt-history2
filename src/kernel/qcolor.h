@@ -43,20 +43,23 @@ public:
     QString name() const;
     void   setNamedColor( const QString& name );
 
-    QRgb   rgb()    const;
+    inline QRgb rgb()    const;
     void   setRgb( int r, int g, int b );
     void   setRgb( QRgb rgb );
-    void   getRgb( int *r, int *g, int *b ) const { rgb( r, g, b ); }
-    void   rgb( int *r, int *g, int *b ) const; // obsolete
+    inline void getRgb( int *r, int *g, int *b ) const;
 
     int	   red()    const;
     int	   green()  const;
     int	   blue()   const;
 
     void   setHsv( int h, int s, int v );
-    void   getHsv( int *h, int *s, int *v ) const { hsv( h, s, v ); }
-    void   hsv( int *h, int *s, int *v ) const; // obsolete
-    void   getHsv( int &h, int &s, int &v ) const { hsv( &h, &s, &v ); } // obsolete
+    void   getHsv( int *h, int *s, int *v ) const;
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT void rgb( int *r, int *g, int *b ) const;
+    inline QT_COMPAT void hsv( int *h, int *s, int *v ) const { getHsv(h, s, v); }
+    inline QT_COMPAT void getHsv( int &h, int &s, int &v ) const { getHsv( &h, &s, &v ); } // obsolete
+#endif
 
     QColor light( int f = 150 ) const;
     QColor dark( int f = 200 )	const;
@@ -130,8 +133,28 @@ inline QColor::QColor()
 inline QColor::QColor( int r, int g, int b )
 { setRgb( r, g, b ); }
 
+inline QColor::QColor( const char *name )
+{ setNamedColor( QString(name) ); }
+
+inline QColor::QColor( const QString& name )
+{ setNamedColor( name ); }
+
+inline QColor::QColor( const QColor &c )
+{ d.argb = c.d.argb; d.d32.pix = c.d.d32.pix; }
+
+inline QColor &QColor::operator=( const QColor &c )
+{ d.argb = c.d.argb; d.d32.pix = c.d.d32.pix; return *this; }
+
 inline QRgb QColor::rgb() const
 { return d.argb; }
+
+inline void QColor::getRgb( int *r, int *g, int *b ) const
+{ *r = qRed(d.argb); *g = qGreen(d.argb); *b = qBlue(d.argb); }
+
+#ifdef QT_COMPAT
+inline void QColor::rgb( int *r, int *g, int *b ) const
+{ *r = qRed(d.argb); *g = qGreen(d.argb); *b = qBlue(d.argb); }
+#endif
 
 inline int QColor::red() const
 { return qRed(d.argb); }

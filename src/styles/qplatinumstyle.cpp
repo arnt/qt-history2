@@ -1468,8 +1468,8 @@ QRect QPlatinumStyle::subRect( SubRect r, const QWidget *widget ) const
 QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 {
     int h1,s1,v1,h2,s2,v2;
-    c1.hsv(&h1,&s1,&v1);
-    c2.hsv(&h2,&s2,&v2);
+    c1.getHsv(&h1,&s1,&v1);
+    c2.getHsv(&h2,&s2,&v2);
     return QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv );
 }
 

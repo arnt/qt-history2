@@ -418,7 +418,7 @@ uint QColor::alloc( int screen )
 
 	    if ( i == -1 ) {			// no nearest color?!
 		int unused, value;
-		hsv(&unused, &unused, &value);
+		getHsv(&unused, &unused, &value);
 		if (value < 128) { // dark, use black
 		    d.argb = qRgb(0,0,0);
 		    pix = (uint)BlackPixel( dpy, screen );
@@ -472,7 +472,7 @@ uint QColor::alloc( int screen )
 
     if ( try_again ) {				// no hope of allocating color
 	int unused, value;
-	hsv(&unused, &unused, &value);
+	getHsv(&unused, &unused, &value);
 	if (value < 128) { // dark, use black
 	    d.argb = qRgb(0,0,0);
 	    pix = (uint)BlackPixel( dpy, screen );

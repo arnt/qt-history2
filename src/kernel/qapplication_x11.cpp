@@ -1152,7 +1152,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    btn = qt_std_pal->active().button();
 
 	int h,s,v;
-	fg.hsv(&h,&s,&v);
+	fg.getHsv(&h,&s,&v);
 	QColor base = Qt::white;
 	bool bright_mode = FALSE;
 	if (v >= 255-50) {

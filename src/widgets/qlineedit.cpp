@@ -1910,8 +1910,8 @@ void QLineEdit::drawContents( QPainter *p )
  	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 
 	    int h1, s1, v1, h2, s2, v2;
-	    pal.color( QPalette::Base ).hsv( &h1, &s1, &v1 );
-	    pal.color( QPalette::Background ).hsv( &h2, &s2, &v2 );
+	    pal.color( QPalette::Base ).getHsv( &h1, &s1, &v1 );
+	    pal.color( QPalette::Background ).getHsv( &h2, &s2, &v2 );
 	    QColor imCol;
 	    imCol.setHsv( h1, s1, ( v1 + v2 ) / 2 );
 	    p->fillRect( highlight, imCol );
