@@ -50,32 +50,32 @@ private:
     QRect adjustedRectangle(const QRect &r);
 };
 
-Q_COMPAT_EXPORT void Q3Painter::drawRect(const QRect &r)
+void Q3Painter::drawRect(const QRect &r)
 {
     QPainter::drawRect(adjustedRectangle(r));
 }
 
-Q_COMPAT_EXPORT void Q3Painter::drawEllipse(const QRect &r)
+void Q3Painter::drawEllipse(const QRect &r)
 {
     QPainter::drawEllipse(adjustedRectangle(r));
 }
 
-Q_COMPAT_EXPORT void Q3Painter::drawRoundRect(const QRect &r, int xrnd, int yrnd)
+void Q3Painter::drawRoundRect(const QRect &r, int xrnd, int yrnd)
 {
     QPainter::drawRoundRect(adjustedRectangle(r), xrnd, yrnd);
 }
 
-Q_COMPAT_EXPORT void Q3Painter::drawArc(const QRect &r, int angle, int arcLength)
+void Q3Painter::drawArc(const QRect &r, int angle, int arcLength)
 {
     QPainter::drawArc(adjustedRectangle(r), angle, arcLength);
 }
 
-Q_COMPAT_EXPORT void Q3Painter::drawPie(const QRect &r, int angle, int arcLength)
+void Q3Painter::drawPie(const QRect &r, int angle, int arcLength)
 {
     QPainter::drawPie(adjustedRectangle(r), angle, arcLength);
 }
 
-Q_COMPAT_EXPORT void Q3Painter::drawChord(const QRect &r, int angle, int arcLength)
+void Q3Painter::drawChord(const QRect &r, int angle, int arcLength)
 {
     QPainter::drawChord(adjustedRectangle(r), angle, arcLength);
 }
