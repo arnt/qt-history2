@@ -17,7 +17,6 @@
 #include "qdatetime.h"
 #include "qthread.h"
 #include <private/qthread_p.h>
-#include <private/qspinlock_p.h>
 
 #define d d_func()
 #define q q_func()
