@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#106 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -225,6 +225,7 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 */
 
 static int dpiX=0,dpiY=0;
+extern void     qX11ClearFontNameCache(); // defined in qfont_x11.cpp
 
 /*!
   Sets the value returned by x11AppDpiX().  The default is determined
@@ -236,6 +237,7 @@ static int dpiX=0,dpiY=0;
 void QPaintDevice::x11SetAppDpiX(int dpi)
 {
     dpiX = dpi;
+    qX11ClearFontNameCache();
 }
 
 /*!
@@ -248,6 +250,7 @@ void QPaintDevice::x11SetAppDpiX(int dpi)
 void QPaintDevice::x11SetAppDpiY(int dpi)
 {
     dpiY = dpi;
+    qX11ClearFontNameCache();
 }
 
 /*!
