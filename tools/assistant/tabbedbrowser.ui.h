@@ -14,18 +14,21 @@
 #include "config.h"
 
 static const char * tab_widget_new_xpm[]={
-"8 8 3 1",
+"10 11 3 1",
 ". c None",
 "# c #000000",
 "a c #ffffff",
-".####...",
-".#aa##..",
-".#aa###.",
-".#aaaa#.",
-".#aaaa#.",
-".#aaaa#.",
-".######.",
-"........"};
+".######...",
+".#aaaa##..",
+".#aaaa###.",
+".#aaaaaa#.",
+".#aaaaaa#.",
+".#aaaaaa#.",
+".#aaaaaa#.",
+".#aaaaaa#.",
+".#aaaaaa#.",
+".########.",
+".........."};
 
 static QString reduceLabelLength( const QString &s )
 {
