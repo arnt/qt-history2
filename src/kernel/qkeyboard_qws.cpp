@@ -90,6 +90,26 @@ static int  kbdFD = -1;
   to Qt/Embedded for relaying to clients.
 */
 
+
+/*!
+  Constructs a keyboard handler. The handler \e may be passed to
+  the system for later destruction with QWSServer::setKeyboardHandler(),
+  though even without doing this, the handler can function,
+  calling processKeyEvent() to emit events.
+*/
+QWSKeyboardHandler::QWSKeyboardHandler()
+{
+}
+
+/*!
+  Destroys a keyboard handler. Note that if you have called
+  QWSServer::setKeyboardHandler(), you may not delete the handler.
+*/
+QWSKeyboardHandler::~QWSKeyboardHandler()
+{
+}
+
+
 /*!
   Subclasses call this to send a key event. The server may additionally
   filter it before sending it on to applications.

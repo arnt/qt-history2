@@ -2107,14 +2107,6 @@ void QWSServer::openMouse()
 
 #ifndef QT_NO_QWS_KEYBOARD
 
-QWSKeyboardHandler::QWSKeyboardHandler()
-{
-}
-
-QWSKeyboardHandler::~QWSKeyboardHandler()
-{
-}
-
 /*!
   Closes keyboard device(s).
 */
