@@ -51,6 +51,7 @@ protected:
     bool event(QEvent *);
 
 private:
+    static QMAC_PASCAL OSStatus ctrlEventProcessor(EventHandlerCallRef,  EventRef, void *);
     QMacControlPrivate *d;
 };
 
