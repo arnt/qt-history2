@@ -958,21 +958,25 @@ void QMessageBox::resizeEvent(QResizeEvent *)
     int btn_spacing = useBorder ? border : 7;
     int lmargin = 0;
     d->iconLabel->adjustSize();
-    d->iconLabel->move(border, border);
+    bool rtl = layoutDirection() == Qt::RightToLeft;
+    if (rtl)
+        d->iconLabel->move(width() - border - d->iconLabel->width(), border);
+    else
+        d->iconLabel->move(border, border);
     if (d->iconLabel->pixmap() && d->iconLabel->pixmap()->width())
         lmargin += d->iconLabel->width() + border;
-    d->label->setGeometry(lmargin+border,
+    d->label->setGeometry((rtl ? 0 : lmargin) + border,
                           border,
                           width() - lmargin -2*border,
                           height() - 3*border - bh);
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
     if (useBorder) {
         for (i=0; i<n; i++)
-            d->pb[i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
+            d->pb[rtl ? n - i - 1 : i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
                               height() - border - bh);
     } else {
         for (i=0; i<n; i++)
-            d->pb[i]->move(border + i*bw + extra_space/2 + i*btn_spacing,
+            d->pb[rtl ? n - i - 1 : i]->move(border + i*bw + extra_space/2 + i*btn_spacing,
                               height() - border - bh);
     }
 }
