@@ -16,6 +16,7 @@ int main( int argc, char** argv )
 #if !defined(EVAL)
     app.validateArgs();
 #endif
+    app.autoDetection();
     app.generateOutputVars();
     if( app.displayHelp() )
 	return 1;

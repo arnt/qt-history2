@@ -17,6 +17,7 @@ public:
     void validateArgs();
 #endif
     bool displayHelp();
+    void autoDetection();
     void generateOutputVars();
 #if !defined(EVAL)
     void generateCachefile();
@@ -83,6 +84,8 @@ private:
 
     QTextStream outStream;
 
+    static bool findFile(const QString &fileName);
+    static bool findFileInPaths(const QString &fileName, const QStringList &paths);
 #if !defined(EVAL)
     void reloadCmdLine();
     void saveCmdLine();

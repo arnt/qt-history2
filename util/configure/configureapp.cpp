@@ -126,7 +126,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STYLE_PLATINUM" ]  = "no";
     dictionary[ "STYLE_SGI" ]	    = "no";
     dictionary[ "STYLE_CDE" ]	    = "yes";
-    dictionary[ "STYLE_WINDOWSXP" ] = "no";
+    dictionary[ "STYLE_WINDOWSXP" ] = "auto";
     dictionary[ "STYLE_COMPACT" ]   = "no";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
     dictionary[ "STYLE_MAC" ]       = "no";
@@ -763,6 +763,47 @@ WCE( {	cout << "                         pocketpc" << endl; } );
 	return true;
     }
     return false;
+}
+
+bool Configure::findFileInPaths(const QString &fileName, const QStringList &paths)
+{
+    QDir d;
+    for( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
+        // Remove any leading or trailing ", this is commonly used in the environment
+        // variables
+        QString path = (*it);
+        if ( path.startsWith( "\"" ) )
+            path = path.right( path.length() - 1 );
+        if ( path.endsWith( "\"" ) )
+	    path = path.left( path.length() - 1 );
+        if( d.exists( path + QDir::separator() + fileName ) )
+	    return true;
+    }
+    return false;
+}
+
+bool Configure::findFile( const QString &fileName )
+{
+    QString file = fileName.toLower();
+    QStringList paths;
+#if defined(Q_OS_WIN32)
+    QRegExp splitReg("[;,]");
+#else
+    QRegExp splitReg("[:]");
+#endif
+    if (file.endsWith(".h"))
+        paths = QString::fromLocal8Bit(getenv("INCLUDE")).split(splitReg, QString::SkipEmptyParts);
+    else if ( file.endsWith( ".lib" ) )
+        paths = QString::fromLocal8Bit(getenv("LIB")).split(splitReg, QString::SkipEmptyParts);
+    else
+        paths = QString::fromLocal8Bit(getenv("PATH")).split(splitReg, QString::SkipEmptyParts);
+    return findFileInPaths(file, paths);
+}
+
+void Configure::autoDetection()
+{
+    if (dictionary["STYLE_WINDOWSXP"] == "auto")
+        dictionary["STYLE_WINDOWSXP"] = findFile(QLatin1String("uxtheme.h")) ? "plugin" : "no";
 }
 
 void Configure::generateOutputVars()
