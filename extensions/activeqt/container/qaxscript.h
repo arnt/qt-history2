@@ -5,16 +5,15 @@
 #include <qvariant.h>
 
 class QAxBase;
+class QAxObject;
 class QAxScriptSite;
-class QAxScriptInstance;
+class QAxScriptEngine;
 
 class QAxScript : public QObject
 {
     Q_OBJECT
 
 public:
-    QAxScript( QObject *parent = 0, const char *name = 0 );
-
     enum ScriptState {
 	Uninitialized = 0,
 	Initialized = 5,
@@ -24,12 +23,17 @@ public:
 	Closed = 4
     };
 
+
+    QAxScript( QObject *parent = 0, const char *name = 0 );
+
     void addObject(QAxBase *object);
 
     QStringList functions() const;
+    QStringList scripts() const;
+    QAxObject *scriptEngine(const QString &name) const;
 
-    bool load(const QString &file, const QString &name = QString());
-    bool load(const QString &code, const QString &language, const QString &name );
+    QAxObject *load(const QString &code, const QString &language, const QString &name );
+    QAxObject *load(const QString &file, const QString &name = QString());
     void unload(const QString &name);
 
     QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
@@ -46,12 +50,13 @@ private slots:
     void objectDestroyed(QObject *o);
 
 private:
-    void updateScripts();
-    void updateScript(QAxScriptInstance*);
-    QAxScriptInstance *script(const QString &function) const;
-
     friend class QAxScriptSite;
-    friend class QAxScriptInstance;
+    friend class QAxScriptEngine;
+
+    void updateScripts();
+    void updateScript(QAxScriptEngine*);
+    QAxScriptEngine *script(const QString &function) const;
+
     QAxScriptSite *scriptSite;
 };
 
