@@ -5,6 +5,7 @@
 #include <qptrlist.h>
 #include <qdict.h>
 #include <qdatetime.h>
+#include <qregexp.h>
 #if defined(Q_OS_WIN32)
 #include <conio.h>
 #endif
@@ -111,14 +112,8 @@ QPerfTableInit::QPerfTableInit( QPerfEntry *t )
     }
 }
 
-
-void run_test( const char *funcName )
+void run_test( QPerfEntry *e )
 {
-    QPerfEntry *e = perf_dict->find(funcName);
-    if ( !e ) {
-	output( "qperf: No such test '%s'", funcName );
-	return;
-    }
     QPerfEntry *p = e;
     int numTests;
     if ( p->group ) {
@@ -172,6 +167,27 @@ void run_test( const char *funcName )
     }
 }
 
+void run_test( const char *funcName )
+{
+    QPerfEntry *e = perf_dict->find(funcName);
+    if(e) {
+	run_test(e);
+	return;
+    }
+    //We do regular expression matching
+    int matches = 0;
+    QRegExp regx(funcName);
+    for(QDictIterator<QPerfEntry> it(*perf_dict); it.current(); ++it) {
+	if(regx.exactMatch(it.currentKey())) {
+	    run_test(it.current());
+	    matches++;
+	}
+    }
+    if ( !matches ) {
+	output( "qperf: No such test '%s'", funcName );
+	return;
+    }
+}
 
 void usage()
 {
@@ -404,8 +420,11 @@ int main( int argc, char **argv )
     pixmap->fill( Qt::white );
     widget->show();
 
+    QTime total_time;
+    total_time.start();
     Runner r;
     a.exec();
+    qDebug("****** Total running time (msec): %d", total_time.elapsed());
 
     if ( pause ) {
 	output("Press a key to continue...");
