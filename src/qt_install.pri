@@ -1,19 +1,17 @@
 #always install the library
 target.path=$$libs.path
-
 INSTALLS += target
 
 #headers
-
 headers.files = ../include/*.h
 isEmpty(headers_p.path):headers_p.path=$$headers.path/private
 headers_p.files = ../include/private/*.h
 INSTALLS += headers headers_p
 
 #docs
-
-docs.files = ../doc/html/*
-INSTALLS += docs
+htmldocs.files = ../doc/html/*
+htmldocs.path = $$docs.path/html
+INSTALLS += htmldocs
 
 macx { #mac framework
     framework.path = /System/Library/Frameworks/Qt.framework
