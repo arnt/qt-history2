@@ -66,10 +66,6 @@ static ushort num_src_targets ;
 
 extern bool qt_motifdnd_active;
 
-extern Atom qt_xdnd_str_to_atom(const char *mimeType);
-extern const char* qt_xdnd_atom_to_str(Atom);
-
-
 // Motif definitions
 #define DndVersion 1
 #define DndRevision 0
@@ -660,7 +656,7 @@ const char *qt_motifdnd_format(int n)
          target == xa_compound_text)
         return "text/plain";
 
-    return qt_xdnd_atom_to_str(target);
+    return X11->xdndAtomToString(target);
 }
 
 
@@ -690,9 +686,9 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
         // prior Qt versions
         conversion_type = XA_STRING;
     } else {
-        conversion_type = qt_xdnd_str_to_atom(f);
+        conversion_type = X11->xdndStringToAtom(f);
         // qDebug("found format '%s' 0x%lx '%s'", f, conversion_type,
-        // qt_xdnd_atom_to_str(conversion_type));
+        // X11->xdndAtomToString(conversion_type));
     }
 
     if (XGetSelectionOwner(qt_xdisplay(),
@@ -742,7 +738,7 @@ void qt_motifdnd_enable(QWidget *widget, bool)
 }
 
 
-void qt_motifdnd_handle_msg(QWidget * /* w */ , const XEvent * xe, bool /* passive */)
+void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* passive */)
 {
 
     XEvent event = *xe;

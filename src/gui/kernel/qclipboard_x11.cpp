@@ -56,11 +56,6 @@
 typedef int (*QX11EventFilter) (XEvent*);
 extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
 
-// from qdnd_x11.cpp
-extern Atom qt_xdnd_str_to_atom(const char *mimeType);
-extern const char* qt_xdnd_atom_to_str(Atom);
-
-
 static int clipboard_timeout = 5000; // 5s timeout on clipboard operations
 
 static QWidget * owner = 0;
@@ -440,8 +435,6 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
 static inline int maxSelectionIncr(Display *dpy)
 { return XMaxRequestSize(dpy) > 65536 ? 65536*4 : XMaxRequestSize(dpy)*4 - 100; }
 
-// uglyhack: externed into qt_xdnd.cpp. qt is really not designed for
-// single-platform, multi-purpose blocks of code...
 bool QX11Data::clipboardReadProperty(Window win, Atom property, bool deleteProperty,
                                      QByteArray *buffer, int *size, Atom *type, int *format, bool nullterm)
 {
@@ -566,8 +559,6 @@ bool QX11Data::clipboardReadProperty(Window win, Atom property, bool deletePrope
     return ok;
 }
 
-
-// this is externed into qt_xdnd.cpp too.
 QByteArray QX11Data::clipboardReadIncrementalProperty(Window win, Atom property, int nbytes, bool nullterm)
 {
     XEvent event;
@@ -649,7 +640,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     int n = 0;
     for (n = 0; n < formats.size(); ++n) {
         VDEBUG("    original format %s", formats.at(n).latin1());
-        atarget[n] = qt_xdnd_str_to_atom(formats.at(n).latin1());
+        atarget[n] = X11->xdndStringToAtom(formats.at(n).latin1());
     }
 
     if (formats.contains("image/ppm"))
@@ -670,7 +661,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
 #if defined(QCLIPBOARD_DEBUG_VERBOSE)
     for (int index = 0; index < n; index++) {
         VDEBUG("    atom %d: 0x%lx (%s)", index, atarget[index],
-               qt_xdnd_atom_to_str(atarget[index]));
+               X11->xdndAtomToString(atarget[index]));
     }
 #endif
 
@@ -685,7 +676,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
     DEBUG("QClipboard: send_string_selection():\n"
           "    property type %lx\n"
           "    property name '%s'",
-          target, qt_xdnd_atom_to_str(target));
+          target, X11->xdndAtomToString(target));
 
     if (target == ATOM(TEXT) || target == ATOM(COMPOUND_TEXT)) {
         // the ICCCM states that TEXT and COMPOUND_TEXT are in the
@@ -703,7 +694,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
                   "    textprop name '%s'\n"
                   "    format %d\n"
                   "    %ld items",
-                  textprop.encoding, qt_xdnd_atom_to_str(textprop.encoding),
+                  textprop.encoding, X11->xdndAtomToString(textprop.encoding),
                   textprop.format, textprop.nitems);
 
             int sz = sizeof_format(textprop.format);
@@ -771,7 +762,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     if (format == 0) format = 8;
 
     if (data.isEmpty()) {
-        const char *fmt = qt_xdnd_atom_to_str(target);
+        const char *fmt = X11->xdndAtomToString(target);
         DEBUG("QClipboard: send_selection(): converting to type '%s'", fmt);
         if (fmt && !d->source()->hasFormat(fmt)) // Not a MIME type we can produce
             return XNone;
@@ -783,7 +774,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
           "    property name '%s'\n"
           "    format %d\n"
           "    %d bytes",
-          target, qt_xdnd_atom_to_str(target), format, data.size());
+          target, X11->xdndAtomToString(target), format, data.size());
 
     // don't allow INCR transfers when using MULTIPLE or to
     // Motif clients (since Motif doesn't support INCR)
@@ -964,9 +955,9 @@ bool QClipboard::event(QEvent *e)
                   "    selection 0x%lx (%s) target 0x%lx (%s)",
                   req->requestor,
                   req->selection,
-                  qt_xdnd_atom_to_str(req->selection),
+                  X11->xdndAtomToString(req->selection),
                   req->target,
-                  qt_xdnd_atom_to_str(req->target));
+                  X11->xdndAtomToString(req->target));
 
             QClipboardData *d;
             if (req->selection == XA_PRIMARY) {
@@ -1090,7 +1081,7 @@ bool QClipboard::event(QEvent *e)
             DEBUG("QClipboard: SelectionNotify to 0x%lx\n"
                   "    property 0x%lx (%s)",
                   req->requestor, event.xselection.property,
-                  qt_xdnd_atom_to_str(event.xselection.property));
+                  X11->xdndAtomToString(event.xselection.property));
         }
         break;
     }
@@ -1164,7 +1155,7 @@ QStringList QClipboardWatcher::formats() const
                 if (targets[i] == 0)
                     continue;
 
-                VDEBUG("    format: %s", qt_xdnd_atom_to_str(targets[i]));
+                VDEBUG("    format: %s", X11->xdndAtomToString(targets[i]));
                 if (targets[i] == XA_PIXMAP)
                     formatList.append("image/ppm");
                 else if (targets[i] == XA_STRING
@@ -1173,7 +1164,7 @@ QStringList QClipboardWatcher::formats() const
                          || targets[i] == ATOM(COMPOUND_TEXT))
                     formatList.append("text/plain");
                 else
-                    formatList.append(qt_xdnd_atom_to_str(targets[i]));
+                    formatList.append(X11->xdndAtomToString(targets[i]));
                 VDEBUG("    data:\n%s\n", getDataInFormat(targets[i]).data());
             }
 
@@ -1205,7 +1196,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
 
         // find best available text format
         for (int i = 0; i < size; ++i) {
-            VDEBUG("    format: %s", qt_xdnd_atom_to_str(targets[i]));
+            VDEBUG("    format: %s", X11->xdndAtomToString(targets[i]));
             if (targets[i] == XA_STRING) {
                 if (fmtatom == 0)
                     fmtatom = targets[i];
@@ -1276,10 +1267,10 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
             iio.write();
             return buf.buffer();
         } else {
-            fmtatom = qt_xdnd_str_to_atom(fmt.latin1());
+            fmtatom = X11->xdndStringToAtom(fmt.latin1());
         }
     } else {
-        fmtatom = qt_xdnd_str_to_atom(fmt.latin1());
+        fmtatom = X11->xdndStringToAtom(fmt.latin1());
     }
     return getDataInFormat(fmtatom);
 }
@@ -1292,7 +1283,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     Window   win = requestor->winId();
 
     DEBUG("QClipboardWatcher::getDataInFormat: selection '%s' format '%s'",
-          qt_xdnd_atom_to_str(atom), qt_xdnd_atom_to_str(fmtatom));
+          X11->xdndAtomToString(atom), X11->xdndAtomToString(fmtatom));
 
     XSelectInput(dpy, win, NoEventMask); // don't listen for any events
 
@@ -1415,7 +1406,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
 
     if (XGetSelectionOwner(dpy, atom) != newOwner) {
         qWarning("QClipboard::setData: Cannot set X11 selection owner for %s",
-                 qt_xdnd_atom_to_str(atom));
+                 X11->xdndAtomToString(atom));
         d->clear();
         return;
     }

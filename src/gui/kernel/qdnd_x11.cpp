@@ -266,25 +266,25 @@ static bool qt_xdnd_enable(QWidget* w, bool on)
     }
 }
 
-const char* qt_xdnd_atom_to_str(Atom a)
+const char* QX11Data::xdndAtomToString(Atom a)
 {
     if (!a) return 0;
 
     if (a == XA_STRING)
         return "text/plain"; // some Xdnd clients are dumb
 
-    return XGetAtomName(X11->display, a);
+    return XGetAtomName(display, a);
 }
 
-Atom qt_xdnd_str_to_atom(const char *mimeType)
+Atom QX11Data::xdndStringToAtom(const char *mimeType)
 {
     if (!mimeType || !*mimeType)
         return 0;
-    return XInternAtom(X11->display, mimeType, False);
+    return XInternAtom(display, mimeType, False);
 }
 
 
-void qt_xdnd_setup() {
+void QX11Data::xdndSetup() {
     QCursor::initialize();
     qAddPostRoutine(qt_xdnd_cleanup);
 }
@@ -374,7 +374,7 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
     return false;
 }
 
-void qt_handle_xdnd_enter(QWidget *, const XEvent * xe, bool /*passive*/)
+void QX11Data::xdndHandleEnter(QWidget *, const XEvent * xe, bool /*passive*/)
 {
     qt_motifdnd_active = false;
 
@@ -486,7 +486,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
         if (qt_xdnd_target_answerwas)
             me.accept();
 
-         DEBUG() << "qt_handle_xdnd_position action=" << qt_xdnd_atom_to_str(l[4]);
+         DEBUG() << "qt_handle_xdnd_position action=" << X11->xdndAtomToString(l[4]);
         if (!c->acceptDrops()) {
             qt_xdnd_current_widget = 0;
             answerRect = QRect(p, QSize(1, 1));
@@ -549,7 +549,7 @@ static Bool xdnd_position_scanner(Display *, XEvent *event, XPointer)
     return false;
 }
 
-void qt_handle_xdnd_position(QWidget * w, const XEvent * xe, bool passive)
+void QX11Data::xdndHandlePosition(QWidget * w, const XEvent * xe, bool passive)
 {
     while (XCheckIfEvent(X11->display, (XEvent *)xe, xdnd_position_scanner, 0))
         ;
@@ -563,7 +563,7 @@ static void handle_xdnd_status(QWidget *, const XEvent * xe, bool)
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
     global_accepted_action = xdndaction_to_qtaction(l[4]);
 
-    DEBUG() << "qt_handle_xdnd_status accion=" << qt_xdnd_atom_to_str(l[4]);
+    DEBUG() << "qt_handle_xdnd_status accion=" << X11->xdndAtomToString(l[4]);
 
     if ((int)(l[1] & 2) == 0) {
         QPoint p((l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff);
@@ -590,7 +590,7 @@ static Bool xdnd_status_scanner(Display *, XEvent *event, XPointer)
     return false;
 }
 
-void qt_handle_xdnd_status(QWidget * w, const XEvent * xe, bool passive)
+void QX11Data::xdndHandleStatus(QWidget * w, const XEvent * xe, bool passive)
 {
     while (XCheckIfEvent(X11->display, (XEvent *)xe, xdnd_status_scanner, 0))
         ;
@@ -598,7 +598,7 @@ void qt_handle_xdnd_status(QWidget * w, const XEvent * xe, bool passive)
     handle_xdnd_status(w, xe, passive);
 }
 
-void qt_handle_xdnd_leave(QWidget *w, const XEvent * xe, bool /*passive*/)
+void QX11Data::xdndHandleLeave(QWidget *w, const XEvent * xe, bool /*passive*/)
 {
     DEBUG("xdnd leave");
     if (!qt_xdnd_current_widget ||
@@ -652,7 +652,7 @@ void qt_xdnd_send_leave()
         w = 0;
 
     if (w)
-        qt_handle_xdnd_leave(w, (const XEvent *)&leave, false);
+        X11->xdndHandleLeave(w, (const XEvent *)&leave, false);
     else
         XSendEvent(X11->display, qt_xdnd_current_proxy_target, False,
                     NoEventMask, (XEvent*)&leave);
@@ -662,7 +662,7 @@ void qt_xdnd_send_leave()
 
 
 
-void qt_handle_xdnd_drop(QWidget *, const XEvent * xe, bool passive)
+void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
 {
     if (!qt_xdnd_current_widget) {
         qt_xdnd_dragsource_xid = 0;
@@ -714,7 +714,7 @@ void qt_handle_xdnd_drop(QWidget *, const XEvent * xe, bool passive)
 }
 
 
-void qt_handle_xdnd_finished(QWidget *, const XEvent * xe, bool passive)
+void QX11Data::xdndHandleFinished(QWidget *, const XEvent * xe, bool passive)
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
@@ -1038,7 +1038,7 @@ void QDragManager::move(const QPoint & globalPos)
             int flags = target_version << 24;
             QStringList fmts = object->d->data->formats();
             for (int i = 0; i < fmts.size(); ++i)
-                type.append(qt_xdnd_str_to_atom(fmts.at(i).latin1()));
+                type.append(X11->xdndStringToAtom(fmts.at(i).latin1()));
             if (type.size() > 3) {
                 XChangeProperty(X11->display,
                                 object->d->source->winId(), ATOM(XdndTypelist),
@@ -1063,7 +1063,7 @@ void QDragManager::move(const QPoint & globalPos)
 
             DEBUG("sending Xdnd enter");
             if (w) {
-                qt_handle_xdnd_enter(w, (const XEvent *)&enter, false);
+                X11->xdndHandleEnter(w, (const XEvent *)&enter, false);
             } else if (target) {
                 XSendEvent(X11->display, proxy_target, False, NoEventMask,
                             (XEvent*)&enter);
@@ -1127,7 +1127,7 @@ void QDragManager::drop()
         w = 0;
 
     if (w)
-        qt_handle_xdnd_drop(w, (const XEvent *)&drop, false);
+        X11->xdndHandleDrop(w, (const XEvent *)&drop, false);
     else
         XSendEvent(X11->display, qt_xdnd_current_proxy_target, False,
                     NoEventMask, (XEvent*)&drop);
@@ -1142,7 +1142,7 @@ void QDragManager::drop()
 
 
 
-bool qt_xdnd_handle_badwindow()
+bool QX11Data::xdndHandleBadwindow()
 {
     if (qt_xdnd_source_object && qt_xdnd_current_target) {
         qt_xdnd_current_target = 0;
@@ -1165,7 +1165,7 @@ bool qt_xdnd_handle_badwindow()
     return false;
 }
 
-void qt_xdnd_handle_selection_request(const XSelectionRequestEvent * req)
+void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
 {
     if (!req)
         return;
@@ -1177,7 +1177,7 @@ void qt_xdnd_handle_selection_request(const XSelectionRequestEvent * req)
     evt.xselection.target = req->target;
     evt.xselection.property = XNone;
     evt.xselection.time = req->time;
-    const char* format = qt_xdnd_atom_to_str(req->target);
+    const char* format = X11->xdndAtomToString(req->target);
     QDragPrivate* dp = QDragManager::self()->dragPrivate();
     if (format && dp->data->hasFormat(QLatin1String(format))) {
         QByteArray a = dp->data->data(QLatin1String(format));
@@ -1214,7 +1214,7 @@ static QByteArray qt_xdnd_obtain_data(const char *format)
         return result;
     }
 
-    Atom a = qt_xdnd_str_to_atom(format);
+    Atom a = X11->xdndStringToAtom(format);
     if (!a)
         return result;
 
@@ -1424,7 +1424,7 @@ QStringList QDropData::formats() const
     } else {
         int i = 0;
         while ((qt_xdnd_types[i])) {
-            formats.append(QLatin1String(qt_xdnd_atom_to_str(qt_xdnd_types[i])));
+            formats.append(QLatin1String(X11->xdndAtomToString(qt_xdnd_types[i])));
             ++i;
         }
     }

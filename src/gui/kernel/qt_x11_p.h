@@ -271,6 +271,8 @@ struct QX11Data
     void xdndHandleFinished(QWidget *, const XEvent *, bool);
     void xdndHandleSelectionRequest(const XSelectionRequestEvent *);
     static bool xdndHandleBadwindow();
+    const char* xdndAtomToString(Atom a);
+    Atom xdndStringToAtom(const char *);
 
     // from qmotifdnd_x11.cpp
     void motifdndHandle(QWidget *, const XEvent *, bool);

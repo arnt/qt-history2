@@ -44,8 +44,6 @@
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-extern bool qt_xdnd_enable(QWidget* w, bool on);
-
 extern int *qt_last_x;
 extern int *qt_last_y;
 extern WId qt_last_cursor;
