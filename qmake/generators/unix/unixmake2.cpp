@@ -589,10 +589,10 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 void UnixMakefileGenerator::init2()
 {
     //version handling
-    if ( project->variables()["VER_PAT"].isEmpty() )
-	project->variables()["VER_PAT"].append( "0" );
     if(project->variables()["VERSION"].isEmpty())
-	project->variables()["VERSION"].append("1.0." + project->first("VER_PAT") );
+	project->variables()["VERSION"].append("1.0." + 
+					       (project->isEmpty("VER_PAT") ? QString("0") : 
+						project->first("VER_PAT")) );
     QStringList l = QStringList::split('.', project->first("VERSION")) << "0" << "0"; //make sure there are three
     project->variables()["VER_MAJ"].append(l[0]);
     project->variables()["VER_MIN"].append(l[1]);
