@@ -523,7 +523,7 @@ MakefileGenerator::init()
                     (*input) = fileFixify((*input));
                 QFileInfo fi(Option::fixPathToLocalOS((*input)));
                 QString in = Option::fixPathToTargetOS((*input), false), out = tmp_out;
-                out = replaceExtraCompilerVariables(out, (*input), Qstring::null);
+                out = replaceExtraCompilerVariables(out, (*input), QString::null);
                 if(project->variables().contains((*it) + ".variable_out")) {
                     project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
                 } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
@@ -1404,10 +1404,14 @@ QString
 MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
 {
     QString ret = var;
-    QFileInfo fi(Option::fixPathToLocalOS(in));
-    ret.replace("${QMAKE_FILE_BASE}", fi.baseName());
-    ret.replace("${QMAKE_FILE_NAME}", fi.fileName());
-    ret.replace("${QMAKE_FILE_OUT}", out);
+    if(!in.isNull()) {
+        QFileInfo fi(Option::fixPathToLocalOS(in));
+        ret.replace("${QMAKE_FILE_BASE}", fi.baseName());
+        ret.replace("${QMAKE_FILE_NAME}", fi.fileName());
+    }
+    if(!out.isNull()) {
+        ret.replace("${QMAKE_FILE_OUT}", out);
+    }
     return ret;
 }
 
