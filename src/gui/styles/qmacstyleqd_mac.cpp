@@ -36,6 +36,7 @@
 #include <qmap.h>
 #include <qmenu.h>
 #include <qpaintengine_mac.h>
+#include <qprintengine_mac.h>
 #include <qpainter.h>
 #include <qpixmapcache.h>
 #include <qpointer.h>
@@ -66,10 +67,14 @@ public:
 };
 void QMacStyleQDPainter::setport()
 {
+    QPaintEngine *engine = d_ptr->engine;
+    if(engine->type() == QPaintEngine::MacPrinter)
+        engine = static_cast<QMacPrintEngine*>(engine)->paintEngine();
+
     QQuickDrawPaintEngine *mpe = NULL;
-    if (d_ptr->engine && (d_ptr->engine->type() == QPaintEngine::QuickDraw
-                         || d_ptr->engine->type() == QPaintEngine::CoreGraphics))
-        mpe = static_cast<QQuickDrawPaintEngine *>(d_ptr->engine);
+    if (engine && (engine->type() == QPaintEngine::QuickDraw
+                   || engine->type() == QPaintEngine::CoreGraphics))
+        mpe = static_cast<QQuickDrawPaintEngine *>(engine);
     if (mpe) {
         mpe->updateState(d_ptr->state);
         if(mpe->type() == QPaintEngine::QuickDraw) {

@@ -26,6 +26,7 @@
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_mac_p.h>
+#include <qprintengine_mac.h>
 #include <private/qpainter_p.h>
 #include <private/qwidget_p.h>
 
@@ -97,6 +98,8 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 QMacCGContext::QMacCGContext(QPainter *p)
 {
     QPaintEngine *pe = p->d->engine;
+    if(pe->type() == QPaintEngine::MacPrinter)
+        pe = static_cast<QMacPrintEngine*>(pe)->paintEngine();
     Q_ASSERT(pe->type() == QPaintEngine::CoreGraphics);
     pe->updateState(p->d->state); //be sure to sync
     context = static_cast<QCoreGraphicsPaintEngine*>(pe)->handle();
@@ -919,11 +922,11 @@ inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 
 
 //pattern handling (tiling)
 struct QMacPattern {
-    QMacPattern() : as_mask(false), image(0) { data.pixmap = 0; }
+    QMacPattern() : as_mask(false), image(0) { data.bytes = 0; }
     //input
     bool as_mask;
-    union {
-        const QPixmap *pixmap;
+    struct {
+        QPixmap pixmap;
         const uchar *bytes;
     } data;
     //output
@@ -940,9 +943,9 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
             pat->image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
             CGDataProviderRelease(provider);
         } else {
-            w = pat->data.pixmap->width();
-            h = pat->data.pixmap->height();
-            pat->image = qt_mac_create_cgimage(*pat->data.pixmap, Qt::ComposePixmap);
+            w = pat->data.pixmap.width();
+            h = pat->data.pixmap.height();
+            pat->image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap);
         }
     }
     CGRect rect = CGRectMake(0, 0, w, h);
@@ -1204,16 +1207,16 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
         if (bs == Qt::CustomPattern) {
-            qpattern->data.pixmap = brush.pixmap();
-            if(qpattern->data.pixmap->isQBitmap()) {
+            qpattern->data.pixmap = *brush.pixmap();
+            if(qpattern->data.pixmap.isQBitmap()) {
                 const QColor &col = brush.color();
                 components[0] = qt_mac_convert_color_to_cg(col.red());
                 components[1] = qt_mac_convert_color_to_cg(col.green());
                 components[2] = qt_mac_convert_color_to_cg(col.blue());
                 base_colorspace = CGColorSpaceCreateDeviceRGB();
             }
-            width = qpattern->data.pixmap->width();
-            height = qpattern->data.pixmap->height();
+            width = qpattern->data.pixmap.width();
+            height = qpattern->data.pixmap.height();
         } else {
             qpattern->as_mask = true;
             qpattern->data.bytes = qt_patternForBrush(bs, false);
@@ -1626,7 +1629,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGContextSaveGState(d->hd);
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
-    qpattern->data.pixmap = &pixmap;
+    qpattern->data.pixmap = pixmap;
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;

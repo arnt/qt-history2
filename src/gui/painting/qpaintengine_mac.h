@@ -85,7 +85,7 @@ private:
 };
 
 class QCoreGraphicsPaintEnginePrivate;
-class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine //for now we include QuickDraw to get things working, we *must* remove it later ### --Sam
+class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine 
 {
     Q_DECLARE_PRIVATE(QCoreGraphicsPaintEngine)
 
@@ -134,6 +134,8 @@ public:
     QPainter::RenderHints supportedRenderHints() const;
 
 protected:
+    friend class QMacPrintEngine;
+    friend class QMacPrintEnginePrivate;
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr);
     void drawPolyInternal(const QPointArray &a, bool close=true);
 

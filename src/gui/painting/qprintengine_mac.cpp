@@ -19,12 +19,7 @@
 #define d d_func()
 #define q q_func()
 
-QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode)
-#if defined(QMAC_PRINTER_USE_QUICKDRAW)
-    : QQuickDrawPaintEngine(*(new QMacPrintEnginePrivate))
-#else
-    : QCoreGraphicsPaintEngine(*(new QMacPrintEnginePrivate))
-#endif
+QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode) : QPaintEngine(*(new QMacPrintEnginePrivate))
 {
     d->mode = mode;
     d->initialize();
@@ -32,13 +27,7 @@ QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode)
 
 bool QMacPrintEngine::begin(QPaintDevice *dev)
 {
-#if defined(QMAC_PRINTER_USE_QUICKDRAW)
-    if (!QQuickDrawPaintEngine::begin(dev))
-        return false;
-#else
-    if (!QCoreGraphicsPaintEngine::begin(dev))
-        return false;
-#endif
+    d->paintEngine->begin(dev);
     Q_ASSERT_X(d->state == QPrinter::Idle, "QMacPrintEngine", "printer already active");
 
     if (PMSessionValidatePrintSettings(d->session, d->settings, kPMDontWantBoolean) != noErr
@@ -66,25 +55,29 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
 
     d->state = QPrinter::Active;
     d->newPage_helper();
+    setActive(true);
+    assignf(IsActive | DirtyFont);
     return true;
 }
 
 bool QMacPrintEngine::end()
 {
-#if defined(QMAC_PRINTER_USE_QUICKDRAW)
-    QQuickDrawPaintEngine::end();
-#else
-    d->hd = 0;
-    QCoreGraphicsPaintEngine::end();
-#endif
+    if(d->paintEngine->type() == QPaintEngine::CoreGraphics)
+        static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine)->d->hd = 0;
+    d->paintEngine->end();
     if (d->state != QPrinter::Idle) {
-        
         PMSessionEndPage(d->session);
         PMSessionEndDocument(d->session);
         PMRelease(d->session);
     }
     d->state  = QPrinter::Idle;
     return true;
+}
+
+QPaintEngine *
+QMacPrintEngine::paintEngine() const
+{
+    return d->paintEngine;
 }
 
 void QMacPrintEngine::setPrinterName(const QString &name)
@@ -342,7 +335,9 @@ QPrinter::PrinterState QMacPrintEngine::printerState() const
 bool QMacPrintEngine::newPage()
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    if (PMSessionEndPage(d->session) != noErr)  {
+    OSStatus err = PMSessionEndPage(d->session);
+    if (err != noErr)  {
+        qWarning("QMacPrintEngine::newPage: Cannot end current page. %ld", err);
         d->state = QPrinter::Error;
         return false;
     }
@@ -443,6 +438,19 @@ void QMacPrintEnginePrivate::initialize()
     Q_ASSERT(!settings);
     Q_ASSERT(!session);
 
+#if 0 //always use coregraphics for now until the bugs are kicked out
+#if !defined(QMAC_NO_COREGRAPHICS)
+    if(!getenv("QT_MAC_USE_QUICKDRAW"))
+        paintEngine = new QCoreGraphicsPaintEngine();
+    else
+#endif
+        paintEngine = new QQuickDrawPaintEngine();
+#else
+    paintEngine = new QCoreGraphicsPaintEngine();
+#endif
+
+    q->gccaps = paintEngine->gccaps;
+
     fullPage = false;
     outputToFile = false;
 
@@ -457,9 +465,8 @@ void QMacPrintEnginePrivate::initialize()
 
     PMPrinter printer;
     if (session && PMSessionGetCurrentPrinter(session, &printer) == noErr) {
-        OSStatus ret = PMPrinterGetPrinterResolution(printer, res, &resolution);
-        Q_ASSERT(ret == noErr);
-        Q_UNUSED(ret);
+        if(PMPrinterGetPrinterResolution(printer, res, &resolution) != noErr)
+            qWarning("QPrinter::initialize: Cannot get printer resolution");
     }
 
     bool settingsOK = PMCreatePrintSettings(&settings) == noErr;
@@ -473,21 +480,22 @@ void QMacPrintEnginePrivate::initialize()
         formatOK = PMSetResolution(format, &resolution) == noErr;
     }
 
-#if !defined(QMAC_PRINTER_USE_QUICKDRAW)
-    CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
-    QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
-                                                     reinterpret_cast<const void **>(strings),
+    if(paintEngine->type() == QPaintEngine::CoreGraphics) {
+        CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
+        QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
+                                                         reinterpret_cast<const void **>(strings),
                                                      1, &kCFTypeArrayCallBacks);
-    bool contextOK = contextArray;
-    if (contextOK) 
-        contextOK = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
-                                                         contextArray, 0) == noErr;
-    if(!contextOK) 
-        state = QPrinter::Error;
-    else
-#endif
-        if (!settingsOK || !formatOK)
+        OSStatus err = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
+                                                            contextArray, 0);
+        if(err != noErr) {
+            qWarning("QMacPrintEngine::initialize: Cannot set format generation to PDF: %ld", err);
             state = QPrinter::Error;
+        }
+    }
+    if (!settingsOK || !formatOK) {
+        qWarning("QMacPrintEngine::initialize: Unable to initialize QPainter");
+        state = QPrinter::Error;
+    }
 }
 
 bool QMacPrintEnginePrivate::newPage_helper()
@@ -498,33 +506,218 @@ bool QMacPrintEnginePrivate::newPage_helper()
         abort();
         return false;
     }
-    OSStatus err = PMSessionBeginPage(session, format, 0);
-#if defined(QMAC_PRINTER_USE_QUICKDRAW)
-    err = PMSessionGetGraphicsContext(session, kPMGraphicsContextQuickdraw,
-                                      reinterpret_cast<void **>(&qdHandle));
-#else
-    err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
-                                      reinterpret_cast<void **>(&hd));
-#endif
-
-    if (err != noErr) {
+    if(PMSessionBeginPage(session, format, 0) != noErr) {
         state = QPrinter::Error;
         return false;
     }
 
     QRect page = q->pageRect();
     QRect paper = q->paperRect();
-#if !defined(QMAC_PRINTER_USE_QUICKDRAW)
-    CGContextScaleCTM(hd, 1, -1);
-    CGContextTranslateCTM(hd, 0, -paper.height());
-    if (!fullPage)
-        CGContextTranslateCTM(hd, page.x() - paper.x(), page.y() - paper.y());
-    orig_xform = CGContextGetCTM(hd);
-    setClip(0);
-#else
-    QMacSavedPortInfo mp(d->pdev);
-    SetOrigin(page.x() - paper.x(), page.y() - paper.y());
-#endif
+    if(paintEngine->type() == QPaintEngine::CoreGraphics) {
+        CGContextRef cgContext;
+        OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextCoreGraphics,
+                                                   reinterpret_cast<void **>(&cgContext));
+        if(err != noErr) {
+            qWarning("QMacPrintEngine::newPage: Cannot retrieve CoreGraphics context. %ld", err);
+            state = QPrinter::Error;
+            return false;
+        }
+        QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine);
+        cgEngine->d->hd = cgContext;
+        CGContextScaleCTM(cgContext, 1, -1);
+        CGContextTranslateCTM(cgContext, 0, -paper.height());
+        if (!fullPage)
+            CGContextTranslateCTM(cgContext, page.x() - paper.x(), page.y() - paper.y());
+        cgEngine->d->orig_xform = CGContextGetCTM(cgContext);
+        cgEngine->d->setClip(0);
+    } else {
+        OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextQuickdraw,
+                                                   reinterpret_cast<void **>(&qdHandle));
+        if(err != noErr) {
+            qWarning("QMacPrintEngine::newPage: Cannot retrieve QuickDraw context. %ld", err);
+            state = QPrinter::Error;
+            return false;
+        }
+        QMacSavedPortInfo mp(d->pdev);
+        SetOrigin(page.x() - paper.x(), page.y() - paper.y());
+    }
     return true;
 }
+
+void QMacPrintEngine::updatePen(const QPen &pen)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updatePen(pen);
+}
+
+void QMacPrintEngine::updateBrush(const QBrush &brush, const QPoint &pt)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateBrush(brush, pt);
+}
+
+void QMacPrintEngine::updateInternal(QPainterState *state, bool updateGC)
+{
+    d->paintEngine->updateInternal(state, updateGC);
+    QPaintEngine::updateInternal(state, updateGC);
+}
+
+void QMacPrintEngine::updateFont(const QFont &font)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateFont(font);
+}
+
+void QMacPrintEngine::updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateBackground(bgmode, bgBrush);
+}
+
+void QMacPrintEngine::updateXForm(const QWMatrix &matrix)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateXForm(matrix);
+}
+
+void QMacPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->updateClipRegion(region, clipEnabled);
+}
+
+void QMacPrintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawLine(p1, p2);
+}
+
+void QMacPrintEngine::drawRect(const QRect &r)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawRect(r);
+}
+
+void QMacPrintEngine::drawPoint(const QPoint &p)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPoint(p);
+}
+
+void QMacPrintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPoints(pa, index, npoints);
+}
+
+void QMacPrintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawRoundRect(r, xRnd, yRnd);
+}
+
+void QMacPrintEngine::drawEllipse(const QRect &r)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawEllipse(r);
+}
+
+void QMacPrintEngine::drawArc(const QRect &r, int a, int alen)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawArc(r, a, alen);
+}
+
+void QMacPrintEngine::drawPie(const QRect &r, int a, int alen)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPie(r, a, alen);
+}
+
+void QMacPrintEngine::drawChord(const QRect &r, int a, int alen)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawChord(r, a, alen);
+}
+
+void QMacPrintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawLineSegments(pa, index, nlines);
+}
+
+void QMacPrintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPolyline(pa, index, npoints);
+}
+
+void QMacPrintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPolygon(pa, winding, index, npoints);
+}
+
+void QMacPrintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawConvexPolygon(pa, index, npoints);
+}
+
+void QMacPrintEngine::drawCubicBezier(const QPointArray &pa, int index)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawCubicBezier(pa, index);
+}
+
+void QMacPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPixmap(r, pm, sr, mode);
+}
+
+void QMacPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawTextItem(p, ti, textflags);
+}
+
+void QMacPrintEngine::drawTiledPixmap(const QRect &dr, const QPixmap &pixmap, const QPoint &sr,
+                                      Qt::PixmapDrawingMode mode)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawTiledPixmap(dr, pixmap, sr, mode);
+}
+
+void QMacPrintEngine::drawPath(const QPainterPath &path)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->drawPath(path);
+}
+
+QPainter::RenderHints QMacPrintEngine::supportedRenderHints() const
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    return d->paintEngine->supportedRenderHints();
+}
+
+QPainter::RenderHints QMacPrintEngine::renderHints() const
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    return d->paintEngine->renderHints();
+}
+
+void QMacPrintEngine::setRenderHints(QPainter::RenderHints hints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->setRenderHints(hints);
+}
+
+void QMacPrintEngine::clearRenderHints(QPainter::RenderHints hints)
+{
+    Q_ASSERT(d->state == QPrinter::Active);
+    d->paintEngine->clearRenderHints(hints);
+}
+
+
 

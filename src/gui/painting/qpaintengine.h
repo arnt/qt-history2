@@ -129,11 +129,9 @@ public:
         //Windows
         Windows, Gdiplus,
         //Mac
-        QuickDraw, CoreGraphics,
+        QuickDraw, CoreGraphics, MacPrinter,
         //QWS
         QWindowSystem,
-        //Magic wrapper type
-        Wrapper,
         // PostScript
         PostScript,
         // OpenGL
@@ -198,7 +196,7 @@ protected:
 
 private:
     inline QPainterState *painterState() const { return state; }
-    void updateInternal(QPainterState *state, bool updateGC = true);
+    virtual void updateInternal(QPainterState *state, bool updateGC = true);
 
     void setAutoDestruct(bool autoDestruct) { selfDestruct = autoDestruct; }
     bool autoDestruct() const { return selfDestruct; }
@@ -210,6 +208,8 @@ private:
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
     friend class QPSPrintEngine;
+    friend class QMacPrintEngine;
+    friend class QMacPrintEnginePrivate;
     friend class QPainter;
     friend class QWidget;
     friend class QWin32PaintEngine;

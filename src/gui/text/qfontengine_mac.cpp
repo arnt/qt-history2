@@ -18,6 +18,7 @@
 #include <private/qtextengine_p.h>
 #include <qbitmap.h>
 #include <qpaintengine_mac.h>
+#include <qprintengine_mac.h>
 #include <qglobal.h>
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
@@ -97,6 +98,8 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 void
 QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si, int textFlags)
 {
+    if(p->type() == QPaintEngine::MacPrinter)
+        p = static_cast<QMacPrintEngine*>(p)->paintEngine();
     int x = req_x, y = req_y;
 
     QPainterState *pState = p->painterState();
