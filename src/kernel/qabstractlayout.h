@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#9 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#10 $
 **
 ** Definition of the abstract layout base class
 **
@@ -34,12 +34,47 @@
 class QMenuBar;
 class QWidget;
 struct QLayoutData;
+class QLayoutItem;
+
+class Q_EXPORT QInternalLayoutIterator : public QShared
+{
+public:
+    virtual uint count() const = 0;
+    virtual void toFirst() = 0;
+    virtual void next() = 0;
+    virtual QLayoutItem *current() = 0;
+    virtual void removeCurrent() = 0;
+};
+
+class Q_EXPORT QLayoutIterator
+{
+public:
+    QLayoutIterator( QInternalLayoutIterator *i ) :it(i) {}
+    QLayoutIterator( const QLayoutIterator &i ) :it( i.it ) 
+    { if ( it ) it->ref(); }
+    ~QLayoutIterator() { if ( it && it->deref() ) delete it; }
+    QLayoutIterator &operator=( const QLayoutIterator &i )
+    { 
+	if ( it && it->deref() ) delete it; 
+	it = i.it; 
+	if ( it ) it->ref();
+	return *this; 
+    }
+    
+    uint count() const { return it ? it->count() : 0; }
+    bool isNull() const { return it == 0; }
+    bool isEmpty() const { return count() == 0; }
+    void toFirst() { if ( it ) it->toFirst(); }
+    void next() { if ( it ) it->next(); }
+    QLayoutItem *current() { return it ? it->current() : 0; }
+    void removeCurrent() { if ( it ) it->removeCurrent(); }
+private:
+    QInternalLayoutIterator *it;
+};
 
 class Q_EXPORT QLayoutItem
 {
 public:
-    enum SearchResult { NotFound, Found, FoundAndDeleteable };
-
     QLayoutItem( int alignment = 0 ) :align(alignment) {}
     virtual ~QLayoutItem();
     virtual QSize sizeHint() const = 0;
@@ -47,17 +82,19 @@ public:
     virtual QSize maximumSize() const = 0;
     virtual QSizePolicy::ExpandData expanding() const =0;
     virtual void setGeometry( const QRect& ) = 0;
-    virtual SearchResult removeW( QWidget * )=0;
+    virtual QRect geometry() const = 0;
     virtual bool isEmpty() const = 0;
     virtual bool hasHeightForWidth() const;
     virtual int heightForWidth( int ) const;
+    virtual void invalidate();
 
     virtual QWidget *widget();
+    virtual QLayoutIterator iterator();
 
     int alignment() const { return align; }
     virtual void setAlignment( int a );
 protected:
-        int align;
+    int align;
 };
 
 
@@ -73,11 +110,12 @@ class Q_EXPORT QSpacerItem : public QLayoutItem
     QSize maximumSize() const ;
     QSizePolicy::ExpandData expanding() const;
     bool isEmpty() const;
-    void setGeometry( const QRect& ) ;
-    SearchResult removeW( QWidget * );
+    void setGeometry( const QRect& );
+    QRect geometry() const;
  private:
     int width, height;
     QSizePolicy sizeP;
+    QRect rect;
 };
 
 
@@ -91,8 +129,7 @@ public:
     QSizePolicy::ExpandData expanding() const;
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
-    SearchResult removeW( QWidget * );
-
+    QRect geometry() const;
     virtual QWidget *widget();
 
     bool hasHeightForWidth() const;
@@ -126,7 +163,7 @@ public:
     QWidget *mainWidget();
     QMenuBar *menuBar() const { return menubar; }
     bool isTopLevel() const { return topLevel; }
-    const QRect &geometry() { return rect; }
+    QRect geometry() const;
 #if 1	//OBSOLETE
     bool activate();
 #endif
@@ -138,14 +175,11 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
     void setGeometry( const QRect& );
-    SearchResult removeW( QWidget * );
+    QLayoutIterator iterator()=0;
     bool isEmpty() const;
 
-    virtual bool removeWidget( QWidget * ) = 0;
-    virtual void invalidate();
 protected:
     bool  eventFilter( QObject *, QEvent * );
-    virtual void paintEvent( QPaintEvent * );
     void addChildLayout( QLayout *l );
 private:
     void setWidgetLayout( QWidget *, QLayout * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#36 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#37 $
 **
 ** Definition of layout classes
 **
@@ -41,7 +41,7 @@ public:
 		 int autoBorder = -1, const char *name=0 );
     QGridLayout( int nRows, int nCols, int autoBorder = -1,
 		 const char *name=0 );
-    QGridLayout( QLayout *parentLayout, int nRows, int nCols, 
+    QGridLayout( QLayout *parentLayout, int nRows, int nCols,
 		 int autoBorder = -1, const char *name=0 );
     ~QGridLayout();
 
@@ -77,9 +77,9 @@ public:
 
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
+    QLayoutIterator iterator();
 protected:
     bool findWidget( QWidget* w, int *r, int *c );
-    bool removeWidget( QWidget * );
     void setGeometry( const QRect& );
     void add( QLayoutItem*, int row, int col );
 private:
@@ -144,7 +144,7 @@ class Q_EXPORT QHBoxLayout : public QBoxLayout
 public:
     QHBoxLayout( QWidget *parent, int border=0,
 		int autoBorder = -1, const char *name=0 );
-    QHBoxLayout( QLayout *parentLayout, 
+    QHBoxLayout( QLayout *parentLayout,
 		 int autoBorder = -1, const char *name=0 );
     QHBoxLayout( int autoBorder = -1, const char *name=0 );
 
@@ -159,7 +159,7 @@ class Q_EXPORT QVBoxLayout : public QBoxLayout
 public:
     QVBoxLayout( QWidget *parent, int border=0,
 		int autoBorder = -1, const char *name=0 );
-    QVBoxLayout( QLayout *parentLayout, 
+    QVBoxLayout( QLayout *parentLayout,
 		 int autoBorder = -1, const char *name=0 );
     QVBoxLayout( int autoBorder = -1, const char *name=0 );
 

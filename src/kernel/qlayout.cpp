@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#82 $
 **
 ** Implementation of layout classes
 **
@@ -36,30 +36,31 @@
 class QLayoutBox
 {
 public:
-    QLayoutBox( QLayoutItem *lit ) { item = lit; }
+    QLayoutBox( QLayoutItem *lit ) { item_ = lit; }
 
-    QLayoutBox( QWidget *wid ) { item = new QWidgetItem( wid ); }
+    QLayoutBox( QWidget *wid ) { item_ = new QWidgetItem( wid ); }
     QLayoutBox( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		QSizePolicy::SizeType vData= QSizePolicy::Minimum )
-	{ item = new QSpacerItem( w, h, hData, vData ); }
-    ~QLayoutBox() { delete item; }
+	{ item_ = new QSpacerItem( w, h, hData, vData ); }
+    ~QLayoutBox() { delete item_; }
 
-    QSize sizeHint() const { return item->sizeHint(); }
-    QSize minimumSize() const { return item->minimumSize(); }
-    QSize maximumSize() const { return item->maximumSize(); }
-    QSizePolicy::ExpandData expanding() const { return item->expanding(); }
-    bool isEmpty() const { return item->isEmpty(); }
-    QLayoutItem::SearchResult removeWidget( QWidget *w ) { return item->removeW(w); }
+    QSize sizeHint() const { return item_->sizeHint(); }
+    QSize minimumSize() const { return item_->minimumSize(); }
+    QSize maximumSize() const { return item_->maximumSize(); }
+    QSizePolicy::ExpandData expanding() const { return item_->expanding(); }
+    bool isEmpty() const { return item_->isEmpty(); }
 
-    bool hasHeightForWidth() const { return item->hasHeightForWidth(); }
-    int heightForWidth( int w ) const { return item->heightForWidth(w); }
+    bool hasHeightForWidth() const { return item_->hasHeightForWidth(); }
+    int heightForWidth( int w ) const { return item_->heightForWidth(w); }
 
-    void setAlignment( int a ) { item->setAlignment( a ); }
-    void setGeometry( const QRect &r ) { item->setGeometry( r ); }
-    int alignment() const { return item->alignment(); }
+    void setAlignment( int a ) { item_->setAlignment( a ); }
+    void setGeometry( const QRect &r ) { item_->setGeometry( r ); }
+    int alignment() const { return item_->alignment(); }
+    QLayoutItem *item() { return item_; }
+
 private:
     friend class QLayoutArray;
-    QLayoutItem *item;
+    QLayoutItem *item_;
     int row, col;
 };
 
@@ -99,7 +100,6 @@ public:
     void setRowStretch( int r, int s ) { expand(r+1,0); rowData[r].stretch=s; }
     void setColStretch( int c, int s ) { expand(0,c+1); colData[c].stretch=s; }
 
-    bool removeWidget( QWidget* );
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
 
@@ -109,6 +109,7 @@ public:
     bool findWidget( QWidget* w, int *row, int *col );
 
     void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
+    uint count() const { return things.count() + (multi?multi->count():0); } 
 private:
     void recalcHFW( int w, int s );
     void addHfwData ( QLayoutBox *box );
@@ -133,6 +134,7 @@ private:
     int hfw_height;
     int nextR;
     int nextC;
+    friend class QLayoutArrayIterator;
 };
 
 QLayoutArray::QLayoutArray()
@@ -216,7 +218,7 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	if ( box->item->widget() == w ) {
+	if ( box->item()->widget() == w ) {
 	    if ( row )
 		*row = box->row;
 	    if ( col )
@@ -230,7 +232,7 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
 	    box = mbox->box();
-	    if ( box->item->widget() == w ) {
+	    if ( box->item()->widget() == w ) {
 		if ( row )
 		    *row = box->row;
 		if ( col )
@@ -241,48 +243,8 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 	}
     }
     return FALSE;
-
 }
 
-
-
-
-bool QLayoutArray::removeWidget( QWidget *w )
-{
-    QListIterator<QLayoutBox> it( things );
-    QLayoutBox * box;
-    while ( (box=it.current()) != 0 ) {
-	++it;
-	switch ( box->removeWidget( w ) ) {
-	case QLayoutItem::NotFound:
-	    break;
-	case QLayoutItem::FoundAndDeleteable:
-	    things.removeRef( box );
-	    return TRUE;
-	case QLayoutItem::Found:	
-	    return TRUE;
-	}
-    }
-    if ( multi ) {
-	QListIterator<QMultiBox> it( *multi );
-	QMultiBox * mbox;
-	while ( (mbox=it.current()) != 0 ) {
-	    ++it;
-	    box = mbox->box();
-	    switch ( box->removeWidget( w ) ) {
-	    case QLayoutItem::NotFound:
-		break;
-	    case QLayoutItem::FoundAndDeleteable:
-		multi->removeRef( mbox );
-		return TRUE;
-	    case QLayoutItem::Found:	
-		return TRUE;
-	    }
-	}
-    }
-    setDirty();
-    return FALSE;
-}
 
 QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
@@ -493,7 +455,7 @@ void QLayoutArray::setupLayoutData()
     while ( (box=it.current()) != 0 ) {
         ++it;
         addData( box );
-        has_hfw = has_hfw || box->item->hasHeightForWidth();
+        has_hfw = has_hfw || box->item()->hasHeightForWidth();
 
     }
 
@@ -679,6 +641,37 @@ void QLayoutArray::distribute( QRect r, int spacing )
     }
 }
 
+
+class QLayoutArrayIterator : public QInternalLayoutIterator
+{
+public:
+    QLayoutArrayIterator( QLayoutArray *a ) :array(a) { toFirst(); }
+    uint count() const { return array->count(); }
+    QLayoutItem *current() { 
+	bool notAtEnd = !multi || 
+			array->multi && idx < int(array->multi->count());
+	if ( notAtEnd )
+	    return multi ?  array->multi->at(idx)->box()->item() : 
+			array->things.at(idx)->item();
+	else
+	    return 0;
+    }
+    void toFirst() { multi = FALSE; idx = 0; }
+    void next() {
+	idx++; 
+	if ( !multi && idx >= int(array->things.count()) ) {
+	    multi = TRUE; idx = 0;
+	}
+    }
+    void removeCurrent() { 
+	if ( multi ) array->multi->remove( idx ); 
+	else array->things.remove( idx ); 
+    }
+private:
+    QLayoutArray *array;
+    bool multi;
+    int idx;
+};
 
 /*!
   \class QGridLayout qlayout.h
@@ -974,15 +967,6 @@ bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
     return array->findWidget( w, row, col );
 }
 
-
-/*!
-  Removes \a w from geometry management.
- */
-bool QGridLayout::removeWidget( QWidget *w )
-{
-    return array->removeWidget( w );
-}
-
 /*!
   Resizes managed widgets within the rectangle \a s.
  */
@@ -1214,6 +1198,15 @@ void QGridLayout::invalidate()
     array->setDirty();
 }
 
+
+/*!
+  \reimp
+*/
+
+QLayoutIterator QGridLayout::iterator()
+{
+    return QLayoutIterator( new QLayoutArrayIterator( array ) );
+}
 
 
 
@@ -1671,5 +1664,6 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+
 
 

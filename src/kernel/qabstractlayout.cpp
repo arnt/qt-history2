@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#25 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -95,13 +95,16 @@ void QLayoutItem::setAlignment( int a )
   Implemented in subclasses to return whether this item "wants" to expand.
 */
 
-/*! \fn SearchResult QLayoutItem::removeW (QWidget *w )
-  Implemented in subclasses to search for \a w, and remove it it if found.
-*/
-
 /*! \fn void QLayoutItem::setGeometry (const QRect &r )
   Implemented in subclasses to set this item's geometry to \a r.
 */
+
+/*!
+  \fn QRect QLayoutItem::geometry() const
+
+  Returns the rectangle covered by this layout item.
+ */
+
 
 
 /*! \fn virtual bool QLayoutItem::isEmpty () const
@@ -131,6 +134,19 @@ void QLayoutItem::setAlignment( int a )
 QLayoutItem::~QLayoutItem()
 {
 }
+
+
+/*!
+  Invalidates any cached information in this layout item.
+
+  The default implementation does nothing.
+*/
+
+void QLayoutItem::invalidate()
+{
+
+}
+
 
 /*!
   If this item consists of a single QWidget, that widget is returned.
@@ -170,12 +186,29 @@ bool QLayoutItem::hasHeightForWidth() const
 
 
 
+
+
+/*!
+  Returns an iterator over this item's QLayoutItem children.
+  The default implementation returns an empty iterator.
+  
+  Reimplement this function in subclasses that can have
+  children.
+*/
+
+QLayoutIterator QLayoutItem::iterator()
+{
+    return QLayoutIterator( 0 );
+}
+
+
+
 /*!
   Returns the preferred height for this layout item, given the width
   \a w.
 
   The default implementation returns -1, indicating that the preferred
-  height is independent of the width of the item.  The function
+  height is independent of the width of the item.  Using the function
   hasHeightForWidth() will typically be much faster than calling this
   function and testing for -1.
 
@@ -195,7 +228,7 @@ bool QLayoutItem::hasHeightForWidth() const
   }
   \endcode
 
-  Note that caching is essential, without it layout will take
+  Caching is strongly recommended, without it layout will take
   exponential time.  \sa hasHeightForWidth()
 */
 
@@ -255,11 +288,13 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 
 
 /*!
-  This function does nothing.
+  This function stores \a r, so it can be returned by geometry().
 */
-void QSpacerItem::setGeometry( const QRect& )
+void QSpacerItem::setGeometry( const QRect &r )
 {
+    rect = r;
 }
+
 /*!
   Sets the geometry of this item's widget to be contained within \a r,
   taking alignment and maximum size into account.
@@ -290,8 +325,40 @@ void QWidgetItem::setGeometry( const QRect &r )
 }
 
 
+
 /*!
-  \reimplementation
+  \reimp
+*/
+
+QRect QSpacerItem::geometry() const
+{
+    return rect;
+}
+
+
+/*!
+  \reimp
+*/
+
+QRect QWidgetItem::geometry() const
+{
+    return wid->geometry();
+}
+
+
+/*!
+  \reimp
+*/
+
+QRect QLayout::geometry() const
+{
+    return rect;
+}
+
+
+
+/*!
+  \reimp
 */
 
 bool QWidgetItem::hasHeightForWidth() const
@@ -302,7 +369,7 @@ bool QWidgetItem::hasHeightForWidth() const
 }
 
 /*!
-  \reimplementation
+  \reimp
 */
 
 int QWidgetItem::heightForWidth( int w ) const
@@ -406,27 +473,6 @@ bool QWidgetItem::isEmpty() const
 }
 
 
-/*!
-  \fn SearchResult QWidgetItem::removeW( QWidget *w )
-
-  Returns FoundAndDeleteable, if \a w is found in this item.
-*/
-QLayoutItem::SearchResult QWidgetItem::removeW( QWidget *w )
-{
-    return wid == w ? FoundAndDeleteable : NotFound;
-}
-
-
-/*!
-  \fn SearchResult QSpacerItem::removeW( QWidget *)
-
-  Returns NotFound, since a space item never contains widgets.
-*/
-QLayoutItem::SearchResult QSpacerItem::removeW( QWidget *)
-{
-    return NotFound;
-}
-
 
 
 /*!
@@ -445,7 +491,7 @@ QLayoutItem::SearchResult QSpacerItem::removeW( QWidget *)
   layout.
 
   To make your own layout manager, implement the functions
-  minSize(), setGeometry() and removeWidget().
+  minSize(), setGeometry() and iterator().
 
   Geometry management stops when the layout manager is deleted.
 */
@@ -525,12 +571,6 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
   of another layout.
  */
 
-/*!
-  \fn const QRect& QLayout::geometry ()
-
-  Returns the rectangle covered by this layout.
- */
-
 
 
 /*!
@@ -608,29 +648,6 @@ bool QLayout::isEmpty() const
     return FALSE; //### should check
 }
 
-
-/*!
-  This function is called whenever the parent widget receives a paint
-  event. Reimplemented in subclasses to draw decorations that depend on
-  the geometry of the layout.
-
-  The default implementation does nothing.
-
-  Note: The parent widget's \link QWidget::paintEvent()
-  paintEvent()\endlink function is called after this function. Any
-  painting done by the parent widget may obscure part or all of the
-  decoration done by this function.
- */
-
-void QLayout::paintEvent( QPaintEvent * )
-{
-    //############ must distribute to child layouts.
-}
-
-
-
-
-
 /*!
   Sets \a w's layout to \a l.
 */
@@ -646,27 +663,6 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
   Returns the minimum size this layout needs.
 */
 
-/*!
-  \fn SearchResult QLayout::removeW( QWidget *w)
-
-  Searches all subitems, returning \c Found if \a w was found and
-  removed. Returns \c NotFound otherwise.
-
-  Future versions may return FoundAndDeleteable if this removal caused the
-  layout to become empty.
- */
-QLayoutItem::SearchResult QLayout::removeW( QWidget *w)
-{
-    return removeWidget( w ) ? Found : NotFound;
-}
-
-/*! \fn  bool QLayout::removeWidget (QWidget *w )
-
-  Implemented in subclasses to look for \a w and remove it if found.
-  It is the responsibility of the reimplementor to propagate the call
-  to sub-layouts.  Returns TRUE if found, FALSE if not found.
-*/
-
 
 /*!
   This function is reimplemented in subclasses to
@@ -680,6 +676,23 @@ void QLayout::setGeometry( const QRect &r )
 }
 
 
+static bool removeWidget( QLayoutItem *lay, QWidget *w )
+{
+    QLayoutIterator it = lay->iterator();
+    QLayoutItem *child;
+    while ( (child = it.current() ) ) {
+	if ( child->widget() == w ) {
+	    it.removeCurrent();
+	    lay->invalidate();
+	    return TRUE;
+	} else if ( removeWidget( child, w ) ) {
+	    lay->invalidate();
+	    return TRUE;
+	}
+	it.next();
+    }
+    return FALSE;
+}
 /*!
   Performs child widget layout when the parent widget is resized.
   Also handles removal of widgets.
@@ -708,7 +721,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	QWidget *w = (QWidget*)c->child();
 	if ( w == menubar )
 	    menubar = 0;
-	if (removeWidget( w ) ) {
+	if ( removeWidget( this, w ) ) {
 	    QEvent *lh = new QEvent( QEvent::LayoutHint );
 	    QApplication::postEvent( o, lh );
 	}
@@ -716,9 +729,6 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
     }
     case QEvent::LayoutHint:
 	activate(); //######## ######@#!#@!$ should be optimized somehow...
-	break;
-    case QEvent::Paint:
-	paintEvent( (QPaintEvent*) e );
 	break;
     default:
 	break;
@@ -897,17 +907,6 @@ bool QLayout::activate()
 
 
 
-/*!
-  Invalidates any cached information in this layout.
-
-  The default implementation does nothing.
-*/
-
-void QLayout::invalidate()
-{
-
-}
-
 
 /*!
   \class QSizePolicy qsizepolicy.h
@@ -1026,4 +1025,5 @@ void QLayout::invalidate()
 
     \internal
 */
+
 
