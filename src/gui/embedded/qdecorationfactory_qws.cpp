@@ -19,7 +19,6 @@
 #include "qapplication.h"
 #include "qdecorationdefault_qws.h"
 #include "qdecorationwindows_qws.h"
-#include "qdecorationkde_qws.h"
 #include "qdecorationkde2_qws.h"
 #include "qdecorationbeos_qws.h"
 #include "qdecorationhydro_qws.h"
@@ -68,11 +67,6 @@ QDecoration *QDecorationFactory::create(const QString& key)
         ret = new QDecorationWindows;
     else
 #endif
-#ifndef QT_NO_QWS_DECORATION_KDE
-    if (decoration == "kde")
-        ret = new QDecorationKDE;
-    else
-#endif
 #ifndef QT_NO_QWS_DECORATION_KDE2
     if (decoration == "kde2")
         ret = new QDecorationKDE2;
@@ -118,10 +112,6 @@ QStringList QDecorationFactory::keys()
 #ifndef QT_NO_QWS_DECORATION_WINDOWS
     if (!list.contains("Windows"))
         list << "Windows";
-#endif
-#ifndef QT_NO_QWS_DECORATION_KDE
-    if (!list.contains("KDE"))
-        list << "KDE";
 #endif
 #ifndef QT_NO_QWS_DECORATION_KDE2
     if (!list.contains("KDE2"))
