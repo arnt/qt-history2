@@ -198,13 +198,21 @@ int GraphicsPropertyEditor::indexOfPixmap(const QPixmap &pixmap)
 
 void GraphicsPropertyEditor::populateCombo()
 {
+    AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
+    if (form == 0)
+        return;
+    QStringList qrc_list = form->resourceFiles();
+
     m_combo->clear();
-    
+
     AbstractIconCache *cache = m_core->iconCache();
     if (m_mode == Icon) {
         m_combo->addItem(tr("<no icon>"));
         QList<QIcon> icon_list = cache->iconList();
         foreach (QIcon icon, icon_list) {
+            QString qrc_path = cache->iconToQrcPath(icon);
+            if (!qrc_list.contains(qrc_path))
+                continue;
             m_combo->addItem(icon, QFileInfo(cache->iconToFilePath(icon)).fileName(),
                                 QVariant(icon));
         }
@@ -212,6 +220,9 @@ void GraphicsPropertyEditor::populateCombo()
         m_combo->addItem(tr("<no pixmap>"));
         QList<QPixmap> pixmap_list = cache->pixmapList();
         foreach (QPixmap pixmap, pixmap_list) {
+            QString qrc_path = cache->iconToQrcPath(pixmap);
+            if (!qrc_list.contains(qrc_path))
+                continue;
             m_combo->addItem(QIcon(pixmap),
                                 QFileInfo(cache->pixmapToFilePath(pixmap)).fileName(),
                                 QVariant(pixmap));
