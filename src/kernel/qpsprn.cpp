@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#52 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2216,7 +2216,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->firstClipOnPage  = TRUE;
 	fontsUsed = "";
 	
-	stream << "\n%%Page: " << pageCount << ' ' << pageCount << endl;
+	stream << "%%Page: " << pageCount << ' ' << pageCount << endl;
 	stream << "QI\n";
 	orientationSetup();
 	stream << "GS\n";
@@ -2235,9 +2235,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	stream << "%%DocumentFonts: " << fontsUsed << '\n';
 	stream.unsetDevice();
 	d->realDevice->close();
+	if ( d->fd >= 0 )
+	    ::close( d->fd );
+	d->fd = -1;
 	delete d->realDevice;
 	d->realDevice = 0;
-	d->fd = -1;
     }
 
     if ( c >= PDC_DRAW_FIRST && c <= PDC_DRAW_LAST ) {
@@ -2541,10 +2543,13 @@ void QPSPrinter::emitHeader()
 	makeFixedStrings();
     }
 
-    stream << "% Standard Qt prolog\n" << fixed_ps_header
-	   << "\n% Fonts and encodings used on pages 1-" << pageCount << "\n";
-    stream.writeRawBytes( (const char *)(d->fontBuffer->buffer().data()),
-			  d->fontBuffer->buffer().size() );
+    stream << "% Standard Qt prolog\n" << fixed_ps_header;
+    if ( d->fontBuffer->buffer().size() ) {
+	stream << "\n% Fonts and encodings used on pages 1-"
+	       << pageCount << "\n";
+	stream.writeRawBytes( (const char *)(d->fontBuffer->buffer().data()),
+			      d->fontBuffer->buffer().size() );
+    }
     stream << "\n%%EndProlog\n";
     stream.writeRawBytes( (const char *)(d->buffer->buffer().data()),
 			  d->buffer->buffer().size() );
