@@ -2852,8 +2852,6 @@ QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 QSingleCleanupHandler<QFontCache> cleanup_fontcache;
 QSingleCleanupHandler<QFontNameDict> cleanup_fontnamedict;
 
-extern bool qt_use_xrender; // defined in qapplication_x11.cpp
-
 /*!
   Internal function that initializes the font system.
 
@@ -2895,17 +2893,6 @@ void QFont::initialize()
     }
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
-
-#ifndef QT_NO_XFTFREETYPE
-    qt_has_xft = FALSE;
-
-    if (qt_use_xrender &&
-	XftInit(0) && XftInitFtLibrary()) {
-	QSettings settings;
-	qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
-	qt_use_antialiasing = QSettings().readBoolEntry( "/qt/useXft", TRUE );
-    }
-#endif // QT_NO_XFTFREETYPE
 
     QTextCodec *codec = QTextCodec::codecForLocale();
     // we have a codec for the locale - lets see if it's one of the CJK codecs,

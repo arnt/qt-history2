@@ -365,8 +365,8 @@ static bool qt_x11EventFilter( XEvent* ev )
 #if !defined(QT_NO_XIM)
 XIM		qt_xim			= 0;
 XIMStyle	qt_xim_style		= 0;
-// static XIMStyle	xim_preferred_style	= XIMPreeditPosition | XIMStatusNothing;
-static XIMStyle	xim_preferred_style	= XIMPreeditCallbacks | XIMStatusNothing;
+static XIMStyle xim_default_style	= XIMPreeditCallbacks | XIMStatusNothing;
+static XIMStyle	xim_preferred_style	= 0;
 #endif
 
 static int composingKeycode=0;
@@ -993,6 +993,32 @@ bool QApplication::x11_apply_settings()
     qt_use_rtl_extensions =
     	settings.readBoolEntry("/qt/useRtlExtensions", FALSE);
 
+#ifndef QT_NO_XFTFREETYPE
+    // defined in qfont_x11.cpp
+    extern bool qt_has_xft;
+    extern bool qt_use_antialiasing;
+
+    qt_has_xft = FALSE;
+    qt_use_antialiasing = FALSE;
+    if (qt_use_xrender &&
+	XftInit(0) && XftInitFtLibrary()) {
+	qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
+	qt_use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );
+    }
+#endif // QT_NO_XFTFREETYPE
+
+    QString ximInputStyle =
+	settings.readEntry( "/qt/XIMInputStyle",
+			    QObject::trUtf8( "On The Spot" ) ).lower();
+    if ( ximInputStyle == "on the spot" )
+	xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
+    else if ( ximInputStyle == "over the spot" )
+	xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
+    else if ( ximInputStyle == "off the spot" )
+	xim_preferred_style = XIMPreeditArea | XIMStatusArea;
+    else if ( ximInputStyle == "root" )
+	xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+
     if (update_timestamp) {
 	QBuffer stamp;
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
@@ -1457,25 +1483,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	p = strrchr( argv[0], '/' );
 	appName = p ? p + 1 : argv[0];
 
-	// Read global settings file
-#if !defined(QT_NO_XIM)
-	if ( QApplication::desktopSettingsAware() ) {
-	    QString ximInputStyle =
-		QSettings().readEntry( "/qt/XIMInputStyle",
-				       QObject::trUtf8( "On The Spot" ) ).lower();
-	    if ( ximInputStyle == "on the spot" )
-		xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
-	    else if ( ximInputStyle == "over the spot" )
-		xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
-	    else if ( ximInputStyle == "off the spot" )
-		xim_preferred_style = XIMPreeditArea | XIMStatusArea;
-	    else if ( ximInputStyle == "root" )
-		xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
-	}
-#endif
-
 	// Get command line params
-
 	j = 1;
 	for ( int i=1; i<argc; i++ ) {
 	    if ( argv[i] && *argv[i] != '-' ) {
@@ -1995,8 +2003,28 @@ void qt_init_internal( int *argcptr, char **argv,
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
 
     if ( qt_is_gui_used ) {
+	qt_set_input_encoding();
+
+	// be smart about the size of the default font. most X servers have helvetica
+	// 12 point available at 2 resolutions:
+	//     75dpi (12 pixels) and 100dpi (17 pixels).
+	// At 95 DPI, a 12 point font should be 16 pixels tall - in which case a 17
+	// pixel font is a closer match than a 12 pixel font
+	int ptsz =
+	    (int) ( ( ( QPaintDevice::x11AppDpiY() >= 95 ? 17. : 12. ) *
+		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
+
+	if ( !qt_app_has_font ) {
+	    QFont f( "Helvetica", ptsz );
+	    QApplication::setFont( f );
+	}
+
+	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
 
 #ifndef QT_NO_XIM
+	if ( ! xim_preferred_style ) // no configured input style, use the default
+	    xim_preferred_style = xim_default_style;
+
 	qt_xim = 0;
 	QString ximServerName(ximServer);
 	if (ximServer)
@@ -2021,24 +2049,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	    QApplication::create_xim();
 #endif // USE_X11R6_XIM
 #endif // QT_NO_XIM
-
-	qt_set_input_encoding();
-
-	// be smart about the size of the default font. most X servers have helvetica
-	// 12 point available at 2 resolutions:
-	//     75dpi (12 pixels) and 100dpi (17 pixels).
-	// At 95 DPI, a 12 point font should be 16 pixels tall - in which case a 17
-	// pixel font is a closer match than a 12 pixel font
-	int ptsz =
-	    (int) ( ( ( QPaintDevice::x11AppDpiY() >= 95 ? 17. : 12. ) *
-		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
-
-	if ( !qt_app_has_font ) {
-	    QFont f( "Helvetica", ptsz );
-	    QApplication::setFont( f );
-	}
-
-	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
 
 #if defined (QT_TABLET_SUPPORT)
 	int ndev,
