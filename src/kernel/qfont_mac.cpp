@@ -64,6 +64,7 @@ public:
 class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo 
 {
     static QDict<QMacFontInfo> *infos;
+    static void infos_cleanup() { delete infos; infos = NULL; }
 public:
     //create this for temporary font settting
     inline QMacSetFontInfo(const QFontPrivate *d) : QMacSavedFontInfo(), QMacFontInfo() { setMacFont(d, this); }
@@ -78,8 +79,11 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     QMacFontInfo *fi = NULL;
     const QString key = d->key();
     if(!infos || !(fi=infos->find(key))) {
-	if(!infos)
+	if(!infos) {
 	    infos = new QDict<QMacFontInfo>();
+	    infos->setAutoDelete(TRUE);
+	    qAddPostRoutine( QMacSetFontInfo::infos_cleanup );
+	}
 	infos->insert(key, fi = new QMacFontInfo());
 
 	//face
