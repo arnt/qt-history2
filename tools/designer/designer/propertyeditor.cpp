@@ -66,7 +66,7 @@
 #include <qworkspace.h>
 #include <qtimer.h>
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include <qdatetimeedit.h>
 #endif
 
@@ -130,7 +130,7 @@ PropertyItem::PropertyItem( PropertyList *l, PropertyItem *after, PropertyItem *
 
 PropertyItem::~PropertyItem()
 {
-    if ( resetButton )	
+    if ( resetButton )
 	delete resetButton->parentWidget();
     resetButton = 0;
 }
@@ -236,7 +236,7 @@ void PropertyItem::paintBranches( QPainter * p, const QColorGroup & cg,
     QColorGroup g( cg );
     g.setColor( QColorGroup::Base, backgroundColor() );
     QListViewItem::paintBranches( p, g, w, y, h, s );
-}	
+}
 
 void PropertyItem::paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r )
 {
@@ -280,7 +280,7 @@ void PropertyItem::setOpen( bool b )
 	children.setAutoDelete( FALSE );
 	qApp->processEvents();
 	listview->updateEditorSize();
- 	return;
+	return;
     }
 
     createChildren();
@@ -671,7 +671,7 @@ void PropertyTextItem::getText()
     }
 }
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 // --------------------------------------------------------------
 
 PropertyDateItem::PropertyDateItem( PropertyList *l, PropertyItem *after, PropertyItem *prop, const QString &propName )
@@ -1170,7 +1170,7 @@ QString PropertyListItem::currentItem() const
 void PropertyListItem::setCurrentItem( const QString &s )
 {
     if ( comb && currentItem().lower() == s.lower() )
- 	return;
+	return;
 
     if ( !comb ) {
 	combo()->blockSignals( TRUE );
@@ -1750,7 +1750,7 @@ void PropertyDatabaseItem::initChildren()
 	    else if ( withField )
 		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
 									 "database" ).toStringList()[ 0 ] ) );
-	
+
 	    if ( lst.count() > 0 && !lst[ 0 ].isEmpty() )
 		item->setCurrentItem( lst[ 0 ] );
 	    else if ( !isChanged() && withField )
@@ -1768,7 +1768,7 @@ void PropertyDatabaseItem::initChildren()
 	    else if ( withField )
 		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
 									 "database" ).toStringList()[ 1 ] ) );
-	
+
 	    if ( lst.count() > 1 && !lst[ 1 ].isEmpty() )
 		item->setCurrentItem( lst[ 1 ] );
 	    else if ( !isChanged() && withField )
@@ -2004,7 +2004,7 @@ void PropertyPaletteItem::getPalette()
 	w = ( (QScrollView*)w )->viewport();
     QPalette pal = PaletteEditor::getPalette( &ok, val.toPalette(),
 					      w->backgroundMode(), listview,
- 					      "choose_palette", listview->propertyEditor()->formWindow() );
+					      "choose_palette", listview->propertyEditor()->formWindow() );
     if ( !ok )
 	return;
     setValue( pal );
@@ -2276,7 +2276,7 @@ static QVariant::Type type_to_variant( const QString &s )
 	return QVariant::Time;
     if ( s == "DateTime" )
 	return QVariant::DateTime;
-    return QVariant::Invalid;	
+    return QVariant::Invalid;
 }
 
 /*!  Sets up the property list by adding an item for each designable
@@ -2332,7 +2332,7 @@ void PropertyList::setupProperties()
 		continue;
 	    if ( w->inherits( "QLayoutWidget" ) || w->inherits( "Spacer" ) ) {
 		if ( qstrcmp( p->name(), "sizePolicy" ) == 0 )
-		    continue;	
+		    continue;
 	    }
 	}
 	if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
@@ -2349,8 +2349,8 @@ void PropertyList::setupProperties()
 		 !editor->widget()->parent()->inherits( "QButtonGroup" ) )
 		continue;
 	}
-	
-	
+
+
 	if ( p->designable() ) {
 	    if ( p->isSetType() ) {
 		if ( QString( p->name() ) == "alignment" ) {
@@ -2432,7 +2432,7 @@ void PropertyList::setupProperties()
 	    item->setChanged( TRUE, FALSE );
     }
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
     if ( ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
 	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) &&
 	 !editor->widget()->inherits( "QSqlTable" ) ) {
@@ -2524,7 +2524,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
     case QVariant::Cursor:
 	item = new PropertyCursorItem( this, item, 0, name );
 	break;
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
     case QVariant::Date:
 	item = new PropertyDateItem( this, item, 0, name );
 	break;
@@ -2633,7 +2633,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     } else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) ) {
-  	QTimer::singleShot( 100, editor->formWindow()->commandHistory(), SLOT( checkCompressedCommand() ) );
+	QTimer::singleShot( 100, editor->formWindow()->commandHistory(), SLOT( checkCompressedCommand() ) );
     }
 
     return QListView::eventFilter( o, e );
@@ -2821,7 +2821,7 @@ PropertyEditor::PropertyEditor( QWidget *parent )
 	addTab( eTable, tr( "&Events" ) );
     else
 	eTable->hide();
-	
+
 }
 
 QObject *PropertyEditor::widget() const

@@ -561,7 +561,7 @@ private:
 
 };
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include "propertyeditorsql.h"
 #endif
 

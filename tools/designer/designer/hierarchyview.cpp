@@ -35,7 +35,7 @@
 #include <qwizard.h>
 #include <qwidgetstack.h>
 #include <qtabbar.h>
-#include <qmodules.h>
+#include <qfeatures.h>
 
 HierarchyItem::HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2, const QString &txt3 )
     : QListViewItem( parent, txt1, txt2, txt3 )
@@ -236,7 +236,7 @@ void HierarchyList::changeNameOf( QWidget *w, const QString &name )
 
 void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 {
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
     if ( !hierarchyView->formWindow()->isDatabaseAware() )
 	return;
     QListViewItem *item = findItem( w );
@@ -250,7 +250,7 @@ void HierarchyList::setup()
 {
     clear();
     QWidget *w = hierarchyView->formWindow()->mainContainer();
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
     if ( hierarchyView->formWindow()->isDatabaseAware() ) {
 	if ( columns() == 2 ) {
 	    addColumn( tr( "Database" ) );
@@ -294,7 +294,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     }
 
     QString dbInfo;
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
     dbInfo = MetaDataBase::fakeProperty( o, "database" ).toStringList().join(".");
 #endif
 
@@ -512,7 +512,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     addTab( listview, tr( "Widgets" ) );
     fList = new FunctionList( this, this );
     addTab( fList, tr( "Functions" ) );
-	
+
     formwindow = 0;
 }
 
@@ -574,7 +574,7 @@ void HierarchyView::namePropertyChanged( QWidget *w, const QVariant & )
 
 void HierarchyView::databasePropertyChanged( QWidget *w, const QStringList& info )
 {
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
     QString i = info.join( "." );
     listview->changeDatabaseOf( w, i );
 #endif

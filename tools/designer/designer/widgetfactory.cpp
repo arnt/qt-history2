@@ -36,15 +36,15 @@
 #include "widgetinterface.h"
 #include "tableeditorimpl.h"
 
-#include <qmodules.h>
+#include <qfeatures.h>
 
 #include <qpixmap.h>
 #include <qgroupbox.h>
 #include <qiconview.h>
-#if defined(QT_MODULE_TABLE)
+#ifndef QT_NO_TABLE
 #include <qtable.h>
 #endif
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
 #include <qsqltable.h>
 #include <qdatetimeedit.h>
 #endif
@@ -77,7 +77,7 @@
 #include <qmenubar.h>
 #include <qapplication.h>
 #include <qsplitter.h>
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include "database.h"
 #endif
 
@@ -148,7 +148,7 @@ void QDesignerWizard::setCurrentPage( int i )
 		break;
 	    back();
 	}
-	
+
     } else {
 	while ( i > currentPageNum() ) {
 	    if ( currentPageNum() == pageCount() - 1 )
@@ -310,7 +310,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
 	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
 	margin = BOXLAYOUT_DEFAULT_MARGIN;
-	
+
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
 
@@ -502,7 +502,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	    return new QButtonGroup( QString::fromLatin1( name ), parent, name );
 	return new QButtonGroup( parent, name );
     } else if ( className == "QIconView" ) {
-#if defined(QT_MODULE_ICONVIEW)
+#if !defined(QT_NO_ICONVIEW)
 	QIconView* iv = new QIconView( parent, name );
 	if ( init )
 	    (void) new QIconViewItem( iv, MainWindow::tr( "New Item" ) );
@@ -511,15 +511,15 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return 0;
 #endif
     } else if ( className == "QTable" ) {
-#if defined(QT_MODULE_TABLE)
+#if !defined(QT_NO_TABLE)
 	if ( init )
 	    return new QTable( 3, 3, parent, name );
 	return new QTable( parent, name );
 #else
 	return 0;
 #endif
-    } 
-#ifdef QT_MODULE_SQL
+    }
+#ifndef QT_NO_SQL
     else if ( className == "QSqlTable" ) {
 	return new QSqlTable( parent, name );
     } else if ( className == "QDateEdit" ) {
@@ -691,8 +691,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	mw->setCentralWidget( dw );
 	dw->show();
 	return mw;
-    } 
-#ifdef QT_MODULE_SQL
+    }
+#ifndef QT_NO_SQL
     else if ( className == "QSqlWidget" ) {
 	QWidget *w = new QDesignerSqlWidget( parent, name );
 	if ( parent )
@@ -1075,7 +1075,7 @@ QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 		return "AlignBottom";
 	}
 	return QString::null;
-	
+
     }
     return p->valueToKey( defaultValue( w, propName ).toInt() );
 }

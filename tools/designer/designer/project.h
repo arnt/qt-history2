@@ -21,7 +21,9 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-#ifdef QT_MODULE_SQL
+#include <qfeatures.h>
+
+#ifndef QT_NO_SQL
 #include <qsqldatabase.h>
 #endif
 
@@ -38,9 +40,9 @@ class Project
 public:
     struct DatabaseConnection
     {
-	DatabaseConnection( Project *p ) : 
-#ifdef QT_MODULE_SQL
-	    connection( 0 ), 
+	DatabaseConnection( Project *p ) :
+#ifndef QT_NO_SQL
+	    connection( 0 ),
 #endif
 	    project( p ), loaded( FALSE ) {}
 	QString name;
@@ -52,7 +54,7 @@ public:
 	bool open();
 	void close();
     private:
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 	QSqlDatabase *connection;
 #endif
 	Project *project;

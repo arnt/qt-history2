@@ -51,7 +51,7 @@
 #include <qwhatsthis.h>
 #include <qmetaobject.h>
 #include <qtooltip.h>
-#include <qmodules.h>
+#include <qfeatures.h>
 
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
@@ -2116,7 +2116,7 @@ bool FormWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *w )
 
 bool FormWindow::isDatabaseWidgetUsed() const
 {
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
     QStringList dbClasses;
     dbClasses << "QSqlTable"; // add more here
     QPtrDictIterator<QWidget> it( insertedWidgets );
@@ -2132,7 +2132,7 @@ bool FormWindow::isDatabaseWidgetUsed() const
 
 bool FormWindow::isDatabaseAware() const
 {
-#if defined(QT_MODULE_SQL)
+#ifndef QT_NO_SQL
     if ( QString(mContainer->className()) == "QDesignerSqlWidget" || QString(mContainer->className()) == "QDesignerSqlDialog" )
 	return TRUE;
     return isDatabaseWidgetUsed();

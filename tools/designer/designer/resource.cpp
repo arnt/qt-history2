@@ -32,7 +32,7 @@
 #include <domtool.h>
 #include "command.h"
 #include "pixmapchooser.h"
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include "database.h"
 #endif
 #include "actiondnd.h"
@@ -1152,7 +1152,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    obj = layout;
 	    n = n.firstChild().toElement();
 	    continue;
- 	} else if ( n.tagName() == "property" && obj ) {
+	} else if ( n.tagName() == "property" && obj ) {
 	    setObjectProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "attribute" && w ) {
 	    QString attrib = n.attribute( "name" );
@@ -2058,7 +2058,7 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 		      n2.tagName() == "actiongroup" )
 		loadChildAction( a, n2 );
 	    n2 = n2.nextSibling().toElement();
-	}	
+	}
 	if ( !parent->inherits( "QAction" ) )
 	    formwindow->actionList().append( a );
     }

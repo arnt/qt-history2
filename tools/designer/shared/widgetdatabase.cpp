@@ -33,7 +33,7 @@
 #include <qtextstream.h>
 #include <qcleanuphandler.h>
 
-#include <qmodules.h>
+#include <qfeatures.h>
 
 #include <stdlib.h>
 
@@ -195,7 +195,7 @@ void WidgetDatabase::setupDataBase()
 
     append( r );
 
-#if defined(QT_MODULE_ICONVIEW) || defined(UIC)
+#if !defined(QT_NO_ICONVIEW) || defined(UIC)
     r = new WidgetDatabaseRecord;
     r->iconSet = "iconview.xpm";
     r->name = "QIconView";
@@ -205,7 +205,7 @@ void WidgetDatabase::setupDataBase()
     append( r );
 #endif
 
-#if defined(QT_MODULE_TABLE)
+#if !defined(QT_NO_TABLE)
     r = new WidgetDatabaseRecord;
     r->iconSet = "table.xpm";
     r->name = "QTable";
@@ -215,7 +215,7 @@ void WidgetDatabase::setupDataBase()
     append( r );
 #endif
 
-#if defined(QT_MODULE_SQL)
+#if !defined(QT_NO_SQL)
     r = new WidgetDatabaseRecord;
     r->iconSet = "table.xpm";
     r->name = "QSqlTable";
@@ -259,7 +259,7 @@ void WidgetDatabase::setupDataBase()
 
     append( r );
 
-        r = new WidgetDatabaseRecord;
+	r = new WidgetDatabaseRecord;
     r->iconSet = "lineedit.xpm";
     r->name = "QDateTimeEdit";
     r->group = widgetGroup( "Input" );

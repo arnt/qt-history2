@@ -3,7 +3,7 @@
 #include "qwidgetfactory.h"
 #include <widgetdatabase.h>
 #include <widgetinterface.h>
-#include <qmodules.h>
+#include <qfeatures.h>
 #include "../integration/kdevelop/kdewidgets.h"
 #include "../designer/config.h"
 #include "../designer/database.h"
@@ -19,7 +19,7 @@
 #include <qobjectlist.h>
 #include <stdlib.h>
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include <qsqlrecord.h>
 #include <qsqldatabase.h>
 #include <qsqltable.h>
@@ -198,7 +198,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadFunctions( functions );
 
     if ( widgetFactory->toplevel ) {
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 	if ( widgetFactory->toplevel->inherits( "QDesignerSqlWidget" ) )
 	    ( (QDesignerSqlWidget*)widgetFactory->toplevel )->
 		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
@@ -287,7 +287,7 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
 
 bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
 {
-#if defined(QT_MODULE_SQL)
+#if !defined(QT_NO_SQL)
     if ( !QFile::exists( dbFileName ) )
 	return FALSE;
 
@@ -383,11 +383,11 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QButtonGroup" ) {
 	return new QButtonGroup( parent, name );
     } else if ( className == "QIconView" ) {
-#if defined(QT_MODULE_ICONVIEW)
+#if !defined(QT_NO_ICONVIEW)
 	return new QIconView( parent, name );
 #endif
     } else if ( className == "QTable" ) {
-#if defined(QT_MODULE_TABLE)
+#if !defined(QT_NO_TABLE)
 	return new QTable( parent, name );
 #endif
     } else if ( className == "QListBox" ) {
@@ -445,11 +445,9 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return mw;
 
     }
-#if defined(QT_MODULE_SQL)
+#if !defined(QT_NO_SQL)
     else if ( className == "QSqlTable" ) {
-
 	return new QSqlTable( parent, name );
-
     } else if ( className == "QDateEdit" ) {
 	return new QDateEdit( parent, name );
     } else if ( className == "QTimeEdit" ) {
@@ -1114,7 +1112,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setResizeEnabled( resizeable, i );
     } else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 	bool isAlterable = (!widget->inherits( "QSqlTable" )); // sql table columns added in create()
 #else
 	bool isAlterable = TRUE;
@@ -1281,7 +1279,7 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 		      n2.tagName() == "actiongroup" )
 		loadChildAction( a, n2 );
 	    n2 = n2.nextSibling().toElement();
-	}	
+	}
 	if ( !parent->inherits( "QAction" ) )
 	    actionList.append( a );
     }

@@ -21,9 +21,9 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "qmodules.h"
+#include "qfeatures.h"
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include <qsqlwidget.h>
 #include <qsqldialog.h>
 #include <qsqlcursor.h>

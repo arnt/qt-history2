@@ -20,7 +20,7 @@
 
 #include "database.h"
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include "formwindow.h"
 #include "mainwindow.h"
 

@@ -545,10 +545,10 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	editor->refetchData();
 	editor->emitWidgetChanged();
 	( ( PropertyItem* )editor->propertyList()->currentItem() )->setChanged( MetaDataBase::isPropertyChanged( widget, propName ) );
-#if defined(QT_MODULE_SQL)	
+#ifndef QT_NO_SQL
 	if ( propName == "database" )
 	    formWindow()->mainWindow()->objectHierarchy()->databasePropertyChanged( (QWidget*)widget, MetaDataBase::fakeProperty( widget, "database" ).toStringList() );
-#endif	
+#endif
 	return;
     }
 

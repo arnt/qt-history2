@@ -26,8 +26,9 @@
 #include <qtextstream.h>
 #include <qurl.h>
 #include <qobjectlist.h>
+#include <qfeatures.h>
 
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
 #include <qsqlrecord.h>
 #include <qsqltable.h>
 #endif
@@ -363,7 +364,7 @@ Project::DatabaseConnection *Project::databaseConnection( const QString &name )
 
 bool Project::DatabaseConnection::refreshCatalog()
 {
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
     if ( loaded )
 	return TRUE;
     if ( !open() )
@@ -387,7 +388,7 @@ bool Project::DatabaseConnection::refreshCatalog()
 
 bool Project::DatabaseConnection::open()
 {
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
     // register our name, if nec
     if ( name == "(default)" ) {
 	if ( !QSqlDatabase::contains() ) // default doesn't exists?
@@ -414,7 +415,7 @@ void Project::DatabaseConnection::close()
 {
     if ( !loaded )
 	return;
-#ifdef QT_MODULE_SQL
+#ifndef QT_NO_SQL
     if ( connection )
 	connection->close();
 #endif
