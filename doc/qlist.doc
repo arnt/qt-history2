@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.6 1995/12/14 21:42:08 hanord Exp $
+** $Id: qlist.doc,v 1.7 1995/12/15 12:18:44 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -31,13 +31,12 @@
     class Employee
     {
     public:
-        Employee( const char *name, int salary )
-	    { empname = name;  empsal = salary; }
-        const char *name()   const	{ return empname; }
-        int	    salary() const	{ return empsal; }
+        Employee( const char *name, int salary ) { n=name; s=salary; }
+        const char *name()   const		 { return n; }
+        int	    salary() const		 { return s; }
     private:
-        QString     empname;
-        int         empsal;
+        QString     n;
+        int         s;
     };
 
     void main()
@@ -101,7 +100,7 @@
   \code
       ...
     #if defined(USE_TEMPLATECLASS)
-    typedef QList<Employee> EmployeeList;
+    typedef QListT<Employee>	     EmployeeList;
     #else
     typedef declare(QListM,Employee) EmployeeList;
     #endif
@@ -112,6 +111,9 @@
       ...
   \endcode
   
+  QListT refers to the QList template and QListM refers to the QList macro.
+  QList defaults to QListT if templates are supported, QListM otherwise.
+
   The list class is indexable and has a \link at() current index\endlink
   and a \link current() current item\endlink.  The first item corresponds
   to index 0.  The current index is -1 if the current item is null.
@@ -139,7 +141,7 @@
   QCollection::newItem() for the item to be inserted. Reimplement it if you
   want to have deep copies in your list.
 
-  When removing an item from the list, the virtual function
+  When removing an item from a list, the virtual function
   QCollection::deleteItem() is called.  QList's default implementation
   is to delete the item if auto-deletion is enabled.
 
@@ -675,13 +677,12 @@
     class Employee
     {
     public:
-        Employee( const char *name, int salary )
-	    { empname = name;  empsal = salary; }
-        const char *name()   const	{ return empname; }
-        int	    salary() const	{ return empsal; }
+        Employee( const char *name, int salary ) { n=name; s=salary; }
+        const char *name()   const		 { return n; }
+        int	    salary() const		 { return s; }
     private:
-        QString     empname;
-        int         empsal;
+        QString     n;
+        int         s;
     };
 
     void main()
@@ -890,8 +891,75 @@
   \class QStrList qstrlist.h
   \brief The QStrList class provides a doubly linked list of \c char*.
 
-  \ingroup collection
+  \ingroup predefcollection
 
-  This class is a QList\<char*\> instance.  It makes deep copies of the
-  strings that are inserted.
+  This class is a QList\<char*\> instance.
+  It can make deep copies of the strings that are inserted.
+
+  The virtual compareItems() function is reimplemented and does a
+  case-sensitive string comparision.
+  The inSort() function will insert strings in a sorted order.
+
+  The QStrListIt class is an iterator for QStrList.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QStrList::QStrList( bool deepCopies )
+  Constructs a list of strings.  Will make deep copies of all inserted
+  strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
+  is FALSE.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QStrList::~QStrList()
+  Destroys the list.  All strings are removed.
+ ----------------------------------------------------------------------------*/
+
+
+/*****************************************************************************
+  QStrIList documentation
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QStrIList qstrlist.h
+  \brief The QStrIList class provides a doubly linked list of \c char* with
+case-insensitive compare.
+
+  \ingroup predefcollection
+
+  This class is a QList\<char*\> instance.
+  It can make deep copies of the strings that are inserted.
+
+  The virtual compareItems() function is reimplemented and does a
+  case-insensitive string comparision.
+  The inSort() function will insert strings in a sorted order.
+
+  The QStrListIt class is an iterator for QStrList.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QStrIList::QStrIList( bool deepCopies )
+  Constructs a list of strings.  Will make deep copies of all inserted
+  strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
+  is FALSE.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QStrIList::~QStrIList()
+  Destroys the list.  All strings are removed.
+ ----------------------------------------------------------------------------*/
+
+
+/*****************************************************************************
+  QStrListIt documentation
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  \class QStrListIt qstrlist.h
+  \brief The QStrListIt class is an iterator for the QStrList and QStrIList classes.
+
+  \ingroup predefiterators
+
+  This class is a QListIterator\<char*\> instance.
+  It can traverse the strings in the QStrList and QStrIList classes.
  ----------------------------------------------------------------------------*/
