@@ -639,7 +639,7 @@ void QDataBrowser::update()
 		break;
 	    case QSql::No:
 		d->dat.setMode( QSql::Update );
-		cur->aseditBuffer( TRUE );
+		cur->editBuffer( TRUE );
 		readFields();
 		break;
 	    case QSql::Cancel:
