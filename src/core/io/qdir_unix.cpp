@@ -228,7 +228,7 @@ void QDir::readDirEntries(const QStringList &nameFilters, int filterSpec, int so
     // mutable bitflags not supported by xlC - use that pointer instead.
     QDir *that = const_cast<QDir*>(this);
     if (filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-         nameFilter == nameFilt)
+         nameFilters == nameFilts)
         that->dirty = false;
     else
         that->dirty = true;
