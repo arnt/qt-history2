@@ -4525,7 +4525,8 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		xend = at( paintStart )->x + str->width( paintStart );
 	    } else {
 		xstart = at( paintStart )->x;
-		if ( i < length() - 1 && !str->at( i + 1 ).lineStart )
+		if ( i < length() - 1 && !str->at( i + 1 ).lineStart &&
+		     str->at( i + 1 ).rightToLeft == chr->rightToLeft )
 		    xend = str->at( i + 1 ).x;
 		else
 		    xend = chr->x + str->width( i );
