@@ -29,109 +29,108 @@
 
 
 /*!
-  \class QAbstractButton qabstractbutton.h
+\class QAbstractButton qabstractbutton.h
 
-  \brief The QAbstractButton class is the abstract base class of
-  button widgets, providing functionality common to buttons.
+\brief The QAbstractButton class is the abstract base class of
+button widgets, providing functionality common to buttons.
 
-  \ingroup abstractwidgets
+\ingroup abstractwidgets
 
-  The QAbstractButton class implements an \e abstract button, and lets
-  subclasses specify how to reply to user actions and how to draw the
-  button.
+This class implements an \e abstract button.
+Subclasses of this class handle user actions, and specify how the button
+is drawn.
 
-  QAbstractButton provides both push buttons and checkable buttons
-  that can be toggled. The QRadioButton and QCheckBox classes provide
-  only toggle buttons; QPushButton and QToolButton provide both toggle
-  and push buttons.
+QAbstractButton provides support for both push buttons and checkable
+(toggle) buttons. Checkable buttons are implemented in the QRadioButton
+and QCheckBox classes. Push buttons are implemented in the
+QPushButton and QToolButton classes; these also provide toggle
+behavior if required.
 
-  Any button can have a text and/or an icon. setText() sets the text
-  label, setIcon() sets the icon. The text/icon is manipulated as
-  necessary to create the "disabled" appearance when the button is
-  disabled.
+Any button can display a label containing text and an icon. setText()
+sets the text; setIcon() sets the icon. If a button is disabled, its label
+is changed to give the button a "disabled" appearance.
 
- QAbstractButton provides most of the states used for buttons:
+If the button is a text button with a string containing an ampersand (\&),
+QButton creates an automatic shortcut key, called a mnemonic, that may
+change based on the button translation. The following code creates
+a push button labelled "Ro<u>c</u>k \& Roll" (where the c is underlined):
 
-  \list
+\code
+      QPushButton *p = new QPushButton("Ro&ck && Roll", this);
+\endcode
 
-  \i isDown() indicates whether the button is \e pressed down.
+In this example, the shortcut Alt+C is assigned to the button, so that when
+the user presses Alt+C the button will call animateClick().
 
-  \i isChecked() indicates whether the button is \e checked.  Only
-  checkable buttons can be checked and unchecked (see below).
+You can also set a custom shortcut key using the setShortcut()
+function. This is useful mostly for buttons that do not have any
+text, because they have no automatic shortcut.
 
-  \i isEnabled() indicates whether the button can be pressed by the
-  user.
+\code
+      p->setPixmap(QPixmap("print.png"));
+      p->setShortcut(ALT+Key_F7);
+\endcode
 
-  \i setAutoRepeat() sets whether the button will auto-repeat if the
-  user holds it down.
+All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
+\l QCheckBox and \l QRadioButton) can display both text and
+pixmaps.
 
-  \i setCheckable() sets whether the button is a toggle button or not.
+A button can be made the default button in a dialog are provided by
+QPushButton::setDefault() and QPushButton::setAutoDefault().
 
-  \endlist
+QAbstractButton provides most of the states used for buttons:
 
-  The difference between isDown() and isChecked() is as follows: When
-  the user clicks a toggle button to check it, the button is first \e
-  pressed and then released into the \e checked state. When the user
-  clicks it again (to uncheck it), the button moves first to the \e
-  pressed state, then to the \e !checked state (isChecked() and
-  isDown() are both false).
+\list
 
-  Default buttons (as used in many dialogs) are provided by
-  QPushButton::setDefault() and QPushButton::setAutoDefault().
+\i isDown() indicates whether the button is \e pressed down.
 
-  QButton provides five signals:
+\i isChecked() indicates whether the button is \e checked.  Only
+checkable buttons can be checked and unchecked (see below).
 
-  \list 1
+\i isEnabled() indicates whether the button can be pressed by the
+user.
 
-  \i pressed() is emitted when the left mouse button is pressed while
-  the mouse cursor is inside the button.
+\i setAutoRepeat() sets whether the button will auto-repeat if the
+user holds it down.
 
-  \i released() is emitted when the left mouse button is released.
+\i setCheckable() sets whether the button is a toggle button or not.
 
-  \i clicked() is emitted when the button is first pressed and then
-  released when the shortcut key is typed, or when animateClick()
-  is called.
+\endlist
 
-  \i toggled(bool) is emitted when the state of a toggle button
-  changes.
+The difference between isDown() and isChecked() is as follows.
+When the user clicks a toggle button to check it, the button is first
+\e pressed then released into the \e checked state. When the user
+clicks it again (to uncheck it), the button moves first to the
+\e pressed state, then to the \e unchecked state (isChecked() and
+isDown() are both false).
 
-  \endlist
+QButton provides five signals:
 
-  If the button is a text button with an ampersand (\&) in its text,
-  QButton creates an automatic shortcut key, called a mnemonic, which
-  may change based on the button translation. This code creates a push
-  button labelled "Ro<u>c</u>k \& Roll" (where the c is
-  underlined). The button gets the shortcut, Alt+C:
+\list 1
 
-  \code
-        QPushButton *p = new QPushButton("Ro&ck && Roll", this);
-  \endcode
+\i pressed() is emitted when the left mouse button is pressed while
+the mouse cursor is inside the button.
 
-  In this example, when the user presses Alt+C the button will call
-  animateClick().
+\i released() is emitted when the left mouse button is released.
 
-  You can also set a custom shortcut key using the setShortcut()
-  function. This is useful mostly for buttons that do not have any
-  text, because they have no automatic shortcut.
+\i clicked() is emitted when the button is first pressed and then
+released when the shortcut key is typed, or when animateClick()
+is called.
 
-  \code
-        p->setPixmap(QPixmap("print.png"));
-        p->setShortcut(ALT+Key_F7);
-  \endcode
+\i toggled(bool) is emitted when the state of a toggle button
+changes.
 
-  All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
-  \l QCheckBox and \l QRadioButton) can display both text and
-  pixmaps.
+\endlist
 
-  To subclass QAbstractButton, you must reimplement at least
-  paintEvent() to draw the button's outline and its text or pixmap. It
-  is generally advisable to reimplement sizeHint() as well, and
-  sometimes hitButton() (to determine whether a button press is within
-  the button). For buttons with more than two states (like tri-state
-  buttons), you will also have to reimplement checkStateSet() and
-  nextCheckState().
+To subclass QAbstractButton, you must reimplement at least
+paintEvent() to draw the button's outline and its text or pixmap. It
+is generally advisable to reimplement sizeHint() as well, and
+sometimes hitButton() (to determine whether a button press is within
+the button). For buttons with more than two states (like tri-state
+buttons), you will also have to reimplement checkStateSet() and
+nextCheckState().
 
-  \sa QButtonGroup
+\sa QButtonGroup
 */
 
 class QButtonGroupPrivate: public QObjectPrivate
@@ -411,16 +410,16 @@ QAbstractButton::QAbstractButton(QAbstractButtonPrivate &dd, QWidget *parent)
 }
 
 /*!
-  \property QAbstractButtonPrivate::text
-  \brief the text shown on the button
+\property QAbstractButton::text
+\brief the text shown on the button
 
-  This property will return a QString::null if the button has no
-  text. If the text has an ampersand (\&) in it, then a mnemonic is
-  automatically created for it using the character that follows the
-  '\&' as the shortcut key. Any previous mnemonic will be overwritten,
-  or cleared if no mnemonic is defined by the text.
+This property will return a QString::null if the button has no text.
+If the text contains an ampersand character (\&), a mnemonic is
+automatically created for it. The character that follows the '\&' will be
+used as the shortcut key. Any previous mnemonic will be overwritten,
+or cleared if no mnemonic is defined by the text.
 
-  There is no default text.
+There is no default text.
 */
 
 void QAbstractButton::setText(const QString &text)
@@ -468,8 +467,8 @@ QIconSet QAbstractButton::icon() const
 
 
 /*!
-  \property QAbstractButton::shortcut
-  \brief the mnemonic key associated with the button
+\property QAbstractButton::shortcut
+\brief the mnemonic associated with the button
 */
 
 void QAbstractButton::setShortcut(const QKeySequence &key)
@@ -485,12 +484,12 @@ QKeySequence QAbstractButton::shortcut() const
     return d->shortcut;
 }
 /*!
-  \property QAbstractButton::checkable
-  \brief whether the button is checkable
+\property QAbstractButton::checkable
+\brief whether the button is checkable
 
-  The default is false.
+By default, this is false (the button is not checkable).
 
-  \sa checked
+\sa checked
 */
 void QAbstractButton::setCheckable(bool checkable)
 {
@@ -503,12 +502,13 @@ bool QAbstractButton::isCheckable() const
 }
 
 /*!
-    \property QAbstractButton::checked
-    \brief whether the button is checked
+\property QAbstractButton::checked
+\brief whether the button is checked
 
-    Only checkable buttons can be checked.  The default is false.
+Only checkable buttons can be checked.  By default, this is false
+(the button is unchecked).
 
-    \sa checkable
+\sa checkable
 */
 void QAbstractButton::setChecked(bool checked)
 {
@@ -566,12 +566,12 @@ bool QAbstractButton::isDown() const
 }
 
 /*!
-  \property QAbstractButton::autoRepeat
-  \brief whether autoRepeat is enabled
+\property QAbstractButton::autoRepeat
+\brief whether autoRepeat is enabled
 
-  If autoRepeat is enabled then the clicked() signal is emitted at
-  regular intervals if the button is down. This property has no
-  effect on toggle buttons. autoRepeat is off by default.
+If autoRepeat is enabled then the clicked() signal is emitted at
+regular intervals when the button is down. This property has no
+effect on toggle buttons. autoRepeat is off by default.
 */
 
 void QAbstractButton::setAutoRepeat(bool autoRepeat)
@@ -591,21 +591,21 @@ bool QAbstractButton::autoRepeat() const
 }
 
 /*!
-  \property QAbstractButton::autoExclusive
-  \brief whether autoExclusive is enabled
+\property QAbstractButton::autoExclusive
+\brief whether autoExclusive is enabled
 
-  If autoExclusive is enabled, checkable buttons that belong to the
-  same parent widget behave as if they were part of the same
-  exclusive button group: Only one button can be checked at the same
-  time, checking another button automatically unchecks the
-  previously checked one.
+If autoExclusive is enabled, checkable buttons that belong to the
+same parent widget behave as if they were part of the same
+exclusive button group. In an exclusive button group, only one button
+can be checked at any time; checking another button automatically
+unchecks the previously checked one.
 
-  The property has no effect on buttons that belong to a button
-  group.
+The property has no effect on buttons that belong to a button
+group.
 
-  autoExclusive is off by default, except for radio buttons.
+autoExclusive is off by default, except for radio buttons.
 
-  \sa QRadioButton
+\sa QRadioButton
 */
 void QAbstractButton::setAutoExclusive(bool autoExclusive)
 {
@@ -631,16 +631,15 @@ QButtonGroup *QAbstractButton::group() const
 }
 
 /*!
-  Performs an animated click: the button is pressed and released
-  \msec milliseconds later (the default is 100 msecs).
+Performs an animated click: the button is pressed and released
+\msec milliseconds later (the default is 100 msecs).
 
-  All signals are emmited as appropriate (pressed(), released(),
-  clicked(), toggled(), ...).
+All signals associated with a click are emitted as appropriate.
 
-  This function does nothing if the button is \link setEnabled()
-  disabled. \endlink
+This function does nothing if the button is \link setEnabled()
+disabled. \endlink
 
-  \sa click()
+\sa click()
 */
 void QAbstractButton::animateClick(int msec)
 {
@@ -652,15 +651,14 @@ void QAbstractButton::animateClick(int msec)
 }
 
 /*!
-  Performs a click.
+Performs a click.
 
-  All signals are emmited as appropriate (pressed(), released(),
-  clicked(), toggled(), ...).
+All the usual signals associated with a click are emitted as appropriate.
 
-  This function does nothing if the button is \link setEnabled()
-  disabled. \endlink
+This function does nothing if the button is \link setEnabled()
+disabled. \endlink
 
-  \sa animateClick()
+\sa animateClick()
  */
 void QAbstractButton::click()
 {
@@ -685,22 +683,21 @@ void QAbstractButton::toggle()
     setChecked(!d->checked);
 }
 
-/*! This virtual handler is called then setChecked() was called,
-  unless it was called from within nextCheckState(). It allows
-  subclasses to reset their intermediate button states.
+/*! This virtual handler is called when setChecked() was called,
+unless it was called from within nextCheckState(). It allows
+subclasses to reset their intermediate button states.
 
-  \sa nextCheckState()
+\sa nextCheckState()
  */
 void QAbstractButton::checkStateSet()
 {
 }
 
-/*! This virtual handler is called when a checkable button was
-  clicked. The default implementation calls
-  setChecked(!isChecked()). It allows subclasses to implement
-  intermediate button states.
+/*! This virtual handler is called when a checkable button is
+clicked. The default implementation calls setChecked(!isChecked()).
+It allows subclasses to implement intermediate button states.
 
-  \sa checkStateSet()
+\sa checkStateSet()
 */
 void QAbstractButton::nextCheckState()
 {
@@ -708,11 +705,12 @@ void QAbstractButton::nextCheckState()
 }
 
 /*!
-    Returns true if \a pos is inside the clickable button rectangle;
-    otherwise returns false.
+Returns true if \a pos is inside the clickable button rectangle;
+otherwise returns false.
 
-    By default, the clickable area is the entire widget. Subclasses
-    may reimplement it, though.
+By default, the clickable area is the entire widget. Subclasses
+may reimplement this function to provide support for clickable
+areas of different shapes and sizes.
 */
 bool QAbstractButton::hitButton(const QPoint &pos) const
 {
@@ -913,27 +911,27 @@ void QAbstractButton::changeEvent(QEvent *e)
 */
 
 /*!
-    \fn void QAbstractButton::clicked()
+\fn void QAbstractButton::clicked()
 
-    This signal is emitted when the button is activated (i.e. first
-    pressed down and then released when the mouse cursor is inside the
-    button), when the shortcut key is typed or when animateClick()
-    is called. This signal is \e not emitted if you call setDown().
+This signal is emitted when the button is activated (i.e. pressed down
+then released while the mouse cursor is inside the button), when the
+shortcut key is typed, or when animateClick() is called.
+This signal is \e not emitted if you call setDown().
 
-    \sa pressed(), released(), toggled()
+\sa pressed(), released(), toggled()
 */
 
 /*!
-    \fn void QAbstractButton::toggled(bool checked)
+\fn void QAbstractButton::toggled(bool checked)
 
-    This signal is emitted whenever a toggle button changes status. \a
-    checked is true if the button is checked, or false if the button
-    is unchecked.
+This signal is emitted whenever a toggle button changes its state.
+\a checked is true if the button is checked, or false if the button
+is unchecked.
 
-    This may be the result of a user action, toggle() slot activation,
-    or because setChecked() was called.
+This may be the result of a user action, toggle() slot activation,
+or because setChecked() was called.
 
-    \sa clicked()
+\sa clicked()
 */
 
 
