@@ -38,7 +38,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
 {
     readHistory();
     readBookmarks();
-    
+
     fileList = path.entryList();
 
     browser = new QTextBrowser( this );
@@ -83,11 +83,11 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
         mHistory[ hist->insertItem( *it ) ] = *it;
     connect( hist, SIGNAL( activated( int ) ),
              this, SLOT( histChosen( int ) ) );
-    
+
     bookm = new QPopupMenu( this );
     bookm->insertItem( tr( "Add Bookmark" ), this, SLOT( addBookmark() ) );
     bookm->insertSeparator();
-    
+
     QStringList::Iterator it2 = bookmarks.begin();
     for ( ; it2 != bookmarks.end(); ++it2 )
         mBookmarks[ bookm->insertItem( *it2 ) ] = *it2;
@@ -108,7 +108,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
     connect( browser, SIGNAL( forwardAvailable( bool ) ),
              this, SLOT( setForwardAvailable( bool ) ) );
 
-    
+
     QToolBar* toolbar = new QToolBar( this );
     addToolBar( toolbar, "Toolbar");
     QToolButton* button;
@@ -128,7 +128,9 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
              this, SLOT( pathSelected( const QString & ) ) );
     toolbar->setStretchableWidget( pathCombo );
     setRightJustification( TRUE );
-
+    setDockEnabled( Left, FALSE );
+    setDockEnabled( Right, FALSE );
+    
     pathCombo->insertItem( home_ );
     pathCombo->installEventFilter( this );
     QObjectList *l = queryList( "QLineEdit" );
@@ -185,7 +187,7 @@ HelpWindow::~HelpWindow()
     QMap<int, QString>::Iterator it = mHistory.begin();
     for ( ; it != mHistory.end(); ++it )
         history.append( *it );
-    
+
     QFile f( QDir::currentDirPath() + "/.history" );
     f.open( IO_WriteOnly );
     QDataStream s( &f );
@@ -196,7 +198,7 @@ HelpWindow::~HelpWindow()
     QMap<int, QString>::Iterator it2 = mBookmarks.begin();
     for ( ; it2 != mBookmarks.end(); ++it2 )
         bookmarks.append( *it2 );
-    
+
     QFile f2( QDir::currentDirPath() + "/.bookmarks" );
     f2.open( IO_WriteOnly );
     QDataStream s2( &f2 );
@@ -250,6 +252,9 @@ void HelpWindow::pathSelected( const QString &_path )
 
 bool HelpWindow::eventFilter( QObject * o, QEvent * e )
 {
+    if ( QMainWindow::eventFilter( o, e ) )
+	return TRUE;
+    
     QObjectList *l = queryList( "QLineEdit" );
     if ( !l || !l->first() )
         return FALSE;
@@ -310,13 +315,13 @@ void HelpWindow::readBookmarks()
 
 void HelpWindow::histChosen( int i )
 {
-    if ( mHistory.contains( i ) ) 
+    if ( mHistory.contains( i ) )
         browser->setSource( mHistory[ i ] );
 }
 
 void HelpWindow::bookmChosen( int i )
 {
-    if ( mBookmarks.contains( i ) ) 
+    if ( mBookmarks.contains( i ) )
         browser->setSource( mBookmarks[ i ] );
 }
 
