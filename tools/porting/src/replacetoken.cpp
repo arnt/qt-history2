@@ -14,7 +14,7 @@
 #include "replacetoken.h"
 #include "tokenreplacements.h"
 #include <QByteArray>
-
+#include <stdio.h>
 
 void printTokenStream(TokenStream *stream)
 {
