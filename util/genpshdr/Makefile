@@ -39,8 +39,8 @@ depend:
 	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
-	/bin/rm -f *.o *.bak *~ *% #*
-	/bin/rm -f $(TARGET)
+	-rm -f *.o *.bak *~ *% #*
+	-rm -f $(TARGET)
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
