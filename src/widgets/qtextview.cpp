@@ -646,7 +646,18 @@ void QTextView::removeSelectedText()
 	doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
 	undoRedoInfo.d->text = QString::null;
     }
+    int oldLen = undoRedoInfo.d->text.length();
     undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
+    QTextCursor c = doc->selectionStartCursor( QTextDocument::Standard );
+    for ( int i = 0; i < undoRedoInfo.d->text.length() - oldLen; ++i ) {
+	if ( undoRedoInfo.d->text.at( oldLen + i ).c == '\n' )
+	    continue;
+	if ( c.parag()->at( c.index() )->format() ) {
+	    c.parag()->at( c.index() )->format()->addRef();
+	    undoRedoInfo.d->text.at( oldLen + i ).setFormat( c.parag()->at( c.index() )->format() );
+	}
+	c.gotoRight();
+    }
     doc->removeSelectedText( QTextDocument::Standard, cursor );
     ensureCursorVisible();
     lastFormatted = cursor->parag();

@@ -1500,6 +1500,15 @@ void QTextDocument::selectionStart( int id, int &paragId, int &index )
     index = sel.startCursor.index();
 }
 
+QTextCursor QTextDocument::selectionStartCursor( int id)
+{
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
+    if ( it == selections.end() )
+	return QTextCursor( this );
+    QTextDocumentSelection &sel = *it;
+    return sel.startCursor;
+}
+
 void QTextDocument::selectionEnd( int id, int &paragId, int &index )
 {
     QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
