@@ -39,6 +39,8 @@ public:
     QSqlRecord record(const QVector<QVariant> &values) const;
     bool removeRow(int row);
 
+    bool exec(const QString &stmt, bool prepStatement,
+              const QSqlRecord &rec, const QSqlRecord &whereValues = QSqlRecord());
     QSqlDatabase db;
     int editIndex;
     int insertIndex;
@@ -98,6 +100,41 @@ void QSqlTableModelPrivate::clear()
 void QSqlTableModelPrivate::clearEditBuffer()
 {
     editBuffer = d->rec;
+}
+
+bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
+                                 const QSqlRecord &rec, const QSqlRecord &whereValues)
+{
+    if (stmt.isEmpty())
+        return false;
+
+    if (prepStatement) {
+        if (editQuery.lastQuery() != stmt) {
+            if (!editQuery.prepare(stmt)) {
+                error = editQuery.lastError();
+                return false;
+            }
+        }
+        int i;
+        for (i = 0; i < rec.count(); ++i) {
+            if (rec.isGenerated(i))
+                editQuery.addBindValue(rec.value(i));
+        }
+        for (i = 0; i < whereValues.count(); ++i)
+            editQuery.addBindValue(whereValues.value(i));
+
+        if (!editQuery.exec()) {
+            error = editQuery.lastError();
+            return false;
+        }
+    } else {
+        if (!editQuery.exec(stmt)) {
+            error = editQuery.lastError();
+            return false;
+        }
+    }
+    qDebug("executed: %s (%d)", stmt.ascii(), editQuery.numRowsAffected());
+    return true;
 }
 
 QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
@@ -400,7 +437,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         }
         d->clearEditBuffer();
         d->editBuffer.setValue(index.column(), value);
-        isOk = update(index.row(), d->editBuffer);
+        isOk = updateRow(index.row(), d->editBuffer);
         if (isOk)
             select();
         break; }
@@ -450,7 +487,7 @@ void QSqlTableModel::setQuery(const QSqlQuery &query)
 
     \sa QSqlRecord::isGenerated()
  */
-bool QSqlTableModel::update(int row, const QSqlRecord &values)
+bool QSqlTableModel::updateRow(int row, const QSqlRecord &values)
 {
     QSqlRecord rec(values);
     emit beforeUpdate(row, rec);
@@ -469,34 +506,9 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
     }
     stmt.append(QLatin1Char(' ')).append(where);
 
-    if (prepStatement) {
-        if (d->editQuery.lastQuery() != stmt) {
-            if (!d->editQuery.prepare(stmt)) {
-                d->error = d->editQuery.lastError();
-                return false;
-            }
-        }
-        int i;
-        for (i = 0; i < rec.count(); ++i) {
-            if (rec.isGenerated(i))
-                d->editQuery.addBindValue(rec.value(i));
-        }
-        for (i = 0; i < whereValues.count(); ++i)
-            d->editQuery.addBindValue(whereValues.value(i));
-
-        if (!d->editQuery.exec()) {
-            d->error = d->editQuery.lastError();
-            return false;
-        }
-    } else {
-        if (!d->editQuery.exec(stmt)) {
-            d->error = d->editQuery.lastError();
-            return false;
-        }
-    }
-    qDebug("executed: %s, %d", stmt.ascii(), d->editQuery.numRowsAffected());
-    return true;
+    return d->exec(stmt, prepStatement, rec, whereValues);
 }
+
 
 /*!
    Inserts the values \a values into the database table.
@@ -505,7 +517,7 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
 
    \sa lastError()
  */
-bool QSqlTableModel::insert(const QSqlRecord &values)
+bool QSqlTableModel::insertRow(const QSqlRecord &values)
 {
     QSqlRecord rec(values);
     emit beforeInsert(rec);
@@ -514,34 +526,19 @@ bool QSqlTableModel::insert(const QSqlRecord &values)
     QString stmt = d->db.driver()->sqlStatement(QSqlDriver::InsertStatement, d->tableName,
                                                 rec, prepStatement);
 
-    if (stmt.isEmpty())
-        return false;
+    return d->exec(stmt, prepStatement, rec);
+}
 
-    if (prepStatement) {
-        if (d->editQuery.lastQuery() != stmt) {
-            if (!d->editQuery.prepare(stmt)) {
-                d->error = d->editQuery.lastError();
-                return false;
-            }
-        }
+bool QSqlTableModel::deleteRow(int row)
+{
+    emit beforeDelete(row);
 
-        for (int i = 0; i < rec.count(); ++i) {
-            if (rec.isGenerated(i))
-                d->editQuery.addBindValue(rec.value(i));
-        }
+    QSqlRecord rec = d->primaryValues(row);
+    bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
+    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::DeleteStatement, d->tableName, rec,
+                                                prepStatement);
 
-        if (!d->editQuery.exec()) {
-            d->error = d->editQuery.lastError();
-            return false;
-        }
-    } else {
-        if (!d->editQuery.exec(stmt)) {
-            d->error = d->editQuery.lastError();
-            return false;
-        }
-    }
-    qDebug("executed: %s", stmt.ascii());
-    return true;
+    return d->exec(stmt, prepStatement, rec);
 }
 
 /*!
@@ -559,10 +556,10 @@ bool QSqlTableModel::submitChanges()
         if (d->editBuffer.isEmpty())
             return true;
         if (d->insertIndex != -1) {
-            if (!insert(d->editBuffer))
+            if (!insertRow(d->editBuffer))
                 return false;
         } else {
-            if (!update(d->editIndex, d->editBuffer))
+            if (!updateRow(d->editIndex, d->editBuffer))
                 return false;
         }
         d->clearEditBuffer();
@@ -575,13 +572,13 @@ bool QSqlTableModel::submitChanges()
         while (it != d->cache.constEnd()) {
             switch (it.value().op) {
             case QSql::Insert:
-                isOk |= insert(it.value().rec);
+                isOk |= insertRow(it.value().rec);
                 break;
             case QSql::Update:
-                isOk |= update(it.key(), it.value().rec);
+                isOk |= updateRow(it.key(), it.value().rec);
                 break;
             case QSql::Delete:
-                // TODO isOk |= deleteRow(it.key());
+                isOk |= deleteRow(it.key());
                 break;
             case QSql::None:
                 qWarning("QSqlTableModel::submitChanges: Invalid operation");

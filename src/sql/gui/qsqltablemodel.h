@@ -88,8 +88,9 @@ signals:
     void beforeDelete(int row);
 
 protected:
-    virtual bool update(int row, const QSqlRecord &values);
-    virtual bool insert(const QSqlRecord &values);
+    virtual bool updateRow(int row, const QSqlRecord &values);
+    virtual bool insertRow(const QSqlRecord &values);
+    virtual bool deleteRow(int row);
     virtual QString orderByStatement() const;
     virtual QString selectStatement() const;
 
