@@ -202,9 +202,6 @@ QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
         || (option.state & QStyle::Style_HasFocus && editorType(model, index) == Widget)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
-        lineEdit->setText(model->data(index, QAbstractItemModel::EditRole).toString());
-        lineEdit->selectAll();
-        updateEditorGeometry(lineEdit, option, model, index);
         return lineEdit;
     }
     return 0;
@@ -235,8 +232,10 @@ void QItemDelegate::setEditorData(QWidget *editor,
                                   const QAbstractItemModel *model, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit)
+    if (lineEdit) {
         lineEdit->setText(model->data(index, QAbstractItemModel::EditRole).toString());
+        lineEdit->selectAll();
+    }
 }
 
 /*!

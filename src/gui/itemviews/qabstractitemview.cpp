@@ -1331,6 +1331,8 @@ void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *e
         option.state = (index == currentItem() ? QStyle::Style_HasFocus|option.state : option.state);
         editor = itemDelegate()->editor(QAbstractItemDelegate::AlwaysEdit,
                                         d->viewport, option, d->model, index);
+        itemDelegate()->setModelData(editor, d->model, index);
+        itemDelegate()->updateEditorGeometry(editor, option, d->model, index);
     }
     d->setPersistentEditor(editor, index);
     edit(index);
@@ -1744,6 +1746,8 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
         option.rect = q->itemViewportRect(index);
         option.state |= (index == q->currentItem() ? QStyle::Style_HasFocus : QStyle::Style_Default);
         editor = delegate->editor(action, viewport, option, model, index);
+        delegate->setEditorData(editor, model, index);
+        delegate->updateEditorGeometry(editor, option, model, index);
     }
     if (editor) {
         editor->show();
