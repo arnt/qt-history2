@@ -204,7 +204,7 @@ for (var p in validPlatforms) {
 
 	    // run qdoc
   	    print("Running qdoc...");
-  	    qdoc(platDir);
+  	    qdoc(platDir, edition);
 
   	    // purge platform and edition files
   	    print("Purging platform and edition specific files...");
@@ -653,12 +653,12 @@ function syncqt(packageDir, platform)
 /************************************************************
  * runs qdoc on packageDir
  */
-function qdoc(packageDir)
+function qdoc(packageDir, edition)
 {
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    execute([qdocCommand, qdocDir + "/test/qt.qdoc"]);
+    execute([qdocCommand, qdocDir + "/test/qt-" + edition + ".qdoc"]);
 }
 
 /************************************************************
