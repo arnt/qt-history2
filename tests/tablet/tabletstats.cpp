@@ -38,23 +38,33 @@ void MyOrientation::newOrient( int tiltX, int tiltY )
     double PI = 3.14159265359;
     static int oldX = 0, oldY = 0;
     int tmpZ, tmpX, tmpY;
+    bool computedFromY = FALSE;
     QPainter p(this);
     p.setPen( black );
     
     p.setBrush( red );
-    tmpZ = MY_HYP * sin( tiltX * (PI / 180) );
-
+    if ( abs( tiltX ) < 15 ) {
+	tmpZ = MY_HYP * sin( tiltY * (PI / 180) );
+	computedFromY = TRUE;
+    } else
+	tmpZ = MY_HYP * sin( tiltX * (PI / 180) );
     tmpX = tmpZ * tan( tiltX * (PI / 180) );
     tmpY = tmpZ * tan( tiltY * (PI / 180 ) );
 
-    if (tiltX < 0) {
+    if ( computedFromY && tiltY < 0 ) {
+	tmpY = 0 - tmpY;
+	tmpX = 0 - tmpX;
+    } else if (tiltX < 0 && !computedFromY) {
+	qDebug( "adjusting" );
 	tmpX = 0 - tmpX;
 	tmpY = 0 - tmpY;
     }
-
     p.eraseRect( 0, 0, width(), height() );
     p.translate( width() / 2, height() / 2 );
     qDebug( "x: %d, y: %d", tmpX, tmpY );
+    p.setPen( white );
+    p.drawLine( 0, 0, oldX, oldY );
+    p.setPen( black );
     p.drawLine( 0, 0,tmpX, tmpY );
     oldX = tmpX;
     oldY = tmpY;
