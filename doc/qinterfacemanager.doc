@@ -93,9 +93,9 @@
 */
 
 /*!
-  \fn QInterfaceManager::QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+  \fn QInterfaceManager::QInterfaceManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 
-  Creates an QInterfaceManager that will load all library files in \a path that match \a filter, setting the default policy to \a pol. 
+  Creates an QInterfaceManager that will load all shared library files in \a path, setting the default policy to \a pol. 
   If \a cs is, FALSE the manager will handle feature strings case insensitive.
   
   \warning
@@ -106,9 +106,9 @@
 */
 
 /*!
-  \fn void QInterfaceManager::addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so" )
+  \fn void QInterfaceManager::addLibraryPath( const QString& path )
 
-  Calls addLibrary for all files in \a path that match \a filter. 
+  Calls addLibrary for all shared library files in \a path. 
   The current library policy will be used for all new QLibrary objects.
 
   \sa addLibrary, setDefaultPolicy
@@ -122,6 +122,7 @@
   there is already a QLibrary object for \a file, this object will be returned.
   The library will stay in memory if the default policy is Immediately, otherwise 
   it gets unloaded again.
+  Note that \a file must not include the platform dependent file extension.
 
   \sa removeLibrary, addLibraryPath
 */
@@ -131,6 +132,7 @@
 
   Removes the library \a file from the managed list and returns TRUE if the library could
   be unloaded, otherwise returns FALSE.
+  Note that \a file must not include the platform dependend file extension.
 
   \warning
   The QLibrary object for this file will be destroyed.
