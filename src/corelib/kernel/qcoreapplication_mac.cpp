@@ -15,37 +15,27 @@
 #include <private/qcore_mac_p.h>
 
 /*****************************************************************************
-  Internal variables and functions
- *****************************************************************************/
-static QString *appName=0;                        // application name
-static QString *appFileName=0;                       // application file name
-
-/*****************************************************************************
   QCoreApplication utility functions
  *****************************************************************************/
 QString qAppName()                                // get application name
 {
-    if(!appName) {
-        ProcessSerialNumber psn;
-        if(GetCurrentProcess(&psn) == noErr) {
-            QCFString cfstr;
-            CopyProcessName(&psn, &cfstr);
-            appName = new QString(static_cast<QString>(cfstr));
-        } else if(QCoreApplication *app = QCoreApplication::instance()) {
-            char *p = strrchr(app->argv()[0], '/');
-            appName = new QString(p ? p + 1 : app->argv()[0]);
-        }
+    static QString appName;
+    QCoreApplication *app;
+    if (appName.isEmpty() && (app = QCoreApplication::instance())) {
+        char *p = strrchr(app->argv()[0], '/');
+        appName = p ? QString::fromUtf8(p + 1) : QString::fromUtf8(app->argv()[0]);
     }
-    return *appName;
+    return appName;
 }
 
 QString qAppFileName()
 {
-    if(!appFileName) {
+    static QString appFileName;
+    if (appFileName.isEmpty()) {
         QCFType<CFURLRef> bundleURL(CFBundleCopyExecutableURL(CFBundleGetMainBundle()));
         QCFString cfPath(CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle));
-        appFileName = new QString(static_cast<QString>(cfPath));
+        appFileName = cfPath;
     }
-    return *appFileName;
+    return appFileName;
 }
 
