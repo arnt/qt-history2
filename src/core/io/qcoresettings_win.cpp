@@ -1,4 +1,4 @@
-#include "qvaluevector.h"
+#include "qvector.h"
 #include "qmap.h"
 #include "qt_windows.h"
 
@@ -22,7 +22,7 @@ struct RegistryLocation {
     bool readOnly;
 };
 
-typedef QValueVector<RegistryLocation> RegistryLocationList;
+typedef QVector<RegistryLocation> RegistryLocationList;
 
 class QWinSettingsPrivate : public QCoreSettingsPrivate
 {
@@ -253,7 +253,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QCoreSettingsPrivate::Ch
     ++m;
 
     // Get the list
-    QByteArray buff(m*sizeof(ushort));
+    QByteArray buff(m*sizeof(ushort), 0);
     for (int i = 0; i < n; ++i) {
         QString item;
         QT_WA( {
