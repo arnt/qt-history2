@@ -190,6 +190,7 @@ sub classNames {
             $last_definition = $i + 1;
         }
         if($definition) {
+	    $definition =~ s=[\n\r]==g;
             my $symbol = 0;
             if($definition =~ m/^ *typedef *.*\(\*([^\)]*)\)\(.*\);$/) {
                 $symbol = $1;
