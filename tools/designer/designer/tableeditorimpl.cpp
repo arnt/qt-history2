@@ -206,9 +206,9 @@ void TableEditor::newColumnClicked()
 	t = QString::number( ++n );
     table->horizontalHeader()->setLabel( table->numCols() - 1, t );
     listColumns->insertItem( t );
-    QListBoxItem *i = listColumns->item( listColumns->count() - 1 );
-    listColumns->setCurrentItem( i );
-    listColumns->setSelected( i, TRUE );
+    QListBoxItem *item = listColumns->item( listColumns->count() - 1 );
+    listColumns->setCurrentItem( item );
+    listColumns->setSelected( item, TRUE );
     if ( editTable->inherits( "QDataTable" ) ) {
 	comboFields->setFocus();
     } else {
@@ -231,9 +231,9 @@ void TableEditor::newRowClicked()
 	t = QString::number( ++n );
     table->verticalHeader()->setLabel( table->numRows() - 1, t );
     listRows->insertItem( t );
-    QListBoxItem *i = listRows->item( listRows->count() - 1 );
-    listRows->setCurrentItem( i );
-    listRows->setSelected( i, TRUE );
+    QListBoxItem *item = listRows->item( listRows->count() - 1 );
+    listRows->setCurrentItem( item );
+    listRows->setSelected( item, TRUE );
 #endif
 }
 
