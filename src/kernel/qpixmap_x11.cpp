@@ -648,7 +648,14 @@ QImage QPixmap::convertToImage() const
 	if (axi) {
 	    image.setAlphaBuffer( TRUE );
 	    alpha.create(w, h, 8);
-	    memcpy(alpha.bits(), axi->data, w * h);
+
+	    // copy each scanline
+	    char *src = axi->data;
+	    int bpl = QMIN(alpha.bytesPerLine(), axi->bytes_per_line);
+	    for (int y = 0; y < h; y++ ) {
+		memcpy( alpha.scanLine(y), src, bpl );
+		src += axi->bytes_per_line;
+	    }
 	}
     } else if (msk) {
 	image.setAlphaBuffer( TRUE );
