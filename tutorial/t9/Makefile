@@ -38,6 +38,9 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS) $(OBJMETA)
 	$(CC) $(OBJECTS) $(OBJMETA) -o $(TARGET) $(LFLAGS)
 
+showfiles:
+	@echo $(HEADERS) @(SOURCES) Makefile
+
 depend:
 	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 

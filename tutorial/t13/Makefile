@@ -41,6 +41,9 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 depend:
 	@makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
+showfiles:
+	@echo $(HEADERS) @(SOURCES) Makefile
+
 clean:
 	/bin/rm -f *.o *.bak *~ *% #*
 	/bin/rm -f $(SRCMETA) $(TARGET)
