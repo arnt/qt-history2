@@ -867,7 +867,7 @@ void QDateEdit::init()
 QDateEdit::~QDateEdit()
 {
     delete d;
-    if ( !refcount-- )
+    if ( !--refcount )
 	cleanup();
 }
 
