@@ -132,7 +132,7 @@ IncludeTokenReplacement::IncludeTokenReplacement(QByteArray fromFile, QByteArray
 bool IncludeTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
 {
     QByteArray tokenText=tokenStream->currentTokenText();
-    if(tokenText.startsWith("#include")) {
+    if(tokenText.startsWith("#") && tokenText.contains("include") ) {
     //     printf("Include token: %s Matching aganinst %s \n", tokenText.constData(), fromFile.constData() );
         int pos=tokenText.indexOf(fromFile);
         if(pos!=-1) {
