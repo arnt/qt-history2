@@ -26,5 +26,18 @@ protected:
     int           del( const QString & filter );
 };
 
+/*
+class QSqlRelation
+{
+public:
+    QSqlRelation();
+    ~QSqlRelation();
+    void  link( const QSqlIndex& parentIndex, const QSqlIndex& childIndex );
+private:
+    QSqlIndex pIdx;
+    QSqlIndex cIdx;
+}
+*/
+
 #endif // QT_NO_SQL
 #endif

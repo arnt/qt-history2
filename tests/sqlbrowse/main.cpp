@@ -12,7 +12,7 @@ int main( int argc, char **argv )
     a.setMainWidget( rw );
     rw->show();
     int x = a.exec();
-    delete rw;
+    //    delete rw;
     database->close();
     delete database;
     return x;
