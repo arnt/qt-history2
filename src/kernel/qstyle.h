@@ -728,6 +728,43 @@ public:
 
 
 private:
+#ifndef QT_NO_COMPAT
+    // cause a compile error when trying to use style functions that
+    // accept QColorGroup arguments... remove 5.x
+    void drawItem( QPainter *p, const QRect &r,
+		   int flags, const QColorGroup &colorgroup, bool enabled,
+		   const QString &text, int len = -1,
+		   const QColor *penColor = 0 ) const;
+
+    void drawItem( QPainter *p, const QRect &r,
+		   int flags, const QColorGroup colorgroup, bool enabled,
+		   const QPixmap &pixmap,
+		   const QColor *penColor = 0 ) const;
+
+    void drawItem( QPainter *p, const QRect &r,
+		   int flags, const QColorGroup colorgroup, bool enabled,
+		   const QPixmap *pixmap,
+		   const QString &text, int len = -1,
+		   const QColor *penColor = 0 ) const;
+
+    void drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r,
+			const QColorGroup &cg, SFlags flags = Style_Default,
+			const QStyleOption& = QStyleOption::Default ) const;
+
+    void drawControl( ControlElement element,
+		      QPainter *p, const QWidget *widget, const QRect &r,
+		      const QColorGroup &cg, SFlags how = Style_Default,
+		      const QStyleOption& = QStyleOption::Default ) const;
+
+    void drawComplexControl( ComplexControl control,
+			     QPainter *p, const QWidget *widget, const QRect &r,
+			     const QColorGroup &cg, SFlags how = Style_Default,
+			     SCFlags sub = SC_All, SCFlags subActive = SC_None,
+			     const QStyleOption& = QStyleOption::Default ) const;
+#endif // QT_NO_COMPAT
+
+
+
     QStylePrivate * d;
 
 #if defined(Q_DISABLE_COPY)
