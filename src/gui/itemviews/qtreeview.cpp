@@ -854,8 +854,6 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     QItemSelectionRange r;
     QModelIndex topIndex, bottomIndex;
     for (int i = 0; i < selection.count(); ++i) {
-        if (!r.isValid())
-            continue;
         r = selection.at(i);
         topIndex = model()->index(r.top(), r.left(), r.parent());
         top = qMin(d->viewIndex(topIndex), top);
