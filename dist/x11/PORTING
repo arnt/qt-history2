@@ -1,8 +1,10 @@
-                        PORTING QT TO OTHER PLATFORMS
+		    PORTING QT TO OTHER PLATFORMS
 
-Read this file if you want to port Qt to a new platform or C++ compiler.
+Read this file if you want to port Qt to a new platform or C++
+compiler.  If you come across any problems, feel free to send mail to
+qt-bugs@troll.no.
 
-                               REQUIREMENTS
+			     REQUIREMENTS
 
 The new platform needs Xlib for X11R5 or newer.  Motif is not required.
 If it is not a Unix system (for instance VMS) things may get complicated.
@@ -14,7 +16,7 @@ compiler must recognize the .cpp extension.  Exception handling and RTTI
 (Run-Time Type Information) are not required.  Expect problems with old
 CFront-based compilers.
 
-                                 PATCHES
+			       PATCHES
 
 Note that you may not distribute your port without our explicit
 permission.  Please send us the patches you had to make so we can add them
@@ -25,7 +27,7 @@ that involves patches we don't know about floating around the net.)
 Further, we would like to have copies of all Qt-related files on
 ftp.troll.no.
 
-                           PORTING INSTRUCTIONS
+			 PORTING INSTRUCTIONS
 
 Make a new directory under arch and fill it in from arch/template:
 
@@ -62,4 +64,5 @@ To create and send us a patch, do:
 	diff -ubr template whatever | mail qt-bugs@troll.no
 
 For most Unix varieties, that's all.  Some may need some include file
-tweaks.  Good luck, and feel free to send mail to qt-bugs@troll.no.
+tweaks.  Good luck, and again, feel free to send mail to
+qt-bugs@troll.no.
