@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#349 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#350 $
 **
 ** Implementation of QListView widget class
 **
@@ -831,7 +831,7 @@ void QListViewItem::setOpen( bool o )
     if ( o == (bool)open )
 	return;
     open = o;
-    
+
     if ( !nChildren )
 	return;
     invalidateHeight();
@@ -2378,6 +2378,7 @@ void QListView::show()
 
 	reconfigureItems();
 	updateGeometries();
+	setContentsPos( 0, 0 );
     }
     QScrollView::show();
 }
