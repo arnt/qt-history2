@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#106 $
 **
 ** Definition of QIconView widget class
 **
@@ -132,7 +132,7 @@ struct QIconViewPrivate
     bool singleClickMode;
     QCursor oldCursor;
     bool resortItemsWhenInsert, sortOrder;
-    
+
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -873,7 +873,9 @@ int QIconViewItem::index() const
 void QIconViewItem::setSelected( bool s, bool cb )
 {
     if ( selectable && s != selected ) {
-	if ( s ) {
+	if ( !s )
+	    selected = FALSE;
+	else {
 	    if ( view->d->selectionMode == QIconView::Single && view->d->currentItem )
 		view->d->currentItem->setSelected( FALSE );
 	    else if ( view->d->selectionMode == QIconView::StrictMulti && !cb )
@@ -1182,7 +1184,7 @@ void QIconViewItem::renameItem()
     view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
     view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
     removeRenameBox();
-    
+
     emit renamed( text() );
     emit renamed();
     view->emitRenamed( this );
@@ -1616,7 +1618,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->singleClickSelectTimer = new QTimer( this );
     d->resortItemsWhenInsert = FALSE;
     d->sortOrder = TRUE;
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -1828,12 +1830,12 @@ QIconViewItem *QIconView::selectedItem() const
 {
     if ( selectionMode() != Single )
 	return 0;
-    
+
     QIconViewItem* item = firstItem();
     for( ; item; item = item->nextItem() )
 	if ( item->isSelected() )
 	    return item;
-    
+
     return 0;
 }
 
@@ -2576,10 +2578,10 @@ bool QIconView::reorderItemsWhenInsert() const
 /*!
   If \a sort is TRUE, new items are inserted sorted. The sort
   direction is specified using \a ascending.
-  
+
   Inserting items sorted only works when reordering items is
   set to TRUE as well.
-  
+
   \sa QIconView::setReorderItemsWhenInsert(), QIconView::reorderItemsWhenInsert()
 */
 
@@ -2591,7 +2593,7 @@ void QIconView::setResortItemsWhenInsert( bool sort, bool ascending )
 
 /*!
   Returns TRUE if new items are inserted sorted, else FALSE.
-  
+
   \sa QIconView::setResortItemsWhenInsert()
 */
 
@@ -2604,7 +2606,7 @@ bool QIconView::resortItemsWhenInsert() const
   Returns TRUE if the sortorder for inserting new items is ascending,
   FALSE means descending. This sortorder has only a meaning if resorting
   and reordering of new inserted items is enabled.
-  
+
   \sa QIconView::setResortItemsWhenInsert(), QIconView::setReorderItemsWhenInsert()
 */
 
@@ -2668,6 +2670,11 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     } else if ( e->button() == RightButton ) {
 	QIconViewItem *item = findItem( e->pos() );
 	emit rightButtonPressed( item, e->globalPos() );
+	if ( item )
+	    emit itemRightClicked( item );
+	else
+	    emit viewportRightClicked();
+		
     }
 }
 
@@ -3444,7 +3451,7 @@ void QIconView::emitRenamed( QIconViewItem *item )
 {
     if ( !item )
 	return;
-    
+
     emit itemRenamed( item, item->text() );
     emit itemRenamed( item );
 }
