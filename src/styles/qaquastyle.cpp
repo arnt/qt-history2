@@ -839,7 +839,6 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_ScrollBarSubPage:
     case PE_ScrollBarAddPage: {
-
 	QPixmap fill;
 	p->setBackgroundMode( OpaqueMode );
 	QString prefix="v";
@@ -1938,12 +1937,15 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		//fall through
 	    case SC_ScrollBarAddPage: {
 		int sbextent = pixelMetric(PM_ScrollBarExtent, w);
-		if(scr->orientation() == Horizontal)
+		if(scr->orientation() == Horizontal) {
 		    rect.moveBy( -sbextent, 0 );
-		else
+  		    if(sc == SC_ScrollBarAddPage) 
+  			rect.setLeft(rect.left() + sbextent);
+		} else {
 		    rect.moveBy( 0, -sbextent );
-		if(sc == SC_ScrollBarAddPage) 
-		    rect.setTop(rect.top() + sbextent);
+		    if(sc == SC_ScrollBarAddPage) 
+			rect.setTop(rect.top() + sbextent);
+		}
 		break; }
 	    default:
 		break;

@@ -753,16 +753,16 @@ MakefileGenerator::write()
 	    int slsh = target.findRev(Option::dir_sep);
 	    if(slsh != -1)
 		target = target.right(target.length() - slsh - 1);
-	    t << "QMAKE_PRL_DIRECTORY = ";
+	    t << "QMAKE_PRL_BUILD_DIR = " << Option::output_dir << endl;
 	    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-		t << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
-	    else
-		t << QDir::currentDirPath() << endl;
+		t << "QMAKE_PRL_SOURCE_DIR = " << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
+
 	    t << "QMAKE_PRL_TARGET = " << target << endl;
 	    if(!project->isEmpty("PRL_EXPORT_DEFINES")) 
 		t << "QMAKE_PRL_DEFINES = " 
 		  << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
-	    if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
+	    if((project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin"))
+	       || project->isActiveConfig("explicitlib")) {
 		QStringList libs; 
 		if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 		    libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];

@@ -1340,7 +1340,8 @@ void QGLWidget::makeCurrent()
 {
 #ifdef QMAC_OPENGL_DOUBLEBUFFER
     if(!gl_pix)
-	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height()) ));
+	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height(), 
+								     QPixmap::BestOptim) ));
 #endif
     glcx->makeCurrent();
 }

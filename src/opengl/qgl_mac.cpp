@@ -213,18 +213,6 @@ void QGLContext::reset()
     d->initDone = FALSE;
 }
 
-#if 0
-	//cleanup
-	glcx->doneCurrent();
-
-	delete gl_pix;
-	//reset
-	gl_pix = new QPixmap(width(), height());
-	PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)((QPixmap*)gl_pix)->handle());
-	aglSetOffScreen((AGLContext)glcx->cx, width(), height(), 
-			GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-#endif
-
 void QGLContext::makeCurrent()
 {
     if ( !d->valid ) {

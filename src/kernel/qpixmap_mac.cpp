@@ -628,10 +628,10 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 #ifdef QMAC_NO_QUARTZ
     Rect rect;
     SetRect(&rect,0,0,w,h);
-    QDErr e = 0;
+    QDErr e = -1;
     const int params = alignPix | stretchPix | newDepth;
-#if 0    
-    if(w <= 300 && h <= 100) //try to get it into distant memory
+#if 1
+    if(optim == BestOptim) //try to get it into distant memory
 	e = NewGWorld((GWorldPtr *)&hd, 32, &rect, 
 		      data->clut ? &data->clut : NULL, 0, useDistantHdwrMem | params);
     if(e != noErr) //oh well I tried
