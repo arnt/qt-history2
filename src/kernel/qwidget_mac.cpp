@@ -1097,8 +1097,12 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     return QPoint(mac_p.h, mac_p.v);
 }
 
-void QWidget::setMicroFocusHint(int, int, int, int, bool, QFont *)
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool, QFont *)
 {
+    if ( QRect( x, y, width, height ) != microFocusHint() ) {
+	createExtra();
+	extraData()->micro_focus_hint.setRect( x, y, width, height );
+    }
 }
 
 void QWidget::setFontSys(QFont *)

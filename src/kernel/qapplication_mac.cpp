@@ -1944,7 +1944,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 
 	    if(qt_mac_get_document_id(widget)) {
-		QPoint mp(widget->mapToGlobal(QPoint(0, 0)));
+		QPoint mp(widget->mapToGlobal(QPoint(widget->microFocusHint().topLeft())));
 		Point pt;
 		pt.h = mp.x();
 		pt.v = mp.y();
@@ -2024,9 +2024,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		text = QString((QChar*)unicode, unilen / sizeof(UniChar));
 		DisposePtr((char*)unicode);
 	    }
-	    char chr;
+	    unsigned char chr;
 	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
-	    if(!chr || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
+	    if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
 		if(imstart.isAccepted()) { //wants the event
@@ -2239,7 +2239,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    break;
 		}
 #ifdef DEBUG_KEY_MAPS
-		qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s",
+		qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) %d%s", 
 		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       mychar, chr, mystr.latin1(), modifiers,
