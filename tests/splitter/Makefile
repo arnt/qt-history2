@@ -3,7 +3,7 @@
 
 INCDIR	= ${QTDIR}/include
 CFLAGS	= -O -g -fno-strength-reduce -W -Wtemplate-debugging -Wparentheses -Wuninitialized -Wchar-subscripts -Wformat -Wtrigraphs -Wcomment -Wswitch -Wunused -Wreturn-type -Wimplicit -Wpointer-arith -Wsynth -Wconversion -Wno-overloaded-virtual
-LFLAGS	= -lqt
+LFLAGS	= -L${QTDIR}/lib -lqt
 CC	= gcc
 MOC	= moc
 
