@@ -18,12 +18,10 @@
 #include <QtCore/quuid.h>
 #include <QtCore/qfactoryinterface.h>
 #include <QtCore/qmetaobject.h>
-#include <QtCore/qmetatype.h>
 #include <QtCore/qstringlist.h>
 
 
 class QWidget;
-struct QMetaObject;
 class QSettings;
 struct IUnknown;
 struct IDispatch;
@@ -253,8 +251,12 @@ public:
         return impl;					\
     }
 
+#ifndef Q_COM_METATYPE_DECLARED
+#define Q_COM_METATYPE_DECLARED
 
 Q_DECLARE_METATYPE(IUnknown*)
 Q_DECLARE_METATYPE(IDispatch*)
+
+#endif
 
 #endif // QAXFACTORY_H
