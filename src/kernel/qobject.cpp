@@ -974,7 +974,7 @@ static void objSearch( QObjectList &result,
 
     \sa child(), queryList(), parent(), setParent()
 */
-QObjectList QObject::children() const
+const QObjectList &QObject::children() const
 {
     return d->children;
 }

@@ -45,10 +45,10 @@ QSingleDesktopWidget::QSingleDesktopWidget()
 
 QSingleDesktopWidget::~QSingleDesktopWidget()
 {
-    QObjectList childs = children();
-    for (int i = childs.size(); i > 0 ; ) {
+    const QObjectList &childList = children();
+    for (int i = childList.size(); i > 0 ; ) {
 	--i;
-        childs.at(i)->reparent(0);
+        childList.at(i)->setParent(0);
     }
 }
 

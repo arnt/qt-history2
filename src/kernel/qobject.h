@@ -78,7 +78,7 @@ public:
 
     QObject *child(const char *objName, const char *inheritsClass = 0,
 		   bool recursiveSearch = true) const;
-    QObjectList children() const;
+    const QObjectList &children() const;
 
     QObjectList queryList(const char *inheritsClass = 0,
 			  const char *objName = 0,
