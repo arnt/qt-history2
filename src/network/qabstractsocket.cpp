@@ -646,7 +646,7 @@ QByteArray QAbstractSocket::readLine()
         }
     }
 
-    int endOfLine = d->readBuffer.find('\n');
+    int endOfLine = d->readBuffer.indexOf('\n');
     if (endOfLine == -1)
         return QByteArray();
 
@@ -744,7 +744,7 @@ void QAbstractSocket::flush()
 
 Q_LLONG QAbstractSocket::readLine(char *data, Q_LLONG maxLength)
 {
-    int endOfLine = d->readBuffer.find('\n');
+    int endOfLine = d->readBuffer.indexOf('\n');
     if (endOfLine == -1 || endOfLine > maxLength)
         return -1;
 
