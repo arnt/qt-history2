@@ -216,9 +216,10 @@ public:
 #if defined(Q_WS_X11)
         WStyle_Splash           = 0x20000000
 #else
-	WStyle_Splash           = WStyle_NoBorder | WMacNoSheet | WStyle_Tool | WWinOwnDC,
+	WStyle_Splash           = WStyle_NoBorder | WMacNoSheet | WStyle_Tool | WWinOwnDC
 #endif
 #ifndef QT_NO_COMPAT
+        ,
 	WStaticContents		= 0x00400000,
 	WNoAutoErase		= 0x00800000,
 	WRepaintNoErase	= WNoAutoErase,
