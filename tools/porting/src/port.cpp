@@ -32,79 +32,38 @@ using std::endl;
 QString rulesFilePath;
 QString applicationDirPath;
 
-/*
-    Rules for findng q3porting.xml
-    1. current path
-    2. program path
-    3. qInstallPathLibs()/qt3to4/
-    4. $QTDIR/tools/porting/src/
-    5. applicationDirPath()../lib/qt3to4/src/
-    6. applicationDirPath()../tools/porting/src/
-*/
-QString findRulesFile(QString fileName, QString programPath)
+
+QString findRulesFile(const QString &fileName)
 {
+    //check QLibraryInfo::DataPath/filename
     QString filePath;
+    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
+    cout << "checking" << filePath.toLatin1().constData() << endl;
+    if (QFile::exists(filePath))
+        return QFileInfo(filePath).canonicalPath();
 
-    QFile f(fileName);
-    if (f.exists()) {
-        filePath=fileName;
-    }
+    //check QLibraryInfo::PrefixPath/tools/porting/src/filename
+    filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
+    cout << "checking" << filePath.toLatin1().constData() << endl;
+    if (QFile::exists(filePath))
+        return QFileInfo(filePath).canonicalPath();
 
-    if(filePath.isEmpty()) {
-        filePath = QFileInfo(programPath).path() + "/" + fileName;
-        QFile f(filePath);
-        if (!f.exists())
-            filePath=QString();
-    }
-
-    if(filePath.isEmpty()) {
-        filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/qt3to4/" + fileName);
-        QFile f(filePath);
-        if (!f.exists())
-            filePath=QString();
-    }
-
-    if(filePath.isEmpty()) {
-        filePath = QDir::cleanPath(QFile::decodeName((qgetenv("QTDIR"))) + "/tools/porting/src/" + fileName);
-        QFile f(filePath);
-        if (!f.exists())
-            filePath=QString();
-    }
-
-    if(filePath.isEmpty()) {
-        filePath = QDir::cleanPath(applicationDirPath + "/../lib/qt3to4/" + fileName);
-        QFile f(filePath);
-        if (!f.exists())
-            filePath=QString();
-    }
-
-    if(filePath.isEmpty()) {
-        filePath = QDir::cleanPath(applicationDirPath + "/../tools/porting/src/" + fileName);
-        QFile f(filePath);
-        if (!f.exists())
-            filePath=QString();
-    }
-
-    if (!filePath.isEmpty())
-        filePath = QFileInfo(filePath).absoluteFilePath();
-
-    return filePath;
+    //no luck
+    return QString();
 }
 
 int fileMode(QString inFile)
 {
-    QFileInfo inFileInfo(inFile);
-    if(!inFileInfo.exists()) {
+    if(!QFile::exists(inFile)) {
         cout << "Could not find file " << inFile.toLocal8Bit().constData() << endl;
         return 1;
     }
-    
+
+    QString absInFile = QFileInfo(inFile).canonicalPath();
+
     PreprocessorCache cache;
     FilePorter filePorter(rulesFilePath, cache);
-    if (QFileInfo(rulesFilePath).suffix() == "h" || (QFileInfo(rulesFilePath).suffix() == "hpp"))
-        filePorter.port(QString::null, inFile, QString::null, inFile, FilePorter::Header );
-    else
-        filePorter.port(QString::null, inFile, QString::null, inFile, FilePorter::Source );
+    filePorter.port(absInFile);
     return 0;
 }
 
@@ -133,11 +92,13 @@ void usage(char **argv)
     cout << "qt3to4 will port all files specified in that project" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "-h        Display this help" << endl;
-    cout << "-f file   Specify the location for the rules file." << endl;
+    cout << "-h            Display this help" << endl;
+    cout << "-f file       Specify the location for the rules file." << endl;
+    cout << "-I directory  Add dirctory to include search path se of -I also enables C++" << endl;
+    cout << "              parsing, see the documentation for more info. " << endl;
     cout << endl;
     cout << "The porting documentation contains more information on how " << endl;
-    cout << "to use qt3to4 as wall as general porting information." << endl;
+    cout << "to use qt3to4 as well as general porting information." << endl;
 }
 
 /*
@@ -155,50 +116,71 @@ int main(int argc, char**argv)
     QCoreApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
     QString defualtRulesFileName = "q3porting.xml";
-
-    if(argc > 4) {
-        usage(argv);
-        return 0;
-    }
-
-    QString in = argv[1];
-    if (in == "--help" || in == "/h" || in == "-help"
-        || in == "-h"  || in == "-?" || in == "/?") {
-        usage(argv);
-        return 0;
-    }
-
     QString inFileName;
-    if(in == "-f") {
-        if(argc < 4) {
+    QStringList includeSearchDirectories;
+    int currentArg = 1;
+
+    cout << QLibraryInfo::location(QLibraryInfo::DataPath).toLatin1().constData() << endl;
+
+    // read arguments
+    while(currentArg < argc) {
+        QString argText = argv[currentArg];
+        if(argText.isEmpty())
+            continue;
+        else if (argText == "--help" || argText == "/h" || argText == "-help"
+            || argText == "-h"  || argText == "-?" || argText == "/?") {
             usage(argv);
             return 0;
+        } else if(argText == "-f") {
+            ++currentArg;
+            if (currentArg >= argc) {
+                cout << "You must specify a file name along with -f" << endl;
+                return 1;
+            }
+            rulesFilePath = argv[currentArg];
+
+            if(!QFile::exists(rulesFilePath)) {
+                cout << "File not found: " ;
+                cout << rulesFilePath.toLocal8Bit().constData() << endl;
+                return 1;
+            }
+        } else if(argText == "-I") {
+            ++currentArg;
+            if (currentArg >= argc) {
+                cout << "You must specify a directory name along with -I" << endl;
+                return 1;
+            }
+            QString directoryCandidate = argv[currentArg];
+
+            if(!QFile::exists(directoryCandidate )) {
+                cout << "Directory not found: " ;
+                cout << QDir::convertSeparators(directoryCandidate).toLocal8Bit().constData() << endl;
+                return 1;
+            }
+
+           includeSearchDirectories += directoryCandidate;
+        } else if(argText[0]  == '-') {
+            cout << "Unknown option " << argText.toLocal8Bit().constData() << endl;
+            return 1;
+        } else {
+            inFileName = argText;
         }
-        rulesFilePath = argv[2];
-        //Set defualtRulesFileName here so we can reference
-        //it when printing the "not found" error.
-        defualtRulesFileName = argv[2];
-        inFileName = argv[3];
-    } else {
-        if(argc != 2) {
-            usage(argv);
-            return 0;
-        }
-        rulesFilePath = findRulesFile(defualtRulesFileName, argv[0]);
-        inFileName = in;
+        ++currentArg;
     }
+
+    if(rulesFilePath.isEmpty())
+        rulesFilePath = findRulesFile(defualtRulesFileName);
 
     //Check if we have a rules file
     if (!QFile::exists(rulesFilePath)) {
-        cout << "Error: Could not find rules file: ";
-        cout << defualtRulesFileName.toLocal8Bit().constData() << endl;
-        cout << "Please try setting the QTDIR environment variable," << endl;
-        cout << "or specifying the file with the -f option" << endl;
-        return 0;
-    } else {
-        cout << "Using rules file: ";
-        cout << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
+        cout << "Error: Could not find the " << defualtRulesFileName.toLocal8Bit().constData() << "rules file: ";
+        cout << "Please try specifying the file with the -f option" << endl;
+        return 1;
     }
+
+    cout << "Using rules file: ";
+    cout << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
+
 
     //check if we have an infile
     if (!QFile::exists(inFileName)) {
@@ -211,7 +193,7 @@ int main(int argc, char**argv)
 
     //determine mode and do the port
     int retval;
-    if(in.endsWith(".pro") || in.endsWith(".pri"))
+    if(inFileName.endsWith(".pro") || inFileName.endsWith(".pri"))
         retval = projectMode(inFileName);
     else
         retval = fileMode(inFileName);
