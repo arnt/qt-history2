@@ -83,18 +83,20 @@ class QThreadPrivate {
 public:
     QWaitCondition thread_done;
     pthread_t thread_id;
+    size_t stacksize;
+    void *args[2];
     bool finished : 1;
     bool running  : 1;
     bool orphan   : 1;
-    void *args[2];
 
-    QThreadPrivate();
+    QThreadPrivate( size_t ss = 0);
 
     static inline void start( QThread *thread ) { thread->run(); }
 };
 
-inline QThreadPrivate::QThreadPrivate()
-    : thread_id( 0 ), finished( FALSE ), running( FALSE ), orphan( FALSE )
+inline QThreadPrivate::QThreadPrivate( size_t ss )
+    : thread_id( 0 ), stacksize( ss ),
+      finished( FALSE ), running( FALSE ), orphan( FALSE )
 {
 }
 
@@ -407,6 +409,24 @@ QThread::QThread()
 }
 
 /*!
+    Constructs a new thread. The thread does not begin executing until
+    start() is called.
+
+    If \a stackSize is greater than zero, the maximum stack size is
+    set to \a stackSize bytes, otherwise the maximum stack size is
+    automatically determined by the operating system.
+
+    \warning Most operating systems place minimum and maximum limits
+    on thread stack sizes. The thread will fail to start if the stack
+    size is outside these limits.
+*/
+QThread::QThread( unsigned int stackSize )
+{
+    d = new QThreadPrivate( stackSize );
+    Q_CHECK_PTR( d );
+}
+
+/*!
     QThread destructor.
 
     Note that deleting a QThread object will not stop the execution of
@@ -465,15 +485,33 @@ void QThread::start()
     pthread_attr_init( &attr );
     pthread_attr_setinheritsched( &attr, PTHREAD_INHERIT_SCHED );
     pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
+    if ( d->stacksize > 0 ) {
+	ret = pthread_attr_setstacksize( &attr, d->stacksize );
+	if ( ret ) {
+#ifdef QT_CHECK_STATE
+	    qWarning( "QThread::start: thread stack size error: %s", strerror( ret ) ) ;
+#endif // QT_CHECK_STATE
+
+	    // we failed to set the stacksize, and as the documentation states,
+	    // the thread will fail to run...
+	    d->running = FALSE;
+	    d->finished = FALSE;
+	    return;
+	}
+    }
     d->args[0] = this;
     d->args[1] = d;
     ret = pthread_create( &d->thread_id, &attr, start_thread, d->args );
     pthread_attr_destroy( &attr );
 
+    if ( ret ) {
 #ifdef QT_CHECK_STATE
-    if ( ret )
 	qWarning( "QThread::start: thread creation error: %s", strerror( ret ) );
 #endif // QT_CHECK_STATE
+
+	d->running = FALSE;
+	d->finished = FALSE;
+    }
 }
 
 /*!

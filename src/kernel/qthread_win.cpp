@@ -129,11 +129,12 @@ class QThreadPrivate
 public:
     static void internalRun( QThread* );
 
-    QThreadPrivate();
+    QThreadPrivate( unsigned int ss = 0 );
     ~QThreadPrivate();
 
     Qt::HANDLE handle;
     unsigned int id;
+    unsigned int stacksize;
     bool finished  : 1;
     bool running   : 1;
     bool deleted   : 1;
@@ -158,10 +159,11 @@ static unsigned int __stdcall start_thread(void* that )
     return 0;
 }
 
-QThreadPrivate::QThreadPrivate()
+QThreadPrivate::QThreadPrivate( unsigned int ss )
 {
     handle = 0;
     id = 0;
+    stacksize = ss;
     running = FALSE;
     finished = FALSE;
     deleted = FALSE;
@@ -279,6 +281,11 @@ QThread::QThread()
     d = new QThreadPrivate;
 }
 
+QThread::QThread( unsigned int stackSize )
+{
+    d = new QThreadPrivate( stackSize );
+}
+
 QThread::~QThread()
 {
     if ( threadDict ) {
@@ -316,16 +323,17 @@ void QThread::start()
 
     d->running = TRUE;
     d->finished = FALSE;
-    d->handle = (Qt::HANDLE)_beginthreadex( NULL, NULL, start_thread,
+    d->handle = (Qt::HANDLE)_beginthreadex( NULL, d->stacksize, start_thread,
 	this, 0, &(d->id) );
 
-#ifdef QT_CHECK_RANGE
     if ( !d->handle ) {
+#ifdef QT_CHECK_STATE
+	qSystemWarning( "Couldn't create thread" );
+#endif
+
 	d->running = FALSE;
 	d->finished = TRUE;
-	qSystemWarning( "Couldn't create thread" );
     }
-#endif
 }
 
 void QThread::terminate()

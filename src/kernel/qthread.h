@@ -65,7 +65,8 @@ public:
 
     static void exit();
 
-    QThread();
+    QThread();					// ### remove 4.0
+    QThread( unsigned int stackSize );		// ### default arg = 0 in 4.0
     virtual ~QThread();
 
     // default argument causes thread to block indefinately
