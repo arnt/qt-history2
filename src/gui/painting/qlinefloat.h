@@ -27,6 +27,8 @@ public:
     inline QLineFloat(const QPointFloat &pt1, const QPointFloat &pt2);
     inline QLineFloat(float x1, float y1, float x2, float y2);
 
+    inline bool isNull() const;
+
     inline QPointFloat start() const;
     inline QPointFloat end() const;
 
@@ -72,6 +74,11 @@ inline QLineFloat::QLineFloat(float x1, float y1, float x2, float y2)
 {
 }
 
+inline bool QLineFloat::isNull() const
+{
+    return p1 == p2;
+}
+
 inline float QLineFloat::startX() const
 {
     return p1.x();
@@ -114,6 +121,7 @@ inline float QLineFloat::vy() const
 
 inline bool QLineFloat::intersects(const QLineFloat &l, IntersectMode mode) const
 {
+    Q_ASSERT(!isNull());
     bool intersected = false;
     intersect(l, mode, &intersected);
     return intersected;
@@ -121,6 +129,7 @@ inline bool QLineFloat::intersects(const QLineFloat &l, IntersectMode mode) cons
 
 inline QLineFloat QLineFloat::normalVector() const
 {
+    Q_ASSERT(!isNull());
     return QLineFloat(start(), start() + QPointFloat(vy(), -vx()));
 }
 
@@ -132,8 +141,9 @@ inline void QLineFloat::moveBy(const QLineFloat &l)
 
 inline void QLineFloat::setLength(float len)
 {
+    Q_ASSERT(!isNull());
     QLineFloat v = unitVector();
-    p2 = QPointFloat(p1.x() + vx() * len, p1.y() + vy() * len);
+    p2 = QPointFloat(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
 }
 
 inline void QLineFloat::operator+=(const QPointFloat &d)

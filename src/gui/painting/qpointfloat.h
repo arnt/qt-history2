@@ -51,6 +51,8 @@ public:
     friend inline const QPointFloat operator-(const QPointFloat &);
     friend inline const QPointFloat operator/(const QPointFloat &, float);
 
+    QPoint toPoint() const;
+
 private:
     float xp;
     float yp;
@@ -174,6 +176,11 @@ inline const QPointFloat operator/(const QPointFloat &p, float c)
 {
     Q_ASSERT(c != 0);
     return QPointFloat(p.xp/c, p.yp/c);
+}
+
+inline QPoint QPointFloat::toPoint() const
+{
+    return QPoint(qRound(xp), qRound(yp));
 }
 
 #ifndef QT_NO_DEBUG

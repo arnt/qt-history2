@@ -53,8 +53,11 @@ QLineFloat QLineFloat::unitVector() const
 {
     float x = p2.x() - p1.x();
     float y = p2.y() - p1.y();
+
     float len = sqrt(x*x + y*y);
-    return QLineFloat(start(), QPointFloat(x/len, y/len));
+    QLineFloat f(start(), QPointFloat(p1.x() + x/len, p1.y() + y/len));
+    Q_ASSERT(QABS(f.length() - 1) < 0.001);
+    return f;
 }
 
 /*!
@@ -65,6 +68,8 @@ QLineFloat QLineFloat::unitVector() const
 */
 QPointFloat QLineFloat::intersect(const QLineFloat &l, IntersectMode mode, bool *intersected) const
 {
+    Q_ASSERT(!isNull());
+    Q_ASSERT(!l.isNull());
     // Parallell lines
     if (vx() == l.vx() && vy() == l.vy()) {
         if (intersected)
@@ -73,8 +78,15 @@ QPointFloat QLineFloat::intersect(const QLineFloat &l, IntersectMode mode, bool 
     }
 
     // For special case where one of the lines are vertical
-    if (vx() == 0)
-        return l.intersect(*this, mode, intersected);
+    if (vx() == 0) {
+        float la = l.vy() / l.vx();
+        QPointFloat isect(p1.x(), la * p1.x() + l.startY() - la*l.startX());
+        return isect;
+    } else if (l.vx() == 0) {
+        float ta = vy() / vx();
+        QPointFloat isect(l.startX(), ta * l.startX() + startY() - ta*startX());
+        return isect;
+    }
 
     float ta = vy()/vx();
     float la = l.vy()/l.vx();
