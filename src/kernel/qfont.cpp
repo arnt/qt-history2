@@ -2616,11 +2616,11 @@ QString QFontPrivate::key() const
 
     *((Q_UINT16 *) p) = request.pointSize; p += 2;
     *((Q_UINT16 *) p) = request.pixelSize; p += 2;
+    *((Q_UINT16 *) p) = request.styleStrategy; p += 2;
     *p++ = get_font_bits( request );
     *p++ = request.weight;
     *p++ = (request.hintSetByUser ?
 	    (int) request.styleHint : (int) QFont::AnyStyle);
-    *((Q_UINT16 *) p) = request.styleStrategy; p += 2;
 
     return QString((QChar *) buf.data(), buf.size() / 2);
 #else
