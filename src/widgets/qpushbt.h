@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.h#13 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.h#14 $
 **
 ** Definition of QPushButton class
 **
@@ -49,10 +49,10 @@ protected:
 private:
     void	init();
 
-    uint	autoDefButton : 1;
-    uint	defButton	  : 1;
-    uint	lastDown	  : 1;
-    uint	lastDef	  : 1;
+    uint	autoDefButton	: 1;
+    uint	defButton	: 1;
+    uint	lastDown	: 1;
+    uint	lastDef		: 1;
 };
 
 

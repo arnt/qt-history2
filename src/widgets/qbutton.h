@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#18 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#19 $
 **
 ** Definition of QButton widget class
 **
@@ -27,45 +27,45 @@ public:
    ~QButton();
 
     const char *text()		const	{ return btext; }
-    void setText( const char *text );
+    void	setText( const char *text );
 
-    void    setAutoResizing( bool );
-    bool    autoResizing()	const	{ return autoResize; }
+    void	setAutoResizing( bool );
+    bool	autoResizing()	const	{ return autoResize; }
     virtual void adjustSize();
 
 signals:
-    void    pressed();
-    void    released();
-    void    clicked();
+    void	pressed();
+    void	released();
+    void	clicked();
 
 protected:
-    bool    isDown() const { return buttonDown; }
-    bool    isUp()   const { return !buttonDown; }
+    bool	isDown()	const { return buttonDown; }
+    bool	isUp()		const { return !buttonDown; }
 
-    bool    isOn()   const { return buttonOn; }
-    void    switchOn();
-    void    switchOff();
+    bool	isOn()		const { return buttonOn; }
+    void	switchOn();
+    void	switchOff();
 
-    void    setToggleButton( bool );
-    bool    toggleButton()  const { return toggleBt; }
+    void	setToggleButton( bool );
+    bool	toggleButton()	const { return toggleBt; }
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
 
-    void    mousePressEvent( QMouseEvent * );
-    void    mouseReleaseEvent( QMouseEvent * );
-    void    mouseMoveEvent( QMouseEvent * );
-    void    paintEvent( QPaintEvent * );
-    void    focusInEvent( QFocusEvent * );
-    void    focusOutEvent( QFocusEvent * );
+    void	mousePressEvent( QMouseEvent * );
+    void	mouseReleaseEvent( QMouseEvent * );
+    void	mouseMoveEvent( QMouseEvent * );
+    void	paintEvent( QPaintEvent * );
+    void	focusInEvent( QFocusEvent * );
+    void	focusOutEvent( QFocusEvent * );
 
 private:
-    QString btext;
-    uint    toggleBt	: 1;
-    uint    buttonDown	: 1;
-    uint    buttonOn	: 1;
-    uint    mlbDown	: 1;
-    uint    autoResize  : 1;
+    QString	btext;
+    uint	toggleBt	: 1;
+    uint	buttonDown	: 1;
+    uint	buttonOn	: 1;
+    uint	mlbDown		: 1;
+    uint	autoResize	: 1;
     QButtonGroup *group;
 
     friend class QButtonGroup;
