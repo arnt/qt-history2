@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#102 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#102 $");
 
 
 /*****************************************************************************
@@ -733,9 +733,9 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     QSockNot *sn;
 
     if ( enable ) {				// enable notifier
-	if ( sn_win == 0 )
+	if ( sn_win == 0 ) {
 	    sn_init();
-	if ( !dict ) {
+	    dict = *sn_vec[type];
 	}
 	sn = new QSockNot;
 	CHECK_PTR( sn );
@@ -948,6 +948,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	switch ( WSAGETSELECTEVENT(lParam) ) {
 	    case FD_READ:
 	    case FD_CLOSE:
+	    case FD_ACCEPT:
 		type = 0;
 		break;
 	    case FD_WRITE:
