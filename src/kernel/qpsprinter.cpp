@@ -2263,8 +2263,8 @@ QByteArray compress( const QImage & image ) {
     /* this compression function emits blocks of data, where each
        block is an unquoted series of pixels, or a quote from earlier
        pixels. if the six-letter string "banana" were a six-pixel
-       image, it might be unquoted "ban" followed by a 3-pixel quote
-       from -2.  note that the final "a" is then copied from the
+       image, it would be an nquoted "ban" block followed by a 3-pixel
+       quote from -2.  note that the final "a" is then copied from the
        second "a", which is copied from the first "a" in the same copy
        operation.
 
@@ -2288,10 +2288,18 @@ QByteArray compress( const QImage & image ) {
     int outBit = 0;
     /* we process pixels serially, emitting as necessary/possible. */
     while( index <= size ) {
+	/* bestCandidate is the start of the best known quote area and
+           bestLength its length. */
 	int bestCandidate = None;
 	int bestLength = 0;
+	/* pick up the most recent pixels of the two colours we want,
+           and mark the pixel we're lookin at as being the new most
+           recent pixel in its chain. */
 	i = index % tableSize;
 	int h = pixel[index] % hashSize;
+	/* start and end point to the stard and end of the current
+           candidate are. they may or may not point to something that
+           actually can be quoted. */
 	int start, end;
 	start = end = pastPixel[i] = mostRecentPixel[h];
 	mostRecentPixel[h] = index;
@@ -2301,17 +2309,19 @@ QByteArray compress( const QImage & image ) {
 	if ( start < index - tableSize || index >= size ||
 	     emittedUntil > index)
 	    start = end = None;
+	/* attempts count how much work we've done trying to find
+           something quotable for this pixel. */
 	int attempts = 0;
 	/* scan for suitable quote candidates: not too far back, and
-	   if we've found one that's as big as it can get, don't look
-	   for more */
+	   if we've found one that's as big as it can possibly get,
+	   we don't look for more. */
 	while( start != None && end != None &&
 	       bestLength < maxQuoteLength &&
 	       start >= index - tableSize &&
 	       end >= index - tableSize + bestLength ) {
 	    /* scan backwards, looking for something good enough to
 	       try a (slow) string comparison. we maintain indexes to
-	       the start and the end of the quote candidate here */
+	       the start and the end of the quote candidate here. */
 	    while( start != None && end != None &&
 		   ( pixel[start] != pixel[index] ||
 		     pixel[end] != pixel[index+bestLength] ) ) {
@@ -2319,12 +2329,12 @@ QByteArray compress( const QImage & image ) {
 		    start = None;
 		} else if ( pixel[end] % hashSize ==
 			    pixel[index+bestLength] % hashSize ) {
-		    /* we move the area along the end index' chain */
+		    /* we move the area along the end index' chain. */
 		    end = pastPixel[end%tableSize];
 		    start = end - bestLength;
 		} else if ( pixel[start] % hashSize ==
 			    pixel[index] % hashSize ) {
-		    /* ... or along the start index' chain */
+		    /* ... or along the start index' chain. */
 		    start = pastPixel[start%tableSize];
 		    end = start + bestLength;
 		} else {
@@ -2388,7 +2398,7 @@ QByteArray compress( const QImage & image ) {
 		    if ( length < maxQuoteLength && index + length < size )
 			end = mostRecentPixel[pixel[index+length]%hashSize];
 		} else {
-		    /* and if it ins't, we'll try some more. but we'll
+		    /* and if it isn't, we'll try some more. but we'll
 		       count each string compare extra, since they're
 		       so expensive. */
 		    attempts += 2;
@@ -2404,7 +2414,7 @@ QByteArray compress( const QImage & image ) {
 		    }
 		}
 		/* again, if we can't make use of the current quote
-		   candidate, we don't try any more */
+		   candidate, we don't try any more. */
 		if ( start < index - tableSize )
 		    start = None;
 		if ( end < index - tableSize + bestLength )
@@ -2412,8 +2422,8 @@ QByteArray compress( const QImage & image ) {
 	    }
 	}
 	/* at this point, bestCandidate is a candidate of bestLength
-	 length, or else it's None. if we have such a candidate, or
-	 we're at the end, we have to emit all unquoted data. */
+	   length, or else it's None. if we have such a candidate, or
+	   we're at the end, we have to emit all unquoted data. */
 	if ( index == size || bestCandidate != None ) {
 	    /* we need a double loop, because there's a maximum length
 	       on the "unquoted data" section. */
@@ -2434,7 +2444,7 @@ QByteArray compress( const QImage & image ) {
 		}
 	    }
 	}
-	/* if we have some quoted data to output, do it. */
+	/* if we have some quoted data we can output, do it. */
 	if ( bestCandidate != None ) {
 	    emitBits( out, outOffset, outBit,
 		      1, 1 );
@@ -3326,10 +3336,8 @@ void QPSPrinter::newPageSetup( QPainter *paint )
 }
 
 
-/*
-  Called whenever a restore has been done. Currently done at the top of a
-  new page and whenever clipping is turned off.
- */
+/* Called whenever a restore has been done. Currently done at the top of a
+  new page and whenever clipping is turned off. */
 void QPSPrinter::resetDrawingTools( QPainter *paint )
 {
     QPDevCmdParam param[1];
