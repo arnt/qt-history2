@@ -15,9 +15,9 @@
 #include "qapplication.h"
 #include "qcombobox.h"
 #include "qpainter.h"
-#include "qdrawutil.h" // for now
-#include "qpixmap.h" // for now
-#include "qpalette.h" // for now
+#include "qdrawutil.h"
+#include "qpixmap.h"
+#include "qpalette.h"
 #include "qwidget.h"
 #include "qlabel.h"
 #include "qimage.h"
@@ -385,8 +385,6 @@ static const char *polish_xpm[] = {
 "aB#FbSbVbV#D#ubVaya8bl.8aybS#u#u#zbVbV#zbV#zbK#u#u#u.y.8.ybA.ybA.4bY.4.4#t#tbDaZ#tbR.4#t.4#t#tbL.K#tbwaI#5aIbLbFaIaIbwbD.U#E.Ubi#EbDbD.ZbT#xbT#xabaRaR#oabat.O#Z.s#t.SbLaI#4aKb.b.b..Kbu.7.Qbub.",
 ".w#b#b#Y.w#0.1#G#z#G#z#G#b#b#b#s.1#G#G#G.1bc#G#G#G#Day#G#G#G#G#G.w#G#GbV.1#z.w#b.kbnbKbn#s#DbVbV.K#t#iaP.ZbW.g.Z.s.s.gaPaP.Zbw.Za6.Z.Z.8#r#z#ra5#D.r.r.r#Gbcbmbm#G.1.w.wbc.w#G#G#G#G#G#Ga0#P.1.r"
 };
-
-
 
 /* XPM */
 static const char *button_xpm[] = {
@@ -1063,33 +1061,36 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 	    break;
 	}
     case CE_PushButtonLabel:
+    case CE_MenuBarBackground:
 	{
-	    const QPushButton *btn;
-	    btn = (const QPushButton*)widget;
+	    const QPixmap *pixmap = 0;
+	    QString text;
+	    bool pushed = FALSE;
 	    int x, y, w, h;
-	    r.rect( &x, &y, &w, &h );
-
 	    int x1, y1, x2, y2;
-	    r.coords( &x1, &y1, &x2, &y2 );
 	    int dx = 0;
 	    int dy = 0;
-	    if ( btn->isMenuButton() )
-		dx = ( y2 - y1 ) / 3;
-	    if ( dx || dy )
-		p->translate( dx, dy );
-	
-	    x += 2;
-	    y += 2;
-	    w -= 4;
-	    h -= 4;
-	    drawItem( p, QRect( x, y, w, h ),
-		      AlignCenter | ShowPrefix,
-		      cg, btn->isEnabled(),
-		      btn->pixmap(), btn->text(), -1,
-		      (btn->isDown() || btn->isOn()) ? &cg.brightText()
-		      : &cg.buttonText() );
-	    if ( dx || dy )
-		p->translate( -dx, -dy );
+
+	    r.rect( &x, &y, &w, &h );
+	    r.coords( &x1, &y1, &x2, &y2 );
+
+	    if ( widget->inherits("QPushButton") ) {
+		const QPushButton *btn = (const QPushButton *) widget;
+		pixmap = btn->pixmap();
+		text = btn->text();
+		if ( btn->isMenuButton() )
+		    dx = ( y2 - y1 ) / 3;
+		pushed = btn->isOn() || btn->isDown();
+		if ( pushed ) {
+		    dx--;
+		    dy--;
+		}
+	    }
+	    p->translate( dx, dy );
+	    drawItem( p, QRect(x + 2, y + 2, w - 4, h - 4),
+		      AlignCenter | ShowPrefix, cg, widget->isEnabled(), pixmap,
+		      text, -1, pushed ? &cg.brightText() : &cg.buttonText() );
+	    p->translate( -dx, -dy );
 	    break;
 	}
     default:

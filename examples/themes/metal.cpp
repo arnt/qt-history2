@@ -258,35 +258,36 @@ void MetalStyle::drawControl( ControlElement element,
 	    break;
 	}
     case CE_PushButtonLabel:
+    case CE_MenuBarBackground:
 	{
-	    const QPushButton *btn;
-	    btn = (const QPushButton*)widget;
+	    const QPixmap *pixmap = 0;
+	    QString text;
+	    bool pushed = FALSE;
 	    int x, y, w, h;
-	    r.rect( &x, &y, &w, &h );
-	
 	    int x1, y1, x2, y2;
-	    r.coords( &x1, &y1, &x2, &y2 );
 	    int dx = 0;
 	    int dy = 0;
-	    if ( btn->isMenuButton() )
-		dx = ( y2 - y1 ) / 3;
-	    if ( btn->isOn() || btn->isDown() ) {
-		dx--;
-		dy--;
+
+	    r.rect( &x, &y, &w, &h );
+	    r.coords( &x1, &y1, &x2, &y2 );
+
+	    if ( widget->inherits("QPushButton") ) {
+		const QPushButton *btn = (const QPushButton *) widget;
+		pixmap = btn->pixmap();
+		text = btn->text();
+		if ( btn->isMenuButton() )
+		    dx = ( y2 - y1 ) / 3;
+		pushed = btn->isOn() || btn->isDown();
+		if ( pushed ) {
+		    dx--;
+		    dy--;
+		}
 	    }
-	    if ( dx || dy )
-		p->translate( dx, dy );
-	    x += 2;
-	    y += 2;
-	    w -= 4;
-	    h -= 4;
-	    drawItem( p, QRect( x, y, w, h ),
-		      AlignCenter|ShowPrefix,
-		      cg, btn->isEnabled(),
-		      btn->pixmap(), btn->text(), -1,
-		      (btn->isDown() || btn->isOn())? &cg.brightText() : &cg.buttonText() );
-	    if ( dx || dy )
-		p->translate( -dx, -dy );
+	    p->translate( dx, dy );
+	    drawItem( p, QRect(x + 2, y + 2, w - 4, h - 4),
+		      AlignCenter | ShowPrefix, cg, widget->isEnabled(), pixmap,
+		      text, -1, pushed ? &cg.brightText() : &cg.buttonText() );
+	    p->translate( -dx, -dy );
 	    break;
 	}
     default:
@@ -294,6 +295,7 @@ void MetalStyle::drawControl( ControlElement element,
 	break;
     }
 }
+
 void MetalStyle::drawComplexControl( ComplexControl cc,
 				     QPainter *p,
 				     const QWidget *widget,
