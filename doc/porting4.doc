@@ -52,6 +52,59 @@ Table of contents:
 
 \tableofcontents
 
+
+\secon1 Virtual Functions
+
+The following functions falsely were marked as virtual:
+
+QWidget::close( bool alsoDelete );
+QWidget::create( WId, bool, bool);
+QWidget::destroy( bool );
+QWidget::move( int x, int y );
+QWidget::reparent( QWidget *parent, WFlags, const QPoint &, bool);
+QWidget::resize( int w, int h );
+QWidget::setAcceptDrops( bool on );
+QWidget::setActiveWindow();
+QWidget::setAutoMask(bool);
+QWidget::setBackgroundColor( const QColor & );
+QWidget::setBackgroundMode( BackgroundMode );
+QWidget::setBackgroundOrigin( BackgroundOrigin );
+QWidget::setBackgroundPixmap( const QPixmap & );
+QWidget::setCaption( const QString &);
+QWidget::setCursor( const QCursor & );
+QWidget::setEnabled( bool );
+QWidget::setEraseColor( const QColor & );
+QWidget::setErasePixmap( const QPixmap & );
+QWidget::setFocus();
+QWidget::setFocusPolicy( FocusPolicy );
+QWidget::setFocusProxy( QWidget * );
+QWidget::setFont( const QFont & );
+QWidget::setGeometry( const QRect & );
+QWidget::setGeometry( int x, int y, int w, int h );
+QWidget::setIcon( const QPixmap & );
+QWidget::setIconText( const QString &);
+QWidget::setKeyCompression(bool);
+QWidget::setMask( const QBitmap & );
+QWidget::setMask( const QRegion & );
+QWidget::setMaximumSize( int maxw, int maxh );
+QWidget::setMicroFocusHint(int x, int y, int w, int h, bool, QFont *f);
+QWidget::setMinimumSize( int minw, int minh );
+QWidget::setMouseTracking( bool enable );
+QWidget::setPalette( const QPalette & );
+QWidget::setPaletteBackgroundColor( const QColor & );
+QWidget::setPaletteBackgroundPixmap( const QPixmap & );
+QWidget::setSizeIncrement( int w, int h );
+QWidget::setSizePolicy( QSizePolicy );
+QWidget::setUpdatesEnabled( bool enable );
+QWidget::setWFlags( WFlags );
+QWidget::setWState( uint );
+QWidget::showFullScreen();
+QWidget::showMaximized();
+QWidget::showMinimized();
+QWidget::showNormal();
+QWidget::unsetCursor();
+
+
 \section1 QString
 
 If you specify a negative value for \e len to left() or right() then an empty string is
