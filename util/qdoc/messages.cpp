@@ -88,9 +88,9 @@ void warning( int level, const Location& loc, const char *message, ... )
     if ( currentDirectory.length() > 5 &&
 	 currentDirectory.length() < filenameBase.length() &&
 	 filenameBase.left( currentDirectory.length() ) == currentDirectory &&
-	 filenameBase.length() < currentDirectory.length() + 10 ) {
-	// If we can avoid two lines of directory changes by adding at
-	// most 10 characters to each line, we'll do it.
+	 filenameBase.length() < currentDirectory.length() + 32 ) {
+	// there are too many 'src' and 'doc' directories;
+	// qualification is in order.
 	QString extra = filenameBase.mid( currentDirectory.length() );
 	filenameBase = currentDirectory;
 	filename.prepend( extra.mid( 1 ) + extra[0] );
