@@ -1069,11 +1069,16 @@ then
 	fi
 	;;
     esac
-
     # Auto-detect XKB support
-    #   Patch 107649-01 upgrades Solaris 7 to X Xindows 6.4 and introduces
-    #   XKB support. Most headers are missing though and there's no patch
-    #   to fix that. So let's disable XKB extension on Solaris 7...
+    #   Work around Xsun bug:
+    #   	Patches 107648-01 and 107649-01 upgrade the Xsun package
+    #   	of Solaris 7 to X Xindows 6.4 on SPARC and Intel platforms
+    #   	respectively, introducing XKB support. However most headers
+    #   	are missing and there's no patch to fix that. Our solution
+    #   	is to disable XKB support on Solaris 7.
+    #   	Of course XFree86 is not affected by this Xsun bug, so ideally
+    #   	we should disable XKB support on Solaris + Xsun only, not on
+    #   	Solaris + XFree86. But then how to detect Xsun vs. XFree86?
     [ `uname -s` = "SunOS" -a `uname -r` = "5.7" ] && XKB=no
     if [ $XKB != no ]
     then
