@@ -1552,7 +1552,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     bool space = TRUE;
 
     QString doc = text;
-    bool hasNewPar = TRUE;
+    bool hasNewPar = curpar->length() <= 1;
     QString lastClose;
     while ( pos < int( doc.length() ) ) {
 	if (hasPrefix(doc, pos, '<' ) ){
