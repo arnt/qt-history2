@@ -682,6 +682,8 @@ QSettings::QSettings( bool unixFormat )
     d->sysd = 0;
     if ( !unixFormat )
 	d->sysInit();
+#else
+    Q_UNUSED(unixFormat);
 #endif
 }
 
