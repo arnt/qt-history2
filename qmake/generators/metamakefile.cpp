@@ -210,7 +210,7 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
         mkfile = new MingwMakefileGenerator;
     } else if(gen == "METROWERKS") {
         mkfile = new MetrowerksMakefileGenerator;
-    } else if(gen == "PROJECTBUILDER") {
+    } else if(gen == "PROJECTBUILDER" || gen == "XCODE") {
         mkfile = new ProjectBuilderMakefileGenerator;
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.latin1());
