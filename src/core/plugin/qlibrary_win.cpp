@@ -18,6 +18,8 @@
 
 #include "qt_windows.h"
 
+extern QString qt_error_string(int code);
+
 bool QLibraryPrivate::load_sys()
 {
     QT_WA({
@@ -35,15 +37,20 @@ bool QLibraryPrivate::load_sys()
         });
     }
 
-    if (!pHnd)
-        qErrnoWarning("QLibrary::load_sys: Cannot load %s", QFile::encodeName(fileName).constData());
+    if (!pHnd) {
+        qWarning("QLibrary::load_sys: Cannot load %s (%s)",
+                 QFile::encodeName(fileName).constData(),
+                 qt_error_string(GetLastError()).latin1());
+    }
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (!FreeLibrary(pHnd)) {
-        qErrnoWarning("QLibrary::unload_sys: Cannot unload %s", QFile::encodeName(fileName).constData());
+        qWarning("QLibrary::unload_sys: Cannot unload %s (%s)",
+                 QFile::encodeName(fileName).constData(),
+                 qt_error_string(GetLastError()).latin1());
         return false;
     }
     return true;
@@ -58,8 +65,10 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #endif
 #if defined(QT_DEBUG_COMPONENT)
     if (!address)
-        qErrnoWarning("QLibrary::resolve_sys: Symbol \"%s\" undefined in %s", symbol,
-                  QFile::encodeName(fileName).constData());
+        qWarning("QLibrary::resolve_sys: Symbol \"%s\" undefined in %s (%s)",
+                 symbol,
+                 QFile::encodeName(fileName).constData(),
+                 qt_error_string(GetLastError()).latin1());
 #endif
     return address;
 }
