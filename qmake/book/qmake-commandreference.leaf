@@ -653,8 +653,8 @@ name of all intermediate moc object files. The value of this variable
 is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.
 
-\target PRECOMPH
-\section3 PRECOMPH
+\target PRECOMPILED_HEADER
+\section3 PRECOMPILED_HEADER
 
 This variable indicates the header file for creating a precompiled
 header file, to increase the compilation speed of a project.
@@ -669,8 +669,8 @@ sort of pre-compilation step (such as with moc). The value of this
 variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
 modified.  
 
-\target PRECOMPCPP
-\section3 PRECOMPCPP
+\target PRECOMPILED_SOURCE
+\section3 PRECOMPILED_SOURCE
 
 \e {This is used on Windows only}
 

@@ -69,9 +69,9 @@ precompiled header file.
 \section2 Project options
 
 To make your project use PCH, the only thing you need to change in
-your project settings (.pro), is to include the PRECOMPH option:
+your project settings (.pro), is to include the PRECOMPILED_HEADER option:
 \code
-	PRECOMPH = stable.h
+	PRECOMPILED_HEADER = stable.h
 \endcode
 \e qmake will handle the rest, to ensure the creation and use of the
 precompiled header file. 
@@ -89,12 +89,12 @@ increase compilation speed.
 
 You can  specify your own \c{.cpp} file like this:
 \code
-	PRECOMPCPP = stable.cpp
+	PRECOMPILED_SOURCE = stable.cpp
 \endcode
 
 Note that with qmake, you don't have to specify this \c{.cpp} file,
 since \e qmake will generate one for you, which will include the
-header file specified in \c PRECOMPH. Do not use this feature for
+header file specified in \c PRECOMPILED_HEADER. Do not use this feature for
 multiplatform projects.
 
 \target EXAMPLE_PROJECT

@@ -5,10 +5,10 @@
 #############################################
 TEMPLATE  = app
 LANGUAGE  = C++
-CONFIG	 += console
+CONFIG	 += console precompile_header
 
 # Use Precompiled headers (PCH)
-PRECOMPH  = stable.h
+PRECOMPILED_HEADER  = stable.h
 
 HEADERS	 += stable.h \
             myobject.h
