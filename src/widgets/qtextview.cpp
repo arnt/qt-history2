@@ -190,6 +190,8 @@ QTextView::QTextView( const QString& text, const QString& context,
 
 QTextView::~QTextView()
 {
+    delete undoRedoInfo.d;
+    undoRedoInfo.d = 0;
     delete cursor;
     delete doc;
 }

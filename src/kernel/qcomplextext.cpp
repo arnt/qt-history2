@@ -1256,7 +1256,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 }
 
 
-QString QComplexText::bidiReorderString( const QString &str, QChar::Direction basicDir )
+QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*basicDir*/ )
 {
     // ### fix basic direction
     QBidiControl *control = new QBidiControl();

@@ -1561,7 +1561,7 @@ static const QString getCharSet( QFont::CharSet set)
   Returns a string that gives a quite detailed description of the \a
   charSetName (e.g. for displaying in a dialog for the user).
  */
-QString QFontDatabase::verboseCharSetName( const QString &charSetName )
+QString QFontDatabase::verboseCharSetName( const QString &/*charSetName*/ )
 {
     /*
       Font::CharSet cs = getCharSet( charSetName );
@@ -1689,7 +1689,7 @@ QString QFontDatabase::verboseCharSetName( const QString &charSetName )
 /*!
   Returns some sample characters that are in the charset \a charSetName.
 */
-QString QFontDatabase::charSetSample( const QString &charSetName )
+QString QFontDatabase::charSetSample( const QString &/*charSetName*/ )
 {
     /*
 	  QFont::CharSet cs = getCharSet( charSetName );

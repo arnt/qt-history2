@@ -675,10 +675,10 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
     int y = s->rect().y();
     int lines = s->lines();
     QTextStringChar *chr = 0;
-    int index;
+    int index = 0;
     int i = 0;
-    int cy;
-    int ch;
+    int cy = 0;
+    int ch = 0;
     for ( ; i < lines; ++i ) {
 	chr = s->lineStartOfLine( i, &index );
 	cy = s->lineY( i );
@@ -3280,7 +3280,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int startX = 0;
     int bw = 0;
     int cy = 0;
-    int curx = -1, cury, curh;
+    int curx = -1, cury = 0, curh = 0;
     bool lastDirection = chr->rightToLeft;
     QTextStringChar::Type lastType = chr->type;
     int tw = 0;
@@ -3693,7 +3693,8 @@ void QTextParag::decDepth()
 	return;
     int numLists = 0;
     QStyleSheetItem *lastList = 0;
-    int lastIndex, i;
+    int lastIndex = 0;
+    int i;
     for ( i = 0; i < (int)styleSheetItemsVec.size(); ++i ) {
 	QStyleSheetItem *item = styleSheetItemsVec[ i ];
 	if ( item->name() == "ol" || item->name() == "ul" ) {

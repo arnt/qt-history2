@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#438 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#439 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -413,8 +413,6 @@ static void qt_set_windows_resources()
     QApplication::setFont( messageFont, TRUE, "QMessageBox");
     QApplication::setFont( statusFont, TRUE, "QTipLabel");
     QApplication::setFont( statusFont, TRUE, "QStatusBar");
-
-    BOOL effect = FALSE;
 
     if ( qt_std_pal && *qt_std_pal != QApplication::palette() )
 	return;
@@ -1278,7 +1276,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
-	    int ok;
+	    int ok = FALSE;
 	    while ( numZeroTimers &&
 		!(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) ) {
 #if defined(QT_THREAD_SUPPORT)
@@ -2028,7 +2026,7 @@ static void activateZeroTimers()		// activate full-speed timers
     if ( !timerVec )
 	return;
     uint i=0;
-    register TimerInfo *t;
+    register TimerInfo *t = 0;
     int n = numZeroTimers;
     while ( n-- ) {
 	while ( TRUE ) {

@@ -30,6 +30,10 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
     memset( &info, 0, sizeof(MONITORINFO) );
     info.cbSize = sizeof(MONITORINFO);
     BOOL res = GetMonitorInfoA( hMonitor, &info );
+    if ( !res ) {
+	QDesktopWidgetPrivate::rects.at( sn ) = QRect();
+	return TRUE;
+    }
 
     RECT r = info.rcMonitor;
     QRect qr( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );

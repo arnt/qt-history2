@@ -3079,7 +3079,8 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     if ( oldSelection && !oldSelection->isActive() )
 	oldSelection = 0;
 
-    bool optimize1, optimize2;
+    bool optimize1 = FALSE;
+    bool optimize2 = FALSE;
     QRect old;
     if ( oldSelection )
 	old = rangeGeometry( oldSelection->topRow(),

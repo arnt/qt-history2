@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#59 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#60 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -3760,7 +3760,7 @@ QDomAttrPrivate* QDomElementPrivate::setAttributeNode( QDomAttrPrivate* newAttr 
 
 QDomAttrPrivate* QDomElementPrivate::setAttributeNodeNS( QDomAttrPrivate* newAttr )
 {
-    QDomNodePrivate* n;
+    QDomNodePrivate* n = 0;
     if ( !newAttr->prefix.isNull() )
 	n = m_attr->namedItemNS( newAttr->namespaceURI, newAttr->name );
 
