@@ -254,6 +254,9 @@ void QMainWindow::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
 */
 void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar, Qt::ToolBarArea area)
 {
+    Q_UNUSED(before);
+    Q_UNUSED(toolbar);
+    Q_UNUSED(area);
     Q_ASSERT_X(false, "QMainWindow::insertToolBar", "unimplemented");
 }
 
@@ -284,6 +287,9 @@ void QMainWindow::addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area)
  */
 void QMainWindow::insertToolBarBlock(QToolBar *before, QToolBar *toolbar, Qt::ToolBarArea area)
 {
+    Q_UNUSED(before);
+    Q_UNUSED(toolbar);
+    Q_UNUSED(area);
     Q_ASSERT_X(false, "QMainWindow::insertToolBarBlock", "unimplemented");
 }
 

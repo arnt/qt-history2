@@ -858,7 +858,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
                                       const QModelIndex &parent)
 {
 //     Q_UNUSED(data);
-//     Q_UNUSED(action);
+     Q_UNUSED(action);
 //     Q_UNUSED(parent);
     QString format = mimeTypes().at(0);
     if (!data->hasFormat(format))

@@ -796,7 +796,7 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
     }
     p->fillRect(rect.toRect(), bg);
     if (type == QTextLayout::ImText)
-        p->drawLine(rect.x(), rect.y(), rect.x() + rect.width(), rect.y() + rect.height());
+        p->drawLine(int(rect.x()), int(rect.y()), int(rect.x() + rect.width()), int(rect.y() + rect.height()));
     if (text.isValid())
         p->setPen(text);
     line.draw(p, pos.x(), pos.y(), selectionIdx);

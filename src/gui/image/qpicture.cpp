@@ -624,7 +624,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             case PdcSetVXform:
                 s >> i_8;
 #ifndef QT_NO_TRANSFORMATIONS
-                painter->setViewXForm(i_8);
+                painter->setViewTransformEnabled(i_8);
 #endif
                 break;
             case PdcSetWindow:

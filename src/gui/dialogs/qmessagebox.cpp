@@ -1489,6 +1489,10 @@ int QMessageBox::critical(QWidget *parent, const QString &caption,
                     defaultButtonNumber, escapeButtonNumber);
 }
 
+#ifndef QT_NO_IMAGEIO_XPM
+// helper
+extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
+#endif
 
 /*!
     Displays a simple message box about Qt, with caption \a caption
@@ -1516,7 +1520,11 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
     mb.setText(*translatedTextAboutQt);
 #ifndef QT_NO_IMAGEIO
     QPixmap pm;
-    QImage logo((const char **)qtlogo_xpm);
+    QImage logo;
+#ifndef QT_NO_IMAGEIO_XPM
+    qt_read_xpm_image_or_array(0, qtlogo_xpm, logo);
+#endif
+
     if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
         qGray(mb.palette().color(QPalette::Active, QPalette::Base).rgb()))
     {

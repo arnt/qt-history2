@@ -1101,6 +1101,11 @@ QPixmap::QPixmap(const QString& fileName, const char *format, ColorMode mode)
     load(fileName, format, colorModeToFlags(mode));
 }
 
+#ifdef QT_COMPAT
+#ifndef QT_NO_IMAGEIO_XPM
+// helper
+extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
+#endif
 
 /*!
     Constructs a pixmap from \a xpm, which must be a valid XPM image.
@@ -1129,10 +1134,18 @@ QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice(QInternal::Pixmap)
 {
     init(0, 0, 0, false, defOptim);
-    QImage image(xpm);
+    QImage image;
+#ifndef QT_NO_IMAGEIO_XPM
+    qt_read_xpm_image_or_array(0, xpm, image);
+#else
+    // We use a qFatal rather than disabling the whole function, as this
+    // constructor may be ambiguous.
+    qFatal("XPM not supported");
+#endif
     if (!image.isNull())
         fromImage(image);
 }
+#endif
 
 /*!
     \overload

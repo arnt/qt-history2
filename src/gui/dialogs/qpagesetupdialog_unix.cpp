@@ -101,7 +101,9 @@ public:
 QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPageSetupDialog(*(new QPageSetupDialogPrivate), printer, parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this, 11, 6);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(11);
+    layout->setSpacing(6);
 
     QFrame *frame = new QFrame(this);
     frame->setFrameShape(QFrame::GroupBoxPanel);

@@ -1888,7 +1888,8 @@ void QLineEdit::paintEvent(QPaintEvent *)
 void QLineEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     if (!d->readOnly && e->mimeData()->hasFormat("text/plain")) {
-        e->acceptAction();
+        e->setDropAction(e->proposedAction());
+        e->accept();
         d->cursor = d->xToPos(e->pos().x());
         d->cursorVisible = true;
         update();
@@ -1917,17 +1918,18 @@ void QLineEdit::dropEvent(QDropEvent* e)
     QString str = e->mimeData()->text();
 
     if (!str.isNull() && !d->readOnly) {
-        if (e->source() == this && e->action() == QDropEvent::Copy)
+        if (e->source() == this && e->dropAction() == QDrag::CopyAction)
             deselect();
         d->cursor =d->xToPos(e->pos().x());
         int selStart = d->cursor;
         int oldSelStart = d->selstart;
         int oldSelEnd = d->selend;
         d->cursorVisible = false;
-        e->acceptAction();
+        e->setDropAction(e->proposedAction());
+        e->accept();
         insert(str);
         if (e->source() == this) {
-            if (e->action() == QDropEvent::Move) {
+            if (e->dropAction() == QDrag::MoveAction) {
                 if (selStart > oldSelStart && selStart <= oldSelEnd)
                     setSelection(oldSelStart, str.length());
                 else if (selStart > oldSelEnd)
