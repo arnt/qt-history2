@@ -128,7 +128,7 @@ DemoViewer::DemoViewer(QWidget *parent)
           << tr("Gradient Fill")
           << tr("Tiles")
           << tr("Background image");
-    bgMode->insertStringList(items);
+    bgMode->addItems(items);
 
     props->addWidget(antialias);
     props->addWidget(alpha);

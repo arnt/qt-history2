@@ -482,7 +482,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &caption, const QSt
     dlg->setWindowTitle(caption);
 #endif
     if (editable) {
-        dlg->editableComboBox()->insertStringList(list);
+        dlg->editableComboBox()->addItems(list);
         dlg->editableComboBox()->setCurrentItem(current);
     } else {
         dlg->comboBox()->insertStringList(list);

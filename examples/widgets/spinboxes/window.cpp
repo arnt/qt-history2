@@ -77,11 +77,11 @@ void Window::createDateTimeEdits()
         "and time:"), editsGroup);
 
     QComboBox *formatComboBox = new QComboBox(editsGroup);
-    formatComboBox->insertItem("yyyy-MM-dd hh:mm:ss (zzz ms)");
-    formatComboBox->insertItem("hh:mm:ss MM/dd/yyyy");
-    formatComboBox->insertItem("hh:mm:ss dd/MM/yyyy");
-    formatComboBox->insertItem("hh:mm:ss");
-    formatComboBox->insertItem("hh:mm ap");
+    formatComboBox->addItem("yyyy-MM-dd hh:mm:ss (zzz ms)");
+    formatComboBox->addItem("hh:mm:ss MM/dd/yyyy");
+    formatComboBox->addItem("hh:mm:ss dd/MM/yyyy");
+    formatComboBox->addItem("hh:mm:ss");
+    formatComboBox->addItem("hh:mm ap");
 
     connect(formatComboBox, SIGNAL(activated(const QString &)),
             this, SLOT(setFormatString(const QString &)));

@@ -100,7 +100,7 @@ MainWindow::MainWindow()
     readSettings();
 
     statusBar()->show();
-    
+
     QtUndoListView *undo_list_view = new QtUndoListView(0);
     undo_list_view->setParent(this, Qt::WType_TopLevel|Qt::WStyle_Tool);
     undo_list_view->setWindowTitle(tr("Undo/Redo"));
@@ -498,7 +498,7 @@ void MainWindow::setupToolBar()
     formToolbar->addWidget(m_editModeSelector);
     QList<QAction*> editModeActions = m_editModeGrp->actions();
     foreach (QAction *action, editModeActions)
-        m_editModeSelector->insertItem(action->text());
+        m_editModeSelector->addItem(action->text());
     connect(m_editModeSelector, SIGNAL(activated(int)), this, SLOT(editMode(int)));
 }
 

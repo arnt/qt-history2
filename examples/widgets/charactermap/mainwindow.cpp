@@ -63,7 +63,7 @@ void MainWindow::findFonts()
 
     QString family;
     foreach (family, fontDatabase.families())
-        fontCombo->insertItem(family);
+        fontCombo->addItem(family);
 }
 
 void MainWindow::findStyles()
@@ -74,9 +74,9 @@ void MainWindow::findStyles()
 
     QString style;
     foreach (style, fontDatabase.styles(fontCombo->currentText()))
-        styleCombo->insertItem(style);
+        styleCombo->addItem(style);
 
-    if (!styleCombo->contains(currentItem))
+    if (styleCombo->findText(currentItem) == -1)
         styleCombo->setCurrentItem(0);
 }
 

@@ -499,7 +499,7 @@ QStringList QFileDialog::selectedFiles() const
 void QFileDialog::setFilter(const QString &filter)
 {
     d->fileType->clear();
-    d->fileType->insertItem(filter);
+    d->fileType->addItem(filter);
     d->useFilter(filter);
 }
 
@@ -520,7 +520,7 @@ void QFileDialog::setFilter(const QString &filter)
 void QFileDialog::setFilters(const QStringList &filters)
 {
     d->fileType->clear();
-    d->fileType->insertStringList(filters);
+    d->fileType->addItems(filters);
     d->useFilter(filters.first());
 }
 
@@ -533,7 +533,7 @@ QStringList QFileDialog::filters() const
 {
     QStringList items;
     for (int i = 0; i < d->fileType->count(); ++i)
-        items.append(d->fileType->text(i));
+        items.append(d->fileType->itemText(i));
     return items;
 }
 
@@ -546,7 +546,7 @@ QStringList QFileDialog::filters() const
 
 void QFileDialog::selectFilter(const QString &filter)
 {
-    int i = d->fileType->findItem(filter, QAbstractItemModel::MatchExactly);
+    int i = d->fileType->findText(filter, QAbstractItemModel::MatchExactly);
     if (i >= 0)
         d->fileType->setCurrentItem(i);
 }
@@ -600,7 +600,7 @@ void QFileDialog::setFileMode(FileMode mode)
     // setup file type for directory
     if (mode == DirectoryOnly) {
         d->fileType->clear();
-        d->fileType->insertItem(QFileDialog::tr("Directories"));
+        d->fileType->addItem(QFileDialog::tr("Directories"));
         d->fileType->setEnabled(false);
     }
 }
@@ -690,7 +690,7 @@ void QFileDialog::setHistory(const QStringList &paths)
         if (index.isValid()) {
             history << QPersistentModelIndex(index);
             QIcon icn = d->model->fileIcon(index);
-            d->lookIn->insertItem(icn, *it);
+            d->lookIn->addItem(icn, *it);
         }
     }
     d->history = history;
@@ -1304,33 +1304,33 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     setupWidgets(grid);
 
     // Insert paths in the "lookin" combobox
-    lookIn->insertItem(model->fileIcon(QModelIndex()), model->fileName(QModelIndex())); // root
+    lookIn->addItem(model->fileIcon(QModelIndex()), model->fileName(QModelIndex())); // root
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->filePath(index);
         QIcon icons = model->fileIcon(index);
-        lookIn->insertItem(icons, toNative(path));
+        lookIn->addItem(icons, toNative(path));
     }
 
     // insert the home path
     QModelIndex home = model->index(QDir::homePath()); // home
-    lookIn->insertItem(model->fileIcon(home), toNative(QDir::homePath()));
+    lookIn->addItem(model->fileIcon(home), toNative(QDir::homePath()));
 
     // if it is not already in the list, insert the current directory
     QString currentPath = toNative(model->filePath(current));
-    int item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
+    int item = lookIn->findText(currentPath, QAbstractItemModel::MatchExactly);
     if (item < 0) {
-        lookIn->insertItem(model->fileIcon(current), currentPath);
-        item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
+        lookIn->addItem(model->fileIcon(current), currentPath);
+        item = lookIn->findText(currentPath, QAbstractItemModel::MatchExactly);
     }
     lookIn->setCurrentItem(item);
 
     // Set filetypes or filter
     if (fileMode == QFileDialog::DirectoryOnly) {
-        fileType->insertItem(QFileDialog::tr("Directories"));
+        fileType->addItem(QFileDialog::tr("Directories"));
         fileType->setEnabled(false);
     } else {
-        fileType->insertStringList(nameFilter);
+        fileType->addItems(nameFilter);
     }
 
     // tab order
@@ -1514,7 +1514,7 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 
     // "lookin" combobox
     lookIn = new QComboBox(q);
-    lookIn->setInsertionPolicy(QComboBox::NoInsertion);
+    lookIn->setInsertPolicy(QComboBox::NoInsert);
     lookIn->setDuplicatesEnabled(false);
     lookIn->setEditable(true);
     lookIn->setAutoCompletion(false);
@@ -1552,12 +1552,12 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     newFolder->setEnabled(!model->isReadOnly());
     QString pth = toNative(d->model->filePath(index));
     QIcon icn = d->model->fileIcon(index);
-    int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
+    int i = lookIn->findText(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {
         lookIn->setCurrentItem(i);
     } else {
-        lookIn->insertItem(icn, pth);
+        lookIn->addItem(icn, pth);
         lookIn->setCurrentItem(lookIn->count() - 1);
     }
     lookIn->blockSignals(block);

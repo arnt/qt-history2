@@ -158,7 +158,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     clearWState(Qt::WState_Polished);
 
     for (int i=0; pageSizeNames[i]; ++i)
-        d->pageSize->insertItem(pageSizeNames[i]);
+        d->pageSize->addItem(pageSizeNames[i]);
     d->pageSize->setCurrentItem(printer->pageSize());
 
 #ifdef PSD_ENABLE_PAPERSOURCE
@@ -167,8 +167,8 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     d->paperSource->setCurrentItem(printer->paperSource());
 #endif
 
-    d->orientation->insertItem(tr("Portrait"));
-    d->orientation->insertItem(tr("Landscape"));
+    d->orientation->addItem(tr("Portrait"));
+    d->orientation->addItem(tr("Landscape"));
     d->orientation->setCurrentItem(printer->orientation());
 
 

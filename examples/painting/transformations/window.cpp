@@ -7,9 +7,9 @@ Window::Window()
     originalRenderArea = new RenderArea(this);
 
     shapeComboBox = new QComboBox(this);
-    shapeComboBox->insertItem(tr("Clock"));
-    shapeComboBox->insertItem(tr("House"));
-    shapeComboBox->insertItem(tr("Truck"));
+    shapeComboBox->addItem(tr("Clock"));
+    shapeComboBox->addItem(tr("House"));
+    shapeComboBox->addItem(tr("Truck"));
 
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(originalRenderArea, 0, 0);
@@ -19,10 +19,10 @@ Window::Window()
         transformedRenderAreas[i] = new RenderArea(this);
 
         operationComboBoxes[i] = new QComboBox(this);
-        operationComboBoxes[i]->insertItem(tr("No transformation"));
-        operationComboBoxes[i]->insertItem(tr("Rotate by 60\xB0"));
-        operationComboBoxes[i]->insertItem(tr("Scale to 75%"));
-        operationComboBoxes[i]->insertItem(tr("Translate by (50, 50)"));
+        operationComboBoxes[i]->addItem(tr("No transformation"));
+        operationComboBoxes[i]->addItem(tr("Rotate by 60\xB0"));
+        operationComboBoxes[i]->addItem(tr("Scale to 75%"));
+        operationComboBoxes[i]->addItem(tr("Translate by (50, 50)"));
 
         connect(operationComboBoxes[i], SIGNAL(activated(int)),
                 this, SLOT(operationChanged()));

@@ -2473,7 +2473,8 @@ void Q3FileDialog::init()
     }
 
     if (QDir::homeDirPath().size()) {
-        if (!d->paths->contains(QDir::homeDirPath()))
+        if (d->paths->findText(QDir::homeDirPath(),QAbstractItemModel::MatchExactly
+                               |QAbstractItemModel::MatchCase) != -1)
             d->paths->insertItem(*openFolderIcon, QDir::homeDirPath());
     }
 

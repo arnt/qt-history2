@@ -62,8 +62,8 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
     switch (type) {
     case QVariant::Bool: {
         QComboBox *cb = new QComboBox(parent);
-        cb->insertItem("False");
-        cb->insertItem("True");
+        cb->addItem("False");
+        cb->addItem("True");
         return cb; }
     case QVariant::UInt: {
         QSpinBox *sb = new QSpinBox(parent);

@@ -9,9 +9,9 @@ ConfigurationPage::ConfigurationPage(QWidget *parent)
 
     QLabel *serverLabel = new QLabel(tr("Server:"), configGroup);
     QComboBox *serverCombo = new QComboBox(configGroup);
-    serverCombo->insertItem(tr("Trolltech (Australia)"));
-    serverCombo->insertItem(tr("Trolltech (Norway)"));
-    serverCombo->insertItem(tr("Trolltech (USA)"));
+    serverCombo->addItem(tr("Trolltech (Australia)"));
+    serverCombo->addItem(tr("Trolltech (Norway)"));
+    serverCombo->addItem(tr("Trolltech (USA)"));
 
     QHBoxLayout *serverLayout = new QHBoxLayout;
     serverLayout->addWidget(serverLabel);

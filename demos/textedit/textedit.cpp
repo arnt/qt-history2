@@ -228,13 +228,13 @@ void TextEdit::setupTextActions()
 
     comboStyle = new QComboBox(tb);
     tb->addWidget(comboStyle);
-    comboStyle->insertItem("Standard");
-    comboStyle->insertItem("Bullet List (Disc)");
-    comboStyle->insertItem("Bullet List (Circle)");
-    comboStyle->insertItem("Bullet List (Square)");
-    comboStyle->insertItem("Ordered List (Decimal)");
-    comboStyle->insertItem("Ordered List (Alpha lower)");
-    comboStyle->insertItem("Ordered List (Alpha upper)");
+    comboStyle->addItem("Standard");
+    comboStyle->addItem("Bullet List (Disc)");
+    comboStyle->addItem("Bullet List (Circle)");
+    comboStyle->addItem("Bullet List (Square)");
+    comboStyle->addItem("Ordered List (Decimal)");
+    comboStyle->addItem("Ordered List (Alpha lower)");
+    comboStyle->addItem("Ordered List (Alpha upper)");
     connect(comboStyle, SIGNAL(activated(int)),
             this, SLOT(textStyle(int)));
 
@@ -242,7 +242,7 @@ void TextEdit::setupTextActions()
     tb->addWidget(comboFont);
     comboFont->setEditable(true);
     QFontDatabase db;
-    comboFont->insertStringList(db.families());
+    comboFont->addItems(db.families());
     connect(comboFont, SIGNAL(activated(const QString &)),
             this, SLOT(textFamily(const QString &)));
     comboFont->setEditText(QApplication::font().family());
@@ -252,12 +252,12 @@ void TextEdit::setupTextActions()
     comboSize->setEditable(true);
 
     foreach(int size, db.standardSizes())
-        comboSize->insertItem(QString::number(size));
+        comboSize->addItem(QString::number(size));
 
     connect(comboSize, SIGNAL(activated(const QString &)),
             this, SLOT(textSize(const QString &)));
-    comboSize->setCurrentText(QString::number(QApplication::font().pointSize()));
-
+    comboSize->setCurrentItem(comboSize->findText(QString::number(QApplication::font()
+                                                                  .pointSize())));
 }
 
 bool TextEdit::load(const QString &f)

@@ -294,7 +294,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     for (int i = 0; i < QFont::NScripts; i++) {
         QString scriptname = QFontDatabase::scriptName((QFont::Script) i);
         if (!scriptname.isEmpty())
-            d->scriptCombo->insertItem(scriptname);
+            d->scriptCombo->addItem(scriptname);
     }
 
     updateFamilies();

@@ -8,9 +8,9 @@ Window::Window()
 
     QLabel *echoLabel = new QLabel(tr("Mode:"), echoGroup);
     QComboBox *echoComboBox = new QComboBox(echoGroup);
-    echoComboBox->insertItem(tr("Normal"));
-    echoComboBox->insertItem(tr("Password"));
-    echoComboBox->insertItem(tr("No Echo"));
+    echoComboBox->addItem(tr("Normal"));
+    echoComboBox->addItem(tr("Password"));
+    echoComboBox->addItem(tr("No Echo"));
 
     echoLineEdit = new QLineEdit(echoGroup);
     echoLineEdit->setFocus();
@@ -19,9 +19,9 @@ Window::Window()
 
     QLabel *validatorLabel = new QLabel(tr("Type:"), validatorGroup);
     QComboBox *validatorComboBox = new QComboBox(validatorGroup);
-    validatorComboBox->insertItem(tr("No validator"));
-    validatorComboBox->insertItem(tr("Integer validator"));
-    validatorComboBox->insertItem(tr("Double validator"));
+    validatorComboBox->addItem(tr("No validator"));
+    validatorComboBox->addItem(tr("Integer validator"));
+    validatorComboBox->addItem(tr("Double validator"));
 
     validatorLineEdit = new QLineEdit(validatorGroup);
 
@@ -29,9 +29,9 @@ Window::Window()
 
     QLabel *alignmentLabel = new QLabel(tr("Type:"), alignmentGroup);
     QComboBox *alignmentComboBox = new QComboBox(alignmentGroup);
-    alignmentComboBox->insertItem(tr("Left"));
-    alignmentComboBox->insertItem(tr("Centered"));
-    alignmentComboBox->insertItem(tr("Right"));
+    alignmentComboBox->addItem(tr("Left"));
+    alignmentComboBox->addItem(tr("Centered"));
+    alignmentComboBox->addItem(tr("Right"));
 
     alignmentLineEdit = new QLineEdit(alignmentGroup);
 
@@ -39,10 +39,10 @@ Window::Window()
 
     QLabel *inputMaskLabel = new QLabel(tr("Type:"), inputMaskGroup);
     QComboBox *inputMaskComboBox = new QComboBox(inputMaskGroup);
-    inputMaskComboBox->insertItem(tr("No mask"));
-    inputMaskComboBox->insertItem(tr("Phone number"));
-    inputMaskComboBox->insertItem(tr("ISO date"));
-    inputMaskComboBox->insertItem(tr("License key"));
+    inputMaskComboBox->addItem(tr("No mask"));
+    inputMaskComboBox->addItem(tr("Phone number"));
+    inputMaskComboBox->addItem(tr("ISO date"));
+    inputMaskComboBox->addItem(tr("License key"));
 
     inputMaskLineEdit = new QLineEdit(inputMaskGroup);
 
@@ -50,8 +50,8 @@ Window::Window()
 
     QLabel *accessLabel = new QLabel(tr("Read-only:"), accessGroup);
     QComboBox *accessComboBox = new QComboBox(accessGroup);
-    accessComboBox->insertItem(tr("False"));
-    accessComboBox->insertItem(tr("True"));
+    accessComboBox->addItem(tr("False"));
+    accessComboBox->addItem(tr("True"));
 
     accessLineEdit = new QLineEdit(accessGroup);
 

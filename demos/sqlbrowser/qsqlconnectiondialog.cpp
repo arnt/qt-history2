@@ -21,7 +21,7 @@ QSqlConnectionDialog::QSqlConnectionDialog(QWidget *parent)
 {
     ui.setupUi(this);
 
-    ui.comboDriver->insertStringList(QSqlDatabase::drivers());
+    ui.comboDriver->addItems(QSqlDatabase::drivers());
 }
 
 QSqlConnectionDialog::~QSqlConnectionDialog()

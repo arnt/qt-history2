@@ -93,12 +93,12 @@ Window::Window()
     fillColor1ComboBox = new QComboBox(this);
     populateWithColors(fillColor1ComboBox);
     fillColor1ComboBox->setCurrentItem(
-            fillColor1ComboBox->findItem("mediumslateblue"));
+            fillColor1ComboBox->findText("mediumslateblue"));
 
     fillColor2ComboBox = new QComboBox(this);
     populateWithColors(fillColor2ComboBox);
     fillColor2ComboBox->setCurrentItem(
-            fillColor2ComboBox->findItem("cornsilk"));
+            fillColor2ComboBox->findText("cornsilk"));
 
     fillGradientLabel = new QLabel(tr("&Fill Gradient:"), this);
     fillGradientLabel->setBuddy(fillColor1ComboBox);
@@ -115,7 +115,7 @@ Window::Window()
     penColorComboBox = new QComboBox(this);
     populateWithColors(penColorComboBox);
     penColorComboBox->setCurrentItem(
-            penColorComboBox->findItem("darkslateblue"));
+            penColorComboBox->findText("darkslateblue"));
 
     penColorLabel = new QLabel(tr("Pen &Color:"), this);
     penColorLabel->setBuddy(penColorComboBox);
@@ -173,8 +173,8 @@ Window::Window()
 
 void Window::fillRuleChanged()
 {
-    Qt::FillRule rule = (Qt::FillRule)fillRuleComboBox->data(IdRole,
-            fillRuleComboBox->currentItem()).toInt();
+    Qt::FillRule rule =
+        (Qt::FillRule)fillRuleComboBox->itemData(fillRuleComboBox->currentItem(), IdRole).toInt();
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setFillRule(rule);
@@ -182,10 +182,10 @@ void Window::fillRuleChanged()
 
 void Window::fillGradientChanged()
 {
-    QColor color1 = fillColor1ComboBox->data(ColorRole,
-            fillColor1ComboBox->currentItem()).toColor();
-    QColor color2 = fillColor2ComboBox->data(ColorRole,
-            fillColor2ComboBox->currentItem()).toColor();
+    QColor color1 =
+        fillColor1ComboBox->itemData(fillColor1ComboBox->currentItem(), ColorRole).toColor();
+    QColor color2 =
+        fillColor2ComboBox->itemData(fillColor2ComboBox->currentItem(), ColorRole).toColor();
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setFillGradient(color1, color2);
@@ -193,8 +193,8 @@ void Window::fillGradientChanged()
 
 void Window::penColorChanged()
 {
-    QColor color = penColorComboBox->data(ColorRole,
-            penColorComboBox->currentItem()).toColor();
+    QColor color =
+        penColorComboBox->itemData(penColorComboBox->currentItem(), ColorRole).toColor();
 
     for (int i = 0; i < NumRenderAreas; ++i)
         renderAreas[i]->setPenColor(color);
@@ -203,16 +203,16 @@ void Window::penColorChanged()
 void Window::addItem(QComboBox *comboBox, const QString &text, int id)
 {
     int row = comboBox->count();
-    comboBox->insertItem(text, row);
-    comboBox->setItemData(IdRole, id, row);
+    comboBox->insertItem(row, text);
+    comboBox->setItemData(row, id, IdRole);
 }
 
 void Window::addColor(QComboBox *comboBox, const QString &text,
                       const QColor &color)
 {
     int row = comboBox->count();
-    comboBox->insertItem(text, row);
-    comboBox->setItemData(ColorRole, color, row);
+    comboBox->insertItem(row, text);
+    comboBox->setItemData(row, color, ColorRole);
 }
 
 void Window::populateWithColors(QComboBox *comboBox)

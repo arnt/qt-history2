@@ -26,24 +26,23 @@ class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
 
-    Q_ENUMS(InsertionPolicy)
+    Q_ENUMS(InsertPolicy)
     Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
     Q_PROPERTY(int count READ count)
-    Q_PROPERTY(QString currentText READ currentText WRITE setCurrentText DESIGNABLE false)
+    Q_PROPERTY(QString currentText READ currentText)
     Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem)
-    Q_PROPERTY(int sizeLimit READ sizeLimit WRITE setSizeLimit)
+    Q_PROPERTY(int maxVisibleItems READ maxVisibleItems WRITE setMaxVisibleItems)
     Q_PROPERTY(int maxCount READ maxCount WRITE setMaxCount)
-    Q_PROPERTY(InsertionPolicy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy)
+    Q_PROPERTY(InsertPolicy insertPolicy READ insertPolicy WRITE setInsertPolicy)
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion)
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
-    Q_PROPERTY(bool autoHide READ autoHide WRITE setAutoHide)
 
 public:
     explicit QComboBox(QWidget *parent = 0);
     ~QComboBox();
 
-    int sizeLimit() const;
-    void setSizeLimit(int limit);
+    int maxVisibleItems() const;
+    void setMaxVisibleItems(int maxItems);
 
     int count() const;
     void setMaxCount(int max);
@@ -58,20 +57,36 @@ public:
     bool autoHide() const;
     void setAutoHide(bool enable);
 
-    bool contains(const QString &text) const;
-    virtual int findItem(const QString &text, QAbstractItemModel::MatchFlags flags = QAbstractItemModel::MatchDefault) const;
+    inline int findText(const QString &text,
+                        QAbstractItemModel::MatchFlags flags =
+                        QAbstractItemModel::MatchDefault) const
+        { return findData(text, QAbstractItemModel::EditRole, flags); }
+    int findData(const QVariant &data, int role = QAbstractItemModel::UserRole,
+                 QAbstractItemModel::MatchFlags flags = QAbstractItemModel::MatchDefault) const;
 
-    enum InsertionPolicy {
-        NoInsertion,
-        AtTop,
-        AtCurrent,
-        AtBottom,
-        AfterCurrent,
-        BeforeCurrent
+    enum InsertPolicy {
+        NoInsert,
+        InsertAtTop,
+        InsertAtCurrent,
+        InsertAtBottom,
+        InsertAfterCurrent,
+        InsertBeforeCurrent
+#ifdef QT_COMPAT
+        ,
+        NoInsertion = NoInsert,
+        AtTop = InsertAtTop,
+        AtCurrent = InsertAtCurrent,
+        AtBottom = InsertAtBottom,
+        AfterCurrent = InsertAfterCurrent,
+        BeforeCurrent = InsertBeforeCurrent
+#endif
     };
+#ifdef QT_COMPAT
+    typedef InsertPolicy Policy;
+#endif
 
-    InsertionPolicy insertionPolicy() const;
-    void setInsertionPolicy(InsertionPolicy policy);
+    InsertPolicy insertPolicy() const;
+    void setInsertPolicy(InsertPolicy policy);
 
     bool isEditable() const;
     void setEditable(bool editable);
@@ -86,30 +101,37 @@ public:
     QAbstractItemModel *model() const;
     void setModel(QAbstractItemModel *model);
 
-    QModelIndex rootIndex() const;
-    void setRootIndex(const QModelIndex &index);
+    QModelIndex rootModelIndex() const;
+    void setRootModelIndex(const QModelIndex &index);
 
     int currentItem() const;
-    void setCurrentItem(int row);
+    void setCurrentItem(int index);
 
     QString currentText() const;
-    void setCurrentText(const QString&);
 
-    QString text(int row) const;
-    QPixmap pixmap(int row) const;
-    QVariant data(int role, int row) const;
+    QString itemText(int index) const;
+    QIcon itemIcon(int index) const;
+    QVariant itemData(int index, int role = QAbstractItemModel::UserRole) const;
 
-    void insertStringList(const QStringList &list, int row = -1);
-    void insertItem(const QString &text, int row = -1);
-    void insertItem(const QIcon &icon, int row = -1);
-    void insertItem(const QIcon &icon, const QString &text, int row = -1);
+    inline void addItem(const QString &text, const QVariant &userData = QVariant())
+        { insertItem(count(), text, userData); }
+    inline void addItem(const QIcon &icon, const QString &text,
+                        const QVariant &userData = QVariant())
+        { insertItem(count(), icon, text, userData); }
+    inline void addItems(const QStringList &texts)
+        { insertItems(count(), texts); }
 
-    void removeItem(int row);
+    inline void insertItem(int index, const QString &text, const QVariant &userData = QVariant())
+        { insertItem(index, QIcon(), text, userData); }
+    void insertItem(int index, const QIcon &icon, const QString &text,
+                    const QVariant &userData = QVariant());
+    void insertItems(int index, const QStringList &texts);
 
-    void setItemText(const QString &text, int row);
-    void setItemIcon(const QIcon &icon, int row);
-    void setItemData(int role, const QVariant &value, int row);
-    void setItem(const QIcon &icon, const QString &text, int row);
+    void removeItem(int index);
+
+    void setItemText(int index, const QString &text);
+    void setItemIcon(int index, const QIcon &icon);
+    void setItemData(int index, const QVariant &value, int role = QAbstractItemModel::UserRole);
 
     QAbstractItemView *itemView() const;
     void setItemView(QAbstractItemView *itemView);
@@ -122,22 +144,15 @@ public:
 
 public slots:
     void clear();
-    void clearValidator();
-    void clearEdit();
+    void clearEditText();
     virtual void setEditText(const QString &text);
 
 signals:
-    void textChanged(const QString &);
-    void activated(int row);
+    void editTextChanged(const QString &);
+    void activated(int index);
     void activated(const QString &);
-    void activated(const QModelIndex &);
-    void highlighted(int row);
+    void highlighted(int index);
     void highlighted(const QString &);
-    void highlighted(const QModelIndex &);
-    void rootChanged(const QModelIndex &old, const QModelIndex &root);
-
-protected slots:
-    void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
 protected:
     void focusInEvent(QFocusEvent *e);
@@ -153,22 +168,40 @@ protected:
     void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
-
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
     QT_COMPAT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
-    QT_COMPAT bool editable() const { return isEditable(); }
-    QT_COMPAT void insertItem(const QPixmap &pix, int row = -1)
-        { insertItem(QIcon(pix), row); }
-    QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int row = -1)
-        { insertItem(QIcon(pix), text, row); }
-    QT_COMPAT void changeItem(const QString &text, int row)
-        { setItemText(text, row); }
-    QT_COMPAT void changeItem(const QPixmap &pix, int row)
-        { setItemIcon(QIcon(pix), row); }
-    QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int row)
-        { setItem(QIcon(pix), text, row); }
+    inline QT_COMPAT InsertPolicy insertionPolicy() const { return insertPolicy(); }
+    inline QT_COMPAT void setInsertionPolicy(InsertPolicy policy) { setInsertPolicy(policy); }
+    inline QT_COMPAT bool editable() const { return isEditable(); }
+    inline QT_COMPAT void setCurrentText(const QString& text) {
+        int i = findText(text);
+        if (i != -1)
+            setCurrentItem(i);
+        else if (isEditable())
+            setEditText(text);
+        else
+            setItemText(currentItem(), text);
+    }
+    inline QT_COMPAT QString text(int index) const { return itemText(index); }
+    inline QT_COMPAT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(Qt::SmallIconSize); }
+    inline QT_COMPAT void insertStringList(const QStringList &list, int index = -1)
+        { insertItems(index, list); }
+    inline QT_COMPAT void insertItem(const QString &text, int index = -1)
+        { insertItem(index, text); }
+    inline QT_COMPAT void insertItem(const QPixmap &pix, int index = -1)
+        { insertItem(index, QIcon(pix), QString()); }
+    inline QT_COMPAT void insertItem(const QPixmap &pix, const QString &text, int index = -1)
+        { insertItem(index, QIcon(pix), text); }
+    inline QT_COMPAT void changeItem(const QString &text, int index)
+        { setItemText(index, text); }
+    inline QT_COMPAT void changeItem(const QPixmap &pix, int index)
+        { setItemIcon(index, QIcon(pix)); }
+    inline QT_COMPAT void changeItem(const QPixmap &pix, const QString &text, int index)
+        { setItemIcon(index, QIcon(pix)); setItemText(index, text); }
+    inline QT_COMPAT void clearValidator() { setValidator(0); }
+    inline QT_COMPAT void clearEdit() { clearEditText(); }
 #endif
 
 protected:
@@ -178,7 +211,7 @@ private:
     Q_DECLARE_PRIVATE(QComboBox)
     Q_DISABLE_COPY(QComboBox)
     Q_PRIVATE_SLOT(d, void itemSelected(const QModelIndex &item))
-    Q_PRIVATE_SLOT(d, void emitHighlighted(const QModelIndex&))
+    Q_PRIVATE_SLOT(d, void emitHighlighted(const QModelIndex &))
     Q_PRIVATE_SLOT(d, void returnPressed())
     Q_PRIVATE_SLOT(d, void complete())
     Q_PRIVATE_SLOT(d, void resetButton())

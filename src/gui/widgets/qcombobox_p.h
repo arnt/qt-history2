@@ -186,12 +186,12 @@ public:
           model(0),
           lineEdit(0),
           container(0),
-          insertionPolicy(QComboBox::AtBottom),
+          insertPolicy(QComboBox::AtBottom),
           autoCompletion(true),
           duplicatesEnabled(false),
           autoHide(true),
           arrowDown(false),
-          sizeLimit(10),
+          maxVisibleItems(10),
           maxCount(INT_MAX),
           skipCompletion(false) {}
     ~QComboBoxPrivate() {}
@@ -209,12 +209,12 @@ public:
     QAbstractItemModel *model;
     QLineEdit *lineEdit;
     ItemViewContainer *container;
-    QComboBox::InsertionPolicy insertionPolicy;
+    QComboBox::InsertPolicy insertPolicy;
     bool autoCompletion;
     bool duplicatesEnabled;
     bool autoHide;
     bool arrowDown;
-    int sizeLimit;
+    int maxVisibleItems;
     int maxCount;
     bool skipCompletion;
     mutable QSize sizeHint;

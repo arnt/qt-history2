@@ -75,8 +75,8 @@ void Window::createControls(const QString &title)
     valueSpinBox->setValue(10);
 
     orientationCombo = new QComboBox(controlsGroup);
-    orientationCombo->insertItem(tr("Horizontal sliders"));
-    orientationCombo->insertItem(tr("Vertical sliders"));
+    orientationCombo->addItem(tr("Horizontal sliders"));
+    orientationCombo->addItem(tr("Vertical sliders"));
 
     connect(orientationCombo, SIGNAL(activated(int)),
             pages, SLOT(setCurrentIndex(int)));

@@ -21,7 +21,7 @@ PimEditor::PimEditor(QWidget *parent)
       cancelButton(0)
 {
     QGridLayout *grid = new QGridLayout(this);
-    
+
     photoButton = new QPushButton(this);
     grid->addWidget(photoButton, 0, 0, 1, 2, Qt::AlignCenter);
     connect(photoButton, SIGNAL(clicked()), this, SLOT(photo()));

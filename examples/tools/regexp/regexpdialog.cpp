@@ -6,7 +6,7 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     patternComboBox = new QComboBox(this);
     patternComboBox->setEditable(true);
     patternComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    patternComboBox->insertItem(tr("([A-Za-z_])([A-Za-z_0-9]*)"));
+    patternComboBox->addItem(tr("([A-Za-z_])([A-Za-z_0-9]*)"));
 
     patternLabel = new QLabel(tr("&Pattern:"), this);
     patternLabel->setBuddy(patternComboBox);
@@ -14,7 +14,7 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     textComboBox = new QComboBox(this);
     textComboBox->setEditable(true);
     textComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    textComboBox->insertItem(tr("(10 + delta4) * 32"));
+    textComboBox->addItem(tr("(10 + delta4) * 32"));
 
     textLabel = new QLabel(tr("&Text:"), this);
     textLabel->setBuddy(textComboBox);
