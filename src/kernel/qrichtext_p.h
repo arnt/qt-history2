@@ -228,7 +228,7 @@ public:
 
 private:
     void checkBidi() const;
-    
+
     QMemArray<QTextStringChar> data;
     uint textChanged : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
@@ -1339,7 +1339,7 @@ public:
 
     void setDirection( QChar::Direction d );
     QChar::Direction direction() const;
-    
+
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
@@ -1506,7 +1506,7 @@ public:
 	Format = Font | Color | Misspelled | VAlign
     };
 
-    enum VerticalAlignment { AlignNormal, AlignSubScript, AlignSuperScript };
+    enum VerticalAlignment { AlignNormal, AlignSuperScript, AlignSubScript };
 
     QTextFormat();
     virtual ~QTextFormat() {}
