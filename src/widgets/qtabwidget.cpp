@@ -512,6 +512,7 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
         t->label = l;
     d->tabs->layoutTabs();
     d->tabs->update();
+    setUpLayout();
 }
 
 /*! Returns a pointer to the page currently being displayed by the
@@ -687,7 +688,7 @@ QSize QTabWidget::minimumSizeHint() const
  */
 void QTabWidget::showEvent( QShowEvent * )
 {
-    setUpLayout( TRUE );
+    setUpLayout();
 }
 
 
