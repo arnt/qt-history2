@@ -45,6 +45,7 @@
 #include "qpopupmenu.h"
 #include "qmessagebox.h"
 #include "qbitarray.h"
+#include "qvaluelist.h"
 
 #ifndef QT_NO_SQL
 
@@ -103,6 +104,7 @@ public:
     QStringList srt;
     QStringList fld;
     QStringList fldLabel;
+    QValueList< QIconSet > fldIcon;
 };
 
 /*! \enum QSqlTable::Confirm
@@ -246,10 +248,11 @@ QSqlTable::~QSqlTable()
 
 */
 
-void QSqlTable::addColumn( const QString& fieldName, const QString& label )
+void QSqlTable::addColumn( const QString& fieldName, const QString& label, const QIconSet& iconset )
 {
     d->fld += fieldName;
     d->fldLabel += label;
+    d->fldIcon += iconset;
 }
 
 /*!  Sets column \a col to display field \a field.  If \a label is
@@ -260,10 +263,11 @@ void QSqlTable::addColumn( const QString& fieldName, const QString& label )
 
 */
 
-void QSqlTable::setColumn( uint col, const QString& fieldName, const QString& label )
+void QSqlTable::setColumn( uint col, const QString& fieldName, const QString& label, const QIconSet& iconset )
 {
     d->fld[col]= fieldName;
     d->fldLabel[col] = label;
+    d->fldIcon[col] = iconset;
 }
 
 /*!  Removes column \a col from the list of columns to be diplayed.
@@ -278,6 +282,7 @@ void QSqlTable::removeColumn( uint col )
     if ( d->fld.at( col ) != d->fld.end() ) {
 	d->fld.remove( d->fld.at( col ) );
 	d->fldLabel.remove( d->fldLabel.at( col ) );
+	d->fldIcon.remove( d->fldIcon.at( col ) );
     }
 }
 
@@ -1175,6 +1180,7 @@ void QSqlTable::reset()
     d->lastAt = -1;
     d->fld.clear();
     d->fldLabel.clear();
+    d->fldIcon.clear();
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
@@ -1747,9 +1753,7 @@ void QSqlTable::refresh()
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
 	    field = cur->field( d->fld[ i ] );
-	    if ( field &&
-		 cur->isVisible( field->name() ) &&
-		 !cur->primaryIndex().contains( field->name() ) ) {
+	    if ( field && cur->isVisible( field->name() ) && !cur->primaryIndex().contains( field->name() ) ) {
 		setNumCols( numCols() + 1 );
 		d->colIndex.append( cur->position( field->name() ) );
 		setColumnReadOnly( numCols()-1, field->isReadOnly() );
@@ -1757,7 +1761,8 @@ void QSqlTable::refresh()
 		QString label = d->fldLabel[ i ];
 		if ( label == QString::null )
 		    label = cur->displayLabel( field->name() );
-		h->setLabel( numCols()-1, label );
+		QIconSet icons = d->fldIcon[ i ];
+		h->setLabel( numCols()-1, icons, label );
 	    }
 	}
     }

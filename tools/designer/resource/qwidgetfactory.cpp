@@ -211,17 +211,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    if ( !table )
 		continue;
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
-	    if ( !fieldMap.isEmpty() ) {
-		    int i = 0;
-		    for ( QValueList<Field>::Iterator fit = fieldMap.begin(); fit != fieldMap.end(); ++fit, ++i ) {
-			table->addColumn( (*fit).field, (*fit).name );
-			// ## pixmap support for QSqlTable?
-//			if ( !(*fit).pix.isNull() )
-//			    table->horizontalHeader()->setLabel( i, (*fit).pix, (*fit).name );
-//			else
-//			    table->horizontalHeader()->setLabel( i, (*fit).name );
-		    }
-	    }
 	    QString conn = (*it)[ 0 ];
 	    QSqlCursor* c = 0;
 	    if ( conn.isEmpty() || conn == "(default)" )
@@ -229,7 +218,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    else
 		c = new QSqlCursor( (*it)[ 1 ], conn );
 	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
-	    table->refresh();
+	    table->refresh();  //## don't like this, should be done automatically, or elsewhere?
 	}
 #endif
 
@@ -1114,18 +1103,13 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
     } else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
 #ifndef QT_NO_SQL
-	bool isAlterable = (!widget->inherits( "QSqlTable" )); // sql table columns added in create()
-#else
-	bool isAlterable = TRUE;
+	bool isSql = (widget->inherits( "QSqlTable" ));
 #endif
 	bool isRow;
-	if ( ( isRow = e.tagName() == "row" ) ) {
-	    if ( isAlterable )
-		table->setNumRows( table->numRows() + 1 );
-	} else {
-	    if ( isAlterable )
-		table->setNumCols( table->numCols() + 1 );
-	}
+	if ( ( isRow = e.tagName() == "row" ) )
+	    table->setNumRows( table->numRows() + 1 );
+	else
+	    table->setNumCols( table->numCols() + 1 );
 
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
@@ -1155,10 +1139,21 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 
 	int i = isRow ? table->numRows() - 1 : table->numCols() - 1;
 	QHeader *h = !isRow ? table->horizontalHeader() : table->verticalHeader();
-	if ( hasPixmap && isAlterable )
-	    h->setLabel( i, pix, txt );
-	else if ( isAlterable )
-	    h->setLabel( i, txt );
+	if ( hasPixmap ) {
+#ifndef QT_NO_SQL
+	    if ( isSql )
+		((QSqlTable*)table)->addColumn( field, txt, pix );
+	    else
+#endif
+		h->setLabel( i, pix, txt );
+	} else {
+#ifndef QT_NO_SQL
+	    if ( isSql )
+		((QSqlTable*)table)->addColumn( field, txt );
+	    else
+#endif
+		h->setLabel( i, txt );
+	}
 	if ( !isRow && !field.isEmpty() ) {
 	    fieldMap.append( Field( txt, hasPixmap ? pix : QPixmap(), field ) );
 	    fieldMaps.insert( table, fieldMap );

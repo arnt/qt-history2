@@ -45,6 +45,7 @@
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
 #include "qsqlnavigator.h"
+#include "qiconset.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -76,9 +77,9 @@ public:
     QSqlTable ( QSqlCursor* cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 );
     ~QSqlTable();
 
-    virtual void addColumn( const QString& fieldName, const QString& label = QString::null );
+    virtual void addColumn( const QString& fieldName, const QString& label = QString::null, const QIconSet& iconset = QIconSet() );
     virtual void removeColumn( uint col );
-    virtual void setColumn( uint col, const QString& fieldName, const QString& label = QString::null );
+    virtual void setColumn( uint col, const QString& fieldName, const QString& label = QString::null, const QIconSet& iconset = QIconSet() );
 
     QString      nullText() const;
     QString      trueText() const;
