@@ -318,13 +318,13 @@ QImage QPixmap::convertToImage() const
             arow = (long *)((char *)aptr + (yy * abpr));
         for(int xx=0;xx<w;xx++) {
             r = *(srow + xx);
-            q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (arow ? ~(*(arow + xx) & 0xFF): 0xFF));
+            q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (arow ? ~(*(arow + xx) & 0xFF) : 0xFF));
             if(d == 1)
-                image.setPixel(xx, yy, q ? 0 : 1);
+                image.setPixel(xx, yy, (q & RGB_MASK) ? 0 : 1);
             else if(ncols)
                 image.setPixel(xx, yy, get_index(&image,q));
             else
-                image.setPixel(xx,yy,q);
+                image.setPixel(xx, yy, q);
         }
     }
 
