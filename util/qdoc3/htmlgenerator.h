@@ -53,8 +53,11 @@ private:
     void generateNavigationBar( const NavigationBar& bar, const Node *node,
     				CodeMarker *marker );
 #endif
-    void generateTableOfContents(const Node *node, CodeMarker *marker);
+    void generateTableOfContents(const Node *node, CodeMarker *marker,
+                                 Doc::SectioningUnit sectioningUnit, int numColumns);
     QString generateListOfAllMemberFile(const InnerNode *inner, CodeMarker *marker);
+    QString generateLowStatusMemberFile(const InnerNode *inner, CodeMarker *marker,
+                                        CodeMarker::Status status);
     void generateClassHierarchy(const Node *relative, CodeMarker *marker,
 				const QMap<QString, const Node *> &classMap);
     void generateAnnotatedList(const Node *relative, CodeMarker *marker,
@@ -74,6 +77,7 @@ private:
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );
     QString highlightedCode( const QString& markedCode, const Node *relative );
+    QString fileBase(const Node *node);
 #if 0
     QString fileBase( const Node *node, const SectionIterator& section );
 #endif
@@ -103,6 +107,7 @@ private:
     const Tree *tre;
     QMap<QString, const Node *> allClasses;
     QMap<QString, const Node *> mainClasses;
+    QMap<QString, const Node *> compatClasses;
     QMap<QString, QMap<QString, const Node *> > funcIndex;
     QMap<Text, const Node *> legaleseTexts;
 };

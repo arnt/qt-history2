@@ -21,6 +21,7 @@ base			= file:$QTDIR/doc/html/
 versionsym		= QT_VERSION_STR
 defines			= Q_QDOC \
 			  QT_.*_SUPPORT \
+			  QT_COMPAT \
 			  Q_WS_.* \
 			  Q_OS_.*
 

@@ -36,11 +36,11 @@ enum {
     CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3, CMD_ENDSECTION4, CMD_ENDSIDEBAR,
     CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE, CMD_GENERATELIST, CMD_GRANULARITY, CMD_HEADER, CMD_I,
     CMD_IF, CMD_IMAGE, CMD_INCLUDE, CMD_INLINEIMAGE, CMD_INDEX, CMD_KEYWORD, CMD_L, CMD_LEGALESE,
-    CMD_LINK, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO,
-    CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW,
-    CMD_ROW, CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE,
-    CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET,
-    CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
+    CMD_LINK, CMD_LIST, CMD_NEWCODE, CMD_O, CMD_OLDCODE, CMD_OMIT, CMD_OMITVALUE, CMD_PART,
+    CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE,
+    CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4,
+    CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE,
+    CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
 };
 
 static struct {
@@ -92,7 +92,9 @@ static struct {
     { "legalese", CMD_LEGALESE, 0 },
     { "link", CMD_LINK, 0 },
     { "list", CMD_LIST, 0 },
+    { "newcode", CMD_NEWCODE, 0 },
     { "o", CMD_O, 0 },
+    { "oldcode", CMD_OLDCODE, 0 },
     { "omit", CMD_OMIT, 0 },
     { "omitvalue", CMD_OMITVALUE, 0 },
     { "part", CMD_PART, 0 },
@@ -157,7 +159,7 @@ struct Shared // ### get rid of
 
 static QString cleanLink(const QString &link)
 {
-    int colonPos = link.find(':');
+    int colonPos = link.indexOf(':');
     if (colonPos == -1 || (!link.startsWith("file:") && !link.startsWith("mailto:")))
         return link;
     return link.mid(colonPos + 1);
@@ -260,6 +262,7 @@ private:
     QString getRestOfLine();
     QString getMetaCommandArgument(const QString &commandStr);
     QString getUntilEnd(int command);
+    QString getCode(int command, CodeMarker *marker);
 
     bool isBlankLine();
     bool isLeftBraceAhead();
@@ -331,8 +334,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     CodeMarker *marker;
     QString link;
     QString x;
-    int begin;
-    int indent;
     QStack<bool> preprocessorSkipping;
     int numPreprocessorSkipping = 0;
     bool inLegalese = false;
@@ -343,7 +344,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 	if ( ch == '\\' ) {
 	    QString commandStr;
 	    pos++;
-	    begin = pos;
 	    while ( pos < len ) {
 		ch = in[pos];
 		if ( ch.isLetterOrNumber() ) {
@@ -410,15 +410,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_CODE:
 		    leavePara();
-		    begin = pos;
-		    x = getUntilEnd( command );
-		    x = untabifyEtc( x );
-		    indent = indentLevel( x );
-		    if ( indent < minIndent )
-			minIndent = indent;
-		    x = unindent( minIndent, x );
-		    marker = CodeMarker::markerForCode( x );
-		    append( Atom::Code, marker->markedUpCode(x, 0, "") );
+                    append(Atom::Code, getCode(CMD_CODE, marker));
 		    break;
 		case CMD_ELSE:
 		    if (preprocessorSkipping.size() > 0) {
@@ -642,6 +634,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 						     getOptionalArgument()) );
 		    }
 		    break;
+                case CMD_NEWCODE:
+                    location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_NEWCODE)));
+                    break;
 		case CMD_O:
 		    leavePara();
                     if (openedCommands.top() == CMD_LIST) {
@@ -683,6 +678,11 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 					   .arg(commandName(CMD_LIST))
                                            .arg(commandName(CMD_TABLE)));
 		    }
+		    break;
+                case CMD_OLDCODE:
+		    leavePara();
+                    append(Atom::CodeOld, getCode(CMD_OLDCODE, marker));
+                    append(Atom::CodeNew, getCode(CMD_NEWCODE, marker));
 		    break;
 		case CMD_OMIT:
 		    getUntilEnd( command );
@@ -743,7 +743,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_RAW:
 		    leavePara();
-		    begin = pos;
                     x = getRestOfLine();
                     if (x.isEmpty())
                         location().warning(tr("Missing format name after '\\%1")
@@ -809,14 +808,19 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		case CMD_TABLE:
 		    if ( openCommand(command) ) {
 			leavePara();
-			append( Atom::TableLeft );
+			append(Atom::TableLeft);
                         inTableHeader = false;
                         inTableRow = false;
                         inTableItem = false;
 		    }
 		    break;
 		case CMD_TABLEOFCONTENTS:
-		    append(Atom::TableOfContents, QString::number((int)getSectioningUnit()));
+                    x = "1";
+                    if (isLeftBraceAhead())
+                        x = getArgument();
+                    x += ",";
+                    x += QString::number((int)getSectioningUnit());
+		    append(Atom::TableOfContents, x);
 		    break;
 		case CMD_TARGET:
 		    insertTarget( getArgument() );
@@ -1638,7 +1642,7 @@ QString DocParser::getUntilEnd(int command)
     int endCommand = endCommandFor( command );
     QRegExp rx( "\\\\" + commandName(endCommand) + "\\b" );
     QString t;
-    int end = rx.search( in, pos );
+    int end = rx.indexIn( in, pos );
 
     if ( end == -1 ) {
 	location().warning(tr("Missing '\\%1'").arg(commandName(endCommand)));
@@ -1648,6 +1652,17 @@ QString DocParser::getUntilEnd(int command)
 	pos = end + rx.matchedLength();
     }
     return t;
+}
+
+QString DocParser::getCode(int command, CodeMarker *marker)
+{
+    QString code = untabifyEtc(getUntilEnd(command));
+    int indent = indentLevel(code);
+    if (indent < minIndent)
+        minIndent = indent;
+    code = unindent(minIndent, code);
+    marker = CodeMarker::markerForCode(code);
+    return marker->markedUpCode(code, 0, "");
 }
 
 bool DocParser::isBlankLine()
@@ -1709,7 +1724,7 @@ void DocParser::skipToNextPreprocessorCommand()
 {
     QRegExp rx("\\\\(?:" + commandName(CMD_IF) + "|" + commandName(CMD_ELSE) + "|"
 	       + commandName(CMD_ENDIF) + ")\\b");
-    int end = rx.search(in, pos + 1); // ### + 1 necessary?
+    int end = rx.indexIn(in, pos + 1); // ### + 1 necessary?
 
     if (end == -1)
 	pos = in.length();
@@ -1732,6 +1747,10 @@ int DocParser::endCommandFor( int command )
         return CMD_ENDLINK;
     case CMD_LIST:
 	return CMD_ENDLIST;
+    case CMD_NEWCODE:
+        return CMD_ENDCODE;
+    case CMD_OLDCODE:
+        return CMD_NEWCODE;
     case CMD_OMIT:
 	return CMD_ENDOMIT;
     case CMD_PART:

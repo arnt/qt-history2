@@ -271,7 +271,7 @@ node->doc().body().dump();
 		        node->doc().location().warning(tr("No such parameter '%1'").arg(*a),
 						       details);
 		    } else if ( !(*a).isEmpty() && !documentedParams.contains(*a) ) {
-			bool needWarning = true;
+			bool needWarning = (func->status() > Node::Obsolete);
 			if (func->overloadNumber() > 1) {
 			    FunctionNode *primaryFunc =
 				    func->parent()->findFunctionNode(func->name());
@@ -527,11 +527,22 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
              << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD ) << Atom::ParaRight;
 	break;
     case Node::Obsolete:
-	text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
-	     << typeString( node ) << " is obsolete."
-	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
-	     << " It is provided to keep old source code working. We strongly advise against using "
-             << "it in new code." << Atom::ParaRight;
+        if (node->isInnerNode()) {
+	    text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	         << typeString( node ) << " is obsolete."
+	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
+	         << " It is provided to keep old source code working. We strongly advise against "
+                 << "using it in new code." << Atom::ParaRight;
+        }
+        break;
+    case Node::Compat:
+        if (node->isInnerNode()) {
+	    text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	         << typeString( node ) << " is part of the Qt 3 compatibility library."
+	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
+	         << " It is provided to keep old source code working. We strongly advise against "
+                 << "using it in new code." << Atom::ParaRight;
+        }
     }
     generateText(text, node, marker);
 }

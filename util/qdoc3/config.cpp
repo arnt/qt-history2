@@ -478,7 +478,7 @@ void Config::load( Location location, const QString& fileName )
     QFile fin( fileName );
     if ( !fin.open(IO_ReadOnly | IO_Translate) ) {
 	fin.setName(fileName + ".qdoc");
-	if (!fin.open(IO_ReadOnly))
+	if (!fin.open(IO_ReadOnly | IO_Translate))
 	    location.fatal( tr("Cannot open file '%1'").arg(fileName) );
     }
 

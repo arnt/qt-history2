@@ -3,6 +3,7 @@
 */
 
 #include <qfile.h>
+#include <qfileinfo.h>
 
 #include "pagegenerator.h"
 #include "tree.h"
@@ -58,6 +59,11 @@ QString PageGenerator::fileBase(const Node *node)
 QString PageGenerator::fileName( const Node *node )
 {
     return fileBase( node ) + "." + fileExtension();
+}
+
+QString PageGenerator::outFileName()
+{
+    return QFileInfo(static_cast<QFile *>(out().device())->fileName()).fileName();
 }
 
 void PageGenerator::beginSubPage( const Location& location,

@@ -226,9 +226,15 @@ QString QsCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "^}";
 }
 
-QList<Section> QsCodeMarker::classSections( const ClassNode *classe, SynopsisStyle style )
+QList<Section> QsCodeMarker::sections( const InnerNode *inner, SynopsisStyle style, Status status )
 {
     QList<Section> sections;
+
+    if (inner->type() != Node::Class)
+        return sections;
+
+    const ClassNode *classe = static_cast<const ClassNode *>(inner);
+
     if ( style == Summary ) {
 	FastSection enums(classe, "Enums", "enum", "enums");
 	FastSection functions(classe, "Functions", "function", "functions");
@@ -246,21 +252,21 @@ QList<Section> QsCodeMarker::classSections( const ClassNode *classe, SynopsisSty
 	    while ( c != ancestorClass->childNodes().end() ) {
 		if ( (*c)->access() == Node::Public ) {
 		    if ( (*c)->type() == Node::Enum ) {
-			insert( enums, *c, style );
+			insert( enums, *c, style, status );
 		    } else if ( (*c)->type() == Node::Function ) {
 			const FunctionNode *func = (const FunctionNode *) *c;
 			if ( func->metaness() == FunctionNode::Signal ) {
-			    insert( signalz, *c, style );
+			    insert( signalz, *c, style, status );
 			} else {
-			    insert( functions, *c, style );
+			    insert( functions, *c, style, status );
 			}
 		    } else if ( (*c)->type() == Node::Property ) {
 			const PropertyNode *property =
 				(const PropertyNode *) *c;
 			if ( property->setters().isEmpty() ) {
-			    insert( readOnlyProperties, *c, style );
+			    insert( readOnlyProperties, *c, style, status );
 			} else {
-			    insert( writableProperties, *c, style );
+			    insert( writableProperties, *c, style, status );
 			}
 		    }
 		}
@@ -287,11 +293,11 @@ QList<Section> QsCodeMarker::classSections( const ClassNode *classe, SynopsisSty
 	while ( c != classe->childNodes().end() ) {
 	    if ( (*c)->access() == Node::Public ) {
 		if ( (*c)->type() == Node::Enum ) {
-		    insert( enums, *c, style );
+		    insert( enums, *c, style, status );
 		} else if ( (*c)->type() == Node::Function ) {
-		    insert( functionsAndSignals, *c, style );
+		    insert( functionsAndSignals, *c, style, status );
 		} else if ( (*c)->type() == Node::Property ) {
-		    insert( properties, *c, style );
+		    insert( properties, *c, style, status );
 		}
 	    }
 	    ++c;
@@ -311,7 +317,7 @@ QList<Section> QsCodeMarker::classSections( const ClassNode *classe, SynopsisSty
 	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
 	    while ( c != ancestorClass->childNodes().end() ) {
 		if ( (*c)->access() == Node::Public )
-		    insert( all, *c, style );
+		    insert( all, *c, style, status );
 		++c;
 	    }
 
@@ -324,12 +330,6 @@ QList<Section> QsCodeMarker::classSections( const ClassNode *classe, SynopsisSty
 	append( sections, all );
     }
     return sections;
-}
-
-QList<Section> QsCodeMarker::nonclassSections(const InnerNode * /* innerNode */,
-					      SynopsisStyle /* style */)
-{
-     return QList<Section>();
 }
 
 const Node *QsCodeMarker::resolveTarget( const QString& /* target */,

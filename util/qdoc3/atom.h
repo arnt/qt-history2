@@ -11,13 +11,13 @@ class Atom
 {
 public:
     enum Type { AbstractLeft, AbstractRight, BaseName, BriefLeft, BriefRight, C, CaptionLeft,
-                CaptionRight, Code, FootnoteLeft, FootnoteRight, FormatElse, FormatEndif, FormatIf,
-                FormattingLeft, FormattingRight, GeneratedList, Image, ImageText, InlineImage,
-                LegaleseLeft, LegaleseRight, Link, LinkNode, ListLeft, ListItemNumber, ListTagLeft,
-                ListTagRight, ListItemLeft, ListItemRight, ListRight, Nop, ParaLeft, ParaRight,
-                QuotationLeft, QuotationRight, RawString, SectionLeft, SectionRight,
-                SectionHeadingLeft, SectionHeadingRight, SidebarLeft, SidebarRight, String,
-                TableLeft, TableRight, TableHeaderLeft, TableHeaderRight, TableRowLeft,
+                CaptionRight, Code, CodeNew, CodeOld, FootnoteLeft, FootnoteRight, FormatElse,
+                FormatEndif, FormatIf, FormattingLeft, FormattingRight, GeneratedList, Image,
+                ImageText, InlineImage, LegaleseLeft, LegaleseRight, Link, LinkNode, ListLeft,
+                ListItemNumber, ListTagLeft, ListTagRight, ListItemLeft, ListItemRight, ListRight,
+                Nop, ParaLeft, ParaRight, QuotationLeft, QuotationRight, RawString, SectionLeft,
+                SectionRight, SectionHeadingLeft, SectionHeadingRight, SidebarLeft, SidebarRight,
+                String, TableLeft, TableRight, TableHeaderLeft, TableHeaderRight, TableRowLeft,
                 TableRowRight, TableItemLeft, TableItemRight, TableOfContents, Target,
                 UnhandledFormat, UnknownCommand, Last = UnknownCommand };
 

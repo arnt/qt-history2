@@ -19,7 +19,7 @@ class Node
 public:
     enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property };
     enum Access { Public, Protected, Private };
-    enum Status { Obsolete, Deprecated, Preliminary, Commendable, Main }; // don't reorder
+    enum Status { Compat, Obsolete, Deprecated, Preliminary, Commendable, Main }; // don't reorder
     enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
 
     virtual ~Node();

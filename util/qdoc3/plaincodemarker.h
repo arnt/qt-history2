@@ -27,8 +27,7 @@ public:
     QString markedUpIncludes( const QStringList& includes );
     QString functionBeginRegExp( const QString& funcName );
     QString functionEndRegExp( const QString& funcName );
-    QList<Section> classSections(const ClassNode *classe, SynopsisStyle style);
-    QList<Section> nonclassSections(const InnerNode *innerNode, SynopsisStyle style);
+    QList<Section> sections(const InnerNode *innerNode, SynopsisStyle style, Status status);
     const Node *resolveTarget(const QString &target, const Tree *tree, const Node *relative);
 };
   

@@ -76,7 +76,7 @@ static void processQdocFile(const QString &fileName)
     int i = 0;
     while (defaults[i].key) {
 	config.setStringList(defaults[i].key, QStringList() << defaults[i].value);
-	i++;
+	++i;
     }
 
     Location::initialize( config );

@@ -177,7 +177,7 @@ QString CodeMarker::sortName( const Node *node )
     }
 }
 
-void CodeMarker::insert(FastSection &fastSection, Node *node, SynopsisStyle style)
+void CodeMarker::insert(FastSection &fastSection, Node *node, SynopsisStyle style, Status status)
 {
     bool inheritedMember = (!node->relates() &&
 			    (node->parent() != (const InnerNode *)fastSection.innerNode));
@@ -198,6 +198,16 @@ void CodeMarker::insert(FastSection &fastSection, Node *node, SynopsisStyle styl
             if (typedeffe->associatedEnum())
                 irrelevant = true;
         }
+    }
+
+    if (!irrelevant) {
+        if (status == Compat) {
+            irrelevant = (node->status() != Node::Compat);
+	} else if (status == Obsolete) {
+            irrelevant = (node->status() != Node::Obsolete);
+	} else {
+            irrelevant = (node->status() == Node::Compat || node->status() == Node::Obsolete);
+	}
     }
 
     if ( !irrelevant ) {

@@ -516,18 +516,32 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     QStringList parentPath;
     QString name;
 
+    bool compat = false;
+
     if (match(Tok_friend))
 	return false;
-    bool sta = match(Tok_static);
+    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+        compat = true;
+    bool sta = false;
+    if (match(Tok_static)) {
+        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+            compat = true;
+    }
     FunctionNode::Virtualness vir = FunctionNode::NonVirtual;
-    if ( match(Tok_virtual) )
+    if (match(Tok_virtual)) {
 	vir = FunctionNode::ImpureVirtual;
+        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+            compat = true;
+    }
 
     if ( !matchDataType(&returnType) )
 	return FALSE;
 
     if (returnType.toString() == "QBool")
 	returnType = CodeChunk("bool");
+
+    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+        compat = true;
 
     if (tok == Tok_operator &&
 	 (returnType.toString().isEmpty() || returnType.toString().endsWith("::"))) {
@@ -580,6 +594,8 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     func->setAccess(access);
     func->setLocation(location());
     func->setReturnType(returnType.toString());
+    if (compat)
+        func->setStatus(Node::Compat);
 
     func->setMetaness(metaness);
     if (parent) {

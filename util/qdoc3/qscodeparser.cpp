@@ -57,7 +57,7 @@ void QsCodeParser::initializeParser( const Config& config )
     while ( r != replaces.end() ) {
 	if ( replaceRegExp.exactMatch(*r) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
-	    before.setMinimal( TRUE );
+	    before.setMinimalMatching( TRUE );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
@@ -343,7 +343,7 @@ void QsCodeParser::extractTarget( const QString& target, QString& source,
 	    "(\\\\target\\s+(\\S+)[^\n]*\n"
 	    "(?:(?!\\s*\\\\code)[^\n]+\n|\\s*\\\\code.*\\\\endcode\\s*\n)*)"
 	    "(?:\\s*\n|[^\n]*$)" );
-    targetRegExp.setMinimal( TRUE );
+    targetRegExp.setMinimalMatching( TRUE );
 
     int pos = 0;
     while ( (pos = source.indexOf(targetRegExp, pos)) != -1 ) {
@@ -363,13 +363,13 @@ void QsCodeParser::renameParameters( QString& source, const Doc& /* doc */,
     QRegExp paramRegExp( "(\\\\a\\s*\\{?\\s*)([A-Za-z0-9_]+)" );
 
     int pos = 0;
-    while ( (pos = paramRegExp.search(source, pos)) != -1 ) {
+    while ( (pos = paramRegExp.indexIn(source, pos)) != -1 ) {
 	pos += paramRegExp.cap( 1 ).length();
 	QString before = paramRegExp.cap( 2 );
-	int index = qtParams.findIndex( before );
+	int index = qtParams.indexOf( before );
 	if ( index != -1 ) {
 	    QString after = quickParams[index];
-	    source.replace( pos, before.length(), after );
+	    source.replace( pos, before.size(), after );
 	}
     }
 }
@@ -381,15 +381,15 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
     while ( a != args.end() ) {
 	if ( replaceRegExp.exactMatch(*a) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
-	    before.setMinimal( TRUE );
+	    before.setMinimalMatching( TRUE );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
-		int oldLen = source.length();
+		int oldLen = source.size();
 		source.replace( before, after );
 
 		// this condition is sufficient but not necessary
-		if ( oldLen == source.length() && !source.contains(after) )
+		if ( oldLen == source.size() && !source.contains(after) )
 		    doc.location().warning(
 			    tr("Regular expression '%1' did not match anything")
 			    .arg(before.pattern()) );
@@ -406,11 +406,11 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
     }
 
     QRegExp codeRegExp( "\\\\" + COMMAND_CODE + "(.*)\\\\" + COMMAND_ENDCODE );
-    codeRegExp.setMinimal( TRUE );
+    codeRegExp.setMinimalMatching( TRUE );
 
     QRegExp quickcodeRegExp(
 	    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" + COMMAND_ENDQUICKCODE );
-    quickcodeRegExp.setMinimal( TRUE );
+    quickcodeRegExp.setMinimalMatching( TRUE );
 
     int quickcodePos = doc.source().indexOf( quickcodeRegExp );
     if ( quickcodePos != -1 ) {
@@ -760,7 +760,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 	    QRegExp quickcodeRegExp(
 		    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" +
 		    COMMAND_ENDQUICKCODE );
-	    quickcodeRegExp.setMinimal( TRUE );
+	    quickcodeRegExp.setMinimalMatching( TRUE );
 	    source.replace( quickcodeRegExp, "" );
 	}
 

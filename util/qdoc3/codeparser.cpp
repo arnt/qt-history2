@@ -6,6 +6,7 @@
 #include "node.h"
 #include "tree.h"
 
+#define COMMAND_COMPAT                  Doc::alias("compat")
 #define COMMAND_DEPRECATED              Doc::alias("deprecated")
 #define COMMAND_INGROUP                 Doc::alias("ingroup")
 #define COMMAND_INMODULE                Doc::alias("inmodule")
@@ -85,16 +86,18 @@ CodeParser *CodeParser::parserForLanguage( const QString& language )
 
 Set<QString> CodeParser::commonMetaCommands()
 {
-    return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP << COMMAND_INMODULE
-			  << COMMAND_INTERNAL << COMMAND_MAINCLASS << COMMAND_NONREENTRANT
-                          << COMMAND_OBSOLETE << COMMAND_PRELIMINARY << COMMAND_REENTRANT
-                          << COMMAND_THREADSAFE << COMMAND_TITLE;
+    return Set<QString>() << COMMAND_COMPAT << COMMAND_DEPRECATED << COMMAND_INGROUP
+                          << COMMAND_INMODULE << COMMAND_INTERNAL << COMMAND_MAINCLASS
+                          << COMMAND_NONREENTRANT << COMMAND_OBSOLETE << COMMAND_PRELIMINARY
+                          << COMMAND_REENTRANT << COMMAND_THREADSAFE << COMMAND_TITLE;
 }
 
 void CodeParser::processCommonMetaCommand(const Location &location, const QString &command,
 					  const QString &arg, Node *node, Tree *tree)
 {
-    if ( command == COMMAND_DEPRECATED ) {
+    if (command == COMMAND_COMPAT) {
+        node->setStatus(Node::Compat);
+    } else if ( command == COMMAND_DEPRECATED ) {
 	node->setStatus( Node::Deprecated );
     } else if ( command == COMMAND_INGROUP ) {
 	tree->addToGroup(node, arg);

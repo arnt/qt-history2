@@ -6,7 +6,7 @@
 #define CODEMARKER_H
 
 #include <qpair.h>
-#include <qregexp.h>
+#include <QRegExp>
 
 #include "node.h"
 
@@ -47,6 +47,7 @@ class CodeMarker
 {
 public:
     enum SynopsisStyle { Summary, Detailed, SeparateList };
+    enum Status { Compat, Obsolete, Okay };
 
     CodeMarker();
     virtual ~CodeMarker();
@@ -69,8 +70,7 @@ public:
     virtual QString markedUpIncludes( const QStringList& includes ) = 0;
     virtual QString functionBeginRegExp( const QString& funcName ) = 0;
     virtual QString functionEndRegExp( const QString& funcName ) = 0;
-    virtual QList<Section> classSections( const ClassNode *classe, SynopsisStyle style ) = 0;
-    virtual QList<Section> nonclassSections(const InnerNode *innerNode, SynopsisStyle style) = 0;
+    virtual QList<Section> sections(const InnerNode *inner, SynopsisStyle style, Status status) = 0;
     virtual const Node *resolveTarget(const QString& target, const Tree *tree,
 		                      const Node *relative) = 0;
 
@@ -87,7 +87,7 @@ protected:
     QString protect( const QString& string );
     QString taggedNode( const Node *node );
     QString linkTag( const Node *node, const QString& body );
-    void insert(FastSection &fastSection, Node *node, SynopsisStyle style);
+    void insert(FastSection &fastSection, Node *node, SynopsisStyle style, Status status);
     void append( QList<Section>& sectionList, const FastSection& fastSection );
 
 private:

@@ -83,14 +83,9 @@ QString PlainCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "";
 }
 
-QList<Section> PlainCodeMarker::classSections(const ClassNode * /* classe */,
-					      SynopsisStyle /* style */)
-{
-    return QList<Section>();
-}
-
-QList<Section> PlainCodeMarker::nonclassSections(const InnerNode * /* innerNode */,
-					         SynopsisStyle /* style */)
+QList<Section> PlainCodeMarker::sections(const InnerNode * /* innerNode */,
+                                         SynopsisStyle /* style */,
+					 Status /* status */)
 {
      return QList<Section>();
 }

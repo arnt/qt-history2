@@ -154,7 +154,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
             }
             QStringList omitItems = enume->doc().omitEnumItemNames();
             foreach (QString item, omitItems)
-                documentedItems.remove(item);
+                documentedItems.removeAll(item);
 
             if (documentedItems.size() <= MaxEnumValues) {
                 for (int i = 0; i < documentedItems.size(); ++i) {
@@ -271,230 +271,229 @@ QString CppCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "^}";
 }
 
-QList<Section> CppCodeMarker::classSections(const ClassNode *classe, SynopsisStyle style)
+QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle style, Status status)
 {
     QList<Section> sections;
 
-    if ( style == Summary ) {
-	FastSection privateFunctions(classe, "Private Functions", "private function",
-				     "private functions");
-	FastSection privateSlots(classe, "Private Slots", "private slot", "private slots");
-	FastSection privateTypes(classe, "Private Types", "private type", "private types");
-	FastSection protectedFunctions(classe, "Protected Functions", "protected function",
-				       "protected functions");
-	FastSection protectedSlots(classe, "Protected Slots", "protected slot", "protected slots");
-	FastSection protectedTypes(classe, "Protected Types", "protected type", "protected types");
-	FastSection publicFunctions(classe, "Public Functions", "public function",
-				    "public functions");
-	FastSection publicSignals(classe, "Signals", "signal", "signals" );
-	FastSection publicSlots(classe, "Public Slots", "public slot", "public slots");
-	FastSection publicTypes(classe, "Public Types", "public type", "public types");
-	FastSection readOnlyProperties(classe, "Read-Only Properties", "read-only property",
-				       "read-only properties");
-	FastSection relatedNonMembers(classe, "Related Non-Members", "related non-member",
-                                      "related non-members");
-	FastSection staticPrivateMembers(classe, "Static Private Members", "static private member",
-					 "static private members");
-	FastSection staticProtectedMembers(classe, "Static Protected Members",
-					   "static protected member", "static protected members");
-	FastSection staticPublicMembers(classe, "Static Public Members", "static public member",
-					"static public members");
-	FastSection writableProperties(classe, "Writable Properties", "writable property",
-				       "writable properties");
+    if (inner->type() == Node::Class) {
+        const ClassNode *classe = static_cast<const ClassNode *>(inner);
 
-	NodeList::ConstIterator r = classe->relatedNodes().begin();
-        while (r != classe->relatedNodes().end()) {
-	    insert(relatedNonMembers, *r, style);
-	    ++r;
-        }
+        if ( style == Summary ) {
+	    FastSection privateFunctions(classe, "Private Functions", "private function",
+				         "private functions");
+	    FastSection privateSlots(classe, "Private Slots", "private slot", "private slots");
+	    FastSection privateTypes(classe, "Private Types", "private type", "private types");
+	    FastSection protectedFunctions(classe, "Protected Functions", "protected function",
+				           "protected functions");
+	    FastSection protectedSlots(classe, "Protected Slots", "protected slot", "protected slots");
+	    FastSection protectedTypes(classe, "Protected Types", "protected type", "protected types");
+	    FastSection publicFunctions(classe, "Public Functions", "public function",
+				        "public functions");
+	    FastSection publicSignals(classe, "Signals", "signal", "signals" );
+	    FastSection publicSlots(classe, "Public Slots", "public slot", "public slots");
+	    FastSection publicTypes(classe, "Public Types", "public type", "public types");
+	    FastSection readOnlyProperties(classe, "Read-Only Properties", "read-only property",
+				           "read-only properties");
+	    FastSection relatedNonMembers(classe, "Related Non-Members", "related non-member",
+                                          "related non-members");
+	    FastSection staticPrivateMembers(classe, "Static Private Members", "static private member",
+					     "static private members");
+	    FastSection staticProtectedMembers(classe, "Static Protected Members",
+					       "static protected member", "static protected members");
+	    FastSection staticPublicMembers(classe, "Static Public Members", "static public member",
+					    "static public members");
+	    FastSection writableProperties(classe, "Writable Properties", "writable property",
+				           "writable properties");
 
-	QStack<const ClassNode *> stack;
-	stack.push(classe);
+	    NodeList::ConstIterator r = classe->relatedNodes().begin();
+            while (r != classe->relatedNodes().end()) {
+	        insert(relatedNonMembers, *r, style, status);
+	        ++r;
+            }
 
-	while (!stack.isEmpty()) {
-	    const ClassNode *ancestorClass = stack.pop();
+	    QStack<const ClassNode *> stack;
+	    stack.push(classe);
 
-	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
-	    while ( c != ancestorClass->childNodes().end() ) {
-	        bool isSlot = FALSE;
-	        bool isSignal = FALSE;
-	        bool isStatic = FALSE;
-	        if ( (*c)->type() == Node::Function ) {
-		    const FunctionNode *func = (const FunctionNode *) *c;
-		    isSlot = ( func->metaness() == FunctionNode::Slot );
-		    isSignal = ( func->metaness() == FunctionNode::Signal );
-		    isStatic = func->isStatic();
+	    while (!stack.isEmpty()) {
+	        const ClassNode *ancestorClass = stack.pop();
+
+	        NodeList::ConstIterator c = ancestorClass->childNodes().begin();
+	        while ( c != ancestorClass->childNodes().end() ) {
+	            bool isSlot = FALSE;
+	            bool isSignal = FALSE;
+	            bool isStatic = FALSE;
+	            if ( (*c)->type() == Node::Function ) {
+		        const FunctionNode *func = (const FunctionNode *) *c;
+		        isSlot = ( func->metaness() == FunctionNode::Slot );
+		        isSignal = ( func->metaness() == FunctionNode::Signal );
+		        isStatic = func->isStatic();
+	            }
+
+	            switch ( (*c)->access() ) {
+	            case Node::Public:
+		        if ( isSlot ) {
+		            insert(publicSlots, *c, style, status);
+		        } else if ( isSignal ) {
+		            insert(publicSignals, *c, style, status);
+		        } else if ( isStatic ) {
+		            insert( staticPublicMembers, *c, style, status);
+		        } else if ( (*c)->type() == Node::Property ) {
+			    const PropertyNode *property = static_cast<const PropertyNode *>(*c);
+                            if (property->setters().isEmpty()) {
+			        insert( readOnlyProperties, *c, style, status );
+			    } else {
+			        insert( writableProperties, *c, style, status );
+                            }
+		        } else if ( (*c)->type() == Node::Function ) {
+		            FunctionNode *function = static_cast<FunctionNode *>(*c);
+                            if (!function->associatedProperty())
+		                insert(publicFunctions, *c, style, status);
+		        } else {
+		            insert(publicTypes, *c, style, status);
+		        }
+		        break;
+	            case Node::Protected:
+		        if ( isSlot ) {
+		            insert( protectedSlots, *c, style, status );
+		        } else if ( isStatic ) {
+		            insert( staticProtectedMembers, *c, style, status );
+		        } else if ( (*c)->type() == Node::Function ) {
+		            insert( protectedFunctions, *c, style, status );
+		        } else {
+		            insert( protectedTypes, *c, style, status );
+		        }
+		        break;
+	            case Node::Private:
+		        if ( isSlot ) {
+		            insert( privateSlots, *c, style, status );
+		        } else if ( isStatic ) {
+		            insert( staticPrivateMembers, *c, style, status );
+		        } else if ( (*c)->type() == Node::Function ) {
+		            insert( privateFunctions, *c, style, status );
+		        } else {
+		            insert( privateTypes, *c, style, status );
+		        }
+	            }
+	            ++c;
 	        }
 
-	        switch ( (*c)->access() ) {
-	        case Node::Public:
-		    if ( isSlot ) {
-		        insert( publicSlots, *c, style );
-		    } else if ( isSignal ) {
-		        insert( publicSignals, *c, style );
-		    } else if ( isStatic ) {
-		        insert( staticPublicMembers, *c, style );
-		    } else if ( (*c)->type() == Node::Property ) {
-			const PropertyNode *property = static_cast<const PropertyNode *>(*c);
-                        if (property->setters().isEmpty()) {
-			    insert( readOnlyProperties, *c, style );
-			} else {
-			    insert( writableProperties, *c, style );
-                        }
-		    } else if ( (*c)->type() == Node::Function ) {
-		        FunctionNode *function = static_cast<FunctionNode *>(*c);
-                        if (!function->associatedProperty())
-		            insert(publicFunctions, *c, style);
-		    } else {
-		        insert(publicTypes, *c, style);
-		    }
-		    break;
-	        case Node::Protected:
-		    if ( isSlot ) {
-		        insert( protectedSlots, *c, style );
-		    } else if ( isStatic ) {
-		        insert( staticProtectedMembers, *c, style );
-		    } else if ( (*c)->type() == Node::Function ) {
-		        insert( protectedFunctions, *c, style );
-		    } else {
-		        insert( protectedTypes, *c, style );
-		    }
-		    break;
-	        case Node::Private:
-		    if ( isSlot ) {
-		        insert( privateSlots, *c, style );
-		    } else if ( isStatic ) {
-		        insert( staticPrivateMembers, *c, style );
-		    } else if ( (*c)->type() == Node::Function ) {
-		        insert( privateFunctions, *c, style );
-		    } else {
-		        insert( privateTypes, *c, style );
-		    }
+	        QList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
+	        while ( r != ancestorClass->baseClasses().end() ) {
+		    stack.prepend( (*r).node );
+		    ++r;
+	        }
+	    }
+
+	    append( sections, publicTypes );
+	    append( sections, writableProperties );
+	    append( sections, readOnlyProperties );
+	    append( sections, publicFunctions );
+	    append( sections, publicSlots );
+	    append( sections, publicSignals );
+	    append( sections, staticPublicMembers );
+	    append( sections, protectedTypes );
+	    append( sections, protectedFunctions );
+	    append( sections, protectedSlots );
+	    append( sections, staticProtectedMembers );
+	    append( sections, privateTypes );
+	    append( sections, privateFunctions );
+	    append( sections, privateSlots );
+	    append( sections, staticPrivateMembers );
+	    append( sections, relatedNonMembers );
+        } else if (style == Detailed) {
+	    FastSection memberFunctions(classe, "Member Function Documentation");
+	    FastSection memberTypes(classe, "Member Type Documentation");
+	    FastSection properties(classe, "Property Documentation");
+	    FastSection relatedNonMembers(classe, "Related Non-Members");
+
+	    NodeList::ConstIterator r = classe->relatedNodes().begin();
+            while (r != classe->relatedNodes().end()) {
+                insert(relatedNonMembers, *r, style, status);
+	        ++r;
+            }
+
+	    NodeList::ConstIterator c = classe->childNodes().begin();
+	    while ( c != classe->childNodes().end() ) {
+	        if ( (*c)->type() == Node::Enum || (*c)->type() == Node::Typedef ) {
+		    insert( memberTypes, *c, style, status );
+	        } else if ( (*c)->type() == Node::Property ) {
+		    insert( properties, *c, style, status );
+	        } else if ( (*c)->type() == Node::Function ) {
+		    FunctionNode *function = static_cast<FunctionNode *>(*c);
+                    if (!function->associatedProperty())
+		        insert( memberFunctions, function, style, status );
 	        }
 	        ++c;
 	    }
 
-	    QList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
-	    while ( r != ancestorClass->baseClasses().end() ) {
-		stack.prepend( (*r).node );
-		++r;
+	    append( sections, memberTypes );
+	    append( sections, properties );
+	    append( sections, memberFunctions );
+	    append( sections, relatedNonMembers );
+        } else {
+	    FastSection all( classe );
+
+	    QStack<const ClassNode *> stack;
+	    stack.push( classe );
+
+	    while (!stack.isEmpty()) {
+	        const ClassNode *ancestorClass = stack.pop();
+
+	        NodeList::ConstIterator c = ancestorClass->childNodes().begin();
+	        while (c != ancestorClass->childNodes().end()) {
+		    if ((*c)->access() != Node::Private && (*c)->type() != Node::Property)
+		        insert( all, *c, style, status );
+		    ++c;
+	        }
+
+	        QList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
+	        while ( r != ancestorClass->baseClasses().end() ) {
+		    stack.prepend( (*r).node );
+		    ++r;
+	        }
 	    }
-	}
-
-	append( sections, publicTypes );
-	append( sections, writableProperties );
-	append( sections, readOnlyProperties );
-	append( sections, publicFunctions );
-	append( sections, publicSlots );
-	append( sections, publicSignals );
-	append( sections, staticPublicMembers );
-	append( sections, protectedTypes );
-	append( sections, protectedFunctions );
-	append( sections, protectedSlots );
-	append( sections, staticProtectedMembers );
-	append( sections, privateTypes );
-	append( sections, privateFunctions );
-	append( sections, privateSlots );
-	append( sections, staticPrivateMembers );
-	append( sections, relatedNonMembers );
-    } else if (style == Detailed) {
-	FastSection memberFunctions(classe, "Member Function Documentation");
-	FastSection memberTypes(classe, "Member Type Documentation");
-	FastSection properties(classe, "Property Documentation");
-	FastSection relatedNonMembers(classe, "Related Non-Members");
-
-	NodeList::ConstIterator r = classe->relatedNodes().begin();
-        while (r != classe->relatedNodes().end()) {
-            insert(relatedNonMembers, *r, style);
-	    ++r;
+	    append( sections, all );
         }
-
-	NodeList::ConstIterator c = classe->childNodes().begin();
-	while ( c != classe->childNodes().end() ) {
-	    if ( (*c)->type() == Node::Enum || (*c)->type() == Node::Typedef ) {
-		insert( memberTypes, *c, style );
-	    } else if ( (*c)->type() == Node::Property ) {
-		insert( properties, *c, style );
-	    } else if ( (*c)->type() == Node::Function ) {
-		FunctionNode *function = static_cast<FunctionNode *>(*c);
-                if (!function->associatedProperty())
-		    insert( memberFunctions, function, style );
-	    }
-	    ++c;
-	}
-
-	append( sections, memberTypes );
-	append( sections, properties );
-	append( sections, memberFunctions );
-	append( sections, relatedNonMembers );
     } else {
-	FastSection all( classe );
+        if (style == Summary || style == Detailed) {
+	    FastSection namespaces(inner, "Namespaces", "namespace", "namespaces");
+            FastSection classes(inner, "Classes", "class", "classes");
+            FastSection types(inner, style == Summary ? "Types" : "Type Documentation", "type",
+			      "types");
+            FastSection functions(inner, style == Summary ? "Functions" : "Function Documentation",
+			          "function", "functions");
 
-	QStack<const ClassNode *> stack;
-	stack.push( classe );
+	    NodeList nodeList = inner->childNodes();
+            nodeList += inner->relatedNodes();
 
-	while (!stack.isEmpty()) {
-	    const ClassNode *ancestorClass = stack.pop();
-
-	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
-	    while (c != ancestorClass->childNodes().end()) {
-		if ((*c)->access() != Node::Private && (*c)->type() != Node::Property)
-		    insert( all, *c, style );
-		++c;
-	    }
-
-	    QList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
-	    while ( r != ancestorClass->baseClasses().end() ) {
-		stack.prepend( (*r).node );
-		++r;
-	    }
-	}
-	append( sections, all );
-    }
-    return sections;
-}
-
-QList<Section> CppCodeMarker::nonclassSections(const InnerNode *innerNode, SynopsisStyle style)
-{
-    QList<Section> sections;
-
-    if (style == Summary || style == Detailed) {
-	FastSection namespaces(innerNode, "Namespaces", "namespace", "namespaces");
-        FastSection classes(innerNode, "Classes", "class", "classes");
-        FastSection types(innerNode, style == Summary ? "Types" : "Type Documentation", "type",
-			  "types");
-        FastSection functions(innerNode, style == Summary ? "Functions" : "Function Documentation",
-			      "function", "functions");
-
-	NodeList nodeList = innerNode->childNodes();
-        nodeList += innerNode->relatedNodes();
-
-	NodeList::ConstIterator n = nodeList.begin();
-        while (n != nodeList.end()) {
-	    switch ((*n)->type()) {
-            case Node::Namespace:
-		insert(namespaces, *n, style);
-                break;
-	    case Node::Class:
-		insert(classes, *n, style);
-                break;
-	    case Node::Enum:
-	    case Node::Typedef:
-		insert(types, *n, style);
-                break;
-	    case Node::Function:
-		insert(functions, *n, style);
-                break;
-	    default:
-		;
-	    }
-	    ++n;
+	    NodeList::ConstIterator n = nodeList.begin();
+            while (n != nodeList.end()) {
+	        switch ((*n)->type()) {
+                case Node::Namespace:
+		    insert(namespaces, *n, style, status);
+                    break;
+	        case Node::Class:
+		    insert(classes, *n, style, status);
+                    break;
+	        case Node::Enum:
+	        case Node::Typedef:
+		    insert(types, *n, style, status);
+                    break;
+	        case Node::Function:
+		    insert(functions, *n, style, status);
+                    break;
+	        default:
+		    ;
+	        }
+	        ++n;
+            }
+            append(sections, namespaces);
+            append(sections, classes);
+            append(sections, types);
+            append(sections, functions);
         }
-        append(sections, namespaces);
-        append(sections, classes);
-        append(sections, types);
-        append(sections, functions);
     }
+
     return sections;
 }
 
