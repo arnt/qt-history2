@@ -73,11 +73,11 @@ public:
     virtual bool operator<( const QIconDragItem &icon )  const;
     virtual bool operator==( const QIconDragItem &icon ) const;
 
-    virtual QRect iconRect() const;
+    virtual QRect pixmapRect() const;
     virtual QRect textRect() const;
     virtual QString key() const;
 
-    virtual void setIconRect( const QRect &r );
+    virtual void setPixmapRect( const QRect &r );
     virtual void setTextRect( const QRect &r );
 
 protected:
@@ -224,7 +224,7 @@ protected:
     void setView( QIconView* v );
     void setItemRect( const QRect &r );
     void setTextRect( const QRect &r );
-    void setIconRect( const QRect &r );
+    void setPixmapRect( const QRect &r );
     void calcTmpText();
 
 private:

@@ -281,8 +281,8 @@ void QtFileIconDragItem::setURL( const QString &u )
 void QtFileIconDragItem::makeKey()
 {	
     QString k( "%1 %2 %3 %4 %5 %6 %7 %8 %9");
-    k = k.arg( iconRect().x() ).arg( iconRect().y() ).arg( iconRect().width() ).
-	arg( iconRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
+    k = k.arg( pixmapRect().x() ).arg( pixmapRect().y() ).arg( pixmapRect().width() ).
+	arg( pixmapRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
 	arg( textRect().width() ).arg( textRect().height() ).arg( url_ );
     key_ = k;
 }
@@ -329,8 +329,8 @@ QByteArray QtFileIconDrag::encodedData( const char* mime ) const
 	QtFileIconList::ConstIterator it = icons.begin();
 	for ( ; it != icons.end(); ++it ) {
 	    QString k( "%1 %2 %3 %4 %5 %6 %7 %8 %9" );
-	    k = k.arg( (*it).iconRect().x() ).arg( (*it).iconRect().y() ).arg( (*it).iconRect().width() ).
-		arg( (*it).iconRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
+	    k = k.arg( (*it).pixmapRect().x() ).arg( (*it).pixmapRect().y() ).arg( (*it).pixmapRect().width() ).
+		arg( (*it).pixmapRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
 		arg( (*it).textRect().width() ).arg( (*it).textRect().height() ).arg( (*it).url() );
 	    int l = k.length();
 	    a.resize(c + l + 1 );
@@ -422,7 +422,7 @@ bool QtFileIconDrag::decode( QMimeSource* e, QValueList<QtFileIconDragItem> &lis
 	    pos = s.find( ' ', pos + 1 );
 	    if ( pos == -1 )
 		return FALSE;
-	    icon.setIconRect( ir );
+	    icon.setPixmapRect( ir );
 	    icon.setTextRect( tr );
 	    icon.setURL( s.latin1() + pos + 1 );
 	    list_.append( icon );

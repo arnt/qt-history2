@@ -346,8 +346,8 @@ bool QIconDragItem::operator==( const QIconDragItem &icon ) const
 void QIconDragItem::makeKey()
 {
     QString k( "%1 %2 %3 %4 %5 %6 %7 %8" );
-    k = k.arg( iconRect().x() ).arg( iconRect().y() ).arg( iconRect().width() ).
-	arg( iconRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
+    k = k.arg( pixmapRect().x() ).arg( pixmapRect().y() ).arg( pixmapRect().width() ).
+	arg( pixmapRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
 	arg( textRect().width() ).arg( textRect().height() );
 }
 
@@ -366,7 +366,7 @@ QRect QIconDragItem::textRect() const
   data is stored in this item.
 */
 
-QRect QIconDragItem::iconRect() const
+QRect QIconDragItem::pixmapRect() const
 {
     return iconRect_;
 }
@@ -384,7 +384,7 @@ QString QIconDragItem::key() const
   Sets \a r as the rectangle of the icon.
 */
 
-void QIconDragItem::setIconRect( const QRect &r )
+void QIconDragItem::setPixmapRect( const QRect &r )
 {
     iconRect_ = r;
 }
@@ -501,8 +501,8 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 	QIconList::ConstIterator it = icons.begin();
 	for ( ; it != icons.end(); ++it ) {
 	    QString k( "%1 %2 %3 %4 %5 %6 %7 %8" );
-	    k = k.arg( (*it).iconRect().x() ).arg( (*it).iconRect().y() ).arg( (*it).iconRect().width() ).
-		arg( (*it).iconRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
+	    k = k.arg( (*it).pixmapRect().x() ).arg( (*it).pixmapRect().y() ).arg( (*it).pixmapRect().width() ).
+		arg( (*it).pixmapRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
 		arg( (*it).textRect().width() ).arg( (*it).textRect().height() );
 	    int l = k.length();
 	    a.resize( c + l + 1 );
@@ -589,7 +589,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 		return FALSE;
 	    tr.setHeight( atoi( s.latin1() + pos + 1 ) );
 	
-	    icon.setIconRect( ir );
+	    icon.setPixmapRect( ir );
 	    icon.setTextRect( tr );
 	    list_.append( icon );
 	}
@@ -1370,7 +1370,7 @@ void QIconViewItem::removeRenameBox()
 }
 
 /*!
-  Recalculates the bounding rect, text- and iconrect of the item.
+  Recalculates the bounding rect, text- and pixmap-rect of the item.
 */
 
 void QIconViewItem::calcRect( const QString &text_ )
@@ -1608,7 +1608,7 @@ void QIconViewItem::setTextRect( const QRect &r )
   to set the calcualted rectangle
 */
 
-void QIconViewItem::setIconRect( const QRect &r )
+void QIconViewItem::setPixmapRect( const QRect &r )
 {
     itemIconRect = r;
     if ( view )
@@ -4261,7 +4261,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	
 	QValueList<QIconDragItem>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
-	    QRect ir = (*it).iconRect();
+	    QRect ir = (*it).pixmapRect();
 	    QRect tr = (*it).textRect();
 	    tr.moveBy( pos.x(), pos.y() );
 	    ir.moveBy( pos.x(), pos.y() );
