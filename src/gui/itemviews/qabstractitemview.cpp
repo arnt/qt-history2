@@ -594,7 +594,7 @@ void QAbstractItemView::setRootIndex(const QModelIndex &index)
     Returns the model index of the model's root item. The root item is
     the parent item to the views toplevel items. The root can be invalid.
 
-    \sa setrootIndex()
+    \sa setRootIndex()
 */
 QModelIndex QAbstractItemView::rootIndex() const
 {
