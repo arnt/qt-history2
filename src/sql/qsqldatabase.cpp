@@ -679,7 +679,9 @@ bool QSqlDatabase::rollback()
     \brief the name of the database
 
     Note that the database name is the TNS Service Name for the QOCI8
-    (Oracle) driver, and the Data Source Name for the QODBC3 driver.
+    (Oracle) driver, and the DSN or DSN filename for the QODBC3
+    driver. If a DSN filename is used, the file have to have a .dsn
+    extension.
 
     There is no default value.
 */
