@@ -1950,7 +1950,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	// finally really move the toolbar, if the mouse was moved...
 	if ( d->movedEnough ) {
-	    QApplication::restoreOverrideCursor();
 	    int ipos = d->oldiPos;
 	    QToolBar *covering = d->oldCovering;
 	    ToolBarDock dock = d->oldDock;
@@ -1970,7 +1969,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     QPoint p( e->globalPos() );
     QPoint pos = mapFromGlobal( p );
     if ( !d->movedEnough && pos != d->pos ) {
-	QApplication::setOverrideCursor( Qt::pointingHandCursor );
     	d->movedEnough = TRUE;
     }
 
