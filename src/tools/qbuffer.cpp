@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#32 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#32 $");
 
 
 /*!
@@ -192,7 +192,7 @@ void QBuffer::flush()
 */
 
 /*!
-  \fn int QBuffer::size() const
+  \fn uint QBuffer::size() const
   Returns the number of bytes in the buffer.
   \sa at()
 */
