@@ -949,22 +949,22 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
     if ( formWindow->project()->isCpp() )
 	switch( i->rtti() ) {
 	case HierarchyItem::FunctPublic:
-	    execFunctionDialog( "public", "function" );
+	    execFunctionDialog( "public", "function", TRUE );
 	    break;
 	case HierarchyItem::FunctProtected:
-	    execFunctionDialog( "protected", "function" );
+	    execFunctionDialog( "protected", "function", TRUE );
 	    break;
 	case HierarchyItem::FunctPrivate:
-	    execFunctionDialog( "private", "function" );
+	    execFunctionDialog( "private", "function", TRUE );
 	    break;
 	case HierarchyItem::SlotPublic:
-	    execFunctionDialog( "public", "slot" );
+	    execFunctionDialog( "public", "slot", TRUE );
 	    break;
 	case HierarchyItem::SlotProtected:
-	    execFunctionDialog( "protected", "slot" );
+	    execFunctionDialog( "protected", "slot", TRUE );
 	    break;
 	case HierarchyItem::SlotPrivate:
-	    execFunctionDialog( "private", "slot" );
+	    execFunctionDialog( "private", "slot", TRUE );
 	    break;
 	case HierarchyItem::VarPublic:
 	case HierarchyItem::VarProtected:
@@ -979,10 +979,11 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	insertEntry( i );
 }
 
-void FormDefinitionView::execFunctionDialog( const QString &access, const QString &type )
+void FormDefinitionView::execFunctionDialog( const QString &access, const QString &type, bool addFunc )
 {
     EditFunctions dlg( this, formWindow );
-    dlg.functionAdd( access, type );
+    if ( addFunc )
+	dlg.functionAdd( access, type );
     dlg.exec();
 }
 
@@ -1031,10 +1032,10 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     if ( res == EDIT ) {
 	switch( i->rtti() ) {
 	case HierarchyItem::FunctParent:
-	    execFunctionDialog( "public", "function" );
+	    execFunctionDialog( "public", "function", FALSE );
 	    break;
 	case HierarchyItem::SlotParent:
-	    execFunctionDialog( "public", "slot" );
+	    execFunctionDialog( "public", "slot", FALSE );
 	    break;
 	case HierarchyItem::VarParent:
 	case HierarchyItem::VarPublic:
@@ -1069,22 +1070,22 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    i = i->parent();
 	switch( i->rtti() ) {
 	case HierarchyItem::SlotPublic:
-	    execFunctionDialog( "public", "slot" );
+	    execFunctionDialog( "public", "slot", TRUE );
 	    break;
 	case HierarchyItem::SlotProtected:
-	    execFunctionDialog( "protected", "slot" );
+	    execFunctionDialog( "protected", "slot", TRUE );
 	    break;
 	case HierarchyItem::SlotPrivate:
-	    execFunctionDialog( "private" , "slot" );
+	    execFunctionDialog( "private" , "slot", TRUE );
 	    break;
 	case HierarchyItem::FunctPublic:
-	    execFunctionDialog( "public", "function" );
+	    execFunctionDialog( "public", "function", TRUE );
 	    break;
 	case HierarchyItem::FunctProtected:
-	    execFunctionDialog( "protected", "function" );
+	    execFunctionDialog( "protected", "function", TRUE );
 	    break;
 	case HierarchyItem::FunctPrivate:
-	    execFunctionDialog( "private" , "function" );
+	    execFunctionDialog( "private" , "function", TRUE );
 	    break;
     	default:
 	    insertEntry( i );
