@@ -7,6 +7,3 @@ operation, and rubber-band drawing in the overlay plane. Using the
 overlay has the advantage that the rubber-band may be drawn and erased
 without damaging the image in the main plane, so costly redraws are
 avoided.
-
-Note: The Qt OpenGL Extension currently supports overlays on X11 only.
-
