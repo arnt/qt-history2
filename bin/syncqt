@@ -169,8 +169,7 @@ sub sync_classnames {
 	close(F);
     }
 
-    my $last_interesting = 0;
-    my $interesting = 0;
+    my $last_definition = 0;
     for(my $i = 0; $i < length($parsable); $i++) {
 	my $definition = 0;
 	my $character = substr($parsable, $i, 1);
@@ -178,7 +177,7 @@ sub sync_classnames {
 	    for($i+=2; $i < length($parsable); $i++) {
 		my $end = substr($parsable, $i, 2);
 		if($end eq "*/") {
-		    $last_interesting = $i+2;
+		    $last_definition = $i+2;
 		    $i++;
 		    last;
 		}
@@ -196,9 +195,9 @@ sub sync_classnames {
 		      for(my $i2 = $i+1; $i2 < length($parsable); $i2++) {
 			  my $end = substr($parsable, $i2, 1);
 			  if($end eq ";" || $end ne " ") {
-			      $definition = substr($parsable, $last_interesting, $block_start - $last_interesting) . "}";
+			      $definition = substr($parsable, $last_definition, $block_start - $last_definition) . "}";
 			      $i = $i2 if($end eq ";");
-			      $last_interesting = $i + 1;
+			      $last_definition = $i + 1;
 			      last BLOCK;
 			  }
 		      }
@@ -206,23 +205,24 @@ sub sync_classnames {
 	      }
 	  }
 	} elsif($character eq ";") {
-	    $definition = substr($parsable, $last_interesting, $i - $last_interesting + 1);
-	    $last_interesting = $i + 1;
+	    $definition = substr($parsable, $last_definition, $i - $last_definition + 1);
+	    $last_definition = $i + 1;
 	}
 	if($definition) {
 	    my $symbol = 0;
-	    if($definition =~ /^typedef .*\(\*([^\)]*)\)\(.*\);$/) {
+	    if($definition =~ m/^typedef *.*\(\*([^\)]*)\)\(.*\);$/) {
 		$symbol = $1;
-	    } elsif($definition =~ /^typedef (.*) ([^ ]*);$/) {
+	    } elsif($definition =~ m/^typedef *(.*) *([^ ]*);$/) {
 		$symbol = $2;
-	    } elsif($definition =~ /^(class|struct) ([^ ]*) ([^ ]*) ?((,|:) (public|private) .*)? ?\{\}$/) {
-		$symbol = $3;
+	    } elsif($definition =~ m/^(template<.*> *)?(class|struct) +([^ ]* +)?([^ ]+) ?((,|:) *(public|private) *.*)? *\{\}$/) {
+		$symbol = $4;
 	    }
 	    if($symbol && $symbol =~ /^Q/) {
 		$ret++;
 		if($showonly) {
 		    print "SYMBOL: $symbol\n";
 		} else {
+#		    print "$iheader: $symbol\n";
 		}
 	    }
 	}
