@@ -443,7 +443,8 @@ void QCanvas::init(int w, int h, int chunksze, int mxclusters)
 Create a QCanvas with no size.
 You will want to call resize(int,int) at some time after creation.
 */
-QCanvas::QCanvas()
+QCanvas::QCanvas( QObject* parent, const char* name )
+    : QObject( parent, name )
 {
     init(0,0);
 }
@@ -888,6 +889,7 @@ If one_view then only one view is updated, otherwise all are.
 */
 void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 {
+    qDebug("w=%i h=%i", width(), height() );
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
     if ( !dblbuf )
@@ -932,6 +934,9 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	int osh = area.height();
 	if ( osw > offscr.width() || osh > offscr.height() )
 	    offscr.resize(QMAX(osw,offscr.width()),QMAX(osh,offscr.height()));
+	else if ( offscr.width() == 0 || offscr.height() == 0 )
+	    offscr.resize( QMAX( offscr.width(), 1), QMAX( offscr.height(), 1 ) );
+	qDebug("%i %i <-> %i %i", osw, osh, offscr.width(), offscr.height() );
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
 	drawBackground(painter,area);
@@ -2548,8 +2553,10 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
 {
     viewing = 0;
     setCanvas(canvas);
+
     if ( viewing )
 	viewport()->setBackgroundColor(viewing->backgroundColor());
+
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
 
@@ -2583,6 +2590,8 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 	viewing->addView(this);
     }
     updateContentsSize();
+    if ( viewing )
+	viewport()->setBackgroundColor(viewing->backgroundColor());
 }
 
 void QCanvasView::updateContentsSize()
@@ -2626,6 +2635,8 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 */
 QSize QCanvasView::sizeHint() const
 {
+    if ( !canvas() )
+	return QScrollView::sizeHint();
     return canvas()->size()+QSize(frameWidth(),frameWidth())*2;
 }
 

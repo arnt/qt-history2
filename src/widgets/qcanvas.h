@@ -52,7 +52,7 @@ template class Q_EXPORT QList< QCanvasItem >;
 template class Q_EXPORT QList< QCanvasView >;
 template class Q_EXPORT QValueList< QCanvasItem* >;
 // MOC_SKIP_END
-#endif                                                                          
+#endif
 
 class QCanvasItemList : public QValueList<QCanvasItem*> {
 public:
@@ -154,7 +154,7 @@ class Q_EXPORT QCanvas : public QObject
 {
     Q_OBJECT
 public:
-    QCanvas();
+    QCanvas( QObject* parent = 0, const char* name = 0 );
     QCanvas(int w, int h);
     QCanvas( QPixmap p, int h, int v, int tilewidth, int tileheight );
 
@@ -347,7 +347,7 @@ public:
 
     void move(double x, double y);
     virtual void move(double x, double y, int frame);
-    void setFrame(int); 
+    void setFrame(int);
     int frame() const { return frm; }
     int frameCount() const { return images->count(); }
 
