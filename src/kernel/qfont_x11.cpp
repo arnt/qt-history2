@@ -518,7 +518,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	if ( fs->max_byte1 )
 	    cs = getCharStruct2d( fs, 0, pos >> 8 , pos & 0xff );
 	else if ( pos >= fs->min_char_or_byte2 && pos <= fs->max_char_or_byte2 )
-	    cs = &fs->per_char[pos];
+	    cs = &fs->per_char[pos - fs->min_char_or_byte2];
     }
 
     if ( cs )
