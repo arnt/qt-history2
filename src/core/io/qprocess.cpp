@@ -95,25 +95,33 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     to find the current process state.
 
     Processes have two predefined output channels: The standard
-    output channel supplies regular console output, and the standard
-    error channel usually supplies the errors that are printed by the
-    process. These channels represent two separate streams of data.
-    You can toggle between them by calling setReadChannel(). QProcess
-    emits readyRead() when data is available on the current input
-    channel. It also emits readyReadStandardOutput() when new standard
-    output data is available, and when new standard error data is
-    available, readyReadStandardError() is emitted. Instead of calling
-    read(), readLine(), or readChar(), you can explicitly read all data
-    from either of the two channels by calling readAllStandardOutput()
-    or readAllStandardError().
+    output channel (\c stdout) supplies regular console output, and
+    the standard error channel (\c stderr) usually supplies the
+    errors that are printed by the process. These channels represent
+    two separate streams of data. You can toggle between them by
+    calling setReadChannel(). QProcess emits readyRead() when data is
+    available on the current read channel. It also emits
+    readyReadStandardOutput() when new standard output data is
+    available, and when new standard error data is available,
+    readyReadStandardError() is emitted. Instead of calling read(),
+    readLine(), or readChar(), you can explicitly read all data from
+    either of the two channels by calling readAllStandardOutput() or
+    readAllStandardError().
+
+    Note that the terminology for the process and for QProcess are
+    reversed: The process's output channels correspond to QProcess's
+    \e read channels, whereas the process's input channels correspond
+    to QProcess's \e write channels. This is because what we read
+    using QProcess is the process's output, and what we write becomes
+    the process's input.
 
     QProcess can merge the two output channels, so that standard
     output and standard error data from the running process both use
     the standard output channel. Call setReadChannelMode() with
-    \c MergedOutputChannels before starting the process to activative
+    QProcess::MergedOutputChannels before starting the process to activative
     this feature. You also have the option of forwarding the output of
     the running process to the calling, main process, by passing
-    \c ForwardedOutputChannels as the argument.
+    QProcess::ForwardedOutputChannels as the argument.
 
     Certain processes need special environment settings in order to
     operate. You can set environment variables for your process by
@@ -129,7 +137,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \o waitForStarted() blocks until the process has started.
 
     \o waitForReadyRead() blocks until new data is
-    available for reading on the current input channel.
+    available for reading on the current read channel.
 
     \o waitForBytesWritten() blocks until one payload of
     data has been written to the process.
@@ -155,8 +163,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \enum QProcess::ProcessChannel
 
     This enum describes the process channels used by the running process.
-    Pass one of these values to QProcess::setReadChannel() to set the
-    current input channel of QProcess.
+    Pass one of these values to setReadChannel() to set the
+    current read channel of QProcess.
 
     \value StandardOutput The standard output (stdout) of the running
            process.
@@ -164,33 +172,34 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \value StandardError The standard error (stderr) of the running
            process.
 
-    \sa QProcess::setReadChannel()
+    \sa setReadChannel()
 */
 
 /*!
     \enum QProcess::ProcessChannelMode
 
     This enum describes the process channel modes of QProcess. Pass
-    one of these values to QProcess::setReadChannelMode() to set the
-    current input channel mode.
+    one of these values to setReadChannelMode() to set the
+    current read channel mode.
 
-    \value SeparateChannels QProcess manages the output of the running
-    process, keeping standard output and standard error data in
-    separate internal buffers. You can select the current input
-    channel by calling QProcess::setReadChannel(). This is the
+    \value SeparateChannels QProcess manages the output of the
+    running process, keeping standard output and standard error data
+    in separate internal buffers. You can select the QProcess's
+    current read channel by calling setReadChannel(). This is the
     default channel mode of QProcess.
 
     \value MergedChannels QProcess merges the output of the running
-    process into the standard output channel. The standard error
-    channel will not receive any data. The standard output and
-    standard error data of the running process are interleaved.
+    process into the standard output channel (\c stdout). The
+    standard error channel (\c stderr) will not receive any data. The
+    standard output and standard error data of the running process
+    are interleaved.
 
     \value ForwardedChannels QProcess forwards the output of the
     running process onto the main process. Anything the child process
     writes to its standard output and standard error will be written
     to the standard output and standard error of the main process.
 
-    \sa QProcess::setReadChannelMode()
+    \sa setReadChannelMode()
 */
 
 /*!
@@ -218,9 +227,9 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     the process. For example, the process may not be running.
 
     \value UnknownError An unknown error occurred. This is the default
-    return value of QProcess::error().
+    return value of error().
 
-    \sa QProcess::error()
+    \sa error()
 */
 
 /*!
@@ -236,7 +245,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \value Running The process is running and is ready for reading and
     writing.
 
-    \sa QProcess::state()
+    \sa state()
 */
 
 /*!
@@ -244,17 +253,13 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     This signal is emitted when an error occurs with the process. The
     specified \a error describes the type of error that occurred.
-
-    \sa QProcess::ProcessError
 */
 
 /*!
     \fn QProcess::started()
 
     This signal is emitted by QProcess when the process has started,
-    and QProcess::state() returns \c Running.
-
-    \sa QProcess::ProcessState
+    and state() returns \c Running.
 */
 
 /*!
@@ -276,21 +281,22 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 /*!
     \fn QProcess::readyReadStandardOutput()
 
-    This signal is emitted when new data has arrived in the standard
-    output channel of QProcess. It is emitted regardless of the current
-    input channel.
+    This signal is emitted when the process has made new data
+    available through its standard output channel (\c stdout). It is
+    emitted regardless of the current \l{read channel}{readChannel()}.
 
-    \sa QProcess::readAllStandardOutput()
+    \sa readAllStandardOutput(), readChannel()
 */
 
 /*!
     \fn QProcess::readyReadStandardError()
 
-    This signal is emitted when new data has arrived in the standard
-    error channel of QProcess. It is emitted regardless of the current
-    input channel.
+    This signal is emitted when the process has made new data
+    available through its standard error channel (\c stderr). It is
+    emitted regardless of the current \l{read
+    channel}{readChannel()}.
 
-    \sa QProcess::readAllStandardError()
+    \sa readAllStandardError(), readChannel()
 */
 
 /*! \internal
@@ -594,7 +600,7 @@ QProcess::~QProcess()
 }
 
 /*!
-    Returns the input channel mode of the QProcess.
+    Returns the read channel mode of the QProcess.
 
     \sa setReadChannelMode(), ProcessChannelMode, setReadChannel()
 */
@@ -605,17 +611,18 @@ QProcess::ProcessChannelMode QProcess::readChannelMode() const
 }
 
 /*!
-    Sets the input channel mode of the QProcess to the \a mode specified.
+    Sets the read channel mode of the QProcess to the \a mode specified.
     This mode will be used the next time start() is called. For example:
 
     \code
         QProcess builder;
         builder.setReadChannelMode(QProcess::MergedChannels);
         builder.start("make", QStringList() << "-j2");
+
         if (!builder.waitForFinished())
-            qDebug("make failed: %s", builder.errorString().toLocal8Bit().constData());
+            qDebug() << "Make failed:" << builder.errorString();
         else
-            qDebug("make output: %s", builder.readAll().constData());
+            qDebug() << "Make output:" << builder.readAll();
     \endcode
 
     \sa readChannelMode(), ProcessChannelMode, setReadChannel()
@@ -627,7 +634,7 @@ void QProcess::setReadChannelMode(ProcessChannelMode mode)
 }
 
 /*!
-    Returns the current input channel of the QProcess.
+    Returns the current read channel of the QProcess.
 
     \sa setReadChannel()
 */
@@ -638,10 +645,10 @@ QProcess::ProcessChannel QProcess::readChannel() const
 }
 
 /*!
-    Sets the current input channel of the QProcess to the \a channel
-    specified. The current input channel is used by the functions read(),
-    readAll(), readLine(), and getChar(). It also determines which
-    channel triggers QProcess to emit readyRead().
+    Sets the current read channel of the QProcess to the given \a
+    channel. The current input channel is used by the functions
+    read(), readAll(), readLine(), and getChar(). It also determines
+    which channel triggers QProcess to emit readyRead().
 
     \sa readChannel()
 */
@@ -652,7 +659,7 @@ void QProcess::setReadChannel(ProcessChannel channel)
 }
 
 /*!
-    Closes the input channel \a channel. After calling this function,
+    Closes the read channel \a channel. After calling this function,
     QProcess will no longer receive data on the channel. Any data that
     has already been received is still available for reading.
 
@@ -672,16 +679,16 @@ void QProcess::closeReadChannel(ProcessChannel channel)
 }
 
 /*!
-    Schedules the output channel of QProcess to be closed. The channel
+    Schedules the write channel of QProcess to be closed. The channel
     will close once all data has been written to the process. After
     calling this function, any attempts to write to the process will
     fail.
 
-    Closing the output channel is necessary for programs that read
+    Closing the write channel is necessary for programs that read
     input data until the channel has been closed. For example, the
     program "more" is used to display text data in a console on both
     Unix and Windows. But it will not display the text data until
-    QProcess' output channel has been closed. Example:
+    QProcess's write channel has been closed. Example:
 
     \code
         QProcess more;
@@ -691,7 +698,7 @@ void QProcess::closeReadChannel(ProcessChannel channel)
         // QProcess will emit readyRead() once "more" starts printing
     \endcode
 
-    The output channel is implicitly opened when start() is called.
+    The write channel is implicitly opened when start() is called.
 
     \sa closeReadChannel()
 */
@@ -741,7 +748,7 @@ Q_PID QProcess::pid() const
 
 /*! \reimp
 
-    This function operates on the current input channel.
+    This function operates on the current read channel.
 
     \sa readChannel(), setReadChannel()
 */
@@ -1030,7 +1037,7 @@ qint64 QProcess::writeData(const char *data, qint64 len)
 
     if (d->writeChannelClosing) {
 #if defined QPROCESS_DEBUG
-    qDebug("QProcess::writeData(%p \"%s\", %lld) == 0 (output channel closing)",
+    qDebug("QProcess::writeData(%p \"%s\", %lld) == 0 (write channel closing)",
            data, qt_prettyDebug(data, len, 16).constData(), len);
 #endif
         return 0;
@@ -1059,7 +1066,7 @@ qint64 QProcess::writeData(const char *data, qint64 len)
 }
 
 /*!
-    Regardless of the current input channel, this function returns all
+    Regardless of the current read channel, this function returns all
     data available from the standard output of the process as a
     QByteArray.
 
@@ -1075,7 +1082,7 @@ QByteArray QProcess::readAllStandardOutput()
 }
 
 /*!
-    Regardless of the current input channel, this function returns all
+    Regardless of the current read channel, this function returns all
     data available from the standard error of the process as a
     QByteArray.
 
