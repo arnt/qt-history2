@@ -494,6 +494,11 @@ void QPainter::drawRect(const QRect &r)
     d->engine->drawRect(rect);
 }
 
+/*!
+    Draws a single point at position \a p using the current pen's color.
+
+    \sa QPen
+*/
 void QPainter::drawPoint(const QPoint &p)
 {
     if (!isActive())
@@ -508,6 +513,23 @@ void QPainter::drawPoint(const QPoint &p)
     d->engine->drawPoint(p);
 }
 
+/*! \fn void QPainter::drawPoint(int x, int y)
+
+    \overload
+
+    Draws a single point at position (\a x, \a y).
+*/
+
+/*!
+    Draws the array of points \a pa using the current pen's color.
+
+    If \a index is non-zero (the default is zero), only points
+    starting from \a index are drawn. If \a npoints is negative (the
+    default) the rest of the points from \a index are drawn. If \a
+    npoints is zero or greater, \a npoints points are drawn.
+
+    \sa QPen
+*/
 void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     if (!isActive())
