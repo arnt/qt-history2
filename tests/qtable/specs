@@ -2,7 +2,7 @@ Specifics on table widget:
 -------------------------------------
 
 1. Editable and non-Editable cell.
-DONE (by reimplementing beginEdit() and doing nothing to disabled editing)
+DONE (by reimplementing beginEdit() and doing nothing or reimplementing QTableItem::editor() to disabled editing)
 
 2. Single/Multiple row/column selection.
 DONE
@@ -11,19 +11,19 @@ DONE
 DONE
 
 4. Combobox check button in cell, and some other widgets in cell.
-DONE (needs finalizing of API)
-
-5. Foreground/background color setting for each cell or column/row.
-DONE (by reimplementing)
-
-6. Selection foreground/background color setting.
-DONE (by setPalette())
-
-7. Move column/ row programmatically and Drag/Drop.
 DONE
 
+5. Foreground/background color setting for each cell or column/row.
+DONE (by reimplementing paintCell() or tableitem's paint())
+
+6. Selection foreground/background color setting.
+DONE (by setPalette() or reimplementing)
+
+7. Move column/ row programmatically and Drag/Drop.
+DONE (needs fixing)
+
 8. Sorting row by clicking on the column label.
-DONE (connect to QHeader::sectionClicked())
+DONE (connect to QHeader::sectionClicked(), some API in QTable should be offered)
 
 9. Column/row label.
 DONE
@@ -40,7 +40,7 @@ char or content size.
 
 
 13. Suspend repaint for update efficiency.
-
+DONE (using postEvent - but some more repaint optimations will be done)
 
 14. Programmatically hide row/column.
 

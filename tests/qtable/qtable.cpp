@@ -13,7 +13,6 @@
 #include <qkeycode.h>
 #include <qlineedit.h>
 #include <qapplication.h>
-#include <qwmatrix.h>
 #include <qtimer.h>
 
 /*!  Returns the pixmap of that item.
@@ -24,11 +23,14 @@ QPixmap QTableItem::pixmap() const
     return pix;
 }
 
+
 /*!  Returns the text of that item.
 */
 
 QString QTableItem::text() const
 {
+    if ( edType == Always )
+	( (QTableItem*)this )->setContentFromEditor( lastEditor );
     return txt;
 }
 
@@ -64,20 +66,22 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg, const QRect &cr, boo
 
     if ( selected )
 	p->setPen( cg.highlightedText() );
-    p->drawText( x, 0, w - x, h, alignment() | wordwrap ? Qt::WordBreak : 0, txt );
+    p->drawText( x, 0, w - x, h, wordwrap ? alignment() | WordBreak : alignment() , txt );
 }
 
 /*!  Returns the editor which should be used for editing that
-  cell. The default implementation returns 0, which means that the
-  deafault editor (QLineEdit) should be used. If you reimplement that
-  to use a custom editor widget always create a new widget here as
-  parent of table()->viewport(), as the ownership of it is trasferred
-  to the caller.
+  cell. Returning 0 means that this cell is not editable. If you
+  reimplement that to use a custom editor widget always create a new
+  widget here as parent of table()->viewport(), as the ownership of it
+  is trasferred to the caller.
 */
 
 QWidget *QTableItem::editor() const
 {
-    return 0;
+    QLineEdit *e = new QLineEdit( table()->viewport() );
+    e->setFrame( FALSE );
+    e->setText( text() );
+    return e;
 }
 
 /*!  This function is called to set the cell contents from the editor
@@ -116,6 +120,30 @@ bool QTableItem::wordWrap() const
 {
     return wordwrap;
 }
+
+void QTableItem::setEditType( EditType t )
+{
+    EditType old = edType;
+    edType = t;
+    table()->editTypeChanged( this, old );
+}
+
+QTableItem::EditType QTableItem::editType() const
+{
+    return edType;
+}
+
+void QTableItem::setTypeChangeAllowed( bool b )
+{
+    tcha = b;
+}
+
+bool QTableItem::isTypeChangeAllowed() const
+{
+    return tcha;
+}
+
+
 
 /*!
   \class QTable qtable.h
@@ -335,8 +363,26 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     QRect focusRect = cellGeometry( curRow, curCol );
     p->setPen( QPen( black, 1 ) );
     p->setBrush( NoBrush );
-    p->drawRect( focusRect.x() - 2, focusRect.y() - 2, focusRect.width() + 3, focusRect.height() + 3 );
+    bool focusEdited = FALSE;
+    if ( edMode != NotEditing &&
+	 curRow == editRow && curCol == editCol )
+	focusEdited = TRUE;
+    if ( !focusEdited ) {
+	QTableItem *i = cellContent( curRow, curCol );
+	focusEdited = ( i &&
+			( i->editType() == QTableItem::Always ||
+			  ( i->editType() == QTableItem::OnCurrent && curRow == i->row && curCol == i->col ) ) );
+    }
     p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
+    if ( !focusEdited ) {
+	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
+    } else {
+	if ( curRow == rows() - 1 )
+	    focusRect.setHeight( focusRect.height() - 1 );
+	if ( curCol == cols() - 1 )
+	    focusRect.setWidth( focusRect.width() - 1 );
+	p->drawRect( focusRect.x() - 2, focusRect.y() - 2, focusRect.width() + 3, focusRect.height() + 3 );
+    }
 
     // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );
@@ -435,6 +481,8 @@ void QTable::setCellContent( int row, int col, QTableItem *item )
 	delete contents[ indexOf( row, col ) ];
 
     contents.insert( indexOf( row, col ), item ); // contents lookup and assign
+    item->row = row;
+    item->col = col;
     updateCell( row, col ); // repaint
 }
 
@@ -505,6 +553,9 @@ QPixmap QTable::cellPixmap( int row, int col ) const
 void QTable::setCurrentCell( int row, int col )
 {
     if ( curRow != row || curCol != col ) {
+	QTableItem *item = cellContent( curRow, curCol );
+	if ( item && item->editType() == QTableItem::OnCurrent )
+	    endEdit( curRow, curCol, TRUE, item->lastEditor );
 	int oldRow = curRow;
 	int oldCol = curCol;
 	curRow = row;
@@ -519,6 +570,13 @@ void QTable::setCurrentCell( int row, int col )
 	}
 	topHeader->setSectionState( curCol, isColSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
+	item = cellContent( curRow, curCol );
+	if ( item && item->editType() == QTableItem::OnCurrent )
+	    beginEdit( curRow, curCol, FALSE );
+	else if ( item && item->editType() == QTableItem::Always )
+	    item->lastEditor->setFocus();
+	editRow = editCol = -1;
+	edMode = NotEditing;
     }
 }
 
@@ -529,9 +587,12 @@ void QTable::ensureCellVisible( int row, int col )
     ensureVisible( columnPos( col ) + cw / 2, rowPos( row ) + rh / 2, cw / 2, rh / 2 );
 }
 
-bool QTable::isSelected( int row, int col )
+bool QTable::isSelected( int row, int col ) const
 {
-    for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+    QListIterator<SelectionRange> it( selections );
+    SelectionRange *s;
+    while ( ( s = it.current() ) != 0 ) {
+	++it;
 	if ( s->active &&
 	     row >= s->topRow &&
 	     row <= s->bottomRow &&
@@ -544,10 +605,13 @@ bool QTable::isSelected( int row, int col )
     return FALSE;
 }
 
-bool QTable::isRowSelected( int row, bool full )
+bool QTable::isRowSelected( int row, bool full ) const
 {
     if ( !full ) {
-	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	QListIterator<SelectionRange> it( selections );
+	SelectionRange *s;
+	while ( ( s = it.current() ) != 0 ) {
+	    ++it;
 	    if ( s->active &&
 		 row >= s->topRow &&
 		 row <= s->bottomRow )
@@ -556,7 +620,10 @@ bool QTable::isRowSelected( int row, bool full )
 	    return TRUE;
 	}
     } else {
-	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	QListIterator<SelectionRange> it( selections );
+	SelectionRange *s;
+	while ( ( s = it.current() ) != 0 ) {
+	    ++it;
 	    if ( s->active &&
 		 row >= s->topRow &&
 		 row <= s->bottomRow &&
@@ -568,10 +635,13 @@ bool QTable::isRowSelected( int row, bool full )
     return FALSE;
 }
 
-bool QTable::isColSelected( int col, bool full )
+bool QTable::isColSelected( int col, bool full ) const
 {
     if ( !full ) {
-	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	QListIterator<SelectionRange> it( selections );
+	SelectionRange *s;
+	while ( ( s = it.current() ) != 0 ) {
+	    ++it;
 	    if ( s->active &&
 		 col >= s->leftCol &&
 		 col <= s->rightCol )
@@ -580,7 +650,10 @@ bool QTable::isColSelected( int col, bool full )
 	    return TRUE;
 	}
     } else {
-	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	QListIterator<SelectionRange> it( selections );
+	SelectionRange *s;
+	while ( ( s = it.current() ) != 0 ) {
+	    ++it;
 	    if ( s->active &&
 		 col >= s->leftCol &&
 		 col <= s->rightCol &&
@@ -590,6 +663,26 @@ bool QTable::isColSelected( int col, bool full )
 	}
     }
     return FALSE;
+}
+
+int QTable::selectionCount() const
+{
+    return selections.count();
+}
+
+bool QTable::selection( int num, int &topRow, int &leftCol, int &bottomRow, int &rightCol )
+{
+    if ( num < 0 || num >= (int)selections.count() ) {
+	topRow = leftCol = bottomRow = rightCol = -1;
+	return FALSE;
+    }
+    
+    SelectionRange *s = selections.at( num );
+    topRow = s->topRow;
+    leftCol = s->leftCol;
+    bottomRow = s->bottomRow;
+    rightCol = s->rightCol;
+    return TRUE;
 }
 
 /*!  \reimp
@@ -706,16 +799,19 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 
     switch ( e->type() ) {
     case QEvent::KeyPress: {
+	QTableItem *item = cellContent( curRow, curCol );
 	if ( isEditing() && editorWidget && o == editorWidget ) {
+	    item = cellContent( editRow, editCol );
 	    QKeyEvent *ke = (QKeyEvent*)e;
-
 	    if ( ke->key() == Key_Escape ) {
-		endEdit( editRow, editCol, FALSE, editorWidget );
+		if ( !item || item->editType() == QTableItem::OnActivate )
+		    endEdit( editRow, editCol, FALSE, editorWidget );
 		return TRUE;
 	    }
 
 	    if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-		endEdit( editRow, editCol, TRUE, editorWidget );
+		if ( !item || item->editType() == QTableItem::OnActivate )
+		    endEdit( editRow, editCol, TRUE, editorWidget );
 		activateNextCell();
 		return TRUE;
 	    }
@@ -724,20 +820,37 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		 ( ke->key() == Key_Up || ke->key() == Key_Prior || ke->key() == Key_Home ||
 		   ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
 		   ke->key() == Key_Left || ke->key() == Key_Right ) ) {
-		endEdit( editRow, editCol, TRUE, editorWidget );
+		if ( !item || item->editType() == QTableItem::OnActivate )
+		    endEdit( editRow, editCol, TRUE, editorWidget );
 		keyPressEvent( ke );
 		return TRUE;
 	    }
+	} else if ( item &&
+		    ( ( item->editType() == QTableItem::OnCurrent &&
+			item->row == curRow && item->col == curCol ) ||
+		      ( item->editType() == QTableItem::Always ) ) && o == item->lastEditor ) {
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    if ( ( ke->state() & ControlButton ) == ControlButton || 
+		 ( ke->key() != Key_Left && ke->key() != Key_Right && ke->key() != Key_Up &&
+		   ke->key() != Key_Down && ke->key() != Key_Prior && ke->key() != Key_Next &&
+		   ke->key() != Key_Home && ke->key() != Key_End ) )
+		return FALSE;
+	    keyPressEvent( (QKeyEvent*)e );
+	    return TRUE;
 	}
+	
 	} break;
     case QEvent::FocusOut:
 	if ( o == this || o == viewport() )
 	    return TRUE;
-	if ( isEditing() && editorWidget && o == editorWidget )
-	    endEdit( editRow, editCol, TRUE, editorWidget );
+	if ( isEditing() && editorWidget && o == editorWidget ) {
+	    QTableItem *item = cellContent( editRow, editCol );
+	    if ( !item || item->editType() == QTableItem::OnActivate )
+		endEdit( editRow, editCol, TRUE, editorWidget );
+	}
 	break;
     case QEvent::FocusIn:
-	if ( o == this || o == viewport() )
+ 	if ( o == this || o == viewport() )
 	    return TRUE;
 	break;
     default:
@@ -786,14 +899,18 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	break;
     default: // ... or start in-place editing
 	if ( e->text()[ 0 ].isPrint() ) {
-	    beginEdit( curRow, curCol, TRUE );
-	    QApplication::sendEvent( editorWidget, e );
+	    QTableItem *item = cellContent( curRow, curCol );
+	    if ( !item || item->editType() == QTableItem::OnActivate ) {
+		beginEdit( curRow, curCol, TRUE );
+		if ( editorWidget )
+		    QApplication::sendEvent( editorWidget, e );
+	    }
 	}
     }
 
-    setCurrentCell( curRow, curCol );
     if ( navigationKey ) {
 	if ( ( e->state() & ShiftButton ) == ShiftButton ) {
+	    setCurrentCell( curRow, curCol );
 	    if ( !currentSelection ) {
 		currentSelection = new SelectionRange();
 		selections.append( currentSelection );
@@ -804,7 +921,10 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    repaintSelections( &oldSelection, currentSelection );
 	} else {
 	    clearSelection();
+	    setCurrentCell( curRow, curCol );
 	}	
+    } else {
+	setCurrentCell( curRow, curCol );
     }
 }
 
@@ -858,11 +978,25 @@ void QTable::showEvent( QShowEvent *e )
 /*!  Repaints the cell \a row, \a col.
 */
 
+static bool inUpdateCell = FALSE;
+
 void QTable::updateCell( int row, int col )
 {
+    if ( inUpdateCell )
+	return;
+    inUpdateCell = TRUE;
     QRect cg = cellGeometry( row, col );
-    QRect r( cg.x() - 2, cg.y() - 2, cg.width() + 4, cg.height() + 4 );
-    repaintContents( r, FALSE );
+    QRect r( contentsToViewport( QPoint( cg.x() - 2, cg.y() - 2 ) ), QSize( cg.width() + 4, cg.height() + 4 ) );
+    QApplication::postEvent( viewport(), new QPaintEvent( r, FALSE ) );
+    QTableItem *i = cellContent( row, col );
+    if ( i && i->editType() == QTableItem::Always ) {
+	beginEdit( row, col, FALSE );
+	editRow = editCol = -1;
+	edMode = NotEditing;
+    }
+    if ( row != curRow || col != curCol )
+	viewport()->setFocus();
+    inUpdateCell = FALSE;
 }
 
 /*!  This function is called if the width of the column \a col has
@@ -878,10 +1012,30 @@ void QTable::columnWidthChanged( int col, int, int )
     resizeContents( s.width(), s.height() );
     if ( contentsWidth() < w )
 	repaintContents( s.width(), 0, w - s.width() + 1, contentsHeight(), TRUE );
-    if ( editorWidget ) {
-	moveChild( editorWidget, columnPos( curCol ) + 1, rowPos( curRow ) + 1 );
-	editorWidget->resize( columnWidth( curCol ) - 2, rowHeight( curRow ) - 2 );
+    if ( editorWidget && isEditing() ) {
+	moveChild( editorWidget, columnPos( curCol ) - 1, rowPos( editRow ) - 1 );
+	editorWidget->resize( columnWidth( editCol ) + 1, rowHeight( editRow ) + 1 );
     }
+
+    QTableItem *item = 0;
+    for ( int j = col; j < cols(); ++j ) {
+	for ( int i = 0; i < rows(); ++i ) {
+	    item = cellContent( i, j );
+	    if ( !item || item->editType() != QTableItem::Always || !item->lastEditor )
+		continue;
+	    moveChild( item->lastEditor, columnPos( j ) - 1, rowPos( i ) - 1 );
+	    item->lastEditor->resize( columnWidth( j ) + 1, rowHeight( i ) + 1 );
+	}
+    }
+
+    if ( curCol == col ) {
+	item = cellContent( curRow, curCol );
+	if ( item && item->editType() == QTableItem::OnCurrent && item->lastEditor ) {
+	    moveChild( item->lastEditor, columnPos( col ) - 1, rowPos( curRow ) - 1 );
+	    item->lastEditor->resize( columnWidth( col ) + 1, rowHeight( curRow ) + 1 );
+	}
+    }
+
     updateGeometries();
 }
 
@@ -898,10 +1052,30 @@ void QTable::rowHeightChanged( int row, int, int )
     resizeContents( s.width(), s.height() );
     if ( contentsHeight() < h )
 	repaintContents( 0, contentsHeight(), contentsWidth(), h - s.height() + 1, TRUE );
-    if ( editorWidget ) {
-	moveChild( editorWidget, columnPos( curCol ) + 1, rowPos( curRow ) + 1 );
-	editorWidget->resize( columnWidth( curCol ) - 2, rowHeight( curRow ) - 2 );
+    if ( editorWidget && isEditing() ) {
+	moveChild( editorWidget, columnPos( editCol ) - 1, rowPos( editRow ) - 1 );
+	editorWidget->resize( columnWidth( editCol ) + 1, rowHeight( editRow ) + 1 );
     }
+
+    QTableItem *item = 0;
+    for ( int j = row; j < rows(); ++j ) {
+	for ( int i = 0; i < cols(); ++i ) {
+	    item = cellContent( j, i );
+	    if ( !item || item->editType() != QTableItem::Always || !item->lastEditor )
+		continue;
+	    moveChild( item->lastEditor, columnPos( i ) - 1, rowPos( j ) - 1 );
+	    item->lastEditor->resize( columnWidth( i ) + 1, rowHeight( j ) + 1 );
+	}
+    }
+
+    if ( curRow == row ) {
+	item = cellContent( curRow, curCol );
+	if ( item && item->editType() == QTableItem::OnCurrent && item->lastEditor ) {
+	    moveChild( item->lastEditor, columnPos( curCol ) - 1, rowPos( curRow ) - 1 );
+	    item->lastEditor->resize( columnWidth( curCol ) + 1, rowHeight( curRow ) + 1 );
+	}
+    }
+
     updateGeometries();
 }
 
@@ -1022,6 +1196,42 @@ int QTable::cols() const
     return topHeader->count();
 }
 
+void QTable::setRows( int r )
+{
+    if ( r > rows() ) {
+	while ( rows() < r ) {
+	    leftHeader->addLabel( QString::number( rows() + 1 ) );
+	    leftHeader->resizeSection( rows() - 1, 20 );
+	}
+    } else {
+	qWarning( "decreasing the number of rows is not implemented yet!" );
+	return;
+    }
+    contents.resize( rows() * cols() );
+    QRect r2( cellGeometry( rows() - 1, cols() - 1 ) );
+    resizeContents( r2.right() + 1, r2.bottom() + 1 );
+    updateGeometries();
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+}
+
+void QTable::setCols( int c )
+{
+    if ( c > cols() ) {
+	while ( cols() < c ) {
+	    topHeader->addLabel( QString::number( cols() + 1 ) );
+	    topHeader->resizeSection( cols() - 1, 100 );
+	}
+    } else {
+	qWarning( "decreasing the number of columns is not implemented yet!" );
+	return;
+    }
+    contents.resize( rows() * cols() );
+    QRect r( cellGeometry( rows() - 1, cols() - 1 ) );
+    resizeContents( r.right() + 1, r.bottom() + 1 );
+    updateGeometries();
+    repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
+}
+
 /*!  Sets the QValidator which should be used by default for editing
   cells to \a validator.
 */
@@ -1055,26 +1265,38 @@ QValidator *QTable::defaultValidator() const
 
   You can reimplement that if you want to create an own editor
   depending on the cell.
+
+  Returning 0 here means that the cell is not editable.
 */
 
 QWidget *QTable::editor( int row, int col, bool initFromCell ) const
 {
     QWidget *e = 0;
 
-    if ( initFromCell ) {
-	QTableItem *i = cellContent( row, col );
-	if ( i )
+    // the current item in the cell should be edited if possible
+    QTableItem *i = cellContent( row, col );
+    if ( initFromCell || i && !i->isTypeChangeAllowed() ) {
+	if ( i ) {
 	    e = i->editor();
+	    if ( !e || i->editType() == QTableItem::Never )
+		return 0;
+	    if ( e )
+		i->lastEditor = e;
+	}
     }
 
-    if ( !e ) {
-	e = new QLineEdit( viewport() );
-	( (QLineEdit*)e )->setFrame( FALSE );
-	( (QLineEdit*)e )->setValidator( defaultValidator() );
-	if ( initFromCell )
-	    ( (QLineEdit*)e )->setText( cellText( row, col ) );
-    }
+    // no contents in the cell yet, so open the default editor
+    if ( !e )
+	e = defaultEditor();
 
+    return e;
+}
+
+QWidget *QTable::defaultEditor() const
+{
+    QLineEdit *e = new QLineEdit( viewport() );
+    e->setFrame( FALSE );
+    e->setValidator( defaultValidator() );
     return e;
 }
 
@@ -1088,6 +1310,9 @@ QWidget *QTable::editor( int row, int col, bool initFromCell ) const
 
 void QTable::beginEdit( int row, int col, bool replace )
 {
+    QTableItem *item = cellContent( row, col );
+    if ( item && item->lastEditor )
+	return;
     ensureCellVisible( curRow, curCol );
     editorWidget = editor( row, col, !replace );
     if ( !editorWidget )
@@ -1101,6 +1326,7 @@ void QTable::beginEdit( int row, int col, bool replace )
     edMode = replace ? Replacing : Editing;
     editRow = row;
     editCol = col;
+    updateCell( row, col );
 }
 
 /*!  This function is called if in-place editing of the cell \a row,
@@ -1125,6 +1351,7 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
 	updateCell( row, col );
 	edMode = NotEditing;
 	viewport()->setFocus();
+	updateCell( row, col );
 	return;
     }
 
@@ -1144,6 +1371,7 @@ void QTable::endEdit( int row, int col, bool accept, QWidget *editor )
     viewport()->setFocus();
     updateCell( row, col );
     edMode = NotEditing;
+    updateCell( row, col );
 }
 
 /*!  This function is called to set the contents of the cell \a row,
@@ -1244,7 +1472,7 @@ void QTable::clearSelection()
 
     int i;
     for ( i = 0; i <= cols(); ++i ) {
-	if ( !isColSelected( i ) )
+	if ( !isColSelected( i ) && i != curCol )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
 	else if ( isColSelected( i, TRUE ) )
 	    topHeader->setSectionState( i, QTableHeader::Selected );
@@ -1253,7 +1481,7 @@ void QTable::clearSelection()
     }
 
     for ( i = 0; i <= rows(); ++i ) {
-	if ( !isRowSelected( i ) )
+	if ( !isRowSelected( i ) && i != curRow )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
 	else if ( isRowSelected( i, TRUE ) )
 	    leftHeader->setSectionState( i, QTableHeader::Selected );
@@ -1351,6 +1579,12 @@ bool QTable::SelectionRange::operator==( const SelectionRange &s ) const
 	     s.rightCol == rightCol );
 }
 
+void QTable::editTypeChanged( QTableItem *i, QTableItem::EditType old )
+{
+    if ( old == QTableItem::Always )
+	endEdit( i->row, i->col, TRUE, i->lastEditor );
+    updateCell( i->row, i->col );
+}
 
 
 
@@ -1375,6 +1609,13 @@ QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name 
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
+}
+
+void QTableHeader::addLabel( const QString &s )
+{
+    states.resize( states.count() + 1 );
+    states[ states.count() - 1 ] = Normal;
+    QHeader::addLabel( s );
 }
 
 void QTableHeader::setSectionState( int s, SectionState state )
@@ -1545,3 +1786,4 @@ void QTableHeader::doAutoScroll()
     updateSelections();
     autoScrollTimer->start( 100, TRUE );
 }
+

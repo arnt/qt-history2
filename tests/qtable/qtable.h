@@ -17,6 +17,7 @@
 #include <qheader.h>
 #include <qarray.h>
 #include <qlist.h>
+#include <qguardedptr.h>
 
 class QTableHeader;
 class QValidator;
@@ -29,8 +30,11 @@ class QTableItem : public Qt
     friend class QTable;
 
 public:
+    enum EditType { Never, OnCurrent, OnActivate, Always };
+
     QTableItem( QTable *table, const QString &t, const QPixmap p )
-	: txt( t ), pix( p ), t( table ), wordwrap( FALSE ) {}
+	: txt( t ), pix( p ), t( table ), edType( OnActivate ), wordwrap( FALSE ),
+	  tcha( TRUE ), lastEditor( 0 ), row( -1 ), col( -1 ) {}
     virtual ~QTableItem() {}
 
     virtual QPixmap pixmap() const;
@@ -38,13 +42,18 @@ public:
     virtual void setPixmap( const QPixmap &p );
     virtual void setText( const QString &t );
     QTable *table() const { return t; }
-    virtual QWidget *editor() const;
-    virtual void setContentFromEditor( QWidget *w );
 
     virtual int alignment() const;
     virtual void setWordWrap( bool b );
     bool wordWrap() const;
-    
+
+    virtual void setEditType( EditType );
+    EditType editType() const;
+    virtual QWidget *editor() const;
+    virtual void setContentFromEditor( QWidget *w );
+    virtual void setTypeChangeAllowed( bool );
+    bool isTypeChangeAllowed() const;
+
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
@@ -52,8 +61,12 @@ private:
     QString txt;
     QPixmap pix;
     QTable *t;
-    bool wordwrap;
-    
+    EditType edType;
+    uint wordwrap : 1;
+    uint tcha : 1;
+    QGuardedPtr<QWidget> lastEditor;
+    int row, col;
+
 };
 
 class QTable : public QScrollView
@@ -67,6 +80,9 @@ public:
 
     QTable( int numRows, int numCols, QWidget* parent=0, const char* name=0 );
     ~QTable();
+
+    QHeader *horizontalHeader() const { return (QHeader*)topHeader; }
+    QHeader *verticalHeader() const { return (QHeader*)leftHeader; }
 
     virtual void setCellContent( int row, int col, QTableItem *item );
     virtual void setCellText( int row, int col, const QString &text );
@@ -85,6 +101,8 @@ public:
     virtual int rowAt( int pos ) const;
     QSize tableSize() const;
 
+    virtual void setRows( int r );
+    virtual void setCols( int r );
     int rows() const;
     int cols() const;
 
@@ -92,6 +110,7 @@ public:
 
     virtual void setDefaultValidator( QValidator *validator );
     virtual QValidator *defaultValidator() const;
+    virtual QWidget *defaultEditor() const;
     QWidget *editor( int row, int col, bool initFromCell ) const;
     virtual void beginEdit( int row, int col, bool replace );
     virtual void endEdit( int row, int col, bool accept, QWidget *editor );
@@ -106,11 +125,13 @@ public:
     int currentCol() const { return curCol; }
     void ensureCellVisible( int row, int col );
 
-    bool isSelected( int row, int col );
-    bool isRowSelected( int row, bool full = FALSE );
-    bool isColSelected( int col, bool full = FALSE );
+    bool isSelected( int row, int col ) const;
+    bool isRowSelected( int row, bool full = FALSE ) const;
+    bool isColSelected( int col, bool full = FALSE ) const;
     void clearSelection();
-
+    int selectionCount() const;
+    bool selection( int num, int &topRow, int &leftCol, int &bottomRow, int &rightCol );
+    
     void setShowGrid( bool b );
     bool showGrid() const;
 
@@ -170,6 +191,7 @@ private:
     void activateNextCell();
     void fixRow( int &row, int y );
     void fixCol( int &col, int x );
+    void editTypeChanged( QTableItem *i, QTableItem::EditType old );
 
 private:
     QVector<QTableItem> contents;
@@ -179,7 +201,7 @@ private:
     QValidator *defValidator;
     EditMode edMode;
     int editCol, editRow;
-    QWidget *editorWidget;
+    QGuardedPtr<QWidget> editorWidget;
     QList<SelectionRange> selections;
     SelectionRange *currentSelection;
     QTimer *autoScrollTimer;
@@ -199,6 +221,7 @@ public:
     };
 
     QTableHeader( int, QTable *t, QWidget *parent=0, const char *name=0 );
+    void addLabel( const QString &s );
 
     void setSectionState( int s, SectionState state );
     SectionState sectionState( int s ) const;
