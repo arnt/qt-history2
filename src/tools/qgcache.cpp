@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#32 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#32 $");
 
 
 /*!
@@ -207,6 +207,7 @@ QGCache::QGCache( int maxCost, uint size,
 */
 
 QGCache::QGCache( const QGCache & )
+    : QCollection()
 {
 #if defined(CHECK_NULL)
     fatal( "QGCache::QGCache(QGCache &): Cannot copy a cache" );
