@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#81 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#80 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#81 $";
 #endif
 
 
@@ -1119,7 +1119,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	gc = alloc_painter_gc( dpy, w->handle() );
-	cfont = w->fontRef();			// use widget font
+	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
