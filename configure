@@ -20,9 +20,13 @@ if [ "$relpath" != `pwd` ]; then
        if [ -d $a ]; then
 	    mkdir -p $my_a
        else
-            a_dir=`dirname $my_a`
-	    [ ! -d $a_dir ] && mkdir -p $a_dir
-	    ln -sf $a $my_a
+           a_dir=`dirname $my_a`
+	   [ ! -d $a_dir ] && mkdir -p $a_dir
+	   case `basename $a` in
+	   *.xml|*.png|*.gif|*.html|*.doc|*.txt) ;;
+	   qconfig.h|qmodules.h|qfeatures.h) cp $a $a_dir ;;
+	   *) ln -sf $a $my_a ;;
+	   esac
        fi
     done
     relpath=`pwd`
