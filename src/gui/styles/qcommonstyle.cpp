@@ -1203,8 +1203,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                     QIcon::Mode mode;
                     if (!(toolbutton->state & Style_Enabled))
                         mode = QIcon::Disabled;
-                    else if (opt->state & (Style_Down | Style_On) ||
-                             ((opt->state & Style_MouseOver) && (opt->state & Style_AutoRaise)))
+                    else if ((opt->state & Style_MouseOver) && (opt->state & Style_AutoRaise))
                         mode = QIcon::Active;
                     else
                         mode = QIcon::Normal;
@@ -1994,7 +1993,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
             drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
-
         }
         break;
     case CC_TitleBar:
