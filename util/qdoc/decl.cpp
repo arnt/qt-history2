@@ -617,7 +617,7 @@ Decl *Decl::resolveHere( int whichSymTable, const QString& name ) const
 	return (Decl *) this;
 
     /*
-      We have to be careful about 'a(B::C)'.
+      We have to be careful about 'a(B::C)' and 'operator std::string'.
     */
     QMap<QString, Decl *>::ConstIterator s;
     QString left = name;
@@ -626,7 +626,8 @@ Decl *Decl::resolveHere( int whichSymTable, const QString& name ) const
     int k = left.find( gulbrandsen );
     if ( k != -1 ) {
 	int ell = left.find( QChar('(') );
-	if ( ell == -1 || ell > k ) {
+	if ( (ell == -1 || ell > k) &&
+	     name.mid(k - 3, 11) != QString("std::string") ) {
 	    right = left.mid( k + 2 );
 	    left.truncate( k );
 	}
