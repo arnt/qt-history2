@@ -50,7 +50,7 @@ typedef pthread_mutex_t Q_MUTEX_T;
 
 
 static QThreadInstance main_instance = {
-    0, { 0, 0 }, 0, 0, 0, 0, PTHREAD_COND_INITIALIZER, 0
+    0, { 0, &main_instance }, 0, 0, 1, 0, PTHREAD_COND_INITIALIZER, 0
 };
 
 

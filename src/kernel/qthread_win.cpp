@@ -47,7 +47,7 @@
 
 
 static QThreadInstance main_instance = {
-    0, { 0, 0 }, 0, 0, 1, 0, 0, 0
+    0, { 0, &main_instance }, 0, 0, 1, 0, 0, 0
 };
 
 
