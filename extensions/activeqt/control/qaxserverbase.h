@@ -73,7 +73,7 @@ class QAxServerBase :
     public CComObjectRootEx<CComSingleThreadModel>,
     public IDispatch,
     public CComControl<QAxServerBase>,
-    public IOleControlImpl<QAxServerBase>,
+    public IOleControl,
     public IOleObjectImpl<QAxServerBase>,
     public IViewObjectExImpl<QAxServerBase>,
     public IOleInPlaceObjectWindowlessImpl<QAxServerBase>,
@@ -104,8 +104,8 @@ BEGIN_COM_MAP(QAxServerBase)
     COM_INTERFACE_ENTRY_IMPL_IID(IID_IOleInPlaceObject, IOleInPlaceObjectWindowless)
     COM_INTERFACE_ENTRY_IMPL_IID(IID_IOleWindow, IOleInPlaceObjectWindowless)
     COM_INTERFACE_ENTRY_IMPL(IOleInPlaceActiveObject)
-    COM_INTERFACE_ENTRY_IMPL(IOleControl)
     COM_INTERFACE_ENTRY_IMPL(IOleObject)
+    COM_INTERFACE_ENTRY(IOleControl)
     COM_INTERFACE_ENTRY(IConnectionPointContainer)
     COM_INTERFACE_ENTRY(IProvideClassInfo)
     COM_INTERFACE_ENTRY(IProvideClassInfo2)
@@ -206,7 +206,10 @@ END_MSG_MAP()
 
 
 // IOleControl
+    STDMETHOD(FreezeEvents)(BOOL);
+    STDMETHOD(GetControlInfo)(LPCONTROLINFO);
     STDMETHOD(OnAmbientPropertyChange)(DISPID);
+    STDMETHOD(OnMnemonic)(LPMSG);
 
 // IOleObject
     STDMETHOD(GetUserType)(DWORD dwFormOfType, LPOLESTR *pszUserType);

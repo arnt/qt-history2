@@ -226,6 +226,23 @@ HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
     return nRes;
 }
 
+// Dummy method for object map
+static void WINAPI ObjectMain( bool /*bStarting*/ )
+{
+}
+
+// Dummy method for object map
+static LPCTSTR WINAPI GetObjectDescription()
+{
+    return 0;
+}
+
+// Dummy method for object map
+static const _ATL_CATMAP_ENTRY* GetCategoryMap()
+{
+    return 0;
+}
+
 char module_filename[MAX_PATH];
 
 
@@ -938,9 +955,9 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 		ObjectMap[object].pfnCreateInstance = CreateInstance;
 		ObjectMap[object].pCF = NULL;
 		ObjectMap[object].dwRegister = 0;
-		ObjectMap[object].pfnGetObjectDescription = 0;
-		ObjectMap[object].pfnGetCategoryMap = 0;
-		ObjectMap[object].pfnObjectMain = 0;
+		ObjectMap[object].pfnGetObjectDescription = GetObjectDescription;
+		ObjectMap[object].pfnGetCategoryMap = GetCategoryMap;
+		ObjectMap[object].pfnObjectMain = ObjectMain;
 		++object;
 	    }
 

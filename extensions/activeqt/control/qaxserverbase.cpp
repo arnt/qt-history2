@@ -973,6 +973,35 @@ HRESULT QAxServerBase::IsDirty()
 
 //**** IOleControl
 /*!
+    Return E_NOTIMPL
+*/
+HRESULT QAxServerBase::GetControlInfo( LPCONTROLINFO )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Turns event firing on and off.
+*/
+HRESULT QAxServerBase::FreezeEvents( BOOL bFreeze )
+{
+    // member of CComControl
+    if ( bFreeze )
+	m_nFreezeEvents++;
+    else
+	m_nFreezeEvents--;
+
+    return S_OK;
+}
+
+/*!
+    Return E_NOTIMPL
+*/
+HRESULT QAxServerBase::OnMnemonic( LPMSG )
+{
+    return E_NOTIMPL;
+}
+/*!
     Update the ambient properties of the Qt widget.
 */
 HRESULT QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
