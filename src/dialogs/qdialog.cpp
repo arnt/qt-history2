@@ -539,11 +539,8 @@ void QDialog::show()
 	return;
     if ( !did_resize )
 	adjustSize();
-    if ( has_relpos ) {
-	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget(), TRUE );
-    } else if ( !did_move ) {
-	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget() );
-    }
+    if ( has_relpos || !did_move )
+	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget(), has_relpos );
     QWidget::show();
 #ifndef QT_NO_PUSHBUTTON
     QWidget *fw = focusWidget();
