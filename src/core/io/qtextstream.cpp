@@ -1794,11 +1794,7 @@ QTextStream &QTextStream::operator<<(const void *p)
     NumberDisplayFlags oldFlags = d->numberDisplayFlags;
     d->numberBase = 16;
     d->numberDisplayFlags |= ShowBase;
-#if !defined (QT_POINTER_SIZE) || (QT_POINTER_SIZE == 4)
-    d->putNumber((qint32)p, false);
-#else
-    d->putNumber((qint64)p, false);
-#endif
+    d->putNumber(reinterpret_cast<quint64>(p), false);
     d->numberBase = oldBase;
     d->numberDisplayFlags = oldFlags;
 
