@@ -23,6 +23,13 @@ SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
 	 projectgenerator.cpp metrowerks_xml.cpp mingw_make.cpp \
          pbuilder_pbx.cpp msvc_objectmodel.cpp qtmd5.cpp makefiledeps.cpp \
          metamakefile.cpp
+HEADERS+=project.h property.h makefile.h \
+         unixmake.h meta.h \
+         borland_bmake.h msvc_nmake.h \
+	 msvc_dsp.h msvc_vcproj.h option.h winmakefile.h \
+	 projectgenerator.h metrowerks_xml.h mingw_make.h \
+         pbuilder_pbx.h msvc_objectmodel.h qtmd5.h makefiledeps.h \
+         metamakefile.h
 
 #Qt code
 SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
@@ -32,7 +39,18 @@ SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
 	 qfile.cpp qregexp.cpp quuid.cpp \
 	 qvector.cpp qbitarray.cpp qdir.cpp qhash.cpp \
 	 qfileinfo.cpp qdatetime.cpp qstringlist.cpp qmap.cpp \
-	 qsettings.cpp qunicodetables.cpp qlocale.cpp 
+	 qsettings.cpp qunicodetables.cpp qlocale.cpp \
+	 qfsfileengine.cpp qfsfileinfoengine.cpp qfsdirengine.cpp
+HEADERS+=qchar.h qstring.h qstringmatcher.h \
+         qtextstream.h qiodevice.h qglobal.h \
+	 qbytearray.h qbytearraymatcher.h \
+	 qdatastream.h qbuffer.h qlist.h\
+	 qfile.h qregexp.h quuid.h \
+	 qvector.h qbitarray.h qdir.h qhash.h \
+	 qfileinfo.h qdatetime.h qstringlist.h qmap.h \
+	 qsettings.h qlocale.h \
+	 qfileengine.h qfileinfoengine.h qdirengine.h \
+	 qfileengine_p.h qfileinfoengine_p.h qdirengine_p.h 
 
 exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
@@ -54,6 +72,7 @@ unix {
 win32 {
    SOURCES += qfsfileengine_win.cpp qfsfileinfoengine_win.cpp qfsdirengine_win.cpp \
               qsettings_win.cpp qlibrary_win.cpp qlibrary.cpp 
+   HEADERS += qsettings.h qlibrary.h qlibrary.h 
    win32-msvc*:LIBS += ole32.lib advapi32.lib
 }
 macx-*: LIBS += -framework CoreServices
