@@ -60,7 +60,7 @@ public:
     void editSelectAll();
 
     void configChanged();
-    void refresh();
+    void refresh( bool allowSave );
 
     EditorInterface *editorInterface() const { return iFace; }
 

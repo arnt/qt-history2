@@ -883,10 +883,10 @@ void MainWindow::helpRegister()
 	res = RegQueryValueExA( subkey, NULL, NULL, &type, data, &size );
 	command = QString::fromLocal8Bit( (const char*) data );
     }
-    
+
     res = RegCloseKey( subkey );
     res = RegCloseKey( key );
-    
+
     QProcess process( command + " www.trolltech.com/products/download/eval/evaluation.html" );
     if ( !process.start() )
 	QMessageBox::information( this, "Register Qt", "Launching your web browser failed.\n"
@@ -2687,7 +2687,7 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
     if ( editor->object() != formWindow() )
 	editor->setObject( formWindow(), formWindow()->project() );
     else if ( rereadSource )
-	editor->refresh();
+	editor->refresh( FALSE );
     editor->show();
     editor->setFocus();
     editor->setFunction( func );
@@ -2897,7 +2897,7 @@ void MainWindow::slotsChanged()
 void MainWindow::doSlotsChanged()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	e->refresh();
+	e->refresh( FALSE );
     hierarchyView->functionList()->refreshFunctions();
 }
 
@@ -3061,7 +3061,7 @@ void MainWindow::formNameChanged( FormWindow *fw )
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->object() == fw ) {
-	    e->refresh();
+	    e->refresh( TRUE );
 	    break;
 	}
     }

@@ -227,9 +227,10 @@ void SourceEditor::setModified( bool b )
     iFace->setModified( b );
 }
 
-void SourceEditor::refresh()
+void SourceEditor::refresh( bool allowSave )
 {
-    save();
+    if ( allowSave )
+	save();
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
 }
 
