@@ -1,0 +1,61 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef GROUPBOX_TASKMENU_H
+#define GROUPBOX_TASKMENU_H
+
+#include <QGroupBox>
+#include <QPointer>
+
+#include <taskmenu.h>
+#include <default_extensionfactory.h>
+
+class QLineEdit;
+class AbstractFormWindow;
+
+class GroupBoxTaskMenu: public QObject, public ITaskMenu
+{
+    Q_OBJECT
+    Q_INTERFACES(ITaskMenu)
+public:
+    GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent = 0);
+    virtual ~GroupBoxTaskMenu();
+
+    virtual QList<QAction*> taskActions() const;
+
+    bool eventFilter(QObject *object, QEvent *event);
+
+private slots:
+    void editTitle();
+    void editIcon();
+    void updateText(const QString &text);
+    void updateSelection();
+
+private:
+    QGroupBox *m_groupbox;
+    QPointer<AbstractFormWindow> m_formWindow;
+    QPointer<QLineEdit> m_editor;
+    mutable QList<QAction*> m_taskActions;
+};
+
+class GroupBoxTaskMenuFactory: public DefaultExtensionFactory
+{
+    Q_OBJECT
+public:
+    GroupBoxTaskMenuFactory(QExtensionManager *extensionManager = 0);
+
+protected:
+    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
+};
+
+#endif // GROUPBOX_TASKMENU_H

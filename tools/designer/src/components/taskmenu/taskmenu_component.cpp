@@ -13,6 +13,7 @@
 
 #include "taskmenu_component.h"
 #include "button_taskmenu.h"
+#include "groupbox_taskmenu.h"
 
 #include <abstractformeditor.h>
 
@@ -29,6 +30,9 @@ TaskMenuComponent::TaskMenuComponent(AbstractFormEditor *core, QObject *parent)
 
     ButtonTaskMenuFactory *button_factory = new ButtonTaskMenuFactory(mgr);
     mgr->registerExtensions(button_factory, Q_TYPEID(ITaskMenu));
+
+    GroupBoxTaskMenuFactory *groupbox_factory = new GroupBoxTaskMenuFactory(mgr);
+    mgr->registerExtensions(groupbox_factory, Q_TYPEID(ITaskMenu));
 }
 
 TaskMenuComponent::~TaskMenuComponent()

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "button_taskmenu.h"
+#include "groupbox_taskmenu.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -27,33 +27,33 @@
 #include <QtCore/QEvent>
 #include <QtCore/qdebug.h>
 
-ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
+GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
     : QObject(parent),
-      m_button(button)
+      m_groupbox(groupbox)
 {
 }
 
-ButtonTaskMenu::~ButtonTaskMenu()
+GroupBoxTaskMenu::~GroupBoxTaskMenu()
 {
 }
 
-QList<QAction*> ButtonTaskMenu::taskActions() const
+QList<QAction*> GroupBoxTaskMenu::taskActions() const
 {
     if (!m_taskActions.isEmpty())
         return m_taskActions;
 
     QAction *action = 0;
 
-    ButtonTaskMenu *that = const_cast<ButtonTaskMenu*>(this);
+    GroupBoxTaskMenu *that = const_cast<GroupBoxTaskMenu*>(this);
 
     action = new QAction(that);
-    action->setText(tr("Edit button text"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editText()));
+    action->setText(tr("Edit title"));
+    connect(action, SIGNAL(triggered()), this, SLOT(editTitle()));
     m_taskActions.append(action);
 
 #if 0 // ### implement me
     action = new QAction(that);
-    action->setText(tr("Edit button icon"));
+    action->setText(tr("Edit groupbox icon"));
     connect(action, SIGNAL(triggered()), this, SLOT(editIcon()));
     m_taskActions.append(action);
 #endif
@@ -61,7 +61,7 @@ QList<QAction*> ButtonTaskMenu::taskActions() const
     return m_taskActions;
 }
 
-bool ButtonTaskMenu::eventFilter(QObject *object, QEvent *event)
+bool GroupBoxTaskMenu::eventFilter(QObject *object, QEvent *event)
 {
     QLineEdit *lineEditor = qt_cast<QLineEdit*>(object);
     if (!lineEditor)
@@ -78,59 +78,60 @@ bool ButtonTaskMenu::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void ButtonTaskMenu::editText()
+void GroupBoxTaskMenu::editTitle()
 {
-    m_formWindow = AbstractFormWindow::findFormWindow(m_button);
+    m_formWindow = AbstractFormWindow::findFormWindow(m_groupbox);
     if (m_formWindow != 0) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
-        Q_ASSERT(m_button->parentWidget() != 0);
+        Q_ASSERT(m_groupbox->parentWidget() != 0);
 
         m_editor = new QLineEdit();
         m_editor->setFrame(false);
-        m_editor->setText(m_button->text());
+        m_editor->setText(m_groupbox->title());
         m_editor->selectAll();
-        m_editor->setBackgroundRole(m_button->backgroundRole());
+        m_editor->setBackgroundRole(m_groupbox->backgroundRole());
         m_editor->setObjectName("__qt__passive_m_editor");
         connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(const QString &)), this, SLOT(updateText(const QString&)));
         m_editor->installEventFilter(this); // ### we need this??
-        QStyleOptionButton opt;
-        opt.init(m_button);
-        QRect r = m_button->style()->subRect(QStyle::SR_PushButtonContents, &opt, m_button);
-        m_editor->setParent(m_button->parentWidget(), Qt::WStyle_ToolTip);
-        m_editor->setGeometry(QRect(m_button->mapToParent(r.topLeft()), r.size()));
+        QStyleOption opt; // ## QStyleOptionGroupBox
+        opt.init(m_groupbox);
+        QRect r = QRect(QPoint(), m_groupbox->size()); // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
+        r.setHeight(20);
+        m_editor->setParent(m_groupbox->parentWidget(), Qt::WStyle_ToolTip);
+        m_editor->setGeometry(QRect(m_groupbox->mapToParent(r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();
     }
 }
 
-void ButtonTaskMenu::editIcon()
+void GroupBoxTaskMenu::editIcon()
 {
     qDebug() << "edit icon";
 }
 
-ButtonTaskMenuFactory::ButtonTaskMenuFactory(QExtensionManager *extensionManager)
+GroupBoxTaskMenuFactory::GroupBoxTaskMenuFactory(QExtensionManager *extensionManager)
     : DefaultExtensionFactory(extensionManager)
 {
 }
 
-QObject *ButtonTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
+QObject *GroupBoxTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QAbstractButton *button = qt_cast<QAbstractButton*>(object)) {
+    if (QGroupBox *groupbox = qt_cast<QGroupBox*>(object)) {
         if (iid == Q_TYPEID(ITaskMenu)) {
-            return new ButtonTaskMenu(button, parent);
+            return new GroupBoxTaskMenu(groupbox, parent);
         }
     }
 
     return 0;
 }
 
-void ButtonTaskMenu::updateText(const QString &text)
+void GroupBoxTaskMenu::updateText(const QString &text)
 {
-    m_formWindow->cursor()->setProperty(QLatin1String("text"), QVariant(text));
+    m_formWindow->cursor()->setProperty(QLatin1String("title"), QVariant(text));
 }
 
-void ButtonTaskMenu::updateSelection()
+void GroupBoxTaskMenu::updateSelection()
 {
     if (!m_formWindow || m_formWindow != m_formWindow->core()->formWindowManager()->activeFormWindow()) {
         m_editor->deleteLater();
@@ -138,7 +139,7 @@ void ButtonTaskMenu::updateSelection()
         AbstractFormWindowCursor *c = m_formWindow->cursor();
         Q_ASSERT(c != 0);
 
-        if (!(c->selectedWidgetCount() == 1 && c->selectedWidget(0) == m_button))
+        if (!(c->selectedWidgetCount() == 1 && c->selectedWidget(0) == m_groupbox))
             m_editor->deleteLater();
     }
 }
