@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#167 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#168 $
 **
 ** Global type declarations and definitions
 **
@@ -515,6 +515,6 @@ extern bool qt_winunicode;
 #endif
 
 // Uncomment this if you want qbuilder support
-#define QT_BUILDER
+//#define QT_BUILDER
 
 #endif // QGLOBAL_H
