@@ -78,8 +78,8 @@ struct QFontDef {
 
     QString family;
 
-    short pixelSize;
-    short pointSize;
+    int pixelSize;
+    int pointSize;
     short lbearing;
     short rbearing;
 
