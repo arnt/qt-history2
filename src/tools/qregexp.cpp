@@ -2827,8 +2827,8 @@ int QRegExpEngine::getToken()
 	return Tok_Char | ']';
     case '^':
 	return Tok_Caret;
-#ifndef QT_NO_REGEXP_INTERVAL
     case '{':
+#ifndef QT_NO_REGEXP_INTERVAL
 	yyMinRep = getRep( 0 );
 	yyMaxRep = yyMinRep;
 	if ( yyCh == ',' ) {
@@ -2997,6 +2997,9 @@ void QRegExpEngine::parseAtom( Box *box )
 	break;
     case Tok_CharClass:
 	box->set( *yyCharClass );
+	break;
+    case Tok_Quantifier:
+	error( RXERR_REPETITION );
 	break;
     default:
 	if ( (yyTok & Tok_Char) != 0 )
