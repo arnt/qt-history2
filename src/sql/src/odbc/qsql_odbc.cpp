@@ -536,14 +536,14 @@ bool QODBCResult::reset ( const QString& query )
     }
     SQLSMALLINT count;
     r = SQLNumResultCols( d->hStmt, &count );
-    setSelect( r != 0 );
+    setSelect( count != 0 );
     setActive( TRUE) ;
     return FALSE;
 }
 
 bool QODBCResult::fetch(int i)
 {
-    if ( i == at() )
+    if ( i == at() ) 
         return TRUE;
     fieldCache.clear();
     nullCache.clear();
