@@ -295,9 +295,33 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                                   DrawOperation op, uint emulationSpecifier)
 {
 #ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d, emulation=%x\n",
+    if (qt_show_painter_debug_output) {
+        printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d, emulation=0x%x ( ",
            winding, shape, op, emulationSpecifier);
+        static struct { uint value; const char *text; } emuMap[] = {
+            {    0x0001, "CoordTransform "},
+            {    0x0002, "PenWidthTransform "},
+            {    0x0004, "PatternTransform "},
+            {    0x0008, "PatternBrush "},
+            {    0x0010, "PixmapTransform "},
+            {    0x0020, "LinearGradients "},
+            {    0x0040, "LinearGradientFillPolygon "},
+            {    0x0080, "PixmapScale "},
+            {    0x0100, "AlphaFill "},
+            {    0x0200, "AlphaFillPolygon "},
+            {    0x0400, "AlphaStroke "},
+            {    0x0800, "AlphaPixmap "},
+            {    0x1000, "PainterPaths "},
+            {    0x2000, "ClipTransform "},
+            {0x10000000, "UsesFontEngine "},
+            {0x20000000, "PaintOutsidePaintEvent "},
+            {       0x0, 0x0},
+        };
+        for (int i = 0; emuMap[i].text; ++i)
+            if (emulationSpecifier & emuMap[i].value)
+                printf(emuMap[i].text);
+        printf(")\n");
+    }
 #endif
     enum { Normal, PathBased, None } outlineMode = Normal;
     if (state->pen.style() == Qt::NoPen)
