@@ -428,18 +428,14 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 void QMenuBarPrivate::init()
 {
     Q_Q(QMenuBar);
-    QWidget *parent = q->parentWidget();
     q->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     q->setAttribute(Qt::WA_CustomWhatsThis);
 #ifdef Q_WS_MAC
-    macCreateMenuBar(parent);
+    macCreateMenuBar(q->parentWidget());
 #endif
     q->setBackgroundRole(QPalette::Button);
-    if(parent) {
-        q->window()->installEventFilter(q); //grab shortcuts (and maybe resizes)
-        if(!parent->isWindow())
-            parent->installEventFilter(q); //handle resizes
-    }
+    oldWindow = oldParent = 0;
+    handleReparent();
     q->setMouseTracking(q->style()->styleHint(QStyle::SH_MenuBar_MouseTracking, 0, q));
 }
 
@@ -918,6 +914,49 @@ void QMenuBar::focusOutEvent(QFocusEvent *)
     }
 }
 
+
+
+void QMenuBarPrivate::handleReparent()
+{
+    Q_Q(QMenuBar);
+    QWidget *newParent = q->parentWidget();
+    //Note: if parent is reparented, then window may change even if parent doesn't
+
+    // we need to install an event filter on parent, and remove the old one
+
+    if (oldParent != newParent) {
+        if (oldParent)
+            oldParent->removeEventFilter(q);
+        if (newParent)
+            newParent->installEventFilter(q);
+    }
+
+    //we also need event filter on top-level (for shortcuts)
+    QWidget *newWindow = newParent ? newParent->window() : 0;
+
+    if (oldWindow != newWindow) {
+        if (oldParent && oldParent != oldWindow)
+            oldWindow->removeEventFilter(q);
+
+        if (newParent && newParent != newWindow)
+            newWindow->installEventFilter(q);
+    }
+
+    oldParent = newParent;
+    oldWindow = newWindow;
+
+#ifndef QT_NO_TOOLBAR
+    doAutoResize = newParent && !qt_cast<QToolBar*>(newParent)
+# ifdef QT3_SUPPORT
+                                    && !newParent->inherits("Q3ToolBar")
+# endif
+        ;
+#else
+    doAutoResize = true;
+#endif
+}
+
+
 /*!
   \reimp
 */
@@ -929,7 +968,8 @@ void QMenuBar::changeEvent(QEvent *e)
         setMouseTracking(style()->styleHint(QStyle::SH_MenuBar_MouseTracking, 0, this));
         if(parentWidget())
             resize(parentWidget()->width(), heightForWidth(parentWidget()->width()));
-    }
+    } else if (e->type() == QEvent::ParentChange)
+        d->handleReparent();
 }
 
 /*!
@@ -983,18 +1023,16 @@ bool QMenuBar::event(QEvent *e)
 bool QMenuBar::eventFilter(QObject *object, QEvent *event)
 {
     Q_D(QMenuBar);
-    if (object == parent() && object
-#ifndef QT_NO_TOOLBAR
-        && !qt_cast<QToolBar*>(object)
-        && !object->inherits("Q3ToolBar")
-#endif
-        && event->type() == QEvent::Resize) {
-        QResizeEvent *e = (QResizeEvent *)event;
-        int w = e->size().width();
-        setGeometry(0, y(), w, heightForWidth(w));
-        return false;
+    if (object == parent() && object) {
+        if (d->doAutoResize && event->type() == QEvent::Resize) {
+            QResizeEvent *e = (QResizeEvent *)event;
+            int w = e->size().width();
+            setGeometry(0, y(), w, heightForWidth(w));
+            return false;
+        }
+        if (event->type() == QEvent::ParentChange) //GrandparentChange
+            d->handleReparent();
     }
-
     if (object == d->leftWidget || object == d->rightWidget) {
         switch (event->type()) {
         case QEvent::ShowToParent:

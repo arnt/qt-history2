@@ -86,6 +86,12 @@ public:
     //extra widgets in the menubar
     QPointer<QWidget> leftWidget, rightWidget;
 
+    // reparenting
+    void handleReparent();
+    QWidget *oldParent;
+    QWidget *oldWindow;
+    bool doAutoResize;
+
 #ifdef Q_WS_MAC
     //mac menubar binding
     struct QMacMenuBarPrivate {
