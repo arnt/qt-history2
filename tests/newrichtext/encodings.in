@@ -1,30 +1,68 @@
-gb18030-0
-gb18030.2000-0
-gbk-0
-gb2312.1980-0
-jisx0208.1997-0
-jisx0208.1990-0
-jisx0208.1983-0
-ksc5601.1987-0
-big5hkscs-0
-hkscs-1
-big5*-*
-big5-0
-iso8859-7
-iso8859-5
-microsoft-cp1251
-iso8859-8
-iso8859-6
-tscii-*
-tis620*-0
-iso8859-11
-iso8859-2
-iso8859-3
-iso8859-4
-iso8859-14
-iso8859-15
-jisx0201*-0
-mulelao-1
-koi8-ru
-koi8-u
-koi8-r
+# This file contains the mapping of xlfds to mib enum (used to convert unicode to the xlfd encoding)
+# and the QFont::Script's they support
+# the format is 'xlfd mib script,...'
+#
+# Latin
+iso8859-1 0 Ascii,Latin
+iso8859-2 5 Ascii,Latin
+iso8859-3 6 Ascii,Latin
+iso8859-4 7 Ascii,Latin
+iso8859-14 110 Ascii,Latin
+iso8859-15 111 Ascii,Latin
+#
+# Cyrillic
+iso8859-5 8 Ascii,Cyrillic
+*-cp1251 2251 Ascii,Cyrillic
+koi8-ru 2084 Cyrillic Ascii
+koi8-u 2088 Cyrillic Ascii
+koi8-r 2084 Cyrillic Ascii
+#
+# Greek
+iso8859-7 10 Ascii,Greek
+#
+# Arabic
+iso8859-6 82 Ascii,Arabic
+#
+# Hebrew
+iso8859-8 85 Ascii,Hebrew
+#
+# China, Mainland
+gb18030-0 -114 Ascii,Han,Bopomofo
+gb18030.2000-0 -113 Ascii,Han
+gbk-0 -113 Ascii,Han
+gb2312.1980-0 57 Ascii,Han
+#
+# Japan
+jisx0201*-0 15 Ascii
+jisx0208.1997-0 63 Ascii,Hiragana,Katakana,Han
+jisx0208.1990-0 63 Ascii,Hiragana,Katakana,Han
+jisx0208.1983-0 63 Ascii,Hiragana,Katakana,Han
+#
+# Korea
+ksc5601.1987-0 36 Ascii,Hangul
+#
+# Hong Kong
+big5hkscs-0 -2101 Ascii,Han
+hkscs-1 -2101 Ascii,Han
+#
+# Taiwan
+big5*-* -2026 Ascii,Han
+big5-0 -2026 Ascii,Han
+#
+# Tamil
+tscii-* 2028 Tamil
+#
+# Thai
+tis620*-0 2259 Ascii
+iso8859-11 2259 Ascii
+#
+# Lao
+mulelao-1 -4242
+#
+# Unicode
+iso10646-1 0 Unicode
+unicode-* 0 Unicode
+#
+# Other
+*-symbol 0 UnknownScript
+*-fontspecific 0 UnknownScript

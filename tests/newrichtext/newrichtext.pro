@@ -8,6 +8,7 @@ TEMPLATE = app
 HEADERS += fontengine.h \
            qfont.h \
            qfontdata_p.h \
+	   qfontdatabase.h \
            qpainter.h \
            qtextdata.h \
            qtextlayout.h \
@@ -28,6 +29,7 @@ HEADERS += fontengine.h \
 
 SOURCES += qfont.cpp \
 	   qfont_x11.cpp \
+	   qfontdatabase.cpp \
            qpainter_x11.cpp \
            qtextdata.cpp \
            qtextlayout.cpp \
