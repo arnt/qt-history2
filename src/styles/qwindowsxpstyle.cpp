@@ -504,8 +504,23 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
     }
 
-    if ( !widget->ownPalette() && widget->parentWidget(TRUE) && widget->parentWidget(TRUE)->paletteBackgroundPixmap() )
-	 widget->setBackgroundOrigin( QWidget::AncestorOrigin );
+    if ( !widget->ownPalette() && widget->parentWidget(TRUE) && widget->parentWidget(TRUE)->paletteBackgroundPixmap() ) {
+	widget->setBackgroundOrigin( QWidget::AncestorOrigin );
+	if ( ::qt_cast<QWidgetStack*>(widget->parentWidget(TRUE)) ) {
+	    // Repolish all children of a tab page to get
+	    // gradient right. ### FIX properly in 4.0!
+	    QObjectList *objList = widget->queryList( "QWidget" );
+	    if ( objList ) {
+		QObjectListIt obListIt(*objList);
+		QWidget *cw;
+		while ( (cw = (QWidget*)obListIt.current()) != 0 ) {
+		    ++obListIt;
+		    polish( cw );
+		}
+	    }
+	    delete objList;
+	}
+    }
 
     updateRegion( widget );
 }
