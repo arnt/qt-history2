@@ -36,7 +36,7 @@
 
 	setenv QTDIR /Developer/qt
 	setenv PATH $QTDIR/bin:$PATH
-	setenv MANPATH $QTDIR/doc/man:$MANPATH
+	setenv MANPATH /usr/share/man:/usr/X11R6/share/man:/usr/local/share/man:$QTDIR/doc/man:$MANPATH
 	setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
 
         ***************************WARNING******************************
@@ -53,7 +53,7 @@
 
 	QTDIR=/Developer/qt
 	PATH=$QTDIR/bin:$PATH
-	MANPATH=$QTDIR/doc/man:$MANPATH
+	MANPATH=/usr/share/man:/usr/X11R6/share/man:/usr/local/share/man:$QTDIR/doc/man:$MANPATH
 	DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
 
 	export QTDIR PATH MANPATH DYLD_LIBRARY_PATH
