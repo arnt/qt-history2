@@ -1,0 +1,450 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>MainForm</class>
+<widget class="QMainWindow">
+    <property name="name">
+        <cstring>MainForm</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>533</width>
+            <height>366</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Color Tool</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QWidgetStack">
+            <property name="name">
+                <cstring>WidgetStack</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tablePage</cstring>
+                </property>
+                <attribute name="id">
+                    <number>0</number>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QTable">
+                        <column>
+                            <property name="text">
+                                <string>Name</string>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Hex</string>
+                            </property>
+                        </column>
+                        <property name="name">
+                            <cstring>Table</cstring>
+                        </property>
+                        <property name="numRows">
+                            <number>0</number>
+                        </property>
+                        <property name="numCols">
+                            <number>2</number>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>iconPage</cstring>
+                </property>
+                <attribute name="id">
+                    <number>1</number>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QIconView">
+                        <property name="name">
+                            <cstring>IconView</cstring>
+                        </property>
+                        <property name="resizeMode">
+                            <enum>Adjust</enum>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+        </widget>
+    </vbox>
+</widget>
+<menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
+    <item text="&amp;File" name="fileMenu">
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <action name="fileSaveAsAction"/>
+        <separator/>
+        <action name="fileExitAction"/>
+    </item>
+    <item text="&amp;Edit" name="editMenu">
+        <action name="editCutAction"/>
+        <action name="editCopyAction"/>
+        <separator/>
+        <action name="editFindAction"/>
+        <separator/>
+        <action name="optionsAction"/>
+    </item>
+    <item text="&amp;View" name="viewMenu">
+    </item>
+    <item text="&amp;Help" name="helpMenu">
+        <action name="helpContentsAction"/>
+        <action name="helpIndexAction"/>
+        <separator/>
+        <action name="helpAboutAction"/>
+    </item>
+</menubar>
+<toolbars>
+    <toolbar dock="2">
+        <property name="name">
+            <cstring>toolBar</cstring>
+        </property>
+        <property name="label">
+            <string>Tools</string>
+        </property>
+        <action name="fileNewAction"/>
+        <action name="fileOpenAction"/>
+        <action name="fileSaveAction"/>
+        <separator/>
+        <action name="editCopyAction"/>
+        <action name="editCutAction"/>
+        <action name="editFindAction"/>
+        <separator/>
+        <action name="viewTableAction"/>
+        <action name="viewIconsAction"/>
+    </toolbar>
+</toolbars>
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileNewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>filenew</iconset>
+        </property>
+        <property name="text">
+            <string>New</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;New</string>
+        </property>
+        <property name="accel">
+            <number>4194382</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileOpenAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>fileopen</iconset>
+        </property>
+        <property name="text">
+            <string>Open</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Open...</string>
+        </property>
+        <property name="accel">
+            <number>4194383</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>filesave</iconset>
+        </property>
+        <property name="text">
+            <string>Save</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Save</string>
+        </property>
+        <property name="accel">
+            <number>4194387</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileSaveAsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Save As</string>
+        </property>
+        <property name="menuText">
+            <string>Save &amp;As...</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileExitAction</cstring>
+        </property>
+        <property name="text">
+            <string>Exit</string>
+        </property>
+        <property name="menuText">
+            <string>E&amp;xit</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editCutAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>editcut</iconset>
+        </property>
+        <property name="text">
+            <string>Delete</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Delete</string>
+        </property>
+        <property name="accel">
+            <number>4194392</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editCopyAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>editcopy</iconset>
+        </property>
+        <property name="text">
+            <string>Copy</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Copy</string>
+        </property>
+        <property name="accel">
+            <number>4194371</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>editFindAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>searchfind</iconset>
+        </property>
+        <property name="text">
+            <string>Find</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Find...</string>
+        </property>
+        <property name="accel">
+            <number>4194374</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpContentsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Contents</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Contents...</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpIndexAction</cstring>
+        </property>
+        <property name="text">
+            <string>Index</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Index...</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>helpAboutAction</cstring>
+        </property>
+        <property name="text">
+            <string>About</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;About</string>
+        </property>
+        <property name="accel">
+            <number>0</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>optionsAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>tabwidget.png</iconset>
+        </property>
+        <property name="text">
+            <string>Options</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Options...</string>
+        </property>
+    </action>
+    <actiongroup>
+        <property name="name">
+            <cstring>viewActionGroup</cstring>
+        </property>
+        <property name="text">
+            <string>View</string>
+        </property>
+        <property name="usesDropDown">
+            <bool>false</bool>
+        </property>
+        <action>
+            <property name="name">
+                <cstring>viewTableAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="on">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>table.png</iconset>
+            </property>
+            <property name="text">
+                <string>View Table</string>
+            </property>
+            <property name="menuText">
+                <string>View &amp;Table</string>
+            </property>
+            <property name="toolTip">
+                <string>View Table (Ctrl+T)</string>
+            </property>
+            <property name="accel">
+                <number>4194388</number>
+            </property>
+        </action>
+        <action>
+            <property name="name">
+                <cstring>viewIconsAction</cstring>
+            </property>
+            <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="iconSet">
+                <iconset>iconview.png</iconset>
+            </property>
+            <property name="text">
+                <string>View Icons</string>
+            </property>
+            <property name="menuText">
+                <string>View &amp;Icons</string>
+            </property>
+            <property name="toolTip">
+                <string>View Icons (Ctrl+I)</string>
+            </property>
+            <property name="accel">
+                <number>4194377</number>
+            </property>
+        </action>
+    </actiongroup>
+</actions>
+<connections>
+    <connection>
+        <sender>Table</sender>
+        <signal>currentChanged(int,int)</signal>
+        <receiver>MainForm</receiver>
+        <slot>changedTableColor(int,int)</slot>
+    </connection>
+    <connection>
+        <sender>IconView</sender>
+        <signal>currentChanged(QIconViewItem*)</signal>
+        <receiver>MainForm</receiver>
+        <slot>changedIconColor(QIconViewItem*)</slot>
+    </connection>
+    <connection>
+        <sender>WidgetStack</sender>
+        <signal>aboutToShow(QWidget*)</signal>
+        <receiver>MainForm</receiver>
+        <slot>aboutToShow(QWidget*)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">qapplication.h</include>
+    <include location="local" impldecl="in implementation">qcolor.h</include>
+    <include location="local" impldecl="in implementation">qstring.h</include>
+    <include location="local" impldecl="in implementation">qpainter.h</include>
+    <include location="local" impldecl="in implementation">mainform.ui.h</include>
+</includes>
+<forwards>
+    <forward>class QColor;</forward>
+    <forward>class QString;</forward>
+</forwards>
+<variables>
+    <variable>QStringList m_comments;</variable>
+    <variable>int m_clip_as;</variable>
+    <variable>bool m_icons_dirty;</variable>
+    <variable>bool m_table_dirty;</variable>
+    <variable>bool m_changed;</variable>
+    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
+    <variable>QString m_filename;</variable>
+</variables>
+<functions>
+    <function type="function" access="private">init()</function>
+    <function type="function">clearData( bool fillWithDefaults )</function>
+    <function type="function">populate()</function>
+    <function type="function" returnType="QPixmap">colorSwatch( QColor color )</function>
+    <function type="slot">fileNew()</function>
+    <function type="slot">fileOpen()</function>
+    <function type="slot">fileSave()</function>
+    <function type="slot">fileSaveAs()</function>
+    <function type="function">filePrint()</function>
+    <function type="slot">fileExit()</function>
+    <function type="function">editUndo()</function>
+    <function type="function">editRedo()</function>
+    <function type="slot">editCut()</function>
+    <function type="slot">editCopy()</function>
+    <function type="function">editPaste()</function>
+    <function type="slot">editFind()</function>
+    <function type="function">helpIndex()</function>
+    <function type="function">helpContents()</function>
+    <function type="function">helpAbout()</function>
+    <function type="slot">changedTableColor( int, int )</function>
+    <function type="slot">changedIconColor( QIconViewItem * )</function>
+    <function type="slot">aboutToShow( QWidget * )</function>
+</functions>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

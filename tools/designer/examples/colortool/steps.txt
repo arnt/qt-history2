@@ -1,0 +1,221 @@
+ROUGH NOTES FOR WHAT ACTIONS TO PERFORM TO CREATE THE colortool
+EXAMPLE.
+
+
+open QD
+
+MAIN WINDOW DESIGN
+
+The New/Open dialog pops up.
+click C++ Project, then click OK
+
+The Project Settings dialog pops up.
+enter the name 'colortool.pro' in the Project File line edit, then
+click OK.
+
+Click File|New to pop up the New File dialog.
+
+Click 'Main Window', then click OK.
+
+The Main Window Wizard pops up.
+The Choose available menus and toolbars page appears.
+Click Next
+The Setup Toolbar page appears.
+Click the right-pointing blue arrow to add New, Open and Save to the
+toolbar.
+Click the Category and select 'Edit'.
+Click the <Separator> and add that to the toolbar.
+Add the Copy, Cut and Find options to the toolbar.
+Click Next.
+Click Finish.
+
+
+Change the name property to MainForm.
+
+Change the caption property to 'Color Tool'.
+
+Click File|Save, then click the Save button.
+
+Click the form's File menu item, right click the 'Print' item, then
+click 'Delete item' from the pop up menu.
+Right click one of the separators, then click 'Delete Separator'.
+
+Apply the same technique to the form's Edit menu, to delete the Undo,
+Redo and Paste menu options.
+
+Right click the 'editPasteAction' in the Action Editor, then click
+Delete Action.
+
+Delete the editUndoAction, editRedoAction and filePrintAction in the
+same way.
+
+Right click the form's menu bar, then click the Add Menu Item option.
+This creates a new menu item called 'Menu'. 
+
+Click 'Menu' and drag it to the left of the 'Help' menu item.
+
+Right click 'Menu', then click Rename Menu Item. Change the menu
+item's name to '&View'.
+
+Right click on the right-most toolbar button (Find), then click Insert
+Separator.
+
+Right click the first action in the Action Editor, then click New
+Action.
+
+Change the action's name property to optionsAction. Click the elipsis
+button on the iconSet property to pop up the Choose an Image dialog.
+Click the Add button. Navigate to QTDIR/tools/designer/pics/small and
+'Open' the tabwidget.png image, then click OK. Change the text
+property to Options and the menu property to '&Options...'.
+
+Click the optionsAction in the Action Editor and drag it to the Edit
+menu. The Edit menu will pop up; drag the optionsAction down the menu
+(a red bar will show its position), and drop it at the end after the
+Find option.
+
+Click the form's Edit menu, then right click the Find option and click
+Insert Separator.
+
+Click the editCutAction in the Action Editor and change its text
+property to Delete and its menu text to '&Delete'
+
+Click the editCopyAction in the Action Editor and change its menu text
+property to '&Copy'
+
+Click File|Save
+
+Right click the first action in the Action Editor (optionsAction),
+then click New Action Group. Change the ActionGroup's name to
+viewActionGroup, and its text property to View.
+
+Right click the viewActionGroup and click New Action to create an
+action within the viewActionGroup. Change this Action's name property to
+viewTableAction. Set both its toggleAction property and its on
+property to true. Click the iconSet elipsis button to invoke the
+Choose an Image dialog. Click the Add button. Choose the table.png
+image, click Open, then click OK. Change the text property to 'View
+Table' and the menuText property to 'View &Menu'. Change the toolTip
+property to 'View Table (Ctrl+T)'.
+Set the accel
+property to CTRL+T.
+
+Right click the viewActionGroup and click New Action to create an
+action within the viewActionGroup. Change this Action's name property to
+viewIconsAction. Set both its toggleAction property to true. Click the iconSet elipsis button to invoke the
+Choose an Image dialog. Click the Add button. Choose the iconview.png
+image, click Open, then click OK. Change the text property to 'View
+Icons' and the menuText property to 'View &Icons'. Change the toolTip
+property to 'View Icons (Ctrl+I)'.
+Set the accel
+property to CTRL+I.
+
+Click the viewActionGroup action group in the Action Editor and drag
+it to the View menu; drop it on this menu.Click and drag the
+viewActionGroup to the right of the Separator at the right of the
+toolbar and drop it at the right edge of the toolbar.
+
+[Don't forget to regularly: Ctrl+T preview, and Ctrl+S save].
+
+Click the Containers item in the Toolbox, click WidgetStack, then
+click the middle of the form. Click the form itself, then click Lay
+Out Vertically. Rename the widget stack 'Widget Stack'. 
+
+Click the Views item in the Toolbox. Click Table, then click in the
+middle of the widget stack. Change the name property to Table, numRows
+to 0 and readOnly to true. Right click the table, then click Edit to
+invoke the  Edit Table dialog. Change the Label for column 1 to
+'Name'. Click '2' in the Columns list and change the Label for column
+2 to 'Hex'. Click OK.
+Click the 'page' object in the Object Explorer, then change its name
+property to 'tablePage'.
+
+Right click the widget stack, then click Add Page. Click IconView in
+the Toolbox and click in the middle of the widget stack. Change its
+name property to 'IconView' and its resizeMode to Adjust. 
+Right click the icon view, then click Edit to invoke the Edit Iconview
+dialog. Delete the item then click OK. 
+Click the page object in the Object Explorer and change its name to
+iconPage.
+Click the widget stack then click Lay Out Vertically.
+
+Click the widget stack then click Lay Out Vertically. 
+
+MAIN WINDOW CODE
+
+VARIABLES ETC
+
+We need to keep track of some variables: the colors, whether the data
+has changed, whether a view needs updating etc.
+
+Click the Members tab of the Object Explorer. Right click 'Class
+Variables' (towards the bottom), and click Edit.
+
+Click Add and enter 'QString m_filename;'. In a similar way add:
+'QMap<QString,QColor> m_colors;', 'bool m_changed', 'bool
+m_table_dirty', 'bool m_icons_dirty', 'QStringList m_comments;'
+and 'int m_clip_as'. Click Close to finish.
+
+Right click Forward Declarations, then click Edit. Add the following
+using the Add button. 'class QString;', 'class QColor;'
+
+In a similar way add Includes (in Implementation):
+'"qcolor.h"', '"qstring.h"'.h"' '"qpainter.h"' '"qapplication.h"'.
+
+SIGNALS AND SLOTS
+
+We want to show details of the current color in the status bar so we
+must create some signal slot connections.
+
+Click Edit|Connections to invoke the View and Edit Connections dialog.
+Click New to create a new connection. Change the sender to Table, and
+change the Signal to currentChanged(int,int). Change the receiver to
+MainForm. We need to create a new slot (that we'll code later). Click
+Edit Slots to invoke the Edit Functions dialog, and change the default
+'newSlot()' name to 'changedTableColor(int,int)', then click OK. Now
+change the Slot in the View and Edit Connections dialog to our new
+changedTableColor slot.
+
+Click New to create another connection. Change the sender to IconView
+and change the Signal to currentChanged(QIconViewItem*). Change the
+receiver to MainForm. Again, click Edit Slots, and create a new slot,
+this time called called changedIconColor(QIconViewItem*). Change the
+Slot in the View and Edit Connections dialog to the new
+changedIconColor slot.
+
+We also want to connect the widget stack's aboutToShow slot to our own
+slot. Click New and change the sender to WidgetStack. Change the
+Signal to aboutToShow(QWidget*) and change the receiver to MainForm.
+Create a new slot called aboutToShow(QWidget*) and make this the Slot
+that the widget stack's aboutToShow signal connects to.
+
+We also need to connect up our view menu's action group. Click New and
+change the sender to viewActionGroup. Change the Signal to
+selected(QAction*). Change the receiver to MainForm. Create a new slot
+called changeView(QAction*)...
+
+
+CODE
+
+Click 'mainform.ui.h' in the Project Overview window.
+
+Create the following consts:
+
+<<no tick pixmap -- use QCheckTableItems instead>>
+
+Create the init() function, the clear() function and the populate()
+function. Also colorSwatch().
+
+(Create main.cpp)
+Click File|New, then click main.cpp. This invokes the Configure
+Main-File dialog; the default form, MainForm is correct, so click OK.
+
+Edit main.cpp to change the signal/slot connection from
+    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+to
+    a.connect( &a, SIGNAL( lastWindowClosed() ), w, SLOT( fileExit() ) );
+
+Do File|Save and try executing the project:
+run qmake to generate the Makefile, then make then run 
+
+
