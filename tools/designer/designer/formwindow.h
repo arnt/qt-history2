@@ -270,7 +270,7 @@ private:
     QRect widgetGeom, rubber;
     QPoint oldPressPos, origPressPos;
     CommandHistory commands;
-    QMap<ulong, QPoint> moving;
+    QMap<QWidget*, QPoint> moving;
     QWidget *insertParent;
     QObject *propertyWidget;
     QLabel *sizePreviewLabel;

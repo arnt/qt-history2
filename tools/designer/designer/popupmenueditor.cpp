@@ -848,8 +848,7 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	PopupMenuEditorItemPtrDrag::decode( e, &i );
     } else {
 	if ( e->provides( "application/x-designer-actiongroup" ) ) {
-	    QString s( e->encodedData( "application/x-designer-actiongroup" ) );
-	    QActionGroup * g = (QDesignerActionGroup*)s.toLong();
+	    QActionGroup * g = ::qt_cast<QDesignerActionGroup*>(ActionDrag::action());
 	    if ( g->usesDropDown() ) {
 		i = new PopupMenuEditorItem( g, this );
 		QString n = QString( g->name() ) + "Item";
@@ -868,8 +867,7 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 		dropInPlace( g, e->pos().y() );
 	    }
 	} else if ( e->provides( "application/x-designer-actions" ) ) {
-	    QString s( e->encodedData( "application/x-designer-actions" ) );
-	    QAction * a = (QDesignerAction*)s.toLong();
+	    QAction *a = ::qt_cast<QDesignerAction*>(ActionDrag::action());
 	    i = new PopupMenuEditorItem( a, this );
 	}
     }

@@ -14,6 +14,7 @@
 #define ACTIONDND_H
 
 #include <qaction.h>
+#include <qdragobject.h>
 #include <qmap.h>
 #include <qmenubar.h>
 #include <qpixmap.h>
@@ -27,6 +28,28 @@
 class QDesignerIndicatorWidget;
 class FormWindow;
 class QPopupMenu;
+
+class ActionDrag : public QStoredDrag
+{
+    Q_OBJECT
+
+public:
+    ActionDrag(const QString &type, QAction *action, QWidget *source);
+    ActionDrag(QAction *action, QWidget *source);
+    ActionDrag(QActionGroup *group, QWidget *source);
+
+    ~ActionDrag();
+
+    static bool canDecode(QDropEvent *e);
+
+    static QAction *action()
+    {
+	return the_action;
+    }
+
+private:
+    static QAction *the_action;
+};
 
 class QDesignerActionGroup : public QActionGroup
 {

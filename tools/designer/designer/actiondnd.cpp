@@ -32,6 +32,40 @@
 #include <qstyle.h>
 #include <qtimer.h>
 
+QAction *ActionDrag::the_action = 0;
+
+ActionDrag::ActionDrag(QAction *action, QWidget *source)
+: QStoredDrag("application/x-designer-actions", source)
+{
+    Q_ASSERT(the_action == 0);
+    the_action = action;
+}
+
+ActionDrag::ActionDrag(QActionGroup *group, QWidget *source)
+: QStoredDrag("application/x-designer-actiongroup", source)
+{
+    Q_ASSERT(the_action == 0);
+    the_action = group;
+}
+
+ActionDrag::ActionDrag(const QString &type, QAction *action, QWidget *source)
+: QStoredDrag(type, source)
+{
+    Q_ASSERT(the_action == 0);
+    the_action = action;
+}
+
+bool ActionDrag::canDecode(QDropEvent *e)
+{
+    return e->provides( "application/x-designer-actions" ) ||
+	   e->provides( "application/x-designer-actiongroup" ) ||
+	   e->provides( "application/x-designer-separator" );
+}
+
+ActionDrag::~ActionDrag()
+{
+    the_action = 0;
+}
 
 void QDesignerAction::init()
 {
@@ -283,15 +317,11 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
     } else if ( e->type() == QEvent::DragEnter ) {
 	QDragEnterEvent *de = (QDragEnterEvent*)e;
-	if ( de->provides( "application/x-designer-actions" ) ||
-	     de->provides( "application/x-designer-actiongroup" ) ||
-	     de->provides( "application/x-designer-separator" ) )
+	if (ActionDrag::canDecode(de))
 	    de->accept();
     } else if ( e->type() == QEvent::DragMove ) {
 	QDragMoveEvent *de = (QDragMoveEvent*)e;
-	if ( de->provides( "application/x-designer-actions" ) ||
-	     de->provides( "application/x-designer-actiongroup" ) ||
-	     de->provides( "application/x-designer-separator" ) )
+	if (ActionDrag::canDecode(de))
 	    de->accept();
     }
 
@@ -460,9 +490,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 
     QString type = qt_cast<QActionGroup*>(a) ? QString( "application/x-designer-actiongroup" ) :
 	qt_cast<QSeparatorAction*>(a) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
-    QStoredDrag *drag = new QStoredDrag( type, this );
-    QString s = QString::number( (long)a ); // #### huha, that is evil
-    drag->setEncodedData( QCString( s.latin1() ) );
+    QStoredDrag *drag = new ActionDrag( type, a, this );
     drag->setPixmap( a->iconSet().pixmap() );
     if ( qt_cast<QDesignerAction*>(a) ) {
 	if ( formWindow->widgets()->find( ( (QDesignerAction*)a )->widget() ) )
@@ -485,21 +513,16 @@ void QDesignerToolBar::dragEnterEvent( QDragEnterEvent *e )
 {
     widgetInserting = FALSE;
     lastIndicatorPos = QPoint( -1, -1 );
-    if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) ||
-	 e->provides( "application/x-designer-separator" ) )
+    if (ActionDrag::canDecode(e))
 	e->accept();
 }
 
 void QDesignerToolBar::dragMoveEvent( QDragMoveEvent *e )
 {
-    if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) ||
-	 e->provides( "application/x-designer-separator" ) )
+    if (ActionDrag::canDecode(e)) {
 	e->accept();
-    else
-	return;
-    drawIndicator( calcIndicatorPos( e->pos() ) );
+	drawIndicator( calcIndicatorPos( e->pos() ) );
+    }
 }
 
 void QDesignerToolBar::dragLeaveEvent( QDragLeaveEvent * )
@@ -511,19 +534,10 @@ void QDesignerToolBar::dragLeaveEvent( QDragLeaveEvent * )
 
 void QDesignerToolBar::dropEvent( QDropEvent *e )
 {
-    if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) ||
-	 e->provides( "application/x-designer-separator" ) )
-	e->accept();
-    else
+    if (!ActionDrag::canDecode(e))
 	return;
-    QString s;
-    if ( e->provides( "application/x-designer-actiongroup" ) )
-	s = QString( e->encodedData( "application/x-designer-actiongroup" ) );
-    else if ( e->provides( "application/x-designer-separator" ) )
-	s = QString( e->encodedData( "application/x-designer-separator" ) );
-    else
-	s = QString( e->encodedData( "application/x-designer-actions" ) );
+
+    e->accept();
 
     indicator->hide();
     QAction *a = 0;
@@ -535,11 +549,11 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-separator" ) ) {
 	if ( e->provides( "application/x-designer-actions" ) )
-	    a = (QDesignerAction*)s.toLong();
+	    a = ::qt_cast<QDesignerAction*>(ActionDrag::action());
 	else
-	    a = (QSeparatorAction*)s.toLong();
+	    a = ::qt_cast<QSeparatorAction*>(ActionDrag::action());
     } else {
-	a = (QDesignerActionGroup*)s.toLong();
+	a = ::qt_cast<QDesignerActionGroup*>(ActionDrag::action());
     }
 
     if ( actionList.findIndex( a ) != -1 ) {

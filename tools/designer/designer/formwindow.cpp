@@ -783,8 +783,8 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		}
 
 		// check whether we would have to reparent the selection and highlight the possible new parent container
-		QMap<ulong, QPoint>::ConstIterator it = moving.begin();
-		QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)it.key() ) );
+		QMap<QWidget*, QPoint>::ConstIterator it = moving.begin();
+		QWidget* wa = containerAt( e->globalPos(), it.key() );
 		if ( wa  && !isMainContainer( wa ) && !isCentralWidget( wa ) ) {
 		    wa = WidgetFactory::containerOfWidget( wa );
 		    // ok, looks like we moved onto a container
@@ -905,7 +905,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	if ( widgetPressed && allowMove( w ) ) { // we moved the widget
 	    sizePreviewLabel->hide();
 
-	    if ( moving.isEmpty() || w->pos() == *moving.find( (ulong)w ) )
+	    if ( moving.isEmpty() || w->pos() == *moving.find(w) )
 		break;
 
 	    // restore targetContainer
@@ -920,17 +920,17 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	    if ( propertyWidget && propertyWidget->isWidgetType() && !isMainContainer( propertyWidget ) )
 		emitUpdateProperties( propertyWidget );
 
-	    QMap<ulong,QPoint>::ConstIterator it = moving.begin();
-	    QWidget *oldParent = ( (QWidget*)it.key() )->parentWidget();
+	    QMap<QWidget*,QPoint>::ConstIterator it = moving.begin();
+	    QWidget *oldParent = it.key()->parentWidget();
 	    QWidget *newParent = oldParent;
 	    // check whether we have to reparent the selection
-	    QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)it.key() ) );
+	    QWidget* wa = containerAt( e->globalPos(), it.key() );
 	    if ( wa ) {
 		wa = WidgetFactory::containerOfWidget( wa );
 		// ok, looks like we moved onto a container
 
 		// check whether we really have different parents.
-		if ( wa == ( (QWidget*)it.key() )->parentWidget() )
+		if ( wa == it.key()->parentWidget() )
 		    goto make_move_command;
 
 		// break layout if necessary
@@ -950,10 +950,10 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 
 		// doesn't need to be a command, the MoveCommand does reparenting too
 		bool emitSelChanged = FALSE;
-		for ( QMap<ulong, QPoint>::Iterator it = moving.begin(); it != moving.end(); ++it ) {
-		    QWidget *i = (QWidget*)it.key();
-		    if ( !emitSelChanged && qt_cast<QButton*>(i) ) {
-			if ( qt_cast<QButtonGroup*>(i->parentWidget()) || qt_cast<QButtonGroup*>(wa) )
+		for ( QMap<QWidget*, QPoint>::Iterator it = moving.begin(); it != moving.end(); ++it ) {
+		    QWidget *i = it.key();
+		    if ( !emitSelChanged && ::qt_cast<QButton*>(i) ) {
+			if ( qt_cast<QButtonGroup*>(i->parentWidget()) || ::qt_cast<QButtonGroup*>(wa) )
 			    emitSelChanged = TRUE;
 			if ( !qt_cast<QButtonGroup*>(wa) ) {
 			    MetaDataBase::setPropertyChanged( i, "buttonGroupId", FALSE );
@@ -980,9 +980,9 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	    QWidgetList widgets; // collect the widgets and its old and new positions which have been moved
 	    QList<QPoint> oldPos, newPos;
 	    for ( it = moving.begin(); it != moving.end(); ++it ) {
-		widgets.append( (QWidget*)it.key() );
+		widgets.append( it.key() );
 		oldPos.append( *it );
-		newPos.append( ( (QWidget*)it.key() )->pos() );
+		newPos.append( it.key()->pos() );
 	    }
 	    // add move command, don't execute it, this is just a summary of the operations we did during the move-event handling
 	    commandHistory()->addCommand( new MoveCommand( tr( "Move" ),
@@ -1427,7 +1427,7 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
 		    sel->setWidget( 0 );
 	    } else {
 		if ( WidgetFactory::layoutType( sel->widget()->parentWidget() ) == WidgetFactory::NoLayout ) {
-		    moving.insert( (ulong)sel->widget(), sel->widget()->pos() );
+		    moving.insert( sel->widget(), sel->widget()->pos() );
 		    sel->widget()->raise();
 		    raiseChildSelections( sel->widget() );
 		    raiseSelection( sel->widget() );

@@ -10,8 +10,8 @@
 **
 ****************************************************************************/
 
+#include "actiondnd.h"
 #include "actionlistview.h"
-#include <qdragobject.h>
 #include <qheader.h>
 #include <qcstring.h>
 
@@ -60,14 +60,10 @@ QDragObject *ActionListView::dragObject()
 	return 0;
     QStoredDrag *drag = 0;
     if ( i->action() ) {
-	drag = new QStoredDrag( "application/x-designer-actions", viewport() );
-	QString s = QString::number( (long)i->action() ); // #### huha, that is evil
-	drag->setEncodedData( QCString( s.latin1() ) );
+	drag = new ActionDrag( i->action(), viewport() );
 	drag->setPixmap( i->action()->iconSet().pixmap() );
     } else {
-	drag = new QStoredDrag( "application/x-designer-actiongroup", viewport() );
-	QString s = QString::number( (long)i->actionGroup() ); // #### huha, that is evil
-	drag->setEncodedData( QCString( s.latin1() ) );
+	drag = new ActionDrag( i->actionGroup(), viewport() );
 	drag->setPixmap( i->actionGroup()->iconSet().pixmap() );
     }
     return drag;
