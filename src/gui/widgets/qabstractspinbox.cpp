@@ -434,7 +434,7 @@ void QAbstractSpinBox::stepBy(int steps)
     if (!dontstep) {
         d->setValue(d->bound(d->value + (d->singlestep * steps), old, steps), e);
     } else if (e == AlwaysEmit) {
-        d->emitSignals(old);
+        d->emitSignals(e, old);
     }
     selectAll();
 }
@@ -991,7 +991,7 @@ bool QAbstractSpinBoxPrivate::specialValue() const
     Virtual function that emits signals. Reimplemented in the different subclasses.
 */
 
-void QAbstractSpinBoxPrivate::emitSignals(const QVariant &)
+void QAbstractSpinBoxPrivate::emitSignals(EmitPolicy, const QVariant &)
 {
 }
 
@@ -1336,10 +1336,8 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     const bool changed = old != value;
     if (doUpdate)
         update();
-    if (ep == AlwaysEmit) {
-        emitSignals(QVariant()); // needs to be != the new one
-    } else if (ep == EmitIfChanged && changed) {
-        emitSignals(old);
+    if (ep == AlwaysEmit || (ep == EmitIfChanged && changed)) {
+        emitSignals(ep, old);
     }
     if (changed && slider)
 	updateSlider();

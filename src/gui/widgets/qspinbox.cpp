@@ -30,7 +30,7 @@ class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
     Q_DECLARE_PUBLIC(QSpinBox)
 public:
     QSpinBoxPrivate();
-    void emitSignals(const QVariant &);
+    void emitSignals(EmitPolicy ep, const QVariant &);
 
     virtual QVariant valueFromText(const QString &n) const;
     virtual QString textFromValue(const QVariant &n) const;
@@ -44,7 +44,7 @@ class QDoubleSpinBoxPrivate : public QAbstractSpinBoxPrivate
     Q_DECLARE_PUBLIC(QDoubleSpinBox)
 public:
     QDoubleSpinBoxPrivate();
-    void emitSignals(const QVariant &);
+    void emitSignals(EmitPolicy ep, const QVariant &);
     bool checkIntermediate(const QString &str) const;
     int findDelimiter(const QString &str, int index = 0) const;
 
@@ -961,13 +961,15 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     \reimp
 */
 
-void QSpinBoxPrivate::emitSignals(const QVariant &/*old*/)
+void QSpinBoxPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 {
-    pendingemit = false;
-    if (slider)
-        updateSlider();
-    emit q->valueChanged(edit->displayText());
-    emit q->valueChanged(value.toInt());
+    if (ep != NeverEmit) {
+	pendingemit = false;
+	if (ep == AlwaysEmit || value != old) {
+	    emit q->valueChanged(edit->displayText());
+	    emit q->valueChanged(value.toInt());
+	}
+    }
 }
 
 /*!
@@ -1087,14 +1089,17 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     \reimp
 */
 
-void QDoubleSpinBoxPrivate::emitSignals(const QVariant &/*old*/)
+void QDoubleSpinBoxPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 {
-    pendingemit = false;
-    if (slider)
-        updateSlider();
-    emit q->valueChanged(edit->displayText());
-    emit q->valueChanged(value.toDouble());
+    if (ep != NeverEmit) {
+	pendingemit = false;
+	if (ep == AlwaysEmit || value != old) {
+	    emit q->valueChanged(edit->displayText());
+	    emit q->valueChanged(value.toDouble());
+	}
+    }
 }
+
 /*!
     \internal Returns whether \a str is a string which value cannot be
     parsed but still might turn into something valid.

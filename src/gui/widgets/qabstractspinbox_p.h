@@ -91,12 +91,12 @@ public:
     void updateSlider();
     void update();
     void updateEdit() const;
-    void calculateSizeHints() const;
+    virtual void calculateSizeHints() const;
 
     virtual QStyleOptionSpinBox getStyleOption() const;
     virtual QVariant valueForPosition(int pos) const;
 
-    virtual void emitSignals(const QVariant &old);
+    virtual void emitSignals(EmitPolicy ep, const QVariant &old);
     virtual void refresh(EmitPolicy ep);
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;

@@ -13,6 +13,7 @@
 
 #include <private/qabstractspinbox_p.h>
 #include <qabstractspinbox.h>
+#include <qapplication.h>
 #include <qdatetimeedit.h>
 #include <qlineedit.h>
 #include <qevent.h>
@@ -67,7 +68,8 @@ public:
 
     void readLocaleSettings();
 
-    void emitSignals(const QVariant &old);
+    void calculateSizeHints() const;
+    void emitSignals(EmitPolicy ep, const QVariant &old);
     QString textFromValue(const QVariant &f) const;
     QVariant valueFromText(const QString &f) const;
     QVariant validateAndInterpret(QString &input, int &, QValidator::State &state) const;
@@ -893,9 +895,6 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 		ret.replace(pos, l, QDate::shortMonthName(var.toDate().month()));
 		break;
 	    case QDateTimeEditPrivate::YearTwoDigitsSection:
-		QDTEDEBUG << "ret was" << ret << "replace" << pos << l <<
-			QString::number(d->getDigit(var, QDateTimeEditPrivate::YearTwoDigitsSection) - 2000)
-			.rightJustified(l, QLatin1Char('0'), true);
 		ret.replace(pos, l,
 			QString::number(d->getDigit(var, QDateTimeEditPrivate::YearTwoDigitsSection) - 2000)
 			.rightJustified(l, QLatin1Char('0'), true));
@@ -1038,15 +1037,17 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     \reimp
 */
 
-void QDateTimeEditPrivate::emitSignals(const QVariant &old)
+void QDateTimeEditPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 {
+    if (ep == NeverEmit) {
+	return;
+    }
     pendingemit = false;
 
     const bool dodate = value.toDate().isValid() && (display & DateSectionMask);
-    const bool datechanged = (old.isNull() || old.toDate() != value.toDate());
+    const bool datechanged = (ep == AlwaysEmit || old.toDate() != value.toDate());
     const bool dotime = value.toTime().isValid() && (display & TimeSectionMask);
-    const bool timechanged = (old.isNull() || old.toTime() != value.toTime());
-
+    const bool timechanged = (ep == AlwaysEmit || old.toTime() != value.toTime());
 
     if (dodate && dotime && (datechanged || timechanged))
 	emit q->dateTimeChanged(value.toDateTime());
@@ -2447,6 +2448,47 @@ QVariant QDateTimeEditPrivate::valueFromText(const QString &f) const
     return QVariant(q->dateTimeFromText(f));
 }
 
+/*!
+    \internal
+    \reimp
+*/
+
+void QDateTimeEditPrivate::calculateSizeHints() const
+{
+    if (sizehintdirty && edit) {
+        const QFontMetrics fm(q->fontMetrics());
+        int h = edit->sizeHint().height();
+        int w = 0;
+        QString s;
+        s = prefix + textFromValue(minimum) + suffix + QLatin1Char(' ');
+        w = qMax<int>(w, fm.width(s));
+        s = prefix + textFromValue(maximum) + suffix + QLatin1Char(' ');
+        w = qMax<int>(w, fm.width(s));
+        if (specialvaluetext.size()) {
+            s = specialvaluetext;
+            w = qMax<int>(w, fm.width(s));
+        }
+        w += 2; // cursor blinking space
+
+        QStyleOptionSpinBox opt = getStyleOption();
+        QSize hint(w, h);
+        QSize extra(35,6);
+        opt.rect.setSize(hint + extra);
+        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                            QStyle::SC_SpinBoxEditField, q).size();
+        // get closer to final result by repeating the calculation
+        opt.rect.setSize(hint + extra);
+        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+						   QStyle::SC_SpinBoxEditField, q).size();
+        hint += extra;
+
+        if (slider)
+            hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &opt, q);
+        cachedsizehint = hint.expandedTo(QApplication::globalStrut());
+        cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
+        const_cast<QDateTimeEditPrivate *>(this)->sizehintdirty = false;
+    }
+}
 /*!
     \internal Returns whether \a str is a string which value cannot be
     parsed but still might turn into something valid.
