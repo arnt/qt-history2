@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.h#2 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.h#3 $
 **
 ** Definition of QServerSocket class
 **
@@ -45,14 +45,15 @@ public:
     virtual void newConnection( int socket );
  
 protected:
-    QSocket	*socket();
+    QSocketDevice *socketDevice();
     virtual bool accept( void *internet_address ) const;
 
 protected slots:
     void	 incomingConnection( int socket );
 
 private:
-    QSocket	*serverSocket;
+    QServerSocketPrivate *d;
+    QSocket	*sd;
 };
 
 
