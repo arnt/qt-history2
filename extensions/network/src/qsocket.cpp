@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#2 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -128,9 +128,7 @@ void QSocketPrivate::reinit()
 QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-#if defined(_OS_WIN32_)
     QSocketDevice::initWinSock();
-#endif
     d = new QSocketPrivate;
     setFlags( IO_Direct );
     setStatus( IO_Ok );
@@ -148,9 +146,7 @@ QSocket::QSocket( QObject *parent, const char *name )
 QSocket::QSocket( int socket, QObject *parent, const char *name )
     : QObject( parent, name )
 {
-#if defined(_OS_WIN32_)
     QSocketDevice::initWinSock();
-#endif
 #if defined(QSOCKET_DEBUG)
     qDebug( "QSocket: Attach to socket %x", socket );
 #endif

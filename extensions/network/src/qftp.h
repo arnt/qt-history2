@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#10 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#11 $
 **
 ** Implementation of Network Extension Library
 **
@@ -49,7 +49,8 @@ public:
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
-    virtual void copy( const QStringList &files, const QString &dest, bool move );
+    virtual void copy( const QStringList &files, const QString &dest,
+		       bool move );
 
     virtual bool isUrlDir();
 

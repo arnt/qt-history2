@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#2 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -113,13 +113,11 @@ public:
     int		 putch( int );
     int		 ungetch(int);
 
-#if defined(_OS_WIN32_)
-    static bool	initWinSock();
-#endif
-
 private:
     Type	 sock_type;
     int		 sock_fd;
+
+    static bool	initWinSock();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

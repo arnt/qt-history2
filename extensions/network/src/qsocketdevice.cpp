@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#2 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -36,9 +36,6 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
-#if defined(_UNIXWARE)
-#include <sys/filio.h>
-#endif
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -47,9 +44,11 @@
 
 
 #if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
+// this should perhaps be included for all unixware versions?
 #include <sys/filio.h>
 #endif
 #if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_) || defined(_OS_OS2EMX_)
+// and this then?  unixware?
 #ifndef FNDELAY
 #define FNDELAY O_NDELAY
 #endif
@@ -103,8 +102,8 @@ QSocketAddress::QSocketAddress( int port, uint ip4Addr )
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
     a.sin_family = AF_INET;
-    a.sin_port = ntohs( port );
-    a.sin_addr.s_addr = ntohl( ip4Addr );
+    a.sin_port = ::ntohs( port );
+    a.sin_addr.s_addr = ::ntohl( ip4Addr );
     setData( &a, sizeof(a) );
 }
 
@@ -159,7 +158,7 @@ QSocketAddress & QSocketAddress::operator=( const QSocketAddress &a )
 
 int QSocketAddress::port() const
 {
-    return htons(((struct sockaddr_in*)ptr)->sin_port);
+    return ::htons(((struct sockaddr_in*)ptr)->sin_port);
 }
 
 
@@ -174,7 +173,7 @@ int QSocketAddress::port() const
 
 uint QSocketAddress::ip4Addr() const
 {
-    return htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
+    return ::htonl(((struct sockaddr_in*)ptr)->sin_addr.s_addr);
 }
 
 
@@ -206,18 +205,7 @@ bool QSocketAddress::operator==( const QSocketAddress &a )
 {
     if ( a.len != len )
 	return FALSE;
-    return memcmp(ptr,a.ptr,len) == 0;
-}
-
-
-
-#if defined(_OS_WIN32_)
-static void cleanupWinSock()
-{
-    WSACleanup();
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: WinSock cleanup" );
-#endif
+    return memcmp(ptr,a.ptr,len) == 0; // ### compares pad bytes - bogus
 }
 
 
@@ -232,16 +220,39 @@ static void cleanupWinSock()
 
   \ingroup kernel
 
-  Not completely documented at the moment.
+  This class is not really meant for use outside Qt.  It can be used
+  for to achieve some things that QSocket does not provide, but it's
+  not particularly easy to understand or use.
+
+  The basic purpose of the class is to provide a QIODevice that works
+  on sockets.  As such, it reimplements the 
 
   \sa QSocket, QSocketNotifier, QSocketAddress
 */
 
-static bool initWinSock()
+
+static void cleanupWinSock() // post-routine
 {
+#if defined(_OS_WIN32_)
+    WSACleanup();
+#if defined(QSOCKETDEVICE_DEBUG)
+    qDebug( "QSocketDevice: WinSock cleanup" );
+#endif
+#endif
+}
+
+/*! This Windows-specific function initializes the winsock API.  It
+  returns TRUE if the winsock API initialization was successful, or if
+  this platform is not Windows.
+*/
+
+bool QSocketDevice::initWinSock()
+{
+#if defined(_OS_WIN32_)
+    // ### NOTE if it's harmful to call QSAStartup several times Qt
+    // and the application program may conflict with each other.
     static bool init = FALSE;
     if ( !init ) {
-	init = TRUE;
 	qAddPostRoutine( cleanupWinSock );
 	WSAData wsadata;
 	bool error = WSAStartup(MAKEWORD(1,1),&wsadata) != 0;
@@ -253,27 +264,13 @@ static bool initWinSock()
 	}
 #if defined(QSOCKETDEVICE_DEBUG)
 	qDebug( "QSocketDevice: WinSock initialization %s",
-	       (error ? "failed" : "OK") );
+		(error ? "failed" : "OK") );
 #endif
+	init = TRUE;
     }
+#endif
     return TRUE;
 }
-#endif // _OS_WIN32_
-
-
-#if defined(_OS_WIN32_)
-/*!
-  Windows only: This function initializes the winsock API.  You do not
-  need to call this function if you use the standard QSocketDevice constructor
-  which creates a socket for you.  Returns TRUE if the winsock API
-  initialization was successful.
-*/
-
-bool QSocketDevice::initWinSock()
-{
-    return ::initWinSock();
-}
-#endif
 
 
 /*!
@@ -294,9 +291,7 @@ QSocketDevice::QSocketDevice( Type type )
     qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
 	   this, type );
 #endif
-#if defined(_OS_WIN32_)
-    ::initWinSock();
-#endif
+    initWinSock();
     int s;
     switch ( type ) {				// create a socket
 	case Stream:
@@ -335,6 +330,7 @@ QSocketDevice::QSocketDevice( int socket, Type type )
     qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
 	   this, socket, type );
 #endif
+    initWinSock();
     setSocket( socket, type );
 }
 
@@ -444,6 +440,8 @@ void QSocketDevice::close()
     ::closesocket( sock_fd );
 #elif defined(UNIX)
     ::close( sock_fd );
+#else
+    #error "This OS is not supported"
 #endif
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", sock_fd );
@@ -528,6 +526,8 @@ bool QSocketDevice::nonblocking() const
 #elif defined(UNIX)
     int s = fcntl(sock_fd, F_GETFL, 0);
     return s >= 0 && ((s & FNDELAY) != 0);
+#else
+    #error "This OS is not supported"
 #endif
 }
 
@@ -562,6 +562,8 @@ void QSocketDevice::setNonblocking( bool enable )
 	    s &= ~FNDELAY;
 	fcntl( sock_fd, F_SETFL, s );
     }
+#else
+    #error "This OS is not supported"
 #endif
 }
 
@@ -695,6 +697,8 @@ bool QSocketDevice::connect( const QSocketAddress &addr )
     return r != SOCKET_ERROR;
 #elif defined(UNIX)
     return r == 0 || errno == EWOULDBLOCK || errno == EINPROGRESS;
+#else
+    #error "This OS is not supported"
 #endif
 }
 
@@ -777,6 +781,8 @@ int QSocketDevice::bytesAvailable() const
     if ( ::ioctl(sock_fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
     return nbytes;
+#else
+    #error "This OS is not supported"
 #endif
 }
 
@@ -811,6 +817,8 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
     return ::recv( sock_fd, data, maxlen, 0 );
 #elif defined(UNIX)
     return ::read( sock_fd, data, maxlen );
+#else
+    #error "This OS is not supported"
 #endif
 }
 
@@ -845,6 +853,8 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     return ::send( sock_fd, data, len, 0 );
 #elif defined(UNIX)
     return ::write( sock_fd, data, len );
+#else
+    #error "This OS is not supported"
 #endif
 }
 
