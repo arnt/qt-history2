@@ -274,7 +274,7 @@ static void timeSpeed()
 	qDebug("    QPainter drawText:");
 	t.start();
 	for ( int i = 0; i < loops; i++ )
-	    p.drawText( 0, 0, str );
+	    p.drawText( 0, 100, str );
 	qDebug("        simple\t\t\t\t%02.2f us/char",
 	       ((float)t.elapsed())/loops/str.length()*1000 );
 
