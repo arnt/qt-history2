@@ -399,7 +399,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
     for ( int row = 0; row < table->numRows(); row++ ) {
 	for ( int col = 0; col < table->numCols(); col++ ) {
 	    table->setItem( row, col,
-		new QTableItem( table, WhenCurrent, QString::number( row * col ) ) );
+		new QTableItem( table, QTableItem::WhenCurrent, QString::number( row * col ) ) );
 	}
     }
     \endcode
