@@ -905,6 +905,8 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 
     QCanvasItemList allvisible;
 
+    // Stores the region within area that need to be drawn. It is relative
+    // to area.topLeft()  (so as to keep within bounds of 16-bit XRegions)
     QRegion rgn;
 
     for (int x=lx; x<=mx; x++) {
@@ -917,7 +919,8 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    if (!p) {
 		if ( chunk(x,y).takeChange() ) {
 		    // XXX should at least make bands
-		    rgn |= QRegion(x*chunksize,y*chunksize,chunksize,chunksize);
+		    rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
+				    chunksize,chunksize);
 		    allvisible += *chunk(x,y).listPtr();
 		}
 	    } else {
@@ -937,6 +940,10 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    offscr.resize( QMAX( offscr.width(), 1), QMAX( offscr.height(), 1 ) );
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
+	if ( p )
+	    painter.setClipRect(QRect(0,0,area.width(),area.height()));
+	else
+	    ;//painter.setClipRegion(rgn);
 	drawBackground(painter,area);
 	allvisible.drawUnique(painter);
 	drawForeground(painter,area);
@@ -950,9 +957,12 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	drawBackground(*p,area);
 	allvisible.drawUnique(*p);
 	drawForeground(*p,area);
+	return;
     }
 
     QPoint trtr; // keeps track of total translation of rgn
+
+    trtr -= area.topLeft();
 
     for (QCanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
 	QPainter painter(view->viewport());
@@ -965,12 +975,13 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    painter.setClipRegion(rgn);
 	    painter.drawPixmap(tr,offscr, QRect(QPoint(0,0),area.size()));
 	} else {
-	    painter.translate(rtr.x(),rtr.y());
+	    painter.translate(nrtr.x(),nrtr.y());
 	    rgn.translate(rtr.x(),rtr.y());
 	    painter.setClipRegion(rgn);
 	    drawBackground(painter,area);
 	    allvisible.drawUnique(painter);
 	    drawForeground(painter,area);
+	    painter.translate(-nrtr.x(),-nrtr.y());
 	}
     }
 }
