@@ -51,6 +51,7 @@ void SqlFormWizard::tableSelected( const QString &t )
 
 void SqlFormWizard::autoPopulate( bool populate )
 {
+    listBoxField->clear();
     listBoxSelectedField->clear();
     if ( populate ) {
 	DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
