@@ -72,20 +72,36 @@
   Example:
 
   \code
+  QSqlPropertyMap myMap;
   MyEditorFactory myFactory;       // sub-classed editor factory that knows
                                    // how to create a MySuperEditor editor
   QSqlCursor cursor( "mytable" );
-  QSqlForm form;
-  QSqlPropertyMap myMap;
+  QSqlForm myForm;
 
   myMap.insert( "MySuperEditor", "content" );
-  form.installPropertyMap( &map );
-  form.installEditorFactory( &myFactory );
-
+  myForm.installPropertyMap( &myMap );
+  myForm.installEditorFactory( &myFactory );
+  
   // Generate a form that uses MySuperEditor for certain fields -
   // the actual editors in the form are created by the installed
   // editor factory.
-  form.populate( myWidget, cursor, cursor->updateBuffer() );
+  myForm.populate( myWidget, cursor, cursor->updateBuffer() );
+  \endcode
+  
+  You could also replace the default QSqlPropertyMap and
+  QSqlEditorFactory that are used if no custom maps/factories are
+  installed.
+  \code
+  // Keep in mind that QSqlEditorFactory and QSqlPropertyMap takes
+  // ownership of the new default factory/map
+  MyEditorFactory * myFactory = new MyEditorFactory;
+  QSqlPropertyMap * myMap = new QSqlPropertyMap;
+  
+  myMap->insert( "MySuperEditor", "content" );  
+  QSqlEditorFactory::installDefaultFactory( myFactory );
+  QSqlPropertyMap::installDefaultMap( myMap );
+  ...
+  
   \endcode
 
   \sa QSqlTable, QSqlForm, QSqlEditorFactory
@@ -179,13 +195,31 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 }
 
 /*!
+
+  Replaces the default property map with \a map. All QSqlTable and
+  QSqlForm instantiations will use this new map for inserting and
+  extracting values to and from editors. <em>QSqlPropertyMap takes
+  ownership of map, and destroys it when it is no longer needed. </em>
+*/
+void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
+{
+    if( map == 0 ) return;
+    
+    if( defaultmap != 0 ){
+	qsql_cleanup_property_map.remove( defaultmap );
+	delete defaultmap;
+    }
+    defaultmap = map;
+    qsql_cleanup_property_map.add( defaultmap );
+}
+
+/*!
   \class QSqlFormMap qsqlform.h
   \brief Class used for mapping database fields to widgets and vice versa
   \module sql
 
-  This class is used by the QSqlForm to manage the mapping between SQL
+  This class is used by QSqlForm to manage the mapping between SQL
   data fields and actual widgets.
-
  */
 
 /*!
@@ -210,9 +244,9 @@ QSqlFormMap::~QSqlFormMap()
 /*!
 
   Installs a custom QSqlPropertyMap. This is useful if you plan to
-  create your own custom editor widgets. NB! QSqlFormMap takes
-  ownership of the \a pmap, and \a pmap is deleted when the object goes
-  out of scope.
+  create your own custom editor widgets. <em>QSqlFormMap takes
+  ownership of \a pmap, and \a pmap is therefore deleted when
+  QSqlFormMap goes out of scope.</em>
 
   \sa installEditorFactory()
 */
@@ -495,10 +529,8 @@ bool QSqlForm::isReadOnly() const
 
 /*!
 
-  Refresh the widgets in the form with values from the associated SQL
-  cursor. Also emits the stateChanged() signal to indicate that the
-  form state has changed.
-
+  Update the widgets in the form with values from the associated SQL
+  fields.
 */
 void QSqlForm::readRecord()
 {
@@ -507,7 +539,8 @@ void QSqlForm::readRecord()
 
 /*!
 
-  Refresh the SQL cursor with values from the associated widgets.
+  Update the associated SQL fields with the values of the editor
+  widgets in the form.
 */
 void QSqlForm::writeRecord()
 {
@@ -516,7 +549,7 @@ void QSqlForm::writeRecord()
 
 /*!
 
-  Clears the form, i.e. all field values  are set to their empty state.
+  Clears the form, i.e. all field values are set to their empty state.
 */
 void QSqlForm::clear()
 {
@@ -527,8 +560,8 @@ void QSqlForm::clear()
 /*!
 
   This is a convenience function used to automatically populate a form
-  with fields based on a QSqlCursor. The form will contain a name label
-  and an editor widget for each of the fields in the cursor. The widgets
+  with fields based on a QSqlRecord. The form will contain a name label
+  and an editor widget for each of the fields in the record. The widgets
   are layed out vertically in a QVBoxLayout, across \a columns number
   of columns. \a widget will become the parent of the generated widgets.
  */
@@ -570,9 +603,7 @@ void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
 	}
 
 	if( !fields->isVisible( fields->field( j )->name() ) )
-	{
 	    continue;
-	}
 
 	label = new QLabel( fields->displayLabel( fields->field( j )->name() ), widget );
 	g->addWidget( label, col, currentCol );

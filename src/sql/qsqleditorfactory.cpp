@@ -83,7 +83,7 @@ QSqlEditorFactory::~QSqlEditorFactory()
 }
 
 static QSqlEditorFactory * defaultfactory = 0;
-QCleanupHandler< QSqlEditorFactory > q_cleanup_editor_factory;
+QCleanupHandler< QSqlEditorFactory > qsql_cleanup_editor_factory;
 
 /*! Returns an instance of a default editor factory.
 
@@ -93,7 +93,7 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
 {
     if( defaultfactory == 0 ){
 	defaultfactory = new QSqlEditorFactory();
-	q_cleanup_editor_factory.add( defaultfactory );
+	qsql_cleanup_editor_factory.add( defaultfactory );
     }
 
     return defaultfactory;
@@ -101,9 +101,10 @@ QSqlEditorFactory * QSqlEditorFactory::defaultFactory()
 
 /*! 
   
-  Replaces the default editor factory with \a factory. <em>QSqlEditorFactory
-  takes ownership of \a factory, and destroys it when it is no longer
-  needed.<\em>
+  Replaces the default editor factory with \a factory. All QSqlTable
+  and QSqlForm instantiations will use this new factory for creating
+  field editors. <em>QSqlEditorFactory takes ownership of factory,
+  and destroys it when it is no longer needed. </em>
 */
 
 void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
@@ -111,23 +112,23 @@ void QSqlEditorFactory::installDefaultFactory( QSqlEditorFactory * factory )
     if( factory == 0 ) return;
 
     if( defaultfactory != 0 ){
-	q_cleanup_editor_factory.remove( defaultfactory );
+	qsql_cleanup_editor_factory.remove( defaultfactory );
 	delete defaultfactory;
     }
     defaultfactory = factory;
-    q_cleanup_editor_factory.add( defaultfactory );
+    qsql_cleanup_editor_factory.add( defaultfactory );
 }
 
 /*!
 
-  Creates and returns the appropriate editor for the QVariant \a v.
-  If the QVariant is invalid, 0 is returned.
+  Creates and returns the appropriate editor widget for the QVariant
+  \a variant.  If \a variant is invalid, 0 is returned.
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & variant )
 {
     QWidget * w = 0;
-    switch( v.type() ){
+    switch( variant.type() ){
 	case QVariant::Invalid:
 	    w = 0;
 	    break;
@@ -184,13 +185,13 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 
 /*!
 
-  Creates and returns the appropriate editor for the field \a f.
+  Creates and returns the appropriate editor for the QSqlField \a field.
 
 */
 
-QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField* f )
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField* field )
 {
-    QVariant v = f->value();
+    QVariant v = field->value();
     return createEditor( parent, v );
 }
 

@@ -68,6 +68,7 @@ public:
     void     remove( const QString & classname );
 
     static QSqlPropertyMap * defaultMap();
+    static void installDefaultMap( QSqlPropertyMap * map );
 
 private:
     QMap< QString, QString > propertyMap;
@@ -113,8 +114,8 @@ public:
     void setReadOnly( bool enable );
     bool isReadOnly() const;
 
-    void installEditorFactory( QSqlEditorFactory * f );
-    void installPropertyMap( QSqlPropertyMap * m );
+    void installEditorFactory( QSqlEditorFactory * factory );
+    void installPropertyMap( QSqlPropertyMap * map );
 
 public slots:
     void readRecord();

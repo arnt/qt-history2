@@ -50,8 +50,8 @@ class Q_EXPORT QSqlEditorFactory : public QObject
 public:
     QSqlEditorFactory ( QObject * parent=0, const char * name=0 );
     ~QSqlEditorFactory();
-    virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
-    virtual QWidget * createEditor( QWidget * parent, const QSqlField* f );
+    virtual QWidget * createEditor( QWidget * parent, const QVariant & variant );
+    virtual QWidget * createEditor( QWidget * parent, const QSqlField * field );
 
     static QSqlEditorFactory * defaultFactory();
     static void installDefaultFactory( QSqlEditorFactory * factory);
