@@ -1620,13 +1620,13 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		if(scr->orientation() == Horizontal)
 		    rect.setRect( scr->width() - 17, 0, 17, 15 );
 		else
-		    rect.setRect( 0, scr->height() - 17, 15, 17 );
+		    rect.setRect( 0, scr->height() - 17, 16, 17 );
 		break;
 	    case SC_ScrollBarSubLine:
 		if(scr->orientation() == Horizontal)
 		    rect.setRect( scr->width() - (22 + 17), 0, 22, 15 );
 		else
-		    rect.setRect( 0, scr->height() - (20 + 17), 15, 20 );
+		    rect.setRect( 0, scr->height() - (20 + 17), 16, 20 );
 		break;
 	    case SC_ScrollBarGroove: 
 		if(scr->orientation() == Horizontal)
