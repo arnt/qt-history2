@@ -67,7 +67,8 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 }
 
 /*!
-  Destroys this tree model.*/
+  Destroys this tree model.
+*/
 
 QTreeModel::~QTreeModel()
 {
@@ -76,7 +77,8 @@ QTreeModel::~QTreeModel()
 }
 
 /*!
-  Sets the number of \a columns in the tree model.*/
+  Sets the number of \a columns in the tree model.
+*/
 
 void QTreeModel::setColumnCount(int columns)
 {
@@ -329,7 +331,9 @@ void QTreeModel::append(QTreeViewItem *item)
 }
 
 /*!
-*/
+Emits the rowsInserted() signal for the rows containing the given \a item.
+
+\sa rowsInserted()*/
 
 void QTreeModel::emitRowsInserted(QTreeViewItem *item)
 {
@@ -348,7 +352,10 @@ void QTreeModel::emitRowsInserted(QTreeViewItem *item)
 
   \ingroup model-view
 
+  The QTreeViewItem class provides a familiar interface for items displayed
+  in a QTreeView widget.
 
+  \sa QTreeView QTreeModel
 */
 
 /*!
@@ -466,8 +473,26 @@ public:
 
   \ingroup model-view
 
+  The QTreeView class is a convenience class that replaces the \c QListView
+  class. It provides a list view widget that takes advantage of Qt's
+  model-view architecture.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink.
+  This class uses the QTreeModel to origanize the data represented in the
+  tree view, but also uses the QTreeViewItem class to provide a familiar
+  interface for simple list structures.
+
+  \omit
+  In its simplest form, a tree view can be constructed and populated in
+  the familiar way:
+
+  \code
+    QTreeView *view = new QTreeView(parent);
+
+  \endcode
+  \endomit
+
+  \sa \link model-view-programming.html Model/View Programming\endlink
+      QTreeModel QTreeViewItem
 */
 
 /*!

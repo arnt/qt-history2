@@ -27,39 +27,60 @@
 
 /*!
   \class QGenericTreeView qgenerictreeview.h
-  
+
   \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
 
   \ingroup model-view
 
-  This class implements a tree representation of a QAbstractItemView working
-  on a QAbstractItemModel.
+  QGenericTreeView implements a tree representation of a QAbstractItemView
+  working on a QAbstractItemModel. This class is used to provide standard
+  hierarchical lists that were previously provided by the \c QListView
+  class, but using the more flexible approach provided Qt's model-view
+  architecture.
+
+  It is simple to construct a tree view displaying data from a model. In
+  the following example, the contents of a directory are supplied by a
+  QDirModel and displayed as a tree:
+
+  \code
+    QDirModel *model = new QDirModel(QDir(), parent);
+    QGenericTreeView *tree = new QGenericTreeView(model, parent);
+  \endcode
+
+  The model-view architecture ensures that the contents of the tree view
+  are updated as the model changes.
+
+
 
   \omit
   Describe the opening/closing concept if not covered elsewhere.
   \endomit
 
-  \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink
+      QAbstractItemModel QAbstractItemView
 */
 
 
 /*!
-  \fn void expanded(const QModelIndex &index)
+  \fn void QGenericTreeView::expanded(const QModelIndex &index)
 
   This signal is emitted when the item given by \a index is expanded.
 */
 
 
 /*!
-  \fn void collapsed(const QModelIndex &index)
-  
+  \fn void QGenericTreeView::collapsed(const QModelIndex &index)
+
   This signal is emitted when the item given by \a index is collapsed.
 */
 
+/*!
+  \fn QSize QGenericTreeView::sizeHint() const
+  \reimp
+*/
 
 /*!
-  Constructs a table view with a \a parent to represent the data in
-  the given \a model.
+  Constructs a table view with the given \a parent.
 
   \sa QAbstractItemModel
 */
@@ -255,7 +276,7 @@ void QGenericTreeView::hideColumn(int column)
 }
 
 /*!
-  Shows the \a column given.
+  Shows the given \a column in the tree view.
 
   \sa hideColumn() */
 
@@ -586,7 +607,7 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 /*!
   \fn QModelIndex QGenericTreeView::itemAt(int x, int y) const
 
-  Returns the model index of the item at point \a(x, y).
+  Returns the model index of the item at point (\a x, \a y).
 */
 
 QModelIndex QGenericTreeView::itemAt(int x, int y) const
@@ -630,7 +651,7 @@ QSize QGenericTreeView::sizeHint() const
 }
 
 /*!
-  Layout the items in the tree view.
+  Lays out the items in the tree view.
 */
 
 void QGenericTreeView::doItemsLayout()
@@ -672,7 +693,7 @@ int QGenericTreeView::verticalOffset() const
   Move the cursor in the way described by \a cursorAction, using the
   information provided by the button \a state.
 
-\sa QAbstractItemView::CursorAction                                                                                                                                                        */
+  \sa QAbstractItemView::CursorAction                                                                                                                                                        */
 
 QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
@@ -796,7 +817,7 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 }
 
 /*!
-  Scrolls the contents of the tree view by \a (dx, dy).
+  Scrolls the contents of the tree view by (\a dx, \a dy).
 */
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
@@ -917,9 +938,10 @@ void QGenericTreeView::resizeColumnToContents(int column, bool checkHeader)
 }
 
 /*!
-  \fn void QGenericTreeView::columnWidthChanged(int column, int, int)
+  \fn void QGenericTreeView::columnWidthChanged(int column, int oldSize, int newSize)
 
-  Marks the \a column's width as changed.
+  Changes the \a column's width from the size given by \a oldSize to the
+  size given by \a newSize.
 */
 
 void QGenericTreeView::columnWidthChanged(int column, int, int)
