@@ -20,7 +20,7 @@
 
 class AbstractFormEditor;
 
-struct AbstractFormEditorPlugin
+struct QT_SDK_EXPORT AbstractFormEditorPlugin
 {
     virtual ~AbstractFormEditorPlugin() {}
 

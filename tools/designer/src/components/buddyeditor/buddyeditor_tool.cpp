@@ -38,5 +38,10 @@ AbstractFormWindow *BuddyEditorTool::formWindow() const
 
 bool BuddyEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
 {
+    Q_UNUSED(widget);
+    Q_UNUSED(managedWidget);
+    Q_UNUSED(event);
+
+    return false;
 }
 
