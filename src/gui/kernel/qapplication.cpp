@@ -2930,9 +2930,6 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
             return true;
     }
 
-    bool consumed = false;
-    bool handled = false;
-
     if (receiver->isWidgetType()) {
         QWidget *widget = static_cast<QWidget *>(receiver);
 
@@ -2954,53 +2951,35 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
             case QEvent::MouseButtonRelease:
             case QEvent::MouseButtonDblClick:
             case QEvent::MouseMove:
-                static_cast<QMouseEvent*>(e)->ignore();
-                consumed = true;
-                handled = true;
-                break;
+#ifndef QT_NO_WHEELEVENT
+            case QEvent::Wheel:
+#endif
 #ifndef QT_NO_DRAGANDDROP
             case QEvent::DragEnter:
             case QEvent::DragMove:
-                static_cast<QDragMoveEvent*>(e)->ignore();
-                handled = true;
-                break;
             case QEvent::DragLeave:
             case QEvent::DragResponse:
-                handled = true;
-                break;
             case QEvent::Drop:
-                static_cast<QDropEvent*>(e)->ignore();
-                handled = true;
-                break;
-#endif
-#ifndef QT_NO_WHEELEVENT
-            case QEvent::Wheel:
-                static_cast<QWheelEvent*>(e)->ignore();
-                handled = true;
-                break;
 #endif
             case QEvent::ContextMenu:
-                static_cast<QContextMenuEvent*>(e)->ignore();
-                handled = true;
+                e->spont = false;
+                return true;
                 break;
             default:
                 break;
             }
         }
-
     }
 
-    if (!handled) {
-        // send to all receiver event filters
-        if (receiver != this) {
-            for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-                register QObject *obj = receiver->d->eventFilters.at(i);
-                if (obj && obj->eventFilter(receiver,e))
-                    return true;
-            }
+    // send to all receiver event filters
+    if (receiver != this) {
+        for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+            register QObject *obj = receiver->d->eventFilters.at(i);
+            if (obj && obj->eventFilter(receiver,e))
+                return true;
         }
-        consumed = receiver->event(e);
     }
+    bool consumed = receiver->event(e);
     e->spont = false;
     return consumed;
 }
