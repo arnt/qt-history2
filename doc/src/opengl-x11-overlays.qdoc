@@ -21,19 +21,18 @@
     recommended book \e{OpenGL Programming for the X Window System} (Mark
     Kilgard, Addison Wesley Developers Press 1996).
 
-    \warning From version 5.0 onwards, the Qt OpenGL Extension
-    includes direct support for the use of OpenGL overlays. For many
-    uses of overlays, this makes the technique described below
-    redundant. See the \c opengl/overlay example program. The
-    following is a discussion on how to use non-QGL widgets in
-    overlay planes.
+    \warning The Qt OpenGL Extension includes direct support for the
+    use of OpenGL overlays. For many uses of overlays, this makes the
+    technique described below redundant. See the \c opengl/overlay
+    example program. The following is a discussion on how to use
+    non-QGL widgets in overlay planes.
 
     In the typical case, X11 overlays can easily be used together with the
     current version of Qt and the Qt OpenGL Extension. The following
     requirements apply:
 
     \list 1
-    \i Your X server and graphics card/hardware must support overlays. 
+    \i Your X server and graphics card/hardware must support overlays.
        For many X servers, overlay support can be turned on with
        a configuration option; consult your X server installation
        documentation.
@@ -51,7 +50,7 @@
     \endlist
 
     The provided example program \link opengl-overlay-example.html X11
-    overlay\endlink will check for these and report if anything is wrong. 
+    overlay\endlink will check for these and report if anything is wrong.
     See \link #x11visuals About X11 Visuals\endlink, below for more
     information.
 
