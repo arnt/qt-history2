@@ -3503,6 +3503,8 @@ QObject *PropertyEditor::widget() const
 
 void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 {
+    if ( fw && fw->isFake() )
+	w = fw->project()->objectForFakeForm( fw );
     eList->setFormWindow( fw );
     if ( w && w == wid ) {
 	bool ret = TRUE;
