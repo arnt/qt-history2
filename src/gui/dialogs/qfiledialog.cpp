@@ -481,14 +481,22 @@ QDir QFileDialog::directory() const
 
 void QFileDialog::selectFile(const QString &filename)
 {
-    QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
-    int r = entries.indexOf(filename);
-    QModelIndex index = (r >= 0 ? d->model->index(r, 0, d->root()) : QModelIndex());
+    QModelIndex index;
+    QString text = filename;
+    if (QFileInfo(filename).isAbsolute()) {
+        index = d->model->index(filename);
+        QString current = d->model->path(d->root());
+        text.remove(current);
+    } else { // faster than asking for model()->index(currentPath + filename)
+        QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
+        int r = entries.indexOf(filename);
+        index = (r >= 0 ? d->model->index(r, 0, d->root()) : QModelIndex());
+    }
     if (index.isValid()) {
         d->selections->select(index, QItemSelectionModel::Select);
     } else {
         d->selections->clear();
-        d->fileName->setText(filename);
+        d->fileName->setText(text);
     }
 }
 
