@@ -211,6 +211,7 @@ public:
     int menuId;
     int controlId;
     QString topCaption;
+    bool autoFocusChange;
 
     QScrollBar *vbar, *hbar;
     QWidget *corner;
@@ -231,6 +232,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
+    d->autoFocusChange = FALSE;
 #if defined(Q_WS_WIN)
     d->popup = new QPopupMenu( this, "qt_internal_mdi_popup" );
     d->toolPopup = new QPopupMenu( this, "qt_internal_mdi_popup" );
@@ -775,7 +777,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	    d->maxRestore = r;
 	}
 
-	activateWindow( w);
+	activateWindow( w );
 	showMaximizeControls();
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	inCaptionChange = TRUE;
@@ -864,9 +866,12 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() )
 	    break;
 	d->focus.removeRef( (QWorkspaceChild*)o );
-	if ( d->focus.isEmpty() )
+	if ( d->active != o )
+	    break;
+	if ( d->focus.isEmpty() ) {
 	    activateWindow( 0 );
-	else {
+	} else {
+	    d->autoFocusChange = TRUE;
 	    activatePreviousWindow();
 	    QWorkspaceChild* c = d->active;
 	    while ( d->active &&
@@ -876,6 +881,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( d->active == c )
 		    break;
 	    }
+	    d->autoFocusChange = FALSE;
 	}
 	if ( d->maxWindow == o && d->maxWindow->isHidden() ) {
 	    d->maxWindow->setGeometry( d->maxRestore );
@@ -1204,9 +1210,9 @@ void QWorkspace::activateNextWindow()
 	return;
     }
 
-    int a = d->focus.find( d->active );
+    int a = d->focus.find( d->active ) + 1;
 
-    a = (a+1) % d->focus.count();
+    a = a % d->focus.count();
 
     if ( d->focus.at( a ) )
 	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
@@ -1227,10 +1233,18 @@ void QWorkspace::activatePreviousWindow()
 	return;
     }
 
-    int a = d->focus.find( d->active );
+    int a = d->focus.find( d->active ) - 1;
 
-    if ( --a < 0 )
+    if ( a < 0 )
 	a = d->focus.count()-1;
+    
+    if ( d->autoFocusChange ) {
+	QWidget *widget = 0;
+	while ( a >= 0 && d->focus.at( a ) && ( widget = d->focus.at( a )->windowWidget() ) && !widget->isVisible() )
+	    a--;
+	if ( a < 0 )
+	    a = d->focus.count() - 1;
+    }
 
     if ( d->focus.at( a ) )
 	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
