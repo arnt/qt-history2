@@ -17,42 +17,44 @@
 
 #ifndef QT_H
 #include "qcolor.h"
-#include "qshared.h"
 #endif // QT_H
 
 
 class Q_EXPORT QBrush: public Qt
 {
-friend class QPainter;
 public:
     QBrush();
-    QBrush( BrushStyle );
-    QBrush( const QColor &, BrushStyle=SolidPattern );
-    QBrush( const QColor &, const QPixmap & );
-    QBrush( const QBrush & );
-   ~QBrush();
-    QBrush &operator=( const QBrush & );
+    QBrush(BrushStyle bs);
+    QBrush(const QColor &color, BrushStyle bs=SolidPattern);
+    QBrush(const QColor &color, const QPixmap &pixmap);
+    QBrush(const QBrush &brush);
+    ~QBrush();
+    QBrush &operator=(const QBrush &brush);
 
-    BrushStyle	style()	 const		{ return data->style; }
-    void	setStyle( BrushStyle );
-    const QColor &color()const		{ return data->color; }
-    void	setColor( const QColor & );
-    QPixmap    *pixmap() const		{ return data->pixmap; }
-    void	setPixmap( const QPixmap & );
+    inline BrushStyle style() const { return d->style; }
+    void setStyle( BrushStyle );
+    inline const QColor &color() const { return d->color; }
+    void setColor(const QColor &color);
+    inline QPixmap *pixmap() const { return d->pixmap; }
+    void setPixmap(const QPixmap &pixmap);
 
-    bool	operator==( const QBrush &p ) const;
-    bool	operator!=( const QBrush &b ) const
-					{ return !(operator==(b)); }
+    bool operator==(const QBrush &b) const;
+    inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
 
 private:
-    QBrush	copy()	const;
-    void	detach();
-    void	init( const QColor &, BrushStyle );
-    struct QBrushData : public QShared {	// brush data
+    friend class QPainter;
+    inline void detach() { if (d->ref != 1) detach_helper(); }
+    void detach_helper();
+    void init(const QColor &color, BrushStyle bs);
+    struct QBrushData {
+	QAtomic ref;
 	BrushStyle style;
-	QColor	  color;
+	QColor color;
 	QPixmap	 *pixmap;
-    } *data;
+    };
+    QBrushData *d;
+    void cleanUp(QBrushData *x);
+    static QBrushData *shared_default;
 };
 
 

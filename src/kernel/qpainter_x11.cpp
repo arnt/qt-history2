@@ -914,11 +914,11 @@ void QPainter::updateBrush()
                 pm = QBitmap( d, d, pat, TRUE );
                 QPixmapCache::insert( key, pm );
             }
-            if ( cbrush.data->pixmap )
-                delete cbrush.data->pixmap;
-            cbrush.data->pixmap = new QPixmap( pm );
+            if ( cbrush.d->pixmap )
+                delete cbrush.d->pixmap;
+            cbrush.d->pixmap = new QPixmap( pm );
         }
-        pm = *cbrush.data->pixmap;
+        pm = *cbrush.d->pixmap;
         pm.x11SetScreen( scrn );
         if ( pm.depth() == 1 ) {
             XSetStipple( dpy, gc_brush, pm.handle() );

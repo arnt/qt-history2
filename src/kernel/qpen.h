@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qcolor.h"
-#include "qshared.h"
 #endif // QT_H
 
 
@@ -25,43 +24,41 @@ class Q_EXPORT QPen: public Qt
 {
 public:
     QPen();
-    QPen( PenStyle );
-    QPen( const QColor &color, uint width=0, PenStyle style=SolidLine );
-    QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c, PenJoinStyle j);
-    QPen( const QPen & );
+    QPen(PenStyle);
+    QPen(const QColor &color, int width = 0, PenStyle style = SolidLine);
+    QPen(const QColor &cl, int width, PenStyle s, PenCapStyle c, PenJoinStyle j);
+    QPen(const QPen &pen);
    ~QPen();
-    QPen &operator=( const QPen & );
+    QPen &operator=(const QPen &pen);
 
-    PenStyle	style() const		{ return data->style; }
-    void	setStyle( PenStyle );
-    uint	width() const		{ return data->width; }
-    void	setWidth( uint );
-    const QColor &color() const		{ return data->color; }
-    void	setColor( const QColor & );
+    inline PenStyle style() const { return d->style; }
+    void setStyle( PenStyle );
+    inline int width() const { return d->width; }
+    void setWidth(int width);
+    inline QColor color() const { return QColor(d->rgb); }
+    void setColor(const QColor &color);
     PenCapStyle	capStyle() const;
-    void	setCapStyle( PenCapStyle );
+    void setCapStyle(PenCapStyle pcs);
     PenJoinStyle joinStyle() const;
-    void	setJoinStyle( PenJoinStyle );
+    void setJoinStyle(PenJoinStyle pcs);
 
-    bool	operator==( const QPen &p ) const;
-    bool	operator!=( const QPen &p ) const
-					{ return !(operator==(p)); }
+    bool operator==(const QPen &p) const;
+    inline bool operator!=(const QPen &p) const { return !(operator==(p)); }
 
 private:
     friend class QPainter;
-#ifdef Q_WS_WIN
-    friend class QFontEngineWin;
-#endif
-
-    QPen	copy()	const;
-    void	detach();
-    void	init( const QColor &, uint, uint );
-    struct QPenData : public QShared {		// pen data
-	PenStyle  style;
-	uint	  width;
-	QColor	  color;
-	Q_UINT16  linest;
-    } *data;
+    inline void detach() { if (d->ref != 1) detach_helper(); }
+    void detach_helper();
+    void init(const QColor &c, int width, uint linestyle);
+    struct QPenData {
+	QAtomic ref;
+	PenStyle style;
+	int width;
+	QRgb rgb;
+	Q_UINT16 linest;
+    };
+    struct QPenData *d;
+    static QPenData shared_default;
 };
 
 

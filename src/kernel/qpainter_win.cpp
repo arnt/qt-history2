@@ -370,7 +370,7 @@ void QPainter::updatePen()
     }
 
     int	   ps	   = cpen.style();
-    uint   pix	   = COLOR_VALUE(cpen.data->color);
+    uint   pix	   = COLOR_VALUE(cpen.color());
     bool   cacheIt = ps == NoPen || (ps == SolidLine && cpen.width() == 0);
     HANDLE hpen_old;
 
@@ -509,7 +509,7 @@ void QPainter::updateBrush()
     }
 
     int	   bs	   = cbrush.style();
-    uint   pix	   = COLOR_VALUE(cbrush.data->color);
+    uint   pix	   = COLOR_VALUE(cbrush.d->color);
     bool   cacheIt = bs == NoBrush || bs == SolidPattern;
     HBRUSH hbrush_old;
 
@@ -1177,14 +1177,14 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
     if ( close ) {
 	Polygon( hdc, (POINT*)a.data(), a.size() );
     } else {
 	Polyline( hdc, (POINT*)a.data(), a.size() );
     }
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 }
 
 
@@ -1204,9 +1204,9 @@ void QPainter::drawPoint( int x, int y )
     }
     if ( cpen.style() != NoPen )
 #ifndef Q_OS_TEMP
-	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.color()) );
 #else
-	SetPixel( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+	SetPixel( hdc, x, y, COLOR_VALUE(cpen.color()) );
 #endif
 }
 
@@ -1243,10 +1243,10 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	for (int i=0; i<npoints; i++) {
 #ifndef Q_OS_TEMP
 	    SetPixelV( hdc, pa[index+i].x(), pa[index+i].y(),
-		       COLOR_VALUE(cpen.data->color) );
+		       COLOR_VALUE(cpen.color()) );
 #else
 	    SetPixel( hdc, pa[index+i].x(), pa[index+i].y(),
-		       COLOR_VALUE(cpen.data->color) );
+		       COLOR_VALUE(cpen.color()) );
 #endif
 	}
     }
@@ -1299,9 +1299,9 @@ void QPainter::lineTo( int x, int y )
 #endif
     if ( (cpen.width() == 0) && (cpen.style() == SolidLine) )
 #ifndef Q_OS_TEMP
-	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+	SetPixelV( hdc, x, y, COLOR_VALUE(cpen.color()) );
 #else
-	SetPixel( hdc, x, y, COLOR_VALUE(cpen.data->color) );
+	SetPixel( hdc, x, y, COLOR_VALUE(cpen.color()) );
 #endif
 }
 
@@ -1354,7 +1354,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	MoveToEx( hdc, x2, y2, 0 );
     }
     if ( plot_pixel )
-	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.color()) );
 #else
     POINT pts[2];
     pts[0].x = x1;  pts[0].y = y1;
@@ -1366,7 +1366,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 
     Polyline( hdc, pts, 2 );
     if ( plot_pixel )
-	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.color()) );
     internalCurrentPos = QPoint( x2, y2 );
 #endif
 }
@@ -1412,9 +1412,9 @@ void QPainter::drawRect( int x, int y, int w, int h )
 		// DPo   dest = dest OR pattern
 		PatBlt( hdc, x, y, w, h, 0x00FA0089 );
 	} else {
-	    SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	    SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
 	    Rectangle( hdc, x, y, x+w, y+h );
-	    SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	    SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 	}
     } else {
 	Rectangle( hdc, x, y, x+w, y+h );
@@ -1531,10 +1531,10 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	h++;
     }
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
     RoundRect( hdc, x, y, x+w, y+h, w*xRnd/100, h*yRnd/100 );
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 
 }
 
@@ -1573,13 +1573,13 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     }
 
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
     if ( w == 1 && h == 1 )
 	drawPoint( x, y );
     else
 	Ellipse( hdc, x, y, x+w, y+h );
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 
     if ( oldPen == NoPen )
 	setPen( oldPen );
@@ -1711,12 +1711,12 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	}
     }
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
 #ifndef Q_OS_TEMP
     Pie( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
 #endif
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 }
 
 
@@ -1774,12 +1774,12 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	}
     }
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
 #ifndef Q_OS_TEMP
     Chord( hdc, x, y, x+w, y+h, xS, yS, xE, yE );
 #endif
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 }
 
 
@@ -1817,7 +1817,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 
     int	 x1, y1, x2, y2;
     uint i = index;
-    uint pixel = COLOR_VALUE(cpen.data->color);
+    uint pixel = COLOR_VALUE(cpen.color());
     bool maybe_plot_pixel = FALSE;
     QT_WA( {
 	maybe_plot_pixel = (cpen.width() == 0) && (cpen.style() == SolidLine);
@@ -1918,9 +1918,9 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     if ( plot_pixel ) {
 	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
 #ifndef Q_OS_TEMP
-	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.color()) );
 #else
-	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
+	SetPixel( hdc, x2, y2, COLOR_VALUE(cpen.color()) );
 #endif
     } else {
 	pa.setPoint( index+npoints-1, x2, y2 );
@@ -1973,10 +1973,10 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 	SetPolyFillMode( hdc, WINDING );
 #endif
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cbrush.d->color) );
     Polygon( hdc, (POINT*)(pa.data()+index), npoints );
     if ( nocolBrush )
-	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+	SetTextColor( hdc, COLOR_VALUE(cpen.color()) );
 #ifndef Q_OS_TEMP
     if ( winding )				// set to normal fill mode
 	SetPolyFillMode( hdc, ALTERNATE );
@@ -2081,7 +2081,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( txop <= TxTranslate ) {		// use optimized bitBlt
 	if ( pixmap.depth() == 1 )
-	    qt_bitblt_foreground = COLOR_VALUE(cpen.data->color);
+	    qt_bitblt_foreground = COLOR_VALUE(cpen.color());
 	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
 	return;
     }
@@ -2363,7 +2363,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 #ifndef Q_OS_TEMP
 	    EndPath(hdc);
 #endif
-	    uint pix = COLOR_VALUE(cpen.data->color);
+	    uint pix = COLOR_VALUE(cpen.color());
 	    HBRUSH tbrush = CreateSolidBrush( pix );
 	    SelectObject( hdc, tbrush );
 #ifndef Q_OS_TEMP

@@ -12,26 +12,26 @@
 **
 ****************************************************************************/
 
-#include "qpainter.h"
-#include "qpainter_p.h"
+#include "qapplication.h"
+#include "qatomic.h"
 #include "qbitmap.h"
-#include "qptrstack.h"
-#include "qptrdict.h"
+#include "qcleanuphandler.h"
 #include "qdatastream.h"
-#include "qwidget.h"
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
-#include "qapplication.h"
-#include "qrichtext_p.h"
+#include "qpainter.h"
+#include "qpainter_p.h"
+#include "qptrdict.h"
+#include "qptrstack.h"
 #include "qregexp.h"
-#include "qcleanuphandler.h"
+#include "qtextlayout_p.h"
+#include "qwidget.h"
 #ifdef Q_WS_QWS
 #include "qgfx_qws.h"
 #endif
-#include <string.h>
 
-#include "qtextlayout_p.h"
-#include "qfontengine_p.h"
+
+#include <string.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
 typedef QPtrStack<QWMatrix> QWMatrixStack;
@@ -911,16 +911,17 @@ void QPainter::setPen( PenStyle style )
 {
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
-    QPen::QPenData *d = cpen.data;	// low level access
-    if ( d->style == style && d->linest == style && !d->width && d->color == Qt::black )
+    QPen::QPenData *d = cpen.d;
+    QRgb blackrgb = Qt::black.rgb();
+    if ( d->style == style && d->linest == style && !d->width && d->rgb == blackrgb )
 	return;
-    if ( d->count != 1 ) {
-	cpen.detach();
-	d = cpen.data;
+    if ( d->ref != 1 ) {
+	cpen.detach_helper();
+	d = cpen.d;
     }
     d->style = style;
     d->width = 0;
-    d->color = Qt::black;
+    d->rgb = blackrgb;
     d->linest = style;
     updatePen();
 }
@@ -938,16 +939,17 @@ void QPainter::setPen( const QColor &color )
 {
     if ( !isActive() )
 	qWarning( "QPainter::setPen: Will be reset by begin()" );
-    QPen::QPenData *d = cpen.data;	// low level access
-    if ( d->color == color && !d->width && d->style == SolidLine && d->linest == SolidLine )
+    QPen::QPenData *d = cpen.d;
+    QRgb rgb = color.rgb();
+    if ( d->rgb == rgb && !d->width && d->style == SolidLine && d->linest == SolidLine )
 	return;
-    if ( d->count != 1 ) {
-	cpen.detach();
-	d = cpen.data;
+    if ( d->ref != 1 ) {
+	cpen.detach_helper();
+	d = cpen.d;
     }
     d->style = SolidLine;
     d->width = 0;
-    d->color = color;
+    d->rgb = rgb;
     d->linest = SolidLine;
     updatePen();
 }
@@ -991,12 +993,12 @@ void QPainter::setBrush( BrushStyle style )
 {
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
-    QBrush::QBrushData *d = cbrush.data; // low level access
+    QBrush::QBrushData *d = cbrush.d;
     if ( d->style == style && d->color == Qt::black && !d->pixmap )
 	return;
-    if ( d->count != 1 ) {
-	cbrush.detach();
-	d = cbrush.data;
+    if ( d->ref != 1 ) {
+	cbrush.detach_helper();
+	d = cbrush.d;
     }
     d->style = style;
     d->color = Qt::black;
@@ -1020,12 +1022,12 @@ void QPainter::setBrush( const QColor &color )
 {
     if ( !isActive() )
 	qWarning( "QPainter::setBrush: Will be reset by begin()" );
-    QBrush::QBrushData *d = cbrush.data; // low level access
+    QBrush::QBrushData *d = cbrush.d;
     if ( d->color == color && d->style == SolidPattern && !d->pixmap )
 	return;
-    if ( d->count != 1 ) {
-	cbrush.detach();
-	d = cbrush.data;
+    if ( d->ref != 1 ) {
+	cbrush.detach_helper();
+	d = cbrush.d;
     }
     d->style = SolidPattern;
     d->color = color;
@@ -3126,19 +3128,22 @@ QRect QPainter::boundingRect( const QRect &r, int flags,
     \sa QPainter, QPainter::setPen()
 */
 
+QPen::QPenData QPen::shared_default = { Q_ATOMIC_INIT(1),
+					(PenStyle)(SolidLine & MPenStyle), 0, 0, SolidLine };
 
 /*!
   \internal
   Initializes the pen.
 */
 
-void QPen::init( const QColor &color, uint width, uint linestyle )
+void QPen::init(const QColor &color, int width, uint linestyle)
 {
-    data = new QPenData;
-    data->style = (PenStyle)(linestyle & MPenStyle);
-    data->width = width;
-    data->color = color;
-    data->linest = linestyle;
+    d = new QPenData;
+    d->ref = 1;
+    d->style = (PenStyle)(linestyle & MPenStyle);
+    d->width = width;
+    d->rgb = color.rgb();
+    d->linest = linestyle;
 }
 
 /*!
@@ -3147,8 +3152,9 @@ void QPen::init( const QColor &color, uint width, uint linestyle )
 */
 
 QPen::QPen()
+    : d(&shared_default)
 {
-    init( Qt::black, 0, SolidLine );		// default pen
+    ++d->ref;
 }
 
 /*!
@@ -3158,9 +3164,9 @@ QPen::QPen()
     \sa setStyle()
 */
 
-QPen::QPen( PenStyle style )
+QPen::QPen(PenStyle style)
 {
-    init( Qt::black, 0, style );
+    init(black, 0, style);
 }
 
 /*!
@@ -3170,9 +3176,9 @@ QPen::QPen( PenStyle style )
     \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen( const QColor &color, uint width, PenStyle style )
+QPen::QPen(const QColor &color, int width, PenStyle style)
 {
-    init( color, width, style );
+    init(color, width, style);
 }
 
 /*!
@@ -3190,20 +3196,19 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
     \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c,
-	    PenJoinStyle j )
+QPen::QPen(const QColor &cl, int width, PenStyle s, PenCapStyle c, PenJoinStyle j)
 {
-    init( cl, w, s | c | j );
+    init(cl, width, s | c | j);
 }
 
 /*!
     Constructs a pen that is a copy of \a p.
 */
 
-QPen::QPen( const QPen &p )
+QPen::QPen(const QPen &p)
 {
-    data = p.data;
-    data->ref();
+    d = p.d;
+    ++d->ref;
 }
 
 /*!
@@ -3212,12 +3217,12 @@ QPen::QPen( const QPen &p )
 
 QPen::~QPen()
 {
-    if ( data->deref() )
-	delete data;
+    if (!--d->ref)
+	delete d;
 }
 
-
 /*!
+    \fn QPen::detach()
     Detaches from shared pen data to make sure that this pen is the
     only one referring the data.
 
@@ -3226,10 +3231,17 @@ QPen::~QPen()
     single reference.
 */
 
-void QPen::detach()
+void QPen::detach_helper()
 {
-    if ( data->count != 1 )
-	*this = copy();
+    QPenData *x = new QPenData;
+    x->ref = 1;
+    x->style = d->style;
+    x->width = d->width;
+    x->rgb = d->rgb;
+    x->linest = d->linest;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
 }
 
 
@@ -3237,24 +3249,14 @@ void QPen::detach()
     Assigns \a p to this pen and returns a reference to this pen.
 */
 
-QPen &QPen::operator=( const QPen &p )
+QPen &QPen::operator=(const QPen &p)
 {
-    p.data->ref();
-    if ( data->deref() )
-	delete data;
-    data = p.data;
+    QPenData *x = p.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
     return *this;
-}
-
-
-/*!
-    Returns a \link shclass.html deep copy\endlink of the pen.
-*/
-
-QPen QPen::copy() const
-{
-    QPen p( data->color, data->width, data->style, capStyle(), joinStyle() );
-    return p;
 }
 
 
@@ -3279,18 +3281,18 @@ QPen QPen::copy() const
     \sa style()
 */
 
-void QPen::setStyle( PenStyle s )
+void QPen::setStyle(PenStyle s)
 {
-    if ( data->style == s )
+    if (d->style == s)
 	return;
     detach();
-    data->style = s;
-    data->linest = (data->linest & ~MPenStyle) | s;
+    d->style = s;
+    d->linest = (d->linest & ~MPenStyle) | s;
 }
 
 
 /*!
-    \fn uint QPen::width() const
+    \fn int QPen::width() const
 
     Returns the pen width.
 
@@ -3310,12 +3312,12 @@ void QPen::setStyle( PenStyle s )
     \sa width()
 */
 
-void QPen::setWidth( uint w )
+void QPen::setWidth(int width)
 {
-    if ( data->width == w )
+    if (d->width == width)
 	return;
     detach();
-    data->width = w;
+    d->width = width;
 }
 
 
@@ -3326,7 +3328,7 @@ void QPen::setWidth( uint w )
 */
 Qt::PenCapStyle QPen::capStyle() const
 {
-    return (PenCapStyle)(data->linest & MPenCapStyle);
+    return (PenCapStyle)(d->linest & MPenCapStyle);
 }
 
 /*!
@@ -3344,12 +3346,12 @@ Qt::PenCapStyle QPen::capStyle() const
     \sa capStyle()
 */
 
-void QPen::setCapStyle( PenCapStyle c )
+void QPen::setCapStyle(PenCapStyle c)
 {
-    if ( (data->linest & MPenCapStyle) == c )
+    if ((d->linest & MPenCapStyle) == c)
 	return;
     detach();
-    data->linest = (data->linest & ~MPenCapStyle) | c;
+    d->linest = (d->linest & ~MPenCapStyle) | c;
 }
 
 /*!
@@ -3359,7 +3361,7 @@ void QPen::setCapStyle( PenCapStyle c )
 */
 Qt::PenJoinStyle QPen::joinStyle() const
 {
-    return (PenJoinStyle)(data->linest & MPenJoinStyle);
+    return (PenJoinStyle)(d->linest & MPenJoinStyle);
 }
 
 /*!
@@ -3377,12 +3379,12 @@ Qt::PenJoinStyle QPen::joinStyle() const
     \sa joinStyle()
 */
 
-void QPen::setJoinStyle( PenJoinStyle j )
+void QPen::setJoinStyle(PenJoinStyle j)
 {
-    if ( (data->linest & MPenJoinStyle) == j )
+    if ((d->linest & MPenJoinStyle) == j)
 	return;
     detach();
-    data->linest = (data->linest & ~MPenJoinStyle) | j;
+    d->linest = (d->linest & ~MPenJoinStyle) | j;
 }
 
 /*!
@@ -3399,10 +3401,10 @@ void QPen::setJoinStyle( PenJoinStyle j )
     \sa color()
 */
 
-void QPen::setColor( const QColor &c )
+void QPen::setColor(const QColor &c)
 {
     detach();
-    data->color = c;
+    d->rgb = c.rgb();
 }
 
 
@@ -3426,10 +3428,9 @@ void QPen::setColor( const QColor &c )
     \sa operator!=()
 */
 
-bool QPen::operator==( const QPen &p ) const
+bool QPen::operator==(const QPen &p) const
 {
-    return (p.data == data) || (p.data->linest == data->linest &&
-	    p.data->width == data->width && p.data->color == data->color);
+    return (p.d == d) || (p.d->linest == d->linest && p.d->width == d->width && p.d->rgb == d->rgb);
 }
 
 
@@ -3446,16 +3447,16 @@ bool QPen::operator==( const QPen &p ) const
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QPen &p )
+QDataStream &operator<<(QDataStream &s, const QPen &p)
 {
-    if ( s.version() < 3 )
+    if (s.version() < 3)
 	s << (Q_UINT8)p.style();
     else
-	s << (Q_UINT8)( p.style() | p.capStyle() | p.joinStyle() );
-    if ( s.version() < 6 )
+	s << (Q_UINT8)(p.style() | p.capStyle() | p.joinStyle());
+    if (s.version() < 6)
 	s << (Q_UINT8)p.width();
     else
-	s << (Q_UINT16)p.width();
+	s << (Q_INT16)p.width();
     return s << p.color();
 }
 
@@ -3468,19 +3469,19 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QPen &p )
+QDataStream &operator>>(QDataStream &s, QPen &p)
 {
     Q_UINT8 style;
     Q_UINT8 width8 = 0;
-    Q_UINT16 width = 0;
+    Q_INT16 width = 0;
     QColor color;
     s >> style;
-    if ( s.version() < 6 )
+    if (s.version() < 6)
 	s >> width8;
     else
 	s >> width;
     s >> color;
-    p = QPen( color, width8 | width, (Qt::PenStyle)style );
+    p = QPen(color, width8 | width, (Qt::PenStyle)style);
     return s;
 }
 #endif //QT_NO_DATASTREAM
@@ -3538,12 +3539,15 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
   Initializes the brush.
 */
 
-void QBrush::init( const QColor &color, BrushStyle style )
+QBrush::QBrushData *QBrush::shared_default = 0;
+
+void QBrush::init(const QColor &color, BrushStyle style)
 {
-    data = new QBrushData;
-    data->style	 = style;
-    data->color	 = color;
-    data->pixmap = 0;
+    d = new QBrushData;
+    d->ref = 1;
+    d->style = style;
+    d->color = color;
+    d->pixmap = 0;
 }
 
 /*!
@@ -3553,17 +3557,17 @@ void QBrush::init( const QColor &color, BrushStyle style )
 
 QBrush::QBrush()
 {
-    static QBrushData* defBrushData = 0;
-    if ( !defBrushData ) {
-	static QSharedCleanupHandler<QBrushData> defBrushCleanup;
-	defBrushData = new QBrushData;
-	defBrushData->style = NoBrush;
-	defBrushData->color = Qt::black;
-	defBrushData->pixmap = 0;
-	defBrushCleanup.set( &defBrushData );
+    if ( !shared_default ) {
+	static QCleanupHandler<QBrush::QBrushData> shared_default_cleanup;
+	shared_default = new QBrushData;
+	shared_default->ref = 1;
+	shared_default->style = (BrushStyle)0;
+	shared_default->color = black;
+	shared_default->pixmap = 0;
+	shared_default_cleanup.add(&shared_default);
     }
-    data = defBrushData;
-    data->ref();
+    d = shared_default;
+    ++d->ref;
 }
 
 /*!
@@ -3572,9 +3576,9 @@ QBrush::QBrush()
     \sa setStyle()
 */
 
-QBrush::QBrush( BrushStyle style )
+QBrush::QBrush(BrushStyle style)
 {
-    init( Qt::black, style );
+    init(black, style);
 }
 
 /*!
@@ -3583,9 +3587,9 @@ QBrush::QBrush( BrushStyle style )
     \sa setColor(), setStyle()
 */
 
-QBrush::QBrush( const QColor &color, BrushStyle style )
+QBrush::QBrush(const QColor &color, BrushStyle style)
 {
-    init( color, style );
+    init(color, style);
 }
 
 /*!
@@ -3600,10 +3604,10 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
     \sa setColor(), setPixmap()
 */
 
-QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
+QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
 {
-    init( color, CustomPattern );
-    setPixmap( pixmap );
+    init(color, CustomPattern);
+    setPixmap(pixmap);
 }
 
 /*!
@@ -3613,8 +3617,8 @@ QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 
 QBrush::QBrush( const QBrush &b )
 {
-    data = b.data;
-    data->ref();
+    d = b.d;
+    ++d->ref;
 }
 
 /*!
@@ -3623,26 +3627,30 @@ QBrush::QBrush( const QBrush &b )
 
 QBrush::~QBrush()
 {
-    if ( data->deref() ) {
-	delete data->pixmap;
-	delete data;
-    }
+    if (!--d->ref)
+	cleanUp(d);
+}
+
+void QBrush::cleanUp(QBrush::QBrushData *x)
+{
+    delete x->pixmap;
+    delete x;
 }
 
 
-/*!
-    Detaches from shared brush data to make sure that this brush is
-    the only one referring the data.
-
-    If multiple brushes share common data, this brush dereferences the
-    data and gets a copy of the data. Nothing is done if there is just
-    a single reference.
-*/
-
-void QBrush::detach()
+void QBrush::detach_helper()
 {
-    if ( data->count != 1 )
-	*this = copy();
+    QBrushData *x = new QBrushData;
+    x->ref = 1;
+    x->style = d->style;
+    x->color = d->color;
+    if (d->pixmap)
+	x->pixmap = new QPixmap(*d->pixmap);
+    else
+	x->pixmap = 0;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	cleanUp(x);
 }
 
 
@@ -3650,31 +3658,14 @@ void QBrush::detach()
     Assigns \a b to this brush and returns a reference to this brush.
 */
 
-QBrush &QBrush::operator=( const QBrush &b )
+QBrush &QBrush::operator=(const QBrush &b)
 {
-    b.data->ref();				// beware of b = b
-    if ( data->deref() ) {
-	delete data->pixmap;
-	delete data;
-    }
-    data = b.data;
+    QBrushData *x = b.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	cleanUp(x);
     return *this;
-}
-
-
-/*!
-    Returns a \link shclass.html deep copy\endlink of the brush.
-*/
-
-QBrush QBrush::copy() const
-{
-    if ( data->style == CustomPattern ) {     // brush has pixmap
-	QBrush b( data->color, *data->pixmap );
-	return b;
-    } else {				      // brush has std pattern
-	QBrush b( data->color, data->style );
-	return b;
-    }
 }
 
 
@@ -3718,14 +3709,14 @@ QBrush QBrush::copy() const
     \sa style()
 */
 
-void QBrush::setStyle( BrushStyle s )		// set brush style
+void QBrush::setStyle(BrushStyle s)
 {
-    if ( data->style == s )
+    if (d->style == s)
 	return;
-    if ( s == CustomPattern )
+    if (s == CustomPattern)
 	qWarning( "QBrush::setStyle: CustomPattern is for internal use" );
     detach();
-    data->style = s;
+    d->style = s;
 }
 
 
@@ -3743,10 +3734,10 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
     \sa color(), setStyle()
 */
 
-void QBrush::setColor( const QColor &c )
+void QBrush::setColor(const QColor &c)
 {
     detach();
-    data->color = c;
+    d->color = c;
 }
 
 
@@ -3771,19 +3762,19 @@ void QBrush::setColor( const QColor &c )
     \sa pixmap(), color()
 */
 
-void QBrush::setPixmap( const QPixmap &pixmap )
+void QBrush::setPixmap(const QPixmap &pixmap)
 {
     detach();
-    if ( data->pixmap )
-	delete data->pixmap;
-    if ( pixmap.isNull() ) {
-	data->style  = NoBrush;
-	data->pixmap = 0;
+    if (d->pixmap)
+	delete d->pixmap;
+    if (pixmap.isNull()) {
+	d->style  = NoBrush;
+	d->pixmap = 0;
     } else {
-	data->style = CustomPattern;
-	data->pixmap = new QPixmap( pixmap );
-	if ( data->pixmap->optimization() == QPixmap::MemoryOptim )
-	    data->pixmap->setOptimization( QPixmap::NormalOptim );
+	d->style = CustomPattern;
+	d->pixmap = new QPixmap(pixmap);
+	if (d->pixmap->optimization() == QPixmap::MemoryOptim)
+	    d->pixmap->setOptimization(QPixmap::NormalOptim);
     }
 }
 
@@ -3810,11 +3801,10 @@ void QBrush::setPixmap( const QPixmap &pixmap )
     \sa operator!=()
 */
 
-bool QBrush::operator==( const QBrush &b ) const
+bool QBrush::operator==(const QBrush &b) const
 {
-    return (b.data == data) || (b.data->style == data->style &&
-	    b.data->color  == data->color &&
-	    b.data->pixmap == data->pixmap);
+    return (b.d == d)
+	   || (b.d->style == d->style && b.d->color == d->color && b.d->pixmap == d->pixmap);
 }
 
 
@@ -3842,10 +3832,10 @@ bool QBrush::operator==( const QBrush &b ) const
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QBrush &b )
+QDataStream &operator<<(QDataStream &s, const QBrush &b)
 {
     s << (Q_UINT8)b.style() << b.color();
-    if ( b.style() == Qt::CustomPattern )
+    if (b.style() == Qt::CustomPattern)
 #ifndef QT_NO_IMAGEIO
 	s << *b.pixmap();
 #else
@@ -3863,23 +3853,22 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QBrush &b )
+QDataStream &operator>>(QDataStream &s, QBrush &b)
 {
     Q_UINT8 style;
     QColor color;
     s >> style;
     s >> color;
-    if ( style == Qt::CustomPattern ) {
+    if (style == Qt::CustomPattern) {
 #ifndef QT_NO_IMAGEIO
 	QPixmap pm;
 	s >> pm;
-	b = QBrush( color, pm );
+	b = QBrush(color, pm);
 #else
 	qWarning("No Image Brush I/O");
 #endif
-    }
-    else
-	b = QBrush( color, (Qt::BrushStyle)style );
+    } else
+	b = QBrush(color, (Qt::BrushStyle)style);
     return s;
 }
 #endif // QT_NO_DATASTREAM

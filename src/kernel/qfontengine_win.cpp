@@ -342,7 +342,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		    0x009b07a8, // SDPSoaxn, NandROP,
 		    0x00891b08  // SDPSnaoxn,NorROP,
 		};
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->cpen.data->color) );
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->cpen.color()) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(Qt::black) );
