@@ -29,6 +29,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qmap.h"
 #include "qalgorithms.h"
 #include "qhash.h"
+#include "qglobal.h"
 
 #if defined(Q_OS_UNIX)
 #define QT_USE_MMAP
@@ -45,8 +46,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <stdlib.h>
 
 #include "qobject_p.h"
-#define d d_func()
-#define q q_func()
 
 #if defined(open)
 # undef open
@@ -371,6 +370,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
                         const QString & search_delimiters,
                         const QString & suffix)
 {
+    Q_D(QTranslator);
     clear();
 
     QString prefix;
@@ -493,6 +493,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 
 bool QTranslator::do_load(const uchar *data, int len)
 {
+    Q_D(QTranslator);
     if (len < MagicLength || memcmp(data, magic, MagicLength) != 0) {
         clear();
         return false;
@@ -548,6 +549,7 @@ bool QTranslator::do_load(const uchar *data, int len)
 
 bool QTranslator::save(const QString & filename, SaveMode mode)
 {
+    Q_D(QTranslator);
     QFile f(filename);
     if (f.open(IO_WriteOnly)) {
         squeeze(mode);
@@ -589,6 +591,7 @@ bool QTranslator::save(const QString & filename, SaveMode mode)
 
 void QTranslator::clear()
 {
+    Q_D(QTranslator);
     if (d->unmapPointer && d->unmapLength) {
 #if defined(QT_USE_MMAP)
         munmap(d->unmapPointer, d->unmapLength);
@@ -624,6 +627,7 @@ void QTranslator::clear()
 
 void QTranslator::squeeze(SaveMode mode)
 {
+    Q_D(QTranslator);
     if (d->messages.isEmpty()) {
         if (mode == Stripped)
             unsqueeze();
@@ -755,6 +759,7 @@ void QTranslator::squeeze(SaveMode mode)
 
 void QTranslator::unsqueeze()
 {
+    Q_D(QTranslator);
     if (!d->messages.isEmpty() || d->messageArray.isEmpty())
         return;
 
@@ -795,6 +800,7 @@ bool QTranslator::contains(const char* context, const char* sourceText,
 
 void QTranslator::insert(const QTranslatorMessage& message)
 {
+    Q_D(QTranslator);
     unsqueeze();
     d->messages.remove(message); // safer
     d->messages.insert(message, (void *) 0);
@@ -820,6 +826,7 @@ void QTranslator::insert(const QTranslatorMessage& message)
 
 void QTranslator::remove(const QTranslatorMessage& message)
 {
+    Q_D(QTranslator);
     unsqueeze();
     d->messages.remove(message);
 }
@@ -843,6 +850,7 @@ void QTranslator::remove(const QTranslatorMessage& message)
 QTranslatorMessage QTranslator::findMessage(const char *context, const char *sourceText,
                                             const char *comment) const
 {
+    Q_D(const QTranslator);
     if (context == 0)
         context = "";
     if (sourceText == 0)
@@ -851,7 +859,7 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
         comment = "";
 
 #ifndef QT_NO_TRANSLATION_BUILDER
-    if (!d->messages.isEmpty()) {
+    if (!d_func()->messages.isEmpty()) {
         QMap<QTranslatorMessage, void *>::const_iterator it;
 
         it = d->messages.find(QTranslatorMessage(context, sourceText, comment));
@@ -947,6 +955,7 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
 */
 bool QTranslator::isEmpty() const
 {
+    Q_D(const QTranslator);
     return !d->unmapPointer && !d->unmapLength && d->messageArray.isEmpty() &&
            d->offsetArray.isEmpty() && d->contextArray.isEmpty() && d->messages.isEmpty();
 }
@@ -973,6 +982,7 @@ bool QTranslator::isEmpty() const
 
 QList<QTranslatorMessage> QTranslator::messages() const
 {
+    Q_D(const QTranslator);
     ((QTranslator *) this)->unsqueeze();
     return d->messages.keys();
 }
