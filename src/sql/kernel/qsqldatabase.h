@@ -99,7 +99,7 @@ public:
 
     QSqlDriver* driver() const;
 
-    static const char *defaultConnection;
+    QT_STATIC_CONST char *defaultConnection;
 
     static QSqlDatabase addDatabase(const QString& type,
                                     const QString& connectionName = QString(defaultConnection));
