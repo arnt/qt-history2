@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#4 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#5 $
 
 $quiet=1;
 
@@ -23,6 +23,7 @@ sub copy {
 	    open( O, "> $dir$_" ) || die "could not open $dir$_, stopped";
 	    print O $v;
 	    close O;
+	    chmod( (stat $_)[2], "$dir$_" );
 	    $v = $f;
 	    $f =~ s/;\s*\nlocks.*$/\n/s;
 	    $f =~ s/^.*\bsymbols\b\s*//s;
@@ -96,7 +97,7 @@ done
 cd ../..
 
 # Generate and check-in X11 Makefiles
-export QTDIR=$base/cvs/qt
+export QTDIR=$base/head/qt
 for B in `util/scripts/makeunixmake -p`
 do
   ci -mnone -t-'' -u \$B ../../cvs/qt/\$B
@@ -106,3 +107,5 @@ cd $base/cvs/qt
 mv gif/*.gif,v html
 rm -rf bin bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
 ";
+
+# Should we close(SH) now?  We want to wait for the script to complete.
