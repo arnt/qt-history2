@@ -478,7 +478,7 @@ QMap< int, QStringList > *changedProperties = 0;
 */
 
 
-static void saveDefaultProperties( QWidget *w, int id )
+void WidgetFactory::saveDefaultProperties( QWidget *w, int id )
 {
     QMap< QString, QVariant> propMap;
     QStrList lst = w->metaObject()->propertyNames( TRUE );
@@ -488,9 +488,9 @@ static void saveDefaultProperties( QWidget *w, int id )
 	    var = QVariant( QPixmap() );
 	else if ( !var.isValid() && qstrcmp( "iconSet", lst.at( i ) ) == 0 )
 	    var = QVariant( QIconSet() );
-	propMap.insert( lst.at( i ), var );
+	propMap.replace( lst.at( i ), var );
     }
-    defaultProperties->insert( id, propMap );
+    defaultProperties->replace( id, propMap );
 }
 
 static void saveChangedProperties( QWidget *w, int id )
@@ -1384,6 +1384,7 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 	if ( MainWindow::self->formWindow() )
 	    return QVariant( -1 ); 
     }
+
     return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
 }
 

@@ -1446,6 +1446,9 @@ void MainWindow::insertFormWindow( FormWindow *fw )
     if ( fw->caption().isEmpty() && qstrlen( fw->name() )  )
 	fw->setCaption( fw->name() );
     fw->mainContainer()->setCaption( fw->caption() );
+    WidgetFactory::saveDefaultProperties( fw->mainContainer(),
+					  WidgetDatabase::
+					  idFromClassName( WidgetFactory::classNameOf( fw->mainContainer() ) ) );
     activeWindowChanged( fw );
     emit formWindowsChanged();
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
