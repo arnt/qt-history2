@@ -477,7 +477,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {
-	    qAccessibleManager->addLibraryPath(*it );
+	    qAccessibleManager->addLibraryPath(*it + "/accessible" );
 	    it++;
 	}
     }

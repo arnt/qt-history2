@@ -1,8 +1,8 @@
 TEMPLATE  = lib
-CONFIG   += qt plugin
-TARGET   += accwidgets
+CONFIG   += qt dll
+TARGET   += qtwidgets
 VERSION   = 1.0.0
-DESTDIR   = ../../..
+DESTDIR   = ../../../accessible
 REQUIRES += accessibility
 
 SOURCES  += main.cpp \
