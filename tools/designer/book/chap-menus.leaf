@@ -132,9 +132,10 @@ This menu is invoked with \Key Alt+O, and provides the following
 options:
 \list 
 
-\i \Menu {Project|Active Project|\<project name\>}  Click this menu
+\i \Menu {Project|Active Project|<project name>}  Click this menu
 option to toggle between projects if there is more than one project
-open. 
+open. You can also toggle between projects using the Active Project
+drop-down combobox in the File toolbar.
 
 \i \Menu{Project|Add File} Click this menu option 
  to invoke the \l{Add Dialog}

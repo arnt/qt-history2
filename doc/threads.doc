@@ -37,46 +37,46 @@
 
 \title Thread Support in Qt
 
-  In version 2.2, Qt introduced thread support to Qt in the shape of some basic
+  In version 2.2, Qt introduced thread support to Qt in the form of some basic
 platform-independent threading classes, a thread-safe way of posting
 events and a global Qt library lock that allows you to call Qt methods
 from different threads.
 
-<h2>Preface</h2>
+\section1 Preface
 
   This document is intended for an audience that has knowledge and
 experience with multithreaded applications.  Recommended reading:
-<ul>
-<li><a href="http://www.amazon.com/exec/obidos/ASIN/0134436989/trolltech/t">
-Threads Primer: A Guide to Multithreaded Programming</a>
-<li><a href="http://www.amazon.com/exec/obidos/ASIN/0131900676/trolltech/t">
-Thread Time: The Multithreaded Programming Guide</a>
-<li><a href="http://www.amazon.com/exec/obidos/ASIN/1565921151/trolltech/t">
-Pthreads Programming: A POSIX Standard for Better Multiprocessing (O'Reilly Nutshell)</a>
-<li><a href="http://www.amazon.com/exec/obidos/ASIN/1565922964/trolltech/t">
-Win32 Multithreaded Programming</a>
-</ul>
+\list
+\i \link http://www.amazon.com/exec/obidos/ASIN/0134436989/trolltech/t
+Threads Primer: A Guide to Multithreaded Programming\endlink
+\i \link http://www.amazon.com/exec/obidos/ASIN/0131900676/trolltech/t
+Thread Time: The Multithreaded Programming Guide\endlink
+\i \link http://www.amazon.com/exec/obidos/ASIN/1565921151/trolltech/t
+Pthreads Programming: A POSIX Standard for Better Multiprocessing (O'Reilly Nutshell)\endlink
+\i \link http://www.amazon.com/exec/obidos/ASIN/1565922964/trolltech/t
+Win32 Multithreaded Programming\endlink
+\endlist
 
-<h2>Enabling thread support</h2>
+\section1 Enabling thread support
 
   When Qt is installed on Windows, thread support is an option on
 some compilers. 
 
   On Unix, thread support is enabled by adding the
-<tt>-thread</tt> option when running the <tt>configure</tt> script.
+\c{-thread} option when running the \c{configure} script.
 On Unix platforms where multithreaded programs must be linked in special
 ways, such as with a special libc, installation will create a separate
-library, <tt>libqt-mt</tt> and hence threaded programs must be linked
-against this library (with <tt>-lqt-mt</tt>) rather than the regular Qt
+library, \c{libqt-mt} and hence threaded programs must be linked
+against this library (with \c{-lqt-mt}) rather than the standard Qt
 library.
 
-  On both platforms, you should compile with the macro <tt>QT_THREAD_SUPPORT</tt>
-defined (eg. compiler with <tt>-DQT_THREAD_SUPPORT</tt>).
-On Windows, this is usually done by an entry in <tt>qconfig.h</tt>.
+  On both platforms, you should compile with the macro \c{QT_THREAD_SUPPORT}
+defined (eg. compile with \c{-DQT_THREAD_SUPPORT}).
+On Windows, this is usually done by an entry in \c{qconfig.h}.
 
-<h2>The Qt thread classes</h2>
+\section1 The Qt thread classes
 
-  The most important class, obviously, is QThread; this provides the
+  The most important class is QThread; this provides the
 means to start a new thread, which begins execution in your
 reimplementation of QThread::run().  This is similar to the Java thread
 class.
@@ -104,22 +104,23 @@ other thread until the mutex is released. For instance:
   void MyClass::doStuff(int c)
   {
       mutex.lock();
-      a=c;
-      b=c*2;
+      a = c;
+      b = c * 2;
       mutex.unlock();
   } 
   \endcode
 
   This ensures that only one thread at a time can be in MyClass::doStuff(),
-so b will always be equal to a*2.
+so b will always be equal to c*2.
 
-  Also necessary is a method for threads to wait for another thread to wake
-it up given a condition; the QWaitCondition class provides this. Threads wait
-for the QWaitCondition to indicate that something has happened,
-blocking until it does. When something happens, \l QWaitCondition can wake up all
-of the threads waiting for that event or one randomly selected thread (this is
-the same functionality as a POSIX Threads condition variable and is
-implemented as one on Unix). For instance:
+Also necessary is a method for threads to wait for another thread to
+wake it up given a condition; the QWaitCondition class provides this.
+Threads wait for the QWaitCondition to indicate that something has
+happened, blocking until it does. When something happens, \l
+QWaitCondition can wake up all of the threads waiting for that event
+or one randomly selected thread (this is the same functionality as a
+POSIX Threads condition variable and is implemented as one on Unix).
+For example:
 
   \code
   #include <qapplication.h>
@@ -212,7 +213,7 @@ be told to do some more work. If the worker thread is already working when
 the button is pressed, nothing will happen.  When the thread finishes working
 and calls QWaitCondition::wait() again, then it can be started.
 
-<h2>Thread-safe posting of events</h2>
+\section1 Thread-safe posting of events
 
   In Qt, one thread is always the event thread - that is, the thread
 that pulls events from the window system and dispatches them to widgets.
@@ -226,10 +227,10 @@ you could force a widget to repaint from a different thread by doing the followi
   QThread::postEvent( mywidget, new QPaintEvent( QRect(0, 0, 100, 100) ) );
   \endcode
 
-  This (asynchronously) makes mywidget to repaint a 100x100
+  This (asynchronously) makes mywidget repaint a 100x100
 square of its area.
 
-<h2>The Qt library mutex</h2>
+\section1 The Qt library mutex
 
   The Qt library mutex provides a method for calling Qt methods from threads
 other than the event thread. For instance:
@@ -258,49 +259,49 @@ window system resources are GUI-related.  Using container classes,
 strings and I/O classes does not require any mutex if that object is
 only accessed by one thread.
 
-<h2>Caveats</h2>
+\section1 Caveats
 
 Some things to watch out for when programming with threads:
-<ul>
-<li>Don't do any blocking operations while holding the Qt library mutex.
-This will freeze up the event loop.</li>
+\list
+\i Don't do any blocking operations while holding the Qt library mutex.
+This will freeze up the event loop.
 
-<li>Make sure you lock a recursive QMutex as many times as you unlock it,
-no more and no less.</li>
+\i Make sure you lock a recursive QMutex as many times as you unlock it,
+no more and no less.
 
-<li>Lock the Qt application mutex before calling anything but the Qt
-container and tool classes.</li>
+\i Lock the Qt application mutex before calling anything except for
+the Qt container and tool classes.
 
-<li>Be wary of classes which are implicitly shared; you should probably
-detach() them if you need to assign them between threads.</li>
+\i Be wary of classes which are implicitly shared; you should probably
+detach() them if you need to assign them between threads.
 
-<li>Be wary of Qt classes which were not designed with thread safety in mind;
+\i Be wary of Qt classes which were not designed with thread safety in mind;
 for instance, QPtrList's API is not thread-safe and if different threads
 need to iterate through a QPtrList they should lock before calling
 QPtrList::first() and unlock after reaching the end, rather than locking and
-unlocking around QPtrList::next().</li>
+unlocking around QPtrList::next().
 
-<li>Be sure to create objects that inherit or use QWidget, QTimer and 
+\i Be sure to create objects that inherit or use QWidget, QTimer and 
 QSocketNotifier objects only in the GUI thread.  On some platforms,
 such objects created in a thread other than the GUI thread will never receive
-events from the underlying window system.</li>
+events from the underlying window system.
 
-<li>Similar to the above, only use the QNetwork classes inside the GUI thread.
+\i Similar to the above, only use the QNetwork classes inside the GUI thread.
 A common question asked is if a QSocket can be used in multiple threads.  This
-is unnecessary, since all of the QNetwork classes are asynchronous.</li>
+is unnecessary, since all of the QNetwork classes are asynchronous.
 
-<li>Never call a function that attempts to processEvents() from a
+\i Never call a function that attempts to processEvents() from a
 thread other than the GUI thread.  This includes QDialog::exec(),
-QPopupMenu::exec(), QApplication::processEvents() and others.</li>
+QPopupMenu::exec(), QApplication::processEvents() and others.
 
-<li>Don't mix the normal Qt library and the threaded Qt library in your
+\i Don't mix the normal Qt library and the threaded Qt library in your
 application.  This means that if your application uses the threaded Qt library,
 you should not link with the normal Qt library, dynamically load the
 normal Qt library or dynamically load another library that depends on the
 normal Qt library.  On some systems, doing this can corrupt the static
-data used in the Qt library.</li>
+data used in the Qt library.
 
-</ul>
+\endlist
  
 */
 

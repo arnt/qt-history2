@@ -193,30 +193,39 @@ Click \Menu {Edit|Form Settings} to invoke the \Dialog{Form
 Settings} dialog. Use this dialog to save the form's settings, pixmap,
 and layout properties.
 
+\section3 Settings
+
 In the Settings section, change the name of the form by typing in the
 'Class Name' line edit. You can also enter text to the 'Comment' and
 'Author' line edits or choose to leave them blank, as they are not
 required.
 
-In the Pixmaps section, the default is set to 'Project Imagefile',
-This is the recommended option because with this option, \QD
-automatically handles the images by creating all the images in a
-subdirectory. Then UIC produces code that contains one copy of the
-image and the necessary code to access it. If you do not want \QD to
-handle the images, choose the 'Save Inline' or 'Use Function'
-radiobuttons. 'Save Inline'saves the pixmaps as binary data in the
-\files {.ui} files. The disadvantage with this option is that it is
-only usable in the current form. Click 'Use Function' to use your own
-icon-loader function for loading pixmaps. Type the function in the
-'Use Function' line edit. This function is used in the generated code
-for loading pixmaps.    
+\section3 Pixmaps
 
-Click on a radiobutton to choose a
-different pixmap property. If you click the 'Use Button' radiobutton,
-you have the option to type a function in the line edit next to the
-radiobutton. In the Layouts section, you can change the default for
+The default (for projects) is 'Project Imagefile'. This is the
+recommended option. Images are handled automatically, with \QD storing
+the images in a subdirectory, and \Cmd uic producing code that
+contains the images and the necessary supporting code. Each image is
+stored just once, no matter how many forms it is used in. 
+
+If you do not want \QD to handle the images, (or are not using a
+project) choose either 'Save Inline' or 'Use Function'. 'Save Inline'
+saves the pixmaps in the \File .ui files. The disadvantage of this
+approach is that it stores images in the forms in which they're used,
+i.e. images cannot be shared across forms. Click 'Use Function' to use
+your own icon-loader function for loading pixmaps. Type the function's
+name (with no signature) in the 'Use Function' line edit. This
+function will be used in the generated code for loading pixmaps. Your
+function will be called with the text you put in the pixmap property
+(e.g. the image name) whenever an image is required.    
+
+\section3 Layouts
+
+In the Layouts section, you can change the default for
 'Default Margin' and 'Default Spacing' by clicking the spinbox for
-each. Click \OK to save the changes. Click \CANCEL to leave the dialog
+each. 
+
+Click \OK to save the changes. Click \CANCEL to leave the dialog
 without making any changes.
 
 \target dialog-edit-preferences

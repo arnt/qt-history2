@@ -17,14 +17,12 @@
 \i \link dnd.html Drag and Drop \endlink
 \i \link editions.html Qt Editions \endlink
 \i \link eventsandfilters.html Events and Event Filters \endlink
-\i \link features.html The Feature Definition File \endlink
 \i \link buyhowto.html How to Buy Qt \endlink
 \i \link bughowto.html How to Report A Bug \endlink
 \i \link imageio.html Qt Image IO Extension \endlink
 \i \link focus.html Keyboard Focus Overview \endlink
 \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
 \i \link mailinglists.html Mailing Lists \endlink
-\i \link opengl.html Qt OpenGL 3D Graphics \endlink
 \i \link appicon.html Setting the Application Icon \endlink
 \i \link session.html Session Management \endlink
 \i \link shclass.html Shared Classes \endlink
@@ -68,6 +66,7 @@
 <b>Qt/Embedded</b><br>
 \list
 \i \link install-qws.html Installing Qt/Embedded \endlink
+\i \link features.html The Feature Definition File \endlink
 \i \link embedclasses.html The Qt/Embedded-specific classes \endlink
 \i \link accel.html Adding an accelerated graphics driver to Qt/Embedded \endlink
 \i \link casestudy-qws.html Qt/Embedded Case Study - Cassiopeia E-100 \endlink

@@ -24,13 +24,13 @@
     subclassing approach pioneered in the first version of \QD.
     \index Controls!Widgets
 
-    The tutorial introduces you to \QD by
-    leading you through the development of example applications. The
-    tutorial chapters are written to be as self-contained as possible,
-    but all of them assume that you are familiar with the material in
-    chapter one which covers the basics of building a Qt application
-    with \QD. Here's a brief overview of the chapters:
-    \list
+    The manual introduces you to \QD by leading you through the
+    development of example applications. The first six chapters are
+    tutorials, each designed to be as self-contained as possible.
+    Every chapter, except the first, assumes that you are familiar with
+    the material in chapter one which covers the basics of building a
+    Qt application with \QD. Here's a brief overview of the chapters:
+    \list 
     \i
 
     Chapter one, \l{Creating a Qt Application}, introduces \QD and
@@ -92,15 +92,10 @@
     to integrate Designer with Visual Studio and how to create
     Makefiles.
 
-    \i
-
-    Chapter eight, \l{Using Qt Designer's Value Editors}, introduces
-    some of Qt's value editors.
-
-    \i 
-    Chapter nine, \l{The Key Bindings}, lists \QD's key bindings.
-
     \endlist
+
+    The remaining chapters provide reference material that explains
+    \QD's menu options, toolbars, key bindings and dialogs in detail.
 
 \section1 What You Should Know
 

@@ -87,7 +87,7 @@ to worry about it.
 
 \section1 A QByteArray Example
 
-QByteArray is an example of an shared class that uses explicit sharing.
+QByteArray is an example of a shared class that uses explicit sharing.
 Example:
 \code
 			  //        a=         b=         c=
@@ -125,18 +125,18 @@ Implicit sharing automatically detaches the object from a shared
 block if the object is about to change and the reference count is
 greater than one. Explicit sharing leaves this job to the
 programmer.  If an explicitly shared object is not detached, changing
-this object will change all other objects that refer the same data.
+the object will change all other objects that refer to the same data.
 
 Implicit sharing optimizes memory usage and copying of data without this
-side effect.  Then, why didn't we implement implicit sharing for all
+side effect.  So why didn't we implement implicit sharing for all
 shared classes?  The answer is that a class that allows direct access to
 its internal data (for efficiency reasons), like QByteArray, cannot be
 implicitly shared, because it can be changed without letting QByteArray
 know.
 
 An implicitly shared class has total control of its internal data.  In any
-member function that modify its data, it automatically detaches before
-modifying the data.
+member functions that modify its data, it automatically detaches
+before modifying the data.
 
 The QPen class, which uses implicit sharing, detaches from the shared data
 in all member functions that change the internal data.
@@ -145,13 +145,13 @@ Code fragment:
 \code
     void QPen::setStyle( PenStyle s )
     {
-	detach();			// detach from common data
-	data->style = s;		// set the style member
+	detach();        // detach from common data
+	data->style = s; // set the style member
     }
 
     void QPen::detach()
     {
-	if ( data->count != 1 )		// only if >1 reference
+	if ( data->count != 1 ) // only if >1 reference
 	    *this = copy();
     }
 \endcode
@@ -162,12 +162,12 @@ do the following:
 \code
     QByteArray array( 10 );
     array.fill( 'a' );
-    array[0] = 'f';			// will modify array
-    array.data()[1] = 'i';		// will modify array
+    array[0] = 'f';        // will modify array
+    array.data()[1] = 'i'; // will modify array
 \endcode
 
-If we should have monitored changes in a QByteArray, the QByteArray class
-would be unacceptably slow.
+If we monitor changes in a QByteArray, the QByteArray class would
+become unacceptably slow.
 
 
 \section1 Explicitly Shared Classes
@@ -184,7 +184,7 @@ shared:
 
 These classes have a detach() function that can be called if you want your
 object to get a private copy of the shared data.  They also have a copy()
-function that returns a deep copy with reference count 1 of an object.
+function that returns a deep copy with a reference count of 1.
 
 The same is true for \l QImage, which does not inherit QMemArray.  \l QMovie
 is also explicitly shared, but it does not support detach() and copy().
@@ -219,8 +219,8 @@ to be changed.  The programmer will not even notice that the objects are
 shared.  Thus you should treat separate instances of them as separate
 objects.  They will always behave as separate objects but with the added
 bonus of sharing data whenever possible.  For this reason, you can pass
-these classes as arguments to functions without having to think about the
-copying overhead.
+instances of these classes as arguments to functions by value without
+concern for the copying overhead.
 
 Example:
 \code
@@ -240,9 +240,10 @@ happens also if anything is \link ::bitBlt() bitBlt()\endlink'ed into \c p2.
 
 \section1 QCString: implicit or explicit?
 
-\l QCString is a mixture of implicit and explicit sharing. Functions
+\l QCString uses a mixture of implicit and explicit sharing. Functions
 inherited from QByteArray, such as data(), employ explicit sharing, while
-those only in QCString detach automatically. Thus, QCString is somewhat an
-"expert only" class, provided mainly to ease porting from Qt 1.x to Qt 2.0.
+those only in QCString detach automatically. Thus, QCString is rather an
+"experts only" class, provided mainly to ease porting from Qt 1.x to Qt 2.0.
 We recommend that you use \l QString, a purely implicitly shared class.
+
 */

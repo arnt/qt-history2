@@ -388,12 +388,12 @@ through the meta object, see \l QMetaObject::classInfo() for details.
 
 \title Events and Event Filters
 
-An event, in Qt, is an object that inherits \l QEvent.  Events are
+In Qt, an event is an object that inherits \l QEvent.  Events are
 delivered to objects that inherit \l QObject through calling \l
 QObject::event().  Event delivery means that an event has occurred, the
-QEvent indicates precisely what, and the QObject needs to react.  Most
+QEvent indicates precisely what, and the QObject needs to respond.  Most
 events are specific to \l QWidget and its subclasses, but there are
-important events that aren't related to graphics, such as socket
+important events that aren't related to graphics, for example, socket
 activation, which is the event used by \l QSocketNotifier for its
 work.
 
@@ -406,16 +406,16 @@ Most events types have special classes, most commonly \l QResizeEvent,
 \l QPaintEvent, \l QMouseEvent, \l QKeyEvent and \l QCloseEvent.
 There are many others, perhaps forty or so, but most are rather odd.
 
-Each class, \l QResizeEvent is an excellent example, subclasses QEvent
-and adds event-specific functions.  In the case of QResizeEvent, \l
+Each class subclasses QEvent and adds event-specific functions; see,
+for example, \l QResizeEvent.  In the case of QResizeEvent, \l
 QResizeEvent::size() and \l QResizeEvent::oldSize() are added.
 
 Some classes support more than one event type.  \l QMouseEvent
 supports mouse moves, presses, shift-presses, drags, clicks,
-right-presses, and so on ad infinitum.
+right-presses, etc.
 
-Since programs need to react in varied and complicated ways, Qt's
-event delivery mechanisms are rather flexible.  The documentation for
+Since programs need to react in varied and complex ways, Qt's
+event delivery mechanisms are flexible.  The documentation for
 \l QApplication::notify() concisely tells the whole story, here we
 will explain enough for 99% of applications.
 
@@ -424,14 +424,14 @@ function.  For example, \l QPaintEvent is delivered by calling \l
 QWidget::paintEvent().  This virtual function is responsible for
 reacting appropriately, normally by repainting the widget.
 
-Occasionally there isn't a such an event-specific function, or the
+Occasionally there isn't such an event-specific function, or the
 event-specific function isn't sufficient.  The most common example is
 tab key presses.  Normally, those are interpreted by QWidget to move
 the keyboard focus, but a few widgets need the tab key for themselves.
 
 These objects can reimplement \l QObject::event(), the general event
 handler, and either do their event handling before or after the usual
-handling, or replace it completely.  A very odd widget that both
+handling, or replace it completely.  A very unusual widget that both
 interprets tab and has an application-specific custom event might
 contain:
 
@@ -469,23 +469,22 @@ see the event at all.
 It's also possible to filter \e all events for the entire application,
 by installing an event filter on \l QApplication.  This is what \l
 QToolTip does in order to see \e all the mouse and keyboard activity.
-Of course, this is very powerful, but it also slows down event
-delivery of every single event in the entire application, so it's best
-avoided.
+This is very powerful, but it also slows down event delivery of every
+single event in the entire application, so it's best avoided.
 
 The global event filters are called before the object-specific
 filters.
 
 Finally, many applications want to create and send their own events.
 
-Creating an event of a built-in type is very simple: Create an object
+Creating an event of a built-in type is very simple: create an object
 of the relevant type, and then call \l QApplication::sendEvent() or \l
 QApplication::postEvent().
 
 sendEvent() processes the event immediately - when sendEvent()
 returns, (the event filters and) the object have already processed the
 event.  For many event classes there is a function called isAccepted()
-tells you whether the event was accepted or rejected by the last
+that tells you whether the event was accepted or rejected by the last
 handler that was called.
 
 postEvent() posts the event on a queue for later dispatch.  The next

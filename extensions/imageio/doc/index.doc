@@ -19,10 +19,10 @@ Both PNG and JPEG support is now included with Qt. PNG is always available,
 and JPEG is available if the installer of Qt enabled it. Hence, the
 ImageIO extension is no longer required.
 
-When installing Qt, add "-system-jpeg" when you run "configure". Notes that
-this requires that you have JpegLib 6.0 or better installed on your system
-It is also tested with <tt>libjpeg.so.6.0.1</tt>.
-See <a href="ftp://ftp.uu.net/graphics/jpeg/">ftp.uu.net</a> for the official sources.
-See <a href="http://ftpsearch.lycos.com">FTP Search</a> for other sources.
-See <a href="http://www.faqs.org/faqs/jpeg-faq/">the JPEG FAQ</a> for more information.
+When installing Qt, add "-system-jpeg" when you run "configure". Note that
+this requires that you have JpegLib 6.0 or later installed on your system
+It is also tested with \c{libjpeg.so.6.0.1}.
+See \link ftp://ftp.uu.net/graphics/jpeg/ ftp.uu.net\endlink for the official sources.
+See \link http://ftpsearch.lycos.com FTP Search\endlink for other sources.
+See \link http://www.faqs.org/faqs/jpeg-faq/ the JPEG FAQ\endlink for more information.
 */

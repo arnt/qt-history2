@@ -37,41 +37,42 @@
 
 \title Porting to Qt 3.x
 
-You're probably looking at this page because you want to port
-your application from Qt 2.x to Qt 3.x, but to be sure, let's
-review the good reasons to do this:
-\list
-\i ###
-\endlist
+This document describes porting applications from Qt 2.x to Qt 3.x. 
+
+If you haven't yet made the decision about porting, or are unsure
+about whether it is worth it, take a look at the \link
+keyfeatures.html key features\endlink offered by Qt 3.x.
 
 The Qt 3.x series is not binary compatible with the 2.x series. This
 means programs compiled for Qt 2.x must be recompiled to work with Qt
 3.x.  Qt 3.x is also not completely \e source compatible with 2.x,
 however all points of incompatibility cause compiler errors or
-run-time messages (rather than mysterious results).  The result is
-that Qt 3.x includes many additional features, discards obsolete
-functionality that is easily converted to use the new features, and
-that porting an application from Qt 2.x to Qt 3.x is a simple task
-well worth the amount of effort required.
+run-time messages (rather than mysterious results).  Qt 3.x includes
+many additional features and discards obsolete functionality. Porting
+from Qt 2.x to Qt 3.x is straightforward, and once completed makes 
+the considerable additional power and flexibility of Qt 3.x available
+for use in your applications.
 
-To port code using Qt 2.x to use Qt 3.x:
+To port code from Qt 2.x to Qt 3.x:
 
 \list 1
 \i Briefly read the porting notes below to get an idea of what to expect.
 \i Be sure your code compiles and runs well on all your target platforms
    with Qt 2.x.
 \i Recompile with Qt 3.x.  For each error, search below for related
-   identifiers (eg. function names, class names) - this document is
-   structured to mention all relevant identifiers to facilitate such
-   searching, even if that makes it a little verbose.
+   identifiers (e.g. function names, class names). This document 
+   mentions all relevant identifiers to help you get the information
+   you need at the cost of being a little verbose.
 \i If you get stuck, ask on the \link http://qt-interest.trolltech.com/
    qt-interest \endlink mailing list, or Trolltech Technical Support if
-   you're a Professional Edition licensee.
+   you're a registered licensee.
 \endlist
 
+\omit
 Many very major projects, such as ###
 have been ported, so there is plenty of expertise in the collective conscious
 that is the Qt Developer Community!
+\endomit
 
 \tableofcontents
 
@@ -104,10 +105,11 @@ Header files that you might need to add #include directives for include:
 Qt 3.x is namespace clean.  A few global identifiers that had been
 left in Qt 2.x have been discarded.
 
-Enumeration \l Qt::CursorShape and it values are now part of the
+Enumeration \l Qt::CursorShape and its values are now part of the
 special \c Qt class defined in qnamespace.h. If you get compilation
 errors about these being missing (unlikely, since most of your code will
-be in classes that inherit from the Qt namespace class), then change:
+be in classes that inherit from the Qt namespace class), then apply
+the following changes:
 
 \list
 \i \c QCursorShape becomes \c Qt::CursorShape
@@ -128,7 +130,7 @@ be in classes that inherit from the Qt namespace class), then change:
 \i \c BitmapCursor becomes \c Qt::BitmapCursor
 \endlist
 
-The name of some debugging macro variables has been changed.  We have
+The names of some debugging macro variables have been changed.  We have
 tried not to break source compatibility as much as possible.  If you observe
 error messages on the UNIX console or the Windows debugging stream that were
 previously disabled, please check these macro variables:
@@ -188,62 +190,68 @@ Additionally, these preprocessor directives have been removed:
 \i \c {#define strnicmp qstrnicmp}
 \endlist
 
-See the changes-3.0.0 document for motivation why this had to be done.
+See the changes-3.0.0 document for an explanation of why this had to be done.
 You might have been relying on the non-portable and unpredictable behavior
-resulting from these directives. We strongly recommend to either make
+resulting from these directives. We strongly recommend that you either make
 use of the safe qstr* variants directly or ensure that no 0 pointer is
 passed to the standard C functions in your code base.
 
 \section1 Collection Class Renaming
 
 The classes QArray, QCollection, QList, QListIterator, QQueue, QStack
-and QVector have been renamed QMemArray, QPtrCollection, QPtrList,
-QPtrListIterator, QPtrQueue and QPtrStack, and they are found in the
-header files \c <qmemarray.h>, \c <qptrcollection.h>, \c <qptrlist.h>,
-\c <qptrqueue.h>, \c <qptrstack.h> and \c <qptrvector.h>. To
-ease porting, the old names and the old header-file names are still
-supported.
+and QVector have been renamed. To ease porting, the old names and the
+old header-file names are still supported.
+
+\table
+\header \i Old Name \i New Name \i New Header File
+\row \i QArray \i \l QMemArray \i \c <qmemarray.h>
+\row \i QCollection \i \l QPtrCollection \i \c <qptrcollection.h>
+\row \i QList \i \l QPtrList \i \c <qptrlist.h>
+\row \i QListIterator \i \l QPtrListIterator \i \c <qptrlist.h>
+\row \i QQueue \i \l QPtrQueue \i \c <qptrqueue.h>
+\row \i QStack \i \l QPtrStack \i \c <qptrstack.h>
+\row \i QVector \i \l QPtrVector \i \c <qptrvector.h>
+\endtable
 
 \section1 QButtonGroup
 
 In Qt 2.x, the function QButtonGroup::selected() returns the selected
 \e radio button (QRadioButton). In Qt 3.0, it returns the selected \e
 toggle button (\l QButton::toggleButton), a more general concept.
-This might affect programs that use QButtonGroup containing a mixture of
-radio buttons and non-radio toggle buttons.
+This might affect programs that use QButtonGroups that contain a
+mixture of radio buttons and non-radio (e.g. QCheckBox) toggle buttons.
 
 \section1 QDate
 
-Two member functions of QDate were virtual in Qt 2.0 and are not anymore
-in Qt 3.0. The information here is relevant only if you subclassed
-QDate and reimplemented these functions:
+Two QDate member functions that were virtual in Qt 2.0 are not virtual
+in Qt 3.0. This is only relevant if you subclassed QDate and
+reimplemented these functions:
 
 \list
 \i QString QDate::monthName( int month ) const
 \i QString QDate::dayName( int weekday ) const
 \endlist
 
-Apart from losing their virtualness, QDate::monthName() and
+In addition to no longer being virtual, QDate::monthName() and
 QDate::dayName() have been renamed QDate::shortMonthName() and
-QDate::shortDayName() and have been made static (as they always
-should had been). The old names are still provided for source
+QDate::shortDayName() and have been made static (as they should had
+been in the first place). The old names are still provided for source
 compatibility.
 
 \section1 QFont
 
 The internals of QFont have changed significantly between Qt 2.2 and
-Qt 3.0, to give better  Unicode support and make developing
-internationalized applications easier. The external  behaviour has
-however not changed a lot. The main change is that the CharSet enum
-in QFont  and functions related to it have disappeared. This comes
-about because Qt does now handle all charset related issues
-internally, and takes this burden away from the developer.
+Qt 3.0, to give better Unicode support and to make developing
+internationalized applications easier. The original API has been
+preserved with minimal changes. The CharSet enum and its related
+functions have disappeared. This is because Qt now handles all charset
+related issues internally, and removes this burden from the developer.
 
-If you used the CharSet enum anywhere or any functions as
-QFont::charSet(), QFont::setCharSet()  just remove them from your
-code to get things working again. There are a few other functions
-that  took a QFont::CharSet as parameter. Just remove the charset
-from the parameterlist.
+If you used the CharSet enum or its related functions, e.g
+QFont::charSet() or QFont::setCharSet(), just remove them from your
+code. There are a few functions that took a QFont::CharSet as a
+parameter; in these cases simply remove the charset from the
+parameter list.
 
 \section1 QInputDialog
 
@@ -252,71 +260,72 @@ The \c echo parameter is the third parameter and defaults to
 QLineEdit::Normal. 
 
 If you used calls to QInputDialog::getText(...) that provided more 
-than the first two required parameters you will have to add a value 
+than the first two required parameters you will must add a value 
 for the \c echo parameter.
 
 \section1 QLayout and Other Abstract Layout Classes
 
 The definitions of \l QGLayoutIterator, \l QLayout, \l QLayoutItem, \l
-QLayoutIterator, \l QSpacerItem and \l QWidgetItem were moved from \c
+QLayoutIterator, \l QSpacerItem and \l QWidgetItem have been moved from \c
 <qabstractlayout.h> to \c <qlayout.h>. The header \c
 <qabstractlayout.h> now includes \c <qlayout.h> for compatibility. It
 might be removed in a future version.
 
 \section1 QMultiLineEdit
 
-The QMultiLineEdit was a simple editor widget in former Qt
-versions. Since Qt 3.0, which comes with a new richtext engine,
-which also supports editing, QMultiLineEdit is obsolete. It is still
-included for compatibility reasons. It is now a subclass of
-QTextEdit which wrappes the old QMultiLineEdit so that it is mostly
-source compatible to keep old applications working.
+The QMultiLineEdit was a simple editor widget in previous Qt versions.
+Since Qt 3.0 includes a new richtext engine, which also supports
+editing, QMultiLineEdit is obsolete. For the sake of compatibility
+QMultiLineEdit is still provided. It is now a subclass of QTextEdit
+which wraps the old QMultiLineEdit so that it is mostly source
+compatible to keep old applications working.
 
-If you implement something new with QMultiLineEdit, you should use
-QTextEdit instead.
+For new applications and when maintaining existing applications we
+recommend that you use QTextEdit instead of QMultiLineEdit wherever
+possible.
 
-Although most of the old QMultiLineEdit API is still available,
-there is one important difference. Because of a design flaw of the
-old QMultiLineEdit it operated on lines and not on paragraphs. As
-lines do change all the time during wordwrap, the new richtext
-engine only knows paragraphs as elements in the data structure. So
-all functions (like numLines(), textLine()), which worked on lines,
+Although most of the old QMultiLineEdit API is still available, there
+is one important difference. The old QMultiLineEdit operated in terms
+of lines, whereas QTextEdit operates in terms of paragraphs. This is
+because lines change all the time during wordwrap, whereas paragraphs
+remain paragraphs. The consequence of this change is that functions
+which previously operated on lines, e.g. numLines(), textLine(), etc.,
 now work on paragraphs.
 
-Also the function getString() has been removed as this function
+Also the function getString() has been removed since it
 published the internal data structure.
 
-So, applications which made normal usage of the QMultiLineEdit,
-should keep working without problems. Programs which did some
-special stuff with it might require some porting.
+In most cases, applications that used QMultiLineEdit will continue to
+work without problems. Applications that worked in terms of lines may
+require some porting.
 
 The source code for the old 2.x version of QMultiLineEdit can be found
 in \c $QTDIR/src/attic/qtmultilineedit.h/cpp. Note that the class has
 been renamed to QtMultiLineEdit to avoid name clashes. If you really
 need to keep compatibility with the old QMultiLineEdit, simply include
-this class in your project and rename all references from
-QMultiLineEdit to QtMultiLineEdit.
+this class in your project and rename QMultiLineEdit to
+QtMultiLineEdit throughout.
 
 \section1 QPrinter
 
 QPrinter has undergone some changes, to make it more flexible and
-force the same runtime behaviour on Unix and on Windows. In 2.x,
+to ensure it has the same runtime behaviour on both Unix and Windows. In 2.x,
 QPrinter behaved differently on Windows and Unix, when using view
 transformations on the QPainter. This has changed now, and QPrinter
-behaves consistent across all platforms. A compatibilty mode has been
-added that behaves exactly as in Qt-2.x, to ease porting from Qt-2.x
-to Qt-3. This compatibilty mode can be enabled by passing a
+behaves consistently across all platforms. A compatibilty mode has been
+added that forces the old behaviour, to ease porting from Qt 2.x
+to Qt 3.x. This compatibilty mode can be enabled by passing the
 QPrinter::Compatible flag to the QPrinter constructor.
 
 On X11, QPrinter used to generate encapsulated postscript when
 fullPage() was TRUE and only one page was printed. This does not
-happen by default anymore, giving a more consistent printing output.
+happen by default anymore, providing a more consistent printing output.
 
 \section1 QRegExp
 
-The \l QRegExp class has been rewritten to support most of the features of Perl
+The \l QRegExp class has been rewritten to support many of the features of Perl
 regular expressions.  Both the regular expression syntax and the QRegExp
-interface were modified.
+interface have been modified.
 
 Be also aware that \c <qregexp.h> is no longer included
 automatically when you include \c <qstringlist.h>. See
@@ -332,7 +341,7 @@ unless one wants to achieve an Escher effect.
 
 There are five new special characters: <tt>(</tt>, <tt>)</tt>, <tt>{</tt>,
 <tt>|</tt> and <tt>}</tt> (parentheses, braces and pipe). When porting old
-regular expressions, you have to add <tt>&#92;</tt> (backslash) in front of any
+regular expressions, you must add <tt>&#92;</tt> (backslash) in front of any
 of these (actually, <tt>&#92;&#92;</tt> in C++ strings), unless it is already
 there.
 
@@ -361,7 +370,7 @@ However, wildcard patterns need no conversion.  Here are two examples:
 \endcode
 
 Usually, QRegExp is easy to spot in programs.  However, in one unfortunate case,
-it is subtle: as first argument to \l QString::replace().  Code like
+it is subtle: as the first argument to \l QString::replace().  Code like
 
 \code
     QString text = fetch_it_from_somewhere();
@@ -373,8 +382,8 @@ changed.
 
 \section2 QRegExp::operator=()
 
-This function has been replaced by \l QRegExp::setPattern() in Qt 2.2.  Old code
-such as
+This function has been replaced by \l QRegExp::setPattern() in Qt 2.2.
+Old code such as
 
 \code
     QRegExp rx( "alpha" );
@@ -399,14 +408,13 @@ which is what one expects.
 \section2 QRegExp::match()
 
 The following function is now obsolete, as it has an unwieldy
-parameter list and a bad name:
+parameter list and was poorly named:
 \list
 \i bool QRegExp::match( const QString \& str, int index = 0,
 			int * len = 0, bool indexIsStart = TRUE ) const
 \endlist
 It will be removed in a future version of Qt. Its \link
-QRegExp::match() documentation \endlink explains how to accomplish
-the same.
+QRegExp::match() documentation \endlink explains how to replace it.
 
 \section2 QRegExp::find()
 
@@ -417,7 +425,7 @@ QString::find() instead.
 \section2 QString::findRev() and QString::contains()
 
 \l QString::findRev()'s and \l QString::contains()'s semantics have changed
-between 2.0 and 3.0 to be more coherent with the other overloads.
+between 2.0 and 3.0 to be more consistent with the other overloads.
 
 For example,
 \code
@@ -435,13 +443,13 @@ These changes affect very few existing programs.
 \section1 QTableView
 
 The QTableView class has been obsoleted and is no longer a part of the
-Qt API. You should either use the powerful QTable class or the
-simplistic QGridView in any new code you create. If you really need
-the old table view for compatibility issues you can find it in \c
+Qt API. Either use the powerful QTable class or the simplistic
+QGridView in any new code you create. If you really need the old table
+view for compatibility you can find it in \c
 $QTDIR/src/attic/qttableview.{cpp,h}. Note that the class has been
 renamed from QTableView to QtTableView to avoid name clashes. To use
-it, simply include it in your project and rename all references in
-your code from QTableView to QtTableView.
+it, simply include it in your project and rename QTableView to
+QtTableView throughout.
 
 \section1 QToolButton
 
@@ -450,24 +458,24 @@ icons. In 3.0, this mechanism was moved into the \l QIconSet class
 (see \l QIconSet::State).
 
 The old \l QToolButton::onIconSet and \l QToolButton::offIconSet
-properties are still provided for old source to compile, but their
-semantics have changed: They are now synonyms for \l
-QToolButton::iconSet. If you used that distinction in Qt 2, you will
+properties are still provided so that old source will compile, but
+their semantics have changed: they are now synonyms for \l
+QToolButton::iconSet. If you used that distinction in Qt 2.x, you will
 need to adjust your code to use the QIconSet On/Off mechanism.
 
 Likewise, the \e on parameter of these two functions is now ignored:
 
 \list
-\i void QToolButton::setIconSet ( const QIconSet \& set, bool on )</li>
-\i QIconSet QToolButton::iconSet ( bool on ) const</li>
+\i void QToolButton::setIconSet ( const QIconSet \& set, bool on )
+\i QIconSet QToolButton::iconSet ( bool on ) const
 \endlist
 
-These functions are still provided only for ease of porting. New code
-should rather use the following:
+These functions are only provided for ease of porting. New code
+should use the following instead:
 
 \list
-\i void QToolButton::setIconSet( const QIconSet \& set )</li>
-\i QIconSet QToolButton::iconSet() const</li>
+\i void QToolButton::setIconSet( const QIconSet \& set )
+\i QIconSet QToolButton::iconSet() const
 \endlist
 
 Finally, this function is no longer virtual:
@@ -485,16 +493,17 @@ a virtual function.
 
 The global QTextStream manipulators setw(), setfill() and setprecison()
 were renamed to qSetW(), qSetFill() and qSetPrecision() to avoid conflicts
-with \c <iostream.h>. If you used them, you have to rename the occurrences to
+with \c <iostream.h>. If you used them, you must rename the occurrences to
 the new names.
 
 \section1 QTranslator
 
-The \l QTranslator class was extended in Qt 2.2, and these extensions lead to a
-new interface.  This interface is used mainly by translation tools (such as
-\link http://www.trolltech.com/linguist/ Qt Linguist \endlink).  For source
-compatibility, no member function was effectively removed.  The \l QTranslator
-documentation points out which functions are obsolete.
+The \l QTranslator class was extended in Qt 2.2, and these extensions
+lead to a new interface.  This interface is used mainly by translation
+tools (for example, \link http://www.trolltech.com/linguist/ Qt
+Linguist \endlink).  For source compatibility, no member function was
+effectively removed.  The \l QTranslator documentation points out
+which functions are obsolete.
 
 This function is no longer virtual:
 
@@ -503,20 +512,21 @@ This function is no longer virtual:
 			      const char * sourceText ) const
 \endlist
 
-If you have a class that inherits QTranslator and that reimplements
+If you have a class that inherits QTranslator and which reimplements
 QTranslator::find(), you should reimplement QTranslator::findMessage() instead.
 In fact, find() is now defined in terms of findMessage().  By doing the
 conversion, you will also gain support for translator comments and for any
-future extension.
+future extensions.
 
 \section1 QXml Classes
 
 \section2 QXmlInputSource
 
-The semantics of QXmlInputSource has slightly changed. This change affects
-only code that parses the same data from the same input source multiple
-times. In that cases you have to do a QXmlInputSource::reset() before the
-second call to QXmlSimpleReader::parse().
+The semantics of QXmlInputSource has changed slightly. This change
+only affects code that parses the same data from the same input source
+multiple times. In such cases you must call
+QXmlInputSource::reset() before the second call to
+QXmlSimpleReader::parse().
 
 So code like
 \code
@@ -527,7 +537,7 @@ So code like
     ...
     reader.parse( source );
 \endcode
-has to be changed to
+must be changed to
 \code
     QXmlInputSource source( &xmlFile );
     QXmlSimpleReader reader;
@@ -541,12 +551,11 @@ has to be changed to
 \section2 QXmlLocator
 
 Due to some internal changes, it was necessary to clean-up the semantics of
-QXmlLocator: this class is now an abstract class. This should be in general
-no problem, since one usually used the QXmlLocator that was reported by
-QXmlContentHandler::setDocumentLocator().
-
-If you used this class in another way as the above described, you have to
-adjust you code to use the QXmlLocator that is reported by the
+QXmlLocator: this class is now an abstract class. This shouldn't cause
+any problems, since programmers usually used the QXmlLocator that was
+reported by QXmlContentHandler::setDocumentLocator(). If you used this
+class in some other way, you must adjust your code to use the
+QXmlLocator that is reported by the
 QXmlContentHandler::setDocumentLocator() function.
 
 \section1 Bezier Curves
@@ -554,8 +563,8 @@ QXmlContentHandler::setDocumentLocator() function.
 The function names for Bezier curves in QPainter and QPointArray have
 been corrected. They now properly reflect their cubic form instead of
 a quadratic one. If you have been using either
-QPainter::drawQuadBezier() or QPointArray::quadBezier() you will have
-to replace these calls with
+QPainter::drawQuadBezier() or QPointArray::quadBezier() you must
+replace these calls with
 \list
 \i void QPainter::drawCubicBezier( const QPointArray \&, int index=0 ) and
 \i QPointArray QPointArray::cubicBezier() const
@@ -565,18 +574,19 @@ respectively. Neither the arguments nor the resulting curve have changed.
 \section1 Locale-aware String Comparisons in QIconView, QListBox,
 	  QListView and QTable
 
-In Qt 2.x, QString provided only string comparison using the Unicode
+In Qt 2.x, QString only provided string comparisons using the Unicode
 values of the characters of a string. This is efficient and reliable,
 but it is not the appropriate order for most languages. For example,
 French users expect '&eacute;' (e acute) to be treated essentially as
 'e' and not put after 'z'.
 
-In Qt 3.0, QString::localeAwareCompare() implements that on certain
-platforms. The classes \l QIconView, \l QListBox, \l QListView and \l
-QTable now use QString::localeAwareCompare() instead of
-QString::compare(). The impact of this is usually positive.
-Otherwise, you can always reimplement QIconViewItem::compare(),
-QListBox::text(), QListViewItem::compare() or QTableItem::key().
+In Qt 3.0, QString::localeAwareCompare() implements locale aware
+string comparisions on certain platforms. The classes \l QIconView, \l
+QListBox, \l QListView and \l QTable now use
+QString::localeAwareCompare() instead of QString::compare(). If you
+want to control the behaviour yourself you can always reimplement
+QIconViewItem::compare(), QListBox::text(), QListViewItem::compare()
+or QTableItem::key() as appropriate.
 
 */
 

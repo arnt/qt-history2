@@ -39,26 +39,25 @@
 \title Setting the Application Icon
 
 The application icon, typically displayed in the upper left corner of the
-application top-level windows, can in Qt be set by using the
-QWidget::setIcon() method on the top-level widgets.
+application top-level windows, is set by calling the
+QWidget::setIcon() method on top-level widgets.
 
-However, in order to change the icon of the executable application file
+In order to change the icon of the executable application file
 itself, as it is presented on the desktop (i.e. prior to application
 execution), it is necessary to employ another, platform-dependent
 technique.
 
-<h2>Setting the Application Icon on Windows</h2>
+\section1 Setting the Application Icon on Windows
 
 First, create an ICO format bitmap file that contains the icon image. This
-can be done with e.g. Microsoft Visual C++: Select "File->New...", then
+can be done with e.g. Microsoft Visual C++: Select "File|New...", then
 select the "File" tab in the dialog that appears, and choose "Icon". (Note
 that you do not need to load your application into Visual C++; here we are
 only using its icon editor).
 
-Store the ICO file in the source code directory of your application, say
-with the name "myappico.ico". Then, create a text file called
-e.g. "myapp.rc", and let it contain this single line of text:
-
+Store the ICO file in the source code directory of your application,
+for example, with the name, "myappico.ico". Then, create a text file
+called e.g. "myapp.rc" in which you put a single line of text:
 \code
 IDI_ICON1               ICON    DISCARDABLE     "myappico.ico"
 \endcode
@@ -73,7 +72,7 @@ RC_FILE = myapp.rc
 Regenerate your makefile and your application. The .exe file will now be
 represented with your icon in e.g. Explorer.
 
-If you do not use qmake, the necessary steps are: First, run the "rc"
+If you do not use qmake, the necessary steps are: first, run the "rc"
 program on the .rc file, then link your application with the resulting
 .res file.
 

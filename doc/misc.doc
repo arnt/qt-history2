@@ -89,7 +89,7 @@ only. It is provided free of charge under the terms of the
 */
 
 /*! \page commonproblems.html
-\title Common Problems and Special Use Cases
+\title Common Issues and Special Use Cases
 
 This document describes how to use more than one Qt version on one
 machine and how to use Qt on X11 without a window manager. In addition
@@ -101,14 +101,16 @@ Other frequently asked questions can be found in the
 \section1 Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
 __vtbl or similar
 
-This indicates that you include the Q_OBJECT macro in a class declaration
-and probably also run the moc, but forget to link the moc-generated object
-code into your executable. Read \link moc.html Using the Meta Object
-Compiler\endlink for details on how to use moc.
+This indicates that you've included the Q_OBJECT macro in a class
+declaration and probably also run the moc, but forgot to link the
+moc-generated object code into your executable. See \link moc.html
+Using the Meta Object Compiler\endlink for details on how to use moc.
 
 \section1 Using different versions of Qt on the same machine
 
-Qt programs need the following components of a Qt distribution:<dl>
+Qt programs need the following components of a Qt distribution:
+
+<dl>
 
 <dt>Header files - Compile time
 
@@ -116,7 +118,7 @@ Qt programs need the following components of a Qt distribution:<dl>
 are usually located in the \c include subdirectory of Qt distributions.
 Care must be taken to include the header files of the relevant release of
 Qt. Those with a command-line compiler will typically use options such as
-\c /I%QTDIR%\\include or \c -I"$QTDIR"/include provided \c QTDIR specifies
+\c{/I%QTDIR%\include} or \c{-I"$QTDIR"/include} provided \c QTDIR specifies
 the relevant release of Qt.
 
 <dt>Meta Object Compiler and other tools - Compile time
@@ -124,7 +126,9 @@ the relevant release of Qt.
 <dd>Programmers need to run \e moc and other tools such as \e uic. These
 tools are usually located in the \c bin subdirectory of Qt distributions.
 Either run \c "$QTDIR"/bin/moc and \c "$QTDIR"/bin/uic or add \c "$QTDIR"/bin
-to your \c PATH and run \c moc and \c uic.
+to your \c PATH and run \c moc and \c uic. If you use \c qmake the
+appropriate lines will be added to your Makefiles so that \e uic and
+\e moc will be executed as required.
 
 <dt>Static or shared libraries - Link time
 
@@ -132,7 +136,7 @@ to your \c PATH and run \c moc and \c uic.
 libraries are usually located in the \c lib subdirectory of Qt distributions.
 Care must be taken to link with the libraries of the relevant release of
 Qt.  Those with a command-line compiler will typically use options such as
-\c /L%QTDIR%\\lib\\qt.lib or \c -L"$QTDIR"/lib \c -lqt provided \c QTDIR
+\c{/L%QTDIR%\lib\qt.lib} or \c{-L"$QTDIR"/lib} \c -lqt provided \c QTDIR
 specifies the relevant release of Qt.
 
 <dt>Shared libraries - Run time
@@ -140,7 +144,7 @@ specifies the relevant release of Qt.
 <dd>Users of programs linked with shared Qt libraries need these same
 shared libraries to run these programs.  The Qt libraries are usually
 located in the \c lib subdirectory of Qt distributions.  Shared libraries
-are made available to programs in places such as \c C:\\windows\\system on
+are made available to programs in places such as \c{C:\windows\system} on
 Windows platforms, directories listed in file \c /etc/ld.so.conf on Linux,
 standard \c lib directories on Unix, or directories listed in environment
 variables \c LD_LIBRARY_PATH, \c SHLIB_PATH, or \c LIBPATH on various Unix
@@ -149,9 +153,9 @@ mechanisms.
 
 </dl>
 
-We have learned that Qt distributions consist of different files needed at
-compile time, link time, or run time. Trolltech distributes Qt in the form
-of a source package that contain all these files once they have been built.
+Qt distributions consist of different files needed at compile time,
+link time, or run time. Trolltech distributes Qt in the form of a
+source package that contain all these files once they have been built.
 
 Other vendors distribute Qt in the form of binary packages. Binary packages
 usually consist of two parts:
@@ -182,15 +186,15 @@ like \c qt-dev.  You will need the appropriate packages:
 
 \i To build programs you will need the header files, the libraries,
 the moc and other tools from Qt 3.x. They are included in the developer
-package of Qt 3.x (\c qt3-dev or the like).
+package of Qt 3.x (\c qt3-dev or similar).
 
 \i To run programs you will need the shared libraries of Qt 3.x and
 Qt 2.x.  They are included in the regular packages of Qt 3.x (\c qt3
-or the like) and Qt 2.x (\c qt2 or the like).
+or similar) and Qt 2.x (\c qt2 or similar).
 
 \endlist
 
-Just install those 3 packages, \c qt2, \c qt3, and \c qt3-dev. You may
+Just install the packages, \c qt2, \c qt3, and \c qt3-dev. You may
 need to set the environment variable \c QTDIR to point to Qt 3.x.
 
 \section2 Developers building for two versions of Qt on Unix - Qt sources
@@ -261,14 +265,15 @@ setenv PATH ${QTDIR}/bin:${PATH}
 \endcode
 
 Setting \c QTDIR ensures that the proper resources are used, such as the
-documentation of the version of Qt you're using.  Also your Makfiles may
-refer to \c "$QTDIR"/include and \c "$QTDIR"/lib to include the proper
-header files and link with the proper libraries.  Setting the \c PATH
-ensures that the proper version of moc and other tools is being used.
+documentation appropriate to the version of Qt you're using.  Also
+your Makfiles may refer to \c "$QTDIR"/include and \c "$QTDIR"/lib to
+include the proper header files and link with the proper libraries.
+Setting the \c PATH ensures that the proper version of moc and other
+tools is being used.
 
 \section1 Using Qt on X11 without a window manager
 
-When using Qt without a window manager on Unix/X11, you will very
+When using Qt without a window manager on Unix/X11, you will most
 likely experience focus problems. Without a window manager, there is
 no focus handling on X11, and no concept of an active window
 either. If you want your application to work in such an environment,
@@ -312,10 +317,10 @@ Always include the following information in your bug report:
 compiled with.
 \endlist
 
-If the problem you are reporting is only visible run-time, try to
+If the problem you are reporting is only at visible run-time, try to
 create a small test program that shows the problem when run.  Often,
-such a program can be made by simply doing some minor changes to one
-of the many example programs in the <tt>qt/examples</tt> directory.
+such a program can be create with some minor changes to one
+of the many example programs in the \c{qt/examples} directory.
 
 Please send the bug report to
 \link mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com\endlink.
@@ -1008,13 +1013,13 @@ the button below.
 </center>
 
 You can also subscribe by sending an email containing just the word
-<tt>subscribe</tt> or <tt>subscribe <em>your@email.address</em></tt> to
+\c{subscribe} or <tt>subscribe <em>your@email.address</em></tt> to
 \link mailto:qt-announce-request@trolltech.com
 qt-announce-request@trolltech.com\endlink.
 
 To unsubscribe yourself from the \c qt-announce mailing
 list, similarly send an email containing just the word
-<tt>unsubscribe</tt> or
+\c{unsubscribe} or
 <tt>unsubscribe <em>your@email.address</em></tt> to
 \link mailto:qt-announce-request@trolltech.com
 qt-announce-request@trolltech.com\endlink.
@@ -1030,27 +1035,27 @@ Tech web site: \link http://www.trolltech.com/qt-interest/ Qt
 Mailing List Archive\endlink.
 
 To subscribe to the \c qt-interest mailing list, send an
-email containing just the word <tt>subscribe</tt> or <tt>subscribe
+email containing just the word \c{subscribe} or <tt>subscribe
  <em>your@email.address</em></tt> to \link
 mailto:qt-interest-request@trolltech.com
 qt-interest-request@trolltech.com\endlink.
 
 To unsubscribe yourself from the \c qt-interest mailing
 list, similarly send an email containing just the word
-<tt>unsubscribe</tt> or
+\c{unsubscribe} or
 <tt>unsubscribe <em>your@email.address</em></tt> to
 \link mailto:qt-interest-request@trolltech.com
 qt-interest-request@trolltech.com\endlink.
 
 \section1 snapshot-users
 
-There is a special mailing list, <tt>snapshot-users@trolltech.com</tt>, for
+There is a special mailing list, \c{snapshot-users@trolltech.com}, for
 discussion of Qt snapshot-related issues. To subscribe, send a message
 containing just the word "subscribe" (without the quotes) to
 \link mailto:snapshot-users-request@trolltech.com
 snapshot-users-request@trolltech.com\endlink. We
 encourage you to use this mailing list in stead of
-<tt>qt-interest</tt> for snapshot-specific issues.
+\c{qt-interest} for snapshot-specific issues.
 
 <small>Trolltech does not sell or in any way redistribute the
 addresses on our mailing lists. We also employ active filtering to

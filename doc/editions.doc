@@ -87,7 +87,7 @@ Editions.
   </tr>
   <tr>
     <td><a href="network.html"><b>Network module</b></a><b><br>
-      </b>Platform-independent classes for sockets, TCP, FTP and asynchroneous DNS lookup.</td>
+      </b>Platform-independent classes for sockets, TCP, FTP and asynchronous DNS lookup.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
