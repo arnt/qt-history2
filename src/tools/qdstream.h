@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#13 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#14 $
 **
 ** Definition of QDataStream class
 **
@@ -45,19 +45,16 @@ public:
     QDataStream &operator>>( UINT16 &i );
     QDataStream &operator>>( INT32 &i );
     QDataStream &operator>>( UINT32 &i );
-    //    QDataStream &operator>>( int &i );
-    //    QDataStream &operator>>( uint &i );
     QDataStream &operator>>( float &f );
     QDataStream &operator>>( double &f );
     QDataStream &operator>>( char *&str );
+
     QDataStream &operator<<( INT8 i );
     QDataStream &operator<<( UINT8 i );
     QDataStream &operator<<( INT16 i );
     QDataStream &operator<<( UINT16 i );
     QDataStream &operator<<( INT32 i );
     QDataStream &operator<<( UINT32 i );
-    //    QDataStream &operator<<( int i );
-    //    QDataStream &operator<<( uint i );
     QDataStream &operator<<( float f );
     QDataStream &operator<<( double f );
     QDataStream &operator<<( const char *str );
@@ -113,12 +110,6 @@ inline QDataStream &QDataStream::operator<<( UINT16 i )
 
 inline QDataStream &QDataStream::operator<<( UINT32 i )
 { return *this << (INT32)i; }
-
-//inline QDataStream &QDataStream::operator<<( int i )
-//{ return *this << (INT32)i; }
-
-//inline QDataStream &QDataStream::operator<<( uint i )
-//{ return *this << (UINT32)i; }
 
 
 #endif // QDSTREAM_H
