@@ -104,4 +104,4 @@ inline bool QSharedDoubleBuffer::isActive() const
 inline bool QSharedDoubleBuffer::isBuffered() const
 { return pix != 0; }
 
-#endif QINTERNAL_P_H
+#endif // QINTERNAL_P_H
