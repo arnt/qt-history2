@@ -19,11 +19,11 @@
 **********************************************************************/
 
 #include <qapplication.h>
-#include "spunk.h"
+#include "uictest.h"
 
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
-    Spunk * mw = new Spunk;
+    UicTest * mw = new UicTest;
     mw->show();
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();
