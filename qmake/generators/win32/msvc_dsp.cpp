@@ -18,6 +18,13 @@
 
 #include <stdlib.h>
 
+#ifdef Q_CC_MSVC
+bool qLess(const QString &a, const QString &b) 
+{
+  return a < b;
+}
+#endif
+
 DspMakefileGenerator::DspMakefileGenerator() : Win32MakefileGenerator(), init_flag(false)
 {
 }
@@ -401,7 +408,7 @@ DspMakefileGenerator::init()
         configurations << "Debug" << "Release";
         
 
-    /* this should probably not be here, but I'm using it to wrap the .t files */
+	// this should probably not be here, but I'm using it to wrap the .t files
     if(project->first("TEMPLATE") == "vcapp")
         project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "vclib")
@@ -778,3 +785,6 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
     }
     return Win32MakefileGenerator::openOutput(file, build);
 }
+/*ASDF
+
+*/
