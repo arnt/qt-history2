@@ -1,5 +1,6 @@
 #include "qtextformat.h"
 #include "qtextformat_p.h"
+#include "qtextpiecetable_p.h"
 #include <qtextblockiterator.h>
 #include <qtextlist.h>
 
@@ -448,6 +449,7 @@ QTextFormatGroup *QTextFormatCollection::createGroup(int index)
 QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
 {
     ref = 0;
+    pieceTable = 0;
     formats = rhs.formats;
     for (int i = 0; i < rhs.groups.size(); ++i) {
         QTextFormatGroup *g = rhs.groups.at(i);
@@ -563,8 +565,12 @@ QTextFormat QTextFormatGroup::commonFormat() const
 
 void QTextFormatGroup::setCommonFormat(const QTextFormat &format)
 {
-    d->index = d->collection->indexForFormat(format);
-    // ####### undo/redo
+    int idx = d->collection->indexForFormat(format);
+    QTextPieceTable *pt = d->collection->pieceTable;
+    if (pt)
+        pt->changeGroupFormat(this, idx);
+    else
+        d->index = idx;
 }
 
 void QTextFormatGroup::insertBlock(const QTextBlockIterator &block)

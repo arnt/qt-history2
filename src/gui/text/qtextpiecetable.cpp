@@ -65,7 +65,7 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 
     undoPosition = 0;
 
-    formats = new QTextFormatCollection;
+    formats = new QTextFormatCollection(this);
     ++formats->ref;
     tables = new QTextTableManager(this);
     if (!layout)
@@ -759,6 +759,10 @@ void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
     QList<QTextBlockIterator> blocks = group->blockList();
     for (int i = 0; i < blocks.size(); ++i) {
         // invalidate blocks and tell layout
+        const QTextBlockIterator &block = blocks.at(i);
+        int start = block.position();
+        int len = block.length() - 1;
+        lout->documentChange(start, len, len);
     }
 
     if (undoEnabled) {

@@ -6,6 +6,8 @@
 #include <qvector.h>
 #include <qmap.h>
 
+class QTextPieceTable;
+
 class QTextFormatProperty
 {
 public:
@@ -68,7 +70,7 @@ public:
 class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
-    QTextFormatCollection() { ref = 0; }
+    QTextFormatCollection( QTextPieceTable *_pieceTable = 0 ) : pieceTable(_pieceTable) { ref = 0; }
     ~QTextFormatCollection();
 
     QTextFormatCollection(const QTextFormatCollection &rhs);
@@ -100,6 +102,8 @@ public:
     QTextFormatGroup *createGroup(int index);
 
     mutable QAtomic ref;
+
+    QTextPieceTable *pieceTable;
 private:
 
     mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;
