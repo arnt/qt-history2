@@ -581,7 +581,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 #ifndef QT_NO_ACCEL
     case QVariant::Int:
 	if (d->type == QVariant::KeySequence) {
-	    *static_cast<int *>(result) = (int)(static_cast<QKeySequence*>(d->value.ptr));
+	    *static_cast<int *>(result) = (int)(*(static_cast<QKeySequence*>(d->value.ptr)));
 	    converted = true;
 	}
 	break;
