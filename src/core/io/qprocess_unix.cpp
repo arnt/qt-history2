@@ -52,6 +52,10 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include "qprocess.h"
 #include "qprocess_p.h"
 
+#ifdef Q_OS_MAC
+#include <private/qcore_mac_p.h>
+#endif
+
 #include <qabstracteventdispatcher.h>
 #include <private/qcoreapplication_p.h>
 #include <qdatetime.h>
@@ -299,15 +303,16 @@ void QProcessPrivate::execChild()
     // allow invoking of .app bundles on the Mac.
 #ifdef Q_OS_MAC
     QFileInfo fileInfo(prog);
-    if (fileInfo.isDir() && prog.endsWith(".app")) {
-        QByteArray tmp = prog;
-        int lastSlashPos = tmp.lastIndexOf('/');
-        if(lastSlashPos != -1)
-            tmp.remove(0, lastSlashPos + 1);
-        tmp = prog + "/Contents/MacOS/" + tmp;
-        tmp.resize(tmp.size() - 4); // chop off the .app
-        if(QFile::exists(tmp))
-            prog = tmp;
+    if (prog.endsWith(".app") && fileInfo.isDir()) {
+        QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0,
+                                                          QCFString(fileInfo.absoluteFilePath()),
+                                                          kCFURLPOSIXPathStyle, true);
+        QCFType<CFBundleRef> bundle = CFBundleCreate(0, url);
+        url = CFBundleCopyExecutableURL(bundle);
+        if (url) {
+            QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            prog += "/Contents/MacOS/" + static_cast<QString>(str).toUtf8();
+        }
     }
 #endif
 
