@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#27 $
 **
 ** Implementation of QAccel class
 **
@@ -17,7 +17,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#27 $");
 
 
 /*----------------------------------------------------------------------------

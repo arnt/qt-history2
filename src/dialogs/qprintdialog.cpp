@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#12 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -19,7 +19,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#12 $");
 
 
 //

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#14 $
 **
 ** Implementation of QGVector class
 **
@@ -29,7 +29,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#14 $");
 
 
 #if !defined(CHECK_MEMORY)

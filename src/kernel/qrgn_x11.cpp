@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#21 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#21 $");
 
 
 static QRegion *empty_region = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#49 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#49 $");
 
 
 /*----------------------------------------------------------------------------

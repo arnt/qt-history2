@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#23 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,7 +12,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#23 $");
 
 
 /*----------------------------------------------------------------------------

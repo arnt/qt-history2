@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#12 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,7 +12,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#12 $");
 
 
 /*----------------------------------------------------------------------------

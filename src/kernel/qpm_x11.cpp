@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#84 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#83 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#84 $");
 
 
 /*****************************************************************************

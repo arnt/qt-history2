@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#10 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#10 $");
 
 // a small private class to show the tabs on top
 

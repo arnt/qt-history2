@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#43 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#43 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)

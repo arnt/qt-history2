@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#73 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#72 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#73 $");
 
 
 // Windows style parameters

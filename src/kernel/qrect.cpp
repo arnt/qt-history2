@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#32 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#32 $");
 
 
 /*----------------------------------------------------------------------------

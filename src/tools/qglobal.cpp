@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#35 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#35 $");
 
 
 #define QT_VERSION "0.99"

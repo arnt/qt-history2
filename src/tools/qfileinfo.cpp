@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#22 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#22 $");
 
 
 #if defined(_OS_FATFS_)

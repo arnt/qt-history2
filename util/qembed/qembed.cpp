@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#2 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#3 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 **
@@ -20,7 +20,7 @@
 #include <qdatetm.h>
 #include <ctype.h>
 
-RCSTAG("$Id $")
+RCSTAG("$Id: //depot/qt/main/util/qembed/qembed.cpp#3 $");
 
 
 void    embedData( const QByteArray &input, QFile *output );

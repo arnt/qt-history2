@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#20 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#20 $");
 
 
 /*----------------------------------------------------------------------------

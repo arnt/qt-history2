@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#35 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#35 $");
 
 
 /*----------------------------------------------------------------------------

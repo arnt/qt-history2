@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#10 $
 **
 ** Implementation of QRegion class
 **
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#10 $");
 
 
 /*----------------------------------------------------------------------------

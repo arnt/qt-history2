@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#35 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#35 $");
 
 
 /*----------------------------------------------------------------------------

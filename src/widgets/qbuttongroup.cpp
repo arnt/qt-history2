@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#25 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#25 $");
 
 
 /*----------------------------------------------------------------------------

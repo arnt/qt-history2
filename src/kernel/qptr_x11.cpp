@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#188 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#187 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#188 $");
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#3 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,7 +13,7 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#2 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#3 $");
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#29 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#29 $");
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#31 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#31 $");
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#53 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#53 $");
 
 
 /*----------------------------------------------------------------------------

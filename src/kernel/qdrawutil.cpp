@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#6 $
 **
 ** Implementation of draw utilities
 **
@@ -12,7 +12,7 @@
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#6 $");
 
 
 /*----------------------------------------------------------------------------

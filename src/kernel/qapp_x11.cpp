@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#168 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#167 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#168 $");
 
 
 #if !defined(XlibSpecificationRelease)

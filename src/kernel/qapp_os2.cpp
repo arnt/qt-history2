@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#12 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -20,7 +20,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#12 $");
 
 
 // --------------------------------------------------------------------------

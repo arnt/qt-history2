@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#8 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -13,7 +13,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#8 $");
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#62 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#62 $");
 
 
 /*----------------------------------------------------------------------------

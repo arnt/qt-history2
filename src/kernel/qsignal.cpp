@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#14 $
 **
 ** Implementation of QSignal class
 **
@@ -14,7 +14,7 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#14 $");
 
 /*----------------------------------------------------------------------------
   \class QSignal qsignal.h

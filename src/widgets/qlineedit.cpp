@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#49 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#49 $");
 
 
 /*----------------------------------------------------------------------------

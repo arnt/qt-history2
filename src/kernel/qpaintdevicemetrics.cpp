@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#9 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -12,7 +12,7 @@
 
 #include "qpdevmet.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#9 $");
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#23 $
 **
 ** Implementation of QDataStream class
 **
@@ -21,7 +21,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#23 $");
 
 
 /*----------------------------------------------------------------------------

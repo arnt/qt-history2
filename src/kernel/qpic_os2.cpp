@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_os2.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpic_os2.cpp#7 $
 **
 ** Implementation of QPicture class for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_os2.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_os2.cpp#7 $");
 
 
 QPicture::QPicture()

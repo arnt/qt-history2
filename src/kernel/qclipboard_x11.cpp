@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#9 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#9 $");
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#19 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#19 $");
 
 
 /*****************************************************************************

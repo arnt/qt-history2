@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#11 $
 **
 **  Studies in Geometry Management
 **
@@ -12,7 +12,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#11 $");
 
 
 
