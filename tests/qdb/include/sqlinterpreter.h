@@ -237,6 +237,7 @@ private:
     void matchOrSkip( int target, const QString& targetStr );
     QString matchName();
     QString matchTable();
+    QString matchColumnName();
     QVariant matchColumnRef();
     QVariant matchAggregateArgument();
     void matchFunctionArguments( int numArguments, QValueList<QVariant> *expr );
@@ -270,7 +271,7 @@ private:
     void matchInsertStatement();
     void matchRollbackStatement();
     void matchFromClause();
-    void matchOrderByClause();
+    void matchOrderByClause( const QStringList& columnName );
     void matchSelectStatement();
     void matchUpdateStatement();
     void matchManipulativeStatement();

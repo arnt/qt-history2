@@ -128,13 +128,31 @@ static QVariant resolvedField( int tableId, const QString& fieldName )
     return f;
 }
 
-#if 0
 static QString fixedColumnName( const QString& name )
 {
     QString out;
-    bool metLetter = FALSE;
+    bool keepSpace = FALSE;
+    bool pendingSpace = FALSE;
+
+    for ( int i = 0; i < (int) name.length(); i++ ) {
+	QChar ch = name[i];
+	if ( ch.isSpace() ) {
+	    if ( keepSpace ) {
+		pendingSpace = TRUE;
+		keepSpace = FALSE;
+	    }
+	} else {
+	    if ( pendingSpace ) {
+		out += QChar( ' ' );
+		pendingSpace = FALSE;
+	    }
+
+	    keepSpace = ( ch.isLetterOrNumber() || ch == QChar('_') );
+	    out += ch;
+	}
+    }
+    return out;
 }
-#endif
 
 #define HASH( first, omitted, last ) \
     ( ((((first) << 5) | (omitted)) << 7) | (last) )
@@ -1266,6 +1284,13 @@ QString Parser::matchTable()
     return name;
 }
 
+QString Parser::matchColumnName()
+{
+    int start = yyPos;
+    matchScalarExpr();
+    return fixedColumnName( yyIn.mid(start, yyPos - start) );
+}
+
 QVariant Parser::matchColumnRef()
 {
     QString tableName;
@@ -2155,34 +2180,21 @@ void Parser::matchFromClause()
     }
 }
 
-void Parser::matchOrderByClause()
+void Parser::matchOrderByClause( const QStringList& columnNames )
 {
     yyTok = getToken();
     matchOrInsert( Tok_by, "'by'" );
 
     yyProg->append( new PushSeparator );
     while ( TRUE ) {
-	QVariant column;
+	QString columnName = matchColumnName();
 	bool descending = FALSE;
 
-	switch ( yyTok ) {
-	case Tok_IntNum:
-	    column.asList().append( (int) Node_UnresolvedField );
-	    column.asList().append( QString::null );
-	    column.asList().append( yyNum - 1 ); // FORTRAN vs. C
-	    yyTok = getToken();
-	    break;
-	case Tok_Name:
-	    column = matchColumnRef();
-	    break;
-	default:
-	    error( "Met '%s' where a numeral or column reference was expected",
-		   yyLex );
-	}
-
 	yyProg->append( new PushSeparator );
-	resolveFieldNames( &column );
-	emitExpr( column );
+	int k = columnNames.findIndex( columnName );
+	if ( k == -1 )
+	    error( "No column named '%s'", columnName.latin1() );
+	yyProg->append( new Push(k) );
 
 	switch ( yyTok ) {
 	case Tok_desc:
@@ -2215,8 +2227,7 @@ void Parser::matchSelectStatement()
     while ( TRUE ) {
 	int start = yyPos;
 	selectColumns.append( matchScalarExpr() );
-	QString columnName = yyIn.mid( start, yyPos - start )
-				 .simplifyWhiteSpace();
+	QString columnName = fixedColumnName( yyIn.mid(start, yyPos - start) );
 	selectColumnNames.append( columnName );
 
 	if ( yyTok != Tok_Comma )
@@ -2252,9 +2263,8 @@ void Parser::matchSelectStatement()
 	emitWhere( &whereCond, &whereConstants, selectColumns,
 		   selectColumnNames );
 
-	// ### what happens with 'order by' in the "else"?
 	if ( yyTok == Tok_order )
-	    matchOrderByClause();
+	    matchOrderByClause( selectColumnNames );
     } else {
 	/*
 	  This is the general case where two passes are needed. The
@@ -2362,6 +2372,9 @@ void Parser::matchSelectStatement()
 
 	yyProg->append( new Goto(next) );
 	yyProg->appendLabel( end );
+
+	if ( yyTok == Tok_order )
+	    matchOrderByClause( auxColumnNames );
     }
 }
 
