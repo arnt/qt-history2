@@ -1954,10 +1954,12 @@ static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
                && (Pts[3].x() == Pts[0].x())) || ((Pts[0].x() == Pts[1].x())
                && (Pts[1].y() == Pts[2].y()) && (Pts[2].x() == Pts[3].x())
                && (Pts[3].y() == Pts[0].y())))) {
-        region->extents.setLeft(qMin(Pts[0].x(), Pts[2].x()));
-        region->extents.setTop(qMin(Pts[0].y(), Pts[2].y()));
-        region->extents.setRight(qMax(Pts[0].x(), Pts[2].x()));
-        region->extents.setBottom(qMax(Pts[0].y(), Pts[2].y()));
+        int x = qMin(Pts[0].x(), Pts[2].x());
+        region->extents.setLeft(x);
+        int y = qMin(Pts[0].y(), Pts[2].y());
+        region->extents.setTop(y);
+        region->extents.setWidth(qMax(Pts[0].x(), Pts[2].x()) - x);
+        region->extents.setHeight(qMax(Pts[0].y(), Pts[2].y()) - y);
         if ((region->extents.left() <= region->extents.right()) &&
             (region->extents.top() <= region->extents.bottom())) {
             region->numRects = 1;
