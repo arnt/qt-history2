@@ -62,7 +62,6 @@ static const char* const ignore_slots[] = {
     "constPolish()",
     "raise()",
     "lower()",
-    "close()",
     "stackUnder(QWidget*)",
     "move(int,int)",
     "move(const QPoint&)",
@@ -220,6 +219,9 @@ bool ConnectionEditor::ignoreSlot( const char* slot ) const
 	return FALSE;
 
     for ( int i = 0; ignore_slots[i]; i++ ) {
+	if ( !receiver->inherits( "QMainWindow" ) &&
+	     qstrcmp( "close()", slot ) == 0 )
+	    return TRUE;
 	if ( qstrcmp( slot, ignore_slots[i] ) == 0 )
 	    return TRUE;
     }
