@@ -2935,7 +2935,7 @@ void QApplication::setStartDragTime( int ms )
   Qt internally uses also this delay e.g. in QTextView or QLineEdit
   for starting a drag.
 
-  The default value is set to 250 ms.
+  The default value is set to 500 ms.
 
   \sa setStartDragTime(), startDragDistance()
 */
