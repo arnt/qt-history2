@@ -16,10 +16,11 @@ class QDockArea : public QWidget
 public:
     QDockArea( Orientation o, QWidget *parent = 0, const char *name = 0 );
     ~QDockArea();
-    
+
     void moveDockWidget( QDockWidget *w, const QPoint &globalPos, const QRect &rect, bool swap );
     void removeDockWidget( QDockWidget *w, bool makeFloating, bool swap );
-
+    void invalidNextOffset( QDockWidget *dw );
+    
     Orientation orientation() const { return orient; }
 
     bool eventFilter( QObject *, QEvent * );
@@ -32,7 +33,7 @@ private:
     Orientation orient;
     QList<QDockWidget> *dockWidgets;
     QToolLayout *layout;
-    
+
 };
 
 #endif

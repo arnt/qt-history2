@@ -39,7 +39,7 @@ public:
     Qt::Orientation orientation() const { return orient; }
     QValueList<QRect> lineList() const { return lines; }
     QList<QDockWidget> lineStarts() const { return ls; }
-    
+
 protected:
     void setGeometry( const QRect& );
 
@@ -53,7 +53,7 @@ private:
     QWidget *parentWidget;
     QValueList<QRect> lines;
     QList<QDockWidget> ls;
-    
+
 };
 
 
@@ -267,7 +267,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
 	if ( !lastLine.isEmpty() &&
-	     ( space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
+	     ( space_left( r, QMAX( pos, dw->offset() ), orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
 	    if ( !testonly )
 		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
 	    if ( orientation() == Horizontal )
@@ -364,8 +364,8 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	int i = 0;
 	QRect lineRect;
 	for ( QValueList<QRect>::Iterator it = lines.begin(); it != lines.end(); ++it, ++i ) {
-	    if ( point_pos( pos, orientation(), TRUE ) >= point_pos( (*it).topLeft(), orientation(), TRUE ) && 
-		 point_pos( pos, orientation(), TRUE ) <= point_pos( (*it).topLeft(), orientation(), TRUE ) + 
+	    if ( point_pos( pos, orientation(), TRUE ) >= point_pos( (*it).topLeft(), orientation(), TRUE ) &&
+		 point_pos( pos, orientation(), TRUE ) <= point_pos( (*it).topLeft(), orientation(), TRUE ) +
 		 size_extend( (*it).size(), orientation(), TRUE ) ) {
 		dockLine = i;
 		lineRect = *it;
@@ -379,10 +379,10 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    else
 		dockLine = lines.count();
 	} else {
-	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) + 
+	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) +
 		 size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {
 		insertLine = TRUE;
-	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) + 
+	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) +
 			3 * size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {
 		insertLine = TRUE;
 		dockLine++;
@@ -416,7 +416,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    dockWidgets->insert( index, dockWidget );
 	}
     }
-    
+
     updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
@@ -466,6 +466,15 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
 	    updateLayout();
     }
     return FALSE;
+}
+
+void QDockArea::invalidNextOffset( QDockWidget *dw )
+{
+    int i = dockWidgets->find( dw );
+    if ( i == -1 || i >= (int)dockWidgets->count() - 1 )
+	return;
+    if ( ( dw = dockWidgets->at( ++i ) ) )
+	dw->setOffset( 0 );
 }
 
 #include "qdockarea.moc"
