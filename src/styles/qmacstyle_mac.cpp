@@ -570,36 +570,59 @@ void QMacStyle::drawItem(QPainter *p, const QRect &r,
     else if(((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout())
 	x += w - pm.width();
 
-    if(!enabled) {
-	if(pm.mask()) {			// pixmap with a mask
-	    if(!pm.selfMask()) {		// mask is not pixmap itself
-		QPixmap pmm(*pm.mask());
-		pmm.setMask(*((QBitmap *)&pmm));
-		pm = pmm;
-	    }
-	} else if(pm.depth() == 1) {	// monochrome pixmap, no mask
-	    pm.setMask(*((QBitmap *)&pm));
+     if(!enabled) {
+	 extern bool qt_iconset_gray_disabled; //qiconset.cpp
+	 if(qt_iconset_gray_disabled) {
+	     if(pm.mask()) {			// pixmap with a mask
+		 if(!pm.selfMask()) {		// mask is not pixmap itself
+		     QPixmap pmm(*pm.mask());
+		     pmm.setMask(*((QBitmap *)&pmm));
+		     pm = pmm;
+		 }
+	     } else if(pm.depth() == 1) {	// monochrome pixmap, no mask
+		 pm.setMask(*((QBitmap *)&pm));
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
-	} else {				// color pixmap, no mask
-	    QString k;
-	    k.sprintf("$qt-drawitem-%x", pm.serialNumber());
-	    QPixmap *mask = QPixmapCache::find(k);
-	    bool del=FALSE;
-	    if(!mask) {
-		mask = new QPixmap(pm.createHeuristicMask());
-		mask->setMask(*((QBitmap*)mask));
-		del = !QPixmapCache::insert(k, mask);
-	    }
-	    pm = *mask;
-	    if(del)
-		delete mask;
+	     } else {				// color pixmap, no mask
+		 QString k;
+		 k.sprintf("$qt-drawitem-%x", pm.serialNumber());
+		 QPixmap *mask = QPixmapCache::find(k);
+		 bool del=FALSE;
+		 if(!mask) {
+		     mask = new QPixmap(pm.createHeuristicMask());
+		     mask->setMask(*((QBitmap*)mask));
+		     del = !QPixmapCache::insert(k, mask);
+		 }
+		 pm = *mask;
+		 if(del) 
+		     delete mask;
 #endif
-	}
-	{ //do we want the drop thingie for QMacStyle?
-	    p->setPen(pal.light());
-	    p->drawPixmap(x+1, y+1, pm);
-	    p->setPen(pal.text());
-	}
+	     }
+	     { //do we want the drop thingie for QMacStyle?
+		 p->setPen(pal.light());
+		 p->drawPixmap(x+1, y+1, pm);
+		 p->setPen(pal.text());
+	     }
+	 } else {
+	     QString pmkey;
+	     QTextOStream os(&pmkey);
+	     const int w = pm.width(), h = pm.height();
+	     os << "$qt_mac_style_draw_item_disabled_" << "_" << w << "x" << h << "_" << "_" << pm.serialNumber();
+	     if(QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
+		 pm = *dblbuf;
+	     } else {
+		 QImage img; img = pm;
+		 for(int yy = 0; yy < h; yy++) {
+		     for(int xx = 0; xx < w; xx++)
+			 img.setPixel(xx, yy, QColor(img.pixel(xx, yy)).light().rgb());
+		 }
+		 QPixmap *pix = new QPixmap(img);
+		 if(pm.mask())
+		     pix->setMask(*pm.mask());
+		 pm = *pix;
+		 if(!QPixmapCache::insert(pmkey, pix))
+		     delete pix;
+	     }
+	 }
     }
     p->drawPixmap(x, y, pm);
     if(clip)

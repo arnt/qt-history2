@@ -24,6 +24,7 @@
 
 enum { NumSizes = 2, NumModes = 3, NumStates = 2 };
 
+bool Q_GUI_EXPORT qt_iconset_gray_disabled = FALSE;
 static short widths[2] = { 22, 32 };
 static short heights[2] = { 22, 32 };
 
@@ -768,42 +769,58 @@ QPixmap *QIconSet::createScaled(Size size, const QPixmap *suppliedPix) const
 */
 QPixmap *QIconSet::createDisabled(Size size, State state) const
 {
-    QBitmap normalMask;
     QPixmap normalPix = pixmap(size, Normal, state);
-    QImage img;
-
     if (normalPix.isNull())
 	return 0;
 
-    if (normalPix.mask()) {
-	normalMask = *normalPix.mask();
-    } else {
-	img = normalPix.convertToImage();
-	normalMask.convertFromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
+    QImage img;
+    QPixmap *pixmap = 0;
+#ifdef Q_WS_MAC //on mac it just gets lighter..
+    if(!qt_iconset_gray_disabled) {
+	img = normalPix;
+	for(int y = 0; y < img.height(); y++) {
+	    for(int x = 0; x < img.width(); x++)
+		img.setPixel(x, y, QColor(img.pixel(x, y)).light().rgb());
+	}
+	pixmap = new QPixmap(img);
+	if(normalPix.mask())
+	    pixmap->setMask(*normalPix.mask());
+    } else
+#endif
+    {
+	QBitmap normalMask;
+	if ( normalPix.mask() ) {
+	    normalMask = *normalPix.mask();
+	} else {
+	    img = normalPix.convertToImage();
+	    normalMask.convertFromImage( img.createHeuristicMask(),
+					 Qt::MonoOnly | Qt::ThresholdDither );
+	}
+
+	QPixmap *pixmap = new QPixmap( normalPix.width() + 1,
+				   normalPix.height() + 1 );
+	const QColorGroup &dis = QApplication::palette().disabled();
+	pixmap->fill( dis.background() );
+
+	QPainter painter;
+	painter.begin( pixmap );
+	painter.setPen( dis.base() );
+	painter.drawPixmap( 1, 1, normalMask );
+	painter.setPen( dis.foreground() );
+	painter.drawPixmap( 0, 0, normalMask );
+	painter.end();
+
+	if ( !normalMask.mask() )
+	    normalMask.setMask( normalMask );
+
+	QBitmap mask( pixmap->size() );
+	mask.fill( Qt::color0 );
+	painter.begin( &mask );
+	painter.drawPixmap( 0, 0, normalMask );
+	painter.drawPixmap( 1, 1, normalMask );
+	painter.end();
+	pixmap->setMask( mask );
     }
-
-    QPixmap *pixmap = new QPixmap(normalPix.width() + 1, normalPix.height() + 1);
-    const QPalette &pal = QApplication::palette();
-    pixmap->fill(pal.brush(QPalette::Disabled, QPalette::Background));
-
-    QPainter painter;
-    painter.begin(pixmap);
-    painter.setPen(pal.brush(QPalette::Disabled, QPalette::Base));
-    painter.drawPixmap(1, 1, normalMask);
-    painter.setPen(pal.brush(QPalette::Disabled, QPalette::Foreground));
-    painter.drawPixmap(0, 0, normalMask);
-    painter.end();
-
-    if (!normalMask.mask())
-	normalMask.setMask(normalMask);
-
-    QBitmap mask(pixmap->size());
-    mask.fill(Qt::color0);
-    painter.begin(&mask);
-    painter.drawPixmap(0, 0, normalMask);
-    painter.drawPixmap(1, 1, normalMask);
-    painter.end();
-    pixmap->setMask(mask);
     return pixmap;
 }
 
