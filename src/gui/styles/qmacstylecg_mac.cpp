@@ -950,7 +950,16 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 bdi.animation.time.start = d->defaultButtonStart;
                 bdi.animation.time.current = CFAbsoluteTimeGetCurrent();
             }
-            HIRect newRect = qt_hirectForQRect(btn->rect, p);
+            HIRect newRect = qt_hirectForQRect(btn->rect);
+            // Like Appearance Manager, HITheme draws outside my rect, so make it a bit bigger.
+            QRect off_rct;
+            HIRect outRect;
+            HIThemeGetButtonBackgroundBounds(&newRect, &bdi, &outRect);
+            off_rct.setRect(int(newRect.origin.x - outRect.origin.x),
+                            int(newRect.origin.y - outRect.origin.y),
+                            int(outRect.size.width - newRect.size.width),
+                            int(outRect.size.height - newRect.size.height));
+            newRect = qt_hirectForQRect(btn->rect, p, true, off_rct);
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, w);
@@ -1324,7 +1333,9 @@ QRect QMacStyleCG::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w
                 bdi.kind = kThemeBevelButton;
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-            r = qrectForHIRect(outRect);
+            r.setRect(int(outRect.origin.x), int(outRect.origin.y),
+                      int(qMin(btn->rect.width() - 2 * outRect.origin.x, outRect.size.width)),
+                      int(qMin(btn->rect.height() - 2 * outRect.origin.y, outRect.size.height)));
         }
         break;
     case SR_ProgressBarGroove:
@@ -1982,7 +1993,7 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
         if (macsz.height() != -1)
             sz.setHeight(macsz.height());
     }
-    /*
+
     // Adjust size to within Aqua guidelines
     if (ct == CT_PushButton || ct == CT_ToolButton) {
         ThemeButtonKind bkind = kThemePushButton;
@@ -2001,12 +2012,10 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
         HIRect macRect, myRect;
         myRect = CGRectMake(0, 0, sz.width(), sz.height());
         HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
-        sz.setWidth(sz.width() + int(myRect.origin.x - macRect.origin.x)
-                               + int(macRect.size.height - myRect.size.height));
-        sz.setHeight(sz.height() + int(myRect.origin.y - macRect.origin.y)
-                                 + int(macRect.size.height - myRect.size.height));
+        sz.setWidth(sz.width() + int(macRect.size.width - myRect.size.width));
+        sz.setHeight(sz.height() + int(macRect.size.height - myRect.size.height));
     }
-    */
+
     return sz;
 }
 

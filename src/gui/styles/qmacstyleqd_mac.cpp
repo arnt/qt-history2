@@ -1109,9 +1109,9 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 SetRect(&myRect, btn->rect.x(), btn->rect.y(), btn->rect.width(),
                         btn->rect.height());
                 GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-                off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
-                        (myRect.left - macRect.left) + (macRect.right - myRect.right),
-                        (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+                off_rct.setRect(myRect.left - macRect.left, myRect.top - macRect.top,
+                                (myRect.left - macRect.left) + (macRect.right - myRect.right),
+                                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
             }
             static_cast<QMacStyleQDPainter *>(p)->setport();
             DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false, off_rct), bkind, &info, 0, 0, 0, 0);
@@ -2267,7 +2267,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
         Rect macRect, myRect;
         SetRect(&myRect, 0, 0, sz.width(), sz.height());
         GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-        sz.setWidth(sz.width() + (myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
+        sz.setWidth(sz.width() + (myRect.left - macRect.left) + (macRect.right - myRect.right));
         sz.setHeight(sz.height() + (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
     }
     return sz;
