@@ -285,7 +285,7 @@ CFG_CUPS=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
 CFG_PRECOMPILE=no
-CFG_REDUCE_EXPORTS=no
+CFG_REDUCE_EXPORTS=auto
 CFG_IPV6=auto
 CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
@@ -1714,9 +1714,9 @@ fi
 # auto-detect -fvisibility support
 if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
     if $unixtests/fvisibility.test $XQMAKESPEC $OPT_VERBOSE; then
-       CFG_REDUCE_EXPORTS=yes
-    else
        CFG_REDUCE_EXPORTS=no
+    else
+       CFG_REDUCE_EXPORTS=yes
     fi
 fi
 
@@ -3186,6 +3186,9 @@ g++*)
 	;;
     *3.*)
 	COMPILER_VERSION="3.*"
+	;;
+    *4.*)
+	COMPILER_VERSION="4"
 	;;
     *)
 	;;
