@@ -30,7 +30,7 @@ public:
     bool autoRemove() const;
     void setAutoRemove(bool b);
 
-    bool open() { return QFile::open(QIODevice::ReadWrite); }
+    bool open() { return open(QIODevice::ReadWrite); }
 
     QString fileName() const;
     QString fileTemplate() const;
