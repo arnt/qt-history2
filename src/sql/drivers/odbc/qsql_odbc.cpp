@@ -503,6 +503,18 @@ bool QODBCPrivate::setConnectionOptions( const QString& connOpts )
 		    continue;
 		}
 		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)v, 0);
+	    } else if (opt == "SQL_ATTR_CP_MATCH") {
+		if (val == "SQL_CP_STRICT_MATCH")
+		    v = SQL_CP_STRICT_MATCH;
+		else if (val == "SQL_CP_RELAXED_MATCH")
+		    v = SQL_CP_RELAXED_MATCH;
+		else if (val == "SQL_CP_MATCH_DEFAULT")
+		    v = SQL_CP_MATCH_DEFAULT;
+		else {
+		    qWarning(QString("QODBCDriver::open: Unknown option value '%1'").arg(val));
+                    continue;
+		}
+		r = SQLSetConnectAttr(hDbc, SQL_ATTR_CP_MATCH, (SQLPOINTER)v, 0);
 #endif
 	    } else {
 		  qWarning( QString("QODBCDriver::open: Unknown connection attribute '%1'").arg( opt ) );
