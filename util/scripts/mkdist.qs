@@ -42,6 +42,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^util"),
 		       new RegExp("^examples"),
 		       new RegExp("^tutorial"),
+		       new RegExp("^translations"),
 		       new RegExp("^pics"),
 		       new RegExp("^extensions/xt"),
 		       new RegExp("^tools/designer"),
@@ -84,6 +85,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure"),
 			  new RegExp("^bin/syncqt"),
+			  new RegExp("^Makefile.win32-g++"),
 			  new RegExp("^install.exe") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
