@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#26 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#27 $
 **
 ** Definition of QFontMetrics class
 **
@@ -59,7 +59,7 @@ private:
 
     enum Type { FontInternal, Widget, Painter };
     union {
-	Type  t;
+	int   t;
 	void *dummy;
     } type;
     union {

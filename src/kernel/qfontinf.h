@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#19 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#20 $
 **
 ** Definition of QFontInfo class
 **
@@ -51,7 +51,7 @@ private:
 
     enum Type { FontInternal, FontInternalExactMatch, Widget, Painter };
     union {
-	Type  t;
+	int   t;
 	void *dummy;
     } type;
     union {
