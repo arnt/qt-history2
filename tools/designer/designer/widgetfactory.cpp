@@ -502,7 +502,9 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #endif
     } else if ( className == "QTable" ) {
 #if defined(QT_MODULE_TABLE)
-	return new QTable( 3, 3, parent, name );
+	if ( init )
+	    return new QTable( 3, 3, parent, name );
+	return new QTable( parent, name );
 #else
 	return 0;
 #endif
@@ -909,6 +911,9 @@ void WidgetFactory::initChangedProperties( QObject *o )
     } else if ( o->inherits( "QTabWidget" ) || o->inherits( "QWizard" ) ) {
 	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+    } else if ( o->inherits( "QTable" ) && !o->inherits( "QSqlTable" ) ) {
+	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
+	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
     }
 }
 
