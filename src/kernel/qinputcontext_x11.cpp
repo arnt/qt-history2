@@ -274,7 +274,7 @@ extern "C" {
                 qic->focusWidget, qic->text.length() );
 #endif // QT_XIM_DEBUG
 
-	QIMComposeEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
+	QIMEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
 	QApplication::sendEvent(qic->focusWidget, &event);
 	return 0;
     }

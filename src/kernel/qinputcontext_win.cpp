@@ -561,7 +561,7 @@ bool QInputContext::composition( LPARAM lParam )
 	    if ( selLength != 0 )
 		imePosition = selStart;
 
-	    QIMComposeEvent e( QEvent::IMCompose, *imeComposition, imePosition, selLength );
+	    QIMEvent e( QEvent::IMCompose, *imeComposition, imePosition, selLength );
 	    result = qt_sendSpontaneousEvent( fw, &e );
 	}
         releaseContext( fw->winId(), imc );

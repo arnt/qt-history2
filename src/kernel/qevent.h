@@ -44,6 +44,7 @@
 #include "qnamespace.h"
 #include "qmime.h"
 #include "qpair.h"
+#include "qstring.h"
 #endif // QT_H
 
 class Q_EXPORT QEvent: public Qt		// event base class
@@ -434,41 +435,21 @@ protected:
 class Q_EXPORT QIMEvent : public QEvent
 {
 public:
-    QIMEvent( Type type, const QString &text, int cursorPosition )
-	: QEvent(type), txt(text), cpos(cursorPosition), a(TRUE) {}
+    QIMEvent( Type type, const QString &text, int cursorPosition, int selLength = 0 )
+	: QEvent(type), txt(text), a(TRUE), cpos(cursorPosition), selLen(selLength) {}
     const QString &text() const { return txt; }
     int cursorPos() const { return cpos; }
     bool isAccepted() const { return a; }
     void accept() { a = TRUE; }
     void ignore() { a = FALSE; }
-    int selectionLength() const;
+    int selectionLength() const { return selLen; }
 
 private:
     QString txt;
+    bool a  : 1;
     int cpos;
-    bool a;
-};
-
-class Q_EXPORT QIMComposeEvent : public QIMEvent
-{
-public:
-    QIMComposeEvent( Type type, const QString &text, int cursorPosition,
-		     int selLength )
-	: QIMEvent( type, text, cursorPosition ), selLen( selLength ) { }
-
-private:
     int selLen;
-
-    friend class QIMEvent;
 };
-
-inline int QIMEvent::selectionLength() const
-{
-    if ( type() != IMCompose ) return 0;
-    QIMComposeEvent *that = (QIMComposeEvent *) this;
-    return that->selLen;
-}
-
 
 #ifndef QT_NO_DRAGANDDROP
 

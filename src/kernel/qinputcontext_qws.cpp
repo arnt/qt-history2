@@ -68,9 +68,7 @@ void QInputContext::translateIMEvent( QWSIMEvent *e, QWidget *keywidget )
 		composition = new QString;
 	}
 
-	QIMComposeEvent out( QEvent::IMCompose, txt, 
-			     e->simpleData.cpos, 
-			     e->simpleData.selLen );
+	QIMEvent out( QEvent::IMCompose, txt, e->simpleData.cpos, e->simpleData.selLen );
 	QApplication::sendSpontaneousEvent( keywidget, &out );
 
 	*composition = txt;
@@ -94,7 +92,7 @@ void QInputContext::reset()
 	focusWidget = 0;
 	*composition = QString::null;
     }
-    
+
     QPaintDevice::qwsDisplay()->resetIM();
 }
 #endif //QT_NO_QWS_IM
