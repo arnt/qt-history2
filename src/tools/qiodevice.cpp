@@ -617,7 +617,8 @@ Q_LONG QIODevice::writeBlock( const QByteArray& data )
   encountered) plus a terminating \0 into \a data.  If there is a
   newline at the end if the line, it is not stripped.
 
-  Returns the number of bytes read, or -1 in case of error.
+  Returns the number of bytes read including the terminating \0, or -1 in case
+  of error.
 
   This virtual function can be reimplemented much more efficiently by
   the most subclasses.
@@ -629,13 +630,8 @@ Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
 {
     if ( maxlen == 0 )				// application bug?
 	return 0;
-    Q_ULONG pos = at();				// get current position
-    Q_ULONG s  = size();			// size of I/O device
     char *p = data;
-    if ( pos >= s )
-	return 0;
-    while ( pos++ < s && --maxlen ) {		// read one byte at a time
-	readBlock( p, 1 );
+    while ( --maxlen && (readBlock(p,1)>0) ) {	// read one byte at a time
 	if ( *p++ == '\n' )			// end of line
 	    break;
     }
