@@ -1094,17 +1094,15 @@ void Configure::findProjects( const QString& dirName )
 		    findProjects( entryName );
 		} else {
 		    if( fi->fileName().right( 4 ) == ".pro" ) {
-			makeList += dirName;
-			makeList += fi->fileName();
-			if( fi->fileName() == "qtmain.pro" )
-			    makeList += "Makefile.main";
-			else
-			    makeList += "Makefile";
-
-			if( dictionary[ "DSPFILES" ] == "yes" ) {
+			if ( fi->fileName() != "qtmain.pro" && fi->fileName() != "qt.pro" ) {
 			    makeList += dirName;
 			    makeList += fi->fileName();
-			    makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+			    makeList += "Makefile";
+			    if( dictionary[ "DSPFILES" ] == "yes" ) {
+				makeList += dirName;
+				makeList += fi->fileName();
+				makeList += fi->fileName().left( fi->fileName().length() - 4 ) + ".dsp";
+			    }
 			}
 		    }
 		}
@@ -1122,7 +1120,6 @@ void Configure::generateMakefiles()
 	if( dictionary[ "QMAKESPEC" ] != "win32-msvc" )
 	    dictionary[ "DSPFILES" ] = "no";
 
-	if( dictionary[ "LEAN" ] == "yes" ) {
 	    makeList += dictionary[ "QT_SOURCE_TREE" ] + "/src";
 	    makeList += "qt.pro";
 	    makeList += "Makefile";
@@ -1139,8 +1136,7 @@ void Configure::generateMakefiles()
 		makeList += "qtmain.pro";
 		makeList += "qtmain.dsp";
 	    }
-	}
-	else
+	if( dictionary[ "LEAN" ] == "no" )
 	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
 
 	makeListIterator = makeList.begin();
