@@ -871,7 +871,7 @@ void QWidget::raise()
     QWidget *p = parentWidget();
     if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->append( p->childObjects->take() );
-    uint f = testWFlags(WStyle_Tool) ? SWP_NOACTIVATE : 0;
+    uint f = ( isPopup() || testWFlags(WStyle_Tool) ) ? SWP_NOACTIVATE : 0;
     SetWindowPos( winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE );
 }
 
@@ -880,7 +880,7 @@ void QWidget::lower()
     QWidget *p = parentWidget();
     if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( 0, p->childObjects->take() );
-    uint f = testWFlags(WStyle_Tool) ? SWP_NOACTIVATE : 0;
+    uint f = ( isPopup() || testWFlags(WStyle_Tool) ) ? SWP_NOACTIVATE : 0;
     SetWindowPos( winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
 		  SWP_NOSIZE );
 }
