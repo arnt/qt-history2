@@ -3015,6 +3015,18 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = 600;
         break;
 
+    case SH_FocusFrame_Mask:
+        ret = true;
+        if (widget) {
+            if(QStyleHintReturnMask *mask = qt_cast<QStyleHintReturnMask*>(hret)) {
+                mask->region = widget->rect();
+                int vmargin = pixelMetric(QStyle::PM_FocusFrameVMargin),
+                    hmargin = pixelMetric(QStyle::PM_FocusFrameHMargin);
+                mask->region -= QRect(widget->rect().adjusted(hmargin, vmargin, -hmargin, -vmargin));
+            }
+        }
+        break;
+
     case SH_RubberBand_Mask:
         ret = false;
         if (widget && (opt->state & State_Rectangle)) {

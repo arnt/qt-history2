@@ -42,6 +42,7 @@ void QFocusFramePrivate::update()
     if (q->parentWidget()->rect().contains(q->geometry())) {
         q->stackUnder(widget);
         q->show();
+        q->updateMask();
     } else {
         q->hide();
     }
