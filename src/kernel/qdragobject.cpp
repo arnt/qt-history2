@@ -898,7 +898,6 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QString& subtype )
 		    codec = codecForHTML(e->encodedData(mime));
 		if (!codec)
 		    codec = qt_findcharset(m);
-		qDebug("using codec %s", codec->name());
 		if ( codec ) {
 		    QByteArray payload;
 
