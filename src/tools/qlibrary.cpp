@@ -300,12 +300,10 @@ void QLibrary::createInstanceInternal()
 		if ( plugQtThreaded )
 		    ucm_init = FALSE;
 	    }
-	    if ( plugQtDebug != QT_DEBUG_BUILD ) {
 #if defined(QT_DEBUG_COMPONENT)
-		qWarning( "Conflict in %s: Plugin uses Qt library %s debug symbols!", library().latin1(), plugQtDebug ? "with" : "without" );
+	    if ( plugQtDebug != QT_DEBUG_BUILD )
+		qWarning( "Possible conflict in %s: Plugin %s debug symbols!", library().latin1(), plugQtDebug ? "has" : "has no" );
 #endif
-		ucm_init = FALSE;
-	    }
 	}
 	if ( !ucm_init ) {
 	    unload();
