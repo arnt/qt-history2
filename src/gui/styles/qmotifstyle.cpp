@@ -1209,44 +1209,37 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
     case CC_Slider:
 	{
 #ifndef QT_NO_SLIDER
-	    const QSlider * slider = (const QSlider *) widget;
+	    const QSlider * slider = static_cast<const QSlider *>(widget);
 
-	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove,
-						  opt),
-		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle,
-						  opt);
+	    QRect groove = querySubControlMetrics(CC_Slider, widget, SC_SliderGroove, opt),
+		  handle = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle, opt);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
-		qDrawShadePanel( p, groove, pal, TRUE, 2,
-				 &pal.brush( QPalette::Mid ) );
-
-
-		if ( flags & Style_HasFocus ) {
-		    QRect fr = subRect( SR_SliderFocusRect, widget );
-		    drawPrimitive( PE_FocusRect, p, fr, pal );
+		qDrawShadePanel(p, groove, pal, true, 2, &pal.brush( QPalette::Mid));
+		if (flags & Style_HasFocus) {
+		    QRect fr = subRect(SR_SliderFocusRect, widget);
+		    drawPrimitive(PE_FocusRect, p, fr, pal);
 		}
 	    }
 
-	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
-		drawPrimitive( PE_ButtonBevel, p, handle, pal );
+	    if ((sub & SC_SliderHandle) && handle.isValid()) {
+		drawPrimitive(PE_ButtonBevel, p, handle, pal);
 
-		if ( slider->orientation() == Horizontal ) {
+		if (slider->orientation() == Horizontal) {
 		    QCOORD mid = handle.x() + handle.width() / 2;
-		    qDrawShadeLine( p, mid, handle.y(), mid,
-				    handle.y() + handle.height() - 2,
-				    pal, TRUE, 1);
+		    qDrawShadeLine(p, mid, handle.y(), mid, handle.y() + handle.height() - 2,
+				   pal, true, 1);
 		} else {
 		    QCOORD mid = handle.y() + handle.height() / 2;
-		    qDrawShadeLine( p, handle.x(), mid,
-				    handle.x() + handle.width() - 2, mid,
-				    pal, TRUE, 1);
+		    qDrawShadeLine(p, handle.x(), mid, handle.x() + handle.width() - 2, mid, pal,
+				   true, 1);
 		}
 	    }
 
-	    if ( sub & SC_SliderTickmarks )
-		QCommonStyle::drawComplexControl( control, p, widget, r, pal, flags,
-						  SC_SliderTickmarks, subActive,
-						  opt );
+	    if (sub & SC_SliderTickmarks)
+		QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags,
+						 SC_SliderTickmarks, subActive,
+						 opt);
 #endif
 	    break;
 	}
@@ -1550,18 +1543,21 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 #ifndef QT_NO_SLIDER
     case CC_Slider: {
 	if (sc == SC_SliderHandle) {
-	    const QSlider * sl = (const QSlider *) widget;
-	    int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness   = pixelMetric( PM_SliderControlThickness, sl );
-	    int sliderPos   = sl->sliderPosition();
-	    int len         = pixelMetric( PM_SliderLength, sl );
-	    int motifBorder = 3;
+	    const QSlider *sl = static_cast<const QSlider *>(widget);
+	    int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
+	    int thickness = pixelMetric(PM_SliderControlThickness, sl);
 
-	    if ( sl->orientation() == Horizontal )
-		return QRect( sliderPos + motifBorder, tickOffset + motifBorder, len,
-			      thickness - 2*motifBorder );
-	    return QRect( tickOffset + motifBorder, sliderPos + motifBorder,
-			  thickness - 2*motifBorder, len );
+	    int len = pixelMetric(PM_SliderLength, sl);
+	    int motifBorder = 3;
+	    int sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
+					      sl->orientation() == Horizontal
+					      ? sl->width() - len - 2 * motifBorder
+					      : sl->height() - len - 2 * motifBorder);
+	    if (sl->orientation() == Horizontal)
+		return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
+			     thickness - 2 * motifBorder);
+	    return QRect(tickOffset + motifBorder, sliderPos + motifBorder,
+			 thickness - 2 * motifBorder, len);
 	}
 	break; }
 #endif

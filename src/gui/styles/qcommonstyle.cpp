@@ -1790,17 +1790,17 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 #ifndef QT_NO_SLIDER
     case CC_Slider:
-	switch ( controls ) {
+	switch (controls) {
 	case SC_SliderTickmarks: {
-	    const QSlider * sl = (const QSlider *) widget;
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	    const QSlider * sl = static_cast<const QSlider *>(widget);
+	    int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
 	    int ticks = sl->tickmarks();
-	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
-	    int len = pixelMetric( PM_SliderLength, sl );
-	    int available = pixelMetric( PM_SliderSpaceAvailable, sl );
+	    int thickness = pixelMetric(PM_SliderControlThickness, sl);
+	    int len = pixelMetric(PM_SliderLength, sl);
+	    int available = pixelMetric(PM_SliderSpaceAvailable, sl);
 	    int interval = sl->tickInterval();
 
-	    if ( interval <= 0 ) {
+	    if (interval <= 0) {
 		interval = sl->singleStep();
 		if (QStyle::positionFromValue(sl->minimum(), sl->maximum(), interval, available)
                     - QStyle::positionFromValue(sl->minimum(), sl->maximum(), 0, available) < 3)
@@ -1810,49 +1810,47 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    int fudge = len / 2;
 	    int pos;
 
-	    if ( ticks & QSlider::Above ) {
+	    if (ticks & QSlider::Above) {
 		if (sl->orientation() == Horizontal)
-		    p->fillRect(0, 0, sl->width(), tickOffset,
-				pal.brush(QPalette::Background));
+		    p->fillRect(0, 0, sl->width(), tickOffset, pal.brush(QPalette::Background));
 		else
-		    p->fillRect(0, 0, tickOffset, sl->width(),
-				pal.brush(QPalette::Background));
-		p->setPen( pal.foreground() );
+		    p->fillRect(0, 0, tickOffset, sl->width(), pal.brush(QPalette::Background));
+		p->setPen(pal.foreground());
 		int v = sl->minimum();
-		if ( !interval )
+		if (!interval)
 		    interval = 1;
-		while ( v <= sl->maximum() + 1 ) {
+		while (v <= sl->maximum() + 1) {
 		    pos = QStyle::positionFromValue(sl->minimum(), sl->maximum(), v, available)
                           + fudge;
-		    if ( sl->orientation() == Horizontal )
-			p->drawLine( pos, 0, pos, tickOffset-2 );
+		    if (sl->orientation() == Horizontal)
+			p->drawLine(pos, 0, pos, tickOffset-2);
 		    else
-			p->drawLine( 0, pos, tickOffset-2, pos );
+			p->drawLine(0, pos, tickOffset-2, pos);
 		    v += interval;
 		}
 	    }
 
-	    if ( ticks & QSlider::Below ) {
+	    if (ticks & QSlider::Below) {
 		if (sl->orientation() == Horizontal)
 		    p->fillRect(0, tickOffset + thickness, sl->width(), tickOffset,
 				pal.brush(QPalette::Background));
 		else
 		    p->fillRect(tickOffset + thickness, 0, tickOffset, sl->height(),
 				pal.brush(QPalette::Background));
-		p->setPen( pal.foreground() );
+		p->setPen(pal.foreground());
 		int v = sl->minimum();
-		if ( !interval )
+		if (!interval)
 		    interval = 1;
-		while ( v <= sl->maximum() + 1 ) {
+		while (v <= sl->maximum() + 1) {
 		    pos = QStyle::positionFromValue(sl->minimum(), sl->maximum(), v, available)
                           + fudge;
-		    if ( sl->orientation() == Horizontal )
-			p->drawLine( pos, tickOffset+thickness+1, pos,
-				     tickOffset+thickness+1 + available-2 );
+		    if (sl->orientation() == Horizontal)
+			p->drawLine(pos, tickOffset+thickness+1, pos,
+				    tickOffset+thickness+1 + available-2 );
 		    else
-			p->drawLine( tickOffset+thickness+1, pos,
-				     tickOffset+thickness+1 + available-2,
-				     pos );
+			p->drawLine(tickOffset+thickness+1, pos,
+				    tickOffset+thickness+1 + available-2,
+				    pos);
 		    v += interval;
 		}
 
@@ -2027,28 +2025,30 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 #ifndef QT_NO_SLIDER
     case CC_Slider: {
-	    const QSlider * sl = (const QSlider *) widget;
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	const QSlider * sl = static_cast<const QSlider *>(widget);
+	int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
+	int thickness = pixelMetric(PM_SliderControlThickness, sl);
 
-	    switch ( sc ) {
-	    case SC_SliderHandle: {
-		    int sliderPos = 0;
-		    int len   = pixelMetric( PM_SliderLength, sl );
+	switch (sc) {
+	case SC_SliderHandle: {
+		int sliderPos = 0;
+		int len = pixelMetric(PM_SliderLength, sl);
 
-		    sliderPos = sl->sliderPosition();
+		sliderPos = positionFromValue(sl->minimum(), sl->maximum(), sl->sliderPosition(),
+					      sl->orientation() == Horizontal ? sl->width() - len
+					      : sl->height() - len);
 
-		    if (sl->orientation() == Horizontal)
-			return QRect(sliderPos, tickOffset, len, thickness);
-		    return QRect(tickOffset, sliderPos, thickness, len); }
-	    case SC_SliderGroove: {
 		if (sl->orientation() == Horizontal)
-		    return QRect(0, tickOffset, sl->width(), thickness);
-		return QRect(tickOffset, 0, thickness, sl->height());	}
-	    default:
-		break;
-	    }
-	    break; }
+		    return QRect(sliderPos, tickOffset, len, thickness);
+		return QRect(tickOffset, sliderPos, thickness, len); }
+	case SC_SliderGroove: {
+	    if (sl->orientation() == Horizontal)
+		return QRect(0, tickOffset, sl->width(), thickness);
+	    return QRect(tickOffset, 0, thickness, sl->height());	}
+	default:
+	    break;
+	}
+	break; }
 #endif // QT_NO_SLIDER
 
 #if !defined(QT_NO_TOOLBUTTON) && !defined(QT_NO_POPUPMENU)
