@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#99 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#99 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -971,7 +971,7 @@ void QLineEdit::del()
 	emit textChanged( tbuf );
     } else if ( cursorPos != (int)strlen(tbuf) ) {
 	test.remove( cursorPos, 1 );
-	int cp = cursorPos - 1;
+	int cp = cursorPos;
 	if ( v &&
 	     v->validate( test, cp ) == QValidator::Invalid &&
 	     v->validate( tbuf, cursorPos ) != QValidator::Invalid )
