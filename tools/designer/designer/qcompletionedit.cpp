@@ -22,6 +22,7 @@ QCompletionEdit::QCompletionEdit( QWidget *parent, const char *name )
     connect( this, SIGNAL( textChanged( const QString & ) ),
 	     this, SLOT( textDidChange( const QString & ) ) );
     popup->setFocusProxy( listbox );
+    installEventFilter( this );
 }
 
 bool QCompletionEdit::autoAdd() const
@@ -61,9 +62,8 @@ void QCompletionEdit::placeListBox()
 	return;
     }
 
-    popup->resize( listbox->sizeHint() +
-		   QSize( listbox->verticalScrollBar()->width() + 4,
-			  listbox->horizontalScrollBar()->height() + 4 ) );
+    popup->resize( QMAX( listbox->sizeHint().width() + listbox->verticalScrollBar()->width() + 4, width() ),
+		   listbox->sizeHint().height() + listbox->horizontalScrollBar()->height() + 4 );
 
     QPoint p( mapToGlobal( QPoint( 0, 0 ) ) );
     if ( p.y() + height() + popup->height() <= QApplication::desktop()->height() )
@@ -73,7 +73,7 @@ void QCompletionEdit::placeListBox()
     popup->show();
     listbox->setCurrentItem( 0 );
     listbox->setSelected( 0, TRUE );
-    listbox->setFocus();
+    setFocus();
 }
 
 void QCompletionEdit::updateListBox()
@@ -127,11 +127,26 @@ bool QCompletionEdit::eventFilter( QObject *o, QEvent *e )
 	} else if ( e->type() == QEvent::MouseButtonDblClick ) {
 	    popup->close();
 	    setFocus();
-	    blockSignals( FALSE );
-	    setText( listbox->currentText() );
 	    blockSignals( TRUE );
+	    setText( listbox->currentText() );
+	    blockSignals( FALSE );
 	    emit chosen( text() );
 	    return TRUE;
+	}
+    } else if ( o == this ) {
+	if ( e->type() == QEvent::KeyPress ) {
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    if ( ke->key() == Key_Up ||
+		 ke->key() == Key_Down ||
+		 ke->key() == Key_Prior ||
+		 ke->key() == Key_Next ||
+		 ke->key() == Key_Return ||
+		 ke->key() == Key_Enter ||
+		 ke->key() == Key_Tab ||
+		 ke->key() ==  Key_Escape ) {
+		QApplication::sendEvent( listbox, e );
+		return TRUE;
+	    }
 	}
     }
     return QLineEdit::eventFilter( o, e );
