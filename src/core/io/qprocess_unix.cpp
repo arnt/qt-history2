@@ -73,7 +73,7 @@ protected:
 private:
 
     QMutex mutex;
-    QMap<pid_t, QProcess *> children;
+    QMap<pid_t, QPointer<QProcess> > children;
 
     void (*old_sigchld_handler)(int);
 
@@ -122,10 +122,12 @@ void QProcessManager::deadChildNotification(int)
             break;
 
         mutex.lock();
-        QProcess *child = children.value(childpid, 0);
-        ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
-        ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
-        children.remove(childpid);
+        QPointer<QProcess> child = children.value(childpid, 0);
+        if (child) {
+            ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
+            ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
+            children.remove(childpid);
+        }
         mutex.unlock();
 
         if (child)

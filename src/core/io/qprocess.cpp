@@ -26,7 +26,7 @@
 #include <private/qwineventnotifier_p.h>
 #endif
 
-/*! 
+/*!
     \class QProcess
 
     \brief The QProcess class is used to start external programs and
@@ -406,7 +406,10 @@ QProcess::QProcess(QObject *parent)
 QProcess::~QProcess()
 {
     Q_D(QProcess);
-    terminate();
+    if (d->processState != NotRunning) {
+        qWarning("QProcess object destroyed while process is still running.");
+        terminate();
+    }
     d->cleanup();
 }
 
