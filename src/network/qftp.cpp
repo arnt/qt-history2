@@ -85,14 +85,14 @@ private slots:
     void socketError(int);
     void socketConnectionClosed();
     void socketBytesWritten(Q_LLONG);
-    void setupSocket(int sock);
-    void deleteSocket();
+    void setupSocket();
+    void readAllFromSocket();
 
 private:
     void clearData();
 
     QTcpSocket *socket;
-    QTcpServer *listener;
+    QTcpServer listener;
 
     QFtpPI *pi;
     QString err;
@@ -107,6 +107,8 @@ private:
         QIODevice *dev;
     } data;
     bool is_ba;
+
+    QByteArray bytesFromSocket;
 };
 
 /**********************************************************************
@@ -248,11 +250,13 @@ QFtpCommand::~QFtpCommand()
 QFtpDTP::QFtpDTP(QFtpPI *p, QObject *parent) :
     QObject(parent),
     socket(0),
+    listener(this),
     pi(p),
     callWriteData(false)
 {
-    listener = 0;
     clearData();
+    listener.setObjectName("QFtpDTP active state server");
+    connect(&listener, SIGNAL(newConnection()), SLOT(setupSocket()));
 }
 
 void QFtpDTP::setData(QByteArray *ba)
@@ -276,6 +280,10 @@ void QFtpDTP::setBytesTotal(Q_LLONG bytes)
 
 void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
 {
+    bytesFromSocket.clear();
+
+    if (socket)
+        delete socket;
     socket = new QTcpSocket(this);
     socket->setObjectName("QFtpDTP Passive state socket");
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
@@ -283,24 +291,17 @@ void QFtpDTP::connectToHost(const QString & host, Q_UINT16 port)
     connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
     connect(socket, SIGNAL(closed()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(Q_LLONG)), SLOT(socketBytesWritten(Q_LLONG)));
+    connect(socket, SIGNAL(closing()), SLOT(readAllFromSocket()));
+
     socket->connectToHost(host, port);
 }
 
 int QFtpDTP::setupListener(const QHostAddress &address)
 {
-    if (!listener) {
-        listener = new QTcpServer(this);
-        listener->setObjectName("QFtpDTP Active state server socket");
-        if (!listener->listen(address, 0)) {
-            delete listener;
-            listener = 0;
-            return -1;
-        }
-    }
+    if (!listener.listen(address, 0))
+        return -1;
 
-    connect(listener, SIGNAL(newConnection()), SLOT(setupSocket()));
-
-    return listener->serverPort();
+    return listener.serverPort();
 }
 
 Qt::SocketState QFtpDTP::socketState() const
@@ -310,12 +311,22 @@ Qt::SocketState QFtpDTP::socketState() const
 
 Q_LLONG QFtpDTP::bytesAvailable() const
 {
-    return socket ? socket->bytesAvailable() : (Q_LLONG) 0;
+    if (!socket || socket->socketState() != Qt::ConnectedState)
+        return (Q_LLONG) bytesFromSocket.size();
+    return socket->bytesAvailable();
 }
 
 Q_LLONG QFtpDTP::read(char *data, Q_LLONG maxlen)
 {
-    Q_LLONG read = socket ? socket->read(data, maxlen) : (Q_LLONG) 0;
+    Q_LLONG read;
+    if (socket && socket->socketState() == Qt::ConnectedState) {
+        read = socket->read(data, maxlen);
+    } else {
+        read = bytesFromSocket.size();
+        memcpy(data, bytesFromSocket.data(), read);
+        bytesFromSocket.clear();
+    }
+
     bytesDone += read;
     return read;
 }
@@ -323,9 +334,12 @@ Q_LLONG QFtpDTP::read(char *data, Q_LLONG maxlen)
 QByteArray QFtpDTP::readAll()
 {
     QByteArray tmp;
-    if (socket) {
+    if (socket && socket->socketState() == Qt::ConnectedState) {
         tmp = socket->readAll();
         bytesDone += tmp.size();
+    } else {
+        tmp = bytesFromSocket;
+        bytesFromSocket.clear();
     }
     return tmp;
 }
@@ -344,10 +358,7 @@ void QFtpDTP::writeData()
         else
             socket->write(data.ba->data(), data.ba->size());
 
-        if (socket && socket->socketState() != Qt::ClosingState) {
-            connect(socket, SIGNAL(closed()),SLOT(deleteSocket()));
-            socket->close();
-        }
+        socket->close();
 
         clearData();
     } else if (data.dev) {
@@ -366,11 +377,7 @@ void QFtpDTP::writeData()
         if (data.dev->atEnd()) {
             if (bytesDone == 0 && socket->bytesToWrite() == 0)
                 emit dataTransferProgress(0, bytesTotal);
-
-            if (socket && socket->socketState() != Qt::ClosingState) {
-                connect(socket, SIGNAL(closed()), SLOT(deleteSocket()));
-                socket->close();
-            }
+            socket->close();
             clearData();
         } else {
             callWriteData = true;
@@ -396,15 +403,14 @@ inline void QFtpDTP::clearError()
 void QFtpDTP::abortConnection()
 {
 #if defined(QFTPDTP_DEBUG)
-    qDebug("QFtpDTP::abortConnection");
+    qDebug("QFtpDTP::abortConnection, bytesAvailable == %lli",
+           socket ? socket->bytesAvailable() : (Q_LLONG) 0);
 #endif
     callWriteData = false;
     clearData();
 
-    if (socket && socket->socketState() != Qt::ClosingState) {
-        connect(socket, SIGNAL(closed()), SLOT(deleteSocket()));
-        socket->close();
-    }
+    if (socket)
+        socket->abort();
 }
 
 bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo *info)
@@ -547,15 +553,11 @@ void QFtpDTP::socketConnected()
 
 void QFtpDTP::socketReadyRead()
 {
-    qDebug("QFtpDTP::socketReadyRead()");
     if (!socket)
         return;
 
     if (pi->currentCommand().isEmpty()) {
-        if (socket && socket->socketState() != Qt::ClosingState) {
-            connect(socket, SIGNAL(closed()), SLOT(deleteSocket()));
-            socket->close();
-        }
+        socket->close();
 #if defined(QFTPDTP_DEBUG)
         qDebug("QFtpDTP::connectState(CsClosed)");
 #endif
@@ -582,8 +584,6 @@ void QFtpDTP::socketReadyRead()
         }
     } else {
         if (!is_ba && data.dev) {
-            qDebug("QFtpDTP::socketReadyRead() data");
-
             QByteArray ba;
             ba.resize(socket->bytesAvailable());
             Q_LLONG bytesRead = socket->read(ba.data(), ba.size());
@@ -647,25 +647,22 @@ void QFtpDTP::socketBytesWritten(Q_LLONG bytes)
         writeData();
 }
 
-void QFtpDTP::setupSocket(int sock)
+void QFtpDTP::setupSocket()
 {
-    socket = new QTcpSocket(this);
+    socket = listener.nextPendingConnection();
     socket->setObjectName("QFtpDTP Active state socket");
-    socket->setSocketDescriptor(sock);
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
     connect(socket, SIGNAL(error(int)), SLOT(socketError(int)));
     connect(socket, SIGNAL(closed()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(Q_LLONG)), SLOT(socketBytesWritten(Q_LLONG)));
 
-    qInvokeMetaMember(listener, "deleteLater", Qt::QueuedConnection);
-    listener = 0;
+    listener.close();
 }
 
-void QFtpDTP::deleteSocket()
+void QFtpDTP::readAllFromSocket()
 {
-    delete socket;
-    socket = 0;
+    bytesFromSocket = socket->readAll();
 }
 
 void QFtpDTP::clearData()
@@ -737,7 +734,6 @@ bool QFtpPI::sendCommands(const QStringList &cmds)
 
 void QFtpPI::clearPendingCommands()
 {
-    qDebug("QFtpPI::clearPendingCommands()");
     pendingCommands.clear();
     dtp.abortConnection();
     currentCmd = QString::null;
@@ -866,8 +862,6 @@ bool QFtpPI::processReply()
     else
         qDebug("QFtpPI recv: %d (text skipped)", 100*replyCode[0]+10*replyCode[1]+replyCode[2]);
 #endif
-
-    qDebug("QFtpPI::processReply::bytesAvailable == %lli", dtp.bytesAvailable());
 
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
@@ -1131,8 +1125,7 @@ class QFtpPrivate : public QObjectPrivate
 public:
 
     inline QFtpPrivate() : close_waitForStateChange(false), state(QFtp::Unconnected),
-                           transferMode(QFtp::Passive), error(QFtp::NoError),
-                           listener(0)
+                           transferMode(QFtp::Passive), error(QFtp::NoError)
     { }
 
     ~QFtpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
@@ -1146,7 +1139,6 @@ public:
     QFtp::TransferMode transferMode;
     QFtp::Error error;
     QString errorString;
-    QTcpServer *listener;
 
     QString host;
     Q_UINT16 port;
@@ -2042,7 +2034,6 @@ bool QFtp::hasPendingCommands() const
 */
 void QFtp::clearPendingCommands()
 {
-    qDebug("QFtp::clearPendingCommands()");
     // delete all entires except the first one
     while (d->pending.count() > 1)
         delete d->pending.takeLast();
@@ -2224,7 +2215,6 @@ void QFtp::piError(int errorCode, const QString &text)
             break;
     }
 
-    qDebug("An error occurred");
     d->pi.clearPendingCommands();
     clearPendingCommands();
     emit commandFinished(c->id, true);
@@ -2260,11 +2250,8 @@ void QFtp::piFtpReply(int code, const QString &text)
 */
 QFtp::~QFtp()
 {
-    qDebug("Aborting.");
     abort();
-    qDebug("Closing.");
     close();
-    qDebug("Closed.");
 }
 
 #include "qftp.moc"

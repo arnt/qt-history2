@@ -725,7 +725,7 @@ bool QAbstractSocketPrivate::readFromSocket()
                            readBufferMaxSize - readBuffer.size());
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
-        qDebug("QAbstractSocketPrivate::readFromSocket() socketLayer.bytesAvailabe() == %lli",
+        qDebug("QAbstractSocketPrivate::readFromSocket() socketLayer.bytesAvailable() == %lli",
                socketLayer.bytesAvailable());
 #endif
 
@@ -1353,11 +1353,15 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
 void QAbstractSocket::close()
 {
 #if defined(QABSTRACTSOCKET_DEBUG)
-    qDebug("QAbstractSocket::close()");
+    qDebug("QAbstractSocket::close() %p", this);
 #endif
 
-    if (d->state == Qt::UnconnectedState)
+    if (d->state == Qt::UnconnectedState) {
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::close() on an unconnected socket");
+#endif
         return;
+    }
 
     // Disable and delete read notification
     if (d->readSocketNotifier) {
@@ -1372,6 +1376,10 @@ void QAbstractSocket::close()
         d->state = Qt::ClosingState;
         emit stateChanged(d->state);
         emit closing();
+    } else {
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::close() return from delayed close");
+#endif
     }
 
     // Wait for pending data to be written. In blocking mode the write
@@ -1384,8 +1392,16 @@ void QAbstractSocket::close()
         } else {
             if (d->writeSocketNotifier)
                 d->writeSocketNotifier->setEnabled(true);
+
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::close() delaying close");
+#endif
             return;
         }
+    } else {
+#if defined(QABSTRACTSOCKET_DEBUG)
+    qDebug("QAbstractSocket::close() closing immediately");
+#endif
     }
 
     // Disable and delete write notification
