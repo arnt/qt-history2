@@ -206,12 +206,12 @@ public:
 
 */
 
-QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name = defaultDatabase )
+QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name )
 {
     return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, name ), name );
 }
 
-QSqlDatabase* QSqlDatabase::database( const QString& name = defaultDatabase )
+QSqlDatabase* QSqlDatabase::database( const QString& name )
 {
     return QSqlDatabaseManager::database( name );
 }
