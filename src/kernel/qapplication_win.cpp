@@ -2563,9 +2563,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		// Windows detects more leaves than we do..
 		TRACKMOUSEEVENT tme;
 		tme.cbSize = sizeof(TRACKMOUSEEVENT);
-		tme.dwFlags = 0x00000002; // TME_LEAVE
-		tme.dwHoverTime = -1; // HOVER_DEFAULT
-		tme.hwndTrack = curWin; // Track on window receiving msgs
+		tme.dwFlags = 0x00000002;    // TME_LEAVE
+		tme.hwndTrack = curWin;      // Track on window receiving msgs
+		tme.dwHoverTime = (DWORD)-1; // HOVER_DEFAULT
 		ptrTrackMouseEvent( &tme );
 	    }
 	}
