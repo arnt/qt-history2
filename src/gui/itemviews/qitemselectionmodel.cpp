@@ -140,16 +140,14 @@ QItemSelectionModel::~QItemSelectionModel()
 {
 }
 
-void QItemSelectionModel::select(const QModelIndex &item,
-                                 SelectionUpdateMode updateMode,
+void QItemSelectionModel::select(const QModelIndex &item, int updateMode,
                                  SelectionBehavior behavior)
 {
     QItemSelection selection(item, item, model());
     select(selection, updateMode, behavior);
 }
 
-void QItemSelectionModel::select(const QItemSelection &selection,
-                                 SelectionUpdateMode updateMode,
+void QItemSelectionModel::select(const QItemSelection &selection, int updateMode,
                                  SelectionBehavior behavior)
 {
     QItemSelection sel = selection;
@@ -165,43 +163,31 @@ void QItemSelectionModel::select(const QItemSelection &selection,
     if (behavior != SelectItems)
         sel = d->expandSelection(sel, behavior);
 
-    switch (updateMode) {
-    case NoUpdate:
+    if (updateMode == NoUpdate)
         return;
-    case Toggle:
-        mergeCurrentSelection();
-    case ToggleCurrent: {
-        d->toggleState = true;
-        old = d->currentSelection;
-        d->currentSelection = sel;
-        exchange(old, sel, false); // emits selectionChanged
-        return; }
-    case ClearAndSelect:
-//         if (d->ranges.size() || d->currentSelection.size())
-//             old = QItemSelection;
+
+    if (updateMode & Clear) {
         if (d->ranges.size()) {
             old += d->ranges;
             d->ranges.clear();
         }
         if (d->currentSelection.size()) {
-            old += d->currentSelection;
+            old += d->currentSelection; //### not correct for Toggle
             d->currentSelection.clear();
         }
-    case Select:
+    }
+
+    if (!(updateMode & Current))
         mergeCurrentSelection();
-    case SelectCurrent:
-        d->toggleState = false;
+
+    if (updateMode & Toggle || updateMode & Select) {
+        d->toggleState = (updateMode & Toggle);
         if (d->currentSelection.size())
             old += d->currentSelection;
         d->currentSelection = sel;
-        exchange(old, sel, false); // emits selectionChanged
-        return;
-    case Remove:
-        qDebug("Remove");
-        exchange(sel, old);
-        qWarning("QItemSelectionModel::select Remove has not been implemented yet!");
-        return;
     }
+    exchange(old, sel, false); // emits selectionChanged
+    return;
 }
 /*!
   \internal

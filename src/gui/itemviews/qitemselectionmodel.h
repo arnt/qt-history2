@@ -85,13 +85,14 @@ public:
     };
 
     enum SelectionUpdateMode {
-        NoUpdate,
-        Toggle,
-        ToggleCurrent,
-        ClearAndSelect,
-        Select,
-        SelectCurrent,
-        Remove
+        NoUpdate       = 0x0000,
+        Clear          = 0x0001,
+        Select         = 0x0002,
+        Toggle         = 0x0004,
+        Current        = 0x0008,
+        SelectCurrent  = Select | Current,
+        ToggleCurrent  = Toggle | Current,
+        ClearAndSelect = Clear | Select
     };
 
     enum SelectionBehavior {
@@ -103,11 +104,9 @@ public:
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
-    virtual void select(const QModelIndex &item,
-                        SelectionUpdateMode mode,
+    virtual void select(const QModelIndex &item, int updateMode,
                         SelectionBehavior behavior);
-    virtual void select(const QItemSelection &selection,
-                        SelectionUpdateMode mode,
+    virtual void select(const QItemSelection &selection, int updateMode,
                         SelectionBehavior behavior);
     virtual void clear();
 
