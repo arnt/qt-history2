@@ -545,6 +545,7 @@ void QPainter::setf( uint b, bool v )
 struct QPState {				// painter state
     QFont	font;
     QPen	pen;
+    QPoint 	curPt;
     QBrush	brush;
     QColor	bgc;
     uchar	bgm;
@@ -608,6 +609,7 @@ void QPainter::save()
     Q_CHECK_PTR( ps );
     ps->font  = cfont;
     ps->pen   = cpen;
+    ps->curPt = pos();
     ps->brush = cbrush;
     ps->bgc   = bg_col;
     ps->bgm   = bg_mode;
@@ -659,6 +661,8 @@ void QPainter::restore()
 	setFont( ps->font );
     if ( ps->pen != cpen || hardRestore )
 	setPen( ps->pen );
+    if ( ps->curPt != pos() || hardRestore )
+	moveTo( ps->curPt );
     if ( ps->brush != cbrush || hardRestore )
 	setBrush( ps->brush );
     if ( ps->bgc != bg_col || hardRestore )
