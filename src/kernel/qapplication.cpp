@@ -1980,7 +1980,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	return;
 
     QWidget* old_active = active_window;
-    
+
     // first the activation / deactivation events
     if ( old_active ) {
 	active_window = 0;
@@ -2274,7 +2274,7 @@ void QApplication::setStartDragDistance( int l )
   drag should be started with a code like this:
 
   \code
-  if ( ( startPos - currPos ).manhattenLength() > QApplication::startDragDistance() )
+  if ( ( startPos - currPos ).manhattanLength() > QApplication::startDragDistance() )
       startTheDrag();
   \endcode
 
@@ -2282,7 +2282,7 @@ void QApplication::setStartDragDistance( int l )
 
   The default value is set to 4 pixels.
 
-  \sa setStartDragDistance(), startDragDistance()
+  \sa setStartDragDistance(), startDragDistance(), QPoint::manhattanLength()
 */
 
 int QApplication::startDragDistance()
