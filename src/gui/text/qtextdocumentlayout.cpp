@@ -1318,8 +1318,10 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
     QRect r = rect;
     if (frame) {
         QTextFrameData *fd = data(frame);
-        if (fd->position != QTextFrameFormat::InFlow)
+        if (fd->position != QTextFrameFormat::InFlow) {
             r = fd->boundingRect;
+            r.moveBy(data(frame->parentFrame())->boundingRect.topLeft());
+        }
 #if 0
         pos = frame->format().position();
         if (frame != QTextFrameFormat::None) {
