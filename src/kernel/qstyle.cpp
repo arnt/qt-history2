@@ -904,7 +904,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CE_DockWindowEmptyArea the empty area of a QDockWindow.
 
     \value CE_ToolBoxTab the toolbox's tab area
-    \value CE_HeaderLabel
+    \value CE_HeaderLabel the header's label
 
     \value CE_CustomBase  base value for custom ControlElements. All values above
 	    this are reserved for custom use. Therefore, custom values must be

@@ -1448,7 +1448,8 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
 			       colorGroup(), QStyle::Style_Raised |
 			       (isEnabled() ? QStyle::Style_Enabled : 0) |
-			       ( orient == Horizontal ? QStyle::Style_Horizontal : 0 ) );
+			       ( orient == Horizontal ? QStyle::Style_Horizontal : 0 ),
+			       QStyleOption( this ) );
 	return;
     }
 
@@ -1474,14 +1475,16 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
-			       colorGroup(), flags );
+			       colorGroup(), flags,
+			       QStyleOption( this ) );
     } else {
 	p->save();
 	p->setClipRect( fr ); // hack to keep styles working
 	if ( orientation() == Horizontal ) {
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), flags );
+				   colorGroup(), flags,
+				   QStyleOption( this ) );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1,
@@ -1501,7 +1504,8 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	} else {
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), flags );
+				   colorGroup(), flags,
+				   QStyleOption( this ) );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x() + width() - 1, fr.y(),
@@ -1577,7 +1581,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	    flags |= QStyle::Style_Up;
 	style().drawPrimitive( QStyle::PE_HeaderArrow, p,
 			       QRect(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight),
-			       colorGroup(), flags );
+			       colorGroup(), flags, QStyleOption( this ) );
     }
 }
 
