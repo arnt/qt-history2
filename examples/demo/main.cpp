@@ -139,8 +139,8 @@ int main( int argc, char **argv )
 
     tab = new QTabWidget();
     w = new KAstTopLevel(tab);
-    tab->addTab(w, "Games");
-    frame.addCategory( tab, joypix, joypix_sel, "Asteroids");
+    tab->addTab( w, "Asteroids" );
+    frame.addCategory( tab, joypix, joypix_sel, "Games" );
 #endif
 
     a.setMainWidget( &frame );
