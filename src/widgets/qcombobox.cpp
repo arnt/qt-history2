@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#86 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#86 $");
 
 
 /*!
@@ -917,41 +917,51 @@ void QComboBox::paintEvent( QPaintEvent * )
 	int x1, y1;
 	QPointArray l;
 
-	x1 = width() - 2 - 5 - 15;
+	int awh, ax, ay, sh, sy;
 
-	y1 = height()/2 - 9;
+	if ( height() < 6 ) {
+	    awh = height();
+	    ay = 0;
+	} else if ( height() < 18 ) {
+	    awh = height() - 6;
+	    awh = 0;
+	} else {
+	    awh = height()*4/10;
+	    ay = awh/2;
+	}
 
-	// light matter
-	l.setPoints( 20,
-		     x1,y1+17, x1,y1+17-2, 
-		     x1,y1+17-2, x1+15, y1+17-2,
-		     x1+1,y1, x1+14,y1,
-		     x1+1,y1+1, x1+12,y1+1,
-		     x1+2,y1+2, x1+2,y1+3,
-		     x1+3,y1+2, x1+3,y1+5,
-		     x1+4,y1+4, x1+4,y1+7,
-		     x1+5,y1+6, x1+5,y1+9,
-		     x1+6,y1+8, x1+6,y1+11,
-		     x1+7,y1+10, x1+7,y1+11 );
+	sh = (awh+3)/4;
+	sy = height() - ay - sh;
+	if ( sh < 3 ) {
+	    sy = sy+sh-3;
+	    sh = 3;
+	}
+	if ( sy - ay - awh > 3 ) {
+	    sy -= ( sy-ay-awh-3 )/2;
+	    ay += ( sy-ay-awh-3 )/2;
+	}
+	awh = awh;
+
+	if ( d->ed )
+	    ax = d->ed->geometry().right() + 4;
+	else
+	    ax = width() - 3 - 21;
+
+	if ( ax + awh + 2 < width() )
+	    ax += ( width() - 2 - ax - awh ) / 2;
+
+	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
+		    ax, ay, awh, awh, colorGroup() );
+
 	p.setPen( colorGroup().light() );
-	p.drawLineSegments( l );
-
-	// dark matter
-	l.setPoints( 18,
-		     x1+8,y1+10, x1+8,y1+11,
-		     x1+9,y1+8, x1+9,y1+11,
-		     x1+10,y1+6, x1+10,y1+9,
-		     x1+11,y1+4, x1+11,y1+7,
-		     x1+12,y1+2, x1+12,y1+5,
-		     x1+13,y1+1, x1+13,y1+3,
-		     x1+14,y1+1, x1+14,y1+1,
-		     x1+1,y1+17, x1+15,y1+17,
-		     x1+15,y1+16, x1+15,y1+16 );
+	p.drawLine( ax, sy, ax+awh-1, sy );
+	p.drawLine( ax, sy, ax, sy+sh-1 );
 	p.setPen( colorGroup().dark() );
-	p.drawLineSegments( l );
+	p.drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
+	p.drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
 
 	QFontMetrics fm = p.fontMetrics();
-	QRect clip( 4, 2, x1 - 2 - 4, height() - 4 );
+	QRect clip( 4, 2, ax - 2 - 4, height() - 4 );
 	const char *str = d->listBox->text( d->current );
 	if ( str ) {
 	    p.setPen( colorGroup().foreground() );
@@ -970,7 +980,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.drawRect( x1 - 2, y1 - 2, 20, 22 );
 
     } else {				// windows 95 style
-
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
 	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
