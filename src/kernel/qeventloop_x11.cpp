@@ -164,6 +164,20 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 		    case LeaveNotify:
 			continue;
 
+		    case ClientMessage:
+			{
+			    // from qapplication_x11.cpp
+			    extern Atom qt_wm_protocols;
+			    extern Atom qt_wm_take_focus;
+
+			    // only keep the wm_take_focus protocol,
+			    // discard all other client messages
+			    if ( event.xclient.format != 32 ||
+				 event.xclient.message_type != qt_wm_protocols ||
+				 event.xclient.data.l[0] != qt_wm_take_focus )
+				continue;
+			}
+
 		    default: break;
 		    }
 		}
