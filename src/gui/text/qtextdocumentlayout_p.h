@@ -59,7 +59,7 @@ public:
     virtual QRectF frameBoundingRect(QTextFrame *frame) const;
 
 protected:
-    void documentChange(int from, int oldLength, int length);
+    void documentChanged(int from, int oldLength, int length);
     void resizeInlineObject(QTextInlineObject item, const QTextFormat &format);
     void positionInlineObject(QTextInlineObject item, const QTextFormat &format);
     void drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,

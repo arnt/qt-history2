@@ -754,7 +754,7 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 {
     Q_Q(QTextDocumentLayout);
     const QTextDocument *doc = q->document();
-    q->documentChange(0, 0, doc->docHandle()->length());
+    q->documentChanged(0, 0, doc->docHandle()->length());
 }
 
 static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
@@ -1513,7 +1513,7 @@ static void markFrames(QTextFrame *current, int from, int oldLength, int length)
         markFrames(children.at(i), from, oldLength, length);
 }
 
-void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
+void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 {
     Q_D(QTextDocumentLayout);
     QSizeF pageSize = document()->pageSize();

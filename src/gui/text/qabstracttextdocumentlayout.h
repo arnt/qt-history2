@@ -73,7 +73,7 @@ signals:
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 
-    virtual void documentChange(int from, int oldLength, int length) = 0;
+    virtual void documentChanged(int from, int charsRemoved, int charsAdded) = 0;
 
     virtual void resizeInlineObject(QTextInlineObject item, const QTextFormat &format);
     virtual void positionInlineObject(QTextInlineObject item, const QTextFormat &format);

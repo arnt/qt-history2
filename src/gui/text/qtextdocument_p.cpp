@@ -188,7 +188,8 @@ void QTextDocumentPrivate::setLayout(QAbstractTextDocumentLayout *layout)
     if (lout)
         delete lout;
     lout = layout;
-    lout->documentChange(0, 0, length());
+    emit q->contentsChange(0, 0, length());
+    lout->documentChanged(0, 0, length());
 }
 
 
@@ -833,8 +834,10 @@ void QTextDocumentPrivate::endEditBlock()
     if (framesDirty)
         scan_frames(docChangeFrom, docChangeOldLength, docChangeLength);
 
-    if (lout && docChangeFrom >= 0)
-        lout->documentChange(docChangeFrom, docChangeOldLength, docChangeLength);
+    if (lout && docChangeFrom >= 0) {
+        emit q->contentsChange(docChangeFrom, docChangeOldLength, docChangeLength);
+        lout->documentChanged(docChangeFrom, docChangeOldLength, docChangeLength);
+    }
 
     docChangeFrom = -1;
 
@@ -1019,12 +1022,12 @@ void QTextDocumentPrivate::clearFrame(QTextFrame *f)
     f->d->parentFrame = 0;
 }
 
-void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAddded)
+void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAdded)
 {
     // ###### optimise
     Q_UNUSED(pos);
     Q_UNUSED(charsRemoved);
-    Q_UNUSED(charsAddded);
+    Q_UNUSED(charsAdded);
 
     QTextFrame *f = frame;
     clearFrame(f);

@@ -211,7 +211,7 @@ private:
     int remove_block(int pos, int *blockformat, int command, QTextUndoCommand::Operation op);
 
     void insert_frame(QTextFrame *f);
-    void scan_frames(int pos, int charsRemoved, int charsAddded);
+    void scan_frames(int pos, int charsRemoved, int charsAdded);
     static void clearFrame(QTextFrame *f);
 
     void adjustDocumentChangesAndCursors(int from, int addedOrRemoved, QTextUndoCommand::Operation op);

@@ -355,11 +355,32 @@ bool QTextDocument::isUndoRedoEnabled() const
     return d->isUndoRedoEnabled();
 }
 
+
+void QTextDocument::markContentsDirty(int from, int length)
+{
+    Q_D(QTextDocument);
+    d->documentChange(from, length);
+}
+
 /*!
     \fn void QTextDocument::contentsChanged()
 
     This signal is emitted whenever the documents content changes, for
     example, text is inserted or deleted, or formatting is applied.
+
+    This signal is emitted
+*/
+
+/*!
+    \fn void QTextDocument::contentsChange(int from, int charsRemoved, int charsAdded)
+
+    This signal is emitted whenever the documents content changes, for
+    example, text is inserted or deleted, or formatting is
+    applied. The signal is emitted before the documents layout gets
+    notified about the change. This hook allows it to implement
+    a syntax highlighter for the document.
+
+    \sa QAbstractTextDocumentLayout::documentModified()
 */
 
 
@@ -728,7 +749,7 @@ void QTextDocument::setPageSize(const QSizeF &size)
 {
     Q_D(QTextDocument);
     d->pageSize = size;
-    documentLayout()->documentChange(0, 0, d->length());
+    documentLayout()->documentChanged(0, 0, d->length());
 }
 
 QSizeF QTextDocument::pageSize() const
@@ -752,7 +773,7 @@ void QTextDocument::setDefaultFont(const QFont &font)
 {
     Q_D(QTextDocument);
     d->defaultFont = font;
-    documentLayout()->documentChange(0, 0, d->length());
+    documentLayout()->documentChanged(0, 0, d->length());
 }
 
 /*!

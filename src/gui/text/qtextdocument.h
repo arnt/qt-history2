@@ -149,7 +149,10 @@ public:
 
     QVector<QTextFormat> allFormats() const;
 
+    void markContentsDirty(int from, int length);
+
 signals:
+    void contentsChange(int from, int charsRemoves, int charsAdded);
     void contentsChanged();
     void undoAvailable(bool);
     void redoAvailable(bool);
