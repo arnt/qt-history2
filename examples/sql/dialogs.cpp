@@ -5,6 +5,64 @@
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
+#include <qcombobox.h>
+
+//
+//  ProductEditor custom editor class
+//
+
+
+ProductEditor::ProductEditor( QWidget * parent, const char * name )
+    : QFrame( parent, name )
+{
+    QHBoxLayout* hb = new QHBoxLayout( this );
+    
+    cb = new QComboBox( this, "productComboBox" );
+    cb->setFocusPolicy( StrongFocus );
+    setFocusProxy( cb );
+    QSqlQuery products;
+    products.exec( "select name, id from product;" );
+    while ( products.next() )
+	cb->insertItem( products.value(0).toString(), -1 );
+
+    connect( cb, SIGNAL( activated( int ) ),
+	     SLOT( slotSetProductId( int ) ) );
+    hb->addWidget( cb );
+}
+
+int ProductEditor::productId() const
+{
+    return cb->currentItem();
+}
+
+void ProductEditor::setProductId( int productId )
+{
+    cb->setCurrentItem( productId );
+}
+
+void ProductEditor::slotSetProductId( int productId )
+{
+    cb->setCurrentItem( productId );
+}
+
+//
+//  InvoiceEditorFactory class
+//
+
+InvoiceEditorFactory::InvoiceEditorFactory ( QObject * parent, const char * name )
+    : QSqlEditorFactory( parent, name )
+{
+}
+
+QWidget * InvoiceEditorFactory::createEditor( QWidget * parent, const QSqlField* f )
+{
+    if ( f->name() == "productid" ) 
+	return new ProductEditor( parent );
+    else
+	return QSqlEditorFactory::createEditor( parent, f );
+}
+
+
 
 //
 //  GenericDialog class

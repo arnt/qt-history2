@@ -119,6 +119,13 @@ void DatabaseFrontEnd::init()
     invoiceTable  = new QSqlTable( f3 );
     connect( invoiceTable, SIGNAL( beginInsert( QSqlRecord* ) ),
 	     SLOT( insertingInvoice( QSqlRecord* ) ) );
+    // use custom property map
+    QSqlPropertyMap* invoicePropertyMap = new QSqlPropertyMap();
+    invoicePropertyMap->insert( "ProductEditor", "productid" );
+    invoiceTable->installPropertyMap( invoicePropertyMap );
+    // and custom editor factory
+    InvoiceEditorFactory* invoiceEditorFactory = new InvoiceEditorFactory();
+    invoiceTable->installEditorFactory( invoiceEditorFactory );
 
     vb3->addWidget( invoiceTable );
 
@@ -155,10 +162,10 @@ void DatabaseFrontEnd::init()
     customerTable->setConfirmCancels( TRUE );
     customerTable->setCursor( &customerCr, FALSE );
     customerTable->addColumn( customerCr.field( "name" ) );
-    customerTable->addColumn( customerCr.field( "city" ) );    
+    customerTable->addColumn( customerCr.field( "city" ) );
     customerTable->addColumn( customerCr.field( "postalcode" ) );
-    customerTable->addColumn( customerCr.field( "country" ) );    
-        
+    customerTable->addColumn( customerCr.field( "country" ) );
+
     connect( customerTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
 	     SLOT( updateCustomerInfo( const QSqlRecord * ) ) );
     QSqlRecord r = customerTable->currentFieldSelection();
