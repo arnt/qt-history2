@@ -1,6 +1,7 @@
 \Chapter Reference: Wizards 
 
 \section1 Introduction
+
 In \QD, some of the toolbars or menu options invoke wizards to help
 you create specific functionality. A wizard is a special type of input dialog
 that consists of a sequence of dialog pages. A wizard's purpose is to
