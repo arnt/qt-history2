@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     numbers << "One" << "Two" << "Three" << "Four" << "Five";
 
     QAbstractItemModel *model = new StringListModel(numbers);
-    QListView *view = new QListView();
+    QListView *view = new QListView;
     view->setWindowTitle("View onto a string list model");
     view->setModel(model);
 
