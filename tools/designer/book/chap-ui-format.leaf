@@ -317,7 +317,7 @@ dynamically, e.g. to provide a common look in a windowmanager.
 <layoutfunctions spacing="LayoutClass::spacing" margin="LayoutClass::margin"/>
 \endcode
 
-The rules for determining \c maring and \c specified values are these:
+The rules for determining \c margin and \c spacing values are these:
 \list 1
 \i If an integer value is specified for \c margin or \c spacing then
 the value is used.
