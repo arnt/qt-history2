@@ -38,7 +38,7 @@
 # include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef MACOSX_102
-# define QMAC_USE_BIG_CURSOR_API
+//# define QMAC_USE_BIG_CURSOR_API
 #endif
 #ifdef QMAC_USE_BIG_CURSOR_API
 # include <unistd.h>
@@ -488,12 +488,10 @@ void QCursor::update() const
 	    OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap((GWorldPtr)data->bm->handle()),
 						       GetGWorldPixMap((GWorldPtr)data->bmm->handle()), hotspot, 
 						       d->curs.big_cursor_name);
-	    if(ret == noErr) {
-		qDebug("Qt: internal: WH0A. Untested cursor case. %s:%d", __FILE__, __LINE__);
+	    if(ret == noErr) 
 		d->type = QCursorData::TYPE_BigCursor;		
-	    } else {
+	    else 
 		free(d->curs.big_cursor_name);
-	    }
 #endif
 	}
 	if(d->type == QCursorData::TYPE_None) {
