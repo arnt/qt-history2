@@ -122,20 +122,20 @@ void* qt_resolve_symbol( const QString& symbol, void* handle )
     return address;
 }
 
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACX)
 // Mac
-void* qt_load_library( const QString& lib )
+void* qt_load_library( const QString& )
 {
     qWarning( "Tell vohi@trolltech.com what dl-loader implementation to use!" );
     return 0;
 }
 
-bool qt_free_library( void* handle )
+bool qt_free_library( void* )
 {
     return FALSE;
 }
 
-void* qt_resolve_symbol( void* handle, const char* f )
+void* qt_resolve_symbol( void* , const char*)
 {
     return 0;
 }
