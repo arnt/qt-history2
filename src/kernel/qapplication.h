@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#29 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#30 $
 **
 ** Definition of QApplication class
 **
@@ -52,6 +52,7 @@ public:
     int		    exec();
     int		    enter_loop();
     void	    exit_loop();
+    static void	    quit( int retcode );	// quit application
 
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
@@ -80,7 +81,7 @@ public:
 #endif
 
 public slots:
-    void	    quit( int retcode = 0 );	// quit application
+    void	    quit();
 
 private:
     int		    app_argc;
