@@ -82,7 +82,7 @@ const int numCols = 100;				// Tablesize: number of columns
 int main( int argc, char **argv )
 {
     QApplication a(argc,argv);			
-    
+
     QTable v( numRows, numCols );
     QWMatrix wm;
     wm.scale( 0.5, 0.5 );
@@ -90,7 +90,14 @@ int main( int argc, char **argv )
     pix = pix.xForm( wm );
     v.setPixmap( 3, 3, pix );
     v.setText( 3, 3, "A Pixmap" );
-    
+
+    QStringList l;
+    l << "one" << "two" << "three" << "four";
+    for ( int i = 0; i < numRows; ++i )
+	v.setItem( i, 5, new QComboTableItem( &v, l, TRUE ) );
+    for ( int i = 0; i < numRows; ++i )
+	v.setItem( i, 1, new QCheckTableItem( &v, "Check me" ) );
+
     a.setMainWidget( &v );
     v.show();
     return a.exec();
