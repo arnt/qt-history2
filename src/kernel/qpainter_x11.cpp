@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#48 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#48 $";
 #endif
 
 
@@ -2011,10 +2011,18 @@ static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
     QString s = str;
     s.truncate( len );
     QString k;
-    if ( len > 150 )
-	k.resize( len + 100 );
-    k.sprintf( "$%s,%x,%g,%g,%g,%g,%g,%g", (char *)s, f.handle(),
-	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy() );
+    QFontInfo fi( f );
+    QString fd;
+    if ( fi.rawMode() )
+	fd.sprintf( "&%s", fi.family() );
+    else
+	fd.sprintf( "x%s_%i_%i_%i_%i_%i_%i_%i_%i",
+		    fi.family(), fi.pointSize(), fi.italic(), fi.weight(),
+		    fi.underline(), fi.strikeOut(), fi.fixedPitch(),
+		    fi.styleHint(), fi.charSet() );
+    k.resize( len + 100 + fd.length() );
+    k.sprintf( "$%s,%g,%g,%g,%g,%g,%g,%s", (char *)s,
+	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(), (char *)fd );
     return k;
 }
 
@@ -2140,20 +2148,6 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		draw_bm = wx_bm;
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
-	    if ( cfont.underline() || cfont.strikeOut() ) {
-		int lw = fm.lineWidth();
-		int tw = fm.width( str, len );
-		QPen   save_pen   = cpen;
-		QBrush save_brush = cbrush;
-		cpen   = QPen( NoPen );
-		cbrush = QBrush( save_pen.color() );
-		if ( cfont.underline() )	// draw underline effect
-		    drawRect( x, y+fm.underlinePos(), tw, lw );
-		if ( cfont.strikeOut() )	// draw strikeout effect
-		    drawRect( x, y-fm.strikeOutPos(), tw, lw );
-		setPen( save_pen );
-		setBrush( save_brush );
-	    }
 	    uint tmpf = flags;
 	    flags = IsActive;
 	    drawPixMap( x, y, *draw_bm );	// draw bitmap!
