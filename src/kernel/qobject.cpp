@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#33 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#33 $";
 #endif
 
 
@@ -52,8 +52,13 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#32 $";
   slots, inherits(), isA() and other nifty stuff. */
 
 /*! \fn const char *QObject::name() const
-  Returns this object's name (as specified to the constructor). \sa
-  className(). */
+  Returns this object's name (as specified to the constructor).
+
+  The object's name is not yet used for anything except debuggin
+  internally.  (We do have a purpose in mind, but the purpose has not
+  yet been solidified into an implementation.)
+
+  \sa className(). */
 
 /*! \fn const char *QObject::className() const
   Returns this object's type as an ASCII string.  This is the \e
@@ -186,9 +191,18 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 
 /*! Constructs an object with parent objects \e parent and a \e name.
 
-  Which doesn't say a whole lot, you read that from the declaration.
-  You can get a better explanation via <a
-  href=mailto:hanord@troll.no>mail</a>. */
+  The parent of a widget may be viewed as the object's owner.  For
+  instance, a dialog box is the parent of the "ok" and "cancel"
+  buttons inside it.
+
+  An object destroys its child objects when it is destroyed itself.
+
+  Sending a null pointer as \e parent makes an object with no parent.
+  If the object is a widget, it will become a top-level window.
+
+  The \link name() name \endlink is not really used.
+
+  \sa destroy(), destroyed(), name(), QWidget. */
 
 QObject::QObject( QObject *parent, const char *name )
 {
@@ -272,7 +286,8 @@ QObject::~QObject()
   t->isA("QTime");              \/ returns TRUE
   t->isA("QObject");            \/ returns FALSE
   \endcode
-  \sa: inherits().
+
+  \sa inherits().
 */
 
 bool QObject::isA( const char *clname ) const	// test if is-a class
@@ -291,7 +306,7 @@ bool QObject::isA( const char *clname ) const	// test if is-a class
   \endcode
 
   This class may be used to determine whether a given object supports
-  certain features.  Qt uses it to implement keyboard accellerators,
+  certain features.  Qt uses it to implement keyboard accelerators,
   for instance: A keyboard accelerator is an object for which
   <code>inherits("QAccel")</code> is TRUE.
 
@@ -319,8 +334,8 @@ bool QObject::inherits( const char *clname ) const
       ....
   \endcode
 
-  Or you might have forgotten running moc.
-*/
+  Or you might have forgotten running the <a
+  href=metaobject.html>moc</a>. */
 
 const char *QObject::className() const		// get name of class
 {
@@ -358,7 +373,7 @@ bool QObject::event( QEvent *e )		// receive event
 /*!
 Filters events if an event filter has been installed.
 
-See also: installEventFilter().
+\sa installEventFilter().
 */
 
 bool QObject::eventFilter( QObject *, QEvent * )// filter event
@@ -386,6 +401,16 @@ void QObject::blockSignals( bool b )
 }
 
 
+/*! Starts a timer.  A \link timerEvent() timer event \endlink will
+  happen every \e interval milliseconds until killTimer() is called.
+
+  If \e interval is 0, the timer event happens as often as possible.
+
+  The return value from startTimer() may be passed to killTimer() to
+  kill this timer.
+
+  \sa QTimerEvent, timerEvent(), killTimer(), killTimers(). */
+
 //
 // The timer flag hasTimer is set when startTimer is called.
 // It is not reset when killing the timer because more than
@@ -397,10 +422,19 @@ int QObject::startTimer( long interval )	// start timer events
     return qStartTimer( interval, (QObject *)this );
 }
 
+/*! Kills timer \e id, which is the return value from the startTimer()
+  call which created the timer.
+
+  \sa startTimer, QTimerEvent, timerEvent(), killTimers(). */
+
 void QObject::killTimer( int id )		// kill timer events
 {
     qKillTimer( id );
 }
+
+/*! Kill all timers associated with this object.
+
+  \sa killTimer(), startTimer(), timerEvent(), QTimerEvent. */
 
 void QObject::killTimers()			// kill all timers for object
 {
