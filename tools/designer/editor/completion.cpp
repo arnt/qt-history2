@@ -78,44 +78,47 @@ public:
     QString text() const { return QListBoxItem::text() + postfix; }
 
 private:
-    void setupParagraph() {
-	if ( !parag ) {
-	    QTextFormatter *formatter;
-	    formatter = new QTextFormatterBreakWords;
-	    formatter->setWrapEnabled( FALSE );
-	    parag = new QTextParagraph( 0 );
-	    parag->pseudoDocument()->pFormatter = formatter;
-	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
-			   QListBoxItem::text() + postfix + postfix2 );
-	    bool selCol = isSelected() && listBox()->colorGroup().highlightedText() != listBox()->colorGroup().text();
-	    QColor sc = listBox()->colorGroup().highlightedText();
-	    QTextFormat *f1 = parag->formatCollection()->format( listBox()->font(), selCol ? sc : getColor( type ) );
-	    QTextFormat *f3 = parag->formatCollection()->format( listBox()->font(), isSelected() ?
-								 listBox()->colorGroup().highlightedText() :
-								 listBox()->colorGroup().text() );
-	    QFont f( listBox()->font() );
-	    f.setBold( TRUE );
-	    QTextFormat *f2 =
-		parag->formatCollection()->format( f, isSelected() ? listBox()->colorGroup().highlightedText() :
-								 listBox()->colorGroup().text() );
-	    parag->setFormat( 1, type.length() + 1, f1 );
-	    parag->setFormat( type.length() + 2, prefix.length() + QListBoxItem::text().length(), f2 );
-	    if ( !postfix.isEmpty() )
-		parag->setFormat( type.length() + 2 + prefix.length() + QListBoxItem::text().length(),
-				  postfix.length(), f3 );
-	    parag->setFormat( type.length() + 2 + prefix.length() + QListBoxItem::text().length() + postfix.length(),
-			      postfix2.length(), f3 );
-	    f1->removeRef();
-	    f2->removeRef();
-	    f3->removeRef();
-	    parag->format();
-	}
-    }
+    void setupParagraph();
     QString type, postfix, prefix, postfix2;
     QTextParagraph *parag;
     bool lastState;
 
 };
+
+void CompletionItem::setupParagraph() {
+    if ( !parag ) {
+	QTextFormatter *formatter;
+	formatter = new QTextFormatterBreakWords;
+	formatter->setWrapEnabled( FALSE );
+	parag = new QTextParagraph( 0 );
+	parag->pseudoDocument()->pFormatter = formatter;
+	parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
+		       QListBoxItem::text() + postfix + postfix2 );
+	bool selCol = isSelected() && listBox()->colorGroup().highlightedText() != listBox()->colorGroup().text();
+	QColor sc = selCol ? listBox()->colorGroup().highlightedText() : getColor( type );
+	QTextFormat *f1 = parag->formatCollection()->format( listBox()->font(), sc );
+	QTextFormat *f3 = parag->formatCollection()->format( listBox()->font(), isSelected() ?
+							     listBox()->colorGroup().highlightedText() :
+							     listBox()->colorGroup().text() );
+	QFont f( listBox()->font() );
+	f.setBold( TRUE );
+	QTextFormat *f2 =
+	    parag->formatCollection()->format( f, isSelected() ? listBox()->colorGroup().highlightedText() :
+					       listBox()->colorGroup().text() );
+	parag->setFormat( 1, type.length() + 1, f1 );
+	parag->setFormat( type.length() + 2, prefix.length() + QListBoxItem::text().length(), f2 );
+	if ( !postfix.isEmpty() )
+	    parag->setFormat( type.length() + 2 + prefix.length() + QListBoxItem::text().length(),
+			      postfix.length(), f3 );
+	parag->setFormat( type.length() + 2 + prefix.length() + QListBoxItem::text().length() + postfix.length(),
+			  postfix2.length(), f3 );
+	f1->removeRef();
+	f2->removeRef();
+	f3->removeRef();
+	parag->format();
+    }
+}
+
 
 EditorCompletion::EditorCompletion( Editor *e )
 {
