@@ -519,7 +519,7 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	    sequenceKey  = seq[i];
 
 	if ( (userKey & ~Qt::UNICODE_ACCEL) != 
-	     (sequenceKey & ~Qt::UNICODE_ACCEL) ) // no match
+	     (sequenceKey & ~Qt::UNICODE_ACCEL) )
 	    return NoMatch;
     }
     return match;
