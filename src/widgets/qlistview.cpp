@@ -2605,8 +2605,8 @@ void QListView::init()
 
     connect( d->h, SIGNAL(sizeChange(int,int,int)),
 	     this, SLOT(handleSizeChange(int,int,int)) );
-    connect( d->h, SIGNAL(moved(int,int)),
-	     this, SLOT(triggerUpdate()) );
+    connect( d->h, SIGNAL(indexChange(int,int,int)),
+	     this, SLOT(handleIndexChange()) );
     connect( d->h, SIGNAL(sectionClicked(int)),
 	     this, SLOT(changeSortColumn(int)) );
     connect( d->h, SIGNAL(sectionHandleDoubleClicked(int)),
@@ -5453,6 +5453,23 @@ void QListView::changeSortColumn( int column )
 	int lcol = d->h->mapToLogical( column );
 	setSorting( lcol, d->sortcolumn == lcol ? !d->ascending : TRUE);
     }
+}
+
+/*!
+  \internal
+  Handles renaming when sections are being swapped by the user.
+*/
+
+void QListView::handleIndexChange()
+{
+    if ( isRenaming() ) {
+        if ( d->defRenameAction == QListView::Reject ) {
+            currentItem()->cancelRename( currentItem()->renameCol );
+        } else {
+            currentItem()->okRename( currentItem()->renameCol );
+        }
+    }
+    triggerUpdate();
 }
 
 /*!

@@ -410,6 +410,7 @@ protected slots:
 
 private slots:
     void changeSortColumn( int );
+    void handleIndexChange();
     void updateDirtyItems();
     void makeVisible();
     void handleSizeChange( int, int, int );
