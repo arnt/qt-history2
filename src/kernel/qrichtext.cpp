@@ -1770,6 +1770,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curpar->append( QChar('b') );
 		    curpar->setFormat( index, 1, &format );
 		    curpar->at( index )->setCustomItem( custom );
+ 		    if ( !anchorName.isEmpty()  ) {
+ 			curpar->at(index)->setAnchor( anchorName, curpar->at(index)->anchorHref() );
+ 			anchorName = QString::null;
+ 		    }
 		    registerCustomItem( custom, curpar );
 		    curpar->setAlignment( curtag.alignment );
 		    hasNewPar = FALSE;
@@ -1803,7 +1807,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag.liststyle = chooseListStyle( nstyle, attr, curtag.liststyle );
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr );
 		    if ( nstyle->isAnchor() ) {
-			anchorName = attr["name"];
+			if ( !anchorName.isEmpty() )
+			    anchorName += "#" + attr["name"];
+			else
+			    anchorName = attr["name"];
 			curtag.anchorHref = attr["href"];
 		    }
 		
@@ -4829,8 +4836,15 @@ QString QTextParag::richText() const
     QString spaces;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
-	if ( c->isAnchor() && !c->anchorName().isEmpty() )
-	    s += "<a name=\"" + c->anchorName() + "\"></a>";
+	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
+	    if ( c->anchorName().contains( '#' ) ) {
+		QStringList l = QStringList::split( '#', c->anchorName() );
+		for ( QStringList::ConstIterator it = l.begin(); it != l.end(); ++it )
+		    s += "<a name=\"" + *it + "\"></a>";
+	    } else {
+		s += "<a name=\"" + c->anchorName() + "\"></a>";
+	    }
+	}
 	if ( !formatChar ) {
 	    s += c->format()->makeFormatChangeTags( 0, QString::null, c->anchorHref() );
 	    formatChar = c;

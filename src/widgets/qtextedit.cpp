@@ -3961,9 +3961,13 @@ void QTextEdit::scrollToAnchor( const QString& name )
     QTextParag* last = doc->lastParag();
     do {
 	QTextStringChar* c = cursor.parag()->at( cursor.index() );
-	if( c->isAnchor() && c->anchorName() == name ) {
-	    setContentsPos( contentsX(), QMIN( cursor.parag()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
-	    return;
+	if( c->isAnchor() ) {
+	    QString a = c->anchorName();
+	    if ( a == name || 
+		 (a.contains( '#' ) && QStringList::split( '#', a ).contains( name ) ) ) {
+		setContentsPos( contentsX(), QMIN( cursor.parag()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
+		return;
+	    }
 	}
 	cursor.gotoNextLetter();
     } while( cursor.parag() != last || !cursor.atParagEnd()  );
