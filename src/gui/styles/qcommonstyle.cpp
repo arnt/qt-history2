@@ -862,6 +862,13 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             }
         }
         break;
+    case CE_MenuScroller: {
+        p->fillRect(opt->rect, opt->palette.background());
+        QStyleOption arrowOpt = *opt;
+        arrowOpt.state |= State_Enabled;
+        drawPrimitive(((opt->state & State_Down) ? PE_IndicatorArrowDown : PE_IndicatorArrowUp),
+                      &arrowOpt, p, widget);
+        break; }
     case CE_MenuTearoff:
         if (opt->state & State_Selected)
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Highlight));
@@ -2784,8 +2791,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 6;
         break;
 
-    case PM_MenuDesktopFrameWidth:
     case PM_MenuScrollerHeight:
+        ret = 10;
+        break;
+
+    case PM_MenuDesktopFrameWidth:
     case PM_MenuHMargin:
     case PM_MenuVMargin:
         ret = 0;
