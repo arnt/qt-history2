@@ -372,6 +372,9 @@ bool QTextDocumentFragment::isEmpty() const
 */
 QString QTextDocumentFragment::toPlainText() const
 {
+    if (!d)
+        return QString();
+
     QString result = d->localBuffer;
 
     result.replace(QTextBeginningOfFrame, QChar::ParagraphSeparator);
@@ -387,6 +390,9 @@ QString QTextDocumentFragment::toPlainText() const
 */
 QString QTextDocumentFragment::toHtml() const
 {
+    if (!d)
+        return QString();
+
     QTextDocument doc;
     QTextCursor cursor(&doc);
 
