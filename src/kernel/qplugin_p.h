@@ -69,7 +69,7 @@ void* qt_resolve_symbol( void* handle, const char* f )
 
 void* qt_load_library( const QString& lib )
 {
-    return dlopen( lib );
+    return dlopen( lib, RTLD_LAZY );
 }
 
 bool qt_free_library( void* handle )
