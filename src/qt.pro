@@ -264,7 +264,8 @@ win32:SOURCES  += kernel/qapp_win.cpp \
 		  kernel/qptd_win.cpp \
 		  kernel/qptr_win.cpp \
 		  kernel/qrgn_win.cpp \
-		  kernel/qwid_win.cpp
+		  kernel/qwid_win.cpp \
+		  kernel/qdnd_win.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprndlg.h \
 		  $$KERNEL_H/qpsprn.h
@@ -286,7 +287,7 @@ unix:SOURCES   += dialogs/qprndlg.cpp \
 		  kernel/qpsprn.cpp \
 		  kernel/qnpsupport.cpp \
 		  kernel/qt_x11.cpp \
-		  kernel/qt_xdnd.cpp
+		  kernel/qdnd_x11.cpp
 
 TARGET		= qt
 VERSION		= 1.39
