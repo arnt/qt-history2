@@ -283,6 +283,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     a->connectItem( a->insertItem( CTRL + Key_F4 ),
 		    this, SLOT( closeActiveWindow() ) );
 
+    setBackgroundMode( PaletteDark );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
     d->topCaption = topLevelWidget()->caption();
