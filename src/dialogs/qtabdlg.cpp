@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#3 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#3 $");
 
 
 // a small private class to show the tabs on top
@@ -26,7 +26,7 @@ public:
     QTabDialog * daddy;
     QTab * next;
     QWidget * w;
-    const char * name;
+    char * name;
 
 protected:
     void paintEvent( QPaintEvent * );
@@ -68,8 +68,8 @@ void QTab::paintEvent( QPaintEvent * )
 	p.drawPoint( width() - 3, 1 );
 	p.drawLine( width() - 2, 2,
 		     width() - 2, height() - 2);
-	p.setPen( colorGroup().background() );
-	p.drawLine( 1, height() - 1, width() - 4, height() - 1 );
+	p.setPen( white );
+	p.drawLine( width()-3, height() - 1, width(), height() - 1 );
     } else {
 	p.drawLine( 1, height() - 2, 1, 4 );
 	p.drawPoint( 2, 3 );
@@ -82,8 +82,10 @@ void QTab::paintEvent( QPaintEvent * )
 	p.drawPoint( width() - 2, 3 );
 	p.drawLine( width() - 1, 4,
 		     width() - 1, height() - 2);
-	p.setPen( colorGroup().background() );
+	p.setPen( white );
+	p.drawLine( 0, height() - 1, width(), height() - 1 );
     }
+    p.setPen( black );
     p.drawText( 2, 0, width() - 6, height(), AlignCenter, name );
     p.end();
 }
@@ -309,14 +311,14 @@ void QTabDialog::setSizes()
     while ( t ) {
 	t->resize( fm.width( t->name )+10, th );
 	tw += t->width();
-	if ( t->w->minimumSize().height() < max.height() )
-	    max.setHeight( t->w->minimumSize().height() );
-	if ( t->w->minimumSize().width() < max.width() )
-	    max.setWidth( t->w->minimumSize().width() );
+	if ( t->w->maximumSize().height() < max.height() )
+	    max.setHeight( t->w->maximumSize().height() );
+	if ( t->w->maximumSize().width() < max.width() )
+	    max.setWidth( t->w->maximumSize().width() );
 	if ( t->w->minimumSize().height() > min.height() )
 	    min.setHeight( t->w->minimumSize().height() );
-	if ( t->w->minimumSize().height() > min.height() )
-	    min.setHeight( t->w->minimumSize().height() );
+	if ( t->w->minimumSize().width() > min.width() )
+	    min.setWidth( t->w->minimumSize().width() );
 	t = t->next;
     }
 
@@ -352,7 +354,7 @@ void QTabDialog::setSizes()
 	x = 0;
 	while ( t ) {
 	    t->move( x, 0 );
-	    x += t->width();
+	    x += t->width()+1;
 	    t = t->next;
 	}
     }
@@ -394,7 +396,7 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 	    if ( tab->w && tab->w->rect() != childRect )
 		tab->w->setGeometry( childRect );
 	    tab->move( x, 5 );
-	    x += tab->width();
+	    x += tab->width()+1;
 	}
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#3 $
 **
 ** Definition of tab dialog
 **
@@ -27,10 +27,10 @@ public:
     void addTab( QWidget *, const char * );
 
     void setDefaultButton( bool enable );
-    bool hasDefaultButton() { return db; }
+    bool hasDefaultButton() { return db != 0; }
 
     void setCancelButton( bool enable );
-    bool hasCancelButton() { return cb; }
+    bool hasCancelButton() { return cb != 0; }
 
     bool eventFilter( QObject *, QEvent * );
 
