@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#283 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#284 $
 **
 ** Implementation of QListView widget class
 **
@@ -229,13 +229,13 @@ struct QListViewPrivate
 
   Also there is now an interator class to traverse a tree of list view items.
   To iterate over all items of a list view, do:
-  
+
   \code
     QListViewItemIterator it( listview );
     for ( ; it.current(); ++it )
       do_something_with_the_item( it.current() );
   \endcode
-  
+
   Note that the order of the children will change when the sorting
   order changes, and is undefined if the items are not visible.  You
   can however call enforceSortOrder() at any time, and QListView will
@@ -2230,16 +2230,19 @@ void QListView::handleSizeChange( int section, int os, int ns )
 void QListView::updateDirtyItems()
 {
     if ( d->timer->isActive() || !d->dirtyItems)
-        return;
+	return;
     QRect ir;
     QPtrDictIterator<void> it( *(d->dirtyItems) );
     QListViewItem * i;
     while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
-        ++it;
-        ir = ir.unite( itemRect(i) );
+	++it;
+	ir = ir.unite( itemRect(i) );
     }
-    if ( !ir.isEmpty() )                    // rectangle to be repainted
-        viewport()->repaint( ir, FALSE );
+    if ( !ir.isEmpty() )  {		      // rectangle to be repainted
+	if ( ir.x() < 0 )
+	    ir.moveBy( -ir.x(), 0 );
+	viewport()->repaint( ir, FALSE );
+    }
 }
 
 
@@ -4267,10 +4270,10 @@ void QListView::takeItem( QListViewItem * i )
   of QListViewItems.
 
   A QListViewItemIterator iterates over all items of a listview. This means ++it makes always
-  the first child of the current item the new current one. If there is no child, the next sibling 
+  the first child of the current item the new current one. If there is no child, the next sibling
   gets the new current item, and if there is no next sibling, the next sibling of the parent is
   set to current.
-  
+
   Example:
 
   Often you want to get all items, which were selected by a user. Here is
