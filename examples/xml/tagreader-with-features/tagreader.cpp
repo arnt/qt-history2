@@ -27,9 +27,11 @@ int main( int argc, char **argv )
     reader.setContentHandler( handler );
     reader.parse( source );
 
-    QListView * namespacePrefix = new QListView( container, "table_namespace_prefix" );    
+    QListView * namespacePrefix = new QListView( container, 
+                                                 "table_namespace_prefix" );    
     handler->setListView( namespacePrefix );
-    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
+    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes", 
+                       TRUE );
     reader.parse( source );
 
     QListView * prefix = new QListView( container, "table_prefix");    
@@ -38,22 +40,22 @@ int main( int argc, char **argv )
     reader.parse( source );
 
     QLabel * namespaceLabel = new QLabel( 
-                             "Default:\n"
-                             "http://xml.org/sax/features/namespaces: TRUE\n"
-                             "http://xml.org/sax/features/namespace-prefixes: FALSE\n",
-                             container );
+             "Default:\n"
+             "http://xml.org/sax/features/namespaces: TRUE\n"
+             "http://xml.org/sax/features/namespace-prefixes: FALSE\n",
+             container );
 
     QLabel * namespacePrefixLabel = new QLabel( 
-                             "\n"
-                             "http://xml.org/sax/features/namespaces: TRUE\n"
-                             "http://xml.org/sax/features/namespace-prefixes: TRUE\n",
-                             container );
+             "\n"
+             "http://xml.org/sax/features/namespaces: TRUE\n"
+             "http://xml.org/sax/features/namespace-prefixes: TRUE\n",
+             container );
 
     QLabel * prefixLabel = new QLabel( 
-                             "\n"
-                             "http://xml.org/sax/features/namespaces: FALSE\n"
-                             "http://xml.org/sax/features/namespace-prefixes: TRUE\n",
-                             container );
+             "\n"
+             "http://xml.org/sax/features/namespaces: FALSE\n"
+             "http://xml.org/sax/features/namespace-prefixes: TRUE\n",
+             container );
 
 
     app.setMainWidget( container );

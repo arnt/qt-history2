@@ -21,7 +21,8 @@ void StructureParser::setListView( QListView * t )
     table->addColumn( "Namespace" );
 }
 
-bool StructureParser::startElement( const QString& namespaceURI, const QString& , 
+bool StructureParser::startElement( const QString& namespaceURI, 
+                                    const QString& , 
                                     const QString& qName, 
                                     const QXmlAttributes& attributes)
 {
@@ -46,7 +47,8 @@ bool StructureParser::startElement( const QString& namespaceURI, const QString& 
     return TRUE;
 }
 
-bool StructureParser::endElement( const QString&, const QString&, const QString& )
+bool StructureParser::endElement( const QString&, const QString&, 
+                                  const QString& )
 {
     stack.pop();
     return TRUE;
