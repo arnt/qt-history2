@@ -1,31 +1,35 @@
 /*! \page qaxserver-compiler.html
 
+    \title QAxServer FAQ
+
     \section1 The ActiveQt build system
 
-    To build Qt applications hosting ActiveX controls the application just 
-    has to link against the qaxcontainer library by adding
+    To build Qt applications that can serve ActiveX controls, simply
+    link the application 
+    against the qaxcontainer library by adding
     \code
     LIBS += <location>\qaxcontainer.lib
     \endcode
-    To the .pro files used by \c qmake to generate a makefile. \c <location>
-    is usually %QTDIR%\lib.
+    to the application's \c .pro file. \c <location> is usually %QTDIR%\lib.
 
-    To be able to build ActiveX controls with Qt the build system has to be
-    extended with additional build steps that are used when the .pro file 
-    includes \c activeqt in the \c CONFIG settings. The resulting makefile 
-    will
+    To be able to build ActiveX controls with Qt, the build system
+    must be extended to include some additional build steps that are
+    used when the \c .pro file includes \c activeqt in the \c CONFIG
+    settings. The resulting makefile will:
 
     \list
-    \i Link the executable against qaxserver.lib instead of qtmain.lib
-    \i Call the resulting executable with the -dumpidl parameter to generate
-    an IDL description of the ActiveX controls provided by the server.
+    \i Link the executable against \c qaxserver.lib instead of \c qtmain.lib
+    \i Call the resulting executable with the \c -dumpidl parameter to
+    generate an IDL description of the ActiveX controls provided by
+    the server.
     \i Compile the IDL into a type library using the MIDL tool
     \i Attach the resulting type library as a binary resource to the server
        executable
     \endlist
 
-    Attaching resources to an executable is not supported by Windows95/98/ME,
-    but a server built on Windows NT/2000/XP will work on those versions.
+    Attaching resources to an executable is not supported by
+    Windows&nbsp;95/98/ME, but a server built on Windows NT/2000/XP
+    will work on those versions.
 
     \section1 Typical build problems
     
@@ -36,14 +40,14 @@
 
     \section3 "No overloaded function takes 2 parameters"
     
-    When the error occurs in code that uses the QAXFACTORY_DEFAULT macro
-    the widget class had no constructor that can be used by the default
-    factory. Either add a standard widget constructor, or implement a custom
-    factory that doesn't require that.
+    When the error occurs in code that uses the \c QAXFACTORY_DEFAULT
+    macro, the widget class had no constructor that can be used by the
+    default factory. Either add a standard widget constructor, or
+    implement a custom factory that doesn't require that.
 
-    When the error occurs in code that uses the QAXFACTORY_EXPORT macro
-    the QAxFactory subclass had no appropriate constructor. Provide a public 
-    class constructor like
+    When the error occurs in code that uses the \c QAXFACTORY_EXPORT
+    macro, the QAxFactory subclass had no appropriate constructor.
+    Provide a public class constructor like
     \code
     MyFactory( const QUuid &, const QUuid & );
     \endcode

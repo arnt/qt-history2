@@ -3,26 +3,38 @@
     \title The ActiveQt framework
     \keyword ActiveQt
 
-    Qt's ActiveX support allows Qt/Windows developers to access 
-    and use ActiveX controls provided by any ActiveX server in their
-    Qt application, and to turn their Qt projects into ActiveX 
-    servers providing any number of Qt widgets as ActiveX controls.
+    Qt's ActiveX support allows Qt/Windows developers to:
+    \list 1
+    \i Access and use ActiveX controls provided by any ActiveX server
+    in their Qt applications.
+    \i Make their Qt applications available as ActiveX servers, with
+    any number of Qt widgets as ActiveX controls.
+    \endlist
 
     The framework consists of two modules. 
+
+    \section1 QAxContainer
+
+    The \link qaxcontainer.html QAxContainer module  \endlink is a 
+    library implementing a QWidget subclass, \l QAxWidget, that acts 
+    as a container for ActiveX controls. If the library is built 
+    against a shared Qt library it integrates as a widget plugin into 
+    \link designer-manual.book Qt Designer\endlink. This module
+    provides the QAxBase, QAxObject and QAxWidget classes.
 
     \section1 QAxServer
 
     The \link qaxserver.html QAxServer module \endlink is a 
     static library that implements ActiveX server functionality for
-    in-process and executable ActiveX servers.
+    in-process and executable ActiveX servers. This module provides
+    the QAxBindable and QAxFactory classes.
 
-    \section1 QAxContainer
+    \section2 Additional Information
 
-    The \link qaxcontainer.html QAxContainer module  \endlink is a 
-    library implementing a QWidget subclass QAxWidget that acts 
-    as a container for ActiveX controls. If the library is built 
-    against a shared Qt library it integrates as a widget plugin into Qt 
-    Designer.
+    \list
+    \i \link activeqt-examples.html Examples\endlink. 
+    \i \link qaxserver-compiler.html QAxServer FAQ\endlink.
+    \endlist
 */
 
 /*! \page qaxserver.html
@@ -31,7 +43,12 @@
 
     The QAxServer module provides a static library implementing the
     functions required to turn a standard Qt binary into an ActiveX
-    control server.
+    control server. 
+    
+    This module is part of the \link activeqt.html ActiveQt
+    framework\endlink. (To incorporate ActiveX controls in a Qt
+    application see the \link qaxcontainer.html QAxContainer
+    module\endlink.) 
 
     The module consists of two classes
     \list
@@ -40,24 +57,25 @@
     \i QAxFactory defines a factory for the creation of ActiveX components.
     \endlist
 
-    and includes four \link activeqt-examples.html example implementations \endlink 
-    of ActiveX controls.
+    Some \link activeqt-examples.html example implementations \endlink 
+    of ActiveX controls are provided.
 
     \section1 Building the library
 
     In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
     enter the \c control subdirectory and run \c qmake to generate the
-    makefile, and the make tool (\c nmake for VC++, \c make for Borland)
+    makefile, and use the make tool (\c nmake for VC++, \c make for Borland)
     to build the library. The library \c qaxserver.lib will be linked into 
     \c QTDIR/lib.
     
     \section1 Using the library
 
-    To make a standard Qt application an ActiveX server using the QAxServer 
-    library you have to add \c activeqt as a CONFIG setting in your .pro-file.
+    To turn a standard Qt application into an ActiveX server using the
+    QAxServer library you must add \c activeqt as a CONFIG setting
+    in your \c .pro file.
 
-    An out-of-process executable server is being generated from a .pro-file
-    like this:
+    An out-of-process executable server is generated from a \c .pro
+    file like this:
     \code
     TEMPLATE = app
     CONFIG  += qt activeqt
@@ -66,7 +84,7 @@
     ...
     \endcode
     
-    To build an in-process server, use a .pro-file like this:
+    To build an in-process server, use a \c .pro file like this:
     \code
     TEMPLATE = lib
     CONFIG  += qt activeqt dll
@@ -76,15 +94,15 @@
     ...
     \endcode
 
-    The files \c qaxserver.rc and \c qaxserver.def are part of the framework
-    and can be used from their usual location (specify a path in the .pro file), 
-    or copied into the project directory. You should however not modify the 
-    contents of those files.
+    The files \c qaxserver.rc and \c qaxserver.def are part of the
+    framework and can be used from their usual location (specify a
+    path in the \c .pro file), or copied into the project directory.
+    You should \e not modify these files.
 
     The \c activeqt configuration will cause the \c qmake tool to add the 
     required build steps to the build system:
     \list
-    \i link the binary against qaxserver.lib
+    \i link the binary against \c qaxserver.lib
     \i generate an interface definition and link the type library into
        the binary
     \i register the server
@@ -95,22 +113,25 @@
 
     \section2 Out-of-process vs. In-process
 
-    Whether your ActiveX server should run as a stand alone executable or as a 
-    shared library in the client process depends mainly on the type of controls
-    you want to provide in the server. An executable server has the advantage
-    to be able to run as a stand alone application, but adds considerable overhead
-    to the communication between ActiveX client and control. If the control however
-    has a programming error only the server process running the control crashes,
-    while the client application will have good chances to continue to run.
+    Whether your ActiveX server should run as a stand-alone executable
+    or as a shared library in the client process depends mainly on the
+    type of controls you want to provide in the server. 
+    
+    An executable server has the advantage of being able to run as a
+    stand-alone application, but adds considerable overhead to the
+    communication between the ActiveX client and the control. If the
+    control has a programming error only the server process running
+    the control will crash, and the client application will probably
+    continue to run.
 
-    An in-process server is usually smaller and has a better startup time. The
-    communication between client and server is done directly through virtual 
-    function calls and does not introduce the overhead required for the remote
-    procedure calling. But if the server crashes the client application is likely
-    to crash as well.
+    An in-process server is usually smaller and has faster startup
+    time. The communication between client and server is done directly
+    through virtual function calls and does not introduce the overhead
+    required for remote procedure calls. But if the server crashes the
+    client application is likely to crash as well.
 
-    Both server types can use Qt as a shared library, or statically linked into
-    the server binary.
+    Both server types can use Qt either as a shared library, or
+    statically linked into the server binary.
 
     \section1 Implementing Controls
 
@@ -134,13 +155,14 @@
     \endcode
 
     Declare a standard QWidget constructor taking a parent widget and a name, 
-    and functions, signals and slots as for any QWidget.
+    and functions, signals and slots like any normal QWidget.
     \footnote
-    If a standard constructor is not present the compiler will issue an error
-    "no overloaded function takes 2 parameters" when using the default factory
-    through the QAXFACTORY_DEFAULT macro. If you cannot provide a standard constructor
-    you will have to implement a \l QAxFactory custom factory and call the 
-    constructor you have in your implementation of QAxFactory::create.
+    If a standard constructor is not present the compiler will issue
+    an error "no overloaded function takes 2 parameters" when using
+    the default factory through the QAXFACTORY_DEFAULT macro. If you
+    cannot provide a standard constructor you must implement a \l
+    QAxFactory custom factory and call the constructor you have in
+    your implementation of QAxFactory::create.
     \endfootnote
 
     \code
@@ -164,19 +186,23 @@
     The ActiveQt framework will expose properties and public slots as ActiveX 
     properties and methods, and signals as ActiveX events.
 
-    Supported Qt data types for properties and signal/slot parameters are
+    The Qt data types that are supported for properties and
+    signal/slot parameters are:
     \list
-    \i QString
-    \i QCString
-    \i int, unsigned int
     \i bool
     \i double
-    \i QDate, QTime, QDateTime
+    \i int
+    \i unsigned int
     \i QColor
+    \i QDate
+    \i QDateTime
+    \i QTime
     \i QFont
+    \i QString
+    \i QCString
     \endlist
-    Properties, or signals/slots with parameters using different data types will 
-    be ignored by the framework.
+    Properties and signals/slots that have parameters using any other
+    data types are ignored by the QActiveX framework.
 
     To make the properties bindable for the ActiveX client, use multiple
     inheritance from the QAxBindable class:
@@ -192,31 +218,33 @@
     </pre>
     \endraw
   
-    When implementing the property-write functions, use the 
-    requestPropertyChange() and propertyChanged() functions of the 
-    QAxBindable class to allow ActiveX clients to bind to the control properties.
+    When implementing the property write functions, use the
+    QAxBindable class's requestPropertyChange() and propertyChanged()
+    functions to allow ActiveX clients to bind to the control
+    properties. 
     \footnote 
     This is not required, but gives the client more control over 
-    the ActiveX.
+    the ActiveX control.
     \endfootnote
 
-    \section1 Serving the Controls
+    \section1 Serving Controls
 
-    To make the ActiveX control available to the COM system it has to
-    be registered in the system registry using five unique identifiers 
-    as provided by tools like \c guidgen or \c uuidgen. The registration
-    information allows COM to localize the binary providing a requested
-    ActiveX control, marshall remote procedure calls to the control and
-    read type information about the methods and properties exposed by
-    the control.
+    To make an ActiveX control available to the COM system it must
+    be registered in the system registry using five unique
+    identifiers. These identifiers are provided by tools like \c
+    guidgen or \c uuidgen. The registration information allows COM to
+    localize the binary providing a requested ActiveX control,
+    marshall remote procedure calls to the control and read type
+    information about the methods and properties exposed by the
+    control.
 
-    To create the ActiveX control when the client asks for it the server
-    has to export an implementation of a QAxFactory. Use either 
-    the default factory when the server provides only a single ActiveX 
-    control, or implement a subclass of the QAxFactory class to 
-    provide multiple ActiveX controls. The default factory is available
-    through a macro that takes the identifiers COM requires to locate the
-    ActiveX control on the target system:
+    To create the ActiveX control when the client asks for it the
+    server must export an implementation of a QAxFactory. Use the
+    default factory when the server provides only a single ActiveX
+    control, and implement a subclass of QAxFactory to provide
+    multiple ActiveX controls. The default factory is available
+    through a macro that takes the identifiers COM requires to locate
+    the ActiveX control on the target system:
 
     \code
     QAXFACTORY_DEFAULT ( MyActiveX,
@@ -230,13 +258,13 @@
     The \link QAxFactory QAxFactory class documentation \endlink explains 
     how to use this macro, and how to implement and use custom factories.
 
-    For out-of-process executable servers, implement a main() method like 
-    for any other Qt application, instantiate a QApplication object and enter 
-    the event loop.
-    Starting the application without any of those commandlines starts
-    the application as a standard Qt application. Use QAxFactory::isServer()
-    to create and run a standard application interface, or to prevent a 
-    stand-alone execution:
+    For out-of-process executable servers, implement a main()
+    function, instantiate a QApplication object, and enter the event
+    loop just like any normal Qt application. By default the
+    application will start as a standard Qt application, but if you
+    pass \c -activex on the command line it will start as an ActiveX
+    server. Use QAxFactory::isServer() to create and run a standard
+    application interface, or to prevent a stand-alone execution:
 
     \raw
     <pre>
@@ -254,8 +282,8 @@
     </pre>
     \endraw
 
-    In-process servers still have to implement a main method. It will however
-    never be called, so a dummy implementation is enough.
+    In-process servers must also implement \c main(); but it is never
+    called so a dummy implementation is sufficient.
 
     \code
     int main( int , char ** )
@@ -264,22 +292,25 @@
     }
     \endcode
 
-    To build the ActiveX server executable run qmake to generate the 
-    makefile, and the maketool for your compiler as for any other Qt 
-    application. The make process will also register the controls in the
-    system registry by calling the resulting executable with the
-    \c -regserver command line switch. See the \link qaxserver-compiler.html
-    Typical build errors \endlink list for frequent problems when building
-    the ActiveQt server executable.
+    To build the ActiveX server executable run \link qmake-manual.html
+    qmake\endlink to generate the makefile, and use your compiler's
+    make tool as for any other Qt application. The make process will
+    also register the controls in the system registry by calling the
+    resulting executable with the \c -regserver command line option.
+    See the \link qaxserver-compiler.html Typical build errors
+    \endlink list for information on problems that can occur when
+    building the ActiveQt server executable.
 
-    If the ActiveX server is an executable, the following commandline switches are
-    supportd:
-    \list
-    \i -regserver Registers the server in the system registry
-    \i -unregserver Unregisters the server from the system registry
-    \i -activex Starts the application as an ActiveX server
-    \i -dumpidl <file> Writes the IDL for this server to a file
-    \endlist
+    If the ActiveX server is an executable, the following command line
+    options are supported:
+    \table
+    \header \i Option \i Result
+    \row \i \c -regserver \i Registers the server in the system registry
+    \row \i \c -unregserver \i Unregisters the server from the system registry
+    \row \i \c -activex \i Starts the application as an ActiveX server
+    \row \i \c{-dumpidl <file>} \i Writes the server's IDL to the
+    specified file
+    \endtable
 
     In-process servers can be registered using the \c regsvr32 tool available
     on all Windows systems.
@@ -295,24 +326,26 @@
     <\object>
     \endcode
 
-    To initialize the properties of the control, use
+    To initialize the control's properties, use
     \code
     <object ID=...>
         <param name="name" value="value">
     <\object>
     \endcode
 
-    If the web browser supports scripting use JavaScript, VBScript and forms to 
-    script the control. The \link activeqt-examples.html examples \endlink include 
-    demonstration HTML pages for the different example controls.
+    If the web browser supports scripting use JavaScript, VBScript and
+    forms to script the control. The \link activeqt-examples.html
+    examples \endlink include demonstration HTML pages for the
+    example controls.
 
     \section1 Enhanced features
 
     \section2 More Interfaces
 
-    When the ActiveX class inherits from the QAxBindable class it can also implement
-    additional COM interfaces. Use multiple inheritance to subclass additional
-    interface classes, and reimplement the queryInterface() function.
+    When the ActiveX class inherits from the QAxBindable class it can
+    also implement additional COM interfaces. Use multiple inheritance
+    to subclass additional interface classes, and reimplement the
+    queryInterface() function.
 
     \raw
     <pre>
@@ -343,9 +376,10 @@
     </pre>
     \endraw
 
-    As \c IComInterface inherits from \c IUnknown the class will also have to implement 
-    \c AddRef and \c Release. Call the addRef and release method provided by QAxBindable
-    in those implementations.
+    Since \c IComInterface inherits from \c IUnknown the class must
+    also implement \c AddRef() and \c Release(). Call the addRef() and
+    Release() functions provided by QAxBindable in those
+    implementations.
 
     \code
     long MyActiveX::AddRef()
@@ -357,12 +391,14 @@
 
     \section2 Fewer methods and properties
 
-    By default all ActiveX controls expose not only their own methods and properties to
-    ActiveX clients, but also those of all super classes, including QWidget.
+    By default all ActiveX controls expose not only their own methods
+    and properties to ActiveX clients, but also those of all super
+    classes, including QWidget.
 
-    This can be customized by reimplementing the exposeToSuperClass() function of the
-    QAxFactory class. Reimplement the function to return the last super class that should
-    be exposed:
+    This can be controlled by reimplementing QAxFactory's
+    exposeToSuperClass() function. Reimplement the function to return
+    the last (furthest up the inheritance hierarchy) super class that
+    should be exposed:
 
     \code
     QString MyFactory::exposeToSuperClass( const QString &key ) const
@@ -373,11 +409,12 @@
     }
     \endcode
 
-    The SmallActiveX control will only expose its own methods and properties to clients,
-    while all other ActiveX control provided by this factory will as well expose the
-    methods and properties of all super classes including QWidget.
-    The SmallActiveX class can of course propagate some of the QWidget methods and properties
-    into its own interface.
+    The SmallActiveX control will only expose its own functions and
+    properties to clients, while all other ActiveX controls provided
+    by this factory will expose their own functions and properties and
+    also those of all their super classes including QWidget. The
+    SmallActiveX class can of course propagate some of the QWidget
+    functions and properties into its own interface.
 */
 
 /*! \page qaxcontainer.html
@@ -385,42 +422,48 @@
     \title The QAxContainer Module
 
     The ActiveQt framework provides a library implementing a QWidget
-    subclass QAxWidget that acts as a container for ActiveX controls.
+    subclass, QAxWidget, that acts as a container for ActiveX
+    controls. 
+    
+    This module is part of the \link activeqt.html ActiveQt
+    framework\endlink. (To make an application into an ActiveX server
+    see the \link qaxserver.html QAxServer module\endlink.)
 
     The module consists of three classes
-    \list
-    \i QAxBase is an abstract class that provides an API to initalize 
+    \list 1
+    \i QAxBase is an abstract class that provides an API to initialize 
        and access a COM/ActiveX object.
     \i QAxObject provides a QObject that wraps a COM object.
-    \i QAxWidget is a QWidget that wraps an ActiveX control.
+    \i \l QAxWidget is a \l QWidget that wraps an ActiveX control.
     \endlist
 
-    and includes two \link activeqt-examples.html example applications \endlink
+    Some \link activeqt-examples.html example applications \endlink
     that use standard ActiveX controls to provide high level user
-    interface functionality.
+    interface functionality are provided.
 
     \section1 Building the library
 
     In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
     enter the \c container subdirectory and run \c qmake to generate the
-    makefile, and the make tool (\c nmake for VC++, \c make for Borland)
+    makefile, and use the make tool (\c nmake for VC++, \c make for Borland)
     to build the library. The library \c qaxcontainer.lib will be linked 
-    into \c QTDIR/lib. If you build a shared library (ie. when Qt is a 
+    into \c QTDIR/lib. If you build a shared library (i.e. when Qt is a 
     shared library) the \c qaxcontainer.dll will be copied into 
-    \c QTDIR/bin and the Qt Designer plugin directory.
+    \c QTDIR/bin and into the \link designer-manual.book Qt
+    Designer\endlink plugin directory.
     
     \section1 Using the library
 
-    To use the classes implemented the application has to link against
+    To use the classes the application must link against
     the \c qaxcontainer.lib file. Add
 
     \code
     LIBS += $(QTDIR)/lib/qaxcontainer.lib
     \endcode
 
-    to your application .pro file.
+    to your application's \c .pro file.
 
     
-    See the API reference of QAxWidget for documentation about how to 
+    See the QAxWidget API reference for documentation about how to 
     use this class to embed ActiveX controls in Qt applications.
 */
