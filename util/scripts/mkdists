@@ -47,6 +47,7 @@ status() {
     [ ! -z "$1" ] && while [ "$blah" -lt "$STATUS_DEPTH" ]; do echo -n " "; blah=$((blah+1)); done
     [ "$#" = 2 ] && [ "$2" = "1" ] && STATUS_DEPTH=$((STATUS_DEPTH+5))
     [ ! -z "$1" ] && echo "$1"
+    return 0
 }
 
 #parse commandline
@@ -530,7 +531,7 @@ copy_platform_files() {
     for a in `find $dir`; do
 	a_file=`echo $a | sed "s,$dir,,"`
 	o_file=$a_file
-	{ [ -z $a_file ] || [ -d $a ] } && continue
+	{ [ -z $a_file ] || [ -d $a ] ; } && continue
 
 	if [ "$platform" = "qws" ]; then
 	    case `basename $a` in
@@ -546,7 +547,7 @@ copy_platform_files() {
 	final_dir=`dirname $o_dir/$o_file`
 	[ ! -d $final_dir ] && mkdir -p $final_dir
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
-	if [ -f $dir/$a_file ] && [ ! -e $o_dir/$o_file ] && [ ! -x $dir/$a_dir ]; then
+	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_dir" ]; then
 	    sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${TYPE}/g" \
 		-e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
@@ -555,7 +556,7 @@ copy_platform_files() {
 		sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" ${TMP_FILE} >$o_dir/$o_file
 	    fi
 	else
-	    cp -ar $dir/$a_file $o_dir/$o_file
+	    cp -ar "$dir/$a_file" "$o_dir/$o_file"
 	fi
     done
     return 0
