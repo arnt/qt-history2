@@ -26,10 +26,10 @@ public:
     QString toXML() const;
 
     void save(QTextStream &stream) const;
-    static QTextDocumentFragment loadFromXML(const QString &xml);
-    static QTextDocumentFragment loadFromPlainText(const QString &plainText);
-    static QTextDocumentFragment loadFromHTML(const QString &html);
-    static QTextDocumentFragment loadFromHTML(const QByteArray &html);
+    static QTextDocumentFragment fromXML(const QString &xml);
+    static QTextDocumentFragment fromPlainText(const QString &plainText);
+    static QTextDocumentFragment fromHTML(const QString &html);
+    static QTextDocumentFragment fromHTML(const QByteArray &html);
 
 private:
     QTextDocumentFragmentPrivate *d;

@@ -432,7 +432,7 @@ void QTextDocumentFragment::save(QTextStream &stream) const
     stream << "</QRichText>";
 }
 
-QTextDocumentFragment QTextDocumentFragment::loadFromXML(const QString &xml)
+QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
 {
     QTextDocumentFragment res;
 
@@ -468,7 +468,7 @@ QTextDocumentFragment QTextDocumentFragment::loadFromXML(const QString &xml)
     return res;
 }
 
-QTextDocumentFragment QTextDocumentFragment::loadFromPlainText(const QString &plainText)
+QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainText)
 {
     QTextDocumentFragment res;
 
@@ -482,7 +482,7 @@ QTextDocumentFragment QTextDocumentFragment::loadFromPlainText(const QString &pl
     return res;
 }
 
-QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
+QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 {
     QTextDocumentFragment res;
 
@@ -628,10 +628,10 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
     return res;
 }
 
-QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QByteArray &html)
+QTextDocumentFragment QTextDocumentFragment::fromHTML(const QByteArray &html)
 {
     QTextCodec *codec = QTextHtmlParser::codecForStream(html);
     QString unicode = codec->toUnicode(html);
-    return loadFromHTML(unicode);
+    return fromHTML(unicode);
 }
 
