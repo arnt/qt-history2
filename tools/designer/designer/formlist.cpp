@@ -66,7 +66,32 @@ static const char * folder_xpm[]={
     ".dddddddddddddd.",
     "................"};
 
+static const char* file_xpm[]={
+    "16 16 5 1",
+    ". c #7f7f7f",
+    "# c None",
+    "c c #000000",
+    "b c #bfbfbf",
+    "a c #ffffff",
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".bbbbbbbbbbbc###",
+    "ccccccccccccc###"};
+
 static QPixmap *folderPixmap = 0;
+static QPixmap *filePixmap = 0;
 static bool blockNewForms = FALSE;
 
 FormListItem::FormListItem( QListView *parent )
@@ -177,6 +202,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
+	filePixmap = new QPixmap( file_xpm );
     }
 
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
@@ -295,7 +321,8 @@ void FormList::setProject( Project *pro )
 
     QPtrList<SourceFile> sources = pro->sourceFiles();
     for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
-	(void)new FormListItem( sourceParent, pro->makeRelative( f->fileName() ), f );
+	FormListItem *fi = new FormListItem( sourceParent, pro->makeRelative( f->fileName() ), f );
+	fi->setPixmap( 0, *filePixmap );
 	bufferEdit->addCompletionEntry( pro->makeRelative( f->fileName() ) );
     }
 }
