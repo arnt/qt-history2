@@ -806,11 +806,15 @@ void QString::realloc(int alloc)
             return;
         x->size = qMin(alloc, d->size);
         ::memcpy(x->array, d->data, x->size * sizeof(QChar));
-        x->array[x->size] = '\0';
+        x->array[x->size] = 0;
         x->c = 0;
         x->cache = 0;
         x->ref = 1;
         x->alloc = alloc;
+        x->clean = d->clean;
+        x->encoding = d->encoding;
+        x->simpletext = d->simpletext;
+        x->righttoleft = d->righttoleft;
         x->data = x->array;
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
