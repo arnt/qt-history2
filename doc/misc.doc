@@ -3,7 +3,7 @@
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -928,8 +928,8 @@ projects world wide.
 <td valign="top"> General inquiries and questions. Please check the
 \link http://www.trolltech.com/faq/ FAQ\endlink to see if your question is already answered there.</td>
 <td ><br></td>
-<td valign="top"> Inquires related to purchasing, pricing and availability of Troll
-Tech products</td></tr>
+<td valign="top"> Inquires related to purchasing, pricing and availability of
+Trolltech products</td></tr>
 <tr>
 <td colspan=2>\link mailto:www@trolltech.com <strong>www@trolltech.com</strong>\endlink
 <td colspan=2>\link mailto:qt-bugs@trolltech.com <strong>qt-bugs@trolltech.com</strong>\endlink
@@ -937,14 +937,14 @@ Tech products</td></tr>
 <td ><br></td>
 <td valign="top"> Comments about our web pages</td>
 <td ><br></td>
-<td valign="top"> For bug reports. Please check the \link http://www.trolltech.com/platforms Platform Notes\endlink and
+<td valign="top"> For bug reports. Please check the \link http://www.trolltech.com/platforms/ Platform Notes\endlink and
 \link http://www.trolltech.com/faq/ FAQ\endlink to
 see if the issue is already solved.
 </td></tr>
 <tr><td ><br></td>
 <td colspan=4 valign=top>Note that Trolltech uses the
-\link http://maps.vix.com/rbl/ RBL\endlink and
-\link http://mail-abuse.org/rss/ RSS\endlink databases to cut down on
+\link http://mail-abuse.org/rbl/ RBL\endlink and
+\link http://work-rss.mail-abuse.org/rss/ RSS\endlink databases to cut down on
 spam. If your mail server is listed, you will regrettably not be able to
 send us mail. The \link http://www.mail-abuse.org/tsi/ MAPS TSI\endlink
 pages provide information about how to secure your server.
