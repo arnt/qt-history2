@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#1 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#2 $
 **
 ** Implementation of Network Extension Library
 **
@@ -137,7 +137,7 @@ void QHttp::closed()
 	imgIt = imgMap.begin();
 	currPix = imgIt.key();
 	pixmapLoader = QUrlOperator( *url(), *imgIt );
-	pixmapLoader.get( "" );
+	pixmapLoader.get();
     } else
 	emit finished( operationInProgress() );
 
@@ -169,7 +169,7 @@ void QHttp::readyRead()
 	
 	i = s.find( "<img", e );
     }
-    
+
     emit data( s, operationInProgress() );
     buffer += s;
 }
@@ -185,9 +185,9 @@ void QHttp::savePixmap( QNetworkOperation * )
     f.open( IO_WriteOnly );
     f.writeBlock( pixBuff, pixBuff.length() );
     f.close();
-    
+
     pixBuff = "";
-    
+
     ++imgIt;
     if ( imgIt == imgMap.end() ) {
 	emit data( '\0', operationInProgress() );
@@ -197,7 +197,7 @@ void QHttp::savePixmap( QNetworkOperation * )
 
     currPix = imgIt.key();
     pixmapLoader = QUrlOperator( *url(), *imgIt );
-    pixmapLoader.get( "" );
+    pixmapLoader.get();
 
 }
 

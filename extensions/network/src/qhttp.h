@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.h#1 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.h#2 $
 **
 ** Implementation of Network Extension Library
 **
@@ -56,7 +56,7 @@ protected:
     QString currPix;
     QUrlOperator pixmapLoader;
     QCString buffer, pixBuff;
-    
+
 private:
     bool checkConnection( QNetworkOperation *op );
     void close();
@@ -68,7 +68,7 @@ protected slots:
     void readyRead();
     void newPixmap( const QCString &, QNetworkOperation * );
     void savePixmap( QNetworkOperation * );
-    
+
 };
 
 #endif
