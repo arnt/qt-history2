@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <qinputdialog.h>
 #include <qregexp.h>
+#include <qdict.h>
 
 QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindow( parent, name )
 {
@@ -16,7 +17,7 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     classList = new QListView( this );
     classList->addColumn( "Text" );
     classList->setRootIsDecorated( TRUE );
-    connect( classList, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
+    connect( classList, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(activateEditor(QListViewItem* )));
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
     classList->show();
     qtdirenv = getenv( "QTDIR" );
@@ -73,7 +74,6 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	    int foundpos = rxp.search( itemtext, 5 );
 	    if ( foundpos != -1 ) {
 		QString linenumber = rxp.cap( 0 );
-//		qDebug("%s", linenumber.latin1() );
 		procedit = new QProcess( this );
 		procedit->addArgument( editText );
 		procedit->addArgument( QString("+" + linenumber) );
@@ -106,6 +106,10 @@ void QDocMainWindow::finished()
     QString linenumber;
     int newLine;
     QString text;
+    QDict<QListViewItem> category( 23 );
+    QDict<QListViewItem> filename( 3917 );
+    QListViewItem *dirItem   = 0;
+    QListViewItem *classItem = 0;
     while ( !outputText.isEmpty() ) {    
 	newLine = outputText.find( '\n' );
 	if ( newLine == -1 )
@@ -113,7 +117,6 @@ void QDocMainWindow::finished()
 	text = outputText.left( newLine );
 	
 	if ( !text.startsWith( "qdoc" ) && !text.isEmpty() ) {
-	    qApp->processEvents();
 	    if ( text.startsWith( "src" ) )
 		text = text.right( text.length() - 4 );
 	    int slashpos = text.find( '/' );
@@ -124,16 +127,23 @@ void QDocMainWindow::finished()
 	    linenumber = text.mid( classfind + 1, (secondcolonpos - classfind - 1 ));
 	    warningText = text.right( text.length() - secondcolonpos - 1 );
 	    warningText.truncate( warningText.length() - 1 );
-	    
-	    QListViewItem* dirItem = classList->findItem( dirText, 0, Qt::BeginsWith );
-	    if ( ! dirItem ) {
+	   
+	    if ( !category[dirText] ) {
 		dirItem = new QListViewItem( classList, dirText );
+		category.insert( dirText, dirItem );
+	    }
+	    else {
+		dirItem = category[dirText];
+	    }
+
+	    if ( !filename[classText] ) {
+		classItem = new QListViewItem( dirItem, classText );
+		filename.insert( classText, classItem );
+	    }
+	    else {
+		classItem = filename[classText];
 	    }
 	    
-	    QListViewItem* classItem = classList->findItem( classText, 0, Qt::BeginsWith );
-	    if ( ! classItem ) {
-		classItem = new QListViewItem( dirItem, classText );
-	    }
 	    new QListViewItem( classItem, ( "Line " + linenumber + " - " + warningText ));
 	}
 	outputText = outputText.right( outputText.length() - ( newLine + 1 ) );
