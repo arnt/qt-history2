@@ -681,7 +681,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     p->end();
     delete p;
     if (image.hasAlphaBuffer()) {
-#ifndef QT_NO_IMAGE_DITHER_TO_1
+#if 0//#### ndef QT_NO_IMAGE_DITHER_TO_1
         if (!partialalpha) {
             QBitmap m;
             m = image.createAlphaMask(flags);
