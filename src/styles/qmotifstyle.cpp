@@ -759,27 +759,27 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    qDrawShadePanel(p, scrollbar->rect(), cg, TRUE, fw,
 			    &cg.brush(QColorGroup::Mid));
 
-	if (sub & SC_ScrollBarSubLine)
+	if (sub & SC_ScrollBarSubLine && subline.isValid())
 	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			   PO_ArrowLeft : PO_ArrowUp),
 			  p, subline, cg,
 			  PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
 					    PStyle_Sunken : PStyle_Default));
 
-	if (sub & SC_ScrollBarAddLine)
+	if (sub & SC_ScrollBarAddLine && addline.isValid())
 	    drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
 			   PO_ArrowRight : PO_ArrowDown),
 			  p, addline, cg,
 			  PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
 					    PStyle_Sunken : PStyle_Default));
 
-	if (sub & SC_ScrollBarSubPage)
+	if (sub & SC_ScrollBarSubPage && subpage.isValid())
 	    p->fillRect(subpage, cg.brush(QColorGroup::Mid));
 
-	if (sub & SC_ScrollBarAddPage)
+	if (sub & SC_ScrollBarAddPage && addpage.isValid())
 	    p->fillRect(addpage, cg.brush(QColorGroup::Mid));
 
-	if (sub & SC_ScrollBarSlider)
+	if (sub & SC_ScrollBarSlider && slider.isValid())
 	    qDrawShadePanel(p, slider, cg, FALSE, fw, &cg.brush(QColorGroup::Button));
 
 	break; }
