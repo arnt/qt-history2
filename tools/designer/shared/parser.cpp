@@ -48,6 +48,8 @@ QString Parser::cleanArgs( const QString &func )
 	    arg = arg.left( pos + 1 );
 	} else {
 	    arg = arg.simplifyWhiteSpace();
+	    if ( ( pos = arg.find( ':' ) ) != -1 )
+		arg = arg.left( pos ).simplifyWhiteSpace() + ":" + arg.mid( pos + 1 ).simplifyWhiteSpace();
 	    QStringList l = QStringList::split( ' ', arg );
 	    if ( l.count() == 2 ) {
 		if ( l[ 0 ] != "const" && l[ 0 ] != "unsigned" && l[ 0 ] != "var" )

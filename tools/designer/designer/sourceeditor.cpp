@@ -40,6 +40,7 @@ static QString make_func_pretty( const QString &s )
     res.replace( QRegExp( "&" ), " &" );
     res.replace( QRegExp( "[*]" ), " *" );
     res.replace( QRegExp( "," ), ", " );
+    res.replace( QRegExp( ":" ), " : " );
     res = res.simplifyWhiteSpace();
     return res;
 }
@@ -97,9 +98,10 @@ QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorIn
 	    QString comments = MetaDataBase::functionComments( fw, sl );
 	    if ( !comments.isEmpty() )
 		txt += comments + "\n";
-	    txt += lIface->createFunctionStart( fw->name(), sl, ( (*it).returnType.isEmpty() ?
-								  QString( "void" ) :
-								  (*it).returnType ) );
+	    txt += lIface->createFunctionStart( fw->name(), make_func_pretty( sl ),
+						( (*it).returnType.isEmpty() ?
+						  QString( "void" ) :
+						  (*it).returnType ) );
 	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	    if ( bit != bodies.end() )
 		txt += "\n" + *bit + "\n\n";
