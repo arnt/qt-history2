@@ -220,7 +220,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 void QCheckBox::resizeEvent( QResizeEvent *e )
 {
     QButton::resizeEvent(e);
-
+    if ( isVisible() ) {
     if(!qt_checkbox_painter_pix)
 	qt_checkbox_painter_pix = new QPixmap(1, 1);
     QPainter p(qt_checkbox_painter_pix, this);
@@ -230,7 +230,7 @@ void QCheckBox::resizeEvent( QResizeEvent *e )
 		 expandedTo(QApplication::globalStrut()));
 
     update(wsz.width(), isz.width(), 0, wsz.height());
-
+    }
     if (autoMask())
 	updateMask();
 }

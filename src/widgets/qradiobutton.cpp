@@ -223,7 +223,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 void QRadioButton::resizeEvent( QResizeEvent* e )
 {
     QButton::resizeEvent(e);
-
+    if ( isVisible() ) {
     if(!qt_radiobutton_painter_pix)
 	qt_radiobutton_painter_pix = new QPixmap(1, 1);
     QPainter p(qt_radiobutton_painter_pix, this);
@@ -233,7 +233,7 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 	    expandedTo(QApplication::globalStrut()));
 
     update(wsz.width(), isz.width(), 0, wsz.height());
-
+   }
     if (autoMask())
 	updateMask();
 }
