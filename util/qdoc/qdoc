@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#14 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#15 $
 #
 # this is a massive hack, written very quickly
 #
@@ -476,6 +476,39 @@ sub makearglinks {
 
 
 
+#
+# add default values to arguments, from .h argument list
+#
+# note that argument names aren't touched, just default values
+sub fixdefvalues {
+    local ($url, $args) = @_;
+    local (@ha, @ca, $_, $changed);
+
+    if (defined($def{$url}) && ($args =~ /\,/) && ($def{$url} =~ /\,/)) {
+	@ha = split(/\,/, $args);
+	$_ = $def{$url};
+	s/.*\(//s;
+	s/\).*//s;
+	@ca = split(/\,/, $_);
+	die ("argument mismatch:\n" . $args . "\n" . $_ . "\n")
+	    if ($#ha != $#ca);
+
+	$changed = 0;
+	foreach ( 0 .. $#ha ) {
+	    if ( $ha[$_] =~ /\s*=\s*\S+\s*$/ ) {
+		$ca[$_] .= $&;
+		$changed++;
+	    }
+	}
+	if ($changed > 0) {
+	    $_ = join(",", @ca);
+	    $def{$url} =~ s/\(.*?\)/($_)/s;
+	}
+    }
+}
+
+
+
 sub printout {
     local($url, $tail, $fnheader, $fntail);
 
@@ -604,6 +637,7 @@ sub printout {
 			    $a = $3;
 			    $c = $4;
 			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
+			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
 			    next unless ($internal || 
 					 ($mode =~ /public/) ||
 					 ($doc{$u} ne ""));
