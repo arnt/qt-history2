@@ -2025,12 +2025,12 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
    Renders the string \a str into the GL context of this widget.
    
    \a x and \a y are specified in window coordinates, with the origin
-   in the upper left corner of the window. If \a fnt is not specified,
-   the currently set application font will be used to render the
-   string. To change the color of the rendered text you can use the
-   glColor() call (or the qglColor() convenience function), just
-   before the renderText() call. Note that if you have GL_LIGHTING
-   enabled, the string will probably not appear in the color you
+   in the upper left-hand corner of the window. If \a fnt is not
+   specified, the currently set application font will be used to
+   render the string. To change the color of the rendered text you can
+   use the glColor() call (or the qglColor() convenience function),
+   just before the renderText() call. Note that if you have
+   GL_LIGHTING enabled, the string will not appear in the color you
    want. You should therefore switch lighting off before using
    renderText().
    
@@ -2046,36 +2046,31 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 
 void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt, int listBase )
 {
-    GLint viewPort[4];
-    GLint matrixMode;
-    int currentBase;
-    
     makeCurrent();
-    currentBase = displayListBase( fnt, listBase );
-
-    // change the model/projection matrix stack so that the text is
-    // rendered in window coordinates
-    glGetIntegerv( GL_VIEWPORT, viewPort );
-    glGetIntegerv( GL_MATRIX_MODE, &matrixMode );
+    // save GL state
+    glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT );
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glFrustum( viewPort[0], viewPort[2], viewPort[3], viewPort[1], 1.0, 2.0 );
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glLoadIdentity();
-    glTranslatef( 0.0, 0.0, -1.0 );
+    // this neat little trick will make the raster pos valid when the
+    // string start pos is clipped - makes it possible to render
+    // partial strings
+    glDepthRange( 0.0, 0.0 );
+    glViewport( (int) x - 1, (int) (height() - 1) - y, 2, 2 );
     
-    glRasterPos2i( x, y );
-    glListBase( currentBase );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() ); 
+    glRasterPos4f( 0.0, 0.0, 0.0, 1.0 );
+    glListBase( displayListBase( fnt, listBase ) );
+    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() );
 
     // restore the matrix stacks
     glPopMatrix();
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
-    glMatrixMode( matrixMode );
-    glFlush();
+    // restore GL state
+    glPopAttrib();
 }
 
 /*! \overload
@@ -2088,16 +2083,10 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
 void QGLWidget::renderText( double x, double y, double z, const QString & str, const QFont & fnt,
 			    int listBase )
 {
-    int currentBase;
-
     makeCurrent();    
-    currentBase = displayListBase( fnt, listBase );
-
     glRasterPos3d( x, y, z );
-    glListBase( currentBase );
+    glListBase( displayListBase( fnt, listBase ) );
     glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() ); 
-
-    glFlush();
 }
 
 /*****************************************************************************
