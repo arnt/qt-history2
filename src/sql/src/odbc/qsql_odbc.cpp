@@ -324,7 +324,7 @@ bool QODBCResult::reset ( const QString& query )
 		r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
 		if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-			qSqlWarning( "QODBCDriver::reset: Unable to close statement", d );
+			qSqlWarning( "QODBCResult::reset: Unable to close statement", d );
 #endif
 			return FALSE;
 		}
@@ -334,7 +334,7 @@ bool QODBCResult::reset ( const QString& query )
 				&d->hStmt );
 		if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-			qSqlWarning( "QODBCDriver::reset: Unable to allocate statement handle", d );
+			qSqlWarning( "QODBCResult::reset: Unable to allocate statement handle", d );
 #endif
 			return FALSE;
 		}
@@ -344,7 +344,7 @@ bool QODBCResult::reset ( const QString& query )
 				SQL_IS_UINTEGER );
 		if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-			qSqlWarning( "QODBCDriver::reset: Unable to set statement attribute", d );
+			qSqlWarning( "QODBCResult::reset: Unable to set statement attribute", d );
 #endif
 			return FALSE;
 		}
@@ -554,7 +554,7 @@ int QODBCResult::size()
 //                         SQL_FETCH_ABSOLUTE,
 //                         currRow);
 //	if ( r != SQL_SUCCESS )
-//	    qSqlWarning("QODBCDriver::size: Unable to restore position", d );
+//	    qSqlWarning("QODBCResult::size: Unable to restore position", d );
 //     }
 //     return size;
 }
@@ -567,7 +567,7 @@ int QODBCResult::numRowsAffected()
 	return affectedRowCount;
 #ifdef QT_CHECK_RANGE
     else
-	qSqlWarning( "QODBCDriver::afectedRows: Unable to count affected rows", d );
+	qSqlWarning( "QODBCResult::numRowsAffected: Unable to count affected rows", d );
 #endif
     return -1;
 }
@@ -717,6 +717,12 @@ QSqlQuery QODBCDriver::createQuery() const
 
 bool QODBCDriver::beginTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning(" QODBCDriver::beginTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     SQLUINTEGER ac(SQL_AUTOCOMMIT_OFF);
     SQLRETURN r  = SQLSetConnectAttr( d->hDbc,
 			    SQL_ATTR_AUTOCOMMIT,
@@ -731,6 +737,12 @@ bool QODBCDriver::beginTransaction()
 
 bool QODBCDriver::commitTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning(" QODBCDriver::commitTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
 				d->hEnv,
 				SQL_COMMIT);
@@ -743,6 +755,12 @@ bool QODBCDriver::commitTransaction()
 
 bool QODBCDriver::rollbackTransaction()
 {
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning(" QODBCDriver::rollbackTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
     SQLRETURN r = SQLEndTran( SQL_HANDLE_ENV,
 				d->hEnv,
 				SQL_ROLLBACK);
@@ -770,6 +788,8 @@ bool QODBCDriver::endTrans()
 QStringList QODBCDriver::tables( const QString& user ) const
 {
     QStringList tl;
+    if ( !isOpen() )
+	return tl;
     SQLHANDLE hStmt;
 
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
@@ -819,6 +839,8 @@ QStringList QODBCDriver::tables( const QString& user ) const
 QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex index( tablename );
+    if ( !isOpen() )
+	return index;
     SQLHANDLE hStmt;
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
@@ -867,6 +889,8 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 QSqlRecord QODBCDriver::record( const QString& tablename ) const
 {
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     SQLHANDLE hStmt;
 
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
@@ -924,6 +948,8 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 QSqlRecord QODBCDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
+    if ( !isOpen() )
+	return fil;
     if ( query.isActive() && query.driver() == this ) {
 	QODBCResult* result = (QODBCResult*)query.result();
 	SQLRETURN r;
