@@ -40,9 +40,9 @@
 
 #define QT_VERSION_STR   "3.1.0-snapshot"
 /*
-   QT_VERSION is ( MAJOR<<16+MINOR<<8+_PATCH)
+   QT_VERSION is ( MAJOR<<16+MINOR<<8+PATCH)
  */
-#define QT_VERSION 0x031000
+#define QT_VERSION 0x030100
 
 /*
    The operating system, must be one of: (Q_OS_x)
