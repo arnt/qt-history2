@@ -511,7 +511,7 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
   otherwise the buffer will contain the field values of the current
   cursor buffer.  If \a prime is TRUE (the default), the buffer is
   primed using primeInsert().
-  
+
   \sa primeInsert()
 
 */
@@ -715,7 +715,7 @@ int QSqlCursor::del( bool invalidate )
 {
     if ( !isActive() || !isValid() ||  !primaryIndex().count() )
 	return -1;
-    return del( fieldEqualsValue( &d->editBuffer, "", "and", primaryIndex() ), invalidate );
+    return del( fieldEqualsValue( this, "", "and", primaryIndex() ), invalidate );
 }
 
 /*
