@@ -1817,6 +1817,7 @@ void QMLView::resizeEvent(QResizeEvent*e)
 	doc->cursor->calculatePosition(&p);
     }
     resizeContents(doc->width, doc->height);
+    updateContents( contentsX(), contentsY(), viewport()->width(), viewport()->height() );
 }
 
 
