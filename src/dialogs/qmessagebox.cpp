@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#99 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#100 $
 **
 ** Implementation of QMessageBox class
 **
@@ -180,7 +180,7 @@ static const char* critical_xpm[]={
   Complexity is one button (Ok, sometimes Dismiss for Motif
   applications) for a simple messages, or two or even three buttons
   for questions.
-  
+
   The text part of all message box messages can be either rich text or
   plain text. If you specify a rich text formatted string, it will be
   rendered using the default stylesheet. See
@@ -189,7 +189,7 @@ static const char* critical_xpm[]={
   Here are some examples of how to use the static member functions.
   After these examples you will find an overview of the non-static
   member functions.
-  
+
   If a program is unable to find a supporting file, it may perhaps do:
 
   \code
@@ -904,9 +904,9 @@ void QMessageBox::resizeEvent( QResizeEvent * )
 	lmargin += mbd->iconLabel.pixmap()->width() + border;
 //     label->move( (width() + lmargin)/2 - label->width()/2,
 // 		 (height() - border - bh - label->height()) / 2 );
-    label->setGeometry( lmargin+border, 
-			border, 
-			width() - lmargin -2*border, 
+    label->setGeometry( lmargin+border,
+			border,
+			width() - lmargin -2*border,
 			height() - 3*border - bh );
     int space = (width() - bw*n)/(n+1);
     for ( i=0; i<n; i++ ) {
@@ -1313,3 +1313,14 @@ void QMessageBoxLabel::initMetaObject()
 // Apparently, I...
 //
 // http://www.people.cornell.edu/pages/mlj8/cant.png
+
+
+/*!
+  \reimp
+*/
+
+void QMessageBox::setIcon( const QPixmap &pix )
+{
+    //reimplemented to avoid compiler warning.
+    QDialog::setIcon( pix );
+}
