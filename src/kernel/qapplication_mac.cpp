@@ -1444,8 +1444,10 @@ void qt_enter_modal(QWidget *widget)
     if(!qt_modal_stack) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
     }
-    QEvent e(QEvent::EnterModal);
-    QApplication::sendEvent(widget, &e);
+    if (widget->parentWidget()) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 
     qt_modal_stack->insert(0, widget);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1477,8 +1479,10 @@ void qt_leave_modal(QWidget *widget)
 	qt_event_request_menubarupdate();
 #endif
 
-    QEvent e(QEvent::LeaveModal);
-    QApplication::sendEvent(widget, &e);
+    if (widget->parentWidget()) {
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 }
 
 QWidget *qt_tryModalHelperMac( QWidget * top ) {

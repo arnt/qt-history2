@@ -3433,8 +3433,10 @@ void qt_enter_modal( QWidget *widget )
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
     }
-    QEvent e(QEvent::EnterModal);
-    QApplication::sendEvent(widget, &e);
+    if (widget->parentWidget()) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 
     qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin) );
     qt_modal_stack->insert( 0, widget );
@@ -3459,8 +3461,10 @@ void qt_leave_modal( QWidget *widget )
     app_do_modal = qt_modal_stack != 0;
     ignoreNextMouseReleaseEvent = TRUE;
 
-    QEvent e(QEvent::LeaveModal);
-    QApplication::sendEvent(widget, &e);
+    if (widget->parentWidget()) {
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 }
 
 

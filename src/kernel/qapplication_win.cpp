@@ -1912,8 +1912,10 @@ void qt_enter_modal( QWidget *widget )
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
     }
-    QEvent e(QEvent::EnterModal);
-    QApplication::sendEvent(widget, &e);
+    if (widget->parentWidget()) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 
     releaseAutoCapture();
     qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin));
@@ -1941,8 +1943,10 @@ void qt_leave_modal( QWidget *widget )
     }
     app_do_modal = qt_modal_stack != 0;
 
-    QEvent e(QEvent::LeaveModal);
-    QApplication::sendEvent(widget, &e);
+    if (widget->parentWidget()) {
+	QEvent e(QEvent::WindowUnblocked);
+	QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 }
 
 static bool qt_blocked_modal( QWidget *widget )
