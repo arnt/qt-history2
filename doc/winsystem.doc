@@ -57,7 +57,7 @@ For information about which platforms are supported by Qt, see the
 <h2>Qt/X11</h2>
 </a>
 
-When compiling for this platform, the macro <tt>_WS_X11_</tt> is defined.
+When compiling for this platform, the macro <tt>Q_WS_X11</tt> is defined.
 
 <p>
 <i>Not documented here. Please contact Trolltech Technical Support
@@ -67,7 +67,7 @@ if you have queries.</i>
 <h2>Qt/Windows</h2>
 </a>
 
-When compiling for this platform, the macro <tt>_WS_WIN_</tt> is defined.
+When compiling for this platform, the macro <tt>Q_WS_WIN</tt> is defined.
 
 <i>Not documented here. Please contact Trolltech Technical Support
 if you have queries.</i>
@@ -76,7 +76,7 @@ if you have queries.</i>
 <h2>Qt/Embedded</h2>
 </a>
 
-When compiling for this platform, the macro <tt>_WS_QWS_</tt> is defined
+When compiling for this platform, the macro <tt>Q_WS_QWS</tt> is defined
 (the window system is literally the Qt Window System).
 
 <ul>

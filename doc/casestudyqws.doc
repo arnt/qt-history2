@@ -125,7 +125,7 @@ our device.
 of character input with the pen.  The simplest method is to display a small
 keyboard.  The compact example includes a keyboard, so we use this code.
 Key and pointer input is Qt/Embedded specific, so it is surrounded
-by #ifdef _WS_QWS_ ...  #endif so that we can compile the example with Qt/X11
+by #ifdef Q_WS_QWS ...  #endif so that we can compile the example with Qt/X11
 or Qt/Windows if we wish.
 <li>The touch panel needs to be calibrated.  There is a calibration module
 included in the compact demo, so we use this.

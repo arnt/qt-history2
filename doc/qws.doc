@@ -463,9 +463,9 @@ using #ifdef directives:
 
 <table>
 <tr><th>Platform</th><th>Macro</th></tr>
-<tr><td>Qt/X11</td><td>_WS_X11_</td></tr>
-<tr><td>Qt/Windows</td><td>_WS_WIN_</td></tr>
-<tr><td>Qt/Embedded</td><td>_WS_QWS_</td></tr>
+<tr><td>Qt/X11</td><td>Q_WS_X11</td></tr>
+<tr><td>Qt/Windows</td><td>Q_WS_WIN</td></tr>
+<tr><td>Qt/Embedded</td><td>Q_WS_QWS</td></tr>
 </table>
 
 */
