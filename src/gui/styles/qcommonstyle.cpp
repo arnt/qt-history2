@@ -1045,7 +1045,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 y = tab->rect.height() - 2;
                 x = y / 3;
                 a.setPoint(2, x++, y - 1);
-                a.setPoint(3, x++, y);
+                ++x;
                 a.setPoint(3, x++, y++);
                 a.setPoint(4, x, y);
 
@@ -1365,7 +1365,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         break; }
     case SR_PanelTab:
         r = opt->rect;
-        r.setY(r.y() + 25);
+        r.setY(r.y() + fm.height() + 8); // ### Need to take the icon into account.
         break;
     default:
         break;
@@ -2032,6 +2032,8 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
                     ret.setRect(sliderstart, 0, sliderlen, sbextent);
                 else
                     ret.setRect(0, sliderstart, sbextent, sliderlen);
+                break;
+            default:
                 break;
             }
         }

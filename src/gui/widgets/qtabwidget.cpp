@@ -152,14 +152,14 @@ public:
     void showTab(int);
     void removeTab(int);
     void init();
-    QTabBar* tabs;
-    QStackedBox* stack;
+    QTabBar *tabs;
+    QStackedBox *stack;
     bool dirty;
     QTabWidget::TabPosition pos;
     QTabWidget::TabShape shape;
     int alignment;
-    QWidget* leftCornerWidget;
-    QWidget* rightCornerWidget;
+    QWidget *leftCornerWidget;
+    QWidget *rightCornerWidget;
 };
 
 #define d d_func()
@@ -187,6 +187,7 @@ void QTabWidgetPrivate::init()
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     q->setFocusPolicy(Qt::TabFocus);
     q->setFocusProxy(tabs);
+    q->setAttribute(Qt::WA_ContentsPropagated);
 }
 
 /*!
@@ -878,7 +879,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Top;
     else if (tabPosition() == QTabWidget::Bottom)
         opt.state |= QStyle::Style_Bottom;
-    opt.rect = style().subRect(QStyle::SR_PanelTab, &opt, fontMetrics(), this);
+    opt.rect = style().subRect(QStyle::SR_PanelTab, &opt, d->tabs->fontMetrics(), this);
     style().drawPrimitive(QStyle::PE_PanelTabWidget, &opt, &p, this);
 }
 
