@@ -1893,6 +1893,9 @@ bool QListBox::itemVisible( int index )
 
 bool QListBox::itemVisible( const QListBoxItem * item )
 {
+    if ( d->layoutDirty )
+	doLayout();
+
     int i = index( item );
     int col = i / numRows();
     int row = i % numRows();
