@@ -930,6 +930,7 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, Section section, int newVal
     case MinutesSection: minute = newVal; break;
     case SecondsSection: second = newVal; break;
     case MSecsSection: msec = newVal; break;
+    case YearsTwoDigitsSection: newVal += 2000;
     case YearsSection: year = newVal; break;
     case MonthsSection:
     case MonthsShortNameSection: month = newVal; break;
@@ -1030,7 +1031,7 @@ inline int QDateTimeEditPrivate::absoluteMax(Section s) const
     case MinutesSection:
     case SecondsSection: return 59;
     case MSecsSection: return 999;
-    case YearsTwoDigitsSection: return 99;
+    case YearsTwoDigitsSection:
     case YearsSection: return 7999;
     case MonthsSection:
     case MonthsShortNameSection: return 12;
@@ -1057,7 +1058,7 @@ inline int QDateTimeEditPrivate::absoluteMin(Section s) const
     case MinutesSection:
     case SecondsSection:
     case MSecsSection: return 0;
-    case YearsTwoDigitsSection: return 0;
+    case YearsTwoDigitsSection:
     case YearsSection: return 1752;
     case MonthsSection:
     case MonthsShortNameSection:
@@ -1178,8 +1179,6 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
     Parses the format \a newFormat. If successful, returns true and
     sets up the format. Else keeps the old format and returns false.
 
-
-    ### What to do if people set yy and have a date/min/max that is before 1900?
 */
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not escape yet
@@ -1526,6 +1525,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
             case MinutesSection: minute = num; break;
             case SecondsSection: second = num; break;
             case MSecsSection: msec = num; break;
+            case YearsTwoDigitsSection:
             case YearsSection: year = num; break;
             case MonthsSection:
             case MonthsShortNameSection: month = num; break;
@@ -1564,8 +1564,10 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
         text->replace(sn.pos, sectionLength(DaysSection), QString::number(day));
     }
 
-
-//    qDebug("(%s) fromString: '%s' => '%s' (%s)", copy.latin1(), text->latin1(), ret.toString().latin1(), stateName(state).latin1());
+//     qDebug("fromString: '%s' => '%s' (%s)",
+//            text->latin1(),
+//            QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
+//            toString().latin1(), stateName(state).latin1());
     return QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 }
 
@@ -1625,7 +1627,7 @@ inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidat
             }
             break;
         }
-        case YearsTwoDigitsSection: num = 1900;
+        case YearsTwoDigitsSection: num = 2000;
         case YearsSection:
         case MonthsSection:
         case HoursSection:
