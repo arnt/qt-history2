@@ -1050,7 +1050,7 @@ QMakeProject::read(uchar cmd)
     if(cmd & ReadPostFiles) { // parse post files
         const QStringList l = vars["QMAKE_POST_INCLUDE_FILES"];
         for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-            if(read((*it), vars)) 
+            if(read((*it), vars))
                 vars["QMAKE_INTERNAL_INCLUDED_FILES"].append((*it));
         }
     }
@@ -2191,11 +2191,11 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
     for(int i = 0; i < str.size(); ++i) {
         QChar c = str.at(i);
         if(c == QLatin1Char('\\')) {
-            if(replaced)
-                ret.append(c);
-            c = str.at(i);
-            if(c == QLatin1Char('$')) {
+            if(str.at(i+1) == QLatin1Char('$')) {
                 i++;
+                replaced++;
+                ret.append(str.at(i));
+            } else {
                 if(replaced)
                     ret.append(c);
             }
