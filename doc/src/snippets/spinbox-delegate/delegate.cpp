@@ -90,9 +90,6 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 {
     int value = static_cast<QSpinBox *>(editor)->value();
 
-// ### Remove this before TP2:
-    value = static_cast<QSpinBox *>(editor)->cleanText().toInt();
-
     model->setData(index, QAbstractItemModel::EditRole, value);
 }
 
@@ -130,6 +127,7 @@ bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
 
             switch (keyEvent->key()) {
                 case Qt::Key_Return:
+                    spinBox->setValue(spinBox->cleanText().toInt());
                     acceptEditing(spinBox);
                     return true;
 
