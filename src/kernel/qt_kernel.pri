@@ -134,7 +134,8 @@ kernel {
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qnpsupport.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
-	      HEADERS += $$KERNEL_H/qeventloop.h
+	      HEADERS += $$KERNEL_H/qeventloop.h \
+                         $$KERNEL_H/qeventloop_p.h
 	}
 
 	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp 
