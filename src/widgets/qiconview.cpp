@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#89 $
 **
 ** Definition of QIconView widget class
 **
@@ -3125,7 +3125,7 @@ void QIconView::drawDragShade( const QPoint &pos )
 
 /*!
   This methode is called before a drag is started to initialize everything. Subclasses
-  may reimplement this methode to gain big flexibility.
+  may reimplement this methode to gain more flexibility.
 
   \sa QFileIconView::initDrag()
 */

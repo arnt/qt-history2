@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#298 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#299 $
 **
 ** Implementation of QListView widget class
 **
@@ -4321,44 +4321,44 @@ void QListView::takeItem( QListViewItem * i )
 #ifdef QT_BUILDER
 bool QListView::setConfiguration( const QDomElement& element )
 {
-  QDomElement t = element.namedItem( "Head" ).toElement();
-  if ( t.isNull() )
-    return FALSE;
-
-  int columns = 0;
-  QDomElement h = t.firstChild().toElement();
-  for( ; !h.isNull(); h = h.nextSibling().toElement() )
-  {
-    if ( h.tagName() != "Column" )
-      return FALSE;
-
-    addColumn( h.text() );
-    ++columns;
-  }
-
-  t = element.namedItem( "List" ).toElement();
-  if ( !t.isNull() )
-  {
-    if (  t.tagName() != "List" )
-      return FALSE;
-
-    QListViewItem* lv = 0;
-    QDomElement l = t.firstChild().toElement();
-    for( ; !l.isNull(); l = l.nextSibling().toElement() )
+    QDomElement t = element.namedItem( "Head" ).toElement();
+    if ( !t.isNull() )
     {
-      if ( l.tagName() != "QListViewItem" )
-	return FALSE;
+	int columns = 0;
+	QDomElement h = t.firstChild().toElement();
+	for( ; !h.isNull(); h = h.nextSibling().toElement() )
+        {
+	    if ( h.tagName() != "Column" )
+		return FALSE;
 
-      if ( lv )
-	lv = new QListViewItem( this, lv );
-      else
-	lv = new QListViewItem( this );
-      if ( !lv->setConfiguration( l, columns ) )
-	return FALSE;
+	    addColumn( h.text() );
+	    ++columns;
+	}
+
+	t = element.namedItem( "List" ).toElement();
+	if ( !t.isNull() )
+        {
+	    if (  t.tagName() != "List" )
+		return FALSE;
+
+	    QListViewItem* lv = 0;
+	    QDomElement l = t.firstChild().toElement();
+	    for( ; !l.isNull(); l = l.nextSibling().toElement() )
+	    {
+		if ( l.tagName() != "QListViewItem" )
+		    return FALSE;
+
+		if ( lv )
+		    lv = new QListViewItem( this, lv );
+		else
+		    lv = new QListViewItem( this );
+		if ( !lv->setConfiguration( l, columns ) )
+		    return FALSE;
+	    }
+	}
     }
-  }
-
-  return QScrollView::setConfiguration( element );
+    
+    return QScrollView::setConfiguration( element );
 }
 #endif // QT_BUILDER
 

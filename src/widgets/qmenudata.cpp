@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#91 $
 **
 ** Implementation of QMenuData class
 **
@@ -1270,9 +1270,9 @@ bool QMenuData::setConfiguration( QWidget* _this, const QDomElement& element )
       if ( !whatsthis.isEmpty() )
 	setWhatsThis( id, whatsthis );
 
-      if ( r.hasAttribute( "icon" ) )
+      if ( r.hasAttribute( "iconset" ) )
       {
-	QVariant v = r.property( "icon", QVariant::Pixmap );
+	QVariant v = r.property( "iconset", QVariant::Pixmap );
 	if ( !v.isEmpty() )
 	  changeItem( id, QIconSet( v.pixmapValue() ), text );
       }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#38 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#39 $
 **
 ** Definition of QIconView widget class
 **
@@ -91,13 +91,13 @@ protected:
  *
  *****************************************************************************/
 
+typedef QValueList<QIconDragItem> QIconList;
+
 class Q_EXPORT QIconDrag : public QDragObject
 {
     Q_OBJECT
 
 public:
-    typedef QValueList<QIconDragItem> QIconList;
-
     QIconDrag( const QIconList &icons_, QWidget * dragSource, const char* name = 0 );
     QIconDrag( QWidget * dragSource, const char* name = 0 );
     virtual ~QIconDrag();
@@ -317,7 +317,7 @@ public:
     int maxItemTextLength() const;
     void setReorderItemsWhenInsert( bool b );
     bool reorderItemsWhenInsert() const;
-    
+
     virtual void setRearrangeEnabled( bool b );
     bool rearrangeEnabled() const;
 
@@ -381,7 +381,7 @@ private:
     void findItemByName( const QString text );
     int calcGridNum( int w, int x ) const;
     QIconViewItem *rowBegin( QIconViewItem *item ) const;
-    
+
     QIconViewPrivate *d;
 
 };
