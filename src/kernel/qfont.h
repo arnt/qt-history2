@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#15 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#16 $
 **
 ** Definition of QFont class
 **
@@ -25,13 +25,13 @@ public:
                      SansSerif  = Helvetica,
                      Serif      = Times,
                      TypeWriter = Courier,
-                     Decorative = OldEnglish,};
+                     Decorative = OldEnglish};
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
-                     Bold = 75, Black = 87 };
-    enum CharSet   { Latin1, AnyCharSet };
+                     Bold  = 75, Black  = 87 };
+    enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet };
 
     QFont();					    // default font
-    QFont( const char *family, int pointSize = 12,  // 12 is default point size
+    QFont( const char *family, int pointSize = 12,
 	   int weight = Normal, bool italic = FALSE );
     QFont( const QFont & );
     virtual ~QFont();
@@ -63,13 +63,11 @@ public:
     bool	rawMode()	const;
 
     bool	operator==( const QFont &f ) const;
-    bool	operator!=( const QFont &f ) const
-				  { return !(operator==(f)); }
+    bool	operator!=( const QFont &f ) const;
 
 #if defined(_WS_X11_)
     Font	handle() const;
 #endif
-    bool        dirty() const;
     void        updateSubscribers();
 
     static const QFont &defaultFont();
@@ -79,6 +77,8 @@ public:
     static void cleanup();			// cleanup font system
 
 protected:
+    bool        dirty() const;
+
     bool    isDefaultFont();
     QString defaultFamily() const;
     QString lastResortFamily() const;

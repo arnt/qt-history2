@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#13 $
 **
-** Implementation of QFont and QFontInfo classes
+** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
 ** Author  : Eirik Eng
 ** Created : 941207
@@ -18,9 +18,16 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#13 $";
 #endif
 
+
+  /*!
+  \class QFont qfont.h
+
+      Yo! Yo! Set yourself free!
+
+  */
 
 QFont::QFont( const QFont &font )
 {
@@ -43,6 +50,18 @@ QFont &QFont::operator=( const QFont &font )
     return *this;
 }
 
+  /*!
+  Sets the family name of the font (e.g. "Helvetica" or "times"). Case does not
+  matter.
+  If the family is not available a default family will be used instead 
+
+  See also: family(), setStyleHint(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+
+  \todo Use a table of MANY different family names to find a good default
+  family.
+  */
+
 void QFont::setFamily( const char *family )
 {
     if ( d->req.family != family ) {
@@ -50,6 +69,17 @@ void QFont::setFamily( const char *family )
 	d->req.dirty  = TRUE;
     }
 }
+
+  /*!
+  Sets the point size (e.g. 12 or 18). If the point size is not available
+  the closest available will be used 
+
+  Setting of point sizes less than or equal to 0 will be ignored.
+
+  See also: pointSize(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+
+  */
 
 void QFont::setPointSize( int pointSize )
 {
@@ -66,6 +96,24 @@ void QFont::setPointSize( int pointSize )
     }
 }
 
+  /*!
+  \page fontmatch.html
+ 
+  The <a href=fontmatch.html>font matching mechanism</a>
+
+  \todo Put in a hook that enables the user to write his/her own
+  fontmatching mechanism.
+  */
+
+
+  /*! -------------------------------------------------------------------------
+  Sets italic on or off. If the mode selected is not available
+  the other will be used.
+
+  See also: italic(), QFontInfo and <a href=fontmatch.html>font matching</a>.
+
+  */
+
 void QFont::setItalic( bool i )
 {
     if ( d->req.italic != i ) {
@@ -73,6 +121,28 @@ void QFont::setItalic( bool i )
 	d->req.dirty  = TRUE;
     }
 }
+
+  /*!
+  Sets the weight (or boldness). The weight must be in the range [0,99] (where
+  0 is ultralight and 99 is extremely black), the values of the enum type
+  Weight can also be used.
+
+  \e example: \code
+  QFont f( "courier" );
+  f.setWeight( QFont::Bold );
+  \endcode
+
+  If the weight is not available the closest available will be used.
+  (Use QFontInfo to check.)
+  Setting of weights outside the legal range will be ignored.
+
+  \e Note: The window systems supported by Qt will in practice only support
+  QFont::Normal and QFont::Bold, and, if you are lucky, the other values 
+  in Weight.
+
+  See also weight(), QFontInfo and <a href=fontmatch.html>font matching</a>.
+
+  */
 
 void QFont::setWeight( int w )
 {
@@ -88,6 +158,15 @@ void QFont::setWeight( int w )
     }
 }
 
+  /*!
+  Sets underline on or off. If the mode selected is not available
+  the other will be used. (Both are always available under X windows.).
+
+  See also: underline(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+
+  */
+
 void QFont::setUnderline( bool b )
 {
     if ( d->req.underline != b ) {
@@ -95,6 +174,15 @@ void QFont::setUnderline( bool b )
 	d->act.underline  = b;                  // underline always possible
     }
 }
+
+  /*!
+  Sets strike out on or off. If the mode selected is not available
+  the other will be used (Both are always available under X windows.).
+
+  See also: strikeOut(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+
+  */
 
 void QFont::setStrikeOut( bool b )
 {
@@ -104,6 +192,18 @@ void QFont::setStrikeOut( bool b )
     }
 }
 
+  //  --------------------------------------------------------------------
+  /*!
+  Sets fixed pitch on or off. If the mode selected is not available
+  the other will be used. A fixed pitch font is a font that has constant
+  character pixel width.
+  (see QFontInfo and <a href=fontmatch.html>font matching</a>).
+
+  See also: fixedPitch(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+
+  */
+
 void QFont::setFixedPitch( bool b )
 {
     if ( d->req.fixedPitch != b ) {
@@ -111,6 +211,46 @@ void QFont::setFixedPitch( bool b )
 	d->req.dirty      = TRUE;
     }
 }
+
+  // --------------------------------------------------------------------
+  /*!
+  Sets the style hint. The style hint is used by the 
+  <a href=fontmatch.html>font matching</a>
+  algorithm when a selected font family cannot be found and is used to 
+  find an appropriate default family.
+
+  The style hint has a default value of AnyStyle which leaves the task of
+  finding a good default family to the
+  <a href=fontmatch.html>font matching</a>
+  algorithm.
+
+  In this example (which is a complete program) the pushbutton 
+  will display its text label with the
+  Bavaria font family if this family is available, if not it will 
+  display its text label with the Times font family:
+  \code 
+  #include <qapp.h>
+  #include <qpushbt.h>
+  #include <qfont.h>
+
+  int main( int argc, char **argv )
+  {
+      QApplication app( argc, argv );
+      QPushButton push("Push me");
+
+      QFont fnt( "Bavaria", 18 );       \/  Preferrred family is Bavaria
+      fnt.setStyleHint( QFont::Times ); \/  Use Times if Bavaria is not available
+
+      push.setFont( fnt );
+      push.show();
+      return app.exec( &push );
+  } 
+  \endcode
+
+  See also: styleHint(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+  
+  */
 
 void QFont::setStyleHint( StyleHint h )
 {
@@ -121,6 +261,32 @@ void QFont::setStyleHint( StyleHint h )
     }
 }
 
+  /*!
+  Sets the character set (e.g. Latin1). If the character set is not available
+  another will be used, for most non-trivial applications you will probably
+  not want this to happen since it can totally obscure the text shown to the 
+  user when the font is used. This is why the 
+  <a href=fontmatch.html>font matching</a>
+  algorithm gives high priority to finding the correct character set.
+
+  (Currently using the correct font family has higher priority than
+  using the correct character set. We are not certain if this should
+  be reversed and might do so in the 1.0 release. If you have opinions 
+  about this please mail us!)
+
+  To ensure that the character set is correct you can use the QFontInfo
+  class, \e example: 
+  \code
+  QFont     fnt( "times", 14 );              \/ default character set is Latin1
+  QFontInfo info( fnt );
+  if ( info.charSet() != Latin1 )            \/ Check info \e NOT fnt
+      fatal( "Cannot find a Latin 1 Times font" ); 
+  \endcode
+
+  See also: charSet(), QFontInfo and 
+            <a href=fontmatch.html>font matching</a>.
+  */
+
 void QFont::setCharSet( CharSet c )
 {
     if ( d->req.charSet != c ) {
@@ -129,55 +295,139 @@ void QFont::setCharSet( CharSet c )
     }
 }
 
+  /*!
+  Returns the family name set by setFamily(), use QFontInfo 
+  to find the family name of the window system font actually used.
+
+  \e Example: \code
+  QFont     fnt( "Nairobi" );
+  QFontInfo info( fnt );
+  debug( "Font family requested is    : \"%s\"", fnt.family() );
+  debug( "Font family actually used is: \"%s\"", info.family() );
+  \endcode
+
+  See also: setFamily() and QFontInfo.
+  */
+
 const char *QFont::family() const
 {
     return d->req.family;
 }
+
+  /*!
+  Returns the point size set by setPointSize(), use QFontInfo 
+  to find the point size of the window system font actually used.
+
+  \e Example: \code
+  QFont     fnt( "helvetica" );
+  QFontInfo info( fnt );
+  fnt.setPointSize( 53 );
+  debug( "Font size requested is    : \"%i\"", fnt.pointSize() );
+  debug( "Font size actually used is: \"%i\"", info.pointSize() );
+  \endcode
+
+  See also: setPointSize() and QFontInfo.
+  */
 
 int QFont::pointSize() const
 {
     return d->req.pointSize / 10;
 }
 
+  /*!
+  Returns the value set by setItalic(), use QFontInfo 
+  to find the italic value of the window system font actually used.
+
+  See also: setItalic() and QFontInfo.
+  */
+
 bool QFont::italic() const
 {
     return d->req.italic;
 }
+  /*!
+  Returns the weight set by setWeight(), use QFontInfo 
+  to find the weight of the window system font actually used.
+
+  See also: setWeight() and QFontInfo.
+  */
 
 int QFont::weight() const
 {
     return (int) d->req.weight;
 }
+  /*!
+  Returns the value set by setUnderline(), use QFontInfo 
+  to find the underline value of the window system font actually used.
 
-int QFont::underline() const
+  See also: setUnderline() and QFontInfo.
+  */
+
+bool QFont::underline() const
 {
     return (int) d->req.underline;
 }
+  /*!
+  Returns the value set by setStrikeOut(), use QFontInfo 
+  to find the strike out value of the window system font actually used.
 
-int QFont::strikeOut() const
+  See also: setStrikeOut() and QFontInfo.
+  */
+
+bool QFont::strikeOut() const
 {
     return (int) d->req.strikeOut;
 }
+  /*!
+  Returns the value set by setFixedPitch(), use QFontInfo 
+  to find the fixed pitch value of the window system font actually used.
+
+  See also: setFixedPitch() and QFontInfo.
+  */
 
 bool QFont::fixedPitch() const
 {
     return d->req.fixedPitch;
 }
+  /*!
+  Returns the StyleHint set by setStyleHint().
+
+  See also: setStyleHint().
+  */
 
 QFont::StyleHint QFont::styleHint() const
 {
     return (StyleHint) d->req.styleHint;
 }
+  /*!
+  Returns the CharSet set by setCharSet(), use QFontInfo 
+  to find the CharSet of the window system font actually used.
+
+  See also: setCharSet() and QFontInfo.
+  */
 
 QFont::CharSet QFont::charSet() const
 {
     return (CharSet) d->req.charSet;
 }
 
+  /*!
+  Returns the value set by setRawMode.
+
+  See also: setRawMode()
+  */
+
 bool QFont::rawMode() const
 {
     return d->req.rawMode;
 }
+
+  /*!
+  Returns TRUE if a window system font exactly matching the settings
+  of this font is available.
+
+  See also: QFontInfo and <a href=fontmatch.html>font matching</a>.
+  */
 
 bool QFont::exactMatch() const
 {
@@ -186,6 +436,29 @@ bool QFont::exactMatch() const
     return d->exactMatch;
 }
 
+  /*!
+  Sets raw mode on or off. This function only has effect under X windows. If
+  raw mode is on Qt will search for an X font with a complete font name 
+  matching the family name, all other values set for the QFont will be ignored.
+  If the font name matches several fonts, Qt will use the first font returned
+  by X. QFontInfo \e cannot be used to fetch information about a QFont using
+  raw mode (it will return the values set in the QFont for all parameters,
+  including the family name).
+
+  \e Example: \code
+  #if defined(_WS_X11_)
+      QFont fnt( "-*-fixed-*-*-*-*-*-140-75-75-c-*-iso8859-1" );
+      fnt.setRawMode( TRUE );
+      if ( !fnt.exactMatch() )
+          debug( "Sorry, could not find the X specific font" );
+  #endif
+  \endcode
+
+  \warning Don't use it if you don't need it!
+
+  See also: setRawMode()
+  */
+
 void QFont::setRawMode( bool b )
 {
     if ( d->req.rawMode != b ) {
@@ -193,6 +466,15 @@ void QFont::setRawMode( bool b )
 	d->req.dirty   = TRUE;
     }
 }
+
+  /*!
+  Returns TRUE if the two QFonts have the same values for all fields,
+  i.e rawMode, pointSize, styleHint, charSet, weight, italic, underline,
+  strikeOut, fixedPitch and family. If the QFonts both are in rawMode()
+  only the family fields are compared.
+
+  See also: operator!=().
+  */
 
 bool QFont::operator==( const QFont &f ) const
 {
@@ -211,6 +493,20 @@ bool QFont::operator==( const QFont &f ) const
              f.d->req.family        == d->req.family         );
 }
 
+  /*!
+  Returns FALSE if the two QFonts have the same values for all fields,
+  i.e rawMode, pointSize, styleHint, charSet, weight, italic, underline,
+  strikeOut, fixedPitch and family. If the QFonts both are in rawMode()
+  only the family fields are compared.
+
+  See also: operator==().
+  */
+
+bool QFont::operator!=( const QFont &f ) const
+{
+    return !(operator==( f ));
+}
+
 void QFont::init()
 {
     d = new QFontData;
@@ -227,22 +523,34 @@ void QFont::init()
     d->exactMatch	 = FALSE;
 }
 
+  /*!
+  Returns the point size in 1/10ths of a point.
+  */
 int QFont::deciPointSize() const
 {
     return d->req.pointSize;
 }
 
+  /*!
+  Returns TRUE if the font is the global default font.
+  */
 bool QFont::isDefaultFont()
 {
     return d->isDefaultFont;
 }
 
+  /*!
+  \internal
+  Update all widgets that are using ths font.
+
+  \todo Not currently in use, do we need this anymore?
+  */
 void QFont::updateSubscribers()
 {
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::wmapper()) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that use
-	if ( w->fontRef().d == d )		//   this font
+	if ( w->fontRef().d == d )		// this font
 	    w->setFont( *this );		// update the font
 	++it;
     }    
@@ -307,6 +615,18 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
     return s;
 }
 
+// ----------------------------------------------------------------------------
+// QFontInfo member functions
+//
+
+  /*!
+  \class QFontInfo qfontinf.h
+
+    \brief The QFontInfo class is used to fetch information about the
+    window system font actually used to match a QFont
+
+  */
+
 const QFont &QFontInfo::font() const
 {
     return f;
@@ -322,6 +642,10 @@ void QFontInfo::setFont( const QFont &font )
         f.loadFont();        \
     if ( f.d->act.dirty )    \
         f.updateFontInfo();
+
+  /*!
+  Returns the family name of the matched window system font.
+  */
 
 const char *QFontInfo::family() const
 {
@@ -388,6 +712,17 @@ bool QFontInfo::exactMatch() const
     UPDATE_DATA
     return f.d->exactMatch;
 }
+
+// ----------------------------------------------------------------------------
+// QFontMetrics member functions
+//
+
+/*!
+\class QFontMetrics qfontmet.h
+
+    Yo! Yo! Set yourself free!
+
+*/
 
 int QFontMetrics::width( char ch ) const
 {

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#27 $
 **
-** Implementation of QFont and QFontInfo classes for X11
+** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
 ** Author  : Eirik Eng
 ** Created : 940515
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#27 $";
 #endif
 
 // #define DEBUG_FONT
