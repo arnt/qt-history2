@@ -8,95 +8,176 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>161</height>
+            <width>362</width>
+            <height>153</height>
         </rect>
     </property>
     <property name="caption">
         <string>Find Text</string>
     </property>
-    <grid>
+    <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>11</number>
+            <number>0</number>
         </property>
-        <property name="spacing">
-            <number>6</number>
-        </property>
-        <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout1</cstring>
+                <cstring>Layout5</cstring>
             </property>
-            <hbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
                 <property name="margin">
-                    <number>0</number>
+                    <number>11</number>
                 </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QLabel">
+                <widget class="QButtonGroup" row="1" column="1" rowspan="2" colspan="1">
                     <property name="name">
-                        <cstring>TextLabel1</cstring>
+                        <cstring>ButtonGroup2</cstring>
                     </property>
-                    <property name="text">
-                        <string>&amp;Find:</string>
+                    <property name="title">
+                        <string>&amp;Direction</string>
                     </property>
-                    <property name="buddy" stdset="0">
-                        <cstring>comboFind</cstring>
-                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>11</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>radioForward</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Forwar&amp;d</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QRadioButton">
+                            <property name="name">
+                                <cstring>radioBackward</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Backward</string>
+                            </property>
+                        </widget>
+                    </vbox>
                 </widget>
-                <widget class="QComboBox">
+                <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
                     <property name="name">
-                        <cstring>comboFind</cstring>
+                        <cstring>Layout1</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>7</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="editable">
-                        <bool>true</bool>
-                    </property>
-                    <property name="duplicatesEnabled">
-                        <bool>false</bool>
-                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel1</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Find:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>comboFind</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <property name="name">
+                                <cstring>comboFind</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="editable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="duplicatesEnabled">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="2">
-            <property name="name">
-                <cstring>Layout2</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <spacer>
+                <spacer row="2" column="2">
                     <property name="name">
-                        <cstring>Spacer1</cstring>
+                        <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
-                        <enum>Horizontal</enum>
+                        <enum>Vertical</enum>
                     </property>
                     <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>31</width>
+                            <height>0</height>
+                        </size>
+                    </property>
                 </spacer>
-                <widget class="QPushButton">
+                <widget class="QPushButton" row="1" column="2">
+                    <property name="name">
+                        <cstring>PushButton2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                </widget>
+                <widget class="QButtonGroup" row="1" column="0" rowspan="2" colspan="1">
+                    <property name="name">
+                        <cstring>ButtonGroup1</cstring>
+                    </property>
+                    <property name="title">
+                        <string>&amp;Options</string>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>11</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>checkWords</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Whole words only</string>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>checkCase</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Case sensitive</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QPushButton" row="0" column="2">
                     <property name="name">
                         <cstring>PushButton1</cstring>
                     </property>
@@ -107,90 +188,9 @@
                         <bool>true</bool>
                     </property>
                 </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>PushButton2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Close</string>
-                    </property>
-                </widget>
-            </hbox>
+            </grid>
         </widget>
-        <widget class="QButtonGroup" row="1" column="1">
-            <property name="name">
-                <cstring>ButtonGroup2</cstring>
-            </property>
-            <property name="title">
-                <string>&amp;Direction</string>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QRadioButton">
-                    <property name="name">
-                        <cstring>radioForward</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Forwar&amp;d</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-                <widget class="QRadioButton">
-                    <property name="name">
-                        <cstring>radioBackward</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Backward</string>
-                    </property>
-                </widget>
-            </vbox>
-        </widget>
-        <widget class="QButtonGroup" row="1" column="0">
-            <property name="name">
-                <cstring>ButtonGroup1</cstring>
-            </property>
-            <property name="title">
-                <string>&amp;Options</string>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>checkWords</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Whole words only</string>
-                    </property>
-                </widget>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>checkCase</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Case sensitive</string>
-                    </property>
-                </widget>
-            </vbox>
-        </widget>
-    </grid>
+    </vbox>
 </widget>
 <connections>
     <connection>
@@ -205,30 +205,6 @@
         <receiver>FindDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
-        <sender>comboFind</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>FindDialog</receiver>
-        <slot>sthChanged()</slot>
-    </connection>
-    <connection>
-        <sender>checkWords</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>FindDialog</receiver>
-        <slot>sthChanged()</slot>
-    </connection>
-    <connection>
-        <sender>checkCase</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>FindDialog</receiver>
-        <slot>sthChanged()</slot>
-    </connection>
-    <connection>
-        <sender>radioForward</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>FindDialog</receiver>
-        <slot>sthChanged()</slot>
-    </connection>
 </connections>
 <tabstops>
     <tabstop>comboFind</tabstop>
@@ -240,24 +216,27 @@
     <tabstop>PushButton2</tabstop>
 </tabstops>
 <includes>
+    <include location="global" impldecl="in implementation">qstatusbar.h</include>
     <include location="global" impldecl="in implementation">qtextbrowser.h</include>
-    <include location="global" impldecl="in implementation">qmessagebox.h</include>
     <include location="local" impldecl="in implementation">finddialog.ui.h</include>
 </includes>
 <forwards>
     <forward>class QTextBrowser;</forward>
+    <forward>class QStatusBar;</forward>
 </forwards>
 <variables>
     <variable>bool fromBegin;</variable>
     <variable>QTextBrowser *browser;</variable>
     <variable>bool firstRun;</variable>
+    <variable>QStatusBar *sb;</variable>
+    <variable>bool onceFound;</variable>
+    <variable>QString findExpr;</variable>
 </variables>
 <functions>
     <function type="slot" access="protected">init()</function>
     <function type="slot" access="protected">destroy()</function>
     <function type="slot">doFind()</function>
     <function type="slot">setBrowser( QTextBrowser * b )</function>
-    <function type="slot">sthChanged()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
