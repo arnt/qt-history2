@@ -1177,6 +1177,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	int k = mi->key();
 	if ( k ) {
 	    int id = autoaccel->insertItem( k, mi->id() );
+	    autoaccel->insertItem( k + Key_Shift, mi->id() );
 #ifndef QT_NO_WHATSTHIS
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
 #endif
