@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#24 $
+** $Id: //depot/qt/main/src/tools/qmap.h#25 $
 **
 ** Definition of QMap class
 **
@@ -443,7 +443,7 @@ public:
 	    }
 	}
 	// Really bigger ?
-	if ( j.node->key < k )
+	if ( (j.node->key) < k )
 	    return insert(x, y, k );
 	// We are going to replace a node
 	return j;
