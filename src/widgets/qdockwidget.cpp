@@ -374,7 +374,7 @@ void QDockWidgetTitleBar::paintEvent( QPaintEvent *e )
     QPainter p( this );
     p.fillRect( rect(), colorGroup().highlight() );
     QFont f = p.font();
-    f.setPointSize( 10 );
+    f.setPointSize( f.pointSize() - 1 ); // #### we need a font size for that defined be the desktop environment....
     p.setFont( f );
     p.setPen( colorGroup().highlightedText() );
     p.drawText( 5, height() - p.fontMetrics().descent(), dockWidget->caption() );
@@ -400,7 +400,7 @@ void QDockWidgetTitleBar::updateGui()
     else
 	closeButton->hide();
 
-    closeButton->move( width() - closeButton->width(), 1 );
+    closeButton->move( width() - closeButton->width() - 1, 1 );
 }
 
 void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
@@ -412,8 +412,8 @@ void QDockWidgetTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog : 0 ) ),
-      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ), 
-      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ), 
+      curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
+      moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtend( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ),
       lastPos( -1, -1 )
 {
     hbox = new QVBoxLayout( this );
@@ -537,7 +537,7 @@ void QDockWidget::updateGui()
  	verHandle->hide();
 	if ( moveEnabled )
 	    titleBar->show();
-	else 
+	else
 	    titleBar->hide();
 	titleBar->updateGui();
 	hHandleTop->hide();
@@ -597,7 +597,7 @@ void QDockWidget::updateGui()
 	}
 	if ( moveEnabled )
 	    setLineWidth( 1 );
-	else 
+	else
 	    setLineWidth( 0 );
     }
 }
