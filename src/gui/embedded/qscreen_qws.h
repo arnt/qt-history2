@@ -36,7 +36,7 @@ static const int qt_red_shift = qt_bbits+qt_gbits-(8-qt_rbits);
 static const int qt_green_shift = qt_bbits-(8-qt_gbits);
 static const int qt_neg_blue_shift = 8-qt_bbits;
 static const int qt_blue_mask = (1<<qt_bbits)-1;
-static const int qt_green_mask = (1<<(qt_gbits+qt_bbits))-((1<<qt_bbits)-1);
+static const int qt_green_mask = (1<<(qt_gbits+qt_bbits))-(1<<qt_bbits);
 static const int qt_red_mask = (1<<(qt_rbits+qt_gbits+qt_bbits))-(1<<(qt_gbits+qt_bbits));
 
 inline ushort qt_convRgbTo16(const int r, const int g, const int b)
