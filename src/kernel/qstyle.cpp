@@ -305,19 +305,15 @@ void QStyle::drawToolButton( QPainter * p, int x, int y, int w, int h,
 /*!
   Draws a press-sensitive shape in the style of a tool bar button.
 
-  The default implementation calls the old drawToolButton function
-  when \a autoRaised is FALSE, otherwise drawPanel.
+  The default implementation calls drawBevelButton().
 
-  \sa drawBevelButton(), drawToolMenuButton()
+  \sa drawBevelButton(), drawDropDownButton()
 */
 void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool on, bool down, bool /*enabled*/, 
-		     bool autoRaised, const QBrush *fill )
+		     bool /*autoRaised*/, const QBrush *fill )
 {
-    if ( !autoRaised )
-	drawToolButton( p, x, y, w, h, g, on || down, fill );
-    else
-	drawPanel( p, x, y, w, h, g, on || down, defaultFrameWidth(), fill );
+    drawToolButton( p, x, y, w, h, g, on || down, fill );
 }
 
 /*!
