@@ -68,10 +68,17 @@ int Tokenizer::getToken()
 	    int k = hashKword( yyLex, yyLexLen );
 	    while ( TRUE ) {
 		int i = kwordHashTable[k];
-		if ( i == 0 )
-		    return Tok_Ident;
-		else if ( strcmp(yyLex, kwords[i - 1]) == 0 )
+		if ( i == 0 ) {
+		    if ( yyLex[0] == 't' && yyLexLen == 8 &&
+			 strcmp(yyLex, "typename") == 0 ) {
+			break;
+		    } else {
+			return Tok_Ident;
+		    }
+		} else if ( strcmp(yyLex, kwords[i - 1]) == 0 ) {
 		    return (int) Tok_FirstKeyword + i - 1;
+		}
+
 		if ( ++k == KwordHashTableSize )
 		    k = 0;
 	    }
