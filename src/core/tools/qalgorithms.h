@@ -104,7 +104,7 @@ void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
         do {
             --x;
             --y;
-            if (qLess<BiIterator>(*x, *y)) {
+            if (lessThan(*x, *y)) {
                 swapped = true;
                 qSwap(*x, *y);
                 swapPos = y;
