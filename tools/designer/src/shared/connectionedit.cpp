@@ -1236,6 +1236,13 @@ void ConnectionEdit::checkConnection(Connection *con)
             return;
     }
 
+    deleteConnection(con);
+}
+
+void ConnectionEdit::deleteConnection(Connection *con)
+{
+    ItemList item_list = m_connection_map.keys(con);
+
     for (int i = 0; i < item_list.size(); ++i) {
         CEItem *item = item_list.at(i);
 
@@ -1248,28 +1255,29 @@ void ConnectionEdit::checkConnection(Connection *con)
             ++it;
         }
     }
-
+        
     emit aboutToRemove(con);
     m_connection_list.removeAll(con);
+    deleteItems(item_list, false);
     delete con;
 }
 
-void ConnectionEdit::deleteItem(CEItem *item)
+void ConnectionEdit::deleteItem(CEItem *item,  bool check_connections)
 {
     Q_ASSERT(item != m_dragged_item);
-    Q_ASSERT(!m_selected_item_set.contains(item));
 
+    m_selected_item_set.remove(item);
     m_item_list.removeAll(item);
     m_items_under_mouse.removeAll(item);
 
     QList<Connection*> connection_list = m_connection_map.values(item);
     m_connection_map.remove(item);
-    CEEndPointItem *ep_item = 0;
-    if (item->type() == CEItem::EndPointItem)
-        ep_item = qt_cast<CEEndPointItem*>(item);
-    foreach (Connection *con, connection_list)
-        checkConnection(con);
-
+    
+    if (check_connections) {
+        foreach (Connection *con, connection_list)
+            checkConnection(con);
+    }
+            
     item->update();
 
     delete item;
@@ -1792,7 +1800,7 @@ void ConnectionEdit::updateAllItems()
     }
 }
 
-void ConnectionEdit::deleteItems(ItemList item_list)
+void ConnectionEdit::deleteItems(ItemList item_list, bool check_connections)
 {
     // If a single endpoint is selected, just delete that and fix the line
     bool single_ep_selected = item_list.size() == 1
@@ -1817,7 +1825,7 @@ void ConnectionEdit::deleteItems(ItemList item_list)
 
             if (type != CEItem::EndPointItem
                     && type != CEItem::WidgetItem) {
-                deleteItem(item);
+                deleteItem(item, check_connections);
                 item_list.removeAt(i);
                 deleted_set.insert(item, item);
                 continue;
@@ -1838,7 +1846,7 @@ void ConnectionEdit::deleteItems(ItemList item_list)
             Q_ASSERT(ep_item != 0);
 
             if (ep_item->edgeCount() == 0) {
-                deleteItem(ep_item);
+                deleteItem(ep_item, check_connections);
                 item_list.removeAt(i);
                 deleted_set.insert(item, item);
                 continue;

@@ -562,11 +562,6 @@ void QtUndoStack::push(QtCommand *command)
             else
                 append(command);
 
-            if (m_macro_nest == 0) {
-                ++m_num_commands;
-                emit commandExecuted();
-            }
-
             break;
         }
 
@@ -590,15 +585,16 @@ void QtUndoStack::push(QtCommand *command)
             Q_ASSERT(it != -1);
             command->setDescription(commandAt(it)->description());
 
-            if (m_macro_nest == 0) {
-                ++m_num_commands;
-                emit commandExecuted();
-            }
-
             break;
     }
 
     m_current_iter = size() - 1;
+    
+    if (command->type() != QtCommand::MacroBegin && m_macro_nest == 0) {
+        ++m_num_commands;
+        emit commandExecuted();
+    }
+    
     afterChange(state);
 }
 
@@ -869,7 +865,6 @@ QStringList QtUndoStack::undoList() const
 
     for (int it = 0; it <= m_current_iter; ++it) {
         QtCommand *command = commandAt(it);
-
         result.append(command->description());
 
         Q_ASSERT(!command->isMacroEnd());
@@ -896,7 +891,6 @@ QStringList QtUndoStack::redoList() const
 
     for (int it = m_current_iter + 1; it < size(); ++it) {
         QtCommand *command = commandAt(it);
-
         result.append(command->description());
 
         Q_ASSERT(!command->isMacroEnd());
@@ -1632,7 +1626,7 @@ QStringList QtUndoManager::redoList() const
 
 QtUndoListModel::QtUndoListModel(QObject *parent)
     : QAbstractItemModel(parent),
-      m_undoIndex(-1)
+      m_undoIndex(0)
 {
     connect(QtUndoManager::manager(), SIGNAL(changed()),
         this, SLOT(updateItems()));
@@ -1655,7 +1649,7 @@ int QtUndoListModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_items.count();
+    return m_items.count() + 1;
 }
 
 int QtUndoListModel::columnCount(const QModelIndex &parent) const
@@ -1680,7 +1674,12 @@ QVariant QtUndoListModel::data(const QModelIndex &index, int role) const
 {
     switch (role) {
     case DisplayRole:
-        return m_items.at(index.row());
+        if (index.row() < m_items.size())
+            return m_items.at(index.row());
+        else if (index.row() == m_items.size())
+            return QString();
+        else
+            return QVariant();
     default:
         return QVariant();
     }
@@ -1689,10 +1688,11 @@ QVariant QtUndoListModel::data(const QModelIndex &index, int role) const
 QtUndoListView::QtUndoListView(QWidget *parent)
     : QListView(parent)
 {
-    setModel(new QtUndoListModel(this));
+    QtUndoListModel *m = new QtUndoListModel(this);
+    setModel(m);
     setSelectionMode(SingleSelection);
-    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIn
-dex&)), this, SLOT(undoOrRedo()));
+    setCurrentIndex(m->index(0, 0, QModelIndex()));
+    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(undoOrRedo()));
 }
 
 QtUndoListView::~QtUndoListView()
@@ -1722,6 +1722,12 @@ void QtUndoListView::undoOrRedo()
     model()->blockSignals(block);
 }
 
+void QtUndoListView::reset()
+{
+    QListView::reset();
+    QtUndoListModel *m = qt_cast<QtUndoListModel*>(model());
+    setCurrentIndex(m->index(m->undoIndex(), 0, QModelIndex()));
+}
 
 #include "qtundo.moc"
 

@@ -212,7 +212,7 @@ class QT_SHARED_EXPORT QtUndoListView: public QListView
 public:
     QtUndoListView(QWidget *parent = 0);
     virtual ~QtUndoListView();
-
+    virtual void reset();
 private slots:
     void undoOrRedo();
 };

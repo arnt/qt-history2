@@ -17,6 +17,7 @@
 #include <qtundo.h>
 #include <ui4.h>
 #include <layoutinfo.h>
+#include <buddyeditor.h>
 #include "layoutdecoration.h"
 
 #include <QPointer>
@@ -117,6 +118,40 @@ private:
     QVariant m_oldValue;
     QVariant m_newValue;
     bool m_changed;
+};
+
+class SetBuddyCommand : public SetPropertyCommand
+{
+    Q_OBJECT
+public:
+    SetBuddyCommand(FormWindow *fw);
+    void init(BuddyConnection *con);
+
+    virtual void redo();
+    virtual void undo();
+
+protected:
+    virtual bool mergeMeWith(QtCommand *);
+    
+private:
+    Connection::HintList m_hints;
+};
+
+class ClearBuddyCommand : public SetPropertyCommand
+{
+    Q_OBJECT
+public:
+    ClearBuddyCommand(FormWindow *fw);
+    void init(BuddyConnection *con);
+
+    virtual void redo();
+    virtual void undo();
+
+protected:
+    virtual bool mergeMeWith(QtCommand *);
+
+private:
+    Connection::HintList m_hints;
 };
 
 class InsertWidgetCommand: public FormWindowCommand

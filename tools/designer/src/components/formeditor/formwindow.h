@@ -32,6 +32,7 @@
 class AbstractFormWindowCursor;
 class FormWindowCursor;
 class DomConnections;
+class Connection;
 
 class QLabel;
 class QTimer;
@@ -169,6 +170,8 @@ public:
 
     QList<QWidget *> widgets(QWidget *widget) const;
 
+    inline BuddyEditor *buddyEditor() const { return m_buddyEditor; }
+    
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
     void insertWidget(QWidget *w, const QRect &rect, QWidget *target);
     void resizeWidget(QWidget *widget, const QRect &geometry);
@@ -235,6 +238,9 @@ public slots:
 
     void breakLayout();
 
+    void addBuddy(Connection *con);
+    void removeBuddy(Connection *con);
+    
 protected:
     virtual QMenu *createPopupMenu(QWidget *w);
     virtual void resizeEvent(QResizeEvent *e);

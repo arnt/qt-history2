@@ -28,6 +28,7 @@
 #include <specialeditor.h>
 #include <specialeditorsupport.h>
 #include <button_taskmenu.h>
+#include <qtundo.h>
 
 // sdk
 #include <abstractformwindow.h>
@@ -99,6 +100,11 @@ MainWindow::MainWindow()
     readSettings();
 
     statusBar()->show();
+    
+    QtUndoListView *undo_list_view = new QtUndoListView(0);
+    undo_list_view->setParent(this, Qt::WType_TopLevel|Qt::WStyle_Tool);
+    undo_list_view->setWindowTitle(tr("Undo/Redo"));
+    undo_list_view->show();
 }
 
 MainWindow::~MainWindow()

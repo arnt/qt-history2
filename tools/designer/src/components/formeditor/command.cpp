@@ -204,6 +204,94 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
     return false;
 }
 
+// ---- SetBuddyCommand ----
+
+SetBuddyCommand::SetBuddyCommand(FormWindow *fw)
+    : SetPropertyCommand(fw)
+{
+    setCanMerge(false);
+}
+
+void SetBuddyCommand::init(BuddyConnection *con)
+{
+    m_hints = con->hints();
+    SetPropertyCommand::init(con->source(), 
+                                QLatin1String("buddy"), 
+                                con->destination()->objectName()); 
+}
+
+bool SetBuddyCommand::mergeMeWith(QtCommand *)
+{
+    return false;
+}
+
+void SetBuddyCommand::redo()
+{
+    SetPropertyCommand::redo();
+    
+    QWidget *source = widget();
+    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
+    
+    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
+    if (buddy_editor->findConnection(source, destination) == 0)
+        buddy_editor->addConnection(source, destination, m_hints);
+}
+
+void SetBuddyCommand::undo()
+{
+    SetPropertyCommand::undo();
+
+    QWidget *source = widget();
+    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
+
+    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
+    if (buddy_editor->findConnection(source, destination) != 0)
+        buddy_editor->deleteConnection(source, destination);
+}
+
+// ---- ClearBuddyCommand ----
+
+ClearBuddyCommand::ClearBuddyCommand(FormWindow *fw)
+    : SetPropertyCommand(fw)
+{
+    setCanMerge(false);
+}
+
+void ClearBuddyCommand::init(BuddyConnection *con)
+{
+    m_hints = con->hints();
+    SetPropertyCommand::init(con->source(), QLatin1String("buddy"), QString());
+}
+
+bool ClearBuddyCommand::mergeMeWith(QtCommand *)
+{
+    return false;
+}
+
+void ClearBuddyCommand::redo()
+{
+    SetPropertyCommand::redo();
+
+    QWidget *source = widget();
+    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
+
+    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
+    if (buddy_editor->findConnection(source, destination) != 0)
+        buddy_editor->deleteConnection(source, destination);
+}
+
+void ClearBuddyCommand::undo()
+{
+    SetPropertyCommand::undo();
+
+    QWidget *source = widget();
+    QWidget *destination = qFindChild<QWidget*>(formWindow()->mainContainer(), newValue().toString());
+    
+    BuddyEditor *buddy_editor = formWindow()->buddyEditor();
+    if (buddy_editor->findConnection(source, destination) == 0)
+        buddy_editor->addConnection(source, destination, m_hints);
+}
+
 // ---- InsertWidgetCommand ----
 InsertWidgetCommand::InsertWidgetCommand(FormWindow *formWindow)
     : FormWindowCommand(QString::null, formWindow)

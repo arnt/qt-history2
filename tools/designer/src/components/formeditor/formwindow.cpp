@@ -318,6 +318,8 @@ void FormWindow::init()
     m_buddyEditor = new BuddyEditor(this, this);
     connect(this, SIGNAL(widgetUnmanaged(QWidget*)),
                 m_buddyEditor, SLOT(deleteWidgetItem(QWidget*)));
+    connect(m_buddyEditor, SIGNAL(added(Connection*)), this, SLOT(addBuddy(Connection*)));
+    connect(m_buddyEditor, SIGNAL(aboutToRemove(Connection*)), this, SLOT(removeBuddy(Connection*)));
     m_buddyEditor->setGeometry(rect());
     m_buddyEditor->show();
 
@@ -2133,6 +2135,20 @@ QList<QWidget *> FormWindow::widgets(QWidget *widget) const
 void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
 {
     m_signalSlotEditor->fromUi(connections, parent);
+}
+
+void FormWindow::addBuddy(Connection *con)
+{
+    SetBuddyCommand *command = new SetBuddyCommand(this);
+    command->init(qt_cast<BuddyConnection*>(con));
+    commandHistory()->push(command);
+}
+
+void FormWindow::removeBuddy(Connection *con)
+{
+    ClearBuddyCommand *command = new ClearBuddyCommand(this);
+    command->init(qt_cast<BuddyConnection*>(con));
+    commandHistory()->push(command);
 }
 
 #include "formwindow.moc"

@@ -275,12 +275,13 @@ public:
 
     int connectionCount() const;
     Connection *connection(int idx) const;
+    void deleteConnection(Connection *con);
     QList<CEItem*> connectionItems(const Connection *con) const;
 
     void clear();
     void dumpItems() const;
     void updateAllItems();
-
+    
 public slots:
     void updateBackground();
     void deleteWidgetItem(QWidget *w);
@@ -349,8 +350,8 @@ private:
     void insertEndPoint(const QPoint &pos);
 
     void insertItem(CEItem *item);
-    void deleteItem(CEItem *item);
-    void deleteItems(ItemList item_list);
+    void deleteItem(CEItem *item, bool check_connections = true);
+    void deleteItems(ItemList item_list, bool check_connections = true);
     void setSelectedItems(const ItemList &item_list, bool selected);
     void deleteWidgetItem(CEWidgetItem *widget_item);
     void checkConnection(Connection *con);

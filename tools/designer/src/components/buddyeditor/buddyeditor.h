@@ -24,6 +24,7 @@ class BuddyConnection : public Connection
 
 public:
     BuddyConnection(ConnectionEdit *edit);
+    ~BuddyConnection();
 };
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditor : public ConnectionEdit
@@ -32,7 +33,11 @@ class QT_BUDDYEDITOR_EXPORT BuddyEditor : public ConnectionEdit
 
 public:    
     BuddyEditor(AbstractFormWindow *form_window, QWidget *parent);
-    
+
+    BuddyConnection *findConnection(QWidget *source, QWidget *destination);
+    void addConnection(QWidget *source, QWidget *destination, const Connection::HintList &hints);
+    void deleteConnection(QWidget *source, QWidget *destination);
+        
 protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
 
