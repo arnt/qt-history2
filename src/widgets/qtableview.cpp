@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#22 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#22 $")
 
 
 const int sbDim = 16;
@@ -674,7 +674,7 @@ int QTableView::totalHeight()
 
 
 /*----------------------------------------------------------------------------
-  \fn ulong QTableView::tableFlags() const
+  \fn uint QTableView::tableFlags() const
 
   Returns the union of the table flags that are currently set.
 
@@ -682,7 +682,7 @@ int QTableView::totalHeight()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn bool QTableView::testTableFlags( ulong f ) const
+  \fn bool QTableView::testTableFlags( uint f ) const
 
   Returns TRUE if any of the table flags in \e f are currently set,
   otherwise FALSE.
@@ -750,7 +750,7 @@ int QTableView::totalHeight()
   \sa clearTableFlags(), testTableFlags(), tableFlags()
  ----------------------------------------------------------------------------*/
 
-void QTableView::setTableFlags( ulong f )
+void QTableView::setTableFlags( uint f )
 {
     f = (f ^ tFlags) & f;			// clear flags already set
     tFlags |= f;
@@ -758,7 +758,7 @@ void QTableView::setTableFlags( ulong f )
     bool updateOn = autoUpdate();
     setAutoUpdate( FALSE );
 
-    ulong repaintMask = Tbl_cutCellsV | Tbl_cutCellsH;
+    uint repaintMask = Tbl_cutCellsV | Tbl_cutCellsH;
 
     if ( f & Tbl_vScrollBar ) {
 	setVerScrollBar( TRUE );
@@ -816,7 +816,7 @@ void QTableView::setTableFlags( ulong f )
   \sa setTableFlags(), testTableFlags(), tableFlags()
  ----------------------------------------------------------------------------*/
 
-void QTableView::clearTableFlags( ulong f )
+void QTableView::clearTableFlags( uint f )
 {
     f = (f ^ ~tFlags) & f;		// clear flags that are already 0
     tFlags &= ~f;
@@ -824,15 +824,15 @@ void QTableView::clearTableFlags( ulong f )
     bool updateOn = autoUpdate();
     setAutoUpdate( FALSE );
 
-    ulong repaintMask = Tbl_cutCellsV | Tbl_cutCellsH;
+    uint repaintMask = Tbl_cutCellsV | Tbl_cutCellsH;
 
-    if ( f & Tbl_vScrollBar	    ) {
+    if ( f & Tbl_vScrollBar ) {
 	setVerScrollBar( FALSE );
     }
-    if ( f & Tbl_hScrollBar	    ) {
+    if ( f & Tbl_hScrollBar ) {
 	setHorScrollBar( FALSE );
     }
-    if ( f & Tbl_scrollLastHCell    ) {
+    if ( f & Tbl_scrollLastHCell ) {
 	int maxX = maxXOffset();
 	if ( xOffs > maxX ) {
 	    setOffset( maxX, yOffs );
@@ -840,7 +840,7 @@ void QTableView::clearTableFlags( ulong f )
 	}
 	updateScrollBars( horRange );
     }
-    if ( f & Tbl_scrollLastVCell    ) {
+    if ( f & Tbl_scrollLastVCell ) {
 	int maxY = maxYOffset();
 	if ( yOffs > maxY ) {
 	    setOffset( xOffs, maxY );

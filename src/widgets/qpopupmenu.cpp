@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#66 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#65 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#66 $")
 
 
 // Mac style parameters
@@ -450,7 +450,12 @@ void QPopupMenu::updateSize()
 }
 
 
-static QString key_str( long k )		// get key string
+//
+// Creates an accelerator string for the key k.
+// For instance CTRL+Key_O gives "Ctrl+O".
+//
+
+static QString accel_str( int k )
 {
     QString s;
     if ( (k & SHIFT) == SHIFT )
@@ -583,12 +588,12 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		if ( accelDisabled )
 		    autoaccel->disable();
 	    }
-	    long k = mi->key();
+	    int k = mi->key();
 	    autoaccel->insertItem( k, mi->id() );
 	    if ( mi->text() ) {
 		QString s = mi->text();
 		int i = s.find('\t');
-		QString t = key_str( k );
+		QString t = accel_str( k );
 		if ( i >= 0 )
 		    s.replace( i+1, s.length()-i, t );
 		else {

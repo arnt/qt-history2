@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#6 $
 **
 ** Definition of QTableView class
 **
@@ -62,10 +62,10 @@ protected:
     virtual int totalWidth();
     virtual int totalHeight();
 
-    ulong	tableFlags()	const;
-    bool	testTableFlags( ulong f ) const;
-    void	setTableFlags( ulong f );
-    void	clearTableFlags( ulong f = ~0 );
+    uint	tableFlags()	const;
+    bool	testTableFlags( uint f ) const;
+    void	setTableFlags( uint f );
+    void	clearTableFlags( uint f = ~0 );
 
     bool	autoUpdate()	 const;
     void	setAutoUpdate( bool );
@@ -150,7 +150,7 @@ private:
     uint	sbDirty			: 8;
     uint	inSbUpdate		: 1;
 
-    ulong	tFlags;
+    uint	tFlags;
     QRect	cellUpdateR;
 
     QScrollBar *vScrollBar;
@@ -159,28 +159,28 @@ private:
 };
 
 
-const ulong Tbl_vScrollBar	   = 0x00000001;
-const ulong Tbl_hScrollBar	   = 0x00000002;
-const ulong Tbl_autoVScrollBar	   = 0x00000004;
-const ulong Tbl_autoHScrollBar	   = 0x00000008;
-const ulong Tbl_autoScrollBars	   = 0x0000000C;
+const uint Tbl_vScrollBar	= 0x00000001;
+const uint Tbl_hScrollBar	= 0x00000002;
+const uint Tbl_autoVScrollBar	= 0x00000004;
+const uint Tbl_autoHScrollBar	= 0x00000008;
+const uint Tbl_autoScrollBars	= 0x0000000C;
 
-const ulong Tbl_clipCellPainting   = 0x00000100;
-const ulong Tbl_cutCellsV	   = 0x00000200;
-const ulong Tbl_cutCellsH	   = 0x00000400;
-const ulong Tbl_cutCells	   = 0x00000600;
+const uint Tbl_clipCellPainting = 0x00000100;
+const uint Tbl_cutCellsV	= 0x00000200;
+const uint Tbl_cutCellsH	= 0x00000400;
+const uint Tbl_cutCells		= 0x00000600;
 
-const ulong Tbl_scrollLastHCell	   = 0x00000800;
-const ulong Tbl_scrollLastVCell	   = 0x00001000;
-const ulong Tbl_scrollLastCell	   = 0x00001800;
+const uint Tbl_scrollLastHCell	= 0x00000800;
+const uint Tbl_scrollLastVCell	= 0x00001000;
+const uint Tbl_scrollLastCell	= 0x00001800;
 
-const ulong Tbl_smoothHScrolling   = 0x00002000;
-const ulong Tbl_smoothVScrolling   = 0x00004000;
-const ulong Tbl_smoothScrolling	   = 0x00006000;
+const uint Tbl_smoothHScrolling = 0x00002000;
+const uint Tbl_smoothVScrolling = 0x00004000;
+const uint Tbl_smoothScrolling	= 0x00006000;
 
-const ulong Tbl_snapToHGrid	   = 0x00008000;
-const ulong Tbl_snapToVGrid	   = 0x00010000;
-const ulong Tbl_snapToGrid	   = 0x00018000;
+const uint Tbl_snapToHGrid	= 0x00008000;
+const uint Tbl_snapToVGrid	= 0x00010000;
+const uint Tbl_snapToGrid	= 0x00018000;
 
 
 inline int QTableView::numRows() const
@@ -207,10 +207,10 @@ inline int QTableView::cellHeight() const
 inline int QTableView::cellWidth() const
 { return cellW; }
 
-inline ulong QTableView::tableFlags() const
+inline uint QTableView::tableFlags() const
 { return tFlags; }
 
-inline bool QTableView::testTableFlags( ulong f ) const
+inline bool QTableView::testTableFlags( uint f ) const
 { return (tFlags & f) != 0; }
 
 inline QRect QTableView::cellUpdateRect() const
