@@ -253,8 +253,6 @@ CFG_PNG=auto
 CFG_LIBPNG=auto
 CFG_JPEG=auto
 CFG_LIBJPEG=auto
-CFG_MNG=auto
-CFG_LIBMNG=auto
 CFG_XCURSOR=auto
 CFG_XRANDR=auto
 CFG_XRENDER=auto
@@ -823,18 +821,6 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    libmng)
-	[ "$VAL" = "yes" ] && VAL=qt
-	if [ "$VAL" = "no " ]; then
-	    echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
-	    CFG_MNG=no
-	fi
-	if [ "$VAL" = "qt" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
-	    CFG_LIBMNG="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
-	;;
     libjpeg|jpeg)
 	[ "$VAL" = "yes" ] && VAL=qt
 	if [ "$VAR" = "jpeg" ]; then
@@ -946,7 +932,6 @@ while [ "$#" -gt 0 ]; do
 	    # now $OPT is "no", "yes", or "plugin"
 	    case "$VAL" in
 	    jpeg) CFG_JPEG=$OPT ;;
-	    mng) CFG_MNG=$OPT ;;
 	    png) CFG_PNG=$OPT ;;
 	    *) ERROR=yes ;;
 	    esac
@@ -1172,30 +1157,9 @@ if [ "$CFG_DEBUG" = "auto" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
 fi
 
-#detect how mng should be built
-if [ "$CFG_MNG" = "auto" ]; then
-    if [ "$PLATFORM_QWS" = "yes" ]; then
-	CFG_MNG=no
-    elif [ "$CFG_SHARED" = "yes" ]; then
-	CFG_MNG=plugin
-    else
-	CFG_MNG=yes
-    fi
-fi
-
-if [ "$CFG_LIBMNG" = "auto" ]; then
-    if $unixtests/checkavail "libmng" $OPT_VERBOSE -lmng libmng.h; then
-       CFG_LIBMNG=system
-    else
-       CFG_LIBMNG=qt
-    fi
-fi
-
 #detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
-    if [ "$CFG_MNG" = "yes" ]; then
-	CFG_JPEG=yes
-    elif [ "$CFG_SHARED" = "yes" ]; then
+    if [ "$CFG_SHARED" = "yes" ]; then
 	CFG_JPEG=plugin
     else
 	CFG_JPEG=yes
@@ -1220,9 +1184,7 @@ fi
 
 #detect how png should be built
 if [ "$CFG_PNG" = "auto" ]; then
-    if [ "$CFG_MNG" = "yes" ]; then
-	CFG_PNG=yes
-    elif [ "$CFG_SHARED" = "yes" ]; then
+    if [ "$CFG_SHARED" = "yes" ]; then
 	CFG_PNG=plugin
     else
 	CFG_PNG=yes
@@ -2071,8 +2033,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
 	[-translationdir dir] [-sysconfdir dir] [-debug] [-release]
 	[-no-gif] [-qt-gif] [-no-sm] [-sm] [-qt-zlib] [-system-zlib]
 	[-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
-	[-qt-libmng] [-system-libmng] [-no-nis] [-nis]
-	[-no-cups] [-cups] [-no-largefile] [-largefile]
+	[-no-nis] [-nis] [-no-cups] [-cups] [-no-largefile] [-largefile]
 	[-no-stl] [-stl] [-no-pch] [-pch] [-Istring] [-lstring]
 	[-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
 	[-without-<module setting>] [-fast] [-no-fast]
@@ -2219,7 +2180,7 @@ Image Formats:
     -no-imgfmt-<format> ... Fully disable <format> from Qt.
 
                             Possible values for <format>:
-                            [ png jpeg mng ]
+                            [ png jpeg ]
 
 Third Party Image Loading Libraries:
 
@@ -2231,9 +2192,6 @@ Third Party Image Loading Libraries:
     -system-libjpeg .... Use jpeglib from the operating system.
 			 See http://www.ijg.org
 
- *  -qt-libmng ......... Use the libmng bundled with Qt.
-    -system-libmng ..... Use libmng from the operating system.
-			 See http://www.libmng.com
 EOF
 
 if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -3049,14 +3007,6 @@ fi
 if [ "$CFG_GETADDRINFO" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG getaddrinfo"
 fi
-if [ "$CFG_LIBMNG" = "system" ]; then
-    QT_CONFIG="$QT_CONFIG system-mng"
-fi
-if [ "$CFG_MNG" = "no" ]; then
-    QT_CONFIG="$QT_CONFIG no-mng"
-elif [ "$CFG_MNG" = "yes" ]; then
-    QT_CONFIG="$QT_CONFIG mng"
-fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-jpeg"
 fi
@@ -3257,7 +3207,6 @@ esac
 #
 # Things that do not affect the Qt API/ABI:
 #     system-jpeg no-jpeg jpeg
-#     system-mng no-mng mng
 #     system-png no-png png
 #     system-zlib no-zlib zlib
 #     no-gif gif
@@ -3505,7 +3454,6 @@ done
 [ "$CFG_GIF" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_BUILTIN_GIF_READER=1"
 [ "$CFG_PNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEIO_PNG"
 [ "$CFG_JPEG" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEIO_JPEG"
-[ "$CFG_MNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEIO_MNG"
 [ "$CFG_ZLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ZLIB"
 
 [ "$CFG_EXCEPTION_SUPPORT" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
@@ -3742,11 +3690,6 @@ echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
 echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"
-if [ "$CFG_MNG" = "no" ]; then
-    echo "MNG support ......... $CFG_MNG"
-else
-    echo "MNG support ......... $CFG_MNG ($CFG_LIBMNG)"
-fi
 if [ "$CFG_JPEG" = "no" ]; then
     echo "JPEG support ........ $CFG_JPEG"
 else

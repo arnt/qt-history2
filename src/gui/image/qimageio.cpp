@@ -22,7 +22,6 @@
 #include <qmutex.h>
 #include "qmap.h"
 #include "qpngio.h"
-#include "qmngio.h"
 #include "qjpegio.h"
 #include "qfile.h"
 #include <ctype.h>
@@ -121,7 +120,7 @@ static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
     to those that Qt provides.
 
     Qt currently supports the following image file formats: PNG, BMP,
-    XBM, XPM and PNM. It may also support JPEG, MNG and GIF, if
+    XBM, XPM and PNM. It may also support JPEG and GIF, if
     specially configured during compilation. The different PNM formats
     are: PBM (P1 or P4), PGM (P2 or P5), and PPM (P3 or P6).
 
@@ -310,9 +309,6 @@ void qt_init_image_handlers()                // initialize image handlers
 #ifndef QT_NO_IMAGEIO_XPM
     QImageIO::defineIOHandler("XPM", "/\\*.XPM.\\*/", "T",
                                read_xpm_image, write_xpm_image);
-#endif
-#ifndef QT_NO_IMAGEIO_MNG
-    qInitMngIO();
 #endif
 #ifndef QT_NO_IMAGEIO_PNG
     qInitPngIO();

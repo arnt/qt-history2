@@ -40,39 +40,6 @@ unix:x11:SOURCES += image/qpixmap_x11.cpp
 embedded:SOURCES += image/qpixmap_qws.cpp
 
 
-#mng support
-HEADERS += image/qmngio.h
-SOURCES += image/qmngio.cpp
-contains(QT_CONFIG, mng) {
-        contains(QT_CONFIG, system-mng) {
-	    win32:LIBS += libmng.lib
-            unix:LIBS  += -lmng
-        } else {
-	   INCLUDEPATH        += ../3rdparty/libmng
-	   SOURCES += ../3rdparty/libmng/libmng_callback_xs.c \
-		  ../3rdparty/libmng/libmng_chunk_io.c \
-		  ../3rdparty/libmng/libmng_chunk_prc.c \
-		  ../3rdparty/libmng/libmng_chunk_xs.c \
-		  ../3rdparty/libmng/libmng_cms.c \
-		  ../3rdparty/libmng/libmng_display.c \
-		  ../3rdparty/libmng/libmng_dither.c \
-		  ../3rdparty/libmng/libmng_error.c \
-		  ../3rdparty/libmng/libmng_filter.c \
-		  ../3rdparty/libmng/libmng_hlapi.c \
-		  ../3rdparty/libmng/libmng_jpeg.c \
-		  ../3rdparty/libmng/libmng_object_prc.c \
-		  ../3rdparty/libmng/libmng_pixels.c \
-		  ../3rdparty/libmng/libmng_prop_xs.c \
-		  ../3rdparty/libmng/libmng_read.c \
-		  ../3rdparty/libmng/libmng_trace.c \
-		  ../3rdparty/libmng/libmng_write.c \
-		  ../3rdparty/libmng/libmng_zlib.c
-        }
-	contains(QT_CONFIG, no-jpeg)|!contains(QT_CONFIG, jpeg) {
-	    error(Use of mng requires support for jpeg)
-	}
-}
-
 #jpeg support..
 HEADERS += image/qjpegio.h
 SOURCES += image/qjpegio.cpp
