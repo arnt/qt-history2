@@ -27,7 +27,7 @@ class GLObjectWindow : public QWidget
 {
     Q_OBJECT
 public:
-    GLObjectWindow( QWidget* parent = 0, const char* name = 0 );
+    GLObjectWindow( QWidget* parent = 0 );
 
 };
 

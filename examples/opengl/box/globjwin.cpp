@@ -15,27 +15,26 @@
 #include <qlayout.h>
 #include <qframe.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qapplication.h>
 #include "globjwin.h"
 #include "glbox.h"
 
 
-GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
-    : QWidget( parent, name )
+GLObjectWindow::GLObjectWindow( QWidget* parent )
+    : QWidget( parent )
 {
 
     // Create a menu
-    QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( "Exit",  qApp, SLOT(quit()), CTRL+Key_Q );
+    QMenu *file = new QMenu( this );
+    file->addAction( "Exit",  qApp, SLOT(quit())/*, Qt::CTRL+Qt::Key_Q*/ );
 
     // Create a menu bar
     QMenuBar *m = new QMenuBar( this );
-    m->setSeparator( QMenuBar::InWindowsStyle );
-    m->insertItem("&File", file );
+    m->addMenu("&File", file );
 
     // Create a nice frame to put around the OpenGL widget
-    QFrame* f = new QFrame( this, "frame" );
+    QFrame* f = new QFrame( this );
     f->setFrameStyle( QFrame::Sunken | QFrame::Panel );
     f->setLineWidth( 2 );
 
@@ -45,7 +44,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     // Create the three sliders; one for each rotation axis
     QSlider* x = new QSlider (this);
     x->setObjectName("xsl");
-    x->setOrientation(QSlider::Vertical);
+    x->setOrientation(Qt::Vertical);
     x->setMinimum(0);
     x->setMaximum(360);
     x->setPageStep(60);
@@ -55,7 +54,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     QSlider* y = new QSlider (this);
     y->setObjectName("ysl");
-    y->setOrientation(QSlider::Vertical);
+    y->setOrientation(Qt::Vertical);
     y->setMinimum(0);
     y->setMaximum(360);
     y->setPageStep(60);
@@ -65,7 +64,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     QSlider* z = new QSlider (this);
     z->setObjectName("zsl");
-    z->setOrientation(QSlider::Vertical);
+    z->setOrientation(Qt::Vertical);
     z->setMinimum(0);
     z->setMaximum(360);
     z->setPageStep(60);
@@ -76,17 +75,17 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     // Now that we have all the widgets, put them into a nice layout
 
     // Put the sliders on top of each other
-    QVBoxLayout* vlayout = new QVBoxLayout( 20, "vlayout");
+    QVBoxLayout* vlayout = new QVBoxLayout;
     vlayout->addWidget( x );
     vlayout->addWidget( y );
     vlayout->addWidget( z );
 
     // Put the GL widget inside the frame
-    QHBoxLayout* flayout = new QHBoxLayout( f, 2, 2, "flayout");
+    QHBoxLayout* flayout = new QHBoxLayout( f );
     flayout->addWidget( c, 1 );
 
     // Top level layout, puts the sliders to the left of the frame/GL widget
-    QHBoxLayout* hlayout = new QHBoxLayout( this, 20, 20, "hlayout");
+    QHBoxLayout* hlayout = new QHBoxLayout( this );
     hlayout->setMenuBar( m );
     hlayout->addLayout( vlayout );
     hlayout->addWidget( f, 1 );
