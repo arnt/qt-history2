@@ -6392,7 +6392,7 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	for (; it != strl.end(); ++it) {
 	    stripped = *it;
 	    qStripTags(&stripped);
-	    if ( x == line ) {
+	    if (x == line) {
 		stripped = left + stripped;
 		idx = index;
 	    } else {
@@ -6403,11 +6403,10 @@ void QTextEdit::optimInsert(const QString& text, int line, int index)
 	}
 	d->od->lines[LOGOFFSET(x - 1)] += right;
     }
-    // recalculate the pixel width of the longest line - slow!
+    // recalculate the pixel width of the longest injected line - 
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
-    d->od->maxLineWidth = 0;
-    for (x = 0; x < d->od->numLines; x++) {
+    for (x = line; x < line + numNewLines; x++) {
 	lWidth = fm.width(d->od->lines[x]);
 	if (lWidth > d->od->maxLineWidth)
 	    d->od->maxLineWidth = lWidth;
