@@ -2507,10 +2507,10 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
     } else {                                        // not popup mode
         int bs = state & Qt::MouseButtonMask;
         if ((type == QEvent::MouseButtonPress ||
-              type == QEvent::MouseButtonDblClick) && bs == 0) {
+              type == QEvent::MouseButtonDblClick) && bs == button) {
             if (QWidget::mouseGrabber() == 0)
                 setAutoCapture(winId());
-        } else if (type == QEvent::MouseButtonRelease && bs == button) {
+        } else if (type == QEvent::MouseButtonRelease && bs == 0) {
             if (QWidget::mouseGrabber() == 0)
                 releaseAutoCapture();
         }
