@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#325 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#326 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -142,7 +142,7 @@ static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
 Atom		qt_wm_state;
 static Atom 	qt_resource_manager;   	// X11 Resource manager
-Atom 		qt_sizegrip;		// sizegrip 
+Atom 		qt_sizegrip;		// sizegrip
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -441,7 +441,7 @@ static void set_local_font()
 
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
-static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0) 
+static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0)
 {
     Atom   type = None;
     int	   format;
@@ -450,7 +450,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
     char *data;
     QString res;
     while (after > 0) {
-	XGetWindowProperty( appDpy, appRootWin, qt_resource_manager, 
+	XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
 			    offset, 256, FALSE, AnyPropertyType,
 			    &type, &format, &nitems, &after, (unsigned char**) &data );
 	res += data;
@@ -466,8 +466,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	item = res.mid( l, r - l ).simplifyWhiteSpace();
 	l = r + 1;
 	i = item.find( ":" );
-	key = item.left( i ).simplifyWhiteSpace();
-	value = item.right( item.length() - i - 1 ).simplifyWhiteSpace();
+	key = item.left( i ).stripWhiteSpace();
+	value = item.right( item.length() - i - 1 ).stripWhiteSpace();
 	if ( !font && key == "*font")
 	    resFont = value.copy();
 	else if  ( !fg &&  key == "*foreground" )
@@ -475,14 +475,14 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	else if ( !bg && key == "*background")
 	    resBG = value.copy();
     }
-    
+
     if ( resFont.isEmpty() )
 	resFont = font;
     if ( resFG.isEmpty() )
 	resFG = fg;
     if ( resBG.isEmpty() )
 	resBG = bg;
-    
+
     if ( !resFont.isEmpty() ) {				// set application font
 	QFont font;
 	font.setRawMode( TRUE );
@@ -692,7 +692,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     gettimeofday( &watchtime, 0 );
 
     qApp->setName( appName );
-    
+
     XSelectInput( appDpy, appRootWin, PropertyChangeMask );
     qt_set_x11_resources(appFont, appFGCol, appBGCol);
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#159 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -125,6 +125,7 @@ public:
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
+    bool	translateWheelEvent( const MSG &msg, bool grab );
     bool	sendKeyEvent( int type, int code, int ascii, int state,
 			      bool grab );
     bool	translatePaintEvent( const MSG &msg );
@@ -1283,7 +1284,14 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		QCustomEvent e( Event_Clipboard, &msg );
 		QApplication::sendEvent( qt_clipboard, &e );
 		return 0;
+	    
 	    }
+	case WM_MOUSEWHEEL: 
+	    {
+		nase;
+		wKeys = nase
+	    }
+	    
 						// NOTE: fall-through!
 	default:
 	    result = FALSE;			// event was not processed
@@ -2059,6 +2067,56 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     }
     return k0 || k1;
 }
+
+bool QETWidget::translateWheelEvent( const MSG &msg, bool grab )
+{
+    int  state = 0;
+
+    if ( GetKeyState(VK_SHIFT) < 0 )
+	state |= ShiftButton;
+    if ( GetKeyState(VK_CONTROL) < 0 )
+	state |= ControlButton;
+    if ( GetKeyState(VK_MENU) < 0 )
+	state |= AltButton;
+
+    int delta = LOWORD ( msg.wParam );
+    QPoint globalPos;
+
+    globalPos.rx() = LOWORD ( msg.lParam ); 
+    globalPos.ry() = HIWORD ( msg.lParam ); 
+    
+    QWheelEvent e( Event_Wheel, globalPos, delta, state );
+    e.ignore();	
+    
+    QWidget* w = QApplication::widgetAt(globalPos, TRUE);
+    if (popupWidgets)
+	w = popupWidgets->last();
+    if (!w)
+	w = topLevelWidget();
+    if (w->isActiveWindow()){
+	do {
+	    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
+	    QApplication::sendEvent( w, &e );
+	    if ( e.isAccepted() )
+		return TRUE;
+	    w = w->parentWidget();
+	} while (w);
+    }
+    // last try: send the event to the widget that has the focus or its ancestors
+    w = qApp->focus_widget;
+    if (w){
+	do {
+	    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
+	    QApplication::sendEvent( w, &e );
+	    if ( e.isAccepted() )
+		return TRUE;
+	    w = w->parentWidget();
+	} while (w);
+    }
+
+    return TRUE;
+}
+
 
 static bool isModifierKey(int code)
 {
