@@ -11,60 +11,11 @@ class MainWindow;
 class FormList;
 class FormListItem;
 class FormWindow;
-class PropertyEditor;
+class HierarchyList;
+class HierarchyItem;
 class QStatusBar;
 class QListViewItemIterator;
-/*
-class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
-{
-    friend class DesignerActiveFormWindowInterfaceImpl;
-public:
-    DesignerWidgetListInterfaceImpl( FormWindow *fw );
 
-    unsigned long release();
-
-    uint count() const;
-    DesignerWidgetInterface* toFirst();
-    DesignerWidgetInterface* current();
-    DesignerWidgetInterface* next();
-
-    void selectAll() const;
-    void removeAll() const;
-
-    FormWindow *formWindow() const;
-    void setFormWindow( FormWindow* );
-
-private:
-    QPtrDictIterator<QWidget> *dictIterator;
-    FormWindow *formWindow;
-};
-
-class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
-{
-public:
-    DesignerWidgetInterfaceImpl( QWidget *w );
-
-    void setSelected( bool );
-    bool selected() const;
-
-    void remove();
-
-private:
-    QWidget *widget;
-};
-
-class DesignerActiveWidgetInterfaceImpl : public DesignerWidgetInterfaceImpl
-{
-    friend class DesignerWidgetListInterfaceImpl;
-public:
-    DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe );
-
-    unsigned long addRef();
-
-private:
-    QGuardedPtr<PropertyEditor> propertyEditor;
-};
-*/
 /*
  * Application
  */
@@ -110,6 +61,7 @@ class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 {
 public:
     DesignerFormListInterfaceImpl( QUnknownInterface* );
+    ~DesignerFormListInterfaceImpl();
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();
@@ -121,6 +73,7 @@ public:
     void setText( DesignerFormInterface*, int col, const QString& );
 
     uint count() const;
+    DesignerFormInterface* reset();
     DesignerFormInterface* current();
     DesignerFormInterface* next();
     DesignerFormInterface* prev();
@@ -160,6 +113,57 @@ public:
 
 private:
     FormListItem *item;
+    QUnknownInterface *appIface;
+
+    unsigned long ref;
+};
+
+class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
+{
+public:
+    DesignerWidgetListInterfaceImpl( QUnknownInterface * );
+    ~DesignerWidgetListInterfaceImpl();
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    uint count() const;
+    DesignerWidgetInterface *reset();
+    DesignerWidgetInterface *current();
+    DesignerWidgetInterface *next();
+    DesignerWidgetInterface *prev();
+
+    void selectAll() const;
+    void removeAll() const;
+
+private:
+    QUnknownInterface *appIface;
+    HierarchyList *hierarchy;
+    QListViewItemIterator *listIterator;
+
+    unsigned long ref;
+};
+
+class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
+{
+public:
+    DesignerWidgetInterfaceImpl( HierarchyItem *, QUnknownInterface * );
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    QVariant property( const QCString& );
+    bool setProperty( const QCString&, const QVariant& );
+
+    void setSelected( bool );
+    bool selected() const;
+
+    void remove();
+
+private:
+    HierarchyItem *item;
     QUnknownInterface *appIface;
 
     unsigned long ref;

@@ -55,9 +55,10 @@ Q_GUID(IID_DesignerWidgetListInterface,
 interface DesignerWidgetListInterface : public QUnknownInterface
 {
     virtual uint count() const = 0;
-    virtual DesignerWidgetInterface *toFirst() = 0;
+    virtual DesignerWidgetInterface *reset() = 0;
     virtual DesignerWidgetInterface *current() = 0;
     virtual DesignerWidgetInterface *next() = 0;
+    virtual DesignerWidgetInterface *prev() = 0;
 
     virtual void selectAll() const = 0;
     virtual void removeAll() const = 0;
@@ -98,6 +99,7 @@ interface DesignerFormListInterface : public QUnknownInterface
     virtual void setText( DesignerFormInterface*, int col, const QString& ) = 0;
 
     virtual uint count() const = 0;
+    virtual DesignerFormInterface *reset() = 0;
     virtual DesignerFormInterface *current() = 0;
     virtual DesignerFormInterface *next() = 0;
     virtual DesignerFormInterface *prev() = 0;
