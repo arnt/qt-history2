@@ -188,6 +188,11 @@ void Layout::finishLayout( bool needMove, QLayout *layout )
     layout->activate();
     formWindow->insertWidget( layoutBase );
     formWindow->selectWidget( layoutBase );
+    QString n = layoutBase->name();
+    if ( n.find( "qt_dead_widget_" ) != -1 ) {
+	n.remove( 0, QString( "qt_dead_widget_" ).length() );
+	layoutBase->setName( n );
+    }
 }
 
 void Layout::undoLayout()
@@ -203,10 +208,14 @@ void Layout::undoLayout()
     }
     formWindow->selectWidget( layoutBase, FALSE );
     WidgetFactory::deleteLayout( layoutBase );
-    if ( parent != layoutBase )
+    if ( parent != layoutBase ) {
 	layoutBase->hide();
-    else
+	QString n = layoutBase->name();
+	n.prepend( "qt_dead_widget_" );
+	layoutBase->setName( n );
+    } else {
 	layoutBase->setGeometry( oldGeometry );
+    }
     if ( widgets.first() )
 	formWindow->selectWidget( widgets.first() );
     else
@@ -241,6 +250,9 @@ void Layout::breakLayout()
     if ( needReparent ) {
 	layoutBase->hide();
 	parent = layoutBase->parentWidget();
+	QString n = layoutBase->name();
+	n.prepend( "qt_dead_widget_" );
+	layoutBase->setName( n );
     } else {
 	parent = layoutBase;
     }
