@@ -1113,7 +1113,16 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
 	fi
 	;;
     Linux:*)
-	[ -z "$PLATFORM" ] && PLATFORM=qws/linux-generic-g++
+	if [ -z "$PLATFORM" ]; then
+	    case "$UNAME_MACHINE" in
+	    *86)
+		PLATFORM=qws/linux-x86-g++
+		;;
+	    *)
+		PLATFORM=qws/linux-generic-g++
+		;;
+	    esac
+	fi
 	if [ -z "$XPLATFORM" ]; then
 	    if [ "$CFG_EMBEDDED" = "auto" ]; then
 		case "$UNAME_MACHINE" in
@@ -1918,7 +1927,7 @@ elif [ "$Edition" = "troll" ]; then
 	Platform="Qt/Mac"
     else
 	echo
-	echo "Internal error."
+	echo "Internal error: unknown platform."
 	echo
 	exit 2
     fi
