@@ -171,7 +171,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     QApplication::sendPostedEvents();
 
-    if (xt_grab) {
+    if (event->xany.display == QMotif::x11Display() && xt_grab) {
 	if (event->type == XFocusIn && event->xfocus.mode == NotifyWhileGrabbed) {
 	    GDEBUG("Xt: grab moved to window 0x%lx (detail %d)",
 		   event->xany.window, event->xfocus.detail);
