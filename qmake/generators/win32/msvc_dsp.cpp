@@ -513,6 +513,7 @@ DspMakefileGenerator::init()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
     }
 
+    
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "vcapp" )
 	project->variables()["QMAKE_APP_FLAG"].append("1");
@@ -770,7 +771,20 @@ DspMakefileGenerator::init()
     }
 
     project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
+ 
+    processPrlFiles();
 
+     // Update -lname to name.lib,
+    QStringList &libs2 = project->variables()["QMAKE_LIBS"];
+    for ( QStringList::Iterator libit2 = libs2.begin(); libit2 != libs2.end(); ++libit2 ) {
+	if (  (*libit2).startsWith( "-l" ) ) {
+	    (*libit2) = (*libit2).mid( 2 ) + ".lib";
+	} else if ( (*libit2).startsWith( "-L" ) ) {
+	    project->variables()["QMAKE_LIBDIR"] += (*libit2).mid(2);
+	    libit2 = libs2.remove( libit2 );
+	}
+    }
+    
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
 	project->variables()["MSVCDSP_LFLAGS" ].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
@@ -778,7 +792,8 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
 
-    processPrlFiles();
+   
+
     QStringList &libs = project->variables()["QMAKE_LIBS"];
     for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
 	QString lib = (*libit);
@@ -903,7 +918,7 @@ DspMakefileGenerator::init()
 	if ( QFile::exists( *it + ".h" ) )
 	    project->variables()["SOURCES"].append( *it + ".h" );
     }
-    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
+    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS"; 
 }
 
 
