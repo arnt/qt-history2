@@ -15,8 +15,7 @@ void PaintWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.setBrush(Qt::white);
-    painter.drawRect(rect().adjusted(0,0,-1,-1));
+    painter.fillRect(event->rect(), QBrush(Qt::white));
 
     painter.translate(66, 66);
 
