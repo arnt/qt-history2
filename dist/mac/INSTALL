@@ -48,8 +48,7 @@
 	*  setenv MANPATH $QTDIR/doc/man
 	*  setenv DYLD_LIBRARY_PATH $QTDIR/lib
 
-    In .profile (if your shell is bash, ksh, zsh or sh), add the
-    following lines:
+    In .bashrc (if your shell is bash), add the following lines:
 
 	QTDIR=/Developer/qt
 	PATH=$QTDIR/bin:$PATH
@@ -58,6 +57,8 @@
 
 	export QTDIR PATH MANPATH DYLD_LIBRARY_PATH
 
+    If you use a different shell, please modify your environment variables
+    accordingly.
 
 3.  If you have the commercial edition of Qt, install your license
     file as $HOME/.qt-license.
