@@ -95,6 +95,10 @@ extern "C" {
 	    qic->focusWidget = qApp->focusWidget();
 	    qic->composing = FALSE;
 
+	    if ( qic->selectedChars.size() < 128 )
+		qic->selectedChars.resize( 128 );
+	    qic->selectedChars.fill( 0 );
+
 	    if (qic->focusWidget) {
 		qic->composing = TRUE;
 		QIMEvent startevent(QEvent::IMStart, QString::null, -1);
@@ -206,12 +210,6 @@ extern "C" {
 	if (! qic)
 	    return 0;
 
-	// qDebug("compose done: last %d text %d, composing %d focus %p",
-	// qic->lastcompose.length(),
-	// qic->text.length(),
-	// qic->composing,
-	// qic->focusWidget);
-
 	if (qic->composing && qic->focusWidget) {
        	    QIMEvent event(QEvent::IMEnd, qic->lastcompose, -1);
 	    QApplication::sendEvent(qic->focusWidget, &event);
@@ -220,6 +218,10 @@ extern "C" {
  	qic->lastcompose = QString::null;
 	qic->composing = FALSE;
 	qic->focusWidget = 0;
+
+	if ( qic->selectedChars.size() < 128 )
+	    qic->selectedChars.resize( 128 );
+	qic->selectedChars.fill( 0 );
 
 	return 0;
     }
@@ -342,6 +344,9 @@ void QInputContext::reset()
 	QApplication::sendEvent(focusWidget, &endevent);
 	focusWidget = 0;
 	lastcompose = text = QString::null;
+	if ( selectedChars.size() < 128 )
+	    selectedChars.resize( 128 );
+	selectedChars.fill( 0 );
 
 	char *mb = XmbResetIC((XIC) ic);
 	if (mb)
