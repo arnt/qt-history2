@@ -650,7 +650,7 @@ bool WidgetDatabase::isContainer( int id )
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return FALSE;
-    return r->isContainer;
+    return r->isContainer || r->isForm;
 }
 
 QString WidgetDatabase::createWidgetName( int id )
