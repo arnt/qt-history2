@@ -1,0 +1,58 @@
+/****************************************************************************
+**
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of an example program for Qt.
+** EDITIONS: NOLIMITS
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*
+  main.cpp
+
+  A simple example of how to view a model in several views, and share a
+  selection model.
+*/
+
+#include <qapplication.h>
+#include <qtableview.h>
+#include <qtreeview.h>
+#include <qlistview.h>
+#include <qitemselectionmodel.h>
+#include <qdirmodel.h>
+#include <qsplitter.h>
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+
+    QSplitter *splitter = new QSplitter;
+
+    // create the model
+    QDirModel *model = new QDirModel(QDir(), splitter);
+
+    // create the views
+    QTableView *table = new QTableView(splitter);
+    QTreeView *tree = new QTreeView(splitter);
+    QListView *list = new QListView(splitter);
+
+    // set the model
+    table->setModel(model);
+    tree->setModel(model);
+    list->setModel(model);
+
+    // share the selections
+    QItemSelectionModel *selection = new QItemSelectionModel(model, model);
+    table->setSelectionModel(selection);
+    tree->setSelectionModel(selection);
+    list->setSelectionModel(selection);
+
+    splitter->setWindowTitle("Three views onto the same directory model");
+    splitter->show();
+
+    app.setMainWidget(splitter);
+    return app.exec();
+}
