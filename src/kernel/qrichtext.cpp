@@ -741,39 +741,45 @@ static void qt_cleanup_html_map()
     html_map = 0;
 }
 
+// Less code generated if html_map->insert is inlined.
+static void local_insert(QMap<QCString, QChar> *html_map, const char* tag, ushort unicode)
+{
+    html_map->insert(tag,QChar(unicode));
+}
+
 QMap<QCString, QChar> *htmlMap()
 {
     if ( !html_map ){
 	html_map = new QMap<QCString, QChar>;
 	qAddPostRoutine( qt_cleanup_html_map );
-  	html_map->insert("lt", '<');
-  	html_map->insert("gt", '>');
-  	html_map->insert("amp", '&');
-  	html_map->insert("nbsp", 0x00a0U);
-  	html_map->insert("bull", 0x2022U);
-  	html_map->insert("aring", '\xe5');
-  	html_map->insert("oslash", '\xf8');
-  	html_map->insert("ouml", '\xf6');
-  	html_map->insert("auml", '\xe4');
-  	html_map->insert("uuml", '\xfc');
-  	html_map->insert("Ouml", '\xd6');
-  	html_map->insert("Auml", '\xc4');
-  	html_map->insert("Uuml", '\xdc');
-  	html_map->insert("szlig", '\xdf');
-  	html_map->insert("copy", '\xa9');
-  	html_map->insert("deg", '\xb0');
-  	html_map->insert("micro", '\xb5');
-  	html_map->insert("plusmn", '\xb1');
-  	html_map->insert("middot", '*');
-  	html_map->insert("quot", '\"');
-  	html_map->insert("commat", '@');
-  	html_map->insert("num", '#');
-  	html_map->insert("dollar", '$');
-  	html_map->insert("ldquo", '`');
-  	html_map->insert("rdquo", '\'');
-  	html_map->insert("sol", '/' );
-  	html_map->insert("bsol", '\\');
-  	html_map->insert("lowbar", '_');
+  	local_insert(html_map, "lt", '<');
+  	local_insert(html_map, "gt", '>');
+  	local_insert(html_map, "amp", '&');
+  	local_insert(html_map, "nbsp", 0x00a0U);
+  	local_insert(html_map, "bull", 0x2022U);
+  	local_insert(html_map, "aring", '\xe5');
+  	local_insert(html_map, "oslash", '\xf8');
+  	local_insert(html_map, "ouml", '\xf6');
+  	local_insert(html_map, "auml", '\xe4');
+  	local_insert(html_map, "uuml", '\xfc');
+  	local_insert(html_map, "Ouml", '\xd6');
+  	local_insert(html_map, "Auml", '\xc4');
+  	local_insert(html_map, "Uuml", '\xdc');
+  	local_insert(html_map, "szlig", '\xdf');
+  	local_insert(html_map, "copy", '\xa9');
+  	local_insert(html_map, "deg", '\xb0');
+  	local_insert(html_map, "micro", '\xb5');
+  	local_insert(html_map, "plusmn", '\xb1');
+  	local_insert(html_map, "middot", '*');
+  	local_insert(html_map, "quot", '\"');
+  	local_insert(html_map, "commat", '@');
+  	local_insert(html_map, "num", '#');
+  	local_insert(html_map, "dollar", '$');
+  	local_insert(html_map, "ldquo", '`');
+  	local_insert(html_map, "rdquo", '\'');
+  	local_insert(html_map, "sol", '/' );
+  	local_insert(html_map, "bsol", '\\');
+  	local_insert(html_map, "lowbar", '_');
     }
     return html_map;
 }

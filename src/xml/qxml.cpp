@@ -85,6 +85,102 @@
 #define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINAV  "external parsed general entity reference not allowed in attribute value"
 
+void QXmlSimpleReader::next()
+{
+    if ( !xmlRef.isEmpty() ) {
+	c = xmlRef[0];
+	xmlRef.remove( 0, 1 );
+    } else {
+	if ( c=='\n' || c=='\r' ) {
+	    lineNr++;
+	    columnNr = -1;
+	}
+	if ( pos >= xmlLength ) {
+	    c = QEOF;
+	} else {
+	    c = xml[pos];
+	    columnNr++;
+	    pos++;
+	}
+    }
+}
+
+void QXmlSimpleReader::eat_ws()
+{ while ( !atEnd() && is_S(c) ) next(); }
+
+void QXmlSimpleReader::next_eat_ws()
+{ next(); eat_ws(); }
+
+
+// use buffers instead of QString::operator+= when single characters are read
+QString& QXmlSimpleReader::string()
+{
+    stringValue += QString( stringArray, stringPos );
+    stringPos = 0;
+    return stringValue;
+}
+QString& QXmlSimpleReader::name()
+{
+    nameValue += QString( nameArray, namePos );
+    namePos = 0;
+    return nameValue;
+}
+QString& QXmlSimpleReader::ref()
+{
+    refValue += QString( refArray, refPos );
+    refPos = 0;
+    return refValue;
+}
+
+void QXmlSimpleReader::stringAddC()
+{
+    if ( stringPos >= 256 ) {
+	stringValue += QString( stringArray, stringPos );
+	stringPos = 0;
+    }
+    stringArray[stringPos++] = c;
+}
+void QXmlSimpleReader::nameAddC()
+{
+    if ( namePos >= 256 ) {
+	nameValue += QString( nameArray, namePos );
+	namePos = 0;
+    }
+    nameArray[namePos++] = c;
+}
+void QXmlSimpleReader::refAddC()
+{
+    if ( refPos >= 256 ) {
+	refValue += QString( refArray, refPos );
+	refPos = 0;
+    }
+    refArray[refPos++] = c;
+}
+
+void QXmlSimpleReader::stringAddC(const QChar& ch)
+{
+    if ( stringPos >= 256 ) {
+	stringValue += QString( stringArray, stringPos );
+	stringPos = 0;
+    }
+    stringArray[stringPos++] = ch;
+}
+void QXmlSimpleReader::nameAddC(const QChar& ch)
+{
+    if ( namePos >= 256 ) {
+	nameValue += QString( nameArray, namePos );
+	namePos = 0;
+    }
+    nameArray[namePos++] = ch;
+}
+void QXmlSimpleReader::refAddC(const QChar& ch)
+{
+    if ( refPos >= 256 ) {
+	refValue += QString( refArray, refPos );
+	refPos = 0;
+    }
+    refArray[refPos++] = ch;
+}
 
 // the constants for the lookup table
 static const signed char cltWS      =  0; // white space
@@ -2284,8 +2380,8 @@ parseError:
 */
 bool QXmlSimpleReader::parseElement()
 {
-    static QString uri, lname, prefix;
-    static bool t;
+    QString uri, lname, prefix;
+    bool t;
 
     const signed char Init             =  0;
     const signed char ReadName         =  1;

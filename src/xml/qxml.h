@@ -531,55 +531,8 @@ inline bool QXmlSimpleReader::is_NameChar( const QChar& ch )
 	is_CombiningChar(ch) || is_Extender(ch);
 }
 
-inline void QXmlSimpleReader::next()
-{
-    if ( !xmlRef.isEmpty() ) {
-	c = xmlRef[0];
-	xmlRef.remove( 0, 1 );
-    } else {
-	if ( c=='\n' || c=='\r' ) {
-	    lineNr++;
-	    columnNr = -1;
-	}
-	if ( pos >= xmlLength ) {
-	    c = QEOF;
-	} else {
-	    c = xml[pos];
-	    columnNr++;
-	    pos++;
-	}
-    }
-}
-
 inline bool QXmlSimpleReader::atEnd()
 { return c == QEOF; }
-
-inline void QXmlSimpleReader::eat_ws()
-{ while ( !atEnd() && is_S(c) ) next(); }
-
-inline void QXmlSimpleReader::next_eat_ws()
-{ next(); eat_ws(); }
-
-
-// use buffers instead of QString::operator+= when single characters are read
-inline QString& QXmlSimpleReader::string()
-{
-    stringValue += QString( stringArray, stringPos );
-    stringPos = 0;
-    return stringValue;
-}
-inline QString& QXmlSimpleReader::name()
-{
-    nameValue += QString( nameArray, namePos );
-    namePos = 0;
-    return nameValue;
-}
-inline QString& QXmlSimpleReader::ref()
-{
-    refValue += QString( refArray, refPos );
-    refPos = 0;
-    return refValue;
-}
 
 inline void QXmlSimpleReader::stringClear()
 { stringValue = ""; stringPos = 0; }
@@ -588,55 +541,7 @@ inline void QXmlSimpleReader::nameClear()
 inline void QXmlSimpleReader::refClear()
 { refValue = ""; refPos = 0; }
 
-inline void QXmlSimpleReader::stringAddC()
-{
-    if ( stringPos >= 256 ) {
-	stringValue += QString( stringArray, stringPos );
-	stringPos = 0;
-    }
-    stringArray[stringPos++] = c;
-}
-inline void QXmlSimpleReader::nameAddC()
-{
-    if ( namePos >= 256 ) {
-	nameValue += QString( nameArray, namePos );
-	namePos = 0;
-    }
-    nameArray[namePos++] = c;
-}
-inline void QXmlSimpleReader::refAddC()
-{
-    if ( refPos >= 256 ) {
-	refValue += QString( refArray, refPos );
-	refPos = 0;
-    }
-    refArray[refPos++] = c;
-}
 
-inline void QXmlSimpleReader::stringAddC(const QChar& ch)
-{
-    if ( stringPos >= 256 ) {
-	stringValue += QString( stringArray, stringPos );
-	stringPos = 0;
-    }
-    stringArray[stringPos++] = ch;
-}
-inline void QXmlSimpleReader::nameAddC(const QChar& ch)
-{
-    if ( namePos >= 256 ) {
-	nameValue += QString( nameArray, namePos );
-	namePos = 0;
-    }
-    nameArray[namePos++] = ch;
-}
-inline void QXmlSimpleReader::refAddC(const QChar& ch)
-{
-    if ( refPos >= 256 ) {
-	refValue += QString( refArray, refPos );
-	refPos = 0;
-    }
-    refArray[refPos++] = ch;
-}
 #endif //QT_NO_XML
 
 #endif
