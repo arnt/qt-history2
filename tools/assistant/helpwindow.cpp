@@ -86,6 +86,8 @@ void HelpWindow::setSource( const QString &name )
 	    } , {
 		ShellExecuteA( winId(), 0, name.local8Bit(), 0, 0, SW_SHOWNORMAL );
 	    } );
+#elif defined(Q_OS_MAC)
+	    webbrowser = "/usr/bin/open";
 #else
 	    int result = QMessageBox::information( mw, tr( "Help" ),
 			 tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ),
@@ -98,7 +100,7 @@ void HelpWindow::setSource( const QString &name )
 	    if ( webbrowser.isEmpty() )
 		return;
 	}
-	QProcess *proc = new QProcess();
+	QProcess *proc = new QProcess(this);
 	proc->setCommunication(0);
 	proc->addArgument( webbrowser );
 	proc->addArgument( name );
@@ -109,11 +111,15 @@ void HelpWindow::setSource( const QString &name )
     if ( name.right( 3 ) == "pdf" ) {
 	QString pdfbrowser = Config::configuration()->pdfReader();
 	if ( pdfbrowser.isEmpty() ) {
+#if defined(Q_OS_MAC)
+	    pdfbrowser = "/usr/bin/open";
+#else
 	    QMessageBox::information( mw,
 				      tr( "Help" ),
 				      tr( "No PDF Viewer has been specified\n"
 					  "Please use the settings dialog to specify one!\n" ) );
 	    return;
+#endif
 	}
 	QFileInfo info( pdfbrowser );
 	if( !info.exists() ) {
@@ -125,7 +131,7 @@ void HelpWindow::setSource( const QString &name )
 					  "the specified location." ).arg( pdfbrowser ) );
 	    return;
 	}
-	QProcess *proc = new QProcess();
+	QProcess *proc = new QProcess(this);
 	proc->setCommunication(0);
 	proc->addArgument( pdfbrowser );
 	proc->addArgument( name );
