@@ -1912,8 +1912,10 @@ void QMainWindow::setUpLayout()
     if ( d->hidden && !d->hidden->isEmpty() ) {
 	d->hideDock->show();
 	QMainWindowPrivate::ToolBar *tb;
-	for ( tb = d->hidden->first(); tb; tb = d->hidden->next() )
-	    tb->t->hide();
+	for ( tb = d->hidden->first(); tb; tb = d->hidden->next() ) {
+	    if ( tb->t->isVisible() )
+		tb->t->QWidget::hide();
+	}
 	d->hideDock->repaint( TRUE );
     } else {
 	d->hideDock->hide();
