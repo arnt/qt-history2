@@ -401,8 +401,6 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     // #### should move to QWidget - anything might need this functionality,
     // #### since anything can have WType_Popup window flag.
 
-    if ( mitems->count() == 0 )			// oops, empty
-	insertSeparator();			// Save Our Souls
     if ( badSize )
 	updateSize();
 
@@ -769,6 +767,11 @@ QRect QPopupMenu::itemGeometry( int index )
 void QPopupMenu::updateSize()
 {
     polish();
+    if ( count() == 0 ) {
+	setFixedSize( 50, 8 );
+	badSize = TRUE;
+	return;
+    }
 #ifndef QT_NO_ACCEL
     updateAccel( 0 );
 #endif
@@ -954,7 +957,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	int k = mi->key();
 	if ( k ) {
 	    int id = autoaccel->insertItem( k, mi->id() );
-#ifndef QT_NO_WHATSTHIS	    
+#ifndef QT_NO_WHATSTHIS	
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
 #endif
 	}
@@ -1141,7 +1144,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
-	} 
+	}
 	drawItem( p, tab, mi, row == actItem, x, y, itemw, itemh );
 	y += itemh;
 	++row;
@@ -1237,7 +1240,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	    bool b = QWhatsThis::inWhatsThisMode();
 #else
 	    const bool b = FALSE;
-#endif	    
+#endif	
 	if ( !mi->isEnabled() ) {
 #ifndef QT_NO_WHATSTHIS
 	    if ( b ) {
@@ -1246,7 +1249,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 		byeMenuBar();
 		actSig( mi->id(), b);
 	    }
-#endif	    
+#endif	
 	} else 	if ( popup ) {
 	    popup->setFirstItemActive();
 	} else {				// normal menu item
@@ -1432,7 +1435,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    bool b = QWhatsThis::inWhatsThisMode();
 #else
 	    const bool b = FALSE;
-#endif	    
+#endif	
 	    if ( mi->isEnabled() || b ) {
 		active_popup_menu = this;
 		actSig( mi->id(), b );
@@ -1493,7 +1496,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		bool b = QWhatsThis::inWhatsThisMode();
 #else
 		const bool b = FALSE;
-#endif	    
+#endif	
 		if ( mi->isEnabled() || b ) {
 		    active_popup_menu = this;
 		    actSig( mi->id(), b );
@@ -2017,7 +2020,7 @@ void QPopupMenu::activateItemAt( int index )
 	    bool b = QWhatsThis::inWhatsThisMode();
 #else
 	    const bool b = FALSE;
-#endif	    
+#endif	
 	    if ( !mi->isEnabled() ) {
 #ifndef QT_NO_WHATSTHIS
 		if ( b ) {
