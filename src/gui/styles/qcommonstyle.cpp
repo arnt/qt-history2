@@ -2343,7 +2343,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_ToolBarExtensionExtent:
-        ret = 16;
+        ret = 14;
         break;
 
     case PM_TabBarTabOverlap:

@@ -721,24 +721,23 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     QSize real_sh(0, 0);
     while (layout()->itemAt(i))
 	real_sh += layout()->itemAt(i++)->widget()->sizeHint();
-    real_sh += QSize(layout()->spacing()*i + layout()->margin()*2,
-		     layout()->spacing()*i + layout()->margin()*2);
+    real_sh += QSize(layout()->spacing()*i + margin*2, layout()->spacing()*i + margin*2);
 
-    i = 1;  // tb handle is always the first item in the layout
-
-    // only consider the size of the extension if the tb is shrinking
-    bool use_extension = (pick(orientation, size()) < pick(orientation, d->old_size))
-			 || (pick(orientation, size()) < pick(orientation, real_sh));
+    int extension_size = 0;
     int hidden_count = 0;
     int max_item_extent = 0;
-    while (layout()->itemAt(i)) {
+    i = d->items.size(); // note: the toolbar handle is not counted
+    while (i > 0) {
 	QWidget *w = layout()->itemAt(i)->widget();
 	if (pick(orientation, w->pos()) + pick(orientation, w->size())
-	    >= (pick(orientation, size()) - ((use_extension && d->extension->isShown())
-                                             ? pick(orientation, d->extension->size()) : 0))) {
+            >= pick(orientation, size()) - extension_size)
+        {
             w->hide();
             d->items[i - 1].hidden = true;
             ++hidden_count;
+            // the size of the extension menu button needs to be
+            // considered when buttons in the toolbar are hidden
+            extension_size = pick(orientation, d->extension->sizeHint());
         } else {
             w->setShown(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
@@ -747,7 +746,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             max_item_extent = qMax(max_item_extent, w->height());
         else
             max_item_extent = qMax(max_item_extent, w->width());
-	++i;
+	--i;
     }
     setMinimumSize(max_item_extent + margin*2, max_item_extent + margin*2);
     if (hidden_count > 0) {
@@ -788,8 +787,6 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	    d->extension->menu()->clear();
 	d->extension->hide();
     }
-    d->old_size = size();
-
     QWidget::resizeEvent(event);
 }
 

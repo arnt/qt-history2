@@ -85,7 +85,6 @@ public:
     Qt::IconSize iconSize;
     Qt::ToolButtonStyle toolButtonStyle;
 
-    QSize old_size;
     QToolBarHandle *handle;
     QToolBarExtension *extension;
 

@@ -1137,7 +1137,15 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PM_MenuBarHMargin  Spacing between menubar items and top/bottom of bar
     \value PM_MenuBarVMargin  Spacing between menubar items and left/right of bar
 
+    \value PM_ToolBarFrameWidth  Width of the frame around toolbars
+    \value PM_ToolBarHandleExtent Width of a toolbar handle in a
+        horizontal toolbar and the height of the handle in a vertical toolbar
     \value PM_ToolBarItemSpacing  Spacing between toolbar items
+    \value PM_ToolBarSeparatorExtent Width of a toolbar separator in a
+        horizontal toolbar and the height of a separator in a vertical toolbar
+    \value PM_ToolBarExtensionExtent Width of a toolbar extension
+         button in a horizontal toolbar and the height of the button in a
+         vertical toolbar
 
     \value PM_TabBarTabOverlap  Number of pixels the tabs should overlap
     \value PM_TabBarTabHSpace  Extra space added to the tab width
