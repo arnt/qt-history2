@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#159 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#158 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#159 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -114,6 +114,7 @@ void QWidget::create( WId window )
 
     if ( window ) {				// override the old window
 	destroyw = winid;
+	id = window;
 	setWinId( window );
     } else if ( desktop ) {			// desktop widget
 	id = parentw;				// id = root window
