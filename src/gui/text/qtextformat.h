@@ -19,6 +19,8 @@
 #include <QtCore/qshareddata.h>
 #include <QtCore/qvector.h>
 #include <QtCore/qvariant.h>
+#include <QtGui/qpen.h>
+#include <QtGui/qbrush.h>
 
 class QString;
 class QVariant;
