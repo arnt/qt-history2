@@ -73,7 +73,7 @@
 
 #define QT_SIGNAL_ARGS		int
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400 && defined(QT_VSNPRINTF)
+#if defined(_MSC_VER) && _MSC_VER >= 1400
 # undef QT_VSNPRINTF // use the Qt implementation of vsnprintf
 #else
 #define QT_VSNPRINTF ::_vsnprintf
@@ -87,6 +87,5 @@
 # define R_OK	4
 
 typedef int mode_t;
-
 
 #endif // QPLATFORMDEFS_H

@@ -626,7 +626,11 @@ const char *qmake_version()
     if(ret)
         return ret;
     ret = (char *)malloc(15);
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    sprintf_s(ret, 15, "%d.%02d%c", QMAKE_VERSION_MAJOR, QMAKE_VERSION_MINOR, 'a' + QMAKE_VERSION_PATCH);
+#else
     sprintf(ret, "%d.%02d%c", QMAKE_VERSION_MAJOR, QMAKE_VERSION_MINOR, 'a' + QMAKE_VERSION_PATCH);
+#endif
     return ret;
 }
 

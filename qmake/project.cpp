@@ -672,8 +672,13 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                         if(rparen == -1) {
                             QByteArray error;
                             error.reserve(256);
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+                            sprintf_s(error.data(), 256, "Function missing right paren: %s ('%s')",
+                                    comp_scope.toLatin1().constData(), s.toLatin1().constData());
+#else
                             sprintf(error.data(), "Function missing right paren: %s ('%s')",
                                     comp_scope.toLatin1().constData(), s.toLatin1().constData());
+#endif
                             qmake_error_msg(error);
                             return false;
                         }
@@ -1330,8 +1335,13 @@ QMakeProject::doProjectTest(QString str, QMap<QString, QStringList> &place)
         if(rparen == -1) {
             QByteArray error;
             error.reserve(256);
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+            sprintf_s(error.data(), 256, "Function (in REQUIRES) missing right paren: %s",
+                    chk.toLatin1().constData());
+#else
             sprintf(error.data(), "Function (in REQUIRES) missing right paren: %s",
                     chk.toLatin1().constData());
+#endif
             qmake_error_msg(error);
         } else {
             QString func = chk.left(lparen);

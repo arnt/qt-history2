@@ -73,7 +73,9 @@
 
 #define QT_SIGNAL_ARGS		int
 
-#define QT_VSNPRINTF		::_vsnprintf
+#if defined(_MSC_VER) && _MSC_VER < 1400
+# define QT_VSNPRINTF		::_vsnprintf
+#endif
 #define QT_SNPRINTF		::_snprintf
 
 # define F_OK	0
