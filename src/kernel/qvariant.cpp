@@ -1180,7 +1180,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 34;
+static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1205,6 +1205,7 @@ static const char* const type_map[ntypes] =
     "uint",
     "bool",
     "double",
+    "",
     "QPointArray",
     "QRegion",
     "QBitmap",
@@ -1244,6 +1245,8 @@ const char *QVariant::typeToName(Type typ)
 QVariant::Type QVariant::nameToType(const char *name)
 {
     if (name) {
+	if (strcmp(name, "") == 0)
+	    return Invalid;
 	if (strcmp(name, "QCString") == 0)
 	    return ByteArray;
 	for (int i = 1; i < ntypes; ++i) {
