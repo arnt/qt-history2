@@ -41,7 +41,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Palette&lt;/b&gt;&lt;p&gt;Change the palette of the current widget or form.&lt;/p&gt;&lt;p&gt;Use a generated palette or select colors for each color group and each color role.&lt;/p&gt;&lt;p&gt;The palette can be tested with different widget layouts in the preview section.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Palette&lt;/b&gt;&lt;p&gt;Change the current widget or form's palette.&lt;/p&gt;&lt;p&gt;Use a generated palette or select colors for each color group and each color role.&lt;/p&gt;&lt;p&gt;The palette can be tested with different widget layouts in the preview section.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -134,7 +134,7 @@
                         <cstring>checkBuildInactive</cstring>
                     </property>
                     <property name="text">
-                        <string>Build inactive palette from active.</string>
+                        <string>Build the inactive palette from the active palette.</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
@@ -145,7 +145,7 @@
                         <cstring>checkBuildDisabled</cstring>
                     </property>
                     <property name="text">
-                        <string>Build disabled palette from active.</string>
+                        <string>Build the disabled palette from the active palette.</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
@@ -230,10 +230,10 @@
                         <cstring>comboCentral</cstring>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Choose central color role</string>
+                        <string>Choose the central color role</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available central roles are: &lt;ul&gt; &lt;li&gt;Background - general background color.&lt;/li&gt; &lt;li&gt;Foreground - general foreground color. &lt;/li&gt; &lt;li&gt;Base - used as background color for e.g. text entry widgets, usually white or another light color. &lt;/li&gt; &lt;li&gt;Text - the forground color used with Base. Usually this is the same as the Foreground, in what case it must provide good contrast both with Background and Base. &lt;/li&gt; &lt;li&gt;Button - general button background color, where buttons need a background different from Background, as in the Macintosh style. &lt;/li&gt; &lt;li&gt;ButtonText - a foreground color used with the Button color. &lt;/li&gt; &lt;li&gt;Highlight - a color to indicate a selected or highlighted item. &lt;/li&gt; &lt;li&gt;HighlightedText - a text color that contrasts to Highlight. &lt;/li&gt; &lt;li&gt;BrightText - a text color that is very different from Foreground and contrasts well with e.g. black. &lt;/li&gt; &lt;/ul&gt; &lt;/p&gt;</string>
+                        <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available central color roles are: &lt;ul&gt; &lt;li&gt;Background - general background color.&lt;/li&gt; &lt;li&gt;Foreground - general foreground color. &lt;/li&gt; &lt;li&gt;Base - used as the background color for example, for text entry widgets; it is usually white or another light color. &lt;/li&gt; &lt;li&gt;Text - the forground color used with Base. Usually this is the same as the Foreground, in which case it must provide good contrast both with the Background and with the Base. &lt;/li&gt; &lt;li&gt;Button - general button background color; useful where buttons need a background different from Background, as in the Macintosh style. &lt;/li&gt; &lt;li&gt;ButtonText - a foreground color used with the Button color. &lt;/li&gt; &lt;li&gt;Highlight - a color used to indicate a selected or highlighted item. &lt;/li&gt; &lt;li&gt;HighlightedText - a text color that contrasts to Highlight. &lt;/li&gt; &lt;li&gt;BrightText - a text color that is very different from Foreground and contrasts well with, for example, black. &lt;/li&gt; &lt;/ul&gt; &lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLayoutWidget">
@@ -304,7 +304,7 @@
                                 <string>Select a pixmap</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>Choose a pixmap-file for the selected central color role.</string>
+                                <string>Choose a pixmap file for the selected central color role.</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
@@ -402,7 +402,7 @@
                                 <string>Generate shadings</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>Check to let 3D-effect colors be calculated from button-color.</string>
+                                <string>Check to let 3D-effect colors be calculated from the button-color.</string>
                             </property>
                         </widget>
                         <widget class="QComboBox">
@@ -438,7 +438,7 @@
                                 <string>Choose 3D-effect color role</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Select a color role.&lt;/b&gt;&lt;p&gt;Available effect roles are: &lt;ul&gt; &lt;li&gt;Light - lighter than Button color. &lt;/li&gt; &lt;li&gt;Midlight - between Button and Light. &lt;/li&gt; &lt;li&gt;Mid - between Button and Dark. &lt;/li&gt; &lt;li&gt;Dark - darker than Button. &lt;/li&gt; &lt;li&gt;Shadow - a very dark color. &lt;/li&gt; &lt;/ul&gt;</string>
+                                <string>&lt;b&gt;Select a color effect role.&lt;/b&gt;&lt;p&gt;Available effect roles are: &lt;ul&gt; &lt;li&gt;Light - lighter than Button color. &lt;/li&gt; &lt;li&gt;Midlight - between Button and Light. &lt;/li&gt; &lt;li&gt;Mid - between Button and Dark. &lt;/li&gt; &lt;li&gt;Dark - darker than Button. &lt;/li&gt; &lt;li&gt;Shadow - a very dark color. &lt;/li&gt; &lt;/ul&gt;</string>
                             </property>
                         </widget>
                     </hbox>
@@ -580,7 +580,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -594,7 +594,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>
