@@ -68,7 +68,10 @@ New classes
 
 - QIconFactory
 - QObjectUserData
-
+- QOCI9Result
+- QMutexLocker
+- QBackInsertIterator
+- QSyntaxHighlighter
 
 QCanvas
 ------------------
@@ -255,3 +258,266 @@ New functions:
 
 New enum:
 	TransformationMode { Points, Areas }
+
+QFtp
+------------------
+While still remaining a subclass of QNetworkProtocol, QFtp can be now
+used directly for more advanced FTP operations. Look at the Qt
+Reference Documentation for details about the API.
+
+QHttp
+------------------
+While still remaining a subclass of QNetworkProtocol, QHttp can be now
+used directly for more advanced HTTP operations. Look at the Qt
+Reference Documentation for details about the API.
+
+Related new classes:
+	QHttpHeader
+	QHttpResponseHeader
+	QHttpRequestHeader
+
+QOCIResult
+------------------
+New functions:
+	bool prepare( const QString& query )
+	bool exec()
+
+QODBCResult
+------------------
+New functions:
+	bool prepare( const QString& query )
+	bool exec()
+	bool fetchPrior()
+
+QSqlCursor
+------------------
+New functions:
+	void setValue( int i, const QVariant& val )
+	void setValue( const QString& name, const QVariant& val )
+
+QSqlDriver
+------------------
+New enum values:
+	Unicode, PreparedQueries
+	
+QSqlQuery
+------------------
+New functions:
+	bool isForwardOnly() const
+	void setForwardOnly( bool forward )
+	bool exec()
+	bool prepare( const QString& query )
+	void bindValue( const QString& placeholder, const QVariant& val )
+	void bindValue( int pos, const QVariant& val )
+	void addBindValue( const QVariant& val )
+
+QTableSelection
+------------------
+New functions:
+	QTableSelection( int start_row, int start_col, int end_row, int end_col )
+
+
+QTable
+------------------
+New properties:
+	int numSelections
+
+New functions:
+	void selectCells( int start_row, int start_col, int end_row, int end_col )
+	void selectRow( int row )
+	void selectColumn( int col )
+	void updateHeaderStates()
+	void setRowLabels( const QStringList &labels )
+	void setColumnLabels( const QStringList &labels )
+
+QCString
+------------------
+New global functions
+	QByteArray qCompress( const uchar* data, int nbytes )
+	QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize = -1 )
+	QByteArray qCompress( const QByteArray& data)
+	QByteArray qUncompress( const QByteArray& data, int expectedSize = -1 )
+
+QDate
+------------------
+New functions:
+	int weekNumber( int *yearNum = 0 ) const
+	static QDate currentDate( Qt::DateTimeSpec )
+
+QTime
+------------------
+New functions:
+	static QTime currentTime( Qt::DateTimeSpec )
+
+QDateTime
+------------------
+New functions:
+	static QDateTime currentDateTime( Qt::DateTimeSpec )
+
+QFileInfo
+------------------
+New functions:
+	bool isHidden() const
+
+QPtrList
+------------------
+New functions:
+	bool replace( uint i, const type *d )
+
+QRegExp
+------------------
+New functions:
+	QString errorString()
+	static QString escape( const QString& str )
+
+QSettings
+------------------
+New functions:
+	QSettings( Format format )
+	void setPath( const QString &domain, const QString &product, Scope = User )
+	static void setDefaultDomain( const QString &domain )
+	static QString defaultDomain()
+	static void setDefaultProduct( const QString &product )
+	static QString defaultProduct()
+	void beginGroup( const QString &group )
+	void endGroup()
+	void resetGroup()
+	QString group() const
+
+New enums: 
+	Format { Native = 0, Ini }
+	Scope { User, Global }
+
+QString
+------------------
+New functions:
+	QString &append( const QCString & )
+	QString &append( const char * )
+	QString &prepend( const QCString & )
+	QString &prepend( const char * )
+	QString &remove( QChar c )
+	QString &remove( char c )
+	QString &remove( const QString & )
+	QString &remove( const QRegExp & )
+	QString &remove( const char * )
+	QString &replace( uint index, uint len, QChar )
+	QString &replace( uint index, uint len, char c )
+	QString &replace( QChar c, const QString & )
+	QString &replace( char c, const QString & after )
+	QString &replace( const QString &, const QString & )
+	QString &replace( QChar, QChar )
+	QString &operator+=( const QCString &str )
+	QString &operator+=( const char *str )
+	static QString fromUcs2( const unsigned short *ucs2 )
+	const unsigned short *ucs2() const
+
+QTextStream
+------------------
+New functions:
+	QTextCodec *codec()
+
+QButton:
+------------------
+New functions:
+	void emulateClick()
+
+QDateTimeEdit:
+------------------
+New functions:
+	int display() const
+	void setDisplay( int )
+
+New enum:
+	Display { Hours = 0x01, Minutes = 0x02, Seconds = 0x04, Reserved = 0x08, AMPM = 0x10 }
+
+QFrame:
+------------------
+New enum value:
+	GroupBoxPanel = 0x000c
+
+QGroupBox
+------------------
+New properties:
+	bool flat
+
+New functions:
+	bool isFlat() const
+	void setFlat( bool b )
+
+QListBox
+------------------
+New functions:
+	QListBoxItem* selectedItem() const
+	void repaintSelection()
+
+QListView
+------------------
+New functions:
+	int sortColumn() const
+
+QSlider
+------------------
+New functions:
+	void addLine()
+	void subtractLine()
+
+QTextBrowser
+------------------
+New functions:
+	void sourceChanged( const QString& )
+	void anchorClicked( const QString&, const QString& )
+
+QTextEdit
+------------------
+QTextEdit offers another TextFormat (LogText), which is optimized
+(speed and memory) for displaying large read-only textes normally used
+for logging.
+
+New properties:
+	bool allowTabs
+
+New functions:
+	QString anchorAt( const QPoint& pos, AnchorAttribute a )
+	void setAllowTabs( bool b )
+	bool allowTabs() const
+	void insert( const QString &text, uint insertionFlags = CheckNewLines | RemoveSelected )
+	void normalCopy()
+	QTextDrag *dragObject( QWidget *parent = 0 ) const
+
+New signals:
+	void clicked( int parag, int index )
+	void doubleClicked( int parag, int index )
+
+New enums:
+	TextInsertionFlags { RedoIndentation = 0x0001, CheckNewLines = 0x0002, RemoveSelected = 0x0004 }
+
+New enum values:
+	AtWordOrDocumentBoundary
+
+QToolButton
+------------------
+New properties:
+	TextPosition textPosition
+
+New functions:
+	TextPosition textPosition() const
+	void setTextPosition( TextPosition pos )
+
+New enums:
+	TextPosition{ Right, Under }
+
+QTooltip
+------------------
+New functions:
+	static void setWakeUpDelay(int)
+
+QWhatsThis
+------------------
+New functions:
+	static void setFont( const QFont &font )
+
+QDomDocument
+------------------
+New functions:
+	QString toString( int ) const
+	QCString toCString( int ) const
