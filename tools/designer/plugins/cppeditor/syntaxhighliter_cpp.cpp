@@ -193,7 +193,7 @@ void SyntaxHighlighter_CPP::updateStyles( const QMap<QString, ConfigStyle> &styl
     }
 }
 
-void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int, bool invalidate )
+void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string, int, bool invalidate )
 {
 
     QTextFormat *formatStandard = format( Standard );
@@ -512,7 +512,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 
     if ( invalidate && string->next() &&
 	 !string->next()->firstPreProcess() && string->next()->endState() != -1 ) {
-	QTextParag *p = string->next();
+	QTextParagraph *p = string->next();
 	while ( p ) {
 	    if ( p->endState() == -1 )
 		return;

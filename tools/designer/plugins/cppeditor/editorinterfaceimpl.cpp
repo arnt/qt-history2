@@ -168,9 +168,9 @@ bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, 
 
     if ( !replaceAll || !ok ) {
 	if ( ok )
-	    e->setSelection( e->textCursor()->parag()->paragId(),
+	    e->setSelection( e->textCursor()->paragraph()->paragId(),
 			     e->textCursor()->index() - replace.length(),
-			     e->textCursor()->parag()->paragId(),
+			     e->textCursor()->paragraph()->paragId(),
 			     e->textCursor()->index() );
 	return ok;
     }
@@ -218,7 +218,7 @@ void EditorInterfaceImpl::scrollTo( const QString &txt, const QString & )
 	return;
     ( (CppEditor*)viewManager->currentView() )->sync();
     QTextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
-    QTextParag *p = doc->firstParag();
+    QTextParagraph *p = doc->firstParagraph();
     while ( p ) {
 	if ( p->string()->toString().find( txt ) != -1 ) {
 	    ( (CppEditor*)viewManager->currentView() )->setCursorPosition( p->paragId() + 2, 0 );

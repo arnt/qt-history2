@@ -28,7 +28,7 @@ void CppEditorBrowser::showHelp( const QString &w )
     if ( word.find( '(' ) != -1 ) {
 	QString txt = "::" + word.left( word.find( '(' ) );
 	QTextDocument *doc = curEditor->document();
-	QTextParag *p = doc->firstParag();
+	QTextParagraph *p = doc->firstParagraph();
 	while ( p ) {
 	    if ( p->string()->toString().find( txt ) != -1 ) {
 		curEditor->setCursorPosition( p->paragId(), 0 );

@@ -40,7 +40,7 @@ public:
 
     SyntaxHighlighter_CPP();
     virtual ~SyntaxHighlighter_CPP();
-    void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
+    void process( QTextDocument *doc, QTextParagraph *string, int start, bool invalidate = TRUE );
     void updateStyles( const QMap<QString, ConfigStyle> &styles );
 
     static const char * const keywords[];
