@@ -19,6 +19,9 @@
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
+#ifdef QT_GUI
+# include "qregion.h"
+#endif
 #endif // QT_H
 
 #ifndef QT_NO_WMATRIX

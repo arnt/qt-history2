@@ -14,7 +14,6 @@
 
 #include "qwmatrix.h"
 #include "qdatastream.h"
-#include "qregion.h"
 #if defined(Q_WS_X11)
 double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #else
