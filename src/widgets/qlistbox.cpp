@@ -3453,6 +3453,8 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	doLayout();
 	QScrollView::resizeEvent( e );
 	ensureCurrentVisible();
+	if ( d->current )
+	    updateItem( d->current ); 
     } else if ( d->layoutDirty ) {
 	if ( d->resizeTimer->isActive() )
 	    d->resizeTimer->stop();
