@@ -761,7 +761,7 @@ Q3PtrCollection::Item Q3GCacheIterator::get() const
 QString Q3GCacheIterator::getKeyString() const
 {
     Q3CacheItem *item = it->current();
-    return item ? *((QString*)item->key) : QString::null;
+    return item ? *((QString*)item->key) : QString();
 }
 
 /*!

@@ -174,7 +174,7 @@ inline Q3PtrCollection::Item Q3GDictIterator::get() const
 
 inline QString Q3GDictIterator::getKeyString() const
 {
-    return curNode ? ((Q3StringBucket*)curNode)->getKey() : QString::null;
+    return curNode ? ((Q3StringBucket*)curNode)->getKey() : QString();
 }
 
 inline const char *Q3GDictIterator::getKeyAscii() const

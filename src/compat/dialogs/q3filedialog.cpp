@@ -1068,7 +1068,7 @@ public:
         } else {
             Q3NetworkProtocol *p = Q3NetworkProtocol::getNetworkProtocol(url.protocol());
             if (p && (p->supportedOperations()&Q3NetworkProtocol::OpListChildren)) {
-                QUrlInfo ui(url.info(name.isEmpty() ? "." : name));
+                QUrlInfo ui(url.info(name.isEmpty() ? QString::fromLatin1(".") : name));
                 return ui.isValid();
             }
         }
@@ -1395,7 +1395,7 @@ bool QFileListBox::acceptDrop(const QPoint &pnt, QWidget *source)
         return true;
     }
 
-    QUrlInfo fi(filedialog->d->url.info(item->text().isEmpty() ? "." : item->text()));
+    QUrlInfo fi(filedialog->d->url.info(item->text().isEmpty() ? QString::fromLatin1(".") : item->text()));
 
     if (fi.isDir() && itemRect(item).contains(pnt))
         return true;
@@ -1409,7 +1409,7 @@ void QFileListBox::setCurrentDropItem(const QPoint &pnt)
     Q3ListBoxItem *item = 0;
     if (pnt != QPoint(-1, -1))
         item = itemAt(pnt);
-    if (item && !QUrlInfo(filedialog->d->url.info(item->text().isEmpty() ? "." : item->text())).isDir())
+    if (item && !QUrlInfo(filedialog->d->url.info(item->text().isEmpty() ? QString::fromLatin1(".") : item->text())).isDir())
         item = 0;
     if (item && !itemRect(item).contains(pnt))
         item = 0;
@@ -1803,7 +1803,7 @@ bool Q3FileDialogQFileListView::acceptDrop(const QPoint &pnt, QWidget *source)
         return true;
     }
 
-    QUrlInfo fi(filedialog->d->url.info(item->text(0).isEmpty() ? "." : item->text(0)));
+    QUrlInfo fi(filedialog->d->url.info(item->text(0).isEmpty() ? QString::fromLatin1(".") : item->text(0)));
 
     if (fi.isDir() && itemRect(item).contains(pnt))
         return true;
@@ -1817,7 +1817,7 @@ void Q3FileDialogQFileListView::setCurrentDropItem(const QPoint &pnt)
     Q3ListViewItem *item = itemAt(pnt);
     if (pnt == QPoint(-1, -1))
         item = 0;
-    if (item && !QUrlInfo(filedialog->d->url.info(item->text(0).isEmpty() ? "." : item->text(0))).isDir())
+    if (item && !QUrlInfo(filedialog->d->url.info(item->text(0).isEmpty() ? QString::fromLatin1(".") : item->text(0))).isDir())
         item = 0;
 
     if (item && !itemRect(item).contains(pnt))
@@ -2734,7 +2734,7 @@ void Q3FileDialog::fileNameEditReturnPressed()
             if (c && files->isSelected(c))
                 f = c->info;
             else
-                f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
+                f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
             if (f.isDir()) {
                 setUrl(Q3UrlOperator(d->url,
                                       Q3FileDialogPrivate::encodeFileName(nameEdit->text() + "/")));
@@ -3147,7 +3147,7 @@ void Q3FileDialog::setDir(const QDir &dir)
     QString nf(d->url.nameFilter());
     d->url = dir.canonicalPath();
     d->url.setNameFilter(nf);
-    QUrlInfo i(d->url.info(nameEdit->text().isEmpty()? "." : nameEdit->text()));
+    QUrlInfo i(d->url.info(nameEdit->text().isEmpty()? QString::fromLatin1(".") : nameEdit->text()));
     d->checkForFilter = true;
     trySetSelection(i.isDir(), Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text())), false);
     d->checkForFilter = false;
@@ -3562,7 +3562,7 @@ void Q3FileDialog::okClicked()
     updateLastSize(this);
 
     if (isDirectoryMode(d->mode)) {
-        QUrlInfo f(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
+        QUrlInfo f(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
         if (f.isDir()) {
             d->currentFileName = d->url;
             if (d->currentFileName.right(1) != "/")
@@ -3629,7 +3629,7 @@ void Q3FileDialog::okClicked()
             else
                 f = ((Q3FileDialogPrivate::File*)m->i)->info;
         } else {
-            f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
+            f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
         }
         if (f.isDir()) {
             setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(f.name() + "/")));
@@ -3978,7 +3978,7 @@ void Q3FileDialog::updateFileNameEdit(Q3ListBoxItem * newItem)
 
 void Q3FileDialog::fileNameEditDone()
 {
-    QUrlInfo f(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
+    QUrlInfo f(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
     if (mode() != Q3FileDialog::ExistingFiles) {
         Q3UrlOperator u(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text()));
         trySetSelection(f.isDir(), u, false);
@@ -4146,7 +4146,7 @@ void Q3FileDialog::popupContextMenu(const QString &filename, bool,
 
     if (!glob) {
         QString okt;
-        if (QUrlInfo(d->url.info(filename.isEmpty() ? "." : fileName)).isDir()) {
+        if (QUrlInfo(d->url.info(filename.isEmpty() ? QString::fromLatin1(".") : fileName)).isDir()) {
             okt = tr("&Open");
         } else {
             if (mode() == AnyFile)
@@ -4236,7 +4236,7 @@ void Q3FileDialog::deleteFile(const QString &filename)
         return;
 
     QString encoded = Q3FileDialogPrivate::encodeFileName(filename);
-    QUrlInfo fi(d->url.info(encoded.isEmpty() ? "." : encoded));
+    QUrlInfo fi(d->url.info(encoded.isEmpty() ? QString::fromLatin1(".") : encoded));
     QString t = tr("the file");
     if (fi.isDir())
         t = tr("the directory");
@@ -4780,14 +4780,14 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
         } else if (nameEdit->hasFocus()) {
             if (d->currentFileName.isNull()) {
                 // maybe change directory
-                QUrlInfo i(d->url.info(nameEdit->text().isEmpty() ? "." :nameEdit->text()));
+                QUrlInfo i(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") :nameEdit->text()));
                 if (i.isDir()) {
                     nameEdit->setText(QString::fromLatin1(""));
                     setDir(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i.name())));
                 }
                 ke->accept();
             } else if (mode() == ExistingFiles) {
-                QUrlInfo i(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
+                QUrlInfo i(d->url.info(nameEdit->text().isEmpty() ? QString::fromLatin1(".") : nameEdit->text()));
                 if (i.isFile()) {
                     Q3ListViewItem * i = files->firstChild();
                     while (i && nameEdit->text() != i->text(0))
