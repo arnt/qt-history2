@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#9 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#10 $
 **
 ** Definition of QPainter class
 **
@@ -86,8 +86,8 @@ public:
 
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
-    QWXFMatrix *wxfMatrix()	const;		// get/set world xform matrix
-    void	setWxfMatrix( const QWXFMatrix &, bool concat=FALSE );
+    QWorldMatrix *worldMatrix()	const;		// get/set world xform matrix
+    void	setWorldMatrix( const QWorldMatrix &, bool concat=FALSE );
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
@@ -132,7 +132,7 @@ public:
     void	drawPolygon( const QPointArray &, bool winding=FALSE,
 			     int index=0, int npoints=-1 );
     void	drawPixMap( int x, int y, const QPixMap & );
-    void	drawMetaFile( const QMetaFile & );
+    void	drawPicture( const QPicture & );
 
     void	fillRect( int x, int y, int w, int h, const QColor & );
     void	fillRect( const QRect &, const QColor & );
@@ -200,8 +200,8 @@ private:
     QRegion	crgn;				// current region
     QCOOT	sx, sy, sw, sh;			// source rect
     QCOOT	tx, ty, tw, th;			// target rect
-    QWXFMatrix *wxfmat;				// world xform matrix
-    QWXFMatrix *wxfimat;			// inverse xform matrix
+    QWorldMatrix *wxmat;			// world xform matrix
+    QWorldMatrix *wixmat;			// inverse xform matrix
 #if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
     long	wm11, wm12, wm21, wm22, wdx, wdy;
     long	im11, im12, im21, im22, idx, idy;
