@@ -461,9 +461,13 @@ void QWSPaintEngine::drawEllipse(const QRectF &r)
     }
 }
 
-void QWSPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
+void QWSPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-    QPolygon pa(p.toPolygon());
+    QPolygon pa;
+    pa.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        pa << points[i].toPoint();
+
     if (mode == PolylineMode) {
         if (state->pen.style() != Qt::NoPen)
             d->gfx->drawPolyline(pa, 0, pa.size());

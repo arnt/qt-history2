@@ -522,7 +522,7 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         DeleteObject(SelectObject(d->hdc, oldPen));
 }
 
-void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
+void QWin32PaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug() << " -> QWin32PaintEngine::drawPolygon()" << p.size() << mode;
@@ -531,17 +531,16 @@ void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
 #endif
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPolygon(p, mode);
+        d->gdiplusEngine->drawPolygon(points, pointCount, mode);
         return;
     }
 
     if (mode == PolylineMode) {
         int x1, y1, x2, y2;
-        int npoints = p.size();
-        x1 = qRound(p.at(npoints-2).x());
-        y1 = qRound(p.at(npoints-2).y());
-        x2 = qRound(p.at(npoints-1).x());
-        y2 = qRound(p.at(npoints-1).y());
+        x1 = qRound(points[pointCount-2].x());
+        y1 = qRound(points[pointCount-2].y());
+        x2 = qRound(points[pointCount-1].x());
+        y2 = qRound(points[pointCount-1].y());
         bool plot_pixel = false;
         QT_WA({
             plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
@@ -565,21 +564,24 @@ void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
             }
         }
 
-        POINT *points;
-        int pointCount;
-        d->polygonClipper.clipPolygon((qt_float_point*)p.data(), p.size(), &points, &pointCount);
+        POINT *cPoints;
+        int cCount;
+        d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount, &cPoints, &cCount);
+
+        if (cCount == 0)
+            return;
 
         if (plot_pixel) {
-            Polyline(d->hdc, points, pointCount);
+            Polyline(d->hdc, cPoints, cCount);
 #ifndef Q_OS_TEMP
             SetPixelV(d->hdc, x2, y2, d->pColor);
 #else
             SetPixel(d->hdc, x2, y2, d->pColor);
 #endif
         } else {
-            points[pointCount-1].x = x2;
-            points[pointCount-1].y = y2;
-            Polyline(d->hdc, points, pointCount);
+            cPoints[pointCount-1].x = x2;
+            cPoints[pointCount-1].y = y2;
+            Polyline(d->hdc, cPoints, cCount);
         }
         return;
     }
@@ -589,7 +591,11 @@ void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
     if (d->brushStyle == Qt::LinearGradientPattern ||
         d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
         QPainterPath path;
-        path.addPolygon(p);
+        Q_ASSERT_X(pointCount, "QWin32PaintEngine::drawPolygon",
+                   "empty polygons should have been stopped by QPainter");
+        path.moveTo(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            path.lineTo(points[i]);
         drawPath(path);
         return;
     }
@@ -602,11 +608,11 @@ void QWin32PaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
 
-    POINT *points;
-    int pointCount;
-    d->polygonClipper.clipPolygon((qt_float_point*)p.data(), p.size(), &points, &pointCount);
+    POINT *cPoints;
+    int cCount;
+    d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount, &cPoints, &cCount);
 
-    Polygon(d->hdc, points, pointCount);
+    Polygon(d->hdc, cPoints, cCount);
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 #ifndef Q_OS_TEMP
@@ -666,8 +672,6 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
 
     if (p.fillRule() == Qt::WindingFill)
         SetPolyFillMode(d->hdc, ALTERNATE);
-
-
 }
 
 
@@ -2157,6 +2161,12 @@ enum DriverStringOptions
     DriverStringOptionsLimitSubpixel          = 8
 };
 
+enum FillMode {
+    FillModeAlternate   = 0,
+    FillModeWinding     = 1
+};
+
+
 QGdiplusPaintEngine::QGdiplusPaintEngine()
     : QPaintEngine(*(new QGdiplusPaintEnginePrivate))
 {
@@ -2171,6 +2181,12 @@ QGdiplusPaintEngine::~QGdiplusPaintEngine()
 bool QGdiplusPaintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
+
+    const int BUFFERZONE = 100;
+    d->polygonClipper.setBoundingRect(QRect(-BUFFERZONE, -BUFFERZONE,
+                                            pdev->width() + 2 * BUFFERZONE,
+                                            pdev->height() + 2 * BUFFERZONE));
+
     // Verify the presence of an HDC
     d->hdc = pdev->getDC();
     if(!d->hdc)
@@ -2416,39 +2432,33 @@ void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
     }
 }
 
-void QGdiplusPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
+void QGdiplusPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-//     if (d->usePen || d->brush) {
-//         Point *p = new Point[npoints];
-//         for (int i=0; i<npoints; ++i)
-//             p[i] = Point(pa[index+i].x(), pa[index+i].y());
-//         if (d->usePen)
-//             d->graphics->DrawPolygon(d->pen, p, npoints);
-//         if (d->brush)
-//             d->graphics->FillPolygon(d->brush, p, npoints,
-//                                      winding ? FillModeWinding : FillModeAlternate);
-//         delete [] p;
-//     }
+    QPointF *clipped;
+    int clippedCount;
+
+    d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount,
+                                  (qt_float_point**)&clipped,
+                                  &clippedCount);
 
     if (d->usePen && mode == PolylineMode) {
         QtGpPath *path = 0;
         GdipCreatePath(0, &path);
-        for (int i=1; i<p.size(); ++i)
-            GdipAddPathLine(path, p.at(i-1).x(), p.at(i-1).y(), p.at(i).x(), p.at(i).y());
+        for (int i=1; i<clippedCount; ++i)
+            GdipAddPathLine(path, clipped[i-1].x(), clipped[i-1].y(), clipped[i].x(), clipped[i].y());
         GdipDrawPath(d->graphics, d->pen, path);
         GdipDeletePath(path);
         return;
     }
 
+
+
     if (d->brush) {
-        GdipFillPolygon(d->graphics, d->brush, p.data(), p.size(),
-                         mode == WindingMode
-                         ? 1 // FillModeWinding
-                         : 0 // FillModeAlternate
-                         );
+        GdipFillPolygon(d->graphics, d->brush, clipped, clippedCount,
+                        mode == WindingMode ? FillModeWinding : FillModeAlternate);
     }
     if (d->usePen)
-        GdipDrawPolygon(d->graphics, d->pen, p.data(), p.size());
+        GdipDrawPolygon(d->graphics, d->pen, clipped, clippedCount);
 }
 
 

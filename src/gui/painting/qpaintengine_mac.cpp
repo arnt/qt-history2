@@ -448,12 +448,11 @@ QQuickDrawPaintEngine::drawLines(const QList<QLineF> &lines)
 }
 
 void
-QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
+QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (mode == PolylineMode) {
-        QPolygon pa = p.toPolygon();
-        if(pa.isEmpty())
+        if(pointCount)
             return;
         setupQDPort();
         if(d->clip.paintable.isEmpty())
@@ -467,14 +466,14 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
         }
 
         // We draw 5000 chunks at a time because of limitations in QD
-        for(int chunk = 0; chunk < pa.count();) {
+        for(int chunk = 0; chunk < pointCount;) {
             //make a region of it
             PolyHandle poly = OpenPoly();
-            MoveTo(pa[chunk].x()+d->offx+penPoint.x(), pa[chunk].y()+d->offy+penPoint.y());
+            MoveTo(points[chunk].x()+d->offx+penPoint.x(), points[chunk].y()+d->offy+penPoint.y());
             for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
                 if(chunk == pa.count())
                     break;
-                LineTo(pa[chunk].x()+d->offx+penPoint.x(), pa[chunk].y()+d->offy+penPoint.y());
+                LineTo(points[chunk].x()+d->offx+penPoint.x(), points[chunk].y()+d->offy+penPoint.y());
             }
             ClosePoly();
             //now draw it
@@ -486,12 +485,11 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
         if(d->clip.paintable.isEmpty())
             return;
 
-        QPolygon pa = p.toPolygon();
         PolyHandle polyHandle = OpenPoly();
-        MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-        for(int x = 1; x < pa.size(); x++)
-            LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
-        LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
+        MoveTo(points[0].x()+d->offx, points[0].y()+d->offy);
+        for(int x = 1; x < pointCount; x++)
+            LineTo(points[x].x()+d->offx, points[x].y()+d->offy);
+        LineTo(points[0].x()+d->offx, points[0].y()+d->offy);
         ClosePoly();
 
         if(d->current.brush.style() != Qt::NoBrush) {
@@ -518,6 +516,11 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygonF &p, PolygonDrawMode mode)
                     //save the clip
                     bool clipon = testf(ClipOn);
                     QRegion clip = d->current.clip;
+
+                    QPolygon pa;
+                    pa.reserve(pointCount);
+                    for (int i=0; i<pointCount; ++i)
+                        pa << points[i];
 
                     //create the region
                     QRegion newclip(pa);
@@ -1446,22 +1449,22 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
+QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
 
     if (mode == PolylineMode) {
-        CGContextMoveToPoint(d->hd, a[0].x(), a[0].y()+1);
-        for(int x = 1; x < a.size(); ++x)
-            CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y()+1);
+        CGContextMoveToPoint(d->hd, points[0].x(), points[0].y()+1);
+        for(int x = 1; x < pointCount; ++x)
+            CGContextAddLineToPoint(d->hd, points[x].x(), points[x].y()+1);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     } else {
         CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, 0, a[0].x(), a[0].y()+1);
-        for(int x = 1; x < a.size(); ++x)
-            CGPathAddLineToPoint(path, 0, a[x].x(), a[x].y()+1);
-        if (a.first() != a.last())
-            CGPathAddLineToPoint(path, 0, a[0].x(), a[0].y()+1);
+        CGPathMoveToPoint(path, 0, points[0].x(), points[0].y()+1);
+        for(int x = 1; x < pointCount; ++x)
+            CGPathAddLineToPoint(path, 0, points[x].x(), points[x].y()+1);
+        if (a[0] != a[pointCount-1])
+            CGPathAddLineToPoint(path, 0, points[0].x(), points[0].y()+1);
         CGContextBeginPath(d->hd);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill
                     | QCoreGraphicsPaintEnginePrivate::CGStroke, path);

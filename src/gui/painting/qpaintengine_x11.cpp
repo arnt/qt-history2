@@ -622,7 +622,7 @@ static void dump_trap(const XTrapezoid &t)
 #endif
 
 
-static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygonF &pg,
+static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgSize,
                                  bool winding, bool do_rounding)
 {
     QVector<QEdge> edges;
@@ -630,17 +630,17 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygonF &pg
     float ymin = 99999999.f;
     float ymax = -99999999.f;
 
-    Q_ASSERT(pg.at(0) == pg.at(pg.size()-1));
+    Q_ASSERT(pg[0] == pg[pgSize-1]);
     // generate edge table
-    for (int x = 0; x < pg.size()-1; ++x) {
+    for (int x = 0; x < pgSize()-1; ++x) {
 	QEdge edge;
-	edge.winding = pg.at(x).y() > pg.at(x+1).y() ? 1 : -1;
+	edge.winding = pg[x].y() > pg[x+1].y() ? 1 : -1;
 	if (edge.winding > 0) {
-	    edge.p1 = pg.at(x+1);
-	    edge.p2 = pg.at(x);
+	    edge.p1 = pg[x+1];
+	    edge.p2 = pg[x];
 	} else {
-	    edge.p1 = pg.at(x);
-	    edge.p2 = pg.at(x+1);
+	    edge.p1 = pg[x];
+	    edge.p2 = pg[x+1];
 	}
 	edge.m = double(edge.p1.y() - edge.p2.y())
 		 / double(edge.p1.x() - edge.p2.x()); // line derivative
@@ -656,7 +656,6 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygonF &pg
         et.append(&edges.at(i));
 
     // sort edge table by min y value
-//     qHeapSort(edges);
     qSort(et.begin(), et.end(), compareEdges);
 
     // eliminate shared edges
@@ -1374,16 +1373,10 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         XDrawArc(d->dpy, d->hd, d->gc, x, y, w, h, 0, 360*64);
 }
 
-void QX11PaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
+void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
 {
-    QPolygonF pa = a;
-    int npoints = a.size();
+    int npoints = pointCount;
     if (mode != PolylineMode) {
-        if (pa[0] != pa[npoints - 1]) {   // close open polygon
-            pa.resize(npoints + 1);
-            pa[npoints] = pa[0];
-            ++npoints;
-        }
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         bool smooth_edges = renderHints() & QPainter::Antialiasing;
@@ -1416,7 +1409,8 @@ void QX11PaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
 
                 QVector<XTrapezoid> traps;
                 traps.reserve(128);
-                qt_tesselate_polygon(&traps, pa, mode == WindingMode, smooth_edges);
+                qt_tesselate_polygon(&traps, polygonPoints, pointCount, mode == WindingMode,
+                                     smooth_edges);
 
                 XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0,
                                            x_offset, 0, traps.constData(), traps.size());
@@ -1430,8 +1424,8 @@ void QX11PaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
                 int n = qMin(npoints, 65535);
                 QVarLengthArray<XPoint, 512> points(n);
                 for (int i = 0; i < n; ++i) {
-                    points[i].x = qRound(pa.at(i).x());
-                    points[i].y = qRound(pa.at(i).y());
+                    points[i].x = qRound(polygonPoints[i].x());
+                    points[i].y = qRound(polygonPoints[i].y());
                 }
                 XFillPolygon(d->dpy, d->hd, d->gc_brush,
                              points.data(),
@@ -1449,8 +1443,8 @@ void QX11PaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
             int n = qMin(npoints, 65535);
             points.resize(n);
             for (int i = 0; i < n; ++i) {
-                points[i].x = qRound(pa.at(i+index).x());
-                points[i].y = qRound(pa.at(i+index).y());
+                points[i].x = qRound(polygonPoints[i+index].x());
+                points[i].y = qRound(polygonPoints[i+index].y());
             }
             XDrawLines(d->dpy, d->hd, d->gc, points.data(), n, CoordModeOrigin);
             npoints -= n;

@@ -588,14 +588,14 @@ static void qgl_cleanup_tesselator()
     gluDeleteTess(qgl_tess);
 }
 
-static void qgl_draw_poly(const QPolygonF &pa)
+static void qgl_draw_poly(const QPointF *points, int pointCount)
 {
 #ifndef QT_GL_NO_CONCAVE_POLYGONS
     if (!qgl_tess) {
 	qgl_tess = gluNewTess();
 	qAddPostRoutine(qgl_cleanup_tesselator);
     }
-    QVarLengthArray<GLdouble> v(pa.size()*3);
+    QVarLengthArray<GLdouble> v(pointCount*3);
 #ifdef Q_WS_MAC  // This removes warnings.
     gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
     gluTessCallback(qgl_tess, GLU_TESS_VERTEX,
@@ -619,9 +619,9 @@ static void qgl_draw_poly(const QPolygonF &pa)
     {
 	gluTessBeginContour(qgl_tess);
 	{
-	    for (int i = 0; i < pa.size(); ++i) {
-		v[i*3] = (GLdouble) pa[i].x();
-		v[i*3+1] = (GLdouble) pa[i].y();
+	    for (int i = 0; i < pointCount; ++i) {
+		v[i*3] = (GLdouble) points[i].x();
+		v[i*3+1] = (GLdouble) points[i].y();
 		v[i*3+2] = 0.0;
 		gluTessVertex(qgl_tess, &v[i*3], &v[i*3]);
 	    }
@@ -636,33 +636,33 @@ static void qgl_draw_poly(const QPolygonF &pa)
 #else
     glBegin(GL_POLYGON);
     {
-        for (int i = 0; i < pa.size(); ++i)
-	    glVertex2f(pa[i].x(), pa[i].y());
+        for (int i = 0; i < pointCount; ++i)
+	    glVertex2f(points[i].x(), points[i].y());
     }
     glEnd();
 #endif
 }
 
 
-void QOpenGLPaintEngine::drawPolygon(const QPolygonF &pa, PolygonDrawMode mode)
+void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-    if(pa.isEmpty())
+    if(!pointCount)
         return;
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
     if (d->cbrush.style() != Qt::NoBrush && mode != PolylineMode)
-        qgl_draw_poly(pa);
+        qgl_draw_poly(points, pointCount);
     if (d->cpen.style() != Qt::NoPen) {
         dgl->qglColor(d->cpen.color());
-        float x1 = pa.at(pa.size()-1).x();
-        float y1 = pa.at(pa.size()-1).y();
-        float x2 = pa.at(0).x();
-        float y2 = pa.at(0).y();
+        float x1 = points[pointCount - 1].x();
+        float y1 = points[pointCount - 1].y();
+        float x2 = points[0].x();
+        float y2 = points[0].y();
 
         glBegin(GL_LINE_STRIP);
         {
-            for (int i = 0; i < pa.size(); ++i)
-                glVertex2f(pa.at(i).x(), pa.at(i).y());
+            for (int i = 0; i < pointCount; ++i)
+                glVertex2f(points[i].x(), points[i].y());
             if (mode != PolylineMode && !(x1 == x2 && y1 == y2))
                 glVertex2f(x1, y1);
         }
@@ -832,7 +832,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
         if (xbot1 > 0)
             leftFill << QPointF(0, rh);
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	qgl_draw_poly(leftFill);
+	qgl_draw_poly(leftFill.data(), leftFill.size());
 
         // Fill the area to the right of the gradient
         QPolygonF rightFill;
@@ -843,7 +843,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	    rightFill << QPointF(rw, rh);
 	rightFill << QPointF(xbot2-1, rh);
 	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	qgl_draw_poly(rightFill);
+	qgl_draw_poly(rightFill.data(), rightFill.size());
 #endif // QT_GRAD_NO_POLY
 
 	glBegin(GL_POLYGON);
@@ -887,7 +887,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	    topFill << QPointF(rw, 0);
 	topFill << QPointF(rw, yright1+1);
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	qgl_draw_poly(topFill);
+	qgl_draw_poly(topFill.data(), topFill.size());
 
         QPolygonF bottomFill;
 	bottomFill << QPointF(0, yleft2-1);
@@ -897,7 +897,7 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	    bottomFill << QPointF(rw, rh);
 	bottomFill << QPointF(rw, yright2-1);
 	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	qgl_draw_poly(bottomFill);
+	qgl_draw_poly(bottomFill.data(), bottomFill.size());
 #endif // QT_GRAD_NO_POLY
 
 	glBegin(GL_POLYGON);

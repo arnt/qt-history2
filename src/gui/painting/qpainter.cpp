@@ -256,16 +256,20 @@ void QPainterPrivate::draw_helper_stroke_normal(const void *data, ShapeType shap
         } else {
             QList<QPolygonF> polygons = reinterpret_cast<const QPainterPath *>(data)->toSubpathPolygons();
             for (int i=0; i<polygons.size(); ++i) {
-                engine->drawPolygon(emulate & QPaintEngine::CoordTransform
-                                    ? polygons.at(i) * state->matrix
-                                    : polygons.at(i), QPaintEngine::PolylineMode);
+                if (emulate & QPaintEngine::CoordTransform) {
+                    QPolygonF xformed = polygons.at(i) * state->matrix;
+                    engine->drawPolygon(xformed.data(), xformed.size(), QPaintEngine::PolylineMode);
+                } else {
+                    engine->drawPolygon(polygons.at(i).data(), polygons.at(i).size(),
+                                        QPaintEngine::PolylineMode);
+                }
             }
         }
     } else {
         if (emulate & QPaintEngine::CoordTransform) {
             // Engine cannot transform
             QPolygonF xformed = draw_helper_xpolygon(data, shape);
-            engine->drawPolygon(xformed, QPaintEngine::PolylineMode);
+            engine->drawPolygon(xformed.data(), xformed.size(), QPaintEngine::PolylineMode);
         } else {
             // Engine does transformation
             if (shape == EllipseShape)
@@ -273,7 +277,8 @@ void QPainterPrivate::draw_helper_stroke_normal(const void *data, ShapeType shap
             else if (shape == RectangleShape)
                 engine->drawRect(*reinterpret_cast<const QRectF *>(data));
             else
-                engine->drawPolygon(*reinterpret_cast<const QPolygonF *>(data),
+                engine->drawPolygon(reinterpret_cast<const QPolygonF *>(data)->data(),
+                                    reinterpret_cast<const QPolygonF *>(data)->size(),
                                     QPaintEngine::PolylineMode);
         }
     }
@@ -343,7 +348,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
     } else {
         QList<QPolygonF> polygons = stroke.toFillPolygons();
         for (int i=0; i<polygons.size(); ++i)
-            engine->drawPolygon(polygons.at(i), QPaintEngine::WindingMode);
+            engine->drawPolygon(polygons.at(i).data(), polygons.at(i).size(), QPaintEngine::WindingMode);
     }
     q->restore();
 }
@@ -426,7 +431,7 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
                         engine->setDirty(QPaintEngine::DirtyPen);
                         engine->updateState(state);
                     }
-                    engine->drawPolygon(pg, QPaintEngine::PolygonDrawMode(fillRule));
+                    engine->drawPolygon(pg.data(), pg.size(), QPaintEngine::PolygonDrawMode(fillRule));
                     if (old_pen.style() != Qt::NoPen) {
                         state->pen = old_pen;
                         engine->setDirty(QPaintEngine::DirtyPen);
@@ -461,7 +466,8 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
                 QPolygonF xformed = draw_helper_xpolygon(data, shape);
                 q->resetMatrix();
                 engine->updateState(state);
-                engine->drawPolygon(xformed, QPaintEngine::PolygonDrawMode(fillRule));
+                engine->drawPolygon(xformed.data(), xformed.size(),
+                                    QPaintEngine::PolygonDrawMode(fillRule));
             }
             q->restore();
 
@@ -484,12 +490,14 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
                 } else {
                     QList<QPolygonF> polys = path->toFillPolygons();
                     for (int i=0; i<polys.size(); ++i)
-                        engine->drawPolygon(polys.at(i), QPaintEngine::PolygonDrawMode(fillRule));
+                        engine->drawPolygon(polys.at(i).data(), polys.at(i).size(),
+                                            QPaintEngine::PolygonDrawMode(fillRule));
                 }
                 break;
             }
             default:
-                engine->drawPolygon(*reinterpret_cast<const QPolygonF*>(data),
+                engine->drawPolygon(reinterpret_cast<const QPolygonF*>(data)->data(),
+                                    reinterpret_cast<const QPolygonF*>(data)->size(),
                                     QPaintEngine::PolygonDrawMode(fillRule));
                 break;
             }
@@ -1984,7 +1992,8 @@ void QPainter::drawPath(const QPainterPath &path)
                 d->draw_helper(&fills.at(i), path.fillRule(), QPainterPrivate::PolygonShape,
                                QPainterPrivate::StrokeAndFillDraw, emulationSpecifier);
             } else {
-                d->engine->drawPolygon(fills.at(i), QPaintEngine::PolygonDrawMode(path.fillRule()));
+                d->engine->drawPolygon(fills.at(i).data(), fills.at(i).size(),
+                                       QPaintEngine::PolygonDrawMode(path.fillRule()));
             }
         }
         d->redirection_offset = tmpRedir;
@@ -2002,7 +2011,8 @@ void QPainter::drawPath(const QPainterPath &path)
         } else {
             QList<QPolygonF> polygons = path.toSubpathPolygons(convertMatrix);
             for (int i=0; i<polygons.size(); ++i) {
-                d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
+                d->engine->drawPolygon(polygons.at(i).data(), polygons.at(i).size(),
+                                       QPaintEngine::PolylineMode);
             }
 	}
     }
@@ -2970,7 +2980,7 @@ void QPainter::drawPolyline(const QPolygonF &a, int index, int npoints)
         }
     }
 
-    d->engine->drawPolygon(pa, QPaintEngine::PolylineMode);
+    d->engine->drawPolygon(pa.data(), pa.size(), QPaintEngine::PolylineMode);
 }
 
 /*! \overload
@@ -3072,7 +3082,7 @@ void QPainter::drawPolygon(const QPolygonF &polygon, Qt::FillRule fillRule,
         }
     }
 
-    d->engine->drawPolygon(pa, QPaintEngine::PolygonDrawMode(fillRule));
+    d->engine->drawPolygon(pa.data(), pa.size(), QPaintEngine::PolygonDrawMode(fillRule));
 }
 
 /*! \overload

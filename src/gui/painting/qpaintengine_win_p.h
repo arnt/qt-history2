@@ -56,7 +56,7 @@ public:
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygonF &p, PolygonDrawMode mode);
+    void drawPolygon(const QPointF *, int pointCount, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTextItem(const QPointF &p, const QTextItem &ti);
@@ -103,7 +103,7 @@ public:
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygonF &p, PolygonDrawMode mode);
+    void drawPolygon(const QPointF *, int pointCount, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
 		    Qt::PixmapDrawingMode mode);
@@ -145,6 +145,12 @@ struct QtGpRect
     int x, y, w, h;
 };
 
+struct qt_float_point
+{
+    float x, y;
+    operator POINT () const { POINT pt = { qRound(x), qRound(y) }; return pt; }
+};
+
 class QGdiplusPaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QGdiplusPaintEngine)
@@ -178,17 +184,13 @@ public:
     QColor penColor;
     QColor brushColor;
 
+    QPolygonClipper<qt_float_point, qt_float_point> polygonClipper;
+
     uint usesTempDC : 1;
     uint usePen : 1;
     uint temporaryBrush : 1;
 };
 
-
-struct qt_float_point
-{
-    float x, y;
-    operator POINT () const { POINT pt = { qRound(x), qRound(y) }; return pt; }
-};
 
 class QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {

@@ -40,7 +40,7 @@ public:
     void drawLines(const QList<QLineF> &lines);
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawPoint(const QPointF &p);
-    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawRect(const QRectF &r);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);

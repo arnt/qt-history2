@@ -61,7 +61,7 @@ public:
     void drawPoint(const QPointF &p);
     void drawPoints(const QPolygonF &pa);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode);
@@ -114,7 +114,7 @@ public:
     void drawPoint(const QPointF &pt);
     void drawPoints(const QPolygonF &pa);
     void drawEllipse(const QRectF &r);
-    void drawPolygon(const QPolygonF &pa, PolygonDrawMode mode);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode mode);
 

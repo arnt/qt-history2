@@ -155,13 +155,48 @@
     from QPainters state to the native state is required.
 */
 
+static int qt_polygon_recursion;
+
 /*!
-    \fn void QPaintEngine::drawPolygon(const QPolygonF &polygon,
+    \fn void QPaintEngine::drawPolygon(const QPointF *points, int pointCount,
     PolygonDrawMode mode)
 
-    Reimplement this pure virtual function to draw \a polygon using
-    the drawing mode \a mode.
+    Reimplement this virtual function to draw the polygon defined
+    by the \a pointCount first points in \a points, using mode \a
+    mode.
 */
+void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
+{
+    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+               "At least one drawPolygon function must be implemented");
+    qt_polygon_recursion = 1;
+    QPolygon p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i].toPoint();
+    drawPolygon(p.data(), pointCount, mode);
+    qt_polygon_recursion = 0;
+}
+
+/*!
+    \reimp
+
+    Reimplement this virtual function to draw the polygon defined by the
+    \a pointCount first points in \a points, using mode \a mode.
+*/
+void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+{
+    Q_ASSERT_X(!qt_polygon_recursion, "QPaintEngine::drawPolygon",
+               "At least one drawPolygon function must be implemented");
+    qt_polygon_recursion = 1;
+    QPolygonF p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i];
+    drawPolygon(p.data(), pointCount, mode);
+    qt_polygon_recursion = 0;
+}
+
 
 
 #define d d_func()
@@ -248,7 +283,8 @@ void QPaintEngine::drawEllipse(const QRectF &rect)
     QPainterPath path;
     path.moveTo(rect.x() + rect.width(), rect.y() + rect.height()/2);
     path.arcTo(rect, 0, 360);
-    drawPolygon(path.toFillPolygon(), ConvexMode);
+    QPolygonF polygon = path.toFillPolygon();
+    drawPolygon(polygon.data(), polygon.size(), ConvexMode);
 }
 
 /*!
@@ -675,10 +711,8 @@ void QPaintEngine::drawPath(const QPainterPath &)
 */
 void QPaintEngine::drawLine(const QLineF &line)
 {
-    QPolygonF polygon;
-    polygon.reserve(2);
-    polygon << line.start() << line.end();
-    drawPolygon(polygon, PolylineMode);
+    QPointF pts[2] = { line.start(), line.end() };
+    drawPolygon(pts, 2, PolylineMode);
 }
 
 /*!
@@ -689,7 +723,11 @@ void QPaintEngine::drawLine(const QLineF &line)
 */
 void QPaintEngine::drawRect(const QRectF &rf)
 {
-    drawPolygon(rf, ConvexMode);
+    QPointF pts[4] = { QPointF(rf.x(), rf.y()),
+                       QPointF(rf.x() + rf.width(), rf.y()),
+                       QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
+                       QPointF(rf.y(), rf.y() + rf.height()) };
+    drawPolygon(pts, 4, ConvexMode);
 }
 
 /*!
