@@ -1511,11 +1511,21 @@ do
 	fi
     fi
 
-    echo -n "  for $a"
+    if echo '\c' | grep '\c' >/dev/null
+    then
+	echo -n "  for $a"
+    else
+	echo "  for $a\c"
+    fi
     if [ "$VERBOSE" = "yes" ]
     then
 	echo " (`basename $CONF`)"
-	echo -n $EXEC
+	if echo '\c' | grep '\c' >/dev/null
+	then
+	    echo -n "$EXEC"
+	else
+	    echo "$EXEC\c"
+	fi
     fi
     echo
 
