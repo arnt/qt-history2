@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#70 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#71 $
 **
 ** Definition of QFont class
 **
@@ -127,7 +127,7 @@ public:
 
 #if defined(_WS_WIN_)
     HFONT	handle() const;
-#elif defined(_WS_MAC)
+#elif defined(_WS_MAC_)
     HANDLE      handle() const;
 #elif defined(_WS_X11_)
     HANDLE	handle() const;

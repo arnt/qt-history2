@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#41 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#42 $
 **
 ** Definition of QRect class
 **
@@ -62,6 +62,8 @@ public:
     void   setBottom( int pos );
     void   setX( int x );
     void   setY( int y );
+
+#undef topLeft
 
     QPoint topLeft()	 const;
     QPoint bottomRight() const;

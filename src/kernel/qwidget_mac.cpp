@@ -1,14 +1,15 @@
-#include "qwidgetintdict.h"
 #include "qwidget.h"
-#include "macincludes.h"
-#include "qpaintdevicedefs.h"
+#include "qpaintdevicemetrics.h"
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qobjectlist.h"
 #include "qfocusdata.h"
 #include "qaccel.h"
 #include "qpixmap.h"
+#include "qwidgetintdict.h"
 #include <stdio.h>
+
+#include "macincludes.h"
 
 WId parentw,destroyw=0;
 
@@ -29,8 +30,8 @@ const unsigned char * p_str(const char * c)
 
 void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  baccy=2;
+  //printf("%s %d\n",__FILE__,__LINE__);
+  back_type=2;
   if(bg_pix)
     delete bg_pix;
   bg_pix=new QPixmap();
@@ -84,8 +85,8 @@ void redraw_children(QWidget * w)
 
 void QWidget::drawText( int x, int y, const QString &str )
 {
-  printf("QWidget::drawText %s %d\n",__FILE__,__LINE__);
-  printf("Text is %s\n",str.ascii());
+  //printf("QWidget::drawText %s %d\n",__FILE__,__LINE__);
+  //printf("Text is %s\n",str.ascii());
   if(testWState(WState_Visible)) {
     QPainter paint;
     paint.begin(this);
@@ -94,14 +95,16 @@ void QWidget::drawText( int x, int y, const QString &str )
   }
 }
 
+/*
 void QWidget::setSizeGrip( bool sizegrip )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  ////printf("%s %d\n",__FILE__,__LINE__);
 }
+*/
 
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 #if defined(CHECK_RANGE)
     if ( maxw > QCOORD_MAX || maxh > QCOORD_MAX )
         warning("QWidget::setMaximumSize: (%s/%s) "
@@ -124,12 +127,12 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 
 void QWidget::createSysExtra()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QWidget::scroll( int dx, int dy )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   // Temporary cheat?
   bitBlt(this,dx,dy,this,0,0,width(),height());
   const QObjectList * foo=children();
@@ -163,7 +166,7 @@ QWidget * get_top(QWidget * widg)
 void make_top(QWidget * widg,int & x,int & y)
 {
   // Convert from local window to global coords
-  printf("Values here %d %d\n",x,y);
+  //printf("Values here %d %d\n",x,y);
   // First get top left of actual window
   Rect oggy;
   oggy=((GrafPtr)widg->handle())->portRect;
@@ -176,32 +179,32 @@ void make_top(QWidget * widg,int & x,int & y)
  
   if(!widg || !widg->parentWidget())
     return;
-  printf("Top %d %d\n",xfoo,yfoo);
+  //printf("Top %d %d\n",xfoo,yfoo);
   QWidget * ret=widg;
   while(ret->parentWidget()) {
-    printf("Adding %d %d\n",ret->x(),ret->y());
+    //printf("Adding %d %d\n",ret->x(),ret->y());
     xfoo+=ret->x();
     yfoo+=ret->y();
     ret=ret->parentWidget();
   }
-  printf("Total to add %d %d\n",xfoo,yfoo);
+  //printf("Total to add %d %d\n",xfoo,yfoo);
   x=x+xfoo;
   y=y+yfoo;
 }
 
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
-  printf("QWidget::create %s %d\n",__FILE__,__LINE__);
-  printf("Parent %d\n",parentWidget());
+  //printf("QWidget::create %s %d\n",__FILE__,__LINE__);
+  //printf("Parent %d\n",parentWidget());
   /*
   if ( testWState(WState_Created) && window == 0 ) {
-    printf("Already created top-level\n");
+    //printf("Already created top-level\n");
     //getchar();
     return;
   }
   */
   bg_pix=0;
-  baccy=1;
+  back_type=1;
   WId root_win=0;
   setWState( WState_Created );                        // set created flag
   clearWState( WState_USPositionX );
@@ -220,7 +223,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
   if ( !window )                              // always initialize
     initializeWindow=TRUE;
 
-  printf("Size is %d %d\n",sw,sh);
+  //printf("Size is %d %d\n",sw,sh);
 
   if(sw<0) {
     sw=1024;    // Make it up
@@ -274,7 +277,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
                        visible,procid,behind,goaway,0);
     hd=(void *)id;
   } else {
-    printf("Calling get_top\n");
+    //printf("Calling get_top\n");
     mytop=get_top(this);
     //id=(WId)NewCWindow((void *)0,&boundsRect,(const unsigned char *)title,
     //                   visible,procid,behind,goaway,0);
@@ -282,15 +285,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     id=(WId)mytop->hd;
     hd=mytop->hd;
   }
-  printf("Made window\n");
+  //printf("Made window\n");
   bg_col=pal.normal().background();
-  printf("Done background\n");
+  //printf("Done background\n");
   if(!parentWidget()) {
     setWinId(id);
   } else {
     winid=id;
   }
-  printf("Done winid %d\n",id);
+  //printf("Done winid %d\n",id);
 
   const char * c=name();
   if(!parentWidget()) {
@@ -298,45 +301,45 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
       setCaption(QString(c));
     }
   }
-  printf("Done caption\n");
+  //printf("Done caption\n");
 
   setWState( WState_MouseTracking );
   setMouseTracking( FALSE );                  // also sets event mask
   clearWState(WState_Visible);
-  printf("All done\n");
+  //printf("All done\n");
   getchar();
 }
 
 int QWidget::metric( int m ) const
 {
   WindowPtr p=(WindowPtr)winid;
-  printf("QWidget::metric: %s %d\n",__FILE__,__LINE__);
-  printf("  Portrect %d %d %d %d\n",p->portRect.left,p->portRect.top,
-         p->portRect.right,p->portRect.bottom);
-  if(m==PDM_WIDTH) {
+  //printf("QWidget::metric: %s %d\n",__FILE__,__LINE__);
+  //printf("  Portrect %d %d %d %d\n",p->portRect.left,p->portRect.top,
+  //       p->portRect.right,p->portRect.bottom);
+  if(m==QPaintDeviceMetrics::PdmWidth) {
     if(parentWidget()) {
-      printf("Width here %d\n",crect.width());
+      //printf("Width here %d\n",crect.width());
       return crect.width();
     } else {
       return p->portRect.right;
     }
-  } else if(m==PDM_HEIGHT) {
+  } else if(m==QPaintDeviceMetrics::PdmHeight) {
     if(parentWidget()) {
       return crect.height();
     } else {
       return p->portRect.bottom;
     }
-  } else if(m==PDM_WIDTHMM) {
-    return metric(PDM_WIDTH);
-  } else if(m==PDM_HEIGHTMM) {
-    return metric(PDM_HEIGHT);
-  } else if(m==PDM_NUMCOLORS) {
+  } else if(m==QPaintDeviceMetrics::PdmWidthMM) {
+    return metric(QPaintDeviceMetrics::PdmWidth);
+  } else if(m==QPaintDeviceMetrics::PdmHeightMM) {
+    return metric(QPaintDeviceMetrics::PdmHeight);
+  } else if(m==QPaintDeviceMetrics::PdmNumColors) {
     return 16;
-  } else if(m==PDM_DEPTH) {
+  } else if(m==QPaintDeviceMetrics::PdmDepth) {
     // FIXME : this is a lie in most cases
     return 16;
   } else {
-    printf("Heeelp! QWidget::metric %d\n",m);
+    //printf("Heeelp! QWidget::metric %d\n",m);
     getchar();
   }
   return 0;
@@ -344,7 +347,7 @@ int QWidget::metric( int m ) const
 
 void QWidget::update()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   update(0,0,width(),height());
 }
 
@@ -369,15 +372,15 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::setBackgroundColorDirect( const QColor &color )
 {
-  baccy=1;
+  back_type=1;
   QColor old=bg_col;
   bg_col=color;
   if(bg_pix)
     delete bg_pix;
   //backgroundColorChange(old);
   erase(0,0,width(),height());
-  printf("QWidget::setBackgroundColorDirect: %s %d\n",__FILE__,__LINE__);
-  printf("  %d %d %d\n",color.red(),color.green(),color.blue());
+  //printf("QWidget::setBackgroundColorDirect: %s %d\n",__FILE__,__LINE__);
+  //printf("  %d %d %d\n",color.red(),color.green(),color.blue());
 
   /*
   if(!parentWidget()) {  
@@ -400,8 +403,8 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-  printf("QWidget::erase: %s %d\n",__FILE__,__LINE__);
-  if(baccy==1) {
+  //printf("QWidget::erase: %s %d\n",__FILE__,__LINE__);
+  if(back_type==1) {
     // solid background
     Rect r;
     RGBColor rc;
@@ -426,7 +429,7 @@ void QWidget::erase( int x, int y, int w, int h )
     }
     SetRect(&r,x,y,x+w,y+h);
     PaintRect(&r);
-  } else if(baccy==2) {
+  } else if(back_type==2) {
     // pixmap
     if(bg_pix) {
       QPainter p;
@@ -441,7 +444,7 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   RGBColor rc;
   this->fixport();
   rc.red=bg_col.red()*256;
@@ -455,7 +458,7 @@ void qt_leave_modal( QWidget * );
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
-  printf("QWidget::destroy: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::destroy: %s %d\n",__FILE__,__LINE__);
     if ( testWState(WState_Created) ) {
         clearWState( WState_Created );
         if ( children() ) {
@@ -479,31 +482,31 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     myactive=-1;
   }
   if(destroyWindow && !testWFlags(WType_Desktop)) {
-    printf("Dispose\n");
+    //printf("Dispose\n");
     if(!parentWidget() && hd) {
       DisposeWindow((WindowPtr)hd);
     }
-    printf("Disposed\n");
+    //printf("Disposed\n");
   }
-  printf("Set winid\n");
+  //printf("Set winid\n");
   hd=0;
 }
 
 void QWidget::showNormal()
 {
-  printf("QWidget::showNormal: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::showNormal: %s %d\n",__FILE__,__LINE__);
   showWindow();
 }
 
 void QWidget::showWindow()
 {
-  printf("QWidget::showWindow: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::showWindow: %s %d\n",__FILE__,__LINE__);
   setWState( WState_Visible );
   clearWState( WState_ForceHide );
-  printf("Doing show event\n");
+  //printf("Doing show event\n");
   QShowEvent e(FALSE);
   QApplication::sendEvent( this, &e );
-  printf("Ptr is %d\n",winid);
+  //printf("Ptr is %d\n",winid);
   //getchar();
   if(!parentWidget()) {
     ShowHide((WindowPtr)winid,1);
@@ -520,19 +523,19 @@ void QWidget::showWindow()
 
 void QWidget::showMinimized()
 {
-  printf("QWidget::showMinimized: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::showMinimized: %s %d\n",__FILE__,__LINE__);
   hideWindow();    // Hmm
 }
 
 void QWidget::showMaximized()
 {
-  printf("QWidget::showMaximized: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::showMaximized: %s %d\n",__FILE__,__LINE__);
   showNormal();    // Hmm
 }
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 #if defined(CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
         warning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
@@ -552,7 +555,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
     createTLExtra();
     QTLWExtra* x = extra->topextra;
     if ( x->incw == w && x->inch == h )
@@ -563,7 +566,7 @@ void QWidget::setSizeIncrement( int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   if ((widget_state & (WState_Visible|WState_BlockUpdates))==WState_Visible) {
     if ( w < 0 )
       w=crect.width()  - x;
@@ -578,18 +581,18 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   repaint(0,0,width(),height(),erase);
 }
 
 void QWidget::deleteSysExtra()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 bool QWidget::isActiveWindow() const
 {
-  printf("QWidget::isActiveWindow: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::isActiveWindow: %s %d\n",__FILE__,__LINE__);
   myactive=(WId)FrontWindow();
   if(myactive==winid) {
     return true;
@@ -600,7 +603,7 @@ bool QWidget::isActiveWindow() const
 
 void QWidget::setActiveWindow()
 {
-  printf("QWidget::setActiveWindow: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::setActiveWindow: %s %d\n",__FILE__,__LINE__);
   QWidget * poppy;
   poppy=QWidget::find(myactive);
   // This is likely to flicker
@@ -621,18 +624,18 @@ void QWidget::setActiveWindow()
 
 void QWidget::createTLSysExtra()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QWidget::deleteTLSysExtra()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-  printf("QWidget::internalSetGeometry: %s %d\n",__FILE__,__LINE__);
-  printf("  %d %d %d %d, %d\n",x,y,w,h,parentWidget());
+  //printf("QWidget::internalSetGeometry: %s %d\n",__FILE__,__LINE__);
+  //printf("  %d %d %d %d, %d\n",x,y,w,h,parentWidget());
   if(w>1000)
     w=1000;
   if(h>800)
@@ -642,7 +645,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
   if(h<50)
     h=50;
   if ( testWFlags(WType_Desktop) ) {
-    printf("Desktop\n");
+    //printf("Desktop\n");
     return;
   }
     if ( w < 1 )                                // invalid size
@@ -667,7 +670,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QRect  r( x, y, w, h );
     if ( r.size() == olds && oldp == r.topLeft() &&
          (isTopLevel() == FALSE || testWState(WState_USPositionX)) ) {
-        printf("USpositionX thingy\n");
+        //printf("USpositionX thingy\n");
         //getchar();
         return;
     }
@@ -718,8 +721,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setBackgroundEmpty()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  baccy=3;
+  //printf("%s %d\n",__FILE__,__LINE__);
+  back_type=3;
   if(bg_pix) {
     delete bg_pix;
   }
@@ -727,29 +730,31 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setMask( const QRegion& region )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   // Hmm - how do we do this sort of thing?
 }
 
 void QWidget::setMask( const QBitmap &bitmap )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QWidget::clearMask()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
+/*
 void QWidget::setCaret(int x,int y,int w ,int h)
 {
   // FIXME : Obsoleted?
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
+*/
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   PixMapHandle pmh=((CGrafPtr)handle())->portPixMap;
   ((QWidget *)this)->fixport();
   mac_pre=0;
@@ -757,14 +762,14 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
   int y2=pos.y();
   x2=x2-(**pmh).bounds.left;
   y2=y2-(**pmh).bounds.top;
-  printf("Toglobal %d %d\n",x2,y2);
+  //printf("Toglobal %d %d\n",x2,y2);
   QPoint p2(x2,y2);
   return p2;
 }
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   PixMapHandle pmh=((CGrafPtr)handle())->portPixMap;
   ((QWidget *)this)->fixport();
   mac_pre=0;
@@ -772,14 +777,14 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   int y2=pos.y();
   x2=x2+(**pmh).bounds.left;
   y2=y2+(**pmh).bounds.top;
-  printf("Tolocal %d %d\n",x2,y2);
+  //printf("Tolocal %d %d\n",x2,y2);
   QPoint p2(x2,y2);
   return p2;
 }
 
 void QWidget::raise()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   SelectWindow((WindowPtr)winid);  // Bring to front and activate
   if(parentWidget()) {
     QObjectList * qol=(QObjectList *)parentWidget()->children();
@@ -792,7 +797,7 @@ void QWidget::raise()
 
 void QWidget::lower()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   SendBehind((WindowPtr)winid,0);
   if(parentWidget()) {
     QObjectList * qol=(QObjectList *)children();
@@ -805,10 +810,10 @@ void QWidget::lower()
 
 void QWidget::setCaption( const QString &caption )
 {
-  printf("QWidget::setCaption %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::setCaption %s %d\n",__FILE__,__LINE__);
   if(!parentWidget()) {
     const char * b=caption.ascii();
-    printf("  %s\n",b);
+    //printf("  %s\n",b);
     const unsigned char * c=p_str(b);
     SetWTitle((WindowPtr)winid,c);
     delete[] c;
@@ -820,18 +825,18 @@ void QWidget::setCaption( const QString &caption )
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QWidget::setIconText( const QString &iconText )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
                         bool showIt )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   //extern void qPRCreate( const QWidget *, Window );
   //Display *dpy = x11Display();
   //WId old_winid = winid;
@@ -907,7 +912,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
 void QWidget::hideWindow()
 {
-  printf("QWidget::hideWindow: %s %d\n",__FILE__,__LINE__);
+  //printf("QWidget::hideWindow: %s %d\n",__FILE__,__LINE__);
   if(!parentWidget()) {
     ShowHide((WindowPtr)winid,0);
   }
@@ -924,19 +929,19 @@ QWidget * the_grabbed=0;
 
 void QWidget::grabMouse()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   the_grabbed=this;
 }
 
 void QWidget::releaseMouse()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   the_grabbed=0;
 }
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
     if ( cursor.handle() != arrowCursor.handle()
          || (extra && extra->curs) ) {
         createExtra();
@@ -952,7 +957,7 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::unsetCursor()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
     if ( !isTopLevel() ) {
         if (extra ) {
             delete extra->curs;
@@ -966,7 +971,7 @@ void QWidget::unsetCursor()
 
 void QWidget::setAcceptDrops( bool on )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
 }
 
 bool QWidget::acceptDrops() const
@@ -985,7 +990,7 @@ void QWidget::propagateUpdates(int x,int y,int x2,int y2)
   }
   */
   this->fixport();
-  printf("Updates %d %d %d %d\n",x,y,x2,y2);
+  //printf("Updates %d %d %d %d\n",x,y,x2,y2);
   erase(x,y,x2,y2);
   QRect paintRect(x,y,x2,y2);
   //QRect paintRect(0,0,width(),height());
@@ -1014,8 +1019,8 @@ void QWidget::propagateUpdates(int x,int y,int x2,int y2)
         b-=frobnitz->y();
         c-=frobnitz->x();
         d-=frobnitz->y();
-        printf("X %d Y %d width %d height %d\n",frobnitz->x(),
-               frobnitz->y(),frobnitz->width(),frobnitz->height());
+        //printf("X %d Y %d width %d height %d\n",frobnitz->x(),
+        //       frobnitz->y(),frobnitz->width(),frobnitz->height());
         if(a<frobnitz->width() && b<frobnitz->height() &&
           c>0 && d>0) {
 	  //if(1) {
@@ -1124,7 +1129,7 @@ void QWidget::fixport()
     do {
       if(bar->inherits("QWidget")) {
         frobnitz=(QWidget *)bar;
-        if(frobnitz->isVisible() && frobnitz->baccy!=3) {
+        if(frobnitz->isVisible() && frobnitz->back_type!=3) {
           DisposeRgn(myrgn);
           myrgn=NewRgn();
           x1=0;

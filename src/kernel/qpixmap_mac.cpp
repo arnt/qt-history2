@@ -1,17 +1,16 @@
 #include "qpixmap.h"
 #include "qimage.h"
-#include "qpaintdevicedefs.h"
+#include "qpaintdevicemetrics.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qwmatrix.h"
-#include <stdio>
 #include "macincludes.h"
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-    init( 0, 0, 0 );
+  //printf("%s %d\n",__FILE__,__LINE__);
+    init( 0, 0, 0, FALSE, defOptim );
     if ( w <= 0 || h <= 0 )                     // create null pixmap
         return;
 
@@ -24,7 +23,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 QPixmap::QPixmap( const QPixmap &pixmap )
     : QPaintDevice( QInternal::Pixmap )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
     if ( pixmap.paintingActive() ) {            // make a deep copy
         data = 0;
         operator=( pixmap );
@@ -38,13 +37,14 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 
 QPixmap::~QPixmap()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   deref();
 }
 
+/*
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
-  printf("QPixmap:= %s %d\n",__FILE__,__LINE__);
+  //printf("QPixmap:= %s %d\n",__FILE__,__LINE__);
     if ( paintingActive() ) {
 #if defined(CHECK_STATE)
         warning("QPixmap::operator=: Cannot assign to pixmap during painting");
@@ -73,6 +73,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     }
     return *this;
 }
+*/
+
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
@@ -249,7 +251,7 @@ QImage QPixmap::convertToImage() const
 
 void QPixmap::fill( const QColor &fillColor )
 {
-  printf("QPixmap::fill: %s %d\n",__FILE__,__LINE__);
+  //printf("QPixmap::fill: %s %d\n",__FILE__,__LINE__);
   if(hd) {
     Rect r;
     RGBColor rc;
@@ -265,7 +267,7 @@ void QPixmap::fill( const QColor &fillColor )
 
 void QPixmap::detach()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
     if ( data->uninit || data->count == 1 )
         data->uninit = FALSE;
     else
@@ -274,10 +276,10 @@ void QPixmap::detach()
 
 int QPixmap::metric(int m) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
     int val;
-    if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
-        if ( m == PDM_WIDTH )
+    if ( m == QPaintDeviceMetrics::PdmWidth || m == QPaintDeviceMetrics::PdmHeight ) {
+        if ( m == QPaintDeviceMetrics::PdmWidth )
             val = width();
         else
             val = height();
@@ -285,18 +287,18 @@ int QPixmap::metric(int m) const
       //Display *dpy = x11Display();
       // int scr = x11Screen();
         switch ( m ) {
-            case PDM_WIDTHMM:
+            case QPaintDeviceMetrics::PdmWidthMM:
 	      //        val = (DisplayWidthMM(dpy,scr)*width())/
               //        DisplayWidth(dpy,scr);
                 break;
-            case PDM_HEIGHTMM:
+            case QPaintDeviceMetrics::PdmHeightMM:
 	      // val = (DisplayHeightMM(dpy,scr)*height())/
 	      //       DisplayHeight(dpy,scr);
                 break;
-            case PDM_NUMCOLORS:
+            case QPaintDeviceMetrics::PdmNumColors:
                 val = 1 << depth();
                 break;
-            case PDM_DEPTH:
+            case QPaintDeviceMetrics::PdmDepth:
                 val = depth();
                 break;
             default:
@@ -318,7 +320,7 @@ void QPixmap::deref()
             data->mask = 0;
         }
         if ( hd && qApp ) {
-            printf("Deref'ing, deleting pixmap\n");
+            //printf("Deref'ing, deleting pixmap\n");
             DisposeGWorld((GWorldPtr)hd);
             //getchar();
             hd = 0;
@@ -329,18 +331,18 @@ void QPixmap::deref()
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
+  //printf("%s %d\n",__FILE__,__LINE__);
   return QPixmap();
 }
 
-void QPixmap::init( int w, int h, int d )
+void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
   // Hmm.
   if(w>1024 || h > 1024) {
     return;
   }
-  printf("QPixmap::init: %s %d\n",__FILE__,__LINE__);
-  printf("  %d %d %d\n",w,h,d);
+  //printf("QPixmap::init: %s %d\n",__FILE__,__LINE__);
+  //printf("  %d %d %d\n",w,h,d);
   if(w<0 || h<0) {
     return;
   }
@@ -366,13 +368,13 @@ void QPixmap::init( int w, int h, int d )
   // God knows what this does
   someflags=alignPix | stretchPix | newDepth;
   // Depth of 0=deepest screen depth
-  printf("Newgworld %d %d %d\n",w,h,d);
+  //printf("Newgworld %d %d %d\n",w,h,d);
   //getchar();
   SetRect(&rect,0,0,w,h);
   e=NewGWorld((CGrafPort **)&hd,d,&rect,0,0,someflags);
   if((e & gwFlagErr)!=0) {
     // Something went wrong
-    printf("Couldn't make QPixmap GWorld!\n");
+    //printf("Couldn't make QPixmap GWorld!\n");
     hd=0;
     //getchar();
   }
@@ -383,7 +385,7 @@ int QPixmap::defaultDepth()
   GDHandle gd;
   gd=GetMainDevice();
   int wug=(**gd).gdCCDepth;
-  printf("Default depth %d\n",wug);
+  //printf("Default depth %d\n",wug);
   if(wug) {
     return wug;
   } else {
