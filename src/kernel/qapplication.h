@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#96 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#97 $
 **
 ** Definition of QApplication class
 **
@@ -192,7 +192,7 @@ private:
     static QWidget  *focus_widget;
     static QWidget  *active_window;
     QList<QMessageFile> * messageFiles;
-    
+
     static QDict<QPalette>* app_palettes;
     static QDict<QFont>* app_fonts;
 

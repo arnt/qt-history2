@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#176 $
 **
 ** Implementation of QApplication class
 **
@@ -327,7 +327,7 @@ void QApplication::initialize( int argc, char **argv )
     QWidget::createMapper();			// create widget mapper
     is_app_running = TRUE;			// no longer starting up
 
-    app_style->initialize( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
+    app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
     // no longer starting up .....
 
     if ( makeqdevel ) {
@@ -433,9 +433,42 @@ QApplication::~QApplication()
 
 void QApplication::setStyle( QStyle *style )
 {
-    delete app_style;
+    QStyle* old = app_style;
     app_style = style;
-    app_style->initialize( this );
+    
+    if (old) {
+	if ( is_app_running && !is_app_closing ) {
+	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	    register QWidget *w;
+	    while ( (w=it.current()) ) {		// for all widgets...
+		++it;
+		if ( !w->testWFlags(WType_Desktop) // (except desktop)
+		     && w->polished != 0)  { // (and have been polished)
+		    old->unPolish(w);
+		}
+	    }
+	}
+	old->unPolish( this );
+    }
+    app_style->polish( this );
+    if (old) {
+	if ( is_app_running && !is_app_closing ) {
+	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	    register QWidget *w;
+	    while ( (w=it.current()) ) {		// for all widgets...
+		++it;
+		if ( !w->testWFlags(WType_Desktop) // (except desktop)
+		     && w->polished != 0)  { // (and have been polished)
+		    app_style->polish(w);
+		    w->styleChange(old->guiStyle());
+		    if (w->isVisible()){
+			w->update();
+		    }
+		}
+	    }
+	}
+    }
+    delete old;
 }
 
 
@@ -610,9 +643,10 @@ QPalette *QApplication::palette(const QWidget* w)
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, const char* className )
 {
     if (!className) {
-	delete app_pal;
+	QPalette* old =  app_pal;
 	app_pal = new QPalette( palette.copy() );
 	CHECK_PTR( app_pal );
+	delete old;
     }
     else {
 	if (!app_palettes){

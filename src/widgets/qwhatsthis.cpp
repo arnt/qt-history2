@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#28 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -339,7 +339,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	} else if ( e->type() == QEvent::MouseButtonPress ||
 		    e->type() == QEvent::MouseMove ) {
 	    return TRUE;
-	} else if ( 
+	} else if (
 		    e->type() == QEvent::Accel ||
 		    e->type() == QEvent::KeyPress ) {
 	    QPtrDictIterator<Button> it( *(wt->buttons) );
@@ -739,7 +739,7 @@ QString QWhatsThis::text( const QPoint & )
   switch out of What's This mode.  Finally, What's This removes its
   cursor and help window and restores ordinary event processing.  At
   this point the left mouse button is not pressed.
-  
+
   \sa whatsThis()
 */
 
@@ -757,20 +757,20 @@ void QWhatsThis::enterWhatsThisMode()
 
 /*!
     Enters What's This? question mode and returns immediately.
-    
+
     This is the same as enterWhatsThisMode(), but as a slot of an
     instance of an QWhatsThis object. This way it can be easily used
     for popup menus as in the code fragment:
-    
+
   \code
     QPopupMenu * help = new QPopupMenu();
     help->insertItem( "What's &This", new QWhatsThis(this), SLOT(whatsThis()), SHIFT+Key_F1);
-    
-    \sa enterWhatsThisMode()
+
   \endcode
+  \sa enterWhatsThisMode()
 
  */
-void QWhatsThis::whatsThis() 
+void QWhatsThis::whatsThis()
 {
     enterWhatsThisMode();
 }

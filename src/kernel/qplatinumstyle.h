@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#5 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.h#6 $
 **
 ** Definition of something or other
 **
@@ -13,6 +13,7 @@
 #define QPLATINUMSTYLE_H
 
 #include "qwindowsstyle.h"
+#include "qpalette.h"
 
 class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 {
@@ -61,8 +62,8 @@ public:
 
     int maximumSliderDragDistance() const;
 
-    void initialize( QApplication*);
-    //     void polish( QWidget* );
+    void polish( QApplication*);
+    void unPolish( QApplication*);
 
 protected:
     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
@@ -70,6 +71,8 @@ protected:
     QColor mixedColor(const QColor &, const QColor &);
     void drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal );
+private:
+       QPalette oldPalette;
 };
 
 

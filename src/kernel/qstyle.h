@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#18 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#19 $
 **
 ** Definition of QStyle class
 **
@@ -22,8 +22,9 @@ class QScrollBar;
 
 class Q_EXPORT QStyle: public QObject
 {
+    Q_OBJECT
     GUIStyle gs;
-    
+
 private:
     QStyle(GUIStyle);
     QStyle();
@@ -45,9 +46,11 @@ public:
 
     GUIStyle guiStyle() const { return gs; }
 
-    virtual void initialize( QApplication*);
+    virtual void polish( QApplication*);
+    virtual void unPolish( QApplication*);
 
     virtual void polish( QWidget* );
+    virtual void unPolish( QWidget* );
 
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#22 $
 **
 ** Implementation of QStyle class
 **
@@ -85,9 +85,18 @@ QStyle::~QStyle()
   Late initialization of the QApplication object like settings an
   appropriate color palette.
 
-  \sa QPalette, QApplication::setPalette()
+  \sa unPolish, QPalette, QApplication::setPalette()
  */
-void QStyle::initialize( QApplication*)
+void QStyle::polish( QApplication* app)
+{
+}
+
+/*!
+  Redo the application polisih
+
+  \sa polish, QPalette, QApplication::setPalette()
+ */
+void QStyle::unPolish( QApplication* app)
 {
 }
 
@@ -108,10 +117,31 @@ void QStyle::initialize( QApplication*)
   reasonably with all current \e and \e future widgets.
 
   The default implementation does nothing.
+  
+  \sa unPolish(QWidget*)
 */
 void QStyle::polish( QWidget*)
 {
 }
+
+/*!
+  Undos the initializataion of a widget's appearance
+
+  This function is the counterpart to polish. Is is called for every
+  polished widget when the style is dynamically changed. The former
+  style has to un-polish its settings before the new style can polish
+  them again. 
+
+  The default implementation does nothing.
+  
+  \sa polish(QWidget*)
+*/
+void QStyle::unPolish( QWidget*)
+{
+}
+
+
+
 
 /*!
   Returns the appropriate area within a rectangle in which to

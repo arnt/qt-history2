@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#31 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -198,6 +198,21 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
+  \fn const QColor & QColorGroup::shadow() const
+  Returns the shadow color of the color group.
+*/
+
+/*!
+  \fn const QColor & QColorGroup::highlight() const
+  Returns the highlight color of the color group.
+*/
+
+/*!
+  \fn const QColor & QColorGroup::highlightedText() const
+  Returns the highlighted text color of the color group.
+*/
+
+/*!
   \fn const QBrush & QColorGroup::fillForeground() const
   Returns the foreground brush of the color group.
 */
@@ -214,10 +229,7 @@ QColorGroup::~QColorGroup()
 
 /*!
   \fn const QBrush& QColorGroup::fillMidlight() const
-  Returns the midlight brush of the color group. Currently, this is
-  a lightened version of the button brush, but this may change
-  in the future, to return a <tt>const QBrush &</tt> from the
-  palette.
+  Returns the midlight brush of the color group. 
 */
 
 /*!
@@ -256,11 +268,98 @@ QColorGroup::~QColorGroup()
 */
 
 /*!
+  \fn const QBrush & QColorGroup::fillShadow() const
+  Returns the shadow brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillHighlight() const
+  Returns the highlight brush of the color group.
+*/
+
+/*!
+  \fn const QBrush & QColorGroup::fillHighlightedText() const
+  Returns the highlighted text brush of the color group.
+*/
+
+/*!
   \fn bool QColorGroup::operator!=( const QColorGroup &g ) const
   Returns TRUE if this color group is different from \e g, or FALSE if
   it is equal to \e g.
   \sa operator!=()
 */
+
+
+/*!
+  \fn void QColorGroup::setForeground( const QBrush& b)
+  Sets the foreground brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setButton( const QBrush& b)
+  Sets the button brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setLight( const QBrush& b)
+  Sets the light brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn const QBrush& QColorGroup::setMidlight( const QBrush& b)
+  Sets the midlight brush of the color group. Note that you can also pass a plain QColor instead of a QBrush. 
+*/
+
+/*!
+  \fn void QColorGroup::setDark( const QBrush& b)
+  Sets the dark brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setMid( const QBrush& b)
+  Sets the medium brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setText( const QBrush& b)
+  Sets the text foreground brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setBrightText( const QBrush& b)
+  Sets the bright text foreground brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setButtonText( const QBrush& b)
+  Sets the button text foreground brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setBase( const QBrush& b)
+  Sets the base brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setBackground( const QBrush& b)
+  Sets the background brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setShadow( const QBrush& b)
+  Sets the shadow brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setHighlight( const QBrush& b)
+  Sets the highlight brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
+/*!
+  \fn void QColorGroup::setHighlightedText( const QBrush& b)
+  Sets the highlighted text brush of the color group. Note that you can also pass a plain QColor instead of a QBrush.
+*/
+
 
 /*!
   Returns TRUE if this color group is equal to \e g, or FALSE if

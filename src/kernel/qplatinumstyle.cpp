@@ -31,8 +31,10 @@ QPlatinumStyle::QPlatinumStyle()
 
   \sa QStyle
   */
-void QPlatinumStyle::initialize( QApplication* app)
+void QPlatinumStyle::polish( QApplication* app)
 {
+    oldPalette = *app->palette();
+    
     QColor standardLightGray( 222, 222, 222 );
     QColor light( 255, 255, 255 );
     QColor dark (98, 101, 98);
@@ -49,6 +51,16 @@ void QPlatinumStyle::initialize( QApplication* app)
 
     app->setPalette(QPalette(nor, dis, act), TRUE );
 
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void QPlatinumStyle::unPolish( QApplication* app)
+{
+    app->setPalette(oldPalette, TRUE);
 }
 
 /*!

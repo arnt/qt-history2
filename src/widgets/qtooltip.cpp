@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#69 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -419,7 +419,7 @@ void QTipManager::showTip()
 	CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
 	label->setFont( QToolTip::font() );
-	label->setPalette( QToolTip::palette() );
+	label->setPalette( QToolTip::palette(), TRUE );
 	label->setText( t->text );
 	if ( qApp->style() == MotifStyle )
 	    label->setFrameStyle( QFrame::Plain | QFrame::Box );
@@ -931,7 +931,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.63 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.64 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

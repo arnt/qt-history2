@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#314 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#315 $
 **
 ** Implementation of QWidget class
 **
@@ -2398,7 +2398,7 @@ QFocusData * QWidget::focusData( bool create )
 
   If a widgets supports multiple byte unicode input, it is always save
   (and also recommended!) to turn the compression on.
-  
+
   \sa QKeyEvent::text();
  */
 void QWidget::setKeyCompression(bool compress)
@@ -2777,7 +2777,7 @@ void QWidget::show()
 
     if ( polished == 0) {
 	polish();
-	polished = 0;
+	polished = 1;
 	setBackgroundFromMode();
     }
     showWindow();

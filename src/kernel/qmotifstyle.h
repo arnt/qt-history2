@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#5 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#6 $
 **
 ** Definition of something or other
 **
@@ -13,13 +13,15 @@
 #define QMOTIFSTYLE_H
 
 #include "qstyle.h"
+#include "qpalette.h"
 
 class Q_EXPORT QMotifStyle : public QStyle
 {
 public:
     QMotifStyle();
 
-    void initialize( QApplication*);
+    void polish( QApplication*);
+    void unPolish( QApplication*);
 
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
@@ -58,8 +60,8 @@ public:
 			   Orientation );
 
 
-//     void initialize( QApplication*);
-//     void polish( QWidget* );
+private:
+       QPalette oldPalette;
 };
 
 #endif

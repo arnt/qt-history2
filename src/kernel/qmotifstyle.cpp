@@ -31,8 +31,10 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 
   \sa QStyle
   */
-void QMotifStyle::initialize( QApplication* app)
+void QMotifStyle::polish( QApplication* app)
 {
+    oldPalette = *app->palette();
+    
     // force the ugly motif way of highlighting *sigh*
     QColorGroup normal = app->palette()->normal();
     QColorGroup disabled = app->palette()->disabled();
@@ -46,6 +48,16 @@ void QMotifStyle::initialize( QApplication* app)
     app->setPalette(QPalette(normal, disabled, active), TRUE); // TODO
     // really TRUE? when is this called?Ideally, before the first widget
     // is constructed.... #####
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
+void QMotifStyle::unPolish( QApplication* app)
+{
+    app->setPalette(oldPalette, TRUE);
 }
 
 /*!
