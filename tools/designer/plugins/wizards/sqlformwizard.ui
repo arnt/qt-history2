@@ -16,6 +16,9 @@
     <property name="caption">
         <string>Sql Wizard</string>
     </property>
+    <property name="icon">
+        <pixmap>logo</pixmap>
+    </property>
     <property name="layoutMargin" stdset="0">
     </property>
     <property name="layoutSpacing" stdset="0">

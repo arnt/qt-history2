@@ -31,6 +31,9 @@
     <property name="caption">
         <string>Main Window Wizard</string>
     </property>
+    <property name="icon">
+        <pixmap>logo</pixmap>
+    </property>
     <property name="layoutMargin" stdset="0">
     </property>
     <widget class="QWidget">
