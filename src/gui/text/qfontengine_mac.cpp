@@ -377,7 +377,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
         if(fontDef.stretch != 100)
             tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
-        if(fontDef.italic)   //we cannot do italic since ATSUI just skews the matrix
+        //we cannot do italic since ATSUI just skews the matrix
+        if(fontDef.style & QFont::StyleItalic)
             tf.c = Fix2X(kATSItalicQDSkew);
 
         const ATSUAttributeTag tag = kATSUFontMatrixTag;

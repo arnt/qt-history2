@@ -3195,6 +3195,29 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     }
 }
 
+void qt_mac_draw_tab(QPainter *p, const QWidget *w, const QRect &ir, ThemeTabStyle tts,
+                     ThemeTabDirection ttd)
+{
+    if (ir.height() > kThemeLargeTabHeightMax) {
+        QPixmap tabPix(ir.width(), kThemeLargeTabHeightMax);
+        QPainter pixPainter(&tabPix);
+        if (w)
+            pixPainter.fillRect(QRect(QPoint(0, 0), tabPix.size()),
+                                w->palette().brush(w->backgroundRole()));
+        else
+            tabPix.fill(QColor(255, 255, 255, 255));
+
+        Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), kThemeLargeTabHeightMax),
+                                        &pixPainter, false);
+        qt_mac_set_port(&pixPainter);
+        DrawThemeTab(&pixRect, tts, ttd, 0, 0);
+        p->drawPixmap(ir, tabPix);
+    } else {
+        qt_mac_set_port(p);
+        DrawThemeTab(qt_glb_mac_rect(ir, p, false), tts, ttd, 0, 0);
+    }
+}
+
 void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyleOption *opt,
                                          QPainter *p, const QWidget *widget) const
 {
@@ -3544,8 +3567,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                                                            widget));
             if (ttd == kThemeTabSouth)
                 tabr.translate(0, -q->pixelMetric(QStyle::PM_TabBarBaseOverlap, tab, widget));
-            qt_mac_set_port(p);
-            DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
+            qt_mac_draw_tab(p, widget, tabr, tts, ttd);
         }
         break;
     case QStyle::CE_SizeGrip: {
@@ -5123,7 +5145,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                      break;
                 }
                 tabh += overlap;
-                if (sz.height() > tabh)
+                if (sz.height() < tabh)
                     sz.rheight() = tabh;
             } else {
                 QWindowsStyle::sizeFromContents(ct, opt, csz, widget);

@@ -81,7 +81,7 @@ public:
 
     virtual void drawItem(QPainter *p, const QRect &r,
                           int flags, const QPalette &pal, bool enabled,
-                          const QString &text, int len = -1,
+                          const QString &text,
                           const QColor *penColor = 0) const;
     using QStyle::drawItem;
 
