@@ -466,7 +466,7 @@ bool QDragObject::drag( DragMode mode )
 
 QWidget * QDragObject::source()
 {
-    if ( parent()->isWidgetType() )
+    if ( parent() && parent()->isWidgetType() )
 	return (QWidget *)parent();
     else
 	return 0;

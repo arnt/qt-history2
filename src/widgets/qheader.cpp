@@ -1270,19 +1270,24 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( section < 0 ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
 			       colorGroup(), QStyle::Style_Raised |
-			       (isEnabled() ? QStyle::Style_Enabled : 0));
+			       (isEnabled() ? QStyle::Style_Enabled : 0) |
+			       ( orient == Horizontal ? QStyle::Style_Horizontal : 0 ) );
 	return;
     }
 
     QStyle::SFlags flags = QStyle::Style_Raised;
-    if(isEnabled())
+    flags |= ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+    if ( isEnabled() )
 	flags |= QStyle::Style_Enabled;
     if(index == handleIdx) {
 	if(state == Pressed || state == Moving)
-	    flags = QStyle::Style_Down;
+	    flags |= QStyle::Style_Down;
 	else if(state != Sliding)
-	    flags = QStyle::Style_Sunken;
-    }
+	    flags |= QStyle::Style_Sunken;
+	else
+	    flags |= QStyle::Style_Raised;
+    } else
+	flags |= QStyle::Style_Raised;
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,

@@ -942,6 +942,8 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     connect( d->screensavertimer, SIGNAL(timeout()), this, SLOT(screenSaverTimeout()) );
     screenSaverWake();
 
+    client[-1] = new QWSClient( this, -1 );
+
     // input devices
     if ( !(flags&DisableMouse) ) {
 	openMouse();
@@ -957,8 +959,6 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 	bgColor = new QColor( 0x20, 0xb0, 0x50 );
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
-
-    client[-1] = new QWSClient( this, -1 );
 
 #ifndef QT_NO_SOUND
     soundserver = new QWSSoundServer(this);

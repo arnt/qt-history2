@@ -946,6 +946,8 @@ void QMovie::restart()
 	d->init(TRUE);
 	if ( s>0 )
 	    step(s);
+	else if ( s==0 )
+	    pause();
     }
 }
 

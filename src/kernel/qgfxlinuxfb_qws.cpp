@@ -410,8 +410,6 @@ bool QLinuxFbScreen::initDevice()
 	free(cmap.transp);
     } else if(finfo.visual==FB_VISUAL_DIRECTCOLOR) {
 	fb_cmap cmap;
-	ioctl(fd,FBIOGETCMAP,&cmap);
-	screencols=cmap.len;
 	cmap.start=0;
 	int rbits=0,gbits=0,bbits=0;
 	switch (vinfo.bits_per_pixel) {
@@ -440,7 +438,7 @@ bool QLinuxFbScreen::initDevice()
 		rbits=gbits=bbits=8;
 		break;
 	}
-	cmap.len=1<<QMAX(rbits,QMAX(gbits,bbits));
+	screencols=cmap.len=1<<QMAX(rbits,QMAX(gbits,bbits));
 	cmap.red=(unsigned short int *)
 		 malloc(sizeof(unsigned short int)*256);
 	cmap.green=(unsigned short int *)

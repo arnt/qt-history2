@@ -5497,7 +5497,9 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	QHeader::paintSection( p, index, fr );
     } else {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), QStyle::Style_Down );
+			       colorGroup(), QStyle::Style_Down |
+			       ( orientation() == Horizontal ?
+				 QStyle::Style_Horizontal : 0 ));
 	paintSectionLabel( p, index, fr );
     }
 }

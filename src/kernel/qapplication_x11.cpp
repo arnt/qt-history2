@@ -1990,7 +1990,8 @@ void qt_init_internal( int *argcptr, char **argv,
 	XAxisInfoPtr a;
 	const char XFREENAME[] = "stylus";
 
-	if ( (devices = XListInputDevices( appDpy, &ndev)) == NULL ) {
+	devices = XListInputDevices( appDpy, &ndev);
+	if ( devices == NULL ) {
 	    qWarning( "Failed to get list of devices" );
 	    ndev = -1;
 	}
@@ -2003,36 +2004,37 @@ void qt_init_internal( int *argcptr, char **argv,
 		dev = XOpenDevice( appDpy, devices->id );
 		if ( dev == NULL ) {
 		    qWarning( "Failed to open device" );
-		}
-		if ( dev->num_classes > 0 ) {
-		    for ( ip = dev->classes, j = 0; j < devices->num_classes;
-			  ip++, j++ ) {
-			switch ( ip->input_class ) {
-			case KeyClass:
-			    DeviceKeyPress( dev, xinput_key_press,
-					    event_list[curr_xinput_events] );
-			    curr_xinput_events++;
-			    DeviceKeyRelease( dev, xinput_key_release,
-					      event_list[curr_xinput_events] );
-			    curr_xinput_events++;
-			    break;
-			case ButtonClass:
-			    DeviceButtonPress( dev, xinput_button_press,
-					       event_list[curr_xinput_events] );
-			    curr_xinput_events++;
-			    DeviceButtonRelease( dev, xinput_button_release,
-						 event_list[curr_xinput_events] );
-			    curr_xinput_events++;
-			    break;
-			case ValuatorClass:
-			    // I'm only going to be interested in motion when the
-			    // stylus is already down anyway!
-			    DeviceMotionNotify( dev, xinput_motion,
+		} else {
+		    if ( dev->num_classes > 0 ) {
+			for ( ip = dev->classes, j = 0; j < devices->num_classes;
+			      ip++, j++ ) {
+			    switch ( ip->input_class ) {
+			    case KeyClass:
+				DeviceKeyPress( dev, xinput_key_press,
 						event_list[curr_xinput_events] );
-			    curr_xinput_events++;
-			    break;
-			default:
-			    break;
+				curr_xinput_events++;
+				DeviceKeyRelease( dev, xinput_key_release,
+						  event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				break;
+			    case ButtonClass:
+				DeviceButtonPress( dev, xinput_button_press,
+						   event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				DeviceButtonRelease( dev, xinput_button_release,
+						     event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				break;
+			    case ValuatorClass:
+				// I'm only going to be interested in motion when the
+				// stylus is already down anyway!
+				DeviceMotionNotify( dev, xinput_motion,
+						    event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				break;
+			    default:
+				break;
+			    }
 			}
 		    }
 		}
@@ -2058,7 +2060,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		// wacom device...
 		break;
 	    }
-	}
+	} // end for loop
 	XFreeDeviceList( devices );
 #endif // QT_TABLET_SUPPORT
 

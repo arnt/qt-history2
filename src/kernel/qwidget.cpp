@@ -3053,7 +3053,7 @@ QFocusData * QWidget::focusData( bool create )
   By default key compression is off, so widgets receive one key press
   event for each key press (or more, since autorepeat is usually on).
   If you turn it on and your program doesn't keep up with key input,
-  Qt tries to compress key events so that more than one character can
+  Qt may try to compress key events so that more than one character can
   be processed in each event.
 
   For example, a word processor widget might receive 2, 3 or more
@@ -3062,6 +3062,9 @@ QFocusData * QWidget::focusData( bool create )
 
   If a widget supports multiple character unicode input, it is always
   safe to turn the compression on.
+
+  Note all platforms support this compression, in which case turning it
+  on will have no effect.
 
   \sa QKeyEvent::text();
 */

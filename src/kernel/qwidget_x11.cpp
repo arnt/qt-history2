@@ -825,7 +825,9 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 	else
 	    createExtra();
 	extra->bg_pix = new QPixmap( pm );
-	XSetWindowBackgroundPixmap( x11Display(), winId(), pm.handle() );
+	Q_CHECK_PTR( extra->bg_pix );
+	extra->bg_pix->x11SetScreen( x11Screen() );
+	XSetWindowBackgroundPixmap( x11Display(), winId(), extra->bg_pix->handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
     }
