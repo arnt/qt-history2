@@ -34,7 +34,7 @@ SOURCES		= qapp.cpp	qapp_x11.cpp	qcol_x11.cpp	qcolor.cpp    \
 		  qprtstrm.cpp	qptd_x11.cpp	qptr_x11.cpp	qrect.cpp     \
 		  qrgn_x11.cpp	qsignal.cpp	qsize.cpp	qtimer.cpp    \
 		  qview.cpp	qwid_x11.cpp	qwidget.cpp	qwmatrix.cpp  \
-		  qimage.cpp
+		  qimage.cpp	qpixmap.cpp
 OBJECTS		= qapp.o	qapp_x11.o	qcol_x11.o	qcolor.o      \
 		  qconnect.o	qcur_x11.o	qcursor.o	qevent.o      \
 		  qfnt_x11.o	qfont.o		qmetaobj.o	qobject.o     \
@@ -43,7 +43,7 @@ OBJECTS		= qapp.o	qapp_x11.o	qcol_x11.o	qcolor.o      \
 		  qprtstrm.o	qptd_x11.o	qptr_x11.o	qrect.o	      \
 		  qrgn_x11.o	qsignal.o	qsize.o		qtimer.o      \
 		  qview.o	qwid_x11.o	qwidget.o	qwmatrix.o    \
-		  qimage.o
+		  qimage.o	qpixmap.o
 SRCMETA		= mtimer.cpp	mview.cpp	mwidget.cpp
 OBJMETA		= mtimer.o	mview.o		mwidget.o
 TARGET		= $(LIBDIR)/libqkernel.a
@@ -126,7 +126,8 @@ qapp_x11.o: qwidcoll.h /home/popcorn/home/hanord/qt/include/qlist.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qintdict.h
-qapp_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qapp_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h qpainter.h
+qapp_x11.o: qregion.h qpen.h qbrush.h qwmatrix.h qpntarry.h qpixmap.h
 qapp_x11.o: /usr/include/stdlib.h /usr/include/errno.h
 qapp_x11.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qapp_x11.o: /usr/include/signal.h /usr/include/sys/types.h
@@ -232,13 +233,17 @@ qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h qfontdta.h
-qfnt_x11.o: qfontmet.h qfontinf.h qpainter.h qpaintd.h qrect.h qsize.h
-qfnt_x11.o: qpoint.h qcolor.h qregion.h qpen.h qbrush.h qwmatrix.h qpntarry.h
-qfnt_x11.o: /usr/include/ctype.h /usr/include/stdlib.h /usr/include/errno.h
-qfnt_x11.o: /usr/include/linux/errno.h /usr/include/alloca.h
-qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qdict.h
-qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qfnt_x11.o: qfontmet.h qrect.h qsize.h qpoint.h qfontinf.h qpainter.h
+qfnt_x11.o: qpaintd.h qcolor.h qregion.h qpen.h qbrush.h qwmatrix.h
+qfnt_x11.o: qpntarry.h /usr/include/ctype.h /usr/include/stdlib.h
+qfnt_x11.o: /usr/include/errno.h /usr/include/linux/errno.h
+qfnt_x11.o: /usr/include/alloca.h
+qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qcache.h
+qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgcache.h
 qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qglist.h
+qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qfnt_x11.o: /home/popcorn/home/hanord/qt/include/qdict.h
 qfont.o: qfont.h qwindefs.h qobjdefs.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qstring.h
@@ -247,8 +252,8 @@ qfont.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qfont.o: /usr/include/string.h /usr/include/features.h
-qfont.o: /usr/include/sys/cdefs.h qfontdta.h qfontmet.h qfontinf.h qpainter.h
-qfont.o: qpaintd.h qrect.h qsize.h qpoint.h qcolor.h qregion.h qpen.h
+qfont.o: /usr/include/sys/cdefs.h qfontdta.h qfontmet.h qrect.h qsize.h
+qfont.o: qpoint.h qfontinf.h qpainter.h qpaintd.h qcolor.h qregion.h qpen.h
 qfont.o: qbrush.h qwmatrix.h qpntarry.h qwidcoll.h qwidget.h qobject.h
 qfont.o: qcursor.h qevent.h /home/popcorn/home/hanord/qt/include/qlist.h
 qfont.o: /home/popcorn/home/hanord/qt/include/qglist.h
@@ -355,8 +360,10 @@ qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qpmp_x11.o: /usr/include/string.h /usr/include/features.h
-qpmp_x11.o: /usr/include/sys/cdefs.h qpainter.h qfontmet.h qfont.h qfontinf.h
-qpmp_x11.o: qregion.h qpen.h qbrush.h qwmatrix.h qpntarry.h qpaintdc.h
+qpmp_x11.o: /usr/include/sys/cdefs.h qpaintdc.h
+qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qintdict.h
+qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 qpmp_x11.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
 qpmp_x11.o: /usr/include/linux/types.h /usr/include/asm/types.h
 qpmp_x11.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
@@ -370,6 +377,7 @@ qpmp_x11.o: /usr/include/sys/param.h /usr/include/limits.h
 qpmp_x11.o: /usr/include/posix1_lim.h /usr/include/linux/limits.h
 qpmp_x11.o: /usr/include/posix2_lim.h /usr/include/linux/param.h
 qpmp_x11.o: /usr/include/asm/param.h
+qpmp_x11.o: /home/popcorn/home/hanord/qt/include/qdatetm.h qwmatrix.h
 qpntarry.o: qpntarry.h /home/popcorn/home/hanord/qt/include/qarray.h
 qpntarry.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qpntarry.o: /home/popcorn/home/hanord/qt/include/qshared.h
@@ -421,7 +429,7 @@ qprtstrm.o: /usr/include/string.h /usr/include/features.h
 qprtstrm.o: /usr/include/sys/cdefs.h
 qptd_x11.o: qpaintd.h qwindefs.h qobjdefs.h
 qptd_x11.o: /home/popcorn/home/hanord/qt/include/qglobal.h qrect.h qsize.h
-qptd_x11.o: qpoint.h qwidget.h qobject.h
+qptd_x11.o: qpoint.h qpaintdc.h qwidget.h qobject.h
 qptd_x11.o: /home/popcorn/home/hanord/qt/include/qstring.h
 qptd_x11.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qptd_x11.o: /home/popcorn/home/hanord/qt/include/qgarray.h
@@ -453,25 +461,24 @@ qptr_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qptr_x11.o: /usr/include/string.h /usr/include/features.h
 qptr_x11.o: /usr/include/sys/cdefs.h qfontinf.h qregion.h qpen.h qbrush.h
 qptr_x11.o: qwmatrix.h qpntarry.h qpaintdc.h qwidget.h qobject.h qcursor.h
-qptr_x11.o: qevent.h qbitmap.h qpixmap.h /usr/include/ctype.h
-qptr_x11.o: /usr/include/malloc.h /usr/include/X11/Xlib.h
-qptr_x11.o: /usr/include/sys/types.h /usr/include/linux/types.h
-qptr_x11.o: /usr/include/asm/types.h /usr/include/X11/X.h
-qptr_x11.o: /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h
-qptr_x11.o: /usr/include/X11/Xutil.h /usr/include/X11/Xos.h
-qptr_x11.o: /usr/include/fcntl.h /usr/include/gnu/types.h
-qptr_x11.o: /usr/include/linux/fcntl.h /usr/include/unistd.h
-qptr_x11.o: /usr/include/posix_opt.h /usr/include/confname.h
-qptr_x11.o: /usr/include/sys/time.h /usr/include/linux/time.h
-qptr_x11.o: /usr/include/sys/time.h /usr/include/sys/param.h
-qptr_x11.o: /usr/include/limits.h /usr/include/posix1_lim.h
-qptr_x11.o: /usr/include/linux/limits.h /usr/include/posix2_lim.h
-qptr_x11.o: /usr/include/linux/param.h /usr/include/asm/param.h
+qptr_x11.o: qevent.h qbitmap.h qpixmap.h
 qptr_x11.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qptr_x11.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qptr_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
-qptr_x11.o: /home/popcorn/home/hanord/qt/include/qdict.h
-qptr_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qptr_x11.o: /usr/include/ctype.h /usr/include/malloc.h
+qptr_x11.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+qptr_x11.o: /usr/include/linux/types.h /usr/include/asm/types.h
+qptr_x11.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+qptr_x11.o: /usr/include/X11/Xosdefs.h /usr/include/X11/Xutil.h
+qptr_x11.o: /usr/include/X11/Xos.h /usr/include/fcntl.h
+qptr_x11.o: /usr/include/gnu/types.h /usr/include/linux/fcntl.h
+qptr_x11.o: /usr/include/unistd.h /usr/include/posix_opt.h
+qptr_x11.o: /usr/include/confname.h /usr/include/sys/time.h
+qptr_x11.o: /usr/include/linux/time.h /usr/include/sys/time.h
+qptr_x11.o: /usr/include/sys/param.h /usr/include/limits.h
+qptr_x11.o: /usr/include/posix1_lim.h /usr/include/linux/limits.h
+qptr_x11.o: /usr/include/posix2_lim.h /usr/include/linux/param.h
+qptr_x11.o: /usr/include/asm/param.h
 qrect.o: qrect.h qsize.h qpoint.h qwindefs.h qobjdefs.h
 qrect.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 qrect.o: /home/popcorn/home/hanord/qt/include/qdstream.h
@@ -545,7 +552,8 @@ qwid_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qwid_x11.o: /usr/include/string.h /usr/include/features.h
 qwid_x11.o: /usr/include/sys/cdefs.h qpaintd.h qrect.h qsize.h qpoint.h
 qwid_x11.o: qcolor.h qfontmet.h qfont.h qfontinf.h qcursor.h qevent.h qapp.h
-qwid_x11.o: qpaintdc.h qpixmap.h qobjcoll.h qmetaobj.h qconnect.h
+qwid_x11.o: qpaintdc.h qpainter.h qregion.h qpen.h qbrush.h qwmatrix.h
+qwid_x11.o: qpntarry.h qpixmap.h qobjcoll.h qmetaobj.h qconnect.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qwid_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
@@ -605,6 +613,28 @@ qimage.o: /home/popcorn/home/hanord/qt/include/qdstream.h qbitmap.h
 qimage.o: /usr/include/stdlib.h /usr/include/errno.h
 qimage.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qimage.o: /usr/include/ctype.h
+qpixmap.o: qpixmap.h qpaintd.h qwindefs.h qobjdefs.h
+qpixmap.o: /home/popcorn/home/hanord/qt/include/qglobal.h qrect.h qsize.h
+qpixmap.o: qpoint.h qcolor.h /home/popcorn/home/hanord/qt/include/qcache.h
+qpixmap.o: /home/popcorn/home/hanord/qt/include/qgcache.h
+qpixmap.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+qpixmap.o: /home/popcorn/home/hanord/qt/include/qglist.h
+qpixmap.o: /home/popcorn/home/hanord/qt/include/qgdict.h
+qpixmap.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
+qpixmap.o: /usr/include/X11/Xlib.h /usr/include/sys/types.h
+qpixmap.o: /usr/include/linux/types.h /usr/include/asm/types.h
+qpixmap.o: /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h
+qpixmap.o: /usr/include/X11/Xosdefs.h /usr/include/X11/Xutil.h
+qpixmap.o: /usr/include/X11/Xos.h /usr/include/string.h
+qpixmap.o: /usr/include/features.h /usr/include/sys/cdefs.h
+qpixmap.o: /usr/include/fcntl.h /usr/include/gnu/types.h
+qpixmap.o: /usr/include/linux/fcntl.h /usr/include/unistd.h
+qpixmap.o: /usr/include/posix_opt.h /usr/include/confname.h
+qpixmap.o: /usr/include/sys/time.h /usr/include/linux/time.h
+qpixmap.o: /usr/include/sys/time.h /usr/include/sys/param.h
+qpixmap.o: /usr/include/limits.h /usr/include/posix1_lim.h
+qpixmap.o: /usr/include/linux/limits.h /usr/include/posix2_lim.h
+qpixmap.o: /usr/include/linux/param.h /usr/include/asm/param.h
 mtimer.o: qmetaobj.h qconnect.h qobject.h qobjdefs.h
 mtimer.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 mtimer.o: /home/popcorn/home/hanord/qt/include/qstring.h
