@@ -1,5 +1,5 @@
 /*!
-\page rich-text.html
+\page richtext.html
 \nextpage rich-text-structure.html Rich Text Document Structure
 
 \title Rich Text Processing
@@ -23,12 +23,12 @@ such as searching and document export.
 This document is divided up into chapters for convenient reference:
 
 \list
-\i \l{rich-text-structure.html}{Rich Text Document Structure} outlines
+\i \l{richtext-structure.html}{Rich Text Document Structure} outlines
    the different kinds of elements in a QTextDocument, and describes how
    they are arranged in a document structure.
-\i \l{rich-text-cursor.html}{The QTextCursor Interface} explains how rich
+\i \l{richtext-cursor.html}{The QTextCursor Interface} explains how rich
    text documents can be edited using the cursor-based interface.
-\i \l{rich-text-common-tasks.html}{Common Editing Tasks} examines some
+\i \l{richtext-common-tasks.html}{Common Editing Tasks} examines some
    common tasks that involve reading or manipulating rich text documents.
 \endlist
 
@@ -37,10 +37,10 @@ See also the list of \l{text.html}{Text Related Classes}.
 */
 
 /*!
-\page rich-text-structure.html
-\contentspage rich-text.html Contents
-\previouspage rich-text.html Rich Text Processing
-\nextpage rich-text-cursor.html The QTextCursor Interface
+\page richtext-structure.html
+\contentspage richtext.html Contents
+\previouspage richtext.html Rich Text Processing
+\nextpage richtext-cursor.html The QTextCursor Interface
 
 \title Rich Text Document Structure
 
@@ -50,10 +50,10 @@ The structured representation of a text document presents its contents as
 a hierarchy of text blocks, frames, tables, and other objects. These provide
 logical structure to the document and indicate how their contents are
 to be displayed. Generally, frames and tables are used to group other
-structures and text blocks contain the actual textual information.
+structures while text blocks contain the actual textual information.
 
 New elements are created and inserted into the document
-\l{rich-text-cursor.html}{with a \c QTextCursor} or by using an editor
+\l{richtext-cursor.html}{with a \c QTextCursor} or by using an editor
 widget, such as QTextEdit. Elements can be given a particular format when
 they are created; otherwise they take the cursor's current format for the
 element.
@@ -78,7 +78,7 @@ new elements can always be inserted between existing structures.
 In this chapter, we look at each of the structural elements
 used in a rich text document, outline their features and uses, and show
 how to examine their contents. We leave the discussion about editing to
-the chapter on \l{rich-text-cursor.html}{The QTextCursor Interface}.
+the chapter on \l{richtext-cursor.html}{The QTextCursor Interface}.
 
 \section1 Rich Text Documents
 
@@ -99,7 +99,7 @@ without the overhead of multiple editor widgets, or requiring documents
 to be stored in some intermediate format.
 
 An empty document contains a root frame which itself contains a single
-empty text block. The \l{rich-text-cursor.html}{text cursor interface}
+empty text block. The \l{richtext-cursor.html}{text cursor interface}
 automatically inserts new document elements into the root frame, and
 ensures that it is padded with empty blocks where necessary.
 
@@ -295,10 +295,10 @@ external images via the resource mechanism
 */
 
 /*!
-\page rich-text-cursor.html
-\contentspage rich-text.html Contents
-\previouspage rich-text-structure.html Rich Text Document Structure
-\nextpage rich-text-common-tasks.html Common Editing Tasks
+\page richtext-cursor.html
+\contentspage richtext.html Contents
+\previouspage richtext-structure.html Rich Text Document Structure
+\nextpage richtext-common-tasks.html Common Editing Tasks
 
 \title The QTextCursor Interface
 
@@ -572,9 +572,9 @@ How this name is derived is described in
 */
 
 /*!
-\page rich-text-common-tasks.html
-\contentspage rich-text.html Contents
-\previouspage rich-text-cursor.html The QTextCursor Interface
+\page richtext-common-tasks.html
+\contentspage richtext.html Contents
+\previouspage richtext-cursor.html The QTextCursor Interface
 
 \title Common Editing Tasks
 
