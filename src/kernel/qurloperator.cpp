@@ -110,7 +110,7 @@ public:
   A QUrlOperator can be used like this (for downloading a file):
   \code
   QUrlOperator op;
-  op.copy( "ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz", "file:/tmp", FALSE );
+  op.copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"), "file:/tmp", FALSE );
   \endcode
 
   Now, you will also need to connect to some signals of the QUrlOperator to be
@@ -250,7 +250,7 @@ public:
 */
 
 /*!
-  \reimp
+  Constructs a QUrlOperator with an empty (i.e. invalid) URL.
 */
 
 QUrlOperator::QUrlOperator()
@@ -263,7 +263,10 @@ QUrlOperator::QUrlOperator()
 }
 
 /*!
-  \reimp
+  Constructs a QUrlOperator using \a url and parses this string. 
+
+  You can pass strings such as "/home/qt": in this case the protocol "file" is
+  assumed. 
 */
 
 QUrlOperator::QUrlOperator( const QString &url )
@@ -296,7 +299,10 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 }
 
 /*!
-  \reimp
+  Constructs a QUrlOperator. The URL on which this QUrlOperator works on is
+  constructed out of the arguments \a url, \a relUrl and \a checkSlash; the
+  meaning of those arguments is the same as the corresponding QUrl constructor
+  takes.
 */
 
 QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash )
