@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#45 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#46 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -611,7 +611,7 @@ QDomImplementation::QDomImplementation()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 */
 QDomImplementation::QDomImplementation( const QDomImplementation& x )
 {
@@ -620,8 +620,6 @@ QDomImplementation::QDomImplementation( const QDomImplementation& x )
 	impl->ref();
 }
 
-/*! \internal
-*/
 QDomImplementation::QDomImplementation( QDomImplementationPrivate* p )
 {
     // We want to be co-owners, so increase the reference count
@@ -629,7 +627,7 @@ QDomImplementation::QDomImplementation( QDomImplementationPrivate* p )
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM implementation.
 */
 QDomImplementation& QDomImplementation::operator= ( const QDomImplementation& x )
 {
@@ -643,7 +641,8 @@ QDomImplementation& QDomImplementation::operator= ( const QDomImplementation& x 
 }
 
 /*!
-  Returns TRUE if both objects were created from the same QDomDocument.
+  Returns TRUE if \a x and this DOM implementation object were created from the
+  same QDomDocument.
 */
 bool QDomImplementation::operator==( const QDomImplementation& x ) const
 {
@@ -651,7 +650,8 @@ bool QDomImplementation::operator==( const QDomImplementation& x ) const
 }
 
 /*!
-  Returns TRUE if both objects were created from different QDomDocuments.
+  Returns TRUE if \a x and this DOM implementation object were created from
+  different QDomDocuments.
 */
 bool QDomImplementation::operator!=( const QDomImplementation& x ) const
 {
@@ -723,7 +723,7 @@ QDomDocumentType QDomImplementation::createDocumentType( const QString& qName, c
 /*!
   Creates a DOM document with the document type \a doctype. This function also
   adds a root element node with the qualified name \a qName and the namespace
-  URI nsURI.
+  URI \a nsURI.
 */
 QDomDocument QDomImplementation::createDocument( const QString& nsURI, const QString& qName, const QDomDocumentType& doctype )
 {
@@ -887,15 +887,13 @@ QDomNodeList::QDomNodeList()
     impl = 0;
 }
 
-/*! \internal
-*/
 QDomNodeList::QDomNodeList( QDomNodeListPrivate* p )
 {
     impl = p;
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a n.
 */
 QDomNodeList::QDomNodeList( const QDomNodeList& n )
 {
@@ -905,7 +903,7 @@ QDomNodeList::QDomNodeList( const QDomNodeList& n )
 }
 
 /*!
-  Assigns another node list to this object.
+  Assigns \a n to this node list.
 */
 QDomNodeList& QDomNodeList::operator= ( const QDomNodeList& n )
 {
@@ -919,7 +917,7 @@ QDomNodeList& QDomNodeList::operator= ( const QDomNodeList& n )
 }
 
 /*!
-  Returns TRUE if both lists are equal, otherwise FALSE.
+  Returns TRUE if \a n and this list are equal, otherwise FALSE.
 */
 bool QDomNodeList::operator== ( const QDomNodeList& n ) const
 {
@@ -931,7 +929,7 @@ bool QDomNodeList::operator== ( const QDomNodeList& n ) const
 }
 
 /*!
-  Returns TRUE if both lists are not equal, otherwise FALSE.
+  Returns TRUE \a n and this list are not equal, otherwise FALSE.
 */
 bool QDomNodeList::operator!= ( const QDomNodeList& n ) const
 {
@@ -1509,7 +1507,7 @@ QDomNode::QDomNode()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a n.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -1520,8 +1518,8 @@ QDomNode::QDomNode( const QDomNode& n )
     if ( impl ) impl->ref();
 }
 
-/*!
-  \internal
+/*!  \internal
+  Constructs a new node for the data \a n.
 */
 QDomNode::QDomNode( QDomNodePrivate* n )
 {
@@ -1530,7 +1528,7 @@ QDomNode::QDomNode( QDomNodePrivate* n )
 }
 
 /*!
-  Assignment operator.
+  Assigns a copy of \a n to this DOM node.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -1545,7 +1543,7 @@ QDomNode& QDomNode::operator= ( const QDomNode& n )
 }
 
 /*!
-  Returns TRUE if the two nodes are equal, otherwise FALSE.
+  Returns TRUE if \a n and this DOM node are equal, otherwise FALSE.
 */
 bool QDomNode::operator== ( const QDomNode& n ) const
 {
@@ -1553,7 +1551,7 @@ bool QDomNode::operator== ( const QDomNode& n ) const
 }
 
 /*!
-  Returns TRUE if the two nodes are not equal, otherwise FALSE.
+  Returns TRUE if \a n and this DOM node are not equal, otherwise FALSE.
 */
 bool QDomNode::operator!= ( const QDomNode& n ) const
 {
@@ -1637,6 +1635,30 @@ void QDomNode::setNodeValue( const QString& v )
     IMPL->setNodeValue( v );
 }
 
+/*!
+  \enum QDomNode::NodeType
+
+  This enum defines the type of the node:
+  <ul>
+  <li> \c QDomNode::ElementNode - the node is an element
+  <li> \c QDomNode::AttributeNode - the node is an attribute
+  <li> \c QDomNode::TextNode - the node is a text
+  <li> \c QDomNode::CDATASectionNode - the node is a CDATA section
+  <li> \c QDomNode::EntityReferenceNode - the node is an entity reference
+  <li> \c QDomNode::EntityNode - the node is an entity
+  <li> \c QDomNode::ProcessingInstructionNode - the node is a processing
+          instruction
+  <li> \c QDomNode::CommentNode - the node is a comment
+  <li> \c QDomNode::DocumentNode - the node is a document
+  <li> \c QDomNode::DocumentTypeNode - the node is a document type
+  <li> \c QDomNode::DocumentFragmentNode - the node is a document fragment
+  <li> \c QDomNode::NotationNode - the node is a notation
+  <li> \c QDomNode::BaseNode - the node is a QDomNode object rather than a
+          subclass of it
+  <li> \c QDomNode::CharacterDataNode - the node is a QDomCharacterData object
+          rather than a subclass of it.
+  </ul>
+*/
 /*!
   Returns the type of the node.
 
@@ -2093,8 +2115,9 @@ QDomNode QDomNode::namedItem( const QString& name ) const
 }
 
 /*!
-  Writes the XML representation of the node including all its children
-  on the stream.
+  Writes the XML representation of the node and all its children
+  to the stream \a str. This function uses \a indent as the amount of spaces to
+  indent the node.
 */
 void QDomNode::save( QTextStream& str, int indent ) const
 {
@@ -2103,8 +2126,8 @@ void QDomNode::save( QTextStream& str, int indent ) const
 }
 
 /*!
-  Writes the XML representation of the node including all its children
-  on the stream.
+  Writes the XML representation of the node \a node and all its children to the
+  stream \a str.
 */
 QTextStream& operator<<( QTextStream& str, const QDomNode& node )
 {
@@ -2474,7 +2497,7 @@ QDomNamedNodeMap::QDomNamedNodeMap()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a n.
 */
 QDomNamedNodeMap::QDomNamedNodeMap( const QDomNamedNodeMap& n )
 {
@@ -2483,9 +2506,6 @@ QDomNamedNodeMap::QDomNamedNodeMap( const QDomNamedNodeMap& n )
 	impl->ref();
 }
 
-/*!
-  \internal
-*/
 QDomNamedNodeMap::QDomNamedNodeMap( QDomNamedNodeMapPrivate* n )
 {
     impl = n;
@@ -2494,7 +2514,7 @@ QDomNamedNodeMap::QDomNamedNodeMap( QDomNamedNodeMapPrivate* n )
 }
 
 /*!
-  Assignement operator.
+  Assigns \a n to this named node map.
 */
 QDomNamedNodeMap& QDomNamedNodeMap::operator= ( const QDomNamedNodeMap& n )
 {
@@ -2508,7 +2528,7 @@ QDomNamedNodeMap& QDomNamedNodeMap::operator= ( const QDomNamedNodeMap& n )
 }
 
 /*!
-  Returns TRUE if the maps are equal, FALSE otherwise.
+  Returns TRUE if \a n and this map are equal, FALSE otherwise.
 */
 bool QDomNamedNodeMap::operator== ( const QDomNamedNodeMap& n ) const
 {
@@ -2516,7 +2536,7 @@ bool QDomNamedNodeMap::operator== ( const QDomNamedNodeMap& n ) const
 }
 
 /*!
-  Returns TRUE if the maps are not equal, FALSE otherwise.
+  Returns TRUE if \a n and this map are not equal, FALSE otherwise.
 */
 bool QDomNamedNodeMap::operator!= ( const QDomNamedNodeMap& n ) const
 {
@@ -2821,7 +2841,7 @@ QDomDocumentType::QDomDocumentType() : QDomNode()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a n.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -2831,16 +2851,13 @@ QDomDocumentType::QDomDocumentType( const QDomDocumentType& n )
 {
 }
 
-/*!
-  \internal
-*/
 QDomDocumentType::QDomDocumentType( QDomDocumentTypePrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignement operator.
+  Assigns \a n to this document type.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3023,16 +3040,13 @@ QDomDocumentFragment::QDomDocumentFragment()
 {
 }
 
-/*!
-  \internal
-*/
 QDomDocumentFragment::QDomDocumentFragment( QDomDocumentFragmentPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3043,7 +3057,7 @@ QDomDocumentFragment::QDomDocumentFragment( const QDomDocumentFragment& x )
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM document fragment.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3177,7 +3191,7 @@ QDomCharacterData::QDomCharacterData()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3187,16 +3201,13 @@ QDomCharacterData::QDomCharacterData( const QDomCharacterData& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomCharacterData::QDomCharacterData( QDomCharacterDataPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this character data.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3444,7 +3455,7 @@ QDomAttr::QDomAttr()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3454,16 +3465,13 @@ QDomAttr::QDomAttr( const QDomAttr& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomAttr::QDomAttr( QDomAttrPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM attribute.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3745,7 +3753,7 @@ QDomElement::QDomElement()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3755,16 +3763,13 @@ QDomElement::QDomElement( const QDomElement& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomElement::QDomElement( QDomElementPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM element.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -3983,21 +3988,21 @@ void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qNam
 {
 }
 
-/*!
+/*!  \overload
   fnord
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, int /*value*/ )
 {
 }
 
-/*!
+/*!  \overload
   fnord
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, uint /*value*/ )
 {
 }
 
-/*!
+/*!  \overload
   fnord
 */
 void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, double /*value*/ )
@@ -4155,7 +4160,7 @@ QDomText::QDomText()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4165,16 +4170,13 @@ QDomText::QDomText( const QDomText& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomText::QDomText( QDomTextPrivate* n )
     : QDomCharacterData( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM text.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4298,7 +4300,7 @@ QDomComment::QDomComment()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4308,16 +4310,13 @@ QDomComment::QDomComment( const QDomComment& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomComment::QDomComment( QDomCommentPrivate* n )
     : QDomCharacterData( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM comment.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4433,7 +4432,7 @@ QDomCDATASection::QDomCDATASection()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4443,16 +4442,13 @@ QDomCDATASection::QDomCDATASection( const QDomCDATASection& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomCDATASection::QDomCDATASection( QDomCDATASectionPrivate* n )
     : QDomText( n )
 {
 }
 
 /*!
-  Assigment operator.
+  Assigns \a x to this CDATA section.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4574,7 +4570,7 @@ QDomNotation::QDomNotation()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4584,16 +4580,13 @@ QDomNotation::QDomNotation( const QDomNotation& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomNotation::QDomNotation( QDomNotationPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM notation.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4781,7 +4774,7 @@ QDomEntity::QDomEntity()
 
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4791,16 +4784,13 @@ QDomEntity::QDomEntity( const QDomEntity& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomEntity::QDomEntity( QDomEntityPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM entity.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4951,7 +4941,7 @@ QDomEntityReference::QDomEntityReference()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -4961,15 +4951,13 @@ QDomEntityReference::QDomEntityReference( const QDomEntityReference& x )
 {
 }
 
-/*! \internal
-*/
 QDomEntityReference::QDomEntityReference( QDomEntityReferencePrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this entity reference.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -5075,7 +5063,7 @@ QDomProcessingInstruction::QDomProcessingInstruction()
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -5085,16 +5073,13 @@ QDomProcessingInstruction::QDomProcessingInstruction( const QDomProcessingInstru
 {
 }
 
-/*!
-  \internal
-*/
 QDomProcessingInstruction::QDomProcessingInstruction( QDomProcessingInstructionPrivate* n )
     : QDomNode( n )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this processing instruction.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -5144,7 +5129,7 @@ QString QDomProcessingInstruction::data() const
 }
 
 /*!
-  Sets the data contained in the processing instruction.
+  Sets the data contained in the processing instruction to \a d.
 
   \sa data()
 */
@@ -5486,7 +5471,7 @@ QDomDocument::QDomDocument( const QDomDocumentType& doctype )
 }
 
 /*!
-  Copy constructor.
+  Constructs a copy of \a x.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -5496,16 +5481,13 @@ QDomDocument::QDomDocument( const QDomDocument& x )
 {
 }
 
-/*!
-  \internal
-*/
 QDomDocument::QDomDocument( QDomDocumentPrivate* x )
     : QDomNode( x )
 {
 }
 
 /*!
-  Assignment operator.
+  Assigns \a x to this DOM document.
 
   The data of the copy is shared: modifying one will also change the other. If
   you want to make a real copy, use cloneNode() instead.
@@ -5548,8 +5530,8 @@ bool QDomDocument::setContent( const QString& text, bool namespaceProcessing )
     return IMPL->setContent( source, namespaceProcessing );
 }
 
-/*!
-  \overload
+/*!  \overload
+  This function reads the XML document from the byte array \a buffer.
 */
 bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessing )
 {
@@ -5560,16 +5542,16 @@ bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessin
     return IMPL->setContent( source, namespaceProcessing );
 }
 
-/*!
-  \overload
+/*!  \overload
+  This function reads the XML document from the C string \a buffer.
 */
 bool QDomDocument::setContent( const QCString& buffer, bool namespaceProcessing )
 {
     return setContent( QString::fromUtf8( buffer, buffer.length() ), namespaceProcessing );
 }
 
-/*!
-  \overload
+/*!  \overload
+  This function reads the XML document from the IO device \a dev.
 */
 bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing )
 {
@@ -5663,7 +5645,8 @@ QDomDocumentFragment QDomDocument::createDocumentFragment()
 }
 
 /*!
-  Creates a text node that can be inserted into the document tree.
+  Creates a text node for the string \a value that can be inserted into the
+  document tree.
 */
 QDomText QDomDocument::createTextNode( const QString& value )
 {
@@ -5673,7 +5656,8 @@ QDomText QDomDocument::createTextNode( const QString& value )
 }
 
 /*!
-  Creates a new comment that can be inserted into the Document.
+  Creates a new comment for the string \a value that can be inserted into the
+  Document.
 */
 QDomComment QDomDocument::createComment( const QString& value )
 {
@@ -5683,7 +5667,8 @@ QDomComment QDomDocument::createComment( const QString& value )
 }
 
 /*!
-  Creates a new CDATA section that can be inserted into the document.
+  Creates a new CDATA section for the string \a value that can be inserted into
+  the document.
 */
 QDomCDATASection QDomDocument::createCDATASection( const QString& value )
 {
@@ -5694,6 +5679,8 @@ QDomCDATASection QDomDocument::createCDATASection( const QString& value )
 
 /*!
   Creates a new processing instruction that can be inserted into the document.
+  This function sets the target for the processing insruction to \a target and
+  the data to \a data.
 */
 QDomProcessingInstruction QDomDocument::createProcessingInstruction( const QString& target,
 								     const QString& data )
@@ -5705,7 +5692,8 @@ QDomProcessingInstruction QDomDocument::createProcessingInstruction( const QStri
 
 
 /*!
-  Creates a new attribute that can be inserted into an element.
+  Creates a new attribute with the name \a name that can be inserted into an
+  element.
 
   \sa createAttributeNS()
 */
@@ -5717,7 +5705,7 @@ QDomAttr QDomDocument::createAttribute( const QString& name )
 }
 
 /*!
-  Creates a new entity reference.
+  Creates a new entity reference with the name \a name.
 */
 QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 {
