@@ -62,7 +62,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
-
+#include <langinfo.h>
 
 static QPtrList<QTextCodec> * all = 0;
 static bool destroying_is_ok; // starts out as 0
