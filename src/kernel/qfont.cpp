@@ -361,6 +361,7 @@ QFont::QFont( QFontPrivate *data, bool deep )
 {
     if ( deep ) {
 	d = new QFontPrivate( *data );
+	d->request.dirty = TRUE; 
 	Q_CHECK_PTR( d );
 
 	// now a single reference
@@ -429,6 +430,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
     if (pointSize <= 0) pointSize = 1;
 
     d = new QFontPrivate;
+    d->request.dirty = TRUE;
     Q_CHECK_PTR( d );
 
     d->request.family = family;
