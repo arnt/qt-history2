@@ -35,7 +35,8 @@ class Project;
 class FormListItem : public QListViewItem
 {
 public:
-    FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw );
+    FormListItem( QListView *parent );
+    FormListItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw );
 
     void setFormWindow( FormWindow *fw ) { formwindow = fw; }
     FormWindow *formWindow() const { return formwindow; }
@@ -87,6 +88,7 @@ private:
 private:
     MainWindow *mainWindow;
     Project *project;
+    FormListItem *formsParent;
 
 };
 

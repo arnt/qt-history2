@@ -38,9 +38,40 @@
 #include <qpopupmenu.h>
 #include <qtextstream.h>
 
+static const char * folder_xpm[]={
+    "16 16 6 1",
+    ". c None",
+    "b c #ffff00",
+    "d c #000000",
+    "* c #999999",
+    "a c #cccccc",
+    "c c #ffffff",
+    "................",
+    "................",
+    "..*****.........",
+    ".*ababa*........",
+    "*abababa******..",
+    "*cccccccccccc*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "*cabababababa*d.",
+    "*cbababababab*d.",
+    "**************d.",
+    ".dddddddddddddd.",
+    "................"};
+
+static QPixmap *folderPixmap = 0;
 static bool blockNewForms = FALSE;
 
-FormListItem::FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw )
+FormListItem::FormListItem( QListView *parent )
+    : QListViewItem( parent ), formwindow( 0 )
+{
+}
+
+FormListItem::FormListItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw )
     : QListViewItem( parent, form, file, "" ), formwindow( fw )
 {
     setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
@@ -101,6 +132,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 {
     header()->setMovingEnabled( FALSE );
     header()->setFullSize( TRUE );
+    header()->hide();
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     QPalette p( palette() );
@@ -117,6 +149,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
     setColumnWidthMode( 1, Manual );
+    setRootIsDecorated( TRUE );
 }
 
 void FormList::setProject( Project *pro )
@@ -124,9 +157,18 @@ void FormList::setProject( Project *pro )
     project = pro;
     clear();
 
+    if ( !folderPixmap ) {
+	folderPixmap = new QPixmap( folder_xpm );
+    }
+
+    formsParent = new FormListItem( this );
+    formsParent->setText( 0, tr( "Forms" ) );
+    formsParent->setPixmap( 0, *folderPixmap );
+    formsParent->setOpen( TRUE );
+
     QStringList lst = project->uiFiles();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	FormListItem *item = new FormListItem( this, tr( "<unknown>" ), *it, 0 );
+	FormListItem *item = new FormListItem( formsParent, tr( "<unknown>" ), *it, 0 );
 	QString className = project->formName( item->text( 1 ) );
 	if ( !className.isEmpty() )
 	    item->setText( 0, className );
@@ -162,7 +204,7 @@ void FormList::addForm( FormWindow *fw )
     }
 
     QString fn = project->makeRelative( fw->fileName() );
-    FormListItem *i = new FormListItem( this, fw->name(), fn, 0 );
+    FormListItem *i = new FormListItem( formsParent, fw->name(), fn, 0 );
     i->setFormWindow( fw );
     if ( !project )
 	return;
@@ -235,7 +277,7 @@ void FormList::closeEvent( QCloseEvent *e )
 
 void FormList::itemClicked( int button, QListViewItem *i )
 {
-    if ( !i || button != LeftButton )
+    if ( !i || button != LeftButton || i == formsParent )
 	return;
     if ( ( (FormListItem*)i )->formWindow() ) {
 	( (FormListItem*)i )->formWindow()->setFocus();
@@ -281,7 +323,7 @@ void FormList::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void FormList::rmbClicked( QListViewItem *i )
 {
-    if ( !i )
+    if ( !i || i == formsParent )
 	return;
     QPopupMenu menu( this );
 
