@@ -119,6 +119,7 @@ public slots:
     virtual void select(const QModelIndex &index, SelectionFlags command);
     virtual void select(const QItemSelection &selection, SelectionFlags command);
     virtual void clear();
+    virtual void reset();
 
 signals:
     void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);

@@ -74,7 +74,7 @@ protected slots:
     void columnCountChanged(int oldCount, int newCount);
 
 protected:
-    QGenericTableView(QGenericTableViewPrivate &, QWidget *parent = 0);
+    QGenericTableView(QGenericTableViewPrivate &, QWidget *parent);
     void scrollContentsBy(int dx, int dy);
 
     void paintEvent(QPaintEvent *e);

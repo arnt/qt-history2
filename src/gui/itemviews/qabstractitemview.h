@@ -110,6 +110,7 @@ protected slots:
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
     virtual void selectionModelDestroyed();
+    virtual void reset();
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);

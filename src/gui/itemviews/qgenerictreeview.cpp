@@ -132,8 +132,7 @@ QGenericTreeView::~QGenericTreeView()
 */
 void QGenericTreeView::setModel(QAbstractItemModel *model)
 {
-    d->opened.clear();
-    d->items.clear();
+    reset();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
 }
@@ -811,6 +810,16 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
     int topPos = d->coordinate(top);
 
     return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
+}
+
+/*!
+  \internal
+*/
+
+void QGenericTreeView::reset()
+{
+    d->opened.clear();
+    d->items.clear();
 }
 
 /*!

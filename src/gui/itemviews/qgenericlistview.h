@@ -44,6 +44,8 @@ public:
     QGenericListView(QWidget *parent = 0);
     ~QGenericListView();
 
+    void setModel(QAbstractItemModel *model);
+
     void setMovement(Movement movement);
     Movement movement() const;
 
@@ -76,6 +78,8 @@ public:
 
 protected:
     QGenericListView(QGenericListViewPrivate &, QWidget *parent = 0);
+
+    void reset();
     void scrollContentsBy(int dx, int dy);
     void resizeContents(int width, int height);
 

@@ -101,6 +101,9 @@ protected slots:
     void sectionsRemoved(const QModelIndex &parent, int first, int last);
 
 protected:
+    QGenericHeader(QGenericHeaderPrivate &, Qt::Orientation orientation, QWidget *parent);
+
+    void reset();
     void initializeSections(int start, int end);
 
     void paintEvent(QPaintEvent *e);

@@ -355,6 +355,15 @@ QGenericListView::~QGenericListView()
 }
 
 /*!
+  \reimp
+*/
+void QGenericListView::setModel(QAbstractItemModel *model)
+{
+    reset();
+    QAbstractItemView::setModel(model);
+}
+
+/*!
     \property QGenericListView::movement
     \brief whether the items can be moved freely, are snapped to a
     grid, or cannot be moved at all.
@@ -582,6 +591,17 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
         horizontalScrollBar()->setValue(vx + rect.left());
     else if (rect.right() > area.right()) // right of
         horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
+}
+
+/*!
+  \internal
+*/
+
+void QGenericListView::reset()
+{
+    d->prepareItemsLayout();
+    if (isVisible())
+        doItemsLayout();
 }
 
 /*!
