@@ -8,6 +8,7 @@
 #include "qsqlerror.h"
 #include "qsql.h"
 #include "qsqlresultinfo.h"
+#include "qsqlindex.h"
 #endif // QT_H
 
 #if !defined(QT_NO_SQL)
@@ -28,6 +29,7 @@ public:
     virtual QSqlFieldInfoList view( const QString& sql ) const;
     virtual QSqlFieldInfoList table( const QString& name ) const;
     virtual QStringList tables() const;
+    QSqlIndex       primaryIndex( const QString& tablename ) const;    
     QSqlError	    lastError() const;
     virtual bool    open( const QString & db,
     			const QString & user = QString::null,

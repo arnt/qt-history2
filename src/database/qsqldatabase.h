@@ -7,6 +7,7 @@
 #include "qstringlist.h"
 #include "qsqlerror.h"
 #include "qsqlresultinfo.h"
+#include "qsqlindex.h"
 #include "qsql.h"
 #endif // QT_H
 
@@ -66,6 +67,7 @@ public:
     QSqlView    view( const QString & sql ) const;
     QSqlTable   table( const QString & name ) const;
     QStringList tables() const;
+    QSqlIndex   primaryIndex( const QString& tablename ) const;
     int		exec( const QString & sql ) const;
     QSql	createResult() const;
     bool	transaction();

@@ -365,9 +365,26 @@ QSqlTable QSqlDatabase::table( const QString & name ) const
     return QSqlTable( name, d->driver );
 }
 
+/*!
+  Returns a list of tables in the database.
+
+*/
+
 QStringList QSqlDatabase::tables() const
 {
     return d->driver->tables();
+}
+
+/*!
+  Returns the primary index for table \a tablename.  If no
+  such index exists, the QSqlIndex that is returned will be
+  empty.
+
+*/
+
+QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
+{
+    return d->driver->primaryIndex( tablename );
 }
 
 ////////////////////////////////////////////////////////////////
@@ -429,3 +446,5 @@ QSqlTable::~QSqlTable()
 }
 
 #endif // QT_NO_SQL
+
+

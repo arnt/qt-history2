@@ -242,10 +242,29 @@ QSqlFieldInfoList QSqlDriver::table( const QString& name ) const
     return view( "select * from " + name + " where 0=1;" );
 }
 
+/*!
+  Returns a list of tables in the database.
+*/
+
 QStringList QSqlDriver::tables() const
 {
     return QStringList();
 }
 
+/*!
+  Returns the primary index for table \a tablename.  If no
+  such index exists, the QSqlIndex that is returned will be
+  empty.
+
+*/
+
+QSqlIndex QSqlDriver::primaryIndex( const QString& tablename ) const
+{
+    return QSqlIndex();
+    Q_CONST_UNUSED( tablename );    
+}
+
 #endif // QT_NO_SQL
+
+
 

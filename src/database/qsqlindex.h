@@ -5,23 +5,27 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qsqlresultinfo.h"
-#include "qsqldatabase.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class QSqlIndex 
+class QSqlIndex
 {
 public:
-    QSqlIndex( const QSqlDatabase* database, const QString& tablename );
-    ~QSqlIndex();
-    void             append( QSqlFieldInfo field );
-    QString          tableName() { return table; }
-    QSqlFieldInfoList fields();
+    QSqlIndex( const QString& tablename = QString::null, const QString& name = QString::null );
+    QSqlIndex( const QSqlIndex& other );
+    ~QSqlIndex(); 
+    QSqlIndex&       operator=( const QSqlIndex& other );
+    QString          tableName() const { return table; }
+    QSqlFieldInfoList fields() const;
+    
+    void             append( QSqlFieldInfo field );    
+    void             setName( const QString& name );
+    QString          name() const;
 private:
-    const QString table;
+    QString table;
     QSqlFieldInfoList fieldList;
-    const QSqlDatabase* db;
+    QString nm;
 };
 
 #endif	// QT_NO_SQL
