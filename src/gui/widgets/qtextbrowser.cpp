@@ -154,16 +154,6 @@ void QTextBrowserPrivate::activateAnchor(const QString &href)
     \brief whether the text browser supports undo/redo operations
 */
 
-/*!
-    \enum QTextBrowser::ResourceType
-
-    This enum describes the types of resources that can be loaded by
-    the text browser.
-
-    \value HtmlResource  The resource contains HTML.
-    \value ImageResource The resource contains image data.
-*/
-
 void QTextBrowserPrivate::init()
 {
     Q_Q(QTextBrowser);
@@ -276,7 +266,7 @@ void QTextBrowser::setSource(const QUrl &url)
     bool doSetText = false;
 
     if (url.isValid() && (url != d->currentURL || d->forceLoadOnSourceChange)) {
-        QVariant data = loadResource(HtmlResource, url);
+        QVariant data = loadResource(QTextDocument::HtmlResource, url);
         if (data.type() == QVariant::String) {
             txt = data.toString();
         } else if (data.type() == QVariant::ByteArray) {
@@ -711,11 +701,11 @@ bool QTextBrowser::focusNextPrevChild(bool next)
 
     \table
     \header \i ResourceType  \i QVariant::Type
-    \row    \i HtmlResource  \i QString or QByteArray
-    \row    \i ImageResource \i QImage or QPixmap or QByteArray
+    \row    \i QTextDocument::HtmlResource  \i QString or QByteArray
+    \row    \i QTextDocument::ImageResource \i QImage or QPixmap or QByteArray
     \endtable
 */
-QVariant QTextBrowser::loadResource(ResourceType /*type*/, const QUrl &name)
+QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
 {
     Q_D(QTextBrowser);
 

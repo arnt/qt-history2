@@ -143,6 +143,8 @@ public:
 
     virtual int heightForWidth(int width) const;
 
+    virtual QVariant loadResource(int type, const QUrl &name);
+
 public slots:
     void setFontPointSize(float s);
     void setFontFamily(const QString &fontFamily);

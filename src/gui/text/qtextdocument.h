@@ -30,6 +30,7 @@ class QTextFormat;
 class QTextFrame;
 class QTextBlock;
 class QTextCodec;
+class QUrl;
 
 namespace Qt
 {
@@ -123,6 +124,14 @@ public:
     bool isModified() const;
 
     void print(QPrinter *printer) const;
+
+    enum ResourceType {
+        HtmlResource = 1,
+        ImageResource = 2,
+
+        UserResource = 100
+    };
+    virtual QVariant loadResource(int type, const QUrl &name);
 
 signals:
     void contentsChanged();

@@ -84,7 +84,7 @@ protected:
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
 
-    const QTextDocument *document() const;
+    QTextDocument *document() const;
 signals:
     void update(const QRect & = QRect(0, 0, 0x10000000, 0x10000000));
 
@@ -95,8 +95,8 @@ private:
 class QTextObjectInterface
 {
 public:
-    virtual QSizeF intrinsicSize(const QTextDocument *doc, const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QRectF &rect, const QTextDocument *doc, const QTextFormat &format) = 0;
+    virtual QSizeF intrinsicSize(QTextDocument *doc, const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, const QTextFormat &format) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface, "http://trolltech.com/Qt/QTextObjectInterface")
 

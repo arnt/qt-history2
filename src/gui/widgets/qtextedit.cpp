@@ -1469,6 +1469,18 @@ int QTextEdit::heightForWidth(int width) const
     return height;
 }
 
+/*!
+    This function is an extension of QTextDocument::loadResource .
+
+    \sa QTextDocument::loadResource
+*/
+QVariant QTextEdit::loadResource(int type, const QUrl &name)
+{
+    Q_UNUSED(type);
+    Q_UNUSED(name);
+    return QVariant();
+}
+
 /*! \reimp
 */
 void QTextEdit::resizeEvent(QResizeEvent *)

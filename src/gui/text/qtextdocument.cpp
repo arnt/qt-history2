@@ -25,6 +25,7 @@
 #include "qtexthtmlparser_p.h"
 #include "qpainter.h"
 #include "qprinter.h"
+#include "qtextedit.h"
 
 #include "qtextdocument_p.h"
 
@@ -740,7 +741,7 @@ void QTextDocument::print(QPrinter *printer) const
     const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
     QRect body(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
 
-    QTextDocument doc;
+    QTextDocument doc(const_cast<QTextDocument *>(this));
     QTextCursor(&doc).insertFragment(QTextDocumentFragment(this));
 
     QAbstractTextDocumentLayout *layout = doc.documentLayout();
@@ -774,6 +775,40 @@ void QTextDocument::print(QPrinter *printer) const
         printer->newPage();
         page++;
     } while (true);
+}
+
+/*!
+    \enum QTextDocument::ResourceType
+
+    This enum describes the types of resources that can be loaded by
+    QTextDocument's loadResource function.
+
+    \value HtmlResource  The resource contains HTML.
+    \value ImageResource The resource contains image data.
+
+    \sa loadResource
+*/
+
+/*!
+    This function is called by the richtext engine to request
+    data that isn't directly stored by QTextDocument but still
+    associated with it. For example images that are referenced
+    by the name attribute of a QTextImageFormat.
+
+    When called from Qt \a type is one of the values of
+    QTextDocument::ResourceType .
+
+    If the QTextDocument is a child object of a QTextEdit/QTextBrowser
+    or a QTextDocument itself then the default implementation tries
+    to retrieve the data from the parent.
+*/
+QVariant QTextDocument::loadResource(int type, const QUrl &name)
+{
+    if (QTextDocument *doc = qt_cast<QTextDocument *>(parent()))
+        return doc->loadResource(type, name);
+    else if (QTextEdit *edit = qt_cast<QTextEdit *>(parent()))
+        return edit->loadResource(type, name);
+    return QVariant();
 }
 
 static QTextFormat formatDifference(const QTextFormat &from, const QTextFormat &to)

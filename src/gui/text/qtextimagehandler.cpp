@@ -25,7 +25,7 @@
 // set by the mime source factory in Qt3Compat
 QTextImageHandler::ExternalImageLoaderFunction QTextImageHandler::externalLoader = 0;
 
-static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &format)
+static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 {
     QPixmap pm;
 
@@ -39,9 +39,7 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
         QImage img;
         const QString name = format.name();
 
-        QString context;
-        if (QTextBrowser *browser = qt_cast<QTextBrowser *>(doc->parent())) {
-            QVariant data = browser->loadResource(QTextBrowser::ImageResource, name);
+        const QVariant data = doc->loadResource(QTextDocument::ImageResource, name);
             if (data.type() == QVariant::Pixmap) {
                 pm = data.toPixmap();
                 QPixmapCache::insert(key, pm);
@@ -51,6 +49,9 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
             } else if (data.type() == QVariant::ByteArray) {
                 img.loadFromData(data.toByteArray());
             }
+
+        QString context;
+        if (QTextBrowser *browser = qt_cast<QTextBrowser *>(doc->parent())) {
             context = browser->source().toString();
         }
 
@@ -80,14 +81,14 @@ QTextImageHandler::QTextImageHandler(QObject *parent)
 {
 }
 
-QSizeF QTextImageHandler::intrinsicSize(const QTextDocument *doc, const QTextFormat &format)
+QSizeF QTextImageHandler::intrinsicSize(QTextDocument *doc, const QTextFormat &format)
 {
     const QTextImageFormat imageFormat = format.toImageFormat();
 
     return getPixmap(doc, imageFormat).size();
 }
 
-void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, const QTextDocument *doc, const QTextFormat &format)
+void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, const QTextFormat &format)
 {
     const QTextImageFormat imageFormat = format.toImageFormat();
     const QPixmap pixmap = getPixmap(doc, imageFormat);

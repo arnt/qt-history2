@@ -289,9 +289,9 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 /*!
     Returns the text document that this layout is operating on.
 */
-const QTextDocument *QAbstractTextDocumentLayout::document() const
+QTextDocument *QAbstractTextDocumentLayout::document() const
 {
-    return qt_cast<const QTextDocument *>(parent());
+    return qt_cast<QTextDocument *>(parent());
 }
 
 

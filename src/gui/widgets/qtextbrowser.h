@@ -38,11 +38,7 @@ public:
     QStringList searchPaths() const;
     void setSearchPaths(const QStringList &paths);
 
-    enum ResourceType {
-        HtmlResource,
-        ImageResource
-    };
-    virtual QVariant loadResource(ResourceType type, const QUrl &name);
+    virtual QVariant loadResource(int type, const QUrl &name);
 
 public slots:
     virtual void setSource(const QUrl &name);
