@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#247 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#248 $
 **
 ** Implementation of QFileDialog class
 **
@@ -256,7 +256,7 @@ static void makeVariables() {
 class QCopyFileDialog : public QDialog
 {
 public:
-	QCopyFileDialog( QWidget *parent = 0, const char *name = 0 );
+    QCopyFileDialog( QWidget *parent = 0, const char *name = 0 );
 
     QLabel *from() { return lfrom; }
     QLabel *to() { return lto; }
@@ -266,15 +266,14 @@ protected:
     void resizeEvent( QResizeEvent *e ) {
         QDialog::resizeEvent( e );
         if ( back )
-            back->resize( size() );
+            back->setGeometry( QRect(QPoint(0,0), size()) );
     }
 
 private:
     QVBox *back;
-	QLabel *lfrom, *lto;
+    QLabel *lfrom, *lto;
     QProgressBar *pprogress;
     QPushButton *cancel;
-
 };
 
 QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
@@ -2853,21 +2852,20 @@ void QFileDialog::cdUpClicked()
 class QNewFolderDialog : public QDialog
 {
 public:
-	QNewFolderDialog( QWidget *parent = 0, const char *name = 0 );
+    QNewFolderDialog( QWidget *parent = 0, const char *name = 0 );
 
-	QString dirname() { return nameEdit->text(); }
+    QString dirname() { return nameEdit->text(); }
 
 protected:
     void resizeEvent( QResizeEvent *e ) {
         QDialog::resizeEvent( e );
         if ( back )
-            back->resize( size() );
+            back->setGeometry( QRect(QPoint(0,0), size()) );
     }
 
 private:
     QVBox *back;
 	QLineEdit *nameEdit;
-
 };
 
 
