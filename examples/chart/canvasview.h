@@ -17,7 +17,7 @@ public:
     CanvasView( QCanvas *canvas, ElementVector *elements,
 		QWidget* parent = 0, const char* name = "canvas view",
 		WFlags f = 0 )
-	: QCanvasView( canvas, parent, name, f ),
+	: QCanvasView( canvas, parent, name, f ), m_movingItem(0),
 	  m_elements( elements ) {}
 
 protected:
