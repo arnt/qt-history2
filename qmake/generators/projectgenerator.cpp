@@ -54,7 +54,7 @@ ProjectGenerator::init()
     init_flag = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
-    v["TEMPLATE"] += "app";
+    v["TEMPLATE"] += Option::user_template.isEmpty() ? QString("app") : Option::user_template;
 
     //figure out target
     QString o = Option::output.name();

@@ -73,6 +73,7 @@ struct Option
     static QStringList user_vars;
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE };
     static TARG_MODE target_mode;
+    static QString user_template;
 
     //QMAKE_GENERATE_PROJECT options
     struct projfile {
@@ -86,7 +87,6 @@ struct Option
 	static bool do_cache;
 	static bool do_deps;
 	static bool do_dep_heuristics;
-	static QString user_template;
 	static QString cachefile;
 	static QStringList project_files;
     };

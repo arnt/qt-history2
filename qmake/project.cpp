@@ -364,14 +364,14 @@ QMakeProject::read(QString project, QString pwd)
 	return FALSE;
 
     /* now let the user override the template from an option.. */
-    if(!Option::mkfile::user_template.isEmpty()) {
-	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), Option::mkfile::user_template.latin1());
+    if(!Option::user_template.isEmpty()) {
+	debug_msg(1, "Overriding TEMPLATE (%s) with: %s", vars["TEMPLATE"].first().latin1(), Option::user_template.latin1());
 	vars["TEMPLATE"].clear();
-	vars["TEMPLATE"].append(Option::mkfile::user_template);
+	vars["TEMPLATE"].append(Option::user_template);
     }
 
-    if(Option::mkfile::user_template.isEmpty())
-	vars["TEMPLATE"].append("app");
+    if(vars["TEMPLATE"].isEmpty())
+	vars["TEMPLATE"].append(QString("app"));
     else
 	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
 

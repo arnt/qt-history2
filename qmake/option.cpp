@@ -61,6 +61,7 @@ int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;
 QStringList Option::user_vars;
+QString Option::user_template;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
 #elif defined(Q_OS_MAC9)
@@ -80,7 +81,6 @@ QString Option::mkfile::qmakepath;
 bool Option::mkfile::do_deps = TRUE;
 bool Option::mkfile::do_dep_heuristics = TRUE;
 bool Option::mkfile::do_cache = TRUE;
-QString Option::mkfile::user_template;
 QString Option::mkfile::cachefile;
 QStringList Option::mkfile::project_files;
 
@@ -109,6 +109,7 @@ bool usage(const char *a0)
 	    "\t-unix          Run in unix mode\n"
 	    "\t-win32         Run in win32 mode\n"
 	    "\t-d             Increase debug level\n"
+	    "\t-t templ       Overrides TEMPLATE as templ\n"
 	    "\t-help          This help\n"
 	    "\t-cache file    Use file as cache           [makefile mode only]\n"
 	    "\t-path dir      Use dir as QMAKEPATH        [makefile mode only]\n"
@@ -138,6 +139,8 @@ Option::parseCommandLine(int argc, char **argv)
 	    //all modes
 	    if(opt == "o" || opt == "output") {
 		Option::output.setName(argv[++x]);
+	    } else if(opt == "t" || opt == "template") {
+		Option::user_template = argv[++x];
 	    } else if(opt == "mac9") {
 		Option::target_mode = TARG_MAC9_MODE;
 	    } else if(opt == "macx") {
@@ -160,8 +163,6 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::mkfile::do_dep_heuristics = FALSE;
 		    } else if(opt == "mkcache") {
 			Option::mkfile::cachefile = argv[++x];
-		    } else if(opt == "t" || opt == "template") {
-			Option::mkfile::user_template = argv[++x];
 		    } else if(opt == "path") {
 			Option::mkfile::qmakepath = argv[++x];
 		    } else {
