@@ -135,7 +135,7 @@ part of a project, not just part of a single form.
 \QD needs to store information on projects, for example, the list of
 forms, the image collection and information about available databases
 and how to access them. The majority of Qt users already use a project
-file format to create cross-platform makefiles: \Cmd tmake (and with
+file format to create multiplatform makefiles: \Cmd tmake (and with
 Qt 3.0 \Cmd qmake) project \File{.pro} files. These files already
 contain the list of forms, \File{.ui} files, used in the project for
 \Cmd uic. 
@@ -160,6 +160,7 @@ Makefiles.
 First let us look at a small figure that shows the relationship
 between \File{.ui} files, generated code and application code:
 
+\omit replace with designer-ui.eps in lout version\endomit
 \img designer1.jpg
 
 \QD reads and writes \File{.ui} files, e.g. \File{form.ui}. The user
@@ -200,6 +201,7 @@ next.
 A very clean way to implement custom slots for generated forms is
 via C++ inheritance as shown in the next figure:
 
+\omit replace with designer-ui-subclass.eps in lout version\endomit
 \img designer2.jpg
 
 Here the user wrote an additional class \Class FormImpl, which is split
@@ -254,6 +256,7 @@ new concept, the \e{ui.h extension}.
 
 This is how it works:
 
+\omit replace with designer-ui-h.eps in lout version\endomit
 \img designer3.jpg
 
 In addition to the \File{.ui} file, \File{form.ui}, \QD reads and

@@ -481,7 +481,7 @@ We want the remaining widgets to be grouped together vertically. We
     If you missed any \Key Shift+Click them. Now click the
     \Toolbutton {Lay Out Vertically} toolbar button.
 
-    \img qd-chapdialogs-layoutwidgets-stepthree-rubberband.png
+    \img qd-layout3-rubberband.png
     \caption Selecting a Group of Widgets 
 
     \endlist
@@ -490,7 +490,7 @@ We want the remaining widgets to be grouped together vertically. We
     relation to each other and then laid out in relation to the form
     itself.
 
-    \img qd-chapdialogs-layoutwidgets-stepthree-groupedwidgets.png
+    \img qd-layout3-groupedwidgets.png
     \caption Groups of Layed Out Widgets
 
     \list 1
@@ -508,7 +508,7 @@ We want the remaining widgets to be grouped together vertically. We
     groups should now be selected. Click the
     \Toolbutton {Lay Out Horizontally (in Splitter)} toolbar button.
 
-    \img qd-chapdialogs-layoutwidgets-part2-stepone-twogroups.png
+    \img qd-layout2.1-twogroups.png
     \caption Layout Groups of Widgets
 
     \i
@@ -520,7 +520,7 @@ We want the remaining widgets to be grouped together vertically. We
     the \Toolbutton {Lay Out Vertically} toolbar button. The widgets will
     be resized to fill the entire form.
 
-    \img qd-chapdialogs-layoutwidgets-part2-steptwo-layoutform.png
+    \img qd-layout2.2-layoutform.png
     \caption Lay out Widgets in Relation to the Form
 
     \endlist
@@ -548,7 +548,7 @@ Now we'll add the spacer.
     appear; click Vertical. We choose vertical because we want the spacer
     to consume excess vertical space.
 
-    \img qd-chapdialogs-layoutwidgets-part3-steptwo-addspacer.png
+    \img qd-layout3.2-addspacer.png
     \caption Adding a Vertical Spacer
 
     \i
@@ -580,7 +580,7 @@ We now have three groups as we had before, only this time with the
     click \Toolbutton {Lay Out Vertically}. The form should now
     be laid out correctly.
 
-    \img qd-chapdialogs-layoutwidgets-part3-stepfive-layoutform.png
+    \img qd-layout3.5-layoutform.png
     \caption Lay Out the Form 
 
     \endlist
@@ -709,7 +709,7 @@ Although \QD presents an accurate view of our forms we often want to
     see what a form looks like when it is run. It is also useful to be
     able to test out some aspects of the form, for example how the form
     scales when resized or how the splitters work in practice. If we're
-    building cross-platform applications it is also useful to see how
+    building multiplatform applications it is also useful to see how
     the form will look in different environments.
 
     To see a preview either click \Menu {Preview|Preview Form}
@@ -924,7 +924,8 @@ asked for.
 \index Forms!Forward declarations
 \index Forms!Class variables
 \index Forms!Code editing
-Right click the Class Variables item, then click
+Right click the Class Variables item (near the bottom; you may have to
+click the scrollbar), then click
     \Menu New on the popup menu. (If there had
     been any existing variables the popup menu would also have a Delete
     option.) Type in 'QClipboard *cb;' and press
@@ -1002,7 +1003,7 @@ addClipping() slot to add the clipping to the list box.
 The \index selectionChanged() \SignalOrSlot selectionChanged() slot is
 only applicable under the X Window System. Users of MS Windows can
 still include the code to ensure that the application works
-cross-platform.
+multiplatform.
 
 \quotefile multiclip/multiclip.ui.h
 \skipto ::selectionChanged
@@ -1191,7 +1192,7 @@ You can now make the application, e.g. by running \Cmd make or
 improvement you could make and experimenting with both the layout and
 the code will help you learn more about Qt and \QD.
 
-This chapter has introduced you to creating cross-platform applications
+This chapter has introduced you to creating multiplatform applications
 with \QD. We've created a form, populated it with widgets and laid the
 widgets out neatly and scalably. We've used Qt's signals and slots
 mechanism to make the application functional and generated the Makefile.
