@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#120 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -625,18 +625,23 @@ bool QFontMetrics::inFont(QChar ch) const
 int QFontMetrics::leftBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
+	ABC abc;
 	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.unicode();
-	    ABC abc;
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
-	    return abc.abcA;
 	} else {
-	    if ( ch.row() )
-		return 0;
-	    ABC abc;
-	    GetCharABCWidthsA(hdc(),ch.cell(),ch.cell(),&abc);
-	    return abc.abcA;
+	    uint ch8;
+	    if ( ch.row() || ch.cell() > 125 ) {
+		QCString w = qt_winQString2MB(QString(ch));
+		if ( w.length() != 1 )
+		    return 0;
+		ch8 = w[0];
+	    } else {
+		ch8 = ch.cell();
+	    }
+	    GetCharABCWidthsA(hdc(),ch8,ch8,&abc);
 	}
+	return abc.abcA;
     } else {
 #ifdef UNICODE
 	if ( qt_winver == Qt::WV_NT ) {
@@ -656,18 +661,24 @@ int QFontMetrics::leftBearing(QChar ch) const
 int QFontMetrics::rightBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
+	ABC abc;
 	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.unicode();
-	    ABC abc;
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
 	    return abc.abcC;
 	} else {
-	    if ( ch.row() )
-		return 0;
-	    ABC abc;
-	    GetCharABCWidthsA(hdc(),ch.cell(),ch.cell(),&abc);
-	    return abc.abcC;
+	    uint ch8;
+	    if ( ch.row() || ch.cell() > 125 ) {
+		QCString w = qt_winQString2MB(QString(ch));
+		if ( w.length() != 1 )
+		    return 0;
+		ch8 = w[0];
+	    } else {
+		ch8 = ch.cell();
+	    }
+	    GetCharABCWidthsA(hdc(),ch8,ch8,&abc);
 	}
+	return abc.abcC;
     } else {
 	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.unicode();
@@ -675,7 +686,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
 	} else {
-	    return 0;
+	    return -TMX->tmOverhang;
 	}
     }
 }
@@ -739,7 +750,8 @@ int QFontMetrics::minRightBearing() const
 		mr = int(fmr-0.9999);
 		delete [] abc;
 	    } else {
-		ml = mr = 0;
+		ml = 0;
+		mr = -TMX->tmOverhang;
 	    }
 	}
 	def->lbearing = ml;
@@ -784,6 +796,8 @@ int QFontMetrics::width( const QString &str, int len ) const
     SIZE s;
     const TCHAR* tc = (const TCHAR*)qt_winTchar(str,FALSE);
     GetTextExtentPoint32( hdc(), tc, len, &s );
+    if ( qt_winver != Qt::WV_NT )
+	s.cx -= TMX->tmOverhang;
     return s.cx;
 }
 
