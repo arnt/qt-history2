@@ -204,6 +204,8 @@ public:
     static void setupInterfaceManagers();
     static QStringList languages();
 
+    static QString normalizeSlot( const QString &slot );
+
 };
 
 #endif

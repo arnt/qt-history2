@@ -580,11 +580,11 @@ QString MetaDataBase::languageOfSlot( QObject *o, const QCString &slot )
     }
 
     QString sl = slot;
-    NormalizeObject::normalizeSignalSlot( sl );
+    sl = normalizeSlot( sl );
     for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
 	Slot s = *it;
 	QString sl2 = s.slot;
-	NormalizeObject::normalizeSignalSlot( sl2 );
+	sl2 = normalizeSlot( sl2 );
 	if ( sl == sl2 )
 	    return s.language;
     }
@@ -1056,12 +1056,12 @@ bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	}
     }
     fName += ")";
-    NormalizeObject::normalizeSignalSlot( fName );
+    fName = normalizeSlot( fName );
 
     bool slotExists = FALSE;
     for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
 	Slot s = *it;
-	QString sName = NormalizeObject::normalizeSignalSlot( s.slot );
+	QString sName = normalizeSlot( s.slot );
 	if ( sName == fName ) {
 	    slotExists = TRUE;
 	    break;
@@ -1164,4 +1164,38 @@ void MetaDataBase::setupInterfaceManagers()
 QStringList MetaDataBase::languages()
 {
     return langList;
+}
+
+QString MetaDataBase::normalizeSlot( const QString &s )
+{
+    QString slot( s );
+    int begin = slot.find( "(" ) + 1;
+    QString args = slot.mid( begin );
+    args = args.left( args.find( ")" ) );
+    QStringList lst = QStringList::split( ',', args );
+    QString res = slot.left( begin );
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	if ( it != lst.begin() )
+	    res += ",";
+	QString arg = *it;
+	int pos = 0;
+	if ( ( pos = arg.find( "&" ) ) != -1 ) {
+	    arg = arg.left( pos + 1 );
+	} else if ( ( pos = arg.find( "*" ) ) != -1 ) {
+	    arg = arg.left( pos + 1 );
+	} else {
+	    arg = arg.simplifyWhiteSpace();
+	    QStringList l = QStringList::split( ' ', arg );
+	    if ( l.count() == 2 ) {
+		if ( l[ 0 ] != "const" && l[ 0 ] != "unsigned" && l[ 0 ] != "var" )
+		    arg = l[ 0 ];
+	    } else if ( l.count() == 3 ) {
+		arg = l[ 0 ] + " " + l[ 1 ];
+	    }
+	}
+	res += arg;
+    }	
+    res += ")";
+
+    return QString::fromLatin1( NormalizeObject::normalizeSignalSlot( res.latin1() ) );
 }

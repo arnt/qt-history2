@@ -1682,7 +1682,7 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<sender>" << entitize( conn.sender->name() ) << "</sender>" << endl;
 	ts << makeIndent( indent ) << "<signal>" << entitize( conn.signal ) << "</signal>" << endl;
 	ts << makeIndent( indent ) << "<receiver>" << entitize( conn.receiver->name() ) << "</receiver>" << endl;
-	ts << makeIndent( indent ) << "<slot>" << entitize( conn.slot ) << "</slot>" << endl;
+	ts << makeIndent( indent ) << "<slot>" << entitize( MetaDataBase::normalizeSlot( conn.slot ) ) << "</slot>" << endl;
 	indent--;
 	ts << makeIndent( indent ) << "</connection>" << endl;
     }

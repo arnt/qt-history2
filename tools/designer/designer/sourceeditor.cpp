@@ -36,14 +36,6 @@ SourceEditor::~SourceEditor()
     iFace->release();
 }
 
-class NormalizeObject : public QObject
-{
-public:
-    NormalizeObject() : QObject() {}
-    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
-};
-
-
 void SourceEditor::setForm( FormWindow *fw )
 {
     save();
@@ -64,7 +56,7 @@ QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorI
 	    continue;
 	QString sl( (*it).slot );
 	txt += iface->createFunctionStart( fw->name(), sl );
-	QMap<QString, QString>::Iterator bit = bodies.find( NormalizeObject::normalizeSignalSlot( (*it).slot ) );
+	QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
 	if ( bit != bodies.end() )
 	    txt += "\n" + *bit + "\n\n";
 	else

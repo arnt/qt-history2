@@ -150,7 +150,7 @@ void ConnectionEditor::signalChanged()
     QCString signal = signalBox->currentText().latin1();
     if ( !signal.data() )
 	return;
-    signal = normalizeSignalSlot( signal.data() );
+    signal = MetaDataBase::normalizeSlot( signal );
     slotBox->clear();
     if ( signalBox->currentText().isEmpty() )
 	return;
@@ -173,7 +173,7 @@ void ConnectionEditor::signalChanged()
 		QCString s = (*it).slot;
 		if ( !s.data() )
 		    continue;
-		s = normalizeSignalSlot( s.data() );
+		s = MetaDataBase::normalizeSlot( s );
 		if ( checkConnectArgs( signal.data(), receiver, s ) )
 		    slotBox->insertItem( QString( (*it).slot ) );
 	    }
@@ -186,7 +186,7 @@ void ConnectionEditor::signalChanged()
 	    QCString s = (*it).slot;
 	    if ( !s.data() )
 		continue;
-	    s = normalizeSignalSlot( s.data() );
+	    s = MetaDataBase::normalizeSlot( s );
  	    if ( checkConnectArgs( signal.data(), receiver, s ) )
 		slotBox->insertItem( QString( (*it).slot ) );
 	}
