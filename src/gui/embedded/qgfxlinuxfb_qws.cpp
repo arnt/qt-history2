@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include "qwindowsystem_qws.h"
 
