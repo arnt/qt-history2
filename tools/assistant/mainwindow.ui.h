@@ -502,5 +502,6 @@ void MainWindow::saveToolbarSettings()
     QTextStream ts( &mainWindowLayout, IO_WriteOnly );
     ts << *this;
     QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( "/Qt Assistant/3.1/MainwindowLayout", mainWindowLayout );
 }
