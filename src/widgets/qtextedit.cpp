@@ -3054,7 +3054,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
 	return;
     }
 #endif
-    if ( this->text() == text && this->context() == context )
+    if ( !isModified() && this->context() == context && this->text() == text )
 	return;
 
     emit undoAvailable( FALSE );
@@ -3081,7 +3081,9 @@ void QTextEdit::setText( const QString &text, const QString &context )
     cursor->setIndex( 0 );
     updateContents();
 
+    disconnect( this, SIGNAL( textChanged() ), this, SLOT( setModified() ) );
     emit textChanged();
+    connect( this, SIGNAL( textChanged() ), this, SLOT( setModified() ) );
     formatMore();
     updateCurrentFormat();
 }
@@ -4834,7 +4836,7 @@ void QTextEdit::updateCursor( const QPoint & pos )
 		onLink = c.parag()->at( c.index() )->anchorHref();
 	    else
 		onLink = QString::null;
-	    
+	
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
 #endif
