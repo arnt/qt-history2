@@ -119,8 +119,6 @@ public:
     Q_LONGLONG readLine(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
 
-    int getch();
-    int putch(int character);
     int ungetch(int character);
 
 signals:

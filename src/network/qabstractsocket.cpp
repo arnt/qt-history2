@@ -1810,27 +1810,9 @@ bool QAbstractSocket::seek(Q_LONGLONG off)
 
 /*! \reimp
 */
-int QAbstractSocket::getch()
-{
-    if (d->readBuffer.isEmpty() && !waitForReadyRead(d->blockingTimeout))
-        return -1;
-
-    return d->readBuffer.getChar();
-}
-
-/*! \reimp
-*/
 int QAbstractSocket::ungetch(int character)
 {
     d->readBuffer.ungetChar((char) character);
-    return character;
-}
-
-/*! \reimp
-*/
-int QAbstractSocket::putch(int character)
-{
-    d->writeBuffer.putChar(character);
     return character;
 }
 
@@ -1864,6 +1846,12 @@ Q_LONGLONG QAbstractSocket::read(char *data, Q_LONGLONG maxSize)
 
     // If readFromSocket() read data, copy it to its destination.
     if (d->readBuffer.size() > 0) {
+        // getch optimization
+        if (maxSize == 1) {
+            *data = d->readBuffer.getChar();
+            return 1;
+        }
+
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
         int bytesToRead = qMin(d->readBuffer.size(), (int)maxSize);
@@ -1891,9 +1879,14 @@ Q_LONGLONG QAbstractSocket::read(char *data, Q_LONGLONG maxSize)
     if (!d->readFromSocket())
         return -1;
 
-
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
+
+    // getch optimization
+    if (maxSize == 1) {
+        *data = d->readBuffer.getChar();
+        return 1;
+    }
 
     int bytesToRead = qMin(d->readBuffer.size(), (int)maxSize);
     int readSoFar = 0;
