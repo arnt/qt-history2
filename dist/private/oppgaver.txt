@@ -45,6 +45,9 @@ Funksjonalitet:
 
     Støtte for å kunne sette andre fontfamilier enn ISO-8859-1
 
+    Widget-flagg offentliggjøres og bruker for å lage rammeløse
+    vinduer osv.
+
     Dialoger:
 
 	font select
