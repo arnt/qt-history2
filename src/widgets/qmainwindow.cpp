@@ -609,7 +609,7 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
     return FALSE; // for illegal values of dock
 }
 
-/*!  
+/*!
   Sets \a dock to be available for the toolbar \a tb if \a enable is TRUE, and not
   available if \a enable is FALSE.
 
@@ -632,7 +632,7 @@ void QMainWindow::setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable )
     }
 }
 
-/*!  
+/*!
   Returns TRUE if \a dock is enabled for the toolbar \a tb , or FALSE if it is not.
 
   \sa setDockEnabled()
@@ -1254,15 +1254,24 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     int h2 = d->sb ? d->sb->height() : 0;
     if ( d->mc ) {
 	if ( d->mc->x() > 0 )
-	    left = QMAX( left, d->mc->x() );
+	    left = d->mc->x();
 	if ( d->mc->x() + d->mc->width() < width() )
-	    right = QMAX( right, width() - ( d->mc->x() + d->mc->width() ) );
+	    right = width() - ( d->mc->x() + d->mc->width() );
 	if ( d->mc->y() > h1 )
-	    top = QMAX( top, d->mc->y() - h1 );
+	    top = d->mc->y() - h1;
 	if ( d->mc->y() + d->mc->height() < height() - h2  )
-	    bottom = QMAX( bottom, height() - ( d->mc->y() + d->mc->height() ) - h2 );
+	    bottom = height() - ( d->mc->y() + d->mc->height() ) - h2;
     }
 
+    if ( left < 20 )
+	left = 30;
+    if ( right < 20 )
+	right = 30;
+    if ( top < 20 )
+	top = 30;
+    if ( bottom < 20 )
+	bottom = 30;
+    
     // calculate the docking areas
     QRect leftArea( 0, h1, left, height() - h1 - h2 );
     QRect topArea( 0, h1, width(), top );
@@ -1368,7 +1377,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QPoint pos = mapFromGlobal( QCursor::pos() );
 	QRect r;
 	ToolBarDock dock = findDockArea( pos, r, t );
-	if ( dock != Unmanaged && isDockEnabled( dock ) && 
+	if ( dock != Unmanaged && isDockEnabled( dock ) &&
 	     isDockEnabled( t, dock ) )
 	    moveToolBar( t, dock );
 	return;
@@ -1382,7 +1391,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     QRect r;
     ToolBarDock dock = findDockArea( pos, r, t );
 
-    if ( dock == Unmanaged || !isDockEnabled( dock ) || 
+    if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	 !isDockEnabled( t, dock ) )
 	r = d->origPosRect;
 
