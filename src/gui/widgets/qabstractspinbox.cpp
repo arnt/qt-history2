@@ -924,7 +924,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
       pendingemit(false), readonly(false), wrapping(false),
       ignorecursorpositionchanged(false), frame(true),
-      buttonsymbols(QAbstractSpinBox::UpDownArrows), validator(0)
+      hoverControl(QStyle::SC_None), buttonsymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
 }
 
