@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.25 1996/09/16 17:40:53 agulbra Exp $
+** $Id: misc.doc,v 1.26 1996/09/17 18:26:26 hanord Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.25 1996/09/16 17:40:53 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.26 1996/09/17 18:26:26 hanord Exp $";
 #endif
 
 
@@ -212,15 +212,15 @@ qt-interest.
 This is the non-commercial license for Qt version \version; it covers
 private use and development of free software for the free software
 community.  We believe that it does not constrain development of free
-software noticeably.  (<a href="mailto:qt-info@troll.no">Write to
+software noticeably.  (<a href="mailto:info@troll.no">Write to
 us</a> if you feel hampered, and we may be able to do something about
 it.)
 
 <p>
 
-The <a href="http://www.troll.no/pricing.html">commercial</a> and <a
-href="http://www.troll.no/shareware.html">shareware</a> licenses are
-much less restrictive than this one.
+The <a href="/pricing.html">commercial</a> and <a
+href="/shareware.html">shareware</a> licenses are much less restrictive
+than this one.
 
 <hr>
 
