@@ -28,14 +28,14 @@ public:
     {
     }
 
-    QColor fillColor() const 
-    { 
-	return fill_color; 
+    QColor fillColor() const
+    {
+	return fill_color;
     }
-    void setFillColor(const QColor &fc) 
-    { 
-	fill_color = fc; 
-	repaint(); 
+    void setFillColor(const QColor &fc)
+    {
+	fill_color = fc;
+	repaint();
     }
 
 protected:
@@ -43,7 +43,7 @@ protected:
     {
 	QPainter paint(this);
 	QRect r = rect();
-	r.addCoords(10, 10, -10, -10);
+	r.adjust(10, 10, -10, -10);
 	paint.fillRect(r, fill_color);
     }
 

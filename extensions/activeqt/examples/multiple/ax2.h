@@ -49,7 +49,7 @@ protected:
 	paint.setPen( pen );
 
 	QRect r = rect();
-	r.addCoords( 10, 10, -10, -10 );
+	r.adjust( 10, 10, -10, -10 );
 	paint.drawEllipse( r );
     }
 
