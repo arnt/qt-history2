@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#52 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -405,7 +405,6 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
     //debug( "xdnd leave" );
     if ( !qt_xdnd_current_widget ||
 	 w->topLevelWidget() != qt_xdnd_current_widget->topLevelWidget() ) {
-	qt_xdnd_dragsource_xid = 0;
 	return; // sanity
     }
 
