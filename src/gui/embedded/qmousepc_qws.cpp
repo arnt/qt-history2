@@ -61,7 +61,7 @@ protected:
 public:
     QWSPcMouseSubHandler(int f) : fd(f)
     {
-        nbuf = bstate = goodness = badness = 0;
+        initState();
     }
 
     int file() const { return fd; }
@@ -73,6 +73,8 @@ public:
             close(fd);
         }
     }
+
+    void initState() { nbuf = bstate = goodness = badness = 0; }
 
     void worse(int by=1) { badness+=by; }
     bool reliable() const { return goodness >= 5 && badness < 50; }
@@ -394,6 +396,9 @@ public:
     QWSPcMouseHandlerPrivate(QWSPcMouseHandler *h, const QString &, const QString &);
     ~QWSPcMouseHandlerPrivate();
 
+    void suspend();
+    void resume();
+
 private:
     enum { max_dev=32 };
     QWSPcMouseSubHandler *sub[max_dev];
@@ -424,6 +429,16 @@ QWSPcMouseHandler::QWSPcMouseHandler(const QString &driver, const QString &devic
 QWSPcMouseHandler::~QWSPcMouseHandler()
 {
     delete d;
+}
+
+void QWSPcMouseHandler::suspend()
+{
+    d->suspend();
+}
+
+void QWSPcMouseHandler::resume()
+{
+    d->resume();
 }
 
 
@@ -584,6 +599,23 @@ void QWSPcMouseHandlerPrivate::closeDevices()
     qDeleteAll(notifiers);
     notifiers.clear();
 }
+
+void QWSPcMouseHandlerPrivate::suspend()
+{
+    for (int i=0; i<notifiers.size(); ++i)
+        notifiers.at(i)->setEnabled(false);
+}
+
+void QWSPcMouseHandlerPrivate::resume()
+{
+    for (int i=0; i<nsub; i++)
+        sub[i]->initState();
+
+    for (int i=0; i<notifiers.size(); ++i)
+        notifiers.at(i)->setEnabled(true);
+}
+
+
 
 void QWSPcMouseHandlerPrivate::notify(int fd)
 {

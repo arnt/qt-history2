@@ -26,6 +26,8 @@ public:
     QWSLinuxTPMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSLinuxTPMouseHandler();
 
+    void suspend();
+    void resume();
 protected:
     QWSLinuxTPMouseHandlerPrivate *d;
 };

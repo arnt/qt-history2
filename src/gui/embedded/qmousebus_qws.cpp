@@ -39,12 +39,16 @@ public:
     QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h, const QString &driver, const QString &device);
     ~QWSBusMouseHandlerPrivate();
 
+    void suspend();
+    void resume();
+
 private slots:
     void readMouseData();
 
 protected:
     enum { mouseBufSize = 128 };
     QWSBusMouseHandler *handler;
+    QSocketNotifier *mouseNotifier;
     int mouseFD;
     int mouseIdx;
     int obstate;
@@ -60,6 +64,17 @@ QWSBusMouseHandler::~QWSBusMouseHandler()
 {
     delete d;
 }
+
+QWSBusMouseHandler::suspend()
+{
+    d->suspend();
+}
+
+QWSBusMouseHandler::resume()
+{
+    d->resume();
+}
+
 
 QWSBusMouseHandlerPrivate::QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h,
     const QString &, const QString &device)
@@ -88,7 +103,6 @@ QWSBusMouseHandlerPrivate::QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h,
 
     mouseIdx = 0;
 
-    QSocketNotifier *mouseNotifier;
     mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 }
@@ -99,6 +113,19 @@ QWSBusMouseHandlerPrivate::~QWSBusMouseHandlerPrivate()
         tcflush(mouseFD,TCIFLUSH);            // yyd.
         close(mouseFD);
     }
+}
+
+
+QWSBusMouseHandlerPrivate::suspend()
+{
+    mouseNotifier->setEnabled(false);
+}
+
+
+QWSBusMouseHandlerPrivate::suspend()
+{
+    mouseIdx = 0;
+    mouseNotifier->setEnabled(true);
 }
 
 void QWSBusMouseHandlerPrivate::readMouseData()

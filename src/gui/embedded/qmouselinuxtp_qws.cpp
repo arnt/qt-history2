@@ -91,6 +91,8 @@ public:
     QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHandler *h);
     ~QWSLinuxTPMouseHandlerPrivate();
 
+    void suspend();
+    void resume();
 private:
     static const int mouseBufSize = 2048;
     int mouseFD;
@@ -105,6 +107,7 @@ private:
     int mouseIdx;
     uchar mouseBuf[mouseBufSize];
     QWSLinuxTPMouseHandler *handler;
+    QSocketNotifier *mouseNotifier;
 
 private slots:
     void readMouseData();
@@ -118,6 +121,16 @@ QWSLinuxTPMouseHandler::QWSLinuxTPMouseHandler(const QString &, const QString &)
 QWSLinuxTPMouseHandler::~QWSLinuxTPMouseHandler()
 {
     delete d;
+}
+
+void QWSLinuxTPMouseHandler::suspend()
+{
+    d->suspend();
+}
+
+void QWSLinuxTPMouseHandler::resume()
+{
+    d->resume();
 }
 
 QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHandler *h)
@@ -148,7 +161,6 @@ QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHand
 # endif
 #endif
 
-    QSocketNotifier *mouseNotifier;
     mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
                                          this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
@@ -160,6 +172,21 @@ QWSLinuxTPMouseHandlerPrivate::~QWSLinuxTPMouseHandlerPrivate()
 {
     if (mouseFD >= 0)
         close(mouseFD);
+}
+
+void QWSLinuxTPMouseHandlerPrivate::suspend()
+{
+    mouseNotifier->setEnabled(false);
+}
+
+void QWSLinuxTPMouseHandlerPrivate::suspend()
+{
+    mouseIdx=0;
+    currSample=0;
+    lastSample=0;
+    numSamples=0;
+    skipCount=0;
+    mouseNotifier->setEnabled(true);
 }
 
 

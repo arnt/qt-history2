@@ -234,6 +234,8 @@ public:
 
     void openMouse();
     void closeMouse();
+    void suspendMouse();
+    void resumeMouse();
 #ifndef QT_NO_QWS_KEYBOARD
     void openKeyboard();
     void closeKeyboard();

@@ -52,7 +52,7 @@ static void vtSwitchHandler(int /*sig*/)
         qt_screen->save();
         if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
             vtActive = false;
-            qwsServer->closeMouse();
+            qwsServer->suspendMouse();
         }
         else {
             qwsServer->enablePainting(true);
@@ -64,7 +64,7 @@ static void vtSwitchHandler(int /*sig*/)
             qwsServer->enablePainting(true);
             vtActive = true;
             qt_screen->restore();
-            qwsServer->openMouse();
+            qwsServer->resumeMouse();
             qwsServer->refresh();
         }
     }

@@ -36,6 +36,9 @@ public:
     virtual void calibrate(const QWSPointerCalibrationData *) {}
     virtual void getCalibration(QWSPointerCalibrationData *) const {}
 
+    virtual void resume() = 0;
+    virtual void suspend() = 0;
+
     void limitToScreen(QPoint &pt);
     void mouseChanged(const QPoint& pos, int bstate);
     const QPoint &pos() const { return mousePos; }

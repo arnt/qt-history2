@@ -2465,6 +2465,20 @@ void QWSServer::openMouse()
 #endif
 }
 
+void QWSServer::suspendMouse()
+{
+    for (int i=0; i < mousehandlers.size(); ++i)
+        mousehandlers.at(i)->suspend();
+}
+
+void QWSServer::resumeMouse()
+{
+    for (int i=0; i < mousehandlers.size(); ++i)
+        mousehandlers.at(i)->resume();
+}
+
+
+
 QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 {
     static int init=0;

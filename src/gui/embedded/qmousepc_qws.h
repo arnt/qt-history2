@@ -26,6 +26,9 @@ public:
     QWSPcMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSPcMouseHandler();
 
+
+    void suspend();
+    void resume();
 protected:
     QWSPcMouseHandlerPrivate *d;
 };

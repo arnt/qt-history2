@@ -26,6 +26,8 @@ public:
     QWSBusMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSBusMouseHandler();
 
+    void suspend();
+    void resume();
 protected:
     QWSBusMouseHandlerPrivate *d;
 };
