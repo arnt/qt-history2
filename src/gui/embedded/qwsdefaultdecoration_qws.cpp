@@ -212,23 +212,23 @@ QPixmap QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region 
 
     // Why don't we just use/extend the enum type...
 
-    if (staticMenuPixmapXPM != (xpm=menuPixmap())) {
+    if (staticMenuPixmapXPM != (xpm=menuPixmap()) || !staticMenuPixmap) {
         staticMenuPixmapXPM = xpm;
         staticMenuPixmap = new QPixmap(xpm);
     }
-    if (staticClosePixmapXPM != (xpm=closePixmap())) {
+    if (staticClosePixmapXPM != (xpm=closePixmap()) || !staticClosePixmap) {
         staticClosePixmapXPM = xpm;
         staticClosePixmap = new QPixmap(xpm);
     }
-    if (staticMinimizePixmapXPM != (xpm=minimizePixmap())) {
+    if (staticMinimizePixmapXPM != (xpm=minimizePixmap()) || !staticMinimizePixmap) {
         staticMinimizePixmapXPM = xpm;
         staticMinimizePixmap = new QPixmap(xpm);
     }
-    if (staticMaximizePixmapXPM != (xpm=maximizePixmap())) {
+    if (staticMaximizePixmapXPM != (xpm=maximizePixmap()) || !staticMaximizePixmap) {
         staticMaximizePixmapXPM = xpm;
         staticMaximizePixmap = new QPixmap(xpm);
     }
-    if (staticNormalizePixmapXPM != (xpm=normalizePixmap())) {
+    if (staticNormalizePixmapXPM != (xpm=normalizePixmap()) || staticNormalizePixmap) {
         staticNormalizePixmapXPM = xpm;
         staticNormalizePixmap = new QPixmap(xpm);
     }
