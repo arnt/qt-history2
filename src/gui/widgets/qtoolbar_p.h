@@ -68,7 +68,8 @@ class QToolBarPrivate : public QWidgetPrivate
 
 public:
     inline QToolBarPrivate()
-        : movable(false), allowedAreas(Qt::AllToolBarAreas), orientation(Qt::Horizontal),
+        : explicitIconSize(false), explicitToolButtonStyle(false), movable(false),
+          allowedAreas(Qt::AllToolBarAreas), orientation(Qt::Horizontal),
           toolButtonStyle(Qt::ToolButtonIconOnly),
           handle(0), extension(0), ignoreActionAddedEvent(false)
     { }
@@ -77,10 +78,12 @@ public:
     void actionTriggered();
     void toggleView(bool b);
     void updateIconSize(const QSize &sz);
+    void updateToolButtonStyle(Qt::ToolButtonStyle style);
     QToolBarItem createItem(QAction *action);
     int indexOf(QAction *action) const;
 
     bool explicitIconSize;
+    bool explicitToolButtonStyle;
     bool movable;
     Qt::ToolBarAreas allowedAreas;
     Qt::Orientation orientation;

@@ -117,6 +117,7 @@ private:
     Q_DISABLE_COPY(QToolBar)
     Q_PRIVATE_SLOT(d, void toggleView(bool))
     Q_PRIVATE_SLOT(d, void updateIconSize(const QSize &))
+    Q_PRIVATE_SLOT(d, void updateToolButtonStyle(Qt::ToolButtonStyle))
 
     friend class QMainWindow;
 };

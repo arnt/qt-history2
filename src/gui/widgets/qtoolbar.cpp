@@ -65,7 +65,6 @@ void QToolBarPrivate::init()
 
     int e = style->pixelMetric(QStyle::PM_ToolBarIconSize);
     iconSize = QSize(e, e);
-    explicitIconSize = false;
 
     layout->setAlignment(Qt::AlignLeft);
     layout->setMargin(style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q)
@@ -114,6 +113,14 @@ void QToolBarPrivate::updateIconSize(const QSize &sz)
         // iconSize not explicitly set
         q->setIconSize(sz);
         explicitIconSize = false;
+    }
+}
+
+void QToolBarPrivate::updateToolButtonStyle(Qt::ToolButtonStyle style)
+{
+    if (!explicitToolButtonStyle) {
+        q->setToolButtonStyle(style);
+        explicitToolButtonStyle = false;
     }
 }
 
@@ -439,6 +446,7 @@ Qt::ToolButtonStyle QToolBar::toolButtonStyle() const
 
 void QToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 {
+    d->explicitToolButtonStyle = true;
     if (d->toolButtonStyle == toolButtonStyle)
         return;
     d->toolButtonStyle = toolButtonStyle;
