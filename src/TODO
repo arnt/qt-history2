@@ -14,3 +14,5 @@
 7) QListBox::insertItem(), inSort() + evt. QComboBox skal returnere int.
 
 8) qpshdr.cpp istedet for qtheader.cpp.
+
+9) Legg til void QTableView::setCellSize() og evt. QSize cellSize().
