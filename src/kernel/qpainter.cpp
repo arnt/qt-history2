@@ -3005,14 +3005,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 	}
 	if ( painter && !(tf & QPainter::DontPrint) ) {
 	    xoff += r.x();
-	    if ( r.width() < parag->pseudoDocument()->wused ) {
-		if ( ( tf & Qt::AlignHCenter ) == Qt::AlignHCenter )
-		    xoff -= parag->pseudoDocument()->wused / 2 - r.width() / 2;
-		else if ( ( tf & Qt::AlignRight ) == Qt::AlignRight )
-		    xoff -= parag->pseudoDocument()->wused - r.width();
-	    }
-	    if ( tf & Qt::AlignRight )
-		xoff -= 2; // ### strange
 	    yoff += r.y();
 
 	    QColorGroup cg;
