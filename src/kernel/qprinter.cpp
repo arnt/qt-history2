@@ -143,6 +143,10 @@ const char *qprinter_name_for_pagesize( QPrinter::PageSize ps )
     \omit Need a function to setup() without a dialog (i.e. use defaults).
     \endomit
 
+    If your current locale converts "," to ".", you will need to set
+    a locale that doen't do this (e.g. the "C" locale) before using
+    QPrinter.
+
     The TrueType font embedding for Qt's postscript driver uses code
     by David Chappell of Trinity College Computing Center.
 
