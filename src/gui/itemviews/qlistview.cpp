@@ -111,6 +111,49 @@ void QListModel::append(const QListViewItem &item)
     emit rowsInserted(QModelIndex(), row, row);
 }
 
+/*!
+    \class QListViewItem
+*/
+
+/*!
+    \fn QString QListViewItem::text() const
+*/
+
+/*!
+    \fn QIconSet QListViewItem::iconSet() const
+*/
+
+/*!
+    \fn bool QListViewItem::isEditable() const
+*/
+
+/*!
+    \fn bool QListViewItem::isSelectable() const
+*/
+
+/*!
+    \fn void QListViewItem::setText(const QString &text)
+*/
+
+/*!
+    \fn void QListViewItem::setIconSet(const QIconSet &iconSet)
+*/
+
+/*!
+    \fn void QListViewItem::setEditable(bool editable)
+*/
+
+/*!
+    \fn void QListViewItem::setSelectable(bool selectable)
+*/
+
+/*!
+    \fn bool QListViewItem::operator !=(const QListViewItem &other)
+*/
+
+/*!
+*/
+
 bool QListViewItem::operator ==(const QListViewItem &other) const
 {
     if (values.count() != other.values.count()
@@ -126,6 +169,9 @@ bool QListViewItem::operator ==(const QListViewItem &other) const
     return true;
 }
 
+/*!
+*/
+
 QVariant QListViewItem::data(int role) const
 {
     role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
@@ -135,6 +181,9 @@ QVariant QListViewItem::data(int role) const
     }
     return QVariant();
 }
+
+/*!
+*/
 
 void QListViewItem::setData(int role, const QVariant &value)
 {
@@ -168,6 +217,13 @@ QListView::QListView(QWidget *parent, const char* name)
 }
 #endif
 
+/*!
+    \class QListView
+*/
+
+/*!
+*/
+
 QListView::QListView(QWidget *parent)
     : QGenericListView(*new QListViewPrivate(), parent)
 {
@@ -175,39 +231,63 @@ QListView::QListView(QWidget *parent)
     model()->setParent(this);
 }
 
+/*!
+*/
+
 QListView::~QListView()
 {
 }
+
+/*!
+*/
 
 void QListView::setText(int row, const QString &text)
 {
     model()->setData(model()->index(row,0), QAbstractItemModel::Role_Display, text);
 }
 
+/*!
+*/
+
 void QListView::setIconSet(int row, const QIconSet &iconSet)
 {
     model()->setData(model()->index(row,0), QAbstractItemModel::Role_Decoration, iconSet);
 }
+
+/*!
+*/
 
 QString QListView::text(int row) const
 {
     return model()->data(model()->index(row,0), QAbstractItemModel::Role_Display).toString();
 }
 
+/*!
+*/
+
 QIconSet QListView::iconSet(int row) const
 {
     return model()->data(model()->index(row,0), QAbstractItemModel::Role_Decoration).toIconSet();
 }
+
+/*!
+*/
 
 QListViewItem QListView::item(int row) const
 {
     return d->model()->item(row);
 }
 
+/*!
+*/
+
 void QListView::setItem(int row, const QListViewItem &item)
 {
     d->model()->setItem(row, item);
 }
+
+/*!
+*/
 
 void QListView::appendItem(const QListViewItem &item)
 {
