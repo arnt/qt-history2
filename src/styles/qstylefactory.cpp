@@ -48,7 +48,9 @@
 #include "qplatinumstyle.h"
 #include "qsgistyle.h"
 #include "qcompactstyle.h"
+#ifndef QT_NO_STYLE_WINDOWSXP
 #include "qwindowsxpstyle.h"
+#endif
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -240,7 +242,7 @@ QStringList QStyleFactory::keys()
 	GetTheme(c);
 	Str255 str;
 	long int s = 256;
-	if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str)) 
+	if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str))
 	    mstyle += " (" + p2qstring(str) + ")";
     }
     if ( !list.contains( mstyle ) )
