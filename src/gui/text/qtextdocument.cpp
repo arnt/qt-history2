@@ -19,6 +19,7 @@
 #include "qtextlist.h"
 #include <qdebug.h>
 #include <qregexp.h>
+#include <qvarlengtharray.h>
 #include "qtexthtmlparser_p.h"
 
 #include "qtextdocument_p.h"
@@ -648,13 +649,16 @@ public:
     QString toHtml();
 
 private:
-    void exportFrame(const QTextFrame *frame);
+    void exportFrame(QTextFrame::Iterator frameIt);
     void exportBlock(const QTextBlock &block);
     void exportTable(const QTextTable *table);
     void exportFragment(const QTextFragment &fragment);
 
     void emitBlockFormatAttributes(const QTextBlockFormat &format);
     bool emitCharFormatStyle(const QTextCharFormat &format);
+    void emitTextLength(const char *attribute, const QTextLength &length);
+
+    void emitAttribute(const char *attribute, const QString &value);
 
     QString html;
     QFont defaultFont;
@@ -670,9 +674,18 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
 QString QTextHtmlExporter::toHtml()
 {
     html = QLatin1String("<html><body>"); // ####
-    exportFrame(doc->rootFrame());
+    exportFrame(doc->rootFrame()->begin());
     html += QLatin1String("</body></html>");
     return html;
+}
+
+void QTextHtmlExporter::emitAttribute(const char *attribute, const QString &value)
+{
+    html += QLatin1Char(' ');
+    html += attribute;
+    html += QLatin1String("=\"");
+    html += value;
+    html += QLatin1Char('"');
 }
 
 bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
@@ -756,6 +769,21 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
     return attributesEmitted;
 }
 
+void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength &length)
+{
+    if (length.type() == QTextLength::VariableLength) // default
+        return;
+
+    html += attribute;
+    html += QLatin1String("=\"");
+    html += QString::number(length.rawValue());
+
+    if (length.type() == QTextLength::PercentageLength)
+        html += QLatin1String("%\"");
+    else
+        html += QLatin1String("\"");
+}
+
 void QTextHtmlExporter::exportFragment(const QTextFragment &fragment)
 {
     const QTextCharFormat format = fragment.charFormat();
@@ -814,15 +842,14 @@ void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format
 
     // ### margins
 
-    if (format.hasProperty(QTextFormat::BlockBackgroundColor)) {
-        html += QLatin1String(" bgcolor='");
-        html += format.backgroundColor().name();
-        html += QLatin1String("'");
-    }
+    if (format.hasProperty(QTextFormat::BlockBackgroundColor))
+        emitAttribute("bgcolor", format.backgroundColor().name());
 }
 
 void QTextHtmlExporter::exportBlock(const QTextBlock &block)
 {
+    if (block.begin().atEnd())
+        return;
     const bool pre = block.blockFormat().nonBreakableLines();
     if (pre)
         html += QLatin1String("<pre");
@@ -830,7 +857,7 @@ void QTextHtmlExporter::exportBlock(const QTextBlock &block)
         html += QLatin1String("<p");
 
     emitBlockFormatAttributes(block.blockFormat());
-    html += QLatin1String(">");
+    html += QLatin1Char('>');
 
     for (QTextBlock::Iterator it = block.begin();
          !it.atEnd(); ++it)
@@ -844,11 +871,88 @@ void QTextHtmlExporter::exportBlock(const QTextBlock &block)
 
 void QTextHtmlExporter::exportTable(const QTextTable *table)
 {
+    QTextTableFormat format = table->format();
+
+    html += QLatin1String("<table");
+
+    if (format.hasProperty(QTextFormat::FrameBorder))
+        emitAttribute("border", QString::number(format.border()));
+
+    // ### style="float: ..."
+    // ### align
+
+    emitTextLength("width", format.width());
+
+    if (format.hasProperty(QTextFormat::TableCellSpacing))
+        emitAttribute("cellspacing", QString::number(format.cellSpacing()));
+    if (format.hasProperty(QTextFormat::TableCellPadding))
+        emitAttribute("cellpadding", QString::number(format.cellPadding()));
+
+    if (format.hasProperty(QTextFormat::TableBackgroundColor))
+        emitAttribute("bgcolor", format.backgroundColor().name());
+
+    html += QLatin1Char('>');
+
+    const int rows = table->rows();
+    const int columns = table->columns();
+
+    QVector<QTextLength> columnWidths = format.columnWidthConstraints();
+    if (columnWidths.isEmpty()) {
+        columnWidths.resize(columns);
+        columnWidths.fill(QTextLength());
+    }
+    Q_ASSERT(columnWidths.count() == columns);
+
+    QVarLengthArray<bool> widthEmittedForColumn(columns);
+    for (int i = 0; i < columns; ++i)
+        widthEmittedForColumn[i] = false;
+
+    for (int row = 0; row < rows; ++row) {
+        html += QLatin1String("<tr>"); // ### attr
+
+        for (int col = 0; col < columns; ++col) {
+            const QTextTableCell cell = table->cellAt(row, col);
+
+            // for col/rowspans
+            if (cell.row() != row)
+                break;
+
+            if (cell.column() != col)
+                break;
+
+            html += QLatin1String("<td");
+
+            if (!widthEmittedForColumn[col]) {
+                emitTextLength("width", columnWidths.at(col));
+                widthEmittedForColumn[col] = true;
+            }
+
+            if (cell.columnSpan() > 1)
+                emitAttribute("colspan", QString::number(cell.columnSpan()));
+
+            if (cell.rowSpan() > 1)
+                emitAttribute("rowspan", QString::number(cell.rowSpan()));
+
+            const QTextCharFormat cellFormat = cell.format();
+            if (cellFormat.hasProperty(QTextFormat::TableCellBackgroundColor))
+                emitAttribute("bgcolor", cellFormat.tableCellBackgroundColor().name());
+
+            html += QLatin1Char('>');
+
+            exportFrame(cell.begin());
+
+            html += QLatin1String("</td>");
+        }
+
+        html += QLatin1String("</tr>"); // ### attr
+    }
+
+    html += QLatin1String("</table>");
 }
 
-void QTextHtmlExporter::exportFrame(const QTextFrame *frame)
+void QTextHtmlExporter::exportFrame(QTextFrame::Iterator frameIt)
 {
-    for (QTextFrame::Iterator it = frame->begin();
+    for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
         if (QTextTable *table = qt_cast<QTextTable *>(it.currentFrame()))
             exportTable(table);
