@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#116 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#117 $
 #
 # this is a massive hack, written very quickly
 #
@@ -79,8 +79,8 @@ sub processcode {
     local (%types, %inheritedtypes, %myfunctions, $myclass);
 
     $_ = &html($_);
-    s/^\s*\n//s;
-    s/\s+$/\n/s;
+    s/^\s*/\n\n/s;
+    s/\s+$/\n\n/s;
     s!\\/(.*?\n)!//$1!gs;
 
     # pick up any local include files
@@ -203,13 +203,18 @@ sub processcode {
 	    $&;
 	} elsif ( $myclass ne "" &&
 		 defined( $myfunctions{$myclass . "::" . $3} ) ) {
+#	    printf( "1: <a href=#%s>%s</a>%s\n", 
+#		    $myfunctions{$myclass . "::" . $3}, $3, $4 );
 	    sprintf( "%s<a href=#%s>%s</a>%s", 
 		    $2, $myfunctions{$myclass . "::" . $3}, $3, $4 );
 	} elsif ( $myclass ne "" &&
 		 $type{$anchor{$inheritedtypes{$myclass}."::".$3}} eq "fn" ) {
+#	    printf( "2: <a href=\"%s\">%s</a>%s\n", 
+#		    $anchor{$inheritedtypes{$myclass}."::".$3}, $3, $4 );
 	    sprintf( "%s<a href=\"%s\">%s</a>%s", 
 		    $2, $anchor{$inheritedtypes{$myclass}."::".$3}, $3, $4 );
 	} elsif ( $type{$anchor{"::".$3}} eq "fn" ) {
+#	    printf( "3: <a href=\"%s\">%s</a>%s\n", $anchor{"::".$3}, $3, $4 );
 	    sprintf( "%s<a href=\"%s\">%s</a>%s", $2, $anchor{"::".$3}, $3, $4 );
 	} else {
 #	    print "VOLD: ",$myclass," ",$inheritedtypes{$myclass},"::",$3,
@@ -228,6 +233,9 @@ sub processcode {
 	    sprintf("<a name=\"%s\"></a>%s", $myfunctions{$myclass}, $1);
 	@esg;
     }
+
+    s/^\s*\n//s;
+    s/\s+$/\n/s;
 
     s/\n\s*\n/\n<linebreak>\n/gs;
 
@@ -2047,6 +2055,85 @@ API with links to the class documentation for each function.
 
 
 
+sub linuxjournal {
+    local( %i, $i, $o, @i );
+
+    if ( -d $ENV{"HOME"} . "/tmp/lj" ) {
+
+	chdir($ENV{"HOME"} . "/tmp/lj");
+	open( FILES, "echo */* |" );
+	foreach $i ( split( /\s+/s, <FILES> ) ) {
+	    next if ( $i =~ /\.bmp$/ );
+	    $o = $i;
+	    $o =~ s@[/.]@-@g;
+	    $o =~ tr/A-Z/a-z/;
+	    $i{$i} = $o . ".html";
+	}
+	close( FILES );
+
+	@i = (sort keys %i);
+
+	foreach $i ( keys %i ) {
+	    open( O, "> /local/lib/apache/home/" . $i{$i} ) ||
+		die "> /local/lib/apache/home/" . $i{$i};
+	    print O $doctype,"
+<html><head><title>
+Linux Journal: ", $i, "
+</title></head><body>
+<h1 align=center>Qt Article Example Code</h1>
+
+<p>
+
+This page contains <code>", $i, "</code> from the article about
+<a href=\"http://www.troll.no/intro.html\">Qt</a> in the
+<a href=\"http://www.ssc.com/lj/issue31/\">November 1995</a> issue of
+<a href=\"http://www.ssc.com/lj/\">Linux Journal.</a>  The
+article text is not available on the web, but here are the other
+example files:
+
+<p>
+
+<code>
+<table>
+";
+
+ 	    @i = ( sort keys %i );
+	    print O "<tr><td align=left><ul>\n";
+	    foreach ( 0..4 ) {
+ 		if ( $i[$_] ne $i ) {
+ 		    print O "<li><a href=\"",$i{$i[$_]},"\">",$i[$_],"</a>\n";
+ 		} else {
+ 		    print O "<li>",$i[$_],"\n";
+ 		}
+	    }
+	    print O "</ul><td align=left><ul>\n";
+	    foreach ( 5..9 ) {
+ 		if ( $i[$_] ne $i ) {
+ 		    print O "<li><a href=\"",$i{$i[$_]},"\">",$i[$_],"</a>\n";
+ 		} else {
+ 		    print O "<li>",$i[$_],"\n";
+ 		}
+	    }
+
+	    print O "</ul>\n</table>\n</code>\n<hr>\n<h1 align=center>",
+		$i, "</h1>\n";
+
+#	    print "reading ", $i, "\n";
+	    open(I, "expand < " . $i . " |") || die "opening " . $i;
+	    undef $/;
+	    $o = <I>;
+	    close I;
+	    $o = &processcode($o, "" . $ENV{"HOME"} . "/tmp/lj/" . $i );
+	    $o =~ s/<linebreak>//gs;
+
+#	    $o =~ s-<a href=\"([^:/]+)\">-<a href=\"http://www.troll.no/qt/$1\">-gs;
+	    $o =~ s-<a href=\"([^:/]+)\">-<a href=\"/qt/$1\">-gs;
+
+	    print O $o, $address;
+	    close O;
+	}
+    }
+}
 
 
 
@@ -2154,6 +2241,8 @@ if ( $internal ) {
 print "Documented ", $countdoc, " member functions, left out ",
     $errmsg, " undocumented member functions and ", 
     $countall-$countdoc-$errmsg, " private or non-function members\n";
+
+&linuxjournal();
 
 
 #foreach ( sort keys %urls ) {
