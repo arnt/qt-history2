@@ -10,9 +10,9 @@
     "a", "aa", "aaa", "aaaa", ...
 */
 
-ulong qHash(const QByteArray& key)
+uint qHash(const QByteArray &key)
 {
-    const uchar *p = (const uchar *) key.data();
+    const uchar *p = reinterpret_cast<const uchar *>(key.data());
     int n = key.size();
     uint h = 0;
     uint g;
@@ -26,7 +26,7 @@ ulong qHash(const QByteArray& key)
     return h;
 }
 
-ulong qHash(const QString& key)
+uint qHash(const QString &key)
 {
     const QChar *p = key.unicode();
     int n = key.length();
@@ -91,11 +91,7 @@ static int countBits(int hint)
 const int MinNumBits = 4;
 
 QHashData QHashData::shared_null = {
-    0,
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-    0,
-#endif
-    0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, 0
+    0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, 0
 };
 
 QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
@@ -106,9 +102,6 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     };
     d = new QHashData;
     d->fakeNext = 0;
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-    d->fakeH = numBuckets - 1;
-#endif
     d->buckets = 0;
     d->ref = 1;
     d->size = size;
@@ -119,22 +112,80 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
 
     if (numBuckets) {
 	d->buckets = new Node *[numBuckets];
-	Node *this_e = (Node *) this;
+	Node *this_e = reinterpret_cast<Node *>(this);
 	for (int i = 0; i < numBuckets; ++i) {
-	    d->buckets[i] = e;
-	    Node *cur = buckets[i];
-	    while (cur != this_e) {
-		Node *dup = node_duplicate(cur);
-		dup->h = cur->h;
-		    Node **bucket = &d->buckets[i];
-		    dup->next = *bucket;
-		    *bucket = dup;
-		    cur = cur->next;
+	    Node **nextNode = &d->buckets[i];
+	    Node *oldNode = buckets[i];
+	    while (oldNode != this_e) {
+		Node *dup = node_duplicate(oldNode);
+		dup->h = oldNode->h;
+		*nextNode = dup;
+                nextNode = &dup->next;
+		oldNode = oldNode->next;
 	    }
+            *nextNode = e;
 	}
     }
     return d;
 }
+
+QHashData::Node *QHashData::nextNode(Node *node)
+{
+    union {
+	Node *next;
+	Node *e;
+	QHashData *d;
+    };
+    next = node->next;
+    if (next->next)
+	return next;
+
+    int start = (node->h % d->numBuckets) + 1;
+    Node **bucket = d->buckets + start;
+    int n = d->numBuckets - start;
+    while (n--) {
+	if (*bucket != e)
+	    return *bucket;
+	++bucket;
+    }
+    return e;
+}
+
+#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
+QHashData::Node *QHashData::prevNode(Node *node)
+{
+    union {
+	Node *e;
+	QHashData *d;
+    };
+
+    e = node;
+    while (e->next)
+	e = e->next;
+
+    int start;
+    if (node == e)
+	start = d->numBuckets - 1;
+    else
+	start = node->h % d->numBuckets;
+
+    Node *sentinel = node;
+    Node **bucket = d->buckets + start;
+    while (start >= 0) {
+	if (*bucket != sentinel) {
+	    Node *prev = *bucket;
+            while (prev->next != sentinel)
+	        prev = prev->next;
+	    return prev;
+	}
+
+        sentinel = e;
+	--bucket;
+        --start;
+    }
+    return e;
+}
+#endif
 
 void QHashData::rehash(int hint)
 {
@@ -145,20 +196,17 @@ void QHashData::rehash(int hint)
 	userNumBits = hint;
 	if (size > (1 << userNumBits))
 	    return;
-    } else if (hint == 1) {
+    } else if (hint < MinNumBits) {
 	hint = MinNumBits;
     }
 
     if (numBits != hint) {
-	Node *e = (Node *) this;
+	Node *e = reinterpret_cast<Node *>(this);
 	Node **oldBuckets = buckets;
 	int oldNumBuckets = numBuckets;
 
 	numBits = hint;
 	numBuckets = primeForNumBits(hint);
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-        fakeH = numBuckets - 1;
-#endif
 	buckets = new Node *[numBuckets];
 	for (int i = 0; i < numBuckets; i++)
 	    buckets[i] = e;
@@ -167,11 +215,11 @@ void QHashData::rehash(int hint)
 	    Node *node = oldBuckets[i];
 	    while (node != e) {
 		Node *oldNext = node->next;
-		Node **nextNode_ptr = &buckets[node->h % numBuckets];
-		while (*nextNode_ptr != e)
-		    nextNode_ptr = &(*nextNode_ptr)->next;
-		node->next = *nextNode_ptr;
-		*nextNode_ptr = node;
+		Node **nextNode = &buckets[node->h % numBuckets];
+		while (*nextNode != e)
+		    nextNode = &(*nextNode)->next;
+		node->next = *nextNode;
+		*nextNode = node;
 		node = oldNext;
 	    }
 	}

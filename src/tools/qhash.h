@@ -14,32 +14,36 @@
 class QByteArray;
 class QString;
 
-inline ulong qHash(char key) { return (ulong)key; }
-inline ulong qHash(signed char key) { return (ulong)key; }
-inline ulong qHash(unsigned char key) { return (ulong)key; }
-inline ulong qHash(signed short key) { return (ulong)key; }
-inline ulong qHash(unsigned short key) { return (ulong)key; }
-inline ulong qHash(signed int key) { return (ulong)key; }
-inline ulong qHash(unsigned int key) { return (ulong)key; }
-inline ulong qHash(signed long key) { return (ulong)key; }
-inline ulong qHash(unsigned long key) { return (ulong)key; }
+inline uint qHash(char key) { return (uint)key; }
+inline uint qHash(signed char key) { return (uint)key; }
+inline uint qHash(unsigned char key) { return (uint)key; }
+inline uint qHash(signed short key) { return (uint)key; }
+inline uint qHash(unsigned short key) { return (uint)key; }
+inline uint qHash(signed int key) { return (uint)key; }
+inline uint qHash(unsigned int key) { return (uint)key; }
+inline uint qHash(signed long key) { return (uint)key; }
+inline uint qHash(unsigned long key) { return (uint)key; }
 
-Q_CORE_EXPORT ulong qHash(const QByteArray &key);
-Q_CORE_EXPORT ulong qHash(const QString &key);
+Q_CORE_EXPORT uint qHash(const QByteArray &key);
+Q_CORE_EXPORT uint qHash(const QString &key);
 
-template <class T> inline ulong qHash(const T *key) { return (ulong)key; }
+// We assume that size(const T *) >= sizeof(ulong)
+template <class T> inline uint qHash(const T *key)
+{
+    if (sizeof(const T *) > sizeof(uint))
+	return (uint)((reinterpret_cast<Q_ULLONG>(key) >> 32) ^ reinterpret_cast<Q_ULLONG>(key));
+    else
+	return reinterpret_cast<uint>(key);
+}
 
 struct Q_CORE_EXPORT QHashData
 {
     struct Node {
 	Node *next;
-	ulong h;
+	uint h;
     };
 
     Node *fakeNext;
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-    ulong fakeH;
-#endif
     Node **buckets;
     QAtomic ref;
     int size;
@@ -49,35 +53,33 @@ struct Q_CORE_EXPORT QHashData
     void *autoDelete;
 
     QHashData *detach_helper(Node *(*node_duplicate)(Node *));
-    void growByOne();
-    void shrinkByOne();
+    void mightGrow();
+    void hasShrunk();
     void rehash(int hint);
-    Node *first_node();
-    static Node *next_node(Node *node);
+    Node *firstNode();
+    static Node *nextNode(Node *node);
 #ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-    static Node *prev_node(Node *node);
+    static Node *prevNode(Node *node);
 #endif
 
     static QHashData shared_null;
 };
 
-inline void QHashData::growByOne()
+inline void QHashData::mightGrow()
 {
-    ++size;
-    if (size > numBuckets)
+    if (size >= numBuckets)
 	rehash(numBits + 1);
 }
 
-inline void QHashData::shrinkByOne()
+inline void QHashData::hasShrunk()
 {
-    --size;
-    if (size == (numBuckets >> 3) && numBits > userNumBits)
+    if (size <= (numBuckets >> 3) && numBits > userNumBits)
 	rehash(qMax(numBits - 2, userNumBits));
 }
 
-inline QHashData::Node *QHashData::first_node()
+inline QHashData::Node *QHashData::firstNode()
 {
-    Node *e = (Node *)this;
+    Node *e = reinterpret_cast<Node *>(this);
     Node **bucket = buckets;
     int n = numBuckets;
     while (n--) {
@@ -88,71 +90,17 @@ inline QHashData::Node *QHashData::first_node()
     return e;
 }
 
-inline QHashData::Node *QHashData::next_node(Node *node)
-{
-    union {
-	Node *next;
-	Node *e;
-	QHashData *d;
-    };
-    next = node->next;
-    if (next->next)
-	return next;
-
-    int start = (node->h % d->numBuckets) + 1;
-    Node **bucket = d->buckets + start;
-    int n = d->numBuckets - start;
-    while (n--) {
-	if (*bucket != e)
-	    return *bucket;
-	++bucket;
-    }
-    return e;
-}
-
-#ifndef QT_NO_QHASH_BACKWARD_ITERATORS
-inline QHashData::Node *QHashData::prev_node(Node *node)
-{
-    union {
-	Node *next;
-	Node *e;
-	QHashData *d;
-    };
-
-    next = node;
-    while (next->next)
-	next = next->next;
-
-    int start = (node->h % d->numBuckets);
-    Node *sentinel = node;
-    Node **bucket = d->buckets + start;
-    while (start >= 0) {
-	if (*bucket != sentinel) {
-	    next = *bucket;
-            while (next->next != sentinel)
-	        next = next->next;
-	    return next;
-	}
-
-        sentinel = e;
-	--bucket;
-        --start;
-    }
-    return e;
-}
-#endif
-
 template <class Key, class T>
 struct QHashNode
 {
     QHashNode *next;
-    ulong h;
+    uint h;
     Key key;
     T value;
 
     inline QHashNode(const Key &key0, const T &value0)
 	: key(key0), value(value0) { }
-    inline bool same_key(ulong h0, const Key &key0) { return h0 == h && key0 == key; }
+    inline bool same_key(uint h0, const Key &key0) { return h0 == h && key0 == key; }
 };
 
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
@@ -160,14 +108,18 @@ struct QHashNode
     template <class T> \
     struct QHashNode<key_type, T> { \
 	QHashNode *next; \
-	union { ulong h; key_type key; }; \
+	union { uint h; key_type key; }; \
 	T value; \
-	inline QHashNode(key_type, const T &value0) : value(value0) { } \
-	inline bool same_key(ulong h0, key_type) { return h0 == h; } \
+	inline QHashNode(key_type /* key0 */, const T &value0) : value(value0) { } \
+	inline bool same_key(uint h0, key_type) { return h0 == h; } \
     };
 
-Q_HASH_DECLARE_INT_NODE(signed int)
-Q_HASH_DECLARE_INT_NODE(unsigned int)
+#if defined(Q_BYTE_ORDER) && Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+Q_HASH_DECLARE_INT_NODE(short)
+Q_HASH_DECLARE_INT_NODE(ushort)
+#endif
+Q_HASH_DECLARE_INT_NODE(int)
+Q_HASH_DECLARE_INT_NODE(uint)
 #undef Q_HASH_DECLARE_INT_NODE
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
@@ -190,7 +142,7 @@ public:
 
     class Iterator
     {
-	Node *i;
+	QHashData::Node *i;
     public:
 	typedef std::bidirectional_iterator_tag iterator_category;
         typedef ptrdiff_t difference_type;
@@ -198,35 +150,35 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator Node *() const { return i; }
-	explicit inline Iterator(void *node = 0) { i = (Node *)node; }
+	inline operator Node *() const { return reinterpret_cast<Node *>(i); }
+	explicit inline Iterator(void *node = 0) { i = reinterpret_cast<QHashData::Node *>(node); }
 
-	inline const Key &key() const { return i->key; }
-	inline T &value() const { return i->value; }
+	inline const Key &key() const { return reinterpret_cast<Node *>(i)->key; }
+	inline T &value() const { return reinterpret_cast<Node *>(i)->value; }
 #ifdef QT_COMPAT
-	inline QT_COMPAT T &data() const { return i->value; }
+	inline QT_COMPAT T &data() const { return reinterpret_cast<Node *>(i)->value; }
 #endif
-	inline T &operator*() const { return i->value; }
+	inline T &operator*() const { return reinterpret_cast<Node *>(i)->value; }
 	inline bool operator==(const Iterator &o) { return i == o.i; }
 	inline bool operator!=(const Iterator &o) { return i != o.i; }
 
 	inline Iterator &operator++() {
-	    i = (Node *)QHashData::next_node((QHashData::Node *)i);
+	    i = QHashData::nextNode(i);
 	    return *this;
 	}
 	inline Iterator operator++(int) {
 	    Iterator r = *this;
-	    i = (Node *)QHashData::next_node((QHashData::Node *)i);
+	    i = QHashData::nextNode(i);
 	    return r;
 	}
 #ifndef QT_NO_QHASH_BACKWARD_ITERATORS
 	inline Iterator &operator--() {
-	    i = (Node *)QHashData::prev_node((QHashData::Node *)i);
+	    i = QHashData::prevNode(i);
 	    return *this;
 	}
 	inline Iterator operator--(int) {
 	    Iterator r = *this;
-	    i = (Node *)QHashData::prev_node((QHashData::Node *)i);
+	    i = QHashData::prevNode(i);
 	    return r;
 	}
 #endif
@@ -235,7 +187,7 @@ public:
 
     class ConstIterator
     {
-	Node *i;
+	QHashData::Node *i;
     public:
 	typedef std::bidirectional_iterator_tag iterator_category;
         typedef ptrdiff_t difference_type;
@@ -243,36 +195,38 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator Node *() const { return i; }
-	inline ConstIterator(const Iterator &o) { i = ((ConstIterator &)o).i; }
-	explicit inline ConstIterator(void *node = 0) { i = (Node *)node; }
+	inline operator Node *() const { return reinterpret_cast<Node *>(i); }
+	inline ConstIterator(const Iterator &o)
+        { i = reinterpret_cast<const ConstIterator &>(o).i; }
+	explicit inline ConstIterator(void *node = 0)
+        { i = reinterpret_cast<QHashData::Node *>(node); }
 
-	inline const Key &key() const { return i->key; }
-	inline const T &value() const { return i->value; }
+	inline const Key &key() const { return reinterpret_cast<Node *>(i)->key; }
+	inline const T &value() const { return reinterpret_cast<Node *>(i)->value; }
 #ifdef QT_COMPAT
-	inline QT_COMPAT const T &data() const { return i->value; }
+	inline QT_COMPAT const T &data() const { return reinterpret_cast<Node *>(i)->value; }
 #endif
-	inline const T &operator*() const { return i->value; }
+	inline const T &operator*() const { return reinterpret_cast<Node *>(i)->value; }
 	inline bool operator==(const ConstIterator &o) { return i == o.i; }
 	inline bool operator!=(const ConstIterator &o) { return i != o.i; }
 
 	inline ConstIterator operator++() {
-	    i = (Node *)QHashData::next_node((QHashData::Node *)i);
+	    i = QHashData::nextNode(i);
 	    return *this;
 	}
 	inline ConstIterator operator++(int) {
 	    ConstIterator r = *this;
-	    i = (Node *)QHashData::next_node((QHashData::Node *)i);
+	    i = QHashData::nextNode(i);
 	    return r;
 	}
 #ifndef QT_NO_QHASH_BACKWARD_ITERATORS
 	inline ConstIterator &operator--() {
-	    i = (Node *)QHashData::prev_node((QHashData::Node *)i);
+	    i = QHashData::prevNode(i);
 	    return *this;
 	}
 	inline ConstIterator operator--(int) {
 	    Iterator r = *this;
-	    i = (Node *)QHashData::prev_node((QHashData::Node *)i);
+	    i = QHashData::prevNode(i);
 	    return r;
 	}
 #endif
@@ -315,9 +269,9 @@ public:
     QList<T> values() const;
     QList<T> values(const Key &key) const;
 
-    inline Iterator begin() { detach(); return Iterator(d->first_node()); }
-    inline ConstIterator begin() const { return ConstIterator(d->first_node()); }
-    inline ConstIterator constBegin() const { return ConstIterator(d->first_node()); }
+    inline Iterator begin() { detach(); return Iterator(d->firstNode()); }
+    inline ConstIterator begin() const { return ConstIterator(d->firstNode()); }
+    inline ConstIterator constBegin() const { return ConstIterator(d->firstNode()); }
     inline Iterator end() {
 #ifndef QT_NO_QHASH_BACKWARD_ITERATORS
 	detach();
@@ -329,7 +283,7 @@ public:
 
     T take(const Key &key);
     // ### Iterator take(const Iterator &) ?
-    bool autoDelete() const { return d->autoDelete == (void*)this; }
+    bool autoDelete() const { return d->autoDelete == static_cast<void *>(this); }
     void setAutoDelete(bool enable);
 
     inline int capacity() const { return d->numBuckets; }
@@ -346,42 +300,35 @@ public:
 private:
     void detach_helper();
     void freeData(QHashData* d);
-    Node * &node_find(const Key &key, ulong *hp = 0) const;
-    Node *node_create(ulong h, const Key &key, const T &value);
-    Node *node_create(ulong h, const Key &key, const T &value, Node *&nextNode);
+    Node **node_find(const Key &key, uint *hp = 0) const;
+    Node *node_create(uint h, const Key &key, const T &value, Node **nextNode);
     static QHashData::Node *node_duplicate(QHashData::Node *node);
 };
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHashData::Node *QHash<Key, T>::node_duplicate(QHashData::Node *node)
 {
-    Node *c = (Node *)node;
-    return (QHashData::Node *)new Node(c->key, c->value);
+    Node *c = reinterpret_cast<Node *>(node);
+    return reinterpret_cast<QHashData::Node *>(new Node(c->key, c->value));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Node *
-QHash<Key, T>::node_create(ulong h, const Key &key, const T &value, Node *&nextNode)
+QHash<Key, T>::node_create(uint h, const Key &key, const T &value, Node **nextNode)
 {
     Node *node = new Node(key, value);
     node->h = h;
-    node->next = nextNode;
-    nextNode = node;
+    node->next = *nextNode;
+    *nextNode = node;
+    ++d->size;
     return node;
-}
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE typename QHash<Key, T>::Node *QHash<Key, T>::node_create(ulong h, const Key &key,
-									   const T &value)
-{
-    return node_create(h, key, value, *reinterpret_cast<Node **>(&d->buckets[h % d->numBuckets]));
 }
 
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::freeData(QHashData *x)
 {
-    Node *e_for_x = (Node *)x;
-    Node **bucket = (Node **)x->buckets;
+    Node *e_for_x = reinterpret_cast<Node *>(x);
+    Node **bucket = reinterpret_cast<Node **>(x->buckets);
     int n = x->numBuckets;
     while (n--) {
 	Node *cur = *bucket++;
@@ -426,7 +373,7 @@ Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator=(const QHash &other)
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key) const
 {
-    Node *node = node_find(key);
+    Node *node = *node_find(key);
     if (node == e) {
 	T t;
 	qInit(t);
@@ -439,7 +386,7 @@ Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key) const
 template <class Key, class T>
 Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &key, const T &defaultValue) const
 {
-    Node *node = node_find(key);
+    Node *node = *node_find(key);
     if (node == e) {
 	return defaultValue;
     } else {
@@ -451,7 +398,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QHash<Key, T>::values(const Key &key) const
 {
     QList<T> list;
-    Node *node = node_find(key);
+    Node *node = *node_find(key);
     if (node != e) {
 	do {
 	    list.append(node->value);
@@ -464,7 +411,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::count(const Key &key) const
 {
     int cnt = 0;
-    Node *node = node_find(key);
+    Node *node = *node_find(key);
     if (node != e) {
 	do {
 	    ++cnt;
@@ -483,14 +430,13 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE T &QHash<Key, T>::operator[](const Key &key)
 {
     detach();
+    d->mightGrow();
 
-    ulong h;
-    Node *node = node_find(key, &h);
-    if (node == e) {
-	d->growByOne();
-	node = node_create(h, key, T());
-    }
-    return node->value;
+    uint h;
+    Node **node = node_find(key, &h);
+    if (*node == e)
+	return node_create(h, key, T(), node)->value;
+    return (*node)->value;
 }
 
 template <class Key, class T>
@@ -498,18 +444,17 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insert(const K
 									 const T &value)
 {
     detach();
+    d->mightGrow();
 
-    ulong h;
-    Node *node = node_find(key, &h);
-    if (node == e) {
-	d->growByOne();
-	node = node_create(h, key, value);
-    } else {
-	if (d->autoDelete == this)
-	    qDelete(node->value);
-	node->value = value;
-    }
-    return Iterator(node);
+    uint h;
+    Node **node = node_find(key, &h);
+    if (*node == e)
+	return Iterator(node_create(h, key, value, node));
+
+    if (d->autoDelete == this)
+	qDelete((*node)->value);
+    (*node)->value = value;
+    return Iterator(*node);
 }
 
 template <class Key, class T>
@@ -517,10 +462,10 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insertMulti(co
 									      const T &value)
 {
     detach();
+    d->mightGrow();
 
-    ulong h;
-    d->growByOne();
-    Node * &nextNode = node_find(key, &h);
+    uint h;
+    Node **nextNode = node_find(key, &h);
     return Iterator(node_create(h, key, value, nextNode));
 }
 
@@ -530,16 +475,17 @@ Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::remove(const Key &key)
     detach();
 
     int oldSize = d->size;
-    Node * &node = node_find(key);
-    if (node != e) {
+    Node **node = node_find(key);
+    if ((*node) != e) {
 	do {
 	    if (d->autoDelete == this)
-	        qDelete(node->value);
-	    Node *next = node->next;
-	    delete node;
-	    node = next;
-	    d->shrinkByOne();
-	} while (node != e && node->key == key);
+	        qDelete((*node)->value);
+	    Node *next = (*node)->next;
+	    delete *node;
+	    *node = next;
+	    --d->size;
+	} while ((*node) != e && (*node)->key == key);
+        d->hasShrunk();
     }
     return oldSize - d->size;
 }
@@ -549,14 +495,15 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
 {
     detach();
 
-    Node * &node = node_find(key);
+    Node **node = node_find(key);
     T t;
-    if (node != e) {
-	t = node->value;
-	Node *next = node->next;
-	delete node;
-	node = next;
-	d->shrinkByOne();
+    if ((*node) != e) {
+	t = (*node)->value;
+	Node *next = (*node)->next;
+	delete *node;
+	*node = next;
+        --d->size;
+	d->hasShrunk();
     } else {
 	qInit(t);
     }
@@ -577,7 +524,8 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::erase(Itera
     if (d->autoDelete == this)
 	qDelete(node->value);
     delete node;
-    d->shrinkByOne();
+    --d->size;
+    d->hasShrunk();
     return ret;
 }
 
@@ -585,7 +533,7 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::setAutoDelete(bool enable)
 {
     Q_ASSERT_X(QTypeInfo<T>::isPointer,
-	       "QHash<Key,T>::setAutoDelete", "Cannot delete non pointer types");
+	       "QHash<Key,T>::setAutoDelete", "Cannot delete non-pointer types");
     detach();
     d->autoDelete = enable ? this : 0;
 }
@@ -594,47 +542,46 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::reserve(int size)
 {
     detach();
-    d->rehash(qMin(-size, -1));
+    d->rehash(-qMax(size, 1));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::ConstIterator QHash<Key, T>::find(const Key &key) const
 {
-    return ConstIterator(node_find(key));
+    return ConstIterator(*node_find(key));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::find(const Key &key)
 {
     detach();
-    return Iterator(node_find(key));
+    return Iterator(*node_find(key));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE bool QHash<Key, T>::contains(const Key &key) const
 {
-    return node_find(key) != e;
+    return *node_find(key) != e;
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node * &QHash<Key, T>::node_find(const Key &key,
-									      ulong *hp) const
+Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node **QHash<Key, T>::node_find(const Key &key,
+									     uint *hp) const
 {
     Node **node;
-    ulong h = qHash(key);
+    uint h = qHash(key);
 
     if (d->numBuckets) {
-	node = (Node **)&d->buckets[h % d->numBuckets];
+	node = reinterpret_cast<Node **>(&d->buckets[h % d->numBuckets]);
 	while (*node != e && !(*node)->same_key(h, key))
 	    node = &(*node)->next;
     } else {
-	node = (Node **)&e;
+	node = const_cast<Node **>(reinterpret_cast<const Node * const *>(&e));
     }
     if (hp)
 	*hp = h;
-    return *node;
+    return node;
 }
-
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)
 
