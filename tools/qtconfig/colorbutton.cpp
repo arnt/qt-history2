@@ -71,7 +71,7 @@ QSize ColorButton::minimumSizeHint() const
 
 void ColorButton::drawButton(QPainter *p)
 {
-    QStyleOptionButton buttonOptions(0);
+    QStyleOptionButton buttonOptions;
     buttonOptions.init(this);
     buttonOptions.features = QStyleOptionButton::None;
     buttonOptions.rect = rect();
@@ -81,7 +81,7 @@ void ColorButton::drawButton(QPainter *p)
 
     drawButtonLabel(p);
 
-    QStyleOptionFocusRect frectOptions(0);
+    QStyleOptionFocusRect frectOptions;
     frectOptions.init(this);
     frectOptions.rect = style().subRect(QStyle::SR_PushButtonFocusRect, &buttonOptions,
                                         fontMetrics(), this);
