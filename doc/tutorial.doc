@@ -200,7 +200,7 @@ You should now try to compile and run this program.
 When you run it, you will see a small window filled with a single
 button, and on it you can read the famous words, Hello World!
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Try to resize the window.  Press the button.  If you're running X11,
 try running the program with the -geometry option
@@ -293,7 +293,7 @@ describes this topic in detail.
 When you run this program, you will see an even smaller window than in
 chapter one, filled with an even smaller button.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Try to resize the window.  Press the button.  Oops!  That connect()
 would seem to make some difference :)
@@ -378,7 +378,7 @@ The button no longer fills the entire widget.  Instead, it gets a
 which uses layout management to set a good size and position for the
 button.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Try resizing the window.  How does the button change?  What is the
 button's size change policy?  What happens if you try to make the
@@ -496,7 +496,7 @@ This program is very similar in behavior to the previous one.  The
 difference lies in the way we have implemented it.  It does behave
 slightly different though.  Just try to resize it to see.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Try to create another MyWidget object in main().  What happens?
 
@@ -592,7 +592,7 @@ widget handles resizing well.  Notice how the LCD number widget
 changes in size when the window is resized (because it can), but the
 others stay about the same (because they would look stupid otherwise).
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Try changing the LCD number to add more digits or \link
 QLCDNumber::setMode() change mode.  \endlink You can even add four push
@@ -692,7 +692,7 @@ This program shows how easy it is to use many widgets at a time.  Each
 single one behaves like the slider and LCD number in the previous
 chapter.  Again, the difference lies in the implementation.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Initialize each slider with a different/random value on startup.
 
@@ -925,7 +925,7 @@ are here creating a "chain" of signals and slots.
 On startup, the program's appearance is identical to the previous one.
 Try operating the slider to the bottom right...
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Use the bottom right slider to set all LCDs to 50.  Then set the top
 half to 40 by clicking once to the left of the slider handle.  Now,
@@ -1274,7 +1274,7 @@ value.  Upon resize, CannonField is gives as much space as possible.
 On Windows machines with an 8-bit display, the new background color is
 dithered to death.  The next chapter works around this.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Try to resize the window.  What happens if you make it really narrow
 or really squat?
@@ -1507,7 +1507,7 @@ chapter eight.
 You may notice that the cannon flickers annoyingly, especially on a
 slow machine.  We'll fix this in the next chapter.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Set a different pen instead of NoPen.  Set a patterned brush.
 
@@ -1773,7 +1773,7 @@ We initialize the force value to 25.
 The flicker has gone and we have a force control.
 
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Make the size of the cannon barrel be dependent on the force.
 
@@ -2052,7 +2052,7 @@ of the CannonField.
 The cannon can shoot, but there's nothing to shoot at.
 
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Make the shot a filled circle (hint: \l QPainter::drawEllipse() may
 help).
@@ -2432,7 +2432,7 @@ The LCDRange widgets look a bit strange - the built-in layout
 management in QVBox gives the labels too much space and the rest not
 enough.  We'll fix that in the next chapter.
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Make a cheat button that when pressed makes the CannonField display
 the shot trajectory for 5 seconds.
@@ -2877,7 +2877,7 @@ Hits and shots left are displayed and the program keeps track of them.
 The game can end and there's a button to start a new game.
 
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Add a random wind factor and show it to the user.
 
@@ -3235,7 +3235,7 @@ challenging to play the game.  We also have a nice looking frame
 around the CannonField.
 
 
-<h2>Excercises</h2>
+<h2>Exercises</h2>
 
 Write a space invaders game.
 <p>
