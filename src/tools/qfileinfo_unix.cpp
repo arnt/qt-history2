@@ -56,11 +56,11 @@ void QFileInfo::makeAbs( QString & )
 }
 
 /*!
-  Returns TRUE if this object points to a file. Returns FALSE if the
-  object points to something which isn't a file, e.g. a directory or a
-  symlink.
+    Returns TRUE if this object points to a file. Returns FALSE if the
+    object points to something which isn't a file, e.g. a directory or
+    a symlink.
 
-  \sa isDir(), isSymLink()
+    \sa isDir(), isSymLink()
 */
 bool QFileInfo::isFile() const
 {
@@ -70,9 +70,10 @@ bool QFileInfo::isFile() const
 }
 
 /*!
-  Returns TRUE if this object points to a directory or to a symbolic
-  link to a directory; otherwise returns FALSE.
-  \sa isFile(), isSymLink()
+    Returns TRUE if this object points to a directory or to a symbolic
+    link to a directory; otherwise returns FALSE.
+
+    \sa isFile(), isSymLink()
 */
 bool QFileInfo::isDir() const
 {
@@ -82,10 +83,10 @@ bool QFileInfo::isDir() const
 }
 
 /*!
-  Returns TRUE if this object points to a symbolic link (or to a
-  shortcut on Windows); otherwise returns FALSE. 
+    Returns TRUE if this object points to a symbolic link (or to a
+    shortcut on Windows); otherwise returns FALSE.
 
-  \sa isFile(), isDir(), readLink()
+    \sa isFile(), isDir(), readLink()
 */
 
 bool QFileInfo::isSymLink() const
@@ -96,14 +97,14 @@ bool QFileInfo::isSymLink() const
 }
 
 /*!
-  Returns the name a symlink (or shortcut on Windows) points to, or a
-  null QString if the object isn't a symbolic link.
+    Returns the name a symlink (or shortcut on Windows) points to, or
+    a QString::null if the object isn't a symbolic link.
 
-  This name may not represent an existing file; it is only a string.
-  QFileInfo::exists() returns TRUE if the symlink points to an
-  existing file.
+    This name may not represent an existing file; it is only a string.
+    QFileInfo::exists() returns TRUE if the symlink points to an
+    existing file.
 
-  \sa exists(), isSymLink(), isDir(), isFile()
+    \sa exists(), isSymLink(), isDir(), isFile()
 */
 
 QString QFileInfo::readLink() const
@@ -127,13 +128,14 @@ QString QFileInfo::readLink() const
 static const uint nobodyID = (uint) -2;
 
 /*!
-  Returns the owner of the file. On Windows, on systems where files do
-  not have owners, or if an error occurs, a null string is returned. 
+    Returns the owner of the file. On Windows, on systems where files
+    do not have owners, or if an error occurs, QString::null is
+    returned.
 
-  This function can be time consuming under Unix (in the order of
-  milliseconds).
+    This function can be time consuming under Unix (in the order of
+    milliseconds).
 
-  \sa ownerId(), group(), groupId()
+    \sa ownerId(), group(), groupId()
 */
 
 QString QFileInfo::owner() const
@@ -145,12 +147,12 @@ QString QFileInfo::owner() const
 }
 
 /*!
-  Returns the id of the owner of the file.
+    Returns the id of the owner of the file.
 
-  On Windows and on systems where files do not have owners this function
-  returns ((uint) -2).
+    On Windows and on systems where files do not have owners this
+    function returns ((uint) -2).
 
-  \sa owner(), group(), groupId()
+    \sa owner(), group(), groupId()
 */
 
 uint QFileInfo::ownerId() const
@@ -163,13 +165,14 @@ uint QFileInfo::ownerId() const
 }
 
 /*!
-  Returns the group of the file. On Windows, on systems where files do
-  not have groups, or if an error occurs, a null string is returned. 
+    Returns the group of the file. On Windows, on systems where files
+    do not have groups, or if an error occurs, QString::null is
+    returned.
 
-  This function can be time consuming under Unix (in the order of
-  milliseconds).
+    This function can be time consuming under Unix (in the order of
+    milliseconds).
 
-  \sa groupId(), owner(), ownerId()
+    \sa groupId(), owner(), ownerId()
 */
 
 QString QFileInfo::group() const
@@ -181,12 +184,12 @@ QString QFileInfo::group() const
 }
 
 /*!
-  Returns the id of the group the file belongs to.
+    Returns the id of the group the file belongs to.
 
-  On Windows and on systems where files do not have groups this function
-  always returns (uint) -2.
+    On Windows and on systems where files do not have groups this
+    function always returns (uint) -2.
 
-  \sa group(), owner(), ownerId()
+    \sa group(), owner(), ownerId()
 */
 
 uint QFileInfo::groupId() const
@@ -200,25 +203,23 @@ uint QFileInfo::groupId() const
 
 
 /*!
-  \fn bool QFileInfo::permission( int permissionSpec ) const
+    Tests for file permissions. The \a permissionSpec argument can be
+    several flags of type \c PermissionSpec OR-ed together to check
+    for permission combinations.
 
-  Tests for file permissions.  The \a permissionSpec argument can be several
-  flags of type PermissionSpec OR-ed together to check for permission
-  combinations.
+    On systems where files do not have permissions this function
+    always returns TRUE.
 
-  On systems where files do not have permissions this function always
-  returns TRUE.
+    Example:
+    \code
+	QFileInfo fi( "/tmp/archive.tar.gz" );
+	if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
+	    qWarning( "I can change the file; my group can read the file.");
+	if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
+	    qWarning( "The group or others can change the file!" );
+    \endcode
 
-  Example:
-  \code
-    QFileInfo fi( "/tmp/archive.tar.gz" );
-    if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
-	qWarning( "I can change the file; my group can read the file.");
-    if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
-	qWarning( "The group or others can change the file!" );
-  \endcode
-
-  \sa isReadable(), isWritable(), isExecutable()
+    \sa isReadable(), isWritable(), isExecutable()
 */
 
 bool QFileInfo::permission( int permissionSpec ) const
@@ -282,11 +283,11 @@ void QFileInfo::doStat() const
 }
 
 /*!
-  Returns the directory path of the file.
+    Returns the file's path.
 
-  If \a absPath is TRUE an absolute path is returned.
+    If \a absPath is TRUE an absolute path is returned.
 
-  \sa dir(), filePath(), fileName(), isRelative()
+    \sa dir(), filePath(), fileName(), isRelative()
 */
 #ifndef QT_NO_DIR
 QString QFileInfo::dirPath( bool absPath ) const
@@ -308,15 +309,15 @@ QString QFileInfo::dirPath( bool absPath ) const
 #endif
 
 /*!
-  Returns the name of the file, the file path is not included.
+    Returns the name of the file, excluding the path.
 
-  Example:
-  \code
-     QFileInfo fi( "/tmp/archive.tar.gz" );
-     QString name = fi.fileName();		// name = "archive.tar.gz"
-  \endcode
+    Example:
+    \code
+	QFileInfo fi( "/tmp/archive.tar.gz" );
+	QString name = fi.fileName();		// name = "archive.tar.gz"
+    \endcode
 
-  \sa isRelative(), filePath(), baseName(), extension()
+    \sa isRelative(), filePath(), baseName(), extension()
 */
 
 QString QFileInfo::fileName() const
