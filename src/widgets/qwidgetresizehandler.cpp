@@ -78,7 +78,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	return FALSE;
 
     QWidget *w = childOf( widget, (QWidget*)o );
-    if ( !w || o->inherits( "QSizeGrip" ) ) {
+    if ( !w || o->inherits("QSizeGrip") || qApp->activePopupWidget() ) {
 	if ( buttonDown && ee->type() == QEvent::MouseButtonRelease )
 	    buttonDown = FALSE;
 	return FALSE;
