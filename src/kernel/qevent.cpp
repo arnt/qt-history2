@@ -2159,8 +2159,8 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
     {
     public:
 	ColorChangeEvent( QColor color )
-	    : QCustomEvent( 346798 ), c( color ) {};
-	QColor color() const { return c; };
+	    : QCustomEvent( 65432 ), c( color ) {}
+	QColor color() const { return c; }
     private:
 	QColor c;
     };
@@ -2174,7 +2174,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 
     void MyWidget::customEvent( QCustomEvent * e )
     {
-	if ( e->type() == 346798 ) {  // It must be a ColorChangeEvent
+	if ( e->type() == 65432 ) {  // It must be a ColorChangeEvent
 	    ColorChangeEvent* ce = (ColorChangeEvent*)e;
 	    newColor = ce->color();
 	}
