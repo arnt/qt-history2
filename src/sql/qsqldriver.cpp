@@ -401,11 +401,12 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	r = nullText();
     else {
 	switch ( field->type() ) {
-	case QVariant::UInt:
-	    r = QString::number( field->value().toUInt() );
-	    break;
 	case QVariant::Int:
-	    r = QString::number( field->value().toInt() );
+	case QVariant::UInt:
+	    if ( field->value().type() == QVariant::Bool )
+		r = field->value().toBool() ? "1" : "0";
+	    else
+		r = field->value().toString();
 	    break;
 	case QVariant::Date:
 	    if ( field->value().toDate().isValid() )
