@@ -5429,7 +5429,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
   By default, Qt will try to use the desktop settings, and
   setDesktopSettingsAware() must be called to prevent this.
 
-  sa\ setEffectEnabled(), Qt::UIEffect
+  \sa setEffectEnabled(), Qt::UIEffect
 */
 bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
