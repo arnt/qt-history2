@@ -57,6 +57,7 @@
 #include "qcombobox.h"
 #include "qdockwindow.h"
 #include "qdockarea.h"
+#include "qprogressbar.h"
 #include <limits.h>
 
 
@@ -777,6 +778,77 @@ void QMotifStyle::drawControl( ControlElement element,
 	}
 	break; }
 	
+    case CE_ProgressBar: {
+	QProgressBar *progressbar = (QProgressBar *) widget;
+
+	qDrawShadePanel(p, r, cg, TRUE, 1);
+	p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4, r.height() - 4, 
+		     cg.base() );
+	
+
+	if ( !progressbar->totalSteps() ) {
+	    // draw busy indicator
+	    int w = r.width();
+	    int x = progressbar->progress() % (w * 2);
+	    if (x > w)
+		x = 2 * w - x;
+	    x += r.x();
+	    p->setPen( QPen(cg.highlight(), 4) );
+	    p->drawLine(x, r.y() + 1, x, r.height() - 2);
+	} else {
+	    const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
+	    int u = (r.width() - 4) / unit_width;
+	    int p_v = progressbar->progress();
+	    int t_s = progressbar->totalSteps();
+
+	    if ( u > 0 && p_v >= INT_MAX / u && t_s >= u ) {
+		// scale down to something usable.
+		p_v /= u;
+		t_s /= u;
+	    }
+
+	    int nu = ( u * p_v + t_s / 2 ) / t_s;
+	    if (nu * unit_width > r.width() - 4)
+		nu--;
+
+	    // Draw nu units out of a possible u of unit_width width, each
+	    // a rectangle bordered by background color, all in a sunken panel
+	    // with a percentage text display at the end.
+	    int x = 0;
+	    for (int i=0; i<nu; i++) {
+		p->fillRect(r.x() + x + 2, r.y() + 2, unit_width - 2, 
+			    r.height() - 4, cg.brush(QColorGroup::Highlight));
+		x += unit_width;
+	    }
+	}
+
+	break; }
+    
+    case CE_ProgressBarLabel: {
+	QProgressBar * pb = (QProgressBar *) widget;
+	const int unit_width = pixelMetric( PM_ProgressBarChunkWidth, pb );
+	int u = r.width() / unit_width;
+	int p_v = pb->progress();
+	int t_s = pb->totalSteps();
+	if ( u > 0 && pb->progress() >= INT_MAX / u && t_s >= u ) {
+	    // scale down to something usable.
+	    p_v /= u;
+	    t_s /= u;
+	}
+	int nu = ( u * p_v + t_s/2 ) / t_s;
+	int x = unit_width * nu;
+	if ( pb->percentageVisible() && pb->totalSteps() ) {
+	    p->setPen( cg.highlightedText() );
+	    p->setClipRect( r.x(), r.y(), x, r.height() );
+	    p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
+	    if ( pb->progress() != pb->totalSteps() ) {
+		p->setClipRect( r.x() + x, r.y(), r.width() - x, r.height() );
+		p->setPen( cg.highlight() );
+		p->drawText( r, AlignCenter | SingleLine, pb->progressString() );	
+	    }
+	}
+	break; }
+    
     default:
 	QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
 	break;
@@ -884,7 +956,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
     }
 }
 
-int get_combo_extra_width( int h, int *return_awh=0 )
+static int get_combo_extra_width( int h, int *return_awh=0 )
 {
     int awh;
     if ( h < 8 ) {
@@ -1105,54 +1177,11 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     case PM_DockWindowHandleExtent:
 	ret = 9;
 	break;
+	
+    case PM_ProgressBarChunkWidth:
+	ret = 1;
+	break;
 
-//     case PM_SliderMaximumDragDistance:
-//     case PM_ScrollBarMaximumDragDistance: {
-// 	QScrollBar *sb = (QScrollBar*) widget;
-// 	int maxLength,
-// 	    sliderMin,
-// 	    buttonDim,
-// 	    sliderLength,
-// 	    b = MOTIF_BORDER,
-// 	    length = HORIZONTAL ? sb->width() : sb->height(),
-// 	    extent = HORIZONTAL ? sb->height() : sb->width();
-// 	if ( length > ( extent - b * 2 - 1) * 2 + b * 2 )
-// 	    buttonDim = extent - b * 2;
-// 	else
-// 	    buttonDim = ( length - b * 2) / 2 - 1;
-
-// 	sliderMin = b + buttonDim;
-// 	maxLength = length - b * 2 - buttonDim * 2;
-
-// 	if ( sb->maxValue() == sb->minValue() ) {
-// 	    sliderLength = maxLength;
-// 	} else {
-// 	    uint range = sb->maxValue() - sb->minValue();
-// 	    sliderLength = (sb->pageStep() * maxLength ) /
-// 			   (range + sb->pageStep());
-// 	    if ( sliderLength < SLIDER_MIN || range > INT_MAX / 2 )
-// 		sliderLength = SLIDER_MIN;
-// 	    if ( sliderLength > maxLength )
-// 		sliderLength = maxLength;
-// 	}
-// 	ret = sliderMin + maxLength - sliderLength;
-// 	break }
-//     case PM_SliderLength: {
-// 	// dang duplicated code!
-// 	QScrollBar *sb;
-// 	sb = (QScrollBar *)widget;
-// 	if ( sb->maxValue() == sb->minValue() ) {
-// 	    ret = maxLength;
-// 	} else {
-// 	    uint range = sb->maxValue() - sb->minValue();
-// 	    ret = (sb->pageStep() * maxLength ) / (range + sb->pageStep());
-// 	    if ( ret < SLIDER_MIN || range > INT_MAX / 2 )
-// 		ret = SLIDER_MIN;
-// 	    if ( ret > maxLength )
-// 		ret = maxLength;
-// 	}
-// 	break; }
-//     case
     default:
 	ret =  QCommonStyle::pixelMetric( metric, widget );
 	break;
@@ -1397,6 +1426,14 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    else
 		rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
 	}
+	break; }
+    
+    case SR_ProgressBarContents: {
+	rect = widget->rect();
+	break; }
+    
+    case SR_ProgressBarLabel: {
+	rect = widget->rect();
 	break; }
 	
     default:
