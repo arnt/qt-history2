@@ -16,34 +16,41 @@
     any number of Qt widgets as ActiveX controls.
     \endlist
 
-    The framework consists of two modules. 
+    \seciont1 ActiveQt Modules
 
-    \section1 QAxContainer
+    The framework consists of two modules.
 
-    The \link qaxcontainer.html QAxContainer module  \endlink is a 
+    \section2 QAxContainer
+
+    The \link qaxcontainer.html QAxContainer module \endlink is a 
     library implementing a QWidget subclass, \l QAxWidget, that acts 
     as a container for ActiveX controls. If the library is built 
     against a shared Qt library it integrates as a widget plugin into 
     \link designer-manual.book Qt Designer\endlink. This module
     provides the QAxBase, QAxObject and QAxWidget classes.
 
-    \section2 Additional Information
+    \link qaxcontainer-examples.html Examples \endlink include a
+    Web Browser application embedding Internet Explorer, and an
+    AddressBook example synchronizing the contents with Microsoft
+    Outlook.    
 
-    \list
-    \i \link qaxcontainer-examples.html Examples\endlink. 
-    \endlist
-
-    \section1 QAxServer
+    \section2 QAxServer
 
     The \link qaxserver.html QAxServer module \endlink is a 
     static library that implements ActiveX server functionality for
     in-process and executable ActiveX servers. This module provides
     the QAxAggregated, QAxBindable and QAxFactory classes.
 
-    \section2 Additional Information
+    \link qaxserver-examples.html Examples \endlink include in- and
+    out-of-process servers providing different QWidget subclasses as
+    ActiveX controls, as well as a walkthrough how to use those objects
+    in a .NET environment.
+
+    \section1 Additional Information
 
     \list
-    \i \link qaxserver-examples.html Examples\endlink. 
+    \i \link activeqt-examples.html Examples\endlink.
+    \i \link activeqt-tools.html Tools\endlink.
     \endlist
 */
 

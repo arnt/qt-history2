@@ -1,0 +1,10 @@
+/*! \page activeqt-tools-idc.html
+    \ingroup activeqt-tools
+    \title The IDC Tool
+
+    The IDC tool is part of the ActiveQt build system and makes
+    it possible to turn any Qt binary into a full COM object server 
+    with only a few lines of code.
+
+    ###
+*/

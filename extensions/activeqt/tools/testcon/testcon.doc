@@ -1,0 +1,29 @@
+/*! \page activeqt-tools-testcon.html
+    \ingroup activeqt-tools
+    \title An ActiveX Test Container
+
+    This application implements a generic test container for ActiveX
+    controls. You can insert ActiveX controls installed on your
+    system, and execute methods and modify properties. The container
+    will log information about events and property changes as well
+    as debug output in the log window.
+
+    The GUI has been implemented utilizing the Qt Designer integration
+    of the QAxContainer module. Parts of the code use internals of the Qt
+    meta object and ActiveQt framework and are not recommended to be used in
+    application code.
+
+    Use the application to view the slots, signals and porperties 
+    available through the QAxWidget class when instantiated with a 
+    certain ActiveX, and to test ActiveX controls you implement.
+
+    Note that the qmake project of this example includes a resource file
+    \c testcon.rc with a version resource. This is required by some
+    ActiveX controls (ie. Shockwave ActiveX Controls), which might crash
+    or misbehave otherwise if such version information is missing.
+
+    To build the tool you must first build the
+    \link qaxcontainer.html QAxContainer \endlink library.
+    Then run your make tool in \c tools/testcon and
+    run the resulting \c testcon.exe.
+*/

@@ -1,4 +1,4 @@
-QTDIR_build:REQUIRES    = shared workspace
+REQUIRES    = shared workspace
 TEMPLATE    = app
 CONFIG	    += qt warn_off
 

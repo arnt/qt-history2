@@ -1,0 +1,9 @@
+/*! \page activeqt-tools-dumpdoc.html
+    \ingroup activeqt-tools
+    \title The DumpDoc Tool
+
+    The DumpDoc tool generates Qt-style documentation for any COM 
+    object.    
+
+    ###
+*/

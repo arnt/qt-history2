@@ -3,13 +3,9 @@ CONFIG		+= ordered
 
 !contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     message( "ActiveQt requires a Qt/Enterprise license." )
-}
-contains( QT_PRODUCT, qt-(enterprise|internal) ) {
+} else {
     	
-	SUBDIRS	= container \
-		  control \
-		  tools \
-		  examples
-
-	shared:SUBDIRDS += plugin
+	SUBDIRS	= idc \
+		  testcon \
+		  dumpdoc
 }
