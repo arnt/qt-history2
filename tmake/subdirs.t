@@ -16,9 +16,9 @@ SUBDIRS =	#$ ExpandList("SUBDIRS");
 all: $(SUBDIRS)
 
 $(SUBDIRS): FORCE
-	cd $@; $(MAKE)
+	if [ -d $$i ]; then cd $$i ; $(MAKE); fi
 
 clean:
-	for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) clean ) ; done
+	for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) $@; fi; ) ; done
 
 FORCE:
