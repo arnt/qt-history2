@@ -12,9 +12,8 @@ int main( int argc, char **argv )
     if ( argc > 1 ) {
 	if ( QString( "-cat" ) == argv[1] ) {
 	    char ch;
-	    while( !cin.eof() )
+	    while( cin >> ch )
 	    {
-		cin >> ch;
 		cout << ch;
 		cout.flush();
 		cerr << (char)(ch +1);
