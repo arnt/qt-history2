@@ -705,21 +705,6 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 #endif
 #ifndef QT_NO_IMAGEIO
 /*!
-    Returns a string that specifies the image format of the file \a
-    fileName, or 0 if the file cannot be read or if the format cannot
-    be recognized.
-
-    The QImageIO documentation lists the supported image formats.
-
-    \sa load(), save()
-*/
-
-const char* QPixmap::imageFormat(const QString &fileName)
-{
-    return QImageIO::imageFormat(fileName);
-}
-
-/*!
     Loads a pixmap from the file \a fileName at runtime. Returns true
     if successful; otherwise returns false.
 

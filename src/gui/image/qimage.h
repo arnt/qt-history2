@@ -56,7 +56,7 @@ public:
             Endian bitOrder=IgnoreEndian);
 #ifndef QT_NO_IMAGEIO
     QImage(const QString &fileName, const char* format=0);
-    QImage(const char * const xpm[]);
+    Q_EXPLICIT QImage(const char * const xpm[]);
     QImage(const QByteArray &data);
 #endif
     QImage(uchar* data, int w, int h, int depth,
@@ -154,11 +154,6 @@ public:
         { return QSysInfo::ByteOrder == QSysInfo::BigEndian ? BigEndian : LittleEndian; }
 
 #ifndef QT_NO_IMAGEIO
-    static const char* imageFormat(const QString &fileName);
-    static QList<QByteArray> inputFormats();
-    static QList<QByteArray> outputFormats();
-    static QStringList inputFormatList();
-    static QStringList outputFormatList();
     bool load(const QString &fileName, const char* format=0);
     bool loadFromData(const uchar *buf, uint len,
                       const char *format=0);

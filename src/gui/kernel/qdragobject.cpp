@@ -1090,7 +1090,7 @@ QImageDrag::~QImageDrag()
 void QImageDrag::setImage(QImage image)
 {
     d->img = image; // ### detach?
-    QList<QByteArray> formats = QImage::outputFormats();
+    QList<QByteArray> formats = QImageIO::outputFormats();
     formats.removeAll("PBM"); // remove non-raw PPM
     if (image.depth()!=32) {
         // BMP better than PPM for paletted images

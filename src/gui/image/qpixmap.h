@@ -94,7 +94,6 @@ public:
     bool convertFromImage(const QImage &, ColorMode mode=Auto);
     bool convertFromImage(const QImage &, int conversion_flags);
 #ifndef QT_NO_IMAGEIO
-    static const char* imageFormat(const QString &fileName);
     bool load(const QString& fileName, const char *format=0,
               ColorMode mode=Auto);
     bool load(const QString& fileName, const char *format,

@@ -22,6 +22,7 @@
 #include "qdir.h"
 #include "qdragobject.h"
 #include "qpixmap.h"
+#include "qimageio.h"
 #include "qcleanuphandler.h"
 #include "private/qtextimagehandler_p.h"
 
@@ -178,9 +179,9 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
         const char* imgfmt;
         if (extensions.contains(e))
             mimetype = extensions[e].latin1();
-        else if ((imgfmt = QImage::imageFormat(abs_name)))
+        else if ((imgfmt = QImageIO::imageFormat(abs_name)))
             mimetype = QByteArray("image/")+QByteArray(imgfmt).toLower();
-        
+
         QFile f(abs_name);
         if (f.open(IO_ReadOnly) && f.size()) {
             QByteArray ba;
