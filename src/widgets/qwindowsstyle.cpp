@@ -1342,22 +1342,25 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 
     QBrush fill = act? g.brush( QColorGroup::Highlight ) :
 			    g.brush( QColorGroup::Button );
-    p->fillRect( x, y, w, h, fill);
+    if ( mi && mi->isChecked() )
+ 	p->fillRect( x + checkcol + 2*windowsItemFrame, y, w - checkcol - 2*windowsItemFrame, h, fill);
+    else
+ 	p->fillRect( x, y, w, h, fill);
 
     if ( !mi )
 	return;
 
     bool reverse = QApplication::reverseLayout();
 
-    int xpos = x;
+    int xpos = x + 2*windowsItemFrame;
     if ( reverse )
-	xpos += w - checkcol;
+	xpos += w - checkcol - 2*windowsItemFrame;
     if ( mi->isChecked() ) {
 	if ( act && !dis ) {
-	    qDrawShadePanel( p, xpos, y, checkcol, h,
+	    qDrawShadePanel( p, xpos, y + windowsItemFrame, checkcol - windowsItemFrame, h - 3*windowsItemFrame,
 			     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
 	} else {
-	    qDrawShadePanel( p, xpos, y, checkcol, h,
+	    qDrawShadePanel( p, xpos, y + windowsItemFrame, checkcol - windowsItemFrame, h - 3*windowsItemFrame,
 			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
 	}
     } else if ( !act ) {
@@ -1392,14 +1395,14 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 	    xp = xpos + checkcol + 1;
 	p->fillRect( xp, y, w - checkcol - 1, h, fill);
     } else  if ( checkable ) {	// just "checking"...
-	int mw = checkcol + windowsItemFrame;
-	int mh = h - 2*windowsItemFrame;
+	int mw = checkcol - windowsItemFrame;
+	int mh = h - 3*windowsItemFrame;
 	if ( mi->isChecked() ) {
 	    int xp = xpos;
 	    if( reverse )
-		xp += windowsItemFrame;
-	    else
 		xp -= windowsItemFrame;
+	    else
+		xp += windowsItemFrame;
 	    drawCheckMark( p, xp, y+windowsItemFrame, mw, mh, itemg, act, dis );
 	}
     }
