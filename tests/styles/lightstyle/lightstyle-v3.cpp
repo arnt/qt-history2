@@ -1685,6 +1685,9 @@ int LightStyleV3::styleHint( StyleHint stylehint,
 			   QStyleHintReturn* returnData ) const
 {
     switch (stylehint) {
+    case SH_RichText_FullWidthSelection:
+	return 1;
+
     case SH_EtchDisabledText:
     case SH_Slider_SnapToValue:
     case SH_PrintDialog_RightAlignButtons:
