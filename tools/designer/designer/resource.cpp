@@ -933,6 +933,16 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
     case QVariant::Cursor:
 	ts << makeIndent( indent ) << "<cursor>" << value.toCursor().shape() << "</cursor>" << endl;
 	break;
+    case QVariant::StringList:
+	if ( name == "database" ) {
+	    QStringList lst = value.toStringList();
+	    if ( !lst.isEmpty() ) {
+		ts << makeIndent( indent ) << "<connection>" << entitize( lst[ 0 ] ) << "</connection>" << endl;
+		ts << makeIndent( indent ) << "<table>" << entitize( lst[ 1 ] ) << "</table>" << endl;
+		ts << makeIndent( indent ) << "<field>" << entitize( lst[ 2 ] ) << "</field>" << endl;
+	    }
+	    break;
+	}
     default:
 	qWarning( "saving the property %s of type %d not supported yet", name.latin1(), (int)t );
     }

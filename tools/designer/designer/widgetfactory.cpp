@@ -851,6 +851,10 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QRadioButton";
     else if ( o->inherits( "QDesignerCheckBox" ) )
 	return "QCheckBox";
+    else if ( o->inherits( "QDesignerSqlWidget" ) )
+	return "QSqlWidget";
+    else if ( o->inherits( "QDesignerSqlDialog" ) )
+	return "QSqlDialog";
     return o->className();
 }
 
