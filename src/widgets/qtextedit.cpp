@@ -97,7 +97,8 @@ public:
     QTextEditOptimizedPrivate() : len( 0 ), numLines( 0 ), maxLineWidth( 0 )
     {
 	selectionStart.line = selectionStart.index = -1;
-	selectionEnd.line = selectionEnd.index = -1;	
+	selectionEnd.line = selectionEnd.index = -1;
+	search.line = search.index = -1;
     }
     int len;
     int numLines;
@@ -106,7 +107,7 @@ public:
 	int line;
 	int index;
     };
-    Selection selectionStart, selectionEnd;
+    Selection selectionStart, selectionEnd, search;
     QMap<int, QString> lines;
 };
 #endif
@@ -3049,6 +3050,10 @@ void QTextEdit::setText( const QString &text, const QString &context )
 bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 		      int *para, int *index )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode )
+	return optimizedFind( expr, cs, wo, forward, para, index );
+#endif
     drawCursor( FALSE );
     doc->removeSelection( QTextDocument::Standard );
 #ifndef QT_NO_CURSOR
@@ -5089,6 +5094,7 @@ int QTextEdit::optimizedCharIndex( const QString &str )
     if ( mousePos.x() > fm.width( str ) )
 	return str.length();
 
+    // XXX: tab character does not return correct width
     while ( i < str.length() ) {
 	dd = fm.width( str.left( i ) ) - mousePos.x();
 	if ( QABS(dd) < dist || dist == dd ) {
@@ -5164,6 +5170,37 @@ QString QTextEdit::optimizedSelectedText() const
     }
     return str;
 }
-#endif // QT_TEXTEDIT_OPTIMIZATION
 
+bool QTextEdit::optimizedFind( const QString & expr, bool cs, bool wo,
+			       bool fw, int * para, int * index )
+{
+    int idx = *index, i;
+
+    if ( od->len == 0 )
+	return FALSE;
+
+    
+    if ( fw ) {
+	for ( i = *para; i < od->numLines; i++ ) {
+	    idx = od->lines[ i ].find( expr, idx, cs );
+	    if ( idx != -1 ) // fix word only
+		break;
+	}
+    } else {
+	if ( *para == 0 )
+	    *para = od->numLines - 1;
+	for ( i = *para; i >= 0; i-- ) {
+	    idx = od->lines[ i ].findRev( expr, idx, cs );
+	    if ( idx != -1 ) // fix word only
+		break;
+	}
+    }
+    if ( idx != -1 ) {
+	*index = od->search.index = idx;
+	*para = od->search.line = i;
+	return TRUE;
+    }
+    return FALSE;
+}
+#endif // QT_TEXTEDIT_OPTIMIZATION
 #endif //QT_NO_TEXTEDIT
