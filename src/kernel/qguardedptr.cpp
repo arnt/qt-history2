@@ -156,28 +156,14 @@
 */
 
 /*!
-  \fn T* QGuardedPtr::operator->()
+  \fn T* QGuardedPtr::operator->() const
 
   Overloaded arrow operator, implements pointer semantics. Just use this
   operator as you would with a normal C++ pointer.
 */
 
 /*!
-  \fn const T* QGuardedPtr::operator->() const
-
-  Overloaded arrow operator, implements pointer semantics. Just use this
-  operator as you would with a normal C++ pointer.
-*/
-
-/*!
-  \fn T& QGuardedPtr::operator*() 
-
-  Dereference operator, implements pointer semantics. Just use this
-  operator as you would with a normal C++ pointer.
-*/
-
-/*!
-  \fn const T& QGuardedPtr::operator*() const 
+  \fn T& QGuardedPtr::operator*() const 
 
   Dereference operator, implements pointer semantics. Just use this
   operator as you would with a normal C++ pointer.
