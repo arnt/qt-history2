@@ -1290,7 +1290,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 	    if ( controls & SC_TitleBarLabel ) {
-		QColorGroup cgroup = titlebar->isActive() ?
+		QColorGroup cgroup = titlebar->isActive() || 
+		    (qApp->activeWindow() && qApp->activeWindow()->inherits( "QDockWindow" )) ?
 		    titlebar->palette().active() : titlebar->palette().inactive();
 
 		QColor left = cgroup.highlight();
