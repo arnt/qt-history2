@@ -2901,13 +2901,13 @@
 
     The \c QScrollView class has been renamed Q3ScrollView and moved
     to the \l{Qt 3 compatibility library}. It has been replaced by
-    the QViewport and QWidgetView classes.
+    the QAbstractScrollArea and QScrollArea classes.
 
     \c QScrollView was designed to work around the 16-bit limitation
     on widget coordinates found on most window systems. In Qt 4, this
     is done transparently for \e all widgets, so there is no longer a
     need for such functionality in \c QScrollView. For that reason,
-    the new QViewport and QWidgetView classes are much more
+    the new QAbstractScrollArea and QScrollArea classes are much more
     lightweight, and concentrate on handling scroll bars.
 
     \section1 QServerSocket
