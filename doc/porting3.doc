@@ -183,6 +183,7 @@ All <a href="removed30.html">these functions</a> have been removed in Qt 3.x.
     <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
     <li>QCheckListItem::paintBranches
     <li>QString::visual, QString::basicDirection
+    <li>QStyle::set...
 </ul>
 
 <h3><a name="QRegExp">QRegExp</a></h3>
