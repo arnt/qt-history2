@@ -1953,7 +1953,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    stylesPar->utm = 0;
 	} else {
 	    m = QMAX(0, item->margin( QStyleSheetItem::MarginTop ) );
-	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem 
+	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem
 		 && stylesPar->ldepth )
 	      m /= stylesPar->ldepth;
 	}
@@ -1979,7 +1979,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    stylesPar->ubm = 0;
 	} else {
 	    m = QMAX(0, item->margin( QStyleSheetItem::MarginBottom ) );
-	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem 
+	    if ( item->displayMode() == QStyleSheetItem::DisplayListItem
 		 && stylesPar->ldepth )
 	      m /= stylesPar->ldepth;
 	}
@@ -4394,7 +4394,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	if ( cursor && this == cursor->paragraph() && i == cursor->index() ) {
 	    QTextStringChar *c = i == 0 ? chr : chr - 1;
 	    cursorRect.setRect( cursor->x() , y + baseLine - c->format()->ascent(),
-				1, c->format()->height() - lineExtra() );
+				1, c->format()->height() );
 	}
 
 	// check if we are in a selection and store which one it is
