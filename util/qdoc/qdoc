@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#149 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#150 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1253,8 +1253,9 @@ sub readc {
 		$skip = 1;
 	    }
 	    $args =~ s/([^:]):[^:].*/$1/s;
-	    if ($args =~ /^(.*?)\s*\)\s*((?:const)?)\s*?$/s) {
+	    if ($args =~ /^\s*(.*?)\s*\)\s*((?:const)?)\s*?$/s) {
 		$args = $1;
+		$args = " " . $args . " " if ( $args =~ /\S/ );
 		$const = $2;
 	    } else {
 		$skip = 1;
