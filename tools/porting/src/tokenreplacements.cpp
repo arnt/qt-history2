@@ -1,6 +1,11 @@
 #include "tokenreplacements.h"
+#include <iostream>
 #include <logger.h>
 #include <stdio.h>
+
+using std::cout;
+using std::endl;
+
 
 void TokenReplacement::makeLogEntry(QString group, QString text, TokenStream *tokenStream)
 {
@@ -62,10 +67,12 @@ bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacemen
 
 ///////////////////
 
-ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken)
-
+ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken, 
+                                               QByteArray newToken, 
+                                               const QStringList inheritsQt)
 :oldToken(oldToken)
 ,newToken(newToken)
+,inheritsQt(inheritsQt)
 {}
 
 bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
@@ -90,43 +97,49 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                 //token in tokenStream is qualified 
                 QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);    
                 if(scopeText != oldTokenScope) {
-                    return false;    //scope din not match, so we return
-                } else {
-                    //token in the tokenStream is qualified, oldToken is qualified,
-                    //and the qualifiers match. replace token with qualified new token    
-                    Token token = tokenStream->token();
-                    QByteArray newTokenName;
-                    QByteArray newTokenScope;
-                    if (newToken.contains("::")) {
-                        newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
-                        newTokenScope = newToken.mid(0, newToken.indexOf(':'));
-                        if(newTokenScope == oldTokenScope){
-                            //the old and new scopes are equal, replace name part only
-                            makeLogEntry("ScopedReplace", tokenText + " -> " + newTokenName, tokenStream);
-                            textReplacements.insert(newTokenName, token.position, tokenText.size());
-                            return true;
-                        } else {
-                            //replace scope and name
-                            makeLogEntry("ScopedReplace", tokenText + " -> " + newToken, tokenStream);
-                            Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
-                            textReplacements.insert(newTokenScope, scopeToken.position, scopeText.size());
-                            textReplacements.insert(newTokenName, token.position, tokenText.size());
-                            return true;
-                        }
+                    // special case! if oldTokenScope is Qt, meaning the Qt class,
+                    // we check if scopeText is one of the Qt3 classes that inherits Qt.
+                    // This will cach cases such as QWidget::ButtonState, wich will be 
+                    // renamed to Qt:ButtonState
+                    if(oldTokenScope == "Qt") {
+                        if(!inheritsQt.contains(scopeText)) 
+                            return false;    //false alarm, scopeText is not a Qt class
+                     } else {
+                         return false;    
+                     }
+                } 
+                Token token = tokenStream->token();
+                QByteArray newTokenName;
+                QByteArray newTokenScope;
+                if (newToken.contains("::")) {
+                    newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
+                    newTokenScope = newToken.mid(0, newToken.indexOf(':'));
+                    if(newTokenScope == scopeText){
+                        //the old and new scopes are equal, replace name part only
+                        makeLogEntry("ScopedReplace", tokenText + " -> " + newTokenName, tokenStream);
+                        textReplacements.insert(newTokenName, token.position, tokenText.size());
+                        return true;
                     } else {
-                        newTokenName = newToken;
+                        //replace scope and name
+                        makeLogEntry("ScopedReplace", tokenText + " -> " + newToken, tokenStream);
+                        Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
+                        textReplacements.insert(newTokenScope, scopeToken.position, scopeText.size());
+                        textReplacements.insert(newTokenName, token.position, tokenText.size());
+                        return true;
                     }
-                }
+                } 
             } else {
                 // token in the tokenStream is not qualified
-                //relplace token with qualified new token
+                // relplace token with qualified new token
                 Token token = tokenStream->token();
                 makeLogEntry("ScopedReplace", tokenText + " -> " + newToken, tokenStream);
                 textReplacements.insert(newToken, token.position, tokenText.size());
                 return true;
             }
         } else {
-            //oldToken is not qualified
+            //oldToken is not qualified - This won't happen. (use a plain TokenReplacement
+            //for unqualified tokens)
+            
             //relplace token with (non-qualified) new token
             /*
             Token token = tokenStream->token();
@@ -191,19 +204,3 @@ int ScopedTokenReplacement::getNextScopeToken(TokenStream *tokenStream, int star
 }
 
 
-
-/*
-bool ScopedTokenReplacement::findPreTextToken(QByteArray scopeName, TokenStream *tokenStream)
-{
-    QByteArray preTextToken;
-    int count=1;
-    while(preTextToken.isEmpty() && tokenStream->cursor()- count > 0) {
-        QByteArray tokenText=tokenStream->tokenText(tokenStream->cursor()-count);
-        QByteArray trimmedToken = tokenText.trimmed();
-        if(!trimmedToken.isEmpty() )
-            preTextToken=tokenText.trimmed();
-        ++count;
-    }
-    return (preTextToken==scopeName);
-}
-*/

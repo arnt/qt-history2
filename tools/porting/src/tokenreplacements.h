@@ -1,6 +1,7 @@
 #ifndef TOKENREPLACEMENTS_H
 #define TOKENREPLACEMENTS_H
 
+#include <QStringList>
 #include <QByteArray>
 #include "lexer.h"    //for TokenStream
 #include "textreplacement.h"
@@ -59,7 +60,7 @@ private:
 class ScopedTokenReplacement : public TokenReplacement
 {
 public:
-    ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken);
+    ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken, const QStringList inheritsQt);
     bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
@@ -68,6 +69,7 @@ private:
     int getNextScopeToken(TokenStream *tokenStream, int startTokenIndex);
     QByteArray oldToken;
     QByteArray newToken;
+    const QStringList inheritsQt; //a list of Qt3 classes that inherits the Qt class
 };
 
 #endif

@@ -63,10 +63,18 @@ QStringList RulesFromXml::getNeededHeaderList()
 void RulesFromXml::parseXml()
 {
     int ruleCount = xml["Rules"]["Count"].text().toInt();
-        
-                       
-    for(int rule=0; rule<=ruleCount; ++rule) {
-   //                    ^ Hack! compensate for off-by-one error somewhere in QtSimpleXml
+    ++ruleCount; //Hack! compensate for off-by-one error somewhere in QtSimpleXml
+                  
+    //parse InheritsQt first, since ScopedTokenReplacement take this list
+    //as a parameter
+    for(int rule=0; rule<ruleCount; ++rule) { 
+        QtSimpleXml &currentRule = xml["Rules"][rule];
+        if(currentRule.attribute("Type")=="InheritsQt") {
+            inheritsQtClass << currentRule.text();
+        }
+    }
+   
+    for(int rule=0; rule<ruleCount; ++rule) {
         QtSimpleXml &currentRule = xml["Rules"][rule];
         
         if(currentRule.attribute("Type")=="RenamedHeader") {
@@ -85,7 +93,8 @@ void RulesFromXml::parseXml()
                 currentRule.attribute("Type")=="RenamedQtSymbol" ) {
             tokenRules.append(new ScopedTokenReplacement(
                     currentRule["Qt3"].text().latin1(),
-                    currentRule["Qt4"].text().latin1()));
+                    currentRule["Qt4"].text().latin1(),
+                    inheritsQtClass));
         }
         else if(currentRule.attribute("Type")=="NeedHeader") {
             neededHeaders += currentRule["Header"].text();
@@ -96,7 +105,6 @@ void RulesFromXml::parseXml()
         else if(currentRule.attribute("Type")=="qt4Header") {
             qt4Headers += currentRule.text();
         }
-    
     }    
 }
 

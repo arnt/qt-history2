@@ -23,6 +23,7 @@ private:
     QStringList qt3Headers;
     QStringList qt4Headers;
     QStringList neededHeaders;
+    QStringList inheritsQtClass;
     void parseXml();    
 };
 
