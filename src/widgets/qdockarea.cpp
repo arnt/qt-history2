@@ -422,23 +422,26 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 /*! \class QDockArea qdockarea.h
 
-  \brief The QDockArea class manages and layouts QDockWindows.
+  \brief The QDockArea class manages and lays out QDockWindows.
 
   \ingroup application
 
-  A QDockArea is a container which manages a number of QDockWindows by
-  layouting them. In cooperation with QDockWindows, it is responsible
-  for docking and undocking of QDockWindows and moving them inside the
-  dock area. A QDockArea also does wrapping of toolbars to fill the
-  available space as good as possible.
+  A QDockArea is a container which manages a list of QDockWindows which
+  it lays out within its area. In cooperation with the QDockWindows it
+  is responsible for the docking and undocking of QDockWindows and
+  moving them inside the dock area. QDockAreas also handle the wrapping
+  of QDockWindows to fill the available space as compactly as possible.
+  QDockAreas can contain QToolbars since QToolbar is a QDockWindow
+  subclass.
 
-  Normally you do not directly use a QDockArea, but rather use the
-  four built in QDockAreas of a QMainWindow to be able to dock and
-  undock QDockWindows (and QToolBars, which are QDockWindows) in a
-  QMainWindow.
+  QMainWindow contains four QDockAreas which you can use for your
+  QToolbars and QDockWindows. 
+  
+  In most situations you do not need to use the QDockArea class
+  directly. But if it makes sense for your application to have a
+  QDockArea somewhere other than a QMainWindow you can always create
+  your own QDockAreas using this class.
 
-  In some cases it makes sense to use a QDockArea somewhere else, to
-  allow docking of widgets there.
 */
 
 /*! \fn Orientation QDockArea::orientation() const
@@ -453,8 +456,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 /*! \fn void QDockArea::rightButtonPressed( const QPoint &globalPos )
 
-  This signal is emitted if the user pressed with the right mouse
-  button onto the area. This can be used for right mouse button
+  This signal is emitted if the user pressed the right mouse
+  button within the area. This can be used to invoke right mouse button
   menus. \a globalPos is the global position of the mouse when the
   event occured.
  */
@@ -464,14 +467,14 @@ int QDockAreaLayout::widthForHeight( int h ) const
   
   This enum speifices which way gravity points in a dock area.
 
-  \value Normal The top or left of an area is stable, and the bottom
+  \value Normal The top or left of an area is fixed and the bottom
   or right end may be user-movable.
 
-  \value Reverse The bottom or right of an area is stable, and the top
+  \value Reverse The bottom or right of an area is fixed and the top
   or left end may be user-movable.
 */
 
-/*! Creates a QDockArea with the orientation \a o, Gravity \a g as
+/*! Creates a QDockArea with the orientation \a o, Gravity \a g as a
   child of \a parent.
 */
 
@@ -492,9 +495,9 @@ QDockArea::~QDockArea()
     dockWindows = 0;
 }
 
-/*! Moves the QDockWindow \a w in the dock area. If \a w is not
-  already docked in this are, \a w gets docked first. If \a index is
-  -1 or larger then the number of docked widgets, \a w is appended at
+/*! Moves the QDockWindow \a w within the dock area. If \a w is not
+  already docked in this area, \a w is docked first. If \a index is
+  -1 or larger than the number of docked widgets, \a w is appended at
   the end, else inserted at the position \a index.
 */
 
@@ -522,10 +525,9 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
     }
 }
 
-/*! Returns TRUE, of the QDockArea contains the dock window \a w. If
+/*! Returns TRUE if the QDockArea contains the dock window \a w. If
   this is the case, and a non-null pointer is passed as \a index, the
-  value of \a index is set to the index at which \a w is placed at the
-  moment.
+  value of \a index is set to \a w's index position.
 */
 
 bool QDockArea::hasDockWindow( QDockWindow *w, int *index )
@@ -547,7 +549,7 @@ int QDockArea::lineOf( int index )
     return i;
 }
 
-/*! Moves the QDockWindow \a w inside the dock are where \a p is the
+/*! Moves the QDockWindow \a w inside the dock area where \a p is the
   new position (global screen coordinates), \a r is the suggested
   rectangle of the dock window and \a swap tells if the orientation of
   the dockwidget needs to be changed.
