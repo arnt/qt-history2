@@ -490,18 +490,13 @@ bool QFile::at( Offset pos )
 }
 
 /*!
-  Reads at most \a len bytes from the file into \a p and returns the
-  number of bytes actually read.
-
-  Returns -1 if a serious error occurred.
+  \reimp
 
   \warning We have experienced problems with some C libraries when a buffered
   file is opened for both reading and writing. If a read operation takes place
   immediately after a write operation, the read buffer contains garbage data.
   Worse, the same garbage is written to the file. Calling flush() before
   readBlock() solved this problem.
-
-  \sa writeBlock()
 */
 
 Q_LONG QFile::readBlock( char *p, Q_ULONG len )
@@ -513,11 +508,11 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QFile::readBlock: File not open" );
-	return 0;
+	return -1;
     }
     if ( !isReadable() ) {
 	qWarning( "QFile::readBlock: Read operation not permitted" );
-	return 0;
+	return -1;
     }
 #endif
     Q_ULONG nread = 0;					// number of bytes read

@@ -559,11 +559,15 @@ bool QIODevice::atEnd() const
   Reads at most \a maxlen bytes from the I/O device into \a data and
   returns the number of bytes actually read.
 
-  This function should return -1 if a fatal error occurs.
+  The device must be opened for reading, and \a data must not be NULL.
+
+  Returns -1 if a fatal error occurs.
+
+  Returns 0 if there are no bytes to read.
 
   This virtual function must be reimplemented by all subclasses.
 
-  \sa writeBlock()
+  \sa writeBlock() isOpen isReadable()
 */
 
 /*!
@@ -573,7 +577,7 @@ bool QIODevice::atEnd() const
 QByteArray QIODevice::readAll()
 {
     if ( isDirectAccess() ) {
-	// we now the size
+	// we know the size
 	int n = size()-at(); // ### fix for 64-bit or large files?
 	int totalRead = 0;
 	QByteArray ba( n );

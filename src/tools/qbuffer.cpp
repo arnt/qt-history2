@@ -291,7 +291,7 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
     if ( ioIndex + len > a.size() ) {   // overflow
         if ( ioIndex >= a.size() ) {
             setStatus( IO_ReadError );
-            return -1;
+            return 0;
         } else {
             len = a.size() - ioIndex;
         }
