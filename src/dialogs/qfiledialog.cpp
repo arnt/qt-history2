@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#174 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#175 $
 **
 ** Implementation of QFileDialog class
 **
@@ -535,7 +535,7 @@ void QFileDialog::init()
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
-	     this,  SLOT(fileNameEditDone()) );
+             this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
     d->stack = new QWidgetStack( this, "files and more files" );
@@ -552,21 +552,21 @@ void QFileDialog::init()
     files->setColumnWidthMode( 2, QListView::Maximum );
     files->addColumn( tr("Date"), 50 );
     files->setColumnWidthMode( 3, QListView::Maximum );
-    files->addColumn( tr("Attributes"), 10 + fm.width( tr("Attributes") ) );
+    files->addColumn( tr("Attributes"), 20 + fm.width( tr("Attributes") ) );
     files->setColumnWidthMode( 0, QListView::Maximum );
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
     connect( files, SIGNAL(selectionChanged(QListViewItem *)),
-	     this, SLOT(updateFileNameEdit(QListViewItem *)) );
+             this, SLOT(updateFileNameEdit(QListViewItem *)) );
     connect( files, SIGNAL(doubleClicked(QListViewItem *)),
-	     this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
+             this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
     connect( files, SIGNAL(returnPressed(QListViewItem *)),
-	     this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
+             this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
     connect( files, SIGNAL(rightButtonClicked(QListViewItem *,
-					      const QPoint &, int)),
-	     this, SLOT(popupContextMenu(QListViewItem *,
-					 const QPoint &, int)) );
+                                              const QPoint &, int)),
+             this, SLOT(popupContextMenu(QListViewItem *,
+                                         const QPoint &, int)) );
 
     files->setFocusPolicy( StrongFocus );
 
@@ -579,10 +579,13 @@ void QFileDialog::init()
     d->moreFiles->setRowMode( QListBox::FitToHeight );
     d->moreFiles->setVariableWidth( TRUE );
 
-    connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
-	     this, SLOT(updateFileNameEdit(QListBoxItem *)) );
     connect( d->moreFiles, SIGNAL(selected(QListBoxItem *)),
-	     this, SLOT(selectDirectoryOrFile(QListBoxItem *)) );
+             this, SLOT(selectDirectoryOrFile(QListBoxItem *)) );
+    connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
+             this, SLOT(updateFileNameEdit(QListBoxItem *)) );
+
+    d->moreFiles->installEventFilter( this );
+    d->moreFiles->viewport()->installEventFilter( this );
 
     okB = new QPushButton( tr("OK"), this, "OK" ); //### Or "Save (see other "OK")
     okB->setAutoDefault( TRUE );
@@ -598,16 +601,16 @@ void QFileDialog::init()
     QFileInfoListIterator it( *rootDrives );
     QFileInfo *fi;
     while ( (fi = it.current()) != 0 ) {
-	++it;
-	d->paths->insertItem( fi->absFilePath() );
+        ++it;
+        d->paths->insertItem( fi->absFilePath() );
     }
     connect( d->paths, SIGNAL(activated(const QString&)),
-	     this, SLOT(setDir(const QString&)) );
+             this, SLOT(setDir(const QString&)) );
 
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
     connect( d->types, SIGNAL(activated(const QString&)),
-	     this, SLOT(setFilter(const QString&)) );
+             this, SLOT(setFilter(const QString&)) );
 
     d->pathL = new QLabel( d->paths, tr("Look &in"), this );
     d->fileL = new QLabel( nameEdit, tr("File &name"), this );
@@ -618,19 +621,19 @@ void QFileDialog::init()
     d->cdToParent = new QPushButton( this, "cd to parent" );
     d->cdToParent->setPixmap( *cdToParentIcon );
     connect( d->cdToParent, SIGNAL(clicked()),
-	     this, SLOT(cdUpClicked()) );
+             this, SLOT(cdUpClicked()) );
 
     d->newFolder = new QPushButton( this, "new folder" );
     d->newFolder->setPixmap( *newFolderIcon );
     connect( d->newFolder, SIGNAL(clicked()),
-	     this, SLOT(newFolderClicked()) );
+             this, SLOT(newFolderClicked()) );
 
     d->modeButtons = new QButtonGroup( 0, "invisible group" );
     connect( d->modeButtons, SIGNAL(destroyed()),
-	     this, SLOT(modeButtonsDestroyed()) );
+             this, SLOT(modeButtonsDestroyed()) );
     d->modeButtons->setExclusive( TRUE );
     connect( d->modeButtons, SIGNAL(clicked(int)),
-	     d->stack, SLOT(raiseWidget(int)) );
+             d->stack, SLOT(raiseWidget(int)) );
 
     d->detailView = new QPushButton( this, "list view" );
     d->detailView->setPixmap( *detailViewIcon );
@@ -717,21 +720,21 @@ void QFileDialog::init()
     d->special = tr( "Special" );
 
     if ( QApplication::desktop()->width() < 1024 ||
-	 QApplication::desktop()->height() < 768 ) {
-	resize( 420, 236 );
+         QApplication::desktop()->height() < 768 ) {
+        resize( 420, 236 );
     } else {
-	QSize s( files->sizeHint() );
-	s = QSize( s.width() + 250, s.height() + 82 );
+        QSize s( files->sizeHint() );
+        s = QSize( s.width() + 250, s.height() + 82 );
 
-	if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
-	    s.setWidth( QApplication::desktop()->width() * 2 / 3 );
+        if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
+            s.setWidth( QApplication::desktop()->width() * 2 / 3 );
 
-	if ( s.height() * 3 > QApplication::desktop()->height() * 2 )
-	    s.setHeight( QApplication::desktop()->height() * 2 / 3 );
-	else if ( s.height() * 3 < QApplication::desktop()->height() )
-	    s.setHeight( QApplication::desktop()->height() / 3 );
+        if ( s.height() * 3 > QApplication::desktop()->height() * 2 )
+            s.setHeight( QApplication::desktop()->height() * 2 / 3 );
+        else if ( s.height() * 3 < QApplication::desktop()->height() )
+            s.setHeight( QApplication::desktop()->height() / 3 );
 
-	resize( s );
+        resize( s );
     }
 }
 
@@ -1479,7 +1482,7 @@ protected:
         if ( back )
             back->resize( size() );
     }
-    
+
 private:
     QVBox *back;
 	QLineEdit *nameEdit;
@@ -1496,15 +1499,15 @@ NewFolderDialog::NewFolderDialog(QWidget *parent, const char *name)
     back = new QVBox( this );
     back->setMargin( 10 );
     back->setSpacing( 5 );
-    
-    QHBox *row1 = new QHBox( back ); 
+
+    QHBox *row1 = new QHBox( back );
     row1->setSpacing( 5 );
     QLabel *label = new QLabel( tr("&Folder Name"), row1);
 	nameEdit = new QLineEdit( row1 );
     label->setBuddy( nameEdit );
     label->setAutoResize(TRUE);
 
-    QHBox *row2 = new QHBox( back );    
+    QHBox *row2 = new QHBox( back );
     row2->setSpacing( 5 );
     (void)new QWidget( row2 );
 	QPushButton *okButton = new QPushButton(tr("OK"), row2);
@@ -1804,7 +1807,8 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         return TRUE;
     if ( mode() == ExistingFiles &&
          e->type() == QEvent::MouseButtonDblClick &&
-         ( o == files || o == d->moreFiles || o == files->viewport() ) ) {
+         ( o == files || o == d->moreFiles || o == files->viewport() ||
+           o == d->moreFiles->viewport() ) ) {
         QListViewItem * i = files->firstChild();
         while( i && !i->isSelected() )
             i = i->nextSibling();
@@ -1814,7 +1818,8 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
                 ((QKeyEvent *)e)->key() == Key_Backspace &&
                 ( o == files ||
                   o == d->moreFiles ||
-                  o == files->viewport() ) ) {
+                  o == files->viewport() ||
+                  o == d->moreFiles->viewport() ) ) {
         cdUpClicked();
         ((QKeyEvent *)e)->accept();
         return TRUE;
