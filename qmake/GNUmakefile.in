@@ -12,7 +12,7 @@ QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatast
 vpath %.cpp @REL_QTDIR@/src/tools @REL_QTDIR@/src/codecs @REL_QTDIR@/src/kernel
 
 CFLAGS=@QMAKE_CFLAGS@ -I. -Igenerators -Igenerators/unix -Igenerators/win32  -Igenerators/mac \
-	-I@OUT_QTDIR@/include -I@REL_QTDIR@/include -I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_NO_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
+	-I@OUT_QTDIR@/include -I@REL_QTDIR@/include -I@OUT_QTDIR@/src/tools -DQT_NO_TEXTCODEC -DQT_NO_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
 LFLAGS=@QMAKE_LFLAGS@
 
 #if cc isn't gcc I need to use the bad makefile
