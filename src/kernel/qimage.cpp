@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#215 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1992,7 +1992,7 @@ QImage QImage::smoothScale(int w, int h) const
 {
     if ( w == width() && h == height() )
 	return *this; // nothing to do
-    
+
     if (depth()==32) {
 	QImage img(w, h, 32);
 	// 32-bpp to 32-bpp
@@ -4055,49 +4055,13 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		return;				// no c specification
 	    buf = buf.mid( i+1, buf.length() );
 	}
-	QRegExp r( "^c #[a-zA-Z0-9]*$" );
-	if ( r.match( buf ) > -1 ) {
-	    i = buf.find( ' ', 2 );
-	    if ( i >= 0 )
-		buf.resize( i );
-	    QString red, green, blue;		// it's an RGB value...
-	    switch( buf.length() ) {
-	    case 6:
-		red = buf.mid( 3, 1 );
-		green = buf.mid( 4, 1 );
-		blue = buf.mid( 5, 1 );
-		break;
-	    case 9:
-		red = buf.mid( 3, 2 );
-		green = buf.mid( 5, 2 );
-		blue = buf.mid( 7, 2 );
-		break;
-	    case 15:
-		// forget those lsbs
-		red = buf.mid( 3, 2 );
-		green = buf.mid( 7, 2 );
-		blue = buf.mid( 11, 2 );
-		break;
-	    default:
-		return;		// bad number of rgb digits
-	    }
-	    int r, g, b;
-	    if ( sscanf( red, "%x", &r ) != 1 ||
-		 sscanf( green, "%x", &g ) != 1 ||
-		 sscanf( blue, "%x", &b ) != 1 )
-		return;		// couldn't sscanf
-	    image.setColor( currentColor, 0xff000000 | qRgb( r, g, b ) );
-	    colorMap.insert( index, (void*)(currentColor+1) );
-	} else if ( buf == "c none" ) {
+	if ( buf == "c none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
-	    image.setColor( transparentColor, RGB_MASK & qRgb( 200,200,200 ) );
+	    image.setColor( transparentColor, RGB_MASK & qRgb(198,198,198) );
 	    colorMap.insert( index, (void*)(transparentColor+1) );
-	} else {
-	    r = " [a-z] ";	// symbolic color names: die die die
-	    i = r.match( buf );
-	    QString colorName = buf.mid(2, i > -1 ? i-2 : buf.length());
-	    QColor c( colorName );
+	} else if ( buf[0] == 'c' ) {
+	    QColor c( buf.mid( 2, buf.length() ) );
 	    image.setColor( currentColor, 0xff000000 | c.rgb() );
 	    colorMap.insert( index, (void*)(currentColor+1) );
 	}

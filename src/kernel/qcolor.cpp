@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#88 $
 **
 ** Implementation of QColor class
 **
@@ -250,7 +250,7 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 
 
 /*!
-  Constructs a named color, i.e. loads the color from the color database.
+  Constructs a named color in the same way as setNamedColor().
   \sa setNamedColor()
 */
 
@@ -289,12 +289,14 @@ inline static int hex2int( char hexchar )
 /*!
   Sets the RGB value to that of the named color.
 
-  The "#RRGGBB" color format is supported on all platforms, where
-  RR, GG, and BB and hex digits.
-
-  A color name may also be a color in the X color database (rgb.txt) ,
-  e.g.  "steelblue" or "gainsboro".  The X color names also work under
-  Qt for Windows.
+  The color name may be in one of five formats: <ul>
+  <li> #RGB (each of R, G and B is a single hex digit)
+  <li> #RRGGBB
+  <li> #RRRGGGBBB
+  <li> #RRRRGGGGBBBB
+  <li> A named from the X color database (rgb.txt),  e.g.
+  "steelblue" or "gainsboro".  These color names also work
+  under Qt for Windows.
 */
 
 void QColor::setNamedColor( const char *name )
