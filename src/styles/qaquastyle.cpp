@@ -124,9 +124,9 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 bool QAquaFocusWidget::handles(QWidget *widget)
 {
     return (widget && widget->parentWidget() &&
-	    (widget->inherits("QDateTimeEditor") || 
+	    (widget->inherits("QDateTimeEditor") ||
 	     (widget->inherits("QFrame") && /*((QFrame*)widget)->frameStyle() != QFrame::NoFrame && */
-	      (widget->inherits("QLineEdit") /* && 
+	      (widget->inherits("QLineEdit") /* &&
 	       (widget->parentWidget()->inherits("QComboBox") || (((QLineEdit*)widget)->frame())) */) ||
 	      (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
 	      widget->inherits("QListBox") || widget->inherits("QListView"))));
@@ -394,59 +394,51 @@ void QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
 	progressOff--;
 }
 
-// NOT REVISED
 /*!
   \class QAquaStyle qaquastyle.h
   \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
   \ingroup appearance
 
-  This class implements the Aqua look and feel. The class tries to emulate
-  the Mac OS X Aqua GUI style with the QStyle system. There are issues that
-  need to be addressed as well, to make your program fit in with the \link
-  http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua
-  Style Guidelines \endlink. Although this list is not complete, several issues
-  will be outlined above to give an idea of changes your program may have
-  to change in order to fully comply with these guidelines from Apple
-  Computers:
+  The class tries to emulate
+  the Mac OS X Aqua GUI style using the QStyle system. There are
+  additional issues that you will also need to consider, to make your
+  program compatible with the \link
+  http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
+  Aqua Style Guidelines \endlink. Some of these issues are outlined
+  below.
 
   \list
 
-  \i Layout - The restrictions on window layout is such that some of these
-  things cannot be done with QLayout as it is today. Changes are being
-  considered (and feedback would be appreciated) to make this QStyle-able
-  however now these rules will must be looked into when using QLayout. Some
-  of these restrictions involve horizontal/vertical widget alignment and
-  widget size (listed below).
+  \i Layout - The restrictions on window layout are such that some
+  things cannot be achieved using QLayout as it is today. Changes are being
+  considered (and feedback would be appreciated) to make layouts QStyle-able.
+  Some of these restrictions involve horizontal and vertical widget
+  alignment and widget size (covered below).
 
-  \i Widget size - Aqua allows for specific sized widgets, however Qt does
-  not govern this behaviour for cross-platform reasons. As a result you may
-  scale a widget to any size and QAquaStyle will respect your size, even if
-  it is not an appropriate size from the Aqua Style Guidelines. 
+  \i Widget size - Aqua allows widgets to have specific fixed sizes. Qt
+  does not implement this behaviour to maintain cross-platform
+  compatibility. As a result you may scale a widget to any size and
+  QAquaStyle will respect your size, even if it is not appropriate
+  in terms of the Aqua Style Guidelines.
 
-  \i Effects - QAquaStyle is an emulating style, therefore all the
-  animations and effects are not completed yet, if you notice immediate
-  shortcomings please do report them and Trolltech will address it, it is
-  our aim to have this emulation style as native a "look and feel" as
-  possible.
-
-  \i More - There are other issues that need to be considered in the feel
-  of your application (including general color scheme to match the Aqua
-  colors). The Guidelines link above will remain current with new advances
-  and design suggestions for Mac OS X.
+  \i Effects - QAquaStyle is an emulating style. Not all of the
+  animations and effects have been completed. If you notice any
+  shortcomings please report them as bugs. We aim to ensure that
+  QAquaStyle is as close to the native look and feel as possible.
 
   \endlist
-  
-  All this said, it is of course up to the application developer to decide
-  how much of the Aqua experience they want to pass onto their users - as
-  QAquaStyle is today it is a pretty good representation, but not without
-  different design goals. It could also be suggested (if using the \e {Qt
-  Designer}) to have separate .ui files to go with platforms that have very
-  different design criteria, this is no necesary, but could be recommended
-  if your interface must change drastically to suit this new enviornment.
 
-  \warning The QAquaStyle code may not be distributed onto any other
-  platform or included in any other licensed package unless explicit
-  permission is granted by Trolltech.
+  There are other issues that need to be considered in the feel of
+  your application (including the general color scheme to match the
+  Aqua colors). The Guidelines mentioned above will remain current
+  with new advances and design suggestions for Mac OS X.
+
+  QAquaStyle is currently a pretty good representation, even though it
+  has different design goals from native Aqua.
+
+  \warning The QAquaStyle code may not be distributed on any platform
+  other than Mac OS X, or included in any other licensed package,
+  unless explicit permission is granted by Trolltech.
 
   Note that the functions provided by QAquaStyle are reimplementations
   of QStyle functions; see QStyle for their documentation.
@@ -539,7 +531,7 @@ void QAquaStyle::polish( QWidget * w )
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
     }
-    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") ) 
+    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") )
 	((QPopupMenu*)w)->setFrameStyle(QFrame::NoFrame);
 }
 
@@ -554,7 +546,7 @@ void QAquaStyle::unPolish( QWidget * w )
 
     if( w->inherits("QTitleBar") )
 	((QTitleBar*)w)->setAutoRaise(FALSE);
-    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") ) 
+    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") )
 	((QPopupMenu*)w)->setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
 
     if ( !w->isTopLevel() ) {
@@ -571,8 +563,10 @@ void QAquaStyle::unPolish( QWidget * w )
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
     if(o == this) {
+#ifdef Q_WS_MAC
 	if(e->type() == QEvent::Style)
 	    appearanceChanged();
+#endif
 	return FALSE;
     }
 
@@ -1414,7 +1408,7 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	if (checkable || maxpmw > 0)
 	    w += 2;
 	w += 12;
-	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox")) 
+	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox"))
 	    w = QMAX(w, widget->parentWidget()->width() - 20);
 	sz = QSize(w, h);
 #endif
@@ -1689,7 +1683,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    QSlider * s = (QSlider *) widget;
 	    if ( s->orientation() == Vertical )
 		dir = "v";
-	    if ( s->tickmarks() == QSlider::Above ) 
+	    if ( s->tickmarks() == QSlider::Above )
 		offset = 10;
 	    qAquaPixmap( "sldr_" + dir + "grv_tip_left", sldr_l );
 	    qAquaPixmap( "sldr_" + dir + "grv_mid", sldr_mid );
@@ -1935,7 +1929,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		else
 		    rect.setY( rect.y() + 5 );
 		//fall through
-	    case SC_ScrollBarSubPage: 
+	    case SC_ScrollBarSubPage:
 		if(sc == SC_ScrollBarSubPage) {
 		    if(scr->orientation() == Horizontal)
 			rect.setWidth(rect.width() + 20);
@@ -1947,11 +1941,11 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		int sbextent = pixelMetric(PM_ScrollBarExtent, w);
 		if(scr->orientation() == Horizontal) {
 		    rect.moveBy( -sbextent, 0 );
-  		    if(sc == SC_ScrollBarAddPage) 
+  		    if(sc == SC_ScrollBarAddPage)
   			rect.setLeft(rect.left() + sbextent);
 		} else {
 		    rect.moveBy( 0, -sbextent );
-		    if(sc == SC_ScrollBarAddPage) 
+		    if(sc == SC_ScrollBarAddPage)
 			rect.setTop(rect.top() + sbextent);
 		}
 		break; }
