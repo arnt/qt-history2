@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#440 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#441 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1240,8 +1240,7 @@ int QApplication::exec()
     return quit_code;
 }
 
-static
-bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+static bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
     if ( qt_winver & Qt::WV_NT_based )
@@ -1250,14 +1249,21 @@ bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 	return PeekMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
 }
 
-static
-bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
     if ( qt_winver & Qt::WV_NT_based )
 	return GetMessage( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
     else
 	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
+}
+
+static bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
+{
+    if ( qt_winver & Qt::WV_NT_based )
+	return PostMessage( hWnd, msg, wParam, lParam );
+    else
+	return PostMessageA( hWnd, msg, wParam, lParam );
 }
 
 bool QApplication::processNextEvent( bool canWait )
@@ -1369,7 +1375,7 @@ void QApplication::wakeUpGuiThread()
 #if defined(QT_THREAD_SUPPORT)
     PostThreadMessage( qt_gui_thread, WM_USER+666, 0, 0 );
 #else
-    PostMessage( mainWidget()->winId(), WM_USER+666, 0, 0 );
+    winPostMessage( mainWidget()->winId(), WM_USER+666, 0, 0 );
 #endif
 }
 
@@ -2373,10 +2379,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		}
 		if ( QWidget::mouseGrabber() == 0 )
 		    setAutoCapture( w->winId() );
-		QMouseEvent* e = new QMouseEvent( type,
-				      w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
-				      QPoint(gpos.x,gpos.y), button, state );
-		QApplication::postEvent( w, e );
+		winPostMessage( w->winId(), msg.message, msg.wParam, msg.lParam );
 	    }
 	}
     } else {					// not popup mode
