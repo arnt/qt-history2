@@ -712,8 +712,6 @@ class Q_COMPAT_EXPORT Q3TextDocument : public QObject
 public:
     enum SelectionIds {
         Standard = 0,
-        IMSelectionText                = 31998,
-        IMCompositionText        = 31999, // this must be higher!
         Temp = 32000 // This selection must not be drawn, it's used e.g. by undo/redo to
         // remove multiple lines with removeSelectedText()
     };
@@ -765,9 +763,9 @@ public:
     Q3TextIndent *indent() const;
 
     QColor selectionColor(int id) const;
-    bool invertSelectionText(int id) const;
+    QColor selectionTextColor(int id) const;
     void setSelectionColor(int id, const QColor &c);
-    void setInvertSelectionText(int id, bool b);
+    void setSelectionTextColor(int id, const QColor &b);
     bool hasSelection(int id, bool visible = false) const;
     void setSelectionStart(int id, const Q3TextCursor &cursor);
     bool setSelectionEnd(int id, const Q3TextCursor &cursor);
@@ -925,9 +923,12 @@ private:
     int cx, cy, cw, vw;
     Q3TextParagraph *fParag, *lParag;
     Q3TextPreProcessor *pProcessor;
-    QMap<int, QColor> selectionColors;
+    struct SelectionColor {
+        QColor background;
+        QColor text;
+    };
+    QMap<int, SelectionColor> selectionColors;
     QMap<int, Q3TextDocumentSelection> selections;
-    QMap<int, bool> selectionText;
     Q3TextCommandHistory *commandHistory;
     Q3TextFormatter *pFormatter;
     Q3TextIndent *indenter;
@@ -1687,22 +1688,34 @@ inline Q3TextIndent *Q3TextDocument::indent() const
 
 inline QColor Q3TextDocument::selectionColor(int id) const
 {
-    return selectionColors[id];
+    const Q3TextDocument *p = this;
+    while (p->par)
+        p = par;
+    return p->selectionColors[id].background;
 }
 
-inline bool Q3TextDocument::invertSelectionText(int id) const
+inline QColor Q3TextDocument::selectionTextColor(int id) const
 {
-    return selectionText[id];
+    const Q3TextDocument *p = this;
+    while (p->par)
+        p = par;
+    return p->selectionColors[id].text;
 }
 
 inline void Q3TextDocument::setSelectionColor(int id, const QColor &c)
 {
-    selectionColors[id] = c;
+    Q3TextDocument *p = this;
+    while (p->par)
+        p = par;
+    p->selectionColors[id].background = c;
 }
 
-inline void Q3TextDocument::setInvertSelectionText(int id, bool b)
+inline void Q3TextDocument::setSelectionTextColor(int id, const QColor &c)
 {
-    selectionText[id] = b;
+    Q3TextDocument *p = this;
+    while (p->par)
+        p = par;
+    p->selectionColors[id].text = c;
 }
 
 inline Q3TextFormatCollection *Q3TextDocument::formatCollection() const

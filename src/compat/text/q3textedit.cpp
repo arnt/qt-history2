@@ -41,6 +41,7 @@
 #include "qmetaobject.h"
 #include "q3textbrowser.h"
 #include "private/q3syntaxhighlighter_p.h"
+#include "qtextformat.h"
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -62,7 +63,7 @@ class Q3TextEditPrivate
 {
 public:
     Q3TextEditPrivate()
-        :preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(false),
+        :preeditStart(-1),preeditLength(-1),numPreeditSelections(0),ensureCursorVisibleInShowEvent(false),
          tabChangesFocus(false),
 #ifndef QT_NO_CLIPBOARD
          clipboard_mode(QClipboard::Clipboard),
@@ -83,6 +84,7 @@ public:
     int id[7];
     int preeditStart;
     int preeditLength;
+    int numPreeditSelections;
     uint ensureCursorVisibleInShowEvent : 1;
     uint tabChangesFocus : 1;
     QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
@@ -1524,61 +1526,52 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
         return;
     }
 
-#if 0
-    // ########################
-    switch(e->type()) {
-    case QEvent::InputMethodStart:
-        if (hasSelectedText())
-            removeSelectedText();
-        d->preeditStart = cursor->index();
-        break;
-    case QEvent::InputMethodCompose: {
+    if (hasSelectedText())
+        removeSelectedText();
 
-        doc->removeSelection(Q3TextDocument::IMCompositionText);
-        doc->removeSelection(Q3TextDocument::IMSelectionText);
+    bool oldupdate = isUpdatesEnabled();
+    setUpdatesEnabled(false);
+    const int preeditSelectionBase = 31900;
+    for (int i = 0; i < d->numPreeditSelections; ++i)
+        doc->removeSelection(preeditSelectionBase + i);
+    d->numPreeditSelections = 0;
 
-        if (d->preeditLength > 0 && cursor->paragraph())
-            cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
-        cursor->setIndex(d->preeditStart);
-        insert(e->text());
-        d->preeditLength = e->text().length();
-
-        cursor->setIndex(d->preeditStart + d->preeditLength);
-        Q3TextCursor c = *cursor;
-        cursor->setIndex(d->preeditStart);
-        doc->setSelectionStart(Q3TextDocument::IMCompositionText, *cursor);
-        doc->setSelectionEnd(Q3TextDocument::IMCompositionText, c);
-
-        cursor->setIndex(d->preeditStart + e->cursorPos());
-
-        int sellen = e->selectionLength();
-        if (sellen > 0) {
-            cursor->setIndex(d->preeditStart + e->cursorPos() + sellen);
-            c = *cursor;
-            cursor->setIndex(d->preeditStart + e->cursorPos());
-            doc->setSelectionStart(Q3TextDocument::IMSelectionText, *cursor);
-            doc->setSelectionEnd(Q3TextDocument::IMSelectionText, c);
-            cursor->setIndex(d->preeditStart + d->preeditLength);
-        }
-
-        break;
-    }
-    case QEvent::InputMethodEnd:
-
-        doc->removeSelection(Q3TextDocument::IMCompositionText);
-        doc->removeSelection(Q3TextDocument::IMSelectionText);
-
-        if (d->preeditLength > 0 && cursor->paragraph())
-            cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
-        if (d->preeditStart >= 0) {
-            cursor->setIndex(d->preeditStart);
-            insert(e->text());
-        }
+    if (d->preeditLength > 0 && cursor->paragraph()) {
+        cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
         d->preeditStart = d->preeditLength = -1;
-    default:
-        Q_ASSERT(false);
     }
-#endif
+
+    if (!e->commitText().isEmpty())
+        insert(e->commitText());
+
+    if (!e->preeditText().isEmpty()) {
+        d->preeditStart = cursor->index();
+        d->preeditLength = e->preeditText().length();
+        insert(e->preeditText());
+        cursor->setIndex(d->preeditStart);
+
+        Q3TextCursor c = *cursor;
+        for (int i = 0; i < e->attributes().size(); ++i) {
+            const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+            if (a.type == QInputMethodEvent::Cursor)
+                cursor->setIndex(cursor->index() + a.start);
+            else if (a.type != QInputMethodEvent::TextFormat)
+                continue;
+            QTextCharFormat f = a.value.toTextFormat().toCharFormat();
+            if (f.isValid()) {
+                Q3TextCursor c2 = c;
+                c2.setIndex(c.index() + a.start);
+                doc->setSelectionStart(preeditSelectionBase + d->numPreeditSelections, c2);
+                c2.setIndex(c.index() + a.start + a.length);
+                doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
+
+                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.backgroundColor());
+                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.textColor());
+                ++d->numPreeditSelections;
+            }
+        }
+    }
+    setUpdatesEnabled(oldupdate);
     repaintChanged();
 }
 
@@ -5501,7 +5494,8 @@ void Q3TextEdit::setSelectionAttributes(int selNum, const QColor &back, bool inv
     if (selNum > doc->numSelections())
         doc->addSelection(selNum);
     doc->setSelectionColor(selNum, back);
-    doc->setInvertSelectionText(selNum, invertText);
+    if (invertText)
+        doc->setSelectionTextColor(selNum, palette().color(QPalette::HighlightedText));
 }
 
 /*!

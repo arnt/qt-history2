@@ -1348,11 +1348,6 @@ void Q3TextDocument::init()
     leftmargin = rightmargin = 4;
     scaleFontsFactor = 1;
 
-
-    selectionColors[Standard] = QApplication::palette().color(QPalette::Active, QPalette::Highlight);
-    selectionText[Standard] = true;
-    selectionText[IMSelectionText] = true;
-    selectionText[IMCompositionText] = false;
     commandHistory = new Q3TextCommandHistory(100);
     tStopWidth = formatCollection()->defaultFormat()->width('x') * 8;
 }
@@ -4711,18 +4706,9 @@ void Q3TextParagraph::setColorForSelection(QColor &color, QPainter &painter,
     color = (hasdoc && selection != Q3TextDocument::Standard) ?
             document()->selectionColor(selection) :
             pal.color(QPalette::Highlight);
-    if (selection == Q3TextDocument::IMCompositionText) {
-        int h1, s1, v1, h2, s2, v2;
-        pal.color(QPalette::Base).getHsv(&h1, &s1, &v1);
-        pal.color(QPalette::Background).getHsv(&h2, &s2, &v2);
-        color.setHsv(h1, s1, (v1 + v2) / 2);
-        painter.setPen(pal.color(QPalette::Text));
-    } else if (selection == Q3TextDocument::IMSelectionText) {
-        color = pal.color(QPalette::Dark);
-        painter.setPen(pal.color(QPalette::BrightText));
-    } else if (!hasdoc || document()->invertSelectionText(selection)) {
-        painter.setPen(pal.color(QPalette::HighlightedText));
-    }
+    QColor text = hasdoc ? document()->selectionTextColor(selection) : pal.color(QPalette::HighlightedText);
+    if (text.isValid())
+        painter.setPen(text);
 }
 
 void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int start, int len,
