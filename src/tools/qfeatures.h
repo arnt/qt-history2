@@ -84,7 +84,7 @@
 /*!
     MNG image I/O
     <p>The Multiple-image Network Graphics (MNG) is a compressed animation format.
-    <p>See <a href=http://www.libmng.com/pub/mng/>The MNG Home Site</a> for
+    <p>See <a href=http://www.libpng.org/pub/mng/>The MNG Home Site</a> for
     details of the format.
 */
 //#define QT_NO_IMAGEIO_MNG
