@@ -1,7 +1,6 @@
 #include "qtexttable.h"
 #include "qtextcursor.h"
 #include "qtextformat.h"
-#include "qtextblockiterator.h"
 #include <qdebug.h>
 #include "qtexttable_p.h"
 

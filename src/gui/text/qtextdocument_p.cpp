@@ -233,7 +233,7 @@ void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int bl
 
     QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blockFormat));
     if (group)
-        group->insertBlock(QTextBlockIterator(this, b));
+        group->insertBlock(QTextBlock(this, b));
 
     QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(formats.format(format)));
     if (frame) {
@@ -364,7 +364,7 @@ int QTextDocumentPrivate::remove_block(int pos, int *blockFormat, int command, U
 
     QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blocks.fragment(b)->format));
     if (group)
-        group->removeBlock(QTextBlockIterator(this, b));
+        group->removeBlock(QTextBlock(this, b));
 
     QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
     if (frame) {
@@ -480,11 +480,11 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
     if (n)
         unite(n);
 
-    QTextBlockIterator blockIt = blocksFind(startPos);
-    QTextBlockIterator endIt = blocksFind(endPos);
-    if (!endIt.atEnd())
-        ++endIt;
-    for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt)
+    QTextBlock blockIt = blocksFind(startPos);
+    QTextBlock endIt = blocksFind(endPos);
+    if (endIt.isValid())
+        endIt = endIt.next();
+    for (; blockIt.isValid() && blockIt != endIt; blockIt = blockIt.next())
         QTextDocumentPrivate::block(blockIt)->invalidate();
 
     documentChange(startPos, length);
@@ -493,7 +493,7 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
     endEditBlock();
 }
 
-void QTextDocumentPrivate::setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
+void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlock &to,
 				     const QTextBlockFormat &newFormat, FormatChangeMode mode)
 {
     beginEditBlock();
@@ -505,12 +505,12 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlockIterator &from, const 
         newFormatIdx = formats.indexForFormat(newFormat);
     QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(newFormat));
 
-    QTextBlockIterator it = from;
-    QTextBlockIterator end = to;
-    if (!end.atEnd())
-	++end;
+    QTextBlock it = from;
+    QTextBlock end = to;
+    if (end.isValid())
+	end = end.next();
 
-    for (; it != end; ++it) {
+    for (; it != end; it = it.next()) {
         int oldFormat = block(it)->format;
         QTextBlockFormat format = formats.blockFormat(oldFormat);
         QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(objectForFormat(format));
@@ -644,8 +644,8 @@ void QTextDocumentPrivate::undoRedo(bool undo)
 	}
 	case UndoCommand::BlockFormatChanged: {
             PMDEBUG("   blockformat: format %d pos %d", c.format, c.pos);
-            QTextBlockIterator it = blocksFind(c.pos);
-            Q_ASSERT(!it.atEnd());
+            QTextBlock it = blocksFind(c.pos);
+            Q_ASSERT(it.isValid());
 
             int oldFormat = block(it)->format;
             block(it)->format = c.format;
@@ -858,7 +858,7 @@ int QTextDocumentPrivate::nextCursorPosition(int position, QTextLayout::CursorMo
     if (position == length()-1)
         return position;
 
-    QTextBlockIterator it = blocksFind(position);
+    QTextBlock it = blocksFind(position);
     int start = it.position();
     int end = start + it.length() - 1;
     if (position == end)
@@ -872,7 +872,7 @@ int QTextDocumentPrivate::previousCursorPosition(int position, QTextLayout::Curs
     if (position == 0)
         return position;
 
-    QTextBlockIterator it = blocksFind(position);
+    QTextBlock it = blocksFind(position);
     int start = it.position();
     if (position == start)
         return start - 1;
@@ -889,10 +889,10 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
 
     QTextBlockGroup *b = qt_cast<QTextBlockGroup *>(obj);
     if (b) {
-        QList<QTextBlockIterator> blocks = b->blockList();
+        QList<QTextBlock> blocks = b->blockList();
         for (int i = 0; i < blocks.size(); ++i) {
             // invalidate blocks and tell layout
-            const QTextBlockIterator &block = blocks.at(i);
+            const QTextBlock &block = blocks.at(i);
             documentChange(block.position(), block.length());
         }
     }

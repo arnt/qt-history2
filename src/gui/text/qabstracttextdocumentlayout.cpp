@@ -114,60 +114,46 @@ void QAbstractTextDocumentLayout::invalidate(const QRegion & /* r */)
 {
 }
 
-QTextBlockIterator QAbstractTextDocumentLayout::findBlock(int pos) const
+QTextBlock QAbstractTextDocumentLayout::findBlock(int pos) const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return QTextBlockIterator();
-    return QTextBlockIterator(pieceTable, pieceTable->blockMap().findNode(pos));
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
+    return QTextBlock(pieceTable, pieceTable->blockMap().findNode(pos));
 }
 
-QTextBlockIterator QAbstractTextDocumentLayout::begin() const
+QTextBlock QAbstractTextDocumentLayout::begin() const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return QTextBlockIterator();
-    return QTextBlockIterator(pieceTable, pieceTable->blockMap().begin().n);
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
+    return QTextBlock(pieceTable, pieceTable->blockMap().begin().n);
 }
 
-QTextBlockIterator QAbstractTextDocumentLayout::end() const
+QTextBlock QAbstractTextDocumentLayout::end() const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return QTextBlockIterator();
-    return QTextBlockIterator(pieceTable, 0);
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
+    return QTextBlock(pieceTable, 0);
 }
 
 QTextFrame *QAbstractTextDocumentLayout::frameAt(int pos) const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return 0;
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     return pieceTable->frameAt(pos);
 }
 
 QTextFrame *QAbstractTextDocumentLayout::rootFrame() const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return 0;
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     return pieceTable->rootFrame();
 }
 
 
 int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return -1;
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     return pieceTable->find(pos).value()->format;
 }
 
 QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
-    if (!pieceTable)
-        return QTextCharFormat();
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     int idx = pieceTable->find(pos).value()->format;
     return pieceTable->formatCollection()->charFormat(idx);
 }
@@ -175,13 +161,13 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 
 QTextObject *QAbstractTextDocumentLayout::object(int objectIndex) const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     return pieceTable->objectForIndex(objectIndex);
 }
 
 QTextObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
 {
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     return pieceTable->objectForFormat(f);
 }
 
@@ -202,7 +188,7 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
     if (cursorPos == -1)
         return QString();
 
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
     QTextDocumentPrivate::FragmentIterator it = pieceTable->find(cursorPos);
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat(it->format);
     return fmt.anchorName();

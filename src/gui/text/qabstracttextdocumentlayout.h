@@ -12,7 +12,7 @@
 class QRect;
 class QRegion;
 class QAbstractTextDocumentLayoutPrivate;
-class QTextBlockIterator;
+class QTextBlock;
 class QTextObjectInterface;
 class QTextFrame;
 
@@ -60,9 +60,9 @@ protected:
     void invalidate(const QRect &r);
     void invalidate(const QRegion &r);
 
-    QTextBlockIterator findBlock(int pos) const;
-    QTextBlockIterator begin() const;
-    QTextBlockIterator end() const;
+    QTextBlock findBlock(int pos) const;
+    QTextBlock begin() const;
+    QTextBlock end() const;
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;

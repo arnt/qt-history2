@@ -44,6 +44,11 @@ QTextDocument *QTextObject::document() const
     return qt_cast<QTextDocument *>(parent());
 }
 
+QTextDocumentPrivate *QTextObject::docHandle() const
+{
+    return qt_cast<QTextDocument *>(parent())->docHandle();
+}
+
 
 QTextBlockGroup::QTextBlockGroup(QTextDocument *doc)
     : QTextObject(*new QTextBlockGroupPrivate, doc)
@@ -59,22 +64,22 @@ QTextBlockGroup::~QTextBlockGroup()
 {
 }
 
-void QTextBlockGroup::insertBlock(const QTextBlockIterator &block)
+void QTextBlockGroup::insertBlock(const QTextBlock &block)
 {
     QTextBlockGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
     d->blocks.insert(it, block);
 }
 
-void QTextBlockGroup::removeBlock(const QTextBlockIterator &block)
+void QTextBlockGroup::removeBlock(const QTextBlock &block)
 {
     d->blocks.removeAll(block);
 }
 
-void QTextBlockGroup::blockFormatChanged(const QTextBlockIterator &)
+void QTextBlockGroup::blockFormatChanged(const QTextBlock &)
 {
 }
 
-QList<QTextBlockIterator> QTextBlockGroup::blockList() const
+QList<QTextBlock> QTextBlockGroup::blockList() const
 {
     return d->blocks;
 }
@@ -226,7 +231,7 @@ void QTextFramePrivate::remove_me()
 
 QTextFrame::iterator QTextFrame::begin() const
 {
-    const QTextDocumentPrivate *priv = document()->data();
+    const QTextDocumentPrivate *priv = docHandle();
     int b = priv->blockMap().findNode(firstPosition());
     return iterator(this, b);
 }
@@ -265,13 +270,12 @@ const QTextFrame *QTextFrame::iterator::currentFrame() const
 
 QTextBlock QTextFrame::iterator::currentBlock() const
 {
-    const QTextDocumentPrivate *priv = f->document()->data();
-    return QTextBlock(priv, cb);
+    return QTextBlock(f->docHandle(), cb);
 }
 
 QTextFrame::iterator QTextFrame::iterator::operator++()
 {
-    const QTextDocumentPrivate *priv = f->document()->data();
+    const QTextDocumentPrivate *priv = f->docHandle();
     const QTextDocumentPrivate::BlockMap &map = priv->blockMap();
     if (cf) {
         int end = cf->lastPosition() + 1;
@@ -301,7 +305,7 @@ QTextFrame::iterator QTextFrame::iterator::operator++()
 
 QTextFrame::iterator QTextFrame::iterator::operator--()
 {
-    const QTextDocumentPrivate *priv = f->document()->data();
+    const QTextDocumentPrivate *priv = f->docHandle();
     const QTextDocumentPrivate::BlockMap &map = priv->blockMap();
     if (cf) {
         int start = cf->firstPosition() - 1;
@@ -445,6 +449,23 @@ QTextBlockFormat QTextBlock::blockFormat() const
     return p->formatCollection()->blockFormat(p->blockMap().fragment(n)->format);
 }
 
+
+/*!
+    Returns the QTextCharFormat that describes the character format for the block.
+    This is mainly used to draw block specific additions as e.g. list markers.
+ */
+QTextCharFormat QTextBlock::charFormat() const
+{
+    if (!p || !n)
+        return QTextFormat().toCharFormat();
+
+    const QTextDocumentPrivate::FragmentMap &fm = p->fragmentMap();
+    int pos = p->blockMap().position(n);
+    if (pos > 0)
+        --pos;
+    return p->formatCollection()->charFormat(fm.find(pos)->format);
+}
+
 /*!
     Returns the paragraph of plain text the block holds.
  */
@@ -497,6 +518,24 @@ QTextBlock::iterator QTextBlock::end() const
     int e = p->fragmentMap().findNode(pos+len);
     return iterator(p, b, e, e);
 }
+
+
+QTextBlock QTextBlock::next() const
+{
+    if (!p)
+        return QTextBlock();
+
+    return QTextBlock(p, p->blockMap().next(n));
+}
+
+QTextBlock QTextBlock::previous() const
+{
+    if (!p)
+        return QTextBlock();
+
+    return QTextBlock(p, p->blockMap().prev(n));
+}
+
 
 
 QTextFragment QTextBlock::iterator::fragment() const

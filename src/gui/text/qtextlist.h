@@ -22,10 +22,10 @@ public:
     inline bool isEmpty() const
     { return count() == 0; }
 
-    QTextBlockIterator item(int i) const;
+    QTextBlock item(int i) const;
 
-    int itemNumber(const QTextBlockIterator &) const;
-    QString itemText(const QTextBlockIterator &) const;
+    int itemNumber(const QTextBlock &) const;
+    QString itemText(const QTextBlock &) const;
 
     void removeItem(int i);
 

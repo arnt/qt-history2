@@ -6,6 +6,7 @@
 #include "qtextdocument.h"
 #include "qtextdocument_p.h"
 #include <private/qtextformat_p.h>
+#include "qtextobject.h"
 #endif // QT_H
 
 
@@ -27,8 +28,8 @@ public:
     void insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat);
     bool movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-    inline QTextBlockIterator block() const
-    { return pieceTable->blocksFind(position); }
+    inline QTextBlock block() const
+    { return QTextBlock(pieceTable, pieceTable->blockMap().findNode(position)); }
     inline QTextBlockFormat blockFormat() const
     { return block().blockFormat(); }
 

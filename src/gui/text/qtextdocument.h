@@ -45,9 +45,6 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextDocument)
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
-    friend class QTextEditor; // ####
-    friend class QTextCursor;
-    friend class QAbstractTextDocumentLayout;
 public:
     QTextDocument(QObject *parent = 0);
     QTextDocument(const QString &text, QObject *parent = 0);
@@ -89,7 +86,7 @@ public slots:
     void appendUndoItem(QAbstractUndoItem *);
 
 public:
-    const QTextDocumentPrivate *data() const;
+    QTextDocumentPrivate *docHandle() const;
 protected:
     virtual QTextObject *createObject(const QTextFormat &f);
 

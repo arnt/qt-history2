@@ -20,7 +20,6 @@ class QTextTableFormat;
 class QTextFrameFormat;
 class QTextImageFormat;
 class QTextFormat;
-class QTextBlockIterator;
 class QTextObject;
 class QTextCursor;
 class QTextDocument;

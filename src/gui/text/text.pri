@@ -20,7 +20,6 @@ HEADERS += \
 	text/qtextdocument_p.h \
 	text/qtexthtmlparser_p.h \
 	text/qabstracttextdocumentlayout.h \
-	text/qtextblockiterator.h \
 	text/qtextdocumentlayout_p.h \
 	text/qtextcursor.h \
 	text/qtextcursor_p.h \
@@ -39,7 +38,6 @@ SOURCES += \
 	text/qtextformat.cpp \
 	text/qtextobject.cpp \
 	text/qfragmentmap.cpp \
-	text/qtextblockiterator.cpp \
 	text/qtextdocument.cpp \
 	text/qtextdocument_p.cpp \
 	text/qtexthtmlparser.cpp \

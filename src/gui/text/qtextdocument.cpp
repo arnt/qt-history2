@@ -317,10 +317,10 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
     else
         cs = QString::CaseInsensitive;
 
-    QTextBlockIterator block = d->blocksFind(pos);
-    while (!block.atEnd()) {
+    QTextBlock block = d->blocksFind(pos);
+    while (block.isValid()) {
         const int blockOffset = qMax(0, pos - block.position());
-        QString text = block.blockText();
+        QString text = block.text();
         int idx = -1;
         QTextLayout *layout = block.layout();
 
@@ -350,7 +350,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
             return cursor;
         }
-        ++block;
+        block = block.next();
     }
 
     return QTextCursor();
@@ -395,7 +395,12 @@ QTextFrame *QTextDocument::rootFrame() const
     return d->rootFrame();
 }
 
-const QTextDocumentPrivate *QTextDocument::data() const
+/*!
+  \internal
+
+  So that not all classes have to be friends of each other...
+*/
+QTextDocumentPrivate *QTextDocument::docHandle() const
 {
-    return d;
+    return const_cast<QTextDocumentPrivate *>(d);
 }

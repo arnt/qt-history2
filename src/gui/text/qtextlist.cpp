@@ -2,7 +2,6 @@
 #include "qtextlist.h"
 #include "qtextobject_p.h"
 #include "qtextcursor.h"
-#include "qtextblockiterator.h"
 #include "qtextdocument_p.h"
 #include <qdebug.h>
 
@@ -67,10 +66,10 @@ int QTextList::count() const
 
     \sa count() item() itemText()
 */
-QTextBlockIterator QTextList::item(int i) const
+QTextBlock QTextList::item(int i) const
 {
     if (i < 0 || i >= d->blocks.size())
-        return QTextBlockIterator();
+        return QTextBlock();
     return d->blocks.at(i);
 }
 
@@ -89,7 +88,7 @@ QTextBlockIterator QTextList::item(int i) const
 /*!
     Returns the index of the list item at cursor position \a blockIt.
 */
-int QTextList::itemNumber(const QTextBlockIterator &blockIt) const
+int QTextList::itemNumber(const QTextBlock &blockIt) const
 {
     return d->blocks.indexOf(blockIt);
 }
@@ -97,13 +96,13 @@ int QTextList::itemNumber(const QTextBlockIterator &blockIt) const
 /*!
     Returns the text of the list item at cursor position \a blockIt.
 */
-QString QTextList::itemText(const QTextBlockIterator &blockIt) const
+QString QTextList::itemText(const QTextBlock &blockIt) const
 {
     int item = d->blocks.indexOf(blockIt) + 1;
     if (item <= 0)
         return QString();
 
-    QTextBlockIterator block = d->blocks.at(item-1);
+    QTextBlock block = d->blocks.at(item-1);
     QTextBlockFormat blockFormat = block.blockFormat();
 
     QString result;
@@ -144,10 +143,9 @@ void QTextList::removeItem(int i)
     if (i < 0 || i >= d->blocks.size())
         return;
 
-    QTextBlockIterator block = d->blocks.at(i);
+    QTextBlock block = d->blocks.at(i);
     QTextBlockFormat fmt = block.blockFormat();
     fmt.setIndent(fmt.indent() + format().indent());
     fmt.setObjectIndex(-1);
-    const_cast<QTextDocumentPrivate *>(block.pt)->setBlockFormat(block, block, fmt,
-                                                                           QTextDocumentPrivate::SetFormat);
+    block.docHandle()->setBlockFormat(block, block, fmt, QTextDocumentPrivate::SetFormat);
 }

@@ -6,7 +6,6 @@
 
 class QTextObjectPrivate;
 class QTextDocument;
-class QTextBlockIterator;
 class QTextCursor;
 class QTextBlock;
 class QTextFragment;
@@ -30,6 +29,8 @@ public:
     QTextDocument *document() const;
 
     int objectIndex() const;
+
+    QTextDocumentPrivate *docHandle() const;
 };
 
 class QTextBlockGroupPrivate;
@@ -45,11 +46,11 @@ protected:
     QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc);
     ~QTextBlockGroup();
 
-    virtual void insertBlock(const QTextBlockIterator &block);
-    virtual void removeBlock(const QTextBlockIterator &block);
-    virtual void blockFormatChanged(const QTextBlockIterator &block);
+    virtual void insertBlock(const QTextBlock &block);
+    virtual void removeBlock(const QTextBlock &block);
+    virtual void blockFormatChanged(const QTextBlock &block);
 
-    QList<QTextBlockIterator> blockList() const;
+    QList<QTextBlock> blockList() const;
 };
 
 class QTextFrameLayoutData {
@@ -118,15 +119,20 @@ protected:
 
 class QTextBlock
 {
-    const QTextDocumentPrivate *p;
+    QTextDocumentPrivate *p;
     int n;
+    friend class QTextDocumentPrivate;
 public:
-    inline QTextBlock(const QTextDocumentPrivate *priv, int b) : p(priv), n(b) {}
+    inline QTextBlock(QTextDocumentPrivate *priv, int b) : p(priv), n(b) {}
     inline QTextBlock() : p(0), n(0) {}
     inline QTextBlock(const QTextBlock &o) : p(o.p), n(o.n) {}
     inline QTextBlock &operator=(const QTextBlock &o) { p = o.p; n = o.n; return *this; }
 
     bool isValid() const { return p != 0 && n != 0; }
+
+    inline bool operator==(const QTextBlock &o) const { return p == o.p && n == o.n; }
+    inline bool operator!=(const QTextBlock &o) const { return p != o.p || n != o.n; }
+    inline bool operator<(const QTextBlock &o) const { return position() < o.position(); }
 
     int position() const;
     int length() const;
@@ -134,6 +140,7 @@ public:
 
     QTextLayout *layout() const;
     QTextBlockFormat blockFormat() const;
+    QTextCharFormat charFormat() const;
 
     QString text() const;
 
@@ -165,6 +172,11 @@ public:
 
     iterator begin() const;
     iterator end() const;
+
+    QTextBlock next() const;
+    QTextBlock previous() const;
+
+    inline QTextDocumentPrivate *docHandle() const { return p; }
 };
 
 Q_DECLARE_TYPEINFO(QTextBlock, Q_PRIMITIVE_TYPE);
@@ -181,6 +193,10 @@ public:
     inline QTextFragment() : p(0), n(0), ne(0) {}
     inline QTextFragment(const QTextFragment &o) : p(o.p), n(o.n), ne(o.ne) {}
     inline QTextFragment &operator=(const QTextFragment &o) { p = o.p; n = o.n; ne = o.ne; return *this; }
+
+    inline bool operator==(const QTextFragment &o) const { return p == o.p && n == o.n; }
+    inline bool operator!=(const QTextFragment &o) const { return p != o.p || n != o.n; }
+    inline bool operator<(const QTextFragment &o) const { return position() < o.position(); }
 
     int position() const;
     int length() const;

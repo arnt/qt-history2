@@ -11,9 +11,9 @@
 #include "qtextlayout.h"
 #include "qtextformat_p.h"
 #include "qtextdocument.h"
+#include "qtextobject.h"
 #include <qmap.h>
 
-#include <qtextblockiterator.h>
 #endif // QT_H
 // #define QT_QMAP_DEBUG
 
@@ -132,7 +132,7 @@ public:
     enum FormatChangeMode { MergeFormat, SetFormat };
 
     void setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode = SetFormat);
-    void setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
+    void setBlockFormat(const QTextBlock &from, const QTextBlock &to,
 			const QTextBlockFormat &newFormat, FormatChangeMode mode = SetFormat);
 
     void undoRedo(bool undo);
@@ -159,15 +159,15 @@ public:
     inline FragmentIterator begin() const { return fragments.begin(); }
     inline FragmentIterator end() const { return fragments.end(); }
 
-    inline QTextBlockIterator blocksBegin() const { return QTextBlockIterator(this, blocks.firstNode()); }
-    inline QTextBlockIterator blocksEnd() const { return QTextBlockIterator(this, 0); }
-    inline QTextBlockIterator blocksFind(int pos) const { return QTextBlockIterator(this, blocks.findNode(pos)); }
+    inline QTextBlock blocksBegin() const { return QTextBlock(const_cast<QTextDocumentPrivate *>(this), blocks.firstNode()); }
+    inline QTextBlock blocksEnd() const { return QTextBlock(const_cast<QTextDocumentPrivate *>(this), 0); }
+    inline QTextBlock blocksFind(int pos) const { return QTextBlock(const_cast<QTextDocumentPrivate *>(this), blocks.findNode(pos)); }
     inline int numBlocks() const { return blocks.numNodes(); }
 
     const BlockMap &blockMap() const { return blocks; }
     const FragmentMap &fragmentMap() const { return fragments; }
 
-    static const QTextBlockData *block(const QTextBlockIterator &it) { return it.pt->blocks.fragment(it.n); }
+    static const QTextBlockData *block(const QTextBlock &it) { return it.p->blocks.fragment(it.n); }
 
     inline QTextDocumentConfig *config() { return &docConfig; }
     inline const QTextDocumentConfig *config() const { return &docConfig; }

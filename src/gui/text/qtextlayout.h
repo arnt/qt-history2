@@ -75,7 +75,7 @@ public:
     QTextLayout(const QString& string, QPainter *);
     QTextLayout(const QString& string, const QFont& fnt);
     // ######### implement me!
-    // QTextLayout(QTextBlockIterator it);
+    // QTextLayout(const QTextBlock &b);
     ~QTextLayout();
 
     void setText(const QString& string, const QFont& fnt);

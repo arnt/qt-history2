@@ -70,7 +70,7 @@ void QTextCursorPrivate::setPosition(int newPosition)
 
 void QTextCursorPrivate::setX()
 {
-    QTextBlockIterator block = pieceTable->blocksFind(position);
+    QTextBlock block = pieceTable->blocksFind(position);
     const QTextLayout *layout = block.layout();
     int pos = position - block.position();
 
@@ -193,7 +193,7 @@ void QTextCursorPrivate::adjustCursor()
 bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
 {
     bool adjustX = true;
-    QTextBlockIterator blockIt = block();
+    QTextBlock blockIt = block();
 
     if (op >= QTextCursor::Left && op <= QTextCursor::WordRight
         && blockIt.blockFormat().direction() == QTextBlockFormat::RightToLeft) {
@@ -231,7 +231,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     case QTextCursor::PreviousBlock: {
         if (blockIt == pieceTable->blocksBegin())
             return false;
-        --blockIt;
+        blockIt = blockIt.previous();
 
         setPosition(blockIt.position());
         break;
@@ -263,10 +263,10 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                     }
                     blockIt = pieceTable->blocksFind(blockPosition);
                 } else {
-                    --blockIt;
+                    blockIt = blockIt.previous();
                 }
             } else {
-                --blockIt;
+                blockIt = blockIt.previous();
             }
             layout = blockIt.layout();
             i = layout->numLines()-1;
@@ -294,8 +294,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         break;
     }
     case QTextCursor::NextBlock: {
-        ++blockIt;
-        if (blockIt.atEnd())
+        blockIt = blockIt.next();
+        if (!blockIt.isValid())
             return false;
 
         setPosition(blockIt.position());
@@ -328,10 +328,10 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
                     }
                     blockIt = pieceTable->blocksFind(blockPosition);
                 } else {
-                    ++blockIt;
+                    blockIt = blockIt.next();
                 }
             } else {
-                ++blockIt;
+                blockIt = blockIt.next();
             }
 
             if (blockIt == pieceTable->blocksEnd())
@@ -474,7 +474,15 @@ QTextCursor::QTextCursor()
     Constructs a cursor pointing to the beginning of the \a document.
  */
 QTextCursor::QTextCursor(QTextDocument *document)
-    : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->d_func()))
+    : d(new QTextCursorPrivate(document->docHandle()))
+{
+}
+
+/*!
+    Constructs a cursor pointing to the beginning of the \a frame.
+*/
+QTextCursor::QTextCursor(QTextFrame *frame)
+    : d(new QTextCursorPrivate(frame->document()->docHandle()))
 {
 }
 
@@ -482,8 +490,8 @@ QTextCursor::QTextCursor(QTextDocument *document)
 /*!
     Constructs a cursor pointing to the beginning of the \a block.
 */
-QTextCursor::QTextCursor(const QTextBlockIterator &block)
-    : d(new QTextCursorPrivate(block.pt))
+QTextCursor::QTextCursor(const QTextBlock &block)
+    : d(new QTextCursorPrivate(block.docHandle()))
 {
     d->position = block.position();
 }
@@ -799,7 +807,7 @@ QTextDocumentFragment QTextCursor::selection() const
 /*!
     Returns an iterator for the block that contains the cursor.
 */
-QTextBlockIterator QTextCursor::block() const
+QTextBlock QTextCursor::block() const
 {
     return d->block();
 }
@@ -835,8 +843,8 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
         pos2 = d->position;
     }
 
-    QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
-    QTextBlockIterator to = d->pieceTable->blocksFind(pos2);
+    QTextBlock from = d->pieceTable->blocksFind(pos1);
+    QTextBlock to = d->pieceTable->blocksFind(pos2);
     d->pieceTable->setBlockFormat(from, to, format, QTextDocumentPrivate::SetFormat);
 }
 
@@ -858,8 +866,8 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
         pos2 = d->position;
     }
 
-    QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
-    QTextBlockIterator to = d->pieceTable->blocksFind(pos2);
+    QTextBlock from = d->pieceTable->blocksFind(pos1);
+    QTextBlock to = d->pieceTable->blocksFind(pos2);
     d->pieceTable->setBlockFormat(from, to, modifier, QTextDocumentPrivate::MergeFormat);
 }
 

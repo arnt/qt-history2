@@ -19,7 +19,7 @@ class QTextBlockGroupPrivate : public QTextObjectPrivate
     Q_DECLARE_PUBLIC(QTextBlockGroup)
 public:
 
-    typedef QList<QTextBlockIterator> BlockList;
+    typedef QList<QTextBlock> BlockList;
     BlockList blocks;
 };
 

@@ -16,7 +16,6 @@
 #include "qtextcursor.h"
 #include "qtextdocumentfragment.h"
 #include "qtextlist.h"
-#include <qtextblockiterator.h>
 
 #include <qdatetime.h>
 #include <qapplication.h>
@@ -347,7 +346,7 @@ void QTextEditPrivate::placeCursor(const QPoint &pos)
 
 void QTextEditPrivate::ensureCursorVisible()
 {
-    QTextBlockIterator block = cursor.block();
+    QTextBlock block = cursor.block();
     QTextLayout *layout = block.layout();
     QPoint layoutPos = layout->position();
     const int relativePos = cursor.position() - block.position();

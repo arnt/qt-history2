@@ -33,7 +33,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         const int inFragmentOffset = qMax(0, pos - fragIt.position());
         int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-        QTextBlockIterator nextBlock = pieceTable->blocksFind(pos + 1);
+        QTextBlock nextBlock = pieceTable->blocksFind(pos + 1);
 
         int blockIdx = -2;
         if (nextBlock.position() == pos + 1) {

@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include "qtextobject_p.h"
-#include "qtextblockiterator.h"
 #include "qtextdocument_p.h"
 #endif
 
