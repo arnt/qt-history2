@@ -689,8 +689,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    " " << fixEnvsList("QMAKE_LIBS") << "\";" << "\n";
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t\t" << "INSTALL_PATH = \"" << project->first("DESTDIR") << "\";" << "\n";
-    if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0")
-	t << "\t\t\t\t" << "DYLIB_CURRENT_VERSION = \"" << project->first("VERSION") << "\";" << "\n";
+    if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0") {
+	t << "\t\t\t\t" << "DYLIB_CURRENT_VERSION = \"" << project->first("VER_MAJ") << "." 
+	  << project->first("VER_MIN") << "." << project->first("VER_PAT")  << "\";" << "\n";
+	if(project->isEmpty("COMPAT_VERSION"))
+	    t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("VER_MAJ") << "." 
+	      << project->first("VER_MIN")  << "\";" << "\n";
+    }
+    if(!project->isEmpty("COMPAT_VERSION"))
+	t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";
+
 #if 0
     if(!project->isEmpty("OBJECTS_DIR"))
 	t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";

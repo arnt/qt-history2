@@ -1129,7 +1129,8 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["TARGET"] = project->variables()["TARGET_la"];
 	} else if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
-							project->first("TARGET") + "." + project->first("QMAKE_EXTENSION_SHLIB"));
+							project->first("TARGET") + "." + 
+							project->first("QMAKE_EXTENSION_SHLIB"));
 	    if(project->isActiveConfig("lib_version_first"))
 		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
 							project->first("VER_MAJ") + "." +
@@ -1238,6 +1239,21 @@ void UnixMakefileGenerator::init2()
     } else if ( project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
+	if(!project->isEmpty("QMAKE_LFLAGS_COMPAT_VERSION")) {
+	    if(project->isEmpty("COMPAT_VERSION"))
+		project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+								project->first("VER_MAJ") + "." +
+								project->first("VER_MIN"));
+	    else
+	       project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+							       project->first("COMPATIBILITY_VERSION"));
+	}
+	if(!project->isEmpty("QMAKE_LFLAGS_VERSION")) {
+	    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+							    project->first("VER_MAJ") + "." +
+							    project->first("VER_MIN") + "." +
+							    project->first("VER_PAT"));
+	}
 	if ( project->isActiveConfig("plugin") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
 	    if( project->isActiveConfig("plugin_with_soname") && !project->isActiveConfig("compile_libtool"))
