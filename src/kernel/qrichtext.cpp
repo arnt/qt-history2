@@ -287,8 +287,6 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
     int idx = startIndex;
     int fIndex = 0;
     while ( TRUE ) {
-	if ( oldFormats.at( fIndex ).c == '\n' )
-	    fIndex++;
 	if ( oldFormats.at( fIndex ).format() )
 	    sp->setFormat( idx, 1, oldFormats.at( fIndex ).format() );
 	idx++;
@@ -454,6 +452,7 @@ void QTextCursor::insert( const QString &s, bool checkNewLine, QArray<QTextStrin
 		}
 		lastIndex += len;
 	    }
+
 	    idx += s.length();
 	}
 	string->format( -1, FALSE );
