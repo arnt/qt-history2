@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#67 $
 **
 ** Implementation of layout classes
 **
@@ -290,7 +290,7 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
     setDirty();
 }
 
-//#### should be QLayoutItem
+
 void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 			int col1, int col2  )
 {
@@ -782,14 +782,32 @@ void QGridLayout::addItem( QLayoutItem *item )
 
 
 /*!
-  Adds \a box at position \a row, \a col. The layout takes over ownership
-  of \a box.
+  Adds \a item at position \a row, \a col. The layout takes over ownership
+  of \a item.
 */
 
 void QGridLayout::add( QLayoutItem *item, int row, int col )
 {
     QLayoutBox *box = new QLayoutBox( item );
     array->add( box, row, col );
+}
+
+
+
+/*!
+  Adds the widget \a w to the cell grid, spanning multiple rows/columns.
+
+  Alignment is specified by \a align
+
+*/
+
+void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
+  int fromCol, int toCol, int align )
+{
+    QLayoutBox *b = new QLayoutBox( item );
+    b->setAlignment( align );
+    array->add( b, fromRow, toRow, fromCol, toCol );
+    
 }
 
 
@@ -814,19 +832,14 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 /*!
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
-  Note that multicell widgets do not influence the minimum or maximum
-  size of columns/rows they span. Use addColSpacing() or addRowSpacing()
-  to set minimum sizes explicitly.
-
   Alignment is specified by \a align which takes the same arguments as
-  QLabel::setAlignment(), alignment has no effect unless you have set
-  QWidget::maximumSize().
+  QLabel::setAlignment().
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 				      int fromCol, int toCol, int align	 )
 {
-    QLayoutBox *b = new QLayoutBox( w );  //#### should be QLayoutItem
+    QLayoutBox *b = new QLayoutBox( w );
     b->setAlignment( align );
     array->add( b, fromRow, toRow, fromCol, toCol );
 }
@@ -1341,5 +1354,6 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+
 
 

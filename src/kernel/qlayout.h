@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#32 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#33 $
 **
 ** Definition of layout classes
 **
@@ -55,6 +55,8 @@ public:
     void invalidate();
 
     void addItem( QLayoutItem * );
+    void addMultiCell( QLayoutItem *, int fromRow, int toRow,
+			       int fromCol, int toCol, int align = 0 );
     // void setAlignment( QWidget* );
 
     void addWidget( QWidget *, int row, int col, int align = 0 );
