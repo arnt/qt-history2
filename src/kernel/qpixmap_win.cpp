@@ -629,32 +629,58 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    ( QApplication::winVersion() != Qt::WV_95 &&
 	      QApplication::winVersion() != Qt::WV_NT ) ) {
 #  endif
-	// Windows expects premultiplied alpha
-	int l = image.numBytes();
-	uchar *b;
-	HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&b, NULL, 0 );
-	memcpy( b, image.bits(), l );
 	bool hasRealAlpha = FALSE;
-	for ( int i=0; i+3<l; i+=4 ) {
-	    if ( b[i+3] == 0 ) {
-		b[i]   = 0;
-		b[i+1] = 0;
-		b[i+2] = 0;
-	    } else if ( b[i+3] != 255 ) {
-		hasRealAlpha = TRUE;
-		b[i]   = ((int)b[i]  *b[i+3]) / 255;
-		b[i+1] = ((int)b[i+1]*b[i+3]) / 255;
-		b[i+2] = ((int)b[i+2]*b[i+3]) / 255;
+	int i = 0;
+	while ( i<image.height() && !hasRealAlpha ) {
+	    uchar *p = image.scanLine(i);
+	    uchar *end = p + image.width();
+	    p += 3;
+	    while ( p < end ) {
+		if ( *p!=0 && *p!=0xff ) {
+		    hasRealAlpha = TRUE;
+		    break;
+		}
+		p += 4;
 	    }
+	    ++i;
 	}
+
 	if ( hasRealAlpha ) {
+	    uchar *ppvBits;
+	    HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&ppvBits, NULL, 0 );
+	    memcpy( ppvBits, image.bits(), image.numBytes() );
+
+	    // Windows expects premultiplied alpha
+	    uchar *p = image.bits();
+	    uchar *b = ppvBits;
+	    uchar *end = p + image.numBytes();
+	    uchar alphaByte;
+	    while ( p < end ) {
+		alphaByte = *(p+3);
+		if ( alphaByte == 0 ) {
+		    *(b++) = 0;
+		    *(b++) = 0;
+		    *(b++) = 0;
+		    b++;
+		    p += 4;
+		} else if ( alphaByte == 255 ) {
+		    b += 4;
+		    p += 4;
+		} else {
+		    *(b++) = ( (*(p++)) * (int)alphaByte ) / 255;
+		    *(b++) = ( (*(p++)) * (int)alphaByte ) / 255;
+		    *(b++) = ( (*(p++)) * (int)alphaByte ) / 255;
+		    b++;
+		    p++;
+		}
+	    }
+
 	    DeleteObject( DATA_HBM );
 	    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
-	    data->realAlphaBits = b;
-	} else {
-	    data->realAlphaBits = 0;
+	    data->realAlphaBits = ppvBits;
+
+	    DeleteObject( hBitmap );
 	}
-	DeleteObject( hBitmap );
     }
 #else
     data->realAlphaBits = 0;
