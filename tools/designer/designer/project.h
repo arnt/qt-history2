@@ -151,7 +151,7 @@ public:
     bool openDatabase( const QString &connection, bool suppressDialog = TRUE );
     void closeDatabase( const QString &connection );
 
-    QObjectList *formList() const;
+    QObjectList *formList( bool resolveFakeObjects = FALSE ) const;
 
     DesignerProject *iFace();
 

@@ -622,13 +622,16 @@ QObjectList *MainWindow::runProject()
 		qwf_form_object = 0;
 	    QWidget *w = QWidgetFactory::create( (*it2)->absFileName(), 0, invisibleGroupLeader );
 	    if ( w ) {
-		l->append( w );
+		if ( !qwf_form_object )
+		    l->append( w );
+		else
+		    l->append( qwf_form_object );
 		w->hide();
 	    }
 	}
 
 	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    QWidget *fw = findRealForm( (QWidget*)o );
+	    FormWindow *fw = (FormWindow*)findRealForm( (QWidget*)o );
 	    if ( !fw )
 		continue;
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
@@ -652,6 +655,7 @@ QObjectList *MainWindow::runProject()
 	if ( e2->project() == currentProject )
 	    e2->editorInterface()->setMode( EditorInterface::Debugging );
     }
+
     return l;
 }
 
@@ -3111,7 +3115,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	SourceEditor *se = 0;
 	SourceFile *sf = 0;
 	if ( w->inherits( "FormWindow" ) ) {
-	    fw = (FormWindow*)fw;
+	    fw = (FormWindow*)w;
 	} else if ( w->inherits( "SourceEditor" ) ) {
 	    se = (SourceEditor*)w;
 	    if ( !se->object() )
@@ -3125,7 +3129,8 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	if ( fw ) {
 	    if ( fw->project() != currentProject )
 		continue;
-	    if ( QString( fw->name() ) == QString( o->name() ) ) {
+	    if ( qstrcmp( fw->name(), o->name() ) == 0 ||
+		 fw->isFake() && currentProject->objectForFakeForm( fw ) == o ){
 		if ( se ) {
 		    switch ( lm ) {
 		    case Error:
@@ -3140,6 +3145,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 		    }
 		    return;
 		} else {
+		    fw->showNormal();
 		    fw->setFocus();
 		    lastActiveFormWindow = fw;
 		    qApp->processEvents();
@@ -3236,6 +3242,9 @@ QWidget *MainWindow::findRealForm( QWidget *wid )
 	     qstrcmp( (*it)->formWindow()->mainContainer()->name(), wid->name() ) == 0 )
 	    return (*it)->formWindow();
     }
+
+    if ( currentProject->fakeFormFor( wid ) )
+	return currentProject->fakeFormFor( wid );
 
     return 0;
 }

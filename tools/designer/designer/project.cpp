@@ -975,13 +975,18 @@ void Project::closeDatabase( const QString &connection )
 //     formWindows.remove( fw );
 // }
 
-QObjectList *Project::formList() const
+QObjectList *Project::formList( bool resolveFakeObjects ) const
 {
     QObjectList *l = new QObjectList;
     for ( QPtrListIterator<FormFile> forms(formfiles);   forms.current(); ++forms ) {
 	FormFile* f = forms.current();
 	if ( f->formWindow() ) {
-	    l->append( f->formWindow()->child( 0, "QWidget" ) );
+	    if ( resolveFakeObjects && f->formWindow()->isFake() )
+		l->append( objectForFakeForm( f->formWindow() ) );
+	    else
+		l->append( f->formWindow()->child( 0, "QWidget" ) );
+	} else if ( f->isFake() ) {
+	    l->append( objectForFakeFormFile( f ) );
 	}
     }
     return l;

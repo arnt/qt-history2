@@ -412,10 +412,15 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		    if ( fit != widgetFactory->languageFunctions.end() ) {
 			QString funcs = (*fit)->functions;
 			funcs += "\n";
-			for ( QStringList::Iterator vit = widgetFactory->variables.begin(); vit != widgetFactory->variables.end(); ++vit )
+			for ( QStringList::Iterator vit = widgetFactory->variables.begin();
+			      vit != widgetFactory->variables.end(); ++vit )
 			    funcs += interpreterInterface->createVariableDeclaration( *vit ) + "\n";
-			if ( qwf_execute_code )
-			    interpreterInterface->exec( widgetFactory->toplevel, funcs );
+			if ( qwf_execute_code ) {
+			    if ( qwf_form_object )
+				interpreterInterface->exec( qwf_form_object, funcs );
+			    else
+				interpreterInterface->exec( widgetFactory->toplevel, funcs );
+			}
 		    }
 		    if ( widgetFactory->languageFunctions.isEmpty() && qwf_execute_code )
 			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );
@@ -428,8 +433,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			    for ( QStringList::Iterator fit2 = funcs.begin(); fit2 != funcs.end(); ++fit2 ) {
 				if ( widgetFactory->languageSlots.find( *fit2 ) !=
 				     widgetFactory->languageSlots.end() && qwf_execute_code ) {
-				    eventInterface->addEventHandler( it.key(),
-								     widgetFactory->toplevel, *eit, *fit2 );
+				    if ( qwf_form_object )
+					eventInterface->addEventHandler( it.key(),
+									 qwf_form_object
+									 , *eit, *fit2 );
+				    else
+					eventInterface->addEventHandler( it.key(),
+									 widgetFactory->toplevel,
+									 *eit, *fit2 );
 				}
 			    }
 			}
