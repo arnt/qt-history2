@@ -646,10 +646,6 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 	answerRect = QRect( c->mapToGlobal( answerRect.topLeft() ),
 			    answerRect.size() );
 
-	if ( answerRect.width() < 0 )
-	    answerRect.setWidth( 0 );
-	if ( answerRect.height() < 0 )
-	    answerRect.setHeight( 0 );
 	if ( answerRect.left() < 0 )
 	    answerRect.setLeft( 0 );
 	if ( answerRect.right() > 4096 )
@@ -658,6 +654,10 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 	    answerRect.setTop( 0 );
 	if ( answerRect.bottom() > 4096 )
 	    answerRect.setBottom( 4096 );
+	if ( answerRect.width() < 0 )
+	    answerRect.setWidth( 0 );
+	if ( answerRect.height() < 0 )
+	    answerRect.setHeight( 0 );
 
 	response.data.l[2] = (answerRect.x() << 16) + answerRect.y();
 	response.data.l[3] = (answerRect.width() << 16) + answerRect.height();

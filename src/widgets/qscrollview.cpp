@@ -2557,7 +2557,7 @@ void QScrollView::stopDragAutoScroll()
 */
 void QScrollView::doDragAutoScroll()
 {
-    QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
+    QPoint p = d->viewport->mapFromGlobal( QCursor::pos() );
 
     if ( d->autoscroll_accel-- <= 0 && d->autoscroll_time ) {
         d->autoscroll_accel = initialScrollAccel;
