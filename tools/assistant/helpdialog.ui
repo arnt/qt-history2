@@ -149,7 +149,7 @@
                     <cstring>Widget9</cstring>
                 </property>
                 <attribute name="title">
-                    <string>&amp;Bookmarks</string>
+                    <string>Boo&amp;kmarks</string>
                 </attribute>
                 <vbox>
                     <property name="name">
@@ -230,7 +230,7 @@
                                     <cstring>buttonRemove</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>D&amp;elete</string>
+                                    <string>&amp;Delete</string>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Delete bookmark</string>
@@ -312,7 +312,7 @@
                             <cstring>TextLabel2</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Found Documents:</string>
+                            <string>Found &amp;Documents:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>resultBox</cstring>
@@ -331,7 +331,7 @@
                                     <cstring>helpButton</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Help</string>
+                                    <string>He&amp;lp</string>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Display the help page.</string>
@@ -362,7 +362,7 @@
                                     <cstring>searchButton</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>Sea&amp;rch</string>
+                                    <string>&amp;Search</string>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Start searching.</string>
