@@ -188,6 +188,9 @@ public:
 	{ drawText(x, y, s.left(len), dir); }
     QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
 	{ drawText(p, s.left(len), dir); }
+#ifndef QT_NO_PICTURE
+    QT_COMPAT void drawPicture( const QPicture &p ) { drawPicture(0, 0, p); }
+#endif
 #endif
 
     void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
