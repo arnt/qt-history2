@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "qcolor.h"
+#include "qcolor_p.h"
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
@@ -183,8 +184,6 @@ uint QColor::alloc()
     pix = (b & blue_mask) | (g & green_mask) | (r & red_mask);
     return 0xff000000 | pix;
 }
-
-extern uint qt_get_rgb_val( const char *name ); // qcolor_p.cpp
 
 void QColor::setSystemNamedColor( const QString& name )
 {

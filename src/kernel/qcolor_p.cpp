@@ -1,9 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#29 $
-**
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
+** $Id: //depot/qt/main/src/kernel/qcolor_p.cpp#1 $
 **
 ** Named color support for non-X platforms.
 ** The color names have been borrowed from X.
@@ -732,7 +728,10 @@ static int rgb_cmp( const void *d1, const void *d2 )
 uint qt_get_rgb_val( const char *name )
 {
     RGBData x;
-    x.name = (char *)name;
+    x.name = name;
+    // Funtion bsearch() is supposed to be
+    // void *bsearch(const void *key, const void *base, ...
+    // So why (char*)? Are there broken bsearch() declarations out there?
     RGBData *r = (RGBData*)bsearch((char*)&x, (char*)rgbTbl, rgbTblSize,
 				   sizeof(RGBData), rgb_cmp);
     return r ? r->value : RGB_INVALID;
