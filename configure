@@ -803,13 +803,13 @@ mkdir -p $outpath/src/tools
 cat > $outpath/src/tools/qconfig.cpp.new <<EOF
 /* Install paths from configure */
 
-static const char QT_INSTALL_PREFIX [256] = "$QT_INSTALL_PREFIX";
-static const char QT_INSTALL_BINS   [256] = "$QT_INSTALL_BINS";
-static const char QT_INSTALL_DOCS   [256] = "$QT_INSTALL_DOCS";
-static const char QT_INSTALL_HEADERS[256] = "$QT_INSTALL_HEADERS";
-static const char QT_INSTALL_LIBS   [256] = "$QT_INSTALL_LIBS";
-static const char QT_INSTALL_PLUGINS[256] = "$QT_INSTALL_PLUGINS";
-static const char QT_INSTALL_DATA   [256] = "$QT_INSTALL_DATA";
+static const char QT_INSTALL_PREFIX [] = "$QT_INSTALL_PREFIX";
+static const char QT_INSTALL_BINS   [] = "$QT_INSTALL_BINS";
+static const char QT_INSTALL_DOCS   [] = "$QT_INSTALL_DOCS";
+static const char QT_INSTALL_HEADERS[] = "$QT_INSTALL_HEADERS";
+static const char QT_INSTALL_LIBS   [] = "$QT_INSTALL_LIBS";
+static const char QT_INSTALL_PLUGINS[] = "$QT_INSTALL_PLUGINS";
+static const char QT_INSTALL_DATA   [] = "$QT_INSTALL_DATA";
 
 const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }
 const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }
@@ -2051,6 +2051,7 @@ full)
     ;;
 esac
 cat >> $outpath/include/qconfig.h.new <<EOF
+
 /* Install paths from configure */
 const char *qInstallPath();
 const char *qInstallPathDocs();
