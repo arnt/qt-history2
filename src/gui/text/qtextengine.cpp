@@ -1171,7 +1171,7 @@ struct JustificationPoint {
 
 Q_DECLARE_TYPEINFO(JustificationPoint, Q_PRIMITIVE_TYPE);
 
-void set(JustificationPoint *point, int type, QGlyphLayout *glyph, QFontEngine *fe)
+static void set(JustificationPoint *point, int type, QGlyphLayout *glyph, QFontEngine *fe)
 {
     point->type = type;
     point->glyph = glyph;
