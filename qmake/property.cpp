@@ -57,10 +57,52 @@ QMakeProperty::value(QString v, bool just_check)
         return qInstallPath();
 #endif
     } else if(v == "QT_INSTALL_DATA") {
-#ifdef QT_INSTALL_DATA
-        return QT_INSTALL_DATA;
-#elif defined(HAVE_QCONFIG_CPP)
+#if defined(HAVE_QCONFIG_CPP)
         return qInstallPathData();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_PREFIX") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPath();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_DOCS") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPathDocs();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_HEADERS") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPathHeaders();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_LIBS") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPathLibs();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_BINS") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPathBins();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_PLUGINS") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPathPlugins();
+#else
+        return QString();
+#endif
+    } else if(v == "QT_INSTALL_TRANSLATIONS") {
+#if defined(HAVE_QCONFIG_CPP)
+        return qInstallPathTranslations();
+#else
+        return QString();
 #endif
     } else if(v == "QMAKE_MKSPECS") {
         return qmake_mkspec_paths().join(Option::target_mode == Option::TARG_WIN_MODE ? ";" : ":");
