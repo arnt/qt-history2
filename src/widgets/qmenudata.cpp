@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#56 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#56 $");
 
 
 /*!
@@ -657,8 +657,8 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 	    !mi->text();
 	if ( !mi->text_data.isNull() )		// delete text
 	    mi->text_data.resize( 0 );
-	delete mi->pixmap_data;
 	mi->pixmap_data = new QPixmap( pixmap );
+	delete i; // old mi->pixmap_data, could be &pixmap
 	if ( fast_refresh )			// fast update
 	    updateItem( id );
 	else
@@ -684,8 +684,8 @@ void QMenuData::changeItem( const QPixmap &pixmap, const char *text, int id )
 	    fast_refresh = FALSE;
 	    mi->text_data = text;
 	}
-	delete mi->pixmap_data;
 	mi->pixmap_data = new QPixmap( pixmap );
+	delete i; // old mi->pixmap_data, could be &pixmap
 	if ( fast_refresh ) {			// fast update
 	    updateItem( id );
 	} else {
