@@ -118,7 +118,7 @@
   stop printing. It may cancel the entire job or just part of it.
 
   If your current locale converts "," to ".", you will need to set
-  a locale that doen't do this (e.g. the "C" locale) before using
+  a locale that doesn't do this (e.g. the "C" locale) before using
   QPrinter.
 
   The TrueType font embedding for Qt's postscript driver uses code
