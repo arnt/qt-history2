@@ -4667,6 +4667,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::FontChange:
     case QEvent::StyleChange:
     case QEvent::PaletteChange:
+    case QEvent::WindowTitleChange:
     case QEvent::IconTextChange:
     case QEvent::ModifiedChange:
         changeEvent(e);
@@ -6260,7 +6261,7 @@ int QWidget::grabShortcut(const QKeySequence &key, ShortcutContext context)
 
   When a shortcut is released it's removed from the shortcut system, and
   the widget will not receive QShortcut events for that key sequence, unless
-  the widget has grabbed the same key sequence several times. 
+  the widget has grabbed the same key sequence several times.
 
   It is not recommended to release shortcuts manually since this is done
   automatically on widget destruction, and is a rather expensive operation.
