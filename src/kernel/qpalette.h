@@ -117,7 +117,7 @@ public:
    ~QPalette();
     QPalette &operator=( const QPalette & );
 
-    enum ColorGroup { Disabled, Active, Inactive, NColorGroups };
+    enum ColorGroup { Disabled, Active, Inactive, NColorGroups, Normal=Active };
 
     const QColor &color( ColorGroup, QColorGroup::ColorRole ) const;
     const QBrush &brush( ColorGroup, QColorGroup::ColorRole ) const;
