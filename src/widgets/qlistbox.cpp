@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#132 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#131 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#132 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -331,7 +331,7 @@ int QListBoxPixmap::width( const QListBox * ) const
   If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
 
-  A list box has \c StrongFocus as a default focusPolicy(), i.e. it can 
+  A list box has \c StrongFocus as a default focusPolicy(), i.e. it can
   get keyboard focus both by tabbing and clicking.
 
   New items may be inserted using either insertItem(), insertStrList()
@@ -458,7 +458,7 @@ QListBox::~QListBox()
   listbox changes. If the user selects five items by drag-selecting,
   QListBox tries to emit just one selectionChanged() signal, so the
   signal can be connected to computationally expensive slots.
-  
+
   \sa selected() currentItem()
 */
 
@@ -474,7 +474,7 @@ QListBox::~QListBox()
 
   This signal is emitted when the user highlights a new current item
   and the new item is a string.  The argument is the text of the
-  new current item.  
+  new current item.
 
   \sa selected() currentItem() selectionChanged()
 */
@@ -1253,7 +1253,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
 	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2, 
+	    p->drawWinFocusRect( 1, 1, cellWidth(col)-2 , cellHeight(row)-2,
 				 QApplication::winStyleHighlightColor() );
 	} else {
 	    if ( isSelected( row ) )
@@ -1335,11 +1335,12 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		isTiming = FALSE;
 	    }
 	    if ( multiSelect ) {
+		bool s = currentItem() >= 0 ? currentItem() : TRUE;
 		int i = QMIN( itemClicked, currentItem() );
 		if ( i < 0 )
 		    i = 0;
 		while( i <= itemClicked || i <= currentItem() ) {
-		    setSelected( i, isSelected( currentItem() ) );
+		    setSelected( i, isSelected( s ) );
 		    i++;
 		}
 	    }
@@ -1443,7 +1444,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 /*!
   Handles focus events.  Repaints the current item (if not set,
-  topItem() is made current).  
+  topItem() is made current).
   \sa keyPressEvent(), focusOutEvent()
 */
 
@@ -1456,7 +1457,7 @@ void QListBox::focusInEvent( QFocusEvent * )
 }
 
 
-/*! 
+/*!
   Handles focus out events. Repaints the current item, if set.
   \sa keyPressEvent(), focusOutEvent()
 */
@@ -1670,7 +1671,7 @@ void QListBox::updateNumRows( bool updateWidth )
 
 
 /*!
-  Returns the width in pixels of the longest item. 
+  Returns the width in pixels of the longest item.
 */
 
 long QListBox::maxItemWidth()
@@ -1752,7 +1753,7 @@ void QListBox::toggleCurrentItem()
   unselects it if \a select is FALSE.  May also repaint the item.
 
   If the listbox is a single-selection listbox and and \a select is TRUE,
-  setCurrentItem will be called. 
+  setCurrentItem will be called.
 
   If the listbox is a single-selection listbox and and \a select is FALSE,
   clearSelection() will be called if \a index is the currently selected
@@ -1787,7 +1788,7 @@ void QListBox::setSelected( int index, bool select )
 
 
 /*!
-  Returns TRUE if item \a i is selected. Returns FALSE if it is not 
+  Returns TRUE if item \a i is selected. Returns FALSE if it is not
   selected or if there is an error.
 */
 
@@ -1824,14 +1825,14 @@ void QListBox::clearSelection()
     }
 }
 
-    
-    
+
+
 
 
 /*!  If \a lazy is FALSE, maybe emit the changed() signal.  If \a lazy
   is TRUE, note that it's to be sent out at some later time.
 */
- 
+
 void QListBox::emitChangedSignal( bool lazy ) {
     if ( !multiSelect )
 	return;
