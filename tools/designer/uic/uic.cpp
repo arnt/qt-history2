@@ -1207,8 +1207,10 @@ int main( int argc, char * argv[] )
     out.setEncoding( QTextStream::UnicodeUTF8 );
 
     QDomDocument doc;
-    if ( !doc.setContent( &file ) )
-	qFatal( "uic: Failed to parse %s\n", fileName );
+    QString errMsg;
+    int errLine;
+    if ( !doc.setContent( &file, &errMsg, &errLine ) )
+	qFatal( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d\n"), fileName, errLine );
 
     DomTool::fixDocument( doc );
 
