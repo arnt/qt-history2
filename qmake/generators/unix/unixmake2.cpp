@@ -529,11 +529,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << endl << endl;
 	}
     } else {
-	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET) " 
-	  << varList("QMAKE_AR_SUBLIBS") << "\n\n"
-	  << "staticlib: $(TARGET)" << "\n\n";
+	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << var("DESTDIR") << "$(TARGET) " 
+	  << varGlue("QMAKE_AR_SUBLIBS", var("DESTDIR"), " " + var("DESTDIR"), "") << "\n\n"
+	  << "staticlib: " << var("DESTDIR") << "$(TARGET)" << "\n\n";
 	if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
-	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(TARGETDEPS) " << "\n\t";
+	    t << var("DESTDIR") << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(TARGETDEPS) " << "\n\t";
 	    if(!project->isEmpty("DESTDIR")) {
 		QString destdir = project->first("DESTDIR");
 		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
@@ -544,6 +544,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		t << "\t" << var("QMAKE_POST_LINK") << "\n";
 	    if(!project->isEmpty("QMAKE_RANLIB"))
 		t << "\t" << "$(RANLIB) $(TARGET)" << "\n";
+	    if(!project->isEmpty("DESTDIR")) 
+		t << "\t" << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)" << "\n"
+		  << "\t" << "-$(MOVE) $(TARGET) " << var("DESTDIR") << "\n";
 	} else {
 	    int cnt = 0, max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt();
 	    QStringList objs = project->variables()["OBJECTS"] + project->variables()["OBJMOC"],
@@ -556,7 +559,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    build << (*objit);
 		QString ar;
 		if((*libit) == "$(TARGET)") {
-		    t << "$(TARGET): $(UICDECLS) " << " $(TARGETDEPS) " 
+		    t << var("DESTDIR") << "$(TARGET): $(UICDECLS) " << " $(TARGETDEPS) " 
 		      << valList(build) << "\n\t";
 		    ar = project->variables()["QMAKE_AR_CMD"].first();
 		    ar = ar.replace("$(OBJMOC)", "").replace("$(OBJECTS)", 
@@ -575,6 +578,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    t << "\t" << var("QMAKE_POST_LINK") << "\n";
 		if(!project->isEmpty("QMAKE_RANLIB"))
 		    t << "\t" << "$(RANLIB) " << (*libit) << "\n";
+		if(!project->isEmpty("DESTDIR")) 
+		    t << "\t" << "-$(DEL_FILE) " << var("DESTDIR") << (*libit) << "\n"
+		      << "\t" << "-$(MOVE) " << (*libit) << " " << var("DESTDIR") << "\n";
 	    }
 	}
 	t << endl << endl;
@@ -899,7 +905,7 @@ void UnixMakefileGenerator::init2()
 #endif
 	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
     } else if ( project->isActiveConfig("staticlib") ) {
-	project->variables()["TARGET"].first().prepend(project->first("DESTDIR") + "lib");
+	project->variables()["TARGET"].first().prepend("lib");
 	project->variables()["TARGET"].first() += ".a";
 	if(project->variables()["QMAKE_AR_CMD"].isEmpty())
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)");
