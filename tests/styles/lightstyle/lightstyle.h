@@ -26,58 +26,37 @@ public:
     void polish(QApplication *app);
     void unPolish(QApplication *app);
 
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect &r,
-			const QColorGroup &cg,
-			SFlags flags = Style_Default,
-			const QStyleOption &data = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement, QPainter *, const QRect &, const QColorGroup &,
+		       SFlags = Style_Default,
+		       const QStyleOption & = QStyleOption::Default ) const;
 
-    void drawControl( ControlElement control,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QColorGroup &cg,
-		      SFlags flags = Style_Default,
-		      const QStyleOption &data = QStyleOption::Default ) const;
-    void drawControlMask( ControlElement control,
-			  QPainter *p,
-			  const QWidget *widget,
-			  const QRect &r,
-			  const QStyleOption &data = QStyleOption::Default ) const;
+    void drawControl(ControlElement, QPainter *, const QWidget *, const QRect &,
+		     const QColorGroup &, SFlags = Style_Default,
+		     const QStyleOption & = QStyleOption::Default ) const;
+    void drawControlMask(ControlElement, QPainter *, const QWidget *, const QRect &,
+			 const QStyleOption & = QStyleOption::Default) const;
 
-    void drawComplexControl( ComplexControl control,
-			     QPainter* p,
-			     const QWidget* widget,
-			     const QRect& r,
-			     const QColorGroup& cg,
-			     SFlags flags = Style_Default,
-			     SCFlags controls = SC_All,
-			     SCFlags active = SC_None,
-			     const QStyleOption &data = QStyleOption::Default ) const;
+    QRect subRect(SubRect, const QWidget *) const;
 
-    QRect querySubControlMetrics( ComplexControl control,
-				  const QWidget *widget,
-				  SubControl sc,
-				  const QStyleOption &data = QStyleOption::Default ) const;
+    void drawComplexControl(ComplexControl, QPainter *, const QWidget *, const QRect &,
+			    const QColorGroup &, SFlags = Style_Default,
+			    SCFlags = SC_All, SCFlags = SC_None,
+			    const QStyleOption & = QStyleOption::Default ) const;
 
-    SubControl querySubControl( ComplexControl control,
-				const QWidget *widget,
-				const QPoint &pos,
-				const QStyleOption &data = QStyleOption::Default ) const;
+    QRect querySubControlMetrics(ComplexControl, const QWidget *, SubControl,
+				 const QStyleOption & = QStyleOption::Default ) const;
 
-    int pixelMetric( PixelMetric metric,
-		     const QWidget *widget = 0 ) const;
+    SubControl querySubControl(ComplexControl, const QWidget *, const QPoint &,
+			       const QStyleOption &data = QStyleOption::Default ) const;
 
-    QSize sizeFromContents( ContentsType contents,
-			    const QWidget *widget,
-			    const QSize &contentsSize,
-			    const QStyleOption &data = QStyleOption::Default ) const;
+    int pixelMetric(PixelMetric, const QWidget * = 0 ) const;
 
-    int styleHint( StyleHint stylehint,
-		   const QWidget *widget = 0,
-		   const QStyleOption & = QStyleOption::Default,
-		   QStyleHintReturn* returnData = 0 ) const;
+    QSize sizeFromContents(ContentsType, const QWidget *, const QSize &,
+			   const QStyleOption & = QStyleOption::Default ) const;
+
+    int styleHint(StyleHint, const QWidget * = 0,
+		  const QStyleOption & = QStyleOption::Default,
+		  QStyleHintReturn * = 0 ) const;
 };
 
 

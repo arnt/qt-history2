@@ -45,7 +45,6 @@ LightStyle::LightStyle()
 	singleton->ref++;
 }
 
-
 LightStyle::~LightStyle()
 {
     if (singleton && --singleton->ref <= 0) {
@@ -53,7 +52,6 @@ LightStyle::~LightStyle()
 	singleton = 0;
     }
 }
-
 
 void LightStyle::polish(QApplication *app)
 {
@@ -117,19 +115,17 @@ void LightStyle::polish(QApplication *app)
     app->setPalette(pal);
 }
 
-
 void LightStyle::unPolish(QApplication *app)
 {
     app->setPalette(singleton->oldPalette);
 }
 
-
 static void drawLightBevel(QPainter *p, const QRect &r, const QColorGroup &cg,
 			   QStyle::SFlags flags, const QBrush *fill = 0)
 {
     QRect br = r;
-    bool sunken =
-	(flags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Sunken));
+    bool sunken = (flags & (QStyle::Style_Down | QStyle::Style_On |
+			    QStyle::Style_Sunken));
 
     p->setPen(cg.dark());
     p->drawRect(r);
@@ -164,7 +160,6 @@ static void drawLightBevel(QPainter *p, const QRect &r, const QColorGroup &cg,
     // fill
     if (fill) p->fillRect(br, *fill);
 }
-
 
 void LightStyle::drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
@@ -566,36 +561,12 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_FocusRect:
 	{
-	    QRect fr = r;
+	    p->setBrush(NoBrush);
 	    if (flags & Style_FocusAtBorder)
-		fr.addCoords(1, 1, -1, -1);
-
-	    QColor one, two;
-	    if (! data.isDefault()) {
-		if (qGray(data.color().rgb()) < 128) {
-		    one = cg.light();
-		    two = cg.light().dark(120);
-		} else {
-		    one = cg.dark();
-		    two = cg.mid().dark(120);
-		}
-	    } else {
-		one = cg.dark();
-		two = cg.mid().dark(120);
-	    }
-
-	    p->setPen(two);
-	    p->drawLine(fr.left(),      fr.top(),
-			fr.left(),      fr.bottom());
-	    p->drawLine(fr.left() + 1,  fr.top(),
-			fr.left() + 1,  fr.bottom());
-	    p->drawLine(fr.right(),     fr.top(),
-			fr.right(),     fr.bottom());
-	    p->drawLine(fr.right() - 1, fr.top(),
-			fr.right() - 1, fr.bottom());
-	    p->setPen(one);
-	    p->drawLine(fr.left() + 2, fr.top(),    fr.right() - 2, fr.top());
-	    p->drawLine(fr.left() + 2, fr.bottom(), fr.right() - 2, fr.bottom());
+		p->setPen(cg.shadow());
+	    else
+		p->setPen(cg.dark());
+	    p->drawRect(r);
 	    break;
 	}
 
@@ -608,7 +579,6 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 	break;
     }
 }
-
 
 void LightStyle::drawControl( ControlElement control,
 			      QPainter *p,
@@ -859,7 +829,6 @@ void LightStyle::drawControl( ControlElement control,
     }
 }
 
-
 void LightStyle::drawControlMask( ControlElement control,
 				  QPainter *p,
 				  const QWidget *widget,
@@ -877,6 +846,33 @@ void LightStyle::drawControlMask( ControlElement control,
     }
 }
 
+QRect LightStyle::subRect(SubRect subrect, const QWidget *widget) const
+{
+    QRect rect, wrect(widget->rect());
+
+    switch (subrect) {
+    case SR_PushButtonFocusRect:
+ 	{
+ 	    const QPushButton *button = (const QPushButton *) widget;
+ 	    int dbw1 = 0, dbw2 = 0;
+ 	    if (button->isDefault() || button->autoDefault()) {
+ 		dbw1 = pixelMetric(PM_ButtonDefaultIndicator, widget);
+ 		dbw2 = dbw1 * 2;
+ 	    }
+
+ 	    rect.setRect(wrect.x()      + 3 + dbw1,
+ 			 wrect.y()      + 3 + dbw1,
+ 			 wrect.width()  - 6 - dbw2,
+ 			 wrect.height() - 6 - dbw2);
+ 	    break;
+ 	}
+
+    default:
+	rect = QWindowsStyle::subRect(subrect, widget);
+    }
+
+    return rect;
+}
 
 void LightStyle::drawComplexControl( ComplexControl control,
 				     QPainter* p,
@@ -938,11 +934,8 @@ void LightStyle::drawComplexControl( ComplexControl control,
 		    }
 
 		    p->setPen(cg.highlightedText());
-		    p->setBackgroundColor(cg.highlight());
-		} else {
+		} else
 		    p->setPen(cg.buttonText());
-		    p->setBackgroundColor(cg.button());
-		}
 	    }
 
 	    break;
@@ -1161,7 +1154,6 @@ void LightStyle::drawComplexControl( ComplexControl control,
     }
 }
 
-
 QRect LightStyle::querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
 					  SubControl sc,
@@ -1256,7 +1248,6 @@ QRect LightStyle::querySubControlMetrics( ComplexControl control,
     return ret;
 }
 
-
 QStyle::SubControl LightStyle::querySubControl( ComplexControl control,
 						const QWidget *widget,
 						const QPoint &pos,
@@ -1273,7 +1264,6 @@ QStyle::SubControl LightStyle::querySubControl( ComplexControl control,
 
     return ret;
 }
-
 
 int LightStyle::pixelMetric( PixelMetric metric,
 			     const QWidget *widget ) const
@@ -1330,7 +1320,6 @@ int LightStyle::pixelMetric( PixelMetric metric,
 
     return ret;
 }
-
 
 QSize LightStyle::sizeFromContents( ContentsType contents,
 				    const QWidget *widget,
@@ -1393,7 +1382,6 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 
     return ret;
 }
-
 
 int LightStyle::styleHint( StyleHint stylehint,
 			   const QWidget *widget,
