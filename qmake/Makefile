@@ -92,6 +92,12 @@ distclean:: clean
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) $<
 
+.cc.obj:
+	$(CXX) $(CXXFLAGS) $<
+
+.cxx.obj:
+	$(CXX) $(CXXFLAGS) $<
+	
 qconfig.obj: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
