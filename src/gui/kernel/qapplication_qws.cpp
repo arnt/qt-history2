@@ -2904,6 +2904,8 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
+#else
+    Q_UNUSED(grab);
 #endif
     if (!text.isEmpty() && testAttribute(Qt::WA_KeyCompression)) {
         // the widget wants key compression so it gets it
