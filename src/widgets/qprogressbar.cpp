@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#31 $
 **
 ** Implementation of QProgressBar class
 **
@@ -62,6 +62,8 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
       total_steps( 100 ),
       progress_val( -1 ),
       percentage( -1 ),
+      center_indicator( TRUE ),
+      auto_indicator( TRUE ),
       d( 0 )
 {
     if ( style() == MotifStyle ) {
@@ -92,6 +94,8 @@ QProgressBar::QProgressBar( int totalSteps,
       total_steps( totalSteps ),
       progress_val( -1 ),
       percentage( -1 ),
+      center_indicator( TRUE ),
+      auto_indicator( TRUE ),
       d( 0 )
 {
     if ( style() == MotifStyle ) {
@@ -181,6 +185,62 @@ QSizePolicy QProgressBar::sizePolicy() const
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 }
 
+/*!
+  \fn bool QProgressBar::centerIndicator() const 
+
+  Returns where the indicator string should be displayed if
+  indicatorFollowsStyle() is TRUE.
+
+  \sa setCenterIndicator(), indicatorFollowsStyle(),
+      setIndicatorFollowsStyle(), setIndicator()
+*/
+
+/*
+  If set to TRUE (the default) the progress bar always shows the indicator
+  text at the center of the progress bar, regardless of the GUI style
+  currently set.  If set to FALSE the progress bar always shows the
+  indicator text outside the progress bar, regardless of the GUI style
+  currently set.
+
+  Calling this function always sets indicatorFollowsStyle() to FALSE.
+
+  \sa centerIndicator(), indicatorFollowsStyle(), setIndicatorFollowsStyle(),
+      setIndicator()
+ */
+void QProgressBar::setCenterIndicator( bool on )
+{
+    if ( !auto_indicator && on == center_indicator )
+	return;
+    auto_indicator   = FALSE;
+    center_indicator = on;
+    repaint( FALSE );    
+}
+
+/*!
+  \fn bool QProgressBar::indicatorFollowsStyle const 
+
+  Returns whether the display of the indicator string should follow the
+  GUI style or not.
+
+  \sa setIndicatorFollowsStyle(), setCenterIndicator(), centerIndicator()
+      setIndicator()
+*/
+
+/*
+  When set to TRUE (the default) the positioning of the indicator string
+  follows the GUI style. When set to FALSE the indicator posion is decided
+  by the value of indicatorFollowsStyle().
+
+  \sa indicatorFollowsStyle(), centerIndicator(), setCenterIndicator(),
+      setIndicator()
+ */
+void QProgressBar::setIndicatorFollowsStyle( bool on )
+{
+    if ( on == auto_indicator )
+	return;
+    auto_indicator = on;
+    repaint( FALSE );    
+}
 
 void QProgressBar::show()
 {
@@ -247,7 +307,8 @@ void QProgressBar::drawContents( QPainter *p )
     const int unit_height = 12;
     const QRect bar = contentsRect();
 
-    if ( style() == WindowsStyle ) {
+    if ( style() == WindowsStyle && auto_indicator || 
+	 !auto_indicator && !center_indicator ) {
 	// Draw nu units out of a possible u of unit_width width, each
 	// a rectangle bordered by background color, all in a sunken panel
 	// with a percentage text display at the end.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#18 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#19 $
 **
 ** Definition of QProgressBar class
 **
@@ -48,6 +48,12 @@ public:
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
 
+    void	setCenterIndicator( bool on );
+    bool	centerIndicator() const;
+
+    void        setIndicatorFollowsStyle( bool );
+    bool	indicatorFollowsStyle() const;
+
     void	show();
 
 public slots:
@@ -66,6 +72,8 @@ private:
     int		progress_val;
     int		percentage;
     QString	progress_str;
+    bool        center_indicator;
+    bool        auto_indicator;
     QProgressBarPrivate * d;
 
 private:	// Disabled copy constructor and operator=
@@ -84,6 +92,16 @@ inline int QProgressBar::totalSteps() const
 inline int QProgressBar::progress() const
 {
     return progress_val;
+}
+
+inline bool QProgressBar::centerIndicator() const
+{
+    return center_indicator;
+}
+
+inline bool QProgressBar::indicatorFollowsStyle() const
+{
+    return auto_indicator;
 }
 
 
