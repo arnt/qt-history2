@@ -112,7 +112,7 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
 	qtMD5(abspath.utf8(), (unsigned char*)(&uuid));
 	validUUID = !uuid.isNull();
 	uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
-	uuid.data3 = (uuid.data3 & 0x0FFF) | (Qt::UV_Name<<12);
+	uuid.data3 = (uuid.data3 & 0x0FFF) | (QUuid::Name<<12);
     }
 
     // If still not valid, generate new one, and suggest adding to .pro
