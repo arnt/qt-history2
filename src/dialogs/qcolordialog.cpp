@@ -1368,7 +1368,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
     if ( !compact ) {
 	QPushButton *addCusBt = new QPushButton(
-					QColorDialog::tr("&Add To Custom Colors"),
+					QColorDialog::tr("&Add to Custom Colors"),
 						 dialog, "qt_add_btn" );
 	rightLay->addWidget( addCusBt );
 	connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );
