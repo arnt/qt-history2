@@ -235,6 +235,9 @@ void QProcessPrivate::startupNotification()
     }
 }
 
+void QProcessPrivate::notified()
+{ }
+
 QProcess::QProcess(QObject *parent)
     : QIODevice(*new QProcessPrivate, parent)
 {
