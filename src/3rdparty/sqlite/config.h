@@ -12,7 +12,7 @@
 #endif /* QT_POINTER_SIZE */
 
 #ifndef QT_NO_THREAD
-# define THREADSAFE
+# define THREADSAFE 1
 #endif
 
 #define SQLITE_PTR_SZ QT_POINTER_SIZE
