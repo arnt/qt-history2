@@ -131,6 +131,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     customWidgetToolBar = customWidgetToolBar2 = 0;
     guiStuffVisible = TRUE;
     editorsReadOnly = FALSE;
+    sSignalHandlers = TRUE;
     init_colors();
     shStartDialog = TRUE;
 
@@ -3455,4 +3456,12 @@ void MainWindow::setPluginDirectory( const QString &pd )
 	qwf_plugin_dir = new QString( pd );
     else
 	*qwf_plugin_dir = pd;
+}
+
+void MainWindow::toggleSignalHandlers( bool show )
+{
+    if ( sSignalHandlers == show )
+	return;
+    sSignalHandlers = show;
+    propertyEditor->setSignalHandlersEnabled( show );
 }

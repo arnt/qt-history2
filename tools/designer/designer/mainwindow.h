@@ -170,6 +170,8 @@ public:
     void showGUIStuff( bool b );
     void setEditorsReadOnly( bool b );
     bool areEditorsReadOnly() const { return editorsReadOnly; }
+    void toggleSignalHandlers( bool show );
+    bool showSignalHandlers() const { return sSignalHandlers; }
     void writeConfig();
 
     void openProject( const QString &fn );
@@ -449,6 +451,7 @@ private:
     QAssistantClient *assistant;
     bool shStartDialog;
     QString pluginDir;
+    bool sSignalHandlers;
 
 public:
     QString lastSaveFilter;

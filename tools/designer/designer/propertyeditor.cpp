@@ -3717,4 +3717,25 @@ void PropertyEditor::setPropertyEditorEnabled( bool b )
 	removePage( listview );
     else
 	insertTab( listview, tr( "Property Editor" ), 0 );
+    updateWindow();
+}
+
+void PropertyEditor::setSignalHandlersEnabled( bool b )
+{
+    if ( !b )
+	removePage( eList );
+    else
+	insertTab( eList, tr( "Signal Handlers" ), 0 );
+    updateWindow();
+}
+
+void PropertyEditor::updateWindow()
+{
+    if ( isHidden() && count() ) {
+	parentWidget()->show();
+	MainWindow::self->setAppropriate( (QDockWindow*)parentWidget(), TRUE );
+    } else if ( isShown() && !count() ) {
+	parentWidget()->hide();
+	MainWindow::self->setAppropriate( (QDockWindow*)parentWidget(), FALSE );
+    }
 }

@@ -630,6 +630,7 @@ public:
     void resetFocus();
 
     void setPropertyEditorEnabled( bool b );
+    void setSignalHandlersEnabled( bool b );
 
 signals:
     void hidden();
@@ -639,6 +640,9 @@ public slots:
 
 protected:
     void closeEvent( QCloseEvent *e );
+
+private:
+    void updateWindow();
 
 private:
     QObject *wid;
