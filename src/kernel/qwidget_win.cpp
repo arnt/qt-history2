@@ -1273,7 +1273,9 @@ void QWidget::scroll( int dx, int dy )
 	return;
 #ifndef Q_OS_TEMP
     ScrollWindow( winId(), dx, dy, 0, 0 );
-#endif
+#else
+    ScrollWindowEx( winId(), dx, dy, 0, 0, 0, 0, SW_INVALIDATE | SW_SCROLLCHILDREN );
+#endif // Q_OS_TEMP
     UpdateWindow( winId() );
 }
 
@@ -1288,7 +1290,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     wr.right = r.right()+1;
 #ifndef Q_OS_TEMP
     ScrollWindow( winId(), dx, dy, &wr, &wr );
-#endif
+#else
+    ScrollWindowEx( winId(), dx, dy, &wr, &wr, 0, 0, SW_INVALIDATE | SW_SCROLLCHILDREN );
+#endif // Q_OS_TEMP
     UpdateWindow( winId() );
 }
 
