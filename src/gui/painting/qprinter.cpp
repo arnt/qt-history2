@@ -1130,7 +1130,7 @@ QString QPrinter::printerSelectionOption() const
     \sa printerSelectionOption()
 */
 
-void QPrinter::setPrinterSelectionOption(const QString &/*option*/)
+void QPrinter::setPrinterSelectionOption(const QString &option)
 {
     Q_UNUSED(option);
 }
