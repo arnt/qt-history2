@@ -150,6 +150,8 @@ public:
 
 private:
     QSharedPointer<QTextFormatPrivate> d;
+    int _type;
+    int _inheritedType;
 };
 
 class QTextCharFormat : public QTextFormat

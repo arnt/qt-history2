@@ -81,13 +81,6 @@ typedef QMap<int, QTextFormatProperty> QTextFormatPropertyMap;
 class QTextFormatPrivate : public QSharedObject
 {
 public:
-    QTextFormatPrivate(int _type = -1, int _inheritedType = -1) : type(_type), inheritedType(_inheritedType) {}
-
-    int type;
-    int inheritedType;
-
-    bool isValid() const { return type != -1; }
-
     void clearProperty(int property)
     { properties.remove(property); }
     void setProperty(int propertyId, const QTextFormatProperty &property)
@@ -186,9 +179,6 @@ const QTextFormatProperty QTextFormatPrivate::property(int propertyId, QTextForm
 
 bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
 {
-    if (type != rhs.type || inheritedType != rhs.inheritedType)
-	return false;
-
     if (properties.size() != rhs.properties.size())
 	return false;
 
@@ -203,11 +193,12 @@ bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
 }
 
 QTextFormat::QTextFormat()
+    : _type(InvalidFormat), _inheritedType(InvalidFormat)
 {
 }
 
 QTextFormat::QTextFormat(int type, int inheritedType)
-    : d(new QTextFormatPrivate(type, inheritedType))
+    : _type(type), _inheritedType(inheritedType)
 {
 }
 
@@ -219,6 +210,8 @@ QTextFormat::QTextFormat(const QTextFormat &rhs)
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 {
     d = rhs.d;
+    _type = rhs._type;
+    _inheritedType = rhs._inheritedType;
     return *this;
 }
 
@@ -232,7 +225,7 @@ void QTextFormat::merge(const QTextFormat &other)
 	return;
 
     if (!d) {
-	(*this) = other;
+	d = other.d;
 	return;
     }
 
@@ -249,16 +242,12 @@ void QTextFormat::merge(const QTextFormat &other)
 
 int QTextFormat::type() const
 {
-    if (!d)
-	return InvalidFormat;
-    return d->type;
+    return _type;
 }
 
 int QTextFormat::inheritedType() const
 {
-    if (!d)
-	return InvalidFormat;
-    return d->inheritedType;
+    return _inheritedType;
 }
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
@@ -266,8 +255,9 @@ QTextBlockFormat QTextFormat::toBlockFormat() const
     QTextBlockFormat f;
     if (!isBlockFormat())
 	return f;
-
     f.d = d;
+    f._type = _type;
+    f._inheritedType = _inheritedType;
     return f;
 }
 
@@ -276,8 +266,9 @@ QTextCharFormat QTextFormat::toCharFormat() const
     QTextCharFormat f;
     if (!isCharFormat())
 	return f;
-
     f.d = d;
+    f._type = _type;
+    f._inheritedType = _inheritedType;
     return f;
 }
 
@@ -287,6 +278,8 @@ QTextListFormat QTextFormat::toListFormat() const
     if (!isListFormat())
 	return f;
     f.d = d;
+    f._type = _type;
+    f._inheritedType = _inheritedType;
     return f;
 }
 
@@ -296,6 +289,8 @@ QTextTableFormat QTextFormat::toTableFormat() const
     if (!isTableFormat())
 	return f;
     f.d = d;
+    f._type = _type;
+    f._inheritedType = _inheritedType;
     return f;
 }
 
@@ -305,6 +300,8 @@ QTextImageFormat QTextFormat::toImageFormat() const
     if (!isImageFormat())
 	return f;
     f.d = d;
+    f._type = _type;
+    f._inheritedType = _inheritedType;
     return f;
 }
 
@@ -389,42 +386,42 @@ int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
 void QTextFormat::setProperty(int propertyId, bool value)
 {
     if (!d)
-	return;
+	d = new QTextFormatPrivate;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, int value)
 {
     if (!d)
-	return;
+	d = new QTextFormatPrivate;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, float value)
 {
     if (!d)
-	return;
+	d = new QTextFormatPrivate;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
     if (!d)
-	return;
+	d = new QTextFormatPrivate;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, const QByteArray &value)
 {
     if (!d)
-	return;
+	d = new QTextFormatPrivate;
     d->setProperty(propertyId, value);
 }
 
 void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
 {
     if (!d)
-	return;
+	d = new QTextFormatPrivate;
     QTextFormatProperty prop;
     prop.type = FormatReference;
     prop.data.intValue = value;
@@ -459,6 +456,9 @@ QList<int> QTextFormat::allPropertyIds() const
 
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
+    if (_type != rhs._type || _inheritedType != rhs._inheritedType)
+	return false;
+
     if (!d)
 	return !rhs.d;
 
