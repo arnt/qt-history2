@@ -1,5 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.h#1 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.h#2 $
+**
+**		      ***   INTERNAL HEADER FILE   ***
+**
+**		This file is NOT a part of the Qt interface!
 **
 ** Definition of asynchronous I/O classes
 **
@@ -7,6 +11,8 @@
 **
 ** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
+** --------------------------------------------------------------------------
+** Internal header file containing private classes used by QMovie.
 *****************************************************************************/
 
 #ifndef QASYNCIO_H

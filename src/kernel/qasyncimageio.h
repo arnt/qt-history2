@@ -1,5 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#6 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#7 $
+**
+**		      ***   INTERNAL HEADER FILE   ***
+**
+**		This file is NOT a part of the Qt interface!
 **
 ** Definition of asynchronous image/movie loading classes
 **
@@ -7,6 +11,8 @@
 **
 ** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
+** --------------------------------------------------------------------------
+** Internal header file containing private classes used by QMovie.
 *****************************************************************************/
 
 #ifndef QASYNCIMAGEIO_H

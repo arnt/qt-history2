@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#7 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#7 $");
 
 
 /*****************************************************************************
@@ -102,6 +102,13 @@ QColorGroup::~QColorGroup()
 /*!
   \fn const QColor & QColorGroup::light() const
   Returns the light color of the color group.
+*/
+
+/*!
+  \fn const QColor QColorGroup::midlight() const
+  Returns the midlight color of the color group. Currently, this is
+  a lightened version of the background, but this may change
+  in the future.
 */
 
 /*!
