@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/Embedded keyboard drivers
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -37,6 +37,7 @@
 #include "qwindowsystem_qws.h"
 #include "qgfx_qws.h"
 #include "qtimer.h"
+#include <stdlib.h>
 
 
 class QWSKbPrivate : public QObject
