@@ -139,11 +139,10 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break;
 
     case PO_FocusRect: {
-	void **sdata = (void **) data;
 	const QColor *bg = 0;
 
-	if (sdata)
-	    bg = (const QColor *) sdata[0];
+	if (data)
+	    bg = (const QColor *) data[0];
 
 	QPen oldPen = p->pen();
 
@@ -306,29 +305,26 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_PanelDockWindow: {
-	void **sdata = (void **) data;
 	int lw = pixelMetric(PM_DockWindowFrameWidth);
-	if (sdata)
-	    lw = *((int *) sdata[0]);
+	if (data)
+	    lw = *((int *) data[0]);
 
 	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
 
     case PO_PanelMenuBar: {
-	void **sdata = (void **) data;
 	int lw = pixelMetric(PM_MenuBarFrameWidth);
-	if (sdata)
-	    lw = *((int *) sdata[0]);
+	if (data)
+	    lw = *((int *) data[0]);
 
 	qDrawShadePanel(p, r, cg, FALSE, lw);
 	break; }
 
     case PO_MenuBarItem: {
 	QMenuItem * mi;
-	void ** sdata = (void **) data;
 
-	if ( sdata ) {
-	    mi = (QMenuItem *) sdata[0];
+	if ( data ) {
+	    mi = (QMenuItem *) data[0];
 	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
 		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
 		      &cg.buttonText() );
@@ -402,14 +398,14 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_GroupBoxFrame: {
-	void ** sdata = (void **) data;
-	if ( !sdata )
+	if ( !data )
 	    break;
+
 	// evil hacks
-	QFrame::Shape	type 	= (QFrame::Shape) ((int) sdata[0]);
-	QFrame::Shadow	cstyle 	= (QFrame::Shadow) ((int) sdata[1]);
-	int 		lwidth 	= (int) sdata[2];
-	int 		mlwidth = (int) sdata[3];
+	QFrame::Shape	type 	= (QFrame::Shape) ((int) data[0]);
+	QFrame::Shadow	cstyle 	= (QFrame::Shadow) ((int) data[1]);
+	int 		lwidth 	= (int) data[2];
+	int 		mlwidth = (int) data[3];
 
 	int x = r.x();
 	int y = r.y();
@@ -931,7 +927,6 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     switch (control) {
     case CC_ToolButton: {
 	QToolButton *toolbutton = (QToolButton *) widget;
-	void **sdata = (void **) data;
 
 	QRect button, menuarea;
 	button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
@@ -940,10 +935,10 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	bool drawraised = FALSE;
 	bool drawarrow = FALSE;
 	Qt::ArrowType arrowType = Qt::DownArrow;
-	if (sdata) {
-	    drawraised = *((bool *) sdata[0]);
-	    drawarrow  = *((bool *) sdata[1]);
-	    arrowType  = *((Qt::ArrowType *) sdata[2]);
+	if (data) {
+	    drawraised = *((bool *) data[0]);
+	    drawarrow  = *((bool *) data[1]);
+	    arrowType  = *((Qt::ArrowType *) data[2]);
 	}
 
 	PFlags bflags = PStyle_Default, mflags = PStyle_Default;
@@ -1359,10 +1354,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		      scrollbar->width() : scrollbar->height()) - (sbextent * 2);
 	int sliderlen;
 
-	void ** sdata = (void **) data;
-
-	if (sdata)
-	    sliderstart = *((int*) sdata[0]);
+	if (data)
+	    sliderstart = *((int*) data[0]);
 	else
 	    sliderstart = sbextent;
 
@@ -1440,14 +1433,13 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	switch ( sc ) {
 	case SC_SliderHandle: {
 	    QSlider * sl = (QSlider *) w;
-	    void ** sdata = (void **) data;
 	    int sliderPos = 0;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 	    int len   = pixelMetric( PM_SliderLength, sl );
 
-	    if ( sdata )
-		sliderPos = *((int *) sdata[0]);
+	    if ( data )
+		sliderPos = *((int *) data[0]);
 
 	    if ( sl->orientation() == Horizontal )
 		rect.setRect( sliderPos, tickOffset, len, thickness );
@@ -1773,9 +1765,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
 	QPopupMenu *popup = (QPopupMenu *) widget;
 	bool checkable = popup->isCheckable();
-      	void **sdata = (void **) data;
-	QMenuItem *mi = (QMenuItem *) sdata[0];
-	int maxpmw = *((int *) sdata[1]);
+	QMenuItem *mi = (QMenuItem *) data[0];
+	int maxpmw = *((int *) data[1]);
 	int w = sz.width(), h = sz.height() + 8;
 
 	if (mi->isSeparator()) {

@@ -145,7 +145,7 @@ void StyledButton::resizeEvent( QResizeEvent* e )
 void StyledButton::drawButton( QPainter *paint )
 {
     style().drawPrimitive(QStyle::PO_ButtonBevel, paint, rect(), colorGroup(),
-			  isDown() ? QStyle::PStyle_Sunken : QStyle::PStyle_Default);
+			  isDown() ? QStyle::PStyle_Sunken : QStyle::PStyle_Raised);
     drawButtonLabel(paint);
 
     if (hasFocus())

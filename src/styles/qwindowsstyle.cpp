@@ -1169,7 +1169,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	p->setBackgroundMode(OpaqueMode);
 
 	if (maxedOut) {
-	    p->drawRect(r);
+	    p->drawRect(slider);
 	} else {
 	    if (((sub & SC_ScrollBarSubPage) && subActive == SC_ScrollBarSubPage) ||
 		((sub & SC_ScrollBarAddPage) && subActive == SC_ScrollBarAddPage)) {
