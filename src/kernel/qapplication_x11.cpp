@@ -3404,15 +3404,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     } else {
 	QWidget *widget = this;
 	QWidget *w = QWidget::mouseGrabber();
-	if ( !w ) {
-	    if ( type == QEvent::MouseMove ) {
-		w = findChildWidget( this, pos );
-		if ( !w || !w->testWFlags( WMouseNoMask ) )
-		    w = this;
-	    } else {
-		w = qt_button_down;
-	    }
-	}
+	if ( !w ) 
+	    w = qt_button_down;
 	if ( w && w != this ) {
 	    widget = w;
 	    pos = w->mapFromGlobal( globalPos );
@@ -3430,7 +3423,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 				    RightButton)) == 0 ) {
 	    qt_button_down = 0;
 	}
-
+	
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
     }

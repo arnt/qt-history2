@@ -1098,7 +1098,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 		 this, SIGNAL( doMinimize() ) );
     }
 
-    titleL->setMouseTracking( TRUE );
+//     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
     titleL->setAlignment( AlignLeft | AlignVCenter | SingleLine );
     QFont f = font();
@@ -1176,7 +1176,8 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	     || e->type() == QEvent::MouseButtonRelease
 	     || e->type() == QEvent::MouseMove) {
 	    QMouseEvent* me = (QMouseEvent*) e;
-	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->button(), me->state() );
+	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->globalPos(), 
+			    me->button(), me->state() );
 
 	    if (e->type() == QEvent::MouseButtonPress )
 		mousePressEvent( &ne );
@@ -1487,18 +1488,22 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
     }
 
     if ( testWState(WState_ConfigPending) )
-	return;
+ 	return;
 
     QPoint globalPos = parentWidget()->mapFromGlobal( e->globalPos() );
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
-    QPoint mp( QMIN( pp.x(), geometry().right() - minimumWidth() +1 ),
-	       QMIN( pp.y(), geometry().bottom() - minimumHeight() + 1 ) );
-    mp = QPoint( QMAX( mp.x(), geometry().right() - maximumWidth() +1 ),
-		 QMAX( mp.y(), geometry().bottom() -maximumHeight() +1) );
-
-
+    int mw = QMAX(clientw->minimumSizeHint().width(), clientw->minimumWidth()) 
+	     + 2 * BORDER + 2 * frameWidth();
+    int mh = QMAX(clientw->minimumSizeHint().height(),clientw->minimumHeight())
+	     + 2 * BORDER +  2 * frameWidth() + TITLEBAR_SEPARATION + titlebar->sizeHint().height();
+    
+    QSize mpsize( geometry().right() - pp.x() + 1, geometry().bottom() - pp.y() + 1 );
+    mpsize = mpsize.expandedTo( minimumSize() ).expandedTo( QSize(mw, mh) );
+    QPoint mp( geometry().right() - mpsize.width() + 1,
+	       geometry().bottom() - mpsize.height() + 1 );
+    
     QRect geom = geometry();
 
     switch ( mode ) {
@@ -1533,6 +1538,7 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	break;
     }
 
+    geom = QRect( geom.topLeft(), geom.size().expandedTo( minimumSize() ).expandedTo( QSize(mw,mh) ) );
     if ( parentWidget()->rect().intersects( geom ) )
 	setGeometry( geom );
 
