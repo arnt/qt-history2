@@ -49,9 +49,9 @@ private:
 
 CommonInterface::CommonInterface()
 {
-    langIface = new LanguageInterfaceImpl;
+    langIface = new LanguageInterfaceImpl( this );
     langIface->addRef();
-    prefIface = new PreferenceInterfaceImpl;
+    prefIface = new PreferenceInterfaceImpl( this );
     prefIface->addRef();
     proIface = new ProjectSettingsInterfaceImpl( this );
     proIface->addRef();

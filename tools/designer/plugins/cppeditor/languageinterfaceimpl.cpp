@@ -25,12 +25,32 @@
 #include <qfile.h>
 #include "yyreg.h"
 
-LanguageInterfaceImpl::LanguageInterfaceImpl()
+LanguageInterfaceImpl::LanguageInterfaceImpl( QUnknownInterface *outer )
+    : parent( outer ), ref( 0 )
 {
+}
+
+ulong LanguageInterfaceImpl::addRef()
+{
+    return parent ? parent->addRef() : ref++;
+}
+
+ulong LanguageInterfaceImpl::release()
+{
+    if ( parent )
+	return parent->release();
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+    return ref;
 }
 
 QRESULT LanguageInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
+    if ( parent )
+	return parent->queryInterface( uuid, iface );
+
     *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
@@ -160,12 +180,12 @@ QStringList LanguageInterfaceImpl::fileFilterList() const
     QStringList f;
     f << "C++ Files (*.cpp *.C *.cxx *.c++ *.c *.h *.H *.hpp *.hxx)";
     return f;
-    
+
 }
 QStringList LanguageInterfaceImpl::fileExtensionList() const
 {
     QStringList f;
-    f << "cpp" << "C" << "cxx" << "c++" << "c" <<"h" << "H" << "hpp" << "hxx"; 
+    f << "cpp" << "C" << "cxx" << "c++" << "c" <<"h" << "H" << "hpp" << "hxx";
     return f;
 }
 

@@ -28,17 +28,21 @@ class QWidget;
 class PreferenceInterfaceImpl : public PreferenceInterface
 {
 public:
-    PreferenceInterfaceImpl();
+    PreferenceInterfaceImpl( QUnknownInterface *outer = 0 );
     virtual ~PreferenceInterfaceImpl();
 
+    ulong addRef();
+    ulong release();
+
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    Q_REFCOUNT
 
     Preference *preference();
     void connectTo( QUnknownInterface * ) {}
     void deletePreferenceObject( Preference * );
 
 private:
+    QUnknownInterface *parent;
+    int ref;
     QWidget *cppEditorSyntax;
 
 };

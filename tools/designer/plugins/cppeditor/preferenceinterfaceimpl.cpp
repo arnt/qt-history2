@@ -22,17 +22,38 @@
 #include "preferenceinterfaceimpl.h"
 #include <preferences.h>
 
-PreferenceInterfaceImpl::PreferenceInterfaceImpl()
+PreferenceInterfaceImpl::PreferenceInterfaceImpl( QUnknownInterface *outer )
+    : parent( outer ),
+      ref( 0 ),
+      cppEditorSyntax( 0 )
 {
-    cppEditorSyntax = 0;
 }
 
 PreferenceInterfaceImpl::~PreferenceInterfaceImpl()
 {
 }
 
+ulong PreferenceInterfaceImpl::addRef()
+{
+    return parent ? parent->addRef() : ref++;
+}
+
+ulong PreferenceInterfaceImpl::release()
+{
+    if ( parent )
+	return parent->release();
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+    return ref;
+}
+
 QRESULT PreferenceInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface** iface )
 {
+    if ( parent )
+	return parent->queryInterface( uuid, iface );
+
     *iface = 0;
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;

@@ -5,7 +5,7 @@ class CppProjectSettings;
 class ProjectSettingsInterfaceImpl : public ProjectSettingsInterface
 {
 public:
-    ProjectSettingsInterfaceImpl( QUnknownInterface *outer );
+    ProjectSettingsInterfaceImpl( QUnknownInterface *outer = 0 );
 
     ulong addRef();
     ulong release();

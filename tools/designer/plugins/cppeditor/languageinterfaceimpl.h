@@ -27,10 +27,12 @@
 class LanguageInterfaceImpl : public LanguageInterface
 {
 public:
-    LanguageInterfaceImpl();
+    LanguageInterfaceImpl( QUnknownInterface *outer = 0 );
+
+    ulong addRef();
+    ulong release();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    Q_REFCOUNT;
 
     void functions( const QString &code, QValueList<Function> *funcs ) const;
     void initEventFunctions( QMap<QString, QString> & ) {}
@@ -63,6 +65,9 @@ public:
 		       QValueList<Connection> & );
     QString formCodeExtension() const { return ".h"; }
     bool canConnect( const QString &signal, const QString &slot );
+private:
+    QUnknownInterface *parent;
+    ulong ref;
 };
 
 #endif

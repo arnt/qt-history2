@@ -56,6 +56,18 @@ void ProjectSettingsInterfaceImpl::deleteProjectSettingsObject( ProjectSettings 
 
 QRESULT ProjectSettingsInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    return parent->queryInterface( uuid, iface );
+    if ( parent )
+	return parent->queryInterface( uuid, iface );
+
+    *iface = 0;
+    if ( uuid == IID_QUnknown )
+	*iface = (QUnknownInterface*)this;
+    else if ( uuid == IID_ProjectSettings )
+	*iface = (ProjectSettingsInterface*)this;
+    else
+	return QE_NOINTERFACE;
+
+    (*iface)->addRef();
+    return QS_OK;
 }
 
