@@ -8,7 +8,6 @@ Window::Window()
 
     QLabel *echoLabel = new QLabel(tr("Mode:"), echoGroup);
     QComboBox *echoComboBox = new QComboBox(echoGroup);
-    echoComboBox->setEditable(true);
     echoComboBox->insertItem(tr("Normal"));
     echoComboBox->insertItem(tr("Password"));
     echoComboBox->insertItem(tr("No Echo"));
@@ -99,7 +98,7 @@ Window::Window()
     layout->addWidget(inputMaskGroup);
     layout->addWidget(accessGroup);
 
-    setWindowTitle(tr("Line edits"));
+    setWindowTitle(tr("Line Edits"));
 }
 
 void Window::slotEchoChanged(int index)
