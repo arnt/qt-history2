@@ -53,11 +53,8 @@
 #include "qmutex.h"
 #ifdef Q_OS_UNIX
 #include "qwaitcondition.h"
-#include "qplatformdefs.h" // need pthread_t def. on IRIX
 #endif // Q_OS_UNIX
-#ifdef Q_OS_WIN32
-#include <windows.h>
-#endif // Q_OS_WIN32
+
 
 class QThreadInstance {
 public:
@@ -91,7 +88,6 @@ public:
     static void finish( QThreadInstance * );
 #endif // Q_OS_WIN32
 };
-
 
 #endif // QT_THREAD_SUPPORT
 #endif // QTHREAD_P_H

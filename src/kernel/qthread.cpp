@@ -35,9 +35,64 @@
 
 #ifdef QT_THREAD_SUPPORT
 
+#include "qplatformdefs.h"
+
 #include "qthread.h"
 #include <private/qthreadinstance_p.h>
 
+
+/*!
+    \class QThread qthread.h
+    \threadsafe
+    \brief The QThread class provides platform-independent threads.
+
+    \ingroup thread
+    \ingroup environment
+
+    A QThread represents a separate thread of control within the
+    program; it shares data with all the other threads within the
+    process but executes independently in the way that a separate
+    program does on a multitasking operating system. Instead of
+    starting in main(), QThreads begin executing in run(). You inherit
+    run() to include your code. For example:
+
+    \code
+    class MyThread : public QThread {
+
+    public:
+
+	virtual void run();
+
+    };
+
+    void MyThread::run()
+    {
+	for( int count = 0; count < 20; count++ ) {
+	    sleep( 1 );
+	    qDebug( "Ping!" );
+	}
+    }
+
+    int main()
+    {
+	MyThread a;
+	MyThread b;
+	a.start();
+	b.start();
+	a.wait();
+	b.wait();
+    }
+    \endcode
+
+    This will start two threads, each of which writes Ping! 20 times
+    to the screen and exits. The wait() calls at the end of main() are
+    necessary because exiting main() ends the program, unceremoniously
+    killing all other threads. Each MyThread stops executing when it
+    reaches the end of MyThread::run(), just as an application does
+    when it leaves main().
+
+    \sa \link threads.html Thread Support in Qt\endlink.
+*/
 
 /*!
     Constructs a new thread. The thread does not begin executing until
