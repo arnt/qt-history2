@@ -64,11 +64,11 @@ public:
 	     WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM )
     {
 	setMargin(1);
-	setIndent(0);
 	setAutoMask( FALSE );
 	setFrameStyle( QFrame::Plain | QFrame::Box );
 	setLineWidth( 1 );
 	setAlignment( AlignAuto | AlignTop );
+	setIndent(0);
 	polish();
 	setText(text);
 	adjustSize();
