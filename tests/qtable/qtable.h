@@ -159,6 +159,11 @@ public:
     virtual void setSorting( bool b );
     bool sorting() const;
 
+    virtual void hideRow( int row );
+    virtual void hideColumn( int col );
+    virtual void showRow( int row );
+    virtual void showColumn( int col );
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -254,7 +259,7 @@ public:
 
 signals:
     void sectionSizeChanged( int s );
-    
+
 protected:
     void paintEvent( QPaintEvent *e );
     void paintSection( QPainter *p, int index, QRect fr );
@@ -270,7 +275,7 @@ private:
     void updateSelections();
     void saveStates();
     void setCaching( bool b );
-    
+
 private:
     QArray<SectionState> states, oldStates;
     QArray<int> sectionSizes, sectionPoses;
@@ -281,7 +286,7 @@ private:
     QWidget *line1, *line2;
     bool caching;
     int resizedSection;
-    
+
 };
 
 #endif // TABLE_H

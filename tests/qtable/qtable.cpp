@@ -1944,6 +1944,68 @@ void QTable::sortColumn( int col, bool ascending )
     delete [] items;
 }
 
+/*!  Hides the row \a row.
+  
+  \sa showRow()
+*/
+
+void QTable::hideRow( int row )
+{
+    leftHeader->resizeSection( row, 0 );
+    leftHeader->setResizeEnabled( FALSE, row );
+    rowHeightChanged( row );
+}
+
+/*!  Hides the column \a col.
+  
+  \sa showCol()
+*/
+
+void QTable::hideColumn( int col )
+{
+    topHeader->resizeSection( col, 0 );
+    topHeader->setResizeEnabled( FALSE, col );
+    columnWidthChanged( col );
+}
+
+/*!  Shows the row \a row.
+  
+  \sa hideRow()
+*/
+
+void QTable::showRow( int row )
+{
+    leftHeader->resizeSection( row, 100 );
+    leftHeader->setResizeEnabled( TRUE, row );
+    rowHeightChanged( row );
+}
+
+/*!  Shows the column \a col.
+  
+  \sa hideColumn()
+*/
+
+void QTable::showColumn( int col )
+{
+    topHeader->resizeSection( col, 100 );
+    topHeader->setResizeEnabled( TRUE, col );
+    columnWidthChanged( col );
+}
+
+
+
+void QTable::editTypeChanged( QTableItem *i, QTableItem::EditType old )
+{
+    if ( old == QTableItem::Always )
+	endEdit( i->row, i->col, TRUE, i->lastEditor, Editing );
+    updateCell( i->row, i->col );
+}
+
+
+
+
+
+
 
 
 void QTable::SelectionRange::init( int row, int col )
@@ -1981,13 +2043,6 @@ bool QTable::SelectionRange::operator==( const SelectionRange &s ) const
 	     s.bottomRow == bottomRow &&
 	     s.leftCol == leftCol &&
 	     s.rightCol == rightCol );
-}
-
-void QTable::editTypeChanged( QTableItem *i, QTableItem::EditType old )
-{
-    if ( old == QTableItem::Always )
-	endEdit( i->row, i->col, TRUE, i->lastEditor, Editing );
-    updateCell( i->row, i->col );
 }
 
 

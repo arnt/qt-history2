@@ -20,7 +20,7 @@ DONE (by reimplementing paintCell() or tableitem's paint())
 DONE (by setPalette() or reimplementing)
 
 7. Move column/ row programmatically and Drag/Drop.
-DONE (needs fixing - see bugs section)
+DONE
 
 8. Sorting row by clicking on the column label.
 DONE
@@ -32,7 +32,7 @@ DONE
 DONE
 
 11. Grid line options e.g. on or off, adjustable...
-DONE (what's adjustable)
+DONE
 
 12. Initial size of the spreadsheet, and resize policy support, able to
 specify which column or row to resize. Column and row size by pixel and
@@ -40,9 +40,10 @@ char or content size.
 
 
 13. Suspend repaint for update efficiency.
-DONE (using postEvent - but some more repaint optimations will be done to reduce flicker)
+DONE (using postEvent, transparent for the user)
 
 14. Programmatically hide row/column.
+DONE
 
 
 15. Resize column/row by drag the mouse
@@ -69,3 +70,14 @@ Known Bugs:
 - When reordering columns/rows seelctions don't work anymore - for
 selections and cursor-movement we have to use actual and not logical
 indices.
+
+- When resizing cols/rows using the header we have repaint errors
+(because of the widgets used for drawing the lines)
+
+
+
+Other todos:
+--------------
+
+- Optimize for flicker freeness and speed (only redraw changing parts
+of selections if the user selects stuff, etc.)
