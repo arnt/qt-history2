@@ -879,40 +879,22 @@ fi
 #-------------------------------------------------------------------------------
 
 ### skip this if the user just needs help...
-if [ "$OPT_HELP" != "yes" ] ;then
+if [ "$OPT_HELP" != "yes" ]; then
 
-# create the include directory (will hold qconfig.h and qmodules.h)
-mkdir -p $outpath/include
+# create the include and include/tmp directory (for qconfig.h and qmodules.h)
+mkdir -p $outpath/include/tmp
 
 # create temporary qconfig.h for compiling qmake
-# the original file will be restored after qmake is built
-# when building qmake, we use #defines for the install paths, however
-# they are real functions in the library
-if [ -f $outpath/include/qconfig.h ]; then
-    mv -f $outpath/include/qconfig.h qconfig.h-hold
-fi
-cat >> $outpath/include/qconfig.h <<EOF
+# when building qmake, we use #defines for the install paths,
+# however they are real functions in the library
+cat >>$outpath/include/tmp/qconfig.h <<EOF
 /* All features enabled while building qmake */
-
 EOF
 
 # create temporary qmodules.h for compiling qmake
-# the original file will be restored after qmake is built
-if [ -f $outpath/include/qmodules.h ]; then
-    mv -f $outpath/include/qmodules.h qmodules.h-hold
-fi
-echo "// All modules enabled while building qmake" >$outpath/include/qmodules.h
-
-### make sure qconfig.h and qmodules.h are restored if Ctrl+C
-### a better solution would be to copy to a qmake specific
-### directory that would be included by qmake only and then
-### erased
-if [ "$PLATFORM_MAC" = "no" ]; then
-trap "\
-[ -r qconfig.h-hold ] && mv -f $outpath/qconfig.h-hold $outpath/include/qconfig.h ;\
-[ -r qmodules.h-hold ] && mv -f $outpath/qmodules.h-hold $outpath/include/qmodules.h ;\
-exit 130" HUP INT TERM
-fi
+cat >>$outpath/include/tmp/qmodules.h <<EOF
+/* All modules enabled while building qmake */
+EOF
 
 # is this a shadow build?
 if [ "$OPT_SHADOW" = "maybe" ]; then
@@ -1952,7 +1934,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     # fix makefiles
     for mkfile in GNUmakefile Makefile; do
 	EXTRA_LFLAGS=
-	EXTRA_CFLAGS=
+	EXTRA_CFLAGS=-I
 	in_mkfile="${mkfile}.in"
 	if [ "$mkfile" = "Makefile" ]; then
 #	    if which qmake >/dev/null 2>&1 && [ -f qmake/qmake.pro ]; then
@@ -1970,17 +1952,17 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX," >>$mkfile
 	if [ "$CFG_DEBUG" = "yes" ]; then
-            grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
+            grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
         fi
 	if [ "$PLATFORM_MAC" = "yes" ]; then
 	    echo "CARBON_CFLAGS+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
-	    echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
+	    echo "CARBON_LFLAGS +=-framework Carbon" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
         fi
 	if [ "$MAC_PLATFORM" = "yes" ]; then
-	  echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
+	  echo "CARBON_LFLAGS +=-framework Carbon" >>$mkfile
 	  EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
         elif [ "$EMBEDDED" = "qnx6" ]; then
@@ -2008,6 +1990,11 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 
     (cd $outpath/qmake; $MAKE || (echo "qmake failed to build. Aborting." && exit 2)) || exit 2
 fi
+
+# clean up temporary qconfig.h and qmodules.h
+rm -f $outpath/include/tmp/qconfig.h
+rm -f $outpath/include/tmp/qmodules.h
+rmdir $outpath/include/tmp
 
 
 #-------------------------------------------------------------------------------
@@ -2279,7 +2266,6 @@ QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
 # part of configuration information goes into qmodules.h
 #-------------------------------------------------------------------------------
 
-[ -r qmodules.h-hold ] && mv -f qmodules.h-hold $outpath/include/qmodules.h
 rm -f $outpath/include/qmodules.h.new
 cat >$outpath/include/qmodules.h.new << EOF
 // These modules are present in this configuration of Qt
@@ -2448,8 +2434,6 @@ QT_BUILD_KEY=`echo $QT_BUILD_KEY | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,
 #-------------------------------------------------------------------------------
 # part of configuration information goes into qconfig.h
 #-------------------------------------------------------------------------------
-
-[ -r qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
 
 case "$CFG_QCONFIG" in
 full)
