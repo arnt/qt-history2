@@ -3,6 +3,7 @@
 */
 
 #include <qregexp.h>
+#include <qdir.h>
 
 #include "location.h"
 
@@ -43,8 +44,13 @@ QString Location::fileName() const
 
 QString Location::shortFilePath() const
 {
-    // this line of code is a puzzle
-    return fp.mid( fp.findRev(QChar('/'), fp.findRev(QChar('/')) - 1) + 1 );
+    static QString cwd;
+    if ( cwd.isNull() )
+	cwd = QDir::current().path()+"/";
+    if ( fp.left(cwd.length()) == cwd )
+	return fp.mid(cwd.length());
+    else
+	return fp;
 }
 
 QString Location::toString() const
