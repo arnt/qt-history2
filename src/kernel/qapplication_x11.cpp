@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#125 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#124 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#125 $")
 
 
 /*****************************************************************************
@@ -83,7 +83,6 @@ static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
 typedef void  (*VFPTR)();
-typedef void  (*VFPTR_ARG)( int, char ** );
 typedef declare(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
@@ -399,7 +398,7 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
   \endcode
  ----------------------------------------------------------------------------*/
 
-void qAddPostRoutine( CleanUpFunction p )		// add post routine
+void qAddPostRoutine( CleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;

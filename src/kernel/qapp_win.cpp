@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#27 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#27 $")
 
 
 // --------------------------------------------------------------------------
@@ -48,7 +48,6 @@ QWidgetList    *popupWidgets	= 0;		// list of popup widgets
 bool		popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
-typedef void  (*VFPTR_ARG)( int, char ** );
 typedef declare(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
@@ -262,7 +261,7 @@ void msgHandler( QtMsgType, const char *str )	// print Qt message
 }
 
 
-void qAddPostRoutine( CleanUpFunction p )	// add post routine
+void qAddPostRoutine( CleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
