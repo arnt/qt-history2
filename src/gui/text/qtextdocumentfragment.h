@@ -35,6 +35,7 @@ public:
     bool isEmpty() const;
 
     QString toPlainText() const;
+    QString toHtml() const;
 
     static QTextDocumentFragment fromPlainText(const QString &plainText);
     static QTextDocumentFragment fromHtml(const QString &html);

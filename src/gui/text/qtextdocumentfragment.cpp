@@ -333,6 +333,14 @@ QString QTextDocumentFragment::toPlainText() const
     return result;
 }
 
+QString QTextDocumentFragment::toHtml() const
+{
+    QTextDocument doc;
+    QTextCursor cursor(&doc);
+    cursor.insertFragment(*this);
+    return doc.toHtml();
+}
+
 /*!
     \fn QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
 
