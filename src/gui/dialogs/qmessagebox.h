@@ -211,7 +211,7 @@ public:
                                  const QString& text,
                                  const QString& buttonText=QString(),
                                  QWidget *parent=0, const char * =0) {
-        return QMessageBox::information(parent, caption, text,
+        return showInformation(parent, caption, text,
                                         buttonText.isEmpty()
                                      ? tr("OK") : buttonText) == 0;
     }
@@ -220,7 +220,7 @@ public:
                                 const QString& yesButtonText=QString(),
                                 const QString& noButtonText=QString(),
                                 QWidget *parent=0, const char * = 0) {
-        return QMessageBox::information(parent, caption, text,
+        return showInformation(parent, caption, text,
                                      yesButtonText.isEmpty()
                                      ? tr("OK") : yesButtonText,
                                      noButtonText) == 0;
