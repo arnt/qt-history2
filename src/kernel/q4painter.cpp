@@ -539,13 +539,16 @@ void QPainter::drawWinFocusRect(int x, int y, int w, int h)
 
     if (ds->VxF || ds->WxF) {
 	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPen cpen = ds->pen;
-	    ds->pen = QPen(black, 0, DotLine);
-	    dgc->updatePen(ds);
-	    drawPolygon(QPointArray(QRect(x, y, w, h)));
-	    ds->pen = cpen;
-	    dgc->updatePen(ds);
-	    return;
+	    if (d->txop == TxRotShear) {
+		QPen cpen = ds->pen;
+		ds->pen = QPen(black, 0, DotLine);
+		dgc->updatePen(ds);
+		drawPolygon(QPointArray(QRect(x, y, w, h)));
+		ds->pen = cpen;
+		dgc->updatePen(ds);
+		return;
+	    }
+	    map(x, y, w, h, &x, &y, &w, &h);
 	}
     }
 
@@ -562,13 +565,16 @@ void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &bgColo
 
     if (ds->VxF || ds->WxF) {
 	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPen cpen = ds->pen;
-	    ds->pen = QPen(black, 0, DotLine);
-	    dgc->updatePen(ds);
-	    drawPolygon(QPointArray(QRect(x, y, w, h)));
-	    ds->pen = cpen;
-	    dgc->updatePen(ds);
-	    return;
+	    if (d->txop == TxRotShear) {
+		QPen cpen = ds->pen;
+		ds->pen = QPen(black, 0, DotLine);
+		dgc->updatePen(ds);
+		drawPolygon(QPointArray(QRect(x, y, w, h)));
+		ds->pen = cpen;
+		dgc->updatePen(ds);
+		return;
+	    }
+	    map(x, y, w, h, &x, &y, &w, &h);
 	}
     }
 
@@ -1871,8 +1877,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	QRegion painterClipRegion;
 	if ( !dontclip ) {
 #ifndef QT_NO_TRANSFORMATIONS
-	    // ### port properly
-	    QRegion reg = /* painter->xmat * */ r;
+	    QRegion reg =  painter->d->matrix * r;
 #else
 	    QRegion reg = r;
 	    reg.translate( painter->xlatex, painter->xlatey );

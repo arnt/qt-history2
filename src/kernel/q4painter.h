@@ -206,6 +206,10 @@ public:
 private:
     friend class QFontEngine;
     friend class QFontEngineWin;
+    friend void qt_format_text( const QFont& font, const QRect &_r,
+				int tf, const QString& str, int len, QRect *brect,
+				int tabstops, int* tabarray, int tabarraylen,
+				QTextParag **, QPainter* painter );
 
     enum TransformationCodes {
 	TxNone      = 0,
