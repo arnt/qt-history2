@@ -76,6 +76,8 @@ public:
     int indexOfHandle(QSplitterHandle *handle) const;
     QSplitterHandle *handle(int index) const;
 
+    void setStretchFactor(int index, int stretch);
+
 signals:
     void splitterMoved(int pos, int index);
 

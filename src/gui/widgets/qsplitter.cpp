@@ -1605,6 +1605,31 @@ bool QSplitter::restoreState(const QByteArray &state)
     return false;
 }
 
+/*!
+    Update the sizepolicy of \a widget to have both a horizontal and a vertical
+    stretch of \a stretch.
+
+    This function is provided for convenience. It is equivalent to
+
+    \code
+        QSizePolicy sp = widget->sizePolicy();
+        sp.setVerticalStretch(stretch);
+        sp.setHorizontalStretch(stretch);
+        widget->setSizePolicy(sp);
+    \endcode
+*/
+void QSplitter::setStretchFactor(int index, int stretch)
+{
+    if (index <= -1 || index >= d->list.count())
+        return;
+
+    QWidget *widget = d->list.at(index)->widget;
+    QSizePolicy sp = widget->sizePolicy();
+    sp.setVerticalStretch(stretch);
+    sp.setHorizontalStretch(stretch);
+    widget->setSizePolicy(sp);
+}
+
 
 //#ifdef QT3_SUPPORT
 #ifndef QT_NO_TEXTSTREAM
