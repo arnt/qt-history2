@@ -544,7 +544,6 @@ void QTextEngine::itemize( bool doBidi )
 	    item.analysis = usp_items[i].a;
 	    item.x = 0;
 	    item.y = 0;
-	    item.baselineAdjustment = 0;
 	    item.width = -1;
 	    item.ascent = -1;
 	    item.descent = -1;
@@ -552,7 +551,7 @@ void QTextEngine::itemize( bool doBidi )
 	    item.fontEngine = 0;
 	    items.append( item );
 	}
-	charAttributes = (QCharAttributes *)malloc( sizeof(QCharAttributes)*string.length() );
+	QCharAttributes *charAttributes = (QCharAttributes *)memory;
 	for ( i = 0; i < numItems; i++ ) {
 	    int from = usp_items[i].iCharPos;
 	    int len = usp_items[i+1].iCharPos - from;
