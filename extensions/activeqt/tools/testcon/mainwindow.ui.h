@@ -250,7 +250,7 @@ void MainWindow::updateGUI()
 	QAxWidget *ax = (QAxWidget*)container->qt_metacast( "QAxWidget" );
 	if ( ax ) {
 	    container->disconnect( SIGNAL(signal(const QString&, int, void*)) );
-	    if ( actionLogSignals->isOn() )
+	    if ( actionLogSignals->isChecked() )
 		connect( container, SIGNAL(signal(const QString&, int, void*)), this, SLOT(logSignal(const QString&, int, void*)) );
 
 	    container->disconnect( SIGNAL(exception(int,const QString&,const QString&,const QString&)) );
@@ -258,9 +258,9 @@ void MainWindow::updateGUI()
 		this, SLOT(logException(int,const QString&,const QString&,const QString&)) );
 
 	    container->disconnect( SIGNAL(propertyChanged(const QString&)) );
-	    if ( actionLogProperties->isOn() ) 
+	    if ( actionLogProperties->isChecked() ) 
 		connect( container, SIGNAL(propertyChanged(const QString&)), this, SLOT(logPropertyChanged(const QString&)) );
-	    container->blockSignals( actionFreezeEvents->isOn() );
+	    container->blockSignals( actionFreezeEvents->isChecked() );
 	}
 
 	++it;
