@@ -201,11 +201,21 @@ int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, floa
 
     // We offset the control vectors to have a basis for the offset.
     QLineF l1(x1, y1, x2, y2);
+    if (l1.isNull()) l1 = QLineF(x1, y1, x3, y3);
+    if (l1.isNull()) l1 = QLineF(x1, y1, x4, y4);
+    if (l1.isNull()) return 0;
+
+    QLineF l2(x3, y3, x4, y4);
+    if (l2.isNull()) l2 = QLineF(x2, y2, x4, y4);
+    if (l2.isNull()) l2 = QLineF(x1, y1, x4, y4);
+    if (l2.isNull()) return 0;
+
     QLineF l1n = l1.normalVector().unitVector();
     l1.translate(l1n.dx() * offset, l1n.dy() * offset);
-    QLineF l2(x3, y3, x4, y4);
+
     QLineF l2n = l2.normalVector().unitVector();
     l2.translate(l2n.dx() * offset, l2n.dy() * offset);
+
     QBezier shifted(l1.p1(), l1.p2(), l2.p1(), l2.p2());
 
     // Locate the center off the offsetted curve.

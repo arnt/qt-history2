@@ -1492,24 +1492,26 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
                                        data->offset,
                                        data->curveThreshold);
 
-            // If we are starting a new subpath, move to correct starting point
-            if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
-                stroke->moveTo(offsetCurves[0].pt1());
-            } else if (capFirst) {
-                data->joinPoints(QLineF(offsetCurves[0].pt1(),
-                                        offsetCurves[0].pt2()), stroke, data->capStyle);
-                capFirst = 0;
-            } else {
-                data->joinPoints(QLineF(offsetCurves[0].pt1(),
-                                        offsetCurves[0].pt2()), stroke, data->joinStyle);
+            if (count) {
+                // If we are starting a new subpath, move to correct starting point
+                if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
+                    stroke->moveTo(offsetCurves[0].pt1());
+                } else if (capFirst) {
+                    data->joinPoints(QLineF(offsetCurves[0].pt1(),
+                                            offsetCurves[0].pt2()), stroke, data->capStyle);
+                    capFirst = 0;
+                } else {
+                    data->joinPoints(QLineF(offsetCurves[0].pt1(),
+                                            offsetCurves[0].pt2()), stroke, data->joinStyle);
+                }
+                // Add these beziers
+                for (int i=0; i<count; ++i) {
+                    stroke->cubicTo(offsetCurves[i].pt2(),
+                                    offsetCurves[i].pt3(),
+                                    offsetCurves[i].pt4());
+                }
             }
 
-            // Add these beziers
-            for (int i=0; i<count; ++i) {
-                stroke->cubicTo(offsetCurves[i].pt2(),
-                                offsetCurves[i].pt3(),
-                                offsetCurves[i].pt4());
-            }
             prev = ep;
         }
     }
