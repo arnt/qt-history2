@@ -65,7 +65,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
 // Tru64 redefines accept -> _accept with _XOPEN_SOURCE_EXTENDED
 static inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
-{ return ::accept(s, addr, static_cast<socklen_t*>(addrlen)); }
+{ return ::accept(s, addr, static_cast<QT_SOCKLEN_T *>(addrlen)); }
 #if defined(accept)
 # undef accept
 #endif
