@@ -70,6 +70,16 @@ QHttpHeader::~QHttpHeader()
 }
 
 /*!
+  Assignment operator.
+*/
+QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
+{
+    d->m_values = h.d->m_values;
+    m_bValid = h.m_bValid;
+    return *this;
+}
+
+/*!
   Returns TRUE if the HTTP header is valid, otherwise FALSE.
 
   A QHttpHeader is invalid if it was created by parsing a malformed string.
@@ -212,7 +222,7 @@ bool QHttpHeader::parseLine( const QString& line, int )
     if ( i == -1 )
 	return FALSE;
 
-    d->m_values[ line.left( i ).stripWhiteSpace() ] = line.mid( i + 1 ).stripWhiteSpace();
+    d->m_values.insert( line.left( i ).stripWhiteSpace(), line.mid( i + 1 ).stripWhiteSpace() );
 
     return TRUE;
 }

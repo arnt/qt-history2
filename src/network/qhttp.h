@@ -29,6 +29,8 @@ public:
     QHttpHeader( const QString& str );
     virtual ~QHttpHeader();
 
+    QHttpHeader& operator=( const QHttpHeader& h );
+
     QString value( const QString& key ) const;
     QStringList keys() const;
     bool hasKey( const QString& key ) const;
