@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#22 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#23 $
 **
 ** Definition of movie classes
 **
@@ -34,29 +34,6 @@
 
 class QDataSource;
 class QMovieFilePrivate;
-class QMovieFramePrivate;
-
-class Q_EXPORT QMovieFrame {
-public:
-    QMovieFrame();
-    QMovieFrame( const QPixmap& pix, int dx, int dy, int dtime );
-
-    const QPixmap& pixmap() const;
-    int xOffset() const;
-    int yOffset() const;
-    int timeOffset() const;
-
-    void set( const QPixmap& pix, int dx, int dy, int dtime );
-
-    bool operator==( const QMovieFrame& );
-    bool operator<( const QMovieFrame& );
-
-private:
-    int x_offset;
-    int y_offset;
-    int time_offset;
-    QPixmap mypixmap;
-};
 
 class Q_EXPORT QMovie {
 public:
@@ -64,7 +41,6 @@ public:
     QMovie(QDataSource*, int bufsize=1024);
     QMovie(const QString &fileName, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
-    QMovie(QList<QMovieFrame> &frames);
     QMovie(const QMovie&);
     ~QMovie();
 
@@ -112,7 +88,6 @@ public:
 private:
     friend class QMoviePrivate;
     QMovieFilePrivate *d;
-    QMovieFramePrivate* f;
 };
 
 #endif

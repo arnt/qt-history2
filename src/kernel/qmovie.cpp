@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#59 $
 **
 ** Implementation of movie classes
 **
@@ -178,278 +178,6 @@ public:
 #endif
 };
 
-class QMovieFramePrivate : public QObject, public QShared
-{
-    Q_OBJECT
-public:
-    QMovieFramePrivate();
-    QMovieFramePrivate( QList<QMovieFrame> &frames );
-    virtual ~QMovieFramePrivate();
-
-    void Init();
-
-    bool isNull() const;
-
-    int steps();
-    void step( int );
-    int frameNumber();
-    bool paused();
-    void pause();
-    void unpause();
-    bool finished();
-    bool running();
-    void setSpeed( int );
-    bool stepping();
-    void restart();
-
-    void restartTimer();
-
-signals:
-    void sizeChanged(const QSize&);
-    void areaChanged(const QRect&);
-    void dataStatus(int);
-
-public slots:
-    void refresh();
-
-public:
-    QTimer* frametimer;
-    QPixmap mypixmap;
-    QBitmap mymask;
-    QList<QMovieFrame> frames;
-    QColor bg;
-    int frameperiod;
-    int lasttimerinterval;
-    QRect valid_area;
-    bool is_paused;
-    unsigned int step_nr;
-    int speed;
-    bool is_stepping;
-};
-
-/************************************************************
- * QMovieFramePrivate
- ************************************************************/
-
-QMovieFramePrivate::QMovieFramePrivate()
-{
-    Init();
-}
-
-QMovieFramePrivate::QMovieFramePrivate( QList<QMovieFrame> &_frames )
-{
-    Init();
-
-    frames = _frames;
-
-    if ( frames.count() == 0 ) {
-	emit dataStatus( QMovie::SourceEmpty );
-	return;
-    }
-
-    // Create the timer
-    frametimer = new QTimer(this);
-    QObject::connect(frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
-
-    frameperiod = frames.first()->timeOffset();
-    lasttimerinterval = -1;
-    restartTimer();
-}
-
-QMovieFramePrivate::~QMovieFramePrivate()
-{
-    if ( frametimer )
-	delete frametimer;
-}
-
-void QMovieFramePrivate::Init()
-{
-    frametimer = 0;
-    is_paused = FALSE;
-    step_nr = 0;
-    speed = 100;
-    is_stepping = FALSE;
-}
-
-bool QMovieFramePrivate::isNull() const
-{
-    // No frames ?
-    return ( frames.count() == 0 );
-}
-
-void QMovieFramePrivate::restartTimer()
-{
-    if ( speed > 0 ) {
-	int i = frameperiod >= 0 ? frameperiod * 100/speed : 0;
-	// Correct the timer interval and reactivate the timer
-	if ( i != lasttimerinterval || !frametimer->isActive() ) {
-	    lasttimerinterval = i;
-	    frametimer->start( i );
-	}
-    } else {	// Speed of 0 => No animation at all.
-	frametimer->stop();
-    }
-}
-
-void QMovieFramePrivate::refresh()
-{
-    // Just make sure that there is at least one frame.
-    if ( frames.count() == 0 ) {
-	frametimer->stop();
-	return;
-    }
-
-    // Tell us what we have to update.
-    QMovieFrame *f = frames.at(step_nr);
-    int dx = f->xOffset();
-    int dy = f->yOffset();
-    int w = f->pixmap().width();
-    int h = f->pixmap().height();
-
-    // Calculate the valid area
-    QRect r( dx, dy, w, h );
-    if ( step_nr == 0 )
-	valid_area = r;
-    else
-	valid_area = valid_area.unite( r );
-
-    // Do we have to care about setting the background ?
-    if ( bg.isValid() )	{
-	QPainter p;
-	p.begin(&mypixmap);
-	p.fillRect(dx, dy, w, h, bg);
-	p.end();
-    } else {
-	if ( f->pixmap().mask() ) {
-	    // Create a mask since we dont have one right now
-	    if ( mymask.isNull() ) {
-		mymask.resize( dx + w - 1, dy + h - 1 );
-		emit sizeChanged( QSize( dx + w - 1, dy + h - 1 ) );
-		mymask.fill( Qt::color1 );
-	    }
-	}
-	// Ok, a mask is required.
-	mypixmap.setMask(QBitmap()); // Remove reference to my mask
-    }
-
-    // Is this the beginning of a loop ?
-    if ( step_nr == 0 )
-	mypixmap = QPixmap();
-
-    // Do we need to resize ?
-    if ( dx + w - 1 > mypixmap.width() || dy + h - 1 > mypixmap.height() ) {
-	mypixmap.resize( dx + w - 1 > mypixmap.width() ? dx + w - 1 : mypixmap.width(),
-			 dy + h - 1 > mypixmap.height() ? dy + h - 1 : mypixmap.height() );
-	emit sizeChanged( QSize( mypixmap.width(), mypixmap.height() ) );
-    }
-
-    // Now display the new pixmap
-    bitBlt(&mypixmap, dx, dy, &f->pixmap(), 0, 0, w, h, CopyROP, !bg.isValid());
-
-    if (!bg.isValid() && f->pixmap().mask() ) {
-	bitBlt(&mymask, dx, dy, f->pixmap().mask(), 0, 0, w, h, CopyROP, TRUE);
-	mypixmap.setMask(mymask);
-    }
-
-    emit areaChanged( QRect( dx, dy, w, h ) );
-
-    // Check for end of loop
-    step_nr++;
-    if ( step_nr == frames.count() ) {
-	emit dataStatus( QMovie::EndOfLoop );
-	step_nr = 0;
-    }
-
-    // How long to wait for the next one ?
-    frameperiod = frames.at( step_nr )->timeOffset();
-    if ( frameperiod == 0 ) {
-	lasttimerinterval = 0;
-	refresh();
-    } else {
-	restartTimer();
-    }
-}
-
-int QMovieFramePrivate::steps()
-{
-    return 0; // ###hanord
-}
-
-int QMovieFramePrivate::frameNumber()
-{
-    return 0; // ###hanord
-}
-
-bool QMovieFramePrivate::paused()
-{
-    return is_paused;
-}
-
-void QMovieFramePrivate::pause()
-{
-    if ( is_paused )
-	return;
-    is_paused = TRUE;
-    if ( frametimer )
-	frametimer->stop();
-}
-
-void QMovieFramePrivate::unpause()
-{
-    if ( !is_paused )
-	return;
-    is_paused = FALSE;
-    restartTimer();
-}
-
-bool QMovieFramePrivate::finished()
-{
-    if ( !frametimer )
-	return TRUE;
-    if ( frametimer->isActive() )
-	return FALSE;
-    return TRUE;
-}
-
-bool QMovieFramePrivate::stepping()
-{
-    return FALSE; // ###hanord
-}
-
-bool QMovieFramePrivate::running()
-{
-    return ( frametimer && frametimer->isActive() );
-}
-
-void QMovieFramePrivate::setSpeed( int percent )
-{
-    int oldspeed = speed;
-
-    if ( oldspeed != percent && percent >= 0 )
-	speed = percent;
-
-    if ( !running() || stepping() )
-	return;
-
-    // Restart timer only if really needed
-    if ( !percent || !oldspeed    // To or from zero
-	 || oldspeed*4 / percent > 4   // More than 20% slower
-	 || percent*4 / oldspeed > 4   // More than 20% faster
-	 )
-	restartTimer();
-}
-
-void QMovieFramePrivate::step( int _steps )
-{
-}
-
-void QMovieFramePrivate::restart()
-{
-}
-
-/************************************************************
- * QMovieFilePrivate
- ************************************************************/
 
 QMovieFilePrivate::QMovieFilePrivate()
 {
@@ -816,7 +544,6 @@ void QMovieFilePrivate::refresh()
 */
 QMovie::QMovie()
 {
-    f = 0;
     d = new QMovieFilePrivate();
 }
 
@@ -834,7 +561,6 @@ QMovie::QMovie()
 */
 QMovie::QMovie(QDataSource* src, int bufsize)
 {
-    f = 0;
     d = new QMovieFilePrivate(src, this, bufsize);
 }
 
@@ -843,7 +569,6 @@ QMovie::QMovie(QDataSource* src, int bufsize)
 */
 QMovie::QMovie(const QString &fileName, int bufsize)
 {
-    f = 0;
     QFile* file = new QFile(fileName);
     file->open(IO_ReadOnly);
     d = new QMovieFilePrivate(new QIODeviceSource(file), this, bufsize);
@@ -854,7 +579,6 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 */
 QMovie::QMovie(QByteArray data, int bufsize)
 {
-    f = 0;
     QBuffer* buffer = new QBuffer(data);
     buffer->open(IO_ReadOnly);
     d = new QMovieFilePrivate(new QIODeviceSource(buffer), this, bufsize);
@@ -868,11 +592,7 @@ QMovie::QMovie(QByteArray data, int bufsize)
 QMovie::QMovie(const QMovie& movie)
 {
     d = movie.d;
-    f = movie.f;
-    if ( d )
-	d->ref();
-    if ( f )
-	f->ref();
+    d->ref();
 }
 
 /*!
@@ -881,14 +601,7 @@ QMovie::QMovie(const QMovie& movie)
 */
 QMovie::~QMovie()
 {
-    if (d && d->deref()) delete d;
-    if (f && f->deref()) delete f;
-}
-
-QMovie::QMovie(QList<QMovieFrame>& frames)
-{
-    d = 0;
-    f = new QMovieFramePrivate( frames );
+    if (d->deref()) delete d;
 }
 
 /*!
@@ -896,7 +609,7 @@ QMovie::QMovie(QList<QMovieFrame>& frames)
 */
 bool QMovie::isNull() const
 {
-    return d ? d->isNull() : f->isNull();
+    return d->isNull();
 }
 
 /*!
@@ -905,14 +618,9 @@ bool QMovie::isNull() const
 */
 QMovie& QMovie::operator=(const QMovie& movie)
 {
-    if ( movie.d )
-	movie.d->ref();
-    if ( movie.f )
-	movie.f->ref();
-    if (d && d->deref()) delete d;
-    if (f && f->deref()) delete f;
+    movie.d->ref();
+    if (d->deref()) delete d;
     d = movie.d;
-    f = movie.f;
     return *this;
 }
 
@@ -926,10 +634,7 @@ QMovie& QMovie::operator=(const QMovie& movie)
 */
 void QMovie::setBackgroundColor(const QColor& c)
 {
-    if ( d )
-	d->bg = c;
-    else
-	f->bg = c;
+    d->bg = c;
 }
 
 /*!
@@ -937,7 +642,7 @@ void QMovie::setBackgroundColor(const QColor& c)
 */
 const QColor& QMovie::backgroundColor() const
 {
-    return d ? d->bg : f->bg;
+    return d->bg;
 }
 
 /*!
@@ -945,7 +650,7 @@ const QColor& QMovie::backgroundColor() const
 */
 const QRect& QMovie::getValidRect() const
 {
-    return d ? d->valid_area : f->valid_area;
+    return d->valid_area;
 }
 
 /*!
@@ -955,7 +660,7 @@ const QRect& QMovie::getValidRect() const
 */
 const QPixmap& QMovie::framePixmap() const
 {
-    return d ? d->mypixmap : f->mypixmap;
+    return d->mypixmap;
 }
 
 /*!
@@ -964,7 +669,7 @@ const QPixmap& QMovie::framePixmap() const
 */
 int QMovie::steps() const
 {
-    return d ? d->stepping : f->steps();
+    return d->stepping;
 }
 
 /*!
@@ -976,7 +681,7 @@ int QMovie::steps() const
 */
 int QMovie::frameNumber() const
 {
-    return d ? d->framenumber : f->frameNumber();
+    return d->framenumber;
 }
 
 /*!
@@ -984,7 +689,7 @@ int QMovie::frameNumber() const
 */
 bool QMovie::paused() const
 {
-    return d ? (d->stepping == 0) : f->paused();
+    return d->stepping == 0;
 }
 
 /*!
@@ -993,7 +698,7 @@ bool QMovie::paused() const
 */
 bool QMovie::finished() const
 {
-    return d ? !d->decoder : f->finished();
+    return !d->decoder;
 }
 
 /*!
@@ -1002,7 +707,7 @@ bool QMovie::finished() const
 */
 bool QMovie::running() const
 {
-    return d ? (d->stepping<0 && d->decoder) : f->running();
+    return d->stepping<0 && d->decoder;
 }
 
 /*!
@@ -1012,10 +717,7 @@ bool QMovie::running() const
 */
 void QMovie::pause()
 {
-    if ( d )
-	d->pause();
-    else
-	f->pause();
+    d->pause();
 }
 
 /*!
@@ -1025,9 +727,7 @@ void QMovie::pause()
 */
 void QMovie::unpause()
 {
-    if ( f ) {
-	f->unpause();
-    } else if ( d && d->stepping >= 0 )	{
+    if ( d->stepping >= 0 )	{
 	if (d->isNull())
 	    return;
 	d->stepping = -1;
@@ -1040,15 +740,11 @@ void QMovie::unpause()
 */
 void QMovie::step(int steps)
 {
-    if ( f ) {
-	f->step( steps );
-    } else if ( d ) {
-	if (d->isNull())
-	    return;
-	d->stepping = steps;
-	d->frametimer->start(0);
-	d->waitingForFrameTick = FALSE; // Full speed ahead!
-    }
+    if (d->isNull())
+	return;
+    d->stepping = steps;
+    d->frametimer->start(0);
+    d->waitingForFrameTick = FALSE; // Full speed ahead!
 }
 
 /*!
@@ -1065,19 +761,15 @@ void QMovie::step()
 */
 void QMovie::restart()
 {
-    if ( f ) {
-	f->restart();
-    } else if ( d ) {
-	if (d->isNull())
-	    return;
-	if (d->source->rewindable()) {
-	    d->source->enableRewind(TRUE);
-	    d->source->rewind();
-	    int s = d->stepping;
-	    d->init(TRUE);
-	    if ( !s ) s = 1; // Don't pause or we'll not get to the FIRST frame
-	    if (s>0) step(s);
-	}
+    if (d->isNull())
+	return;
+    if (d->source->rewindable()) {
+	d->source->enableRewind(TRUE);
+	d->source->rewind();
+	int s = d->stepping;
+	d->init(TRUE);
+	if ( !s ) s = 1; // Don't pause or we'll not get to the FIRST frame
+	if (s>0) step(s);
     }
 }
 
@@ -1087,7 +779,7 @@ void QMovie::restart()
 */
 int QMovie::speed() const
 {
-    return d ? d->speed : f->speed;
+    return d->speed;
 }
 
 /*!
@@ -1096,20 +788,16 @@ int QMovie::speed() const
 */
 void QMovie::setSpeed(int percent)
 {
-    if ( f ) {
-	f->setSpeed( percent );
-    } else if ( d ) {
-	int oldspeed = d->speed;
-	if ( oldspeed != percent && percent >= 0 ) {
-	    d->speed = percent;
-	    // Restart timer only if really needed
-	    if (d->stepping < 0) {
-		if ( !percent || !oldspeed    // To or from zero
-		     || oldspeed*4 / percent > 4   // More than 20% slower
-		     || percent*4 / oldspeed > 4   // More than 20% faster
-		     )
-		    d->restartTimer();
-	    }
+    int oldspeed = d->speed;
+    if ( oldspeed != percent && percent >= 0 ) {
+	d->speed = percent;
+	// Restart timer only if really needed
+	if (d->stepping < 0) {
+	    if ( !percent || !oldspeed    // To or from zero
+		 || oldspeed*4 / percent > 4   // More than 20% slower
+		 || percent*4 / oldspeed > 4   // More than 20% faster
+		 )
+		d->restartTimer();
 	}
     }
 }
@@ -1124,10 +812,7 @@ void QMovie::setSpeed(int percent)
 */
 void QMovie::connectResize(QObject* receiver, const char *member)
 {
-    if ( d )
-	QObject::connect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
-    else
-	QObject::connect(f, SIGNAL(sizeChanged(const QSize&)), receiver, member);
+    QObject::connect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
 }
 
 /*!
@@ -1137,10 +822,7 @@ void QMovie::connectResize(QObject* receiver, const char *member)
 */
 void QMovie::disconnectResize(QObject* receiver, const char *member)
 {
-    if ( d )
-	QObject::disconnect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
-    else
-	QObject::disconnect(f, SIGNAL(sizeChanged(const QSize&)), receiver, member);
+    QObject::disconnect(d, SIGNAL(sizeChanged(const QSize&)), receiver, member);
 }
 
 /*!
@@ -1154,10 +836,7 @@ void QMovie::disconnectResize(QObject* receiver, const char *member)
 */
 void QMovie::connectUpdate(QObject* receiver, const char *member)
 {
-    if ( d )
-	QObject::connect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
-    else
-	QObject::connect(f, SIGNAL(areaChanged(const QRect&)), receiver, member);
+    QObject::connect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
 }
 
 /*!
@@ -1167,12 +846,7 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 {
-    if ( d )
-	QObject::disconnect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
-    else if ( f )
-	QObject::disconnect(f, SIGNAL(areaChanged(const QRect&)), receiver, member);
-    else
-	ASSERT( 0 );
+    QObject::disconnect(d, SIGNAL(areaChanged(const QRect&)), receiver, member);
 }
 
 /*!
@@ -1202,10 +876,7 @@ void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 */
 void QMovie::connectStatus(QObject* receiver, const char *member)
 {
-    if ( d )
-	QObject::connect(d, SIGNAL(dataStatus(int)), receiver, member);
-    else
-	QObject::connect(f, SIGNAL(dataStatus(int)), receiver, member);
+    QObject::connect(d, SIGNAL(dataStatus(int)), receiver, member);
 }
 
 /*!
@@ -1215,64 +886,7 @@ void QMovie::connectStatus(QObject* receiver, const char *member)
 */
 void QMovie::disconnectStatus(QObject* receiver, const char *member)
 {
-    if ( d )
-	QObject::disconnect(d, SIGNAL(dataStatus(int)), receiver, member);
-    else
-	QObject::disconnect(f, SIGNAL(dataStatus(int)), receiver, member);
-}
-
-
-QMovieFrame::QMovieFrame()
-{
-    x_offset = 0;
-    y_offset = 0;
-    time_offset = 0;
-}
-
-QMovieFrame::QMovieFrame( const QPixmap& pix, int dx, int dy, int dtime )
-{
-    x_offset = dx;
-    y_offset = dy;
-    time_offset = dtime;
-    mypixmap = pix;
-}
-
-void QMovieFrame::set( const QPixmap& pix, int dx, int dy, int dtime )
-{
-    x_offset = dx;
-    y_offset = dy;
-    time_offset = dtime;
-    mypixmap = pix;
-}
-
-bool QMovieFrame::operator==( const QMovieFrame& )
-{
-    return FALSE;
-}
-
-bool QMovieFrame::operator<( const QMovieFrame& _frame )
-{
-    return ( ( y_offset < _frame.yOffset() ) ? TRUE : FALSE );
-}
-
-const QPixmap& QMovieFrame::pixmap() const
-{
-    return mypixmap;
-}
-
-int QMovieFrame::xOffset() const
-{
-    return x_offset;
-}
-
-int QMovieFrame::yOffset() const
-{
-    return y_offset;
-}
-
-int QMovieFrame::timeOffset() const
-{
-    return time_offset;
+    QObject::disconnect(d, SIGNAL(dataStatus(int)), receiver, member);
 }
 
 
@@ -1283,7 +897,7 @@ int QMovieFrame::timeOffset() const
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.58 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.59 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -1403,147 +1017,6 @@ void QMovieFilePrivate::areaChanged( const QRect& t0 )
 
 // SIGNAL dataStatus
 void QMovieFilePrivate::dataStatus( int t0 )
-{
-    activate_signal( "dataStatus(int)", t0 );
-}
-
-#if !defined(Q_MOC_OUTPUT_REVISION)
-#define Q_MOC_OUTPUT_REVISION 3
-#elif Q_MOC_OUTPUT_REVISION != 3
-#error "Moc format conflict - please regenerate all moc files"
-#endif
-
-#include <qmetaobject.h>
-#include <qapplication.h>
-
-const char *QMovieFramePrivate::className() const
-{
-    return "QMovieFramePrivate";
-}
-
-QMetaObject *QMovieFramePrivate::metaObj = 0;
-
-
-#if QT_VERSION >= 199
-static QMetaObjectInit init_QMovieFramePrivate(&QMovieFramePrivate::staticMetaObject);
-
-#endif
-
-void QMovieFramePrivate::initMetaObject()
-{
-    if ( metaObj )
-	return;
-    if ( strcmp(QObject::className(), "QObject") != 0 )
-	badSuperclassWarning("QMovieFramePrivate","QObject");
-
-#if QT_VERSION >= 199
-    staticMetaObject();
-}
-
-QString QMovieFramePrivate::tr(const char* s)
-{
-    return qApp->translate("QMovieFramePrivate",s);
-}
-
-void QMovieFramePrivate::staticMetaObject()
-{
-    if ( metaObj )
-	return;
-    QObject::staticMetaObject();
-#else
-
-    QObject::initMetaObject();
-#endif
-
-    typedef void(QMovieFramePrivate::*m1_t0)();
-    m1_t0 v1_0 = &QMovieFramePrivate::refresh;
-    QMetaData *slot_tbl = new QMetaData[1];
-    slot_tbl[0].name = "refresh()";
-    slot_tbl[0].ptr = *((QMember*)&v1_0);
-    typedef void(QMovieFramePrivate::*m2_t0)(const QSize&);
-    typedef void(QMovieFramePrivate::*m2_t1)(const QRect&);
-    typedef void(QMovieFramePrivate::*m2_t2)(int);
-    m2_t0 v2_0 = &QMovieFramePrivate::sizeChanged;
-    m2_t1 v2_1 = &QMovieFramePrivate::areaChanged;
-    m2_t2 v2_2 = &QMovieFramePrivate::dataStatus;
-    QMetaData *signal_tbl = new QMetaData[3];
-    signal_tbl[0].name = "sizeChanged(const QSize&)";
-    signal_tbl[1].name = "areaChanged(const QRect&)";
-    signal_tbl[2].name = "dataStatus(int)";
-    signal_tbl[0].ptr = *((QMember*)&v2_0);
-    signal_tbl[1].ptr = *((QMember*)&v2_1);
-    signal_tbl[2].ptr = *((QMember*)&v2_2);
-    metaObj = new QMetaObject( "QMovieFramePrivate", "QObject",
-	slot_tbl, 1,
-	signal_tbl, 3 );
-}
-
-// SIGNAL sizeChanged
-void QMovieFramePrivate::sizeChanged( const QSize& t0 )
-{
-    QConnectionList *clist = receivers("sizeChanged(const QSize&)");
-    if ( !clist || signalsBlocked() )
-	return;
-    typedef void (QObject::*RT0)();
-    typedef RT0 *PRT0;
-    typedef void (QObject::*RT1)(const QSize&);
-    typedef RT1 *PRT1;
-    RT0 r0;
-    RT1 r1;
-    QConnectionListIt it(*clist);
-    QConnection   *c;
-    QSenderObject *object;
-    while ( (c=it.current()) ) {
-	++it;
-	object = (QSenderObject*)c->object();
-	object->setSender( this );
-	switch ( c->numArgs() ) {
-	    case 0:
-		r0 = *((PRT0)(c->member()));
-		(object->*r0)();
-		break;
-	    case 1:
-		r1 = *((PRT1)(c->member()));
-		(object->*r1)(t0);
-		break;
-	}
-    }
-}
-
-// SIGNAL areaChanged
-void QMovieFramePrivate::areaChanged( const QRect& t0 )
-{
-    QConnectionList *clist = receivers("areaChanged(const QRect&)");
-    if ( !clist || signalsBlocked() )
-	return;
-    typedef void (QObject::*RT0)();
-    typedef RT0 *PRT0;
-    typedef void (QObject::*RT1)(const QRect&);
-    typedef RT1 *PRT1;
-    RT0 r0;
-    RT1 r1;
-    QConnectionListIt it(*clist);
-    QConnection   *c;
-    QSenderObject *object;
-    while ( (c=it.current()) ) {
-	++it;
-	object = (QSenderObject*)c->object();
-	object->setSender( this );
-	switch ( c->numArgs() ) {
-	    case 0:
-		r0 = *((PRT0)(c->member()));
-		(object->*r0)();
-		break;
-	    case 1:
-		r1 = *((PRT1)(c->member()));
-		(object->*r1)(t0);
-		break;
-	}
-    }
-}
-
-// SIGNAL dataStatus
-void QMovieFramePrivate::dataStatus( int t0 )
 {
     activate_signal( "dataStatus(int)", t0 );
 }
