@@ -35,8 +35,10 @@
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
+#ifndef Q_NO_TYPESAFE_FLAGS
 template class Q_GUI_EXPORT QFlags<Qt::WidgetState>;
 template class Q_GUI_EXPORT QFlags<Qt::WindowFlags>;
+#endif
 // MOC_SKIP_END
 #endif
 
