@@ -695,7 +695,7 @@ void QWSDisplay::Data::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
-	} else if ( e->type==QWSEvent::MaxWindowRect && !servermaxrect ) {
+	} else if ( e->type==QWSEvent::MaxWindowRect && !servermaxrect && qt_screen ) {
 	    // Process this ASAP, in case new widgets are created (startup)
 	    servermaxrect=TRUE;
 	    setMaxWindowRect(((QWSMaxWindowRectEvent*)e)->simpleData.rect);
@@ -1918,6 +1918,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		keywidget = (QETWidget*)widget->topLevelWidget();
 	}
     } else if ( event->type==QWSEvent::MaxWindowRect ) {
+	servermaxrect=TRUE;
 	QRect r = ((QWSMaxWindowRectEvent*)event)->simpleData.rect;
 	setMaxWindowRect(r);
 	return 0;
