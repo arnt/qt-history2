@@ -115,9 +115,6 @@ private:
     void	openActPopup();
     void	hidePopups();
 
-    virtual void	setActItem( int, bool = FALSE );
-    virtual void	setWindowsAltMode( bool, int = 0 );
-
     void setActiveItem( int index, bool show = TRUE, bool activate_first_item = TRUE );
     void setAltMode( bool );
 

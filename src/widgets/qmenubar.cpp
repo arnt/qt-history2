@@ -516,7 +516,6 @@ void QMenuBar::openActPopup()
 {
     if ( actItem < 0 )
 	return;
-//     setWindowsAltMode( FALSE, actItem );
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( !popup || !popup->isEnabled() )
 	return;
@@ -1037,17 +1036,6 @@ void QMenuBar::resizeEvent( QResizeEvent * )
 	calculateRects();
 }
 
-
-/*!
-  Wins the price for the most stupid virtual function in Qt.
-  Second price went to setWindowsAltMode()
-  \sa setWindowsAltMode
- */
-void QMenuBar::setActItem( int , bool )
-{
-
-}
-
 /*!  Sets actItem to \a i and calls repaint for the
   changed things.
 
@@ -1129,18 +1117,6 @@ void QMenuBar::setAltMode( bool enable )
 	QMenuData::d->aWidget = 0;
     }
 }
-
-
-/*!
-  Wins the second price for the most stupid virtual function in Qt.
-  First price went to setActItem()
-  \sa setActItem
-*/
-
-void QMenuBar::setWindowsAltMode( bool, int )
-{
-}
-
 
 /*!  Sets up keyboard accelerators for the menu bar. */
 
