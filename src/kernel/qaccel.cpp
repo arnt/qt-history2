@@ -337,22 +337,24 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     SequenceMatch result = Qt::NoMatch;
     QKeySequence tocheck, partial;
     while ( accel ) {
-	if ( correctSubWindow( w, accel ) ) {
+	if ( accel->enabled && correctSubWindow( w, accel ) ) {
 	    item = accel->aitems.last();
 	    while( item ) {
-		if ( Qt::Identical == (result = match( e, item, tocheck )) ) {
-		    if ( !firstaccel ) {
-			firstaccel = accel;
-			firstitem = item;
+		if ( item->enabled ) {
+		    if ( Qt::Identical == (result = match( e, item, tocheck )) ) {
+			if ( !firstaccel ) {
+			    firstaccel = accel;
+			    firstitem = item;
+			}
+			lastaccel = accel;
+			lastitem = item;
+			n++;
+			if ( n > QMAX(clash,0) )
+			    goto doclash;
 		    }
-		    lastaccel = accel;
-		    lastitem = item;
-		    n++;
-		    if ( n > QMAX(clash,0) )
-			goto doclash;
+		    if ( Qt::PartialMatch == result )
+			partial = tocheck;
 		}
-		if ( Qt::PartialMatch == result )
-		    partial = tocheck;
 		item = accel->aitems.prev();
 	    }
 	}
