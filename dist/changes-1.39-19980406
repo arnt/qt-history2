@@ -1,3 +1,8 @@
+src/kernel/qpainter.cpp    2.127  agulbra  +37 -6  (1998/03/30)
+
+  sort of parse $LANG
+
+
 src/kernel/qpainter.cpp    2.35  warwick  +5 -4  (1998/03/30)
 
   Fix TAB expansion in QPainter::drawText (and hence QMultiLineEdit).
