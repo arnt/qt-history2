@@ -3215,7 +3215,10 @@ HRESULT WINAPI QAxServerBase::ResizeBorder( LPCRECT prcBorder, IOleInPlaceUIWind
 
 HRESULT WINAPI QAxServerBase::EnableModeless( BOOL fEnable )
 {
-    return S_OK;
+    if (!isWidget)
+	return S_OK;
+
+    EnableModeless(qt.widget->winId(), fEnable);
 }
 
 //**** IOleObject
