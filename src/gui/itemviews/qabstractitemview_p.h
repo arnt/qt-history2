@@ -33,7 +33,7 @@ class QRubberBand;
 #include <qmime.h>
 #include <qmap.h>
 
-class QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
+class Q_GUI_EXPORT QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemView)
 
