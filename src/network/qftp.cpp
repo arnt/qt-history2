@@ -1068,10 +1068,10 @@ bool QFtpPI::startNextCmd()
     }
     currentCmd = pendingCommands.first();
 
-    // Special case for the PORT command - we need to set up a
-    // listener and report its address and port to the server. As each
-    // command has its separate listener, we need to edit this command
-    // in place.
+    // PORT and PASV are edited in-place, depending on whether we
+    // should try the extended transfer connection commands EPRT and
+    // EPSV. The PORT command also triggers setting up a listener, and
+    // the address/port arguments are edited in.
     if (currentCmd.startsWith("PORT")) {
         QHostAddress address = commandSocket.address();
 
