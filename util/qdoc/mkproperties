@@ -29,7 +29,8 @@ while ( <ARGV> ) {
   }
 
   if (/^<li><span class=\"fn\">.*<a href=\"(.*)\".*<b>(.*)<\/b>/g ) {
-    $functions{$2} = $1;
+    $key = $classname."/".$2;
+    $functions{$key} = $1;
   }
 
   if ( /^<h2>Properties<\/h2>$/ ) {
@@ -45,7 +46,8 @@ while ( <ARGV> ) {
 	if ( $3 ) {
 	  $func = $3; # set function, if available
 	}
-	push( @lines, "\"$classname/$1\" $ARGV$functions{$2}\n" );
+	$key = $classname."/".$func;
+	push( @lines, "\"$classname/$1\" $ARGV$functions{$key}\n" );
       }
     }
   }
