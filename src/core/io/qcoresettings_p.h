@@ -103,9 +103,10 @@ private:
     QConfFile &operator=(const QConfFile &);
 #endif
     QConfFile(const QString &name);
+    friend class QConfFile_createsItself; // supress compiler warning
 };
 
-class Q_CORE_EXPORT QCoreSettingsPrivate 
+class Q_CORE_EXPORT QCoreSettingsPrivate
 #ifndef QT_NO_QOBJECT
     : public QObjectPrivate
 #endif
@@ -169,7 +170,7 @@ public:
     static QStringList splitArgs(const QString &s, int idx);
     static QString variantToStringGuiImpl(const QCoreVariant &v);
     static QCoreVariant stringToVariantGuiImpl(const QString &s);
-    
+
 protected:
     QStack<QSettingsGroup> groupStack;
     QString groupPrefix;
