@@ -262,10 +262,12 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation
         setClippedRegionInternal(0);
     } else {
         QRegion clip = region;
-        if(op == Qt::IntersectClip)
-            clip = clip.intersect(d->current.clip);
-        else if(op == Qt::UniteClip)
-            clip = clip.unite(d->current.clip);
+        if(testf(ClipOn)) {
+            if(op == Qt::IntersectClip)
+                clip = d->current.clip.intersect(clip);
+            else if(op == Qt::UniteClip)
+                clip = d->current.clip.unite(clip);
+        }
         setClippedRegionInternal(&clip);
     }
 }
@@ -1289,6 +1291,8 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
+        if(testf(ClipOn)) 
+            op = Qt::ReplaceClip;
         setf(ClipOn);
         QRegion clipRegion(p.toFillPolygon().toPointArray(),
                            p.fillRule() == Qt::WindingFill);
