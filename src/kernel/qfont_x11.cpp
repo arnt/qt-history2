@@ -2217,7 +2217,7 @@ void QFontPrivate::initFontInfo(QFont::Script script, double scale)
 		// if we have a scaled font, we fake actual to show the correct size
 		// value nevertheless....
 		actual.pointSize = (int) (actual.pointSize*scale);
-		actual.pixelSize *= (int) (actual.pixelSize*scale);
+		actual.pixelSize = (int) (actual.pixelSize*scale);
 	    }
 
 	return;
