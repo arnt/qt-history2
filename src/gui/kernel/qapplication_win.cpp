@@ -695,18 +695,18 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
     uint style;
     bool icon;
     QString cname;
-    if (flags & Qt::WWinOwnDC) {
+    if (flags & Qt::MSWindowsOwnDC) {
         cname = "QWidgetOwnDC";
         style = CS_DBLCLKS;
 #ifndef Q_OS_TEMP
         style |= CS_OWNDC;
 #endif
         icon  = true;
-    } else if ((flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0) {
+    } else if ((flags & (Qt::Popup|Qt::Tool)) == 0) {
         cname = "QWidget";
         style = CS_DBLCLKS;
         icon  = true;
-    } else if ((flags & Qt::WStyle_Tool) && !(flags & Qt::WType_Popup)){
+    } else if ((flags & Qt::Tool) && !(flags & Qt::Popup)){
 	cname = "QTool";
 	style = CS_DBLCLKS;
 #ifndef Q_OS_TEMP

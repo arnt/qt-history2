@@ -1863,7 +1863,7 @@ const QGLContext* QGLContext::currentContext()
 */
 
 QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -1902,7 +1902,7 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f
 
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* shareWidget,
                      Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -1937,7 +1937,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
 */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shareWidget,
                      Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
@@ -2954,7 +2954,7 @@ QPaintEngine *QGLWidget::paintEngine() const
  */
 QGLWidget::QGLWidget(QWidget *parent, const char *name,
                       const QGLWidget* shareWidget, Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
     if (name)
@@ -2971,7 +2971,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
                       const char *name, const QGLWidget* shareWidget,
                       Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
     if (name)
@@ -2987,7 +2987,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
  */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
                       const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
-    : QWidget(*(new QGLWidgetPrivate), parent, f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
     if (name)

@@ -186,25 +186,26 @@ public:
 
         WindowType_Mask = 0x000000ff,
         MSWindowsFixedSizeDialogHint = 0x00000100,
-        X11BypassWindowManagerHint = 0x00000200,
-        FramelessWindowHint = 0x00000400,
-        WindowTitleHint = 0x00000800,
-        WindowSystemMenuHint = 0x00001000,
-        WindowMinimizeButtonHint = 0x00002000,
-        WindowMaximizeButtonHint = 0x00004000,
+	MSWindowsOwnDC = 0x00000200,
+        X11BypassWindowManagerHint = 0x00000400,
+        FramelessWindowHint = 0x00000800,
+        WindowTitleHint = 0x00001000,
+        WindowSystemMenuHint = 0x00002000,
+        WindowMinimizeButtonHint = 0x00004000,
+        WindowMaximizeButtonHint = 0x00008000,
         WindowMinMaxButtonsHint = WindowMinimizeButtonHint | WindowMaximizeButtonHint,
-        WindowContextHelpButtonHint = 0x00008000,
-        WindowShadeButtonHint = 0x00010000,
-        WindowStaysOnTopHint = 0x00020000
+        WindowContextHelpButtonHint = 0x00010000,
+        WindowShadeButtonHint = 0x00020000,
+        WindowStaysOnTopHint = 0x00040000
 
 #ifdef QT3_SUPPORT
         ,
-        WMouseNoMask = 0x00040000,
-        WDestructiveClose = 0x00080000,
-        WStaticContents = 0x00100000,
-        WGroupLeader = 0x00200000,
-        WShowModal = 0x00400000,
-        WNoMousePropagation = 0x00800000,
+        WMouseNoMask = 0x00080000,
+        WDestructiveClose = 0x00100000,
+        WStaticContents = 0x00200000,
+        WGroupLeader = 0x00400000,
+        WShowModal = 0x00800000,
+        WNoMousePropagation = 0x01000000,
 
         WType_TopLevel = Window,
         WType_Dialog = Dialog,
@@ -230,7 +231,7 @@ public:
         WPaintClever = 0,
 
         WX11BypassWM            = X11BypassWindowManagerHint,
-        WWinOwnDC               = 0,
+        WWinOwnDC               = MSWindowsOwnDC,
         WMacSheet               = Sheet,
         WMacDrawer              = Drawer,
 
