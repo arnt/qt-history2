@@ -406,7 +406,7 @@ QRegion QTextLayout::region() const
 }
 
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
-			  const QRect &rect, const QTextLine &line, const QPoint &pos)
+			  const QRect &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
 {
     p->save();
     p->setClipRect(rect, QPainter::CoordPainter);
@@ -427,11 +427,14 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
 	bg = pal->text();
 	text = pal->background();
 	break;
+    case QTextLayout::NoSelection:
+	Q_ASSERT(false); // should never happen.
+	return;
     }
     p->fillRect(rect, bg);
     if (text.isValid())
 	p->setPen(text);
-    line.draw(p, pos.x(), pos.y());
+    line.draw(p, pos.x(), pos.y(), selectionIdx);
     p->restore();
     return;
 }
@@ -476,7 +479,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 						   pos.y() + sl.y),
 					    QPoint(pos.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
 						   pos.y() + sl.y + sl.ascent + sl.descent));
-		    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, pos);
+		    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, pos, j);
 		}
 	    }
 	}
@@ -543,7 +546,7 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-void QTextLine::draw( QPainter *p, int x, int y ) const
+void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -581,7 +584,13 @@ void QTextLine::draw( QPainter *p, int x, int y ) const
 
 	if (si.isObject && eng->inlineObjectIface && eng->formats) {
 	    QTextFormat format = eng->formats->format(si.format);
-	    eng->inlineObjectIface->drawItem(p, QPoint(x, y), QTextItem(item, eng), format);
+
+	    QTextLayout::SelectionType selType = QTextLayout::NoSelection;
+	    if (selection >= 0 && eng->selections && eng->nSelections > 0)
+		// ###
+		selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
+
+	    eng->inlineObjectIface->drawItem(p, QPoint(x, y), QTextItem(item, eng), format, selType);
 	}
 
 	if ( si.isTab || si.isObject ) {

@@ -74,60 +74,11 @@ private:
     QTextEngine *eng;
 };
 
-class QTextLine
-{
-public:
-    QTextLine( int line, QTextEngine *e ) : i( line ), eng( e ) {}
-    inline QTextLine() : i(0), eng(0) {}
-    inline bool isValid() const { return (bool)eng; }
-
-    QRect rect() const;
-    int x() const;
-    int y() const;
-    int width() const;
-    int ascent() const;
-    int descent() const;
-    int textWidth() const;
-
-    enum Edge {
-	Leading,
-	Trailing
-    };
-    enum CursorPosition {
-	BetweenCharacters,
-	OnCharacters
-    };
-
-    /* cPos gets set to the valid position */
-    int cursorToX( int *cPos, Edge edge = Leading ) const;
-    inline int cursorToX( int cPos, Edge edge = Leading ) const { return cursorToX( &cPos, edge ); }
-    int xToCursor( int x, CursorPosition = BetweenCharacters ) const;
-
-    void adjust(int y, int x1, int x2);
-    int from() const;
-    int length() const;
-
-    QTextEngine *engine() const { return eng; }
-    int line() const { return i; }
-
-    void draw(QPainter *p, int x, int y) const;
-
-private:
-    friend class QTextLayout;
-    int i;
-    QTextEngine *eng;
-};
-
 class QPainter;
 class QTextFormatCollection;
 class QTextFormat;
-
-struct QTextInlineObjectInterface
-{
-    virtual void layoutItem(QTextItem item, const QTextFormat &format) = 0;
-    virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item, const QTextFormat &format) = 0;
-};
-Q_DECLARE_INTERFACE(QTextInlineObjectInterface)
+class QTextInlineObjectInterface;
+class QTextLine;
 
 class Q_GUI_EXPORT QTextLayout
 {
@@ -182,6 +133,7 @@ public:
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
 
     enum SelectionType {
+	NoSelection = 0,
 	Highlight = -1,
 	ImText = -2,
 	ImSelection = -3
@@ -191,7 +143,7 @@ public:
 	int l;
 	int t;
     public:
-	Selection() : f(-1), l(0), t(0) {}
+	Selection() : f(-1), l(0), t(NoSelection) {}
 	//Selection(int f, int l, int formatIndex) : from(f), length(l), selectionType(formatIndex) {}
 	Selection(int from, int length, SelectionType type) : f(from), l(length), t(type) {}
 	inline int from() const { return f; }
@@ -224,6 +176,57 @@ private:
     friend class QPainter;
     friend class QPSPrinter;
     QTextEngine *d;
+};
+
+struct QTextInlineObjectInterface
+{
+    virtual void layoutItem(QTextItem item, const QTextFormat &format) = 0;
+    virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item, const QTextFormat &format, QTextLayout::SelectionType selection) = 0;
+};
+Q_DECLARE_INTERFACE(QTextInlineObjectInterface)
+
+class QTextLine
+{
+public:
+    QTextLine( int line, QTextEngine *e ) : i( line ), eng( e ) {}
+    inline QTextLine() : i(0), eng(0) {}
+    inline bool isValid() const { return (bool)eng; }
+
+    QRect rect() const;
+    int x() const;
+    int y() const;
+    int width() const;
+    int ascent() const;
+    int descent() const;
+    int textWidth() const;
+
+    enum Edge {
+	Leading,
+	Trailing
+    };
+    enum CursorPosition {
+	BetweenCharacters,
+	OnCharacters
+    };
+
+    /* cPos gets set to the valid position */
+    int cursorToX( int *cPos, Edge edge = Leading ) const;
+    inline int cursorToX( int cPos, Edge edge = Leading ) const { return cursorToX( &cPos, edge ); }
+    int xToCursor( int x, CursorPosition = BetweenCharacters ) const;
+
+    void adjust(int y, int x1, int x2);
+    int from() const;
+    int length() const;
+
+    QTextEngine *engine() const { return eng; }
+    int line() const { return i; }
+
+    void draw(QPainter *p, int x, int y, int selection = -1) const;
+
+private:
+    friend class QTextLayout;
+    int i;
+    QTextEngine *eng;
 };
 
 #endif
