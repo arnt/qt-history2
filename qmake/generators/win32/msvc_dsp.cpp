@@ -282,10 +282,42 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QStringList list = project->variables()["IMAGES"];
 		if(!project->isActiveConfig("flat"))
 		    list.sort();
-		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		QStringList::Iterator it;
+
+		// dump the image list to a file UIC can read.
+		QFile f( "images.tmp" );
+		f.open( IO_WriteOnly );
+		QTextStream ts( &f );
+		for( it = list.begin(); it != list.end(); ++it )
+		    ts << " " << *it;
+		f.close();
+
+		// create an output step for images not more than once
+		bool imagesBuildDone = FALSE;
+		for( it = list.begin(); it != list.end(); ++it ) {
 //		    beginGroupForFile((*it), t);
-		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl
-		      << "# End Source File" << endl;
+		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
+
+		    QString base = (*it);
+		    QString uicpath = var("QMAKE_UIC");
+		    uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
+
+		    if ( !imagesBuildDone ) {
+			imagesBuildDone = TRUE;
+			QString build = "\n\n# Begin Custom Build - Creating image collection...\n"
+			    "InputPath=.\\" + base + "\n\n";
+
+			build += "\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n";
+			build += "\t" + uicpath + "-embed " + project->first("QMAKE_ORIG_TARGET") + " -f images.tmp -o "
+				      + project->first("QMAKE_IMAGE_COLLECTION") + "\n\n";
+			build.append("# End Custom Build\n\n");
+
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+			  << "!ENDIF \n\n" << endl;
+		    }
+
+		    t << "# End Source File" << endl;
 		}
 //		endGroups(t);
 		t << "\n# End Group\n";
@@ -295,8 +327,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		t << "# Begin Group \"Forms\"\n"
 		  << "# Prop Default_Filter \"ui\"\n";
-
-		bool imagesBuildDone = FALSE;	    // Dirty hack to make it not create an output step for images more than once
 
 		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
@@ -349,19 +379,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
 				    "\t" + mocpath + uiHeadersDir + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 
-		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
-			QStringList &list = project->variables()["IMAGES"];
-			QFile f( "images.tmp" );
-			f.open( IO_WriteOnly );
-			QTextStream ts( &f );
-			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it)
-			    ts << " " << *it;
-			f.close();
-			build.append("\t" + uicpath + "-embed " +
-				     project->first("QMAKE_ORIG_TARGET") + " -f images.tmp -o "
-				     + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n");
-		    }
-
 		    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 				 "\t$(BuildCmds)\n\n"
 				 "\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
@@ -369,18 +386,11 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				 "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 				 "\t$(BuildCmds)\n\n");
 
-		    if ( !imagesBuildDone && !project->variables()["IMAGES"].isEmpty() ) {
-			build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""
-				     "\n" "\t$(BuildCmds)\n\n");
-		    }
-
 		    build.append("# End Custom Build\n\n");
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n" << "# End Source File" << endl;
-		    if ( !imagesBuildDone )
-			imagesBuildDone = TRUE;
 		}
 //		endGroups(t);
 		t << "\n# End Group\n";
