@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#11 $
 **
 ** Implementation of QJisCodec class
 **
@@ -434,7 +434,6 @@ int QJisCodec::heuristicContentMatch(const char* chars, int len) const
 		break;
 	      default:
 		return -1;
-		//break;
 	    }
 	}
     }
