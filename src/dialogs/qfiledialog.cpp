@@ -2172,6 +2172,7 @@ void QFileDialog::init()
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
     d->types->setDuplicatesEnabled( FALSE );
+    d->types->setEditable( FALSE );
     connect( d->types, SIGNAL(activated(const QString&)),
 	     this, SLOT(setFilter(const QString&)) );
 
