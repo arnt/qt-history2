@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#190 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2300,19 +2300,18 @@ debug("IME");
 		bool foundtext = PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE);
 		if ( foundtext && msg.message != WM_SYSKEYDOWN ) {
 		    uch = QChar(wm_char.wParam & 0xff, wm_char.wParam >> 8);
-debug("uch=0x%02x%02x",uch.row,uch.cell);
 		} // Syskeys have no CHARs
 	    }
 	    if ( uch != QChar::null ) {
 		if ( (msg.message == WM_SYSKEYDOWN) &&
 		     isalpha(msg.wParam) &&
 		     (msg.lParam & 0x20000000) ) //See doc of WM_SYSCHAR
-    		    uch = QChar(tolower(msg.wParam)); //Alt-letter
+    		    uch = QChar((char)tolower(msg.wParam)); //Alt-letter
 		if ( !code && !uch.row )
 		    code = asciiToKeycode(uch.cell, state);
 	    } else {
 		if ( msg.wParam == VK_DELETE )
-		    uch = QChar(0x7f); // Windows doesn't know this one.
+		    uch = QChar((char)0x7f); // Windows doesn't know this one.
 		if ( !code )
 		    code = asciiToKeycode(msg.wParam, state);
 	    }
