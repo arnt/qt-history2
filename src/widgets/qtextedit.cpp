@@ -458,8 +458,8 @@ static bool block_set_alignment = FALSE;
     There are a few things that you need to be aware of when the
     widget is in this mode:
     \list
-    \i Functions that deal with rich text formatting will not work or
-    return anything valid.
+    \i Functions that deal with rich text formatting and cursor
+    movement will not work or return anything valid.
     \i Lines are equivalent to paragraphs.
     \i Inserting lines is not supported. It is only possible to append
     lines.
