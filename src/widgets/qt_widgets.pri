@@ -55,7 +55,9 @@ widgets {
 		  $$WIDGETS_H/qdatetimeedit.h \
 		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtextbrowser.h \
-		  $$WIDGETS_H/qtextedit.h
+		  $$WIDGETS_H/qtextedit.h \
+		  $$WIDGETS_P/qwidgetinterface_p.h \
+		  $$WIDGETS_H/qwidgetplugin.h
 
 	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
 		  $$WIDGETS_CPP/qbutton.cpp \
@@ -111,6 +113,7 @@ widgets {
 		  $$WIDGETS_CPP/qeffects.cpp \
 		  $$WIDGETS_CPP/qtextview.cpp \
 		  $$WIDGETS_CPP/qtextbrowser.cpp \
-		  $$WIDGETS_CPP/qtextedit.cpp
+		  $$WIDGETS_CPP/qtextedit.cpp \
+		  $$WIDGETS_CPP/qwidgetplugin.cpp
    mac:SOURCES += $$WIDGETS_CPP/qmenubar_mac.cpp
 }
