@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#10 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#11 $
 **
 ** Definition of QGArray class
 **
@@ -28,19 +28,17 @@ public:
     QGArray();
 protected:
     QGArray( int, int );			// dummy; does not alloc
-    QGArray( int size );			// allocate room
+    QGArray( int size );			// allocate 'size' bytes
     QGArray( const QGArray &a );		// shallow copy
     virtual ~QGArray();
 
-    QGArray    &operator=( const QGArray &a ) { return assign( a ); }
+    virtual void detach()	{ duplicate(*this); }
 
-    virtual void detach() { duplicate(*this); } // detach array
-
-    char       *data()	 const { return p->data; }
-    uint	size()	 const { return p->len; }
+    char       *data()	 const	{ return p->data; }
+    uint	size()	 const	{ return p->len; }
     bool	isEqual( const QGArray &a ) const;
 
-    bool	resize( uint newsize );		// resize array
+    bool	resize( uint newsize );
 
     bool	fill( const char *d, int len, uint sz );
 
@@ -49,6 +47,9 @@ protected:
     QGArray    &duplicate( const QGArray &a );
     QGArray    &duplicate( const char *d, uint len );
     void	store( const char *d, uint len );
+
+    QGArray    &setRawData( const char *d, uint len );
+    void	resetRawData( const char *d, uint len );
 
     int		find( const char *d, uint index, uint sz ) const;
     int		contains( const char *d, uint sz ) const;
@@ -61,7 +62,7 @@ protected:
     array_data *p;
 
     virtual array_data *newData()		    { return new array_data; }
-    virtual void	deleteData( array_data *p ) { delete p; }
+    virtual void	deleteData( array_data *d ) { delete d; }
 };
 
 

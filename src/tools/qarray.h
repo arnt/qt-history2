@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#8 $
+** $Id: //depot/qt/main/src/tools/qarray.h#9 $
 **
 ** Definition of QArray template/macro class
 **
@@ -63,6 +63,11 @@ public:									      \
 	{ return (QArrayM(type)&)QGArray::duplicate(a); }		      \
     QArrayM(type)& duplicate( const type *a, uint n )			      \
 	{ return (QArrayM(type)&)QGArray::duplicate((char*)a,n*sizeof(type));}\
+    QArrayM(type)& setRawData( const type *a, uint n )			      \
+	{ return (QArrayM(type)&)QGArray::setRawData((char*)a,		      \
+						     n*sizeof(type)); }	      \
+    void resetRawData( const type *a, uint n )				      \
+	{ QGArray::resetRawData((char*)a,n*sizeof(type)); }		      \
     int	 find( const type &d, uint i=0 ) const				      \
 	{ return QGArray::find((char*)&d,i,sizeof(type)); }		      \
     int	 contains( const type &d ) const				      \
@@ -117,6 +122,11 @@ public:
 	{ return (QArrayT<type>&)QGArray::duplicate(a); }
     QArrayT<type>& duplicate( const type *a, uint n )
 	{ return (QArrayT<type>&)QGArray::duplicate((char*)a,n*sizeof(type)); }
+    QArrayM(type)& setRawData( const type *a, uint n )
+	{ return (QArrayM(type)&)QGArray::setRawData((char*)a,
+						     n*sizeof(type)); }
+    void resetRawData( const type *a, uint n )
+	{ QGArray::resetRawData((char*)a,n*sizeof(type)); }
     int	 find( const type &d, uint i=0 ) const
 	{ return QGArray::find((char*)&d,i,sizeof(type)); }
     int	 contains( const type &d ) const

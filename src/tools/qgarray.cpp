@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#19 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#19 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -49,7 +49,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#18 $")
 #define DONT_USE_REALLOC			// comment to use realloc()
 #endif
 
-/*! \class QArray qarray.h
+
+/*!
+  \class QArray qarray.h
 
   \ingroup tools
 
@@ -95,7 +97,9 @@ QGArray::QGArray( int, int )			// dummy; does not alloc
 {
 }
 
-/*! Creates an array with size \e size bytes. */
+/*!
+  Creates an array with size \e size bytes.
+*/
 
 QGArray::QGArray( int size )			// allocate room
 {
@@ -114,7 +118,9 @@ QGArray::QGArray( int size )			// allocate room
     p->len = size;
 }
 
-/*! Creates a shallow copy of \e a */
+/*!
+  Creates a shallow copy of \e a.
+*/
 
 QGArray::QGArray( const QGArray &a )		// shallow copy
 {
@@ -122,8 +128,10 @@ QGArray::QGArray( const QGArray &a )		// shallow copy
     p->ref();
 }
 
-/*! Deletes the array, and the data too unless there are other QGArrays
-  around that reference the same data. */
+/*!
+  Deletes the array, and the data too unless there are other QGArrays
+  around that reference the same data.
+*/
 
 QGArray::~QGArray()
 {
@@ -134,8 +142,10 @@ QGArray::~QGArray()
     }
 }
 
-/*! Returns TRUE if this array and \e a are equal.  (The comparison is
-  bitwise, of course.) */
+/*!
+  Returns TRUE if this array and \e a are equal.  (The comparison is
+  bitwise, of course.)
+*/
 
 
 bool QGArray::isEqual( const QGArray &a ) const // is arrays equal to a
@@ -147,9 +157,11 @@ bool QGArray::isEqual( const QGArray &a ) const // is arrays equal to a
     return (size() ? memcmp( data(), a.data(), size() ) : 0) == 0;
 }
 
-/*! Changes the size of the array to \e newsize bytes.
+/*!
+  Changes the size of the array to \e newsize bytes.
 
-  \todo check out possible memory loss involving realloc() */
+  \todo check out possible memory loss involving realloc()
+*/
 
 bool QGArray::resize( uint newsize )		// resize array
 {
@@ -178,7 +190,8 @@ bool QGArray::resize( uint newsize )		// resize array
     return TRUE;
 }
 
-/*! Resizes the array and fills it with repeated occurences of \e d,
+/*!
+  Resizes the array and fills it with repeated occurences of \e d,
   which is \e sz bytes long.
 
   If \e len is zero or positive, the array is resized to \e len*sz
@@ -188,7 +201,8 @@ bool QGArray::resize( uint newsize )		// resize array
   Returns TRUE if the operation succeeds, FALSE if it runs out of
   memory.
 
-  \sa resize() */
+  \sa resize()
+*/
 
 bool QGArray::fill( const char *d, int len, uint sz )
 {						// resize and fill array
@@ -220,9 +234,11 @@ bool QGArray::fill( const char *d, int len, uint sz )
     return TRUE;
 }
 
-/*! Makes this array into a shallow copy of \e a.
+/*!
+  Makes this array into a shallow copy of \e a.
 
-  \sa duplicate() operator= */
+  \sa duplicate(), operator=()
+*/
 
 QGArray &QGArray::assign( const QGArray &a )
 {						// shallow copy
@@ -236,10 +252,12 @@ QGArray &QGArray::assign( const QGArray &a )
     return *this;
 }
 
-/*! Makes this array into a shallow copy of the \e len bytes at
+/*!
+  Makes this array into a shallow copy of the \e len bytes at
   address \e d.
 
-  \sa duplicate() operator= */
+  \sa duplicate(), operator=
+*/
 
 QGArray &QGArray::assign( const char *d, uint len )
 {						// shallow copy
@@ -257,9 +275,11 @@ QGArray &QGArray::assign( const char *d, uint len )
     return *this;
 }
 
-/*! Makes this array into a deep copy of \e a.
+/*!
+  Makes this array into a deep copy of \e a.
 
-  \sa assign() operator= */
+  \sa assign(), operator=
+*/
 
 QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
 {
@@ -302,10 +322,12 @@ QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
     return *this;
 }
 
-/*! Makes this array into a deep copy of the \e len bytes at
+/*!
+  Makes this array into a deep copy of the \e len bytes at
   address \e d.
 
-  \sa assign() operator= */
+  \sa assign(), operator=()
+*/
 
 QGArray &QGArray::duplicate( const char *d, uint len )
 {						// deep copy
@@ -332,7 +354,7 @@ QGArray &QGArray::duplicate( const char *d, uint len )
     }
     if ( null ) {				// null value
 	p->data = 0;
-	p->len  = 0;
+	p->len	= 0;
     }
     else {					// duplicate data
 	p->data = NEW(char,len);
@@ -350,19 +372,87 @@ QGArray &QGArray::duplicate( const char *d, uint len )
     return *this;
 }
 
-/*! Resizes this array to \e len bytes and copies the \e len bytes at
+/*!
+  Resizes this array to \e len bytes and copies the \e len bytes at
   address \e into it.
 
   \warning This function disregards the reference count mechanism.  If
   other QGArrays reference the same data as this, all will be updated.
-
-  */
+*/
 
 void QGArray::store( const char *d, uint len )
 {						// store, but not deref
     resize( len );
     memcpy( p->data, d, len );
 }
+
+
+/*
+  Sets raw data and returns a reference to the array.
+
+  Deletes the current data and sets the new array data to \e d and
+  the new array length to \e len.  Do not attempt to resize or
+  re-assign the array data when raw data has been set.
+  Call resetRawData(d,len) to reset the array.
+
+  Setting raw data is useful because it set QArray data without allocating
+  memory or copying data.
+
+  Example I (intended use):
+  \code
+    static uchar bindata[] = { 231, 1, 44, ... };
+    QByteArray	a;
+    a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
+    QDataStream s( a, IO_ReadOnly );		// open on a's data
+    s >> <something>;				// read raw bindata
+    s.close();
+    a.resetRawData( bindata, sizeof(bindata) ); // finished
+  \endcode
+
+  Example II (you don't want to do this):
+  \code
+    static uchar bindata[] = { 231, 1, 44, ... };
+    QByteArray	a, b;
+    a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
+    a.resize( 8 );				// will crash
+    b = a;					// will crash
+    a[2] = 123;					// might crash
+      // forget to resetRawData - will crash
+  \endcode
+
+  \warning If you do not call resetRawData(), QGArray will attempt to
+  deallocate or reallocate the raw data, which might not be too good.
+  Be careful.
+*/
+
+QGArray &QGArray::setRawData( const char *d, uint len )
+{
+    if ( p->data )
+	duplicate( 0, 0 );			// set null data
+    p->data = (char *)d;
+    p->len  = len;
+    return *this;
+}
+
+/*
+  Resets raw data.
+
+  The arguments must be the data and length that were passed to
+  setRawData().	 This is for consistency checking.
+*/
+
+void QGArray::resetRawData( const char *d, uint len )
+{
+    if ( d != p->data || len != p->len ) {
+#if defined(CHECK_STATE)
+	warning( "QGArray::resetRawData: Inconsistent arguments" );
+#endif
+	return;
+    }
+    p->data = 0;
+    p->len  = 0;
+}
+
 
 /*! Searches for and returns the address of the first occurence of the
   \e sz bytes at \e d at or after position \e index of this array.
