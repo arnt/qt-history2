@@ -432,12 +432,14 @@ void QHeaderView::moveSection(int from, int to)
     if (to > from) {
         while (visual < to) {
             sections[visual].logical = sections[visual + 1].logical;
-            visualIndices[sections[visual].logical] = visual++;
+            visualIndices[sections[visual].logical] = visual;
+            ++visual;
         }
     } else {
         while (visual > to) {
             sections[visual].logical = sections[visual - 1].logical;
-            visualIndices[sections[visual].logical] = visual--;
+            visualIndices[sections[visual].logical] = visual;
+            --visual;
         }
     }
     sections[to].logical = logical;
