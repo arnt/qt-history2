@@ -7,6 +7,8 @@ class HelpView;
 class HelpNavigation;
 class QPopupMenu;
 class QShowEvent;
+class QProgressBar;
+class QLabel;
 
 class HelpMainWindow : public QMainWindow
 {
@@ -52,6 +54,8 @@ private:
     QPopupMenu *history;
     QString docDir;
     bool indexCreated;
+    QProgressBar *bar;
+    QLabel *label;
     
 };
 

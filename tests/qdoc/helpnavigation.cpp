@@ -15,6 +15,7 @@
 #include <qapplication.h>
 #include <qtl.h>
 #include <qpushbutton.h>
+#include <qprogressbar.h>
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -132,7 +133,7 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 
     bookmarkList = new QListView( bookmarkTab );
     bookmarkLayout->addWidget( bookmarkList );
-    
+
     QHBoxLayout *buttonLayout = new QHBoxLayout( bookmarkLayout );
     buttonLayout->setSpacing( 5 );
     QPushButton *pb = new QPushButton( tr( "&Add bookmark" ), bookmarkTab );
@@ -174,7 +175,7 @@ bool operator<( const MyString &s1, const MyString &s2 )
 bool operator>( const MyString &s1, const MyString &s2 )
 { return s1.lower > s2.lower; }
 
-void HelpNavigation::loadIndexFile()
+void HelpNavigation::loadIndexFile( QProgressBar *bar )
 {
     QString indexFile = docDir + "/index";
     QString titleFile = docDir + "/titleindex";
@@ -187,8 +188,12 @@ void HelpNavigation::loadIndexFile()
 
     //### if constructed on stack, it will crash on WindowsNT
     QValueList<MyString>* lst = new QValueList<MyString>;
-    while ( !ts.atEnd() )
-	lst->append(ts.readLine());
+    while ( !ts.atEnd() ) {
+	qApp->processEvents();
+	QString l = ts.readLine();
+	lst->append( l );
+	bar->setProgress( bar->progress() + l.length() );
+    }
     qHeapSort( *lst );
     QValueList<MyString>::Iterator it = lst->begin();
     for ( ; it != lst->end(); ++it ) {
@@ -223,6 +228,8 @@ void HelpNavigation::loadIndexFile()
     QTextStream ts2( &f2 );
     while ( !ts2.atEnd() ) {
 	QString s = ts2.readLine();
+	bar->setProgress( bar->progress() + s.length() );
+	qApp->processEvents();
 	int pipe = s.find( '|' );
 	if ( pipe == -1 )
 	    continue;
@@ -292,7 +299,7 @@ QString HelpNavigation::titleOfLink( const QString &link )
     return s;
 }
 
-void HelpNavigation::setupContentsView()
+void HelpNavigation::setupContentsView( QProgressBar * )
 {
     QString titleFile = docDir + "/titleindex";
     QFile f( titleFile );
@@ -435,7 +442,7 @@ void HelpNavigation::addBookmark( const QString &title, const QString &link )
 void HelpNavigation::removeBookmark()
 {
     QListViewItem *i = bookmarkList->currentItem();
-    if ( !i || !i->isSelected() ) 
+    if ( !i || !i->isSelected() )
 	return;
     delete i;
 }

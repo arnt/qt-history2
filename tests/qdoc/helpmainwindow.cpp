@@ -17,6 +17,8 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qurl.h>
+#include <qprogressbar.h>
+#include <qstatusbar.h>
 
 #include <stdlib.h>
 
@@ -222,6 +224,13 @@ HelpMainWindow::HelpMainWindow()
     connect( history, SIGNAL( activated( int ) ),
 	     this, SLOT( showFromHistory( int ) ) );
     indexCreated = FALSE;
+
+//     statusBar()->addWidget( new QWidget( statusBar() ), 4, TRUE );
+    label = new QLabel(  statusBar() );
+    statusBar()->addWidget( label, 2, TRUE );
+    bar = new QProgressBar( statusBar() );
+    statusBar()->addWidget( bar, 1, TRUE );
+    label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -349,45 +358,21 @@ void HelpMainWindow::showEvent( QShowEvent *e )
 	QTimer::singleShot( 1, this, SLOT( createDatabase() ) );
 }
 
-class StartDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    StartDialog( QWidget *parent, HelpNavigation *n ) : QDialog( parent, "", TRUE ) {
-	setCaption( tr( "Qt Documentation" ) );
-	navigation = n;
-	QVBoxLayout *lay = new QVBoxLayout( this );
-	lay->setMargin( 5 );
-	QLabel *l = new QLabel( tr( "Creating Index Database..." ), this );
-	lay->addWidget( l );
-    }
-
-protected:
-    void showEvent( QShowEvent *e ) {
-	QTimer::singleShot( 500, this, SLOT( createDatabase() ) );
-	QDialog::showEvent( e );
-    }
-
-private slots:
-    void createDatabase() {
-	navigation->loadIndexFile();
-	navigation->setupContentsView();
-	navigation->loadBookmarks();
-	accept();
-    }
-
-private:
-    HelpNavigation *navigation;
-
-};
-
 void HelpMainWindow::createDatabase()
 {
+    bar->setTotalSteps( QFileInfo( docDir + "/index" ).size() + 
+			QFileInfo( docDir + "/titleindex" ).size() );
+    bar->setProgress( 0 );
+    label->setText( tr( "Creating Index Database..." ) );
+    navigation->loadIndexFile( bar );
+    navigation->setupContentsView( bar );
+    navigation->loadBookmarks();
+    statusBar()->removeWidget( bar );
+    statusBar()->removeWidget( label );
+    bar->hide();
+    label->hide();
     indexCreated = TRUE;
-    StartDialog dia( this, navigation );
-    dia.exec();
-    viewer->setSource( docDir + "/index.html" );
+    viewer->setSource( viewer->source() );
 }
 
 void HelpMainWindow::addBookmark()
@@ -428,5 +413,4 @@ void HelpMainWindow::showFromHistory( int id )
     }
 }
 
-#include "helpmainwindow.moc"
 

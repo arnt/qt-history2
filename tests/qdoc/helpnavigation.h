@@ -11,6 +11,7 @@ class QTabWidget;
 class QListBox;
 class QLineEdit;
 class QListView;
+class QProgressBar;
 
 class HelpNavigationListItem : public QListBoxText
 {
@@ -57,8 +58,8 @@ public:
 
     bool eventFilter( QObject *, QEvent * );
 
-    void loadIndexFile();
-    void setupContentsView();
+    void loadIndexFile( QProgressBar *bar );
+    void setupContentsView( QProgressBar *bar );
 
     void addBookmark( const QString &title, const QString &link );
     void removeBookmark();
@@ -74,7 +75,7 @@ private slots:
     void showTopic( QListBoxItem * );
     void setIndexTopic( QListBoxItem * );
     void showContents( QListViewItem * );
-    
+
 private:
     QTabWidget *tabWidget;
     QLineEdit *indexEdit;
