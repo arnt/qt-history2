@@ -331,6 +331,24 @@ png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
 
     delete [] row_pointers;
 
+    if ( image.hasAlphaBuffer() ) {
+	// Many PNG files lie (eg. from PhotoShop). Fortunately this loop will
+	// usually be quick to find those that tell the truth.
+	QRgb* c;
+	int n;
+	if (image.depth()==32) {
+	    c = (QRgb*)image.bits();
+	    n = image.bytesPerLine() * image.height() / 4;
+	} else {
+	    c = image.colorTable();
+	    n = image.numColors();
+	}
+	while ( n-- && qAlpha(*c++)==0xff )
+	    ;
+	if ( n<0 ) // LIAR!
+	    image.setAlphaBuffer(FALSE);
+    }
+
     iio->setImage(image);
 
     png_read_end(png_ptr, end_info);
