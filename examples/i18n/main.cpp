@@ -126,6 +126,7 @@ int main( int argc, char** argv )
 	    r = dlg.exec();
 	}
 	if ( r ) {
+	    bool tight = qApp->desktop()->width() < 1024;
 	    int x=5;
 	    int y=25;
 	    for ( int i=0; qm[i]; i++ ) {
@@ -134,10 +135,15 @@ int main( int argc, char** argv )
 		    QObject::connect(w, SIGNAL(closed()), qApp, SLOT(quit()));
 		    w->setGeometry(x,y,197,356);
 		    w->show();
-		    x+=205;
-		    if ( x > 1000 ) {
-			x=5;
-			y+=384;
+		    if ( tight ) {
+			x += 8;
+			y += 8;
+		    } else {
+			x += 205;
+			if ( x > 1000 ) {
+			    x = 5;
+			    y += 384;
+			}
 		    }
 		}
 	    }
