@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#76 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#77 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -1097,7 +1097,7 @@ void QPrintDialog::setNumCopies( int copies )
 
 void QPrintDialog::browseClicked()
 {
-    QString fn = QFileDialog::getSaveFileName();
+    QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
     if ( !fn.isNull() )
 	d->fileName->setText( fn );
 }
