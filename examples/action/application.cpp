@@ -18,7 +18,7 @@
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qstatusbar.h>
@@ -30,7 +30,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
-#include <qaction.h>
+#include <q3action.h>
 #include <qsimplerichtext.h>
 #include <qevent.h>
 #include <qmime.h>
@@ -39,24 +39,25 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
+using namespace Qt;
 
 using namespace Qt;
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", WDestructiveClose )
+    : Q3MainWindow( 0, "example application main window", WDestructiveClose )
 {
     printer = new QPrinter( QPrinter::HighResolution );
 
-    QAction * fileNewAction;
-    QAction * fileOpenAction;
-    QAction * fileSaveAction, * fileSaveAsAction, * filePrintAction;
-    QAction * fileCloseAction, * fileQuitAction;
+    Q3Action * fileNewAction;
+    Q3Action * fileOpenAction;
+    Q3Action * fileSaveAction, * fileSaveAsAction, * filePrintAction;
+    Q3Action * fileCloseAction, * fileQuitAction;
 
-    fileNewAction = new QAction( "&New", CTRL+Key_N, this, "new" );
+    fileNewAction = new Q3Action( "&New", CTRL+Key_N, this, "new" );
     connect( fileNewAction, SIGNAL( activated() ) , this,
              SLOT( newDoc() ) );
 
-    fileOpenAction = new QAction( QPixmap( fileopen ), "&Open...",
+    fileOpenAction = new Q3Action( QPixmap( fileopen ), "&Open...",
                                   CTRL+Key_O, this, "open" );
     connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( choose() ) );
 
@@ -68,7 +69,7 @@ ApplicationWindow::ApplicationWindow()
                           fileOpenAction->iconSet().pixmap() );
     fileOpenAction->setWhatsThis( fileOpenText );
 
-    fileSaveAction = new QAction( QPixmap( filesave ),
+    fileSaveAction = new Q3Action( QPixmap( filesave ),
                                   "&Save", CTRL+Key_S, this, "save" );
     connect( fileSaveAction, SIGNAL( activated() ) , this, SLOT( save() ) );
 
@@ -78,13 +79,13 @@ ApplicationWindow::ApplicationWindow()
                      "from the <b>File</b> menu.</p>";
     fileSaveAction->setWhatsThis( fileSaveText );
 
-    fileSaveAsAction = new QAction( "Save &As...", 0,  this,
+    fileSaveAsAction = new Q3Action( "Save &As...", 0,  this,
                                     "save as" );
     connect( fileSaveAsAction, SIGNAL( activated() ) , this,
              SLOT( saveAs() ) );
     fileSaveAsAction->setWhatsThis( fileSaveText );
 
-    filePrintAction = new QAction( QPixmap( fileprint ), "Print file",
+    filePrintAction = new Q3Action( QPixmap( fileprint ), "Print file",
                                    CTRL+Key_P, this, "print" );
     connect( filePrintAction, SIGNAL( activated() ) , this,
              SLOT( print() ) );
@@ -94,19 +95,19 @@ ApplicationWindow::ApplicationWindow()
                      "command from the File menu.";
     filePrintAction->setWhatsThis( filePrintText );
 
-    fileCloseAction = new QAction( "&Close", CTRL+Key_W, this,
+    fileCloseAction = new Q3Action( "&Close", CTRL+Key_W, this,
                                    "close" );
     connect( fileCloseAction, SIGNAL( activated() ) , this,
              SLOT( close() ) );
 
-    fileQuitAction = new QAction( "&Quit", CTRL+Key_Q, this,
+    fileQuitAction = new Q3Action( "&Quit", CTRL+Key_Q, this,
                                   "quit" );
     connect( fileQuitAction, SIGNAL( activated() ) , qApp,
              SLOT( closeAllWindows() ) );
 
     // populate a tool bar with some actions
 
-    QToolBar * fileTools = new QToolBar( this, "file operations" );
+    Q3ToolBar * fileTools = new Q3ToolBar( this, "file operations" );
     fileTools->setLabel( "File Operations" );
     fileOpenAction->addTo( fileTools );
     fileSaveAction->addTo( fileTools );
@@ -144,7 +145,7 @@ ApplicationWindow::ApplicationWindow()
 
     // create and define the central widget
 
-    e = new QTextEdit( this, "editor" );
+    e = new Q3TextEdit( this, "editor" );
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
@@ -304,7 +305,7 @@ void ApplicationWindow::about()
 {
     QMessageBox::about( this, "Qt Application Example",
 			"This example demonstrates simple use of "
-			"QMainWindow,\nQMenuBar and QToolBar.");
+			"QMainWindow,\nQMenuBar and Q3ToolBar.");
 }
 
 

@@ -13,11 +13,11 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 
-class QTextEdit;
+class Q3TextEdit;
 
-class ApplicationWindow: public QMainWindow
+class ApplicationWindow: public Q3MainWindow
 {
     Q_OBJECT
 
@@ -41,7 +41,7 @@ private slots:
 
 private:
     QPrinter *printer;
-    QTextEdit *e;
+    Q3TextEdit *e;
     QString filename;
 };
 
