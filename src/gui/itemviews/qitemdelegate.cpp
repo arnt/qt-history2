@@ -428,11 +428,16 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         }
 
         int cw = 0;
-        QRect check; // FIXME: doesn't support RTL yet
+        QRect check;
         if (checkRect->isValid()) {
-            check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
-            cw = checkRect->width() + border;
-            x += cw;
+            if (option.direction == Qt::RightToLeft) {
+                check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
+                cw = checkRect->width() + border;
+            } else {
+                check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
+                cw = checkRect->width() + border;
+                x += cw;
+            }
         }
 
         QRect display;
@@ -470,7 +475,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
             if (!textRect->isEmpty())
                 textRect->setWidth(textRect->width() + bb); // add space
             w = hint ? textRect->width() + pixmapRect->width() : w;
-            decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
+            decoration.setRect(x + w - pixmapRect->width() - cw, y, pixmapRect->width(), h);
             w = hint ? textRect->width() : w - pixmapRect->width() - cw;
             display.setRect(x, y, w, h);
             break; }
@@ -573,7 +578,11 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 {
     if (value.isValid()) {
         QPixmap pixmap = QApplication::style()->standardPixmap(QStyle::SP_ItemChecked, &option);
-        return QRect(option.rect.topLeft(), pixmap.size());
+        QSize size = pixmap.size();
+        if (option.direction == Qt::RightToLeft)
+            return QRect(option.rect.right() - size.width(), option.rect.top(),
+                         size.width(), size.height());
+        return QRect(option.rect.topLeft(), size);
     }
     return QRect();
 }
