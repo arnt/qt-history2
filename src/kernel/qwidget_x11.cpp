@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#254 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#255 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1776,18 +1776,7 @@ void QWidget::setMask(QBitmap bitmap)
 */
 void QWidget::clearMask()
 {
-    QRegion r(10,10,100,100);
-    //QRegion r(-100,-100,10000,10000);
-    setMask(r);
-    return;
-
-    // There must be a better way.
-    XRectangle bigrect;
-    bigrect.x = -100;
-    bigrect.y = -100;
-    bigrect.width = 10000;
-    bigrect.height = 10000;
-    XShapeCombineRectangles( dpy, winId(), ShapeClip, 0, 0,
-	&bigrect, 1, ShapeUnion, 0);
+    XShapeCombineMask( dpy, winId(), ShapeBounding, 0, 0,
+	None, ShapeSet);
 }
 
