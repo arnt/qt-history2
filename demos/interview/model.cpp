@@ -13,6 +13,7 @@
 
 #include "model.h"
 #include <qiconset.h>
+#include <qpixmap.h>
 
 static QString i2s(QChar *buf, int size, int num)
 {
@@ -85,7 +86,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
 {
     static QIconSet folder(QPixmap("folder.png"));
     static QIconSet service(QPixmap("services.png"));
-    
+
     if (index.type() == QModelIndex::VerticalHeader) {
         if (role == DisplayRole)
             return i2s(strbuf, 65, index.row());
@@ -93,7 +94,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
             return service;
         return QVariant();
     }
-    
+
     if (index.type() == QModelIndex::HorizontalHeader) {
         if (role == DisplayRole)
             return i2s(strbuf, 65, index.column());
