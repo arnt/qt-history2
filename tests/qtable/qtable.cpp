@@ -2067,10 +2067,7 @@ void QTable::sortColumn( int col, bool ascending )
     qsort( items, filledRows, sizeof( SortableTableItem ), cmpTableItems );
 
     for ( i = 0; i < rows(); ++i ) {
-	QTableItem *item = cellContent( i, col );
 	contents.remove( indexOf( i, col ) );
-	if ( item && item->deref() == 0 )
-		delete item;
 	if ( i < filledRows ) {
 	    if ( ascending )
 		contents.insert( indexOf( i, col ), items[ i ].item );
@@ -2410,7 +2407,7 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || cursor().shape() != ArrowCursor ||
-	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ? 
+	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ?
 								table->columnsMovable() : table->rowsMovable() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;
